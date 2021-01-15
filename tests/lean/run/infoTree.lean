@@ -9,6 +9,12 @@ elab "showInfoTrees!" : command => do
   trees.forM fun tree => do
     IO.println f!"{← tree.format}"
 
+structure A where
+  val : Nat → Nat
+
+structure B where
+  pair : A × A
+
 enableInfo!
 
 def f (x : Nat) : Nat × Nat :=
@@ -28,5 +34,8 @@ def f2 : (x y : Nat) → (b : Bool) → Nat :=
 
 def f3 (s : Nat × Array (Array Nat)) : Array Nat :=
   s.2[1].push s.1
+
+def f4 (arg : B) : Nat :=
+  arg.pair.fst.val 0
 
 showInfoTrees!

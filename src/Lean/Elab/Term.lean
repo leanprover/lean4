@@ -1274,6 +1274,31 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
     else
       process preresolved
 
+/--
+  Similar to `resolveName`, but creates identifiers for the main part and each projection with position information derived from `ident`.
+  Example: Assume resolveName `v.head.bla.boo` produces `(v.head, ["bla", "boo"])`, then this method produces
+  `(v.head, id, [f₁, f₂])` where `id` is an identifier for `v.head`, and `f₁` and `f₂` are identifiers for fields `"bla"` and `"boo"`. -/
+def resolveName' (ident : Syntax) (explicitLevels : List Level) : TermElabM (List (Expr × Syntax × List Syntax)) := do
+  match ident with
+  | Syntax.ident { pos := pos?, .. } rawStr n preresolved =>
+    let rawStr := rawStr.toString
+    let r ← resolveName n preresolved explicitLevels
+    r.mapM fun (c, fields) => do
+      let fieldsSize := fields.foldl (init := 0) fun s field => s + field.length + 1
+      let idStr := rawStr.take <| rawStr.length - fieldsSize
+      let id := mkIdentFrom ident idStr
+      match pos? with
+      | none =>
+        return (c, id, fields.map fun field => mkIdentFrom ident (Name.mkSimple field))
+      | some pos =>
+        let mut pos := pos + idStr.length + 1
+        let mut newFields := #[]
+        for field in fields do
+          newFields := newFields.push <| Syntax.ident { pos := some pos } field.toSubstring (Name.mkSimple field) []
+          pos := pos + field.length + 1
+        return (c, id, newFields.toList)
+  | _ => throwError! "identifier expected"
+
 def resolveId? (stx : Syntax) (kind := "term") : TermElabM (Option Expr) :=
   match stx with
   | Syntax.ident _ _ val preresolved => do

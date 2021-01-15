@@ -260,6 +260,9 @@ section RequestHandling
   -- TODO(WN): the type is too complicated
   abbrev RequestM α := ServerM $ Task $ Except IO.Error $ Except RequestError α
 
+  def mapTask (t : Task α) (f : α → ExceptT RequestError ServerM β) : RequestM β := fun st =>
+    (IO.mapTask · t) fun a => f a st
+
   /- Requests that need data from a certain command should traverse the snapshots
      by successively getting the next task, meaning that we might need to wait for elaboration.
      When that happens, the request should send a "content changed" error to the user
@@ -279,69 +282,56 @@ section RequestHandling
                       value := s }
         range? := some { start := text.utf8PosToLspPos f
                          «end» := text.utf8PosToLspPos t } }
-    (IO.mapTask · findTask) fun
+    mapTask findTask fun
       | Except.error ElabTaskError.aborted =>
-        pure $ Except.error RequestError.fileChanged
+        throwThe RequestError RequestError.fileChanged
       | Except.error (ElabTaskError.ioError e) =>
         throwThe IO.Error e
       | Except.error ElabTaskError.eof =>
-        pure $ Except.ok none
+        return none
       | Except.ok (some snap) => do
         for t in snap.toCmdState.infoState.trees do
           let ts := t.smallestNodes fun
             | Info.ofTermInfo i =>
-              match i.pos?, i.endPos? with
-              | some pos, some endPos =>
-                /- TODO(WN): We search for the syntax in the original command because some macro expansions
-                introduce phantom terms which actually contain position info but do not correspond
-                to anything in the source. Example: `ForInStep.yield { .. }` in `for .. in .. do` -/
-                if pos ≤ hoverPos ∧ hoverPos ≤ endPos ∧ (snap.stx.find? fun s => s == i.stx).isSome then
-                  if let Syntax.node `Lean.Parser.Term.app args := i.stx then
-                    let hd := args.get! 0
-                    match hd.getPos, hd.getTailPos with
-                    | some pos, some endPos => pos ≤ hoverPos ∧ hoverPos ≤ endPos
-                    | _, _ => false
-                  else
-                    /- TODO(WN): Currently only these kinds are displayed. This misses a lot of cases that we
-                    want to display but which will need to be tweaked to display correctly. -/
-                    #[`ident,
-                      `Lean.Parser.Term.proj
-                      ].contains i.stx.getKind
+              match i.pos?, i.tailPos? with
+              | some pos, some tailPos =>
+                /- TODO(WN): when we have a way to do so,
+                check for synthetic syntax and allow arbitrary syntax kinds. -/
+                if pos ≤ hoverPos ∧ hoverPos < tailPos then
+                  #[identKind,
+                    strLitKind,
+                    charLitKind,
+                    numLitKind,
+                    scientificLitKind,
+                    nameLitKind,
+                    fieldIdxKind,
+                    interpolatedStrLitKind,
+                    interpolatedStrKind
+                  ].contains i.stx.getKind
                 else false
               | _, _ => false
             | _ => false
           let mut nds : Array (Nat × ContextInfo × TermInfo) := #[]
           for t in ts do
             if let InfoTree.context ci (InfoTree.node (Info.ofTermInfo i) _) := t then
-              let diff := i.endPos?.get! - i.pos?.get!
+              let diff := i.tailPos?.get! - i.pos?.get!
               nds := nds.push (diff, ci, i)
 
           if let some (_, ci, i) := nds.getMax? (fun a b => a.1 > b.1) then
-            let (stx, expr, pos, endPos) : (Syntax × Expr × String.Pos × String.Pos) :=
-             (if let Syntax.node `Lean.Parser.Term.app args := i.stx then
-               let hd := args.get! 0
-               let (pos, endPos) := (hd.getPos.get!, hd.getTailPos.get!)
-               (hd, i.expr.getAppFn, pos, endPos)
-             else
-               (i.stx, i.expr, i.pos?.get!, i.endPos?.get!))
-
             let tFmt ← ci.runMetaM i.lctx do
-              return f!"{← Meta.ppExpr (← Meta.inferType expr)}"
-              --return f!"{stx.getKind} --> {← Meta.ppExpr expr} <{pos}->{endPos}> : {← Meta.ppExpr (← Meta.inferType expr)}"
-            let mut hoverStr := s!"```lean
+              return f!"{← Meta.ppExpr i.expr} : {← Meta.ppExpr (← Meta.inferType i.expr)}"
+            let mut hoverFmt := f!"```lean
 {tFmt}
 ```"
-            if let Expr.const n .. := expr then
+            if let Expr.const n .. := i.expr then
               if let some doc ← ci.runMetaM i.lctx <| findDocString? n then
-                hoverStr := s!"{hoverStr}\n***\n{doc}"
+                hoverFmt := f!"{hoverFmt}\n***\n{doc}"
 
-            return (Except.ok $ some $ mkHover hoverStr pos endPos
-                      -- Type inference fails
-                      : Except RequestError _)
+            return some <| mkHover (toString hoverFmt) i.pos?.get! i.tailPos?.get!
           pure ()
 
-        return Except.ok none
-      | Except.ok none => return Except.ok none
+        return none
+      | Except.ok none => return none
 
   def handleWaitForDiagnostics (id : RequestID) (p : WaitForDiagnosticsParam)
     : ServerM (Task (Except IO.Error (Except RequestError WaitForDiagnostics))) := do
@@ -512,3 +502,4 @@ def workerMain : IO UInt32 := do
     return 1
 
 end Lean.Server.FileWorker
+

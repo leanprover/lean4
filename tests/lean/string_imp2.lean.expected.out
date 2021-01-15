@@ -37,3 +37,6 @@ true
 false
 "βγ"
 "γ"
+"αβγδ".toSubstring
+"abcd".toSubstring
+"abcd".toSubstring

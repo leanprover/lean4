@@ -208,7 +208,7 @@ def toErrorMsg (ctx : ParserContext) (s : ParserState) : String :=
   | none     => ""
   | some msg =>
     let pos := ctx.fileMap.toPosition s.pos
-    mkErrorStringWithPos ctx.fileName pos.line pos.column (toString msg)
+    mkErrorStringWithPos ctx.fileName pos (toString msg)
 
 def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
   match s with

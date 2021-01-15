@@ -14,8 +14,11 @@ import Lean.Util.PPExt
 
 namespace Lean
 
-def mkErrorStringWithPos (fileName : String) (line col : Nat) (msg : String) : String :=
-  fileName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ toString msg
+def mkErrorStringWithPos (fileName : String) (pos : Position) (msg : String) (endPos : Option Position := none) : String :=
+  let endPos := match endPos with
+    | some endPos => s!"-{endPos.line}:{endPos.column}"
+    | none        => ""
+  s!"{fileName}:{pos.line}:{pos.column}{endPos}: {msg}"
 
 inductive MessageSeverity where
   | information | warning | error
@@ -149,14 +152,15 @@ def mkMessageEx (fileName : String) (pos : Position) (endPos : Option Position) 
   { fileName := fileName, pos := pos, endPos := endPos, severity := severity, caption := caption, data := text }
 namespace Message
 
-protected def toString (msg : Message) : IO String := do
+protected def toString (msg : Message) (includeEndPos := false) : IO String := do
   let mut str ← msg.data.toString
+  let endPos := if includeEndPos then msg.endPos else none
   unless msg.caption == "" do
     str := msg.caption ++ ":\n" ++ str
   match msg.severity with
   | MessageSeverity.information => pure ()
-  | MessageSeverity.warning     => str := mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column "warning: " ++ str
-  | MessageSeverity.error       => str := mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column "error: " ++ str
+  | MessageSeverity.warning     => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "warning: " ++ str
+  | MessageSeverity.error       => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "error: " ++ str
   if str.isEmpty || str.back != '\n' then
     str := str ++ "\n"
   return str

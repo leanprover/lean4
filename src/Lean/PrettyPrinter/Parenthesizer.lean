@@ -215,16 +215,19 @@ def maybeParenthesize (cat : Name) (canJuxtapose : Bool) (mkParen : Syntax → S
       -- the original node, we must first move to the right, except if we already were at the left-most child in the first
       -- place.
       if idx > 0 then goRight
-      let stx ← getCur
-      match stx.getHeadInfo, stx.getTailInfo with
-      | some hi, some ti =>
-        -- Move leading/trailing whitespace of `stx` outside of parentheses
-        let stx := (stx.setHeadInfo { hi with leading := "".toSubstring }).setTailInfo { ti with trailing := "".toSubstring }
-        let stx := mkParen stx
-        let stx := (stx.setHeadInfo { hi with trailing := "".toSubstring }).setTailInfo { ti with leading := "".toSubstring }
-        setCur stx
-      | _, _ => setCur (mkParen stx)
-      let stx ← getCur; trace! `PrettyPrinter.parenthesize m!"parenthesized: {stx.formatStx none}"
+      let mut stx ← getCur
+      -- Move leading/trailing whitespace of `stx` outside of parentheses
+      if let SourceInfo.original _ pos trail := stx.getHeadInfo then
+        stx := stx.setHeadInfo (SourceInfo.original "".toSubstring pos trail)
+      if let SourceInfo.original lead pos _ := stx.getTailInfo then
+        stx := stx.setTailInfo (SourceInfo.original lead pos "".toSubstring)
+      let mut stx' := mkParen stx
+      if let SourceInfo.original lead pos _ := stx.getHeadInfo then
+        stx' := stx'.setHeadInfo (SourceInfo.original lead pos "".toSubstring)
+      if let SourceInfo.original _ pos trail := stx.getTailInfo then
+        stx' := stx'.setTailInfo (SourceInfo.original "".toSubstring pos trail)
+      trace! `PrettyPrinter.parenthesize m!"parenthesized: {stx'.formatStx none}"
+      setCur stx'
       goLeft
       -- after parenthesization, there is no more trailing parser
       modify (fun st => { st with contPrec := Parser.maxPrec, contCat := cat, trailPrec := none })

@@ -314,9 +314,6 @@ end String
 
 namespace Substring
 
-@[inline] def bsize : Substring → Nat
-  | ⟨_, b, e⟩ => e - b
-
 @[inline] def isEmpty (ss : Substring) : Bool :=
   ss.bsize == 0
 

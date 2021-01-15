@@ -9,11 +9,11 @@ doNotation1.lean:25:7-25:11: error: invalid reassignment, value has type
   Bool
 but is expected to have type
   Nat
-doNotation1.lean:24:0-24:10: error: type mismatch, 'for' has type
+doNotation1.lean:24:0-25:11: error: type mismatch, 'for' has type
   PUnit
 but is expected to have type
   List Bool
-doNotation1.lean:28:0-28:10: error: type mismatch, 'for' has type
+doNotation1.lean:28:0-29:14: error: type mismatch, 'for' has type
   PUnit
 but is expected to have type
   List Nat
@@ -28,7 +28,7 @@ has type
   EIO IO.Error (IO.Ref Bool)
 but is expected to have type
   EIO IO.Error Unit
-doNotation1.lean:58:2-58:3: error: type mismatch, result value has type
+doNotation1.lean:58:2-58:20: error: type mismatch, result value has type
   Unit
 but is expected to have type
   Bool

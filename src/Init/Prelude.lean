@@ -1015,6 +1015,9 @@ structure Substring where
   startPos : String.Pos
   stopPos : String.Pos
 
+@[inline] def Substring.bsize : Substring → Nat
+  | ⟨_, b, e⟩ => e.sub b
+
 def String.csize (c : Char) : Nat :=
   c.utf8Size.toNat
 
@@ -1582,19 +1585,31 @@ end Name
 
 /- Syntax -/
 
-/--
-  Source information of syntax atoms. All information is generally set for unquoted syntax and unset for syntax in
-  syntax quotations, but syntax transformations might want to invalidate only one side to make the pretty printer
-  reformat it. In the special case of the delaborator, we also use purely synthetic position information without
-  whitespace information. -/
-structure SourceInfo where
-  /- Will be inferred after parsing by `Syntax.updateLeading`. During parsing,
-     it is not at all clear what the preceding token was, especially with backtracking. -/
-  leading  : Option Substring  := none
-  pos      : Option String.Pos := none
-  trailing : Option Substring  := none
+/-- Source information of tokens. -/
+inductive SourceInfo where
+  /-
+    Token from original input with whitespace and position information.
+    `leading` will be inferred after parsing by `Syntax.updateLeading`. During parsing,
+    it is not at all clear what the preceding token was, especially with backtracking. -/
+  | original (leading : Substring) (pos : String.Pos) (trailing : Substring)
+  /-
+    Synthesized token (e.g. from a quotation) annotated with a span from the original source.
+    In the delaborator, we "misuse" this constructor to store synthetic positions identifying
+    subterms. -/
+  | synthetic (pos : String.Pos) (endPos : String.Pos)
+  /- Synthesized token without position information. -/
+  | protected none
 
-instance : Inhabited SourceInfo := ⟨{}⟩
+instance : Inhabited SourceInfo := ⟨SourceInfo.none⟩
+
+namespace SourceInfo
+
+def getPos : SourceInfo → Option String.Pos
+  | original (pos := pos) ..  => some pos
+  | synthetic (pos := pos) .. => some pos
+  | SourceInfo.none           => none
+
+end SourceInfo
 
 abbrev SyntaxNodeKind := Name
 
@@ -1672,23 +1687,42 @@ def setArg (stx : Syntax) (i : Nat) (arg : Syntax) : Syntax :=
   | stx         => stx
 
 /-- Retrieve the left-most leaf's info in the Syntax tree. -/
-partial def getHeadInfo : Syntax → Option SourceInfo
+partial def getHeadInfo? : Syntax → Option SourceInfo
   | atom info _      => some info
   | ident info _ _ _ => some info
   | node _ args      =>
     let rec loop (i : Nat) : Option SourceInfo :=
       match decide (Less i args.size) with
-      | true => match getHeadInfo (args.get! i) with
+      | true => match getHeadInfo? (args.get! i) with
          | some info => some info
          | none      => loop (hAdd i 1)
       | false => none
     loop 0
   | _                => none
 
+/-- Retrieve the left-most leaf's info in the Syntax tree, or `none` if there is no token. -/
+partial def getHeadInfo (stx : Syntax) : SourceInfo :=
+  match stx.getHeadInfo? with
+  | some info => info
+  | none      => SourceInfo.none
+
 def getPos (stx : Syntax) : Option String.Pos :=
-  match stx.getHeadInfo with
-  | some info => info.pos
-  | _         => none
+  stx.getHeadInfo.getPos
+
+partial def getTailPos : Syntax → Option String.Pos
+  | atom (SourceInfo.original (pos := pos) ..) val     => some (pos.add val.bsize)
+  | atom (SourceInfo.synthetic (endPos := pos) ..) _   => some pos
+  | ident (SourceInfo.original (pos := pos) ..) val .. => some (pos.add val.bsize)
+  | ident (SourceInfo.synthetic (endPos := pos) ..) .. => some pos
+  | node _ args                                        =>
+    let rec loop (i : Nat) : Option String.Pos :=
+      match decide (Less i args.size) with
+      | true => match getTailPos (args.get! ((args.size.sub i).sub 1)) with
+         | some info => some info
+         | none      => loop (hAdd i 1)
+      | false => none
+    loop 0
+  | _                                                  => none
 
 /--
   An array of syntax elements interspersed with separators. Can be coerced to/from `Array Syntax` to automatically
@@ -1698,10 +1732,13 @@ structure SepArray (sep : String) where
 
 end Syntax
 
+def SourceInfo.fromRef (ref : Syntax) : SourceInfo :=
+  match ref.getPos, ref.getTailPos with
+  | some pos, some tailPos => SourceInfo.synthetic pos tailPos
+  | _,        _            => SourceInfo.none
+
 def mkAtomFrom (src : Syntax) (val : String) : Syntax :=
-  match src.getHeadInfo with
-  | some info => Syntax.atom info val
-  | none      => Syntax.atom {} val
+  Syntax.atom src.getHeadInfo val
 
 /- Parser descriptions -/
 
@@ -1784,7 +1821,7 @@ class MonadQuotation (m : Type → Type) extends MonadRef m where
 export MonadQuotation (getCurrMacroScope getMainModule withFreshMacroScope)
 
 def MonadRef.mkInfoFromRefPos [Monad m] [MonadRef m] : m SourceInfo := do
-  return { pos := (← getRef).getPos }
+  SourceInfo.fromRef (← getRef)
 
 instance {m n : Type → Type} [MonadFunctor m n] [MonadLift m n] [MonadQuotation m] : MonadQuotation n where
   getCurrMacroScope   := liftM (m := m) getCurrMacroScope

@@ -848,7 +848,7 @@ def seqToTerm (action : Syntax) (k : Syntax) : M Syntax := withRef action <| wit
     let cond := action[1]
     `(assert! $cond; $k)
   else
-    let action := Syntax.copyRangePos (← `(($action : $((←read).m) PUnit))) action
+    let action ← withRef action `(($action : $((←read).m) PUnit))
     `(Bind.bind $action (fun (_ : PUnit) => $k))
 
 def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := withRef decl <| withFreshMacroScope do
@@ -870,7 +870,7 @@ def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := withRef decl <| withFr
       -- `doElem` must be a `doExpr action`. See `doLetArrowToCode`
       match isDoExpr? doElem with
       | some action =>
-        let action := Syntax.copyRangePos (← `(($action : $((← read).m) $type))) action
+        let action ← withRef action `(($action : $((← read).m) $type))
         `(Bind.bind $action (fun ($id:ident : $type) => $k))
       | none        => Macro.throwErrorAt decl "unexpected kind of 'do' declaration"
     else

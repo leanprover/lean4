@@ -1,5 +1,4 @@
 
-
 def f (x y : Nat) (h : x = y := by assumption) : Nat :=
 x + x
 

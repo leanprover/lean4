@@ -260,8 +260,8 @@ def pushTokenCore (tk : String) : FormatterM Unit := do
     push tk.trimRight
 
 def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
-  match info.trailing with
-  | some ss =>
+  match info with
+  | SourceInfo.original _ _ ss =>
     -- preserve non-whitespace content (i.e. comments)
     let ss' := ss.trim
     if !ss'.isEmpty then
@@ -271,7 +271,7 @@ def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
       else
         push s!"  {ss'}"
       modify fun st => { st with leadWord := "" }
-  | none    => pure ()
+  | _ => pure ()
 
   let st ← get
   -- If there is no space between `tk` and the next word, see if we would parse more than `tk` as a single token
@@ -291,8 +291,8 @@ def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
     pushTokenCore tk
     modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" }
 
-  match info.leading with
-  | some ss =>
+  match info with
+  | SourceInfo.original ss _ _ =>
     -- preserve non-whitespace content (i.e. comments)
     let ss' := ss.trim
     if !ss'.isEmpty then
@@ -304,7 +304,7 @@ def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
       else
         push s!"{ss'} "
       modify fun st => { st with leadWord := "" }
-  | none    => pure ()
+  | _ => pure ()
 
 @[combinatorFormatter Lean.Parser.symbolNoAntiquot]
 def symbolNoAntiquot.formatter (sym : String) : Formatter := do

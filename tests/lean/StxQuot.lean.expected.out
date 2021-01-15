@@ -39,6 +39,6 @@
 StxQuot.lean:77:33: error: expected parser to return exactly one syntax object
 "#[(numLit \"1\"), [(numLit \"2\") (numLit \"3\")], (numLit \"4\")]"
 "#[(numLit \"2\")]"
-StxQuot.lean:90:39: error: unexpected antiquotation splice
+StxQuot.lean:90:39-90:44: error: unexpected antiquotation splice
 fun (a : ?m) => sorryAx (?m a) : (a : ?m) → ?m a
 "#[(some 1), (some 2)]"

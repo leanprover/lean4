@@ -1,24 +1,24 @@
-holeErrors.lean:3:10: error: don't know how to synthesize implicit argument
+holeErrors.lean:3:10-3:12: error: don't know how to synthesize implicit argument
   @id ?m
 context:
 ⊢ Sort u_1
-holeErrors.lean:3:7: error: failed to infer definition type
-holeErrors.lean:5:9: error: failed to infer definition type
-holeErrors.lean:8:9: error: don't know how to synthesize implicit argument
+holeErrors.lean:3:7-3:12: error: failed to infer definition type
+holeErrors.lean:5:9-5:10: error: failed to infer definition type
+holeErrors.lean:8:9-8:11: error: don't know how to synthesize implicit argument
   @id ?m
 context:
 ⊢ Sort u_1
-holeErrors.lean:8:4: error: failed to infer 'let' declaration type
-holeErrors.lean:7:7: error: failed to infer definition type
-holeErrors.lean:11:11: error: failed to infer definition type
-holeErrors.lean:11:7: error: failed to infer binder type
-holeErrors.lean:13:15: error: failed to infer definition type
-holeErrors.lean:13:12: error: failed to infer binder type
-holeErrors.lean:16:4: error: failed to infer binder type
-holeErrors.lean:15:7: error: failed to infer definition type
-holeErrors.lean:19:13: error: don't know how to synthesize implicit argument
+holeErrors.lean:8:4-8:5: error: failed to infer 'let' declaration type
+holeErrors.lean:7:7-9:1: error: failed to infer definition type
+holeErrors.lean:11:11-11:15: error: failed to infer definition type
+holeErrors.lean:11:7-11:8: error: failed to infer binder type
+holeErrors.lean:13:15-13:19: error: failed to infer definition type
+holeErrors.lean:13:12-13:13: error: failed to infer binder type
+holeErrors.lean:16:4-16:5: error: failed to infer binder type
+holeErrors.lean:15:7-16:10: error: failed to infer definition type
+holeErrors.lean:19:13-19:15: error: don't know how to synthesize implicit argument
   @id ?m
 context:
 x : ?m → ?m
 ⊢ Sort u_1
-holeErrors.lean:19:8: error: failed to infer 'let rec' declaration type
+holeErrors.lean:19:8-19:9: error: failed to infer 'let rec' declaration type

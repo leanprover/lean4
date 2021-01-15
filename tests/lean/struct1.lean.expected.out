@@ -1,26 +1,26 @@
-struct1.lean:9:14: error: expected Type
-struct1.lean:12:20: error: expected structure
-struct1.lean:15:27: error: field 'toA' has already been declared
-struct1.lean:18:27: error: field 'x' from 'B' has already been declared
-struct1.lean:22:1: error: invalid field name '_x', identifiers starting with '_' are reserved to the system
-struct1.lean:25:3: error: invalid field name '_y', identifiers starting with '_' are reserved to the system
-struct1.lean:29:1: error: field 'x' has already been declared
-struct1.lean:32:1: error: field 'x' has been declared in parent structure
-struct1.lean:35:6: error: type mismatch
+struct1.lean:9:14-9:17: error: expected Type
+struct1.lean:12:20-12:29: error: expected structure
+struct1.lean:15:27-15:33: error: field 'toA' has already been declared
+struct1.lean:18:27-18:33: error: field 'x' from 'B' has already been declared
+struct1.lean:22:1-22:3: error: invalid field name '_x', identifiers starting with '_' are reserved to the system
+struct1.lean:25:3-25:5: error: invalid field name '_y', identifiers starting with '_' are reserved to the system
+struct1.lean:29:1-29:2: error: field 'x' has already been declared
+struct1.lean:32:1-32:2: error: field 'x' has been declared in parent structure
+struct1.lean:35:6-35:10: error: type mismatch
   true
 has type
   Bool
 but is expected to have type
   Nat
-struct1.lean:38:5: error: omit field 'x' type to set default value
-struct1.lean:41:12: error: type mismatch
+struct1.lean:38:5-38:9: error: omit field 'x' type to set default value
+struct1.lean:41:12-41:16: error: type mismatch
   true
 has type
   Bool
 but is expected to have type
   Nat
-struct1.lean:44:0: error: invalid 'private' constructor in a 'private' structure
-struct1.lean:47:0: error: invalid 'protected' constructor in a 'private' structure
-struct1.lean:50:0: error: invalid 'protected' field in a 'private' structure
+struct1.lean:44:0-44:13: error: invalid 'private' constructor in a 'private' structure
+struct1.lean:47:0-47:15: error: invalid 'protected' constructor in a 'private' structure
+struct1.lean:50:0-50:19: error: invalid 'protected' field in a 'private' structure
 S : Type
 S.mk2 : Nat → S

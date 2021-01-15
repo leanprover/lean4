@@ -1,5 +1,5 @@
 0 + 1 : Nat
-macroPrio.lean:12:7: error: ambiguous, possible interpretations 
+macroPrio.lean:12:7-12:13: error: ambiguous, possible interpretations 
   1 * 2
   
   1 + 1

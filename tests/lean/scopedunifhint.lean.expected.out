@@ -1,4 +1,4 @@
-scopedunifhint.lean:28:7: error: application type mismatch
+scopedunifhint.lean:28:7-28:14: error: application type mismatch
   mul x x
 argument
   x
@@ -6,7 +6,7 @@ has type
   Nat
 but is expected to have type
   coeSort ?m
-scopedunifhint.lean:29:7: error: application type mismatch
+scopedunifhint.lean:29:7-29:24: error: application type mismatch
   mul (x, x) (x, x)
 argument
   (x, x)
@@ -14,7 +14,7 @@ has type
   Nat × Nat
 but is expected to have type
   coeSort ?m
-scopedunifhint.lean:33:7: error: application type mismatch
+scopedunifhint.lean:33:7-33:10: error: application type mismatch
   x*x
 argument
   x
@@ -24,7 +24,7 @@ but is expected to have type
   coeSort ?m
 x*x : coeSort Nat.Magma
 x*x : coeSort Nat.Magma
-scopedunifhint.lean:39:7: error: application type mismatch
+scopedunifhint.lean:39:7-39:24: error: application type mismatch
   (x, x)*(x, x)
 argument
   (x, x)
@@ -33,7 +33,7 @@ has type
 but is expected to have type
   coeSort ?m
 (x, x)*(x, x) : coeSort (Prod.Magma Nat.Magma Nat.Magma)
-scopedunifhint.lean:56:7: error: application type mismatch
+scopedunifhint.lean:56:7-56:22: error: application type mismatch
   (x, x)*(x, x)
 argument
   (x, x)

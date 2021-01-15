@@ -1,28 +1,28 @@
-doErrorMsg.lean:3:2: error: type mismatch
+doErrorMsg.lean:3:2-3:13: error: type mismatch
   IO.getStdin
 has type
   EIO IO.Error IO.FS.Stream
 but is expected to have type
   EIO IO.Error PUnit
-doErrorMsg.lean:15:19: error: type mismatch
+doErrorMsg.lean:15:19-15:21: error: type mismatch
   f1
 has type
   ExceptT String (StateT Nat Id) Nat
 but is expected to have type
   ExceptT String (StateT Nat Id) String
-doErrorMsg.lean:19:19: error: type mismatch
+doErrorMsg.lean:19:19-19:24: error: type mismatch
   f2 10
 has type
   ExceptT String (StateT Nat Id) Nat
 but is expected to have type
   ExceptT String (StateT Nat Id) String
-doErrorMsg.lean:24:2: error: type mismatch
+doErrorMsg.lean:24:2-24:4: error: type mismatch
   f1
 has type
   ExceptT String (StateT Nat Id) Nat
 but is expected to have type
   ExceptT String (StateT Nat Id) String
-doErrorMsg.lean:23:10: error: type mismatch
+doErrorMsg.lean:23:10-23:12: error: type mismatch
   f2
 has type
   Nat → ExceptT String (StateT Nat Id) Nat

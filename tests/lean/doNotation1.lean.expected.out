@@ -1,36 +1,36 @@
-doNotation1.lean:4:0: error: 'y' cannot be reassigned
-doNotation1.lean:8:2: error: 'y' cannot be reassigned
-doNotation1.lean:12:2: error: 'p' cannot be reassigned
-doNotation1.lean:20:7: error: invalid reassignment, value has type
+doNotation1.lean:4:0-4:6: error: 'y' cannot be reassigned
+doNotation1.lean:8:2-8:18: error: 'y' cannot be reassigned
+doNotation1.lean:12:2-12:17: error: 'p' cannot be reassigned
+doNotation1.lean:20:7-20:22: error: invalid reassignment, value has type
   Vector Nat (n + 1)
 but is expected to have type
   Vector Nat n
-doNotation1.lean:25:7: error: invalid reassignment, value has type
+doNotation1.lean:25:7-25:11: error: invalid reassignment, value has type
   Bool
 but is expected to have type
   Nat
-doNotation1.lean:24:0: error: type mismatch, 'for' has type
+doNotation1.lean:24:0-24:10: error: type mismatch, 'for' has type
   PUnit
 but is expected to have type
   List Bool
-doNotation1.lean:28:0: error: type mismatch, 'for' has type
+doNotation1.lean:28:0-28:10: error: type mismatch, 'for' has type
   PUnit
 but is expected to have type
   List Nat
-doNotation1.lean:33:2: error: invalid 'do' element, it must be inside 'for'
-doNotation1.lean:37:2: error: invalid 'do' element, it must be inside 'for'
-doNotation1.lean:40:0: error: must be last element in a 'do' sequence
+doNotation1.lean:33:2-33:7: error: invalid 'do' element, it must be inside 'for'
+doNotation1.lean:37:2-37:10: error: invalid 'do' element, it must be inside 'for'
+doNotation1.lean:40:0-40:9: error: must be last element in a 'do' sequence
 def f10 : Nat → IO Unit :=
 fun (x : Nat) => IO.println x
-doNotation1.lean:51:0: error: type mismatch
+doNotation1.lean:51:0-51:13: error: type mismatch
   IO.mkRef true
 has type
   EIO IO.Error (IO.Ref Bool)
 but is expected to have type
   EIO IO.Error Unit
-doNotation1.lean:58:2: error: type mismatch, result value has type
+doNotation1.lean:58:2-58:3: error: type mismatch, result value has type
   Unit
 but is expected to have type
   Bool
-doNotation1.lean:66:0: error: 'do' element is unreachable
-doNotation1.lean:70:0: error: 'do' element is unreachable
+doNotation1.lean:66:0-66:18: error: 'do' element is unreachable
+doNotation1.lean:70:0-70:32: error: 'do' element is unreachable

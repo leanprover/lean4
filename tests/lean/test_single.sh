@@ -2,5 +2,5 @@
 source ../common.sh
 
 # these tests don't have to succeed
-exec_capture lean "$f" || true
+exec_capture lean -DprintMessageEndPos=true "$f" || true
 diff_produced

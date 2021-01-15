@@ -1,2 +1,2 @@
-attrCmd.lean:6:0: error: failed to synthesize instance
+attrCmd.lean:6:0-6:6: error: failed to synthesize instance
   Pure M

@@ -18,7 +18,7 @@ case intro
 n : Nat
 m : Nat := n
 ⊢ 0 + n = n
-substlet.lean:25:2: error: tactic 'subst' failed, variable 'v' is a let-declaration
+substlet.lean:25:2-25:9: error: tactic 'subst' failed, variable 'v' is a let-declaration
 n : Nat
 h : n = 0
 m : Nat := n + 1

@@ -1,6 +1,6 @@
 [1, 2]
 6
-parserPrio.lean:26:7: error: ambiguous, possible interpretations 
+parserPrio.lean:26:7-26:10: error: ambiguous, possible interpretations 
   2 * 1
   
   [1]

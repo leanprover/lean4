@@ -1,2 +1,2 @@
-redundantAlt.lean:5:1: error: redundant alternative
-redundantAlt.lean:7:1: error: redundant alternative
+redundantAlt.lean:5:1-5:9: error: redundant alternative
+redundantAlt.lean:7:1-7:9: error: redundant alternative

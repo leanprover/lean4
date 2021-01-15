@@ -1,9 +1,9 @@
-univInference.lean:26:0: error: failed to compute resulting universe level of inductive datatype, provide universe explicitly
+univInference.lean:26:0-28:9: error: failed to compute resulting universe level of inductive datatype, provide universe explicitly
 S6 : Sort (max w₁ w₂) → Type w₂ → Sort (max w₁ (w₂ + 1))
-univInference.lean:46:0: error: invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u'
+univInference.lean:46:0-47:17: error: invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u'
   max u v
-univInference.lean:65:0: error: failed to compute resulting universe level of inductive datatype, provide universe explicitly
-univInference.lean:74:0: error: invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u'
+univInference.lean:65:0-66:22: error: failed to compute resulting universe level of inductive datatype, provide universe explicitly
+univInference.lean:74:0-75:22: error: invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u'
   max u v
-univInference.lean:82:0: error: invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u'
+univInference.lean:82:0-83:22: error: invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u'
   max u v

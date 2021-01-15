@@ -1,4 +1,4 @@
-phashmap_inst_coherence.lean:12:6: error: application type mismatch
+phashmap_inst_coherence.lean:12:6-12:56: error: application type mismatch
   PersistentHashMap.find? m
 argument
   m
@@ -6,5 +6,5 @@ has type
   @PersistentHashMap Nat Nat instBEq instHashableNat
 but is expected to have type
   @PersistentHashMap Nat Nat instBEq natDiffHash
-phashmap_inst_coherence.lean:12:0: error: failed to synthesize
+phashmap_inst_coherence.lean:12:0-12:56: error: failed to synthesize
   Lean.Eval ?m

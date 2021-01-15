@@ -1,2 +1,2 @@
-hygienicIntro.lean:14:6: error: unknown identifier 'a_1'
-hygienicIntro.lean:24:18: error: unknown identifier 'h'
+hygienicIntro.lean:14:6-14:9: error: unknown identifier 'a_1'
+hygienicIntro.lean:24:18-24:19: error: unknown identifier 'h'

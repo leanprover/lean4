@@ -1,16 +1,16 @@
-doIssue.lean:2:2: error: type mismatch
+doIssue.lean:2:2-2:3: error: type mismatch
   x
 has type
   Nat
 but is expected to have type
   EIO IO.Error PUnit
-doIssue.lean:10:2: error: type mismatch
+doIssue.lean:10:2-10:13: error: type mismatch
   Array.set! xs 0 1
 has type
   Array Nat
 but is expected to have type
   EIO IO.Error PUnit
-doIssue.lean:18:2: error: application type mismatch
+doIssue.lean:18:2-18:20: error: application type mismatch
   pure (Array.set! xs 0 1)
 argument
   Array.set! xs 0 1

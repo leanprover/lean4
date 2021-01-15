@@ -1,36 +1,36 @@
-inductionErrors.lean:12:12: error: unsolved goals
+inductionErrors.lean:12:12-12:14: error: unsolved goals
 case upper
 q d : Nat
 ⊢ q + Nat.succ d > q
-inductionErrors.lean:11:12: error: unsolved goals
+inductionErrors.lean:11:12-11:14: error: unsolved goals
 case lower
 p d : Nat
 ⊢ p ≤ p + Nat.succ d
-inductionErrors.lean:16:19: error: unknown constant 'elimEx2'
-inductionErrors.lean:22:8: error: insufficient number of targets for 'elimEx'
-inductionErrors.lean:28:16: error: unexpected eliminator resulting type
+inductionErrors.lean:16:19-16:26: error: unknown constant 'elimEx2'
+inductionErrors.lean:22:8-22:9: error: insufficient number of targets for 'elimEx'
+inductionErrors.lean:28:16-28:23: error: unexpected eliminator resulting type
   Nat
-inductionErrors.lean:35:11: error: unsolved goals
+inductionErrors.lean:35:11-35:15: error: unsolved goals
 x : Nat
 ⊢ 0 + 0 = 0
-inductionErrors.lean:36:11: error: unsolved goals
+inductionErrors.lean:36:11-36:15: error: unsolved goals
 x y : Nat
 ⊢ 0 + (y + 1) = y + 1
-inductionErrors.lean:40:14: error: unsolved goals
+inductionErrors.lean:40:14-40:18: error: unsolved goals
 case zero
 ⊢ 0 + Nat.zero = Nat.zero
-inductionErrors.lean:41:14: error: unsolved goals
+inductionErrors.lean:41:14-41:18: error: unsolved goals
 case succ
 y : Nat
 ⊢ 0 + Nat.succ y = Nat.succ y
-inductionErrors.lean:50:2: error: alternative 'cons' is not needed
-inductionErrors.lean:53:2: error: alternative for 'Vec.cons' is not needed
-inductionErrors.lean:60:2: error: invalid alternative name 'upper2'
-inductionErrors.lean:66:23: warning: declaration uses 'sorry'
-inductionErrors.lean:65:29: warning: declaration uses 'sorry'
-inductionErrors.lean:72:29: warning: declaration uses 'sorry'
-inductionErrors.lean:71:29: warning: declaration uses 'sorry'
-inductionErrors.lean:74:2: error: unused alternative
-inductionErrors.lean:79:29: warning: declaration uses 'sorry'
-inductionErrors.lean:78:29: warning: declaration uses 'sorry'
-inductionErrors.lean:80:2: error: unused alternative
+inductionErrors.lean:50:2-50:16: error: alternative 'cons' is not needed
+inductionErrors.lean:53:2-55:16: error: alternative for 'Vec.cons' is not needed
+inductionErrors.lean:60:2-60:40: error: invalid alternative name 'upper2'
+inductionErrors.lean:66:23-66:28: warning: declaration uses 'sorry'
+inductionErrors.lean:65:29-65:34: warning: declaration uses 'sorry'
+inductionErrors.lean:72:29-72:34: warning: declaration uses 'sorry'
+inductionErrors.lean:71:29-71:34: warning: declaration uses 'sorry'
+inductionErrors.lean:74:2-74:34: error: unused alternative
+inductionErrors.lean:79:29-79:34: warning: declaration uses 'sorry'
+inductionErrors.lean:78:29-78:34: warning: declaration uses 'sorry'
+inductionErrors.lean:80:2-80:53: error: unused alternative

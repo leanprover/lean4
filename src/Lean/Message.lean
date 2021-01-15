@@ -147,9 +147,6 @@ structure Message where
   data     : MessageData
   deriving Inhabited
 
-@[export lean_mk_message]
-def mkMessageEx (fileName : String) (pos : Position) (endPos : Option Position) (severity : MessageSeverity) (caption : String) (text : String) : Message :=
-  { fileName := fileName, pos := pos, endPos := endPos, severity := severity, caption := caption, data := text }
 namespace Message
 
 protected def toString (msg : Message) (includeEndPos := false) : IO String := do

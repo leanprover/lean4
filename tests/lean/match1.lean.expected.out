@@ -34,18 +34,18 @@ fun (x : Nat × Nat) =>
 fun (x x_1 : Option Nat) =>
   match x, x_1 with 
   | some a, some b => some (a + b)
-  | x_2, x_3 => none : Option Nat → Option Nat → Option Nat
+  | x, x => none : Option Nat → Option Nat → Option Nat
 fun (x : Nat) =>
   (match x with 
     | 0 => id
-    | Nat.succ x_1 => id)
+    | Nat.succ x => id)
     x : Nat → Nat
 fun (x : Array Nat) =>
   match x with 
   | #[1, 2] => 2
   | #[] => 0
   | #[3, 4, 5] => 3
-  | x_1 => 4 : Array Nat → Nat
+  | x => 4 : Array Nat → Nat
 g.match_1 : (motive : List ?m → Sort u_2) →
-  (x : List ?m) → ((a : ?m) → motive [a]) → ((x_1 : List ?m) → motive x_1) → motive x
+  (x : List ?m) → ((a : ?m) → motive [a]) → ((x : List ?m) → motive x) → motive x
 fun (e : Empty) => nomatch e : Empty → False

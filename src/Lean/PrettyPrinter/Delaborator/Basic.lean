@@ -45,10 +45,12 @@ def getPPUniverses (o : Options) : Bool := o.get `pp.universes (getPPAll o)
 def getPPFullNames (o : Options) : Bool := o.get `pp.full_names (getPPAll o)
 def getPPPrivateNames (o : Options) : Bool := o.get `pp.private_names (getPPAll o)
 def getPPUnicode (o : Options) : Bool := o.get `pp.unicode (!getPPAll o)
+def getPPSafeShadowing (o : Options) : Bool := o.get `pp.safe_shadowing true
 
 builtin_initialize
   registerOption `pp.explicit { defValue := false, group := "pp", descr := "(pretty printer) display implicit arguments" }
   registerOption `pp.structure_instance_type { defValue := false, group := "pp", descr := "(pretty printer) display type of structure instances" }
+  registerOption `pp.safe_shadowing { defValue := true, group := "pp", descr := "(pretty printer) allow variable shadowing if there is no collision" }
   -- TODO: register other options when old pretty printer is removed
   --registerOption `pp.universes { defValue := false, group := "pp", descr := "(pretty printer) display universes" }
 
@@ -213,14 +215,28 @@ def annotateCurPos (stx : Syntax) : Delab := do
   let ctx ← read
   pure $ annotatePos ctx.pos stx
 
-def getUnusedName (suggestion : Name) : DelabM Name := do
+def getUnusedName (suggestion : Name) (body : Expr) : DelabM Name := do
   -- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
   let suggestion := if suggestion.isAnonymous then `a else suggestion;
+  let suggestion := suggestion.eraseMacroScopes
   let lctx ← getLCtx
-  pure $ lctx.getUnusedName suggestion
+  if !lctx.usesUserName suggestion then
+    return suggestion
+  else if (← getPPOption getPPSafeShadowing) && !bodyUsesSuggestion lctx suggestion then
+    return suggestion
+  else
+    return lctx.getUnusedName suggestion
+where
+  bodyUsesSuggestion (lctx : LocalContext) (suggestion' : Name) : Bool :=
+    Option.isSome <| body.find? fun
+      | Expr.fvar fvarId _ =>
+        match lctx.find? fvarId with
+        | none      => false
+        | some decl => decl.userName == suggestion'
+      | _ => false
 
 def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) : DelabM α := do
-  let n ← getUnusedName (← getExpr).bindingName!
+  let n ← getUnusedName (← getExpr).bindingName! (← getExpr).bindingBody!
   let stxN ← annotateCurPos (mkIdent n)
   withBindingBody n $ d stxN
 

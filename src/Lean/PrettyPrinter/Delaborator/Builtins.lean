@@ -188,9 +188,15 @@ private def skippingBinders {α} (numParams : Nat) (x : Array Name → DelabM α
 where
   loop : Nat → Array Name → DelabM α
     | 0,   varNames => x varNames
-    | n+1, varNames =>
-      withBindingBodyUnusedName fun id => do
-        loop n (varNames.push id.getId)
+    | n+1, varNames => do
+      let varName ← (← getExpr).bindingName!.eraseMacroScopes
+      -- Pattern variables cannot shadow each other
+      if varNames.contains varName then
+        let varName := (← getLCtx).getUnusedName varName
+        loop n (varNames.push varName)
+      else
+        withBindingBodyUnusedName fun id => do
+          loop n (varNames.push id.getId)
 
 /--
   Delaborate applications of "matchers" such as

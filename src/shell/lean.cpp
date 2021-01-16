@@ -182,11 +182,11 @@ static void display_help(std::ostream & out) {
     std::cout << "  --help -h          display this message\n";
     std::cout << "  --version -v       display version number\n";
     std::cout << "  --githash          display the git commit hash number used to build this binary\n";
-    std::cout << "  --run              executes the 'main' definition\n";
-    std::cout << "  --o=oname -o        create olean file\n";
+    std::cout << "  --run -r           executes the 'main' definition\n";
+    std::cout << "  --o=oname -o       create olean file\n";
     std::cout << "  --c=fname -c       name of the C output file\n";
-    std::cout << "  --stdin            take input from stdin\n";
-    std::cout << "  --root=dir         set package root directory from which the module name of the input file is calculated\n"
+    std::cout << "  --stdin -i         take input from stdin\n";
+    std::cout << "  --root=dir -R      set package root directory from which the module name of the input file is calculated\n"
               << "                     (default: current working directory)\n";
     std::cout << "  --trust=num -t     trust level (default: max) 0 means do not trust any macro,\n"
               << "                     and type check all imported modules\n";
@@ -198,15 +198,15 @@ static void display_help(std::ostream & out) {
 #if defined(LEAN_MULTI_THREAD)
     std::cout << "  --threads=num -j   number of threads used to process lean files\n";
     std::cout << "  --tstack=num -s    thread stack size in Kb\n";
-    std::cout << "  --server           start lean in server mode\n";
-    std::cout << "  --worker           start lean in server-worker mode\n";
+    std::cout << "  --server -S        start lean in server mode\n";
+    std::cout << "  --worker -W        start lean in server-worker mode\n";
 #endif
-    std::cout << "  --plugin=file      load and initialize shared library for registering linters etc.\n";
-    std::cout << "  --deps             just print dependencies of a Lean input\n";
-    std::cout << "  --profile          display elaboration/type checking time for each definition/theorem\n";
-    std::cout << "  --stats            display environment statistics\n";
+    std::cout << "  --plugin=file -p   load and initialize shared library for registering linters etc.\n";
+    std::cout << "  --deps -d          just print dependencies of a Lean input\n";
+    std::cout << "  --profile -P       display elaboration/type checking time for each definition/theorem\n";
+    std::cout << "  --stats -a         display environment statistics\n";
     DEBUG_CODE(
-    std::cout << "  --debug=tag        enable assertions with the given tag\n";
+    std::cout << "  --debug=tag -B     enable assertions with the given tag\n";
         )
     std::cout << "  -D name=value      set a configuration option (see set_option command)\n";
 }

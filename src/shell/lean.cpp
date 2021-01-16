@@ -569,7 +569,7 @@ int main(int argc, char ** argv) {
             buf << std::cin.rdbuf();
             contents = buf.str();
         } else {
-            if (!run && argc - optind != 1) {
+            if (argc - optind != 1) {
                 std::cerr << "Expected exactly one file name\n";
                 display_help(std::cerr);
                 return 1;

@@ -543,7 +543,7 @@ structure ImportState where
   regions       : Array CompactedRegion := #[]
 
 @[export lean_import_modules]
-partial def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" opts ⟨0, 0⟩ do
+partial def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" opts ⟨0, 0⟩ do
   let (_, s) ← importMods imports |>.run {}
   -- (moduleNames, mods, regions)
   let mut modIdx : Nat := 0
@@ -564,38 +564,34 @@ partial def importModules (imports : List Import) (opts : Options) (trustLevel :
     header       := {
       quotInit     := !imports.isEmpty, -- We assume `core.lean` initializes quotient module
       trustLevel   := trustLevel,
-      imports      := imports.toArray,
+      imports      := imports,
       regions      := s.regions,
       moduleNames  := s.moduleNames
     }
   }
   let env ← setImportedEntries env s.moduleData
-  let env ← finalizePersistentExtensions env opts
-  pure env
+  finalizePersistentExtensions env opts
 where
-  importMods : List Import → StateRefT ImportState IO Unit
-  | []    => pure ()
-  | i::is => do
-    if i.runtimeOnly || (← get).moduleNameSet.contains i.module then
-      importMods is
-    else do
+  importMods (imports : Array Import) : StateRefT ImportState IO Unit := 
+  for i in imports do
+    unless i.runtimeOnly || (← get).moduleNameSet.contains i.module do
       modify fun s => { s with moduleNameSet := s.moduleNameSet.insert i.module }
       let mFile ← findOLean i.module
       unless (← IO.fileExists mFile) do
         throw $ IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
       let (mod, region) ← readModuleData mFile
-      importMods mod.imports.toList
+      importMods mod.imports
       modify fun s => { s with
         moduleData  := s.moduleData.push mod
         regions     := s.regions.push region
         moduleNames := s.moduleNames.push i.module
       }
-      importMods is
+
 /--
   Create environment object from imports and free compacted regions after calling `act`. No live references to the
   environment object or imported objects may exist after `act` finishes. -/
 unsafe def withImportModules {α : Type} (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) (x : Environment → IO α) : IO α := do
-  let env ← importModules imports opts trustLevel
+  let env ← importModules imports.toArray opts trustLevel
   try x env finally env.freeRegions
 
 builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSet ←

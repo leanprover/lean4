@@ -56,7 +56,7 @@ open Lean.Parser
 
 def parse (input : String) : IO Value := do
   -- HACKHACKHACK
-  let env ← importModules [{ module := `Leanpkg.Toml }] {}
+  let env ← importModules #[{ module := `Leanpkg.Toml }] {}
   let fileParser ← compileParserDescr (parserExtension.getState env).categories file { env := env, opts := {} }
   let c := mkParserContext (mkInputContext input "") { env := env, options := {} }
   let s := mkParserState input

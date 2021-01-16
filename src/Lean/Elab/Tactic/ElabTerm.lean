@@ -63,7 +63,7 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
     let decl ← getMVarDecl g
     let (val, gs') ← elabTermWithHoles stx decl.type tagSuffix allowNaturalHoles
     assignExprMVar g val
-    setGoals (gs ++ gs')
+    setGoals (gs' ++ gs)
 
 @[builtinTactic «refine»] def evalRefine : Tactic := fun stx =>
   match stx with

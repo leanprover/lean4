@@ -5,6 +5,9 @@ Authors: Leonardo de Moura
 -/
 import Lean.Environment
 import Lean.Exception
+import Lean.Declaration
+import Lean.Util.FindExpr
+import Lean.AuxRecursor
 
 namespace Lean
 
@@ -16,11 +19,14 @@ def isInductive [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
   | some (ConstantInfo.inductInfo ..) => return true
   | _ => return false
 
-def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
-  match (← getEnv).find? declName with
+def isRecCore (env : Environment) (declName : Name) : Bool :=
+  match env.find? declName with
   | some (ConstantInfo.recInfo ..) => return true
   | _ => return false
 
+def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool := 
+  return isRecCore (← getEnv) declName
+  
 @[inline] def withoutModifyingEnv [Monad m] [MonadEnv m] [MonadFinally m] {α : Type} (x : m α) : m α := do
   let env ← getEnv
   try x finally setEnv env
@@ -99,10 +105,27 @@ def addDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : Decla
   | Except.ok    env => setEnv env
   | Except.error ex  => throwKernelException ex
 
+private def supportedRecursors := 
+  #[``Empty.rec, ``False.rec, ``Eq.rec, ``Eq.recOn, ``Eq.casesOn, ``False.casesOn, ``Empty.casesOn, ``And.rec, ``And.casesOn]
+
+private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Declaration) : m Unit := do
+  let env ← getEnv 
+  decl.forExprM fun e =>
+    let unsupportedRecursor? := e.find? fun 
+      | Expr.const declName .. => 
+        ((isAuxRecursor env declName && !isCasesOnRecursor env declName) || isRecCore env declName)
+        && !supportedRecursors.contains declName
+      | _ => false
+    match unsupportedRecursor? with 
+    | some (Expr.const declName ..) => throwError! "code generator does not support recursor '{declName}' yet, consider using 'match ... with' and/or structural recursion"
+    | _ => pure ()
+
 def compileDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : Declaration) : m Unit := do
   match (← getEnv).compileDecl (← getOptions) decl with
   | Except.ok env   => setEnv env
-  | Except.error ex => throwKernelException ex
+  | Except.error ex => 
+    checkUnsupported decl -- Generate nicer error message for unsupported recursors
+    throwKernelException ex
 
 def addAndCompile [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : Declaration) : m Unit := do
   addDecl decl;

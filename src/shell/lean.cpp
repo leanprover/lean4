@@ -182,8 +182,8 @@ static void display_help(std::ostream & out) {
     std::cout << "  --help -h          display this message\n";
     std::cout << "  --version -v       display version number\n";
     std::cout << "  --githash          display the git commit hash number used to build this binary\n";
-    std::cout << "  --run              executes the 'main' definition\n";
-    std::cout << "  --o=oname -o        create olean file\n";
+    std::cout << "  --run              call the 'main' definition in a file with the remaining arguments\n";
+    std::cout << "  --o=oname -o       create olean file\n";
     std::cout << "  --c=fname -c       name of the C output file\n";
     std::cout << "  --stdin            take input from stdin\n";
     std::cout << "  --root=dir         set package root directory from which the module name of the input file is calculated\n"
@@ -569,7 +569,7 @@ int main(int argc, char ** argv) {
             buf << std::cin.rdbuf();
             contents = buf.str();
         } else {
-            if (!run && argc - optind != 1) {
+            if (argc - optind != 1 || (run && argc - optind == 0)) {
                 std::cerr << "Expected exactly one file name\n";
                 display_help(std::cerr);
                 return 1;

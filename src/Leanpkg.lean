@@ -47,7 +47,11 @@ partial def withLockFile (x : IO α) : IO α := do
           acquire (firstTime := false)
         | e => throw e
 
-def configure : IO String := do
+structure Configuration :=
+  leanPath    : String
+  leanSrcPath : String
+
+def configure : IO Configuration := do
   let d ← readManifest
   IO.eprintln $ "configuring " ++ d.name ++ " " ++ d.version
   let assg ← solveDeps d
@@ -61,7 +65,11 @@ def configure : IO String := do
         cwd := path
         args := #["build"]
       }
-  System.FilePath.searchPathSeparator.toString.intercalate <| paths.map (· ++ "/build")
+  let sep := System.FilePath.searchPathSeparator.toString
+  return {
+    leanPath    := sep.intercalate <| paths.map (· ++ "/build")
+    leanSrcPath := sep.intercalate paths
+  }
 
 def execMake (makeArgs leanArgs : List String) (leanPath : String) : IO Unit := withLockFile do
   let manifest ← readManifest
@@ -73,19 +81,20 @@ def execMake (makeArgs leanArgs : List String) (leanPath : String) : IO Unit := 
   }
   execCmd spawnArgs
 
-def buildImports (imports : List String) (leanArgs : List String) : IO String := do
+def buildImports (imports : List String) (leanArgs : List String) : IO Unit := do
   let manifest ← readManifest
-  let leanPath ← configure
+  let cfg ← configure
   let imports := imports.map (·.toName)
   -- TODO: shoddy check
   let localImports := imports.filter fun i => i.getRoot.toString.toLower == manifest.name.toLower
   if localImports != [] then
     let oleans := localImports.map fun i => s!"\"build{Lean.modPathToFilePath i}.olean\""
-    execMake oleans leanArgs leanPath
-  return leanPath
+    execMake oleans leanArgs cfg.leanPath
+  IO.println cfg.leanPath
+  IO.println cfg.leanSrcPath
 
 def build (leanArgs : List String) : IO Unit := do
-  execMake [] leanArgs (← configure)
+  execMake [] leanArgs (← configure).leanPath
 
 def initGitignoreContents :=
   "/build
@@ -124,7 +133,7 @@ See `leanpkg help <command>` for more information on a specific command."
 
 def main : (cmd : String) → (leanpkgArgs leanArgs : List String) → IO Unit
   | "configure", [],     []        => discard <| configure
-  | "print-path", leanpkgArgs, leanArgs => buildImports leanpkgArgs leanArgs >>= IO.println
+  | "print-paths", leanpkgArgs, leanArgs => buildImports leanpkgArgs leanArgs
   | "build",     _,      leanArgs  => build leanArgs
   | "init",      [Name], []        => init Name
   | "help",      ["configure"], [] => IO.println "Download dependencies

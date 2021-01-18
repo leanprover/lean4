@@ -152,14 +152,14 @@ section ServerM
   def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) : ServerM (AsyncList ElabTaskError Snapshot) := do
     AsyncList.unfoldAsync (nextCmdSnap m . cancelTk (←read)) initSnap
 
-  /-- Use `leanpkg print-path` to compile dependencies on the fly and add them to LEAN_PATH. -/
+  /-- Use `leanpkg print-paths` to compile dependencies on the fly and add them to LEAN_PATH. -/
   partial def leanpkgSetupSearchPath (m : DocumentMeta) (imports : Array Import) : ServerM Unit := do
     let leanpkgProc ← Process.spawn {
       stdin  := Process.Stdio.null
       stdout := Process.Stdio.piped
       stderr := Process.Stdio.piped
       cmd    := s!"{← appDir}/leanpkg"
-      args   := #["print-path"] ++ imports.map (toString ·.module)
+      args   := #["print-paths"] ++ imports.map (toString ·.module)
     }
     let hOut := (← read).hOut
     -- progress notification: report latest stderr line
@@ -179,10 +179,13 @@ section ServerM
         }
         processStderr (acc ++ line)
     let stderr ← IO.asTask (processStderr "") Task.Priority.dedicated
-    let leanPath := String.trim (← leanpkgProc.stdout.readToEnd)
+    let stdout := String.trim (← leanpkgProc.stdout.readToEnd)
     let stderr ← IO.ofExcept stderr.get
     if (← leanpkgProc.wait) == 0 then
-      searchPathRef.set (← parseSearchPath leanPath (← getBuiltinSearchPath))
+      match stdout.split (· == '\n') with
+      | [""]                    => pure ()  -- e.g. no leanpkg.toml
+      | [leanPath, leanSrcPath] => searchPathRef.set (← parseSearchPath leanPath (← getBuiltinSearchPath))
+      | _                       => throw <| IO.userError s!"unexpected output from `leanpkg src-paths`:\n{stdout}\nstderr:{stderr}"
     else
       throw <| IO.userError stderr
 

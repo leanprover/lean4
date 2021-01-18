@@ -123,7 +123,7 @@ def extract : (@& String) → (@& Pos) → (@& Pos) → String
 
 @[specialize] partial def splitAux (s : String) (p : Char → Bool) (b : Pos) (i : Pos) (r : List String) : List String :=
   if s.atEnd i then
-    let r := if p (s.get i) then ""::(s.extract b (i-1))::r else (s.extract b i)::r
+    let r := (s.extract b i)::r
     r.reverse
   else if p (s.get i) then
     let i := s.next i

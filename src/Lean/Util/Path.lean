@@ -27,13 +27,13 @@ abbrev SearchPath := List String
 
 namespace SearchPath
 
-/-- Finds the file with extension `ext` (`.lean` or `.olean`) corresponding to `mod`
-in the given search path. -/
-def findWithExt (sp : SearchPath) (mod : Name) (ext : String) : IO String := do
+/-- If the package of `mod` can be found in `sp`, return the path with extension
+`ext` (`.lean` or `.olean`) corresponding to `mod`. Otherwise, return `none.` -/
+def findWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option String) := do
   let pkg := mod.getRoot.toString
-  let some root ← sp.findM? (fun path => IO.isDir s!"{path}{pathSep}{pkg}" <||> IO.fileExists s!"{path}{pathSep}{pkg}{ext}")
-    | throw $ IO.userError $ "unknown package '" ++ pkg ++ "'"
-  pure $ root ++ modPathToFilePath mod ++ ext
+  let root? ← sp.findM? (fun path =>
+    IO.isDir s!"{path}{pathSep}{pkg}" <||> IO.fileExists s!"{path}{pathSep}{pkg}{ext}")
+  return root?.map (· ++ modPathToFilePath mod ++ ext)
 
 end SearchPath
 
@@ -67,7 +67,9 @@ def initSearchPath (path : Option String := none) : IO Unit :=
 
 def findOLean (mod : Name) : IO String := do
   let sp ← searchPathRef.get
-  sp.findWithExt mod ".olean"
+  let some fname ← sp.findWithExt ".olean" mod
+    | throw $ IO.userError $ "unknown package '" ++ mod.getRoot.toString ++ "'"
+  return fname
 
 /-- Infer module name of source file name. -/
 @[export lean_module_name_of_file]

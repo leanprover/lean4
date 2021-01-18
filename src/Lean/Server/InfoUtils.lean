@@ -45,4 +45,36 @@ def TacticInfo.pos? (i : TacticInfo) : Option String.Pos :=
 def TacticInfo.tailPos? (i : TacticInfo) : Option String.Pos :=
   i.stx.getTailPos
 
+/-- Find a `TermInfo`, if any, which should be shown on hover/cursor at position `hoverPos`. -/
+partial def InfoTree.hoverableTermAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × TermInfo) :=
+  let ts := t.smallestNodes fun
+    | Info.ofTermInfo i =>
+      match i.pos?, i.tailPos? with
+      | some pos, some tailPos =>
+        /- TODO(WN): when we have a way to do so,
+        check for synthetic syntax and allow arbitrary syntax kinds. -/
+        if pos ≤ hoverPos ∧ hoverPos < tailPos then
+          #[identKind,
+            strLitKind,
+            charLitKind,
+            numLitKind,
+            scientificLitKind,
+            nameLitKind,
+            fieldIdxKind,
+            interpolatedStrLitKind,
+            interpolatedStrKind
+          ].contains i.stx.getKind
+        else false
+      | _, _ => false
+    | _ => false
+
+  let terms : List (Nat × ContextInfo × TermInfo) := ts.filterMap (fun
+    | context ci (node (Info.ofTermInfo i) _) =>
+      let diff := i.tailPos?.get! - i.pos?.get!
+      some (diff, ci, i)
+    | _ => none
+  )
+
+  terms.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
+
 end Lean.Elab

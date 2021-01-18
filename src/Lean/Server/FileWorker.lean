@@ -9,6 +9,7 @@ import Std.Data.RBMap
 
 import Lean.Environment
 import Lean.PrettyPrinter
+import Lean.DeclarationRange
 
 import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
@@ -338,6 +339,23 @@ section RequestHandling
   def mapTask (t : Task α) (f : α → ExceptT RequestError ServerM β) : RequestM β := fun st =>
     (IO.mapTask · t) fun a => f a st
 
+  /-- Create a task which waits for a snapshot matching `p`, handles various errors,
+  and if a matching snapshot was found executes `x` with it. If not found, the task
+  executes `notFoundX`. -/
+  def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
+    (notFoundX : ExceptT RequestError ServerM β)
+    (x : Snapshot → ExceptT RequestError ServerM β)
+    : ServerM (Task (Except IO.Error (Except RequestError β))) := do
+    let findTask ← doc.cmdSnaps.waitFind? p
+    mapTask findTask fun
+      | Except.error ElabTaskError.aborted =>
+        throwThe RequestError RequestError.fileChanged
+      | Except.error (ElabTaskError.ioError e) =>
+        throwThe IO.Error e
+      | Except.error ElabTaskError.eof => notFoundX
+      | Except.ok none => notFoundX
+      | Except.ok (some snap) => x snap
+
   /- Requests that need data from a certain command should traverse the snapshots
      by successively getting the next task, meaning that we might need to wait for elaboration.
      When that happens, the request should send a "content changed" error to the user
@@ -350,55 +368,23 @@ section RequestHandling
     let st ← read
     let doc ← st.docRef.get
     let text := doc.meta.text
-    let hoverPos := text.lspPosToUtf8Pos p.position
-    let findTask ← doc.cmdSnaps.waitFind? (fun s => s.endPos > hoverPos)
     let mkHover (s : String) (f : String.Pos) (t : String.Pos) : Hover :=
       { contents := { kind := MarkupKind.markdown
                       value := s }
         range? := some { start := text.utf8PosToLspPos f
                          «end» := text.utf8PosToLspPos t } }
-    mapTask findTask fun
-      | Except.error ElabTaskError.aborted =>
-        throwThe RequestError RequestError.fileChanged
-      | Except.error (ElabTaskError.ioError e) =>
-        throwThe IO.Error e
-      | Except.error ElabTaskError.eof =>
-        return none
-      | Except.ok (some snap) => do
-        for t in snap.toCmdState.infoState.trees do
-          let ts := t.smallestNodes fun
-            | Info.ofTermInfo i =>
-              match i.pos?, i.tailPos? with
-              | some pos, some tailPos =>
-                /- TODO(WN): when we have a way to do so,
-                check for synthetic syntax and allow arbitrary syntax kinds. -/
-                if pos ≤ hoverPos ∧ hoverPos < tailPos then
-                  #[identKind,
-                    strLitKind,
-                    charLitKind,
-                    numLitKind,
-                    scientificLitKind,
-                    nameLitKind,
-                    fieldIdxKind,
-                    interpolatedStrLitKind,
-                    interpolatedStrKind
-                  ].contains i.stx.getKind
-                else false
-              | _, _ => false
-            | _ => false
-          let mut nds : Array (Nat × ContextInfo × TermInfo) := #[]
-          for t in ts do
-            if let InfoTree.context ci (InfoTree.node (Info.ofTermInfo i) _) := t then
-              let diff := i.tailPos?.get! - i.pos?.get!
-              nds := nds.push (diff, ci, i)
 
-          if let some (_, ci, i) := nds.getMax? (fun a b => a.1 > b.1) then
+    let hoverPos := text.lspPosToUtf8Pos p.position
+    withWaitFindSnap doc (fun s => s.endPos > hoverPos)
+      (notFoundX := pure none) fun snap => do
+        for t in snap.toCmdState.infoState.trees do
+          if let some (ci, i) := t.hoverableTermAt? hoverPos then
             let tFmt ← ci.runMetaM i.lctx do
               return f!"{← Meta.ppExpr i.expr} : {← Meta.ppExpr (← Meta.inferType i.expr)}"
             let mut hoverFmt := f!"```lean
 {tFmt}
 ```"
-            if let Expr.const n .. := i.expr then
+            if let some n := i.expr.constName? then
               if let some doc ← ci.runMetaM i.lctx <| findDocString? n then
                 hoverFmt := f!"{hoverFmt}\n***\n{doc}"
 
@@ -406,12 +392,38 @@ section RequestHandling
           pure ()
 
         return none
-      | Except.ok none => return none
 
   open Elab in
-  partial def handleDefinition (id : RequestID) (p : TextDocumentPositionParams)
+  partial def handleDefinition (goToType? : Bool) (id : RequestID) (p : TextDocumentPositionParams)
     : ServerM (Task (Except IO.Error (Except RequestError (Array LocationLink)))) := do
-    return Task.pure <| Except.ok <| Except.ok #[]
+    let st ← read
+    let doc ← st.docRef.get
+    let text := doc.meta.text
+    let hoverPos := text.lspPosToUtf8Pos p.position
+    withWaitFindSnap doc (fun s => s.endPos > hoverPos)
+      (notFoundX := pure #[]) fun snap => do
+        for t in snap.toCmdState.infoState.trees do
+          if let some (ci, i) := t.hoverableTermAt? hoverPos then
+            let expr := if goToType? then ← ci.runMetaM i.lctx <| Meta.inferType i.expr
+            else i.expr
+            if let some n := expr.constName? then
+              let mod? ← match ← ci.runMetaM i.lctx <| findModuleOf? n with
+              | some modName => st.srcSearchPath.findWithExt ".lean" modName
+              | none         => pure <| some doc.meta.uri
+
+              let ranges? ← ci.runMetaM i.lctx <| findDeclarationRanges? n
+
+              if let (some ranges, some mod) := (ranges?, mod?) then
+                let rangeToLspRange (r : DeclarationRange) : Lsp.Range :=
+                  ⟨text.leanPosToLspPos r.pos, text.leanPosToLspPos r.endPos⟩
+                let ll : LocationLink := {
+                  originSelectionRange? := some ⟨text.utf8PosToLspPos i.pos?.get!, text.utf8PosToLspPos i.tailPos?.get!⟩
+                  targetUri := mod
+                  targetRange := rangeToLspRange ranges.range
+                  targetSelectionRange := rangeToLspRange ranges.selectionRange
+                }
+                return #[ll]
+        return #[]
 
   def rangeOfSyntax (text : FileMap) (stx : Syntax) : Range :=
     ⟨text.utf8PosToLspPos <| stx.getHeadInfo.get!.pos.get!,
@@ -517,9 +529,9 @@ section MessageHandling
     match method with
     | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParam WaitForDiagnostics handleWaitForDiagnostics
     | "textDocument/hover"              => handle HoverParams (Option Hover) handleHover
-    | "textDocument/declaration"        => handle TextDocumentPositionParams (Array LocationLink) handleDefinition
-    | "textDocument/definition"         => handle TextDocumentPositionParams (Array LocationLink) handleDefinition
-    | "textDocument/typeDefinition"     => handle TextDocumentPositionParams (Array LocationLink) handleDefinition
+    | "textDocument/declaration"        => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := false)
+    | "textDocument/definition"         => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := false)
+    | "textDocument/typeDefinition"     => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := true)
     | "textDocument/documentSymbol"     => handle DocumentSymbolParams DocumentSymbolResult handleDocumentSymbol
     | _ => throwServerError s!"Got unsupported request: {method}"
 end MessageHandling
@@ -590,4 +602,3 @@ def workerMain : IO UInt32 := do
     return (1 : UInt32)
 
 end Lean.Server.FileWorker
-

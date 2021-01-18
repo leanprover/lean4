@@ -169,8 +169,9 @@ def SavedState.restore (s : SavedState) : TermElabM Unit := do
   set s.elab
   setTraceState traceState
 
-abbrev TermElabResult := EStateM.Result Exception SavedState Expr
-instance : Inhabited TermElabResult where
+abbrev TermElabResult (α : Type) := EStateM.Result Exception SavedState α
+
+instance [Inhabited α] : Inhabited (TermElabResult α) where
   default := EStateM.Result.ok arbitrary arbitrary
 
 def setMessageLog (messages : MessageLog) : TermElabM Unit :=
@@ -186,7 +187,7 @@ def getMessageLog : TermElabM MessageLog :=
   Execute `x`, save resulting expression and new state.
   If `x` fails, then it also stores exception and new state.
   Remark: we do not capture `Exception.postpone`. -/
-@[inline] def observing (x : TermElabM Expr) : TermElabM TermElabResult := do
+@[inline] def observing (x : TermElabM α) : TermElabM (TermElabResult α) := do
   let s ← saveAllState
   try
     let e ← x
@@ -205,9 +206,9 @@ def getMessageLog : TermElabM MessageLog :=
 /--
   Apply the result/exception and state captured with `observing`.
   We use this method to implement overloaded notation and symbols. -/
-def applyResult (result : TermElabResult) : TermElabM Expr :=
+def applyResult (result : TermElabResult α) : TermElabM α :=
   match result with
-  | EStateM.Result.ok e r     => do r.restore; pure e
+  | EStateM.Result.ok a r     => do r.restore; pure a
   | EStateM.Result.error ex r => do r.restore; throw ex
 
 @[inline] protected def liftMetaM {α} (x : MetaM α) : TermElabM α :=

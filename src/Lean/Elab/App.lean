@@ -767,8 +767,8 @@ false, no elaboration function executed by `x` will reset it to
 -/
 
 private partial def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) (lvals : List LVal)
-    (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool) (acc : Array TermElabResult)
-    : TermElabM (Array TermElabResult) := do
+    (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool) (acc : Array (TermElabResult Expr))
+    : TermElabM (Array (TermElabResult Expr)) := do
   let funLVals ← withRef fIdent <| resolveName' fIdent fExplicitUnivs
   let overloaded := overloaded || funLVals.length > 1
   -- Set `errToSorry` to `false` if `funLVals` > 1. See comment above about the interaction between `errToSorry` and `observing`.
@@ -784,7 +784,7 @@ private partial def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) 
 
 
 private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Array NamedArg) (args : Array Arg)
-    (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool) (acc : Array TermElabResult) : TermElabM (Array TermElabResult) :=
+    (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool) (acc : Array (TermElabResult Expr)) : TermElabM (Array (TermElabResult Expr)) :=
   if f.getKind == choiceKind then
     -- Set `errToSorry` to `false` when processing choice nodes. See comment above about the interaction between `errToSorry` and `observing`.
     withReader (fun ctx => { ctx with errToSorry := false }) do
@@ -834,12 +834,12 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
         if overloaded then ensureHasType expectedType? e else pure e
       pure $ acc.push s
 
-private def isSuccess (candidate : TermElabResult) : Bool :=
+private def isSuccess (candidate : TermElabResult Expr) : Bool :=
   match candidate with
   | EStateM.Result.ok _ _ => true
   | _ => false
 
-private def getSuccess (candidates : Array TermElabResult) : Array TermElabResult :=
+private def getSuccess (candidates : Array (TermElabResult Expr)) : Array (TermElabResult Expr) :=
   candidates.filter isSuccess
 
 private def toMessageData (ex : Exception) : TermElabM MessageData := do
@@ -856,7 +856,7 @@ private def toMessageData (ex : Exception) : TermElabM MessageData := do
 private def toMessageList (msgs : Array MessageData) : MessageData :=
   indentD (MessageData.joinSep msgs.toList m!"\n\n")
 
-private def mergeFailures {α} (failures : Array TermElabResult) : TermElabM α := do
+private def mergeFailures {α} (failures : Array (TermElabResult Expr)) : TermElabM α := do
   let msgs ← failures.mapM fun failure =>
     match failure with
     | EStateM.Result.ok _ _     => unreachable!

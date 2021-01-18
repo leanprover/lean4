@@ -206,10 +206,19 @@ def getMessageLog : TermElabM MessageLog :=
 /--
   Apply the result/exception and state captured with `observing`.
   We use this method to implement overloaded notation and symbols. -/
-def applyResult (result : TermElabResult α) : TermElabM α :=
+@[inline] def applyResult (result : TermElabResult α) : TermElabM α :=
   match result with
   | EStateM.Result.ok a r     => do r.restore; pure a
   | EStateM.Result.error ex r => do r.restore; throw ex
+
+/--
+  Execute `x`, but keep state modifications only if `x` did not postpone.
+  This method is useful to implement elaboration functions that cannot decide whether
+  they need to postpone or not without updating the state. -/
+def commitIfDidNotPostpone (x : TermElabM α) : TermElabM α := do
+  -- We just reuse the implementation of `observing` and `applyResult`.
+  let r ← observing x
+  applyResult r
 
 @[inline] protected def liftMetaM {α} (x : MetaM α) : TermElabM α :=
   liftM x

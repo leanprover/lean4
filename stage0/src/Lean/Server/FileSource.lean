@@ -43,6 +43,15 @@ instance DidCloseTextDocumentParams.hasFileSource : FileSource DidCloseTextDocum
 instance HoverParams.hasFileSource : FileSource HoverParams :=
   ⟨fun h => fileSource h.toTextDocumentPositionParams⟩
 
+instance DeclarationParams.hasFileSource : FileSource DeclarationParams :=
+  ⟨fun h => fileSource h.toTextDocumentPositionParams⟩
+
+instance DefinitionParams.hasFileSource : FileSource DefinitionParams :=
+  ⟨fun h => fileSource h.toTextDocumentPositionParams⟩
+
+instance TypeDefinitionParams.hasFileSource : FileSource TypeDefinitionParams :=
+  ⟨fun h => fileSource h.toTextDocumentPositionParams⟩
+
 instance WaitForDiagnosticsParam.hasFileSource : FileSource WaitForDiagnosticsParam :=
   ⟨fun p => p.uri⟩
 

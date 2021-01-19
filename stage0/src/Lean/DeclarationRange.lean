@@ -9,8 +9,15 @@ import Lean.AuxRecursor
 namespace Lean
 
 structure DeclarationRange where
-  pos    : Position
-  endPos : Position
+  pos          : Position
+  /-- A precomputed UTF-16 `character` field as in `Lean.Lsp.Position`. We need to store this
+  because LSP clients want us to report the range in terms of UTF-16, but converting a Unicode
+  codepoint stored in `Lean.Position` to UTF-16 requires loading and mapping the target source
+  file, which is IO-heavy. -/
+  charUtf16    : Nat
+  endPos       : Position
+  /-- See `charUtf16`. -/
+  endCharUtf16 : Nat
   deriving Inhabited, DecidableEq, Repr
 
 structure DeclarationRanges where

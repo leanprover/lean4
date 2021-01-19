@@ -9,6 +9,7 @@ import Std.Data.RBMap
 
 import Lean.Environment
 import Lean.PrettyPrinter
+import Lean.DeclarationRange
 
 import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
@@ -46,6 +47,8 @@ open Lsp
 open IO
 open Snapshots
 open Lean.Parser.Command
+open Std (RBMap RBMap.empty)
+open JsonRpc
 
 section Utils
   private def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
@@ -88,36 +91,18 @@ section Utils
     deriving Inhabited
 end Utils
 
-open IO
-open Std (RBMap RBMap.empty)
-open JsonRpc
-
-section ServerM
-  -- Pending requests are tracked so they can be cancelled
-  abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) (fun a b => Decidable.decide (a < b))
-
-  structure ServerContext where
-    hIn                : FS.Stream
-    hOut               : FS.Stream
-    hLog               : FS.Stream
-    docRef             : IO.Ref EditableDocument
-    pendingRequestsRef : IO.Ref PendingRequestMap
-
-  abbrev ServerM := ReaderT ServerContext IO
-
-  def updatePendingRequests (map : PendingRequestMap → PendingRequestMap) : ServerM Unit := do
-    (←read).pendingRequestsRef.modify map
-
-  /-- Elaborates the next command after `parentSnap` and emits diagnostics. -/
-  private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken) : ExceptT ElabTaskError ServerM Snapshot := do
+/- Asynchronous snapshot elaboration. -/
+section Elab
+  /-- Elaborates the next command after `parentSnap` and emits diagnostics into `hOut`. -/
+  private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream)
+  : ExceptT ElabTaskError IO Snapshot := do
     cancelTk.check
-    let st ← read
     let maybeSnap ← compileNextCmd m.text.source parentSnap
     -- TODO(MH): check for interrupt with increased precision
     cancelTk.check
     let sendDiagnostics (msgLog : MessageLog) : IO Unit := do
       let diagnostics ← msgLog.msgs.mapM (msgToDiagnostic m.text)
-      st.hOut.writeLspNotification {
+      hOut.writeLspNotification {
         method := "textDocument/publishDiagnostics"
         param  := {
           uri         := m.uri
@@ -148,12 +133,31 @@ section ServerM
       sendDiagnostics msgLog
       throw ElabTaskError.eof
 
-  /-- Elaborates all commands after `initSnap`, emitting the diagnostics. -/
-  def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) : ServerM (AsyncList ElabTaskError Snapshot) := do
-    AsyncList.unfoldAsync (nextCmdSnap m . cancelTk (←read)) initSnap
+  /-- Elaborates all commands after `initSnap`, emitting the diagnostics into `hOut`. -/
+  def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream)
+  : IO (AsyncList ElabTaskError Snapshot) := do
+    AsyncList.unfoldAsync (nextCmdSnap m . cancelTk hOut) initSnap
+end Elab
 
-  /-- Use `leanpkg print-paths` to compile dependencies on the fly and add them to LEAN_PATH. -/
-  partial def leanpkgSetupSearchPath (leanpkgPath : String) (m : DocumentMeta) (imports : Array Import) : ServerM Unit := do
+-- Pending requests are tracked so they can be cancelled
+abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) (fun a b => Decidable.decide (a < b))
+
+structure ServerContext where
+  hIn                : FS.Stream
+  hOut               : FS.Stream
+  hLog               : FS.Stream
+  srcSearchPath      : SearchPath
+  docRef             : IO.Ref EditableDocument
+  pendingRequestsRef : IO.Ref PendingRequestMap
+
+abbrev ServerM := ReaderT ServerContext IO
+
+/- Worker initialization sequence. -/
+section Initialization
+  /-- Use `leanpkg print-paths` to compile dependencies on the fly and add them to `LEAN_PATH`.
+  Compilation progress is reported to `hOut` via LSP notifications. Return the search path for
+  source files. -/
+  partial def leanpkgSetupSearchPath (leanpkgPath : String) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO SearchPath := do
     let leanpkgProc ← Process.spawn {
       stdin  := Process.Stdio.null
       stdout := Process.Stdio.piped
@@ -161,7 +165,6 @@ section ServerM
       cmd    := leanpkgPath
       args   := #["print-paths"] ++ imports.map (toString ·.module)
     }
-    let hOut := (← read).hOut
     -- progress notification: report latest stderr line
     let rec processStderr (acc : String) : IO String := do
       let line ← leanpkgProc.stderr.getLine
@@ -183,23 +186,31 @@ section ServerM
     let stderr ← IO.ofExcept stderr.get
     if (← leanpkgProc.wait) == 0 then
       match stdout.split (· == '\n') with
-      | [""]                    => pure ()  -- e.g. no leanpkg.toml
-      | [leanPath, leanSrcPath] => searchPathRef.set (← parseSearchPath leanPath (← getBuiltinSearchPath))
-      | _                       => throw <| IO.userError s!"unexpected output from `leanpkg src-paths`:\n{stdout}\nstderr:{stderr}"
+      | [""]                    => pure []  -- e.g. no leanpkg.toml
+      | [leanPath, leanSrcPath] => let sp ← getBuiltinSearchPath
+                                   let sp ← addSearchPathFromEnv sp
+                                   let sp ← parseSearchPath leanPath sp
+                                   searchPathRef.set sp
+                                   let srcPath := parseSearchPath leanSrcPath
+                                   srcPath.mapM realPathNormalized
+      | _                       => throw <| IO.userError s!"unexpected output from `leanpkg print-paths`:\n{stdout}\nstderr:\n{stderr}"
     else
-      throw <| IO.userError stderr
+      throw <| IO.userError s!"`leanpkg print-paths` failed:\n{stdout}\nstderr:\n{stderr}"
 
-  /-- Compiles the contents of a Lean file. -/
-  def compileDocument (m : DocumentMeta) : ServerM Unit := do
+  def compileHeader (m : DocumentMeta) (hOut : FS.Stream) : IO (Snapshot × SearchPath) := do
     let opts := {}  -- TODO
     let inputCtx := Parser.mkInputContext m.text.source "<input>"
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
     let leanpkgPath ← match ← IO.getEnv "LEAN_SYSROOT" with
       | some path => s!"{path}/bin/leanpkg{System.FilePath.exeSuffix}"
       | _         => s!"{← appDir}/leanpkg{System.FilePath.exeSuffix}"
+    let mut srcSearchPath := match (← IO.getEnv "LEAN_SRC_PATH") with
+      | some p => parseSearchPath p
+      | none   => []
     -- NOTE: leanpkg does not exist in stage 0 (yet?)
     if (← fileExists leanpkgPath) then
-      leanpkgSetupSearchPath leanpkgPath m (Lean.Elab.headerToImports headerStx).toArray
+      let pkgSearchPath ← leanpkgSetupSearchPath leanpkgPath m (Lean.Elab.headerToImports headerStx).toArray hOut
+      srcSearchPath := srcSearchPath ++ pkgSearchPath
     let (headerEnv, msgLog) ← Elab.processHeader headerStx opts msgLog inputCtx
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
     let opts := opts.setBool `interpreter.prefer_native false
@@ -210,9 +221,34 @@ section ServerM
       mpState := headerParserState
       data := SnapshotData.headerData cmdState
     }
+    return (headerSnap, srcSearchPath)
+
+  def initializeWorker (p : DidOpenTextDocumentParams) (i o e : FS.Stream)
+  : IO ServerContext := do
+    let doc := p.textDocument
+    /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
+      "\n", which should be enough to handle both LF and CRLF correctly.
+      This is because LSP always refers to characters by (line, column),
+      so if we get the line number correct it shouldn't matter that there
+      is a CR there. -/
+    let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap⟩
+    let (headerSnap, srcSearchPath) ← compileHeader meta o
     let cancelTk ← CancelToken.new
-    let cmdSnaps ← unfoldCmdSnaps m headerSnap cancelTk
-    (←read).docRef.set ⟨m, headerSnap, cmdSnaps, cancelTk⟩
+    let cmdSnaps ← unfoldCmdSnaps meta headerSnap cancelTk o
+    let doc : EditableDocument := ⟨meta, headerSnap, cmdSnaps, cancelTk⟩
+    return {
+      hIn                := i
+      hOut               := o
+      hLog               := e
+      srcSearchPath      := srcSearchPath
+      docRef             := ←IO.mkRef doc
+      pendingRequestsRef := ←IO.mkRef RBMap.empty
+    }
+end Initialization
+
+section Updates
+  def updatePendingRequests (map : PendingRequestMap → PendingRequestMap) : ServerM Unit := do
+    (←read).pendingRequestsRef.modify map
 
   /-- Given the new document and `changePos`, the UTF-8 offset of a change into the pre-change source,
       updates editable doc state. -/
@@ -239,7 +275,7 @@ section ServerM
       let mut validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos)
       if validSnaps.length = 0 then
         let cancelTk ← CancelToken.new
-        let newCmdSnaps ← unfoldCmdSnaps newMeta newHeaderSnap cancelTk
+        let newCmdSnaps ← unfoldCmdSnaps newMeta newHeaderSnap cancelTk st.hOut
         st.docRef.set ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩
       else
         /- When at least one valid non-header snap exists, it may happen that a change does not fall
@@ -257,23 +293,14 @@ section ServerM
           validSnaps ← validSnaps.dropLast
           lastSnap ← preLastSnap
         let cancelTk ← CancelToken.new
-        let newSnaps ← unfoldCmdSnaps newMeta lastSnap cancelTk
+        let newSnaps ← unfoldCmdSnaps newMeta lastSnap cancelTk st.hOut
         let newCmdSnaps := AsyncList.ofList validSnaps ++ newSnaps
         st.docRef.set ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩
-end ServerM
+end Updates
 
 /- Notifications are handled in the main thread. They may change global worker state
 such as the current file contents. -/
 section NotificationHandling
-  def handleDidOpen (p : DidOpenTextDocumentParams) : ServerM Unit :=
-    let doc := p.textDocument
-    /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
-      "\n", which should be enough to handle both LF and CRLF correctly.
-      This is because LSP always refers to characters by (line, column),
-      so if we get the line number correct it shouldn't matter that there
-      is a CR there. -/
-    compileDocument ⟨doc.uri, doc.version, doc.text.toFileMap⟩
-
   def handleDidChange (p : DidChangeTextDocumentParams) : ServerM Unit := do
     let docId := p.textDocument
     let changes := p.contentChanges
@@ -313,6 +340,23 @@ section RequestHandling
   def mapTask (t : Task α) (f : α → ExceptT RequestError ServerM β) : RequestM β := fun st =>
     (IO.mapTask · t) fun a => f a st
 
+  /-- Create a task which waits for a snapshot matching `p`, handles various errors,
+  and if a matching snapshot was found executes `x` with it. If not found, the task
+  executes `notFoundX`. -/
+  def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
+    (notFoundX : ExceptT RequestError ServerM β)
+    (x : Snapshot → ExceptT RequestError ServerM β)
+    : ServerM (Task (Except IO.Error (Except RequestError β))) := do
+    let findTask ← doc.cmdSnaps.waitFind? p
+    mapTask findTask fun
+      | Except.error ElabTaskError.aborted =>
+        throwThe RequestError RequestError.fileChanged
+      | Except.error (ElabTaskError.ioError e) =>
+        throwThe IO.Error e
+      | Except.error ElabTaskError.eof => notFoundX
+      | Except.ok none => notFoundX
+      | Except.ok (some snap) => x snap
+
   /- Requests that need data from a certain command should traverse the snapshots
      by successively getting the next task, meaning that we might need to wait for elaboration.
      When that happens, the request should send a "content changed" error to the user
@@ -325,55 +369,23 @@ section RequestHandling
     let st ← read
     let doc ← st.docRef.get
     let text := doc.meta.text
-    let hoverPos := text.lspPosToUtf8Pos p.position
-    let findTask ← doc.cmdSnaps.waitFind? (fun s => s.endPos > hoverPos)
     let mkHover (s : String) (f : String.Pos) (t : String.Pos) : Hover :=
       { contents := { kind := MarkupKind.markdown
                       value := s }
         range? := some { start := text.utf8PosToLspPos f
                          «end» := text.utf8PosToLspPos t } }
-    mapTask findTask fun
-      | Except.error ElabTaskError.aborted =>
-        throwThe RequestError RequestError.fileChanged
-      | Except.error (ElabTaskError.ioError e) =>
-        throwThe IO.Error e
-      | Except.error ElabTaskError.eof =>
-        return none
-      | Except.ok (some snap) => do
-        for t in snap.toCmdState.infoState.trees do
-          let ts := t.smallestNodes fun
-            | Info.ofTermInfo i =>
-              match i.pos?, i.tailPos? with
-              | some pos, some tailPos =>
-                /- TODO(WN): when we have a way to do so,
-                check for synthetic syntax and allow arbitrary syntax kinds. -/
-                if pos ≤ hoverPos ∧ hoverPos < tailPos then
-                  #[identKind,
-                    strLitKind,
-                    charLitKind,
-                    numLitKind,
-                    scientificLitKind,
-                    nameLitKind,
-                    fieldIdxKind,
-                    interpolatedStrLitKind,
-                    interpolatedStrKind
-                  ].contains i.stx.getKind
-                else false
-              | _, _ => false
-            | _ => false
-          let mut nds : Array (Nat × ContextInfo × TermInfo) := #[]
-          for t in ts do
-            if let InfoTree.context ci (InfoTree.node (Info.ofTermInfo i) _) := t then
-              let diff := i.tailPos?.get! - i.pos?.get!
-              nds := nds.push (diff, ci, i)
 
-          if let some (_, ci, i) := nds.getMax? (fun a b => a.1 > b.1) then
+    let hoverPos := text.lspPosToUtf8Pos p.position
+    withWaitFindSnap doc (fun s => s.endPos > hoverPos)
+      (notFoundX := pure none) fun snap => do
+        for t in snap.toCmdState.infoState.trees do
+          if let some (ci, i) := t.hoverableTermAt? hoverPos then
             let tFmt ← ci.runMetaM i.lctx do
               return f!"{← Meta.ppExpr i.expr} : {← Meta.ppExpr (← Meta.inferType i.expr)}"
             let mut hoverFmt := f!"```lean
 {tFmt}
 ```"
-            if let Expr.const n .. := i.expr then
+            if let some n := i.expr.constName? then
               if let some doc ← ci.runMetaM i.lctx <| findDocString? n then
                 hoverFmt := f!"{hoverFmt}\n***\n{doc}"
 
@@ -381,14 +393,42 @@ section RequestHandling
           pure ()
 
         return none
-      | Except.ok none => return none
 
-  def handleWaitForDiagnostics (id : RequestID) (p : WaitForDiagnosticsParam)
-    : ServerM (Task (Except IO.Error (Except RequestError WaitForDiagnostics))) := do
+  open Elab in
+  partial def handleDefinition (goToType? : Bool) (id : RequestID) (p : TextDocumentPositionParams)
+    : ServerM (Task (Except IO.Error (Except RequestError (Array LocationLink)))) := do
     let st ← read
     let doc ← st.docRef.get
-    let t ← doc.cmdSnaps.waitAll
-    t.map fun _ => Except.ok $ Except.ok WaitForDiagnostics.mk
+    let text := doc.meta.text
+    let hoverPos := text.lspPosToUtf8Pos p.position
+    withWaitFindSnap doc (fun s => s.endPos > hoverPos)
+      (notFoundX := pure #[]) fun snap => do
+        for t in snap.toCmdState.infoState.trees do
+          if let some (ci, i) := t.hoverableTermAt? hoverPos then
+            let expr := if goToType? then ← ci.runMetaM i.lctx <| Meta.inferType i.expr
+            else i.expr
+            if let some n := expr.constName? then
+              let mod? ← ci.runMetaM i.lctx <| findModuleOf? n
+              let modUri? ← match mod? with
+              | some modName =>
+                let modFname? ← st.srcSearchPath.findWithExt ".lean" modName
+                pure <| modFname?.map ("file://" ++ ·)
+              | none         => pure <| some doc.meta.uri
+
+              let ranges? ← ci.runMetaM i.lctx <| findDeclarationRanges? n
+
+              if let (some ranges, some modUri) := (ranges?, modUri?) then
+                let declRangeToLspRange (r : DeclarationRange) : Lsp.Range :=
+                  { start := ⟨r.pos.line - 1, r.charUtf16⟩
+                    «end» := ⟨r.endPos.line - 1, r.endCharUtf16⟩ }
+                let ll : LocationLink := {
+                  originSelectionRange? := some ⟨text.utf8PosToLspPos i.pos?.get!, text.utf8PosToLspPos i.tailPos?.get!⟩
+                  targetUri := modUri
+                  targetRange := declRangeToLspRange ranges.range
+                  targetSelectionRange := declRangeToLspRange ranges.selectionRange
+                }
+                return #[ll]
+        return #[]
 
   def rangeOfSyntax (text : FileMap) (stx : Syntax) : Range :=
     ⟨text.utf8PosToLspPos <| stx.getHeadInfo.get!.pos.get!,
@@ -449,6 +489,13 @@ section RequestHandling
             children? := syms.toArray
           } :: syms', stxs'')
 
+  def handleWaitForDiagnostics (id : RequestID) (p : WaitForDiagnosticsParam)
+    : ServerM (Task (Except IO.Error (Except RequestError WaitForDiagnostics))) := do
+    let st ← read
+    let doc ← st.docRef.get
+    let t ← doc.cmdSnaps.waitAll
+    t.map fun _ => Except.ok $ Except.ok WaitForDiagnostics.mk
+
 end RequestHandling
 
 section MessageHandling
@@ -487,6 +534,9 @@ section MessageHandling
     match method with
     | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParam WaitForDiagnostics handleWaitForDiagnostics
     | "textDocument/hover"              => handle HoverParams (Option Hover) handleHover
+    | "textDocument/declaration"        => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := false)
+    | "textDocument/definition"         => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := false)
+    | "textDocument/typeDefinition"     => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := true)
     | "textDocument/documentSymbol"     => handle DocumentSymbolParams DocumentSymbolResult handleDocumentSymbol
     | _ => throwServerError s!"Got unsupported request: {method}"
 end MessageHandling
@@ -529,17 +579,9 @@ def initAndRunWorker (i o e : FS.Stream) : IO UInt32 := do
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" DidOpenTextDocumentParams
   let e ← e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
-  let ctx : ServerContext := {
-    hIn                := i
-    hOut               := o
-    hLog               := e
-    -- `openDocument` will not access `docRef`, but set it
-    docRef             := ←IO.mkRef arbitrary
-    pendingRequestsRef := ←IO.mkRef (RBMap.empty : PendingRequestMap)
-  }
-  ReaderT.run (r := ctx) try
-    handleDidOpen param
-    mainLoop
+  try
+    let ctx ← initializeWorker param i o e
+    ReaderT.run (r := ctx) mainLoop
     return 0
   catch e =>
     o.writeLspNotification {
@@ -565,4 +607,3 @@ def workerMain : IO UInt32 := do
     return (1 : UInt32)
 
 end Lean.Server.FileWorker
-

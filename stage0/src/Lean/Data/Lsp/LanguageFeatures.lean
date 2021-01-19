@@ -28,6 +28,32 @@ instance : FromJson HoverParams := ⟨fun j => do
 instance : ToJson HoverParams :=
   ⟨fun o => toJson o.toTextDocumentPositionParams⟩
 
+structure DeclarationParams extends TextDocumentPositionParams
+
+instance : FromJson DeclarationParams := ⟨fun j => do
+  let tdpp ← @fromJson? TextDocumentPositionParams _ j
+  pure ⟨tdpp⟩⟩
+
+instance : ToJson DeclarationParams :=
+  ⟨fun o => toJson o.toTextDocumentPositionParams⟩
+
+structure DefinitionParams extends TextDocumentPositionParams
+
+instance : FromJson DefinitionParams := ⟨fun j => do
+  let tdpp ← @fromJson? TextDocumentPositionParams _ j
+  pure ⟨tdpp⟩⟩
+
+instance : ToJson DefinitionParams :=
+  ⟨fun o => toJson o.toTextDocumentPositionParams⟩
+
+structure TypeDefinitionParams extends TextDocumentPositionParams
+
+instance : FromJson TypeDefinitionParams := ⟨fun j => do
+  let tdpp ← @fromJson? TextDocumentPositionParams _ j
+  pure ⟨tdpp⟩⟩
+
+instance : ToJson TypeDefinitionParams :=
+  ⟨fun o => toJson o.toTextDocumentPositionParams⟩
 
 structure DocumentSymbolParams where
   textDocument : TextDocumentIdentifier

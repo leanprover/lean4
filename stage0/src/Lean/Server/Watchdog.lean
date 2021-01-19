@@ -355,6 +355,9 @@ section MessageHandling
     match method with
     | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParam
     | "textDocument/hover"              => handle HoverParams
+    | "textDocument/declaration"        => handle DeclarationParams
+    | "textDocument/definition"         => handle DefinitionParams
+    | "textDocument/typeDefinition"     => handle TypeDefinitionParams
     | "textDocument/documentSymbol"     => handle DocumentSymbolParams
     | _                                 =>
       (←read).hOut.writeLspResponseError
@@ -437,6 +440,9 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     save?             := none
   }
   hoverProvider := true
+  declarationProvider := true
+  definitionProvider := true
+  typeDefinitionProvider := true
   documentSymbolProvider := true
 }
 

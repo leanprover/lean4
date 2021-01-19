@@ -13,11 +13,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Lsp_DefinitionParams_hasFileSource___boxed(lean_object*);
 lean_object* l_Lean_Lsp_DocumentSymbolParams_hasFileSource___boxed(lean_object*);
 lean_object* l_Lean_Lsp_TextDocumentIdentifier_hasFileSource___boxed(lean_object*);
+lean_object* l_Lean_Lsp_TypeDefinitionParams_hasFileSource___boxed(lean_object*);
 lean_object* l_Lean_Lsp_DidCloseTextDocumentParams_hasFileSource(lean_object*);
 lean_object* l_Lean_Lsp_DidChangeTextDocumentParams_hasFileSource(lean_object*);
+lean_object* l_Lean_Lsp_DeclarationParams_hasFileSource___boxed(lean_object*);
+lean_object* l_Lean_Lsp_DeclarationParams_hasFileSource(lean_object*);
 lean_object* l_Lean_Lsp_WaitForDiagnosticsParam_hasFileSource___boxed(lean_object*);
+lean_object* l_Lean_Lsp_TypeDefinitionParams_hasFileSource(lean_object*);
 lean_object* l_Lean_Lsp_TextDocumentItem_hasFileSource___boxed(lean_object*);
 lean_object* l_Lean_Lsp_DidOpenTextDocumentParams_hasFileSource___boxed(lean_object*);
 lean_object* l_Lean_Lsp_HoverParams_hasFileSource___boxed(lean_object*);
@@ -28,6 +33,7 @@ lean_object* l_Lean_Lsp_Location_hasFileSource(lean_object*);
 lean_object* l_Lean_Lsp_TextDocumentEdit_hasFileSource___boxed(lean_object*);
 lean_object* l_Lean_Lsp_TextDocumentPositionParams_hasFileSource___boxed(lean_object*);
 lean_object* l_Lean_Lsp_WaitForDiagnosticsParam_hasFileSource(lean_object*);
+lean_object* l_Lean_Lsp_DefinitionParams_hasFileSource(lean_object*);
 lean_object* l_Lean_Lsp_DidChangeTextDocumentParams_hasFileSource___boxed(lean_object*);
 lean_object* l_Lean_Lsp_HoverParams_hasFileSource(lean_object*);
 lean_object* l_Lean_Lsp_TextDocumentIdentifier_hasFileSource(lean_object*);
@@ -211,6 +217,60 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Lsp_HoverParams_hasFileSource(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_Lsp_DeclarationParams_hasFileSource(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+return x_2;
+}
+}
+lean_object* l_Lean_Lsp_DeclarationParams_hasFileSource___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Lsp_DeclarationParams_hasFileSource(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_Lsp_DefinitionParams_hasFileSource(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+return x_2;
+}
+}
+lean_object* l_Lean_Lsp_DefinitionParams_hasFileSource___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Lsp_DefinitionParams_hasFileSource(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_Lsp_TypeDefinitionParams_hasFileSource(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+return x_2;
+}
+}
+lean_object* l_Lean_Lsp_TypeDefinitionParams_hasFileSource___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Lsp_TypeDefinitionParams_hasFileSource(x_1);
 lean_dec(x_1);
 return x_2;
 }

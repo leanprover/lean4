@@ -18,15 +18,32 @@ def realPathNormalized (fname : String) : IO String := do
   let fname ← IO.realPath fname
   pure (System.FilePath.normalizePath fname)
 
+def modPathToFilePath : Name → String
+  | Name.str p h _              => modPathToFilePath p ++ pathSep ++ h
+  | Name.anonymous              => ""
+  | Name.num p _ _              => panic! "ill-formed import"
+
 abbrev SearchPath := List String
+
+namespace SearchPath
+
+/-- If the package of `mod` can be found in `sp`, return the path with extension
+`ext` (`.lean` or `.olean`) corresponding to `mod`. Otherwise, return `none.` -/
+def findWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option String) := do
+  let pkg := mod.getRoot.toString
+  let root? ← sp.findM? (fun path =>
+    IO.isDir s!"{path}{pathSep}{pkg}" <||> IO.fileExists s!"{path}{pathSep}{pkg}{ext}")
+  return root?.map (· ++ modPathToFilePath mod ++ ext)
+
+end SearchPath
 
 builtin_initialize searchPathRef : IO.Ref SearchPath ← IO.mkRef {}
 
-def parseSearchPath (path : String) (sp : SearchPath := ∅) : IO SearchPath :=
-  pure $ System.FilePath.splitSearchPath path ++ sp
+def parseSearchPath (path : String) (sp : SearchPath := ∅) : SearchPath :=
+  System.FilePath.splitSearchPath path ++ sp
 
 @[extern c inline "LEAN_IS_STAGE0"]
-constant isStage0 (u : Unit) : Bool
+private constant isStage0 (u : Unit) : Bool
 
 def getBuiltinSearchPath : IO SearchPath := do
   let appDir ← IO.appDir
@@ -42,23 +59,17 @@ def addSearchPathFromEnv (sp : SearchPath) : IO SearchPath := do
 @[export lean_init_search_path]
 def initSearchPath (path : Option String := none) : IO Unit :=
   match path with
-  | some path => parseSearchPath path >>= searchPathRef.set
+  | some path => searchPathRef.set <| parseSearchPath path
   | none      => do
     let sp ← getBuiltinSearchPath
     let sp ← addSearchPathFromEnv sp
     searchPathRef.set sp
 
-def modPathToFilePath : Name → String
-  | Name.str p h _              => modPathToFilePath p ++ pathSep ++ h
-  | Name.anonymous              => ""
-  | Name.num p _ _              => panic! "ill-formed import"
-
 def findOLean (mod : Name) : IO String := do
   let sp ← searchPathRef.get
-  let pkg := mod.getRoot.toString
-  let some root ← sp.findM? (fun path => IO.isDir s!"{path}{pathSep}{pkg}" <||> IO.fileExists s!"{path}{pathSep}{pkg}.olean")
-    | throw $ IO.userError $ "unknown package '" ++ pkg ++ "'"
-  pure $ root ++ modPathToFilePath mod ++ ".olean"
+  let some fname ← sp.findWithExt ".olean" mod
+    | throw $ IO.userError $ "unknown package '" ++ mod.getRoot.toString ++ "'"
+  return fname
 
 /-- Infer module name of source file name. -/
 @[export lean_module_name_of_file]

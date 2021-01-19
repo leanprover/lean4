@@ -191,10 +191,11 @@ section Initialization
                                    let sp ← addSearchPathFromEnv sp
                                    let sp ← parseSearchPath leanPath sp
                                    searchPathRef.set sp
-                                   return parseSearchPath leanSrcPath
+                                   let srcPath := parseSearchPath leanSrcPath
+                                   srcPath.mapM realPathNormalized
       | _                       => throw <| IO.userError s!"unexpected output from `leanpkg print-paths`:\n{stdout}\nstderr:\n{stderr}"
     else
-      throw <| IO.userError s!"`leanpkg src-paths` failed:\n{stdout}\nstderr:\n{stderr}"
+      throw <| IO.userError s!"`leanpkg print-paths` failed:\n{stdout}\nstderr:\n{stderr}"
 
   def compileHeader (m : DocumentMeta) (hOut : FS.Stream) : IO (Snapshot × SearchPath) := do
     let opts := {}  -- TODO
@@ -407,19 +408,22 @@ section RequestHandling
             let expr := if goToType? then ← ci.runMetaM i.lctx <| Meta.inferType i.expr
             else i.expr
             if let some n := expr.constName? then
-              let mod? ← match ← ci.runMetaM i.lctx <| findModuleOf? n with
-              | some modName => st.srcSearchPath.findWithExt ".lean" modName
+              let mod? ← ci.runMetaM i.lctx <| findModuleOf? n
+              let modUri? ← match mod? with
+              | some modName =>
+                let modFname? ← st.srcSearchPath.findWithExt ".lean" modName
+                pure <| modFname?.map ("file://" ++ ·)
               | none         => pure <| some doc.meta.uri
 
               let ranges? ← ci.runMetaM i.lctx <| findDeclarationRanges? n
 
-              if let (some ranges, some mod) := (ranges?, mod?) then
+              if let (some ranges, some modUri) := (ranges?, modUri?) then
                 let declRangeToLspRange (r : DeclarationRange) : Lsp.Range :=
                   { start := ⟨r.pos.line - 1, r.charUtf16⟩
                     «end» := ⟨r.endPos.line - 1, r.endCharUtf16⟩ }
                 let ll : LocationLink := {
                   originSelectionRange? := some ⟨text.utf8PosToLspPos i.pos?.get!, text.utf8PosToLspPos i.tailPos?.get!⟩
-                  targetUri := mod
+                  targetUri := modUri
                   targetRange := declRangeToLspRange ranges.range
                   targetSelectionRange := declRangeToLspRange ranges.selectionRange
                 }

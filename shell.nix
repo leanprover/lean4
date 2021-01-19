@@ -17,5 +17,8 @@ in { pkgs ? flakePkgs.nixpkgs, llvmPackages ? null }:
   };
   nix = pkgs.mkShell {
     buildInputs = [ flakePkgs.nix ];
+    shellHook = ''
+      export LEAN_SRC_PATH="$PWD/src"
+    '';
   };
 }

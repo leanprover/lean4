@@ -414,13 +414,14 @@ section RequestHandling
               let ranges? ← ci.runMetaM i.lctx <| findDeclarationRanges? n
 
               if let (some ranges, some mod) := (ranges?, mod?) then
-                let rangeToLspRange (r : DeclarationRange) : Lsp.Range :=
-                  ⟨text.leanPosToLspPos r.pos, text.leanPosToLspPos r.endPos⟩
+                let declRangeToLspRange (r : DeclarationRange) : Lsp.Range :=
+                  { start := ⟨r.pos.line - 1, r.charUtf16⟩
+                    «end» := ⟨r.endPos.line - 1, r.endCharUtf16⟩ }
                 let ll : LocationLink := {
                   originSelectionRange? := some ⟨text.utf8PosToLspPos i.pos?.get!, text.utf8PosToLspPos i.tailPos?.get!⟩
                   targetUri := mod
-                  targetRange := rangeToLspRange ranges.range
-                  targetSelectionRange := rangeToLspRange ranges.selectionRange
+                  targetRange := declRangeToLspRange ranges.range
+                  targetSelectionRange := declRangeToLspRange ranges.selectionRange
                 }
                 return #[ll]
         return #[]

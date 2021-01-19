@@ -16,7 +16,7 @@ $ elan default leanprover/lean4:stable
 # alternatively, use the latest nightly build (https://github.com/leanprover/lean4-nightly/releases)
 $ elan default leanprover/lean4:nightly
 # alternatively, activate Lean 4 in current directory only
-$ elan override leanprover/lean4:stable
+$ elan override set leanprover/lean4:stable
 ```
 
 Lean 4 comes with a basic package manager `leanpkg` that mostly works [as in Lean 3](https://leanprover.github.io/reference/using_lean.html#using-the-package-manager).

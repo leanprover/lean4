@@ -175,7 +175,6 @@ lean_object* l_Array_mapMUnsafe_map___at_Toml_ofSyntax___spec__10(size_t, size_t
 lean_object* l_Toml_val____1;
 lean_object* l_Toml_bareKey___closed__2;
 lean_object* l_Toml_ofSyntax_match__4___rarg(lean_object*, lean_object*);
-lean_object* l_Toml_valFalse___closed__5;
 lean_object* l_Array_mapMUnsafe_map___at_Toml_ofSyntax___spec__5___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Toml_inlineTable___closed__6;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -236,6 +235,7 @@ lean_object* l_Toml_keyVal;
 lean_object* l_Toml_val____2___closed__2;
 lean_object* l_Array_sequenceMap_loop___at_Toml_ofSyntax___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Syntax_SepArray_getElems___spec__1(lean_object*, size_t, size_t, lean_object*);
+extern lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__4;
 extern lean_object* l_addParenHeuristic___closed__1;
 lean_object* l_Toml_keyCat_quot___closed__4;
 lean_object* l_Toml_val_quot___closed__1;
@@ -559,28 +559,20 @@ return x_3;
 static lean_object* _init_l_Toml_valFalse___closed__3() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("False");
-return x_1;
-}
-}
-static lean_object* _init_l_Toml_valFalse___closed__4() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Toml_valFalse___closed__3;
+x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__4;
 x_2 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Toml_valFalse___closed__5() {
+static lean_object* _init_l_Toml_valFalse___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Toml_valFalse___closed__2;
 x_2 = lean_unsigned_to_nat(1024u);
-x_3 = l_Toml_valFalse___closed__4;
+x_3 = l_Toml_valFalse___closed__3;
 x_4 = lean_alloc_ctor(3, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -592,7 +584,7 @@ static lean_object* _init_l_Toml_valFalse() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Toml_valFalse___closed__5;
+x_1 = l_Toml_valFalse___closed__4;
 return x_1;
 }
 }
@@ -3021,8 +3013,6 @@ l_Toml_valFalse___closed__3 = _init_l_Toml_valFalse___closed__3();
 lean_mark_persistent(l_Toml_valFalse___closed__3);
 l_Toml_valFalse___closed__4 = _init_l_Toml_valFalse___closed__4();
 lean_mark_persistent(l_Toml_valFalse___closed__4);
-l_Toml_valFalse___closed__5 = _init_l_Toml_valFalse___closed__5();
-lean_mark_persistent(l_Toml_valFalse___closed__5);
 l_Toml_valFalse = _init_l_Toml_valFalse();
 lean_mark_persistent(l_Toml_valFalse);
 l_Toml_val_____closed__1 = _init_l_Toml_val_____closed__1();

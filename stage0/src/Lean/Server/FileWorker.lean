@@ -152,14 +152,64 @@ section ServerM
   def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) : ServerM (AsyncList ElabTaskError Snapshot) := do
     AsyncList.unfoldAsync (nextCmdSnap m . cancelTk (←read)) initSnap
 
+  /-- Use `leanpkg print-paths` to compile dependencies on the fly and add them to LEAN_PATH. -/
+  partial def leanpkgSetupSearchPath (leanpkgPath : String) (m : DocumentMeta) (imports : Array Import) : ServerM Unit := do
+    let leanpkgProc ← Process.spawn {
+      stdin  := Process.Stdio.null
+      stdout := Process.Stdio.piped
+      stderr := Process.Stdio.piped
+      cmd    := leanpkgPath
+      args   := #["print-paths"] ++ imports.map (toString ·.module)
+    }
+    let hOut := (← read).hOut
+    -- progress notification: report latest stderr line
+    let rec processStderr (acc : String) : IO String := do
+      let line ← leanpkgProc.stderr.getLine
+      if line == "" then
+        return acc
+      else
+        hOut.writeLspNotification {
+          method := "textDocument/publishDiagnostics"
+          param  := {
+            uri         := m.uri
+            version?    := m.version
+            diagnostics := #[{ range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩, severity? := DiagnosticSeverity.information, message := line }]
+            : PublishDiagnosticsParams
+          }
+        }
+        processStderr (acc ++ line)
+    let stderr ← IO.asTask (processStderr "") Task.Priority.dedicated
+    let stdout := String.trim (← leanpkgProc.stdout.readToEnd)
+    let stderr ← IO.ofExcept stderr.get
+    if (← leanpkgProc.wait) == 0 then
+      match stdout.split (· == '\n') with
+      | [""]                    => pure ()  -- e.g. no leanpkg.toml
+      | [leanPath, leanSrcPath] => searchPathRef.set (← parseSearchPath leanPath (← getBuiltinSearchPath))
+      | _                       => throw <| IO.userError s!"unexpected output from `leanpkg src-paths`:\n{stdout}\nstderr:{stderr}"
+    else
+      throw <| IO.userError stderr
+
   /-- Compiles the contents of a Lean file. -/
   def compileDocument (m : DocumentMeta) : ServerM Unit := do
-    let headerSnap@{ data := SnapshotData.headerData cmdState, .. } ← Snapshots.compileHeader m.text.source
-      | throwServerError "Internal server error: invalid header snapshot"
-    let opts : Options := {}
+    let opts := {}  -- TODO
+    let inputCtx := Parser.mkInputContext m.text.source "<input>"
+    let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
+    let leanpkgPath ← match ← IO.getEnv "LEAN_SYSROOT" with
+      | some path => s!"{path}/bin/leanpkg{System.FilePath.exeSuffix}"
+      | _         => s!"{← appDir}/leanpkg{System.FilePath.exeSuffix}"
+    -- NOTE: leanpkg does not exist in stage 0 (yet?)
+    if dbgTraceVal (← fileExists <| dbgTraceVal leanpkgPath) then
+      leanpkgSetupSearchPath leanpkgPath m (Lean.Elab.headerToImports headerStx).toArray
+    let (headerEnv, msgLog) ← Elab.processHeader headerStx opts msgLog inputCtx
+    let cmdState := Elab.Command.mkState headerEnv msgLog opts
     let opts := opts.setBool `interpreter.prefer_native false
     let cmdState := { cmdState with infoState.enabled := true, scopes := [{ header := "", opts := opts }] }
-    let headerSnap := { headerSnap with data := SnapshotData.headerData cmdState }
+    let headerSnap := {
+      beginPos := 0
+      stx := headerStx
+      mpState := headerParserState
+      data := SnapshotData.headerData cmdState
+    }
     let cancelTk ← CancelToken.new
     let cmdSnaps ← unfoldCmdSnaps m headerSnap cancelTk
     (←read).docRef.set ⟨m, headerSnap, cmdSnaps, cancelTk⟩
@@ -471,7 +521,7 @@ section MainLoop
     | _ => throwServerError "Got invalid JSON-RPC message"
 end MainLoop
 
-def initAndRunWorker (i o e : FS.Stream) : IO Unit := do
+def initAndRunWorker (i o e : FS.Stream) : IO UInt32 := do
   let i ← maybeTee "fwIn.txt" false i
   let o ← maybeTee "fwOut.txt" true o
   -- TODO(WN): act in accordance with InitializeParams
@@ -487,7 +537,21 @@ def initAndRunWorker (i o e : FS.Stream) : IO Unit := do
     docRef             := ←IO.mkRef arbitrary
     pendingRequestsRef := ←IO.mkRef (RBMap.empty : PendingRequestMap)
   }
-  ReaderT.run (do handleDidOpen param; mainLoop) ctx
+  ReaderT.run (r := ctx) try
+    handleDidOpen param
+    mainLoop
+    return 0
+  catch e =>
+    o.writeLspNotification {
+      method := "textDocument/publishDiagnostics"
+      param  := {
+        uri         := param.textDocument.uri
+        version?    := param.textDocument.version
+        diagnostics := #[{ range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩, severity? := DiagnosticSeverity.error, message := e.toString }]
+        : PublishDiagnosticsParams
+      }
+    }
+    return 1
 
 @[export lean_server_worker_main]
 def workerMain : IO UInt32 := do
@@ -496,10 +560,9 @@ def workerMain : IO UInt32 := do
   let e ← IO.getStderr
   try
     initAndRunWorker i o e
-    return 0
   catch err =>
-    e.putStrLn s!"Worker error: {err}"
-    return 1
+    e.putStrLn s!"worker initialization error: {err}"
+    return (1 : UInt32)
 
 end Lean.Server.FileWorker
 

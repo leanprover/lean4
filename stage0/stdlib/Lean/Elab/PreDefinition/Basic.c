@@ -4126,7 +4126,6 @@ lean_object* x_34;
 lean_inc(x_7);
 lean_inc(x_3);
 x_34 = l_Lean_compileDecl___at_Lean_Elab_Term_evalExpr___spec__9(x_22, x_3, x_4, x_5, x_6, x_7, x_8, x_32);
-lean_dec(x_22);
 if (lean_obj_tag(x_34) == 0)
 {
 lean_object* x_35; uint8_t x_36; lean_object* x_37; 
@@ -4542,7 +4541,6 @@ lean_object* x_138;
 lean_inc(x_117);
 lean_inc(x_3);
 x_138 = l_Lean_compileDecl___at_Lean_Elab_Term_evalExpr___spec__9(x_126, x_3, x_4, x_5, x_6, x_117, x_8, x_136);
-lean_dec(x_126);
 if (lean_obj_tag(x_138) == 0)
 {
 lean_object* x_139; uint8_t x_140; lean_object* x_141; 
@@ -4882,7 +4880,6 @@ lean_dec(x_23);
 lean_inc(x_7);
 lean_inc(x_3);
 x_25 = l_Lean_compileDecl___at_Lean_Elab_Term_evalExpr___spec__9(x_16, x_3, x_4, x_5, x_6, x_7, x_8, x_24);
-lean_dec(x_16);
 if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; uint8_t x_27; lean_object* x_28; 
@@ -5073,7 +5070,6 @@ lean_dec(x_62);
 lean_inc(x_58);
 lean_inc(x_3);
 x_64 = l_Lean_compileDecl___at_Lean_Elab_Term_evalExpr___spec__9(x_16, x_3, x_4, x_5, x_6, x_58, x_8, x_63);
-lean_dec(x_16);
 if (lean_obj_tag(x_64) == 0)
 {
 lean_object* x_65; uint8_t x_66; lean_object* x_67; 

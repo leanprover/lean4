@@ -98,8 +98,8 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
       match (← pre e) with
       | TransformStep.done e  => pure e
       | TransformStep.visit e => match e with
-        | Expr.forallE ..    => visitLambda #[] e
-        | Expr.lam ..        => visitForall #[] e
+        | Expr.forallE ..    => visitForall #[] e
+        | Expr.lam ..        => visitLambda #[] e
         | Expr.letE ..       => visitLet #[] e
         | Expr.app ..        => visitApp e
         | Expr.mdata _ b _   => visitPost (e.updateMData! (← visit b))

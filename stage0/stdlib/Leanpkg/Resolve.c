@@ -54,10 +54,10 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_List_mapM___at_Leanpkg_constructPath___spec__1(lean_object*, lean_object*);
 uint8_t l_instDecidableNot___rarg(uint8_t);
 lean_object* l_Leanpkg_solveDepsCore_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_IO_eprintln___at___private_Init_System_IO_0__IO_eprintlnAux___spec__1(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at_Leanpkg_solveDepsCore___spec__3___closed__3;
 lean_object* l_Leanpkg_materialize___closed__6;
-lean_object* l_IO_print___at_IO_println___spec__1(lean_object*, lean_object*);
 lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 lean_object* l_Leanpkg_constructPathCore___rarg(lean_object*, lean_object*);
 lean_object* l_List_foldl___at_Leanpkg_Assignment_fold___spec__1(lean_object*);
@@ -108,12 +108,12 @@ lean_object* l_List_foldl___at_Leanpkg_Assignment_fold___spec__1___rarg(lean_obj
 lean_object* l_Leanpkg_materialize___lambda__1___closed__3;
 lean_object* l_Leanpkg_solveDepsCore_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_Assignment_empty;
+lean_object* l_IO_eprint___at_IO_eprintln___spec__1(lean_object*, lean_object*);
 lean_object* l_Leanpkg_Assignment_contains___boxed(lean_object*, lean_object*);
 lean_object* l_Leanpkg_materialize___closed__2;
 lean_object* l_StateT_instMonadStateT___rarg(lean_object*);
 uint8_t l_Leanpkg_notYetAssigned___closed__2;
 extern lean_object* l_prec_x28___x29___closed__7;
-lean_object* l_IO_println___at_Lean_instEval___spec__1(lean_object*, lean_object*);
 lean_object* l_IO_isDir___at_Leanpkg_materialize___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Leanpkg_leanpkgTomlFn___closed__1;
 lean_object* l_Leanpkg_materialize___closed__4;
@@ -895,7 +895,7 @@ x_11 = l_Leanpkg_materialize___closed__1;
 x_12 = lean_string_append(x_10, x_11);
 x_13 = lean_string_append(x_12, x_7);
 x_14 = lean_string_append(x_13, x_9);
-x_15 = l_IO_println___at_Lean_instEval___spec__1(x_14, x_4);
+x_15 = l_IO_eprintln___at___private_Init_System_IO_0__IO_eprintlnAux___spec__1(x_14, x_4);
 if (lean_obj_tag(x_15) == 0)
 {
 uint8_t x_16; 
@@ -1001,7 +1001,7 @@ x_47 = l_Leanpkg_materialize___closed__4;
 x_48 = lean_string_append(x_46, x_47);
 x_49 = lean_string_append(x_48, x_35);
 x_50 = lean_string_append(x_49, x_42);
-x_51 = l_IO_println___at_Lean_instEval___spec__1(x_50, x_40);
+x_51 = l_IO_eprintln___at___private_Init_System_IO_0__IO_eprintlnAux___spec__1(x_50, x_40);
 if (lean_obj_tag(x_51) == 0)
 {
 lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; 
@@ -1109,7 +1109,7 @@ x_80 = l_Leanpkg_materialize___closed__8;
 x_81 = lean_string_append(x_79, x_80);
 x_82 = lean_string_append(x_81, x_31);
 x_83 = lean_string_append(x_82, x_75);
-x_84 = l_IO_print___at_IO_println___spec__1(x_83, x_73);
+x_84 = l_IO_eprint___at_IO_eprintln___spec__1(x_83, x_73);
 if (lean_obj_tag(x_84) == 0)
 {
 lean_object* x_85; lean_object* x_86; 
@@ -1136,7 +1136,7 @@ goto block_121;
 block_121:
 {
 lean_object* x_87; 
-x_87 = l_IO_println___at_Lean_instEval___spec__1(x_86, x_85);
+x_87 = l_IO_eprintln___at___private_Init_System_IO_0__IO_eprintlnAux___spec__1(x_86, x_85);
 if (lean_obj_tag(x_87) == 0)
 {
 lean_object* x_88; lean_object* x_89; 

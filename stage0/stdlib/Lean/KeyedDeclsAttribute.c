@@ -63,7 +63,6 @@ lean_object* l_Lean_KeyedDeclsAttribute_getValues(lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_KeyedDeclsAttribute_Table_insert___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_Def_builtinName___default;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2818____closed__17;
 lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -108,6 +107,7 @@ lean_object* l___private_Lean_KeyedDeclsAttribute_0__Lean_KeyedDeclsAttribute_ad
 extern lean_object* l_Lean_registerTagAttribute___closed__5;
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_KeyedDeclsAttribute_Table_insert___spec__7___rarg(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_KeyedDeclsAttribute_Table_insert___spec__7(lean_object*);
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2843____closed__17;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f___at_Lean_KeyedDeclsAttribute_getValues___spec__6(lean_object*);
 uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_115_(uint8_t, uint8_t);
@@ -188,6 +188,7 @@ size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___closed__2;
 extern lean_object* l_Lean_registerTagAttribute___lambda__6___closed__2;
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2843____closed__5;
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_KeyedDeclsAttribute_Table_insert___spec__4(lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_KeyedDeclsAttribute_Table_insert___spec__13(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
@@ -265,7 +266,6 @@ lean_object* l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__12;
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_KeyedDeclsAttribute_Table_insert___spec__24___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMap___at_Lean_KeyedDeclsAttribute_ExtensionState_table___default___spec__1(lean_object*);
-extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2818____closed__5;
 lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_insert___at_Lean_KeyedDeclsAttribute_Table_insert___spec__25(lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__5___closed__1;
@@ -3815,7 +3815,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_2818____closed__5;
+x_2 = l_myMacro____x40_Init_System_IO___hyg_2843____closed__5;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
@@ -3825,7 +3825,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_2818____closed__17;
+x_2 = l_myMacro____x40_Init_System_IO___hyg_2843____closed__17;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }

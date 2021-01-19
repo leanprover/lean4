@@ -28,7 +28,6 @@ lean_object* l_Lean_instToExprChar___closed__1;
 lean_object* l_Lean_instToExprChar___closed__2;
 lean_object* l_Lean_instToExprNat___closed__1;
 extern lean_object* l___private_Init_Meta_0__Lean_quoteOption___rarg___closed__3;
-extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2818____closed__17;
 lean_object* l_Lean_instToExprBool___closed__2;
 lean_object* l_Lean_instToExprBool___lambda__1(uint8_t);
 extern lean_object* l_Lean_mkSimpleThunkType___closed__1;
@@ -49,6 +48,7 @@ lean_object* l_Lean_instToExprUnit___lambda__1___boxed(lean_object*);
 lean_object* l_Lean_instToExprOption(lean_object*);
 lean_object* l_Lean_instToExprList___rarg___closed__3;
 extern lean_object* l_Lean_instQuoteBool___closed__5;
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2843____closed__17;
 lean_object* l_Lean_Name_toExprAux___closed__1;
 lean_object* l_Lean_instToExprOption___rarg(lean_object*);
 extern lean_object* l_Lean_instQuoteProd___rarg___closed__2;
@@ -396,7 +396,7 @@ static lean_object* _init_l_Lean_instToExprUnit___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_System_IO___hyg_2818____closed__17;
+x_1 = l_myMacro____x40_Init_System_IO___hyg_2843____closed__17;
 x_2 = l_Lean_instToExprUnit___lambda__1___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

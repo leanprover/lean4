@@ -130,7 +130,12 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     // we might need to revisit escaping here.
     for (auto arg : args) {
         command += " \"";
-        command += arg.data();
+        for (char const * c = arg.data(); *c != 0; c++) {
+            if (*c == '"') {
+                command += '\\';
+            }
+            command += *c;
+        }
         command += "\"";
     }
 
@@ -296,7 +301,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         pargs.push_back(NULL);
 
         if (execvp(pargs[0], pargs.data()) < 0) {
-            std::cerr << "could not execute external process" << std::endl;
+            std::cerr << "could not execute external process '" << pargs[0] << "'" << std::endl;
             exit(-1);
         }
     } else if (pid == -1) {

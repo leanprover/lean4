@@ -153,6 +153,7 @@ section ServerM
     hIn            : FS.Stream
     hOut           : FS.Stream
     hLog           : FS.Stream
+    args           : List String
     fileWorkersRef : IO.Ref FileWorkerMap
     -- We store these to pass them to workers.
     initParams     : InitializeParams
@@ -213,7 +214,7 @@ section ServerM
       toStdioConfig := workerCfg
       cmd           := st.workerPath
       -- append file and imports for Nix support; ignored otherwise
-      args          := #["--worker"] ++ (Lean.Elab.headerToImports headerAst).toArray.map (toString ·.module)
+      args          := #["--worker"] ++ (Lean.Elab.headerToImports headerAst).toArray.map (toString ·.module) ++ st.args.toArray
     }
     let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
     -- The task will never access itself, so this is fine
@@ -259,13 +260,15 @@ section ServerM
       Messages that couldn't be sent can be queued up via the queueFailedMessage flag and
       will be discharged after the FileWorker is restarted. -/
   def tryWriteMessage [Coe α JsonRpc.Message] (uri : DocumentUri) (msg : α) (writeAction : FileWorker → α → IO Unit)
-  (queueFailedMessage := true) : ServerM Unit := do
+  (queueFailedMessage := true) (restartCrashedWorker := false) : ServerM Unit := do
     let fw ← findFileWorker uri
     match fw.state with
     | WorkerState.crashed queuedMsgs =>
       let mut queuedMsgs := queuedMsgs
       if queueFailedMessage then
         queuedMsgs := queuedMsgs.push msg
+      if !restartCrashedWorker then
+        return
       -- restart the crashed FileWorker
       eraseFileWorker uri
       startFileWorker fw.doc.meta
@@ -324,7 +327,7 @@ section NotificationHandling
     else
       let newDoc : OpenDocument := ⟨newMeta, oldDoc.headerAst⟩
       updateFileWorkers { fw with doc := newDoc }
-      tryWriteMessage doc.uri ⟨"textDocument/didChange", p⟩ FileWorker.writeNotification
+      tryWriteMessage doc.uri ⟨"textDocument/didChange", p⟩ FileWorker.writeNotification (restartCrashedWorker := true)
 
   def handleDidClose (p : DidCloseTextDocumentParams) : ServerM Unit :=
     terminateFileWorker p.textDocument.uri
@@ -449,10 +452,12 @@ def initAndRunWatchdogAux : ServerM Unit := do
     shutdown
     throw err
 
-def initAndRunWatchdog (i o e : FS.Stream) : IO Unit := do
-  let workerPath ← match (←IO.getEnv "LEAN_WORKER_PATH") with
-    | none   => IO.appPath
-    | some p => p
+def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
+  let mut workerPath ← IO.appPath
+  if let some path := (←IO.getEnv "LEAN_SYSROOT") then
+    workerPath := s!"{path}/bin/lean{System.FilePath.exeSuffix}"
+  if let some path := (←IO.getEnv "LEAN_WORKER_PATH") then
+    workerPath := path
   let fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap)
   let i ← maybeTee "wdIn.txt" false i
   let o ← maybeTee "wdOut.txt" true o
@@ -473,6 +478,7 @@ def initAndRunWatchdog (i o e : FS.Stream) : IO Unit := do
     hIn            := i
     hOut           := o
     hLog           := e
+    args           := args
     fileWorkersRef := fileWorkersRef
     initParams     := initRequest.param
     workerPath     := workerPath
@@ -480,12 +486,12 @@ def initAndRunWatchdog (i o e : FS.Stream) : IO Unit := do
   }
 
 @[export lean_server_watchdog_main]
-def watchdogMain : IO UInt32 := do
+def watchdogMain (args : List String) : IO UInt32 := do
   let i ← IO.getStdin
   let o ← IO.getStdout
   let e ← IO.getStderr
   try
-    initAndRunWatchdog i o e
+    initAndRunWatchdog args i o e
     return 0
   catch err =>
     e.putStrLn s!"Watchdog error: {err}"

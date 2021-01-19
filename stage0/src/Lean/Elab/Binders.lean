@@ -105,7 +105,8 @@ private def getBinderIds (ids : Syntax) : TermElabM (Array Syntax) :=
   ```
   def typeSpec := parser! " : " >> termParser
   def optType : Parser := optional typeSpec
-  ``` -/
+  ```
+-/
 def expandOptType (ref : Syntax) (optType : Syntax) : Syntax :=
   if optType.isNone then
     mkHole ref

@@ -477,6 +477,14 @@ extern "C" obj_res lean_io_file_exists(b_obj_arg fname, obj_arg) {
     return io_result_mk_ok(box(b));
 }
 
+extern "C" obj_res lean_io_remove_file(b_obj_arg fname, obj_arg) {
+    if (std::remove(string_cstr(fname)) == 0) {
+        return io_result_mk_ok(box(0));
+    } else {
+        return io_result_mk_error(decode_io_error(errno, nullptr));
+    }
+}
+
 extern "C" obj_res lean_io_app_dir(obj_arg) {
 #if defined(LEAN_WINDOWS)
     HMODULE hModule = GetModuleHandleW(NULL);

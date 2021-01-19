@@ -4894,7 +4894,7 @@ case 6:
 lean_object* x_23; lean_object* x_24; 
 lean_dec(x_8);
 x_23 = l_Array_empty___closed__1;
-x_24 = l_Lean_Meta_transform_visit_visitForall___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_23, x_15, x_10);
+x_24 = l_Lean_Meta_transform_visit_visitLambda___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_23, x_15, x_10);
 return x_24;
 }
 case 7:
@@ -4902,7 +4902,7 @@ case 7:
 lean_object* x_25; lean_object* x_26; 
 lean_dec(x_8);
 x_25 = l_Array_empty___closed__1;
-x_26 = l_Lean_Meta_transform_visit_visitLambda___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_25, x_15, x_10);
+x_26 = l_Lean_Meta_transform_visit_visitForall___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_25, x_15, x_10);
 return x_26;
 }
 case 8:

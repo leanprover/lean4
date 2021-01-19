@@ -342,41 +342,15 @@ goto _start;
 }
 else
 {
-uint32_t x_17; lean_object* x_18; uint8_t x_19; 
-x_17 = lean_string_utf8_get(x_1, x_3);
-x_18 = l_System_FilePath_searchPathSeparators;
-x_19 = l_List_elem___at_System_FilePath_splitSearchPath___spec__1(x_17, x_18);
-if (x_19 == 0)
-{
-lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_20 = lean_string_utf8_extract(x_1, x_2, x_3);
+lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+x_17 = lean_string_utf8_extract(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
-x_21 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_21, 0, x_20);
-lean_ctor_set(x_21, 1, x_4);
-x_22 = l_List_reverse___rarg(x_21);
-return x_22;
-}
-else
-{
-lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
-x_23 = lean_unsigned_to_nat(1u);
-x_24 = lean_nat_sub(x_3, x_23);
-lean_dec(x_3);
-x_25 = lean_string_utf8_extract(x_1, x_2, x_24);
-lean_dec(x_24);
-lean_dec(x_2);
-x_26 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_26, 0, x_25);
-lean_ctor_set(x_26, 1, x_4);
-x_27 = l_Lean_instInhabitedParserDescr___closed__1;
-x_28 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_28, 0, x_27);
-lean_ctor_set(x_28, 1, x_26);
-x_29 = l_List_reverse___rarg(x_28);
-return x_29;
-}
+x_18 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_18, 0, x_17);
+lean_ctor_set(x_18, 1, x_4);
+x_19 = l_List_reverse___rarg(x_18);
+return x_19;
 }
 }
 }

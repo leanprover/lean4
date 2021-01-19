@@ -309,7 +309,8 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
         if discr.getNumArgs >= $quoted.getNumArgs - 1 then
           match discr[0], ..., discr[idx-1], mkNullNode (discr.getArgs.extract idx (discr.getNumArgs - $numSuffix))), ..., discr[quoted.getNumArgs - 1] with
             | `(pat_0), ... `(pat_(idx-1)), `($[...])*, `(pat_(idx+1)), ...
-        ``` -/
+        ```
+      -/
       let numSuffix := quoted.getNumArgs - 1 - idx
       pure {
         check    := slice idx numSuffix

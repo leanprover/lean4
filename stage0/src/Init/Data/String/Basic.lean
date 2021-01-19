@@ -123,7 +123,7 @@ def extract : (@& String) → (@& Pos) → (@& Pos) → String
 
 @[specialize] partial def splitAux (s : String) (p : Char → Bool) (b : Pos) (i : Pos) (r : List String) : List String :=
   if s.atEnd i then
-    let r := if p (s.get i) then ""::(s.extract b (i-1))::r else (s.extract b i)::r
+    let r := (s.extract b i)::r
     r.reverse
   else if p (s.get i) then
     let i := s.next i
@@ -522,6 +522,12 @@ def trim (s : String) : String :=
 
 @[inline] def nextUntil (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos :=
   nextWhile s (fun c => !p c) i
+
+def toUpper (s : String) : String :=
+  s.map Char.toUpper
+
+def toLower (s : String) : String :=
+  s.map Char.toLower
 
 def capitalize (s : String) :=
   s.set 0 <| s.get 0 |>.toUpper

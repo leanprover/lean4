@@ -18,7 +18,40 @@ def readManifest : IO Manifest := do
 def writeManifest (manifest : Lean.Syntax) (fn : String) : IO Unit := do
   IO.FS.writeFile fn manifest.reprint.get!
 
-def configure : IO String := do
+def lockFileName := ".leanpkg-lock"
+
+partial def withLockFile (x : IO α) : IO α := do
+  acquire
+  try
+    x
+  finally
+    IO.removeFile lockFileName
+  where
+    acquire (firstTime := true) :=
+      try
+        -- TODO: lock file should ideally contain PID
+        if !System.Platform.isWindows then
+          discard <| IO.Prim.Handle.mk lockFileName "wx"
+        else
+          -- `x` mode doesn't seem to work on Windows even though it's listed at
+          -- https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/fopen-wfopen?view=msvc-160
+          -- ...? Let's use the slightly racy approach then.
+          if ← IO.fileExists lockFileName then
+            throw <| IO.Error.alreadyExists 0 ""
+          discard <| IO.Prim.Handle.mk lockFileName "w"
+      catch
+        | IO.Error.alreadyExists _ _ => do
+          if firstTime then
+            IO.eprintln s!"Waiting for prior leanpkg invocation to finish... (remove '{lockFileName}' if stuck)"
+          IO.sleep (ms := 300)
+          acquire (firstTime := false)
+        | e => throw e
+
+structure Configuration :=
+  leanPath    : String
+  leanSrcPath : String
+
+def configure : IO Configuration := do
   let d ← readManifest
   IO.eprintln $ "configuring " ++ d.name ++ " " ++ d.version
   let assg ← solveDeps d
@@ -32,20 +65,38 @@ def configure : IO String := do
         cwd := path
         args := #["build"]
       }
-  System.FilePath.searchPathSeparator.toString.intercalate <| paths.map (· ++ "/build")
+  let sep := System.FilePath.searchPathSeparator.toString
+  return {
+    leanPath    := sep.intercalate <| paths.map (· ++ "/build")
+    leanSrcPath := sep.intercalate paths
+  }
 
-def build (leanArgs : List String) : IO Unit := do
+def execMake (makeArgs leanArgs : List String) (leanPath : String) : IO Unit := withLockFile do
   let manifest ← readManifest
-  let path ← configure
   let leanArgs := (match manifest.timeout with | some t => ["-T", toString t] | none => []) ++ leanArgs
   let mut spawnArgs := {
-    cmd := "leanmake"
+    cmd := "sh"
     cwd := manifest.effectivePath
-    args := #[s!"LEAN_OPTS={" ".intercalate leanArgs}", s!"LEAN_PATH={path}"]
+    args := #["-c", s!"\"{← IO.appDir}/leanmake\" LEAN_OPTS=\"{" ".intercalate leanArgs}\" LEAN_PATH=\"{leanPath}\" {" ".intercalate makeArgs} >&2"]
   }
-  if System.Platform.isWindows then
-    spawnArgs := { spawnArgs with cmd := "sh", args := #[s!"{← IO.appDir}\\{spawnArgs.cmd}"] ++ spawnArgs.args }
   execCmd spawnArgs
+
+def buildImports (imports : List String) (leanArgs : List String) : IO Unit := do
+  unless (← IO.fileExists leanpkgTomlFn) do
+    return
+  let manifest ← readManifest
+  let cfg ← configure
+  let imports := imports.map (·.toName)
+  -- TODO: shoddy check
+  let localImports := imports.filter fun i => i.getRoot.toString.toLower == manifest.name.toLower
+  if localImports != [] then
+    let oleans := localImports.map fun i => s!"\"build{Lean.modPathToFilePath i}.olean\""
+    execMake oleans leanArgs cfg.leanPath
+  IO.println cfg.leanPath
+  IO.println cfg.leanSrcPath
+
+def build (leanArgs : List String) : IO Unit := do
+  execMake [] leanArgs (← configure).leanPath
 
 def initGitignoreContents :=
   "/build
@@ -67,7 +118,7 @@ version = \"0.1\"
       execCmd {cmd := "git", args := #["init", "-q"]}
       unless upstreamGitBranch = "master" do
         execCmd {cmd := "git", args := #["checkout", "-B", upstreamGitBranch]}
-    ) <|> IO.println "WARNING: failed to initialize git repository"
+    ) <|> IO.eprintln "WARNING: failed to initialize git repository"
 
 def init (n : String) := initPkg n false
 
@@ -83,7 +134,8 @@ init <name>            create a Lean package in the current directory
 See `leanpkg help <command>` for more information on a specific command."
 
 def main : (cmd : String) → (leanpkgArgs leanArgs : List String) → IO Unit
-  | "configure", [],     []        => configure >>= IO.println
+  | "configure", [],     []        => discard <| configure
+  | "print-paths", leanpkgArgs, leanArgs => buildImports leanpkgArgs leanArgs
   | "build",     _,      leanArgs  => build leanArgs
   | "init",      [Name], []        => init Name
   | "help",      ["configure"], [] => IO.println "Download dependencies

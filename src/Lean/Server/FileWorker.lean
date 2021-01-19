@@ -198,7 +198,7 @@ section ServerM
       | some path => s!"{path}/bin/leanpkg{System.FilePath.exeSuffix}"
       | _         => s!"{← appDir}/leanpkg{System.FilePath.exeSuffix}"
     -- NOTE: leanpkg does not exist in stage 0 (yet?)
-    if dbgTraceVal (← fileExists <| dbgTraceVal leanpkgPath) then
+    if (← fileExists leanpkgPath) then
       leanpkgSetupSearchPath leanpkgPath m (Lean.Elab.headerToImports headerStx).toArray
     let (headerEnv, msgLog) ← Elab.processHeader headerStx opts msgLog inputCtx
     let cmdState := Elab.Command.mkState headerEnv msgLog opts

@@ -153,12 +153,12 @@ section ServerM
     AsyncList.unfoldAsync (nextCmdSnap m . cancelTk (←read)) initSnap
 
   /-- Use `leanpkg print-paths` to compile dependencies on the fly and add them to LEAN_PATH. -/
-  partial def leanpkgSetupSearchPath (m : DocumentMeta) (imports : Array Import) : ServerM Unit := do
+  partial def leanpkgSetupSearchPath (leanpkgPath : String) (m : DocumentMeta) (imports : Array Import) : ServerM Unit := do
     let leanpkgProc ← Process.spawn {
       stdin  := Process.Stdio.null
       stdout := Process.Stdio.piped
       stderr := Process.Stdio.piped
-      cmd    := s!"{← appDir}/leanpkg"
+      cmd    := leanpkgPath
       args   := #["print-paths"] ++ imports.map (toString ·.module)
     }
     let hOut := (← read).hOut
@@ -194,9 +194,12 @@ section ServerM
     let opts := {}  -- TODO
     let inputCtx := Parser.mkInputContext m.text.source "<input>"
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
+    let leanpkgPath ← match ← IO.getEnv "LEAN_SYSROOT" with
+      | some path => s!"{path}/bin/leanpkg{System.FilePath.exeSuffix}"
+      | _         => s!"{← appDir}/leanpkg{System.FilePath.exeSuffix}"
     -- NOTE: leanpkg does not exist in stage 0 (yet?)
-    if (← fileExists "leanpkg.toml") && (← fileExists s!"{← appDir}/leanpkg") then
-      leanpkgSetupSearchPath m (Lean.Elab.headerToImports headerStx).toArray
+    if dbgTraceVal (← fileExists <| dbgTraceVal leanpkgPath) then
+      leanpkgSetupSearchPath leanpkgPath m (Lean.Elab.headerToImports headerStx).toArray
     let (headerEnv, msgLog) ← Elab.processHeader headerStx opts msgLog inputCtx
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
     let opts := opts.setBool `interpreter.prefer_native false

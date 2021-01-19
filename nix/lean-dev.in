@@ -1,54 +1,12 @@
 #!@bash@/bin/bash
+
 set -euo pipefail
-PATH=@nix@/bin:$PATH
 
-input=
-inputFile=
-server=0
-worker=0
-dir="$PWD"
-deps=
+target=".#lean"
 args=(-- "$@")
-for p in "$@"; do
-    case "$p" in
-        --stdin) input="$(< /dev/stdin)";;
-        --server)
-            server=1
-            export LEAN_WORKER_PATH="$0"
-            ;;
-        --worker) worker=1;;
-        -*) ;;
-        *)
-            if [[ $worker == 1 ]]; then
-                deps="$deps $p"
-            else
-                inputFile="$p"
-                input="$(< "$inputFile")"
-                dir="$(dirname "$inputFile")"
-            fi
-            ;;
-    esac
-done
-
-root="$dir"
-# find package root
-while [[ "$root" != / ]]; do
-    [ -f "$root/flake.nix" ] && break
-    root="$(realpath "$root/..")"
-done
-# fall back to current package
-[[ "$root" == / ]] && root="@srcRoot@"
-if [[ -n "$input" || -n "$inputFile" ]]; then
-    deps="$(echo -n "$input" | nix run "$root#print-lean-deps" 2> /dev/null)"
-fi
-target="$root#check-mod"
+# fall back to initial package if not in package
+[[ ! -f flake.nix ]] && target="@srcRoot@"
 # HACK: use stage 0 instead of 1 inside Lean's own `src/`
-[[ -d "$root/src/Lean" && "$dir" == "$root/src"* ]] && target="@srcCheckTarget@" && args=@srcCheckArgs@
-for dep in $deps; do
-    target="$target.\"$dep\""
-done
-if [[ -z "$input" ]]; then
-    nix run "$target" ${args[*]}
-else
-    echo -n "$input" | nix run "$target" ${args[*]}
-fi
+[[ -d Lean && -f ../flake.nix ]] && target="@srcTarget@" && args=@srcArgs@
+
+@nix@/bin/nix run "$target" ${args[*]}

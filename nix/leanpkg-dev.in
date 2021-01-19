@@ -1,0 +1,18 @@
+#!@bash@/bin/bash
+
+set -euo pipefail
+
+[[ $# -gt 0 && "$1" == print-paths && ( -f flake.nix || -d Lean && -f ../flake.nix ) ]] || exec @leanpkg@/bin/leanpkg "$@"
+shift
+deps="$@"
+
+target=".#print-paths"
+args=()
+# HACK: use stage 0 instead of 1 inside Lean's own `src/`
+[[ -d Lean && -f ../flake.nix ]] && target="@srcTarget@print-paths" && args=@srcArgs@
+for dep in $deps; do
+    target="$target.\"$dep\""
+done
+# -v only has "built ...", but "-vv" is a bit too verbose
+echo "Building dependencies..." >&2
+@nix@/bin/nix run "$target" ${args[*]} -v

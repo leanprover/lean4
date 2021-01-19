@@ -100,9 +100,9 @@ let
 in {
   inherit cc lean4-mode buildLeanPackage llvmPackages;
   lean = lean.stage1;
-  stage0check-mod = (lean.stage1.Leanpkg.overrideArgs { lean-final = lean.stage0; }).check-mod;
-  HEAD-as-stage0 = (lean.stage1.Lean.overrideArgs { srcCheckTarget = "$root#stage0-from-input.stage0check-mod"; srcCheckArgs = "(--override-input lean-stage0 $root\?rev=$(git rev-parse HEAD) -- -Dinterpreter.prefer_native=false \"$@\")"; });
-  HEAD-as-stage1 = (lean.stage1.Lean.overrideArgs { srcCheckTarget = "$root\?rev=$(git rev-parse HEAD)#stage0check-mod"; });
+  stage0print-paths = lean.stage1.Lean.print-paths;
+  HEAD-as-stage0 = (lean.stage1.Lean.overrideArgs { srcTarget = "..#stage0-from-input.stage0"; srcArgs = "(--override-input lean-stage0 ..\?rev=$(git rev-parse HEAD) -- -Dinterpreter.prefer_native=false \"$@\")"; });
+  HEAD-as-stage1 = (lean.stage1.Lean.overrideArgs { srcTarget = "..\?rev=$(git rev-parse HEAD)#stage0"; });
   temci = (import temci {}).override { doCheck = false; };
   nix = nix-pinned;
   nixpkgs = pkgs;

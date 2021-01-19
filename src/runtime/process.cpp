@@ -301,7 +301,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         pargs.push_back(NULL);
 
         if (execvp(pargs[0], pargs.data()) < 0) {
-            std::cerr << "could not execute external process" << std::endl;
+            std::cerr << "could not execute external process '" << pargs[0] << "'" << std::endl;
             exit(-1);
         }
     } else if (pid == -1) {

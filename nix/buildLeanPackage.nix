@@ -4,7 +4,7 @@
 let lean-final' = lean-final; in
 { name, src, deps ? [ lean.Lean ],
   debug ? false, leanFlags ? [], leancFlags ? [], executableName ? lib.toLower name,
-  srcCheckTarget ? "$root#stage0check-mod", srcCheckArgs ? "(\${args[*]})", lean-final ? lean-final' }:
+  srcTarget ? "..#stage0", srcArgs ? "(\${args[*]})", lean-final ? lean-final' }:
 with builtins; let
   # "Init.Core" ~> "Init/Core"
   modToPath = mod: replaceStrings ["."] ["/"] mod;
@@ -111,17 +111,18 @@ with builtins; let
       modMap' = lib.foldr buildModAndDeps modMap deps;
     in modMap' // { ${mod} = buildMod mod (map (dep: if modMap' ? ${dep} then modMap'.${dep} else externalModMap.${dep}) deps); };
   makeEmacsWrapper = name: lean: writeShellScriptBin name ''
-    ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\") (require 'lean4-mode))" "$@"
+    LEAN_SYSROOT=${lean} ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\") (require 'lean4-mode))" "$@"
   '';
   makeVSCodeWrapper = name: lean: writeShellScriptBin name ''
-    PATH=${lean}/bin:$PATH ${lean-vscode}/bin/code "$@"
+    LEAN_SYSROOT=${lean} PATH=${lean}/bin:$PATH ${lean-vscode}/bin/code "$@"
   '';
-  checkMod = deps: writeShellScriptBin "check-mod" ''
-    LEAN_PATH=${depRoot "check-mod" deps} ${lean-final}/bin/lean "$@"
+  printPaths = deps: writeShellScriptBin "print-paths" ''
+    echo "${depRoot "print-paths" deps}"
+    echo ".:${lib.concatStringsSep ":" (map (dep: dep.src) (attrValues allDeps))}"
   '';
-  makeCheckModFor = deps: mods: checkMod deps // mapAttrs (_: mod: makeCheckModFor (deps ++ [mod]) mods) mods;
+  makePrintPathsFor = deps: mods: printPaths deps // mapAttrs (_: mod: makePrintPathsFor (deps ++ [mod]) mods) mods;
 in rec {
-  inherit name lean deps allDeps print-lean-deps;
+  inherit name lean deps allDeps print-lean-deps src;
   mods      = buildModAndDeps name {};
   modRoot   = depRoot name [ mods.${name} ];
   cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (attrValues mods); };
@@ -137,19 +138,30 @@ in rec {
   '';
 
   lean-package = writeShellScriptBin "lean" ''
-    LEAN_PATH=${modRoot}:$LEAN_PATH ${lean-final}/bin/lean "$@"
+    LEAN_PATH=${modRoot}:$LEAN_PATH LEAN_SRC_PATH=${src}:$LEAN_SRC_PATH ${lean-final}/bin/lean "$@"
   '';
   emacs-package = makeEmacsWrapper "emacs-package" lean-package;
   vscode-package = makeVSCodeWrapper "vscode-package" lean-package;
 
-  check-mod = makeCheckModFor [] (mods // externalModMap);
-  lean-dev = substituteAll {
+  print-paths = makePrintPathsFor [] (mods // externalModMap);
+  # `lean` wrapper that dynamically runs Nix for the actual `lean` executable so the same editor can be
+  # used for multiple projects/after upgrading the `lean` input/for editing both stage 1 and the tests
+  lean-bin-dev = substituteAll {
     name = "lean";
     dir = "bin";
     src = ./lean-dev.in;
     isExecutable = true;
-    inherit lean bash nix srcRoot srcCheckTarget srcCheckArgs;
+    inherit bash nix srcRoot srcTarget srcArgs;
   };
+  leanpkg-dev = substituteAll {
+    name = "leanpkg";
+    dir = "bin";
+    src = ./leanpkg-dev.in;
+    isExecutable = true;
+    inherit bash nix srcTarget srcArgs;
+    leanpkg = lean;
+  };
+  lean-dev = symlinkJoin { name = "lean-dev"; paths = [ lean-bin-dev leanpkg-dev ]; };
   emacs-dev = makeEmacsWrapper "emacs-dev" lean-dev;
   vscode-dev = makeVSCodeWrapper "vscode-dev" lean-dev;
 }

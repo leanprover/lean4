@@ -82,6 +82,8 @@ def execMake (makeArgs leanArgs : List String) (leanPath : String) : IO Unit := 
   execCmd spawnArgs
 
 def buildImports (imports : List String) (leanArgs : List String) : IO Unit := do
+  unless (← IO.fileExists leanpkgTomlFn) do
+    return
   let manifest ← readManifest
   let cfg ← configure
   let imports := imports.map (·.toName)

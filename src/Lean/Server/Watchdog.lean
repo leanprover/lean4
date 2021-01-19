@@ -453,9 +453,11 @@ def initAndRunWatchdogAux : ServerM Unit := do
     throw err
 
 def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
-  let workerPath ← match (←IO.getEnv "LEAN_WORKER_PATH") with
-    | none   => IO.appPath
-    | some p => p
+  let mut workerPath ← IO.appPath
+  if let some path := (←IO.getEnv "LEAN_SYSROOT") then
+    workerPath := s!"{path}/bin/lean{System.FilePath.exeSuffix}"
+  if let some path := (←IO.getEnv "LEAN_WORKER_PATH") then
+    workerPath := path
   let fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap)
   let i ← maybeTee "wdIn.txt" false i
   let o ← maybeTee "wdOut.txt" true o

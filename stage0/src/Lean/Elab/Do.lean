@@ -573,7 +573,8 @@ def getDoHaveVar (doHave : Syntax) : Name :=
     haveDecl := optIdent >> termParser >> (haveAssign <|> fromTerm <|> byTactic)
     optIdent := optional (try (ident >> " : "))
 
-    ``` -/
+    ```
+  -/
   let optIdent := doHave[1]
   if optIdent.isNone then
     `this
@@ -1220,7 +1221,8 @@ mutual
      ```
      def doIdDecl   := parser! ident >> optType >> leftArrow >> doElemParser
      def doPatDecl  := parser! termParser >> leftArrow >> doElemParser >> optional (" | " >> doElemParser)
-     ``` -/
+     ```
+  -/
   partial def doLetArrowToCode (doLetArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
     let ref     := doLetArrow
     let decl    := doLetArrow[2]
@@ -1262,7 +1264,8 @@ mutual
      `doReassignArrow` is of the form
      ```
      (doIdDecl <|> doPatDecl)
-     ``` -/
+     ```
+  -/
   partial def doReassignArrowToCode (doReassignArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
     let ref  := doReassignArrow
     let decl := doReassignArrow[0]
@@ -1315,7 +1318,8 @@ mutual
      ```
      def doForDecl := parser! termParser >> " in " >> withForbidden "do" termParser
      def doFor := parser! "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
-     ``` -/
+     ```
+  -/
   partial def doForToCode (doFor : Syntax) (doElems : List Syntax) : M CodeBlock := do
     let doForDecls := doFor[1].getSepArgs
     if doForDecls.size > 1 then
@@ -1403,7 +1407,8 @@ mutual
     def doCatch      := parser! "catch " >> binderIdent >> optional (":" >> termParser) >> darrow >> doSeq
     def doCatchMatch := parser! "catch " >> doMatchAlts
     def doFinally    := parser! "finally " >> doSeq
-    ``` -/
+    ```
+  -/
   partial def doTryToCode (doTry : Syntax) (doElems: List Syntax) : M CodeBlock := do
     let ref := doTry
     let tryCode ← doSeqToCode (getDoSeqElems doTry[1])

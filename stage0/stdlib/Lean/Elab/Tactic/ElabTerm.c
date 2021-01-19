@@ -1539,7 +1539,7 @@ x_23 = l_Lean_Meta_assignExprMVar(x_4, x_21, x_11, x_12, x_13, x_14, x_20);
 x_24 = lean_ctor_get(x_23, 1);
 lean_inc(x_24);
 lean_dec(x_23);
-x_25 = l_List_append___rarg(x_5, x_22);
+x_25 = l_List_append___rarg(x_22, x_5);
 x_26 = l_Lean_Elab_Tactic_setGoals(x_25, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_24);
 lean_dec(x_14);
 lean_dec(x_13);

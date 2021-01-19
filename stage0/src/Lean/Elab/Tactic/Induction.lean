@@ -365,7 +365,8 @@ private def getRecInfoDefault (major : Expr) (optInductionAlts : Syntax) (allowM
   usingRec : Parser := optional (" using " >> ident)
   generalizingVars := optional (" generalizing " >> many1 ident)
   induction := parser! nonReservedSymbol "induction " >> sepBy1 termParser ", " >> usingRec >> generalizingVars >> optional inductionAlts
-  ``` -/
+  ```
+-/
 private def getRecInfo (stx : Syntax) (major : Expr) : TacticM RecInfo := withRef stx $ withMainMVarContext do
   let usingRecStx := stx[2]
   let optInductionAlts := stx[4]

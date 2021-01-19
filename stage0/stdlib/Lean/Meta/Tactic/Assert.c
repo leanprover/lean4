@@ -1207,16 +1207,16 @@ x_11 = 1;
 x_12 = x_3 + x_11;
 if (x_10 == 0)
 {
-lean_dec(x_7);
+lean_object* x_13; 
+x_13 = lean_array_push(x_5, x_7);
 x_3 = x_12;
+x_5 = x_13;
 goto _start;
 }
 else
 {
-lean_object* x_14; 
-x_14 = lean_array_push(x_5, x_7);
+lean_dec(x_7);
 x_3 = x_12;
-x_5 = x_14;
 goto _start;
 }
 }

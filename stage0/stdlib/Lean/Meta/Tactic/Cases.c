@@ -147,7 +147,6 @@ lean_object* l_Lean_Meta_Cases_unifyEqs_match__1(lean_object*);
 lean_object* l_Lean_Meta_generalizeTargets___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_PersistentArray_anyM___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__32(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_casesOnSuffix;
 lean_object* l_Lean_Meta_generalizeTargets___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_PersistentArray_anyM___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__39(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
@@ -215,6 +214,7 @@ lean_object* l_Lean_Meta_Cases_unifyEqs___lambda__1___boxed(lean_object*, lean_o
 lean_object* l_Lean_Meta_Cases_unifyEqs_match__3___rarg(lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_6487____closed__4;
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_casesOnSuffix___closed__1;
 extern lean_object* l_Lean_instInhabitedExpr;
 lean_object* l_Std_PersistentArray_anyMAux___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__33___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_generalizeTargets___closed__1;
@@ -250,7 +250,6 @@ lean_object* l_Lean_Meta_Cases_unifyEqs_injection_match__1___rarg(lean_object*, 
 lean_object* l_Lean_Meta_mkFreshExprMVarAt(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* l_Lean_Meta_Cases_cases___lambda__1___closed__2;
-extern lean_object* l_Lean_Meta_casesOnSuffix___closed__1;
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_get(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_throwInductiveTypeExpected___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -381,6 +380,7 @@ lean_object* l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_toCasesSubgoa
 lean_object* l_Lean_throwError___at_Lean_Meta_Cases_unifyEqs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyMAux___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__12___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_casesOnSuffix;
 uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__42(lean_object*, lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_Meta_Cases_unifyEqs_injection___closed__1;
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3035,7 +3035,7 @@ lean_inc(x_26);
 x_27 = lean_ctor_get(x_26, 0);
 lean_inc(x_27);
 lean_dec(x_26);
-x_28 = l_Lean_Meta_casesOnSuffix___closed__1;
+x_28 = l_Lean_casesOnSuffix___closed__1;
 x_29 = lean_name_mk_string(x_27, x_28);
 x_30 = lean_environment_find(x_1, x_29);
 if (lean_obj_tag(x_30) == 0)
@@ -3238,7 +3238,7 @@ lean_inc(x_68);
 x_69 = lean_ctor_get(x_68, 0);
 lean_inc(x_69);
 lean_dec(x_68);
-x_70 = l_Lean_Meta_casesOnSuffix___closed__1;
+x_70 = l_Lean_casesOnSuffix___closed__1;
 x_71 = lean_name_mk_string(x_69, x_70);
 x_72 = lean_environment_find(x_1, x_71);
 if (lean_obj_tag(x_72) == 0)
@@ -12749,7 +12749,7 @@ lean_inc(x_18);
 x_19 = lean_ctor_get(x_18, 0);
 lean_inc(x_19);
 lean_dec(x_18);
-x_20 = l_Lean_Meta_casesOnSuffix;
+x_20 = l_Lean_casesOnSuffix;
 x_21 = lean_name_mk_string(x_19, x_20);
 x_22 = lean_ctor_get(x_17, 4);
 lean_inc(x_22);

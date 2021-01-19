@@ -4888,7 +4888,6 @@ x_21 = lean_ctor_get(x_20, 1);
 lean_inc(x_21);
 lean_dec(x_20);
 x_22 = l_Lean_compileDecl___at_Lean_Elab_Term_evalExpr___spec__9(x_19, x_3, x_4, x_5, x_6, x_7, x_8, x_21);
-lean_dec(x_19);
 if (lean_obj_tag(x_22) == 0)
 {
 uint8_t x_23; 

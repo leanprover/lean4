@@ -7,15 +7,30 @@ import Lean.Environment
 
 namespace Lean
 
+def casesOnSuffix       := "casesOn"
+def recOnSuffix         := "recOn"
+def brecOnSuffix        := "brecOn"
+def binductionOnSuffix  := "binductionOn"
+
+def mkCasesOnName (indDeclName : Name) : Name := Name.mkStr indDeclName casesOnSuffix
+def mkRecOnName (indDeclName : Name) : Name   := Name.mkStr indDeclName recOnSuffix
+def mkBRecOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName brecOnSuffix
+def mkBInductionOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName binductionOnSuffix
+
 builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExtension `auxRec
 
 @[export lean_mark_aux_recursor]
-def markAuxRecursor (env : Environment) (n : Name) : Environment :=
-  auxRecExt.tag env n
+def markAuxRecursor (env : Environment) (declName : Name) : Environment :=
+  auxRecExt.tag env declName
 
 @[export lean_is_aux_recursor]
-def isAuxRecursor (env : Environment) (n : Name) : Bool :=
-  auxRecExt.isTagged env n
+def isAuxRecursor (env : Environment) (declName : Name) : Bool :=
+  auxRecExt.isTagged env declName
+
+def isCasesOnRecursor (env : Environment) (declName : Name) : Bool :=
+  match declName with 
+  | Name.str _ s _ => s == casesOnSuffix && isAuxRecursor env declName
+  | _ => false
 
 builtin_initialize noConfusionExt : TagDeclarationExtension ← mkTagDeclarationExtension `noConf
 

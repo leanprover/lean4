@@ -26,6 +26,7 @@ lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_rewrite___spec__3___bo
 lean_object* l_Lean_Meta_Simp_rewrite_finalizeProof(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_rewrite_synthesizeArgs_match__1(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
+extern lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__5;
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Meta_Simp_preDefault___closed__1;
 lean_object* l_Lean_Meta_Simp_rewrite_tryLemma_x3f___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -61,7 +62,6 @@ lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_rewrite_match__3(lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_Meta_Simp_rewrite_synthesizeArgs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_rewrite_finalizeProof_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Simp_rewrite_getRHS___closed__6;
 lean_object* l_Lean_Meta_Simp_rewrite_getLHS_match__1(lean_object*);
 lean_object* l_Lean_Meta_Simp_rewrite_tryLemma_x3f_match__1(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_rewrite_synthesizeArgs___spec__3___closed__11;
@@ -158,7 +158,6 @@ lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Met
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_rewrite_synthesizeArgs___spec__3___closed__1;
 lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
-lean_object* l_Lean_Meta_Simp_rewrite_getRHS___closed__5;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_Simp_rewrite_tryLemma_x3f___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_rewrite_synthesizeArgs___spec__3___closed__9;
@@ -730,27 +729,9 @@ return x_3;
 static lean_object* _init_l_Lean_Meta_Simp_rewrite_getRHS___closed__4() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("False");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Simp_rewrite_getRHS___closed__5() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Meta_Simp_rewrite_getRHS___closed__4;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_Simp_rewrite_getRHS___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Meta_Simp_rewrite_getRHS___closed__5;
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__5;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
@@ -773,7 +754,7 @@ return x_10;
 case 3:
 {
 lean_object* x_11; lean_object* x_12; 
-x_11 = l_Lean_Meta_Simp_rewrite_getRHS___closed__6;
+x_11 = l_Lean_Meta_Simp_rewrite_getRHS___closed__4;
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
 lean_ctor_set(x_12, 1, x_7);
@@ -5836,10 +5817,6 @@ l_Lean_Meta_Simp_rewrite_getRHS___closed__3 = _init_l_Lean_Meta_Simp_rewrite_get
 lean_mark_persistent(l_Lean_Meta_Simp_rewrite_getRHS___closed__3);
 l_Lean_Meta_Simp_rewrite_getRHS___closed__4 = _init_l_Lean_Meta_Simp_rewrite_getRHS___closed__4();
 lean_mark_persistent(l_Lean_Meta_Simp_rewrite_getRHS___closed__4);
-l_Lean_Meta_Simp_rewrite_getRHS___closed__5 = _init_l_Lean_Meta_Simp_rewrite_getRHS___closed__5();
-lean_mark_persistent(l_Lean_Meta_Simp_rewrite_getRHS___closed__5);
-l_Lean_Meta_Simp_rewrite_getRHS___closed__6 = _init_l_Lean_Meta_Simp_rewrite_getRHS___closed__6();
-lean_mark_persistent(l_Lean_Meta_Simp_rewrite_getRHS___closed__6);
 l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_rewrite_synthesizeArgs___spec__3___closed__1 = _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_rewrite_synthesizeArgs___spec__3___closed__1();
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_rewrite_synthesizeArgs___spec__3___closed__1);
 l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_rewrite_synthesizeArgs___spec__3___closed__2 = _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_rewrite_synthesizeArgs___spec__3___closed__2();

@@ -392,7 +392,8 @@ partial def collect : Syntax → M Syntax
                   >> optional ".."
                   >> optional (" : " >> termParser)
                   >> " }"
-      ``` -/
+      ```
+      -/
       let withMod := args[1]
       unless withMod.isNone do
         throwErrorAt withMod "invalid struct instance pattern, 'with' is not allowed in patterns"
@@ -707,44 +708,64 @@ def reportMatcherResultErrors (altLHSS : List AltLHS) (result : MatcherResult) :
 
 private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltView) (matchOptType : Syntax) (expectedType : Expr)
     : TermElabM Expr := do
-  let (discrs, matchType, altViews) ← elabMatchTypeAndDiscrs discrStxs matchOptType altViews expectedType
-  let matchAlts ← liftMacroM $ expandMacrosInPatterns altViews
-  trace[Elab.match]! "matchType: {matchType}"
-  let alts ← matchAlts.mapM $ fun alt => elabMatchAltView alt matchType
-  /-
-   We should not use `synthesizeSyntheticMVarsNoPostponing` here. Otherwise, we will not be
-   able to elaborate examples such as:
-   ```
-   def f (x : Nat) : Option Nat := none
+  let (discrs, matchType, altLHSS, rhss) ← commitIfDidNotPostpone do
+    let (discrs, matchType, altViews) ← elabMatchTypeAndDiscrs discrStxs matchOptType altViews expectedType
+    let matchAlts ← liftMacroM $ expandMacrosInPatterns altViews
+    trace[Elab.match]! "matchType: {matchType}"
+    let alts ← matchAlts.mapM $ fun alt => elabMatchAltView alt matchType
+    /-
+     We should not use `synthesizeSyntheticMVarsNoPostponing` here. Otherwise, we will not be
+     able to elaborate examples such as:
+     ```
+     def f (x : Nat) : Option Nat := none
 
-   def g (xs : List (Nat × Nat)) : IO Unit :=
-   xs.forM fun x =>
-     match f x.fst with
-     | _ => pure ()
-   ```
-   If `synthesizeSyntheticMVarsNoPostponing`, the example above fails at `x.fst` because
-   the type of `x` is only available after we proces the last argument of `List.forM`.
+     def g (xs : List (Nat × Nat)) : IO Unit :=
+     xs.forM fun x =>
+       match f x.fst with
+       | _ => pure ()
+     ```
+     If `synthesizeSyntheticMVarsNoPostponing`, the example above fails at `x.fst` because
+     the type of `x` is only available after we proces the last argument of `List.forM`.
 
-   We apply pending default types to make sure we can process examples such as
-   ```
-   let (a, b) := (0, 0)
-   ```
-  -/
-  synthesizeSyntheticMVarsUsingDefault
-  let rhss := alts.map Prod.snd
-  let matchType ← instantiateMVars matchType
-  let altLHSS ← alts.toList.mapM fun alt => do
-    let altLHS ← Match.instantiateAltLHSMVars alt.1
-    withRef altLHS.ref do
-      for d in altLHS.fvarDecls do
-        if d.hasExprMVar then
-          withExistingLocalDecls altLHS.fvarDecls do
-            throwMVarError m!"invalid match-expression, type of pattern variable '{d.toExpr}' contains metavariables{indentExpr d.type}"
-      for p in altLHS.patterns do
-        if p.hasExprMVar then
-          withExistingLocalDecls altLHS.fvarDecls do
-            throwMVarError m!"invalid match-expression, pattern contains metavariables{indentExpr (← p.toExpr)}"
-      pure altLHS
+     We apply pending default types to make sure we can process examples such as
+     ```
+     let (a, b) := (0, 0)
+     ```
+    -/
+    synthesizeSyntheticMVarsUsingDefault
+    let rhss := alts.map Prod.snd
+    let matchType ← instantiateMVars matchType
+    let altLHSS ← alts.toList.mapM fun alt => do
+      let altLHS ← Match.instantiateAltLHSMVars alt.1
+      /- Remark: we try to postpone before throwing an error.
+         The combinator `commitIfDidNotPostpone` ensures we backtrack any updates that have been performed.
+         The quick-check `waitExpectedTypeAndDiscrs` minimizes the number of scenarios where we have to postpone here.
+         Here is an example that passes the `waitExpectedTypeAndDiscrs` test, but postpones here.
+         ```
+          def bad (ps : Array (Nat × Nat)) : Array (Nat × Nat) :=
+            (ps.filter fun (p : Prod _ _) =>
+              match p with
+              | (x, y) => x == 0)
+            ++
+            ps
+         ```
+         When we try to elaborate `fun (p : Prod _ _) => ...` for the first time, we haven't propagated the type of `ps` yet
+         because `Array.filter` has type `{α : Type u_1} → (α → Bool) → (as : Array α) → optParam Nat 0 → optParam Nat (Array.size as) → Array α`
+         However, the partial type annotation `(p : Prod _ _)` makes sure we succeed at the quick-check `waitExpectedTypeAndDiscrs`.
+      -/
+      withRef altLHS.ref do
+        for d in altLHS.fvarDecls do
+            if d.hasExprMVar then
+            withExistingLocalDecls altLHS.fvarDecls do
+              tryPostpone
+              throwMVarError m!"invalid match-expression, type of pattern variable '{d.toExpr}' contains metavariables{indentExpr d.type}"
+        for p in altLHS.patterns do
+          if p.hasExprMVar then
+            withExistingLocalDecls altLHS.fvarDecls do
+              tryPostpone
+              throwMVarError m!"invalid match-expression, pattern contains metavariables{indentExpr (← p.toExpr)}"
+        pure altLHS
+    return (discrs, matchType, altLHSS, rhss)
   let numDiscrs := discrs.size
   let matcherName ← mkAuxName `match
   let matcherResult ← mkMatcher matcherName matchType numDiscrs altLHSS

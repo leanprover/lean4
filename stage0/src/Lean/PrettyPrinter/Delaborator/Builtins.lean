@@ -156,21 +156,14 @@ structure AppMatchState where
   params    : Array Expr := #[]
   hasMotive : Bool := false
   discrs    : Array Syntax := #[]
+  varNames  : Array (Array Name) := #[]
   rhss      : Array Syntax := #[]
   -- additional arguments applied to the result of the `match` expression
   moreArgs  : Array Syntax := #[]
-
-/-- Skip `numParams` binders. -/
-private def skippingBinders {α} : (numParams : Nat) → (x : DelabM α) → DelabM α
-  | 0,           x => x
-  | numParams+1, x =>
-    withBindingBodyUnusedName fun _ =>
-      skippingBinders numParams x
-
 /--
   Extract arguments of motive applications from the matcher type.
   For the example below: `#[#[`([])], #[`(a::as)]]` -/
-private def delabPatterns (st : AppMatchState) : DelabM (Array (Array Syntax)) := do
+private partial def delabPatterns (st : AppMatchState) : DelabM (Array (Array Syntax)) := do
   let ty ← instantiateForall st.matcherTy st.params
   forallTelescope ty fun params _ => do
     -- skip motive and discriminators
@@ -178,8 +171,32 @@ private def delabPatterns (st : AppMatchState) : DelabM (Array (Array Syntax)) :
     alts.mapIdxM fun idx alt => do
       let ty ← inferType alt
       withReader ({ · with expr := ty }) $
-        skippingBinders st.info.altNumParams[idx] do
+        usingNames st.varNames[idx] do
           withAppFnArgs (pure #[]) (fun pats => do pure $ pats.push (← delab))
+where
+  usingNames {α} (varNames : Array Name) (x : DelabM α) : DelabM α :=
+    usingNamesAux 0 varNames x
+  usingNamesAux {α} (i : Nat) (varNames : Array Name) (x : DelabM α) : DelabM α :=
+    if i < varNames.size then
+      withBindingBody varNames[i] <| usingNamesAux (i+1) varNames x
+    else
+      x
+
+/-- Skip `numParams` binders, and execute `x varNames` where `varNames` contains the new binder names. -/
+private def skippingBinders {α} (numParams : Nat) (x : Array Name → DelabM α) : DelabM α :=
+  loop numParams #[]
+where
+  loop : Nat → Array Name → DelabM α
+    | 0,   varNames => x varNames
+    | n+1, varNames => do
+      let varName ← (← getExpr).bindingName!.eraseMacroScopes
+      -- Pattern variables cannot shadow each other
+      if varNames.contains varName then
+        let varName := (← getLCtx).getUnusedName varName
+        loop n (varNames.push varName)
+      else
+        withBindingBodyUnusedName fun id => do
+          loop n (varNames.push id.getId)
 
 /--
   Delaborate applications of "matchers" such as
@@ -187,7 +204,8 @@ private def delabPatterns (st : AppMatchState) : DelabM (Array (Array Syntax)) :
   List.map.match_1 : {α : Type _} →
     (motive : List α → Sort _) →
       (x : List α) → (Unit → motive List.nil) → ((a : α) → (as : List α) → motive (a :: as)) → motive x
-  ``` -/
+  ```
+-/
 @[builtinDelab app]
 def delabAppMatch : Delab := whenPPOption getPPNotation do
   -- incrementally fill `AppMatchState` from arguments
@@ -195,7 +213,7 @@ def delabAppMatch : Delab := whenPPOption getPPNotation do
     (do
       let (Expr.const c us _) ← getExpr | failure
       let (some info) ← getMatcherInfo? c | failure
-      { matcherTy := (← getConstInfo c).instantiateTypeLevelParams us, info := info, : AppMatchState })
+      { matcherTy := (← getConstInfo c).instantiateTypeLevelParams us, info := info : AppMatchState })
     (fun st => do
       if st.params.size < st.info.numParams then
         pure { st with params := st.params.push (← getExpr) }
@@ -205,7 +223,12 @@ def delabAppMatch : Delab := whenPPOption getPPNotation do
       else if st.discrs.size < st.info.numDiscrs then
         pure { st with discrs := st.discrs.push (← delab) }
       else if st.rhss.size < st.info.altNumParams.size then
-        pure { st with rhss := st.rhss.push (← skippingBinders st.info.altNumParams[st.rhss.size] delab) }
+        /- We save the variables names here to be able to implemente safe_shadowing.
+           The pattern delaboration must use the names saved here. -/
+        let (varNames, rhs) ← skippingBinders st.info.altNumParams[st.rhss.size] fun varNames => do
+          let rhs ← delab
+          return (varNames, rhs)
+        pure { st with rhss := st.rhss.push rhs, varNames := st.varNames.push varNames }
       else
         pure { st with moreArgs := st.moreArgs.push (← delab) })
 
@@ -346,7 +369,7 @@ def delabForall : Delab :=
 @[builtinDelab letE]
 def delabLetE : Delab := do
   let Expr.letE n t v b _ ← getExpr | unreachable!
-  let n ← getUnusedName n
+  let n ← getUnusedName n b
   let stxT ← descend t 0 delab
   let stxV ← descend v 1 delab
   let stxB ← withLetDecl n t v fun fvar =>
@@ -546,7 +569,7 @@ partial def delabDoElems : DelabM (List Syntax) := do
       | _ => delabAndRet
   else if e.isLet then
     let Expr.letE n t v b _ ← getExpr | unreachable!
-    let n ← getUnusedName n
+    let n ← getUnusedName n b
     let stxT ← descend t 0 delab
     let stxV ← descend v 1 delab
     withLetDecl n t v fun fvar =>

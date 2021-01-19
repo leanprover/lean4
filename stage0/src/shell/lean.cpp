@@ -182,8 +182,8 @@ static void display_help(std::ostream & out) {
     std::cout << "  --help -h          display this message\n";
     std::cout << "  --version -v       display version number\n";
     std::cout << "  --githash          display the git commit hash number used to build this binary\n";
-    std::cout << "  --run              executes the 'main' definition\n";
-    std::cout << "  --o=oname -o        create olean file\n";
+    std::cout << "  --run              call the 'main' definition in a file with the remaining arguments\n";
+    std::cout << "  --o=oname -o       create olean file\n";
     std::cout << "  --c=fname -c       name of the C output file\n";
     std::cout << "  --stdin            take input from stdin\n";
     std::cout << "  --root=dir         set package root directory from which the module name of the input file is calculated\n"
@@ -334,10 +334,11 @@ uint32_t run_server_worker() {
     return get_io_scalar_result<uint32_t>(lean_server_worker_main(io_mk_world()));
 }
 
-/* def watchdogMain : IO Uint32 */
-extern "C" object* lean_server_watchdog_main(object* w);
-uint32_t run_server_watchdog() {
-    return get_io_scalar_result<uint32_t>(lean_server_watchdog_main(io_mk_world()));
+/* def watchdogMain (args : List String) : IO Uint32 */
+extern "C" object* lean_server_watchdog_main(object* args, object* w);
+uint32_t run_server_watchdog(buffer<string_ref> const & args) {
+    list_ref<string_ref> arglist = to_list_ref(args);
+    return get_io_scalar_result<uint32_t>(lean_server_watchdog_main(arglist.to_obj_arg(), io_mk_world()));
 }
 
 extern "C" object* lean_init_search_path(object* opt_path, object* w);
@@ -434,6 +435,8 @@ int main(int argc, char ** argv) {
     std::string native_output;
     optional<std::string> c_output;
     optional<std::string> root_dir;
+    buffer<string_ref> forwarded_args;
+
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
         if (c == -1)
@@ -444,6 +447,7 @@ int main(int argc, char ** argv) {
                 break;
             case 'j':
                 num_threads = static_cast<unsigned>(atoi(optarg));
+                forwarded_args.push_back(string_ref("-j" + std::string(optarg)));
                 break;
             case 'v':
                 display_header(std::cout);
@@ -480,6 +484,7 @@ int main(int argc, char ** argv) {
                 break;
             case 'T':
                 check_optarg("T");
+                forwarded_args.push_back(string_ref("-T" + std::string(optarg)));
                 opts = opts.update(get_timeout_opt_name(), static_cast<unsigned>(atoi(optarg)));
                 break;
             case 't':
@@ -555,7 +560,7 @@ int main(int argc, char ** argv) {
 
     try {
         if (run_server == 1)
-            return run_server_watchdog();
+            return run_server_watchdog(forwarded_args);
         else if (run_server == 2)
             return run_server_worker();
             
@@ -569,7 +574,7 @@ int main(int argc, char ** argv) {
             buf << std::cin.rdbuf();
             contents = buf.str();
         } else {
-            if (!run && argc - optind != 1) {
+            if (argc - optind != 1 || (run && argc - optind == 0)) {
                 std::cerr << "Expected exactly one file name\n";
                 display_help(std::cerr);
                 return 1;

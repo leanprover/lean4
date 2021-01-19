@@ -179,6 +179,7 @@ def fopenFlags (m : FS.Mode) (b : Bool) : String :=
 @[extern "lean_io_realpath"] constant realPath (fname : String) : IO String
 @[extern "lean_io_is_dir"] constant isDir (fname : @& String) : IO Bool
 @[extern "lean_io_file_exists"] constant fileExists (fname : @& String) : IO Bool
+@[extern "lean_io_remove_file"] constant removeFile (fname : @& String) : IO Unit
 @[extern "lean_io_app_dir"] constant appPath : IO String
 @[extern "lean_io_current_dir"] constant currentDir : IO String
 
@@ -320,6 +321,7 @@ def getEnv : String → m (Option String) := liftM ∘ Prim.getEnv
 def realPath : String → m String := liftM ∘ Prim.realPath
 def isDir : String → m Bool := liftM ∘ Prim.isDir
 def fileExists : String → m Bool := liftM ∘ Prim.fileExists
+def removeFile : String → m Unit := liftM ∘ Prim.removeFile
 def appPath : m String := liftM Prim.appPath
 
 def appDir : m String := do

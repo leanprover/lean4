@@ -20,6 +20,7 @@ lean_object* l_Leanpkg_execCmd(lean_object*, lean_object*);
 lean_object* l_Leanpkg_execCmd_match__1(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_io_process_spawn(lean_object*, lean_object*);
+lean_object* l_IO_eprintln___at___private_Init_System_IO_0__IO_eprintlnAux___spec__1(lean_object*, lean_object*);
 lean_object* l_Leanpkg_execCmd_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Leanpkg_execCmd___closed__2;
 lean_object* l_Nat_repr(lean_object*);
@@ -32,7 +33,6 @@ lean_object* l_String_intercalate(lean_object*, lean_object*);
 lean_object* l_Leanpkg_execCmd_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_process_child_wait(lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_execCmd_match__2(lean_object*);
-lean_object* l_IO_println___at_Lean_instEval___spec__1(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 extern lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___closed__1;
 lean_object* l_Leanpkg_execCmd_match__1___rarg(lean_object* x_1, lean_object* x_2) {
@@ -263,7 +263,7 @@ block_65:
 lean_object* x_17; lean_object* x_18; 
 x_17 = lean_string_append(x_15, x_16);
 lean_dec(x_16);
-x_18 = l_IO_println___at_Lean_instEval___spec__1(x_17, x_2);
+x_18 = l_IO_eprintln___at___private_Init_System_IO_0__IO_eprintlnAux___spec__1(x_17, x_2);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; lean_object* x_20; 

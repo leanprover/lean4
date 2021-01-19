@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_List_sizeOf(lean_object*);
 lean_object* l_instSizeOf(lean_object*);
 lean_object* l_instSizeOfSum___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instSizeOfProd(lean_object*, lean_object*);
@@ -22,11 +23,13 @@ lean_object* l_instSizeOfPUnit___boxed(lean_object*);
 lean_object* l_instSizeOfPSum_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_instSizeOfPUnit(lean_object*);
 lean_object* l_instSizeOfSubtype___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_sizeOf_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_instSizeOfProd_match__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_sizeOf___rarg(lean_object*, lean_object*);
+lean_object* l_List_sizeOf_match__1(lean_object*, lean_object*);
 lean_object* l_instSizeOfProd_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_instSizeOfPSum___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_instSizeOfList_loop(lean_object*);
 lean_object* l_instSizeOfList___rarg(lean_object*);
 lean_object* l_instSizeOfPSum(lean_object*, lean_object*);
 lean_object* l_instSizeOfPSigma(lean_object*, lean_object*);
@@ -41,13 +44,10 @@ lean_object* l_instSizeOfOption_match__1(lean_object*, lean_object*);
 lean_object* l_instSizeOfSigma___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instSizeOfSum_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instSizeOfSum(lean_object*, lean_object*);
-lean_object* l_instSizeOfList_loop___rarg(lean_object*, lean_object*);
 lean_object* l_instSizeOfPSigma_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_instSizeOfPSum_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_instSizeOfList_loop_match__1(lean_object*, lean_object*);
 lean_object* l_default_sizeOf___boxed(lean_object*, lean_object*);
 lean_object* l_instSizeOfSum_match__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_instSizeOfList_loop_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instSizeOfSigma_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_instSizeOfNat___boxed(lean_object*);
 lean_object* l_instSizeOfSigma_match__1___rarg(lean_object*, lean_object*);
@@ -499,7 +499,7 @@ x_2 = lean_alloc_closure((void*)(l_instSizeOfOption___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* l_instSizeOfList_loop_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_List_sizeOf_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -524,15 +524,15 @@ return x_8;
 }
 }
 }
-lean_object* l_instSizeOfList_loop_match__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_sizeOf_match__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_instSizeOfList_loop_match__1___rarg), 3, 0);
+x_3 = lean_alloc_closure((void*)(l_List_sizeOf_match__1___rarg), 3, 0);
 return x_3;
 }
 }
-lean_object* l_instSizeOfList_loop___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_sizeOf___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -555,7 +555,7 @@ x_6 = lean_apply_1(x_1, x_4);
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_add(x_7, x_6);
 lean_dec(x_6);
-x_9 = l_instSizeOfList_loop___rarg(x_1, x_5);
+x_9 = l_List_sizeOf___rarg(x_1, x_5);
 x_10 = lean_nat_add(x_8, x_9);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -563,11 +563,11 @@ return x_10;
 }
 }
 }
-lean_object* l_instSizeOfList_loop(lean_object* x_1) {
+lean_object* l_List_sizeOf(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSizeOfList_loop___rarg), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_List_sizeOf___rarg), 2, 0);
 return x_2;
 }
 }
@@ -575,7 +575,7 @@ lean_object* l_instSizeOfList___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSizeOfList_loop___rarg), 2, 1);
+x_2 = lean_alloc_closure((void*)(l_List_sizeOf___rarg), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }

@@ -2861,7 +2861,6 @@ lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_46);
 if (lean_obj_tag(x_49) == 0)
 {
 uint8_t x_50; 
@@ -3206,7 +3205,6 @@ lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_125);
 if (lean_obj_tag(x_128) == 0)
 {
 lean_object* x_129; lean_object* x_130; lean_object* x_131; 
@@ -3595,7 +3593,6 @@ lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_213);
 if (lean_obj_tag(x_216) == 0)
 {
 lean_object* x_217; lean_object* x_218; lean_object* x_219; 
@@ -18816,7 +18813,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_quoteAutoTactic___closed__1;
 x_2 = l_Lean_Elab_Term_expandWhereDecls___closed__3;
-x_3 = lean_unsigned_to_nat(374u);
+x_3 = lean_unsigned_to_nat(375u);
 x_4 = lean_unsigned_to_nat(9u);
 x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -22430,7 +22427,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_quoteAutoTactic___closed__1;
 x_2 = l_Lean_Elab_Term_elabLetDeclCore___closed__1;
-x_3 = lean_unsigned_to_nat(569u);
+x_3 = lean_unsigned_to_nat(570u);
 x_4 = lean_unsigned_to_nat(24u);
 x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

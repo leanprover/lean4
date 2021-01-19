@@ -5,14 +5,21 @@ Authors: Leonardo de Moura
 -/
 import Lean.DeclarationRange
 import Lean.Elab.Log
+import Lean.Data.Lsp.Utf16
 
 namespace Lean.Elab
 
 def getDeclarationRange [Monad m] [MonadFileMap m] (stx : Syntax) : m DeclarationRange := do
-  let pos    := stx.getPos.getD 0
-  let endPos := stx.getTailPos.getD pos
   let fileMap ← getFileMap
-  return { pos := fileMap.toPosition pos, endPos := fileMap.toPosition endPos }
+  let pos    := stx.getPos.getD 0
+  let endPos := stx.getTailPos.getD pos |> fileMap.toPosition
+  let pos    := pos |> fileMap.toPosition
+  return {
+    pos          := pos
+    charUtf16    := fileMap.leanPosToLspPos pos |>.character
+    endPos       := endPos
+    endCharUtf16 := fileMap.leanPosToLspPos endPos |>.character
+  }
 
 /--
   For most builtin declarations, the selection range is just its name, which is stored in the second position.

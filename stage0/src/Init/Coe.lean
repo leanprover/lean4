@@ -15,7 +15,7 @@ class Coe (α : Sort u) (β : Sort v) where
 class CoeTC (α : Sort u) (β : Sort v) where
   coe : α → β
 
-/- Expensive coercion that can only appear at the beggining of a sequence of coercions. -/
+/- Expensive coercion that can only appear at the beginning of a sequence of coercions. -/
 class CoeHead (α : Sort u) (β : Sort v) where
   coe : α → β
 
@@ -115,7 +115,7 @@ instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeHead { x // p x } α wh
 /-
   Remark: one may question why we use `OfNat α` instead of `Coe Nat α`.
   Reason: `OfNat` is for implementing polymorphic numeric literals, and we may
-  want to have numberic literals for a type α and **no** coercion from `Nat` to `α`. -/
+  want to have numeric literals for a type α and **no** coercion from `Nat` to `α`. -/
 instance hasOfNatOfCoe [Coe α β] [OfNat α n] : OfNat β n where
   ofNat := coe (OfNat.ofNat n : α)
 

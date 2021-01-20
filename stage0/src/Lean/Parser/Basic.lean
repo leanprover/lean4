@@ -1081,8 +1081,8 @@ def symbolInfo (sym : String) : ParserInfo := {
 
 def checkTailNoWs (prev : Syntax) : Bool :=
   match prev.getTailInfo with
-  | some (SourceInfo.original _ _ trailing) => trailing.stopPos == trailing.startPos
-  | _                                       => false
+  | SourceInfo.original _ _ trailing => trailing.stopPos == trailing.startPos
+  | _                                => false
 
 /-- Check if the following token is the symbol _or_ identifier `sym`. Useful for
     parsing local tokens that have not been added to the token table (but may have
@@ -1135,8 +1135,8 @@ partial def strAux (sym : String) (errorMsg : String) (j : Nat) :ParserFn :=
 
 def checkTailWs (prev : Syntax) : Bool :=
   match prev.getTailInfo with
-  | some (SourceInfo.original _ _ trailing) => trailing.stopPos > trailing.startPos
-  | _                                       => false
+  | SourceInfo.original _ _ trailing => trailing.stopPos > trailing.startPos
+  | _                                => false
 
 def checkWsBeforeFn (errorMsg : String) : ParserFn := fun c s =>
   let prev := s.stxStack.back

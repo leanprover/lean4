@@ -880,7 +880,6 @@ x_17 = l_Lean_instInhabitedExpr;
 x_18 = lean_array_get(x_17, x_1, x_16);
 x_19 = l_Lean_Expr_mvarId_x21(x_18);
 lean_dec(x_18);
-lean_inc(x_19);
 x_20 = l_Lean_Meta_isExprMVarAssigned(x_19, x_6, x_7, x_8, x_9, x_10);
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc(x_21);
@@ -2169,6 +2168,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint
 x_11 = lean_array_uget(x_1, x_2);
 x_12 = l_Lean_Expr_mvarId_x21(x_11);
 x_13 = l_Lean_Meta_isExprMVarAssigned(x_12, x_5, x_6, x_7, x_8, x_9);
+lean_dec(x_12);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 x_15 = lean_unbox(x_14);

@@ -548,7 +548,6 @@ lean_object* l_Lean_Meta_checkNotAssigned(lean_object* x_1, lean_object* x_2, le
 _start:
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-lean_inc(x_1);
 x_8 = l_Lean_Meta_isExprMVarAssigned(x_1, x_3, x_4, x_5, x_6, x_7);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);

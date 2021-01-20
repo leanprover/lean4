@@ -18677,7 +18677,6 @@ x_13 = lean_st_ref_get(x_2, x_12);
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
 lean_dec(x_13);
-lean_inc(x_10);
 x_15 = l_Lean_Meta_getExprMVarAssignment_x3f(x_10, x_5, x_6, x_7, x_8, x_14);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);

@@ -81,6 +81,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_Meta_isLevelDefEqAux___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_addPPExplicitToExposeDiff___closed__1;
+extern lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solveSelfMax___closed__1;
 extern lean_object* l_Lean_KernelException_toMessageData___closed__29;
 lean_object* l_Lean_Meta_isTypeCorrect___closed__1;
 lean_object* l_Lean_Meta_isTypeCorrect___closed__2;
@@ -88,7 +89,6 @@ lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___private_L
 lean_object* l_Lean_throwError___at_Lean_Meta_throwAppTypeMismatch___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Meta_mkHasTypeButIsExpectedMsg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__10;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
@@ -184,7 +184,6 @@ lean_object* l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1(lean_object*, l
 lean_object* l_Lean_Meta_addPPExplicitToExposeDiff_visit_match__2(lean_object*);
 lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8;
 extern lean_object* l_Array_findSomeM_x3f___rarg___closed__1;
-lean_object* l_Lean_Meta_instInhabitedMetaM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkApp_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_hasExplicitDiff___spec__1___lambda__1___closed__3;
 lean_object* l_Lean_Meta_check(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -353,8 +352,7 @@ static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instInhabitedMetaM___boxed), 5, 1);
-lean_closure_set(x_1, 0, lean_box(0));
+x_1 = lean_mk_string("Lean.Meta.Check");
 return x_1;
 }
 }
@@ -362,24 +360,16 @@ static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Check");
+x_1 = lean_mk_string("Lean.Meta.throwLetTypeMismatchMessage");
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.throwLetTypeMismatchMessage");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__2;
-x_2 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3;
+x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1;
+x_2 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__2;
 x_3 = lean_unsigned_to_nat(25u);
 x_4 = lean_unsigned_to_nat(9u);
 x_5 = l_Lean_Name_getString_x21___closed__3;
@@ -387,7 +377,7 @@ x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__5() {
+static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -395,16 +385,16 @@ x_1 = lean_mk_string("invalid let declaration, term");
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6() {
+static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__5;
+x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7() {
+static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -412,16 +402,16 @@ x_1 = lean_mk_string("\nhas type");
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8() {
+static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7;
+x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9() {
+static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -429,11 +419,11 @@ x_1 = lean_mk_string("\nbut is expected to have type");
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__10() {
+static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9;
+x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -448,8 +438,8 @@ x_8 = lean_local_ctx_find(x_7, x_1);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_9 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1;
-x_10 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4;
+x_9 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solveSelfMax___closed__1;
+x_10 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3;
 x_11 = lean_panic_fn(x_9, x_10);
 x_12 = lean_apply_5(x_11, x_2, x_3, x_4, x_5, x_6);
 return x_12;
@@ -464,8 +454,8 @@ if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 lean_dec(x_13);
-x_14 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1;
-x_15 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4;
+x_14 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solveSelfMax___closed__1;
+x_15 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3;
 x_16 = lean_panic_fn(x_14, x_15);
 x_17 = lean_apply_5(x_16, x_2, x_3, x_4, x_5, x_6);
 return x_17;
@@ -493,11 +483,11 @@ x_22 = lean_ctor_get(x_20, 1);
 lean_inc(x_22);
 lean_dec(x_20);
 x_23 = l_Lean_indentExpr(x_19);
-x_24 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6;
+x_24 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__5;
 x_25 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_25, 0, x_24);
 lean_ctor_set(x_25, 1, x_23);
-x_26 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8;
+x_26 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7;
 x_27 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_27, 0, x_25);
 lean_ctor_set(x_27, 1, x_26);
@@ -505,7 +495,7 @@ x_28 = l_Lean_indentExpr(x_21);
 x_29 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_29, 0, x_27);
 lean_ctor_set(x_29, 1, x_28);
-x_30 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__10;
+x_30 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9;
 x_31 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set(x_31, 1, x_30);
@@ -2361,7 +2351,7 @@ x_14 = l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__2;
 x_15 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
 lean_ctor_set(x_15, 1, x_13);
-x_16 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__10;
+x_16 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9;
 x_17 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
@@ -2394,7 +2384,7 @@ x_27 = l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__2;
 x_28 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_28, 0, x_27);
 lean_ctor_set(x_28, 1, x_26);
-x_29 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__10;
+x_29 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9;
 x_30 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_30, 0, x_28);
 lean_ctor_set(x_30, 1, x_29);
@@ -6145,8 +6135,6 @@ l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8 = _init_l_Lean_Meta_t
 lean_mark_persistent(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8);
 l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9 = _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9();
 lean_mark_persistent(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9);
-l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__10 = _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__10();
-lean_mark_persistent(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__10);
 l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_hasExplicitDiff___spec__1___lambda__1___closed__1 = _init_l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_hasExplicitDiff___spec__1___lambda__1___closed__1();
 lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_hasExplicitDiff___spec__1___lambda__1___closed__1);
 l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_hasExplicitDiff___spec__1___lambda__1___closed__2 = _init_l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_hasExplicitDiff___spec__1___lambda__1___closed__2();

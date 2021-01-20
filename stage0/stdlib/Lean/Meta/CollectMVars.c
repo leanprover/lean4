@@ -141,6 +141,7 @@ lean_dec(x_4);
 x_13 = lean_ctor_get(x_1, 0);
 x_14 = lean_array_uget(x_13, x_3);
 x_15 = l_Lean_Meta_getDelayedAssignment_x3f(x_14, x_6, x_7, x_8, x_9, x_10);
+lean_dec(x_14);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 if (lean_obj_tag(x_16) == 0)
@@ -487,7 +488,6 @@ if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_11 = lean_array_uget(x_1, x_2);
-lean_inc(x_11);
 x_12 = l_Lean_Meta_isDelayedAssigned(x_11, x_5, x_6, x_7, x_8, x_9);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);

@@ -240,7 +240,7 @@ lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_InferType_0__Lean_M
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isProofQuick_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_metavar_ctx_find_decl(lean_object*, lean_object*);
+lean_object* l_Lean_MetavarContext_findDecl_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_instantiateBetaRevRange_visit___closed__3;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_isProofQuickApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6195,8 +6195,7 @@ x_12 = lean_ctor_get(x_9, 1);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec(x_11);
-lean_inc(x_1);
-x_14 = lean_metavar_ctx_find_decl(x_13, x_1);
+x_14 = l_Lean_MetavarContext_findDecl_x3f(x_13, x_1);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; 
@@ -6229,8 +6228,7 @@ lean_dec(x_9);
 x_20 = lean_ctor_get(x_18, 0);
 lean_inc(x_20);
 lean_dec(x_18);
-lean_inc(x_1);
-x_21 = lean_metavar_ctx_find_decl(x_20, x_1);
+x_21 = l_Lean_MetavarContext_findDecl_x3f(x_20, x_1);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; 

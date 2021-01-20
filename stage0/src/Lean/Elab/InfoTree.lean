@@ -108,17 +108,23 @@ def ContextInfo.toPPContext (info : ContextInfo) (lctx : LocalContext) : PPConte
 def ContextInfo.ppSyntax (info : ContextInfo) (lctx : LocalContext) (stx : Syntax) : IO Format := do
   ppTerm (info.toPPContext lctx) stx
 
+private def formatStxRange (cinfo : ContextInfo) (stx : Syntax) : Format := do
+  let pos    := stx.getPos?.getD 0
+  let endPos := stx.getTailPos?.getD pos
+  return f!"{fmtPos pos stx.getHeadInfo}-{fmtPos endPos stx.getTailInfo}"
+where fmtPos pos info :=
+    let pos := format <| cinfo.fileMap.toPosition pos
+    match info with
+    | SourceInfo.original ..  => pos
+    | _                       => f!"{pos}†"
+
 def TermInfo.format (cinfo : ContextInfo) (info : TermInfo) : IO Format := do
   cinfo.runMetaM info.lctx do
-    let pos    := info.stx.getPos?.getD 0
-    let endPos := info.stx.getTailPos?.getD pos
-    return f!"{← Meta.ppExpr info.expr} : {← Meta.ppExpr (← Meta.inferType info.expr)} @ {cinfo.fileMap.toPosition pos}-{cinfo.fileMap.toPosition endPos}"
+    return f!"{← Meta.ppExpr info.expr} : {← Meta.ppExpr (← Meta.inferType info.expr)} @ {formatStxRange cinfo info.stx}"
 
 def FieldInfo.format (cinfo : ContextInfo) (info : FieldInfo) : IO Format := do
   cinfo.runMetaM info.lctx do
-    let pos    := info.stx.getPos?.getD 0
-    let endPos := info.stx.getTailPos?.getD pos
-    return f!"{info.name} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {cinfo.fileMap.toPosition pos}-{cinfo.fileMap.toPosition endPos}"
+    return f!"{info.name} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {formatStxRange cinfo info.stx}"
 
 def ContextInfo.ppGoals (cinfo : ContextInfo) (goals : List MVarId) : IO Format :=
   if goals.isEmpty then

@@ -106,7 +106,7 @@ def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot Mess
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
   let (cmdStx, cmdParserState, msgLog) :=
     Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
-  let cmdPos := cmdStx.getHeadInfo.get!.pos.get! -- TODO(WN): always `some`?
+  let cmdPos := cmdStx.getPos?.get!
   if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
     Sum.inr msgLog
   else

@@ -431,8 +431,8 @@ section RequestHandling
         return #[]
 
   def rangeOfSyntax (text : FileMap) (stx : Syntax) : Range :=
-    ⟨text.utf8PosToLspPos <| stx.getHeadInfo.get!.pos.get!,
-     text.utf8PosToLspPos <| stx.getTailPos.get!⟩
+    ⟨text.utf8PosToLspPos <| stx.getPos?.get!,
+     text.utf8PosToLspPos <| stx.getTailPos?.get!⟩
 
   partial def handleDocumentSymbol (id : RequestID) (p : DocumentSymbolParams) :
     ServerM (Task (Except IO.Error (Except RequestError DocumentSymbolResult))) := do

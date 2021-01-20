@@ -215,7 +215,7 @@ private def reportStuckSyntheticMVars : TermElabM Unit := do
 
 private def getSomeSynthethicMVarsRef : TermElabM Syntax := do
   let s ← get
-  match s.syntheticMVars.find? $ fun (mvarDecl : SyntheticMVarDecl) => !mvarDecl.stx.getPos.isNone with
+  match s.syntheticMVars.find? $ fun (mvarDecl : SyntheticMVarDecl) => !mvarDecl.stx.getPos?.isNone with
   | some mvarDecl => pure mvarDecl.stx
   | none          => pure Syntax.missing
 

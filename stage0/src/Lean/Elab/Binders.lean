@@ -54,7 +54,7 @@ partial def quoteAutoTactic : Syntax → TermElabM Syntax
           let quotedArg ← quoteAutoTactic arg
           quotedArgs ← `(Array.push $quotedArgs $quotedArg)
       `(Syntax.node $(quote k) $quotedArgs)
-  | Syntax.atom info val => `(Syntax.atom {} $(quote val))
+  | Syntax.atom info val => `(mkAtom $(quote val))
   | Syntax.missing       => unreachable!
 
 def declareTacticSyntax (tactic : Syntax) : TermElabM Name :=

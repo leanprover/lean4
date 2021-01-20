@@ -49,10 +49,10 @@ abbrev MacroStack := List MacroStackElem
 
 /- If `ref` does not have position information, then try to use macroStack -/
 def getBetterRef (ref : Syntax) (macroStack : MacroStack) : Syntax :=
-  match ref.getPos with
+  match ref.getPos? with
   | some _ => ref
   | none   =>
-    match macroStack.find? (·.before.getPos != none) with
+    match macroStack.find? (·.before.getPos? != none) with
     | some elem => elem.before
     | none      => ref
 

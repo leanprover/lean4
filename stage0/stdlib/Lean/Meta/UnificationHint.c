@@ -92,7 +92,6 @@ lean_object* l_Lean_Meta_tryUnificationHints_tryCandidate_match__6___rarg(lean_o
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponed(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertVal___at_Lean_Meta_UnificationHints_add___spec__10(lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1142____closed__19;
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_UnificationHints_add___spec__2(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_Meta_UnificationHints_add___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -176,7 +175,6 @@ lean_object* l_Lean_Meta_tryUnificationHints_tryCandidate_match__9(lean_object*)
 lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificationHint_decodeConstraint(lean_object*);
 lean_object* l_Lean_Meta_addUnificationHint_match__2___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_addUnificationHint___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1142____closed__34;
 lean_object* l_List_forM___at___private_Lean_Meta_UnificationHint_0__Lean_Meta_validateHint___spec__1___closed__2;
 lean_object* l_Lean_Meta_tryUnificationHints_match__3___rarg(lean_object*);
 lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificationHint_decode_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -188,6 +186,7 @@ lean_object* l_Lean_Meta_tryUnificationHints_tryCandidate_match__9___rarg(lean_o
 lean_object* l_Lean_addTrace___at_Lean_Meta_addUnificationHint___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at_Lean_Meta_UnificationHints_add___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_commitWhen___at_Lean_Meta_tryUnificationHints_tryCandidate___spec__4___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1128____closed__19;
 lean_object* l_Lean_Meta_tryUnificationHints_tryCandidate_match__5(lean_object*);
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_tryUnificationHints_tryCandidate_match__4(lean_object*);
@@ -241,6 +240,7 @@ lean_object* l_Lean_Meta_tryUnificationHints_match__1(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_instToFormatUnificationHints___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_commitWhen___at_Lean_Meta_tryUnificationHints_tryCandidate___spec__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_601____closed__1;
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1128____closed__34;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificationHint_decode___closed__2;
 lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_validateHint(lean_object*);
@@ -4185,7 +4185,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1142____closed__19;
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1128____closed__19;
 x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_601____closed__1;
 x_3 = 0;
 x_4 = lean_alloc_ctor(0, 2, 1);
@@ -7215,7 +7215,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_isExprDefEq___closed__2;
-x_2 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1142____closed__34;
+x_2 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1128____closed__34;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

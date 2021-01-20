@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Wojciech Nawrocki
 -/
 import Lean.Elab.InfoTree
+import Lean.Util.Sorry
 
 namespace Lean.Elab
 
@@ -34,38 +35,36 @@ partial def InfoTree.smallestNodes (p : Info → Bool) : InfoTree → List InfoT
   | _ => []
 
 def TermInfo.pos? (i : TermInfo) : Option String.Pos :=
-  i.stx.getPos
+  i.stx.getPos? (originalOnly := true)
 
 def TermInfo.tailPos? (i : TermInfo) : Option String.Pos :=
-  i.stx.getTailPos
+  i.stx.getTailPos? (originalOnly := true)
 
 def TacticInfo.pos? (i : TacticInfo) : Option String.Pos :=
-  i.stx.getPos
+  i.stx.getPos? (originalOnly := true)
 
 def TacticInfo.tailPos? (i : TacticInfo) : Option String.Pos :=
-  i.stx.getTailPos
+  i.stx.getTailPos? (originalOnly := true)
 
 /-- Find a `TermInfo`, if any, which should be shown on hover/cursor at position `hoverPos`. -/
 partial def InfoTree.hoverableTermAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × TermInfo) :=
   let ts := t.smallestNodes fun
     | Info.ofTermInfo i =>
+      !i.expr.isSyntheticSorry &&
+      -- TODO: see if we can get rid of this
+      #[identKind,
+        strLitKind,
+        charLitKind,
+        numLitKind,
+        scientificLitKind,
+        nameLitKind,
+        fieldIdxKind,
+        interpolatedStrLitKind,
+        interpolatedStrKind
+      ].contains i.stx.getKind &&
       match i.pos?, i.tailPos? with
-      | some pos, some tailPos =>
-        /- TODO(WN): when we have a way to do so,
-        check for synthetic syntax and allow arbitrary syntax kinds. -/
-        if pos ≤ hoverPos ∧ hoverPos < tailPos then
-          #[identKind,
-            strLitKind,
-            charLitKind,
-            numLitKind,
-            scientificLitKind,
-            nameLitKind,
-            fieldIdxKind,
-            interpolatedStrLitKind,
-            interpolatedStrKind
-          ].contains i.stx.getKind
-        else false
-      | _, _ => false
+      | some pos, some tailPos => pos ≤ hoverPos ∧ hoverPos < tailPos
+      | _,        _            => false
     | _ => false
 
   let terms : List (Nat × ContextInfo × TermInfo) := ts.filterMap (fun

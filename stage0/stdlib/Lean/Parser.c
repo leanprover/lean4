@@ -53,7 +53,6 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_mkAntiquot_parenthesizer___boxed
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__24;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__7;
 lean_object* l_Lean_Parser_withPosition(lean_object*);
-extern lean_object* l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2881____closed__10;
 lean_object* l_Lean_PrettyPrinter_Formatter_charLit_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_sepBy1_formatter(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_884____closed__6;
@@ -182,6 +181,7 @@ extern lean_object* l_rawNatLit___closed__6;
 lean_object* l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_type___elambda__1___closed__6;
 extern lean_object* l_Array_term_____x5b___x3a___x5d___closed__6;
+extern lean_object* l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2895____closed__10;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__23;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__13;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___elambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -624,7 +624,7 @@ lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41;
 x_38 = lean_ctor_get(x_37, 1);
 lean_inc(x_38);
 lean_dec(x_37);
-x_39 = l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2881____closed__10;
+x_39 = l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2895____closed__10;
 x_40 = l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__16;
 x_41 = l_Lean_Parser_registerAliasCore___rarg(x_2, x_39, x_40, x_38);
 if (lean_obj_tag(x_41) == 0)

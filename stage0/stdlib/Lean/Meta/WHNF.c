@@ -21,11 +21,11 @@ lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_reduceMatcher_x3f___spec__1
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_isIdRhsApp___boxed(lean_object*);
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_throwError___at_Lean_Meta_reduceBoolNativeUnsafe___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l_Lean_Meta_reduceNative_x3f___closed__2;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_reduceMatcher_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_isIdRhsApp___closed__1;
-extern lean_object* l_Lean_Syntax_strLitToAtom___closed__3;
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfHeadPred___at_Lean_Meta_whnfUntil___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfImp_match__4___rarg(lean_object*, lean_object*, lean_object*);
@@ -5049,7 +5049,7 @@ x_1 = l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfEasyCases___closed__2;
 x_2 = l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfEasyCases___closed__3;
 x_3 = lean_unsigned_to_nat(207u);
 x_4 = lean_unsigned_to_nat(35u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -7592,7 +7592,7 @@ x_1 = l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfEasyCases___closed__2;
 x_2 = l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfEasyCases___at_Lean_Meta_whnfCore___spec__2___closed__1;
 x_3 = lean_unsigned_to_nat(341u);
 x_4 = lean_unsigned_to_nat(11u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -21082,7 +21082,7 @@ x_1 = l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfEasyCases___closed__2;
 x_2 = l___private_Lean_Meta_WHNF_0__Lean_Meta_cached_x3f___closed__1;
 x_3 = lean_unsigned_to_nat(502u);
 x_4 = lean_unsigned_to_nat(34u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -21302,7 +21302,7 @@ x_1 = l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfEasyCases___closed__2;
 x_2 = l___private_Lean_Meta_WHNF_0__Lean_Meta_cache___closed__1;
 x_3 = lean_unsigned_to_nat(512u);
 x_4 = lean_unsigned_to_nat(34u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }

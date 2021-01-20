@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_IR_UnreachableBranches_Value_merge_match__1(lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_Value_merge_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3377____closed__35;
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_UnreachableBranches_Value_truncate___spec__10(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_functionSummariesExt___closed__3;
@@ -96,6 +95,7 @@ lean_object* l_Lean_IR_UnreachableBranches_Value_format_match__1(lean_object*);
 lean_object* l_Std_mkPersistentArray___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_540____spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_540____spec__14(lean_object*, size_t, size_t, lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3363____closed__35;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_UnreachableBranches_interpFnBody___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_Format_sbracket___closed__4;
 lean_object* l_Lean_IR_UnreachableBranches_Value_instToStringValue___closed__1;
@@ -1753,7 +1753,7 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_format___closed__5
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_NotationExtra___hyg_3377____closed__35;
+x_1 = l_myMacro____x40_Init_NotationExtra___hyg_3363____closed__35;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

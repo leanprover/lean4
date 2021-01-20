@@ -14,12 +14,11 @@
 extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3377____closed__35;
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Leanpkg_gitParseOriginRevision(lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_resolveDir___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l_Leanpkg_resolvedPath_match__1(lean_object*);
-extern lean_object* l_Lean_Syntax_strLitToAtom___closed__3;
 lean_object* l_Leanpkg_resolvedPath(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_String_instInhabitedString;
 lean_object* l_Leanpkg_solveDepsCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -42,6 +41,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Leanpkg_constructPath_match__1(lean_object*);
 lean_object* l_Leanpkg_constructPath_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Leanpkg_notYetAssigned___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3363____closed__35;
 lean_object* l_Leanpkg_Assignment_fold_match__1(lean_object*);
 lean_object* l_Leanpkg_Assignment_fold_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Leanpkg_materialize___lambda__1___closed__4;
@@ -440,7 +440,7 @@ x_1 = l_Leanpkg_resolvedPath___closed__3;
 x_2 = l_Leanpkg_resolvedPath___closed__4;
 x_3 = lean_unsigned_to_nat(34u);
 x_4 = lean_unsigned_to_nat(44u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -1127,7 +1127,7 @@ lean_object* x_122; lean_object* x_123; lean_object* x_124;
 x_122 = lean_ctor_get(x_32, 0);
 lean_inc(x_122);
 lean_dec(x_32);
-x_123 = l_myMacro____x40_Init_NotationExtra___hyg_3377____closed__35;
+x_123 = l_myMacro____x40_Init_NotationExtra___hyg_3363____closed__35;
 x_124 = lean_string_append(x_123, x_122);
 lean_dec(x_122);
 x_86 = x_124;

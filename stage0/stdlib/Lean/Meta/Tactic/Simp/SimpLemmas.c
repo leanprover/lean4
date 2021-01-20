@@ -49,6 +49,7 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkSimpLemmaCore___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Meta_addSimpLemmaEntry___spec__8(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_13781____closed__9;
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkSimpLemmaCore___lambda__4(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -99,7 +100,6 @@ lean_object* lean_st_ref_take(lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_insertAux___rarg___closed__3;
 lean_object* l_Lean_ScopedEnvExtension_addLocalEntry___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Syntax_0__Lean_Syntax_formatInfo___closed__1;
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_addSimpLemmaEntry___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instToFormatSimpLemma___closed__4;
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes___rarg(lean_object*, lean_object*, lean_object*);
@@ -245,6 +245,7 @@ lean_object* l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_addSimpLemmaEntry__
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLetDecl___at___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_isPerm___spec__2(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_instToFormatSimpLemma___closed__5;
 lean_object* l_Std_fmt___at_Lean_Meta_instToMessageDataSimpLemma___spec__1(lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_5971____closed__4;
 lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addSimpLemma___spec__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -566,22 +567,32 @@ return x_2;
 static lean_object* _init_l_Lean_Meta_instToFormatSimpLemma___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("<unknown>");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_instToFormatSimpLemma___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_instToFormatSimpLemma___closed__1;
+x_1 = l_myMacro____x40_Init_Notation___hyg_13781____closed__9;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Meta_instToFormatSimpLemma___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("<unknown>");
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_Meta_instToFormatSimpLemma___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_instToFormatSimpLemma___closed__2;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_instToFormatSimpLemma___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -589,11 +600,11 @@ x_1 = lean_mk_string(":perm");
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_instToFormatSimpLemma___closed__4() {
+static lean_object* _init_l_Lean_Meta_instToFormatSimpLemma___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_instToFormatSimpLemma___closed__3;
+x_1 = l_Lean_Meta_instToFormatSimpLemma___closed__4;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -610,7 +621,7 @@ x_4 = lean_ctor_get(x_1, 2);
 lean_inc(x_4);
 lean_dec(x_1);
 x_5 = l_Std_fmt___at_Lean_Position_instToFormatPosition___spec__1(x_4);
-x_6 = l___private_Lean_Syntax_0__Lean_Syntax_formatInfo___closed__1;
+x_6 = l_Lean_Meta_instToFormatSimpLemma___closed__1;
 x_7 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_5);
@@ -623,7 +634,7 @@ if (x_2 == 0)
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_10 = l_Lean_Meta_instToFormatSimpLemma___closed__2;
+x_10 = l_Lean_Meta_instToFormatSimpLemma___closed__3;
 x_11 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_9);
@@ -653,11 +664,11 @@ else
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_17 = l_Lean_Meta_instToFormatSimpLemma___closed__2;
+x_17 = l_Lean_Meta_instToFormatSimpLemma___closed__3;
 x_18 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_9);
-x_19 = l_Lean_Meta_instToFormatSimpLemma___closed__4;
+x_19 = l_Lean_Meta_instToFormatSimpLemma___closed__5;
 x_20 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
@@ -673,7 +684,7 @@ x_22 = l_Std_fmt___at_Lean_Level_PP_Result_format___spec__1(x_21);
 x_23 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_23, 1, x_9);
-x_24 = l_Lean_Meta_instToFormatSimpLemma___closed__4;
+x_24 = l_Lean_Meta_instToFormatSimpLemma___closed__5;
 x_25 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_24);
@@ -693,7 +704,7 @@ x_4 = lean_ctor_get(x_1, 2);
 lean_inc(x_4);
 lean_dec(x_1);
 x_5 = l_Std_fmt___at_Lean_Position_instToFormatPosition___spec__1(x_4);
-x_6 = l___private_Lean_Syntax_0__Lean_Syntax_formatInfo___closed__1;
+x_6 = l_Lean_Meta_instToFormatSimpLemma___closed__1;
 x_7 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_5);
@@ -706,7 +717,7 @@ if (x_2 == 0)
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_10 = l_Lean_Meta_instToFormatSimpLemma___closed__2;
+x_10 = l_Lean_Meta_instToFormatSimpLemma___closed__3;
 x_11 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_9);
@@ -736,11 +747,11 @@ else
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_17 = l_Lean_Meta_instToFormatSimpLemma___closed__2;
+x_17 = l_Lean_Meta_instToFormatSimpLemma___closed__3;
 x_18 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_9);
-x_19 = l_Lean_Meta_instToFormatSimpLemma___closed__4;
+x_19 = l_Lean_Meta_instToFormatSimpLemma___closed__5;
 x_20 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
@@ -756,7 +767,7 @@ x_22 = l_Std_fmt___at_Lean_Level_PP_Result_format___spec__1(x_21);
 x_23 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_23, 1, x_9);
-x_24 = l_Lean_Meta_instToFormatSimpLemma___closed__4;
+x_24 = l_Lean_Meta_instToFormatSimpLemma___closed__5;
 x_25 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_24);
@@ -7003,6 +7014,8 @@ l_Lean_Meta_instToFormatSimpLemma___closed__3 = _init_l_Lean_Meta_instToFormatSi
 lean_mark_persistent(l_Lean_Meta_instToFormatSimpLemma___closed__3);
 l_Lean_Meta_instToFormatSimpLemma___closed__4 = _init_l_Lean_Meta_instToFormatSimpLemma___closed__4();
 lean_mark_persistent(l_Lean_Meta_instToFormatSimpLemma___closed__4);
+l_Lean_Meta_instToFormatSimpLemma___closed__5 = _init_l_Lean_Meta_instToFormatSimpLemma___closed__5();
+lean_mark_persistent(l_Lean_Meta_instToFormatSimpLemma___closed__5);
 l_Lean_Meta_SimpLemmas_pre___default___closed__1 = _init_l_Lean_Meta_SimpLemmas_pre___default___closed__1();
 lean_mark_persistent(l_Lean_Meta_SimpLemmas_pre___default___closed__1);
 l_Lean_Meta_SimpLemmas_pre___default = _init_l_Lean_Meta_SimpLemmas_pre___default();

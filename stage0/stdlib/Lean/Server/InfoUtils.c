@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.InfoUtils
-// Imports: Init Lean.Elab.InfoTree
+// Imports: Init Lean.Elab.InfoTree Lean.Util.Sorry
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,9 +22,11 @@ lean_object* l_Lean_Elab_InfoTree_hoverableTermAt_x3f_match__4___rarg(lean_objec
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_InfoTree_smallestNode_x3f___spec__3(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Std_PersistentArray_foldlM___at_Lean_Elab_InfoTree_smallestNode_x3f___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+lean_object* l_Lean_Elab_TacticInfo_tailPos_x3f___boxed(lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_Elab_InfoTree_smallestNode_x3f___spec__8(lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
+uint8_t l_Lean_Expr_isSyntheticSorry(lean_object*);
 lean_object* l_Array_contains___at_Lean_Elab_InfoTree_hoverableTermAt_x3f___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Elab_InfoTree_smallestNodes_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -73,6 +75,7 @@ lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hoverableTermAt_x3f_
 extern lean_object* l_Lean_charLitKind;
 lean_object* l_Lean_Elab_InfoTree_smallestNode_x3f(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_smallestNode_x3f___spec__10(lean_object*, size_t, size_t, lean_object*);
+lean_object* l_Lean_Elab_TermInfo_tailPos_x3f___boxed(lean_object*);
 size_t l_USize_shiftLeft(size_t, size_t);
 lean_object* l_Lean_Elab_InfoTree_hoverableTermAt_x3f___lambda__1___closed__8;
 lean_object* l_Std_PersistentArray_getAux___at_Lean_Elab_InfoTree_smallestNode_x3f___spec__12___boxed(lean_object*, lean_object*, lean_object*);
@@ -89,6 +92,7 @@ lean_object* l_Std_PersistentArray_toList___rarg(lean_object*);
 lean_object* l_Lean_Elab_TacticInfo_pos_x3f___boxed(lean_object*);
 extern lean_object* l_Lean_identKind;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_smallestNode_x3f___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 lean_object* l_List_filterMap___at_Lean_Elab_InfoTree_hoverableTermAt_x3f___spec__3(lean_object*);
 extern lean_object* l_Option_get_x21___rarg___closed__4;
 lean_object* l_List_redLength___rarg(lean_object*);
@@ -106,13 +110,12 @@ lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_InfoTree_smallestNode_x3f___s
 lean_object* l_Lean_Elab_InfoTree_hoverableTermAt_x3f___lambda__1___closed__5;
 uint8_t l_Array_contains___at_Lean_Elab_InfoTree_hoverableTermAt_x3f___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_get_x21___at_Lean_Elab_InfoTree_smallestNode_x3f___spec__11___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_getPos(lean_object*);
 lean_object* l_Std_PersistentArray_getAux___at_Lean_Elab_InfoTree_smallestNode_x3f___spec__12(lean_object*, size_t, size_t);
 lean_object* l_Lean_Elab_TacticInfo_tailPos_x3f(lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Elab_InfoTree_smallestNodes___spec__2(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_mapM___at_Lean_Elab_InfoTree_smallestNode_x3f___spec__1(lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_getTailPos(lean_object*);
+lean_object* l_Lean_Syntax_getTailPos_x3f(lean_object*, uint8_t);
 lean_object* l_List_map___at_Lean_Elab_InfoTree_smallestNodes___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_InfoTree_hoverableTermAt_x3f___lambda__1___closed__6;
 lean_object* l_Lean_Elab_InfoTree_smallestNodes(lean_object*, lean_object*);
@@ -1281,10 +1284,11 @@ return x_18;
 lean_object* l_Lean_Elab_TermInfo_pos_x3f(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 2);
-x_3 = l_Lean_Syntax_getPos(x_2);
-return x_3;
+x_3 = 1;
+x_4 = l_Lean_Syntax_getPos_x3f(x_2, x_3);
+return x_4;
 }
 }
 lean_object* l_Lean_Elab_TermInfo_pos_x3f___boxed(lean_object* x_1) {
@@ -1299,21 +1303,30 @@ return x_2;
 lean_object* l_Lean_Elab_TermInfo_tailPos_x3f(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 2);
-lean_inc(x_2);
+x_3 = 1;
+x_4 = l_Lean_Syntax_getTailPos_x3f(x_2, x_3);
+return x_4;
+}
+}
+lean_object* l_Lean_Elab_TermInfo_tailPos_x3f___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_TermInfo_tailPos_x3f(x_1);
 lean_dec(x_1);
-x_3 = l_Lean_Syntax_getTailPos(x_2);
-return x_3;
+return x_2;
 }
 }
 lean_object* l_Lean_Elab_TacticInfo_pos_x3f(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 2);
-x_3 = l_Lean_Syntax_getPos(x_2);
-return x_3;
+x_3 = 1;
+x_4 = l_Lean_Syntax_getPos_x3f(x_2, x_3);
+return x_4;
 }
 }
 lean_object* l_Lean_Elab_TacticInfo_pos_x3f___boxed(lean_object* x_1) {
@@ -1328,12 +1341,20 @@ return x_2;
 lean_object* l_Lean_Elab_TacticInfo_tailPos_x3f(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 2);
-lean_inc(x_2);
+x_3 = 1;
+x_4 = l_Lean_Syntax_getTailPos_x3f(x_2, x_3);
+return x_4;
+}
+}
+lean_object* l_Lean_Elab_TacticInfo_tailPos_x3f___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_TacticInfo_tailPos_x3f(x_1);
 lean_dec(x_1);
-x_3 = l_Lean_Syntax_getTailPos(x_2);
-return x_3;
+return x_2;
 }
 }
 lean_object* l_Lean_Elab_InfoTree_hoverableTermAt_x3f_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -1612,7 +1633,6 @@ lean_dec(x_3);
 x_10 = lean_ctor_get(x_5, 0);
 lean_inc(x_10);
 lean_dec(x_5);
-lean_inc(x_10);
 x_11 = l_Lean_Elab_TermInfo_tailPos_x3f(x_10);
 x_12 = l_Lean_Elab_TermInfo_pos_x3f(x_10);
 x_13 = lean_alloc_ctor(0, 2, 0);
@@ -1713,7 +1733,6 @@ lean_dec(x_3);
 x_39 = lean_ctor_get(x_5, 0);
 lean_inc(x_39);
 lean_dec(x_5);
-lean_inc(x_39);
 x_40 = l_Lean_Elab_TermInfo_tailPos_x3f(x_39);
 x_41 = l_Lean_Elab_TermInfo_pos_x3f(x_39);
 x_42 = lean_alloc_ctor(0, 2, 0);
@@ -2032,84 +2051,96 @@ _start:
 {
 if (lean_obj_tag(x_2) == 1)
 {
-lean_object* x_3; lean_object* x_4; 
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 lean_dec(x_2);
-x_4 = l_Lean_Elab_TermInfo_pos_x3f(x_3);
-if (lean_obj_tag(x_4) == 0)
-{
-uint8_t x_5; 
-lean_dec(x_3);
-x_5 = 0;
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-x_6 = lean_ctor_get(x_4, 0);
-lean_inc(x_6);
+x_4 = lean_ctor_get(x_3, 1);
+lean_inc(x_4);
+x_5 = l_Lean_Expr_isSyntheticSorry(x_4);
 lean_dec(x_4);
-lean_inc(x_3);
-x_7 = l_Lean_Elab_TermInfo_tailPos_x3f(x_3);
-if (lean_obj_tag(x_7) == 0)
+if (x_5 == 0)
 {
-uint8_t x_8; 
-lean_dec(x_6);
-lean_dec(x_3);
-x_8 = 0;
-return x_8;
-}
-else
-{
-lean_object* x_9; uint8_t x_10; 
-x_9 = lean_ctor_get(x_7, 0);
-lean_inc(x_9);
+lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_6 = lean_ctor_get(x_3, 2);
+lean_inc(x_6);
+x_7 = l_Lean_Syntax_getKind(x_6);
+x_8 = l_Lean_Elab_InfoTree_hoverableTermAt_x3f___lambda__1___closed__9;
+x_9 = l_Array_contains___at_Lean_Elab_InfoTree_hoverableTermAt_x3f___spec__1(x_8, x_7);
 lean_dec(x_7);
-x_10 = lean_nat_dec_le(x_6, x_1);
-lean_dec(x_6);
-if (x_10 == 0)
+if (x_9 == 0)
 {
-uint8_t x_11; 
-lean_dec(x_9);
+uint8_t x_10; 
 lean_dec(x_3);
-x_11 = 0;
-return x_11;
+x_10 = 0;
+return x_10;
 }
 else
+{
+lean_object* x_11; 
+x_11 = l_Lean_Elab_TermInfo_pos_x3f(x_3);
+if (lean_obj_tag(x_11) == 0)
 {
 uint8_t x_12; 
-x_12 = lean_nat_dec_lt(x_1, x_9);
-lean_dec(x_9);
-if (x_12 == 0)
-{
-uint8_t x_13; 
 lean_dec(x_3);
-x_13 = 0;
-return x_13;
+x_12 = 0;
+return x_12;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-x_14 = lean_ctor_get(x_3, 2);
-lean_inc(x_14);
+lean_object* x_13; lean_object* x_14; 
+x_13 = lean_ctor_get(x_11, 0);
+lean_inc(x_13);
+lean_dec(x_11);
+x_14 = l_Lean_Elab_TermInfo_tailPos_x3f(x_3);
 lean_dec(x_3);
-x_15 = l_Lean_Syntax_getKind(x_14);
-x_16 = l_Lean_Elab_InfoTree_hoverableTermAt_x3f___lambda__1___closed__9;
-x_17 = l_Array_contains___at_Lean_Elab_InfoTree_hoverableTermAt_x3f___spec__1(x_16, x_15);
-lean_dec(x_15);
-return x_17;
-}
-}
-}
-}
+if (lean_obj_tag(x_14) == 0)
+{
+uint8_t x_15; 
+lean_dec(x_13);
+x_15 = 0;
+return x_15;
 }
 else
+{
+lean_object* x_16; uint8_t x_17; 
+x_16 = lean_ctor_get(x_14, 0);
+lean_inc(x_16);
+lean_dec(x_14);
+x_17 = lean_nat_dec_le(x_13, x_1);
+lean_dec(x_13);
+if (x_17 == 0)
 {
 uint8_t x_18; 
-lean_dec(x_2);
+lean_dec(x_16);
 x_18 = 0;
 return x_18;
+}
+else
+{
+uint8_t x_19; 
+x_19 = lean_nat_dec_lt(x_1, x_16);
+lean_dec(x_16);
+return x_19;
+}
+}
+}
+}
+}
+else
+{
+uint8_t x_20; 
+lean_dec(x_3);
+x_20 = 0;
+return x_20;
+}
+}
+else
+{
+uint8_t x_21; 
+lean_dec(x_2);
+x_21 = 0;
+return x_21;
 }
 }
 }
@@ -2260,6 +2291,7 @@ return x_4;
 }
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Elab_InfoTree(lean_object*);
+lean_object* initialize_Lean_Util_Sorry(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Server_InfoUtils(lean_object* w) {
 lean_object * res;
@@ -2269,6 +2301,9 @@ res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_InfoTree(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Util_Sorry(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_InfoTree_hoverableTermAt_x3f___lambda__1___closed__1 = _init_l_Lean_Elab_InfoTree_hoverableTermAt_x3f___lambda__1___closed__1();

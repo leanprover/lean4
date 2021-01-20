@@ -31,11 +31,11 @@ lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processNonVari
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processConstructor_match__4(lean_object*);
 lean_object* l_Lean_Meta_Match_mkMatcher___lambda__1___closed__3;
 size_t l_USize_add(size_t, size_t);
+extern lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l_Lean_throwError___at___private_Lean_Meta_Match_Match_0__Lean_Meta_updateAlts___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_List_foldr___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_isConstructorTransition___spec__1(uint8_t, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_Meta_Match_processInaccessibleAsCtor_match__2(lean_object*);
-extern lean_object* l_Lean_Syntax_strLitToAtom___closed__3;
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_MatcherApp_addArg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isNatLit(lean_object*);
@@ -3323,7 +3323,7 @@ x_1 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_process
 x_2 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__1___closed__2;
 x_3 = lean_unsigned_to_nat(141u);
 x_4 = lean_unsigned_to_nat(19u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -3667,7 +3667,7 @@ x_1 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_process
 x_2 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__1___closed__2;
 x_3 = lean_unsigned_to_nat(137u);
 x_4 = lean_unsigned_to_nat(15u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -4773,7 +4773,7 @@ x_1 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_process
 x_2 = l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processAsPattern___closed__1;
 x_3 = lean_unsigned_to_nat(156u);
 x_4 = lean_unsigned_to_nat(15u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -4947,7 +4947,7 @@ x_1 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_process
 x_2 = l_List_mapM___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processVariable___spec__1___closed__1;
 x_3 = lean_unsigned_to_nat(170u);
 x_4 = lean_unsigned_to_nat(40u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -5366,7 +5366,7 @@ x_1 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_process
 x_2 = l_List_mapM___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processVariable___spec__1___closed__1;
 x_3 = lean_unsigned_to_nat(165u);
 x_4 = lean_unsigned_to_nat(15u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -9738,7 +9738,7 @@ x_1 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_process
 x_2 = l_Lean_Meta_Match_processInaccessibleAsCtor___closed__1;
 x_3 = lean_unsigned_to_nat(308u);
 x_4 = lean_unsigned_to_nat(9u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -11071,7 +11071,7 @@ x_1 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_process
 x_2 = l_List_filterMapM_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processConstructor___spec__8___closed__1;
 x_3 = lean_unsigned_to_nat(353u);
 x_4 = lean_unsigned_to_nat(48u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -11636,7 +11636,7 @@ x_1 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_process
 x_2 = l_List_filterMapM_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processConstructor___spec__8___closed__1;
 x_3 = lean_unsigned_to_nat(314u);
 x_4 = lean_unsigned_to_nat(15u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -12231,7 +12231,7 @@ x_1 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_process
 x_2 = l_List_filterMapM_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processNonVariable___spec__2___closed__1;
 x_3 = lean_unsigned_to_nat(383u);
 x_4 = lean_unsigned_to_nat(20u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -12658,7 +12658,7 @@ x_1 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_process
 x_2 = l_List_filterMapM_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processNonVariable___spec__2___closed__1;
 x_3 = lean_unsigned_to_nat(372u);
 x_4 = lean_unsigned_to_nat(21u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -13209,7 +13209,7 @@ x_1 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_process
 x_2 = l_List_filterMapM_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processNonVariable___spec__2___closed__1;
 x_3 = lean_unsigned_to_nat(358u);
 x_4 = lean_unsigned_to_nat(15u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -14040,7 +14040,7 @@ x_1 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_process
 x_2 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processValue___spec__6___closed__1;
 x_3 = lean_unsigned_to_nat(421u);
 x_4 = lean_unsigned_to_nat(18u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -14648,7 +14648,7 @@ x_1 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_process
 x_2 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processValue___spec__6___closed__1;
 x_3 = lean_unsigned_to_nat(400u);
 x_4 = lean_unsigned_to_nat(15u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -16255,7 +16255,7 @@ x_1 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_process
 x_2 = l_List_mapM___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processArrayLit___spec__8___closed__1;
 x_3 = lean_unsigned_to_nat(478u);
 x_4 = lean_unsigned_to_nat(18u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -16957,7 +16957,7 @@ x_1 = l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_process
 x_2 = l_List_mapM___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processArrayLit___spec__8___closed__1;
 x_3 = lean_unsigned_to_nat(454u);
 x_4 = lean_unsigned_to_nat(15u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }

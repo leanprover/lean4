@@ -17,9 +17,9 @@ lean_object* l_Lean_Meta_assert(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Meta_substCore___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_substCore___lambda__14___closed__13;
 size_t l_USize_add(size_t, size_t);
+extern lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l_Lean_Meta_substCore___lambda__3___boxed(lean_object**);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
-extern lean_object* l_Lean_Syntax_strLitToAtom___closed__3;
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -2125,7 +2125,7 @@ x_1 = l_Lean_Meta_substCore___lambda__11___closed__3;
 x_2 = l_Lean_Meta_substCore___lambda__11___closed__4;
 x_3 = lean_unsigned_to_nat(67u);
 x_4 = lean_unsigned_to_nat(22u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }

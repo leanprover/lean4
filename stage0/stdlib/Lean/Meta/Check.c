@@ -17,9 +17,9 @@ lean_object* l_Lean_Meta_addPPExplicitToExposeDiff_visit_match__4(lean_object*, 
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwAppTypeMismatch_match__1(lean_object*);
 size_t l_USize_add(size_t, size_t);
+extern lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l_Lean_Meta_addPPExplicitToExposeDiff(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6;
-extern lean_object* l_Lean_Syntax_strLitToAtom___closed__3;
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__2(lean_object*);
 lean_object* l_Lean_Meta_check___closed__1;
@@ -382,7 +382,7 @@ x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__2;
 x_2 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3;
 x_3 = lean_unsigned_to_nat(25u);
 x_4 = lean_unsigned_to_nat(9u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }

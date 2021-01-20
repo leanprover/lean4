@@ -198,6 +198,7 @@ lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_ClassState_add
 lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_ClassState_addEntry___spec__4(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_ClassState_hasOutParam___default___spec__1___closed__1;
 lean_object* l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_643____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3363____closed__21;
 lean_object* l_Lean_Attribute_Builtin_ensureNoArgs(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_ClassState_hasOutParam___default___spec__1___closed__2;
 lean_object* l_Lean_SMap_find_x3f___at_Lean_hasOutParams___spec__1___boxed(lean_object*, lean_object*);
@@ -209,7 +210,6 @@ uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Class_0__Lean_checkOutParam__
 uint8_t l_Array_anyMUnsafe_any___at_Lean_initFn____x40_Lean_Class___hyg_47____spec__6(lean_object*, lean_object*, size_t, size_t);
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Array_contains___at___private_Lean_Class_0__Lean_checkOutParam___spec__1___boxed(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3377____closed__21;
 lean_object* l_Lean_addClass_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addClass___closed__1;
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
@@ -3809,7 +3809,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3377____closed__21;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3363____closed__21;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

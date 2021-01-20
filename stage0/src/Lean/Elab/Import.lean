@@ -21,7 +21,7 @@ def processHeader (header : Syntax) (opts : Options) (messages : MessageLog) (in
     pure (env, messages)
   catch e =>
     let env ← mkEmptyEnvironment
-    let spos := header.getPos.getD 0
+    let spos := header.getPos?.getD 0
     let pos  := inputCtx.fileMap.toPosition spos
     pure (env, messages.add { fileName := inputCtx.fileName, data := toString e, pos := pos })
 

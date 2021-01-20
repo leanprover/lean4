@@ -60,7 +60,7 @@ end BasicFunctions
 
 ```lean
 -- Lean has first-class functions.
--- `twice` takes two argumes `f` and `a` where
+-- `twice` takes two arguments `f` and `a` where
 -- `f` is a function from natural numbers to natural numbers, and
 -- `a` is a natural number.
 def twice (f : Nat → Nat) (a : Nat) :=

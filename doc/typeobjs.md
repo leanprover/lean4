@@ -114,7 +114,7 @@ constant α : Type _
 #check α
 ```
 
-Several Lean 3 users use the shorhand `Type*` for `Type _`. The `Type*` notation is not builtin in Lean 4, but you can be easily define it using a `macro`.
+Several Lean 3 users use the shorhand `Type*` for `Type _`. The `Type*` notation is not builtin in Lean 4, but you can easily define it using a `macro`.
 ```lean
 macro "Type*" : term => `(Type _)
 

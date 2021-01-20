@@ -207,8 +207,8 @@ def setInfo (info : SourceInfo) : Syntax → Syntax
 
 /-- Return the first atom/identifier that has position information -/
 partial def getHead? : Syntax → Option Syntax
-  | stx@(atom info ..)  => info.getPos.map fun _ => stx
-  | stx@(ident info ..) => info.getPos.map fun _ => stx
+  | stx@(atom info ..)  => info.getPos?.map fun _ => stx
+  | stx@(ident info ..) => info.getPos?.map fun _ => stx
   | node _ args      => args.findSome? getHead?
   | _                => none
 

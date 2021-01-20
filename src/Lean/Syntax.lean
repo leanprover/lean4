@@ -171,8 +171,8 @@ partial def updateTrailing (trailing : Substring) : Syntax → Syntax
   | s => s
 
 partial def getTailWithPos : Syntax → Option Syntax
-  | stx@(atom info _)   => info.getPos.map fun _ => stx
-  | stx@(ident info ..) => info.getPos.map fun _ => stx
+  | stx@(atom info _)   => info.getPos?.map fun _ => stx
+  | stx@(ident info ..) => info.getPos?.map fun _ => stx
   | node _ args         => args.findSomeRev? getTailWithPos
   | _                   => none
 

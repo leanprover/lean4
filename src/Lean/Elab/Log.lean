@@ -31,7 +31,7 @@ variables {m : Type → Type} [Monad m] [MonadLog m] [AddMessageContext m]
 
 def getRefPos : m String.Pos := do
   let ref ← MonadLog.getRef
-  return ref.getPos.getD 0
+  return ref.getPos?.getD 0
 
 def getRefPosition : m Position := do
   let fileMap ← getFileMap
@@ -40,8 +40,8 @@ def getRefPosition : m Position := do
 def logAt (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity := MessageSeverity.error): m Unit :=
   unless severity == MessageSeverity.error && msgData.hasSyntheticSorry do
     let ref    := replaceRef ref (← MonadLog.getRef)
-    let pos    := ref.getPos.getD 0
-    let endPos := ref.getTailPos.getD pos
+    let pos    := ref.getPos?.getD 0
+    let endPos := ref.getTailPos?.getD pos
     let fileMap ← getFileMap
     let msgData ← addMessageContext msgData
     logMessage { fileName := (← getFileName), pos := fileMap.toPosition pos, endPos := fileMap.toPosition endPos, data := msgData, severity := severity }

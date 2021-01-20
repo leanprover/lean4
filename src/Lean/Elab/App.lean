@@ -840,7 +840,7 @@ private def getSuccess (candidates : Array (TermElabResult Expr)) : Array (TermE
 
 private def toMessageData (ex : Exception) : TermElabM MessageData := do
   let pos ← getRefPos
-  match ex.getRef.getPos with
+  match ex.getRef.getPos? with
   | none       => pure ex.toMessageData
   | some exPos =>
     if pos == exPos then

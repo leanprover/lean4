@@ -1299,7 +1299,7 @@ def resolveName' (ident : Syntax) (explicitLevels : List Level) : TermElabM (Lis
         let fieldSstr := restSstr.takeRightWhile (· ≠ '.')
         ({ restSstr with stopPos := restSstr.stopPos - (fieldSstr.bsize + 1) }, (field, fieldSstr) :: fs)
       let id := mkIdentFrom ident cSstr.toString
-      match info.getPos with
+      match info.getPos? with
       | none =>
         return (c, id, fields.map fun (field, _) => mkIdentFrom ident (Name.mkSimple field))
       | some pos =>

@@ -11,8 +11,8 @@ namespace Lean.Elab
 
 def getDeclarationRange [Monad m] [MonadFileMap m] (stx : Syntax) : m DeclarationRange := do
   let fileMap ← getFileMap
-  let pos    := stx.getPos.getD 0
-  let endPos := stx.getTailPos.getD pos |> fileMap.toPosition
+  let pos    := stx.getPos?.getD 0
+  let endPos := stx.getTailPos?.getD pos |> fileMap.toPosition
   let pos    := pos |> fileMap.toPosition
   return {
     pos          := pos

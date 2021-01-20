@@ -34,16 +34,16 @@ partial def InfoTree.smallestNodes (p : Info → Bool) : InfoTree → List InfoT
   | _ => []
 
 def TermInfo.pos? (i : TermInfo) : Option String.Pos :=
-  i.stx.getPos
+  i.stx.getPos? (originalOnly := true)
 
 def TermInfo.tailPos? (i : TermInfo) : Option String.Pos :=
-  i.stx.getTailPos
+  i.stx.getTailPos? (originalOnly := true)
 
 def TacticInfo.pos? (i : TacticInfo) : Option String.Pos :=
-  i.stx.getPos
+  i.stx.getPos? (originalOnly := true)
 
 def TacticInfo.tailPos? (i : TacticInfo) : Option String.Pos :=
-  i.stx.getTailPos
+  i.stx.getTailPos? (originalOnly := true)
 
 /-- Find a `TermInfo`, if any, which should be shown on hover/cursor at position `hoverPos`. -/
 partial def InfoTree.hoverableTermAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × TermInfo) :=

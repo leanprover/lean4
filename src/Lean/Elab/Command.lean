@@ -94,7 +94,7 @@ instance : AddErrorMessageContext CommandElabM where
     return (ref, msg)
 
 def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
-  mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos.getD ctx.cmdPos)
+  mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos?.getD ctx.cmdPos)
 
 private def mkCoreContext (ctx : Context) (s : State) : Core.Context :=
   let scope       := s.scopes.head!
@@ -271,7 +271,7 @@ private def addTraceAsMessages (ctx : Context) (log : MessageLog) (traceState : 
   traceState.traces.foldl
     (fun (log : MessageLog) traceElem =>
       let ref := replaceRef traceElem.ref ctx.ref;
-      let pos := ref.getPos.getD 0;
+      let pos := ref.getPos?.getD 0;
       log.add (mkMessageCore ctx.fileName ctx.fileMap traceElem.msg MessageSeverity.information pos))
     log
 

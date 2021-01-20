@@ -90,7 +90,10 @@ where
     else
       k minors
 
-partial def mkSizeOfFn (recName : Name) : MetaM Unit := do
+/--
+  Create a "sizeOf" function with name `declName` using the recursor `recName`.
+-/
+partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
   trace[Meta.sizeOf]! "recName: {recName}"
   let recInfo : RecursorVal ← getConstInfoRec recName
   forallTelescopeReducing recInfo.type fun xs type =>
@@ -108,12 +111,44 @@ partial def mkSizeOfFn (recName : Name) : MetaM Unit := do
       let val := mkAppN recFn (params ++ motives)
       forallBoundedTelescope (← inferType val) recInfo.numMinors fun minorFVars' _ =>
       mkSizeOfMinors motiveFVars minorFVars minorFVars' fun minors => do
-        let sizeOfFnType ← mkForallFVars (params ++ localInsts ++ indices ++ #[major]) nat
+        let sizeOfParams := params ++ localInsts ++ indices ++ #[major]
+        let sizeOfType ← mkForallFVars sizeOfParams nat
         let val := mkAppN val (minors ++ indices ++ #[major])
         trace[Meta.sizeOf]! "val: {val}"
-        trace[Meta.sizeOf]! "type: {← inferType val}"
-        check val -- TODO: remove
-        return ()
+        let sizeOfValue ← mkLambdaFVars sizeOfParams val
+        addDecl <| Declaration.defnDecl {
+          name        := declName
+          levelParams := levelParams
+          type        := sizeOfType
+          value       := sizeOfValue
+          safety      := DefinitionSafety.safe
+          hints       := ReducibilityHints.abbrev
+        }
+
+/--
+  Create `sizeOf` functions for all inductive datatypes in the mutual inductive declaration containing `typeName`
+  The resulting array contains the generated functions names.
+  There is a function for each element of the mutual inductive declaration, and for auxiliary recursors for nested inductive types.
+-/
+def mkSizeOfFns (typeName : Name) : MetaM (Array Name) := do
+  let indInfo ← getConstInfoInduct typeName
+  let recInfo ← getConstInfoRec (mkRecName typeName)
+  let numExtra := recInfo.numMotives - indInfo.all.length -- numExtra > 0 for nested inductive types
+  let mut result := #[]
+  let baseName := indInfo.all.head! ++ `_sizeOf -- we use the first inductive type as the base name for `sizeOf` functions
+  let mut i := 1
+  for indTypeName in indInfo.all do
+    let sizeOfName := baseName.appendIndexAfter i
+    mkSizeOfFn (mkRecName indTypeName) sizeOfName
+    result := result.push sizeOfName
+    i := i + 1
+  for j in [:numExtra] do
+    let recName := (mkRecName indInfo.all.head!).appendIndexAfter (j+1)
+    let sizeOfName := baseName.appendIndexAfter i
+    mkSizeOfFn recName sizeOfName
+    result := result.push sizeOfName
+    i := i + 1
+  return result
 
 builtin_initialize
   registerTraceClass `Meta.sizeOf

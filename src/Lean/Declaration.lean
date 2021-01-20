@@ -266,6 +266,9 @@ def RecursorVal.getMajorIdx (v : RecursorVal) : Nat :=
 def RecursorVal.getFirstIndexIdx (v : RecursorVal) : Nat :=
   v.nparams + v.nmotives + v.nminors
 
+def RecursorVal.getFirstMinorIdx (v : RecursorVal) : Nat :=
+  v.nparams + v.nmotives
+
 def RecursorVal.getInduct (v : RecursorVal) : Name :=
   v.name.getPrefix
 

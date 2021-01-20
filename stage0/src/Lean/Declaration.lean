@@ -263,6 +263,9 @@ def mkRecursorValEx (name : Name) (lparams : List Name) (type : Expr) (all : Lis
 def RecursorVal.getMajorIdx (v : RecursorVal) : Nat :=
   v.nparams + v.nmotives + v.nminors + v.nindices
 
+def RecursorVal.getFirstIndexIdx (v : RecursorVal) : Nat :=
+  v.nparams + v.nmotives + v.nminors
+
 def RecursorVal.getInduct (v : RecursorVal) : Name :=
   v.name.getPrefix
 

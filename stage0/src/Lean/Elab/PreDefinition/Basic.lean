@@ -89,6 +89,9 @@ def addAsAxiom (preDef : PreDefinition) : MetaM Unit := do
   withRef preDef.ref do
     addDecl <| Declaration.axiomDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, isUnsafe := preDef.modifiers.isUnsafe }
 
+private def shouldGenCodeFor (preDef : PreDefinition) : Bool :=
+  !preDef.kind.isTheorem && !preDef.modifiers.isNoncomputable
+
 private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs preDef
@@ -111,7 +114,7 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM U
                                safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
     addDecl decl
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
-    if compile && !preDef.kind.isTheorem then
+    if compile && shouldGenCodeFor preDef then
       compileDecl decl
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
@@ -138,16 +141,17 @@ def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSaf
     pure ()
 
 def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := do
-  addAndCompileUnsafe (safety := DefinitionSafety.partial) <| preDefs.map fun preDef =>
-    { preDef with
-      declName  := Compiler.mkUnsafeRecName preDef.declName,
-      value     := preDef.value.replace fun e => match e with
-        | Expr.const declName us _ =>
-          if preDefs.any fun preDef => preDef.declName == declName then
-            some $ mkConst (Compiler.mkUnsafeRecName declName) us
-          else
-            none
-        | _ => none,
-      modifiers := {} }
+  if preDefs.all shouldGenCodeFor then
+    addAndCompileUnsafe (safety := DefinitionSafety.partial) <| preDefs.map fun preDef =>
+      { preDef with
+        declName  := Compiler.mkUnsafeRecName preDef.declName,
+        value     := preDef.value.replace fun e => match e with
+          | Expr.const declName us _ =>
+            if preDefs.any fun preDef => preDef.declName == declName then
+              some $ mkConst (Compiler.mkUnsafeRecName declName) us
+            else
+              none
+          | _ => none,
+        modifiers := {} }
 
 end Lean.Elab

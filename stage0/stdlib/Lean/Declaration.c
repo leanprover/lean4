@@ -18,6 +18,7 @@ lean_object* l_Lean_mkReducibilityHintsRegularEx___boxed(lean_object*);
 lean_object* l_Lean_Declaration_foldExprM(lean_object*, lean_object*);
 lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__2___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ReducibilityHints_lt___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_RecursorVal_getFirstIndexIdx(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_InductiveVal_isUnsafeEx___boxed(lean_object*);
 lean_object* l_Lean_ReducibilityHints_getHeightEx_match__1(lean_object*);
@@ -96,6 +97,7 @@ lean_object* l_Lean_instBEqDefinitionSafety___closed__1;
 lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_ConstantInfo_hasValue(lean_object*);
 lean_object* l_Lean_mkOpaqueValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_RecursorVal_getFirstIndexIdx___boxed(lean_object*);
 lean_object* l_Lean_Declaration_isUnsafeInductiveDeclEx___boxed(lean_object*);
 lean_object* l_Lean_RecursorVal_kEx___boxed(lean_object*);
 uint8_t lean_recursor_k(lean_object*);
@@ -2261,6 +2263,28 @@ lean_dec(x_1);
 return x_2;
 }
 }
+lean_object* l_Lean_RecursorVal_getFirstIndexIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_2 = lean_ctor_get(x_1, 2);
+x_3 = lean_ctor_get(x_1, 4);
+x_4 = lean_nat_add(x_2, x_3);
+x_5 = lean_ctor_get(x_1, 5);
+x_6 = lean_nat_add(x_4, x_5);
+lean_dec(x_4);
+return x_6;
+}
+}
+lean_object* l_Lean_RecursorVal_getFirstIndexIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_RecursorVal_getFirstIndexIdx(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_RecursorVal_getInduct(lean_object* x_1) {
 _start:
 {
@@ -3162,7 +3186,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_ConstantInfo_value_x21___closed__1;
 x_2 = l_Lean_ConstantInfo_value_x21___closed__2;
-x_3 = lean_unsigned_to_nat(340u);
+x_3 = lean_unsigned_to_nat(343u);
 x_4 = lean_unsigned_to_nat(33u);
 x_5 = l_Lean_ConstantInfo_value_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

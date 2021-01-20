@@ -56,16 +56,16 @@ def decLevel (u : Level) : MetaM Level := do
 def getDecLevel (type : Expr) : MetaM Level := do
   decLevel (← getLevel type)
 
-private def strictOccursMaxAux (lvl : Level) : Level → Bool
-  | Level.max u v _ => strictOccursMaxAux lvl u || strictOccursMaxAux lvl v
-  | u               => u != lvl && lvl.occurs u
-
 /--
   Return true iff `lvl` occurs in `max u_1 ... u_n` and `lvl != u_i` for all `i in [1, n]`.
   That is, `lvl` is a proper level subterm of some `u_i`. -/
 private def strictOccursMax (lvl : Level) : Level → Bool
-  | Level.max u v _ => strictOccursMaxAux lvl u || strictOccursMaxAux lvl v
+  | Level.max u v _ => visit u || visit v
   | _               => false
+where
+  visit : Level → Bool
+    | Level.max u v _ => visit u || visit v
+    | u               => u != lvl && lvl.occurs u
 
 /-- `mkMaxArgsDiff mvarId (max u_1 ... (mvar mvarId) ... u_n) v` => `max v u_1 ... u_n` -/
 private def mkMaxArgsDiff (mvarId : MVarId) : Level → Level → Level
@@ -77,6 +77,7 @@ private def mkMaxArgsDiff (mvarId : MVarId) : Level → Level → Level
   Solve `?m =?= max ?m v` by creating a fresh metavariable `?n`
   and assigning `?m := max ?n v` -/
 private def solveSelfMax (mvarId : MVarId) (v : Level) : MetaM Unit := do
+  assert! v.isMax
   let n ← mkFreshLevelMVar
   assignLevelMVar mvarId <| mkMaxArgsDiff mvarId v n
 
@@ -93,7 +94,7 @@ mutual
       else if !u.occurs v then
         assignLevelMVar u.mvarId! v
         return LBool.true
-      else if !strictOccursMax u v then
+      else if v.isMax && !strictOccursMax u v then
         solveSelfMax u.mvarId! v
         return LBool.true
       else
@@ -104,9 +105,12 @@ mutual
       Bool.toLBool <$> isLevelDefEqAux levelZero v₂
     | Level.zero _, Level.succ .. => return LBool.false
     | Level.succ u _, v =>
-      match (← Meta.decLevel? v) with
-      | some v => Bool.toLBool <$> isLevelDefEqAux u v
-      | none   => return LBool.undef
+      if u.isMVar && u.occurs v then
+        return LBool.undef
+      else
+        match (← Meta.decLevel? v) with
+        | some v => Bool.toLBool <$> isLevelDefEqAux u v
+        | none   => return LBool.undef
     | _, _ => return LBool.undef
 
   partial def isLevelDefEqAux : Level → Level → MetaM Bool

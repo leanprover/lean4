@@ -142,11 +142,14 @@ instance monadNameGeneratorLift (m n : Type → Type) [MonadLift m n] [MonadName
 
 namespace Syntax
 
-partial def getTailInfo : Syntax → Option SourceInfo
+partial def getTailInfo? : Syntax → Option SourceInfo
   | atom info _   => info
   | ident info .. => info
-  | node _ args   => args.findSomeRev? getTailInfo
+  | node _ args   => args.findSomeRev? getTailInfo?
   | _             => none
+
+def getTailInfo (stx : Syntax) : SourceInfo :=
+  stx.getTailInfo?.getD SourceInfo.none
 
 @[specialize] private partial def updateLast {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
   if i == 0 then

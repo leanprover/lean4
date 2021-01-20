@@ -322,7 +322,6 @@ def addExprMVarDecl (mctx : MetavarContext)
       kind           := kind,
       numScopeArgs   := numScopeArgs } }
 
-@[export lean_metavar_ctx_mk_decl]
 def addExprMVarDeclExp (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) (lctx : LocalContext) (localInstances : LocalInstances)
     (type : Expr) (kind : MetavarKind) : MetavarContext :=
     addExprMVarDecl mctx mvarId userName lctx localInstances type kind
@@ -333,7 +332,6 @@ def addExprMVarDeclExp (mctx : MetavarContext) (mvarId : MVarId) (userName : Nam
 def addLevelMVarDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarContext :=
   { mctx with lDepth := mctx.lDepth.insert mvarId mctx.depth }
 
-@[export lean_metavar_ctx_find_decl]
 def findDecl? (mctx : MetavarContext) (mvarId : MVarId) : Option MetavarDecl :=
   mctx.decls.find? mvarId
 
@@ -381,46 +379,33 @@ def renameMVar (mctx : MetavarContext) (mvarId : MVarId) (newUserName : Name) : 
   | none          => panic! "unknown metavariable"
   | some mvarDecl => { mctx with decls := mctx.decls.insert mvarId { mvarDecl with userName := newUserName } }
 
-@[export lean_metavar_ctx_assign_level]
 def assignLevel (m : MetavarContext) (mvarId : MVarId) (val : Level) : MetavarContext :=
   { m with lAssignment := m.lAssignment.insert mvarId val }
-
-@[export lean_metavar_ctx_assign_expr]
-def assignExprCore (m : MetavarContext) (mvarId : MVarId) (val : Expr) : MetavarContext :=
-  { m with eAssignment := m.eAssignment.insert mvarId val }
 
 def assignExpr (m : MetavarContext) (mvarId : MVarId) (val : Expr) : MetavarContext :=
   { m with eAssignment := m.eAssignment.insert mvarId val }
 
-@[export lean_metavar_ctx_assign_delayed]
 def assignDelayed (m : MetavarContext) (mvarId : MVarId) (lctx : LocalContext) (fvars : Array Expr) (val : Expr) : MetavarContext :=
   { m with dAssignment := m.dAssignment.insert mvarId { lctx := lctx, fvars := fvars, val := val } }
 
-@[export lean_metavar_ctx_get_level_assignment]
 def getLevelAssignment? (m : MetavarContext) (mvarId : MVarId) : Option Level :=
   m.lAssignment.find? mvarId
 
-@[export lean_metavar_ctx_get_expr_assignment]
 def getExprAssignment? (m : MetavarContext) (mvarId : MVarId) : Option Expr :=
   m.eAssignment.find? mvarId
 
-@[export lean_metavar_ctx_get_delayed_assignment]
 def getDelayedAssignment? (m : MetavarContext) (mvarId : MVarId) : Option DelayedMetavarAssignment :=
   m.dAssignment.find? mvarId
 
-@[export lean_metavar_ctx_is_level_assigned]
 def isLevelAssigned (m : MetavarContext) (mvarId : MVarId) : Bool :=
   m.lAssignment.contains mvarId
 
-@[export lean_metavar_ctx_is_expr_assigned]
 def isExprAssigned (m : MetavarContext) (mvarId : MVarId) : Bool :=
   m.eAssignment.contains mvarId
 
-@[export lean_metavar_ctx_is_delayed_assigned]
 def isDelayedAssigned (m : MetavarContext) (mvarId : MVarId) : Bool :=
   m.dAssignment.contains mvarId
 
-@[export lean_metavar_ctx_erase_delayed]
 def eraseDelayed (m : MetavarContext) (mvarId : MVarId) : MetavarContext :=
   { m with dAssignment := m.dAssignment.erase mvarId }
 

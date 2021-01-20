@@ -1292,21 +1292,21 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
   `(v.head, id, [f₁, f₂])` where `id` is an identifier for `v.head`, and `f₁` and `f₂` are identifiers for fields `"bla"` and `"boo"`. -/
 def resolveName' (ident : Syntax) (explicitLevels : List Level) : TermElabM (List (Expr × Syntax × List Syntax)) := do
   match ident with
-  | Syntax.ident { pos := pos?, .. } rawStr n preresolved =>
+  | Syntax.ident info rawStr n preresolved =>
     let r ← resolveName n preresolved explicitLevels
     r.mapM fun (c, fields) => do
       let (cSstr, fields) := fields.foldr (init := (rawStr, [])) fun field (restSstr, fs) =>
         let fieldSstr := restSstr.takeRightWhile (· ≠ '.')
         ({ restSstr with stopPos := restSstr.stopPos - (fieldSstr.bsize + 1) }, (field, fieldSstr) :: fs)
       let id := mkIdentFrom ident cSstr.toString
-      match pos? with
+      match info.getPos? with
       | none =>
         return (c, id, fields.map fun (field, _) => mkIdentFrom ident (Name.mkSimple field))
       | some pos =>
         let mut pos := pos + cSstr.bsize + 1
         let mut newFields := #[]
         for (field, fieldSstr) in fields do
-          newFields := newFields.push <| Syntax.ident { pos := some pos } fieldSstr (Name.mkSimple field) []
+          newFields := newFields.push <| Syntax.ident (SourceInfo.original "".toSubstring pos "".toSubstring) fieldSstr (Name.mkSimple field) []
           pos := pos + fieldSstr.bsize + 1
         return (c, id, newFields.toList)
   | _ => throwError! "identifier expected"

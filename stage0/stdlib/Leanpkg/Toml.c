@@ -19,11 +19,11 @@ lean_object* l_List_lookup___at_Toml_Value_lookup___spec__1(lean_object*, lean_o
 lean_object* l_Toml_fileCat_quot___closed__8;
 lean_object* l_Array_sequenceMap_loop___at_Toml_ofSyntax___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
+extern lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l_Toml_keyVal___closed__1;
 lean_object* l_Toml_ofSyntax_match__3(lean_object*);
 lean_object* l_Toml_parse(lean_object*, lean_object*);
 lean_object* l_Toml_ofSyntax___lambda__1(lean_object*, lean_object*);
-extern lean_object* l_Lean_Syntax_strLitToAtom___closed__3;
 lean_object* l_Toml_valTrue___closed__4;
 extern lean_object* l_String_instInhabitedString;
 lean_object* l_Lean_Parser_ParserState_mkError(lean_object*, lean_object*);
@@ -1512,7 +1512,7 @@ x_1 = l_Toml_ofSyntax_toKey___closed__1;
 x_2 = l_Toml_ofSyntax_toKey___closed__2;
 x_3 = lean_unsigned_to_nat(51u);
 x_4 = lean_unsigned_to_nat(33u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -2185,7 +2185,7 @@ x_1 = l_Toml_ofSyntax_toKey___closed__1;
 x_2 = l_Toml_ofSyntax___closed__1;
 x_3 = lean_unsigned_to_nat(46u);
 x_4 = lean_unsigned_to_nat(11u);
-x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }

@@ -904,7 +904,7 @@ private:
     }
 public:
     explicit interpreter(environment const & env, options const & opts) : m_env(env), m_opts(opts) {
-        m_prefer_native = true; //opts.get_bool(*g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE);
+        m_prefer_native = opts.get_bool(*g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE);
     }
 
     ~interpreter() {

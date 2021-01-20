@@ -325,7 +325,7 @@ inline obj_res mk_option_some(obj_arg v) { obj_res r = alloc_cnstr(1, 1, 0); cns
 // =======================================
 // Natural numbers
 
-inline mpz const & mpz_value(b_obj_arg o) { return ((mpz_object*)o)->m_value; }
+inline mpz const & mpz_value(b_obj_arg o) { return to_mpz(o)->m_value; }
 object * mpz_to_nat_core(mpz const & m);
 inline object * mk_nat_obj_core(mpz const & m) { return mpz_to_nat_core(m); }
 inline obj_res mk_nat_obj(mpz const & m) {

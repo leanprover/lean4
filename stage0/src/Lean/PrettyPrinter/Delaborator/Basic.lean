@@ -203,12 +203,12 @@ def withMDataExpr {α} (d : DelabM α) : DelabM α := do
   withReader ({ · with expr := e }) d
 
 partial def annotatePos (pos : Nat) : Syntax → Syntax
-  | stx@(Syntax.ident _ _ _ _)                   => stx.setInfo { pos := pos }
+  | stx@(Syntax.ident _ _ _ _)                   => stx.setInfo (SourceInfo.synthetic pos pos)
   -- app => annotate function
   | stx@(Syntax.node `Lean.Parser.Term.app args) => stx.modifyArg 0 (annotatePos pos)
   -- otherwise, annotate first direct child token if any
   | stx => match stx.getArgs.findIdx? Syntax.isAtom with
-    | some idx => stx.modifyArg idx (Syntax.setInfo { pos := pos })
+    | some idx => stx.modifyArg idx (Syntax.setInfo (SourceInfo.synthetic pos pos))
     | none     => stx
 
 def annotateCurPos (stx : Syntax) : Delab := do

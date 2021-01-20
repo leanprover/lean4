@@ -134,6 +134,7 @@ lean_object* l_Lean_Elab_setMacroStackOption(lean_object*, uint8_t);
 lean_object* l_Std_fmt___at_Lean_Level_PP_Result_format___spec__1(lean_object*);
 lean_object* l_Lean_Syntax_unsetTrailing(lean_object*);
 lean_object* l_Lean_Elab_syntaxNodeKindOfAttrParam___closed__1;
+lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 lean_object* l_ReaderT_instMonadReaderT___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_syntaxNodeKindOfAttrParam___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getBetterRef_match__2___rarg(lean_object*, lean_object*, lean_object*);
@@ -165,7 +166,6 @@ lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_expandMacro_x3f(lean_object
 lean_object* l_Lean_Elab_evalSyntaxConstant(lean_object*, lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_adaptMacro___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_getPos(lean_object*);
 lean_object* l_Lean_Elab_getBetterRef___closed__1;
 lean_object* l_Lean_Elab_getBetterRef___boxed(lean_object*, lean_object*);
 lean_object* l_List_foldl___at_Lean_MacroScopesView_review___spec__1(lean_object*, lean_object*);
@@ -559,23 +559,24 @@ return x_8;
 uint8_t l_Lean_Elab_getBetterRef___lambda__1(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_2 = lean_ctor_get(x_1, 0);
-x_3 = l_Lean_Syntax_getPos(x_2);
-x_4 = lean_box(0);
-x_5 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_651____at_Lean_Elab_getBetterRef___spec__1(x_3, x_4);
-lean_dec(x_3);
-if (x_5 == 0)
+x_3 = 0;
+x_4 = l_Lean_Syntax_getPos_x3f(x_2, x_3);
+x_5 = lean_box(0);
+x_6 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_651____at_Lean_Elab_getBetterRef___spec__1(x_4, x_5);
+lean_dec(x_4);
+if (x_6 == 0)
 {
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
+uint8_t x_7; 
+x_7 = 1;
+return x_7;
 }
 else
 {
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
+uint8_t x_8; 
+x_8 = 0;
+return x_8;
 }
 }
 }
@@ -590,33 +591,34 @@ return x_1;
 lean_object* l_Lean_Elab_getBetterRef(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Lean_Syntax_getPos(x_1);
-if (lean_obj_tag(x_3) == 0)
+uint8_t x_3; lean_object* x_4; 
+x_3 = 0;
+x_4 = l_Lean_Syntax_getPos_x3f(x_1, x_3);
+if (lean_obj_tag(x_4) == 0)
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = l_Lean_Elab_getBetterRef___closed__1;
-x_5 = l_List_find_x3f___rarg(x_4, x_2);
-if (lean_obj_tag(x_5) == 0)
+lean_object* x_5; lean_object* x_6; 
+x_5 = l_Lean_Elab_getBetterRef___closed__1;
+x_6 = l_List_find_x3f___rarg(x_5, x_2);
+if (lean_obj_tag(x_6) == 0)
 {
 lean_inc(x_1);
 return x_1;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; 
-x_6 = lean_ctor_get(x_5, 0);
-lean_inc(x_6);
-lean_dec(x_5);
+lean_object* x_7; lean_object* x_8; 
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 lean_dec(x_6);
-return x_7;
+x_8 = lean_ctor_get(x_7, 0);
+lean_inc(x_8);
+lean_dec(x_7);
+return x_8;
 }
 }
 else
 {
-lean_dec(x_3);
+lean_dec(x_4);
 lean_dec(x_2);
 lean_inc(x_1);
 return x_1;

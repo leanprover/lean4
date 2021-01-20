@@ -148,12 +148,6 @@ partial def getTailInfo : Syntax → Option SourceInfo
   | node _ args   => args.findSomeRev? getTailInfo
   | _             => none
 
-partial def getTailPos : Syntax → Option String.Pos
-  | atom { pos := some pos, .. }  val    => some (pos + val.bsize)
-  | ident { pos := some pos, .. } val .. => some (pos + val.toString.bsize)
-  | node _ args                          => args.findSomeRev? getTailPos
-  | _                                    => none
-
 @[specialize] private partial def updateLast {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
   if i == 0 then
     none
@@ -180,8 +174,8 @@ def setTailInfo (stx : Syntax) (info : SourceInfo) : Syntax :=
 
 def unsetTrailing (stx : Syntax) : Syntax :=
   match stx.getTailInfo with
-  | none      => stx
-  | some info => stx.setTailInfo { info with trailing := none }
+  | SourceInfo.original lead pos trail => stx.setTailInfo (SourceInfo.original lead pos "".toSubstring)
+  | _                                  => stx
 
 @[specialize] private partial def updateFirst {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
   if h : i < a.size then
@@ -211,52 +205,10 @@ def setInfo (info : SourceInfo) : Syntax → Syntax
   | ident _ rawVal val pre => ident info rawVal val pre
   | stx                    => stx
 
-partial def replaceInfo (info : SourceInfo) : Syntax → Syntax
-  | node k args => node k <| args.map (replaceInfo info)
-  | stx         => setInfo info stx
-
-def copyHeadInfo (s : Syntax) (source : Syntax) : Syntax :=
-  match source.getHeadInfo with
-  | none      => s
-  | some info => s.setHeadInfo info
-
-def copyTailInfo (s : Syntax) (source : Syntax) : Syntax :=
-  match source.getTailInfo with
-  | none      => s
-  | some info => s.setTailInfo info
-
-def copyInfo (s : Syntax) (source : Syntax) : Syntax :=
- let s := s.copyHeadInfo source
- s.copyTailInfo source
-
-/--
-  Copy head and tail position information from `source` to `s`.
-  `leading` and `trailing` information is not preserved. -/
-def copyRangePos (s : Syntax) (source : Syntax) : Syntax :=
-  match source.getPos with
-  | none     => s
-  | some pos =>
-    let s := s.setHeadInfo { pos := pos }
-    match source.getTailInfo with
-    | some { pos := some pos, .. } =>
-      let s := s.setTailInfo { pos := pos }
-      /- The trailing token at `s` may be different from `source`.
-         So, we retrieve the tail positions and adjust `pos` to make sure the `s.getTailPos == source.getTailPos`. -/
-      match source.getTailPos, s.getTailPos with
-      | some pos₁, some pos₂ =>
-        if pos₁ < pos₂ then
-          s.setTailInfo { pos := some ((pos : Nat) - (pos₂ - pos₁) : Nat) }
-        else if pos₁ > pos₂ then
-          s.setTailInfo { pos := some ((pos : Nat) + (pos₁ - pos₂) : Nat) }
-        else
-          s
-      | _, _ => s
-    | _ => s
-
 /-- Return the first atom/identifier that has position information -/
 partial def getHead? : Syntax → Option Syntax
-  | stx@(atom { pos := some _, .. } ..)  => some stx
-  | stx@(ident { pos := some _, .. } ..) => some stx
+  | stx@(atom info ..)  => info.getPos?.map fun _ => stx
+  | stx@(ident info ..) => info.getPos?.map fun _ => stx
   | node _ args      => args.findSome? getHead?
   | _                => none
 
@@ -269,7 +221,7 @@ end Syntax
   | some ref => withRef ref x
 
 def mkAtom (val : String) : Syntax :=
-  Syntax.atom {} val
+  Syntax.atom SourceInfo.none val
 
 @[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : Syntax :=
   Syntax.node k args
@@ -292,33 +244,32 @@ partial def expandMacros : Syntax → MacroM Syntax
 /- Helper functions for processing Syntax programmatically -/
 
 /--
-  Create an identifier using `SourceInfo` from `src`.
+  Create an identifier copying the position from `src`.
   To refer to a specific constant, use `mkCIdentFrom` instead. -/
 def mkIdentFrom (src : Syntax) (val : Name) : Syntax :=
-  let info := src.getHeadInfo.getD {}
-  Syntax.ident info (toString val).toSubstring val []
+  Syntax.ident (SourceInfo.fromRef src) (toString val).toSubstring val []
+
+def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) : m Syntax := do
+  return mkIdentFrom (← getRef) val
 
 /--
-  Create an identifier referring to a constant `c` using `SourceInfo` from `src`.
+  Create an identifier referring to a constant `c` copying the position from `src`.
   This variant of `mkIdentFrom` makes sure that the identifier cannot accidentally
   be captured. -/
 def mkCIdentFrom (src : Syntax) (c : Name) : Syntax :=
-  let info := src.getHeadInfo.getD {}
   -- Remark: We use the reserved macro scope to make sure there are no accidental collision with our frontend
   let id   := addMacroScope `_internal c reservedMacroScope
-  Syntax.ident info (toString id).toSubstring id [(c, [])]
+  Syntax.ident (SourceInfo.fromRef src) (toString id).toSubstring id [(c, [])]
+
+def mkCIdentFromRef [Monad m] [MonadRef m] (c : Name) : m Syntax := do
+  return mkCIdentFrom (← getRef) c
 
 def mkCIdent (c : Name) : Syntax :=
   mkCIdentFrom Syntax.missing c
 
-def Syntax.identToAtom (stx : Syntax) : Syntax :=
-  match stx with
-  | Syntax.ident info _ val _ => Syntax.atom info (toString val.eraseMacroScopes)
-  | _                         => stx
-
 @[export lean_mk_syntax_ident]
 def mkIdent (val : Name) : Syntax :=
-  Syntax.ident {} (toString val).toSubstring val []
+  Syntax.ident SourceInfo.none (toString val).toSubstring val []
 
 @[inline] def mkNullNode (args : Array Syntax := #[]) : Syntax :=
   Syntax.node nullKind args
@@ -365,17 +316,17 @@ def mkApp (fn : Syntax) : (args : Array Syntax) → Syntax
 def mkCApp (fn : Name) (args : Array Syntax) : Syntax :=
   mkApp (mkCIdent fn) args
 
-def mkLit (kind : SyntaxNodeKind) (val : String) (info : SourceInfo := {}) : Syntax :=
+def mkLit (kind : SyntaxNodeKind) (val : String) (info := SourceInfo.none) : Syntax :=
   let atom : Syntax := Syntax.atom info val
   Syntax.node kind #[atom]
 
-def mkStrLit (val : String) (info : SourceInfo := {}) : Syntax :=
+def mkStrLit (val : String) (info := SourceInfo.none) : Syntax :=
   mkLit strLitKind (String.quote val) info
 
-def mkNumLit (val : String) (info : SourceInfo := {}) : Syntax :=
+def mkNumLit (val : String) (info := SourceInfo.none) : Syntax :=
   mkLit numLitKind val info
 
-def mkScientificLit (val : String) (info : SourceInfo := {}) : Syntax :=
+def mkScientificLit (val : String) (info := SourceInfo.none) : Syntax :=
   mkLit scientificLitKind val info
 
 /- Recall that we don't have special Syntax constructors for storing numeric and string atoms.
@@ -623,18 +574,6 @@ def isNameLit? (stx : Syntax) : Option Name :=
 def hasArgs : Syntax → Bool
   | Syntax.node _ args => args.size > 0
   | _                  => false
-
-def identToStrLit (stx : Syntax) : Syntax :=
-  match stx with
-  | Syntax.ident info _ val _ => mkStrLit (toString val) info
-  | _                         => stx
-
-def strLitToAtom (stx : Syntax) : Syntax :=
-  match stx.isStrLit? with
-  | none     => stx
-  | some val => match stx.getHeadInfo with
-    | some info => Syntax.atom info val
-    | none => unreachable!
 
 def isAtom : Syntax → Bool
   | atom _ _ => true

@@ -385,10 +385,6 @@ private def processExplictArg (k : M Expr) : M Expr := do
       | Except.ok tacticSyntax =>
         -- TODO(Leo): does this work correctly for tactic sequences?
         let tacticBlock ← `(by $tacticSyntax)
-        -- tacticBlock does not have any position information.
-        -- So, we use the current ref
-        let ref ← getRef
-        let tacticBlock := tacticBlock.copyInfo ref
         let argType     := argType.getArg! 0 -- `autoParam type := by tactic` ==> `type`
         let argNew := Arg.stx tacticBlock
         propagateExpectedType argNew
@@ -844,7 +840,7 @@ private def getSuccess (candidates : Array (TermElabResult Expr)) : Array (TermE
 
 private def toMessageData (ex : Exception) : TermElabM MessageData := do
   let pos ← getRefPos
-  match ex.getRef.getPos with
+  match ex.getRef.getPos? with
   | none       => pure ex.toMessageData
   | some exPos =>
     if pos == exPos then

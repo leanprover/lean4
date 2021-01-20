@@ -7,12 +7,10 @@ import Lean.Data.Name
 import Lean.Data.Format
 
 namespace Lean
-namespace SourceInfo
 
-def updateTrailing (info : SourceInfo) (trailing : Option Substring) : SourceInfo :=
-  { info with trailing := trailing }
-
-end SourceInfo
+def SourceInfo.updateTrailing (trailing : Substring) : SourceInfo → SourceInfo
+  | SourceInfo.original leading pos _ => SourceInfo.original leading pos trailing
+  | info                              => info
 
 /- Syntax AST -/
 
@@ -119,8 +117,8 @@ def getIdAt (stx : Syntax) (i : Nat) : Name :=
   Id.run $ stx.rewriteBottomUpM fn
 
 private def updateInfo : SourceInfo → String.Pos → String.Pos → SourceInfo
-  | {leading := some lead, pos := some pos, trailing := some trail}, leadStart, trailStop =>
-    {leading := some { lead with startPos := leadStart }, pos := some pos, trailing := some { trail with stopPos := trailStop }}
+  | SourceInfo.original lead pos trail, leadStart, trailStop =>
+    SourceInfo.original { lead with startPos := leadStart } pos { trail with stopPos := trailStop }
   | info, _, _ => info
 
 private def chooseNiceTrailStop (trail : Substring) : String.Pos :=
@@ -130,12 +128,12 @@ trail.startPos + trail.posOf '\n'
    or the beginning of the String. -/
 @[inline]
 private def updateLeadingAux : Syntax → StateM String.Pos (Option Syntax)
-  | atom info@{trailing := some trail, ..} val => do
+  | atom info@(SourceInfo.original lead pos trail) val => do
     let trailStop := chooseNiceTrailStop trail
     let newInfo := updateInfo info (← get) trailStop
     set trailStop
     pure $ some (atom newInfo val)
-  | ident info@{trailing := some trail, ..} rawVal val pre   => do
+  | ident info@(SourceInfo.original lead pos trail) rawVal val pre => do
     let trailStop := chooseNiceTrailStop trail
     let newInfo := updateInfo info (← get) trailStop
     set trailStop
@@ -160,7 +158,7 @@ private def updateLeadingAux : Syntax → StateM String.Pos (Option Syntax)
 def updateLeading : Syntax → Syntax :=
   fun stx => (replaceM updateLeadingAux stx).run' 0
 
-partial def updateTrailing (trailing : Option Substring) : Syntax → Syntax
+partial def updateTrailing (trailing : Substring) : Syntax → Syntax
   | Syntax.atom info val               => Syntax.atom (info.updateTrailing trailing) val
   | Syntax.ident info rawVal val pre   => Syntax.ident (info.updateTrailing trailing) rawVal val pre
   | n@(Syntax.node k args)             =>
@@ -173,17 +171,19 @@ partial def updateTrailing (trailing : Option Substring) : Syntax → Syntax
   | s => s
 
 partial def getTailWithPos : Syntax → Option Syntax
-  | stx@(atom { pos := some _, .. } _)   => some stx
-  | stx@(ident { pos := some _, .. } ..) => some stx
-  | node _ args                          => args.findSomeRev? getTailWithPos
-  | _                                    => none
+  | stx@(atom info _)   => info.getPos?.map fun _ => stx
+  | stx@(ident info ..) => info.getPos?.map fun _ => stx
+  | node _ args         => args.findSomeRev? getTailWithPos
+  | _                   => none
 
 private def reprintLeaf (info : SourceInfo) (val : String) : String :=
+  match info with
+  | SourceInfo.original lead _ trail => s!"{lead}{val}{trail}"
   -- no source info => add gracious amounts of whitespace to definitely separate tokens
   -- Note that the proper pretty printer does not use this function.
   -- The parser as well always produces source info, so round-tripping is still
   -- guaranteed.
-  (Substring.toString <$> info.leading).getD " " ++ val ++ (Substring.toString <$> info.trailing).getD " "
+  | _                                => s!" {val} "
 
 partial def reprint : Syntax → Option String
   | atom info val           => reprintLeaf info val
@@ -203,13 +203,10 @@ partial def reprint : Syntax → Option String
 open Std.Format
 
 private def formatInfo (showInfo : Bool) (info : SourceInfo) (f : Format) : Format :=
-  if showInfo then
-    (match info.leading with | some ss => repr ss.toString ++ ":" | _ => "") ++
-    f ++
-    (match info.pos with | some pos => ":" ++ toString info.pos | _ => "") ++
-    (match info.trailing with | some ss => ":" ++ repr ss.toString | _ => "")
-  else
-    f
+  match showInfo, info with
+  | true, SourceInfo.original lead pos trail => f!"{lead}:{f}:{pos}:{trail}"
+  | true, SourceInfo.synthetic pos endPos    => f!"{pos}:{f}:{endPos}"
+  | _,    _                                  => f
 
 partial def formatStxAux (maxDepth : Option Nat) (showInfo : Bool) : Nat → Syntax → Format
   | _,     atom info val     => formatInfo showInfo info $ format (repr val)
@@ -322,9 +319,6 @@ namespace SyntaxNode
   (n.getArg i).getId
 
 end SyntaxNode
-
-def mkSimpleAtom (val : String) : Syntax :=
-  Syntax.atom {} val
 
 def mkListNode (args : Array Syntax) : Syntax :=
   Syntax.node nullKind args

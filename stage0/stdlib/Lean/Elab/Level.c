@@ -29,6 +29,7 @@ size_t l_USize_sub(size_t, size_t);
 lean_object* l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 lean_object* l_Lean_mkFreshId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1128____closed__31;
 lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -61,7 +62,6 @@ lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__1(lean_obj
 lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___lambda__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___closed__2;
 lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___lambda__1(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1142____closed__31;
 lean_object* l_Lean_Elab_Level_elabLevel_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
 size_t lean_usize_of_nat(lean_object*);
@@ -956,7 +956,7 @@ x_14 = lean_name_eq(x_4, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; uint8_t x_16; 
-x_15 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1142____closed__31;
+x_15 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1128____closed__31;
 x_16 = lean_name_eq(x_4, x_15);
 if (x_16 == 0)
 {
@@ -1703,7 +1703,7 @@ x_205 = lean_name_eq(x_4, x_204);
 if (x_205 == 0)
 {
 lean_object* x_206; uint8_t x_207; 
-x_206 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1142____closed__31;
+x_206 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1128____closed__31;
 x_207 = lean_name_eq(x_4, x_206);
 if (x_207 == 0)
 {

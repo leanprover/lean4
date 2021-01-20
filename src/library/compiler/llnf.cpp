@@ -565,51 +565,57 @@ class to_lambda_pure_fn {
         for (unsigned i = 0; i < cnames.size(); i++) {
             unsigned saved_fvars_size = m_fvars.size();
             expr minor           = args[i+1];
-            cnstr_info cinfo     = get_cnstr_info(cnames[i]);
-            buffer<expr> fields;
-            for (field_info const & info : cinfo.m_field_info) {
-                lean_assert(is_lambda(minor));
-                switch (info.m_kind) {
-                case field_info::Irrelevant:
-                    fields.push_back(mk_enf_neutral());
-                    break;
-                case field_info::Object:
-                    fields.push_back(mk_let_decl(mk_enf_object_type(), mk_app(mk_llnf_proj(info.m_idx), major)));
-                    break;
-                case field_info::USize:
-                    fields.push_back(mk_let_decl(info.get_type(), mk_uproj(major, info.m_idx)));
-                    break;
-                case field_info::Scalar:
-                    if (info.is_float()) {
-                        fields.push_back(mk_let_decl(info.get_type(), mk_fproj(major, info.m_idx, info.m_offset)));
-                    } else {
-                        fields.push_back(mk_let_decl(info.get_type(), mk_sproj(major, info.m_size, info.m_idx, info.m_offset)));
-                    }
-                    break;
-                }
-                minor = binding_body(minor);
-            }
-            minor          = instantiate_rev(minor, fields.size(), fields.data());
-            if (!is_let(minor))
-                minor      = ensure_terminal(minor);
-            minor          = visit(minor);
-            if (!is_enf_unreachable(minor)) {
-                /* If `minor` is not the constructor `i`, then this "g_cases_on" application is not the identity. */
-                unsigned cidx, nusizes, ssz;
-                if (!(is_llnf_cnstr(minor, cidx, nusizes, ssz) && cidx == i && nusizes == 0 && ssz == 0)) {
-                    is_id = false;
-                }
-                minor          = mk_let(saved_fvars_size, minor);
-#if 0 // See comment below
-                if (num_reachable > 0 && minor != some_reachable) {
-                    all_eq = false;
-                }
-#endif
-                some_reachable = minor;
-                args[i+1]      = minor;
+            if (minor == mk_enf_neutral()) {
+                // This can happen when a branch returns a proposition
                 num_reachable++;
+                some_reachable = minor;
             } else {
-                args[i+1]      = minor;
+                cnstr_info cinfo     = get_cnstr_info(cnames[i]);
+                buffer<expr> fields;
+                for (field_info const & info : cinfo.m_field_info) {
+                    lean_assert(is_lambda(minor));
+                    switch (info.m_kind) {
+                    case field_info::Irrelevant:
+                        fields.push_back(mk_enf_neutral());
+                        break;
+                    case field_info::Object:
+                        fields.push_back(mk_let_decl(mk_enf_object_type(), mk_app(mk_llnf_proj(info.m_idx), major)));
+                        break;
+                    case field_info::USize:
+                        fields.push_back(mk_let_decl(info.get_type(), mk_uproj(major, info.m_idx)));
+                        break;
+                    case field_info::Scalar:
+                        if (info.is_float()) {
+                            fields.push_back(mk_let_decl(info.get_type(), mk_fproj(major, info.m_idx, info.m_offset)));
+                        } else {
+                            fields.push_back(mk_let_decl(info.get_type(), mk_sproj(major, info.m_size, info.m_idx, info.m_offset)));
+                        }
+                        break;
+                    }
+                    minor = binding_body(minor);
+                }
+                minor          = instantiate_rev(minor, fields.size(), fields.data());
+                if (!is_let(minor))
+                    minor      = ensure_terminal(minor);
+                minor          = visit(minor);
+                if (!is_enf_unreachable(minor)) {
+                    /* If `minor` is not the constructor `i`, then this "g_cases_on" application is not the identity. */
+                    unsigned cidx, nusizes, ssz;
+                    if (!(is_llnf_cnstr(minor, cidx, nusizes, ssz) && cidx == i && nusizes == 0 && ssz == 0)) {
+                        is_id = false;
+                    }
+                    minor          = mk_let(saved_fvars_size, minor);
+#if 0 // See comment below
+                    if (num_reachable > 0 && minor != some_reachable) {
+                        all_eq = false;
+                    }
+#endif
+                    some_reachable = minor;
+                    args[i+1]      = minor;
+                    num_reachable++;
+                } else {
+                    args[i+1]      = minor;
+                }
             }
         }
         if (num_reachable == 0) {

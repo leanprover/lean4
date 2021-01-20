@@ -111,10 +111,10 @@ with builtins; let
       modMap' = lib.foldr buildModAndDeps modMap deps;
     in modMap' // { ${mod} = buildMod mod (map (dep: if modMap' ? ${dep} then modMap'.${dep} else externalModMap.${dep}) deps); };
   makeEmacsWrapper = name: lean: writeShellScriptBin name ''
-    LEAN_SYSROOT=${lean} ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\") (require 'lean4-mode))" "$@"
+    ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\") (require 'lean4-mode))" "$@"
   '';
   makeVSCodeWrapper = name: lean: writeShellScriptBin name ''
-    LEAN_SYSROOT=${lean} PATH=${lean}/bin:$PATH ${lean-vscode}/bin/code "$@"
+    PATH=${lean}/bin:$PATH ${lean-vscode}/bin/code "$@"
   '';
   printPaths = deps: writeShellScriptBin "print-paths" ''
     echo "${depRoot "print-paths" deps}"

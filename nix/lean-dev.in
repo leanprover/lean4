@@ -9,4 +9,4 @@ args=(-- "$@")
 # HACK: use stage 0 instead of 1 inside Lean's own `src/`
 [[ -d Lean && -f ../flake.nix ]] && target="@srcTarget@" && args=@srcArgs@
 
-@nix@/bin/nix run "$target" ${args[*]}
+LEAN_SYSROOT="$(dirname "$0")/.." @nix@/bin/nix run "$target" ${args[*]}

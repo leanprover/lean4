@@ -1,4 +1,4 @@
-{ debug ? false, extraCMakeFlags ? [],
+{ debug ? false, stage0debug ? false, extraCMakeFlags ? [],
   stdenv, lib, cmake, gmp, gnumake, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir,
   ... } @ args:
 rec {
@@ -8,7 +8,6 @@ rec {
     buildInputs = [ gmp ];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
-    cmakeFlags = [ "-DSTAGE=1" "-DPREV_STAGE=./faux-prev-stage" "-DUSE_GITHASH=OFF" ] ++ extraCMakeFlags ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
     dontStrip = (args.debug or debug);
 
     postConfigure = ''
@@ -16,6 +15,7 @@ rec {
     '';
   } // args // {
     src = args.realSrc or (lib.sourceByRegex args.src [ "[a-z].*" "CMakeLists\.txt" ]);
+    cmakeFlags = (args.cmakeFlags or [ "-DSTAGE=1" "-DPREV_STAGE=./faux-prev-stage" "-DUSE_GITHASH=OFF" ]) ++ extraCMakeFlags ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
   });
   lean-bin-tools-unwrapped = buildCMake {
     name = "lean-bin-tools";
@@ -54,7 +54,7 @@ rec {
   stage0 = wrapStage (args.stage0 or (buildCMake {
     name = "lean-stage0";
     src = ../stage0/src;
-    debug = false;
+    debug = stage0debug;
     cmakeFlags = [ "-DSTAGE=0" ];
     preConfigure = ''
       ln -s ${../stage0/stdlib} ../stdlib

@@ -110,14 +110,14 @@ def ContextInfo.ppSyntax (info : ContextInfo) (lctx : LocalContext) (stx : Synta
 
 def TermInfo.format (cinfo : ContextInfo) (info : TermInfo) : IO Format := do
   cinfo.runMetaM info.lctx do
-    let pos    := info.stx.getPos.getD 0
-    let endPos := info.stx.getTailPos.getD pos
+    let pos    := info.stx.getPos?.getD 0
+    let endPos := info.stx.getTailPos?.getD pos
     return f!"{← Meta.ppExpr info.expr} : {← Meta.ppExpr (← Meta.inferType info.expr)} @ {cinfo.fileMap.toPosition pos}-{cinfo.fileMap.toPosition endPos}"
 
 def FieldInfo.format (cinfo : ContextInfo) (info : FieldInfo) : IO Format := do
   cinfo.runMetaM info.lctx do
-    let pos    := info.stx.getPos.getD 0
-    let endPos := info.stx.getTailPos.getD pos
+    let pos    := info.stx.getPos?.getD 0
+    let endPos := info.stx.getTailPos?.getD pos
     return f!"{info.name} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {cinfo.fileMap.toPosition pos}-{cinfo.fileMap.toPosition endPos}"
 
 def ContextInfo.ppGoals (cinfo : ContextInfo) (goals : List MVarId) : IO Format :=

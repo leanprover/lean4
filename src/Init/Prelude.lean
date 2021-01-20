@@ -1604,10 +1604,11 @@ instance : Inhabited SourceInfo := ⟨SourceInfo.none⟩
 
 namespace SourceInfo
 
-def getPos : SourceInfo → Option String.Pos
-  | original (pos := pos) ..  => some pos
-  | synthetic (pos := pos) .. => some pos
-  | SourceInfo.none           => none
+def getPos? (info : SourceInfo) (originalOnly := false) : Option String.Pos :=
+  match info, originalOnly with
+  | original (pos := pos) ..,  _     => some pos
+  | synthetic (pos := pos) .., false => some pos
+  | _,                         _     => none
 
 end SourceInfo
 
@@ -1706,23 +1707,24 @@ partial def getHeadInfo (stx : Syntax) : SourceInfo :=
   | some info => info
   | none      => SourceInfo.none
 
-def getPos (stx : Syntax) : Option String.Pos :=
-  stx.getHeadInfo.getPos
+def getPos? (stx : Syntax) (originalOnly := false) : Option String.Pos :=
+  stx.getHeadInfo.getPos? originalOnly
 
-partial def getTailPos : Syntax → Option String.Pos
-  | atom (SourceInfo.original (pos := pos) ..) val     => some (pos.add val.bsize)
-  | atom (SourceInfo.synthetic (endPos := pos) ..) _   => some pos
-  | ident (SourceInfo.original (pos := pos) ..) val .. => some (pos.add val.bsize)
-  | ident (SourceInfo.synthetic (endPos := pos) ..) .. => some pos
-  | node _ args                                        =>
+partial def getTailPos? (stx : Syntax) (originalOnly := false) : Option String.Pos :=
+  match stx, originalOnly with
+  | atom (SourceInfo.original (pos := pos) ..) val,    _      => some (pos.add val.bsize)
+  | atom (SourceInfo.synthetic (endPos := pos) ..) _,  false  => some pos
+  | ident (SourceInfo.original (pos := pos) ..) val .., _     => some (pos.add val.bsize)
+  | ident (SourceInfo.synthetic (endPos := pos) ..) .., false => some pos
+  | node _ args,                                        _     =>
     let rec loop (i : Nat) : Option String.Pos :=
       match decide (Less i args.size) with
-      | true => match getTailPos (args.get! ((args.size.sub i).sub 1)) with
+      | true => match getTailPos? (args.get! ((args.size.sub i).sub 1)) with
          | some info => some info
          | none      => loop (hAdd i 1)
       | false => none
     loop 0
-  | _                                                  => none
+  | _, _ => none
 
 /--
   An array of syntax elements interspersed with separators. Can be coerced to/from `Array Syntax` to automatically
@@ -1733,7 +1735,7 @@ structure SepArray (sep : String) where
 end Syntax
 
 def SourceInfo.fromRef (ref : Syntax) : SourceInfo :=
-  match ref.getPos, ref.getTailPos with
+  match ref.getPos?, ref.getTailPos? with
   | some pos, some tailPos => SourceInfo.synthetic pos tailPos
   | _,        _            => SourceInfo.none
 
@@ -1784,7 +1786,7 @@ instance (m n : Type → Type) [MonadLift m n] [MonadFunctor m n] [MonadRef m] :
   withRef := fun ref x => monadMap (m := m) (MonadRef.withRef ref) x
 
 def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
-  match ref.getPos with
+  match ref.getPos? with
   | some _ => ref
   | _      => oldRef
 

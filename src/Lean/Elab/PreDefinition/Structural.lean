@@ -12,17 +12,30 @@ namespace Lean.Elab
 namespace Structural
 open Meta
 
-private def getFixedPrefix (declName : Name) (xs : Array Expr) (value : Expr) : Nat :=
-  let visitor {ω} : StateRefT Nat (ST ω) Unit :=
-    value.forEach' fun e =>
-      if e.isAppOf declName then do
-        let args := e.getAppArgs
-        modify fun numFixed => if args.size < numFixed then args.size else numFixed
-        -- we continue searching if the e's arguments are not a prefix of `xs`
-        pure !args.isPrefixOf xs
-      else
-        pure true
-  runST fun _ => do let (_, numFixed) ← visitor.run xs.size; pure numFixed
+private def getFixedPrefix (declName : Name) (xs : Array Expr) (value : Expr) : MetaM Nat := do
+  let numFixedRef ← IO.mkRef xs.size
+  forEachExpr' value fun e => do
+    if e.isAppOf declName then
+      let args := e.getAppArgs
+      numFixedRef.modify fun numFixed => if args.size < numFixed then args.size else numFixed
+      for arg in args, x in xs do
+        /- We should not use structural equality here. For example, given the definition
+           ```
+           def V.map {α β} f x x_1 :=
+             @V.map.match_1.{1} α (fun x x_2 => V β x) x x_1
+               (fun x x_2 => @V.mk₁ β x (f Bool.true x_2))
+               (fun e => @V.mk₂ β (V.map (fun b => α b) (fun b => β b) f Bool.false e))
+           ```
+           The first three arguments at `V.map (fun b => α b) (fun b => β b) f Bool.false e` are "fixed"
+           modulo definitional equality.
+        -/
+        if !(← isDefEq arg x) then
+          -- We continue searching if e's arguments are not a prefix of `xs`
+          return true
+      return false
+    else
+      return true
+  numFixedRef.get
 
 structure RecArgInfo where
   /- `fixedParams ++ ys` are the arguments of the function we are trying to justify termination using structural recursion. -/
@@ -308,6 +321,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
              To make it work, users have to write the third alternative as `| zs => g zs + 2`
              If this is too annoying in practice, we may replace `ys` with the matching term, but
              this may generate weird error messages, when it doesn't work. -/
+          trace[Elab.definition.structural]! "below before matcherApp.addArg: {below} : {← inferType below}"
           let matcherApp ← mapError (matcherApp.addArg below) (fun msg => "failed to add `below` argument to 'matcher' application" ++ indentD msg)
           modify fun s => { s with matcherBelowDep := s.matcherBelowDep.insert matcherApp.matcherName }
           let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
@@ -326,6 +340,7 @@ private def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr)
   let type  := (← inferType value).headBeta
   let major := recArgInfo.ys[recArgInfo.pos]
   let otherArgs := recArgInfo.ys.filter fun y => y != major && !recArgInfo.indIndices.contains y
+  trace[Elab.definition.structural]! "fixedParams: {recArgInfo.fixedParams}, otherArgs: {otherArgs}"
   let motive ← mkForallFVars otherArgs type
   let mut brecOnUniv ← getLevel motive
   trace[Elab.definition.structural]! "brecOn univ: {brecOnUniv}"
@@ -350,17 +365,13 @@ private def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr)
   forallBoundedTelescope brecOnType (some 1) fun F _ => do
     let F := F[0]
     let FType ← inferType F
-    let numIndices := recArgInfo.indIndices.size
-    forallBoundedTelescope FType (some $ numIndices + 1 /- major -/ + 1 /- below -/ + otherArgs.size) fun Fargs _ => do
-      let indicesNew   := Fargs.extract 0 numIndices
-      let majorNew     := Fargs[numIndices]
-      let below        := Fargs[numIndices+1]
-      let otherArgsNew := Fargs.extract (numIndices+2) Fargs.size
-      let valueNew     := value.replaceFVars recArgInfo.indIndices indicesNew
-      let valueNew     := valueNew.replaceFVar major majorNew
-      let valueNew     := valueNew.replaceFVars otherArgs otherArgsNew
-      let valueNew     ← replaceRecApps recFnName recArgInfo below valueNew
-      let Farg         ← mkLambdaFVars Fargs valueNew
+    trace[Elab.definition.structural]! "FType: {FType}"
+    let FType ← instantiateForall FType recArgInfo.indIndices
+    let FType ← instantiateForall FType #[major]
+    forallBoundedTelescope FType (some 1) fun below _ => do
+      let below := below[0]
+      let valueNew     ← replaceRecApps recFnName recArgInfo below value
+      let Farg         ← mkLambdaFVars (recArgInfo.indIndices ++ #[major, below] ++ otherArgs) valueNew
       let brecOn       := mkApp brecOn Farg
       pure $ mkAppN brecOn otherArgs
 
@@ -368,7 +379,8 @@ private def elimRecursion (preDef : PreDefinition) : M PreDefinition :=
   withoutModifyingEnv do lambdaTelescope preDef.value fun xs value => do
     addAsAxiom preDef
     trace[Elab.definition.structural]! "{preDef.declName} {xs} :=\n{value}"
-    let numFixed := getFixedPrefix preDef.declName xs value
+    let numFixed ← getFixedPrefix preDef.declName xs value
+    trace[Elab.definition.structural]! "numFixed: {numFixed}"
     findRecArg numFixed xs fun recArgInfo => do
       -- when (recArgInfo.indName == `Nat) throwStructuralFailed -- HACK to skip Nat argument
       let valueNew ← mkBRecOn preDef.declName recArgInfo value

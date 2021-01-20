@@ -29,7 +29,7 @@ private def getFixedPrefix (declName : Name) (xs : Array Expr) (value : Expr) : 
            The first three arguments at `V.map (fun b => α b) (fun b => β b) f Bool.false e` are "fixed"
            modulo definitional equality.
         -/
-        if !(← isDefEq arg x) then
+        if !(← withReducible <| isDefEq arg x) then
           -- We continue searching if e's arguments are not a prefix of `xs`
           return true
       return false

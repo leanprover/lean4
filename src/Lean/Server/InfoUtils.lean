@@ -49,23 +49,20 @@ def TacticInfo.tailPos? (i : TacticInfo) : Option String.Pos :=
 partial def InfoTree.hoverableTermAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × TermInfo) :=
   let ts := t.smallestNodes fun
     | Info.ofTermInfo i =>
+      -- TODO: see if we can get rid of this
+      #[identKind,
+        strLitKind,
+        charLitKind,
+        numLitKind,
+        scientificLitKind,
+        nameLitKind,
+        fieldIdxKind,
+        interpolatedStrLitKind,
+        interpolatedStrKind
+      ].contains i.stx.getKind &&
       match i.pos?, i.tailPos? with
-      | some pos, some tailPos =>
-        /- TODO(WN): when we have a way to do so,
-        check for synthetic syntax and allow arbitrary syntax kinds. -/
-        if pos ≤ hoverPos ∧ hoverPos < tailPos then
-          #[identKind,
-            strLitKind,
-            charLitKind,
-            numLitKind,
-            scientificLitKind,
-            nameLitKind,
-            fieldIdxKind,
-            interpolatedStrLitKind,
-            interpolatedStrKind
-          ].contains i.stx.getKind
-        else false
-      | _, _ => false
+      | some pos, some tailPos => pos ≤ hoverPos ∧ hoverPos < tailPos
+      | _,        _            => false
     | _ => false
 
   let terms : List (Nat × ContextInfo × TermInfo) := ts.filterMap (fun

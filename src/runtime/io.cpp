@@ -380,6 +380,13 @@ extern "C" obj_res lean_io_prim_handle_put_str(b_obj_arg h, b_obj_arg s, obj_arg
     }
 }
 
+/* monoMsNow : IO Nat */
+extern "C" obj_res lean_io_mono_ms_now(obj_arg /* w */) {
+    auto now = std::chrono::steady_clock::now();
+    auto tm = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+    return io_result_mk_ok(usize_to_nat(tm.count()));
+}
+
 /* timeit {α : Type} (msg : @& String) (fn : IO α) : IO α */
 extern "C" obj_res lean_io_timeit(b_obj_arg msg, obj_arg fn, obj_arg w) {
     auto start = std::chrono::steady_clock::now();

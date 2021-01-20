@@ -1298,7 +1298,16 @@ def resolveName' (ident : Syntax) (explicitLevels : List Level) : TermElabM (Lis
       let (cSstr, fields) := fields.foldr (init := (rawStr, [])) fun field (restSstr, fs) =>
         let fieldSstr := restSstr.takeRightWhile (· ≠ '.')
         ({ restSstr with stopPos := restSstr.stopPos - (fieldSstr.bsize + 1) }, (field, fieldSstr) :: fs)
-      let id := mkIdentFrom ident cSstr.toString
+      let mkIdentFromPos pos rawVal val :=
+        let info := match info with
+        | SourceInfo.original .. => SourceInfo.original "".toSubstring pos "".toSubstring
+        | _                      => SourceInfo.synthetic pos (pos + rawVal.bsize)
+        Syntax.ident info rawVal val []
+      let id := match c with
+        | Expr.const id _ _ => id
+        | Expr.fvar id _    => id
+        | _                 => unreachable!
+      let id := mkIdentFromPos (ident.getPos?.getD 0) cSstr id
       match info.getPos? with
       | none =>
         return (c, id, fields.map fun (field, _) => mkIdentFrom ident (Name.mkSimple field))
@@ -1306,7 +1315,7 @@ def resolveName' (ident : Syntax) (explicitLevels : List Level) : TermElabM (Lis
         let mut pos := pos + cSstr.bsize + 1
         let mut newFields := #[]
         for (field, fieldSstr) in fields do
-          newFields := newFields.push <| Syntax.ident (SourceInfo.original "".toSubstring pos "".toSubstring) fieldSstr (Name.mkSimple field) []
+          newFields := newFields.push <| mkIdentFromPos pos fieldSstr (Name.mkSimple field)
           pos := pos + fieldSstr.bsize + 1
         return (c, id, newFields.toList)
   | _ => throwError! "identifier expected"

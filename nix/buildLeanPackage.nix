@@ -2,7 +2,7 @@
   stdenv, lib, coreutils, gnused, writeShellScriptBin, bash, lean-emacs, lean-vscode, nix, substituteAll, symlinkJoin, linkFarmFromDrvs,
   ... }:
 let lean-final' = lean-final; in
-{ name, src, deps ? [ lean.Lean ],
+{ name, src, fullSrc ? src, deps ? [ lean.Lean ],
   debug ? false, leanFlags ? [], leancFlags ? [], executableName ? lib.toLower name,
   srcTarget ? "..#stage0", srcArgs ? "(\${args[*]})", lean-final ? lean-final' }:
 with builtins; let
@@ -151,7 +151,8 @@ in rec {
     dir = "bin";
     src = ./lean-dev.in;
     isExecutable = true;
-    inherit bash nix srcRoot srcTarget srcArgs;
+    srcRoot = fullSrc;  # use root flake.nix in case of Lean repo
+    inherit bash nix srcTarget srcArgs;
   };
   leanpkg-dev = substituteAll {
     name = "leanpkg";

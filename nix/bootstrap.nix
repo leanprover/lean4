@@ -74,14 +74,16 @@ rec {
         lean-leanDeps = stage0;
         lean-final = self;
       } (args // {
+        src = ../src;
+        fullSrc = ../.;
         inherit debug;
         leanFlags = [ "-Dinterpreter.prefer_native=false" ];
       });
     in (all: all // all.lean) rec {
-      Init = build { name = "Init"; src = ../src; deps = []; };
-      Std  = build { name = "Std";  src = ../src; deps = [ Init ]; };
-      Lean = build { name = "Lean"; src = ../src; deps = [ Init Std ]; };
-      Leanpkg = build { name = "Leanpkg"; src = ../src; deps = [ Init Std Lean ]; };
+      Init = build { name = "Init"; deps = []; };
+      Std  = build { name = "Std";  deps = [ Init ]; };
+      Lean = build { name = "Lean"; deps = [ Init Std ]; };
+      Leanpkg = build { name = "Leanpkg"; deps = [ Init Std Lean ]; };
       inherit (Lean) emacs-dev emacs-package vscode-dev vscode-package;
       mods = Init.mods // Std.mods // Lean.mods;
       leanc = writeShellScriptBin "leanc" ''

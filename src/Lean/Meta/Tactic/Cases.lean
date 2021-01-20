@@ -19,7 +19,7 @@ def getInductiveUniverseAndParams (type : Expr) : MetaM (List Level × Array Exp
   matchConstInduct type.getAppFn (fun _ => throwInductiveTypeExpected type) fun val us =>
     let I      := type.getAppFn
     let Iargs  := type.getAppArgs
-    let params := Iargs.extract 0 val.nparams
+    let params := Iargs.extract 0 val.numParams
     pure (us, params)
 
 private def mkEqAndProof (lhs rhs : Expr) : MetaM (Expr × Expr) := do
@@ -89,10 +89,10 @@ def generalizeIndices (mvarId : MVarId) (fvarId : FVarId) : MetaM GeneralizeIndi
     let fvarDecl ← getLocalDecl fvarId
     let type ← whnf fvarDecl.type
     type.withApp fun f args => matchConstInduct f (fun _ => throwTacticEx `generalizeIndices mvarId "inductive type expected") fun val _ => do
-      unless val.nindices > 0 do throwTacticEx `generalizeIndices mvarId "indexed inductive type expected"
-      unless args.size == val.nindices + val.nparams do throwTacticEx `generalizeIndices mvarId "ill-formed inductive datatype"
-      let indices := args.extract (args.size - val.nindices) args.size
-      let IA := mkAppN f (args.extract 0 val.nparams) -- `I A`
+      unless val.numIndices > 0 do throwTacticEx `generalizeIndices mvarId "indexed inductive type expected"
+      unless args.size == val.numIndices + val.numParams do throwTacticEx `generalizeIndices mvarId "ill-formed inductive datatype"
+      let indices := args.extract (args.size - val.numIndices) args.size
+      let IA := mkAppN f (args.extract 0 val.numParams) -- `I A`
       let IAType ← inferType IA
       forallTelescopeReducing IAType fun newIndices _ => do
       let newType := mkAppN IA newIndices
@@ -132,7 +132,7 @@ structure Context where
   majorDecl        : LocalDecl
   majorTypeFn      : Expr
   majorTypeArgs    : Array Expr
-  majorTypeIndices : Array Expr := majorTypeArgs.extract (majorTypeArgs.size - inductiveVal.nindices) majorTypeArgs.size
+  majorTypeIndices : Array Expr := majorTypeArgs.extract (majorTypeArgs.size - inductiveVal.numIndices) majorTypeArgs.size
 
 private def mkCasesContext? (majorFVarId : FVarId) : MetaM (Option Context) := do
   let env ← getEnv
@@ -142,7 +142,7 @@ private def mkCasesContext? (majorFVarId : FVarId) : MetaM (Option Context) := d
     let majorDecl ← getLocalDecl majorFVarId
     let majorType ← whnf majorDecl.type
     majorType.withApp fun f args => matchConstInduct f (fun _ => pure none) fun ival _ =>
-      if args.size != ival.nindices + ival.nparams then pure none
+      if args.size != ival.numIndices + ival.numParams then pure none
       else match env.find? (Name.mkStr ival.name "casesOn") with
         | ConstantInfo.defnInfo cval =>
           pure $ some {
@@ -291,7 +291,7 @@ def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Nam
       /- Remark: if caller does not need a `FVarSubst` (variable substitution), and `hasIndepIndices ctx` is true,
          then we can also use the simple case. This is a minor optimization, and we currently do not even
          allow callers to specify whether they want the `FVarSubst` or not. -/
-      if ctx.inductiveVal.nindices == 0 then
+      if ctx.inductiveVal.numIndices == 0 then
         -- Simple case
         inductionCasesOn mvarId majorFVarId givenNames useUnusedNames ctx
       else

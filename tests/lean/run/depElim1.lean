@@ -28,7 +28,7 @@ inductive ArrayLit4 {α : Sort u} (a b c d : α) : Type u | mk : ArrayLit4 a b c
 private def getConstructorVal (ctorName : Name) (fn : Expr) (args : Array Expr) : MetaM (Option (ConstructorVal × Expr × Array Expr)) := do
 let env ← getEnv
 match env.find? ctorName with
-| some (ConstantInfo.ctorInfo v) => if args.size == v.nparams + v.nfields then return some (v, fn, args) else return none
+| some (ConstantInfo.ctorInfo v) => if args.size == v.numParams + v.numFields then return some (v, fn, args) else return none
 | _                              => return none
 
 private def constructorApp? (e : Expr) : MetaM (Option (ConstructorVal × Expr × Array Expr)) := do
@@ -79,8 +79,8 @@ partial def mkPattern : Expr → MetaM Pattern
       match r? with
       | none      => throwError "unexpected pattern"
       | some (cval, fn, args) =>
-        let params := args.extract 0 cval.nparams
-        let fields := args.extract cval.nparams args.size
+        let params := args.extract 0 cval.numParams
+        let fields := args.extract cval.numParams args.size
         let pats ← fields.toList.mapM mkPattern
         return Pattern.ctor cval.name fn.constLevels! params.toList pats
 

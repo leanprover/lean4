@@ -68,13 +68,13 @@ end RecursorInfo
 
 private def mkRecursorInfoForKernelRec (declName : Name) (val : RecursorVal) : MetaM RecursorInfo := do
   let ival ← getConstInfoInduct val.getInduct
-  let numLParams    := ival.lparams.length
+  let numLParams    := ival.levelParams.length
   let univLevelPos  := (List.range numLParams).map RecursorUnivLevelPos.majorType
-  let univLevelPos  := if val.lparams.length == numLParams then univLevelPos else RecursorUnivLevelPos.motive :: univLevelPos
-  let produceMotive := List.replicate val.nminors true
-  let paramsPos     := (List.range val.nparams).map some
-  let indicesPos    := (List.range val.nindices).map fun pos => val.nparams + pos
-  let numArgs       := val.nindices + val.nparams + val.nminors + val.nmotives + 1
+  let univLevelPos  := if val.levelParams.length == numLParams then univLevelPos else RecursorUnivLevelPos.motive :: univLevelPos
+  let produceMotive := List.replicate val.numMinors true
+  let paramsPos     := (List.range val.numParams).map some
+  let indicesPos    := (List.range val.numIndices).map fun pos => val.numParams + pos
+  let numArgs       := val.numIndices + val.numParams + val.numMinors + val.numMotives + 1
   pure {
     recursorName  := declName,
     typeName      := val.getInduct,
@@ -100,7 +100,7 @@ private def getMajorPosIfAuxRecursor? (declName : Name) (majorPos? : Option Nat)
         pure none
       else do
         let val ← getConstInfoRec (mkRecName p)
-        pure $ some (val.nparams + val.nindices + (if s == casesOnSuffix then 1 else val.nmotives))
+        pure $ some (val.numParams + val.numIndices + (if s == casesOnSuffix then 1 else val.numMotives))
     | _ => pure none
 
 private def checkMotive (declName : Name) (motive : Expr) (motiveArgs : Array Expr) : MetaM Unit :=

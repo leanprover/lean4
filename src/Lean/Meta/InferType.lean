@@ -99,7 +99,7 @@ private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Exp
   let structType ← inferType e
   let structType ← whnf structType
   matchConstStruct structType.getAppFn failed fun structVal structLvls ctorVal =>
-    let n := structVal.nparams
+    let n := structVal.numParams
     let structParams := structType.getAppArgs
     if n != structParams.size then failed ()
     else do

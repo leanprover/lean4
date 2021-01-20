@@ -37,42 +37,42 @@ def deinternalizeFieldName : Name → Name
 
 def getStructureCtor (env : Environment) (constName : Name) : ConstructorVal :=
   match env.find? constName with
-  | some (ConstantInfo.inductInfo { nparams := nparams, isRec := false, ctors := [ctorName], .. }) =>
+  | some (ConstantInfo.inductInfo { isRec := false, ctors := [ctorName], .. }) =>
     match env.find? ctorName with
     | some (ConstantInfo.ctorInfo val) => val
     | _ => panic! "ill-formed environment"
   | _ => panic! "structure expected"
 
-private def getStructureFieldsAux (nparams : Nat) : Nat → Expr → Array Name → Array Name
+private def getStructureFieldsAux (numParams : Nat) : Nat → Expr → Array Name → Array Name
   | i, Expr.forallE n d b _, fieldNames =>
-    if i < nparams then
-      getStructureFieldsAux nparams (i+1) b fieldNames
+    if i < numParams then
+      getStructureFieldsAux numParams (i+1) b fieldNames
     else
-      getStructureFieldsAux nparams (i+1) b <| fieldNames.push <| deinternalizeFieldName n
+      getStructureFieldsAux numParams (i+1) b <| fieldNames.push <| deinternalizeFieldName n
   | _, _, fieldNames => fieldNames
 
 -- TODO: fix. See comment in the beginning of the file
 def getStructureFields (env : Environment) (structName : Name) : Array Name :=
   let ctor := getStructureCtor env structName;
-  getStructureFieldsAux ctor.nparams 0 ctor.type #[]
+  getStructureFieldsAux ctor.numParams 0 ctor.type #[]
 
-private def isSubobjectFieldAux (nparams : Nat) (target : Name) : Nat → Expr → Option Name
+private def isSubobjectFieldAux (numParams : Nat) (target : Name) : Nat → Expr → Option Name
   | i, Expr.forallE n d b _ =>
-    if i < nparams then
-      isSubobjectFieldAux nparams target (i+1) b
+    if i < numParams then
+      isSubobjectFieldAux numParams target (i+1) b
     else if n == target then
       match d.getAppFn with
       | Expr.const parentStructName _ _ => some parentStructName
       | _ => panic! "ill-formed structure"
     else
-      isSubobjectFieldAux nparams target (i+1) b
+      isSubobjectFieldAux numParams target (i+1) b
   | _, _ => none
 
 -- TODO: fix. See comment in the beginning of the file
 /-- If `fieldName` represents the relation to a parent structure `S`, return `S` -/
 def isSubobjectField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
   let ctor := getStructureCtor env structName;
-  isSubobjectFieldAux ctor.nparams (mkInternalSubobjectFieldName fieldName) 0 ctor.type
+  isSubobjectFieldAux ctor.numParams (mkInternalSubobjectFieldName fieldName) 0 ctor.type
 
 /-- Return immediate parent structures -/
 def getParentStructures (env : Environment) (structName : Name) : Array Name :=
@@ -100,10 +100,10 @@ def getStructureFieldsFlattened (env : Environment) (structName : Name) : Array 
   getStructureFieldsFlattenedAux env structName #[]
 
 -- TODO: fix. See comment in the beginning of the file
-private def hasProjFn (env : Environment) (structName : Name) (nparams : Nat) : Nat → Expr → Bool
+private def hasProjFn (env : Environment) (structName : Name) (numParams : Nat) : Nat → Expr → Bool
   | i, Expr.forallE n d b _ =>
-    if i < nparams then
-      hasProjFn env structName nparams (i+1) b
+    if i < numParams then
+      hasProjFn env structName numParams (i+1) b
     else
       let fullFieldName := structName ++ deinternalizeFieldName n;
       env.isProjectionFn fullFieldName
@@ -118,7 +118,7 @@ private def hasProjFn (env : Environment) (structName : Name) (nparams : Nat) : 
 def isStructure (env : Environment) (constName : Name) : Bool :=
   if isStructureLike env constName then
     let ctor := getStructureCtor env constName;
-    hasProjFn env constName ctor.nparams 0 ctor.type
+    hasProjFn env constName ctor.numParams 0 ctor.type
   else
     false
 

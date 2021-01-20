@@ -93,7 +93,7 @@ private def elabTParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax 
 private def mkNativeReflAuxDecl (type val : Expr) : TermElabM Name := do
   let auxName ← mkAuxName `_nativeRefl
   let decl := Declaration.defnDecl {
-    name := auxName, lparams := [], type := type, value := val,
+    name := auxName, levelParams := [], type := type, value := val,
     hints := ReducibilityHints.abbrev,
     safety := DefinitionSafety.safe
   }

@@ -202,7 +202,7 @@ private def throwCtorExpected {α} : M α :=
   throwError "invalid pattern, constructor or constant marked with '[matchPattern]' expected"
 
 private def getNumExplicitCtorParams (ctorVal : ConstructorVal) : TermElabM Nat :=
-  forallBoundedTelescope ctorVal.type ctorVal.nparams fun ps _ => do
+  forallBoundedTelescope ctorVal.type ctorVal.numParams fun ps _ => do
     let mut result := 0
     for p in ps do
       let localDecl ← getLocalDecl p.fvarId!
@@ -250,7 +250,7 @@ private def finalize (ctx : Context) : M Syntax := do
 private def isNextArgAccessible (ctx : Context) : Bool :=
   let i := ctx.paramDeclIdx
   match ctx.ctorVal? with
-  | some ctorVal => i ≥ ctorVal.nparams -- For constructor applications only fields are accessible
+  | some ctorVal => i ≥ ctorVal.numParams -- For constructor applications only fields are accessible
   | none =>
     if h : i < ctx.paramDecls.size then
       -- For `[matchPattern]` applications, only explicit parameters are accessible.
@@ -649,10 +649,10 @@ partial def main (e : Expr) : M Pattern := do
       main newE
     else matchConstCtor e.getAppFn (fun _ => throwInvalidPattern e) fun v us => do
       let args := e.getAppArgs
-      unless args.size == v.nparams + v.nfields do
+      unless args.size == v.numParams + v.numFields do
         throwInvalidPattern e
-      let params := args.extract 0 v.nparams
-      let fields := args.extract v.nparams args.size
+      let params := args.extract 0 v.numParams
+      let fields := args.extract v.numParams args.size
       let fields ← fields.mapM main
       pure $ Pattern.ctor v.name us params.toList fields.toList
 
@@ -916,8 +916,8 @@ where
       elabMatchCore stx expectedType?
 
 @[builtinInit] private def regTraceClasses : IO Unit := do
-registerTraceClass `Elab.match;
-pure ()
+  registerTraceClass `Elab.match;
+  pure ()
 
 -- parser!:leadPrec "nomatch " >> termParser
 @[builtinTermElab «nomatch»] def elabNoMatch : TermElab := fun stx expectedType? =>
@@ -928,6 +928,4 @@ pure ()
       elabMatchAux #[discr] #[] mkNullNode expectedType
   | _ => throwUnsupportedSyntax
 
-end Term
-end Elab
-end Lean
+end Lean.Elab.Term

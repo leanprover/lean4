@@ -454,14 +454,14 @@ def delabStructureInstance : Delab := whenPPOption getPPStructureInstances do
   /- If implicit arguments should be shown, and the structure has parameters, we should not
      pretty print using { ... }, because we will not be able to see the parameters. -/
   let explicit ← getPPOption getPPExplicit
-  guard !(explicit && s.nparams > 0)
+  guard !(explicit && s.numParams > 0)
   let fieldNames := getStructureFields env s.induct
   let (_, fields) ← withAppFnArgs (pure (0, #[])) fun ⟨idx, fields⟩ => do
-      if idx < s.nparams then
+      if idx < s.numParams then
         pure (idx + 1, fields)
       else
         let val ← delab
-        let field ← `(structInstField|$(mkIdent <| fieldNames.get! (idx - s.nparams)):ident := $val)
+        let field ← `(structInstField|$(mkIdent <| fieldNames.get! (idx - s.numParams)):ident := $val)
         pure (idx + 1, fields.push field)
   let lastField := fields[fields.size - 1]
   let fields := fields.pop

@@ -84,7 +84,7 @@ def isConstructorApp? (env : Environment) (e : Expr) : Option ConstructorVal :=
   | _ =>
     match e.getAppFn with
     | Expr.const n _ _ => match getConstructorVal? env n with
-      | some v => if v.nparams + v.nfields == e.getAppNumArgs then some v else none
+      | some v => if v.numParams + v.numFields == e.getAppNumArgs then some v else none
       | none   => none
     | _ => none
 
@@ -104,7 +104,7 @@ def constructorApp? (env : Environment) (e : Expr) : Option (ConstructorVal × A
     match e.getAppFn with
     | Expr.const n _ _ => do
       let v ← getConstructorVal? env n
-      if v.nparams + v.nfields == e.getAppNumArgs then
+      if v.numParams + v.numFields == e.getAppNumArgs then
         pure (v, e.getAppArgs)
       else
         none

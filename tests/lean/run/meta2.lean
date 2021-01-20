@@ -242,12 +242,13 @@ do print "----- tst14 -----";
 
 def tst15 : MetaM Unit :=
 do print "----- tst15 -----";
-   let inst ← mkAdd nat;
+   let inst ← _root_.mkAdd nat;
    let r ← synthInstance inst;
    print r;
    pure ()
 
 #eval tst15
+
 
 def tst16 : MetaM Unit :=
 do print "----- tst16 -----";

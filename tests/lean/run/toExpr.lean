@@ -6,12 +6,12 @@ unsafe def test {α : Type} [ToString α] [ToExpr α] [BEq α] (a : α) : CoreM 
 let env ← getEnv;
 let auxName := `_toExpr._test;
 let decl := Declaration.defnDecl {
-  name     := auxName,
-  lparams  := [],
-  value    := toExpr a,
-  type     := toTypeExpr α,
-  hints    := ReducibilityHints.abbrev,
-  safety   := DefinitionSafety.safe
+  name        := auxName,
+  levelParams := [],
+  value       := toExpr a,
+  type        := toTypeExpr α,
+  hints       := ReducibilityHints.abbrev,
+  safety      := DefinitionSafety.safe
 };
 IO.println (toExpr a);
 (match env.addAndCompile {} decl with

@@ -23,7 +23,7 @@ def mkReprHeader (ctx : Context) (indVal : InductiveVal) : TermElabM Header := d
 def mkBodyForStruct (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Syntax := do
   let ctorVal ← getConstInfoCtor indVal.ctors.head!
   let fieldNames ← getStructureFields (← getEnv) indVal.name
-  let numParams := indVal.nparams
+  let numParams := indVal.numParams
   let target    := mkIdent header.targetNames[0]
   forallTelescopeReducing ctorVal.type fun xs _ => do
     let mut fields : Syntax ← `(Format.nil)
@@ -56,16 +56,16 @@ where
       let alt ← forallTelescopeReducing ctorInfo.type fun xs type => do
         let mut patterns := #[]
         -- add `_` pattern for indices
-        for i in [:indVal.nindices] do
+        for i in [:indVal.numIndices] do
           patterns := patterns.push (← `(_))
         let mut ctorArgs := #[]
         let mut rhs := Syntax.mkStrLit (toString ctorInfo.name)
         let mut rhs ← `(Format.text $rhs)
         -- add `_` for inductive parameters, they are inaccessible
-        for i in [:indVal.nparams] do
+        for i in [:indVal.numParams] do
           ctorArgs := ctorArgs.push (← `(_))
-        for i in [:ctorInfo.nfields] do
-          let x := xs[indVal.nparams + i]
+        for i in [:ctorInfo.numFields] do
+          let x := xs[indVal.numParams + i]
           let a := mkIdent (← mkFreshUserName `a)
           ctorArgs := ctorArgs.push a
           if (← inferType x).isAppOf indVal.name then

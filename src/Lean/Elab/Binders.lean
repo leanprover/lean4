@@ -65,7 +65,7 @@ def declareTacticSyntax (tactic : Syntax) : TermElabM Name :=
     let val ← elabTerm tactic type
     let val ← instantiateMVars val
     trace[Elab.autoParam]! val
-    let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque,
+    let decl := Declaration.defnDecl { name := name, levelParams := [], type := type, value := val, hints := ReducibilityHints.opaque,
                                        safety := DefinitionSafety.safe }
     addDecl decl
     compileDecl decl

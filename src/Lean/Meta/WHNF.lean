@@ -75,10 +75,10 @@ private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM (Option Ex
   let majorTypeI := majorType.getAppFn
   if !majorTypeI.isConstOf recVal.getInduct then
     pure none
-  else if majorType.hasExprMVar && majorType.getAppArgs[recVal.nparams:].any Expr.hasExprMVar then
+  else if majorType.hasExprMVar && majorType.getAppArgs[recVal.numParams:].any Expr.hasExprMVar then
     pure none
   else do
-    let (some newCtorApp) ← mkNullaryCtor majorType recVal.nparams | pure none
+    let (some newCtorApp) ← mkNullaryCtor majorType recVal.numParams | pure none
     let newType ← inferType newCtorApp
     if (← isDefEq majorType newType) then
       pure newCtorApp
@@ -98,12 +98,12 @@ private def reduceRec {α} (recVal : RecursorVal) (recLvls : List Level) (recArg
     match getRecRuleFor recVal major with
     | some rule =>
       let majorArgs := major.getAppArgs
-      if recLvls.length != recVal.lparams.length then
+      if recLvls.length != recVal.levelParams.length then
         failK ()
       else
-        let rhs := rule.rhs.instantiateLevelParams recVal.lparams recLvls
+        let rhs := rule.rhs.instantiateLevelParams recVal.levelParams recLvls
         -- Apply parameters, motives and minor premises from recursor application.
-        let rhs := mkAppRange rhs 0 (recVal.nparams+recVal.nmotives+recVal.nminors) recArgs
+        let rhs := mkAppRange rhs 0 (recVal.numParams+recVal.numMotives+recVal.numMinors) recArgs
         /- The number of parameters in the constructor is not necessarily
            equal to the number of parameters in the recursor when we have
            nested inductive types. -/
@@ -292,7 +292,7 @@ def project? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
   let e ← whnf e
   matchConstCtor e.getAppFn (fun _ => pure none) fun ctorVal _ =>
     let numArgs := e.getAppNumArgs
-    let idx := ctorVal.nparams + i
+    let idx := ctorVal.numParams + i
     if idx < numArgs then
       pure (some (e.getArg! idx))
     else

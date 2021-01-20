@@ -32,7 +32,7 @@ where
           loop (i+1) (insts.push inst)
     else
       k insts
-/-- 
+/--
   Let `motiveFVars` be free variables for each motive in a kernel recursor, and `minorFVars` the free variables for a minor premise.
   Then, return `true` is `fvar` (an element of `minorFVars`) corresponds to a recursive field.
   That is, there is a free variable `minorFVar` in `minorFVars` with type `... -> motive ... fvar` where `motive` is an element of `motiveFVars`.
@@ -41,7 +41,7 @@ private def isRecField (motiveFVars : Array Expr) (minorFVars : Array Expr) (fva
   for minorFVar in minorFVars do
     let found ← forallTelescopeReducing (← inferType minorFVar) fun _ type =>
       return motiveFVars.contains type.getAppFn && type.appArg! == fvar
-    if found then 
+    if found then
       return true
   return false
 
@@ -67,7 +67,7 @@ where
       forallTelescopeReducing (← inferType minorFVars[i]) fun xs _ =>
       forallBoundedTelescope (← inferType minorFVars'[i]) xs.size fun xs' _ => do
         let mut minor ← mkNumeral (mkConst ``Nat) 1
-        for x in xs, x' in xs' do   
+        for x in xs, x' in xs' do
           -- If `x` is a recursive field, we skip it since we use the inductive hypothesis occurring later
           unless (← isRecField motiveFVars xs x) do
             let xType ← inferType x
@@ -77,28 +77,28 @@ where
                 if ys.size > 0 then
                   -- ignore `x` because it is a function
                   return minor
-                else  
+                else
                   mkAdd minor x'
               else
-                try 
+                try
                   mkAdd minor (← mkAppM ``SizeOf.sizeOf #[x'])
                 catch _ =>
-                  return minor 
-        minor ← mkLambdaFVars xs' minor        
-        trace[Meta.sizeOf]! "minor: {minor}"        
+                  return minor
+        minor ← mkLambdaFVars xs' minor
+        trace[Meta.sizeOf]! "minor: {minor}"
         loop (i+1) (minors.push minor)
     else
-      k minors 
+      k minors
 
 partial def mkSizeOfFn (recName : Name) : MetaM Unit := do
   trace[Meta.sizeOf]! "recName: {recName}"
   let recInfo : RecursorVal ← getConstInfoRec recName
   forallTelescopeReducing recInfo.type fun xs type =>
-    let levelParams := recInfo.lparams.tail! -- universe parameters for declaration being defined
-    let params := xs[:recInfo.nparams]
-    let motiveFVars := xs[recInfo.nparams : recInfo.nparams + recInfo.nmotives]
-    let minorFVars := xs[recInfo.getFirstMinorIdx : recInfo.getFirstMinorIdx + recInfo.nminors]
-    let indices := xs[recInfo.getFirstIndexIdx : recInfo.getFirstIndexIdx + recInfo.nindices]
+    let levelParams := recInfo.levelParams.tail! -- universe parameters for declaration being defined
+    let params := xs[:recInfo.numParams]
+    let motiveFVars := xs[recInfo.numParams : recInfo.numParams + recInfo.numMotives]
+    let minorFVars := xs[recInfo.getFirstMinorIdx : recInfo.getFirstMinorIdx + recInfo.numMinors]
+    let indices := xs[recInfo.getFirstIndexIdx : recInfo.getFirstIndexIdx + recInfo.numIndices]
     let major := xs[recInfo.getMajorIdx]
     let nat := mkConst ``Nat
     mkLocalInstances params fun localInsts =>
@@ -106,7 +106,7 @@ partial def mkSizeOfFn (recName : Name) : MetaM Unit := do
       let us := levelOne :: levelParams.map mkLevelParam -- universe level parameters for `rec`-application
       let recFn := mkConst recName us
       let val := mkAppN recFn (params ++ motives)
-      forallBoundedTelescope (← inferType val) recInfo.nminors fun minorFVars' _ =>
+      forallBoundedTelescope (← inferType val) recInfo.numMinors fun minorFVars' _ =>
       mkSizeOfMinors motiveFVars minorFVars minorFVars' fun minors => do
         let sizeOfFnType ← mkForallFVars (params ++ localInsts ++ indices ++ #[major]) nat
         let val := mkAppN val (minors ++ indices ++ #[major])

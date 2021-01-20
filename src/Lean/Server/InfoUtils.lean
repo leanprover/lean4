@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Wojciech Nawrocki
 -/
 import Lean.Elab.InfoTree
+import Lean.Util.Sorry
 
 namespace Lean.Elab
 
@@ -49,6 +50,7 @@ def TacticInfo.tailPos? (i : TacticInfo) : Option String.Pos :=
 partial def InfoTree.hoverableTermAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × TermInfo) :=
   let ts := t.smallestNodes fun
     | Info.ofTermInfo i =>
+      !i.expr.isSyntheticSorry &&
       -- TODO: see if we can get rid of this
       #[identKind,
         strLitKind,

@@ -289,22 +289,6 @@ extern "C" obj_res lean_io_prim_handle_is_eof(b_obj_arg h, obj_arg /* w */) {
     return io_result_mk_ok(box(std::feof(fp) != 0));
 }
 
-/* Handle.size : (@& Handle) → IO USize */
-extern "C" obj_res lean_io_prim_handle_size(b_obj_arg h, obj_arg /* w */) {
-    FILE * fp = io_get_handle(h);
-    std::fpos_t pos;
-    long fsize = 0;
-    if (std::fgetpos(fp, &pos)) goto fail;
-    if (std::fseek(fp, 0, SEEK_END)) goto fail;
-    fsize = std::ftell(fp);
-    if (fsize == -1) goto fail;
-    if (std::fsetpos(fp, &pos)) goto fail;
-    return io_result_mk_ok(usize_to_nat(size_t(fsize)));
-
-fail:
-    return io_result_mk_error(decode_io_error(errno, nullptr));
-}
-
 /* Handle.flush : (@& Handle) → IO Bool */
 extern "C" obj_res lean_io_prim_handle_flush(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);

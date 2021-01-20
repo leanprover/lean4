@@ -83,6 +83,8 @@ def ofExcept [ToString ε] (e : Except ε α) : IO α :=
 def lazyPure (fn : Unit → α) : IO α :=
   pure (fn ())
 
+/-- Monotonically increasing time since an unspecified past point in milliseconds. No relation to wall clock time. -/
+@[extern "lean_io_mono_ms_now"] constant monoMsNow : IO Nat
 
 def sleep (ms : UInt32) : IO Unit :=
   -- TODO: add a proper primitive for IO.sleep
@@ -166,7 +168,6 @@ def fopenFlags (m : FS.Mode) (b : Bool) : String :=
   mode ++ bin
 
 @[extern "lean_io_prim_handle_mk"] constant Handle.mk (s : @& String) (mode : @& String) : IO Handle
-@[extern "lean_io_prim_handle_size"] constant Handle.size (h : @& Handle) : IO Nat
 @[extern "lean_io_prim_handle_is_eof"] constant Handle.isEof (h : @& Handle) : IO Bool
 @[extern "lean_io_prim_handle_flush"] constant Handle.flush (h : @& Handle) : IO Unit
 @[extern "lean_io_prim_handle_read"] constant Handle.read  (h : @& Handle) (bytes : USize) : IO ByteArray
@@ -195,8 +196,6 @@ def Handle.mk (s : String) (Mode : Mode) (bin : Bool := true) : m Handle :=
 def withFile (fn : String) (mode : Mode) (f : Handle → m α) : m α :=
   Handle.mk fn mode >>= f
 
-/-- Returns the size of the underlying file. -/
-def Handle.size : Handle → m Nat := liftM ∘ Prim.Handle.size
 /-- returns whether the end of the file has been reached while reading a file.
 `h.isEof` returns true /after/ the first attempt at reading past the end of `h`.
 Once `h.isEof` is true, the reading `h` raises `IO.Error.eof`.
@@ -215,13 +214,13 @@ def Handle.putStrLn (h : Handle) (s : String) : m Unit :=
   h.putStr (s.push '\n')
 
 partial def Handle.readBinToEnd (h : Handle) : m ByteArray := do
-  let rec loop (left : Nat) : m ByteArray := do
-    if left == 0 then ByteArray.empty
+  let rec loop : m ByteArray := do
+    if ← h.isEof then
+      return ByteArray.empty
     else
-      let buf ← h.read left
-      let left := left - buf.size
-      pure $ buf ++ (←loop left)
-  loop (←h.size)
+      let buf ← h.read 1024
+      return buf ++ (←loop)
+  loop
 
 partial def Handle.readToEnd (h : Handle) : m String := do
   let rec read (s : String) := do

@@ -829,6 +829,7 @@ lean_object* l_ReaderT_read___at_Lean_Elab_Command_instMonadLogCommandElabM___sp
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_State_nextMacroScope___default;
 extern lean_object* l_Lean_scopedEnvExtensionsRef;
+extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1080____closed__1;
 lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabInitQuot(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabUniverse___closed__1;
@@ -838,7 +839,6 @@ uint8_t l_Lean_Elab_isFreshInstanceName(lean_object*);
 lean_object* l_Lean_Elab_Command_instAddErrorMessageContextCommandElabM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabEnd___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_instMonadRecDepthCommandElabM;
-extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1082____closed__1;
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Lean_Elab_Command_liftTermElabM___rarg___closed__2;
 lean_object* l_Lean_Elab_Command_elabEnd___lambda__1___closed__1;
@@ -7991,7 +7991,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_Command___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1082____closed__1;
+x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1080____closed__1;
 x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3999____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

@@ -248,7 +248,6 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__2;
 lean_object* l_Lean_PrettyPrinter_Delaborator_withProj___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabIte___closed__2;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfScientific(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Coe___hyg_192____closed__1;
 lean_object* l_Array_anyMUnsafe_any___at_Lean_PrettyPrinter_Delaborator_hasIdent___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabMData_match__3(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_PrettyPrinter_Delaborator_delabAppMatch___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -362,6 +361,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_delabProjectionApp___lambda__1(lea
 lean_object* l_Array_mapMUnsafe_map___at_Lean_PrettyPrinter_Delaborator_delabAppMatch___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabTuple___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabStructureInstance___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Coe___hyg_160____closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__1;
 size_t l_Lean_Name_hash(lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_Delaborator_delabAttribute;
@@ -21451,7 +21451,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_getExprKind___closed__5;
-x_2 = l_myMacro____x40_Init_Coe___hyg_192____closed__1;
+x_2 = l_myMacro____x40_Init_Coe___hyg_160____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

@@ -570,7 +570,8 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
                 ctor              := ctor
                 fields            := fields
               }
-            mkSizeOfInstances declName  
+            unless isClass do
+              mkSizeOfInstances declName
             return declName
   derivingClassViews.forM fun view => view.applyHandlers #[declName]
 

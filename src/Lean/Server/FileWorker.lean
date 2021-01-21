@@ -204,9 +204,9 @@ section Initialization
     let leanpkgPath ← match ← IO.getEnv "LEAN_SYSROOT" with
       | some path => s!"{path}/bin/leanpkg{System.FilePath.exeSuffix}"
       | _         => s!"{← appDir}/leanpkg{System.FilePath.exeSuffix}"
-    let mut srcSearchPath := match (← IO.getEnv "LEAN_SRC_PATH") with
-      | some p => parseSearchPath p
-      | none   => []
+    let mut srcSearchPath := [s!"{← appDir}/../lib/lean/src"]
+    if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
+      srcSearchPath := srcSearchPath ++ parseSearchPath p
     -- NOTE: leanpkg does not exist in stage 0 (yet?)
     if (← fileExists leanpkgPath) then
       let pkgSearchPath ← leanpkgSetupSearchPath leanpkgPath m (Lean.Elab.headerToImports headerStx).toArray hOut

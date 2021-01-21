@@ -153,8 +153,6 @@ def splitOn (s : String) (sep : String := " ") : List String :=
 
 instance : Inhabited String := ⟨""⟩
 
-instance : SizeOf String := ⟨String.length⟩
-
 instance : Append String := ⟨String.append⟩
 
 def str : String → Char → String := push

@@ -9,8 +9,6 @@ import Init.Data.UInt
 @[inline, reducible] def isValidChar (n : UInt32) : Prop :=
   n < 0xd800 ∨ (0xdfff < n ∧ n < 0x110000)
 
-instance : SizeOf Char := ⟨fun c => c.val.toNat⟩
-
 namespace Char
 
 protected def Less (a b : Char) : Prop := a.val < b.val

@@ -7,6 +7,7 @@ import Lean.Util.ReplaceLevel
 import Lean.Util.ReplaceExpr
 import Lean.Util.CollectLevelParams
 import Lean.Util.Constructions
+import Lean.Meta.SizeOf
 import Lean.Elab.Command
 import Lean.Elab.CollectFVars
 import Lean.Elab.DefView
@@ -496,6 +497,7 @@ def elabInductiveViews (views : Array InductiveView) : CommandElabM Unit := do
   let ref := view0.ref
   runTermElabM view0.declName fun vars => withRef ref do
     mkInductiveDecl vars views
+    mkSizeOfInstances view0.declName  
   applyDerivingHandlers views
 
 end Lean.Elab.Command

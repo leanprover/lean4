@@ -157,10 +157,10 @@ def generateSizeOfInstance (opts : Options) : Bool :=
   opts.get `genSizeOf true
 
 def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
-  if (← getEnv).contains ``SizeOf && generateSizeOfInstance (← getOptions) then
-    let fns ← mkSizeOfFns typeName
+  if (← getEnv).contains ``SizeOf && generateSizeOfInstance (← getOptions) && !(← isInductivePredicate typeName) then
     let indInfo ← getConstInfoInduct typeName
-    unless (← isProp indInfo.type) do
+    unless indInfo.isUnsafe do
+      let fns ← mkSizeOfFns typeName
       for indTypeName in indInfo.all, fn in fns do
         let indInfo ← getConstInfoInduct indTypeName
         forallTelescopeReducing indInfo.type fun xs _ =>

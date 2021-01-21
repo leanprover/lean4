@@ -380,7 +380,7 @@ section MessageHandling
       let uri := fileSource parsedParams
       tryWriteMessage uri ⟨id, method, parsedParams⟩ FileWorker.writeRequest
     match method with
-    | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParam
+    | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParams
     | "textDocument/hover"              => handle HoverParams
     | "textDocument/declaration"        => handle DeclarationParams
     | "textDocument/definition"         => handle DefinitionParams

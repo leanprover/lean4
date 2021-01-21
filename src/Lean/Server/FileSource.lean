@@ -52,7 +52,7 @@ instance DefinitionParams.hasFileSource : FileSource DefinitionParams :=
 instance TypeDefinitionParams.hasFileSource : FileSource TypeDefinitionParams :=
   ⟨fun h => fileSource h.toTextDocumentPositionParams⟩
 
-instance WaitForDiagnosticsParam.hasFileSource : FileSource WaitForDiagnosticsParam :=
+instance WaitForDiagnosticsParams.hasFileSource : FileSource WaitForDiagnosticsParams :=
   ⟨fun p => p.uri⟩
 
 instance DocumentSymbolParams.hasFileSource : FileSource DocumentSymbolParams :=

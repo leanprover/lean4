@@ -489,12 +489,23 @@ section RequestHandling
             children? := syms.toArray
           } :: syms', stxs'')
 
-  def handleWaitForDiagnostics (id : RequestID) (p : WaitForDiagnosticsParam)
+  partial def handleWaitForDiagnostics (id : RequestID) (p : WaitForDiagnosticsParams)
     : ServerM (Task (Except IO.Error (Except RequestError WaitForDiagnostics))) := do
     let st ← read
-    let doc ← st.docRef.get
-    let t ← doc.cmdSnaps.waitAll
-    t.map fun _ => Except.ok $ Except.ok WaitForDiagnostics.mk
+    let rec waitLoop : IO EditableDocument := do
+      let doc ← st.docRef.get
+      if p.version ≤ doc.meta.version then
+        return doc
+      else
+        IO.sleep 50
+        waitLoop
+    let t ← IO.asTask waitLoop
+    let t ← IO.bindTask t fun
+      | Except.error e => unreachable!
+      | Except.ok doc => do
+        let t₁ ← doc.cmdSnaps.waitAll
+        return t₁.map fun _ => Except.ok WaitForDiagnostics.mk
+    return t.map fun _ => Except.ok <| Except.ok WaitForDiagnostics.mk
 
 end RequestHandling
 
@@ -532,7 +543,7 @@ section MessageHandling
           st.hOut.writeLspResponseError { id := id, code := ErrorCode.internalError, message := toString e }
       queueRequest id t₁
     match method with
-    | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParam WaitForDiagnostics handleWaitForDiagnostics
+    | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParams WaitForDiagnostics handleWaitForDiagnostics
     | "textDocument/hover"              => handle HoverParams (Option Hover) handleHover
     | "textDocument/declaration"        => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := false)
     | "textDocument/definition"         => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := false)

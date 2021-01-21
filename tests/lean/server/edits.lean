@@ -12,12 +12,12 @@ open IO Lean Lsp
 
     hIn.write (←FS.readBinFile "open_content.log")
     hIn.flush
-    discard <| Ipc.collectDiagnostics 1 "file:///test.lean"
+    discard <| Ipc.collectDiagnostics 1 "file:///test.lean" 1
 
     hIn.write (←FS.readBinFile "content_changes.log")
     hIn.flush
 
-    let diags ← Ipc.collectDiagnostics 2 "file:///test.lean"
+    let diags ← Ipc.collectDiagnostics 2 "file:///test.lean" 7
     if diags.isEmpty then
       throw $ userError "Test failed, no diagnostics received."
     else

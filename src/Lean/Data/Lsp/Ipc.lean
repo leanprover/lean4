@@ -50,9 +50,9 @@ def waitForExit : IpcM UInt32 := do
 
 /-- Waits for the worker to emit all diagnostics for the current document version
 and returns them as a list. -/
-partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target : DocumentUri)
+partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target : DocumentUri) (version : Nat)
 : IpcM (List (Notification PublishDiagnosticsParams)) := do
-  writeRequest ⟨waitForDiagnosticsId, "textDocument/waitForDiagnostics", WaitForDiagnosticsParam.mk target⟩
+  writeRequest ⟨waitForDiagnosticsId, "textDocument/waitForDiagnostics", WaitForDiagnosticsParams.mk target version⟩
   let rec loop : IpcM (List (Notification PublishDiagnosticsParams)) := do
     match ←readMessage with
     | Message.response id _ =>

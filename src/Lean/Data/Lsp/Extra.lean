@@ -8,20 +8,22 @@ import Lean.Data.Json
 import Lean.Data.JsonRpc
 import Lean.Data.Lsp.Basic
 
-/-
+/-!
 This file contains Lean-specific extensions to LSP.
 The following additional packets are supported:
-- "textDocument/waitForDiagnostics": Yields a response when all the diagnostics that were pending at the time of
-  arrival of the packet have been emitted. Exists for synchronization purposes, e.g. during testing or when external tools might want to use
-  our LSP server.
+- "textDocument/waitForDiagnostics": Yields a response when all the diagnostics for a version of the document
+  greater or equal to the specified one have been emitted. If the request specifies a version above the most
+  recently processed one, the server will delay the response until it does receive the specified version.
+  Exists for synchronization purposes, e.g. during testing or when external tools might want to use our LSP server.
 -/
 
 namespace Lean.Lsp
 
 open Json
 
-structure WaitForDiagnosticsParam where
-  uri : DocumentUri
+structure WaitForDiagnosticsParams where
+  uri     : DocumentUri
+  version : Nat
   deriving ToJson, FromJson
 
 structure WaitForDiagnostics

@@ -214,13 +214,13 @@ def Handle.putStrLn (h : Handle) (s : String) : m Unit :=
   h.putStr (s.push '\n')
 
 partial def Handle.readBinToEnd (h : Handle) : m ByteArray := do
-  let rec loop : m ByteArray := do
+  let rec loop (acc : ByteArray) : m ByteArray := do
     if ← h.isEof then
-      return ByteArray.empty
+      return acc
     else
       let buf ← h.read 1024
-      return buf ++ (←loop)
-  loop
+      loop (acc ++ buf)
+  loop ByteArray.empty
 
 partial def Handle.readToEnd (h : Handle) : m String := do
   let rec read (s : String) := do

@@ -276,7 +276,6 @@ uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
 lean_object* l_Substring_foldl___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_String_Basic_0__Substring_prevn_match__1(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-lean_object* l_String_instSizeOfString;
 lean_object* l_String_Iterator_prev_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Substring_take(lean_object*, lean_object*);
 lean_object* l_Nat_repeat_loop___at_String_pushn___spec__1(uint32_t, lean_object*, lean_object*);
@@ -355,7 +354,6 @@ lean_object* l_String_foldr(lean_object*);
 lean_object* l_String_Iterator_setCurr___boxed(lean_object*, lean_object*);
 lean_object* l_Substring_posOf(lean_object*, uint32_t);
 lean_object* l_Substring_extract_match__1(lean_object*);
-lean_object* l_String_instSizeOfString___closed__1;
 lean_object* l_String_Iterator_remainingBytes(lean_object*);
 lean_object* l___private_Init_Data_String_Basic_0__Substring_takeWhileAux___at_String_nextUntil___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Substring_toString(lean_object*);
@@ -1635,22 +1633,6 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lean_instInhabitedParserDescr___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_String_instSizeOfString___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_length___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_String_instSizeOfString() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_String_instSizeOfString___closed__1;
 return x_1;
 }
 }
@@ -5976,10 +5958,6 @@ l_String_instHasLessString = _init_l_String_instHasLessString();
 lean_mark_persistent(l_String_instHasLessString);
 l_String_instInhabitedString = _init_l_String_instInhabitedString();
 lean_mark_persistent(l_String_instInhabitedString);
-l_String_instSizeOfString___closed__1 = _init_l_String_instSizeOfString___closed__1();
-lean_mark_persistent(l_String_instSizeOfString___closed__1);
-l_String_instSizeOfString = _init_l_String_instSizeOfString();
-lean_mark_persistent(l_String_instSizeOfString);
 l_String_instAppendString___closed__1 = _init_l_String_instAppendString___closed__1();
 lean_mark_persistent(l_String_instAppendString___closed__1);
 l_String_instAppendString = _init_l_String_instAppendString();

@@ -164,6 +164,7 @@ lean_object* l_Lean_Compiler_instInhabitedSpecState___closed__2;
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Compiler_getCachedSpecialization___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 size_t l_USize_land(size_t, size_t);
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2902____closed__4;
 lean_object* l_Lean_Compiler_instInhabitedSpecInfo___closed__1;
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_47____closed__11;
@@ -200,7 +201,6 @@ lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Compiler_getSpecializati
 extern lean_object* l_Lean_registerEnumAttributes___rarg___closed__1;
 lean_object* l_List_map___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_47____spec__7(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_specExtension___elambda__2(lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2880____closed__4;
 extern lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___closed__2;
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_47____closed__8;
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_47____closed__9;
@@ -4634,7 +4634,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_47____closed__4;
 x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_246____closed__1;
 x_3 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_246____closed__2;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2880____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2902____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

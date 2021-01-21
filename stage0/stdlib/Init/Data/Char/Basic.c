@@ -26,11 +26,9 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t l_Char_lt(uint32_t, uint32_t);
 lean_object* l_Char_toNat(uint32_t);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l_instSizeOfChar(uint32_t);
 lean_object* l_Char_toLower___boxed(lean_object*);
 uint8_t l_UInt32_decLt(uint32_t, uint32_t);
 uint8_t l_Char_isLower(uint32_t);
-lean_object* l_instSizeOfChar___boxed(lean_object*);
 lean_object* l_Char_isAlphanum___boxed(lean_object*);
 lean_object* l_Char_isWhitespace___boxed(lean_object*);
 uint8_t l_Char_isAlpha(uint32_t);
@@ -50,24 +48,6 @@ uint8_t l_UInt32_decLe(uint32_t, uint32_t);
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_Char_ofNat(lean_object*);
 lean_object* l_Char_isDigit___boxed(lean_object*);
-lean_object* l_instSizeOfChar(uint32_t x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_uint32_to_nat(x_1);
-return x_2;
-}
-}
-lean_object* l_instSizeOfChar___boxed(lean_object* x_1) {
-_start:
-{
-uint32_t x_2; lean_object* x_3; 
-x_2 = lean_unbox_uint32(x_1);
-lean_dec(x_1);
-x_3 = l_instSizeOfChar(x_2);
-return x_3;
-}
-}
 static lean_object* _init_l_Char_instHasLessChar() {
 _start:
 {

@@ -405,15 +405,14 @@ section RequestHandling
       (notFoundX := pure #[]) fun snap => do
         for t in snap.toCmdState.infoState.trees do
           if let some (ci, i) := t.hoverableTermAt? hoverPos then
-            let expr := if goToType? then ← ci.runMetaM i.lctx <| Meta.inferType i.expr
-            else i.expr
+            let expr ← if goToType? then ci.runMetaM i.lctx <| Meta.inferType i.expr else i.expr
             if let some n := expr.constName? then
               let mod? ← ci.runMetaM i.lctx <| findModuleOf? n
               let modUri? ← match mod? with
-              | some modName =>
-                let modFname? ← st.srcSearchPath.findWithExt ".lean" modName
-                pure <| modFname?.map ("file://" ++ ·)
-              | none         => pure <| some doc.meta.uri
+                | some modName =>
+                  let modFname? ← st.srcSearchPath.findWithExt ".lean" modName
+                  pure <| modFname?.map ("file://" ++ ·)
+                | none         => pure <| some doc.meta.uri
 
               let ranges? ← ci.runMetaM i.lctx <| findDeclarationRanges? n
 

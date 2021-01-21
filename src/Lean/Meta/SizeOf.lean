@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.AppBuilder
-import Lean.Meta.Check
+import Lean.Meta.Instances
 
 namespace Lean.Meta
 
@@ -149,6 +149,42 @@ def mkSizeOfFns (typeName : Name) : MetaM (Array Name) := do
     result := result.push sizeOfName
     i := i + 1
   return result
+
+builtin_initialize
+  registerOption `genSizeOf { defValue := true, group := "", descr := "generate `SizeOf` instance for inductive types and structures" }
+
+def generateSizeOfInstance (opts : Options) : Bool :=
+  opts.get `genSizeOf true
+
+def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
+  if (← getEnv).contains ``SizeOf && generateSizeOfInstance (← getOptions) then
+    let fns ← mkSizeOfFns typeName
+    let indInfo ← getConstInfoInduct typeName
+    unless (← isProp indInfo.type) do
+      for indTypeName in indInfo.all, fn in fns do
+        let indInfo ← getConstInfoInduct indTypeName
+        forallTelescopeReducing indInfo.type fun xs _ =>
+          let params := xs[:indInfo.numParams]
+          let indices := xs[indInfo.numParams:]
+          mkLocalInstances params fun localInsts => do
+            let us := indInfo.levelParams.map mkLevelParam
+            let indType := mkAppN (mkConst indTypeName us) xs
+            let sizeOfIndType ← mkAppM ``SizeOf #[indType]
+            withLocalDeclD `m indType fun m => do
+              let v ← mkLambdaFVars #[m] <| mkAppN (mkConst fn us) (params ++ localInsts ++ indices ++ #[m])
+              let sizeOfMk ← mkAppM ``SizeOf.mk #[v]
+              let instDeclName := indTypeName ++ `_sizeOf_inst
+              let instDeclType ← mkForallFVars (xs ++ localInsts) sizeOfIndType
+              let instDeclValue ← mkLambdaFVars (xs ++ localInsts) sizeOfMk
+              addDecl <| Declaration.defnDecl {
+                name        := instDeclName
+                levelParams := indInfo.levelParams
+                type        := instDeclType
+                value       := instDeclValue
+                safety      := DefinitionSafety.safe
+                hints       := ReducibilityHints.abbrev
+              }
+              addInstance instDeclName AttributeKind.global (evalPrio! default)
 
 builtin_initialize
   registerTraceClass `Meta.sizeOf

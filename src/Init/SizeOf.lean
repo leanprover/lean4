@@ -46,5 +46,15 @@ deriving instance SizeOf for String
 deriving instance SizeOf for Substring
 deriving instance SizeOf for Except
 deriving instance SizeOf for EStateM.Result
-deriving instance SizeOf for Lean.Name
+
+/- We manually define `Lean.Name` instance because we use
+   an opaque function for computing the hashcode field. -/
+protected noncomputable def Lean.Name.sizeOf : Name → Nat
+  | anonymous => 1
+  | str p s _ => 1 + Name.sizeOf p + sizeOf s
+  | num p n _ => 1 + Name.sizeOf p + sizeOf n
+
+noncomputable instance : SizeOf Lean.Name where
+  sizeOf n := n.sizeOf
+
 deriving instance SizeOf for Lean.Syntax

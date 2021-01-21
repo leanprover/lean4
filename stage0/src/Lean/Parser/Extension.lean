@@ -422,7 +422,7 @@ def declareBuiltinParser (env : Environment) (addFnName : Name) (catName : Name)
   let name := `_regBuiltinParser ++ declName
   let type := mkApp (mkConst `IO) (mkConst `Unit)
   let val  := mkAppN (mkConst addFnName) #[toExpr catName, toExpr declName, mkConst declName, mkNatLit prio]
-  let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque,
+  let decl := Declaration.defnDecl { name := name, levelParams := [], type := type, value := val, hints := ReducibilityHints.opaque,
                                      safety := DefinitionSafety.safe }
   match env.addAndCompile {} decl with
   -- TODO: pretty print error

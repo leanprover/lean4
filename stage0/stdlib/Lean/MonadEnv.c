@@ -86,8 +86,10 @@ lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported
 extern lean_object* l_Lean_auxRecExt;
 lean_object* l_Lean_addAndCompile___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__10;
+extern lean_object* l_Lean_levelZero;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l_Lean_throwUnknownConstant___rarg___closed__2;
+lean_object* l_Lean_isInductivePredicate_match__1(lean_object*);
 lean_object* l_Lean_getConstInfoCtor___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_matchConst_match__1(lean_object*);
 lean_object* l_Lean_matchConst_match__2(lean_object*);
@@ -97,6 +99,7 @@ lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported
 lean_object* l_Lean_isInductive(lean_object*);
 lean_object* l_Lean_addDecl_match__1(lean_object*);
 lean_object* l_Lean_evalConstCheck___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_isInductivePredicate_visit_match__1(lean_object*);
 lean_object* l_Lean_matchConstStruct___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_withoutModifyingEnv(lean_object*);
 lean_object* l_Lean_addAndCompile___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -132,6 +135,7 @@ lean_object* l___private_Lean_MonadEnv_0__Lean_checkUnsupported_match__2___rarg(
 lean_object* l_Lean_matchConstInduct(lean_object*, lean_object*);
 extern lean_object* l_Lean_casesOnSuffix___closed__1;
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*);
+uint8_t l_Lean_isInductivePredicate_visit(lean_object*);
 lean_object* l_Lean_findModuleOf_x3f___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo(lean_object*);
 lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__19;
@@ -163,6 +167,7 @@ lean_object* l_Lean_matchConstRec_match__1(lean_object*);
 lean_object* l_Lean_matchConstCtor_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_matchConst_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAuxName___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_isInductivePredicate___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Declaration_foldExprM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__1___rarg___boxed__const__1;
 lean_object* l_Lean_mkAuxName___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_evalConstCheck___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -185,6 +190,7 @@ lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__8;
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoCtor___rarg___lambda__1___closed__2;
 lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__13;
+lean_object* l_Lean_isInductivePredicate_visit___boxed(lean_object*);
 lean_object* l_Lean_Declaration_foldExprM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__1___rarg___lambda__1(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_matchConstInduct___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_compileDecl___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -200,24 +206,29 @@ lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported
 lean_object* l___private_Lean_MonadEnv_0__Lean_mkAuxNameAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoRec___rarg___lambda__1___closed__1;
 lean_object* l_Lean_ofExcept___at_Lean_evalConstCheck___spec__1(lean_object*);
+lean_object* l_Lean_isInductivePredicate___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_matchConstStruct(lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoRec___rarg___lambda__1___closed__2;
 lean_object* l_Lean_findModuleOf_x3f___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_FindImpl_findM_x3f_visit(lean_object*, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoRec___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_isInductivePredicate_visit_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_compile_decl(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__2___rarg___lambda__2___closed__3;
 lean_object* l_Lean_matchConst___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__17;
 lean_object* l_Lean_addDecl_match__1___rarg(lean_object*, lean_object*, lean_object*);
+uint8_t lean_level_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_MonadEnv_0__Lean_checkUnsupported___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoCtor(lean_object*);
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__2___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_recOnSuffix___closed__1;
+lean_object* l_Lean_isInductivePredicate_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 extern lean_object* l_tryFinally___rarg___closed__1;
 lean_object* l_Lean_matchConstCtor(lean_object*, lean_object*);
+lean_object* l_Lean_isInductivePredicate(lean_object*);
 lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__9;
 lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors;
 lean_object* l_Lean_matchConstCtor___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -375,6 +386,259 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_isInductive___rarg), 3, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_isInductivePredicate_visit_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 3:
+{
+lean_object* x_5; uint64_t x_6; lean_object* x_7; lean_object* x_8; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+x_6 = lean_ctor_get_uint64(x_1, sizeof(void*)*1);
+lean_dec(x_1);
+x_7 = lean_box_uint64(x_6);
+x_8 = lean_apply_2(x_2, x_5, x_7);
+return x_8;
+}
+case 7:
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; uint64_t x_12; lean_object* x_13; lean_object* x_14; 
+lean_dec(x_4);
+lean_dec(x_2);
+x_9 = lean_ctor_get(x_1, 0);
+lean_inc(x_9);
+x_10 = lean_ctor_get(x_1, 1);
+lean_inc(x_10);
+x_11 = lean_ctor_get(x_1, 2);
+lean_inc(x_11);
+x_12 = lean_ctor_get_uint64(x_1, sizeof(void*)*3);
+lean_dec(x_1);
+x_13 = lean_box_uint64(x_12);
+x_14 = lean_apply_4(x_3, x_9, x_10, x_11, x_13);
+return x_14;
+}
+default: 
+{
+lean_object* x_15; 
+lean_dec(x_3);
+lean_dec(x_2);
+x_15 = lean_apply_1(x_4, x_1);
+return x_15;
+}
+}
+}
+}
+lean_object* l_Lean_isInductivePredicate_visit_match__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_isInductivePredicate_visit_match__1___rarg), 4, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_isInductivePredicate_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_4; 
+lean_dec(x_2);
+x_4 = lean_apply_1(x_3, x_1);
+return x_4;
+}
+else
+{
+lean_object* x_5; 
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+if (lean_obj_tag(x_5) == 5)
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; uint8_t x_13; uint8_t x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
+lean_dec(x_3);
+lean_dec(x_1);
+x_6 = lean_ctor_get(x_5, 0);
+lean_inc(x_6);
+lean_dec(x_5);
+x_7 = lean_ctor_get(x_6, 0);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_6, 1);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_6, 2);
+lean_inc(x_9);
+x_10 = lean_ctor_get(x_6, 3);
+lean_inc(x_10);
+x_11 = lean_ctor_get(x_6, 4);
+lean_inc(x_11);
+x_12 = lean_ctor_get_uint8(x_6, sizeof(void*)*5);
+x_13 = lean_ctor_get_uint8(x_6, sizeof(void*)*5 + 1);
+x_14 = lean_ctor_get_uint8(x_6, sizeof(void*)*5 + 2);
+x_15 = lean_ctor_get_uint8(x_6, sizeof(void*)*5 + 3);
+lean_dec(x_6);
+x_16 = lean_ctor_get(x_7, 0);
+lean_inc(x_16);
+x_17 = lean_ctor_get(x_7, 1);
+lean_inc(x_17);
+x_18 = lean_ctor_get(x_7, 2);
+lean_inc(x_18);
+lean_dec(x_7);
+x_19 = lean_box(x_12);
+x_20 = lean_box(x_13);
+x_21 = lean_box(x_14);
+x_22 = lean_box(x_15);
+x_23 = lean_apply_11(x_2, x_18, x_16, x_17, x_8, x_9, x_10, x_11, x_19, x_20, x_21, x_22);
+return x_23;
+}
+else
+{
+lean_object* x_24; 
+lean_dec(x_5);
+lean_dec(x_2);
+x_24 = lean_apply_1(x_3, x_1);
+return x_24;
+}
+}
+}
+}
+lean_object* l_Lean_isInductivePredicate_match__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_isInductivePredicate_match__1___rarg), 3, 0);
+return x_2;
+}
+}
+uint8_t l_Lean_isInductivePredicate_visit(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 3:
+{
+lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+x_2 = lean_ctor_get(x_1, 0);
+x_3 = l_Lean_levelZero;
+x_4 = lean_level_eq(x_2, x_3);
+return x_4;
+}
+case 7:
+{
+lean_object* x_5; 
+x_5 = lean_ctor_get(x_1, 2);
+x_1 = x_5;
+goto _start;
+}
+default: 
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
+}
+}
+}
+}
+lean_object* l_Lean_isInductivePredicate_visit___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_isInductivePredicate_visit(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_isInductivePredicate___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_environment_find(x_3, x_1);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; 
+x_5 = lean_ctor_get(x_2, 0);
+lean_inc(x_5);
+lean_dec(x_2);
+x_6 = lean_ctor_get(x_5, 1);
+lean_inc(x_6);
+lean_dec(x_5);
+x_7 = 0;
+x_8 = lean_box(x_7);
+x_9 = lean_apply_2(x_6, lean_box(0), x_8);
+return x_9;
+}
+else
+{
+lean_object* x_10; 
+x_10 = lean_ctor_get(x_4, 0);
+lean_inc(x_10);
+lean_dec(x_4);
+if (lean_obj_tag(x_10) == 5)
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; 
+x_11 = lean_ctor_get(x_10, 0);
+lean_inc(x_11);
+lean_dec(x_10);
+x_12 = lean_ctor_get(x_11, 0);
+lean_inc(x_12);
+lean_dec(x_11);
+x_13 = lean_ctor_get(x_12, 2);
+lean_inc(x_13);
+lean_dec(x_12);
+x_14 = lean_ctor_get(x_2, 0);
+lean_inc(x_14);
+lean_dec(x_2);
+x_15 = lean_ctor_get(x_14, 1);
+lean_inc(x_15);
+lean_dec(x_14);
+x_16 = l_Lean_isInductivePredicate_visit(x_13);
+lean_dec(x_13);
+x_17 = lean_box(x_16);
+x_18 = lean_apply_2(x_15, lean_box(0), x_17);
+return x_18;
+}
+else
+{
+lean_object* x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; lean_object* x_23; 
+lean_dec(x_10);
+x_19 = lean_ctor_get(x_2, 0);
+lean_inc(x_19);
+lean_dec(x_2);
+x_20 = lean_ctor_get(x_19, 1);
+lean_inc(x_20);
+lean_dec(x_19);
+x_21 = 0;
+x_22 = lean_box(x_21);
+x_23 = lean_apply_2(x_20, lean_box(0), x_22);
+return x_23;
+}
+}
+}
+}
+lean_object* l_Lean_isInductivePredicate___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_2, 0);
+lean_inc(x_5);
+lean_dec(x_2);
+x_6 = lean_alloc_closure((void*)(l_Lean_isInductivePredicate___rarg___lambda__1), 3, 2);
+lean_closure_set(x_6, 0, x_3);
+lean_closure_set(x_6, 1, x_1);
+x_7 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_6);
+return x_7;
+}
+}
+lean_object* l_Lean_isInductivePredicate(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_isInductivePredicate___rarg), 3, 0);
 return x_2;
 }
 }

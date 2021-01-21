@@ -63,7 +63,7 @@ where
     let ctorVal ← getConstInfoCtor ctorName
     let mut indArgs := #[]
     let mut binders := #[]
-    for i in [:indVal.nparams + indVal.nindices] do
+    for i in [:indVal.numParams + indVal.numIndices] do
       let arg := mkIdent (← mkFreshUserName `a)
       indArgs := indArgs.push arg
       let binder ← `(implicitBinderF| { $arg:ident })
@@ -73,9 +73,9 @@ where
         binders := binders.push binder
     let type ← `(Inhabited (@$(mkIdent inductiveTypeName):ident $indArgs:ident*))
     let mut ctorArgs := #[]
-    for i in [:ctorVal.nparams] do
+    for i in [:ctorVal.numParams] do
       ctorArgs := ctorArgs.push (← `(_))
-    for i in [:ctorVal.nfields] do
+    for i in [:ctorVal.numFields] do
       ctorArgs := ctorArgs.push (← `(arbitrary))
     let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs:ident*⟩)
     `(instance $binders:explicitBinder* : $type := $val)
@@ -83,10 +83,10 @@ where
   mkInstanceCmd? : TermElabM (Option Syntax) := do
     let ctorVal ← getConstInfoCtor ctorName
     forallTelescopeReducing ctorVal.type fun xs _ =>
-      addLocalInstancesForParams xs[:ctorVal.nparams] fun localInst2Index => do
+      addLocalInstancesForParams xs[:ctorVal.numParams] fun localInst2Index => do
         let mut usedInstIdxs := {}
         let mut ok := true
-        for i in [ctorVal.nparams:xs.size] do
+        for i in [ctorVal.numParams:xs.size] do
           let x := xs[i]
           let instType ← mkAppM `Inhabited #[(← inferType x)]
           trace[Elab.Deriving.inhabited]! "checking {instType} for '{ctorName}'"

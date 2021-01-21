@@ -416,6 +416,33 @@ def mkImpCongrCtx (h₁ h₂ : Expr) : MetaM Expr :=
 def mkForallCongr (h : Expr) : MetaM Expr :=
   mkAppM ``forallCongr #[h]
 
+/-- Return `(n : type)`, a numeric literal of type `type`. The method fails if we don't have an instance `OfNat type n` -/
+def mkNumeral (type : Expr) (n : Nat) : MetaM Expr := do
+  let u ← getDecLevel type
+  let inst ← synthInstance (mkApp2 (mkConst ``OfNat [u]) type (mkNatLit n))
+  return mkApp3 (mkConst ``OfNat.ofNat [u]) type (mkNatLit n) inst
+
+/--
+  Return `a op b`, where `op` has name `opName` and is implemented using the typeclass `className`.
+  This method assumes `a` and `b` have the same type, and typeclass `className` is heterogeneous. 
+  Examples of supported clases: `HAdd`, `HSub`, `HMul`.
+  We use heterogeneous operators to ensure we have a uniform representation.
+  -/
+private def mkBinaryOp (className : Name) (opName : Name) (a b : Expr) : MetaM Expr := do
+  let aType ← inferType a
+  let u ← getDecLevel aType
+  let inst ← synthInstance (mkApp3 (mkConst className [u, u, u]) aType aType aType)
+  return mkApp6 (mkConst opName [u, u, u]) aType aType aType inst a b 
+
+/-- Return `a + b` using a heterogeneous `+`. This method assumes `a` and `b` have the same type. -/
+def mkAdd (a b : Expr) : MetaM Expr := mkBinaryOp ``HAdd ``HAdd.hAdd a b
+
+/-- Return `a - b` using a heterogeneous `-`. This method assumes `a` and `b` have the same type. -/
+def mkSub (a b : Expr) : MetaM Expr := mkBinaryOp ``HSub ``HSub.hSub a b
+
+/-- Return `a * b` using a heterogeneous `*`. This method assumes `a` and `b` have the same type. -/
+def mkMul (a b : Expr) : MetaM Expr := mkBinaryOp ``HMul ``HMul.hMul a b
+
 builtin_initialize registerTraceClass `Meta.appBuilder
 
 end Lean.Meta

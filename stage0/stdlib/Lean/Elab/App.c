@@ -207,6 +207,7 @@ lean_object* l_Lean_throwError___at___private_Lean_Elab_App_0__Lean_Elab_Term_me
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandApp___spec__3___closed__2;
 lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_resolveLValLoop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs_synthesizePendingAndNormalizeFunType_match__4___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_mkNumeral___closed__3;
 lean_object* l_Lean_Meta_getPostponed___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs_propagateExpectedType___closed__5;
 lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs_processExplictArg_match__2___rarg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -613,7 +614,6 @@ lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_App___hyg_9009_(lean_objec
 lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_App___hyg_4_(lean_object*);
 lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppAux(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_propagateExpectedTypeFor___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_evalNat_visit___closed__3;
 lean_object* l_Lean_Elab_Term_ElabAppArgs_main_match__1(lean_object*);
 lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppLValsAux_loop(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -35814,7 +35814,7 @@ x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec(x_14);
 x_17 = l_Lean_Elab_Term_elabBinRel___lambda__2___closed__1;
-x_18 = l_Lean_Meta_evalNat_visit___closed__3;
+x_18 = l_Lean_Meta_mkNumeral___closed__3;
 x_19 = l_Lean_Expr_isAppOfArity(x_3, x_18, x_11);
 if (x_19 == 0)
 {

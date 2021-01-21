@@ -49,6 +49,7 @@ lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Le
 lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_183____closed__16;
 lean_object* l_Lean_RecursorVal_getMajorIdx___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Lean_RecursorVal_getFirstMinorIdx(lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x21___closed__1;
 lean_object* l_Lean_instInhabitedDefinitionVal___closed__1;
 lean_object* l_Lean_ConstantInfo_lparams___boxed(lean_object*);
@@ -88,6 +89,7 @@ lean_object* l_Lean_ConstantInfo_hasValue___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
 lean_object* l_Lean_InductiveVal_isNestedEx___boxed(lean_object*);
 lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_183____closed__18;
+lean_object* l_Lean_RecursorVal_getFirstMinorIdx___boxed(lean_object*);
 lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_183____closed__14;
 lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_183____closed__5;
 lean_object* l_Lean_ConstantInfo_toConstantVal___boxed(lean_object*);
@@ -2285,6 +2287,25 @@ lean_dec(x_1);
 return x_2;
 }
 }
+lean_object* l_Lean_RecursorVal_getFirstMinorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = lean_ctor_get(x_1, 2);
+x_3 = lean_ctor_get(x_1, 4);
+x_4 = lean_nat_add(x_2, x_3);
+return x_4;
+}
+}
+lean_object* l_Lean_RecursorVal_getFirstMinorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_RecursorVal_getFirstMinorIdx(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_RecursorVal_getInduct(lean_object* x_1) {
 _start:
 {
@@ -3186,7 +3207,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_ConstantInfo_value_x21___closed__1;
 x_2 = l_Lean_ConstantInfo_value_x21___closed__2;
-x_3 = lean_unsigned_to_nat(343u);
+x_3 = lean_unsigned_to_nat(346u);
 x_4 = lean_unsigned_to_nat(33u);
 x_5 = l_Lean_ConstantInfo_value_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

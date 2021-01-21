@@ -514,11 +514,11 @@ private def propagateExpectedType (type : Expr) (numFields : Nat) (expectedType?
           discard <| isDefEq expectedType typeBody
 
 private def mkCtorHeader (ctorVal : ConstructorVal) (expectedType? : Option Expr) : TermElabM CtorHeaderResult := do
-  let lvls ← ctorVal.lparams.mapM fun _ => mkFreshLevelMVar
-  let val  := Lean.mkConst ctorVal.name lvls
-  let type := (ConstantInfo.ctorInfo ctorVal).instantiateTypeLevelParams lvls
-  let r ← mkCtorHeaderAux ctorVal.nparams type val #[]
-  propagateExpectedType r.ctorFnType ctorVal.nfields expectedType?
+  let us ← ctorVal.levelParams.mapM fun _ => mkFreshLevelMVar
+  let val  := Lean.mkConst ctorVal.name us
+  let type := (ConstantInfo.ctorInfo ctorVal).instantiateTypeLevelParams us
+  let r ← mkCtorHeaderAux ctorVal.numParams type val #[]
+  propagateExpectedType r.ctorFnType ctorVal.numFields expectedType?
   synthesizeAppInstMVars r.instMVars
   pure r
 

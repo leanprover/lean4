@@ -11,8 +11,8 @@ namespace Lean.Elab.Command
 private def throwUnknownId (id : Name) : CommandElabM Unit :=
   throwError! "unknown identifier '{mkConst id}'"
 
-private def lparamsToMessageData (lparams : List Name) : MessageData :=
-  match lparams with
+private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
+  match levelParams with
   | []    => ""
   | u::us => do
     let mut m := m!".\{{u}"
@@ -20,7 +20,7 @@ private def lparamsToMessageData (lparams : List Name) : MessageData :=
       m := m ++ ", " ++ u
     return m ++ "}"
 
-private def mkHeader (kind : String) (id : Name) (lparams : List Name) (type : Expr) (safety : DefinitionSafety) : CommandElabM MessageData := do
+private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (safety : DefinitionSafety) : CommandElabM MessageData := do
   let m : MessageData :=
     match safety with
     | DefinitionSafety.unsafe  => "unsafe "
@@ -30,26 +30,26 @@ private def mkHeader (kind : String) (id : Name) (lparams : List Name) (type : E
   let (m, id) := match privateToUserName? id with
     | some id => (m ++ "private ", id)
     | none    => (m, id)
-  let m := m ++ kind ++ " " ++ id ++ lparamsToMessageData lparams ++ " : " ++ type
+  let m := m ++ kind ++ " " ++ id ++ levelParamsToMessageData levelParams ++ " : " ++ type
   pure m
 
-private def mkHeader' (kind : String) (id : Name) (lparams : List Name) (type : Expr) (isUnsafe : Bool) : CommandElabM MessageData :=
-  mkHeader kind id lparams type (if isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe)
+private def mkHeader' (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (isUnsafe : Bool) : CommandElabM MessageData :=
+  mkHeader kind id levelParams type (if isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe)
 
-private def printDefLike (kind : String) (id : Name) (lparams : List Name) (type : Expr) (value : Expr) (safety := DefinitionSafety.safe) : CommandElabM Unit := do
-  let m ← mkHeader kind id lparams type safety
+private def printDefLike (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (value : Expr) (safety := DefinitionSafety.safe) : CommandElabM Unit := do
+  let m ← mkHeader kind id levelParams type safety
   let m := m ++ " :=" ++ Format.line ++ value
   logInfo m
 
-private def printAxiomLike (kind : String) (id : Name) (lparams : List Name) (type : Expr) (isUnsafe := false) : CommandElabM Unit := do
-  logInfo (← mkHeader' kind id lparams type isUnsafe)
+private def printAxiomLike (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (isUnsafe := false) : CommandElabM Unit := do
+  logInfo (← mkHeader' kind id levelParams type isUnsafe)
 
-private def printQuot (kind : QuotKind) (id : Name) (lparams : List Name) (type : Expr) : CommandElabM Unit := do
-  printAxiomLike "Quotient primitive" id lparams type
+private def printQuot (kind : QuotKind) (id : Name) (levelParams : List Name) (type : Expr) : CommandElabM Unit := do
+  printAxiomLike "Quotient primitive" id levelParams type
 
-private def printInduct (id : Name) (lparams : List Name) (nparams : Nat) (nindices : Nat) (type : Expr)
+private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) (numIndices : Nat) (type : Expr)
     (ctors : List Name) (isUnsafe : Bool) : CommandElabM Unit := do
-  let mut m ← mkHeader' "inductive" id lparams type isUnsafe
+  let mut m ← mkHeader' "inductive" id levelParams type isUnsafe
   m := m ++ Format.line ++ "constructors:"
   for ctor in ctors do
     let cinfo ← getConstInfo ctor
@@ -58,15 +58,15 @@ private def printInduct (id : Name) (lparams : List Name) (nparams : Nat) (nindi
 
 private def printIdCore (id : Name) : CommandElabM Unit := do
   match (← getEnv).find? id with
-  | ConstantInfo.axiomInfo { lparams := us, type := t, isUnsafe := u, .. } => printAxiomLike "axiom" id us t u
-  | ConstantInfo.defnInfo  { lparams := us, type := t, value := v, safety := s, .. } => printDefLike "def" id us t v s
-  | ConstantInfo.thmInfo  { lparams := us, type := t, value := v, .. } => printDefLike "theorem" id us t v
-  | ConstantInfo.opaqueInfo  { lparams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constant" id us t u
-  | ConstantInfo.quotInfo  { kind := kind, lparams := us, type := t, .. } => printQuot kind id us t
-  | ConstantInfo.ctorInfo { lparams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constructor" id us t u
-  | ConstantInfo.recInfo { lparams := us, type := t, isUnsafe := u, .. } => printAxiomLike "recursor" id us t u
-  | ConstantInfo.inductInfo { lparams := us, nparams := nparams, nindices := nindices, type := t, ctors := ctors, isUnsafe := u, .. } =>
-    printInduct id us nparams nindices t ctors u
+  | ConstantInfo.axiomInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "axiom" id us t u
+  | ConstantInfo.defnInfo  { levelParams := us, type := t, value := v, safety := s, .. } => printDefLike "def" id us t v s
+  | ConstantInfo.thmInfo  { levelParams := us, type := t, value := v, .. } => printDefLike "theorem" id us t v
+  | ConstantInfo.opaqueInfo  { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constant" id us t u
+  | ConstantInfo.quotInfo  { kind := kind, levelParams := us, type := t, .. } => printQuot kind id us t
+  | ConstantInfo.ctorInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constructor" id us t u
+  | ConstantInfo.recInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "recursor" id us t u
+  | ConstantInfo.inductInfo { levelParams := us, numParams := numParams, numIndices := numIndices, type := t, ctors := ctors, isUnsafe := u, .. } =>
+    printInduct id us numParams numIndices t ctors u
   | none => throwUnknownId id
 
 private def printId (id : Name) : CommandElabM Unit := do

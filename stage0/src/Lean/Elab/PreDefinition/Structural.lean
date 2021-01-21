@@ -119,8 +119,8 @@ private partial def findRecArg {α} (numFixed : Nat) (xs : Array Expr) (k : RecA
           loop (i+1)
         else
           let indArgs    := xType.getAppArgs
-          let indParams  := indArgs.extract 0 indInfo.nparams
-          let indIndices := indArgs.extract indInfo.nparams indArgs.size
+          let indParams  := indArgs.extract 0 indInfo.numParams
+          let indIndices := indArgs.extract indInfo.numParams indArgs.size
           if !indIndices.all Expr.isFVar then
             orelse'
               (throwError! "argument #{i+1} was not used because its type is an inductive family and indices are not variables{indentExpr xType}")

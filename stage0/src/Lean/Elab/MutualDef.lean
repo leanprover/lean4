@@ -527,13 +527,13 @@ def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHea
     let val  ← mkLambdaFVars sectionVars mainVals[i]
     let type ← mkForallFVars sectionVars header.type
     return preDefs.push {
-      ref       := getDeclarationSelectionRef header.ref
-      kind      := header.kind
-      declName  := header.declName
-      lparams   := [], -- we set it later
-      modifiers := header.modifiers
-      type      := type
-      value     := val
+      ref         := getDeclarationSelectionRef header.ref
+      kind        := header.kind
+      declName    := header.declName
+      levelParams := [], -- we set it later
+      modifiers   := header.modifiers
+      type        := type
+      value       := val
     }
 
 def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClosure) (kind : DefKind) (modifiers : Modifiers) : Array PreDefinition :=
@@ -541,13 +541,13 @@ def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClo
     let type := Closure.mkForall c.localDecls c.toLift.type
     let val  := Closure.mkLambda c.localDecls c.toLift.val
     preDefs.push {
-      ref       := c.ref
-      kind      := kind
-      declName  := c.toLift.declName
-      lparams   := [] -- we set it later
-      modifiers := { modifiers with attrs := c.toLift.attrs }
-      type      := type
-      value     := val
+      ref         := c.ref
+      kind        := kind
+      declName    := c.toLift.declName
+      levelParams := [] -- we set it later
+      modifiers   := { modifiers with attrs := c.toLift.attrs }
+      type        := type
+      value       := val
     }
 
 def getKindForLetRecs (mainHeaders : Array DefViewElabHeader) : DefKind :=

@@ -299,7 +299,7 @@ def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM (Option Alt)
       match e.constructorApp? env with
       | some (ctorVal, ctorArgs) =>
         if ctorVal.name == ctorName then
-          let fields := ctorArgs.extract ctorVal.nparams ctorArgs.size
+          let fields := ctorArgs.extract ctorVal.numParams ctorArgs.size
           let fields := fields.toList.map Pattern.inaccessible
           pure $ some { alt with patterns := fields ++ ps }
         else
@@ -370,7 +370,7 @@ private def processNonVariable (p : Problem) : MetaM Problem :=
         | Pattern.inaccessible _ :: _ => processInaccessibleAsCtor alt ctorVal.name
         | p :: _  => throwError! "failed to compile pattern matching, inaccessible pattern or constructor expected{indentD p.toMessageData}"
         | _       => unreachable!
-      let xFields := xArgs.extract ctorVal.nparams xArgs.size
+      let xFields := xArgs.extract ctorVal.numParams xArgs.size
       pure { p with alts := alts, vars := xFields.toList ++ xs }
     | none =>
       let alts ← p.alts.filterMapM fun alt => match alt.patterns with

@@ -74,10 +74,10 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
     | Except.error msg      => throwErrorAt stx msg
     | Except.ok levelParams =>
       let decl := Declaration.axiomDecl {
-        name     := declName,
-        lparams  := levelParams,
-        type     := type,
-        isUnsafe := modifiers.isUnsafe
+        name        := declName,
+        levelParams := levelParams,
+        type        := type,
+        isUnsafe    := modifiers.isUnsafe
       }
       Term.ensureNoUnassignedMVars decl
       addDecl decl

@@ -32,7 +32,7 @@ def mkImplicitBinders (argNames : Array Name) : TermElabM (Array Syntax) :=
     `(implicitBinderF| { $(mkIdent argName) })
 
 def mkInstImplicitBinders (className : Name) (indVal : InductiveVal) (argNames : Array Name) : TermElabM (Array Syntax) :=
-  forallBoundedTelescope indVal.type indVal.nparams fun xs _ => do
+  forallBoundedTelescope indVal.type indVal.numParams fun xs _ => do
     let mut binders := #[]
     for i in [:xs.size] do
       try
@@ -75,7 +75,7 @@ def mkLocalInstanceLetDecls (ctx : Context) (className : Name) (argNames : Array
     let indVal       := ctx.typeInfos[i]
     let auxFunName   := ctx.auxFunNames[i]
     let currArgNames ← mkInductArgNames indVal
-    let numParams    := indVal.nparams
+    let numParams    := indVal.numParams
     let currIndices  := currArgNames[numParams:]
     let binders      ← mkImplicitBinders currIndices
     let argNamesNew  := argNames[:numParams] ++ currIndices
@@ -134,7 +134,7 @@ def mkHeader (ctx : Context) (className : Name) (arity : Nat) (indVal : Inductiv
 def mkDiscrs (header : Header) (indVal : InductiveVal) : TermElabM (Array Syntax) := do
   let mut discrs := #[]
   -- add indices
-  for argName in header.argNames[indVal.nparams:] do
+  for argName in header.argNames[indVal.numParams:] do
     discrs := discrs.push (← mkDiscr argName)
   return discrs ++ (← header.targetNames.mapM mkDiscr)
 

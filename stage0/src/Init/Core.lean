@@ -7,7 +7,7 @@ notation, basic datatypes and type classes
 -/
 prelude
 import Init.Prelude
-import Init.Notation
+import Init.SizeOf
 
 universes u v w
 

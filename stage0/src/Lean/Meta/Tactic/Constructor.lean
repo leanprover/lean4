@@ -16,11 +16,11 @@ def existsIntro (mvarId : MVarId) (w : Expr) : MetaM MVarId := do
     matchConstStruct target.getAppFn
       (fun _ => throwTacticEx `exists mvarId "target is not an inductive datatype with one constructor")
       fun ival us cval => do
-        if cval.nfields < 2 then
+        if cval.numFields < 2 then
           throwTacticEx `exists mvarId "constructor must have at least two fields"
-        let ctor := mkAppN (Lean.mkConst cval.name us) target.getAppArgs[:cval.nparams]
+        let ctor := mkAppN (Lean.mkConst cval.name us) target.getAppArgs[:cval.numParams]
         let ctorType ← inferType ctor
-        let (mvars, _, _) ← forallMetaTelescopeReducing ctorType (some (cval.nfields-2))
+        let (mvars, _, _) ← forallMetaTelescopeReducing ctorType (some (cval.numFields-2))
         let f := mkAppN ctor mvars
         checkApp f w
         let [mvarId] ← apply mvarId <| mkApp f w

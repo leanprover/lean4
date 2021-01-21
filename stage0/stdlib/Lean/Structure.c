@@ -605,7 +605,7 @@ lean_dec(x_8);
 x_22 = lean_box(x_15);
 x_23 = lean_box(x_16);
 x_24 = lean_box(x_17);
-x_25 = lean_apply_10(x_2, x_12, x_21, x_18, x_19, x_20, x_13, x_14, x_22, x_23, x_24);
+x_25 = lean_apply_10(x_2, x_21, x_18, x_19, x_20, x_12, x_13, x_14, x_22, x_23, x_24);
 return x_25;
 }
 else

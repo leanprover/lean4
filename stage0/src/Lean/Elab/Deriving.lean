@@ -10,3 +10,4 @@ import Lean.Elab.Deriving.BEq
 import Lean.Elab.Deriving.DecEq
 import Lean.Elab.Deriving.Repr
 import Lean.Elab.Deriving.FromToJson
+import Lean.Elab.Deriving.SizeOf

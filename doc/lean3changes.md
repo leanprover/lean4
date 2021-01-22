@@ -48,7 +48,7 @@ for consuming implicit arguments. We are still exploring this feature and analyz
 here is the example in the link above using Lean 4 implicit lambdas.
 
 ```lean
-# variables (ρ : Type) (m : Type → Type) [Monad m]
+# variable (ρ : Type) (m : Type → Type) [Monad m]
 instance : Monad (ReaderT ρ m) where
   pure := ReaderT.pure
   bind := ReaderT.bind
@@ -159,7 +159,7 @@ def g {α} [Add α] (a : α) (b? : Option α := none) (c : α) : α :=
   | none   => a + c
   | some b => a + b + c
 
-variables {α} [Add α]
+variable {α} [Add α]
 
 example : g = fun (a c : α) => a + c := rfl
 

@@ -75,8 +75,8 @@ section
   def ident := x
 end
 
-variables (α β : Type u)
-variables (a : α) (b : β)
+variable (α β : Type u)
+variable (a : α) (b : β)
 
 #check ident
 #check ident a
@@ -115,7 +115,7 @@ the arguments made explicit.
 
 ```lean
 # def ident {α : Type u} (a : α) : α := a
-variables (α β : Type)
+variable (α β : Type)
 
 #check @ident           -- {α : Type u} → α → α
 #check @ident α         -- α → α

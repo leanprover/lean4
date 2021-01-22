@@ -12,10 +12,10 @@ def doThrice (α : Type) (h : α → α) (x : α) : α :=
   h (h (h x))
 ```
 
-Lean provides us with the ``variable`` and ``variables`` commands to make such declarations look more compact:
+Lean provides us with the ``variable`` command to make such declarations look more compact:
 
 ```lean
-variables (α β γ : Type)
+variable (α β γ : Type)
 
 def compose (g : β → γ) (f : α → β) (x : α) : γ :=
   g (f x)
@@ -28,8 +28,8 @@ def doThrice (h : α → α) (x : α) : α :=
 ```
 We can declare variables of any type, not just ``Type`` itself:
 ```lean
-variables (α β γ : Type)
-variables (g : β → γ) (f : α → β) (h : α → α)
+variable (α β γ : Type)
+variable (g : β → γ) (f : α → β) (h : α → α)
 variable (x : α)
 
 def compose := g (f x)
@@ -42,7 +42,7 @@ def doThrice := h (h (h x))
 ```
 Printing them out shows that all three groups of definitions have exactly the same effect.
 
-The ``variable`` and ``variables`` commands instruct Lean to insert the declared variables as bound variables in definitions that refer to them.
+The ``variable`` command instruct Lean to insert the declared variables as bound variables in definitions that refer to them.
 Lean is smart enough to figure out which variables are used explicitly or implicitly in a definition. We can therefore proceed as
 though ``α``, ``β``, ``γ``, ``g``, ``f``, ``h``, and ``x`` are fixed objects when we write our definitions, and let Lean abstract
 the definitions for us automatically.
@@ -52,8 +52,8 @@ Sometimes, however, it is useful to limit the scope of a variable. For that purp
 
 ```lean
 section useful
-  variables (α β γ : Type)
-  variables (g : β → γ) (f : α → β) (h : α → α)
+  variable (α β γ : Type)
+  variable (g : β → γ) (f : α → β) (h : α → α)
   variable (x : α)
 
   def compose := g (f x)

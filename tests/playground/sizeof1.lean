@@ -11,81 +11,41 @@ inductive TreeNeg (α : Type u) (β : Type v) where
 end
 
 theorem aux_1 [SizeOf α] [SizeOf β] (cs : List (TreePos α β)) : TreePos._sizeOf_6 cs = sizeOf cs :=
-  @TreePos.rec_4 α β (fun _ => True) (fun _ => True) (fun _ => True) (fun _ => True) (fun _ => True) (fun cs => TreePos._sizeOf_6 cs = sizeOf cs)
-    (fun a => trivial)
-    (fun _ ih => trivial)
-    (fun b => trivial)
-    (fun _ ih => trivial)
-    trivial
-    (fun _ _ ih₁ ih₂ => trivial)
-    trivial
-    (fun _ _ _ _ => trivial)
-    trivial
-    (fun _ _ ih₁ ih₂ => trivial)
+  @List.rec (TreePos α β) (fun cs => TreePos._sizeOf_6 cs = sizeOf cs)
     rfl
-    (fun h t ih₁ ih₂ => by
+    (fun h t ih => by
       show 1 + TreePos._sizeOf_1 h + TreePos._sizeOf_6 t = sizeOf (h::t)
-      rw ih₂
+      rw ih
       rfl)
     cs
 
 theorem aux_2 [SizeOf α] [SizeOf β] (cs : List (List (TreePos α β))) : TreePos._sizeOf_4 cs = sizeOf cs :=
-  @TreePos.rec_2 α β (fun _ => True) (fun _ => True) (fun _ => True) (fun cs => TreePos._sizeOf_4 cs = sizeOf cs) (fun _ => True) (fun _ => True)
-    (fun a => trivial)
-    (fun _ ih => trivial)
-    (fun b => trivial)
-    (fun _ ih => trivial)
-    trivial
-    (fun _ _ ih₁ ih₂ => trivial)
+  @List.rec (List (TreePos α β)) (fun cs => TreePos._sizeOf_4 cs = sizeOf cs)
     rfl
-    (fun h t ih₁ ih₂ => by
+    (fun h t ih =>  by
       show 1 + TreePos._sizeOf_6 h + TreePos._sizeOf_4 t = sizeOf (h :: t)
-      rw ih₂
       rw aux_1
+      rw ih
       rfl)
-    trivial
-    (fun _ _ ih₁ ih₂ => trivial)
-    trivial
-    (fun _ _ ih₁ ih₂ => trivial)
     cs
 
 theorem aux_3 [SizeOf α] [SizeOf β] (cs : List (TreeNeg α β)) : TreePos._sizeOf_5 cs = sizeOf cs :=
-  @TreePos.rec_3 α β (fun _ => True) (fun _ => True) (fun _ => True) (fun _ => True) (fun cs => TreePos._sizeOf_5 cs = sizeOf cs) (fun _ => True)
-    (fun a => trivial)
-    (fun _ ih => trivial)
-    (fun b => trivial)
-    (fun _ ih => trivial)
-    trivial
-    (fun _ _ ih₁ ih₂ => trivial)
-    trivial
-    (fun _ _ _ _ => trivial)
+  @List.rec (TreeNeg α β) (fun cs => TreePos._sizeOf_5 cs = sizeOf cs)
     rfl
-    (fun h t ih₁ ih₂ => by
+    (fun h t ih => by
       show 1 + TreePos._sizeOf_2 h + TreePos._sizeOf_5 t = sizeOf (h::t)
-      rw ih₂
+      rw ih
       rfl)
-    trivial
-    (fun _ _ ih₁ ih₂ => trivial)
     cs
 
 theorem aux_4 [SizeOf α] [SizeOf β] (cs : List (List (TreeNeg α β))) : TreePos._sizeOf_3 cs = sizeOf cs :=
-  @TreePos.rec_1 α β (fun _ => True) (fun _ => True) (fun cs => TreePos._sizeOf_3 cs = sizeOf cs) (fun _ => True) (fun _ => True) (fun _ => True)
-    (fun a => trivial)
-    (fun _ ih => trivial)
-    (fun b => trivial)
-    (fun _ ih => trivial)
+  @List.rec (List (TreeNeg α β)) (fun cs => TreePos._sizeOf_3 cs = sizeOf cs)
     rfl
-    (fun h t ih₁ ih₂ => by
+    (fun h t ih => by
       show 1 + TreePos._sizeOf_5 h + TreePos._sizeOf_3 t = sizeOf (h :: t)
-      rw ih₂
+      rw ih
       rw aux_3
       rfl)
-    trivial
-    (fun _ _ ih₁ ih₂ => trivial)
-    trivial
-    (fun _ _ ih₁ ih₂ => trivial)
-    trivial
-    (fun _ _ ih₁ ih₂ => trivial)
     cs
 
 theorem TreePos.leaf.sizeOf_spec [SizeOf α] [SizeOf β] (a : α) : sizeOf (TreePos.leaf (β := β) a) = 1 + sizeOf a :=

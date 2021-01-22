@@ -2,10 +2,16 @@
 
 set -euo pipefail
 
-target=".#lean"
-args=(-- "$@")
+root="."
+# find package root
+while [[ "$root" != / ]]; do
+    [ -f "$root/flake.nix" ] && break
+    root="$(realpath "$root/..")"
+done
 # fall back to initial package if not in package
-[[ ! -f flake.nix ]] && target="@srcRoot@"
+[[ ! -f "$root/flake.nix" ]] && root="@srcRoot@"
+target="$root#lean"
+args=(-- "$@")
 # HACK: use stage 0 instead of 1 inside Lean's own `src/`
 [[ -d Lean && -f ../flake.nix ]] && target="@srcTarget@" && args=@srcArgs@
 

@@ -64,7 +64,7 @@ to create a new Lean package in directory `mypkg` using the latest commit of Lea
 The Lean package comes with a package root file `MyPackage.lean` and a `flake.nix` set up so you can run Nix commands on it, for example:
 ```bash
 $ nix build  # build package and all dependencies
-$ nix build .#executable  # compile `main` definition into executable
+$ nix build .#executable  # compile `main` definition into executable (after you've added one)
 $ nix run .#emacs-dev  # open a pinned version of Emacs with lean4-mode fully set up
 $ nix run .#emacs-dev MyPackage.lean  # arguments can be passed as well, e.g. the file to open
 $ nix run .#vscode-dev MyPackage.lean  # ditto, using VS Code

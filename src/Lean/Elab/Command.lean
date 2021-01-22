@@ -21,7 +21,10 @@ structure Scope where
   currNamespace : Name := Name.anonymous
   openDecls     : List OpenDecl := []
   levelNames    : List Name := []
+  /-- section variables as `bracketedBinder`s -/
   varDecls      : Array Syntax := #[]
+  /-- Globally unique internal identifiers for the `varDecls` -/
+  varUIds       : Array Name := #[]
   deriving Inhabited
 
 structure State where
@@ -253,13 +256,24 @@ private def mkMetaContext : Meta.Context := {
   config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true }
 }
 
-private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context :=
+def getBracketedBinderIds : Syntax → Array Name
+  | `(bracketedBinder|($ids* $[: $ty?]? $(annot?)?)) => ids.map Syntax.getId
+  | `(bracketedBinder|{$ids* $[: $ty?]?})            => ids.map Syntax.getId
+  | `(bracketedBinder|[$id : $ty])                   => #[id.getId]
+  | `(bracketedBinder|[$ty])                         => #[]
+  | _                                                => unreachable!
+
+private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context := do
   let scope      := s.scopes.head!
+  let mut sectionVars := {}
+  for id in scope.varDecls.concatMap getBracketedBinderIds, uid in scope.varUIds do
+    sectionVars := sectionVars.insert id uid
   { macroStack     := ctx.macroStack
     fileName       := ctx.fileName
     fileMap        := ctx.fileMap
     currMacroScope := ctx.currMacroScope
-    declName?      := declName? }
+    declName?      := declName?
+    sectionVars    := sectionVars }
 
 private def mkTermState (scope : Scope) (s : State) : Term.State := {
   messages          := {}
@@ -302,15 +316,19 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
   | Except.error ex => throw ex
 
 @[inline] def runTermElabM {α} (declName? : Option Name) (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
-  let s ← get
+  let scope ← getScope
   liftTermElabM declName? <|
     -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
     -- So, we use `Term.resetMessageLog`.
     Term.withAutoBoundImplicitLocal <|
-      Term.elabBinders (getVarDecls s) (catchAutoBoundImplicit := true) fun xs => do
-        Term.resetMessageLog
-        let xs ← Term.addAutoBoundImplicits xs
-        Term.withAutoBoundImplicitLocal (flag := false) <| elabFn xs
+      Term.elabBinders scope.varDecls (catchAutoBoundImplicit := true) fun xs => do
+        let mut sectionFVars := {}
+        for uid in scope.varUIds, x in xs do
+          sectionFVars := sectionFVars.insert uid x
+        withReader ({ · with sectionFVars := sectionFVars }) do
+          Term.resetMessageLog
+          let xs ← Term.addAutoBoundImplicits xs
+          Term.withAutoBoundImplicitLocal (flag := false) <| elabFn xs
 
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit := fun ctx ref =>
   EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
@@ -530,7 +548,8 @@ def elabOpenRenaming (n : SyntaxNode) : CommandElabM Unit := do
     -- Try to elaborate `binders` for sanity checking
     runTermElabM none fun _ => Term.withAutoBoundImplicitLocal <|
       Term.elabBinders binders (catchAutoBoundImplicit := true) fun _ => pure ()
-    modifyScope fun scope => { scope with varDecls := scope.varDecls ++ binders }
+    let varUIds ← binders.concatMap getBracketedBinderIds |>.mapM (withFreshMacroScope ∘ MonadQuotation.addMacroScope)
+    modifyScope fun scope => { scope with varDecls := scope.varDecls ++ binders, varUIds := scope.varUIds ++ varUIds }
   | _ => throwUnsupportedSyntax
 
 open Meta

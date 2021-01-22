@@ -1,0 +1,6 @@
+id x : α
+id x✝ : α
+255.lean:16:7-16:8: error: unknown constant 'x✝'
+id (sorryAx ?m) : ?m
+255.lean:20:9-20:10: error: unknown constant 'x✝'
+id (sorryAx ?m) : ?m

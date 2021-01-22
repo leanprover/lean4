@@ -41,13 +41,29 @@ partial def mkTuple : Array Syntax → TermElabM Syntax
     let stx ← mkTuple (es.eraseIdx 0)
     `(Prod.mk $(es[0]) $stx)
 
+def resolveSectionVariable (sectionVars : NameMap Name) (id : Name) : List (Name × List String) :=
+  -- decode macro scopes from name before recursion
+  let extractionResult := extractMacroScopes id
+  let rec loop : Name → List String → List (Name × List String)
+    | id@(Name.str p s _), projs =>
+      -- NOTE: we assume that macro scopes always belong to the projected constant, not the projections
+      let id := { extractionResult with name := id }.review
+      match sectionVars.find? id with
+      | some newId => [(newId, projs)]
+      | none       => loop p (s::projs)
+    | _, _ => []
+  loop extractionResult.name []
+
 -- Elaborate the content of a syntax quotation term
 private partial def quoteSyntax : Syntax → TermElabM Syntax
   | Syntax.ident info rawVal val preresolved => do
     -- Add global scopes at compilation time (now), add macro scope at runtime (in the quotation).
     -- See the paper for details.
     let r ← resolveGlobalName val
-    let preresolved := r ++ preresolved
+    -- extension of the paper algorithm: also store unique section variable names as top-level scopes
+    -- so they can be captured and used inside the section, but not outside
+    let r' := resolveSectionVariable (← read).sectionVars val
+    let preresolved := r ++ r' ++ preresolved
     let val := quote val
     -- `scp` is bound in stxQuot.expand
     `(Syntax.ident info $(quote rawVal) (addMacroScope mainModule $val scp) $(quote preresolved))

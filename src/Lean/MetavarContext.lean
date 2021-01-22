@@ -109,7 +109,7 @@ https://github.com/leanprover/lean/blob/92826917a252a6092cffaf5fc5f1acb1f8cef379
 - When creating lambda/forall expressions, we need to convert/abstract
 free variables and convert them to bound variables. Now, suppose we a
 trying to create a lambda/forall expression by abstracting free
-variables `xs` and a term `t[?m]` which contains a metavariable `?m`,
+variable `xs` and a term `t[?m]` which contains a metavariable `?m`,
 and the local context of `?m` contains `xs`. The term
 ```
 fun xs => t[?m]

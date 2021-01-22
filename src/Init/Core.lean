@@ -205,7 +205,7 @@ infix:50 " ≠ "  => Ne
 
 section Ne
 variable {α : Sort u}
-variables {a b : α} {p : Prop}
+variable {a b : α} {p : Prop}
 
 theorem Ne.intro (h : a = b → False) : a ≠ b := h
 
@@ -232,7 +232,7 @@ theorem trueNeFalse : ¬True = False :=
 end Ne
 
 section
-variables {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
+variable {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
 
 theorem HEq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} (m : motive a) {β : Sort u2} {b : β} (h : a ≅ b) : motive b :=
   @HEq.rec α a (fun b _ => motive b) m β b h
@@ -278,7 +278,7 @@ theorem heqOfEqRecEq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ :
 theorem castHEq : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≅ a
   | α, _, rfl, a => HEq.refl a
 
-variables {a b c d : Prop}
+variable {a b c d : Prop}
 
 theorem iffIffImpliesAndImplies (a b : Prop) : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
   Iff.intro (fun h => And.intro h.mp h.mpr) (fun h => Iff.intro h.left h.right)
@@ -338,7 +338,7 @@ instance : Decidable False :=
   isFalse notFalse
 
 namespace Decidable
-variables {p q : Prop}
+variable {p q : Prop}
 
 @[macroInline] def byCases {q : Sort u} [dec : Decidable p] (h1 : p → q) (h2 : ¬p → q) : q :=
   match dec with
@@ -367,7 +367,7 @@ theorem notAndIffOrNot (p q : Prop) [d₁ : Decidable p] [d₂ : Decidable q] : 
 end Decidable
 
 section
-variables {p q : Prop}
+variable {p q : Prop}
 @[inline] def  decidableOfDecidableOfIff (hp : Decidable p) (h : p ↔ q) : Decidable q :=
   if hp : p then
     isTrue (Iff.mp h hp)
@@ -515,7 +515,7 @@ namespace Subtype
 def existsOfSubtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (fun x => p x)
   | ⟨a, h⟩ => ⟨a, h⟩
 
-variables {α : Type u} {p : α → Prop}
+variable {α : Type u} {p : α → Prop}
 
 protected theorem eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
   | ⟨x, h1⟩, ⟨_, _⟩, rfl => rfl
@@ -537,7 +537,7 @@ end Subtype
 /- Sum -/
 
 section
-variables {α : Type u} {β : Type v}
+variable {α : Type u} {β : Type v}
 
 instance Sum.inhabitedLeft [h : Inhabited α] : Inhabited (Sum α β) where
   default := Sum.inl arbitrary
@@ -561,7 +561,7 @@ end
 /- Product -/
 
 section
-variables {α : Type u} {β : Type v}
+variable {α : Type u} {β : Type v}
 
 instance [Inhabited α] [Inhabited β] : Inhabited (α × β) where
   default := (arbitrary, arbitrary)
@@ -634,7 +634,7 @@ instance {α : Sort u} [Setoid α] : HasEquiv α :=
 
 namespace Setoid
 
-variables {α : Sort u} [Setoid α]
+variable {α : Sort u} [Setoid α]
 
 theorem refl (a : α) : a ≈ a :=
   (Setoid.iseqv α).refl a
@@ -810,8 +810,8 @@ end
 
 section
 universes uA uB uC
-variables {α : Sort uA} {β : Sort uB} {φ : Sort uC}
-variables [s₁ : Setoid α] [s₂ : Setoid β]
+variable {α : Sort uA} {β : Sort uB} {φ : Sort uC}
+variable [s₁ : Setoid α] [s₂ : Setoid β]
 
 protected abbrev lift₂
     (f : α → β → φ)
@@ -891,8 +891,8 @@ end Exact
 
 section
 universes uA uB uC
-variables {α : Sort uA} {β : Sort uB}
-variables [s₁ : Setoid α] [s₂ : Setoid β]
+variable {α : Sort uA} {β : Sort uB}
+variable [s₁ : Setoid α] [s₂ : Setoid β]
 
 protected abbrev recOnSubsingleton₂
     {motive : Quotient s₁ → Quotient s₂ → Sort uC}
@@ -926,7 +926,7 @@ instance {α : Sort u} {s : Setoid α} [d : ∀ (a b : α), Decidable (a ≈ b)]
 /- Function extensionality -/
 
 namespace Function
-variables {α : Sort u} {β : α → Sort v}
+variable {α : Sort u} {β : α → Sort v}
 
 def Equiv (f₁ f₂ : ∀ (x : α), β x) : Prop := ∀ x, f₁ x = f₂ x
 
@@ -949,7 +949,7 @@ end Function
 
 section
 open Quotient
-variables {α : Sort u} {β : α → Sort v}
+variable {α : Sort u} {β : α → Sort v}
 
 @[instance]
 private def funSetoid (α : Sort u) (β : α → Sort v) : Setoid (∀ (x : α), β x) :=

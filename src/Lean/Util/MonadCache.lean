@@ -56,7 +56,7 @@ def MonadCacheT {ω} (α β : Type) (m : Type → Type) [STWorld ω m] [BEq α] 
 
 namespace MonadCacheT
 
-variables {ω α β : Type} {m : Type → Type} [STWorld ω m] [BEq α] [Hashable α] [MonadLiftT (ST ω) m] [Monad m]
+variable {ω α β : Type} {m : Type → Type} [STWorld ω m] [BEq α] [Hashable α] [MonadLiftT (ST ω) m] [Monad m]
 
 instance  : MonadHashMapCacheAdapter α β (MonadCacheT α β m) where
   getCache := (get : StateRefT' ..)
@@ -79,7 +79,7 @@ def MonadStateCacheT (α β : Type) (m : Type → Type) [BEq α] [Hashable α] :
 
 namespace MonadStateCacheT
 
-variables {ω α β : Type} {m : Type → Type} [STWorld ω m] [BEq α] [Hashable α] [MonadLiftT (ST ω) m] [Monad m]
+variable {ω α β : Type} {m : Type → Type} [STWorld ω m] [BEq α] [Hashable α] [MonadLiftT (ST ω) m] [Monad m]
 
 instance  : MonadHashMapCacheAdapter α β (MonadStateCacheT α β m) where
   getCache := (get : StateT ..)

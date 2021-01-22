@@ -186,7 +186,7 @@ def fopenFlags (m : FS.Mode) (b : Bool) : String :=
 end Prim
 
 namespace FS
-variables [Monad m] [MonadLiftT IO m]
+variable [Monad m] [MonadLiftT IO m]
 
 def Handle.mk (s : String) (Mode : Mode) (bin : Bool := true) : m Handle :=
   liftM (Prim.Handle.mk s (Prim.fopenFlags Mode bin))
@@ -269,7 +269,7 @@ end Stream
 end FS
 
 section
-variables [Monad m] [MonadLiftT IO m]
+variable [Monad m] [MonadLiftT IO m]
 
 def getStdin : m FS.Stream := liftM Prim.getStdin
 def getStdout : m FS.Stream := liftM Prim.getStdout

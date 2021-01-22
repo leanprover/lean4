@@ -13,7 +13,7 @@ namespace List
 /- The following functions can't be defined at `init.data.list.basic`, because they depend on `init.util`,
    and `init.util` depends on `init.data.list.basic`. -/
 
-variables {α : Type u}
+variable {α : Type u}
 
 def get! [Inhabited α] : Nat → List α → α
   | 0,   a::as => a

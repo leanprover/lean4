@@ -13,7 +13,7 @@ may visit the same expression multiple times if they are stored in different mem
 addresses. Note that the following code is parametric in a monad `m`.
 -/
 
-variables {ω : Type} {m : Type → Type} [STWorld ω m] [MonadLiftT (ST ω) m] [Monad m]
+variable {ω : Type} {m : Type → Type} [STWorld ω m] [MonadLiftT (ST ω) m] [Monad m]
 namespace ForEachExpr
 @[specialize] partial def visit (g : Expr → m Bool) (e : Expr) : MonadCacheT Expr Unit m Unit :=
   checkCache e fun _ => do

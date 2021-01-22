@@ -11,7 +11,7 @@ universes u v
 
 namespace EStateM
 
-variables {ε σ α : Type u}
+variable {ε σ α : Type u}
 
 instance [ToString ε] [ToString α] : ToString (Result ε σ α) where
   toString
@@ -27,7 +27,7 @@ end EStateM
 
 namespace EStateM
 
-variables {ε σ α β : Type u}
+variable {ε σ α β : Type u}
 
 /-- Alternative orElse operator that allows to select which exception should be used.
     The default is to use the first exception since the standard `orElse` uses the second. -/

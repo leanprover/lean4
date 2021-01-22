@@ -97,7 +97,7 @@ def Ref.modifyGet {σ α β : Type} (r : Ref σ α) (f : α → β × α) : ST �
 end Prim
 
 section
-variables {σ : Type} {m : Type → Type} [Monad m] [MonadLiftT (ST σ) m]
+variable {σ : Type} {m : Type → Type} [Monad m] [MonadLiftT (ST σ) m]
 
 @[inline] def mkRef {α : Type} (a : α) : m (Ref σ α) :=  liftM <| Prim.mkRef a
 @[inline] def Ref.get {α : Type} (r : Ref σ α) : m α := liftM <| Prim.Ref.get r

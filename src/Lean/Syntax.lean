@@ -297,7 +297,7 @@ class MonadTraverser (m : Type → Type) where
 
 namespace MonadTraverser
 
-variables {m : Type → Type} [Monad m] [t : MonadTraverser m]
+variable {m : Type → Type} [Monad m] [t : MonadTraverser m]
 
 def getCur : m Syntax := Traverser.cur <$> t.st.get
 def setCur (stx : Syntax) : m Unit := @modify _ _ t.st (fun t => t.setCur stx)

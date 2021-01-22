@@ -42,7 +42,7 @@ instance (m n) [MonadLift m n] [MonadTrace m] : MonadTrace n where
   modifyTraceState := fun f => liftM (modifyTraceState f : m _)
   getTraceState    := liftM (getTraceState : m _)
 
-variables {α : Type} {m : Type → Type} [Monad m] [MonadTrace m]
+variable {α : Type} {m : Type → Type} [Monad m] [MonadTrace m]
 
 def printTraces {m} [Monad m] [MonadTrace m] [MonadLiftT IO m] : m Unit := do
   let traceState ← getTraceState
@@ -100,7 +100,7 @@ private def getResetTraces : m (PersistentArray TraceElem) := do
   pure oldTraces
 
 section
-variables [MonadRef m] [AddMessageContext m] [MonadOptions m]
+variable [MonadRef m] [AddMessageContext m] [MonadOptions m]
 
 def addTrace (cls : Name) (msg : MessageData) : m Unit := do
   let ref ← getRef
@@ -147,7 +147,7 @@ macro_rules
     else
       `(Lean.trace $(quote id.getId) fun _ => ($s : MessageData))
 
-variables {α : Type} {m : Type → Type} [Monad m] [MonadTrace m] [MonadOptions m] [MonadRef m]
+variable {α : Type} {m : Type → Type} [Monad m] [MonadTrace m] [MonadOptions m] [MonadRef m]
 
 def withNestedTraces [MonadFinally m] (x : m α) : m α := do
   let s ← getTraceState

@@ -105,7 +105,7 @@ export MonadOptions (getOptions)
 instance (m n) [MonadLift m n] [MonadOptions m] : MonadOptions n where
   getOptions := liftM (getOptions : m _)
 
-variables {m} [Monad m] [MonadOptions m]
+variable {m} [Monad m] [MonadOptions m]
 
 def getBoolOption (k : Name) (defValue := false) : m Bool := do
   let opts ← getOptions

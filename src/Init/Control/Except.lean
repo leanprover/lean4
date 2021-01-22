@@ -12,7 +12,7 @@ import Init.Control.Id
 universes u v w u'
 
 namespace Except
-variables {ε : Type u}
+variable {ε : Type u}
 
 @[inline] protected def pure {α : Type v} (a : α) : Except ε α :=
   Except.ok a
@@ -58,7 +58,7 @@ def ExceptT (ε : Type u) (m : Type u → Type v) (α : Type u) : Type v :=
 
 namespace ExceptT
 
-variables {ε : Type u} {m : Type u → Type v} [Monad m]
+variable {ε : Type u} {m : Type u → Type v} [Monad m]
 
 @[inline] protected def pure {α : Type u} (a : α) : ExceptT ε m α :=
   ExceptT.mk <| pure (Except.ok a)
@@ -114,7 +114,7 @@ instance (ε) : MonadExceptOf ε (Except ε) where
   tryCatch := Except.tryCatch
 
 namespace MonadExcept
-variables {ε : Type u} {m : Type v → Type w}
+variable {ε : Type u} {m : Type v → Type w}
 
 /-- Alternative orelse operator that allows to select which exception should be used.
     The default is to use the first exception since the standard `orelse` uses the second. -/

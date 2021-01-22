@@ -16,7 +16,7 @@ inductive Trie (α : Type) where
   | Node : Option α → RBNode Char (fun _ => Trie α) → Trie α
 
 namespace Trie
-variables {α : Type}
+variable {α : Type}
 
 def empty : Trie α :=
   ⟨none, RBNode.leaf⟩

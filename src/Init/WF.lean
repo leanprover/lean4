@@ -26,7 +26,7 @@ abbrev Acc.ndrecOn.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → 
 Acc.rec (motive := fun α _ => C α) m n
 
 namespace Acc
-variables {α : Sort u} {r : α → α → Prop}
+variable {α : Sort u} {r : α → α → Prop}
 
 def inv {x y : α} (h₁ : Acc r x) (h₂ : r y x) : Acc r y :=
 Acc.recOn (motive := fun (x : α) _ => r y x → Acc r y)
@@ -47,7 +47,7 @@ def apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) :
     wf (fun p => p) a
 
 section
-variables {α : Sort u} {r : α → α → Prop} (hwf : WellFounded r)
+variable {α : Sort u} {r : α → α → Prop} (hwf : WellFounded r)
 
 theorem recursion {C : α → Sort v} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a := by
   induction (apply hwf a) with
@@ -69,7 +69,7 @@ def fixFEq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p : r y 
 
 end
 
-variables {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
+variable {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
 
 -- Well-founded fixpoint
 def fix (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) : C x :=
@@ -93,7 +93,7 @@ def emptyWf {α : Sort u} : WellFounded (@emptyRelation α) := by
 
 -- Subrelation of a well-founded relation is well-founded
 namespace Subrelation
-variables {α : Sort u} {r q : α → α → Prop}
+variable {α : Sort u} {r q : α → α → Prop}
 
 def accessible {a : α} (h₁ : Subrelation q r) (ac : Acc r a) : Acc q a := by
   induction ac with
@@ -108,7 +108,7 @@ end Subrelation
 
 -- The inverse image of a well-founded relation is well-founded
 namespace InvImage
-variables {α : Sort u} {β : Sort v} {r : β → β → Prop}
+variable {α : Sort u} {β : Sort v} {r : β → β → Prop}
 
 private def accAux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = b → Acc (InvImage r f) x := by
   induction ac with
@@ -128,7 +128,7 @@ end InvImage
 
 -- The transitive closure of a well-founded relation is well-founded
 namespace TC
-variables {α : Sort u} {r : α → α → Prop}
+variable {α : Sort u} {r : α → α → Prop}
 
 def accessible {z : α} (ac : Acc r z) : Acc (TC r) z := by
   induction ac with
@@ -180,7 +180,7 @@ namespace Prod
 open WellFounded
 
 section
-variables {α : Type u} {β : Type v}
+variable {α : Type u} {β : Type v}
 variable  (ra  : α → α → Prop)
 variable  (rb  : β → β → Prop)
 
@@ -196,8 +196,8 @@ end
 
 section
 
-variables {α : Type u} {β : Type v}
-variables {ra  : α → α → Prop} {rb  : β → β → Prop}
+variable {α : Type u} {β : Type v}
+variable {ra  : α → α → Prop} {rb  : β → β → Prop}
 
 def lexAccessible (aca : (a : α) → Acc ra a) (acb : (b : β) → Acc rb b) (a : α) (b : β) : Acc (Lex ra rb) (a, b) := by
   induction (aca a) generalizing b with
@@ -235,7 +235,7 @@ end Prod
 
 namespace PSigma
 section
-variables {α : Sort u} {β : α → Sort v}
+variable {α : Sort u} {β : α → Sort v}
 variable  (r  : α → α → Prop)
 variable  (s  : ∀ a, β a → β a → Prop)
 
@@ -246,8 +246,8 @@ inductive Lex : PSigma β → PSigma β → Prop where
 end
 
 section
-variables {α : Sort u} {β : α → Sort v}
-variables {r  : α → α → Prop} {s : ∀ (a : α), β a → β a → Prop}
+variable {α : Sort u} {β : α → Sort v}
+variable {r  : α → α → Prop} {s : ∀ (a : α), β a → β a → Prop}
 
 def lexAccessible {a} (aca : Acc r a) (acb : (a : α) → WellFounded (s a)) (b : β a) : Acc (Lex r s) ⟨a, b⟩ := by
   induction aca generalizing b with
@@ -266,7 +266,7 @@ def lexWf (ha : WellFounded r) (hb : (x : α) → WellFounded (s x)) : WellFound
 end
 
 section
-variables {α : Sort u} {β : Sort v}
+variable {α : Sort u} {β : Sort v}
 
 def lexNdep (r : α → α → Prop) (s : β → β → Prop) :=
   Lex r (fun a => s)
@@ -276,7 +276,7 @@ def lexNdepWf {r  : α → α → Prop} {s : β → β → Prop} (ha : WellFound
 end
 
 section
-variables {α : Sort u} {β : Sort v}
+variable {α : Sort u} {β : Sort v}
 
 -- Reverse lexicographical order based on r and s
 inductive RevLex (r  : α → α → Prop) (s  : β → β → Prop) : @PSigma α (fun a => β) → @PSigma α (fun a => β) → Prop where
@@ -286,8 +286,8 @@ end
 
 section
 open WellFounded
-variables {α : Sort u} {β : Sort v}
-variables {r  : α → α → Prop} {s : β → β → Prop}
+variable {α : Sort u} {β : Sort v}
+variable {r  : α → α → Prop} {s : β → β → Prop}
 
 def revLexAccessible {b} (acb : Acc s b) (aca : (a : α) → Acc r a): (a : α) → Acc (RevLex r s) ⟨a, b⟩ := by
   induction acb with

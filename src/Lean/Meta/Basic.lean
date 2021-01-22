@@ -157,7 +157,7 @@ builtin_initialize
   controlAt MetaM fun runInBase => f fun b c => runInBase $ k b c
 
 section Methods
-variables {n : Type → Type} [MonadControlT MetaM n] [Monad n]
+variable {n : Type → Type} [MonadControlT MetaM n] [Monad n]
 
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances

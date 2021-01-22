@@ -16,7 +16,7 @@ structure DList (α : Type u) where
   invariant : ∀ l, apply l = apply [] ++ l
 
 namespace DList
-variables {α : Type u}
+variable {α : Type u}
 open List
 
 def ofList (l : List α) : DList α :=

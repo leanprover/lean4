@@ -24,7 +24,7 @@ def StateRefT' (ω : Type) (σ : Type) (m : Type → Type) (α : Type) : Type :=
   pure a
 
 namespace StateRefT'
-variables {ω σ : Type} {m : Type → Type} {α : Type}
+variable {ω σ : Type} {m : Type → Type} {α : Type}
 
 @[inline] protected def lift (x : m α) : StateRefT' ω σ m α :=
   fun _ => x

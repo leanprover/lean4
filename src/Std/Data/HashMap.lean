@@ -26,7 +26,7 @@ def mkHashMapImp {α : Type u} {β : Type v} (nbuckets := 8) : HashMapImp α β 
       by rw [Array.sizeMkArrayEq]; cases nbuckets; decide!; apply Nat.zeroLtSucc; done ⟩ }
 
 namespace HashMapImp
-variables {α : Type u} {β : Type v}
+variable {α : Type u} {β : Type v}
 
 def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
   ⟨u % n, USize.modnLt _ h⟩
@@ -122,7 +122,7 @@ def mkHashMap {α : Type u} {β : Type v} [BEq α] [Hashable α] (nbuckets := 8)
   ⟨ mkHashMapImp nbuckets, WellFormed.mkWff nbuckets ⟩
 
 namespace HashMap
-variables {α : Type u} {β : Type v} [BEq α] [Hashable α]
+variable {α : Type u} {β : Type v} [BEq α] [Hashable α]
 
 instance : Inhabited (HashMap α β) where
   default := mkHashMap

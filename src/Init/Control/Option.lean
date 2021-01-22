@@ -19,7 +19,7 @@ def OptionT (m : Type u → Type v) (α : Type u) : Type v :=
   x
 
 namespace OptionT
-variables {m : Type u → Type v} [Monad m] {α β : Type u}
+variable {m : Type u → Type v} [Monad m] {α β : Type u}
 
 @[inline] protected def bind (x : OptionT m α) (f : α → OptionT m β) : OptionT m β := id (α := m (Option β)) do
   match (← x) with

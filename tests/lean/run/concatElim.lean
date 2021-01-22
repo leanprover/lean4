@@ -14,7 +14,7 @@ def dropLast {α} : List α → List α
   | [a]   => []
   | a::as => a :: dropLast as
 
-variables {α}
+variable {α}
 
 theorem concatEq (xs : List α) (h : xs ≠ []) : concat (dropLast xs) (last xs h) = xs := by
   match xs, h with

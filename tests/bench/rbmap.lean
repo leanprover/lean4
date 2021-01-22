@@ -19,7 +19,7 @@ inductive Tree
 | Leaf  {}                                                                       : Tree
 | Node  (color : color) (lchild : Tree) (key : Nat) (val : Bool) (rchild : Tree) : Tree
 
-variables {σ : Type w}
+variable {σ : Type w}
 open color Nat Tree
 
 def fold (f : Nat → Bool → σ → σ) : Tree → σ → σ

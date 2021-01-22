@@ -13,7 +13,7 @@ attribute [instance] B.mk B.Mul B.HasMulComm
 example [A α] [HasMulComm α] : B α := inferInstance
 
 section
-variables [A α] [HasMulComm α]
+variable [A α] [HasMulComm α]
 
 example : B α := by exact inferInstance
 

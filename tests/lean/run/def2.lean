@@ -7,8 +7,8 @@ inductive Vec.{u} (α : Type u) : Nat → Type u
 open Vec
 universes u
 
-variables {α : Type u}
-variables (f : α → α → α)
+variable {α : Type u}
+variable (f : α → α → α)
 
 def mapHead1 : {n : Nat} → Vec α n → Vec α n → Vec α n
 | _, nil, nil => nil

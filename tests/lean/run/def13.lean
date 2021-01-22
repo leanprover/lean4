@@ -1,4 +1,4 @@
-variables {α} (p : α → Prop) [DecidablePred p]
+variable {α} (p : α → Prop) [DecidablePred p]
 
 def filter : List α → List α
 | []    => []

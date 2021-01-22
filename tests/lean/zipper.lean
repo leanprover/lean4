@@ -3,7 +3,7 @@ structure ListZipper (α : Type) :=
 
 -- set_option trace.compiler.ir.rc true
 
-variables {α : Type}
+variable {α : Type}
 
 namespace ListZipper
 

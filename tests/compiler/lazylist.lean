@@ -17,7 +17,7 @@ def List.toLazy {α : Type u} : List α → LazyList α
 | h::t   => LazyList.cons h (toLazy t)
 
 namespace LazyList
-variables {α : Type u} {β : Type v} {δ : Type w}
+variable {α : Type u} {β : Type v} {δ : Type w}
 
 instance : Inhabited (LazyList α) :=
 ⟨nil⟩

@@ -1,6 +1,6 @@
 
 
-variables {α : Type} in
+variable {α : Type} in
 def f (a : α) : List α :=
 _
 

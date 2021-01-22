@@ -2,7 +2,7 @@ def f1 {α} [ToString α] (a : α) : String := -- works
 ">> " ++ toString a
 
 -- Moving `{α} [ToString α]` to a `variables` break the example
-variables {α} [ToString α]
+variable {α} [ToString α]
 def f2 (a : α) : String :=
 ">> " ++ toString a
 
@@ -11,7 +11,7 @@ class Dummy (α : Type) := (val : α)
 /- The following fails because `variables {α : Type _} [Dummy α]` is processed as `variable {α : Type _} variable [Dummy α]`
    The first command elaborates `α` as `variable {α : Type u_1}` where `u_1` is a fresh metavariable.
    That is, in Lean3, metavariables are resolved before the end of the command. -/
-variables {α : Type _} [Dummy α]
+variable {α : Type _} [Dummy α]
 
 def f3 {α : Type _} [Dummy α] : α := -- works
 Dummy.val α

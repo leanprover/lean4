@@ -3,7 +3,7 @@ def f (x x : Nat) :=
   | 0          => x + 1
   | Nat.succ _ => x + 2
 
-variables {α : Type}
+variable {α : Type}
 
 #check fun (a : α) => a
 

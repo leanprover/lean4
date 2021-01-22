@@ -23,7 +23,7 @@ def f (x : Nat) (g : Nat → Nat) := g x
 #check 0 = have Nat from 1; this
 #check 0 = let x := 0; x
 
-variables (p q r : Prop)
+variable (p q r : Prop)
 macro_rules | `(¬ $p) => `(Not $p)
 
 #check p ↔ ¬ q

@@ -1,4 +1,4 @@
-variables {a b c : Prop}
+variable {a b c : Prop}
 
 theorem ex1 (Ha : a) (Hab : a → b) (Hbc : b → c) : c :=
   suffices b from Hbc this

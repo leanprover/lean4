@@ -7,7 +7,7 @@ def small (ps : Array (Nat × Nat)) : Array (Nat × Nat) :=
 
 #eval small #[(1, 2), (0, 3), (2, 4)]
 
-variables {α β : Type} [Inhabited α] [Inhabited β]
+variable {α β : Type} [Inhabited α] [Inhabited β]
 
 def P (xys : Array (α × β)) (f : α → β) : Prop := True
 

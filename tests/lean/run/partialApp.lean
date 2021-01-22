@@ -26,7 +26,7 @@ match b? with
 | none   => a + c
 | some b => a + b + c
 
-variables {α} [Add α]
+variable {α} [Add α]
 
 theorem ex7 : g = fun (a c : α) => a + c :=
 rfl

@@ -6,7 +6,7 @@ fun x => x
 
 #check @f
 
-variables {α : Type} {β : Type} in
+variable {α : Type} {β : Type} in
 variable (h : α → α) in
 set_option pp.raw.maxDepth 1000 in
 def g : α → β → α :=

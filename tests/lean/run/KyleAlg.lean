@@ -112,21 +112,21 @@ class IntegralDomain (α : Type u) extends CommRing α, Domain α
 attribute [instance] IntegralDomain.mk
 
 section test1
-variables (α : Type u) [h : CommMonoid α]
+variable (α : Type u) [h : CommMonoid α]
 example : Semigroup α := inferInstance
 example : Monoid α := inferInstance
 example : CommSemigroup α := inferInstance
 end test1
 
 section test2
-variables (β : Type u) [CommSemigroup β] [One β] [OneUnit β]
+variable (β : Type u) [CommSemigroup β] [One β] [OneUnit β]
 example : Monoid β := inferInstance
 example : CommMonoid β := inferInstance
 example : Semigroup β := inferInstance
 end test2
 
 section test3
-variables (β : Type u) [Mul β] [One β] [MulAssoc β] [OneUnit β]
+variable (β : Type u) [Mul β] [One β] [MulAssoc β] [OneUnit β]
 example : Monoid β := inferInstance
 example : Semigroup β := inferInstance
 end test3

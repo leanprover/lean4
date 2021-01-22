@@ -659,7 +659,7 @@ instance recParserLift (α ρ : Type) [ParserFnLift ρ] : ParserFnLift (RecParse
 inferInstanceAs (ParserFnLift (EnvParserFn (α → ρ) ρ))
 
 namespace RecParserFn
-variables {α ρ : Type}
+variable {α ρ : Type}
 
 @[inline] def recurse (a : α) : RecParserFn α ρ :=
 λ p, p a

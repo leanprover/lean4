@@ -66,8 +66,7 @@ declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» 
 @[builtinCommandParser] def «section»      := parser! "section " >> optional ident
 @[builtinCommandParser] def «namespace»    := parser! "namespace " >> ident
 @[builtinCommandParser] def «end»          := parser! "end " >> optional ident
-@[builtinCommandParser] def «variable»     := parser! "variable" >> Term.bracketedBinder
-@[builtinCommandParser] def «variables»    := parser! "variables" >> many1 Term.bracketedBinder
+@[builtinCommandParser] def «variable»     := parser! "variable" >> many1 Term.bracketedBinder
 @[builtinCommandParser] def «universe»     := parser! "universe " >> ident
 @[builtinCommandParser] def «universes»    := parser! "universes " >> many1 ident
 @[builtinCommandParser] def check          := parser! "#check " >> termParser

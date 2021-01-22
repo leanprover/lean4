@@ -55,7 +55,7 @@ def S (σ : Type) (m : Type → Type) (α : Type) :=
 σ → m (α × σ)
 
 namespace S
-variables {σ : Type} {m : Type → Type} [Monad m] {α : Type}
+variable {σ : Type} {m : Type → Type} [Monad m] {α : Type}
 
 protected def pure (a : α) : S σ m α :=
 fun s => pure (a, s) -- This `pure` is the top-level one. The `pure` being defined here is called `S.pure`.

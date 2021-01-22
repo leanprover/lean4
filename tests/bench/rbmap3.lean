@@ -16,7 +16,7 @@ instance Rbcolor.DecidableEq : DecidableEq Rbcolor :=
   (Rbcolor.casesOn b (isFalse (fun h => Rbcolor.noConfusion h)) (isTrue rfl))}
 
 namespace Rbnode
-variables {α : Type u} {β : α → Type v} {σ : Type w}
+variable {α : Type u} {β : α → Type v} {σ : Type w}
 
 open Rbcolor
 
@@ -114,7 +114,7 @@ def setBlack : Rbnode α β → Rbnode α β
 | n                  => n
 
 section insert
-variables (lt : α → α → Prop) [DecidableRel lt]
+variable (lt : α → α → Prop) [DecidableRel lt]
 
 def ins (x : α) (vx : β x) : Rbnode α β → Rbnode α β
 | leaf             => Node red leaf x vx leaf
@@ -176,7 +176,7 @@ def Rbmap (α : Type u) (β : Type v) (lt : α → α → Prop) : Type (max u v)
 ⟨leaf, WellFormed.leafWff lt⟩
 
 namespace Rbmap
-variables {α : Type u} {β : Type v} {σ : Type w} {lt : α → α → Prop}
+variable {α : Type u} {β : Type v} {σ : Type w} {lt : α → α → Prop}
 
 def depth (f : Nat → Nat → Nat) (t : Rbmap α β lt) : Nat :=
 t.val.depth f
@@ -209,7 +209,7 @@ t.val.depth f
 instance [Repr α] [Repr β] : Repr (Rbmap α β lt) :=
 ⟨fun t => "rbmapOf " ++ repr t.toList⟩
 
-variables [DecidableRel lt]
+variable [DecidableRel lt]
 
 def insert : Rbmap α β lt → α → β → Rbmap α β lt
 | ⟨t, w⟩,   k, v => ⟨t.insert lt k v, WellFormed.insertWff w rfl⟩

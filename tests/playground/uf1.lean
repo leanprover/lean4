@@ -1,6 +1,6 @@
 def StateT (m : Type → Type) (σ : Type) (α : Type) := (Unit × σ) → m (α × σ)
 namespace StateT
-variables {m : Type → Type} [Monad m] {σ : Type} {α β : Type}
+variable {m : Type → Type} [Monad m] {σ : Type} {α β : Type}
 @[inline] protected def pure (a : α) : StateT m σ α := λ ⟨_, s⟩, pure (a, s)
 @[inline] protected def bind (x : StateT m σ α) (f : α → StateT m σ β) : StateT m σ β := λ p, do (a, s') ← x p, f a ((), s')
 @[inline] def read : StateT m σ σ := λ ⟨_, s⟩, pure (s, s)
@@ -12,7 +12,7 @@ end StateT
 
 def ExceptT (m : Type → Type) (ε : Type) (α : Type) := { e : Except ε Unit // e = Except.ok () } → m (Except ε α)
 namespace ExceptT
-variables {m : Type → Type} [Monad m] {ε : Type} {α β : Type}
+variable {m : Type → Type} [Monad m] {ε : Type} {α β : Type}
 @[inline] protected def pure (a : α) : ExceptT m ε α :=
 λ e, match e with
      | ⟨Except.ok _, h⟩    := pure (Except.ok a)

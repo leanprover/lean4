@@ -7,7 +7,7 @@ def OptionT2 (m : Type u → Type v) (α : Type u) : Type v :=
 m (Option α)
 
 namespace OptionT2
-variables {m : Type u → Type v} [Monad m] {α β : Type u}
+variable {m : Type u → Type v} [Monad m] {α β : Type u}
 
 @[inline] protected def bind (ma : OptionT2 m α) (f : α → OptionT2 m β) : OptionT2 m β :=
 (do {

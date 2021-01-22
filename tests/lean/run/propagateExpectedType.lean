@@ -1,4 +1,4 @@
-variables {α : Type _} (r : α → α → Prop) (π : α → α)
+variable {α : Type _} (r : α → α → Prop) (π : α → α)
 
 inductive rel : α → α → Prop
 | of {x y} : r x y → rel x y

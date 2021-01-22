@@ -26,7 +26,7 @@ def Vec.map3 (xs : Vec α n) (f : α → β) : Vec β n := -- Errors, unknown id
 
 def double [Add α] (a : α) := a + a
 
-variables (xs : Vec α n) -- works
+variable (xs : Vec α n) -- works
 
 def f := xs
 

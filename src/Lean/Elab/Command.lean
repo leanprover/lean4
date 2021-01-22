@@ -525,21 +525,13 @@ def elabOpenRenaming (n : SyntaxNode) : CommandElabM Unit := do
   else
     elabOpenRenaming body
 
-@[builtinCommandElab «variable»] def elabVariable : CommandElab := fun n => do
-  -- `variable` bracketedBinder
-  let binder := n[1]
-  -- Try to elaborate `binder` for sanity checking
-  runTermElabM none fun _ => Term.withAutoBoundImplicitLocal <|
-    Term.elabBinder binder (catchAutoBoundImplicit := true) fun _ => pure ()
-  modifyScope fun scope => { scope with varDecls := scope.varDecls.push binder }
-
-@[builtinCommandElab «variables»] def elabVariables : CommandElab := fun n => do
-  -- `variables` bracketedBinder+
-  let binders := n[1].getArgs
-  -- Try to elaborate `binders` for sanity checking
-  runTermElabM none fun _ => Term.withAutoBoundImplicitLocal <|
-    Term.elabBinders binders (catchAutoBoundImplicit := true) fun _ => pure ()
-  modifyScope fun scope => { scope with varDecls := scope.varDecls ++ binders }
+@[builtinCommandElab «variable»] def elabVariable : CommandElab
+  | `(variable $binders*) => do
+    -- Try to elaborate `binders` for sanity checking
+    runTermElabM none fun _ => Term.withAutoBoundImplicitLocal <|
+      Term.elabBinders binders (catchAutoBoundImplicit := true) fun _ => pure ()
+    modifyScope fun scope => { scope with varDecls := scope.varDecls ++ binders }
+  | _ => throwUnsupportedSyntax
 
 open Meta
 

@@ -8,7 +8,7 @@ inductive Path {α : Type _} : Tree α → Type _
 | right (tl tr : Tree α) : Path tr → Path (Tree.branch  tl tr)
 
 section map
-variables {α : Type _} {β : Type _} (f : α → β)
+variable {α : Type _} {β : Type _} (f : α → β)
 
 protected def Tree.map : Tree α → Tree β
 | Tree.leaf x => Tree.leaf (f x)

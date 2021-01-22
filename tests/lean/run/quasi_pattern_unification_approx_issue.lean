@@ -1,6 +1,6 @@
 
 
-variables {δ σ : Type}
+variable {δ σ : Type}
 
 def foo0 : StateT δ (StateT σ Id) σ :=
 getThe σ

@@ -8,7 +8,7 @@ namespace Lean
 constant EnvironmentExtension (entryTy stateTy : Type) : Type := Unit
 
 namespace EnvironmentExtension
-variables {entryTy stateTy : Type}
+variable {entryTy stateTy : Type}
 /-- Register a new environment extension. The Result should usually be bound to
     a top-Level definition, after which it can be used to access and modify the
     extension State. -/
@@ -26,7 +26,7 @@ variables {entryTy stateTy : Type}
   (addEntry : Π (init : Bool), environment → stateTy → entryTy → stateTy) :
   IO (EnvironmentExtension entryTy stateTy) := default _
 
-variables {entryTy' stateTy' : Type}
+variable {entryTy' stateTy' : Type}
 
 /- Register a dependency between two environment extensions.
    That is, whenever an entry `e` is added to `fromExt`,
@@ -60,7 +60,7 @@ def scopedExtsRef.init : IO (IO.Ref (List Info)) := IO.mkRef []
 @[init scopedExtsRef.init] private constant scopedExtsRef : IO.Ref (List Info) := default _
 def scopedExts : IO (List Info) := scopedExtsRef.get
 
-variables {entryTy stateTy : Type}
+variable {entryTy stateTy : Type}
 
 def register (key : Option String) (emptyState : stateTy)
   (addEntry : Π (init : Bool), environment → stateTy → entryTy → stateTy)

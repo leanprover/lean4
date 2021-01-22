@@ -8,7 +8,7 @@ inductive myPair (α : Type u) (β : Type v)
 | mk : α → β → myPair α β
 
 mutual
-variables (α : Type u) (m : α → Type v)
+variable (α : Type u) (m : α → Type v)
 inductive bla : Nat → Type (max u v)
 | mk₁ (n : Nat) : α → boo n → bla (n+1)
 | mk₂ (a : α)   : m a → String → bla 0
@@ -54,7 +54,7 @@ inductive Rbnode (α : Type u)
 #check @Rbnode.brecOn
 
 namespace Rbnode
-variables {α : Type u}
+variable {α : Type u}
 
 constant insert (lt : α → α → Prop) [DecidableRel lt] (t : Rbnode α) (x : α) : Rbnode α := Rbnode.leaf
 

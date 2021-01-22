@@ -11,6 +11,6 @@ universes v u
 class Category (C : Type u) :=
 (Hom : ∀ (X Y : C), Type v)
 
-variables {C : Type u} [Category.{v, u} C]
+variable {C : Type u} [Category.{v, u} C]
 
 def End (X : C) := Category.Hom X X -- invalid reference to undefined universe level parameter 'v'

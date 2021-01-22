@@ -2,7 +2,7 @@ def x := 1
 
 #check x
 
-variables {α : Type}
+variable {α : Type}
 
 def f (a : α) : α :=
 a

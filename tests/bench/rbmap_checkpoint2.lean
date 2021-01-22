@@ -17,7 +17,7 @@ inductive Tree
 
 instance : Inhabited Tree := ⟨Tree.Leaf⟩
 
-variables {σ : Type w}
+variable {σ : Type w}
 open color Nat Tree
 
 def fold (f : Nat → Bool → σ → σ) : Tree → σ → σ

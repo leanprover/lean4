@@ -1,7 +1,7 @@
 #lang lean4
 def StateT' (m : Type → Type) (σ : Type) (α : Type) := σ → m (α × σ)
 namespace StateT'
-variables {m : Type → Type} [Monad m] {σ : Type} {α β : Type}
+variable {m : Type → Type} [Monad m] {σ : Type} {α β : Type}
 @[inline] protected def pure (a : α) : StateT' m σ α := fun s => pure (a, s)
 @[inline] protected def bind (x : StateT' m σ α) (f : α → StateT' m σ β) : StateT' m σ β := fun s => do let (a, s') ← x s; f a s'
 @[inline] def read : StateT' m σ σ := fun s => pure (s, s)
@@ -13,7 +13,7 @@ end StateT'
 
 def ExceptT' (m : Type → Type) (ε : Type) (α : Type) := m (Except ε α)
 namespace ExceptT'
-variables {m : Type → Type} [Monad m] {ε : Type} {α β : Type}
+variable {m : Type → Type} [Monad m] {ε : Type} {α β : Type}
 @[inline] protected def pure (a : α) : ExceptT' m ε α := (pure (Except.ok a) : m (Except ε α))
 @[inline] protected def bind (x : ExceptT' m ε α) (f : α → ExceptT' m ε β) : ExceptT' m ε β :=
 (do { let v ← x; match v with

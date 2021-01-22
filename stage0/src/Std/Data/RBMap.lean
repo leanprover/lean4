@@ -14,7 +14,7 @@ inductive RBNode (α : Type u) (β : α → Type v) where
   | node  (color : Rbcolor) (lchild : RBNode α β) (key : α) (val : β key) (rchild : RBNode α β) : RBNode α β
 
 namespace RBNode
-variables {α : Type u} {β : α → Type v} {σ : Type w}
+variable {α : Type u} {β : α → Type v} {σ : Type w}
 
 open Std.Rbcolor Nat
 
@@ -94,7 +94,7 @@ def isBlack : RBNode α β → Bool
 
 section Insert
 
-variables (lt : α → α → Bool)
+variable (lt : α → α → Bool)
 
 @[specialize] def ins : RBNode α β → (k : α) → β k → RBNode α β
   | leaf,               kx, vx => node red leaf kx vx leaf
@@ -166,7 +166,7 @@ partial def appendTrees :  RBNode α β → RBNode α β → RBNode α β
 
 section Erase
 
-variables (lt : α → α → Bool)
+variable (lt : α → α → Bool)
 
 @[specialize] def del (x : α) : RBNode α β → RBNode α β
   | leaf           => leaf
@@ -235,7 +235,7 @@ instance (α : Type u) (β : Type v) (lt : α → α → Bool) : EmptyCollection
   ⟨RBMap.empty⟩
 
 namespace RBMap
-variables {α : Type u} {β : Type v} {σ : Type w} {lt : α → α → Bool}
+variable {α : Type u} {β : Type v} {σ : Type w} {lt : α → α → Bool}
 
 def depth (f : Nat → Nat → Nat) (t : RBMap α β lt) : Nat :=
   t.val.depth f

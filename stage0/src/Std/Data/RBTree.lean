@@ -20,7 +20,7 @@ instance (α : Type u) (lt : α → α → Bool) : EmptyCollection (RBTree α lt
   ⟨mkRBTree α lt⟩
 
 namespace RBTree
-variables {α : Type u} {β : Type v} {lt : α → α → Bool}
+variable {α : Type u} {β : Type v} {lt : α → α → Bool}
 
 @[inline] def empty : RBTree α lt :=
   RBMap.empty

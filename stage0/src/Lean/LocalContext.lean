@@ -256,7 +256,7 @@ def getAt! (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
 
 section
 universes u v
-variables {m : Type u → Type v} [Monad m]
+variable {m : Type u → Type v} [Monad m]
 variable {β : Type u}
 
 @[specialize] def foldlM (lctx : LocalContext) (f : β → LocalDecl → m β) (init : β) (start : Nat := 0) : m β :=
@@ -338,7 +338,7 @@ def mkForall (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
 
 section
 universes u
-variables {m : Type → Type u} [Monad m]
+variable {m : Type → Type u} [Monad m]
 
 @[inline] def anyM (lctx : LocalContext) (p : LocalDecl → m Bool) : m Bool :=
   lctx.decls.anyM fun d => match d with

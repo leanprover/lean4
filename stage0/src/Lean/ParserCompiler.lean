@@ -34,7 +34,7 @@ def replaceParserTy {α} (ctx : Context α) (e : Expr) : Expr :=
 section
 open Meta
 
-variables {α} (ctx : Context α) (force : Bool := false) in
+variable {α} (ctx : Context α) (force : Bool := false) in
 /--
   Translate an expression of type `Parser` into one of type `tyName`, tagging intermediary constants with
   `ctx.combinatorAttr`. If `force` is `false`, refuse to do so for imported constants. -/
@@ -120,7 +120,7 @@ def compileCategoryParser {α} (ctx : Context α) (declName : Name) (builtin : B
   ]
   Attribute.add c' attrName stx
 
-variables {α} (ctx : Context α) in
+variable {α} (ctx : Context α) in
 def compileEmbeddedParsers : ParserDescr → MetaM Unit
   | ParserDescr.const _                => pure ()
   | ParserDescr.unary _ d              => compileEmbeddedParsers d

@@ -19,7 +19,7 @@ inductive Heap (α : Type u) : Type u where
 
 abbrev HeapNode (α) := HeapNodeAux α (Heap α)
 
-variables {α : Type u}
+variable {α : Type u}
 
 def hRank : List (HeapNode α) → Nat
   | []   => 0
@@ -107,7 +107,7 @@ def BinomialHeap (α : Type u) (lt : α → α → Bool) := { h : Heap α // Wel
   ⟨Heap.empty, WellFormed.emptyWff⟩
 
 namespace BinomialHeap
-variables {α : Type u} {lt : α → α → Bool}
+variable {α : Type u} {lt : α → α → Bool}
 
 @[inline] def empty : BinomialHeap α lt :=
   mkBinomialHeap α lt

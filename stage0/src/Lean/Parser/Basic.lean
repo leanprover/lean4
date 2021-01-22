@@ -1865,7 +1865,7 @@ end Parser
 namespace Syntax
 
 section
-variables {β : Type} {m : Type → Type} [Monad m]
+variable {β : Type} {m : Type → Type} [Monad m]
 
 @[inline] def foldArgsM (s : Syntax) (f : Syntax → β → m β) (b : β) : m β :=
   s.getArgs.foldlM (flip f) b

@@ -10,7 +10,7 @@ open Decidable List
 
 universes u v w
 
-variables {α : Type u} {β : Type v} {γ : Type w}
+variable {α : Type u} {β : Type v} {γ : Type w}
 
 namespace List
 

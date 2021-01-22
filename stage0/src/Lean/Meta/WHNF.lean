@@ -487,30 +487,29 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
   -- We cache only closed terms without expr metavars.
   -- Potential refinement: cache if `e` is not stuck at a metavariable
   if e.hasFVar || e.hasExprMVar then
-    pure false
+    return false
   else
-    let ctx ← read
-    pure $ ctx.config.transparency != TransparencyMode.reducible
+    match (← getConfig).transparency with
+    | TransparencyMode.default => true
+    | TransparencyMode.all     => true
+    | _                        => false
 
 @[inline] private def cached? (useCache : Bool) (e : Expr) : MetaM (Option Expr) := do
   if useCache then
-    let ctx ← read
-    let s   ← get
-    match ctx.config.transparency with
-    | TransparencyMode.default => pure $ s.cache.whnfDefault.find? e
-    | TransparencyMode.all     => pure $ s.cache.whnfAll.find? e
+    match (← getConfig).transparency with
+    | TransparencyMode.default => return (← get).cache.whnfDefault.find? e
+    | TransparencyMode.all     => return (← get).cache.whnfAll.find? e
     | _                        => unreachable!
   else
-    pure none
+    return none
 
 private def cache (useCache : Bool) (e r : Expr) : MetaM Expr := do
-  let ctx ← read
   if useCache then
-    match ctx.config.transparency with
-    | TransparencyMode.default => modify fun s => { s with cache := { s.cache with whnfDefault := s.cache.whnfDefault.insert e r } }
-    | TransparencyMode.all     => modify fun s => { s with cache := { s.cache with whnfAll := s.cache.whnfAll.insert e r } }
+    match (← getConfig).transparency with
+    | TransparencyMode.default => modify fun s => { s with cache.whnfDefault := s.cache.whnfDefault.insert e r }
+    | TransparencyMode.all     => modify fun s => { s with cache.whnfAll     := s.cache.whnfAll.insert e r }
     | _                        => unreachable!
-  pure r
+  return r
 
 partial def whnfImp (e : Expr) : MetaM Expr :=
   whnfEasyCases e fun e => do

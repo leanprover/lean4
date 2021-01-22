@@ -13,7 +13,7 @@ import Init.Util
 universes u v w
 
 namespace Array
-variables {α : Type u}
+variable {α : Type u}
 
 @[extern "lean_mk_array"]
 def mkArray {α : Type u} (n : Nat) (v : α) : Array α := {

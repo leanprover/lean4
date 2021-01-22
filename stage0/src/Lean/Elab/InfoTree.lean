@@ -164,7 +164,7 @@ partial def InfoTree.format (tree : InfoTree) (cinfo? : Option ContextInfo := no
         return f!"{← i.format cinfo}{Std.Format.nestD <| Std.Format.prefixJoin "\n" (← cs.toList.mapM fun c => format c cinfo?)}"
 
 section
-variables [Monad m] [MonadInfoTree m]
+variable [Monad m] [MonadInfoTree m]
 
 @[inline] private def modifyInfoTrees (f : PersistentArray InfoTree → PersistentArray InfoTree) : m Unit :=
   modifyInfoState fun s => { s with trees := f s.trees }

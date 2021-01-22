@@ -38,7 +38,7 @@ structure PersistentHashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] w
 abbrev PHashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] := PersistentHashMap α β
 
 namespace PersistentHashMap
-variables {α : Type u} {β : Type v}
+variable {α : Type u} {β : Type v}
 
 def empty [BEq α] [Hashable α] : PersistentHashMap α β := {}
 
@@ -247,8 +247,8 @@ def erase [BEq α] [Hashable α] : PersistentHashMap α β → α → Persistent
     { root := n, size := if del then sz - 1 else sz }
 
 section
-variables {m : Type w → Type w'} [Monad m]
-variables {σ : Type w}
+variable {m : Type w → Type w'} [Monad m]
+variable {σ : Type w}
 
 @[specialize] partial def foldlMAux (f : σ → α → β → m σ) : Node α β → σ → m σ
   | Node.collision keys vals heq, acc =>

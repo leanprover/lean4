@@ -1237,7 +1237,7 @@ instance (ε : outParam (Type u)) (m : Type v → Type w) [MonadExceptOf ε m] :
   tryCatch := tryCatchThe ε
 
 namespace MonadExcept
-variables {ε : Type u} {m : Type v → Type w}
+variable {ε : Type u} {m : Type v → Type w}
 
 @[inline] protected def orelse [MonadExcept ε m] {α : Type v} (t₁ t₂ : m α) : m α :=
   tryCatch t₁ fun _ => t₂
@@ -1262,7 +1262,7 @@ instance (ρ : Type u) (m : Type u → Type v) (α : Type u) [Inhabited (m α)] 
 namespace ReaderT
 
 section
-variables {ρ : Type u} {m : Type u → Type v} {α : Type u}
+variable {ρ : Type u} {m : Type u → Type v} {α : Type u}
 
 instance  : MonadLift m (ReaderT ρ m) where
   monadLift x := fun _ => x
@@ -1274,7 +1274,7 @@ instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (ReaderT ρ m) where
 end
 
 section
-variables {ρ : Type u} {m : Type u → Type v} [Monad m] {α β : Type u}
+variable {ρ : Type u} {m : Type u → Type v} [Monad m] {α β : Type u}
 
 @[inline] protected def read : ReaderT ρ m ρ :=
   pure
@@ -1410,7 +1410,7 @@ inductive Result (ε σ α : Type u) where
   | ok    : α → σ → Result ε σ α
   | error : ε → σ → Result ε σ α
 
-variables {ε σ α : Type u}
+variable {ε σ α : Type u}
 
 instance [Inhabited ε] [Inhabited σ] : Inhabited (Result ε σ α) where
   default := Result.error arbitrary arbitrary
@@ -1422,7 +1422,7 @@ def EStateM (ε σ α : Type u) := σ → Result ε σ α
 
 namespace EStateM
 
-variables {ε σ α β : Type u}
+variable {ε σ α β : Type u}
 
 instance [Inhabited ε] : Inhabited (EStateM ε σ α) where
   default := fun s => Result.error arbitrary s

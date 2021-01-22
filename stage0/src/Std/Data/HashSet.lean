@@ -25,7 +25,7 @@ def mkHashSetImp {α : Type u} (nbuckets := 8) : HashSetImp α :=
       by rw [Array.sizeMkArrayEq]; cases nbuckets; decide!; apply Nat.zeroLtSucc ⟩ }
 
 namespace HashSetImp
-variables {α : Type u}
+variable {α : Type u}
 
 def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
   ⟨u % n, USize.modnLt _ h⟩
@@ -114,7 +114,7 @@ def mkHashSet {α : Type u} [BEq α] [Hashable α] (nbuckets := 8) : HashSet α 
   ⟨ mkHashSetImp nbuckets, WellFormed.mkWff nbuckets ⟩
 
 namespace HashSet
-variables {α : Type u} [BEq α] [Hashable α]
+variable {α : Type u} [BEq α] [Hashable α]
 
 instance : Inhabited (HashSet α) where
   default := mkHashSet

@@ -15,7 +15,7 @@ abbrev PHashSet (α : Type u) [BEq α] [Hashable α] := PersistentHashSet α
 
 namespace PersistentHashSet
 
-variables {α : Type u} [BEq α] [Hashable α]
+variable {α : Type u} [BEq α] [Hashable α]
 
 @[inline] def isEmpty (s : PersistentHashSet α) : Bool :=
   s.set.isEmpty

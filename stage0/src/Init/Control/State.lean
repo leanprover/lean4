@@ -32,8 +32,8 @@ instance {σ α} [Subsingleton σ] [Subsingleton α] : Subsingleton (StateM σ �
 
 namespace StateT
 section
-variables {σ : Type u} {m : Type u → Type v}
-variables [Monad m] {α β : Type u}
+variable {σ : Type u} {m : Type u → Type v}
+variable [Monad m] {α β : Type u}
 
 @[inline] protected def pure (a : α) : StateT σ m α :=
   fun s => pure (a, s)
@@ -84,7 +84,7 @@ end
 end StateT
 
 section
-variables {σ : Type u} {m : Type u → Type v}
+variable {σ : Type u} {m : Type u → Type v}
 
 instance [Monad m] : MonadStateOf σ (StateT σ m) where
   get       := StateT.get

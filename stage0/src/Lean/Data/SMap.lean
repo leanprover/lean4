@@ -33,7 +33,7 @@ structure SMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
   map₂   : PHashMap α β := {}
 
 namespace SMap
-variables {α : Type u} {β : Type v} [BEq α] [Hashable α]
+variable {α : Type u} {β : Type v} [BEq α] [Hashable α]
 
 instance : Inhabited (SMap α β) := ⟨{}⟩
 def empty : SMap α β := {}

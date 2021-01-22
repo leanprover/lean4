@@ -40,7 +40,7 @@ abbrev PArray (α : Type u) := PersistentArray α
 namespace PersistentArray
 /- TODO: use proofs for showing that array accesses are not out of bounds.
    We can do it after we reimplement the tactic framework. -/
-variables {α : Type u}
+variable {α : Type u}
 open Std.PersistentArrayNode
 
 def empty : PersistentArray α := {}
@@ -181,7 +181,7 @@ def pop (t : PersistentArray α) : PersistentArray α :=
           tailOff := newTailOff }
 
 section
-variables {m : Type v → Type w} [Monad m]
+variable {m : Type v → Type w} [Monad m]
 variable {β : Type v}
 
 @[specialize] private partial def foldlMAux (f : β → α → m β) : PersistentArrayNode α → β → m β
@@ -288,7 +288,7 @@ def toList (t : PersistentArray α) : List α :=
   (t.foldl (init := []) fun xs x => x :: xs).reverse
 
 section
-variables {m : Type → Type w} [Monad m]
+variable {m : Type → Type w} [Monad m]
 @[specialize] partial def anyMAux (p : α → m Bool) : PersistentArrayNode α → m Bool
   | node cs => cs.anyM fun c => anyMAux p c
   | leaf vs => vs.anyM p
@@ -309,7 +309,7 @@ end
   !any a fun v => !p v
 
 section
-variables {m : Type u → Type v} [Monad m]
+variable {m : Type u → Type v} [Monad m]
 variable {β : Type u}
 
 @[specialize] partial def mapMAux (f : α → m β) : PersistentArrayNode α → m (PersistentArrayNode β)

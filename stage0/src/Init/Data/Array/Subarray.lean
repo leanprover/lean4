@@ -77,7 +77,7 @@ def all {α : Type u} (p : α → Bool) (as : Subarray α) : Bool :=
 end Subarray
 
 namespace Array
-variables {α : Type u}
+variable {α : Type u}
 
 def toSubarray (as : Array α) (start stop : Nat) : Subarray α :=
   if h₂ : stop ≤ as.size then

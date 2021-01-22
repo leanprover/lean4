@@ -770,8 +770,7 @@ private partial def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) 
   -- Set `errToSorry` to `false` if `funLVals` > 1. See comment above about the interaction between `errToSorry` and `observing`.
   withReader (fun ctx => { ctx with errToSorry := funLVals.length == 1 && ctx.errToSorry }) do
     funLVals.foldlM (init := acc) fun acc (f, fIdent, fields) => do
-      unless lvals.isEmpty && args.isEmpty && namedArgs.isEmpty && fields.isEmpty do
-        addTermInfo fIdent f
+      addTermInfo fIdent f
       let lvals' := fields.map fun field => LVal.fieldName field field.getId.toString
       let s ← observing do
         let e ← elabAppLVals f (lvals' ++ lvals) namedArgs args expectedType? explicit ellipsis

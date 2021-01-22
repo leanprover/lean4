@@ -25,3 +25,12 @@ instance [Hashable α] : Hashable (Option α) where
 
 instance [Hashable α] : Hashable (List α) where
   hash as := as.foldl (fun r a => mixHash r (hash a)) 7
+
+instance : Hashable UInt32 where
+  hash n := n.toUSize
+
+instance : Hashable UInt64 where
+  hash n := n.toUSize
+
+instance : Hashable USize where
+  hash n := n

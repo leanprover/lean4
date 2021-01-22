@@ -204,9 +204,9 @@ section Initialization
     let leanpkgPath ← match ← IO.getEnv "LEAN_SYSROOT" with
       | some path => s!"{path}/bin/leanpkg{System.FilePath.exeSuffix}"
       | _         => s!"{← appDir}/leanpkg{System.FilePath.exeSuffix}"
-    let mut srcSearchPath := match (← IO.getEnv "LEAN_SRC_PATH") with
-      | some p => parseSearchPath p
-      | none   => []
+    let mut srcSearchPath := [s!"{← appDir}/../lib/lean/src"]
+    if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
+      srcSearchPath := srcSearchPath ++ parseSearchPath p
     -- NOTE: leanpkg does not exist in stage 0 (yet?)
     if (← fileExists leanpkgPath) then
       let pkgSearchPath ← leanpkgSetupSearchPath leanpkgPath m (Lean.Elab.headerToImports headerStx).toArray hOut
@@ -405,15 +405,14 @@ section RequestHandling
       (notFoundX := pure #[]) fun snap => do
         for t in snap.toCmdState.infoState.trees do
           if let some (ci, i) := t.hoverableTermAt? hoverPos then
-            let expr := if goToType? then ← ci.runMetaM i.lctx <| Meta.inferType i.expr
-            else i.expr
+            let expr ← if goToType? then ci.runMetaM i.lctx <| Meta.inferType i.expr else i.expr
             if let some n := expr.constName? then
               let mod? ← ci.runMetaM i.lctx <| findModuleOf? n
               let modUri? ← match mod? with
-              | some modName =>
-                let modFname? ← st.srcSearchPath.findWithExt ".lean" modName
-                pure <| modFname?.map ("file://" ++ ·)
-              | none         => pure <| some doc.meta.uri
+                | some modName =>
+                  let modFname? ← st.srcSearchPath.findWithExt ".lean" modName
+                  pure <| modFname?.map ("file://" ++ ·)
+                | none         => pure <| some doc.meta.uri
 
               let ranges? ← ci.runMetaM i.lctx <| findDeclarationRanges? n
 

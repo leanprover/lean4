@@ -32,18 +32,33 @@ where
           loop (i+1) (insts.push inst)
     else
       k insts
+
+/--
+  Return `some x` if `fvar` has type of the form `... -> motive ... fvar` where `motive` in `motiveFVars`.
+  That is, `x` "produces" one of the recursor motives.
+-/
+private def isInductiveHypothesis? (motiveFVars : Array Expr) (fvar : Expr) : MetaM (Option Expr) := do
+  forallTelescopeReducing (← inferType fvar) fun _ type =>
+    if type.isApp && motiveFVars.contains type.getAppFn then
+      return some type.appArg!
+    else
+      return none
+
+private def isInductiveHypothesis (motiveFVars : Array Expr) (fvar : Expr) : MetaM Bool :=
+  return (← isInductiveHypothesis? motiveFVars fvar).isSome
+
 /--
   Let `motiveFVars` be free variables for each motive in a kernel recursor, and `minorFVars` the free variables for a minor premise.
-  Then, return `true` is `fvar` (an element of `minorFVars`) corresponds to a recursive field.
-  That is, there is a free variable `minorFVar` in `minorFVars` with type `... -> motive ... fvar` where `motive` is an element of `motiveFVars`.
+  Then, return `some idx` if `minorFVars[idx]` has a type of the form `... -> motive ... fvar` for some `motive` in `motiveFVars`.
 -/
-private def isRecField (motiveFVars : Array Expr) (minorFVars : Array Expr) (fvar : Expr) : MetaM Bool := do
+private def isRecField? (motiveFVars : Array Expr) (minorFVars : Array Expr) (fvar : Expr) : MetaM (Option Nat) := do
+  let mut idx := 0
   for minorFVar in minorFVars do
-    let found ← forallTelescopeReducing (← inferType minorFVar) fun _ type =>
-      return motiveFVars.contains type.getAppFn && type.appArg! == fvar
-    if found then
-      return true
-  return false
+    if let some fvar' ← isInductiveHypothesis? motiveFVars minorFVar then
+      if fvar == fvar' then
+        return some idx
+    idx := idx + 1
+  return none
 
 private partial def mkSizeOfMotives {α} (motiveFVars : Array Expr) (k : Array Expr → MetaM α) : MetaM α :=
   loop 0 #[]
@@ -68,22 +83,11 @@ where
       forallBoundedTelescope (← inferType minorFVars'[i]) xs.size fun xs' _ => do
         let mut minor ← mkNumeral (mkConst ``Nat) 1
         for x in xs, x' in xs' do
-          -- If `x` is a recursive field, we skip it since we use the inductive hypothesis occurring later
-          unless (← isRecField motiveFVars xs x) do
-            let xType ← inferType x
-            minor ← forallTelescopeReducing xType fun ys xTypeResult => do
-              if motiveFVars.contains xTypeResult.getAppFn then
-                -- `x` is an inductive hypothesis
-                if ys.size > 0 then
-                  -- ignore `x` because it is a function
-                  return minor
-                else
-                  mkAdd minor x'
-              else
-                try
-                  mkAdd minor (← mkAppM ``SizeOf.sizeOf #[x'])
-                catch _ =>
-                  return minor
+          unless (← isInductiveHypothesis motiveFVars x) do
+          unless (← whnf (← inferType x)).isForall do -- we suppress higher-order fields
+            match (← isRecField? motiveFVars xs x) with
+            | some idx => minor ← mkAdd minor xs'[idx]
+            | none     => minor ← mkAdd minor (← mkAppM ``SizeOf.sizeOf #[x'])
         minor ← mkLambdaFVars xs' minor
         trace[Meta.sizeOf]! "minor: {minor}"
         loop (i+1) (minors.push minor)
@@ -150,11 +154,52 @@ def mkSizeOfFns (typeName : Name) : MetaM (Array Name) := do
     i := i + 1
   return result
 
+private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name) (ctorName : Name) : MetaM Unit := do
+  let ctorInfo ← getConstInfoCtor ctorName
+  let us := ctorInfo.levelParams.map mkLevelParam
+  forallTelescopeReducing ctorInfo.type fun xs _ => do
+    let params := xs[:ctorInfo.numParams]
+    let fields := xs[ctorInfo.numParams:]
+    let ctorApp := mkAppN (mkConst ctorName us) xs
+    mkLocalInstances params fun localInsts => do
+      let lhs ← mkAppM ``SizeOf.sizeOf #[ctorApp]
+      let mut rhs ← mkNumeral (mkConst ``Nat) 1
+      for field in fields do
+        unless (← whnf (← inferType field)).isForall do
+          rhs ← mkAdd rhs (← mkAppM ``SizeOf.sizeOf #[field])
+      let target ← mkEq lhs rhs
+      let thmName := ctorName ++ `sizeOf_spec
+      let thmParams := params ++ localInsts ++ fields
+      let thmType ← mkForallFVars thmParams target
+      let thmValue ←
+        if indInfo.isNested then
+          return () -- TODO
+        else
+          mkEqRefl rhs
+      let thmValue ← mkLambdaFVars thmParams thmValue
+      addDecl <| Declaration.thmDecl {
+        name        := thmName
+        levelParams := ctorInfo.levelParams
+        type        := thmType
+        value       := thmValue
+      }
+
+private def mkSizeOfSpecTheorems (indTypeNames : Array Name) (sizeOfFns : Array Name) : MetaM Unit := do
+  for indTypeName in indTypeNames do
+    let indInfo ← getConstInfoInduct indTypeName
+    for ctorName in indInfo.ctors do
+      mkSizeOfSpecTheorem indInfo sizeOfFns ctorName
+  return ()
+
 builtin_initialize
   registerOption `genSizeOf { defValue := true, group := "", descr := "generate `SizeOf` instance for inductive types and structures" }
+  registerOption `genSizeOfSpec { defValue := true, group := "", descr := "generate `SizeOf` specificiation theorems for automatically generated instances" }
 
 def generateSizeOfInstance (opts : Options) : Bool :=
   opts.get `genSizeOf true
+
+def generateSizeOfSpec (opts : Options) : Bool :=
+  opts.get `genSizeOfSpec true
 
 def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
   if (← getEnv).contains ``SizeOf && generateSizeOfInstance (← getOptions) && !(← isInductivePredicate typeName) then
@@ -185,6 +230,8 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
                 hints       := ReducibilityHints.abbrev
               }
               addInstance instDeclName AttributeKind.global (evalPrio! default)
+      if generateSizeOfSpec (← getOptions) then
+        mkSizeOfSpecTheorems indInfo.all.toArray fns
 
 builtin_initialize
   registerTraceClass `Meta.sizeOf

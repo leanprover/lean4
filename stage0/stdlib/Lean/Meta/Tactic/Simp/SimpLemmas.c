@@ -100,9 +100,9 @@ extern lean_object* l_Std_PersistentHashMap_insertAux___rarg___closed__3;
 lean_object* l_Lean_ScopedEnvExtension_addLocalEntry___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_addSimpLemmaEntry___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Core___hyg_171____closed__4;
 lean_object* l_Lean_Meta_instToFormatSimpLemma___closed__4;
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Core___hyg_172____closed__4;
 extern lean_object* l_Lean_Meta_DiscrTree_root___default___closed__1;
 lean_object* l_Lean_Meta_instBEqSimpLemmaKind___closed__1;
 lean_object* l_Lean_Meta_mkSimpLemma(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4274,7 +4274,7 @@ x_19 = l_Lean_Expr_isAppOfArity(x_15, x_17, x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; uint8_t x_22; 
-x_20 = l_myMacro____x40_Init_Core___hyg_171____closed__4;
+x_20 = l_myMacro____x40_Init_Core___hyg_172____closed__4;
 x_21 = lean_unsigned_to_nat(2u);
 x_22 = l_Lean_Expr_isAppOfArity(x_15, x_20, x_21);
 if (x_22 == 0)
@@ -4647,7 +4647,7 @@ x_88 = l_Lean_Expr_isAppOfArity(x_85, x_86, x_87);
 if (x_88 == 0)
 {
 lean_object* x_89; lean_object* x_90; uint8_t x_91; 
-x_89 = l_myMacro____x40_Init_Core___hyg_171____closed__4;
+x_89 = l_myMacro____x40_Init_Core___hyg_172____closed__4;
 x_90 = lean_unsigned_to_nat(2u);
 x_91 = l_Lean_Expr_isAppOfArity(x_85, x_89, x_90);
 if (x_91 == 0)
@@ -5043,7 +5043,7 @@ x_163 = l_Lean_Expr_isAppOfArity(x_159, x_161, x_162);
 if (x_163 == 0)
 {
 lean_object* x_164; lean_object* x_165; uint8_t x_166; 
-x_164 = l_myMacro____x40_Init_Core___hyg_171____closed__4;
+x_164 = l_myMacro____x40_Init_Core___hyg_172____closed__4;
 x_165 = lean_unsigned_to_nat(2u);
 x_166 = l_Lean_Expr_isAppOfArity(x_159, x_164, x_165);
 if (x_166 == 0)

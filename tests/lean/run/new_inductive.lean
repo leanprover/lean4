@@ -1,4 +1,3 @@
-
 universes u v
 
 inductive myList (α : Type u)
@@ -49,6 +48,8 @@ inductive Rbnode (α : Type u)
 | leaf                                                        : Rbnode α
 | redNode   (lchild : Rbnode α) (val : α) (rchild : Rbnode α) : Rbnode α
 | blackNode (lchild : Rbnode α) (val : α) (rchild : Rbnode α) : Rbnode α
+
+#reduce sizeOf <| Rbnode.redNode Rbnode.leaf 10 Rbnode.leaf
 
 #check @Rbnode.brecOn
 

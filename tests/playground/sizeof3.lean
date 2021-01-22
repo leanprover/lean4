@@ -1,3 +1,4 @@
+set_option trace.Meta.sizeOf true in
 mutual
   inductive AList (α β : Type u)
     | nil
@@ -7,19 +8,9 @@ mutual
     | cons (b : β) (t : AList α β)
 end
 
-namespace AList
-
-
-end AList
-
-theorem AList.nil.sizeOf_spec [SizeOf α] [SizeOf β] : sizeOf (AList.nil : AList α β) = 1 :=
-  rfl
-
-theorem AList.cons.sizeOf_spec [SizeOf α] [SizeOf β] (a : α) (t : BList α β) : sizeOf (AList.cons a t) = 1 + sizeOf a + sizeOf t :=
-  rfl
-
-theorem BList.cons.sizeOf_spec [SizeOf α] [SizeOf β] (b : β) (t : AList α β) : sizeOf (BList.cons a t) = 1 + sizeOf a + sizeOf t :=
-  rfl
+#print AList.nil.sizeOf_spec
+#print AList.cons.sizeOf_spec
+#print BList.cons.sizeOf_spec
 
 mutual
   inductive Foo (α : Type u)

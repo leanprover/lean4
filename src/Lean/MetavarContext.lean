@@ -484,6 +484,25 @@ def hasAssignableMVar (mctx : MetavarContext) : Expr → Bool
   | Expr.proj _ _ e _    => e.hasMVar && hasAssignableMVar mctx e
   | Expr.mvar mvarId _   => mctx.isExprAssignable mvarId
 
+/-
+Notes on artificial eta-expanded terms due to metavariables.
+We try avoid synthetic terms such as `((fun x y => t) a b)` in the output produced by the elaborator.
+This kind of term may be generated when instantiating metavariable assignments.
+This module tries to avoid their generation because they often introduce unnecessary dependencies and
+may affect automation.
+
+When elaborating terms, we use metavariables to represent "holes". Each hole has a context which includes
+all free variables that may be used to "fill" the hole. Suppose, we create a metavariable (hole) `?m : Nat` in a context
+containing `(x : Nat) (y : Nat) (b : Bool)`, then we can assign terms such as `x + y` to `?m` since `x` and `y`
+are in the context used to create `?m`. Now, suppose we have the term `?m + 1` and we want to create the lambda expression
+`fun x => ?m + 1`. This term is not correct since we may assign to `?m` a term containing `x`.
+We address this issue by create a synthetic metavariable `?n : Nat → Nat` and adding the delayed assignment
+`?n #[x] := ?m`, and the term `fun x => ?n x + 1`. When we later assign a term `t[x]` to `?m`, `fun x => t[x]` is assigned to
+`?n`, and if we substitute it at `fun x => ?n x + 1`, we produce `fun x => ((fun x => t[x]) x) + 1`.
+To avoid this term eta-expanded term, we apply beta-reduction when instantiating metavariable assignments in this module.
+This operation is performed at `instantiateExprMVars`, `elimMVarDeps`, and `levelMVarToParam`.
+-/
+
 partial def instantiateLevelMVars {m} [Monad m] [MonadMCtx m] : Level → m Level
   | lvl@(Level.succ lvl₁ _)      => return Level.updateSucc! lvl (← instantiateLevelMVars lvl₁)
   | lvl@(Level.max lvl₁ lvl₂ _)  => return Level.updateMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
@@ -1019,8 +1038,13 @@ structure State where
   mctx         : MetavarContext
   paramNames   : Array Name := #[]
   nextParamIdx : Nat
+  cache        : HashMap Expr Expr := {}
 
 abbrev M := ReaderT Context $ StateM State
+
+instance : MonadCache Expr Expr M where
+  findCached? e   := return (← get).cache.find? e
+  cache       e v := modify fun s => { s with cache := s.cache.insert e v }
 
 partial def mkParamName : M Name := do
   let ctx ← read
@@ -1050,24 +1074,30 @@ partial def visitLevel (u : Level) : M Level := do
       modify fun s => { s with mctx := s.mctx.assignLevel mvarId p }
       pure p
 
-partial def main (e : Expr) : M Expr := do
+partial def main (e : Expr) : M Expr :=
   if !e.hasMVar then
-    pure e
-  else match e with
-    | Expr.proj _ _ s _    => return e.updateProj! (← main s)
-    | Expr.forallE _ d b _ => return e.updateForallE! (← main d) (← main b)
-    | Expr.lam _ d b _     => return e.updateLambdaE! (← main d) (← main b)
-    | Expr.letE _ t v b _  => return e.updateLet! (← main t) (← main v) (← main b)
-    | Expr.app f a _       => return e.updateApp! (← main f) (← main a)
-    | Expr.mdata _ b _     => return e.updateMData! (← main b)
-    | Expr.const _ us _    => return e.updateConst! (← us.mapM visitLevel)
-    | Expr.sort u _        => return e.updateSort! (← visitLevel u)
-    | Expr.mvar mvarId _   =>
-      let s ← get
-      match s.mctx.getExprAssignment? mvarId with
-      | some v => main v
-      | none   => pure e
-    | e                        => pure e
+    return e
+  else
+    checkCache e fun _ => do
+      match e with
+      | Expr.proj _ _ s _    => return e.updateProj! (← main s)
+      | Expr.forallE _ d b _ => return e.updateForallE! (← main d) (← main b)
+      | Expr.lam _ d b _     => return e.updateLambdaE! (← main d) (← main b)
+      | Expr.letE _ t v b _  => return e.updateLet! (← main t) (← main v) (← main b)
+      | Expr.app ..          => e.withApp fun f args => visitApp f args
+      | Expr.mdata _ b _     => return e.updateMData! (← main b)
+      | Expr.const _ us _    => return e.updateConst! (← us.mapM visitLevel)
+      | Expr.sort u _        => return e.updateSort! (← visitLevel u)
+      | Expr.mvar ..         => visitApp e #[]
+      | e                    => return e
+where
+  visitApp (f : Expr) (args : Array Expr) : M Expr := do
+    match f with
+    | Expr.mvar mvarId .. =>
+      match (← get).mctx.getExprAssignment? mvarId with
+      | some v => return (← visitApp v args).headBeta
+      | none   => return mkAppN f (← args.mapM main)
+    | _ => return mkAppN (← main f) (← args.mapM main)
 
 end LevelMVarToParam
 

@@ -123,6 +123,9 @@ constant bindTask (t : Task α) (f : α → IO (Task (Except IO.Error β))) (pri
 /-- Wait until any of the tasks in the given list has finished, then return its result. -/
 @[extern "lean_io_wait_any"] constant waitAny : @& List (Task α) → IO α
 
+/-- Helper method for implementing "deterministic" timeouts. It is the numbe of "small" memory allocations performed by the current execution thread. -/
+@[extern "lean_io_get_num_heartbeats"] constant getNumHeartbeats : EIO ε Nat
+
 inductive FS.Mode where
   | read | write | readWrite | append
 

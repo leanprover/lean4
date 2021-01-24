@@ -104,6 +104,7 @@ struct heap {
     /* The following list contains object by this heap that were deallocated
        by other heaps. */
     void *    m_to_import_list{nullptr};
+    uint64_t  m_heartbeat{0}; /* Counter for implementing "deterministic timeouts". It is currently the number of small allocations */
     void import_objs();
     void export_objs();
     void alloc_segment();
@@ -366,6 +367,7 @@ void init_thread_heap() {
 
 extern "C" void * lean_alloc_small(unsigned sz, unsigned slot_idx) {
     page * p = g_heap->m_curr_page[slot_idx];
+    g_heap->m_heartbeat++;
     void * r = p->m_header.m_free_list;
     if (LEAN_UNLIKELY(r == nullptr)) {
         if (g_heap->m_page_free_list[slot_idx] == nullptr) {
@@ -385,6 +387,11 @@ extern "C" void * lean_alloc_small(unsigned sz, unsigned slot_idx) {
     p->m_header.m_free_list = get_next_obj(r);
     p->m_header.m_num_free--;
     return r;
+}
+
+uint64_t get_num_heartbeats() {
+    lean_assert(g_heap);
+    return g_heap->m_heartbeat;
 }
 
 void * alloc(size_t sz) {

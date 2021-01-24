@@ -29,6 +29,7 @@ Author: Leonardo de Moura
 #include <cctype>
 #include <sys/stat.h>
 #include "util/io.h"
+#include <lean/alloc.h>
 #include <lean/io.h>
 #include <lean/utf8.h>
 #include <lean/object.h>
@@ -408,6 +409,11 @@ extern "C" obj_res lean_io_allocprof(b_obj_arg msg, obj_arg fn, obj_arg w) {
     std::ostream & out = std::cerr; // TODO(Leo): replace?
     allocprof prof(out, string_cstr(msg));
     return apply_1(fn, w);
+}
+
+/* getNumHeartbeats : IO Nat */
+extern "C" obj_res lean_io_get_num_heartbeats(obj_arg /* w */) {
+    return io_result_mk_ok(lean_uint64_to_nat(get_num_heartbeats()));
 }
 
 extern "C" obj_res lean_io_getenv(b_obj_arg env_var, obj_arg) {

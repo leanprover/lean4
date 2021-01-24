@@ -60,7 +60,7 @@ extern "C" obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_ar
     DWORD exit_code;
     WaitForSingleObject(h, INFINITE);
     GetExitCodeProcess(h, &exit_code);
-    return lean_io_result_mk_ok(box(exit_code));
+    return lean_io_result_mk_ok(box_uint32(exit_code));
 }
 
 static FILE * from_win_handle(HANDLE handle, char const * mode) {
@@ -215,11 +215,11 @@ extern "C" obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_ar
     int status;
     waitpid(pid, &status, 0);
     if (WIFEXITED(status)) {
-        return lean_io_result_mk_ok(box(static_cast<unsigned>(WEXITSTATUS(status))));
+        return lean_io_result_mk_ok(box_uint32(static_cast<unsigned>(WEXITSTATUS(status))));
     } else {
         lean_assert(WIFSIGNALED(status));
         // use bash's convention
-        return lean_io_result_mk_ok(box(128 + static_cast<unsigned>(WTERMSIG(status))));
+        return lean_io_result_mk_ok(box_uint32(128 + static_cast<unsigned>(WTERMSIG(status))));
     }
 }
 

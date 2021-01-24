@@ -1,5 +1,8 @@
 SHELL := /usr/bin/env bash -euo pipefail
 
+# any absolute path to the stdlib breaks the Makefile
+undefine LEAN_PATH
+
 # LEAN_OPTS: don't use native code (except for primitives) since it is from the previous stage
 # MORE_DEPS: rebuild the stdlib whenever the compiler has changed
 LEANMAKE_OPTS=\

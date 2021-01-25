@@ -32,6 +32,7 @@ macro "maxPrec!" : term => `(1024)
 
 macro "default" : prio => `(1000)
 macro "low"     : prio => `(100)
+macro "mid"     : prio => `(1000)
 macro "high"    : prio => `(10000)
 macro "(" p:prio ")" : prio => p
 

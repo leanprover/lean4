@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Meta
 import Init.Data.Float
 import Init.Data.Nat
 
@@ -15,6 +16,13 @@ import Init.Data.Nat
 class OfScientific (α : Type u) where
   ofScientific : Nat → Bool → Nat → α
 
-@[defaultInstance low]
+/-
+  The `OfScientifi Float` must have priority higher than `mid` since
+  the default instance `Neg Int` has `mid` priority.
+  ```
+  #check -42.0 -- must be Float
+  ```
+-/
+@[defaultInstance mid+1]
 instance : OfScientific Float where
   ofScientific m s e := Float.ofScientific m s e

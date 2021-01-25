@@ -390,8 +390,10 @@ extern "C" void * lean_alloc_small(unsigned sz, unsigned slot_idx) {
 }
 
 uint64_t get_num_heartbeats() {
-    lean_assert(g_heap);
-    return g_heap->m_heartbeat;
+    if (g_heap)
+        return g_heap->m_heartbeat;
+    else
+        return 0;
 }
 
 void * alloc(size_t sz) {

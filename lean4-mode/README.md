@@ -45,17 +45,17 @@ Set these with e.g. `M-x customize-variable`.
 Key Bindings and Commands
 =========================
 
-| Key                | Function                                                                        |
-|--------------------|---------------------------------------------------------------------------------|
-| <kbd>C-c C-k</kbd> | shows the keystroke needed to input the symbol under the cursor                 |
-| <kbd>C-c C-x</kbd> | execute lean in stand-alone mode (`lean-std-exe`)                               |
-| <kbd>C-c C-n</kbd> | toggle showing next error in dedicated buffer (`lean-toggle-next-error`)        |
-| <kbd>C-c ! n</kbd> | flycheck: go to next error                                                      |
-| <kbd>C-c ! p</kbd> | flycheck: go to previous error                                                  |
-| <kbd>C-c ! l</kbd> | flycheck: show list of errors                                                   |
+| Key                | Function                                                                 |
+|--------------------|--------------------------------------------------------------------------|
+| <kbd>C-c C-k</kbd> | show the keystroke needed to input the symbol under the cursor           |
+| <kbd>C-c C-d</kbd> | recompile & reload imports (`lean-refresh-file-dependencies`)            |
+| <kbd>C-c C-x</kbd> | execute Lean in stand-alone mode (`lean-std-exe`)                        |
+| <kbd>C-c C-n</kbd> | toggle showing next error in dedicated buffer (`lean-toggle-next-error`) |
+| <kbd>C-c ! n</kbd> | flycheck: go to next error                                               |
+| <kbd>C-c ! p</kbd> | flycheck: go to previous error                                           |
+| <kbd>C-c ! l</kbd> | flycheck: show list of errors                                            |
 
 For `lsp-mode` bindings, see https://emacs-lsp.github.io/lsp-mode/page/keybindings/ (not all capabilities are supported currently).
-Of note is `s-l s r` for restarting the server, which can be used to make Lean reload changed imports.
 
 In the default configuration, the Flycheck annotation `FlyC:n/n` indicates the
 number of errors / responses from Lean; clicking on `FlyC` opens the Flycheck menu.

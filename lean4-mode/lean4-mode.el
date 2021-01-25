@@ -75,6 +75,20 @@
   (interactive)
   (lean4-execute))
 
+(defun lean4-refresh-file-dependencies ()
+  "Restart the server subprocess for the current file, recompiling & reloading all imports"
+  (interactive)
+  (lsp-notify
+   "textDocument/didClose"
+   `(:textDocument ,(lsp--text-document-identifier)))
+  (lsp-notify
+   "textDocument/didOpen"
+   (list :textDocument
+         (list :uri (lsp--buffer-uri)
+               :languageId (lsp-buffer-language)
+               :version lsp--cur-version
+               :text (lsp--buffer-content)))))
+
 (defun lean4-check-expansion ()
   (interactive)
   (save-excursion
@@ -104,6 +118,7 @@
   (local-set-key lean4-keybinding-leanpkg-configure         #'lean4-leanpkg-configure)
   (local-set-key lean4-keybinding-leanpkg-build             #'lean4-leanpkg-build)
   (local-set-key lean4-keybinding-leanpkg-test              #'lean4-leanpkg-test)
+  (local-set-key lean4-keybinding-refresh-file-dependencies #'lean4-refresh-file-dependencies)
   ;; This only works as a mouse binding due to the event, so it is not abstracted
   ;; to avoid user confusion.
   (local-set-key (kbd "<mouse-3>")                         #'lean4-right-click-show-menu)

@@ -755,7 +755,12 @@ namespace Lean.Syntax.SepArray
 def getElems {sep} (sa : SepArray sep) : Array Syntax :=
   sa.elemsAndSeps.getSepElems
 
-instance (sep) : Coe (SepArray sep) (Array Syntax) where
+/-
+We use `CoeTail` here instead of `Coe` to avoid a "loop" when computing `CoeTC`.
+The "loop" is interrupted using the maximum instance size threshold, but it is a performance bottleneck.
+The loop occurs because the predicate `isNewAnswer` is too imprecise.
+-/
+instance (sep) : CoeTail (SepArray sep) (Array Syntax) where
   coe := getElems
 
 end Lean.Syntax.SepArray

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.ToExpr
 import Lean.AuxRecursor
+import Lean.ProjFns
 import Lean.Meta.Basic
 import Lean.Meta.LevelDefEq
 import Lean.Meta.GetConst
@@ -364,11 +365,33 @@ mutual
         | some e => whnfUntilIdRhs e
         | none   => pure e -- failed because of symbolic argument
 
+  /--
+    Auxiliary method for unfolding a class projection when transparency is set to `TransparencyMode.instances`.
+    Recall that that class instance projections are not marked with `[reducible]` because we want them to be
+    in "reducible canonical form".
+  -/
+  private partial def unfoldProjInst (e : Expr) : MetaM (Option Expr) := do
+    if (← getTransparency) != TransparencyMode.instances then
+      return none
+    else
+      match e.getAppFn with
+      | Expr.const declName .. =>
+        match (← getProjectionFnInfo? declName) with
+        | some { fromClass := true, .. } =>
+          match (← withDefault <| unfoldDefinition? e) with
+          | none   => return none
+          | some e =>
+            match (← reduceProj? e.getAppFn) with
+            | none   => return none
+            | some r => return mkAppN r e.getAppArgs
+        | _ => return none
+      | _ => return none
+
   /-- Unfold definition using "smart unfolding" if possible. -/
   partial def unfoldDefinition? (e : Expr) : MetaM (Option Expr) :=
     match e with
     | Expr.app f _ _ =>
-      matchConstAux f.getAppFn (fun _ => pure none) fun fInfo fLvls => do
+      matchConstAux f.getAppFn (fun _ => unfoldProjInst e) fun fInfo fLvls => do
         if fInfo.lparams.length != fLvls.length then
           return none
         else

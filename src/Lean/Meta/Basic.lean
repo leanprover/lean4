@@ -262,14 +262,14 @@ def mkFreshExprMVarWithId (mvarId : MVarId) (type? : Option Expr := none) (kind 
     let type ← mkFreshExprMVar (mkSort u)
     mkFreshExprMVarWithIdCore mvarId type kind userName
 
+def getTransparency : MetaM TransparencyMode :=
+  return (← getConfig).transparency
+
 def shouldReduceAll : MetaM Bool :=
-  return (← read).config.transparency == TransparencyMode.all
+  return (← getTransparency) == TransparencyMode.all
 
 def shouldReduceReducibleOnly : MetaM Bool :=
-  return (← read).config.transparency == TransparencyMode.reducible
-
-def getTransparency : MetaM TransparencyMode :=
-  return (← read).config.transparency
+  return (← getTransparency) == TransparencyMode.reducible
 
 def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
   let mctx ← getMCtx
@@ -432,7 +432,7 @@ def getTheoremInfo (info : ConstantInfo) : MetaM (Option ConstantInfo) := do
     return none
 
 private def getDefInfoTemp (info : ConstantInfo) : MetaM (Option ConstantInfo) := do
-  match (← read).config.transparency with
+  match (← getTransparency) with
   | TransparencyMode.all => return some info
   | TransparencyMode.default => return some info
   | _ =>

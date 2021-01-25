@@ -1,0 +1,8 @@
+[Meta.debug] 1. x + 1
+[Meta.debug] 2. x + 1
+[Meta.debug] 3. Nat.add x 1
+[Meta.debug] 4. Nat.succ (Nat.add x 0)
+[Meta.debug] 1. (x, x + 1).fst
+[Meta.debug] 2. x
+[Meta.debug] 3. x
+[Meta.debug] 4. x

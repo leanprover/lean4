@@ -1,4 +1,3 @@
-
 class Top₁   (n : Nat) : Type := (u : Unit := ())
 class Bot₁   (n : Nat) : Type := (u : Unit := ())
 class Left₁  (n : Nat) : Type := (u : Unit := ())
@@ -27,6 +26,8 @@ class Top (n : Nat) : Type := (u : Unit := ())
 
 instance Top₁ToTop (n : Nat) [Top₁ n] : Top n := {}
 instance Top₂ToTop (n : Nat) [Top₂ n] : Top n := {}
+
+set_option synthInstance.maxHeartbeats 500
 
 #synth Top Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ
 

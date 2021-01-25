@@ -99,21 +99,23 @@ instance : AddErrorMessageContext CommandElabM where
 def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
   mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos?.getD ctx.cmdPos)
 
-private def mkCoreContext (ctx : Context) (s : State) : Core.Context :=
-  let scope       := s.scopes.head!
-  { options       := scope.opts
-    currRecDepth  := ctx.currRecDepth
-    maxRecDepth   := s.maxRecDepth
-    ref           := ctx.ref
-    currNamespace := scope.currNamespace
-    openDecls     := scope.openDecls }
+private def mkCoreContext (ctx : Context) (s : State) (heartbeats : Nat) : Core.Context :=
+  let scope        := s.scopes.head!
+  { options        := scope.opts
+    currRecDepth   := ctx.currRecDepth
+    maxRecDepth    := s.maxRecDepth
+    ref            := ctx.ref
+    currNamespace  := scope.currNamespace
+    openDecls      := scope.openDecls,
+    initHeartbeats := heartbeats }
 
 def liftCoreM {α} (x : CoreM α) : CommandElabM α := do
   let s ← get
   let ctx ← read
+  let heartbeats ← IO.getNumHeartbeats (ε := Exception)
   let Eα := Except Exception α
   let x : CoreM Eα := try let a ← x; pure $ Except.ok a catch ex => pure $ Except.error ex
-  let x : EIO Exception (Eα × Core.State) := (ReaderT.run x (mkCoreContext ctx s)).run { env := s.env, ngen := s.ngen }
+  let x : EIO Exception (Eα × Core.State) := (ReaderT.run x (mkCoreContext ctx s heartbeats)).run { env := s.env, ngen := s.ngen }
   let (ea, coreS) ← liftM x
   modify fun s => { s with env := coreS.env, ngen := coreS.ngen }
   match ea with
@@ -292,12 +294,14 @@ private def addTraceAsMessages (ctx : Context) (log : MessageLog) (traceState : 
 def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandElabM α := do
   let ctx ← read
   let s   ← get
+  let heartbeats ← IO.getNumHeartbeats (ε := Exception)
+  -- dbgTrace! "heartbeats: {heartbeats}"
   let scope := s.scopes.head!
   -- We execute `x` with an empty message log. Thus, `x` cannot modify/view messages produced by previous commands.
   -- This is useful for implementing `runTermElabM` where we use `Term.resetMessageLog`
   let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) (mkTermState scope s)
   let x : CoreM _      := x.run mkMetaContext {}
-  let x : EIO _ _      := x.run (mkCoreContext ctx s) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope }
+  let x : EIO _ _      := x.run (mkCoreContext ctx s heartbeats) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope }
   let (((ea, termS), metaS), coreS) ← liftEIO x
   let infoTrees        := termS.infoState.trees.map fun tree =>
     let tree := tree.substitute termS.infoState.assignment

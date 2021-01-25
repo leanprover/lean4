@@ -324,9 +324,9 @@ def withLevelNames {α} (levelNames : List Name) (x : TermElabM α) : TermElabM 
 def withoutErrToSorry {α} (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with errToSorry := false }) x
 
-/-- Execute `x` with `autoBoundImplicit = (options.get `autoBoundImplicitLocal) && flag` -/
+/-- Execute `x` with `autoBoundImplicit := (autoBoundImplicitLocal.get options) && flag` -/
 def withAutoBoundImplicitLocal {α} (x : TermElabM α) (flag := true) : TermElabM α := do
-  let flag := getAutoBoundImplicitLocalOption (← getOptions) && flag
+  let flag := autoBoundImplicitLocal.get (← getOptions) && flag
   withReader (fun ctx => { ctx with autoBoundImplicit := flag, autoBoundImplicits := {} }) x
 
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/

@@ -9,15 +9,10 @@ import Lean.Data.Options
 
 namespace Lean.Elab
 
-builtin_initialize
-  registerOption `autoBoundImplicitLocal {
+register_builtin_option autoBoundImplicitLocal : Bool := {
     defValue := true
-    group    := ""
-    descr    := "Unbound local variables in declaration headers become implicit arguments if they are a lower case or greek letter followed by numeric digits. For example, `def f (x : Vector α n) : Vector α n :=` automatically introduces the implicit variables {α n}"
+    descr    := "Unbound local variables in declaration headers become implicit arguments if they are a lower case or greek letter followed by numeric digits. For example, `def f (x : Vector α n) : Vector α n :=` automatically introduces the implicit variables {α n}."
   }
-
-def getAutoBoundImplicitLocalOption (opts : Options) : Bool :=
-  opts.get `autoBoundImplicitLocal true
 
 private def allNumeral (s : Substring) : Bool :=
   s.all fun c => c.isDigit || isNumericSubscript c

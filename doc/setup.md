@@ -19,9 +19,23 @@ $ elan default leanprover/lean4:nightly
 $ elan override set leanprover/lean4:stable
 ```
 
-Lean 4 comes with a basic package manager `leanpkg` that mostly works [as in Lean 3](https://leanprover.github.io/reference/using_lean.html#using-the-package-manager).
-Note however that it currently depends on `make` (and `sh`) for recursive compilation.
+### `leanpkg`
+
+Lean 4 comes with a basic package manager, `leanpkg`.
+Use `leanpkg init Foo` to initialize a Lean package `Foo` in the current directory, and `leanpkg build` to typecheck and build it as well as all its dependencies; call `leanpkg help` to learn about further commands.
+The general directory structure of a package `Foo` is
+```sh
+leanpkg.toml  # package configuration
+Foo.lean  # main file, import via `import Foo`
+Foo/
+  A.lean  # further files, import via e.g. `import Foo.A`
+  A/...   # further nesting
+build/  # `leanpkg` output directory
+```
+Note however that `leanpkg` currently depends on `make` (and `sh`) for recursive compilation.
 It has been tested on Windows by installing these tools using [MSYS2](https://www.msys2.org/), but [MinGW](http://www.mingw.org/) or WSL should work, too.
+
+### Editing
 
 Lean implements the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) that can be used for interactive development in [Emacs](https://github.com/leanprover/lean4/tree/master/lean4-mode/README.md), [VS Code](https://github.com/mhuisi/vscode-lean4), and possibly other editors.
 
@@ -61,7 +75,7 @@ From a Lean shell, run
 $ nix flake new mypkg -t github:leanprover/lean4
 ```
 to create a new Lean package in directory `mypkg` using the latest commit of Lean 4.
-The Lean package comes with a package root file `MyPackage.lean` and a `flake.nix` set up so you can run Nix commands on it, for example:
+Such packages follow the same directory layout as described in the basic setup above, except for a `leanpkg.toml` replaced by a `flake.nix` file set up so you can run Nix commands on it, for example:
 ```bash
 $ nix build  # build package and all dependencies
 $ nix build .#executable  # compile `main` definition into executable (after you've added one)
@@ -71,8 +85,7 @@ $ nix run .#vscode-dev MyPackage.lean  # ditto, using VS Code
 ```
 Note that if you rename `MyPackage.lean`, you also have to adjust the `name` attribute in `flake.nix` accordingly.
 
-There is preliminary integration of the Nix-based build system into editors started as above, which automatically builds dependencies when opening or invalidating a file.
-There is no progress report yet, and build errors from dependencies will crash the language server; see the stderr logs for the build error in that case.
+As in the basic setup, changes need to be saved to be visible in other files, which have then to be invalidated via an editor command.
 
 Package dependencies can be added as further input flakes and passed to the `deps` list of `buildLeanPackage`. Example: <https://github.com/Kha/testpkg2/blob/master/flake.nix#L5>
 

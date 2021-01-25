@@ -1306,6 +1306,7 @@ private def isDefEqProj : Expr → Expr → MetaM Bool
 
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := do
   trace[Meta.isDefEq.step]! "{t} =?= {s}"
+  checkMaxHeartbeats "isDefEq"
   withNestedTraces do
   whenUndefDo (isDefEqQuick t s) $
   whenUndefDo (isDefEqProofIrrel t s) do

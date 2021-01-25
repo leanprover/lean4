@@ -513,6 +513,7 @@ private def cache (useCache : Bool) (e r : Expr) : MetaM Expr := do
 
 partial def whnfImp (e : Expr) : MetaM Expr :=
   whnfEasyCases e fun e => do
+    checkMaxHeartbeats "whnf"
     let useCache ← useWHNFCache e
     match (← cached? useCache e) with
     | some e' => pure e'

@@ -17,6 +17,24 @@ namespace SynthInstance
 
 open Std (HashMap)
 
+def maxHeartbeatsDefault := 300
+
+builtin_initialize
+  registerOption `synthInstance.maxHeartbeats {
+    defValue := DataValue.ofNat maxHeartbeatsDefault,
+    group := "",
+    descr := "maximum amount of heartbeats per typeclass resolution problem. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
+  }
+
+def getMaxHeartbeats (opts : Options) : Nat :=
+  opts.get `synthInstance.maxHeartbeats maxHeartbeatsDefault * 1000
+
+def maxResultSizeDefault := 128
+builtin_initialize
+  registerOption `synthInstance.maxSize { defValue := maxResultSizeDefault, group := "", descr := "maximum number of instances used to construct a solution in the type class instance synthesis procedure" }
+private def getMaxSize (opts : Options) : Nat :=
+  opts.getNat `synthInstance.maxSize maxResultSizeDefault
+
 builtin_initialize inferTCGoalsRLAttr : TagAttribute ←
   registerTagAttribute `inferTCGoalsRL "instruct type class resolution procedure to solve goals from right to left for this instance"
 
@@ -143,6 +161,7 @@ structure TableEntry where
 
 structure Context where
   maxResultSize : Nat
+  maxHeartbeats : Nat
 
 /-
   Remark: the SynthInstance.State is not really an extension of `Meta.State`.
@@ -158,6 +177,9 @@ structure State where
   tableEntries   : HashMap Expr TableEntry       := {}
 
 abbrev SynthM := ReaderT Context $ StateRefT State MetaM
+
+def checkMaxHeartbeats : SynthM Unit := do
+  Core.checkMaxHeartbeatsCore "typeclass" `synthInstance.maxHeartbeats (← read).maxHeartbeats
 
 @[inline] def mapMetaM (f : forall {α}, MetaM α → MetaM α) {α} : SynthM α → SynthM α :=
   monadMap @f
@@ -353,6 +375,7 @@ private def mkAnswer (cNode : ConsumerNode) : MetaM Answer :=
   withMCtx cNode.mctx do
     traceM `Meta.synthInstance.newAnswer do m!"size: {cNode.size}, {← inferType cNode.mvar}"
     let val ← instantiateMVars cNode.mvar
+    trace[Meta.synthInstance.newAnswer]! "val: {val}"
     let result ← abstractMVars val -- assignable metavariables become parameters
     let resultType ← inferType result.expr
     pure { result := result, resultType := resultType, size := cNode.size + 1 }
@@ -437,6 +460,7 @@ def resume : SynthM Unit := do
       consume { key := cNode.key, mvar := cNode.mvar, subgoals := rest, mctx := mctx, size := cNode.size + answer.size }
 
 def step : SynthM Bool := do
+  checkMaxHeartbeats
   let s ← get
   if !s.resumeStack.isEmpty then
     resume
@@ -460,7 +484,7 @@ partial def synth : SynthM (Option Expr) := do
     pure none
 
 def main (type : Expr) (maxResultSize : Nat) : MetaM (Option Expr) :=
-  traceCtx `Meta.synthInstance do
+  withCurrHeartbeats <| traceCtx `Meta.synthInstance do
      trace[Meta.synthInstance]! "main goal {type}"
      let mvar ← mkFreshExprMVar type
      let mctx ← getMCtx
@@ -468,7 +492,7 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option Expr) :=
      let action : SynthM (Option Expr) := do
        newSubgoal mctx key mvar Waiter.root
        synth
-     action.run { maxResultSize := maxResultSize } |>.run' {}
+     action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {}
 
 end SynthInstance
 
@@ -530,12 +554,6 @@ private def preprocessOutParam (type : Expr) : MetaM Expr :=
         mkForallFVars xs (mkAppN c args)
     | _ => pure type
 
-def maxResultSizeDefault := 128
-builtin_initialize
-  registerOption `maxInstSize { defValue := maxResultSizeDefault, group := "", descr := "maximum number of instances used to construct a solution in the type class instance synthesis procedure" }
-private def getMaxSize (opts : Options) : Nat :=
-  opts.getNat `maxInstSize maxResultSizeDefault
-
 /-
   Remark: when `maxResultSize? == none`, the configuration option `synthInstance.maxResultSize` is used.
   Remark: we use a different option for controlling the maximum result size for coercions.
@@ -543,7 +561,7 @@ private def getMaxSize (opts : Options) : Nat :=
 
 def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) ⟨0, 0⟩ do
   let opts ← getOptions
-  let maxResultSize := maxResultSize?.getD (getMaxSize opts)
+  let maxResultSize := maxResultSize?.getD (SynthInstance.getMaxSize opts)
   let inputConfig ← getConfig
   withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.reducible,
                                           foApprox := true, ctxApprox := true, constApprox := false }) do

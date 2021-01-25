@@ -23,6 +23,10 @@ class CoeHead (α : Sort u) (β : Sort v) where
 class CoeTail (α : Sort u) (β : Sort v) where
   coe : α → β
 
+/-- Auxiliary class that contains `CoeHead` + `CoeTC` + `CoeTail`. -/
+class CoeHTCT (α : Sort u) (β : Sort v) where
+  coe : α → β
+
 class CoeDep (α : Sort u) (a : α) (β : Sort v) where
   coe : β
 
@@ -69,23 +73,26 @@ instance coeTrans {α : Sort u} {β : Sort v} {δ : Sort w} [Coe β δ] [CoeTC �
 instance coeBase {α : Sort u} {β : Sort v} [Coe α β] : CoeTC α β where
   coe a := coeB a
 
-instance coeOfHeafOfTCOfTail {α : Sort u} {β : Sort v} {δ : Sort w} {γ : Sort w'} (a : α) [CoeHead α β] [CoeTail δ γ] [CoeTC β δ] : CoeT α a γ where
-  coe := coeTail (coeTC (coeHead a : β) : δ)
+instance coeOfHeafOfTCOfTail {α : Sort u} {β : Sort v} {δ : Sort w} {γ : Sort w'} [CoeHead α β] [CoeTail δ γ] [CoeTC β δ] : CoeHTCT α γ where
+  coe a := coeTail (coeTC (coeHead a : β) : δ)
 
-instance coeOfHeadOfTC {α : Sort u} {β : Sort v} {δ : Sort w} (a : α) [CoeHead α β] [CoeTC β δ] : CoeT α a δ  where
-  coe := coeTC (coeHead a : β)
+instance coeOfHeadOfTC {α : Sort u} {β : Sort v} {δ : Sort w} [CoeHead α β] [CoeTC β δ] : CoeHTCT α δ  where
+  coe a := coeTC (coeHead a : β)
 
-instance coeOfTCOfTail {α : Sort u} {β : Sort v} {δ : Sort w} (a : α) [CoeTail β δ] [CoeTC α β] : CoeT α a δ where
-  coe := coeTail (coeTC a : β)
+instance coeOfTCOfTail {α : Sort u} {β : Sort v} {δ : Sort w} [CoeTail β δ] [CoeTC α β] : CoeHTCT α δ where
+  coe a := coeTail (coeTC a : β)
 
-instance coeOfHead {α : Sort u} {β : Sort v} (a : α) [CoeHead α β] : CoeT α a β where
-  coe := coeHead a
+instance coeOfHead {α : Sort u} {β : Sort v} [CoeHead α β] : CoeHTCT α β where
+  coe a := coeHead a
 
-instance coeOfTail {α : Sort u} {β : Sort v} (a : α) [CoeTail α β] : CoeT α a β where
-  coe := coeTail a
+instance coeOfTail {α : Sort u} {β : Sort v} [CoeTail α β] : CoeHTCT α β where
+  coe a := coeTail a
 
-instance coeOfTC {α : Sort u} {β : Sort v} (a : α) [CoeTC α β] : CoeT α a β where
-  coe := coeTC a
+instance coeOfTC {α : Sort u} {β : Sort v} [CoeTC α β] : CoeHTCT α β where
+  coe a := coeTC a
+
+instance coeOfHTCT {α : Sort u} {β : Sort v} [CoeHTCT α β] (a : α) : CoeT α a β where
+  coe := CoeHTCT.coe a
 
 instance coeOfDep {α : Sort u} {β : Sort v} (a : α) [CoeDep α a β] : CoeT α a β where
   coe := coeD a
@@ -136,52 +143,52 @@ instance [CoeFun α (fun _ => β)] : CoeTail α β  where
 instance [CoeSort α β] : CoeTail α β where
   coe a := coeSort a
 
-/- Coe and heterogeneous operators, we use `CoeTC` instead of `CoeT` to avoid expensive coercions such as `CoeDep` -/
+/- Coe and heterogeneous operators, we use `CoeHTCT` instead of `CoeT` to avoid expensive coercions such as `CoeDep` -/
 
-instance [CoeTC α β] [Add β] : HAdd α β β where
+instance [CoeHTCT α β] [Add β] : HAdd α β β where
   hAdd a b := Add.add a b
 
-instance [CoeTC α β] [Add β] : HAdd β α β where
+instance [CoeHTCT α β] [Add β] : HAdd β α β where
   hAdd a b := Add.add a b
 
-instance [CoeTC α β] [Sub β] : HSub α β β where
+instance [CoeHTCT α β] [Sub β] : HSub α β β where
   hSub a b := Sub.sub a b
 
-instance [CoeTC α β] [Sub β] : HSub β α β where
+instance [CoeHTCT α β] [Sub β] : HSub β α β where
   hSub a b := Sub.sub a b
 
-instance [CoeTC α β] [Mul β] : HMul α β β where
+instance [CoeHTCT α β] [Mul β] : HMul α β β where
   hMul a b := Mul.mul a b
 
-instance [CoeTC α β] [Mul β] : HMul β α β where
+instance [CoeHTCT α β] [Mul β] : HMul β α β where
   hMul a b := Mul.mul a b
 
-instance [CoeTC α β] [Div β] : HDiv α β β where
+instance [CoeHTCT α β] [Div β] : HDiv α β β where
   hDiv a b := Div.div a b
 
-instance [CoeTC α β] [Div β] : HDiv β α β where
+instance [CoeHTCT α β] [Div β] : HDiv β α β where
   hDiv a b := Div.div a b
 
-instance [CoeTC α β] [Mod β] : HMod α β β where
+instance [CoeHTCT α β] [Mod β] : HMod α β β where
   hMod a b := Mod.mod a b
 
-instance [CoeTC α β] [Mod β] : HMod β α β where
+instance [CoeHTCT α β] [Mod β] : HMod β α β where
   hMod a b := Mod.mod a b
 
-instance [CoeTC α β] [Append β] : HAppend α β β where
+instance [CoeHTCT α β] [Append β] : HAppend α β β where
   hAppend a b := Append.append a b
 
-instance [CoeTC α β] [Append β] : HAppend β α β where
+instance [CoeHTCT α β] [Append β] : HAppend β α β where
   hAppend a b := Append.append a b
 
-instance [CoeTC α β] [OrElse β] : HOrElse α β β where
+instance [CoeHTCT α β] [OrElse β] : HOrElse α β β where
   hOrElse a b := OrElse.orElse a b
 
-instance [CoeTC α β] [OrElse β] : HOrElse β α β where
+instance [CoeHTCT α β] [OrElse β] : HOrElse β α β where
   hOrElse a b := OrElse.orElse a b
 
-instance [CoeTC α β] [AndThen β] : HAndThen α β β where
+instance [CoeHTCT α β] [AndThen β] : HAndThen α β β where
   hAndThen a b := AndThen.andThen a b
 
-instance [CoeTC α β] [AndThen β] : HAndThen β α β where
+instance [CoeHTCT α β] [AndThen β] : HAndThen β α β where
   hAndThen a b := AndThen.andThen a b

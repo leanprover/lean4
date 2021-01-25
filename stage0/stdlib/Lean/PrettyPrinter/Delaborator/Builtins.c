@@ -52,6 +52,7 @@ lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabLetE___closed__1
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabDIte___closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_PrettyPrinter_Delaborator_getParamKinds___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Coe___hyg_168____closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabDIte___lambda__1___closed__2;
 extern lean_object* l_Lean_PrettyPrinter_Delaborator_getExprKind___closed__2;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_14350____closed__11;
@@ -74,7 +75,6 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_delabDIte___lambda__1___boxed(lean
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppMatch___closed__6;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabConst___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3528____closed__4;
 lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabLam___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
@@ -361,7 +361,6 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_delabProjectionApp___lambda__1(lea
 lean_object* l_Array_mapMUnsafe_map___at_Lean_PrettyPrinter_Delaborator_delabAppMatch___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabTuple___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabStructureInstance___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Coe___hyg_160____closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__1;
 size_t l_Lean_Name_hash(lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_Delaborator_delabAttribute;
@@ -797,6 +796,7 @@ extern lean_object* l_addParenHeuristic___closed__1;
 lean_object* l___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_shouldGroupWithNext_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_unresolveUsingNamespace___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f___at_Lean_PrettyPrinter_Delaborator_delabAppWithUnexpander___spec__6___boxed(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3606____closed__4;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppImplicit_match__3___rarg(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabProjectionApp(lean_object*);
 uint8_t l_Lean_Expr_isLet(lean_object*);
@@ -21451,7 +21451,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_getExprKind___closed__5;
-x_2 = l_myMacro____x40_Init_Coe___hyg_160____closed__1;
+x_2 = l_myMacro____x40_Init_Coe___hyg_168____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -22388,7 +22388,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabNil___closed__1;
-x_2 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3528____closed__4;
+x_2 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3606____closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

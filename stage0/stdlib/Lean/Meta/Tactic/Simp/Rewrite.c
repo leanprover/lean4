@@ -33,6 +33,7 @@ lean_object* l_Lean_Meta_Simp_rewrite_tryLemma_x3f___lambda__4___boxed(lean_obje
 lean_object* l_Lean_Meta_Simp_postDefault___closed__1;
 lean_object* l_Lean_Meta_Simp_rewrite_tryLemma_x3f___lambda__3(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fswap(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__7;
 lean_object* l_Lean_Meta_withNewMCtxDepth___at_Lean_Meta_Simp_rewrite_tryLemma_x3f___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_rewrite_tryLemma_x3f___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_rewrite_match__2(lean_object*);
@@ -94,7 +95,6 @@ lean_object* l_Lean_Meta_mkEqTrue(lean_object*, lean_object*, lean_object*, lean
 extern lean_object* l_Lean_KernelException_toMessageData___closed__15;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_Meta_Simp_rewrite___closed__3;
-extern lean_object* l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__8;
 lean_object* l_Lean_Meta_Simp_rewrite_tryLemma_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_BinderInfo_isInstImplicit(uint8_t);
 lean_object* l_Lean_Meta_Simp_rewrite_synthesizeArgs_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -4042,7 +4042,7 @@ x_26 = l_Lean_KernelException_toMessageData___closed__15;
 x_27 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_27, 0, x_26);
 lean_ctor_set(x_27, 1, x_25);
-x_28 = l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__8;
+x_28 = l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__7;
 x_29 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_29, 0, x_27);
 lean_ctor_set(x_29, 1, x_28);

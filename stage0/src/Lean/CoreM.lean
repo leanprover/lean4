@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Util.RecDepth
 import Lean.Util.Trace
+import Lean.Data.Options
 import Lean.Environment
 import Lean.Exception
 import Lean.InternalExceptionId
@@ -14,6 +15,18 @@ import Lean.ResolveName
 
 namespace Lean
 namespace Core
+
+def maxHeartbeatsDefault := 50000
+
+builtin_initialize
+  registerOption `maxHeartbeats {
+    defValue := DataValue.ofNat maxHeartbeatsDefault,
+    group := "",
+    descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
+  }
+
+def getMaxHeartbeats (opts : Options) : Nat :=
+  opts.get `maxHeartbeats maxHeartbeatsDefault * 1000
 
 structure State where
   env             : Environment
@@ -29,6 +42,8 @@ structure Context where
   ref            : Syntax := Syntax.missing
   currNamespace  : Name := Name.anonymous
   openDecls      : List OpenDecl := []
+  initHeartbeats : Nat := 0
+  maxHeartbeats  : Nat := getMaxHeartbeats options
 
 abbrev CoreM := ReaderT Context $ StateRefT State (EIO Exception)
 
@@ -78,8 +93,8 @@ private def mkFreshNameImp (n : Name) : CoreM Name := do
   let env ← getEnv
   pure $ addMacroScope env.mainModule n fresh
 
-def mkFreshUserName [MonadLiftT CoreM m] (n : Name) : m Name :=
-  liftM $ mkFreshNameImp n
+def mkFreshUserName (n : Name) : CoreM Name :=
+  mkFreshNameImp n
 
 @[inline] def CoreM.run (x : CoreM α) (ctx : Context) (s : State) : EIO Exception (α × State) :=
   (x ctx).run s
@@ -88,7 +103,7 @@ def mkFreshUserName [MonadLiftT CoreM m] (n : Name) : m Name :=
   Prod.fst <$> x.run ctx s
 
 @[inline] def CoreM.toIO (x : CoreM α) (ctx : Context) (s : State) : IO (α × State) := do
-  match (← (x.run ctx s).toIO') with
+  match (← (x.run { ctx with initHeartbeats := (← IO.getNumHeartbeats) } s).toIO') with
   | Except.error (Exception.error _ msg)   => do let e ← msg.toString; throw $ IO.userError e
   | Except.error (Exception.internal id _) => throw $ IO.userError $ "internal exception #" ++ toString id.idx
   | Except.ok a => pure a
@@ -103,9 +118,25 @@ instance [MetaEval α] : MetaEval (CoreM α) where
 protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
   controlAt CoreM fun runInBase => withIncRecDepth (runInBase x)
 
+def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat) : CoreM Unit := do
+  unless max == 0 do
+    let numHeartbeats ← IO.getNumHeartbeats (ε := Exception)
+    if numHeartbeats - (← read).initHeartbeats > max then
+      throwError! "(deterministic) timeout at '{moduleName}', maximum number of heartbeats ({max/1000}) has been reached (use 'set_option {optionName} <num>' to set the limit)"
+
+def checkMaxHeartbeats (moduleName : String) : CoreM Unit := do
+  checkMaxHeartbeatsCore moduleName `maxHeartbeats (← read).maxHeartbeats
+
+private def withCurrHeartbeatsImp (x : CoreM α) : CoreM α := do
+  let heartbeats ← IO.getNumHeartbeats (ε := Exception)
+  withReader (fun ctx => { ctx with initHeartbeats := heartbeats }) x
+
+def withCurrHeartbeats [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
+  controlAt CoreM fun runInBase => withCurrHeartbeatsImp (runInBase x)
+
 end Core
 
-export Core (CoreM mkFreshUserName)
+export Core (CoreM mkFreshUserName checkMaxHeartbeats withCurrHeartbeats)
 
 @[inline] def catchInternalId [Monad m] [MonadExcept Exception m] (id : InternalExceptionId) (x : m α) (h : Exception → m α) : m α := do
   try

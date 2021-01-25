@@ -94,6 +94,10 @@ structure Context where
      for the unbound variable and try again. -/
   autoBoundImplicit  : Bool            := false
   autoBoundImplicits : Std.PArray Expr := {}
+  /-- Map from user name to internal unique name -/
+  sectionVars        : NameMap Name    := {}
+  /-- Map from internal name to fvar -/
+  sectionFVars       : NameMap Expr    := {}
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind where
@@ -990,6 +994,7 @@ private partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) :
 private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (implicitLambda : Bool) : Syntax → TermElabM Expr
   | stx => withFreshMacroScope $ withIncRecDepth do
     trace[Elab.step]! "expected type: {expectedType?}, term\n{stx}"
+    checkMaxHeartbeats "elaborator"
     withNestedTraces do
     let env ← getEnv
     let stxNew? ← catchInternalId unsupportedSyntaxExceptionId
@@ -1268,23 +1273,24 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
    pure $ (const, projs) :: result
 
 def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
-  match (← resolveLocalName n) with
-  | some (e, projs) =>
+  if let some (e, projs) ← resolveLocalName n then
     unless explicitLevels.isEmpty do
       throwError! "invalid use of explicit universe parameters, '{e}' is a local"
-    pure [(e, projs)]
-  | none =>
-    let process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
-      if candidates.isEmpty then
-        if (← read).autoBoundImplicit && isValidAutoBoundImplicitName n then
-          throwAutoBoundImplicitLocal n
-        else
-          throwError! "unknown identifier '{Lean.mkConst n}'"
-      mkConsts candidates explicitLevels
-    if preresolved.isEmpty then
-      process (← resolveGlobalName n)
+    return [(e, projs)]
+  -- check for section variable capture by a quotation
+  if let some (e, projs) := preresolved.findSome? fun (n, projs) => (← read).sectionFVars.find? n |>.map (·, projs) then
+    return [(e, projs)]  -- section variables should shadow global decls
+  if preresolved.isEmpty then
+    process (← resolveGlobalName n)
+  else
+    process preresolved
+where process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
+  if candidates.isEmpty then
+    if (← read).autoBoundImplicit && isValidAutoBoundImplicitName n then
+      throwAutoBoundImplicitLocal n
     else
-      process preresolved
+      throwError! "unknown identifier '{Lean.mkConst n}'"
+  mkConsts candidates explicitLevels
 
 /--
   Similar to `resolveName`, but creates identifiers for the main part and each projection with position information derived from `ident`.

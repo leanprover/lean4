@@ -18,6 +18,7 @@ lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContex
 lean_object* l_Lean_throwError___at_Lean_registerInitAttrUnsafe___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkMapDeclarationExtension___rarg___closed__1;
 lean_object* l_Lean_registerInitAttrUnsafe(lean_object*, uint8_t, lean_object*);
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2797____closed__4;
 size_t l_USize_add(size_t, size_t);
 lean_object* l___private_Lean_Compiler_InitAttr_0__Lean_isUnitType___boxed(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -37,7 +38,6 @@ lean_object* l_Lean_resolveGlobalConst___at_Lean_registerInitAttrUnsafe___spec__
 lean_object* l_Lean_throwUnknownConstant___at_Lean_registerInitAttrUnsafe___spec__6(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_setBuiltinInitAttr(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2790____closed__4;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_registerInitAttrUnsafe___spec__16(lean_object*, lean_object*, size_t, size_t);
 extern lean_object* l_Lean_registerInternalExceptionId___closed__2;
 uint8_t lean_is_io_unit_regular_init_fn(lean_object*, lean_object*);
@@ -190,6 +190,7 @@ lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__2;
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__1;
 uint8_t l___private_Lean_Compiler_InitAttr_0__Lean_isUnitType(lean_object*);
 lean_object* l_Lean_getInitFnNameForCore_x3f(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2797____closed__14;
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__8;
@@ -200,7 +201,6 @@ lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___boxed(lean_object*, lea
 extern lean_object* l_Array_qsort_sort___at_Lean_mkMapDeclarationExtension___spec__1___rarg___closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2790____closed__14;
 lean_object* l___private_Lean_Compiler_InitAttr_0__Lean_getIOTypeArg_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -233,7 +233,7 @@ x_11 = lean_ctor_get(x_5, 1);
 lean_inc(x_11);
 x_12 = lean_ctor_get_usize(x_5, 2);
 lean_dec(x_5);
-x_13 = l_myMacro____x40_Init_System_IO___hyg_2790____closed__4;
+x_13 = l_myMacro____x40_Init_System_IO___hyg_2797____closed__4;
 x_14 = lean_string_dec_eq(x_11, x_13);
 lean_dec(x_11);
 if (x_14 == 0)
@@ -324,7 +324,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = lean_ctor_get(x_3, 1);
-x_7 = l_myMacro____x40_Init_System_IO___hyg_2790____closed__4;
+x_7 = l_myMacro____x40_Init_System_IO___hyg_2797____closed__4;
 x_8 = lean_string_dec_eq(x_6, x_7);
 if (x_8 == 0)
 {
@@ -402,7 +402,7 @@ x_8 = lean_ctor_get(x_4, 1);
 lean_inc(x_8);
 x_9 = lean_ctor_get_usize(x_4, 2);
 lean_dec(x_4);
-x_10 = l_myMacro____x40_Init_System_IO___hyg_2790____closed__14;
+x_10 = l_myMacro____x40_Init_System_IO___hyg_2797____closed__14;
 x_11 = lean_string_dec_eq(x_8, x_10);
 lean_dec(x_8);
 if (x_11 == 0)
@@ -475,7 +475,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_myMacro____x40_Init_System_IO___hyg_2790____closed__14;
+x_5 = l_myMacro____x40_Init_System_IO___hyg_2797____closed__14;
 x_6 = lean_string_dec_eq(x_4, x_5);
 return x_6;
 }

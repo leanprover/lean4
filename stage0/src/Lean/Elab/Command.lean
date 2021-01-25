@@ -21,7 +21,10 @@ structure Scope where
   currNamespace : Name := Name.anonymous
   openDecls     : List OpenDecl := []
   levelNames    : List Name := []
+  /-- section variables as `bracketedBinder`s -/
   varDecls      : Array Syntax := #[]
+  /-- Globally unique internal identifiers for the `varDecls` -/
+  varUIds       : Array Name := #[]
   deriving Inhabited
 
 structure State where
@@ -96,21 +99,23 @@ instance : AddErrorMessageContext CommandElabM where
 def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
   mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos?.getD ctx.cmdPos)
 
-private def mkCoreContext (ctx : Context) (s : State) : Core.Context :=
-  let scope       := s.scopes.head!
-  { options       := scope.opts
-    currRecDepth  := ctx.currRecDepth
-    maxRecDepth   := s.maxRecDepth
-    ref           := ctx.ref
-    currNamespace := scope.currNamespace
-    openDecls     := scope.openDecls }
+private def mkCoreContext (ctx : Context) (s : State) (heartbeats : Nat) : Core.Context :=
+  let scope        := s.scopes.head!
+  { options        := scope.opts
+    currRecDepth   := ctx.currRecDepth
+    maxRecDepth    := s.maxRecDepth
+    ref            := ctx.ref
+    currNamespace  := scope.currNamespace
+    openDecls      := scope.openDecls,
+    initHeartbeats := heartbeats }
 
 def liftCoreM {α} (x : CoreM α) : CommandElabM α := do
   let s ← get
   let ctx ← read
+  let heartbeats ← IO.getNumHeartbeats (ε := Exception)
   let Eα := Except Exception α
   let x : CoreM Eα := try let a ← x; pure $ Except.ok a catch ex => pure $ Except.error ex
-  let x : EIO Exception (Eα × Core.State) := (ReaderT.run x (mkCoreContext ctx s)).run { env := s.env, ngen := s.ngen }
+  let x : EIO Exception (Eα × Core.State) := (ReaderT.run x (mkCoreContext ctx s heartbeats)).run { env := s.env, ngen := s.ngen }
   let (ea, coreS) ← liftM x
   modify fun s => { s with env := coreS.env, ngen := coreS.ngen }
   match ea with
@@ -253,13 +258,24 @@ private def mkMetaContext : Meta.Context := {
   config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true }
 }
 
-private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context :=
+def getBracketedBinderIds : Syntax → Array Name
+  | `(bracketedBinder|($ids* $[: $ty?]? $(annot?)?)) => ids.map Syntax.getId
+  | `(bracketedBinder|{$ids* $[: $ty?]?})            => ids.map Syntax.getId
+  | `(bracketedBinder|[$id : $ty])                   => #[id.getId]
+  | `(bracketedBinder|[$ty])                         => #[]
+  | _                                                => unreachable!
+
+private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context := do
   let scope      := s.scopes.head!
+  let mut sectionVars := {}
+  for id in scope.varDecls.concatMap getBracketedBinderIds, uid in scope.varUIds do
+    sectionVars := sectionVars.insert id uid
   { macroStack     := ctx.macroStack
     fileName       := ctx.fileName
     fileMap        := ctx.fileMap
     currMacroScope := ctx.currMacroScope
-    declName?      := declName? }
+    declName?      := declName?
+    sectionVars    := sectionVars }
 
 private def mkTermState (scope : Scope) (s : State) : Term.State := {
   messages          := {}
@@ -278,12 +294,14 @@ private def addTraceAsMessages (ctx : Context) (log : MessageLog) (traceState : 
 def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandElabM α := do
   let ctx ← read
   let s   ← get
+  let heartbeats ← IO.getNumHeartbeats (ε := Exception)
+  -- dbgTrace! "heartbeats: {heartbeats}"
   let scope := s.scopes.head!
   -- We execute `x` with an empty message log. Thus, `x` cannot modify/view messages produced by previous commands.
   -- This is useful for implementing `runTermElabM` where we use `Term.resetMessageLog`
   let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) (mkTermState scope s)
   let x : CoreM _      := x.run mkMetaContext {}
-  let x : EIO _ _      := x.run (mkCoreContext ctx s) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope }
+  let x : EIO _ _      := x.run (mkCoreContext ctx s heartbeats) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope }
   let (((ea, termS), metaS), coreS) ← liftEIO x
   let infoTrees        := termS.infoState.trees.map fun tree =>
     let tree := tree.substitute termS.infoState.assignment
@@ -302,15 +320,19 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
   | Except.error ex => throw ex
 
 @[inline] def runTermElabM {α} (declName? : Option Name) (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
-  let s ← get
+  let scope ← getScope
   liftTermElabM declName? <|
     -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
     -- So, we use `Term.resetMessageLog`.
     Term.withAutoBoundImplicitLocal <|
-      Term.elabBinders (getVarDecls s) (catchAutoBoundImplicit := true) fun xs => do
-        Term.resetMessageLog
-        let xs ← Term.addAutoBoundImplicits xs
-        Term.withAutoBoundImplicitLocal (flag := false) <| elabFn xs
+      Term.elabBinders scope.varDecls (catchAutoBoundImplicit := true) fun xs => do
+        let mut sectionFVars := {}
+        for uid in scope.varUIds, x in xs do
+          sectionFVars := sectionFVars.insert uid x
+        withReader ({ · with sectionFVars := sectionFVars }) do
+          Term.resetMessageLog
+          let xs ← Term.addAutoBoundImplicits xs
+          Term.withAutoBoundImplicitLocal (flag := false) <| elabFn xs
 
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit := fun ctx ref =>
   EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
@@ -530,7 +552,8 @@ def elabOpenRenaming (n : SyntaxNode) : CommandElabM Unit := do
     -- Try to elaborate `binders` for sanity checking
     runTermElabM none fun _ => Term.withAutoBoundImplicitLocal <|
       Term.elabBinders binders (catchAutoBoundImplicit := true) fun _ => pure ()
-    modifyScope fun scope => { scope with varDecls := scope.varDecls ++ binders }
+    let varUIds ← binders.concatMap getBracketedBinderIds |>.mapM (withFreshMacroScope ∘ MonadQuotation.addMacroScope)
+    modifyScope fun scope => { scope with varDecls := scope.varDecls ++ binders, varUIds := scope.varUIds ++ varUIds }
   | _ => throwUnsupportedSyntax
 
 open Meta

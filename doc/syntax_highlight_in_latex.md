@@ -35,11 +35,12 @@ Some remarks:
 
  - either `xelatex` or `lualatex` is required to handle Unicode characters in the code.
  - `--shell-escape` is needed to allow `xelatex` to execute `pygmentize` in a shell.
- - If the chosen monospace font is missing some Unicode symbols, you can direct them to be displayed using a fallback font.
+ - If the chosen monospace font is missing some Unicode symbols, you can direct them to be displayed using a fallback font or other replacement LaTeX code.
 ``` latex
 \usepackage{newunicodechar}
 \newfontfamily{\freeserif}{DejaVu Sans}
 \newunicodechar{✝}{\freeserif{✝}}
+\newunicodechar{𝓞}{\ensuremath{\mathcal{O}}}
 ```
  - minted has a "helpful" feature that draws red boxes around characters the chosen lexer doesn't recognize.
  Since the Lean lexer cannot encompass all user-defined syntax, it is advisable to [work around](https://tex.stackexchange.com/a/343506/14563) this feature.

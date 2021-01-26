@@ -41,7 +41,7 @@ partial def visit (fn : Expr → MetaM Bool) (e : Expr) : M Unit :=
       | Expr.forallE _ _ _ _   => visitBinder fn #[] 0 e
       | Expr.lam _ _ _ _       => visitBinder fn #[] 0 e
       | Expr.letE _ _ _ _ _    => visitBinder fn #[] 0 e
-      | Expr.app f a _         => do visit fn f; visit fn a
+      | Expr.app f a _         => visit fn f; visit fn a
       | Expr.mdata _ b _       => visit fn b
       | Expr.proj _ _ b _      => visit fn b
       | _                      => pure ()
@@ -50,15 +50,12 @@ end
 
 end ForEachExpr
 
-def forEachExprImp' (e : Expr) (f : Expr → MetaM Bool) : MetaM Unit :=
+/-- Similar to `Expr.forEach'`, but creates free variables whenever going inside of a binder. -/
+def forEachExpr' (e : Expr) (f : Expr → MetaM Bool) : MetaM Unit :=
   ForEachExpr.visit f e |>.run
 
-/-- Similar to `Expr.forEach'`, but creates free variables whenever going inside of a binder. -/
-def forEachExpr' {m} [MonadLiftT MetaM m] (e : Expr) (f : Expr → MetaM Bool) : m Unit :=
-  liftM $ forEachExprImp' e f
-
 /-- Similar to `Expr.forEach`, but creates free variables whenever going inside of a binder. -/
-def forEachExpr {m} [MonadLiftT MetaM m] (e : Expr) (f : Expr → MetaM Unit) : m Unit :=
+def forEachExpr (e : Expr) (f : Expr → MetaM Unit) : MetaM Unit :=
   forEachExpr' e fun e => do
     f e
     pure true

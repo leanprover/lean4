@@ -89,6 +89,12 @@ theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
 theorem congrArg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h : Eq a₁ a₂) : Eq (f a₁) (f a₂) :=
   h ▸ rfl
 
+theorem congr {α : Sort u} {β : Sort v} {f₁ f₂ : α → β} {a₁ a₂ : α} (h₁ : Eq f₁ f₂) (h₂ : Eq a₁ a₂) : Eq (f₁ a₁) (f₂ a₂) :=
+  h₁ ▸ h₂ ▸ rfl
+
+theorem congrFun {α : Sort u} {β : α → Sort v} {f g : (x : α) →  β x} (h : Eq f g) (a : α) : Eq (f a) (g a) :=
+  h ▸ rfl
+
 /-
 Initialize the Quotient Module, which effectively adds the following definitions:
 

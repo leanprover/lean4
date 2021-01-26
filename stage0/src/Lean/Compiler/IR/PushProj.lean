@@ -49,8 +49,9 @@ partial def FnBody.pushProj (b : FnBody) : FnBody :=
   | other => reshape bs term
 
 /-- Push projections inside `case` branches. -/
-def Decl.pushProj : Decl → Decl
-  | Decl.fdecl f xs t b => (Decl.fdecl f xs t b.pushProj).normalizeIds
-  | other               => other
+def Decl.pushProj (d : Decl) : Decl :=
+  match d with
+  | Decl.fdecl (body := b) .. => d.updateBody! b.pushProj |>.normalizeIds
+  | other => other
 
 end Lean.IR

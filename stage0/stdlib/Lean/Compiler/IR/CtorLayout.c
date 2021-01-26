@@ -16,10 +16,10 @@ extern "C" {
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__7;
 lean_object* l_Std_fmt___at_Lean_Position_instToFormatPosition___spec__1(lean_object*);
 extern lean_object* l_Std_Format_join___closed__1;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_13781____closed__9;
 extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3363____closed__35;
 lean_object* l_Lean_IR_CtorFieldInfo_format_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__6;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_13855____closed__9;
 lean_object* l_Std_fmt___at_Lean_IR_CtorFieldInfo_format___spec__1(lean_object*);
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__5;
 extern lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatArg___closed__2;
@@ -176,7 +176,7 @@ static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_13781____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_13855____closed__9;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

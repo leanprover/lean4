@@ -310,6 +310,7 @@ static inline unsigned lean_get_slot_idx(unsigned sz) {
 void * lean_alloc_small(unsigned sz, unsigned slot_idx);
 void lean_free_small(void * p);
 unsigned lean_small_mem_size(void * p);
+void lean_inc_heartbeat();
 
 static inline lean_object * lean_alloc_small_object(unsigned sz) {
 #ifdef LEAN_SMALL_ALLOCATOR
@@ -318,6 +319,7 @@ static inline lean_object * lean_alloc_small_object(unsigned sz) {
     assert(sz <= LEAN_MAX_SMALL_OBJECT_SIZE);
     return (lean_object*)lean_alloc_small(sz, slot_idx);
 #else
+    lean_inc_heartbeat();
     void * mem = malloc(sizeof(size_t) + sz);
     if (mem == 0) lean_panic_out_of_memory();
     *(size_t*)mem = sz;

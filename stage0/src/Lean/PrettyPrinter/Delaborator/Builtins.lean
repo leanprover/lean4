@@ -590,4 +590,10 @@ def delabDo : Delab := whenPPOption getPPNotation do
   let items ← elems.toArray.mapM (`(doSeqItem|$(·):doElem))
   `(do $items:doSeqItem*)
 
+@[builtinDelab app.sorryAx]
+def delabSorryAx : Delab := whenPPOption getPPNotation do
+  unless (← getExpr).isAppOfArity ``sorryAx 2 do
+    failure
+  `(sorry)
+
 end Lean.PrettyPrinter.Delaborator

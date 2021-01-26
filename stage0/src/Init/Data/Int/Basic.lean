@@ -59,7 +59,14 @@ protected def mul (m n : @& Int) : Int :=
   | negSucc m, ofNat n   => negOfNat (succ m * n)
   | negSucc m, negSucc n => ofNat (succ m * succ n)
 
-@[defaultInstance]
+/-
+  The `Neg Int` default instance must have priority higher than `low` since
+  the default instance `OfNat Nat n` has `low` priority.
+  ```
+  #check -42
+  ```
+-/
+@[defaultInstance mid]
 instance : Neg Int where
   neg := Int.neg
 instance : Add Int where

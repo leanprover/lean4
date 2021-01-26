@@ -86,7 +86,6 @@ lean_object* l_Lean_Syntax_formatStxAux___closed__7;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Syntax_reprint___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isQuot_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_13781____closed__9;
 lean_object* l_Lean_Syntax_getAtomVal_x21___boxed(lean_object*);
 lean_object* l_Lean_Syntax_mkAntiquotSuffixSpliceNode(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_setAtomVal_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -137,6 +136,7 @@ lean_object* l_Lean_SyntaxNode_getKind(lean_object*);
 lean_object* l_Lean_SyntaxNode_getArgs(lean_object*);
 lean_object* l_Lean_Syntax_modifyArgs_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_rewriteBottomUp(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_13855____closed__9;
 lean_object* l_Lean_Syntax_ifNode(lean_object*);
 lean_object* l_Std_fmt___at___private_Lean_Syntax_0__Lean_Syntax_formatInfo___spec__3(lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___closed__3;
@@ -206,6 +206,7 @@ lean_object* l_Lean_Syntax_instBEqSyntax___closed__1;
 lean_object* l_Lean_Syntax_antiquotSuffixSplice_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStx(lean_object*, lean_object*, uint8_t);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_reprintLeaf(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_2191____closed__2;
 lean_object* l_Lean_Syntax_MonadTraverser_setCur___rarg(lean_object*, lean_object*);
 lean_object* l_Function_comp___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getAtomVal_x21_match__1(lean_object*);
@@ -262,9 +263,7 @@ lean_object* l_Lean_Syntax_isMissing_match__1___rarg(lean_object*, lean_object*,
 lean_object* l_Lean_Syntax_mkAntiquotNode___closed__1;
 lean_object* l_Lean_Syntax_antiquotKind_x3f_match__1(lean_object*);
 uint8_t l_Lean_Syntax_isMissing(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_2117____closed__2;
 lean_object* l_Lean_Syntax_replaceM___at_Lean_Syntax_updateLeading___spec__1(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_2117____closed__1;
 lean_object* l_Lean_Syntax_getQuotContent(lean_object*);
 lean_object* l_Lean_SyntaxNode_getNumArgs(lean_object*);
 extern lean_object* l_Lean_Syntax_mkApp___closed__1;
@@ -291,6 +290,7 @@ lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___closed__9;
 lean_object* l_Lean_Syntax_getAntiquotSpliceSuffix(lean_object*);
 lean_object* l_Lean_Syntax_Traverser_right(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_2191____closed__1;
 lean_object* l_Lean_SyntaxNode_withArgs___rarg(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_instToStringSyntax___closed__2;
@@ -3706,7 +3706,7 @@ static lean_object* _init_l___private_Lean_Syntax_0__Lean_Syntax_formatInfo___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_13781____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_13855____closed__9;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -6027,7 +6027,7 @@ else
 {
 lean_object* x_47; uint8_t x_48; 
 lean_dec(x_24);
-x_47 = l_myMacro____x40_Init_Notation___hyg_2117____closed__1;
+x_47 = l_myMacro____x40_Init_Notation___hyg_2191____closed__1;
 x_48 = lean_string_dec_eq(x_21, x_47);
 if (x_48 == 0)
 {
@@ -6162,7 +6162,7 @@ else
 {
 lean_object* x_75; uint8_t x_76; 
 lean_dec(x_24);
-x_75 = l_myMacro____x40_Init_Notation___hyg_2117____closed__1;
+x_75 = l_myMacro____x40_Init_Notation___hyg_2191____closed__1;
 x_76 = lean_string_dec_eq(x_21, x_75);
 if (x_76 == 0)
 {
@@ -6331,7 +6331,7 @@ else
 {
 lean_object* x_109; uint8_t x_110; 
 lean_dec(x_24);
-x_109 = l_myMacro____x40_Init_Notation___hyg_2117____closed__1;
+x_109 = l_myMacro____x40_Init_Notation___hyg_2191____closed__1;
 x_110 = lean_string_dec_eq(x_21, x_109);
 if (x_110 == 0)
 {
@@ -6563,7 +6563,7 @@ else
 {
 lean_object* x_153; uint8_t x_154; 
 lean_dec(x_24);
-x_153 = l_myMacro____x40_Init_Notation___hyg_2117____closed__1;
+x_153 = l_myMacro____x40_Init_Notation___hyg_2191____closed__1;
 x_154 = lean_string_dec_eq(x_21, x_153);
 if (x_154 == 0)
 {
@@ -6847,7 +6847,7 @@ else
 {
 lean_object* x_207; uint8_t x_208; 
 lean_dec(x_183);
-x_207 = l_myMacro____x40_Init_Notation___hyg_2117____closed__1;
+x_207 = l_myMacro____x40_Init_Notation___hyg_2191____closed__1;
 x_208 = lean_string_dec_eq(x_21, x_207);
 if (x_208 == 0)
 {
@@ -7270,7 +7270,7 @@ else
 {
 lean_object* x_285; uint8_t x_286; 
 lean_dec(x_259);
-x_285 = l_myMacro____x40_Init_Notation___hyg_2117____closed__1;
+x_285 = l_myMacro____x40_Init_Notation___hyg_2191____closed__1;
 x_286 = lean_string_dec_eq(x_257, x_285);
 if (x_286 == 0)
 {
@@ -7616,7 +7616,7 @@ return x_18;
 else
 {
 lean_object* x_19; uint8_t x_20; 
-x_19 = l_myMacro____x40_Init_Notation___hyg_2117____closed__1;
+x_19 = l_myMacro____x40_Init_Notation___hyg_2191____closed__1;
 x_20 = lean_string_dec_eq(x_8, x_19);
 if (x_20 == 0)
 {
@@ -7712,7 +7712,7 @@ static lean_object* _init_l_Lean_Syntax_getQuotContent___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_2117____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_2191____closed__2;
 x_2 = l_Lean_Syntax_isQuot_match__1___rarg___closed__2;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -8053,7 +8053,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(2);
-x_2 = l_myMacro____x40_Init_Notation___hyg_13781____closed__9;
+x_2 = l_myMacro____x40_Init_Notation___hyg_13855____closed__9;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

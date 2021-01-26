@@ -121,8 +121,8 @@ instance : ToString FnBody := ⟨fun b => (format b).pretty⟩
 
 def formatDecl (decl : Decl) (indent : Nat := 2) : Format :=
   match decl with
-  | Decl.fdecl f xs ty b  => "def " ++ format f ++ formatParams xs ++ format " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody b indent)
-  | Decl.extern f xs ty _ => "extern " ++ format f ++ formatParams xs ++ format " : " ++ format ty
+  | Decl.fdecl f xs ty b _  => "def " ++ format f ++ formatParams xs ++ format " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody b indent)
+  | Decl.extern f xs ty _   => "extern " ++ format f ++ formatParams xs ++ format " : " ++ format ty
 
 instance : ToFormat Decl := ⟨formatDecl⟩
 

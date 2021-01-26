@@ -234,6 +234,7 @@ lean_object* l_Lean_Expr_hasExprMVarEx___boxed(lean_object*);
 lean_object* l_Lean_Expr_hasExprMVar___boxed(lean_object*);
 lean_object* l_Lean_mkAppRev___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12938____closed__14;
 lean_object* l_Lean_mkFreshFVarId(lean_object*);
 lean_object* l_Lean_BinderInfo_isExplicit_match__1(lean_object*);
 lean_object* l_Lean_Expr_bindingName_x21___boxed(lean_object*);
@@ -260,6 +261,7 @@ lean_object* l_Lean_mkLet___boxed(lean_object*, lean_object*, lean_object*, lean
 extern lean_object* l_Lean_instQuoteSubstring___closed__2;
 lean_object* lean_expr_lower_loose_bvars(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_setOption___at_Lean_Expr_setPPExplicit___spec__1(lean_object*, lean_object*, uint8_t);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_2191____closed__3;
 lean_object* l_Lean_Expr_isMVar___boxed(lean_object*);
 uint8_t l_Lean_Expr_Data_hasExprMVar(uint64_t);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
@@ -354,7 +356,6 @@ lean_object* l_Lean_Expr_consumeMData_match__1___rarg(lean_object*, lean_object*
 extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3363____closed__33;
 lean_object* l_Lean_Expr_updateProj_x21(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bindingBody_x21_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_2117____closed__3;
 lean_object* l_Lean_Level_instantiateParams___at_Lean_Expr_instantiateLevelParams___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsTrue___closed__1;
 lean_object* l_Lean_Expr_instantiateLevelParams(lean_object*, lean_object*, lean_object*);
@@ -721,7 +722,6 @@ lean_object* l_Lean_Expr_hasLooseBVars___boxed(lean_object*);
 lean_object* lean_lit_type(lean_object*);
 lean_object* l_Lean_instBEqLiteral;
 lean_object* l_Lean_Expr_getArgD___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12864____closed__14;
 lean_object* l_Lean_instBEqBinderInfo___closed__1;
 lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isCharLit___closed__2;
@@ -3352,7 +3352,7 @@ return x_6;
 case 5:
 {
 lean_object* x_7; 
-x_7 = l_myMacro____x40_Init_Notation___hyg_2117____closed__3;
+x_7 = l_myMacro____x40_Init_Notation___hyg_2191____closed__3;
 return x_7;
 }
 case 6:
@@ -5534,7 +5534,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_Notation___hyg_12864____closed__14;
+x_2 = l_myMacro____x40_Init_Notation___hyg_12938____closed__14;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

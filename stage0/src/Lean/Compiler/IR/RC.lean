@@ -271,13 +271,14 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
   | FnBody.unreachable, _ => (FnBody.unreachable, {})
   | other, ctx => (other, {}) -- unreachable if well-formed
 
-partial def visitDecl (env : Environment) (decls : Array Decl) : Decl → Decl
-  | Decl.fdecl f xs t b   =>
+partial def visitDecl (env : Environment) (decls : Array Decl) (d : Decl) : Decl :=
+  match d with
+  | Decl.fdecl (xs := xs) (body := b) .. =>
     let ctx : Context  := { env := env, decls := decls }
     let ctx := updateVarInfoWithParams ctx xs
     let (b, bLiveVars) := visitFnBody b ctx
     let b := addDecForDeadParams ctx xs b bLiveVars
-    Decl.fdecl f xs t b
+    d.updateBody! b
   | other => other
 
 end ExplicitRC

@@ -95,8 +95,8 @@ def buildImports (imports : List String) (leanArgs : List String) : IO Unit := d
   IO.println cfg.leanPath
   IO.println cfg.leanSrcPath
 
-def build (leanArgs : List String) : IO Unit := do
-  execMake [] leanArgs (← configure).leanPath
+def build (makeArgs leanArgs : List String) : IO Unit := do
+  execMake makeArgs leanArgs (← configure).leanPath
 
 def initGitignoreContents :=
   "/build
@@ -127,17 +127,17 @@ def usage :=
 
 Usage: leanpkg <command>
 
-configure              download and build dependencies and print resulting LEAN_PATH
-build [-- <Lean-args>] configure and build *.olean files
-init <name>            create a Lean package in the current directory
+init <name>      create a Lean package in the current directory
+configure        download and build dependencies
+build [<args>]   configure and build *.olean files
 
 See `leanpkg help <command>` for more information on a specific command."
 
 def main : (cmd : String) → (leanpkgArgs leanArgs : List String) → IO Unit
+  | "init",      [Name], []        => init Name
   | "configure", [],     []        => discard <| configure
   | "print-paths", leanpkgArgs, leanArgs => buildImports leanpkgArgs leanArgs
-  | "build",     _,      leanArgs  => build leanArgs
-  | "init",      [Name], []        => init Name
+  | "build",     makeArgs, leanArgs  => build makeArgs leanArgs
   | "help",      ["configure"], [] => IO.println "Download dependencies
 
 Usage:
@@ -152,12 +152,21 @@ is made of local dependencies."
   | "help",       ["build"], []    => IO.println "download dependencies and build *.olean files
 
 Usage:
-  leanpkg build [-- <lean-args>]
+  leanpkg build [<leanmake-args>] [-- <lean-args>]
 
-This command invokes `Leanpkg configure` followed by
-`Leanmake <lean-args>`, building the package's Lean files as well as
-(transitively) imported files of dependencies. If defined, the `package.timeout`
-configuration value is passed to Lean via its `-T` parameter."
+This command invokes `leanpkg configure` followed by `leanmake <leanmake-args> LEAN_OPTS=<lean-args>`.
+If defined, the `package.timeout` configuration value is passed to Lean via its `-T` parameter.
+If no <lean-args> are given, only .olean files will be produced in `build/`. If `lib` or `bin`
+is passed instead, the extracted C code is compiled with `c++` and a static library in `build/lib`
+or an executable in `build/bin`, respectively, is created. `leanpkg build bin` requires a declaration
+of name `main` in the root namespace, which must return `IO Unit` or `IO UInt32` (the exit code) and
+may accept the program's command line arguments as a `List String` parameter.
+
+NOTE: building and linking dependent libraries currently has to be done manually, e.g.
+```
+$ (cd a; leanpkg build lib)
+$ (cd b; leanpkg build bin LINK_OPTS=../a/build/lib/libA.a)
+```"
   | "help",       ["init"], []     => IO.println "Create a new Lean package in the current directory
 
 Usage:

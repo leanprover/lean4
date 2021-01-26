@@ -98,7 +98,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         expr proj_val  = mk_proj(n, i, c);
         proj_val = lctx.mk_lambda(proj_args, proj_val);
         declaration new_d = mk_definition_inferring_unsafe(env, proj_name, lvl_params, proj_type, proj_val,
-                                                         reducibility_hints::mk_abbreviation());
+                                                           reducibility_hints::mk_abbreviation());
         new_env = new_env.add(new_d);
         if (!inst_implicit)
             new_env = set_reducible(new_env, proj_name, reducible_status::Reducible, true);

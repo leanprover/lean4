@@ -189,12 +189,6 @@ theorem id.def {α : Sort u} (a : α) : id a = a := rfl
 theorem Eq.substr {α : Sort u} {p : α → Prop} {a b : α} (h₁ : b = a) (h₂ : p a) : p b :=
   h₁ ▸ h₂
 
-theorem congr {α : Sort u} {β : Sort v} {f₁ f₂ : α → β} {a₁ a₂ : α} (h₁ : f₁ = f₂) (h₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂ :=
-  h₁ ▸ h₂ ▸ rfl
-
-theorem congrFun {α : Sort u} {β : α → Sort v} {f g : ∀ x, β x} (h : f = g) (a : α) : f a = g a :=
-  h ▸ rfl
-
 theorem castEq {α : Sort u} (h : α = α) (a : α) : cast h a = a :=
   rfl
 

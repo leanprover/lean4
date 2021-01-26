@@ -48,6 +48,7 @@ lean_object* l_Lean_getProjFnForField_x3f(lean_object*, lean_object*, lean_objec
 uint8_t l_USize_decLt(size_t, size_t);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_findField_x3f___spec__2(lean_object*, lean_object*, size_t, size_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12938____closed__14;
 lean_object* l___private_Lean_Structure_0__Lean_isSubobjectFieldAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_isStructureLike___boxed(lean_object*, lean_object*);
@@ -106,7 +107,6 @@ lean_object* l_Lean_getPathToBaseStructureAux_match__1___rarg(lean_object*, lean
 lean_object* l___private_Lean_Structure_0__Lean_isSubobjectFieldAux_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_drop(lean_object*, lean_object*);
 lean_object* l_Lean_getPathToBaseStructure_x3f___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12864____closed__14;
 uint8_t l_Lean_isStructureLike(lean_object*, lean_object*);
 lean_object* l_Lean_findField_x3f___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -324,7 +324,7 @@ lean_object* l_Lean_mkInternalSubobjectFieldName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_myMacro____x40_Init_Notation___hyg_12864____closed__14;
+x_2 = l_myMacro____x40_Init_Notation___hyg_12938____closed__14;
 x_3 = l_Lean_Name_appendBefore(x_1, x_2);
 return x_3;
 }
@@ -1133,7 +1133,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = l_Lean_getStructureCtor(x_1, x_2);
 x_5 = lean_ctor_get(x_4, 3);
 lean_inc(x_5);
-x_6 = l_myMacro____x40_Init_Notation___hyg_12864____closed__14;
+x_6 = l_myMacro____x40_Init_Notation___hyg_12938____closed__14;
 x_7 = l_Lean_Name_appendBefore(x_3, x_6);
 x_8 = lean_ctor_get(x_4, 0);
 lean_inc(x_8);

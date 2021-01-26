@@ -262,14 +262,14 @@ def mkFreshExprMVarWithId (mvarId : MVarId) (type? : Option Expr := none) (kind 
     let type ← mkFreshExprMVar (mkSort u)
     mkFreshExprMVarWithIdCore mvarId type kind userName
 
+def getTransparency : MetaM TransparencyMode :=
+  return (← getConfig).transparency
+
 def shouldReduceAll : MetaM Bool :=
-  return (← read).config.transparency == TransparencyMode.all
+  return (← getTransparency) == TransparencyMode.all
 
 def shouldReduceReducibleOnly : MetaM Bool :=
-  return (← read).config.transparency == TransparencyMode.reducible
-
-def getTransparency : MetaM TransparencyMode :=
-  return (← read).config.transparency
+  return (← getTransparency) == TransparencyMode.reducible
 
 def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
   let mctx ← getMCtx
@@ -432,7 +432,7 @@ def getTheoremInfo (info : ConstantInfo) : MetaM (Option ConstantInfo) := do
     return none
 
 private def getDefInfoTemp (info : ConstantInfo) : MetaM (Option ConstantInfo) := do
-  match (← read).config.transparency with
+  match (← getTransparency) with
   | TransparencyMode.all => return some info
   | TransparencyMode.default => return some info
   | _ =>
@@ -922,8 +922,14 @@ def normalizeLevel (u : Level) : MetaM Level := do
 def assignLevelMVar (mvarId : MVarId) (u : Level) : MetaM Unit := do
   modifyMCtx fun mctx => mctx.assignLevel mvarId u
 
-def whnfD [MonadLiftT MetaM n] (e : Expr) : n Expr :=
+def whnfR (e : Expr) : MetaM Expr :=
+  withTransparency TransparencyMode.reducible <| whnf e
+
+def whnfD (e : Expr) : MetaM Expr :=
   withTransparency TransparencyMode.default <| whnf e
+
+def whnfI (e : Expr) : MetaM Expr :=
+  withTransparency TransparencyMode.instances <| whnf e
 
 def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.inline): MetaM Unit := do
   let env ← getEnv

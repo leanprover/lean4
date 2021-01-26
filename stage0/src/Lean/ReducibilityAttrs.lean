@@ -9,7 +9,7 @@ namespace Lean
 
 inductive ReducibilityStatus where
   | reducible | semireducible | irreducible
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 builtin_initialize reducibilityAttrs : EnumAttributes ReducibilityStatus ←
   registerEnumAttributes `reducibility

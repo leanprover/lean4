@@ -42,8 +42,8 @@ def collectInitDecl (fn : Name) : M Unit := do
   | _           => pure ()
 
 def collectDecl : Decl → M NameSet
-  | Decl.fdecl fn _ _ b  => collectInitDecl fn *> CollectUsedDecls.collectFnBody b *> get
-  | Decl.extern fn _ _ _ => collectInitDecl fn *> get
+  | Decl.fdecl (f := f) (body := b) .. => collectInitDecl f *> CollectUsedDecls.collectFnBody b *> get
+  | Decl.extern (f := f) .. => collectInitDecl f *> get
 
 end CollectUsedDecls
 
@@ -70,7 +70,7 @@ partial def collectFnBody : FnBody → Collector
   | e                       => if e.isTerminal then id else collectFnBody e.body
 
 def collectDecl : Decl → Collector
-  | Decl.fdecl _ xs _ b   => collectParams xs ∘ collectFnBody b
+  | Decl.fdecl (xs := xs) (body := b) .. => collectParams xs ∘ collectFnBody b
   | _ => id
 
 end CollectMaps

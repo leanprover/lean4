@@ -80,11 +80,9 @@ lean_object* l_instHOrElse__2___rarg(lean_object*, lean_object*, lean_object*, l
 lean_object* l_optionCoe___rarg(lean_object*);
 lean_object* l_instHAppend__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_hasOfNatOfCoe(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_unexpand____x40_Init_Notation___hyg_2098____spec__1(lean_object*);
 lean_object* l_instHMod__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_coeOfDep___rarg(lean_object*);
 lean_object* l_instHAdd__1(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_2117____closed__4;
 lean_object* l_coeOfTC(lean_object*, lean_object*);
 uint8_t l_coeDecidableEq(uint8_t);
 lean_object* l_term_u2191_____closed__1;
@@ -101,11 +99,13 @@ extern lean_object* l_Lean_nullKind___closed__2;
 lean_object* l_coe(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeDecidableEq___boxed(lean_object*);
 lean_object* l_instCoeTail__1(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_2191____closed__4;
 lean_object* l_coeOfDep___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHMod__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_coeTrans___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_optionCoe(lean_object*);
+lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_unexpand____x40_Init_Notation___hyg_2172____spec__1(lean_object*);
 lean_object* l_instHMod__2(lean_object*, lean_object*);
 lean_object* l_instHAppend__2(lean_object*, lean_object*);
 lean_object* l_coeM(lean_object*, lean_object*, lean_object*);
@@ -448,7 +448,7 @@ x_24 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
 lean_ctor_set(x_24, 1, x_22);
 x_25 = lean_array_push(x_21, x_24);
-x_26 = l_myMacro____x40_Init_Notation___hyg_2117____closed__4;
+x_26 = l_myMacro____x40_Init_Notation___hyg_2191____closed__4;
 x_27 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_27, 0, x_26);
 lean_ctor_set(x_27, 1, x_25);
@@ -485,7 +485,7 @@ x_41 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_41, 0, x_40);
 lean_ctor_set(x_41, 1, x_39);
 x_42 = lean_array_push(x_38, x_41);
-x_43 = l_myMacro____x40_Init_Notation___hyg_2117____closed__4;
+x_43 = l_myMacro____x40_Init_Notation___hyg_2191____closed__4;
 x_44 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_44, 0, x_43);
 lean_ctor_set(x_44, 1, x_42);
@@ -501,7 +501,7 @@ lean_object* l_unexpand____x40_Init_Coe___hyg_149_(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_myMacro____x40_Init_Notation___hyg_2117____closed__4;
+x_3 = l_myMacro____x40_Init_Notation___hyg_2191____closed__4;
 lean_inc(x_1);
 x_4 = l_Lean_Syntax_isOfKind(x_1, x_3);
 if (x_4 == 0)
@@ -557,7 +557,7 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21;
 x_18 = lean_unsigned_to_nat(0u);
 x_19 = l_Lean_Syntax_getArg(x_8, x_18);
 lean_dec(x_8);
-x_20 = l_Lean_MonadRef_mkInfoFromRefPos___at_unexpand____x40_Init_Notation___hyg_2098____spec__1(x_2);
+x_20 = l_Lean_MonadRef_mkInfoFromRefPos___at_unexpand____x40_Init_Notation___hyg_2172____spec__1(x_2);
 x_21 = !lean_is_exclusive(x_20);
 if (x_21 == 0)
 {

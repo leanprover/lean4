@@ -239,7 +239,7 @@ def inferStep : M Bool := do
   modify fun s => { s with assignments := ctx.decls.map fun _ => {} }
   ctx.decls.size.foldM (init := false) fun idx modified => do
     match ctx.decls[idx] with
-    | Decl.fdecl fid ys _ b => do
+    | Decl.fdecl (xs := ys) (body := b) .. => do
       let s ← get
       let currVals := s.funVals[idx]
       withReader (fun ctx => { ctx with currFnIdx := idx }) do
@@ -271,8 +271,9 @@ partial def elimDeadAux (assignment : Assignment) : FnBody → FnBody
       let b := elimDeadAux assignment b
       instr.setBody b
 
-partial def elimDead (assignment : Assignment) : Decl → Decl
-  | Decl.fdecl fid ys t b => Decl.fdecl fid ys t $ elimDeadAux assignment b
+partial def elimDead (assignment : Assignment) (d : Decl) : Decl :=
+  match d with
+  | Decl.fdecl (body := b) .. => d.updateBody! <| elimDeadAux assignment b
   | other => other
 
 end UnreachableBranches

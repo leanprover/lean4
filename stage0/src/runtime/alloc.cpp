@@ -389,9 +389,17 @@ extern "C" void * lean_alloc_small(unsigned sz, unsigned slot_idx) {
     return r;
 }
 
+/* Helper function for increasing hearbeat even when LEAN_SMALL_ALLOCATOR is not defined */
+extern "C" void lean_inc_heartbeat() {
+    if (g_heap)
+        g_heap->m_heartbeat++;
+}
+
 uint64_t get_num_heartbeats() {
-    lean_assert(g_heap);
-    return g_heap->m_heartbeat;
+    if (g_heap)
+        return g_heap->m_heartbeat;
+    else
+        return 0;
 }
 
 void * alloc(size_t sz) {
@@ -447,10 +455,8 @@ extern "C" unsigned lean_small_mem_size(void * o) {
 }
 
 void initialize_alloc() {
-#ifdef LEAN_SMALL_ALLOCATOR
     g_heap_manager = new heap_manager();
     init_heap(true);
-#endif
 }
 
 void finalize_alloc() {

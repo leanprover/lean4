@@ -202,7 +202,7 @@ private def recToSizeOf (e : Expr) : M Expr := do
   sizeOf (Expr.app f args) = 1 + sizeOf f + sizeOf args
   ```
   we need an auxiliary lemma for showing `Expr._sizeOf_1 args = sizeOf args`.
-  Recall that `sizeOf (Expr.app f args)` is definitionally equal to `1 + sizeOf f + sizeOf args`, but
+  Recall that `sizeOf (Expr.app f args)` is definitionally equal to `1 + sizeOf f + Expr._sizeOf_1 args`, but
   `Expr._sizeOf_1 args` is **not** definitionally equal to `sizeOf args`. We need a proof by induction.
 -/
 private def mkSizeOfAuxLemma (lhs rhs : Expr) : M Expr := do

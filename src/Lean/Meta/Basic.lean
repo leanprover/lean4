@@ -922,8 +922,14 @@ def normalizeLevel (u : Level) : MetaM Level := do
 def assignLevelMVar (mvarId : MVarId) (u : Level) : MetaM Unit := do
   modifyMCtx fun mctx => mctx.assignLevel mvarId u
 
-def whnfD [MonadLiftT MetaM n] (e : Expr) : n Expr :=
+def whnfR (e : Expr) : MetaM Expr :=
+  withTransparency TransparencyMode.reducible <| whnf e
+
+def whnfD (e : Expr) : MetaM Expr :=
   withTransparency TransparencyMode.default <| whnf e
+
+def whnfI (e : Expr) : MetaM Expr :=
+  withTransparency TransparencyMode.instances <| whnf e
 
 def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.inline): MetaM Unit := do
   let env ← getEnv

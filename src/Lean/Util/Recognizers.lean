@@ -44,6 +44,9 @@ namespace Expr
 @[inline] def heq? (p : Expr) : Option (Expr × Expr × Expr × Expr) :=
   p.app4? ``HEq
 
+def natAdd? (e : Expr) : Option (Expr × Expr) :=
+  e.app2? ``Nat.add
+
 @[inline] def arrow? : Expr → Option (Expr × Expr)
   | Expr.forallE _ α β _ => if β.hasLooseBVars then none else some (α, β)
   | _                    => none

@@ -30,7 +30,7 @@ end CollectProjMap
    This function assumes variable ids have been normalized -/
 def mkProjMap (d : Decl) : ProjMap :=
   match d with
-  | Decl.fdecl _ _ _ b => CollectProjMap.collectFnBody b {}
+  | Decl.fdecl (body := b) .. => CollectProjMap.collectFnBody b {}
   | _ => {}
 
 structure Context where
@@ -265,11 +265,11 @@ partial def searchAndExpand : FnBody → Array FnBody → M FnBody
 
 def main (d : Decl) : Decl :=
   match d with
-  | (Decl.fdecl f xs t b) =>
+  | Decl.fdecl (body := b) .. =>
     let m := mkProjMap d
     let nextIdx := d.maxIndex + 1
-    let b := (searchAndExpand b #[] { projMap := m }).run' nextIdx
-    Decl.fdecl f xs t b
+    let bNew := (searchAndExpand b #[] { projMap := m }).run' nextIdx
+    d.updateBody! bNew
   | d => d
 
 end ExpandResetReuse

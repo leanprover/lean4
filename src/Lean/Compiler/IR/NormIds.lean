@@ -24,8 +24,8 @@ partial def checkFnBody : FnBody → M Bool
   | b                       => if b.isTerminal then pure true else checkFnBody b.body
 
 partial def checkDecl : Decl → M Bool
-  | Decl.fdecl _ xs _ b  => checkParams xs <&&> checkFnBody b
-  | Decl.extern _ xs _ _ => checkParams xs
+  | Decl.fdecl (xs := xs) (body := b) .. => checkParams xs <&&> checkFnBody b
+  | Decl.extern (xs := xs) .. => checkParams xs
 
 end UniqueIds
 
@@ -112,9 +112,10 @@ partial def normFnBody : FnBody → N FnBody
   | FnBody.ret x           => return FnBody.ret (← normArg x)
   | FnBody.unreachable     => pure FnBody.unreachable
 
-def normDecl : Decl → N Decl
-  | Decl.fdecl f xs t b => withParams xs fun xs => Decl.fdecl f xs t <$> normFnBody b
-  | other               => pure other
+def normDecl (d : Decl) : N Decl :=
+  match d with
+  | Decl.fdecl (xs := xs) (body := b) .. => withParams xs fun xs => return d.updateBody! (← normFnBody b)
+  | other => pure other
 
 end NormalizeIds
 

@@ -392,34 +392,47 @@ def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=
 @[export lean_ir_mk_alt] def mkAlt (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (b : FnBody) : Alt :=
   Alt.ctor ⟨n, cidx, size, usize, ssize⟩ b
 
+/-- Extra information associated with a declaration. -/
+structure DeclInfo where
+  /-- If `some <blame>`, then declaration depends on `<blame>` which uses a `sorry` axiom. -/
+  sorryDep? : Option Name := none
+
 inductive Decl where
-  | fdecl  (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody)
-  | extern (f : FunId) (xs : Array Param) (ty : IRType) (ext : ExternAttrData)
+  | fdecl  (f : FunId) (xs : Array Param) (type : IRType) (body : FnBody) (info : DeclInfo)
+  | extern (f : FunId) (xs : Array Param) (type : IRType) (ext : ExternAttrData)
+  deriving Inhabited
 
 namespace Decl
 
-instance : Inhabited Decl :=
-  ⟨fdecl arbitrary arbitrary IRType.irrelevant arbitrary⟩
-
 def name : Decl → FunId
-  | Decl.fdecl f _ _ _  => f
-  | Decl.extern f _ _ _ => f
+  | Decl.fdecl f ..  => f
+  | Decl.extern f .. => f
 
 def params : Decl → Array Param
-  | Decl.fdecl _ xs _ _  => xs
-  | Decl.extern _ xs _ _ => xs
+  | Decl.fdecl (xs := xs) ..  => xs
+  | Decl.extern (xs := xs) .. => xs
 
 def resultType : Decl → IRType
-  | Decl.fdecl _ _ t _  => t
-  | Decl.extern _ _ t _ => t
+  | Decl.fdecl (type := t) ..  => t
+  | Decl.extern (type := t) .. => t
 
 def isExtern : Decl → Bool
-  | Decl.extern _ _ _ _ => true
+  | Decl.extern .. => true
   | _ => false
+
+def getInfo : Decl → DeclInfo
+  | Decl.fdecl (info := info) .. => info
+  | _ => {}
+
+def updateBody! (d : Decl) (bNew : FnBody) : Decl :=
+  match d with
+  | Decl.fdecl f xs t b info => Decl.fdecl f xs t bNew info
+  | _ => panic! "expected definition"
 
 end Decl
 
-@[export lean_ir_mk_decl] def mkDecl (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody) : Decl := Decl.fdecl f xs ty b
+@[export lean_ir_mk_decl] def mkDecl (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody) : Decl :=
+  Decl.fdecl f xs ty b {}
 
 @[export lean_ir_mk_extern_decl] def mkExternDecl (f : FunId) (xs : Array Param) (ty : IRType) (e : ExternAttrData) : Decl :=
   Decl.extern f xs ty e

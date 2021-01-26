@@ -72,8 +72,8 @@ partial def collectFnBody : FnBody → Collector
   | FnBody.unreachable      => skip
 
 partial def collectDecl : Decl → Collector
-  | Decl.fdecl _ xs _ b  => collectParams xs >> collectFnBody b
-  | Decl.extern _ xs _ _ => collectParams xs
+  | Decl.fdecl (xs := xs) (body := b) .. => collectParams xs >> collectFnBody b
+  | Decl.extern (xs := xs) ..            => collectParams xs
 
 end MaxIndex
 

@@ -61,12 +61,12 @@ def mkBoxedVersionAux (decl : Decl) : N Decl := do
   let newVDecls := newVDecls.push (FnBody.vdecl r decl.resultType (Expr.fap decl.name xs) arbitrary)
   let body ←
     if !decl.resultType.isScalar then
-      pure $ reshape newVDecls (FnBody.ret (Arg.var r))
+      pure <| reshape newVDecls (FnBody.ret (Arg.var r))
     else
       let newR ← N.mkFresh
       let newVDecls := newVDecls.push (FnBody.vdecl newR IRType.object (Expr.box decl.resultType r) arbitrary)
-      pure $ reshape newVDecls (FnBody.ret (Arg.var newR))
-  pure $ Decl.fdecl (mkBoxedName decl.name) qs IRType.object body
+      pure <| reshape newVDecls (FnBody.ret (Arg.var newR))
+  return Decl.fdecl (mkBoxedName decl.name) qs IRType.object body decl.getInfo
 
 def mkBoxedVersion (decl : Decl) : Decl :=
   (mkBoxedVersionAux decl).run' 1
@@ -199,11 +199,10 @@ def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
     | none   => do
       let auxName  := ctx.f ++ ((`_boxed_const).appendIndexAfter s.nextAuxId)
       let auxConst := Expr.fap auxName #[]
-      let auxDecl  := Decl.fdecl auxName #[] expectedType body
-      modify fun s => {
-       s with
-       auxDecls     := s.auxDecls.push auxDecl,
-       auxDeclCache := s.auxDeclCache.cons body auxConst,
+      let auxDecl  := Decl.fdecl auxName #[] expectedType body {}
+      modify fun s => { s with
+       auxDecls     := s.auxDecls.push auxDecl
+       auxDeclCache := s.auxDeclCache.cons body auxConst
        nextAuxId    := s.nextAuxId + 1
       }
       pure auxConst
@@ -330,11 +329,11 @@ def run (env : Environment) (decls : Array Decl) : Array Decl :=
   let ctx : BoxingContext := { decls := decls, env := env }
   let decls := decls.foldl (init := #[]) fun newDecls decl =>
     match decl with
-    | Decl.fdecl f xs t b =>
+    | Decl.fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
       let nextIdx  := decl.maxIndex + 1
       let (b, s)   := (withParams xs (visitFnBody b) { ctx with f := f, resultType := t }).run { nextIdx := nextIdx }
       let newDecls := newDecls ++ s.auxDecls
-      let newDecl  := Decl.fdecl f xs t b
+      let newDecl  := decl.updateBody! b
       let newDecl  := newDecl.elimDead
       newDecls.push newDecl
     | d => newDecls.push d

@@ -20,6 +20,7 @@ import Lean.Compiler.IR.UnboxResult
 import Lean.Compiler.IR.ElimDeadBranches
 import Lean.Compiler.IR.EmitC
 import Lean.Compiler.IR.CtorLayout
+import Lean.Compiler.IR.Sorry
 
 namespace Lean.IR
 
@@ -47,6 +48,7 @@ private def compileAux (decls : Array Decl) : CompilerM Unit := do
   logDecls `expand_reset_reuse decls
   let decls := decls.map Decl.pushProj
   logDecls `push_proj decls
+  let decls ← updateSorryDep decls
   logDecls `result decls
   checkDecls decls
   addDecls decls

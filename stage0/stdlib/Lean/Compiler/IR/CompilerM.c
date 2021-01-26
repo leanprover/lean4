@@ -79,6 +79,7 @@ lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(lean
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_340____spec__6(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_Log_format___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_IR_getSorryDep_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_insertAux___rarg___closed__3;
 lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_340____closed__4;
 uint8_t l_Lean_SMap_contains___at_Lean_IR_containsDecl___spec__1(lean_object*, lean_object*);
@@ -183,6 +184,7 @@ lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_IR_findEnvDecl___spec__2
 lean_object* l_Lean_IR_tracePrefixOptionName___closed__1;
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_IR_findEnvDecl___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_IR_findEnvDecl_x27___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_IR_getSorryDep_match__1(lean_object*);
 lean_object* l_Lean_IR_getDecl_match__1(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDeclsAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_addDecl(lean_object*, lean_object*, lean_object*);
@@ -196,6 +198,7 @@ extern size_t l_Std_PersistentHashMap_insertAux___rarg___closed__2;
 lean_object* l_Lean_IR_modifyEnv___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_ir_find_env_decl(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_340____spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_decl_get_sorry_dep(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_340____spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_IR_findEnvDecl___spec__3(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_340____lambda__2___boxed(lean_object*);
@@ -4002,6 +4005,98 @@ x_5 = l_Lean_IR_getDecl_x27(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_5;
+}
+}
+lean_object* l_Lean_IR_getSorryDep_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_4; 
+lean_dec(x_2);
+x_4 = lean_apply_1(x_3, x_1);
+return x_4;
+}
+else
+{
+lean_object* x_5; 
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+if (lean_obj_tag(x_5) == 0)
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_dec(x_3);
+lean_dec(x_1);
+x_6 = lean_ctor_get(x_5, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_5, 1);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_5, 2);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_5, 3);
+lean_inc(x_9);
+x_10 = lean_ctor_get(x_5, 4);
+lean_inc(x_10);
+lean_dec(x_5);
+x_11 = lean_apply_5(x_2, x_6, x_7, x_8, x_9, x_10);
+return x_11;
+}
+else
+{
+lean_object* x_12; 
+lean_dec(x_5);
+lean_dec(x_2);
+x_12 = lean_apply_1(x_3, x_1);
+return x_12;
+}
+}
+}
+}
+lean_object* l_Lean_IR_getSorryDep_match__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_IR_getSorryDep_match__1___rarg), 3, 0);
+return x_2;
+}
+}
+lean_object* lean_decl_get_sorry_dep(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = l_Lean_IR_declMapExt;
+x_4 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_3, x_1);
+lean_dec(x_1);
+x_5 = l_Lean_SMap_find_x3f___at_Lean_IR_findEnvDecl___spec__1(x_4, x_2);
+lean_dec(x_2);
+if (lean_obj_tag(x_5) == 0)
+{
+lean_object* x_6; 
+x_6 = lean_box(0);
+return x_6;
+}
+else
+{
+lean_object* x_7; 
+x_7 = lean_ctor_get(x_5, 0);
+lean_inc(x_7);
+lean_dec(x_5);
+if (lean_obj_tag(x_7) == 0)
+{
+lean_object* x_8; 
+x_8 = lean_ctor_get(x_7, 4);
+lean_inc(x_8);
+lean_dec(x_7);
+return x_8;
+}
+else
+{
+lean_object* x_9; 
+lean_dec(x_7);
+x_9 = lean_box(0);
+return x_9;
+}
+}
 }
 }
 lean_object* initialize_Init(lean_object*);

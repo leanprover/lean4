@@ -1004,7 +1004,16 @@ public:
     }
 };
 
+extern "C" object * lean_decl_get_sorry_dep(object * env, object * n);
+
+optional<name> get_sorry_dep(environment const & env, name const & n) {
+    return option_ref<name>(lean_decl_get_sorry_dep(env.to_obj_arg(), n.to_obj_arg())).get();
+}
+
 object * run_boxed(environment const & env, options const & opts, name const & fn, unsigned n, object **args) {
+    if (get_sorry_dep(env, fn)) {
+        throw exception("cannot evaluate code because it uses 'sorry' and/or contains errors");
+    }
     return interpreter::with_interpreter<object *>(env, opts, [&](interpreter & interp) { return interp.call_boxed(fn, n, args); });
 }
 uint32 run_main(environment const & env, options const & opts, int argv, char * argc[]) {

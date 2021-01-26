@@ -74,11 +74,11 @@ def setValue : LocalDecl → Expr → LocalDecl
   | ldecl idx id n t _ nd, v => ldecl idx id n t v nd
   | d, _                     => d
 
-def updateUserName : LocalDecl → Name → LocalDecl
+def setUserName : LocalDecl → Name → LocalDecl
   | cdecl index id _ type bi,     userName => cdecl index id userName type bi
   | ldecl index id _ type val nd, userName => ldecl index id userName type val nd
 
-def updateBinderInfo : LocalDecl → BinderInfo → LocalDecl
+def setBinderInfo : LocalDecl → BinderInfo → LocalDecl
   | cdecl index id n type _,  bi => cdecl index id n type bi
   | ldecl .., _                  => panic! "unexpected let declaration"
 
@@ -214,7 +214,7 @@ def lastDecl (lctx : LocalContext) : Option LocalDecl :=
 
 def setUserName (lctx : LocalContext) (fvarId : FVarId) (userName : Name) : LocalContext :=
   let decl := lctx.get! fvarId
-  let decl := decl.updateUserName userName
+  let decl := decl.setUserName userName
   { fvarIdToDecl := lctx.fvarIdToDecl.insert decl.fvarId decl,
     decls        := lctx.decls.set decl.index decl }
 
@@ -225,7 +225,7 @@ def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : Loc
     match lctx.findFromUserName? fromName with
     | none      => lctx
     | some decl =>
-      let decl := decl.updateUserName toName;
+      let decl := decl.setUserName toName;
       { fvarIdToDecl := map.insert decl.fvarId decl,
         decls        := decls.set decl.index decl }
 
@@ -243,8 +243,8 @@ def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : Loc
       { fvarIdToDecl := map.insert decl.fvarId decl,
         decls        := decls.set decl.index decl }
 
-def updateBinderInfo (lctx : LocalContext) (fvarId : FVarId) (bi : BinderInfo) : LocalContext :=
-  modifyLocalDecl lctx fvarId fun decl => decl.updateBinderInfo bi
+def setBinderInfo (lctx : LocalContext) (fvarId : FVarId) (bi : BinderInfo) : LocalContext :=
+  modifyLocalDecl lctx fvarId fun decl => decl.setBinderInfo bi
 
 @[export lean_local_ctx_num_indices]
 def numIndices (lctx : LocalContext) : Nat :=

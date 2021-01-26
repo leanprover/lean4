@@ -513,11 +513,11 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
            The parameters `params` for these definitions must be marked as implicit, and all others as explicit. -/
         let lctx :=
           params.foldl (init := lctx) fun (lctx : LocalContext) (p : Expr) =>
-            lctx.updateBinderInfo p.fvarId! BinderInfo.implicit
+            lctx.setBinderInfo p.fvarId! BinderInfo.implicit
         let lctx :=
           fieldInfos.foldl (init := lctx) fun (lctx : LocalContext) (info : StructFieldInfo) =>
             if info.isFromParent then lctx -- `fromParent` fields are elaborated as let-decls, and are zeta-expanded when creating `_default`.
-            else lctx.updateBinderInfo info.fvar.fvarId! BinderInfo.default
+            else lctx.setBinderInfo info.fvar.fvarId! BinderInfo.default
         addDefaults lctx defaultAuxDecls
 
 /-

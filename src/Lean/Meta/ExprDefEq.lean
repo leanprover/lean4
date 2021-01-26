@@ -728,7 +728,7 @@ partial def check
     | Expr.fvar fvarId ..  =>
       if mvarDecl.lctx.contains fvarId then true
       else match lctx.find? fvarId with
-        | some (LocalDecl.ldecl _ _ _ _ v _) => false -- need expensive CheckAssignment.check
+        | some (LocalDecl.ldecl (value := v) ..) => false -- need expensive CheckAssignment.check
         | _ =>
           if fvars.any $ fun x => x.fvarId! == fvarId then true
           else false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it

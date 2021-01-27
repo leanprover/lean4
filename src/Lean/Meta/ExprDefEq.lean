@@ -732,7 +732,7 @@ partial def check
       else match lctx.find? fvarId with
         | some (LocalDecl.ldecl (value := v) ..) => false -- need expensive CheckAssignment.check
         | _ =>
-          if fvars.any $ fun x => x.fvarId! == fvarId then true
+          if fvars.any fun x => x.fvarId! == fvarId then true
           else false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it
     | Expr.mvar mvarId' _  =>
       match mctx.getExprAssignment? mvarId' with
@@ -767,7 +767,7 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
     pure (some v)
   else
     let mvarDecl ← getMVarDecl mvarId
-    let hasCtxLocals := fvars.any $ fun fvar => mvarDecl.lctx.containsFVar fvar
+    let hasCtxLocals := fvars.any fun fvar => mvarDecl.lctx.containsFVar fvar
     let ctx ← read
     let mctx ← getMCtx
     if CheckAssignmentQuick.check hasCtxLocals ctx.config.ctxApprox mctx ctx.lctx mvarDecl mvarId fvars v then
@@ -1022,9 +1022,9 @@ private def unfoldDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool 
     /- If `t` and `s` do not contain metavariables,
        we simulate strategy used in the kernel. -/
     if tInfo.hints.lt sInfo.hints then
-      unfold t (unfoldComparingHeadsDefEq tInfo sInfo t s) $ fun t => isDefEqLeft tInfo.name t s
+      unfold t (unfoldComparingHeadsDefEq tInfo sInfo t s) fun t => isDefEqLeft tInfo.name t s
     else if sInfo.hints.lt tInfo.hints then
-      unfold s (unfoldComparingHeadsDefEq tInfo sInfo t s) $ fun s => isDefEqRight sInfo.name t s
+      unfold s (unfoldComparingHeadsDefEq tInfo sInfo t s) fun s => isDefEqRight sInfo.name t s
     else
       unfoldComparingHeadsDefEq tInfo sInfo t s
   else
@@ -1062,9 +1062,9 @@ private def unfoldNonProjFnDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : Met
   let tProj? ← isProjectionFn tInfo.name
   let sProj? ← isProjectionFn sInfo.name
   if tProj? && !sProj? then
-    unfold s (unfoldDefEq tInfo sInfo t s) $ fun s => isDefEqRight sInfo.name t s
+    unfold s (unfoldDefEq tInfo sInfo t s) fun s => isDefEqRight sInfo.name t s
   else if !tProj? && sProj? then
-    unfold t (unfoldDefEq tInfo sInfo t s) $ fun t => isDefEqLeft tInfo.name t s
+    unfold t (unfoldDefEq tInfo sInfo t s) fun t => isDefEqLeft tInfo.name t s
   else
     unfoldReducibeDefEq tInfo sInfo t s
 

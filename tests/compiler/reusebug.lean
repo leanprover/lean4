@@ -1,4 +1,3 @@
-#lang lean4
 inductive Expr
 | Val : Int → Expr
 | Var : String → Expr

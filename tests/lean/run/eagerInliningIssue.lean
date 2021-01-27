@@ -1,4 +1,3 @@
-#lang lean4
 
 def h (x : Nat) : IO Unit := do
 if x == 0  then IO.println "arg is 0"

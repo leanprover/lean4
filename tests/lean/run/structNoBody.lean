@@ -1,4 +1,3 @@
-#lang lean4
 
 structure A :=
 (x y : Nat)

@@ -1,4 +1,3 @@
-#lang lean4
 -- List decidable equality using `withPtrEqDecEq`
 def listDecEqAux {α} [s : DecidableEq α] : ∀ (as bs : List α), Decidable (as = bs)
 | [],    []    => isTrue rfl

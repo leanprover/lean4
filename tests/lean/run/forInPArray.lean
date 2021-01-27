@@ -1,4 +1,3 @@
-#lang lean4
 import Std
 
 def check (x : IO Nat) (expected : IO Nat) : IO Unit := do

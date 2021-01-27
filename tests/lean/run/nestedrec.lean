@@ -1,4 +1,3 @@
-#lang lean4
 
 def f : Nat → Nat → Nat
 | 0,   b => b+1

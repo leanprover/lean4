@@ -1,4 +1,3 @@
-#lang lean4
 open Lean
 open Std
 open Std.Format

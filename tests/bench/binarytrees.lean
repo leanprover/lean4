@@ -1,4 +1,3 @@
-#lang lean4
 inductive Tree
 | Nil
 | Node (l r : Tree) : Tree

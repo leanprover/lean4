@@ -1,4 +1,3 @@
-#lang lean4
 def StateT' (m : Type → Type) (σ : Type) (α : Type) := σ → m (α × σ)
 namespace StateT'
 variable {m : Type → Type} [Monad m] {σ : Type} {α β : Type}

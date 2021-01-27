@@ -1,4 +1,3 @@
-#lang lean4
 
 structure SCore (α : Type) :=
 (x : α) (y : Nat)

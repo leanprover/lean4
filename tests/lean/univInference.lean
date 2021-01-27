@@ -1,4 +1,3 @@
-#lang lean4
 
 universes w₁ w₂ w₃
 

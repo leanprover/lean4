@@ -1,4 +1,3 @@
-#lang lean4
 
 def foo (x : Nat) : IO Bool := do
 if x == 0 then

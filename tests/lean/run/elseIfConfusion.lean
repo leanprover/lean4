@@ -1,4 +1,3 @@
-#lang lean4
 
 def tst (x : Nat) : IO Unit := do
 if x == 0 then

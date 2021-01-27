@@ -1,4 +1,3 @@
-#lang lean4
 import Lean.Expr
 open Lean
 

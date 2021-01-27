@@ -1,4 +1,3 @@
-#lang lean4
 /- Benchmark for new code generator -/
 inductive Expr
 | Val : Int → Expr

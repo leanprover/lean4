@@ -1,4 +1,3 @@
-#lang lean4
 def compute (v : Nat) : Thunk Nat :=
 ⟨fun _ => let xs := List.replicate 100000 v; xs.foldl Nat.add 0⟩
 

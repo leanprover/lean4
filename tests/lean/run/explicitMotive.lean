@@ -1,4 +1,3 @@
-#lang lean4
 
 def f1 (ex : Empty) {α : Type} : α :=
 Empty.rec (motive := fun _ => α) ex

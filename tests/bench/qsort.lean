@@ -1,4 +1,3 @@
-#lang lean4
 abbrev Elem := UInt32
 
 def badRand (seed : Elem) : Elem :=

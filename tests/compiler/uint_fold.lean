@@ -1,4 +1,3 @@
-#lang lean4
 
 @[noinline] def h (x : Nat) : UInt32 :=
 UInt32.ofNat x

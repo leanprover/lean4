@@ -1,4 +1,3 @@
-#lang lean4
 
 def fact : Nat → Nat
 | 0     => 1

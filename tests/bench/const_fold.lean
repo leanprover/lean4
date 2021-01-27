@@ -1,4 +1,3 @@
-#lang lean4
 inductive Expr
 | Var : Nat → Expr
 | Val : Nat → Expr

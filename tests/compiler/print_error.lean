@@ -1,4 +1,3 @@
-#lang lean4
 prelude
 import Init.System.IO
 

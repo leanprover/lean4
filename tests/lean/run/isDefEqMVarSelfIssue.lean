@@ -1,4 +1,3 @@
-#lang lean4
 
 partial def f : Bool :=
 let rec loop (i : Nat) :=

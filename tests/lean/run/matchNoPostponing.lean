@@ -1,4 +1,3 @@
-#lang lean4
 
 /- In the following example, type of `x` and `y` could be any type `α` s.t. `[OfNat α]`.
    It relies on `SyntheticMVarKind.withDefault` to set `α := Nat`.

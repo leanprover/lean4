@@ -1,4 +1,3 @@
-#lang lean4
 
 def f (x : Nat) : StateM Nat Nat := do
 let y ← do

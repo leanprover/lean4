@@ -1,4 +1,3 @@
-#lang lean4
 def showChars : Nat → String → String.Pos → IO Unit
 | 0,     _, _   => pure ()
 | n+1,   s, idx => do

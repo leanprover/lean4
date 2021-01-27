@@ -563,7 +563,8 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
       unless (← isDefEq oldVal val) do
         throwError! "synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized{indentExpr val}\ninferred{indentExpr oldVal}"
     else
-       assignExprMVar instMVar val
+      unless (← isDefEq (mkMVar instMVar) val) do
+        throwError! "failed to assign synthesized type class instance{indentExpr val}"
     pure true
   | LOption.undef    => pure false -- we will try later
   | LOption.none     => throwError! "failed to synthesize instance{indentExpr type}"

@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 #include "library/suffixes.h"
 #include "library/annotation.h"
 #include "library/constants.h"
-#include "library/pp_options.h"
 #include "library/projection.h"
 #include "library/replace_visitor.h"
 #include "library/num.h"

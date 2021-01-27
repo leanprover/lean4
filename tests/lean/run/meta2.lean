@@ -1,4 +1,3 @@
-#lang lean4
 import Lean.Meta
 open Lean
 open Lean.Meta
@@ -533,7 +532,6 @@ withLocalDeclD `α type $ fun α => do
   print t;
   pure ()
 
-set_option pp.purify_metavars false
 #eval tst34
 
 def tst35 : MetaM Unit := do

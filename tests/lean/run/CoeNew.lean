@@ -17,7 +17,7 @@ structure ConstantFunction (α β : Type) :=
 instance constantFunctionCoe {α β : Type} : CoeFun (ConstantFunction α β) (fun _ => α → β) :=
 { coe := fun c => c.f }
 
-set_option pp.implicit true
+set_option pp.explicit true
 
 #synth CoeT { x : Nat // x > 0 } ⟨1, sorryAx _⟩ Nat
 #synth CoeT { x : Nat // x > 0 } ⟨1, sorryAx _⟩ Bool

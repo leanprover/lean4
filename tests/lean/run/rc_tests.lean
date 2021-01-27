@@ -1,8 +1,8 @@
 
 universes u v
 
--- setOption pp.binderTypes False
-set_option pp.implicit true
+-- set_option pp.binder_types false
+set_option pp.explicit true
 set_option trace.compiler.llnf true
 -- set_option trace.compiler.boxed true
 

@@ -30,7 +30,7 @@ instance zmodIsRing {n : Nat} : Ring (Zmod n) :=
 
 /- After the instance above, Zmod already has `+`, `*` notations, but not `/`  -/
 
-set_option pp.implicit true
+set_option pp.explicit true
 set_option pp.notation false
 
 #check fun (a b : Zmod 10) => a * b -- works

@@ -52,7 +52,7 @@ set_option pp.all true
 -- #check let x := (fun (f : {α : Type} → α → α) => (f, f)) @id; (x.1 [], x.2 true) -- we need constApprox := true for this one
 
 set_option pp.all false
-set_option pp.implicit true
+set_option pp.explicit true
 
 def h (x := 10) (y := 20) : Nat := x + y
 #check h -- h 10 20 : Nat

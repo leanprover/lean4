@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/protected.h"
 #include "library/print.h"
 #include "library/util.h"
-#include "library/pp_options.h"
 #include "library/profiling.h"
 #include "library/time_task.h"
 #include "library/formatter.h"
@@ -38,13 +37,11 @@ void initialize_library_module() {
     initialize_annotation();
     initialize_class();
     initialize_library_util();
-    initialize_pp_options();
     initialize_time_task();
 }
 
 void finalize_library_module() {
     finalize_time_task();
-    finalize_pp_options();
     finalize_library_util();
     finalize_class();
     finalize_annotation();

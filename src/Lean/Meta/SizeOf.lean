@@ -188,6 +188,11 @@ private def recToSizeOf (e : Expr) : M Expr := do
       let major   := args[info.getMajorIdx]
       return mkAppN (mkConst sizeOfName us.tail!) ((← read).params ++ (← read).localInsts ++ indices ++ #[major])
 
+
+/-- Construct proof of auxiliary lemma. See `mkSizeOfAuxLemma` -/
+private def mkSizeOfAuxLemmaProof (info : InductiveVal) (lhs rhs : Expr) : M Expr := do
+  mkSorry (← mkEq lhs rhs) true -- TODO
+
 /--
   Generate proof for `C._sizeOf_<idx> t = sizeOf t` where `C._sizeOf_<idx>` is a auxiliary function
   generated for a nested inductive type in `C`.
@@ -206,8 +211,43 @@ private def recToSizeOf (e : Expr) : M Expr := do
   `Expr._sizeOf_1 args` is **not** definitionally equal to `sizeOf args`. We need a proof by induction.
 -/
 private def mkSizeOfAuxLemma (lhs rhs : Expr) : M Expr := do
-  -- TODO
-  mkSorry (← mkEq lhs rhs) true
+  trace[Meta.sizeOf.aux]! "{lhs} =?= {rhs}"
+  match lhs.getAppFn.const? with
+  | none => throwFailed
+  | some (fName, us) =>
+    let thmLevelParams ← us.mapM fun
+      | Level.param n _ => return n
+      | _ => throwFailed
+    let thmName  := fName ++ `_eq
+    if (← getEnv).contains thmName then
+      -- Auxiliary lemma has already been defined
+      return mkAppN (mkConst thmName us) lhs.getAppArgs
+    else
+      -- Define auxiliary lemma
+      -- First, generalize indices
+      let x := lhs.appArg!
+      let xType ← whnf (← inferType x)
+      matchConstInduct xType.getAppFn (fun _ => throwFailed) fun info _ => do
+        let params := xType.getAppArgs[:info.numParams]
+        forallTelescopeReducing (← inferType (mkAppN xType.getAppFn params)) fun indices _ => do
+          let majorType := mkAppN (mkAppN xType.getAppFn params) indices
+          withLocalDeclD `x majorType fun major => do
+            let lhsArgs := lhs.getAppArgs
+            let lhsArgsNew := lhsArgs[:lhsArgs.size - 1 - indices.size] ++ indices ++ #[major]
+            let lhsNew := mkAppN lhs.getAppFn lhsArgsNew
+            let rhsNew ← mkAppM ``SizeOf.sizeOf #[major]
+            let eq ← mkEq lhsNew rhsNew
+            let thmParams := lhsArgsNew
+            let thmType ← mkForallFVars thmParams eq
+            let thmValue ← mkSizeOfAuxLemmaProof info lhsNew rhsNew
+            let thmValue ← mkLambdaFVars thmParams thmValue
+            addDecl <| Declaration.thmDecl {
+              name        := thmName
+              levelParams := thmLevelParams
+              type        := thmType
+              value       := thmValue
+            }
+            return mkAppN (mkConst thmName us) lhs.getAppArgs
 
 /- Prove SizeOf spec lemma of the form `sizeOf <ctor-application> = 1 + sizeOf <field_1> + ... + sizeOf <field_n> -/
 partial def main (lhs rhs : Expr) : M Expr := do

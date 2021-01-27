@@ -217,7 +217,7 @@ end
     let decl ← getLocalDecl fvarId
     match decl with
     | LocalDecl.cdecl .. => return e
-    | LocalDecl.ldecl _ _ _ _ v nonDep =>
+    | LocalDecl.ldecl (value := v) (nonDep := nonDep) .. =>
       let cfg ← getConfig
       if nonDep && !cfg.zetaNonDep then
         return e

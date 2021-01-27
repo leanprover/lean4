@@ -676,8 +676,8 @@ end DependsOn
   depends on a free variable `x` s.t. `p x` is `true`. -/
 @[inline] def findLocalDeclDependsOn (mctx : MetavarContext) (localDecl : LocalDecl) (p : FVarId → Bool) : Bool :=
   match localDecl with
-  | LocalDecl.cdecl _ _ _ type _       => findExprDependsOn mctx type p
-  | LocalDecl.ldecl _ _ _ type value _ => (DependsOn.main mctx p type <||> DependsOn.main mctx p value).run' {}
+  | LocalDecl.cdecl (type := t) ..  => findExprDependsOn mctx t p
+  | LocalDecl.ldecl (type := t) (value := v) .. => (DependsOn.main mctx p t <||> DependsOn.main mctx p v).run' {}
 
 def exprDependsOn (mctx : MetavarContext) (e : Expr) (fvarId : FVarId) : Bool :=
   findExprDependsOn mctx e fun fvarId' => fvarId == fvarId'

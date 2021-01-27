@@ -639,7 +639,9 @@ private def addAssignmentInfo (msg : MessageData) : CheckAssignmentM MessageData
             modifyThe Meta.State fun s => { s with mctx := s.mctx.assignExpr mvarId newMVar }
             pure newMVar
           else
-            pure mvar
+            traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx $ addAssignmentInfo (mkMVar mvarId)
+            throwCheckAssignmentFailure
+
 
 /-
   Auxiliary function used to "fix" subterms of the form `?m x_1 ... x_n` where `x_i`s are free variables,
@@ -728,7 +730,7 @@ partial def check
     | Expr.fvar fvarId ..  =>
       if mvarDecl.lctx.contains fvarId then true
       else match lctx.find? fvarId with
-        | some (LocalDecl.ldecl _ _ _ _ v _) => false -- need expensive CheckAssignment.check
+        | some (LocalDecl.ldecl (value := v) ..) => false -- need expensive CheckAssignment.check
         | _ =>
           if fvars.any $ fun x => x.fvarId! == fvarId then true
           else false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it
@@ -742,9 +744,7 @@ partial def check
           | some mvarDecl' =>
             if hasCtxLocals then false -- use CheckAssignment.check
             else if mvarDecl'.lctx.isSubPrefixOf mvarDecl.lctx fvars then true
-            else if mvarDecl'.depth != mctx.depth || mvarDecl'.kind.isSyntheticOpaque then false  -- use CheckAssignment.check
-            else if ctxApprox && mvarDecl.lctx.isSubPrefixOf mvarDecl'.lctx then false  -- use CheckAssignment.check
-            else true
+            else false -- use CheckAssignment.check
   visit e
 
 end CheckAssignmentQuick

@@ -150,10 +150,10 @@ where
       xs.forM fun x => do
         let xDecl ← getFVarLocalDecl x;
         match xDecl with
-        | LocalDecl.cdecl _ _ _ t _ =>
+        | LocalDecl.cdecl (type := t) .. =>
           ensureType t
           checkAux t
-        | LocalDecl.ldecl _ _ _ t v _ =>
+        | LocalDecl.ldecl (type := t) (value := v) .. =>
           ensureType t
           checkAux t
           let vType ← inferType v

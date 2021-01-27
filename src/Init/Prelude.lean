@@ -468,7 +468,7 @@ open HAppend (hAppend)
 @[reducible] def GreaterEq {α : Type u} [HasLessEq α] (a b : α) : Prop := LessEq b a
 @[reducible] def Greater {α : Type u} [HasLess α] (a b : α) : Prop     := Less b a
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern "lean_nat_add"]
 protected def Nat.add : (@& Nat) → (@& Nat) → Nat
   | a, Nat.zero   => a
@@ -481,7 +481,7 @@ instance : Add Nat where
    and reduced by the equation Compiler. -/
 attribute [matchPattern] Nat.add Add.add HAdd.hAdd Neg.neg
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern "lean_nat_mul"]
 protected def Nat.mul : (@& Nat) → (@& Nat) → Nat
   | a, 0          => 0
@@ -490,7 +490,7 @@ protected def Nat.mul : (@& Nat) → (@& Nat) → Nat
 instance : Mul Nat where
   mul := Nat.mul
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern "lean_nat_pow"]
 protected def Nat.pow (m : @& Nat) : (@& Nat) → Nat
   | 0      => 1
@@ -499,7 +499,7 @@ protected def Nat.pow (m : @& Nat) : (@& Nat) → Nat
 instance : Pow Nat where
   pow := Nat.pow
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern "lean_nat_dec_eq"]
 def Nat.beq : Nat → Nat → Bool
   | zero,   zero   => true
@@ -532,7 +532,7 @@ protected def Nat.decEq (n m : @& Nat) : Decidable (Eq n m) :=
 
 @[inline] instance : DecidableEq Nat := Nat.decEq
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern "lean_nat_dec_le"]
 def Nat.ble : Nat → Nat → Bool
   | zero,   zero   => true
@@ -646,13 +646,13 @@ protected theorem Nat.ltOfLeOfNe {n m : Nat} (h₁ : LessEq n m) (h₂ : Not (Eq
   | Or.inl h₃ => h₃
   | Or.inr h₃ => absurd (Nat.leAntisymm h₁ h₃) h₂
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern c inline "lean_nat_sub(#1, lean_box(1))"]
 def Nat.pred : Nat → Nat
   | 0      => 0
   | succ a => a
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern "lean_nat_sub"]
 protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
   | a, 0      => a
@@ -722,7 +722,7 @@ def UInt8.ofNatCore (n : @& Nat) (h : Less n UInt8.size) : UInt8 := {
   val := { val := n, isLt := h }
 }
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 == #2"]
 def UInt8.decEq (a b : UInt8) : Decidable (Eq a b) :=
   match a, b with
@@ -746,7 +746,7 @@ def UInt16.ofNatCore (n : @& Nat) (h : Less n UInt16.size) : UInt16 := {
   val := { val := n, isLt := h }
 }
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 == #2"]
 def UInt16.decEq (a b : UInt16) : Decidable (Eq a b) :=
   match a, b with
@@ -773,7 +773,7 @@ def UInt32.ofNatCore (n : @& Nat) (h : Less n UInt32.size) : UInt32 := {
 @[extern "lean_uint32_to_nat"]
 def UInt32.toNat (n : UInt32) : Nat := n.val.val
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 == #2"]
 def UInt32.decEq (a b : UInt32) : Decidable (Eq a b) :=
   match a, b with
@@ -791,13 +791,13 @@ instance : HasLess UInt32 where
 instance : HasLessEq UInt32 where
   LessEq a b := LessEq a.val b.val
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 < #2"]
 def UInt32.decLt (a b : UInt32) : Decidable (Less a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (Less n m))
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 <= #2"]
 def UInt32.decLe (a b : UInt32) : Decidable (LessEq a b) :=
   match a, b with
@@ -818,7 +818,7 @@ def UInt64.ofNatCore (n : @& Nat) (h : Less n UInt64.size) : UInt64 := {
   val := { val := n, isLt := h }
 }
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 == #2"]
 def UInt64.decEq (a b : UInt64) : Decidable (Eq a b) :=
   match a, b with
@@ -849,7 +849,7 @@ def USize.ofNatCore (n : @& Nat) (h : Less n USize.size) : USize := {
   val := { val := n, isLt := h }
 }
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 == #2"]
 def USize.decEq (a b : USize) : Decidable (Eq a b) :=
   match a, b with

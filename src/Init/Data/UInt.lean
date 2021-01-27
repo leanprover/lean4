@@ -48,13 +48,13 @@ constant UInt8.shiftLeft (a b : UInt8) : UInt8
 @[extern c inline "#1 >> #2"]
 constant UInt8.shiftRight (a b : UInt8) : UInt8
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 < #2"]
 def UInt8.decLt (a b : UInt8) : Decidable (a < b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (n < m))
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 <= #2"]
 def UInt8.decLe (a b : UInt8) : Decidable (a ≤ b) :=
   match a, b with
@@ -103,13 +103,13 @@ constant UInt16.shiftLeft (a b : UInt16) : UInt16
 @[extern c inline "#1 >> #2"]
 constant UInt16.shiftRight (a b : UInt16) : UInt16
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 < #2"]
 def UInt16.decLt (a b : UInt16) : Decidable (a < b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (n < m))
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 <= #2"]
 def UInt16.decLe (a b : UInt16) : Decidable (a ≤ b) :=
   match a, b with
@@ -210,13 +210,13 @@ instance : HasLessEq UInt64 := ⟨UInt64.le⟩
 @[extern c inline "(uint64_t)#1"]
 def Bool.toUInt64 (b : Bool) : UInt64 := if b then 1 else 0
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 < #2"]
 def UInt64.decLt (a b : UInt64) : Decidable (a < b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (n < m))
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 <= #2"]
 def UInt64.decLe (a b : UInt64) : Decidable (a ≤ b) :=
   match a, b with
@@ -274,13 +274,13 @@ instance : Div USize       := ⟨USize.div⟩
 instance : HasLess USize   := ⟨USize.lt⟩
 instance : HasLessEq USize := ⟨USize.le⟩
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 < #2"]
 def USize.decLt (a b : USize) : Decidable (a < b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (n < m))
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 <= #2"]
 def USize.decLe (a b : USize) : Decidable (a ≤ b) :=
   match a, b with

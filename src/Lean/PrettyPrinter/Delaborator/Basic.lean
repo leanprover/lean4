@@ -47,7 +47,7 @@ register_builtin_option pp.notation : Bool := {
 register_builtin_option pp.coercions : Bool := {
   defValue := true
   group    := "pp"
-  descr    := "(pretty printer) display coercionss"
+  descr    := "(pretty printer) hide coercion applications"
 }
 register_builtin_option pp.universes : Bool := {
   defValue := false

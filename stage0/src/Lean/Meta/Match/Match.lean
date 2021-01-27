@@ -568,11 +568,11 @@ private def getUElimPos? (matcherLevels : List Level) (uElim : Level) : MetaM (O
     | some pos => pure $ some pos.val
 
 /- See comment at `mkMatcher` before `mkAuxDefinition` -/
-builtin_initialize
-  registerOption `bootstrap.gen_matcher_code { defValue := true, group := "bootstrap", descr := "disable code generation for auxiliary matcher function" }
-
-def generateMatcherCode (opts : Options) : Bool :=
-  opts.get `bootstrap.gen_matcher_code true
+register_builtin_option bootstrap.genMatcherCode : Bool := {
+  defValue := true
+  group := "bootstrap"
+  descr := "disable code generation for auxiliary matcher function"
+}
 
 /-
 Create a dependent matcher for `matchType` where `matchType` is of the form
@@ -616,7 +616,7 @@ def mkMatcher (matcherName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : 
        | negSucc n => succ n
        ```
        which is defined **before** `Int.decLt` -/
-    let matcher ← mkAuxDefinition matcherName type val (compile := generateMatcherCode (← getOptions))
+    let matcher ← mkAuxDefinition matcherName type val (compile := bootstrap.genMatcherCode.get (← getOptions))
     trace[Meta.Match.debug]! "matcher levels: {matcher.getAppFn.constLevels!}, uElim: {uElimGen}"
     let uElimPos? ← getUElimPos? matcher.getAppFn.constLevels! uElimGen
     discard <| isLevelDefEq uElimGen uElim

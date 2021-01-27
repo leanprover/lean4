@@ -23,7 +23,6 @@ uint8_t l_Lean_Expr_bindingInfo_x21(lean_object*);
 lean_object* l_Lean_Expr_updateSort___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_KVMap_setBool(lean_object*, lean_object*, uint8_t);
 uint8_t l_Lean_Expr_hasAnyFVar_visit___at_Lean_Expr_containsFVar___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsFalse___closed__2;
 lean_object* l_Lean_Expr_bvarIdx_x21___closed__3;
@@ -384,7 +383,6 @@ lean_object* lean_expr_mk_bvar(lean_object*);
 lean_object* l_Lean_Expr_updateApp_x21_match__1(lean_object*);
 lean_object* l_Lean_Expr_instHashableExpr;
 lean_object* l_Lean_mkDecIsTrue___closed__2;
-extern lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_528____closed__3;
 size_t l_Lean_Expr_hash(lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21___closed__3;
 lean_object* l_Lean_Literal_type___boxed(lean_object*);
@@ -789,6 +787,7 @@ lean_object* l_Lean_Level_instantiateParams___at_Lean_Expr_instantiateLevelParam
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_containsFVar(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isBVar_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkAnnotation___closed__1;
 uint64_t l_Lean_Expr_mkData(size_t, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t);
 lean_object* l_Lean_Expr_isProj_match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_has_level_param(lean_object*);
@@ -15906,14 +15905,15 @@ return x_4;
 lean_object* l_Lean_Expr_setOption___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = lean_ctor_get(x_3, 1);
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
 lean_dec(x_3);
-x_6 = lean_box(0);
-x_7 = lean_apply_3(x_5, x_6, x_2, x_4);
-x_8 = l_Lean_mkMData(x_7, x_1);
-return x_8;
+x_6 = lean_apply_1(x_5, x_4);
+x_7 = lean_box(0);
+x_8 = l_Lean_KVMap_insertCore(x_7, x_2, x_6);
+x_9 = l_Lean_mkMData(x_8, x_1);
+return x_9;
 }
 }
 lean_object* l_Lean_Expr_setOption(lean_object* x_1) {
@@ -15927,11 +15927,13 @@ return x_2;
 lean_object* l_Lean_Expr_setOption___at_Lean_Expr_setPPExplicit___spec__1(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_box(0);
-x_5 = l_Lean_KVMap_setBool(x_4, x_2, x_3);
-x_6 = l_Lean_mkMData(x_5, x_1);
-return x_6;
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_4 = lean_alloc_ctor(1, 0, 1);
+lean_ctor_set_uint8(x_4, 0, x_3);
+x_5 = lean_box(0);
+x_6 = l_Lean_KVMap_insertCore(x_5, x_2, x_4);
+x_7 = l_Lean_mkMData(x_6, x_1);
+return x_7;
 }
 }
 static lean_object* _init_l_Lean_Expr_setPPExplicit___closed__1() {
@@ -16086,12 +16088,22 @@ x_6 = l_Array_mapMUnsafe_map___at_Lean_Expr_setAppPPExplicit___spec__1(x_4, x_5,
 return x_6;
 }
 }
+static lean_object* _init_l_Lean_mkAnnotation___closed__1() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; 
+x_1 = 1;
+x_2 = lean_alloc_ctor(1, 0, 1);
+lean_ctor_set_uint8(x_2, 0, x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_mkAnnotation(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = l_Lean_KVMap_empty;
-x_4 = l_Lean_initFn____x40_Lean_Data_Options___hyg_528____closed__3;
+x_4 = l_Lean_mkAnnotation___closed__1;
 x_5 = l_Lean_KVMap_insertCore(x_3, x_1, x_4);
 x_6 = l_Lean_mkMData(x_5, x_2);
 return x_6;
@@ -16492,6 +16504,8 @@ l_Lean_Expr_updateLet_x21___closed__2 = _init_l_Lean_Expr_updateLet_x21___closed
 lean_mark_persistent(l_Lean_Expr_updateLet_x21___closed__2);
 l_Lean_Expr_setPPExplicit___closed__1 = _init_l_Lean_Expr_setPPExplicit___closed__1();
 lean_mark_persistent(l_Lean_Expr_setPPExplicit___closed__1);
+l_Lean_mkAnnotation___closed__1 = _init_l_Lean_mkAnnotation___closed__1();
+lean_mark_persistent(l_Lean_mkAnnotation___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

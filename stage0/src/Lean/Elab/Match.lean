@@ -689,16 +689,15 @@ def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : TermElabM (AltLHS
 def mkMatcher (elimName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : TermElabM MatcherResult :=
   liftMetaM $ Meta.Match.mkMatcher elimName matchType numDiscrs lhss
 
-builtin_initialize
-  registerOption `match.ignoreUnusedAlts { defValue := false, group := "", descr := "if true, do not generate error if an alternative is not used" }
-
-def ignoreUnusedAlts (opts : Options) : Bool :=
-  opts.get `match.ignoreUnusedAlts false
+register_builtin_option match.ignoreUnusedAlts : Bool := {
+  defValue := false
+  descr := "if true, do not generate error if an alternative is not used"
+}
 
 def reportMatcherResultErrors (altLHSS : List AltLHS) (result : MatcherResult) : TermElabM Unit := do
   unless result.counterExamples.isEmpty do
     withHeadRefOnly <| throwError! "missing cases:\n{Meta.Match.counterExamplesToMessageData result.counterExamples}"
-  unless ignoreUnusedAlts (← getOptions) || result.unusedAltIdxs.isEmpty do
+  unless match.ignoreUnusedAlts.get (← getOptions) || result.unusedAltIdxs.isEmpty do
     let mut i := 0
     for alt in altLHSS do
       if result.unusedAltIdxs.contains i then

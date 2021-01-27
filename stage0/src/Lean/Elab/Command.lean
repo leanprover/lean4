@@ -53,10 +53,10 @@ abbrev CommandElab  := Syntax → CommandElabM Unit
 abbrev Linter := Syntax → CommandElabM Unit
 
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State := {
-  env := env
-  messages := messages
-  scopes := [{ header := "", opts := opts }]
-  maxRecDepth := getMaxRecDepth opts
+  env         := env
+  messages    := messages
+  scopes      := [{ header := "", opts := opts }]
+  maxRecDepth := maxRecDepth.get opts
 }
 
 /- Linters should be loadable as plugins, so store in a global IO ref instead of an attribute managed by the

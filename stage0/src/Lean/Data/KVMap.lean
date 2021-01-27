@@ -144,46 +144,46 @@ instance : BEq KVMap where
   beq := eqv
 
 class Value (α : Type) where
-  defVal : α
-  set    : KVMap → Name → α → KVMap
-  get    : KVMap → Name → α → α
+  toDataValue  : α → DataValue
+  ofDataValue? : DataValue → Option α
 
-export Value (set)
+@[inline] def get? {α : Type} [s : Value α] (m : KVMap) (k : Name) : Option α :=
+  m.find k |>.bind Value.ofDataValue?
 
-@[inline] def get {α : Type} [s : Value α] (m : KVMap) (k : Name) (defVal := s.defVal) : α :=
-  Value.get m k defVal
+@[inline] def get {α : Type} [s : Value α] (m : KVMap) (k : Name) (defVal : α) : α :=
+  m.get? k |>.getD defVal
 
 @[inline] def set {α : Type} [s : Value α] (m : KVMap) (k : Name) (v : α) : KVMap :=
-  Value.set m k v
+  m.insert k (Value.toDataValue v)
 
-instance : Value Bool := {
-  defVal := false,
-  set := setBool,
-  get := fun k n v => getBool k n v
-}
+instance : Value Bool where
+  toDataValue  := DataValue.ofBool
+  ofDataValue?
+    | DataValue.ofBool b => some b
+    | _                  => none
 
-instance : Value Nat := {
-  defVal := 0,
-  set := setNat,
-  get := fun k n v => getNat k n v
-}
+instance : Value Nat where
+  toDataValue  := DataValue.ofNat
+  ofDataValue?
+    | DataValue.ofNat n => some n
+    | _                 => none
 
-instance : Value Int := {
-  defVal := 0,
-  set := setInt,
-  get := fun k n v => getInt k n v
-}
+instance : Value Int where
+  toDataValue  := DataValue.ofInt
+  ofDataValue?
+    | DataValue.ofInt i => some i
+    | _                 => none
 
-instance : Value Name := {
-  defVal := Name.anonymous,
-  set := setName,
-  get := fun k n v => getName k n v
-}
+instance : Value Name where
+  toDataValue  := DataValue.ofName
+  ofDataValue?
+    | DataValue.ofName n => some n
+    | _                  => none
 
-instance : Value String := {
-  defVal := "",
-  set := setString,
-  get := fun k n v => getString k n v
-}
+instance : Value String where
+  toDataValue  := DataValue.ofString
+  ofDataValue?
+    | DataValue.ofString n => some n
+    | _                    => none
 
 end Lean.KVMap

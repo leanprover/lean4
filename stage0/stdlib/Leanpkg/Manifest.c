@@ -16,13 +16,13 @@ extern "C" {
 lean_object* l_Leanpkg_Manifest_fromToml___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Toml_parse(lean_object*, lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_528____closed__6;
 lean_object* l_Leanpkg_Source_fromToml___closed__3;
 lean_object* l_Leanpkg_Manifest_fromToml_match__4___rarg(lean_object*, lean_object*);
 lean_object* l_Leanpkg_Manifest_fromToml_match__1(lean_object*);
 lean_object* l_Leanpkg_Source_fromToml_match__4___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_Manifest_fromToml___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_Manifest_leanVersion___default;
+lean_object* l_Leanpkg_Manifest_fromToml___lambda__3___closed__1;
 extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 lean_object* l_Leanpkg_Manifest_fromToml___closed__3;
 lean_object* l_Leanpkg_Manifest_fromToml_match__6___rarg(lean_object*, lean_object*, lean_object*);
@@ -1797,11 +1797,19 @@ return x_20;
 }
 }
 }
+static lean_object* _init_l_Leanpkg_Manifest_fromToml___lambda__3___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("timeout");
+return x_1;
+}
+}
 lean_object* l_Leanpkg_Manifest_fromToml___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = l_Lean_initFn____x40_Lean_Data_Options___hyg_528____closed__6;
+x_6 = l_Leanpkg_Manifest_fromToml___lambda__3___closed__1;
 x_7 = l_Toml_Value_lookup(x_4, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
@@ -2288,6 +2296,8 @@ l_Leanpkg_Manifest_fromToml___lambda__1___closed__1 = _init_l_Leanpkg_Manifest_f
 lean_mark_persistent(l_Leanpkg_Manifest_fromToml___lambda__1___closed__1);
 l_Leanpkg_Manifest_fromToml___lambda__1___closed__2 = _init_l_Leanpkg_Manifest_fromToml___lambda__1___closed__2();
 lean_mark_persistent(l_Leanpkg_Manifest_fromToml___lambda__1___closed__2);
+l_Leanpkg_Manifest_fromToml___lambda__3___closed__1 = _init_l_Leanpkg_Manifest_fromToml___lambda__3___closed__1();
+lean_mark_persistent(l_Leanpkg_Manifest_fromToml___lambda__3___closed__1);
 l_Leanpkg_Manifest_fromToml___closed__1 = _init_l_Leanpkg_Manifest_fromToml___closed__1();
 lean_mark_persistent(l_Leanpkg_Manifest_fromToml___closed__1);
 l_Leanpkg_Manifest_fromToml___closed__2 = _init_l_Leanpkg_Manifest_fromToml___closed__2();

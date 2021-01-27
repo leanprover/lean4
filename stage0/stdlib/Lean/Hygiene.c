@@ -50,7 +50,6 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t l_String_contains(lean_object*, uint32_t);
 lean_object* l_ReaderT_bind___at_Lean_Unhygienic_instMonadQuotationUnhygienic___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Unhygienic_instMonadQuotationUnhygienic___spec__2(lean_object*, lean_object*);
-uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Unhygienic_instMonadQuotationUnhygienic___closed__3;
 lean_object* l_ReaderT_pure___at_Lean_Unhygienic_instMonadQuotationUnhygienic___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNameAux___closed__3;
@@ -94,6 +93,7 @@ lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Unhygienic_instMonadQuotationUnhygienic___closed__12;
 lean_object* l_Lean_Unhygienic_instMonadQuotationUnhygienic___closed__6;
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
+lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* l_Lean_NameSanitizerState_nameStem2Idx___default;
 uint8_t l_Lean_sanitizeNamesDefault;
 lean_object* l_Lean_Unhygienic_instMonadQuotationUnhygienic___closed__9;
@@ -830,11 +830,36 @@ return x_3;
 uint8_t l_Lean_getSanitizeNames(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint8_t x_3; uint8_t x_4; 
+lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_getSanitizeNames___closed__4;
-x_3 = l_Lean_sanitizeNamesDefault;
-x_4 = l_Lean_KVMap_getBool(x_1, x_2, x_3);
+x_3 = l_Lean_KVMap_findCore(x_1, x_2);
+if (lean_obj_tag(x_3) == 0)
+{
+uint8_t x_4; 
+x_4 = l_Lean_sanitizeNamesDefault;
 return x_4;
+}
+else
+{
+lean_object* x_5; 
+x_5 = lean_ctor_get(x_3, 0);
+lean_inc(x_5);
+lean_dec(x_3);
+if (lean_obj_tag(x_5) == 1)
+{
+uint8_t x_6; 
+x_6 = lean_ctor_get_uint8(x_5, 0);
+lean_dec(x_5);
+return x_6;
+}
+else
+{
+uint8_t x_7; 
+lean_dec(x_5);
+x_7 = l_Lean_sanitizeNamesDefault;
+return x_7;
+}
+}
 }
 }
 lean_object* l_Lean_getSanitizeNames___boxed(lean_object* x_1) {

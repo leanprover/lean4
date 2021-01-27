@@ -564,17 +564,17 @@ lean_object* l_Lean_Elab_Tactic_focusAndDone___rarg___closed__1;
 lean_object* l_Lean_Elab_Tactic_getMainTag_match__1___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_intro___closed__3;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1080____closed__1;
 uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_Elab_Tactic_expandTacticMacroFns_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1079____closed__1;
 lean_object* l_List_erase___at_Lean_Elab_Tactic_evalCase___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalIntro_introStep_match__1(lean_object*);
-extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1080____closed__2;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_12938____closed__13;
 lean_object* l___private_Lean_Elab_Tactic_Basic_0__Lean_Elab_Tactic_evalTacticUsing_loop_match__3(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_evalTacticSeq1Indented___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1079____closed__2;
 lean_object* l_Lean_Elab_Tactic_getCurrMacroScope(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_setMessageLog(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_evalIntros___spec__1(size_t, size_t, lean_object*);
@@ -4871,7 +4871,7 @@ if (x_32 == 0)
 {
 lean_object* x_33; uint8_t x_34; 
 lean_free_object(x_24);
-x_33 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1080____closed__2;
+x_33 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1079____closed__2;
 x_34 = l_Lean_checkTraceOption(x_16, x_33);
 lean_dec(x_16);
 if (x_34 == 0)
@@ -5104,7 +5104,7 @@ if (x_96 == 0)
 {
 lean_object* x_97; uint8_t x_98; 
 lean_free_object(x_24);
-x_97 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1080____closed__2;
+x_97 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1079____closed__2;
 x_98 = l_Lean_checkTraceOption(x_16, x_97);
 lean_dec(x_16);
 if (x_98 == 0)
@@ -5357,7 +5357,7 @@ lean_dec(x_160);
 if (x_162 == 0)
 {
 lean_object* x_163; uint8_t x_164; 
-x_163 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1080____closed__2;
+x_163 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1079____closed__2;
 x_164 = l_Lean_checkTraceOption(x_16, x_163);
 lean_dec(x_16);
 if (x_164 == 0)
@@ -5636,7 +5636,7 @@ if (x_238 == 0)
 {
 lean_object* x_239; uint8_t x_240; 
 lean_dec(x_223);
-x_239 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1080____closed__2;
+x_239 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1079____closed__2;
 x_240 = l_Lean_checkTraceOption(x_16, x_239);
 lean_dec(x_16);
 if (x_240 == 0)
@@ -5969,7 +5969,7 @@ if (x_326 == 0)
 {
 lean_object* x_327; uint8_t x_328; 
 lean_dec(x_311);
-x_327 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1080____closed__2;
+x_327 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1079____closed__2;
 x_328 = l_Lean_checkTraceOption(x_291, x_327);
 lean_dec(x_291);
 if (x_328 == 0)
@@ -18061,7 +18061,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_initFn____x40_Lean_Elab_Tactic_Basi
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1080____closed__1;
+x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1079____closed__1;
 x_2 = l_Lean_Parser_Tactic_tactic___x3c_x3b_x3e_____closed__5;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

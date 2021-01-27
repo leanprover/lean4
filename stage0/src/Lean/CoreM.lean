@@ -16,17 +16,13 @@ import Lean.ResolveName
 namespace Lean
 namespace Core
 
-def maxHeartbeatsDefault := 50000
-
-builtin_initialize
-  registerOption `maxHeartbeats {
-    defValue := DataValue.ofNat maxHeartbeatsDefault,
-    group := "",
-    descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
-  }
+register_builtin_option maxHeartbeats : Nat := {
+  defValue := 50000
+  descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
+}
 
 def getMaxHeartbeats (opts : Options) : Nat :=
-  opts.get `maxHeartbeats maxHeartbeatsDefault * 1000
+  maxHeartbeats.get opts * 1000
 
 structure State where
   env             : Environment
@@ -111,7 +107,7 @@ def mkFreshUserName (n : Name) : CoreM Name :=
 instance [MetaEval α] : MetaEval (CoreM α) where
   eval env opts x _ := do
     let x : CoreM α := do try x finally printTraces
-    let (a, s) ← x.toIO { maxRecDepth := getMaxRecDepth opts, options := opts } { env := env }
+    let (a, s) ← x.toIO { maxRecDepth := maxRecDepth.get opts, options := opts } { env := env }
     MetaEval.eval s.env opts a (hideUnit := true)
 
 -- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`

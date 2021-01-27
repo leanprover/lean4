@@ -80,23 +80,6 @@ def setOptionFromString (opts : Options) (entry : String) : IO Options := do
     | none   => throw (IO.userError s!"invalid Int option value '{val}'")
     | some v => pure $ opts.setInt key v
 
-builtin_initialize
-  registerOption `verbose {
-    defValue := true,
-    group := "",
-    descr := "disable/enable verbose messages"
-  }
-  registerOption `timeout {
-    defValue := DataValue.ofNat 0,
-    group := "",
-    descr := "the (deterministic) timeout is measured as the maximum of memory allocations (in thousands) per task, the default is unbounded"
-  }
-  registerOption `maxMemory {
-    defValue := DataValue.ofNat 2048,
-    group := "",
-    descr := "maximum amount of memory available for Lean in megabytes"
-  }
-
 class MonadOptions (m : Type → Type) where
   getOptions : m Options
 
@@ -114,5 +97,34 @@ def getBoolOption (k : Name) (defValue := false) : m Bool := do
 def getNatOption (k : Name) (defValue := 0) : m Nat := do
   let opts ← getOptions
   pure $ opts.getNat k defValue
+
+
+/-- A strongly-typed reference to an option. -/
+protected structure Option (α : Type) where
+  name     : Name
+  defValue : α
+  deriving Inhabited
+
+namespace Option
+
+protected structure Decl (α : Type) where
+  defValue : α
+  group    : String := ""
+  descr    : String := ""
+
+protected def get [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : α :=
+  opts.get opt.name opt.defValue
+
+protected def set [KVMap.Value α] (opts : Options) (opt : Lean.Option α) (val: α) : Options :=
+  opts.set opt.name val
+
+protected def register [KVMap.Value α] (name : Name) (decl : Lean.Option.Decl α) : IO (Lean.Option α) := do
+  registerOption name { defValue := KVMap.Value.toDataValue decl.defValue, group := decl.group, descr := decl.descr }
+  return { name := name, defValue := decl.defValue }
+
+macro "register_builtin_option" name:ident " : " type:term " := " decl:term : command =>
+  `(builtin_initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
+
+end Option
 
 end Lean

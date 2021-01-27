@@ -642,61 +642,6 @@ private def addAssignmentInfo (msg : MessageData) : CheckAssignmentM MessageData
             traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx $ addAssignmentInfo (mkMVar mvarId)
             throwCheckAssignmentFailure
 
-
-/-
-  Auxiliary function used to "fix" subterms of the form `?m x_1 ... x_n` where `x_i`s are free variables,
-  and one of them is out-of-scope.
-  See `Expr.app` case at `check`.
-  If `ctxApprox` is true, then we solve this case by creating a fresh metavariable ?n with the correct scope,
-  an assigning `?m := fun _ ... _ => ?n` -/
-def assignToConstFun (mvar : Expr) (numArgs : Nat) (newMVar : Expr) : MetaM Bool := do
-  let mvarType ← inferType mvar
-  forallBoundedTelescope mvarType numArgs fun xs _ => do
-    if xs.size != numArgs then pure false
-    else
-      let some v ← mkLambdaFVarsWithLetDeps xs newMVar | return false
-      checkTypesAndAssign mvar v
-
-partial def check (e : Expr) : CheckAssignmentM Expr := do
-  match e with
-  | Expr.mdata _ b _     => return e.updateMData! (← visit check b)
-  | Expr.proj _ _ s _    => return e.updateProj! (← visit check s)
-  | Expr.lam _ d b _     => return e.updateLambdaE! (← visit check d) (← visit check b)
-  | Expr.forallE _ d b _ => return e.updateForallE! (← visit check d) (← visit check b)
-  | Expr.letE _ t v b _  => return e.updateLet! (← visit check t) (← visit check v) (← visit check b)
-  | Expr.bvar ..         => return e
-  | Expr.sort ..         => return e
-  | Expr.const ..        => return e
-  | Expr.lit ..          => return e
-  | Expr.fvar ..         => visit (checkFVar check) e
-  | Expr.mvar ..         => visit (checkMVar check) e
-  | Expr.app ..          => e.withApp fun f args => do
-    let ctxMeta ← readThe Meta.Context
-    if f.isMVar && ctxMeta.config.ctxApprox && args.all Expr.isFVar then
-      let f ← visit (checkMVar check) f
-      catchInternalId outOfScopeExceptionId
-        (do
-          let args ← args.mapM (visit check)
-          pure $ mkAppN f args)
-        (fun ex => do
-          if (← f.isMVar <&&> isDelayedAssigned f.mvarId!) then
-            throw ex
-          else
-            let eType ← inferType e
-            let mvarType ← check eType
-            /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
-                 Note that `mvarType` may be different from `eType`. -/
-            let ctx ← read
-            let newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType
-            if (← assignToConstFun f args.size newMVar) then
-              pure newMVar
-            else
-              throw ex)
-    else
-      let f ← visit check f
-      let args ← args.mapM (visit check)
-      pure $ mkAppN f args
-
 @[inline] def run (x : CheckAssignmentM Expr) (mvarId : MVarId) (fvars : Array Expr) (hasCtxLocals : Bool) (v : Expr) : MetaM (Option Expr) := do
   let mvarDecl ← getMVarDecl mvarId
   let ctx := { mvarId := mvarId, mvarDecl := mvarDecl, fvars := fvars, hasCtxLocals := hasCtxLocals, rhs := v : Context }
@@ -705,6 +650,69 @@ partial def check (e : Expr) : CheckAssignmentM Expr := do
       (do let e ← x; pure $ some e)
       (fun _ => pure none)
   x.run ctx |>.run' {}
+
+mutual
+  /-
+    Auxiliary function used to "fix" subterms of the form `?m x_1 ... x_n` where `x_i`s are free variables,
+    and one of them is out-of-scope.
+    See `Expr.app` case at `check`.
+    If `ctxApprox` is true, then we solve this case by creating a fresh metavariable ?n with the correct scope,
+    an assigning `?m := fun _ ... _ => ?n` -/
+  partial def assignToConstFun (mvar : Expr) (numArgs : Nat) (newMVar : Expr) : MetaM Bool := do
+    let mvarType ← inferType mvar
+    forallBoundedTelescope mvarType numArgs fun xs _ => do
+      if xs.size != numArgs then pure false
+      else
+        let some v ← mkLambdaFVarsWithLetDeps xs newMVar | return false
+        match (← checkAssignmentAux mvar.mvarId! #[] false v) with
+        | some v => checkTypesAndAssign mvar v
+        | none   => return false
+
+  -- See checkAssignment
+  partial def checkAssignmentAux (mvarId : MVarId) (fvars : Array Expr) (hasCtxLocals : Bool) (v : Expr) : MetaM (Option Expr) := do
+    run (check v) mvarId fvars hasCtxLocals v
+
+  partial def check (e : Expr) : CheckAssignmentM Expr := do
+    match e with
+    | Expr.mdata _ b _     => return e.updateMData! (← visit check b)
+    | Expr.proj _ _ s _    => return e.updateProj! (← visit check s)
+    | Expr.lam _ d b _     => return e.updateLambdaE! (← visit check d) (← visit check b)
+    | Expr.forallE _ d b _ => return e.updateForallE! (← visit check d) (← visit check b)
+    | Expr.letE _ t v b _  => return e.updateLet! (← visit check t) (← visit check v) (← visit check b)
+    | Expr.bvar ..         => return e
+    | Expr.sort ..         => return e
+    | Expr.const ..        => return e
+    | Expr.lit ..          => return e
+    | Expr.fvar ..         => visit (checkFVar check) e
+    | Expr.mvar ..         => visit (checkMVar check) e
+    | Expr.app ..          => e.withApp fun f args => do
+      let ctxMeta ← readThe Meta.Context
+      if f.isMVar && ctxMeta.config.ctxApprox && args.all Expr.isFVar then
+        let f ← visit (checkMVar check) f
+        catchInternalId outOfScopeExceptionId
+          (do
+            let args ← args.mapM (visit check)
+            return mkAppN f args)
+          (fun ex => do
+            if (← f.isMVar <&&> isDelayedAssigned f.mvarId!) then
+              throw ex
+            else
+              let eType ← inferType e
+              let mvarType ← check eType
+              /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
+                   Note that `mvarType` may be different from `eType`. -/
+              let ctx ← read
+              let newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType
+              if (← assignToConstFun f args.size newMVar) then
+                pure newMVar
+              else
+                throw ex)
+      else
+        let f ← visit check f
+        let args ← args.mapM (visit check)
+        return mkAppN f args
+
+end
 
 end CheckAssignment
 
@@ -749,10 +757,6 @@ partial def check
 
 end CheckAssignmentQuick
 
--- See checkAssignment
-def checkAssignmentAux (mvarId : MVarId) (fvars : Array Expr) (hasCtxLocals : Bool) (v : Expr) : MetaM (Option Expr) := do
-  CheckAssignment.run (CheckAssignment.check v) mvarId fvars hasCtxLocals v
-
 /--
   Auxiliary function for handling constraints of the form `?m a₁ ... aₙ =?= v`.
   It will check whether we can perform the assignment
@@ -774,7 +778,7 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
       pure (some v)
     else
       let v ← instantiateMVars v
-      checkAssignmentAux mvarId fvars hasCtxLocals v
+      CheckAssignment.checkAssignmentAux mvarId fvars hasCtxLocals v
 
 private def processAssignmentFOApproxAux (mvar : Expr) (args : Array Expr) (v : Expr) : MetaM Bool :=
   match v with

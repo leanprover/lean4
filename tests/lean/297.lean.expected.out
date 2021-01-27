@@ -4,15 +4,7 @@
   OfNat (Id PUnit) 0
 297.lean:2:4-2:5: error: failed to synthesize instance
   OfNat Prop 0
-297.lean:2:10-2:11: error: failed to synthesize instance
-  OfNat (Id 0) 0
 297.lean:1:10-1:11: error: failed to synthesize instance
   OfNat (Type ?u) 0
-297.lean:2:1-2:11: error: application type mismatch
-  pure PUnit.unit
-argument
-  PUnit.unit
-has type
-  PUnit
-but is expected to have type
-  0
+297.lean:2:10-2:11: error: failed to synthesize instance
+  OfNat (Id PUnit) 0

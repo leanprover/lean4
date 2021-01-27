@@ -47,17 +47,3 @@ theorem aux_4 [SizeOf α] [SizeOf β] (cs : List (List (TreeNeg α β))) : TreeP
       rw aux_3
       rfl)
     cs
-
-theorem TreePos.leaf.sizeOf_spec [SizeOf α] [SizeOf β] (a : α) : sizeOf (TreePos.leaf (β := β) a) = 1 + sizeOf a :=
-  rfl
-
-theorem TreePos.node.sizeOf_spec [SizeOf α] [SizeOf β] (cs : List (List (TreeNeg α β))) : sizeOf (TreePos.node cs) = 1 + sizeOf cs := by
-  show 1 + TreePos._sizeOf_3 cs = 1 + sizeOf cs
-  rw aux_4
-
-theorem TreeNeg.leaf.sizeOf_spec [SizeOf α] [SizeOf β] (b : β) : sizeOf (TreeNeg.leaf (α := α) b) = 1 + sizeOf b :=
-  rfl
-
-theorem TreeNeg.node.sizeOf_spec [SizeOf α] [SizeOf β] (cs : List (List (TreePos α β))) : sizeOf (TreeNeg.node cs) = 1 + sizeOf cs := by
-  show 1 + TreePos._sizeOf_4 cs = 1 + sizeOf cs
-  rw aux_2

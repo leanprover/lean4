@@ -47,13 +47,3 @@ theorem aux_2 [SizeOf α] (a : BList (Foo α) (Boo α)) : Foo._sizeOf_4 a = size
       rw ih
       rfl)
     a
-
-end Foo
-
-theorem Foo.mk.sizeOf_spec [SizeOf α] (cs : AList (Foo α) (Boo α)) : sizeOf (Foo.mk cs) = 1 + sizeOf cs := by
-  show 1 + Foo._sizeOf_3 cs = 1 + sizeOf cs
-  rw Foo.aux_1
-
-theorem Boo.mk.sizeOf_spec [SizeOf α] (a : α) (cs : BList (Foo α) (Boo α)) : sizeOf (Boo.mk a cs) = 1 + sizeOf a + sizeOf cs := by
-  show 1 + sizeOf a + Foo._sizeOf_4 cs = 1 + sizeOf a + sizeOf cs
-  rw Foo.aux_2

@@ -56,15 +56,14 @@ def getBetterRef (ref : Syntax) (macroStack : MacroStack) : Syntax :=
     | some elem => elem.before
     | none      => ref
 
-def ppMacroStackDefault := false
-def getMacroStackOption (o : Options) : Bool:= o.get `pp.macroStack ppMacroStackDefault
-def setMacroStackOption (o : Options) (flag : Bool) : Options := o.setBool `pp.macroStack flag
-
-builtin_initialize
-  registerOption `pp.macroStack { defValue := ppMacroStackDefault, group := "pp", descr := "dispaly macro expansion stack" }
+register_builtin_option pp.macroStack : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "dispaly macro expansion stack"
+}
 
 def addMacroStack {m} [Monad m] [MonadOptions m] (msgData : MessageData) (macroStack : MacroStack) : m MessageData := do
-  if !getMacroStackOption (← getOptions) then pure msgData else
+  if !pp.macroStack.get (← getOptions) then pure msgData else
   match macroStack with
   | []             => pure msgData
   | stack@(top::_) =>

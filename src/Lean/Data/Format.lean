@@ -14,13 +14,23 @@ def getWidth (o : Options) : Nat    := o.get `format.width  defWidth
 def getIndent (o : Options) : Nat   := o.get `format.indent defIndent
 def getUnicode (o : Options) : Bool := o.get `format.unicode defUnicode
 
-builtin_initialize
-  registerOption `format.indent { defValue := defIndent, group := "format", descr := "indentation" }
-  registerOption `format.unicode { defValue := defUnicode, group := "format", descr := "unicode characters" }
-  registerOption `format.width { defValue := defWidth, group := "format", descr := "line width" }
+register_builtin_option format.width : Nat := {
+  defValue := defWidth
+  descr := "indentation"
+}
+
+register_builtin_option format.unicode : Bool := {
+  defValue := defUnicode
+  descr    := "unicode characters"
+}
+
+register_builtin_option format.indent : Nat := {
+  defValue := defIndent
+  descr    := "indentation"
+}
 
 def pretty' (f : Format) (o : Options := {}) : String :=
-  pretty f (getWidth o)
+  pretty f (format.width.get o)
 
 end Format
 end Std

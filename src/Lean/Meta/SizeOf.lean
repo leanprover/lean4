@@ -280,18 +280,18 @@ private def mkSizeOfSpecTheorems (indTypeNames : Array Name) (sizeOfFns : Array 
       mkSizeOfSpecTheorem indInfo sizeOfFns recMap ctorName
   return ()
 
-builtin_initialize
-  registerOption `genSizeOf { defValue := true, group := "", descr := "generate `SizeOf` instance for inductive types and structures" }
-  registerOption `genSizeOfSpec { defValue := true, group := "", descr := "generate `SizeOf` specificiation theorems for automatically generated instances" }
+register_builtin_option genSizeOf : Bool := {
+  defValue := true
+  descr    := "generate `SizeOf` instance for inductive types and structures"
+}
 
-def generateSizeOfInstance (opts : Options) : Bool :=
-  opts.get `genSizeOf true
-
-def generateSizeOfSpec (opts : Options) : Bool :=
-  opts.get `genSizeOfSpec true
+register_builtin_option genSizeOfSpec : Bool := {
+  defValue := true
+  descr    := "generate `SizeOf` specificiation theorems for automatically generated instances"
+}
 
 def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
-  if (← getEnv).contains ``SizeOf && generateSizeOfInstance (← getOptions) && !(← isInductivePredicate typeName) then
+  if (← getEnv).contains ``SizeOf && genSizeOf.get (← getOptions) && !(← isInductivePredicate typeName) then
     let indInfo ← getConstInfoInduct typeName
     unless indInfo.isUnsafe do
       let (fns, recMap) ← mkSizeOfFns typeName
@@ -319,7 +319,7 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
                 hints       := ReducibilityHints.abbrev
               }
               addInstance instDeclName AttributeKind.global (evalPrio! default)
-      if generateSizeOfSpec (← getOptions) then
+      if genSizeOfSpec.get (← getOptions) then
         mkSizeOfSpecTheorems indInfo.all.toArray fns recMap
 
 builtin_initialize

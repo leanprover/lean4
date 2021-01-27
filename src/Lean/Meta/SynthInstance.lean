@@ -13,27 +13,23 @@ import Lean.Meta.WHNF
 import Lean.Util.Profile
 
 namespace Lean.Meta
+
+register_builtin_option synthInstance.maxHeartbeats : Nat := {
+  defValue := 300
+  descr := "maximum amount of heartbeats per typeclass resolution problem. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
+}
+
+register_builtin_option synthInstance.maxSize : Nat := {
+  defValue := 128
+  descr := "maximum number of instances used to construct a solution in the type class instance synthesis procedure"
+}
+
 namespace SynthInstance
 
-open Std (HashMap)
-
-def maxHeartbeatsDefault := 300
-
-builtin_initialize
-  registerOption `synthInstance.maxHeartbeats {
-    defValue := DataValue.ofNat maxHeartbeatsDefault,
-    group := "",
-    descr := "maximum amount of heartbeats per typeclass resolution problem. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
-  }
-
 def getMaxHeartbeats (opts : Options) : Nat :=
-  opts.get `synthInstance.maxHeartbeats maxHeartbeatsDefault * 1000
+  synthInstance.maxHeartbeats.get opts * 1000
 
-def maxResultSizeDefault := 128
-builtin_initialize
-  registerOption `synthInstance.maxSize { defValue := maxResultSizeDefault, group := "", descr := "maximum number of instances used to construct a solution in the type class instance synthesis procedure" }
-private def getMaxSize (opts : Options) : Nat :=
-  opts.getNat `synthInstance.maxSize maxResultSizeDefault
+open Std (HashMap)
 
 builtin_initialize inferTCGoalsRLAttr : TagAttribute ←
   registerTagAttribute `inferTCGoalsRL "instruct type class resolution procedure to solve goals from right to left for this instance"
@@ -561,7 +557,7 @@ private def preprocessOutParam (type : Expr) : MetaM Expr :=
 
 def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) ⟨0, 0⟩ do
   let opts ← getOptions
-  let maxResultSize := maxResultSize?.getD (SynthInstance.getMaxSize opts)
+  let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
   let inputConfig ← getConfig
   withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.reducible,
                                           foApprox := true, ctxApprox := true, constApprox := false }) do

@@ -22,11 +22,10 @@ def smartUnfoldingSuffix := "_sunfold"
 @[inline] def mkSmartUnfoldingNameFor (n : Name) : Name :=
   Name.mkStr n smartUnfoldingSuffix
 
-def smartUnfoldingDefault := true
-builtin_initialize
-  registerOption `smartUnfolding { defValue := smartUnfoldingDefault, group := "", descr := "when computing weak head normal form, use auxiliary definition created for functions defined by structural recursion" }
-private def useSmartUnfolding (opts : Options) : Bool :=
-  opts.getBool `smartUnfolding smartUnfoldingDefault
+register_builtin_option smartUnfolding : Bool := {
+  defValue := true
+  descr := "when computing weak head normal form, use auxiliary definition created for functions defined by structural recursion"
+}
 
 /- ===========================
    Helper methods
@@ -400,7 +399,7 @@ mutual
               deltaBetaDefinition fInfo fLvls e.getAppRevArgs (fun _ => pure none) (fun e => pure (some e))
             else
               return none
-          if useSmartUnfolding (← getOptions) then
+          if smartUnfolding.get (← getOptions) then
             let fAuxInfo? ← getConstNoEx? (mkSmartUnfoldingNameFor fInfo.name)
             match fAuxInfo? with
             | some fAuxInfo@(ConstantInfo.defnInfo _) =>

@@ -543,7 +543,7 @@ def throwTypeMismatchError {α} (header? : Option String) (expectedType : Expr) 
   | some f => Meta.throwAppTypeMismatch f e extraMsg
 
 @[inline] def withoutMacroStackAtErr {α} (x : TermElabM α) : TermElabM α :=
-  withTheReader Core.Context (fun (ctx : Core.Context) => { ctx with options := setMacroStackOption ctx.options false }) x
+  withTheReader Core.Context (fun (ctx : Core.Context) => { ctx with options := pp.macroStack.set ctx.options false }) x
 
 /- Try to synthesize metavariable using type class resolution.
    This method assumes the local context and local instances of `instMVar` coincide
@@ -569,14 +569,13 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
   | LOption.undef    => pure false -- we will try later
   | LOption.none     => throwError! "failed to synthesize instance{indentExpr type}"
 
-def maxCoeSizeDefault := 16
-builtin_initialize
-  registerOption `maxCoeSize { defValue := maxCoeSizeDefault, group := "", descr := "maximum number of instances used to construct an automatic coercion" }
-private def getCoeMaxSize (opts : Options) : Nat :=
-  opts.getNat `maxCoeSize maxCoeSizeDefault
+register_builtin_option maxCoeSize : Nat := {
+  defValue := 16
+  descr    := "maximum number of instances used to construct an automatic coercion"
+}
 
 def synthesizeCoeInstMVarCore (instMVar : MVarId) : TermElabM Bool := do
-  synthesizeInstMVarCore instMVar (getCoeMaxSize (← getOptions))
+  synthesizeInstMVarCore instMVar (some (maxCoeSize.get (← getOptions)))
 
 /-
 The coercion from `α` to `Thunk α` cannot be implemented using an instance because it would

@@ -19,16 +19,12 @@ def pathSeparator : Char :=
 def pathSeparators : List Char :=
   if isWindows then ['\\', '/'] else ['/']
 
-/-- The character that is used to separate the entries in the $PATH environment variable. -/
+/-- The character that is used to separate the entries in the $PATH (or %PATH%) environment variable. -/
 def searchPathSeparator : Char :=
   if isWindows then ';' else ':'
 
-/-- The list of all possible separators. -/
-def searchPathSeparators : List Char :=
-  if isWindows then [';', ':'] else [':']
-
 def splitSearchPath (s : String) : List String :=
-  s.split (fun c => searchPathSeparators.elem c)
+  s.split (fun c => searchPathSeparator == c)
 
 /-- File extension character -/
 def extSeparator : Char := '.'

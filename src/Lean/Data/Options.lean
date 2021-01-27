@@ -80,23 +80,6 @@ def setOptionFromString (opts : Options) (entry : String) : IO Options := do
     | none   => throw (IO.userError s!"invalid Int option value '{val}'")
     | some v => pure $ opts.setInt key v
 
-builtin_initialize
-  registerOption `verbose {
-    defValue := true,
-    group := "",
-    descr := "disable/enable verbose messages"
-  }
-  registerOption `timeout {
-    defValue := DataValue.ofNat 0,
-    group := "",
-    descr := "the (deterministic) timeout is measured as the maximum of memory allocations (in thousands) per task, the default is unbounded"
-  }
-  registerOption `maxMemory {
-    defValue := DataValue.ofNat 2048,
-    group := "",
-    descr := "maximum amount of memory available for Lean in megabytes"
-  }
-
 class MonadOptions (m : Type → Type) where
   getOptions : m Options
 

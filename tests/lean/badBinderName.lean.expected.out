@@ -1,0 +1,1 @@
+badBinderName.lean:8:6-8:10: error: invalid binder name 'X.mk', it must be atomic

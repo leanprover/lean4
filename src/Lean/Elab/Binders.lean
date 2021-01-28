@@ -69,7 +69,7 @@ def declareTacticSyntax (tactic : Syntax) : TermElabM Name :=
                                        safety := DefinitionSafety.safe }
     addDecl decl
     compileDecl decl
-    pure name
+    return name
 
 /-
 Expand `optional (binderTactic <|> binderDefault)`
@@ -78,7 +78,7 @@ def binderDefault := parser! " := " >> termParser
 -/
 private def expandBinderModifier (type : Syntax) (optBinderModifier : Syntax) : TermElabM Syntax := do
   if optBinderModifier.isNone then
-    pure type
+    return type
   else
     let modifier := optBinderModifier[0]
     let kind     := modifier.getKind
@@ -96,7 +96,7 @@ private def getBinderIds (ids : Syntax) : TermElabM (Array Syntax) :=
   ids.getArgs.mapM fun id =>
     let k := id.getKind
     if k == identKind || k == `Lean.Parser.Term.hole then
-      pure id
+      return id
     else
       throwErrorAt id "identifier or `_` expected"
 
@@ -152,11 +152,17 @@ private def addLocalVarInfoCore (lctx : LocalContext) (stx : Syntax) (fvar : Exp
 private def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit := do
   addLocalVarInfoCore (← getLCtx) stx fvar
 
+private def ensureAtomicBinderName (binderView : BinderView) : TermElabM Unit :=
+  let n := binderView.id.getId.eraseMacroScopes
+  unless n.isAtomic do
+    throwErrorAt! binderView.id "invalid binder name '{n}', it must be atomic"
+
 private partial def elabBinderViews {α} (binderViews : Array BinderView) (catchAutoBoundImplicit : Bool) (fvars : Array Expr) (k : Array Expr → TermElabM α)
     : TermElabM α :=
   let rec loop (i : Nat) (fvars : Array Expr) : TermElabM α := do
     if h : i < binderViews.size then
       let binderView := binderViews.get ⟨i, h⟩
+      ensureAtomicBinderName binderView
       if catchAutoBoundImplicit then
         elabTypeWithAutoBoundImplicit binderView.type fun type => do
           registerFailedToInferBinderTypeInfo type binderView.type
@@ -169,7 +175,7 @@ private partial def elabBinderViews {α} (binderViews : Array BinderView) (catch
         withLocalDecl binderView.id.getId binderView.bi type fun fvar => do
           addLocalVarInfo binderView.id fvar
           loop (i+1) (fvars.push fvar)
-     else
+    else
       k fvars
   loop 0 fvars
 
@@ -223,7 +229,7 @@ private partial def getFunBinderIds? (stx : Syntax) : OptionT TermElabM (Array S
   let convertElem (stx : Syntax) : OptionT TermElabM Syntax :=
     match stx with
     | `(_) => do let ident ← mkFreshIdent stx; pure ident
-    | `($id:ident) => pure id
+    | `($id:ident) => return id
     | _ => failure
   match stx with
   | `($f $args*) => do
@@ -269,16 +275,18 @@ partial def expandFunBinders (binders : Array Syntax) (body : Syntax) : TermElab
       | Syntax.node `Lean.Parser.Term.hole _ =>
         let ident ← mkFreshIdent binder
         let type := binder
-        loop body (i+1) (newBinders.push $ mkExplicitBinder ident type)
+        loop body (i+1) (newBinders.push <| mkExplicitBinder ident type)
       | Syntax.node `Lean.Parser.Term.paren args =>
         -- `(` (termParser >> parenSpecial)? `)`
         -- parenSpecial := (tupleTail <|> typeAscription)?
         let binderBody := binder[1]
-        if binderBody.isNone then processAsPattern ()
+        if binderBody.isNone then
+          processAsPattern ()
         else
           let idents  := binderBody[0]
           let special := binderBody[1]
-          if special.isNone then processAsPattern ()
+          if special.isNone then
+            processAsPattern ()
           else if special[0].getKind != `Lean.Parser.Term.typeAscription then
             processAsPattern ()
           else
@@ -287,9 +295,9 @@ partial def expandFunBinders (binders : Array Syntax) (body : Syntax) : TermElab
             match (← getFunBinderIds? idents) with
             | some idents => loop body (i+1) (newBinders ++ idents.map (fun ident => mkExplicitBinder ident type))
             | none        => processAsPattern ()
-      | Syntax.ident _ _ _ _ =>
+      | Syntax.ident .. =>
         let type  := mkHole binder
-        loop body (i+1) (newBinders.push $ mkExplicitBinder binder type)
+        loop body (i+1) (newBinders.push <| mkExplicitBinder binder type)
       | _ => processAsPattern ()
     else
       pure (newBinders, body, false)
@@ -315,10 +323,11 @@ private def propagateExpectedType (fvar : Expr) (fvarType : Expr) (s : State) : 
       pure { s with expectedType? := some b }
     | _ => pure { s with expectedType? := none }
 
-private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat) (s : State) : TermElabM State :=
+private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat) (s : State) : TermElabM State := do
   if h : i < binderViews.size then
     let binderView := binderViews.get ⟨i, h⟩
-    withRef binderView.type $ withLCtx s.lctx s.localInsts do
+    ensureAtomicBinderName binderView
+    withRef binderView.type <| withLCtx s.lctx s.localInsts do
       let type       ← elabType binderView.type
       registerFailedToInferBinderTypeInfo type binderView.type
       let fvarId ← mkFreshFVarId
@@ -332,7 +341,7 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat
       -/
       let lctx  := s.lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi
       addLocalVarInfoCore lctx binderView.id fvar
-      let s ← withRef binderView.id $ propagateExpectedType fvar type s
+      let s ← withRef binderView.id <| propagateExpectedType fvar type s
       let s := { s with lctx := lctx }
       match (← isClass? type) with
       | none           => elabFunBinderViews binderViews (i+1) s
@@ -360,7 +369,7 @@ def elabFunBinders {α} (binders : Array Syntax) (expectedType? : Option Expr) (
     let lctx ← getLCtx
     let localInsts ← getLocalInstances
     let s ← FunBinders.elabFunBindersAux binders 0 { lctx := lctx, localInsts := localInsts, expectedType? := expectedType? }
-    resettingSynthInstanceCacheWhen (s.localInsts.size > localInsts.size) $ withLCtx s.lctx s.localInsts $
+    resettingSynthInstanceCacheWhen (s.localInsts.size > localInsts.size) <| withLCtx s.lctx s.localInsts <|
       x s.fvars s.expectedType?
 
 /- Helper function for `expandEqnsIntoMatch` -/
@@ -473,7 +482,7 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
     let (binders, body, expandedPattern) ← expandFunBinders binders body
     if expandedPattern then
       let newStx ← `(fun $binders* => $body)
-      withMacroExpansion stx newStx $ elabTerm newStx expectedType?
+      withMacroExpansion stx newStx <| elabTerm newStx expectedType?
     else
       elabFunBinders binders expectedType? fun xs expectedType? => do
         /- We ensure the expectedType here since it will force coercions to be applied if needed.
@@ -519,7 +528,7 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
         let body ← elabTerm body expectedType?
         let body ← instantiateMVars body
         mkLambdaFVars #[x] body
-      pure $ mkApp f val
+      pure <| mkApp f val
   if elabBodyFirst then
     forallBoundedTelescope type arity fun xs type => do
       let valResult ← elabTermEnsuringType valStx type
@@ -547,7 +556,7 @@ def expandLetEqnsDecl (letDecl : Syntax) : MacroM Syntax := do
   let ref       := letDecl
   let matchAlts := letDecl[3]
   let val ← expandMatchAltsIntoMatch ref matchAlts
-  pure $ Syntax.node `Lean.Parser.Term.letIdDecl #[letDecl[0], letDecl[1], letDecl[2], mkAtomFrom ref " := ", val]
+  return Syntax.node `Lean.Parser.Term.letIdDecl #[letDecl[0], letDecl[1], letDecl[2], mkAtomFrom ref " := ", val]
 
 def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : Bool) (elabBodyFirst : Bool) : TermElabM Expr := do
   let ref     := stx
@@ -568,12 +577,12 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
       | true,  true  => stxNew.setKind `Lean.Parser.Term.«let*»
       | false, true  => stxNew.setKind `Lean.Parser.Term.«let!»
       | false, false => unreachable!
-    withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+    withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   else if letDecl.getKind == `Lean.Parser.Term.letEqnsDecl then
-    let letDeclIdNew ← liftMacroM $ expandLetEqnsDecl letDecl
+    let letDeclIdNew ← liftMacroM <| expandLetEqnsDecl letDecl
     let declNew := stx[1].setArg 0 letDeclIdNew
     let stxNew  := stx.setArg 1 declNew
-    withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+    withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   else
     throwUnsupportedSyntax
 

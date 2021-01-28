@@ -158,6 +158,16 @@ def mkSizeOfFns (typeName : Name) : MetaM (Array Name × NameMap Name) := do
     i := i + 1
   return (result, recMap)
 
+def mkSizeOfSpecLemmaName (ctorName : Name) : Name :=
+  ctorName ++ `sizeOf_spec
+
+def mkSizeOfSpecLemmaInstance (ctorApp : Expr) : MetaM Expr :=
+  matchConstCtor ctorApp.getAppFn (fun _ => throwError! "failed to apply 'sizeOf' spec, constructor expected{indentExpr ctorApp}") fun ctorInfo ctorLevels => do
+    let lemmaName  := mkSizeOfSpecLemmaName ctorInfo.name
+    let ctorArgs   := ctorApp.getAppArgs
+    let ctorFields := ctorArgs[ctorArgs.size - ctorInfo.numFields:]
+    mkAppM lemmaName ctorFields
+
 /- SizeOf spec theorem for nested inductive types -/
 namespace SizeOfSpecNested
 
@@ -219,8 +229,6 @@ mutual
       for y in ys do
         if (← isDefEq (← inferType y) target) then
           return y
-      let rhsMajor := rhs.appArg!
-      let rhs ← mkAppM ``SizeOf.sizeOf #[rhsMajor]
       mkSizeOfAuxLemma lhs rhs
 
   /-- Construct proof of auxiliary lemma. See `mkSizeOfAuxLemma` -/
@@ -273,9 +281,16 @@ mutual
                   mkLambdaFVars ys (← mkEqRefl rhs)
                 else
                   let lhs ← unfoldDefinition lhs -- Unfold `_sizeOf_<idx>`
-                  let rhs ← whnfI rhs            -- Expand `sizeOf (ctor ...)` into `_sizeOf_<idx>` application
-                  let rhs ← unfoldDefinition rhs -- Unfold `_sizeOf_<idx>`
-                  mkLambdaFVars ys (← mkMinorProof ys lhs rhs)
+                  -- rhs is of the form `sizeOf (ctor ...)`
+                  let ctorApp := rhs.appArg!
+                  let specLemma ← mkSizeOfSpecLemmaInstance ctorApp
+                  let specEq ← whnf (← inferType specLemma)
+                  match specEq.eq? with
+                  | none => throwFailed
+                  | some (_, rhs, rhsExpanded) =>
+                    let lhs_eq_rhsExpanded ← mkMinorProof ys lhs rhsExpanded
+                    let rhsExpanded_eq_rhs ← mkEqSymm specLemma
+                    mkLambdaFVars ys (← mkEqTrans lhs_eq_rhsExpanded rhsExpanded_eq_rhs)
             r := mkApp r minor
           -- Add indices and major
           return mkAppN r indicesMajor
@@ -385,7 +400,7 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
         unless (← whnf (← inferType field)).isForall do
           rhs ← mkAdd rhs (← mkAppM ``SizeOf.sizeOf #[field])
       let target ← mkEq lhs rhs
-      let thmName := ctorName ++ `sizeOf_spec
+      let thmName   := mkSizeOfSpecLemmaName ctorName
       let thmParams := params ++ localInsts ++ fields
       let thmType ← mkForallFVars thmParams target
       let thmValue ←

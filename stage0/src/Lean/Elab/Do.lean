@@ -488,7 +488,7 @@ def mkIte (ref : Syntax) (optIdent : Syntax) (cond : Syntax) (thenBranch : CodeB
   }
 
 private def mkUnit : MacroM Syntax :=
-  `(PUnit.unit)
+  `((⟨⟩ : PUnit))
 
 private def mkPureUnit : MacroM Syntax :=
   `(pure PUnit.unit)

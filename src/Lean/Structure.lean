@@ -89,15 +89,16 @@ partial def findField? (env : Environment) (structName : Name) (fieldName : Name
   else
     getParentStructures env structName |>.findSome? fun parentStructName => findField? env parentStructName fieldName
 
-private partial def getStructureFieldsFlattenedAux (env : Environment) (structName : Name) (fullNames : Array Name) : Array Name :=
+private partial def getStructureFieldsFlattenedAux (env : Environment) (structName : Name) (fullNames : Array Name) (includeSubobjectFields : Bool) : Array Name :=
   (getStructureFields env structName).foldl (init := fullNames) fun fullNames fieldName =>
-    let fullNames := fullNames.push fieldName;
     match isSubobjectField? env structName fieldName with
-    | some parentStructName => getStructureFieldsFlattenedAux env parentStructName fullNames
-    | none                  => fullNames
+    | some parentStructName =>
+      let fullNames := if includeSubobjectFields then fullNames.push fieldName else fullNames
+      getStructureFieldsFlattenedAux env parentStructName fullNames includeSubobjectFields
+    | none                  => fullNames.push fieldName
 
-def getStructureFieldsFlattened (env : Environment) (structName : Name) : Array Name :=
-  getStructureFieldsFlattenedAux env structName #[]
+def getStructureFieldsFlattened (env : Environment) (structName : Name) (includeSubobjectFields := true) : Array Name :=
+  getStructureFieldsFlattenedAux env structName #[] includeSubobjectFields
 
 -- TODO: fix. See comment in the beginning of the file
 private def hasProjFn (env : Environment) (structName : Name) (numParams : Nat) : Nat → Expr → Bool

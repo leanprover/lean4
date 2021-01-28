@@ -23,7 +23,7 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
     let cmds ← liftTermElabM none <| do
       let ctx ← mkContext "toJson" declNames[0]
       let header ← mkHeader ctx ``ToJson 1 ctx.typeInfos[0]
-      let fields := getStructureFieldsFlattened (← getEnv) declNames[0]
+      let fields := getStructureFieldsFlattened (← getEnv) declNames[0] (includeSubobjectFields := false)
       let fields : Array Syntax ← fields.mapM fun field => do
         let (isOptField, nm) ← mkJsonField field
         if isOptField then `(opt $nm $(mkIdent <| header.targetNames[0] ++ field))
@@ -41,7 +41,7 @@ def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
     let cmds ← liftTermElabM none <| do
       let ctx ← mkContext "fromJson" declNames[0]
       let header ← mkHeader ctx ``FromJson 0 ctx.typeInfos[0]
-      let fields := getStructureFieldsFlattened (← getEnv) declNames[0]
+      let fields := getStructureFieldsFlattened (← getEnv) declNames[0] (includeSubobjectFields := false)
       let jsonFields := fields.map (Prod.snd ∘ mkJsonField)
       let fields := fields.map mkIdent
       let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]):ident $header.binders:explicitBinder* (j : Json)

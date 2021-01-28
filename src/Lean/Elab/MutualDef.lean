@@ -74,7 +74,7 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
 private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit :=
   registerCustomErrorIfMVar type ref "failed to infer definition type"
 
-private def elabFunType {α} (ref : Syntax) (xs : Array Expr) (view : DefView) (k : Array Expr → Expr → TermElabM α) : TermElabM α := do
+private def elabFunType (ref : Syntax) (xs : Array Expr) (view : DefView) (k : Array Expr → Expr → TermElabM α) : TermElabM α := do
   match view.type? with
   | some typeStx =>
     elabTypeWithAutoBoundImplicit typeStx fun type => do
@@ -87,9 +87,6 @@ private def elabFunType {α} (ref : Syntax) (xs : Array Expr) (view : DefView) (
     let type ← elabType hole
     registerFailedToInferDefTypeInfo type ref
     k xs (← mkForallFVars xs type)
-
-def isAutoImplicit (fvarId : FVarId) : TermElabM Bool :=
-  return (← read).autoBoundImplicits.any fun x => x.fvarId! == fvarId
 
 private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHeader) := do
   let mut headers := #[]

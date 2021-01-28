@@ -125,44 +125,55 @@ def mkEqOfHEq (h : Expr) : MetaM Expr := do
     throwAppBuilderException ``HEq.trans m!"heterogeneous equality proof expected{indentExpr h}"
 
 def mkCongrArg (f h : Expr) : MetaM Expr := do
-  let hType ← infer h
-  let fType ← infer f
-  match fType.arrow?, hType.eq? with
-  | some (α, β), some (_, a, b) =>
-    let u ← getLevel α
-    let v ← getLevel β
-    return mkApp6 (mkConst ``congrArg [u, v]) α β a b f h
-  | none, _ => throwAppBuilderException ``congrArg ("non-dependent function expected" ++ hasTypeMsg f fType)
-  | _, none => throwAppBuilderException ``congrArg ("equality proof expected" ++ hasTypeMsg h hType)
-
-def mkCongrFun (h a : Expr) : MetaM Expr := do
-  let hType ← infer h
-  match hType.eq? with
-  | some (ρ, f, g) => do
-    let ρ ← whnfD ρ
-    match ρ with
-    | Expr.forallE n α β _ =>
-      let β' := Lean.mkLambda n BinderInfo.default α β
-      let u ← getLevel α
-      let v ← getLevel (mkApp β' a)
-      return mkApp6 (mkConst ``congrFun [u, v]) α β' f g h a
-    | _ => throwAppBuilderException ``congrFun ("equality proof between functions expected" ++ hasTypeMsg h hType)
-  | _ => throwAppBuilderException ``congrFun ("equality proof expected" ++ hasTypeMsg h hType)
-
-def mkCongr (h₁ h₂ : Expr) : MetaM Expr := do
-  let hType₁ ← infer h₁
-  let hType₂ ← infer h₂
-  match hType₁.eq?, hType₂.eq? with
-  | some (ρ, f, g), some (α, a, b) =>
-    let ρ ← whnfD ρ
-    match ρ.arrow? with
-    | some (_, β) => do
+  if h.isAppOf ``Eq.refl then
+    mkEqRefl (mkApp f h.appArg!)
+  else
+    let hType ← infer h
+    let fType ← infer f
+    match fType.arrow?, hType.eq? with
+    | some (α, β), some (_, a, b) =>
       let u ← getLevel α
       let v ← getLevel β
-      return mkApp8 (mkConst ``congr [u, v]) α β f g a b h₁ h₂
-    | _ => throwAppBuilderException ``congr ("non-dependent function expected" ++ hasTypeMsg h₁ hType₁)
-  | none, _ => throwAppBuilderException ``congr ("equality proof expected" ++ hasTypeMsg h₁ hType₁)
-  | _, none => throwAppBuilderException ``congr ("equality proof expected" ++ hasTypeMsg h₂ hType₂)
+      return mkApp6 (mkConst ``congrArg [u, v]) α β a b f h
+    | none, _ => throwAppBuilderException ``congrArg ("non-dependent function expected" ++ hasTypeMsg f fType)
+    | _, none => throwAppBuilderException ``congrArg ("equality proof expected" ++ hasTypeMsg h hType)
+
+def mkCongrFun (h a : Expr) : MetaM Expr := do
+  if h.isAppOf ``Eq.refl then
+    mkEqRefl (mkApp h.appArg! a)
+  else
+    let hType ← infer h
+    match hType.eq? with
+    | some (ρ, f, g) => do
+      let ρ ← whnfD ρ
+      match ρ with
+      | Expr.forallE n α β _ =>
+        let β' := Lean.mkLambda n BinderInfo.default α β
+        let u ← getLevel α
+        let v ← getLevel (mkApp β' a)
+        return mkApp6 (mkConst ``congrFun [u, v]) α β' f g h a
+      | _ => throwAppBuilderException ``congrFun ("equality proof between functions expected" ++ hasTypeMsg h hType)
+    | _ => throwAppBuilderException ``congrFun ("equality proof expected" ++ hasTypeMsg h hType)
+
+def mkCongr (h₁ h₂ : Expr) : MetaM Expr := do
+  if h₁.isAppOf ``Eq.refl then
+    mkCongrArg h₁.appArg! h₂
+  else if h₂.isAppOf ``Eq.refl then
+    mkCongrFun h₁ h₂.appArg!
+  else
+    let hType₁ ← infer h₁
+    let hType₂ ← infer h₂
+    match hType₁.eq?, hType₂.eq? with
+    | some (ρ, f, g), some (α, a, b) =>
+      let ρ ← whnfD ρ
+      match ρ.arrow? with
+      | some (_, β) => do
+        let u ← getLevel α
+        let v ← getLevel β
+        return mkApp8 (mkConst ``congr [u, v]) α β f g a b h₁ h₂
+      | _ => throwAppBuilderException ``congr ("non-dependent function expected" ++ hasTypeMsg h₁ hType₁)
+    | none, _ => throwAppBuilderException ``congr ("equality proof expected" ++ hasTypeMsg h₁ hType₁)
+    | _, none => throwAppBuilderException ``congr ("equality proof expected" ++ hasTypeMsg h₂ hType₂)
 
 private def mkAppMFinal (methodName : Name) (f : Expr) (args : Array Expr) (instMVars : Array MVarId) : MetaM Expr := do
   instMVars.forM fun mvarId => do

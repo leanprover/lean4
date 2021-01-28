@@ -188,10 +188,54 @@ private def recToSizeOf (e : Expr) : M Expr := do
       let major   := args[info.getMajorIdx]
       return mkAppN (mkConst sizeOfName us.tail!) ((← read).params ++ (← read).localInsts ++ indices ++ #[major])
 
-
 /-- Construct proof of auxiliary lemma. See `mkSizeOfAuxLemma` -/
 private def mkSizeOfAuxLemmaProof (info : InductiveVal) (lhs rhs : Expr) : M Expr := do
-  mkSorry (← mkEq lhs rhs) true -- TODO
+  let lhsArgs := lhs.getAppArgs
+  let sizeOfBaseArgs := lhsArgs[:lhsArgs.size - info.numIndices - 1]
+  let indicesMajor := lhsArgs[lhsArgs.size - info.numIndices - 1:]
+  let sizeOfLevels := lhs.getAppFn.constLevels!
+  /- Auxiliary function for constructing an `_sizeOf_<idx>` for `ys`,
+     where `ys` are the indices + major.
+     Recall that if `info.name` is part of a mutually inductive declaration, then the resulting application
+     is not necessarily a `lhs.getAppFn` application.
+     The result is an application of one of the `(← read),sizeOfFns` functions.
+     We use this auxiliary function to builtin the motive of the recursor. -/
+  let rec mkSizeOf (ys : Array Expr) : M Expr := do
+    for sizeOfFn in (← read).sizeOfFns do
+      let candidate := mkAppN (mkAppN (mkConst sizeOfFn sizeOfLevels) sizeOfBaseArgs) ys
+      if (← isTypeCorrect candidate) then
+        return candidate
+    throwFailed
+  let major := lhs.appArg!
+  let majorType ← whnf (← inferType major)
+  let majorTypeArgs := majorType.getAppArgs
+  match majorType.getAppFn.const? with
+  | none => throwFailed
+  | some (_, us) =>
+    let recName := mkRecName info.name
+    let recInfo ← getConstInfoRec recName
+    let r := mkConst recName (levelZero :: us)
+    let r := mkAppN r majorTypeArgs[:info.numParams]
+    forallBoundedTelescope (← inferType r) recInfo.numMotives fun motiveFVars _ => do
+      let mut r := r
+      -- Add motives
+      for motiveFVar in motiveFVars do
+        let motive ← forallTelescopeReducing (← inferType motiveFVar) fun ys _ => do
+          let lhs ← mkSizeOf ys
+          let rhs ← mkAppM ``SizeOf.sizeOf #[ys.back]
+          mkLambdaFVars ys (← mkEq lhs rhs)
+        r := mkApp r motive
+      forallBoundedTelescope (← inferType r) recInfo.numMinors fun minorFVars _ => do
+        let mut r := r
+        -- Add minors
+        for minorFVar in minorFVars do
+          let minor ← forallTelescopeReducing (← inferType minorFVar) fun ys target => do
+            let target ← whnf target
+            let proof ← mkSorry target true -- TODO
+            mkLambdaFVars ys proof
+          r := mkApp r minor
+        -- Add indices and major
+        return mkAppN r indicesMajor
 
 /--
   Generate proof for `C._sizeOf_<idx> t = sizeOf t` where `C._sizeOf_<idx>` is a auxiliary function
@@ -241,6 +285,7 @@ private def mkSizeOfAuxLemma (lhs rhs : Expr) : M Expr := do
             let thmType ← mkForallFVars thmParams eq
             let thmValue ← mkSizeOfAuxLemmaProof info lhsNew rhsNew
             let thmValue ← mkLambdaFVars thmParams thmValue
+            trace[Meta.sizeOf]! "thmValue: {thmValue}"
             addDecl <| Declaration.thmDecl {
               name        := thmName
               levelParams := thmLevelParams

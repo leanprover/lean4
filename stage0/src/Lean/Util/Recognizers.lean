@@ -8,6 +8,11 @@ import Lean.Environment
 namespace Lean
 namespace Expr
 
+@[inline] def const? (e : Expr) : Option (Name × List Level) :=
+  match e with
+  | Expr.const n us _ => some (n, us)
+  | _ => none
+
 @[inline] def app1? (e : Expr) (fName : Name) : Option Expr :=
   if e.isAppOfArity fName 1 then
     some e.appArg!

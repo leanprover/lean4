@@ -42,7 +42,7 @@ def Float.ofInt : Int → Float
   | Int.ofNat n => Float.ofNat n
   | Int.negSucc n => Float.neg (Float.ofNat (Nat.succ n))
 
-set_option bootstrap.gen_matcher_code false
+set_option bootstrap.genMatcherCode false
 def Float.lt  : Float → Float → Prop := fun a b =>
   match a, b with
   | ⟨a⟩, ⟨b⟩ => floatSpec.lt a b

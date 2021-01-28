@@ -33,6 +33,123 @@ import Lean.Elab.Term
 
 namespace Lean
 
+register_builtin_option pp.all : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) display coercions, implicit parameters, proof terms, fully qualified names, universes, " ++
+              "and disable beta reduction and notations during pretty printing"
+}
+register_builtin_option pp.notation : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) disable/enable notation (infix, mixfix, postfix operators and unicode characters)"
+}
+register_builtin_option pp.coercions : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) hide coercion applications"
+}
+register_builtin_option pp.universes : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) display universes"
+}
+register_builtin_option pp.full_names : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) display fully qualified names"
+}
+register_builtin_option pp.private_names : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) display internal names assigned to private declarations"
+}
+register_builtin_option pp.binder_types : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) display types of lambda and Pi parameters"
+}
+register_builtin_option pp.structure_instances : Bool := {
+  defValue := true
+  group    := "pp"
+  -- TODO: implement second part
+  descr    := "(pretty printer) display structure instances using the '{ fieldName := fieldValue, ... }' notation " ++
+              "or '⟨fieldValue, ... ⟩' if structure is tagged with [pp_using_anonymous_constructor] attribute"
+}
+register_builtin_option pp.structure_projections : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) display structure projections using field notation"
+}
+register_builtin_option pp.explicit : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) display implicit arguments"
+}
+register_builtin_option pp.structure_instance_type : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) display type of structure instances"
+}
+register_builtin_option pp.safe_shadowing  : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) allow variable shadowing if there is no collision"
+}
+-- TODO:
+/-
+register_builtin_option g_pp_max_depth : Nat := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) maximum expression depth, after that it will use ellipsis"
+}
+register_builtin_option g_pp_max_steps : Nat := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) maximum number of visited expressions, after that it will use ellipsis"
+}
+register_builtin_option g_pp_proofs : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) if set to false, the type will be displayed instead of the value for every proof appearing as an argument to a function"
+}
+register_builtin_option g_pp_locals_full_names : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) show full names of locals"
+}
+register_builtin_option g_pp_beta : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) apply beta-reduction when pretty printing"
+}
+register_builtin_option g_pp_goal_compact : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) try to display goal in a single line when possible"
+}
+register_builtin_option g_pp_goal_max_hyps : Nat := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) maximum number of hypotheses to be displayed"
+}
+register_builtin_option g_pp_instantiate_mvars : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) instantiate assigned metavariables before pretty printing terms and goals"
+}
+register_builtin_option g_pp_annotations : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) display internal annotations (for debugging purposes only)"
+}
+register_builtin_option g_pp_compact_let : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) minimal indentation at `let`-declarations"
+}
+-/
+
 def getPPAll (o : Options) : Bool := o.get `pp.all false
 def getPPBinderTypes (o : Options) : Bool := o.get `pp.binder_types (!getPPAll o)
 def getPPCoercions (o : Options) : Bool := o.get `pp.coercions (!getPPAll o)
@@ -44,16 +161,8 @@ def getPPStructureInstanceType (o : Options) : Bool := o.get `pp.structure_insta
 def getPPUniverses (o : Options) : Bool := o.get `pp.universes (getPPAll o)
 def getPPFullNames (o : Options) : Bool := o.get `pp.full_names (getPPAll o)
 def getPPPrivateNames (o : Options) : Bool := o.get `pp.private_names (getPPAll o)
-def getPPUnicode (o : Options) : Bool := o.get `pp.unicode (!getPPAll o)
+def getPPUnicode (o : Options) : Bool := o.get `pp.unicode true
 def getPPSafeShadowing (o : Options) : Bool := o.get `pp.safe_shadowing true
-
-builtin_initialize
-  registerOption `pp.explicit { defValue := false, group := "pp", descr := "(pretty printer) display implicit arguments" }
-  registerOption `pp.structure_instance_type { defValue := false, group := "pp", descr := "(pretty printer) display type of structure instances" }
-  registerOption `pp.safe_shadowing { defValue := true, group := "pp", descr := "(pretty printer) allow variable shadowing if there is no collision" }
-  -- TODO: register other options when old pretty printer is removed
-  --registerOption `pp.universes { defValue := false, group := "pp", descr := "(pretty printer) display universes" }
-
 
 /-- Associate pretty printer options to a specific subterm using a synthetic position. -/
 abbrev OptionsPerPos := Std.RBMap Nat Options (fun a b => a < b)
@@ -104,7 +213,7 @@ unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
   KeyedDeclsAttribute.init {
     builtinName := `builtinDelab,
     name := `delab,
-    descr := "Register a delaborator.
+    descr    := "Register a delaborator.
 
   [delab k] registers a declaration of type `Lean.PrettyPrinter.Delaborator.Delab` for the `Lean.Expr`
   constructor `k`. Multiple delaborators for a single constructor are tried in turn until
@@ -142,13 +251,11 @@ def getExprKind : DelabM Name := do
     | _   => `mdata
   | Expr.proj _ _ _ _    => `proj
 
-/-- Evaluate option accessor, using subterm-specific options if set. Default to `true` if `pp.all` is set. -/
+/-- Evaluate option accessor, using subterm-specific options if set. -/
 def getPPOption (opt : Options → Bool) : DelabM Bool := do
   let ctx ← read
-  let val := opt ctx.defaultOptions
-  match ctx.optionsPerPos.find? ctx.pos with
-  | some opts => pure $ opt opts
-  | none      => pure val
+  let opts ← ctx.optionsPerPos.find? ctx.pos |>.getD ctx.defaultOptions
+  return opt opts
 
 def whenPPOption (opt : Options → Bool) (d : Delab) : Delab := do
   let b ← getPPOption opt

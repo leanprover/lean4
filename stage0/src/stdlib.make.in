@@ -1,10 +1,10 @@
 SHELL := /usr/bin/env bash -euo pipefail
 
 # any absolute path to the stdlib breaks the Makefile
-LEAN_PATH=
+export LEAN_PATH=
 
 # link GMP statically if STATIC=ON
-LEANC_GMP="${GMP_LIBRARIES}"
+export LEANC_GMP=${GMP_LIBRARIES}
 
 # LEAN_OPTS: don't use native code (except for primitives) since it is from the previous stage
 # MORE_DEPS: rebuild the stdlib whenever the compiler has changed

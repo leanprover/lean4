@@ -29,7 +29,7 @@ def negOfNat : Nat → Int
   | 0      => 0
   | succ m => negSucc m
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern "lean_int_neg"]
 protected def neg (n : @& Int) : Int :=
   match n with
@@ -41,7 +41,7 @@ def subNatNat (m n : Nat) : Int :=
   | 0        => ofNat (m - n)  -- m ≥ n
   | (succ k) => negSucc k
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern "lean_int_add"]
   protected def add (m n : @& Int) : Int :=
   match m, n with
@@ -50,7 +50,7 @@ set_option bootstrap.gen_matcher_code false in
   | negSucc m, ofNat n   => subNatNat n (succ m)
   | negSucc m, negSucc n => negSucc (succ (m + n))
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern "lean_int_mul"]
 protected def mul (m n : @& Int) : Int :=
   match m, n with
@@ -94,7 +94,7 @@ protected def Less (a b : Int) : Prop := (a + 1) ≤ b
 instance : HasLess Int where
   Less := Int.Less
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern "lean_int_dec_eq"]
 protected def decEq (a b : @& Int) : Decidable (a = b) :=
   match a, b with
@@ -109,7 +109,7 @@ protected def decEq (a b : @& Int) : Decidable (a = b) :=
 
 instance : DecidableEq Int := Int.decEq
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern "lean_int_dec_nonneg"]
 private def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
   match m with
@@ -124,7 +124,7 @@ instance decLe (a b : @& Int) : Decidable (a ≤ b) :=
 instance decLt (a b : @& Int) : Decidable (a < b) :=
   decNonneg _
 
-set_option bootstrap.gen_matcher_code false in
+set_option bootstrap.genMatcherCode false in
 @[extern "lean_nat_abs"]
 def natAbs (m : @& Int) : Nat :=
   match m with

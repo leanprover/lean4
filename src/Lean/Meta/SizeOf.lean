@@ -262,7 +262,7 @@ private def mkSizeOfAuxLemma (lhs rhs : Expr) : M Expr := do
     let thmLevelParams ← us.mapM fun
       | Level.param n _ => return n
       | _ => throwFailed
-    let thmName  := fName ++ `_eq
+    let thmName  := fName.appendAfter "_eq"
     if (← getEnv).contains thmName then
       -- Auxiliary lemma has already been defined
       return mkAppN (mkConst thmName us) lhs.getAppArgs

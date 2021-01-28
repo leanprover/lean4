@@ -1,4 +1,3 @@
-set_option trace.Meta.sizeOf true in
 mutual
   inductive AList (α β : Type u)
     | nil
@@ -21,3 +20,5 @@ mutual
 end
 
 #print Boo.mk.sizeOf_spec
+#print Foo._sizeOf_4_eq
+#print Foo._sizeOf_3_eq

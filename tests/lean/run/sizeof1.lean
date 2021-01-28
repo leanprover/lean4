@@ -12,3 +12,7 @@ end
 
 #print TreePos.leaf.sizeOf_spec
 #print TreePos.node.sizeOf_spec
+#print TreePos._sizeOf_3_eq
+#print TreePos._sizeOf_4_eq
+#print TreePos._sizeOf_5_eq
+#print TreePos._sizeOf_6_eq

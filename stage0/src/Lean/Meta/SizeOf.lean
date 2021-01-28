@@ -158,6 +158,20 @@ def mkSizeOfFns (typeName : Name) : MetaM (Array Name × NameMap Name) := do
     i := i + 1
   return (result, recMap)
 
+def mkSizeOfSpecLemmaName (ctorName : Name) : Name :=
+  ctorName ++ `sizeOf_spec
+
+def mkSizeOfSpecLemmaInstance (ctorApp : Expr) : MetaM Expr :=
+  matchConstCtor ctorApp.getAppFn (fun _ => throwError! "failed to apply 'sizeOf' spec, constructor expected{indentExpr ctorApp}") fun ctorInfo ctorLevels => do
+    let ctorArgs     := ctorApp.getAppArgs
+    let ctorFields   := ctorArgs[ctorArgs.size - ctorInfo.numFields:]
+    let lemmaName  := mkSizeOfSpecLemmaName ctorInfo.name
+    let lemmaInfo  ← getConstInfo lemmaName
+    let lemmaArity ← forallTelescopeReducing lemmaInfo.type fun xs _ => return xs.size
+    let lemmaArgMask := mkArray (lemmaArity - ctorInfo.numFields) (none (α := Expr))
+    let lemmaArgMask := lemmaArgMask ++ ctorFields.toArray.map some
+    mkAppOptM lemmaName lemmaArgMask
+
 /- SizeOf spec theorem for nested inductive types -/
 namespace SizeOfSpecNested
 
@@ -188,111 +202,161 @@ private def recToSizeOf (e : Expr) : M Expr := do
       let major   := args[info.getMajorIdx]
       return mkAppN (mkConst sizeOfName us.tail!) ((← read).params ++ (← read).localInsts ++ indices ++ #[major])
 
-/-- Construct proof of auxiliary lemma. See `mkSizeOfAuxLemma` -/
-private def mkSizeOfAuxLemmaProof (info : InductiveVal) (lhs rhs : Expr) : M Expr := do
-  let lhsArgs := lhs.getAppArgs
-  let sizeOfBaseArgs := lhsArgs[:lhsArgs.size - info.numIndices - 1]
-  let indicesMajor := lhsArgs[lhsArgs.size - info.numIndices - 1:]
-  let sizeOfLevels := lhs.getAppFn.constLevels!
-  /- Auxiliary function for constructing an `_sizeOf_<idx>` for `ys`,
-     where `ys` are the indices + major.
-     Recall that if `info.name` is part of a mutually inductive declaration, then the resulting application
-     is not necessarily a `lhs.getAppFn` application.
-     The result is an application of one of the `(← read),sizeOfFns` functions.
-     We use this auxiliary function to builtin the motive of the recursor. -/
-  let rec mkSizeOf (ys : Array Expr) : M Expr := do
-    for sizeOfFn in (← read).sizeOfFns do
-      let candidate := mkAppN (mkAppN (mkConst sizeOfFn sizeOfLevels) sizeOfBaseArgs) ys
-      if (← isTypeCorrect candidate) then
-        return candidate
-    throwFailed
-  let major := lhs.appArg!
-  let majorType ← whnf (← inferType major)
-  let majorTypeArgs := majorType.getAppArgs
-  match majorType.getAppFn.const? with
-  | none => throwFailed
-  | some (_, us) =>
-    let recName := mkRecName info.name
-    let recInfo ← getConstInfoRec recName
-    let r := mkConst recName (levelZero :: us)
-    let r := mkAppN r majorTypeArgs[:info.numParams]
-    forallBoundedTelescope (← inferType r) recInfo.numMotives fun motiveFVars _ => do
-      let mut r := r
-      -- Add motives
-      for motiveFVar in motiveFVars do
-        let motive ← forallTelescopeReducing (← inferType motiveFVar) fun ys _ => do
-          let lhs ← mkSizeOf ys
-          let rhs ← mkAppM ``SizeOf.sizeOf #[ys.back]
-          mkLambdaFVars ys (← mkEq lhs rhs)
-        r := mkApp r motive
-      forallBoundedTelescope (← inferType r) recInfo.numMinors fun minorFVars _ => do
-        let mut r := r
-        -- Add minors
-        for minorFVar in minorFVars do
-          let minor ← forallTelescopeReducing (← inferType minorFVar) fun ys target => do
-            let target ← whnf target
-            let proof ← mkSorry target true -- TODO
-            mkLambdaFVars ys proof
-          r := mkApp r minor
-        -- Add indices and major
-        return mkAppN r indicesMajor
-
-/--
-  Generate proof for `C._sizeOf_<idx> t = sizeOf t` where `C._sizeOf_<idx>` is a auxiliary function
-  generated for a nested inductive type in `C`.
-  For example, given
-  ```lean
-  inductive Expr where
-    | app (f : String) (args : List Expr)
-  ```
-  We generate the auxiliary function `Expr._sizeOf_1 : List Expr → Nat`.
-  To generate the `sizeOf` spec lemma
-  ```
-  sizeOf (Expr.app f args) = 1 + sizeOf f + sizeOf args
-  ```
-  we need an auxiliary lemma for showing `Expr._sizeOf_1 args = sizeOf args`.
-  Recall that `sizeOf (Expr.app f args)` is definitionally equal to `1 + sizeOf f + Expr._sizeOf_1 args`, but
-  `Expr._sizeOf_1 args` is **not** definitionally equal to `sizeOf args`. We need a proof by induction.
--/
-private def mkSizeOfAuxLemma (lhs rhs : Expr) : M Expr := do
-  trace[Meta.sizeOf.aux]! "{lhs} =?= {rhs}"
-  match lhs.getAppFn.const? with
-  | none => throwFailed
-  | some (fName, us) =>
-    let thmLevelParams ← us.mapM fun
-      | Level.param n _ => return n
-      | _ => throwFailed
-    let thmName  := fName.appendAfter "_eq"
-    if (← getEnv).contains thmName then
-      -- Auxiliary lemma has already been defined
-      return mkAppN (mkConst thmName us) lhs.getAppArgs
+mutual
+  /-- Construct minor premise proof for `mkSizeOfAuxLemmaProof`. `ys` contains fields and inductive hypotheses for the minor premise. -/
+  private partial def mkMinorProof (ys : Array Expr) (lhs rhs : Expr) : M Expr := do
+    trace[Meta.sizeOf.minor]! "{lhs} =?= {rhs}"
+    if (← isDefEq lhs rhs) then
+      mkEqRefl rhs
     else
-      -- Define auxiliary lemma
-      -- First, generalize indices
-      let x := lhs.appArg!
-      let xType ← whnf (← inferType x)
-      matchConstInduct xType.getAppFn (fun _ => throwFailed) fun info _ => do
-        let params := xType.getAppArgs[:info.numParams]
-        forallTelescopeReducing (← inferType (mkAppN xType.getAppFn params)) fun indices _ => do
-          let majorType := mkAppN (mkAppN xType.getAppFn params) indices
-          withLocalDeclD `x majorType fun major => do
-            let lhsArgs := lhs.getAppArgs
-            let lhsArgsNew := lhsArgs[:lhsArgs.size - 1 - indices.size] ++ indices ++ #[major]
-            let lhsNew := mkAppN lhs.getAppFn lhsArgsNew
-            let rhsNew ← mkAppM ``SizeOf.sizeOf #[major]
-            let eq ← mkEq lhsNew rhsNew
-            let thmParams := lhsArgsNew
-            let thmType ← mkForallFVars thmParams eq
-            let thmValue ← mkSizeOfAuxLemmaProof info lhsNew rhsNew
-            let thmValue ← mkLambdaFVars thmParams thmValue
-            trace[Meta.sizeOf]! "thmValue: {thmValue}"
-            addDecl <| Declaration.thmDecl {
-              name        := thmName
-              levelParams := thmLevelParams
-              type        := thmType
-              value       := thmValue
-            }
-            return mkAppN (mkConst thmName us) lhs.getAppArgs
+      match (← whnfI lhs).natAdd?, (← whnfI rhs).natAdd? with
+      | some (a₁, b₁), some (a₂, b₂) =>
+        let p₁ ← mkMinorProof ys a₁ a₂
+        let p₂ ← mkMinorProofStep ys b₁ b₂
+        mkCongr (← mkCongrArg (mkConst ``Nat.add) p₁) p₂
+      | _, _ =>
+        throwUnexpected m!"expected 'Nat.add' application, lhs is {indentExpr lhs}\nrhs is{indentExpr rhs}"
+
+  /--
+    Helper method for `mkMinorProof`. The proof step is one of the following
+    - Reflexivity
+    - Assumption (i.e., using an inductive hypotheses from `ys`)
+    - `mkSizeOfAuxLemma` application. This case happens when we have multiple levels of nesting
+  -/
+  private partial def mkMinorProofStep (ys : Array Expr) (lhs rhs : Expr) : M Expr := do
+    if (← isDefEq lhs rhs) then
+      mkEqRefl rhs
+    else
+      let lhs ← recToSizeOf lhs
+      trace[Meta.sizeOf.minor.step]! "{lhs} =?= {rhs}"
+      let target ← mkEq lhs rhs
+      for y in ys do
+        if (← isDefEq (← inferType y) target) then
+          return y
+      mkSizeOfAuxLemma lhs rhs
+
+  /-- Construct proof of auxiliary lemma. See `mkSizeOfAuxLemma` -/
+  private partial def mkSizeOfAuxLemmaProof (info : InductiveVal) (lhs rhs : Expr) : M Expr := do
+    let lhsArgs := lhs.getAppArgs
+    let sizeOfBaseArgs := lhsArgs[:lhsArgs.size - info.numIndices - 1]
+    let indicesMajor := lhsArgs[lhsArgs.size - info.numIndices - 1:]
+    let sizeOfLevels := lhs.getAppFn.constLevels!
+    /- Auxiliary function for constructing an `_sizeOf_<idx>` for `ys`,
+       where `ys` are the indices + major.
+       Recall that if `info.name` is part of a mutually inductive declaration, then the resulting application
+       is not necessarily a `lhs.getAppFn` application.
+       The result is an application of one of the `(← read),sizeOfFns` functions.
+       We use this auxiliary function to builtin the motive of the recursor. -/
+    let rec mkSizeOf (ys : Array Expr) : M Expr := do
+      for sizeOfFn in (← read).sizeOfFns do
+        let candidate := mkAppN (mkAppN (mkConst sizeOfFn sizeOfLevels) sizeOfBaseArgs) ys
+        if (← isTypeCorrect candidate) then
+          return candidate
+      throwFailed
+    let major := lhs.appArg!
+    let majorType ← whnf (← inferType major)
+    let majorTypeArgs := majorType.getAppArgs
+    match majorType.getAppFn.const? with
+    | none => throwFailed
+    | some (_, us) =>
+      let recName := mkRecName info.name
+      let recInfo ← getConstInfoRec recName
+      let r := mkConst recName (levelZero :: us)
+      let r := mkAppN r majorTypeArgs[:info.numParams]
+      forallBoundedTelescope (← inferType r) recInfo.numMotives fun motiveFVars _ => do
+        let mut r := r
+        -- Add motives
+        for motiveFVar in motiveFVars do
+          let motive ← forallTelescopeReducing (← inferType motiveFVar) fun ys _ => do
+            let lhs ← mkSizeOf ys
+            let rhs ← mkAppM ``SizeOf.sizeOf #[ys.back]
+            mkLambdaFVars ys (← mkEq lhs rhs)
+          r := mkApp r motive
+        forallBoundedTelescope (← inferType r) recInfo.numMinors fun minorFVars _ => do
+          let mut r := r
+          -- Add minors
+          for minorFVar in minorFVars do
+            let minor ← forallTelescopeReducing (← inferType minorFVar) fun ys target => do
+              let target ← whnf target
+              match target.eq? with
+              | none => throwFailed
+              | some (_, lhs, rhs) =>
+                if (← isDefEq lhs rhs) then
+                  mkLambdaFVars ys (← mkEqRefl rhs)
+                else
+                  let lhs ← unfoldDefinition lhs -- Unfold `_sizeOf_<idx>`
+                  -- rhs is of the form `sizeOf (ctor ...)`
+                  let ctorApp := rhs.appArg!
+                  let specLemma ← mkSizeOfSpecLemmaInstance ctorApp
+                  let specEq ← whnf (← inferType specLemma)
+                  match specEq.eq? with
+                  | none => throwFailed
+                  | some (_, rhs, rhsExpanded) =>
+                    let lhs_eq_rhsExpanded ← mkMinorProof ys lhs rhsExpanded
+                    let rhsExpanded_eq_rhs ← mkEqSymm specLemma
+                    mkLambdaFVars ys (← mkEqTrans lhs_eq_rhsExpanded rhsExpanded_eq_rhs)
+            r := mkApp r minor
+          -- Add indices and major
+          return mkAppN r indicesMajor
+
+  /--
+    Generate proof for `C._sizeOf_<idx> t = sizeOf t` where `C._sizeOf_<idx>` is a auxiliary function
+    generated for a nested inductive type in `C`.
+    For example, given
+    ```lean
+    inductive Expr where
+      | app (f : String) (args : List Expr)
+    ```
+    We generate the auxiliary function `Expr._sizeOf_1 : List Expr → Nat`.
+    To generate the `sizeOf` spec lemma
+    ```
+    sizeOf (Expr.app f args) = 1 + sizeOf f + sizeOf args
+    ```
+    we need an auxiliary lemma for showing `Expr._sizeOf_1 args = sizeOf args`.
+    Recall that `sizeOf (Expr.app f args)` is definitionally equal to `1 + sizeOf f + Expr._sizeOf_1 args`, but
+    `Expr._sizeOf_1 args` is **not** definitionally equal to `sizeOf args`. We need a proof by induction.
+  -/
+  private partial def mkSizeOfAuxLemma (lhs rhs : Expr) : M Expr := do
+    trace[Meta.sizeOf.aux]! "{lhs} =?= {rhs}"
+    match lhs.getAppFn.const? with
+    | none => throwFailed
+    | some (fName, us) =>
+      let thmLevelParams ← us.mapM fun
+        | Level.param n _ => return n
+        | _ => throwFailed
+      let thmName  := fName.appendAfter "_eq"
+      if (← getEnv).contains thmName then
+        -- Auxiliary lemma has already been defined
+        return mkAppN (mkConst thmName us) lhs.getAppArgs
+      else
+        -- Define auxiliary lemma
+        -- First, generalize indices
+        let x := lhs.appArg!
+        let xType ← whnf (← inferType x)
+        matchConstInduct xType.getAppFn (fun _ => throwFailed) fun info _ => do
+          let params := xType.getAppArgs[:info.numParams]
+          forallTelescopeReducing (← inferType (mkAppN xType.getAppFn params)) fun indices _ => do
+            let majorType := mkAppN (mkAppN xType.getAppFn params) indices
+            withLocalDeclD `x majorType fun major => do
+              let lhsArgs := lhs.getAppArgs
+              let lhsArgsNew := lhsArgs[:lhsArgs.size - 1 - indices.size] ++ indices ++ #[major]
+              let lhsNew := mkAppN lhs.getAppFn lhsArgsNew
+              let rhsNew ← mkAppM ``SizeOf.sizeOf #[major]
+              let eq ← mkEq lhsNew rhsNew
+              let thmParams := lhsArgsNew
+              let thmType ← mkForallFVars thmParams eq
+              let thmValue ← mkSizeOfAuxLemmaProof info lhsNew rhsNew
+              let thmValue ← mkLambdaFVars thmParams thmValue
+              trace[Meta.sizeOf]! "thmValue: {thmValue}"
+              addDecl <| Declaration.thmDecl {
+                name        := thmName
+                levelParams := thmLevelParams
+                type        := thmType
+                value       := thmValue
+              }
+              return mkAppN (mkConst thmName us) lhs.getAppArgs
+
+end
 
 /- Prove SizeOf spec lemma of the form `sizeOf <ctor-application> = 1 + sizeOf <field_1> + ... + sizeOf <field_n> -/
 partial def main (lhs rhs : Expr) : M Expr := do
@@ -340,7 +404,7 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
         unless (← whnf (← inferType field)).isForall do
           rhs ← mkAdd rhs (← mkAppM ``SizeOf.sizeOf #[field])
       let target ← mkEq lhs rhs
-      let thmName := ctorName ++ `sizeOf_spec
+      let thmName   := mkSizeOfSpecLemmaName ctorName
       let thmParams := params ++ localInsts ++ fields
       let thmType ← mkForallFVars thmParams target
       let thmValue ←

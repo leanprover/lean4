@@ -83,6 +83,9 @@ theorem Eq.subst {α : Sort u} {motive : α → Prop} {a b : α} (h₁ : Eq a b)
 theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
   h ▸ rfl
 
+theorem Eq.trans {α : Sort u} {a b c : α} (h₁ : Eq a b) (h₂ : Eq b c) : Eq a c :=
+  h₂ ▸ h₁
+
 @[macroInline] def cast {α β : Sort u} (h : Eq α β) (a : α) : β :=
   Eq.rec (motive := fun α _ => α) a h
 

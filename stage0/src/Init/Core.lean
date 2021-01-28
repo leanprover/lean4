@@ -46,9 +46,6 @@ infix:20 " ↔ "   => Iff
 
 /- Eq basic support -/
 
-theorem Eq.trans {α : Sort u} {a b c : α} (h₁ : a = b) (h₂ : b = c) : a = c :=
-  h₂ ▸ h₁
-
 inductive Sum (α : Type u) (β : Type v) where
   | inl (val : α) : Sum α β
   | inr (val : β) : Sum α β

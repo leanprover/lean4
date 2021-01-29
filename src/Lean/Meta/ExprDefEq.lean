@@ -846,17 +846,18 @@ private def assignConst (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM Bool :=
       pure false
     else
       let some v ← mkLambdaFVarsWithLetDeps xs v | pure false
-      trace[Meta.isDefEq.constApprox]! "{mvar} := {v}"
-      checkTypesAndAssign mvar v
+      match (← checkAssignment mvar.mvarId! #[] v) with
+      | none   => pure false
+      | some v =>
+        trace[Meta.isDefEq.constApprox]! "{mvar} := {v}"
+        checkTypesAndAssign mvar v
 
 private def processConstApprox (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM Bool := do
   let cfg ← getConfig
   let mvarId := mvar.mvarId!
   let mvarDecl ← getMVarDecl mvarId
   if mvarDecl.numScopeArgs == numArgs || cfg.constApprox then
-    match (← checkAssignment mvarId #[] v) with
-    | none   => pure false
-    | some v => assignConst mvar numArgs v
+    assignConst mvar numArgs v
   else
     pure false
 

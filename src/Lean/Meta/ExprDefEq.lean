@@ -576,7 +576,7 @@ private def addAssignmentInfo (msg : MessageData) : CheckAssignmentM MessageData
   else
     let lctx := ctxMeta.lctx
     match lctx.findFVar? fvar with
-    | some (LocalDecl.ldecl _ _ _ _ v _) => visit check v
+    | some (LocalDecl.ldecl (value := v) ..) => visit check v
     | _ =>
       if ctx.fvars.contains fvar then pure fvar
       else
@@ -592,7 +592,8 @@ private def addAssignmentInfo (msg : MessageData) : CheckAssignmentM MessageData
     throwCheckAssignmentFailure
   else match mctx.getExprAssignment? mvarId with
     | some v => check v
-    | none   => match mctx.findDecl? mvarId with
+    | none   =>
+      match mctx.findDecl? mvarId with
       | none          => throwUnknownMVar mvarId
       | some mvarDecl =>
         if ctx.hasCtxLocals then
@@ -1193,13 +1194,13 @@ private partial def isDefEqQuick (t s : Expr) : MetaM LBool :=
   let t := consumeLet t
   let s := consumeLet s
   match t, s with
-  | Expr.lit  l₁ _,           Expr.lit l₂ _            => pure (l₁ == l₂).toLBool
-  | Expr.sort u _,            Expr.sort v _            => toLBoolM $ isLevelDefEqAux u v
-  | t@(Expr.lam _ _ _ _),     s@(Expr.lam _ _ _ _)     => if t == s then pure LBool.true else toLBoolM $ isDefEqBinding t s
-  | t@(Expr.forallE _ _ _ _), s@(Expr.forallE _ _ _ _) => if t == s then pure LBool.true else toLBoolM $ isDefEqBinding t s
-  | Expr.mdata _ t _,         s                        => isDefEqQuick t s
-  | t,                        Expr.mdata _ s _         => isDefEqQuick t s
-  | t@(Expr.fvar fvarId₁ _),  s@(Expr.fvar fvarId₂ _)  => do
+  | Expr.lit  l₁ _,      Expr.lit l₂ _       => return (l₁ == l₂).toLBool
+  | Expr.sort u _,       Expr.sort v _       => toLBoolM <| isLevelDefEqAux u v
+  | Expr.lam ..,         Expr.lam ..         => if t == s then pure LBool.true else toLBoolM <| isDefEqBinding t s
+  | Expr.forallE ..,     Expr.forallE ..     => if t == s then pure LBool.true else toLBoolM <| isDefEqBinding t s
+  | Expr.mdata _ t _,    s                   => isDefEqQuick t s
+  | t,                   Expr.mdata _ s _    => isDefEqQuick t s
+  | Expr.fvar fvarId₁ _, Expr.fvar fvarId₂ _ => do
     if (← isLetFVar fvarId₁ <||> isLetFVar fvarId₂) then
       pure LBool.undef
     else if fvarId₁ == fvarId₂ then

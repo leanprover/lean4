@@ -1325,15 +1325,15 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := do
     whenUndefDo (isDefEqNat t s) do
     whenUndefDo (isDefEqOffset t s) do
     whenUndefDo (isDefEqDelta t s) do
-    match t, s with
-    | Expr.const c us _, Expr.const d vs _ => if c == d then isListLevelDefEqAux us vs else pure false
-    | Expr.app _ _ _,    Expr.app _ _ _    =>
+    if t.isConst && s.isConst then
+      if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else pure false
+    else if t.isApp && s.isApp then
       let tFn := t.getAppFn
       if (← commitWhen (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)) then
         pure true
       else
         isDefEqOnFailure t s
-    | _, _ =>
+    else
       whenUndefDo (isDefEqStringLit t s) $
       isDefEqOnFailure t s
 

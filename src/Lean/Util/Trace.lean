@@ -147,27 +147,22 @@ macro_rules
     else
       `(Lean.trace $(quote id.getId) fun _ => ($s : MessageData))
 
-variable {α : Type} {m : Type → Type} [Monad m] [MonadTrace m] [MonadOptions m] [MonadRef m]
 
-def withNestedTraces [MonadFinally m] (x : m α) : m α := do
-  let s ← getTraceState
-  if !s.enabled then
-    x
-  else
-    let currTraces ← getTraces
-    modifyTraces fun _ => {}
-    let ref ← getRef
-    try
-      x
-    finally
-      modifyTraces fun traces =>
-        if traces.size == 0 then
-          currTraces
-        else if traces.size == 1 && traces[0].msg.isNest then
-          currTraces ++ traces -- No nest of nest
-        else
-          let d := traces.foldl (init := MessageData.nil) fun d elem =>
-            if d.isNil then elem.msg else m!"{d}\n{elem.msg}"
-          currTraces.push { ref := ref, msg := MessageData.nestD d }
+private def withNestedTracesFinalizer [Monad m] [MonadTrace m] (ref : Syntax) (currTraces : PersistentArray TraceElem) : m Unit := do
+  modifyTraces fun traces =>
+    if traces.size == 0 then
+      currTraces
+    else if traces.size == 1 && traces[0].msg.isNest then
+      currTraces ++ traces -- No nest of nest
+    else
+      let d := traces.foldl (init := MessageData.nil) fun d elem =>
+        if d.isNil then elem.msg else m!"{d}\n{elem.msg}"
+      currTraces.push { ref := ref, msg := MessageData.nestD d }
+
+@[inline] def withNestedTraces [Monad m] [MonadFinally m] [MonadTrace m] [MonadRef m] (x : m α) : m α := do
+  let currTraces ← getTraces
+  modifyTraces fun _ => {}
+  let ref ← getRef
+  try x finally withNestedTracesFinalizer ref currTraces
 
 end Lean

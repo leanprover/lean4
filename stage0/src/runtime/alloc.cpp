@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include <lean/alloc.h>
 #include <lean/lean.h>
 
-#define LEAN_PAGE_SIZE             8192        // 8 Kb
+#define LEAN_PAGE_SIZE             65536       // 64 Kb
 #define LEAN_SEGMENT_SIZE          8*1024*1024 // 8 Mb
 #define LEAN_NUM_SLOTS             (LEAN_MAX_SMALL_OBJECT_SIZE / LEAN_OBJECT_SIZE_DELTA)
 #define LEAN_MAX_TO_EXPORT_OBJS    1024

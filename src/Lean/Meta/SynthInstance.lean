@@ -555,7 +555,7 @@ private def preprocessOutParam (type : Expr) : MetaM Expr :=
   Remark: we use a different option for controlling the maximum result size for coercions.
 -/
 
-def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) ⟨0, 0⟩ do
+def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) do
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
   let inputConfig ← getConfig

@@ -38,7 +38,7 @@ void finalize_time_task() {
     delete g_cum_times_mutex;
 }
 
-time_task::time_task(std::string const & category, options const & opts, pos_info pos, name decl) :
+time_task::time_task(std::string const & category, options const & opts, name decl) :
         m_category(category) {
     if (get_profiler(opts)) {
         m_timeit = optional<xtimeit>(get_profiling_threshold(opts), [=](second_duration duration) mutable {
@@ -63,12 +63,10 @@ time_task::~time_task() {
     }
 }
 
-/* profileit {α : Type} (category : String) (opts : Options) (pos : Position) (fn : Unit → α) : α */
-extern "C" obj_res lean_profileit(b_obj_arg category, b_obj_arg opts, b_obj_arg pos, obj_arg fn) {
+/* profileit {α : Type} (category : String) (opts : Options) (fn : Unit → α) : α */
+extern "C" obj_res lean_profileit(b_obj_arg category, b_obj_arg opts, obj_arg fn) {
     time_task t(string_to_std(category),
-                TO_REF(options, opts),
-                pos_info(nat(cnstr_get(pos, 0), true).get_small_value(),
-                         nat(cnstr_get(pos, 1), true).get_small_value()));
+                TO_REF(options, opts));
     return apply_1(fn, box(0));
 }
 }

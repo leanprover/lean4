@@ -16,6 +16,18 @@ import Lean.Compiler.IR.Boxing
 namespace Lean.IR.EmitC
 open ExplicitBoxing (requiresBoxedVersion mkBoxedName isBoxedName)
 
+@[extern c inline "lean_box(LEAN_MAX_SMALL_OBJECT_SIZE)"]
+constant getMaxSmallObjectSize : Unit → Nat
+def maxSmallObjectSize := getMaxSmallObjectSize ()
+
+@[extern c inline "lean_box(sizeof(lean_ctor_object))"]
+constant getCtorHeaderSize : Unit → Nat
+def ctorHeaderSize := getCtorHeaderSize ()
+
+@[extern c inline "lean_box(sizeof(size_t))"]
+constant getUSizeSize : Unit → Nat
+def usizeSize := getUSizeSize ()
+
 def leanMainFn := "_lean_main"
 
 structure Context where
@@ -321,13 +333,18 @@ def emitArgs (ys : Array Arg) : M Unit :=
     if i > 0 then emit ", "
     emitArg ys[i]
 
+private def isSmallCtor (c : CtorInfo) : Bool :=
+  let total := ctorHeaderSize + c.size * usizeSize + c.usize * usizeSize + c.ssize
+  total <= maxSmallObjectSize
+
 def emitCtorScalarSize (usize : Nat) (ssize : Nat) : M Unit := do
   if usize == 0 then emit ssize
   else if ssize == 0 then emit "sizeof(size_t)*"; emit usize
   else emit "sizeof(size_t)*"; emit usize; emit " + "; emit ssize
 
 def emitAllocCtor (c : CtorInfo) : M Unit := do
-  emit "lean_alloc_ctor("; emit c.cidx; emit ", "; emit c.size; emit ", ";
+  emit <| if isSmallCtor c then "lean_alloc_ctor" else "lean_alloc_ctor_big"
+  emit "("; emit c.cidx; emit ", "; emit c.size; emit ", "
   emitCtorScalarSize c.usize c.ssize; emitLn ");"
 
 def emitCtorSetArgs (z : VarId) (ys : Array Arg) : M Unit :=

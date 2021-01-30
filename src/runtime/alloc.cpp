@@ -240,19 +240,32 @@ void heap::export_objs() {
     while (o != nullptr) {
         void * n   = get_next_obj(o);
         heap * h   = get_page_of(o)->get_heap();
-        lean_assert(h != this);
-        bool found = false;
-        for (export_entry & e : to_export) {
-            if (e.m_heap == h) {
-                set_next_obj(o, e.m_head);
-                e.m_head = o;
-                found = true;
-                break;
+        /*
+          We may have `h == this`.
+
+          Recall that each heap `h` has a list of dead objects `m_to_export_list` from other heaps.
+          It contains objects deleted by the thread that "owns" `h`.
+          Now, suppose we have two heaps `h1` and `h2`, and thread `t1` that owns `h1` deletes an object `o` from `h2`.
+          The object `o` is now in the list `h1.m_to_export_list`.
+          Then, thread `t2` that owns h2 finishes, and `h2` goes to the orphan list.
+          Then, `h1` allocates a new segment, and a segment from `h2` containing `o` is reused.
+          Then, `h1` tries to export dead objects to other threads using this function and finds `o` s.t. which is now
+          `get_page_of(o)->get_heap() == h1`.
+        */
+        if (h != this) {
+            bool found = false;
+            for (export_entry & e : to_export) {
+                if (e.m_heap == h) {
+                    set_next_obj(o, e.m_head);
+                    e.m_head = o;
+                    found = true;
+                    break;
+                }
             }
-        }
-        if (!found) {
-            set_next_obj(o, nullptr);
-            to_export.push_back(export_entry{h, o, o});
+            if (!found) {
+                set_next_obj(o, nullptr);
+                to_export.push_back(export_entry{h, o, o});
+            }
         }
         o = n;
     }

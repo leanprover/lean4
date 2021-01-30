@@ -182,6 +182,7 @@ static inline page * page_list_pop(page * & head) {
 }
 
 void page::push_free_obj(void * o) {
+    lean_assert(get_page_of(o) == this);
     set_next_obj(o, m_header.m_free_list);
     m_header.m_free_list = o;
     m_header.m_num_free++;
@@ -324,6 +325,7 @@ static page * alloc_page(heap * h, unsigned obj_size) {
     while (true) {
         if (next_free + obj_size > end)
             break; /* next object doesn't fit */
+        lean_assert(get_page_of(curr_free) == p);
         set_next_obj(next_free, curr_free);
         curr_free = next_free;
         next_free = next_free + obj_size;
@@ -399,6 +401,7 @@ extern "C" void * lean_alloc_small(unsigned sz, unsigned slot_idx) {
     }
     p->m_header.m_free_list = get_next_obj(r);
     p->m_header.m_num_free--;
+    lean_assert(get_page_of(r) == p);
     return r;
 }
 

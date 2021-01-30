@@ -22,6 +22,7 @@ ldflags_ext=(@LEANC_STATIC_LINKER_FLAGS@)
 for arg in "$@"; do
     # passed -shared ~> switch to shared linker flags
     [[ $arg == "-shared" ]] && ldflags_ext=(@LEANC_SHARED_LINKER_FLAGS@)
+    [[ $arg == "-c" ]] && ldflags=() && ldflags_ext=()
     [[ $arg == "-print-cflags" ]] && echo "${cflags[@]} ${cflags_ext[@]}" && exit
     [[ $arg == "-print-ldflags" ]] && echo "${ldflags_ext[@]} ${ldflags[@]}" && exit
 done

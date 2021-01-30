@@ -14,7 +14,8 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Elab_runFrontend_match__3___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_runFrontend_match__2___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_runFrontend_match__4(lean_object*);
+lean_object* l_Lean_Elab_runFrontend_match__2___rarg(lean_object*);
 lean_object* l_List_head_x21___at_Lean_Elab_Command_instMonadOptionsCommandElabM___spec__1(lean_object*);
 lean_object* l_Lean_Elab_Frontend_runCommandElabM_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_IO_processCommands_match__1___rarg(lean_object*, lean_object*);
@@ -55,7 +56,7 @@ uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Elab_Frontend_setParserState___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_print___at_IO_println___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkState(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_runFrontend_match__2(lean_object*);
+lean_object* l_Lean_Elab_runFrontend_match__2(lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at_Lean_Elab_runFrontend___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_elabCommandAtFrontend(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -71,6 +72,7 @@ lean_object* l_Lean_Elab_Command_elabCommand(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Elab_Frontend_setCommandState(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommand___closed__2;
 lean_object* l_Lean_Elab_Frontend_processCommand(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_runFrontend_match__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_updateCmdPos___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_profileitM___at_Lean_Elab_Frontend_processCommand___spec__1(lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_584____closed__1;
@@ -106,6 +108,7 @@ lean_object* l_Lean_Elab_Frontend_getParserState___boxed(lean_object*);
 lean_object* l_Lean_Elab_process(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_updateCmdPos___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_runFrontend_match__3(lean_object*);
+lean_object* l_Lean_Elab_runFrontend_match__4___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommands(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_getCommandState___boxed(lean_object*);
 static lean_object* _init_l_Lean_Elab_Frontend_State_commands___default() {
@@ -1946,7 +1949,33 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_Elab_runFrontend_match__2___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Elab_runFrontend_match__2___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_box(0);
+x_3 = lean_apply_1(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Elab_runFrontend_match__2(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lean_Elab_runFrontend_match__2___rarg), 1, 0);
+return x_3;
+}
+}
+lean_object* l_Lean_Elab_runFrontend_match__2___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Elab_runFrontend_match__2(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Elab_runFrontend_match__3___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -1959,15 +1988,15 @@ x_5 = lean_apply_2(x_2, x_3, x_4);
 return x_5;
 }
 }
-lean_object* l_Lean_Elab_runFrontend_match__2(lean_object* x_1) {
+lean_object* l_Lean_Elab_runFrontend_match__3(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Elab_runFrontend_match__2___rarg), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Elab_runFrontend_match__3___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_Elab_runFrontend_match__3___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Elab_runFrontend_match__4___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -1985,11 +2014,11 @@ x_7 = lean_apply_3(x_2, x_4, x_5, x_6);
 return x_7;
 }
 }
-lean_object* l_Lean_Elab_runFrontend_match__3(lean_object* x_1) {
+lean_object* l_Lean_Elab_runFrontend_match__4(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Elab_runFrontend_match__3___rarg), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Elab_runFrontend_match__4___rarg), 2, 0);
 return x_2;
 }
 }

@@ -6,6 +6,7 @@ Authors: Wojciech Nawrocki, Marc Huisinga
 -/
 import Lean.Data.Position
 import Lean.Data.Lsp
+import Init.System.FilePath
 
 namespace IO
 
@@ -88,6 +89,17 @@ def maybeTee (fName : String) (isOut : Bool) (h : FS.Stream) : IO FS.Stream := d
       hTee.chainLeft h true
     else
       h.chainRight hTee true
+
+/-- Transform the given path to a file:// URI. -/
+def toFileUri (fname : String) : Lsp.DocumentUri :=
+  let fname := System.FilePath.normalizePath fname
+  let fname := if System.Platform.isWindows then
+    fname.map fun c => if c == '\\' then '/' else c
+  else
+    fname
+  -- TODO(WN): URL-encode special characters
+  -- Three slashes denote localhost.
+  "file:///" ++ fname.dropWhile (· == '/')
 
 open Lsp
 

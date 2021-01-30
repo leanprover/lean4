@@ -34,7 +34,7 @@ class CoeDep (α : Sort u) (a : α) (β : Sort v) where
 class CoeT (α : Sort u) (a : α) (β : Sort v) where
   coe : β
 
-class CoeFun (α : Sort u) (γ : outParam (α → outParam (Sort v))) where
+class CoeFun (α : Sort u) (γ : outParam (α → Sort v)) where
   coe : (a : α) → γ a
 
 class CoeSort (α : Sort u) (β : outParam (Sort v)) where

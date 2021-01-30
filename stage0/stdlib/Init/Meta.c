@@ -212,6 +212,7 @@ lean_object* l___private_Init_Meta_0__Lean_version_getMinor___boxed(lean_object*
 lean_object* l_Lean_evalPrio___closed__1;
 uint8_t l_Lean_version_isRelease___closed__1;
 lean_object* l_Lean_instQuoteBool___closed__5;
+extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3649____closed__5;
 lean_object* l_Lean_Syntax_decodeScientificLitVal_x3f_decodeExp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isLit_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_instQuoteList(lean_object*);
@@ -602,7 +603,6 @@ lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_getPos_x3f(lean_object*, uint8_t);
 lean_object* l___private_Init_Meta_0__Lean_quoteName___closed__3;
 lean_object* l___private_Init_Meta_0__Array_filterSepElemsMAux___at_Array_filterSepElems___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3607____closed__5;
 lean_object* l_Lean_Meta_Simp_instBEqConfig___closed__1;
 lean_object* l_Lean_instQuoteProd___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isScientificLit_x3f_match__1(lean_object*);
@@ -9581,7 +9581,7 @@ x_3 = lean_array_to_list(lean_box(0), x_2);
 x_4 = l___private_Init_Meta_0__Lean_quoteList___rarg(x_1, x_3);
 x_5 = l_Lean_mkOptionalNode___closed__2;
 x_6 = lean_array_push(x_5, x_4);
-x_7 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3607____closed__5;
+x_7 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3649____closed__5;
 x_8 = l_Lean_Syntax_mkCApp(x_7, x_6);
 return x_8;
 }

@@ -38,7 +38,9 @@ lean_object* l_Leanpkg_readManifest(lean_object*);
 lean_object* lean_io_prim_handle_put_str(lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_configure(lean_object*);
 lean_object* l_Leanpkg_buildImports(lean_object*, lean_object*, lean_object*);
+lean_object* l_Leanpkg_configure_match__2___rarg(lean_object*);
 extern lean_object* l_Array_empty___closed__1;
+extern lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_581____closed__1;
 extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l_Leanpkg_withLockFile_acquire___closed__1;
@@ -53,6 +55,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Leanpkg_readManifest___closed__3;
 lean_object* l_Leanpkg_execMake___closed__1;
+lean_object* l_Leanpkg_configure_match__2(lean_object*, lean_object*);
 lean_object* l_Leanpkg_withLockFile_acquire_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_sleep(uint32_t, lean_object*);
 lean_object* l_Leanpkg_initPkg___closed__11;
@@ -116,7 +119,7 @@ extern lean_object* l_IO_Prim_fopenFlags___closed__6;
 lean_object* l_Leanpkg_Manifest_fromFile(lean_object*, lean_object*);
 lean_object* l_Leanpkg_withLockFile_acquire___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l___private_Leanpkg_0__Leanpkg_splitCmdlineArgsCore_match__2(lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_535____closed__1;
+lean_object* l_Leanpkg_configure_match__2___boxed(lean_object*, lean_object*);
 extern lean_object* l_Leanpkg_materialize___lambda__1___closed__2;
 lean_object* l_Leanpkg_configure_match__1___boxed(lean_object*, lean_object*);
 lean_object* l_Leanpkg_withLockFile(lean_object*);
@@ -1182,6 +1185,32 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Leanpkg_configure_match__1(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+lean_object* l_Leanpkg_configure_match__2___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_box(0);
+x_3 = lean_apply_1(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Leanpkg_configure_match__2(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Leanpkg_configure_match__2___rarg), 1, 0);
+return x_3;
+}
+}
+lean_object* l_Leanpkg_configure_match__2___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Leanpkg_configure_match__2(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -2488,7 +2517,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Syntax_mkApp___closed__1;
-x_2 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_535____closed__1;
+x_2 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_581____closed__1;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -2999,7 +3028,7 @@ lean_object* l_Leanpkg_main_match__1___rarg(lean_object* x_1, lean_object* x_2, 
 _start:
 {
 lean_object* x_13; uint8_t x_14; 
-x_13 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_535____closed__1;
+x_13 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_581____closed__1;
 x_14 = lean_string_dec_eq(x_1, x_13);
 if (x_14 == 0)
 {
@@ -3581,7 +3610,7 @@ lean_object* l_Leanpkg_main(lean_object* x_1, lean_object* x_2, lean_object* x_3
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
-x_5 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_535____closed__1;
+x_5 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_581____closed__1;
 x_6 = lean_string_dec_eq(x_1, x_5);
 if (x_6 == 0)
 {

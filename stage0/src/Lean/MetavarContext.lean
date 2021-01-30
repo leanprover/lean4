@@ -885,7 +885,7 @@ mutual
 
          Remark: `newMVarKind != MetavarKind.syntheticOpaque ==> nestedFVars == #[]`
       -/
-      let rec cont (nestedFVars : Array Expr) : M (Expr × Array Expr) := do
+      let rec cont (nestedFVars : Array Expr) (nestedLCtx : LocalContext) : M (Expr × Array Expr) := do
         let args ← args.mapM (visit xs)
         let preserve ← preserveOrder
         match collectDeps mctx mvarLCtx toRevert preserve with
@@ -895,7 +895,7 @@ mutual
           let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all fun x => inst.fvar != x
           -- Remark: we must reset the before processing `mkAuxMVarType` because `toRevert` may not be equal to `xs`
           let newMVarType ← withFreshCache do mkAuxMVarType mvarLCtx toRevert newMVarKind mvarDecl.type
-          let newMVarId ← get >>= fun s => pure s.ngen.curr
+          let newMVarId    := (← get).ngen.curr
           let newMVar      := mkMVar newMVarId
           let result       := mkMVarApp mvarLCtx newMVar toRevert newMVarKind
           let numScopeArgs := mvarDecl.numScopeArgs + result.getAppNumArgs
@@ -905,15 +905,15 @@ mutual
             }
           match newMVarKind with
           | MetavarKind.syntheticOpaque =>
-            modify fun s => { s with mctx := assignDelayed s.mctx newMVarId mvarLCtx (toRevert ++ nestedFVars) (mkAppN (mkMVar mvarId) nestedFVars) }
+            modify fun s => { s with mctx := assignDelayed s.mctx newMVarId nestedLCtx (toRevert ++ nestedFVars) (mkAppN (mkMVar mvarId) nestedFVars) }
           | _                           =>
             modify fun s => { s with mctx := assignExpr s.mctx mvarId result }
           return (mkAppN result args, toRevert)
       if !mvarDecl.kind.isSyntheticOpaque then
-        cont #[]
+        cont #[] mvarLCtx
       else match mctx.getDelayedAssignment? mvarId with
-      | none                        => cont #[]
-      | some { fvars := fvars, .. } => cont fvars
+      | none => cont #[] mvarLCtx
+      | some { fvars := fvars, lctx := nestedLCtx, .. } => cont fvars nestedLCtx -- Remark: nestedLCtx is bigger than mvarLCtx
 
   private partial def elimApp (xs : Array Expr) (f : Expr) (args : Array Expr) : M Expr := do
     match f with

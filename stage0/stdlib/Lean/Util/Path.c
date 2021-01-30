@@ -71,7 +71,6 @@ extern uint32_t l_System_FilePath_pathSeparator;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* lean_module_name_of_file(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_appDir___at_Lean_getBuiltinSearchPath___spec__1(lean_object*);
-lean_object* l_String_split___at_System_FilePath_splitSearchPath___spec__2(lean_object*);
 lean_object* l_Lean_modPathToFilePath___closed__3;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_realPathNormalized(lean_object*, lean_object*);
@@ -111,6 +110,7 @@ lean_object* lean_io_app_dir(lean_object*);
 lean_object* l_String_drop(lean_object*, lean_object*);
 lean_object* l_Lean_Name_getRoot(lean_object*);
 lean_object* l_Lean_getBuiltinSearchPath___closed__3;
+lean_object* l_String_split___at_System_FilePath_splitSearchPath___spec__1(lean_object*);
 lean_object* l___private_Lean_Util_Path_0__Lean_pathSep;
 lean_object* l_IO_realPath___at_Lean_realPathNormalized___spec__1(lean_object*, lean_object*);
 static lean_object* _init_l___private_Lean_Util_Path_0__Lean_pathSep() {
@@ -716,7 +716,7 @@ lean_object* l_Lean_parseSearchPath(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_String_split___at_System_FilePath_splitSearchPath___spec__2(x_1);
+x_3 = l_String_split___at_System_FilePath_splitSearchPath___spec__1(x_1);
 x_4 = l_List_append___rarg(x_3, x_2);
 return x_4;
 }

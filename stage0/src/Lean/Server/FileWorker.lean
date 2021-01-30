@@ -195,7 +195,11 @@ section Initialization
                                    srcPath.mapM realPathNormalized
       | _                       => throw <| IO.userError s!"unexpected output from `leanpkg print-paths`:\n{stdout}\nstderr:\n{stderr}"
     else
-      throw <| IO.userError s!"`leanpkg print-paths` failed:\n{stdout}\nstderr:\n{stderr}"
+      -- HACK(WN): `leanpkg` currently runs in the current directory, most likely the directory where the editor
+      -- was ran, which can lead to unexpected failures. We need to support workspace folders and execute it there.
+      -- For now though, just log the failure and press onwards.
+      IO.eprintln s!"`leanpkg print-paths` failed:\n{stdout}\nstderr:\n{stderr}"
+      return []
 
   def compileHeader (m : DocumentMeta) (hOut : FS.Stream) : IO (Snapshot × SearchPath) := do
     let opts := {}  -- TODO
@@ -411,7 +415,7 @@ section RequestHandling
               let modUri? ← match mod? with
                 | some modName =>
                   let modFname? ← st.srcSearchPath.findWithExt ".lean" modName
-                  pure <| modFname?.map ("file://" ++ ·)
+                  pure <| modFname?.map toFileUri
                 | none         => pure <| some doc.meta.uri
 
               let ranges? ← ci.runMetaM i.lctx <| findDeclarationRanges? n

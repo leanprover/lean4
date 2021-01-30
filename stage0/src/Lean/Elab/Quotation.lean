@@ -17,6 +17,11 @@ open Lean.Parser.Term
 open Lean.Syntax
 open Meta
 
+register_builtin_option hygiene : Bool := {
+  defValue := true
+  descr    := "Annotate identifiers in quotations such that they are resolved relative to the scope at their declaration, not that at their eventual use/expansion, to avoid accidental capturing. Note that quotations/notations already defined are unaffected."
+}
+
 /-- `C[$(e)]` ~> `let a := e; C[$a]`. Used in the implementation of antiquot splices. -/
 private partial def floatOutAntiquotTerms : Syntax → StateT (Syntax → TermElabM Syntax) TermElabM Syntax
   | stx@(Syntax.node k args) => do
@@ -57,6 +62,8 @@ def resolveSectionVariable (sectionVars : NameMap Name) (id : Name) : List (Name
 -- Elaborate the content of a syntax quotation term
 private partial def quoteSyntax : Syntax → TermElabM Syntax
   | Syntax.ident info rawVal val preresolved => do
+    if !hygiene.get (← getOptions) then
+      return ← `(Syntax.ident info $(quote rawVal) $(quote val) $(quote preresolved))
     -- Add global scopes at compilation time (now), add macro scope at runtime (in the quotation).
     -- See the paper for details.
     let r ← resolveGlobalName val

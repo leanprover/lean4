@@ -50,9 +50,13 @@ private def resumePostponed (macroStack : MacroStack) (declName? : Option Name) 
           let result ← resumeElabTerm stx expectedType (!postponeOnError)
           /- We must ensure `result` has the expected type because it is the one expected by the method that postponed stx.
             That is, the method does not have an opportunity to check whether `result` has the expected type or not. -/
-          let result ← withRef stx $ ensureHasType expectedType result
-          assignExprMVar mvarId result
-          pure true
+          let result ← withRef stx <| ensureHasType expectedType result
+          /- We must perform `occursCheck` here since `result` may contain `mvarId` when it has synthetic `sorry`s. -/
+          if (← occursCheck mvarId result) then
+            pure false
+          else
+            assignExprMVar mvarId result
+            pure true
     catch
      | ex@(Exception.internal id _) =>
        if id == postponeExceptionId then

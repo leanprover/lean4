@@ -10,6 +10,7 @@ import Lean.ReducibilityAttrs
 import Lean.Util.Trace
 import Lean.Util.RecDepth
 import Lean.Util.PPExt
+import Lean.Util.OccursCheck
 import Lean.Compiler.InlineAttrs
 import Lean.Meta.TransparencyMode
 import Lean.Meta.DiscrTreeTypes
@@ -312,6 +313,10 @@ def isExprMVarAssigned (mvarId : MVarId) : MetaM Bool :=
 
 def getExprMVarAssignment? (mvarId : MVarId) : MetaM (Option Expr) :=
   return (← getMCtx).getExprAssignment? mvarId
+
+/-- Return true if `e` contains `mvarId` directly or indirectly -/
+def occursCheck (mvarId : MVarId) (e : Expr) : MetaM Bool :=
+  return (← getMCtx).occursCheck mvarId e
 
 def assignExprMVar (mvarId : MVarId) (val : Expr) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.assignExpr mvarId val

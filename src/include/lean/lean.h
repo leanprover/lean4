@@ -698,11 +698,6 @@ static inline lean_object * lean_alloc_ctor(unsigned tag, unsigned num_objs, uns
     return o;
 }
 
-// TODO: delete
-static inline lean_object * lean_alloc_ctor_big(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
-    return lean_alloc_ctor(tag, num_objs, scalar_sz);
-}
-
 static inline b_lean_obj_res lean_ctor_get(b_lean_obj_arg o, unsigned i) {
     assert(i < lean_ctor_num_objs(o));
     return lean_ctor_obj_cptr(o)[i];

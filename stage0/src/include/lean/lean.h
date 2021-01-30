@@ -67,6 +67,9 @@ extern "C" {
 #define LeanExternal    254
 #define LeanReserved    255
 
+#define LEAN_MAX_CTOR_FIELDS 256
+#define LEAN_MAX_CTOR_SCALARS_SIZE 1024
+
 static inline bool lean_is_big_object_tag(uint8_t tag) {
     return tag == LeanArray || tag == LeanStructArray || tag == LeanScalarArray || tag == LeanString;
 }
@@ -689,8 +692,16 @@ static inline uint8_t * lean_ctor_scalar_cptr(lean_object * o) {
 }
 
 static inline lean_object * lean_alloc_ctor(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
-    assert(tag <= LeanMaxCtorTag && num_objs < 256 && scalar_sz < 1024);
+    assert(tag <= LeanMaxCtorTag && num_objs < LEAN_MAX_CTOR_FIELDS && scalar_sz < LEAN_MAX_CTOR_SCALARS_SIZE);
     lean_object * o = lean_alloc_ctor_memory(sizeof(lean_ctor_object) + sizeof(void*)*num_objs + scalar_sz);
+    lean_set_st_header(o, tag, num_objs);
+    return o;
+}
+
+/* Similar to lean_alloc_ctor_big, but does not assume ctor is a small object */
+static inline lean_object * lean_alloc_ctor_big(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
+    assert(tag <= LeanMaxCtorTag && num_objs < LEAN_MAX_CTOR_FIELDS && scalar_sz < LEAN_MAX_CTOR_SCALARS_SIZE);
+    lean_object * o = lean_alloc_object(sizeof(lean_ctor_object) + sizeof(void*)*num_objs + scalar_sz);
     lean_set_st_header(o, tag, num_objs);
     return o;
 }

@@ -8,6 +8,18 @@ import Lean.Compiler.IR.Format
 
 namespace Lean.IR.Checker
 
+@[extern c inline "lean_box(LEAN_MAX_CTOR_FIELDS)"]
+constant getMaxCtorFields : Unit → Nat
+def maxCtorFields := getMaxCtorFields ()
+
+@[extern c inline "lean_box(LEAN_MAX_CTOR_SCALARS_SIZE)"]
+constant getMaxCtorScalarsSize : Unit → Nat
+def maxCtorScalarsSize := getMaxCtorScalarsSize ()
+
+@[extern c inline "lean_box(sizeof(size_t))"]
+constant getUSizeSize : Unit → Nat
+def usizeSize := getUSizeSize ()
+
 structure CheckerContext where
   env : Environment
   localCtx : LocalContext := {}
@@ -97,7 +109,12 @@ def checkExpr (ty : IRType) : Expr → M Unit
   | Expr.pap f ys           => checkPartialApp f ys *> checkObjType ty -- partial applications should always produce a closure object
   | Expr.ap x ys            => checkObjVar x *> checkArgs ys
   | Expr.fap f ys           => checkFullApp f ys
-  | Expr.ctor c ys          => when (!ty.isStruct && !ty.isUnion && c.isRef) (checkObjType ty) *> checkArgs ys
+  | Expr.ctor c ys          => do
+    if c.size > maxCtorFields then
+      throw s!"constructor '{c.name}' has too many fields"
+    if c.ssize + c.usize * usizeSize > maxCtorScalarsSize then
+      throw s!"constructor '{c.name}' has too many scalar fields"
+    when (!ty.isStruct && !ty.isUnion && c.isRef) (checkObjType ty) *> checkArgs ys
   | Expr.reset _ x          => checkObjVar x *> checkObjType ty
   | Expr.reuse x i u ys     => checkObjVar x *> checkArgs ys *> checkObjType ty
   | Expr.box xty x          => checkObjType ty *> checkScalarVar x *> checkVarType x (fun t => t == xty)

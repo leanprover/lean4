@@ -28,7 +28,7 @@ extern "C" {
 
 #define LEAN_CLOSURE_MAX_ARGS      16
 #define LEAN_OBJECT_SIZE_DELTA     8
-#define LEAN_MAX_SMALL_OBJECT_SIZE 512
+#define LEAN_MAX_SMALL_OBJECT_SIZE 4096
 
 #ifdef _MSC_VER
 #define LEAN_ALLOCA(s) _alloca(s)
@@ -698,12 +698,9 @@ static inline lean_object * lean_alloc_ctor(unsigned tag, unsigned num_objs, uns
     return o;
 }
 
-/* Similar to lean_alloc_ctor_big, but does not assume ctor is a small object */
+// TODO: delete
 static inline lean_object * lean_alloc_ctor_big(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
-    assert(tag <= LeanMaxCtorTag && num_objs < LEAN_MAX_CTOR_FIELDS && scalar_sz < LEAN_MAX_CTOR_SCALARS_SIZE);
-    lean_object * o = lean_alloc_object(sizeof(lean_ctor_object) + sizeof(void*)*num_objs + scalar_sz);
-    lean_set_st_header(o, tag, num_objs);
-    return o;
+    return lean_alloc_ctor(tag, num_objs, scalar_sz);
 }
 
 static inline b_lean_obj_res lean_ctor_get(b_lean_obj_arg o, unsigned i) {

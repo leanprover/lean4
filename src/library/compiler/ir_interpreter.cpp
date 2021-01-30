@@ -385,8 +385,7 @@ private:
             // a constructor without data is optimized to a tagged pointer
             return box(tag);
         } else {
-            // alloc_cnstr_big does not assume the constructors fits in a small object
-            object *o = alloc_cnstr_big(tag, size, usize * sizeof(void *) + ssize);
+            object *o = alloc_cnstr(tag, size, usize * sizeof(void *) + ssize);
             for (size_t i = 0; i < args.size(); i++) {
                 cnstr_set(o, i, eval_arg(args[i]).m_obj);
             }

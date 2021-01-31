@@ -1,0 +1,6 @@
+modBug.lean:1:8-1:20: error: application type mismatch
+  Nat.zeroNeOne (Nat.modZero 1)
+argument has type
+  1 % 0 = 1
+but function has type
+  0 = 1 → False

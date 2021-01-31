@@ -15,6 +15,9 @@ Author: Leonardo de Moura
 #define LEAN_NUM_SLOTS             (LEAN_MAX_SMALL_OBJECT_SIZE / LEAN_OBJECT_SIZE_DELTA)
 #define LEAN_MAX_TO_EXPORT_OBJS    1024
 
+LEAN_CASSERT(LEAN_PAGE_SIZE > LEAN_MAX_SMALL_OBJECT_SIZE);
+LEAN_CASSERT(LEAN_SEGMENT_SIZE > LEAN_PAGE_SIZE);
+
 namespace lean {
 namespace allocator {
 #ifdef LEAN_RUNTIME_STATS
@@ -87,6 +90,10 @@ struct segment {
 
     segment() {
         m_next_page_mem = get_first_page_mem();
+    }
+
+    bool is_full() const {
+        return m_next_page_mem + LEAN_PAGE_SIZE > m_data + LEAN_SEGMENT_SIZE;
     }
 
     void move_to_heap(heap *);
@@ -280,25 +287,32 @@ void heap::export_objs() {
 }
 
 void heap::alloc_segment() {
-    if (heap * h = g_heap_manager->pop_orphan()) {
-        lean_assert(h->m_curr_segment);
-        /* import pending objects, before moving `h`'s segment to *this* heap. */
-        h->import_objs();
-        segment * s = h->m_curr_segment;
-        h->m_curr_segment = s->m_next;
-        s->move_to_heap(this);
-        if (h->m_curr_segment != nullptr) {
-            g_heap_manager->push_orphan(h);
+    while (true) {
+        if (heap * h = g_heap_manager->pop_orphan()) {
+            lean_assert(h->m_curr_segment);
+            /* import pending objects, before moving `h`'s segment to *this* heap. */
+            h->import_objs();
+            segment * s = h->m_curr_segment;
+            h->m_curr_segment = s->m_next;
+            s->move_to_heap(this);
+            if (h->m_curr_segment != nullptr) {
+                g_heap_manager->push_orphan(h);
+            } else {
+                delete h;
+            }
+            s->m_next      = m_curr_segment;
+            m_curr_segment = s;
+            if (!s->is_full()) {
+                /* Found segment that is not full */
+                break;
+            }
         } else {
-            delete h;
+            LEAN_RUNTIME_STAT_CODE(g_num_segments++);
+            segment * s = new segment();
+            s->m_next   = m_curr_segment;
+            m_curr_segment = s;
+            break;
         }
-        s->m_next      = m_curr_segment;
-        m_curr_segment = s;
-    } else {
-        LEAN_RUNTIME_STAT_CODE(g_num_segments++);
-        segment * s = new segment();
-        s->m_next   = m_curr_segment;
-        m_curr_segment = s;
     }
 }
 
@@ -308,7 +322,7 @@ static page * alloc_page(heap * h, unsigned obj_size) {
     LEAN_RUNTIME_STAT_CODE(g_num_pages++);
     page * p    = new (s->m_next_page_mem) page();
     s->m_next_page_mem += LEAN_PAGE_SIZE;
-    if (s->m_next_page_mem + LEAN_PAGE_SIZE > s->m_data + LEAN_SEGMENT_SIZE) {
+    if (s->is_full()) {
         /* s is full, we need to allocate a new one. */
         h->alloc_segment();
     }

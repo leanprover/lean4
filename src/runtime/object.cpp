@@ -1346,6 +1346,7 @@ extern "C" object * lean_int_big_mod(object * a1, object * a2) {
         int i2 = lean_scalar_to_int(a2);
         if (i2 == 0) {
             if (mpz_value(a1) >= 0) {
+                lean_inc(a1);
                 return a1;
             } else {
                 return mpz_to_int(mpz(-1) - mpz_value(a1));

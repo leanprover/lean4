@@ -1553,7 +1553,7 @@ static inline lean_obj_res lean_int_mod(b_lean_obj_arg a1, b_lean_obj_arg a2) {
         int v1 = lean_scalar_to_int(a1);
         int v2 = lean_scalar_to_int(a2);
         if (v2 == 0)
-            return lean_box(0);
+            return v1 >= 0 ? a1 : lean_int_to_int(-1 - v1);
         else
             return lean_int_to_int(v1 % v2);
     } else {

@@ -306,6 +306,8 @@ void heap::alloc_segment() {
                 /* Found segment that is not full */
                 break;
             }
+            /* If `s` is full, we must "keep looking" because `alloc_page` assumes that `m_curr_segment`
+               contains at least one free page. */
         } else {
             LEAN_RUNTIME_STAT_CODE(g_num_segments++);
             segment * s = new segment();

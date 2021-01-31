@@ -15,6 +15,9 @@ Author: Leonardo de Moura
 #define LEAN_NUM_SLOTS             (LEAN_MAX_SMALL_OBJECT_SIZE / LEAN_OBJECT_SIZE_DELTA)
 #define LEAN_MAX_TO_EXPORT_OBJS    1024
 
+LEAN_CASSERT(LEAN_PAGE_SIZE > LEAN_MAX_SMALL_OBJECT_SIZE);
+LEAN_CASSERT(LEAN_SEGMENT_SIZE > LEAN_PAGE_SIZE);
+
 namespace lean {
 namespace allocator {
 #ifdef LEAN_RUNTIME_STATS
@@ -87,6 +90,10 @@ struct segment {
 
     segment() {
         m_next_page_mem = get_first_page_mem();
+    }
+
+    bool is_full() const {
+        return m_next_page_mem + LEAN_PAGE_SIZE > m_data + LEAN_SEGMENT_SIZE;
     }
 
     void move_to_heap(heap *);
@@ -182,6 +189,7 @@ static inline page * page_list_pop(page * & head) {
 }
 
 void page::push_free_obj(void * o) {
+    lean_assert(get_page_of(o) == this);
     set_next_obj(o, m_header.m_free_list);
     m_header.m_free_list = o;
     m_header.m_num_free++;
@@ -240,19 +248,32 @@ void heap::export_objs() {
     while (o != nullptr) {
         void * n   = get_next_obj(o);
         heap * h   = get_page_of(o)->get_heap();
-        lean_assert(h != this);
-        bool found = false;
-        for (export_entry & e : to_export) {
-            if (e.m_heap == h) {
-                set_next_obj(o, e.m_head);
-                e.m_head = o;
-                found = true;
-                break;
+        /*
+          We may have `h == this`.
+
+          Recall that each heap `h` has a list of dead objects `m_to_export_list` from other heaps.
+          It contains objects deleted by the thread that "owns" `h`.
+          Now, suppose we have two heaps `h1` and `h2`, and thread `t1` that owns `h1` deletes an object `o` from `h2`.
+          The object `o` is now in the list `h1.m_to_export_list`.
+          Then, thread `t2` that owns h2 finishes, and `h2` goes to the orphan list.
+          Then, `h1` allocates a new segment, and a segment from `h2` containing `o` is reused.
+          Then, `h1` tries to export dead objects to other threads using this function and finds `o` s.t. which is now
+          `get_page_of(o)->get_heap() == h1`.
+        */
+        if (h != this) {
+            bool found = false;
+            for (export_entry & e : to_export) {
+                if (e.m_heap == h) {
+                    set_next_obj(o, e.m_head);
+                    e.m_head = o;
+                    found = true;
+                    break;
+                }
             }
-        }
-        if (!found) {
-            set_next_obj(o, nullptr);
-            to_export.push_back(export_entry{h, o, o});
+            if (!found) {
+                set_next_obj(o, nullptr);
+                to_export.push_back(export_entry{h, o, o});
+            }
         }
         o = n;
     }
@@ -266,25 +287,34 @@ void heap::export_objs() {
 }
 
 void heap::alloc_segment() {
-    if (heap * h = g_heap_manager->pop_orphan()) {
-        lean_assert(h->m_curr_segment);
-        /* import pending objects, before moving `h`'s segment to *this* heap. */
-        h->import_objs();
-        segment * s = h->m_curr_segment;
-        h->m_curr_segment = s->m_next;
-        s->move_to_heap(this);
-        if (h->m_curr_segment != nullptr) {
-            g_heap_manager->push_orphan(h);
+    while (true) {
+        if (heap * h = g_heap_manager->pop_orphan()) {
+            lean_assert(h->m_curr_segment);
+            /* import pending objects, before moving `h`'s segment to *this* heap. */
+            h->import_objs();
+            segment * s = h->m_curr_segment;
+            h->m_curr_segment = s->m_next;
+            s->move_to_heap(this);
+            if (h->m_curr_segment != nullptr) {
+                g_heap_manager->push_orphan(h);
+            } else {
+                delete h;
+            }
+            s->m_next      = m_curr_segment;
+            m_curr_segment = s;
+            if (!s->is_full()) {
+                /* Found segment that is not full */
+                break;
+            }
+            /* If `s` is full, we must "keep looking" because `alloc_page` assumes that `m_curr_segment`
+               contains at least one free page. */
         } else {
-            delete h;
+            LEAN_RUNTIME_STAT_CODE(g_num_segments++);
+            segment * s = new segment();
+            s->m_next   = m_curr_segment;
+            m_curr_segment = s;
+            break;
         }
-        s->m_next      = m_curr_segment;
-        m_curr_segment = s;
-    } else {
-        LEAN_RUNTIME_STAT_CODE(g_num_segments++);
-        segment * s = new segment();
-        s->m_next   = m_curr_segment;
-        m_curr_segment = s;
     }
 }
 
@@ -294,7 +324,7 @@ static page * alloc_page(heap * h, unsigned obj_size) {
     LEAN_RUNTIME_STAT_CODE(g_num_pages++);
     page * p    = new (s->m_next_page_mem) page();
     s->m_next_page_mem += LEAN_PAGE_SIZE;
-    if (s->m_next_page_mem + LEAN_PAGE_SIZE > s->m_data + LEAN_SEGMENT_SIZE) {
+    if (s->is_full()) {
         /* s is full, we need to allocate a new one. */
         h->alloc_segment();
     }
@@ -311,6 +341,7 @@ static page * alloc_page(heap * h, unsigned obj_size) {
     while (true) {
         if (next_free + obj_size > end)
             break; /* next object doesn't fit */
+        lean_assert(get_page_of(curr_free) == p);
         set_next_obj(next_free, curr_free);
         curr_free = next_free;
         next_free = next_free + obj_size;
@@ -386,6 +417,7 @@ extern "C" void * lean_alloc_small(unsigned sz, unsigned slot_idx) {
     }
     p->m_header.m_free_list = get_next_obj(r);
     p->m_header.m_num_free--;
+    lean_assert(get_page_of(r) == p);
     return r;
 }
 

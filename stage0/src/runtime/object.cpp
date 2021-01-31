@@ -1174,7 +1174,7 @@ extern "C" object * lean_nat_big_mod(object * a1, object * a2) {
         return a1;
     } else if (lean_is_scalar(a2)) {
         usize n2 = lean_unbox(a2);
-        return n2 == 0 ? a2 : lean_box((mpz_value(a1) % mpz::of_size_t(n2)).get_unsigned_int());
+        return n2 == 0 ? a1 : lean_box((mpz_value(a1) % mpz::of_size_t(n2)).get_unsigned_int());
     } else {
         lean_assert(mpz_value(a2) != 0);
         return mpz_to_nat(mpz_value(a1) % mpz_value(a2));

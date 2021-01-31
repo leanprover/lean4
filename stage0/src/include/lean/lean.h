@@ -1358,7 +1358,7 @@ static inline lean_obj_res lean_nat_mod(b_lean_obj_arg a1, b_lean_obj_arg a2) {
         size_t n1 = lean_unbox(a1);
         size_t n2 = lean_unbox(a2);
         if (n2 == 0)
-            return lean_box(0);
+            return lean_box(n1);
         else
             return lean_box(n1 % n2);
     } else {

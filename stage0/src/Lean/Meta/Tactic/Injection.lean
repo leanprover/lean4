@@ -10,6 +10,14 @@ import Lean.Meta.Tactic.Intro
 
 namespace Lean.Meta
 
+def getCtorNumPropFields (ctorInfo : ConstructorVal) : MetaM Nat := do
+  forallTelescopeReducing ctorInfo.type fun xs _ => do
+    let mut numProps := 0
+    for i in [:ctorInfo.numFields] do
+      if (← isProp (← inferType xs[ctorInfo.numParams + i])) then
+        numProps := numProps + 1
+    return numProps
+
 inductive InjectionResultCore where
   | solved
   | subgoal (mvarId : MVarId) (numNewEqs : Nat)
@@ -42,7 +50,9 @@ def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCor
             let newMVar ← mkFreshExprSyntheticOpaqueMVar newTarget tag
             assignExprMVar mvarId (mkApp val newMVar)
             let mvarId ← tryClear newMVar.mvarId! fvarId
-            pure $ InjectionResultCore.subgoal mvarId aCtor.numFields
+            /- Recall that `noConfusion` does not include equalities for propositions since they are trivial due to proof irrelevance. -/
+            let numPropFields ← getCtorNumPropFields aCtor
+            return InjectionResultCore.subgoal mvarId (aCtor.numFields - numPropFields)
           | _ => throwTacticEx `injection mvarId "ill-formed noConfusion auxiliary construction"
       | _, _ => throwTacticEx `injection mvarId "equality of constructor applications expected"
 

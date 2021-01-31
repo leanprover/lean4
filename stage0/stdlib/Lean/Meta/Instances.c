@@ -176,9 +176,9 @@ lean_object* l_Lean_Meta_forallMetaTelescopeReducing___boxed(lean_object*, lean_
 lean_object* l_Lean_Meta_instanceExtension___closed__1;
 lean_object* l_Lean_Meta_instanceExtension___closed__2;
 lean_object* l_Lean_Meta_defaultInstanceExtension___elambda__4(lean_object*, lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2909____closed__4;
 extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
 size_t lean_usize_of_nat(lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2913____closed__4;
 extern lean_object* l_Lean_NameSet_empty;
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____lambda__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -5988,7 +5988,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_415____closed__2;
 x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_415____closed__3;
 x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_415____closed__4;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2913____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2909____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

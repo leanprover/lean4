@@ -1174,7 +1174,12 @@ extern "C" object * lean_nat_big_mod(object * a1, object * a2) {
         return a1;
     } else if (lean_is_scalar(a2)) {
         usize n2 = lean_unbox(a2);
-        return n2 == 0 ? a1 : lean_box((mpz_value(a1) % mpz::of_size_t(n2)).get_unsigned_int());
+        if (n2 == 0) {
+            lean_inc(a1);
+            return a1;
+        } else {
+            return lean_box((mpz_value(a1) % mpz::of_size_t(n2)).get_unsigned_int());
+        }
     } else {
         lean_assert(mpz_value(a2) != 0);
         return mpz_to_nat(mpz_value(a1) % mpz_value(a2));
@@ -1346,6 +1351,7 @@ extern "C" object * lean_int_big_mod(object * a1, object * a2) {
         int i2 = lean_scalar_to_int(a2);
         if (i2 == 0) {
             if (mpz_value(a1) >= 0) {
+                lean_inc(a1);
                 return a1;
             } else {
                 return mpz_to_int(mpz(-1) - mpz_value(a1));

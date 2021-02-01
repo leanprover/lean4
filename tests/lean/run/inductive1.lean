@@ -75,3 +75,7 @@ inductive MyEq {α : Type} (a : α) : α → Prop
 inductive ListLast {α : Type u} : List α → Type u
 | empty    : ListLast []
 | nonEmpty : (as : List α) → (a : α) → ListLast (as ++ [a])
+
+-- make sure to instantiate mvars in constructors
+inductive Test : Nat → Type
+| mk : Test ((fun n => n.succ) Nat.zero)

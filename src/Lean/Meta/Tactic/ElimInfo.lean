@@ -12,9 +12,10 @@ structure ElimAltInfo where
   numFields : Nat
 
 structure ElimInfo where
-  motivePos   : Nat
-  targetsPos  : Array Nat := #[]
-  altsInfo    : Array ElimAltInfo := #[]
+  name       : Name
+  motivePos  : Nat
+  targetsPos : Array Nat := #[]
+  altsInfo   : Array ElimAltInfo := #[]
 
 def getElimInfo (declName : Name) : MetaM ElimInfo := do
   let declInfo ← getConstInfo declName
@@ -43,6 +44,6 @@ def getElimInfo (declName : Name) : MetaM ElimInfo := do
         if xDecl.binderInfo.isExplicit then
           let numFields ← forallTelescopeReducing xDecl.type fun args _ => pure args.size
           altsInfo := altsInfo.push { name := xDecl.userName, numFields := numFields : ElimAltInfo }
-    pure { motivePos := motivePos, targetsPos := targetsPos, altsInfo := altsInfo }
+    pure { name := declName, motivePos := motivePos, targetsPos := targetsPos, altsInfo := altsInfo }
 
 end Lean.Meta

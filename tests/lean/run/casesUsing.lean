@@ -23,7 +23,7 @@ theorem ex2 (p q : Nat) : p ≤ q ∨ p > q := by
   case upper => admit
   case diag  => apply Or.inl; apply Nat.leRefl
 
-axiom parityElim (motive : Nat → Sort u)
+axiom Nat.parityElim (motive : Nat → Sort u)
   (even : (n : Nat) → motive (2*n))
   (odd  : (n : Nat) → motive (2*n+1))
   (n : Nat)
@@ -35,6 +35,18 @@ theorem time2Eq (n : Nat) : 2*n = n + n := by
   rw Nat.zeroAdd
 
 theorem ex3 (n : Nat) : Exists (fun m => n = m + m ∨ n = m + m + 1) := by
+  cases n using Nat.parityElim with
+  | even i =>
+    apply Exists.intro i
+    apply Or.inl
+    rw time2Eq
+  | odd i =>
+    apply Exists.intro i
+    apply Or.inr
+    rw time2Eq
+
+open Nat in
+theorem ex3b (n : Nat) : Exists (fun m => n = m + m ∨ n = m + m + 1) := by
   cases n using parityElim with
   | even i =>
     apply Exists.intro i

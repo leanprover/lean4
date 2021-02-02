@@ -230,7 +230,7 @@ structure PLift(α : Sort u) : Type u := up ::
   (down : α)
 
 /- Bijection between α and PLift α -/
-theorem PLift.upDown {α : Sort u} : ∀  (b : PLift α), Eq (up (down b)) b
+theorem PLift.upDown {α : Sort u} : ∀ (b : PLift α), Eq (up (down b)) b
 | up a => rfl 
 
 theorem PLift.downUp {α : Sort u} (a : α) : Eq (down (up a)) a :=
@@ -249,7 +249,7 @@ structure ULift.{r, s}(α : Type s) : Type (max s r) := up ::
   (down : α)
 
 /- Bijection between α and ULift.{v} α -/
-theorem ULift.upDown {α : Type u} : ∀  (b : ULift.{v} α), Eq (up (down b)) b
+theorem ULift.upDown {α : Type u} : ∀ (b : ULift.{v} α), Eq (up (down b)) b
 | up a => rfl 
 
 theorem ULift.downUp {α : Type u} (a : α) : Eq (down (up.{v} a)) a :=

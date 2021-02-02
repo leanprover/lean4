@@ -73,9 +73,12 @@ end
 #eval checkM `((α β : Type) → α)  -- group
 #eval checkM `((α β : Type) → Type)  -- don't group
 #eval checkM `((α : Type) → (a : α) → α)
-#eval checkM `((α : Type) → (a : α) → a = a)
 #eval checkM `({α : Type} → α)
 #eval checkM `({α : Type} → [ToString α] → α)
+#eval checkM `(∀ x : Nat, x = x)
+#eval checkM `(∀ {x : Nat} [ToString Nat], x = x)
+set_option pp.binder_types false in
+#eval checkM `(∀ x : Nat, x = x)
 
 -- TODO: hide `ofNat`
 #eval checkM `(0)

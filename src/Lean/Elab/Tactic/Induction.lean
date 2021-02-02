@@ -409,7 +409,7 @@ private def getRecInfo (stx : Syntax) (major : Expr) : TacticM RecInfo := withRe
 
 private def processResult (alts : Array Syntax) (result : Array Meta.InductionSubgoal) (numToIntro : Nat := 0) : TacticM Unit := do
   if alts.isEmpty then
-    setGoals $ result.toList.map fun s => s.mvarId
+    setGoals <| result.toList.map fun s => s.mvarId
   else
     unless alts.size == result.size do
       throwError! "mistmatch on the number of subgoals produced ({result.size}) and alternatives provided ({alts.size})"
@@ -433,7 +433,7 @@ private def generalizeTerm (term : Expr) : TacticM Expr := do
 
 @[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx => focus do
   let targets ← stx[1].getSepArgs.mapM fun target => do
-    let target ← withMainMVarContext $ elabTerm target none
+    let target ← withMainMVarContext <| elabTerm target none
     generalizeTerm target
   let n ← generalizeVars stx targets
   if targets.size == 1 then
@@ -446,7 +446,7 @@ private def generalizeTerm (term : Expr) : TacticM Expr := do
     if stx[2].isNone then
       throwError! "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>')"
     let elimId := stx[2][1]
-    let elimName := elimId.getId
+    let elimName ← withRef elimId do resolveGlobalConstNoOverload elimId.getId.eraseMacroScopes
     let elimInfo ← withRef elimId do getElimInfo elimName
     let (mvarId, _) ← getMainGoal
     let tag ← getMVarTag mvarId
@@ -533,12 +533,12 @@ def evalCasesOn (target : Expr) (optInductionAlts : Syntax) : TacticM Unit := do
   processResult alts result
 
 def evalCasesUsing (elimId : Syntax) (targetRef : Syntax) (targets : Array Expr) (optInductionAlts : Syntax) : TacticM Unit := do
-  let elimName := elimId.getId
+  let elimName ← withRef elimId do resolveGlobalConstNoOverload elimId.getId.eraseMacroScopes
   let elimInfo ← withRef elimId do getElimInfo elimName
   let (mvarId, _) ← getMainGoal
   let tag ← getMVarTag mvarId
   withMVarContext mvarId do
-    let result ← withRef targetRef $ ElimApp.mkElimApp elimName elimInfo targets tag
+    let result ← withRef targetRef <| ElimApp.mkElimApp elimName elimInfo targets tag
     let elimArgs := result.elimApp.getAppArgs
     let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]
     let motiveType ← inferType elimArgs[elimInfo.motivePos]
@@ -547,7 +547,7 @@ def evalCasesUsing (elimId : Syntax) (targetRef : Syntax) (targets : Array Expr)
     withMVarContext mvarId do
       ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetsNew
       assignExprMVar mvarId result.elimApp
-      ElimApp.evalAlts elimInfo result.alts (getAltsOfOptInductionAlts optInductionAlts) (numEqs := targets.size)
+      ElimApp.evalAlts elimInfo result.alts (getAltsOfOptInductionAlts optInductionAlts) (numEqs := targets.size) (toClear := targetsNew)
 
 @[builtinTactic Lean.Parser.Tactic.cases] def evalCases : Tactic := fun stx => focus do
   -- parser! nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> optInductionAlts

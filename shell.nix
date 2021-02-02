@@ -14,6 +14,9 @@ in { pkgs ? flakePkgs.nixpkgs, llvmPackages ? null }:
     hardeningDisable = [ "all" ];
     # more convenient `ctest` output
     CTEST_OUTPUT_ON_FAILURE = 1;
+    shellHook = ''
+      export LEAN_SRC_PATH="$PWD/src"
+    '';
   };
   nix = pkgs.mkShell {
     buildInputs = [ flakePkgs.nix ];

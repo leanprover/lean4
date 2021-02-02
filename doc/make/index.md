@@ -144,22 +144,18 @@ or compiling Lean programs manually, you need to put them into your `PATH`
 yourself. A simple option for doing that is to use
 [`elan`](https://github.com/Kha/elan), see the next section.
 
-The only currently supported editor is Emacs, see `lean4-mode/README.md` for
-basic setup. You can set `lean4-rootdir` manually to tell it what stage to use:
-```
-# while editing the Lean library
-M-x set-variable lean4-rootdir RET ".../build/release/stage0" RET
-# while testing, using a Lean that includes your changes
-M-x set-variable lean4-rootdir RET ".../build/release/stage1" RET
-```
-but `elan` again makes it simple to do that automatically, see below.
+You can use any of the [supported editors](../setup.md) for editing the Lean source
+code. If you set up `elan` as below, opening `src/` as a *workspace folder* should
+ensure that stage 0 will be used for file in that directory. You should also set the
+`LEAN_SRC_PATH` environment variable to the path of the `src/` directory to enable
+go-to-definition in the stdlib (automatically set when using `nix-shell`).
 
 Dev setup using elan
 --------------------
 
 You can use [`elan`](https://github.com/Kha/elan) to easily switch between
 stages and build configurations based on the current directory, both for the
-`lean/leanc/leanmake` binaries in your shell's PATH and inside Emacs.
+`lean/leanc/leanmake` binaries in your shell's PATH and inside your editor.
 
 If you haven't already installed elan, you can do so, without installing a
 default version of Lean, using

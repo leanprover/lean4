@@ -14,8 +14,8 @@ register_builtin_option autoBoundImplicitLocal : Bool := {
     descr    := "Unbound local variables in declaration headers become implicit arguments if they are a lower case or greek letter followed by numeric digits. For example, `def f (x : Vector α n) : Vector α n :=` automatically introduces the implicit variables {α n}."
   }
 
-private def allNumeral (s : Substring) : Bool :=
-  s.all fun c => c.isDigit || isNumericSubscript c
+private def isValidAutoBoundSuffix (s : String) : Bool :=
+  s.toSubstring.drop 1 |>.all fun c => c.isDigit || isSubScriptAlnum c || c == '_' || c == '\''
 
 /-
 Remark: Issue #255 exposed a nasty interaction between macro scopes and auto-bound-implicit names.
@@ -33,12 +33,12 @@ Therefore, we do consider identifier with macro scopes anymore.
 
 def isValidAutoBoundImplicitName (n : Name) : Bool :=
   match n with
-  | Name.str Name.anonymous s _ => s.length > 0 && (isGreek s[0] || s[0].isLower) && allNumeral (s.toSubstring.drop 1)
+  | Name.str Name.anonymous s _ => s.length > 0 && (isGreek s[0] || s[0].isLower) && isValidAutoBoundSuffix s
   | _ => false
 
 def isValidAutoBoundLevelName (n : Name) : Bool :=
   match n with
-  | Name.str Name.anonymous s _ => s.length > 0 && s[0].isLower && allNumeral (s.toSubstring.drop 1)
+  | Name.str Name.anonymous s _ => s.length > 0 && s[0].isLower && isValidAutoBoundSuffix s
   | _ => false
 
 end Lean.Elab

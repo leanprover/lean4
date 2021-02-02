@@ -23,7 +23,10 @@ open Meta
   ```
 -/
 private def getAltName (alt : Syntax) : Name :=
-  getNameOfIdent' alt[1] |>.eraseMacroScopes
+  -- alt[1] is of the form (("@"? ident) <|> "_")
+  if alt[1].hasArgs then alt[1][1].getId.eraseMacroScopes else `_
+private def altHasExplicitModifier (alt : Syntax) : Bool :=
+  alt[1].hasArgs && !alt[1][0].isNone
 private def getAltVarNames (alt : Syntax) : Array Name :=
   alt[2].getArgs.map getNameOfIdent'
 private def getAltRHS (alt : Syntax) : Syntax :=
@@ -198,6 +201,7 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (altsSyntax :
     | some altStx =>
       subgoals ← withRef altStx do
         let altVarNames := getAltVarNames altStx
+        /- TODO: version of introN that only uses altVarNames for explicit parameters -/
         let mut (_, altMVarId) ← introN altMVarId numFields altVarNames.toList
         match (← Cases.unifyEqs numEqs altMVarId {}) with
         | none   => throwError! "alternative '{altName}' is not needed"
@@ -439,6 +443,7 @@ private def generalizeTerm (term : Expr) : TacticM Expr := do
   if targets.size == 1 then
     let recInfo ← getRecInfo stx targets[0]
     let (mvarId, _) ← getMainGoal
+    /- TODO: ctorNames + recInfo ==> altVars -/
     let altVars := recInfo.alts.map fun alt => (getAltVarNames alt).toList
     let result ← Meta.induction mvarId targets[0].fvarId! recInfo.recName altVars
     processResult recInfo.alts result (numToIntro := n)
@@ -523,6 +528,7 @@ builtin_initialize registerTraceClass `Elab.cases
 def evalCasesOn (target : Expr) (optInductionAlts : Syntax) : TacticM Unit := do
   let (mvarId, _) ← getMainGoal
   let (recInfo, ctorNames) ← getRecInfoDefault target optInductionAlts (allowMissingAlts := true)
+  /- TODO: ctorNames + recInfo ==> altVars -/
   let altVars := recInfo.alts.map fun alt => (getAltVarNames alt).toList
   let result ← Meta.cases mvarId target.fvarId! altVars
   trace[Elab.cases]! "recInfo.alts.size: #{recInfo.alts.size} {recInfo.alts.map getAltVarNames}"

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+import Lean.DocString
 import Lean.Elab.InfoTree
 import Lean.Util.Sorry
 
@@ -34,46 +35,81 @@ partial def InfoTree.smallestNodes (p : Info → Bool) : InfoTree → List InfoT
     else []
   | _ => []
 
-def TermInfo.pos? (i : TermInfo) : Option String.Pos :=
+def Info.stx : Info → Syntax
+  | ofTacticInfo i         => i.stx
+  | ofTermInfo i           => i.stx
+  | ofMacroExpansionInfo i => i.before
+  | ofFieldInfo i          => i.stx
+
+def Info.pos? (i : Info) : Option String.Pos :=
   i.stx.getPos? (originalOnly := true)
 
-def TermInfo.tailPos? (i : TermInfo) : Option String.Pos :=
+def Info.tailPos? (i : Info) : Option String.Pos :=
   i.stx.getTailPos? (originalOnly := true)
 
-def TacticInfo.pos? (i : TacticInfo) : Option String.Pos :=
-  i.stx.getPos? (originalOnly := true)
+def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextInfo × Info) :=
+  let ts := t.smallestNodes p
 
-def TacticInfo.tailPos? (i : TacticInfo) : Option String.Pos :=
-  i.stx.getTailPos? (originalOnly := true)
-
-/-- Find a `TermInfo`, if any, which should be shown on hover/cursor at position `hoverPos`. -/
-partial def InfoTree.hoverableTermAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × TermInfo) :=
-  let ts := t.smallestNodes fun
-    | Info.ofTermInfo i =>
-      !i.expr.isSyntheticSorry &&
-      -- TODO: see if we can get rid of this
-      #[identKind,
-        strLitKind,
-        charLitKind,
-        numLitKind,
-        scientificLitKind,
-        nameLitKind,
-        fieldIdxKind,
-        interpolatedStrLitKind,
-        interpolatedStrKind
-      ].contains i.stx.getKind &&
-      match i.pos?, i.tailPos? with
-      | some pos, some tailPos => pos ≤ hoverPos ∧ hoverPos < tailPos
-      | _,        _            => false
-    | _ => false
-
-  let terms : List (Nat × ContextInfo × TermInfo) := ts.filterMap (fun
-    | context ci (node (Info.ofTermInfo i) _) =>
+  let infos : List (Nat × ContextInfo × Info) := ts.filterMap fun
+    | context ci (node i _) =>
       let diff := i.tailPos?.get! - i.pos?.get!
       some (diff, ci, i)
     | _ => none
-  )
 
-  terms.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
+  infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
+
+/-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
+partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) :=
+  t.smallestInfo? fun i =>
+    if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
+      if pos ≤ hoverPos ∧ hoverPos < tailPos then
+        match i with
+        | Info.ofTermInfo ti =>
+          !ti.expr.isSyntheticSorry &&
+          -- TODO: see if we can get rid of this
+          #[identKind,
+            strLitKind,
+            charLitKind,
+            numLitKind,
+            scientificLitKind,
+            nameLitKind,
+            fieldIdxKind,
+            interpolatedStrLitKind,
+            interpolatedStrKind
+          ].contains i.stx.getKind
+        | Info.ofFieldInfo _ => true
+        | _ => false
+      else false
+    else false
+
+/-- Construct a hover popup, if any, from an info node in a context.-/
+def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option Format) := do
+  let lctx ← match i with
+    | Info.ofTermInfo i  => i.lctx
+    | Info.ofFieldInfo i => i.lctx
+    | _                  => return none
+
+  ci.runMetaM lctx do
+    match i with
+    | Info.ofTermInfo ti =>
+      let tp ← Meta.inferType ti.expr
+      let eFmt ← Meta.ppExpr ti.expr
+      let tpFmt ← Meta.ppExpr tp
+      let hoverFmt := f!"```lean
+{eFmt} : {tpFmt}
+```"
+      if let some n := ti.expr.constName? then
+        if let some doc ← findDocString? n then
+          return f!"{hoverFmt}\n***\n{doc}"
+      return hoverFmt
+
+    | Info.ofFieldInfo fi =>
+      let tp ← Meta.inferType fi.val
+      let tpFmt ← Meta.ppExpr tp
+      return f!"```lean
+{fi.name} : {tpFmt}
+```"
+
+    | _ => return none
 
 end Lean.Elab

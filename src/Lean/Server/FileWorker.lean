@@ -368,7 +368,7 @@ section RequestHandling
      Requests need to manually check for whether their task has been cancelled, so that they
      can reply with a RequestCancelled error. -/
   open Elab in
-  partial def handleHover (id : RequestID) (p : HoverParams)
+  partial def handleHover (p : HoverParams)
     : ServerM (Task (Except IO.Error (Except RequestError (Option Hover)))) := do
     let st ← read
     let doc ← st.docRef.get
@@ -383,23 +383,15 @@ section RequestHandling
     withWaitFindSnap doc (fun s => s.endPos > hoverPos)
       (notFoundX := pure none) fun snap => do
         for t in snap.toCmdState.infoState.trees do
-          if let some (ci, i) := t.hoverableTermAt? hoverPos then
-            let tFmt ← ci.runMetaM i.lctx do
-              return f!"{← Meta.ppExpr i.expr} : {← Meta.ppExpr (← Meta.inferType i.expr)}"
-            let mut hoverFmt := f!"```lean
-{tFmt}
-```"
-            if let some n := i.expr.constName? then
-              if let some doc ← ci.runMetaM i.lctx <| findDocString? n then
-                hoverFmt := f!"{hoverFmt}\n***\n{doc}"
-
-            return some <| mkHover (toString hoverFmt) i.pos?.get! i.tailPos?.get!
+          if let some (ci, i) := t.hoverableInfoAt? hoverPos then
+            if let some hoverFmt ← i.fmtHover? ci then
+              return some <| mkHover (toString hoverFmt) i.pos?.get! i.tailPos?.get!
           pure ()
 
         return none
 
   open Elab in
-  partial def handleDefinition (goToType? : Bool) (id : RequestID) (p : TextDocumentPositionParams)
+  partial def handleDefinition (goToType? : Bool) (p : TextDocumentPositionParams)
     : ServerM (Task (Except IO.Error (Except RequestError (Array LocationLink)))) := do
     let st ← read
     let doc ← st.docRef.get
@@ -408,7 +400,7 @@ section RequestHandling
     withWaitFindSnap doc (fun s => s.endPos > hoverPos)
       (notFoundX := pure #[]) fun snap => do
         for t in snap.toCmdState.infoState.trees do
-          if let some (ci, i) := t.hoverableTermAt? hoverPos then
+          if let some (ci, Info.ofTermInfo i) := t.hoverableInfoAt? hoverPos then
             let expr ← if goToType? then ci.runMetaM i.lctx <| Meta.inferType i.expr else i.expr
             if let some n := expr.constName? then
               let mod? ← ci.runMetaM i.lctx <| findModuleOf? n
@@ -419,13 +411,13 @@ section RequestHandling
                 | none         => pure <| some doc.meta.uri
 
               let ranges? ← ci.runMetaM i.lctx <| findDeclarationRanges? n
-
               if let (some ranges, some modUri) := (ranges?, modUri?) then
                 let declRangeToLspRange (r : DeclarationRange) : Lsp.Range :=
                   { start := ⟨r.pos.line - 1, r.charUtf16⟩
                     «end» := ⟨r.endPos.line - 1, r.endCharUtf16⟩ }
                 let ll : LocationLink := {
-                  originSelectionRange? := some ⟨text.utf8PosToLspPos i.pos?.get!, text.utf8PosToLspPos i.tailPos?.get!⟩
+                  originSelectionRange? := some ⟨text.utf8PosToLspPos i.stx.getPos?.get!,
+                                                 text.utf8PosToLspPos i.stx.getTailPos?.get!⟩
                   targetUri := modUri
                   targetRange := declRangeToLspRange ranges.range
                   targetSelectionRange := declRangeToLspRange ranges.selectionRange
@@ -437,7 +429,7 @@ section RequestHandling
     ⟨text.utf8PosToLspPos <| stx.getPos?.get!,
      text.utf8PosToLspPos <| stx.getTailPos?.get!⟩
 
-  partial def handleDocumentSymbol (id : RequestID) (p : DocumentSymbolParams) :
+  partial def handleDocumentSymbol (p : DocumentSymbolParams) :
     ServerM (Task (Except IO.Error (Except RequestError DocumentSymbolResult))) := do
     let st ← read
     asTask do
@@ -492,7 +484,7 @@ section RequestHandling
             children? := syms.toArray
           } :: syms', stxs'')
 
-  partial def handleWaitForDiagnostics (id : RequestID) (p : WaitForDiagnosticsParams)
+  partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
     : ServerM (Task (Except IO.Error (Except RequestError WaitForDiagnostics))) := do
     let st ← read
     let rec waitLoop : IO EditableDocument := do
@@ -533,10 +525,10 @@ section MessageHandling
   def handleRequest (id : RequestID) (method : String) (params : Json)
   : ServerM Unit := do
     let handle := fun paramType [FromJson paramType] respType [ToJson respType]
-                      (handler : RequestID → paramType → RequestM respType) => do
+                      (handler : paramType → RequestM respType) => do
       let st ← read
       let p ← parseParams paramType params
-      let t ← handler id p
+      let t ← handler p
       let t₁ ← (IO.mapTask · t) fun
         | Except.ok (Except.ok resp) =>
           st.hOut.writeLspResponse ⟨id, resp⟩

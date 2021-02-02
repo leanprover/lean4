@@ -352,7 +352,7 @@ lean_object* l_Lean_Elab_Tactic_evalCase_match__1___rarg(lean_object*, lean_obje
 extern lean_object* l_Lean_instInhabitedSyntax;
 lean_object* l_Lean_Meta_withMVarContext___at_Lean_Elab_Tactic_evalClear___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assumption(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_introNCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_introNCore(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Basic_0__Lean_Elab_Tactic_getIntrosSize(lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalRevert_match__2___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkElabAttribute___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -14184,7 +14184,7 @@ x_16 = l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_evalIntros___spec__1(x_13, x
 x_17 = x_16;
 x_18 = lean_array_to_list(lean_box(0), x_17);
 x_19 = 0;
-x_20 = l_Lean_Meta_introNCore(x_2, x_12, x_18, x_19, x_7, x_8, x_9, x_10, x_11);
+x_20 = l_Lean_Meta_introNCore(x_2, x_12, x_18, x_19, x_19, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_20) == 0)
 {
 uint8_t x_21; 
@@ -14318,7 +14318,7 @@ x_17 = l___private_Lean_Elab_Tactic_Basic_0__Lean_Elab_Tactic_getIntrosSize(x_15
 lean_dec(x_15);
 x_18 = lean_box(0);
 x_19 = 0;
-x_20 = l_Lean_Meta_introNCore(x_1, x_17, x_18, x_19, x_6, x_7, x_8, x_9, x_16);
+x_20 = l_Lean_Meta_introNCore(x_1, x_17, x_18, x_19, x_19, x_6, x_7, x_8, x_9, x_16);
 if (lean_obj_tag(x_20) == 0)
 {
 uint8_t x_21; 

@@ -62,7 +62,6 @@ lean_object* l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg(l
 extern lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Util_Trace_0__Lean_withNestedTracesFinalizer___spec__5___closed__1;
 lean_object* l_Lean_Meta_Match_Alt_checkAndReplaceFVarId_match__2(lean_object*);
 lean_object* l_Std_AssocList_find_x3f___at_Lean_Meta_FVarSubst_find_x3f___spec__1(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3363____closed__35;
 lean_object* l_Lean_Meta_Match_Alt_applyFVarSubst___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Problem_toMessageData___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Example_replaceFVarId___boxed(lean_object*, lean_object*, lean_object*);
@@ -141,6 +140,7 @@ lean_object* l_Lean_replaceFVarIdAtLocalDecl(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___lambda__3___closed__1;
 lean_object* l_Lean_Meta_Match_counterExampleToMessageData(lean_object*);
 lean_object* l_Lean_Expr_replaceFVarId(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_inductionAlt___closed__5;
 lean_object* l_Lean_Meta_Match_Pattern_toExpr_visit___closed__3;
 lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
 lean_object* l_Lean_Meta_Match_Pattern_toMessageData___closed__1;
@@ -523,7 +523,7 @@ static lean_object* _init_l_Lean_Meta_Match_Pattern_toMessageData___closed__7() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_NotationExtra___hyg_3363____closed__35;
+x_1 = l_Lean_Parser_Tactic_inductionAlt___closed__5;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

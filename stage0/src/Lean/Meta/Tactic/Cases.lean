@@ -271,17 +271,17 @@ private def unifyCasesEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM
         fields := s.fields.map (subst.apply ·)
       }
 
-private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name)) (useUnusedNames : Bool) (ctx : Context)
+private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames) (ctx : Context)
     : MetaM (Array CasesSubgoal) := do
   withMVarContext mvarId do
   let majorType ← inferType (mkFVar majorFVarId)
   let (us, params) ← getInductiveUniverseAndParams majorType
   let casesOn := mkCasesOnName ctx.inductiveVal.name
   let ctors   := ctx.inductiveVal.ctors.toArray
-  let s ← induction mvarId majorFVarId casesOn givenNames useUnusedNames
+  let s ← induction mvarId majorFVarId casesOn givenNames
   pure $ toCasesSubgoals s ctors majorFVarId us params
 
-def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name) := #[]) (useUnusedNames := false) : MetaM (Array CasesSubgoal) :=
+def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) :=
   withMVarContext mvarId do
     checkNotAssigned mvarId `cases
     let context? ← mkCasesContext? majorFVarId
@@ -293,18 +293,18 @@ def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Nam
          allow callers to specify whether they want the `FVarSubst` or not. -/
       if ctx.inductiveVal.numIndices == 0 then
         -- Simple case
-        inductionCasesOn mvarId majorFVarId givenNames useUnusedNames ctx
+        inductionCasesOn mvarId majorFVarId givenNames ctx
       else
         let s₁ ← generalizeIndices mvarId majorFVarId
         trace[Meta.Tactic.cases]! "after generalizeIndices\n{MessageData.ofGoal s₁.mvarId}"
-        let s₂ ← inductionCasesOn s₁.mvarId s₁.fvarId givenNames useUnusedNames ctx
+        let s₂ ← inductionCasesOn s₁.mvarId s₁.fvarId givenNames ctx
         let s₂ ← elimAuxIndices s₁ s₂
         unifyCasesEqs s₁.numEqs s₂
 
 end Cases
 
-def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name) := #[]) (useUnusedNames := false) : MetaM (Array CasesSubgoal) :=
-  Cases.cases mvarId majorFVarId givenNames useUnusedNames
+def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) :=
+  Cases.cases mvarId majorFVarId givenNames
 
 builtin_initialize registerTraceClass `Meta.Tactic.cases
 

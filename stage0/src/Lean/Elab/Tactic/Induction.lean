@@ -201,8 +201,7 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (altsSyntax :
     | some altStx =>
       subgoals ← withRef altStx do
         let altVarNames := getAltVarNames altStx
-        /- TODO: version of introN that only uses altVarNames for explicit parameters -/
-        let mut (_, altMVarId) ← introN altMVarId numFields altVarNames.toList
+        let mut (_, altMVarId) ← introN altMVarId numFields altVarNames.toList (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
         match (← Cases.unifyEqs numEqs altMVarId {}) with
         | none   => throwError! "alternative '{altName}' is not needed"
         | some (altMVarId, _) =>
@@ -443,8 +442,8 @@ private def generalizeTerm (term : Expr) : TacticM Expr := do
   if targets.size == 1 then
     let recInfo ← getRecInfo stx targets[0]
     let (mvarId, _) ← getMainGoal
-    /- TODO: ctorNames + recInfo ==> altVars -/
-    let altVars := recInfo.alts.map fun alt => (getAltVarNames alt).toList
+    let altVars := recInfo.alts.map fun alt =>
+      { explicit := altHasExplicitModifier alt, varNames := (getAltVarNames alt).toList : AltVarNames }
     let result ← Meta.induction mvarId targets[0].fvarId! recInfo.recName altVars
     processResult recInfo.alts result (numToIntro := n)
   else
@@ -528,8 +527,7 @@ builtin_initialize registerTraceClass `Elab.cases
 def evalCasesOn (target : Expr) (optInductionAlts : Syntax) : TacticM Unit := do
   let (mvarId, _) ← getMainGoal
   let (recInfo, ctorNames) ← getRecInfoDefault target optInductionAlts (allowMissingAlts := true)
-  /- TODO: ctorNames + recInfo ==> altVars -/
-  let altVars := recInfo.alts.map fun alt => (getAltVarNames alt).toList
+  let altVars := recInfo.alts.map fun alt => { explicit := altHasExplicitModifier alt, varNames := (getAltVarNames alt).toList : AltVarNames }
   let result ← Meta.cases mvarId target.fvarId! altVars
   trace[Elab.cases]! "recInfo.alts.size: #{recInfo.alts.size} {recInfo.alts.map getAltVarNames}"
   trace[Elab.cases]! "recInfo.alts: #{recInfo.alts.map toString}"

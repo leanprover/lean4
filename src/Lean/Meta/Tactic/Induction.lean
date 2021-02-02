@@ -117,8 +117,7 @@ private partial def finalize
 private def throwUnexpectedMajorType {α} (mvarId : MVarId) (majorType : Expr) : MetaM α :=
   throwTacticEx `induction mvarId m!"unexpected major premise type{indentExpr majorType}"
 
-def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (givenNames : Array (List Name) := #[]) (useUnusedNames := false) :
-    MetaM (Array InductionSubgoal) :=
+def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (givenNames : Array (List Name) := #[]) : MetaM (Array InductionSubgoal) :=
   withMVarContext mvarId do
     checkNotAssigned mvarId `induction
     let majorLocalDecl ← getLocalDecl majorFVarId

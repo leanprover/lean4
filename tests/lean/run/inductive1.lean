@@ -79,3 +79,9 @@ inductive ListLast {α : Type u} : List α → Type u
 -- make sure to instantiate mvars in constructors
 inductive Test : Nat → Type
 | mk : Test ((fun n => n.succ) Nat.zero)
+
+inductive SortedMap {α : Type u} {β : Type v} [HasLess α] : List (α × β) → Prop
+| nil : SortedMap []
+| cons : ∀ (k : α) (v : β) (l : List (α × β)),
+         SortedMap l →
+         SortedMap ((k,v)::l)

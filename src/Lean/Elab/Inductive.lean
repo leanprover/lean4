@@ -204,7 +204,8 @@ private def elabCtors (indFVar : Expr) (params : Array Expr) (r : ElabHeaderResu
           throwError "constructor resulting type must be specified in inductive family declaration"
         pure (mkAppN indFVar params)
       | some ctorType =>
-        let type ← Term.elabTermAndSynthesize ctorType none
+        let type ← Term.withSynthesize (mayPostpone := true) <| Term.elabTerm ctorType none
+        let type ← instantiateMVars type
         let resultingType ← getResultingType type
         unless resultingType.getAppFn == indFVar do
           throwError! "unexpected constructor resulting type{indentExpr resultingType}"

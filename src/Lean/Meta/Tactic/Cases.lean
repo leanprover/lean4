@@ -271,7 +271,7 @@ private def unifyCasesEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM
         fields := s.fields.map (subst.apply ·)
       }
 
-private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name)) (ctx : Context)
+private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames) (ctx : Context)
     : MetaM (Array CasesSubgoal) := do
   withMVarContext mvarId do
   let majorType ← inferType (mkFVar majorFVarId)
@@ -281,7 +281,7 @@ private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenName
   let s ← induction mvarId majorFVarId casesOn givenNames
   pure $ toCasesSubgoals s ctors majorFVarId us params
 
-def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name) := #[]) : MetaM (Array CasesSubgoal) :=
+def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) :=
   withMVarContext mvarId do
     checkNotAssigned mvarId `cases
     let context? ← mkCasesContext? majorFVarId
@@ -303,7 +303,7 @@ def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Nam
 
 end Cases
 
-def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name) := #[]) : MetaM (Array CasesSubgoal) :=
+def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) :=
   Cases.cases mvarId majorFVarId givenNames
 
 builtin_initialize registerTraceClass `Meta.Tactic.cases

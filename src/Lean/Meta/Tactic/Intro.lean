@@ -66,18 +66,17 @@ def getHygienicIntro : MetaM Bool := do
 
 private def mkAuxNameImp (preserveBinderNames : Bool) (hygienic : Bool) (useNamesForExplicitOnly : Bool)
     (lctx : LocalContext) (binderName : Name) (isExplicit : Bool) : List Name → MetaM (Name × List Name)
-  | []         => do
-    if preserveBinderNames then
-      pure (binderName, [])
-    else if hygienic then do
-      let binderName ← mkFreshUserName binderName;
-      pure (binderName, [])
-    else
-      pure (lctx.getUnusedName binderName, [])
+  | []         => mkAuxNameWithoutGivenName []
   | n :: rest  => do
-    if (!useNamesForExplicitOnly || isExplicit) && n != Name.mkSimple "_" then
+    if useNamesForExplicitOnly && !isExplicit then
+      mkAuxNameWithoutGivenName (n :: rest)
+    else if n != Name.mkSimple "_" then
       pure (n, rest)
-    else if preserveBinderNames then
+    else
+      mkAuxNameWithoutGivenName rest
+where
+  mkAuxNameWithoutGivenName (rest : List Name) : MetaM (Name × List Name) := do
+    if preserveBinderNames then
       pure (binderName, rest)
     else if hygienic then
       let binderName ← mkFreshUserName binderName

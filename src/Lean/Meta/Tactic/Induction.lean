@@ -47,8 +47,13 @@ private def getTypeBody (mvarId : MVarId) (type : Expr) (x : Expr) : MetaM Expr 
   | Expr.forallE _ _ b _ => pure $ b.instantiate1 x
   | _                    => throwTacticEx `induction mvarId "ill-formed recursor"
 
+structure AltVarNames where
+  explicit : Bool := false   -- true if `@` modifier was used
+  varNames : List Name := []
+  deriving Inhabited
+
 private partial def finalize
-    (mvarId : MVarId) (givenNames : Array (List Name)) (recursorInfo : RecursorInfo)
+    (mvarId : MVarId) (givenNames : Array AltVarNames) (recursorInfo : RecursorInfo)
     (reverted : Array FVarId) (major : Expr) (indices : Array Expr) (baseSubst : FVarSubst) (recursor : Expr)
     : MetaM (Array InductionSubgoal) := do
   let target ← getMVarType mvarId
@@ -91,13 +96,13 @@ private partial def finalize
             if arity < initialArity then throwTacticEx `induction mvarId "ill-formed recursor"
             let nparams := arity - initialArity -- number of fields due to minor premise
             let nextra  := reverted.size - indices.size - 1 -- extra dependencies that have been reverted
-            let minorGivenNames := if h : minorIdx < givenNames.size then givenNames.get ⟨minorIdx, h⟩ else []
+            let minorGivenNames := if h : minorIdx < givenNames.size then givenNames.get ⟨minorIdx, h⟩ else {}
             let mvar ← mkFreshExprSyntheticOpaqueMVar d (tag ++ n)
             let recursor := mkApp recursor mvar
             let recursorType ← getTypeBody mvarId recursorType mvar
             -- Try to clear major premise from new goal
             let mvarId' ← tryClear mvar.mvarId! major.fvarId!
-            let (fields, mvarId') ← introN mvarId' nparams minorGivenNames
+            let (fields, mvarId') ← introN mvarId' nparams minorGivenNames.varNames (useNamesForExplicitOnly := !minorGivenNames.explicit)
             let (extra,  mvarId') ← introNP mvarId' nextra
             let subst := reverted.size.fold (init := baseSubst) fun i (subst : FVarSubst) =>
               if i < indices.size + 1 then subst
@@ -117,7 +122,7 @@ private partial def finalize
 private def throwUnexpectedMajorType {α} (mvarId : MVarId) (majorType : Expr) : MetaM α :=
   throwTacticEx `induction mvarId m!"unexpected major premise type{indentExpr majorType}"
 
-def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (givenNames : Array (List Name) := #[]) : MetaM (Array InductionSubgoal) :=
+def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (givenNames : Array AltVarNames := #[]) : MetaM (Array InductionSubgoal) :=
   withMVarContext mvarId do
     checkNotAssigned mvarId `induction
     let majorLocalDecl ← getLocalDecl majorFVarId

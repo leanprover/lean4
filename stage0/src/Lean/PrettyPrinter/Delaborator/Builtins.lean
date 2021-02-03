@@ -108,7 +108,7 @@ def delabAppExplicit : Delab := do
       let fn ← getExpr
       let stx ← if fn.isConst then delabConst else delab
       let paramKinds ← liftM <| getParamKinds fn <|> pure #[]
-      let stx ← if paramKinds.any (fun k => match k with | ParamKind.explicit => false | _ => true) = true then `(@$stx) else pure stx
+      let stx ← if paramKinds.any (fun | ParamKind.explicit => false | _ => true) = true then `(@$stx) else pure stx
       pure (stx, #[]))
     (fun ⟨fnStx, argStxs⟩ => do
       let argStx ← delab
@@ -350,21 +350,31 @@ def delabLam : Delab :=
 def delabForall : Delab :=
   delabBinders fun curNames stxBody => do
     let e ← getExpr
+    let prop ← try isProp e catch _ => false
     let stxT ← withBindingDomain delab
-    match e.binderInfo with
+    let group ← match e.binderInfo with
     | BinderInfo.default      =>
       -- heuristic: use non-dependent arrows only if possible for whole group to avoid
       -- noisy mix like `(α : Type) → Type → (γ : Type) → ...`.
       let dependent := curNames.any $ fun n => hasIdent n.getId stxBody
       -- NOTE: non-dependent arrows are available only for the default binder info
-      if dependent then do
-        `(($curNames* : $stxT) → $stxBody)
+      if dependent then
+        if prop && !(← getPPOption getPPBinderTypes) then
+          return ← `(∀ $curNames:ident*, $stxBody)
+        else
+          `(bracketedBinderF|($curNames* : $stxT))
       else
-        curNames.foldrM (fun _ stxBody => `($stxT → $stxBody)) stxBody
-    | BinderInfo.implicit     => `({$curNames* : $stxT} → $stxBody)
+        return ← curNames.foldrM (fun _ stxBody => `($stxT → $stxBody)) stxBody
+    | BinderInfo.implicit     => `(bracketedBinderF|{$curNames* : $stxT})
     -- here `curNames.size == 1`
-    | BinderInfo.instImplicit => `([$curNames.back : $stxT] → $stxBody)
+    | BinderInfo.instImplicit => `(bracketedBinderF|[$curNames.back : $stxT])
     | _                       => unreachable!
+    if prop then
+      match stxBody with
+      | `(∀ $groups*, $stxBody) => `(∀ $group $groups*, $stxBody)
+      | _                       => `(∀ $group, $stxBody)
+    else
+      `($group:bracketedBinder → $stxBody)
 
 @[builtinDelab letE]
 def delabLetE : Delab := do

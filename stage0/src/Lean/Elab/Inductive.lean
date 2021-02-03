@@ -184,7 +184,7 @@ private partial def withInductiveLocalDecls {α} (rs : Array ElabHeaderResult) (
 private def isInductiveFamily (numParams : Nat) (indFVar : Expr) : TermElabM Bool := do
   let indFVarType ← inferType indFVar
   forallTelescopeReducing indFVarType fun xs _ =>
-    pure $ xs.size > numParams
+    return xs.size > numParams
 
 /-
   Elaborate constructor types.
@@ -193,33 +193,38 @@ private def isInductiveFamily (numParams : Nat) (indFVar : Expr) : TermElabM Boo
   we do not check for:
   - Positivity (it is a rare failure, and the kernel already checks for it).
   - Universe constraints (the kernel checks for it). -/
-private def elabCtors (indFVar : Expr) (params : Array Expr) (r : ElabHeaderResult) : TermElabM (List Constructor) :=
-  withRef r.view.ref do
+private def elabCtors (indFVar : Expr) (params : Array Expr) (r : ElabHeaderResult) : TermElabM (List Constructor) := withRef r.view.ref do
   let indFamily ← isInductiveFamily params.size indFVar
-  r.view.ctors.toList.mapM fun ctorView => Term.elabBinders ctorView.binders.getArgs fun ctorParams =>
-    withRef ctorView.ref do
-    let type ← match ctorView.type? with
-      | none          =>
-        if indFamily then
-          throwError "constructor resulting type must be specified in inductive family declaration"
-        pure (mkAppN indFVar params)
-      | some ctorType =>
-        let type ← Term.elabTermAndSynthesize ctorType none
-        let resultingType ← getResultingType type
-        unless resultingType.getAppFn == indFVar do
-          throwError! "unexpected constructor resulting type{indentExpr resultingType}"
-        unless (← isType resultingType) do
-          throwError! "unexpected constructor resulting type, type expected{indentExpr resultingType}"
-        let args := resultingType.getAppArgs
-        for i in [:params.size] do
-          let param := params[i]
-          let arg   := args[i]
-          unless (← isDefEq param arg) do
-            throwError! "inductive datatype parameter mismatch{indentExpr arg}\nexpected{indentExpr param}"
-        pure type
-    let type ← mkForallFVars ctorParams type
-    let type ← mkForallFVars params type
-    pure { name := ctorView.declName, type := type }
+  r.view.ctors.toList.mapM fun ctorView =>
+    Term.withAutoBoundImplicitLocal <| Term.elabBinders (catchAutoBoundImplicit := true) ctorView.binders.getArgs fun ctorParams =>
+      withRef ctorView.ref do
+        let rec elabCtorType (k : Expr → TermElabM Constructor) : TermElabM Constructor := do
+          match ctorView.type? with
+          | none          =>
+            if indFamily then
+              throwError "constructor resulting type must be specified in inductive family declaration"
+            k <| mkAppN indFVar params
+          | some ctorType =>
+            Term.elabTypeWithAutoBoundImplicit ctorType fun type => do
+              Term.synthesizeSyntheticMVars (mayPostpone := true)
+              let type ← instantiateMVars type
+              let resultingType ← getResultingType type
+              unless resultingType.getAppFn == indFVar do
+                throwError! "unexpected constructor resulting type{indentExpr resultingType}"
+              unless (← isType resultingType) do
+                throwError! "unexpected constructor resulting type, type expected{indentExpr resultingType}"
+              let args := resultingType.getAppArgs
+              for i in [:params.size] do
+                let param := params[i]
+                let arg   := args[i]
+                unless (← isDefEq param arg) do
+                  throwError! "inductive datatype parameter mismatch{indentExpr arg}\nexpected{indentExpr param}"
+              k type
+        elabCtorType fun type => do
+          let ctorParams ← Term.addAutoBoundImplicits ctorParams
+          let type ← mkForallFVars ctorParams type
+          let type ← mkForallFVars params type
+          return { name := ctorView.declName, type := type }
 
 /- Convert universe metavariables occurring in the `indTypes` into new parameters.
    Remark: if the resulting inductive datatype has universe metavariables, we will fix it later using

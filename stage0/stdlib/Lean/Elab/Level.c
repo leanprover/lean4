@@ -1142,6 +1142,7 @@ return x_64;
 else
 {
 uint8_t x_65; 
+lean_inc(x_50);
 x_65 = l_Lean_Elab_isValidAutoBoundLevelName(x_50);
 if (x_65 == 0)
 {
@@ -1869,6 +1870,7 @@ return x_247;
 else
 {
 uint8_t x_248; 
+lean_inc(x_233);
 x_248 = l_Lean_Elab_isValidAutoBoundLevelName(x_233);
 if (x_248 == 0)
 {

@@ -34166,6 +34166,7 @@ return x_25;
 else
 {
 uint8_t x_26; 
+lean_inc(x_1);
 x_26 = l_Lean_Elab_isValidAutoBoundImplicitName(x_1);
 if (x_26 == 0)
 {

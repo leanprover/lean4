@@ -207,8 +207,8 @@ def lexAccessible (aca : (a : α) → Acc ra a) (acb : (b : β) → Acc rb b) (a
       apply Acc.intro (xa, xb)
       intro p lt
       cases lt with
-      | left  a₁ b₁ a₂ b₂ h => apply iha a₁ h
-      | right a b₁ b₂ h     => apply ihb b₁ h
+      | left  _ _ h => apply iha _ h
+      | right _ h   => apply ihb _ h
 
 -- The lexicographical order of well founded relations is well-founded
 def lexWf (ha : WellFounded ra) (hb : WellFounded rb) : WellFounded (Lex ra rb) :=
@@ -217,7 +217,7 @@ def lexWf (ha : WellFounded ra) (hb : WellFounded rb) : WellFounded (Lex ra rb) 
 -- relational product is a Subrelation of the Lex
 def rprodSubLex (a : α × β) (b : α × β) (h : Rprod ra rb a b) : Lex ra rb a b := by
   cases h with
-  | intro a₁ b₁ a₂ b₂ h₁ h₂ => exact Lex.left b₁ b₂ h₁
+  | intro h₁ h₂ => exact Lex.left _ _ h₁
 
 -- The relational product of well founded relations is well-founded
 def rprodWf (ha : WellFounded ra) (hb : WellFounded rb) : WellFounded (Rprod ra rb) := by

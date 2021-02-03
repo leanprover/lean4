@@ -602,6 +602,7 @@ lean_object* l_Lean_Parser_nodeInfo(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_symbolFn___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_doReassign___elambda__1___closed__5;
 lean_object* l___regBuiltinParser_Lean_Parser_Term_doUnless(lean_object*);
+extern lean_object* l_Lean_Parser_Term_bracketedBinder_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Term_initFn____x40_Lean_Parser_Do___hyg_193____closed__7;
 lean_object* l_Lean_Parser_Term_doReturn_formatter___closed__4;
 lean_object* l_Lean_Parser_Term_doMatch_parenthesizer___closed__6;
@@ -947,7 +948,6 @@ lean_object* l_Lean_Parser_Term_termFor___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Term_doCatchMatch___closed__2;
 lean_object* l_Lean_Parser_Term_doLet___elambda__1___closed__8;
 lean_object* l_Lean_Parser_Term_doFinally___elambda__1___closed__1;
-lean_object* l_Lean_Parser_Term_doIfCond_parenthesizer___closed__4;
 lean_object* l_Lean_Parser_Term_doIfLetPure___closed__3;
 lean_object* l___regBuiltin_Lean_Parser_Term_doTry_formatter___closed__1;
 lean_object* l_Lean_Parser_sepBy1_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -12151,25 +12151,12 @@ return x_9;
 static lean_object* _init_l_Lean_Parser_Term_doIfCond_parenthesizer___closed__1() {
 _start:
 {
-lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_box(0);
-x_2 = 0;
-x_3 = lean_box(x_2);
-x_4 = lean_alloc_closure((void*)(l_Lean_Parser_mkAntiquot_parenthesizer___rarg___boxed), 7, 2);
-lean_closure_set(x_4, 0, x_1);
-lean_closure_set(x_4, 1, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_Parser_Term_doIfCond_parenthesizer___closed__2() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Term_doIfLet_parenthesizer), 5, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parser_Term_doIfCond_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Term_doIfCond_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -12177,12 +12164,12 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Term_doIfProp_parenthesizer), 5, 
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parser_Term_doIfCond_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Term_doIfCond_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Term_doIfCond_parenthesizer___closed__2;
-x_2 = l_Lean_Parser_Term_doIfCond_parenthesizer___closed__3;
+x_1 = l_Lean_Parser_Term_doIfCond_parenthesizer___closed__1;
+x_2 = l_Lean_Parser_Term_doIfCond_parenthesizer___closed__2;
 x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer), 7, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -12193,8 +12180,8 @@ lean_object* l_Lean_Parser_Term_doIfCond_parenthesizer(lean_object* x_1, lean_ob
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = l_Lean_Parser_Term_doIfCond_parenthesizer___closed__1;
-x_7 = l_Lean_Parser_Term_doIfCond_parenthesizer___closed__4;
+x_6 = l_Lean_Parser_Term_bracketedBinder_parenthesizer___closed__1;
+x_7 = l_Lean_Parser_Term_doIfCond_parenthesizer___closed__3;
 x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
 return x_8;
 }
@@ -21620,8 +21607,6 @@ l_Lean_Parser_Term_doIfCond_parenthesizer___closed__2 = _init_l_Lean_Parser_Term
 lean_mark_persistent(l_Lean_Parser_Term_doIfCond_parenthesizer___closed__2);
 l_Lean_Parser_Term_doIfCond_parenthesizer___closed__3 = _init_l_Lean_Parser_Term_doIfCond_parenthesizer___closed__3();
 lean_mark_persistent(l_Lean_Parser_Term_doIfCond_parenthesizer___closed__3);
-l_Lean_Parser_Term_doIfCond_parenthesizer___closed__4 = _init_l_Lean_Parser_Term_doIfCond_parenthesizer___closed__4();
-lean_mark_persistent(l_Lean_Parser_Term_doIfCond_parenthesizer___closed__4);
 l_Lean_Parser_Term_elseIf_parenthesizer___closed__1 = _init_l_Lean_Parser_Term_elseIf_parenthesizer___closed__1();
 lean_mark_persistent(l_Lean_Parser_Term_elseIf_parenthesizer___closed__1);
 l_Lean_Parser_Term_elseIf_parenthesizer___closed__2 = _init_l_Lean_Parser_Term_elseIf_parenthesizer___closed__2();

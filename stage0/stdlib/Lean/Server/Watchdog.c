@@ -105,6 +105,7 @@ lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l_IO_mkRef___at_Lean_Server_Watchdog_initAndRunWatchdog___spec__1(lean_object*, lean_object*);
 lean_object* lean_get_stderr(lean_object*);
 lean_object* l_Lean_Server_Watchdog_mkLeanServerCapabilities___closed__2;
+lean_object* l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_forwardMessages_loop___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Watchdog_shutdown___boxed(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_Watchdog_handleRequest___spec__14___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Watchdog_eraseFileWorker___boxed(lean_object*, lean_object*, lean_object*);
@@ -327,6 +328,7 @@ lean_object* l_Lean_Server_Watchdog_FileWorker_stdout(lean_object*);
 lean_object* lean_server_watchdog_main(lean_object*, lean_object*);
 lean_object* l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__1(lean_object*, lean_object*);
 lean_object* l_IO_mkRef___at_Lean_Server_Watchdog_startFileWorker___spec__2___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_forwardMessages_loop___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_toJsonDefinitionParams____x40_Lean_Data_Lsp_LanguageFeatures___hyg_293_(lean_object*);
 lean_object* l_Lean_Server_Watchdog_handleNotification_match__1(lean_object*);
 lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_fromJsonDocumentSymbolParams____x40_Lean_Data_Lsp_LanguageFeatures___hyg_411_(lean_object*);
@@ -7523,6 +7525,14 @@ x_2 = lean_alloc_closure((void*)(l___private_Lean_Server_Watchdog_0__Lean_Server
 return x_2;
 }
 }
+lean_object* l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_forwardMessages_loop___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_forwardMessages_loop(x_1, x_2, x_4, x_5);
+return x_6;
+}
+}
 static lean_object* _init_l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_forwardMessages_loop___closed__1() {
 _start:
 {
@@ -7584,73 +7594,36 @@ x_55 = l_IO_FS_Stream_writeLspMessage(x_2, x_53, x_54);
 lean_dec(x_53);
 if (lean_obj_tag(x_55) == 0)
 {
-lean_object* x_56; lean_object* x_57; 
+lean_object* x_56; 
 x_56 = lean_ctor_get(x_55, 1);
 lean_inc(x_56);
 lean_dec(x_55);
-lean_inc(x_2);
-lean_inc(x_1);
-x_57 = l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_forwardMessages_loop(x_1, x_2, x_3, x_56);
-if (lean_obj_tag(x_57) == 0)
-{
-uint8_t x_58; 
-lean_dec(x_2);
-lean_dec(x_1);
-x_58 = !lean_is_exclusive(x_57);
-if (x_58 == 0)
-{
-return x_57;
+x_4 = x_56;
+goto _start;
 }
 else
 {
-lean_object* x_59; lean_object* x_60; lean_object* x_61; 
-x_59 = lean_ctor_get(x_57, 0);
-x_60 = lean_ctor_get(x_57, 1);
-lean_inc(x_60);
+lean_object* x_58; lean_object* x_59; 
+x_58 = lean_ctor_get(x_55, 0);
+lean_inc(x_58);
+x_59 = lean_ctor_get(x_55, 1);
 lean_inc(x_59);
-lean_dec(x_57);
-x_61 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_61, 0, x_59);
-lean_ctor_set(x_61, 1, x_60);
-return x_61;
-}
-}
-else
-{
-lean_object* x_62; lean_object* x_63; 
-x_62 = lean_ctor_get(x_57, 0);
-lean_inc(x_62);
-x_63 = lean_ctor_get(x_57, 1);
-lean_inc(x_63);
-lean_dec(x_57);
-x_5 = x_62;
-x_6 = x_63;
-goto block_51;
-}
-}
-else
-{
-lean_object* x_64; lean_object* x_65; 
-x_64 = lean_ctor_get(x_55, 0);
-lean_inc(x_64);
-x_65 = lean_ctor_get(x_55, 1);
-lean_inc(x_65);
 lean_dec(x_55);
-x_5 = x_64;
-x_6 = x_65;
+x_5 = x_58;
+x_6 = x_59;
 goto block_51;
 }
 }
 else
 {
-lean_object* x_66; lean_object* x_67; 
-x_66 = lean_ctor_get(x_52, 0);
-lean_inc(x_66);
-x_67 = lean_ctor_get(x_52, 1);
-lean_inc(x_67);
+lean_object* x_60; lean_object* x_61; 
+x_60 = lean_ctor_get(x_52, 0);
+lean_inc(x_60);
+x_61 = lean_ctor_get(x_52, 1);
+lean_inc(x_61);
 lean_dec(x_52);
-x_5 = x_66;
-x_6 = x_67;
+x_5 = x_60;
+x_6 = x_61;
 goto block_51;
 }
 block_51:
@@ -7828,6 +7801,16 @@ return x_50;
 }
 }
 }
+}
+}
+lean_object* l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_forwardMessages_loop___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_forwardMessages_loop___lambda__1(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+return x_6;
 }
 }
 lean_object* l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_forwardMessages_loop___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

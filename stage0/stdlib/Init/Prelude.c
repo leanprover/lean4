@@ -133,7 +133,6 @@ lean_object* l_EStateM_seqRight_match__1(lean_object*, lean_object*, lean_object
 lean_object* l_EStateM_instInhabitedResult___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_instMonadQuotation___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_lengthAux___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_idDelta___rarg(lean_object*);
 lean_object* l_ReaderT_read___at_Lean_Macro_instMonadRefMacroM___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isOfKind___boxed(lean_object*, lean_object*);
 lean_object* l_Applicative_seqRight___default___rarg___closed__2;
@@ -272,7 +271,6 @@ lean_object* l_Array_get_x21___boxed(lean_object*, lean_object*, lean_object*, l
 lean_object* l_Function_const___rarg(lean_object*, lean_object*);
 uint64_t l_instInhabitedUInt64;
 lean_object* l_EStateM_adaptExcept_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_idDelta(lean_object*);
 lean_object* l_ReaderT_instMonadLiftReaderT___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_instDecidableEqUInt16___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_instMonadRef___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -602,7 +600,6 @@ lean_object* l_EStateM_map___rarg(lean_object*, lean_object*, lean_object*);
 uint32_t l_instInhabitedUInt32;
 lean_object* l_Lean_Macro_throwError___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHasLessNat;
-lean_object* l_idDelta___rarg___boxed(lean_object*);
 lean_object* l_Monad_seqLeft___default___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg_match__1(lean_object*);
 lean_object* l_Lean_Macro_instMonadQuotationMacroM___closed__3;
@@ -966,30 +963,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_id___rarg(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l_idDelta___rarg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-lean_object* l_idDelta(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_idDelta___rarg___boxed), 1, 0);
-return x_2;
-}
-}
-lean_object* l_idDelta___rarg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_idDelta___rarg(x_1);
 lean_dec(x_1);
 return x_2;
 }

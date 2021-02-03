@@ -214,7 +214,6 @@ section ServerM
         let msg ← fw.readMessage
         -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
         o.writeLspMessage msg
-        loop
       catch err =>
         -- If writeLspMessage from above errors we will block here, but the main task will
         -- quit eventually anyways if that happens
@@ -230,6 +229,7 @@ section ServerM
           fw.errorPendingRequests o ErrorCode.internalError
             s!"Server process for {fw.doc.meta.uri} crashed, likely due to a stack overflow in user code."
           return WorkerEvent.crashed err
+      loop
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
     task.map $ fun
       | Except.ok ev   => ev

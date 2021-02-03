@@ -97,7 +97,8 @@ def binderDefault := parser! " := " >> termParser
 def explicitBinder (requireType := false) := ppGroup $ parser! "(" >> many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault) >> ")"
 def implicitBinder (requireType := false) := ppGroup $ parser! "{" >> many1 binderIdent >> binderType requireType >> "}"
 def instBinder := ppGroup $ parser! "[" >> optIdent >> termParser >> "]"
-def bracketedBinder (requireType := false) := explicitBinder requireType <|> implicitBinder requireType <|> instBinder
+def bracketedBinder (requireType := false) := withAntiquot (mkAntiquot "bracketedBinder" none (anonymous := false)) <|
+  explicitBinder requireType <|> implicitBinder requireType <|> instBinder
 
 /-
 It is feasible to support dependent arrows such as `{α} → α → α` without sacrificing the quality of the error messages for the longer case.
@@ -118,7 +119,7 @@ Note that we did not add a `explicitShortBinder` parser since `(α) → α → �
 
 def simpleBinder := parser! many1 binderIdent >> optType
 @[builtinTermParser]
-def «forall» := parser!:leadPrec unicodeSymbol "∀ " "forall" >> many1 (ppSpace >> (simpleBinder <|> bracketedBinder)) >> ", " >> termParser
+def «forall» := parser!:leadPrec unicodeSymbol "∀" "forall" >> many1 (ppSpace >> (simpleBinder <|> bracketedBinder)) >> ", " >> termParser
 
 def matchAlt (rhsParser : Parser := termParser) : Parser :=
   nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $

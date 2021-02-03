@@ -11,9 +11,12 @@ namespace Lean
   Return true if `e` contains `mvarId` directly or indirectly
   This function considers assigments and delayed assignments. -/
 partial def MetavarContext.occursCheck (mctx : MetavarContext) (mvarId : MVarId) (e : Expr) : Bool :=
-  match visit e |>.run {} with
-  | EStateM.Result.ok ..    => false
-  | EStateM.Result.error .. => true
+  if !e.hasExprMVar then
+    false
+  else
+    match visit e |>.run {} with
+    | EStateM.Result.ok ..    => false
+    | EStateM.Result.error .. => true
 where
   visitMVar (mvarId' : MVarId) : EStateM Unit ExprSet Unit := do
     if mvarId == mvarId' then
@@ -27,7 +30,9 @@ where
         | none   => return ()
 
   visit (e : Expr) : EStateM Unit ExprSet Unit := do
-    if (← get).contains e then
+    if !e.hasExprMVar then
+      return ()
+    else if (← get).contains e then
       return ()
     else
       modify fun s => s.insert e

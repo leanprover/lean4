@@ -763,12 +763,17 @@ end CheckAssignmentQuick
   Auxiliary function for handling constraints of the form `?m a₁ ... aₙ =?= v`.
   It will check whether we can perform the assignment
   ```
-  ?m := fun fvars => t
+  ?m := fun fvars => v
   ```
   The result is `none` if the assignment can't be performed.
   The result is `some newV` where `newV` is a possibly updated `v`. This method may need
   to unfold let-declarations. -/
 def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (Option Expr) := do
+  /- Check whether `mvarId` occurs in the type of `fvars` or not. If it does, return `none`
+     to prevent us from creating the cyclic assignment `?m := fun fvars => v` -/
+  for fvar in fvars do
+    unless (← occursCheck mvarId (← inferType fvar)) do
+      return none
   if !v.hasExprMVar && !v.hasFVar then
     pure (some v)
   else

@@ -40,7 +40,7 @@ private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSo
   It returns `true` if it succeeded, and `false` otherwise.
   It is used to implement `synthesizeSyntheticMVars`. -/
 private def resumePostponed (macroStack : MacroStack) (declName? : Option Name) (stx : Syntax) (mvarId : MVarId) (postponeOnError : Bool) : TermElabM Bool :=
-  withRef stx $ withMVarContext mvarId do
+  withRef stx <| withMVarContext mvarId do
     let s ← get
     try
       withReader (fun ctx => { ctx with macroStack := macroStack, declName? := declName? }) do
@@ -53,23 +53,24 @@ private def resumePostponed (macroStack : MacroStack) (declName? : Option Name) 
           let result ← withRef stx <| ensureHasType expectedType result
           /- We must perform `occursCheck` here since `result` may contain `mvarId` when it has synthetic `sorry`s. -/
           if (← occursCheck mvarId result) then
-            pure false
-          else
             assignExprMVar mvarId result
-            pure true
+            return true
+          else
+            return false
     catch
      | ex@(Exception.internal id _) =>
        if id == postponeExceptionId then
          set s
-         pure false
+         return false
        else
          throw ex
      | ex@(Exception.error _ _) =>
        if postponeOnError then
-         set s; pure false
+         set s
+         return false
        else
          logException ex
-         pure true
+         return true
 
 /--
   Similar to `synthesizeInstMVarCore`, but makes sure that `instMVar` local context and instances
@@ -79,7 +80,7 @@ private def synthesizePendingInstMVar (instMVar : MVarId) : TermElabM Bool :=
     try
       synthesizeInstMVarCore instMVar
     catch
-      | ex@(Exception.error _ _) => logException ex; pure true
+      | ex@(Exception.error _ _) => logException ex; return true
       | _                        => unreachable!
 
 /--
@@ -105,9 +106,9 @@ private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (pos
     withReader (fun ctx => { ctx with declName? := declName? }) do
       if runTactics then
         runTactic mvarSyntheticDecl.mvarId tacticCode
-        pure true
+        return true
       else
-        pure false
+        return false
 
 /--
   Try to synthesize the current list of pending synthetic metavariables.
@@ -132,7 +133,7 @@ private def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : 
      pure !succeeded
   -- Merge new synthetic metavariables with `remainingSyntheticMVars`, i.e., metavariables that still couldn't be synthesized
   modify fun s => { s with syntheticMVars := s.syntheticMVars ++ remainingSyntheticMVars }
-  pure $ numSyntheticMVars != remainingSyntheticMVars.length
+  return numSyntheticMVars != remainingSyntheticMVars.length
 
 private def tryToSynthesizeUsingDefaultInstance (mvarId : MVarId) (defaultInstance : Name) : MetaM (Option (List SyntheticMVarDecl)) :=
   commitWhenSome? do
@@ -219,9 +220,9 @@ private def reportStuckSyntheticMVars : TermElabM Unit := do
 
 private def getSomeSynthethicMVarsRef : TermElabM Syntax := do
   let s ← get
-  match s.syntheticMVars.find? $ fun (mvarDecl : SyntheticMVarDecl) => !mvarDecl.stx.getPos?.isNone with
-  | some mvarDecl => pure mvarDecl.stx
-  | none          => pure Syntax.missing
+  match s.syntheticMVars.find? fun (mvarDecl : SyntheticMVarDecl) => !mvarDecl.stx.getPos?.isNone with
+  | some mvarDecl => return mvarDecl.stx
+  | none          => return Syntax.missing
 
 /--
   Try to process pending synthetic metavariables. If `mayPostpone == false`,
@@ -295,14 +296,14 @@ partial def withSynthesize {α} (k : TermElabM α) (mayPostpone := false) : Term
     synthesizeSyntheticMVars mayPostpone
     if mayPostpone then
       synthesizeUsingDefaultLoop
-    pure a
+    return a
   finally
     modify fun s => { s with syntheticMVars := s.syntheticMVars ++ syntheticMVarsSaved }
 
 /-- Elaborate `stx`, and make sure all pending synthetic metavariables created while elaborating `stx` are solved. -/
 def elabTermAndSynthesize (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
   withRef stx do
-    let v ← withSynthesize $ elabTerm stx expectedType?
+    let v ← withSynthesize <| elabTerm stx expectedType?
     instantiateMVars v
 
 end Lean.Elab.Term

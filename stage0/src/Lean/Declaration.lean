@@ -66,6 +66,7 @@ structure ConstantVal where
 
 structure AxiomVal extends ConstantVal where
   isUnsafe : Bool
+  deriving Inhabited
 
 @[export lean_mk_axiom_val]
 def mkAxiomValEx (name : Name) (levelParams : List Name) (type : Expr) (isUnsafe : Bool) : AxiomVal := {
@@ -103,11 +104,13 @@ def mkDefinitionValEx (name : Name) (levelParams : List Name) (type : Expr) (val
 
 structure TheoremVal extends ConstantVal where
   value : Expr
+  deriving Inhabited
 
 /- Value for an opaque constant declaration `constant x : t := e` -/
 structure OpaqueVal extends ConstantVal where
   value : Expr
   isUnsafe : Bool
+  deriving Inhabited
 
 @[export lean_mk_opaque_val]
 def mkOpaqueValEx (name : Name) (levelParams : List Name) (type : Expr) (val : Expr) (isUnsafe : Bool) : OpaqueVal := {
@@ -124,11 +127,13 @@ def mkOpaqueValEx (name : Name) (levelParams : List Name) (type : Expr) (val : E
 structure Constructor where
   name : Name
   type : Expr
+  deriving Inhabited
 
 structure InductiveType where
   name : Name
   type : Expr
   ctors : List Constructor
+  deriving Inhabited
 
 /-- Declaration object that can be sent to the kernel. -/
 inductive Declaration where
@@ -239,6 +244,7 @@ structure RecursorRule where
   ctor : Name   -- Reduction rule for this Constructor
   nfields : Nat -- Number of fields (i.e., without counting inductive datatype parameters)
   rhs : Expr    -- Right hand side of the reduction rule
+  deriving Inhabited
 
 structure RecursorVal extends ConstantVal where
   all : List Name              -- List of all inductive datatypes in the mutual declaration that generated this recursor
@@ -249,6 +255,7 @@ structure RecursorVal extends ConstantVal where
   rules : List RecursorRule    -- A reduction for each Constructor
   k : Bool                     -- It supports K-like reduction
   isUnsafe : Bool
+  deriving Inhabited
 
 @[export lean_mk_recursor_val]
 def mkRecursorValEx (name : Name) (levelParams : List Name) (type : Expr) (all : List Name) (numParams numIndices numMotives numMinors : Nat)
@@ -277,9 +284,11 @@ inductive QuotKind where
   | ctor  -- `Quot.mk`
   | lift  -- `Quot.lift`
   | ind   -- `Quot.ind`
+  deriving Inhabited
 
 structure QuotVal extends ConstantVal where
   kind : QuotKind
+  deriving Inhabited
 
 @[export lean_mk_quot_val]
 def mkQuotValEx (name : Name) (levelParams : List Name) (type : Expr) (kind : QuotKind) : QuotVal := {
@@ -298,6 +307,7 @@ inductive ConstantInfo where
   | inductInfo   (val : InductiveVal)
   | ctorInfo     (val : ConstructorVal)
   | recInfo      (val : RecursorVal)
+  deriving Inhabited
 
 namespace ConstantInfo
 

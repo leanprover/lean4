@@ -1113,11 +1113,14 @@ def elabType (stx : Syntax) : TermElabM Expr := do
 partial def elabTypeWithAutoBoundImplicit {α} (stx : Syntax) (k : Expr → TermElabM α) : TermElabM α  := do
   if (← read).autoBoundImplicit then
     let rec loop : TermElabM α := do
+      let s ← saveAllState
       try
         k (← elabType stx)
       catch
         | ex => match isAutoBoundImplicitLocalException? ex with
           | some n =>
+            -- Restore state, declare `n`, and try again
+            s.restore
             withLocalDecl n BinderInfo.implicit (← mkFreshTypeMVar) fun x =>
               withReader (fun ctx => { ctx with autoBoundImplicits := ctx.autoBoundImplicits.push x } )
                 loop

@@ -8,15 +8,15 @@ import Lean.MetavarContext
 namespace Lean
 
 /--
-  Return true if `e` contains `mvarId` directly or indirectly
+  Return true if `e` does **not** contain `mvarId` directly or indirectly
   This function considers assigments and delayed assignments. -/
 partial def MetavarContext.occursCheck (mctx : MetavarContext) (mvarId : MVarId) (e : Expr) : Bool :=
   if !e.hasExprMVar then
-    false
+    true
   else
     match visit e |>.run {} with
-    | EStateM.Result.ok ..    => false
-    | EStateM.Result.error .. => true
+    | EStateM.Result.ok ..    => true
+    | EStateM.Result.error .. => false
 where
   visitMVar (mvarId' : MVarId) : EStateM Unit ExprSet Unit := do
     if mvarId == mvarId' then

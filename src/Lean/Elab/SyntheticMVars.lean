@@ -53,10 +53,10 @@ private def resumePostponed (macroStack : MacroStack) (declName? : Option Name) 
           let result ← withRef stx <| ensureHasType expectedType result
           /- We must perform `occursCheck` here since `result` may contain `mvarId` when it has synthetic `sorry`s. -/
           if (← occursCheck mvarId result) then
-            return false
-          else
             assignExprMVar mvarId result
             return true
+          else
+            return false
     catch
      | ex@(Exception.internal id _) =>
        if id == postponeExceptionId then

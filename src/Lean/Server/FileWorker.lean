@@ -386,7 +386,6 @@ section RequestHandling
           if let some (ci, i) := t.hoverableInfoAt? hoverPos then
             if let some hoverFmt ← i.fmtHover? ci then
               return some <| mkHover (toString hoverFmt) i.pos?.get! i.tailPos?.get!
-          pure ()
 
         return none
 
@@ -424,6 +423,26 @@ section RequestHandling
                 }
                 return #[ll]
         return #[]
+
+  open Elab in
+  partial def handlePlainGoal (p : PlainGoalParams)
+    : ServerM (Task (Except IO.Error (Except RequestError (Option PlainGoal)))) := do
+    let st ← read
+    let doc ← st.docRef.get
+    let text := doc.meta.text
+    let hoverPos := text.lspPosToUtf8Pos p.position
+    withWaitFindSnap doc (fun s => s.endPos > hoverPos)
+      (notFoundX := return none) fun snap => do
+        for t in snap.toCmdState.infoState.trees do
+          if let some (ci, ti) := t.goalsAt? hoverPos then
+            let ci := { ci with mctx := ti.mctxAfter }
+            let goals ← ci.ppGoals ti.goalsAfter
+            let fmt := f!"```lean
+{goals}
+```"
+            return some { rendered := toString fmt }
+
+        return none
 
   def rangeOfSyntax (text : FileMap) (stx : Syntax) : Range :=
     ⟨text.utf8PosToLspPos <| stx.getPos?.get!,
@@ -544,6 +563,7 @@ section MessageHandling
     | "textDocument/definition"         => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := false)
     | "textDocument/typeDefinition"     => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := true)
     | "textDocument/documentSymbol"     => handle DocumentSymbolParams DocumentSymbolResult handleDocumentSymbol
+    | "$/lean/plainGoal"                => handle PlainGoalParams (Option PlainGoal) handlePlainGoal
     | _ => throwServerError s!"Got unsupported request: {method}"
 end MessageHandling
 

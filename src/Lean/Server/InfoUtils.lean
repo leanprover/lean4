@@ -23,7 +23,7 @@ partial def InfoTree.smallestNode? (p : Info → Bool) : InfoTree → Option Inf
   | _ => none
 
 /-- For every branch, find the deepest node in that branch matching `p`
-and return all of them. Each result is wrapper in all outer `ContextInfo`s. -/
+and return all of them. Each result is wrapped in all outer `ContextInfo`s. -/
 partial def InfoTree.smallestNodes (p : Info → Bool) : InfoTree → List InfoTree
   | context i t => t.smallestNodes p |>.map (context i)
   | n@(node i cs) =>
@@ -111,5 +111,29 @@ def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option Format) := do
 ```"
 
     | _ => return none
+
+/-- Return a flattened list of smallest-in-span tactic info nodes, sorted by position. -/
+partial def InfoTree.smallestTacticStates (t : InfoTree) : Array (Nat × ContextInfo × TacticInfo) :=
+  let ts := tacticLeaves t
+  let ts := ts.filterMap fun
+    | context ci (node i@(Info.ofTacticInfo ti) _) => some (i.pos?.get!, ci, ti)
+    | _ => none
+  ts.toArray.qsort fun a b => a.1 < b.1
+
+  where tacticLeaves (t : InfoTree) : List InfoTree :=
+          t.smallestNodes fun
+            | i@(Info.ofTacticInfo _) => i.pos?.isSome ∧ i.tailPos?.isSome
+            | _ => false
+
+partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × TacticInfo) :=
+  let ts := t.smallestTacticStates
+  -- The extent of a tactic state is (pos, pos of next tactic)
+  let extents := ts.mapIdx fun i (p, _, ti) =>
+    (p, if h : (i.val+1) < ts.size then
+          ts.get ⟨i.val+1, h⟩ |>.1
+        else
+          ti.stx.getTailPos?.get!)
+  let idx? := extents.findIdx? fun (p, tp) => p ≤ hoverPos ∧ hoverPos < tp
+  idx?.map fun idx => ts.get! idx |> fun (_, ci, ti) => (ci, ti)
 
 end Lean.Elab

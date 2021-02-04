@@ -34,4 +34,11 @@ instance : FromJson WaitForDiagnostics :=
 instance : ToJson WaitForDiagnostics :=
   ⟨fun o => mkObj []⟩
 
+structure PlainGoalParams extends TextDocumentPositionParams
+  deriving FromJson, ToJson
+
+structure PlainGoal where
+  rendered : String
+  deriving FromJson, ToJson
+
 end Lean.Lsp

@@ -387,6 +387,7 @@ section MessageHandling
     | "textDocument/definition"         => handle DefinitionParams
     | "textDocument/typeDefinition"     => handle TypeDefinitionParams
     | "textDocument/documentSymbol"     => handle DocumentSymbolParams
+    | "$/lean/plainGoal"                => handle PlainGoalParams
     | _                                 =>
       (←read).hOut.writeLspResponseError
         { id      := id

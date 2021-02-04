@@ -625,31 +625,6 @@ private def isTypeApp? (type : Expr) : TermElabM (Option (Expr × Expr)) := do
   | Expr.app m α _ => pure (some ((← instantiateMVars m), (← instantiateMVars α)))
   | _              => pure none
 
-/-
-private def isMonad? (type : Expr) : TermElabM (Option IsMonadResult) := do
-  let type ← withReducible $ whnf type
-  match type with
-  | Expr.app m α _ =>
-    try
-      let monadType ← mkAppM `Monad #[m]
-      let result    ← trySynthInstance monadType
-      match result with
-      | LOption.some inst => pure (some { m := m, α := α, inst := inst })
-      | _                 => pure none
-    catch _ => pure none
-  | _ => pure none
--/
-
-private def isMonad? (m : Expr) : TermElabM (Option Expr) :=
-  try
-    let monadType ← mkAppM `Monad #[m]
-    let result    ← trySynthInstance monadType
-    match result with
-    | LOption.some inst => pure inst
-    | _                 => pure none
-  catch _ =>
-    pure none
-
 def synthesizeInst (type : Expr) : TermElabM Expr := do
   let type ← instantiateMVars type
   match (← trySynthInstance type) with

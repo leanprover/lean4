@@ -1,0 +1,2 @@
+bigUnivOffsets.lean:1:12-1:21: error: maximum universe level offset threshold (32) has been reached, you can increase the limit using option `set_option maxUniverseOffset <limit>`, but you are probably misusing universe levels since offsets are usually small natural numbers
+bigUnivOffsets.lean:5:13-5:25: error: maximum universe level offset threshold (32) has been reached, you can increase the limit using option `set_option maxUniverseOffset <limit>`, but you are probably misusing universe levels since offsets are usually small natural numbers

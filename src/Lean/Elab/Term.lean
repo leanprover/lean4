@@ -350,7 +350,7 @@ def liftLevelM {α} (x : LevelElabM α) : TermElabM α := do
   let ref ← getRef
   let mctx ← getMCtx
   let ngen ← getNGen
-  let lvlCtx : Level.Context := { ref := ref, autoBoundImplicit := ctx.autoBoundImplicit }
+  let lvlCtx : Level.Context := { options := (← getOptions), ref := ref, autoBoundImplicit := ctx.autoBoundImplicit }
   match (x lvlCtx).run { ngen := ngen, mctx := mctx, levelNames := (← getLevelNames) } with
   | EStateM.Result.ok a newS  => setMCtx newS.mctx; setNGen newS.ngen; setLevelNames newS.levelNames; pure a
   | EStateM.Result.error ex _ => throw ex

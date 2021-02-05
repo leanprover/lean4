@@ -480,7 +480,7 @@ private def propagateExpectedTypeFor (f : Expr) : TermElabM Bool :=
   | Expr.const declName .. => return !hasElabWithoutExpectedType (← getEnv) declName
   | _ => return true
 
-private def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
+def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit ellipsis : Bool) : TermElabM Expr := do
   let fType ← inferType f
   let fType ← instantiateMVars fType
@@ -928,6 +928,7 @@ private def elabAtom : TermElab := fun stx expectedType? =>
 @[builtinTermElab binrel] def elabBinRel : TermElab :=  fun stx expectedType? => do
   match (← resolveId? stx[1]) with
   | some f =>
+    let s ← saveAllState
     let (lhs, rhs) ← withSynthesize (mayPostpone := true) do
       let mut lhs ← elabTerm stx[2] none
       let mut rhs ← elabTerm stx[3] none
@@ -941,11 +942,17 @@ private def elabAtom : TermElab := fun stx expectedType? =>
     let (lhs, rhs) ←
       try
         pure (lhs, ← withRef stx[3] do ensureHasType lhsType rhs)
-      catch ex =>
+      catch _ =>
         try
           pure (← withRef stx[2] do ensureHasType rhsType lhs, rhs)
         catch _ =>
-          throw ex
+          s.restore
+          -- Use default approach
+          let lhs ← elabTerm stx[2] none
+          let rhs ← elabTerm stx[3] none
+          let lhsType ← inferType lhs
+          let rhsType ← inferType rhs
+          pure (lhs, ← withRef stx[3] do ensureHasType lhsType rhs)
     elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType? (explicit := false) (ellipsis := false)
   | none   => throwUnknownConstant stx[1].getId
 

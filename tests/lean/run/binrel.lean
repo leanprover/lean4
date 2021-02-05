@@ -31,3 +31,9 @@ def ex10 (x : Lean.Syntax) : Bool :=
 def ex11 (xs : Array (Nat × Nat)) :=
   let f a b := binrel! Less a.1 b.1
   f xs[1] xs[2]
+
+def ex12 (i j : Int) :=
+  binrel! Eq (i, j) (0, 0)
+
+def ex13 (i j : Int) :=
+  (i, j) = (0, 0)

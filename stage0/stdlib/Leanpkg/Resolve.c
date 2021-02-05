@@ -52,12 +52,11 @@ lean_object* l_Leanpkg_resolvedPath___closed__4;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_List_mapM___at_Leanpkg_constructPath___spec__1(lean_object*, lean_object*);
 uint8_t l_instDecidableNot___rarg(uint8_t);
-lean_object* l_Leanpkg_solveDepsCore_match__2___boxed(lean_object*, lean_object*);
+lean_object* l_Leanpkg_solveDepsCore_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_eprintln___at___private_Init_System_IO_0__IO_eprintlnAux___spec__1(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at_Leanpkg_solveDepsCore___spec__3___closed__3;
 lean_object* l_Leanpkg_materialize___closed__6;
-lean_object* l_Leanpkg_solveDepsCore_match__3___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 lean_object* l_Leanpkg_constructPathCore___rarg(lean_object*, lean_object*);
 lean_object* l_List_foldl___at_Leanpkg_Assignment_fold___spec__1(lean_object*);
@@ -87,7 +86,6 @@ lean_object* l_Leanpkg_materialize___lambda__1___closed__2;
 extern lean_object* l_Lean_Parser_Tactic_inductionAlt___closed__5;
 lean_object* l_List_forIn_loop___at_Leanpkg_solveDepsCore___spec__3___closed__2;
 lean_object* l_IO_isDir___at_Leanpkg_materialize___spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Leanpkg_solveDepsCore_match__3(lean_object*);
 lean_object* l_Leanpkg_constructPath(lean_object*, lean_object*);
 lean_object* l_Leanpkg_materialize___closed__8;
 lean_object* l_Leanpkg_solveDepsCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -108,8 +106,7 @@ lean_object* l_Leanpkg_materialize___closed__3;
 lean_object* l_List_forIn_loop___at_Leanpkg_solveDepsCore___spec__3___closed__1;
 lean_object* l_List_foldl___at_Leanpkg_Assignment_fold___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_materialize___lambda__1___closed__3;
-lean_object* l_Leanpkg_solveDepsCore_match__3___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Leanpkg_solveDepsCore_match__2___rarg(lean_object*);
+lean_object* l_Leanpkg_solveDepsCore_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_Assignment_empty;
 lean_object* l_IO_eprint___at_IO_eprintln___spec__1(lean_object*, lean_object*);
 lean_object* l_Leanpkg_Assignment_contains___boxed(lean_object*, lean_object*);
@@ -125,7 +122,7 @@ lean_object* l_Leanpkg_materialize___lambda__1___boxed(lean_object*, lean_object
 extern lean_object* l_Leanpkg_gitParseRevision___closed__9;
 lean_object* l_Leanpkg_materialize_match__1(lean_object*);
 lean_object* l_Leanpkg_materialize___lambda__1___closed__1;
-lean_object* l_Leanpkg_solveDepsCore_match__2(lean_object*, lean_object*);
+lean_object* l_Leanpkg_solveDepsCore_match__2(lean_object*);
 lean_object* l_Leanpkg_materialize___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_materialize___closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -1391,33 +1388,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l_Leanpkg_solveDepsCore_match__2___rarg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_box(0);
-x_3 = lean_apply_1(x_1, x_2);
-return x_3;
-}
-}
-lean_object* l_Leanpkg_solveDepsCore_match__2(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Leanpkg_solveDepsCore_match__2___rarg), 1, 0);
-return x_3;
-}
-}
-lean_object* l_Leanpkg_solveDepsCore_match__2___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Leanpkg_solveDepsCore_match__2(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-lean_object* l_Leanpkg_solveDepsCore_match__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Leanpkg_solveDepsCore_match__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -1442,19 +1413,19 @@ return x_10;
 }
 }
 }
-lean_object* l_Leanpkg_solveDepsCore_match__3(lean_object* x_1) {
+lean_object* l_Leanpkg_solveDepsCore_match__2(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Leanpkg_solveDepsCore_match__3___rarg___boxed), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_Leanpkg_solveDepsCore_match__2___rarg___boxed), 3, 0);
 return x_2;
 }
 }
-lean_object* l_Leanpkg_solveDepsCore_match__3___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Leanpkg_solveDepsCore_match__2___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Leanpkg_solveDepsCore_match__3___rarg(x_1, x_2, x_3);
+x_4 = l_Leanpkg_solveDepsCore_match__2___rarg(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
 }

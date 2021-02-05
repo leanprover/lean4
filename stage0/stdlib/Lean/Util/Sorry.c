@@ -13,16 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_Expr_hasSyntheticSorry_match__1(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
-lean_object* lean_array_uget(lean_object*, size_t);
 uint8_t l_Lean_Expr_isSyntheticSorry(lean_object*);
 lean_object* l_Lean_MessageData_hasSorry_match__1(lean_object*);
+uint8_t l_Array_anyMUnsafe___at_Array_any___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MessageData_hasSyntheticSorry___closed__1;
 lean_object* l_Lean_MessageData_hasSyntheticSorry___boxed(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
-uint8_t l_Array_anyMUnsafe_any___at_Lean_MessageData_hasSyntheticSorry___spec__1(lean_object*, size_t, size_t);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t l_Lean_Expr_hasSyntheticSorry(lean_object*);
 extern lean_object* l_Lean_instQuoteBool___closed__1;
@@ -35,30 +33,25 @@ lean_object* l_Lean_Expr_isSyntheticSorry_match__1(lean_object*);
 lean_object* l_Lean_Expr_isSyntheticSorry_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Exception_hasSyntheticSorry_match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_MessageData_hasSyntheticSorry(lean_object*);
+lean_object* l_Lean_MessageData_hasSorry___closed__1;
 lean_object* l_Lean_MessageData_hasSorry___boxed(lean_object*);
-size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_MessageData_hasSyntheticSorry_match__1(lean_object*);
 lean_object* l_Lean_MessageData_hasSorry_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isSorry___boxed(lean_object*);
 lean_object* l_Lean_Expr_isSorry_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasSorry_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isSorry_match__1(lean_object*);
 lean_object* l_Lean_Expr_isSorry_match__1___rarg___closed__1;
 lean_object* l_Lean_Exception_hasSyntheticSorry___boxed(lean_object*);
 lean_object* l_Lean_Expr_hasSorry___closed__1;
 uint8_t l_Lean_Expr_hasSorry(lean_object*);
 lean_object* l_Lean_Expr_hasSorry___boxed(lean_object*);
-lean_object* l_Array_anyMUnsafe_any___at_Lean_MessageData_hasSyntheticSorry___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_anyMUnsafe_any___at_Lean_MessageData_hasSorry___spec__1(lean_object*, size_t, size_t);
-lean_object* l_Array_anyMUnsafe_any___at_Lean_MessageData_hasSorry___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasSyntheticSorry_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasSorry_match__1(lean_object*);
 uint8_t l_Lean_MessageData_hasSorry(lean_object*);
 lean_object* l_Lean_Exception_hasSyntheticSorry_match__1(lean_object*);
 uint8_t l_Lean_Expr_isSorry(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Expr_isSorry_match__1___rarg___closed__1() {
 _start:
 {
@@ -3665,38 +3658,12 @@ x_2 = lean_alloc_closure((void*)(l_Lean_MessageData_hasSorry_match__1___rarg), 9
 return x_2;
 }
 }
-uint8_t l_Array_anyMUnsafe_any___at_Lean_MessageData_hasSorry___spec__1(lean_object* x_1, size_t x_2, size_t x_3) {
+static lean_object* _init_l_Lean_MessageData_hasSorry___closed__1() {
 _start:
 {
-uint8_t x_4; 
-x_4 = x_2 == x_3;
-if (x_4 == 0)
-{
-lean_object* x_5; uint8_t x_6; 
-x_5 = lean_array_uget(x_1, x_2);
-x_6 = l_Lean_MessageData_hasSorry(x_5);
-lean_dec(x_5);
-if (x_6 == 0)
-{
-size_t x_7; size_t x_8; 
-x_7 = 1;
-x_8 = x_2 + x_7;
-x_2 = x_8;
-goto _start;
-}
-else
-{
-uint8_t x_10; 
-x_10 = 1;
-return x_10;
-}
-}
-else
-{
-uint8_t x_11; 
-x_11 = 0;
-return x_11;
-}
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_MessageData_hasSorry___boxed), 1, 0);
+return x_1;
 }
 }
 uint8_t l_Lean_MessageData_hasSorry(lean_object* x_1) {
@@ -3758,61 +3725,22 @@ goto _start;
 }
 case 12:
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_17 = lean_ctor_get(x_1, 0);
 x_18 = lean_array_get_size(x_17);
-x_19 = lean_unsigned_to_nat(0u);
-x_20 = lean_nat_dec_lt(x_19, x_18);
-if (x_20 == 0)
-{
-uint8_t x_21; 
+x_19 = l_Lean_MessageData_hasSorry___closed__1;
+x_20 = lean_unsigned_to_nat(0u);
+x_21 = l_Array_anyMUnsafe___at_Array_any___spec__1___rarg(x_19, x_17, x_20, x_18);
 lean_dec(x_18);
-x_21 = 0;
 return x_21;
-}
-else
-{
-uint8_t x_22; 
-x_22 = lean_nat_dec_le(x_18, x_18);
-if (x_22 == 0)
-{
-uint8_t x_23; 
-lean_dec(x_18);
-x_23 = 0;
-return x_23;
-}
-else
-{
-size_t x_24; size_t x_25; uint8_t x_26; 
-x_24 = 0;
-x_25 = lean_usize_of_nat(x_18);
-lean_dec(x_18);
-x_26 = l_Array_anyMUnsafe_any___at_Lean_MessageData_hasSorry___spec__1(x_17, x_24, x_25);
-return x_26;
-}
-}
 }
 default: 
 {
-uint8_t x_27; 
-x_27 = 0;
-return x_27;
+uint8_t x_22; 
+x_22 = 0;
+return x_22;
 }
 }
-}
-}
-lean_object* l_Array_anyMUnsafe_any___at_Lean_MessageData_hasSorry___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-size_t x_4; size_t x_5; uint8_t x_6; lean_object* x_7; 
-x_4 = lean_unbox_usize(x_2);
-lean_dec(x_2);
-x_5 = lean_unbox_usize(x_3);
-lean_dec(x_3);
-x_6 = l_Array_anyMUnsafe_any___at_Lean_MessageData_hasSorry___spec__1(x_1, x_4, x_5);
-lean_dec(x_1);
-x_7 = lean_box(x_6);
-return x_7;
 }
 }
 lean_object* l_Lean_MessageData_hasSorry___boxed(lean_object* x_1) {
@@ -3973,38 +3901,12 @@ x_2 = lean_alloc_closure((void*)(l_Lean_MessageData_hasSyntheticSorry_match__1__
 return x_2;
 }
 }
-uint8_t l_Array_anyMUnsafe_any___at_Lean_MessageData_hasSyntheticSorry___spec__1(lean_object* x_1, size_t x_2, size_t x_3) {
+static lean_object* _init_l_Lean_MessageData_hasSyntheticSorry___closed__1() {
 _start:
 {
-uint8_t x_4; 
-x_4 = x_2 == x_3;
-if (x_4 == 0)
-{
-lean_object* x_5; uint8_t x_6; 
-x_5 = lean_array_uget(x_1, x_2);
-x_6 = l_Lean_MessageData_hasSyntheticSorry(x_5);
-lean_dec(x_5);
-if (x_6 == 0)
-{
-size_t x_7; size_t x_8; 
-x_7 = 1;
-x_8 = x_2 + x_7;
-x_2 = x_8;
-goto _start;
-}
-else
-{
-uint8_t x_10; 
-x_10 = 1;
-return x_10;
-}
-}
-else
-{
-uint8_t x_11; 
-x_11 = 0;
-return x_11;
-}
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_MessageData_hasSyntheticSorry___boxed), 1, 0);
+return x_1;
 }
 }
 uint8_t l_Lean_MessageData_hasSyntheticSorry(lean_object* x_1) {
@@ -4066,61 +3968,22 @@ goto _start;
 }
 case 12:
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_17 = lean_ctor_get(x_1, 0);
 x_18 = lean_array_get_size(x_17);
-x_19 = lean_unsigned_to_nat(0u);
-x_20 = lean_nat_dec_lt(x_19, x_18);
-if (x_20 == 0)
-{
-uint8_t x_21; 
+x_19 = l_Lean_MessageData_hasSyntheticSorry___closed__1;
+x_20 = lean_unsigned_to_nat(0u);
+x_21 = l_Array_anyMUnsafe___at_Array_any___spec__1___rarg(x_19, x_17, x_20, x_18);
 lean_dec(x_18);
-x_21 = 0;
 return x_21;
-}
-else
-{
-uint8_t x_22; 
-x_22 = lean_nat_dec_le(x_18, x_18);
-if (x_22 == 0)
-{
-uint8_t x_23; 
-lean_dec(x_18);
-x_23 = 0;
-return x_23;
-}
-else
-{
-size_t x_24; size_t x_25; uint8_t x_26; 
-x_24 = 0;
-x_25 = lean_usize_of_nat(x_18);
-lean_dec(x_18);
-x_26 = l_Array_anyMUnsafe_any___at_Lean_MessageData_hasSyntheticSorry___spec__1(x_17, x_24, x_25);
-return x_26;
-}
-}
 }
 default: 
 {
-uint8_t x_27; 
-x_27 = 0;
-return x_27;
+uint8_t x_22; 
+x_22 = 0;
+return x_22;
 }
 }
-}
-}
-lean_object* l_Array_anyMUnsafe_any___at_Lean_MessageData_hasSyntheticSorry___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-size_t x_4; size_t x_5; uint8_t x_6; lean_object* x_7; 
-x_4 = lean_unbox_usize(x_2);
-lean_dec(x_2);
-x_5 = lean_unbox_usize(x_3);
-lean_dec(x_3);
-x_6 = l_Array_anyMUnsafe_any___at_Lean_MessageData_hasSyntheticSorry___spec__1(x_1, x_4, x_5);
-lean_dec(x_1);
-x_7 = lean_box(x_6);
-return x_7;
 }
 }
 lean_object* l_Lean_MessageData_hasSyntheticSorry___boxed(lean_object* x_1) {
@@ -4214,6 +4077,10 @@ l_Lean_Expr_isSorry_match__1___rarg___closed__1 = _init_l_Lean_Expr_isSorry_matc
 lean_mark_persistent(l_Lean_Expr_isSorry_match__1___rarg___closed__1);
 l_Lean_Expr_hasSorry___closed__1 = _init_l_Lean_Expr_hasSorry___closed__1();
 lean_mark_persistent(l_Lean_Expr_hasSorry___closed__1);
+l_Lean_MessageData_hasSorry___closed__1 = _init_l_Lean_MessageData_hasSorry___closed__1();
+lean_mark_persistent(l_Lean_MessageData_hasSorry___closed__1);
+l_Lean_MessageData_hasSyntheticSorry___closed__1 = _init_l_Lean_MessageData_hasSyntheticSorry___closed__1();
+lean_mark_persistent(l_Lean_MessageData_hasSyntheticSorry___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

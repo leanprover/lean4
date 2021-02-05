@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Lean_Meta_forEachExpr___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f___at_Lean_Meta_ForEachExpr_visit___spec__8(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
+extern lean_object* l_Lean_Expr_instHashableExpr___closed__1;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Std_mkHashMap___at_Lean_Meta_forEachExpr_x27___spec__1(lean_object*);
 lean_object* l_Std_AssocList_contains___at_Lean_Meta_ForEachExpr_visit___spec__2___boxed(lean_object*, lean_object*);
@@ -26,6 +27,7 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___at_Lean_Meta_ForEachExpr_visit___spec__5(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+lean_object* l_Std_HashMapImp_reinsertAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_ForEachExpr_visit_match__1(lean_object*);
 lean_object* l_Std_HashMapImp_insert___at_Lean_Meta_ForEachExpr_visit___spec__1(lean_object*, lean_object*, lean_object*);
@@ -764,48 +766,19 @@ return x_1;
 }
 else
 {
-uint8_t x_3; 
-x_3 = !lean_is_exclusive(x_2);
-if (x_3 == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = lean_ctor_get(x_2, 0);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_2, 1);
+lean_inc(x_4);
 x_5 = lean_ctor_get(x_2, 2);
-x_6 = lean_array_get_size(x_1);
-x_7 = l_Lean_Expr_hash(x_4);
-x_8 = lean_usize_modn(x_7, x_6);
-lean_dec(x_6);
-x_9 = lean_array_uget(x_1, x_8);
-lean_ctor_set(x_2, 2, x_9);
-x_10 = lean_array_uset(x_1, x_8, x_2);
-x_1 = x_10;
+lean_inc(x_5);
+lean_dec(x_2);
+x_6 = l_Lean_Expr_instHashableExpr___closed__1;
+x_7 = l_Std_HashMapImp_reinsertAux___rarg(x_6, x_1, x_3, x_4);
+x_1 = x_7;
 x_2 = x_5;
 goto _start;
-}
-else
-{
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_12 = lean_ctor_get(x_2, 0);
-x_13 = lean_ctor_get(x_2, 1);
-x_14 = lean_ctor_get(x_2, 2);
-lean_inc(x_14);
-lean_inc(x_13);
-lean_inc(x_12);
-lean_dec(x_2);
-x_15 = lean_array_get_size(x_1);
-x_16 = l_Lean_Expr_hash(x_12);
-x_17 = lean_usize_modn(x_16, x_15);
-lean_dec(x_15);
-x_18 = lean_array_uget(x_1, x_17);
-x_19 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_19, 0, x_12);
-lean_ctor_set(x_19, 1, x_13);
-lean_ctor_set(x_19, 2, x_18);
-x_20 = lean_array_uset(x_1, x_17, x_19);
-x_1 = x_20;
-x_2 = x_14;
-goto _start;
-}
 }
 }
 }

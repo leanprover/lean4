@@ -147,7 +147,6 @@ lean_object* l_Lean_instToStringOptions___closed__1;
 lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_826____closed__2;
 lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a_x3d_____closed__2;
 lean_object* l_Std_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1128____closed__3;
 lean_object* l_List_map___at_Lean_setOptionFromString___spec__1(lean_object*);
 lean_object* l___private_Lean_Data_Options_0__Lean_initOptionDeclsRef(lean_object*);
 lean_object* l_Lean_Option_get(lean_object*);
@@ -155,6 +154,7 @@ lean_object* l_Lean_setOptionFromString___closed__2;
 lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_826____closed__11;
 lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a_x3d_____closed__1;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1131____closed__3;
 lean_object* l_String_toNat_x3f(lean_object*);
 extern lean_object* l_Lean_expandExplicitBindersAux_loop___closed__4;
 lean_object* l_Lean_registerOption___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2008,7 +2008,7 @@ static lean_object* _init_l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_8
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1128____closed__3;
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1131____closed__3;
 x_2 = l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_826____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

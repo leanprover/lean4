@@ -82,7 +82,6 @@ lean_object* l_Lean_addSearchPathFromEnv_match__1(lean_object*);
 lean_object* l_Lean_findOLean___closed__1;
 lean_object* lean_io_file_exists(lean_object*, lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
-lean_object* l_Lean_findOLean___boxed(lean_object*, lean_object*);
 lean_object* l_IO_isDir___at_Lean_SearchPath_findWithExt___spec__1(lean_object*, lean_object*);
 uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
 lean_object* l_IO_currentDir___at_Lean_moduleNameOfFileName___spec__2(lean_object*);
@@ -509,6 +508,7 @@ lean_object* l_Lean_SearchPath_findWithExt(lean_object* x_1, lean_object* x_2, l
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_inc(x_3);
 x_5 = l_Lean_Name_getRoot(x_3);
 x_6 = l_Lean_Name_toString___closed__1;
 x_7 = l_Lean_Name_toStringWithSep(x_6, x_5);
@@ -522,6 +522,7 @@ lean_inc(x_9);
 if (lean_obj_tag(x_9) == 0)
 {
 uint8_t x_10; 
+lean_dec(x_3);
 x_10 = !lean_is_exclusive(x_8);
 if (x_10 == 0)
 {
@@ -560,6 +561,7 @@ if (x_18 == 0)
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_19 = lean_ctor_get(x_9, 0);
 x_20 = l_Lean_modPathToFilePath(x_3);
+lean_dec(x_3);
 x_21 = lean_string_append(x_19, x_20);
 lean_dec(x_20);
 x_22 = lean_string_append(x_21, x_2);
@@ -573,6 +575,7 @@ x_23 = lean_ctor_get(x_9, 0);
 lean_inc(x_23);
 lean_dec(x_9);
 x_24 = l_Lean_modPathToFilePath(x_3);
+lean_dec(x_3);
 x_25 = lean_string_append(x_23, x_24);
 lean_dec(x_24);
 x_26 = lean_string_append(x_25, x_2);
@@ -598,6 +601,7 @@ if (lean_is_exclusive(x_9)) {
  x_30 = lean_box(0);
 }
 x_31 = l_Lean_modPathToFilePath(x_3);
+lean_dec(x_3);
 x_32 = lean_string_append(x_29, x_31);
 lean_dec(x_31);
 x_33 = lean_string_append(x_32, x_2);
@@ -617,6 +621,7 @@ return x_35;
 else
 {
 uint8_t x_36; 
+lean_dec(x_3);
 x_36 = !lean_is_exclusive(x_8);
 if (x_36 == 0)
 {
@@ -672,7 +677,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_SearchPath_findWithExt(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
@@ -1354,6 +1358,7 @@ x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 lean_dec(x_4);
 x_7 = l_Lean_findOLean___closed__1;
+lean_inc(x_1);
 x_8 = l_Lean_SearchPath_findWithExt(x_5, x_7, x_1, x_6);
 lean_dec(x_5);
 if (lean_obj_tag(x_8) == 0)
@@ -1409,6 +1414,7 @@ return x_29;
 else
 {
 uint8_t x_30; 
+lean_dec(x_1);
 x_30 = !lean_is_exclusive(x_8);
 if (x_30 == 0)
 {
@@ -1440,6 +1446,7 @@ return x_35;
 else
 {
 uint8_t x_36; 
+lean_dec(x_1);
 x_36 = !lean_is_exclusive(x_8);
 if (x_36 == 0)
 {
@@ -1459,15 +1466,6 @@ lean_ctor_set(x_39, 1, x_38);
 return x_39;
 }
 }
-}
-}
-lean_object* l_Lean_findOLean___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_findOLean(x_1, x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 lean_object* l_Lean_moduleNameOfFileName_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

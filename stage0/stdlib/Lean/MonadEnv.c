@@ -2562,6 +2562,7 @@ x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 lean_dec(x_2);
 x_4 = l_Lean_auxRecExt;
+lean_inc(x_3);
 x_5 = l_Lean_TagDeclarationExtension_isTagged(x_4, x_1, x_3);
 if (x_5 == 0)
 {
@@ -2580,7 +2581,6 @@ else
 lean_object* x_8; uint8_t x_9; 
 x_8 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors;
 x_9 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_8, x_3);
-lean_dec(x_3);
 if (x_9 == 0)
 {
 uint8_t x_10; 
@@ -2598,6 +2598,7 @@ return x_11;
 else
 {
 uint8_t x_12; 
+lean_inc(x_3);
 x_12 = l_Lean_isCasesOnRecursor(x_1, x_3);
 if (x_12 == 0)
 {
@@ -2605,7 +2606,6 @@ lean_object* x_13; uint8_t x_14;
 lean_dec(x_1);
 x_13 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors;
 x_14 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_13, x_3);
-lean_dec(x_3);
 if (x_14 == 0)
 {
 uint8_t x_15; 
@@ -2636,7 +2636,6 @@ else
 lean_object* x_19; uint8_t x_20; 
 x_19 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors;
 x_20 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_19, x_3);
-lean_dec(x_3);
 if (x_20 == 0)
 {
 uint8_t x_21; 

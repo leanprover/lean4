@@ -60,11 +60,13 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := do
     trace[Elab.definition.scc]! "{preDefs.map (·.declName)}"
     if preDefs.size == 1 && isNonRecursive preDefs[0] then
       let preDef := preDefs[0]
-      if preDef.modifiers.isNoncomputable then
+      -- TODO: check why we need `true ==`
+      if true == preDef.modifiers.isNoncomputable then
         addNonRec preDef
       else
         addAndCompileNonRec preDef
-    else if preDefs.any (·.modifiers.isUnsafe) then
+    -- TODO: check why we need `true ==`
+    else if true == preDefs.any (·.modifiers.isUnsafe) then
       addAndCompileUnsafe preDefs
     else if preDefs.any (·.modifiers.isPartial) then
       addAndCompilePartial preDefs

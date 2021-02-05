@@ -1,4 +1,4 @@
 defaultInstance.lean:20:20-20:23: error: failed to synthesize instance
   Foo Bool (?m x)
-defaultInstance.lean:22:35-22:38: error: typeclass instance problem contains metavariables
+defaultInstance.lean:22:35-22:38: error: typeclass instance problem is stuck, it is often due to metavariables
   Foo Bool (?m x)

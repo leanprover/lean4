@@ -1,4 +1,4 @@
-297.lean:1:10-1:11: error: typeclass instance problem contains metavariables
+297.lean:1:10-1:11: error: typeclass instance problem is stuck, it is often due to metavariables
   OfNat (Sort ?u) 0
 297.lean:2:0-2:1: error: failed to synthesize instance
   OfNat (Id PUnit) 0

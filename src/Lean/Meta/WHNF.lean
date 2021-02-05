@@ -322,23 +322,23 @@ partial def whnfCore (e : Expr) : MetaM Expr :=
       if f'.isLambda then
         let revArgs := e.getAppRevArgs
         whnfCore <| f'.betaRev revArgs
-      else match (← reduceMatcher? e) with
+      else
+        let e := if f == f' then e else e.updateFn f'
+        match (← reduceMatcher? e) with
         | ReduceMatcherResult.reduced eNew => whnfCore eNew
         | ReduceMatcherResult.partialApp   => pure e
         | ReduceMatcherResult.stuck _      => pure e
         | ReduceMatcherResult.notMatcher   =>
-          let done : Unit → MetaM Expr := fun _ =>
-            if f == f' then pure e else pure $ e.updateFn f'
-          matchConstAux f' done fun cinfo lvls =>
+          matchConstAux f' (fun _ => return e) fun cinfo lvls =>
             match cinfo with
-            | ConstantInfo.recInfo rec    => reduceRec rec lvls e.getAppArgs done whnfCore
-            | ConstantInfo.quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs done whnfCore
+            | ConstantInfo.recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) whnfCore
+            | ConstantInfo.quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs (fun _ => return e) whnfCore
             | c@(ConstantInfo.defnInfo _) => do
               if (← isAuxDef c.name) then
-                deltaBetaDefinition c lvls e.getAppRevArgs done whnfCore
+                deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) whnfCore
               else
-                done ()
-            | _ => done ()
+                return e
+            | _ => return e
     | Expr.proj .. => match (← reduceProj? e) with
       | some e => whnfCore e
       | none => return e

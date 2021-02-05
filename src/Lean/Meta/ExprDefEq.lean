@@ -938,10 +938,13 @@ private def processAssignment' (mvarApp : Expr) (v : Expr) : MetaM Bool := do
     else
       return false
 
-private def isDeltaCandidate? (t : Expr) : MetaM (Option ConstantInfo) :=
+private def isDeltaCandidate? (t : Expr) : MetaM (Option ConstantInfo) := do
   match t.getAppFn with
-  | Expr.const c _ _ => getConst? c
-  | _                => pure none
+  | Expr.const c _ _ =>
+    match (← getConst? c) with
+    | r@(some info) => if info.hasValue then return r else return none
+    | _             => return none
+  | _ => pure none
 
 /-- Auxiliary method for isDefEqDelta -/
 private def isListLevelDefEq (us vs : List Level) : MetaM LBool :=

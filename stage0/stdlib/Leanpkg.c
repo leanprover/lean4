@@ -79,6 +79,7 @@ lean_object* l_IO_removeFile___at_Leanpkg_withLockFile___spec__1(lean_object*, l
 lean_object* l_Leanpkg_readManifest___closed__4;
 lean_object* l_EStateM_bind___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_eprintln___at___private_Init_System_IO_0__IO_eprintlnAux___spec__1(lean_object*, lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_571____closed__1;
 lean_object* l_IO_FS_Handle_mk___at_Lean_Parser_testParseFile___spec__2(lean_object*, uint8_t, uint8_t, lean_object*);
 lean_object* l_Leanpkg_initPkg___closed__2;
 lean_object* l_Leanpkg_withLockFile_acquire___closed__4;
@@ -90,7 +91,6 @@ lean_object* l_String_capitalize(lean_object*);
 lean_object* l_Leanpkg_readManifest___closed__1;
 lean_object* l_Leanpkg_buildImports___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Leanpkg_uiLeanVersionString;
-extern lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_564____closed__1;
 lean_object* l_IO_Prim_fopenFlags(uint8_t, uint8_t);
 lean_object* l_Leanpkg_solveDeps(lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
@@ -2490,7 +2490,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Syntax_mkApp___closed__1;
-x_2 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_564____closed__1;
+x_2 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_571____closed__1;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -3001,7 +3001,7 @@ lean_object* l_Leanpkg_main_match__1___rarg(lean_object* x_1, lean_object* x_2, 
 _start:
 {
 lean_object* x_13; uint8_t x_14; 
-x_13 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_564____closed__1;
+x_13 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_571____closed__1;
 x_14 = lean_string_dec_eq(x_1, x_13);
 if (x_14 == 0)
 {
@@ -3583,7 +3583,7 @@ lean_object* l_Leanpkg_main(lean_object* x_1, lean_object* x_2, lean_object* x_3
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
-x_5 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_564____closed__1;
+x_5 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_571____closed__1;
 x_6 = lean_string_dec_eq(x_1, x_5);
 if (x_6 == 0)
 {

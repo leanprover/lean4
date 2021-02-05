@@ -70,6 +70,7 @@ lean_object* l_Std_PersistentHashMap_foldlMAux_traverse___at_Lean_getRevAliases_
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Std_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2920____closed__4;
 lean_object* l_Lean_resolveGlobalName___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_resolveGlobalConst___spec__2(lean_object*);
@@ -173,7 +174,6 @@ lean_object* l_Lean_resolveGlobalConstNoOverload(lean_object*);
 lean_object* l_Lean_getRevAliases(lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_Lean_SMap_insert___at_Lean_addAliasEntry___spec__7(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2896____closed__4;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instMonadResolveName(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_addAliasEntry___spec__3(lean_object*, size_t, lean_object*);
@@ -1831,7 +1831,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__2;
 x_2 = l_Lean_mkStateFromImportedEntries___at_Lean_initFn____x40_Lean_ResolveName___hyg_53____spec__2___lambda__1___closed__1;
 x_3 = l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__3;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2896____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2920____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

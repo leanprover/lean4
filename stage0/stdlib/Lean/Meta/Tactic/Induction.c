@@ -66,7 +66,7 @@ lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams(le
 lean_object* l_Array_mapMUnsafe_map___at_Lean_LocalContext_getFVars___spec__1(size_t, size_t, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams___closed__4;
 lean_object* l_Lean_Meta_induction_match__8(lean_object*);
-lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_2436_(lean_object*);
+lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_2439_(lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_Meta_checkNotAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6104,7 +6104,7 @@ lean_dec(x_6);
 return x_12;
 }
 }
-lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_2436_(lean_object* x_1) {
+lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_2439_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -6243,7 +6243,7 @@ l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__9___closed__2 = _init_l_
 lean_mark_persistent(l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__9___closed__2);
 l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__9___boxed__const__1 = _init_l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__9___boxed__const__1();
 lean_mark_persistent(l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__9___boxed__const__1);
-res = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_2436_(lean_io_mk_world());
+res = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_2439_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

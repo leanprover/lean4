@@ -61,16 +61,6 @@ protected partial def Stream.forIn [Stream ρ α] [Monad m] (s : ρ) (b : β) (f
 instance (priority := low) [Stream ρ α] : ForIn m ρ α where
   forIn := Stream.forIn
 
-/- Helper class for using dot-notation with `Stream`s -/
-structure StreamOf (ρ : Type u) where
-  s : ρ
-
-abbrev streamOf (s : ρ) :=
-  StreamOf.mk s
-
-@[inline] def StreamOf.forIn [Stream ρ α] [Monad m] [Inhabited (m β)] (s : StreamOf ρ) (b : β) (f : α → β → m (ForInStep β)) : m β := do
-  Stream.forIn s.s b f
-
 instance : ToStream (List α) (List α) where
   toStream c := c
 

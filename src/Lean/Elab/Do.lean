@@ -1354,7 +1354,7 @@ mutual
       let uvarsTuple ← liftMacroM do mkTuple (← uvars.mapM mkIdentFromRef)
       if hasReturn forInBodyCodeBlock.code then
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
-        let forInTerm ← `(forIn $(xs) (MProd.mk none $uvarsTuple) fun $x r => let r := r.2; $forInBody)
+        let forInTerm ← `(forIn (m := $((← read).m)) $(xs) (MProd.mk none $uvarsTuple) fun $x r => let r := r.2; $forInBody)
         let auxDo ← `(do let r ← $forInTerm:term;
                          $uvarsTuple:term := r.2;
                          match r.1 with
@@ -1363,7 +1363,7 @@ mutual
         doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
       else
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
-        let forInTerm ← `(forIn $(xs) $uvarsTuple fun $x r => $forInBody)
+        let forInTerm ← `(forIn (m := $((← read).m)) $(xs) $uvarsTuple fun $x r => $forInBody)
         if doElems.isEmpty then
           let auxDo ← `(do let r ← $forInTerm:term;
                            $uvarsTuple:term := r;

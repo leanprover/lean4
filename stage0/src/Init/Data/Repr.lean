@@ -195,7 +195,7 @@ protected def Char.repr (c : Char) : String :=
   c.quote
 
 def String.quote (s : String) : String :=
-  if s.isEmpty = true then "\"\""
+  if s.isEmpty then "\"\""
   else s.foldl (fun s c => s ++ c.quoteCore) "\"" ++ "\""
 
 instance : Repr String where

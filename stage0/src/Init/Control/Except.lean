@@ -8,6 +8,7 @@ The Except monad transformer.
 prelude
 import Init.Control.Basic
 import Init.Control.Id
+import Init.Coe
 
 universes u v w u'
 
@@ -119,7 +120,7 @@ variable {ε : Type u} {m : Type v → Type w}
 /-- Alternative orelse operator that allows to select which exception should be used.
     The default is to use the first exception since the standard `orelse` uses the second. -/
 @[inline] def orelse' [MonadExcept ε m] {α : Type v} (t₁ t₂ : m α) (useFirstEx := true) : m α :=
-  tryCatch t₁ fun e₁ => tryCatch t₂ fun e₂ => throw (if useFirstEx = true then e₁ else e₂)
+  tryCatch t₁ fun e₁ => tryCatch t₂ fun e₂ => throw (if useFirstEx then e₁ else e₂)
 
 end MonadExcept
 

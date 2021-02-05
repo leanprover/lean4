@@ -17,7 +17,7 @@ structure Range where
 namespace Range
 universes u v
 
-@[inline] def forIn {β : Type u} {m : Type u → Type v} [Monad m] (range : Range) (init : β) (f : Nat → β → m (ForInStep β)) : m β :=
+@[inline] protected def forIn {β : Type u} {m : Type u → Type v} [Monad m] (range : Range) (init : β) (f : Nat → β → m (ForInStep β)) : m β :=
   let rec @[specialize] loop (i : Nat) (j : Nat) (b : β) : m β := do
     if j ≥ range.stop then
       pure b
@@ -27,6 +27,9 @@ universes u v
         | ForInStep.done b  => pure b
         | ForInStep.yield b => loop i (j + range.step) b
   loop range.stop range.start init
+
+instance : ForIn m Range Nat where
+  forIn := Range.forIn
 
 syntax:max "[" ":" term "]" : term
 syntax:max "[" term ":" term "]" : term

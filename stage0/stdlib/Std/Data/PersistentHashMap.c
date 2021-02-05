@@ -93,6 +93,7 @@ lean_object* l_Std_PersistentHashMap_isUnaryEntries_match__2(lean_object*, lean_
 lean_object* l_Std_PersistentHashMap_find_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_toList___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_stats___rarg___closed__1;
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_276____closed__22;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_stats___rarg___boxed(lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlM___at_Std_PersistentHashMap_toList___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -165,7 +166,6 @@ lean_object* l_Std_PersistentHashMap_stats___rarg(lean_object*);
 lean_object* l_Std_PersistentHashMap_forM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_contains_match__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_265____closed__22;
 size_t l_USize_mul(size_t, size_t);
 lean_object* l_Std_PersistentHashMap_findAtAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4829,7 +4829,7 @@ lean_dec(x_1);
 x_19 = l_Nat_repr(x_18);
 x_20 = lean_string_append(x_17, x_19);
 lean_dec(x_19);
-x_21 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_265____closed__22;
+x_21 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_276____closed__22;
 x_22 = lean_string_append(x_20, x_21);
 return x_22;
 }

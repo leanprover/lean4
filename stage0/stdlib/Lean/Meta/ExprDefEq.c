@@ -282,7 +282,6 @@ lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkTypesAndAssign___
 lean_object* l___private_Lean_Util_Trace_0__Lean_withNestedTracesFinalizer___at_Lean_Meta_isExprDefEqAuxImpl___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_assignConst___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_sameHeadSymbol(lean_object*, lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_807____closed__1;
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_mkLambdaFVarsWithLetDeps_hasLetDeclsInBetween_match__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_assignToConstFun___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
@@ -317,6 +316,7 @@ lean_object* l_Lean_ConstantInfo_name(lean_object*);
 extern lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_tryUnificationHints___spec__1___closed__2;
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__5;
 lean_object* l_Lean_Meta_toCtorIfLit(lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_818____closed__1;
 lean_object* l_Lean_Expr_isFVar___boxed(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_CheckAssignment_check___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstance___at___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -44637,7 +44637,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_isExprDefEq___closed__2;
-x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_807____closed__1;
+x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_818____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

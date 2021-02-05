@@ -22,12 +22,12 @@ uint8_t l_Lean_Expr_hasAnyFVar_visit___at_Lean_Expr_containsFVar___spec__1(lean_
 extern lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at___private_Lean_Util_Trace_0__Lean_withNestedTracesFinalizer___spec__3___lambda__2___closed__1;
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
-extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_918____closed__4;
 lean_object* l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstanceCmds(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_liftTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
+extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_931____closed__4;
 lean_object* l_Array_forM___at_Lean_Elab_Deriving_BEq_mkBEqInstanceHandler___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_BEq_mkMatch_mkElseAlt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -943,7 +943,7 @@ lean_dec(x_39);
 if (x_40 == 0)
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; 
-x_41 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_918____closed__4;
+x_41 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_931____closed__4;
 x_42 = l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(x_41, x_15, x_16, x_17);
 x_43 = lean_ctor_get(x_42, 0);
 lean_inc(x_43);
@@ -1208,7 +1208,7 @@ lean_dec(x_142);
 if (x_143 == 0)
 {
 lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; 
-x_144 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_918____closed__4;
+x_144 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_931____closed__4;
 x_145 = l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(x_144, x_15, x_16, x_17);
 x_146 = lean_ctor_get(x_145, 0);
 lean_inc(x_146);

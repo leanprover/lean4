@@ -137,7 +137,7 @@ def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
     | some b => pure (some b)
     | none   => findSomeM? f as
 
-@[inline] def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : α → β → m (ForInStep β)) : m β :=
+@[inline] protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : α → β → m (ForInStep β)) : m β :=
   let rec @[specialize] loop
     | [], b    => pure b
     | a::as, b => do
@@ -145,5 +145,8 @@ def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
       | ForInStep.done b  => pure b
       | ForInStep.yield b => loop as b
   loop as init
+
+instance : ForIn m (List α) α where
+  forIn := List.forIn
 
 end List

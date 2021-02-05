@@ -43,7 +43,7 @@ protected def max : RBNode α β → Option (Sigma (fun k => β k))
     let b ← f b k v
     foldM f b r
 
-@[inline] def forIn [Monad m] (as : RBNode α β) (init : σ) (f : (k : α) → β k → σ → m (ForInStep σ)) : m σ := do
+@[inline] protected def forIn [Monad m] (as : RBNode α β) (init : σ) (f : (k : α) → β k → σ → m (ForInStep σ)) : m σ := do
   let rec @[specialize] visit : RBNode α β → σ → m (ForInStep σ)
     | leaf, b           => return ForInStep.yield b
     | node _ l k v r, b => do
@@ -252,8 +252,11 @@ def depth (f : Nat → Nat → Nat) (t : RBMap α β lt) : Nat :=
 @[inline] def forM [Monad m] (f : α → β → m PUnit) (t : RBMap α β lt) : m PUnit :=
   t.foldM (fun _ k v => f k v) ⟨⟩
 
-@[inline] def forIn [Monad m] (t : RBMap α β lt) (init : σ) (f : (α × β) → σ → m (ForInStep σ)) : m σ :=
+@[inline] protected def forIn [Monad m] (t : RBMap α β lt) (init : σ) (f : (α × β) → σ → m (ForInStep σ)) : m σ :=
   t.val.forIn init (fun a b acc => f (a, b) acc)
+
+instance : ForIn m (RBMap α β lt) (α × β) where
+  forIn := RBMap.forIn
 
 @[inline] def isEmpty : RBMap α β lt → Bool
   | ⟨leaf, _⟩ => true

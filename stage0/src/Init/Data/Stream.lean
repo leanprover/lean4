@@ -48,6 +48,19 @@ export ToStream (toStream)
 class Stream (stream : Type u) (value : outParam (Type v)) : Type (max u v) where
   next? : stream → Option (value × stream)
 
+protected partial def Stream.forIn [Stream ρ α] [Monad m] (s : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β := do
+  let inst : Inhabited (m β) := ⟨pure b⟩
+  let rec visit (s : ρ) (b : β) : m β := do
+    match Stream.next? s with
+    | some (a, s) => match (← f a b) with
+      | ForInStep.done b  => return b
+      | ForInStep.yield b => visit s b
+    | none => return b
+  visit s b
+
+instance (priority := low) [Stream ρ α] : ForIn m ρ α where
+  forIn := Stream.forIn
+
 /- Helper class for using dot-notation with `Stream`s -/
 structure StreamOf (ρ : Type u) where
   s : ρ
@@ -55,14 +68,8 @@ structure StreamOf (ρ : Type u) where
 abbrev streamOf (s : ρ) :=
   StreamOf.mk s
 
-@[inline] partial def StreamOf.forIn [Stream ρ α] [Monad m] [Inhabited (m β)] (s : StreamOf ρ) (b : β) (f : α → β → m (ForInStep β)) : m β := do
-  let rec @[specialize] visit (s : ρ) (b : β) : m β := do
-    match Stream.next? s with
-    | some (a, s) => match (← f a b) with
-      | ForInStep.done b  => return b
-      | ForInStep.yield b => visit s b
-    | none => return b
-  visit s.s b
+@[inline] def StreamOf.forIn [Stream ρ α] [Monad m] [Inhabited (m β)] (s : StreamOf ρ) (b : β) (f : α → β → m (ForInStep β)) : m β := do
+  Stream.forIn s.s b f
 
 instance : ToStream (List α) (List α) where
   toStream c := c

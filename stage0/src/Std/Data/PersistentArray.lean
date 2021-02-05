@@ -223,7 +223,7 @@ partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad 
       | ForInStep.yield bNew => b := bNew
     return ForInStep.yield b
 
-@[specialize] def forIn (t : PersistentArray α) (init : β) (f : α → β → m (ForInStep β)) : m β := do
+@[specialize] protected def forIn (t : PersistentArray α) (init : β) (f : α → β → m (ForInStep β)) : m β := do
   match (← forInAux (inh := ⟨init⟩) f t.root init) with
   | ForInStep.done b  => pure b
   | ForInStep.yield b =>
@@ -233,6 +233,9 @@ partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad 
       | ForInStep.done b => return b
       | ForInStep.yield bNew => b := bNew
     return b
+
+instance : ForIn m (PersistentArray α) α where
+  forIn := PersistentArray.forIn
 
 @[specialize] partial def findSomeMAux (f : α → m (Option β)) : PersistentArrayNode α → m (Option β)
   | node cs => cs.findSomeM? (fun c => findSomeMAux f c)

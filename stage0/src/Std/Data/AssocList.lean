@@ -80,7 +80,7 @@ def all (p : α → β → Bool) : AssocList α β → Bool
   | nil         => true
   | cons k v es => p k v && all p es
 
-@[inline] def forIn {α : Type u} {β : Type v} {δ : Type w} {m : Type w → Type w'} [Monad m]
+@[inline] protected def forIn {α : Type u} {β : Type v} {δ : Type w} {m : Type w → Type w'} [Monad m]
     (as : AssocList α β) (init : δ) (f : (α × β) → δ → m (ForInStep δ)) : m δ :=
   let rec @[specialize] loop
     | d, nil => pure d
@@ -89,6 +89,9 @@ def all (p : α → β → Bool) : AssocList α β → Bool
       | ForInStep.done d  => pure d
       | ForInStep.yield d => loop d es
   loop init as
+
+instance : ForIn m (AssocList α β) (α × β) where
+  forIn := AssocList.forIn
 
 end Std.AssocList
 

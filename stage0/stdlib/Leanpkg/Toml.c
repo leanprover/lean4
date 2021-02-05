@@ -85,6 +85,7 @@ lean_object* l_Toml_val____2;
 lean_object* l_Array_mapMUnsafe_map___at_Toml_ofSyntax___spec__3(size_t, size_t, lean_object*);
 lean_object* l_Toml_instInhabitedValue;
 lean_object* l_Toml_ofSyntax___closed__5;
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_276____closed__22;
 lean_object* l_Toml_val_quot___closed__3;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Toml_parse___closed__1;
@@ -142,7 +143,6 @@ lean_object* l_Toml_val____1___closed__1;
 lean_object* l_Toml_keyCat_quot___closed__1;
 lean_object* l_Toml_val_____closed__4;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_265____closed__22;
 lean_object* l_Lean_Parser_whitespace(lean_object*, lean_object*);
 lean_object* l_Toml_val____1___closed__2;
 lean_object* l_Toml_ofSyntax_match__5___rarg(lean_object*, lean_object*);
@@ -1100,7 +1100,7 @@ static lean_object* _init_l_Toml_inlineTable___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_265____closed__22;
+x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_276____closed__22;
 x_2 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -1849,7 +1849,7 @@ x_15 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
 lean_ctor_set(x_15, 1, x_13);
 x_16 = lean_array_push(x_12, x_15);
-x_17 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_265____closed__22;
+x_17 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_276____closed__22;
 x_18 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_18, 0, x_4);
 lean_ctor_set(x_18, 1, x_17);

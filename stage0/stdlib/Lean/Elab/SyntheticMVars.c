@@ -8286,7 +8286,7 @@ static lean_object* _init_l_List_forIn_loop___at___private_Lean_Elab_SyntheticMV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("typeclass instance problem contains metavariables");
+x_1 = lean_mk_string("typeclass instance problem is stuck, it is often due to metavariables");
 return x_1;
 }
 }

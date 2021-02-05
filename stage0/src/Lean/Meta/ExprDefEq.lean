@@ -938,10 +938,13 @@ private def processAssignment' (mvarApp : Expr) (v : Expr) : MetaM Bool := do
     else
       return false
 
-private def isDeltaCandidate? (t : Expr) : MetaM (Option ConstantInfo) :=
+private def isDeltaCandidate? (t : Expr) : MetaM (Option ConstantInfo) := do
   match t.getAppFn with
-  | Expr.const c _ _ => getConst? c
-  | _                => pure none
+  | Expr.const c _ _ =>
+    match (← getConst? c) with
+    | r@(some info) => if info.hasValue then return r else return none
+    | _             => return none
+  | _ => pure none
 
 /-- Auxiliary method for isDefEqDelta -/
 private def isListLevelDefEq (us vs : List Level) : MetaM LBool :=
@@ -969,6 +972,25 @@ private def tryHeuristic (t s : Expr) : MetaM Bool :=
   let tFn := t.getAppFn
   let sFn := s.getAppFn
   traceCtx `Meta.isDefEq.delta do
+    /-
+      We process arguments before universe levels to reduce a source of brittleness in the TC procedure.
+
+      In the TC procedure, we can solve problems containing metavariables.
+      If the TC procedure tries to assign one of these metavariables, it interrupts the search
+      using a "stuck" exception. The elaborator catches it, and "interprets" it as "we should try again later".
+      Now suppose we have a TC problem, and there are two "local" candidate instances we can try: "bad" and "good".
+      The "bad" candidate is stuck because of a universe metavariable in the TC problem.
+      If we try "bad" first, the TC procedure is interrupted. Moreover, if we have ignored the exception,
+      "bad" would fail anyway trying to assign two different free variables `α =?= β`.
+      Example: `Preorder.{?u} α =?= Preorder.{?v} β`, where `?u` and `?v` are universe metavariables that were
+      not created by the TC procedure.
+      The key issue here is that we have an `isDefEq t s` invocation that is interrupted by the "stuck" exception,
+      but it would have failed anyway if we had continued processing it.
+      By solving the arguments first, we make the example above fail without throwing the "stuck" exception.
+
+      TODO: instead of throwing an exception as soon as we get stuck, we should just set a flag.
+      Then the entry-point for `isDefEq` checks the flag before returning `true`.
+    -/
     commitWhen do
       let b ← isDefEqArgs tFn t.getAppArgs s.getAppArgs
               <&&>
@@ -1316,6 +1338,24 @@ private def isDefEqProj : Expr → Expr → MetaM Bool
   | Expr.proj _ i t _, Expr.proj _ j s _ => pure (i == j) <&&> Meta.isExprDefEqAux t s
   | _, _ => pure false
 
+/-
+  Given applications `t` and `s` that are in WHNF (modulo the current transparency setting),
+  check whether they are definitionally equal or not.
+-/
+private def isDefEqApp (t s : Expr) : MetaM Bool := do
+  let tFn := t.getAppFn
+  let sFn := s.getAppFn
+  if tFn.isConst && sFn.isConst && tFn.constName! == sFn.constName! then
+    /- See comment at `tryHeuristic` explaining why we processe arguments before universe levels. -/
+    if (← commitWhen (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)) then
+      return true
+    else
+      isDefEqOnFailure t s
+  else if (← commitWhen (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)) then
+    return true
+  else
+    isDefEqOnFailure t s
+
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := do
   trace[Meta.isDefEq.step]! "{t} =?= {s}"
   checkMaxHeartbeats "isDefEq"
@@ -1336,11 +1376,7 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := do
     if t.isConst && s.isConst then
       if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else pure false
     else if t.isApp && s.isApp then
-      let tFn := t.getAppFn
-      if (← commitWhen (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)) then
-        pure true
-      else
-        isDefEqOnFailure t s
+      isDefEqApp t s
     else
       whenUndefDo (isDefEqStringLit t s) do
       isDefEqOnFailure t s

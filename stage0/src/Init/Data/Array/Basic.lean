@@ -423,11 +423,11 @@ def getIdx? [BEq α] (a : Array α) (v : α) : Option Nat :=
 a.findIdx? fun a => a == v
 
 @[inline]
-def any (p : α → Bool) (as : Array α) (start := 0) (stop := as.size) : Bool :=
+def any (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool :=
   Id.run <| as.anyM p start stop
 
 @[inline]
-def all (p : α → Bool) (as : Array α) (start := 0) (stop := as.size) : Bool :=
+def all (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool :=
   Id.run <| as.allM p start stop
 
 def contains [BEq α] (as : Array α) (a : α) : Bool :=

@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_addDeclarationRanges___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5636____closed__28;
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5634____closed__28;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addDeclarationRanges___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_example___elambda__1___closed__2;
@@ -191,7 +191,7 @@ _start:
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 lean_inc(x_1);
 x_2 = l_Lean_Syntax_getKind(x_1);
-x_3 = l_myMacro____x40_Init_NotationExtra___hyg_5636____closed__28;
+x_3 = l_myMacro____x40_Init_NotationExtra___hyg_5634____closed__28;
 x_4 = lean_name_eq(x_2, x_3);
 lean_dec(x_2);
 if (x_4 == 0)

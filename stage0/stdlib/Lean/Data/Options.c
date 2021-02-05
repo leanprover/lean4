@@ -53,7 +53,6 @@ lean_object* l_String_splitOn(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_getOptionDecl___closed__1;
 uint8_t l_Lean_NameMap_contains___rarg(lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1135____closed__3;
 lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_826____closed__9;
 lean_object* l_Lean_setOptionFromString_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_109____spec__1(lean_object*, lean_object*);
@@ -152,6 +151,7 @@ lean_object* l_List_map___at_Lean_setOptionFromString___spec__1(lean_object*);
 lean_object* l___private_Lean_Data_Options_0__Lean_initOptionDeclsRef(lean_object*);
 lean_object* l_Lean_Option_get(lean_object*);
 lean_object* l_Lean_setOptionFromString___closed__2;
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1133____closed__3;
 lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_826____closed__11;
 lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a_x3d_____closed__1;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -2008,7 +2008,7 @@ static lean_object* _init_l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_8
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1135____closed__3;
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1133____closed__3;
 x_2 = l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_826____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

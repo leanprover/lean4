@@ -7,7 +7,7 @@ namespace Lean.Meta
 
 inductive TransparencyMode where
   | all | default | reducible | instances
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Repr
 
 namespace TransparencyMode
 

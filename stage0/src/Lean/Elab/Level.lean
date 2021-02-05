@@ -11,6 +11,7 @@ import Lean.Elab.AutoBound
 namespace Lean.Elab.Level
 
 structure Context where
+  options           : Options
   ref               : Syntax
   autoBoundImplicit : Bool
 
@@ -21,9 +22,11 @@ structure State where
 
 abbrev LevelElabM := ReaderT Context (EStateM Exception State)
 
+instance : MonadOptions LevelElabM where
+  getOptions := return (← read).options
+
 instance : MonadRef LevelElabM where
   getRef        := return (← read).ref
-
   withRef ref x := withReader (fun ctx => { ctx with ref := ref }) x
 
 instance : AddMessageContext LevelElabM where
@@ -38,6 +41,16 @@ def mkFreshLevelMVar : LevelElabM Level := do
   let mvarId ← mkFreshId
   modify fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId }
   return mkLevelMVar mvarId
+
+register_builtin_option maxUniverseOffset : Nat := {
+  defValue := 32
+  descr    := "maximum universe level offset"
+}
+
+private def checkUniverseOffset [Monad m] [MonadError m] [MonadOptions m] (n : Nat) : m Unit := do
+  let max := maxUniverseOffset.get (← getOptions)
+  unless n <= max do
+    throwError! "maximum universe level offset threshold ({max}) has been reached, you can increase the limit using option `set_option maxUniverseOffset <limit>`, but you are probably misusing universe levels since offsets are usually small natural numbers"
 
 partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
   let kind := stx.getKind
@@ -55,7 +68,7 @@ partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
     mkFreshLevelMVar
   else if kind == numLitKind then
     match stx.isNatLit? with
-    | some val => return Level.ofNat val
+    | some val => checkUniverseOffset val; return Level.ofNat val
     | none     => throwIllFormedSyntax
   else if kind == identKind then
     let paramName := stx.getId
@@ -68,7 +81,7 @@ partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
   else if kind == `Lean.Parser.Level.addLit then
     let lvl ← elabLevel (stx.getArg 0)
     match stx.getArg 2 |>.isNatLit? with
-    | some val => return lvl.addOffset val
+    | some val => checkUniverseOffset val; return lvl.addOffset val
     | none     => throwIllFormedSyntax
   else
     throwError "unexpected universe level syntax kind"

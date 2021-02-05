@@ -269,7 +269,6 @@ lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_ForEachExpr_0__L
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_2191____closed__1;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
-extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_5935____closed__20;
 extern lean_object* l_Lean_getSanitizeNames___closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_withBindingBody___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_annotatePos_match__2(lean_object*);
@@ -279,6 +278,7 @@ lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_PrettyPrinter_Delaborat
 lean_object* l_Lean_getPPStructureInstances___boxed(lean_object*);
 lean_object* l_Lean_getPPUniverses___boxed(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_mkDelabAttribute___closed__12;
+extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_5929____closed__20;
 lean_object* l_Lean_PrettyPrinter_Delaborator_instAlternativeDelabM;
 lean_object* l_Lean_PrettyPrinter_Delaborator_getExprKind_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
@@ -2963,7 +2963,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_5935____closed__20;
+x_2 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_5929____closed__20;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

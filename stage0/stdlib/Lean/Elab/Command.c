@@ -112,6 +112,7 @@ lean_object* l_Lean_Elab_Command_commandElabAttribute;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Elab_Command_getScope___boxed(lean_object*);
 lean_object* l_Lean_addDecl___at_Lean_Elab_Command_elabEvalUnsafe___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1077____closed__1;
 lean_object* l_Lean_Elab_Command_elabUniverse(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_identKind___closed__2;
 lean_object* l_Lean_addDocString___at_Lean_Elab_Command_expandDeclId___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -859,7 +860,6 @@ lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabInitQuot(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabUniverse___closed__1;
 lean_object* l_Lean_Elab_Command_elabCheck_match__1(lean_object*);
-extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1079____closed__1;
 lean_object* l_Lean_Elab_Command_getScope___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_Elab_isFreshInstanceName(lean_object*);
 lean_object* l_Lean_Elab_Command_instAddErrorMessageContextCommandElabM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -8101,7 +8101,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_Command___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1079____closed__1;
+x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1077____closed__1;
 x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_4002____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

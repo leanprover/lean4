@@ -448,7 +448,6 @@ lean_object* l_Lean_EnumAttributes_setValue___rarg(lean_object*, lean_object*, l
 lean_object* l_Lean_TagAttribute_hasTag_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qpartition_loop___at_Lean_registerEnumAttributes___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3363____closed__21;
 lean_object* l_Lean_Attribute_Builtin_getId___closed__5;
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute___lambda__2(lean_object*, lean_object*, lean_object*);
@@ -509,6 +508,7 @@ lean_object* l_Lean_registerTagAttribute___lambda__4___boxed(lean_object*, lean_
 lean_object* l_List_map___at_Lean_registerEnumAttributes___spec__9___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getAttributeImpl(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_826____closed__4;
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5629____closed__21;
 lean_object* l_Lean_AttributeImpl_erase___default___boxed(lean_object*);
 lean_object* l_Lean_getAttributeImpl_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getBuiltinAttributeImpl_match__1(lean_object*);
@@ -6085,7 +6085,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Attr_simp___closed__2;
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3363____closed__21;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5629____closed__21;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

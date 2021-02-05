@@ -145,6 +145,7 @@ uint8_t l_Std_AssocList_contains___at_Lean_Compiler_SpecState_addEntry___spec__7
 extern lean_object* l_Lean_registerTagAttribute___lambda__5___closed__4;
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_Lean_SMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__12(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2897____closed__4;
 extern lean_object* l_Lean_mkEmptyEnvironment___lambda__1___closed__1;
 lean_object* l_Lean_Compiler_SpecState_cache___default___closed__1;
 lean_object* lean_add_specialization_info(lean_object*, lean_object*, lean_object*);
@@ -154,7 +155,6 @@ lean_object* l_Std_PersistentHashMap_insert___at_Lean_Compiler_SpecState_addEntr
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_246____spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_SpecState_cache___default___closed__2;
 lean_object* l_Lean_Compiler_instInhabitedSpecEntry___closed__1;
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2909____closed__4;
 lean_object* l_Lean_Compiler_instInhabitedSpecState___closed__1;
 size_t lean_usize_of_nat(lean_object*);
 extern lean_object* l_Lean_registerTagAttribute___lambda__6___closed__2;
@@ -4634,7 +4634,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_47____closed__4;
 x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_246____closed__1;
 x_3 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_246____closed__2;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2909____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2897____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

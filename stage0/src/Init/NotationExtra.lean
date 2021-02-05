@@ -79,12 +79,26 @@ end Lean
 
 open Lean
 
-macro "∃" xs:explicitBinders ", " b:term : term => expandExplicitBinders `Exists xs b
+macro "∃ " xs:explicitBinders ", " b:term : term => expandExplicitBinders `Exists xs b
 macro "exists" xs:explicitBinders ", " b:term : term => expandExplicitBinders `Exists xs b
 macro "Σ" xs:explicitBinders ", " b:term : term => expandExplicitBinders `Sigma xs b
 macro "Σ'" xs:explicitBinders ", " b:term : term => expandExplicitBinders `PSigma xs b
-macro:35 xs:bracketedExplicitBinders "×" b:term:35  : term => expandBrackedBinders `Sigma xs b
-macro:35 xs:bracketedExplicitBinders "×'" b:term:35 : term => expandBrackedBinders `PSigma xs b
+macro:35 xs:bracketedExplicitBinders " × " b:term:35  : term => expandBrackedBinders `Sigma xs b
+macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBinders `PSigma xs b
+
+@[appUnexpander Exists] def unexpandExists : Lean.PrettyPrinter.Unexpander
+  | `(Exists fun $x:ident => ∃ $xs:binderIdent*, $b) => `(∃ $x:ident $xs:binderIdent*, $b)
+  | `(Exists fun $x:ident => $b)                     => `(∃ $x:ident, $b)
+  | `(Exists fun ($x:ident : $t) => $b)              => `(∃ ($x:ident : $t), $b)
+  | _                                                => throw ()
+
+@[appUnexpander Sigma] def unexpandSigma : Lean.PrettyPrinter.Unexpander
+  | `(Sigma fun ($x:ident : $t) => $b) => `(($x:ident : $t) × $b)
+  | _                                  => throw ()
+
+@[appUnexpander PSigma] def unexpandPSigma : Lean.PrettyPrinter.Unexpander
+  | `(PSigma fun ($x:ident : $t) => $b) => `(($x:ident : $t) ×' $b)
+  | _                                   => throw ()
 
 syntax "funext " (colGt term:max)+ : tactic
 

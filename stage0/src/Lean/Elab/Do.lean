@@ -682,6 +682,41 @@ def isDoExpr? (doElem : Syntax) : Option Syntax :=
   else
     none
 
+/--
+  Given `uvars := #[a_1, ..., a_n, a_{n+1}]` construct term
+  ```
+  let a_1     := x.1
+  let x       := x.2
+  let a_2     := x.1
+  let x       := x.2
+  ...
+  let a_n     := x.1
+  let a_{n+1} := x.2
+  body
+  ```
+  Special cases
+  - `uvars := #[]` => `body`
+  - `uvars := #[a]` => `let a := x; body`
+
+
+  We use this method when expanding the `for-in` notation.
+-/
+private def destructTuple (uvars : Array Name) (x : Syntax) (body : Syntax) : MacroM Syntax := do
+  if uvars.size == 0 then
+    return body
+  else if uvars.size == 1 then
+    `(let $(← mkIdentFromRef uvars[0]):ident := $x; $body)
+  else
+    destruct uvars.toList x body
+where
+  destruct (as : List Name) (x : Syntax) (body : Syntax) : MacroM Syntax := do
+    match as with
+      | [a, b]  => `(let $(← mkIdentFromRef a):ident := $x.1; let $(← mkIdentFromRef b):ident := $x.2; $body)
+      | a :: as => withFreshMacroScope do
+        let rest ← destruct as (← `(x)) body
+        `(let $(← mkIdentFromRef a):ident := $x.1; let x := $x.2; $rest)
+      | _ => unreachable!
+
 /-
 The procedure `ToTerm.run` converts a `CodeBlock` into a `Syntax` term.
 We use this method to convert
@@ -1318,7 +1353,8 @@ mutual
       let ⟨uvars, forInBody⟩ ← mkForInBody x forInBodyCodeBlock
       let uvarsTuple ← liftMacroM do mkTuple (← uvars.mapM mkIdentFromRef)
       if hasReturn forInBodyCodeBlock.code then
-        let forInTerm ← `($(xs).forIn (MProd.mk none $uvarsTuple) fun $x (MProd.mk _ $uvarsTuple) => $forInBody)
+        let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
+        let forInTerm ← `($(xs).forIn (MProd.mk none $uvarsTuple) fun $x r => let r := r.2; $forInBody)
         let auxDo ← `(do let r ← $forInTerm:term;
                          $uvarsTuple:term := r.2;
                          match r.1 with
@@ -1326,7 +1362,8 @@ mutual
                          | some a => return ensureExpectedType! "type mismatch, 'for'" a)
         doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
       else
-        let forInTerm ← `($(xs).forIn $uvarsTuple fun $x $uvarsTuple => $forInBody)
+        let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
+        let forInTerm ← `($(xs).forIn $uvarsTuple fun $x r => $forInBody)
         if doElems.isEmpty then
           let auxDo ← `(do let r ← $forInTerm:term;
                            $uvarsTuple:term := r;

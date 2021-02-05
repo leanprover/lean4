@@ -350,7 +350,7 @@ def liftLevelM {α} (x : LevelElabM α) : TermElabM α := do
   let ref ← getRef
   let mctx ← getMCtx
   let ngen ← getNGen
-  let lvlCtx : Level.Context := { ref := ref, autoBoundImplicit := ctx.autoBoundImplicit }
+  let lvlCtx : Level.Context := { options := (← getOptions), ref := ref, autoBoundImplicit := ctx.autoBoundImplicit }
   match (x lvlCtx).run { ngen := ngen, mctx := mctx, levelNames := (← getLevelNames) } with
   | EStateM.Result.ok a newS  => setMCtx newS.mctx; setNGen newS.ngen; setLevelNames newS.levelNames; pure a
   | EStateM.Result.error ex _ => throw ex
@@ -624,31 +624,6 @@ private def isTypeApp? (type : Expr) : TermElabM (Option (Expr × Expr)) := do
   match type with
   | Expr.app m α _ => pure (some ((← instantiateMVars m), (← instantiateMVars α)))
   | _              => pure none
-
-/-
-private def isMonad? (type : Expr) : TermElabM (Option IsMonadResult) := do
-  let type ← withReducible $ whnf type
-  match type with
-  | Expr.app m α _ =>
-    try
-      let monadType ← mkAppM `Monad #[m]
-      let result    ← trySynthInstance monadType
-      match result with
-      | LOption.some inst => pure (some { m := m, α := α, inst := inst })
-      | _                 => pure none
-    catch _ => pure none
-  | _ => pure none
--/
-
-private def isMonad? (m : Expr) : TermElabM (Option Expr) :=
-  try
-    let monadType ← mkAppM `Monad #[m]
-    let result    ← trySynthInstance monadType
-    match result with
-    | LOption.some inst => pure inst
-    | _                 => pure none
-  catch _ =>
-    pure none
 
 def synthesizeInst (type : Expr) : TermElabM Expr := do
   let type ← instantiateMVars type

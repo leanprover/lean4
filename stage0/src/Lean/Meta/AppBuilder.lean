@@ -445,6 +445,17 @@ def mkImpCongrCtx (h₁ h₂ : Expr) : MetaM Expr :=
 def mkForallCongr (h : Expr) : MetaM Expr :=
   mkAppM ``forallCongr #[h]
 
+/-- Return instance for `[Monad m]` if there is one -/
+def isMonad? (m : Expr) : MetaM (Option Expr) :=
+  try
+    let monadType ← mkAppM `Monad #[m]
+    let result    ← trySynthInstance monadType
+    match result with
+    | LOption.some inst => pure inst
+    | _                 => pure none
+  catch _ =>
+    pure none
+
 /-- Return `(n : type)`, a numeric literal of type `type`. The method fails if we don't have an instance `OfNat type n` -/
 def mkNumeral (type : Expr) (n : Nat) : MetaM Expr := do
   let u ← getDecLevel type

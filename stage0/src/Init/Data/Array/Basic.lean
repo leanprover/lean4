@@ -285,7 +285,7 @@ def findIdxM? [Monad m] (as : Array α) (p : α → m Bool) : m (Option Nat) := 
   let mut i := 0
   for a in as do
     if (← p a) then
-      return i
+      return some i
     i := i + 1
   return none
 

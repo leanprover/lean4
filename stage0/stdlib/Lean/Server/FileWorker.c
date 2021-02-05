@@ -243,6 +243,7 @@ lean_object* l_Lean_Server_FileWorker_compileHeader___closed__2;
 lean_object* l_Std_PersistentArray_forIn___at_Lean_Server_FileWorker_handleDefinition___spec__5(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_AsyncList_waitAll___at_Lean_Server_FileWorker_handleWaitForDiagnostics___spec__1___closed__2;
 lean_object* l_Std_RBNode_setBlack___rarg(lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5629____closed__28;
 lean_object* l_Lean_Server_FileWorker_leanpkgSetupSearchPath___closed__4;
 lean_object* l_IO_FS_Stream_writeLspResponse___at_Lean_Server_FileWorker_handleRequest___spec__2(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_List_get_x21___rarg___closed__4;
@@ -301,6 +302,7 @@ lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_logSnapContent(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_IO_FS_Stream_readRequestAs___closed__3;
 lean_object* l_Lean_Server_FileWorker_handleHover_match__6___boxed(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5629____closed__31;
 extern lean_object* l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_165____closed__4;
 lean_object* l_Lean_Server_FileWorker_instInhabitedEditableDocument___closed__3;
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -383,7 +385,6 @@ lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_fromJsonDocu
 lean_object* l_Lean_Server_FileWorker_parseParams_match__1(lean_object*, lean_object*);
 lean_object* l_ReaderT_pure___at_Lean_Server_FileWorker_handleHover___spec__1(lean_object*);
 extern lean_object* l_Lean_Parser_instInhabitedModuleParserState___closed__1;
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3363____closed__28;
 lean_object* l_Std_PersistentArray_mapM___at___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_nextCmdSnap___spec__2___boxed__const__1;
 lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonCancelParams____x40_Lean_Data_Lsp_Basic___hyg_84_(lean_object*);
@@ -453,7 +454,6 @@ lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_FileWorker_handleHover___
 lean_object* l_Lean_Server_FileWorker_handleHover___rarg___closed__1;
 lean_object* l_Std_PersistentArray_mapMAux___at___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_nextCmdSnap___spec__10___boxed__const__1;
 extern lean_object* l_Lean_instInhabitedNameGenerator___closed__1;
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3363____closed__31;
 lean_object* l_Lean_Server_FileWorker_handleRequest___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_foldM___at_Lean_Server_FileWorker_mainLoop___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_drop___rarg(lean_object*, lean_object*);
@@ -16465,7 +16465,7 @@ _start:
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_7 = lean_unsigned_to_nat(4u);
 x_8 = l_Lean_Syntax_getArg(x_1, x_7);
-x_9 = l_myMacro____x40_Init_NotationExtra___hyg_3363____closed__31;
+x_9 = l_myMacro____x40_Init_NotationExtra___hyg_5629____closed__31;
 lean_inc(x_2);
 x_10 = lean_name_mk_string(x_2, x_9);
 lean_inc(x_8);
@@ -18166,7 +18166,7 @@ else
 lean_object* x_143; lean_object* x_144; lean_object* x_145; uint8_t x_146; 
 x_143 = lean_unsigned_to_nat(1u);
 x_144 = l_Lean_Syntax_getArg(x_4, x_143);
-x_145 = l_myMacro____x40_Init_NotationExtra___hyg_3363____closed__28;
+x_145 = l_myMacro____x40_Init_NotationExtra___hyg_5629____closed__28;
 lean_inc(x_144);
 x_146 = l_Lean_Syntax_isOfKind(x_144, x_145);
 if (x_146 == 0)

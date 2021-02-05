@@ -60,6 +60,7 @@ lean_object* l_Toml_table___closed__1;
 lean_object* l_Toml_ofSyntax_toTable(lean_object*, lean_object*);
 lean_object* l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 lean_object* l_Toml_ofSyntax___closed__4;
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_580____at_Lean_Parser_ParserState_hasError___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 lean_object* l_Lean_Parser_mkParserState(lean_object*);
 lean_object* l_Toml_keyVal___closed__5;
@@ -88,7 +89,6 @@ lean_object* l_Toml_ofSyntax___closed__5;
 lean_object* l_Toml_val_quot___closed__3;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Toml_parse___closed__1;
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_651____at_Lean_Parser_ParserState_hasError___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_SepArray_ofElems(lean_object*, lean_object*);
 lean_object* l_Toml_inlineTable___closed__3;
@@ -2771,7 +2771,7 @@ x_25 = lean_apply_2(x_24, x_21, x_23);
 x_26 = lean_ctor_get(x_25, 3);
 lean_inc(x_26);
 x_27 = lean_box(0);
-x_28 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_651____at_Lean_Parser_ParserState_hasError___spec__1(x_26, x_27);
+x_28 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_580____at_Lean_Parser_ParserState_hasError___spec__1(x_26, x_27);
 lean_dec(x_26);
 if (x_28 == 0)
 {
@@ -2849,7 +2849,7 @@ x_50 = lean_apply_2(x_49, x_46, x_48);
 x_51 = lean_ctor_get(x_50, 3);
 lean_inc(x_51);
 x_52 = lean_box(0);
-x_53 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_651____at_Lean_Parser_ParserState_hasError___spec__1(x_51, x_52);
+x_53 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_580____at_Lean_Parser_ParserState_hasError___spec__1(x_51, x_52);
 lean_dec(x_51);
 if (x_53 == 0)
 {

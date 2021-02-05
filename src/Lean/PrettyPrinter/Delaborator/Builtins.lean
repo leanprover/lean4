@@ -108,7 +108,7 @@ def delabAppExplicit : Delab := do
       let fn ← getExpr
       let stx ← if fn.isConst then delabConst else delab
       let paramKinds ← liftM <| getParamKinds fn <|> pure #[]
-      let stx ← if paramKinds.any (fun | ParamKind.explicit => false | _ => true) = true then `(@$stx) else pure stx
+      let stx ← if paramKinds.any (fun | ParamKind.explicit => false | _ => true) then `(@$stx) else pure stx
       pure (stx, #[]))
     (fun ⟨fnStx, argStxs⟩ => do
       let argStx ← delab

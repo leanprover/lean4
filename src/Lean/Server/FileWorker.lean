@@ -71,7 +71,7 @@ section Utils
 
     def check [MonadExceptOf ElabTaskError m] [MonadLiftT (ST RealWorld) m] [Monad m] (tk : CancelToken) : m Unit := do
       let c ← tk.ref.get
-      if c = true then
+      if c then
         throw ElabTaskError.aborted
 
     def set (tk : CancelToken) : IO Unit :=

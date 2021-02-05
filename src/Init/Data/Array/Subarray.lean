@@ -31,8 +31,11 @@ namespace Subarray
 
 -- TODO: provide reference implementation
 @[implementedBy Subarray.forInUnsafe]
-constant forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
+protected constant forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   pure b
+
+instance : ForIn m (Subarray α) α where
+  forIn := Subarray.forIn
 
 @[inline]
 def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Subarray α) : m β :=

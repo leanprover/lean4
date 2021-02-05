@@ -148,7 +148,7 @@ private theorem zeroLtOfLt : {a b : Nat} → a < b → 0 < b
 
 /- Reference implementation for `forIn` -/
 @[implementedBy Array.forInUnsafe]
-def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
+protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
     match i, h with
     | 0,   _ => pure b
@@ -160,6 +160,9 @@ def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Ar
       | ForInStep.done b  => pure b
       | ForInStep.yield b => loop i (Nat.leOfLt h') b
   loop as.size (Nat.leRefl _) b
+
+instance : ForIn m (Array α) α where
+  forIn := Array.forIn
 
 /- See comment at forInUnsafe -/
 @[inline]

@@ -26,7 +26,7 @@ def f [Stream ρ α] [ToString α] (xs : Array Nat) (ys : ρ) : IO Unit := do
 #eval f #[1, 2, 3] (toStream "hello")
 
 def h [Stream ρ α] [ToString α] (s : ρ) : IO Unit := do
-  for a in streamOf s do
+  for a in s do
     IO.println a
 
 #eval h (toStream [1, 2, 3])

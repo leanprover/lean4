@@ -8,6 +8,9 @@ partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (loop : L
       | ForInStep.yield b => loop b
   loop init
 
+instance : ForIn m Loop Unit where
+  forIn := Loop.forIn
+
 syntax "repeat " doSeq : doElem
 
 macro_rules

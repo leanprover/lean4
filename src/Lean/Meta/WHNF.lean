@@ -307,6 +307,31 @@ def reduceProj? (e : Expr) : MetaM (Option Expr) := do
   | Expr.proj _ i c _ => project? c i
   | _                 => return none
 
+/-
+  Auxiliary method for reducing terms of the form `?m t_1 ... t_n` where `?m` is delayed assigned.
+  Recall that we can only expand a delayed assignment when all holes/metavariables in the assigned value have been "filled".
+-/
+private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) := do
+  if f'.isMVar then
+    match (← getDelayedAssignment? f'.mvarId!) with
+    | none => return none
+    | some { fvars := fvars, val := val, .. } =>
+      let args := e.getAppArgs
+      if fvars.size > args.size then
+        -- Insufficient number of argument to expand delayed assignment
+        return none
+      else
+        let newVal ← instantiateMVars val
+        if newVal.hasExprMVar then
+           -- Delayed assignment still contains metavariables
+           return none
+        else
+           let newVal := newVal.abstract fvars
+           let result := newVal.instantiateRevRange 0 fvars.size args
+           return mkAppRange result fvars.size args.size args
+  else
+    return none
+
 /--
   Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
   expand let-expressions, expand assigned meta-variables. -/
@@ -322,6 +347,8 @@ partial def whnfCore (e : Expr) : MetaM Expr :=
       if f'.isLambda then
         let revArgs := e.getAppRevArgs
         whnfCore <| f'.betaRev revArgs
+      else if let some eNew ← whnfDelayedAssigned? f' e then
+        whnfCore eNew
       else
         let e := if f == f' then e else e.updateFn f'
         match (← reduceMatcher? e) with

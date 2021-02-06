@@ -39,13 +39,20 @@ instance Trace.hasToJson : ToJson Trace :=
   | Trace.messages => "messages"
   | Trace.verbose => "verbose"⟩
 
+/-- Lean-specific initialization options. -/
+structure InitializationOptions where
+  /-- Time (in milliseconds) which must pass since latest edit until elaboration begins. Lower
+  values may make editors feel faster at the cost of higher CPU usage. Defaults to 200ms. -/
+  editDelay? : Option Nat
+  deriving ToJson, FromJson
+
 structure InitializeParams where
   processId? : Option Int := none
   clientInfo? : Option ClientInfo := none
   /- We don't support the deprecated rootPath
   (rootPath? : Option String) -/
   rootUri? : Option String := none
-  initializationOptions? : Option Json := none
+  initializationOptions? : Option InitializationOptions := none
   capabilities : ClientCapabilities
   /- If omitted, we default to off. -/
   trace : Trace := Trace.off
@@ -63,7 +70,7 @@ instance : FromJson InitializeParams := ⟨fun j => do
   let processId? := j.getObjValAs? Int "processId"
   let clientInfo? := j.getObjValAs? ClientInfo "clientInfo"
   let rootUri? := j.getObjValAs? String "rootUri"
-  let initializationOptions? := j.getObjVal? "initializationOptions"
+  let initializationOptions? := j.getObjValAs? InitializationOptions "initializationOptions"
   let capabilities ← j.getObjValAs? ClientCapabilities "capabilities"
   let trace := (j.getObjValAs? Trace "trace").getD Trace.off
   let workspaceFolders? := j.getObjValAs? (Array WorkspaceFolder) "workspaceFolders"

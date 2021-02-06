@@ -181,10 +181,12 @@ section ServerM
     hIn            : FS.Stream
     hOut           : FS.Stream
     hLog           : FS.Stream
+    /-- Command line arguments. -/
     args           : List String
     fileWorkersRef : IO.Ref FileWorkerMap
-    -- We store these to pass them to workers.
+    /-- We store these to pass them to workers. -/
     initParams     : InitializeParams
+    editDelay      : Nat
     workerPath     : String
 
   abbrev ServerM := ReaderT ServerContext IO
@@ -385,6 +387,7 @@ section MessageHandling
     | "textDocument/definition"         => handle DefinitionParams
     | "textDocument/typeDefinition"     => handle TypeDefinitionParams
     | "textDocument/documentSymbol"     => handle DocumentSymbolParams
+    | "$/lean/plainGoal"                => handle PlainGoalParams
     | _                                 =>
       (←read).hOut.writeLspResponseError
         { id      := id
@@ -449,8 +452,8 @@ section MainLoop
         let p ← parseParams DidChangeTextDocumentParams (toJson params)
         let fw ← findFileWorker p.textDocument.uri
         let now ← monoMsNow
-        /- We wait 500ms since last edit before applying the changes. -/
-        let applyTime := now + 500
+        /- We wait `editDelay`ms since last edit before applying the changes. -/
+        let applyTime := now + st.editDelay
         let startingGroup? ← fw.groupedEditsRef.modifyGet fun
           | some ge => (false, some { ge with applyTime := applyTime
                                               params.textDocument := p.textDocument
@@ -538,6 +541,7 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
     args           := args
     fileWorkersRef := fileWorkersRef
     initParams     := initRequest.param
+    editDelay      := initRequest.param.initializationOptions? |>.bind InitializationOptions.editDelay? |>.getD 200
     workerPath     := workerPath
     : ServerContext
   }

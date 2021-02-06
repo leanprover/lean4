@@ -58,5 +58,8 @@ instance WaitForDiagnosticsParams.hasFileSource : FileSource WaitForDiagnosticsP
 instance DocumentSymbolParams.hasFileSource : FileSource DocumentSymbolParams :=
   ⟨fun p => fileSource p.textDocument⟩
 
+instance PlainGoalParams.hasFileSource : FileSource PlainGoalParams :=
+  ⟨fun p => fileSource p.textDocument⟩
+
 end Lsp
 end Lean

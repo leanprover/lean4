@@ -623,7 +623,7 @@ private def tryCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eTyp
         | Exception.error _ msg => throwTypeMismatchError errorMsgHeader? expectedType eType e f? msg
         | _                     => throwTypeMismatchError errorMsgHeader? expectedType eType e f?
 
-private def isTypeApp? (type : Expr) : TermElabM (Option (Expr × Expr)) := do
+def isTypeApp? (type : Expr) : TermElabM (Option (Expr × Expr)) := do
   let type ← withReducible $ whnf type
   match type with
   | Expr.app m α _ => pure (some ((← instantiateMVars m), (← instantiateMVars α)))

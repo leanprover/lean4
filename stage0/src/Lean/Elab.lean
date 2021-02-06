@@ -27,3 +27,4 @@ import Lean.Elab.MutualDef
 import Lean.Elab.PreDefinition
 import Lean.Elab.Deriving
 import Lean.Elab.DeclarationRange
+import Lean.Elab.Extra

@@ -31,6 +31,7 @@
 (require 'dash)
 (require 'pcase)
 (require 'flycheck)
+(require 'lsp-mode)
 (require 'lean4-eri)
 (require 'lean4-util)
 (require 'lean4-settings)
@@ -39,9 +40,8 @@
 (require 'lean4-leanpkg)
 ;(require 'lean4-server)
 (require 'lean4-flycheck)
-;(require 'lean4-info)
+(require 'lean4-info)
 ;(require 'lean4-hole)
-;(require 'lean4-type)
 ;(require 'lean4-message-boxes)
 ;(require 'lean4-right-click)
 (require 'lean4-dev)
@@ -88,16 +88,6 @@
                :languageId (lsp-buffer-language)
                :version lsp--cur-version
                :text (lsp--buffer-content)))))
-
-(defun lean4-check-expansion ()
-  (interactive)
-  (save-excursion
-    (if (looking-at (rx symbol-start "_")) t
-      (if (looking-at "\\_>") t
-        (backward-char 1)
-        (if (looking-at "\\.") t
-          (backward-char 1)
-          (if (looking-at "->") t nil))))))
 
 (defun lean4-tab-indent ()
   (interactive)
@@ -169,7 +159,7 @@
     ;; Handle events that may start automatic syntax checks
     (before-save-hook                    . lean4-whitespace-cleanup)
     ;; info windows
-    ;; (post-command-hook                   . lean4-show-goal--handler)
+    (post-command-hook                   . lean4-show-goal--handler)
     (post-command-hook                   . lean4-next-error--handler)
     ;; (flycheck-after-syntax-check-hook    . lean4-show-goal--handler)
     (flycheck-after-syntax-check-hook    . lean4-next-error--handler)
@@ -231,10 +221,9 @@ Invokes `lean4-mode-hook'.
 (modify-coding-system-alist 'file "\\.lean\\'" 'utf-8)
 
 ;; LSP init
-(require 'lsp-mode)
 ;; Ref: https://emacs-lsp.github.io/lsp-mode/page/adding-new-language/
 (add-to-list 'lsp-language-id-configuration
-             '(lean4-mode . "lean4"))
+             '(lean4-mode . "lean"))
 
 (lsp-register-client
  (make-lsp-client :new-connection (lsp-stdio-connection (lambda () `(,(lean4-get-executable lean4-executable-name) "--server")))

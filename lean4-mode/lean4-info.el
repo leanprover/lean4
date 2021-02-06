@@ -15,6 +15,7 @@
 ;;
 
 (require 'lean4-syntax)
+(require 'lsp-protocol)
 
 ;; Lean Info Mode (for "*lean4-info*" buffer)
 ;; Automode List
@@ -58,57 +59,30 @@
    ;; current window of current buffer is selected (i.e., in focus)
    (eq (current-buffer) (window-buffer))))
 
-(defun lean4-get-info-record-at-point (cont)
-  "Get info-record at the current point"
-  (with-demoted-errors "lean get info: %s"
-    (lean4-server-send-command
-     'info (list :file_name (buffer-file-name)
-                 :line (line-number-at-pos)
-                 :column (lean4-line-offset))
-     (cl-function
-      (lambda (&key record)
-        (funcall cont record))))))
+(lsp-interface
+ (lean:PlainGoal (:rendered) nil))
 
-(defun lean4-info-right-click-find-definition ()
-  "Offer to jump to definition of right-click target."
+(defconst lean4-show-goal-buffer-name "*Lean Goal*")
+
+(defun lean4-show-goal--handler ()
+  (let ((deactivate-mark)) ; keep transient mark
+    (when (lean4-info-buffer-active lean4-show-goal-buffer-name)
+      (lsp-request-async
+       "$/lean/plainGoal"
+       (lsp--text-document-position-params)
+       (-lambda ((goal &as &lean:PlainGoal? :rendered))
+         (when goal
+           (let ((rerendered (lsp--render-string rendered "markdown")))
+             (lean4-with-info-output-to-buffer lean4-show-goal-buffer-name
+                                               (insert rerendered)))))
+       :error-handler #'ignore
+       :mode 'tick
+       :cancel-token :plain-goal))))
+
+(defun lean4-toggle-show-goal ()
+  "Show goal at the current point."
   (interactive)
-  (list 'info
-        (list :file_name (buffer-file-name)
-              :line (line-number-at-pos)
-              :column (lean4-line-offset))
-        (cl-function
-         (lambda (&key record)
-           (let ((source-record (plist-get record :source)))
-             (if source-record
-                 (let ((full-name (plist-get record :full-id)))
-                   (list
-                    (list :name (if full-name
-                                    (concat "Find definition of " full-name)
-                                  "Find definition")
-                          :action (lambda ()
-                                    (apply #'lean4-find-definition-cont source-record)))))
-               (list)))))))
-
-(cl-defun lean4-find-definition-cont (&key file line column)
-  (when (fboundp 'xref-push-marker-stack) (xref-push-marker-stack))
-  (when file
-    (find-file file))
-  (goto-char (point-min))
-  (forward-line (1- line))
-  (forward-char column))
-
-
-(defun lean4-find-definition ()
-  "Jump to definition of thing at point"
-  (interactive)
-  (setq lean4-show-goal--handler-mask t) ; avoid the current request to the Lean server to by
-                                        ; interrupted by requests made for `lean4-show-goal`
-  (lean4-get-info-record-at-point
-   (lambda (info-record)
-     (-if-let (source-record (plist-get info-record :source))
-         (apply #'lean4-find-definition-cont source-record)
-       (-if-let (id (plist-get info-record :full-id))
-           (message "no source location available for %s" id)
-         (message "unknown thing at point"))))))
+  (lean4-toggle-info-buffer lean4-show-goal-buffer-name)
+  (lean4-show-goal--handler))
 
 (provide 'lean4-info)

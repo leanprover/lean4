@@ -35,7 +35,6 @@ lean_object* l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset_
 lean_object* l_Lean_mkFreshId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1(lean_object*);
 extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1133____closed__31;
 lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -105,6 +104,7 @@ lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM;
 lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1136____closed__31;
 lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___rarg___lambda__1___closed__2;
 lean_object* l_Lean_mkFreshId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1___boxed(lean_object*);
@@ -1456,7 +1456,7 @@ x_14 = lean_name_eq(x_4, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; uint8_t x_16; 
-x_15 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1133____closed__31;
+x_15 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1136____closed__31;
 x_16 = lean_name_eq(x_4, x_15);
 if (x_16 == 0)
 {
@@ -1983,7 +1983,7 @@ x_149 = lean_name_eq(x_4, x_148);
 if (x_149 == 0)
 {
 lean_object* x_150; uint8_t x_151; 
-x_150 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1133____closed__31;
+x_150 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1136____closed__31;
 x_151 = lean_name_eq(x_4, x_150);
 if (x_151 == 0)
 {

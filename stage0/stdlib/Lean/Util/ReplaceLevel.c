@@ -545,7 +545,7 @@ _start:
 {
 size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; size_t x_9; uint8_t x_10; 
 x_5 = lean_ptr_addr(x_3);
-x_6 = x_2 == 0 ? 0 : x_5 % x_2;
+x_6 = x_2 == 0 ? x_5 : x_5 % x_2;
 x_7 = lean_ctor_get(x_4, 0);
 lean_inc(x_7);
 x_8 = lean_array_uget(x_7, x_6);

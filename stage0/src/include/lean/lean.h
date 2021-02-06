@@ -1537,12 +1537,23 @@ static inline lean_obj_res lean_int_mul(b_lean_obj_arg a1, b_lean_obj_arg a2) {
 
 static inline lean_obj_res lean_int_div(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
-        int v1 = lean_scalar_to_int(a1);
-        int v2 = lean_scalar_to_int(a2);
-        if (v2 == 0)
-            return lean_box(0);
-        else
-            return lean_int_to_int(v1 / v2);
+        if (sizeof(void*) == 8) {
+            /* 64-bit version, we use 64-bit numbers to avoid overflow when v1 == LEAN_MIN_SMALL_INT. */
+            int64_t v1 = lean_scalar_to_int(a1);
+            int64_t v2 = lean_scalar_to_int(a2);
+            if (v2 == 0)
+                return lean_box(0);
+            else
+                return lean_int64_to_int(v1 / v2);
+        } else {
+            /* 32-bit version */
+            int v1 = lean_scalar_to_int(a1);
+            int v2 = lean_scalar_to_int(a2);
+            if (v2 == 0)
+                return lean_box(0);
+            else
+                return lean_int_to_int(v1 / v2);
+        }
     } else {
         return lean_int_big_div(a1, a2);
     }
@@ -1550,12 +1561,23 @@ static inline lean_obj_res lean_int_div(b_lean_obj_arg a1, b_lean_obj_arg a2) {
 
 static inline lean_obj_res lean_int_mod(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
-        int v1 = lean_scalar_to_int(a1);
-        int v2 = lean_scalar_to_int(a2);
-        if (v2 == 0)
-            return v1 >= 0 ? a1 : lean_int_to_int(-1 - v1);
-        else
-            return lean_int_to_int(v1 % v2);
+        if (sizeof(void*) == 8) {
+            /* 64-bit version, we use 64-bit numbers to avoid overflow when v1 == LEAN_MIN_SMALL_INT. */
+            int64_t v1 = lean_scalar_to_int64(a1);
+            int64_t v2 = lean_scalar_to_int64(a2);
+            if (v2 == 0)
+                return a1;
+            else
+                return lean_int64_to_int(v1 % v2);
+        } else {
+            /* 32-bit version */
+            int v1 = lean_scalar_to_int(a1);
+            int v2 = lean_scalar_to_int(a2);
+            if (v2 == 0)
+                return a1;
+            else
+                return lean_int_to_int(v1 % v2);
+        }
     } else {
         return lean_int_big_mod(a1, a2);
     }
@@ -1630,12 +1652,12 @@ static inline lean_obj_res lean_uint8_to_nat(uint8_t a) { return lean_usize_to_n
 static inline uint8_t lean_uint8_add(uint8_t a1, uint8_t a2) { return a1+a2; }
 static inline uint8_t lean_uint8_sub(uint8_t a1, uint8_t a2) { return a1-a2; }
 static inline uint8_t lean_uint8_mul(uint8_t a1, uint8_t a2) { return a1*a2; }
-static inline uint8_t lean_uint8_div(uint8_t a1, uint8_t a2) { return a2 == 0 ? 0 : a1/a2; }
-static inline uint8_t lean_uint8_mod(uint8_t a1, uint8_t a2) { return a2 == 0 ? 0 : a1%a2; }
+static inline uint8_t lean_uint8_div(uint8_t a1, uint8_t a2) { return a2 == 0 ? 0  : a1/a2; }
+static inline uint8_t lean_uint8_mod(uint8_t a1, uint8_t a2) { return a2 == 0 ? a1 : a1%a2; }
 static inline uint8_t lean_uint8_modn(uint8_t a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a2))) {
         unsigned n2 = lean_unbox(a2);
-        return n2 == 0 ? 0 : a1 % n2;
+        return n2 == 0 ? a1 : a1 % n2;
     } else {
         return a1;
     }
@@ -1652,12 +1674,12 @@ static inline lean_obj_res lean_uint16_to_nat(uint16_t a) { return lean_usize_to
 static inline uint16_t lean_uint16_add(uint16_t a1, uint16_t a2) { return a1+a2; }
 static inline uint16_t lean_uint16_sub(uint16_t a1, uint16_t a2) { return a1-a2; }
 static inline uint16_t lean_uint16_mul(uint16_t a1, uint16_t a2) { return a1*a2; }
-static inline uint16_t lean_uint16_div(uint16_t a1, uint16_t a2) { return a2 == 0 ? 0 : a1/a2; }
-static inline uint16_t lean_uint16_mod(uint16_t a1, uint16_t a2) { return a2 == 0 ? 0 : a1%a2; }
+static inline uint16_t lean_uint16_div(uint16_t a1, uint16_t a2) { return a2 == 0 ? 0  : a1/a2; }
+static inline uint16_t lean_uint16_mod(uint16_t a1, uint16_t a2) { return a2 == 0 ? a1 : a1%a2; }
 static inline uint16_t lean_uint16_modn(uint16_t a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a2))) {
         unsigned n2 = lean_unbox(a2);
-        return n2 == 0 ? 0 : a1 % n2;
+        return n2 == 0 ? a1 : a1 % n2;
     } else {
         return a1;
     }
@@ -1674,13 +1696,13 @@ static inline lean_obj_res lean_uint32_to_nat(uint32_t a) { return lean_usize_to
 static inline uint32_t lean_uint32_add(uint32_t a1, uint32_t a2) { return a1+a2; }
 static inline uint32_t lean_uint32_sub(uint32_t a1, uint32_t a2) { return a1-a2; }
 static inline uint32_t lean_uint32_mul(uint32_t a1, uint32_t a2) { return a1*a2; }
-static inline uint32_t lean_uint32_div(uint32_t a1, uint32_t a2) { return a2 == 0 ? 0 : a1/a2; }
-static inline uint32_t lean_uint32_mod(uint32_t a1, uint32_t a2) { return a2 == 0 ? 0 : a1%a2; }
+static inline uint32_t lean_uint32_div(uint32_t a1, uint32_t a2) { return a2 == 0 ? 0  : a1/a2; }
+static inline uint32_t lean_uint32_mod(uint32_t a1, uint32_t a2) { return a2 == 0 ? a1 : a1%a2; }
 uint32_t lean_uint32_big_modn(uint32_t a1, b_lean_obj_arg a2);
 static inline uint32_t lean_uint32_modn(uint32_t a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a2))) {
         size_t n2 = lean_unbox(a2);
-        return n2 == 0 ? 0 : a1 % n2;
+        return n2 == 0 ? a1 : a1 % n2;
     } else if (sizeof(void*) == 4) {
         /* 32-bit */
         return lean_uint32_big_modn(a1, a2);
@@ -1700,13 +1722,13 @@ static inline uint64_t lean_uint64_of_nat(b_lean_obj_arg a) { return lean_is_sca
 static inline uint64_t lean_uint64_add(uint64_t a1, uint64_t a2) { return a1+a2; }
 static inline uint64_t lean_uint64_sub(uint64_t a1, uint64_t a2) { return a1-a2; }
 static inline uint64_t lean_uint64_mul(uint64_t a1, uint64_t a2) { return a1*a2; }
-static inline uint64_t lean_uint64_div(uint64_t a1, uint64_t a2) { return a2 == 0 ? 0 : a1/a2; }
-static inline uint64_t lean_uint64_mod(uint64_t a1, uint64_t a2) { return a2 == 0 ? 0 : a1%a2; }
+static inline uint64_t lean_uint64_div(uint64_t a1, uint64_t a2) { return a2 == 0 ? 0  : a1/a2; }
+static inline uint64_t lean_uint64_mod(uint64_t a1, uint64_t a2) { return a2 == 0 ? a1 : a1%a2; }
 uint64_t lean_uint64_big_modn(uint64_t a1, b_lean_obj_arg a2);
 static inline uint64_t lean_uint64_modn(uint64_t a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a2))) {
         size_t n2 = lean_unbox(a2);
-        return n2 == 0 ? 0 : a1 % n2;
+        return n2 == 0 ? a1 : a1 % n2;
     } else {
         return lean_uint64_big_modn(a1, a2);
     }
@@ -1722,13 +1744,13 @@ static inline size_t lean_usize_of_nat(b_lean_obj_arg a) { return lean_is_scalar
 static inline size_t lean_usize_add(size_t a1, size_t a2) { return a1+a2; }
 static inline size_t lean_usize_sub(size_t a1, size_t a2) { return a1-a2; }
 static inline size_t lean_usize_mul(size_t a1, size_t a2) { return a1*a2; }
-static inline size_t lean_usize_div(size_t a1, size_t a2) { return a2 == 0 ? 0 : a1/a2; }
-static inline size_t lean_usize_mod(size_t a1, size_t a2) { return a2 == 0 ? 0 : a1%a2; }
+static inline size_t lean_usize_div(size_t a1, size_t a2) { return a2 == 0 ? 0  : a1/a2; }
+static inline size_t lean_usize_mod(size_t a1, size_t a2) { return a2 == 0 ? a1 : a1%a2; }
 size_t lean_usize_big_modn(size_t a1, b_lean_obj_arg a2);
 static inline size_t lean_usize_modn(size_t a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a2))) {
         size_t n2 = lean_unbox(a2);
-        return n2 == 0 ? 0 : a1 % n2;
+        return n2 == 0 ? a1 : a1 % n2;
     } else {
         return lean_usize_big_modn(a1, a2);
     }

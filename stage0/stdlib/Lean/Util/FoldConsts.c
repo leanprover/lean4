@@ -69,7 +69,7 @@ _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; uint8_t x_10; 
 x_4 = lean_ptr_addr(x_1);
-x_5 = x_2 == 0 ? 0 : x_4 % x_2;
+x_5 = x_2 == 0 ? x_4 : x_4 % x_2;
 x_6 = lean_ctor_get(x_3, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_3, 1);
@@ -322,7 +322,7 @@ _start:
 {
 lean_object* x_6; size_t x_82; size_t x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; size_t x_87; uint8_t x_88; 
 x_82 = lean_ptr_addr(x_3);
-x_83 = x_2 == 0 ? 0 : x_82 % x_2;
+x_83 = x_2 == 0 ? x_82 : x_82 % x_2;
 x_84 = lean_ctor_get(x_5, 0);
 lean_inc(x_84);
 x_85 = lean_ctor_get(x_5, 1);

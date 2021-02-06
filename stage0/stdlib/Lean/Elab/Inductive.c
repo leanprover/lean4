@@ -10702,7 +10702,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_235; lean_object* x_236; size_t x_237; uint8_t x_238; 
 x_7 = lean_ptr_addr(x_5);
-x_8 = x_4 == 0 ? 0 : x_7 % x_4;
+x_8 = x_4 == 0 ? x_7 : x_7 % x_4;
 x_235 = lean_ctor_get(x_6, 0);
 lean_inc(x_235);
 x_236 = lean_array_uget(x_235, x_8);

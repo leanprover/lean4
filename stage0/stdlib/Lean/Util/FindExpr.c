@@ -52,7 +52,7 @@ _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; size_t x_7; uint8_t x_8; 
 x_4 = lean_ptr_addr(x_1);
-x_5 = x_2 == 0 ? 0 : x_4 % x_2;
+x_5 = x_2 == 0 ? x_4 : x_4 % x_2;
 x_6 = lean_array_uget(x_3, x_5);
 x_7 = lean_ptr_addr(x_6);
 lean_dec(x_6);

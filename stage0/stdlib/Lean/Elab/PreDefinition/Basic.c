@@ -1258,7 +1258,7 @@ _start:
 {
 size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_234; lean_object* x_235; size_t x_236; uint8_t x_237; 
 x_6 = lean_ptr_addr(x_4);
-x_7 = x_3 == 0 ? 0 : x_6 % x_3;
+x_7 = x_3 == 0 ? x_6 : x_6 % x_3;
 x_234 = lean_ctor_get(x_5, 0);
 lean_inc(x_234);
 x_235 = lean_array_uget(x_234, x_7);
@@ -2070,7 +2070,7 @@ _start:
 {
 size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_234; lean_object* x_235; size_t x_236; uint8_t x_237; 
 x_6 = lean_ptr_addr(x_4);
-x_7 = x_3 == 0 ? 0 : x_6 % x_3;
+x_7 = x_3 == 0 ? x_6 : x_6 % x_3;
 x_234 = lean_ctor_get(x_5, 0);
 lean_inc(x_234);
 x_235 = lean_array_uget(x_234, x_7);
@@ -5259,7 +5259,7 @@ _start:
 {
 size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_234; lean_object* x_235; size_t x_236; uint8_t x_237; 
 x_6 = lean_ptr_addr(x_4);
-x_7 = x_3 == 0 ? 0 : x_6 % x_3;
+x_7 = x_3 == 0 ? x_6 : x_6 % x_3;
 x_234 = lean_ctor_get(x_5, 0);
 lean_inc(x_234);
 x_235 = lean_array_uget(x_234, x_7);

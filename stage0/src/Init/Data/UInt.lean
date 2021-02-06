@@ -22,7 +22,7 @@ def UInt8.sub (a b : UInt8) : UInt8 := ⟨a.val - b.val⟩
 def UInt8.mul (a b : UInt8) : UInt8 := ⟨a.val * b.val⟩
 @[extern c inline "#2 == 0 ? 0 : #1 / #2"]
 def UInt8.div (a b : UInt8) : UInt8 := ⟨a.val / b.val⟩
-@[extern c inline "#2 == 0 ? 0 : #1 % #2"]
+@[extern c inline "#2 == 0 ? #1 : #1 % #2"]
 def UInt8.mod (a b : UInt8) : UInt8 := ⟨a.val % b.val⟩
 @[extern "lean_uint8_modn"]
 def UInt8.modn (a : UInt8) (n : @& Nat) : UInt8 := ⟨a.val % n⟩
@@ -76,7 +76,7 @@ def UInt16.sub (a b : UInt16) : UInt16 := ⟨a.val - b.val⟩
 def UInt16.mul (a b : UInt16) : UInt16 := ⟨a.val * b.val⟩
 @[extern c inline "#2 == 0 ? 0 : #1 / #2"]
 def UInt16.div (a b : UInt16) : UInt16 := ⟨a.val / b.val⟩
-@[extern c inline "#2 == 0 ? 0 : #1 % #2"]
+@[extern c inline "#2 == 0 ? #1 : #1 % #2"]
 def UInt16.mod (a b : UInt16) : UInt16 := ⟨a.val % b.val⟩
 @[extern "lean_uint16_modn"]
 def UInt16.modn (a : UInt16) (n : @& Nat) : UInt16 := ⟨a.val % n⟩
@@ -131,7 +131,7 @@ def UInt32.sub (a b : UInt32) : UInt32 := ⟨a.val - b.val⟩
 def UInt32.mul (a b : UInt32) : UInt32 := ⟨a.val * b.val⟩
 @[extern c inline "#2 == 0 ? 0 : #1 / #2"]
 def UInt32.div (a b : UInt32) : UInt32 := ⟨a.val / b.val⟩
-@[extern c inline "#2 == 0 ? 0 : #1 % #2"]
+@[extern c inline "#2 == 0 ? #1 : #1 % #2"]
 def UInt32.mod (a b : UInt32) : UInt32 := ⟨a.val % b.val⟩
 @[extern "lean_uint32_modn"]
 def UInt32.modn (a : UInt32) (n : @& Nat) : UInt32 := ⟨a.val % n⟩
@@ -172,7 +172,7 @@ def UInt64.sub (a b : UInt64) : UInt64 := ⟨a.val - b.val⟩
 def UInt64.mul (a b : UInt64) : UInt64 := ⟨a.val * b.val⟩
 @[extern c inline "#2 == 0 ? 0 : #1 / #2"]
 def UInt64.div (a b : UInt64) : UInt64 := ⟨a.val / b.val⟩
-@[extern c inline "#2 == 0 ? 0 : #1 % #2"]
+@[extern c inline "#2 == 0 ? #1 : #1 % #2"]
 def UInt64.mod (a b : UInt64) : UInt64 := ⟨a.val % b.val⟩
 @[extern "lean_uint64_modn"]
 def UInt64.modn (a : UInt64) (n : @& Nat) : UInt64 := ⟨a.val % n⟩
@@ -241,7 +241,7 @@ def USize.sub (a b : USize) : USize := ⟨a.val - b.val⟩
 def USize.mul (a b : USize) : USize := ⟨a.val * b.val⟩
 @[extern c inline "#2 == 0 ? 0 : #1 / #2"]
 def USize.div (a b : USize) : USize := ⟨a.val / b.val⟩
-@[extern c inline "#2 == 0 ? 0 : #1 % #2"]
+@[extern c inline "#2 == 0 ? #1 : #1 % #2"]
 def USize.mod (a b : USize) : USize := ⟨a.val % b.val⟩
 @[extern "lean_usize_modn"]
 def USize.modn (a : USize) (n : @& Nat) : USize := ⟨a.val % n⟩

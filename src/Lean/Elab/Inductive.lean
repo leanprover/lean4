@@ -489,8 +489,7 @@ private def applyDerivingHandlers (views : Array InductiveView) : CommandElabM U
         processed := processed.insert className
         let mut declNames := #[]
         for view in views do
-          -- TODO: check why we need the `true` workaround.
-          if true == view.derivingClasses.any fun classView => classView.className == className then
+          if view.derivingClasses.any fun classView => classView.className == className then
             declNames := declNames.push view.declName
         classView.applyHandlers declNames
 

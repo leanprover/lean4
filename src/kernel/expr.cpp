@@ -421,9 +421,16 @@ extern "C" object * lean_expr_update_let(obj_arg e, obj_arg new_type, obj_arg ne
 
 static bool has_loose_bvars_in_domain(expr const & b, unsigned vidx, bool strict) {
     if (is_pi(b)) {
-        return
-            (has_loose_bvar(binding_domain(b), vidx) && is_explicit(binding_info(b))) ||
-            has_loose_bvars_in_domain(binding_body(b), vidx+1, strict);
+        if (has_loose_bvar(binding_domain(b), vidx)) {
+            if (is_explicit(binding_info(b))) {
+                return true;
+            } else if (has_loose_bvars_in_domain(binding_body(b), 0, strict)) {
+                // "Transitivity": vidx occurs in current implicit argument, so we search for current argument in the body.
+                return true;
+            }
+        }
+        // finally we search for vidx in the body
+        return has_loose_bvars_in_domain(binding_body(b), vidx+1, strict);
     } else if (!strict) {
         return has_loose_bvar(b, vidx);
     } else {

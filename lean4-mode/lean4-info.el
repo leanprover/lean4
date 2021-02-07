@@ -73,8 +73,16 @@
        (-lambda ((goal &as &lean:PlainGoal? :rendered))
          (when goal
            (let ((rerendered (lsp--render-string rendered "markdown")))
-             (lean4-with-info-output-to-buffer lean4-show-goal-buffer-name
-                                               (insert rerendered)))))
+             (lean4-with-info-output-to-buffer
+              lean4-show-goal-buffer-name
+              (insert rerendered)
+              (when lean4-highlight-inaccessible-names
+                (goto-char 0)
+                (while (re-search-forward "\\(\\sw+\\)✝\\([¹²³⁴-⁹⁰]*\\)" nil t)
+                  (replace-match
+                   (propertize (s-concat (match-string-no-properties 1) (match-string-no-properties 2))
+                               'font-lock-face 'font-lock-comment-face)
+                   'fixedcase 'literal)))))))
        :error-handler #'ignore
        :mode 'tick
        :cancel-token :plain-goal))))

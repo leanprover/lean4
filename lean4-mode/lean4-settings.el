@@ -49,16 +49,6 @@
   :group 'lean
   :type '(list string))
 
-(defcustom lean4-eldoc-use t
-  "Use eldoc mode for lean."
-  :group 'lean
-  :type 'boolean)
-
-(defcustom lean4-eldoc-nay-retry-time 0.3
-  "When eldoc-function had nay, try again after this amount of time."
-  :group 'lean
-  :type 'number)
-
 (defcustom lean4-delete-trailing-whitespace nil
   "Set this variable to true to automatically delete trailing
 whitespace when a buffer is loaded from a file or when it is
@@ -66,23 +56,11 @@ written."
   :group 'lean
   :type 'boolean)
 
-(defcustom lean4-show-type-add-to-kill-ring nil
-  "If it is non-nil, add the type information to the kill-ring so
-that user can yank(paste) it later. By default, it's
-false (nil)."
+(defcustom lean4-highlight-inaccessible-names t
+  "Set this variable to `t` to highlight inaccessible names in the goal display
+using `font-lock-comment-face' instead of the `✝` suffix used by Lean."
   :group 'lean
   :type 'boolean)
-
-(defcustom lean4-server-show-pending-tasks t
-  "Highlights pending tasks in the current buffer."
-  :group 'lean
-  :type 'boolean)
-
-(defcustom lean4-server-check-mode 'visible-lines-and-above
-  "What parts of the open files the Lean server should check"
-  :group 'lean
-  :type 'symbol
-  :options '(nothing visible-lines visible-lines-and-above visible-files open-files))
 
 (defcustom lean4-keybinding-std-exe1 (kbd "C-c C-x")
   "Lean Keybinding for std-exe #1"

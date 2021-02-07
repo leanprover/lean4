@@ -258,26 +258,28 @@ private partial def withParents (view : StructView) (i : Nat) (infos : Array Str
   else
     k infos
 
-private def elabFieldTypeValue (view : StructFieldView) (params : Array Expr) : TermElabM (Option Expr × Option Expr) := do
+private def elabFieldTypeValue (view : StructFieldView) (params : Array Expr) (k : Option Expr → Option Expr → TermElabM α) : TermElabM α := do
   match view.type? with
   | none         =>
     match view.value? with
-    | none        => pure (none, none)
+    | none        => k none none
     | some valStx =>
+      let params ← Term.addAutoBoundImplicits params
       let value ← Term.elabTerm valStx none
       let value ← mkLambdaFVars params value
-      pure (none, value)
+      k none value
   | some typeStx =>
-    let type ← Term.elabType typeStx
-    match view.value? with
-    | none        =>
-      let type  ← mkForallFVars params type
-      pure (type, none)
-    | some valStx =>
-      let value ← Term.elabTermEnsuringType valStx type
-      let type  ← mkForallFVars params type
-      let value ← mkLambdaFVars params value
-      pure (type, value)
+    Term.elabTypeWithAutoBoundImplicit typeStx fun type => do
+      let params ← Term.addAutoBoundImplicits params
+      match view.value? with
+      | none        =>
+        let type  ← mkForallFVars params type
+        k type none
+      | some valStx =>
+        let value ← Term.elabTermEnsuringType valStx type
+        let type  ← mkForallFVars params type
+        let value ← mkLambdaFVars params value
+        k type value
 
 private partial def withFields
     (views : Array StructFieldView) (i : Nat) (infos : Array StructFieldInfo) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
@@ -286,20 +288,21 @@ private partial def withFields
     withRef view.ref $
     match findFieldInfo? infos view.name with
     | none      => do
-      let (type?, value?) ← Term.elabBinders view.binders.getArgs fun params => elabFieldTypeValue view params
-      match type?, value? with
-      | none,      none => throwError "invalid field, type expected"
-      | some type, _    =>
-        withLocalDecl view.name view.binderInfo type fun fieldFVar =>
-          let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value?,
-                                    kind := StructFieldKind.newField, inferMod := view.inferMod }
-          withFields views (i+1) infos k
-      | none, some value =>
-        let type ← inferType value
-        withLocalDecl view.name view.binderInfo type fun fieldFVar =>
-          let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value,
-                                    kind := StructFieldKind.newField, inferMod := view.inferMod }
-          withFields views (i+1) infos k
+      Term.withAutoBoundImplicitLocal <| Term.elabBinders (catchAutoBoundImplicit := true) view.binders.getArgs fun params =>
+        elabFieldTypeValue view params fun type? value? => do
+          match type?, value? with
+          | none,      none => throwError "invalid field, type expected"
+          | some type, _    =>
+            withLocalDecl view.name view.binderInfo type fun fieldFVar =>
+              let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value?,
+                                        kind := StructFieldKind.newField, inferMod := view.inferMod }
+              withFields views (i+1) infos k
+          | none, some value =>
+            let type ← inferType value
+            withLocalDecl view.name view.binderInfo type fun fieldFVar =>
+              let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value,
+                                        kind := StructFieldKind.newField, inferMod := view.inferMod }
+              withFields views (i+1) infos k
     | some info =>
       match info.kind with
       | StructFieldKind.newField   => throwError! "field '{view.name}' has already been declared"

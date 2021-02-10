@@ -1,0 +1,2 @@
+def f : Unit → Nat :=
+fun (a : Unit) => 10

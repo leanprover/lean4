@@ -707,6 +707,20 @@ def reportMatcherResultErrors (altLHSS : List AltLHS) (result : MatcherResult) :
           logError "redundant alternative"
       i := i + 1
 
+/--
+  If `altLHSS + rhss` is encoding `| PUnit.unit => rhs[0]`, return `rhs[0]`
+  Otherwise, return none.
+-/
+private def isMatchUnit? (altLHSS : List Match.AltLHS) (rhss : Array Expr) : MetaM (Option Expr) := do
+  assert! altLHSS.length == rhss.size
+  match altLHSS with
+  | [ { fvarDecls := [], patterns := [ Pattern.ctor `PUnit.unit .. ], .. } ] =>
+    /- Recall that for alternatives of the form `| PUnit.unit => rhs`, `rhss[0]` is of the form `fun _ : Unit => b`. -/
+    match rhss[0] with
+    | Expr.lam _ _ b _ => return if b.hasLooseBVars then none else b
+    | _ => return none
+  | _ => return none
+
 private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltView) (matchOptType : Syntax) (expectedType : Expr)
     : TermElabM Expr := do
   let (discrs, matchType, altLHSS, rhss) ← commitIfDidNotPostpone do
@@ -767,16 +781,19 @@ private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltVi
               throwMVarError m!"invalid match-expression, pattern contains metavariables{indentExpr (← p.toExpr)}"
         pure altLHS
     return (discrs, matchType, altLHSS, rhss)
-  let numDiscrs := discrs.size
-  let matcherName ← mkAuxName `match
-  let matcherResult ← mkMatcher matcherName matchType numDiscrs altLHSS
-  let motive ← forallBoundedTelescope matchType numDiscrs fun xs matchType => mkLambdaFVars xs matchType
-  reportMatcherResultErrors altLHSS matcherResult
-  let r := mkApp matcherResult.matcher motive
-  let r := mkAppN r discrs
-  let r := mkAppN r rhss
-  trace[Elab.match]! "result: {r}"
-  return r
+  if let some r ← isMatchUnit? altLHSS rhss then
+    return r
+  else
+    let numDiscrs := discrs.size
+    let matcherName ← mkAuxName `match
+    let matcherResult ← mkMatcher matcherName matchType numDiscrs altLHSS
+    let motive ← forallBoundedTelescope matchType numDiscrs fun xs matchType => mkLambdaFVars xs matchType
+    reportMatcherResultErrors altLHSS matcherResult
+    let r := mkApp matcherResult.matcher motive
+    let r := mkAppN r discrs
+    let r := mkAppN r rhss
+    trace[Elab.match]! "result: {r}"
+    return r
 
 private def getDiscrs (matchStx : Syntax) : Array Syntax :=
   matchStx[1].getSepArgs

@@ -51,7 +51,6 @@ lean_object* l___private_Lean_Compiler_InitAttr_0__Lean_getIOTypeArg_match__1___
 lean_object* l_Lean_registerInitAttrUnsafe_match__3___rarg(lean_object*, lean_object*);
 lean_object* l_Array_qsort_sort___at_Lean_registerInitAttrUnsafe___spec__14(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_registerInitAttrUnsafe___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_registerInitAttrUnsafe_match__6___rarg(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_registerInitAttr(lean_object*, uint8_t);
@@ -94,7 +93,6 @@ lean_object* l_Lean_registerInitAttrUnsafe_match__2___rarg(lean_object*, lean_ob
 lean_object* l_Lean_registerInitAttrUnsafe_match__4(lean_object*);
 lean_object* l___private_Lean_Compiler_InitAttr_0__Lean_isIOUnit___boxed(lean_object*);
 lean_object* l_Std_RBNode_fold___at_Lean_registerInitAttrUnsafe___spec__12(lean_object*, lean_object*);
-lean_object* l_Lean_registerInitAttrUnsafe_match__5(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_569____closed__1;
@@ -145,8 +143,6 @@ extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* l_Lean_registerInitAttrUnsafe_match__2(lean_object*);
-lean_object* l_Lean_registerInitAttrUnsafe_match__6___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_registerInitAttrUnsafe_match__5___rarg(lean_object*);
 uint8_t l_Lean_hasInitAttr(lean_object*, lean_object*);
 lean_object* l_Lean_ParametricAttribute_setParam___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_InitAttr_0__Lean_isUnitType_match__1(lean_object*);
@@ -185,7 +181,6 @@ lean_object* l_Lean_registerParametricAttribute___at_Lean_registerInitAttrUnsafe
 lean_object* lean_run_init(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerInitAttr___boxed(lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
-lean_object* l_Lean_registerInitAttrUnsafe_match__6(lean_object*, lean_object*);
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__2;
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__1;
 uint8_t l___private_Lean_Compiler_InitAttr_0__Lean_isUnitType(lean_object*);
@@ -196,7 +191,6 @@ lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__4(lean_obj
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__8;
-lean_object* l_Lean_registerInitAttrUnsafe_match__5___boxed(lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2554____closed__14;
 lean_object* l_Lean_Attribute_Builtin_getId_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__4;
@@ -686,58 +680,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_registerInitAttrUnsafe_match__4___rarg), 2, 0);
 return x_2;
-}
-}
-lean_object* l_Lean_registerInitAttrUnsafe_match__5___rarg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_box(0);
-x_3 = lean_apply_1(x_1, x_2);
-return x_3;
-}
-}
-lean_object* l_Lean_registerInitAttrUnsafe_match__5(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_registerInitAttrUnsafe_match__5___rarg), 1, 0);
-return x_3;
-}
-}
-lean_object* l_Lean_registerInitAttrUnsafe_match__5___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_registerInitAttrUnsafe_match__5(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-lean_object* l_Lean_registerInitAttrUnsafe_match__6___rarg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_box(0);
-x_3 = lean_apply_1(x_1, x_2);
-return x_3;
-}
-}
-lean_object* l_Lean_registerInitAttrUnsafe_match__6(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_registerInitAttrUnsafe_match__6___rarg), 1, 0);
-return x_3;
-}
-}
-lean_object* l_Lean_registerInitAttrUnsafe_match__6___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_registerInitAttrUnsafe_match__6(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 lean_object* l_Lean_throwError___at_Lean_registerInitAttrUnsafe___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

@@ -118,10 +118,8 @@ lean_object* l_Leanpkg_Manifest_fromFile(lean_object*, lean_object*);
 lean_object* l_Leanpkg_withLockFile_acquire___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l___private_Leanpkg_0__Leanpkg_splitCmdlineArgsCore_match__2(lean_object*);
 extern lean_object* l_Leanpkg_materialize___lambda__1___closed__2;
-lean_object* l_Leanpkg_configure_match__1___boxed(lean_object*, lean_object*);
 lean_object* l_Leanpkg_withLockFile(lean_object*);
 lean_object* lean_init_search_path(lean_object*, lean_object*);
-lean_object* l_Leanpkg_configure_match__1___rarg(lean_object*);
 lean_object* l___private_Leanpkg_0__Leanpkg_splitCmdlineArgsCore___closed__1;
 lean_object* l_main_match__1(lean_object*);
 lean_object* l_Leanpkg_splitCmdlineArgs_match__1(lean_object*);
@@ -189,7 +187,6 @@ lean_object* l_Leanpkg_main_match__1___rarg___closed__1;
 uint8_t l_List_beq___at_Lean_OpenDecl_instToStringOpenDecl___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Leanpkg_gitParseRevision___closed__9;
 lean_object* l_IO_FS_writeFile___at_Leanpkg_writeManifest___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Leanpkg_configure_match__1(lean_object*, lean_object*);
 lean_object* l_List_map___at_Leanpkg_buildImports___spec__3___closed__1;
 lean_object* lean_io_prim_handle_mk(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Leanpkg_upstreamGitBranch;
@@ -1157,32 +1154,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_IO_removeFile___at_Leanpkg_withLockFile___spec__1(x_1, x_2);
 lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_Leanpkg_configure_match__1___rarg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_box(0);
-x_3 = lean_apply_1(x_1, x_2);
-return x_3;
-}
-}
-lean_object* l_Leanpkg_configure_match__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Leanpkg_configure_match__1___rarg), 1, 0);
-return x_3;
-}
-}
-lean_object* l_Leanpkg_configure_match__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Leanpkg_configure_match__1(x_1, x_2);
-lean_dec(x_2);
 return x_3;
 }
 }

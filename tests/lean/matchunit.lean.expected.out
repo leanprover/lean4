@@ -1,2 +1,6 @@
 def f : Unit → Nat :=
 fun (a : Unit) => 10
+def g : Unit → Unit :=
+fun (a : Unit) =>
+  match a with 
+  | b@PUnit.unit => b

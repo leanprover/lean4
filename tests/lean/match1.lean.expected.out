@@ -34,7 +34,7 @@ fun (x : Nat × Nat) =>
 fun (x x_1 : Option Nat) =>
   match x, x_1 with 
   | some a, some b => some (a + b)
-  | x, x_2 => fun (x : Option Nat) => none : Option Nat → Option Nat → Option Nat
+  | x, x_2 => none : Option Nat → Option Nat → Option Nat
 fun (x : Nat) =>
   (match x with 
     | 0 => id

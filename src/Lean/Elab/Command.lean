@@ -597,14 +597,16 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
       hasNoErrorMessages
     catch
       | ex@(Exception.error _ _) => do logException ex; pure false
-      | Exception.internal id _  => do logError "internal"; pure false -- TODO: improve `logError "internal"`
+      | Exception.internal id _  => do logError (← id.getName); pure false
     finally
       restoreMessages prevMessages
   if succeeded then
     throwError "unexpected success"
 
-@[builtinCommandElab «check_failure»] def elabCheckFailure : CommandElab := fun stx =>
-  failIfSucceeds <| elabCheck stx
+@[builtinCommandElab «check_failure»] def elabCheckFailure : CommandElab
+  | `(#check_failure $term) => do
+    failIfSucceeds <| elabCheck (← `(#check $term))
+  | _ => throwUnsupportedSyntax
 
 unsafe def elabEvalUnsafe : CommandElab
   | `(#eval%$tk $term) => do

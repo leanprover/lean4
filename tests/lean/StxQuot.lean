@@ -29,6 +29,8 @@ end Lean.Syntax
 #eval run $ do let a ← `(def foo := 1 def bar := 2); match a with | `($f:command $g:command) => `($g:command $f:command) | _ => pure Syntax.missing
 
 #eval run $ do let a ← `(aa); match a with | `($id:ident) => pure 0 | `($e) => pure 1 | _ => pure 2
+#eval match mkIdent `aa with | `(aa) => 0 | _ => 1
+#eval match mkIdent `aa with | `(ab) => 0 | _ => 1
 #eval run $ do let a ← `(1 + 2); match a with | `($id:ident) => pure 0 | `($e) => pure 1 | _ => pure 2
 #eval run $ do let params ← #[`(a), `((b : Nat))].mapM id; `(fun $params* => 1)
 #eval run $ do let a ← `(fun (a : Nat) b => c); match a with | `(fun $aa* => $e) => pure aa | _ => pure #[]

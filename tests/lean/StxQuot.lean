@@ -43,7 +43,7 @@ end Lean.Syntax
 #eval run $ do let a ← `(match a with | a => 1 | _ => 2); match a with | `(match $e with $eqns:matchAlt*) => pure eqns | _ => pure #[]
 
 def f (stx : Syntax) : Unhygienic Syntax := match stx with
-  | `({ a := a $[: $a]?}) => `({ a := a $[: $(id a)]?})
+  | `({ $f:ident := $e $[: $a]?}) => `({ $f:ident := $e $[: $(id a)]?})
   | _ => unreachable!
 #eval run do f (← `({ a := a : a }))
 #eval run do f (← `({ a := a }))
@@ -56,12 +56,12 @@ def f' (stx : Syntax) : Unhygienic Syntax := match stx with
 
 #eval run do
   match ← `(match a with | a => b | a + 1 => b + 1) with
-  | `(match a with $[| $pats =>%$arr $rhss]*) => `(match a with $[| $pats =>%$arr $rhss]*)
+  | `(match $e:term with $[| $pats =>%$arr $rhss]*) => `(match $e:term with $[| $pats =>%$arr $rhss]*)
   | _ => unreachable!
 
 #eval run do
   match ← `(match a with | a => b | a + 1 => b + 1) with
-  | `(match a with $alts:matchAlt*) => `(match a with $alts:matchAlt*)
+  | `(match $e:term with $alts:matchAlt*) => `(match $e:term with $alts:matchAlt*)
   | _ => unreachable!
 
 open Parser.Term
@@ -72,8 +72,8 @@ open Parser.Term
 
 #eval run do
   match ← `({ a := a : a }) with
-  | `({ a := a : 0 })      => "0"
-  | `({ a := a $[: $a?]?}) => "1"
+  | `({ $f:ident := $e : 0 })      => "0"
+  | `({ $f:ident := $e $[: $a?]?}) => "1"
   | stx                    => "2"
 
 #eval run `(sufficesDecl|x from x)

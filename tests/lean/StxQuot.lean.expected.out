@@ -19,6 +19,8 @@
 "(Command.declaration\n (Command.declModifiers [] [] [] [] [] [])\n (Command.def\n  \"def\"\n  (Command.declId `foo._@.UnhygienicMain._hyg.1 [])\n  (Command.optDeclSig [] [])\n  (Command.declValSimple \":=\" (numLit \"1\") [])))"
 "[(Command.declaration\n  (Command.declModifiers [] [] [] [] [] [])\n  (Command.def\n   \"def\"\n   (Command.declId `bar._@.UnhygienicMain._hyg.1 [])\n   (Command.optDeclSig [] [])\n   (Command.declValSimple \":=\" (numLit \"2\") [])))\n (Command.declaration\n  (Command.declModifiers [] [] [] [] [] [])\n  (Command.def\n   \"def\"\n   (Command.declId `foo._@.UnhygienicMain._hyg.1 [])\n   (Command.optDeclSig [] [])\n   (Command.declValSimple \":=\" (numLit \"1\") [])))]"
 "0"
+0
+1
 "1"
 "(Term.fun\n \"fun\"\n (Term.basicFun\n  [`a._@.UnhygienicMain._hyg.1\n   (Term.paren \"(\" [`b._@.UnhygienicMain._hyg.1 [(Term.typeAscription \":\" `Nat._@.UnhygienicMain._hyg.1)]] \")\")]\n  \"=>\"\n  (numLit \"1\")))"
 "#[(Term.paren \"(\" [`a._@.UnhygienicMain._hyg.1 [(Term.typeAscription \":\" `Nat._@.UnhygienicMain._hyg.1)]] \")\"), `b._@.UnhygienicMain._hyg.1]"
@@ -36,9 +38,9 @@
 "(Term.match\n \"match\"\n [(Term.matchDiscr [] `a._@.UnhygienicMain._hyg.1)]\n []\n \"with\"\n (Term.matchAlts\n  [(Term.matchAlt \"|\" [`a._@.UnhygienicMain._hyg.1] \"=>\" `b._@.UnhygienicMain._hyg.1)\n   (Term.matchAlt\n    \"|\"\n    [(term_+_ `a._@.UnhygienicMain._hyg.1 \"+\" (numLit \"1\"))]\n    \"=>\"\n    (term_+_ `b._@.UnhygienicMain._hyg.1 \"+\" (numLit \"1\")))]))"
 "#[`a._@.UnhygienicMain._hyg.1, `b._@.UnhygienicMain._hyg.1]"
 "1"
-StxQuot.lean:77:33: error: expected parser to return exactly one syntax object
+StxQuot.lean:79:33: error: expected parser to return exactly one syntax object
 "#[(numLit \"1\"), [(numLit \"2\") (numLit \"3\")], (numLit \"4\")]"
 "#[(numLit \"2\")]"
-StxQuot.lean:90:39-90:44: error: unexpected antiquotation splice
+StxQuot.lean:92:39-92:44: error: unexpected antiquotation splice
 fun (a : ?m) => sorry : (a : ?m) → ?m a
 "#[(some 1), (some 2)]"

@@ -26,7 +26,7 @@ def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
 
 private def checkConstant (constName : Name) (us : List Level) : MetaM Unit := do
   let cinfo ← getConstInfo constName
-  unless us.length == cinfo.lparams.length do
+  unless us.length == cinfo.levelParams.length do
     throwIncorrectNumberOfLevels constName us
 
 private def getFunctionDomain (f : Expr) : MetaM (Expr × BinderInfo) := do

@@ -221,7 +221,7 @@ private def mkRecursorInfoAux (cinfo : ConstantInfo) (majorPos? : Option Nat) : 
       forallTelescopeReducing motiveType fun motiveTypeParams motiveResultType => do
         checkMotiveResultType declName motiveArgs motiveResultType motiveTypeParams
         let motiveLvl ← getMotiveLevel declName motiveResultType
-        let univLevelPos ← getUnivLevelPos declName cinfo.lparams motiveLvl Ilevels
+        let univLevelPos ← getUnivLevelPos declName cinfo.levelParams motiveLvl Ilevels
         let (produceMotive, recursive) ← getProduceMotiveAndRecursive xs numParams numIndices majorPos motive
         pure {
           recursorName  := declName,

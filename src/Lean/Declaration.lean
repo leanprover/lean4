@@ -334,7 +334,7 @@ def isUnsafe : ConstantInfo → Bool
 def name (d : ConstantInfo) : Name :=
   d.toConstantVal.name
 
-def lparams (d : ConstantInfo) : List Name :=
+def levelParams (d : ConstantInfo) : List Name :=
   d.toConstantVal.levelParams
 
 def type (d : ConstantInfo) : Expr :=

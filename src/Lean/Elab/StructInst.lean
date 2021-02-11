@@ -665,7 +665,7 @@ partial def mkDefaultValueAux? (struct : Struct) : Expr → TermElabM (Option Ex
 
 def mkDefaultValue? (struct : Struct) (cinfo : ConstantInfo) : TermElabM (Option Expr) :=
   withRef struct.ref do
-  let us ← cinfo.lparams.mapM fun _ => mkFreshLevelMVar
+  let us ← cinfo.levelParams.mapM fun _ => mkFreshLevelMVar
   mkDefaultValueAux? struct (cinfo.instantiateValueLevelParams us)
 
 /-- If `e` is a projection function of one of the given structures, then reduce it -/

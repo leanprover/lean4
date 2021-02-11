@@ -138,7 +138,7 @@ private def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : 
 private def tryToSynthesizeUsingDefaultInstance (mvarId : MVarId) (defaultInstance : Name) : MetaM (Option (List SyntheticMVarDecl)) :=
   commitWhenSome? do
     let constInfo ← getConstInfo defaultInstance
-    let candidate := Lean.mkConst defaultInstance (← mkFreshLevelMVars constInfo.lparams.length)
+    let candidate := Lean.mkConst defaultInstance (← mkFreshLevelMVars constInfo.levelParams.length)
     let (mvars, bis, _) ← forallMetaTelescopeReducing (← inferType candidate)
     let candidate := mkAppN candidate mvars
     trace[Elab.resume]! "trying default instance for {mkMVar mvarId} := {candidate}"

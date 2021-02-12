@@ -18,7 +18,7 @@ deriving Inhabited, Repr
 
 structure CongrLemmas where
   lemmas : SMap Name (List CongrLemma) := {}
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 def addCongrLemmaEntry (d : CongrLemmas) (e : CongrLemma) : CongrLemmas :=
   { d with lemmas :=

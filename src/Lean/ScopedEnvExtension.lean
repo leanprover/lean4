@@ -35,6 +35,7 @@ structure Descr (α : Type) (β : Type) (σ : Type) where
   ofOLeanEntry   : σ → α → ImportM β
   toOLeanEntry   : β → α
   addEntry       : σ → β → σ
+  finalizeImport : σ → σ := id
 
 instance [Inhabited α] : Inhabited (Descr α β σ) where
   default := {
@@ -65,6 +66,7 @@ def addImportedFn (descr : Descr α β σ) (as : Array (Array (Entry α))) : Imp
       | Entry.scoped ns a =>
         let b ← descr.ofOLeanEntry s a
         scopedEntries := scopedEntries.insert ns b
+  s := descr.finalizeImport s
   return { stateStack := [ { state := s } ], scopedEntries := scopedEntries }
 
 def addEntryFn (descr : Descr α β σ) (s : StateStack α β σ) (e : Entry β) : StateStack α β σ :=
@@ -192,14 +194,16 @@ structure SimpleScopedEnvExtension.Descr (α : Type) (σ : Type) where
   name           : Name
   addEntry       : σ → α → σ
   initial        : σ
+  finalizeImport : σ → σ := id
 
 def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α σ) : IO (SimpleScopedEnvExtension α σ) := do
   registerScopedEnvExtension {
-    name          := descr.name
-    mkInitial     := return descr.initial
-    addEntry      := descr.addEntry
-    toOLeanEntry  := id
-    ofOLeanEntry  := fun s a => return a
+    name           := descr.name
+    mkInitial      := return descr.initial
+    addEntry       := descr.addEntry
+    toOLeanEntry   := id
+    ofOLeanEntry   := fun s a => return a
+    finalizeImport := descr.finalizeImport
   }
 
 end Lean

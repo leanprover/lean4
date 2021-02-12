@@ -94,7 +94,6 @@ def addSimpLemma (declName : Name) (post : Bool) (attrKind : AttributeKind) (pri
      See `SimpLemma.getValue` -/
   let lemma ← mkSimpLemmaCore (mkConst declName (cinfo.levelParams.map mkLevelParam)) (mkConst declName) post prio declName
   simpExtension.add lemma attrKind
-  pure ()
 
 builtin_initialize
   registerBuiltinAttribute {

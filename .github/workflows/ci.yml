@@ -100,8 +100,8 @@ jobs:
             git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
             git fetch nightly --tags
             LEAN_VERSION_STRING="nightly-$(date -u +%F)"
-            # do nothing if commit is already tagged
-            if ! git name-rev --name-only --tags --no-undefined HEAD; then
+            # do nothing if commit already has a different tag
+            if [[ $(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || echo $LEAN_VERSION_STRING) == $LEAN_VERSION_STRING ]] then
               OPTIONS=-DLEAN_SPECIAL_VERSION_DESC=$LEAN_VERSION_STRING
               echo "LEAN_VERSION_STRING=$LEAN_VERSION_STRING" >> $GITHUB_ENV
             fi

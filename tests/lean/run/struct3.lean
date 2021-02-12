@@ -7,7 +7,7 @@ class Monad2 (m : Type u → Type v) extends Applicative m, Bind2 m : Type (max 
   map      := fun f x => Bind2.bind x (pure ∘ f)
   seq      := fun f x => Bind2.bind f fun y => Functor.map y x
   seqLeft  := fun x y => Bind2.bind x fun a => Bind2.bind y fun _ => pure a
-  seqRight := @fun β x y => Bind2.bind x fun _ => y -- Recall that `@` disables implicit lambda support
+  seqRight := @fun α β x y => Bind2.bind x fun _ => y -- Recall that `@` disables implicit lambda support
 
 class Monad3 (m : Type u → Type v) extends Applicative m, Bind2 m : Type (max (u+1) v) where
   map (f x)      := Bind2.bind x (pure ∘ f)

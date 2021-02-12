@@ -696,7 +696,9 @@ mutual
             let args ← args.mapM (visit check)
             return mkAppN f args)
           (fun ex => do
-            if (← f.isMVar <&&> isDelayedAssigned f.mvarId!) then
+            if !f.isMVar then
+              throw ex
+            else if (← isDelayedAssigned f.mvarId!) then
               throw ex
             else
               let eType ← inferType e

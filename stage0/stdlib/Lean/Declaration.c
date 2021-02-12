@@ -25,6 +25,7 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_InductiveVal_isUnsafeEx___boxed(lean_object*);
 lean_object* l_Lean_ReducibilityHints_getHeightEx_match__1(lean_object*);
 uint8_t lean_inductive_val_is_rec(lean_object*);
+lean_object* l_Lean_ConstantInfo_levelParams___boxed(lean_object*);
 lean_object* l_Lean_instInhabitedTheoremVal___closed__1;
 lean_object* l_Lean_instInhabitedReducibilityHints;
 lean_object* l_Lean_ConstantInfo_isUnsafe_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -53,7 +54,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_RecursorVal_getFirstMinorIdx(lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x21___closed__1;
 lean_object* l_Lean_instInhabitedDefinitionVal___closed__1;
-lean_object* l_Lean_ConstantInfo_lparams___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x21___boxed(lean_object*);
 lean_object* l_Lean_instBEqDefinitionSafety;
 lean_object* l___private_Lean_Declaration_0__Lean_beqDefinitionSafety____x40_Lean_Declaration___hyg_151__match__1(lean_object*);
@@ -68,6 +68,7 @@ lean_object* l_Lean_ConstantInfo_value_x21___closed__2;
 lean_object* l_Lean_AxiomVal_isUnsafeEx___boxed(lean_object*);
 lean_object* l_Lean_Declaration_foldExprM_match__1(lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x21_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_ConstantInfo_levelParams(lean_object*);
 uint8_t lean_inductive_val_is_nested(lean_object*);
 lean_object* l_ReaderT_instMonadReaderT___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RecursorVal_getMajorIdx(lean_object*);
@@ -133,7 +134,6 @@ uint8_t l_Lean_instInhabitedDefinitionSafety;
 uint8_t lean_recursor_is_unsafe(lean_object*);
 lean_object* l_Lean_ConstantInfo_hints_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RecursorVal_getInduct(lean_object*);
-lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
 lean_object* lean_mk_constructor_val(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_mkDefinitionValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x3f_match__1(lean_object*);
@@ -3061,7 +3061,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_ConstantInfo_lparams(lean_object* x_1) {
+lean_object* l_Lean_ConstantInfo_levelParams(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -3072,11 +3072,11 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_ConstantInfo_lparams___boxed(lean_object* x_1) {
+lean_object* l_Lean_ConstantInfo_levelParams___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_ConstantInfo_lparams(x_1);
+x_2 = l_Lean_ConstantInfo_levelParams(x_1);
 lean_dec(x_1);
 return x_2;
 }

@@ -140,6 +140,7 @@ lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppOptMAux___closed
 lean_object* l_Lean_Meta_isMonad_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkProjection___lambda__1___closed__2;
+lean_object* l_Lean_ConstantInfo_levelParams(lean_object*);
 lean_object* l_Lean_Meta_mkAppOptM_match__1(lean_object*);
 extern lean_object* l_Lean_instQuoteBool___closed__5;
 extern lean_object* l_Lean_Meta_synthInstance_x3f___lambda__4___closed__4;
@@ -275,7 +276,6 @@ lean_object* l_Array_forM___at___private_Lean_Meta_Check_0__Lean_Meta_checkAux_c
 extern lean_object* l_Lean_instToExprBool___lambda__1___closed__2;
 lean_object* l_Lean_Meta_mkAppM___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkCongrFun_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_16223____closed__1;
 lean_object* l_Lean_Meta_assignExprMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppOptMAux_match__3___rarg(lean_object*, lean_object*, lean_object*);
@@ -5744,7 +5744,7 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec(x_7);
-x_10 = l_Lean_ConstantInfo_lparams(x_8);
+x_10 = l_Lean_ConstantInfo_levelParams(x_8);
 x_11 = l_List_mapM___at___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkFun___spec__1(x_10, x_2, x_3, x_4, x_5, x_9);
 x_12 = !lean_is_exclusive(x_11);
 if (x_12 == 0)

@@ -243,14 +243,14 @@ private def extractIdRhs (e : Expr) : Expr :=
 
 @[specialize] private def deltaDefinition {α} (c : ConstantInfo) (lvls : List Level)
     (failK : Unit → α) (successK : Expr → α) : α :=
-  if c.lparams.length != lvls.length then failK ()
+  if c.levelParams.length != lvls.length then failK ()
   else
     let val := c.instantiateValueLevelParams lvls
     successK (extractIdRhs val)
 
 @[specialize] private def deltaBetaDefinition {α} (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr)
     (failK : Unit → α) (successK : Expr → α) : α :=
-  if c.lparams.length != lvls.length then
+  if c.levelParams.length != lvls.length then
     failK ()
   else
     let val := c.instantiateValueLevelParams lvls
@@ -418,7 +418,7 @@ mutual
     match e with
     | Expr.app f _ _ =>
       matchConstAux f.getAppFn (fun _ => unfoldProjInst e) fun fInfo fLvls => do
-        if fInfo.lparams.length != fLvls.length then
+        if fInfo.levelParams.length != fLvls.length then
           return none
         else
           let unfoldDefault (_ : Unit) : MetaM (Option Expr) :=

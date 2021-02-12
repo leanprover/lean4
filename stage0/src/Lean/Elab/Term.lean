@@ -1241,10 +1241,10 @@ def mkFreshLevelMVars (num : Nat) : MetaM (List Level) :=
   parameters than `explicitLevels`. -/
 def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM Expr := do
   let cinfo ← getConstInfo constName
-  if explicitLevels.length > cinfo.lparams.length then
+  if explicitLevels.length > cinfo.levelParams.length then
     throwError "too many explicit universe levels"
   else
-    let numMissingLevels := cinfo.lparams.length - explicitLevels.length
+    let numMissingLevels := cinfo.levelParams.length - explicitLevels.length
     let us ← mkFreshLevelMVars numMissingLevels
     pure $ Lean.mkConst constName (explicitLevels ++ us)
 

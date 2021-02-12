@@ -12,7 +12,7 @@ namespace Lean.Meta
 def deltaExpand (e : Expr) (p : Name → Bool) : CoreM Expr :=
   Core.transform e fun e =>
     matchConst e.getAppFn (fun _ => return TransformStep.visit e) fun fInfo fLvls => do
-      if p fInfo.name && fInfo.hasValue && fInfo.lparams.length == fLvls.length then
+      if p fInfo.name && fInfo.hasValue && fInfo.levelParams.length == fLvls.length then
         let f := fInfo.instantiateValueLevelParams fLvls
         return TransformStep.visit (f.betaRev e.getAppRevArgs)
       else

@@ -151,6 +151,7 @@ lean_object* l_Lean_Meta_isAuxDef(lean_object*, lean_object*, lean_object*, lean
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_reduceQuotRec_match__3(lean_object*);
 lean_object* l_Lean_Meta_reduceBoolNative___rarg(lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfEasyCases_match__2___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_ConstantInfo_levelParams(lean_object*);
 lean_object* l_Lean_Meta_getStuckMVar_x3f_match__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfEasyCases(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_isRecStuck_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -283,7 +284,6 @@ lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfEasyCases___closed__1;
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfUntilIdRhs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RecursorVal_getInduct(lean_object*);
 extern lean_object* l_Lean_instToExprBool___lambda__1___closed__2;
-lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
 lean_object* l_Lean_Meta_reduceBinNatOp___closed__11;
 lean_object* l_Lean_Meta_whnfHeadPred(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduceProj_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -6301,7 +6301,7 @@ lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_deltaDefinition___rarg(lean
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_5 = l_Lean_ConstantInfo_lparams(x_1);
+x_5 = l_Lean_ConstantInfo_levelParams(x_1);
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = l_List_lengthAux___rarg(x_5, x_6);
 lean_dec(x_5);
@@ -6350,7 +6350,7 @@ lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_deltaBetaDefinition___rarg(
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-x_6 = l_Lean_ConstantInfo_lparams(x_1);
+x_6 = l_Lean_ConstantInfo_levelParams(x_1);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = l_List_lengthAux___rarg(x_6, x_7);
 lean_dec(x_6);
@@ -8788,7 +8788,7 @@ lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_deltaBetaDefinition___at_Le
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-x_10 = l_Lean_ConstantInfo_lparams(x_2);
+x_10 = l_Lean_ConstantInfo_levelParams(x_2);
 x_11 = lean_unsigned_to_nat(0u);
 x_12 = l_List_lengthAux___rarg(x_10, x_11);
 lean_dec(x_10);
@@ -12789,7 +12789,7 @@ lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_deltaDefinition___at_Lean_M
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-x_8 = l_Lean_ConstantInfo_lparams(x_1);
+x_8 = l_Lean_ConstantInfo_levelParams(x_1);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = l_List_lengthAux___rarg(x_8, x_9);
 lean_dec(x_8);
@@ -12860,7 +12860,7 @@ lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_deltaBetaDefinition___at_Le
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_9 = l_Lean_ConstantInfo_lparams(x_1);
+x_9 = l_Lean_ConstantInfo_levelParams(x_1);
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = l_List_lengthAux___rarg(x_9, x_10);
 lean_dec(x_9);
@@ -12897,7 +12897,7 @@ lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_deltaBetaDefinition___at_Le
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_9 = l_Lean_ConstantInfo_lparams(x_1);
+x_9 = l_Lean_ConstantInfo_levelParams(x_1);
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = l_List_lengthAux___rarg(x_9, x_10);
 lean_dec(x_9);
@@ -13194,7 +13194,7 @@ lean_dec(x_40);
 x_41 = lean_ctor_get(x_35, 0);
 lean_inc(x_41);
 lean_dec(x_35);
-x_42 = l_Lean_ConstantInfo_lparams(x_41);
+x_42 = l_Lean_ConstantInfo_levelParams(x_41);
 x_43 = lean_unsigned_to_nat(0u);
 x_44 = l_List_lengthAux___rarg(x_42, x_43);
 lean_dec(x_42);
@@ -13517,7 +13517,7 @@ lean_dec(x_34);
 x_107 = lean_ctor_get(x_35, 0);
 lean_inc(x_107);
 lean_dec(x_35);
-x_108 = l_Lean_ConstantInfo_lparams(x_107);
+x_108 = l_Lean_ConstantInfo_levelParams(x_107);
 x_109 = lean_unsigned_to_nat(0u);
 x_110 = l_List_lengthAux___rarg(x_108, x_109);
 lean_dec(x_108);

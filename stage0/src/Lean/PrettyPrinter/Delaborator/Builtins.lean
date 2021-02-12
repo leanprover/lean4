@@ -193,7 +193,8 @@ where
       -- Pattern variables cannot shadow each other
       if varNames.contains varName then
         let varName := (← getLCtx).getUnusedName varName
-        loop n (varNames.push varName)
+        withBindingBody varName do
+          loop n (varNames.push varName)
       else
         withBindingBodyUnusedName fun id => do
           loop n (varNames.push id.getId)
@@ -223,7 +224,7 @@ def delabAppMatch : Delab := whenPPOption getPPNotation do
       else if st.discrs.size < st.info.numDiscrs then
         pure { st with discrs := st.discrs.push (← delab) }
       else if st.rhss.size < st.info.altNumParams.size then
-        /- We save the variables names here to be able to implemente safe_shadowing.
+        /- We save the variables names here to be able to implement safe_shadowing.
            The pattern delaboration must use the names saved here. -/
         let (varNames, rhs) ← skippingBinders st.info.altNumParams[st.rhss.size] fun varNames => do
           let rhs ← delab
@@ -353,7 +354,10 @@ def delabForall : Delab :=
     let prop ← try isProp e catch _ => false
     let stxT ← withBindingDomain delab
     let group ← match e.binderInfo with
-    | BinderInfo.default      =>
+    | BinderInfo.implicit     => `(bracketedBinderF|{$curNames* : $stxT})
+    -- here `curNames.size == 1`
+    | BinderInfo.instImplicit => `(bracketedBinderF|[$curNames.back : $stxT])
+    | _                       =>
       -- heuristic: use non-dependent arrows only if possible for whole group to avoid
       -- noisy mix like `(α : Type) → Type → (γ : Type) → ...`.
       let dependent := curNames.any $ fun n => hasIdent n.getId stxBody
@@ -365,10 +369,6 @@ def delabForall : Delab :=
           `(bracketedBinderF|($curNames* : $stxT))
       else
         return ← curNames.foldrM (fun _ stxBody => `($stxT → $stxBody)) stxBody
-    | BinderInfo.implicit     => `(bracketedBinderF|{$curNames* : $stxT})
-    -- here `curNames.size == 1`
-    | BinderInfo.instImplicit => `(bracketedBinderF|[$curNames.back : $stxT])
-    | _                       => unreachable!
     if prop then
       match stxBody with
       | `(∀ $groups*, $stxBody) => `(∀ $group $groups*, $stxBody)

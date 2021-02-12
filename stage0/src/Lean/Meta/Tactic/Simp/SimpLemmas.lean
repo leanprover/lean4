@@ -92,9 +92,8 @@ def addSimpLemma (declName : Name) (post : Bool) (attrKind : AttributeKind) (pri
   let cinfo ← getConstInfo declName
   /- The `simp` tactic uses fresh universe metavariables when using a global simp lemma.
      See `SimpLemma.getValue` -/
-  let lemma ← mkSimpLemmaCore (mkConst declName (cinfo.lparams.map mkLevelParam)) (mkConst declName) post prio declName
+  let lemma ← mkSimpLemmaCore (mkConst declName (cinfo.levelParams.map mkLevelParam)) (mkConst declName) post prio declName
   simpExtension.add lemma attrKind
-  pure ()
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -123,10 +122,10 @@ def SimpLemma.getValue (lemma : SimpLemma) : MetaM Expr := do
   match lemma.val with
   | Expr.const declName [] _ =>
     let info ← getConstInfo declName
-    if info.lparams.isEmpty then
+    if info.levelParams.isEmpty then
       return lemma.val
     else
-      return lemma.val.updateConst! (← info.lparams.mapM (fun _ => mkFreshLevelMVar))
+      return lemma.val.updateConst! (← info.levelParams.mapM (fun _ => mkFreshLevelMVar))
   | _ => return lemma.val
 
 end Lean.Meta

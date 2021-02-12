@@ -34,3 +34,31 @@ theorem impCongrCtx {p₁ p₂ q₁ q₂ : Prop} (h₁ : p₁ = p₂) (h₂ : p�
 theorem forallCongr {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a = q a)) : (∀ a, p a) = (∀ a, q a) :=
   have p = q from funext h
   this ▸ rfl
+
+theorem iteCongr {x y u v : α} [s : Decidable b] (h₁ : b = c) (h₂ : x = u) (h₃ : y = v)
+        : ite b x y = (@ite _ c (Eq.ndrec s h₁) u v) := by
+  subst b x y; rfl
+
+theorem iteCongrCtx {x y u v : α} [s : Decidable b] (h₁ : b = c) (h₂ : c → x = u) (h₃ : ¬ c → y = v)
+        : ite b x y = (@ite _ c (Eq.ndrec s h₁) u v) := by
+  subst b
+  cases Decidable.em c with
+  | inl h => rw [ifPos h, ifPos h]; exact h₂ h
+  | inr h => rw [ifNeg h, ifNeg h]; exact h₃ h
+
+theorem Eq.mprProp {p q : Prop} (h₁ : p = q) (h₂ : q) : p :=
+  h₁ ▸ h₂
+
+theorem Eq.mprNot {p q : Prop} (h₁ : p = q) (h₂ : ¬q) : ¬p :=
+  h₁ ▸ h₂
+
+theorem diteCongr [s : Decidable b]
+        {x : b → α} {u : c → α} {y : ¬b → α} {v : ¬c → α}
+        (h₁ : b = c)
+        (h₂ : (h : c)  → x (Eq.mprProp h₁ h) = u h)
+        (h₃ : (h : ¬c) → y (Eq.mprNot h₁ h)  = v h)
+        : dite b x y = (@dite _ c (Eq.ndrec s h₁) u v) := by
+  subst b
+  cases Decidable.em c with
+  | inl h => rw [difPos h, difPos h]; exact h₂ h
+  | inr h => rw [difNeg h, difNeg h]; exact h₃ h

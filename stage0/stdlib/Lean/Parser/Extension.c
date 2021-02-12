@@ -135,6 +135,7 @@ lean_object* l_Array_foldlMUnsafe___at_Lean_Parser_getSyntaxNodeKinds___spec__3(
 lean_object* l_Lean_Parser_declareBuiltinParser___closed__1;
 lean_object* l_Lean_Parser_registerAliasCore(lean_object*);
 lean_object* l_Lean_Parser_categoryParserFnImpl(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Applicative_seqRight___default___rarg___closed__1;
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Parser_getCategory___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkParserAttributeImpl___closed__2;
 lean_object* l_IO_ofExcept___at_Lean_Parser_mkParserOfConstantUnsafe___spec__2___boxed(lean_object*, lean_object*);
@@ -9190,19 +9191,21 @@ return x_1;
 static lean_object* _init_l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_2735____closed__7() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_1 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_2735____closed__2;
 x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_2735____closed__3;
 x_3 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_2735____closed__4;
 x_4 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_2735____closed__5;
 x_5 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_2735____closed__6;
-x_6 = lean_alloc_ctor(0, 5, 0);
-lean_ctor_set(x_6, 0, x_1);
-lean_ctor_set(x_6, 1, x_2);
-lean_ctor_set(x_6, 2, x_3);
-lean_ctor_set(x_6, 3, x_4);
-lean_ctor_set(x_6, 4, x_5);
-return x_6;
+x_6 = l_Applicative_seqRight___default___rarg___closed__1;
+x_7 = lean_alloc_ctor(0, 6, 0);
+lean_ctor_set(x_7, 0, x_1);
+lean_ctor_set(x_7, 1, x_2);
+lean_ctor_set(x_7, 2, x_3);
+lean_ctor_set(x_7, 3, x_4);
+lean_ctor_set(x_7, 4, x_5);
+lean_ctor_set(x_7, 5, x_6);
+return x_7;
 }
 }
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_2735_(lean_object* x_1) {
@@ -9233,19 +9236,21 @@ return x_1;
 static lean_object* _init_l_Lean_Parser_parserExtension___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_1 = lean_box(0);
 x_2 = l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___closed__1;
 x_3 = l_Lean_ScopedEnvExtension_instInhabitedDescr___rarg___closed__1;
 x_4 = l_Lean_Parser_parserExtension___closed__1;
 x_5 = l_Lean_instInhabitedPersistentEnvExtension___closed__2;
-x_6 = lean_alloc_ctor(0, 5, 0);
-lean_ctor_set(x_6, 0, x_1);
-lean_ctor_set(x_6, 1, x_2);
-lean_ctor_set(x_6, 2, x_3);
-lean_ctor_set(x_6, 3, x_4);
-lean_ctor_set(x_6, 4, x_5);
-return x_6;
+x_6 = l_Applicative_seqRight___default___rarg___closed__1;
+x_7 = lean_alloc_ctor(0, 6, 0);
+lean_ctor_set(x_7, 0, x_1);
+lean_ctor_set(x_7, 1, x_2);
+lean_ctor_set(x_7, 2, x_3);
+lean_ctor_set(x_7, 3, x_4);
+lean_ctor_set(x_7, 4, x_5);
+lean_ctor_set(x_7, 5, x_6);
+return x_7;
 }
 }
 static lean_object* _init_l_Lean_Parser_parserExtension___closed__3() {

@@ -216,7 +216,7 @@ private partial def mkAppMArgs (f : Expr) (fType : Expr) (xs : Array Expr) : Met
 
 private def mkFun (constName : Name) : MetaM (Expr × Expr) := do
   let cinfo ← getConstInfo constName
-  let us ← cinfo.lparams.mapM fun _ => mkFreshLevelMVar
+  let us ← cinfo.levelParams.mapM fun _ => mkFreshLevelMVar
   let f := mkConst constName us
   let fType := cinfo.instantiateTypeLevelParams us
   return (f, fType)

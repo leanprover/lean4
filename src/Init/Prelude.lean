@@ -1122,10 +1122,10 @@ class Seq (f : Type u → Type v) : Type (max (u+1) v) where
   seq  : {α β : Type u} → f (α → β) → f α → f β
 
 class SeqLeft (f : Type u → Type v) : Type (max (u+1) v) where
-  seqLeft : {α : Type u} → f α → f PUnit → f α
+  seqLeft : {α β : Type u} → f α → f β → f α
 
 class SeqRight (f : Type u → Type v) : Type (max (u+1) v) where
-  seqRight : {β : Type u} → f PUnit → f β → f β
+  seqRight : {α β : Type u} → f α → f β → f β
 
 class Applicative (f : Type u → Type v) extends Functor f, Pure f, Seq f, SeqLeft f, SeqRight f where
   map      := fun x y => Seq.seq (pure x) y
@@ -1468,7 +1468,7 @@ class Backtrackable (δ : outParam (Type u)) (σ : Type u) where
   | Result.ok a s    => Result.ok (f a) s
   | Result.error e s => Result.error e s
 
-@[inline] protected def seqRight (x : EStateM ε σ PUnit) (y : EStateM ε σ β) : EStateM ε σ β := fun s =>
+@[inline] protected def seqRight (x : EStateM ε σ α) (y : EStateM ε σ β) : EStateM ε σ β := fun s =>
   match x s with
   | Result.ok _ s    => y s
   | Result.error e s => Result.error e s

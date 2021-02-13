@@ -36,7 +36,7 @@ theorem forallCongr {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a = q a)) :
   this ▸ rfl
 
 @[congr]
-theorem iteCongr {x y u v : α} [s : Decidable b] [Decidable c] (h₁ : b = c) (h₂ : c → x = u) (h₃ : ¬ c → y = v) : ite b x y = ite c u v := by
+theorem iteCongr {x y u v : α} {s : Decidable b} [Decidable c] (h₁ : b = c) (h₂ : c → x = u) (h₃ : ¬ c → y = v) : ite b x y = ite c u v := by
   cases Decidable.em c with
   | inl h => rw [ifPos h]; subst b; rw[ifPos h]; exact h₂ h
   | inr h => rw [ifNeg h]; subst b; rw[ifNeg h]; exact h₃ h
@@ -48,7 +48,7 @@ theorem Eq.mprNot {p q : Prop} (h₁ : p = q) (h₂ : ¬q) : ¬p :=
   h₁ ▸ h₂
 
 @[congr]
-theorem diteCongr [s : Decidable b] [Decidable c]
+theorem diteCongr {s : Decidable b} [Decidable c]
         {x : b → α} {u : c → α} {y : ¬b → α} {v : ¬c → α}
         (h₁ : b = c)
         (h₂ : (h : c)  → x (Eq.mprProp h₁ h) = u h)

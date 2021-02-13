@@ -184,7 +184,8 @@ where
       unless (← synthesizeArgs c.theoremName xs bis (← read).discharge?) do
         return none
       let eNew ← instantiateMVars rhs
-      return some { expr := eNew, proof? := mkAppN lemma xs }
+      let proof ← instantiateMVars (mkAppN lemma xs)
+      return some { expr := eNew, proof? := proof }
     else
       return none
 

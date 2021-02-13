@@ -8,6 +8,29 @@ import Lean.Meta.Tactic.Simp.Types
 
 namespace Lean.Meta.Simp
 
+def synthesizeArgs (lemmaName : Name) (xs : Array Expr) (bis : Array BinderInfo) (discharge? : Expr → SimpM (Option Expr)) : SimpM Bool := do
+  for x in xs, bi in bis do
+    let type ← inferType x
+    if bi.isInstImplicit then
+      match ← trySynthInstance type with
+      | LOption.some val =>
+        unless (← isDefEq x val) do
+          trace[Meta.Tactic.simp.discharge]! "{lemmaName}, failed to assign instance{indentExpr type}"
+          return false
+      | _ =>
+        trace[Meta.Tactic.simp.discharge]! "{lemmaName}, failed to synthesize instance{indentExpr type}"
+        return false
+    else if (← isProp type <&&> (← instantiateMVars x).isMVar) then
+      match ← discharge? type with
+      | some proof =>
+        unless (← isDefEq x proof) do
+          trace[Meta.Tactic.simp.discharge]! "{lemmaName}, failed to assign proof{indentExpr type}"
+          return false
+      | none =>
+        trace[Meta.Tactic.simp.discharge]! "{lemmaName}, failed to discharge hypotheses{indentExpr type}"
+        return false
+  return true
+
 /-
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
 -/
@@ -37,29 +60,6 @@ where
     | SimpLemmaKind.eq  => return type.appArg!
     | SimpLemmaKind.iff => return type.appArg!
 
-  synthesizeArgs (lemma : SimpLemma) (xs : Array Expr) (bis : Array BinderInfo) : SimpM Bool := do
-    for x in xs, bi in bis do
-      let type ← inferType x
-      if bi.isInstImplicit then
-        match ← trySynthInstance type with
-        | LOption.some val =>
-          unless (← isDefEq x val) do
-            trace[Meta.Tactic.simp.discharge]! "{lemma}, failed to assign instance{indentExpr type}"
-            return false
-        | _ =>
-          trace[Meta.Tactic.simp.discharge]! "{lemma}, failed to synthesize instance{indentExpr type}"
-          return false
-      else if (← isProp type <&&> (← instantiateMVars x).isMVar) then
-        match ← discharge? type with
-        | some proof =>
-          unless (← isDefEq x proof) do
-            trace[Meta.Tactic.simp.discharge]! "{lemma}, failed to assign proof{indentExpr type}"
-            return false
-        | none =>
-          trace[Meta.Tactic.simp.discharge]! "{lemma}, failed to discharge hypotheses{indentExpr type}"
-          return false
-    return true
-
   finalizeProof (kind : SimpLemmaKind) (proof : Expr) : MetaM Expr :=
     match kind with
     | SimpLemmaKind.eq  => return proof
@@ -74,7 +74,7 @@ where
       let (xs, bis, type) ← forallMetaTelescopeReducing type
       let lhs ← getLHS lemma.kind type
       if (← isDefEq lhs e) then
-        unless (← synthesizeArgs lemma xs bis) do
+        unless (← synthesizeArgs lemma.getName xs bis discharge?) do
           return none
         let proof ← instantiateMVars (mkAppN val xs)
         if ← hasAssignableMVar proof then

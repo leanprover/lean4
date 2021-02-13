@@ -24,13 +24,15 @@ structure SimpLemma where
   kind     : SimpLemmaKind
   deriving Inhabited
 
+def SimpLemma.getName (s : SimpLemma) : Name :=
+  match s.name? with
+  | some n => n
+  | none   => "<unknown>"
+
 instance : ToFormat SimpLemma where
   format s :=
     let perm := if s.perm then ":perm" else ""
-    let name :=
-      match s.name? with
-      | some n => fmt n
-      | none   => "<unknown>"
+    let name := fmt s.getName
     let prio := f!":{s.priority}"
     name ++ prio ++ perm
 

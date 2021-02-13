@@ -72,6 +72,7 @@ where
       let val  ← lemma.getValue
       let type ← inferType val
       let (xs, bis, type) ← forallMetaTelescopeReducing type
+      let type ← instantiateMVars type
       let lhs ← getLHS lemma.kind type
       if (← isDefEq lhs e) then
         unless (← synthesizeArgs lemma.getName xs bis discharge?) do

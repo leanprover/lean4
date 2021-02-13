@@ -73,7 +73,7 @@ private partial def isPerm : Expr → Expr → MetaM Bool
   | s, t => s == t
 
 def mkSimpLemmaCore (e : Expr) (val : Expr) (post : Bool) (prio : Nat) (name? : Option Name) : MetaM SimpLemma := do
-  let type ← inferType e
+  let type ← instantiateMVars (← inferType e)
   unless (← isProp type) do
     throwError! "invalid 'simp', proposition expected{indentExpr type}"
   withNewMCtxDepth do

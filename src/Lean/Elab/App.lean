@@ -73,11 +73,11 @@ private def tryCoeFun? (α : Expr) (a : Expr) : TermElabM (Option Expr) := do
   let mvarId := mvar.mvarId!
   try
     if (← synthesizeCoeInstMVarCore mvarId) then
-      pure $ some $ mkAppN (Lean.mkConst `coeFun [u, v]) #[α, γ, a, mvar]
+      expandCoe <| mkAppN (Lean.mkConst `coeFun [u, v]) #[α, γ, a, mvar]
     else
-      pure none
+      return none
   catch _ =>
-    pure none
+    return none
 
 def synthesizeAppInstMVars (instMVars : Array MVarId) : TermElabM Unit :=
   for mvarId in instMVars do

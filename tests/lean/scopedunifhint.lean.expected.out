@@ -5,7 +5,7 @@ argument
 has type
   Nat
 but is expected to have type
-  coeSort ?m
+  ?m.α
 scopedunifhint.lean:29:7-29:24: error: application type mismatch
   mul (x, x) (x, x)
 argument
@@ -13,7 +13,7 @@ argument
 has type
   Nat × Nat
 but is expected to have type
-  coeSort ?m
+  ?m.α
 scopedunifhint.lean:33:7-33:10: error: application type mismatch
   x*x
 argument
@@ -21,9 +21,9 @@ argument
 has type
   Nat
 but is expected to have type
-  coeSort ?m
-x*x : coeSort Nat.Magma
-x*x : coeSort Nat.Magma
+  ?m.α
+x*x : Nat.Magma.α
+x*x : Nat.Magma.α
 scopedunifhint.lean:39:7-39:24: error: application type mismatch
   (x, x)*(x, x)
 argument
@@ -31,8 +31,8 @@ argument
 has type
   Nat × Nat
 but is expected to have type
-  coeSort ?m
-(x, x)*(x, x) : coeSort (Prod.Magma Nat.Magma Nat.Magma)
+  ?m.α
+(x, x)*(x, x) : (Prod.Magma Nat.Magma Nat.Magma).α
 scopedunifhint.lean:56:7-56:22: error: application type mismatch
   (x, x)*(x, x)
 argument
@@ -40,4 +40,4 @@ argument
 has type
   Nat × Nat
 but is expected to have type
-  coeSort ?m
+  ?m.α

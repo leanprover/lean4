@@ -10,6 +10,7 @@ import Lean.Meta.ExprDefEq
 import Lean.Meta.AppBuilder
 import Lean.Meta.SynthInstance
 import Lean.Meta.CollectMVars
+import Lean.Meta.Coe
 import Lean.Meta.Tactic.Util
 import Lean.Hygiene
 import Lean.Util.RecDepth
@@ -613,6 +614,7 @@ private def tryCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eTyp
       let coeTInstType := mkAppN (mkConst `CoeT [u, v]) #[eType, e, expectedType]
       let mvar ← mkFreshExprMVar coeTInstType MetavarKind.synthetic
       let eNew := mkAppN (mkConst `coe [u, v]) #[eType, expectedType, e, mvar]
+      -- TODO: MODIFY
       let mvarId := mvar.mvarId!
       try
         withoutMacroStackAtErr do
@@ -757,7 +759,7 @@ private def tryLiftAndCoe (errorMsgHeader? : Option String) (expectedType : Expr
   let some (m, α) ← isTypeApp? eType | tryPureCoeAndSimple
   if (← isDefEq m n) then
     let some monadInst ← isMonad? n | tryCoeSimple
-    try mkAppOptM `coeM #[m, α, β, none, monadInst, e] catch _ => throwMismatch
+    try expandCoe (← mkAppOptM `coeM #[m, α, β, none, monadInst, e]) catch _ => throwMismatch
   else
     try
       -- Construct lift from `m` to `n`
@@ -769,17 +771,17 @@ private def tryLiftAndCoe (errorMsgHeader? : Option String) (expectedType : Expr
       let eNew := mkAppN (Lean.mkConst `liftM [u_1, u_2, u_3]) #[m, n, monadLiftVal, α, e]
       let eNewType ← inferType eNew
       if (← isDefEq expectedType eNewType) then
-        pure eNew -- approach 2 worked
+        return eNew -- approach 2 worked
       else
         let some monadInst ← isMonad? n | tryCoeSimple
         let u ← getLevel α
         let v ← getLevel β
         let coeTInstType := Lean.mkForall `a BinderInfo.default α $ mkAppN (mkConst `CoeT [u, v]) #[α, mkBVar 0, β]
         let coeTInstVal ← synthesizeInst coeTInstType
-        let eNew := mkAppN (Lean.mkConst `liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, monadInst, e]
+        let eNew ← expandCoe (← mkAppN (Lean.mkConst `liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, monadInst, e])
         let eNewType ← inferType eNew
         unless (← isDefEq expectedType eNewType) do throwMismatch
-        pure eNew -- approach 3 worked
+        return eNew -- approach 3 worked
     catch _ =>
       /-
         If `m` is not a monad, then we try to use `tryPureCoe?` and then `tryCoe?`.
@@ -1057,7 +1059,7 @@ private def tryCoeSort (α : Expr) (a : Expr) : TermElabM Expr := do
   try
     withoutMacroStackAtErr do
       if (← synthesizeCoeInstMVarCore mvarId) then
-        pure $ mkAppN (Lean.mkConst `coeSort [u, v]) #[α, β, a, mvar]
+        expandCoe <| mkAppN (Lean.mkConst `coeSort [u, v]) #[α, β, a, mvar]
       else
         throwError "type expected"
   catch

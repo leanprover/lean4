@@ -73,6 +73,14 @@ def elabSimpConfig (optConfig : Syntax) : TermElabM Meta.Simp.Config := do
       let c ← Term.elabTermEnsuringType optConfig[0] (Lean.mkConst ``Meta.Simp.Config)
       evalSimpConfig (← instantiateMVars c)
 
+/-- Return `some c`, if `e` is of the form `c.{?u_1, ..., ?u_n} ?m_1 ... ?m_k` -/
+private def isGlobalLemma? (e : Expr) : Option Name :=
+  e.withApp fun f args =>
+    if f.isConst && args.all (·.isMVar) && f.constLevels!.all (·.isMVar) then
+      some f.constName!
+    else
+      none
+
 /-- Elaborate extra simp lemmas provided to `simp`. `stx` is of the `simpLemma,*` -/
 private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) : TacticM Simp.Context := do
   if stx.isNone then
@@ -92,8 +100,10 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) : TacticM Simp.Co
             true
           else
             simpLemma[0][0].getKind == ``Parser.Tactic.simpPost
-        let term ← elabTerm simpLemma[1] none true
-        lemmas ← lemmas.add term post
+        let lemma ← elabTerm simpLemma[1] none (mayPostpone := false)
+        match isGlobalLemma? lemma with
+        | some declName => lemmas ← lemmas.addConst declName post
+        | none          => lemmas ← lemmas.add lemma post
       return { ctx with simpLemmas := lemmas }
 
 @[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do

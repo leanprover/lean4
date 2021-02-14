@@ -120,6 +120,12 @@ def SimpLemmas.add (s : SimpLemmas) (e : Expr) (post : Bool := true) (prio : Nat
   let lemma ← mkSimpLemma e post prio name?
   return addSimpLemmaEntry s lemma
 
+/- Auxiliary method for adding a global declaration to a `SimpLemmas` datastructure. -/
+def SimpLemmas.addConst (s : SimpLemmas) (declName : Name) (post : Bool := true) (prio : Nat := evalPrio! default) : MetaM SimpLemmas := do
+  let cinfo ← getConstInfo declName
+  let lemma ← mkSimpLemmaCore (mkConst declName (cinfo.levelParams.map mkLevelParam)) (mkConst declName) post prio declName
+  return addSimpLemmaEntry s lemma
+
 def SimpLemma.getValue (lemma : SimpLemma) : MetaM Expr := do
   match lemma.val with
   | Expr.const declName [] _ =>

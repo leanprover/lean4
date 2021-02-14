@@ -163,6 +163,7 @@ where
 
   /- Try to rewrite `e` children using the given congruence lemma -/
   tryCongrLemma? (c : CongrLemma) (e : Expr) : M (Option Result) := withNewMCtxDepth do
+    trace[Meta.Tactic.simp.congr]! "{c.theoremName}, {e}"
     let info ← getConstInfo c.theoremName
     let lemma := mkConst c.theoremName (← info.levelParams.mapM fun _ => mkFreshLevelMVar)
     let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType lemma)
@@ -178,10 +179,13 @@ where
           if (← processCongrHypothesis x) then
             modified := true
         catch _ =>
+          trace[Meta.Tactic.simp.congr]! "processCongrHypothesis {c.theoremName} failed {← inferType x}"
           return none
       unless modified do
+        trace[Meta.Tactic.simp.congr]! "{c.theoremName} not modified"
         return none
       unless (← synthesizeArgs c.theoremName xs bis (← read).discharge?) do
+        trace[Meta.Tactic.simp.congr]! "{c.theoremName} synthesizeArgs failed"
         return none
       let eNew ← instantiateMVars rhs
       let proof ← instantiateMVars (mkAppN lemma xs)
@@ -285,16 +289,16 @@ where
       modify fun s => { s with cache := s.cache.insert e r }
     return r
 
-def main (e : Expr) (config : Config := {}) (methods : Methods := {}) (simpLemmas : SimpLemmas := {}) (congrLemmas : CongrLemmas := {}) : MetaM Result := do
+def main (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Result := do
   withReducible do
-    simp e methods { config := config, simpLemmas := simpLemmas, congrLemmas := congrLemmas } |>.run' {}
+    simp e methods ctx |>.run' {}
 
 end Simp
 
-def simp (e : Expr) (config : Simp.Config := {}) (simpLemmas : SimpLemmas := {}) (congrLemmas : CongrLemmas := {}) : MetaM Simp.Result := do
+def simp (e : Expr) (ctx : Simp.Context) : MetaM Simp.Result := do
   let discharge? (e : Expr) : SimpM (Option Expr) := return none -- TODO: use simp, and add config option
   let pre  := (Simp.preDefault · discharge?)
   let post := (Simp.postDefault · discharge?)
-  Simp.main e (config := config) (methods := { pre := pre, post := post, discharge? := discharge? }) (simpLemmas := simpLemmas) (congrLemmas := congrLemmas)
+  Simp.main e ctx (methods := { pre := pre, post := post, discharge? := discharge? })
 
 end Lean.Meta

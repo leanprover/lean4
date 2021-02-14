@@ -19,9 +19,9 @@ abbrev Cache := ExprMap Result
 
 structure Context where
   config      : Config
-  parent?     : Option Expr := none
   simpLemmas  : SimpLemmas
   congrLemmas : CongrLemmas
+  parent?     : Option Expr := none
 
 structure State where
   cache    : Cache := {}

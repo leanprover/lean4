@@ -11,6 +11,9 @@ import Init.Core
 @[simp] theorem eqSelf (a : α) : (a = a) = True :=
   propext <| Iff.intro (fun _ => trivial) (fun _ => rfl)
 
+theorem ofEqTrue (h : p = True) : p :=
+  h ▸ trivial
+
 theorem eqTrue (h : p) : p = True :=
   propext <| Iff.intro (fun _ => trivial) (fun _ => h)
 

@@ -293,12 +293,32 @@ def main (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Result := 
   withReducible do
     simp e methods ctx |>.run' {}
 
+namespace DefaultMethods
+mutual
+  partial def discharge? (e : Expr) : SimpM (Option Expr) := do
+    let r ← simp e methods
+    if r.expr.isConstOf ``True then
+      try
+        return some (← mkOfEqTrue (← r.getProof))
+      catch _ =>
+        return none
+    else
+      return none
+
+  partial def pre (e : Expr) : SimpM Step :=
+    preDefault e discharge?
+
+  partial def post (e : Expr) : SimpM Step :=
+    postDefault e discharge?
+
+  partial def methods : Methods :=
+    { pre := pre, post := post, discharge? := discharge? }
+end
+end DefaultMethods
+
 end Simp
 
 def simp (e : Expr) (ctx : Simp.Context) : MetaM Simp.Result := do
-  let discharge? (e : Expr) : SimpM (Option Expr) := return none -- TODO: use simp, and add config option
-  let pre  := (Simp.preDefault · discharge?)
-  let post := (Simp.postDefault · discharge?)
-  Simp.main e ctx (methods := { pre := pre, post := post, discharge? := discharge? })
+  Simp.main e ctx (methods := Simp.DefaultMethods.methods)
 
 end Lean.Meta

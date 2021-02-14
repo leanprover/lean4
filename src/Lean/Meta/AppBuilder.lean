@@ -428,6 +428,10 @@ def mkFunExt (h : Expr) : MetaM Expr :=
 def mkPropExt (h : Expr) : MetaM Expr :=
   mkAppM ``propext #[h]
 
+/-- Return `ofEqTrue h` -/
+def mkOfEqTrue (h : Expr) : MetaM Expr :=
+  mkAppM ``ofEqTrue #[h]
+
 /-- Return `eqTrue h` -/
 def mkEqTrue (h : Expr) : MetaM Expr :=
   mkAppM ``eqTrue #[h]

@@ -32,6 +32,7 @@ abbrev SimpM := ReaderT Context $ StateRefT State MetaM
 inductive Step where
   | visit : Result → Step
   | done  : Result → Step
+  deriving Inhabited
 
 def Step.result : Step → Result
   | Step.visit r => r
@@ -41,6 +42,7 @@ structure Methods where
   pre        : Expr → SimpM Step          := fun e => return Step.visit { expr := e }
   post       : Expr → SimpM Step          := fun e => return Step.done { expr := e }
   discharge? : Expr → SimpM (Option Expr) := fun e => return none
+  deriving Inhabited
 
 /- Internal monad -/
 abbrev M := ReaderT Methods SimpM

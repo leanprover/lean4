@@ -29,3 +29,4 @@ import Lean.Meta.PPGoal
 import Lean.Meta.UnificationHint
 import Lean.Meta.Inductive
 import Lean.Meta.SizeOf
+import Lean.Meta.Coe

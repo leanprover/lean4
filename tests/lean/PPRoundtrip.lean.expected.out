@@ -51,7 +51,8 @@ Type → Type → Type
   PointedType }
 (1, 2, 3)
 (1, 2).fst
-1 < 2 || true
+decide (1 < 2) ||
+  true
 id
   (fun (a : Nat) =>
     a)

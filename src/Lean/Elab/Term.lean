@@ -108,7 +108,7 @@ inductive SyntheticMVarKind where
      if `f?` is `some f`, we produce an application type mismatch error message.
      Otherwise, if `header?` is `some header`, we generate the error `(header ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)`
      Otherwise, we generate the error `("type mismatch" ++ e ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)` -/
-  | coe (header? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr)
+  | coe (header? : Option String) (eNew : Expr) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr)
   -- tactic block execution
   | tactic (declName? : Option Name) (tacticCode : Syntax)
   -- `elabTerm` call that threw `Exception.postpone` (input is stored at `SyntheticMVarDecl.ref`)
@@ -605,22 +605,26 @@ def tryCoeThunk? (expectedType : Expr) (eType : Expr) (e : Expr) : TermElabM (Op
 -/
 private def tryCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr := do
   if (← isDefEq expectedType eType) then
-    pure e
+    return e
   else match (← tryCoeThunk? expectedType eType e) with
-    | some r => pure r
+    | some r => return r
     | none   =>
       let u ← getLevel eType
       let v ← getLevel expectedType
       let coeTInstType := mkAppN (mkConst `CoeT [u, v]) #[eType, e, expectedType]
       let mvar ← mkFreshExprMVar coeTInstType MetavarKind.synthetic
       let eNew := mkAppN (mkConst `coe [u, v]) #[eType, expectedType, e, mvar]
-      -- TODO: MODIFY
       let mvarId := mvar.mvarId!
       try
         withoutMacroStackAtErr do
-          unless (← synthesizeCoeInstMVarCore mvarId) do
-            registerSyntheticMVarWithCurrRef mvarId (SyntheticMVarKind.coe errorMsgHeader? expectedType eType e f?)
-          pure eNew
+          if (← synthesizeCoeInstMVarCore mvarId) then
+            expandCoe eNew
+          else
+            -- We create an auxiliary metavariable to represent the result, because we need to execute `expandCoe`
+            -- after we syntheze `mvar`
+            let mvarAux ← mkFreshExprMVar expectedType MetavarKind.syntheticOpaque
+            registerSyntheticMVarWithCurrRef mvarAux.mvarId! (SyntheticMVarKind.coe errorMsgHeader? eNew expectedType eType e f?)
+            return mvarAux
       catch
         | Exception.error _ msg => throwTypeMismatchError errorMsgHeader? expectedType eType e f? msg
         | _                     => throwTypeMismatchError errorMsgHeader? expectedType eType e f?

@@ -84,12 +84,24 @@ private def synthesizePendingInstMVar (instMVar : MVarId) : TermElabM Bool :=
       | _                        => unreachable!
 
 /--
-  Similar to `synthesizePendingInstMVar`, but generates type mismatch error message. -/
+  Similar to `synthesizePendingInstMVar`, but generates type mismatch error message.
+  Remark: `eNew` is of the form `@coe ... mvar`, where `mvar` is the metavariable for the `CoeT ...` instance.
+  If `mvar` can be synthesized, then assign `auxMVarId := (expandCoe eNew)`.
+-/
 private def synthesizePendingCoeInstMVar
-    (instMVar : MVarId) (errorMsgHeader? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Bool :=
-  withMVarContext instMVar do
+    (auxMVarId : MVarId) (errorMsgHeader? : Option String) (eNew : Expr) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Bool :=
+  let instMVarId := eNew.appArg!.mvarId!
+  withMVarContext instMVarId do
     try
-      synthesizeCoeInstMVarCore instMVar
+      if (← synthesizeCoeInstMVarCore instMVarId) then
+        let eNew ← expandCoe eNew
+        if (← occursCheck auxMVarId eNew) then
+          assignExprMVar auxMVarId eNew
+          return true
+        else
+          return false
+      else
+        return false
     catch
       | Exception.error _ msg => throwTypeMismatchError errorMsgHeader? expectedType eType e f? msg
       | _                     => unreachable!
@@ -98,11 +110,11 @@ private def synthesizePendingCoeInstMVar
 private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool :=
   withRef mvarSyntheticDecl.stx do
   match mvarSyntheticDecl.kind with
-  | SyntheticMVarKind.typeClass                           => synthesizePendingInstMVar mvarSyntheticDecl.mvarId
-  | SyntheticMVarKind.coe header? expectedType eType e f? => synthesizePendingCoeInstMVar mvarSyntheticDecl.mvarId header? expectedType eType e f?
+  | SyntheticMVarKind.typeClass => synthesizePendingInstMVar mvarSyntheticDecl.mvarId
+  | SyntheticMVarKind.coe header? eNew expectedType eType e f? => synthesizePendingCoeInstMVar mvarSyntheticDecl.mvarId header? eNew expectedType eType e f?
   -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
-  | SyntheticMVarKind.postponed macroStack declName?      => resumePostponed macroStack declName? mvarSyntheticDecl.stx mvarSyntheticDecl.mvarId postponeOnError
-  | SyntheticMVarKind.tactic declName? tacticCode         =>
+  | SyntheticMVarKind.postponed macroStack declName? => resumePostponed macroStack declName? mvarSyntheticDecl.stx mvarSyntheticDecl.mvarId postponeOnError
+  | SyntheticMVarKind.tactic declName? tacticCode =>
     withReader (fun ctx => { ctx with declName? := declName? }) do
       if runTactics then
         runTactic mvarSyntheticDecl.mvarId tacticCode
@@ -212,9 +224,10 @@ private def reportStuckSyntheticMVars : TermElabM Unit := do
         let mvarDecl ← getMVarDecl mvarSyntheticDecl.mvarId
         unless (← get).messages.hasErrors do
           logError <| "typeclass instance problem is stuck, it is often due to metavariables" ++ indentExpr mvarDecl.type
-    | SyntheticMVarKind.coe header expectedType eType e f? =>
-      withMVarContext mvarSyntheticDecl.mvarId do
-        let mvarDecl ← getMVarDecl mvarSyntheticDecl.mvarId
+    | SyntheticMVarKind.coe header eNew expectedType eType e f? =>
+      let mvarId := eNew.appArg!.mvarId!
+      withMVarContext mvarId do
+        let mvarDecl ← getMVarDecl mvarId
         throwTypeMismatchError header expectedType eType e f? (some ("failed to create type class instance for " ++ indentExpr mvarDecl.type))
     | _ => unreachable! -- TODO handle other cases.
 

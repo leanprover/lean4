@@ -501,6 +501,7 @@ lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Attribute_Builtin_getPrio___closed__2;
 lean_object* l_Std_HashMapImp_expand___at_Lean_registerAttributeImplBuilder___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_registerTagAttribute___lambda__3___closed__4;
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__21;
 lean_object* l_Std_RBNode_fold___at_Lean_registerParametricAttribute___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_attributeExtension___elambda__3___boxed(lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
@@ -557,7 +558,6 @@ lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_o
 lean_object* l_Lean_EnumAttributes_getValue(lean_object*);
 lean_object* l_Lean_registerEnumAttributes___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 uint8_t l_Std_PersistentHashMap_contains___at_Lean_registerBuiltinAttribute___spec__7(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5637____closed__21;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_mkAttributeImplOfConstant(lean_object*, lean_object*, lean_object*);
@@ -6011,7 +6011,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Attr_simp___closed__2;
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5637____closed__21;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__21;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

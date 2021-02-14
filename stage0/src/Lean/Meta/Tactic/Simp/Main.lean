@@ -9,6 +9,12 @@ import Lean.Meta.Tactic.Simp.Rewrite
 namespace Lean.Meta
 namespace Simp
 
+builtin_initialize congrHypothesisExceptionId : InternalExceptionId ←
+  registerInternalExceptionId `congrHypothesisFailed
+
+def throwCongrHypothesisFailed {α} : MetaM α :=
+  throw <| Exception.internal congrHypothesisExceptionId
+
 def Result.getProof (r : Result) : MetaM Expr := do
   match r.proof? with
   | some p => return p
@@ -127,25 +133,87 @@ where
     | Expr.mvar ..     => pure { expr := (← instantiateMVars e) }
     | Expr.fvar ..     => pure { expr := (← reduceFVar (← getConfig) e) }
 
+  congrDefault (e : Expr) : M Result :=
+    withParent e <| e.withApp fun f args => do
+      let infos := (← getFunInfoNArgs f args.size).paramInfo
+      let mut r ← simp f
+      let mut i := 0
+      for arg in args do
+        trace[Meta.Tactic.simp]! "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
+        if i < infos.size && !infos[i].hasFwdDeps then
+          r ← mkCongr r (← simp arg)
+        else
+          r ← mkCongrFun r (← dsimp arg)
+        i := i + 1
+      return r
+
+  /- Return true iff processing the given congruence lemma hypothesis produced a non-refl proof. -/
+  processCongrHypothesis (h : Expr) : M Bool := do
+    forallTelescopeReducing (← inferType h) fun xs hType => withNewLemmas xs do
+      let lhs ← instantiateMVars hType.appFn!.appArg!
+      let r ← simp lhs
+      let rhs := hType.appArg!
+      rhs.withApp fun m zs => do
+        let val ← mkLambdaFVars zs r.expr
+        unless (← isDefEq m val) do
+          throwCongrHypothesisFailed
+        unless (← isDefEq h (← mkLambdaFVars xs (← r.getProof))) do
+          throwCongrHypothesisFailed
+        return r.proof?.isSome
+
+  /- Try to rewrite `e` children using the given congruence lemma -/
+  tryCongrLemma? (c : CongrLemma) (e : Expr) : M (Option Result) := withNewMCtxDepth do
+    trace[Meta.Tactic.simp.congr]! "{c.theoremName}, {e}"
+    let info ← getConstInfo c.theoremName
+    let lemma := mkConst c.theoremName (← info.levelParams.mapM fun _ => mkFreshLevelMVar)
+    let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType lemma)
+    if c.hypothesesPos.any (· ≥ xs.size) then
+      return none
+    let lhs := type.appFn!.appArg!
+    let rhs := type.appArg!
+    if (← isDefEq lhs e) then
+      let mut modified := false
+      for i in c.hypothesesPos do
+        let x := xs[i]
+        try
+          if (← processCongrHypothesis x) then
+            modified := true
+        catch _ =>
+          trace[Meta.Tactic.simp.congr]! "processCongrHypothesis {c.theoremName} failed {← inferType x}"
+          return none
+      unless modified do
+        trace[Meta.Tactic.simp.congr]! "{c.theoremName} not modified"
+        return none
+      unless (← synthesizeArgs c.theoremName xs bis (← read).discharge?) do
+        trace[Meta.Tactic.simp.congr]! "{c.theoremName} synthesizeArgs failed"
+        return none
+      let eNew ← instantiateMVars rhs
+      let proof ← instantiateMVars (mkAppN lemma xs)
+      return some { expr := eNew, proof? := proof }
+    else
+      return none
+
+  congr (e : Expr) : M Result := do
+    let f := e.getAppFn
+    if f.isConst then
+      let congrLemmas ← getCongrLemmas
+      let cs := congrLemmas.get f.constName!
+      for c in cs do
+        match (← tryCongrLemma? c e) with
+        | none   => pure ()
+        | some r => return r
+      congrDefault e
+    else
+      congrDefault e
+
   simpApp (e : Expr) : M Result := do
     let e ← reduce (← getConfig) e
     if !e.isApp then
       simp e
     else
-      withParent e <| e.withApp fun f args => do
-        let infos := (← getFunInfoNArgs f args.size).paramInfo
-        let mut r ← simp f
-        let mut i := 0
-        for arg in args do
-          trace[Meta.Tactic.simp]! "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
-          if i < infos.size && !infos[i].hasFwdDeps then
-            r ← mkCongr r (← simp arg)
-          else
-            r ← mkCongrFun r (← dsimp arg)
-          i := i + 1
-        return r
+      congr e
 
-  withNewLemmas (xs : Array Expr) (f : M Result) : M Result := do
+  withNewLemmas {α} (xs : Array Expr) (f : M α) : M α := do
     if (← getConfig).contextual then
       let mut s ← getSimpLemmas
       let mut updated := false
@@ -221,16 +289,36 @@ where
       modify fun s => { s with cache := s.cache.insert e r }
     return r
 
-def main (e : Expr) (config : Config := {}) (methods : Methods := {}) (simpLemmas : SimpLemmas := {}) : MetaM Result := do
+def main (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Result := do
   withReducible do
-    simp e methods { config := config, simpLemmas := simpLemmas } |>.run' {}
+    simp e methods ctx |>.run' {}
+
+namespace DefaultMethods
+mutual
+  partial def discharge? (e : Expr) : SimpM (Option Expr) := do
+    let r ← simp e methods
+    if r.expr.isConstOf ``True then
+      try
+        return some (← mkOfEqTrue (← r.getProof))
+      catch _ =>
+        return none
+    else
+      return none
+
+  partial def pre (e : Expr) : SimpM Step :=
+    preDefault e discharge?
+
+  partial def post (e : Expr) : SimpM Step :=
+    postDefault e discharge?
+
+  partial def methods : Methods :=
+    { pre := pre, post := post, discharge? := discharge? }
+end
+end DefaultMethods
 
 end Simp
 
-def simp (e : Expr) (config : Simp.Config := {}) (simpLemmas : SimpLemmas := {}) : MetaM Simp.Result := do
-  let discharge? (e : Expr) : SimpM (Option Expr) := return none -- TODO: use simp, and add config option
-  let pre  := (Simp.preDefault · discharge?)
-  let post := (Simp.postDefault · discharge?)
-  Simp.main e (config := config) (methods := { pre := pre, post := post, discharge? := discharge? }) (simpLemmas := simpLemmas)
+def simp (e : Expr) (ctx : Simp.Context) : MetaM Simp.Result := do
+  Simp.main e ctx (methods := Simp.DefaultMethods.methods)
 
 end Lean.Meta

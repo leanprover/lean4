@@ -211,6 +211,7 @@ lean_object* l_Std_AssocList_replace___at_Lean_ClassState_addEntry___spec__13___
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_hasOutParams___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_addClass___closed__2;
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__21;
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Array_contains___at___private_Lean_Class_0__Lean_checkOutParam___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_addClass_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -234,7 +235,6 @@ uint8_t l_Std_HashMapImp_contains___at_Lean_isClass___spec__2(lean_object*, lean
 lean_object* l_Lean_classExtension___elambda__1(lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_hasOutParams___spec__2(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5637____closed__21;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l_Lean_ClassEntry_lt(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -3509,7 +3509,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5637____closed__21;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__21;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

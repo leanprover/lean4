@@ -788,7 +788,7 @@ def collectDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array 
 
 /-- Create a new `LocalContext` by removing the free variables in `toRevert` from `lctx`.
     We use this function when we create auxiliary metavariables at `elimMVarDepsAux`. -/
-private def reduceLocalContext (lctx : LocalContext) (toRevert : Array Expr) : LocalContext :=
+def reduceLocalContext (lctx : LocalContext) (toRevert : Array Expr) : LocalContext :=
   toRevert.foldr (init := lctx) fun x lctx =>
     lctx.erase x.fvarId!
 

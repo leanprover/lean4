@@ -925,7 +925,7 @@ x_11 = lean_array_get_size(x_10);
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = l_Array_forM___at_Lean_printTraces___spec__7___rarg(x_1, x_5, x_10, x_12, x_11);
 lean_dec(x_11);
-x_14 = lean_apply_3(x_7, lean_box(0), x_9, x_13);
+x_14 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_9, x_13);
 return x_14;
 }
 }

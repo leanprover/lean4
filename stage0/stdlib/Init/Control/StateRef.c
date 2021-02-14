@@ -37,12 +37,12 @@ lean_object* l_StateRefT_x27_lift(lean_object*, lean_object*, lean_object*, lean
 lean_object* l_StateRefT_x27_instMonadFunctorStateRefT_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_instMonadStateOfStateRefT_x27___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_instMonadStateOfStateRefT_x27(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_instMonadControlReaderT___closed__3;
 lean_object* l_StateRefT_x27_instMonadFunctorStateRefT_x27___rarg(lean_object*);
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonadFunctorReaderT___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_instMonadStateOfStateRefT_x27___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadControlStateRefT_x27(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_instMonadControlReaderT___closed__2;
 lean_object* l_StateRefT_x27_instMonadStateOfStateRefT_x27___rarg(lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_get(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadFinallyStateRefT_x27___rarg(lean_object*, lean_object*);
@@ -452,7 +452,7 @@ lean_object* l_instMonadControlStateRefT_x27(lean_object* x_1, lean_object* x_2,
 _start:
 {
 lean_object* x_4; 
-x_4 = l_instMonadControlReaderT___closed__2;
+x_4 = l_instMonadControlReaderT___closed__3;
 return x_4;
 }
 }

@@ -26,7 +26,7 @@ lean_object* l_OptionT_orElse___rarg___lambda__1___boxed(lean_object*, lean_obje
 lean_object* l_instToBoolOption(lean_object*);
 lean_object* l_OptionT_lift(lean_object*);
 lean_object* l_OptionT_run(lean_object*, lean_object*);
-lean_object* l_OptionT_instMonadOptionT___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_OptionT_instMonadOptionT___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_orElse___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_instMonadOptionT___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_orElse(lean_object*);
@@ -36,7 +36,7 @@ lean_object* l_OptionT_run___rarg___boxed(lean_object*);
 lean_object* l_OptionT_instMonadExceptOfUnitOptionT___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_instMonadExceptOfUnitOptionT___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_tryCatch___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_OptionT_instMonadOptionT___rarg___lambda__10(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_OptionT_instMonadOptionT___rarg___lambda__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_bind_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_instMonadOptionT___rarg___lambda__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_orElse_match__1(lean_object*, lean_object*);
@@ -426,19 +426,19 @@ return x_11;
 }
 }
 }
-lean_object* l_OptionT_instMonadOptionT___rarg___lambda__8(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_OptionT_instMonadOptionT___rarg___lambda__8(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_inc(x_5);
-x_6 = lean_alloc_closure((void*)(l_OptionT_instMonadOptionT___rarg___lambda__7), 4, 3);
-lean_closure_set(x_6, 0, x_1);
-lean_closure_set(x_6, 1, x_5);
-lean_closure_set(x_6, 2, x_4);
-x_7 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_3, x_6);
-return x_7;
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = lean_ctor_get(x_1, 1);
+lean_inc(x_6);
+lean_inc(x_6);
+x_7 = lean_alloc_closure((void*)(l_OptionT_instMonadOptionT___rarg___lambda__7), 4, 3);
+lean_closure_set(x_7, 0, x_1);
+lean_closure_set(x_7, 1, x_6);
+lean_closure_set(x_7, 2, x_5);
+x_8 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_4, x_7);
+return x_8;
 }
 }
 lean_object* l_OptionT_instMonadOptionT___rarg___lambda__9(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -465,17 +465,17 @@ return x_2;
 }
 }
 }
-lean_object* l_OptionT_instMonadOptionT___rarg___lambda__10(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_OptionT_instMonadOptionT___rarg___lambda__10(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-x_6 = lean_alloc_closure((void*)(l_OptionT_instMonadOptionT___rarg___lambda__9___boxed), 3, 2);
-lean_closure_set(x_6, 0, x_1);
-lean_closure_set(x_6, 1, x_4);
-x_7 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_3, x_6);
-return x_7;
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = lean_ctor_get(x_1, 1);
+lean_inc(x_6);
+x_7 = lean_alloc_closure((void*)(l_OptionT_instMonadOptionT___rarg___lambda__9___boxed), 3, 2);
+lean_closure_set(x_7, 0, x_1);
+lean_closure_set(x_7, 1, x_5);
+x_8 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_4, x_7);
+return x_8;
 }
 }
 lean_object* l_OptionT_instMonadOptionT___rarg(lean_object* x_1) {
@@ -498,10 +498,10 @@ lean_inc(x_1);
 x_6 = lean_alloc_closure((void*)(l_OptionT_instMonadOptionT___rarg___lambda__6), 5, 1);
 lean_closure_set(x_6, 0, x_1);
 lean_inc(x_1);
-x_7 = lean_alloc_closure((void*)(l_OptionT_instMonadOptionT___rarg___lambda__8), 4, 1);
+x_7 = lean_alloc_closure((void*)(l_OptionT_instMonadOptionT___rarg___lambda__8), 5, 1);
 lean_closure_set(x_7, 0, x_1);
 lean_inc(x_1);
-x_8 = lean_alloc_closure((void*)(l_OptionT_instMonadOptionT___rarg___lambda__10), 4, 1);
+x_8 = lean_alloc_closure((void*)(l_OptionT_instMonadOptionT___rarg___lambda__10), 5, 1);
 lean_closure_set(x_8, 0, x_1);
 x_9 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_9, 0, x_4);

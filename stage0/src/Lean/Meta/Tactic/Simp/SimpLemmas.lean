@@ -24,13 +24,15 @@ structure SimpLemma where
   kind     : SimpLemmaKind
   deriving Inhabited
 
+def SimpLemma.getName (s : SimpLemma) : Name :=
+  match s.name? with
+  | some n => n
+  | none   => "<unknown>"
+
 instance : ToFormat SimpLemma where
   format s :=
     let perm := if s.perm then ":perm" else ""
-    let name :=
-      match s.name? with
-      | some n => fmt n
-      | none   => "<unknown>"
+    let name := fmt s.getName
     let prio := f!":{s.priority}"
     name ++ prio ++ perm
 
@@ -71,7 +73,7 @@ private partial def isPerm : Expr → Expr → MetaM Bool
   | s, t => s == t
 
 def mkSimpLemmaCore (e : Expr) (val : Expr) (post : Bool) (prio : Nat) (name? : Option Name) : MetaM SimpLemma := do
-  let type ← inferType e
+  let type ← instantiateMVars (← inferType e)
   unless (← isProp type) do
     throwError! "invalid 'simp', proposition expected{indentExpr type}"
   withNewMCtxDepth do
@@ -116,6 +118,12 @@ def mkSimpLemma (e : Expr) (post : Bool := true) (prio : Nat := evalPrio! defaul
 /- Auxiliary method for adding a local simp lemma to a `SimpLemmas` datastructure. -/
 def SimpLemmas.add (s : SimpLemmas) (e : Expr) (post : Bool := true) (prio : Nat := evalPrio! default) (name? : Option Name := none) : MetaM SimpLemmas := do
   let lemma ← mkSimpLemma e post prio name?
+  return addSimpLemmaEntry s lemma
+
+/- Auxiliary method for adding a global declaration to a `SimpLemmas` datastructure. -/
+def SimpLemmas.addConst (s : SimpLemmas) (declName : Name) (post : Bool := true) (prio : Nat := evalPrio! default) : MetaM SimpLemmas := do
+  let cinfo ← getConstInfo declName
+  let lemma ← mkSimpLemmaCore (mkConst declName (cinfo.levelParams.map mkLevelParam)) (mkConst declName) post prio declName
   return addSimpLemmaEntry s lemma
 
 def SimpLemma.getValue (lemma : SimpLemma) : MetaM Expr := do

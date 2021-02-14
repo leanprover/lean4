@@ -18,7 +18,12 @@ deriving Inhabited, Repr
 
 structure CongrLemmas where
   lemmas : SMap Name (List CongrLemma) := {}
-  deriving Inhabited
+  deriving Inhabited, Repr
+
+def CongrLemmas.get (d : CongrLemmas) (declName : Name) : List CongrLemma :=
+  match d.lemmas.find? declName with
+  | none    => []
+  | some cs => cs
 
 def addCongrLemmaEntry (d : CongrLemmas) (e : CongrLemma) : CongrLemmas :=
   { d with lemmas :=
@@ -42,7 +47,6 @@ def mkCongrLemma (declName : Name) (prio : Nat) : MetaM CongrLemma := withReduci
   let info ← getConstInfo declName
   let c := mkConst declName (info.levelParams.map mkLevelParam)
   let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType c)
-  let type ← whnf type
   match type.eq? with
   | none => throwError! "invalid 'congr' lemma, equality expected{indentExpr type}"
   | some (_, lhs, rhs) =>
@@ -60,7 +64,6 @@ def mkCongrLemma (declName : Name) (prio : Nat) : MetaM CongrLemma := withReduci
       for x in xs, bi in bis do
         if bi.isExplicit && !foundMVars.contains x.mvarId! then
           let rhsFn? ← forallTelescopeReducing (← inferType x) fun ys xType => do
-            let xType ← whnf xType
             match xType.eq? with
             | none => pure none -- skip
             | some (_, xLhs, xRhs) =>

@@ -33,6 +33,7 @@ lean_object* l_Lean_Elab_elabDeriving_match__2(lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
+lean_object* l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_5198____spec__1(lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Elab_defaultHandler___spec__1(lean_object*);
 lean_object* l_Lean_Elab_defaultHandler___closed__3;
 lean_object* lean_array_get_size(lean_object*);
@@ -71,7 +72,6 @@ lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Command_elabExport___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabDeriving___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_5177____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_defaultHandler___closed__1;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_registerBuiltinDerivingHandler___lambda__2___closed__1;
@@ -88,7 +88,6 @@ lean_object* l_Std_RBNode_find___at_Lean_Elab_applyDerivingHandlers___spec__1___
 lean_object* l_Lean_Elab_registerBuiltinDerivingHandler___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_elabNamespace___spec__1___rarg(lean_object*);
 extern lean_object* l_Lean_resolveGlobalConstNoOverload___rarg___lambda__1___closed__1;
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5177____closed__1;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_getOptDerivingClasses___spec__1___rarg___lambda__2(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Syntax_getSepArgs(lean_object*);
 extern lean_object* l_Lean_resolveGlobalConstNoOverload___rarg___lambda__1___closed__2;
@@ -113,6 +112,7 @@ lean_object* l_Lean_Elab_elabDeriving(lean_object*, lean_object*, lean_object*, 
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_getOptDerivingClasses___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_registerBuiltinDerivingHandler(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_registerBuiltinDerivingHandler___closed__2;
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5198____closed__1;
 lean_object* l_Lean_throwError___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* lean_io_initializing(lean_object*);
@@ -1220,8 +1220,8 @@ x_10 = l_Lean_Syntax_getArgs(x_9);
 lean_dec(x_9);
 x_11 = l_Array_getEvenElems___rarg(x_10);
 lean_dec(x_10);
-x_12 = l_myMacro____x40_Init_NotationExtra___hyg_5177____closed__1;
-x_13 = l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_5177____spec__1(x_11, x_12);
+x_12 = l_myMacro____x40_Init_NotationExtra___hyg_5198____closed__1;
+x_13 = l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_5198____spec__1(x_11, x_12);
 lean_dec(x_11);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -1245,7 +1245,7 @@ x_18 = l_Lean_Syntax_getArgs(x_17);
 lean_dec(x_17);
 x_19 = l_Array_getEvenElems___rarg(x_18);
 lean_dec(x_18);
-x_20 = l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_5177____spec__1(x_19, x_12);
+x_20 = l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_5198____spec__1(x_19, x_12);
 lean_dec(x_19);
 if (lean_obj_tag(x_20) == 0)
 {

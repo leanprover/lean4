@@ -4861,7 +4861,7 @@ x_9 = lean_array_get_size(x_8);
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = l_Array_forM___rarg(x_1, x_3, x_8, x_10, x_9);
 lean_dec(x_9);
-x_12 = lean_apply_3(x_5, lean_box(0), x_7, x_11);
+x_12 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_7, x_11);
 return x_12;
 }
 }

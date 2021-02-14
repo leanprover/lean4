@@ -481,7 +481,7 @@ lean_inc(x_10);
 lean_inc(x_3);
 x_11 = lean_apply_1(x_3, x_8);
 x_12 = l_List_forA___rarg(x_1, lean_box(0), x_3, x_9);
-x_13 = lean_apply_3(x_10, lean_box(0), x_11, x_12);
+x_13 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_11, x_12);
 return x_13;
 }
 }

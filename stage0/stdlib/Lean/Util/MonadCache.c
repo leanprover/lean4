@@ -51,6 +51,7 @@ lean_object* l_Lean_checkCache_match__1(lean_object*, lean_object*);
 lean_object* l_modify___at_Lean_MonadStateCacheT_instMonadHashMapCacheAdapterMonadStateCacheT___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadHashMapCacheAdapter_findCached_x3f(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_instMonadControlReaderT___closed__3;
 lean_object* l_Lean_checkCache___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadStateCacheT_instMonadControlMonadStateCacheT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadStateCacheT_instMonadFinallyMonadStateCacheT___rarg(lean_object*, lean_object*);
@@ -65,7 +66,6 @@ lean_object* l_Lean_MonadStateCacheT_instMonadRefMonadStateCacheT___rarg(lean_ob
 lean_object* l_StateT_lift___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_instMonadExceptOfStateT___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadStateCacheT_instMonadLiftMonadStateCacheT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_instMonadControlReaderT___closed__2;
 lean_object* l_Lean_MonadCacheT_instMonadHashMapCacheAdapterMonadCacheT___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_modify___at_Lean_MonadCacheT_instMonadHashMapCacheAdapterMonadCacheT___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadStateCacheT_instMonadExceptOfMonadStateCacheT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -693,7 +693,7 @@ lean_object* l_Lean_MonadCacheT_instMonadControlMonadCacheT(lean_object* x_1, le
 _start:
 {
 lean_object* x_8; 
-x_8 = l_instMonadControlReaderT___closed__2;
+x_8 = l_instMonadControlReaderT___closed__3;
 return x_8;
 }
 }

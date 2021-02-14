@@ -71,8 +71,8 @@ def switch (m : SMap α β) : SMap α β :=
 @[inline] def foldStage2 {σ : Type w} (f : σ → α → β → σ) (s : σ) (m : SMap α β) : σ :=
   m.map₂.foldl f s
 
-def fold {σ : Type w} (f : σ → α → β → σ) (s : σ) (m : SMap α β) : σ :=
-  m.map₂.foldl f $ m.map₁.fold f s
+def fold {σ : Type w} (f : σ → α → β → σ) (init : σ) (m : SMap α β) : σ :=
+  m.map₂.foldl f $ m.map₁.fold f init
 
 def size (m : SMap α β) : Nat :=
   m.map₁.size + m.map₂.size
@@ -83,5 +83,15 @@ def stageSizes (m : SMap α β) : Nat × Nat :=
 def numBuckets (m : SMap α β) : Nat :=
   m.map₁.numBuckets
 
+def toList (m : SMap α β) : List (α × β) :=
+  m.fold (init := []) fun es a b => (a, b)::es
+
 end SMap
+
+def List.toSMap [BEq α] [Hashable α] (es : List (α × β)) : SMap α β :=
+  es.foldl (init := {}) fun s (a, b) => s.insert a b
+
+instance {_ : BEq α} {_ : Hashable α} [Repr α] [Repr β] : Repr (SMap α β) where
+  reprPrec v prec := Repr.addAppParen (reprArg v.toList ++ ".toSMap") prec
+
 end Lean

@@ -374,6 +374,7 @@ lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg___boxed(lean_
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtension_setState___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_evalConstCheck___rarg___closed__1;
+extern lean_object* l_instMonadControlReaderT___closed__2;
 lean_object* l_Lean_persistentEnvExtensionsRef;
 lean_object* l_Lean_mkMapDeclarationExtension(lean_object*);
 lean_object* l_Lean_ImportState_regions___default;
@@ -406,7 +407,6 @@ lean_object* l_Lean_PersistentEnvExtension_getState(lean_object*, lean_object*, 
 lean_object* l_IO_mkRef___at_Lean_initFn____x40_Lean_Environment___hyg_1088____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionEntrySpec;
 lean_object* l_Std_AssocList_contains___at_Lean_Environment_addAux___spec__9___boxed(lean_object*, lean_object*);
-extern lean_object* l_Id_instMonadId___closed__5;
 lean_object* l_Lean_importModules___closed__1;
 uint8_t l_Array_binSearchContains___at_Lean_MapDeclarationExtension_contains___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_addDecl___boxed(lean_object*, lean_object*);
@@ -3017,7 +3017,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Id_instMonadId___closed__4;
 x_2 = l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__8;
 x_3 = l_Lean_instInhabitedEnvExtensionInterface___closed__2;
-x_4 = l_Id_instMonadId___closed__5;
+x_4 = l_instMonadControlReaderT___closed__2;
 x_5 = l_Lean_instInhabitedEnvExtensionInterface___closed__1;
 x_6 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_6, 0, x_1);

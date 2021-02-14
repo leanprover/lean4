@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.Simp.SimpLemmas
+import Lean.Meta.Tactic.Simp.CongrLemmas
 
 namespace Lean.Meta
 namespace Simp
@@ -17,9 +18,10 @@ structure Result where
 abbrev Cache := ExprMap Result
 
 structure Context where
-  config     : Config
-  parent?    : Option Expr := none
-  simpLemmas : SimpLemmas
+  config      : Config
+  simpLemmas  : SimpLemmas
+  congrLemmas : CongrLemmas
+  parent?     : Option Expr := none
 
 structure State where
   cache    : Cache := {}
@@ -30,6 +32,7 @@ abbrev SimpM := ReaderT Context $ StateRefT State MetaM
 inductive Step where
   | visit : Result → Step
   | done  : Result → Step
+  deriving Inhabited
 
 def Step.result : Step → Result
   | Step.visit r => r
@@ -39,6 +42,7 @@ structure Methods where
   pre        : Expr → SimpM Step          := fun e => return Step.visit { expr := e }
   post       : Expr → SimpM Step          := fun e => return Step.done { expr := e }
   discharge? : Expr → SimpM (Option Expr) := fun e => return none
+  deriving Inhabited
 
 /- Internal monad -/
 abbrev M := ReaderT Methods SimpM
@@ -60,6 +64,9 @@ def getConfig : M Config :=
 
 def getSimpLemmas : M SimpLemmas :=
   return (← readThe Context).simpLemmas
+
+def getCongrLemmas : M CongrLemmas :=
+  return (← readThe Context).congrLemmas
 
 @[inline] def withSimpLemmas (s : SimpLemmas) (x : M α) : M α := do
   let cacheSaved := (← get).cache

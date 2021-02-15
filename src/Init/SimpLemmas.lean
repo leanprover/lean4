@@ -23,6 +23,12 @@ theorem eqFalse (h : ¬ p) : p = False :=
 theorem eqFalse' (h : p → False) : p = False :=
   propext <| Iff.intro (fun h' => absurd h' h) (fun h' => False.elim h')
 
+theorem eqTrueOfDecide {p : Prop} {s : Decidable p} (h : decide p = true) : p = True :=
+  propext <| Iff.intro (fun h => trivial) (fun _ => ofDecideEqTrue h)
+
+theorem eqFalseOfDecide {p : Prop} {s : Decidable p} (h : decide p = false) : p = False :=
+  propext <| Iff.intro (fun h' => absurd h' (ofDecideEqFalse h)) (fun h => False.elim h)
+
 theorem impCongr {p₁ p₂ : Sort u} {q₁ q₂ : Sort v} (h₁ : p₁ = p₂) (h₂ : q₁ = q₂) : (p₁ → q₁) = (p₂ → q₂) :=
   h₁ ▸ h₂ ▸ rfl
 

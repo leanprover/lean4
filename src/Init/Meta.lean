@@ -843,6 +843,7 @@ structure Config where
   iota       : Bool := true
   proj       : Bool := true
   ctorEq     : Bool := true
+  decide     : Bool := true
   deriving Inhabited, BEq, Repr
 
 end Meta.Simp

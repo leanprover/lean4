@@ -107,12 +107,35 @@ def rewriteCtorEq? (e : Expr) : MetaM (Option Result) := withReducibleAndInstanc
         return none
     | _, _ => return none
 
-
-
 @[inline] def tryRewriteCtorEq (e : Expr) (x : SimpM Step) : SimpM Step := do
   match (← rewriteCtorEq? e) with
   | some r => return Step.done r
   | none => x
+
+def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndInstances do
+  if e.hasFVar || e.hasMVar then
+    return none
+  else
+    try
+      let d ← mkDecide e
+      let r ← withDefault <| whnf d
+      if r.isConstOf ``true then
+        return some { expr := mkConst ``True, proof? := mkAppN (mkConst ``eqTrueOfDecide) #[e, d.appArg!, (← mkEqRefl (mkConst ``true))] }
+      else if r.isConstOf ``false then
+        let h ← mkEqRefl d
+        return some { expr := mkConst ``False, proof? := mkAppN (mkConst ``eqFalseOfDecide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] }
+      else
+        return none
+    catch _ =>
+      return none
+
+@[inline] def tryRewriteUsingDecide (e : Expr) (x : SimpM Step) : SimpM Step := do
+  if (← read).config.decide then
+    match (← rewriteUsingDecide? e) with
+    | some r => return Step.done r
+    | none => x
+  else
+    x
 
 def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step :=
   tryRewriteCtorEq e do
@@ -121,6 +144,7 @@ def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM St
 
 def postDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   tryRewriteCtorEq e do
+  tryRewriteUsingDecide e do
     let lemmas ← (← read).simpLemmas
     return Step.visit (← rewrite e lemmas.post discharge? (tag := "post"))
 

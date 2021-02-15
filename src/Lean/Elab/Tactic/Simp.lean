@@ -74,7 +74,7 @@ def elabSimpConfig (optConfig : Syntax) : TermElabM Meta.Simp.Config := do
       evalSimpConfig (← instantiateMVars c)
 
 /-- Return `some c`, if `e` is of the form `c.{?u_1, ..., ?u_n} ?m_1 ... ?m_k` -/
-private def isGlobalLemma? (e : Expr) : Option Name :=
+private def isGlobalDecl? (e : Expr) : Option Name :=
   e.withApp fun f args =>
     if f.isConst && args.all (·.isMVar) && f.constLevels!.all (·.isMVar) then
       some f.constName!
@@ -94,17 +94,22 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) : TacticM Simp.Co
     let (g, _) ← getMainGoal
     withMVarContext g do
       let mut lemmas := ctx.simpLemmas
-      for simpLemma in stx[1].getSepArgs do
+      let mut toUnfold : NameSet := {}
+      for arg in stx[1].getSepArgs do
         let post :=
-          if simpLemma[0].isNone then
+          if arg[0].isNone then
             true
           else
-            simpLemma[0][0].getKind == ``Parser.Tactic.simpPost
-        let lemma ← elabTerm simpLemma[1] none (mayPostpone := false)
-        match isGlobalLemma? lemma with
-        | some declName => lemmas ← lemmas.addConst declName post
-        | none          => lemmas ← lemmas.add lemma post
-      return { ctx with simpLemmas := lemmas }
+            arg[0][0].getKind == ``Parser.Tactic.simpPost
+        let arg ← elabTerm arg[1] none (mayPostpone := false)
+        match isGlobalDecl? arg with
+        | some declName =>
+          if (← isProof arg) then
+            lemmas ← lemmas.addConst declName post
+          else
+            toUnfold := toUnfold.insert declName
+        | none          => lemmas ← lemmas.add arg post
+      return { ctx with simpLemmas := lemmas, toUnfold := toUnfold }
 
 @[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
   let ctx ← elabSimpLemmas stx[1] { config := (← elabSimpConfig stx[2]), simpLemmas := (← getSimpLemmas), congrLemmas := (← getCongrLemmas) }

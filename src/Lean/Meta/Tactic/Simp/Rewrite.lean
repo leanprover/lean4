@@ -91,12 +91,37 @@ where
         trace[Meta.Tactic.simp.unify]! "{lemma}, failed to unify {lhs} with {e}"
         return none
 
-def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
-  let lemmas ← (← read).simpLemmas
-  return Step.visit (← rewrite e lemmas.pre discharge? (tag := "pre"))
+def rewriteCtorEq? (e : Expr) : MetaM (Option Result) := withReducibleAndInstances do
+  match e.eq? with
+  | none => return none
+  | some (_, lhs, rhs) =>
+    let lhs ← whnf lhs
+    let rhs ← whnf rhs
+    let env ← getEnv
+    match lhs.constructorApp? env, rhs.constructorApp? env with
+    | some (c₁, _), some (c₂, _) =>
+      if c₁.name != c₂.name then
+        withLocalDeclD `h e fun h =>
+          return some { expr := mkConst ``False, proof? := (← mkEqFalse' (← mkLambdaFVars #[h] (← mkNoConfusion (mkConst ``False) h))) }
+      else
+        return none
+    | _, _ => return none
+
+
+
+@[inline] def tryRewriteCtorEq (e : Expr) (x : SimpM Step) : SimpM Step := do
+  match (← rewriteCtorEq? e) with
+  | some r => return Step.done r
+  | none => x
+
+def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step :=
+  tryRewriteCtorEq e do
+    let lemmas ← (← read).simpLemmas
+    return Step.visit (← rewrite e lemmas.pre discharge? (tag := "pre"))
 
 def postDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
-  let lemmas ← (← read).simpLemmas
-  return Step.visit (← rewrite e lemmas.post discharge? (tag := "post"))
+  tryRewriteCtorEq e do
+    let lemmas ← (← read).simpLemmas
+    return Step.visit (← rewrite e lemmas.post discharge? (tag := "post"))
 
 end Lean.Meta.Simp

@@ -19,8 +19,8 @@ namespace Lean.Meta
 
 def smartUnfoldingSuffix := "_sunfold"
 
-@[inline] def mkSmartUnfoldingNameFor (n : Name) : Name :=
-  Name.mkStr n smartUnfoldingSuffix
+@[inline] def mkSmartUnfoldingNameFor (declName : Name) : Name :=
+  Name.mkStr declName smartUnfoldingSuffix
 
 register_builtin_option smartUnfolding : Bool := {
   defValue := true
@@ -439,11 +439,14 @@ mutual
             | _ => unfoldDefault ()
           else
             unfoldDefault ()
-    | Expr.const name lvls _ => do
-      let (some (cinfo@(ConstantInfo.defnInfo _))) ← getConstNoEx? name | pure none
-      deltaDefinition cinfo lvls
-        (fun _ => pure none)
-        (fun e => pure (some e))
+    | Expr.const declName lvls _ => do
+      if smartUnfolding.get (← getOptions) && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
+        return none
+      else
+        let (some (cinfo@(ConstantInfo.defnInfo _))) ← getConstNoEx? declName | pure none
+        deltaDefinition cinfo lvls
+          (fun _ => pure none)
+          (fun e => pure (some e))
     | _ => return none
 end
 

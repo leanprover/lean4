@@ -521,7 +521,7 @@ protected def Nat.decEq (n m : @& Nat) : Decidable (Eq n m) :=
 
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_nat_dec_le"]
-def Nat.ble : Nat → Nat → Bool
+def Nat.ble : @& Nat → @& Nat → Bool
   | zero,   zero   => true
   | zero,   succ m => true
   | succ n, zero   => false

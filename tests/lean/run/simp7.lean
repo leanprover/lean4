@@ -24,3 +24,10 @@ theorem ex3 : fact x > 0 := by
     apply Nat.mulPos
     apply Nat.zeroLtSucc
     apply ih
+
+def head [Inhabited α] : List α → α
+  | []   => arbitrary
+  | a::_ => a
+
+theorem ex [Inhabited α] (a : α) (as : List α) : head (a::as) = a :=
+  by simp [head]

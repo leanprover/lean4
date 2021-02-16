@@ -73,14 +73,6 @@ def elabSimpConfig (optConfig : Syntax) : TermElabM Meta.Simp.Config := do
       let c ← Term.elabTermEnsuringType optConfig[0] (Lean.mkConst ``Meta.Simp.Config)
       evalSimpConfig (← instantiateMVars c)
 
-/-- Return `some c`, if `e` is of the form `c.{?u_1, ..., ?u_n} ?m_1 ... ?m_k` -/
-private def isGlobalDecl? (e : Expr) : Option Name :=
-  e.withApp fun f args =>
-    if f.isConst && args.all (·.isMVar) && f.constLevels!.all (·.isMVar) then
-      some f.constName!
-    else
-      none
-
 /-- Elaborate extra simp lemmas provided to `simp`. `stx` is of the `simpLemma,*` -/
 private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) : TacticM Simp.Context := do
   if stx.isNone then
@@ -95,21 +87,32 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) : TacticM Simp.Co
     withMVarContext g do
       let mut lemmas := ctx.simpLemmas
       let mut toUnfold : NameSet := {}
-      for arg in stx[1].getSepArgs do
+      for (arg : Syntax) in stx[1].getSepArgs do
         let post :=
           if arg[0].isNone then
             true
           else
             arg[0][0].getKind == ``Parser.Tactic.simpPost
-        let arg ← elabTerm arg[1] none (mayPostpone := false)
-        match isGlobalDecl? arg with
+        match (← resolveSimpIdLemma? arg[1]) with
         | some declName =>
-          if (← isProof arg) then
+          let info ← getConstInfo declName
+          if (← isProp info.type) then
             lemmas ← lemmas.addConst declName post
           else
             toUnfold := toUnfold.insert declName
-        | none          => lemmas ← lemmas.add arg post
+        | _ =>
+          let arg ← elabTerm arg[1] none (mayPostpone := false)
+          lemmas ← lemmas.add arg post
       return { ctx with simpLemmas := lemmas, toUnfold := toUnfold }
+where
+  resolveSimpIdLemma? (simpArgTerm : Syntax) : TacticM (Option Name) := do
+    if simpArgTerm.isIdent then
+      try
+        return some (← resolveGlobalConstNoOverload simpArgTerm.getId)
+      catch _ =>
+        return none
+    else
+      return none
 
 @[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
   let ctx ← elabSimpLemmas stx[1] { config := (← elabSimpConfig stx[2]), simpLemmas := (← getSimpLemmas), congrLemmas := (← getCongrLemmas) }

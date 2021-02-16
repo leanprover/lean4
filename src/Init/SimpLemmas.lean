@@ -72,6 +72,7 @@ theorem diteCongr {s : Decidable b} [Decidable c]
 
 namespace Lean.Simp
 
+@[simp] theorem Ne_Eq (a b : α) : (a ≠ b) = Not (a = b) := rfl
 @[simp] theorem ite_True (a b : α) : (if True then a else b) = a := rfl
 @[simp] theorem ite_False (a b : α) : (if False then a else b) = b := rfl
 @[simp] theorem And_self (p : Prop) : (p ∧ p) = p := propext <| Iff.intro (fun h => h.1) (fun h => ⟨h, h⟩)

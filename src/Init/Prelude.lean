@@ -45,7 +45,7 @@ inductive False : Prop
 
 inductive Empty : Type
 
-def Not (a : Prop) : Prop := a → False
+abbrev Not (a : Prop) : Prop := a → False
 
 @[macroInline] def False.elim {C : Sort u} (h : False) : C :=
   False.rec (fun _ => C) h

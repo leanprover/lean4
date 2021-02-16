@@ -194,7 +194,7 @@ theorem Eq.substr {α : Sort u} {p : α → Prop} {a b : α} (h₁ : b = a) (h�
 theorem castEq {α : Sort u} (h : α = α) (a : α) : cast h a = a :=
   rfl
 
-@[reducible] def Ne {α : Sort u} (a b : α) :=
+abbrev Ne {α : Sort u} (a b : α) :=
   ¬(a = b)
 
 infix:50 " ≠ "  => Ne

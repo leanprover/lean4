@@ -12,7 +12,7 @@ namespace Simp
 builtin_initialize congrHypothesisExceptionId : InternalExceptionId ←
   registerInternalExceptionId `congrHypothesisFailed
 
-def throwCongrHypothesisFailed {α} : MetaM α :=
+def throwCongrHypothesisFailed : MetaM α :=
   throw <| Exception.internal congrHypothesisExceptionId
 
 def Result.getProof (r : Result) : MetaM Expr := do

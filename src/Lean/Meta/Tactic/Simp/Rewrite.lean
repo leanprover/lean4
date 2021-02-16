@@ -141,7 +141,7 @@ def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndIn
     x
 
 @[inline] def tryUnfold (e : Expr) (x : SimpM Step) : SimpM Step := do
-  if e.isApp && e.getAppFn.isConst && (← read).toUnfold.contains e.getAppFn.constName! then
+  if e.getAppFn.isConst && (← read).toUnfold.contains e.getAppFn.constName! then
     -- TODO: try simp lemmas
     match (← withDefault <| unfoldDefinition? e) with
     | some eNew => return Step.visit { expr := eNew }

@@ -29,5 +29,11 @@ def head [Inhabited α] : List α → α
   | []   => arbitrary
   | a::_ => a
 
-theorem ex [Inhabited α] (a : α) (as : List α) : head (a::as) = a :=
+theorem ex4 [Inhabited α] (a : α) (as : List α) : head (a::as) = a :=
   by simp [head]
+
+def foo := 10
+
+theorem ex5 (x : Nat) : foo + x = 10 + x := by
+  simp [foo]
+  done

@@ -63,3 +63,5 @@ typeAs Nat
     discard (pure 2)
     let y : Nat := 3
     pure (x + y))
+typeAs (Id Nat)
+  (pure 1 >>= pure)

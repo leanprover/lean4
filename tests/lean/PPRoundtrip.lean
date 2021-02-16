@@ -100,3 +100,5 @@ set_option pp.structure_instance_type true in
   discard <| pure 2
   let y := 3
   return x + y))
+
+#eval checkM `(typeAs (Id Nat) (pure 1 >>= pure))

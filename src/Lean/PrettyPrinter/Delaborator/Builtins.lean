@@ -576,7 +576,7 @@ partial def delabDoElems : DelabM (List Syntax) := do
             prependAndRec `(doElem|let $n:term ← $ma)
           else
             prependAndRec `(doElem|$ma:term)
-      | _ => delabAndRet
+      | _ => failure
   else if e.isLet then
     let Expr.letE n t v b _ ← getExpr | unreachable!
     let n ← getUnusedName n b
@@ -587,10 +587,10 @@ partial def delabDoElems : DelabM (List Syntax) := do
       descend b 2 $
         prependAndRec `(doElem|let $(mkIdent n) : $stxT := $stxV)
   else
-    delabAndRet
+    let stx ← delab
+    [←`(doElem|$stx:term)]
   where
     prependAndRec x : DelabM _ := List.cons <$> x <*> delabDoElems
-    delabAndRet : DelabM _ := do let stx ← delab; [←`(doElem|$stx:term)]
 
 @[builtinDelab app.Bind.bind]
 def delabDo : Delab := whenPPOption getPPNotation do

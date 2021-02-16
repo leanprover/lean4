@@ -44,7 +44,7 @@ match x with
 def Vector (α : Type) (n : Nat) := { a : Array α // a.size = n }
 
 def mkVec {α : Type} (n : Nat) (a : α) : Vector α n :=
-⟨mkArray n a, Array.sizeMkArrayEq ..⟩
+⟨mkArray n a, Array.size_mkArray ..⟩
 
 structure S :=
 (n : Nat)

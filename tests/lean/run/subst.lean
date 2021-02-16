@@ -1,4 +1,3 @@
-
 universes u
 
 def f1 (n m : Nat) (x : Fin n) (h : n = m) : Fin m :=
@@ -35,7 +34,7 @@ theorem ex7 {α} {a b c d : α} (h₁ : a = c) (h₂ : b = d) (h₃ : c ≠ d) :
 h₁ ▸ h₂ ▸ h₃
 
 theorem ex8 (n m k : Nat) (h : Nat.succ n + m = Nat.succ n + k) : Nat.succ (n + m) = Nat.succ (n + k) :=
-Nat.succAdd .. ▸ Nat.succAdd .. ▸ h
+Nat.succ_add .. ▸ Nat.succ_add .. ▸ h
 
 theorem ex9 (a b : Nat) (h₁ : a = a + b) (h₂ : a = b) : a = b + a  :=
 h₂ ▸ h₁

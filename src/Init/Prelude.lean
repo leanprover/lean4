@@ -964,7 +964,7 @@ def List.lengthAux {α : Type u} : List α → Nat → Nat
 def List.length {α : Type u} (as : List α) : Nat :=
   lengthAux as 0
 
-theorem List.lengthConsEq {α} (a : α) (as : List α) : Eq (cons a as).length as.length.succ :=
+@[simp] theorem List.length_cons {α} (a : α) (as : List α) : Eq (cons a as).length as.length.succ :=
   let rec aux (a : α) (as : List α) : (n : Nat) → Eq ((cons a as).lengthAux n) (as.lengthAux n).succ :=
     match as with
     | nil       => fun _ => rfl
@@ -979,7 +979,7 @@ def List.get {α : Type u} : (as : List α) → (i : Nat) → Less i as.length �
   | nil,       i,          h => absurd h (Nat.notLtZero _)
   | cons a as, 0,          h => a
   | cons a as, Nat.succ i, h =>
-    have Less i.succ as.length.succ from lengthConsEq .. ▸ h
+    have Less i.succ as.length.succ from length_cons .. ▸ h
     get as i (Nat.leOfSuccLeSucc this)
 
 structure String where

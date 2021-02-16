@@ -64,12 +64,12 @@ inductive IsEntriesNode : Node α β → Prop where
 
 abbrev EntriesNode (α β) := { n : Node α β // IsEntriesNode n }
 
-private theorem setSizeEq {ks : Array α} {vs : Array β} (h : ks.size = vs.size) (i : Fin ks.size) (j : Fin vs.size) (k : α) (v : β)
+private theorem size_set {ks : Array α} {vs : Array β} (h : ks.size = vs.size) (i : Fin ks.size) (j : Fin vs.size) (k : α) (v : β)
                            : (ks.set i k).size = (vs.set j v).size := by
-  rw [Array.sizeSetEq, Array.sizeSetEq vs, h]
+  simp [h]
 
-private theorem pushSizeEq {ks : Array α} {vs : Array β} (h : ks.size = vs.size) (k : α) (v : β) : (ks.push k).size = (vs.push v).size := by
-  rw [Array.sizePushEq, Array.sizePushEq, h]
+private theorem size_push {ks : Array α} {vs : Array β} (h : ks.size = vs.size) (k : α) (v : β) : (ks.push k).size = (vs.push v).size := by
+  simp [h]
 
 partial def insertAtCollisionNodeAux [BEq α] : CollisionNode α β → Nat → α → β → CollisionNode α β
   | n@⟨Node.collision keys vals heq, _⟩, i, k, v =>
@@ -78,10 +78,10 @@ partial def insertAtCollisionNodeAux [BEq α] : CollisionNode α β → Nat → 
       let k' := keys.get idx;
       if k == k' then
          let j : Fin vals.size := ⟨i, by rw [←heq]; assumption⟩
-         ⟨Node.collision (keys.set idx k) (vals.set j v) (setSizeEq heq idx j k v), IsCollisionNode.mk _ _ _⟩
+         ⟨Node.collision (keys.set idx k) (vals.set j v) (size_set heq idx j k v), IsCollisionNode.mk _ _ _⟩
       else insertAtCollisionNodeAux n (i+1) k v
     else
-      ⟨Node.collision (keys.push k) (vals.push v) (pushSizeEq heq k v), IsCollisionNode.mk _ _ _⟩
+      ⟨Node.collision (keys.push k) (vals.push v) (size_push heq k v), IsCollisionNode.mk _ _ _⟩
   | ⟨Node.entries _, h⟩, _, _, _ => False.elim (nomatch h)
 
 def insertAtCollisionNode [BEq α] : CollisionNode α β → α → β → CollisionNode α β :=

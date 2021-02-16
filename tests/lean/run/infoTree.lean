@@ -24,7 +24,6 @@ def f (x : Nat) : Nat × Nat :=
 def h : (x y : Nat) → (b : Bool) → x + 0 = x :=
   fun x y b => by
     simp
-    exact rfl
 
 def f2 : (x y : Nat) → (b : Bool) → Nat :=
   fun x y b =>

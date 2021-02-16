@@ -20,10 +20,10 @@ theorem lengthReverse (as : List α) : (reverse as).length = as.length :=
 where
   revLoop (as bs : List α) : (reverse.loop as bs).length = as.length + bs.length := by
     induction as generalizing bs with
-    | nil => erw [Nat.zeroAdd]; rfl
+    | nil => simp [reverse.loop]
     | cons a as ih =>
       show (reverse.loop as (a::bs)).length = (a :: as).length + bs.length
-      erw [ih, List.lengthConsEq, List.lengthConsEq, Nat.addSucc, Nat.succAdd]
+      simp [ih, Nat.add_succ, Nat.succ_add]
 
 def h : Nat -> Nat
   | 0    => g 0

@@ -30,9 +30,9 @@ axiom Nat.parityElim (motive : Nat → Sort u)
   : motive n
 
 theorem time2Eq (n : Nat) : 2*n = n + n := by
-  rw Nat.mulComm
+  rw Nat.mul_comm
   show (0 + n) + n = n+n
-  rw Nat.zeroAdd
+  simp
 
 theorem ex3 (n : Nat) : Exists (fun m => n = m + m ∨ n = m + m + 1) := by
   cases n using Nat.parityElim with

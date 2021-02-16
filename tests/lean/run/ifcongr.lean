@@ -1,7 +1,7 @@
 --
 @[simp] theorem andTrue (p : Prop) : (p ∧ True) = p :=
   propext <| Iff.intro (fun ⟨h, _⟩ => h) (fun h => ⟨h, trivial⟩)
-attribute [simp] Nat.addComm
+attribute [simp] Nat.add_comm
 
 theorem ex1 (x : Nat) : (if x > 3 ∧ True then 1 else 2) = (if x > 3 then 1 else 2) :=
  by simp

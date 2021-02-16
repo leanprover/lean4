@@ -6,7 +6,7 @@ theorem ex1 (n : Nat) : 0 + n = n := by
     traceState
     subst e
     traceState
-    apply Nat.zeroAdd
+    apply Nat.zero_add
 
 theorem ex2 (n : Nat) : 0 + n = n := by
   let m := n
@@ -16,7 +16,7 @@ theorem ex2 (n : Nat) : 0 + n = n := by
     traceState
     subst e
     traceState
-    apply Nat.zeroAdd
+    apply Nat.zero_add
 
 theorem ex3 (n : Nat) (h : n = 0) : 0 + n = 0 := by
   let m := n + 1

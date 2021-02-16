@@ -20,8 +20,8 @@ def mkArray {α : Type u} (n : Nat) (v : α) : Array α := {
   data := List.replicate n v
 }
 
-theorem sizeMkArrayEq (n : Nat) (v : α) : (mkArray n v).size = n :=
-  List.lengthReplicateEq ..
+@[simp] theorem size_mkArray (n : Nat) (v : α) : (mkArray n v).size = n :=
+  List.length_replicate ..
 
 instance : EmptyCollection (Array α) := ⟨Array.empty⟩
 instance : Inhabited (Array α) where
@@ -53,11 +53,11 @@ def back? (a : Array α) : Option α :=
 abbrev getLit {α : Type u} {n : Nat} (a : Array α) (i : Nat) (h₁ : a.size = n) (h₂ : i < n) : α :=
   a.get ⟨i, h₁.symm ▸ h₂⟩
 
-theorem sizeSetEq (a : Array α) (i : Fin a.size) (v : α) : (set a i v).size = a.size :=
- List.lengthSetEq ..
+@[simp] theorem size_set (a : Array α) (i : Fin a.size) (v : α) : (set a i v).size = a.size :=
+  List.length_set ..
 
-theorem sizePushEq (a : Array α) (v : α) : (push a v).size = a.size + 1 :=
-  List.lengthConcatEq ..
+@[simp] theorem size_push (a : Array α) (v : α) : (push a v).size = a.size + 1 :=
+  List.length_concat ..
 
 /- Low-level version of `fset` which is as fast as a C array fset.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
@@ -71,7 +71,7 @@ def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
   let v₁ := a.get i
   let v₂ := a.get j
   let a'  := a.set i v₂
-  a'.set (sizeSetEq a i v₂ ▸ j) v₁
+  a'.set (size_set a i v₂ ▸ j) v₁
 
 @[extern "lean_array_swap"]
 def swap! (a : Array α) (i j : @& Nat) : Array α :=
@@ -111,7 +111,7 @@ def modifyM [Monad m] [Inhabited α] (a : Array α) (i : Nat) (f : α → m α) 
     let v                := a.get idx
     let a'               := a.set idx arbitrary
     let v ← f v
-    pure <| a'.set (sizeSetEq a .. ▸ idx) v
+    pure <| a'.set (size_set a .. ▸ idx) v
   else
     pure a
 
@@ -262,9 +262,9 @@ def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : 
     match i, inv with
     | 0,    _  => pure bs
     | i+1, inv =>
-      have j < as.size by rw [← inv, Nat.addAssoc, Nat.addComm 1 j, Nat.addLeftComm]; apply Nat.leAddRight
+      have j < as.size by rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_leftComm]; apply Nat.leAddRight
       let idx : Fin as.size := ⟨j, this⟩
-      have i + (j + 1) = as.size by rw [← inv, Nat.addComm j 1, Nat.addAssoc]
+      have i + (j + 1) = as.size by rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
       map i (j+1) this (bs.push (← f idx (as.get idx)))
   map as.size 0 rfl (mkEmpty as.size)
 
@@ -405,7 +405,7 @@ def findIdx? {α : Type u} (as : Array α) (p : α → Bool) : Option Nat :=
       match i, inv with
       | 0, inv => by
         apply False.elim
-        rw [Nat.zeroAdd] at inv
+        rw [Nat.zero_add] at inv
         rw [inv] at hlt
         exact absurd hlt (Nat.ltIrrefl _)
       | i+1, inv =>
@@ -413,7 +413,7 @@ def findIdx? {α : Type u} (as : Array α) (p : α → Bool) : Option Nat :=
           some j
         else
           have i + (j+1) = as.size by
-            rw [← inv, Nat.addComm j 1, Nat.addAssoc]
+            rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
           loop i (j+1) this
     else
       none
@@ -580,19 +580,19 @@ theorem ext (a b : Array α)
     | nil =>
       cases b with
       | nil       => rfl
-      | cons b bs => rw [List.lengthConsEq] at h₁; injection h₁
+      | cons b bs => rw [List.length_cons] at h₁; injection h₁
     | cons a as ih =>
       cases b with
-      | nil => rw [List.lengthConsEq] at h₁; injection h₁
+      | nil => rw [List.length_cons] at h₁; injection h₁
       | cons b bs =>
-        have hz₁ : 0 < (a::as).length by rw [List.lengthConsEq]; apply Nat.zeroLtSucc
-        have hz₂ : 0 < (b::bs).length by rw [List.lengthConsEq]; apply Nat.zeroLtSucc
+        have hz₁ : 0 < (a::as).length by rw [List.length_cons]; apply Nat.zeroLtSucc
+        have hz₂ : 0 < (b::bs).length by rw [List.length_cons]; apply Nat.zeroLtSucc
         have headEq : a = b from h₂ 0 hz₁ hz₂
-        have h₁' : as.length = bs.length by rw [List.lengthConsEq, List.lengthConsEq] at h₁; injection h₁; assumption
+        have h₁' : as.length = bs.length by rw [List.length_cons, List.length_cons] at h₁; injection h₁; assumption
         have h₂' : (i : Nat) → (hi₁ : i < as.length) → (hi₂ : i < bs.length) → as.get i hi₁ = bs.get i hi₂ by
           intro i hi₁ hi₂
-          have hi₁' : i+1 < (a::as).length by rw [List.lengthConsEq]; apply Nat.succLtSucc; assumption
-          have hi₂' : i+1 < (b::bs).length by rw [List.lengthConsEq]; apply Nat.succLtSucc; assumption
+          have hi₁' : i+1 < (a::as).length by rw [List.length_cons]; apply Nat.succLtSucc; assumption
+          have hi₂' : i+1 < (b::bs).length by rw [List.length_cons]; apply Nat.succLtSucc; assumption
           have (a::as).get (i+1) hi₁' = (b::bs).get (i+1) hi₂' from h₂ (i+1) hi₁' hi₂'
           apply this
         have tailEq : as = bs from ih bs h₁' h₂'
@@ -640,27 +640,27 @@ def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
 def eraseIdx (a : Array α) (i : Nat) : Array α :=
   if i < a.size then eraseIdxAux (i+1) a else a
 
-theorem sizeSwapEq (a : Array α) (i j : Fin a.size) : (a.swap i j).size = a.size := by
-  show ((a.set i (a.get j)).set (sizeSetEq a i _ ▸ j) (a.get i)).size = a.size
-  rw [sizeSetEq, sizeSetEq]
+@[simp] theorem size_swap (a : Array α) (i j : Fin a.size) : (a.swap i j).size = a.size := by
+  show ((a.set i (a.get j)).set (size_set a i _ ▸ j) (a.get i)).size = a.size
+  rw [size_set, size_set]
 
-theorem sizePopEq (a : Array α) : a.pop.size = a.size - 1 :=
-  List.lengthDropLast ..
+@[simp] theorem size_pop (a : Array α) : a.pop.size = a.size - 1 :=
+  List.length_dropLast ..
 
 section
 /- Instance for justifying `partial` declaration.
    We should be able to delete it as soon as we restore support for well-founded recursion. -/
 instance eraseIdxSzAuxInstance (a : Array α) : Inhabited { r : Array α // r.size = a.size - 1 } where
-  default := ⟨a.pop, sizePopEq a⟩
+  default := ⟨a.pop, size_pop a⟩
 
 partial def eraseIdxSzAux (a : Array α) : ∀ (i : Nat) (r : Array α), r.size = a.size → { r : Array α // r.size = a.size - 1 }
   | i, r, heq =>
     if h : i < r.size then
       let idx  : Fin r.size := ⟨i, h⟩;
       let idx1 : Fin r.size := ⟨i - 1, by exact Nat.ltOfLeOfLt (Nat.predLe i) h⟩;
-      eraseIdxSzAux a (i+1) (r.swap idx idx1) ((sizeSwapEq r idx idx1).trans heq)
+      eraseIdxSzAux a (i+1) (r.swap idx idx1) ((size_swap r idx idx1).trans heq)
     else
-      ⟨r.pop, (sizePopEq r).trans (heq ▸ rfl)⟩
+      ⟨r.pop, (size_pop r).trans (heq ▸ rfl)⟩
 end
 
 def eraseIdx' (a : Array α) (i : Fin a.size) : { r : Array α // r.size = a.size - 1 } :=

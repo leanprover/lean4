@@ -45,8 +45,8 @@ def tst2 : MetaM Unit := do
       trace[Meta.debug]! "lhs: {lhs}"
       let s ← Meta.getSimpLemmas
       let m ← s.post.getMatch lhs
-      assert! m.size == 1
-      trace[Meta.debug]! "resullt: {m}"
+      trace[Meta.debug]! "result: {m}"
+      assert! m.size == 3
 
 set_option trace.Meta.debug true in
 #eval tst2

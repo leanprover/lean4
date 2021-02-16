@@ -18,16 +18,9 @@ variable {α}
 
 theorem concatEq (xs : List α) (h : xs ≠ []) : concat (dropLast xs) (last xs h) = xs := by
   match xs, h with
-  | [],  h        =>
-    apply False.elim
-    apply h rfl
+  | [],  h        => exact absurd rfl h
   | [x], h        => rfl
-  | x₁::x₂::xs, h =>
-    have x₂::xs ≠ [] by intro h; injection h
-    have ih := concatEq (x₂::xs) this
-    show x₁ :: concat (dropLast (x₂::xs)) (last (x₂::xs) this) = x₁ :: x₂ :: xs
-    rewrite ih
-    rfl
+  | x₁::x₂::xs, h => simp [concat, last, concatEq (x₂::xs) List.noConfusion]
 
 theorem lengthCons {α} (x : α) (xs : List α) : (x::xs).length = xs.length + 1 :=
   let rec aux (a : α) (xs : List α) : (n : Nat) → (a::xs).lengthAux n = xs.lengthAux n + 1 :=
@@ -53,15 +46,13 @@ theorem dropLastLen {α} (xs : List α) : (n : Nat) → xs.length = n+1 → (dro
     intro n h
     cases n with
     | zero   =>
-      rw [lengthCons, lengthCons] at h
+      simp [lengthCons] at h
       injection h with h
       injection h
     | succ n =>
-      have (x₁ :: x₂ :: xs).length = xs.length + 2 by rw [lengthCons, lengthCons]
+      have (x₁ :: x₂ :: xs).length = xs.length + 2 by simp [lengthCons]
       have xs.length = n by rw [this] at h; injection h with h; injection h with h; assumption
-      have ih : (dropLast (x₂::xs)).length = xs.length from dropLastLen (x₂::xs) xs.length (lengthCons _ _)
-      show (x₁ :: dropLast (x₂ :: xs)).length = n+1
-      rw [lengthCons, ih, this]
+      simp [dropLast, lengthCons, dropLastLen (x₂::xs) xs.length (lengthCons ..), this]
 
 @[inline]
 def concatElim {α}

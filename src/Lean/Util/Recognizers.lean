@@ -40,6 +40,9 @@ namespace Expr
 @[inline] def eq? (p : Expr) : Option (Expr × Expr × Expr) :=
   p.app3? ``Eq
 
+@[inline] def ne? (p : Expr) : Option (Expr × Expr × Expr) :=
+  p.app3? ``Ne
+
 @[inline] def iff? (p : Expr) : Option (Expr × Expr) :=
   p.app2? ``Iff
 

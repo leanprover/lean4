@@ -52,6 +52,7 @@ where
     | SimpLemmaKind.neg => return type.appArg!
     | SimpLemmaKind.eq  => return type.appFn!.appArg!
     | SimpLemmaKind.iff => return type.appFn!.appArg!
+    | SimpLemmaKind.ne  => mkEq type.appFn!.appArg! type.appArg!
 
   getRHS (kind : SimpLemmaKind) (type : Expr) : MetaM Expr :=
     match kind with
@@ -59,6 +60,7 @@ where
     | SimpLemmaKind.neg => return mkConst `False
     | SimpLemmaKind.eq  => return type.appArg!
     | SimpLemmaKind.iff => return type.appArg!
+    | SimpLemmaKind.ne  => return mkConst `False
 
   finalizeProof (kind : SimpLemmaKind) (proof : Expr) : MetaM Expr :=
     match kind with
@@ -66,6 +68,7 @@ where
     | SimpLemmaKind.iff => mkPropExt proof
     | SimpLemmaKind.pos => mkEqTrue proof
     | SimpLemmaKind.neg => mkEqFalse proof
+    | SimpLemmaKind.ne  => mkEqFalse proof
 
   tryLemma? (lemma : SimpLemma) : SimpM (Option Result) :=
     withNewMCtxDepth do

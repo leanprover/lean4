@@ -17,3 +17,4 @@ import Init.Fix
 import Init.Meta
 import Init.NotationExtra
 import Init.SimpLemmas
+import Init.Hints

@@ -2128,7 +2128,6 @@ lean_object* l_Lean_Parser_Term_ellipsis___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Term_dynamicQuot___elambda__1___closed__8;
 lean_object* l_Lean_Parser_Term_borrowed_formatter___closed__2;
 lean_object* l_Lean_Parser_Term_arrayRef___elambda__1___closed__1;
-extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_5923____closed__20;
 lean_object* l_Lean_Parser_Term_matchAltsWhereDecls_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_Tactic_tacticSeqBracketed___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Term_matchAltsWhereDecls___elambda__1___closed__2;
@@ -2819,6 +2818,7 @@ lean_object* l_Lean_Parser_Term_fun___closed__5;
 lean_object* l_Lean_Parser_Command_docComment;
 lean_object* l_Lean_Parser_Term_matchAltsWhereDecls_formatter___closed__4;
 lean_object* l_Lean_Parser_orelseFnCore(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_5938____closed__20;
 lean_object* l_Lean_Parser_Term_explicitUniv___closed__2;
 lean_object* l___regBuiltin_Lean_Parser_Term_explicitUniv_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Term_attrInstance___elambda__1___closed__4;
@@ -35953,7 +35953,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_myMacro____x40_Init_Notation___hyg_2191____closed__2;
-x_2 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_5923____closed__20;
+x_2 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_5938____closed__20;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

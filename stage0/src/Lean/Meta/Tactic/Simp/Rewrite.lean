@@ -52,6 +52,7 @@ where
     | SimpLemmaKind.neg => return type.appArg!
     | SimpLemmaKind.eq  => return type.appFn!.appArg!
     | SimpLemmaKind.iff => return type.appFn!.appArg!
+    | SimpLemmaKind.ne  => mkEq type.appFn!.appArg! type.appArg!
 
   getRHS (kind : SimpLemmaKind) (type : Expr) : MetaM Expr :=
     match kind with
@@ -59,6 +60,7 @@ where
     | SimpLemmaKind.neg => return mkConst `False
     | SimpLemmaKind.eq  => return type.appArg!
     | SimpLemmaKind.iff => return type.appArg!
+    | SimpLemmaKind.ne  => return mkConst `False
 
   finalizeProof (kind : SimpLemmaKind) (proof : Expr) : MetaM Expr :=
     match kind with
@@ -66,6 +68,7 @@ where
     | SimpLemmaKind.iff => mkPropExt proof
     | SimpLemmaKind.pos => mkEqTrue proof
     | SimpLemmaKind.neg => mkEqFalse proof
+    | SimpLemmaKind.ne  => mkEqFalse proof
 
   tryLemma? (lemma : SimpLemma) : SimpM (Option Result) :=
     withNewMCtxDepth do
@@ -91,12 +94,73 @@ where
         trace[Meta.Tactic.simp.unify]! "{lemma}, failed to unify {lhs} with {e}"
         return none
 
-def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
+def rewriteCtorEq? (e : Expr) : MetaM (Option Result) := withReducibleAndInstances do
+  match e.eq? with
+  | none => return none
+  | some (_, lhs, rhs) =>
+    let lhs ← whnf lhs
+    let rhs ← whnf rhs
+    let env ← getEnv
+    match lhs.constructorApp? env, rhs.constructorApp? env with
+    | some (c₁, _), some (c₂, _) =>
+      if c₁.name != c₂.name then
+        withLocalDeclD `h e fun h =>
+          return some { expr := mkConst ``False, proof? := (← mkEqFalse' (← mkLambdaFVars #[h] (← mkNoConfusion (mkConst ``False) h))) }
+      else
+        return none
+    | _, _ => return none
+
+@[inline] def tryRewriteCtorEq (e : Expr) (x : SimpM Step) : SimpM Step := do
+  match (← rewriteCtorEq? e) with
+  | some r => return Step.done r
+  | none => x
+
+def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndInstances do
+  if e.hasFVar || e.hasMVar then
+    return none
+  else
+    try
+      let d ← mkDecide e
+      let r ← withDefault <| whnf d
+      if r.isConstOf ``true then
+        return some { expr := mkConst ``True, proof? := mkAppN (mkConst ``eqTrueOfDecide) #[e, d.appArg!, (← mkEqRefl (mkConst ``true))] }
+      else if r.isConstOf ``false then
+        let h ← mkEqRefl d
+        return some { expr := mkConst ``False, proof? := mkAppN (mkConst ``eqFalseOfDecide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] }
+      else
+        return none
+    catch _ =>
+      return none
+
+@[inline] def tryRewriteUsingDecide (e : Expr) (x : SimpM Step) : SimpM Step := do
+  if (← read).config.decide then
+    match (← rewriteUsingDecide? e) with
+    | some r => return Step.done r
+    | none => x
+  else
+    x
+
+@[inline] def tryUnfold (e : Expr) (x : SimpM Step) : SimpM Step := do
+  if e.isApp && e.getAppFn.isConst && (← read).toUnfold.contains e.getAppFn.constName! then
+    -- TODO: try simp lemmas
+    match (← withDefault <| unfoldDefinition? e) with
+    | some eNew => return Step.visit { expr := eNew }
+    | none      => x
+  else
+    x
+
+def rewritePre (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   let lemmas ← (← read).simpLemmas
   return Step.visit (← rewrite e lemmas.pre discharge? (tag := "pre"))
 
-def postDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
+def rewritePost (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   let lemmas ← (← read).simpLemmas
   return Step.visit (← rewrite e lemmas.post discharge? (tag := "post"))
+
+def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step :=
+  tryRewriteCtorEq e <| rewritePre e discharge?
+
+def postDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
+  tryRewriteCtorEq e <| tryRewriteUsingDecide e <| tryUnfold e <| rewritePost e discharge?
 
 end Lean.Meta.Simp

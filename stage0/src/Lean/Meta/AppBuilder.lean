@@ -436,9 +436,19 @@ def mkOfEqTrue (h : Expr) : MetaM Expr :=
 def mkEqTrue (h : Expr) : MetaM Expr :=
   mkAppM ``eqTrue #[h]
 
-/-- Return `eqFalse h` -/
+/--
+  Return `eqFalse h`
+  `h` must have type definitionally equal to `¬ p` in the current
+  reducibility setting. -/
 def mkEqFalse (h : Expr) : MetaM Expr :=
   mkAppM ``eqFalse #[h]
+
+/--
+  Return `eqFalse' h`
+  `h` must have type definitionally equal to `p → False` in the current
+  reducibility setting. -/
+def mkEqFalse' (h : Expr) : MetaM Expr :=
+  mkAppM ``eqFalse' #[h]
 
 def mkImpCongr (h₁ h₂ : Expr) : MetaM Expr :=
   mkAppM ``impCongr #[h₁, h₂]

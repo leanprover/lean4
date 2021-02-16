@@ -7,11 +7,12 @@ import Lean.ScopedEnvExtension
 import Lean.Util.Recognizers
 import Lean.Meta.LevelDefEq
 import Lean.Meta.DiscrTree
+import Lean.Meta.AppBuilder
 
 namespace Lean.Meta
 
 inductive SimpLemmaKind where
-  | eq | iff | pos | neg
+  | eq | iff | ne | pos | neg
   deriving Inhabited, BEq
 
 structure SimpLemma where
@@ -84,6 +85,9 @@ def mkSimpLemmaCore (e : Expr) (val : Expr) (post : Bool) (prio : Nat) (name? : 
       | none =>
       match type.iff? with
       | some (lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs, SimpLemmaKind.iff)
+      | none =>
+      match type.ne? with
+      | some (_, lhs, rhs) => pure (← DiscrTree.mkPath (← mkEq lhs rhs), false, SimpLemmaKind.ne)
       | none =>
       match type.not? with
       | some lhs => pure (← DiscrTree.mkPath lhs, false, SimpLemmaKind.neg)

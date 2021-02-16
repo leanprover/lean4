@@ -488,7 +488,7 @@ instance : Pow Nat where
 
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_nat_dec_eq"]
-def Nat.beq : Nat → Nat → Bool
+def Nat.beq : (@& Nat) → (@& Nat) → Bool
   | zero,   zero   => true
   | zero,   succ m => false
   | succ n, zero   => false
@@ -521,7 +521,7 @@ protected def Nat.decEq (n m : @& Nat) : Decidable (Eq n m) :=
 
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_nat_dec_le"]
-def Nat.ble : Nat → Nat → Bool
+def Nat.ble : @& Nat → @& Nat → Bool
   | zero,   zero   => true
   | zero,   succ m => true
   | succ n, zero   => false
@@ -635,7 +635,7 @@ protected theorem Nat.ltOfLeOfNe {n m : Nat} (h₁ : LessEq n m) (h₂ : Not (Eq
 
 set_option bootstrap.genMatcherCode false in
 @[extern c inline "lean_nat_sub(#1, lean_box(1))"]
-def Nat.pred : Nat → Nat
+def Nat.pred : (@& Nat) → Nat
   | 0      => 0
   | succ a => a
 
@@ -701,7 +701,7 @@ def UInt8.size : Nat := 256
 structure UInt8 where
   val : Fin UInt8.size
 
-attribute [extern "lean_uint8_of_nat"] UInt8.mk
+attribute [extern "lean_uint8_of_nat_mk"] UInt8.mk
 attribute [extern "lean_uint8_to_nat"] UInt8.val
 
 @[extern "lean_uint8_of_nat"]
@@ -725,7 +725,7 @@ def UInt16.size : Nat := 65536
 structure UInt16 where
   val : Fin UInt16.size
 
-attribute [extern "lean_uint16_of_nat"] UInt16.mk
+attribute [extern "lean_uint16_of_nat_mk"] UInt16.mk
 attribute [extern "lean_uint16_to_nat"] UInt16.val
 
 @[extern "lean_uint16_of_nat"]
@@ -749,7 +749,7 @@ def UInt32.size : Nat := 4294967296
 structure UInt32 where
   val : Fin UInt32.size
 
-attribute [extern "lean_uint32_of_nat"] UInt32.mk
+attribute [extern "lean_uint32_of_nat_mk"] UInt32.mk
 attribute [extern "lean_uint32_to_nat"] UInt32.val
 
 @[extern "lean_uint32_of_nat"]
@@ -797,7 +797,7 @@ def UInt64.size : Nat := 18446744073709551616
 structure UInt64 where
   val : Fin UInt64.size
 
-attribute [extern "lean_uint64_of_nat"] UInt64.mk
+attribute [extern "lean_uint64_of_nat_mk"] UInt64.mk
 attribute [extern "lean_uint64_to_nat"] UInt64.val
 
 @[extern "lean_uint64_of_nat"]
@@ -828,7 +828,7 @@ theorem usizeSzEq : Or (Eq USize.size 4294967296) (Eq USize.size 184467440737095
 structure USize where
   val : Fin USize.size
 
-attribute [extern "lean_usize_of_nat"] USize.mk
+attribute [extern "lean_usize_of_nat_mk"] USize.mk
 attribute [extern "lean_usize_to_nat"] USize.val
 
 @[extern "lean_usize_of_nat"]
@@ -878,7 +878,7 @@ private theorem validCharIsUInt32 {n : Nat} (h : n.isValidChar) : Less n UInt32.
   | Or.inr ⟨_, h⟩ => Nat.ltTrans h (decide! : Less 1114112 UInt32.size)
 
 @[extern "lean_uint32_of_nat"]
-private def Char.ofNatAux (n : Nat) (h : n.isValidChar) : Char :=
+private def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char :=
   { val := ⟨{ val := n, isLt := validCharIsUInt32 h }⟩, valid := h }
 
 @[noinline, matchPattern]

@@ -398,6 +398,7 @@ x_9 = lean_unsigned_to_nat(32u);
 x_10 = lean_nat_add(x_2, x_9);
 lean_dec(x_2);
 x_11 = l_Char_ofNat(x_10);
+lean_dec(x_10);
 return x_11;
 }
 }
@@ -446,6 +447,7 @@ x_9 = lean_unsigned_to_nat(32u);
 x_10 = lean_nat_sub(x_2, x_9);
 lean_dec(x_2);
 x_11 = l_Char_ofNat(x_10);
+lean_dec(x_10);
 return x_11;
 }
 }

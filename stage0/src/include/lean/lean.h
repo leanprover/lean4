@@ -1648,6 +1648,8 @@ static inline uint8_t lean_int_dec_nonneg(b_lean_obj_arg a) {
 
 uint8_t lean_uint8_of_big_nat(b_lean_obj_arg a);
 static inline uint8_t lean_uint8_of_nat(b_lean_obj_arg a) { return lean_is_scalar(a) ? (uint8_t)(lean_unbox(a)) : lean_uint8_of_big_nat(a); }
+/* Remark: the following function is used to implement the constructor `UInt8.mk`. We can't annotate constructors with `@&` */
+static inline uint8_t lean_uint8_of_nat_mk(lean_obj_arg a) { uint8_t r = lean_uint8_of_nat(a); lean_dec(a); return r; }
 static inline lean_obj_res lean_uint8_to_nat(uint8_t a) { return lean_usize_to_nat((size_t)a); }
 static inline uint8_t lean_uint8_add(uint8_t a1, uint8_t a2) { return a1+a2; }
 static inline uint8_t lean_uint8_sub(uint8_t a1, uint8_t a2) { return a1-a2; }
@@ -1670,6 +1672,8 @@ static inline uint8_t lean_uint8_dec_le(uint8_t a1, uint8_t a2) { return a1 <= a
 
 uint16_t lean_uint16_of_big_nat(b_lean_obj_arg a);
 static inline uint16_t lean_uint16_of_nat(b_lean_obj_arg a) { return lean_is_scalar(a) ? (int16_t)(lean_unbox(a)) : lean_uint16_of_big_nat(a); }
+/* Remark: the following function is used to implement the constructor `UInt16.mk`. We can't annotate constructors with `@&` */
+static inline uint16_t lean_uint16_of_nat_mk(lean_obj_arg a) { uint16_t r = lean_uint16_of_nat(a); lean_dec(a); return r; }
 static inline lean_obj_res lean_uint16_to_nat(uint16_t a) { return lean_usize_to_nat((size_t)a); }
 static inline uint16_t lean_uint16_add(uint16_t a1, uint16_t a2) { return a1+a2; }
 static inline uint16_t lean_uint16_sub(uint16_t a1, uint16_t a2) { return a1-a2; }
@@ -1692,6 +1696,8 @@ static inline uint8_t lean_uint16_dec_le(uint16_t a1, uint16_t a2) { return a1 <
 
 uint32_t lean_uint32_of_big_nat(b_lean_obj_arg a);
 static inline uint32_t lean_uint32_of_nat(b_lean_obj_arg a) { return lean_is_scalar(a) ? (uint32_t)(lean_unbox(a)) : lean_uint32_of_big_nat(a); }
+/* Remark: the following function is used to implement the constructor `UInt32.mk`. We can't annotate constructors with `@&` */
+static inline uint32_t lean_uint32_of_nat_mk(lean_obj_arg a) { uint32_t r = lean_uint32_of_nat(a); lean_dec(a); return r; }
 static inline lean_obj_res lean_uint32_to_nat(uint32_t a) { return lean_usize_to_nat((size_t)a); }
 static inline uint32_t lean_uint32_add(uint32_t a1, uint32_t a2) { return a1+a2; }
 static inline uint32_t lean_uint32_sub(uint32_t a1, uint32_t a2) { return a1-a2; }
@@ -1719,6 +1725,8 @@ static inline uint8_t lean_uint32_dec_le(uint32_t a1, uint32_t a2) { return a1 <
 
 uint64_t lean_uint64_of_big_nat(b_lean_obj_arg a);
 static inline uint64_t lean_uint64_of_nat(b_lean_obj_arg a) { return lean_is_scalar(a) ? (uint64_t)(lean_unbox(a)) : lean_uint64_of_big_nat(a); }
+/* Remark: the following function is used to implement the constructor `UInt64.mk`. We can't annotate constructors with `@&` */
+static inline uint64_t lean_uint64_of_nat_mk(lean_obj_arg a) { uint64_t r = lean_uint64_of_nat(a); lean_dec(a); return r; }
 static inline uint64_t lean_uint64_add(uint64_t a1, uint64_t a2) { return a1+a2; }
 static inline uint64_t lean_uint64_sub(uint64_t a1, uint64_t a2) { return a1-a2; }
 static inline uint64_t lean_uint64_mul(uint64_t a1, uint64_t a2) { return a1*a2; }
@@ -1741,6 +1749,8 @@ static inline uint8_t lean_uint64_dec_le(uint64_t a1, uint64_t a2) { return a1 <
 
 size_t lean_usize_of_big_nat(b_lean_obj_arg a);
 static inline size_t lean_usize_of_nat(b_lean_obj_arg a) { return lean_is_scalar(a) ? lean_unbox(a) : lean_usize_of_big_nat(a); }
+/* Remark: the following function is used to implement the constructor `USize.mk`. We can't annotate constructors with `@&` */
+static inline size_t lean_usize_of_nat_mk(lean_obj_arg a) { size_t r = lean_usize_of_nat(a); lean_dec(a); return r; }
 static inline size_t lean_usize_add(size_t a1, size_t a2) { return a1+a2; }
 static inline size_t lean_usize_sub(size_t a1, size_t a2) { return a1-a2; }
 static inline size_t lean_usize_mul(size_t a1, size_t a2) { return a1*a2; }

@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Meta.Transform
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Simp.Rewrite
 
@@ -51,16 +52,27 @@ private def reduceProj (e : Expr) : MetaM Expr := do
   | some e => return e
   | _      => return e
 
-private def reduceProjFn? (e : Expr) : MetaM (Option Expr) := do
+private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
   matchConst e.getAppFn (fun _ => pure none) fun cinfo _ => do
-    if !(← isProjectionFn cinfo.name) then
-      return none
-    else match (← unfoldDefinition? e) with
-      | none   => pure none
-      | some e =>
-        match (← reduceProj? e.getAppFn) with
-        | some f => return some (mkAppN f e.getAppArgs)
-        | none   => return none
+    match (← getProjectionFnInfo? cinfo.name) with
+    | none => return none
+    | some projInfo =>
+      trace[Meta.debug]! "reduceProjFn? {projInfo.fromClass}, {cinfo.name}, {e}"
+      if projInfo.fromClass then
+        if (← read).toUnfold.contains cinfo.name then
+          -- We only unfold class projections when the user explicitly requested them to be unfolded.
+          -- Recall that `unfoldDefinition?` has support for unfolding this kind of projection.
+          withReducibleAndInstances <| unfoldDefinition? e
+        else
+          return none
+      else
+        -- `structure` projection
+        match (← unfoldDefinition? e) with
+        | none   => pure none
+        | some e =>
+          match (← reduceProj? e.getAppFn) with
+          | some f => return some (mkAppN f e.getAppArgs)
+          | none   => return none
 
 private def reduceFVar (cfg : Config) (e : Expr) : MetaM Expr := do
   if cfg.zeta then
@@ -70,24 +82,33 @@ private def reduceFVar (cfg : Config) (e : Expr) : MetaM Expr := do
   else
     return e
 
-private partial def reduce (cfg : Config) (e : Expr) : MetaM Expr := withIncRecDepth do
+private def unfold? (e : Expr) : SimpM (Option Expr) := do
+  if e.getAppFn.isConst && (← read).toUnfold.contains e.getAppFn.constName! then
+    withDefault <| unfoldDefinition? e
+  else
+    return none
+
+private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
+  let cfg := (← read).config
   if cfg.beta then
     let e' := e.headBeta
     if e' != e then
-      return (← reduce cfg e')
+      return (← reduce e')
   -- TODO: eta reduction
   if cfg.proj then
     match (← reduceProjFn? e) with
-    | some e => return (← reduce cfg e)
+    | some e => return (← reduce e)
     | none   => pure ()
   if cfg.iota then
     match (← reduceRecMatcher? e) with
-    | some e => return (← reduce cfg e)
+    | some e => return (← reduce e)
     | none   => pure ()
-  return e
+  match (← unfold? e) with
+  | some e => reduce e
+  | none => return e
 
 private partial def dsimp (e : Expr) : M Expr := do
-  return e -- TODO
+  transform e (post := fun e => return TransformStep.done (← reduce e))
 
 partial def simp (e : Expr) : M Result := withIncRecDepth do
   let cfg ← getConfig
@@ -128,7 +149,7 @@ where
     | Expr.lam ..      => simpLambda e
     | Expr.forallE ..  => simpForall e
     | Expr.letE ..     => simpLet e
-    | Expr.const ..    => pure { expr := e }
+    | Expr.const ..    => simpConst e
     | Expr.bvar ..     => unreachable!
     | Expr.sort ..     => pure { expr := e }
     | Expr.lit ..      => pure { expr := e }
@@ -209,11 +230,14 @@ where
       congrDefault e
 
   simpApp (e : Expr) : M Result := do
-    let e ← reduce (← getConfig) e
+    let e ← reduce e
     if !e.isApp then
       simp e
     else
       congr e
+
+  simpConst (e : Expr) : M Result :=
+    return { expr := (← reduce e) }
 
   withNewLemmas {α} (xs : Array Expr) (f : M α) : M α := do
     if (← getConfig).contextual then

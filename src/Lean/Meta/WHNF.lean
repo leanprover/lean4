@@ -409,7 +409,7 @@ mutual
           | some e =>
             match (← reduceProj? e.getAppFn) with
             | none   => return none
-            | some r => return mkAppN r e.getAppArgs
+            | some r => return mkAppN r e.getAppArgs |>.headBeta
         | _ => return none
       | _ => return none
 

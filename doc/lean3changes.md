@@ -193,7 +193,7 @@ Ellipsis are also useful when explicit argument can be automatically inferred by
 to avoid a sequence of `_`s.
 ```lean
 example (f : Nat → Nat) (a b c : Nat) : f (a + b + c) = f (a + (b + c)) :=
-  congrArg f (Nat.addAssoc ..)
+  congrArg f (Nat.add_assoc ..)
 ```
 
 ## Dependent function types

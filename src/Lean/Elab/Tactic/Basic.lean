@@ -81,9 +81,6 @@ def SavedState.restore (s : SavedState) : TacticM Unit := do
 
 @[inline] def liftMetaM {α} (x : MetaM α) : TacticM α := liftTermElabM $ Term.liftMetaM x
 
-def ensureHasType (expectedType? : Option Expr) (e : Expr) : TacticM Expr := liftTermElabM $ Term.ensureHasType expectedType? e
-def reportUnsolvedGoals (goals : List MVarId) : TacticM Unit := liftTermElabM $ Term.reportUnsolvedGoals goals
-
 protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Term.Context).currMacroScope
 protected def getMainModule     : TacticM Name       := do pure (← getEnv).mainModule
 
@@ -207,7 +204,7 @@ def withMainMVarContext {α} (x : TacticM α) : TacticM α := do
 
 @[inline] def liftMetaMAtMain {α} (x : MVarId → MetaM α) : TacticM α := do
   let (g, _) ← getMainGoal
-  withMVarContext g $ liftMetaM $ x g
+  withMVarContext g <| x g
 
 @[inline] def liftMetaTacticAux {α} (tactic : MVarId → MetaM (α × List MVarId)) : TacticM α := do
   let (g, gs) ← getMainGoal
@@ -224,7 +221,7 @@ def withMainMVarContext {α} (x : TacticM α) : TacticM α := do
 def done : TacticM Unit := do
   let gs ← getUnsolvedGoals;
   unless gs.isEmpty do
-    reportUnsolvedGoals gs
+    Term.reportUnsolvedGoals gs
 
 @[builtinTactic Lean.Parser.Tactic.«done»] def evalDone : Tactic := fun _ => done
 
@@ -354,8 +351,8 @@ where
 
 @[builtinTactic Lean.Parser.Tactic.introMatch] def evalIntroMatch : Tactic := fun stx => do
   let matchAlts := stx[1]
-  let stxNew ← liftMacroM $ Term.expandMatchAltsIntoMatchTactic stx matchAlts
-  withMacroExpansion stx stxNew $ evalTactic stxNew
+  let stxNew ← liftMacroM <| Term.expandMatchAltsIntoMatchTactic stx matchAlts
+  withMacroExpansion stx stxNew <| evalTactic stxNew
 
 private def getIntrosSize : Expr → Nat
   | Expr.forallE _ _ b _ => getIntrosSize b + 1
@@ -380,7 +377,7 @@ def getNameOfIdent' (id : Syntax) : Name :=
   | _                       => throwUnsupportedSyntax
 
 def getFVarId (id : Syntax) : TacticM FVarId := withRef id do
-  let fvar? ← liftTermElabM $ Term.isLocalIdent? id;
+  let fvar? ← Term.isLocalIdent? id;
   match fvar? with
   | some fvar => pure fvar.fvarId!
   | none      => throwError! "unknown variable '{id.getId}'"
@@ -450,12 +447,12 @@ private def findTag? (gs : List MVarId) (tag : Name) : TacticM (Option MVarId) :
      let some g ← findTag? gs tag | throwError "tag not found"
      let gs := gs.erase g
      setGoals [g]
-     let savedTag ← liftM $ getMVarTag g
-     liftM $ setMVarTag g Name.anonymous
+     let savedTag ← getMVarTag g
+     setMVarTag g Name.anonymous
      try
        closeUsingOrAdmit tac
      finally
-       liftM $ setMVarTag g savedTag
+       setMVarTag g savedTag
      done
      setGoals gs
   | _ => throwUnsupportedSyntax

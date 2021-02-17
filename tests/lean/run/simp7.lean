@@ -37,3 +37,30 @@ def foo := 10
 theorem ex5 (x : Nat) : foo + x = 10 + x := by
   simp [foo]
   done
+
+def g (x : Nat) : Nat := do
+  let x ← pure x
+  return x
+
+theorem ex6 : g x = x := by
+  simp [g, bind, pure]
+
+def f1 : StateM Nat Unit := do
+  modify fun x => g x
+
+def f2 : StateM Nat Unit := do
+  let s ← get
+  set <| g s
+
+theorem ex7 : f1 = f2 := by
+  simp [f1, f2, bind, StateT.bind, get, getThe, MonadStateOf.get, StateT.get, pure, set, StateT.set, modify, modifyGet, MonadStateOf.modifyGet, StateT.modifyGet]
+
+def h (x : Nat) : Sum (Nat × Nat) Nat := Sum.inl (x, x)
+
+def bla (x : Nat) :=
+  match h x with
+  | Sum.inl (y, z) => y + z
+  | Sum.inr _ => 0
+
+theorem ex8 (x : Nat) : bla x = x + x := by
+  simp [bla, h]

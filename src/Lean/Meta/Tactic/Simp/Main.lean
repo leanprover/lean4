@@ -83,7 +83,13 @@ private def reduceFVar (cfg : Config) (e : Expr) : MetaM Expr := do
     return e
 
 private def unfold? (e : Expr) : SimpM (Option Expr) := do
-  if e.getAppFn.isConst && (← read).toUnfold.contains e.getAppFn.constName! then
+  let f := e.getAppFn
+  if !f.isConst then
+    return none
+  let fName := f.constName!
+  if (← isProjectionFn fName) then
+    return none -- should be reduced by `reduceProjFn?`
+  if (← read).toUnfold.contains e.getAppFn.constName! then
     withDefault <| unfoldDefinition? e
   else
     return none
@@ -97,7 +103,7 @@ private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
   -- TODO: eta reduction
   if cfg.proj then
     match (← reduceProjFn? e) with
-    | some e => return (← reduce e)
+    | some e => trace[Meta.debug]! "reduceProjFn? result {e}"; return (← reduce e)
     | none   => pure ()
   if cfg.iota then
     match (← reduceRecMatcher? e) with

@@ -91,6 +91,8 @@ private partial def dsimp (e : Expr) : M Expr := do
 
 partial def simp (e : Expr) : M Result := withIncRecDepth do
   let cfg ← getConfig
+  if (← isProof e) then
+    return { expr := e }
   if cfg.memoize then
     if let some result := (← get).cache.find? e then
       return result
@@ -229,7 +231,7 @@ where
       f
 
   simpLambda (e : Expr) : M Result :=
-    withParent e $ lambdaTelescope e fun xs e => withNewLemmas xs do
+    withParent e <| lambdaTelescope e fun xs e => withNewLemmas xs do
       let r ← simp e
       let eNew ← mkLambdaFVars xs r.expr
       match r.proof? with

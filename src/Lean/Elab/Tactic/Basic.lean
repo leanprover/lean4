@@ -45,9 +45,11 @@ def saveBacktrackableState : TacticM BacktrackableState := do
 def BacktrackableState.restore (b : BacktrackableState) : TacticM Unit := do
   setEnv b.env
   setMCtx b.mctx
+  let infoState ← getInfoState -- we do not backtrack info state
   let msgLog ← Term.getMessageLog -- we do not backtrack the message log
   set b.term
   Term.setMessageLog msgLog
+  modifyInfoState fun _ => infoState
   modify fun s => { s with goals := b.goals }
 
 @[inline] protected def tryCatch {α} (x : TacticM α) (h : Exception → TacticM α) : TacticM α := do

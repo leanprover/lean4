@@ -138,7 +138,7 @@ class MonadFinally (m : Type u → Type v) where
 export MonadFinally (tryFinally')
 
 /-- Execute `x` and then execute `finalizer` even if `x` threw an exception -/
-@[inline] abbrev tryFinally {m : Type u → Type v} {α β : Type u} [MonadFinally m] [Functor m] (x : m α) (finalizer : m β) : m α :=
+@[inline] def tryFinally {m : Type u → Type v} {α β : Type u} [MonadFinally m] [Functor m] (x : m α) (finalizer : m β) : m α :=
   let y := tryFinally' x (fun _ => finalizer)
   (·.1) <$> y
 

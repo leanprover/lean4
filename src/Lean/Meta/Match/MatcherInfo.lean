@@ -64,11 +64,11 @@ export Match (MatcherInfo)
 
 def getMatcherInfo? (declName : Name) : MetaM (Option MatcherInfo) := do
   let env ← getEnv
-  pure $ Match.Extension.getMatcherInfo? env declName
+  return Match.Extension.getMatcherInfo? env declName
 
 def isMatcher (declName : Name) : MetaM Bool := do
   let info? ← getMatcherInfo? declName
-  pure info?.isSome
+  return info?.isSome
 
 structure MatcherApp where
   matcherName   : Name
@@ -86,9 +86,10 @@ def matchMatcherApp? (e : Expr) : MetaM (Option MatcherApp) :=
   | Expr.const declName declLevels _ => do
     let some info ← getMatcherInfo? declName | pure none
     let args := e.getAppArgs
-    if args.size < info.numParams + 1 + info.numDiscrs + info.numAlts then pure none
+    if args.size < info.numParams + 1 + info.numDiscrs + info.numAlts then
+      return none
     else
-      pure $ some {
+      return some {
         matcherName   := declName,
         matcherLevels := declLevels.toArray,
         uElimPos?     := info.uElimPos?,
@@ -99,7 +100,7 @@ def matchMatcherApp? (e : Expr) : MetaM (Option MatcherApp) :=
         alts          := args.extract (info.numParams + 1 + info.numDiscrs) (info.numParams + 1 + info.numDiscrs + info.numAlts),
         remaining     := args.extract (info.numParams + 1 + info.numDiscrs + info.numAlts) args.size
       }
-  | _ => pure none
+  | _ => return none
 
 def MatcherApp.toExpr (matcherApp : MatcherApp) : Expr :=
   let result := mkAppN (mkConst matcherApp.matcherName matcherApp.matcherLevels.toList) matcherApp.params

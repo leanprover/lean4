@@ -67,7 +67,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
     Term.synthesizeSyntheticMVarsNoPostponing
     let type ← instantiateMVars type
     let type ← mkForallFVars xs type
-    let (type, _) ← mkForallUsedOnly vars type
+    let type ← mkForallFVars vars type (usedOnly := true)
     let (type, _) ← Term.levelMVarToParam type
     let usedParams  := collectLevelParams {} type |>.params
     match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with

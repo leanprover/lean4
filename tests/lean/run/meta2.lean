@@ -185,7 +185,7 @@ do print "----- tst11 -----";
      checkM $ not <$> (mkLambdaFVars #[x] x >>= isType);
      checkM $ not <$> (mkLambdaFVars #[x] nat >>= isType);
      let t ← mkEq x (mkNatLit 0);
-     let (t, _) ← mkForallUsedOnly #[x] t;
+     let t ← mkForallFVars #[x] t (usedOnly := true);
      print t;
      checkM $ isType t;
      pure ();
@@ -355,32 +355,6 @@ do print "----- tst23 -----";
    print v.headBeta
 
 #eval tst23
-
-def tst25 : MetaM Unit :=
-do print "----- tst25 -----";
-   withLocalDeclD `α type $ fun α =>
-   withLocalDeclD `β type $ fun β =>
-   withLocalDeclD `σ type $ fun σ => do {
-     let (t1, n) ← mkForallUsedOnly #[α, β, σ] $ ← mkArrow α β;
-     print t1;
-     checkM $ pure $ n == 2;
-     let (t2, n) ← mkForallUsedOnly #[α, β, σ] $ ← mkArrow α (← mkArrow β σ);
-     checkM $ pure $ n == 3;
-     print t2;
-     let (t3, n) ← mkForallUsedOnly #[α, β, σ] $ α;
-     checkM $ pure $ n == 1;
-     print t3;
-     let (t4, n) ← mkForallUsedOnly #[α, β, σ] $ σ;
-     checkM $ pure $ n == 1;
-     print t4;
-     let (t5, n) ← mkForallUsedOnly #[α, β, σ] $ nat;
-     checkM $ pure $ n == 0;
-     print t5;
-     pure ()
-   };
-   pure ()
-
-#eval tst25
 
 def tst26 : MetaM Unit := do
 print "----- tst26 -----";

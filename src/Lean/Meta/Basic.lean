@@ -376,11 +376,11 @@ def instantiateLocalDeclMVars (localDecl : LocalDecl) : MetaM LocalDecl := do
     setNGen newS.ngen;
     throwError "failed to create binder due to failure when reverting variable dependencies"
 
-def mkForallFVars (xs : Array Expr) (e : Expr) : MetaM Expr :=
-  if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.mkForall xs e
+def mkForallFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) : MetaM Expr :=
+  if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.mkForall xs e usedOnly usedLetOnly
 
-def mkLambdaFVars (xs : Array Expr) (e : Expr) : MetaM Expr :=
-  if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.mkLambda xs e
+def mkLambdaFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) : MetaM Expr :=
+  if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.mkLambda xs e usedOnly usedLetOnly
 
 def mkLetFVars (xs : Array Expr) (e : Expr) : MetaM Expr :=
   mkLambdaFVars xs e
@@ -388,9 +388,6 @@ def mkLetFVars (xs : Array Expr) (e : Expr) : MetaM Expr :=
 def mkArrow (d b : Expr) : MetaM Expr := do
   let n ← mkFreshUserName `x
   return Lean.mkForall n BinderInfo.default d b
-
-def mkForallUsedOnly (xs : Array Expr) (e : Expr) : MetaM (Expr × Nat) := do
-  if xs.isEmpty then pure (e, 0) else liftMkBindingM <| MetavarContext.mkForallUsedOnly xs e
 
 def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : MetaM Expr :=
   if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.elimMVarDeps xs e preserveOrder

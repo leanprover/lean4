@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import Init.Core
+import Init.SimpLemmas
 import Init.Data.Nat.Basic
 open Decidable List
 
@@ -13,6 +13,9 @@ universes u v w
 variable {α : Type u} {β : Type v} {γ : Type w}
 
 namespace List
+
+@[simp] theorem length_nil : length ([] : List α) = 0 :=
+  rfl
 
 def reverseAux : List α → List α → List α
   | [],   r => r
@@ -26,32 +29,29 @@ protected def append (as bs : List α) : List α :=
 
 instance : Append (List α) := ⟨List.append⟩
 
-theorem reverseAuxReverseAuxNil : ∀ (as bs : List α), reverseAux (reverseAux as bs) [] = reverseAux bs as
-  | [], bs     => rfl
-  | a::as,  bs =>
-    show reverseAux (reverseAux as (a::bs)) [] = reverseAux bs (a::as) from
-    reverseAuxReverseAuxNil as (a::bs)
+theorem reverseAux_reverseAux_nil (as bs : List α) : reverseAux (reverseAux as bs) [] = reverseAux bs as := by
+  induction as generalizing bs with
+  | nil => rfl
+  | cons a as ih => simp [reverseAux, ih]
 
-theorem nilAppend (as : List α) : [] ++ as = as := rfl
+@[simp] theorem nil_append (as : List α) : [] ++ as = as := rfl
 
-theorem appendNil (as : List α) : as ++ [] = as :=
-  show reverseAux (reverseAux as []) [] = as from
-  reverseAuxReverseAuxNil as []
+@[simp] theorem append_nil (as : List α) : as ++ [] = as := by
+  show reverseAux (reverseAux as []) [] = as
+  simp [reverseAux_reverseAux_nil, reverseAux]
 
-theorem reverseAuxReverseAux : ∀ (as bs cs : List α), reverseAux (reverseAux as bs) cs = reverseAux bs (reverseAux (reverseAux as []) cs)
-  | [],    bs, cs => rfl
-  | a::as, bs, cs => by
-    erw [reverseAuxReverseAux as (a::bs) cs, reverseAuxReverseAux as [a] cs]
-    exact rfl
+theorem reverseAux_reverseAux (as bs cs : List α) : reverseAux (reverseAux as bs) cs = reverseAux bs (reverseAux (reverseAux as []) cs) := by
+  induction as generalizing bs cs with
+  | nil => rfl
+  | cons a as ih => simp [reverseAux, ih (a::bs), ih [a]]
 
-theorem consAppend (a : α) (as bs : List α) : (a::as) ++ bs = a::(as ++ bs) :=
-  reverseAuxReverseAux as [a] bs
+@[simp] theorem cons_append (a : α) (as bs : List α) : (a::as) ++ bs = a::(as ++ bs) :=
+  reverseAux_reverseAux as [a] bs
 
-theorem appendAssoc : ∀ (as bs cs : List α), (as ++ bs) ++ cs = as ++ (bs ++ cs)
-  | [],    bs, cs => rfl
-  | a::as, bs, cs => by
-    show ((a::as) ++ bs) ++ cs = (a::as) ++ (bs ++ cs)
-    rw [consAppend, consAppend, appendAssoc, consAppend]
+theorem append_assoc (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) := by
+  induction as with
+  | nil => rfl
+  | cons a as ih => simp [ih]
 
 instance : EmptyCollection (List α) := ⟨List.nil⟩
 
@@ -328,40 +328,33 @@ def dropLast {α} : List α → List α
   | [a]   => []
   | a::as => a :: dropLast as
 
-def lengthReplicateEq {α} (n : Nat) (a : α) : (replicate n a).length = n :=
+@[simp] theorem length_replicate (n : Nat) (a : α) : (replicate n a).length = n :=
   let rec aux (n : Nat) (as : List α) : (replicate.loop a n as).length = n + as.length := by
     induction n generalizing as with
-    | zero => rw [Nat.zeroAdd]; rfl
-    | succ n ih =>
-      show length (replicate.loop a n (a::as)) = Nat.succ n + length as
-      rw [ih, lengthConsEq, Nat.addSucc, Nat.succAdd]
+    | zero => simp [replicate.loop]
+    | succ n ih => simp [replicate.loop, ih, Nat.succ_add, Nat.add_succ]
   aux n []
 
-def lengthConcatEq {α} (as : List α) (a : α) : (concat as a).length = as.length + 1 := by
+@[simp] theorem length_concat (as : List α) (a : α) : (concat as a).length = as.length + 1 := by
   induction as with
   | nil => rfl
-  | cons x xs ih =>
-    show length (x :: concat xs a) = length (x :: xs) + 1
-    rw [lengthConsEq, lengthConsEq, ih]
+  | cons x xs ih => simp [concat, ih]
 
-def lengthSetEq {α} (as : List α) (i : Nat) (a : α) : (as.set i a).length = as.length := by
+@[simp] theorem length_set (as : List α) (i : Nat) (a : α) : (as.set i a).length = as.length := by
   induction as generalizing i with
   | nil => rfl
   | cons x xs ih =>
     cases i with
     | zero => rfl
-    | succ i =>
-      show length (x :: set xs i a) = length (x :: xs)
-      rw [lengthConsEq, lengthConsEq, ih]
+    | succ i => simp [set, ih]
 
-def lengthDropLast {α} (as : List α) : as.dropLast.length = as.length - 1 := by
+@[simp] theorem length_dropLast (as : List α) : as.dropLast.length = as.length - 1 := by
   match as with
   | []       => rfl
   | [a]      => rfl
   | a::b::as =>
-    have ih := lengthDropLast (b::as)
-    show (a :: dropLast (b::as)).length = (a::b::as).length - 1
-    rw [lengthConsEq, ih, lengthConsEq, lengthConsEq, lengthConsEq]
+    have ih := length_dropLast (b::as)
+    simp[dropLast, ih]
     rfl
 
 end List

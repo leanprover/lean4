@@ -954,8 +954,9 @@ partial def revert (xs : Array Expr) (mvarId : MVarId) : M (Expr × Array Expr) 
 
 /--
   Similar to `LocalContext.mkBinding`, but handles metavariables correctly.
-  If `usedOnly == false` then `forall` and `lambda` are created only for used variables. -/
-@[specialize] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) : M (Expr × Nat) := do
+  If `usedOnly == false` then `forall` and `lambda` expressions are created only for used variables.
+  If `usedLetOnly == false` then `let` expressions are created only for used (let-) variables. -/
+@[specialize] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool) (usedLetOnly : Bool) : M (Expr × Nat) := do
   let e ← abstractRange xs xs.size e
   xs.size.foldRevM
     (fun i (p : Expr × Nat) => do
@@ -973,7 +974,7 @@ partial def revert (xs : Array Expr) (mvarId : MVarId) : M (Expr × Array Expr) 
         else
           pure (e.lowerLooseBVars 1 1, num)
       | LocalDecl.ldecl _ _ n type value nonDep =>
-        if e.hasLooseBVar 0 then
+        if !usedLetOnly || e.hasLooseBVar 0 then
           let type  ← abstractRange xs i type
           let value ← abstractRange xs i value
           pure (mkLet n type value e nonDep, num + 1)
@@ -991,19 +992,16 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool) : MkBinding
 def revert (xs : Array Expr) (mvarId : MVarId) (preserveOrder : Bool) : MkBindingM (Expr × Array Expr) := fun _ =>
   MkBinding.revert xs mvarId preserveOrder
 
-def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) : MkBindingM (Expr × Nat) := fun lctx =>
-  MkBinding.mkBinding isLambda lctx xs e usedOnly false
+def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) : MkBindingM (Expr × Nat) := fun lctx =>
+  MkBinding.mkBinding isLambda lctx xs e usedOnly usedLetOnly false
 
-@[inline] def mkLambda (xs : Array Expr) (e : Expr) : MkBindingM Expr := do
-  let (e, _) ← mkBinding true xs e
+@[inline] def mkLambda (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) : MkBindingM Expr := do
+  let (e, _) ← mkBinding (isLambda := true) xs e usedOnly usedLetOnly
   pure e
 
-@[inline] def mkForall (xs : Array Expr) (e : Expr) : MkBindingM Expr := do
-  let (e, _) ← mkBinding false xs e
+@[inline] def mkForall (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) : MkBindingM Expr := do
+  let (e, _) ← mkBinding (isLambda := false) xs e usedOnly usedLetOnly
   pure e
-
-@[inline] def mkForallUsedOnly (xs : Array Expr) (e : Expr) : MkBindingM (Expr × Nat) := do
-  mkBinding false xs e true
 
 /--
   `isWellFormed mctx lctx e` return true if

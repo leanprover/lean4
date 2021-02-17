@@ -140,15 +140,6 @@ def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndIn
   else
     x
 
-@[inline] def tryUnfold (e : Expr) (x : SimpM Step) : SimpM Step := do
-  if e.isApp && e.getAppFn.isConst && (← read).toUnfold.contains e.getAppFn.constName! then
-    -- TODO: try simp lemmas
-    match (← withDefault <| unfoldDefinition? e) with
-    | some eNew => return Step.visit { expr := eNew }
-    | none      => x
-  else
-    x
-
 def rewritePre (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   let lemmas ← (← read).simpLemmas
   return Step.visit (← rewrite e lemmas.pre discharge? (tag := "pre"))
@@ -161,6 +152,7 @@ def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM St
   tryRewriteCtorEq e <| rewritePre e discharge?
 
 def postDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
-  tryRewriteCtorEq e <| tryRewriteUsingDecide e <| tryUnfold e <| rewritePost e discharge?
+  -- TODO: try equation lemmas
+  tryRewriteCtorEq e <| tryRewriteUsingDecide e <| rewritePost e discharge?
 
 end Lean.Meta.Simp

@@ -20,7 +20,7 @@ variable {α : Type u}
 open List
 
 def ofList (l : List α) : DList α :=
-  ⟨(l ++ ·), fun t => by show _ = (l ++ []) ++ _; rw appendNil⟩
+  ⟨(l ++ ·), fun t => by simp⟩
 
 def empty : DList α :=
   ⟨id, fun t => rfl⟩
@@ -39,10 +39,7 @@ def singleton (a : α) : DList α := {
 def cons : α → DList α → DList α
   | a, ⟨f, h⟩ => {
     apply     := fun t => a :: f t,
-    invariant := by
-      intro t
-      show a :: f t = a :: f [] ++ t
-      rw [consAppend, h]
+    invariant := by intro t; simp; rw [h]
   }
 
 def append : DList α → DList α → DList α
@@ -51,7 +48,7 @@ def append : DList α → DList α → DList α
     invariant := by
       intro t
       show f (g t) = (f (g [])) ++ t
-      rw [h₁ (g t), h₂ t, ← appendAssoc (f []) (g []) t, ← h₁ (g [])]
+      rw [h₁ (g t), h₂ t, ← append_assoc (f []) (g []) t, ← h₁ (g [])]
     }
 
 def push : DList α → α → DList α
@@ -60,7 +57,7 @@ def push : DList α → α → DList α
     invariant := by
       intro t
       show f (a :: t) = f (a :: nil) ++ t
-      rw [h [a], h (a::t), appendAssoc (f []) [a] t]
+      rw [h [a], h (a::t), append_assoc (f []) [a] t]
       rfl
   }
 

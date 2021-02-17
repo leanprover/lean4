@@ -11,7 +11,7 @@ def HashSetBucket (α : Type u) :=
 
 def HashSetBucket.update {α : Type u} (data : HashSetBucket α) (i : USize) (d : List α) (h : i.toNat < data.val.size) : HashSetBucket α :=
   ⟨ data.val.uset i d h,
-    by erw [Array.sizeSetEq]; exact data.property ⟩
+    by erw [Array.size_set]; exact data.property ⟩
 
 structure HashSetImp (α : Type u) where
   size       : Nat
@@ -22,7 +22,7 @@ def mkHashSetImp {α : Type u} (nbuckets := 8) : HashSetImp α :=
   { size       := 0,
     buckets    :=
     ⟨ mkArray n [],
-      by rw [Array.sizeMkArrayEq]; cases nbuckets; decide!; apply Nat.zeroLtSucc ⟩ }
+      by rw [Array.size_mkArray]; cases nbuckets; decide!; apply Nat.zeroLtSucc ⟩ }
 
 namespace HashSetImp
 variable {α : Type u}
@@ -72,7 +72,7 @@ partial def moveEntries [Hashable α] (i : Nat) (source : Array (List α)) (targ
 def expand [Hashable α] (size : Nat) (buckets : HashSetBucket α) : HashSetImp α :=
   let nbuckets := buckets.val.size * 2
   have nbuckets > 0 from Nat.mulPos buckets.property (decide! : 2 > 0)
-  let new_buckets : HashSetBucket α := ⟨mkArray nbuckets [], by rw [Array.sizeMkArrayEq]; assumption⟩
+  let new_buckets : HashSetBucket α := ⟨mkArray nbuckets [], by rw [Array.size_mkArray]; assumption⟩
   { size    := size,
     buckets := moveEntries 0 buckets.val new_buckets }
 

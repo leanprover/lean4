@@ -909,7 +909,7 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
   let k := stx.getKind
   match table.find? k with
   | some elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
-  | none         => throwError! "elaboration function for '{k}' has not been implemented"
+  | none         => throwError! "elaboration function for '{k}' has not been implemented{indentD stx}"
 
 instance : MonadMacroAdapter TermElabM where
   getCurrMacroScope := getCurrMacroScope

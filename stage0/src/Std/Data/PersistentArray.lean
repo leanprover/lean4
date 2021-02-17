@@ -152,7 +152,7 @@ partial def popLeaf : PersistentArrayNode α → Option (Array α) × Array (Per
           let cs' := cs'.pop
           if cs'.isEmpty then (some l, emptyArray) else (some l, cs')
         else
-          (some l, cs'.set (Array.sizeSetEq cs idx _ ▸ idx) (node newLast))
+          (some l, cs'.set (Array.size_set cs idx _ ▸ idx) (node newLast))
     else
       (none, emptyArray)
   | leaf vs   => (some vs, emptyArray)

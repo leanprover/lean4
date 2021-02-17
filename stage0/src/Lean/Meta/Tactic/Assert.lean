@@ -71,7 +71,7 @@ def assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName : Name) (type : Ex
     let localInsts ← getLocalInstances
     let fvarIds := lctx.foldl (init := #[]) (start := localDecl.index+1) fun fvarIds decl => fvarIds.push decl.fvarId
     let xs   := fvarIds.map mkFVar
-    let targetNew ← mkForallFVars xs target
+    let targetNew ← mkForallFVars xs target (usedLetOnly := false)
     let targetNew := Lean.mkForall userName BinderInfo.default type targetNew
     let lctxNew := fvarIds.foldl (init := lctx) fun lctxNew fvarId => lctxNew.erase fvarId
     let localInstsNew := localInsts.filter fun inst => !fvarIds.contains inst.fvar.fvarId!

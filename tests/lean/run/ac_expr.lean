@@ -104,11 +104,6 @@ def mkExpr : List Nat → Expr
   | [i]   => Expr.var i
   | i::is => Expr.op (Expr.var i) (mkExpr is)
 
-macro "byCases" h:ident ":" e:term : tactic =>
-  `(cases Decidable.em $e:term with
-    | Or.inl $h:ident => _
-    | Or.inr $h:ident => _)
-
 theorem Expr.denote_sort (ctx : Context α) (e : Expr) : denote ctx (sort e) = denote ctx e := by
   apply denote_loop
 where

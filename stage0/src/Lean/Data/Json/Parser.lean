@@ -197,18 +197,17 @@ def num : Quickparse JsonNumber := do
       pure 0
     else
       natNonZero
-  let res := JsonNumber.fromInt (sign * res)
   let c? ← peek?
   let res : JsonNumber ←
     if c? = some '.' then
       skip
       let (n, d) ← natNumDigits
       if d > USize.size then fail "too many decimals"
-      let mantissa' := res.mantissa * (10^d : Nat) + n
-      let exponent' := res.exponent + d
+      let mantissa' := sign * (res * (10^d : Nat) + n)
+      let exponent' := d
       JsonNumber.mk mantissa' exponent'
     else
-      res
+      JsonNumber.fromInt (sign * res)
   let c? ← peek?
   if c? = some 'e' ∨ c? = some 'E' then
     skip

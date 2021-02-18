@@ -28,13 +28,13 @@ private def mkAuxiliaryMatchTermAux (parentTag : Name) (matchTac : Syntax) : Sta
       let holeName := mkIdentFrom holeOrTacticSeq tag
       let newHole ← `(?$holeName:ident)
       modify fun s => { s with nextIdx := s.nextIdx + 1}
-      pure $ alt.setArg 3 newHole
+      pure <| alt.setArg 3 newHole
     else withFreshMacroScope do
       let newHole ← `(?rhs)
       let newHoleId := newHole[1]
       let newCase ← `(tactic| case $newHoleId => $holeOrTacticSeq:tacticSeq )
       modify fun s => { s with cases := s.cases.push newCase }
-      pure $ alt.setArg 3 newHole
+      pure <| alt.setArg 3 newHole
   let result  := matchTac.setKind ``Parser.Term.«match»
   let result  := result.setArg 4 (mkNode ``Parser.Term.matchAlts #[mkNullNode newAlts])
   pure result
@@ -46,9 +46,9 @@ private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM
 @[builtinTactic Lean.Parser.Tactic.match]
 def evalMatch : Tactic := fun stx => do
   let tag ← getMainTag
-  let (matchTerm, cases) ← liftMacroM $ mkAuxiliaryMatchTerm tag stx
+  let (matchTerm, cases) ← liftMacroM <| mkAuxiliaryMatchTerm tag stx
   let refineMatchTerm ← `(tactic| refine $matchTerm)
   let stxNew := mkNullNode (#[refineMatchTerm] ++ cases)
-  withMacroExpansion stx stxNew $ evalTactic stxNew
+  withMacroExpansion stx stxNew <| evalTactic stxNew
 
 end Lean.Elab.Tactic

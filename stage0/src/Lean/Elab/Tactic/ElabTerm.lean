@@ -23,7 +23,7 @@ def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false)
 
 def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr := do
   let e ← elabTerm stx expectedType? mayPostpone
-  ensureHasType expectedType? e
+  Term.ensureHasType expectedType? e
 
 @[builtinTactic «exact»] def evalExact : Tactic := fun stx =>
   match stx with

@@ -65,7 +65,7 @@ lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_Match_0__Lea
 lean_object* l_Lean_Syntax_setKind(lean_object*, lean_object*);
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_12938____closed__10;
-extern lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_5990____closed__1;
+extern lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_5993____closed__1;
 lean_object* l_Lean_Elab_Term_getCurrMacroScope(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTerm___closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalMatch___closed__1;
@@ -511,7 +511,7 @@ lean_dec(x_107);
 x_146 = lean_ctor_get(x_6, 0);
 lean_inc(x_146);
 lean_dec(x_6);
-x_147 = l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_5990____closed__1;
+x_147 = l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_5993____closed__1;
 x_148 = l_Lean_Name_appendIndexAfter(x_147, x_146);
 x_149 = l_Lean_Name_append(x_1, x_148);
 x_150 = l_Lean_mkIdentFrom(x_30, x_149);

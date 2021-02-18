@@ -58,9 +58,9 @@ private def mkUserNameFor (e : Expr) : TermElabM Name :=
   | Expr.fvar fvarId _ => do pure (← getLocalDecl fvarId).userName
   | _                  => mkFreshBinderName
 
--- `expandNonAtomicDiscrs?` create auxiliary variables with base name `_discr`
-private def isAuxDiscrName (n : Name) : Bool :=
-  n.eraseMacroScopes == `_discr
+/-- Return true iff `n` is an auxiliary variable created by `expandNonAtomicDiscrs?` -/
+def isAuxDiscrName (n : Name) : Bool :=
+  n.hasMacroScopes && n.eraseMacroScopes == `_discr
 
 -- See expandNonAtomicDiscrs?
 private def elabAtomicDiscr (discr : Syntax) : TermElabM Expr := do

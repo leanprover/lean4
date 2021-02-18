@@ -195,8 +195,13 @@ def mkInfoNode (info : Info) : m Unit := do
   else
     x
 
-@[inline] def withInfoContext [MonadFinally m] (x : m α) (mkInfo : m Info) : m α :=
-  withInfoContext' x fun _ => return Sum.inl (← mkInfo)
+@[inline] def withInfoContext [MonadFinally m] (x : m α) (mkInfo : m Info) : m α := do
+  if (← getInfoState).enabled then
+    let treesSaved ← getResetInfoTrees
+    Prod.fst <$> MonadFinally.tryFinally' x fun _ => do
+      modifyInfoTrees fun trees => treesSaved.push <|  InfoTree.node (← mkInfo) trees
+  else
+    x
 
 def getInfoHoleIdAssignment? (mvarId : MVarId) : m (Option InfoTree) :=
   return (← getInfoState).assignment[mvarId]
@@ -218,12 +223,11 @@ def withMacroExpansionInfo [MonadFinally m] [Monad m] [MonadInfoTree m] [MonadLC
 @[inline] def withInfoHole [MonadFinally m] [Monad m] [MonadInfoTree m] (mvarId : MVarId) (x : m α) : m α := do
   if (← getInfoState).enabled then
     let treesSaved ← getResetInfoTrees
-    Prod.fst <$> MonadFinally.tryFinally' x fun a? => do
-      match a? with
-      | none   => modifyInfoTrees fun _ => treesSaved
-      | some a => modifyInfoState fun s =>
-        assert! s.trees.size == 1 -- if size is not one, then API is being misused.
-        { s with trees := treesSaved, assignment := s.assignment.insert mvarId s.trees[0] }
+    Prod.fst <$> MonadFinally.tryFinally' x fun a? => modifyInfoState fun s =>
+      if s.trees.size > 0 then
+        { s with trees := treesSaved, assignment := s.assignment.insert mvarId s.trees[s.trees.size - 1] }
+      else
+        { s with trees := treesSaved }
   else
     x
 

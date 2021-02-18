@@ -181,7 +181,9 @@ def mkNoindexAnnotation (e : Expr) : Expr :=
 def hasNoindexAnnotation (e : Expr) : Bool :=
   annotation? `noindex e |>.isSome
 
-private def pushArgs (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) := do
+/- Remark: we use `shouldAddAsStar` only for nested terms, and `first == false` for nested terms -/
+
+private def pushArgs (first : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) := do
   if hasNoindexAnnotation e then
     return (Key.star, todo)
   else
@@ -194,7 +196,7 @@ private def pushArgs (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) 
     match fn with
     | Expr.lit v _       => return (Key.lit v, todo)
     | Expr.const c _ _   =>
-      if shouldAddAsStar c then
+      if !first && shouldAddAsStar c then
         return (Key.star, todo)
       else
         let nargs := e.getAppNumArgs
@@ -213,14 +215,14 @@ private def pushArgs (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) 
     | _ =>
       return (Key.other, todo)
 
-partial def mkPathAux (todo : Array Expr) (keys : Array Key) : MetaM (Array Key) := do
+partial def mkPathAux (first : Bool) (todo : Array Expr) (keys : Array Key) : MetaM (Array Key) := do
   if todo.isEmpty then
     pure keys
   else
     let e    := todo.back
     let todo := todo.pop
-    let (k, todo) ← pushArgs todo e
-    mkPathAux todo (keys.push k)
+    let (k, todo) ← pushArgs first todo e
+    mkPathAux false todo (keys.push k)
 
 private def initCapacity := 8
 
@@ -228,7 +230,7 @@ def mkPath (e : Expr) : MetaM (Array Key) := do
   withReducible do
     let todo : Array Expr := Array.mkEmpty initCapacity
     let keys : Array Key  := Array.mkEmpty initCapacity
-    mkPathAux (todo.push e) keys
+    mkPathAux (first := true) (todo.push e) keys
 
 private partial def createNodes {α} (keys : Array Key) (v : α) (i : Nat) : Trie α :=
   if h : i < keys.size then

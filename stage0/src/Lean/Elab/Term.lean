@@ -574,6 +574,11 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
   | LOption.undef    => pure false -- we will try later
   | LOption.none     => throwError! "failed to synthesize instance{indentExpr type}"
 
+register_builtin_option autoLift : Bool := {
+  defValue := true
+  descr    := "insert monadic lifts (i.e., `liftM` and `liftCoeM`) when needed"
+}
+
 register_builtin_option maxCoeSize : Nat := {
   defValue := 16
   descr    := "maximum number of instances used to construct an automatic coercion"
@@ -757,14 +762,17 @@ private def tryLiftAndCoe (errorMsgHeader? : Option String) (expectedType : Expr
     tryCoe errorMsgHeader? expectedType eType e f?
   let some (n, β) ← isTypeApp? expectedType | tryCoeSimple
   let tryPureCoeAndSimple : TermElabM Expr := do
-    match (← tryPureCoe? errorMsgHeader? n β eType e) with
-    | some eNew => pure eNew
-    | none      => tryCoeSimple
+    if autoLift.get (← getOptions) then
+      match (← tryPureCoe? errorMsgHeader? n β eType e) with
+      | some eNew => pure eNew
+      | none      => tryCoeSimple
+    else
+      tryCoeSimple
   let some (m, α) ← isTypeApp? eType | tryPureCoeAndSimple
   if (← isDefEq m n) then
     let some monadInst ← isMonad? n | tryCoeSimple
     try expandCoe (← mkAppOptM `coeM #[m, α, β, none, monadInst, e]) catch _ => throwMismatch
-  else
+  else if autoLift.get (← getOptions) then
     try
       -- Construct lift from `m` to `n`
       let monadLiftType ← mkAppM `MonadLiftT #[m, n]
@@ -794,6 +802,8 @@ private def tryLiftAndCoe (errorMsgHeader? : Option String) (expectedType : Expr
       match (← isMonad? m) with
       | none   => tryPureCoeAndSimple
       | some _ => tryCoeSimple
+  else
+    tryCoeSimple
 
 /--
   If `expectedType?` is `some t`, then ensure `t` and `eType` are definitionally equal.

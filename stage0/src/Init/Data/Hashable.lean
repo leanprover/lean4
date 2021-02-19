@@ -14,6 +14,11 @@ instance : Hashable Nat where
 instance [Hashable α] [Hashable β] : Hashable (α × β) where
   hash | (a, b) => mixHash (hash a) (hash b)
 
+instance : Hashable Bool where
+  hash
+    | true  => 11
+    | false => 13
+
 protected def Option.hash [Hashable α] : Option α → USize
   | none   => 11
   | some a => mixHash (hash a) 13

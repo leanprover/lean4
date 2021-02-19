@@ -362,7 +362,7 @@ def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zeta : Bool := f
   addDecl decl
   if compile then
     compileDecl decl
-  pure $ mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
+  return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
 
 /-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/
 def mkAuxDefinitionFor (name : Name) (value : Expr) : MetaM Expr := do

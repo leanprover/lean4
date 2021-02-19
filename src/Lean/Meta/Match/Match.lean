@@ -574,6 +574,33 @@ register_builtin_option bootstrap.genMatcherCode : Bool := {
   descr := "disable code generation for auxiliary matcher function"
 }
 
+builtin_initialize matcherExt : EnvExtension (Std.PHashMap (Expr × Bool) Name) ← registerEnvExtension (pure {})
+
+/- Similar to `mkAuxDefinition`, but uses the cache `matcherExt`.
+   It also returns an Boolean that indicates whether a new matcher function was added to the environment or not. -/
+def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (Bool × Expr) := do
+  trace[Meta.debug]! "{name} : {type} := {value}"
+  let compile := bootstrap.genMatcherCode.get (← getOptions)
+  let result ← Closure.mkValueTypeClosure type value (zeta := false)
+  let env ← getEnv
+  match (matcherExt.getState env).find? (result.value, compile) with
+  | some nameNew => return (false, mkAppN (mkConst nameNew result.levelArgs.toList) result.exprArgs)
+  | none =>
+    let decl := Declaration.defnDecl {
+      name        := name,
+      levelParams := result.levelParams.toList,
+      type        := result.type,
+      value       := result.value,
+      hints       := ReducibilityHints.regular (getMaxHeight env result.value + 1),
+      safety      := if env.hasUnsafe result.type || env.hasUnsafe result.value then DefinitionSafety.unsafe else DefinitionSafety.safe
+    }
+    trace[Meta.debug]! "{name} : {result.type} := {result.value}"
+    addDecl decl
+    if compile then
+      compileDecl decl
+    modifyEnv fun env => matcherExt.modifyState env fun s => s.insert (result.value, compile) name
+    return (true, mkAppN (mkConst name result.levelArgs.toList) result.exprArgs)
+
 /-
 Create a dependent matcher for `matchType` where `matchType` is of the form
 `(a_1 : A_1) -> (a_2 : A_2[a_1]) -> ... -> (a_n : A_n[a_1, a_2, ... a_{n-1}]) -> B[a_1, ..., a_n]`
@@ -616,12 +643,13 @@ def mkMatcher (matcherName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : 
        | negSucc n => succ n
        ```
        which is defined **before** `Int.decLt` -/
-    let matcher ← mkAuxDefinition matcherName type val (compile := bootstrap.genMatcherCode.get (← getOptions))
+    let (isNewMatcher, matcher) ← mkMatcherAuxDefinition matcherName type val
     trace[Meta.Match.debug]! "matcher levels: {matcher.getAppFn.constLevels!}, uElim: {uElimGen}"
     let uElimPos? ← getUElimPos? matcher.getAppFn.constLevels! uElimGen
     discard <| isLevelDefEq uElimGen uElim
-    addMatcherInfo matcherName { numParams := matcher.getAppNumArgs, numDiscrs := numDiscrs, altNumParams := minors.map Prod.snd, uElimPos? := uElimPos? }
-    setInlineAttribute matcherName
+    if isNewMatcher then
+      addMatcherInfo matcherName { numParams := matcher.getAppNumArgs, numDiscrs := numDiscrs, altNumParams := minors.map Prod.snd, uElimPos? := uElimPos? }
+      setInlineAttribute matcherName
     trace[Meta.Match.debug]! "matcher: {matcher}"
     let unusedAltIdxs := lhss.length.fold (init := []) fun i r =>
       if s.used.contains i then r else i::r

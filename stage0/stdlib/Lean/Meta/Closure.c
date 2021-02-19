@@ -128,7 +128,6 @@ size_t l_Lean_Expr_hash(lean_object*);
 lean_object* lean_expr_abstract_range(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkFreshId___at_Lean_Meta_Closure_collectExprAux___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_Closure_process___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Closure_mkBinding_match__1(lean_object*);
 extern lean_object* l_Lean_Level_updateMax_x21___closed__3;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_preprocess___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -172,7 +171,6 @@ lean_object* l_Lean_Meta_Closure_mkNextUserName___rarg(lean_object*, lean_object
 lean_object* l_Nat_foldRev_loop___at_Lean_Meta_Closure_mkLambda___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_State_levelParams___default;
 lean_object* l_Lean_LocalDecl_value_x3f(lean_object*);
-lean_object* l_Lean_Meta_Closure_mkBinding_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_pushLocalDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_collectLevelAux___closed__1;
 extern lean_object* l_Lean_Expr_FindImpl_initCache;
@@ -7816,57 +7814,6 @@ lean_dec(x_4);
 x_8 = l_Array_mapMUnsafe_map___at_Lean_Meta_Closure_process___spec__1(x_1, x_2, x_6, x_7, x_5);
 lean_dec(x_2);
 return x_8;
-}
-}
-lean_object* l_Lean_Meta_Closure_mkBinding_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_1, 2);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 3);
-lean_inc(x_7);
-x_8 = lean_ctor_get_uint8(x_1, sizeof(void*)*4);
-lean_dec(x_1);
-x_9 = lean_box(x_8);
-x_10 = lean_apply_5(x_2, x_4, x_5, x_6, x_7, x_9);
-return x_10;
-}
-else
-{
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; 
-lean_dec(x_2);
-x_11 = lean_ctor_get(x_1, 0);
-lean_inc(x_11);
-x_12 = lean_ctor_get(x_1, 1);
-lean_inc(x_12);
-x_13 = lean_ctor_get(x_1, 2);
-lean_inc(x_13);
-x_14 = lean_ctor_get(x_1, 3);
-lean_inc(x_14);
-x_15 = lean_ctor_get(x_1, 4);
-lean_inc(x_15);
-x_16 = lean_ctor_get_uint8(x_1, sizeof(void*)*5);
-lean_dec(x_1);
-x_17 = lean_box(x_16);
-x_18 = lean_apply_6(x_3, x_11, x_12, x_13, x_14, x_15, x_17);
-return x_18;
-}
-}
-}
-lean_object* l_Lean_Meta_Closure_mkBinding_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Meta_Closure_mkBinding_match__1___rarg), 3, 0);
-return x_2;
 }
 }
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_Closure_mkBinding___spec__1(size_t x_1, size_t x_2, lean_object* x_3) {

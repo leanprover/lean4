@@ -26,7 +26,6 @@ uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Elab_Tactic_rewriteAll___lambda__1___closed__1;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* l_Lean_Elab_Tactic_rewriteLocalDeclFVarId_match__1(lean_object*);
 lean_object* l_Lean_Elab_Tactic_rewriteAll(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_rewrite___closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandRewriteTactic(lean_object*);
@@ -94,10 +93,8 @@ extern lean_object* l_Lean_Parser_Tactic_erewrite___closed__3;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandERewriteTactic(lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Elab_Tactic_liftMetaTacticAux___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Tactic_rewriteAll_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_rewriteLocalDecl___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_setGoals(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Tactic_rewriteAll_match__1(lean_object*);
 lean_object* l_Lean_Meta_withMVarContext___at_Lean_Elab_Tactic_withMainMVarContext___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_getFVarIds(lean_object*);
 lean_object* l_Lean_Meta_getLocalDeclFromUserName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -108,7 +105,6 @@ lean_object* l_Lean_Meta_getMVarDecl(lean_object*, lean_object*, lean_object*, l
 lean_object* l_Array_foldlMUnsafe___at_Lean_Elab_Tactic_evalRewriteCore___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalERewrite(lean_object*);
 lean_object* l_Lean_Meta_instantiateMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Tactic_rewriteLocalDeclFVarId_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalRewriteCore___lambda__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_expandRewriteTactic___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -662,27 +658,6 @@ x_15 = l_Lean_Elab_Tactic_rewriteTarget(x_1, x_13, x_14, x_4, x_5, x_6, x_7, x_8
 return x_15;
 }
 }
-lean_object* l_Lean_Elab_Tactic_rewriteLocalDeclFVarId_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_2(x_2, x_3, x_4);
-return x_5;
-}
-}
-lean_object* l_Lean_Elab_Tactic_rewriteLocalDeclFVarId_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_rewriteLocalDeclFVarId_match__1___rarg), 2, 0);
-return x_2;
-}
-}
 lean_object* l_Lean_Elab_Tactic_rewriteLocalDeclFVarId___lambda__1(lean_object* x_1, lean_object* x_2, uint8_t x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15) {
 _start:
 {
@@ -1016,27 +991,6 @@ x_15 = lean_unbox(x_4);
 lean_dec(x_4);
 x_16 = l_Lean_Elab_Tactic_rewriteLocalDecl(x_1, x_14, x_3, x_15, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 return x_16;
-}
-}
-lean_object* l_Lean_Elab_Tactic_rewriteAll_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_2(x_2, x_3, x_4);
-return x_5;
-}
-}
-lean_object* l_Lean_Elab_Tactic_rewriteAll_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_rewriteAll_match__1___rarg), 2, 0);
-return x_2;
 }
 }
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_rewriteAll___spec__1(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4, size_t x_5, size_t x_6, uint8_t x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15, lean_object* x_16) {

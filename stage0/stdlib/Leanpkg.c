@@ -126,7 +126,6 @@ lean_object* l_Leanpkg_splitCmdlineArgs_match__1(lean_object*);
 lean_object* l_Leanpkg_constructPath(lean_object*, lean_object*);
 lean_object* l_Leanpkg_execMake___lambda__1___closed__7;
 lean_object* l_List_map___at_Leanpkg_buildImports___spec__3(lean_object*);
-lean_object* l_Leanpkg_splitCmdlineArgs_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Handle_putStr___at_Leanpkg_writeManifest___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_file_exists(lean_object*, lean_object*);
 extern lean_object* l_Option_get_x21___rarg___closed__4;
@@ -157,7 +156,7 @@ extern lean_object* l_Leanpkg_leanVersionString;
 lean_object* l_Leanpkg_lockFileName;
 lean_object* l_Leanpkg_usage___closed__2;
 lean_object* l_Leanpkg_initPkg___closed__7;
-lean_object* l_Leanpkg_splitCmdlineArgs_match__1___rarg(lean_object*, lean_object*);
+lean_object* l_Leanpkg_splitCmdlineArgs_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_configure___closed__1;
 lean_object* l_Leanpkg_execMake_match__1(lean_object*);
 lean_object* l_Leanpkg_main___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -191,7 +190,6 @@ lean_object* l_List_map___at_Leanpkg_buildImports___spec__3___closed__1;
 lean_object* lean_io_prim_handle_mk(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Leanpkg_upstreamGitBranch;
 lean_object* l_IO_FS_writeFile___at_Leanpkg_initPkg___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Leanpkg_splitCmdlineArgs_match__2(lean_object*);
 lean_object* l_Leanpkg_main___closed__4;
 lean_object* l_Leanpkg_main_match__1___rarg___closed__3;
 lean_object* l_IO_FS_Handle_mk___at_Leanpkg_writeManifest___spec__2(lean_object*, uint8_t, uint8_t, lean_object*);
@@ -4122,28 +4120,7 @@ return x_27;
 }
 }
 }
-lean_object* l_Leanpkg_splitCmdlineArgs_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_2(x_2, x_3, x_4);
-return x_5;
-}
-}
-lean_object* l_Leanpkg_splitCmdlineArgs_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Leanpkg_splitCmdlineArgs_match__1___rarg), 2, 0);
-return x_2;
-}
-}
-lean_object* l_Leanpkg_splitCmdlineArgs_match__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Leanpkg_splitCmdlineArgs_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -4184,11 +4161,11 @@ return x_11;
 }
 }
 }
-lean_object* l_Leanpkg_splitCmdlineArgs_match__2(lean_object* x_1) {
+lean_object* l_Leanpkg_splitCmdlineArgs_match__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Leanpkg_splitCmdlineArgs_match__2___rarg), 4, 0);
+x_2 = lean_alloc_closure((void*)(l_Leanpkg_splitCmdlineArgs_match__1___rarg), 4, 0);
 return x_2;
 }
 }

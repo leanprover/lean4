@@ -56,7 +56,6 @@ lean_object* l_Lean_protectedExt___elambda__2___boxed(lean_object*);
 lean_object* l_Lean_mkPrivateName(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 extern lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___closed__2;
-lean_object* l___private_Lean_Modifiers_0__Lean_privatePrefixAux_match__1(lean_object*);
 lean_object* l___private_Lean_Modifiers_0__Lean_privatePrefixAux(lean_object*);
 lean_object* l_Lean_protectedExt___elambda__3(lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt___elambda__4___boxed(lean_object*, lean_object*);
@@ -67,7 +66,6 @@ uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean
 lean_object* l_Lean_protectedExt___elambda__4___rarg(lean_object*);
 lean_object* l_Lean_isProtected___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Modifiers_0__Lean_privatePrefixAux___boxed(lean_object*);
-lean_object* l___private_Lean_Modifiers_0__Lean_privatePrefixAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt___elambda__1(lean_object*);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_privateHeader___closed__2;
@@ -593,40 +591,6 @@ x_5 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_5, 0, x_4);
 return x_5;
 }
-}
-}
-lean_object* l___private_Lean_Modifiers_0__Lean_privatePrefixAux_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 1)
-{
-lean_object* x_4; lean_object* x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-x_6 = lean_ctor_get_usize(x_1, 2);
-lean_dec(x_1);
-x_7 = lean_box_usize(x_6);
-x_8 = lean_apply_3(x_2, x_4, x_5, x_7);
-return x_8;
-}
-else
-{
-lean_object* x_9; 
-lean_dec(x_2);
-x_9 = lean_apply_1(x_3, x_1);
-return x_9;
-}
-}
-}
-lean_object* l___private_Lean_Modifiers_0__Lean_privatePrefixAux_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Modifiers_0__Lean_privatePrefixAux_match__1___rarg), 3, 0);
-return x_2;
 }
 }
 lean_object* l___private_Lean_Modifiers_0__Lean_privatePrefixAux(lean_object* x_1) {

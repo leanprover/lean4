@@ -54,7 +54,6 @@ size_t l_USize_sub(size_t, size_t);
 lean_object* l_Array_foldlMUnsafe___at_Lean_Meta_ToHide_collect___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_ppExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_57____closed__3;
-lean_object* l_Lean_Meta_ppGoal_match__5___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_Meta_ppGoal___spec__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_ToHide_hasInaccessibleNameDep(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -124,7 +123,7 @@ lean_object* l_Std_RBNode_appendTrees___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_ppGoal___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_balRight___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_RBNode_isBlack___rarg(lean_object*);
-lean_object* l_Lean_Meta_ppGoal_match__4___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_ppGoal_match__4___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_ToHide_fixpointStep___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_Meta_ppGoal___spec__4(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_ppGoal___lambda__1___closed__2;
@@ -197,7 +196,6 @@ lean_object* l_Lean_Meta_ToHide_fixpointStep(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_6____closed__2;
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe___at_Lean_Meta_ToHide_fixpointStep___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_ppGoal_match__5(lean_object*);
 lean_object* l_Lean_LocalContext_foldlM___at_Lean_Meta_ppGoal___spec__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe___at_Lean_Meta_ToHide_fixpointStep___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe___at_Lean_Meta_ToHide_fixpointStep___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4556,32 +4554,6 @@ return x_2;
 lean_object* l_Lean_Meta_ppGoal_match__3___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_ctor_get(x_3, 0);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_3, 1);
-lean_inc(x_6);
-lean_dec(x_3);
-x_7 = lean_apply_3(x_2, x_4, x_5, x_6);
-return x_7;
-}
-}
-lean_object* l_Lean_Meta_ppGoal_match__3(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Meta_ppGoal_match__3___rarg), 2, 0);
-return x_2;
-}
-}
-lean_object* l_Lean_Meta_ppGoal_match__4___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
@@ -4592,15 +4564,15 @@ x_5 = lean_apply_2(x_2, x_3, x_4);
 return x_5;
 }
 }
-lean_object* l_Lean_Meta_ppGoal_match__4(lean_object* x_1) {
+lean_object* l_Lean_Meta_ppGoal_match__3(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Meta_ppGoal_match__4___rarg), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Meta_ppGoal_match__3___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_Meta_ppGoal_match__5___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Meta_ppGoal_match__4___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -4623,11 +4595,11 @@ return x_7;
 }
 }
 }
-lean_object* l_Lean_Meta_ppGoal_match__5(lean_object* x_1) {
+lean_object* l_Lean_Meta_ppGoal_match__4(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Meta_ppGoal_match__5___rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Meta_ppGoal_match__4___rarg), 3, 0);
 return x_2;
 }
 }

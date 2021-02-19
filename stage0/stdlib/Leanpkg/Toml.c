@@ -67,7 +67,7 @@ lean_object* l_Toml_keyVal___closed__5;
 extern lean_object* l_instInhabitedNat;
 lean_object* l_Toml_bareKey___closed__1;
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
-lean_object* l_Toml_ofSyntax_match__2___rarg(lean_object*, lean_object*);
+lean_object* l_Toml_ofSyntax_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Toml_parse___closed__4;
@@ -122,12 +122,11 @@ lean_object* l_Lean_Syntax_isStrLit_x3f(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Toml_ofSyntax___spec__10___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Toml_ofSyntax___spec__5(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Toml_file___closed__3;
-lean_object* l_Toml_ofSyntax_match__3___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Toml_ofSyntax_match__3___rarg(lean_object*, lean_object*);
 extern lean_object* l_prec_x28___x29___closed__8;
 lean_object* l_Lean_Unhygienic_run___rarg(lean_object*);
 lean_object* l_Toml_key___closed__3;
 lean_object* l_Toml_inlineTable___closed__7;
-lean_object* l_Toml_ofSyntax_match__6___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_strLitKind___closed__2;
 lean_object* l_Toml_ofSyntax_toKey(lean_object*);
 lean_object* l_Toml_key_x27;
@@ -145,7 +144,6 @@ lean_object* l_Toml_val_____closed__4;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_whitespace(lean_object*, lean_object*);
 lean_object* l_Toml_val____1___closed__2;
-lean_object* l_Toml_ofSyntax_match__5___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__10;
 lean_object* l_Toml_keyCat_quot___closed__2;
 extern lean_object* l_Lean_Parser_Term_quot___elambda__1___closed__1;
@@ -153,7 +151,6 @@ lean_object* l_Toml_file;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_1264____closed__6;
 extern lean_object* l_termDepIfThenElse___closed__9;
 size_t lean_usize_of_nat(lean_object*);
-lean_object* l_Toml_ofSyntax_match__6(lean_object*);
 extern lean_object* l_Lean_Level_PP_Result_quote___closed__1;
 lean_object* l_Toml_valTrue___closed__7;
 lean_object* l_Toml_table___closed__7;
@@ -172,7 +169,7 @@ lean_object* l_Toml_table___closed__3;
 lean_object* l_Array_mapMUnsafe_map___at_Toml_ofSyntax___spec__10(size_t, size_t, lean_object*);
 lean_object* l_Toml_val____1;
 lean_object* l_Toml_bareKey___closed__2;
-lean_object* l_Toml_ofSyntax_match__4___rarg(lean_object*, lean_object*);
+lean_object* l_Toml_ofSyntax_match__4___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Toml_ofSyntax___spec__5___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Toml_inlineTable___closed__6;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_1060____closed__4;
@@ -196,7 +193,6 @@ lean_object* l_Array_getEvenElems___rarg(lean_object*);
 extern lean_object* l_term_x5b___x5d___closed__4;
 lean_object* l_Toml_bareKey___closed__3;
 lean_object* l_Array_mapMUnsafe_map___at_Toml_ofSyntax___spec__8(size_t, size_t, lean_object*);
-lean_object* l_Toml_ofSyntax_match__5(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Toml_ofSyntax___spec__9(size_t, size_t, lean_object*);
 lean_object* l_Toml_valTrue___closed__6;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
@@ -1361,101 +1357,59 @@ x_2 = lean_alloc_closure((void*)(l_Toml_ofSyntax_match__1___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* l_Toml_ofSyntax_match__2___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Toml_ofSyntax_match__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_2(x_2, x_3, x_4);
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+lean_dec(x_2);
+x_4 = lean_box(0);
+x_5 = lean_apply_1(x_3, x_4);
 return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_3);
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec(x_1);
+x_7 = lean_apply_1(x_2, x_6);
+return x_7;
+}
 }
 }
 lean_object* l_Toml_ofSyntax_match__2(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Toml_ofSyntax_match__2___rarg), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Toml_ofSyntax_match__2___rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* l_Toml_ofSyntax_match__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Toml_ofSyntax_match__3___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
 lean_dec(x_1);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
+x_5 = lean_apply_2(x_2, x_3, x_4);
+return x_5;
 }
 }
 lean_object* l_Toml_ofSyntax_match__3(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Toml_ofSyntax_match__3___rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_Toml_ofSyntax_match__3___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* l_Toml_ofSyntax_match__4___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_2(x_2, x_3, x_4);
-return x_5;
-}
-}
-lean_object* l_Toml_ofSyntax_match__4(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Toml_ofSyntax_match__4___rarg), 2, 0);
-return x_2;
-}
-}
-lean_object* l_Toml_ofSyntax_match__5___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_2(x_2, x_3, x_4);
-return x_5;
-}
-}
-lean_object* l_Toml_ofSyntax_match__5(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Toml_ofSyntax_match__5___rarg), 2, 0);
-return x_2;
-}
-}
-lean_object* l_Toml_ofSyntax_match__6___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Toml_ofSyntax_match__4___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1478,11 +1432,11 @@ return x_7;
 }
 }
 }
-lean_object* l_Toml_ofSyntax_match__6(lean_object* x_1) {
+lean_object* l_Toml_ofSyntax_match__4(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Toml_ofSyntax_match__6___rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_Toml_ofSyntax_match__4___rarg), 3, 0);
 return x_2;
 }
 }

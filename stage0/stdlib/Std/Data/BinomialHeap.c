@@ -33,7 +33,6 @@ lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeap_insert(lean_object*);
 lean_object* l_Std_BinomialHeap_merge_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_tail_match__1(lean_object*, lean_object*);
-lean_object* l_Std_BinomialHeap_toList_match__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_instInhabitedHeap(lean_object*);
 lean_object* l_Std_BinomialHeapImp_combine___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeap_head_x3f(lean_object*);
@@ -55,7 +54,6 @@ lean_object* l_Std_BinomialHeapImp_tail_match__2(lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeap_head_x3f___rarg(lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeap_toList(lean_object*);
 lean_object* l_Std_BinomialHeapImp_head(lean_object*);
-lean_object* l_Std_BinomialHeap_head_match__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_toList___rarg(lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeap_isEmpty(lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeap_empty___boxed(lean_object*, lean_object*);
@@ -63,38 +61,27 @@ lean_object* l_Std_BinomialHeapImp_isEmpty_match__1___rarg(lean_object*, lean_ob
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_tail_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_head___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_BinomialHeap_head_x3f_match__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_BinomialHeap_head_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeap_merge___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeap_head(lean_object*);
 lean_object* l_Std_BinomialHeapImp_toList(lean_object*);
-lean_object* l_Std_BinomialHeap_tail_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_merge_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_findMin_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeap_singleton(lean_object*, lean_object*);
-lean_object* l_Std_BinomialHeapImp_toList_match__1(lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeap_isEmpty_match__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_isEmpty(lean_object*);
 lean_object* l_Std_mkBinomialHeap___boxed(lean_object*, lean_object*);
-lean_object* l_Std_BinomialHeap_tail_match__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_head___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_BinomialHeap_toList_match__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_BinomialHeap_tail_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeap_isEmpty_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_tail_match__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_head_match__1(lean_object*, lean_object*);
-lean_object* l_Std_BinomialHeap_head_x3f_match__1___rarg(lean_object*, lean_object*);
-lean_object* l_Std_BinomialHeapImp_toList_match__2(lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_merge_match__1(lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_head_x3f___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeap_merge_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_eraseIdx___rarg(lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeap_toList___rarg(lean_object*, lean_object*);
-lean_object* l_Std_BinomialHeap_toList_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_hRank(lean_object*);
 lean_object* l_Std_BinomialHeapImp_merge(lean_object*);
 lean_object* l_Std_BinomialHeapImp_head___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_BinomialHeapImp_toList_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_tail(lean_object*);
 lean_object* l_Std_BinomialHeap_tail___rarg(lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_hRank___rarg___boxed(lean_object*);
@@ -110,11 +97,8 @@ lean_object* l_Std_BinomialHeap_empty(lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeap_merge_match__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_combine(lean_object*);
 lean_object* l_Std_BinomialHeapImp_tail___rarg(lean_object*, lean_object*);
-lean_object* l_Std_BinomialHeap_head_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_singleton___rarg(lean_object*);
 lean_object* l_Std_BinomialHeap_singleton___rarg(lean_object*);
-lean_object* l_Std_BinomialHeapImp_toList_match__2___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_BinomialHeap_head_x3f_match__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeapImp_hRank_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_BinomialHeap_tail(lean_object*);
 lean_object* l_Std_BinomialHeapImp_tail_match__3(lean_object*, lean_object*);
@@ -1628,65 +1612,6 @@ x_2 = lean_alloc_closure((void*)(l_Std_BinomialHeapImp_tail___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* l_Std_BinomialHeapImp_toList_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_3, x_6);
-return x_7;
-}
-}
-}
-lean_object* l_Std_BinomialHeapImp_toList_match__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_BinomialHeapImp_toList_match__1___rarg), 3, 0);
-return x_3;
-}
-}
-lean_object* l_Std_BinomialHeapImp_toList_match__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; 
-lean_dec(x_2);
-x_6 = lean_apply_1(x_3, x_1);
-return x_6;
-}
-}
-}
-lean_object* l_Std_BinomialHeapImp_toList_match__2(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_BinomialHeapImp_toList_match__2___rarg), 3, 0);
-return x_3;
-}
-}
 lean_object* l_Std_BinomialHeapImp_toList___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1896,31 +1821,6 @@ x_2 = lean_alloc_closure((void*)(l_Std_BinomialHeap_merge___rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* l_Std_BinomialHeap_head_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_apply_2(x_2, x_1, lean_box(0));
-return x_3;
-}
-}
-lean_object* l_Std_BinomialHeap_head_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_BinomialHeap_head_match__1___rarg), 2, 0);
-return x_4;
-}
-}
-lean_object* l_Std_BinomialHeap_head_match__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_BinomialHeap_head_match__1(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
 lean_object* l_Std_BinomialHeap_head___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1946,31 +1846,6 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* l_Std_BinomialHeap_head_x3f_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_apply_2(x_2, x_1, lean_box(0));
-return x_3;
-}
-}
-lean_object* l_Std_BinomialHeap_head_x3f_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_BinomialHeap_head_x3f_match__1___rarg), 2, 0);
-return x_4;
-}
-}
-lean_object* l_Std_BinomialHeap_head_x3f_match__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_BinomialHeap_head_x3f_match__1(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
 lean_object* l_Std_BinomialHeap_head_x3f___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1985,31 +1860,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Std_BinomialHeap_head_x3f___rarg), 2, 0);
 return x_2;
-}
-}
-lean_object* l_Std_BinomialHeap_tail_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_apply_2(x_2, x_1, lean_box(0));
-return x_3;
-}
-}
-lean_object* l_Std_BinomialHeap_tail_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_BinomialHeap_tail_match__1___rarg), 2, 0);
-return x_4;
-}
-}
-lean_object* l_Std_BinomialHeap_tail_match__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_BinomialHeap_tail_match__1(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
 }
 }
 lean_object* l_Std_BinomialHeap_tail___rarg(lean_object* x_1, lean_object* x_2) {
@@ -2043,31 +1893,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Std_BinomialHeap_insert___rarg), 3, 0);
 return x_2;
-}
-}
-lean_object* l_Std_BinomialHeap_toList_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_apply_2(x_2, x_1, lean_box(0));
-return x_3;
-}
-}
-lean_object* l_Std_BinomialHeap_toList_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_BinomialHeap_toList_match__1___rarg), 2, 0);
-return x_4;
-}
-}
-lean_object* l_Std_BinomialHeap_toList_match__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_BinomialHeap_toList_match__1(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
 }
 }
 lean_object* l_Std_BinomialHeap_toList___rarg(lean_object* x_1, lean_object* x_2) {

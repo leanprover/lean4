@@ -65,12 +65,10 @@ lean_object* l_Array_binSearch___rarg(lean_object*, lean_object*, lean_object*, 
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Array_binInsertM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___at_Array_binSearch___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___at_Array_binSearch___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_modifyM___at_Array_binInsert___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_binSearch___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux_match__1(lean_object*);
 lean_object* l_Array_modifyM___at_Array_binInsert___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at_Array_binInsert___spec__4(lean_object*);
 lean_object* l_Array_binSearchContains___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -770,22 +768,6 @@ x_7 = l_Array_binSearchContains___rarg(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_2);
 x_8 = lean_box(x_7);
 return x_8;
-}
-}
-lean_object* l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_apply_2(x_3, x_1, x_2);
-return x_4;
-}
-}
-lean_object* l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux_match__1___rarg), 3, 0);
-return x_2;
 }
 }
 lean_object* l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

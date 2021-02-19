@@ -106,7 +106,6 @@ lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_340____spec__3___boxed__const__2;
 lean_object* l_Array_modifyM___at_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_340____spec__6___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_IR_getDecl_x27_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_LogEntry_fmt___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_containsDecl___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_findEnvDecl_x27_match__1(lean_object*);
@@ -165,7 +164,6 @@ lean_object* l_Lean_IR_Log_format___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Log_format(lean_object*);
 lean_object* l_Lean_IR_declMapExt___closed__1;
 lean_object* l_Std_HashMapImp_contains___at_Lean_IR_containsDecl___spec__2___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_IR_getDecl_x27_match__1(lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_mkEntryArray___spec__8(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_expand___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_mkEntryArray___spec__4(lean_object*, lean_object*);
@@ -3508,36 +3506,6 @@ x_5 = l_Lean_IR_containsDecl_x27(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_5;
-}
-}
-lean_object* l_Lean_IR_getDecl_x27_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; 
-lean_dec(x_2);
-x_4 = lean_apply_1(x_3, x_1);
-return x_4;
-}
-else
-{
-lean_object* x_5; lean_object* x_6; 
-lean_dec(x_3);
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_apply_1(x_2, x_5);
-return x_6;
-}
-}
-}
-lean_object* l_Lean_IR_getDecl_x27_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_IR_getDecl_x27_match__1___rarg), 3, 0);
-return x_2;
 }
 }
 lean_object* l_Lean_IR_getDecl_x27(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

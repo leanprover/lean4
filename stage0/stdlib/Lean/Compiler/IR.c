@@ -34,7 +34,6 @@ lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_0__Lean_IR_c
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_0__Lean_IR_compileAux___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-lean_object* l_Lean_IR_addBoxedVersion_match__1(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_0__Lean_IR_compileAux___spec__2(size_t, size_t, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_0__Lean_IR_compileAux___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_compile_match__1(lean_object*);
@@ -110,7 +109,6 @@ lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_0__Lean_IR_c
 lean_object* l_Lean_IR_compile_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__19;
 lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__11;
-lean_object* l_Lean_IR_addBoxedVersion_match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_0__Lean_IR_compileAux___spec__1(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
@@ -1386,43 +1384,6 @@ lean_object* x_4;
 x_4 = l_Lean_IR_addBoxedVersionAux(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
-}
-}
-lean_object* l_Lean_IR_addBoxedVersion_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_apply_2(x_2, x_4, x_5);
-return x_6;
-}
-else
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_2);
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_1, 1);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_apply_2(x_3, x_7, x_8);
-return x_9;
-}
-}
-}
-lean_object* l_Lean_IR_addBoxedVersion_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_IR_addBoxedVersion_match__1___rarg), 3, 0);
-return x_2;
 }
 }
 lean_object* lean_ir_add_boxed_version(lean_object* x_1, lean_object* x_2) {

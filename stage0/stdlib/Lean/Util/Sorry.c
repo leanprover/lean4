@@ -24,7 +24,6 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t l_Lean_Expr_hasSyntheticSorry(lean_object*);
 extern lean_object* l_Lean_instQuoteBool___closed__1;
-lean_object* l_Lean_MessageData_hasSyntheticSorry_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasSyntheticSorry___boxed(lean_object*);
 lean_object* l_Lean_Expr_isSyntheticSorry___boxed(lean_object*);
 uint8_t l_Lean_Exception_hasSyntheticSorry(lean_object*);
@@ -35,7 +34,6 @@ lean_object* l_Lean_Exception_hasSyntheticSorry_match__1___rarg(lean_object*, le
 uint8_t l_Lean_MessageData_hasSyntheticSorry(lean_object*);
 lean_object* l_Lean_MessageData_hasSorry___closed__1;
 lean_object* l_Lean_MessageData_hasSorry___boxed(lean_object*);
-lean_object* l_Lean_MessageData_hasSyntheticSorry_match__1(lean_object*);
 lean_object* l_Lean_MessageData_hasSorry_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isSorry___boxed(lean_object*);
 lean_object* l_Lean_Expr_isSorry_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -3751,154 +3749,6 @@ x_2 = l_Lean_MessageData_hasSorry(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
-}
-}
-lean_object* l_Lean_MessageData_hasSyntheticSorry_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-switch (lean_obj_tag(x_1)) {
-case 2:
-{
-lean_object* x_10; lean_object* x_11; 
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-x_10 = lean_ctor_get(x_1, 0);
-lean_inc(x_10);
-lean_dec(x_1);
-x_11 = lean_apply_1(x_2, x_10);
-return x_11;
-}
-case 6:
-{
-lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_2);
-x_12 = lean_ctor_get(x_1, 0);
-lean_inc(x_12);
-x_13 = lean_ctor_get(x_1, 1);
-lean_inc(x_13);
-lean_dec(x_1);
-x_14 = lean_apply_2(x_3, x_12, x_13);
-return x_14;
-}
-case 8:
-{
-lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
-x_15 = lean_ctor_get(x_1, 0);
-lean_inc(x_15);
-x_16 = lean_ctor_get(x_1, 1);
-lean_inc(x_16);
-lean_dec(x_1);
-x_17 = lean_apply_2(x_4, x_15, x_16);
-return x_17;
-}
-case 9:
-{
-lean_object* x_18; lean_object* x_19; 
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-x_18 = lean_ctor_get(x_1, 0);
-lean_inc(x_18);
-lean_dec(x_1);
-x_19 = lean_apply_1(x_5, x_18);
-return x_19;
-}
-case 10:
-{
-lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-x_20 = lean_ctor_get(x_1, 0);
-lean_inc(x_20);
-x_21 = lean_ctor_get(x_1, 1);
-lean_inc(x_21);
-lean_dec(x_1);
-x_22 = lean_apply_2(x_6, x_20, x_21);
-return x_22;
-}
-case 11:
-{
-lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-x_23 = lean_ctor_get(x_1, 0);
-lean_inc(x_23);
-x_24 = lean_ctor_get(x_1, 1);
-lean_inc(x_24);
-lean_dec(x_1);
-x_25 = lean_apply_2(x_7, x_23, x_24);
-return x_25;
-}
-case 12:
-{
-lean_object* x_26; lean_object* x_27; 
-lean_dec(x_9);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-x_26 = lean_ctor_get(x_1, 0);
-lean_inc(x_26);
-lean_dec(x_1);
-x_27 = lean_apply_1(x_8, x_26);
-return x_27;
-}
-default: 
-{
-lean_object* x_28; 
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-x_28 = lean_apply_1(x_9, x_1);
-return x_28;
-}
-}
-}
-}
-lean_object* l_Lean_MessageData_hasSyntheticSorry_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_MessageData_hasSyntheticSorry_match__1___rarg), 9, 0);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_MessageData_hasSyntheticSorry___closed__1() {

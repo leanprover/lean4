@@ -17,7 +17,6 @@ lean_object* l_MonadExcept_orelse_x27___rarg___lambda__2___boxed(lean_object*, l
 lean_object* l_tryFinally___rarg___lambda__1___boxed(lean_object*);
 lean_object* l_Id_finally(lean_object*, lean_object*);
 lean_object* l_ExceptT_lift___rarg___lambda__1(lean_object*);
-lean_object* l_ExceptT_map_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_instMonadExceptT___rarg___lambda__5___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_pure(lean_object*, lean_object*);
 lean_object* l_Except_map_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -41,7 +40,6 @@ lean_object* l_instMonadExceptOfExceptT__1___rarg(lean_object*);
 lean_object* l_Except_toBool___rarg___boxed(lean_object*);
 lean_object* l_instMonadControlExceptT___rarg___lambda__1___closed__1;
 lean_object* l_Except_map_match__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Except_mapError_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_pure___rarg(lean_object*);
 lean_object* l_observing(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_instMonadFunctorExceptT___rarg(lean_object*, lean_object*);
@@ -53,7 +51,6 @@ lean_object* l_ExceptT_bindCont___at_ExceptT_instMonadExceptT___spec__3(lean_obj
 lean_object* l_ExceptT_finally___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_ExceptT_finally_match__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_adapt(lean_object*, lean_object*);
-lean_object* l_Except_toOption_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadExceptOfExceptT__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_instMonadLiftExceptT(lean_object*, lean_object*);
 lean_object* l_ExceptT_bindCont___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -71,19 +68,14 @@ lean_object* l_instMonadExceptOfExcept___closed__3;
 lean_object* l_Except_mapError___rarg(lean_object*, lean_object*);
 lean_object* l_Except_toBool(lean_object*, lean_object*);
 lean_object* l_ExceptT_instMonadFunctorExceptT(lean_object*, lean_object*, lean_object*);
-lean_object* l_ExceptT_tryCatch_match__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_ExceptT_tryCatch_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_instMonadExcept___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ExceptT_bindCont_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_map(lean_object*, lean_object*, lean_object*);
-lean_object* l_Except_toOption_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadExceptOfExceptT(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_instMonadExcept___closed__10;
 lean_object* l_instMonadControlExceptT___rarg(lean_object*);
 uint8_t l_Except_toBool___rarg(lean_object*);
 lean_object* l_instInhabitedExceptT(lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedExceptT___rarg(lean_object*, lean_object*);
-lean_object* l_Except_mapError_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_pure(lean_object*, lean_object*);
 lean_object* l_Except_toBool_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_lift(lean_object*, lean_object*);
@@ -98,7 +90,6 @@ lean_object* l_Except_tryCatch___rarg(lean_object*, lean_object*);
 lean_object* l_Except_instMonadExcept___closed__8;
 lean_object* l_ExceptT_finally___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_instMonadExcept___closed__4;
-lean_object* l_Except_bind_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_finally_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_instMonadExceptT___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_map___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -116,7 +107,6 @@ lean_object* l_Except_tryCatch(lean_object*, lean_object*);
 lean_object* l_ExceptT_instMonadExceptT___rarg___lambda__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_run(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_instMonadExceptT___rarg___lambda__3(lean_object*, lean_object*, lean_object*);
-lean_object* l_ExceptT_map_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_bind___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_instMonadExceptT___rarg___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_instMonadExcept___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -141,7 +131,6 @@ lean_object* l_ExceptT_bindCont___at_ExceptT_instMonadExceptT___spec__2(lean_obj
 lean_object* l_ExceptT_run___rarg___boxed(lean_object*);
 lean_object* l_Except_toOption(lean_object*, lean_object*);
 lean_object* l_MonadExcept_orelse_x27___rarg___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*);
-lean_object* l_ExceptT_bindCont_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_instMonadExcept___closed__9;
 lean_object* l_ExceptT_run___rarg(lean_object*);
 lean_object* l_Except_instMonadExcept___closed__1;
@@ -149,7 +138,6 @@ lean_object* l_ExceptT_instMonadLiftExceptT___rarg(lean_object*);
 lean_object* l_ExceptT_instMonadExceptT___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_instMonadExcept___closed__2;
 lean_object* l_Id_finally___rarg(lean_object*, lean_object*);
-lean_object* l_Except_bind_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_bindCont___at_ExceptT_instMonadExceptT___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_map___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_tryFinally___rarg___closed__1;
@@ -266,39 +254,6 @@ x_4 = lean_alloc_closure((void*)(l_Except_map___rarg), 2, 0);
 return x_4;
 }
 }
-lean_object* l_Except_mapError_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_3, x_6);
-return x_7;
-}
-}
-}
-lean_object* l_Except_mapError_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Except_mapError_match__1___rarg), 3, 0);
-return x_4;
-}
-}
 lean_object* l_Except_mapError___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -353,39 +308,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_alloc_closure((void*)(l_Except_mapError___rarg), 2, 0);
-return x_4;
-}
-}
-lean_object* l_Except_bind_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_3, x_6);
-return x_7;
-}
-}
-}
-lean_object* l_Except_bind_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Except_bind_match__1___rarg), 3, 0);
 return x_4;
 }
 }
@@ -497,39 +419,6 @@ x_2 = l_Except_toBool___rarg(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
-}
-}
-lean_object* l_Except_toOption_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
-}
-}
-lean_object* l_Except_toOption_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Except_toOption_match__1___rarg), 3, 0);
-return x_4;
 }
 }
 lean_object* l_Except_toOption___rarg(lean_object* x_1) {
@@ -1060,39 +949,6 @@ x_3 = lean_alloc_closure((void*)(l_ExceptT_pure___rarg), 3, 0);
 return x_3;
 }
 }
-lean_object* l_ExceptT_bindCont_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
-}
-}
-lean_object* l_ExceptT_bindCont_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_ExceptT_bindCont_match__1___rarg), 3, 0);
-return x_4;
-}
-}
 lean_object* l_ExceptT_bindCont___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -1172,39 +1028,6 @@ _start:
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_ExceptT_bind___rarg), 5, 0);
 return x_3;
-}
-}
-lean_object* l_ExceptT_map_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
-}
-}
-lean_object* l_ExceptT_map_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_ExceptT_map_match__1___rarg), 3, 0);
-return x_4;
 }
 }
 lean_object* l_ExceptT_map___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1386,39 +1209,6 @@ _start:
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_ExceptT_instMonadLiftExceptT___rarg), 1, 0);
 return x_3;
-}
-}
-lean_object* l_ExceptT_tryCatch_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
-}
-}
-lean_object* l_ExceptT_tryCatch_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_ExceptT_tryCatch_match__1___rarg), 3, 0);
-return x_4;
 }
 }
 lean_object* l_ExceptT_tryCatch___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

@@ -17,33 +17,28 @@ lean_object* l_Leanpkg_Manifest_fromToml___lambda__2___boxed(lean_object*, lean_
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Toml_parse(lean_object*, lean_object*);
 lean_object* l_Leanpkg_Source_fromToml___closed__3;
-lean_object* l_Leanpkg_Manifest_fromToml_match__4___rarg(lean_object*, lean_object*);
+lean_object* l_Leanpkg_Manifest_fromToml_match__4___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_Manifest_fromToml_match__1(lean_object*);
-lean_object* l_Leanpkg_Source_fromToml_match__4___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_Manifest_fromToml___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_Manifest_leanVersion___default;
 lean_object* l_Leanpkg_Manifest_fromToml___lambda__3___closed__1;
 extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 lean_object* l_Leanpkg_Manifest_fromToml___closed__3;
-lean_object* l_Leanpkg_Manifest_fromToml_match__6___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_Source_fromToml_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Leanpkg_Source_fromToml_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Leanpkg_Manifest_fromToml_match__7(lean_object*);
 lean_object* l_List_mapM___at_Leanpkg_Manifest_fromToml___spec__1___closed__1;
 lean_object* l_Leanpkg_Source_toToml_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_Manifest_fromToml___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_Manifest_fromToml___boxed(lean_object*);
 lean_object* l_Leanpkg_Manifest_fromToml___closed__1;
 lean_object* l_Leanpkg_Manifest_fromToml(lean_object*);
-lean_object* l_Leanpkg_Source_fromToml_match__3(lean_object*);
 lean_object* l_Leanpkg_Source_fromToml___closed__2;
 lean_object* l_Toml_Value_lookup(lean_object*, lean_object*);
 lean_object* l_Leanpkg_Source_fromToml___boxed(lean_object*);
 lean_object* l_Leanpkg_Manifest_effectivePath___boxed(lean_object*);
 lean_object* l_Leanpkg_Source_fromToml___closed__1;
 lean_object* l_Leanpkg_Manifest_fromFile_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Leanpkg_Manifest_fromToml_match__6(lean_object*);
 lean_object* l_Leanpkg_Source_toToml(lean_object*);
 lean_object* l_Leanpkg_Manifest_fromToml_match__2(lean_object*);
 lean_object* l_Leanpkg_leanpkgTomlFn;
@@ -62,12 +57,8 @@ lean_object* l_Leanpkg_Manifest_fromFile___closed__1;
 lean_object* l_Leanpkg_Manifest_fromToml_match__4(lean_object*);
 lean_object* l_IO_FS_readFile___at_Lean_Parser_testParseFile___spec__1(lean_object*, lean_object*);
 lean_object* l_Leanpkg_Source_fromToml___closed__4;
-lean_object* l_Leanpkg_Manifest_fromToml_match__5(lean_object*);
 lean_object* l_Leanpkg_Manifest_fromFile_match__1(lean_object*);
-lean_object* l_Leanpkg_Manifest_fromToml_match__5___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Leanpkg_leanVersionString;
-lean_object* l_Leanpkg_Source_fromToml_match__4(lean_object*);
-lean_object* l_Leanpkg_Source_fromToml_match__3___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_Source_toToml_match__1(lean_object*);
 lean_object* l_Leanpkg_Manifest_fromToml_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_Manifest_fromToml_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -75,11 +66,10 @@ lean_object* l_Leanpkg_Source_fromToml_match__2(lean_object*);
 lean_object* l_Leanpkg_leanpkgTomlFn___closed__1;
 lean_object* l_Leanpkg_Manifest_effectivePath(lean_object*);
 lean_object* l_Leanpkg_Source_toToml___boxed(lean_object*);
-lean_object* l_Leanpkg_Manifest_fromToml_match__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Leanpkg_Manifest_fromToml_match__3___rarg(lean_object*, lean_object*);
 lean_object* l_Leanpkg_Manifest_path___default;
 lean_object* l_Leanpkg_Source_fromToml_match__1(lean_object*);
 lean_object* l_Leanpkg_Manifest_fromToml___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Leanpkg_Manifest_fromToml_match__7___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_Manifest_dependencies___default;
 lean_object* l_Leanpkg_Manifest_fromToml_match__3(lean_object*);
 lean_object* l_Leanpkg_Source_fromToml_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -157,66 +147,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Leanpkg_Source_fromToml_match__2___rarg), 4, 0);
-return x_2;
-}
-}
-lean_object* l_Leanpkg_Source_fromToml_match__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; 
-lean_dec(x_2);
-x_6 = lean_apply_1(x_3, x_1);
-return x_6;
-}
-}
-}
-lean_object* l_Leanpkg_Source_fromToml_match__3(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Leanpkg_Source_fromToml_match__3___rarg), 3, 0);
-return x_2;
-}
-}
-lean_object* l_Leanpkg_Source_fromToml_match__4___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; 
-lean_dec(x_2);
-x_6 = lean_apply_1(x_3, x_1);
-return x_6;
-}
-}
-}
-lean_object* l_Leanpkg_Source_fromToml_match__4(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Leanpkg_Source_fromToml_match__4___rarg), 3, 0);
 return x_2;
 }
 }
@@ -1253,55 +1183,7 @@ x_2 = lean_alloc_closure((void*)(l_Leanpkg_Manifest_fromToml_match__2___rarg), 4
 return x_2;
 }
 }
-lean_object* l_Leanpkg_Manifest_fromToml_match__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_5; lean_object* x_6; 
-lean_dec(x_4);
-lean_dec(x_2);
-x_5 = lean_box(0);
-x_6 = lean_apply_1(x_3, x_5);
-return x_6;
-}
-else
-{
-lean_object* x_7; 
-lean_dec(x_3);
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
-if (lean_obj_tag(x_7) == 0)
-{
-lean_object* x_8; lean_object* x_9; 
-lean_dec(x_4);
-lean_dec(x_1);
-x_8 = lean_ctor_get(x_7, 0);
-lean_inc(x_8);
-lean_dec(x_7);
-x_9 = lean_apply_1(x_2, x_8);
-return x_9;
-}
-else
-{
-lean_object* x_10; 
-lean_dec(x_7);
-lean_dec(x_2);
-x_10 = lean_apply_1(x_4, x_1);
-return x_10;
-}
-}
-}
-}
-lean_object* l_Leanpkg_Manifest_fromToml_match__3(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Leanpkg_Manifest_fromToml_match__3___rarg), 4, 0);
-return x_2;
-}
-}
-lean_object* l_Leanpkg_Manifest_fromToml_match__4___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Leanpkg_Manifest_fromToml_match__3___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -1314,15 +1196,15 @@ x_5 = lean_apply_2(x_2, x_3, x_4);
 return x_5;
 }
 }
-lean_object* l_Leanpkg_Manifest_fromToml_match__4(lean_object* x_1) {
+lean_object* l_Leanpkg_Manifest_fromToml_match__3(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Leanpkg_Manifest_fromToml_match__4___rarg), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Leanpkg_Manifest_fromToml_match__3___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* l_Leanpkg_Manifest_fromToml_match__5___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Leanpkg_Manifest_fromToml_match__4___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 3)
@@ -1344,71 +1226,11 @@ return x_6;
 }
 }
 }
-lean_object* l_Leanpkg_Manifest_fromToml_match__5(lean_object* x_1) {
+lean_object* l_Leanpkg_Manifest_fromToml_match__4(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Leanpkg_Manifest_fromToml_match__5___rarg), 3, 0);
-return x_2;
-}
-}
-lean_object* l_Leanpkg_Manifest_fromToml_match__6___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; 
-lean_dec(x_2);
-x_6 = lean_apply_1(x_3, x_1);
-return x_6;
-}
-}
-}
-lean_object* l_Leanpkg_Manifest_fromToml_match__6(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Leanpkg_Manifest_fromToml_match__6___rarg), 3, 0);
-return x_2;
-}
-}
-lean_object* l_Leanpkg_Manifest_fromToml_match__7___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; 
-lean_dec(x_2);
-x_6 = lean_apply_1(x_3, x_1);
-return x_6;
-}
-}
-}
-lean_object* l_Leanpkg_Manifest_fromToml_match__7(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Leanpkg_Manifest_fromToml_match__7___rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_Leanpkg_Manifest_fromToml_match__4___rarg), 3, 0);
 return x_2;
 }
 }

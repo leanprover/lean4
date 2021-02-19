@@ -144,7 +144,6 @@ lean_object* l_instReprAtomString;
 lean_object* l_instReprId__1(lean_object*);
 lean_object* l_instReprIterator_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instReprUnit___closed__2;
-lean_object* l_instReprList__1_match__1(lean_object*, lean_object*);
 lean_object* l_instReprAtomUInt8;
 lean_object* l_instReprList___rarg___closed__2;
 lean_object* l_Int_repr_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -218,7 +217,6 @@ lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l_instReprDecidable___rarg___closed__1;
 lean_object* l_Char_quoteCore___closed__5;
 lean_object* l_instReprFin___rarg(lean_object*, lean_object*);
-lean_object* l_instReprList__1_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_uint16_to_nat(uint16_t);
 lean_object* l_repr(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
@@ -2772,33 +2770,6 @@ lean_object* x_4;
 x_4 = l_instReprList___rarg(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
-}
-}
-lean_object* l_instReprList__1_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_5; 
-lean_dec(x_4);
-x_5 = lean_apply_1(x_3, x_2);
-return x_5;
-}
-else
-{
-lean_object* x_6; 
-lean_dec(x_3);
-x_6 = lean_apply_2(x_4, x_1, x_2);
-return x_6;
-}
-}
-}
-lean_object* l_instReprList__1_match__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_instReprList__1_match__1___rarg), 4, 0);
-return x_3;
 }
 }
 lean_object* l_Std_Format_joinSep___at_instReprList__1___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

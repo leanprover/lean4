@@ -71,7 +71,6 @@ lean_object* lean_mk_io_error_other_error(uint32_t, lean_object*);
 lean_object* lean_mk_io_error_resource_exhausted_file(lean_object*, uint32_t, lean_object*);
 lean_object* lean_mk_io_error_permission_denied_file(lean_object*, uint32_t, lean_object*);
 lean_object* l_IO_Error_mkNoSuchThingFile___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_Error_otherErrorToString_match__1(lean_object*);
 lean_object* lean_mk_io_error_time_expired(uint32_t, lean_object*);
 lean_object* l_IO_Error_mkResourceExhaustedFile___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_io_error_unsupported_operation(uint32_t, lean_object*);
@@ -89,7 +88,6 @@ lean_object* lean_mk_io_error_resource_busy(uint32_t, lean_object*);
 lean_object* l_IO_Error_mkResourceExhausted___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Error_mkUnsatisfiedConstraints___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Error_instToStringError___closed__1;
-lean_object* l_IO_Error_otherErrorToString_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_Error_mkInvalidArgumentFile___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_Error_toString___closed__16;
 extern lean_object* l_prec_x28___x29___closed__7;
@@ -748,37 +746,6 @@ lean_dec(x_3);
 x_6 = l_IO_Error_fopenErrorToString(x_1, x_2, x_5, x_4);
 lean_dec(x_2);
 return x_6;
-}
-}
-lean_object* l_IO_Error_otherErrorToString_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
-}
-}
-lean_object* l_IO_Error_otherErrorToString_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_IO_Error_otherErrorToString_match__1___rarg), 3, 0);
-return x_2;
 }
 }
 lean_object* l_IO_Error_otherErrorToString(lean_object* x_1, uint32_t x_2, lean_object* x_3) {

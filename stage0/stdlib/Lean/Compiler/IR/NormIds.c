@@ -106,7 +106,6 @@ lean_object* l_Lean_IR_MapVars_mapExpr(lean_object*, lean_object*);
 lean_object* l_Lean_IR_UniqueIds_checkFnBody___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_MapVars_mapArgs___at_Lean_IR_FnBody_replaceVar___spec__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_FnBody_replaceVar___spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_IR_MapVars_mapArg_match__1(lean_object*);
 lean_object* l_Lean_IR_UniqueIds_checkId(lean_object*, lean_object*);
 lean_object* l_Lean_IR_MapVars_mapExpr___at_Lean_IR_FnBody_replaceVar___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Id_instMonadId;
@@ -157,7 +156,6 @@ lean_object* l_Lean_IR_NormalizeIds_withJP___rarg(lean_object*, lean_object*, le
 lean_object* l_Lean_IR_NormalizeIds_normIndex___boxed(lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe___at_Lean_IR_UniqueIds_checkFnBody___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_NormalizeIds_normVar___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_IR_MapVars_mapArg_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_MapVars_mapExpr_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_NormalizeIds_withVar(lean_object*);
 lean_object* l_Lean_IR_NormalizeIds_normExpr_match__1(lean_object*);
@@ -4207,36 +4205,6 @@ x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 lean_dec(x_4);
 return x_5;
-}
-}
-lean_object* l_Lean_IR_MapVars_mapArg_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; 
-lean_dec(x_2);
-x_6 = lean_apply_1(x_3, x_1);
-return x_6;
-}
-}
-}
-lean_object* l_Lean_IR_MapVars_mapArg_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_IR_MapVars_mapArg_match__1___rarg), 3, 0);
-return x_2;
 }
 }
 lean_object* l_Lean_IR_MapVars_mapArg(lean_object* x_1, lean_object* x_2) {

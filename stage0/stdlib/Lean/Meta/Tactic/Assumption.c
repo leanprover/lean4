@@ -49,8 +49,8 @@ lean_object* l_Lean_Meta_assignExprMVar(lean_object*, lean_object*, lean_object*
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Meta_assumptionAux___spec__3___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assumptionAux___closed__1;
 lean_object* l_Lean_Meta_assumptionAux___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_findSomeRevM_x3f_find_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_forIn_loop_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Meta_assumptionAux___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Meta_assumptionAux___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_findSomeRevM_x3f___at_Lean_Meta_assumptionAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -348,7 +348,7 @@ x_10 = lean_alloc_closure((void*)(l_Array_findSomeRevM_x3f_find___at_Lean_Meta_a
 lean_closure_set(x_10, 0, x_2);
 lean_closure_set(x_10, 1, x_1);
 x_11 = l_Array_findSomeRevM_x3f_find___at_Lean_Meta_assumptionAux___spec__3___closed__1;
-x_12 = l_Array_findSomeRevM_x3f_find_match__2___rarg(x_3, lean_box(0), x_11, x_10);
+x_12 = l_Array_forIn_loop_match__1___rarg(x_3, lean_box(0), x_11, x_10);
 x_13 = lean_apply_5(x_12, x_5, x_6, x_7, x_8, x_9);
 return x_13;
 }
@@ -446,7 +446,7 @@ x_10 = lean_alloc_closure((void*)(l_Array_findSomeRevM_x3f_find___at_Lean_Meta_a
 lean_closure_set(x_10, 0, x_2);
 lean_closure_set(x_10, 1, x_1);
 x_11 = l_Array_findSomeRevM_x3f_find___at_Lean_Meta_assumptionAux___spec__3___closed__1;
-x_12 = l_Array_findSomeRevM_x3f_find_match__2___rarg(x_3, lean_box(0), x_11, x_10);
+x_12 = l_Array_forIn_loop_match__1___rarg(x_3, lean_box(0), x_11, x_10);
 x_13 = lean_apply_5(x_12, x_5, x_6, x_7, x_8, x_9);
 return x_13;
 }
@@ -694,7 +694,7 @@ x_10 = lean_alloc_closure((void*)(l_Array_findSomeRevM_x3f_find___at_Lean_Meta_a
 lean_closure_set(x_10, 0, x_2);
 lean_closure_set(x_10, 1, x_1);
 x_11 = l_Array_findSomeRevM_x3f_find___at_Lean_Meta_assumptionAux___spec__3___closed__1;
-x_12 = l_Array_findSomeRevM_x3f_find_match__2___rarg(x_3, lean_box(0), x_11, x_10);
+x_12 = l_Array_forIn_loop_match__1___rarg(x_3, lean_box(0), x_11, x_10);
 x_13 = lean_apply_5(x_12, x_5, x_6, x_7, x_8, x_9);
 return x_13;
 }

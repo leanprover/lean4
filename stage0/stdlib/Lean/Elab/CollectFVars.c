@@ -27,7 +27,6 @@ size_t l_USize_sub(size_t, size_t);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Elab_Term_removeUnused_match__2___rarg(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Term_removeUnused_match__3___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_removeUnused___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -47,7 +46,6 @@ lean_object* l_Lean_Elab_Term_collectUsedFVarsAtFVars(lean_object*, lean_object*
 lean_object* l_Array_reverse___rarg(lean_object*);
 lean_object* l_Lean_Meta_getLocalInstances(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forM___at_Lean_Elab_Term_collectUsedFVarsAtFVars___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Term_removeUnused_match__3(lean_object*);
 lean_object* l_Lean_Elab_Term_collectUsedFVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Term_removeUnused___spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -490,37 +488,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Elab_Term_removeUnused_match__2___rarg), 2, 0);
-return x_2;
-}
-}
-lean_object* l_Lean_Elab_Term_removeUnused_match__3___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_3, 1);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_ctor_get(x_3, 0);
-lean_inc(x_6);
-lean_dec(x_3);
-x_7 = lean_ctor_get(x_4, 0);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_4, 1);
-lean_inc(x_8);
-lean_dec(x_4);
-x_9 = lean_apply_4(x_2, x_5, x_6, x_7, x_8);
-return x_9;
-}
-}
-lean_object* l_Lean_Elab_Term_removeUnused_match__3(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Elab_Term_removeUnused_match__3___rarg), 2, 0);
 return x_2;
 }
 }

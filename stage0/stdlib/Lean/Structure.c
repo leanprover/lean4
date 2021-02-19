@@ -21,7 +21,6 @@ lean_object* l_Lean_getStructureCtor___closed__2;
 lean_object* l_Lean_isInternalSubobjectFieldName_match__1(lean_object*);
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_deinternalizeFieldName_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_getStructureCtor_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsAux_match__1(lean_object*);
 lean_object* l_Lean_getPathToBaseStructureAux_match__1(lean_object*);
 lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -29,20 +28,17 @@ lean_object* l_Lean_isInternalSubobjectFieldName_match__1___rarg(lean_object*, l
 lean_object* l_Lean_getStructureCtor___closed__4;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
-lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux_match__1(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_findField_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_environment_find(lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe___at_Array_any___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_getPathToBaseStructureAux___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_getStructureCtor_match__2(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t l_Lean_isInternalSubobjectFieldName(lean_object*);
 lean_object* l___private_Lean_Structure_0__Lean_isSubobjectFieldAux_match__2(lean_object*);
-lean_object* l_Lean_getPathToBaseStructureAux_match__2(lean_object*);
 lean_object* l_Lean_deinternalizeFieldName_match__1(lean_object*);
 lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getProjFnForField_x3f(lean_object*, lean_object*, lean_object*);
@@ -57,11 +53,9 @@ lean_object* l_Lean_isStructureLike___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_getStructureCtor_match__1(lean_object*);
 extern lean_object* l_Lean_instInhabitedConstructorVal;
 lean_object* l_Lean_getStructureFieldsFlattened(lean_object*, lean_object*, uint8_t);
-lean_object* l___private_Lean_Structure_0__Lean_hasProjFn_match__1(lean_object*);
 lean_object* l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__3;
 lean_object* l_Lean_getStructureCtor___closed__5;
 lean_object* l_Lean_getStructureCtor___closed__3;
-lean_object* l_Lean_getPathToBaseStructureAux_match__2___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_contains___at_Lean_findField_x3f___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_getStructureFields(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
@@ -107,11 +101,9 @@ lean_object* l___private_Lean_Structure_0__Lean_isSubobjectFieldAux_match__2___r
 lean_object* l_String_drop(lean_object*, lean_object*);
 lean_object* l_Lean_getPathToBaseStructure_x3f___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isStructureLike(lean_object*, lean_object*);
-lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isInternalSubobjectFieldName___boxed(lean_object*);
 extern lean_object* l_Array_findSomeM_x3f___rarg___closed__1;
 lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux(lean_object*, lean_object*, lean_object*, uint8_t);
-lean_object* l___private_Lean_Structure_0__Lean_hasProjFn_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isStructure(lean_object*, lean_object*);
 lean_object* l_Lean_getPathToBaseStructureAux(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -528,123 +520,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_getStructureCtor_match__1___rarg), 3, 0);
-return x_2;
-}
-}
-lean_object* l_Lean_getStructureCtor_match__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; 
-lean_dec(x_2);
-x_4 = lean_apply_1(x_3, x_1);
-return x_4;
-}
-else
-{
-lean_object* x_5; 
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-if (lean_obj_tag(x_5) == 5)
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_ctor_get(x_5, 0);
-lean_inc(x_6);
-lean_dec(x_5);
-x_7 = lean_ctor_get(x_6, 0);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_6, 4);
-lean_inc(x_8);
-if (lean_obj_tag(x_8) == 0)
-{
-lean_object* x_9; 
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_2);
-x_9 = lean_apply_1(x_3, x_1);
-return x_9;
-}
-else
-{
-lean_object* x_10; 
-x_10 = lean_ctor_get(x_8, 1);
-lean_inc(x_10);
-if (lean_obj_tag(x_10) == 0)
-{
-uint8_t x_11; 
-x_11 = lean_ctor_get_uint8(x_6, sizeof(void*)*5);
-if (x_11 == 0)
-{
-lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; uint8_t x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-lean_dec(x_3);
-lean_dec(x_1);
-x_12 = lean_ctor_get(x_6, 1);
-lean_inc(x_12);
-x_13 = lean_ctor_get(x_6, 2);
-lean_inc(x_13);
-x_14 = lean_ctor_get(x_6, 3);
-lean_inc(x_14);
-x_15 = lean_ctor_get_uint8(x_6, sizeof(void*)*5 + 1);
-x_16 = lean_ctor_get_uint8(x_6, sizeof(void*)*5 + 2);
-x_17 = lean_ctor_get_uint8(x_6, sizeof(void*)*5 + 3);
-lean_dec(x_6);
-x_18 = lean_ctor_get(x_7, 0);
-lean_inc(x_18);
-x_19 = lean_ctor_get(x_7, 1);
-lean_inc(x_19);
-x_20 = lean_ctor_get(x_7, 2);
-lean_inc(x_20);
-lean_dec(x_7);
-x_21 = lean_ctor_get(x_8, 0);
-lean_inc(x_21);
-lean_dec(x_8);
-x_22 = lean_box(x_15);
-x_23 = lean_box(x_16);
-x_24 = lean_box(x_17);
-x_25 = lean_apply_10(x_2, x_21, x_18, x_19, x_20, x_12, x_13, x_14, x_22, x_23, x_24);
-return x_25;
-}
-else
-{
-lean_object* x_26; 
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_2);
-x_26 = lean_apply_1(x_3, x_1);
-return x_26;
-}
-}
-else
-{
-lean_object* x_27; 
-lean_dec(x_10);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_2);
-x_27 = lean_apply_1(x_3, x_1);
-return x_27;
-}
-}
-}
-else
-{
-lean_object* x_28; 
-lean_dec(x_5);
-lean_dec(x_2);
-x_28 = lean_apply_1(x_3, x_1);
-return x_28;
-}
-}
-}
-}
-lean_object* l_Lean_getStructureCtor_match__2(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_getStructureCtor_match__2___rarg), 3, 0);
 return x_2;
 }
 }
@@ -1380,37 +1255,6 @@ lean_dec(x_3);
 return x_10;
 }
 }
-lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
-}
-}
-lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux_match__1___rarg), 3, 0);
-return x_2;
-}
-}
 lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux___lambda__1(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -1507,42 +1351,6 @@ x_4 = lean_unbox(x_3);
 lean_dec(x_3);
 x_5 = l_Lean_getStructureFieldsFlattened(x_1, x_2, x_4);
 return x_5;
-}
-}
-lean_object* l___private_Lean_Structure_0__Lean_hasProjFn_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-if (lean_obj_tag(x_2) == 7)
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; uint64_t x_8; lean_object* x_9; lean_object* x_10; 
-lean_dec(x_4);
-x_5 = lean_ctor_get(x_2, 0);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_2, 1);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_2, 2);
-lean_inc(x_7);
-x_8 = lean_ctor_get_uint64(x_2, sizeof(void*)*3);
-lean_dec(x_2);
-x_9 = lean_box_uint64(x_8);
-x_10 = lean_apply_5(x_3, x_1, x_5, x_6, x_7, x_9);
-return x_10;
-}
-else
-{
-lean_object* x_11; 
-lean_dec(x_3);
-x_11 = lean_apply_2(x_4, x_1, x_2);
-return x_11;
-}
-}
-}
-lean_object* l___private_Lean_Structure_0__Lean_hasProjFn_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Structure_0__Lean_hasProjFn_match__1___rarg), 4, 0);
-return x_2;
 }
 }
 uint8_t l___private_Lean_Structure_0__Lean_hasProjFn(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -1710,37 +1518,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_getPathToBaseStructureAux_match__1___rarg), 3, 0);
-return x_2;
-}
-}
-lean_object* l_Lean_getPathToBaseStructureAux_match__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_3, x_6);
-return x_7;
-}
-}
-}
-lean_object* l_Lean_getPathToBaseStructureAux_match__2(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_getPathToBaseStructureAux_match__2___rarg), 3, 0);
 return x_2;
 }
 }

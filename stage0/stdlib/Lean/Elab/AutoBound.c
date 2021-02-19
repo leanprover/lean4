@@ -21,7 +21,6 @@ uint8_t l_String_anyAux_loop(lean_object*, lean_object*, lean_object*, lean_obje
 lean_object* l_Lean_Elab_autoBoundImplicitLocal;
 uint8_t l_Char_isDigit(uint32_t);
 extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
-lean_object* l_Lean_Elab_isValidAutoBoundLevelName_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_Elab_isValidAutoBoundImplicitName_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_String_Basic_0__Substring_nextn(lean_object*, lean_object*, lean_object*);
@@ -43,7 +42,6 @@ lean_object* l_Lean_Elab_isValidAutoBoundImplicitName___boxed(lean_object*);
 uint8_t l_Lean_isGreek(uint32_t);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_4_(lean_object*);
-lean_object* l_Lean_Elab_isValidAutoBoundLevelName_match__1(lean_object*);
 lean_object* l_Lean_Option_register___at_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_4____spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 uint8_t l_Lean_isSubScriptAlnum(uint32_t);
@@ -442,52 +440,6 @@ uint8_t x_2; lean_object* x_3;
 x_2 = l_Lean_Elab_isValidAutoBoundImplicitName(x_1);
 x_3 = lean_box(x_2);
 return x_3;
-}
-}
-lean_object* l_Lean_Elab_isValidAutoBoundLevelName_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 1)
-{
-lean_object* x_4; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-if (lean_obj_tag(x_4) == 0)
-{
-lean_object* x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_3);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-x_6 = lean_ctor_get_usize(x_1, 2);
-lean_dec(x_1);
-x_7 = lean_box_usize(x_6);
-x_8 = lean_apply_2(x_2, x_5, x_7);
-return x_8;
-}
-else
-{
-lean_object* x_9; 
-lean_dec(x_4);
-lean_dec(x_2);
-x_9 = lean_apply_1(x_3, x_1);
-return x_9;
-}
-}
-else
-{
-lean_object* x_10; 
-lean_dec(x_2);
-x_10 = lean_apply_1(x_3, x_1);
-return x_10;
-}
-}
-}
-lean_object* l_Lean_Elab_isValidAutoBoundLevelName_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Elab_isValidAutoBoundLevelName_match__1___rarg), 3, 0);
-return x_2;
 }
 }
 uint8_t l_Lean_Elab_isValidAutoBoundLevelName(lean_object* x_1) {

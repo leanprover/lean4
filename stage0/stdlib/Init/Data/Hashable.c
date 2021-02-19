@@ -30,7 +30,6 @@ lean_object* l_instHashableUInt64___boxed(lean_object*);
 lean_object* l_instHashableProd(lean_object*, lean_object*);
 lean_object* l_instHashableBool_match__1(lean_object*);
 lean_object* l_Option_hash___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_instHashableOption_match__1(lean_object*, lean_object*);
 lean_object* l_instHashableBool_match__1___rarg(uint8_t, lean_object*, lean_object*);
 size_t l_instHashableUInt64(uint64_t);
 lean_object* l_instHashableList___rarg___boxed(lean_object*, lean_object*);
@@ -39,7 +38,6 @@ lean_object* l_instHashableUInt32___boxed(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 size_t l_instHashableNat(lean_object*);
 size_t l_instHashableList___rarg(lean_object*, lean_object*);
-lean_object* l_instHashableOption_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHashableOption___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_instHashableBool_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHashableProd___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -264,37 +262,6 @@ size_t x_3; lean_object* x_4;
 x_3 = l_Option_hash___rarg(x_1, x_2);
 x_4 = lean_box_usize(x_3);
 return x_4;
-}
-}
-lean_object* l_instHashableOption_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_3, x_6);
-return x_7;
-}
-}
-}
-lean_object* l_instHashableOption_match__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_instHashableOption_match__1___rarg), 3, 0);
-return x_3;
 }
 }
 size_t l_instHashableOption___rarg(lean_object* x_1, lean_object* x_2) {

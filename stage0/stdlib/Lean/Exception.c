@@ -18,7 +18,6 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 extern lean_object* l_Lean_termM_x21_____closed__2;
 lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_816____closed__1;
 lean_object* l_Lean_termThrowError_x21_______closed__2;
-lean_object* l_Lean_Exception_getRef_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___closed__2;
 lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__2(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__2;
@@ -80,7 +79,6 @@ lean_object* l_Lean_throwError_match__1(lean_object*);
 lean_object* l_Lean_throwErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instMonadRecDepthReaderT(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Exception_toMessageData_match__1(lean_object*);
-lean_object* l_Lean_Exception_getRef_match__1(lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_816____closed__2;
 extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__10;
 extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
@@ -195,43 +193,6 @@ x_6 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 return x_6;
 }
-}
-}
-lean_object* l_Lean_Exception_getRef_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_apply_2(x_2, x_4, x_5);
-return x_6;
-}
-else
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_2);
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_1, 1);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_apply_2(x_3, x_7, x_8);
-return x_9;
-}
-}
-}
-lean_object* l_Lean_Exception_getRef_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Exception_getRef_match__1___rarg), 3, 0);
-return x_2;
 }
 }
 lean_object* l_Lean_Exception_getRef(lean_object* x_1) {

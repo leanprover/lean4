@@ -17,7 +17,6 @@ lean_object* l_Lean_IR_CtorInfo_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_getValue___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_body___boxed(lean_object*);
 size_t l_USize_add(size_t, size_t);
-lean_object* l_Lean_IR_AltCore_mmodifyBody_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_addParams___closed__1;
 lean_object* l_Lean_IR_Decl_updateBody_x21___closed__1;
 lean_object* l_Lean_IR_reshapeAux(lean_object*, lean_object*, lean_object*);
@@ -36,7 +35,6 @@ lean_object* l_Lean_IR_IRType_beq_match__1___rarg(lean_object*, lean_object*, le
 lean_object* l_Lean_IR_instBEqFnBody;
 lean_object* l_Lean_IR_instToStringJoinPointId___closed__1;
 lean_object* l_Lean_IR_FnBody_isTerminal_match__1(lean_object*);
-lean_object* l_Lean_IR_Alt_isDefault_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_mmodifyJPs___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_Index_lt(lean_object*, lean_object*);
 lean_object* lean_ir_mk_vdecl(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -76,12 +74,10 @@ lean_object* lean_ir_mk_str_expr(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at_Lean_IR_addParamsRename___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_setBody_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_IR_Decl_updateBody_x21_match__1(lean_object*);
 lean_object* l_Lean_IR_Decl_updateBody_x21___closed__2;
 lean_object* l_Lean_IR_AltCore_setBody_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_instAlphaEqvExpr___closed__1;
 lean_object* l_Lean_IR_IRType_isIrrelevant___boxed(lean_object*);
-lean_object* l_Lean_IR_LocalContext_getJPParams_match__1(lean_object*);
 lean_object* l_Std_RBNode_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_addParams___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_getType_match__1(lean_object*);
@@ -104,7 +100,6 @@ lean_object* l_Lean_IR_Decl_name(lean_object*);
 lean_object* l_Lean_IR_IRType_isIrrelevant_match__1(lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_IR_LocalContext_addLocal___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_erase___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__1___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_IR_LocalContext_getJPParams_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_instToStringVarId___closed__1;
 lean_object* l_Array_foldlMUnsafe___at_Array_foldl___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_isJP_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -133,7 +128,6 @@ lean_object* l_Lean_IR_IRType_isStruct_match__1___rarg(lean_object*, lean_object
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_IR_instAlphaEqvArrayArg___closed__1;
 lean_object* l_Lean_IR_instToStringVarId(lean_object*);
-lean_object* l_Lean_IR_Arg_alphaEqv_match__1(lean_object*);
 uint8_t l_Lean_IR_CtorInfo_isRef(lean_object*);
 lean_object* l_Lean_IR_CtorInfo_isRef___boxed(lean_object*);
 lean_object* l_Lean_IR_VarId_alphaEqv___boxed(lean_object*, lean_object*, lean_object*);
@@ -177,7 +171,6 @@ lean_object* l_Lean_IR_LocalContext_isLocalVar_match__1___rarg(lean_object*, lea
 lean_object* l_Lean_IR_args_alphaEqv___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEqvAux___at_Lean_IR_IRType_beq___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_instInhabitedFnBody;
-lean_object* l_Lean_IR_AltCore_mmodifyBody_match__1(lean_object*);
 lean_object* l_Lean_IR_Decl_updateBody_x21___closed__4;
 lean_object* l_Lean_IR_Decl_getInfo(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_mmodifyJPs___spec__1(lean_object*);
@@ -201,25 +194,19 @@ lean_object* l_Lean_IR_instBEqLitVal;
 lean_object* l_Lean_IR_instInhabitedParam;
 lean_object* l_Lean_IR_AltCore_mmodifyBody___rarg___closed__1;
 lean_object* l_Lean_IR_AltCore_setBody_match__1(lean_object*);
-lean_object* l_Lean_IR_Decl_resultType_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_balLeft___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_instHashableJoinPointId___boxed(lean_object*);
 lean_object* lean_ir_mk_proj_expr(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Alt_ctor(lean_object*, lean_object*);
-lean_object* l_Lean_IR_LocalContext_getValue_match__1(lean_object*);
-lean_object* l_Lean_IR_LocalContext_getJPBody_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_instInhabitedParam___closed__1;
-lean_object* l_Lean_IR_Alt_isDefault_match__1(lean_object*);
 uint8_t l_Lean_IR_IRType_isUnion(lean_object*);
 lean_object* lean_ir_mk_case(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_IR_addVarRename___spec__1(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_Decl_isExtern(lean_object*);
 lean_object* l_Lean_IR_FnBody_alphaEqv_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_IR_mmodifyJPs_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_CtorInfo_beq_match__1(lean_object*);
 lean_object* l_Lean_IR_MData_empty;
-lean_object* l_Lean_IR_mmodifyJPs_match__1(lean_object*);
 lean_object* lean_ir_mk_extern_decl(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_updateBody_x21___closed__3;
 lean_object* lean_ir_mk_ctor_expr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -253,7 +240,6 @@ lean_object* l_Lean_IR_Expr_alphaEqv_match__1___rarg(lean_object*, lean_object*,
 uint8_t l_Array_isEqvAux___at_Lean_IR_FnBody_alphaEqv___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_ir_mk_var_arg(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
-lean_object* l_Lean_IR_Arg_alphaEqv_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_instAlphaEqvArg___closed__1;
 lean_object* lean_ir_mk_jmp(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Expr_alphaEqv_match__1(lean_object*);
@@ -262,7 +248,6 @@ lean_object* l_Lean_IR_IRType_isUnion_match__1___rarg(lean_object*, lean_object*
 lean_object* l_Lean_IR_LocalContext_isJP___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_mkIf___closed__2;
 lean_object* l_Lean_IR_mkIf___closed__1;
-lean_object* l_Lean_IR_LocalContext_getJPBody_match__1(lean_object*);
 lean_object* l_Lean_IR_mkIndexSet(lean_object*);
 lean_object* l_Lean_IR_reshape(lean_object*, lean_object*);
 lean_object* l_Lean_IR_instAlphaEqvVarId;
@@ -274,7 +259,6 @@ lean_object* l_Lean_IR_LocalContext_addLocal(lean_object*, lean_object*, lean_ob
 uint8_t l_Lean_IR_CtorInfo_beq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_instToFormatJoinPointId(lean_object*);
 lean_object* l_Lean_IR_IRType_isStruct___boxed(lean_object*);
-lean_object* l_Lean_IR_Decl_params_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_IRType_instBEqIRType;
 lean_object* l_Lean_IR_IRType_beq_match__1(lean_object*);
 lean_object* l_Lean_IR_IRType_isScalar_match__1(lean_object*);
@@ -284,11 +268,9 @@ lean_object* l_Lean_IR_instInhabitedVarId;
 lean_object* l_Lean_IR_modifyJPs(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_name_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_isParam___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_IR_Decl_updateBody_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_instToStringJoinPointId(lean_object*);
 lean_object* lean_ir_mk_ret(lean_object*);
 lean_object* lean_ir_mk_sproj_expr(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_IR_LocalContext_getValue_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_swapAt_x21___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_instBEqArg___closed__1;
 lean_object* l_Lean_IR_CtorInfo_beq_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -310,7 +292,6 @@ lean_object* l_Lean_IR_instBEqJoinPointId___boxed(lean_object*, lean_object*);
 lean_object* lean_ir_mk_unreachable(lean_object*);
 lean_object* l_Lean_IR_modifyJPs_match__1(lean_object*);
 lean_object* l_Lean_IR_Arg_beq___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_IR_Decl_params_match__1(lean_object*);
 lean_object* l_Lean_IR_AltCore_modifyBody_match__1(lean_object*);
 lean_object* l_Lean_IR_mkParam___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_alphaEqv_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -331,7 +312,6 @@ lean_object* l_Lean_IR_FnBody_alphaEqv_match__3___rarg___boxed(lean_object**);
 lean_object* l_Lean_IR_Decl_params(lean_object*);
 lean_object* l_Lean_IR_IRType_isScalar_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_isExtern_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_IR_Decl_resultType_match__1(lean_object*);
 lean_object* l_Lean_IR_FnBody_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Arg_beq_match__1(lean_object*);
 lean_object* l_Lean_IR_instBEqLitVal___closed__1;
@@ -3798,41 +3778,6 @@ return x_15;
 }
 }
 }
-lean_object* l_Lean_IR_AltCore_mmodifyBody_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_apply_2(x_2, x_4, x_5);
-return x_6;
-}
-else
-{
-lean_object* x_7; lean_object* x_8; 
-lean_dec(x_2);
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
-lean_dec(x_1);
-x_8 = lean_apply_1(x_3, x_7);
-return x_8;
-}
-}
-}
-lean_object* l_Lean_IR_AltCore_mmodifyBody_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_IR_AltCore_mmodifyBody_match__1___rarg), 3, 0);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_IR_AltCore_mmodifyBody___rarg___closed__1() {
 _start:
 {
@@ -3894,41 +3839,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_IR_AltCore_mmodifyBody___rarg), 3, 0);
-return x_2;
-}
-}
-lean_object* l_Lean_IR_Alt_isDefault_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_apply_2(x_2, x_4, x_5);
-return x_6;
-}
-else
-{
-lean_object* x_7; lean_object* x_8; 
-lean_dec(x_2);
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
-lean_dec(x_1);
-x_8 = lean_apply_1(x_3, x_7);
-return x_8;
-}
-}
-}
-lean_object* l_Lean_IR_Alt_isDefault_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_IR_Alt_isDefault_match__1___rarg), 3, 0);
 return x_2;
 }
 }
@@ -4201,42 +4111,6 @@ x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_7 = l_Array_mapMUnsafe_map___at_Lean_IR_modifyJPs___spec__1(x_1, x_5, x_6, x_4);
 return x_7;
-}
-}
-lean_object* l_Lean_IR_mmodifyJPs_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 1)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_1, 2);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 3);
-lean_inc(x_7);
-lean_dec(x_1);
-x_8 = lean_apply_4(x_2, x_4, x_5, x_6, x_7);
-return x_8;
-}
-else
-{
-lean_object* x_9; 
-lean_dec(x_2);
-x_9 = lean_apply_1(x_3, x_1);
-return x_9;
-}
-}
-}
-lean_object* l_Lean_IR_mmodifyJPs_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_IR_mmodifyJPs_match__1___rarg), 3, 0);
-return x_2;
 }
 }
 lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_mmodifyJPs___spec__1___rarg___lambda__1(size_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, size_t x_5, lean_object* x_6) {
@@ -4515,53 +4389,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_IR_Decl_params_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_1, 2);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 3);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_1, 4);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_apply_5(x_2, x_4, x_5, x_6, x_7, x_8);
-return x_9;
-}
-else
-{
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-lean_dec(x_2);
-x_10 = lean_ctor_get(x_1, 0);
-lean_inc(x_10);
-x_11 = lean_ctor_get(x_1, 1);
-lean_inc(x_11);
-x_12 = lean_ctor_get(x_1, 2);
-lean_inc(x_12);
-x_13 = lean_ctor_get(x_1, 3);
-lean_inc(x_13);
-lean_dec(x_1);
-x_14 = lean_apply_4(x_3, x_10, x_11, x_12, x_13);
-return x_14;
-}
-}
-}
-lean_object* l_Lean_IR_Decl_params_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_IR_Decl_params_match__1___rarg), 3, 0);
-return x_2;
-}
-}
 lean_object* l_Lean_IR_Decl_params(lean_object* x_1) {
 _start:
 {
@@ -4577,53 +4404,6 @@ _start:
 lean_object* x_2; 
 x_2 = l_Lean_IR_Decl_params(x_1);
 lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l_Lean_IR_Decl_resultType_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_1, 2);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 3);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_1, 4);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_apply_5(x_2, x_4, x_5, x_6, x_7, x_8);
-return x_9;
-}
-else
-{
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-lean_dec(x_2);
-x_10 = lean_ctor_get(x_1, 0);
-lean_inc(x_10);
-x_11 = lean_ctor_get(x_1, 1);
-lean_inc(x_11);
-x_12 = lean_ctor_get(x_1, 2);
-lean_inc(x_12);
-x_13 = lean_ctor_get(x_1, 3);
-lean_inc(x_13);
-lean_dec(x_1);
-x_14 = lean_apply_4(x_3, x_10, x_11, x_12, x_13);
-return x_14;
-}
-}
-}
-lean_object* l_Lean_IR_Decl_resultType_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_IR_Decl_resultType_match__1___rarg), 3, 0);
 return x_2;
 }
 }
@@ -4770,44 +4550,6 @@ _start:
 lean_object* x_2; 
 x_2 = l_Lean_IR_Decl_getInfo(x_1);
 lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l_Lean_IR_Decl_updateBody_x21_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_1, 2);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 3);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_1, 4);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_apply_5(x_2, x_4, x_5, x_6, x_7, x_8);
-return x_9;
-}
-else
-{
-lean_object* x_10; 
-lean_dec(x_2);
-x_10 = lean_apply_1(x_3, x_1);
-return x_10;
-}
-}
-}
-lean_object* l_Lean_IR_Decl_updateBody_x21_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_IR_Decl_updateBody_x21_match__1___rarg), 3, 0);
 return x_2;
 }
 }
@@ -7642,53 +7384,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* l_Lean_IR_LocalContext_getJPBody_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; 
-lean_dec(x_2);
-x_4 = lean_apply_1(x_3, x_1);
-return x_4;
-}
-else
-{
-lean_object* x_5; 
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-if (lean_obj_tag(x_5) == 2)
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_3);
-lean_dec(x_1);
-x_6 = lean_ctor_get(x_5, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_5, 1);
-lean_inc(x_7);
-lean_dec(x_5);
-x_8 = lean_apply_2(x_2, x_6, x_7);
-return x_8;
-}
-else
-{
-lean_object* x_9; 
-lean_dec(x_5);
-lean_dec(x_2);
-x_9 = lean_apply_1(x_3, x_1);
-return x_9;
-}
-}
-}
-}
-lean_object* l_Lean_IR_LocalContext_getJPBody_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_IR_LocalContext_getJPBody_match__1___rarg), 3, 0);
-return x_2;
-}
-}
 lean_object* l_Lean_IR_LocalContext_getJPBody(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -7761,53 +7456,6 @@ x_3 = l_Lean_IR_LocalContext_getJPBody(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
-}
-}
-lean_object* l_Lean_IR_LocalContext_getJPParams_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; 
-lean_dec(x_2);
-x_4 = lean_apply_1(x_3, x_1);
-return x_4;
-}
-else
-{
-lean_object* x_5; 
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-if (lean_obj_tag(x_5) == 2)
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_3);
-lean_dec(x_1);
-x_6 = lean_ctor_get(x_5, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_5, 1);
-lean_inc(x_7);
-lean_dec(x_5);
-x_8 = lean_apply_2(x_2, x_6, x_7);
-return x_8;
-}
-else
-{
-lean_object* x_9; 
-lean_dec(x_5);
-lean_dec(x_2);
-x_9 = lean_apply_1(x_3, x_1);
-return x_9;
-}
-}
-}
-}
-lean_object* l_Lean_IR_LocalContext_getJPParams_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_IR_LocalContext_getJPParams_match__1___rarg), 3, 0);
-return x_2;
 }
 }
 lean_object* l_Lean_IR_LocalContext_getJPParams(lean_object* x_1, lean_object* x_2) {
@@ -8439,53 +8087,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_IR_LocalContext_getValue_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; 
-lean_dec(x_2);
-x_4 = lean_apply_1(x_3, x_1);
-return x_4;
-}
-else
-{
-lean_object* x_5; 
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-if (lean_obj_tag(x_5) == 1)
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_3);
-lean_dec(x_1);
-x_6 = lean_ctor_get(x_5, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_5, 1);
-lean_inc(x_7);
-lean_dec(x_5);
-x_8 = lean_apply_2(x_2, x_6, x_7);
-return x_8;
-}
-else
-{
-lean_object* x_9; 
-lean_dec(x_5);
-lean_dec(x_2);
-x_9 = lean_apply_1(x_3, x_1);
-return x_9;
-}
-}
-}
-}
-lean_object* l_Lean_IR_LocalContext_getValue_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_IR_LocalContext_getValue_match__1___rarg), 3, 0);
-return x_2;
-}
-}
 lean_object* l_Lean_IR_LocalContext_getValue(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -8693,62 +8294,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_IR_instAlphaEqvVarId___closed__1;
 return x_1;
-}
-}
-lean_object* l_Lean_IR_Arg_alphaEqv_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_dec(x_4);
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_5);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_ctor_get(x_2, 0);
-lean_inc(x_7);
-lean_dec(x_2);
-x_8 = lean_apply_2(x_3, x_6, x_7);
-return x_8;
-}
-else
-{
-lean_object* x_9; 
-lean_dec(x_3);
-x_9 = lean_apply_2(x_5, x_1, x_2);
-return x_9;
-}
-}
-else
-{
-lean_dec(x_3);
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_10; 
-lean_dec(x_4);
-x_10 = lean_apply_2(x_5, x_1, x_2);
-return x_10;
-}
-else
-{
-lean_object* x_11; lean_object* x_12; 
-lean_dec(x_5);
-x_11 = lean_box(0);
-x_12 = lean_apply_1(x_4, x_11);
-return x_12;
-}
-}
-}
-}
-lean_object* l_Lean_IR_Arg_alphaEqv_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_IR_Arg_alphaEqv_match__1___rarg), 5, 0);
-return x_2;
 }
 }
 uint8_t l_Lean_IR_Arg_alphaEqv(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

@@ -369,7 +369,6 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_toEIO___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Handle_putStrLn(lean_object*);
 lean_object* lean_byte_array_copy_slice(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-lean_object* l_unsafeEIO_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_lines___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_Process_Stdio_toHandleType_match__1(lean_object*);
 lean_object* l_IO_FS_withIsolatedStreams(lean_object*);
@@ -471,7 +470,6 @@ lean_object* l_IO_Prim_setStdin___boxed(lean_object*, lean_object*);
 lean_object* l_instOrElseEIO___closed__1;
 lean_object* l_termPrintln_x21_______closed__1;
 lean_object* l_IO_Prim_Handle_read___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_unsafeEIO_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ByteArray_findIdx_x3f_loop___at_IO_FS_Stream_ofBuffer___elambda__2___spec__1(lean_object*, lean_object*);
 lean_object* l_IO_Prim_fopenFlags___closed__13;
 uint32_t l_IO_AccessRight_flags___closed__3;
@@ -866,43 +864,6 @@ _start:
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_IO_toEIO___rarg), 3, 0);
 return x_3;
-}
-}
-lean_object* l_unsafeEIO_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_apply_2(x_2, x_4, x_5);
-return x_6;
-}
-else
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_2);
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_1, 1);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_apply_2(x_3, x_7, x_8);
-return x_9;
-}
-}
-}
-lean_object* l_unsafeEIO_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_unsafeEIO_match__1___rarg), 3, 0);
-return x_4;
 }
 }
 lean_object* l_unsafeEIO___rarg(lean_object* x_1) {

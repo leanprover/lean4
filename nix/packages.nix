@@ -58,9 +58,9 @@ let
   # updating might be nicer by building from source from a flake input, but this is good enough for now
   vscode-lean4 = vscode-utils.extensionFromVscodeMarketplace {
       name = "lean4";
-      publisher = "mhuisi";
+      publisher = "leanprover";
       version = "0.0.6";
-      sha256 = "sha256-C60HfnfidtB8rUc2Waz2pDckdurX3ri9d2Yez34AfEI=";
+      sha256 = "sha256-kkLPzmsX+Njr6HuYthwX0lihG5AhF6J9GLiwwUsuVek=";
   };
   lean-vscode = vscode-with-extensions.override {
     vscodeExtensions = [ vscode-lean4 ];

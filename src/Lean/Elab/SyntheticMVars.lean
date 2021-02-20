@@ -296,11 +296,7 @@ def synthesizeSyntheticMVarsUsingDefault : TermElabM Unit := do
   synthesizeSyntheticMVars (mayPostpone := true)
   synthesizeUsingDefaultLoop
 
-/--
-  Execute `k`, and synthesize pending synthetic metavariables created while executing `k` are solved.
-  If `mayPostpone == false`, then all of them must be synthesized.
-  Remark: even if `mayPostpone == true`, the method still uses `synthesizeUsingDefault` -/
-partial def withSynthesize {α} (k : TermElabM α) (mayPostpone := false) : TermElabM α := do
+private partial def withSynthesizeImp {α} (k : TermElabM α) (mayPostpone : Bool) : TermElabM α := do
   let s ← get
   let syntheticMVarsSaved := s.syntheticMVars
   modify fun s => { s with syntheticMVars := [] }
@@ -312,6 +308,13 @@ partial def withSynthesize {α} (k : TermElabM α) (mayPostpone := false) : Term
     return a
   finally
     modify fun s => { s with syntheticMVars := s.syntheticMVars ++ syntheticMVarsSaved }
+
+/--
+  Execute `k`, and synthesize pending synthetic metavariables created while executing `k` are solved.
+  If `mayPostpone == false`, then all of them must be synthesized.
+  Remark: even if `mayPostpone == true`, the method still uses `synthesizeUsingDefault` -/
+@[inline] def withSynthesize [MonadFunctorT TermElabM m] [Monad m] (k : m α) (mayPostpone := false) : m α :=
+  monadMap (m := TermElabM) (withSynthesizeImp . mayPostpone) k
 
 /-- Elaborate `stx`, and make sure all pending synthetic metavariables created while elaborating `stx` are solved. -/
 def elabTermAndSynthesize (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=

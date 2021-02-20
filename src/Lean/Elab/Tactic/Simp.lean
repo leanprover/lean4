@@ -94,21 +94,25 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) : TacticM Simp.Co
           else
             arg[0][0].getKind == ``Parser.Tactic.simpPost
         match (← resolveSimpIdLemma? arg[1]) with
-        | some declName =>
-          let info ← getConstInfo declName
-          if (← isProp info.type) then
-            lemmas ← lemmas.addConst declName post
+        | some e =>
+          if e.isConst then
+            let declName := e.constName!
+            let info ← getConstInfo declName
+            if (← isProp info.type) then
+              lemmas ← lemmas.addConst declName post
+            else
+              toUnfold := toUnfold.insert declName
           else
-            toUnfold := toUnfold.insert declName
+            lemmas ← lemmas.add e post
         | _ =>
           let arg ← elabTerm arg[1] none (mayPostpone := false)
           lemmas ← lemmas.add arg post
       return { ctx with simpLemmas := lemmas, toUnfold := toUnfold }
 where
-  resolveSimpIdLemma? (simpArgTerm : Syntax) : TacticM (Option Name) := do
+  resolveSimpIdLemma? (simpArgTerm : Syntax) : TacticM (Option Expr) := do
     if simpArgTerm.isIdent then
       try
-        return some (← resolveGlobalConstNoOverload simpArgTerm.getId)
+        Term.resolveId? simpArgTerm
       catch _ =>
         return none
     else

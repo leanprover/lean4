@@ -23,7 +23,7 @@ open Meta
 
 def rewriteTarget (stx : Syntax) (symm : Bool) (mode : TransparencyMode) : TacticM Unit := do
   let (g, gs) ← getMainGoal
-  withMVarContext g do
+  Term.withSynthesize <| withMVarContext g do
     let e ← elabTerm stx none true
     let target ← instantiateMVars (← getMVarDecl g).type
     let r ← rewrite g target e symm (mode := mode)
@@ -32,7 +32,7 @@ def rewriteTarget (stx : Syntax) (symm : Bool) (mode : TransparencyMode) : Tacti
 
 def rewriteLocalDeclFVarId (stx : Syntax) (symm : Bool) (fvarId : FVarId) (mode : TransparencyMode) : TacticM Unit := do
   let (g, gs) ← getMainGoal
-  withMVarContext g do
+  Term.withSynthesize <| withMVarContext g do
     let e ← elabTerm stx none true
     let localDecl ← getLocalDecl fvarId
     let rwResult ← rewrite g localDecl.type e symm (mode := mode)

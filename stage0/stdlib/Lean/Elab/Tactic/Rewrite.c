@@ -96,6 +96,7 @@ lean_object* l_ReaderT_bind___at_Lean_Elab_Tactic_liftMetaTacticAux___spec__1___
 lean_object* l_Lean_Elab_Tactic_rewriteLocalDecl___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_setGoals(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withMVarContext___at_Lean_Elab_Tactic_withMainMVarContext___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_withSynthesizeImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_getFVarIds(lean_object*);
 lean_object* l_Lean_Meta_getLocalDeclFromUserName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalERewrite___closed__1;
@@ -565,7 +566,7 @@ lean_object* x_13;
 x_13 = l_Lean_Elab_Tactic_getMainGoal(x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_13) == 0)
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; lean_object* x_28; 
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_13, 1);
@@ -594,12 +595,18 @@ lean_closure_set(x_24, 3, x_17);
 x_25 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Elab_Tactic_liftMetaTacticAux___spec__1___rarg), 11, 2);
 lean_closure_set(x_25, 0, x_21);
 lean_closure_set(x_25, 1, x_24);
-x_26 = l_Lean_Meta_withMVarContext___at_Lean_Elab_Tactic_withMainMVarContext___spec__1___rarg(x_16, x_25, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_15);
-return x_26;
+x_26 = lean_alloc_closure((void*)(l_Lean_Meta_withMVarContext___at_Lean_Elab_Tactic_withMainMVarContext___spec__1___rarg), 11, 4);
+lean_closure_set(x_26, 0, x_16);
+lean_closure_set(x_26, 1, x_25);
+lean_closure_set(x_26, 2, x_4);
+lean_closure_set(x_26, 3, x_5);
+x_27 = 0;
+x_28 = l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_withSynthesizeImp___rarg(x_26, x_27, x_6, x_7, x_8, x_9, x_10, x_11, x_15);
+return x_28;
 }
 else
 {
-uint8_t x_27; 
+uint8_t x_29; 
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -609,23 +616,23 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_1);
-x_27 = !lean_is_exclusive(x_13);
-if (x_27 == 0)
+x_29 = !lean_is_exclusive(x_13);
+if (x_29 == 0)
 {
 return x_13;
 }
 else
 {
-lean_object* x_28; lean_object* x_29; lean_object* x_30; 
-x_28 = lean_ctor_get(x_13, 0);
-x_29 = lean_ctor_get(x_13, 1);
-lean_inc(x_29);
-lean_inc(x_28);
+lean_object* x_30; lean_object* x_31; lean_object* x_32; 
+x_30 = lean_ctor_get(x_13, 0);
+x_31 = lean_ctor_get(x_13, 1);
+lean_inc(x_31);
+lean_inc(x_30);
 lean_dec(x_13);
-x_30 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_30, 0, x_28);
-lean_ctor_set(x_30, 1, x_29);
-return x_30;
+x_32 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_32, 0, x_30);
+lean_ctor_set(x_32, 1, x_31);
+return x_32;
 }
 }
 }
@@ -822,7 +829,7 @@ lean_object* x_14;
 x_14 = l_Lean_Elab_Tactic_getMainGoal(x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_14) == 0)
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; lean_object* x_29; 
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 x_16 = lean_ctor_get(x_14, 1);
@@ -852,12 +859,18 @@ lean_closure_set(x_25, 4, x_18);
 x_26 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Elab_Tactic_liftMetaTacticAux___spec__1___rarg), 11, 2);
 lean_closure_set(x_26, 0, x_22);
 lean_closure_set(x_26, 1, x_25);
-x_27 = l_Lean_Meta_withMVarContext___at_Lean_Elab_Tactic_withMainMVarContext___spec__1___rarg(x_17, x_26, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_16);
-return x_27;
+x_27 = lean_alloc_closure((void*)(l_Lean_Meta_withMVarContext___at_Lean_Elab_Tactic_withMainMVarContext___spec__1___rarg), 11, 4);
+lean_closure_set(x_27, 0, x_17);
+lean_closure_set(x_27, 1, x_26);
+lean_closure_set(x_27, 2, x_5);
+lean_closure_set(x_27, 3, x_6);
+x_28 = 0;
+x_29 = l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_withSynthesizeImp___rarg(x_27, x_28, x_7, x_8, x_9, x_10, x_11, x_12, x_16);
+return x_29;
 }
 else
 {
-uint8_t x_28; 
+uint8_t x_30; 
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -868,23 +881,23 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_1);
-x_28 = !lean_is_exclusive(x_14);
-if (x_28 == 0)
+x_30 = !lean_is_exclusive(x_14);
+if (x_30 == 0)
 {
 return x_14;
 }
 else
 {
-lean_object* x_29; lean_object* x_30; lean_object* x_31; 
-x_29 = lean_ctor_get(x_14, 0);
-x_30 = lean_ctor_get(x_14, 1);
-lean_inc(x_30);
-lean_inc(x_29);
+lean_object* x_31; lean_object* x_32; lean_object* x_33; 
+x_31 = lean_ctor_get(x_14, 0);
+x_32 = lean_ctor_get(x_14, 1);
+lean_inc(x_32);
+lean_inc(x_31);
 lean_dec(x_14);
-x_31 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_31, 0, x_29);
-lean_ctor_set(x_31, 1, x_30);
-return x_31;
+x_33 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_33, 0, x_31);
+lean_ctor_set(x_33, 1, x_32);
+return x_33;
 }
 }
 }

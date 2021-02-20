@@ -457,6 +457,9 @@ private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × 
   let localInsts ← getLocalInstances
   withLCtx lctx localInsts do
     defaultAuxDecls.forM fun (declName, type, value) => do
+      let value ← instantiateMVars value
+      if value.hasExprMVar then
+        throwError! "invalid default value for field, it contains metavariables{indentExpr value}"
       /- The identity function is used as "marker". -/
       let value ← mkId value
       discard <| mkAuxDefinition declName type value (zeta := true)

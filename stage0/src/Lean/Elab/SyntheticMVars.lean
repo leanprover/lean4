@@ -11,24 +11,6 @@ namespace Lean.Elab.Term
 open Tactic (TacticM evalTactic getUnsolvedGoals)
 open Meta
 
-def liftTacticElabM {α} (mvarId : MVarId) (x : TacticM α) : TermElabM α :=
-  withMVarContext mvarId do
-    let s ← get
-    let savedSyntheticMVars := s.syntheticMVars
-    modify fun s => { s with syntheticMVars := [] }
-    try
-      x.run' { main := mvarId } { goals := [mvarId] }
-    finally
-      modify fun s => { s with syntheticMVars := savedSyntheticMVars }
-
-def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
-  /- Recall, `tacticCode` is the whole `by ...` expression.
-     We store the `by` because in the future we want to save the initial state information at the `by` position. -/
-  let code := tacticCode[1]
-  modifyThe Meta.State fun s => { s with mctx := s.mctx.instantiateMVarDeclMVars mvarId }
-  let remainingGoals ← withInfoHole mvarId do liftTacticElabM mvarId do evalTactic code; getUnsolvedGoals
-  unless remainingGoals.isEmpty do reportUnsolvedGoals remainingGoals
-
 /-- Auxiliary function used to implement `synthesizeSyntheticMVars`. -/
 private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSorry := true) : TermElabM Expr :=
   -- Remark: if `ctx.errToSorry` is already false, then we don't enable it. Recall tactics disable `errToSorry`
@@ -105,47 +87,6 @@ private def synthesizePendingCoeInstMVar
     catch
       | Exception.error _ msg => throwTypeMismatchError errorMsgHeader? expectedType eType e f? msg
       | _                     => unreachable!
-
-/-- Try to synthesize the given pending synthetic metavariable. -/
-private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool :=
-  withRef mvarSyntheticDecl.stx do
-  match mvarSyntheticDecl.kind with
-  | SyntheticMVarKind.typeClass => synthesizePendingInstMVar mvarSyntheticDecl.mvarId
-  | SyntheticMVarKind.coe header? eNew expectedType eType e f? => synthesizePendingCoeInstMVar mvarSyntheticDecl.mvarId header? eNew expectedType eType e f?
-  -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
-  | SyntheticMVarKind.postponed macroStack declName? => resumePostponed macroStack declName? mvarSyntheticDecl.stx mvarSyntheticDecl.mvarId postponeOnError
-  | SyntheticMVarKind.tactic declName? tacticCode =>
-    withReader (fun ctx => { ctx with declName? := declName? }) do
-      if runTactics then
-        runTactic mvarSyntheticDecl.mvarId tacticCode
-        return true
-      else
-        return false
-
-/--
-  Try to synthesize the current list of pending synthetic metavariables.
-  Return `true` if at least one of them was synthesized. -/
-private def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool := do
-  let ctx ← read
-  traceAtCmdPos `Elab.resuming fun _ =>
-    m!"resuming synthetic metavariables, mayPostpone: {ctx.mayPostpone}, postponeOnError: {postponeOnError}"
-  let s ← get
-  let syntheticMVars    := s.syntheticMVars
-  let numSyntheticMVars := syntheticMVars.length
-  -- We reset `syntheticMVars` because new synthetic metavariables may be created by `synthesizeSyntheticMVar`.
-  modify fun s => { s with syntheticMVars := [] }
-  -- Recall that `syntheticMVars` is a list where head is the most recent pending synthetic metavariable.
-  -- We use `filterRevM` instead of `filterM` to make sure we process the synthetic metavariables using the order they were created.
-  -- It would not be incorrect to use `filterM`.
-  let remainingSyntheticMVars ← syntheticMVars.filterRevM fun mvarDecl => do
-     -- We use `traceM` because we want to make sure the metavar local context is used to trace the message
-     traceM `Elab.postpone (withMVarContext mvarDecl.mvarId do addMessageContext m!"resuming {mkMVar mvarDecl.mvarId}")
-     let succeeded ← synthesizeSyntheticMVar mvarDecl postponeOnError runTactics
-     trace[Elab.postpone]! if succeeded then fmt "succeeded" else fmt "not ready yet"
-     pure !succeeded
-  -- Merge new synthetic metavariables with `remainingSyntheticMVars`, i.e., metavariables that still couldn't be synthesized
-  modify fun s => { s with syntheticMVars := s.syntheticMVars ++ remainingSyntheticMVars }
-  return numSyntheticMVars != remainingSyntheticMVars.length
 
 private def tryToSynthesizeUsingDefaultInstance (mvarId : MVarId) (defaultInstance : Name) : MetaM (Option (List SyntheticMVarDecl)) :=
   commitWhenSome? do
@@ -237,51 +178,115 @@ private def getSomeSynthethicMVarsRef : TermElabM Syntax := do
   | some mvarDecl => return mvarDecl.stx
   | none          => return Syntax.missing
 
-/--
-  Try to process pending synthetic metavariables. If `mayPostpone == false`,
-  then `syntheticMVars` is `[]` after executing this method.
 
-  It keeps executing `synthesizeSyntheticMVarsStep` while progress is being made.
-  If `mayPostpone == false`, then it applies default instances to `SyntheticMVarKind.typeClass` (if available)
-  metavariables that are still unresolved, and then tries to resolve metavariables
-  with `mayPostpone == false`. That is, we force them to produce error messages and/or commit to
-  a "best option". If, after that, we still haven't made progress, we report "stuck" errors. -/
-partial def synthesizeSyntheticMVars (mayPostpone := true) : TermElabM Unit :=
-  let rec loop (u : Unit) : TermElabM Unit := do
-    let ref ← getSomeSynthethicMVarsRef
-    withRef ref <| withIncRecDepth do
+mutual
+
+  partial def liftTacticElabM {α} (mvarId : MVarId) (x : TacticM α) : TermElabM α :=
+    withMVarContext mvarId do
       let s ← get
-      unless s.syntheticMVars.isEmpty do
-        if ← synthesizeSyntheticMVarsStep false false then
-          loop ()
-        else if !mayPostpone then
-          /- Resume pending metavariables with "elaboration postponement" disabled.
-             We postpone elaboration errors in this step by setting `postponeOnError := true`.
-             Example:
-             ```
-             #check let x := ⟨1, 2⟩; Prod.fst x
-             ```
-             The term `⟨1, 2⟩` can't be elaborated because the expected type is not know.
-             The `x` at `Prod.fst x` is not elaborated because the type of `x` is not known.
-             When we execute the following step with "elaboration postponement" disabled,
-             the elaborator fails at `⟨1, 2⟩` and postpones it, and succeeds at `x` and learns
-             that its type must be of the form `Prod ?α ?β`.
+      let savedSyntheticMVars := s.syntheticMVars
+      modify fun s => { s with syntheticMVars := [] }
+      try
+        let a ← x.run' { main := mvarId } { goals := [mvarId] }
+        synthesizeSyntheticMVars (mayPostpone := false)
+        pure a
+      finally
+        modify fun s => { s with syntheticMVars := savedSyntheticMVars }
 
-             Recall that we postponed `x` at `Prod.fst x` because its type it is not known.
-             We the type of `x` may learn later its type and it may contain implicit and/or auto arguments.
-             By disabling postponement, we are essentially giving up the opportunity of learning `x`s type
-             and assume it does not have implict and/or auto arguments. -/
-          if ← withoutPostponing (synthesizeSyntheticMVarsStep true  false) then
+  partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
+    /- Recall, `tacticCode` is the whole `by ...` expression.
+       We store the `by` because in the future we want to save the initial state information at the `by` position. -/
+    let code := tacticCode[1]
+    modifyThe Meta.State fun s => { s with mctx := s.mctx.instantiateMVarDeclMVars mvarId }
+    let remainingGoals ← withInfoHole mvarId do liftTacticElabM mvarId do evalTactic code; getUnsolvedGoals
+    unless remainingGoals.isEmpty do reportUnsolvedGoals remainingGoals
+
+  /-- Try to synthesize the given pending synthetic metavariable. -/
+  private partial def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool :=
+    withRef mvarSyntheticDecl.stx do
+    match mvarSyntheticDecl.kind with
+    | SyntheticMVarKind.typeClass => synthesizePendingInstMVar mvarSyntheticDecl.mvarId
+    | SyntheticMVarKind.coe header? eNew expectedType eType e f? => synthesizePendingCoeInstMVar mvarSyntheticDecl.mvarId header? eNew expectedType eType e f?
+    -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
+    | SyntheticMVarKind.postponed macroStack declName? => resumePostponed macroStack declName? mvarSyntheticDecl.stx mvarSyntheticDecl.mvarId postponeOnError
+    | SyntheticMVarKind.tactic declName? tacticCode =>
+      withReader (fun ctx => { ctx with declName? := declName? }) do
+        if runTactics then
+          runTactic mvarSyntheticDecl.mvarId tacticCode
+          return true
+        else
+          return false
+  /--
+    Try to synthesize the current list of pending synthetic metavariables.
+    Return `true` if at least one of them was synthesized. -/
+  private partial def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool := do
+    let ctx ← read
+    traceAtCmdPos `Elab.resuming fun _ =>
+      m!"resuming synthetic metavariables, mayPostpone: {ctx.mayPostpone}, postponeOnError: {postponeOnError}"
+    let s ← get
+    let syntheticMVars    := s.syntheticMVars
+    let numSyntheticMVars := syntheticMVars.length
+    -- We reset `syntheticMVars` because new synthetic metavariables may be created by `synthesizeSyntheticMVar`.
+    modify fun s => { s with syntheticMVars := [] }
+    -- Recall that `syntheticMVars` is a list where head is the most recent pending synthetic metavariable.
+    -- We use `filterRevM` instead of `filterM` to make sure we process the synthetic metavariables using the order they were created.
+    -- It would not be incorrect to use `filterM`.
+    let remainingSyntheticMVars ← syntheticMVars.filterRevM fun mvarDecl => do
+       -- We use `traceM` because we want to make sure the metavar local context is used to trace the message
+       traceM `Elab.postpone (withMVarContext mvarDecl.mvarId do addMessageContext m!"resuming {mkMVar mvarDecl.mvarId}")
+       let succeeded ← synthesizeSyntheticMVar mvarDecl postponeOnError runTactics
+       trace[Elab.postpone]! if succeeded then fmt "succeeded" else fmt "not ready yet"
+       pure !succeeded
+    -- Merge new synthetic metavariables with `remainingSyntheticMVars`, i.e., metavariables that still couldn't be synthesized
+    modify fun s => { s with syntheticMVars := s.syntheticMVars ++ remainingSyntheticMVars }
+    return numSyntheticMVars != remainingSyntheticMVars.length
+
+  /--
+    Try to process pending synthetic metavariables. If `mayPostpone == false`,
+    then `syntheticMVars` is `[]` after executing this method.
+
+    It keeps executing `synthesizeSyntheticMVarsStep` while progress is being made.
+    If `mayPostpone == false`, then it applies default instances to `SyntheticMVarKind.typeClass` (if available)
+    metavariables that are still unresolved, and then tries to resolve metavariables
+    with `mayPostpone == false`. That is, we force them to produce error messages and/or commit to
+    a "best option". If, after that, we still haven't made progress, we report "stuck" errors. -/
+  partial def synthesizeSyntheticMVars (mayPostpone := true) : TermElabM Unit :=
+    let rec loop (u : Unit) : TermElabM Unit := do
+      let ref ← getSomeSynthethicMVarsRef
+      withRef ref <| withIncRecDepth do
+        let s ← get
+        unless s.syntheticMVars.isEmpty do
+          if ← synthesizeSyntheticMVarsStep false false then
             loop ()
-          else if ← synthesizeUsingDefault then
-            loop ()
-          else if ← withoutPostponing (synthesizeSyntheticMVarsStep false false) then
-            loop ()
-          else if ← synthesizeSyntheticMVarsStep false true then
-            loop ()
-          else
-            reportStuckSyntheticMVars
-  loop ()
+          else if !mayPostpone then
+            /- Resume pending metavariables with "elaboration postponement" disabled.
+               We postpone elaboration errors in this step by setting `postponeOnError := true`.
+               Example:
+               ```
+               #check let x := ⟨1, 2⟩; Prod.fst x
+               ```
+               The term `⟨1, 2⟩` can't be elaborated because the expected type is not know.
+               The `x` at `Prod.fst x` is not elaborated because the type of `x` is not known.
+               When we execute the following step with "elaboration postponement" disabled,
+               the elaborator fails at `⟨1, 2⟩` and postpones it, and succeeds at `x` and learns
+               that its type must be of the form `Prod ?α ?β`.
+
+               Recall that we postponed `x` at `Prod.fst x` because its type it is not known.
+               We the type of `x` may learn later its type and it may contain implicit and/or auto arguments.
+               By disabling postponement, we are essentially giving up the opportunity of learning `x`s type
+               and assume it does not have implict and/or auto arguments. -/
+            if ← withoutPostponing (synthesizeSyntheticMVarsStep true  false) then
+              loop ()
+            else if ← synthesizeUsingDefault then
+              loop ()
+            else if ← withoutPostponing (synthesizeSyntheticMVarsStep false false) then
+              loop ()
+            else if ← synthesizeSyntheticMVarsStep false true then
+              loop ()
+            else
+              reportStuckSyntheticMVars
+    loop ()
+end
 
 def synthesizeSyntheticMVarsNoPostponing : TermElabM Unit :=
   synthesizeSyntheticMVars (mayPostpone := false)
@@ -296,11 +301,7 @@ def synthesizeSyntheticMVarsUsingDefault : TermElabM Unit := do
   synthesizeSyntheticMVars (mayPostpone := true)
   synthesizeUsingDefaultLoop
 
-/--
-  Execute `k`, and synthesize pending synthetic metavariables created while executing `k` are solved.
-  If `mayPostpone == false`, then all of them must be synthesized.
-  Remark: even if `mayPostpone == true`, the method still uses `synthesizeUsingDefault` -/
-partial def withSynthesize {α} (k : TermElabM α) (mayPostpone := false) : TermElabM α := do
+private partial def withSynthesizeImp {α} (k : TermElabM α) (mayPostpone : Bool) : TermElabM α := do
   let s ← get
   let syntheticMVarsSaved := s.syntheticMVars
   modify fun s => { s with syntheticMVars := [] }
@@ -312,6 +313,13 @@ partial def withSynthesize {α} (k : TermElabM α) (mayPostpone := false) : Term
     return a
   finally
     modify fun s => { s with syntheticMVars := s.syntheticMVars ++ syntheticMVarsSaved }
+
+/--
+  Execute `k`, and synthesize pending synthetic metavariables created while executing `k` are solved.
+  If `mayPostpone == false`, then all of them must be synthesized.
+  Remark: even if `mayPostpone == true`, the method still uses `synthesizeUsingDefault` -/
+@[inline] def withSynthesize [MonadFunctorT TermElabM m] [Monad m] (k : m α) (mayPostpone := false) : m α :=
+  monadMap (m := TermElabM) (withSynthesizeImp . mayPostpone) k
 
 /-- Elaborate `stx`, and make sure all pending synthetic metavariables created while elaborating `stx` are solved. -/
 def elabTermAndSynthesize (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=

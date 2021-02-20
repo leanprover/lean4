@@ -258,28 +258,29 @@ private partial def withParents (view : StructView) (i : Nat) (infos : Array Str
   else
     k infos
 
-private def elabFieldTypeValue (view : StructFieldView) (params : Array Expr) (k : Option Expr → Option Expr → TermElabM α) : TermElabM α := do
-  match view.type? with
-  | none         =>
-    match view.value? with
-    | none        => k none none
-    | some valStx =>
-      let params ← Term.addAutoBoundImplicits params
-      let value ← Term.elabTerm valStx none
-      let value ← mkLambdaFVars params value
-      k none value
-  | some typeStx =>
-    Term.elabTypeWithAutoBoundImplicit typeStx fun type => do
-      let params ← Term.addAutoBoundImplicits params
+private def elabFieldTypeValue (view : StructFieldView) : TermElabM (Option Expr × Option Expr) := do
+  Term.withAutoBoundImplicitLocal <| Term.elabBinders (catchAutoBoundImplicit := true) view.binders.getArgs fun params => do
+    match view.type? with
+    | none         =>
       match view.value? with
-      | none        =>
-        let type  ← mkForallFVars params type
-        k type none
+      | none        => return (none, none)
       | some valStx =>
-        let value ← Term.elabTermEnsuringType valStx type
-        let type  ← mkForallFVars params type
+        let params ← Term.addAutoBoundImplicits params
+        let value ← Term.elabTerm valStx none
         let value ← mkLambdaFVars params value
-        k type value
+        return (none, value)
+    | some typeStx =>
+      Term.elabTypeWithAutoBoundImplicit typeStx fun type => do
+        let params ← Term.addAutoBoundImplicits params
+        match view.value? with
+        | none        =>
+          let type  ← mkForallFVars params type
+          return (type, none)
+        | some valStx =>
+          let value ← Term.elabTermEnsuringType valStx type
+          let type  ← mkForallFVars params type
+          let value ← mkLambdaFVars params value
+          return (type, value)
 
 private partial def withFields
     (views : Array StructFieldView) (i : Nat) (infos : Array StructFieldInfo) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
@@ -288,21 +289,20 @@ private partial def withFields
     withRef view.ref $
     match findFieldInfo? infos view.name with
     | none      => do
-      Term.withAutoBoundImplicitLocal <| Term.elabBinders (catchAutoBoundImplicit := true) view.binders.getArgs fun params =>
-        elabFieldTypeValue view params fun type? value? => do
-          match type?, value? with
-          | none,      none => throwError "invalid field, type expected"
-          | some type, _    =>
-            withLocalDecl view.name view.binderInfo type fun fieldFVar =>
-              let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value?,
-                                        kind := StructFieldKind.newField, inferMod := view.inferMod }
-              withFields views (i+1) infos k
-          | none, some value =>
-            let type ← inferType value
-            withLocalDecl view.name view.binderInfo type fun fieldFVar =>
-              let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value,
-                                        kind := StructFieldKind.newField, inferMod := view.inferMod }
-              withFields views (i+1) infos k
+      let (type?, value?) ← elabFieldTypeValue view
+      match type?, value? with
+      | none,      none => throwError "invalid field, type expected"
+      | some type, _    =>
+        withLocalDecl view.name view.binderInfo type fun fieldFVar =>
+          let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value?,
+                                    kind := StructFieldKind.newField, inferMod := view.inferMod }
+          withFields views (i+1) infos k
+      | none, some value =>
+        let type ← inferType value
+        withLocalDecl view.name view.binderInfo type fun fieldFVar =>
+          let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value,
+                                    kind := StructFieldKind.newField, inferMod := view.inferMod }
+          withFields views (i+1) infos k
     | some info =>
       match info.kind with
       | StructFieldKind.newField   => throwError! "field '{view.name}' has already been declared"
@@ -431,6 +431,7 @@ private def mkCtor (view : StructView) (levelParams : List Name) (params : Array
   let type ← addCtorFields fieldInfos fieldInfos.size type
   let type ← mkForallFVars params type
   let type ← instantiateMVars type
+  trace[Meta.debug]! "ctor type: {type}"
   let type := type.inferImplicit params.size !view.ctor.inferMod
   pure { name := view.ctor.declName, type := type }
 
@@ -493,6 +494,7 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
         let ctor ← mkCtor view levelParams params fieldInfos
         let type ← mkForallFVars params type
         let type ← instantiateMVars type
+        trace[Meta.debug]! "type: {type}"
         let indType := { name := view.declName, type := type, ctors := [ctor] : InductiveType }
         let decl    := Declaration.inductDecl levelParams params.size [indType] view.modifiers.isUnsafe
         Term.ensureNoUnassignedMVars decl

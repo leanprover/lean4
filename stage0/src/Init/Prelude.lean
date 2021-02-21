@@ -18,8 +18,8 @@ abbrev Function.comp {α : Sort u} {β : Sort v} {δ : Sort w} (f : β → δ) (
 abbrev Function.const {α : Sort u} (β : Sort v) (a : α) : β → α :=
   fun x => a
 
-@[reducible] def inferInstance {α : Type u} [i : α] : α := i
-@[reducible] def inferInstanceAs (α : Type u) [i : α] : α := i
+@[reducible] def inferInstance {α : Sort u} [i : α] : α := i
+@[reducible] def inferInstanceAs (α : Sort u) [i : α] : α := i
 
 set_option bootstrap.inductiveCheckResultingUniverse false in
 inductive PUnit : Sort u where
@@ -60,6 +60,8 @@ abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : 
   Eq.rec (motive := fun α _ => motive α) m h
 
 @[matchPattern] def rfl {α : Sort u} {a : α} : Eq a a := Eq.refl a
+
+@[simp] theorem id_eq (a : α) : Eq (id a) a := rfl
 
 theorem Eq.subst {α : Sort u} {motive : α → Prop} {a b : α} (h₁ : Eq a b) (h₂ : motive a) : motive b :=
   Eq.ndrec h₂ h₁
@@ -1183,12 +1185,12 @@ instance (m) : MonadLiftT m m where
     but not restricted to monad transformers.
     Alternatively, an implementation of [MonadTransFunctor](http://duairc.netsoc.ie/layers-docs/Control-Monad-Layer.html#t:MonadTransFunctor). -/
 class MonadFunctor (m : Type u → Type v) (n : Type u → Type w) where
-  monadMap {α : Type u} : (∀ {β}, m β → m β) → n α → n α
+  monadMap {α : Type u} : ({β : Type u} → m β → m β) → n α → n α
 
 /-- The reflexive-transitive closure of `MonadFunctor`.
     `monadMap` is used to transitively lift Monad morphisms -/
 class MonadFunctorT (m : Type u → Type v) (n : Type u → Type w) where
-  monadMap {α : Type u} : (∀ {β}, m β → m β) → n α → n α
+  monadMap {α : Type u} : ({β : Type u} → m β → m β) → n α → n α
 
 export MonadFunctorT (monadMap)
 
@@ -1302,7 +1304,7 @@ end ReaderT
     Note: This class can be seen as a simplification of the more "principled" definition
     ```
     class MonadReader (ρ : outParam (Type u)) (n : Type u → Type u) where
-      lift {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ReaderT ρ m α) → n α
+      lift {α : Type u} : ({m : Type u → Type u} → [Monad m] → ReaderT ρ m α) → n α
     ```
     -/
 class MonadReaderOf (ρ : Type u) (m : Type u → Type v) where

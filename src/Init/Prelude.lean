@@ -18,8 +18,8 @@ abbrev Function.comp {α : Sort u} {β : Sort v} {δ : Sort w} (f : β → δ) (
 abbrev Function.const {α : Sort u} (β : Sort v) (a : α) : β → α :=
   fun x => a
 
-@[reducible] def inferInstance {α : Type u} [i : α] : α := i
-@[reducible] def inferInstanceAs (α : Type u) [i : α] : α := i
+@[reducible] def inferInstance {α : Sort u} [i : α] : α := i
+@[reducible] def inferInstanceAs (α : Sort u) [i : α] : α := i
 
 set_option bootstrap.inductiveCheckResultingUniverse false in
 inductive PUnit : Sort u where

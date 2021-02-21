@@ -19,7 +19,7 @@ structure State where
 abbrev ReplaceM := StateM State
 
 @[inline] unsafe def cache (i : USize) (key : Expr) (result : Expr) : ReplaceM Expr := do
-  modify fun s => { keys := s.keys.uset i key lcProof, results := s.results.uset i result lcProof };
+  modify fun ⟨keys, results⟩ => { keys := keys.uset i key lcProof, results := results.uset i result lcProof };
   pure result
 
 @[inline] unsafe def replaceUnsafeM (f? : Expr → Option Expr) (size : USize) (e : Expr) : ReplaceM Expr := do

@@ -10,36 +10,39 @@ import Init.Control.Basic
 import Init.Control.Id
 import Init.Coe
 
-universes u v w u'
-
 namespace Except
 variable {ε : Type u}
 
-@[inline] protected def pure {α : Type v} (a : α) : Except ε α :=
+@[inline] protected def pure (a : α) : Except ε α :=
   Except.ok a
 
-@[inline] protected def map {α β : Type v} (f : α → β) : Except ε α → Except ε β
+@[inline] protected def map (f : α → β) : Except ε α → Except ε β
   | Except.error err => Except.error err
   | Except.ok v => Except.ok <| f v
 
-@[inline] protected def mapError {ε' : Type u} {α : Type v} (f : ε → ε') : Except ε α → Except ε' α
+@[simp] theorem map_id : Except.map (ε := ε) (α := α) (β := α) id = id := by
+  apply funext
+  intro e
+  simp [Except.map]; cases e <;> rfl
+
+@[inline] protected def mapError (f : ε → ε') : Except ε α → Except ε' α
   | Except.error err => Except.error <| f err
   | Except.ok v      => Except.ok v
 
-@[inline] protected def bind {α β : Type v} (ma : Except ε α) (f : α → Except ε β) : Except ε β :=
+@[inline] protected def bind (ma : Except ε α) (f : α → Except ε β) : Except ε β :=
   match ma with
   | Except.error err => Except.error err
   | Except.ok v      => f v
 
-@[inline] protected def toBool {α : Type v} : Except ε α → Bool
+@[inline] protected def toBool : Except ε α → Bool
   | Except.ok _    => true
   | Except.error _ => false
 
-@[inline] protected def toOption {α : Type v} : Except ε α → Option α
+@[inline] protected def toOption : Except ε α → Option α
   | Except.ok a    => some a
   | Except.error _ => none
 
-@[inline] protected def tryCatch {α : Type u} (ma : Except ε α) (handle : ε → Except ε α) : Except ε α :=
+@[inline] protected def tryCatch (ma : Except ε α) (handle : ε → Except ε α) : Except ε α :=
   match ma with
   | Except.ok a    => Except.ok a
   | Except.error e => handle e

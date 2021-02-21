@@ -61,6 +61,8 @@ abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : 
 
 @[matchPattern] def rfl {α : Sort u} {a : α} : Eq a a := Eq.refl a
 
+@[simp] theorem id_eq (a : α) : Eq (id a) a := rfl
+
 theorem Eq.subst {α : Sort u} {motive : α → Prop} {a b : α} (h₁ : Eq a b) (h₂ : motive a) : motive b :=
   Eq.ndrec h₂ h₁
 

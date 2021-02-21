@@ -556,9 +556,6 @@ end
 
 /- Product -/
 
-section
-variable {α : Type u} {β : Type v}
-
 instance [Inhabited α] [Inhabited β] : Inhabited (α × β) where
   default := (arbitrary, arbitrary)
 
@@ -585,9 +582,11 @@ instance prodHasDecidableLt
 
 theorem Prod.ltDef [HasLess α] [HasLess β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
   rfl
-end
 
-def Prod.map.{u₁, u₂, v₁, v₂} {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
+theorem Prod.ext (p : α × β) : (p.1, p.2) = p := by
+  cases p; rfl
+
+def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
     (f : α₁ → α₂) (g : β₁ → β₂) : α₁ × β₁ → α₂ × β₂
   | (a, b) => (f a, g b)
 

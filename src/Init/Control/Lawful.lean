@@ -67,6 +67,19 @@ theorem bind_congr [Bind m] {x : m α} {f g : α → m β} (h : ∀ a, f a = g a
 theorem map_congr [Functor m] {x : m α} {f g : α → β} (h : ∀ a, f a = g a) : (f <$> x : m β) = g <$> x := by
   simp [funext h]
 
+theorem seq_eq_bind {α β : Type u} [Monad m] [LawfulMonad m] (mf : m (α → β)) (x : m α) : mf <*> x = mf >>= fun f => f <$> x := by
+  rw [bind_map]
+
+theorem seqRight_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x *> y = x >>= fun _ => y := by
+  rw [seqRight_eq, ← bind_map, ← bind_pure_comp]
+  simp [Function.const]
+
+theorem seqLeft_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x <* y = x >>= fun a => y >>= fun _ => pure a := by
+  rw [seqLeft_eq, ← bind_map, ← bind_pure_comp]
+  simp
+  apply bind_congr; intro
+  rw [← bind_pure_comp]
+
 /- Id -/
 
 namespace Id
@@ -148,3 +161,41 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (ExceptT ε m) where
   bind_assoc     := by intros; apply ext; simp; apply bind_congr; intro a; cases a <;> simp
 
 end ExceptT
+
+/- ReaderT -/
+
+namespace ReaderT
+
+theorem ext [Monad m] {x y : ReaderT ρ m α} (h : ∀ ctx, x.run ctx = y.run ctx) : x = y := by
+  simp [run] at h
+  exact funext h
+
+@[simp] theorem run_pure [Monad m] (a : α) (ctx : ρ) : (pure a : ReaderT ρ m α).run ctx = pure a := rfl
+@[simp] theorem run_bind [Monad m] (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) (ctx : ρ)
+    : (x >>= f).run ctx = x.run ctx >>= λ a => (f a).run ctx := rfl
+@[simp] theorem run_map [Monad m] (f : α → β) (x : ReaderT ρ m α) (ctx : ρ)
+    : (f <$> x).run ctx = f <$> x.run ctx := rfl
+@[simp] theorem run_monad_lift [MonadLiftT n m] (x : n α) (ctx : ρ)
+    : (monadLift x : ReaderT ρ m α).run ctx = (monadLift x : m α) := rfl
+@[simp] theorem run_monad_map [Monad m] [MonadFunctor n m] (f : {β : Type u} → n β → n β) (x : ReaderT ρ m α) (ctx : ρ)
+    : (monadMap @f x : ReaderT ρ m α).run ctx = monadMap @f (x.run ctx) := rfl
+@[simp] theorem run_read [Monad m] (ctx : ρ) : (ReaderT.read : ReaderT ρ m ρ).run ctx = pure ctx := rfl
+@[simp] theorem run_seq {α β : Type u} [Monad m] [LawfulMonad m] (f : ReaderT ρ m (α → β)) (x : ReaderT ρ m α) (ctx : ρ) : (f <*> x).run ctx = (f.run ctx <*> x.run ctx) := by
+  rw [seq_eq_bind (m := m)]; rfl
+@[simp] theorem run_seqRight [Monad m] [LawfulMonad m] (x : ReaderT ρ m α) (y : ReaderT ρ m β) (ctx : ρ) : (x *> y).run ctx = (x.run ctx *> y.run ctx) := by
+  rw [seqRight_eq_bind (m := m)]; rfl
+@[simp] theorem run_seqLeft [Monad m] [LawfulMonad m] (x : ReaderT ρ m α) (y : ReaderT ρ m β) (ctx : ρ) : (x <* y).run ctx = (x.run ctx <* y.run ctx) := by
+  rw [seqLeft_eq_bind (m := m)]; rfl
+
+instance [Monad m] [LawfulMonad m] : LawfulMonad (ReaderT ρ m) where
+  id_map         := by intros; apply ext; intros; simp
+  map_const      := by intros; rfl
+  seqLeft_eq     := by intros; apply ext; intros; simp; apply LawfulApplicative.seqLeft_eq
+  seqRight_eq    := by intros; apply ext; intros; simp; apply LawfulApplicative.seqRight_eq
+  pure_seq       := by intros; apply ext; intros; simp; apply LawfulApplicative.pure_seq
+  bind_pure_comp := by intros; apply ext; intros; simp; apply LawfulMonad.bind_pure_comp
+  bind_map       := by intros; rfl
+  pure_bind      := by intros; apply ext; intros; simp
+  bind_assoc     := by intros; apply ext; intros; simp
+
+end ReaderT

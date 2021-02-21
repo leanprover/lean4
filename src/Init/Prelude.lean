@@ -1183,12 +1183,12 @@ instance (m) : MonadLiftT m m where
     but not restricted to monad transformers.
     Alternatively, an implementation of [MonadTransFunctor](http://duairc.netsoc.ie/layers-docs/Control-Monad-Layer.html#t:MonadTransFunctor). -/
 class MonadFunctor (m : Type u → Type v) (n : Type u → Type w) where
-  monadMap {α : Type u} : (∀ {β}, m β → m β) → n α → n α
+  monadMap {α : Type u} : ({β : Type u} → m β → m β) → n α → n α
 
 /-- The reflexive-transitive closure of `MonadFunctor`.
     `monadMap` is used to transitively lift Monad morphisms -/
 class MonadFunctorT (m : Type u → Type v) (n : Type u → Type w) where
-  monadMap {α : Type u} : (∀ {β}, m β → m β) → n α → n α
+  monadMap {α : Type u} : ({β : Type u} → m β → m β) → n α → n α
 
 export MonadFunctorT (monadMap)
 
@@ -1302,7 +1302,7 @@ end ReaderT
     Note: This class can be seen as a simplification of the more "principled" definition
     ```
     class MonadReader (ρ : outParam (Type u)) (n : Type u → Type u) where
-      lift {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ReaderT ρ m α) → n α
+      lift {α : Type u} : ({m : Type u → Type u} → [Monad m] → ReaderT ρ m α) → n α
     ```
     -/
 class MonadReaderOf (ρ : Type u) (m : Type u → Type v) where

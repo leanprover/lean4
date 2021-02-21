@@ -179,7 +179,8 @@ private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
 
 def inferTypeImp (e : Expr) : MetaM Expr :=
   let rec infer : Expr → MetaM Expr
-    | Expr.const c lvls _      => inferConstType c lvls
+    | Expr.const c [] _        => inferConstType c []
+    | Expr.const c us _        => checkInferTypeCache e (inferConstType c us)
     | e@(Expr.proj n i s _)    => checkInferTypeCache e (inferProjType n i s)
     | e@(Expr.app f _ _)       => checkInferTypeCache e (inferAppType f.getAppFn e.getAppArgs)
     | Expr.mvar mvarId _       => inferMVarType mvarId

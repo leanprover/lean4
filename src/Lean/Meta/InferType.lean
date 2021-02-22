@@ -174,7 +174,7 @@ private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
   | some type => pure type
   | none =>
     let type ← inferType
-    modify fun s => { s with cache := { s.cache with inferType := s.cache.inferType.insert e type } }
+    modifyInferTypeCache fun c => c.insert e type
     pure type
 
 def inferTypeImp (e : Expr) : MetaM Expr :=

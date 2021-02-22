@@ -85,12 +85,15 @@ open Std (PersistentArray PersistentHashMap)
 
 abbrev SynthInstanceCache := PersistentHashMap Expr (Option Expr)
 
+abbrev InferTypeCache := PersistentExprStructMap Expr
+abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo
+abbrev WhnfCache      := PersistentExprStructMap Expr
 structure Cache where
-  inferType     : PersistentExprStructMap Expr := {}
-  funInfo       : PersistentHashMap InfoCacheKey FunInfo := {}
+  inferType     : InferTypeCache := {}
+  funInfo       : FunInfoCache   := {}
   synthInstance : SynthInstanceCache := {}
-  whnfDefault   : PersistentExprStructMap Expr := {} -- cache for closed terms and `TransparencyMode.default`
-  whnfAll       : PersistentExprStructMap Expr := {} -- cache for closed terms and `TransparencyMode.all`
+  whnfDefault   : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
+  whnfAll       : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
   deriving Inhabited
 
 structure PostponedEntry where
@@ -158,7 +161,13 @@ builtin_initialize
   controlAt MetaM fun runInBase => f fun b c => runInBase <| k b c
 
 section Methods
-variable {n : Type → Type} [MonadControlT MetaM n] [Monad n]
+variable [MonadControlT MetaM n] [Monad n]
+
+@[inline] def modifyCache (f : Cache → Cache) : MetaM Unit :=
+  modify fun ⟨mctx, cache, zetaFVarIds, postponed⟩ => ⟨mctx, f cache, zetaFVarIds, postponed⟩
+
+@[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
+  modifyCache fun ⟨ic, c1, c2, c3, c4⟩ => ⟨f ic, c1, c2, c3, c4⟩
 
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances
@@ -488,11 +497,11 @@ private partial def isClassQuick? : Expr → MetaM (LOption Name)
 def saveAndResetSynthInstanceCache : MetaM SynthInstanceCache := do
   let s ← get
   let savedSythInstance := s.cache.synthInstance
-  modify fun s => { s with cache := { s.cache with synthInstance := {} } }
+  modifyCache fun c => { c with synthInstance := {} }
   pure savedSythInstance
 
 def restoreSynthInstanceCache (cache : SynthInstanceCache) : MetaM Unit :=
-  modify fun s => { s with cache := { s.cache with synthInstance := cache } }
+  modifyCache fun c => { c with synthInstance := cache }
 
 @[inline] private def resettingSynthInstanceCacheImpl {α} (x : MetaM α) : MetaM α := do
   let savedSythInstance ← saveAndResetSynthInstanceCache

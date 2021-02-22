@@ -87,6 +87,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_synthesizeArgs___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_rewriteUsingDecide_x3f___closed__4;
 lean_object* l_Lean_Meta_Simp_synthesizeArgs___closed__1;
+extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_558____closed__2;
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_synthesizeArgs_match__1(lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_Meta_Simp_synthesizeArgs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -98,7 +99,6 @@ lean_object* l_Lean_Meta_Simp_rewriteUsingDecide_x3f___closed__3;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_synthesizeArgs___spec__3___closed__10;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_synthesizeArgs___spec__3___closed__7;
 extern lean_object* l_Lean_Parser_Tactic_rewrite___closed__1;
-extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_550____closed__2;
 lean_object* l_Lean_Meta_Simp_synthesizeArgs_match__3___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_rewriteUsingDecide_x3f___closed__5;
 lean_object* l_Lean_Meta_Simp_synthesizeArgs_match__4(lean_object*);
@@ -521,7 +521,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_synthesiz
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_550____closed__2;
+x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_558____closed__2;
 x_2 = l_Lean_Parser_Tactic_intro___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

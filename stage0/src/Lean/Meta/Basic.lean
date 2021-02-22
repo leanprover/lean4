@@ -78,19 +78,22 @@ structure InfoCacheKey where
 
 namespace InfoCacheKey
 instance : Hashable InfoCacheKey :=
-  ⟨fun ⟨transparency, expr, nargs⟩ => mixHash (hash transparency) $ mixHash (hash expr) (hash nargs)⟩
+  ⟨fun ⟨transparency, expr, nargs⟩ => mixHash (hash transparency) <| mixHash (hash expr) (hash nargs)⟩
 end InfoCacheKey
 
 open Std (PersistentArray PersistentHashMap)
 
 abbrev SynthInstanceCache := PersistentHashMap Expr (Option Expr)
 
+abbrev InferTypeCache := PersistentExprStructMap Expr
+abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo
+abbrev WhnfCache      := PersistentExprStructMap Expr
 structure Cache where
-  inferType     : PersistentExprStructMap Expr := {}
-  funInfo       : PersistentHashMap InfoCacheKey FunInfo := {}
+  inferType     : InferTypeCache := {}
+  funInfo       : FunInfoCache   := {}
   synthInstance : SynthInstanceCache := {}
-  whnfDefault   : PersistentExprStructMap Expr := {} -- cache for closed terms and `TransparencyMode.default`
-  whnfAll       : PersistentExprStructMap Expr := {} -- cache for closed terms and `TransparencyMode.all`
+  whnfDefault   : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
+  whnfAll       : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
   deriving Inhabited
 
 structure PostponedEntry where
@@ -139,7 +142,7 @@ instance [MetaEval α] : MetaEval (MetaM α) :=
   ⟨fun env opts x _ => MetaEval.eval env opts x.run' true⟩
 
 protected def throwIsDefEqStuck {α} : MetaM α :=
-  throw $ Exception.internal isDefEqStuckExceptionId
+  throw <| Exception.internal isDefEqStuckExceptionId
 
 builtin_initialize
   registerTraceClass `Meta
@@ -149,16 +152,22 @@ builtin_initialize
   liftM x
 
 @[inline] def mapMetaM [MonadControlT MetaM m] [Monad m] (f : forall {α}, MetaM α → MetaM α) {α} (x : m α) : m α :=
-  controlAt MetaM fun runInBase => f $ runInBase x
+  controlAt MetaM fun runInBase => f <| runInBase x
 
 @[inline] def map1MetaM [MonadControlT MetaM m] [Monad m] (f : forall {α}, (β → MetaM α) → MetaM α) {α} (k : β → m α) : m α :=
-  controlAt MetaM fun runInBase => f fun b => runInBase $ k b
+  controlAt MetaM fun runInBase => f fun b => runInBase <| k b
 
 @[inline] def map2MetaM [MonadControlT MetaM m] [Monad m] (f : forall {α}, (β → γ → MetaM α) → MetaM α) {α} (k : β → γ → m α) : m α :=
-  controlAt MetaM fun runInBase => f fun b c => runInBase $ k b c
+  controlAt MetaM fun runInBase => f fun b c => runInBase <| k b c
 
 section Methods
-variable {n : Type → Type} [MonadControlT MetaM n] [Monad n]
+variable [MonadControlT MetaM n] [Monad n]
+
+@[inline] def modifyCache (f : Cache → Cache) : MetaM Unit :=
+  modify fun ⟨mctx, cache, zetaFVarIds, postponed⟩ => ⟨mctx, f cache, zetaFVarIds, postponed⟩
+
+@[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
+  modifyCache fun ⟨ic, c1, c2, c3, c4⟩ => ⟨f ic, c1, c2, c3, c4⟩
 
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances
@@ -212,7 +221,7 @@ protected def withIncRecDepth {α} (x : n α) : n α :=
 private def mkFreshExprMVarAtCore
     (mvarId : MVarId) (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (kind : MetavarKind) (userName : Name) (numScopeArgs : Nat) : MetaM Expr := do
   modifyMCtx fun mctx => mctx.addExprMVarDecl mvarId userName lctx localInsts type kind numScopeArgs;
-  pure $ mkMVar mvarId
+  return mkMVar mvarId
 
 def mkFreshExprMVarAt
     (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr)
@@ -488,11 +497,11 @@ private partial def isClassQuick? : Expr → MetaM (LOption Name)
 def saveAndResetSynthInstanceCache : MetaM SynthInstanceCache := do
   let s ← get
   let savedSythInstance := s.cache.synthInstance
-  modify fun s => { s with cache := { s.cache with synthInstance := {} } }
+  modifyCache fun c => { c with synthInstance := {} }
   pure savedSythInstance
 
 def restoreSynthInstanceCache (cache : SynthInstanceCache) : MetaM Unit :=
-  modify fun s => { s with cache := { s.cache with synthInstance := cache } }
+  modifyCache fun c => { c with synthInstance := cache }
 
 @[inline] private def resettingSynthInstanceCacheImpl {α} (x : MetaM α) : MetaM α := do
   let savedSythInstance ← saveAndResetSynthInstanceCache
@@ -511,7 +520,7 @@ private def withNewLocalInstanceImp {α} (className : Name) (fvar : Expr) (k : M
   match localDecl.binderInfo with
   | BinderInfo.auxDecl => k
   | _ =>
-    resettingSynthInstanceCache $
+    resettingSynthInstanceCache <|
       withReader
         (fun ctx => { ctx with localInstances := ctx.localInstances.push { className := className, fvar := fvar } })
         k
@@ -520,7 +529,7 @@ private def withNewLocalInstanceImp {α} (className : Name) (fvar : Expr) (k : M
     and then execute continuation `k`.
     It resets the type class cache using `resettingSynthInstanceCache`. -/
 def withNewLocalInstance {α} (className : Name) (fvar : Expr) : n α → n α :=
-  mapMetaM $ withNewLocalInstanceImp className fvar
+  mapMetaM <| withNewLocalInstanceImp className fvar
 
 private def fvarsSizeLtMaxFVars (fvars : Array Expr) (maxFVars? : Option Nat) : Bool :=
   match maxFVars? with
@@ -546,8 +555,8 @@ mutual
       | LOption.undef  =>
         match (← isClassExpensive? decl.type) with
         | none   => withNewLocalInstancesImp fvars (i+1) k
-        | some c => withNewLocalInstance c fvar $ withNewLocalInstancesImp fvars (i+1) k
-      | LOption.some c => withNewLocalInstance c fvar $ withNewLocalInstancesImp fvars (i+1) k
+        | some c => withNewLocalInstance c fvar <| withNewLocalInstancesImp fvars (i+1) k
+      | LOption.some c => withNewLocalInstance c fvar <| withNewLocalInstancesImp fvars (i+1) k
     else
       k
 
@@ -646,10 +655,10 @@ def isClass? (type : Expr) : MetaM (Option Name) :=
   try isClassImp? type catch _ => pure none
 
 private def withNewLocalInstancesImpAux {α} (fvars : Array Expr) (j : Nat) : n α → n α :=
-  mapMetaM $ withNewLocalInstancesImp fvars j
+  mapMetaM <| withNewLocalInstancesImp fvars j
 
 partial def withNewLocalInstances {α} (fvars : Array Expr) (j : Nat) : n α → n α :=
-  mapMetaM $ withNewLocalInstancesImpAux fvars j
+  mapMetaM <| withNewLocalInstancesImpAux fvars j
 
 @[inline] private def forallTelescopeImp {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α := do
   forallTelescopeReducingAuxAux (reducing := false) (maxFVars? := none) type k
@@ -809,7 +818,7 @@ partial def lambdaMetaTelescope (e : Expr) (maxMVars? : Option Nat := none) : Me
 private def withNewFVar {α} (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM α := do
   match (← isClass? fvarType) with
   | none   => k fvar
-  | some c => withNewLocalInstance c fvar $ k fvar
+  | some c => withNewLocalInstance c fvar <| k fvar
 
 private def withLocalDeclImp {α} (n : Name) (bi : BinderInfo) (type : Expr) (k : Expr → MetaM α) : MetaM α := do
   let fvarId ← mkFreshId
@@ -845,15 +854,15 @@ private def withExistingLocalDeclsImp {α} (decls : List LocalDecl) (k : MetaM �
       (fun (newlocalInsts : Array LocalInstance) (decl : LocalDecl) => (do {
         match (← isClass? decl.type) with
         | none   => pure newlocalInsts
-        | some c => pure $ newlocalInsts.push { className := c, fvar := decl.toExpr } } : MetaM _))
+        | some c => pure <| newlocalInsts.push { className := c, fvar := decl.toExpr } } : MetaM _))
       ctx.localInstances;
     if newLocalInsts.size == numLocalInstances then
       k
     else
-      resettingSynthInstanceCache $ withReader (fun ctx => { ctx with localInstances := newLocalInsts }) k
+      resettingSynthInstanceCache <| withReader (fun ctx => { ctx with localInstances := newLocalInsts }) k
 
 def withExistingLocalDecls {α} (decls : List LocalDecl) : n α → n α :=
-  mapMetaM $ withExistingLocalDeclsImp decls
+  mapMetaM <| withExistingLocalDeclsImp decls
 
 private def withNewMCtxDepthImp {α} (x : MetaM α) : MetaM α := do
   let s ← get
@@ -876,7 +885,7 @@ private def withLocalContextImp {α} (lctx : LocalContext) (localInsts : LocalIn
       resettingSynthInstanceCache x
 
 def withLCtx {α} (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α :=
-  mapMetaM $ withLocalContextImp lctx localInsts
+  mapMetaM <| withLocalContextImp lctx localInsts
 
 private def withMVarContextImp {α} (mvarId : MVarId) (x : MetaM α) : MetaM α := do
   let mvarDecl ← getMVarDecl mvarId
@@ -887,7 +896,7 @@ private def withMVarContextImp {α} (mvarId : MVarId) (x : MetaM α) : MetaM α 
   The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
   different from the current ones. -/
 def withMVarContext {α} (mvarId : MVarId) : n α → n α :=
-  mapMetaM $ withMVarContextImp mvarId
+  mapMetaM <| withMVarContextImp mvarId
 
 private def withMCtxImp {α} (mctx : MetavarContext) (x : MetaM α) : MetaM α := do
   let mctx' ← getMCtx
@@ -895,7 +904,7 @@ private def withMCtxImp {α} (mctx : MetavarContext) (x : MetaM α) : MetaM α :
   try x finally setMCtx mctx'
 
 def withMCtx {α} (mctx : MetavarContext) : n α → n α :=
-  mapMetaM $ withMCtxImp mctx
+  mapMetaM <| withMCtxImp mctx
 
 @[inline] private def approxDefEqImp {α} (x : MetaM α) : MetaM α :=
   withConfig (fun config => { config with foApprox := true, ctxApprox := true, quasiPatternApprox := true}) x
@@ -1002,7 +1011,7 @@ instance {α} : OrElse (MetaM α) := ⟨Meta.orelse⟩
       try
         y
       catch
-        | Exception.error ref₂ m₂ => throw $ Exception.error (mergeRef ref₁ ref₂) (mergeMsg m₁ m₂)
+        | Exception.error ref₂ m₂ => throw <| Exception.error (mergeRef ref₁ ref₂) (mergeMsg m₁ m₂)
         | ex => throw ex
     | ex => throw ex
 
@@ -1020,7 +1029,7 @@ def mapErrorImp {α} (x : MetaM α) (f : MessageData → MessageData) : MetaM α
   try
     x
   catch
-    | Exception.error ref msg => throw $ Exception.error ref $ f msg
+    | Exception.error ref msg => throw <| Exception.error ref <| f msg
     | ex => throw ex
 
 @[inline] def mapError {α m} [MonadControlT MetaM m] [Monad m] (x : m α) (f : MessageData → MessageData) : m α :=

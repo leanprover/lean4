@@ -237,6 +237,7 @@ lean_object* l_Array_back___at_Lean_Meta_UnificationHints_add___spec__15___boxed
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificationHint_decode___closed__2;
 lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_validateHint(lean_object*);
+extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_558____closed__4;
 lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificationHint_decode___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificationHint_decode(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_52____closed__4;
@@ -246,7 +247,6 @@ extern lean_object* l_Lean_instInhabitedPersistentEnvExtension___closed__5;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_52____closed__2;
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Meta_UnificationHints_add___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_tryUnificationHints_tryCandidate_match__2___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_550____closed__4;
 extern lean_object* l_Lean_Meta_DiscrTree_format___rarg___closed__1;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapM___at_Lean_Meta_tryUnificationHints_tryCandidate___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3804,7 +3804,7 @@ lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; uint
 x_48 = lean_ctor_get(x_38, 1);
 lean_inc(x_48);
 lean_dec(x_38);
-x_49 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_550____closed__4;
+x_49 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_558____closed__4;
 x_50 = l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__8(x_49, x_4, x_5, x_6, x_7, x_48);
 x_51 = lean_ctor_get(x_50, 0);
 lean_inc(x_51);

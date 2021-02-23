@@ -603,20 +603,20 @@ protected theorem PSigma.eta {α : Sort u} {β : α → Sort v} {a₁ a₂ : α}
 
 /- Universe polymorphic unit -/
 
-theorem punitEq (a b : PUnit) : a = b := by
+theorem PUnit.subsingleton (a b : PUnit) : a = b := by
   cases a; cases b; exact rfl
 
-theorem punitEqPUnit (a : PUnit) : a = () :=
-  punitEq a ()
+@[simp] theorem PUnit.eq_punit (a : PUnit) : a = () :=
+  PUnit.subsingleton a ()
 
 instance : Subsingleton PUnit :=
-  Subsingleton.intro punitEq
+  Subsingleton.intro PUnit.subsingleton
 
 instance : Inhabited PUnit where
   default := ⟨⟩
 
 instance : DecidableEq PUnit :=
-  fun a b => isTrue (punitEq a b)
+  fun a b => isTrue (PUnit.subsingleton a b)
 
 /- Setoid -/
 

@@ -15,6 +15,12 @@ inductive Tree (α : Type) where
 
 #eval Tree.node (List.iota 10 |>.map fun i => Tree.node [Tree.leaf i] (i%2==0)) true
 
+inductive StructureLikeInductive where
+  | field : Nat -> StructureLikeInductive
+  deriving Repr
+
+#eval StructureLikeInductive.field 5
+
 namespace Foo
 mutual
 inductive Tree (α : Type u) where

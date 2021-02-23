@@ -62,6 +62,9 @@ def land : Fin n → Fin n → Fin n
 def lor : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(Nat.lor a b) % n, mlt h⟩
 
+def lxor : Fin n → Fin n → Fin n
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(Nat.lxor a b) % n, mlt h⟩
+
 instance : Add (Fin n) where
   add := Fin.add
 

@@ -1276,7 +1276,7 @@ bool lean_nat_big_le(lean_object * a1, lean_object * a2);
 bool lean_nat_big_lt(lean_object * a1, lean_object * a2);
 lean_object * lean_nat_big_land(lean_object * a1, lean_object * a2);
 lean_object * lean_nat_big_lor(lean_object * a1, lean_object * a2);
-lean_object * lean_nat_big_xor(lean_object * a1, lean_object * a2);
+lean_object * lean_nat_big_lxor(lean_object * a1, lean_object * a2);
 
 lean_obj_res lean_cstr_to_nat(char const * n);
 lean_obj_res lean_big_usize_to_nat(size_t n);
@@ -1426,7 +1426,7 @@ static inline lean_obj_res lean_nat_lxor(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
         return lean_box(lean_unbox(a1) ^ lean_unbox(a2));
     } else {
-        return lean_nat_big_xor(a1, a2);
+        return lean_nat_big_lxor(a1, a2);
     }
 }
 

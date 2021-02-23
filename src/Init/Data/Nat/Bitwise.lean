@@ -30,5 +30,7 @@ partial def bitwise (f : Bool → Bool → Bool) (n m : Nat) : Nat :=
 def land : Nat → Nat → Nat := bitwise and
 @[extern "lean_nat_lor"]
 def lor  : Nat → Nat → Nat := bitwise or
+@[extern "lean_nat_lxor"]
+def lxor  : Nat → Nat → Nat := bitwise (fun a b => a != b)
 
 end Nat

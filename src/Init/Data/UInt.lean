@@ -30,6 +30,8 @@ def UInt8.modn (a : UInt8) (n : @& Nat) : UInt8 := ⟨a.val % n⟩
 def UInt8.land (a b : UInt8) : UInt8 := ⟨Fin.land a.val b.val⟩
 @[extern c inline "#1 | #2"]
 def UInt8.lor (a b : UInt8) : UInt8 := ⟨Fin.lor a.val b.val⟩
+@[extern c inline "#1 ^ #2"]
+def UInt8.lxor (a b : UInt8) : UInt8 := ⟨Fin.lxor a.val b.val⟩
 def UInt8.lt (a b : UInt8) : Prop := a.val < b.val
 def UInt8.le (a b : UInt8) : Prop := a.val ≤ b.val
 
@@ -84,6 +86,8 @@ def UInt16.modn (a : UInt16) (n : @& Nat) : UInt16 := ⟨a.val % n⟩
 def UInt16.land (a b : UInt16) : UInt16 := ⟨Fin.land a.val b.val⟩
 @[extern c inline "#1 | #2"]
 def UInt16.lor (a b : UInt16) : UInt16 := ⟨Fin.lor a.val b.val⟩
+@[extern c inline "#1 ^ #2"]
+def UInt16.lxor (a b : UInt16) : UInt16 := ⟨Fin.lxor a.val b.val⟩
 def UInt16.lt (a b : UInt16) : Prop := a.val < b.val
 def UInt16.le (a b : UInt16) : Prop := a.val ≤ b.val
 
@@ -139,6 +143,8 @@ def UInt32.modn (a : UInt32) (n : @& Nat) : UInt32 := ⟨a.val % n⟩
 def UInt32.land (a b : UInt32) : UInt32 := ⟨Fin.land a.val b.val⟩
 @[extern c inline "#1 | #2"]
 def UInt32.lor (a b : UInt32) : UInt32 := ⟨Fin.lor a.val b.val⟩
+@[extern c inline "#1 ^ #2"]
+def UInt32.lxor (a b : UInt32) : UInt32 := ⟨Fin.lxor a.val b.val⟩
 @[extern c inline "((uint8_t)#1)"]
 def UInt32.toUInt8 (a : UInt32) : UInt8 := a.toNat.toUInt8
 @[extern c inline "((uint16_t)#1)"]
@@ -180,6 +186,8 @@ def UInt64.modn (a : UInt64) (n : @& Nat) : UInt64 := ⟨a.val % n⟩
 def UInt64.land (a b : UInt64) : UInt64 := ⟨Fin.land a.val b.val⟩
 @[extern c inline "#1 | #2"]
 def UInt64.lor (a b : UInt64) : UInt64 := ⟨Fin.lor a.val b.val⟩
+@[extern c inline "#1 ^ #2"]
+def UInt64.lxor (a b : UInt64) : UInt64 := ⟨Fin.lxor a.val b.val⟩
 def UInt64.lt (a b : UInt64) : Prop := a.val < b.val
 def UInt64.le (a b : UInt64) : Prop := a.val ≤ b.val
 @[extern c inline "((uint8_t)#1)"]
@@ -249,6 +257,8 @@ def USize.modn (a : USize) (n : @& Nat) : USize := ⟨a.val % n⟩
 def USize.land (a b : USize) : USize := ⟨Fin.land a.val b.val⟩
 @[extern c inline "#1 | #2"]
 def USize.lor (a b : USize) : USize := ⟨Fin.lor a.val b.val⟩
+@[extern c inline "#1 ^ #2"]
+def USize.lxor (a b : USize) : USize := ⟨Fin.lxor a.val b.val⟩
 @[extern c inline "#1"]
 def UInt32.toUSize (a : UInt32) : USize := a.toNat.toUSize
 @[extern c inline "((size_t)#1)"]

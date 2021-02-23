@@ -78,7 +78,7 @@ where
     return alts
 
 def mkBody (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Syntax := do
-  if isStructureLike (← getEnv) indVal.name then
+  if isStructure (← getEnv) indVal.name then
     mkBodyForStruct ctx header indVal
   else
     mkBodyForInduct ctx header indVal auxFunName

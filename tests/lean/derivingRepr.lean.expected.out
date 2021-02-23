@@ -16,6 +16,7 @@ Tree.node
    Tree.node [Tree.leaf 2] true,
    Tree.node [Tree.leaf 1] false]
   true
+StructureLikeInductive.field 5
 Foo.Tree.node
   (Foo.TreeList.cons
     (Foo.Tree.leaf 30)

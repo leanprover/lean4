@@ -155,10 +155,9 @@ protected theorem seqLeft_eq {α β ε : Type u} {m : Type u → Type v} [Monad 
   apply ext
   simp [run_bind]
   apply bind_congr
-  intro a
-  cases a with
-  | error => simp
-  | ok =>
+  intro
+  | Except.error _ => simp
+  | Except.ok _ =>
     simp [map_eq_pure_bind]; apply bind_congr; intro b;
     cases b <;> simp [comp, Except.map, const]
 

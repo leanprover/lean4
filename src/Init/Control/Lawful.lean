@@ -27,8 +27,8 @@ class LawfulApplicative (f : Type u → Type v) [Applicative f] extends LawfulFu
   seqRight_eq (x : f α) (y : f β)     : x *> y = const α id <$> x <*> y
   pure_seq    (g : α → β) (x : f α)   : pure g <*> x = g <$> x
   map_pure    (g : α → β) (x : α)     : g <$> (pure x : f α) = pure (g x)
-  seq_pure    (g : f (α → β)) (x : α) : g <*> pure x = (fun h : α → β => h x) <$> g
-  seq_assoc   (x : f α) (g : f (α → β)) (h : f (β → γ)) : h <*> (g <*> x) = (@comp α β γ <$> h) <*> g <*> x
+  seq_pure    (g : f (α → β)) (x : α) : g <*> pure x = (fun h => h x) <$> g
+  seq_assoc   (x : f α) (g : f (α → β)) (h : f (β → γ)) : h <*> (g <*> x) = ((. ∘ .) <$> h) <*> g <*> x
   comp_map g h x := by
     repeat rw [← pure_seq]
     simp [seq_assoc, map_pure, seq_pure]
@@ -106,9 +106,20 @@ theorem ext [Monad m] {x y : ExceptT ε m α} (h : x.run = y.run) : x = y := by
   assumption
 
 @[simp] theorem run_pure [Monad m] : run (pure x : ExceptT ε m α) = pure (Except.ok x) := rfl
+
 @[simp] theorem run_lift [Monad m] : run (ExceptT.lift x : ExceptT ε m α) = Except.ok <$> x := rfl
+
 @[simp] theorem run_throw [Monad m] : run (throw e : ExceptT ε m β) = pure (Except.error e) := rfl
-@[simp] theorem run_bind [Monad m] (x : ExceptT ε m α)
+
+@[simp] theorem run_bind_lift [Monad m] [LawfulMonad m] (x : m α) (f : α → ExceptT ε m β) : run (ExceptT.lift x >>= f : ExceptT ε m β) = x >>= fun a => run (f a) := by
+  simp[ExceptT.run, ExceptT.lift, bind, ExceptT.bind, ExceptT.mk, ExceptT.bindCont]
+  rw [← bind_pure_comp]
+  simp
+
+@[simp] theorem bind_throw [Monad m] [LawfulMonad m] (f : α → ExceptT ε m β) : (throw e >>= f) = throw e := by
+  simp [throw, throwThe, MonadExceptOf.throw, bind, ExceptT.bind, ExceptT.bindCont, ExceptT.mk]
+
+theorem run_bind [Monad m] (x : ExceptT ε m α)
         : run (x >>= f : ExceptT ε m β)
           =
           run x >>= fun
@@ -136,7 +147,7 @@ protected theorem seqLeft_eq {α β ε : Type u} {m : Type u → Type v} [Monad 
   show (x >>= fun a => y >>= fun _ => pure a) = (const (α := α) β <$> x) >>= fun f => f <$> y
   rw [← ExceptT.bind_pure_comp]
   apply ext
-  simp
+  simp [run_bind]
   apply bind_congr
   intro a
   cases a with
@@ -149,7 +160,7 @@ protected theorem seqRight_eq [Monad m] [LawfulMonad m] (x : ExceptT ε m α) (y
   show (x >>= fun _ => y) = (const α id <$> x) >>= fun f => f <$> y
   rw [← ExceptT.bind_pure_comp]
   apply ext
-  simp
+  simp [run_bind]
   apply bind_congr
   intro a; cases a <;> simp
 
@@ -158,11 +169,11 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (ExceptT ε m) where
   map_const      := by intros; rfl
   seqLeft_eq     := ExceptT.seqLeft_eq
   seqRight_eq    := ExceptT.seqRight_eq
-  pure_seq       := by intros; apply ext; simp [ExceptT.seq_eq]
+  pure_seq       := by intros; apply ext; simp [ExceptT.seq_eq, run_bind]
   bind_pure_comp := ExceptT.bind_pure_comp
   bind_map       := by intros; rfl
-  pure_bind      := by intros; apply ext; simp
-  bind_assoc     := by intros; apply ext; simp; apply bind_congr; intro a; cases a <;> simp
+  pure_bind      := by intros; apply ext; simp [run_bind]
+  bind_assoc     := by intros; apply ext; simp [run_bind]; apply bind_congr; intro a; cases a <;> simp
 
 end ExceptT
 

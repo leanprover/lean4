@@ -60,7 +60,7 @@ where
           patterns := patterns.push (← `(_))
         let mut ctorArgs := #[]
         let mut rhs := Syntax.mkStrLit (toString ctorInfo.name)
-        let mut rhs ← `(Format.text $rhs)
+        rhs ← `(Format.text $rhs)
         -- add `_` for inductive parameters, they are inaccessible
         for i in [:indVal.numParams] do
           ctorArgs := ctorArgs.push (← `(_))

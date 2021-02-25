@@ -607,19 +607,19 @@ def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit :
   withFunLocalDecls headers fun funFVars => do
     let values ← elabFunValues headers
     Term.synthesizeSyntheticMVarsNoPostponing
-    if isExample views then
-      pure ()
-    else
-      let values ← values.mapM (instantiateMVars ·)
-      let headers ← headers.mapM instantiateMVarsAtHeader
-      let letRecsToLift ← getLetRecsToLift
-      let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
-      checkLetRecsToLiftTypes funFVars letRecsToLift
-      withUsed vars headers values letRecsToLift fun vars => do
-        let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
-        let preDefs ← levelMVarToParamPreDecls preDefs
-        let preDefs ← instantiateMVarsAtPreDecls preDefs
-        let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
+    let values ← values.mapM (instantiateMVars ·)
+    let headers ← headers.mapM instantiateMVarsAtHeader
+    let letRecsToLift ← getLetRecsToLift
+    let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
+    checkLetRecsToLiftTypes funFVars letRecsToLift
+    withUsed vars headers values letRecsToLift fun vars => do
+      let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
+      let preDefs ← levelMVarToParamPreDecls preDefs
+      let preDefs ← instantiateMVarsAtPreDecls preDefs
+      let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
+      if isExample views then
+        withoutModifyingEnv <| addPreDefinitions preDefs
+      else
         addPreDefinitions preDefs
 
 end Term

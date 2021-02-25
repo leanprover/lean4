@@ -98,7 +98,6 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM U
     let env ← getEnv
     let decl :=
       match preDef.kind with
-      | DefKind.«example» => unreachable!
       | DefKind.«theorem» =>
         Declaration.thmDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value }
       | DefKind.«opaque»  =>
@@ -108,7 +107,7 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM U
         Declaration.defnDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value,
                                hints := ReducibilityHints.«abbrev»,
                                safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
-      | DefKind.«def»  =>
+      | _ => -- definitions and examples
         Declaration.defnDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value,
                                hints := ReducibilityHints.regular (getMaxHeight env preDef.value + 1),
                                safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }

@@ -1252,8 +1252,6 @@ instance (ρ : Type u) (m : Type u → Type v) (α : Type u) [Inhabited (m α)] 
 @[inline] def ReaderT.run {ρ : Type u} {m : Type u → Type v} {α : Type u} (x : ReaderT ρ m α) (r : ρ) : m α :=
   x r
 
-@[reducible] def Reader (ρ : Type u) := ReaderT ρ id
-
 namespace ReaderT
 
 section

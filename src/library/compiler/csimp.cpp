@@ -1611,7 +1611,6 @@ class csimp_fn {
         csimp_cfg const &   m_cfg;
         bool                m_before_erasure;
         name                m_target;
-        name_set            m_visited;
 
         is_recursive_fn(environment const & env, csimp_cfg const & cfg, bool before_erasure):
             m_env(env), m_cfg(cfg), m_before_erasure(before_erasure) {
@@ -1631,13 +1630,13 @@ class csimp_fn {
             }
         }
 
-        bool visit(name const & f) {
+        bool visit(name const & f, name_set visited) {
             if (optional<constant_info> info = is_inline_candidate(f)) {
-                if (m_visited.contains(f))
+                if (visited.contains(f))
                     return true;
-                m_visited.insert(f);
+                visited.insert(f);
                 return static_cast<bool>(::lean::find(info->get_value(), [&](expr const & e, unsigned) {
-                            return is_constant(e) && (const_name(e) == m_target || visit(const_name(e)));
+                            return is_constant(e) && (const_name(e) == m_target || visit(const_name(e), visited));
                         }));
             } else {
                 return false;
@@ -1646,7 +1645,7 @@ class csimp_fn {
 
         bool operator()(name const & f) {
             m_target = f;
-            return visit(f);
+            return visit(f, name_set());
         }
     };
 

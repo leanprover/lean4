@@ -229,7 +229,7 @@ section ServerM
         else
           -- Worker crashed
           fw.errorPendingRequests o ErrorCode.internalError
-            s!"Server process for {fw.doc.meta.uri} crashed, likely due to a stack overflow in user code."
+            s!"Server process for {fw.doc.meta.uri} crashed, {if exitCode = 1 then "see stderr for exception" else "likely due to a stack overflow in user code"}."
           return WorkerEvent.crashed err
       loop
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated

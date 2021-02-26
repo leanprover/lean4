@@ -30,6 +30,7 @@ instance ClientCapabilities.hasToJson : ToJson ClientCapabilities :=
 structure ServerCapabilities where
   textDocumentSync? : Option TextDocumentSyncOptions := none
   hoverProvider : Bool := false
+  documentHighlightProvider : Bool := false
   documentSymbolProvider : Bool := false
   definitionProvider : Bool := false
   declarationProvider : Bool := false

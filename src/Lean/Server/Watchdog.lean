@@ -386,6 +386,7 @@ section MessageHandling
     | "textDocument/declaration"        => handle DeclarationParams
     | "textDocument/definition"         => handle DefinitionParams
     | "textDocument/typeDefinition"     => handle TypeDefinitionParams
+    | "textDocument/documentHighlight"  => handle DocumentHighlightParams
     | "textDocument/documentSymbol"     => handle DocumentSymbolParams
     | "$/lean/plainGoal"                => handle PlainGoalParams
     | _                                 =>
@@ -497,6 +498,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
   declarationProvider := true
   definitionProvider := true
   typeDefinitionProvider := true
+  documentHighlightProvider := true
   documentSymbolProvider := true
 }
 

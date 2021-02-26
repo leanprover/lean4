@@ -615,6 +615,8 @@ def initAndRunWorker (i o e : FS.Stream) : IO UInt32 := do
     ReaderT.run (r := ctx) mainLoop
     return 0
   catch e =>
+    IO.eprintln e
+    -- diagnostic doesn't seem to be visible in either VS Code or Emacs, consult stderr instead
     o.writeLspNotification {
       method := "textDocument/publishDiagnostics"
       param  := {

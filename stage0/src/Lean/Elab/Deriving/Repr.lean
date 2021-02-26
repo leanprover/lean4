@@ -60,7 +60,7 @@ where
           patterns := patterns.push (← `(_))
         let mut ctorArgs := #[]
         let mut rhs := Syntax.mkStrLit (toString ctorInfo.name)
-        let mut rhs ← `(Format.text $rhs)
+        rhs ← `(Format.text $rhs)
         -- add `_` for inductive parameters, they are inaccessible
         for i in [:indVal.numParams] do
           ctorArgs := ctorArgs.push (← `(_))
@@ -78,7 +78,7 @@ where
     return alts
 
 def mkBody (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Syntax := do
-  if isStructureLike (← getEnv) indVal.name then
+  if isStructure (← getEnv) indVal.name then
     mkBodyForStruct ctx header indVal
   else
     mkBodyForInduct ctx header indVal auxFunName

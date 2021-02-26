@@ -510,15 +510,17 @@ private def preprocess (type : Expr) : MetaM Expr :=
     let type ← whnf type
     mkForallFVars xs type
 
-private def preprocessLevels (us : List Level) : MetaM (List Level) := do
-  let mut r := []
+private def preprocessLevels (us : List Level) : MetaM (List Level × Bool) := do
+  let mut r := #[]
+  let mut modified := false
   for u in us do
     let u ← instantiateLevelMVars u
     if u.hasMVar then
-      r := (← mkFreshLevelMVar)::r
+      r := r.push (← mkFreshLevelMVar)
+      modified := true
     else
-      r := u::r
-  pure r.reverse
+      r := r.push u
+  return (r.toList, modified)
 
 private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) : MetaM (Array Expr) := do
   if h : i < args.size then
@@ -532,7 +534,7 @@ private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) :
     | _ =>
       throwError "type class resolution failed, insufficient number of arguments" -- TODO improve error message
   else
-    pure args
+    return args
 
 private def preprocessOutParam (type : Expr) : MetaM Expr :=
   forallTelescope type fun xs typeBody => do
@@ -540,15 +542,22 @@ private def preprocessOutParam (type : Expr) : MetaM Expr :=
     | c@(Expr.const constName us _) =>
       let env ← getEnv
       if !hasOutParams env constName then
-        pure type
+        /- We treat all universe level parameters as "outParam" -/
+        let (us, modified) ← preprocessLevels us
+        if modified then
+          let c := mkConst constName us
+          mkForallFVars xs (mkAppN c typeBody.getAppArgs)
+        else
+          return type
       else do
         let args := typeBody.getAppArgs
-        let us    ← preprocessLevels us
+        let (us, _) ← preprocessLevels us
         let c := mkConst constName us
         let cType ← inferType c
         let args ← preprocessArgs cType 0 args
         mkForallFVars xs (mkAppN c args)
-    | _ => pure type
+    | _ =>
+      return type
 
 /-
   Remark: when `maxResultSize? == none`, the configuration option `synthInstance.maxResultSize` is used.
@@ -559,7 +568,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
   let inputConfig ← getConfig
-  withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.reducible,
+  withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.instances,
                                           foApprox := true, ctxApprox := true, constApprox := false }) do
     let type ← instantiateMVars type
     let type ← preprocess type

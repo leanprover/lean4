@@ -31,15 +31,9 @@ def instantiateMVarsAtPreDecls (preDefs : Array PreDefinition) : TermElabM (Arra
   preDefs.mapM fun preDef => do
     pure { preDef with type := (← instantiateMVars preDef.type), value := (← instantiateMVars preDef.value) }
 
-private def levelMVarToParamExpr (e : Expr) : StateRefT Nat TermElabM Expr := do
-  let nextIdx ← get
-  let (e, nextIdx) ← levelMVarToParam e nextIdx;
-  set nextIdx;
-  pure e
-
 private def levelMVarToParamPreDeclsAux (preDefs : Array PreDefinition) : StateRefT Nat TermElabM (Array PreDefinition) :=
   preDefs.mapM fun preDef => do
-    pure { preDef with type := (← levelMVarToParamExpr preDef.type), value := (← levelMVarToParamExpr preDef.value) }
+    pure { preDef with type := (← levelMVarToParam' preDef.type), value := (← levelMVarToParam' preDef.value) }
 
 def levelMVarToParamPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
   (levelMVarToParamPreDeclsAux preDefs).run' 1
@@ -98,7 +92,6 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM U
     let env ← getEnv
     let decl :=
       match preDef.kind with
-      | DefKind.«example» => unreachable!
       | DefKind.«theorem» =>
         Declaration.thmDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value }
       | DefKind.«opaque»  =>
@@ -108,7 +101,7 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM U
         Declaration.defnDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value,
                                hints := ReducibilityHints.«abbrev»,
                                safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
-      | DefKind.«def»  =>
+      | _ => -- definitions and examples
         Declaration.defnDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value,
                                hints := ReducibilityHints.regular (getMaxHeight env preDef.value + 1),
                                safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }

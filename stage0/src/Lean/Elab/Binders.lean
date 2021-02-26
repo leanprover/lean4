@@ -477,23 +477,27 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
       `(@fun $x => $body)
   loop (getMatchAltsNumPatterns matchAlts) #[]
 
-@[builtinTermElab «fun»] def elabFun : TermElab := fun stx expectedType? => match stx with
-  | `(fun $binders* => $body) => do
-    let (binders, body, expandedPattern) ← expandFunBinders binders body
-    if expandedPattern then
-      let newStx ← `(fun $binders* => $body)
-      withMacroExpansion stx newStx <| elabTerm newStx expectedType?
-    else
-      elabFunBinders binders expectedType? fun xs expectedType? => do
-        /- We ensure the expectedType here since it will force coercions to be applied if needed.
-           If we just use `elabTerm`, then we will need to a coercion `Coe (α → β) (α → δ)` whenever there is a coercion `Coe β δ`,
-           and another instance for the dependent version. -/
-        let e ← elabTermEnsuringType body expectedType?
-        mkLambdaFVars xs e
-  | `(fun $m:matchAlts) => do
-    let stxNew ← liftMacroM $ expandMatchAltsIntoMatch stx m
-    withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
-  | _ => throwUnsupportedSyntax
+@[builtinTermElab «fun»] partial def elabFun : TermElab :=
+  fun stx expectedType? => loop stx expectedType?
+where
+  loop (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
+    match stx with
+    | `(fun $binders* => $body) => do
+      let (binders, body, expandedPattern) ← expandFunBinders binders body
+      if expandedPattern then
+        let newStx ← `(fun $binders* => $body)
+        loop newStx expectedType?
+      else
+        elabFunBinders binders expectedType? fun xs expectedType? => do
+          /- We ensure the expectedType here since it will force coercions to be applied if needed.
+             If we just use `elabTerm`, then we will need to a coercion `Coe (α → β) (α → δ)` whenever there is a coercion `Coe β δ`,
+             and another instance for the dependent version. -/
+          let e ← elabTermEnsuringType body expectedType?
+          mkLambdaFVars xs e
+    | `(fun $m:matchAlts) => do
+      let stxNew ← liftMacroM $ expandMatchAltsIntoMatch stx m
+      withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+    | _ => throwUnsupportedSyntax
 
 /- If `useLetExpr` is true, then a kernel let-expression `let x : type := val; body` is created.
    Otherwise, we create a term of the form `(fun (x : type) => body) val`

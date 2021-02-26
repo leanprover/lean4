@@ -123,18 +123,20 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
   synthesizeSyntheticMVars
   let s ← get
   let fType ← whnfForall s.fType
-  match fType with
-  | Expr.forallE _ _ _ _ => modify fun s => { s with fType := fType }
-  | _ =>
+  if fType.isForall then
+    modify fun s => { s with fType := fType }
+  else
     match (← tryCoeFun? fType s.f) with
     | some f =>
       let fType ← inferType f
       modify fun s => { s with f := f, fType := fType }
     | none =>
       for namedArg in s.namedArgs do
-        match s.f.getAppFn with
-        | Expr.const fn .. => throwInvalidNamedArg namedArg fn
-        | _                => throwInvalidNamedArg namedArg none
+        let f := s.f.getAppFn
+        if f.isConst then
+          throwInvalidNamedArg namedArg f.constName!
+        else
+          throwInvalidNamedArg namedArg none
       throwError! "function expected at{indentExpr s.f}\nterm has type{indentExpr fType}"
 
 /- Normalize and return the function type. -/
@@ -452,8 +454,9 @@ private def hasArgsToProcess : M Bool := do
 partial def main : M Expr := do
   let s ← get
   let fType ← normalizeFunType
-  match fType with
-  | Expr.forallE binderName _ _ c =>
+  if fType.isForall then
+    let binderName := fType.bindingName!
+    let binfo := fType.bindingInfo!
     let s ← get
     match s.namedArgs.find? fun (namedArg : NamedArg) => namedArg.name == binderName with
     | some namedArg =>
@@ -462,22 +465,21 @@ partial def main : M Expr := do
       elabAndAddNewArg namedArg.val
       main
     | none          =>
-      match c.binderInfo with
+      match binfo with
       | BinderInfo.implicit     => processImplicitArg main
       | BinderInfo.instImplicit => processInstImplicitArg main
       | _                       => processExplictArg main
-  | _ =>
-    if (← hasArgsToProcess) then
-      synthesizePendingAndNormalizeFunType
-      main
-    else
-      finalize
+  else if (← hasArgsToProcess) then
+    synthesizePendingAndNormalizeFunType
+    main
+  else
+    finalize
 
 end ElabAppArgs
 
 private def propagateExpectedTypeFor (f : Expr) : TermElabM Bool :=
-  match f.getAppFn with
-  | Expr.const declName .. => return !hasElabWithoutExpectedType (← getEnv) declName
+  match f.getAppFn.constName? with
+  | some declName => return !hasElabWithoutExpectedType (← getEnv) declName
   | _ => return true
 
 def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
@@ -528,8 +530,8 @@ private partial def findMethod? (env : Environment) (structName fieldName : Name
         none
 
 private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM LValResolution := do
-  match eType.getAppFn, lval with
-  | Expr.const structName _ _, LVal.fieldIdx _ idx =>
+  match eType.getAppFn.constName?, lval with
+  | some structName, LVal.fieldIdx _ idx =>
     if idx == 0 then
       throwError "invalid projection, index must be greater than 0"
     let env ← getEnv
@@ -545,7 +547,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
         pure $ LValResolution.projIdx structName (idx - 1)
     else
       throwLValError e eType m!"invalid projection, structure has only {fieldNames.size} field(s)"
-  | Expr.const structName _ _, LVal.fieldName _ fieldName =>
+  | some structName, LVal.fieldName _ fieldName =>
     let env ← getEnv
     let searchEnv : Unit → TermElabM LValResolution := fun _ => do
       match findMethod? env structName (Name.mkSimple fieldName) with
@@ -573,7 +575,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       | none                => searchCtx ()
     else
       searchCtx ()
-  | Expr.const structName _ _, LVal.getOp _ idx =>
+  | some structName, LVal.getOp _ idx =>
     let env ← getEnv
     let fullName := Name.mkStr structName "getOp"
     match env.find? fullName with

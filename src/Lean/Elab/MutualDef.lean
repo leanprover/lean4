@@ -600,9 +600,23 @@ private def getAllUserLevelNames (headers : Array DefViewElabHeader) : List Name
   else
     []
 
+/-- Eagerly convert universe metavariables occurring in theorem headers to universe parameters. -/
+private def levelMVarToParamHeaders (views : Array DefView) (headers : Array DefViewElabHeader) : TermElabM (Array DefViewElabHeader) := do
+  let rec process : StateRefT Nat TermElabM (Array DefViewElabHeader) := do
+    let mut newHeaders := #[]
+    for view in views, header in headers do
+      if view.kind.isTheorem then
+        newHeaders := newHeaders.push { header with type := (← levelMVarToParam' header.type) }
+      else
+        newHeaders := newHeaders.push header
+    return newHeaders
+  let newHeaders ← process.run' 1
+  newHeaders.mapM fun header => return { header with type := (← instantiateMVars header.type) }
+
 def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit := do
   let scopeLevelNames ← getLevelNames
   let headers ← elabHeaders views
+  let headers ← levelMVarToParamHeaders views headers
   let allUserLevelNames := getAllUserLevelNames headers
   withFunLocalDecls headers fun funFVars => do
     let values ← elabFunValues headers

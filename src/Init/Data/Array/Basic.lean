@@ -262,7 +262,7 @@ def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : 
     match i, inv with
     | 0,    _  => pure bs
     | i+1, inv =>
-      have j < as.size by rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_leftComm]; apply Nat.leAddRight
+      have j < as.size by rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_left_comm]; apply Nat.leAddRight
       let idx : Fin as.size := ⟨j, this⟩
       have i + (j + 1) = as.size by rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
       map i (j+1) this (bs.push (← f idx (as.get idx)))
@@ -591,8 +591,8 @@ theorem ext (a b : Array α)
         have h₁' : as.length = bs.length by rw [List.length_cons, List.length_cons] at h₁; injection h₁; assumption
         have h₂' : (i : Nat) → (hi₁ : i < as.length) → (hi₂ : i < bs.length) → as.get i hi₁ = bs.get i hi₂ by
           intro i hi₁ hi₂
-          have hi₁' : i+1 < (a::as).length by rw [List.length_cons]; apply Nat.succLtSucc; assumption
-          have hi₂' : i+1 < (b::bs).length by rw [List.length_cons]; apply Nat.succLtSucc; assumption
+          have hi₁' : i+1 < (a::as).length by rw [List.length_cons]; apply Nat.succ_lt_succ; assumption
+          have hi₂' : i+1 < (b::bs).length by rw [List.length_cons]; apply Nat.succ_lt_succ; assumption
           have (a::as).get (i+1) hi₁' = (b::bs).get (i+1) hi₂' from h₂ (i+1) hi₁' hi₂'
           apply this
         have tailEq : as = bs from ih bs h₁' h₂'

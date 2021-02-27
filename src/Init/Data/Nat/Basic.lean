@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Floris van Doorn, Leonardo de Moura
 -/
 prelude
-import Init.Core
+import Init.SimpLemmas
 universes u
 
 namespace Nat
@@ -75,23 +75,20 @@ protected theorem add_assoc : ∀ (n m k : Nat), (n + m) + k = n + (m + k)
   | n, m, 0      => rfl
   | n, m, succ k => congrArg succ (Nat.add_assoc n m k)
 
-protected theorem add_leftComm (n m k : Nat) : n + (m + k) = m + (n + k) := by
+protected theorem add_left_comm (n m k : Nat) : n + (m + k) = m + (n + k) := by
   rw [← Nat.add_assoc, Nat.add_comm n m, Nat.add_assoc]
 
-protected theorem add_rightComm (n m k : Nat) : (n + m) + k = (n + k) + m := by
+protected theorem add_right_comm (n m k : Nat) : (n + m) + k = (n + k) + m := by
   rw [Nat.add_assoc, Nat.add_comm m k, ← Nat.add_assoc]
 
-protected theorem add_leftCancel : ∀ {n m k : Nat}, n + m = n + k → m = k
-  | 0,      m, k, h => Nat.zero_add m ▸ Nat.zero_add k ▸ h
-  | succ n, m, k, h =>
-    have n+m = n+k from
-      have succ (n + m) = succ (n + k) from succ_add n m ▸ succ_add n k ▸ h
-      Nat.noConfusion this id
-    Nat.add_leftCancel this
+protected theorem add_left_cancel {n m k : Nat} : n + m = n + k → m = k := by
+  induction n with
+  | zero => simp; intros; assumption
+  | succ n ih => simp [succ_add]; intro h; injection h with h; apply ih h
 
-protected theorem add_rightCancel {n m k : Nat} (h : n + m = k + m) : n = k :=
-  have m + n = m + k from Nat.add_comm n m ▸ Nat.add_comm k m ▸ h
-  Nat.add_leftCancel this
+protected theorem add_right_cancel {n m k : Nat} (h : n + m = k + m) : n = k := by
+  rw [Nat.add_comm n m, Nat.add_comm k m] at h
+  apply Nat.add_left_cancel h
 
 /- Nat.mul theorems -/
 
@@ -105,13 +102,10 @@ theorem mul_succ (n m : Nat) : n * succ m = n * m + n :=
   | 0      => rfl
   | succ n => mul_succ 0 n ▸ (Nat.zero_mul n).symm ▸ rfl
 
-theorem succ_mul : ∀ (n m : Nat), (succ n) * m = (n * m) + m
-  | n, 0      => rfl
-  | n, succ m => by
-    have succ (n * m + m + n) = succ (n * m + n + m) from
-      congrArg succ (Nat.add_rightComm ..)
-    rw [mul_succ n m, mul_succ (succ n) m, succ_mul n m]
-    assumption
+theorem succ_mul (n m : Nat) : (succ n) * m = (n * m) + m := by
+  induction m with
+  | zero => rfl
+  | succ m ih => rw [mul_succ, add_succ, ih, mul_succ, add_succ, Nat.add_right_comm]
 
 protected theorem mul_comm : ∀ (n m : Nat), n * m = m * n
   | n, 0      => (Nat.zero_mul n).symm ▸ (Nat.mul_zero n).symm ▸ rfl
@@ -123,21 +117,14 @@ protected theorem mul_comm : ∀ (n m : Nat), n * m = m * n
 @[simp] protected theorem one_mul (n : Nat) : 1 * n = n :=
   Nat.mul_comm n 1 ▸ Nat.mul_one n
 
-protected theorem leftDistrib : ∀ (n m k : Nat), n * (m + k) = n * m + n * k
-  | 0,      m, k => (Nat.zero_mul (m + k)).symm ▸ (Nat.zero_mul m).symm ▸ (Nat.zero_mul k).symm ▸ rfl
-  | succ n, m, k =>
-    have h₁ : succ n * (m + k) = n * (m + k) + (m + k)              from succ_mul ..
-    have h₂ : n * (m + k) + (m + k) = (n * m + n * k) + (m + k)     from Nat.leftDistrib n m k ▸ rfl
-    have h₃ : (n * m + n * k) + (m + k) = n * m + (n * k + (m + k)) from Nat.add_assoc ..
-    have h₄ : n * m + (n * k + (m + k)) = n * m + (m + (n * k + k)) from congrArg (fun x => n*m + x) (Nat.add_leftComm ..)
-    have h₅ : n * m + (m + (n * k + k)) = (n * m + m) + (n * k + k) from (Nat.add_assoc ..).symm
-    have h₆ : (n * m + m) + (n * k + k) = (n * m + m) + succ n * k  from succ_mul n k ▸ rfl
-    have h₇ : (n * m + m) + succ n * k = succ n * m + succ n * k    from succ_mul n m ▸ rfl
-    (((((h₁.trans h₂).trans h₃).trans h₄).trans h₅).trans h₆).trans h₇
+protected theorem left_distrib (n m k : Nat) : n * (m + k) = n * m + n * k := by
+  induction n generalizing m k with
+  | zero      => repeat rw [Nat.zero_mul]
+  | succ n ih => simp [succ_mul, ih]; rw [Nat.add_assoc, Nat.add_assoc (n*m)]; apply congrArg; apply Nat.add_left_comm
 
-protected theorem rightDistrib (n m k : Nat) : (n + m) * k = n * k + m * k :=
+protected theorem right_distrib (n m k : Nat) : (n + m) * k = n * k + m * k :=
   have h₁ : (n + m) * k = k * (n + m)     from Nat.mul_comm ..
-  have h₂ : k * (n + m) = k * n + k * m   from Nat.leftDistrib ..
+  have h₂ : k * (n + m) = k * n + k * m   from Nat.left_distrib ..
   have h₃ : k * n + k * m = n * k + k * m from Nat.mul_comm n k ▸ rfl
   have h₄ : n * k + k * m = n * k + m * k from Nat.mul_comm m k ▸ rfl
   ((h₁.trans h₂).trans h₃).trans h₄
@@ -146,25 +133,25 @@ protected theorem mul_assoc : ∀ (n m k : Nat), (n * m) * k = n * (m * k)
   | n, m, 0      => rfl
   | n, m, succ k =>
     have h₁ : n * m * succ k = n * m * (k + 1)              from rfl
-    have h₂ : n * m * (k + 1) = (n * m * k) + n * m * 1     from Nat.leftDistrib ..
+    have h₂ : n * m * (k + 1) = (n * m * k) + n * m * 1     from Nat.left_distrib ..
     have h₃ : (n * m * k) + n * m * 1 = (n * m * k) + n * m by rw [Nat.mul_one (n*m)]
     have h₄ : (n * m * k) + n * m = (n * (m * k)) + n * m   by rw [Nat.mul_assoc n m k]
-    have h₅ : (n * (m * k)) + n * m = n * (m * k + m)       from (Nat.leftDistrib n (m*k) m).symm
+    have h₅ : (n * (m * k)) + n * m = n * (m * k + m)       from (Nat.left_distrib n (m*k) m).symm
     have h₆ : n * (m * k + m) = n * (m * succ k)            from Nat.mul_succ m k ▸ rfl
     ((((h₁.trans h₂).trans h₃).trans h₄).trans h₅).trans h₆
 
 /- Inequalities -/
 
-theorem succLtSucc {n m : Nat} : n < m → succ n < succ m :=
+theorem succ_lt_succ {n m : Nat} : n < m → succ n < succ m :=
   succLeSucc
 
-theorem ltSuccOfLe {n m : Nat} : n ≤ m → n < succ m :=
+theorem lt_succ_of_le {n m : Nat} : n ≤ m → n < succ m :=
   succLeSucc
 
 @[simp] protected theorem sub_zero (n : Nat) : n - 0 = n :=
   rfl
 
-theorem succSubSuccEqSub (n m : Nat) : succ n - succ m = n - m := by
+theorem succ_sub_succ_eq_sub (n m : Nat) : succ n - succ m = n - m := by
   induction m with
   | zero      => exact rfl
   | succ m ih => apply congrArg pred ih
@@ -183,7 +170,7 @@ theorem predLe : ∀ (n : Nat), pred n ≤ n
 
 theorem predLt : ∀ {n : Nat}, n ≠ 0 → pred n < n
   | zero,   h => absurd rfl h
-  | succ n, h => ltSuccOfLe (Nat.leRefl _)
+  | succ n, h => lt_succ_of_le (Nat.leRefl _)
 
 theorem subLe (n m : Nat) : n - m ≤ n := by
   induction m with
@@ -194,9 +181,9 @@ theorem subLt : ∀ {n m : Nat}, 0 < n → 0 < m → n - m < n
   | 0,   m,   h1, h2 => absurd h1 (Nat.ltIrrefl 0)
   | n+1, 0,   h1, h2 => absurd h2 (Nat.ltIrrefl 0)
   | n+1, m+1, h1, h2 =>
-    Eq.symm (succSubSuccEqSub n m) ▸
+    Eq.symm (succ_sub_succ_eq_sub n m) ▸
       show n - m < succ n from
-      ltSuccOfLe (subLe n m)
+      lt_succ_of_le (subLe n m)
 
 protected theorem ltOfLtOfLe {n m k : Nat} : n < m → m ≤ k → n < k :=
   Nat.leTrans
@@ -339,7 +326,7 @@ theorem succNeZero (n : Nat) : succ n ≠ 0 :=
 theorem mulLeMulLeft {n m : Nat} (k : Nat) (h : n ≤ m) : k * n ≤ k * m :=
   match le.dest h with
   | ⟨l, hl⟩ =>
-    have k * n + k * l = k * m from Nat.leftDistrib k n l ▸ hl.symm ▸ rfl
+    have k * n + k * l = k * m from Nat.left_distrib k n l ▸ hl.symm ▸ rfl
     le.intro this
 
 theorem mulLeMulRight {n m : Nat} (k : Nat) (h : n ≤ m) : n * k ≤ m * k :=

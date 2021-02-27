@@ -63,10 +63,11 @@ def evalGeneralizeAux (h? : Option Name) (e : Expr) (x : Name) : TacticM Unit :=
   | some h =>
     evalGeneralizeWithEq h e x <|> evalGeneralizeFallback h e x
 
-@[builtinTactic Lean.Parser.Tactic.generalize] def evalGeneralize : Tactic := fun stx => do
-  let h? := getAuxHypothesisName stx
-  let x  := getVarName stx
-  let e ← elabTerm stx[2] none
-  evalGeneralizeAux h? e x
+@[builtinTactic Lean.Parser.Tactic.generalize] def evalGeneralize : Tactic := fun stx =>
+  withMainMVarContext do
+    let h? := getAuxHypothesisName stx
+    let x  := getVarName stx
+    let e ← elabTerm stx[2] none
+    evalGeneralizeAux h? e x
 
 end Lean.Elab.Tactic

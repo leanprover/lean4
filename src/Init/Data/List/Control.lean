@@ -88,11 +88,11 @@ def filterMapM {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m 
   loop as.reverse []
 
 @[specialize]
-def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s → α → m s) → (init : s) → List α → m s
+protected def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s → α → m s) → (init : s) → List α → m s
   | f, s, []      => pure s
   | f, s, a :: as => do
     let s' ← f s a
-    foldlM f s' as
+    List.foldlM f s' as
 
 @[specialize]
 def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : α → s → m s) → (init : s) → List α → m s
@@ -156,6 +156,7 @@ instance : Foldable m (List α) α where
 -- Add two simplification lemmas for `foldlM` over lists
 @[simp] theorem foldlM_nil  [Monad m] (f : δ → α → m δ) (d : δ) : foldlM f d ([] : List α) = pure d :=
   rfl
+
 @[simp] theorem foldlM_cons [Monad m] (f : δ → α → m δ) (d : δ) (a : α) (as : List α) : foldlM f d (a::as) = f d a >>= fun d => foldlM f d as :=
   rfl
 

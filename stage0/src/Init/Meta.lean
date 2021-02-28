@@ -102,6 +102,12 @@ def appendBefore : Name → String → Name
   | str p s _, pre => Name.mkStr p (pre ++ s)
   | num p n _, pre => Name.mkNum (Name.mkStr p pre) n
 
+def replacePrefix : Name → Name → Name → Name
+  | anonymous,     anonymous, newP => newP
+  | anonymous,     _,         _    => anonymous
+  | n@(str p s _), queryP,    newP => if n == queryP then newP else Name.mkStr (p.replacePrefix queryP newP) s
+  | n@(num p s _), queryP,    newP => if n == queryP then newP else Name.mkNum (p.replacePrefix queryP newP) s
+
 end Name
 
 structure NameGenerator where
@@ -141,6 +147,15 @@ instance monadNameGeneratorLift (m n : Type → Type) [MonadLift m n] [MonadName
 }
 
 namespace Syntax
+
+partial def structEq : Syntax → Syntax → Bool
+  | Syntax.missing, Syntax.missing => true
+  | Syntax.node k args, Syntax.node k' args' => k == k' && args.isEqv args' structEq
+  | Syntax.atom _ val, Syntax.atom _ val' => val == val'
+  | Syntax.ident _ rawVal val preresolved, Syntax.ident _ rawVal' val' preresolved' => rawVal == rawVal' && val == val' && preresolved == preresolved'
+  | _, _ => false
+
+instance : BEq Lean.Syntax := ⟨structEq⟩
 
 partial def getTailInfo? : Syntax → Option SourceInfo
   | atom info _   => info

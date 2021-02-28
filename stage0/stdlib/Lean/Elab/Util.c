@@ -70,6 +70,7 @@ extern lean_object* l_Lean_mkAttributeImplOfConstant___closed__1;
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Elab_getMacros___spec__3(lean_object*, size_t, lean_object*);
 lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_evalSyntaxConstantUnsafe(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMacroAttributeUnsafe___closed__6;
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_865____closed__1;
 lean_object* l_Lean_Elab_checkSyntaxNodeKind___closed__2;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -92,7 +93,6 @@ lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkUnusedBaseName___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_checkSyntaxNodeKindAtNamespacesAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_instMonadMacroAdapter(lean_object*, lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_818____closed__1;
 size_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Lean_Elab_checkSyntaxNodeKindAtNamespacesAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_275_(lean_object*);
@@ -2798,7 +2798,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1077____closed__1;
-x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_818____closed__1;
+x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_865____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

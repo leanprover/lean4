@@ -19,8 +19,8 @@ extern lean_object* l_Array_term_____x5b___x3a___x5d___closed__2;
 lean_object* l_Lean_instToExprOption___rarg___lambda__1___closed__1;
 lean_object* l_Lean_instToExprChar;
 extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__2;
+extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3595____closed__5;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3596____closed__5;
 lean_object* l_Lean_instToExprName___closed__2;
 lean_object* l_Lean_instToExprNat___closed__2;
 lean_object* l_Lean_instToExprArray___rarg___closed__1;
@@ -889,7 +889,7 @@ static lean_object* _init_l_Lean_instToExprArray___rarg___lambda__1___closed__1(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3596____closed__5;
+x_1 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3595____closed__5;
 x_2 = l_Lean_instToExprOption___rarg___lambda__1___closed__1;
 x_3 = l_Lean_mkConst(x_1, x_2);
 return x_3;

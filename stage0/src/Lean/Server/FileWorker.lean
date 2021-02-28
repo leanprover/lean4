@@ -453,6 +453,26 @@ section RequestHandling
     ⟨text.utf8PosToLspPos <| stx.getPos?.get!,
      text.utf8PosToLspPos <| stx.getTailPos?.get!⟩
 
+  partial def handleDocumentHighlight (p : DocumentHighlightParams) :
+    ServerM (Task (Except IO.Error (Except RequestError (Array DocumentHighlight)))) := do
+    let doc ← (← read).docRef.get
+    let text := doc.meta.text
+    let pos := text.lspPosToUtf8Pos p.position
+    let rec highlightReturn? (doRange? : Option Range) : Syntax → Option DocumentHighlight
+      | stx@`(doElem|return%$i $e) =>
+        if stx.getPos?.get! <= pos && pos < stx.getTailPos?.get! then
+          some { range := doRange?.getD (rangeOfSyntax text i), kind? := DocumentHighlightKind.text }
+        else
+          highlightReturn? doRange? e
+      | `(do%$i $elems) => highlightReturn? (rangeOfSyntax text i) elems
+      | stx => stx.getArgs.findSome? (highlightReturn? doRange?)
+
+    withWaitFindSnap doc (fun s => s.endPos > pos)
+      (notFoundX := pure #[]) fun snap => do
+        if let some hi := highlightReturn? none snap.stx then
+          return #[hi]
+        return #[]
+
   partial def handleDocumentSymbol (p : DocumentSymbolParams) :
     ServerM (Task (Except IO.Error (Except RequestError DocumentSymbolResult))) := do
     let st ← read
@@ -567,6 +587,7 @@ section MessageHandling
     | "textDocument/declaration"        => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := false)
     | "textDocument/definition"         => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := false)
     | "textDocument/typeDefinition"     => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := true)
+    | "textDocument/documentHighlight"  => handle DocumentHighlightParams DocumentHighlightResult handleDocumentHighlight
     | "textDocument/documentSymbol"     => handle DocumentSymbolParams DocumentSymbolResult handleDocumentSymbol
     | "$/lean/plainGoal"                => handle PlainGoalParams (Option PlainGoal) handlePlainGoal
     | _ => throwServerError s!"Got unsupported request: {method}"
@@ -615,6 +636,8 @@ def initAndRunWorker (i o e : FS.Stream) : IO UInt32 := do
     ReaderT.run (r := ctx) mainLoop
     return 0
   catch e =>
+    IO.eprintln e
+    -- diagnostic doesn't seem to be visible in either VS Code or Emacs, consult stderr instead
     o.writeLspNotification {
       method := "textDocument/publishDiagnostics"
       param  := {

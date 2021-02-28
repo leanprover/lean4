@@ -53,12 +53,6 @@ def eqStr : Name → String → Bool
   | str anonymous s _, s' => s == s'
   | _,                 _  => false
 
-def replacePrefix : Name → Name → Name → Name
-  | anonymous,     anonymous, newP => newP
-  | anonymous,     _,         _    => anonymous
-  | n@(str p s _), queryP,    newP => if n == queryP then newP else Name.mkStr (p.replacePrefix queryP newP) s
-  | n@(num p s _), queryP,    newP => if n == queryP then newP else Name.mkNum (p.replacePrefix queryP newP) s
-
 def isPrefixOf : Name → Name → Bool
   | p, anonymous      => p == anonymous
   | p, n@(num p' _ _) => p == n || isPrefixOf p p'

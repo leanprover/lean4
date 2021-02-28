@@ -50,7 +50,7 @@ uint8_t l_Lean_Elab_Modifiers_isProtected(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Declaration_0__Lean_Elab_Command_inductiveSyntaxToView___spec__8___lambda__2___closed__2;
 lean_object* l___regBuiltin_Lean_Elab_Command_expandInitialize___closed__1;
 lean_object* l_Lean_Elab_Command_checkValidCtorModifier___at___private_Lean_Elab_Declaration_0__Lean_Elab_Command_inductiveSyntaxToView___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_585____closed__2;
+extern lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_584____closed__2;
 lean_object* l_Lean_Elab_Command_elabDeclaration___closed__4;
 uint8_t l_Array_allM___at_Array_all___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getIdAt(lean_object*, lean_object*);
@@ -181,7 +181,7 @@ lean_object* l_Lean_Elab_Command_expandDeclNamespace_x3f_match__1(lean_object*);
 extern lean_object* l_Lean_Elab_Command_checkValidCtorModifier___rarg___lambda__1___closed__3;
 lean_object* l_Lean_Syntax_getId(lean_object*);
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1136____closed__20;
-extern lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_569____closed__2;
+extern lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_568____closed__2;
 lean_object* l_Lean_Elab_Command_elabClassInductive(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_synthesizeSyntheticMVars_loop(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_runTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7131,14 +7131,14 @@ x_9 = l_Lean_Syntax_isNone(x_6);
 if (x_1 == 0)
 {
 lean_object* x_439; 
-x_439 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_569____closed__2;
+x_439 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_568____closed__2;
 x_10 = x_439;
 goto block_438;
 }
 else
 {
 lean_object* x_440; 
-x_440 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_585____closed__2;
+x_440 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_584____closed__2;
 x_10 = x_440;
 goto block_438;
 }

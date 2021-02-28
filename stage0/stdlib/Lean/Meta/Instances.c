@@ -67,7 +67,7 @@ lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Meta_addInstanceEntry__
 lean_object* l_Std_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
 lean_object* l_Lean_Meta_getDefaultInstances___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2919____closed__4;
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2917____closed__4;
 lean_object* l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Applicative_seqRight___default___rarg___closed__1;
 lean_object* l_Std_RBNode_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3223,7 +3223,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_415____closed__2;
 x_2 = l_Lean_mkStateFromImportedEntries___at_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_415____spec__1___lambda__1___closed__1;
 x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_415____closed__3;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2919____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2917____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

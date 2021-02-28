@@ -31,3 +31,5 @@ instance : MonadControl m (ReaderT ρ m) where
 
 instance ReaderT.tryFinally [MonadFinally m] [Monad m] : MonadFinally (ReaderT ρ m) where
   tryFinally' x h ctx := tryFinally' (x ctx) (fun a? => h a? ctx)
+
+@[reducible] def Reader (ρ : Type u) := ReaderT ρ Id

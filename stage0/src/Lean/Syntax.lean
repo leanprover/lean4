@@ -200,48 +200,6 @@ partial def reprint : Syntax → Option String
     else args.foldlM (fun r stx => do let s ← reprint stx; pure $ r ++ s) ""
   | _ => ""
 
-open Std.Format
-
-private def formatInfo (showInfo : Bool) (info : SourceInfo) (f : Format) : Format :=
-  match showInfo, info with
-  | true, SourceInfo.original lead pos trail => f!"{lead}:{f}:{pos}:{trail}"
-  | true, SourceInfo.synthetic pos endPos    => f!"{pos}:{f}:{endPos}"
-  | _,    _                                  => f
-
-partial def formatStxAux (maxDepth : Option Nat) (showInfo : Bool) : Nat → Syntax → Format
-  | _,     atom info val     => formatInfo showInfo info $ format (repr val)
-  | _,     ident info _ val pre => formatInfo showInfo info $ format "`" ++ format val
-  | _,     missing           => "<missing>"
-  | depth, node kind args    =>
-    let depth := depth + 1;
-    if kind == nullKind then
-      sbracket $
-        if args.size > 0 && depth > maxDepth.getD depth then
-          ".."
-        else
-          joinSep (args.toList.map (formatStxAux maxDepth showInfo depth)) line
-    else
-      let shorterName := kind.replacePrefix `Lean.Parser Name.anonymous;
-      let header      := format shorterName;
-      let body : List Format :=
-        if args.size > 0 && depth > maxDepth.getD depth then [".."] else args.toList.map (formatStxAux maxDepth showInfo depth);
-      paren $ joinSep (header :: body) line
-
-def formatStx (stx : Syntax) (maxDepth : Option Nat := none) (showInfo := false) : Format :=
-  formatStxAux maxDepth showInfo 0 stx
-
-instance : ToFormat (Syntax)   := ⟨formatStx⟩
-instance : ToString (Syntax) := ⟨toString ∘ format⟩
-
-partial def structEq : Syntax → Syntax → Bool
-  | Syntax.missing, Syntax.missing => true
-  | Syntax.node k args, Syntax.node k' args' => k == k' && args.isEqv args' structEq
-  | Syntax.atom _ val, Syntax.atom _ val' => val == val'
-  | Syntax.ident _ rawVal val preresolved, Syntax.ident _ rawVal' val' preresolved' => rawVal == rawVal' && val == val' && preresolved == preresolved'
-  | _, _ => false
-
-instance : BEq Lean.Syntax := ⟨structEq⟩
-
 /--
 Represents a cursor into a syntax tree that can be read, written, and advanced down/up/left/right.
 Indices are allowed to be out-of-bound, in which case `cur` is `Syntax.missing`.

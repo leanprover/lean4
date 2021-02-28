@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Util.ForEachExpr
 import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Revert
@@ -58,10 +59,22 @@ def replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqPro
   withMVarContext mvarId do
     let localDecl ← getLocalDecl fvarId
     let typeNewPr ← mkEqMP eqProof (mkFVar fvarId)
-    let result ← assertAfter mvarId localDecl.fvarId localDecl.userName typeNew typeNewPr
+    -- `typeNew` may contain variables that occur after `fvarId`.
+    -- Thus, we use the auxiliary function `findMaxFVar` to ensure `typeNew` is well-formed at the position we are inserting it.
+    let (_, localDecl') ← findMaxFVar typeNew |>.run localDecl
+    let result ← assertAfter mvarId localDecl'.fvarId localDecl.userName typeNew typeNewPr
     (do let mvarIdNew ← clear result.mvarId fvarId
         pure { result with mvarId := mvarIdNew })
     <|> pure result
+where
+  findMaxFVar (e : Expr) : StateRefT LocalDecl MetaM Unit :=
+    e.forEach' fun e => do
+      if e.isFVar then
+        let localDecl' ← getLocalDecl e.fvarId!
+        modify fun localDecl => if localDecl'.index > localDecl.index then localDecl' else localDecl
+        return false
+      else
+        return e.hasFVar
 
 def change (mvarId : MVarId) (targetNew : Expr) (checkDefEq := true) : MetaM MVarId := withMVarContext mvarId do
   let target ← getMVarType mvarId

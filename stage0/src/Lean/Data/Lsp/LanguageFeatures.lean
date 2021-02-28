@@ -31,6 +31,27 @@ structure DefinitionParams extends TextDocumentPositionParams
 structure TypeDefinitionParams extends TextDocumentPositionParams
   deriving FromJson, ToJson
 
+structure DocumentHighlightParams extends TextDocumentPositionParams
+  deriving FromJson, ToJson
+
+inductive DocumentHighlightKind where
+  | text
+  | read
+  | write
+
+instance : ToJson DocumentHighlightKind where
+ toJson
+	| DocumentHighlightKind.text => 1
+	| DocumentHighlightKind.read => 2
+	| DocumentHighlightKind.write => 3
+
+structure DocumentHighlight where
+  range : Range
+  kind? : Option DocumentHighlightKind := none
+  deriving ToJson
+
+abbrev DocumentHighlightResult := Array DocumentHighlight
+
 structure DocumentSymbolParams where
   textDocument : TextDocumentIdentifier
   deriving FromJson, ToJson

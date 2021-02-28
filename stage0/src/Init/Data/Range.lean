@@ -28,6 +28,9 @@ universes u v
         | ForInStep.yield b => loop i (j + range.step) b
   loop range.stop range.start init
 
+@[inline] protected def foldlM {β : Type u} {m : Type u → Type v} [Monad m] (f : β → Nat → m β)  (init : β) (range : Range) : m β :=
+  range.forIn init (fun i b => return ForInStep.yield (← f b i))
+
 instance : ForIn m Range Nat where
   forIn := Range.forIn
 

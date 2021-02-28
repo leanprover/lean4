@@ -41,7 +41,6 @@ lean_object* l_Lean_Name_getPrefix_match__1___rarg(lean_object*, lean_object*, l
 lean_object* l_Lean_Name_quickLt___boxed(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_updatePrefix(lean_object*, lean_object*);
-lean_object* l_Lean_Name_replacePrefix___lambda__4(lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_expand___at_Lean_NameHashSet_insert___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Name_isAnonymous___boxed(lean_object*);
 extern lean_object* l_Lean_instHashableName___closed__1;
@@ -61,7 +60,6 @@ lean_object* l_Lean_Name_isStr___boxed(lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
 uint8_t l_Lean_NameMap_contains___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_Name_replacePrefix___closed__3;
 lean_object* l_List_foldl___at_Lean_NameHashSet_insert___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_Name_lt_match__1(lean_object*);
 lean_object* l_Lean_NameSet_instEmptyCollectionNameSet;
@@ -100,17 +98,13 @@ lean_object* l_List_foldl___at_String_toName___spec__1___boxed(lean_object*, lea
 lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 size_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Lean_Name_eqStr___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Name_replacePrefix_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_NameMap_contains___spec__1___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Name_replacePrefix___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_replacePrefix___lambda__1___boxed(lean_object*);
 lean_object* l_List_replace___at_Lean_NameHashSet_insert___spec__6___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_instDecidableRelLessNameHasLtQuick(lean_object*, lean_object*);
 lean_object* l_Lean_Name_isAnonymous_match__1(lean_object*);
 uint8_t l_Lean_Name_isAtomic(lean_object*);
 lean_object* l_Lean_NameHashSet_empty___closed__1;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
-lean_object* l_Lean_Name_replacePrefix___lambda__1(lean_object*);
 lean_object* l_Lean_Name_getNumParts(lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_NameMap_contains___spec__1(lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
@@ -118,15 +112,12 @@ lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_
 lean_object* l_Lean_NameMap_find_x3f(lean_object*);
 lean_object* l_Lean_Name_getRoot___lambda__2(lean_object*, lean_object*, size_t);
 lean_object* l_Std_HashSetImp_insert___at_Lean_NameHashSet_insert___spec__1(lean_object*, lean_object*);
-lean_object* l_Lean_Name_replacePrefix___lambda__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_NameSet_empty;
 lean_object* l_List_elem___at_Lean_NameHashSet_insert___spec__2___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Name_replacePrefix___closed__2;
 lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1(lean_object*);
 uint8_t l_List_elem___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_NameMap_contains___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_quickLtAux___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Name_replacePrefix___closed__4;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 extern lean_object* l_Std_HashSet_instInhabitedHashSet___closed__1;
 lean_object* l_Lean_Name_getString_x21(lean_object*);
@@ -146,7 +137,6 @@ uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l_Lean_NameHashSet_instInhabitedNameHashSet;
 uint8_t l_Lean_Name_isNum(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
-lean_object* l_Lean_Name_replacePrefix___closed__1;
 lean_object* l_Lean_Name_isSuffixOf_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_getRoot___lambda__3(lean_object*, lean_object*, size_t);
 lean_object* l_Std_RBNode_ins___at_Lean_NameMap_insert___spec__2(lean_object*);
@@ -154,7 +144,6 @@ lean_object* l_Lean_Name_isSuffixOf___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_NameMap_contains___spec__1___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Lean_Name_getPrefix(lean_object*);
-lean_object* l_Lean_Name_replacePrefix___lambda__2(lean_object*, lean_object*);
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_ins___at_Lean_NameMap_insert___spec__3___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_ins___at_Lean_NameMap_insert___spec__3(lean_object*);
@@ -174,7 +163,6 @@ uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_contains___at_Lean_NameHashSet_contains___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_NameMap_find_x3f___spec__1(lean_object*);
-lean_object* l_Lean_Name_replacePrefix___lambda__3(lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_Name_getRoot___lambda__1(lean_object*);
 lean_object* l_Lean_Name_getString_x21___closed__4;
 lean_object* l_Lean_Name_getString_x21_match__1(lean_object*);
@@ -182,14 +170,11 @@ lean_object* l_Lean_Name_getRoot___closed__2;
 lean_object* l_Lean_Name_getRoot___lambda__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkNameMap(lean_object*);
 lean_object* l_Lean_Name_isNum_match__1(lean_object*);
-lean_object* l_Lean_Name_replacePrefix_match__1(lean_object*);
 lean_object* l_Lean_Name_getRoot___closed__1;
 lean_object* l_Lean_Name_eqStr_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_getRoot(lean_object*);
 lean_object* l_Lean_Name_isAtomic_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_getRoot___closed__3;
-lean_object* l_Lean_Name_replacePrefix___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_components(lean_object*);
 lean_object* l_Lean_Name_isPrefixOf_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_NameMap_instEmptyCollectionNameMap(lean_object*);
@@ -846,220 +831,6 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-lean_object* l_Lean_Name_replacePrefix_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-switch (lean_obj_tag(x_1)) {
-case 0:
-{
-lean_dec(x_7);
-lean_dec(x_6);
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_8; 
-lean_dec(x_5);
-x_8 = lean_apply_1(x_4, x_3);
-return x_8;
-}
-else
-{
-lean_object* x_9; 
-lean_dec(x_4);
-x_9 = lean_apply_2(x_5, x_2, x_3);
-return x_9;
-}
-}
-case 1:
-{
-lean_object* x_10; lean_object* x_11; size_t x_12; lean_object* x_13; lean_object* x_14; 
-lean_dec(x_7);
-lean_dec(x_5);
-lean_dec(x_4);
-x_10 = lean_ctor_get(x_1, 0);
-lean_inc(x_10);
-x_11 = lean_ctor_get(x_1, 1);
-lean_inc(x_11);
-x_12 = lean_ctor_get_usize(x_1, 2);
-x_13 = lean_box_usize(x_12);
-x_14 = lean_apply_6(x_6, x_1, x_10, x_11, x_13, x_2, x_3);
-return x_14;
-}
-default: 
-{
-lean_object* x_15; lean_object* x_16; size_t x_17; lean_object* x_18; lean_object* x_19; 
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-x_15 = lean_ctor_get(x_1, 0);
-lean_inc(x_15);
-x_16 = lean_ctor_get(x_1, 1);
-lean_inc(x_16);
-x_17 = lean_ctor_get_usize(x_1, 2);
-x_18 = lean_box_usize(x_17);
-x_19 = lean_apply_6(x_7, x_1, x_15, x_16, x_18, x_2, x_3);
-return x_19;
-}
-}
-}
-}
-lean_object* l_Lean_Name_replacePrefix_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Name_replacePrefix_match__1___rarg), 7, 0);
-return x_2;
-}
-}
-lean_object* l_Lean_Name_replacePrefix___lambda__1(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-lean_object* l_Lean_Name_replacePrefix___lambda__2(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_box(0);
-return x_3;
-}
-}
-lean_object* l_Lean_Name_replacePrefix___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-uint8_t x_7; 
-x_7 = lean_name_eq(x_1, x_5);
-if (x_7 == 0)
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_8 = lean_alloc_closure((void*)(l_Lean_Name_replacePrefix___lambda__1___boxed), 1, 0);
-x_9 = lean_alloc_closure((void*)(l_Lean_Name_replacePrefix___lambda__2___boxed), 2, 0);
-x_10 = lean_alloc_closure((void*)(l_Lean_Name_replacePrefix___lambda__3___boxed), 6, 0);
-x_11 = lean_alloc_closure((void*)(l_Lean_Name_replacePrefix___lambda__4___boxed), 6, 0);
-x_12 = l_Lean_Name_replacePrefix_match__1___rarg(x_2, x_5, x_6, x_8, x_9, x_10, x_11);
-x_13 = lean_name_mk_string(x_12, x_3);
-return x_13;
-}
-else
-{
-lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_6;
-}
-}
-}
-lean_object* l_Lean_Name_replacePrefix___lambda__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-uint8_t x_7; 
-x_7 = lean_name_eq(x_1, x_5);
-if (x_7 == 0)
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_8 = lean_alloc_closure((void*)(l_Lean_Name_replacePrefix___lambda__1___boxed), 1, 0);
-x_9 = lean_alloc_closure((void*)(l_Lean_Name_replacePrefix___lambda__2___boxed), 2, 0);
-x_10 = lean_alloc_closure((void*)(l_Lean_Name_replacePrefix___lambda__3___boxed), 6, 0);
-x_11 = lean_alloc_closure((void*)(l_Lean_Name_replacePrefix___lambda__4___boxed), 6, 0);
-x_12 = l_Lean_Name_replacePrefix_match__1___rarg(x_2, x_5, x_6, x_8, x_9, x_10, x_11);
-x_13 = lean_name_mk_numeral(x_12, x_3);
-return x_13;
-}
-else
-{
-lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_6;
-}
-}
-}
-static lean_object* _init_l_Lean_Name_replacePrefix___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Name_replacePrefix___lambda__1___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Name_replacePrefix___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Name_replacePrefix___lambda__2___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Name_replacePrefix___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Name_replacePrefix___lambda__3___boxed), 6, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Name_replacePrefix___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Name_replacePrefix___lambda__4___boxed), 6, 0);
-return x_1;
-}
-}
-lean_object* l_Lean_Name_replacePrefix(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_4 = l_Lean_Name_replacePrefix___closed__1;
-x_5 = l_Lean_Name_replacePrefix___closed__2;
-x_6 = l_Lean_Name_replacePrefix___closed__3;
-x_7 = l_Lean_Name_replacePrefix___closed__4;
-x_8 = l_Lean_Name_replacePrefix_match__1___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-return x_8;
-}
-}
-lean_object* l_Lean_Name_replacePrefix___lambda__1___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Name_replacePrefix___lambda__1(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l_Lean_Name_replacePrefix___lambda__2___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Name_replacePrefix___lambda__2(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_Lean_Name_replacePrefix___lambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-size_t x_7; lean_object* x_8; 
-x_7 = lean_unbox_usize(x_4);
-lean_dec(x_4);
-x_8 = l_Lean_Name_replacePrefix___lambda__3(x_1, x_2, x_3, x_7, x_5, x_6);
-lean_dec(x_1);
-return x_8;
-}
-}
-lean_object* l_Lean_Name_replacePrefix___lambda__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-size_t x_7; lean_object* x_8; 
-x_7 = lean_unbox_usize(x_4);
-lean_dec(x_4);
-x_8 = l_Lean_Name_replacePrefix___lambda__4(x_1, x_2, x_3, x_7, x_5, x_6);
-lean_dec(x_1);
-return x_8;
 }
 }
 lean_object* l_Lean_Name_isPrefixOf_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -7972,14 +7743,6 @@ l_Lean_Name_getString_x21___closed__3 = _init_l_Lean_Name_getString_x21___closed
 lean_mark_persistent(l_Lean_Name_getString_x21___closed__3);
 l_Lean_Name_getString_x21___closed__4 = _init_l_Lean_Name_getString_x21___closed__4();
 lean_mark_persistent(l_Lean_Name_getString_x21___closed__4);
-l_Lean_Name_replacePrefix___closed__1 = _init_l_Lean_Name_replacePrefix___closed__1();
-lean_mark_persistent(l_Lean_Name_replacePrefix___closed__1);
-l_Lean_Name_replacePrefix___closed__2 = _init_l_Lean_Name_replacePrefix___closed__2();
-lean_mark_persistent(l_Lean_Name_replacePrefix___closed__2);
-l_Lean_Name_replacePrefix___closed__3 = _init_l_Lean_Name_replacePrefix___closed__3();
-lean_mark_persistent(l_Lean_Name_replacePrefix___closed__3);
-l_Lean_Name_replacePrefix___closed__4 = _init_l_Lean_Name_replacePrefix___closed__4();
-lean_mark_persistent(l_Lean_Name_replacePrefix___closed__4);
 l_Lean_Name_isPrefixOf___closed__1 = _init_l_Lean_Name_isPrefixOf___closed__1();
 lean_mark_persistent(l_Lean_Name_isPrefixOf___closed__1);
 l_Lean_Name_isPrefixOf___closed__2 = _init_l_Lean_Name_isPrefixOf___closed__2();

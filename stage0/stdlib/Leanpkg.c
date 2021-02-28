@@ -1882,7 +1882,6 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_6 = lean_ctor_get(x_2, 0);
 x_7 = lean_ctor_get(x_2, 1);
-lean_inc(x_6);
 x_8 = l_Lean_Name_getRoot(x_6);
 x_9 = l_Lean_Name_toString___closed__1;
 x_10 = l_Lean_Name_toStringWithSep(x_9, x_8);
@@ -1921,7 +1920,6 @@ x_19 = lean_ctor_get(x_2, 1);
 lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_2);
-lean_inc(x_18);
 x_20 = l_Lean_Name_getRoot(x_18);
 x_21 = l_Lean_Name_toString___closed__1;
 x_22 = l_Lean_Name_toStringWithSep(x_21, x_20);

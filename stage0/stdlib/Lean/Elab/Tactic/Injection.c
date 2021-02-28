@@ -49,7 +49,7 @@ lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInjection___closed__1;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injection(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
-lean_object* l_Lean_Elab_Tactic_liftMetaTacticAux___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Tactic_liftMetaTactic___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___at___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_getInjectionNewIds___spec__1(lean_object* x_1) {
 _start:
 {
@@ -700,7 +700,7 @@ x_25 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalInjection___lambda__1__
 lean_closure_set(x_25, 0, x_19);
 lean_closure_set(x_25, 1, x_23);
 lean_closure_set(x_25, 2, x_15);
-x_26 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_liftMetaTacticAux___rarg___lambda__1___boxed), 11, 1);
+x_26 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_liftMetaTactic___lambda__2___boxed), 11, 1);
 lean_closure_set(x_26, 0, x_24);
 x_27 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Elab_Tactic_liftMetaTacticAux___spec__1___rarg), 11, 2);
 lean_closure_set(x_27, 0, x_25);

@@ -24,9 +24,11 @@ uint8_t l_Std_Stack_isEmpty___rarg(lean_object*);
 lean_object* l_Std_Stack_empty(lean_object*);
 lean_object* l_Std_Stack_push___rarg(lean_object*, lean_object*);
 lean_object* l_Std_Stack_isEmpty___rarg___boxed(lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Std_Stack_pop___rarg(lean_object*);
 lean_object* l_Std_Stack_modify(lean_object*);
+lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l_Std_Stack_peek_x21(lean_object*);
@@ -38,8 +40,8 @@ lean_object* l_Std_Stack_peek_x3f___rarg___boxed(lean_object*);
 lean_object* l_Array_get_x3f___rarg(lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
 lean_object* l_Std_Stack_peek_x21___rarg(lean_object*, lean_object*);
-lean_object* l_Array_modifyM___at_Array_modify___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Stack_pop(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Std_Stack_vals___default(lean_object* x_1) {
 _start:
 {
@@ -192,14 +194,29 @@ return x_3;
 lean_object* l_Std_Stack_modify___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_4 = lean_array_get_size(x_2);
 x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_nat_sub(x_4, x_5);
+x_7 = lean_nat_dec_lt(x_6, x_4);
 lean_dec(x_4);
-x_7 = l_Array_modifyM___at_Array_modify___spec__1___rarg(x_1, x_2, x_6, x_3);
+if (x_7 == 0)
+{
 lean_dec(x_6);
-return x_7;
+lean_dec(x_3);
+lean_dec(x_1);
+return x_2;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_8 = lean_array_fget(x_2, x_6);
+x_9 = lean_array_fset(x_2, x_6, x_1);
+x_10 = lean_apply_1(x_3, x_8);
+x_11 = lean_array_fset(x_9, x_6, x_10);
+lean_dec(x_6);
+return x_11;
+}
 }
 }
 lean_object* l_Std_Stack_modify(lean_object* x_1) {

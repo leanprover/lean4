@@ -74,10 +74,10 @@ lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_elabTerm___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_getAuxHypothesisName(lean_object*);
-lean_object* l_Lean_Elab_Tactic_liftMetaTacticAux___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_evalGeneralizeWithEq_match__2(lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_getVarName(lean_object*);
+lean_object* l_Lean_Elab_Tactic_liftMetaTactic___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_evalGeneralizeWithEq___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_getAuxHypothesisName(lean_object* x_1) {
 _start:
@@ -879,7 +879,7 @@ lean_closure_set(x_18, 0, x_16);
 lean_closure_set(x_18, 1, x_2);
 lean_closure_set(x_18, 2, x_3);
 lean_closure_set(x_18, 3, x_1);
-x_19 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_liftMetaTacticAux___rarg___lambda__1___boxed), 11, 1);
+x_19 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_liftMetaTactic___lambda__2___boxed), 11, 1);
 lean_closure_set(x_19, 0, x_17);
 x_20 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Elab_Tactic_liftMetaTacticAux___spec__1___rarg), 11, 2);
 lean_closure_set(x_20, 0, x_18);
@@ -1179,7 +1179,7 @@ lean_closure_set(x_18, 0, x_2);
 lean_closure_set(x_18, 1, x_16);
 lean_closure_set(x_18, 2, x_1);
 lean_closure_set(x_18, 3, x_3);
-x_19 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_liftMetaTacticAux___rarg___lambda__1___boxed), 11, 1);
+x_19 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_liftMetaTactic___lambda__2___boxed), 11, 1);
 lean_closure_set(x_19, 0, x_17);
 x_20 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Elab_Tactic_liftMetaTacticAux___spec__1___rarg), 11, 2);
 lean_closure_set(x_20, 0, x_18);
@@ -1439,7 +1439,7 @@ x_18 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalGeneralizeAux___lambda_
 lean_closure_set(x_18, 0, x_16);
 lean_closure_set(x_18, 1, x_2);
 lean_closure_set(x_18, 2, x_3);
-x_19 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_liftMetaTacticAux___rarg___lambda__1___boxed), 11, 1);
+x_19 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_liftMetaTactic___lambda__2___boxed), 11, 1);
 lean_closure_set(x_19, 0, x_17);
 x_20 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Elab_Tactic_liftMetaTacticAux___spec__1___rarg), 11, 2);
 lean_closure_set(x_20, 0, x_18);

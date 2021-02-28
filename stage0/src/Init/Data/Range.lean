@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Meta
+import Init.Control.Foldable
 
 namespace Std
 -- We put `Range` in `Init` because we want the notation `[i:j]`  without importing `Std`
@@ -28,11 +29,20 @@ universes u v
         | ForInStep.yield b => loop i (j + range.step) b
   loop range.stop range.start init
 
-@[inline] protected def foldlM {β : Type u} {m : Type u → Type v} [Monad m] (f : β → Nat → m β)  (init : β) (range : Range) : m β :=
-  range.forIn init (fun i b => return ForInStep.yield (← f b i))
-
 instance : ForIn m Range Nat where
   forIn := Range.forIn
+
+@[inline] protected def foldlM {β : Type u} {m : Type u → Type v} [Monad m] (f : β → Nat → m β)  (init : β) (range : Range) : m β :=
+  let rec @[specialize] loop (i : Nat) (j : Nat) (b : β) : m β := do
+    if j ≥ range.stop then
+      pure b
+    else match i with
+     | 0   => pure b
+     | i+1 => loop i (j + range.step) (← f b j)
+  loop range.stop range.start init
+
+instance : Foldable m Range Nat where
+  foldlM := Range.foldlM
 
 syntax:max "[" ":" term "]" : term
 syntax:max "[" term ":" term "]" : term

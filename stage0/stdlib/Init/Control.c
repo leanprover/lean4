@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control
-// Imports: Init.Control.Basic Init.Control.State Init.Control.StateRef Init.Control.Id Init.Control.Except Init.Control.Reader Init.Control.Option Init.Control.Lawful
+// Imports: Init.Control.Basic Init.Control.State Init.Control.StateRef Init.Control.Id Init.Control.Except Init.Control.Reader Init.Control.Option Init.Control.Lawful Init.Control.StateCps Init.Control.ExceptCps
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21,6 +21,8 @@ lean_object* initialize_Init_Control_Except(lean_object*);
 lean_object* initialize_Init_Control_Reader(lean_object*);
 lean_object* initialize_Init_Control_Option(lean_object*);
 lean_object* initialize_Init_Control_Lawful(lean_object*);
+lean_object* initialize_Init_Control_StateCps(lean_object*);
+lean_object* initialize_Init_Control_ExceptCps(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Control(lean_object* w) {
 lean_object * res;
@@ -48,6 +50,12 @@ res = initialize_Init_Control_Option(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_Lawful(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_StateCps(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_ExceptCps(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

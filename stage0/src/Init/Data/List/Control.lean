@@ -5,6 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Control.Basic
+import Init.Control.Foldable
 import Init.Data.List.Basic
 
 namespace List
@@ -148,5 +149,14 @@ def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
 
 instance : ForIn m (List α) α where
   forIn := List.forIn
+
+instance : Foldable m (List α) α where
+  foldlM := List.foldlM
+
+-- Add two simplification lemmas for `foldlM` over lists
+@[simp] theorem foldlM_nil  [Monad m] (f : δ → α → m δ) (d : δ) : foldlM f d ([] : List α) = pure d :=
+  rfl
+@[simp] theorem foldlM_cons [Monad m] (f : δ → α → m δ) (d : δ) (a : α) (as : List α) : foldlM f d (a::as) = f d a >>= fun d => foldlM f d as :=
+  rfl
 
 end List

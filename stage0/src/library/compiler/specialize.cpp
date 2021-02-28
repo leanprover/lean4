@@ -869,7 +869,7 @@ class specialize_fn {
         return r;
     }
 
-    comp_decl mk_new_decl(comp_decl const & pre_decl, buffer<expr> const & fvars, buffer<expr> const & fvar_vals, spec_ctx & ctx) {
+    optional<comp_decl> mk_new_decl(comp_decl const & pre_decl, buffer<expr> const & fvars, buffer<expr> const & fvar_vals, spec_ctx & ctx) {
         lean_assert(fvars.size() == fvar_vals.size());
         name n = pre_decl.fst();
         expr code = pre_decl.snd();
@@ -889,8 +889,8 @@ class specialize_fn {
             }
         }
         code = m_lctx.mk_lambda(new_let_decls, code);
-        // lean_trace(name("compiler", "spec_info"), tout() << "STEP 1 " << n << "\n" << code << "\n";);
         code = abstract_spec_ctx(ctx, code);
+        lean_trace(name("compiler", "spec_info"), tout() << "specialized code " << n << "\n" << trace_pp_expr(code) << "\n";);
         lean_assert(!has_fvar(code));
         /* We add the auxiliary declaration `n` as a "meta" axiom to the environment.
            This is a hack to make sure we can use `csimp` to simplify `code` and
@@ -905,10 +905,18 @@ class specialize_fn {
            type checker that takes the types of auxiliary declarations such as `n` into account.
            A custom type checker would be extra work, but it has other benefits. For example,
            it could have better support for type errors introduced by `csimp`. */
-        {
+        try {
             expr type = cheap_beta_reduce(type_checker(m_st).infer(code));
             declaration aux_ax = mk_axiom(n, names(), type, true /* meta */);
             m_st.env() = env().add(aux_ax, false);
+        } catch (exception &) {
+            /* We may fail to infer the type of code, since it may be recursive
+               This is a workaround. When we re-implement the compiler in Lean,
+               we should write code to infer type that tolerates undefined constants,
+               *AnyType*, etc.
+
+               We just do not specialize when we cannot infer the type. */
+            return optional<comp_decl>();
         }
         code = eta_expand_specialization(code);
         // lean_trace(name("compiler", "spec_info"), tout() << "STEP 2 " << n << "\n" << code << "\n";);
@@ -917,7 +925,7 @@ class specialize_fn {
         lean_trace(name("compiler", "specialize"), tout() << "new code " << n << "\n" << trace_pp_expr(code) << "\n";);
         comp_decl new_decl(n, code);
         m_new_decls.push_back(new_decl);
-        return new_decl;
+        return optional<comp_decl>(new_decl);
     }
 
     optional<expr> get_closed(expr const & e) {
@@ -1046,12 +1054,16 @@ class specialize_fn {
                 return none_expr();
             buffer<comp_decl> new_decls;
             for (comp_decl const & pre_decl : ctx.m_pre_decls) {
-                new_decls.push_back(mk_new_decl(pre_decl, fvars, fvar_vals, ctx));
-                if (respecialize) {
-                    m_to_respecialize.insert(pre_decl.fst());
+                if (auto new_decl_opt = mk_new_decl(pre_decl, fvars, fvar_vals, ctx)) {
+                    new_decls.push_back(*new_decl_opt);
+                } else {
+                    return none_expr();
                 }
             }
             if (respecialize) {
+                for (comp_decl const & new_decl : new_decls) {
+                    m_to_respecialize.insert(new_decl.fst());
+                }
                 m_st.env() = update_spec_info(env(), new_decls);
             }
             if (gcache_enabled) {

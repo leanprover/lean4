@@ -255,6 +255,7 @@ class specialize_fn {
     name                m_at;
     name                m_spec;
     unsigned            m_next_idx{1};
+    name_set            m_to_respecialize;
 
     environment const & env() { return m_st.env(); }
 
@@ -427,12 +428,16 @@ class specialize_fn {
         }
     }
 
+    bool has_specialize_attribute(name const & fn) {
+        return ::lean::has_specialize_attribute(env(), fn) || m_to_respecialize.contains(fn);
+    }
+
     void get_bool_mask(name const & fn, unsigned args_size, buffer<bool> & mask) {
         buffer<spec_arg_kind> kinds;
         get_arg_kinds(fn, kinds);
         if (kinds.size() > args_size)
             kinds.shrink(args_size);
-        to_bool_mask(kinds, has_specialize_attribute(env(), fn), mask);
+        to_bool_mask(kinds, has_specialize_attribute(fn), mask);
     }
 
     name mk_spec_name(name const & fn) {
@@ -456,7 +461,7 @@ class specialize_fn {
         lean_assert(is_constant(fn));
         buffer<spec_arg_kind> kinds;
         get_arg_kinds(const_name(fn), kinds);
-        if (!has_specialize_attribute(env(), const_name(fn)) && !has_fixed_inst_arg(kinds))
+        if (!has_specialize_attribute(const_name(fn)) && !has_fixed_inst_arg(kinds))
             return false; /* Nothing to specialize */
         if (!has_kind_ne_other(kinds))
             return false; /* Nothing to specialize */
@@ -629,7 +634,7 @@ class specialize_fn {
         lean_assert(is_constant(fn));
         buffer<spec_arg_kind> kinds;
         get_arg_kinds(const_name(fn), kinds);
-        bool has_attr   = has_specialize_attribute(env(), const_name(fn));
+        bool has_attr   = has_specialize_attribute(const_name(fn));
         dep_collector collect(m_lctx, ctx);
         unsigned sz     = std::min(kinds.size(), args.size());
         unsigned i      = sz;
@@ -770,6 +775,19 @@ class specialize_fn {
         }
     }
 
+    optional<expr> get_code(expr const & fn) {
+        lean_assert(is_constant(fn));
+        if (m_to_respecialize.contains(const_name(fn))) {
+            for (auto const & d : m_new_decls) {
+                if (d.fst() == const_name(fn))
+                    return optional<expr>(d.snd());
+            }
+        }
+        optional<constant_info> info = env().find(mk_cstage1_name(const_name(fn)));
+        if (!info || !info->is_definition()) return optional<expr>();
+        return optional<expr>(instantiate_value_lparams(*info, const_levels(fn)));
+    }
+
     optional<name> spec_preprocess(expr const & fn, buffer<optional<expr>> const & mask, spec_ctx & ctx) {
         lean_assert(is_constant(fn));
         lean_assert(ctx.in_mutual_decl(const_name(fn)));
@@ -778,12 +796,14 @@ class specialize_fn {
             lean_trace(name({"compiler", "specialize"}), tout() << "spec_preprocess: " << trace_pp_expr(key) << " ==> " << *r << "\n";);
             return optional<name>(*r);
         }
-        optional<constant_info> info = env().find(mk_cstage1_name(const_name(fn)));
-        if (!info || !info->is_definition()) return optional<name>(); // failed
+
+        optional<expr> new_code_opt = get_code(fn);
+        if (!new_code_opt) return optional<name>();
+        expr new_code = *new_code_opt;
+
         name new_name = mk_spec_name(const_name(fn));
         ctx.m_cache.insert(key, new_name);
         lean_trace(name({"compiler", "specialize"}), tout() << "spec_preprocess update cache: " << trace_pp_expr(key) << " ===> " << new_name << "\n";);
-        expr new_code = instantiate_value_lparams(*info, const_levels(fn));
         flet<local_ctx> save_lctx(m_lctx, m_lctx);
         buffer<expr> fvars;
         buffer<expr> new_fvars;
@@ -801,6 +821,7 @@ class specialize_fn {
             new_code = binding_body(new_code);
         }
         new_code = instantiate_rev(new_code, fvars.size(), fvars.data());
+        lean_trace(name({"compiler", "specialize"}), tout() << "before adjust_rec_apps: " << trace_pp_expr(fn) << " " << mask.size() << "\n" << trace_pp_expr(new_code) << "\n";);
         optional<expr> c = adjust_rec_apps(new_code, mask, ctx);
         if (!c) return optional<name>();
         new_code = *c;
@@ -848,7 +869,7 @@ class specialize_fn {
         return r;
     }
 
-    void mk_new_decl(comp_decl const & pre_decl, buffer<expr> const & fvars, buffer<expr> const & fvar_vals, spec_ctx & ctx) {
+    comp_decl mk_new_decl(comp_decl const & pre_decl, buffer<expr> const & fvars, buffer<expr> const & fvar_vals, spec_ctx & ctx) {
         lean_assert(fvars.size() == fvar_vals.size());
         name n = pre_decl.fst();
         expr code = pre_decl.snd();
@@ -893,8 +914,10 @@ class specialize_fn {
         // lean_trace(name("compiler", "spec_info"), tout() << "STEP 2 " << n << "\n" << code << "\n";);
         code = csimp(env(), code, m_cfg);
         code = visit(code);
-        // lean_trace(name("compiler", "specialize"), tout() << "new code " << n << "\n" << trace_pp_expr(code) << "\n";);
-        m_new_decls.push_back(comp_decl(n, code));
+        lean_trace(name("compiler", "specialize"), tout() << "new code " << n << "\n" << trace_pp_expr(code) << "\n";);
+        comp_decl new_decl(n, code);
+        m_new_decls.push_back(new_decl);
+        return new_decl;
     }
 
     optional<expr> get_closed(expr const & e) {
@@ -982,6 +1005,17 @@ class specialize_fn {
                     gcache_key_args.push_back(expr());
             }
         }
+
+        // We try to respecialize if the current application is over-applied, and it has additional lambda as arguments.
+        bool respecialize = false;
+        for (unsigned i = mask.size(); i < args.size(); i++) {
+            expr w = find(args[i]);
+            if (is_lambda(w) || is_constant(get_app_fn(w))) {
+                respecialize = true;
+                break;
+            }
+        }
+
         optional<name> new_fn_name;
         expr key;
         /* When `m_params.size > 1`, it is not safe to reuse cached specialization.
@@ -1010,8 +1044,15 @@ class specialize_fn {
             new_fn_name = spec_preprocess(fn, mask, ctx);
             if (!new_fn_name)
                 return none_expr();
+            buffer<comp_decl> new_decls;
             for (comp_decl const & pre_decl : ctx.m_pre_decls) {
-                mk_new_decl(pre_decl, fvars, fvar_vals, ctx);
+                new_decls.push_back(mk_new_decl(pre_decl, fvars, fvar_vals, ctx));
+                if (respecialize) {
+                    m_to_respecialize.insert(pre_decl.fst());
+                }
+            }
+            if (respecialize) {
+                m_st.env() = update_spec_info(env(), new_decls);
             }
             if (gcache_enabled) {
                 lean_trace(name({"compiler", "specialize"}), tout() << "get_cached_specialization [" << ctx.m_params.size() << "] UPDATE " << *new_fn_name << "\n";
@@ -1045,17 +1086,21 @@ class specialize_fn {
             expr fn = get_app_args(e, args);
             if (!is_constant(fn)
                 || has_nospecialize_attribute(env(), const_name(fn))
-                || (is_instance(env(), const_name(fn)) && !has_specialize_attribute(env(), const_name(fn)))) {
+                || (is_instance(env(), const_name(fn)) && !has_specialize_attribute(const_name(fn)))) {
                 return e;
             }
             optional<spec_info> info = get_specialization_info(env(), const_name(fn));
             if (!info) return e;
             spec_ctx ctx;
             ctx.m_mutual = info->get_mutual_decls();
-            if (optional<expr> r = specialize(fn, args, ctx))
-                return *r;
-            else
+            if (optional<expr> r = specialize(fn, args, ctx)) {
+                if (m_to_respecialize.contains(const_name(get_app_fn(*r))))
+                    return visit(*r);
+                else
+                    return *r;
+            } else {
                 return e;
+            }
         }
     }
 

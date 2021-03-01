@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Control.Basic
-import Init.Control.Foldable
+import Init.Control.Traversable
 import Init.Data.List.Basic
 
 namespace List
@@ -52,14 +52,16 @@ def mapA {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f 
   | a::as => List.cons <$> f a <*> mapA f as
 
 @[specialize]
-def forM {m : Type u → Type v} [Monad m] {α : Type w} (f : α → m PUnit) : List α → m PUnit
-  | []     => pure ⟨⟩
-  | h :: t => do f h; forM f t
+protected def forM {m : Type u → Type v} [Monad m] {α : Type w} (as : List α) (f : α → m PUnit) : m PUnit :=
+  match as with
+  | []      => pure ⟨⟩
+  | a :: as => do f a; List.forM as f
 
 @[specialize]
-def forA {m : Type u → Type v} [Applicative m] {α : Type w} (f : α → m PUnit) : List α → m PUnit
-  | []     => pure ⟨⟩
-  | h :: t => f h *> forA f t
+def forA {m : Type u → Type v} [Applicative m] {α : Type w} (as : List α) (f : α → m PUnit) : m PUnit :=
+  match as with
+  | []      => pure ⟨⟩
+  | a :: as => f a *> forA as f
 
 @[specialize]
 def filterAuxM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) : List α → List α → m (List α)
@@ -150,14 +152,12 @@ def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
 instance : ForIn m (List α) α where
   forIn := List.forIn
 
-instance : Foldable m (List α) α where
-  foldlM := List.foldlM
+instance : Traversable m (List α) α where
+  forM := List.forM
 
--- Add two simplification lemmas for `foldlM` over lists
-@[simp] theorem foldlM_nil  [Monad m] (f : δ → α → m δ) (d : δ) : foldlM f d ([] : List α) = pure d :=
+@[simp] theorem forM_nil  [Monad m] (f : α → m PUnit) : forM [] f = pure ⟨⟩ :=
   rfl
-
-@[simp] theorem foldlM_cons [Monad m] (f : δ → α → m δ) (d : δ) (a : α) (as : List α) : foldlM f d (a::as) = f d a >>= fun d => foldlM f d as :=
+@[simp] theorem forM_cons [Monad m] (f : α → m PUnit) (a : α) (as : List α) : forM (a::as) f = f a >>= fun _ => forM as f :=
   rfl
 
 end List

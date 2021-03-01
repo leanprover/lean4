@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Meta
-import Init.Control.Foldable
+import Init.Control.Traversable
 
 namespace Std
 -- We put `Range` in `Init` because we want the notation `[i:j]`  without importing `Std`
@@ -32,17 +32,17 @@ universes u v
 instance : ForIn m Range Nat where
   forIn := Range.forIn
 
-@[inline] protected def foldlM {β : Type u} {m : Type u → Type v} [Monad m] (f : β → Nat → m β)  (init : β) (range : Range) : m β :=
-  let rec @[specialize] loop (i : Nat) (j : Nat) (b : β) : m β := do
+@[inline] protected def forM {m : Type u → Type v} [Monad m] (range : Range) (f : Nat → m PUnit) : m PUnit :=
+  let rec @[specialize] loop (i : Nat) (j : Nat) : m PUnit := do
     if j ≥ range.stop then
-      pure b
+      pure ⟨⟩
     else match i with
-     | 0   => pure b
-     | i+1 => loop i (j + range.step) (← f b j)
-  loop range.stop range.start init
+     | 0   => pure ⟨⟩
+     | i+1 => f j; loop i (j + range.step)
+  loop range.stop range.start
 
-instance : Foldable m Range Nat where
-  foldlM := Range.foldlM
+instance : Traversable m Range Nat where
+  forM := Range.forM
 
 syntax:max "[" ":" term "]" : term
 syntax:max "[" term ":" term "]" : term

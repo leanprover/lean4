@@ -5,7 +5,6 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Control.Basic
-import Init.Control.Traversable
 import Init.Data.List.Basic
 
 namespace List
@@ -152,7 +151,7 @@ def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
 instance : ForIn m (List α) α where
   forIn := List.forIn
 
-instance : Traversable m (List α) α where
+instance : ForM m (List α) α where
   forM := List.forM
 
 @[simp] theorem forM_nil  [Monad m] (f : α → m PUnit) : forM [] f = pure ⟨⟩ :=

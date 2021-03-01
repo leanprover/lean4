@@ -105,3 +105,15 @@ def controlAt (m : Type u → Type v) {n : Type u → Type w} [s1 : MonadControl
 def control {m : Type u → Type v} {n : Type u → Type w} [MonadControlT m n] [Bind n] {α : Type u}
     (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
   controlAt m f
+
+/-
+  Typeclass for the polymorphic `forM` operation described in the "do unchained" paper.
+  Remark:
+  - `γ` is a "container" type of elements of type `α`.
+  - `α` is treated as an output parameter by the typeclass resolution procedure.
+    That is, it tries to find an instance using only `m` and `γ`.
+-/
+class ForM (m : Type u → Type v) (γ : Type w₁) (α : outParam (Type w₂)) where
+  forM [Monad m] : γ → (α → m PUnit) → m PUnit
+
+export ForM (forM)

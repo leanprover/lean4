@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Meta
-import Init.Control.Traversable
 
 namespace Std
 -- We put `Range` in `Init` because we want the notation `[i:j]`  without importing `Std`
@@ -41,7 +40,7 @@ instance : ForIn m Range Nat where
      | i+1 => f j; loop i (j + range.step)
   loop range.stop range.start
 
-instance : Traversable m Range Nat where
+instance : ForM m Range Nat where
   forM := Range.forM
 
 syntax:max "[" ":" term "]" : term

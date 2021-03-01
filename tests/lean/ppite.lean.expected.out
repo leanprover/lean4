@@ -1,7 +1,7 @@
 def f : List Nat → IO Unit :=
 fun (xs : List Nat) =>
-  List.forM
-    (fun (x : Nat) =>
+  List.forM xs
+    fun (x : Nat) =>
       if x == 0 = true then
         do 
           IO.println "foo"
@@ -14,7 +14,6 @@ fun (xs : List Nat) =>
         else
           do 
             IO.println x 
-            IO.println "odd")
-    xs
+            IO.println "odd"
 if true = true then 1 else 0 : Nat
 if h : true = true then 1 else 0 : Nat

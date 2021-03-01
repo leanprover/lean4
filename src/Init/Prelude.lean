@@ -383,6 +383,21 @@ class HOrElse (α : Type u) (β : Type v) (γ : outParam (Type w)) where
 class HAndThen (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hAndThen : α → β → γ
 
+class HAnd (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+  hAnd : α → β → γ
+
+class HXor (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+  hXor : α → β → γ
+
+class HOr (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+  hOr : α → β → γ
+
+class HShiftLeft (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+  hShiftLeft : α → β → γ
+
+class HShiftRight (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+  hShiftRight : α → β → γ
+
 class Add (α : Type u) where
   add : α → α → α
 
@@ -412,6 +427,24 @@ class OrElse (α : Type u) where
 
 class AndThen (α : Type u) where
   andThen : α → α → α
+
+class AndOp (α : Type u) where
+  and : α → α → α
+
+class Xor (α : Type u) where
+  xor : α → α → α
+
+class OrOp (α : Type u) where
+  or : α → α → α
+
+class Complement (α : Type u) where
+  complement : α → α
+
+class ShiftLeft (α : Type u) where
+  shiftLeft : α → α → α
+
+class ShiftRight (α : Type u) where
+  shiftRight : α → α → α
 
 @[defaultInstance]
 instance [Add α] : HAdd α α α where
@@ -448,6 +481,26 @@ instance [OrElse α] : HOrElse α α α where
 @[defaultInstance]
 instance [AndThen α] : HAndThen α α α where
   hAndThen a b := AndThen.andThen a b
+
+@[defaultInstance]
+instance [AndOp α] : HAnd α α α where
+  hAnd a b := AndOp.and a b
+
+@[defaultInstance]
+instance [Xor α] : HXor α α α where
+  hXor a b := Xor.xor a b
+
+@[defaultInstance]
+instance [OrOp α] : HOr α α α where
+  hOr a b := OrOp.or a b
+
+@[defaultInstance]
+instance [ShiftLeft α] : HShiftLeft α α α where
+  hShiftLeft a b := ShiftLeft.shiftLeft a b
+
+@[defaultInstance]
+instance [ShiftRight α] : HShiftRight α α α where
+  hShiftRight a b := ShiftRight.shiftRight a b
 
 open HAdd (hAdd)
 open HMul (hMul)

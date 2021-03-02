@@ -1,8 +1,20 @@
-universes u v w
+/-
+Copyright (c) 2021 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Leonardo de Moura
+-/
 
-namespace Nondet
+/-
+NondetT monad transformer.
+It is uses `unsafe` features to workaround the positivity constraints
+in the definition of `Alts`.
+-/
+namespace Std
+namespace NondetT
 
-def AltsCore := PNonScalar.{u}
+universe u
+
+private def AltsCore := PNonScalar.{u}
 
 inductive Alts (m : Type u → Type u) (α : Type u)
 | nil                                  : Alts m α
@@ -11,21 +23,23 @@ inductive Alts (m : Type u → Type u) (α : Type u)
 
 namespace Alts
 
+variable {m : Type u → Type u} {α : Type u}
+
 @[inline]
-unsafe def ofAltsCore {m : Type u → Type u} {α : Type u} (x : m AltsCore.{u}) : m (Alts m α) :=
+unsafe def ofAltsCore (x : m AltsCore.{u}) : m (Alts m α) :=
   unsafeCast x
 
 @[inline]
-unsafe def toAltsCore {m : Type u → Type u} {α : Type u} (x : m (Alts m α)) : m AltsCore.{u} :=
+unsafe def toAltsCore (x : m (Alts m α)) : m AltsCore.{u} :=
   unsafeCast x
 
 mutual
-unsafe def run' {m : Type u → Type u} {α : Type u} [Monad m] : Alts m α → m (Option (α × m (Alts m α)))
+unsafe def run' [Monad m] : Alts m α → m (Option (α × m (Alts m α)))
   | nil        => pure none
   | cons x xs  => pure $ some (x, ofAltsCore xs)
   | delayed xs => runUnsafe (ofAltsCore xs.get)
 
-unsafe def runUnsafe {m : Type u → Type u} {α : Type u} [Monad m] (x : m (Alts m α)) : m (Option (α × m (Alts m α))) := do
+unsafe def runUnsafe [Monad m] (x : m (Alts m α)) : m (Option (α × m (Alts m α))) := do
   run' (← x)
 end
 
@@ -68,9 +82,13 @@ protected unsafe def pure [Monad m] (a : α) : m (Alts m α) := do
   pure $ Alts.cons a $ toAltsCore (α := α) Alts.nil
 
 end Alts
+end NondetT
+
+open NondetT (Alts)
 
 def NondetT (m : Type u → Type u) (α : Type u) := m (Alts m α)
 
+namespace NondetT
 instance [Pure m] : Inhabited (NondetT m α) where
   default := (pure Alts.nil : m (Alts m α))
 
@@ -107,22 +125,22 @@ protected def failure [Monad m] : NondetT m α := id (α := m (Alts m α)) $
   pure Alts.nil
 
 instance [Monad m] : Monad (NondetT m) where
-  bind x f := Nondet.join (Nondet.map f x)
-  pure     := Nondet.pure
-  map      := Nondet.map
+  bind x f := NondetT.join (NondetT.map f x)
+  pure     := NondetT.pure
+  map      := NondetT.map
 
 instance [Monad m] : Alternative (NondetT m) where
-  failure := Nondet.failure
-  orElse  := Nondet.append
+  failure := NondetT.failure
+  orElse  := NondetT.append
 
 @[inline]
 unsafe def runUnsafe [Monad m] (x : NondetT m α) : m (Option (α × NondetT m α)) :=
   Alts.runUnsafe x
 
 @[implementedBy runUnsafe]
-protected constant NondetT.run [Monad m] (x : NondetT m α) : m (Option (α × NondetT m α))
+protected constant run [Monad m] (x : NondetT m α) : m (Option (α × NondetT m α))
 
-protected def NondetT.run' [Monad m] (x : NondetT m α) : m (Option α) := do
+protected def run' [Monad m] (x : NondetT m α) : m (Option α) := do
   match (← x.run) with
   | some (a, _) => pure (some a)
   | none        => pure none
@@ -154,78 +172,7 @@ unsafe def liftUnsafe [Monad m] (x : m α) : NondetT m α := id (α := m (Alts m
 protected constant lift [Monad m] (x : m α) : NondetT m α
 
 instance [Monad m] : MonadLift m (NondetT m) where
-  monadLift := Nondet.lift
+  monadLift := NondetT.lift
 
-end Nondet
-
-export Nondet (NondetT)
-
-namespace ex1
--- The state is not backtrackable
-abbrev M := NondetT $ StateT Nat $ IO
-
-def checkVal (x : Nat) : M Nat := do
-  IO.println s!"x: {x}"
-  guard (x % 2 == 0)
-  pure x
-
-def f : M Nat := do
-  let x ← Nondet.choose [1, 2, 3, 4, 5, 6, 7, 8]
-  checkVal x
-
-def h : M Nat := do
-  let a ← f
-  modify (· + 1)
-  guard (a % 3 == 0)
-  pure (a+1)
-
-def g : IO Unit :=  do
-  let (some (x, _), s) ← h.run.run 0 | throw $ IO.userError "failed"
-  IO.println s!"x: {x}, s: {s}"
-
-#eval g
-end ex1
-
-namespace ex2
--- The state is backtrackable
-abbrev M := StateT Nat $ NondetT $ IO
-
-def checkVal (x : Nat) : M Nat := do
-  IO.println s!"x: {x}"
-  guard (x % 2 == 0)
-  pure x
-
-def f : M Nat := do
-  let x ← Nondet.choose [1, 2, 3, 4, 5, 6, 7, 8]
-  checkVal x
-
-def h : M Nat := do
-  let a ← f
-  modify (· + 1)
-  guard (a % 3 == 0)
-  pure (a+1)
-
-def g : IO Unit :=  do
-  let some ((x, s), _) ← (h.run 0).run | throw $ IO.userError "failed"
-  IO.println s!"x: {x}, s: {s}"
-
-#eval g
-end ex2
-
-namespace ex3
-abbrev M := NondetT IO
-
-def a : M Unit := IO.println "a"
-def b : M Unit := IO.println "b"
-def c : M Unit := IO.println "c"
-
-def t1 : M Unit :=
-  ((a <|> a) *> b) *> c
-
-def t2 : M Unit :=
-  (a <|> a) *> (b *> c)
-
-#eval t1.run'
-#eval t2.run'
-
-end ex3
+end NondetT
+end Std

@@ -1,3 +1,3 @@
-infixl:67 " <<< "  => nonexistant
+infixl:67 " <>< "  => nonexistant
 
-#eval (1 <<< 11 : UInt64)
+#eval (1 <>< 11 : UInt64)

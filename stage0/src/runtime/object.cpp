@@ -1242,7 +1242,7 @@ extern "C" object * lean_nat_big_lor(object * a1, object * a2) {
         return mpz_to_nat(mpz_value(a1) | mpz_value(a2));
 }
 
-extern "C" object * lean_nat_big_lxor(object * a1, object * a2) {
+extern "C" object * lean_nat_big_xor(object * a1, object * a2) {
     lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
     if (lean_is_scalar(a1))
         return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)) ^ mpz_value(a2));

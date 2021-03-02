@@ -30,6 +30,12 @@ def UInt8.modn (a : UInt8) (n : @& Nat) : UInt8 := ⟨a.val % n⟩
 def UInt8.land (a b : UInt8) : UInt8 := ⟨Fin.land a.val b.val⟩
 @[extern c inline "#1 | #2"]
 def UInt8.lor (a b : UInt8) : UInt8 := ⟨Fin.lor a.val b.val⟩
+@[extern c inline "#1 ^ #2"]
+def UInt8.xor (a b : UInt8) : UInt8 := ⟨Fin.xor a.val b.val⟩
+@[extern c inline "#1 << #2"]
+def UInt8.shiftLeft (a b : UInt8) : UInt8 := ⟨a.val <<< b.val⟩
+@[extern c inline "#1 >> #2"]
+def UInt8.shiftRight (a b : UInt8) : UInt8 := ⟨a.val >>> b.val⟩
 def UInt8.lt (a b : UInt8) : Prop := a.val < b.val
 def UInt8.le (a b : UInt8) : Prop := a.val ≤ b.val
 
@@ -43,10 +49,15 @@ instance : Div UInt8       := ⟨UInt8.div⟩
 instance : HasLess UInt8   := ⟨UInt8.lt⟩
 instance : HasLessEq UInt8 := ⟨UInt8.le⟩
 
-@[extern c inline "#1 << #2"]
-constant UInt8.shiftLeft (a b : UInt8) : UInt8
-@[extern c inline "#1 >> #2"]
-constant UInt8.shiftRight (a b : UInt8) : UInt8
+@[extern c inline "~ #1"]
+def UInt8.complement (a:UInt8) : UInt8 := 0-(a+1)
+
+instance : Complement UInt8 := ⟨UInt8.complement⟩
+instance : AndOp UInt8     := ⟨UInt8.land⟩
+instance : OrOp UInt8      := ⟨UInt8.lor⟩
+instance : Xor UInt8       := ⟨UInt8.xor⟩
+instance : ShiftLeft UInt8  := ⟨UInt8.shiftLeft⟩
+instance : ShiftRight UInt8 := ⟨UInt8.shiftRight⟩
 
 set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 < #2"]
@@ -84,6 +95,12 @@ def UInt16.modn (a : UInt16) (n : @& Nat) : UInt16 := ⟨a.val % n⟩
 def UInt16.land (a b : UInt16) : UInt16 := ⟨Fin.land a.val b.val⟩
 @[extern c inline "#1 | #2"]
 def UInt16.lor (a b : UInt16) : UInt16 := ⟨Fin.lor a.val b.val⟩
+@[extern c inline "#1 ^ #2"]
+def UInt16.xor (a b : UInt16) : UInt16 := ⟨Fin.xor a.val b.val⟩
+@[extern c inline "#1 << #2"]
+def UInt16.shiftLeft (a b : UInt16) : UInt16 := ⟨a.val <<< b.val⟩
+@[extern c inline "#1 >> #2"]
+def UInt16.shiftRight (a b : UInt16) : UInt16 := ⟨a.val >>> b.val⟩
 def UInt16.lt (a b : UInt16) : Prop := a.val < b.val
 def UInt16.le (a b : UInt16) : Prop := a.val ≤ b.val
 
@@ -98,10 +115,15 @@ instance : Div UInt16       := ⟨UInt16.div⟩
 instance : HasLess UInt16   := ⟨UInt16.lt⟩
 instance : HasLessEq UInt16 := ⟨UInt16.le⟩
 
-@[extern c inline "#1 << #2"]
-constant UInt16.shiftLeft (a b : UInt16) : UInt16
-@[extern c inline "#1 >> #2"]
-constant UInt16.shiftRight (a b : UInt16) : UInt16
+@[extern c inline "~ #1"]
+def UInt16.complement (a:UInt16) : UInt16 := 0-(a+1)
+
+instance : Complement UInt16 := ⟨UInt16.complement⟩
+instance : AndOp UInt16     := ⟨UInt16.land⟩
+instance : OrOp UInt16      := ⟨UInt16.lor⟩
+instance : Xor UInt16       := ⟨UInt16.xor⟩
+instance : ShiftLeft UInt16  := ⟨UInt16.shiftLeft⟩
+instance : ShiftRight UInt16 := ⟨UInt16.shiftRight⟩
 
 set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 < #2"]
@@ -139,6 +161,12 @@ def UInt32.modn (a : UInt32) (n : @& Nat) : UInt32 := ⟨a.val % n⟩
 def UInt32.land (a b : UInt32) : UInt32 := ⟨Fin.land a.val b.val⟩
 @[extern c inline "#1 | #2"]
 def UInt32.lor (a b : UInt32) : UInt32 := ⟨Fin.lor a.val b.val⟩
+@[extern c inline "#1 ^ #2"]
+def UInt32.xor (a b : UInt32) : UInt32 := ⟨Fin.xor a.val b.val⟩
+@[extern c inline "#1 << #2"]
+def UInt32.shiftLeft (a b : UInt32) : UInt32 := ⟨a.val <<< b.val⟩
+@[extern c inline "#1 >> #2"]
+def UInt32.shiftRight (a b : UInt32) : UInt32 := ⟨a.val >>> b.val⟩
 @[extern c inline "((uint8_t)#1)"]
 def UInt32.toUInt8 (a : UInt32) : UInt8 := a.toNat.toUInt8
 @[extern c inline "((uint16_t)#1)"]
@@ -154,10 +182,15 @@ instance : Mod UInt32       := ⟨UInt32.mod⟩
 instance : HMod UInt32 Nat UInt32 := ⟨UInt32.modn⟩
 instance : Div UInt32       := ⟨UInt32.div⟩
 
-@[extern c inline "#1 << #2"]
-constant UInt32.shiftLeft (a b : UInt32) : UInt32
-@[extern c inline "#1 >> #2"]
-constant UInt32.shiftRight (a b : UInt32) : UInt32
+@[extern c inline "~ #1"]
+def UInt32.complement (a:UInt32) : UInt32 := 0-(a+1)
+
+instance : Complement UInt32 := ⟨UInt32.complement⟩
+instance : AndOp UInt32     := ⟨UInt32.land⟩
+instance : OrOp UInt32      := ⟨UInt32.lor⟩
+instance : Xor UInt32       := ⟨UInt32.xor⟩
+instance : ShiftLeft UInt32  := ⟨UInt32.shiftLeft⟩
+instance : ShiftRight UInt32 := ⟨UInt32.shiftRight⟩
 
 @[extern "lean_uint64_of_nat"]
 def UInt64.ofNat (n : @& Nat) : UInt64 := ⟨Fin.ofNat n⟩
@@ -180,6 +213,12 @@ def UInt64.modn (a : UInt64) (n : @& Nat) : UInt64 := ⟨a.val % n⟩
 def UInt64.land (a b : UInt64) : UInt64 := ⟨Fin.land a.val b.val⟩
 @[extern c inline "#1 | #2"]
 def UInt64.lor (a b : UInt64) : UInt64 := ⟨Fin.lor a.val b.val⟩
+@[extern c inline "#1 ^ #2"]
+def UInt64.xor (a b : UInt64) : UInt64 := ⟨Fin.xor a.val b.val⟩
+@[extern c inline "#1 << #2"]
+def UInt64.shiftLeft (a b : UInt64) : UInt64 := ⟨a.val <<< b.val⟩
+@[extern c inline "#1 >> #2"]
+def UInt64.shiftRight (a b : UInt64) : UInt64 := ⟨a.val >>> b.val⟩
 def UInt64.lt (a b : UInt64) : Prop := a.val < b.val
 def UInt64.le (a b : UInt64) : Prop := a.val ≤ b.val
 @[extern c inline "((uint8_t)#1)"]
@@ -191,12 +230,6 @@ def UInt64.toUInt32 (a : UInt64) : UInt32 := a.toNat.toUInt32
 @[extern c inline "((uint64_t)#1)"]
 def UInt32.toUInt64 (a : UInt32) : UInt64 := a.toNat.toUInt64
 
--- TODO(Leo): give reference implementation for shiftLeft and shiftRight, and define them for other UInt types
-@[extern c inline "#1 << #2"]
-constant UInt64.shiftLeft (a b : UInt64) : UInt64
-@[extern c inline "#1 >> #2"]
-constant UInt64.shiftRight (a b : UInt64) : UInt64
-
 instance : OfNat UInt64 n   := ⟨UInt64.ofNat n⟩
 instance : Add UInt64       := ⟨UInt64.add⟩
 instance : Sub UInt64       := ⟨UInt64.sub⟩
@@ -206,6 +239,16 @@ instance : HMod UInt64 Nat UInt64 := ⟨UInt64.modn⟩
 instance : Div UInt64       := ⟨UInt64.div⟩
 instance : HasLess UInt64   := ⟨UInt64.lt⟩
 instance : HasLessEq UInt64 := ⟨UInt64.le⟩
+
+@[extern c inline "~ #1"]
+def UInt64.complement (a:UInt64) : UInt64 := 0-(a+1)
+
+instance : Complement UInt64 := ⟨UInt64.complement⟩
+instance : AndOp UInt64     := ⟨UInt64.land⟩
+instance : OrOp UInt64      := ⟨UInt64.lor⟩
+instance : Xor UInt64       := ⟨UInt64.xor⟩
+instance : ShiftLeft UInt64  := ⟨UInt64.shiftLeft⟩
+instance : ShiftRight UInt64 := ⟨UInt64.shiftRight⟩
 
 @[extern c inline "(uint64_t)#1"]
 def Bool.toUInt64 (b : Bool) : UInt64 := if b then 1 else 0
@@ -249,6 +292,12 @@ def USize.modn (a : USize) (n : @& Nat) : USize := ⟨a.val % n⟩
 def USize.land (a b : USize) : USize := ⟨Fin.land a.val b.val⟩
 @[extern c inline "#1 | #2"]
 def USize.lor (a b : USize) : USize := ⟨Fin.lor a.val b.val⟩
+@[extern c inline "#1 ^ #2"]
+def USize.xor (a b : USize) : USize := ⟨Fin.xor a.val b.val⟩
+@[extern c inline "#1 << #2"]
+def USize.shiftLeft (a b : USize) : USize := ⟨a.val <<< b.val⟩
+@[extern c inline "#1 >> #2"]
+def USize.shiftRight (a b : USize) : USize := ⟨a.val >>> b.val⟩
 @[extern c inline "#1"]
 def UInt32.toUSize (a : UInt32) : USize := a.toNat.toUSize
 @[extern c inline "((size_t)#1)"]
@@ -256,11 +305,6 @@ def UInt64.toUSize (a : UInt64) : USize := a.toNat.toUSize
 @[extern c inline "(uint32_t)#1"]
 def USize.toUInt32 (a : USize) : UInt32 := a.toNat.toUInt32
 
--- TODO(Leo): give reference implementation for shiftLeft and shiftRight, and define them for other UInt types
-@[extern c inline "#1 << #2"]
-constant USize.shiftLeft (a b : USize) : USize
-@[extern c inline "#1 >> #2"]
-constant USize.shiftRight (a b : USize) : USize
 def USize.lt (a b : USize) : Prop := a.val < b.val
 def USize.le (a b : USize) : Prop := a.val ≤ b.val
 
@@ -273,6 +317,16 @@ instance : HMod USize Nat USize := ⟨USize.modn⟩
 instance : Div USize       := ⟨USize.div⟩
 instance : HasLess USize   := ⟨USize.lt⟩
 instance : HasLessEq USize := ⟨USize.le⟩
+
+@[extern c inline "~ #1"]
+def USize.complement (a:USize) : USize := 0-(a+1)
+
+instance : Complement USize := ⟨USize.complement⟩
+instance : AndOp USize      := ⟨USize.land⟩
+instance : OrOp USize       := ⟨USize.lor⟩
+instance : Xor USize        := ⟨USize.xor⟩
+instance : ShiftLeft USize  := ⟨USize.shiftLeft⟩
+instance : ShiftRight USize := ⟨USize.shiftRight⟩
 
 set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 < #2"]

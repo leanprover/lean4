@@ -224,18 +224,18 @@ public:
        \brief Return the position of the most significant bit.
        Return 0 if the number is negative
     */
-    unsigned log2() const;
+    size_t log2() const;
 
     /**
        \brief log2(-n)
        Return 0 if the number is nonegative
     */
-    unsigned mlog2() const;
+    size_t mlog2() const;
 
     bool perfect_square() const { return mpz_perfect_square_p(m_val); }
 
     bool is_power_of_two() const { return is_pos() && mpz_popcount(m_val) == 1; }
-    bool is_power_of_two(unsigned & shift) const;
+    bool is_power_of_two(size_t& shift) const;
     /**
        \brief Return largest k s.t. n is a multiple of 2^k
     */

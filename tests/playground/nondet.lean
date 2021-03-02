@@ -20,148 +20,141 @@ unsafe def toAltsCore {m : Type u → Type u} {α : Type u} (x : m (Alts m α)) 
   unsafeCast x
 
 mutual
-unsafe def run' {m α} [Monad m] : Alts m α → m (Option (α × m (Alts m α)))
+unsafe def run' {m : Type u → Type u} {α : Type u} [Monad m] : Alts m α → m (Option (α × m (Alts m α)))
   | nil        => pure none
   | cons x xs  => pure $ some (x, ofAltsCore xs)
   | delayed xs => runUnsafe (ofAltsCore xs.get)
 
-unsafe def runUnsafe {m α} [Monad m] (x : m (Alts m α)) : m (Option (α × m (Alts m α))) := do
+unsafe def runUnsafe {m : Type u → Type u} {α : Type u} [Monad m] (x : m (Alts m α)) : m (Option (α × m (Alts m α))) := do
   run' (← x)
 end
 
-unsafe def ofList {m α} [Monad m] : List α → m (Alts m α)
+unsafe def ofList [Monad m] : List α → m (Alts m α)
   | []    => pure Alts.nil
   | a::as => pure $ Alts.cons a (toAltsCore (ofList as))
 
 mutual
-unsafe def append' {m α} [Monad m] : Alts m α → m (Alts m α) → m (Alts m α)
+unsafe def append' [Monad m] : Alts m α → m (Alts m α) → m (Alts m α)
   | nil,          bs => bs
   | cons a as,    bs => pure $ delayed $ Thunk.mk fun _ => toAltsCore $ pure $ cons a $ toAltsCore $ append (ofAltsCore as) bs
   | delayed as,   bs => pure $ delayed $ Thunk.mk fun _ => toAltsCore $ append (ofAltsCore as.get) bs
 
-unsafe def append {m α} [Monad m] (xs ys : m (Alts m α)) : m (Alts m α) := do
+unsafe def append [Monad m] (xs ys : m (Alts m α)) : m (Alts m α) := do
   append' (← xs) ys
 end
 
 mutual
-unsafe def join' {m α} [Monad m] : Alts m (m (Alts m α)) → m (Alts m α)
+unsafe def join' [Monad m] : Alts m (m (Alts m α)) → m (Alts m α)
   | nil        => pure nil
   | cons x xs  => pure $ delayed $ Thunk.mk fun _ => toAltsCore $ append x $ join $ ofAltsCore xs
   | delayed xs => pure $ delayed $ Thunk.mk fun _ => toAltsCore (α := α) $ join (ofAltsCore xs.get)
 
-unsafe def join {m α} [Monad m] (xs : m (Alts m (m (Alts m α)))) : m (Alts m α) := do
+unsafe def join [Monad m] (xs : m (Alts m (m (Alts m α)))) : m (Alts m α) := do
   join' (← xs)
 end
 
 mutual
-unsafe def map' {m α β} [Monad m] (f : α → β) : Alts m α → m (Alts m β)
+unsafe def map' [Monad m] (f : α → β) : Alts m α → m (Alts m β)
   | nil          => pure nil
   | cons x xs    => pure $ delayed $ Thunk.mk fun _ => toAltsCore $ pure $ cons (f x) $ toAltsCore $ map f (ofAltsCore xs)
   | delayed xs   => pure $ delayed $ Thunk.mk fun _ => toAltsCore $ map f (ofAltsCore xs.get)
 
-unsafe def map  {m α β} [Monad m] (f : α → β) (xs : m (Alts m α)) : m (Alts m β) := do
+unsafe def map [Monad m] (f : α → β) (xs : m (Alts m α)) : m (Alts m β) := do
   map' f (← xs)
 end
 
 @[inline]
-protected unsafe def pure {m α} [Monad m] (a : α) : m (Alts m α) := do
+protected unsafe def pure [Monad m] (a : α) : m (Alts m α) := do
   pure $ Alts.cons a $ toAltsCore (α := α) Alts.nil
 
 end Alts
 
 def NondetT (m : Type u → Type u) (α : Type u) := m (Alts m α)
 
-instance {m α} [Pure m] : Inhabited (NondetT m α) :=
-  ⟨(pure Alts.nil : m (Alts m α))⟩
+instance [Pure m] : Inhabited (NondetT m α) where
+  default := (pure Alts.nil : m (Alts m α))
 
 @[inline]
-unsafe def appendUnsafe {m α} [Monad m] (x y : NondetT m α) : NondetT m α :=
+unsafe def appendUnsafe [Monad m] (x y : NondetT m α) : NondetT m α :=
   Alts.append x y
 
 @[implementedBy appendUnsafe]
-protected constant append {m α} [Monad m] (x y : NondetT m α) : NondetT m α
+protected constant append [Monad m] (x y : NondetT m α) : NondetT m α
 
 @[inline]
-unsafe def joinUnsafe {m α} [Monad m] (x : NondetT m (NondetT m α)) : NondetT m α :=
+unsafe def joinUnsafe [Monad m] (x : NondetT m (NondetT m α)) : NondetT m α :=
   Alts.join x
 
 @[implementedBy joinUnsafe]
-protected constant join {m α} [Monad m] (x : NondetT m (NondetT m α)) : NondetT m α
+protected constant join [Monad m] (x : NondetT m (NondetT m α)) : NondetT m α
 
 @[inline]
-unsafe def mapUnsafe {m α β} [Monad m] (f : α → β) (x : NondetT m α) : NondetT m β :=
+unsafe def mapUnsafe [Monad m] (f : α → β) (x : NondetT m α) : NondetT m β :=
   Alts.map f x
 
 @[implementedBy mapUnsafe]
-protected constant map {m α β} [Monad m] (f : α → β) (x : NondetT m α) : NondetT m β
+protected constant map [Monad m] (f : α → β) (x : NondetT m α) : NondetT m β
 
 @[inline]
-unsafe def pureUnsafe {m α} [Monad m] (a : α) : NondetT m α :=
+unsafe def pureUnsafe [Monad m] (a : α) : NondetT m α :=
   Alts.pure a
 
 @[implementedBy pureUnsafe]
-protected constant pure {m α} [Monad m] (a : α) : NondetT m α
+protected constant pure [Monad m] (a : α) : NondetT m α
 
 @[inline]
-protected def bind {m} [Monad m] {α β} (x : NondetT m α) (f : α → NondetT m β) : NondetT m β :=
-  Nondet.join (Nondet.map f x)
-
-@[inline]
-protected def failure {m α} [Monad m] : NondetT m α := id (α := m (Alts m α)) $
+protected def failure [Monad m] : NondetT m α := id (α := m (Alts m α)) $
   pure Alts.nil
 
-instance {m} [Monad m] : Monad (NondetT m) := {
-  bind := Nondet.bind,
-  pure := Nondet.pure,
-  map  := Nondet.map
-}
+instance [Monad m] : Monad (NondetT m) where
+  bind x f := Nondet.join (Nondet.map f x)
+  pure     := Nondet.pure
+  map      := Nondet.map
 
-instance {m} [Monad m] : Alternative (NondetT m) := {
-  failure := Nondet.failure,
-  orelse  := Nondet.append
-}
+instance [Monad m] : Alternative (NondetT m) where
+  failure := Nondet.failure
+  orElse  := Nondet.append
 
 @[inline]
-unsafe def runUnsafe {m α} [Monad m] (x : NondetT m α) : m (Option (α × NondetT m α)) :=
+unsafe def runUnsafe [Monad m] (x : NondetT m α) : m (Option (α × NondetT m α)) :=
   Alts.runUnsafe x
 
 @[implementedBy runUnsafe]
-protected constant NondetT.run {m α} [Monad m] (x : NondetT m α) : m (Option (α × NondetT m α))
+protected constant NondetT.run [Monad m] (x : NondetT m α) : m (Option (α × NondetT m α))
 
-protected def NondetT.run' {m α} [Monad m] (x : NondetT m α) : m (Option α) := do
+protected def NondetT.run' [Monad m] (x : NondetT m α) : m (Option α) := do
   match (← x.run) with
   | some (a, _) => pure (some a)
   | none        => pure none
 
 @[inline]
-unsafe def chooseUnsafe {m α} [Monad m] (as : List α) : NondetT m α :=
+unsafe def chooseUnsafe [Monad m] (as : List α) : NondetT m α :=
   Alts.ofList as
 
 @[implementedBy chooseUnsafe]
-constant chooseImp {m α} [Monad m] (as : List α) : NondetT m α
+constant chooseImp [Monad m] (as : List α) : NondetT m α
 
 class Choose (m : Type u → Type u) :=
-  (choose : {α : Type u} → List α → m α)
+  (choose : List α → m α)
 
 export Choose (choose)
 
-instance {m} [Monad m] : Choose (NondetT m) := {
-  choose := chooseImp
-}
-
-instance {m n} [Choose m] [MonadLift m n] : Choose n := {
+instance [MonadLift m n] [Choose m] : Choose n where
   choose := fun as => liftM (m := m) $ choose as
-}
+
+instance [Monad m] : Choose (NondetT m) where
+  choose := chooseImp
 
 @[inline]
-unsafe def liftUnsafe {m α} [Monad m] (x : m α) : NondetT m α := id (α := m (Alts m α)) do
+unsafe def liftUnsafe [Monad m] (x : m α) : NondetT m α := id (α := m (Alts m α)) do
   let a ← x
   Alts.pure a
 
 @[implementedBy liftUnsafe]
-protected constant lift {m α} [Monad m] (x : m α) : NondetT m α
+protected constant lift [Monad m] (x : m α) : NondetT m α
 
-instance {m} [Monad m] : MonadLift m (NondetT m) := ⟨Nondet.lift⟩
+instance [Monad m] : MonadLift m (NondetT m) where
+  monadLift := Nondet.lift
 
 end Nondet
 

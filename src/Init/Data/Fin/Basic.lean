@@ -62,6 +62,15 @@ def land : Fin n → Fin n → Fin n
 def lor : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(Nat.lor a b) % n, mlt h⟩
 
+def xor : Fin n → Fin n → Fin n
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(Nat.xor a b) % n, mlt h⟩
+
+def shiftLeft : Fin n → Fin n → Fin n
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a <<< b) % n, mlt h⟩
+
+def shiftRight : Fin n → Fin n → Fin n
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a >>> b) % n, mlt h⟩
+
 instance : Add (Fin n) where
   add := Fin.add
 
@@ -76,6 +85,17 @@ instance : Mod (Fin n) where
 
 instance : Div (Fin n) where
   div := Fin.div
+
+instance : AndOp (Fin n) where
+  and := Fin.land
+instance : OrOp (Fin n) where
+  or := Fin.lor
+instance : Xor (Fin n) where
+  xor := Fin.xor
+instance : ShiftLeft (Fin n) where
+  shiftLeft := Fin.shiftLeft
+instance : ShiftRight (Fin n) where
+  shiftRight := Fin.shiftRight
 
 instance : HMod (Fin n) Nat (Fin n) where
   hMod := Fin.modn

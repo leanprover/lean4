@@ -38,27 +38,27 @@ size_t mpz::get_size_t() const {
     return static_cast<size_t>(mpz_getlimbn(m_val, 0));
 }
 
-unsigned mpz::log2() const {
+size_t mpz::log2() const {
     if (is_nonpos())
         return 0;
-    unsigned r = mpz_sizeinbase(m_val, 2);
+    size_t r = mpz_sizeinbase(m_val, 2);
     lean_assert(r > 0);
     return r - 1;
 }
 
-unsigned mpz::mlog2() const {
+size_t mpz::mlog2() const {
     if (is_nonneg())
         return 0;
     mpz * _this = const_cast<mpz*>(this);
     _this->neg();
     lean_assert(is_pos());
-    unsigned r = mpz_sizeinbase(m_val, 2);
+    size_t r = mpz_sizeinbase(m_val, 2);
     _this->neg();
     lean_assert(is_neg());
     return r - 1;
 }
 
-bool mpz::is_power_of_two(unsigned & shift) const {
+bool mpz::is_power_of_two(size_t& shift) const {
     if (is_nonpos())
         return false;
     if (mpz_popcount(m_val) == 1) {

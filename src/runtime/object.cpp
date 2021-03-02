@@ -1257,7 +1257,7 @@ extern "C" object * lean_nat_big_lor(object * a1, object * a2) {
         return mpz_to_nat(mpz_value(a1) | mpz_value(a2));
 }
 
-extern "C" object * lean_nat_big_lxor(object * a1, object * a2) {
+extern "C" object * lean_nat_big_xor(object * a1, object * a2) {
     lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
     if (lean_is_scalar(a1))
         return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)) ^ mpz_value(a2));
@@ -1267,8 +1267,46 @@ extern "C" object * lean_nat_big_lxor(object * a1, object * a2) {
         return mpz_to_nat(mpz_value(a1) ^ mpz_value(a2));
 }
 
-extern "C" lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+extern "C" lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    // Special case for shifted value is 0.
+    if (lean_is_scalar(a1) && lean_unbox(a1) == 0) {
+        return lean_box(0);
+    }
+    auto a = lean_is_scalar(a1)
+           ? mpz::of_size_t(lean_unbox(a1))
+           : mpz_value(a1);
+    if (!lean_is_scalar(a2) || lean_unbox(a2) > UINT_MAX) {
+        lean_panic("Nat.shiftl exponent is too big");
+    }
+    mpz r;
+    mul2k(r, a, lean_unbox(a2));
+    return mpz_to_nat(r);
+}
+
+extern "C" lean_obj_res lean_nat_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (!lean_is_scalar(a2)) {
+        return lean_box(0); // This large of an exponent must be 0.
+    }
+    auto a = lean_is_scalar(a1)
+           ? mpz::of_size_t(lean_unbox(a1))
+           : mpz_value(a1);
+    size_t s = lean_unbox(a2);
+    // If the shift amount is large, then we fail if it is not large
+    // enough to zero out all the bits.
+    if (s > UINT_MAX) {
+        if (a.log2() >= s) {
+            lean_panic("Nat.shiftr exponent is too big");
+        } else {
+            return lean_box(0);
+        }
+    }
+    mpz r;
+    div2k(r, a, s);
+    return mpz_to_nat(r);
+}
+
+extern "C" lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (!lean_is_scalar(a2) || lean_unbox(a2) > UINT_MAX) {
         lean_internal_panic("Nat.pow exponent is too big");
     }
     if (lean_is_scalar(a1))

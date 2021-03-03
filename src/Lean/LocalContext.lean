@@ -279,6 +279,11 @@ variable {β : Type u}
     | none      => pure none
     | some decl => f decl
 
+instance : ForIn m LocalContext LocalDecl where
+  forIn lctx init f := lctx.decls.forIn init fun d? b => match d? with 
+    | none   => ForInStep.yield b
+    | some d => f d b 
+
 end
 
 @[inline] def foldl {β} (lctx : LocalContext) (f : β → LocalDecl → β) (init : β) (start : Nat := 0) : β :=

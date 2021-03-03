@@ -21,7 +21,7 @@ private abbrev withInstantiatedMVars (e : Expr) (k : Expr → OptionT MetaM α) 
 partial def evalNat : Expr → OptionT MetaM Nat
   | Expr.lit (Literal.natVal n) _ => return n
   | Expr.mdata _ e _              => evalNat e
-  | Expr.const `Nat.zero _ _      => return 0
+  | Expr.const `Nat.zero ..       => return 0
   | e@(Expr.app ..)               => visit e
   | e@(Expr.mvar ..)              => visit e
   | _                             => failure
@@ -137,7 +137,8 @@ private def mkOffset (e : Expr) (offset : Nat) : MetaM Expr := do
 def isDefEqOffset (s t : Expr) : MetaM LBool := do
   let ifNatExpr (x : MetaM LBool) : MetaM LBool := do
     let type ← inferType s
-    if (← Meta.isExprDefEqAux type (mkConst ``Nat)) then
+    -- Remark: we use `withNewMCtxDepth` to make sure we don't assing metavariables when performing the `isDefEq` test
+    if (← withNewMCtxDepth <| Meta.isExprDefEqAux type (mkConst ``Nat)) then
       x
     else
       return LBool.undef

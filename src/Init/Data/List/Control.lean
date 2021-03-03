@@ -151,6 +151,13 @@ def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
 instance : ForIn m (List α) α where
   forIn := List.forIn
 
+@[simp] theorem forIn_nil [Monad m] (f : α → β → m (ForInStep β)) (b : β) : forIn [] b f = pure b :=
+  rfl
+
+@[simp] theorem forIn_cons [Monad m] (f : α → β → m (ForInStep β)) (a : α) (as : List α) (b : β)
+    : forIn (a::as) b f = f a b >>= fun | ForInStep.done b => pure b | ForInStep.yield b => forIn as b f :=
+  rfl
+
 instance : ForM m (List α) α where
   forM := List.forM
 

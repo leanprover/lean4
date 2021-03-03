@@ -32,46 +32,46 @@ where
     | Expr.mvar .. => withInstantiatedMVars e evalNat
     | Expr.const c _ _ =>
       let nargs := e.getAppNumArgs
-      if c == `Nat.succ && nargs == 1 then
+      if c == ``Nat.succ && nargs == 1 then
         let v ← evalNat (e.getArg! 0)
         return v+1
-      else if c == `Nat.add && nargs == 2 then
+      else if c == ``Nat.add && nargs == 2 then
         let v₁ ← evalNat (e.getArg! 0)
         let v₂ ← evalNat (e.getArg! 1)
         return v₁ + v₂
-      else if c == `Nat.sub && nargs == 2 then
+      else if c == ``Nat.sub && nargs == 2 then
         let v₁ ← evalNat (e.getArg! 0)
         let v₂ ← evalNat (e.getArg! 1)
         return v₁ - v₂
-      else if c == `Nat.mul && nargs == 2 then
+      else if c == ``Nat.mul && nargs == 2 then
         let v₁ ← evalNat (e.getArg! 0)
         let v₂ ← evalNat (e.getArg! 1)
         return v₁ * v₂
-      else if c == `Add.add && nargs == 4 then
+      else if c == ``Add.add && nargs == 4 then
         let v₁ ← evalNat (e.getArg! 2)
         let v₂ ← evalNat (e.getArg! 3)
         return v₁ + v₂
-      else if c == `Sub.sub && nargs == 4 then
+      else if c == ``Sub.sub && nargs == 4 then
         let v₁ ← evalNat (e.getArg! 2)
         let v₂ ← evalNat (e.getArg! 3)
         return v₁ - v₂
-      else if c == `Mul.mul && nargs == 4 then
+      else if c == ``Mul.mul && nargs == 4 then
         let v₁ ← evalNat (e.getArg! 2)
         let v₂ ← evalNat (e.getArg! 3)
         return v₁ * v₂
-      else if c == `HAdd.hAdd && nargs == 6 then
+      else if c == ``HAdd.hAdd && nargs == 6 then
         let v₁ ← evalNat (e.getArg! 3)
         let v₂ ← evalNat (e.getArg! 5)
         return v₁ + v₂
-      else if c == `HSub.hSub && nargs == 6 then
+      else if c == ``HSub.hSub && nargs == 6 then
         let v₁ ← evalNat (e.getArg! 4)
         let v₂ ← evalNat (e.getArg! 5)
         return v₁ - v₂
-      else if c == `HMul.hMul && nargs == 6 then
+      else if c == ``HMul.hMul && nargs == 6 then
         let v₁ ← evalNat (e.getArg! 4)
         let v₂ ← evalNat (e.getArg! 5)
         return v₁ * v₂
-      else if c == `OfNat.ofNat && nargs == 3 then
+      else if c == ``OfNat.ofNat && nargs == 3 then
         evalNat (e.getArg! 1)
       else
         failure
@@ -85,18 +85,18 @@ private partial def getOffsetAux : Expr → Bool → OptionT MetaM (Expr × Nat)
     | Expr.mvar .. => withInstantiatedMVars e (getOffsetAux · top)
     | Expr.const c _ _ =>
       let nargs := e.getAppNumArgs
-      if c == `Nat.succ && nargs == 1 then do
+      if c == ``Nat.succ && nargs == 1 then do
         let (s, k) ← getOffsetAux a false
         pure (s, k+1)
-      else if c == `Nat.add && nargs == 2 then do
+      else if c == ``Nat.add && nargs == 2 then do
         let v      ← evalNat (e.getArg! 1)
         let (s, k) ← getOffsetAux (e.getArg! 0) false
         pure (s, k+v)
-      else if c == `Add.add && nargs == 4 then do
+      else if c == ``Add.add && nargs == 4 then do
         let v      ← evalNat (e.getArg! 3)
         let (s, k) ← getOffsetAux (e.getArg! 2) false
         pure (s, k+v)
-      else if c == `HAdd.hAdd && nargs == 6 then do
+      else if c == ``HAdd.hAdd && nargs == 6 then do
         let v      ← evalNat (e.getArg! 5)
         let (s, k) ← getOffsetAux (e.getArg! 4) false
         pure (s, k+v)
@@ -114,7 +114,7 @@ private partial def isOffset : Expr → OptionT MetaM (Expr × Nat)
     | Expr.mvar .. => withInstantiatedMVars e isOffset
     | Expr.const c _ _ =>
       let nargs := e.getAppNumArgs
-      if (c == `Nat.succ && nargs == 1) || (c == `Nat.add && nargs == 2) || (c == `Add.add && nargs == 4) || (c == `HAdd.hAdd && nargs == 6) then
+      if (c == ``Nat.succ && nargs == 1) || (c == ``Nat.add && nargs == 2) || (c == ``Add.add && nargs == 4) || (c == ``HAdd.hAdd && nargs == 6) then
         getOffset e
       else
         failure
@@ -132,12 +132,12 @@ private def mkOffset (e : Expr) (offset : Nat) : MetaM Expr := do
   else if (← isNatZero e) then
     return mkNatLit offset
   else
-    return mkAppB (mkConst `Nat.add) e (mkNatLit offset)
+    return mkAppB (mkConst ``Nat.add) e (mkNatLit offset)
 
 def isDefEqOffset (s t : Expr) : MetaM LBool := do
   let ifNatExpr (x : MetaM LBool) : MetaM LBool := do
     let type ← inferType s
-    if (← Meta.isExprDefEqAux type (mkConst `Nat)) then
+    if (← Meta.isExprDefEqAux type (mkConst ``Nat)) then
       x
     else
       return LBool.undef

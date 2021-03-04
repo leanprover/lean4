@@ -100,7 +100,7 @@ void serializer::write_closure(object *) { // NOLINT
        C function is not going to work. It seems we will to store the index as
        a tagged pointer and handle it at `apply`.
     */
-    lean_panic("serializer for closures has not been implemented yet");
+    lean_internal_panic("serializer for closures has not been implemented yet");
 }
 
 void serializer::write_thunk(object * o) {
@@ -157,7 +157,7 @@ void serializer::write_external(object *) { // NOLINT
     /* TODO(Leo): we need support for registering serializers/deserializers
        for external objects.
     */
-    lean_panic("serializer for external objects has not been implemented yet");
+    lean_internal_panic("serializer for external objects has not been implemented yet");
 }
 
 void serializer::write_object(object * o) {
@@ -294,7 +294,7 @@ object * deserializer::read_constructor() {
 }
 
 object * deserializer::read_closure() {
-    lean_panic("serializer for closures has not been implemented yet");
+    lean_internal_panic("serializer for closures has not been implemented yet");
 }
 
 object * deserializer::read_thunk() {
@@ -345,7 +345,7 @@ object * deserializer::read_string_object() {
 }
 
 object * deserializer::read_external() {
-    lean_panic("serializer for external objects has not been implemented yet");
+    lean_internal_panic("serializer for external objects has not been implemented yet");
 }
 
 object * deserializer::read_object() {

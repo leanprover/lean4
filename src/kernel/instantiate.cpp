@@ -83,13 +83,13 @@ extern "C" object * lean_expr_instantiate(b_obj_arg a, b_obj_arg subst) {
 
 extern "C" object * lean_expr_instantiate_range(b_obj_arg a, b_obj_arg begin, b_obj_arg end, b_obj_arg subst) {
     if (!lean_is_scalar(begin) || !lean_is_scalar(end)) {
-        lean_panic("invalid range for Expr.instantiateRange");
+        lean_internal_panic("invalid range for Expr.instantiateRange");
     } else {
         usize sz = lean_array_size(subst);
         usize b  = lean_unbox(begin);
         usize e  = lean_unbox(end);
         if (b > e || e > sz) {
-            lean_panic("invalid range for Expr.instantiateRange");
+            lean_internal_panic("invalid range for Expr.instantiateRange");
         }
         return lean_expr_instantiate_core(a, e - b, lean_array_cptr(subst) + b);
     }
@@ -148,13 +148,13 @@ extern "C" object * lean_expr_instantiate_rev(b_obj_arg a, b_obj_arg subst) {
 
 extern "C" object * lean_expr_instantiate_rev_range(b_obj_arg a, b_obj_arg begin, b_obj_arg end, b_obj_arg subst) {
     if (!lean_is_scalar(begin) || !lean_is_scalar(end)) {
-        lean_panic("invalid range for Expr.instantiateRevRange");
+        lean_internal_panic("invalid range for Expr.instantiateRevRange");
     } else {
         usize sz = lean_array_size(subst);
         usize b  = lean_unbox(begin);
         usize e  = lean_unbox(end);
         if (b > e || e > sz) {
-            lean_panic("invalid range for Expr.instantiateRevRange");
+            lean_internal_panic("invalid range for Expr.instantiateRevRange");
         }
         return lean_expr_instantiate_rev_core(a, e - b, lean_array_cptr(subst) + b);
     }
@@ -230,7 +230,7 @@ expr instantiate_lparams(expr const & e, names const & lps, levels const & ls) {
 
 expr instantiate_type_lparams(constant_info const & info, levels const & ls) {
     if (info.get_num_lparams() != length(ls))
-        lean_panic("#universes mismatch at instantiateTypeLevelParams");
+        lean_internal_panic("#universes mismatch at instantiateTypeLevelParams");
     if (is_nil(ls) || !has_param_univ(info.get_type()))
         return info.get_type();
     return instantiate_lparams(info.get_type(), info.get_lparams(), ls);
@@ -238,9 +238,9 @@ expr instantiate_type_lparams(constant_info const & info, levels const & ls) {
 
 expr instantiate_value_lparams(constant_info const & info, levels const & ls) {
     if (info.get_num_lparams() != length(ls))
-        lean_panic("#universes mismatch at instantiateValueLevelParams");
+        lean_internal_panic("#universes mismatch at instantiateValueLevelParams");
     if (!info.has_value())
-        lean_panic("definition/theorem expected at instantiateValueLevelParams");
+        lean_internal_panic("definition/theorem expected at instantiateValueLevelParams");
     if (is_nil(ls) || !has_param_univ(info.get_value()))
         return info.get_value();
     return instantiate_lparams(info.get_value(), info.get_lparams(), ls);

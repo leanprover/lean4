@@ -24,22 +24,33 @@ Author: Leonardo de Moura
 #define LEAN_MAX_PRIO 8
 
 namespace lean {
-extern "C" void lean_panic(char const * msg) {
+extern "C" void lean_internal_panic(char const * msg) {
     std::cerr << "INTERNAL PANIC: " << msg << "\n";
     std::exit(1);
 }
 
+extern "C" void lean_internal_panic_out_of_memory() {
+    lean_internal_panic("out of memory");
+}
+
+extern "C" void lean_internal_panic_unreachable() {
+    lean_internal_panic("unreachable code has been reached");
+}
+
+extern "C" void lean_internal_panic_rc_overflow() {
+    lean_internal_panic("reference counter overflowed");
+}
+
+// TODO: delete after update-stage0
 extern "C" void lean_panic_out_of_memory() {
-    lean_panic("out of memory");
+    lean_internal_panic_out_of_memory();
 }
 
+// TODO: delete after update-stage0
 extern "C" void lean_panic_unreachable() {
-    lean_panic("unreachable code has been reached");
+    lean_internal_panic_unreachable();
 }
 
-extern "C" void lean_panic_rc_overflow() {
-    lean_panic("reference counter overflowed");
-}
 
 bool g_exit_on_panic = false;
 
@@ -58,7 +69,7 @@ extern "C" object * lean_panic_fn(object * default_val, object * msg) {
 }
 
 extern "C" object * lean_sorry(uint8) {
-    lean_panic("executed 'sorry'");
+    lean_internal_panic("executed 'sorry'");
 }
 
 extern "C" size_t lean_object_byte_size(lean_object * o) {
@@ -164,7 +175,7 @@ extern "C" lean_object * lean_alloc_object(size_t sz) {
     return (lean_object*)alloc(sz);
 #else
     void * r = malloc(sz);
-    if (r == nullptr) lean_panic_out_of_memory();
+    if (r == nullptr) lean_internal_panic_out_of_memory();
     return (lean_object*)r;
 #endif
 }
@@ -1254,7 +1265,7 @@ extern "C" object * lean_nat_big_lxor(object * a1, object * a2) {
 
 extern "C" lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (!lean_is_scalar(a2)) {
-        lean_panic("Nat.pow exponent is too big");
+        lean_internal_panic("Nat.pow exponent is too big");
     }
     if (lean_is_scalar(a1))
         return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)).pow(lean_unbox(a2)));
@@ -1847,7 +1858,7 @@ size_t lean_nat_to_size_t(obj_arg n) {
         return lean_unbox(n);
     } else {
         mpz const & v = mpz_value(n);
-        if (!v.is_size_t()) lean_panic_out_of_memory();
+        if (!v.is_size_t()) lean_internal_panic_out_of_memory();
         size_t sz = v.get_size_t();
         lean_dec(n);
         return sz;
@@ -1993,7 +2004,7 @@ extern "C" object * lean_mk_array(obj_arg n, obj_arg v) {
         sz = lean_unbox(n);
     } else {
         mpz const & v = mpz_value(n);
-        if (!v.is_size_t()) lean_panic_out_of_memory();
+        if (!v.is_size_t()) lean_internal_panic_out_of_memory();
         sz = v.get_size_t();
         lean_dec(n);
     }

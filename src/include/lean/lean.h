@@ -295,10 +295,12 @@ static inline size_t lean_unbox(lean_object * o) { return (size_t)(o) >> 1; }
 void lean_set_exit_on_panic(bool flag);
 lean_object * lean_panic_fn(lean_object * default_val, lean_object * msg);
 
-__attribute__((noreturn)) void lean_panic(char const * msg);
+__attribute__((noreturn)) void lean_internal_panic(char const * msg);
+__attribute__((noreturn)) void lean_internal_panic_out_of_memory();
+__attribute__((noreturn)) void lean_internal_panic_unreachable();
+__attribute__((noreturn)) void lean_internal_panic_rc_overflow();
 __attribute__((noreturn)) void lean_panic_out_of_memory();
 __attribute__((noreturn)) void lean_panic_unreachable();
-__attribute__((noreturn)) void lean_panic_rc_overflow();
 
 static inline size_t lean_align(size_t v, size_t a) {
     return (v / a)*a + a * (v % a != 0);
@@ -324,7 +326,7 @@ static inline lean_object * lean_alloc_small_object(unsigned sz) {
 #else
     lean_inc_heartbeat();
     void * mem = malloc(sizeof(size_t) + sz);
-    if (mem == 0) lean_panic_out_of_memory();
+    if (mem == 0) lean_internal_panic_out_of_memory();
     *(size_t*)mem = sz;
     return (lean_object*)((size_t*)mem + 1);
 #endif
@@ -452,7 +454,7 @@ static inline void lean_inc_ref(lean_object * o) {
         o->m_header++;
         #ifdef LEAN_CHECK_RC_OVERFLOW
         if (LEAN_UNLIKELY(((uint32_t)o->m_header) == 0)) {
-            lean_panic_rc_overflow();
+            lean_internal_panic_rc_overflow();
         }
         #endif
     } else if (lean_is_mt(o)) {
@@ -463,7 +465,7 @@ static inline void lean_inc_ref(lean_object * o) {
         atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), (size_t)1, memory_order_relaxed);
         #ifdef LEAN_CHECK_RC_OVERFLOW
         if (LEAN_UNLIKELY(old_rc + 1 == 0)) {
-            lean_panic_rc_overflow();
+            lean_internal_panic_rc_overflow();
         }
         #endif
     }
@@ -490,7 +492,7 @@ static inline void lean_inc_ref_n(lean_object * o, size_t n) {
         o->m_header += n;
         #ifdef LEAN_CHECK_RC_OVERFLOW
         if (LEAN_UNLIKELY(((uint32_t)o->m_header) < n)) {
-            lean_panic_rc_overflow();
+            lean_internal_panic_rc_overflow();
         }
         #endif
     } else if (lean_is_mt(o)) {
@@ -501,7 +503,7 @@ static inline void lean_inc_ref_n(lean_object * o, size_t n) {
         atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
         #ifdef LEAN_CHECK_RC_OVERFLOW
         if (LEAN_UNLIKELY(old_rc + n < n)) {
-            lean_panic_rc_overflow();
+            lean_internal_panic_rc_overflow();
         }
         #endif
     }
@@ -889,7 +891,7 @@ static inline lean_object * lean_mk_empty_array() {
 }
 
 static inline lean_object * lean_mk_empty_array_with_capacity(b_lean_obj_arg capacity) {
-    if (!lean_is_scalar(capacity)) lean_panic_out_of_memory();
+    if (!lean_is_scalar(capacity)) lean_internal_panic_out_of_memory();
     return lean_alloc_array(0, lean_unbox(capacity));
 }
 
@@ -1024,7 +1026,7 @@ lean_obj_res lean_byte_array_data(lean_obj_arg a);
 lean_obj_res lean_copy_byte_array(lean_obj_arg a);
 
 static inline lean_obj_res lean_mk_empty_byte_array(b_lean_obj_arg capacity) {
-    if (!lean_is_scalar(capacity)) lean_panic_out_of_memory();
+    if (!lean_is_scalar(capacity)) lean_internal_panic_out_of_memory();
     return lean_alloc_sarray(1, 0, lean_unbox(capacity));
 }
 
@@ -1069,7 +1071,7 @@ lean_obj_res lean_float_array_data(lean_obj_arg a);
 lean_obj_res lean_copy_float_array(lean_obj_arg a);
 
 static inline lean_obj_res lean_mk_empty_float_array(b_lean_obj_arg capacity) {
-    if (!lean_is_scalar(capacity)) lean_panic_out_of_memory();
+    if (!lean_is_scalar(capacity)) lean_internal_panic_out_of_memory();
     return lean_alloc_sarray(sizeof(double), 0, lean_unbox(capacity)); // NOLINT
 }
 

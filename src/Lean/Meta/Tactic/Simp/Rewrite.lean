@@ -37,7 +37,7 @@ Remark: the parameter tag is used for creating trace messages. It is irrelevant 
 def rewrite (e : Expr) (s : DiscrTree SimpLemma) (erased : SimpLemmaNameSet) (discharge? : Expr → SimpM (Option Expr)) (tag : String) : SimpM Result := do
   let lemmas ← s.getMatch e
   if lemmas.isEmpty then
-    trace[Meta.Tactic.simp]! "no lemmas found for {tag}-rewriting {e}"
+    trace[Debug.Meta.Tactic.simp]! "no lemmas found for {tag}-rewriting {e}"
     return { expr := e }
   else
     let lemmas := lemmas.insertionSort fun e₁ e₂ => e₁.priority < e₂.priority

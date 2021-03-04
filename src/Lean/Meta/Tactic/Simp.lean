@@ -12,5 +12,6 @@ import Lean.Meta.Tactic.Simp.Rewrite
 namespace Lean
 
 builtin_initialize registerTraceClass `Meta.Tactic.simp
+builtin_initialize registerTraceClass `Debug.Meta.Tactic.simp
 
 end Lean

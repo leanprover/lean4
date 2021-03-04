@@ -168,7 +168,7 @@ where
       let mut r ← simp f
       let mut i := 0
       for arg in args do
-        trace[Meta.Tactic.simp]! "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
+        trace[Debug.Meta.Tactic.simp]! "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
         if i < infos.size && !infos[i].hasFwdDeps then
           r ← mkCongr r (← simp arg)
         else
@@ -192,7 +192,7 @@ where
 
   /- Try to rewrite `e` children using the given congruence lemma -/
   tryCongrLemma? (c : CongrLemma) (e : Expr) : M (Option Result) := withNewMCtxDepth do
-    trace[Meta.Tactic.simp.congr]! "{c.theoremName}, {e}"
+    trace[Debug.Meta.Tactic.simp.congr]! "{c.theoremName}, {e}"
     let info ← getConstInfo c.theoremName
     let lemma := mkConst c.theoremName (← info.levelParams.mapM fun _ => mkFreshLevelMVar)
     let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType lemma)
@@ -272,13 +272,13 @@ where
         return { expr := eNew, proof? := p }
 
   simpArrow (e : Expr) : M Result := do
-    trace[Meta.Tactic.simp]! "arrow {e}"
+    trace[Debug.Meta.Tactic.simp]! "arrow {e}"
     let p := e.bindingDomain!
     let q := e.bindingBody!
     let rp ← simp p
-    trace[Meta.Tactic.simp]! "arrow [{(← getConfig).contextual}] {p} [{← isProp p}] -> {q} [{← isProp q}]"
+    trace[Debug.Meta.Tactic.simp]! "arrow [{(← getConfig).contextual}] {p} [{← isProp p}] -> {q} [{← isProp q}]"
     if (← (← getConfig).contextual <&&> isProp p <&&> isProp q) then
-      trace[Meta.Tactic.simp]! "ctx arrow {rp.expr} -> {q}"
+      trace[Debug.Meta.Tactic.simp]! "ctx arrow {rp.expr} -> {q}"
       withLocalDeclD e.bindingName! rp.expr fun h => do
         let s ← getSimpLemmas
         let s ← s.add h
@@ -293,7 +293,7 @@ where
       mkImpCongr rp (← simp q)
 
   simpForall (e : Expr) : M Result := withParent e do
-    trace[Meta.Tactic.simp]! "forall {e}"
+    trace[Debug.Meta.Tactic.simp]! "forall {e}"
     if e.isArrow then
       simpArrow e
     else if (← isProp e) then

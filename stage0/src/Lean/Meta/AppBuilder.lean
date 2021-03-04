@@ -50,6 +50,15 @@ def mkHEqRefl (a : Expr) : MetaM Expr := do
   let u ← getLevel aType
   return mkApp2 (mkConst ``HEq.refl [u]) aType a
 
+def mkAbsurd (e : Expr) (hp hnp : Expr) : MetaM Expr := do
+  let p ← inferType hp 
+  let u ← getLevel e 
+  return mkApp4 (mkConst ``absurd [u]) p e hp hnp 
+
+def mkFalseElim (e : Expr) (h : Expr) : MetaM Expr := do
+  let u ← getLevel e
+  return mkApp2 (mkConst ``False.elim [u]) e h
+  
 private def infer (h : Expr) : MetaM Expr := do
   let hType ← inferType h
   whnfD hType

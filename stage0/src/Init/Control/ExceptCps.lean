@@ -21,7 +21,7 @@ namespace ExceptCpsT
   x _ ok error
 
 @[inline] def runCatch [Monad m] (x : ExceptCpsT α m α) : m α :=
-  x _ pure pure
+  x α pure pure
 
 instance : Monad (ExceptCpsT ε m) where
   map f x  := fun _ k₁ k₂ => x _ (fun a => k₁ (f a)) k₂

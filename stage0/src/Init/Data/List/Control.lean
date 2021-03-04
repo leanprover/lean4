@@ -5,7 +5,6 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Control.Basic
-import Init.Control.Foldable
 import Init.Data.List.Basic
 
 namespace List
@@ -52,14 +51,16 @@ def mapA {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f 
   | a::as => List.cons <$> f a <*> mapA f as
 
 @[specialize]
-def forM {m : Type u → Type v} [Monad m] {α : Type w} (f : α → m PUnit) : List α → m PUnit
-  | []     => pure ⟨⟩
-  | h :: t => do f h; forM f t
+protected def forM {m : Type u → Type v} [Monad m] {α : Type w} (as : List α) (f : α → m PUnit) : m PUnit :=
+  match as with
+  | []      => pure ⟨⟩
+  | a :: as => do f a; List.forM as f
 
 @[specialize]
-def forA {m : Type u → Type v} [Applicative m] {α : Type w} (f : α → m PUnit) : List α → m PUnit
-  | []     => pure ⟨⟩
-  | h :: t => f h *> forA f t
+def forA {m : Type u → Type v} [Applicative m] {α : Type w} (as : List α) (f : α → m PUnit) : m PUnit :=
+  match as with
+  | []      => pure ⟨⟩
+  | a :: as => f a *> forA as f
 
 @[specialize]
 def filterAuxM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) : List α → List α → m (List α)
@@ -88,11 +89,11 @@ def filterMapM {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m 
   loop as.reverse []
 
 @[specialize]
-def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s → α → m s) → (init : s) → List α → m s
+protected def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s → α → m s) → (init : s) → List α → m s
   | f, s, []      => pure s
   | f, s, a :: as => do
     let s' ← f s a
-    foldlM f s' as
+    List.foldlM f s' as
 
 @[specialize]
 def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : α → s → m s) → (init : s) → List α → m s
@@ -150,13 +151,19 @@ def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
 instance : ForIn m (List α) α where
   forIn := List.forIn
 
-instance : Foldable m (List α) α where
-  foldlM := List.foldlM
-
--- Add two simplification lemmas for `foldlM` over lists
-@[simp] theorem foldlM_nil  [Monad m] (f : δ → α → m δ) (d : δ) : foldlM f d ([] : List α) = pure d :=
+@[simp] theorem forIn_nil [Monad m] (f : α → β → m (ForInStep β)) (b : β) : forIn [] b f = pure b :=
   rfl
-@[simp] theorem foldlM_cons [Monad m] (f : δ → α → m δ) (d : δ) (a : α) (as : List α) : foldlM f d (a::as) = f d a >>= fun d => foldlM f d as :=
+
+@[simp] theorem forIn_cons [Monad m] (f : α → β → m (ForInStep β)) (a : α) (as : List α) (b : β)
+    : forIn (a::as) b f = f a b >>= fun | ForInStep.done b => pure b | ForInStep.yield b => forIn as b f :=
+  rfl
+
+instance : ForM m (List α) α where
+  forM := List.forM
+
+@[simp] theorem forM_nil  [Monad m] (f : α → m PUnit) : forM [] f = pure ⟨⟩ :=
+  rfl
+@[simp] theorem forM_cons [Monad m] (f : α → m PUnit) (a : α) (as : List α) : forM (a::as) f = f a >>= fun _ => forM as f :=
   rfl
 
 end List

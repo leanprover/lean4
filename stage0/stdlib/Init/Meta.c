@@ -52,6 +52,7 @@ lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
 lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6181____closed__9;
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_16240____closed__1;
 lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6181____closed__27;
 uint32_t l_Lean_idBeginEscape;
 lean_object* l___private_Init_Meta_0__Lean_Syntax_decodeInterpStrQuotedChar_match__1(lean_object*);
@@ -410,7 +411,6 @@ lean_object* l___private_Init_Meta_0__Array_mapSepElemsMAux___at_Array_mapSepEle
 lean_object* l_Lean_Syntax_decodeQuotedChar___boxed__const__2;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_expandMacros___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instQuoteProd_match__1___rarg(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_16223____closed__1;
 lean_object* l___private_Init_Meta_0__Array_mapSepElemsMAux___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isLit_x3f_match__2(lean_object*);
 lean_object* l_ReaderT_instMonadReaderT___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
@@ -13848,7 +13848,7 @@ static lean_object* _init_l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_16223____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_16240____closed__1;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

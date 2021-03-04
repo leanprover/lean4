@@ -186,6 +186,7 @@ syntax (name := revert) "revert " (colGt ident)+ : tactic
 syntax (name := clear) "clear " (colGt ident)+ : tactic
 syntax (name := subst) "subst " (colGt ident)+ : tactic
 syntax (name := assumption) "assumption" : tactic
+syntax (name := contradiction) "contradiction" : tactic
 syntax (name := apply) "apply " term : tactic
 syntax (name := exact) "exact " term : tactic
 syntax (name := refine) "refine " term : tactic

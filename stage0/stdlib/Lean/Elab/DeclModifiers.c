@@ -24,7 +24,6 @@ lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__3(lean_object*
 lean_object* l_Lean_Elab_applyVisibility___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__3___closed__2;
 lean_object* l_Lean_Elab_expandOptDocComment_x3f(lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_371____closed__22;
 lean_object* l_Lean_addDocString_x27___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__3___closed__1;
 lean_object* l_Lean_Elab_instToFormatModifiers___closed__1;
@@ -39,6 +38,7 @@ uint8_t l_Lean_Elab_Modifiers_isProtected(lean_object*);
 extern lean_object* l_Std_Format_defWidth;
 lean_object* l_Lean_Elab_mkDeclName(lean_object*);
 lean_object* l_Lean_withRef___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_362____closed__22;
 lean_object* l_Lean_Elab_instInhabitedModifiers;
 lean_object* l_Lean_Elab_instToFormatModifiers___closed__6;
 extern lean_object* l_Std_Format_join___closed__1;
@@ -1142,7 +1142,7 @@ static lean_object* _init_l_Lean_Elab_instToFormatModifiers___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_371____closed__22;
+x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_362____closed__22;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

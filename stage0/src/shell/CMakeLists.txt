@@ -85,13 +85,17 @@ FOREACH(T_OUT ${LEANBENCHTESTS})
 ENDFOREACH(T_OUT)
 
 # LEAN PLUGIN TESTS
-file(GLOB LEANINTERPTESTS "${LEAN_SOURCE_DIR}/../tests/plugin/*.lean")
-FOREACH(T ${LEANINTERPTESTS})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leanplugintest_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/plugin"
-           COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
-ENDFOREACH(T)
+if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  # We temporarily disabled these tests on Windows because of problems in the shared library generation.
+  # The problem happened when the clang version has changed from mingw-w64-x86_64-clang-11.0.0-6 to mingw-w64-x86_64-clang-11.0.0-7 in the CI
+  file(GLOB LEANINTERPTESTS "${LEAN_SOURCE_DIR}/../tests/plugin/*.lean")
+  FOREACH(T ${LEANINTERPTESTS})
+    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+    add_test(NAME "leanplugintest_${T_NAME}"
+             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/plugin"
+             COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
+  ENDFOREACH(T)
+endif()
 
 # LEAN TESTS using --trust=0
 file(GLOB LEANT0TESTS "${LEAN_SOURCE_DIR}/../tests/lean/trust0/*.lean")

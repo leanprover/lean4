@@ -128,7 +128,7 @@ def rewriteCtorEq? (e : Expr) : MetaM (Option Result) := withReducibleAndInstanc
   | none => x
 
 def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndInstances do
-  if e.hasFVar || e.hasMVar then
+  if e.hasFVar || e.hasMVar || e.isConstOf ``True || e.isConstOf ``False then
     return none
   else
     try

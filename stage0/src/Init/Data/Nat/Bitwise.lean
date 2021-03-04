@@ -30,5 +30,21 @@ partial def bitwise (f : Bool → Bool → Bool) (n m : Nat) : Nat :=
 def land : Nat → Nat → Nat := bitwise and
 @[extern "lean_nat_lor"]
 def lor  : Nat → Nat → Nat := bitwise or
+@[extern "lean_nat_lxor"]
+def xor  : Nat → Nat → Nat := bitwise bne
+@[extern "lean_nat_shiftl"]
+def shiftLeft : Nat → Nat → Nat
+  | n, 0 => n
+  | n, succ m => shiftLeft (2*n) m
+@[extern "lean_nat_shiftr"]
+def shiftRight : Nat → Nat → Nat
+  | n, 0 => n
+  | n, succ m => shiftRight n m / 2
+
+instance : AndOp Nat := ⟨Nat.land⟩
+instance : OrOp Nat := ⟨Nat.lor⟩
+instance : Xor Nat := ⟨Nat.xor⟩
+instance : ShiftLeft Nat := ⟨Nat.shiftLeft⟩
+instance : ShiftRight Nat := ⟨Nat.shiftRight⟩
 
 end Nat

@@ -276,6 +276,7 @@ lean_object* l_Array_forInUnsafe_loop___at_Array_findSome_x3f___spec__1___rarg(l
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Array_partition___spec__1(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Array_findM_x3f___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_11737____closed__5;
 lean_object* l_Array_erase___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlM_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findIdxM_x3f_match__1(lean_object*);
@@ -548,7 +549,6 @@ lean_object* l_Array_forInUnsafe_loop___at_Array_find_x3f___spec__1___rarg(lean_
 lean_object* l_Array_foldlMUnsafe_fold___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_redLength_match__1(lean_object*, lean_object*);
 lean_object* l_Array_findSome_x21___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_10205____closed__5;
 lean_object* l_Array_findSomeRevM_x3f_find(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldrMUnsafe_fold___at_Array_toList___spec__2___rarg(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_instEmptyCollectionArray(lean_object*);
@@ -7727,7 +7727,7 @@ static lean_object* _init_l_myMacro____x40_Init_Data_Array_Basic___hyg_3595____c
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_10205____closed__5;
+x_1 = l_myMacro____x40_Init_Notation___hyg_11737____closed__5;
 x_2 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3595____closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

@@ -57,6 +57,7 @@ lean_object* l_instOrElse___rarg(lean_object*);
 lean_object* l_unless___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Control_Basic___hyg_613____closed__6;
 lean_object* l_instMonadControlT___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_13550____closed__5;
 lean_object* l_optional___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_term___x3c_x26_x26_x3e_____closed__5;
 lean_object* l_term___x3c_x7c_x7c_x3e_____closed__6;
@@ -113,7 +114,6 @@ lean_object* l_term___x3c_x7c_x7c_x3e_____closed__4;
 lean_object* l_myMacro____x40_Init_Control_Basic___hyg_613____closed__1;
 lean_object* l_myMacro____x40_Init_Control_Basic___hyg_953____closed__2;
 lean_object* l_andM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12018____closed__5;
 lean_object* l_term___x3c_x26_x26_x3e_____closed__6;
 lean_object* l_bool___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Control_Basic___hyg_613____closed__5;
@@ -270,7 +270,7 @@ static lean_object* _init_l_myMacro____x40_Init_Control_Basic___hyg_57____closed
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_12018____closed__5;
+x_1 = l_myMacro____x40_Init_Notation___hyg_13550____closed__5;
 x_2 = l_myMacro____x40_Init_Control_Basic___hyg_57____closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

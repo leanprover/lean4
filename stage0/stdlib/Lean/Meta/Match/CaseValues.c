@@ -28,7 +28,6 @@ lean_object* l_Lean_Meta_caseValueAux___lambda__2___closed__3;
 lean_object* l_Lean_Meta_caseValueAux___lambda__3___closed__4;
 lean_object* l_Lean_Meta_caseValueAux___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Meta_isLevelDefEqAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12336____closed__4;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Meta_caseValues_loop_match__1(lean_object*);
 lean_object* l_Lean_Meta_instInhabitedCaseValueSubgoal___closed__1;
@@ -37,6 +36,7 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_caseValues_loop___spec__1_
 lean_object* l_Lean_Meta_CaseValuesSubgoal_newHs___default;
 lean_object* l_Lean_Meta_FVarSubst_domain(lean_object*);
 lean_object* l_Lean_Meta_caseValue___closed__4;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_10503____closed__4;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_MessageData_ofList(lean_object*);
@@ -53,6 +53,7 @@ lean_object* l_Lean_Meta_caseValueAux___lambda__1___closed__2;
 lean_object* l_Lean_Meta_CaseValuesSubgoal_subst___default;
 lean_object* l_Lean_Meta_intro1Core(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValues_loop___closed__4;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_13868____closed__4;
 lean_object* l_Lean_Meta_substCore(lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValueAux___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -66,7 +67,6 @@ lean_object* l_Lean_Meta_caseValueAux___lambda__2(lean_object*, lean_object*, le
 lean_object* l_Lean_Meta_caseValue___closed__2;
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_8971____closed__4;
 lean_object* l_Lean_Meta_instInhabitedCaseValuesSubgoal;
 lean_object* l_Lean_Meta_caseValueAux_match__1___rarg(lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
@@ -486,7 +486,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_Notation___hyg_8971____closed__4;
+x_2 = l_myMacro____x40_Init_Notation___hyg_10503____closed__4;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
@@ -607,7 +607,7 @@ x_38 = lean_array_push(x_37, x_34);
 x_39 = lean_array_push(x_38, x_33);
 x_40 = lean_array_push(x_39, x_35);
 x_41 = lean_array_push(x_40, x_36);
-x_42 = l_myMacro____x40_Init_Notation___hyg_12336____closed__4;
+x_42 = l_myMacro____x40_Init_Notation___hyg_13868____closed__4;
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);

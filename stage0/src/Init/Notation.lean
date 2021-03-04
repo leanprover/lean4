@@ -62,13 +62,19 @@ syntax (name := rawNatLit) "natLit! " num : term
 infixr:90 " ∘ "  => Function.comp
 infixr:35 " × "  => Prod
 
+infixl:55 " ||| "  => HOr.hOr
+infixl:58 " ^^^ "  => HXor.hXor
+infixl:60 " &&& "  => HAnd.hAnd
 infixl:65 " + "  => HAdd.hAdd
 infixl:65 " - "  => HSub.hSub
 infixl:70 " * "  => HMul.hMul
 infixl:70 " / "  => HDiv.hDiv
 infixl:70 " % "  => HMod.hMod
+infixl:75 " <<< "  => HShiftLeft.hShiftLeft
+infixl:75 " >>> "  => HShiftRight.hShiftRight
 infixr:80 " ^ "  => HPow.hPow
 prefix:100 "-"   => Neg.neg
+prefix:100 "~~~"   => Complement.complement
 
 -- declare ASCII alternatives first so that the latter Unicode unexpander wins
 infix:50 " <= " => HasLessEq.LessEq
@@ -256,7 +262,7 @@ syntax (name := injection) "injection " term (" with " (colGt (ident <|> "_"))+)
 syntax simpPre := "↓"
 syntax simpPost := "↑"
 syntax simpLemma := (simpPre <|> simpPost)? term
-syntax (name := simp) "simp " ("[" simpLemma,* "]")? (colGt term)? (location)? : tactic
+syntax (name := simp) "simp " (&"only ")? ("[" simpLemma,* "]")? (colGt term)? (location)? : tactic
 
 syntax (name := «have») "have " haveDecl : tactic
 syntax (name := «suffices») "suffices " sufficesDecl : tactic

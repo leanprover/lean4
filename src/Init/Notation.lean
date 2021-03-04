@@ -289,3 +289,5 @@ end Attr
 
 end Parser
 end Lean
+
+macro "‹" type:term "›" : term => `((by assumption : $type))

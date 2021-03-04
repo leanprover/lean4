@@ -76,17 +76,13 @@ private def mkInitial {γ} (tableRef : IO.Ref (Table γ)) : IO (ExtensionState �
 
 private unsafe def addImported {γ} (df : Def γ) (tableRef : IO.Ref (Table γ)) (es : Array (Array OLeanEntry)) : ImportM (ExtensionState γ) := do
   let ctx ← read
-  let table ← tableRef.get
-  let table ← es.foldlM
-    (fun table entries =>
-      entries.foldlM
-        (fun (table : Table γ) entry =>
-          match ctx.env.evalConstCheck γ ctx.opts df.valueTypeName entry.decl with
-          | Except.ok f     => pure <| table.insert entry.key f
-          | Except.error ex => throw (IO.userError ex))
-        table)
-    table
-  pure { table := table }
+  let mut table ← tableRef.get
+  for entries in es do
+    for entry in entries do
+      match ctx.env.evalConstCheck γ ctx.opts df.valueTypeName entry.decl with
+      | Except.ok f     => table := table.insert entry.key f
+      | Except.error ex => throw (IO.userError ex)
+  return { table := table }
 
 private def addExtensionEntry {γ} (s : ExtensionState γ) (e : AttributeEntry γ) : ExtensionState γ :=
   { table := s.table.insert e.key e.value, newEntries := e.toOLeanEntry :: s.newEntries }

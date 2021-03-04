@@ -1015,7 +1015,7 @@ return x_1;
 lean_object* l_False_elim(lean_object* x_1, uint8_t x_2) {
 _start:
 {
-lean_panic_unreachable();
+lean_internal_panic_unreachable();
 }
 }
 lean_object* l_False_elim___boxed(lean_object* x_1, lean_object* x_2) {
@@ -1031,7 +1031,7 @@ return x_4;
 lean_object* l_absurd(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_panic_unreachable();
+lean_internal_panic_unreachable();
 }
 }
 lean_object* l_Eq_ndrec___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

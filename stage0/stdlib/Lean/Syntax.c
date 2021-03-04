@@ -418,13 +418,13 @@ return x_3;
 lean_object* l_Lean_unreachIsNodeMissing(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_panic_unreachable();
+lean_internal_panic_unreachable();
 }
 }
 lean_object* l_Lean_unreachIsNodeAtom(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_panic_unreachable();
+lean_internal_panic_unreachable();
 }
 }
 lean_object* l_Lean_unreachIsNodeAtom___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -440,7 +440,7 @@ return x_5;
 lean_object* l_Lean_unreachIsNodeIdent(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_panic_unreachable();
+lean_internal_panic_unreachable();
 }
 }
 lean_object* l_Lean_unreachIsNodeIdent___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {

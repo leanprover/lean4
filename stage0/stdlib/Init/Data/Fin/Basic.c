@@ -114,7 +114,7 @@ return x_2;
 lean_object* l_Fin_elim0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_panic_unreachable();
+lean_internal_panic_unreachable();
 }
 }
 lean_object* l_Fin_elim0___boxed(lean_object* x_1, lean_object* x_2) {

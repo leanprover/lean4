@@ -255,7 +255,7 @@ return x_3;
 lean_object* l_runST_match__1(lean_object* x_1, uint8_t x_2) {
 _start:
 {
-lean_panic_unreachable();
+lean_internal_panic_unreachable();
 }
 }
 lean_object* l_runST_match__1___boxed(lean_object* x_1, lean_object* x_2) {

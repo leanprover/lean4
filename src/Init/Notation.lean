@@ -182,6 +182,7 @@ macro_rules
 namespace Parser.Tactic
 syntax (name := intro) "intro " notFollowedBy("|") (colGt term:max)* : tactic
 syntax (name := intros) "intros " (colGt (ident <|> "_"))* : tactic
+syntax (name := rename) "rename " term " => " ident : tactic
 syntax (name := revert) "revert " (colGt ident)+ : tactic
 syntax (name := clear) "clear " (colGt ident)+ : tactic
 syntax (name := subst) "subst " (colGt ident)+ : tactic

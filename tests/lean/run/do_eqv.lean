@@ -37,3 +37,27 @@ theorem eq_findSomeM_findM [Monad m] [LawfulMonad m] (p : α → m Bool) (xss : 
     induction xs with
     | nil => simp
     | cons x xs ih => simp; apply byCases_Bool_bind <;> simp [ih]
+
+theorem eq_findSomeM_findM' [Monad m] [LawfulMonad m] (p : α → m Bool) (xss : List (List α)) :
+    (do for xs in xss do
+           for x in xs do
+             let b ← p x
+             if b then
+               return some x
+        return none)
+    =
+    xss.findSomeM? (fun xs => xs.findM? p) := by
+  induction xss <;> simp [List.findSomeM?]
+  rename List α => xs
+  rename _ = _  => ih
+  rw [← ih, ← eq_findM]
+  induction xs <;> simp
+  rename _ = _ => ih
+  apply byCases_Bool_bind <;> simp [ih]
+
+theorem z_add (x : Nat) : 0 + x = x := by
+  induction x
+  rfl
+  rename _ = _ => ih
+  show Nat.succ (0 + _) = _
+  rw [ih]

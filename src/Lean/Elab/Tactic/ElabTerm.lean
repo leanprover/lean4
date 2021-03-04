@@ -116,10 +116,28 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
         let (fvarId, mvarId) ← liftMetaM do
           let mvarId ← Meta.assert mvarId userName type e
           Meta.intro1Core mvarId preserveBinderNames
-        setGoals $ mvarId::others
+        setGoals <| mvarId::others
         pure fvarId
       match userName? with
       | none          => intro `h false
       | some userName => intro userName true
+
+@[builtinTactic Lean.Parser.Tactic.rename] def evalRename : Tactic := fun stx =>
+  match stx with
+  | `(tactic| rename $typeStx:term => $h:ident) => do
+    let (mvarId, others) ← getMainGoal
+    withMVarContext mvarId do
+      let fvarId ← withoutModifyingState <| withNewMCtxDepth do
+        let type ← elabTerm typeStx none (mayPostpone := true)
+        let fvarId? ← (← getLCtx).findDeclRevM? fun localDecl => do
+          if (← isDefEq type localDecl.type) then return localDecl.fvarId else return none
+        match fvarId? with
+        | none => throwError! "failed to find a hypothesis with type{indentExpr type}"
+        | some fvarId => return fvarId
+      let lctxNew := (← getLCtx).setUserName fvarId h.getId
+      let mvarNew ← mkFreshExprMVarAt lctxNew (← getLocalInstances) (← getMVarType mvarId) MetavarKind.syntheticOpaque (← getMVarTag mvarId)
+      assignExprMVar mvarId mvarNew
+      setGoals (mvarNew.mvarId! :: others)
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

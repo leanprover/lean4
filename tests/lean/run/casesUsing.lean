@@ -59,12 +59,12 @@ theorem ex3b (n : Nat) : Exists (fun m => n = m + m ∨ n = m + m + 1) := by
 
 def ex4 {α} (xs : List α) (h : xs = [] → False) : α := by
   cases he:xs with
-  | nil      => apply False.elim; exact h he; done
+  | nil      => contradiction
   | cons x _ => exact x
 
 def ex5 {α} (xs : List α) (h : xs = [] → False) : α := by
   cases he:xs using List.casesOn with
-  | nil      => apply False.elim; exact h he; done
+  | nil      => contradiction
   | cons x _ => exact x
 
 theorem ex6 {α} (f : List α → Bool) (h₁ : {xs : List α} → f xs = true → xs = []) (xs : List α) (h₂ : xs ≠ []) : f xs = false :=
@@ -82,9 +82,9 @@ theorem ex8 {α} (f : List α → Bool) (h₁ : {xs : List α} → f xs = true �
   | true  => exact False.elim (h₂ (h₁ he))
   | false => rfl
 
-theorem ex9 {α} (xs : List α) (h : xs = [] → False) : Nonempty α := by
+theorem ex9 (xs : List α) (h : xs = [] → False) : Nonempty α := by
   cases xs using List.rec with
-  | nil      => apply False.elim; apply h; rfl
+  | nil      => contradiction
   | cons x _ => apply Nonempty.intro; assumption
 
 theorem modLt (x : Nat) {y : Nat} (h : y > 0) : x % y < y := by

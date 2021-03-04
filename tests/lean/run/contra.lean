@@ -39,3 +39,11 @@ theorem ex13 (h : id False) : α := by
 
 theorem ex14 (h : 100000000 ≤ 20) : α := by
   contradiction
+
+theorem ex15 (x : α) (h : x = x → False) : α := by
+  contradiction
+
+theorem ex16 (xs : List α) (h : xs = [] → False) : Nonempty α := by
+  cases xs using List.rec with
+  | nil      => contradiction
+  | cons x _ => apply Nonempty.intro; assumption

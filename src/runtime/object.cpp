@@ -1276,7 +1276,7 @@ extern "C" lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2) {
            ? mpz::of_size_t(lean_unbox(a1))
            : mpz_value(a1);
     if (!lean_is_scalar(a2) || lean_unbox(a2) > UINT_MAX) {
-        lean_panic("Nat.shiftl exponent is too big");
+        lean_internal_panic("Nat.shiftl exponent is too big");
     }
     mpz r;
     mul2k(r, a, lean_unbox(a2));
@@ -1295,7 +1295,7 @@ extern "C" lean_obj_res lean_nat_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     // enough to zero out all the bits.
     if (s > UINT_MAX) {
         if (a.log2() >= s) {
-            lean_panic("Nat.shiftr exponent is too big");
+            lean_internal_panic("Nat.shiftr exponent is too big");
         } else {
             return lean_box(0);
         }

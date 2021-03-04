@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Tactic.Intro
 import Lean.Meta.Tactic.Assumption
+import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Revert
 import Lean.Meta.Tactic.Clear

@@ -5,7 +5,7 @@ def concat {α} : List α → α → List α
   | x::xs, a => x :: concat xs a
 
 def last {α} : (xs : List α) → xs ≠ [] → α
-  | [],       h => absurd rfl h
+  | [],       h => by contradiction
   | [a],      h => a
   | _::a::as, h => last (a::as) (fun h => by injection h)
 
@@ -18,7 +18,7 @@ variable {α}
 
 theorem concatEq (xs : List α) (h : xs ≠ []) : concat (dropLast xs) (last xs h) = xs := by
   match xs, h with
-  | [],  h        => exact absurd rfl h
+  | [],  h        => contradiction
   | [x], h        => rfl
   | x₁::x₂::xs, h => simp [concat, last, concatEq (x₂::xs) List.noConfusion]
 
@@ -31,11 +31,11 @@ theorem lengthCons {α} (x : α) (xs : List α) : (x::xs).length = xs.length + 1
 
 theorem eqNilOfLengthZero {α} : (xs : List α) → xs.length = 0 → xs = []
   | [],    h => rfl
-  | x::xs, h => by rw [lengthCons] at h; injection h
+  | x::xs, h => by rw [lengthCons] at h; contradiction
 
 theorem dropLastLen {α} (xs : List α) : (n : Nat) → xs.length = n+1 → (dropLast xs).length = n := by
   match xs with
-  | []    => intro _ h; injection h
+  | []    => intros; contradiction
   | [a]   =>
     intro n h
     have 1 = n + 1 from h

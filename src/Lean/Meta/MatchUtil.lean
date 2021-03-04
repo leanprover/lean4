@@ -22,7 +22,7 @@ namespace Lean.Meta
 def matchEq? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) := 
   matchHelper? e fun e => return Expr.eq? e
 
-def isFalse (e : Expr) : MetaM Bool := do
+def matchFalse (e : Expr) : MetaM Bool := do
   testHelper e fun e => return e.isConstOf ``False
 
 def matchNot? (e : Expr) : MetaM (Option Expr) := 
@@ -30,15 +30,15 @@ def matchNot? (e : Expr) : MetaM (Option Expr) :=
     if let some e := e.not? then
       return e
     else if let some (a, b) := e.arrow? then
-      if (← isFalse b) then return some a else return none
+      if (← matchFalse b) then return some a else return none
     else  
       return none 
 
 def matchNe? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) :=
-  matchHelper? e fun e =>
+  matchHelper? e fun e => do
     if let some r := e.ne? then
       return r  
-    else if let some e := e.not? then
+    else if let some e ← matchNot? e then
       matchEq? e
     else
       return none

@@ -94,7 +94,7 @@ theorem modLt (x : Nat) {y : Nat} (h : y > 0) : x % y < y := by
     exact ih h
   | base x y h₁ =>
     match Iff.mp (Decidable.notAndIffOrNot ..) h₁ with
-    | Or.inl h₁ => exact absurd h h₁
+    | Or.inl h₁ => contradiction
     | Or.inr h₁ =>
       have hgt := Nat.gtOfNotLe h₁
       have heq := Nat.modEqOfLt hgt

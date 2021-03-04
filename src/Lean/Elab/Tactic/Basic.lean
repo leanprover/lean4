@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Util.CollectMVars
 import Lean.Meta.Tactic.Assumption
+import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.Tactic.Intro
 import Lean.Meta.Tactic.Clear
 import Lean.Meta.Tactic.Revert
@@ -336,6 +337,9 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
 
 @[builtinTactic Lean.Parser.Tactic.assumption] def evalAssumption : Tactic := fun stx =>
   liftMetaTactic fun mvarId => do Meta.assumption mvarId; pure []
+
+@[builtinTactic Lean.Parser.Tactic.contradiction] def evalContradiction : Tactic := fun stx =>
+  liftMetaTactic fun mvarId => do Meta.contradiction mvarId; pure []
 
 @[builtinTactic Lean.Parser.Tactic.intro] def evalIntro : Tactic := fun stx => do
   match stx with

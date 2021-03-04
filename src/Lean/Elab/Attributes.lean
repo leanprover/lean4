@@ -61,15 +61,14 @@ def elabAttr {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [Mon
      So, we expand them before here before we invoke the attributer handlers implemented using `AttrM`. -/
   pure { kind := attrKind, name := attrName, stx := attr }
 
--- sepBy1 attrInstance ", "
-def elabAttrs {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] (stx : Syntax) : m (Array Attribute) := do
+def elabAttrs {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] (attrInstances : Array Syntax) : m (Array Attribute) := do
   let mut attrs := #[]
-  for attr in stx.getSepArgs do
+  for attr in attrInstances do
     attrs := attrs.push (← elabAttr attr)
   return attrs
 
 -- parser! "@[" >> sepBy1 attrInstance ", " >> "]"
 def elabDeclAttrs {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] (stx : Syntax) : m (Array Attribute) :=
-  elabAttrs stx[1]
+  elabAttrs stx[1].getSepArgs
 
 end Lean.Elab

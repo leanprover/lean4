@@ -1,0 +1,1 @@
+eraseSimp.lean:4:18-4:21: error: 'foo' does not have [simp] attribute

@@ -34,7 +34,7 @@ def synthesizeArgs (lemmaName : Name) (xs : Array Expr) (bis : Array BinderInfo)
 /-
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
 -/
-def rewrite (e : Expr) (s : DiscrTree SimpLemma) (discharge? : Expr → SimpM (Option Expr)) (tag : String) : SimpM Result := do
+def rewrite (e : Expr) (s : DiscrTree SimpLemma) (erased : SimpLemmaNameSet) (discharge? : Expr → SimpM (Option Expr)) (tag : String) : SimpM Result := do
   let lemmas ← s.getMatch e
   if lemmas.isEmpty then
     trace[Meta.Tactic.simp]! "no lemmas found for {tag}-rewriting {e}"
@@ -42,10 +42,16 @@ def rewrite (e : Expr) (s : DiscrTree SimpLemma) (discharge? : Expr → SimpM (O
   else
     let lemmas := lemmas.insertionSort fun e₁ e₂ => e₁.priority < e₂.priority
     for lemma in lemmas do
-      if let some result ← tryLemma? lemma then
-        return result
+      unless inErasedSet lemma do 
+        if let some result ← tryLemma? lemma then
+          return result
     return { expr := e }
 where
+  inErasedSet (lemma : SimpLemma) : Bool :=
+    match lemma.name? with  
+    | none => false
+    | some name => erased.contains name
+    
   getLHS (kind : SimpLemmaKind) (type : Expr) : MetaM Expr :=
     match kind with
     | SimpLemmaKind.pos => return type
@@ -148,11 +154,11 @@ def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndIn
 
 def rewritePre (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   let lemmas ← (← read).simpLemmas
-  return Step.visit (← rewrite e lemmas.pre discharge? (tag := "pre"))
+  return Step.visit (← rewrite e lemmas.pre lemmas.erased discharge? (tag := "pre"))
 
 def rewritePost (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   let lemmas ← (← read).simpLemmas
-  return Step.visit (← rewrite e lemmas.post discharge? (tag := "post"))
+  return Step.visit (← rewrite e lemmas.post lemmas.erased discharge? (tag := "post"))
 
 def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step :=
   tryRewriteCtorEq e <| rewritePre e discharge?

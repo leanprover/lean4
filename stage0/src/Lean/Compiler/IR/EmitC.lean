@@ -607,7 +607,7 @@ partial def emitBlock (b : FnBody) : M Unit := do
   | FnBody.ret x               => emit "return "; emitArg x; emitLn ";"
   | FnBody.case _ x xType alts => emitCase x xType alts
   | FnBody.jmp j xs            => emitJmp j xs
-  | FnBody.unreachable         => emitLn "lean_panic_unreachable();"
+  | FnBody.unreachable         => emitLn "lean_internal_panic_unreachable();"
 
 partial def emitJPs : FnBody → M Unit
   | FnBody.jdecl j xs v b => do emit j; emitLn ":"; emitFnBody v; emitJPs b

@@ -334,7 +334,7 @@ void object_compactor::operator()(object * o) {
             g_tag_counters[lean_ptr_tag(curr)]++;
 #endif
             switch (lean_ptr_tag(curr)) {
-            case LeanClosure:         lean_panic("closures cannot be compacted");
+            case LeanClosure:         lean_internal_panic("closures cannot be compacted");
             case LeanArray:           r = insert_array(curr); break;
             case LeanScalarArray:     insert_sarray(curr); break;
             case LeanString:          insert_string(curr); break;
@@ -342,7 +342,7 @@ void object_compactor::operator()(object * o) {
             case LeanThunk:           r = insert_thunk(curr); break;
             case LeanTask:            r = insert_task(curr); break;
             case LeanRef:             r = insert_ref(curr); break;
-            case LeanExternal:        lean_panic("external objects cannot be compacted");
+            case LeanExternal:        lean_internal_panic("external objects cannot be compacted");
             case LeanReserved:        lean_unreachable();
             default:                  r = insert_constructor(curr); break;
             }

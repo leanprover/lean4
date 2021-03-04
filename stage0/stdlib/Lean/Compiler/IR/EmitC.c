@@ -11586,7 +11586,7 @@ static lean_object* _init_l_Lean_IR_EmitC_emitBlock___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lean_panic_unreachable();");
+x_1 = lean_mk_string("lean_internal_panic_unreachable();");
 return x_1;
 }
 }

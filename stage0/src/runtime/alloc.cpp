@@ -439,7 +439,7 @@ void * alloc(size_t sz) {
     LEAN_RUNTIME_STAT_CODE(g_num_alloc++);
     if (LEAN_UNLIKELY(sz > LEAN_MAX_SMALL_OBJECT_SIZE)) {
         void * r = malloc(sz);
-        if (r == nullptr) lean_panic_out_of_memory();
+        if (r == nullptr) lean_internal_panic_out_of_memory();
         return r;
     }
     lean_assert(g_heap);

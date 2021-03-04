@@ -100,6 +100,7 @@ lean_object* l_Lean_Parser_Tactic_unknown_formatter___closed__3;
 lean_object* l_Lean_Parser_Tactic_eraseAuxDiscrs___elambda__1___closed__5;
 lean_object* l_Lean_Parser_Tactic_eraseAuxDiscrs_parenthesizer___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_errorAtSavedPos_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Term_byTactic___elambda__1___closed__8;
 extern lean_object* l_Lean_Parser_Term_structInst_formatter___closed__2;
 lean_object* l_Lean_Parser_Tactic_match___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Tactic_matchAlts_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -224,7 +225,6 @@ extern lean_object* l_Lean_Parser_Term_hole;
 lean_object* l___regBuiltin_Lean_Parser_Tactic_eraseAuxDiscrs_formatter(lean_object*);
 extern lean_object* l___regBuiltin_Lean_Parser_Term_hole_formatter___closed__1;
 lean_object* l_String_trim(lean_object*);
-extern lean_object* l_Lean_Parser_Term_byTactic___elambda__1___closed__10;
 lean_object* l_Lean_Parser_Tactic_eraseAuxDiscrs___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_nodeFn(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_unknown___closed__6;
@@ -1598,7 +1598,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_match___elambda__1___closed__9() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Term_byTactic___elambda__1___closed__10;
+x_1 = l_Lean_Parser_Term_byTactic___elambda__1___closed__8;
 x_2 = l_Lean_Parser_Tactic_match___elambda__1___closed__8;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_andthenFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);

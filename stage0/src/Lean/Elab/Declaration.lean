@@ -256,13 +256,25 @@ def elabMutual : CommandElab := fun stx => do
   else
     throwError "invalid mutual block"
 
-/- parser! "attribute " >> "[" >> sepBy1 Term.attrInstance ", " >> "]" >> many1 ident -/
+/- parser! "attribute " >> "[" >> sepBy1 (eraseAttr <|> Term.attrInstance) ", " >> "]" >> many1 ident -/
 @[builtinCommandElab «attribute»] def elabAttr : CommandElab := fun stx => do
-  let attrs ← elabAttrs stx[2]
+  let mut attrInsts := #[]
+  let mut toErase := #[]
+  for attrKindStx in stx[2].getSepArgs do
+    if attrKindStx.getKind == ``Lean.Parser.Command.eraseAttr then
+      let attrName := attrKindStx[1].getId.eraseMacroScopes
+      unless isAttribute (← getEnv) attrName do
+        throwError! "unknown attribute [{attrName}]"
+      toErase := toErase.push attrName    
+    else
+      attrInsts := attrInsts.push attrKindStx
+  let attrs ← elabAttrs attrInsts
   let idents := stx[4].getArgs
-  for ident in idents do withRef ident $ liftTermElabM none do
+  for ident in idents do withRef ident <| liftTermElabM none do
     let declName ← resolveGlobalConstNoOverload ident.getId
     Term.applyAttributes declName attrs
+    for attrName in toErase do
+      Attribute.erase declName attrName
 
 def expandInitCmd (builtin : Bool) : Macro := fun stx =>
   let optHeader := stx[1]

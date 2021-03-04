@@ -118,9 +118,12 @@ where
     else
       return none
 
+/-
+  "simp " ("[" simpLemma,* "]")? (colGt term)? (location)?
+-/
 @[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
-  let ctx ← elabSimpLemmas stx[1] { config := (← elabSimpConfig stx[2]), simpLemmas := (← getSimpLemmas), congrLemmas := (← getCongrLemmas) }
-  let loc := expandOptLocation stx[3]
+  let ctx ← elabSimpLemmas stx[2] { config := (← elabSimpConfig stx[3]), simpLemmas := (← getSimpLemmas), congrLemmas := (← getCongrLemmas) }
+  let loc := expandOptLocation stx[4]
   match loc with
   | Location.target => simpTarget ctx
   | Location.localDecls userNames => userNames.forM (simpLocalDecl ctx)

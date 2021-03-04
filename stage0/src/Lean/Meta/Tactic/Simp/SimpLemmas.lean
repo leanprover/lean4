@@ -43,16 +43,31 @@ instance : ToMessageData SimpLemma where
 instance : BEq SimpLemma where
   beq e₁ e₂ := e₁.val == e₂.val
 
+abbrev SimpLemmaNameSet := Std.PHashSet Name
+
 structure SimpLemmas where
-  pre  : DiscrTree SimpLemma := DiscrTree.empty
-  post : DiscrTree SimpLemma := DiscrTree.empty
+  pre         : DiscrTree SimpLemma := DiscrTree.empty
+  post        : DiscrTree SimpLemma := DiscrTree.empty
+  lemmaNames  : SimpLemmaNameSet := {}
+  erased      : SimpLemmaNameSet := {}
   deriving Inhabited
 
 def addSimpLemmaEntry (d : SimpLemmas) (e : SimpLemma) : SimpLemmas :=
   if e.post then
-    { d with post := d.post.insertCore e.keys e }
+    { d with post := d.post.insertCore e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
   else
-    { d with pre := d.pre.insertCore e.keys e }
+    { d with pre := d.pre.insertCore e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
+where
+  updateLemmaNames (s : SimpLemmaNameSet) : SimpLemmaNameSet :=
+    match e.name? with
+    | none => s
+    | some name => s.insert name
+
+private def eraseSimpLemma (d : SimpLemmas) (declName : Name) : SimpLemmas :=
+  { d with erased := d.erased.insert declName, lemmaNames := d.lemmaNames.erase declName }
+
+def isSimpLemma (d : SimpLemmas) (declName : Name) : Bool :=
+  d.lemmaNames.contains declName
 
 builtin_initialize simpExtension : SimpleScopedEnvExtension SimpLemma SimpLemmas ←
   registerSimpleScopedEnvExtension {
@@ -110,6 +125,11 @@ builtin_initialize
         if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
       let prio ← getAttrParamOptPrio stx[2]
       discard <| addSimpLemma declName post attrKind prio |>.run {} {}
+    erase := fun declName => do
+      let s ← simpExtension.getState (← getEnv)
+      unless isSimpLemma s declName do
+        throwError! "'{declName}' does not have [simp] attribute"
+      modifyEnv fun env => simpExtension.modifyState env fun s => eraseSimpLemma s declName
   }
 
 def getSimpLemmas : MetaM SimpLemmas :=

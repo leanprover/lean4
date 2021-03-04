@@ -633,6 +633,7 @@ lean_object* l_Lean_Server_FileWorker_handleDefinition_match__3___rarg(lean_obje
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l_Lean_Server_FileWorker_handleRequest_match__2___rarg___closed__3;
+extern lean_object* l_Lean_Parser_Command_attribute___elambda__1___closed__9;
 lean_object* l_Lean_Server_maybeTee(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_compileHeader___closed__3;
 lean_object* l_Lean_Server_FileWorker_updateDocument___closed__1;
@@ -715,7 +716,6 @@ lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_FileWorker_handleDefiniti
 lean_object* l_Lean_findModuleOf_x3f___at_Lean_Server_FileWorker_handleDefinition___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_mapM___at___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_nextCmdSnap___spec__9(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleRequest_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Command_attribute___elambda__1___closed__5;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_Server_AsyncList_0__IO_AsyncList_coeErr___at_Lean_Server_FileWorker_withWaitFindSnap___spec__2(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -32157,7 +32157,7 @@ x_24 = lean_ctor_get(x_21, 0);
 lean_inc(x_24);
 x_58 = l_term_x5b___x5d___closed__3;
 x_59 = lean_string_append(x_58, x_24);
-x_60 = l_Lean_Parser_Command_attribute___elambda__1___closed__5;
+x_60 = l_Lean_Parser_Command_attribute___elambda__1___closed__9;
 x_61 = lean_string_append(x_59, x_60);
 x_62 = l_IO_FS_Stream_withPrefix(x_3, x_61);
 lean_inc(x_62);

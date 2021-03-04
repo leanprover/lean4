@@ -176,6 +176,12 @@ def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env :
       ext.ext.setState env { s with stateStack := top :: stack }
   | _ => env
 
+def ScopedEnvExtension.modifyState (ext : ScopedEnvExtension α β σ) (env : Environment) (f : σ → σ) : Environment :=
+  let s := ext.ext.getState env
+  match s.stateStack with
+  | top :: stack => ext.ext.setState env { s with stateStack := { top with state := f top.state } :: stack }
+  | _ => env  
+
 def pushScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do
     modifyEnv ext.pushScope

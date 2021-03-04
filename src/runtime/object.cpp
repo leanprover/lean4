@@ -41,17 +41,6 @@ extern "C" void lean_internal_panic_rc_overflow() {
     lean_internal_panic("reference counter overflowed");
 }
 
-// TODO: delete after update-stage0
-extern "C" void lean_panic_out_of_memory() {
-    lean_internal_panic_out_of_memory();
-}
-
-// TODO: delete after update-stage0
-extern "C" void lean_panic_unreachable() {
-    lean_internal_panic_unreachable();
-}
-
-
 bool g_exit_on_panic = false;
 
 extern "C" void lean_set_exit_on_panic(bool flag) {

@@ -256,7 +256,7 @@ syntax (name := injection) "injection " term (" with " (colGt (ident <|> "_"))+)
 syntax simpPre := "↓"
 syntax simpPost := "↑"
 syntax simpLemma := (simpPre <|> simpPost)? term
-syntax (name := simp) "simp " ("[" simpLemma,* "]")? (colGt term)? (location)? : tactic
+syntax (name := simp) "simp " (&"only ")? ("[" simpLemma,* "]")? (colGt term)? (location)? : tactic
 
 syntax (name := «have») "have " haveDecl : tactic
 syntax (name := «suffices») "suffices " sufficesDecl : tactic

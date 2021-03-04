@@ -84,14 +84,20 @@ where
         if ← hasAssignableMVar proof then
           return none
         let rhs   ← instantiateMVars (← getRHS lemma.kind type)
+        if e == rhs then
+          return none
         if lemma.perm && !Expr.lt rhs e then
-          trace[Meta.Tactic.simp.unify]! "{lemma}, perm rejected {e} ==> {rhs}"
+          trace[Meta.Tactic.simp.rewrite]! "{lemma}, perm rejected {e} ==> {rhs}"
           return none
         let proof ← finalizeProof lemma.kind proof
         trace[Meta.Tactic.simp.rewrite]! "{lemma}, {e} ==> {rhs}"
         return some { expr := rhs, proof? := proof }
       else
-        trace[Meta.Tactic.simp.unify]! "{lemma}, failed to unify {lhs} with {e}"
+        unless lhs.isMVar do
+          -- We do not report unification failures when `lhs` is a metavariable
+          -- Example: `x = ()`
+          -- TODO: reconsider if we want lemmas such as `(x : Unit) → x = ()`
+          trace[Meta.Tactic.simp.unify]! "{lemma}, failed to unify {lhs} with {e}"
         return none
 
 def rewriteCtorEq? (e : Expr) : MetaM (Option Result) := withReducibleAndInstances do

@@ -111,7 +111,7 @@ with builtins; let
       modMap' = lib.foldr buildModAndDeps modMap deps;
     in modMap' // { ${mod} = buildMod mod (map (dep: if modMap' ? ${dep} then modMap'.${dep} else externalModMap.${dep}) deps); };
   makeEmacsWrapper = name: lean: writeShellScriptBin name ''
-    ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\") (require 'lean4-mode))" "$@"
+    ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\"))" "$@"
   '';
   makeVSCodeWrapper = name: lean: writeShellScriptBin name ''
     PATH=${lean}/bin:$PATH ${lean-vscode}/bin/code "$@"

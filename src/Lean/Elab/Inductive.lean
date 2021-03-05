@@ -114,11 +114,6 @@ private def mkTypeFor (r : ElabHeaderResult) : TermElabM Expr := do
 private def throwUnexpectedInductiveType {α} : TermElabM α :=
   throwError "unexpected inductive resulting type"
 
--- Given `e` of the form `forall As, B`, return `B`.
--- It assumes `B` doesn't depend on `As`.
-private def getResultingType (e : Expr) : TermElabM Expr :=
-  forallTelescopeReducing e fun _ r => pure r
-
 private def eqvFirstTypeResult (firstType type : Expr) : MetaM Bool :=
   forallTelescopeReducing firstType fun _ firstTypeResult => isDefEq firstTypeResult type
 
@@ -189,11 +184,12 @@ private def isInductiveFamily (numParams : Nat) (indFVar : Expr) : TermElabM Boo
 /-
   Elaborate constructor types.
 
-  Remark: we check whether the resulting type is correct, but
-  we do not check for:
+  Remark: we check whether the resulting type is correct, and the parameter occurrences are consistent, but
+  we currently do not check for:
   - Positivity (it is a rare failure, and the kernel already checks for it).
-  - Universe constraints (the kernel checks for it). -/
-private def elabCtors (indFVar : Expr) (params : Array Expr) (r : ElabHeaderResult) : TermElabM (List Constructor) := withRef r.view.ref do
+  - Universe constraints (the kernel checks for it).
+-/
+private def elabCtors (indFVars : Array Expr) (indFVar : Expr) (params : Array Expr) (r : ElabHeaderResult) : TermElabM (List Constructor) := withRef r.view.ref do
   let indFamily ← isInductiveFamily params.size indFVar
   r.view.ctors.toList.mapM fun ctorView =>
     Term.withAutoBoundImplicitLocal <| Term.elabBinders (catchAutoBoundImplicit := true) ctorView.binders.getArgs fun ctorParams =>
@@ -208,23 +204,37 @@ private def elabCtors (indFVar : Expr) (params : Array Expr) (r : ElabHeaderResu
             Term.elabTypeWithAutoBoundImplicit ctorType fun type => do
               Term.synthesizeSyntheticMVars (mayPostpone := true)
               let type ← instantiateMVars type
-              let resultingType ← getResultingType type
-              unless resultingType.getAppFn == indFVar do
-                throwError! "unexpected constructor resulting type{indentExpr resultingType}"
-              unless (← isType resultingType) do
-                throwError! "unexpected constructor resulting type, type expected{indentExpr resultingType}"
-              let args := resultingType.getAppArgs
-              for i in [:params.size] do
-                let param := params[i]
-                let arg   := args[i]
-                unless (← isDefEq param arg) do
-                  throwError! "inductive datatype parameter mismatch{indentExpr arg}\nexpected{indentExpr param}"
+              let type ← checkParamOccs type
+              forallTelescopeReducing type fun _ resultingType => do
+                unless resultingType.getAppFn == indFVar do
+                  throwError! "unexpected constructor resulting type{indentExpr resultingType}"
+                unless (← isType resultingType) do
+                  throwError! "unexpected constructor resulting type, type expected{indentExpr resultingType}"
               k type
         elabCtorType fun type => do
           let ctorParams ← Term.addAutoBoundImplicits ctorParams
           let type ← mkForallFVars ctorParams type
           let type ← mkForallFVars params type
+          trace[Meta.debug]! "{ctorView.declName} : {type}"
           return { name := ctorView.declName, type := type }
+where
+  checkParamOccs (ctorType : Expr) : MetaM Expr :=
+    let visit (e : Expr) : MetaM TransformStep := do
+      let f := e.getAppFn
+      if indFVars.contains f then
+        let mut args := e.getAppArgs
+        unless args.size ≥ params.size do
+          throwError! "unexpected inductive type occurrence{indentExpr e}"
+        for i in [:params.size] do
+          let param := params[i]
+          let arg := args[i]
+          unless (← isDefEq param arg) do
+            throwError! "inductive datatype parameter mismatch{indentExpr arg}\nexpected{indentExpr param}"
+          args := args.set! i param
+        return TransformStep.done (mkAppN f args)
+      else
+        return TransformStep.visit e
+    transform ctorType (pre := visit)
 
 /- Convert universe metavariables occurring in the `indTypes` into new parameters.
    Remark: if the resulting inductive datatype has universe metavariables, we will fix it later using
@@ -242,8 +252,7 @@ private def levelMVarToParam (indTypes : List InductiveType) : TermElabM (List I
 
 private def getResultingUniverse : List InductiveType → TermElabM Level
   | []           => throwError "unexpected empty inductive declaration"
-  | indType :: _ => do
-    let r ← getResultingType indType.type
+  | indType :: _ => forallTelescopeReducing indType.type fun _ r => do
     match r with
     | Expr.sort u _ => pure u
     | _             => throwError "unexpected inductive type resulting type"
@@ -386,7 +395,7 @@ private def collectLevelParamsInInductive (indTypes : List InductiveType) : Arra
 private def mkIndFVar2Const (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name) : ExprMap Expr := do
   let levelParams := levelNames.map mkLevelParam;
   let mut m : ExprMap Expr := {}
-  for i in [:views.size] do 
+  for i in [:views.size] do
     let view    := views[i]
     let indFVar := indFVars[i]
     m := m.insert indFVar (mkConst view.declName levelParams)
@@ -414,7 +423,7 @@ abbrev Ctor2InferMod := Std.HashMap Name Bool
 
 private def mkCtor2InferMod (views : Array InductiveView) : Ctor2InferMod := do
   let mut m := {}
-  for view in views do 
+  for view in views do
     for ctorView in view.ctors do
       m := m.insert ctorView.declName ctorView.inferMod
   return m
@@ -461,7 +470,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
         let indFVar := indFVars[i]
         let r       := rs[i]
         let type  ← mkForallFVars params r.type
-        let ctors ← elabCtors indFVar params r
+        let ctors ← elabCtors indFVars indFVar params r
         indTypes := indTypes.push { name := r.view.declName, type := type, ctors := ctors : InductiveType }
       let indTypes := indTypes.toList
       Term.synthesizeSyntheticMVarsNoPostponing

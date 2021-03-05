@@ -37,13 +37,8 @@
 (require 'lean4-settings)
 (require 'lean4-input)
 (require 'lean4-syntax)
-(require 'lean4-leanpkg)
-;(require 'lean4-server)
-(require 'lean4-flycheck)
 (require 'lean4-info)
-;(require 'lean4-hole)
-;(require 'lean4-message-boxes)
-;(require 'lean4-right-click)
+(require 'lean4-leanpkg)
 (require 'lean4-dev)
 
 (defun lean4-compile-string (exe-name args file-name)
@@ -231,10 +226,6 @@ Invokes `lean4-mode-hook'.
                   :server-id 'lean4-lsp))
 
 (add-hook 'lean4-mode-hook #'lsp)
-
-;; Flycheck init
-(eval-after-load 'flycheck
-  '(lean4-flycheck-init))
 
 (provide 'lean4-mode)
 ;;; lean4-mode.el ends here

@@ -93,4 +93,31 @@
   (lean4-toggle-info-buffer lean4-show-goal-buffer-name)
   (lean4-show-goal--handler))
 
+(defconst lean4-next-error-buffer-name "*Lean Next Error*")
+
+(defun lean4-next-error--handler ()
+  (when (lean4-info-buffer-active lean4-next-error-buffer-name)
+    (let ((deactivate-mark) ; keep transient mark
+          (errors (or
+                   ;; prefer error of current position, if any
+                   (flycheck-overlay-errors-at (point))
+                   ;; try errors in current line next
+                   (sort (flycheck-overlay-errors-in (line-beginning-position) (line-end-position))
+                         #'flycheck-error-<)
+                   ;; fall back to next error position
+                   (-if-let* ((pos (flycheck-next-error-pos 1)))
+                       (flycheck-overlay-errors-at pos)))))
+      (lean4-with-info-output-to-buffer lean4-next-error-buffer-name
+       (dolist (e errors)
+         (princ (format "%d:%d: " (flycheck-error-line e) (flycheck-error-column e)))
+         (princ (flycheck-error-message e))
+         (princ "\n\n"))
+       (when flycheck-current-errors
+         (princ (format "(%d more messages above...)" (length flycheck-current-errors))))))))
+
+(defun lean4-toggle-next-error ()
+  (interactive)
+  (lean4-toggle-info-buffer lean4-next-error-buffer-name)
+  (lean4-next-error--handler))
+
 (provide 'lean4-info)

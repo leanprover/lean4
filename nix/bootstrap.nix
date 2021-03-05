@@ -34,17 +34,11 @@ rec {
   leancpp = buildCMake {
     name = "leancpp";
     src = ../src;
-    # `lean.cpp` is usually linked directly into the executable, but we want to do that step outside of CMake
-    preConfigure = ''
-      echo 'add_library(leancppmain shell/lean.cpp)
-        set_target_properties(leancppmain PROPERTIES
-        ARCHIVE_OUTPUT_DIRECTORY ''${CMAKE_BINARY_DIR}/lib/lean
-        OUTPUT_NAME leancppmain)' >> CMakeLists.txt
-    '';
-    buildFlags = [ "leancpp" "leancppmain" ];
+    buildFlags = [ "leancpp" "shell" ];
     installPhase = ''
       mkdir -p $out
       mv lib/ $out/
+      mv shell/CMakeFiles/shell.dir/lean.cpp.o $out/lib
     '';
   };
   # rename derivation so `nix run` uses the right executable name but we still see the stage in the build log
@@ -95,7 +89,7 @@ rec {
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
           ln -sf ${leancpp}/lib/lean/libleancpp.* ${Leanpkg.modRoot}/* ${Lean.staticLib}/* ${Lean.modRoot}/* ${Std.staticLib}/* ${Std.modRoot}/* ${Init.staticLib}/* ${Init.modRoot}/* $out/lib/lean/
-          ${leanc}/bin/leanc -x none -rdynamic ${leancpp}/lib/lean/libleancppmain.* -o $out/bin/lean
+          ${leanc}/bin/leanc -x none -rdynamic ${leancpp}/lib/lean.cpp.o -o $out/bin/lean
           ${leanc}/bin/leanc -x none -rdynamic ${Leanpkg.staticLib}/* -o $out/bin/leanpkg
           # put everything in a single final derivation so `IO.appDir` references work
           for i in ${lean-bin-tools-unwrapped} ${leanc}; do
@@ -124,17 +118,8 @@ rec {
       update-stage0 =
         let cTree = symlinkJoin { name = "cs"; paths = [ Init.cTree Std.cTree Lean.cTree Leanpkg.cTree ]; }; in
         writeShellScriptBin "update-stage0" ''
-        set -euo pipefail
-        rm -r stage0 || true
-        mkdir -p stage0/
-        cp -r --dereference --no-preserve=all ${cTree} stage0/stdlib
-        # ensure deterministic ordering
-        c_files="$(cd ${cTree}; find . -type l | LC_ALL=C sort | tr '\n' ' ')"
-        echo "add_library (stage0 OBJECT $c_files)" > stage0/stdlib/CMakeLists.txt
-        # don't copy untracked crap
-        git ls-files -z src | xargs -0 -I '{}' bash -c 'mkdir -p `dirname stage0/{}` && cp {} stage0/{}'
-        git add stage0
-      '';
+          CSRCS=${cTree} CP_PARAMS="--dereference --no-preserve=all" ${../script/update-stage0}
+        '';
       update-stage0-commit = writeShellScriptBin "update-stage0-commit" ''
         set -euo pipefail
         ${update-stage0}/bin/update-stage0

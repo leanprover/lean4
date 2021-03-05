@@ -5,7 +5,7 @@ partial def mkBigAnd (n : Nat) (p : Syntax) : MacroM Syntax :=
 where
   loop (low high : Nat) : MacroM Syntax := do
     if low == high then
-      `($p[$(quote low)])
+      `($p[natLit! $(quote low)])
     else
       let mid := (low + high)/2
       `($(← loop low mid) ∧ $(← loop (mid + 1) high))
@@ -17,7 +17,7 @@ partial def mkBigOrNot (n : Nat) (p : Syntax) : MacroM Syntax :=
 where
   loop (low high : Nat) : MacroM Syntax := do
     if low == high then
-      `(¬ $p[$(quote low)])
+      `(¬ $p[natLit! $(quote low)])
     else
       let mid := (low + high)/2
       `($(← loop low mid) ∨ $(← loop (mid + 1) high))
@@ -26,7 +26,7 @@ macro "bigOrNot! " n:num p:ident : term => mkBigOrNot n.toNat p
 
 @[simp] axiom not_and (p q : Prop) : (¬ (p ∧ q)) = (¬ p ∨ ¬ q)
 
-theorem ex (p : Array Prop) : (¬ bigAnd! 500 p) = bigOrNot! 500 p := by
+theorem ex (p : Array Prop) : (¬ bigAnd! 2000 p) = bigOrNot! 2000 p := by
   simp only [not_and]
   rfl
 

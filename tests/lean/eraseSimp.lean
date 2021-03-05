@@ -22,3 +22,8 @@ end
 theorem ex3 {a b : Nat} (h₁ : a = b) : 0 + a = b := by
   simp
   assumption
+
+theorem ex4 {a b : Nat} (h₁ : a = b) : 0 + a = b := by
+  simp [-Nat.zero_add]
+  rw [Nat.zero_add]
+  assumption

@@ -157,6 +157,9 @@ private def getPropToDecide (expectedType? : Option Expr) : TermElabM Expr := do
   trace[Meta.debug]! "elabDecide: {p}"
   let d ← mkDecide p
   let d ← instantiateMVars d
+  let r ← withDefault <| whnf d
+  unless r.isConstOf ``true do
+    throwError! "failed to reduce to 'true'{indentExpr p}"
   let s := d.appArg! -- get instance from `d`
   let rflPrf ← mkEqRefl (toExpr true)
   pure $ mkApp3 (Lean.mkConst `ofDecideEqTrue) p s rflPrf

@@ -6,7 +6,7 @@
 
 ;;; Code:
 
-(require 'cl)
+(require 'cl-lib)
 
 (defun lean4-eri-current-line-length nil
   "Calculate length of current line."

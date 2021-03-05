@@ -23,8 +23,6 @@
 
 (require 'quail)
 
-(eval-when-compile
-  (require 'cl))
 ;; Quail is quite stateful, so be careful when editing this code.  Note
 ;; that with-temp-buffer is used below whenever buffer-local state is
 ;; modified.

@@ -106,7 +106,8 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
               Term.synthesizeSyntheticMVarsNoPostponing
               type ← instantiateMVars type
               let pendingMVarIds ← getMVars type
-              discard <| logUnassignedUsingErrorInfos pendingMVarIds
+              discard <| logUnassignedUsingErrorInfos pendingMVarIds <|
+                m!"\nwhen the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed"
             let newHeader := {
               ref           := view.ref,
               modifiers     := view.modifiers,

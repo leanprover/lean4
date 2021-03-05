@@ -1,0 +1,2 @@
+331.lean:6:13-6:14: error: failed to infer binder type
+when the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed

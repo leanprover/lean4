@@ -4,6 +4,7 @@ context:
 ⊢ Sort u_1
 holeErrors.lean:3:7-3:12: error: failed to infer definition type
 holeErrors.lean:5:9-5:10: error: failed to infer definition type
+when the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed
 holeErrors.lean:8:9-8:11: error: don't know how to synthesize implicit argument
   @id ?m
 context:

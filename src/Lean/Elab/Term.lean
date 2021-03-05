@@ -398,20 +398,24 @@ def throwMVarError {α} (m : MessageData) : TermElabM α := do
   else
     throwError! m
 
-def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) : TermElabM Unit := do
+def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) (extraMsg? : Option MessageData) : TermElabM Unit := do
   match mvarErrorInfo.kind with
   | MVarErrorKind.implicitArg app => do
     let app ← instantiateMVars app
     let msg : MessageData := m!"don't know how to synthesize implicit argument{indentExpr app.setAppPPExplicit}"
     let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
-    logErrorAt mvarErrorInfo.ref msg
+    logErrorAt mvarErrorInfo.ref (appendExtra msg)
   | MVarErrorKind.hole => do
     let msg : MessageData := "don't know how to synthesize placeholder"
     let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
-    logErrorAt mvarErrorInfo.ref msg
-  | MVarErrorKind.custom msgData =>
-    logErrorAt mvarErrorInfo.ref msgData
-
+    logErrorAt mvarErrorInfo.ref (appendExtra msg)
+  | MVarErrorKind.custom msg =>
+    logErrorAt mvarErrorInfo.ref (appendExtra msg)
+where
+  appendExtra (msg : MessageData) : MessageData :=
+    match extraMsg? with
+    | none => msg
+    | some extraMsg => msg ++ extraMsg
 
 /--
   Try to log errors for the unassigned metavariables `pendingMVarIds`.
@@ -420,7 +424,7 @@ def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) : TermElabM Unit := d
   TODO: try to fill "all" holes using synthetic "sorry's"
 
   Remark: We only log the "unfilled holes" as new errors if no error has been logged so far. -/
-def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) : TermElabM Bool := do
+def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Option MessageData := none) : TermElabM Bool := do
   let s ← get
   let hasOtherErrors := s.messages.hasErrors
   let mut hasNewErrors := false
@@ -435,7 +439,7 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) : TermElabM Boo
         let mvarDeps ← getMVars (mkMVar mvarId)
         if mvarDeps.any pendingMVarIds.contains then do
           unless hasOtherErrors do
-            mvarErrorInfo.logError
+            mvarErrorInfo.logError extraMsg?
           pure true
         else
           pure false

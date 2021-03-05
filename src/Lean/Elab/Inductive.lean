@@ -430,10 +430,10 @@ private def applyInferMod (views : Array InductiveView) (numParams : Nat) (indTy
 
 private def mkAuxConstructions (views : Array InductiveView) : TermElabM Unit := do
   let env ← getEnv
-  let hasEq   := env.contains `Eq
-  let hasHEq  := env.contains `HEq
-  let hasUnit := env.contains `PUnit
-  let hasProd := env.contains `Prod
+  let hasEq   := env.contains ``Eq
+  let hasHEq  := env.contains ``HEq
+  let hasUnit := env.contains ``PUnit
+  let hasProd := env.contains ``Prod
   for view in views do
     let n := view.declName
     mkRecOn n

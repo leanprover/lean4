@@ -71,9 +71,19 @@ private def synthesizePendingInstMVar (instMVar : MVarId) : TermElabM Bool :=
   If `mvar` can be synthesized, then assign `auxMVarId := (expandCoe eNew)`.
 -/
 private def synthesizePendingCoeInstMVar
-    (auxMVarId : MVarId) (errorMsgHeader? : Option String) (eNew : Expr) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Bool :=
+    (auxMVarId : MVarId) (errorMsgHeader? : Option String) (eNew : Expr) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Bool := do
   let instMVarId := eNew.appArg!.mvarId!
   withMVarContext instMVarId do
+    if (← isDefEq expectedType eType) then
+      /- This case may seem counterintuitive since we created the coercion
+         because the `isDefEq expectedType eType` test failed before.
+         However, it may succeed here because we have more information, for example, metavariables
+         occurring at `expectedType` and `eType` may have been assigned. -/
+      if (← occursCheck auxMVarId e) then
+        assignExprMVar auxMVarId e
+        return true
+      else
+        return false
     try
       if (← synthesizeCoeInstMVarCore instMVarId) then
         let eNew ← expandCoe eNew

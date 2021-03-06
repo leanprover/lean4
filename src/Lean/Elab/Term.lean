@@ -19,6 +19,7 @@ import Lean.Elab.Level
 import Lean.Elab.Attributes
 import Lean.Elab.AutoBound
 import Lean.Elab.InfoTree
+import Lean.Elab.Open
 
 namespace Lean.Elab.Term
 /-
@@ -1422,6 +1423,13 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   match stx[1].isStrLit? with
   | none     => throwIllFormedSyntax
   | some msg => elabTermEnsuringType stx[2] expectedType? true msg
+
+/- Uncomment after update stage0
+@[builtinTermElab «open»] def elabOpen : TermElab := fun stx expectedType? => do
+  let openDecls ← elabOpenDecl stx[1]
+  withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
+    elabTerm stx[3] expectedType?
+-/
 
 private def mkSomeContext : Context := {
   fileName      := "<TermElabM>"

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Util.CollectMVars
+import Lean.Parser.Command
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.Tactic.Intro
@@ -303,6 +304,9 @@ def tagUntaggedGoals (parentTag : Name) (newSuffix : Name) (newGoals : List MVar
 
 @[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx =>
   focus $ evalTactic stx[1]
+
+-- @[builtinTactic Lean.Parser.Tactic.«open»] def evalOpen : Tactic := fun stx =>
+--   focus $ evalTactic stx[1]
 
 @[builtinTactic Parser.Tactic.allGoals] def evalAllGoals : Tactic := fun stx => do
   let gs ← getUnsolvedGoals

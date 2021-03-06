@@ -228,6 +228,7 @@ def bracketedBinderF := bracketedBinder  -- no default arg
 @[builtinTermParser] def dbgTrace    := parser!:leadPrec withPosition ("dbgTrace! " >> ((interpolatedStr termParser) <|> termParser)) >> optSemicolon termParser
 @[builtinTermParser] def assert      := parser!:leadPrec withPosition ("assert! " >> termParser) >> optSemicolon termParser
 
+
 def macroArg       := termParser maxPrec
 def macroDollarArg := parser! "$" >> termParser 10
 def macroLastArg   := macroDollarArg <|> macroArg

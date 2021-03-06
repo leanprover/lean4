@@ -2,7 +2,13 @@
   stdenv, lib, coreutils, gnused, writeShellScriptBin, bash, lean-emacs, lean-vscode, nix, substituteAll, symlinkJoin, linkFarmFromDrvs,
   ... }:
 let lean-final' = lean-final; in
-{ name, src, fullSrc ? src, deps ? [ lean.Lean ],
+{ name, src,  fullSrc ? src, 
+  # Lean dependencies. Each entry should be an output of buildLeanPackage.
+  deps ? [ lean.Lean ], 
+  # Static library dependencies. Each derivation `static` should contain a static library in the directory `${static}`.
+  staticLibDeps ? [],
+  # Lean plugin dependencies. Each derivation `plugin` should contain a plugin library at path `${plugin}/${plugin.name}`.
+  pluginDeps ? [],
   debug ? false, leanFlags ? [], leancFlags ? [], executableName ? lib.toLower name,
   srcTarget ? "..#stage0", srcArgs ? "(\${args[*]})", lean-final ? lean-final' }:
 with builtins; let
@@ -44,11 +50,19 @@ with builtins; let
     allowSubstitutes = false;
   };
   srcRoot = src;
-  allDeps = lib.foldr (dep: allDeps: allDeps // { ${dep.name} = dep; } // dep.allDeps) {} deps;
+
+  # A flattened list of Lean-module dependencies (`deps`)
+  allExternalDeps = lib.foldr (dep: allExternalDeps: allExternalDeps // { ${dep.name} = dep; } // dep.allExternalDeps) {} deps;
+  # A flattened list of all static library dependencies: this and every dep module's explicitly provided `staticLibDeps`, 
+  # plus every dep module itself: `dep.staticLib`
+  allStaticLibDeps = 
+    lib.unique (lib.flatten (staticLibDeps ++ (map (dep: [dep.staticLib] ++ dep.staticLibDeps or []) (attrValues allExternalDeps))));
+  leanPluginFlags = lib.concatStringsSep " " (map (dep: "--plugin=${dep}/${dep.name}") pluginDeps);
+
   fakeDepRoot = runCommandLocal "${name}-dep-root" {} ''
     mkdir $out
     cd $out
-    mkdir ${lib.concatStringsSep " " ([name] ++ attrNames allDeps)}
+    mkdir ${lib.concatStringsSep " " ([name] ++ attrNames allExternalDeps)}
   '';
   print-lean-deps = writeShellScriptBin "print-lean-deps" ''
     export LEAN_PATH=${fakeDepRoot}
@@ -77,10 +91,11 @@ with builtins; let
     oleanPath = relpath + ".olean";
     cPath = relpath + ".c";
     inherit leanFlags;
+    inherit leanPluginFlags;
     buildCommand = ''
       mkdir -p $(dirname $relpath) $out/$(dirname $relpath) $c/$(dirname $relpath)
       cp $src $leanPath
-      lean -o $out/$oleanPath -c $c/$cPath $leanPath $leanFlags
+      lean -o $out/$oleanPath -c $c/$cPath $leanPath $leanFlags $leanPluginFlags
     '';
   } // {
     inherit deps;
@@ -96,11 +111,11 @@ with builtins; let
       # make local "copy" so `drv`'s Nix store path doesn't end up in ccache's hash
       ln -s ${drv.c}/${drv.cPath} src.c
       # on the other hand, a debug build is pretty fast anyway, so preserve the path for gdb
-      leanc -c -o $out/$oPath $leancFlags ${if debug then "${drv.c}/${drv.cPath} -g " else "src.c -O3 -DNDEBUG"}
+      leanc -c -o $out/$oPath $leancFlags -fPIC ${if debug then "${drv.c}/${drv.cPath} -g " else "src.c -O3 -DNDEBUG"}
     '';
   };
   singleton = name: value: listToAttrs [ { inherit name value; } ];
-  externalModMap = lib.foldr (dep: depMap: depMap // dep.mods) {} (attrValues allDeps);
+  externalModMap = lib.foldr (dep: depMap: depMap // dep.mods) {} (attrValues allExternalDeps);
   # Recursively build `mod` and its dependencies. `modMap` maps module names to
   # `{ deps, drv }` pairs of a derivation and its transitive dependencies (as a nested
   # mapping from module names to derivations). It is passed linearly through the
@@ -118,23 +133,30 @@ with builtins; let
   '';
   printPaths = deps: writeShellScriptBin "print-paths" ''
     echo "${depRoot "print-paths" deps}"
-    echo ".:${lib.concatStringsSep ":" (map (dep: dep.src) (attrValues allDeps))}"
+    echo ".:${lib.concatStringsSep ":" (map (dep: dep.src) (attrValues allExternalDeps))}"
   '';
   makePrintPathsFor = deps: mods: printPaths deps // mapAttrs (_: mod: makePrintPathsFor (deps ++ [mod]) mods) mods;
-in rec {
-  inherit name lean deps allDeps print-lean-deps src;
   mods      = buildModAndDeps name {};
+in rec {
+  inherit name lean deps staticLibDeps allExternalDeps print-lean-deps src mods;
   modRoot   = depRoot name [ mods.${name} ];
   cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (attrValues mods); };
   objects   = mapAttrs compileMod mods;
   oTree     = symlinkJoin { name = "${name}-oTree"; paths = (attrValues objects); };
   staticLib = runCommand "${name}-lib" { buildInputs = [ stdenv.cc.bintools.bintools ]; } ''
-    mkdir $out
-    ar Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))}
+    mkdir -p $out
+    ar Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))};
+  '';
+  sharedLib = runCommand "${name}.so" { buildInputs = [ stdenv.cc ]; } ''
+    mkdir -p $out/lib
+    ${leanc}/bin/leanc -fPIC -shared -x none \
+      -Wl,--whole-archive ${staticLib}/* -Wl,--no-whole-archive\
+      ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)} \
+      -o $out/${name}.so
   '';
   executable = runCommand executableName { buildInputs = [ stdenv.cc ]; } ''
     mkdir -p $out/bin
-    ${leanc}/bin/leanc -x none ${staticLib}/* -o $out/bin/${executableName}
+    ${leanc}/bin/leanc -x none ${staticLib}/* ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)} -o $out/bin/${executableName}
   '';
 
   lean-package = writeShellScriptBin "lean" ''

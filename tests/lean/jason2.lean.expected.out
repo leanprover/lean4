@@ -1,0 +1,8 @@
+jason2.lean:4:30-4:37: error: don't know how to synthesize implicit argument
+  @Foo.foo ?m
+context:
+⊢ Nat
+jason2.lean:4:20-4:23: error: don't know how to synthesize implicit argument
+  @Foo ?m
+context:
+⊢ Nat

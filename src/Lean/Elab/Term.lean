@@ -114,6 +114,13 @@ inductive SyntheticMVarKind where
   -- `elabTerm` call that threw `Exception.postpone` (input is stored at `SyntheticMVarDecl.ref`)
   | postponed (macroStack : MacroStack) (declName? : Option Name)
 
+instance : ToString SyntheticMVarKind where
+  toString
+    | SyntheticMVarKind.typeClass    => "typeclass"
+    | SyntheticMVarKind.coe ..       => "coe"
+    | SyntheticMVarKind.tactic ..    => "tactic"
+    | SyntheticMVarKind.postponed .. => "postponed"
+
 structure SyntheticMVarDecl where
   mvarId : MVarId
   stx : Syntax
@@ -123,6 +130,12 @@ inductive MVarErrorKind where
   | implicitArg (ctx : Expr)
   | hole
   | custom (msgData : MessageData)
+
+instance : ToString MVarErrorKind where
+  toString
+    | MVarErrorKind.implicitArg ctx => "implicitArg"
+    | MVarErrorKind.hole            => "hole"
+    | MVarErrorKind.custom msg      => "custom"
 
 structure MVarErrorInfo where
   mvarId    : MVarId

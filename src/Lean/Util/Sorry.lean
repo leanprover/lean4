@@ -45,15 +45,19 @@ partial def MessageData.hasSorry : MessageData → Bool
   | MessageData.node msgs         => msgs.any hasSorry
   | _                             => false
 
-partial def MessageData.hasSyntheticSorry : MessageData → Bool
-  | MessageData.ofExpr e          => e.hasSyntheticSorry
-  | MessageData.withContext _ msg => msg.hasSyntheticSorry
-  | MessageData.nest _ msg        => msg.hasSyntheticSorry
-  | MessageData.group msg         => msg.hasSyntheticSorry
-  | MessageData.compose msg₁ msg₂ => msg₁.hasSyntheticSorry || msg₂.hasSyntheticSorry
-  | MessageData.tagged _ msg      => msg.hasSyntheticSorry
-  | MessageData.node msgs         => msgs.any hasSyntheticSorry
-  | _                             => false
+partial def MessageData.hasSyntheticSorry (msg : MessageData) : Bool :=
+  visit msg.instantiateMVars
+where
+  visit : MessageData → Bool
+  | MessageData.ofExpr e                => e.hasSyntheticSorry
+  | MessageData.withContext _ msg       => visit msg
+  | MessageData.withNamingContext _ msg => visit msg
+  | MessageData.nest _ msg              => visit msg
+  | MessageData.group msg               => visit msg
+  | MessageData.compose msg₁ msg₂       => visit msg₁ || visit msg₂
+  | MessageData.tagged _ msg            => visit msg
+  | MessageData.node msgs               => msgs.any hasSyntheticSorry
+  | _                                   => false
 
 def Exception.hasSyntheticSorry : Exception → Bool
   | Exception.error _ msg => msg.hasSyntheticSorry

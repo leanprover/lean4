@@ -1424,12 +1424,10 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   | none     => throwIllFormedSyntax
   | some msg => elabTermEnsuringType stx[2] expectedType? true msg
 
-/- Uncomment after update stage0
 @[builtinTermElab «open»] def elabOpen : TermElab := fun stx expectedType? => do
   let openDecls ← elabOpenDecl stx[1]
   withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
     elabTerm stx[3] expectedType?
--/
 
 private def mkSomeContext : Context := {
   fileName      := "<TermElabM>"

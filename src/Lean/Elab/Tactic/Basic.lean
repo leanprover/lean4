@@ -305,8 +305,10 @@ def tagUntaggedGoals (parentTag : Name) (newSuffix : Name) (newGoals : List MVar
 @[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx =>
   focus $ evalTactic stx[1]
 
--- @[builtinTactic Lean.Parser.Tactic.«open»] def evalOpen : Tactic := fun stx =>
---   focus $ evalTactic stx[1]
+@[builtinTactic Parser.Tactic.open] def evalOpen : Tactic := fun stx => do
+  let openDecls ← elabOpenDecl stx[1]
+  withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
+    evalTactic stx[3]
 
 @[builtinTactic Parser.Tactic.allGoals] def evalAllGoals : Tactic := fun stx => do
   let gs ← getUnsolvedGoals

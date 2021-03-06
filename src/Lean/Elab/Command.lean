@@ -12,6 +12,7 @@ import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.DeclModifiers
 import Lean.Elab.InfoTree
+import Lean.Elab.Open
 
 namespace Lean.Elab.Command
 
@@ -449,9 +450,6 @@ partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM Unit :=
   | Except.ok env   => setEnv env
   | Except.error ex => throwError (ex.toMessageData (← getOptions))
 
-def logUnknownDecl (declName : Name) : CommandElabM Unit :=
-  logError m!"unknown declaration '{declName}'"
-
 @[builtinCommandElab «export»] def elabExport : CommandElab := fun stx => do
   -- `stx` is of the form (Command.export "export" <namespace> "(" (null <ids>*) ")")
   let id  := stx[1].getId
@@ -470,63 +468,9 @@ def logUnknownDecl (declName : Name) : CommandElabM Unit :=
       pure aliases
   modify fun s => { s with env := aliases.foldl (init := s.env) fun env p => addAlias env p.1 p.2 }
 
-def addOpenDecl (d : OpenDecl) : CommandElabM Unit :=
-  modifyScope fun scope => { scope with openDecls := d :: scope.openDecls }
-
-def elabOpenSimple (n : Syntax) : CommandElabM Unit :=
-  -- `open` id+
-  for ns in n[0].getArgs do
-    let ns ← resolveNamespace ns.getId
-    addOpenDecl (OpenDecl.simple ns [])
-    activateScoped ns
-
--- `open` id `(` id+ `)`
-def elabOpenOnly (n : Syntax) : CommandElabM Unit := do
-  let ns ← resolveNamespace n[0].getId
-  for idStx in n[2].getArgs do
-    let id := idStx.getId
-    let declName := ns ++ id
-    if (← getEnv).contains declName then
-      addOpenDecl (OpenDecl.explicit id declName)
-    else
-      withRef idStx do logUnknownDecl declName
-
--- `open` id `hiding` id+
-def elabOpenHiding (n : Syntax) : CommandElabM Unit := do
-  let ns ← resolveNamespace n[0].getId
-  let mut ids := []
-  for idStx in n[2].getArgs do
-    let id := idStx.getId
-    let declName := ns ++ id
-    if (← getEnv).contains declName then
-      ids := id::ids
-    else
-      withRef idStx <| logUnknownDecl declName
-  addOpenDecl (OpenDecl.simple ns ids)
-
--- `open` id `renaming` sepBy (id `->` id) `,`
-def elabOpenRenaming (n : Syntax) : CommandElabM Unit := do
-  let ns ← resolveNamespace n[0].getId
-  for stx in n[2].getSepArgs do
-    let fromId   := stx[0].getId
-    let toId     := stx[2].getId
-    let declName := ns ++ fromId
-    if (← getEnv).contains declName then
-      addOpenDecl (OpenDecl.explicit toId declName)
-    else
-      withRef stx do logUnknownDecl declName
-
 @[builtinCommandElab «open»] def elabOpen : CommandElab := fun n => do
-  let body := n[1]
-  let k    := body.getKind;
-  if k == ``Parser.Command.openSimple then
-    elabOpenSimple body
-  else if k == ``Parser.Command.openOnly then
-    elabOpenOnly body
-  else if k == ``Parser.Command.openHiding then
-    elabOpenHiding body
-  else
-    elabOpenRenaming body
+  let openDecls ← elabOpenDecl n[1]
+  modifyScope fun scope => { scope with openDecls := openDecls }
 
 @[builtinCommandElab «variable»] def elabVariable : CommandElab
   | `(variable $binders*) => do

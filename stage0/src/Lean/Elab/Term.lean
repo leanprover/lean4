@@ -19,6 +19,7 @@ import Lean.Elab.Level
 import Lean.Elab.Attributes
 import Lean.Elab.AutoBound
 import Lean.Elab.InfoTree
+import Lean.Elab.Open
 
 namespace Lean.Elab.Term
 /-
@@ -114,6 +115,13 @@ inductive SyntheticMVarKind where
   -- `elabTerm` call that threw `Exception.postpone` (input is stored at `SyntheticMVarDecl.ref`)
   | postponed (macroStack : MacroStack) (declName? : Option Name)
 
+instance : ToString SyntheticMVarKind where
+  toString
+    | SyntheticMVarKind.typeClass    => "typeclass"
+    | SyntheticMVarKind.coe ..       => "coe"
+    | SyntheticMVarKind.tactic ..    => "tactic"
+    | SyntheticMVarKind.postponed .. => "postponed"
+
 structure SyntheticMVarDecl where
   mvarId : MVarId
   stx : Syntax
@@ -123,6 +131,12 @@ inductive MVarErrorKind where
   | implicitArg (ctx : Expr)
   | hole
   | custom (msgData : MessageData)
+
+instance : ToString MVarErrorKind where
+  toString
+    | MVarErrorKind.implicitArg ctx => "implicitArg"
+    | MVarErrorKind.hole            => "hole"
+    | MVarErrorKind.custom msg      => "custom"
 
 structure MVarErrorInfo where
   mvarId    : MVarId
@@ -398,20 +412,24 @@ def throwMVarError {α} (m : MessageData) : TermElabM α := do
   else
     throwError! m
 
-def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) : TermElabM Unit := do
+def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) (extraMsg? : Option MessageData) : TermElabM Unit := do
   match mvarErrorInfo.kind with
   | MVarErrorKind.implicitArg app => do
     let app ← instantiateMVars app
-    let msg : MessageData := m!"don't know how to synthesize implicit argument{indentExpr app.setAppPPExplicit}"
+    let msg : MessageData := m!"don't know how to synthesize implicit argument{indentExpr app.setAppPPExplicitForExposingMVars}"
     let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
-    logErrorAt mvarErrorInfo.ref msg
+    logErrorAt mvarErrorInfo.ref (appendExtra msg)
   | MVarErrorKind.hole => do
     let msg : MessageData := "don't know how to synthesize placeholder"
     let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
-    logErrorAt mvarErrorInfo.ref msg
-  | MVarErrorKind.custom msgData =>
-    logErrorAt mvarErrorInfo.ref msgData
-
+    logErrorAt mvarErrorInfo.ref (appendExtra msg)
+  | MVarErrorKind.custom msg =>
+    logErrorAt mvarErrorInfo.ref (appendExtra msg)
+where
+  appendExtra (msg : MessageData) : MessageData :=
+    match extraMsg? with
+    | none => msg
+    | some extraMsg => msg ++ extraMsg
 
 /--
   Try to log errors for the unassigned metavariables `pendingMVarIds`.
@@ -420,7 +438,7 @@ def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) : TermElabM Unit := d
   TODO: try to fill "all" holes using synthetic "sorry's"
 
   Remark: We only log the "unfilled holes" as new errors if no error has been logged so far. -/
-def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) : TermElabM Bool := do
+def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Option MessageData := none) : TermElabM Bool := do
   let s ← get
   let hasOtherErrors := s.messages.hasErrors
   let mut hasNewErrors := false
@@ -435,7 +453,7 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) : TermElabM Boo
         let mvarDeps ← getMVars (mkMVar mvarId)
         if mvarDeps.any pendingMVarIds.contains then do
           unless hasOtherErrors do
-            mvarErrorInfo.logError
+            mvarErrorInfo.logError extraMsg?
           pure true
         else
           pure false
@@ -520,7 +538,7 @@ def mkTypeMismatchError (header? : Option String) (e : Expr) (eType : Expr) (exp
   let header : MessageData := match header? with
     | some header => m!"{header} "
     | none        => m!"type mismatch{indentExpr e}\n"
-  m!"{header}{← mkHasTypeButIsExpectedMsg eType expectedType}"
+  return m!"{header}{← mkHasTypeButIsExpectedMsg eType expectedType}"
 
 def throwTypeMismatchError {α} (header? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr)
     (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α := do
@@ -1405,6 +1423,13 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   match stx[1].isStrLit? with
   | none     => throwIllFormedSyntax
   | some msg => elabTermEnsuringType stx[2] expectedType? true msg
+
+/- Uncomment after update stage0
+@[builtinTermElab «open»] def elabOpen : TermElab := fun stx expectedType? => do
+  let openDecls ← elabOpenDecl stx[1]
+  withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
+    elabTerm stx[3] expectedType?
+-/
 
 private def mkSomeContext : Context := {
   fileName      := "<TermElabM>"

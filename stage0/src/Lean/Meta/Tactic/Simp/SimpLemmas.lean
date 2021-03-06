@@ -63,11 +63,13 @@ where
     | none => s
     | some name => s.insert name
 
-private def eraseSimpLemma (d : SimpLemmas) (declName : Name) : SimpLemmas :=
-  { d with erased := d.erased.insert declName, lemmaNames := d.lemmaNames.erase declName }
-
-def isSimpLemma (d : SimpLemmas) (declName : Name) : Bool :=
+def SimpLemmas.isLemma (d : SimpLemmas) (declName : Name) : Bool :=
   d.lemmaNames.contains declName
+
+def SimpLemmas.erase [Monad m] [MonadError m] (d : SimpLemmas) (declName : Name) : m SimpLemmas := do
+  unless d.isLemma declName do
+    throwError! "'{declName}' does not have [simp] attribute"
+  return { d with erased := d.erased.insert declName, lemmaNames := d.lemmaNames.erase declName }
 
 builtin_initialize simpExtension : SimpleScopedEnvExtension SimpLemma SimpLemmas ←
   registerSimpleScopedEnvExtension {
@@ -127,9 +129,8 @@ builtin_initialize
       discard <| addSimpLemma declName post attrKind prio |>.run {} {}
     erase := fun declName => do
       let s ← simpExtension.getState (← getEnv)
-      unless isSimpLemma s declName do
-        throwError! "'{declName}' does not have [simp] attribute"
-      modifyEnv fun env => simpExtension.modifyState env fun s => eraseSimpLemma s declName
+      let s ← s.erase declName
+      modifyEnv fun env => simpExtension.modifyState env fun _ => s 
   }
 
 def getSimpLemmas : MetaM SimpLemmas :=

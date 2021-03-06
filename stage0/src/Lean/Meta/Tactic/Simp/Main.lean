@@ -350,7 +350,7 @@ end DefaultMethods
 
 end Simp
 
-def simp (e : Expr) (ctx : Simp.Context) : MetaM Simp.Result := do
+def simp (e : Expr) (ctx : Simp.Context) : MetaM Simp.Result := do profileitM Exception "simp" (← getOptions) do
   Simp.main e ctx (methods := Simp.DefaultMethods.methods)
 
 end Lean.Meta

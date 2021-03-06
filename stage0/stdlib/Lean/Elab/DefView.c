@@ -27,7 +27,6 @@ lean_object* l_Lean_Elab_DefKind_isExample_match__1___rarg___boxed(lean_object*,
 lean_object* l_Lean_Elab_toAttributeKind___at_Lean_Elab_Command_mkDefViewOfInstance___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_mkDefViewOfInstance___spec__4___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_DefView_0__Lean_Elab_Command_MkInstanceName_kindReplacements___closed__4;
-lean_object* l_Lean_throwError___at_Lean_Elab_Command_elabExport___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Elab_DefKind_isDefOrAbbrevOrOpaque(uint8_t);
 lean_object* l___private_Lean_Elab_DefView_0__Lean_Elab_Command_MkInstanceName_kindReplacements___closed__8;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -82,6 +81,7 @@ uint8_t l_Lean_Elab_DefKind_isExample(uint8_t);
 lean_object* l_Lean_Elab_Command_mkDefView___closed__3;
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_MkInstanceName_collect___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Elab_Command_elabExport___spec__6(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkDefViewOfAbbrev___closed__2;
 lean_object* l_Lean_Elab_Command_mkDefViewOfAbbrev_match__1(lean_object*);
@@ -4808,7 +4808,7 @@ else
 {
 lean_object* x_23; lean_object* x_24; uint8_t x_25; 
 x_23 = l_Lean_Elab_toAttributeKind___rarg___lambda__2___closed__2;
-x_24 = l_Lean_throwError___at_Lean_Elab_Command_elabExport___spec__5(x_23, x_2, x_3, x_17);
+x_24 = l_Lean_throwError___at_Lean_Elab_Command_elabExport___spec__6(x_23, x_2, x_3, x_17);
 lean_dec(x_3);
 x_25 = !lean_is_exclusive(x_24);
 if (x_25 == 0)

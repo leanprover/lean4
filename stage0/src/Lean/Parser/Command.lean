@@ -80,7 +80,7 @@ declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» 
 @[builtinCommandParser] def «resolve_name» := parser! "#resolve_name " >> ident
 @[builtinCommandParser] def «init_quot»    := parser! "init_quot"
 @[builtinCommandParser] def «set_option»   := parser! "set_option " >> ident >> ppSpace >> (nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit)
-def eraseAttr := parser! "-" >> ident 
+def eraseAttr := parser! "-" >> ident
 @[builtinCommandParser] def «attribute»    := parser! "attribute " >> "[" >> sepBy1 (eraseAttr <|> Term.attrInstance) ", " >> "] " >> many1 ident
 @[builtinCommandParser] def «export»       := parser! "export " >> ident >> "(" >> many1 ident >> ")"
 def openHiding       := parser! atomic (ident >> "hiding") >> many1 ident
@@ -88,7 +88,8 @@ def openRenamingItem := parser! ident >> unicodeSymbol "→" "->" >> ident
 def openRenaming     := parser! atomic (ident >> "renaming") >> sepBy1 openRenamingItem ", "
 def openOnly         := parser! atomic (ident >> "(") >> many1 ident >> ")"
 def openSimple       := parser! many1 ident
-@[builtinCommandParser] def «open»    := parser! "open " >> (openHiding <|> openRenaming <|> openOnly <|> openSimple)
+def openDecl         := openHiding <|> openRenaming <|> openOnly <|> openSimple
+@[builtinCommandParser] def «open»    := parser! "open " >> openDecl
 
 @[builtinCommandParser] def «mutual» := parser! "mutual " >> many1 (ppLine >> notSymbol "end" >> commandParser) >> ppDedent (ppLine >> "end")
 @[builtinCommandParser] def «initialize» := parser! "initialize " >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
@@ -105,7 +106,17 @@ builtin_initialize
   registerParserAlias! "declId"              declId
   registerParserAlias! "declSig"             declSig
   registerParserAlias! "optDeclSig"          optDeclSig
+  registerParserAlias! "openDecl"            openDecl
 
 end Command
+
+namespace Term
+@[builtinTermParser] def «open» := parser!:leadPrec "open " >> Command.openDecl >> " in " >> termParser
+end Term
+
+namespace Tactic
+@[builtinTacticParser] def «open» := parser!:leadPrec "open " >> Command.openDecl >> " in " >> tacticSeq
+end Tactic
+
 end Parser
 end Lean

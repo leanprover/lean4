@@ -82,31 +82,37 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) : TacticM Simp.Co
     syntax simpPre := "↓"
     syntax simpPost := "↑"
     syntax simpLemma := (simpPre <|> simpPost)? term
-     -/
+
+    syntax simpErase := "-" ident
+    -/
     let (g, _) ← getMainGoal
     withMVarContext g do
       let mut lemmas := ctx.simpLemmas
       let mut toUnfold : NameSet := {}
-      for (arg : Syntax) in stx[1].getSepArgs do
-        let post :=
-          if arg[0].isNone then
-            true
-          else
-            arg[0][0].getKind == ``Parser.Tactic.simpPost
-        match (← resolveSimpIdLemma? arg[1]) with
-        | some e =>
-          if e.isConst then
-            let declName := e.constName!
-            let info ← getConstInfo declName
-            if (← isProp info.type) then
-              lemmas ← lemmas.addConst declName post
+      for arg in stx[1].getSepArgs do
+        if arg.getKind == ``Lean.Parser.Tactic.simpErase then
+          let declName ← resolveGlobalConstNoOverload arg[1].getId
+          lemmas ← lemmas.erase declName
+        else
+          let post :=
+            if arg[0].isNone then
+              true
             else
-              toUnfold := toUnfold.insert declName
-          else
-            lemmas ← lemmas.add e post
-        | _ =>
-          let arg ← elabTerm arg[1] none (mayPostpone := false)
-          lemmas ← lemmas.add arg post
+              arg[0][0].getKind == ``Parser.Tactic.simpPost
+          match (← resolveSimpIdLemma? arg[1]) with
+          | some e =>
+            if e.isConst then
+              let declName := e.constName!
+              let info ← getConstInfo declName
+              if (← isProp info.type) then
+                lemmas ← lemmas.addConst declName post
+              else
+                toUnfold := toUnfold.insert declName
+            else
+              lemmas ← lemmas.add e post
+          | _ =>
+            let arg ← elabTerm arg[1] none (mayPostpone := false)
+            lemmas ← lemmas.add arg post
       return { ctx with simpLemmas := lemmas, toUnfold := toUnfold }
 where
   resolveSimpIdLemma? (simpArgTerm : Syntax) : TacticM (Option Expr) := do

@@ -47,14 +47,6 @@ private def getLevelParamsPreDecls (preDefs : Array PreDefinition) (scopeLevelNa
   | Except.error msg      => throwError msg
   | Except.ok levelParams => pure levelParams
 
--- HACK: this is a dead function, but builds break if we remove it.
--- It seems it the cyclic dependency issue again.
-private def shareCommon (preDefs : Array PreDefinition) : Array PreDefinition :=
-  let result : Std.ShareCommonM (Array PreDefinition) :=
-    preDefs.mapM fun preDef => do
-      pure { preDef with type := (← Std.withShareCommon preDef.type), value := (← Std.withShareCommon preDef.value) }
-  result.run
-
 def fixLevelParams (preDefs : Array PreDefinition) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (Array PreDefinition) := do
   -- We used to use `shareCommon` here, but is was a bottleneck
   let levelParams ← getLevelParamsPreDecls preDefs scopeLevelNames allUserLevelNames

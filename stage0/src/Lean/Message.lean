@@ -59,6 +59,24 @@ inductive MessageData where
 
 namespace MessageData
 
+/- Instantiate metavariables occurring in nexted `ofExpr` constructors.
+   It uses the surrounding `MetavarContext` at `withContext` constructors.
+-/
+partial def instantiateMVars (msg : MessageData) : MessageData :=
+  visit msg {}
+where
+  visit (msg : MessageData) (mctx : MetavarContext) : MessageData :=
+    match msg with
+    | ofExpr e                  => ofExpr <| mctx.instantiateMVars e |>.1
+    | withContext ctx msg       => withContext ctx  <| visit msg ctx.mctx
+    | withNamingContext ctx msg => withNamingContext ctx <| visit msg mctx
+    | nest n msg                => nest n <| visit msg mctx
+    | group msg                 => group <| visit msg mctx
+    | compose msg₁ msg₂         => compose (visit msg₁ mctx) <| visit msg₂ mctx
+    | tagged n msg              => tagged n <| visit msg mctx
+    | node msgs                 => node <| msgs.map (visit . mctx)
+    | _                         => msg
+
 def nil : MessageData :=
   ofFormat Format.nil
 

@@ -52,7 +52,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_Simp_rewrite_tryLemma_x3f___spec__1___at_Lean_Meta_Simp_rewrite_tryLemma_x3f___spec__2___closed__2;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_synthesizeArgs___spec__3___closed__5;
-uint8_t l_Std_PersistentHashMap_contains___at_Lean_Meta_isSimpLemma___spec__1(lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_Simp_rewrite_tryLemma_x3f___spec__1___at_Lean_Meta_Simp_rewrite_tryLemma_x3f___spec__2___closed__1;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_synthesizeArgs___spec__3___closed__6;
 lean_object* l_ReaderT_bind___at_Lean_Meta_Simp_rewrite_tryLemma_x3f___spec__1___at_Lean_Meta_Simp_rewrite_tryLemma_x3f___spec__2___closed__4;
@@ -201,6 +200,7 @@ lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_indentExpr(lean_object*);
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_synthesizeArgs___spec__3___closed__4;
+uint8_t l_Std_PersistentHashMap_contains___at_Lean_Meta_SimpLemmas_isLemma___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_synthesizeArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_Simp_rewrite_tryLemma_x3f___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3598,7 +3598,7 @@ else
 {
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_ctor_get(x_3, 0);
-x_6 = l_Std_PersistentHashMap_contains___at_Lean_Meta_isSimpLemma___spec__1(x_1, x_5);
+x_6 = l_Std_PersistentHashMap_contains___at_Lean_Meta_SimpLemmas_isLemma___spec__1(x_1, x_5);
 return x_6;
 }
 }

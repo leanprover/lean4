@@ -317,7 +317,7 @@ private def addEtaArg (k : M Expr) : M Expr := do
 /- This method execute after all application arguments have been processed. -/
 private def finalize : M Expr := do
   let s ← get
-  let mut e     := s.f
+  let mut e := s.f
   -- all user explicit arguments have been consumed
   trace[Elab.app.finalize]! e
   let ref ← getRef
@@ -344,8 +344,7 @@ private def finalize : M Expr := do
 private def addImplicitArg (k : M Expr) : M Expr := do
   let argType ← getArgExpectedType
   let arg ← mkFreshExprMVar argType
-  if (← isTypeFormer arg) then
-    modify fun s => { s with toSetErrorCtx := s.toSetErrorCtx.push arg.mvarId! }
+  modify fun s => { s with toSetErrorCtx := s.toSetErrorCtx.push arg.mvarId! }
   addNewArg arg
   k
 

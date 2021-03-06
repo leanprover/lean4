@@ -986,6 +986,16 @@ def setAppPPExplicit (e : Expr) : Expr :=
     mkAppN f args |>.setPPExplicit true
   | _      => e
 
+/- Similar for `setAppPPExplicit`, but only annotate children with `pp.explicit := false` if
+   `e` does not contain metavariables. -/
+def setAppPPExplicitForExposingMVars (e : Expr) : Expr :=
+  match e with
+  | app .. =>
+    let f    := e.getAppFn.setPPExplicit false
+    let args := e.getAppArgs.map fun arg => if arg.hasMVar then arg else arg.setPPExplicit false
+    mkAppN f args |>.setPPExplicit true
+  | _      => e
+
 end Expr
 
 def mkAnnotation (kind : Name) (e : Expr) : Expr :=

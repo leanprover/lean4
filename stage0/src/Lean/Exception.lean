@@ -47,7 +47,7 @@ section Methods
 def throwError [Monad m] [MonadError m] (msg : MessageData) : m α := do
   let ref ← getRef
   let (ref, msg) ← AddErrorMessageContext.add ref msg
-  throw $ Exception.error ref msg
+  throw <| Exception.error ref msg
 
 def throwUnknownConstant [Monad m] [MonadError m] (constName : Name) : m α :=
   throwError m!"unknown constant '{mkConst constName}'"

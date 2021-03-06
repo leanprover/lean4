@@ -411,7 +411,6 @@ else()
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:initialize>)
   if(${STAGE} EQUAL 0)
     add_subdirectory(../stdlib stdlib)
-    set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:stage0>)
   endif()
 
   add_library(leancpp ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
@@ -456,14 +455,8 @@ if(PREV_STAGE)
     IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libLean.a)
   add_dependencies(Lean make_stdlib)
 
-  # leancpp and the Lean libs are cyclically dependent
-  target_link_libraries(Init INTERFACE leancpp)
-  target_link_libraries(Std INTERFACE leancpp Init)
-  target_link_libraries(Lean INTERFACE leancpp Std Init)
-  target_link_libraries(leancpp INTERFACE Init Std Lean)
-
   add_custom_target(update-stage0
-    COMMAND cmake -E env LIB=${CMAKE_BINARY_DIR}/lib bash script/update-stage0
+    COMMAND cmake -E env CSRCS=${CMAKE_BINARY_DIR}/lib/temp bash script/update-stage0
     DEPENDS make_stdlib
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/..")
 endif()

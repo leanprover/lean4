@@ -1,14 +1,23 @@
-add_executable(lean lean.cpp)
-set_target_properties(lean PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-target_link_libraries(lean leancpp)
+add_library(shell OBJECT lean.cpp)
 
-# create import library on Windows to link plugins against
-set_target_properties(lean PROPERTIES ENABLE_EXPORTS ON)
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  # https://github.com/msys2/MINGW-packages/issues/5952
-  target_link_options(lean PRIVATE "-Wl,--out-implib,${CMAKE_BINARY_DIR}/bin/lean.exe.a")
-endif()
-install(TARGETS lean DESTINATION bin)
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}
+  COMMAND sh -c "${CMAKE_BINARY_DIR}/bin/leanc -x none ${CMAKE_EXE_LINKER_FLAGS} $<TARGET_OBJECTS:shell> -o ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"
+  DEPENDS Init Std Lean leancpp shell)
+
+add_custom_target(lean ALL
+  DEPENDS ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX})
+
+install(FILES ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}
+  DESTINATION bin
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+
+# broken, will likely fix in the future by linking against shared libraries instead
+## create import library on Windows to link plugins against
+#set_target_properties(lean PROPERTIES ENABLE_EXPORTS ON)
+#if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+#  # https://github.com/msys2/MINGW-packages/issues/5952
+#  target_link_options(lean PRIVATE "-Wl,--out-implib,${CMAKE_BINARY_DIR}/bin/lean.exe.a")
+#endif()
 
 # use executable of current stage for tests
 string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")

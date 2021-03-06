@@ -86,4 +86,7 @@ def logTrace (cls : Name) (msgData : MessageData) : m Unit := do
 def logDbgTrace [MonadOptions m] (msg : MessageData) : m Unit := do
   trace `Elab.debug fun _ => msg
 
+def logUnknownDecl (declName : Name) : m Unit :=
+  logError m!"unknown declaration '{declName}'"
+
 end Lean.Elab

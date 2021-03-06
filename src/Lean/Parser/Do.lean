@@ -32,9 +32,9 @@ builtin_initialize
   registerParserAlias! "termBeforeDo" termBeforeDo
 
 def notFollowedByRedefinedTermToken :=
-  -- Remark: we don't currently support `open` in `do`-blocks, but we include it in the following list to fix the ambiguity
+  -- Remark: we don't currently support `open` and `set_option` in `do`-blocks, but we include them in the following list to fix the ambiguity
   -- "open" command following `do`-block. If we don't add `do`, then users would have to indent `do` blocks or use `{ ... }`.
-  notFollowedBy ("open" <|> "if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbgTrace!" <|> "assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try") "token at 'do' element"
+  notFollowedBy ("set_option" <|> "open" <|> "if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbgTrace!" <|> "assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try") "token at 'do' element"
 
 @[builtinDoElemParser] def doLet      := parser! "let " >> optional "mut " >> letDecl
 

@@ -79,7 +79,8 @@ declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» 
 @[builtinCommandParser] def printAxioms    := parser! "#print " >> nonReservedSymbol "axioms " >> ident
 @[builtinCommandParser] def «resolve_name» := parser! "#resolve_name " >> ident
 @[builtinCommandParser] def «init_quot»    := parser! "init_quot"
-@[builtinCommandParser] def «set_option»   := parser! "set_option " >> ident >> ppSpace >> (nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit)
+def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit
+@[builtinCommandParser] def «set_option»   := parser! "set_option " >> ident >> ppSpace >> optionValue
 def eraseAttr := parser! "-" >> ident
 @[builtinCommandParser] def «attribute»    := parser! "attribute " >> "[" >> sepBy1 (eraseAttr <|> Term.attrInstance) ", " >> "] " >> many1 ident
 @[builtinCommandParser] def «export»       := parser! "export " >> ident >> "(" >> many1 ident >> ")"
@@ -112,10 +113,12 @@ end Command
 
 namespace Term
 @[builtinTermParser] def «open» := parser!:leadPrec "open " >> Command.openDecl >> " in " >> termParser
+@[builtinTermParser] def «set_option» := parser!:leadPrec "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> termParser
 end Term
 
 namespace Tactic
 @[builtinTacticParser] def «open» := parser!:leadPrec "open " >> Command.openDecl >> " in " >> tacticSeq
+@[builtinTacticParser] def «set_option» := parser!:leadPrec "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> tacticSeq
 end Tactic
 
 end Parser

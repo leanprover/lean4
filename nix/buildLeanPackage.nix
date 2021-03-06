@@ -5,9 +5,9 @@ let lean-final' = lean-final; in
 { name, src,  fullSrc ? src, 
   # Lean dependencies. Each entry should be an output of buildLeanPackage.
   deps ? [ lean.Lean ], 
-  # Static library dependencies. Each derivation `static` should contain a static library in `${static}/lib${static.name}.a`.
+  # Static library dependencies. Each derivation `static` should contain a static library in the directory `${static}`.
   staticLibDeps ? [],
-  # Lean plugin dependencies. Each derivation `plugin` should contain a plugin in `${plugin}/lib/lib${plugin.name}.so`.
+  # Lean plugin dependencies. Each derivation `plugin` should contain a plugin library at path `${plugin}/${plugin.name}`.
   pluginDeps ? [],
   debug ? false, leanFlags ? [], leancFlags ? [], executableName ? lib.toLower name,
   srcTarget ? "..#stage0", srcArgs ? "(\${args[*]})", lean-final ? lean-final' }:
@@ -57,7 +57,7 @@ with builtins; let
   # plus every dep module itself: `dep.staticLib`
   allStaticLibDeps = 
     lib.unique (lib.flatten (staticLibDeps ++ (map (dep: [dep.staticLib] ++ dep.staticLibDeps or []) (attrValues allExternalDeps))));
-  leanPluginFlags = lib.concatStringsSep " " (map (dep: "--plugin=${dep}/lib/${dep.name}") pluginDeps);
+  leanPluginFlags = lib.concatStringsSep " " (map (dep: "--plugin=${dep}/${dep.name}") pluginDeps);
 
   fakeDepRoot = runCommandLocal "${name}-dep-root" {} ''
     mkdir $out
@@ -147,12 +147,12 @@ in rec {
     mkdir -p $out
     ar Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))};
   '';
-  plugin = runCommand "${name}.so" { buildInputs = [ stdenv.cc ]; } ''
+  sharedLib = runCommand "${name}.so" { buildInputs = [ stdenv.cc ]; } ''
     mkdir -p $out/lib
-    ${leanc}/bin/leanc -fPIC -rdynamic -shared -x none \
+    ${leanc}/bin/leanc -fPIC -shared -x none \
       -Wl,--whole-archive ${staticLib}/* -Wl,--no-whole-archive\
       ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)} \
-      -o $out/lib/${name}.so
+      -o $out/${name}.so
   '';
   executable = runCommand executableName { buildInputs = [ stdenv.cc ]; } ''
     mkdir -p $out/bin

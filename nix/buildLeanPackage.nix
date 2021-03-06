@@ -12,15 +12,6 @@ let lean-final' = lean-final; in
   debug ? false, leanFlags ? [], leancFlags ? [], executableName ? lib.toLower name,
   srcTarget ? "..#stage0", srcArgs ? "(\${args[*]})", lean-final ? lean-final' }:
 with builtins; let
-  # Names of the built-in Lean static libraries that leanc already links to by
-  # default.
-  builtInDepNames = 
-    let builtInDepPkgs =
-      (if lean ? Lean then [lean.Lean] else [])
-      ++ (if lean ? Std then [lean.Std] else [])
-      ++ (if lean ? Init then [lean.Init] else []); in
-    lib.foldr (dep: acc: acc // {${dep.name} = true;} ) {} builtInDepPkgs;
-
   # "Init.Core" ~> "Init/Core"
   modToPath = mod: replaceStrings ["."] ["/"] mod;
   modToLean = mod: modToPath mod + ".lean";
@@ -62,19 +53,11 @@ with builtins; let
 
   # A flattened list of Lean-module dependencies (`deps`)
   allExternalDeps = lib.foldr (dep: allExternalDeps: allExternalDeps // { ${dep.name} = dep; } // dep.allExternalDeps) {} deps;
-  allNonBuiltInDeps = lib.filter (dep: !(builtInDepNames ? ${dep.name})) (attrValues allExternalDeps);
   # A flattened list of all static library dependencies: this and every dep module's explicitly provided `staticLibDeps`, 
   # plus every dep module itself: `dep.staticLib`
   allStaticLibDeps = 
-    lib.unique (lib.flatten (staticLibDeps ++ (map (dep: [dep.staticLib] ++ dep.staticLibDeps or []) allNonBuiltInDeps)));
-  # To build plugins, we also need to collect all static libs generated with -fPIC. Since -fPIC prevents some optimizations,
-  # we only use it for building plugins.
-  allPICStaticLibDeps = 
-    lib.unique (lib.flatten (staticLibDeps ++ (map (dep: [dep.PICstaticLib] ++ dep.PICstaticLibDeps or []) allNonBuiltInDeps)));
-  # A flattened list of all plugin dependencies
-  allPluginDeps = 
-    lib.unique (lib.flatten (pluginDeps ++ (map (dep: dep.pluginDeps or []) allNonBuiltInDeps)));
-  leanPluginFlags = lib.concatStringsSep " " (map (dep: "--plugin=${dep}/lib/${dep.name}") allPluginDeps);
+    lib.unique (lib.flatten (staticLibDeps ++ (map (dep: [dep.staticLib] ++ dep.staticLibDeps or []) (attrValues allExternalDeps))));
+  leanPluginFlags = lib.concatStringsSep " " (map (dep: "--plugin=${dep}/lib/${dep.name}") pluginDeps);
 
   fakeDepRoot = runCommandLocal "${name}-dep-root" {} ''
     mkdir $out
@@ -146,7 +129,7 @@ with builtins; let
     ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\"))" "$@"
   '';
   makeVSCodeWrapper = name: lean: writeShellScriptBin name ''
-    PATH=${lean}/bin:$PATH LEAN_WORKER_PATH=${leanArg}/bin/lean ${lean-vscode}/bin/code "$@"
+    PATH=${lean}/bin:$PATH ${lean-vscode}/bin/code "$@"
   '';
   printPaths = deps: writeShellScriptBin "print-paths" ''
     echo "${depRoot "print-paths" deps}"
@@ -154,22 +137,21 @@ with builtins; let
   '';
   makePrintPathsFor = deps: mods: printPaths deps // mapAttrs (_: mod: makePrintPathsFor (deps ++ [mod]) mods) mods;
   mods      = buildModAndDeps name {};
-  makeStaticLibDeriv = objects: runCommand "${name}-lib" { buildInputs = [ stdenv.cc.bintools.bintools ]; } ''
-    mkdir -p $out
-    ar Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))}
-  '';
 in rec {
   inherit name lean deps staticLibDeps allExternalDeps print-lean-deps src mods;
   modRoot   = depRoot name [ mods.${name} ];
   cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (attrValues mods); };
   objects   = mapAttrs compileMod mods;
   oTree     = symlinkJoin { name = "${name}-oTree"; paths = (attrValues objects); };
-  staticLib = makeStaticLibDeriv objects;
+  staticLib = runCommand "${name}-lib" { buildInputs = [ stdenv.cc.bintools.bintools ]; } ''
+    mkdir -p $out
+    ar Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))};
+  '';
   plugin = runCommand "${name}.so" { buildInputs = [ stdenv.cc ]; } ''
     mkdir -p $out/lib
     ${leanc}/bin/leanc -fPIC -rdynamic -shared -x none \
       -Wl,--whole-archive ${staticLib}/* -Wl,--no-whole-archive\
-      ${lib.concatStringsSep " " (map (d: "${d}/lib${d.name}.a") allPICStaticLibDeps)} \
+      ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)} \
       -o $out/lib/${name}.so
   '';
   executable = runCommand executableName { buildInputs = [ stdenv.cc ]; } ''
@@ -178,7 +160,7 @@ in rec {
   '';
 
   lean-package = writeShellScriptBin "lean" ''
-    LEAN_PATH=${modRoot}:$LEAN_PATH LEAN_SRC_PATH=${src}:$LEAN_SRC_PATH ${lean-final}/bin/lean ${leanPluginFlags} "$@"
+    LEAN_PATH=${modRoot}:$LEAN_PATH LEAN_SRC_PATH=${src}:$LEAN_SRC_PATH ${lean-final}/bin/lean "$@"
   '';
   emacs-package = makeEmacsWrapper "emacs-package" lean-package;
   vscode-package = makeVSCodeWrapper "vscode-package" lean-package;

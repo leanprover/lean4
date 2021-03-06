@@ -90,10 +90,7 @@ private def synthesizePendingCoeInstMVar
         if (← occursCheck auxMVarId eNew) then
           assignExprMVar auxMVarId eNew
           return true
-        else
-          return false
-      else
-        return false
+      return false
     catch
       | Exception.error _ msg => throwTypeMismatchError errorMsgHeader? expectedType eType e f? msg
       | _                     => unreachable!
@@ -188,13 +185,11 @@ private def getSomeSynthethicMVarsRef : TermElabM Syntax := do
   | some mvarDecl => return mvarDecl.stx
   | none          => return Syntax.missing
 
-
 mutual
 
   partial def liftTacticElabM {α} (mvarId : MVarId) (x : TacticM α) : TermElabM α :=
     withMVarContext mvarId do
-      let s ← get
-      let savedSyntheticMVars := s.syntheticMVars
+      let savedSyntheticMVars := (← get).syntheticMVars
       modify fun s => { s with syntheticMVars := [] }
       try
         let a ← x.run' { main := mvarId } { goals := [mvarId] }
@@ -233,8 +228,7 @@ mutual
     let ctx ← read
     traceAtCmdPos `Elab.resuming fun _ =>
       m!"resuming synthetic metavariables, mayPostpone: {ctx.mayPostpone}, postponeOnError: {postponeOnError}"
-    let s ← get
-    let syntheticMVars    := s.syntheticMVars
+    let syntheticMVars    := (← get).syntheticMVars
     let numSyntheticMVars := syntheticMVars.length
     -- We reset `syntheticMVars` because new synthetic metavariables may be created by `synthesizeSyntheticMVar`.
     modify fun s => { s with syntheticMVars := [] }
@@ -262,11 +256,9 @@ mutual
     a "best option". If, after that, we still haven't made progress, we report "stuck" errors. -/
   partial def synthesizeSyntheticMVars (mayPostpone := true) : TermElabM Unit :=
     let rec loop (u : Unit) : TermElabM Unit := do
-      let ref ← getSomeSynthethicMVarsRef
-      withRef ref <| withIncRecDepth do
-        let s ← get
-        unless s.syntheticMVars.isEmpty do
-          if ← synthesizeSyntheticMVarsStep false false then
+      withRef (← getSomeSynthethicMVarsRef) <| withIncRecDepth do
+        unless (← get).syntheticMVars.isEmpty do
+          if ← synthesizeSyntheticMVarsStep (postponeOnError := false) (runTactics := false) then
             loop ()
           else if !mayPostpone then
             /- Resume pending metavariables with "elaboration postponement" disabled.
@@ -285,13 +277,13 @@ mutual
                We the type of `x` may learn later its type and it may contain implicit and/or auto arguments.
                By disabling postponement, we are essentially giving up the opportunity of learning `x`s type
                and assume it does not have implict and/or auto arguments. -/
-            if ← withoutPostponing (synthesizeSyntheticMVarsStep true  false) then
+            if ← withoutPostponing <| synthesizeSyntheticMVarsStep (postponeOnError := true) (runTactics := false) then
               loop ()
             else if ← synthesizeUsingDefault then
               loop ()
-            else if ← withoutPostponing (synthesizeSyntheticMVarsStep false false) then
+            else if ← withoutPostponing <| synthesizeSyntheticMVarsStep (postponeOnError := false) (runTactics := false) then
               loop ()
-            else if ← synthesizeSyntheticMVarsStep false true then
+            else if ← synthesizeSyntheticMVarsStep (postponeOnError := false) (runTactics := true) then
               loop ()
             else
               reportStuckSyntheticMVars
@@ -312,8 +304,7 @@ def synthesizeSyntheticMVarsUsingDefault : TermElabM Unit := do
   synthesizeUsingDefaultLoop
 
 private partial def withSynthesizeImp {α} (k : TermElabM α) (mayPostpone : Bool) : TermElabM α := do
-  let s ← get
-  let syntheticMVarsSaved := s.syntheticMVars
+  let syntheticMVarsSaved := (← get).syntheticMVars
   modify fun s => { s with syntheticMVars := [] }
   try
     let a ← k
@@ -334,7 +325,6 @@ private partial def withSynthesizeImp {α} (k : TermElabM α) (mayPostpone : Boo
 /-- Elaborate `stx`, and make sure all pending synthetic metavariables created while elaborating `stx` are solved. -/
 def elabTermAndSynthesize (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
   withRef stx do
-    let v ← withSynthesize <| elabTerm stx expectedType?
-    instantiateMVars v
+    instantiateMVars (← withSynthesize <| elabTerm stx expectedType?)
 
 end Lean.Elab.Term

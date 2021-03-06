@@ -74,8 +74,7 @@ instance : MonadResolveName CoreM where
   getOpenDecls := return (← read).openDecls
 
 @[inline] def liftIOCore (x : IO α) : CoreM α := do
-  let ref ← getRef
-  IO.toEIO (fun (err : IO.Error) => Exception.error ref (toString err)) x
+  IO.toEIO (fun (err : IO.Error) => Exception.error (← getRef) (toString err)) x
 
 instance : MonadLift IO CoreM where
   monadLift := liftIOCore
@@ -86,8 +85,7 @@ instance : MonadTrace CoreM where
 
 private def mkFreshNameImp (n : Name) : CoreM Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
-  let env ← getEnv
-  pure $ addMacroScope env.mainModule n fresh
+  return addMacroScope (← getEnv).mainModule n fresh
 
 def mkFreshUserName (n : Name) : CoreM Name :=
   mkFreshNameImp n
@@ -101,8 +99,8 @@ def mkFreshUserName (n : Name) : CoreM Name :=
 @[inline] def CoreM.toIO (x : CoreM α) (ctx : Context) (s : State) : IO (α × State) := do
   match (← (x.run { ctx with initHeartbeats := (← IO.getNumHeartbeats) } s).toIO') with
   | Except.error (Exception.error _ msg)   => do let e ← msg.toString; throw $ IO.userError e
-  | Except.error (Exception.internal id _) => throw $ IO.userError $ "internal exception #" ++ toString id.idx
-  | Except.ok a => pure a
+  | Except.error (Exception.internal id _) => throw <| IO.userError <| "internal exception #" ++ toString id.idx
+  | Except.ok a                            => return a
 
 instance [MetaEval α] : MetaEval (CoreM α) where
   eval env opts x _ := do

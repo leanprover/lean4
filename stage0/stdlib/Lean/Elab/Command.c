@@ -544,7 +544,6 @@ uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_Elab_Command_instMonadQuotationCommandElabM;
 lean_object* l_Lean_Elab_Command_elabSetOption___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_firstFrontendMacroScope;
-extern lean_object* l_Lean_Parser_Command_open___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Command_instMonadLogCommandElabM___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_WHNF___hyg_13____closed__2;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_expandDeclId___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -585,6 +584,7 @@ lean_object* l_Lean_Elab_checkNotAlreadyDeclared___at_Lean_Elab_Command_expandDe
 lean_object* l___regBuiltin_Lean_Elab_Command_elabEval___closed__1;
 extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
 size_t lean_usize_of_nat(lean_object*);
+extern lean_object* l_Lean_Parser_Command_open___elambda__1___closed__1;
 extern lean_object* l_Lean_Syntax_mkAntiquotNode___closed__9;
 lean_object* l_Lean_Elab_Command_withMacroExpansion(lean_object*);
 lean_object* l_Lean_Elab_Command_withLogging_match__1(lean_object*);
@@ -22355,7 +22355,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Elab_Command_commandElabAttribute;
-x_3 = l_Lean_Parser_Command_open___elambda__1___closed__2;
+x_3 = l_Lean_Parser_Command_open___elambda__1___closed__1;
 x_4 = l___regBuiltin_Lean_Elab_Command_elabOpen___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;

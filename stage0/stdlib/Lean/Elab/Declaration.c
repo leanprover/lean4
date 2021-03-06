@@ -160,7 +160,6 @@ extern lean_object* l_Lean_Parser_Command_initialize___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Command_elabAxiom___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabAxiom(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2554____closed__17;
-extern lean_object* l_Lean_Parser_Command_set__option___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Command_expandMutualNamespace___closed__1;
 lean_object* l_Lean_Elab_Command_elabAttr_match__1(lean_object*);
 lean_object* l_Lean_Elab_Command_expandDeclId(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -252,6 +251,7 @@ lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_expandMutualNamespa
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1136____closed__25;
 lean_object* l_Lean_Syntax_getSepArgs(lean_object*);
 uint8_t l_Lean_isAttribute(lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Command_set__option___elambda__1___closed__1;
 lean_object* l_Lean_Elab_Command_expandInitCmd___closed__4;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_2191____closed__4;
 lean_object* l_Lean_Elab_Command_expandInitCmd___closed__11;
@@ -5523,7 +5523,7 @@ x_12 = lean_name_eq(x_2, x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; uint8_t x_14; 
-x_13 = l_Lean_Parser_Command_set__option___elambda__1___closed__2;
+x_13 = l_Lean_Parser_Command_set__option___elambda__1___closed__1;
 x_14 = lean_name_eq(x_2, x_13);
 if (x_14 == 0)
 {

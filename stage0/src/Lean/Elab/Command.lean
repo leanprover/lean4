@@ -13,6 +13,7 @@ import Lean.Elab.SyntheticMVars
 import Lean.Elab.DeclModifiers
 import Lean.Elab.InfoTree
 import Lean.Elab.Open
+import Lean.Elab.SetOption
 
 namespace Lean.Elab.Command
 
@@ -597,27 +598,10 @@ constant elabEval : CommandElab
     logInfo val
     pure ()
 
-def setOption (optionName : Name) (val : DataValue) : CommandElabM Unit := do
-  let decl ← liftIO <| getOptionDecl optionName
-  unless decl.defValue.sameCtor val do throwError "type mismatch at set_option"
-  modifyScope fun scope => { scope with opts := scope.opts.insert optionName val }
-  match optionName, val with
-  | `maxRecDepth, DataValue.ofNat max => modify fun s => { s with maxRecDepth := max }
-  | _,            _                   => pure ()
-
 @[builtinCommandElab «set_option»] def elabSetOption : CommandElab := fun stx => do
-  let optionName := stx[1].getId.eraseMacroScopes
-  let val        := stx[2]
-  match val.isStrLit? with
-  | some str => setOption optionName (DataValue.ofString str)
-  | none     =>
-  match val.isNatLit? with
-  | some num => setOption optionName (DataValue.ofNat num)
-  | none     =>
-  match val with
-  | Syntax.atom _ "true"  => setOption optionName (DataValue.ofBool true)
-  | Syntax.atom _ "false" => setOption optionName (DataValue.ofBool false)
-  | _ => logErrorAt val m!"unexpected set_option value {val}"
+  let options ← Elab.elabSetOption stx[1] stx[2]
+  modify fun s => { s with maxRecDepth := maxRecDepth.get options }
+  modifyScope fun scope => { scope with opts := options }
 
 @[builtinMacro Lean.Parser.Command.«in»] def expandInCmd : Macro := fun stx => do
   let cmd₁ := stx[0]

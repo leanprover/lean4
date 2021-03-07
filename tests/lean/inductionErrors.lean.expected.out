@@ -24,7 +24,7 @@ case succ
 y : Nat
 ⊢ 0 + Nat.succ y = Nat.succ y
 inductionErrors.lean:50:2-50:16: error: alternative 'cons' is not needed
-inductionErrors.lean:53:2-55:16: error: alternative for 'Vec.cons' is not needed
+inductionErrors.lean:55:2-55:16: error: alternative 'cons' is not needed
 inductionErrors.lean:60:2-60:40: error: invalid alternative name 'upper2'
 inductionErrors.lean:66:23-66:28: warning: declaration uses 'sorry'
 inductionErrors.lean:65:29-65:34: warning: declaration uses 'sorry'

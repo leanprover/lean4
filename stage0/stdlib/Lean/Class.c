@@ -57,6 +57,7 @@ extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_Class___hyg_643____lambda__2___closed__2;
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l___private_Lean_Class_0__Lean_checkOutParam___closed__3;
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__15;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_initFn____x40_Lean_Class___hyg_47____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_getClassName_match__2(lean_object*);
@@ -206,7 +207,6 @@ lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_hasOutParams___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_addClass___closed__2;
 uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Class_0__Lean_checkOutParam___spec__2(lean_object*, lean_object*, size_t, size_t);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__21;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_initFn____x40_Lean_Class___hyg_47____spec__6(lean_object*, lean_object*, size_t, size_t);
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Array_contains___at___private_Lean_Class_0__Lean_checkOutParam___spec__1___boxed(lean_object*, lean_object*);
@@ -3809,7 +3809,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__21;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__15;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

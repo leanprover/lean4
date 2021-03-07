@@ -94,6 +94,7 @@ lean_object* l_Lean_registerTagAttribute___closed__1;
 lean_object* l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 lean_object* l_Lean_Attribute_erase(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getAttrParamOptPrio___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__15;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_instToStringAttributeKind_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
@@ -487,7 +488,6 @@ lean_object* l_Lean_Attribute_Builtin_getPrio___closed__2;
 lean_object* l_Std_HashMapImp_expand___at_Lean_registerAttributeImplBuilder___spec__3(lean_object*, lean_object*);
 lean_object* l_Array_qsort_sort___at_Lean_registerParametricAttribute___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerTagAttribute___lambda__3___closed__4;
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__21;
 lean_object* l_List_map___at_Lean_registerEnumAttributes___spec__13___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_fold___at_Lean_registerParametricAttribute___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_attributeExtension___elambda__3___boxed(lean_object*, lean_object*);
@@ -6110,7 +6110,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Attr_simp___closed__2;
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__21;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__15;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

@@ -129,7 +129,7 @@ theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
 
 macro "byCases" h:ident ":" e:term : tactic =>
   `(cases em $e:term with
-    | Or.inl $h:ident => _
-    | Or.inr $h:ident => _)
+    | inl $h:ident => _
+    | inr $h:ident => _)
 
 end Classical

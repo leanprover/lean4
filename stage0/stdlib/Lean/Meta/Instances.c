@@ -238,7 +238,6 @@ lean_object* l___private_Lean_Meta_Instances_0__Lean_Meta_mkInstanceKey_match__1
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_415____spec__6(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_addDefaultInstance___lambda__2___closed__6;
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__27;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____closed__6;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_415____closed__4;
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -269,6 +268,7 @@ lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addInstance___spec__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____closed__5;
 lean_object* l_Lean_Meta_defaultInstanceExtension___elambda__2(lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__21;
 lean_object* l_Lean_Meta_instToFormatInstanceEntry_match__1(lean_object*);
 lean_object* l_Lean_mkLevelParam(lean_object*);
 lean_object* l_Lean_Meta_addDefaultInstance___lambda__2___closed__5;
@@ -2795,7 +2795,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__27;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__21;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

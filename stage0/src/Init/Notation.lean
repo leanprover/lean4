@@ -216,6 +216,7 @@ macro:1 x:tactic " <;> " y:tactic:0 : tactic => `(tactic| focus ($x:tactic; allG
 macro "rfl" : tactic => `(exact rfl)
 macro "decide!" : tactic => `(exact decide!)
 macro "admit" : tactic => `(exact sorry)
+macro "inferInstance" : tactic => `(exact inferInstance)
 
 syntax locationWildcard := "*"
 syntax locationTarget   := "⊢" <|> "|-"

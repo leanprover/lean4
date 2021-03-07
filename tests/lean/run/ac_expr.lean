@@ -42,8 +42,8 @@ def Expr.flat : Expr → Expr
 
 theorem Expr.denote_flat (ctx : Context α) (e : Expr) : denote ctx (flat e) = denote ctx e := by
   induction e with
-  | Expr.var i => rfl
-  | Expr.op a b ih₁ ih₂ => simp [flat, denote, denote_concat, ih₁, ih₂]
+  | var i => rfl
+  | op a b ih₁ ih₂ => simp [flat, denote, denote_concat, ih₁, ih₂]
 
 theorem Expr.eq_of_flat (ctx : Context α) (a b : Expr) (h : flat a = flat b) : denote ctx a = denote ctx b := by
   have h := congrArg (denote ctx) h

@@ -37,8 +37,8 @@ theorem Expr.concat_var (i : Nat) (c : Expr) : concat (Expr.var i) c = Expr.op (
 
 theorem Expr.denote_concat (ctx : Context α) (a b : Expr) : denote ctx (concat a b) = denote ctx (Expr.op a b) := by
   induction a with
-  | Expr.var i => rfl
-  | Expr.op _ _ _ ih => rw [concat_op, denote_op, ih, denote_op, denote_op, denote_op, ctx.assoc]
+  | var i => rfl
+  | op _ _ _ ih => rw [concat_op, denote_op, ih, denote_op, denote_op, denote_op, ctx.assoc]
 
 def Expr.flat : Expr → Expr
   | Expr.op a b => concat (flat a) (flat b)
@@ -49,8 +49,8 @@ theorem Expr.flat_op (a b : Expr) : flat (Expr.op a b) = concat (flat a) (flat b
 
 theorem Expr.denote_flat (ctx : Context α) (a : Expr) : denote ctx (flat a) = denote ctx a := by
   induction a with
-  | Expr.var i => rfl
-  | Expr.op a b ih₁ ih₂ => rw [flat_op, denote_concat, denote_op, denote_op, ih₁, ih₂]
+  | var i => rfl
+  | op a b ih₁ ih₂ => rw [flat_op, denote_concat, denote_op, denote_op, ih₁, ih₂]
 
 theorem Expr.eq_of_flat (ctx : Context α) (a b : Expr) (h : flat a = flat b) : denote ctx a = denote ctx b := by
   rw [← Expr.denote_flat _ a, ← Expr.denote_flat _ b, h]

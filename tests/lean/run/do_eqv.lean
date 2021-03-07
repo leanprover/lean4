@@ -14,10 +14,9 @@ theorem eq_findM [Monad m] [LawfulMonad m] (p : α → m Bool) (xs : List α) :
         return none)
     =
     xs.findM? p := by
-  induction xs with
-  | nil => simp [List.findM?]
+  induction xs with simp [List.findM?]
   | cons x xs ih =>
-    simp [List.findM?]; rw[← ih]; simp
+    rw[← ih]; simp
     apply byCases_Bool_bind <;> simp
 
 theorem eq_findSomeM_findM [Monad m] [LawfulMonad m] (p : α → m Bool) (xss : List (List α)) :
@@ -29,14 +28,11 @@ theorem eq_findSomeM_findM [Monad m] [LawfulMonad m] (p : α → m Bool) (xss : 
         return none)
     =
     xss.findSomeM? (fun xs => xs.findM? p) := by
-  induction xss with
-  | nil => simp [List.findSomeM?]
+  induction xss with simp [List.findSomeM?]
   | cons xs xss ih =>
-    simp [List.findSomeM?]
     rw [← ih, ← eq_findM]
-    induction xs with
-    | nil => simp
-    | cons x xs ih => simp; apply byCases_Bool_bind <;> simp [ih]
+    induction xs with simp
+    | cons x xs ih => apply byCases_Bool_bind <;> simp [ih]
 
 theorem eq_findSomeM_findM' [Monad m] [LawfulMonad m] (p : α → m Bool) (xss : List (List α)) :
     (do for xs in xss do

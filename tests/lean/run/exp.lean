@@ -15,10 +15,9 @@ def Expr.times : Nat → Expr → Expr
   | k, mul e₁ e₂  => mul (times k e₁) e₂
 
 theorem eval_times (k : Nat) (e : Expr) : e.times k |>.eval = k * e.eval := by
-  induction e with
-  | const => simp [Expr.times, Expr.eval]
-  | plus e₁ e₂ ih₁ ih₂ => simp [Expr.times, Expr.eval, ih₁, ih₂, Nat.left_distrib]
-  | mul  _ _ ih₁ ih₂   => simp [Expr.times, Expr.eval, ih₁, Nat.mul_assoc]
+  induction e with simp [Expr.times, Expr.eval]
+  | plus e₁ e₂ ih₁ ih₂ => simp [ih₁, ih₂, Nat.left_distrib]
+  | mul  _ _ ih₁ ih₂   => simp [ih₁, Nat.mul_assoc]
 
 def Expr.reassoc : Expr → Expr
   | const n    => const n
@@ -36,13 +35,10 @@ def Expr.reassoc : Expr → Expr
     | _           => mul e₁' e₂'
 
 theorem eval_reassoc (e : Expr) : e.reassoc.eval = e.eval := by
-  induction e with
-  | const => rfl
+  induction e with simp [Expr.reassoc]
   | plus e₁ e₂ ih₁ ih₂ =>
-    simp [Expr.reassoc]
     generalize h : (Expr.reassoc e₂) = e₂'
     cases e₂' <;> rw [h] at ih₂ <;> simp [Expr.eval] at * <;> rw [← ih₂, ih₁]; rw [Nat.add_assoc]
   | mul e₁ e₂ ih₁ ih₂ =>
-    simp [Expr.reassoc]
     generalize h : (Expr.reassoc e₂) = e₂'
     cases e₂' <;> rw [h] at ih₂ <;> simp [Expr.eval] at * <;> rw [← ih₂, ih₁]; rw [Nat.mul_assoc]

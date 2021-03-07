@@ -168,7 +168,7 @@ private def checkAltNames (alts : Array (Name × MVarId)) (altsSyntax : Array Sy
       unless alts.any fun (n, _) => n == altName do
         throwErrorAt! altStx "invalid alternative name '{altName}'"
 
-def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (altsSyntax : Array Syntax)
+def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (optPreTac : Syntax) (altsSyntax : Array Syntax)
     (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[]) : TacticM Unit := do
   checkAltNames alts altsSyntax
   let mut usedWildcard := false
@@ -195,13 +195,16 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (altsSyntax :
       match (← Cases.unifyEqs numEqs altMVarId {}) with
       | none   => pure () -- alternative is not reachable
       | some (altMVarId, _) =>
+        let (_, altMVarId) ← introNP altMVarId numGeneralized
+        for fvarId in toClear do
+          altMVarId ← tryClear altMVarId fvarId
+        let altMVarIds ← applyPreTac altMVarId
         if !hasAlts then
           -- User did not provide alternatives using `|`
-          let (_, altMVarId) ← introNP altMVarId numGeneralized
-          for fvarId in toClear do
-            altMVarId ← tryClear altMVarId fvarId
           trace[Meta.debug]! "new subgoal {MessageData.ofGoal altMVarId}"
-          subgoals := subgoals.push altMVarId
+          subgoals := subgoals ++ altMVarIds.toArray
+        else if altMVarIds.isEmpty then
+          pure ()
         else
           throwError! "alternative '{altName}' has not been provided"
     | some altStx =>
@@ -214,12 +217,23 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (altsSyntax :
           let (_, altMVarId) ← introNP altMVarId numGeneralized
           for fvarId in toClear do
             altMVarId ← tryClear altMVarId fvarId
-          evalAlt altMVarId altStx subgoals
+          let altMVarIds ← applyPreTac altMVarId
+          if altMVarIds.isEmpty then
+            throwError! "alternative '{altName}' is not needed"
+          else
+            altMVarIds.foldlM (init := subgoals) fun subgoal altMVarId =>
+              evalAlt altMVarId altStx subgoals
   if usedWildcard then
     altsSyntax := altsSyntax.filter fun alt => getAltName alt != `_
   unless altsSyntax.isEmpty do
     throwErrorAt altsSyntax[0] "unused alternative"
   setGoals subgoals.toList
+where
+  applyPreTac (mvarId : MVarId) : TacticM (List MVarId) :=
+    if optPreTac.isNone then
+      return [mvarId]
+    else
+      evalTacticAt optPreTac[0] mvarId
 
 end ElimApp
 
@@ -255,6 +269,9 @@ private def getAltsOfInductionAlts (inductionAlts : Syntax) : Array Syntax :=
 
 private def getAltsOfOptInductionAlts (optInductionAlts : Syntax) : Array Syntax :=
   if optInductionAlts.isNone then #[] else getAltsOfInductionAlts optInductionAlts[0]
+
+private def getOptPreTacOfOptInductionAlts (optInductionAlts : Syntax) : Syntax :=
+  if optInductionAlts.isNone then mkNullNode else optInductionAlts[0][1]
 
 /-
   We may have at most one `| _ => ...` (wildcard alternative), and it must not set variable names.
@@ -318,7 +335,9 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
     let targetFVarIds := targets.map (·.fvarId!)
     ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetFVarIds
     let optInductionAlts := stx[4]
-    ElimApp.evalAlts elimInfo result.alts (getAltsOfOptInductionAlts optInductionAlts) (numGeneralized := n) (toClear := targetFVarIds)
+    let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
+    let alts := getAltsOfOptInductionAlts optInductionAlts
+    ElimApp.evalAlts elimInfo result.alts optPreTac alts (numGeneralized := n) (toClear := targetFVarIds)
     appendGoals result.others.toList
 
 -- Recall that
@@ -359,6 +378,8 @@ builtin_initialize registerTraceClass `Elab.cases
   -- parser! nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> optInductionAlts
   let targets ← elabTargets stx[1].getSepArgs
   let optInductionAlts := stx[3]
+  let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
+  let alts :=  getAltsOfOptInductionAlts optInductionAlts
   let targetRef := stx[1]
   let (elimName, elimInfo) ← getElimNameInfo stx[2] targets (induction := false)
   let (mvarId, _) ← getMainGoal
@@ -373,6 +394,6 @@ builtin_initialize registerTraceClass `Elab.cases
     withMVarContext mvarId do
       ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetsNew
       assignExprMVar mvarId result.elimApp
-      ElimApp.evalAlts elimInfo result.alts (getAltsOfOptInductionAlts optInductionAlts) (numEqs := targets.size) (toClear := targetsNew)
+      ElimApp.evalAlts elimInfo result.alts optPreTac alts (numEqs := targets.size) (toClear := targetsNew)
 
 end Lean.Elab.Tactic

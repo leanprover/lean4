@@ -1508,7 +1508,7 @@ static inline lean_obj_res lean_int_neg(b_lean_obj_arg a) {
 
 static inline lean_obj_res lean_int_neg_succ_of_nat(lean_obj_arg a) {
     lean_obj_res s  = lean_nat_succ(a);    lean_dec(a);
-    lean_obj_res i  = lean_nat_to_int(s);  lean_dec(s);
+    lean_obj_res i  = lean_nat_to_int(s);  /* Recall that `lean_nat_to_int` consumes the argument */
     lean_obj_res r  = lean_int_neg(i);     lean_dec(i);
     return r;
 }

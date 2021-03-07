@@ -310,6 +310,11 @@ def tagUntaggedGoals (parentTag : Name) (newSuffix : Name) (newGoals : List MVar
   withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
     evalTactic stx[3]
 
+@[builtinTactic Parser.Tactic.set_option] def elabSetOption : Tactic := fun stx => do
+  let options ← Elab.elabSetOption stx[1] stx[2]
+  withTheReader Core.Context (fun ctx => { ctx with maxRecDepth := maxRecDepth.get options, options := options }) do
+    evalTactic stx[4]
+
 @[builtinTactic Parser.Tactic.allGoals] def evalAllGoals : Tactic := fun stx => do
   let gs ← getUnsolvedGoals
   let mut gsNew := []

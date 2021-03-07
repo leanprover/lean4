@@ -20,6 +20,7 @@ import Lean.Elab.Attributes
 import Lean.Elab.AutoBound
 import Lean.Elab.InfoTree
 import Lean.Elab.Open
+import Lean.Elab.SetOption
 
 namespace Lean.Elab.Term
 /-
@@ -1428,6 +1429,11 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   let openDecls ← elabOpenDecl stx[1]
   withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
     elabTerm stx[3] expectedType?
+
+@[builtinTermElab «set_option»] def elabSetOption : TermElab := fun stx expectedType? => do
+  let options ← Elab.elabSetOption stx[1] stx[2]
+  withTheReader Core.Context (fun ctx => { ctx with maxRecDepth := maxRecDepth.get options, options := options }) do
+    elabTerm stx[4] expectedType?
 
 private def mkSomeContext : Context := {
   fileName      := "<TermElabM>"

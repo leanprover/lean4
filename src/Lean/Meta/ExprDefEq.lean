@@ -107,7 +107,7 @@ def isEtaUnassignedMVar (e : Expr) : MetaM Bool := do
   ```
   fun x₁ ... xₙ => ?m x₁ ... xₙ =?= t
   t =?= fun x₁ ... xₙ => ?m x₁ ... xₙ
-
+  ```
   This is important because type inference often produces
   eta-expanded terms, and without this extra case, we could
   introduce counter intuitive behavior.

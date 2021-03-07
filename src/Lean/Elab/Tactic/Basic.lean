@@ -195,6 +195,17 @@ def getMainTag : TacticM Name := do
   let (g, _) ← getMainGoal
   pure (← getMVarDecl g).userName
 
+/- Evaluate `tac` at `mvarId`, and return the list of resulting subgoals. -/
+def evalTacticAt (tac : Syntax) (mvarId : MVarId) : TacticM (List MVarId) := do
+  let gs ← getGoals
+  try
+    setGoals [mvarId]
+    evalTactic tac
+    pruneSolvedGoals
+    getGoals
+  finally
+    setGoals gs
+
 def ensureHasNoMVars (e : Expr) : TacticM Unit := do
   let e ← instantiateMVars e
   let pendingMVars ← getMVars e

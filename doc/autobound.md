@@ -1,4 +1,4 @@
-## Auto Bound Implict Arguments
+## Auto Bound Implicit Arguments
 
 In the previous section, we have shown how implicit arguments make functions more convenient to use.
 However, functions such as `compose` are still quite verbose to define. Note that the universe

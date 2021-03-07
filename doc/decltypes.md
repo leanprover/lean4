@@ -19,7 +19,7 @@ The type ``NewType`` consists of nothing more than the objects that are construc
 
 We will see below that the arguments to the constructors can include objects of type ``NewType``,
 subject to a certain "positivity" constraint, which guarantees that elements of ``NewType`` are built
-from the bottom up. Roughly speaking, each ``...`` can be any function type type constructed from ``NewType``
+from the bottom up. Roughly speaking, each ``...`` can be any function type constructed from ``NewType``
 and previously defined types, in which ``NewType`` appears, if at all, only as the "target" of the function type.
 
 We will provide a number of examples of inductive types. We will also consider slight generalizations of the scheme above,

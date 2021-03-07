@@ -393,7 +393,7 @@ mutual
 
   /--
     Auxiliary method for unfolding a class projection when transparency is set to `TransparencyMode.instances`.
-    Recall that that class instance projections are not marked with `[reducible]` because we want them to be
+    Recall that class instance projections are not marked with `[reducible]` because we want them to be
     in "reducible canonical form".
   -/
   private partial def unfoldProjInst (e : Expr) : MetaM (Option Expr) := do

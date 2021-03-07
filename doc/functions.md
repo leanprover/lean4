@@ -106,8 +106,8 @@ def times2 x := x * 2
 #eval times2 <| add1 <| 100
 ```
 The result of the previous `#eval` commands is 202.
-The forward pipeline `|>` operatior takes a function and an argument and return a value.
-In constrat, the backward pipeline `<|` operator takes an argument and a function and returns a value.
+The forward pipeline `|>` operator takes a function and an argument and return a value.
+In contrast, the backward pipeline `<|` operator takes an argument and a function and returns a value.
 These operators are useful for minimizing the number of parentheses.
 ```lean
 def add1Times3FilterEven (xs : List Nat) :=

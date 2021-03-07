@@ -20,7 +20,7 @@ all local variables in scope.
 
 In the following example, we prove the same simple theorem using different tactics.
 The keyword `by` instructs Lean to use the tactic DSL to construct a term.
-Our initial goal is a hole with type `p ∨ q → q ∨ p`. We tactic `intro h`
+Our initial goal is a hole with type `p ∨ q → q ∨ p`. The tactic `intro h`
 fills this hole using the term `fun h => ?m` where `?m` is a new hole we need to solve.
 This hole has type `q ∨ p`, and the local context contains `h : p ∨ q`.
 The tactic `cases` fills the hole using `Or.casesOn h (fun h1 => ?m1) (fun h2 => ?m2)`

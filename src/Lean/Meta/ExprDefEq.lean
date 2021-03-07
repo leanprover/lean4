@@ -355,7 +355,7 @@ where
   addLetDeps : MetaM (Array Expr) := do
     let lctx ← getLCtx
     let s ← collectLetDeps
-    /- Convert `s` into the the array `ys` -/
+    /- Convert `s` into the array `ys` -/
     let start := lctx.getFVar! xs[0] |>.index
     let stop  := lctx.getFVar! xs.back |>.index
     let mut ys := #[]

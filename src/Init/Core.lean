@@ -898,10 +898,11 @@ protected abbrev recOnSubsingleton₂
     : motive q₁ q₂ := by
   induction q₁ using Quot.recOnSubsingleton
   induction q₂ using Quot.recOnSubsingleton
+  apply g
   intro a; apply s
   induction q₂ using Quot.recOnSubsingleton
   intro a; apply s
-  apply g
+  inferInstance
 
 end
 end Quotient

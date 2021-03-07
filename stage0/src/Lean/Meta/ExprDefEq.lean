@@ -107,7 +107,7 @@ def isEtaUnassignedMVar (e : Expr) : MetaM Bool := do
   ```
   fun x₁ ... xₙ => ?m x₁ ... xₙ =?= t
   t =?= fun x₁ ... xₙ => ?m x₁ ... xₙ
-
+  ```
   This is important because type inference often produces
   eta-expanded terms, and without this extra case, we could
   introduce counter intuitive behavior.
@@ -355,7 +355,7 @@ where
   addLetDeps : MetaM (Array Expr) := do
     let lctx ← getLCtx
     let s ← collectLetDeps
-    /- Convert `s` into the the array `ys` -/
+    /- Convert `s` into the array `ys` -/
     let start := lctx.getFVar! xs[0] |>.index
     let stop  := lctx.getFVar! xs.back |>.index
     let mut ys := #[]
@@ -545,10 +545,10 @@ structure Context where
 
 abbrev CheckAssignmentM := ReaderT Context $ StateRefT State MetaM
 
-def throwCheckAssignmentFailure {α} : CheckAssignmentM α :=
+def throwCheckAssignmentFailure : CheckAssignmentM α :=
   throw <| Exception.internal checkAssignmentExceptionId
 
-def throwOutOfScopeFVar {α} : CheckAssignmentM α :=
+def throwOutOfScopeFVar : CheckAssignmentM α :=
   throw <| Exception.internal outOfScopeExceptionId
 
 private def findCached? (e : Expr) : CheckAssignmentM (Option Expr) := do
@@ -1002,7 +1002,7 @@ private def tryHeuristic (t s : Expr) : MetaM Bool :=
       pure b
 
 /-- Auxiliary method for isDefEqDelta -/
-private abbrev unfold {α} (e : Expr) (failK : MetaM α) (successK : Expr → MetaM α) : MetaM α := do
+private abbrev unfold (e : Expr) (failK : MetaM α) (successK : Expr → MetaM α) : MetaM α := do
   match (← unfoldDefinition? e) with
   | some e => successK e
   | none   => failK

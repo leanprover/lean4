@@ -276,9 +276,9 @@ lean_object* l___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCong
 lean_object* l_repr___at___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemma____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_21____spec__1(lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlM___at___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemmas____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_117____spec__12___at___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemmas____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_117____spec__17(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_mkCongrLemma___spec__7___at_Lean_Meta_mkCongrLemma___spec__8___lambda__2(lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_557____closed__4;
 lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addCongrLemma___spec__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getCongrLemmas(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_556____closed__4;
 lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addCongrLemma___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_1460____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemmas____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_117____spec__11___at___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemmas____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_117____spec__16___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6662,7 +6662,7 @@ lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean
 x_70 = lean_ctor_get(x_64, 1);
 lean_inc(x_70);
 lean_dec(x_64);
-x_71 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_557____closed__4;
+x_71 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_556____closed__4;
 x_72 = l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Meta_mkCongrLemma___spec__11(x_71, x_12, x_13, x_14, x_15, x_70);
 x_73 = lean_ctor_get(x_72, 0);
 lean_inc(x_73);
@@ -6724,7 +6724,7 @@ x_51 = l_Lean_KernelException_toMessageData___closed__15;
 x_52 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_52, 0, x_50);
 lean_ctor_set(x_52, 1, x_51);
-x_53 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_557____closed__4;
+x_53 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_556____closed__4;
 x_54 = l_Lean_addTrace___at_Lean_Meta_mkCongrLemma___spec__10(x_53, x_52, x_12, x_13, x_14, x_15, x_40);
 lean_dec(x_15);
 lean_dec(x_14);

@@ -74,7 +74,7 @@ lean_object* l_Lean_Meta_injection___boxed(lean_object*, lean_object*, lean_obje
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_557____closed__4;
+extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_556____closed__4;
 lean_object* l___private_Lean_Meta_Tactic_Injection_0__Lean_Meta_heqToEq_match__1(lean_object*);
 lean_object* l_Lean_Meta_injection_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2615,7 +2615,7 @@ lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean
 x_42 = lean_ctor_get(x_36, 1);
 lean_inc(x_42);
 lean_dec(x_36);
-x_43 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_557____closed__4;
+x_43 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_556____closed__4;
 x_44 = l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Meta_isLevelDefEqAux___spec__2(x_43, x_5, x_6, x_7, x_8, x_42);
 x_45 = lean_ctor_get(x_44, 0);
 lean_inc(x_45);
@@ -2651,7 +2651,7 @@ x_28 = l_Lean_KernelException_toMessageData___closed__15;
 x_29 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_29, 0, x_27);
 lean_ctor_set(x_29, 1, x_28);
-x_30 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_557____closed__4;
+x_30 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_556____closed__4;
 x_31 = l_Lean_addTrace___at_Lean_Meta_isLevelDefEqAux___spec__1(x_30, x_29, x_5, x_6, x_7, x_8, x_22);
 x_32 = lean_ctor_get(x_31, 1);
 lean_inc(x_32);

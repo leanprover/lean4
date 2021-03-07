@@ -24,7 +24,6 @@ def mkLetDeclEx (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) 
 def LocalDecl.binderInfoEx : LocalDecl → BinderInfo
   | LocalDecl.cdecl _ _ _ _ bi => bi
   | _                          => BinderInfo.default
-
 namespace LocalDecl
 
 def isLet : LocalDecl → Bool
@@ -366,20 +365,18 @@ end
 def sanitizeNames (lctx : LocalContext) : StateM NameSanitizerState LocalContext := do
   let st ← get
   if !getSanitizeNames st.options then pure lctx else
-    flip StateT.run' ({} : NameSet) $
-      lctx.decls.size.foldRevM
-        (fun i lctx =>
-          match lctx.decls.get! i with
-          | none      => pure lctx
-          | some decl => do
-            let usedNames ← get
-            set <| usedNames.insert decl.userName
-            if decl.userName.hasMacroScopes || usedNames.contains decl.userName then do
-              let userNameNew ← sanitizeName decl.userName
-              pure <| lctx.setUserName decl.fvarId userNameNew
-            else
-              pure lctx)
-        lctx
+    StateT.run' (s := ({} : NameSet)) <|
+      lctx.decls.size.foldRevM (init := lctx) fun i lctx => do
+        match lctx.decls[i] with
+        | none      => pure lctx
+        | some decl =>
+          if decl.userName.hasMacroScopes || (← get).contains decl.userName then do
+            modify fun s => s.insert decl.userName
+            let userNameNew ← liftM <| sanitizeName decl.userName
+            pure <| lctx.setUserName decl.fvarId userNameNew
+          else
+            modify fun s => s.insert decl.userName
+            pure lctx
 
 end LocalContext
 

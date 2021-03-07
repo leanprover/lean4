@@ -85,10 +85,6 @@ def withoutModifyingState (x : TacticM α) : TacticM α := do
   let s ← saveAllState
   try x finally s.restore
 
-@[inline] def liftTermElabM (x : TermElabM α) : TacticM α := liftM x
-
-@[inline] def liftMetaM (x : MetaM α) : TacticM α := liftTermElabM $ Term.liftMetaM x
-
 protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Term.Context).currMacroScope
 protected def getMainModule     : TacticM Name       := do pure (← getEnv).mainModule
 
@@ -309,6 +305,11 @@ def tagUntaggedGoals (parentTag : Name) (newSuffix : Name) (newGoals : List MVar
   let openDecls ← elabOpenDecl stx[1]
   withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
     evalTactic stx[3]
+
+@[builtinTactic Parser.Tactic.set_option] def elabSetOption : Tactic := fun stx => do
+  let options ← Elab.elabSetOption stx[1] stx[2]
+  withTheReader Core.Context (fun ctx => { ctx with maxRecDepth := maxRecDepth.get options, options := options }) do
+    evalTactic stx[4]
 
 @[builtinTactic Parser.Tactic.allGoals] def evalAllGoals : Tactic := fun stx => do
   let gs ← getUnsolvedGoals

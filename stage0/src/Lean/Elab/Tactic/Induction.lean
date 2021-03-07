@@ -243,8 +243,9 @@ private def generalizeVars (stx : Syntax) (targets : Array Expr) : TacticM Nat :
       Meta.throwTacticEx `induction mvarId "major premise depends on variable being generalized"
     pure (fvarIds.size, [mvarId'])
 
+-- syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
 private def getAltsOfInductionAlts (inductionAlts : Syntax) : Array Syntax :=
-  inductionAlts[1].getArgs
+  inductionAlts[2].getArgs
 
 private def getAltsOfOptInductionAlts (optInductionAlts : Syntax) : Array Syntax :=
   if optInductionAlts.isNone then #[] else getAltsOfInductionAlts optInductionAlts[0]

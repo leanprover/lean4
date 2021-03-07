@@ -87,7 +87,7 @@ private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM (Option Ex
       return none
 
 /-- Auxiliary function for reducing recursor applications. -/
-private def reduceRec {α} (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
+private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let majorIdx := recVal.getMajorIdx
   if h : majorIdx < recArgs.size then do
     let major := recArgs.get ⟨majorIdx, h⟩
@@ -121,7 +121,7 @@ private def reduceRec {α} (recVal : RecursorVal) (recLvls : List Level) (recArg
    =========================== -/
 
 /-- Auxiliary function for reducing `Quot.lift` and `Quot.ind` applications. -/
-private def reduceQuotRec {α} (recVal  : QuotVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
+private def reduceQuotRec (recVal  : QuotVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let process (majorPos argPos : Nat) : MetaM α :=
     if h : majorPos < recArgs.size then do
       let major := recArgs.get ⟨majorPos, h⟩
@@ -241,14 +241,14 @@ private def extractIdRhs (e : Expr) : Expr :=
     if args.size < 2 then e
     else mkAppRange args[1] 2 args.size args
 
-@[specialize] private def deltaDefinition {α} (c : ConstantInfo) (lvls : List Level)
+@[specialize] private def deltaDefinition (c : ConstantInfo) (lvls : List Level)
     (failK : Unit → α) (successK : Expr → α) : α :=
   if c.levelParams.length != lvls.length then failK ()
   else
     let val := c.instantiateValueLevelParams lvls
     successK (extractIdRhs val)
 
-@[specialize] private def deltaBetaDefinition {α} (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr)
+@[specialize] private def deltaBetaDefinition (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr)
     (failK : Unit → α) (successK : Expr → α) : α :=
   if c.levelParams.length != lvls.length then
     failK ()
@@ -393,7 +393,7 @@ mutual
 
   /--
     Auxiliary method for unfolding a class projection when transparency is set to `TransparencyMode.instances`.
-    Recall that that class instance projections are not marked with `[reducible]` because we want them to be
+    Recall that class instance projections are not marked with `[reducible]` because we want them to be
     in "reducible canonical form".
   -/
   private partial def unfoldProjInst (e : Expr) : MetaM (Option Expr) := do

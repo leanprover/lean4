@@ -23,7 +23,6 @@ register_builtin_option synthInstance.maxSize : Nat := {
   defValue := 128
   descr := "maximum number of instances used to construct a solution in the type class instance synthesis procedure"
 }
-
 namespace SynthInstance
 
 def getMaxHeartbeats (opts : Options) : Nat :=
@@ -180,7 +179,7 @@ def checkMaxHeartbeats : SynthM Unit := do
 @[inline] def mapMetaM (f : forall {α}, MetaM α → MetaM α) {α} : SynthM α → SynthM α :=
   monadMap @f
 
-instance {α} : Inhabited (SynthM α) where
+instance : Inhabited (SynthM α) where
   default := fun _ _ => arbitrary
 
 /-- Return globals and locals instances that may unify with `type` -/

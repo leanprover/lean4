@@ -29,7 +29,7 @@ synthesize the term `?s : Ring ?a` using TC. This can be done since we
 have assigned `?a := Int` when solving `?a =?= Int`.
 
 - TC uses `isDefEq`, and `isDefEq` may create TC problems as shown
-aaa. Thus, we may have nested TC problems.
+above. Thus, we may have nested TC problems.
 
 - `isDefEq` extends the local context when going inside binders. Thus,
 the local context for nested TC may be an extension of the local
@@ -41,7 +41,7 @@ first solution it finds. Consider the TC problem `Coe Nat ?x`,
 where `?x` is a metavariable created by the caller. There are many
 solutions to this problem (e.g., `?x := Int`, `?x := Real`, ...),
 and it doesn’t make sense to commit to the first one since TC does
-not know the the constraints the caller may impose on `?x` after the
+not know the constraints the caller may impose on `?x` after the
 TC problem is solved.
 Remark: we claim it is not feasible to make the whole system backtrackable,
 and allow the caller to backtrack back to TC and ask it for another solution
@@ -55,10 +55,10 @@ equations to terms in our goal. Thus, it may invoke TC indirectly.
 
 - In Lean3, we didn’t have to create a fresh pattern for trying to
 match the left-hand-side of equations when executing `simp`. We had a
-mechanism called tmp metavariables. It avoided this overhead, but it
+mechanism called "tmp" metavariables. It avoided this overhead, but it
 created many problems since `simp` may indirectly call TC which may
-recursively call TC. Moreover, we want to allow TC to invoke
-tactics. Thus, when `simp` invokes `isDefEq`, it may indirectly invoke
+recursively call TC. Moreover, we may want to allow TC to invoke
+tactics in the future. Thus, when `simp` invokes `isDefEq`, it may indirectly invoke
 a tactic and `simp` itself.  The Lean3 approach assumed that
 metavariables were short-lived, this is not true in Lean4, and to some
 extent was also not true in Lean3 since `simp`, in principle, could
@@ -70,7 +70,7 @@ Elaborator (-> TC -> isDefEq)+
 Elaborator -> isDefEq (-> TC -> isDefEq)*
 Elaborator -> simp -> isDefEq (-> TC -> isDefEq)*
 ```
-In Lean4, TC may also invoke tactics.
+In Lean4, TC may also invoke tactics in the future.
 
 - In Lean3 and Lean4, TC metavariables are not really short-lived. We
 solve an arbitrary number of unification problems, and we may have
@@ -503,7 +503,7 @@ To avoid this term eta-expanded term, we apply beta-reduction when instantiating
 This operation is performed at `instantiateExprMVars`, `elimMVarDeps`, and `levelMVarToParam`.
 -/
 
-partial def instantiateLevelMVars {m} [Monad m] [MonadMCtx m] : Level → m Level
+partial def instantiateLevelMVars [Monad m] [MonadMCtx m] : Level → m Level
   | lvl@(Level.succ lvl₁ _)      => return Level.updateSucc! lvl (← instantiateLevelMVars lvl₁)
   | lvl@(Level.max lvl₁ lvl₂ _)  => return Level.updateMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
   | lvl@(Level.imax lvl₁ lvl₂ _) => return Level.updateIMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
@@ -519,7 +519,7 @@ partial def instantiateLevelMVars {m} [Monad m] [MonadMCtx m] : Level → m Leve
   | lvl => pure lvl
 
 /-- instantiateExprMVars main function -/
-partial def instantiateExprMVars {m ω} [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLiftT (ST ω) m] (e : Expr) : MonadCacheT Expr Expr m Expr :=
+partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLiftT (ST ω) m] (e : Expr) : MonadCacheT Expr Expr m Expr :=
   if !e.hasMVar then
     pure e
   else checkCache e fun _ => do match e with
@@ -591,7 +591,7 @@ partial def instantiateExprMVars {m ω} [Monad m] [MonadMCtx m] [STWorld ω m] [
       | none => pure e
     | e => pure e
 
-instance {ω} : MonadMCtx (StateRefT MetavarContext (ST ω)) where
+instance : MonadMCtx (StateRefT MetavarContext (ST ω)) where
   getMCtx    := get
   modifyMCtx := modify
 
@@ -804,7 +804,7 @@ private def getInScope (lctx : LocalContext) (xs : Array Expr) : Array Expr :=
       scope
 
 /-- Execute `x` with an empty cache, and then restore the original cache. -/
-@[inline] private def withFreshCache {α} (x : M α) : M α := do
+@[inline] private def withFreshCache (x : M α) : M α := do
   let cache ← modifyGet fun s => (s.cache, { s with cache := {} })
   let a ← x
   modify fun s => { s with cache := cache }

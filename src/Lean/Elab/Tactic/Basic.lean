@@ -85,10 +85,6 @@ def withoutModifyingState (x : TacticM α) : TacticM α := do
   let s ← saveAllState
   try x finally s.restore
 
-@[inline] def liftTermElabM (x : TermElabM α) : TacticM α := liftM x
-
-@[inline] def liftMetaM (x : MetaM α) : TacticM α := liftTermElabM $ Term.liftMetaM x
-
 protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Term.Context).currMacroScope
 protected def getMainModule     : TacticM Name       := do pure (← getEnv).mainModule
 

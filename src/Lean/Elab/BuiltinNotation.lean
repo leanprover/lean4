@@ -122,7 +122,7 @@ private def elabClosedTerm (stx : Syntax) (expectedType? : Option Expr) : TermEl
   let reduceThm   := if isBool then `Lean.ofReduceBool else `Lean.ofReduceNat
   let aux         := Lean.mkConst auxDeclName
   let reduceVal   := mkApp (Lean.mkConst reduceValFn) aux
-  let val? ← liftMetaM $ Meta.reduceNative? reduceVal
+  let val? ← Meta.reduceNative? reduceVal
   match val? with
   | none     => throwError! "failed to reduce term at `nativeRefl!` macro application{e}"
   | some val =>

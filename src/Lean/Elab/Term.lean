@@ -170,7 +170,7 @@ abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
 
 open Meta
 
-instance {α} : Inhabited (TermElabM α) where
+instance : Inhabited (TermElabM α) where
   default := throw arbitrary
 
 structure SavedState where
@@ -240,15 +240,6 @@ def commitIfDidNotPostpone (x : TermElabM α) : TermElabM α := do
   let r ← observing x
   applyResult r
 
-@[inline] protected def liftMetaM {α} (x : MetaM α) : TermElabM α :=
-  liftM x
-
-@[inline] def liftCoreM {α} (x : CoreM α) : TermElabM α :=
-  Term.liftMetaM $ liftM x
-
-instance : MonadLiftT MetaM TermElabM where
-  monadLift := Term.liftMetaM
-
 def getLevelNames : TermElabM (List Name) :=
   return (← get).levelNames
 
@@ -277,7 +268,7 @@ instance : MonadLog TermElabM where
 protected def getCurrMacroScope : TermElabM MacroScope := do pure (← read).currMacroScope
 protected def getMainModule     : TermElabM Name := do pure (← getEnv).mainModule
 
-@[inline] protected def withFreshMacroScope {α} (x : TermElabM α) : TermElabM α := do
+@[inline] protected def withFreshMacroScope (x : TermElabM α) : TermElabM α := do
   let fresh ← modifyGetThe Core.State (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }))
   withReader (fun ctx => { ctx with currMacroScope := fresh }) x
 
@@ -304,7 +295,7 @@ builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermEl
   Example: `a.foo[i].1` is represented as the `Syntax` `a` and the list
   `[LVal.fieldName "foo", LVal.getOp i, LVal.fieldIdx 1]`.
   Recall that the notation `a[i]` is not just for accessing arrays in Lean. -/
-inductive LVal where
+  inductive LVal where
   | fieldIdx  (ref : Syntax) (i : Nat)
   | fieldName (ref : Syntax) (name : String)
   | getOp     (ref : Syntax) (idx : Syntax)
@@ -326,22 +317,22 @@ def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := return (← getMCtx
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := return (← getMCtx).getDecl mvarId
 def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modifyThe Meta.State fun s => { s with mctx := s.mctx.assignLevel mvarId val }
 
-def withDeclName {α} (name : Name) (x : TermElabM α) : TermElabM α :=
+def withDeclName (name : Name) (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with declName? := name }) x
 
 def setLevelNames (levelNames : List Name) : TermElabM Unit :=
   modify fun s => { s with levelNames := levelNames }
 
-def withLevelNames {α} (levelNames : List Name) (x : TermElabM α) : TermElabM α := do
+def withLevelNames (levelNames : List Name) (x : TermElabM α) : TermElabM α := do
   let levelNamesSaved ← getLevelNames
   setLevelNames levelNames
   try x finally setLevelNames levelNamesSaved
 
-def withoutErrToSorry {α} (x : TermElabM α) : TermElabM α :=
+def withoutErrToSorry (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with errToSorry := false }) x
 
 /-- Execute `x` with `autoBoundImplicit := (autoBoundImplicitLocal.get options) && flag` -/
-def withAutoBoundImplicitLocal {α} (x : TermElabM α) (flag := true) : TermElabM α := do
+def withAutoBoundImplicitLocal (x : TermElabM α) (flag := true) : TermElabM α := do
   let flag := autoBoundImplicitLocal.get (← getOptions) && flag
   withReader (fun ctx => { ctx with autoBoundImplicit := flag, autoBoundImplicits := {} }) x
 
@@ -353,15 +344,16 @@ def throwErrorIfErrors : TermElabM Unit := do
 @[inline] def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=
 withRef Syntax.missing $ trace cls msg
 
-def ppGoal (mvarId : MVarId) : TermElabM Format := liftMetaM $ Meta.ppGoal mvarId
+def ppGoal (mvarId : MVarId) : TermElabM Format :=
+  Meta.ppGoal mvarId
 
-@[inline] def savingMCtx {α} (x : TermElabM α) : TermElabM α := do
+@[inline] def savingMCtx (x : TermElabM α) : TermElabM α := do
   let mctx ← getMCtx
   try x finally setMCtx mctx
 
 open Level (LevelElabM)
 
-def liftLevelM {α} (x : LevelElabM α) : TermElabM α := do
+def liftLevelM (x : LevelElabM α) : TermElabM α := do
   let ctx ← read
   let ref ← getRef
   let mctx ← getMCtx
@@ -375,7 +367,7 @@ def elabLevel (stx : Syntax) : TermElabM Level :=
   liftLevelM $ Level.elabLevel stx
 
 /- Elaborate `x` with `stx` on the macro stack -/
-@[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
+@[inline] def withMacroExpansion (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
   withMacroExpansionInfo beforeStx afterStx do
     withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
@@ -407,7 +399,7 @@ def registerCustomErrorIfMVar (e : Expr) (ref : Syntax) (msgData : MessageData) 
   This kind of error is thrown, for example, at `Match.lean` where elaboration
   cannot continue if there are metavariables in patterns.
   We only want to log it if we haven't logged any error so far. -/
-def throwMVarError {α} (m : MessageData) : TermElabM α := do
+def throwMVarError (m : MessageData) : TermElabM α := do
   if (← get).messages.hasErrors then
     throwAbortTerm
   else
@@ -471,7 +463,7 @@ def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
 /-
   Execute `x` without allowing it to postpone elaboration tasks.
   That is, `tryPostpone` is a noop. -/
-@[inline] def withoutPostponing {α} (x : TermElabM α) : TermElabM α :=
+@[inline] def withoutPostponing (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with mayPostpone := false }) x
 
 /-- Creates syntax for `(` <ident> `:` <type> `)` -/
@@ -511,9 +503,6 @@ def mkFreshBinderName : TermElabM Name :=
 def mkFreshIdent (ref : Syntax) : TermElabM Syntax :=
   return mkIdentFrom ref (← mkFreshBinderName)
 
-private def liftAttrM {α} (x : AttrM α) : TermElabM α := do
-  liftCoreM x
-
 private def applyAttributesCore
     (declName : Name) (attrs : Array Attribute)
     (applicationTime? : Option AttributeApplicationTime) : TermElabM Unit :=
@@ -523,10 +512,10 @@ private def applyAttributesCore
     | Except.error errMsg => throwError errMsg
     | Except.ok attrImpl  =>
       match applicationTime? with
-      | none => liftAttrM <| attrImpl.add declName attr.stx attr.kind
+      | none => attrImpl.add declName attr.stx attr.kind
       | some applicationTime =>
         if applicationTime == attrImpl.applicationTime then
-          liftAttrM <| attrImpl.add declName attr.stx attr.kind
+          attrImpl.add declName attr.stx attr.kind
 
 /-- Apply given attributes **at** a given application time -/
 def applyAttributesAt (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : TermElabM Unit :=
@@ -541,7 +530,7 @@ def mkTypeMismatchError (header? : Option String) (e : Expr) (eType : Expr) (exp
     | none        => m!"type mismatch{indentExpr e}\n"
   return m!"{header}{← mkHasTypeButIsExpectedMsg eType expectedType}"
 
-def throwTypeMismatchError {α} (header? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr)
+def throwTypeMismatchError (header? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr)
     (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α := do
   /-
     We ignore `extraMsg?` for now. In all our tests, it contained no useful information. It was
@@ -562,7 +551,7 @@ def throwTypeMismatchError {α} (header? : Option String) (expectedType : Expr) 
   | none   => throwError <| (← mkTypeMismatchError header? e eType expectedType) ++ extraMsg
   | some f => Meta.throwAppTypeMismatch f e extraMsg
 
-@[inline] def withoutMacroStackAtErr {α} (x : TermElabM α) : TermElabM α :=
+@[inline] def withoutMacroStackAtErr (x : TermElabM α) : TermElabM α :=
   withTheReader Core.Context (fun (ctx : Core.Context) => { ctx with options := pp.macroStack.set ctx.options false }) x
 
 /- Try to synthesize metavariable using type class resolution.
@@ -1124,7 +1113,7 @@ def elabType (stx : Syntax) : TermElabM Expr := do
   execute the continuation `k` in the potentially extended local context.
   The auto bound implicit locals are stored in the context variable `autoBoundImplicits`
  -/
-partial def elabTypeWithAutoBoundImplicit {α} (stx : Syntax) (k : Expr → TermElabM α) : TermElabM α  := do
+partial def elabTypeWithAutoBoundImplicit (stx : Syntax) (k : Expr → TermElabM α) : TermElabM α  := do
   if (← read).autoBoundImplicit then
     let rec loop : TermElabM α := do
       let s ← saveAllState
@@ -1440,20 +1429,20 @@ private def mkSomeContext : Context := {
   fileMap       := arbitrary
 }
 
-@[inline] def TermElabM.run {α} (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM (α × State) :=
+@[inline] def TermElabM.run (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM (α × State) :=
   withConfig setElabConfig (x ctx |>.run s)
 
-@[inline] def TermElabM.run' {α} (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM α :=
+@[inline] def TermElabM.run' (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM α :=
   (·.1) <$> x.run ctx s
 
-@[inline] def TermElabM.toIO {α} (x : TermElabM α)
+@[inline] def TermElabM.toIO (x : TermElabM α)
     (ctxCore : Core.Context) (sCore : Core.State)
     (ctxMeta : Meta.Context) (sMeta : Meta.State)
     (ctx : Context) (s : State) : IO (α × Core.State × Meta.State × State) := do
   let ((a, s), sCore, sMeta) ← (x.run ctx s).toIO ctxCore sCore ctxMeta sMeta
   pure (a, sCore, sMeta, s)
 
-instance {α} [MetaEval α] : MetaEval (TermElabM α) where
+instance [MetaEval α] : MetaEval (TermElabM α) where
   eval env opts x _ :=
     let x : TermElabM α := do
       try x finally

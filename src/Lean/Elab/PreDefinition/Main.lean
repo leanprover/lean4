@@ -47,7 +47,7 @@ private def getMVarsAtPreDef (preDef : PreDefinition) : MetaM (Array MVarId) := 
   pure s.result
 
 private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM Unit := do
-  let pendingMVarIds ← liftMetaM $ getMVarsAtPreDef preDef
+  let pendingMVarIds ← getMVarsAtPreDef preDef
   if (← logUnassignedUsingErrorInfos pendingMVarIds) then
     throwAbortCommand
 

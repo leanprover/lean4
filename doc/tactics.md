@@ -239,7 +239,7 @@ Here is a similar proof that uses the `induction` tactic instead of recursion.
 #  | tail (a b : α) (bs : List α) : Mem a bs → Mem a (b::bs)
 # infix:50 "∈" => Mem
 theorem mem_split {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :: t := by
-  induction as with
+  induction as generalizing h with
   | nil          => cases h
   | cons b bs ih => cases h with
     | head a bs => exact ⟨[], ⟨bs, rfl⟩⟩
@@ -263,7 +263,7 @@ macro "obtain " p:term " from " d:term : tactic =>
   `(tactic| match $d:term with | $p:term => ?_)
 
 theorem mem_split {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :: t := by
-  induction as with
+  induction as generalizing h with
   | cons b bs ih => cases h with
     | tail a b bs h =>
       obtain ⟨s, ⟨t, h⟩⟩ from ih h

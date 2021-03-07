@@ -148,7 +148,7 @@ def toString : Weekday -> String
 # end Weekday
 ```
 We can now prove the general theorem that ``next (previous d) = d`` for any weekday ``d``.
-The idea is perform a proof by cases using `match`, and rely on the fact for each constructor both
+The idea is to perform a proof by cases using `match`, and rely on the fact for each constructor both
 sides of the equality reduce to the same term.
 ```lean
 # inductive Weekday where

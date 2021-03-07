@@ -41,7 +41,7 @@ first solution it finds. Consider the TC problem `Coe Nat ?x`,
 where `?x` is a metavariable created by the caller. There are many
 solutions to this problem (e.g., `?x := Int`, `?x := Real`, ...),
 and it doesn’t make sense to commit to the first one since TC does
-not know the the constraints the caller may impose on `?x` after the
+not know the constraints the caller may impose on `?x` after the
 TC problem is solved.
 Remark: we claim it is not feasible to make the whole system backtrackable,
 and allow the caller to backtrack back to TC and ask it for another solution

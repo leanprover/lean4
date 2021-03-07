@@ -158,7 +158,7 @@ private def elabHeader (views : Array InductiveView) : TermElabM (Array ElabHead
 
 /- Create a local declaration for each inductive type in `rs`, and execute `x params indFVars`, where `params` are the inductive type parameters and
    `indFVars` are the new local declarations.
-   We use the the local context/instances and parameters of rs[0].
+   We use the local context/instances and parameters of rs[0].
    Note that this method is executed after we executed `checkHeaders` and established all
    parameters are compatible. -/
 private partial def withInductiveLocalDecls {α} (rs : Array ElabHeaderResult) (x : Array Expr → Array Expr → TermElabM α) : TermElabM α := do

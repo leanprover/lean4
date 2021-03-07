@@ -23,7 +23,7 @@ postfix:max "⁻¹" => Inv.inv
 After the initial command name describing the operator kind (its "fixity"), we give the *parsing precedence* of the operator preceded by a colon `:`, then a new or existing token surrounded by double quotes (the whitespace is used for pretty printing), then the function this operator should be translated to after the arrow `=>`.
 
 The precedence is a natural number describing how "tightly" an operator binds to its arguments, encoding the order of operations.
-We can make this more precise by looking at the commands the commands above unfold to:
+We can make this more precise by looking at the commands above unfold to:
 
 ```lean
 notation:65 lhs " + " rhs:66 => HAdd.hAdd lhs rhs

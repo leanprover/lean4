@@ -89,7 +89,7 @@ Note that `x + y` is notation for `Add.add x y` in Lean.
 The example above demonstrates how type classes are used to overload notation.
 Now, we explore another application. We often need an arbitrary element of a given type.
 Recall that types may not have any elements in Lean.
-It often happens that we would like a definition to return an arbitraryt element in a "corner case."
+It often happens that we would like a definition to return an arbitrary element in a "corner case."
 For example, we may like the expression ``head xs`` to be of type ``a`` when ``xs`` is of type ``List a``.
 Similarly, many theorems hold under the additional assumption that a type is not empty.
 For example, if ``a`` is a type, ``exists x : a, x = x`` is true only if ``a`` is not empty.

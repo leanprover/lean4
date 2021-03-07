@@ -40,7 +40,7 @@ main = do
     let vs = (depth minN maxN) `using` (parList $ evalTuple3 r0 r0 rseq)
     mapM_ (\((m,d,i)) -> io (show m ++ "\t trees") d i) vs
 
-    -- confirm the the long-lived binary tree still exists
+    -- confirm the long-lived binary tree still exists
     io "long lived tree" maxN (check long)
 
 -- generate many trees

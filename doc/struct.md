@@ -123,7 +123,7 @@ def p : Point Nat :=
 
 ##  Inheritance
 
-We can *extend* existing structures by adding new fields. This feature allow us to simulate a form of *inheritance*.
+We can *extend* existing structures by adding new fields. This feature allows us to simulate a form of *inheritance*.
 
 ```lean
 structure Point (α : Type u) where

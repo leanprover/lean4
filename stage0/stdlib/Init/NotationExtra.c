@@ -175,7 +175,6 @@ lean_object* l_Lean_expandBrackedBindersAux___boxed(lean_object*, lean_object*, 
 lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__16;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_15956____closed__4;
 lean_object* l_Lean_binderIdent;
-extern lean_object* l_Lean_Parser_Tactic_inductionAlts___closed__7;
 lean_object* l_Lean_command__Unif__hint______Where___x7c_x2d_u22a2_____closed__2;
 lean_object* l_term_u03a3___x2c_____closed__8;
 lean_object* l_Lean_Syntax_SepArray_getElems___rarg(lean_object*);
@@ -395,6 +394,7 @@ uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* l_term___xd7____1___closed__2;
 lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1136____closed__21;
 lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__17;
+extern lean_object* l_Lean_Parser_Tactic_inductionAlts___closed__9;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_1398____closed__8;
 lean_object* l_Lean_expandBrackedBindersAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_tacticSolve_x7c___x7c___closed__6;
@@ -1677,7 +1677,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Syntax_addPrec___closed__10;
-x_2 = l_Lean_Parser_Tactic_inductionAlts___closed__7;
+x_2 = l_Lean_Parser_Tactic_inductionAlts___closed__9;
 x_3 = l_Lean_unifConstraint;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
@@ -7601,7 +7601,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Syntax_addPrec___closed__10;
-x_2 = l_Lean_Parser_Tactic_inductionAlts___closed__7;
+x_2 = l_Lean_Parser_Tactic_inductionAlts___closed__9;
 x_3 = l_termDepIfThenElse___closed__14;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);

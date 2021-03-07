@@ -273,7 +273,7 @@ syntax (name := «let!») "let! " letDecl : tactic
 syntax (name := letrec) withPosition(atomic(group("let " &"rec ")) letRecDecls) : tactic
 
 syntax inductionAlt  := "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
-syntax inductionAlts := "with " withPosition( (colGe inductionAlt)+)
+syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
 syntax (name := induction) "induction " term,+ (" using " ident)?  ("generalizing " ident+)? (inductionAlts)? : tactic
 syntax casesTarget := atomic(ident " : ")? term
 syntax (name := cases) "cases " casesTarget,+ (" using " ident)? (inductionAlts)? : tactic

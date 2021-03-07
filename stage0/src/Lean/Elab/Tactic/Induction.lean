@@ -49,11 +49,11 @@ def evalAlt (mvarId : MVarId) (alt : Syntax) (remainingGoals : Array MVarId) : T
         let gs' ← getMVarsNoDelayed val
         tagUntaggedGoals mvarDecl.userName `induction gs'.toList
         pure gs'
-      pure (remainingGoals ++ gs')
+      return remainingGoals ++ gs'
     else
       setGoals [mvarId]
       closeUsingOrAdmit rhs
-      pure remainingGoals
+      return remainingGoals
 
 /-
   Helper method for creating an user-defined eliminator/recursor application.
@@ -70,12 +70,9 @@ structure State where
   f         : Expr
   fType     : Expr
   alts      : Array (Name × MVarId) := #[]
-  instMVars : Array MVarId := #[]
+  insts     : Array MVarId := #[]
 
 abbrev M := ReaderT Context $ StateRefT State TermElabM
-
-private def addInstMVar (mvarId : MVarId) : M Unit :=
-  modify fun s => { s with instMVars := s.instMVars.push mvarId }
 
 private def addNewArg (arg : Expr) : M Unit :=
   modify fun s => { s with argPos := s.argPos+1, f := mkApp s.f arg, fType := s.fType.bindingBody!.instantiate1 arg }
@@ -93,6 +90,7 @@ private def getFType : M Expr := do
 structure Result where
   elimApp : Expr
   alts    : Array (Name × MVarId) := #[]
+  others  : Array MVarId := #[]
 
 partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) : TermElabM Result := do
   let rec loop : M Unit := do
@@ -122,21 +120,29 @@ partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targets : Array E
           let arg ← mkFreshExprMVar (← getArgExpectedType)
           addNewArg arg
         | BinderInfo.instImplicit =>
-          let arg ← mkFreshExprMVar (← getArgExpectedType) MetavarKind.synthetic
-          addInstMVar arg.mvarId!
+          let arg ← mkFreshExprMVar (← getArgExpectedType) (kind := MetavarKind.synthetic) (userName := appendTag tag binderName)
+          modify fun s => { s with insts := s.insts.push arg.mvarId! }
           addNewArg arg
         | _ =>
-          let alt ← mkFreshExprSyntheticOpaqueMVar (← getArgExpectedType) (tag := appendTag tag binderName)
-          modify fun s => { s with alts := s.alts.push (← getBindingName, alt.mvarId!) }
-          addNewArg alt
+          let arg ← mkFreshExprSyntheticOpaqueMVar (← getArgExpectedType) (tag := appendTag tag binderName)
+          modify fun s => { s with alts := s.alts.push (← getBindingName, arg.mvarId!) }
+          addNewArg arg
       loop
     | _ =>
       pure ()
   let f ← Term.mkConst elimName
   let fType ← inferType f
   let (_, s) ← loop.run { elimInfo := elimInfo, targets := targets } |>.run { f := f, fType := fType }
-  Lean.Elab.Term.synthesizeAppInstMVars s.instMVars
-  pure { elimApp := (← instantiateMVars s.f), alts := s.alts }
+  let mut others := #[]
+  for mvarId in s.insts do
+    try
+      unless (← Term.synthesizeInstMVarCore mvarId) do
+        setMVarKind mvarId MetavarKind.syntheticOpaque
+        others := others.push mvarId
+    catch _ =>
+      setMVarKind mvarId MetavarKind.syntheticOpaque
+      others := others.push mvarId
+  pure { elimApp := (← instantiateMVars s.f), alts := s.alts, others := others }
 
 /- Given a goal `... targets ... |- C[targets]` associated with `mvarId`, assign
   `motiveArg := fun targets => C[targets]` -/
@@ -440,31 +446,30 @@ private def generalizeTerm (term : Expr) : TacticM Expr := do
     let target ← withMainMVarContext <| elabTerm target none
     generalizeTerm target
   let n ← generalizeVars stx targets
-  if targets.size == 1 then
-    let recInfo ← getRecInfo stx targets[0]
-    let (mvarId, _) ← getMainGoal
-    let altVars := recInfo.alts.map fun alt =>
-      { explicit := altHasExplicitModifier alt, varNames := (getAltVarNames alt).toList : AltVarNames }
-    let result ← Meta.induction mvarId targets[0].fvarId! recInfo.recName altVars
-    processResult recInfo.alts result (numToIntro := n)
-  else
+  let (elimName, elimInfo) ←
     if stx[2].isNone then
-      throwError! "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>')"
-    let elimId := stx[2][1]
-    let elimName ← withRef elimId do resolveGlobalConstNoOverload elimId.getId.eraseMacroScopes
-    let elimInfo ← withRef elimId do getElimInfo elimName
-    let (mvarId, _) ← getMainGoal
-    let tag ← getMVarTag mvarId
-    withMVarContext mvarId do
-      let result ← withRef stx[1] do -- use target position as reference
-        ElimApp.mkElimApp elimName elimInfo targets tag
-      assignExprMVar mvarId result.elimApp
-      let elimArgs := result.elimApp.getAppArgs
-      let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]
-      let targetFVarIds := targets.map (·.fvarId!)
-      ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetFVarIds
-      let optInductionAlts := stx[4]
-      ElimApp.evalAlts elimInfo result.alts (getAltsOfOptInductionAlts optInductionAlts) (numGeneralized := n) (toClear := targetFVarIds)
+      unless targets.size == 1 do
+        throwError! "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>')"
+      let indVal ← getInductiveValFromMajor targets[0]
+      let elimName := mkRecName indVal.name
+      pure (elimName, ← getElimInfo elimName)
+    else
+      let elimId := stx[2][1]
+      let elimName ← withRef elimId do resolveGlobalConstNoOverload elimId.getId.eraseMacroScopes
+      pure (elimName, ← withRef elimId do getElimInfo elimName)
+  let (mvarId, _) ← getMainGoal
+  let tag ← getMVarTag mvarId
+  withMVarContext mvarId do
+    let result ← withRef stx[1] do -- use target position as reference
+      ElimApp.mkElimApp elimName elimInfo targets tag
+    assignExprMVar mvarId result.elimApp
+    let elimArgs := result.elimApp.getAppArgs
+    let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]
+    let targetFVarIds := targets.map (·.fvarId!)
+    ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetFVarIds
+    let optInductionAlts := stx[4]
+    ElimApp.evalAlts elimInfo result.alts (getAltsOfOptInductionAlts optInductionAlts) (numGeneralized := n) (toClear := targetFVarIds)
+    appendGoals result.others.toList
 
 private partial def checkCasesResult (casesResult : Array Meta.CasesSubgoal) (ctorNames : Array Name) (alts : Array Syntax) : TacticM Unit := do
   let rec loop (i j : Nat) : TacticM Unit :=

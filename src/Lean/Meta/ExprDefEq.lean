@@ -545,10 +545,10 @@ structure Context where
 
 abbrev CheckAssignmentM := ReaderT Context $ StateRefT State MetaM
 
-def throwCheckAssignmentFailure {α} : CheckAssignmentM α :=
+def throwCheckAssignmentFailure : CheckAssignmentM α :=
   throw <| Exception.internal checkAssignmentExceptionId
 
-def throwOutOfScopeFVar {α} : CheckAssignmentM α :=
+def throwOutOfScopeFVar : CheckAssignmentM α :=
   throw <| Exception.internal outOfScopeExceptionId
 
 private def findCached? (e : Expr) : CheckAssignmentM (Option Expr) := do
@@ -1002,7 +1002,7 @@ private def tryHeuristic (t s : Expr) : MetaM Bool :=
       pure b
 
 /-- Auxiliary method for isDefEqDelta -/
-private abbrev unfold {α} (e : Expr) (failK : MetaM α) (successK : Expr → MetaM α) : MetaM α := do
+private abbrev unfold (e : Expr) (failK : MetaM α) (successK : Expr → MetaM α) : MetaM α := do
   match (← unfoldDefinition? e) with
   | some e => successK e
   | none   => failK

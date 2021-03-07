@@ -20,9 +20,9 @@ apply h1;
 assumption
 
 example {p q : Prop} (h₁ : p → q) (h₂ : p ∨ q) : q := by
-cases h₂;
-{ apply h₁; exact h }; -- error "unknown identifier"
-exact h
+  cases h₂;
+  { apply h₁; exact h }; -- error "unknown identifier"
+  exact h
 
 set_option hygienicIntro false in
 example {p q : Prop} (h₁ : p → q) (h₂ : p ∨ q) : q := by

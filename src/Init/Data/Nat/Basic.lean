@@ -185,6 +185,16 @@ theorem subLt : ∀ {n m : Nat}, 0 < n → 0 < m → n - m < n
       show n - m < succ n from
       lt_succ_of_le (subLe n m)
 
+theorem sub_succ (n m : Nat) : n - succ m = pred (n - m) :=
+  rfl
+
+theorem succ_sub_succ (n m : Nat) : succ n - succ m = n - m :=
+  succ_sub_succ_eq_sub n m
+
+protected theorem sub_self : ∀ (n : Nat), n - n = 0
+  | 0        => by rw Nat.sub_zero
+  | (succ n) => by rw [succ_sub_succ, Nat.sub_self n]
+
 protected theorem ltOfLtOfLe {n m k : Nat} : n < m → m ≤ k → n < k :=
   Nat.leTrans
 
@@ -231,7 +241,7 @@ theorem eqZeroOfLeZero {n : Nat} (h : n ≤ 0) : n = 0 :=
 theorem ltOfSuccLt {n m : Nat} : succ n < m → n < m :=
   leOfSuccLe
 
-theorem ltOfSuccLtSucc {n m : Nat} : succ n < succ m → n < m :=
+theorem lt_of_succ_lt_succ {n m : Nat} : succ n < succ m → n < m :=
   leOfSuccLeSucc
 
 theorem ltOfSuccLe {n m : Nat} (h : succ n ≤ m) : n < m :=

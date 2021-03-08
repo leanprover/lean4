@@ -6,5 +6,6 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Nat.Basic
 import Init.Data.Nat.Div
+import Init.Data.Nat.Gcd
 import Init.Data.Nat.Bitwise
 import Init.Data.Nat.Control

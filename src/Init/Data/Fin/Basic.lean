@@ -21,16 +21,16 @@ def elim0.{u} {α : Sort u} : Fin 0 → α
 variable {n : Nat}
 
 protected def ofNat {n : Nat} (a : Nat) : Fin (succ n) :=
-  ⟨a % succ n, Nat.modLt _ (Nat.zeroLtSucc _)⟩
+  ⟨a % succ n, Nat.mod_lt _ (Nat.zeroLtSucc _)⟩
 
 protected def ofNat' {n : Nat} (a : Nat) (h : n > 0) : Fin n :=
-  ⟨a % n, Nat.modLt _ h⟩
+  ⟨a % n, Nat.mod_lt _ h⟩
 
 private theorem mlt {b : Nat} : {a : Nat} → a < n → b % n < n
-  | 0,   h => Nat.modLt _ h
+  | 0,   h => Nat.mod_lt _ h
   | a+1, h =>
     have n > 0 from Nat.ltTrans (Nat.zeroLtSucc _) h;
-    Nat.modLt _ this
+    Nat.mod_lt _ this
 
 protected def add : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a + b) % n, mlt h⟩
@@ -106,8 +106,8 @@ instance : OfNat (Fin (noindex! (n+1))) i where
 theorem vneOfNe {i j : Fin n} (h : i ≠ j) : val i ≠ val j :=
   fun h' => absurd (eqOfVeq h') h
 
-theorem modnLt : ∀ {m : Nat} (i : Fin n), m > 0 → (i % m).val < m
-  | m, ⟨a, h⟩, hp =>  Nat.ltOfLeOfLt (modLe _ _) (modLt _ hp)
+theorem modn_lt : ∀ {m : Nat} (i : Fin n), m > 0 → (i % m).val < m
+  | m, ⟨a, h⟩, hp =>  Nat.ltOfLeOfLt (mod_le _ _) (mod_lt _ hp)
 
 end Fin
 

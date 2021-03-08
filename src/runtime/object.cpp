@@ -1315,6 +1315,20 @@ extern "C" lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2) {
         return mpz_to_nat(mpz_value(a1).pow(lean_unbox(a2)));
 }
 
+extern "C" lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (lean_is_scalar(a1)) {
+      if (lean_is_scalar(a2))
+        return mpz_to_nat(gcd(mpz::of_size_t(lean_unbox(a1)), mpz::of_size_t(lean_unbox(a2))));
+      else
+        return mpz_to_nat(gcd(mpz::of_size_t(lean_unbox(a1)), mpz_value(a2)));
+    } else {
+      if (lean_is_scalar(a2))
+        return mpz_to_nat(gcd(mpz_value(a1), mpz::of_size_t(lean_unbox(a2))));
+      else
+        return mpz_to_nat(gcd(mpz_value(a1), mpz_value(a2)));
+    }
+}
+
 // =======================================
 // Integers
 

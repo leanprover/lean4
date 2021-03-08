@@ -528,18 +528,19 @@ private partial def withPatternVars {α} (pVars : Array PatternVar) (k : Array P
       k decls
   loop 0 #[]
 
-private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : TermElabM (Array Expr × Expr) := do
-  let mut patterns  := #[]
-  let mut matchType := matchType
-  for patternStx in patternStxs do
-    matchType ← whnf matchType
-    match matchType with
-    | Expr.forallE _ d b _ =>
-      let pattern ← elabTermEnsuringType patternStx d
-      matchType := b.instantiate1 pattern
-      patterns  := patterns.push pattern
-    | _ => throwError "unexpected match type"
-  return (patterns, matchType)
+private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : TermElabM (Array Expr × Expr) :=
+  withReader (fun ctx => { ctx with implicitLambda := false }) do
+    let mut patterns  := #[]
+    let mut matchType := matchType
+    for patternStx in patternStxs do
+      matchType ← whnf matchType
+      match matchType with
+      | Expr.forallE _ d b _ =>
+        let pattern ← elabTermEnsuringType patternStx d
+        matchType := b.instantiate1 pattern
+        patterns  := patterns.push pattern
+      | _ => throwError "unexpected match type"
+    return (patterns, matchType)
 
 def finalizePatternDecls (patternVarDecls : Array PatternVarDecl) : TermElabM (Array LocalDecl) := do
   let mut decls := #[]

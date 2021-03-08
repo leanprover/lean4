@@ -101,6 +101,8 @@ structure Context where
   sectionVars        : NameMap Name    := {}
   /-- Map from internal name to fvar -/
   sectionFVars       : NameMap Expr    := {}
+  /-- Enable/disable implicit lambdas feature. -/
+  implicitLambda     : Bool             := true
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind where
@@ -995,7 +997,7 @@ private partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) :
 
 /- Main loop for `elabTerm` -/
 private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (implicitLambda : Bool) : Syntax → TermElabM Expr
-  | stx => withFreshMacroScope $ withIncRecDepth do
+  | stx => withFreshMacroScope <| withIncRecDepth do
     trace[Elab.step]! "expected type: {expectedType?}, term\n{stx}"
     checkMaxHeartbeats "elaborator"
     withNestedTraces do
@@ -1006,7 +1008,7 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     match stxNew? with
     | some stxNew => withMacroExpansion stx stxNew $ elabTermAux expectedType? catchExPostpone implicitLambda stxNew
     | _ =>
-      let implicit? ← if implicitLambda then useImplicitLambda? stx expectedType? else pure none
+      let implicit? ← if implicitLambda && (← read).implicitLambda then useImplicitLambda? stx expectedType? else pure none
       match implicit? with
       | some expectedType => elabImplicitLambda stx catchExPostpone expectedType #[]
       | none              => elabUsingElabFns stx expectedType? catchExPostpone
@@ -1041,7 +1043,11 @@ def mkTermInfo (stx : Syntax) (e : Expr) : TermElabM (Sum Info MVarId) := do
   a new synthetic metavariable of kind `SyntheticMVarKind.postponed` is created, registered,
   and returned.
   The option `catchExPostpone == false` is used to implement `resumeElabTerm`
-  to prevent the creation of another synthetic metavariable when resuming the elaboration. -/
+  to prevent the creation of another synthetic metavariable when resuming the elaboration.
+
+  If `implicitLambda == true`, then disable implicit lambdas feature for the given syntax, but not for its subterms.
+  We use this flag to implement, for example, the `@` modifier. If `Context.implicitLambda == false`, then this parameter has no effect.
+  -/
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) : TermElabM Expr :=
   withInfoContext' (withRef stx <| elabTermAux expectedType? catchExPostpone implicitLambda stx) (mkTermInfo stx)
 

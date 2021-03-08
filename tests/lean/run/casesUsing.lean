@@ -90,14 +90,14 @@ theorem ex9 (xs : List α) (h : xs = [] → False) : Nonempty α := by
 theorem modLt (x : Nat) {y : Nat} (h : y > 0) : x % y < y := by
   induction x, y using Nat.mod.inductionOn generalizing h with
   | ind x y h₁ ih =>
-    rw [Nat.modEqSubMod h₁.2]
+    rw [Nat.mod_eq_sub_mod h₁.2]
     exact ih h
   | base x y h₁ =>
     match Iff.mp (Decidable.notAndIffOrNot ..) h₁ with
     | Or.inl h₁ => contradiction
     | Or.inr h₁ =>
       have hgt := Nat.gtOfNotLe h₁
-      have heq := Nat.modEqOfLt hgt
+      have heq := Nat.mod_eq_of_lt hgt
       rw [← heq] at hgt
       assumption
 

@@ -173,7 +173,7 @@ theorem Nat.mod.inductionOn
 theorem ex (x : Nat) {y : Nat} (h : y > 0) : x % y < y := by
   induction x, y using Nat.mod.inductionOn generalizing h with
   | ind x y h₁ ih =>
-    rw [Nat.modEqSubMod h₁.2]
+    rw [Nat.mod_eq_sub_mod h₁.2]
     exact ih h
   | base x y h₁ =>
      have ¬ 0 < y ∨ ¬ y ≤ x from Iff.mp (Decidable.notAndIffOrNot ..) h₁
@@ -181,7 +181,7 @@ theorem ex (x : Nat) {y : Nat} (h : y > 0) : x % y < y := by
      | Or.inl h₁ => exact absurd h h₁
      | Or.inr h₁ =>
        have hgt : y > x from Nat.gtOfNotLe h₁
-       rw [← Nat.modEqOfLt hgt] at hgt
+       rw [← Nat.mod_eq_of_lt hgt] at hgt
        assumption
 ```
 

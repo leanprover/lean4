@@ -918,8 +918,8 @@ private def elabAtom : TermElab := fun stx expectedType? =>
   match stx with
   | `(@$id:ident)         => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
   | `(@$id:ident.{$us,*}) => elabAtom stx expectedType?
-  | `(@($t))              => elabTermWithoutImplicitLambdas t expectedType?    -- `@` is being used just to disable implicit lambdas
-  | `(@$t)                => elabTermWithoutImplicitLambdas t expectedType?    -- `@` is being used just to disable implicit lambdas
+  | `(@($t))              => elabTerm t expectedType? (implicitLambda := false)    -- `@` is being used just to disable implicit lambdas
+  | `(@$t)                => elabTerm t expectedType? (implicitLambda := false)   -- `@` is being used just to disable implicit lambdas
   | _                     => throwUnsupportedSyntax
 
 @[builtinTermElab choice] def elabChoice : TermElab := elabAtom

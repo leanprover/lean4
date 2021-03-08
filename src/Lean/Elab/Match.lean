@@ -238,7 +238,7 @@ structure Context where
   ctorVal?      : Option ConstructorVal -- It is `some`, if constructor application
   explicit      : Bool
   ellipsis      : Bool
-  paramDecls    : Array LocalDecl
+  paramDecls    : Array (Name × BinderInfo) -- parameters names and binder information
   paramDeclIdx  : Nat := 0
   namedArgs     : Array NamedArg
   args          : List Arg
@@ -263,11 +263,11 @@ private def isNextArgAccessible (ctx : Context) : Bool :=
     if h : i < ctx.paramDecls.size then
       -- For `[matchPattern]` applications, only explicit parameters are accessible.
       let d := ctx.paramDecls.get ⟨i, h⟩
-      d.binderInfo.isExplicit
+      d.2.isExplicit
     else
       false
 
-private def getNextParam (ctx : Context) : LocalDecl × Context :=
+private def getNextParam (ctx : Context) : (Name × BinderInfo) × Context :=
   let i := ctx.paramDeclIdx
   let d := ctx.paramDecls[i]
   (d, { ctx with paramDeclIdx := ctx.paramDeclIdx + 1 })
@@ -436,14 +436,14 @@ where
     else
       let accessible := isNextArgAccessible ctx
       let (d, ctx)   := getNextParam ctx
-      match ctx.namedArgs.findIdx? fun namedArg => namedArg.name == d.userName with
+      match ctx.namedArgs.findIdx? fun namedArg => namedArg.name == d.1 with
       | some idx =>
         let arg := ctx.namedArgs[idx]
         let ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx }
         let ctx ← pushNewArg accessible ctx arg.val
         processCtorAppContext ctx
       | none =>
-        let ctx ← match d.binderInfo with
+        let ctx ← match d.2 with
           | BinderInfo.implicit     => processImplicitArg accessible ctx
           | BinderInfo.instImplicit => processImplicitArg accessible ctx
           | _                       => processExplicitArg accessible ctx
@@ -457,18 +457,19 @@ where
       | _              => throwError "identifier expected"
     let some (Expr.const fName _ _) ← resolveId? fId "pattern" | throwCtorExpected
     let fInfo ← getConstInfo fName
-    forallTelescopeReducing fInfo.type fun xs _ => do
-      let paramDecls ← xs.mapM (getFVarLocalDecl ·)
-      match fInfo with
-      | ConstantInfo.ctorInfo val =>
+    let paramDecls ← forallTelescopeReducing fInfo.type fun xs _ => xs.mapM fun x => do
+      let d ← getFVarLocalDecl x
+      return (d.userName, d.binderInfo)
+    match fInfo with
+    | ConstantInfo.ctorInfo val =>
+      processCtorAppContext
+        { funId := fId, explicit := explicit, ctorVal? := val, paramDecls := paramDecls, namedArgs := namedArgs, args := args, ellipsis := ellipsis }
+    | _ =>
+      if hasMatchPatternAttribute (← getEnv) fName then
         processCtorAppContext
-          { funId := fId, explicit := explicit, ctorVal? := val, paramDecls := paramDecls, namedArgs := namedArgs, args := args, ellipsis := ellipsis }
-      | _ =>
-        if hasMatchPatternAttribute (← getEnv) fName then
-          processCtorAppContext
-            { funId := fId, explicit := explicit, ctorVal? := none, paramDecls := paramDecls, namedArgs := namedArgs, args := args, ellipsis := ellipsis }
-        else
-          throwCtorExpected
+          { funId := fId, explicit := explicit, ctorVal? := none, paramDecls := paramDecls, namedArgs := namedArgs, args := args, ellipsis := ellipsis }
+      else
+        throwCtorExpected
 
 def main (alt : MatchAltView) : M MatchAltView := do
   let patterns ← alt.patterns.mapM fun p => do

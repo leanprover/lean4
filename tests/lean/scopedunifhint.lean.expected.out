@@ -3,25 +3,25 @@ scopedunifhint.lean:28:7-28:14: error: application type mismatch
 argument
   x
 has type
-  Nat
+  Nat : Type
 but is expected to have type
-  ?m.α
+  ?m.α : Type ?u
 scopedunifhint.lean:29:7-29:24: error: application type mismatch
   mul ?m (x, x)
 argument
   (x, x)
 has type
-  Nat × Nat
+  Nat × Nat : Type
 but is expected to have type
-  ?m.α
+  ?m.α : Type ?u
 scopedunifhint.lean:33:7-33:10: error: application type mismatch
   ?m*x
 argument
   x
 has type
-  Nat
+  Nat : Type
 but is expected to have type
-  ?m.α
+  ?m.α : Type ?u
 x*x : Nat.Magma.α
 x*x : Nat.Magma.α
 scopedunifhint.lean:39:7-39:24: error: application type mismatch
@@ -29,15 +29,15 @@ scopedunifhint.lean:39:7-39:24: error: application type mismatch
 argument
   (x, x)
 has type
-  Nat × Nat
+  Nat × Nat : Type
 but is expected to have type
-  ?m.α
+  ?m.α : Type ?u
 (x, x)*(x, x) : (Prod.Magma Nat.Magma Nat.Magma).α
 scopedunifhint.lean:56:7-56:22: error: application type mismatch
   ?m*(x, x)
 argument
   (x, x)
 has type
-  Nat × Nat
+  Nat × Nat : Type
 but is expected to have type
-  ?m.α
+  ?m.α : Type ?u

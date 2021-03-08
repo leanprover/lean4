@@ -114,8 +114,15 @@ where
   Return error message "has type{givenType}\nbut is expected to have type{expectedType}"
 -/
 def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) : MetaM MessageData := do
-  let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
-  m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}"
+  try
+    let givenTypeType ← inferType givenType
+    let expectedTypeType ← inferType expectedType
+    let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
+    let (givenTypeType, expectedTypeType) ← addPPExplicitToExposeDiff givenTypeType expectedTypeType
+    m!"has type{indentD m!"{givenType} : {givenTypeType}"}\nbut is expected to have type{indentD m!"{expectedType} : {expectedTypeType}"}"
+  catch _ =>
+    let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
+    m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}"
 
 def throwAppTypeMismatch {α} (f a : Expr) (extraMsg : MessageData := Format.nil) : MetaM α := do
   let (expectedType, binfo) ← getFunctionDomain f

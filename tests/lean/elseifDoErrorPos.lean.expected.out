@@ -3,6 +3,6 @@ elseifDoErrorPos.lean:4:7-7:14: error: application type mismatch
 argument
   x
 has type
-  Nat
+  Nat : Type
 but is expected to have type
-  Prop
+  Prop : Type

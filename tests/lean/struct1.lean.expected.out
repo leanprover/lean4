@@ -9,16 +9,16 @@ struct1.lean:32:1-32:2: error: field 'x' has been declared in parent structure
 struct1.lean:35:6-35:10: error: type mismatch
   true
 has type
-  Bool
+  Bool : Type
 but is expected to have type
-  Nat
+  Nat : Type
 struct1.lean:38:5-38:9: error: omit field 'x' type to set default value
 struct1.lean:41:12-41:16: error: type mismatch
   true
 has type
-  Bool
+  Bool : Type
 but is expected to have type
-  Nat
+  Nat : Type
 struct1.lean:44:0-44:13: error: invalid 'private' constructor in a 'private' structure
 struct1.lean:47:0-47:15: error: invalid 'protected' constructor in a 'private' structure
 struct1.lean:50:0-50:19: error: invalid 'protected' field in a 'private' structure

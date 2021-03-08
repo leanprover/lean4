@@ -4,8 +4,8 @@ evalSorry.lean:5:31-5:34: error: application type mismatch
 argument
   x
 has type
-  String
+  String : Type
 but is expected to have type
-  Nat
+  Nat : Type
 evalSorry.lean:7:0-7:15: error: cannot evaluate code because it uses 'sorry' and/or contains errors
 evalSorry.lean:11:0-11:15: error: cannot evaluate code because it uses 'sorry' and/or contains errors

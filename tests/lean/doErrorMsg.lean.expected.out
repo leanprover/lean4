@@ -1,30 +1,30 @@
 doErrorMsg.lean:3:2-3:13: error: type mismatch
   IO.getStdin
 has type
-  EIO IO.Error IO.FS.Stream
+  EIO IO.Error IO.FS.Stream : Type
 but is expected to have type
-  EIO IO.Error PUnit
+  EIO IO.Error PUnit : Type
 doErrorMsg.lean:15:19-15:21: error: type mismatch
   f1
 has type
-  ExceptT String (StateT Nat Id) Nat
+  ExceptT String (StateT Nat Id) Nat : Type
 but is expected to have type
-  ExceptT String (StateT Nat Id) String
+  ExceptT String (StateT Nat Id) String : Type
 doErrorMsg.lean:19:19-19:24: error: type mismatch
   f2 10
 has type
-  ExceptT String (StateT Nat Id) Nat
+  ExceptT String (StateT Nat Id) Nat : Type
 but is expected to have type
-  ExceptT String (StateT Nat Id) String
+  ExceptT String (StateT Nat Id) String : Type
 doErrorMsg.lean:24:2-24:4: error: type mismatch
   f1
 has type
-  ExceptT String (StateT Nat Id) Nat
+  ExceptT String (StateT Nat Id) Nat : Type
 but is expected to have type
-  ExceptT String (StateT Nat Id) String
+  ExceptT String (StateT Nat Id) String : Type
 doErrorMsg.lean:23:10-23:12: error: type mismatch
   f2
 has type
-  Nat → ExceptT String (StateT Nat Id) Nat
+  Nat → ExceptT String (StateT Nat Id) Nat : Type
 but is expected to have type
-  ExceptT String (StateT Nat Id) ?m
+  ExceptT String (StateT Nat Id) ?m : Type

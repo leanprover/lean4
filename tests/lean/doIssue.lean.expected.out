@@ -1,20 +1,20 @@
 doIssue.lean:2:2-2:3: error: type mismatch
   x
 has type
-  Nat
+  Nat : Type
 but is expected to have type
-  EIO IO.Error PUnit
+  EIO IO.Error PUnit : Type
 doIssue.lean:10:2-10:13: error: type mismatch
   Array.set! xs 0 1
 has type
-  Array Nat
+  Array Nat : Type
 but is expected to have type
-  EIO IO.Error PUnit
+  EIO IO.Error PUnit : Type
 doIssue.lean:18:2-18:20: error: application type mismatch
   pure (Array.set! xs 0 1)
 argument
   Array.set! xs 0 1
 has type
-  Array Nat
+  Array Nat : Type
 but is expected to have type
-  PUnit
+  PUnit : Type

@@ -1,6 +1,6 @@
 matchErrorLocation.lean:5:10-5:14: error: type mismatch
   h he
 has type
-  False
+  False : Prop
 but is expected to have type
-  α
+  α : Type ?u

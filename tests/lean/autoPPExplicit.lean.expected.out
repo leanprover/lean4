@@ -3,6 +3,6 @@ autoPPExplicit.lean:2:2-2:32: error: application type mismatch
 argument
   b = c
 has type
-  Prop
+  Prop : Type
 but is expected to have type
-  α
+  α : Sort ?u

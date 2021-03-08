@@ -3,6 +3,6 @@
 301.lean:1:21-1:24: error: type mismatch
    ( fun (x : Nat) => ?m x)
 has type
-  (n : Nat) → ?m ( fun (x : Nat) => ?m x) n
+  (n : Nat) → ?m ( fun (x : Nat) => ?m x) n : Type ?u
 but is expected to have type
-  ?m x n
+  ?m x n : Type ?u

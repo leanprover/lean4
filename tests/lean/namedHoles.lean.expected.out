@@ -3,9 +3,9 @@ namedHoles.lean:9:7-9:14: error: application type mismatch
 argument
   ?m
 has type
-  Nat
+  Nat : Type
 but is expected to have type
-  Bool
+  Bool : Type
 g ?m ?m : Nat
 20
 foo (fun (x : Nat) => ?m x) ?m : Nat

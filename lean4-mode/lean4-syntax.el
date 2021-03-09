@@ -129,9 +129,9 @@
 (defconst lean4-font-lock-defaults
   `((;; attributes
      (,(rx word-start "attribute" word-end (zero-or-more whitespace) (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace))))
-      (1 'font-lock-doc-face))
+      (1 'font-lock-preprocessor-face))
      (,(rx (group "@[" (zero-or-more (not (any "]"))) "]"))
-      (1 'font-lock-doc-face))
+      (1 'font-lock-preprocessor-face))
      (,(rx (group "#" (or "eval" "print" "reduce" "help" "check" "lang" "check_failure" "synth")))
       (1 'font-lock-keyword-face))
      ;; mutual definitions "names"

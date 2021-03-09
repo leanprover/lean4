@@ -11,15 +11,23 @@ import Lean.Elab.Tactic.Location
 namespace Lean.Elab.Tactic
 open Meta
 
+private def expand (kind : SyntaxNodeKind) (token : String) (stx : Syntax) : Syntax := do
+  let rwRules := stx[1][1].getSepArgs
+  let loc     := stx[2]
+  let mut newTacs := #[]
+  for i in [:rwRules.size] do
+    let rwRule := rwRules[i]
+    -- We use `stx` as "position provider" for the first rule
+    -- Without this change, we don't get correct information when we hover over `rw`/`rewrite`/`erewrite` with multiple rewrites
+    let ref ← if i == 0 then stx else pure rwRule
+    newTacs := newTacs.push <| Syntax.node kind #[mkAtomFrom ref token, rwRule, loc]
+  return mkNullNode newTacs
+
 @[builtinMacro Lean.Parser.Tactic.rewriteSeq] def expandRewriteTactic : Macro := fun stx =>
-  let seq := stx[1][1].getSepArgs
-  let loc := stx[2]
-  return mkNullNode <| seq.map fun rwRule => Syntax.node ``Parser.Tactic.rewrite #[mkAtomFrom rwRule "rewrite ", rwRule, loc]
+  return expand ``Parser.Tactic.rewrite  "rewrite " stx
 
 @[builtinMacro Lean.Parser.Tactic.erewriteSeq] def expandERewriteTactic : Macro := fun stx =>
-  let seq := stx[1][1].getSepArgs
-  let loc := stx[2]
-  return mkNullNode <| seq.map fun rwRule => Syntax.node ``Parser.Tactic.erewrite #[mkAtomFrom rwRule "erewrite ", rwRule, loc]
+  return expand ``Parser.Tactic.erewrite  "erewrite " stx
 
 def rewriteTarget (stx : Syntax) (symm : Bool) (mode : TransparencyMode) : TacticM Unit := do
   let (g, gs) ← getMainGoal

@@ -211,6 +211,10 @@ Invokes `lean4-mode-hook'.
 ;;;###autoload
 (push '("\\.lean$" . lean4-mode) auto-mode-alist)
 
+;;;###autoload
+(with-eval-after-load 'markdown-mode
+  (add-to-list 'lsp-custom-markup-modes '(lean4-mode "lean")))
+
 ;; Use utf-8 encoding
 ;;;### autoload
 (modify-coding-system-alist 'file "\\.lean\\'" 'utf-8)

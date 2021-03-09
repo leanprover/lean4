@@ -1,9 +1,6 @@
 theorem byCases_Bool_bind [Monad m] (x : m Bool) (f g : Bool → m β) (isTrue : f true = g true) (isFalse : f false = g false) : (x >>= f) = (x >>= g) := by
   have f = g by
-    funext b
-    cases b with
-    | true  => exact isTrue
-    | false => exact isFalse
+    funext b; cases b <;> assumption
   rw [this]
 
 theorem eq_findM [Monad m] [LawfulMonad m] (p : α → m Bool) (xs : List α) :
@@ -16,7 +13,7 @@ theorem eq_findM [Monad m] [LawfulMonad m] (p : α → m Bool) (xs : List α) :
     xs.findM? p := by
   induction xs with simp [List.findM?]
   | cons x xs ih =>
-    rw[← ih]; simp
+    rw [← ih]; simp
     apply byCases_Bool_bind <;> simp
 
 theorem eq_findSomeM_findM [Monad m] [LawfulMonad m] (p : α → m Bool) (xss : List (List α)) :

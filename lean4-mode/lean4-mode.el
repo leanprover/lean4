@@ -97,8 +97,7 @@
   (local-set-key lean4-keybinding-find-definition           #'lean4-find-definition)
   (local-set-key lean4-keybinding-tab-indent                #'lean4-tab-indent)
   (local-set-key lean4-keybinding-hole                      #'lean4-hole)
-  (local-set-key lean4-keybinding-lean4-toggle-show-goal     #'lean4-toggle-show-goal)
-  (local-set-key lean4-keybinding-lean4-toggle-next-error    #'lean4-toggle-next-error)
+  (local-set-key lean4-keybinding-lean4-toggle-info         #'lean4-toggle-info)
   (local-set-key lean4-keybinding-lean4-message-boxes-toggle #'lean4-message-boxes-toggle)
   (local-set-key lean4-keybinding-leanpkg-configure         #'lean4-leanpkg-configure)
   (local-set-key lean4-keybinding-leanpkg-build             #'lean4-leanpkg-build)
@@ -126,8 +125,7 @@
     ;; ["Create a new project" (call-interactively 'lean4-project-create) (not (lean4-project-inside-p))]
     "-----------------"
     ["Show type info"       lean4-show-type                    (and lean4-eldoc-use eldoc-mode)]
-    ["Toggle goal display"  lean4-toggle-show-goal             t]
-    ["Toggle next error display" lean4-toggle-next-error       t]
+    ["Toggle info display"  lean4-toggle-info                  t]
     ["Toggle message boxes" lean4-message-boxes-toggle         t]
     ["Highlight pending tasks"  lean4-server-toggle-show-pending-tasks
      :active t :style toggle :selected lean4-server-show-pending-tasks]
@@ -154,10 +152,8 @@
     ;; Handle events that may start automatic syntax checks
     (before-save-hook                    . lean4-whitespace-cleanup)
     ;; info windows
-    (post-command-hook                   . lean4-show-goal--handler)
-    (post-command-hook                   . lean4-next-error--handler)
-    ;; (flycheck-after-syntax-check-hook    . lean4-show-goal--handler)
-    (flycheck-after-syntax-check-hook    . lean4-next-error--handler)
+    (post-command-hook                   . lean4-info-buffer-refresh)
+    (flycheck-after-syntax-check-hook    . lean4-info-buffer-refresh)
     )
   "Hooks which lean4-mode needs to hook in.
 
@@ -171,11 +167,7 @@ enabled and disabled respectively.")
   ;;(setq lean4-right-click-item-functions '(lean4-info-right-click-find-definition
   ;;                                        lean4-hole-right-click))
   ;; Flycheck
-  (setq-local flycheck-disabled-checkers '())
-  ;; info buffers
-  (lean4-ensure-info-buffer lean4-next-error-buffer-name)
-  ;(lean4-ensure-info-buffer lean4-show-goal-buffer-name)
-  )
+  (setq-local flycheck-disabled-checkers '()))
 
 ;; Automode List
 ;;;###autoload

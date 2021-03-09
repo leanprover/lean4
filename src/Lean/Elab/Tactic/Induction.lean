@@ -201,17 +201,17 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (optPreTac : 
         let altMVarIds ← applyPreTac altMVarId
         if !hasAlts then
           -- User did not provide alternatives using `|`
-          trace[Meta.debug]! "new subgoal {MessageData.ofGoal altMVarId}"
           subgoals := subgoals ++ altMVarIds.toArray
         else if altMVarIds.isEmpty then
           pure ()
         else
-          throwError! "alternative '{altName}' has not been provided"
+          logError m!"alternative '{altName}' has not been provided"
+          altMVarIds.forM admitGoal
     | some altStx =>
       subgoals ← withRef altStx do
         let altVarNames := getAltVarNames altStx
         if altVarNames.size > numFields then
-          throwError! "too many variable names provided at alternative '{altName}', #{altVarNames.size} provided, but #{numFields} expected"
+          logError m!"too many variable names provided at alternative '{altName}', #{altVarNames.size} provided, but #{numFields} expected"
         let mut (_, altMVarId) ← introN altMVarId numFields altVarNames.toList (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
         match (← Cases.unifyEqs numEqs altMVarId {}) with
         | none   => throwError! "alternative '{altName}' is not needed"
@@ -228,7 +228,7 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (optPreTac : 
   if usedWildcard then
     altsSyntax := altsSyntax.filter fun alt => getAltName alt != `_
   unless altsSyntax.isEmpty do
-    throwErrorAt altsSyntax[0] "unused alternative"
+    logErrorAt altsSyntax[0] "unused alternative"
   setGoals subgoals.toList
 where
   applyPreTac (mvarId : MVarId) : TacticM (List MVarId) :=

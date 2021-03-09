@@ -251,6 +251,11 @@ def focus {α} (tactic : TacticM α) : TacticM α := do
 def focusAndDone {α} (tactic : TacticM α) : TacticM α :=
   focus do let a ← tactic; done; pure a
 
+/- Assign `mvarId := sorry` -/
+def admitGoal (mvarId : MVarId) : TacticM Unit := do
+  let mvarType ← inferType (mkMVar mvarId)
+  assignExprMVar mvarId (← mkSorry mvarType (synthetic := true))
+
 /- Close the main goal using the given tactic. If it fails, log the error and `admit` -/
 def closeUsingOrAdmit (tac : Syntax) : TacticM Unit := do
   let (mvarId, rest) ← getMainGoal
@@ -259,8 +264,7 @@ def closeUsingOrAdmit (tac : Syntax) : TacticM Unit := do
     done
   catch ex =>
     logException ex
-    let mvarType ← inferType (mkMVar mvarId)
-    assignExprMVar mvarId (← mkSorry mvarType (synthetic := true))
+    admitGoal mvarId
     setGoals rest
 
 def try? {α} (tactic : TacticM α) : TacticM (Option α) := do

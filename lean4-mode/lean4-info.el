@@ -62,41 +62,12 @@
 (lsp-interface
  (lean:PlainGoal (:rendered) nil))
 
-(defconst lean4-show-goal-buffer-name "*Lean Goal*")
+(defconst lean4-info-buffer-name "*Lean Goal*")
 
-(defun lean4-show-goal--handler ()
-  (let ((deactivate-mark)) ; keep transient mark
-    (when (lean4-info-buffer-active lean4-show-goal-buffer-name)
-      (lsp-request-async
-       "$/lean/plainGoal"
-       (lsp--text-document-position-params)
-       (-lambda ((goal &as &lean:PlainGoal? :rendered))
-         (when goal
-           (let ((rerendered (lsp--render-string rendered "markdown")))
-             (lean4-with-info-output-to-buffer
-              lean4-show-goal-buffer-name
-              (insert rerendered)
-              (when lean4-highlight-inaccessible-names
-                (goto-char 0)
-                (while (re-search-forward "\\(\\sw+\\)✝\\([¹²³⁴-⁹⁰]*\\)" nil t)
-                  (replace-match
-                   (propertize (s-concat (match-string-no-properties 1) (match-string-no-properties 2))
-                               'font-lock-face 'font-lock-comment-face)
-                   'fixedcase 'literal)))))))
-       :error-handler #'ignore
-       :mode 'tick
-       :cancel-token :plain-goal))))
+(defvar lean4-goal "")
 
-(defun lean4-toggle-show-goal ()
-  "Show goal at the current point."
-  (interactive)
-  (lean4-toggle-info-buffer lean4-show-goal-buffer-name)
-  (lean4-show-goal--handler))
-
-(defconst lean4-next-error-buffer-name "*Lean Next Error*")
-
-(defun lean4-next-error--handler ()
-  (when (lean4-info-buffer-active lean4-next-error-buffer-name)
+(defun lean4-info-buffer-redisplay ()
+  (when (lean4-info-buffer-active lean4-info-buffer-name)
     (let ((deactivate-mark) ; keep transient mark
           (errors (or
                    ;; prefer error of current position, if any
@@ -107,17 +78,44 @@
                    ;; fall back to next error position
                    (-if-let* ((pos (flycheck-next-error-pos 1)))
                        (flycheck-overlay-errors-at pos)))))
-      (lean4-with-info-output-to-buffer lean4-next-error-buffer-name
+      (lean4-with-info-output-to-buffer
+       lean4-info-buffer-name
+       (insert (or (s-trim lean4-goal) "<no goals>"))
+       (insert "\n---\n")
        (dolist (e errors)
          (princ (format "%d:%d: " (flycheck-error-line e) (flycheck-error-column e)))
          (princ (flycheck-error-message e))
          (princ "\n\n"))
        (when flycheck-current-errors
-         (princ (format "(%d more messages above...)" (length flycheck-current-errors))))))))
+         (princ (format "(%d more messages above...)" (length flycheck-current-errors))))
+       (when lean4-highlight-inaccessible-names
+         (goto-char 0)
+         (while (re-search-forward "\\(\\sw+\\)✝\\([¹²³⁴-⁹⁰]*\\)" nil t)
+           (replace-match
+            (propertize (s-concat (match-string-no-properties 1) (match-string-no-properties 2))
+                        'font-lock-face 'font-lock-comment-face)
+            'fixedcase 'literal)))))))
 
-(defun lean4-toggle-next-error ()
+(defun lean4-info-buffer-refresh ()
+  (when (lean4-info-buffer-active lean4-info-buffer-name)
+    (lsp-request-async
+     "$/lean/plainGoal"
+     (lsp--text-document-position-params)
+     (-lambda ((goal &as &lean:PlainGoal? :rendered))
+       (let ((rerendered (lsp--render-string rendered "markdown")))
+         (setq lean4-goal rerendered)
+         (lean4-info-buffer-redisplay)))
+     :error-handler #'ignore
+     :mode 'tick
+     :cancel-token :plain-goal)
+    ;; may lead to flickering
+    ;(lean4-info-buffer-redisplay)
+    ))
+
+(defun lean4-toggle-info ()
+  "Show infos at the current point."
   (interactive)
-  (lean4-toggle-info-buffer lean4-next-error-buffer-name)
-  (lean4-next-error--handler))
+  (lean4-toggle-info-buffer lean4-info-buffer-name)
+  (lean4-info-buffer-refresh))
 
 (provide 'lean4-info)

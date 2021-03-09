@@ -57,7 +57,7 @@ written."
   :type 'boolean)
 
 (defcustom lean4-highlight-inaccessible-names t
-  "Set this variable to `t` to highlight inaccessible names in the goal display
+  "Set this variable to `t` to highlight inaccessible names in the info display
 using `font-lock-comment-face' instead of the `✝` suffix used by Lean."
   :group 'lean
   :type 'boolean)
@@ -89,11 +89,8 @@ using `font-lock-comment-face' instead of the `✝` suffix used by Lean."
 (defcustom lean4-keybinding-hole (kbd "C-c SPC")
   "Lean Keybinding for hole manipulation"
   :group 'lean4-keybinding  :type 'key-sequence)
-(defcustom lean4-keybinding-lean4-toggle-show-goal (kbd "C-c C-g")
-  "Lean Keybinding for show-goal-at-pos"
-  :group 'lean4-keybinding  :type 'key-sequence)
-(defcustom lean4-keybinding-lean4-toggle-next-error (kbd "C-c C-n")
-  "Lean Keybinding for lean4-toggle-next-error"
+(defcustom lean4-keybinding-lean4-toggle-info (kbd "C-c C-i")
+  "Lean Keybinding for lean4-toggle-info"
   :group 'lean4-keybinding  :type 'key-sequence)
 (defcustom lean4-keybinding-lean4-message-boxes-toggle (kbd "C-c C-b")
   "Lean Keybinding for lean4-message-boxes-toggle"

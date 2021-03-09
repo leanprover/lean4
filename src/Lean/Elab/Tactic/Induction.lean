@@ -210,6 +210,8 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (optPreTac : 
     | some altStx =>
       subgoals ← withRef altStx do
         let altVarNames := getAltVarNames altStx
+        if altVarNames.size > numFields then
+          throwError! "too many variable names provided at alternative '{altName}', #{altVarNames.size} provided, but #{numFields} expected"
         let mut (_, altMVarId) ← introN altMVarId numFields altVarNames.toList (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
         match (← Cases.unifyEqs numEqs altMVarId {}) with
         | none   => throwError! "alternative '{altName}' is not needed"

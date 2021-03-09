@@ -10,7 +10,7 @@ theorem ex1 (m : Nat) : Le m 0 → m = 0 := by
 theorem ex2 (m n : Nat) : Le m n → Le m.succ n.succ := by
   intro h
   induction h with
-  | base n => apply Le.base
+  | base => apply Le.base
   | succ n m ih =>
     apply Le.succ
     apply ih

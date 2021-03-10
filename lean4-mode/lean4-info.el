@@ -61,7 +61,8 @@
    (eq (current-buffer) (window-buffer))))
 
 (lsp-interface
- (lean:PlainGoal (:goals) nil))
+ (lean:PlainGoal (:goals) nil)
+ (lean:Diagnostic (:range :fullRange :message) (:code :relatedInformation :severity :source :tags)))
 
 (defconst lean4-info-buffer-name "*Lean Goal*")
 
@@ -69,16 +70,22 @@
 
 (defun lean4-info-buffer-redisplay ()
   (when (lean4-info-buffer-active lean4-info-buffer-name)
-    (let ((deactivate-mark) ; keep transient mark
-          (errors (or
-                   ;; prefer error of current position, if any
-                   (flycheck-overlay-errors-at (point))
-                   ;; try errors in current line next
-                   (sort (flycheck-overlay-errors-in (line-beginning-position) (line-end-position))
-                         #'flycheck-error-<)
-                   ;; fall back to next error position
-                   (-if-let* ((pos (flycheck-next-error-pos 1)))
-                       (flycheck-overlay-errors-at pos)))))
+    (let* ((deactivate-mark) ; keep transient mark
+           (pos (apply #'lsp-make-position (lsp--cur-position)))
+           (errors (lsp--get-buffer-diagnostics))
+           (selected-errors
+            (or
+             ;; prefer errors containing current position, if any
+             (--filter (lsp-point-in-range? pos (lsp:lean-diagnostic-full-range it))
+                       (lsp--get-buffer-diagnostics))
+             ;; try errors in current line next
+             (lsp-cur-line-diagnostics)))
+           (errors-above
+            (--filter (< (lsp:position-line (lsp:range-end (lsp:lean-diagnostic-full-range it))) (lsp:position-line pos))
+                      errors))
+           (errors-below
+            (--filter (> (lsp:position-line (lsp:range-start (lsp:lean-diagnostic-full-range it))) (lsp:position-line pos))
+                      errors)))
       (lean4-with-info-output-to-buffer
        lean4-info-buffer-name
        (when lean4-goals
@@ -88,18 +95,22 @@
              (dolist (g lean4-goals)
                (magit-insert-section (magit-section)
                  (insert g "\n\n"))))))
-       (when errors
+       (when selected-errors
          (magit-insert-section (magit-section)
            (magit-insert-heading "Messages:")
            (magit-insert-section-body
-             (dolist (e errors)
+             (dolist (e selected-errors)
+               (-let (((&Diagnostic :message :range (&Range :start (&Position :line :character))) e))
+                 (magit-insert-section (magit-section)
+                   (magit-insert-heading (format "%d:%d: " (1+ (lsp-translate-line line)) (lsp-translate-column character)))
+                   (magit-insert-section-body
+                     (insert message "\n")))))
+             (when errors-above
                (magit-insert-section (magit-section)
-                 (magit-insert-heading (format "%d:%d: " (flycheck-error-line e) (flycheck-error-column e)))
-                 (magit-insert-section-body
-                   (insert (flycheck-error-message e) "\n"))))
-             (when flycheck-current-errors
+                 (insert (format "(%d more messages above...)\n" (length errors-above)))))
+             (when errors-below
                (magit-insert-section (magit-section)
-                 (insert (format "(%d more messages above...)" (length flycheck-current-errors))))))))
+                 (insert (format "(%d more messages below...)\n" (length errors-below))))))))
        (when lean4-highlight-inaccessible-names
          (goto-char 0)
          (while (re-search-forward "\\(\\sw+\\)✝\\([¹²³⁴-⁹⁰]*\\)" nil t)

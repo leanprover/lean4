@@ -16,6 +16,7 @@
 
 (require 'lean4-syntax)
 (require 'lsp-protocol)
+(require 'magit-section)
 
 ;; Lean Info Mode (for "*lean4-info*" buffer)
 ;; Automode List
@@ -43,7 +44,7 @@
   (unless (get-buffer buffer)
     (with-current-buffer (get-buffer-create buffer)
       (buffer-disable-undo)
-      (lean4-info-mode))))
+      (magit-section-mode))))
 
 (defun lean4-toggle-info-buffer (buffer)
   (-if-let (window (get-buffer-window buffer))
@@ -60,11 +61,11 @@
    (eq (current-buffer) (window-buffer))))
 
 (lsp-interface
- (lean:PlainGoal (:rendered) nil))
+ (lean:PlainGoal (:goals) nil))
 
 (defconst lean4-info-buffer-name "*Lean Goal*")
 
-(defvar lean4-goal "")
+(defvar lean4-goals)
 
 (defun lean4-info-buffer-redisplay ()
   (when (lean4-info-buffer-active lean4-info-buffer-name)
@@ -80,14 +81,25 @@
                        (flycheck-overlay-errors-at pos)))))
       (lean4-with-info-output-to-buffer
        lean4-info-buffer-name
-       (insert (or (s-trim lean4-goal) "<no goals>"))
-       (insert "\n---\n")
-       (dolist (e errors)
-         (princ (format "%d:%d: " (flycheck-error-line e) (flycheck-error-column e)))
-         (princ (flycheck-error-message e))
-         (princ "\n\n"))
-       (when flycheck-current-errors
-         (princ (format "(%d more messages above...)" (length flycheck-current-errors))))
+       (when lean4-goals
+         (magit-insert-section (magit-section)
+           (magit-insert-heading "Goals:")
+           (magit-insert-section-body
+             (dolist (g lean4-goals)
+               (magit-insert-section (magit-section)
+                 (insert g "\n\n"))))))
+       (when errors
+         (magit-insert-section (magit-section)
+           (magit-insert-heading "Messages:")
+           (magit-insert-section-body
+             (dolist (e errors)
+               (magit-insert-section (magit-section)
+                 (magit-insert-heading (format "%d:%d: " (flycheck-error-line e) (flycheck-error-column e)))
+                 (magit-insert-section-body
+                   (insert (flycheck-error-message e) "\n"))))
+             (when flycheck-current-errors
+               (magit-insert-section (magit-section)
+                 (insert (format "(%d more messages above...)" (length flycheck-current-errors))))))))
        (when lean4-highlight-inaccessible-names
          (goto-char 0)
          (while (re-search-forward "\\(\\sw+\\)✝\\([¹²³⁴-⁹⁰]*\\)" nil t)
@@ -101,10 +113,9 @@
     (lsp-request-async
      "$/lean/plainGoal"
      (lsp--text-document-position-params)
-     (-lambda ((goal &as &lean:PlainGoal? :rendered))
-       (let ((rerendered (lsp--render-string rendered "markdown")))
-         (setq lean4-goal rerendered)
-         (lean4-info-buffer-redisplay)))
+     (-lambda ((goal &as &lean:PlainGoal? :goals))
+       (setq lean4-goals (--map (lsp--fontlock-with-mode it 'lean4-info-mode) goals))
+       (lean4-info-buffer-redisplay))
      :error-handler #'ignore
      :mode 'tick
      :cancel-token :plain-goal)

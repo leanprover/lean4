@@ -436,16 +436,16 @@ section RequestHandling
         for t in snap.toCmdState.infoState.trees do
           if let some (ci, ti) := t.goalsAt? hoverPos then
             let ci := { ci with mctx := ti.mctxAfter }
-            let md ←
-              if ti.goalsAfter.isEmpty then
+            let goals ← ci.runMetaM {} <| ti.goalsAfter.mapM Meta.ppGoal
+            let md :=
+              if goals.isEmpty then
                 "no goals"
               else
-                let goals ← ci.runMetaM {} <| ti.goalsAfter.mapM Meta.ppGoal
                 let goals := goals.map fun goal => s!"```lean
 {goal}
 ```"
                 String.intercalate "\n---\n" goals
-            return some { rendered := md }
+            return some { goals := goals.map toString |>.toArray, rendered := md }
 
         return none
 

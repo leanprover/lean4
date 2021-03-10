@@ -213,6 +213,8 @@ private def restore (env : Environment) (mctx : MetavarContext) (postponed : Per
   try
     if (← x) then
       if (← processPostponed mayPostpone) then
+        let newPostponed ← getPostponed
+        setPostponed (postponed ++ newPostponed)
         return true
       else
         restore env mctx postponed

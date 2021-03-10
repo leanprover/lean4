@@ -8,9 +8,10 @@ import Lean.Util.Recognizers
 import Lean.Meta.LevelDefEq
 import Lean.Meta.DiscrTree
 import Lean.Meta.AppBuilder
-
+import Lean.Meta.Tactic.AuxLemma
 namespace Lean.Meta
 
+-- TODO: remove
 inductive SimpLemmaKind where
   | eq | iff | ne | pos | neg
   deriving Inhabited, BEq
@@ -90,33 +91,73 @@ private partial def isPerm : Expr → Expr → MetaM Bool
   | Expr.proj _ i₁ b₁ _, Expr.proj _ i₂ b₂ _ => i₁ == i₂ <&&> isPerm b₁ b₂
   | s, t => s == t
 
-def mkSimpLemmaCore (e : Expr) (val : Expr) (post : Bool) (prio : Nat) (name? : Option Name) : MetaM SimpLemma := do
-  let type ← instantiateMVars (← inferType e)
+private partial def shouldPreprocess (type : Expr) : MetaM Bool :=
+  forallTelescopeReducing type fun xs result => return !result.isEq
+
+private partial def preprocess (e type : Expr) : MetaM (List (Expr × Expr)) := do
+  let type ← whnf type
+  if type.isForall then
+    forallTelescopeReducing type fun xs type => do
+      let e := mkAppN e xs
+      let ps ← preprocess e type
+      ps.mapM fun (e, type) =>
+        return (← mkLambdaFVars xs e, ← mkForallFVars xs type)
+  else if type.isEq then
+    return [(e, type)]
+  else if let some (lhs, rhs) := type.iff? then
+    let type ← mkEq lhs rhs
+    let e    ← mkPropExt e
+    return [(e, type)]
+  else if let some (_, lhs, rhs) := type.ne? then
+    let type ← mkEq (← mkEq lhs rhs) (mkConst ``False)
+    let e    ← mkEqFalse e
+    return [(e, type)]
+  else if let some p := type.not? then
+    let type ← mkEq p (mkConst ``False)
+    let e    ← mkEqFalse e
+    return [(e, type)]
+  else if let some (type₁, type₂) := type.and? then
+    let e₁ := mkProj ``And 0 e
+    let e₂ := mkProj ``And 1 e
+    return (← preprocess e₁ type₁) ++ (← preprocess e₂ type₂)
+  else
+    let type ← mkEq type (mkConst ``True)
+    let e    ← mkEqTrue e
+    return [(e, type)]
+
+private def checkTypeIsProp (type : Expr) : MetaM Unit :=
   unless (← isProp type) do
     throwError! "invalid 'simp', proposition expected{indentExpr type}"
+
+def mkSimpLemmaCore (e : Expr) (val : Expr) (post : Bool) (prio : Nat) (name? : Option Name) : MetaM SimpLemma := do
+  let type ← instantiateMVars (← inferType e)
   withNewMCtxDepth do
     let (xs, _, type) ← withReducible <| forallMetaTelescopeReducing type
     let (keys, perm, kind) ←
       match type.eq? with
       | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs, SimpLemmaKind.eq)
-      | none =>
-      match type.iff? with
-      | some (lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs, SimpLemmaKind.iff)
-      | none =>
-      match type.ne? with
-      | some (_, lhs, rhs) => pure (← DiscrTree.mkPath (← mkEq lhs rhs), false, SimpLemmaKind.ne)
-      | none =>
-      match type.not? with
-      | some lhs => pure (← DiscrTree.mkPath lhs, false, SimpLemmaKind.neg)
-      | none     => pure (← DiscrTree.mkPath type, false, SimpLemmaKind.pos)
+      | none => throwError! "unexpected kind of 'simp' lemma"
     return { keys := keys, perm := perm, kind := kind, post := post, val := val, name? := name?, priority := prio }
 
-def addSimpLemma (declName : Name) (post : Bool) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
+def mkSimpLemmasFromConst (declName : Name) (post : Bool) (prio : Nat) : MetaM (Array SimpLemma) := do
   let cinfo ← getConstInfo declName
-  /- The `simp` tactic uses fresh universe metavariables when using a global simp lemma.
-     See `SimpLemma.getValue` -/
-  let lemma ← mkSimpLemmaCore (mkConst declName (cinfo.levelParams.map mkLevelParam)) (mkConst declName) post prio declName
-  simpExtension.add lemma attrKind
+  let val := mkConst declName (cinfo.levelParams.map mkLevelParam)
+  withReducible do
+    let type ← inferType val
+    checkTypeIsProp type
+    if (← shouldPreprocess type) then
+      let mut r := #[]
+      for (val, type) in (← preprocess val type) do
+        let auxName ← mkAuxLemma cinfo.levelParams type val
+        r := r.push <| (← mkSimpLemmaCore (mkConst auxName (cinfo.levelParams.map mkLevelParam)) (mkConst auxName) post prio declName)
+      return r
+    else
+      #[← mkSimpLemmaCore (mkConst declName (cinfo.levelParams.map mkLevelParam)) (mkConst declName) post prio declName]
+
+def addSimpLemma (declName : Name) (post : Bool) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
+  let simpLemmas ← mkSimpLemmasFromConst declName post prio
+  for simpLemma in simpLemmas do
+    simpExtension.add simpLemma attrKind
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -130,35 +171,56 @@ builtin_initialize
     erase := fun declName => do
       let s ← simpExtension.getState (← getEnv)
       let s ← s.erase declName
-      modifyEnv fun env => simpExtension.modifyState env fun _ => s 
+      modifyEnv fun env => simpExtension.modifyState env fun _ => s
   }
 
 def getSimpLemmas : MetaM SimpLemmas :=
   return simpExtension.getState (← getEnv)
 
-/- Auxiliary method for creating a local simp lemma. -/
-def mkSimpLemma (e : Expr) (post : Bool := true) (prio : Nat := evalPrio! default) (name? : Option Name := none) : MetaM SimpLemma := do
-  mkSimpLemmaCore e e post prio name?
-
-/- Auxiliary method for adding a local simp lemma to a `SimpLemmas` datastructure. -/
-def SimpLemmas.add (s : SimpLemmas) (e : Expr) (post : Bool := true) (prio : Nat := evalPrio! default) (name? : Option Name := none) : MetaM SimpLemmas := do
-  let lemma ← mkSimpLemma e post prio name?
-  return addSimpLemmaEntry s lemma
-
 /- Auxiliary method for adding a global declaration to a `SimpLemmas` datastructure. -/
 def SimpLemmas.addConst (s : SimpLemmas) (declName : Name) (post : Bool := true) (prio : Nat := evalPrio! default) : MetaM SimpLemmas := do
-  let cinfo ← getConstInfo declName
-  let lemma ← mkSimpLemmaCore (mkConst declName (cinfo.levelParams.map mkLevelParam)) (mkConst declName) post prio declName
-  return addSimpLemmaEntry s lemma
+  let simpLemmas ← mkSimpLemmasFromConst declName post prio
+  return simpLemmas.foldl addSimpLemmaEntry s
 
-def SimpLemma.getValue (lemma : SimpLemma) : MetaM Expr := do
-  match lemma.val with
+/- Auxiliary method for creating simp lemmas from a proof term `val`. -/
+def mkSimpLemmas (val : Expr) (post : Bool := true) (prio : Nat := evalPrio! default) (name? : Option Name := none): MetaM (Array SimpLemma) :=
+  withReducible do
+    let type ← inferType val
+    checkTypeIsProp type
+    if (← shouldPreprocess type) then
+      let mut r := #[]
+      for (val, _) in (← preprocess val type) do
+        r := r.push <| (← mkSimpLemmaCore val val post prio name?)
+      return r
+    else
+      #[← mkSimpLemmaCore val val post prio name?]
+
+/- Auxiliary method for adding a local simp lemma to a `SimpLemmas` datastructure. -/
+def SimpLemmas.add (s : SimpLemmas) (e : Expr) (post : Bool := true) (prio : Nat := evalPrio! default) : MetaM SimpLemmas := do
+  if e.isConst then
+    s.addConst e.constName! post prio
+  else
+    let simpLemmas ← mkSimpLemmas e post prio (← getName?)
+    return simpLemmas.foldl addSimpLemmaEntry s
+where
+  getName? : MetaM (Option Name) := do
+    let f := e.getAppFn
+    if f.isConst then
+      return f.constName!
+    else if f.isFVar then
+      let localDecl ← getFVarLocalDecl f
+      return localDecl.userName
+    else
+      return none
+
+def SimpLemma.getValue (simpLemma : SimpLemma) : MetaM Expr := do
+  match simpLemma.val with
   | Expr.const declName [] _ =>
     let info ← getConstInfo declName
     if info.levelParams.isEmpty then
-      return lemma.val
+      return simpLemma.val
     else
-      return lemma.val.updateConst! (← info.levelParams.mapM (fun _ => mkFreshLevelMVar))
-  | _ => return lemma.val
+      return simpLemma.val.updateConst! (← info.levelParams.mapM (fun _ => mkFreshLevelMVar))
+  | _ => return simpLemma.val
 
 end Lean.Meta

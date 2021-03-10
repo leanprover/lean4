@@ -79,7 +79,7 @@
              (--filter (lsp-point-in-range? pos (lsp:lean-diagnostic-full-range it))
                        (lsp--get-buffer-diagnostics))
              ;; try errors in current line next
-             (lsp-cur-line-diagnostics)))
+             (cl-coerce (lsp-cur-line-diagnostics) 'list)))
            (errors-above
             (--filter (< (lsp:position-line (lsp:range-end (lsp:lean-diagnostic-full-range it))) (lsp:position-line pos))
                       errors))

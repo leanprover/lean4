@@ -205,7 +205,7 @@ Invokes `lean4-mode-hook'.
 
 ;;;###autoload
 (with-eval-after-load 'markdown-mode
-  (add-to-list 'lsp-custom-markup-modes '(lean4-mode "lean")))
+  (add-to-list 'markdown-code-lang-modes '("lean" . lean4-mode)))
 
 ;; Use utf-8 encoding
 ;;;### autoload

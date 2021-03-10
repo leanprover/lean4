@@ -39,6 +39,7 @@ structure PlainGoalParams extends TextDocumentPositionParams
 
 structure PlainGoal where
   rendered : String
+  goals : Array String
   deriving FromJson, ToJson
 
 end Lean.Lsp

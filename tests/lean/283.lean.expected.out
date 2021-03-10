@@ -1,6 +1,8 @@
-283.lean:1:4-1:5: error: fail to show termination for
-  f
-with errors
-structural recursion cannot be used
-
-well founded recursion has not been implemented yet
+283.lean:1:22-1:25: error: application type mismatch
+  f (f ?m)
+argument
+  f ?m
+has type
+  ?m : Sort ?u
+but is expected to have type
+  optParam (Sort ?u) t : Type ?u

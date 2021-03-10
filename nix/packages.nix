@@ -48,7 +48,7 @@ let
     pname = "lean4-mode";
     version = "1";
     src = ../lean4-mode;
-    packageRequires = with pkgs.emacsPackages.melpaPackages; [ dash f flycheck lsp-mode s ];
+    packageRequires = with pkgs.emacsPackages.melpaPackages; [ dash f flycheck magit-section lsp-mode s ];
     recipe = pkgs.writeText "recipe" ''
       (lean4-mode :repo "leanprover/lean4" :fetcher github :files ("*.el"))
     '';

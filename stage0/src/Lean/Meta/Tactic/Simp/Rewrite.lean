@@ -42,39 +42,15 @@ def rewrite (e : Expr) (s : DiscrTree SimpLemma) (erased : SimpLemmaNameSet) (di
   else
     let lemmas := lemmas.insertionSort fun e₁ e₂ => e₁.priority < e₂.priority
     for lemma in lemmas do
-      unless inErasedSet lemma do 
+      unless inErasedSet lemma do
         if let some result ← tryLemma? lemma then
           return result
     return { expr := e }
 where
   inErasedSet (lemma : SimpLemma) : Bool :=
-    match lemma.name? with  
+    match lemma.name? with
     | none => false
     | some name => erased.contains name
-    
-  getLHS (kind : SimpLemmaKind) (type : Expr) : MetaM Expr :=
-    match kind with
-    | SimpLemmaKind.pos => return type
-    | SimpLemmaKind.neg => return type.appArg!
-    | SimpLemmaKind.eq  => return type.appFn!.appArg!
-    | SimpLemmaKind.iff => return type.appFn!.appArg!
-    | SimpLemmaKind.ne  => mkEq type.appFn!.appArg! type.appArg!
-
-  getRHS (kind : SimpLemmaKind) (type : Expr) : MetaM Expr :=
-    match kind with
-    | SimpLemmaKind.pos => return mkConst `True
-    | SimpLemmaKind.neg => return mkConst `False
-    | SimpLemmaKind.eq  => return type.appArg!
-    | SimpLemmaKind.iff => return type.appArg!
-    | SimpLemmaKind.ne  => return mkConst `False
-
-  finalizeProof (kind : SimpLemmaKind) (proof : Expr) : MetaM Expr :=
-    match kind with
-    | SimpLemmaKind.eq  => return proof
-    | SimpLemmaKind.iff => mkPropExt proof
-    | SimpLemmaKind.pos => mkEqTrue proof
-    | SimpLemmaKind.neg => mkEqFalse proof
-    | SimpLemmaKind.ne  => mkEqFalse proof
 
   tryLemma? (lemma : SimpLemma) : SimpM (Option Result) :=
     withNewMCtxDepth do
@@ -82,20 +58,19 @@ where
       let type ← inferType val
       let (xs, bis, type) ← forallMetaTelescopeReducing type
       let type ← instantiateMVars type
-      let lhs ← getLHS lemma.kind type
+      let lhs := type.appFn!.appArg!
       if (← isDefEq lhs e) then
         unless (← synthesizeArgs lemma.getName xs bis discharge?) do
           return none
         let proof ← instantiateMVars (mkAppN val xs)
         if ← hasAssignableMVar proof then
           return none
-        let rhs   ← instantiateMVars (← getRHS lemma.kind type)
+        let rhs   ← instantiateMVars type.appArg!
         if e == rhs then
           return none
         if lemma.perm && !Expr.lt rhs e then
           trace[Meta.Tactic.simp.rewrite]! "{lemma}, perm rejected {e} ==> {rhs}"
           return none
-        let proof ← finalizeProof lemma.kind proof
         trace[Meta.Tactic.simp.rewrite]! "{lemma}, {e} ==> {rhs}"
         return some { expr := rhs, proof? := proof }
       else

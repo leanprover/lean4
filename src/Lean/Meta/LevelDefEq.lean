@@ -116,8 +116,8 @@ mutual
   partial def isLevelDefEqAux : Level → Level → MetaM Bool
     | Level.succ lhs _, Level.succ rhs _ => isLevelDefEqAux lhs rhs
     | lhs, rhs => do
-      if lhs == rhs then
-        return true
+      if lhs.getLevelOffset == rhs.getLevelOffset then
+        return lhs.getOffset == rhs.getOffset
       else
         trace[Meta.isLevelDefEq.step]! "{lhs} =?= {rhs}"
         let lhs' ← instantiateLevelMVars lhs

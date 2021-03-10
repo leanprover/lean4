@@ -72,6 +72,8 @@ structure DiagnosticRelatedInformation where
 
 structure Diagnostic where
   range : Range
+  /-- extension: preserve semantic range of errors when truncating them for display purposes -/
+  fullRange : Range := range
   severity? : Option DiagnosticSeverity := none
   code? : Option DiagnosticCode := none
   source? : Option String := none
@@ -89,6 +91,7 @@ structure PublishDiagnosticsParams where
 /-- Transform a Lean Message concerning the given text into an LSP Diagnostic. -/
 def msgToDiagnostic (text : FileMap) (m : Message) : IO Diagnostic := do
   let low : Lsp.Position := text.leanPosToLspPos m.pos
+  let fullHigh := text.leanPosToLspPos <| m.endPos.getD m.pos
   let high : Lsp.Position := match m.endPos with
     | some endPos =>
       /-
@@ -100,6 +103,7 @@ def msgToDiagnostic (text : FileMap) (m : Message) : IO Diagnostic := do
       text.leanPosToLspPos endPos
     | none        => low
   let range : Range := ⟨low, high⟩
+  let fullRange : Range := ⟨low, fullHigh⟩
   let severity := match m.severity with
     | MessageSeverity.information => DiagnosticSeverity.information
     | MessageSeverity.warning     => DiagnosticSeverity.warning
@@ -107,9 +111,10 @@ def msgToDiagnostic (text : FileMap) (m : Message) : IO Diagnostic := do
   let source := "Lean 4 server"
   let message ← m.data.toString
   pure {
-    range := range,
-    severity? := severity,
-    source? := source,
+    range := range
+    fullRange := fullRange
+    severity? := severity
+    source? := source
     message := message
   }
 

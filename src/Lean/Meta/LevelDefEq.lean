@@ -227,9 +227,16 @@ private def restore (env : Environment) (mctx : MetavarContext) (postponed : Per
     throw ex
 
 private def postponedToMessageData (ps : PersistentArray PostponedEntry) : MessageData := do
+  let mut found : Std.HashSet (Level × Level) := {}
   let mut r := MessageData.nil
   for p in ps do
-    r := m!"{r}\n{p.lhs} =?= {p.rhs}"
+    let mut lhs := p.lhs
+    let mut rhs := p.rhs
+    if Level.normLt rhs lhs then
+      (lhs, rhs) := (rhs, lhs)
+    unless found.contains (lhs, rhs) do
+      found := found.insert (lhs, rhs)
+      r := m!"{r}\n{lhs} =?= {rhs}"
   return r
 
 @[specialize] def withoutPostponingUniverseConstraintsImp {α} (x : MetaM α) : MetaM α := do

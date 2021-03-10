@@ -11,11 +11,6 @@ import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.AuxLemma
 namespace Lean.Meta
 
--- TODO: remove
-inductive SimpLemmaKind where
-  | eq | iff | ne | pos | neg
-  deriving Inhabited, BEq
-
 structure SimpLemma where
   keys     : Array DiscrTree.Key
   val      : Expr
@@ -23,7 +18,6 @@ structure SimpLemma where
   post     : Bool
   perm     : Bool -- true is lhs and rhs are identical modulo permutation of variables
   name?    : Option Name := none -- for debugging and tracing purposes
-  kind     : SimpLemmaKind
   deriving Inhabited
 
 def SimpLemma.getName (s : SimpLemma) : Name :=
@@ -133,11 +127,11 @@ def mkSimpLemmaCore (e : Expr) (val : Expr) (post : Bool) (prio : Nat) (name? : 
   let type ← instantiateMVars (← inferType e)
   withNewMCtxDepth do
     let (xs, _, type) ← withReducible <| forallMetaTelescopeReducing type
-    let (keys, perm, kind) ←
+    let (keys, perm) ←
       match type.eq? with
-      | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs, SimpLemmaKind.eq)
+      | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs)
       | none => throwError! "unexpected kind of 'simp' lemma"
-    return { keys := keys, perm := perm, kind := kind, post := post, val := val, name? := name?, priority := prio }
+    return { keys := keys, perm := perm, post := post, val := val, name? := name?, priority := prio }
 
 def mkSimpLemmasFromConst (declName : Name) (post : Bool) (prio : Nat) : MetaM (Array SimpLemma) := do
   let cinfo ← getConstInfo declName

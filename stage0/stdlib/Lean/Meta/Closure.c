@@ -26,7 +26,6 @@ lean_object* l_Nat_foldRev_loop___at_Lean_Meta_Closure_mkBinding___spec__2(uint8
 lean_object* l_Std_HashMapImp_moveEntries___at_Lean_Meta_Closure_visitLevel___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_pushFVarArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-extern lean_object* l_termDepIfThenElse___closed__11;
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
@@ -273,8 +272,8 @@ lean_object* l_Lean_Meta_check(lean_object*, lean_object*, lean_object*, lean_ob
 extern lean_object* l_Lean_instInhabitedLevel;
 lean_object* l_Lean_compileDecl___at_Lean_Meta_mkAuxDefinition___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_pushToProcess___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__3;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkAuxDefinition___closed__2;
 lean_object* lean_add_decl(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Meta_Closure_instInhabitedToProcessElement___closed__1() {
 _start:
@@ -14864,15 +14863,6 @@ static lean_object* _init_l_Lean_Meta_mkAuxDefinition___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_termDepIfThenElse___closed__11;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_mkAuxDefinition___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
 x_1 = l_termIfLet___x3a_x3d__Then__Else_____closed__7;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
@@ -15172,7 +15162,7 @@ x_56 = l_Lean_KernelException_toMessageData___closed__15;
 x_57 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_57, 0, x_56);
 lean_ctor_set(x_57, 1, x_55);
-x_58 = l_Lean_Meta_mkAuxDefinition___closed__1;
+x_58 = l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__3;
 x_59 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_59, 0, x_57);
 lean_ctor_set(x_59, 1, x_58);
@@ -15181,7 +15171,7 @@ lean_ctor_set(x_60, 0, x_21);
 x_61 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_61, 0, x_59);
 lean_ctor_set(x_61, 1, x_60);
-x_62 = l_Lean_Meta_mkAuxDefinition___closed__2;
+x_62 = l_Lean_Meta_mkAuxDefinition___closed__1;
 x_63 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_63, 0, x_61);
 lean_ctor_set(x_63, 1, x_62);
@@ -15249,7 +15239,7 @@ x_95 = l_Lean_KernelException_toMessageData___closed__15;
 x_96 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_96, 0, x_95);
 lean_ctor_set(x_96, 1, x_94);
-x_97 = l_Lean_Meta_mkAuxDefinition___closed__1;
+x_97 = l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__3;
 x_98 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_98, 0, x_96);
 lean_ctor_set(x_98, 1, x_97);
@@ -15259,7 +15249,7 @@ lean_ctor_set(x_99, 0, x_2);
 x_100 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_100, 0, x_98);
 lean_ctor_set(x_100, 1, x_99);
-x_101 = l_Lean_Meta_mkAuxDefinition___closed__2;
+x_101 = l_Lean_Meta_mkAuxDefinition___closed__1;
 x_102 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_102, 0, x_100);
 lean_ctor_set(x_102, 1, x_101);
@@ -15545,8 +15535,6 @@ l_Lean_Meta_Closure_mkValueTypeClosure___closed__1 = _init_l_Lean_Meta_Closure_m
 lean_mark_persistent(l_Lean_Meta_Closure_mkValueTypeClosure___closed__1);
 l_Lean_Meta_mkAuxDefinition___closed__1 = _init_l_Lean_Meta_mkAuxDefinition___closed__1();
 lean_mark_persistent(l_Lean_Meta_mkAuxDefinition___closed__1);
-l_Lean_Meta_mkAuxDefinition___closed__2 = _init_l_Lean_Meta_mkAuxDefinition___closed__2();
-lean_mark_persistent(l_Lean_Meta_mkAuxDefinition___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

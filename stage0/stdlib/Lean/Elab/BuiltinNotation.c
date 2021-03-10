@@ -231,7 +231,7 @@ lean_object* l_Lean_Elab_Term_elabNativeRefl___lambda__1___closed__5;
 lean_object* l_Lean_Elab_Term_expandHave_match__1(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabStateRefT___closed__1;
 extern lean_object* l_Lean_Parser_Term_macroDollarArg___elambda__1___closed__2;
-lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabStateRefT___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_expandUnreachable(lean_object*);
 lean_object* l_Lean_Elab_log___at___private_Lean_Elab_Term_0__Lean_Elab_Term_exceptionToSorry___spec__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1112,7 +1112,7 @@ x_13 = lean_unsigned_to_nat(1u);
 x_14 = l_Lean_Syntax_getArg(x_1, x_13);
 lean_dec(x_1);
 x_15 = 1;
-x_16 = l_Lean_Elab_Term_elabTerm(x_14, x_2, x_15, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+x_16 = l_Lean_Elab_Term_elabTerm(x_14, x_2, x_15, x_15, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_16) == 0)
 {
 uint8_t x_17; 
@@ -10472,7 +10472,7 @@ if (lean_obj_tag(x_10) == 0)
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = 1;
-x_13 = l_Lean_Elab_Term_elabTerm(x_1, x_2, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_11);
+x_13 = l_Lean_Elab_Term_elabTerm(x_1, x_2, x_12, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_11);
 return x_13;
 }
 else
@@ -10555,7 +10555,7 @@ return x_15;
 }
 else
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; uint8_t x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; uint8_t x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_16 = lean_ctor_get(x_4, 0);
 x_17 = lean_ctor_get(x_4, 1);
 x_18 = lean_ctor_get(x_4, 2);
@@ -10567,6 +10567,7 @@ x_23 = lean_ctor_get_uint8(x_4, sizeof(void*)*8 + 2);
 x_24 = lean_ctor_get(x_4, 5);
 x_25 = lean_ctor_get(x_4, 6);
 x_26 = lean_ctor_get(x_4, 7);
+x_27 = lean_ctor_get_uint8(x_4, sizeof(void*)*8 + 3);
 lean_inc(x_26);
 lean_inc(x_25);
 lean_inc(x_24);
@@ -10577,26 +10578,27 @@ lean_inc(x_17);
 lean_inc(x_16);
 lean_dec(x_4);
 lean_inc(x_2);
-x_27 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_27, 0, x_1);
-lean_ctor_set(x_27, 1, x_2);
-x_28 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_28, 0, x_27);
-lean_ctor_set(x_28, 1, x_19);
-x_29 = lean_alloc_ctor(0, 8, 3);
-lean_ctor_set(x_29, 0, x_16);
-lean_ctor_set(x_29, 1, x_17);
-lean_ctor_set(x_29, 2, x_18);
-lean_ctor_set(x_29, 3, x_28);
-lean_ctor_set(x_29, 4, x_20);
-lean_ctor_set(x_29, 5, x_24);
-lean_ctor_set(x_29, 6, x_25);
-lean_ctor_set(x_29, 7, x_26);
-lean_ctor_set_uint8(x_29, sizeof(void*)*8, x_21);
-lean_ctor_set_uint8(x_29, sizeof(void*)*8 + 1, x_22);
-lean_ctor_set_uint8(x_29, sizeof(void*)*8 + 2, x_23);
-x_30 = l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabCDot(x_2, x_3, x_29, x_5, x_6, x_7, x_8, x_9, x_10);
-return x_30;
+x_28 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_28, 0, x_1);
+lean_ctor_set(x_28, 1, x_2);
+x_29 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_29, 0, x_28);
+lean_ctor_set(x_29, 1, x_19);
+x_30 = lean_alloc_ctor(0, 8, 4);
+lean_ctor_set(x_30, 0, x_16);
+lean_ctor_set(x_30, 1, x_17);
+lean_ctor_set(x_30, 2, x_18);
+lean_ctor_set(x_30, 3, x_29);
+lean_ctor_set(x_30, 4, x_20);
+lean_ctor_set(x_30, 5, x_24);
+lean_ctor_set(x_30, 6, x_25);
+lean_ctor_set(x_30, 7, x_26);
+lean_ctor_set_uint8(x_30, sizeof(void*)*8, x_21);
+lean_ctor_set_uint8(x_30, sizeof(void*)*8 + 1, x_22);
+lean_ctor_set_uint8(x_30, sizeof(void*)*8 + 2, x_23);
+lean_ctor_set_uint8(x_30, sizeof(void*)*8 + 3, x_27);
+x_31 = l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabCDot(x_2, x_3, x_30, x_5, x_6, x_7, x_8, x_9, x_10);
+return x_31;
 }
 }
 }
@@ -11428,7 +11430,7 @@ lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_31);
-x_43 = l_Lean_Elab_Term_elabTerm(x_3, x_31, x_42, x_10, x_11, x_12, x_13, x_41, x_15, x_16);
+x_43 = l_Lean_Elab_Term_elabTerm(x_3, x_31, x_42, x_42, x_10, x_11, x_12, x_13, x_41, x_15, x_16);
 if (lean_obj_tag(x_43) == 0)
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; 
@@ -12068,7 +12070,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
-x_32 = l_Lean_Elab_Term_elabTerm(x_18, x_30, x_31, x_3, x_4, x_5, x_6, x_7, x_8, x_13);
+x_32 = l_Lean_Elab_Term_elabTerm(x_18, x_30, x_31, x_31, x_3, x_4, x_5, x_6, x_7, x_8, x_13);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; 
@@ -12694,7 +12696,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-x_18 = l_Lean_Elab_Term_elabTerm(x_2, x_16, x_17, x_4, x_5, x_6, x_7, x_8, x_9, x_14);
+x_18 = l_Lean_Elab_Term_elabTerm(x_2, x_16, x_17, x_17, x_4, x_5, x_6, x_7, x_8, x_9, x_14);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
@@ -13023,7 +13025,7 @@ lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13;
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = l_Lean_Syntax_getArg(x_1, x_10);
 x_12 = 1;
-x_13 = l_Lean_Elab_Term_elabTerm(x_11, x_2, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+x_13 = l_Lean_Elab_Term_elabTerm(x_11, x_2, x_12, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_13) == 0)
 {
 uint8_t x_14; 

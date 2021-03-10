@@ -49,6 +49,9 @@ namespace Expr
 @[inline] def not? (p : Expr) : Option Expr :=
   p.app1? ``Not
 
+@[inline] def and? (p : Expr) : Option (Expr × Expr) :=
+  p.app2? ``And
+
 @[inline] def heq? (p : Expr) : Option (Expr × Expr × Expr × Expr) :=
   p.app4? ``HEq
 

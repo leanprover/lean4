@@ -101,6 +101,8 @@ structure Context where
   sectionVars        : NameMap Name    := {}
   /-- Map from internal name to fvar -/
   sectionFVars       : NameMap Expr    := {}
+  /-- Enable/disable implicit lambdas feature. -/
+  implicitLambda     : Bool             := true
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind where
@@ -995,7 +997,7 @@ private partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) :
 
 /- Main loop for `elabTerm` -/
 private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (implicitLambda : Bool) : Syntax → TermElabM Expr
-  | stx => withFreshMacroScope $ withIncRecDepth do
+  | stx => withFreshMacroScope <| withIncRecDepth do
     trace[Elab.step]! "expected type: {expectedType?}, term\n{stx}"
     checkMaxHeartbeats "elaborator"
     withNestedTraces do
@@ -1006,7 +1008,7 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     match stxNew? with
     | some stxNew => withMacroExpansion stx stxNew $ elabTermAux expectedType? catchExPostpone implicitLambda stxNew
     | _ =>
-      let implicit? ← if implicitLambda then useImplicitLambda? stx expectedType? else pure none
+      let implicit? ← if implicitLambda && (← read).implicitLambda then useImplicitLambda? stx expectedType? else pure none
       match implicit? with
       | some expectedType => elabImplicitLambda stx catchExPostpone expectedType #[]
       | none              => elabUsingElabFns stx expectedType? catchExPostpone
@@ -1041,16 +1043,17 @@ def mkTermInfo (stx : Syntax) (e : Expr) : TermElabM (Sum Info MVarId) := do
   a new synthetic metavariable of kind `SyntheticMVarKind.postponed` is created, registered,
   and returned.
   The option `catchExPostpone == false` is used to implement `resumeElabTerm`
-  to prevent the creation of another synthetic metavariable when resuming the elaboration. -/
-def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr :=
-  withInfoContext' (withRef stx <| elabTermAux expectedType? catchExPostpone true stx) (mkTermInfo stx)
+  to prevent the creation of another synthetic metavariable when resuming the elaboration.
 
-def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
-  let e ← elabTerm stx expectedType? catchExPostpone
-  withRef stx $ ensureHasType expectedType? e errorMsgHeader?
+  If `implicitLambda == true`, then disable implicit lambdas feature for the given syntax, but not for its subterms.
+  We use this flag to implement, for example, the `@` modifier. If `Context.implicitLambda == false`, then this parameter has no effect.
+  -/
+def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) : TermElabM Expr :=
+  withInfoContext' (withRef stx <| elabTermAux expectedType? catchExPostpone implicitLambda stx) (mkTermInfo stx)
 
-def elabTermWithoutImplicitLambdas (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr := do
-  elabTermAux expectedType? catchExPostpone false stx
+def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
+  let e ← elabTerm stx expectedType? catchExPostpone implicitLambda
+  withRef stx <| ensureHasType expectedType? e errorMsgHeader?
 
 /-- Adapt a syntax transformation to a regular, term-producing elaborator. -/
 def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab := fun stx expectedType? => do
@@ -1407,12 +1410,12 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   | some msg => do
     let refTerm ← elabTerm stx[1] none
     let refTermType ← inferType refTerm
-    elabTermEnsuringType stx[3] refTermType true msg
+    elabTermEnsuringType stx[3] refTermType (errorMsgHeader? := msg)
 
 @[builtinTermElab ensureExpectedType] def elabEnsureExpectedType : TermElab := fun stx expectedType? =>
   match stx[1].isStrLit? with
   | none     => throwIllFormedSyntax
-  | some msg => elabTermEnsuringType stx[2] expectedType? true msg
+  | some msg => elabTermEnsuringType stx[2] expectedType? (errorMsgHeader? := msg)
 
 @[builtinTermElab «open»] def elabOpen : TermElab := fun stx expectedType? => do
   let openDecls ← elabOpenDecl stx[1]

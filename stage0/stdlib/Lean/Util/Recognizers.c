@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Lean_Expr_iff_x3f(lean_object*);
+lean_object* l_Lean_Expr_and_x3f___boxed(lean_object*);
 lean_object* l_Lean_Expr_eq_x3f___boxed(lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_7577____closed__4;
 extern lean_object* l_myMacro____x40_Init_Core___hyg_1796____closed__4;
@@ -23,6 +24,7 @@ extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3595____closed_
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_and_x3f(lean_object*);
 lean_object* l_Lean_Expr_constructorApp_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isConstructorApp_x3f_match__1(lean_object*);
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
@@ -30,6 +32,7 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_11737____closed__7;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_10503____closed__4;
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isEq(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_9484____closed__4;
 lean_object* l_Lean_Expr_arrayLit_x3f_match__1(lean_object*);
 extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
 lean_object* l_Lean_Expr_app4_x3f(lean_object*, lean_object*);
@@ -486,6 +489,44 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Expr_not_x3f(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_Expr_and_x3f(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+x_2 = l_myMacro____x40_Init_Notation___hyg_9484____closed__4;
+x_3 = lean_unsigned_to_nat(2u);
+x_4 = l_Lean_Expr_isAppOfArity(x_1, x_2, x_3);
+if (x_4 == 0)
+{
+lean_object* x_5; 
+x_5 = lean_box(0);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_6 = l_Lean_Expr_appFn_x21(x_1);
+x_7 = l_Lean_Expr_appArg_x21(x_6);
+lean_dec(x_6);
+x_8 = l_Lean_Expr_appArg_x21(x_1);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_7);
+lean_ctor_set(x_9, 1, x_8);
+x_10 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+return x_10;
+}
+}
+}
+lean_object* l_Lean_Expr_and_x3f___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Expr_and_x3f(x_1);
 lean_dec(x_1);
 return x_2;
 }

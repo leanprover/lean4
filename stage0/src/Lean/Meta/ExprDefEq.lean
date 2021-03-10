@@ -674,20 +674,8 @@ mutual
   partial def checkAssignmentAux (mvarId : MVarId) (fvars : Array Expr) (hasCtxLocals : Bool) (v : Expr) : MetaM (Option Expr) := do
     run (check v) mvarId fvars hasCtxLocals v
 
-  partial def check (e : Expr) : CheckAssignmentM Expr := do
-    match e with
-    | Expr.mdata _ b _     => return e.updateMData! (← visit check b)
-    | Expr.proj _ _ s _    => return e.updateProj! (← visit check s)
-    | Expr.lam _ d b _     => return e.updateLambdaE! (← visit check d) (← visit check b)
-    | Expr.forallE _ d b _ => return e.updateForallE! (← visit check d) (← visit check b)
-    | Expr.letE _ t v b _  => return e.updateLet! (← visit check t) (← visit check v) (← visit check b)
-    | Expr.bvar ..         => return e
-    | Expr.sort ..         => return e
-    | Expr.const ..        => return e
-    | Expr.lit ..          => return e
-    | Expr.fvar ..         => visit checkFVar e
-    | Expr.mvar ..         => visit checkMVar e
-    | Expr.app ..          => e.withApp fun f args => do
+  partial def checkApp (e : Expr) : CheckAssignmentM Expr :=
+    e.withApp fun f args => do
       let ctxMeta ← readThe Meta.Context
       if f.isMVar && ctxMeta.config.ctxApprox && args.all Expr.isFVar then
         let f ← visit checkMVar f
@@ -704,7 +692,7 @@ mutual
               let eType ← inferType e
               let mvarType ← check eType
               /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
-                   Note that `mvarType` may be different from `eType`. -/
+                    Note that `mvarType` may be different from `eType`. -/
               let ctx ← read
               let newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType
               if (← assignToConstFun f args.size newMVar) then
@@ -716,6 +704,32 @@ mutual
         let args ← args.mapM (visit check)
         return mkAppN f args
 
+  partial def check (e : Expr) : CheckAssignmentM Expr := do
+    match e with
+    | Expr.mdata _ b _     => return e.updateMData! (← visit check b)
+    | Expr.proj _ _ s _    => return e.updateProj! (← visit check s)
+    | Expr.lam _ d b _     => return e.updateLambdaE! (← visit check d) (← visit check b)
+    | Expr.forallE _ d b _ => return e.updateForallE! (← visit check d) (← visit check b)
+    | Expr.letE _ t v b _  => return e.updateLet! (← visit check t) (← visit check v) (← visit check b)
+    | Expr.bvar ..         => return e
+    | Expr.sort ..         => return e
+    | Expr.const ..        => return e
+    | Expr.lit ..          => return e
+    | Expr.fvar ..         => visit checkFVar e
+    | Expr.mvar ..         => visit checkMVar e
+    | Expr.app ..          =>
+      checkApp e
+      -- TODO: investigate whether the following feature is too expensive or not
+      /-
+      catchInternalIds [checkAssignmentExceptionId, outOfScopeExceptionId]
+        (checkApp e)
+        fun ex => do
+          let e' ← whnfR e
+          if e != e' then
+            check e'
+          else
+            throw ex
+      -/
 end
 
 end CheckAssignment

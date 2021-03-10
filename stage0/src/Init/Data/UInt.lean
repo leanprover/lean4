@@ -343,5 +343,5 @@ def USize.decLe (a b : USize) : Decidable (a ≤ b) :=
 instance (a b : USize) : Decidable (a < b) := USize.decLt a b
 instance (a b : USize) : Decidable (a ≤ b) := USize.decLe a b
 
-theorem USize.modnLt {m : Nat} : ∀ (u : USize), m > 0 → USize.toNat (u % m) < m
-  | ⟨u⟩, h => Fin.modnLt u h
+theorem USize.modn_lt {m : Nat} : ∀ (u : USize), m > 0 → USize.toNat (u % m) < m
+  | ⟨u⟩, h => Fin.modn_lt u h

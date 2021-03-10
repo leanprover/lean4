@@ -163,8 +163,8 @@ private def synthesizeUsingDefault : TermElabM Bool := do
 
 /-- Report an error for each synthetic metavariable that could not be resolved. -/
 private def reportStuckSyntheticMVars : TermElabM Unit := do
-  let s ← get
-  for mvarSyntheticDecl in s.syntheticMVars do
+  let syntheticMVars ← modifyGet fun s => (s.syntheticMVars, { s with syntheticMVars := [] })
+  for mvarSyntheticDecl in syntheticMVars do
     withRef mvarSyntheticDecl.stx do
     match mvarSyntheticDecl.kind with
     | SyntheticMVarKind.typeClass =>

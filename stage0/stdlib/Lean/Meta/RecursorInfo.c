@@ -25,6 +25,7 @@ uint8_t l_List_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_get
 lean_object* l_Array_binSearchAux___at_Lean_Meta_getMajorPos_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2185____closed__7;
+uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_checkApp___spec__2(lean_object*, size_t, size_t);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2185____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 extern lean_object* l_instReprOption___rarg___closed__1;
@@ -91,7 +92,6 @@ lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotive___close
 extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
 lean_object* l_Lean_getConstInfoInduct___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoForKernelRec___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Attribute_Recursor_getMajorPos___closed__3;
-uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_check___spec__2(lean_object*, size_t, size_t);
 lean_object* l_Lean_Meta_RecursorInfo_instToStringRecursorInfo___closed__13;
 lean_object* l_Lean_Meta_forallTelescopeReducing___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwErrorAt___at_Lean_getAttrParamOptPrio___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2719,7 +2719,7 @@ size_t x_27; size_t x_28; uint8_t x_29;
 x_27 = 0;
 x_28 = lean_usize_of_nat(x_19);
 lean_dec(x_19);
-x_29 = l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_check___spec__2(x_3, x_27, x_28);
+x_29 = l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_checkApp___spec__2(x_3, x_27, x_28);
 if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; 

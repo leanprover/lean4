@@ -45,15 +45,14 @@ Set these with e.g. `M-x customize-variable`.
 Key Bindings and Commands
 =========================
 
-| Key                | Function                                                                 |
-|--------------------|--------------------------------------------------------------------------|
-| <kbd>C-c C-k</kbd> | show the keystroke needed to input the symbol under the cursor           |
-| <kbd>C-c C-d</kbd> | recompile & reload imports (`lean-refresh-file-dependencies`)            |
-| <kbd>C-c C-x</kbd> | execute Lean in stand-alone mode (`lean-std-exe`)                        |
-| <kbd>C-c C-n</kbd> | toggle showing next error in dedicated buffer (`lean-toggle-next-error`) |
-| <kbd>C-c ! n</kbd> | flycheck: go to next error                                               |
-| <kbd>C-c ! p</kbd> | flycheck: go to previous error                                           |
-| <kbd>C-c ! l</kbd> | flycheck: show list of errors                                            |
+| Key                | Function                                                                        |
+|--------------------|---------------------------------------------------------------------------------|
+| <kbd>C-c C-k</kbd> | show the keystroke needed to input the symbol under the cursor                  |
+| <kbd>C-c C-d</kbd> | recompile & reload imports (`lean4-refresh-file-dependencies`)                  |
+| <kbd>C-c C-x</kbd> | execute Lean in stand-alone mode (`lean4-std-exe`)                              |
+| <kbd>C-c C-i</kbd> | toggle info view showing goals and errors at point (`lean4-toggle-info-buffer`) |
+| <kbd>C-c ! n</kbd> | flycheck: go to next error                                                      |
+| <kbd>C-c ! p</kbd> | flycheck: go to previous error                                                  |
 
 For `lsp-mode` bindings, see https://emacs-lsp.github.io/lsp-mode/page/keybindings/ (not all capabilities are supported currently).
 

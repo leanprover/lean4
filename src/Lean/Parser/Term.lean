@@ -180,10 +180,6 @@ def whereDecls := parser! "where " >> many1Indent (group (letRecDecl >> optional
 @[runBuiltinParserAttributeHooks]
 def matchAltsWhereDecls := parser! matchAlts >> optional whereDecls
 
-@[builtinTermParser] def nativeRefl   := parser! "nativeRefl! " >> termParser maxPrec
-@[builtinTermParser] def nativeDecide := parser! "nativeDecide!"
-@[builtinTermParser] def decide       := parser! "decide!"
-
 @[builtinTermParser] def noindex := parser! "noindex!" >> termParser maxPrec
 
 @[builtinTermParser] def binrel  := parser! "binrel! " >> ident >> ppSpace >> termParser maxPrec >> termParser maxPrec

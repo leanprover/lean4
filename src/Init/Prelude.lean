@@ -774,7 +774,7 @@ def UInt8.decEq (a b : UInt8) : Decidable (Eq a b) :=
 instance : DecidableEq UInt8 := UInt8.decEq
 
 instance : Inhabited UInt8 where
-  default := UInt8.ofNatCore 0 decide!
+  default := UInt8.ofNatCore 0 (by decide)
 
 def UInt16.size : Nat := 65536
 structure UInt16 where
@@ -798,7 +798,7 @@ def UInt16.decEq (a b : UInt16) : Decidable (Eq a b) :=
 instance : DecidableEq UInt16 := UInt16.decEq
 
 instance : Inhabited UInt16 where
-  default := UInt16.ofNatCore 0 decide!
+  default := UInt16.ofNatCore 0 (by decide)
 
 def UInt32.size : Nat := 4294967296
 structure UInt32 where
@@ -825,7 +825,7 @@ def UInt32.decEq (a b : UInt32) : Decidable (Eq a b) :=
 instance : DecidableEq UInt32 := UInt32.decEq
 
 instance : Inhabited UInt32 where
-  default := UInt32.ofNatCore 0 decide!
+  default := UInt32.ofNatCore 0 (by decide)
 
 instance : HasLess UInt32 where
   Less a b := Less a.val b.val
@@ -870,15 +870,15 @@ def UInt64.decEq (a b : UInt64) : Decidable (Eq a b) :=
 instance : DecidableEq UInt64 := UInt64.decEq
 
 instance : Inhabited UInt64 where
-  default := UInt64.ofNatCore 0 decide!
+  default := UInt64.ofNatCore 0 (by decide)
 
 def USize.size : Nat := hPow 2 System.Platform.numBits
 
 theorem usizeSzEq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
   show Or (Eq (hPow 2 System.Platform.numBits) 4294967296) (Eq (hPow 2 System.Platform.numBits) 18446744073709551616) from
   match System.Platform.numBits, System.Platform.numBitsEq with
-  | _, Or.inl rfl => Or.inl (decide! : (Eq (hPow 2 32) (4294967296:Nat)))
-  | _, Or.inr rfl => Or.inr (decide! : (Eq (hPow 2 64) (18446744073709551616:Nat)))
+  | _, Or.inl rfl => Or.inl (by decide)
+  | _, Or.inr rfl => Or.inr (by decide)
 
 structure USize where
   val : Fin USize.size
@@ -902,8 +902,8 @@ instance : DecidableEq USize := USize.decEq
 
 instance : Inhabited USize where
   default := USize.ofNatCore 0 (match USize.size, usizeSzEq with
-    | _, Or.inl rfl => decide!
-    | _, Or.inr rfl => decide!)
+    | _, Or.inl rfl => by decide
+    | _, Or.inr rfl => by decide)
 
 @[extern "lean_usize_of_nat"]
 def USize.ofNat32 (n : @& Nat) (h : Less n 4294967296) : USize := {
@@ -911,7 +911,7 @@ def USize.ofNat32 (n : @& Nat) (h : Less n 4294967296) : USize := {
     val  := n,
     isLt := match USize.size, usizeSzEq with
       | _, Or.inl rfl => h
-      | _, Or.inr rfl => Nat.ltTrans h (decide! : Less 4294967296 18446744073709551616)
+      | _, Or.inr rfl => Nat.ltTrans h (by decide)
   }
 }
 
@@ -929,8 +929,8 @@ structure Char where
 
 private theorem validCharIsUInt32 {n : Nat} (h : n.isValidChar) : Less n UInt32.size :=
   match h with
-  | Or.inl h      => Nat.ltTrans h (decide! : Less 55296 UInt32.size)
-  | Or.inr ⟨_, h⟩ => Nat.ltTrans h (decide! : Less 1114112 UInt32.size)
+  | Or.inl h      => Nat.ltTrans h (by decide)
+  | Or.inr ⟨_, h⟩ => Nat.ltTrans h (by decide)
 
 @[extern "lean_uint32_of_nat"]
 private def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char :=
@@ -940,7 +940,7 @@ private def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char :=
 def Char.ofNat (n : Nat) : Char :=
   dite (n.isValidChar)
     (fun h => Char.ofNatAux n h)
-    (fun _ => { val := ⟨{ val := 0, isLt := decide! }⟩, valid := Or.inl decide! })
+    (fun _ => { val := ⟨{ val := 0, isLt := by decide }⟩, valid := Or.inl (by decide) })
 
 theorem Char.eqOfVeq : ∀ {c d : Char}, Eq c.val d.val → Eq c d
   | ⟨v, h⟩, ⟨_, _⟩, rfl => rfl
@@ -962,13 +962,13 @@ instance : DecidableEq Char :=
 
 def Char.utf8Size (c : Char) : UInt32 :=
   let v := c.val
-  ite (LessEq v (UInt32.ofNatCore 0x7F decide!))
-    (UInt32.ofNatCore 1 decide!)
-    (ite (LessEq v (UInt32.ofNatCore 0x7FF decide!))
-      (UInt32.ofNatCore 2 decide!)
-      (ite (LessEq v (UInt32.ofNatCore 0xFFFF decide!))
-        (UInt32.ofNatCore 3 decide!)
-        (UInt32.ofNatCore 4 decide!)))
+  ite (LessEq v (UInt32.ofNatCore 0x7F (by decide)))
+    (UInt32.ofNatCore 1 (by decide))
+    (ite (LessEq v (UInt32.ofNatCore 0x7FF (by decide)))
+      (UInt32.ofNatCore 2 (by decide))
+      (ite (LessEq v (UInt32.ofNatCore 0xFFFF (by decide)))
+        (UInt32.ofNatCore 3 (by decide))
+        (UInt32.ofNatCore 4 (by decide))))
 
 inductive Option (α : Type u) where
   | none : Option α
@@ -1589,7 +1589,7 @@ instance : Inhabited Name where
   default := Name.anonymous
 
 protected def Name.hash : Name → USize
-  | Name.anonymous => USize.ofNat32 1723 decide!
+  | Name.anonymous => USize.ofNat32 1723 (by decide)
   | Name.str p s h => h
   | Name.num p v h => h
 
@@ -1604,7 +1604,7 @@ def mkStr (p : Name) (s : String) : Name :=
 
 @[export lean_name_mk_numeral]
 def mkNum (p : Name) (v : Nat) : Name :=
-  Name.num p v (mixHash (hash p) (dite (Less v USize.size) (fun h => USize.ofNatCore v h) (fun _ => USize.ofNat32 17 decide!)))
+  Name.num p v (mixHash (hash p) (dite (Less v USize.size) (fun h => USize.ofNatCore v h) (fun _ => USize.ofNat32 17 (by decide))))
 
 def mkSimple (s : String) : Name :=
   mkStr Name.anonymous s

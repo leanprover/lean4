@@ -14,7 +14,7 @@ pure ()
 
 open Lean.Parser
 
-@[termParser] def tst := parser! "(|" >> termParser >> Parser.optional (symbol ", " >> termParser) >> "|)"
+@[termParser] def tst := leading_parser "(|" >> termParser >> Parser.optional (symbol ", " >> termParser) >> "|)"
 
 def tst2 : Parser := symbol "(||" >> termParser >> symbol "||)"
 

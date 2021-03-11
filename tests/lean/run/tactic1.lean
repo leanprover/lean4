@@ -1,5 +1,3 @@
-
-
 theorem ex1 (x : Nat) (y : { v // v > x }) (z : Nat) : Nat :=
 by {
   clear y x;
@@ -30,7 +28,7 @@ by {
 
 theorem ex5 (x y z : Nat) (h₁ : x = y) (h₂ : z = y) : x = z :=
 by {
-  let! h₃ : y = z := h₂.symm;
+  have h₃ : y = z := h₂.symm;
   apply Eq.trans;
   exact h₁;
   exact h₃
@@ -39,7 +37,7 @@ by {
 theorem ex6 (x y z : Nat) (h₁ : x = y) (h₂ : z = y) : id (x + 0 = z) :=
 by {
   show x = z;
-  let! h₃ : y = z := h₂.symm;
+  have h₃ : y = z := h₂.symm;
   apply Eq.trans;
   exact h₁;
   exact h₃

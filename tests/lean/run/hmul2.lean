@@ -3,7 +3,7 @@ instance [Mul α] : HMul α (Array α) (Array α) where
 
 #check fun x => x * 2
 #check fun y : Int => let  x := 1; x * y
-#check fun y : Int => let* x := 1; x * y
+#check fun y : Int => let_delayed x := 1; x * y
 
 def f1 (n : Nat) (i : Int) :=
   i * n

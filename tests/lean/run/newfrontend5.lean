@@ -1,5 +1,3 @@
-
-
 def foo {α} (f : {β : Type _} → β → β) (a : α) : α :=
 f a
 
@@ -61,4 +59,4 @@ def h (x := 10) (y := 20) : Nat := x + y
 #check let f := fun (x : optParam Nat 10) => x + 1; f + f 1
 #check (fun (x : optParam Nat 10) => x)
 
-#check let! x := 10; x + 1
+#check let_fun x := 10; x + 1

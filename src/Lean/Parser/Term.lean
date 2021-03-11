@@ -165,6 +165,10 @@ def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFoll
 @[builtinTermParser] def «let» := leading_parser:leadPrec  withPosition ("let " >> letDecl) >> optSemicolon termParser
 @[builtinTermParser] def «let!» := leading_parser:leadPrec withPosition ("let! " >> letDecl) >> optSemicolon termParser
 @[builtinTermParser] def «let*» := leading_parser:leadPrec withPosition ("let* " >> letDecl) >> optSemicolon termParser
+
+@[builtinTermParser] def «let_fun»     := leading_parser:leadPrec withPosition ((symbol "let_fun " <|> "let_λ") >> letDecl) >> optSemicolon termParser
+@[builtinTermParser] def «let_delayed» := leading_parser:leadPrec withPosition ("let_delayed " >> letDecl) >> optSemicolon termParser
+
 def «scoped» := leading_parser "scoped "
 def «local»  := leading_parser "local "
 def attrKind := leading_parser optional («scoped» <|> «local»)

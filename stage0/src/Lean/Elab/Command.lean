@@ -294,7 +294,7 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
   let ctx ← read
   let s   ← get
   let heartbeats ← IO.getNumHeartbeats (ε := Exception)
-  -- dbgTrace! "heartbeats: {heartbeats}"
+  -- dbg_trace "heartbeats: {heartbeats}"
   let scope := s.scopes.head!
   -- We execute `x` with an empty message log. Thus, `x` cannot modify/view messages produced by previous commands.
   -- This is useful for implementing `runTermElabM` where we use `Term.resetMessageLog`

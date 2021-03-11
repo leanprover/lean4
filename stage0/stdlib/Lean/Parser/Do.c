@@ -1100,7 +1100,6 @@ lean_object* l_Lean_Parser_Term_doFinally_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_Term_elseIf___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Term_doReassignArrow___elambda__1___closed__5;
 lean_object* l_Lean_Parser_toggleInsideQuotFn(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__59;
 lean_object* l_Lean_Parser_Term_doTry_formatter___closed__7;
 lean_object* l_Lean_Parser_Term_doIf_parenthesizer___closed__5;
 lean_object* l_Lean_Parser_Term_doFor_parenthesizer___closed__3;
@@ -1116,7 +1115,6 @@ extern lean_object* l_Lean_Parser_Term_match_formatter___closed__2;
 lean_object* l_Lean_Parser_Term_doCatch_parenthesizer___closed__6;
 lean_object* l_Lean_Parser_Term_doFinally_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Term_doSeqBracketed_formatter___closed__7;
-lean_object* l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__61;
 lean_object* l_Lean_Parser_Term_doPatDecl_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_Term_doExpr___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_termFor___closed__1;
@@ -1252,7 +1250,6 @@ lean_object* l___regBuiltin_Lean_Parser_Term_termReturn_parenthesizer(lean_objec
 lean_object* l_Lean_Parser_Term_initFn____x40_Lean_Parser_Do___hyg_193____closed__3;
 lean_object* l_Lean_Parser_Term_doCatch_formatter___closed__6;
 lean_object* l_Lean_Parser_Term_doTry___closed__2;
-lean_object* l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__58;
 lean_object* l_Lean_Parser_Term_doTry_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_Term_doLet___elambda__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_tacticSeqBracketed_formatter___closed__11;
@@ -1566,7 +1563,6 @@ lean_object* l_Lean_Parser_Term_doElem_quot___elambda__1___closed__12;
 lean_object* l_Lean_Parser_Term_doSeqItem_formatter___closed__2;
 lean_object* l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__47;
 lean_object* l_Lean_Parser_Term_doCatchMatch_parenthesizer___closed__1;
-lean_object* l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__60;
 lean_object* l_Lean_Parser_Term_doFinally___elambda__1___closed__8;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Do___hyg_4____closed__3;
 lean_object* l_Lean_Parser_Term_doSeqBracketed___closed__7;
@@ -1624,7 +1620,6 @@ extern lean_object* l_Lean_Parser_Term_fun___elambda__1___closed__10;
 lean_object* l___regBuiltin_Lean_Parser_Term_doContinue_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Term_doCatchMatch_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_doUnless___elambda__1(lean_object*, lean_object*);
-lean_object* l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__57;
 lean_object* l_Lean_Parser_Term_doDbgTrace___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Term_liftMethod_formatter___closed__2;
 lean_object* l_Lean_Parser_Term_doSeqBracketed;
@@ -4330,9 +4325,10 @@ return x_3;
 static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__25() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("dbgTrace!");
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_276____closed__1;
+x_2 = l_String_trim(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__26() {
@@ -4340,7 +4336,8 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__25;
-x_2 = l_String_trim(x_1);
+x_2 = lean_alloc_closure((void*)(l_Lean_Parser_symbolFn___boxed), 3, 1);
+lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
@@ -4349,7 +4346,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__26;
-x_2 = lean_alloc_closure((void*)(l_Lean_Parser_symbolFn___boxed), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_Parser_tokenWithAntiquotFn), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -4357,18 +4354,8 @@ return x_2;
 static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__28() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__27;
-x_2 = lean_alloc_closure((void*)(l_Lean_Parser_tokenWithAntiquotFn), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__29() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__28;
+x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__27;
 x_2 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__24;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_orelseFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -4376,48 +4363,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__30() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_276____closed__1;
-x_2 = l_String_trim(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__31() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__30;
-x_2 = lean_alloc_closure((void*)(l_Lean_Parser_symbolFn___boxed), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__32() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__31;
-x_2 = lean_alloc_closure((void*)(l_Lean_Parser_tokenWithAntiquotFn), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__33() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__32;
-x_2 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__29;
-x_3 = lean_alloc_closure((void*)(l_Lean_Parser_orelseFn), 4, 2);
-lean_closure_set(x_3, 0, x_1);
-lean_closure_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__34() {
+static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__29() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4426,39 +4372,39 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__35() {
+static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__30() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__34;
+x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__29;
 x_2 = lean_alloc_closure((void*)(l_Lean_Parser_symbolFn___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__36() {
+static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__31() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__35;
+x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__30;
 x_2 = lean_alloc_closure((void*)(l_Lean_Parser_tokenWithAntiquotFn), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__37() {
+static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__32() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__36;
-x_2 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__33;
+x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__31;
+x_2 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__28;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_orelseFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__38() {
+static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__33() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4467,12 +4413,63 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__34() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__33;
+x_2 = lean_alloc_closure((void*)(l_Lean_Parser_symbolFn___boxed), 3, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__35() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__34;
+x_2 = lean_alloc_closure((void*)(l_Lean_Parser_tokenWithAntiquotFn), 3, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__36() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__35;
+x_2 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__32;
+x_3 = lean_alloc_closure((void*)(l_Lean_Parser_orelseFn), 4, 2);
+lean_closure_set(x_3, 0, x_1);
+lean_closure_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__37() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_myMacro____x40_Init_Notation___hyg_14470____closed__1;
+x_2 = l_String_trim(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__38() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__37;
+x_2 = lean_alloc_closure((void*)(l_Lean_Parser_symbolFn___boxed), 3, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__39() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__38;
-x_2 = lean_alloc_closure((void*)(l_Lean_Parser_symbolFn___boxed), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_Parser_tokenWithAntiquotFn), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -4480,30 +4477,28 @@ return x_2;
 static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__40() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__39;
-x_2 = lean_alloc_closure((void*)(l_Lean_Parser_tokenWithAntiquotFn), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__41() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__40;
-x_2 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__37;
+x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__39;
+x_2 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__36;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_orelseFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__41() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("if");
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__42() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_14470____closed__1;
+x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__41;
 x_2 = l_String_trim(x_1);
 return x_2;
 }
@@ -4533,7 +4528,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__44;
-x_2 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__41;
+x_2 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__40;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_orelseFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -4544,7 +4539,7 @@ static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("if");
+x_1 = lean_mk_string("open");
 return x_1;
 }
 }
@@ -4593,7 +4588,7 @@ static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("open");
+x_1 = lean_mk_string("set_option");
 return x_1;
 }
 }
@@ -4642,55 +4637,6 @@ static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("set_option");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__57() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__56;
-x_2 = l_String_trim(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__58() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__57;
-x_2 = lean_alloc_closure((void*)(l_Lean_Parser_symbolFn___boxed), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__59() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__58;
-x_2 = lean_alloc_closure((void*)(l_Lean_Parser_tokenWithAntiquotFn), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__60() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__59;
-x_2 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__55;
-x_3 = lean_alloc_closure((void*)(l_Lean_Parser_orelseFn), 4, 2);
-lean_closure_set(x_3, 0, x_1);
-lean_closure_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__61() {
-_start:
-{
-lean_object* x_1; 
 x_1 = lean_mk_string("token at 'do' element");
 return x_1;
 }
@@ -4699,8 +4645,8 @@ lean_object* l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1(lea
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__60;
-x_4 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__61;
+x_3 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__55;
+x_4 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__56;
 x_5 = l_Lean_Parser_notFollowedByFn(x_3, x_4, x_1, x_2);
 return x_5;
 }
@@ -20904,16 +20850,6 @@ l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__55 = _
 lean_mark_persistent(l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__55);
 l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__56 = _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__56();
 lean_mark_persistent(l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__56);
-l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__57 = _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__57();
-lean_mark_persistent(l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__57);
-l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__58 = _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__58();
-lean_mark_persistent(l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__58);
-l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__59 = _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__59();
-lean_mark_persistent(l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__59);
-l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__60 = _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__60();
-lean_mark_persistent(l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__60);
-l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__61 = _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__61();
-lean_mark_persistent(l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__61);
 l_Lean_Parser_Term_notFollowedByRedefinedTermToken___closed__1 = _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___closed__1();
 lean_mark_persistent(l_Lean_Parser_Term_notFollowedByRedefinedTermToken___closed__1);
 l_Lean_Parser_Term_notFollowedByRedefinedTermToken___closed__2 = _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___closed__2();

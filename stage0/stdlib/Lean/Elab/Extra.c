@@ -2446,7 +2446,7 @@ static lean_object* _init_l_Lean_Elab_Term_elabForIn_getMonad___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid 'forIn!' notation, expected type is not available");
+x_1 = lean_mk_string("invalid 'forIn%' notation, expected type is not available");
 return x_1;
 }
 }
@@ -2474,7 +2474,7 @@ static lean_object* _init_l_Lean_Elab_Term_elabForIn_getMonad___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid 'forIn!' notation, expected type is not of of the form `M α`");
+x_1 = lean_mk_string("invalid 'forIn%' notation, expected type is not of of the form `M α`");
 return x_1;
 }
 }
@@ -2624,7 +2624,7 @@ static lean_object* _init_l_Lean_Elab_Term_elabForIn_throwFailure___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to synthesize instance for 'forIn!' notation");
+x_1 = lean_mk_string("failed to synthesize instance for 'forIn%' notation");
 return x_1;
 }
 }
@@ -2991,7 +2991,7 @@ static lean_object* _init_l_Lean_Elab_Term_elabForIn___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("forIn!");
+x_1 = lean_mk_string("forIn%");
 return x_1;
 }
 }

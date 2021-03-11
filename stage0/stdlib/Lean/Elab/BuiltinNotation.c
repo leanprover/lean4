@@ -109,7 +109,6 @@ lean_object* l_Lean_Elab_Term_expandDbgTrace___boxed(lean_object*, lean_object*,
 lean_object* l_Lean_Elab_Term_mkPairs_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabSorry(lean_object*);
 lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabTParserMacroAux___closed__9;
-extern lean_object* l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__46;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_15387____closed__9;
 lean_object* l_Lean_Elab_Term_expandDbgTrace___closed__1;
 lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabParserMacroAux___closed__39;
@@ -307,6 +306,7 @@ lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_myMacro____x40_Init_Nota
 extern lean_object* l_Lean_Parser_Term_dbgTrace___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Term_elabStateRefT___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabParserMacroAux___closed__25;
+extern lean_object* l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__41;
 lean_object* l_Lean_Elab_Term_expandHave(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_hasCDot___boxed(lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
@@ -5302,7 +5302,7 @@ if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
 x_11 = lean_ctor_get(x_9, 0);
-x_12 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__46;
+x_12 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__41;
 lean_inc(x_11);
 x_13 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_13, 0, x_11);
@@ -5383,7 +5383,7 @@ x_53 = lean_ctor_get(x_9, 1);
 lean_inc(x_53);
 lean_inc(x_52);
 lean_dec(x_9);
-x_54 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__46;
+x_54 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__41;
 lean_inc(x_52);
 x_55 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_55, 0, x_52);
@@ -5471,7 +5471,7 @@ if (x_97 == 0)
 {
 lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; 
 x_98 = lean_ctor_get(x_96, 0);
-x_99 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__46;
+x_99 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__41;
 lean_inc(x_98);
 x_100 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_100, 0, x_98);
@@ -5567,7 +5567,7 @@ x_149 = lean_ctor_get(x_96, 1);
 lean_inc(x_149);
 lean_inc(x_148);
 lean_dec(x_96);
-x_150 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__46;
+x_150 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__41;
 lean_inc(x_148);
 x_151 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_151, 0, x_148);

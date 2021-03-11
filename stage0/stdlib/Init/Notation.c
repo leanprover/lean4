@@ -15558,7 +15558,7 @@ static lean_object* _init_l_myMacro____x40_Init_Notation___hyg_8584____closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("binrel!");
+x_1 = lean_mk_string("binrel%");
 return x_1;
 }
 }

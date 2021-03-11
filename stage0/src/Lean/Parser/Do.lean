@@ -34,7 +34,7 @@ builtin_initialize
 def notFollowedByRedefinedTermToken :=
   -- Remark: we don't currently support `open` and `set_option` in `do`-blocks, but we include them in the following list to fix the ambiguity
   -- "open" command following `do`-block. If we don't add `do`, then users would have to indent `do` blocks or use `{ ... }`.
-  notFollowedBy ("set_option" <|> "open" <|> "if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbgTrace!" <|> "dbg_trace" <|> "assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try") "token at 'do' element"
+  notFollowedBy ("set_option" <|> "open" <|> "if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbg_trace" <|> "assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try") "token at 'do' element"
 
 @[builtinDoElemParser] def doLet      := leading_parser "let " >> optional "mut " >> letDecl
 

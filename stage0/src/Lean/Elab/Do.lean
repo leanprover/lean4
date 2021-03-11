@@ -1541,7 +1541,7 @@ def elabDo : TermElab := fun stx expectedType? => do
   let m ← mkMonadAlias bindInfo.m
   let codeBlock ← ToCodeBlock.run stx m
   let stxNew ← liftMacroM $ ToTerm.run codeBlock.code m
-  trace[Elab.do]! stxNew
+  trace[Elab.do] stxNew
   withMacroExpansion stx stxNew $ elabTermEnsuringType stxNew bindInfo.expectedType
 
 end Do

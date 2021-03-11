@@ -189,51 +189,57 @@ class eager_lambda_lifting_fn {
     }
 
     expr lift_lambda(expr e, bool apply_simp) {
-        lean_assert(is_lambda(e));
-        buffer<expr> fvars;
-        if (!collect_fvars(e, fvars)) {
+        /* Hack: We use `try` here because previous compilation steps may have
+           produced type incorrect terms. */
+        try {
+            lean_assert(is_lambda(e));
+            buffer<expr> fvars;
+            if (!collect_fvars(e, fvars)) {
+                return e;
+            }
+            buffer<expr> params;
+            while (is_lambda(e)) {
+                expr param_type = instantiate_rev(binding_domain(e), params.size(), params.data());
+                expr param      = m_lctx.mk_local_decl(ngen(), binding_name(e), param_type, binding_info(e));
+                params.push_back(param);
+                e = binding_body(e);
+            }
+            e = instantiate_rev(e, params.size(), params.data());
+            buffer<expr> new_params, to_copy;
+            split_fvars(fvars, params, new_params, to_copy);
+            /*
+              Variables in `to_copy` only depend on global constants
+              and other variables in `to_copy`. Moreover, `params` do not depend on them.
+              It is wasteful to pass them as new parameters to the new lifted declaration.
+              We can just copy them. The code duplication is not problematic because later at `extract_closed`
+              we will create global names for closed terms, and eliminate the redundancy.
+            */
+            e = m_lctx.mk_lambda(to_copy, e);
+            e = m_lctx.mk_lambda(params, e);
+            expr code = abstract(e, new_params.size(), new_params.data());
+            unsigned i = new_params.size();
+            while (i > 0) {
+                --i;
+                local_decl const & decl = m_lctx.get_local_decl(new_params[i]);
+                expr type = abstract(decl.get_type(), i, new_params.data());
+                code = ::lean::mk_lambda(decl.get_user_name(), type, code);
+            }
+            if (apply_simp) {
+                code = csimp(env(), code, m_cfg);
+            }
+            expr type = cheap_beta_reduce(type_checker(m_st).infer(code));
+            name n    = next_name();
+            /* We add the auxiliary declaration `n` as a "meta" axiom to the environment.
+               This is a hack to make sure we can use `csimp` to simplify `code` and
+               other definitions that use `n`.
+               We used a similar hack at `specialize.cpp`. */
+            declaration aux_ax = mk_axiom(n, names(), type, true /* meta */);
+            m_st.env() = env().add(aux_ax, false);
+            m_new_decls.push_back(comp_decl(n, code));
+            return mk_app(mk_constant(n), new_params);
+        } catch (exception &) {
             return e;
         }
-        buffer<expr> params;
-        while (is_lambda(e)) {
-            expr param_type = instantiate_rev(binding_domain(e), params.size(), params.data());
-            expr param      = m_lctx.mk_local_decl(ngen(), binding_name(e), param_type, binding_info(e));
-            params.push_back(param);
-            e = binding_body(e);
-        }
-        e = instantiate_rev(e, params.size(), params.data());
-        buffer<expr> new_params, to_copy;
-        split_fvars(fvars, params, new_params, to_copy);
-        /*
-          Variables in `to_copy` only depend on global constants
-          and other variables in `to_copy`. Moreover, `params` do not depend on them.
-          It is wasteful to pass them as new parameters to the new lifted declaration.
-          We can just copy them. The code duplication is not problematic because later at `extract_closed`
-          we will create global names for closed terms, and eliminate the redundancy.
-        */
-        e = m_lctx.mk_lambda(to_copy, e);
-        e = m_lctx.mk_lambda(params, e);
-        expr code = abstract(e, new_params.size(), new_params.data());
-        unsigned i = new_params.size();
-        while (i > 0) {
-            --i;
-            local_decl const & decl = m_lctx.get_local_decl(new_params[i]);
-            expr type = abstract(decl.get_type(), i, new_params.data());
-            code = ::lean::mk_lambda(decl.get_user_name(), type, code);
-        }
-        if (apply_simp) {
-            code = csimp(env(), code, m_cfg);
-        }
-        expr type = cheap_beta_reduce(type_checker(m_st).infer(code));
-        name n    = next_name();
-        /* We add the auxiliary declaration `n` as a "meta" axiom to the environment.
-           This is a hack to make sure we can use `csimp` to simplify `code` and
-           other definitions that use `n`.
-           We used a similar hack at `specialize.cpp`. */
-        declaration aux_ax = mk_axiom(n, names(), type, true /* meta */);
-        m_st.env() = env().add(aux_ax, false);
-        m_new_decls.push_back(comp_decl(n, code));
-        return mk_app(mk_constant(n), new_params);
     }
 
     /* Given a free variable `x`, follow let-decls and return a pair `(x, v)`.

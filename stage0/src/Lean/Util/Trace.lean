@@ -135,13 +135,10 @@ end
 def registerTraceClass (traceClassName : Name) : IO Unit :=
   registerOption (`trace ++ traceClassName) { group := "trace", defValue := false, descr := "enable/disable tracing for the given module and submodules" }
 
-macro:max "trace!" id:term:max msg:term : term =>
-  `(trace $id fun _ => ($msg : MessageData))
-
-syntax "trace[" ident "]!" (interpolatedStr(term) <|> term) : term
+syntax "trace[" ident "]" (interpolatedStr(term) <|> term) : term
 
 macro_rules
-  | `(trace[$id]! $s) =>
+  | `(trace[$id] $s) =>
     if s.getKind == interpolatedStrKind then
       `(Lean.trace $(quote id.getId) fun _ => m! $s)
     else

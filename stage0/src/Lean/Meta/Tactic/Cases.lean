@@ -296,7 +296,7 @@ def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNam
         inductionCasesOn mvarId majorFVarId givenNames ctx
       else
         let s₁ ← generalizeIndices mvarId majorFVarId
-        trace[Meta.Tactic.cases]! "after generalizeIndices\n{MessageData.ofGoal s₁.mvarId}"
+        trace[Meta.Tactic.cases] "after generalizeIndices\n{MessageData.ofGoal s₁.mvarId}"
         let s₂ ← inductionCasesOn s₁.mvarId s₁.fvarId givenNames ctx
         let s₂ ← elimAuxIndices s₁ s₂
         unifyCasesEqs s₁.numEqs s₂

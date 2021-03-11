@@ -68,7 +68,7 @@ where
       let type ← inferType motiveFVars[i]
       let motive ← forallTelescopeReducing type fun xs _ => do
         mkLambdaFVars xs <| mkConst ``Nat
-      trace[Meta.sizeOf]! "motive: {motive}"
+      trace[Meta.sizeOf] "motive: {motive}"
       loop (i+1) (motives.push motive)
     else
       k motives
@@ -89,7 +89,7 @@ where
             | some idx => minor ← mkAdd minor xs'[idx]
             | none     => minor ← mkAdd minor (← mkAppM ``SizeOf.sizeOf #[x'])
         minor ← mkLambdaFVars xs' minor
-        trace[Meta.sizeOf]! "minor: {minor}"
+        trace[Meta.sizeOf] "minor: {minor}"
         loop (i+1) (minors.push minor)
     else
       k minors
@@ -98,7 +98,7 @@ where
   Create a "sizeOf" function with name `declName` using the recursor `recName`.
 -/
 partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
-  trace[Meta.sizeOf]! "recName: {recName}"
+  trace[Meta.sizeOf] "recName: {recName}"
   let recInfo : RecursorVal ← getConstInfoRec recName
   forallTelescopeReducing recInfo.type fun xs type =>
     let levelParams := recInfo.levelParams.tail! -- universe parameters for declaration being defined
@@ -118,7 +118,7 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
         let sizeOfParams := params ++ localInsts ++ indices ++ #[major]
         let sizeOfType ← mkForallFVars sizeOfParams nat
         let val := mkAppN val (minors ++ indices ++ #[major])
-        trace[Meta.sizeOf]! "val: {val}"
+        trace[Meta.sizeOf] "val: {val}"
         let sizeOfValue ← mkLambdaFVars sizeOfParams val
         addDecl <| Declaration.defnDecl {
           name        := declName
@@ -205,7 +205,7 @@ private def recToSizeOf (e : Expr) : M Expr := do
 mutual
   /-- Construct minor premise proof for `mkSizeOfAuxLemmaProof`. `ys` contains fields and inductive hypotheses for the minor premise. -/
   private partial def mkMinorProof (ys : Array Expr) (lhs rhs : Expr) : M Expr := do
-    trace[Meta.sizeOf.minor]! "{lhs} =?= {rhs}"
+    trace[Meta.sizeOf.minor] "{lhs} =?= {rhs}"
     if (← isDefEq lhs rhs) then
       mkEqRefl rhs
     else
@@ -228,7 +228,7 @@ mutual
       mkEqRefl rhs
     else
       let lhs ← recToSizeOf lhs
-      trace[Meta.sizeOf.minor.step]! "{lhs} =?= {rhs}"
+      trace[Meta.sizeOf.minor.step] "{lhs} =?= {rhs}"
       let target ← mkEq lhs rhs
       for y in ys do
         if (← isDefEq (← inferType y) target) then
@@ -317,7 +317,7 @@ mutual
     `Expr._sizeOf_1 args` is **not** definitionally equal to `sizeOf args`. We need a proof by induction.
   -/
   private partial def mkSizeOfAuxLemma (lhs rhs : Expr) : M Expr := do
-    trace[Meta.sizeOf.aux]! "{lhs} =?= {rhs}"
+    trace[Meta.sizeOf.aux] "{lhs} =?= {rhs}"
     match lhs.getAppFn.const? with
     | none => throwFailed
     | some (fName, us) =>
@@ -347,7 +347,7 @@ mutual
               let thmType ← mkForallFVars thmParams eq
               let thmValue ← mkSizeOfAuxLemmaProof info lhsNew rhsNew
               let thmValue ← mkLambdaFVars thmParams thmValue
-              trace[Meta.sizeOf]! "thmValue: {thmValue}"
+              trace[Meta.sizeOf] "thmValue: {thmValue}"
               addDecl <| Declaration.thmDecl {
                 name        := thmName
                 levelParams := thmLevelParams
@@ -369,7 +369,7 @@ partial def main (lhs rhs : Expr) : M Expr := do
     loop lhs rhs
 where
   loop (lhs rhs : Expr) : M Expr := do
-    trace[Meta.sizeOf.loop]! "{lhs} =?= {rhs}"
+    trace[Meta.sizeOf.loop] "{lhs} =?= {rhs}"
     if (← isDefEq lhs rhs) then
       mkEqRefl rhs
     else

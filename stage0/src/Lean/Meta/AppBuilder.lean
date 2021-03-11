@@ -51,14 +51,14 @@ def mkHEqRefl (a : Expr) : MetaM Expr := do
   return mkApp2 (mkConst ``HEq.refl [u]) aType a
 
 def mkAbsurd (e : Expr) (hp hnp : Expr) : MetaM Expr := do
-  let p ← inferType hp 
-  let u ← getLevel e 
-  return mkApp4 (mkConst ``absurd [u]) p e hp hnp 
+  let p ← inferType hp
+  let u ← getLevel e
+  return mkApp4 (mkConst ``absurd [u]) p e hp hnp
 
 def mkFalseElim (e : Expr) (h : Expr) : MetaM Expr := do
   let u ← getLevel e
   return mkApp2 (mkConst ``False.elim [u]) e h
-  
+
 private def infer (h : Expr) : MetaM Expr := do
   let hType ← inferType h
   whnfD hType
@@ -243,7 +243,7 @@ def mkAppM (constName : Name) (xs : Array Expr) : MetaM Expr := do
   traceCtx `Meta.appBuilder <| withNewMCtxDepth do
     let (f, fType) ← mkFun constName
     let r ← mkAppMArgs f fType xs
-    trace[Meta.appBuilder]! "constName: {constName}, xs: {xs}, result: {r}"
+    trace[Meta.appBuilder] "constName: {constName}, xs: {xs}, result: {r}"
     return r
 
 private partial def mkAppOptMAux (f : Expr) (xs : Array (Option Expr)) : Nat → Array Expr → Nat → Array MVarId → Expr → MetaM Expr

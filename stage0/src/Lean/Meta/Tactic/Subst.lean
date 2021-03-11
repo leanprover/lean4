@@ -29,16 +29,16 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
       match a with
       | Expr.fvar aFVarId _ => do
         let aFVarIdOriginal := aFVarId
-        trace[Meta.Tactic.subst]! "substituting {a} (id: {aFVarId}) with {b}"
+        trace[Meta.Tactic.subst] "substituting {a} (id: {aFVarId}) with {b}"
         let mctx ← getMCtx
         if mctx.exprDependsOn b aFVarId then
           throwTacticEx `subst mvarId m!"'{a}' occurs at{indentExpr b}"
         let aLocalDecl ← getLocalDecl aFVarId
         let (vars, mvarId) ← revert mvarId #[aFVarId, hFVarId] true
-        trace[Meta.Tactic.subst]! "after revert {MessageData.ofGoal mvarId}"
+        trace[Meta.Tactic.subst] "after revert {MessageData.ofGoal mvarId}"
         let (twoVars, mvarId) ← introNP mvarId 2
-        trace[Meta.Tactic.subst]! "after intro2 {MessageData.ofGoal mvarId}"
-        trace[Meta.Tactic.subst]! "reverted variables {vars}"
+        trace[Meta.Tactic.subst] "after intro2 {MessageData.ofGoal mvarId}"
+        trace[Meta.Tactic.subst] "reverted variables {vars}"
         let aFVarId := twoVars[0]
         let a       := mkFVar aFVarId
         let hFVarId := twoVars[1]
@@ -83,7 +83,7 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
                   else
                     pure mvarId
                 let (newFVars, mvarId) ← introNP mvarId (vars.size - 2)
-                trace[Meta.Tactic.subst]! "after intro rest {vars.size - 2} {MessageData.ofGoal mvarId}"
+                trace[Meta.Tactic.subst] "after intro rest {vars.size - 2} {MessageData.ofGoal mvarId}"
                 let fvarSubst ← newFVars.size.foldM (init := fvarSubst) fun i (fvarSubst : FVarSubst) =>
                     let var     := vars[i+2]
                     let newFVar := newFVars[i]

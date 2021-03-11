@@ -154,7 +154,6 @@ private def getPropToDecide (expectedType? : Option Expr) : TermElabM Expr := do
 
 @[builtinTermElab Lean.Parser.Term.decide] def elabDecide : TermElab := fun stx expectedType? => do
   let p ← getPropToDecide expectedType?
-  trace[Meta.debug]! "elabDecide: {p}"
   let d ← mkDecide p
   let d ← instantiateMVars d
   let r ← withDefault <| whnf d

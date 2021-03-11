@@ -292,13 +292,13 @@ private def propagateExpectedType (arg : Arg) : M Unit := do
           modify fun s => { s with propagateExpected := false }
         else
           let numRemainingArgs := s.args.length
-          trace[Elab.app.propagateExpectedType]! "etaArgs.size: {s.etaArgs.size}, numRemainingArgs: {numRemainingArgs}, fType: {s.fType}"
+          trace[Elab.app.propagateExpectedType] "etaArgs.size: {s.etaArgs.size}, numRemainingArgs: {numRemainingArgs}, fType: {s.fType}"
           match getForallBody s.explicit numRemainingArgs s.namedArgs s.fType with
           | none           => pure ()
           | some fTypeBody =>
             unless fTypeBody.hasLooseBVars do
               unless (← hasOptAutoParams fTypeBody) do
-                trace[Elab.app.propagateExpectedType]! "{expectedType} =?= {fTypeBody}"
+                trace[Elab.app.propagateExpectedType] "{expectedType} =?= {fTypeBody}"
                 if (← isDefEq expectedType fTypeBody) then
                   /- Note that we only set `propagateExpected := false` when propagation has succeeded. -/
                   modify fun s => { s with propagateExpected := false }
@@ -319,7 +319,7 @@ private def finalize : M Expr := do
   let s ← get
   let mut e := s.f
   -- all user explicit arguments have been consumed
-  trace[Elab.app.finalize]! e
+  trace[Elab.app.finalize] e
   let ref ← getRef
   -- Register the error context of implicits
   for mvarId in s.toSetErrorCtx do
@@ -331,11 +331,11 @@ private def finalize : M Expr := do
     `s.etaArgs.isEmpty`. Reason: it may have been unfolded.
   -/
   let eType ← inferType e
-  trace[Elab.app.finalize]! "after etaArgs, {e} : {eType}"
+  trace[Elab.app.finalize] "after etaArgs, {e} : {eType}"
   match s.expectedType? with
   | none              => pure ()
   | some expectedType =>
-     trace[Elab.app.finalize]! "expected type: {expectedType}"
+     trace[Elab.app.finalize] "expected type: {expectedType}"
      -- Try to propagate expected type. Ignore if types are not definitionally equal, caller must handle it.
      discard <| isDefEq expectedType eType
   synthesizeAppInstMVars
@@ -485,7 +485,7 @@ def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit ellipsis : Bool) : TermElabM Expr := do
   let fType ← inferType f
   let fType ← instantiateMVars fType
-  trace[Elab.app.args]! "explicit: {explicit}, {f} : {fType}"
+  trace[Elab.app.args] "explicit: {explicit}, {f} : {fType}"
   unless namedArgs.isEmpty && args.isEmpty do
     tryPostponeIfMVar fType
   ElabAppArgs.main.run' {

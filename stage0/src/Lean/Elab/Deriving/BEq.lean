@@ -94,7 +94,7 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
 private def mkBEqInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
   let ctx ← mkContext "beq" declNames[0]
   let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `BEq declNames)
-  trace[Elab.Deriving.beq]! "\n{cmds}"
+  trace[Elab.Deriving.beq] "\n{cmds}"
   return cmds
 
 open Command

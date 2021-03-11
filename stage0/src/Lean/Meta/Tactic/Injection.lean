@@ -93,7 +93,6 @@ def injection (mvarId : MVarId) (fvarId : FVarId) (newNames : List Name := []) (
   match (← injectionCore mvarId fvarId) with
   | InjectionResultCore.solved                => pure InjectionResult.solved
   | InjectionResultCore.subgoal mvarId numEqs =>
-    trace[Meta.debug]! "before injectionIntro\n{MessageData.ofGoal mvarId}"
     injectionIntro numEqs mvarId #[] newNames
 
 end Lean.Meta

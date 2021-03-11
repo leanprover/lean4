@@ -438,7 +438,7 @@ private partial def mkClosureForAux (toProcess : Array FVarId) : StateRefT Closu
   match pickMaxFVar? lctx toProcess with
   | none        => pure ()
   | some fvarId =>
-    trace[Elab.definition.mkClosure]! "toProcess: {toProcess.map mkFVar}, maxVar: {mkFVar fvarId}"
+    trace[Elab.definition.mkClosure] "toProcess: {toProcess.map mkFVar}, maxVar: {mkFVar fvarId}"
     let toProcess := toProcess.erase fvarId
     let localDecl ← getLocalDecl fvarId
     match localDecl with

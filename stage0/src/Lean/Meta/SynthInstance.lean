@@ -199,7 +199,7 @@ def getInstances (type : Expr) : MetaM (Array Expr) := do
       let result ← result.mapM fun e => match e.val with
         | Expr.const constName us _ => return e.val.updateConst! (← us.mapM (fun _ => mkFreshLevelMVar))
         | _ => panic! "global instance is not a constant"
-      trace[Meta.synthInstance.globalInstances]! "{type}, {result}"
+      trace[Meta.synthInstance.globalInstances] "{type}, {result}"
       let result := localInstances.foldl (init := result) fun (result : Array Expr) linst =>
         if linst.className == className then result.push linst.fvar else result
       pure result
@@ -224,7 +224,7 @@ def mkGeneratorNode? (key mvar : Expr) : MetaM (Option GeneratorNode) := do
     `key` must be `mkTableKey mctx mvarType`. -/
 def newSubgoal (mctx : MetavarContext) (key : Expr) (mvar : Expr) (waiter : Waiter) : SynthM Unit :=
   withMCtx mctx do
-    trace[Meta.synthInstance.newSubgoal]! key
+    trace[Meta.synthInstance.newSubgoal] key
     match (← mkGeneratorNode? key mvar) with
     | none      => pure ()
     | some node =>
@@ -316,17 +316,17 @@ def tryResolveCore (mvar : Expr) (inst : Expr) : MetaM (Option (MetavarContext �
   let localInsts ← getLocalInstances
   forallTelescopeReducing mvarType fun xs mvarTypeBody => do
     let ⟨subgoals, instVal, instTypeBody⟩ ← getSubgoals lctx localInsts xs inst
-    trace[Meta.synthInstance.tryResolve]! "{mvarTypeBody} =?= {instTypeBody}"
+    trace[Meta.synthInstance.tryResolve] "{mvarTypeBody} =?= {instTypeBody}"
     if (← isDefEq mvarTypeBody instTypeBody) then
       let instVal ← mkLambdaFVars xs instVal
       if (← isDefEq mvar instVal) then
-        trace[Meta.synthInstance.tryResolve]! "success"
+        trace[Meta.synthInstance.tryResolve] "success"
         pure (some ((← getMCtx), subgoals))
       else
-        trace[Meta.synthInstance.tryResolve]! "failure assigning"
+        trace[Meta.synthInstance.tryResolve] "failure assigning"
         pure none
     else
-      trace[Meta.synthInstance.tryResolve]! "failure"
+      trace[Meta.synthInstance.tryResolve] "failure"
       pure none
 
 /--
@@ -355,7 +355,7 @@ def wakeUp (answer : Answer) : Waiter → SynthM Unit
       modify fun s => { s with result := answer.result.expr }
     else
       let (_, _, answerExpr) ← openAbstractMVarsResult answer.result
-      trace[Meta.synthInstance]! "skip answer containing metavariables {answerExpr}"
+      trace[Meta.synthInstance] "skip answer containing metavariables {answerExpr}"
       pure ()
   | Waiter.consumerNode cNode =>
     modify fun s => { s with resumeStack := s.resumeStack.push (cNode, answer) }
@@ -370,7 +370,7 @@ private def mkAnswer (cNode : ConsumerNode) : MetaM Answer :=
   withMCtx cNode.mctx do
     traceM `Meta.synthInstance.newAnswer do m!"size: {cNode.size}, {← inferType cNode.mvar}"
     let val ← instantiateMVars cNode.mvar
-    trace[Meta.synthInstance.newAnswer]! "val: {val}"
+    trace[Meta.synthInstance.newAnswer] "val: {val}"
     let result ← abstractMVars val -- assignable metavariables become parameters
     let resultType ← inferType result.expr
     pure { result := result, resultType := resultType, size := cNode.size + 1 }
@@ -425,7 +425,7 @@ def generate : SynthM Unit := do
     let inst := gNode.instances.get! idx
     let mctx := gNode.mctx
     let mvar := gNode.mvar
-    trace[Meta.synthInstance.generate]! "instance {inst}"
+    trace[Meta.synthInstance.generate] "instance {inst}"
     modifyTop fun gNode => { gNode with currInstanceIdx := idx }
     match (← tryResolve mctx mvar inst) with
     | none                  => pure ()
@@ -475,12 +475,12 @@ partial def synth : SynthM (Option Expr) := do
     | none        => synth
     | some result => pure result
   else
-    trace[Meta.synthInstance]! "failed"
+    trace[Meta.synthInstance] "failed"
     pure none
 
 def main (type : Expr) (maxResultSize : Nat) : MetaM (Option Expr) :=
   withCurrHeartbeats <| traceCtx `Meta.synthInstance do
-     trace[Meta.synthInstance]! "main goal {type}"
+     trace[Meta.synthInstance] "main goal {type}"
      let mvar ← mkFreshExprMVar type
      let mctx ← getMCtx
      let key    := mkTableKey mctx type
@@ -577,27 +577,27 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
     | none        =>
       let result? ← withNewMCtxDepth do
         let normType ← preprocessOutParam type
-        trace[Meta.synthInstance]! "{type} ==> {normType}"
+        trace[Meta.synthInstance] "{type} ==> {normType}"
         match (← SynthInstance.main normType maxResultSize) with
         | none        => pure none
         | some result =>
-          trace[Meta.synthInstance]! "FOUND result {result}"
+          trace[Meta.synthInstance] "FOUND result {result}"
           let result ← instantiateMVars result
           if (← hasAssignableMVar result) then
-            trace[Meta.synthInstance]! "Failed has assignable mvar {result.setOption `pp.all true}"
+            trace[Meta.synthInstance] "Failed has assignable mvar {result.setOption `pp.all true}"
             pure none
           else
             pure (some result)
       let result? ← match result? with
         | none        => pure none
         | some result => do
-          trace[Meta.synthInstance]! "result {result}"
+          trace[Meta.synthInstance] "result {result}"
           let resultType ← inferType result
           if (← withConfig (fun _ => inputConfig) <| isDefEq type resultType) then
             let result ← instantiateMVars result
             pure (some result)
           else
-            trace[Meta.synthInstance]! "result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
+            trace[Meta.synthInstance] "result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
             pure none
       if type.hasMVar then
         pure result?

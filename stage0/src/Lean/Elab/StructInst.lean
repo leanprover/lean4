@@ -127,9 +127,9 @@ private def elabModifyOp (stx modifyOp source : Syntax) (expectedType? : Option 
     let idx  := lval[1]
     let self := source[0]
     let stxNew ← `($(self).modifyOp (idx := $idx) (fun s => $val))
-    trace[Elab.struct.modifyOp]! "{stx}\n===>\n{stxNew}"
+    trace[Elab.struct.modifyOp] "{stx}\n===>\n{stxNew}"
     withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
-  trace[Elab.struct.modifyOp]! "{modifyOp}\nSource: {source}"
+  trace[Elab.struct.modifyOp] "{modifyOp}\nSource: {source}"
   let rest := modifyOp[0][1]
   if rest.isNone then
     cont modifyOp[2]
@@ -143,7 +143,7 @@ private def elabModifyOp (stx modifyOp source : Syntax) (expectedType? : Option 
     let valSource := source.modifyArg 0 fun _ => s
     let val       := stx.setArg 1 valSource
     let val       := val.setArg 2 <| mkNullNode #[mkNullNode #[valField, mkNullNode]]
-    trace[Elab.struct.modifyOp]! "{stx}\nval: {val}"
+    trace[Elab.struct.modifyOp] "{stx}\nval: {val}"
     cont val
 
 /- Get structure name and elaborate explicit source (if available) -/
@@ -789,7 +789,7 @@ private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sour
   | Except.error ex  => throwError ex
   | Except.ok struct =>
     let struct ← expandStruct struct
-    trace[Elab.struct]! "{struct}"
+    trace[Elab.struct] "{struct}"
     let (r, struct) ← elabStruct struct expectedType?
     DefaultFields.propagate struct
     pure r

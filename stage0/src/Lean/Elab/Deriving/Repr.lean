@@ -108,7 +108,7 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
 private def mkReprInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
   let ctx ← mkContext "repr" declNames[0]
   let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Repr declNames)
-  trace[Elab.Deriving.repr]! "\n{cmds}"
+  trace[Elab.Deriving.repr] "\n{cmds}"
   return cmds
 
 open Command

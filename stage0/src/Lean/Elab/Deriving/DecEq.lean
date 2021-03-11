@@ -90,7 +90,7 @@ def mkAuxFunction (ctx : Context) : TermElabM Syntax := do
 def mkDecEqCmds (indVal : InductiveVal) : TermElabM (Array Syntax) := do
   let ctx ← mkContext "decEq" indVal.name
   let cmds := #[← mkAuxFunction ctx] ++ (← mkInstanceCmds ctx `DecidableEq #[indVal.name] (useAnonCtor := false))
-  trace[Elab.Deriving.decEq]! "\n{cmds}"
+  trace[Elab.Deriving.decEq] "\n{cmds}"
   return cmds
 
 open Command

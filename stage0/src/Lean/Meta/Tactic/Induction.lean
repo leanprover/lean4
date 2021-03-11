@@ -124,7 +124,7 @@ private def throwUnexpectedMajorType {α} (mvarId : MVarId) (majorType : Expr) :
 
 def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (givenNames : Array AltVarNames := #[]) : MetaM (Array InductionSubgoal) :=
   withMVarContext mvarId do
-    trace[Meta.Tactic.induction]! "initial\n{MessageData.ofGoal mvarId}"
+    trace[Meta.Tactic.induction] "initial\n{MessageData.ofGoal mvarId}"
     checkNotAssigned mvarId `induction
     let majorLocalDecl ← getLocalDecl majorFVarId
     let recursorInfo ← mkRecursorInfo recursorName
@@ -168,7 +168,7 @@ def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (gi
           subst := subst.insert index.fvarId! (mkFVar indices'[i])
           i     := i + 1
         pure subst
-      trace[Meta.Tactic.induction]! "after revert&intro\n{MessageData.ofGoal mvarId}"
+      trace[Meta.Tactic.induction] "after revert&intro\n{MessageData.ofGoal mvarId}"
       -- Update indices and major
       let indices := indices'.map mkFVar
       let majorFVarId := majorFVarId'

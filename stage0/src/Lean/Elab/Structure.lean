@@ -431,7 +431,6 @@ private def mkCtor (view : StructView) (levelParams : List Name) (params : Array
   let type ← addCtorFields fieldInfos fieldInfos.size type
   let type ← mkForallFVars params type
   let type ← instantiateMVars type
-  trace[Meta.debug]! "ctor type: {type}"
   let type := type.inferImplicit params.size !view.ctor.inferMod
   pure { name := view.ctor.declName, type := type }
 
@@ -488,7 +487,7 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
         else
           checkResultingUniverse (← getResultUniverse type)
           pure type
-      trace[Elab.structure]! "type: {type}"
+      trace[Elab.structure] "type: {type}"
       let usedLevelNames ← collectLevelParamsInStructure type scopeVars view.params fieldInfos
       match sortDeclLevelParams view.scopeLevelNames view.allUserLevelNames usedLevelNames with
       | Except.error msg      => withRef view.ref <| throwError msg
@@ -497,7 +496,6 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
         let ctor ← mkCtor view levelParams params fieldInfos
         let type ← mkForallFVars params type
         let type ← instantiateMVars type
-        trace[Meta.debug]! "type: {type}"
         let indType := { name := view.declName, type := type, ctors := [ctor] : InductiveType }
         let decl    := Declaration.inductDecl levelParams params.size [indType] view.modifiers.isUnsafe
         Term.ensureNoUnassignedMVars decl

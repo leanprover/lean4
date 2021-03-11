@@ -183,7 +183,7 @@ private def throwToBelowFailed {α} : MetaM α :=
 private partial def toBelowAux (C : Expr) : Expr → Expr → Expr → MetaM Expr
   | belowDict, arg, F => do
     let belowDict ← whnf belowDict
-    trace[Elab.definition.structural]! "belowDict: {belowDict}, arg: {arg}"
+    trace[Elab.definition.structural] "belowDict: {belowDict}, arg: {arg}"
     match belowDict with
     | Expr.app (Expr.app (Expr.const `PProd _ _) d1 _) d2 _ =>
       (do toBelowAux C d1 arg (← mkAppM `PProd.fst #[F]))
@@ -209,7 +209,7 @@ private partial def toBelowAux (C : Expr) : Expr → Expr → Expr → MetaM Exp
 /- See toBelow -/
 private def withBelowDict {α} (below : Expr) (numIndParams : Nat) (k : Expr → Expr → MetaM α) : MetaM α := do
   let belowType ← inferType below
-  trace[Elab.definition.structural]! "belowType: {belowType}"
+  trace[Elab.definition.structural] "belowType: {belowType}"
   belowType.withApp fun f args => do
     let motivePos := numIndParams + 1
     unless motivePos < args.size do throwError! "unexpected 'below' type{indentExpr belowType}"
@@ -321,12 +321,12 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
              To make it work, users have to write the third alternative as `| zs => g zs + 2`
              If this is too annoying in practice, we may replace `ys` with the matching term, but
              this may generate weird error messages, when it doesn't work. -/
-          trace[Elab.definition.structural]! "below before matcherApp.addArg: {below} : {← inferType below}"
+          trace[Elab.definition.structural] "below before matcherApp.addArg: {below} : {← inferType below}"
           let matcherApp ← mapError (matcherApp.addArg below) (fun msg => "failed to add `below` argument to 'matcher' application" ++ indentD msg)
           modify fun s => { s with matcherBelowDep := s.matcherBelowDep.insert matcherApp.matcherName }
           let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
             lambdaTelescope alt fun xs altBody => do
-              trace[Elab.definition.structural]! "altNumParams: {numParams}, xs: {xs}"
+              trace[Elab.definition.structural] "altNumParams: {numParams}, xs: {xs}"
               unless xs.size >= numParams do
                 throwError! "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
               let belowForAlt := xs[numParams - 1]
@@ -340,15 +340,15 @@ private def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr)
   let type  := (← inferType value).headBeta
   let major := recArgInfo.ys[recArgInfo.pos]
   let otherArgs := recArgInfo.ys.filter fun y => y != major && !recArgInfo.indIndices.contains y
-  trace[Elab.definition.structural]! "fixedParams: {recArgInfo.fixedParams}, otherArgs: {otherArgs}"
+  trace[Elab.definition.structural] "fixedParams: {recArgInfo.fixedParams}, otherArgs: {otherArgs}"
   let motive ← mkForallFVars otherArgs type
   let mut brecOnUniv ← getLevel motive
-  trace[Elab.definition.structural]! "brecOn univ: {brecOnUniv}"
+  trace[Elab.definition.structural] "brecOn univ: {brecOnUniv}"
   let useBInductionOn := recArgInfo.reflexive && brecOnUniv == levelZero
   if recArgInfo.reflexive && brecOnUniv != levelZero then
     brecOnUniv ← decLevel brecOnUniv
   let motive ← mkLambdaFVars (recArgInfo.indIndices.push major) motive
-  trace[Elab.definition.structural]! "brecOn motive: {motive}"
+  trace[Elab.definition.structural] "brecOn motive: {motive}"
   let brecOn :=
     if useBInductionOn then
       Lean.mkConst (mkBInductionOnName recArgInfo.indName) recArgInfo.indLevels
@@ -360,12 +360,12 @@ private def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr)
   let brecOn := mkApp brecOn major
   check brecOn
   let brecOnType ← inferType brecOn
-  trace[Elab.definition.structural]! "brecOn     {brecOn}"
-  trace[Elab.definition.structural]! "brecOnType {brecOnType}"
+  trace[Elab.definition.structural] "brecOn     {brecOn}"
+  trace[Elab.definition.structural] "brecOnType {brecOnType}"
   forallBoundedTelescope brecOnType (some 1) fun F _ => do
     let F := F[0]
     let FType ← inferType F
-    trace[Elab.definition.structural]! "FType: {FType}"
+    trace[Elab.definition.structural] "FType: {FType}"
     let FType ← instantiateForall FType recArgInfo.indIndices
     let FType ← instantiateForall FType #[major]
     forallBoundedTelescope FType (some 1) fun below _ => do
@@ -378,14 +378,14 @@ private def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr)
 private def elimRecursion (preDef : PreDefinition) : M PreDefinition :=
   withoutModifyingEnv do lambdaTelescope preDef.value fun xs value => do
     addAsAxiom preDef
-    trace[Elab.definition.structural]! "{preDef.declName} {xs} :=\n{value}"
+    trace[Elab.definition.structural] "{preDef.declName} {xs} :=\n{value}"
     let numFixed ← getFixedPrefix preDef.declName xs value
-    trace[Elab.definition.structural]! "numFixed: {numFixed}"
+    trace[Elab.definition.structural] "numFixed: {numFixed}"
     findRecArg numFixed xs fun recArgInfo => do
       -- when (recArgInfo.indName == `Nat) throwStructuralFailed -- HACK to skip Nat argument
       let valueNew ← mkBRecOn preDef.declName recArgInfo value
       let valueNew ← mkLambdaFVars xs valueNew
-      trace[Elab.definition.structural]! "result: {valueNew}"
+      trace[Elab.definition.structural] "result: {valueNew}"
       -- Recursive applications may still occur in expressions that were not visited by replaceRecApps (e.g., in types)
       let valueNew ← ensureNoRecFn preDef.declName valueNew
       pure { preDef with value := valueNew }

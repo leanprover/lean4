@@ -30,8 +30,8 @@ class LawfulApplicative (f : Type u → Type v) [Applicative f] extends LawfulFu
   seqRight_eq (x : f α) (y : f β)     : x *> y = const α id <$> x <*> y
   pure_seq    (g : α → β) (x : f α)   : pure g <*> x = g <$> x
   map_pure    (g : α → β) (x : α)     : g <$> (pure x : f α) = pure (g x)
-  seq_pure    (g : f (α → β)) (x : α) : g <*> pure x = (fun h => h x) <$> g
-  seq_assoc   (x : f α) (g : f (α → β)) (h : f (β → γ)) : h <*> (g <*> x) = ((. ∘ .) <$> h) <*> g <*> x
+  seq_pure    {α β : Type u} (g : f (α → β)) (x : α) : g <*> pure x = (fun h => h x) <$> g
+  seq_assoc   {α β γ : Type u} (x : f α) (g : f (α → β)) (h : f (β → γ)) : h <*> (g <*> x) = ((@comp α β γ) <$> h) <*> g <*> x
   comp_map g h x := by
     repeat rw [← pure_seq]
     simp [seq_assoc, map_pure, seq_pure]
@@ -45,7 +45,7 @@ attribute [simp] map_pure seq_pure
 
 class LawfulMonad (m : Type u → Type v) [Monad m] extends LawfulApplicative m : Prop where
   bind_pure_comp (f : α → β) (x : m α) : x >>= pure ∘ f = f <$> x
-  bind_map       (f : m (α → (β : Type u))) (x : m α) : f >>= (. <$> x) = f <*> x
+  bind_map       {α β : Type u} (f : m (α → β)) (x : m α) : f >>= (. <$> x) = f <*> x
   pure_bind      (x : α) (f : α → m β) : pure x >>= f = f x
   bind_assoc     (x : m α) (f : α → m β) (g : β → m γ) : x >>= f >>= g = x >>= fun x => f x >>= g
   map_pure g x    := by rw [← bind_pure_comp, pure_bind]
@@ -116,7 +116,7 @@ theorem ext [Monad m] {x y : ExceptT ε m α} (h : x.run = y.run) : x = y := by
 
 @[simp] theorem run_pure [Monad m] : run (pure x : ExceptT ε m α) = pure (Except.ok x) := rfl
 
-@[simp] theorem run_lift [Monad m] : run (ExceptT.lift x : ExceptT ε m α) = Except.ok <$> x := rfl
+@[simp] theorem run_lift [Monad m] (x : m α) : run (ExceptT.lift x : ExceptT ε m α) = (Except.ok <$> x : m (Except ε α)) := rfl
 
 @[simp] theorem run_throw [Monad m] : run (throw e : ExceptT ε m β) = pure (Except.error e) := rfl
 

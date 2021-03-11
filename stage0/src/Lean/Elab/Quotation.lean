@@ -403,7 +403,7 @@ private def deduplicate (floatedLetDecls : Array Syntax) : Alt → TermElabM (Ar
         (floatedLetDecls.push (← `(letDecl|rhs $vars:ident* := $rhs)), (pats, rhs'))
 
 private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : TermElabM Syntax := do
-  trace[Elab.match_syntax]! "match {discrs} with {alts}"
+  trace[Elab.match_syntax] "match {discrs} with {alts}"
   match discrs, alts with
   | [],            ([], rhs)::_ => pure rhs  -- nothing left to match
   | _,             []           => throwError "non-exhaustive 'match_syntax'"
@@ -461,7 +461,7 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
       -- no quotations => fall back to regular `match`
       throwUnsupportedSyntax
     let stx ← compileStxMatch discrs.toList (patss.map (·.toList) |>.zip rhss).toList
-    trace[Elab.match_syntax.result]! "{stx}"
+    trace[Elab.match_syntax.result] "{stx}"
     stx
   | _ => throwUnsupportedSyntax
 

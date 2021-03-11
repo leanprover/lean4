@@ -57,7 +57,6 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
     match (← getProjectionFnInfo? cinfo.name) with
     | none => return none
     | some projInfo =>
-      trace[Meta.debug]! "reduceProjFn? {projInfo.fromClass}, {cinfo.name}, {e}"
       if projInfo.fromClass then
         if (← read).toUnfold.contains cinfo.name then
           -- We only unfold class projections when the user explicitly requested them to be unfolded.
@@ -103,7 +102,7 @@ private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
   -- TODO: eta reduction
   if cfg.proj then
     match (← reduceProjFn? e) with
-    | some e => trace[Meta.debug]! "reduceProjFn? result {e}"; return (← reduce e)
+    | some e => return (← reduce e)
     | none   => pure ()
   if cfg.iota then
     match (← reduceRecMatcher? e) with
@@ -168,7 +167,7 @@ where
       let mut r ← simp f
       let mut i := 0
       for arg in args do
-        trace[Debug.Meta.Tactic.simp]! "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
+        trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
         if i < infos.size && !infos[i].hasFwdDeps then
           r ← mkCongr r (← simp arg)
         else
@@ -192,7 +191,7 @@ where
 
   /- Try to rewrite `e` children using the given congruence lemma -/
   tryCongrLemma? (c : CongrLemma) (e : Expr) : M (Option Result) := withNewMCtxDepth do
-    trace[Debug.Meta.Tactic.simp.congr]! "{c.theoremName}, {e}"
+    trace[Debug.Meta.Tactic.simp.congr] "{c.theoremName}, {e}"
     let info ← getConstInfo c.theoremName
     let lemma := mkConst c.theoremName (← info.levelParams.mapM fun _ => mkFreshLevelMVar)
     let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType lemma)
@@ -208,13 +207,13 @@ where
           if (← processCongrHypothesis x) then
             modified := true
         catch _ =>
-          trace[Meta.Tactic.simp.congr]! "processCongrHypothesis {c.theoremName} failed {← inferType x}"
+          trace[Meta.Tactic.simp.congr] "processCongrHypothesis {c.theoremName} failed {← inferType x}"
           return none
       unless modified do
-        trace[Meta.Tactic.simp.congr]! "{c.theoremName} not modified"
+        trace[Meta.Tactic.simp.congr] "{c.theoremName} not modified"
         return none
       unless (← synthesizeArgs c.theoremName xs bis (← read).discharge?) do
-        trace[Meta.Tactic.simp.congr]! "{c.theoremName} synthesizeArgs failed"
+        trace[Meta.Tactic.simp.congr] "{c.theoremName} synthesizeArgs failed"
         return none
       let eNew ← instantiateMVars rhs
       let proof ← instantiateMVars (mkAppN lemma xs)
@@ -272,13 +271,13 @@ where
         return { expr := eNew, proof? := p }
 
   simpArrow (e : Expr) : M Result := do
-    trace[Debug.Meta.Tactic.simp]! "arrow {e}"
+    trace[Debug.Meta.Tactic.simp] "arrow {e}"
     let p := e.bindingDomain!
     let q := e.bindingBody!
     let rp ← simp p
-    trace[Debug.Meta.Tactic.simp]! "arrow [{(← getConfig).contextual}] {p} [{← isProp p}] -> {q} [{← isProp q}]"
+    trace[Debug.Meta.Tactic.simp] "arrow [{(← getConfig).contextual}] {p} [{← isProp p}] -> {q} [{← isProp q}]"
     if (← (← getConfig).contextual <&&> isProp p <&&> isProp q) then
-      trace[Debug.Meta.Tactic.simp]! "ctx arrow {rp.expr} -> {q}"
+      trace[Debug.Meta.Tactic.simp] "ctx arrow {rp.expr} -> {q}"
       withLocalDeclD e.bindingName! rp.expr fun h => do
         let s ← getSimpLemmas
         let s ← s.add h
@@ -293,7 +292,7 @@ where
       mkImpCongr rp (← simp q)
 
   simpForall (e : Expr) : M Result := withParent e do
-    trace[Debug.Meta.Tactic.simp]! "forall {e}"
+    trace[Debug.Meta.Tactic.simp] "forall {e}"
     if e.isArrow then
       simpArrow e
     else if (← isProp e) then

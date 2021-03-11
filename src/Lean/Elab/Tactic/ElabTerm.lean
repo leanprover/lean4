@@ -25,17 +25,20 @@ def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (mayPostpo
   let e ← elabTerm stx expectedType? mayPostpone
   Term.ensureHasType expectedType? e
 
+/- Try to close main goal using `x target`, where `target` is the type of the main goal.  -/
+def closeMainUsing (x : Expr → TacticM Expr) : TacticM Unit := do
+  let (g, gs) ← getMainGoal
+  withMVarContext g do
+    let decl ← getMVarDecl g
+    let val  ← x decl.type
+    ensureHasNoMVars val
+    assignExprMVar g val
+  setGoals gs
+
 @[builtinTactic «exact»] def evalExact : Tactic := fun stx =>
   match stx with
-  | `(tactic| exact $e) => do
-    let (g, gs) ← getMainGoal
-    withMVarContext g do
-      let decl ← getMVarDecl g
-      let val  ← elabTermEnsuringType e decl.type
-      ensureHasNoMVars val
-      assignExprMVar g val
-    setGoals gs
-  | _ => throwUnsupportedSyntax
+  | `(tactic| exact $e) => closeMainUsing (fun type => elabTermEnsuringType e type)
+  | _                   => throwUnsupportedSyntax
 
 def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) := do
   let val ← elabTermEnsuringType stx expectedType?
@@ -139,5 +142,51 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
       assignExprMVar mvarId mvarNew
       setGoals (mvarNew.mvarId! :: others)
   | _ => throwUnsupportedSyntax
+
+/--
+   Make sure `expectedType` does not contain free and metavariables.
+   It applies zeta-reduction to eliminate let-free-vars.
+-/
+private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
+  let mut expectedType ← instantiateMVars expectedType
+  if expectedType.hasFVar then
+    expectedType ← zetaReduce expectedType
+  if expectedType.hasFVar || expectedType.hasMVar then
+    throwError! "expected type must not contain free or meta variables{indentExpr expectedType}"
+  return expectedType
+
+#exit -- TODO remove after update stage0
+
+@[builtinTactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun stx =>
+  closeMainUsing fun expectedType => do
+    let expectedType ← preprocessPropToDecide expectedType
+    let d ← mkDecide expectedType
+    let d ← instantiateMVars d
+    let r ← withDefault <| whnf d
+    unless r.isConstOf ``true do
+      throwError! "failed to reduce to 'true'{indentExpr r}"
+    let s := d.appArg! -- get instance from `d`
+    let rflPrf ← mkEqRefl (toExpr true)
+    return mkApp3 (Lean.mkConst `ofDecideEqTrue) expectedType s rflPrf
+
+private def mkNativeAuxDecl (baseName : Name) (type val : Expr) : TermElabM Name := do
+  let auxName ← Term.mkAuxName baseName
+  let decl := Declaration.defnDecl {
+    name := auxName, levelParams := [], type := type, value := val,
+    hints := ReducibilityHints.abbrev,
+    safety := DefinitionSafety.safe
+  }
+  addDecl decl
+  compileDecl decl
+  pure auxName
+
+@[builtinTactic Lean.Parser.Tactic.nativeDecide] def evalNativeDecide : Tactic := fun stx =>
+  closeMainUsing fun expectedType => do
+    let expectedType ← preprocessPropToDecide expectedType
+    let d ← mkDecide expectedType
+    let auxDeclName ← mkNativeAuxDecl `_nativeDecide (Lean.mkConst `Bool) d
+    let rflPrf ← mkEqRefl (toExpr true)
+    let s := d.appArg! -- get instance from `d`
+    return mkApp3 (Lean.mkConst `ofDecideEqTrue) expectedType s <| mkApp3 (Lean.mkConst `Lean.ofReduceBool) (Lean.mkConst auxDeclName) (toExpr true) rflPrf
 
 end Lean.Elab.Tactic

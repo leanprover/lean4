@@ -4,7 +4,7 @@ open Lean
 open Lean.Meta
 
 def print (msg : MessageData) : MetaM Unit :=
-trace! `Meta.debug msg
+trace[Meta.debug] msg
 
 def checkM (x : MetaM Bool) : MetaM Unit :=
 unless (← x) do throwError "check failed"

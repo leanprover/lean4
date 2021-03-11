@@ -58,7 +58,7 @@ open Lean.Meta
 
 def tst : MetaM Unit := do
   let info ← getConstInfoInduct `Test.Bla
-  trace[Meta.debug]! "nested: {info.isNested}"
+  trace[Meta.debug] "nested: {info.isNested}"
   pure ()
 
 #eval tst
@@ -128,7 +128,7 @@ def mkContext (className : Name) (typeName : Name) (resultType : Syntax) (mkAltR
     match className.eraseMacroScopes, typeName.eraseMacroScopes with
     | Name.str _ c _, Name.str _ t _ => auxFunNames := auxFunNames.push (← mkFreshUserName <| Name.mkSimple <| c.decapitalize ++ t)
     | _, _ => auxFunNames := auxFunNames.push (← mkFreshUserName `instFn)
-  trace[Meta.debug]! "{auxFunNames}"
+  trace[Meta.debug] "{auxFunNames}"
   let usePartial := indVal.isNested || typeInfos.size > 1
   return {
     classInfo   := classInfo
@@ -283,7 +283,7 @@ def mkInstanceCmds (ctx : Context) : TermElabM (Array Syntax) := do
     let type         ← `($(mkIdent ctx.classInfo.name) $indType)
     let val          ← `(⟨$(mkIdent auxFunName)⟩)
     let instCmd ← `(instance $binders:implicitBinder* : $type := $val)
-    trace[Meta.debug]! "\n{instCmd}"
+    trace[Meta.debug] "\n{instCmd}"
     instances := instances.push instCmd
   return instances
 
@@ -293,7 +293,7 @@ def mkDeriving (className : Name) (typeName : Name) (resultType : Syntax) (mkAlt
   let cmds ← liftTermElabM none do
     let ctx ← mkContext className typeName resultType mkAltRhs
     let block ← mkMutualBlock ctx
-    trace[Meta.debug]! "\n{block}"
+    trace[Meta.debug] "\n{block}"
     return #[block] ++ (← mkInstanceCmds ctx)
   cmds.forM elabCommand
 

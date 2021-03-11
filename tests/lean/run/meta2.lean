@@ -8,7 +8,7 @@ open Lean.Meta
 set_option trace.Meta.debug true
 
 def print (msg : MessageData) : MetaM Unit :=
-trace! `Meta.debug msg
+trace[Meta.debug] msg
 
 def checkM (x : MetaM Bool) : MetaM Unit :=
 unless (← x) do throwError "check failed"

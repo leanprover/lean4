@@ -10,7 +10,7 @@ def tst : MetaM Unit := do
   let c ← getConstInfo `boo
   lambdaTelescope c.value! fun xs b => do
     withReducibleAndInstances do
-      trace[Meta.debug]! "b: {← reduce b}"
+      trace[Meta.debug] "b: {← reduce b}"
 
 set_option trace.Meta.debug true
 #eval tst

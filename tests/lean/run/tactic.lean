@@ -7,7 +7,7 @@ open Lean.Meta
 axiom simple : forall {p q : Prop}, p → q → p
 
 def print (msg : MessageData) : MetaM Unit :=
-trace! `Meta.Tactic msg
+trace[Meta.Tactic] msg
 
 def tst1 : MetaM Unit := do
 let cinfo ← getConstInfo `simple

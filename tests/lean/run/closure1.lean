@@ -13,7 +13,7 @@ set_option trace.Meta.debug true
 
 def printDef (declName : Name) : MetaM Unit := do
 let cinfo ← getConstInfo declName;
-trace! `Meta.debug cinfo.value!
+trace[Meta.debug] cinfo.value!
 
 def tst1 : MetaM Unit := do
 let u := mkLevelParam `u
@@ -27,7 +27,7 @@ withLocalDeclD `f (← mkArrow α α) $ fun f => do
 withLetDecl   `b α (mkApp f a) $ fun b => do
 let t := mkApp m2 (mkApp f b)
 let e ← mkAuxDefinitionFor `foo1 t
-trace[Meta.debug]! e
+trace[Meta.debug] e
 printDef `foo1
 
 #eval tst1
@@ -43,7 +43,7 @@ withLocalDeclD `p (mkSort levelZero) $ fun p => do
 let t ← mkEq v1 v2
 let t := mkApp2 (mkConst `And) t (mkApp2 (mkConst `Or) (mkApp m v2) p)
 let e ← mkAuxDefinitionFor `foo2 t
-trace! `Meta.debug e
+trace[Meta.debug] e
 printDef `foo2
 
 #eval tst2

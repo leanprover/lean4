@@ -31,7 +31,7 @@ open Lean.Meta
 
 def tst1 : MetaM Unit := do
   let lemmas  ← Meta.getSimpLemmas
-  trace[Meta.debug]! "{lemmas.pre}\n-----\n{lemmas.post}"
+  trace[Meta.debug] "{lemmas.pre}\n-----\n{lemmas.post}"
 
 set_option trace.Meta.debug true in
 #eval tst1
@@ -42,10 +42,10 @@ def tst2 : MetaM Unit := do
     match type.eq? with
     | none => throwError! "unexpected"
     | some (_, lhs, _) =>
-      trace[Meta.debug]! "lhs: {lhs}"
+      trace[Meta.debug] "lhs: {lhs}"
       let s ← Meta.getSimpLemmas
       let m ← s.post.getMatch lhs
-      trace[Meta.debug]! "result: {m}"
+      trace[Meta.debug] "result: {m}"
       assert! m.any fun s => s.name? == `ex2
 
 

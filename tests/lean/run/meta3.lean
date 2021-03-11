@@ -10,7 +10,7 @@ let opt := opt.setBool `trace.Meta true;
 opt
 
 def print (msg : MessageData) : MetaM Unit :=
-trace! `Meta.debug msg
+trace[Meta.debug] msg
 
 def check (x : MetaM Bool) : MetaM Unit :=
 unless (← x) do throwError "check failed"

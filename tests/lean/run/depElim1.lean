@@ -165,7 +165,7 @@ generalizeTelescope majors.toArray fun majors => do
 def test (ex : Name) (numPats : Nat) (elimName : Name) (inProp : Bool := false) : MetaM Unit :=
 withDepElimFrom ex numPats fun majors alts => do
   let majors := majors.map mkFVar
-  trace[Meta.debug]! m!"majors: {majors.toArray}"
+  trace[Meta.debug] m!"majors: {majors.toArray}"
   let r ← mkTester elimName majors alts inProp
   unless r.counterExamples.isEmpty do
     throwError m!"missing cases:\n{counterExamplesToMessageData r.counterExamples}"

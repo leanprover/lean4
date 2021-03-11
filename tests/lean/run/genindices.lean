@@ -14,12 +14,12 @@ def tst1 : MetaM Unit := do
 let cinfo ← getConstInfo `goal;
 let type := cinfo.type;
 let mvar   ← mkFreshExprMVar type;
-trace! `Elab (MessageData.ofGoal mvar.mvarId!);
+trace[Elab] (MessageData.ofGoal mvar.mvarId!);
 let (_, mvarId) ← introN mvar.mvarId! 2;
 let (fvarId, mvarId) ← intro1 mvarId;
-trace! `Elab (MessageData.ofGoal mvarId);
+trace[Elab] (MessageData.ofGoal mvarId);
 let s ← generalizeIndices mvarId fvarId;
-trace! `Elab (MessageData.ofGoal s.mvarId);
+trace[Elab] (MessageData.ofGoal s.mvarId);
 pure ()
 
 set_option trace.Elab true

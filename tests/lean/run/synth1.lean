@@ -25,7 +25,7 @@ instance coerceNatToInt : HasCoerce Nat Int :=
 ⟨fun x => Int.ofNat x⟩
 
 def print {α} [ToString α] (a : α) : MetaM Unit :=
-trace! `Meta.synthInstance (toString a)
+trace[Meta.synthInstance] (toString a)
 
 
 def tst1 : MetaM Unit := do

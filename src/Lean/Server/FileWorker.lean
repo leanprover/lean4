@@ -546,7 +546,7 @@ section RequestHandling
                 if val.bsize > 0 && val[0].isAlpha && beginPos <= pos && pos < endPos then
                   let lspPos' := text.utf8PosToLspPos pos
                   let deltaLine := lspPos'.line - lspPos.line
-                  let deltaStart := lspPos'.character - (if lspPos'.line == lspPos.line then lspPos'.character else 0)
+                  let deltaStart := lspPos'.character - (if lspPos'.line == lspPos.line then lspPos.character else 0)
                   let length := val.utf16Length
                   let tokenType := SemanticTokenType.keyword.toNat
                   let tokenModifiers := 0

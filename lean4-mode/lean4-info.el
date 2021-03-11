@@ -68,24 +68,19 @@
 
 (defvar lean4-goals)
 
+(lsp-defun lean4-diagnostic-full-end-line ((&lean:Diagnostic :full-range (&Range :end (&Position :line))))
+  line)
+
 (defun lean4-info-buffer-redisplay ()
   (when (lean4-info-buffer-active lean4-info-buffer-name)
-    (let* ((deactivate-mark) ; keep transient mark
-           (pos (apply #'lsp-make-position (lsp--cur-position)))
-           (errors (lsp--get-buffer-diagnostics))
-           (selected-errors
-            (or
-             ;; prefer errors containing current position, if any
-             (--filter (lsp-point-in-range? pos (lsp:lean-diagnostic-full-range it))
-                       (lsp--get-buffer-diagnostics))
-             ;; try errors in current line next
-             (cl-coerce (lsp-cur-line-diagnostics) 'list)))
-           (errors-above
-            (--filter (< (lsp:position-line (lsp:range-end (lsp:lean-diagnostic-full-range it))) (lsp:position-line pos))
-                      errors))
-           (errors-below
-            (--filter (> (lsp:position-line (lsp:range-start (lsp:lean-diagnostic-full-range it))) (lsp:position-line pos))
-                      errors)))
+    (-let* ((deactivate-mark) ; keep transient mark
+            (pos (apply #'lsp-make-position (lsp--cur-position)))
+            (line (lsp--cur-line))
+            (errors (lsp--get-buffer-diagnostics))
+            ;(errors (-sort (-on (lambda (it) (not (lsp--position-compare it))) (lambda (it) (lsp:range-end (lsp:lean-diagnostic-full-range it)))) errors))
+            (errors (-sort (-on #'< #'lean4-diagnostic-full-end-line) errors))
+            ((errors-above selected-errors)
+             (--split-with (< (lean4-diagnostic-full-end-line it) line) errors)))
       (lean4-with-info-output-to-buffer
        lean4-info-buffer-name
        (when lean4-goals
@@ -104,13 +99,10 @@
                  (magit-insert-section (magit-section)
                    (magit-insert-heading (format "%d:%d: " (1+ (lsp-translate-line line)) (lsp-translate-column character)))
                    (magit-insert-section-body
-                     (insert message "\n")))))
-             (when errors-above
-               (magit-insert-section (magit-section)
-                 (insert (format "(%d more messages above...)\n" (length errors-above)))))
-             (when errors-below
-               (magit-insert-section (magit-section)
-                 (insert (format "(%d more messages below...)\n" (length errors-below))))))))
+                     (insert message "\n"))))))))
+       (when errors-above
+         (magit-insert-section (magit-section)
+           (insert (format "(%d more messages above...)\n" (length errors-above)))))
        (when lean4-highlight-inaccessible-names
          (goto-char 0)
          (while (re-search-forward "\\(\\sw+\\)✝\\([¹²³⁴-⁹⁰]*\\)" nil t)

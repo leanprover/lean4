@@ -78,6 +78,12 @@ private def elabParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax :
   | `(parser! : $prec $e) => elabParserMacroAux prec e
   | _                     => throwUnsupportedSyntax
 
+@[builtinTermElab «leading_parser»] def elabLeadingParserMacro : TermElab :=
+  adaptExpander fun stx => match stx with
+  | `(leading_parser $e)         => elabParserMacroAux (quote Parser.maxPrec) e
+  | `(leading_parser : $prec $e) => elabParserMacroAux prec e
+  | _                            => throwUnsupportedSyntax
+
 private def elabTParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax := do
   let declName? ← getDeclName?
   match declName? with
@@ -89,6 +95,12 @@ private def elabTParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax 
   | `(tparser! $e)         => elabTParserMacroAux (quote Parser.maxPrec) e
   | `(tparser! : $prec $e) => elabTParserMacroAux prec e
   | _                      => throwUnsupportedSyntax
+
+@[builtinTermElab «trailing_parser»] def elabTrailingParserMacro : TermElab :=
+  adaptExpander fun stx => match stx with
+  | `(trailing_parser $e)         => elabTParserMacroAux (quote Parser.maxPrec) e
+  | `(trailing_parser : $prec $e) => elabTParserMacroAux prec e
+  | _                             => throwUnsupportedSyntax
 
 @[builtinTermElab panic] def elabPanic : TermElab := fun stx expectedType? => do
   let arg := stx[1]

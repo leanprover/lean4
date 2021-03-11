@@ -59,8 +59,8 @@ let
   vscode-lean4 = vscode-utils.extensionFromVscodeMarketplace {
       name = "lean4";
       publisher = "leanprover";
-      version = "0.0.6";
-      sha256 = "sha256-kkLPzmsX+Njr6HuYthwX0lihG5AhF6J9GLiwwUsuVek=";
+      version = "0.0.12";
+      sha256 = "sha256-0AUGJE34sO6Un6GzVmCFd988Z1HTA+r98sgmQtgDX0g=";
   };
   lean-vscode = vscode-with-extensions.override {
     vscodeExtensions = [ vscode-lean4 ];

@@ -155,8 +155,6 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
     throwError! "expected type must not contain free or meta variables{indentExpr expectedType}"
   return expectedType
 
-#exit -- TODO remove after update stage0
-
 @[builtinTactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun stx =>
   closeMainUsing fun expectedType => do
     let expectedType ← preprocessPropToDecide expectedType

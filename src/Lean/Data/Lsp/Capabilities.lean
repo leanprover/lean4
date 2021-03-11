@@ -6,9 +6,10 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Lean.Data.JsonRpc
 import Lean.Data.Lsp.TextSync
+import Lean.Data.Lsp.LanguageFeatures
 
 /-! Minimal LSP servers/clients do not have to implement a lot
-of functionality. Most useful additional behaviour is instead
+of functionality. Most useful additional behavior is instead
 opted into via capabilities. -/
 
 namespace Lean
@@ -35,6 +36,7 @@ structure ServerCapabilities where
   definitionProvider : Bool := false
   declarationProvider : Bool := false
   typeDefinitionProvider : Bool := false
+  semanticTokensProvider? : Option SemanticTokensOptions := none
   deriving ToJson, FromJson
 
 end Lsp

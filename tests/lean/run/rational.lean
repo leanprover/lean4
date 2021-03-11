@@ -7,7 +7,7 @@ instance (n : Nat) : OfNat Rat n where
   ofNat := {
     num := n
     den := 1
-    pos := decide!
+    pos := by decide
   }
 
 instance : Add Rat where
@@ -21,7 +21,7 @@ instance : Coe Int Rat where
   coe n := {
     num := n
     den := 1
-    pos := decide!
+    pos := by decide
   }
 
 def f1 (x : Rat) (n : Nat) : Rat :=

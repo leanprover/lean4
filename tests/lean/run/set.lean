@@ -30,7 +30,7 @@ instance (s₁ s₂ : Set α) [Decidable (a ∈ s₁)] [Decidable (a ∈ s₂)] 
   inferInstanceAs (Decidable (_ ∨ _))
 
 theorem ex2 : (1, 3) ∈ { (x, y) | x < y } :=
-  decide!
+  by decide
 
 theorem ex3 : (10000, 300000) ∈ { (x, y) | x < y } ∩ { (x, y) | x = 10000 } :=
-  decide!
+  by decide

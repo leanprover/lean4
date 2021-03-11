@@ -1,4 +1,3 @@
-
 def fact : Nat → Nat
 | 0     => 1
 | (n+1) => (n+1)*fact n
@@ -33,15 +32,15 @@ theorem tst8 : "hello" ++ "world" = "helloworld" :=
 rfl
 
 theorem tst9 : "abc" ≠ "cde" :=
-decide!
+by decide
 
 theorem tst10 : "helloWorld" ≠ "helloworld" :=
-decide!
+by decide
 
 theorem tst11 : "helloWorld" = "helloWorld" :=
-decide!
+by decide
 
 theorem tst12 : 'a' ≠ 'c' :=
-decide!
+by decide
 
 #check tst10

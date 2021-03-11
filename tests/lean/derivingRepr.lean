@@ -6,7 +6,7 @@ structure Foo where
   flag  : Bool
   deriving Repr
 
-#eval { name := "Joe", val := List.iota 40, flag := true, inv := by decide! : Foo }
+#eval { name := "Joe", val := List.iota 40, flag := true, inv := by decide : Foo }
 
 inductive Tree (α : Type) where
   | node : List (Tree α) → Bool → Tree α

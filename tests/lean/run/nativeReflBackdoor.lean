@@ -1,7 +1,7 @@
-
+--
 
 /-
-This example demonstratea that when we are using `nativeRefl!`,
+This example demonstratea that when we are using `nativeDecide`,
 we are also trusting the correctness of `implementedBy` annotations,
 foreign functions (i.e., `[extern]` annotations), etc.
 -/
@@ -18,9 +18,9 @@ def f (b : Bool) := b
 theorem fConst (b : Bool) : f b = false :=
 match b with
 | true  =>
-  /- The following `nativeRefl!` is going to use `g` to evaluate `f`
+  /- The following `nativeDecide` is going to use `g` to evaluate `f`
      because of the `implementedBy` directive. -/
-  have (f true) = false from nativeRefl! (f true);
+  have (f true) = false by nativeDecide
   this
 | false => rfl
 

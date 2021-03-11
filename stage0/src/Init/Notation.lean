@@ -214,7 +214,6 @@ macro "try " t:tacticSeq : tactic => `(first $t | skip)
 macro:1 x:tactic " <;> " y:tactic:0 : tactic => `(tactic| focus ($x:tactic; allGoals $y:tactic))
 
 macro "rfl" : tactic => `(exact rfl)
-macro "decide!" : tactic => `(exact decide!)
 macro "admit" : tactic => `(exact sorry)
 macro "inferInstance" : tactic => `(exact inferInstance)
 

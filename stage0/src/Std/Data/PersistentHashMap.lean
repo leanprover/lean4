@@ -211,7 +211,7 @@ def isUnaryNode : Node α β → Option (α × β)
   | Node.entries entries         => isUnaryEntries entries 0 none
   | Node.collision keys vals heq =>
     if h : 1 = keys.size then
-      have 0 < keys.size by rw [←h]; decide!
+      have 0 < keys.size by rw [←h]; decide
       some (keys.get ⟨0, this⟩, vals.get ⟨0, by rw [←heq]; assumption⟩)
     else
       none

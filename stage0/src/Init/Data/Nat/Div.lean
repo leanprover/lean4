@@ -116,7 +116,7 @@ theorem mod_le (x y : Nat) : x % y ≤ x := by
   rw [mod_eq_sub_mod (Nat.leRefl _), Nat.sub_self, zero_mod]
 
 theorem mod_one (x : Nat) : x % 1 = 0 := by
-  have h : x % 1 < 1 from mod_lt x decide!
+  have h : x % 1 < 1 from mod_lt x (by decide)
   have (y : Nat) → y < 1 → y = 0 by
     intro y
     cases y with

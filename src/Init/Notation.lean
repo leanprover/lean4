@@ -269,7 +269,6 @@ syntax (name := «have») "have " haveDecl : tactic
 syntax (name := «suffices») "suffices " sufficesDecl : tactic
 syntax (name := «show») "show " term : tactic
 syntax (name := «let») "let " letDecl : tactic
-syntax (name := «let!») "let! " letDecl : tactic
 syntax (name := letrec) withPosition(atomic(group("let " &"rec ")) letRecDecls) : tactic
 
 syntax inductionAlt  := "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)

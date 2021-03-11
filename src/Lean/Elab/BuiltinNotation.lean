@@ -38,7 +38,7 @@ open Meta
 
 @[builtinMacro Lean.Parser.Term.show] def expandShow : Macro := fun stx =>
   match stx with
-  | `(show $type from $val)         => let thisId := mkIdentFrom stx `this; `(let! $thisId : $type := $val; $thisId)
+  | `(show $type from $val)         => let thisId := mkIdentFrom stx `this; `(let_fun $thisId : $type := $val; $thisId)
   | `(show $type by $tac:tacticSeq) => `(show $type from by $tac:tacticSeq)
   | _                               => Macro.throwUnsupported
 
@@ -46,8 +46,8 @@ open Meta
   let mkId (x? : Option Syntax) : Syntax :=
     x?.getD <| mkIdentFrom stx `this
   match stx with
-  | `(have $[$x :]? $type from $val $[;]? $body)              => let x := mkId x; `(let! $x : $type := $val; $body)
-  | `(have $[$x :]? $type := $val $[;]? $body)                => let x := mkId x; `(let! $x : $type := $val; $body)
+  | `(have $[$x :]? $type from $val $[;]? $body)              => let x := mkId x; `(let_fun $x : $type := $val; $body)
+  | `(have $[$x :]? $type := $val $[;]? $body)                => let x := mkId x; `(let_fun $x : $type := $val; $body)
   | `(have $[$x :]? $type by $tac:tacticSeq $[;]? $body)      => `(have $[$x :]? $type from by $tac:tacticSeq; $body)
   | _                                                         => Macro.throwUnsupported
 

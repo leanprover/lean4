@@ -950,7 +950,7 @@ def mkJoinPoint (j : Name) (ps : Array (Name × Bool)) (body : Syntax) (k : Synt
   let pTypes ← ps.mapM fun ⟨id, useTypeOf⟩ => do if useTypeOf then `(typeOf! $(← mkIdentFromRef id)) else `(_)
   let ps     ← ps.mapM fun ⟨id, useTypeOf⟩ => mkIdentFromRef id
   /-
-  We use `let*` instead of `let` for joinpoints to make sure `$k` is elaborated before `$body`.
+  We use `let_delayed` instead of `let` for joinpoints to make sure `$k` is elaborated before `$body`.
   By elaborating `$k` first, we "learn" more about `$body`'s type.
   For example, consider the following example `do` expression
   ```
@@ -970,10 +970,10 @@ def mkJoinPoint (j : Name) (ps : Array (Name × Bool)) (body : Syntax) (k : Synt
   else
     jp ()
   ```
-  If we use the regular `let` instead of `let*`, the joinpoint `jp` will be elaborated and its type will be inferred to be `Unit → IO (IO.Ref Bool)`.
-  Then, we get a typing error at `jp ()`. By using `let*`, we first elaborate `if x > 0 ...` and learn that `jp` has type `Unit → IO Unit`.
+  If we use the regular `let` instead of `let_delayed`, the joinpoint `jp` will be elaborated and its type will be inferred to be `Unit → IO (IO.Ref Bool)`.
+  Then, we get a typing error at `jp ()`. By using `let_delayed`, we first elaborate `if x > 0 ...` and learn that `jp` has type `Unit → IO Unit`.
   Then, we get the expected type mismatch error at `IO.mkRef true`. -/
-  `(let* $(← mkIdentFromRef j):ident $[($ps : $pTypes)]* : $((← read).m) _ := $body; $k)
+  `(let_delayed $(← mkIdentFromRef j):ident $[($ps : $pTypes)]* : $((← read).m) _ := $body; $k)
 
 def mkJmp (ref : Syntax) (j : Name) (args : Array Syntax) : Syntax :=
   Syntax.mkApp (mkIdentFrom ref j) args

@@ -182,15 +182,15 @@ def whereDecls := leading_parser "where " >> many1Indent (group (letRecDecl >> o
 @[runBuiltinParserAttributeHooks]
 def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
 
-@[builtinTermParser] def noindex := leading_parser "noindex!" >> termParser maxPrec
+@[builtinTermParser] def noindex := leading_parser (symbol "noindex! " <|> "no_index ") >> termParser maxPrec
 
-@[builtinTermParser] def binrel  := leading_parser "binrel! " >> ident >> ppSpace >> termParser maxPrec >> termParser maxPrec
+@[builtinTermParser] def binrel  := leading_parser (symbol "binrel! " <|> "binrel%") >> ident >> ppSpace >> termParser maxPrec >> termParser maxPrec
 
-@[builtinTermParser] def forInMacro := leading_parser "forIn! " >> termParser maxPrec >> termParser maxPrec >> termParser maxPrec
+@[builtinTermParser] def forInMacro := leading_parser (symbol "forIn! " <|> "forIn% ") >> termParser maxPrec >> termParser maxPrec >> termParser maxPrec
 
-@[builtinTermParser] def typeOf             := leading_parser "typeOf! " >> termParser maxPrec
-@[builtinTermParser] def ensureTypeOf       := leading_parser "ensureTypeOf! " >> termParser maxPrec >> strLit >> termParser
-@[builtinTermParser] def ensureExpectedType := leading_parser "ensureExpectedType! " >> strLit >> termParser maxPrec
+@[builtinTermParser] def typeOf             := leading_parser (symbol "typeOf! " <|> "typeOf% ") >> termParser maxPrec
+@[builtinTermParser] def ensureTypeOf       := leading_parser (symbol "ensureTypeOf! " <|> "ensureTypeOf% ") >> termParser maxPrec >> strLit >> termParser
+@[builtinTermParser] def ensureExpectedType := leading_parser (symbol "ensureExpectedType! " <|> "ensureExpectedType% ") >> strLit >> termParser maxPrec
 
 def namedArgument  := leading_parser atomic ("(" >> ident >> " := ") >> termParser >> ")"
 def ellipsis       := leading_parser ".."
@@ -223,7 +223,7 @@ def bracketedBinderF := bracketedBinder  -- no default arg
 
 @[builtinTermParser] def panic       := leading_parser:leadPrec "panic! " >> termParser
 @[builtinTermParser] def unreachable := leading_parser:leadPrec "unreachable!"
-@[builtinTermParser] def dbgTrace    := leading_parser:leadPrec withPosition ("dbgTrace! " >> ((interpolatedStr termParser) <|> termParser)) >> optSemicolon termParser
+@[builtinTermParser] def dbgTrace    := leading_parser:leadPrec withPosition ((symbol "dbgTrace! " <|> "dbg_trace") >> ((interpolatedStr termParser) <|> termParser)) >> optSemicolon termParser
 @[builtinTermParser] def assert      := leading_parser:leadPrec withPosition ("assert! " >> termParser) >> optSemicolon termParser
 
 

@@ -169,7 +169,9 @@ enabled and disabled respectively.")
   ;;(setq lean4-right-click-item-functions '(lean4-info-right-click-find-definition
   ;;                                        lean4-hole-right-click))
   ;; Flycheck
-  (setq-local flycheck-disabled-checkers '()))
+  (setq-local flycheck-disabled-checkers '())
+  ;; Lean massively benefits from semantic tokens, so change default to enabled
+  (setq-local lsp-semantic-tokens-enable t))
 
 ;; Automode List
 ;;;###autoload

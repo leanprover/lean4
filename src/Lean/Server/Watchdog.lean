@@ -381,15 +381,16 @@ section MessageHandling
       let uri := fileSource parsedParams
       tryWriteMessage uri ⟨id, method, parsedParams⟩ FileWorker.writeRequest
     match method with
-    | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParams
-    | "textDocument/hover"              => handle HoverParams
-    | "textDocument/declaration"        => handle DeclarationParams
-    | "textDocument/definition"         => handle DefinitionParams
-    | "textDocument/typeDefinition"     => handle TypeDefinitionParams
-    | "textDocument/documentHighlight"  => handle DocumentHighlightParams
-    | "textDocument/documentSymbol"     => handle DocumentSymbolParams
-    | "$/lean/plainGoal"                => handle PlainGoalParams
-    | _                                 =>
+    | "textDocument/waitForDiagnostics"   => handle WaitForDiagnosticsParams
+    | "textDocument/hover"                => handle HoverParams
+    | "textDocument/declaration"          => handle DeclarationParams
+    | "textDocument/definition"           => handle DefinitionParams
+    | "textDocument/typeDefinition"       => handle TypeDefinitionParams
+    | "textDocument/documentHighlight"    => handle DocumentHighlightParams
+    | "textDocument/documentSymbol"       => handle DocumentSymbolParams
+    | "textDocument/semanticTokens/range" => handle SemanticTokensRangeParams
+    | "$/lean/plainGoal"                  => handle PlainGoalParams
+    | _                                   =>
       (←read).hOut.writeLspResponseError
         { id      := id
           code    := ErrorCode.methodNotFound
@@ -500,6 +501,14 @@ def mkLeanServerCapabilities : ServerCapabilities := {
   typeDefinitionProvider := true
   documentHighlightProvider := true
   documentSymbolProvider := true
+  semanticTokensProvider? := some {
+    legend := {
+      tokenTypes     := SemanticTokenType.names
+      tokenModifiers := #[]
+    }
+    full  := false
+    range := true
+  }
 }
 
 def initAndRunWatchdogAux : ServerM Unit := do

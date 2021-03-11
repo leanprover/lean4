@@ -528,6 +528,34 @@ section RequestHandling
             children? := syms.toArray
           } :: syms', stxs'')
 
+  def handleSemanticTokensRange (p : SemanticTokensRangeParams) :
+      ServerM (Task (Except IO.Error (Except RequestError SemanticTokens))) := do
+    let st ← read
+    let doc ← st.docRef.get
+    let text := doc.meta.text
+    let beginPos := text.lspPosToUtf8Pos p.range.start
+    let endPos := text.lspPosToUtf8Pos p.range.end
+    let t ← doc.cmdSnaps.waitAll (·.beginPos < endPos)
+    IO.mapTask (t := t) fun (snaps, _) => do
+      let mut data := #[]
+      let mut lspPos := ⟨0, 0⟩
+      for s in snaps do
+        if s.endPos > beginPos then
+          for stx in s.stx.topDown (firstChoiceOnly := true) do
+            -- highlight keywords
+            if let Syntax.atom info val := stx then
+              if let some pos := info.getPos? then
+                if val.bsize > 0 && val[0].isAlpha && beginPos <= pos && pos < endPos then
+                  let lspPos' := text.utf8PosToLspPos pos
+                  let deltaLine := lspPos'.line - lspPos.line
+                  let deltaStart := lspPos'.character - (if lspPos'.line == lspPos.line then lspPos'.character else 0)
+                  let length := val.utf16Length
+                  let tokenType := SemanticTokenType.keyword.toNat
+                  let tokenModifiers := 0
+                  data := data ++ #[deltaLine, deltaStart, length, tokenType, tokenModifiers]
+                  lspPos := lspPos'
+      return Except.ok { data := data }
+
   partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
     : ServerM (Task (Except IO.Error (Except RequestError WaitForDiagnostics))) := do
     let st ← read
@@ -582,14 +610,15 @@ section MessageHandling
           st.hOut.writeLspResponseError { id := id, code := ErrorCode.internalError, message := toString e }
       queueRequest id t₁
     match method with
-    | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParams WaitForDiagnostics handleWaitForDiagnostics
-    | "textDocument/hover"              => handle HoverParams (Option Hover) handleHover
-    | "textDocument/declaration"        => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := false)
-    | "textDocument/definition"         => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := false)
-    | "textDocument/typeDefinition"     => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := true)
-    | "textDocument/documentHighlight"  => handle DocumentHighlightParams DocumentHighlightResult handleDocumentHighlight
-    | "textDocument/documentSymbol"     => handle DocumentSymbolParams DocumentSymbolResult handleDocumentSymbol
-    | "$/lean/plainGoal"                => handle PlainGoalParams (Option PlainGoal) handlePlainGoal
+    | "textDocument/waitForDiagnostics"   => handle WaitForDiagnosticsParams WaitForDiagnostics handleWaitForDiagnostics
+    | "textDocument/hover"                => handle HoverParams (Option Hover) handleHover
+    | "textDocument/declaration"          => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := false)
+    | "textDocument/definition"           => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := false)
+    | "textDocument/typeDefinition"       => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := true)
+    | "textDocument/documentHighlight"    => handle DocumentHighlightParams DocumentHighlightResult handleDocumentHighlight
+    | "textDocument/documentSymbol"       => handle DocumentSymbolParams DocumentSymbolResult handleDocumentSymbol
+    | "textDocument/semanticTokens/range" => handle SemanticTokensRangeParams SemanticTokens handleSemanticTokensRange
+    | "$/lean/plainGoal"                  => handle PlainGoalParams (Option PlainGoal) handlePlainGoal
     | _ => throwServerError s!"Got unsupported request: {method}"
 end MessageHandling
 

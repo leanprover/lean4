@@ -876,7 +876,7 @@ def tryPostponeIfHasMVars (expectedType? : Option Expr) (msg : String) : TermEla
   pure expectedType
 
 private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
-  trace[Elab.postpone]! "{stx} : {expectedType?}"
+  trace[Elab.postpone] "{stx} : {expectedType?}"
   let mvar ← mkFreshExprMVar expectedType? MetavarKind.syntheticOpaque
   let ctx ← read
   registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed ctx.macroStack ctx.declName?)
@@ -980,7 +980,7 @@ private def elabImplicitLambdaAux (stx : Syntax) (catchExPostpone : Bool) (expec
   let body ← elabUsingElabFns stx expectedType catchExPostpone
   let body ← ensureHasType expectedType body
   let r ← mkLambdaFVars fvars body
-  trace[Elab.implicitForall]! r
+  trace[Elab.implicitForall] r
   pure r
 
 private partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) : Expr → Array Expr → TermElabM Expr
@@ -998,7 +998,7 @@ private partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) :
 /- Main loop for `elabTerm` -/
 private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (implicitLambda : Bool) : Syntax → TermElabM Expr
   | stx => withFreshMacroScope <| withIncRecDepth do
-    trace[Elab.step]! "expected type: {expectedType?}, term\n{stx}"
+    trace[Elab.step] "expected type: {expectedType?}, term\n{stx}"
     checkMaxHeartbeats "elaborator"
     withNestedTraces do
     let env ← getEnv
@@ -1157,9 +1157,9 @@ builtin_initialize registerTraceClass `Elab.letrec
 /- Return true if mvarId is an auxiliary metavariable created for compiling `let rec` or it
    is delayed assigned to one. -/
 def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
-  trace[Elab.letrec]! "mvarId: {mkMVar mvarId} letrecMVars: {(← get).letRecsToLift.map (mkMVar $ ·.mvarId)}"
+  trace[Elab.letrec] "mvarId: {mkMVar mvarId} letrecMVars: {(← get).letRecsToLift.map (mkMVar $ ·.mvarId)}"
   let mvarId := (← getMCtx).getDelayedRoot mvarId
-  trace[Elab.letrec]! "mvarId root: {mkMVar mvarId}"
+  trace[Elab.letrec] "mvarId root: {mkMVar mvarId}"
   return (← get).letRecsToLift.any (·.mvarId == mvarId)
 
 /- =======================================

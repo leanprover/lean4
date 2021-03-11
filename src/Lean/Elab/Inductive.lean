@@ -215,7 +215,6 @@ private def elabCtors (indFVars : Array Expr) (indFVar : Expr) (params : Array E
           let ctorParams ← Term.addAutoBoundImplicits ctorParams
           let type ← mkForallFVars ctorParams type
           let type ← mkForallFVars params type
-          trace[Meta.debug]! "{ctorView.declName} : {type}"
           return { name := ctorView.declName, type := type }
 where
   checkParamOccs (ctorType : Expr) : MetaM Expr :=
@@ -339,7 +338,7 @@ private def updateResultingUniverse (numParams : Nat) (indTypes : List Inductive
   unless r.isParam do
     throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly"
   let us ← collectUniverses r rOffset numParams indTypes
-  trace[Elab.inductive]! "updateResultingUniverse us: {us}, r: {r}, rOffset: {rOffset}"
+  trace[Elab.inductive] "updateResultingUniverse us: {us}, r: {r}, rOffset: {rOffset}"
   let rNew := mkResultUniverse us rOffset
   let updateLevel (e : Expr) : Expr := e.replaceLevel fun u => if u == tmpIndParam then some rNew else none
   return indTypes.map fun indType =>

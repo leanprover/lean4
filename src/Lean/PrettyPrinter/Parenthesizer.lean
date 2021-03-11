@@ -204,11 +204,11 @@ def maybeParenthesize (cat : Name) (canJuxtapose : Bool) (mkParen : Syntax → S
   let st ← get
   -- reset precs for the recursive call
   set { stxTrav := st.stxTrav : State }
-  trace[PrettyPrinter.parenthesize]! "parenthesizing (cont := {(st.contPrec, st.contCat)}){indentD (fmt stx)}"
+  trace[PrettyPrinter.parenthesize] "parenthesizing (cont := {(st.contPrec, st.contCat)}){indentD (fmt stx)}"
   x
   let { minPrec := some minPrec, trailPrec := trailPrec, trailCat := trailCat, .. } ← get
     | panic! s!"maybeParenthesize: visited a syntax tree without precedences?!{line ++ fmt stx}"
-  trace[PrettyPrinter.parenthesize]! ("...precedences are {prec} >? {minPrec}" ++ if canJuxtapose then m!", {(trailPrec, trailCat)} <=? {(st.contPrec, st.contCat)}" else "")
+  trace[PrettyPrinter.parenthesize] ("...precedences are {prec} >? {minPrec}" ++ if canJuxtapose then m!", {(trailPrec, trailCat)} <=? {(st.contPrec, st.contCat)}" else "")
   -- Should we parenthesize?
   if (prec > minPrec || canJuxtapose && match trailPrec, st.contPrec with | some trailPrec, some contPrec => trailCat == st.contCat && trailPrec <= contPrec | _, _ => false) then
       -- The recursive `visit` call, by the invariant, has moved to the preceding node. In order to parenthesize
@@ -226,7 +226,7 @@ def maybeParenthesize (cat : Name) (canJuxtapose : Bool) (mkParen : Syntax → S
         stx' := stx'.setHeadInfo (SourceInfo.original lead pos "".toSubstring)
       if let SourceInfo.original _ pos trail := stx.getTailInfo then
         stx' := stx'.setTailInfo (SourceInfo.original "".toSubstring pos trail)
-      trace! `PrettyPrinter.parenthesize m!"parenthesized: {stx'.formatStx none}"
+      trace[PrettyPrinter.parenthesize] "parenthesized: {stx'.formatStx none}"
       setCur stx'
       goLeft
       -- after parenthesization, there is no more trailing parser
@@ -377,7 +377,7 @@ def andthen.parenthesizer (p1 p2 : Parenthesizer) : Parenthesizer :=
 def node.parenthesizer (k : SyntaxNodeKind) (p : Parenthesizer) : Parenthesizer := do
   let stx ← getCur
   if k != stx.getKind then
-    trace[PrettyPrinter.parenthesize.backtrack]! "unexpected node kind '{stx.getKind}', expected '{k}'"
+    trace[PrettyPrinter.parenthesize.backtrack] "unexpected node kind '{stx.getKind}', expected '{k}'"
     -- HACK; see `orelse.parenthesizer`
     throwBacktrack
   visitArgs p
@@ -399,7 +399,7 @@ def leadingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesiz
 def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesizer) : Parenthesizer := do
   let stx ← getCur
   if k != stx.getKind then
-    trace[PrettyPrinter.parenthesize.backtrack]! "unexpected node kind '{stx.getKind}', expected '{k}'"
+    trace[PrettyPrinter.parenthesize.backtrack] "unexpected node kind '{stx.getKind}', expected '{k}'"
     -- HACK; see `orelse.parenthesizer`
     throwBacktrack
   visitArgs do
@@ -530,7 +530,7 @@ open Parenthesizer
 
 /-- Add necessary parentheses in `stx` parsed by `parser`. -/
 def parenthesize (parenthesizer : Parenthesizer) (stx : Syntax) : CoreM Syntax := do
-  trace[PrettyPrinter.parenthesize.input]! "{fmt stx}"
+  trace[PrettyPrinter.parenthesize.input] "{fmt stx}"
   catchInternalId backtrackExceptionId
     (do
       let (_, st) ← (parenthesizer {}).run { stxTrav := Syntax.Traverser.fromSyntax stx }

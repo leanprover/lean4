@@ -90,7 +90,7 @@ def mkCongrLemma (declName : Name) (prio : Nat) : MetaM CongrLemma := withReduci
             foundMVars    := foundMVars.insert x.mvarId! |>.insert rhsFn.mvarId!
             hypothesesPos := hypothesesPos.push i
         i := i + 1
-      trace[Meta.debug]! "c: {c} : {type}"
+      trace[Meta.debug] "c: {c} : {type}"
       return {
         theoremName   := declName
         funName       := lhsFn.constName!

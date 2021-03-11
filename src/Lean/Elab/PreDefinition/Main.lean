@@ -12,10 +12,10 @@ open Term
 
 private def addAndCompilePartial (preDefs : Array PreDefinition) : TermElabM Unit := do
   for preDef in preDefs do
-    trace[Elab.definition]! "processing {preDef.declName}"
+    trace[Elab.definition] "processing {preDef.declName}"
     forallTelescope preDef.type fun xs type => do
       let inh ← liftM $ mkInhabitantFor preDef.declName xs type
-      trace[Elab.definition]! "inhabitant for {preDef.declName}"
+      trace[Elab.definition] "inhabitant for {preDef.declName}"
       addNonRec { preDef with
         kind  := DefKind.«opaque»,
         value := inh
@@ -53,11 +53,11 @@ private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM
 
 def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := do
   for preDef in preDefs do
-    trace[Elab.definition.body]! "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
+    trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
   for preDef in preDefs do
     ensureNoUnassignedMVarsAtPreDef preDef
   for preDefs in partitionPreDefs preDefs do
-    trace[Elab.definition.scc]! "{preDefs.map (·.declName)}"
+    trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
     if preDefs.size == 1 && isNonRecursive preDefs[0] then
       let preDef := preDefs[0]
       if preDef.modifiers.isNoncomputable then

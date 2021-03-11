@@ -47,7 +47,7 @@ private def elabDiscrsWitMatchType (discrStxs : Array Syntax) (matchType : Expr)
     match matchType with
     | Expr.forallE _ d b _ =>
       let discr ← fullApproxDefEq <| elabTermEnsuringType discrStx[1] d
-      trace[Elab.match]! "discr #{i} {discr} : {d}"
+      trace[Elab.match] "discr #{i} {discr} : {d}"
       if b.hasLooseBVars then
         isDep := true
       matchType ← b.instantiate1 discr
@@ -473,7 +473,7 @@ where
 
 def main (alt : MatchAltView) : M MatchAltView := do
   let patterns ← alt.patterns.mapM fun p => do
-    trace[Elab.match]! "collecting variables at pattern: {p}"
+    trace[Elab.match] "collecting variables at pattern: {p}"
     collect p
   return { alt with patterns := patterns }
 
@@ -552,13 +552,13 @@ def finalizePatternDecls (patternVarDecls : Array PatternVarDecl) : TermElabM (A
       decls := decls.push decl
     | PatternVarDecl.anonymousVar mvarId fvarId =>
        let e ← instantiateMVars (mkMVar mvarId);
-       trace[Elab.match]! "finalizePatternDecls: mvarId: {mvarId} := {e}, fvar: {mkFVar fvarId}"
+       trace[Elab.match] "finalizePatternDecls: mvarId: {mvarId} := {e}, fvar: {mkFVar fvarId}"
        match e with
        | Expr.mvar newMVarId _ =>
          /- Metavariable was not assigned, or assigned to another metavariable. So,
             we assign to the auxiliary free variable we created at `withPatternVars` to `newMVarId`. -/
          assignExprMVar newMVarId (mkFVar fvarId)
-         trace[Elab.match]! "finalizePatternDecls: {mkMVar newMVarId} := {mkFVar fvarId}"
+         trace[Elab.match] "finalizePatternDecls: {mkMVar newMVarId} := {mkFVar fvarId}"
          let decl ← getLocalDecl fvarId
          let decl ← instantiateLocalDeclMVars decl
          decls := decls.push decl
@@ -683,13 +683,13 @@ private def withElaboratedLHS {α} (ref : Syntax) (patternVarDecls : Array Patte
 
 def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : TermElabM (AltLHS × Expr) := withRef alt.ref do
   let (patternVars, alt) ← collectPatternVars alt
-  trace[Elab.match]! "patternVars: {patternVars}"
+  trace[Elab.match] "patternVars: {patternVars}"
   withPatternVars patternVars fun patternVarDecls => do
     withElaboratedLHS alt.ref patternVarDecls alt.patterns matchType fun altLHS matchType => do
       let rhs ← elabTermEnsuringType alt.rhs matchType
       let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr
       let rhs ← if xs.isEmpty then pure <| mkSimpleThunk rhs else mkLambdaFVars xs rhs
-      trace[Elab.match]! "rhs: {rhs}"
+      trace[Elab.match] "rhs: {rhs}"
       return (altLHS, rhs)
 
 def mkMatcher (elimName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : TermElabM MatcherResult :=
@@ -730,7 +730,7 @@ private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltVi
   let (discrs, matchType, altLHSS, isDep, rhss) ← commitIfDidNotPostpone do
     let ⟨discrs, matchType, isDep, altViews⟩ ← elabMatchTypeAndDiscrs discrStxs matchOptType altViews expectedType
     let matchAlts ← liftMacroM <| expandMacrosInPatterns altViews
-    trace[Elab.match]! "matchType: {matchType}"
+    trace[Elab.match] "matchType: {matchType}"
     let alts ← matchAlts.mapM fun alt => elabMatchAltView alt matchType
     /-
      We should not use `synthesizeSyntheticMVarsNoPostponing` here. Otherwise, we will not be
@@ -796,7 +796,7 @@ private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltVi
     let r := mkApp matcherResult.matcher motive
     let r := mkAppN r discrs
     let r := mkAppN r rhss
-    trace[Elab.match]! "result: {r}"
+    trace[Elab.match] "result: {r}"
     return r
 
 private def getDiscrs (matchStx : Syntax) : Array Syntax :=
@@ -852,7 +852,7 @@ private def tryPostponeIfDiscrTypeIsMVar (matchStx : Syntax) : TermElabM Unit :=
       | none   => throwErrorAt discr "unexpected discriminant" -- see `expandNonAtomicDiscrs?
       | some d =>
         let dType ← inferType d
-        trace[Elab.match]! "discr {d} : {dType}"
+        trace[Elab.match] "discr {d} : {dType}"
         tryPostponeIfMVar dType
 
 /-

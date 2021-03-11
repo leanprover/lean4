@@ -79,7 +79,7 @@ def addUnificationHint (declName : Name) (kind : AttributeKind) : MetaM Unit :=
         let keys ← DiscrTree.mkPath hint.pattern.lhs
         validateHint declName hint
         unificationHintExtension.add { keys := keys, val := declName } kind
-        trace[Meta.debug]! "addUnificationHint: {unificationHintExtension.getState (← getEnv)}"
+        trace[Meta.debug] "addUnificationHint: {unificationHintExtension.getState (← getEnv)}"
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -91,7 +91,7 @@ builtin_initialize
   }
 
 def tryUnificationHints (t s : Expr) : MetaM Bool := do
-  trace[Meta.isDefEq.hint]! "{t} =?= {s}"
+  trace[Meta.isDefEq.hint] "{t} =?= {s}"
   unless (← read).config.unificationHints do
     return false
   if t.isMVar then
@@ -108,7 +108,7 @@ where
 
   tryCandidate candidate : MetaM Bool :=
     traceCtx `Meta.isDefEq.hint <| commitWhen do
-      trace[Meta.isDefEq.hint]! "trying hint {candidate} at {t} =?= {s}"
+      trace[Meta.isDefEq.hint] "trying hint {candidate} at {t} =?= {s}"
       let cinfo ← getConstInfo candidate
       let us ← cinfo.levelParams.mapM fun _ => mkFreshLevelMVar
       let val := cinfo.instantiateValueLevelParams us
@@ -124,7 +124,7 @@ where
       match hint? with
       | none      => return false
       | some hint =>
-        trace[Meta.isDefEq.hint]! "{candidate} succeeded, applying constraints"
+        trace[Meta.isDefEq.hint] "{candidate} succeeded, applying constraints"
         for c in hint.constraints do
           unless (← Meta.isExprDefEqAux c.lhs c.rhs) do
             return false

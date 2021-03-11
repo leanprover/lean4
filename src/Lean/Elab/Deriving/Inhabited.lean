@@ -30,7 +30,7 @@ where
         let instType ← mkAppM `Inhabited #[x]
         if (← isTypeCorrect instType) then
           withLocalDeclD (← mkFreshUserName `inst) instType fun inst => do
-            trace[Elab.Deriving.inhabited]! "adding local instance {instType}"
+            trace[Elab.Deriving.inhabited] "adding local instance {instType}"
             addLocalInstancesForParamsAux k xs (i+1) (map.insert inst.fvarId! i)
         else
           addLocalInstancesForParamsAux k xs (i+1) map
@@ -89,20 +89,20 @@ where
         for i in [ctorVal.numParams:xs.size] do
           let x := xs[i]
           let instType ← mkAppM `Inhabited #[(← inferType x)]
-          trace[Elab.Deriving.inhabited]! "checking {instType} for '{ctorName}'"
+          trace[Elab.Deriving.inhabited] "checking {instType} for '{ctorName}'"
           match (← trySynthInstance instType) with
           | LOption.some e =>
             usedInstIdxs ← collectUsedLocalsInsts usedInstIdxs localInst2Index e
           | _ =>
-            trace[Elab.Deriving.inhabited]! "failed to generate instance using '{ctorName}' {if addHypotheses then "(assuming parameters are inhabited)" else ""} because of field with type{indentExpr (← inferType x)}"
+            trace[Elab.Deriving.inhabited] "failed to generate instance using '{ctorName}' {if addHypotheses then "(assuming parameters are inhabited)" else ""} because of field with type{indentExpr (← inferType x)}"
             ok := false
             break
         if !ok then
           return none
         else
-          trace[Elab.Deriving.inhabited]! "inhabited instance using '{ctorName}' {if addHypotheses then "(assuming parameters are inhabited)" else ""} {usedInstIdxs.toList}"
+          trace[Elab.Deriving.inhabited] "inhabited instance using '{ctorName}' {if addHypotheses then "(assuming parameters are inhabited)" else ""} {usedInstIdxs.toList}"
           let cmd ← mkInstanceCmdWith usedInstIdxs
-          trace[Elab.Deriving.inhabited]! "\n{cmd}"
+          trace[Elab.Deriving.inhabited] "\n{cmd}"
           return some cmd
 
 private def mkInhabitedInstance (declName : Name) : CommandElabM Unit := do

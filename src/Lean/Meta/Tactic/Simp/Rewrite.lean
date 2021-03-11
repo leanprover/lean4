@@ -15,19 +15,19 @@ def synthesizeArgs (lemmaName : Name) (xs : Array Expr) (bis : Array BinderInfo)
       match ← trySynthInstance type with
       | LOption.some val =>
         unless (← isDefEq x val) do
-          trace[Meta.Tactic.simp.discharge]! "{lemmaName}, failed to assign instance{indentExpr type}"
+          trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to assign instance{indentExpr type}"
           return false
       | _ =>
-        trace[Meta.Tactic.simp.discharge]! "{lemmaName}, failed to synthesize instance{indentExpr type}"
+        trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to synthesize instance{indentExpr type}"
         return false
     else if (← isProp type <&&> (← instantiateMVars x).isMVar) then
       match ← discharge? type with
       | some proof =>
         unless (← isDefEq x proof) do
-          trace[Meta.Tactic.simp.discharge]! "{lemmaName}, failed to assign proof{indentExpr type}"
+          trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to assign proof{indentExpr type}"
           return false
       | none =>
-        trace[Meta.Tactic.simp.discharge]! "{lemmaName}, failed to discharge hypotheses{indentExpr type}"
+        trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to discharge hypotheses{indentExpr type}"
         return false
   return true
 
@@ -37,7 +37,7 @@ Remark: the parameter tag is used for creating trace messages. It is irrelevant 
 def rewrite (e : Expr) (s : DiscrTree SimpLemma) (erased : SimpLemmaNameSet) (discharge? : Expr → SimpM (Option Expr)) (tag : String) : SimpM Result := do
   let lemmas ← s.getMatch e
   if lemmas.isEmpty then
-    trace[Debug.Meta.Tactic.simp]! "no lemmas found for {tag}-rewriting {e}"
+    trace[Debug.Meta.Tactic.simp] "no lemmas found for {tag}-rewriting {e}"
     return { expr := e }
   else
     let lemmas := lemmas.insertionSort fun e₁ e₂ => e₁.priority < e₂.priority
@@ -69,16 +69,16 @@ where
         if e == rhs then
           return none
         if lemma.perm && !Expr.lt rhs e then
-          trace[Meta.Tactic.simp.rewrite]! "{lemma}, perm rejected {e} ==> {rhs}"
+          trace[Meta.Tactic.simp.rewrite] "{lemma}, perm rejected {e} ==> {rhs}"
           return none
-        trace[Meta.Tactic.simp.rewrite]! "{lemma}, {e} ==> {rhs}"
+        trace[Meta.Tactic.simp.rewrite] "{lemma}, {e} ==> {rhs}"
         return some { expr := rhs, proof? := proof }
       else
         unless lhs.isMVar do
           -- We do not report unification failures when `lhs` is a metavariable
           -- Example: `x = ()`
           -- TODO: reconsider if we want lemmas such as `(x : Unit) → x = ()`
-          trace[Meta.Tactic.simp.unify]! "{lemma}, failed to unify {lhs} with {e}"
+          trace[Meta.Tactic.simp.unify] "{lemma}, failed to unify {lhs} with {e}"
         return none
 
 def rewriteCtorEq? (e : Expr) : MetaM (Option Result) := withReducibleAndInstances do

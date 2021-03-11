@@ -61,7 +61,7 @@ def mkContext (fnPrefix : String) (typeName : Name) : TermElabM Context := do
     match typeName.eraseMacroScopes with
     | Name.str _ t _ => auxFunNames := auxFunNames.push (← mkFreshUserName <| Name.mkSimple <| fnPrefix ++ t)
     | _              => auxFunNames := auxFunNames.push (← mkFreshUserName `instFn)
-  trace[Elab.Deriving.beq]! "{auxFunNames}"
+  trace[Elab.Deriving.beq] "{auxFunNames}"
   let usePartial := indVal.isNested || typeInfos.size > 1
   return {
     typeInfos   := typeInfos
@@ -104,7 +104,6 @@ def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (
       let type         ← `($(mkIdent className) $indType)
       let val          ← if useAnonCtor then `(⟨$(mkIdent auxFunName)⟩) else pure <| mkIdent auxFunName
       let instCmd ← `(instance $binders:implicitBinder* : $type := $val)
-      trace[Meta.debug]! "\n{instCmd}"
       instances := instances.push instCmd
   return instances
 

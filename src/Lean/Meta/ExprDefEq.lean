@@ -229,18 +229,18 @@ private partial def isDefEqBindingAux (lctx : LocalContext) (fvars : Array Expr)
 private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
   traceCtx `Meta.isDefEq.assign.checkTypes do
     if !mvar.isMVar then
-      trace[Meta.isDefEq.assign.final]! "metavariable expected at {mvar} := {v}"
+      trace[Meta.isDefEq.assign.final] "metavariable expected at {mvar} := {v}"
       return false
     else
       -- must check whether types are definitionally equal or not, before assigning and returning true
       let mvarType ← inferType mvar
       let vType ← inferType v
       if (← withTransparency TransparencyMode.default <| Meta.isExprDefEqAux mvarType vType) then
-        trace[Meta.isDefEq.assign.final]! "{mvar} := {v}"
+        trace[Meta.isDefEq.assign.final] "{mvar} := {v}"
         assignExprMVar mvar.mvarId! v
         pure true
       else
-        trace[Meta.isDefEq.assign.typeMismatch]! "{mvar} : {mvarType} := {v} : {vType}"
+        trace[Meta.isDefEq.assign.typeMismatch] "{mvar} : {mvarType} := {v} : {vType}"
         pure false
 
 /--
@@ -278,7 +278,7 @@ private partial def mkLambdaFVarsWithLetDeps (xs : Array Expr) (v : Expr) : Meta
     mkLambdaFVars xs v
   else
     let ys ← addLetDeps
-    trace[Meta.debug]! "ys: {ys}, v: {v}"
+    trace[Meta.debug] "ys: {ys}, v: {v}"
     mkLambdaFVars ys v
 
 where
@@ -834,7 +834,7 @@ private partial def processAssignmentFOApprox (mvar : Expr) (args : Array Expr) 
     if !cfg.foApprox then
       pure false
     else
-      trace[Meta.isDefEq.foApprox]! "{mvar} {args} := {v}"
+      trace[Meta.isDefEq.foApprox] "{mvar} {args} := {v}"
       let v := v.headBeta
       if (← commitWhen <| processAssignmentFOApproxAux mvar args v) then
         pure true
@@ -872,7 +872,7 @@ private def assignConst (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM Bool :=
       match (← checkAssignment mvar.mvarId! #[] v) with
       | none   => pure false
       | some v =>
-        trace[Meta.isDefEq.constApprox]! "{mvar} := {v}"
+        trace[Meta.isDefEq.constApprox] "{mvar} := {v}"
         checkTypesAndAssign mvar v
 
 private def processConstApprox (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM Bool := do
@@ -888,7 +888,7 @@ private def processConstApprox (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM 
     It assumes `?m` is unassigned. -/
 private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :=
   traceCtx `Meta.isDefEq.assign do
-    trace[Meta.isDefEq.assign]! "{mvarApp} := {v}"
+    trace[Meta.isDefEq.assign] "{mvarApp} := {v}"
     let mvar := mvarApp.getAppFn
     let mvarDecl ← getMVarDecl mvar.mvarId!
     let rec process (i : Nat) (args : Array Expr) (v : Expr) := do
@@ -919,7 +919,7 @@ private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :
           match (← checkAssignment mvarId args v) with
           | none   => useFOApprox args
           | some v => do
-            trace[Meta.isDefEq.assign.beforeMkLambda]! "{mvar} {args} := {v}"
+            trace[Meta.isDefEq.assign.beforeMkLambda] "{mvar} {args} := {v}"
             let some v ← mkLambdaFVarsWithLetDeps args v | return false
             if args.any (fun arg => mvarDecl.lctx.containsFVar arg) then
               /- We need to type check `v` because abstraction using `mkLambdaFVars` may have produced
@@ -927,7 +927,7 @@ private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :
               if (← isTypeCorrect v) then
                 checkTypesAndAssign mvar v
               else
-                trace[Meta.isDefEq.assign.typeError]! "{mvar} := {v}"
+                trace[Meta.isDefEq.assign.typeError] "{mvar} := {v}"
                 useFOApprox args
             else
               checkTypesAndAssign mvar v
@@ -968,17 +968,17 @@ private def isListLevelDefEq (us vs : List Level) : MetaM LBool :=
 
 /-- Auxiliary method for isDefEqDelta -/
 private def isDefEqLeft (fn : Name) (t s : Expr) : MetaM LBool := do
-  trace[Meta.isDefEq.delta.unfoldLeft]! fn
+  trace[Meta.isDefEq.delta.unfoldLeft] fn
   toLBoolM <| Meta.isExprDefEqAux t s
 
 /-- Auxiliary method for isDefEqDelta -/
 private def isDefEqRight (fn : Name) (t s : Expr) : MetaM LBool := do
-  trace[Meta.isDefEq.delta.unfoldRight]! fn
+  trace[Meta.isDefEq.delta.unfoldRight] fn
   toLBoolM <| Meta.isExprDefEqAux t s
 
 /-- Auxiliary method for isDefEqDelta -/
 private def isDefEqLeftRight (fn : Name) (t s : Expr) : MetaM LBool := do
-  trace[Meta.isDefEq.delta.unfoldLeftRight]! fn
+  trace[Meta.isDefEq.delta.unfoldLeftRight] fn
   toLBoolM <| Meta.isExprDefEqAux t s
 
 /-- Try to solve `f a₁ ... aₙ =?= f b₁ ... bₙ` by solving `a₁ =?= b₁, ..., aₙ =?= bₙ`.
@@ -1012,7 +1012,7 @@ private def tryHeuristic (t s : Expr) : MetaM Bool :=
               <&&>
               isListLevelDefEqAux tFn.constLevels! sFn.constLevels!
       unless b do
-        trace[Meta.isDefEq.delta]! "heuristic failed {t} =?= {s}"
+        trace[Meta.isDefEq.delta] "heuristic failed {t} =?= {s}"
       pure b
 
 /-- Auxiliary method for isDefEqDelta -/
@@ -1288,7 +1288,7 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
       let tAssign? ← isAssignable tFn
       let sAssign? ← isAssignable sFn
       let assignableMsg (b : Bool) := if b then "[assignable]" else "[nonassignable]"
-      trace[Meta.isDefEq]! "{t} {assignableMsg tAssign?} =?= {s} {assignableMsg sAssign?}"
+      trace[Meta.isDefEq] "{t} {assignableMsg tAssign?} =?= {s} {assignableMsg sAssign?}"
       if tAssign? && !sAssign? then
         toLBoolM <| processAssignment' t s
       else if !tAssign? && sAssign? then
@@ -1297,7 +1297,7 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
         if tFn.isMVar || sFn.isMVar then
           let ctx ← read
           if ctx.config.isDefEqStuckEx then do
-            trace[Meta.isDefEq.stuck]! "{t} =?= {s}"
+            trace[Meta.isDefEq.stuck] "{t} =?= {s}"
             Meta.throwIsDefEqStuck
           else
             pure LBool.false
@@ -1337,7 +1337,7 @@ end
 @[specialize] private def unstuckMVar (e : Expr) (successK : Expr → MetaM Bool) (failK : MetaM Bool): MetaM Bool := do
   match (← getStuckMVar? e) with
   | some mvarId =>
-    trace[Meta.isDefEq.stuckMVar]! "found stuck MVar {mkMVar mvarId} : {← inferType (mkMVar mvarId)}"
+    trace[Meta.isDefEq.stuckMVar] "found stuck MVar {mkMVar mvarId} : {← inferType (mkMVar mvarId)}"
     if (← Meta.synthPending mvarId) then
       let e ← instantiateMVars e
       successK e
@@ -1373,7 +1373,7 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
     isDefEqOnFailure t s
 
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := do
-  trace[Meta.isDefEq.step]! "{t} =?= {s}"
+  trace[Meta.isDefEq.step] "{t} =?= {s}"
   checkMaxHeartbeats "isDefEq"
   withNestedTraces do
   whenUndefDo (isDefEqQuick t s) do

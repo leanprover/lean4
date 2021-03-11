@@ -101,14 +101,14 @@ private def tryToSynthesizeUsingDefaultInstance (mvarId : MVarId) (defaultInstan
     let candidate := Lean.mkConst defaultInstance (← mkFreshLevelMVars constInfo.levelParams.length)
     let (mvars, bis, _) ← forallMetaTelescopeReducing (← inferType candidate)
     let candidate := mkAppN candidate mvars
-    trace[Elab.resume]! "trying default instance for {mkMVar mvarId} := {candidate}"
+    trace[Elab.resume] "trying default instance for {mkMVar mvarId} := {candidate}"
     if (← isDefEqGuarded (mkMVar mvarId) candidate) then
       -- Succeeded. Collect new TC problems
       let mut result := []
       for i in [:bis.size] do
         if bis[i] == BinderInfo.instImplicit then
            result := { mvarId := mvars[i].mvarId!, stx := (← getRef), kind := SyntheticMVarKind.typeClass } :: result
-      trace[Elab.resume]! "worked"
+      trace[Elab.resume] "worked"
       return some result
     else
       return none
@@ -239,7 +239,7 @@ mutual
        -- We use `traceM` because we want to make sure the metavar local context is used to trace the message
        traceM `Elab.postpone (withMVarContext mvarDecl.mvarId do addMessageContext m!"resuming {mkMVar mvarDecl.mvarId}")
        let succeeded ← synthesizeSyntheticMVar mvarDecl postponeOnError runTactics
-       trace[Elab.postpone]! if succeeded then fmt "succeeded" else fmt "not ready yet"
+       trace[Elab.postpone] if succeeded then fmt "succeeded" else fmt "not ready yet"
        pure !succeeded
     -- Merge new synthetic metavariables with `remainingSyntheticMVars`, i.e., metavariables that still couldn't be synthesized
     modify fun s => { s with syntheticMVars := s.syntheticMVars ++ remainingSyntheticMVars }

@@ -64,7 +64,7 @@ def declareTacticSyntax (tactic : Syntax) : TermElabM Name :=
     let tactic ← quoteAutoTactic tactic
     let val ← elabTerm tactic type
     let val ← instantiateMVars val
-    trace[Elab.autoParam]! val
+    trace[Elab.autoParam] val
     let decl := Declaration.defnDecl { name := name, levelParams := [], type := type, value := val, hints := ReducibilityHints.opaque,
                                        safety := DefinitionSafety.safe }
     addDecl decl
@@ -518,7 +518,7 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
       let type ← mkForallFVars xs type
       let val  ← mkLambdaFVars xs val
       pure (type, val, xs.size)
-  trace[Elab.let.decl]! "{id.getId} : {type} := {val}"
+  trace[Elab.let.decl] "{id.getId} : {type} := {val}"
   let result ←
     if useLetExpr then
       withLetDecl id.getId type val fun x => do

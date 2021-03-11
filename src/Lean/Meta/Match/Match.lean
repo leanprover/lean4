@@ -41,7 +41,7 @@ where
       let (minorType, minorNumParams) := if !xs.isEmpty then (minorType, xs.size) else (mkSimpleThunkType minorType, 1)
       let idx       := alts.length
       let minorName := (`h).appendIndexAfter (idx+1)
-      trace[Meta.Match.debug]! "minor premise {minorName} : {minorType}"
+      trace[Meta.Match.debug] "minor premise {minorName} : {minorType}"
       withLocalDeclD minorName minorType fun minor => do
         let rhs    := if xs.isEmpty then mkApp minor (mkConst `Unit.unit) else mkAppN minor xs
         let minors := minors.push (minor, minorNumParams)
@@ -202,20 +202,20 @@ def occurs (fvarId : FVarId) (v : Expr) : Bool :=
 
 def assign (fvarId : FVarId) (v : Expr) : M Bool := do
   if occurs fvarId v then
-    trace[Meta.Match.unify]! "assign occurs check failed, {mkFVar fvarId} := {v}"
+    trace[Meta.Match.unify] "assign occurs check failed, {mkFVar fvarId} := {v}"
     pure false
   else
     let ctx ← read
     if (← isAltVar fvarId) then
-      trace[Meta.Match.unify]! "{mkFVar fvarId} := {v}"
+      trace[Meta.Match.unify] "{mkFVar fvarId} := {v}"
       modify fun s => { s with fvarSubst := s.fvarSubst.insert fvarId v }
       pure true
     else
-      trace[Meta.Match.unify]! "assign failed variable is not local, {mkFVar fvarId} := {v}"
+      trace[Meta.Match.unify] "assign failed variable is not local, {mkFVar fvarId} := {v}"
       pure false
 
 partial def unify (a : Expr) (b : Expr) : M Bool := do
-  trace[Meta.Match.unify]! "{a} =?= {b}"
+  trace[Meta.Match.unify] "{a} =?= {b}"
   if (← isDefEq a b) then
     pure true
   else
@@ -292,7 +292,7 @@ def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM (Option Alt)
   let env ← getEnv
   match alt.patterns with
   | p@(Pattern.inaccessible e) :: ps =>
-    trace[Meta.Match.match]! "inaccessible in ctor step {e}"
+    trace[Meta.Match.match] "inaccessible in ctor step {e}"
     withExistingLocalDecls alt.fvarDecls do
       -- Try to push inaccessible annotations.
       let e ← whnfD e
@@ -308,7 +308,7 @@ def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM (Option Alt)
   | _ => unreachable!
 
 private def processConstructor (p : Problem) : MetaM (Array Problem) := do
-  trace[Meta.Match.match]! "constructor step"
+  trace[Meta.Match.match] "constructor step"
   let env ← getEnv
   match p.vars with
   | []      => unreachable!
@@ -395,7 +395,7 @@ private def isFirstPatternVar (alt : Alt) : Bool :=
   | _                  => false
 
 private def processValue (p : Problem) : MetaM (Array Problem) := do
-  trace[Meta.Match.match]! "value step"
+  trace[Meta.Match.match] "value step"
   match p.vars with
   | []      => unreachable!
   | x :: xs => do
@@ -449,7 +449,7 @@ private def expandVarIntoArrayLit (alt : Alt) (fvarId : FVarId) (arrayElemType :
     loop arraySize #[]
 
 private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
-  trace[Meta.Match.match]! "array literal step"
+  trace[Meta.Match.match] "array literal step"
   match p.vars with
   | []      => unreachable!
   | x :: xs => do
@@ -490,7 +490,7 @@ private def expandNatValuePattern (p : Problem) : Problem := do
   { p with alts := alts }
 
 private def traceStep (msg : String) : StateRefT State MetaM Unit :=
-  trace[Meta.Match.match]! "{msg} step"
+  trace[Meta.Match.match] "{msg} step"
 
 private def traceState (p : Problem) : MetaM Unit :=
   withGoalOf p (traceM `Meta.Match.match p.toMessageData)
@@ -579,7 +579,7 @@ builtin_initialize matcherExt : EnvExtension (Std.PHashMap (Expr × Bool) Name) 
 /- Similar to `mkAuxDefinition`, but uses the cache `matcherExt`.
    It also returns an Boolean that indicates whether a new matcher function was added to the environment or not. -/
 def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (Bool × Expr) := do
-  trace[Meta.debug]! "{name} : {type} := {value}"
+  trace[Meta.debug] "{name} : {type} := {value}"
   let compile := bootstrap.genMatcherCode.get (← getOptions)
   let result ← Closure.mkValueTypeClosure type value (zeta := false)
   let env ← getEnv
@@ -594,7 +594,7 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (B
       hints       := ReducibilityHints.regular (getMaxHeight env result.value + 1),
       safety      := if env.hasUnsafe result.type || env.hasUnsafe result.value then DefinitionSafety.unsafe else DefinitionSafety.safe
     }
-    trace[Meta.debug]! "{name} : {result.type} := {result.value}"
+    trace[Meta.debug] "{name} : {result.type} := {result.value}"
     addDecl decl
     if compile then
       compileDecl decl
@@ -621,9 +621,9 @@ def mkMatcher (matcherName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : 
   let uElimGen ← if uElim == levelZero then pure levelZero else mkFreshLevelMVar
   let motiveType ← mkForallFVars majors (mkSort uElimGen)
   withLocalDeclD `motive motiveType fun motive => do
-  trace[Meta.Match.debug]! "motiveType: {motiveType}"
+  trace[Meta.Match.debug] "motiveType: {motiveType}"
   let mvarType  := mkAppN motive majors
-  trace[Meta.Match.debug]! "target: {mvarType}"
+  trace[Meta.Match.debug] "target: {mvarType}"
   withAlts motive lhss fun alts minors => do
     let mvar ← mkFreshExprMVar mvarType
     let examples := majors.toList.map fun major => Example.var major.fvarId!
@@ -631,7 +631,7 @@ def mkMatcher (matcherName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : 
     let args := #[motive] ++ majors ++ minors.map Prod.fst
     let type ← mkForallFVars args mvarType
     let val  ← mkLambdaFVars args mvar
-    trace[Meta.Match.debug]! "matcher value: {val}\ntype: {type}"
+    trace[Meta.Match.debug] "matcher value: {val}\ntype: {type}"
     /- The option `bootstrap.gen_matcher_code` is a helper hack. It is useful, for example,
        for compiling `src/Init/Data/Int`. It is needed because the compiler uses `Int.decLt`
        for generating code for `Int.casesOn` applications, but `Int.casesOn` is used to
@@ -644,13 +644,13 @@ def mkMatcher (matcherName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : 
        ```
        which is defined **before** `Int.decLt` -/
     let (isNewMatcher, matcher) ← mkMatcherAuxDefinition matcherName type val
-    trace[Meta.Match.debug]! "matcher levels: {matcher.getAppFn.constLevels!}, uElim: {uElimGen}"
+    trace[Meta.Match.debug] "matcher levels: {matcher.getAppFn.constLevels!}, uElim: {uElimGen}"
     let uElimPos? ← getUElimPos? matcher.getAppFn.constLevels! uElimGen
     discard <| isLevelDefEq uElimGen uElim
     if isNewMatcher then
       addMatcherInfo matcherName { numParams := matcher.getAppNumArgs, numDiscrs := numDiscrs, altNumParams := minors.map Prod.snd, uElimPos? := uElimPos? }
       setInlineAttribute matcherName
-    trace[Meta.Match.debug]! "matcher: {matcher}"
+    trace[Meta.Match.debug] "matcher: {matcher}"
     let unusedAltIdxs := lhss.length.fold (init := []) fun i r =>
       if s.used.contains i then r else i::r
     pure { matcher := matcher, counterExamples := s.counterExamples, unusedAltIdxs := unusedAltIdxs.reverse }
@@ -709,7 +709,6 @@ def MatcherApp.addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
     let aux := mkAppN (mkConst matcherApp.matcherName matcherLevels.toList) matcherApp.params
     let aux := mkApp aux motive
     let aux := mkAppN aux matcherApp.discrs
-    trace! `Meta.debug aux
     check aux
     unless (← isTypeCorrect aux) do
       throwError "failed to add argument to matcher application, type error when constructing the new motive"

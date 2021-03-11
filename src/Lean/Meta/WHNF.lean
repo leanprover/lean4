@@ -337,7 +337,7 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
   expand let-expressions, expand assigned meta-variables. -/
 partial def whnfCore (e : Expr) : MetaM Expr :=
   whnfEasyCases e fun e => do
-    trace[Meta.whnf]! e
+    trace[Meta.whnf] e
     match e with
     | Expr.const ..  => pure e
     | Expr.letE _ _ v b _ => whnfCore $ b.instantiate1 v
@@ -519,7 +519,7 @@ def reduceUnaryNatOp (f : Nat → Nat) (a : Expr) : MetaM (Option Expr) :=
 def reduceBinNatOp (f : Nat → Nat → Nat) (a b : Expr) : MetaM (Option Expr) :=
   withNatValue a fun a =>
   withNatValue b fun b => do
-  trace[Meta.isDefEq.whnf.reduceBinOp]! "{a} op {b}"
+  trace[Meta.isDefEq.whnf.reduceBinOp] "{a} op {b}"
   return mkNatLit <| f a b
 
 def reduceBinNatPred (f : Nat → Nat → Bool) (a b : Expr) : MetaM (Option Expr) := do

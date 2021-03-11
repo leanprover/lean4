@@ -119,7 +119,7 @@ mutual
       if lhs.getLevelOffset == rhs.getLevelOffset then
         return lhs.getOffset == rhs.getOffset
       else
-        trace[Meta.isLevelDefEq.step]! "{lhs} =?= {rhs}"
+        trace[Meta.isLevelDefEq.step] "{lhs} =?= {rhs}"
         let lhs' ← instantiateLevelMVars lhs
         let lhs' := lhs'.normalize
         let rhs' ← instantiateLevelMVars rhs
@@ -139,7 +139,7 @@ mutual
               if !mctx.hasAssignableLevelMVar lhs && !mctx.hasAssignableLevelMVar rhs then
                 let ctx ← read
                 if ctx.config.isDefEqStuckEx && (lhs.isMVar || rhs.isMVar) then do
-                  trace[Meta.isLevelDefEq.stuck]! "{lhs} =?= {rhs}"
+                  trace[Meta.isLevelDefEq.stuck] "{lhs} =?= {rhs}"
                   Meta.throwIsDefEqStuck
                 else
                   return false
@@ -181,7 +181,7 @@ else
       if numPostponed == 0 then
         return true
       else
-        trace[Meta.isLevelDefEq.postponed]! "processing #{numPostponed} postponed is-def-eq level constraints"
+        trace[Meta.isLevelDefEq.postponed] "processing #{numPostponed} postponed is-def-eq level constraints"
         if !(← processPostponedStep) then
           return false
         else
@@ -191,7 +191,7 @@ else
           else if numPostponed' < numPostponed then
             loop
           else
-            trace[Meta.isLevelDefEq.postponed]! "no progress solving pending is-def-eq level constraints"
+            trace[Meta.isLevelDefEq.postponed] "no progress solving pending is-def-eq level constraints"
             return mayPostpone
     loop
 
@@ -257,13 +257,13 @@ private def postponedToMessageData (ps : PersistentArray PostponedEntry) : Messa
 def isLevelDefEq (u v : Level) : MetaM Bool :=
   traceCtx `Meta.isLevelDefEq do
     let b ← commitWhen (mayPostpone := true) <| Meta.isLevelDefEqAux u v
-    trace[Meta.isLevelDefEq]! "{u} =?= {v} ... {if b then "success" else "failure"}"
+    trace[Meta.isLevelDefEq] "{u} =?= {v} ... {if b then "success" else "failure"}"
     return b
 
 def isExprDefEq (t s : Expr) : MetaM Bool :=
   traceCtx `Meta.isDefEq do
     let b ← commitWhen (mayPostpone := true) <| Meta.isExprDefEqAux t s
-    trace[Meta.isDefEq]! "{t} =?= {s} ... {if b then "success" else "failure"}"
+    trace[Meta.isDefEq] "{t} =?= {s} ... {if b then "success" else "failure"}"
     return b
 
 abbrev isDefEq (t s : Expr) : MetaM Bool :=

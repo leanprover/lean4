@@ -186,7 +186,7 @@ def isTypeCorrect (e : Expr) : MetaM Bool := do
     check e
     pure true
   catch ex =>
-    trace[Meta.typeError]! ex.toMessageData
+    trace[Meta.typeError] ex.toMessageData
     pure false
 
 builtin_initialize

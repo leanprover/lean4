@@ -301,7 +301,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
         match k with
         | `optional =>
           let nones := mkArray ids.size (← `(none))
-          `(let* yes _ $ids* := $yes;
+          `(let_delayed yes _ $ids* := $yes;
             if discr.isNone then yes () $[ $nones]*
             else match discr with
               | `($(mkNullNode contents)) => yes () $[ (some $ids)]*
@@ -385,7 +385,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
           | r             => r }
     | _               => throwErrorAt! pat "match_syntax: unexpected pattern kind {pat}"
 
--- Bind right-hand side to new `let*` decl in order to prevent code duplication
+-- Bind right-hand side to new `let_delayed` decl in order to prevent code duplication
 private def deduplicate (floatedLetDecls : Array Syntax) : Alt → TermElabM (Array Syntax × Alt)
   -- NOTE: new macro scope so that introduced bindings do not collide
   | (pats, rhs) => do
@@ -448,7 +448,7 @@ private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : T
         withFreshMacroScope $ compileStxMatch (newDiscrs ++ discrs) yesAlts.toList)
       (no := withFreshMacroScope $ compileStxMatch (discr::discrs) nonExhaustiveAlts.toList)
     for d in floatedLetDecls do
-      stx ← `(let* $d:letDecl; $stx)
+      stx ← `(let_delayed $d:letDecl; $stx)
     `(let discr := $discr; $stx)
   | _, _ => unreachable!
 

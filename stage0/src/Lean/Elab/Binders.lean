@@ -578,8 +578,8 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
     let stxNew ← `(let x : $type := $val; match x with | $pat => $body)
     let stxNew  := match useLetExpr, elabBodyFirst with
       | true,  false => stxNew
-      | true,  true  => stxNew.setKind `Lean.Parser.Term.«let*»
-      | false, true  => stxNew.setKind `Lean.Parser.Term.«let!»
+      | true,  true  => stxNew.setKind `Lean.Parser.Term.«let_delayed»
+      | false, true  => stxNew.setKind `Lean.Parser.Term.«let_fun»
       | false, false => unreachable!
     withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   else if letDecl.getKind == `Lean.Parser.Term.letEqnsDecl then
@@ -597,6 +597,12 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
   fun stx expectedType? => elabLetDeclCore stx expectedType? false false
 
 @[builtinTermElab «let*»] def elabLetStarDecl : TermElab :=
+  fun stx expectedType? => elabLetDeclCore stx expectedType? true true
+
+@[builtinTermElab «let_fun»] def elabLetFunDecl : TermElab :=
+  fun stx expectedType? => elabLetDeclCore stx expectedType? false false
+
+@[builtinTermElab «let_delayed»] def elabLetDelayedDecl : TermElab :=
   fun stx expectedType? => elabLetDeclCore stx expectedType? true true
 
 builtin_initialize registerTraceClass `Elab.let

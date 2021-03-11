@@ -106,7 +106,7 @@ partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targets : Array E
           let s ← get
           let ctx ← read
           unless s.targetPos < ctx.targets.size do
-            throwError! "insufficient number of targets for '{elimName}'"
+            throwError "insufficient number of targets for '{elimName}'"
           let target := ctx.targets[s.targetPos]
           let expectedType ← getArgExpectedType
           let target ← Term.ensureHasType expectedType target
@@ -152,21 +152,21 @@ def setMotiveArg (mvarId : MVarId) (motiveArg : MVarId) (targets : Array FVarId)
   let motiverInferredType ← inferType motive
   let motiveType ← inferType (mkMVar motiveArg)
   unless (← isDefEqGuarded motiverInferredType motiveType) do
-    throwError! "type mismatch when assigning motive{indentExpr motive}\n{← mkHasTypeButIsExpectedMsg motiverInferredType motiveType}"
+    throwError "type mismatch when assigning motive{indentExpr motive}\n{← mkHasTypeButIsExpectedMsg motiverInferredType motiveType}"
   assignExprMVar motiveArg motive
 
 private def getAltNumFields (elimInfo : ElimInfo) (altName : Name) : TermElabM Nat := do
   for altInfo in elimInfo.altsInfo do
     if altInfo.name == altName then
       return altInfo.numFields
-  throwError! "unknown alternative name '{altName}'"
+  throwError "unknown alternative name '{altName}'"
 
 private def checkAltNames (alts : Array (Name × MVarId)) (altsSyntax : Array Syntax) : TacticM Unit :=
   for altStx in altsSyntax do
     let altName := getAltName altStx
     if altName != `_ then
       unless alts.any fun (n, _) => n == altName do
-        throwErrorAt! altStx "invalid alternative name '{altName}'"
+        throwErrorAt altStx "invalid alternative name '{altName}'"
 
 def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (optPreTac : Syntax) (altsSyntax : Array Syntax)
     (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[]) : TacticM Unit := do
@@ -214,14 +214,14 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (optPreTac : 
           logError m!"too many variable names provided at alternative '{altName}', #{altVarNames.size} provided, but #{numFields} expected"
         let mut (_, altMVarId) ← introN altMVarId numFields altVarNames.toList (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
         match (← Cases.unifyEqs numEqs altMVarId {}) with
-        | none   => throwError! "alternative '{altName}' is not needed"
+        | none   => throwError "alternative '{altName}' is not needed"
         | some (altMVarId, _) =>
           let (_, altMVarId) ← introNP altMVarId numGeneralized
           for fvarId in toClear do
             altMVarId ← tryClear altMVarId fvarId
           let altMVarIds ← applyPreTac altMVarId
           if altMVarIds.isEmpty then
-            throwError! "alternative '{altName}' is not needed"
+            throwError "alternative '{altName}' is not needed"
           else
             altMVarIds.foldlM (init := subgoals) fun subgoal altMVarId =>
               evalAlt altMVarId altStx subgoals
@@ -285,9 +285,9 @@ private def checkAltsOfOptInductionAlts (optInductionAlts : Syntax) : TacticM Un
       let n := getAltName alt
       if n == `_ then
         unless (getAltVarNames alt).isEmpty do
-          throwErrorAt! alt "wildcard alternative must not specify variable names"
+          throwErrorAt alt "wildcard alternative must not specify variable names"
         if found then
-          throwErrorAt! alt "more than one wildcard alternative '| _ => ...' used"
+          throwErrorAt alt "more than one wildcard alternative '| _ => ...' used"
         found := true
 
 def getInductiveValFromMajor (major : Expr) : TacticM InductiveVal :=
@@ -311,7 +311,7 @@ private def generalizeTerm (term : Expr) : TacticM Expr := do
 private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (induction : Bool): TacticM (Name × ElimInfo) := do
   if optElimId.isNone then
     unless targets.size == 1 do
-      throwError! "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>')"
+      throwError "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>')"
     let indVal ← getInductiveValFromMajor targets[0]
     let elimName := if induction then mkRecName indVal.name else mkCasesOnName indVal.name
     pure (elimName, ← getElimInfo elimName)

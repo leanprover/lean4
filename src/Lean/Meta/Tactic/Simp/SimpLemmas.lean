@@ -63,7 +63,7 @@ def SimpLemmas.isLemma (d : SimpLemmas) (declName : Name) : Bool :=
 
 def SimpLemmas.erase [Monad m] [MonadError m] (d : SimpLemmas) (declName : Name) : m SimpLemmas := do
   unless d.isLemma declName do
-    throwError! "'{declName}' does not have [simp] attribute"
+    throwError "'{declName}' does not have [simp] attribute"
   return { d with erased := d.erased.insert declName, lemmaNames := d.lemmaNames.erase declName }
 
 builtin_initialize simpExtension : SimpleScopedEnvExtension SimpLemma SimpLemmas ←
@@ -121,7 +121,7 @@ private partial def preprocess (e type : Expr) : MetaM (List (Expr × Expr)) := 
 
 private def checkTypeIsProp (type : Expr) : MetaM Unit :=
   unless (← isProp type) do
-    throwError! "invalid 'simp', proposition expected{indentExpr type}"
+    throwError "invalid 'simp', proposition expected{indentExpr type}"
 
 def mkSimpLemmaCore (e : Expr) (val : Expr) (post : Bool) (prio : Nat) (name? : Option Name) : MetaM SimpLemma := do
   let type ← instantiateMVars (← inferType e)
@@ -130,7 +130,7 @@ def mkSimpLemmaCore (e : Expr) (val : Expr) (post : Bool) (prio : Nat) (name? : 
     let (keys, perm) ←
       match type.eq? with
       | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs)
-      | none => throwError! "unexpected kind of 'simp' lemma"
+      | none => throwError "unexpected kind of 'simp' lemma"
     return { keys := keys, perm := perm, post := post, val := val, name? := name?, priority := prio }
 
 def mkSimpLemmasFromConst (declName : Name) (post : Bool) (prio : Nat) : MetaM (Array SimpLemma) := do

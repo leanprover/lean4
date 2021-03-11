@@ -31,7 +31,7 @@ def mkFreshExprSyntheticOpaqueMVar (type : Expr) (tag : Name := Name.anonymous) 
   mkFreshExprMVar type MetavarKind.syntheticOpaque tag
 
 def throwTacticEx {α} (tacticName : Name) (mvarId : MVarId) (msg : MessageData) (ref := Syntax.missing) : MetaM α :=
-  throwError! "tactic '{tacticName}' failed, {msg}\n{MessageData.ofGoal mvarId}"
+  throwError "tactic '{tacticName}' failed, {msg}\n{MessageData.ofGoal mvarId}"
 
 def checkNotAssigned (mvarId : MVarId) (tacticName : Name) : MetaM Unit := do
   if (← isExprMVarAssigned mvarId) then

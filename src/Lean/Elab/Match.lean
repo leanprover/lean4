@@ -53,7 +53,7 @@ private def elabDiscrsWitMatchType (discrStxs : Array Syntax) (matchType : Expr)
       matchType ← b.instantiate1 discr
       discrs := discrs.push discr
     | _ =>
-      throwError! "invalid type provided to match-expression, function type with arity #{discrStxs.size} expected"
+      throwError "invalid type provided to match-expression, function type with arity #{discrStxs.size} expected"
   pure (discrs, isDep)
 
 private def mkUserNameFor (e : Expr) : TermElabM Name :=
@@ -279,7 +279,7 @@ private def processVar (idStx : Syntax) : M Syntax := do
   unless id.eraseMacroScopes.isAtomic do
     throwError "invalid pattern variable, must be atomic"
   if (← get).found.contains id then
-    throwError! "invalid pattern, variable '{id}' occurred more than once"
+    throwError "invalid pattern, variable '{id}' occurred more than once"
   modify fun s => { s with vars := s.vars.push (PatternVar.localVar id), found := s.found.insert id }
   return idStx
 
@@ -420,7 +420,7 @@ where
       if ctx.ellipsis then
         pushNewArg accessible ctx (Arg.stx (← `(_)))
       else
-        throwError! "explicit parameter is missing, unused named arguments {ctx.namedArgs.map fun narg => narg.name}"
+        throwError "explicit parameter is missing, unused named arguments {ctx.namedArgs.map fun narg => narg.name}"
     | arg::args =>
       pushNewArg accessible { ctx with args := args } arg
 
@@ -584,7 +584,7 @@ private def markAsVisited (fvarId : FVarId) : M Unit :=
   modify fun s => { s with found := s.found.insert fvarId }
 
 private def throwInvalidPattern {α} (e : Expr) : M α :=
-  throwError! "invalid pattern {indentExpr e}"
+  throwError "invalid pattern {indentExpr e}"
 
 /- Create a new LocalDecl `x` for the metavariable `mvar`, and return `Pattern.var x` -/
 private def mkLocalDeclFor (mvar : Expr) : M Pattern := do
@@ -702,7 +702,7 @@ register_builtin_option match.ignoreUnusedAlts : Bool := {
 
 def reportMatcherResultErrors (altLHSS : List AltLHS) (result : MatcherResult) : TermElabM Unit := do
   unless result.counterExamples.isEmpty do
-    withHeadRefOnly <| throwError! "missing cases:\n{Meta.Match.counterExamplesToMessageData result.counterExamples}"
+    withHeadRefOnly <| throwError "missing cases:\n{Meta.Match.counterExamplesToMessageData result.counterExamples}"
   unless match.ignoreUnusedAlts.get (← getOptions) || result.unusedAltIdxs.isEmpty do
     let mut i := 0
     for alt in altLHSS do

@@ -12,7 +12,7 @@ import Lean.Meta.Tactic.Subst
 namespace Lean.Meta
 
 private def throwInductiveTypeExpected {α} (type : Expr) : MetaM α := do
-  throwError! "failed to compile pattern matching, inductive type expected{indentExpr type}"
+  throwError "failed to compile pattern matching, inductive type expected{indentExpr type}"
 
 def getInductiveUniverseAndParams (type : Expr) : MetaM (List Level × Array Expr) := do
   let type ← whnfD type
@@ -47,7 +47,7 @@ def generalizeTargets (mvarId : MVarId) (motiveType : Expr) (targets : Array Exp
     let (typeNew, eqRefls) ←
       forallTelescopeReducing motiveType fun targetsNew _ => do
         unless targetsNew.size == targets.size do
-          throwError! "invalid number of targets #{targets.size}, motive expects #{targetsNew.size}"
+          throwError "invalid number of targets #{targets.size}, motive expects #{targetsNew.size}"
         withNewEqs targets targetsNew fun eqs eqRefls => do
           let type    ← getMVarType mvarId
           let typeNew ← mkForallFVars eqs type
@@ -219,7 +219,7 @@ partial def unifyEqs (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) : Meta
         let mvarId ← heqToEq mvarId eqDecl
         unifyEqs numEqs mvarId subst
       else match eqDecl.type.eq? with
-        | none => throwError! "equality expected{indentExpr eqDecl.type}"
+        | none => throwError "equality expected{indentExpr eqDecl.type}"
         | some (α, a, b) =>
           if (← isDefEq a b) then
             /- Skip equality -/
@@ -249,7 +249,7 @@ partial def unifyEqs (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) : Meta
                   let mvarId ← clear mvarId eqFVarId
                   unifyEqs numEqs mvarId subst
                 else
-                  throwError! "dependent elimination failed, stuck at auxiliary equation{indentExpr eqDecl.type}"
+                  throwError "dependent elimination failed, stuck at auxiliary equation{indentExpr eqDecl.type}"
             match a, b with
             | Expr.fvar aFVarId _, Expr.fvar bFVarId _ =>
               /- x = y -/

@@ -123,17 +123,17 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDe
       name  := df.builtinName,
       descr := "(builtin) " ++ df.descr,
       add   := fun declName stx kind => do
-        unless kind == AttributeKind.global do throwError! "invalid attribute '{df.builtinName}', must be global"
+        unless kind == AttributeKind.global do throwError "invalid attribute '{df.builtinName}', must be global"
         let key ← df.evalKey true stx
         let decl ← getConstInfo declName
         match decl.type with
         | Expr.const c _ _ =>
-          if c != df.valueTypeName then throwError! "unexpected type at '{declName}', '{df.valueTypeName}' expected"
+          if c != df.valueTypeName then throwError "unexpected type at '{declName}', '{df.valueTypeName}' expected"
           else
             let env ← getEnv
             let env ← declareBuiltin df attrDeclName env key declName
             setEnv env
-        | _ => throwError! "unexpected type at '{declName}', '{df.valueTypeName}' expected",
+        | _ => throwError "unexpected type at '{declName}', '{df.valueTypeName}' expected",
       applicationTime := AttributeApplicationTime.afterCompilation
     }
   registerBuiltinAttribute {

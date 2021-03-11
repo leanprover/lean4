@@ -21,7 +21,7 @@ def registerBuiltinDerivingHandler (className : Name) (handler : DerivingHandler
   derivingHandlersRef.modify fun m => m.insert className handler
 
 def defaultHandler (className : Name) (typeNames : Array Name) : CommandElabM Unit := do
-  throwError! "default handlers have not been implemented yet, class: '{className}' types: {typeNames}"
+  throwError "default handlers have not been implemented yet, class: '{className}' types: {typeNames}"
 
 def applyDerivingHandlers (className : Name) (typeNames : Array Name) : CommandElabM Unit := do
   match (← derivingHandlersRef.get).find? className with

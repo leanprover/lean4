@@ -123,11 +123,11 @@ private partial def findRecArg {α} (numFixed : Nat) (xs : Array Expr) (k : RecA
           let indIndices := indArgs.extract indInfo.numParams indArgs.size
           if !indIndices.all Expr.isFVar then
             orelse'
-              (throwError! "argument #{i+1} was not used because its type is an inductive family and indices are not variables{indentExpr xType}")
+              (throwError "argument #{i+1} was not used because its type is an inductive family and indices are not variables{indentExpr xType}")
               (loop (i+1))
           else if !indIndices.allDiff then
             orelse'
-              (throwError! "argument #{i+1} was not used because its type is an inductive family and indices are not pairwise distinct{indentExpr xType}")
+              (throwError "argument #{i+1} was not used because its type is an inductive family and indices are not pairwise distinct{indentExpr xType}")
               (loop (i+1))
           else
             let indexMinPos := getIndexMinPos xs indIndices
@@ -137,13 +137,13 @@ private partial def findRecArg {α} (numFixed : Nat) (xs : Array Expr) (k : RecA
             match ← hasBadIndexDep? ys indIndices with
             | some (index, y) =>
               orelse'
-                (throwError! "argument #{i+1} was not used because its type is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}")
+                (throwError "argument #{i+1} was not used because its type is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}")
                 (loop (i+1))
             | none =>
               match ← hasBadParamDep? ys indParams with
               | some (indParam, y) =>
                 orelse'
-                  (throwError! "argument #{i+1} was not used because its type is an inductive datatype{indentExpr xType}\nand parameter{indentExpr indParam}\ndepends on{indentExpr y}")
+                  (throwError "argument #{i+1} was not used because its type is an inductive datatype{indentExpr xType}\nand parameter{indentExpr indParam}\ndepends on{indentExpr y}")
                   (loop (i+1))
               | none =>
                 let indicesPos := indIndices.map fun index => match ys.indexOf? index with | some i => i.val | none => unreachable!
@@ -171,7 +171,7 @@ private def ensureNoRecFn (recFnName : Name) (e : Expr) : MetaM Expr := do
   if containsRecFn recFnName e then
     Meta.forEachExpr e fun e => do
       if e.isAppOf recFnName then
-        throwError! "unexpected occurrence of recursive application{indentExpr e}"
+        throwError "unexpected occurrence of recursive application{indentExpr e}"
     pure e
   else
     pure e
@@ -212,7 +212,7 @@ private def withBelowDict {α} (below : Expr) (numIndParams : Nat) (k : Expr →
   trace[Elab.definition.structural] "belowType: {belowType}"
   belowType.withApp fun f args => do
     let motivePos := numIndParams + 1
-    unless motivePos < args.size do throwError! "unexpected 'below' type{indentExpr belowType}"
+    unless motivePos < args.size do throwError "unexpected 'below' type{indentExpr belowType}"
     let pre := mkAppN f (args.extract 0 numIndParams)
     let preType ← inferType pre
     forallBoundedTelescope preType (some 1) fun x _ => do
@@ -282,11 +282,11 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
             let numFixed  := recArgInfo.fixedParams.size
             let recArgPos := recArgInfo.fixedParams.size + recArgInfo.pos
             if recArgPos >= args.size then
-              throwError! "insufficient number of parameters at recursive application {indentExpr e}"
+              throwError "insufficient number of parameters at recursive application {indentExpr e}"
             let recArg := args[recArgPos]
             -- For reflexive type, we may have nested recursive applications in recArg
             let recArg ← loop below recArg
-            let f ← try toBelow below recArgInfo.indParams.size recArg catch  _ => throwError! "failed to eliminate recursive application{indentExpr e}"
+            let f ← try toBelow below recArgInfo.indParams.size recArg catch  _ => throwError "failed to eliminate recursive application{indentExpr e}"
             -- Recall that the fixed parameters are not in the scope of the `brecOn`. So, we skip them.
             let argsNonFixed := args.extract numFixed args.size
             -- The function `f` does not explicitly take `recArg` and its indices as arguments. So, we skip them too.
@@ -328,7 +328,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
             lambdaTelescope alt fun xs altBody => do
               trace[Elab.definition.structural] "altNumParams: {numParams}, xs: {xs}"
               unless xs.size >= numParams do
-                throwError! "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
+                throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
               let belowForAlt := xs[numParams - 1]
               mkLambdaFVars xs (← loop belowForAlt altBody)
           pure { matcherApp with alts := altsNew }.toExpr
@@ -414,7 +414,7 @@ partial def addSmartUnfoldingDefAux (preDef : PreDefinition) (matcherBelowDep : 
         let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
           lambdaTelescope alt fun xs altBody => do
             unless xs.size >= numParams do
-              throwError! "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
+              throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
             if containsMarkedMatcher altBody then
               -- continue
               mkLambdaFVars xs (← visit altBody)

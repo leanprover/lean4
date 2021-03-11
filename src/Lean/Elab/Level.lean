@@ -50,7 +50,7 @@ register_builtin_option maxUniverseOffset : Nat := {
 private def checkUniverseOffset [Monad m] [MonadError m] [MonadOptions m] (n : Nat) : m Unit := do
   let max := maxUniverseOffset.get (← getOptions)
   unless n <= max do
-    throwError! "maximum universe level offset threshold ({max}) has been reached, you can increase the limit using option `set_option maxUniverseOffset <limit>`, but you are probably misusing universe levels since offsets are usually small natural numbers"
+    throwError "maximum universe level offset threshold ({max}) has been reached, you can increase the limit using option `set_option maxUniverseOffset <limit>`, but you are probably misusing universe levels since offsets are usually small natural numbers"
 
 partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
   let kind := stx.getKind
@@ -76,7 +76,7 @@ partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
       if (← read).autoBoundImplicit && isValidAutoBoundLevelName paramName then
         modify fun s => { s with levelNames := paramName :: s.levelNames }
       else
-        throwError! "unknown universe level '{paramName}'"
+        throwError "unknown universe level '{paramName}'"
     return mkLevelParam paramName
   else if kind == `Lean.Parser.Level.addLit then
     let lvl ← elabLevel (stx.getArg 0)

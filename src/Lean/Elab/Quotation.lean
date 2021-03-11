@@ -100,7 +100,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
             | none   => Array.empty))
           | `many     => `(Array.appendCore $args $(getAntiquotTerm antiquot))
           | `sepBy    => `(Array.appendCore $args (@SepArray.elemsAndSeps $(getSepFromSplice arg) $(getAntiquotTerm antiquot)))
-          | k         => throwErrorAt! arg "invalid antiquotation suffix splice kind '{k}'"
+          | k         => throwErrorAt arg "invalid antiquotation suffix splice kind '{k}'"
         else if k == nullKind && isAntiquotSplice arg then
           let k := antiquotSpliceKind? arg
           let (arg, bindLets) ← floatOutAntiquotTerms arg |>.run pure
@@ -276,7 +276,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
             | _ => uncovered,
           doMatch := fun yes no => do `(cond (Syntax.isOfKind discr $(quote k)) $(← yes []) $(← no)),
         }
-      else throwErrorAt! anti "match_syntax: antiquotation must be variable {anti}"
+      else throwErrorAt anti "match_syntax: antiquotation must be variable {anti}"
     else if isAntiquotSuffixSplice quoted then throwErrorAt quoted "unexpected antiquotation splice"
     else if isAntiquotSplice quoted then throwErrorAt quoted "unexpected antiquotation splice"
     else if quoted.getArgs.size == 1 && isAntiquotSuffixSplice quoted[0] then
@@ -285,7 +285,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
         | `optional => `(let $anti := Syntax.getOptional? discr; $rhs)
         | `many     => `(let $anti := Syntax.getArgs discr; $rhs)
         | `sepBy    => `(let $anti := @SepArray.mk $(getSepFromSplice quoted[0]) (Syntax.getArgs discr); $rhs)
-        | k         => throwErrorAt! quoted "invalid antiquotation suffix splice kind '{k}'"
+        | k         => throwErrorAt quoted "invalid antiquotation suffix splice kind '{k}'"
     else if quoted.getArgs.size == 1 && isAntiquotSplice quoted[0] then pure {
       check   := other pat,
       onMatch := fun
@@ -383,7 +383,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       { info with onMatch := fun taken => match info.onMatch taken with
           | covered f exh => covered (fun alt => f alt >>= adaptRhs (`(let $id := discr; $(·)))) exh
           | r             => r }
-    | _               => throwErrorAt! pat "match_syntax: unexpected pattern kind {pat}"
+    | _               => throwErrorAt pat "match_syntax: unexpected pattern kind {pat}"
 
 -- Bind right-hand side to new `let_delayed` decl in order to prevent code duplication
 private def deduplicate (floatedLetDecls : Array Syntax) : Alt → TermElabM (Array Syntax × Alt)

@@ -159,8 +159,8 @@ def aux := [1, 2, 3].isEmpty
 def tst8 : MetaM Unit := do
   print "----- tst8 -----"
   let t := mkConst `aux
-  let some t ← unfoldDefinition? t | throwError! "unexpected"
-  let some t ← unfoldDefinition? t | throwError! "unexpected"
+  let some t ← unfoldDefinition? t | throwError "unexpected"
+  let some t ← unfoldDefinition? t | throwError "unexpected"
   print t
   let t ← whnfCore t
   print t

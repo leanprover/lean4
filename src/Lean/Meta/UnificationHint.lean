@@ -62,15 +62,15 @@ where
 private partial def validateHint (declName : Name) (hint : UnificationHint) : MetaM Unit := do
   hint.constraints.forM fun c => do
     unless (← isDefEq c.lhs c.rhs) do
-      throwError! "invalid unification hint, failed to unify constraint left-hand-side{indentExpr c.lhs}\nwith right-hand-side{indentExpr c.rhs}"
+      throwError "invalid unification hint, failed to unify constraint left-hand-side{indentExpr c.lhs}\nwith right-hand-side{indentExpr c.rhs}"
   unless (← isDefEq hint.pattern.lhs hint.pattern.rhs) do
-    throwError! "invalid unification hint, failed to unify pattern left-hand-side{indentExpr hint.pattern.lhs}\nwith right-hand-side{indentExpr hint.pattern.rhs}"
+    throwError "invalid unification hint, failed to unify pattern left-hand-side{indentExpr hint.pattern.lhs}\nwith right-hand-side{indentExpr hint.pattern.rhs}"
 
 def addUnificationHint (declName : Name) (kind : AttributeKind) : MetaM Unit :=
   withNewMCtxDepth do
     let info ← getConstInfo declName
     match info.value? with
-    | none => throwError! "invalid unification hint, it must be a definition"
+    | none => throwError "invalid unification hint, it must be a definition"
     | some val =>
       let (_, _, body) ← lambdaMetaTelescope val
       match decodeUnificationHint body with

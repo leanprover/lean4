@@ -186,7 +186,7 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
     idents.foldlM (init := views) fun (views : Array StructFieldView) ident => withRef ident do
       let name     := ident.getId
       if isInternalSubobjectFieldName name then
-        throwError! "invalid field name '{name}', identifiers starting with '_' are reserved to the system"
+        throwError "invalid field name '{name}', identifiers starting with '_' are reserved to the system"
       let declName := structDeclName ++ name
       let declName ← applyVisibility fieldModifiers.visibility declName
       addDocString' declName fieldModifiers.docString?
@@ -211,7 +211,7 @@ private def checkParentIsStructure (parent : Expr) : TermElabM Name :=
   match parent.getAppFn with
   | Expr.const c _ _ => do
     unless isStructure (← getEnv) c do
-      throwError! "'{c}' is not a structure"
+      throwError "'{c}' is not a structure"
     pure c
   | _ => throwError "expected structure"
 
@@ -227,7 +227,7 @@ private partial def processSubfields (structDeclName : Name) (parentFVar : Expr)
     if h : i < subfieldNames.size then
       let subfieldName := subfieldNames.get ⟨i, h⟩
       if containsFieldName infos subfieldName then
-        throwError! "field '{subfieldName}' from '{parentStructName}' has already been declared"
+        throwError "field '{subfieldName}' from '{parentStructName}' has already been declared"
       let val  ← mkProjection parentFVar subfieldName
       let type ← inferType val
       withLetDecl subfieldName type val fun subfieldFVar =>
@@ -248,7 +248,7 @@ private partial def withParents (view : StructView) (i : Nat) (infos : Array Str
     let parentName ← checkParentIsStructure parent
     let toParentName := Name.mkSimple $ "to" ++ parentName.eraseMacroScopes.getString! -- erase macro scopes?
     if containsFieldName infos toParentName then
-      throwErrorAt! parentStx "field '{toParentName}' has already been declared"
+      throwErrorAt parentStx "field '{toParentName}' has already been declared"
     let env ← getEnv
     let binfo := if view.isClass && isClass env parentName then BinderInfo.instImplicit else BinderInfo.default
     withLocalDecl toParentName binfo parent fun parentFVar =>
@@ -305,13 +305,13 @@ private partial def withFields
           withFields views (i+1) infos k
     | some info =>
       match info.kind with
-      | StructFieldKind.newField   => throwError! "field '{view.name}' has already been declared"
+      | StructFieldKind.newField   => throwError "field '{view.name}' has already been declared"
       | StructFieldKind.fromParent =>
         match view.value? with
-        | none       => throwError! "field '{view.name}' has been declared in parent structure"
+        | none       => throwError "field '{view.name}' has been declared in parent structure"
         | some valStx => do
           if let some type := view.type? then
-            throwErrorAt! type "omit field '{view.name}' type to set default value"
+            throwErrorAt type "omit field '{view.name}' type to set default value"
           else
             let mut valStx := valStx
             if view.binders.getArgs.size > 0 then
@@ -458,7 +458,7 @@ private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × 
     defaultAuxDecls.forM fun (declName, type, value) => do
       let value ← instantiateMVars value
       if value.hasExprMVar then
-        throwError! "invalid default value for field, it contains metavariables{indentExpr value}"
+        throwError "invalid default value for field, it contains metavariables{indentExpr value}"
       /- The identity function is used as "marker". -/
       let value ← mkId value
       discard <| mkAuxDefinition declName type value (zeta := true)
@@ -467,7 +467,7 @@ private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × 
 private def elabStructureView (view : StructView) : TermElabM Unit := do
   view.fields.forM fun field => do
     if field.declName == view.ctor.declName then
-      throwErrorAt! field.ref "invalid field name '{field.name}', it is equal to structure constructor name"
+      throwErrorAt field.ref "invalid field name '{field.name}', it is equal to structure constructor name"
     addAuxDeclarationRanges field.declName field.ref field.ref
   let numExplicitParams := view.params.size
   let type ← Term.elabType view.type

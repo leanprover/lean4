@@ -40,7 +40,7 @@ def tst2 : MetaM Unit := do
   let c ← getConstInfo `aux
   forallTelescopeReducing c.type fun xs type => do
     match type.eq? with
-    | none => throwError! "unexpected"
+    | none => throwError "unexpected"
     | some (_, lhs, _) =>
       trace[Meta.debug] "lhs: {lhs}"
       let s ← Meta.getSimpLemmas

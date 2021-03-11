@@ -8,5 +8,5 @@ def bug : MetaM Unit := do
   forallTelescopeReducing arbitrary fun ys _ => do
     let mut j := 0
     for y in ys do
-      throwError! "#{i+1}"
+      throwError "#{i+1}"
       j := j + 1

@@ -15,11 +15,11 @@ def forallTelescopeCompatibleAux {α} (k : Array Expr → Expr → Expr → Meta
     match type₁, type₂ with
     | Expr.forallE n₁ d₁ b₁ c₁, Expr.forallE n₂ d₂ b₂ c₂ =>
       unless n₁ == n₂ do
-        throwError! "parameter name mismatch '{n₁}', expected '{n₂}'"
+        throwError "parameter name mismatch '{n₁}', expected '{n₂}'"
       unless (← isDefEq d₁ d₂) do
-        throwError! "parameter '{n₁}' {← mkHasTypeButIsExpectedMsg d₁ d₂}"
+        throwError "parameter '{n₁}' {← mkHasTypeButIsExpectedMsg d₁ d₂}"
       unless c₁.binderInfo == c₂.binderInfo do
-        throwError! "binder annotation mismatch at parameter '{n₁}'"
+        throwError "binder annotation mismatch at parameter '{n₁}'"
       withLocalDecl n₁ c₁.binderInfo d₁ fun x =>
         let type₁ := b₁.instantiate1 x
         let type₂ := b₂.instantiate1 x

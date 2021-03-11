@@ -172,7 +172,7 @@ private def processVariable (p : Problem) : MetaM Problem :=
 
 private def throwInductiveTypeExpected {α} (e : Expr) : MetaM α := do
   let t ← inferType e
-  throwError! "failed to compile pattern matching, inductive type expected{indentExpr e}\nhas type{indentExpr t}"
+  throwError "failed to compile pattern matching, inductive type expected{indentExpr e}\nhas type{indentExpr t}"
 
 private def inLocalDecls (localDecls : List LocalDecl) (fvarId : FVarId) : Bool :=
   localDecls.any fun d => d.fvarId == fvarId
@@ -304,7 +304,7 @@ def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM (Option Alt)
           pure $ some { alt with patterns := fields ++ ps }
         else
           pure none
-      | _ => throwErrorAt! alt.ref "dependent match elimination failed, inaccessible pattern found{indentD p.toMessageData}\nconstructor expected"
+      | _ => throwErrorAt alt.ref "dependent match elimination failed, inaccessible pattern found{indentD p.toMessageData}\nconstructor expected"
   | _ => unreachable!
 
 private def processConstructor (p : Problem) : MetaM (Array Problem) := do
@@ -368,7 +368,7 @@ private def processNonVariable (p : Problem) : MetaM Problem :=
           else
             pure $ some { alt with patterns := fields ++ ps }
         | Pattern.inaccessible _ :: _ => processInaccessibleAsCtor alt ctorVal.name
-        | p :: _  => throwError! "failed to compile pattern matching, inaccessible pattern or constructor expected{indentD p.toMessageData}"
+        | p :: _  => throwError "failed to compile pattern matching, inaccessible pattern or constructor expected{indentD p.toMessageData}"
         | _       => unreachable!
       let xFields := xArgs.extract ctorVal.numParams xArgs.size
       pure { p with alts := alts, vars := xFields.toList ++ xs }
@@ -379,7 +379,7 @@ private def processNonVariable (p : Problem) : MetaM Problem :=
             pure $ some { alt with patterns := ps }
           else
             pure none
-        | p :: _ => throwError! "failed to compile pattern matching, unexpected pattern{indentD p.toMessageData}\ndiscriminant{indentExpr x}"
+        | p :: _ => throwError "failed to compile pattern matching, unexpected pattern{indentD p.toMessageData}\ndiscriminant{indentExpr x}"
         | _      => unreachable!
       pure { p with alts := alts, vars := xs }
 
@@ -498,7 +498,7 @@ private def traceState (p : Problem) : MetaM Unit :=
 private def throwNonSupported (p : Problem) : MetaM Unit :=
   withGoalOf p do
     let msg ← p.toMessageData
-    throwError! "failed to compile pattern matching, stuck at{indentD msg}"
+    throwError "failed to compile pattern matching, stuck at{indentD msg}"
 
 def isCurrVarInductive (p : Problem) : MetaM Bool := do
   match p.vars with
@@ -520,7 +520,7 @@ private def checkNextPatternTypes (p : Problem) : MetaM Unit := do
           let xType ← inferType x
           let eType ← inferType e
           unless (← isDefEq xType eType) do
-            throwError! "pattern{indentExpr e}\n{← mkHasTypeButIsExpectedMsg eType xType}"
+            throwError "pattern{indentExpr e}\n{← mkHasTypeButIsExpectedMsg eType xType}"
 
 private partial def process (p : Problem) : StateRefT State MetaM Unit := withIncRecDepth do
   traceState p
@@ -690,7 +690,7 @@ def MatcherApp.addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
   lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
     unless motiveArgs.size == matcherApp.discrs.size do
       -- This error can only happen if someone implemented a transformation that rewrites the motive created by `mkMatcher`.
-      throwError! "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
+      throwError "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
     let eType ← inferType e
     let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i eTypeAbst => do
       let motiveArg := motiveArgs[i]

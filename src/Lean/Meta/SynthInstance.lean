@@ -189,7 +189,7 @@ def getInstances (type : Expr) : MetaM (Array Expr) := do
   forallTelescopeReducing type fun _ type => do
     let className? ← isClass? type
     match className? with
-    | none   => throwError $ "type class instance expected" ++ indentExpr type
+    | none   => throwError "type class instance expected{indentExpr type}"
     | some className =>
       let globalInstances ← getGlobalInstancesIndex
       let result ← globalInstances.getUnify type
@@ -619,8 +619,8 @@ def synthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM Ex
       let result? ← synthInstance? type maxResultSize?
       match result? with
       | some result => pure result
-      | none        => throwError! "failed to synthesize{indentExpr type}")
-    (fun _ => throwError! "failed to synthesize{indentExpr type}")
+      | none        => throwError "failed to synthesize{indentExpr type}")
+    (fun _ => throwError "failed to synthesize{indentExpr type}")
 
 private def synthPendingImp (mvarId : MVarId) (maxResultSize? : Option Nat) : MetaM Bool := do
   let mvarDecl ← getMVarDecl mvarId

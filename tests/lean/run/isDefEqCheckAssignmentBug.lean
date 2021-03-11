@@ -14,7 +14,7 @@ def tst : MetaM Unit := do
     let t  ← mkAppM ``f #[m2]
     trace[Meta.debug] "{m2} : {← inferType m2}"
     unless (← fullApproxDefEq <| isDefEq m1 t) do  -- m1 := f m3 -- where `m3` has a smaller scope than `m2`
-      throwError! "isDefEq failed"
+      throwError "isDefEq failed"
     trace[Meta.debug] "{m2} : {← inferType m2}"
     trace[Meta.debug] "{m1} : {← inferType m1}"
     let e ← mkForallFVars #[x] m2 -- `forall (x : f ?m2), ?m2`

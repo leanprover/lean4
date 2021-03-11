@@ -44,24 +44,24 @@ class abbrev MonadError (m : Type → Type) :=
 
 section Methods
 
-def throwError [Monad m] [MonadError m] (msg : MessageData) : m α := do
+protected def throwError [Monad m] [MonadError m] (msg : MessageData) : m α := do
   let ref ← getRef
   let (ref, msg) ← AddErrorMessageContext.add ref msg
   throw <| Exception.error ref msg
 
 def throwUnknownConstant [Monad m] [MonadError m] (constName : Name) : m α :=
-  throwError m!"unknown constant '{mkConst constName}'"
+  Lean.throwError m!"unknown constant '{mkConst constName}'"
 
-def throwErrorAt [Monad m] [MonadError m] (ref : Syntax) (msg : MessageData) : m α := do
-  withRef ref <| throwError msg
+protected def throwErrorAt [Monad m] [MonadError m] (ref : Syntax) (msg : MessageData) : m α := do
+  withRef ref <| Lean.throwError msg
 
 def ofExcept [Monad m] [MonadError m] [ToString ε] (x : Except ε α) : m α :=
   match x with
   | Except.ok a    => pure a
-  | Except.error e => throwError $ toString e
+  | Except.error e => Lean.throwError $ toString e
 
 def throwKernelException [Monad m] [MonadError m] [MonadOptions m] (ex : KernelException) : m α := do
-  throwError <| ex.toMessageData (← getOptions)
+  Lean.throwError <| ex.toMessageData (← getOptions)
 
 end Methods
 
@@ -84,24 +84,24 @@ instance [BEq α] [Hashable α] [Monad m] [STWorld ω m] [MonadRecDepth m] : Mon
 @[inline] def withIncRecDepth [Monad m] [MonadError m] [MonadRecDepth m] (x : m α) : m α := do
   let curr ← MonadRecDepth.getRecDepth
   let max  ← MonadRecDepth.getMaxRecDepth
-  if curr == max then throwError maxRecDepthErrorMessage
+  if curr == max then Lean.throwError maxRecDepthErrorMessage
   MonadRecDepth.withRecDepth (curr+1) x
 
-syntax "throwError! " (interpolatedStr(term) <|> term) : term
-syntax "throwErrorAt! " term:max (interpolatedStr(term) <|> term) : term
+syntax "throwError " (interpolatedStr(term) <|> term) : term
+syntax "throwErrorAt " term:max (interpolatedStr(term) <|> term) : term
 
 macro_rules
-  | `(throwError! $msg) =>
+  | `(throwError $msg) =>
     if msg.getKind == interpolatedStrKind then
-      `(throwError (m! $msg))
+      `(Lean.throwError (m! $msg))
     else
-      `(throwError $msg)
+      `(Lean.throwError $msg)
 
 macro_rules
-  | `(throwErrorAt! $ref $msg) =>
+  | `(throwErrorAt $ref $msg) =>
     if msg.getKind == interpolatedStrKind then
-      `(throwErrorAt $ref (m! $msg))
+      `(Lean.throwErrorAt $ref (m! $msg))
     else
-      `(throwErrorAt $ref $msg)
+      `(Lean.throwErrorAt $ref $msg)
 
 end Lean

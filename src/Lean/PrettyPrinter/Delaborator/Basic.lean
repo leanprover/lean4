@@ -362,7 +362,7 @@ partial def delabFor : Name → Delab
 
 def delab : Delab := do
   let k ← getExprKind
-  delabFor k <|> (liftM $ show MetaM Syntax from throwError! "don't know how to delaborate '{k}'")
+  delabFor k <|> (liftM $ show MetaM Syntax from throwError "don't know how to delaborate '{k}'")
 
 unsafe def mkAppUnexpanderAttribute : IO (KeyedDeclsAttribute Unexpander) :=
   KeyedDeclsAttribute.init {

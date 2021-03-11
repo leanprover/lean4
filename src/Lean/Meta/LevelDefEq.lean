@@ -48,7 +48,7 @@ def decLevel? (u : Level) : MetaM (Option Level) := do
 def decLevel (u : Level) : MetaM Level := do
   match (← decLevel? u) with
   | some u => return u
-  | none   => throwError! "invalid universe level, {u} is not greater than 0"
+  | none   => throwError "invalid universe level, {u} is not greater than 0"
 
 /- This method is useful for inferring universe level parameters for function that take arguments such as `{α : Type u}`.
    Recall that `Type u` is `Sort (u+1)` in Lean. Thus, given `α`, we must infer its universe level,
@@ -244,7 +244,7 @@ private def postponedToMessageData (ps : PersistentArray PostponedEntry) : Messa
   try
     let a ← x
     unless (← processPostponed (mayPostpone := false)) do
-      throwError! "stuck at solving universe constraints{MessageData.nestD (postponedToMessageData (← getPostponed))}"
+      throwError "stuck at solving universe constraints{MessageData.nestD (postponedToMessageData (← getPostponed))}"
     setPostponed postponed
     return a
   catch ex =>

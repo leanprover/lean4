@@ -45,7 +45,7 @@ partial def generalizeTelescopeAux {α} (k : Array Expr → MetaM α)
     | ⟨e, type, modified⟩ =>
       if modified then
         unless (← isTypeCorrect type) do
-          throwError! "failed to create telescope generalizing {entries.map Entry.expr}"
+          throwError "failed to create telescope generalizing {entries.map Entry.expr}"
       replace `x e type
   else
     k fvars

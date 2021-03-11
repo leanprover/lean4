@@ -446,7 +446,7 @@ def getParserPriority (args : Syntax) : Except String Nat :=
 private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
     (declName : Name) (stx : Syntax) (kind : AttributeKind) : AttrM Unit := do
   let prio ← Attribute.Builtin.getPrio stx
-  unless kind == AttributeKind.global do throwError! "invalid attribute '{attrName}', must be global"
+  unless kind == AttributeKind.global do throwError "invalid attribute '{attrName}', must be global"
   let decl ← getConstInfo declName
   let env ← getEnv
   match decl.type with
@@ -456,7 +456,7 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
   | Expr.const `Lean.Parser.Parser _ _ => do
     let env ← declareLeadingBuiltinParser env catName declName prio
     setEnv env
-  | _ => throwError! "unexpected parser type at '{declName}' (`Parser` or `TrailingParser` expected)"
+  | _ => throwError "unexpected parser type at '{declName}' (`Parser` or `TrailingParser` expected)"
   runParserAttributeHooks catName declName (builtin := true)
 
 /-
@@ -484,7 +484,7 @@ private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : N
     try
       addToken token attrKind
     catch
-      | Exception.error ref msg => throwError! "invalid parser '{declName}', {msg}"
+      | Exception.error ref msg => throwError "invalid parser '{declName}', {msg}"
       | ex => throw ex
   let kinds := parser.info.collectKinds {}
   kinds.forM fun kind _ => modifyEnv fun env => addSyntaxNodeKind env kind

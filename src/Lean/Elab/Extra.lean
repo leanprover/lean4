@@ -57,7 +57,7 @@ open Meta
           try
             mkAppM `ForIn #[m, colType, elemType]
           catch
-            ex => tryPostpone; throwError! "failed to construct 'ForIn' instance for collection{indentExpr colType}\nand monad{indentExpr m}"
+            ex => tryPostpone; throwError "failed to construct 'ForIn' instance for collection{indentExpr colType}\nand monad{indentExpr m}"
         match (← trySynthInstance forInInstance) with
         | LOption.some val =>
           let ref ← getRef
@@ -79,8 +79,8 @@ where
     | some expectedType =>
       match (← isTypeApp? expectedType) with
       | some (m, _) => return m
-      | none => throwError! "invalid 'forIn%' notation, expected type is not of of the form `M α`{indentExpr expectedType}"
+      | none => throwError "invalid 'forIn%' notation, expected type is not of of the form `M α`{indentExpr expectedType}"
   throwFailure (forInInstance : Expr) : TermElabM Expr :=
-    throwError! "failed to synthesize instance for 'forIn%' notation{indentExpr forInInstance}"
+    throwError "failed to synthesize instance for 'forIn%' notation{indentExpr forInInstance}"
 
 end Lean.Elab.Term

@@ -52,13 +52,13 @@ def g (c : Bool) (x : Nat) : Nat :=
 
 #eval g false 1000
 ```
-In the following example, we use the macro `dbgTrace!` to demonstrate
+In the following example, we use the macro `dbg_trace` to demonstrate
 that the Lean runtime caches the value computed by a `Thunk`.
-We remark that the macro `dbgTrace!` should be use for debugging purposes
+We remark that the macro `dbg_trace` should be use for debugging purposes
 only.
 ```lean
 def add1 (x : Nat) : Nat :=
-  dbgTrace! "add1: {x}"
+  dbg_trace "add1: {x}"
   x + 1
 
 def double (x : Thunk Nat) : Nat :=
@@ -78,7 +78,7 @@ Note that the message `add1: 2` is printed only once.
 Now, consider the same example using `Unit -> Nat` instead of `Thunk Nat`.
 ```lean
 def add1 (x : Nat) : Nat :=
-  dbgTrace! "add1: {x}"
+  dbg_trace "add1: {x}"
   x + 1
 
 def double (x : Unit -> Nat) : Nat :=
@@ -97,7 +97,7 @@ def test (x : Nat) : Nat :=
 ```
 Now, the message `add1: 2` is printed twice.
 It may come as a surprise that it was printed twice instead of three times.
-As we pointed out, `dbgTrace!` is a macro used for debugging purposes only,
+As we pointed out, `dbg_trace` is a macro used for debugging purposes only,
 and `add1` is still considered to be a pure function.
 The Lean compiler performs common subexpression elimination when compiling `double`,
 and the produced code for `double` executes `x ()` only once instead of twice.

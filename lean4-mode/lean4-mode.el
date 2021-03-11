@@ -153,7 +153,7 @@
     (before-save-hook                    . lean4-whitespace-cleanup)
     ;; info windows
     (post-command-hook                   . lean4-info-buffer-refresh)
-    (flycheck-after-syntax-check-hook    . lean4-info-buffer-refresh)
+    (flycheck-after-syntax-check-hook    . lean4-info-buffer-redisplay)
     )
   "Hooks which lean4-mode needs to hook in.
 

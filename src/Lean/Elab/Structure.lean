@@ -18,7 +18,7 @@ open Meta
 
 /- Recall that the `structure command syntax is
 ```
-parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> optional (" := " >> optional structCtor >> structFields)
+leading_parser (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> optional (" := " >> optional structCtor >> structFields)
 ```
 -/
 
@@ -96,7 +96,7 @@ private def defaultCtorName := `mk
 /-
 The structure constructor syntax is
 ```
-parser! try (declModifiers >> ident >> optional inferMod >> " :: ")
+leading_parser try (declModifiers >> ident >> optional inferMod >> " :: ")
 ```
 -/
 private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : TermElabM StructCtorView := do
@@ -141,11 +141,11 @@ def checkValidFieldModifier (modifiers : Modifiers) : TermElabM Unit := do
 
 /-
 ```
-def structExplicitBinder := parser! atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
-def structImplicitBinder := parser! atomic (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
-def structInstBinder     := parser! atomic (declModifiers true >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
-def structSimpleBinder   := parser! atomic (declModifiers true >> ident) >> optional inferMod >> optDeclSig >> optional Term.binderDefault
-def structFields         := parser! many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
+def structExplicitBinder := leading_parser atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
+def structImplicitBinder := leading_parser atomic (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
+def structInstBinder     := leading_parser atomic (declModifiers true >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
+def structSimpleBinder   := leading_parser atomic (declModifiers true >> ident) >> optional inferMod >> optDeclSig >> optional Term.binderDefault
+def structFields         := leading_parser many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
 ```
 -/
 private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : TermElabM (Array StructFieldView) :=
@@ -180,7 +180,7 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
         let optBinderDefault := fieldBinder[5]
         if optBinderDefault.isNone then none
         else
-          -- binderDefault := parser! " := " >> termParser
+          -- binderDefault := leading_parser " := " >> termParser
           some optBinderDefault[0][1]
     let idents := fieldBinder[2].getArgs
     idents.foldlM (init := views) fun (views : Array StructFieldView) ident => withRef ident do
@@ -527,15 +527,15 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
         addDefaults lctx defaultAuxDecls
 
 /-
-parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields >> optDeriving
+leading_parser (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields >> optDeriving
 
 where
-def «extends» := parser! " extends " >> sepBy1 termParser ", "
-def typeSpec := parser! " : " >> termParser
+def «extends» := leading_parser " extends " >> sepBy1 termParser ", "
+def typeSpec := leading_parser " : " >> termParser
 def optType : Parser := optional typeSpec
 
-def structFields         := parser! many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
-def structCtor           := parser! try (declModifiers >> ident >> optional inferMod >> " :: ")
+def structFields         := leading_parser many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
+def structCtor           := leading_parser try (declModifiers >> ident >> optional inferMod >> " :: ")
 
 -/
 def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do

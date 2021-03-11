@@ -243,7 +243,7 @@ end ElimApp
   Recall that
   ```
   generalizingVars := optional (" generalizing " >> many1 ident)
-  «induction»  := parser! nonReservedSymbol "induction " >> majorPremise >> usingRec >> generalizingVars >> optional inductionAlts
+  «induction»  := leading_parser nonReservedSymbol "induction " >> majorPremise >> usingRec >> generalizingVars >> optional inductionAlts
   ```
   `stx` is syntax for `induction`. -/
 private def getGeneralizingFVarIds (stx : Syntax) : TacticM (Array FVarId) :=
@@ -343,7 +343,7 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
     appendGoals result.others.toList
 
 -- Recall that
--- majorPremise := parser! optional (try (ident >> " : ")) >> termParser
+-- majorPremise := leading_parser optional (try (ident >> " : ")) >> termParser
 private def getTargetHypothesisName? (target : Syntax) : Option Name :=
   if target[0].isNone then
     none
@@ -377,7 +377,7 @@ def elabTargets (targets : Array Syntax) : TacticM (Array Expr) :=
 builtin_initialize registerTraceClass `Elab.cases
 
 @[builtinTactic Lean.Parser.Tactic.cases] def evalCases : Tactic := fun stx => focus do
-  -- parser! nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> optInductionAlts
+  -- leading_parser nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> optInductionAlts
   let targets ← elabTargets stx[1].getSepArgs
   let optInductionAlts := stx[3]
   let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts

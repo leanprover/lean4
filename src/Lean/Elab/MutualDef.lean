@@ -154,8 +154,8 @@ private def expandWhereDeclsAsStructInst : Macro
 /-
 Recall that
 ```
-def declValSimple    := parser! " :=\n" >> termParser >> optional Term.whereDecls
-def declValEqns      := parser! Term.matchAltsWhereDecls
+def declValSimple    := leading_parser " :=\n" >> termParser >> optional Term.whereDecls
+def declValEqns      := leading_parser Term.matchAltsWhereDecls
 def declVal          := declValSimple <|> declValEqns <|> Term.whereDecls
 ```
 -/

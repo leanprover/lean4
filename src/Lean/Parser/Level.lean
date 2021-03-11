@@ -16,13 +16,13 @@ builtin_initialize
 
 namespace Level
 
-@[builtinLevelParser] def paren  := parser! "(" >> levelParser >> ")"
-@[builtinLevelParser] def max    := parser! nonReservedSymbol "max" true  >> many1 (ppSpace >> levelParser maxPrec)
-@[builtinLevelParser] def imax   := parser! nonReservedSymbol "imax" true >> many1 (ppSpace >> levelParser maxPrec)
-@[builtinLevelParser] def hole   := parser! "_"
+@[builtinLevelParser] def paren  := leading_parser "(" >> levelParser >> ")"
+@[builtinLevelParser] def max    := leading_parser nonReservedSymbol "max" true  >> many1 (ppSpace >> levelParser maxPrec)
+@[builtinLevelParser] def imax   := leading_parser nonReservedSymbol "imax" true >> many1 (ppSpace >> levelParser maxPrec)
+@[builtinLevelParser] def hole   := leading_parser "_"
 @[builtinLevelParser] def num    := checkPrec maxPrec >> numLit
 @[builtinLevelParser] def ident  := checkPrec maxPrec >> Parser.ident
-@[builtinLevelParser] def addLit := tparser!:65 " + " >> numLit
+@[builtinLevelParser] def addLit := trailing_parser:65 " + " >> numLit
 
 end Level
 

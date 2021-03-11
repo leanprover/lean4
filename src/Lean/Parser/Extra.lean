@@ -98,19 +98,19 @@ namespace Parser
 attribute [runBuiltinParserAttributeHooks]
   ppHardSpace ppSpace ppLine ppGroup ppIndent ppDedent
 
-macro "registerParserAlias!" aliasName:strLit declName:ident : term =>
+macro "register_parser_alias" aliasName:strLit declName:ident : term =>
   `(do Parser.registerAlias $aliasName $declName
        PrettyPrinter.Formatter.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `formatter))
        PrettyPrinter.Parenthesizer.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `parenthesizer)))
 
 builtin_initialize
-  registerParserAlias! "group" group
-  registerParserAlias! "ppHardSpace" ppHardSpace
-  registerParserAlias! "ppSpace" ppSpace
-  registerParserAlias! "ppLine" ppLine
-  registerParserAlias! "ppGroup" ppGroup
-  registerParserAlias! "ppIndent" ppIndent
-  registerParserAlias! "ppDedent" ppDedent
+  register_parser_alias "group" group
+  register_parser_alias "ppHardSpace" ppHardSpace
+  register_parser_alias "ppSpace" ppSpace
+  register_parser_alias "ppLine" ppLine
+  register_parser_alias "ppGroup" ppGroup
+  register_parser_alias "ppIndent" ppIndent
+  register_parser_alias "ppDedent" ppDedent
 
 end Parser
 

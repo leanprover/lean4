@@ -73,8 +73,8 @@ def declareTacticSyntax (tactic : Syntax) : TermElabM Name :=
 
 /-
 Expand `optional (binderTactic <|> binderDefault)`
-def binderTactic  := parser! " := " >> " by " >> tacticParser
-def binderDefault := parser! " := " >> termParser
+def binderTactic  := leading_parser " := " >> " by " >> tacticParser
+def binderDefault := leading_parser " := " >> termParser
 -/
 private def expandBinderModifier (type : Syntax) (optBinderModifier : Syntax) : TermElabM Syntax := do
   if optBinderModifier.isNone then
@@ -103,7 +103,7 @@ private def getBinderIds (ids : Syntax) : TermElabM (Array Syntax) :=
 /-
   Recall that
   ```
-  def typeSpec := parser! " : " >> termParser
+  def typeSpec := leading_parser " : " >> termParser
   def optType : Parser := optional typeSpec
   ```
 -/
@@ -244,7 +244,7 @@ private partial def getFunBinderIds? (stx : Syntax) : OptionT TermElabM (Array S
   Auxiliary function for expanding `fun` notation binders. Recall that `fun` parser is defined as
   ```
   def funBinder : Parser := implicitBinder <|> instBinder <|> termParser maxPrec
-  parser! unicodeSymbol "λ" "fun" >> many1 funBinder >> "=>" >> termParser
+  leading_parser unicodeSymbol "λ" "fun" >> many1 funBinder >> "=>" >> termParser
   ```
   to allow notation such as `fun (a, b) => a + b`, where `(a, b)` should be treated as a pattern.
   The result is a pair `(explicitBinders, newBody)`, where `explicitBinders` is syntax of the form

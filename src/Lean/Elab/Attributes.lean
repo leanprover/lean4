@@ -27,7 +27,7 @@ instance : Inhabited Attribute where
 
 /-
   ```
-  attrKind := parser! optional («scoped» <|> «local»)
+  attrKind := leading_parser optional («scoped» <|> «local»)
   ```
 -/
 def toAttributeKind [Monad m] [MonadResolveName m] [MonadError m] (attrKindStx : Syntax) : m AttributeKind := do
@@ -44,7 +44,7 @@ def mkAttrKindGlobal : Syntax :=
   Syntax.node `Lean.Parser.Term.attrKind #[mkNullNode]
 
 def elabAttr {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] (attrInstance : Syntax) : m Attribute := do
-  /- attrInstance     := ppGroup $ parser! attrKind >> attrParser -/
+  /- attrInstance     := ppGroup $ leading_parser attrKind >> attrParser -/
   let attrKind ← toAttributeKind attrInstance[0]
   let attr := attrInstance[1]
   let attr ← liftMacroM <| expandMacros attr
@@ -67,7 +67,7 @@ def elabAttrs {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [Mo
     attrs := attrs.push (← elabAttr attr)
   return attrs
 
--- parser! "@[" >> sepBy1 attrInstance ", " >> "]"
+-- leading_parser "@[" >> sepBy1 attrInstance ", " >> "]"
 def elabDeclAttrs {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] (stx : Syntax) : m (Array Attribute) :=
   elabAttrs stx[1].getSepArgs
 

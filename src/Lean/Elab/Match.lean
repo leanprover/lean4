@@ -16,9 +16,9 @@ open Lean.Parser.Term
 /- This modules assumes "match"-expressions use the following syntax.
 
 ```lean
-def matchDiscr := parser! optional (try (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> termParser
+def matchDiscr := leading_parser optional (try (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> termParser
 
-def «match» := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
+def «match» := leading_parser:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
 ```
 -/
 
@@ -304,7 +304,7 @@ partial def collect (stx : Syntax) : M Syntax := do
     else if k == `Lean.Parser.Term.structInst then
       /-
       ```
-      parser! "{" >> optional (atomic (termParser >> " with "))
+      leading_parser "{" >> optional (atomic (termParser >> " with "))
                   >> manyIndent (group (structInstField >> optional ", "))
                   >> optional ".."
                   >> optional (" : " >> termParser)
@@ -317,7 +317,7 @@ partial def collect (stx : Syntax) : M Syntax := do
       let fields ← args[2].getArgs.mapM fun p => do
           -- p is of the form (group (structInstField >> optional ", "))
           let field := p[0]
-          -- parser! structInstLVal >> " := " >> termParser
+          -- leading_parser structInstLVal >> " := " >> termParser
           let newVal ← collect field[2]
           let field := field.setArg 2 newVal
           pure <| field.setArg 0 field
@@ -353,7 +353,7 @@ partial def collect (stx : Syntax) : M Syntax := do
       processCtor stx[0]
     else if k == `Lean.Parser.Term.namedPattern then
       /- Recall that
-        def namedPattern := check... >> tparser! "@" >> termParser -/
+        def namedPattern := check... >> trailing_parser "@" >> termParser -/
       let id := stx[0]
       discard <| processVar id
       let pat := stx[2]
@@ -820,7 +820,7 @@ private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Synta
           pure (matchStx.setArg 1 discrs)
         | discr :: discrs =>
           -- Recall that
-          -- matchDiscr := parser! optional (ident >> ":") >> termParser
+          -- matchDiscr := leading_parser optional (ident >> ":") >> termParser
           let term := discr[1]
           match (← isLocalIdent? term) with
           | some _ => loop discrs (discrsNew.push discr)
@@ -894,7 +894,7 @@ private def waitExpectedTypeAndDiscrs (matchStx : Syntax) (expectedType? : Optio
 
 /-
 ```
-parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
+leading_parser:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
 ```
 Remark the `optIdent` must be `none` at `matchDiscr`. They are expanded by `expandMatchDiscr?`.
 -/
@@ -918,7 +918,7 @@ where
   isAtomicIdent (stx : Syntax) : Bool :=
     stx.isIdent && stx.getId.eraseMacroScopes.isAtomic
 
--- parser! "match " >> sepBy1 termParser ", " >> optType >> " with " >> matchAlts
+-- leading_parser "match " >> sepBy1 termParser ", " >> optType >> " with " >> matchAlts
 @[builtinTermElab «match»] def elabMatch : TermElab := fun stx expectedType? => do
   match stx with
   | `(match $discr:term with | $y:ident => $rhs:term) =>
@@ -940,7 +940,7 @@ where
 builtin_initialize
   registerTraceClass `Elab.match
 
--- parser!:leadPrec "nomatch " >> termParser
+-- leading_parser:leadPrec "nomatch " >> termParser
 @[builtinTermElab «nomatch»] def elabNoMatch : TermElab := fun stx expectedType? =>
   match stx with
   | `(nomatch $discrExpr) => do

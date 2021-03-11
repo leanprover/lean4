@@ -55,7 +55,7 @@ def expandDeclNamespace? (stx : Syntax) : Option (Name × Syntax) :=
       none
 
 def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
-  -- parser! "axiom " >> declId >> declSig
+  -- leading_parser "axiom " >> declId >> declSig
   let declId             := stx[1]
   let (binders, typeStx) := expandDeclSig stx[2]
   let scopeLevelNames ← getLevelNames
@@ -87,8 +87,8 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
       Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
 /-
-parser! "inductive " >> declId >> optDeclSig >> optional ":=" >> many ctor
-parser! atomic (group ("class " >> "inductive ")) >> declId >> optDeclSig >> optional ":=" >> many ctor >> optDeriving
+leading_parser "inductive " >> declId >> optDeclSig >> optional ":=" >> many ctor
+leading_parser atomic (group ("class " >> "inductive ")) >> declId >> optDeclSig >> optional ":=" >> many ctor >> optDeriving
 -/
 private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : CommandElabM InductiveView := do
   checkValidInductiveModifier modifiers
@@ -97,7 +97,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
   let ⟨name, declName, levelNames⟩ ← expandDeclId declId modifiers
   addDeclarationRanges declName decl
   let ctors      ← decl[4].getArgs.mapM fun ctor => withRef ctor do
-    -- def ctor := parser! " | " >> declModifiers >> ident >> optional inferMod >> optDeclSig
+    -- def ctor := leading_parser " | " >> declModifiers >> ident >> optional inferMod >> optDeclSig
     let ctorModifiers ← elabModifiers ctor[1]
     if ctorModifiers.isPrivate && modifiers.isPrivate then
       throwError "invalid 'private' constructor in a 'private' inductive datatype"
@@ -256,7 +256,7 @@ def elabMutual : CommandElab := fun stx => do
   else
     throwError "invalid mutual block"
 
-/- parser! "attribute " >> "[" >> sepBy1 (eraseAttr <|> Term.attrInstance) ", " >> "]" >> many1 ident -/
+/- leading_parser "attribute " >> "[" >> sepBy1 (eraseAttr <|> Term.attrInstance) ", " >> "]" >> many1 ident -/
 @[builtinCommandElab «attribute»] def elabAttr : CommandElab := fun stx => do
   let mut attrInsts := #[]
   let mut toErase := #[]
@@ -265,7 +265,7 @@ def elabMutual : CommandElab := fun stx => do
       let attrName := attrKindStx[1].getId.eraseMacroScopes
       unless isAttribute (← getEnv) attrName do
         throwError! "unknown attribute [{attrName}]"
-      toErase := toErase.push attrName    
+      toErase := toErase.push attrName
     else
       attrInsts := attrInsts.push attrKindStx
   let attrs ← elabAttrs attrInsts

@@ -146,7 +146,7 @@ def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name)
 /-
   `declId` is of the form
   ```
-  parser! ident >> optional (".{" >> sepBy1 ident ", " >> "}")
+  leading_parser ident >> optional (".{" >> sepBy1 ident ", " >> "}")
   ```
   but we also accept a single identifier to users to make macro writing more convenient .
 -/

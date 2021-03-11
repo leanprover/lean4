@@ -10,21 +10,21 @@ namespace Parser
 namespace Tactic
 
 builtin_initialize
-  registerParserAlias! "tacticSeq"    tacticSeq
+  register_parser_alias "tacticSeq"    tacticSeq
 
-@[builtinTacticParser] def «unknown»    := parser! withPosition (ident >> errorAtSavedPos "unknown tactic" true)
+@[builtinTacticParser] def «unknown»    := leading_parser withPosition (ident >> errorAtSavedPos "unknown tactic" true)
 @[builtinTacticParser] def nestedTactic := tacticSeqBracketed
 
 /- Auxiliary parser for expanding `match` tactic -/
-@[builtinTacticParser] def eraseAuxDiscrs := parser!:maxPrec "eraseAuxDiscrs!"
+@[builtinTacticParser] def eraseAuxDiscrs := leading_parser:maxPrec "eraseAuxDiscrs!"
 
 def matchRhs  := Term.hole <|> Term.syntheticHole <|> tacticSeq
 def matchAlts := Term.matchAlts (rhsParser := matchRhs)
-@[builtinTacticParser] def «match» := parser!:leadPrec "match " >> sepBy1 Term.matchDiscr ", " >> Term.optType >> " with " >> matchAlts
-@[builtinTacticParser] def introMatch := parser! nonReservedSymbol "intro " >> matchAlts
+@[builtinTacticParser] def «match» := leading_parser:leadPrec "match " >> sepBy1 Term.matchDiscr ", " >> Term.optType >> " with " >> matchAlts
+@[builtinTacticParser] def introMatch := leading_parser nonReservedSymbol "intro " >> matchAlts
 
-@[builtinTacticParser] def decide := parser! nonReservedSymbol "decide"
-@[builtinTacticParser] def nativeDecide := parser! nonReservedSymbol "nativeDecide"
+@[builtinTacticParser] def decide := leading_parser nonReservedSymbol "decide"
+@[builtinTacticParser] def nativeDecide := leading_parser nonReservedSymbol "nativeDecide"
 
 end Tactic
 end Parser

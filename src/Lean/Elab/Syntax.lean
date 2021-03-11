@@ -9,7 +9,7 @@ import Lean.Parser.Syntax
 namespace Lean.Elab.Term
 /-
 Expand `optional «precedence»` where
- «precedence» := parser! " : " >> precedenceParser -/
+ «precedence» := leading_parser " : " >> precedenceParser -/
 def expandOptPrecedence (stx : Syntax) : MacroM (Option Nat) :=
   if stx.isNone then
     return none
@@ -284,7 +284,7 @@ private partial def isAtomLikeSyntax (stx : Syntax) : Bool :=
     kind == `Lean.Parser.Syntax.atom
 
 /-
-def «syntax»      := parser! attrKind >> "syntax " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 syntaxParser >> " : " >> ident
+def «syntax»      := leading_parser attrKind >> "syntax " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 syntaxParser >> " : " >> ident
 -/
 @[builtinCommandElab «syntax»] def elabSyntax : CommandElab := fun stx => do
   let env ← getEnv
@@ -329,7 +329,7 @@ def «syntax»      := parser! attrKind >> "syntax " >> optPrecedence >> optName
   withMacroExpansion stx d <| elabCommand d
 
 /-
-def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
+def syntaxAbbrev  := leading_parser "syntax " >> ident >> " := " >> many1 syntaxParser
 -/
 @[builtinCommandElab «syntaxAbbrev»] def elabSyntaxAbbrev : CommandElab := fun stx => do
   let declName := stx[1]
@@ -541,7 +541,7 @@ def expandMacroArgIntoPattern (stx : Syntax) : MacroM Syntax := do
     mkNullNode #[mkAntiquotSuffixSpliceNode kind (mkAntiquotNode id) suffix]
 
 
-/- «macro» := parser! suppressInsideQuot (Term.attrKind >> "macro " >> optPrecedence >> optNamedName >> optNamedPrio >> macroHead >> many macroArg >> macroTail) -/
+/- «macro» := leading_parser suppressInsideQuot (Term.attrKind >> "macro " >> optPrecedence >> optNamedName >> optNamedPrio >> macroHead >> many macroArg >> macroTail) -/
 def expandMacro (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
   let attrKind := stx[0]
   let prec := stx[2].getOptional?
@@ -592,7 +592,7 @@ builtin_initialize
 
 /-
 def elabTail := try (" : " >> ident) >> darrow >> termParser
-def «elab» := parser! suppressInsideQuot (Term.attrKind >> "elab " >> optPrecedence >> optNamedName >> optNamedPrio >> elabHead >> many elabArg >> elabTail)
+def «elab» := leading_parser suppressInsideQuot (Term.attrKind >> "elab " >> optPrecedence >> optNamedName >> optNamedPrio >> elabHead >> many elabArg >> elabTail)
 -/
 def expandElab (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
   let ref := stx

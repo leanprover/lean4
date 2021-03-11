@@ -47,7 +47,7 @@ namespace Command
 open Meta
 
 def mkDefViewOfAbbrev (modifiers : Modifiers) (stx : Syntax) : DefView :=
-  -- parser! "abbrev " >> declId >> optDeclSig >> declVal
+  -- leading_parser "abbrev " >> declId >> optDeclSig >> declVal
   let (binders, type) := expandOptDeclSig (stx.getArg 2)
   let modifiers       := modifiers.addAttribute { name := `inline }
   let modifiers       := modifiers.addAttribute { name := `reducible }
@@ -55,13 +55,13 @@ def mkDefViewOfAbbrev (modifiers : Modifiers) (stx : Syntax) : DefView :=
     declId := stx.getArg 1, binders := binders, type? := type, value := stx.getArg 3 }
 
 def mkDefViewOfDef (modifiers : Modifiers) (stx : Syntax) : DefView :=
-  -- parser! "def " >> declId >> optDeclSig >> declVal
+  -- leading_parser "def " >> declId >> optDeclSig >> declVal
   let (binders, type) := expandOptDeclSig (stx.getArg 2)
   { ref := stx, kind := DefKind.def, modifiers := modifiers,
     declId := stx.getArg 1, binders := binders, type? := type, value := stx.getArg 3 }
 
 def mkDefViewOfTheorem (modifiers : Modifiers) (stx : Syntax) : DefView :=
-  -- parser! "theorem " >> declId >> declSig >> declVal
+  -- leading_parser "theorem " >> declId >> declSig >> declVal
   let (binders, type) := expandDeclSig (stx.getArg 2)
   { ref := stx, kind := DefKind.theorem, modifiers := modifiers,
     declId := stx.getArg 1, binders := binders, type? := some type, value := stx.getArg 3 }
@@ -125,7 +125,7 @@ partial def main (type : Syntax) : CommandElabM Name := do
 end MkInstanceName
 
 def mkDefViewOfConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
-  -- parser! "constant " >> declId >> declSig >> optional declValSimple
+  -- leading_parser "constant " >> declId >> declSig >> optional declValSimple
   let (binders, type) := expandDeclSig (stx.getArg 2)
   let val ← match (stx.getArg 3).getOptional? with
     | some val => pure val
@@ -138,7 +138,7 @@ def mkDefViewOfConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
   }
 
 def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
-  -- parser! Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal
+  -- leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal
   let attrKind        ← toAttributeKind stx[0]
   let prio            ← liftMacroM <| expandOptNamedPrio stx[2]
   let attrStx         ← `(attr| instance $(quote prio):numLit)
@@ -155,7 +155,7 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
   }
 
 def mkDefViewOfExample (modifiers : Modifiers) (stx : Syntax) : DefView :=
-  -- parser! "example " >> declSig >> declVal
+  -- leading_parser "example " >> declSig >> declVal
   let (binders, type) := expandDeclSig (stx.getArg 1)
   let id              := mkIdentFrom stx `_example
   let declId          := Syntax.node ``Parser.Command.declId #[id, mkNullNode]

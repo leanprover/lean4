@@ -13,10 +13,10 @@ inductive Location where
 /-
 Recall that
 ```
-def locationWildcard := parser! "*"
-def locationTarget   := parser! unicodeSymbol "⊢" "|-"
-def locationHyp      := parser! many1 ident
-def location         := parser! "at " >> (locationWildcard <|> locationTarget <|> locationHyp)
+def locationWildcard := leading_parser "*"
+def locationTarget   := leading_parser unicodeSymbol "⊢" "|-"
+def locationHyp      := leading_parser many1 ident
+def location         := leading_parser "at " >> (locationWildcard <|> locationTarget <|> locationHyp)
 ```
 -/
 def expandLocation (stx : Syntax) : Location :=

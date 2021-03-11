@@ -176,29 +176,57 @@ partial def getTailWithPos : Syntax → Option Syntax
   | node _ args         => args.findSomeRev? getTailWithPos
   | _                   => none
 
-private def reprintLeaf (info : SourceInfo) (val : String) : String :=
-  match info with
-  | SourceInfo.original lead _ trail => s!"{lead}{val}{trail}"
-  -- no source info => add gracious amounts of whitespace to definitely separate tokens
-  -- Note that the proper pretty printer does not use this function.
-  -- The parser as well always produces source info, so round-tripping is still
-  -- guaranteed.
-  | _                                => s!" {val} "
+structure TopDown where
+  firstChoiceOnly : Bool
+  stx : Syntax
 
-partial def reprint : Syntax → Option String
-  | atom info val           => reprintLeaf info val
-  | ident info rawVal _ _   => reprintLeaf info rawVal.toString
-  | node kind args          =>
-    if kind == choiceKind then
-      if args.size == 0 then failure
-      else do
+def topDown (stx : Syntax) (firstChoiceOnly := false) : TopDown := ⟨firstChoiceOnly, stx⟩
+
+partial instance : ForIn m TopDown Syntax where
+  forIn := fun ⟨firstChoiceOnly, stx⟩ init f => do
+    let rec @[specialize] loop stx b [Inhabited (typeOf! b)] := do
+      match ← f stx b with
+      | ForInStep.yield b' =>
+        let mut b := b'
+        if let Syntax.node k args := stx then
+          if firstChoiceOnly && k == choiceKind then
+            return ← loop args[0] b
+          else
+            for arg in args do
+              match ← loop arg b with
+              | ForInStep.yield b' => b := b'
+              | ForInStep.done b   => return ForInStep.done b
+        return ForInStep.yield b
+      | ForInStep.done b => return ForInStep.done b
+    match ← @loop stx init ⟨init⟩ with
+    | ForInStep.yield b => return b
+    | ForInStep.done b  => return b
+
+partial def reprint (stx : Syntax) : Option String := do
+  let mut s := ""
+  for stx in stx.topDown (firstChoiceOnly := true) do
+    match stx with
+    | atom info val           => s := s ++ reprintLeaf info val
+    | ident info rawVal _ _   => s := s ++ reprintLeaf info rawVal.toString
+    | node kind args          =>
+      if kind == choiceKind then
+        -- this visit the first arg twice, but that should hardly be a problem
+        -- given that choice nodes are quite rare and small
         let s ← reprint args[0]
-        args[1:].foldlM (init := s) fun s stx => do
+        for arg in args[1:] do
           let s' ← reprint stx
           guard (s == s')
-          pure s
-    else args.foldlM (fun r stx => do let s ← reprint stx; pure $ r ++ s) ""
-  | _ => ""
+    | _ => pure ()
+  return s
+where
+  reprintLeaf (info : SourceInfo) (val : String) : String :=
+    match info with
+    | SourceInfo.original lead _ trail => s!"{lead}{val}{trail}"
+    -- no source info => add gracious amounts of whitespace to definitely separate tokens
+    -- Note that the proper pretty printer does not use this function.
+    -- The parser as well always produces source info, so round-tripping is still
+    -- guaranteed.
+    | _                                => s!" {val} "
 
 /--
 Represents a cursor into a syntax tree that can be read, written, and advanced down/up/left/right.

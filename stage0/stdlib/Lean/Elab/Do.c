@@ -188,7 +188,6 @@ lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Term_Do_ToCodeBlock_doSeqToCode_
 lean_object* l_Lean_Elab_Term_Do_mkAuxDeclFor___at_Lean_Elab_Term_Do_convertTerminalActionIntoJmp_loop___spec__2___at_Lean_Elab_Term_Do_convertTerminalActionIntoJmp_loop___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Term_Do_ToCodeBlock_mkForInBody___spec__3___rarg(lean_object*);
 extern lean_object* l___private_Init_Meta_0__Lean_quoteOption___rarg___closed__5;
-lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Term_quoteAutoTactic___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doForToCode_match__1(lean_object*);
 lean_object* l_Lean_Elab_Term_Do_mkJmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -934,6 +933,7 @@ lean_object* l_Lean_Elab_Term_Do_CodeBlocl_toMessageData_loop___closed__7;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_15956____closed__2;
 extern lean_object* l_Lean_Parser_Term_doIfProp___closed__2;
 lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doSeqToCode___closed__2;
+lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Term_Quotation_getAntiquotationIds___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doForToCode___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Term_Do_getLetDeclVars___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToTerm_matchNestedTermResult___closed__9;
@@ -17423,7 +17423,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
 x_14 = l_Lean_Elab_Term_Do_concat___closed__3;
-x_15 = l_Lean_throwErrorAt___at_Lean_Elab_Term_quoteAutoTactic___spec__2(x_2, x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+x_15 = l_Lean_throwErrorAt___at_Lean_Elab_Term_Quotation_getAntiquotationIds___spec__1(x_2, x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_10);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -17775,10 +17775,6 @@ x_17 = lean_ctor_get(x_9, 1);
 lean_inc(x_17);
 lean_dec(x_9);
 x_18 = l_Lean_Elab_Term_Quotation_getPatternVars(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_17);
-lean_dec(x_7);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 if (lean_obj_tag(x_18) == 0)
 {
 uint8_t x_19; 
@@ -17908,10 +17904,6 @@ x_17 = lean_ctor_get(x_9, 1);
 lean_inc(x_17);
 lean_dec(x_9);
 x_18 = l_Lean_Elab_Term_Quotation_getPatternsVars(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_17);
-lean_dec(x_7);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 if (lean_obj_tag(x_18) == 0)
 {
 uint8_t x_19; 

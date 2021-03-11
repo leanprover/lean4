@@ -34,7 +34,7 @@ builtin_initialize
 def notFollowedByRedefinedTermToken :=
   -- Remark: we don't currently support `open` and `set_option` in `do`-blocks, but we include them in the following list to fix the ambiguity
   -- "open" command following `do`-block. If we don't add `do`, then users would have to indent `do` blocks or use `{ ... }`.
-  notFollowedBy ("set_option" <|> "open" <|> "if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbgTrace!" <|> "assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try") "token at 'do' element"
+  notFollowedBy ("set_option" <|> "open" <|> "if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbgTrace!" <|> "dbg_trace" <|> "assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try") "token at 'do' element"
 
 @[builtinDoElemParser] def doLet      := leading_parser "let " >> optional "mut " >> letDecl
 
@@ -105,7 +105,7 @@ def doFinally    := leading_parser "finally " >> doSeq
 @[builtinDoElemParser] def doBreak     := leading_parser "break"
 @[builtinDoElemParser] def doContinue  := leading_parser "continue"
 @[builtinDoElemParser] def doReturn    := leading_parser:leadPrec withPosition ("return " >> optional (checkLineEq >> termParser))
-@[builtinDoElemParser] def doDbgTrace  := leading_parser:leadPrec "dbgTrace! " >> ((interpolatedStr termParser) <|> termParser)
+@[builtinDoElemParser] def doDbgTrace  := leading_parser:leadPrec (symbol "dbgTrace! " <|> "dbg_trace ") >> ((interpolatedStr termParser) <|> termParser)
 @[builtinDoElemParser] def doAssert    := leading_parser:leadPrec "assert! " >> termParser
 
 /-

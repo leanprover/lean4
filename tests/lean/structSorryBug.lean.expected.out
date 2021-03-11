@@ -1,0 +1,3 @@
+structSorryBug.lean:1:19-1:25: error: unknown identifier 'HasArr'
+structSorryBug.lean:3:17-3:32: error: invalid {...} notation, structure type expected
+  Nat

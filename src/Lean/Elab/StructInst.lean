@@ -147,16 +147,16 @@ private def elabModifyOp (stx modifyOp source : Syntax) (expectedType? : Option 
     cont val
 
 /- Get structure name and elaborate explicit source (if available) -/
-private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceView : Source) : TermElabM Name := do
+private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceView : Source) : TermElabM (Name × Expr) := do
   tryPostponeIfNoneOrMVar expectedType?
-  let useSource : Unit → TermElabM Name := fun _ =>
+  let useSource : Unit → TermElabM (Name × Expr) := fun _ =>
     match sourceView, expectedType? with
     | Source.explicit _ src, _ => do
       let srcType ← inferType src
       let srcType ← whnf srcType
       tryPostponeIfMVar srcType
       match srcType.getAppFn with
-      | Expr.const constName _ _ => pure constName
+      | Expr.const constName _ _ => return (constName, srcType)
       | _ => throwUnexpectedExpectedType srcType "source"
     | _, some expectedType => throwUnexpectedExpectedType expectedType
     | _, none              => throwUnknownExpectedType
@@ -165,7 +165,7 @@ private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceVi
   | some expectedType =>
     let expectedType ← whnf expectedType
     match expectedType.getAppFn with
-    | Expr.const constName _ _ => pure constName
+    | Expr.const constName _ _ => return (constName, expectedType)
     | _                        => useSource ()
 where
   throwUnknownExpectedType :=
@@ -782,9 +782,9 @@ def propagate (struct : Struct) : TermElabM Unit :=
 end DefaultFields
 
 private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (source : Source) : TermElabM Expr := do
-  let structName ← getStructName stx expectedType? source
+  let (structName, structType) ← getStructName stx expectedType? source
   unless isStructureLike (← getEnv) structName do
-    throwError "invalid \{...} notation, '{structName}' is not a structure"
+    throwError "invalid \{...} notation, structure type expected{indentExpr structType}"
   match mkStructView stx structName source with
   | Except.error ex  => throwError ex
   | Except.ok struct =>

@@ -147,6 +147,9 @@ def basicFun : Parser := nodeWithAntiquot "basicFun" `Lean.Parser.Term.basicFun 
 def optExprPrecedence := optional (atomic ":" >> termParser maxPrec)
 @[builtinTermParser] def «parser!»  := parser!:leadPrec "parser! " >> optExprPrecedence >> termParser
 @[builtinTermParser] def «tparser!» := parser!:leadPrec "tparser! " >> optExprPrecedence >> termParser
+@[builtinTermParser] def «leading_parser»  := parser!:leadPrec "leading_parser " >> optExprPrecedence >> termParser
+@[builtinTermParser] def «trailing_parser» := parser!:leadPrec "trailing_parser " >> optExprPrecedence >> termParser
+
 @[builtinTermParser] def borrowed   := parser! "@&" >> termParser leadPrec
 @[builtinTermParser] def quotedName := parser! nameLit
 @[builtinTermParser] def doubleQuotedName := parser! "`" >> checkNoWsBefore >> nameLit

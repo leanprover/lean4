@@ -100,7 +100,7 @@ instance : ShiftRight (Fin n) where
 instance : HMod (Fin n) Nat (Fin n) where
   hMod := Fin.modn
 
-instance : OfNat (Fin (noindex! (n+1))) i where
+instance : OfNat (Fin (no_index (n+1))) i where
   ofNat := Fin.ofNat i
 
 theorem vneOfNe {i j : Fin n} (h : i ≠ j) : val i ≠ val j :=

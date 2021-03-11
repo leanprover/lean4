@@ -495,7 +495,7 @@ namespace Lean
 class Eval (α : Type u) where
   -- We default `hideUnit` to `true`, but set it to `false` in the direct call from `#eval`
   -- so that `()` output is hidden in chained instances such as for some `m Unit`.
-  -- We take `Unit → α` instead of `α` because ‵α` may contain effectful debugging primitives (e.g., `dbgTrace!`)
+  -- We take `Unit → α` instead of `α` because ‵α` may contain effectful debugging primitives (e.g., `dbg_trace`)
   eval : (Unit → α) → forall (hideUnit : optParam Bool true), IO Unit
 
 instance [ToString α] : Eval α :=

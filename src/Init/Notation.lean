@@ -89,18 +89,18 @@ infix:50 " ~= " => HEq
 infix:50 " ≅ "  => HEq
 /-
   Remark: the infix commands above ensure a delaborator is generated for each relations.
-  We redefine the macros below to be able to use the auxiliary `binrel!` elaboration helper for binary relations.
-  It has better support for applying coercions. For example, suppose we have `binrel! Eq n i` where `n : Nat` and
+  We redefine the macros below to be able to use the auxiliary `binrel%` elaboration helper for binary relations.
+  It has better support for applying coercions. For example, suppose we have `binrel% Eq n i` where `n : Nat` and
   `i : Int`. The default elaborator fails because we don't have a coercion from `Int` to `Nat`, but
-  `binrel!` succeeds because it also tries a coercion from `Nat` to `Int` even when the nat occurs before the int. -/
-macro_rules | `($x <= $y) => `(binrel! HasLessEq.LessEq $x $y)
-macro_rules | `($x ≤ $y)  => `(binrel! HasLessEq.LessEq $x $y)
-macro_rules | `($x < $y)  => `(binrel! HasLess.Less $x $y)
-macro_rules | `($x > $y)  => `(binrel! Greater $x $y)
-macro_rules | `($x >= $y) => `(binrel! GreaterEq $x $y)
-macro_rules | `($x ≥ $y)  => `(binrel! GreaterEq $x $y)
-macro_rules | `($x = $y)  => `(binrel! Eq $x $y)
-macro_rules | `($x == $y) => `(binrel! BEq.beq $x $y)
+  `binrel%` succeeds because it also tries a coercion from `Nat` to `Int` even when the nat occurs before the int. -/
+macro_rules | `($x <= $y) => `(binrel% HasLessEq.LessEq $x $y)
+macro_rules | `($x ≤ $y)  => `(binrel% HasLessEq.LessEq $x $y)
+macro_rules | `($x < $y)  => `(binrel% HasLess.Less $x $y)
+macro_rules | `($x > $y)  => `(binrel% Greater $x $y)
+macro_rules | `($x >= $y) => `(binrel% GreaterEq $x $y)
+macro_rules | `($x ≥ $y)  => `(binrel% GreaterEq $x $y)
+macro_rules | `($x = $y)  => `(binrel% Eq $x $y)
+macro_rules | `($x == $y) => `(binrel% BEq.beq $x $y)
 
 infixr:35 " /\\ " => And
 infixr:35 " ∧ "   => And

@@ -1,8 +1,8 @@
-
+--
 
 def run1 (i : Nat) (n : Nat) (xs : List Nat) : Nat :=
 n.repeat (fun r =>
-  dbgTrace! ">> [{i}] {r}";
+  dbg_trace ">> [{i}] {r}";
   xs.foldl (fun a b => a + b) r)
 0
 

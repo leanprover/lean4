@@ -1,13 +1,13 @@
 @[noinline] def c1 (x : Nat) : Bool :=
-  dbgTrace! "executed c1"
+  dbg_trace "executed c1"
   x == 0
 
 @[noinline] def c2 (x : Nat) : Bool :=
-  dbgTrace! "executed c2"
+  dbg_trace "executed c2"
   x == 0
 
 @[noinline] def c3 (x : Nat) : Bool :=
-  dbgTrace! "executed c3"
+  dbg_trace "executed c3"
   x > 0
 
 @[noinline] def f (x : Nat) := x + 1

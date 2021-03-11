@@ -1,6 +1,6 @@
-PANIC at f dbgMacros:4:14: unexpected zero
-PANIC at g dbgMacros:12:14: unreachable code has been reached
-PANIC at h dbgMacros:18:0: assertion violation: x != 0
+PANIC at f dbgMacros:2:14: unexpected zero
+PANIC at g dbgMacros:10:14: unreachable code has been reached
+PANIC at h dbgMacros:16:0: assertion violation: x != 0
 0
 9
 0

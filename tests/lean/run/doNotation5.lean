@@ -1,5 +1,3 @@
-
-
 abbrev M := ExceptT String $ ExceptT Nat $ StateM Nat
 
 def inc (x : Nat) : M Unit := do
@@ -18,10 +16,10 @@ try
   dec y
   get
 catch ex : String =>
-  dbgTrace! "string exception {ex}"
+  dbg_trace "string exception {ex}"
   pure 1000
 catch ex : Nat =>
-  dbgTrace! "nat exception {ex}"
+  dbg_trace "nat exception {ex}"
   pure ex
 
 #eval (f 10 20).run 1000

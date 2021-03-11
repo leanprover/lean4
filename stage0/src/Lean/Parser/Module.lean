@@ -10,15 +10,15 @@ namespace Lean
 namespace Parser
 
 namespace Module
-def «prelude»  := parser! "prelude"
-def «import»   := parser! "import " >> optional "runtime" >> ident
-def header     := parser! optional («prelude» >> ppLine) >> many («import» >> ppLine) >> ppLine
+def «prelude»  := leading_parser "prelude"
+def «import»   := leading_parser "import " >> optional "runtime" >> ident
+def header     := leading_parser optional («prelude» >> ppLine) >> many («import» >> ppLine) >> ppLine
 /--
   Parser for a Lean module. We never actually run this parser but instead use the imperative definitions below that
   return the same syntax tree structure, but add error recovery. Still, it is helpful to have a `Parser` definition
   for it in order to auto-generate helpers such as the pretty printer. -/
 @[runBuiltinParserAttributeHooks]
-def module     := parser! header >> many (commandParser >> ppLine >> ppLine)
+def module     := leading_parser header >> many (commandParser >> ppLine >> ppLine)
 
 def updateTokens (c : ParserContext) : ParserContext :=
   { c with

@@ -19,7 +19,7 @@ private def checkUnusedIds (mvarId : MVarId) (unusedIds : List Name) : MetaM Uni
     Meta.throwTacticEx `injection mvarId m!"too many identifiers provided, unused: {unusedIds}"
 
 @[builtinTactic «injection»] def evalInjection : Tactic := fun stx => do
-  -- parser! nonReservedSymbol "injection " >> termParser >> withIds
+  -- leading_parser nonReservedSymbol "injection " >> termParser >> withIds
   let fvarId ← elabAsFVar stx[1]
   let ids := getInjectionNewIds stx[2]
   liftMetaTactic fun mvarId => do

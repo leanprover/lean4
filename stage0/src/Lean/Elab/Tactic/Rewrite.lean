@@ -75,8 +75,8 @@ def evalRewriteCore (mode : TransparencyMode) : Tactic := fun stx => do
 
 /-
 ```
-def rwRule    := parser! optional (unicodeSymbol "←" "<-") >> termParser
-def «rewrite» := parser! "rewrite" >> rwRule >> optional location
+def rwRule    := leading_parser optional (unicodeSymbol "←" "<-") >> termParser
+def «rewrite» := leading_parser "rewrite" >> rwRule >> optional location
 ```
 -/
 @[builtinTactic Lean.Parser.Tactic.rewrite] def evalRewrite : Tactic :=

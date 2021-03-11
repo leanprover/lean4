@@ -109,11 +109,11 @@ def compileCategoryParser {α} (ctx : Context α) (declName : Name) (builtin : B
   let (Expr.const c' _ _) ← (compileParserExpr ctx (mkConst declName) (force := false)).run'
     | unreachable!
   -- We assume that for tagged parsers, the kind is equal to the declaration name. This is automatically true for parsers
-  -- using `parser!` or `syntax`.
+  -- using `leading_parser` or `syntax`.
   let kind := declName
   let attrName := if builtin then ctx.categoryAttr.defn.builtinName else ctx.categoryAttr.defn.name
   -- Create syntax node for a simple attribute of the form
-  -- `def simple := parser! ident >> optional (ident <|> priorityParser)`
+  -- `def simple := leading_parser ident >> optional (ident <|> priorityParser)`
   let stx := Syntax.node `Lean.Parser.Attr.simple #[
     mkIdent attrName,
     mkNullNode #[mkIdent kind]

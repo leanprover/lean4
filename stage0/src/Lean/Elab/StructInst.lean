@@ -86,7 +86,7 @@ private def getStructSource (stx : Syntax) : TermElabM Source :=
 /-
   We say a `{ ... }` notation is a `modifyOp` if it contains only one
   ```
-  def structInstArrayRef := parser! "[" >> termParser >>"]"
+  def structInstArrayRef := leading_parser "[" >> termParser >>"]"
   ```
 -/
 private def isModifyOp? (stx : Syntax) : TermElabM (Option Syntax) := do
@@ -95,8 +95,8 @@ private def isModifyOp? (stx : Syntax) : TermElabM (Option Syntax) := do
     let arg := p[0]
     /- Remark: the syntax for `structInstField` is
        ```
-       def structInstLVal   := parser! (ident <|> numLit <|> structInstArrayRef) >> many (group ("." >> (ident <|> numLit)) <|> structInstArrayRef)
-       def structInstField  := parser! structInstLVal >> " := " >> termParser
+       def structInstLVal   := leading_parser (ident <|> numLit <|> structInstArrayRef) >> many (group ("." >> (ident <|> numLit)) <|> structInstArrayRef)
+       def structInstField  := leading_parser structInstLVal >> " := " >> termParser
        ```
     -/
     let lval := arg[0]
@@ -255,9 +255,9 @@ instance : ToString (Field Struct) := ⟨toString ∘ format⟩
 /-
 Recall that `structInstField` elements have the form
 ```
-   def structInstField  := parser! structInstLVal >> " := " >> termParser
-   def structInstLVal   := parser! (ident <|> numLit <|> structInstArrayRef) >> many (("." >> (ident <|> numLit)) <|> structInstArrayRef)
-   def structInstArrayRef := parser! "[" >> termParser >>"]"
+   def structInstField  := leading_parser structInstLVal >> " := " >> termParser
+   def structInstLVal   := leading_parser (ident <|> numLit <|> structInstArrayRef) >> many (("." >> (ident <|> numLit)) <|> structInstArrayRef)
+   def structInstArrayRef := leading_parser "[" >> termParser >>"]"
 ```
 -/
 -- Remark: this code relies on the fact that `expandStruct` only transforms `fieldLHS.fieldName`
@@ -293,7 +293,7 @@ private def toFieldLHS (stx : Syntax) : Except String FieldLHS :=
 private def mkStructView (stx : Syntax) (structName : Name) (source : Source) : Except String Struct := do
   /- Recall that `stx` is of the form
      ```
-     parser! "{" >> optional (atomic (termParser >> " with "))
+     leading_parser "{" >> optional (atomic (termParser >> " with "))
                  >> manyIndent (group (structInstField >> optional ", "))
                  >> optional ".."
                  >> optional (" : " >> termParser)

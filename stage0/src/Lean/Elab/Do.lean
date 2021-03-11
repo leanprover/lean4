@@ -559,12 +559,12 @@ def getLetDeclVars (letDecl : Syntax) : TermElabM (Array Name) := do
     throwError "unexpected kind of let declaration"
 
 def getDoLetVars (doLet : Syntax) : TermElabM (Array Name) :=
-  -- parser! "let " >> optional "mut " >> letDecl
+  -- leading_parser "let " >> optional "mut " >> letDecl
   getLetDeclVars doLet[2]
 
 def getDoHaveVar (doHave : Syntax) : Name :=
   /-
-    `parser! "have " >> Term.haveDecl`
+    `leading_parser "have " >> Term.haveDecl`
     where
     ```
     haveDecl := optIdent >> termParser >> (haveAssign <|> fromTerm <|> byTactic)
@@ -597,7 +597,7 @@ def getDoPatDeclVars (doPatDecl : Syntax) : TermElabM (Array Name) := do
   let pattern := doPatDecl[0]
   getPatternVarsEx pattern
 
--- parser! "let " >> optional "mut " >> (doIdDecl <|> doPatDecl)
+-- leading_parser "let " >> optional "mut " >> (doIdDecl <|> doPatDecl)
 def getDoLetArrowVars (doLetArrow : Syntax) : TermElabM (Array Name) := do
   let decl := doLetArrow[2]
   if decl.getKind == `Lean.Parser.Term.doIdDecl then
@@ -921,10 +921,10 @@ def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := withRef decl <| withFr
 def reassignToTerm (reassign : Syntax) (k : Syntax) : MacroM Syntax := withRef reassign <| withFreshMacroScope do
   let kind := reassign.getKind
   if kind == `Lean.Parser.Term.doReassign then
-    -- doReassign := parser! (letIdDecl <|> letPatDecl)
+    -- doReassign := leading_parser (letIdDecl <|> letPatDecl)
     let arg := reassign[0]
     if arg.getKind == `Lean.Parser.Term.letIdDecl then
-      -- letIdDecl := parser! ident >> many (ppSpace >> bracketedBinder) >> optType >>  " := " >> termParser
+      -- letIdDecl := leading_parser ident >> many (ppSpace >> bracketedBinder) >> optType >>  " := " >> termParser
       let x   := arg[0]
       let val := arg[4]
       let newVal ← `(ensureTypeOf! $x $(quote "invalid reassignment, value") $val)
@@ -1207,8 +1207,8 @@ mutual
      ```
      where
      ```
-     def doIdDecl   := parser! ident >> optType >> leftArrow >> doElemParser
-     def doPatDecl  := parser! termParser >> leftArrow >> doElemParser >> optional (" | " >> doElemParser)
+     def doIdDecl   := leading_parser ident >> optType >> leftArrow >> doElemParser
+     def doPatDecl  := leading_parser termParser >> leftArrow >> doElemParser >> optional (" | " >> doElemParser)
      ```
   -/
   partial def doLetArrowToCode (doLetArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
@@ -1304,8 +1304,8 @@ mutual
   /- Generate `CodeBlock` for `doFor; doElems`
      `doFor` is of the form
      ```
-     def doForDecl := parser! termParser >> " in " >> withForbidden "do" termParser
-     def doFor := parser! "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+     def doForDecl := leading_parser termParser >> " in " >> withForbidden "do" termParser
+     def doFor := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
      ```
   -/
   partial def doForToCode (doFor : Syntax) (doElems : List Syntax) : M CodeBlock := do
@@ -1391,10 +1391,10 @@ mutual
   /--
     Generate `CodeBlock` for `doTry; doElems`
     ```
-    def doTry := parser! "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
-    def doCatch      := parser! "catch " >> binderIdent >> optional (":" >> termParser) >> darrow >> doSeq
-    def doCatchMatch := parser! "catch " >> doMatchAlts
-    def doFinally    := parser! "finally " >> doSeq
+    def doTry := leading_parser "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
+    def doCatch      := leading_parser "catch " >> binderIdent >> optional (":" >> termParser) >> darrow >> doSeq
+    def doCatchMatch := leading_parser "catch " >> doMatchAlts
+    def doFinally    := leading_parser "finally " >> doSeq
     ```
   -/
   partial def doTryToCode (doTry : Syntax) (doElems: List Syntax) : M CodeBlock := do

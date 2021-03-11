@@ -28,7 +28,7 @@ constructing and deconstructing countless monadic return values. Instead of expl
 push (zero or more of) them onto a syntax stack inside the linear state. Chaining parsers via `>>` accumulates their
 output on the stack. Combinators such as `node` then pop off all syntax objects produced during their invocation and
 wrap them in a single `Syntax.node` object that is again pushed on this stack. Instead of calling `node` directly, we
-usually use the macro `parser! p`, which unfolds to `node k p` where the new syntax node kind `k` is the name of the
+usually use the macro `leading_parser p`, which unfolds to `node k p` where the new syntax node kind `k` is the name of the
 declaration being defined.
 
 The lack of a dedicated lexer ensures we can modify and replace the lexical grammar at any point, and simplifies

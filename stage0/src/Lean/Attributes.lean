@@ -182,11 +182,11 @@ def Attribute.erase (declName : Name) (attrName : Name) : AttrM Unit := do
   Helper methods for decoding the parameters of builtin attributes that are defined before `Lean.Parser`.
   We have the following ones:
   ```
-  @[builtinAttrParser] def simple     := parser! ident >> optional ident >> optional priorityParser
+  @[builtinAttrParser] def simple     := leading_parser ident >> optional ident >> optional priorityParser
   /- We can't use `simple` for `class`, `instance`, `export` and `macro` because they are  keywords. -/
-  @[builtinAttrParser] def «class»    := parser! "class"
-  @[builtinAttrParser] def «instance» := parser! "instance" >> optional priorityParser
-  @[builtinAttrParser] def «macro»    := parser! "macro " >> ident
+  @[builtinAttrParser] def «class»    := leading_parser "class"
+  @[builtinAttrParser] def «instance» := leading_parser "instance" >> optional priorityParser
+  @[builtinAttrParser] def «macro»    := leading_parser "macro " >> ident
   ```
   Note that we need the parsers for `class`, `instance`, and `macros` because they are keywords.
 -/

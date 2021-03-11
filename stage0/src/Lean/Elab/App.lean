@@ -890,7 +890,7 @@ partial def expandApp (stx : Syntax) (pattern := false) : TermElabM (Syntax × A
       (args, false)
   let (namedArgs, args) ← args.foldlM (init := (#[], #[])) fun (namedArgs, args) stx => do
     if stx.getKind == `Lean.Parser.Term.namedArgument then
-      -- tparser! try ("(" >> ident >> " := ") >> termParser >> ")"
+      -- trailing_tparser try ("(" >> ident >> " := ") >> termParser >> ")"
       let name := stx[1].getId.eraseMacroScopes
       let val  := stx[3]
       let namedArgs ← addNamedArg namedArgs { ref := stx, name := name, val := Arg.stx val }

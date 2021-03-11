@@ -58,7 +58,7 @@ open Meta
 
 private def elabParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax := do
   let (some declName) ← getDeclName?
-    | throwError "invalid `parser!` macro, it must be used in definitions"
+    | throwError "invalid `leading_parser` macro, it must be used in definitions"
   match extractMacroScopes declName with
   | { name := Name.str _ s _, scopes :=  scps, .. } =>
     let kind := quote declName
@@ -70,13 +70,7 @@ private def elabParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax :
     else
       -- if the parser decl is hidden by hygiene, it doesn't make sense to provide an antiquotation kind
       `(OrElse.orElse (Lean.Parser.mkAntiquot $s none) $p)
-  | _  => throwError "invalid `parser!` macro, unexpected declaration name"
-
-@[builtinTermElab «parser!»] def elabParserMacro : TermElab :=
-  adaptExpander fun stx => match stx with
-  | `(parser! $e)         => elabParserMacroAux (quote Parser.maxPrec) e
-  | `(parser! : $prec $e) => elabParserMacroAux prec e
-  | _                     => throwUnsupportedSyntax
+  | _  => throwError "invalid `leading_parser` macro, unexpected declaration name"
 
 @[builtinTermElab «leading_parser»] def elabLeadingParserMacro : TermElab :=
   adaptExpander fun stx => match stx with
@@ -88,13 +82,7 @@ private def elabTParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax 
   let declName? ← getDeclName?
   match declName? with
   | some declName => let kind := quote declName; `(Lean.Parser.trailingNode $kind $prec $e)
-  | none          => throwError "invalid `tparser!` macro, it must be used in definitions"
-
-@[builtinTermElab «tparser!»] def elabTParserMacro : TermElab :=
-  adaptExpander fun stx => match stx with
-  | `(tparser! $e)         => elabTParserMacroAux (quote Parser.maxPrec) e
-  | `(tparser! : $prec $e) => elabTParserMacroAux prec e
-  | _                      => throwUnsupportedSyntax
+  | none          => throwError "invalid `trailing_parser` macro, it must be used in definitions"
 
 @[builtinTermElab «trailing_parser»] def elabTrailingParserMacro : TermElab :=
   adaptExpander fun stx => match stx with

@@ -39,7 +39,7 @@ namespace Elab
 def expandOptDeclSig (stx : Syntax) : Syntax × Option Syntax :=
   -- many Term.bracketedBinder >> Term.optType
   let binders := stx[0]
-  let optType := stx[1] -- optional (parser! " : " >> termParser)
+  let optType := stx[1] -- optional (leading_parser " : " >> termParser)
   if optType.isNone then
     (binders, none)
   else

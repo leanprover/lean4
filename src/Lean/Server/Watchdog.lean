@@ -389,6 +389,7 @@ section MessageHandling
     | "textDocument/documentHighlight"    => handle DocumentHighlightParams
     | "textDocument/documentSymbol"       => handle DocumentSymbolParams
     | "textDocument/semanticTokens/range" => handle SemanticTokensRangeParams
+    | "textDocument/semanticTokens/full"  => handle SemanticTokensParams
     | "$/lean/plainGoal"                  => handle PlainGoalParams
     | _                                   =>
       (←read).hOut.writeLspResponseError
@@ -506,7 +507,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
       tokenTypes     := SemanticTokenType.names
       tokenModifiers := #[]
     }
-    full  := false
+    full  := true
     range := true
   }
 }

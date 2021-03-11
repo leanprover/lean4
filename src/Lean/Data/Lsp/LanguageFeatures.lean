@@ -200,6 +200,10 @@ structure SemanticTokensOptions where
   } -/
   deriving FromJson, ToJson
 
+structure SemanticTokensParams where
+  textDocument : TextDocumentIdentifier
+  deriving FromJson, ToJson
+
 structure SemanticTokensRangeParams where
   textDocument : TextDocumentIdentifier
   range : Range

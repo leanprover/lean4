@@ -61,6 +61,9 @@ instance DocumentHighlightParams.hasFileSource : FileSource DocumentHighlightPar
 instance DocumentSymbolParams.hasFileSource : FileSource DocumentSymbolParams :=
   ⟨fun p => fileSource p.textDocument⟩
 
+instance SemanticTokensParams.hasFileSource : FileSource SemanticTokensParams :=
+  ⟨fun p => fileSource p.textDocument⟩
+
 instance SemanticTokensRangeParams.hasFileSource : FileSource SemanticTokensRangeParams :=
   ⟨fun p => fileSource p.textDocument⟩
 

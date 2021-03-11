@@ -266,7 +266,7 @@ structure Rational where
   inv : den ≠ 0
 
 instance : OfNat Rational n where
-  ofNat := { num := n, den := 1, inv := decide! }
+  ofNat := { num := n, den := 1, inv := by decide }
 
 instance : ToString Rational where
   toString r := s!"{r.num}/{r.den}"
@@ -417,7 +417,7 @@ structure Rational where
 
 @[defaultInstance 1]
 instance : OfNat Rational n where
-  ofNat := { num := n, den := 1, inv := decide! }
+  ofNat := { num := n, den := 1, inv := by decide }
 
 instance : ToString Rational where
   toString r := s!"{r.num}/{r.den}"

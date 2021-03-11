@@ -593,12 +593,6 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
 @[builtinTermElab «let»] def elabLetDecl : TermElab :=
   fun stx expectedType? => elabLetDeclCore stx expectedType? true false
 
-@[builtinTermElab «let!»] def elabLetBangDecl : TermElab :=
-  fun stx expectedType? => elabLetDeclCore stx expectedType? false false
-
-@[builtinTermElab «let*»] def elabLetStarDecl : TermElab :=
-  fun stx expectedType? => elabLetDeclCore stx expectedType? true true
-
 @[builtinTermElab «let_fun»] def elabLetFunDecl : TermElab :=
   fun stx expectedType? => elabLetDeclCore stx expectedType? false false
 

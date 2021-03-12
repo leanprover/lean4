@@ -223,7 +223,7 @@ def Attribute.Builtin.getId? (stx : Syntax) : AttrM (Option Name) := do
 
 def getAttrParamOptPrio (optPrioStx : Syntax) : AttrM Nat :=
   if optPrioStx.isNone then
-    return evalPrio! default
+    return eval_prio default
   else match optPrioStx[0].isNatLit? with
     | some prio => return prio
     | none => throwErrorAt optPrioStx "priority expected"

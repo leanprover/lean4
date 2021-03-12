@@ -26,9 +26,10 @@ macro "(" p:prec ")" : prec => p
 macro "min"  : prec => `(10)   -- minimum precedence used in term parsers
 macro "min1" : prec => `(11)   -- `(min+1) we can only `min+1` after `Meta.lean`
 /-
-  `max:prec` as a term. It is equivalent to `evalPrec! max` for `evalPrec!` defined at `Meta.lean`.
-  We use `maxPrec!` to workaround bootstrapping issues. -/
+  `max:prec` as a term. It is equivalent to `eval_prec max` for `eval_prec` defined at `Meta.lean`.
+  We use `max_prec` to workaround bootstrapping issues. -/
 macro "maxPrec!" : term => `(1024)
+macro "max_prec" : term => `(1024)
 
 macro "default" : prio => `(1000)
 macro "low"     : prio => `(100)
@@ -57,7 +58,7 @@ macro:max x:stx ",+,?" : stx => `(stx| sepBy1($x, ",", ", ", allowTrailingSep))
 
 macro "!" x:stx : stx => `(stx| notFollowedBy($x))
 
-syntax (name := rawNatLit) "natLit! " num : term
+syntax (name := rawNatLit) "nat_lit " num : term
 
 infixr:90 " ∘ "  => Function.comp
 infixr:35 " × "  => Prod
@@ -163,10 +164,10 @@ macro_rules
   | `({ $x // $p })         => `(Subtype (fun ($x:ident : _) => $p))
 
 /-
-  `withoutExpected! t` instructs Lean to elaborate `t` without an expected type.
+  `without_expected_type t` instructs Lean to elaborate `t` without an expected type.
   Recall that terms such as `match ... with ...` and `⟨...⟩` will postpone elaboration until
-  expected type is known. So, `withoutExpected!` is not effective in this case. -/
-macro "withoutExpectedType! " x:term : term => `(let aux := $x; aux)
+  expected type is known. So, `without_expected_type` is not effective in this case. -/
+macro "without_expected_type " x:term : term => `(let aux := $x; aux)
 
 syntax "[" term,* "]"  : term
 syntax "%[" term,* "|" term "]" : term -- auxiliary notation for creating big list literals
@@ -198,6 +199,7 @@ syntax (name := apply) "apply " term : tactic
 syntax (name := exact) "exact " term : tactic
 syntax (name := refine) "refine " term : tactic
 syntax (name := refine!) "refine! " term : tactic
+syntax (name := refine') "refine' " term : tactic
 syntax (name := case) "case " ident " => " tacticSeq : tactic
 syntax (name := allGoals) "allGoals " tacticSeq : tactic
 syntax (name := focus) "focus " tacticSeq : tactic

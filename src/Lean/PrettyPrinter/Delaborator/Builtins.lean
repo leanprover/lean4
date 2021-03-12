@@ -40,8 +40,8 @@ def delabSort : Delab := do
   | Level.zero _ => `(Prop)
   | Level.succ (Level.zero _) _ => `(Type)
   | _ => match l.dec with
-    | some l' => `(Type $(Level.quote l' maxPrec!))
-    | none    => `(Sort $(Level.quote l maxPrec!))
+    | some l' => `(Type $(Level.quote l' max_prec))
+    | none    => `(Sort $(Level.quote l max_prec))
 
 -- find shorter names for constants, in reverse to Lean.Elab.ResolveName
 

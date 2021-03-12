@@ -29,7 +29,7 @@ namespace Elab
 
 def expandOptNamedPrio (stx : Syntax) : MacroM Nat :=
   if stx.isNone then
-    return evalPrio! default
+    return eval_prio default
   else match stx[0] with
     | `(Parser.Command.namedPrio| (priority := $prio)) => evalPrio prio
     | _ => Macro.throwUnsupported

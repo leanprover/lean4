@@ -467,7 +467,7 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
                 safety      := DefinitionSafety.safe
                 hints       := ReducibilityHints.abbrev
               }
-              addInstance instDeclName AttributeKind.global (evalPrio! default)
+              addInstance instDeclName AttributeKind.global (eval_prio default)
       if genSizeOfSpec.get (← getOptions) then
         mkSizeOfSpecTheorems indInfo.all.toArray fns recMap
 

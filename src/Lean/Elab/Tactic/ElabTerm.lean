@@ -78,6 +78,11 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
   | `(tactic| refine! $e) => refineCore e `refine (allowNaturalHoles := true)
   | _                     => throwUnsupportedSyntax
 
+@[builtinTactic «refine'»] def evalRefine' : Tactic := fun stx =>
+  match stx with
+  | `(tactic| refine' $e) => refineCore e `refine' (allowNaturalHoles := true)
+  | _                     => throwUnsupportedSyntax
+
 def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syntax) : TacticM Unit := do
   let (g, gs) ← getMainGoal
   let gs' ← withMVarContext g do

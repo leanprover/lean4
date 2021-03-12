@@ -25,7 +25,7 @@ abbrev reprStr [Repr α] (a : α) : String :=
   reprPrec a 0 |>.pretty
 
 abbrev reprArg [Repr α] (a : α) : Format :=
-  reprPrec a maxPrec!
+  reprPrec a max_prec
 
 /- Auxiliary class for marking types that should be considered atomic by `Repr` methods.
    We use it at `Repr (List α)` to decide whether `bracketFill` should be used or not. -/
@@ -44,7 +44,7 @@ instance : Repr Bool where
     | false, _ => "false"
 
 def Repr.addAppParen (f : Format) (prec : Nat) : Format :=
-  if prec >= maxPrec! then
+  if prec >= max_prec then
     Format.paren f
   else
     f

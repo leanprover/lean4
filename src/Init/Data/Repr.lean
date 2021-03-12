@@ -204,8 +204,7 @@ instance : Repr Substring where
   reprPrec s _ := Format.text <| String.quote s.toString ++ ".toSubstring"
 
 instance : Repr String.Iterator where
-  reprPrec | ⟨s, pos⟩, prec =>
-    Repr.addAppParen ("String.Iterator.mk " ++ reprArg s ++ " " ++ reprArg pos) prec
+  reprPrec | ⟨s, pos⟩, prec => Repr.addAppParen ("String.Iterator.mk " ++ reprArg s ++ " " ++ reprArg pos) prec
 
 instance (n : Nat) : Repr (Fin n) where
   reprPrec f _ := repr f.val

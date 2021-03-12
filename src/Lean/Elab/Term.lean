@@ -1370,7 +1370,9 @@ private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr :=
   let typeMVar ← mkFreshTypeMVarFor expectedType?
   let u ← getDecLevel typeMVar
   let mvar ← mkInstMVar (mkApp2 (Lean.mkConst `OfNat [u]) typeMVar (mkNatLit val))
-  return mkApp3 (Lean.mkConst `OfNat.ofNat [u]) typeMVar (mkNatLit val) mvar
+  let r := mkApp3 (Lean.mkConst `OfNat.ofNat [u]) typeMVar (mkNatLit val) mvar
+  registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
+  return r
 
 @[builtinTermElab rawNatLit] def elabRawNatLit : TermElab :=  fun stx expectedType? => do
   match stx[1].isNatLit? with

@@ -179,8 +179,7 @@ def checkAndReplaceFVarId (fvarId : FVarId) (v : Expr) (alt : Alt) : MetaM Alt :
     unless (← isDefEqGuarded fvarDecl.type vType) do
       withExistingLocalDecls alt.fvarDecls do
         let (expectedType, givenType) ← addPPExplicitToExposeDiff vType fvarDecl.type
-        throwErrorAt alt.ref $
-          m!"type mismatch during dependent match-elimination at pattern variable '{mkFVar fvarDecl.fvarId}' with type{indentExpr givenType}\nexpected type{indentExpr expectedType}"
+        throwErrorAt alt.ref "type mismatch during dependent match-elimination at pattern variable '{mkFVar fvarDecl.fvarId}' with type{indentExpr givenType}\nexpected type{indentExpr expectedType}"
     pure $ replaceFVarId fvarId v alt
 
 end Alt

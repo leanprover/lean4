@@ -128,7 +128,7 @@ where
   simpLoop (r : Result) : M Result := do
     let cfg ← getConfig
     if (← get).numSteps > cfg.maxSteps then
-      throwError! "simp failed, maximum number of steps exceeded"
+      throwError "simp failed, maximum number of steps exceeded"
     else
       let init := r.expr
       modify fun s => { s with numSteps := s.numSteps + 1 }

@@ -264,7 +264,7 @@ def elabMutual : CommandElab := fun stx => do
     if attrKindStx.getKind == ``Lean.Parser.Command.eraseAttr then
       let attrName := attrKindStx[1].getId.eraseMacroScopes
       unless isAttribute (← getEnv) attrName do
-        throwError! "unknown attribute [{attrName}]"
+        throwError "unknown attribute [{attrName}]"
       toErase := toErase.push attrName
     else
       attrInsts := attrInsts.push attrKindStx

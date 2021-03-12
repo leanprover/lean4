@@ -48,7 +48,7 @@ def decLevel? (u : Level) : MetaM (Option Level) := do
 def decLevel (u : Level) : MetaM Level := do
   match (← decLevel? u) with
   | some u => return u
-  | none   => throwError! "invalid universe level, {u} is not greater than 0"
+  | none   => throwError "invalid universe level, {u} is not greater than 0"
 
 /- This method is useful for inferring universe level parameters for function that take arguments such as `{α : Type u}`.
    Recall that `Type u` is `Sort (u+1)` in Lean. Thus, given `α`, we must infer its universe level,
@@ -81,8 +81,8 @@ private def solveSelfMax (mvarId : MVarId) (v : Level) : MetaM Unit := do
   let n ← mkFreshLevelMVar
   assignLevelMVar mvarId <| mkMaxArgsDiff mvarId v n
 
-private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : MetaM Unit :=
-  modifyPostponed fun postponed => postponed.push { lhs := lhs, rhs := rhs }
+private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : MetaM Unit := do
+  modifyPostponed fun postponed => postponed.push { lhs := lhs, rhs := rhs, ref := (← getRef), ctx? := (← read).defEqCtx? }
 
 mutual
 
@@ -158,7 +158,7 @@ private def getNumPostponed : MetaM Nat := do
 
 open Std (PersistentArray)
 
-private def getResetPostponed : MetaM (PersistentArray PostponedEntry) := do
+def getResetPostponed : MetaM (PersistentArray PostponedEntry) := do
   let ps ← getPostponed
   setPostponed {}
   return ps
@@ -167,33 +167,33 @@ private def processPostponedStep : MetaM Bool :=
   traceCtx `Meta.isLevelDefEq.postponed.step do
     let ps ← getResetPostponed
     for p in ps do
-      unless (← isLevelDefEqAux p.lhs p.rhs) do
+      unless (← withReader (fun ctx => { ctx with defEqCtx? := p.ctx? }) <| isLevelDefEqAux p.lhs p.rhs) do
         return false
     return true
 
-private partial def processPostponed (mayPostpone : Bool := true) : MetaM Bool := do
-if (← getNumPostponed) == 0 then
-  return true
-else
-  traceCtx `Meta.isLevelDefEq.postponed do
-    let rec loop : MetaM Bool := do
-      let numPostponed ← getNumPostponed
-      if numPostponed == 0 then
-        return true
-      else
-        trace[Meta.isLevelDefEq.postponed] "processing #{numPostponed} postponed is-def-eq level constraints"
-        if !(← processPostponedStep) then
-          return false
+partial def processPostponed (mayPostpone : Bool := true) : MetaM Bool := do
+  if (← getNumPostponed) == 0 then
+    return true
+  else
+    traceCtx `Meta.isLevelDefEq.postponed do
+      let rec loop : MetaM Bool := do
+        let numPostponed ← getNumPostponed
+        if numPostponed == 0 then
+          return true
         else
-          let numPostponed' ← getNumPostponed
-          if numPostponed' == 0 then
-            return true
-          else if numPostponed' < numPostponed then
-            loop
+          trace[Meta.isLevelDefEq.postponed] "processing #{numPostponed} postponed is-def-eq level constraints"
+          if !(← processPostponedStep) then
+            return false
           else
-            trace[Meta.isLevelDefEq.postponed] "no progress solving pending is-def-eq level constraints"
-            return mayPostpone
-    loop
+            let numPostponed' ← getNumPostponed
+            if numPostponed' == 0 then
+              return true
+            else if numPostponed' < numPostponed then
+              loop
+            else
+              trace[Meta.isLevelDefEq.postponed] "no progress solving pending is-def-eq level constraints"
+              return mayPostpone
+      loop
 
 private def restore (env : Environment) (mctx : MetavarContext) (postponed : PersistentArray PostponedEntry) : MetaM Unit := do
   setEnv env
@@ -226,34 +226,6 @@ private def restore (env : Environment) (mctx : MetavarContext) (postponed : Per
     restore env mctx postponed
     throw ex
 
-private def postponedToMessageData (ps : PersistentArray PostponedEntry) : MessageData := do
-  let mut found : Std.HashSet (Level × Level) := {}
-  let mut r := MessageData.nil
-  for p in ps do
-    let mut lhs := p.lhs
-    let mut rhs := p.rhs
-    if Level.normLt rhs lhs then
-      (lhs, rhs) := (rhs, lhs)
-    unless found.contains (lhs, rhs) do
-      found := found.insert (lhs, rhs)
-      r := m!"{r}\n{lhs} =?= {rhs}"
-  return r
-
-@[specialize] def withoutPostponingUniverseConstraintsImp {α} (x : MetaM α) : MetaM α := do
-  let postponed ← getResetPostponed
-  try
-    let a ← x
-    unless (← processPostponed (mayPostpone := false)) do
-      throwError! "stuck at solving universe constraints{MessageData.nestD (postponedToMessageData (← getPostponed))}"
-    setPostponed postponed
-    return a
-  catch ex =>
-    setPostponed postponed
-    throw ex
-
-@[inline] def withoutPostponingUniverseConstraints {α m} [MonadControlT MetaM m] [Monad m] : m α → m α :=
-  mapMetaM <| withoutPostponingUniverseConstraintsImp
-
 def isLevelDefEq (u v : Level) : MetaM Bool :=
   traceCtx `Meta.isLevelDefEq do
     let b ← commitWhen (mayPostpone := true) <| Meta.isLevelDefEqAux u v
@@ -261,7 +233,7 @@ def isLevelDefEq (u v : Level) : MetaM Bool :=
     return b
 
 def isExprDefEq (t s : Expr) : MetaM Bool :=
-  traceCtx `Meta.isDefEq do
+  traceCtx `Meta.isDefEq <| withReader (fun ctx => { ctx with defEqCtx? := some { lhs := t, rhs := s, lctx := ctx.lctx, localInstances := ctx.localInstances } }) do
     let b ← commitWhen (mayPostpone := true) <| Meta.isExprDefEqAux t s
     trace[Meta.isDefEq] "{t} =?= {s} ... {if b then "success" else "failure"}"
     return b

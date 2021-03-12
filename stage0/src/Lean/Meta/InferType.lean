@@ -67,7 +67,7 @@ where
 namespace Meta
 
 def throwFunctionExpected {α} (f : Expr) : MetaM α :=
-  throwError! "function expected{indentExpr f}"
+  throwError "function expected{indentExpr f}"
 
 private def inferAppType (f : Expr) (args : Array Expr) : MetaM Expr := do
   let mut fType ← inferType f
@@ -84,7 +84,7 @@ private def inferAppType (f : Expr) (args : Array Expr) : MetaM Expr := do
   return fType.instantiateBetaRevRange j args.size args
 
 def throwIncorrectNumberOfLevels {α} (constName : Name) (us : List Level) : MetaM α :=
-  throwError! "incorrect number of universe levels {mkConst constName us}"
+  throwError "incorrect number of universe levels {mkConst constName us}"
 
 private def inferConstType (c : Name) (us : List Level) : MetaM Expr := do
   let cinfo ← getConstInfo c
@@ -95,7 +95,7 @@ private def inferConstType (c : Name) (us : List Level) : MetaM Expr := do
 
 private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Expr := do
   let failed {α} : Unit → MetaM α := fun _ =>
-    throwError! "invalid projection{indentExpr (mkProj structName idx e)}"
+    throwError "invalid projection{indentExpr (mkProj structName idx e)}"
   let structType ← inferType e
   let structType ← whnf structType
   matchConstStruct structType.getAppFn failed fun structVal structLvls ctorVal =>
@@ -119,7 +119,7 @@ private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Exp
       | _                    => failed ()
 
 def throwTypeExcepted {α} (type : Expr) : MetaM α :=
-  throwError! "type expected{indentExpr type}"
+  throwError "type expected{indentExpr type}"
 
 def getLevel (type : Expr) : MetaM Level := do
   let typeType ← inferType type
@@ -157,7 +157,7 @@ private def inferLambdaType (e : Expr) : MetaM Expr :=
       x (mkFVar fvarId)
 
 def throwUnknownMVar {α} (mvarId : MVarId) : MetaM α :=
-  throwError! "unknown metavariable '{mkMVar mvarId}'"
+  throwError "unknown metavariable '{mkMVar mvarId}'"
 
 private def inferMVarType (mvarId : MVarId) : MetaM Expr := do
   match (← getMCtx).findDecl? mvarId with
@@ -185,7 +185,7 @@ def inferTypeImp (e : Expr) : MetaM Expr :=
     | e@(Expr.app f _ _)       => checkInferTypeCache e (inferAppType f.getAppFn e.getAppArgs)
     | Expr.mvar mvarId _       => inferMVarType mvarId
     | Expr.fvar fvarId _       => inferFVarType fvarId
-    | Expr.bvar bidx _         => throwError! "unexpected bound variable {mkBVar bidx}"
+    | Expr.bvar bidx _         => throwError "unexpected bound variable {mkBVar bidx}"
     | Expr.mdata _ e _         => infer e
     | Expr.lit v _             => pure v.type
     | Expr.sort lvl _          => pure $ mkSort (mkLevelSucc lvl)

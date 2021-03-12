@@ -15,15 +15,15 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] (declName 
   let env ← getEnv
   if env.contains declName then
     match privateToUserName? declName with
-    | none          => throwError! "'{declName}' has already been declared"
-    | some declName => throwError! "private declaration '{declName}' has already been declared"
+    | none          => throwError "'{declName}' has already been declared"
+    | some declName => throwError "private declaration '{declName}' has already been declared"
   if env.contains (mkPrivateName env declName) then
-    throwError! "a private declaration '{declName}' has already been declared"
+    throwError "a private declaration '{declName}' has already been declared"
   match privateToUserName? declName with
   | none => pure ()
   | some declName =>
     if env.contains declName then
-      throwError! "a non-private declaration '{declName}' has already been declared"
+      throwError "a non-private declaration '{declName}' has already been declared"
 
 inductive Visibility where
   | regular | «protected» | «private»
@@ -76,7 +76,7 @@ def expandOptDocComment? [Monad m] [MonadError m] (optDocComment : Syntax) : m (
   | none   => pure none
   | some s => match s[1] with
     | Syntax.atom _ val => pure (some (val.extract 0 (val.bsize - 2)))
-    | _                 => throwErrorAt! s "unexpected doc string {s[1]}"
+    | _                 => throwErrorAt s "unexpected doc string {s[1]}"
 
 section Methods
 
@@ -93,7 +93,7 @@ def elabModifiers (stx : Syntax) : m Modifiers := do
     | none   => pure none
     | some s => match s[1] with
       | Syntax.atom _ val => pure (some (val.extract 0 (val.bsize - 2)))
-      | _                 => throwErrorAt! s "unexpected doc string {s[1]}"
+      | _                 => throwErrorAt s "unexpected doc string {s[1]}"
   let visibility ← match visibilityStx.getOptional? with
     | none   => pure Visibility.regular
     | some v =>
@@ -133,7 +133,7 @@ def applyVisibility (visibility : Visibility) (declName : Name) : m Name := do
 def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name) : m (Name × Name) := do
   let name := (extractMacroScopes shortName).name
   unless name.isAtomic || isFreshInstanceName name do
-    throwError! "atomic identifier expected '{shortName}'"
+    throwError "atomic identifier expected '{shortName}'"
   let declName := currNamespace ++ shortName
   let declName ← applyVisibility modifiers.visibility declName
   match modifiers.visibility with

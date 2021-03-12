@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_stringToMessageData(lean_object*);
-lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg___closed__3;
 lean_object* l_Lean_Elab_throwPostpone___rarg(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_Lean_Elab_isAbortExceptionId(lean_object*);
@@ -291,18 +290,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_throwIllFormedSyntax___rarg___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_throwIllFormedSyntax___rarg___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_throwIllFormedSyntax___rarg___closed__2;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
@@ -310,7 +298,7 @@ lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_Lean_Elab_throwIllFormedSyntax___rarg___closed__3;
+x_3 = l_Lean_Elab_throwIllFormedSyntax___rarg___closed__2;
 x_4 = l_Lean_throwError___rarg(x_1, x_2, x_3);
 return x_4;
 }
@@ -690,8 +678,6 @@ l_Lean_Elab_throwIllFormedSyntax___rarg___closed__1 = _init_l_Lean_Elab_throwIll
 lean_mark_persistent(l_Lean_Elab_throwIllFormedSyntax___rarg___closed__1);
 l_Lean_Elab_throwIllFormedSyntax___rarg___closed__2 = _init_l_Lean_Elab_throwIllFormedSyntax___rarg___closed__2();
 lean_mark_persistent(l_Lean_Elab_throwIllFormedSyntax___rarg___closed__2);
-l_Lean_Elab_throwIllFormedSyntax___rarg___closed__3 = _init_l_Lean_Elab_throwIllFormedSyntax___rarg___closed__3();
-lean_mark_persistent(l_Lean_Elab_throwIllFormedSyntax___rarg___closed__3);
 l_Lean_Elab_throwAutoBoundImplicitLocal___rarg___closed__1 = _init_l_Lean_Elab_throwAutoBoundImplicitLocal___rarg___closed__1();
 lean_mark_persistent(l_Lean_Elab_throwAutoBoundImplicitLocal___rarg___closed__1);
 l_Lean_Elab_throwAutoBoundImplicitLocal___rarg___closed__2 = _init_l_Lean_Elab_throwAutoBoundImplicitLocal___rarg___closed__2();

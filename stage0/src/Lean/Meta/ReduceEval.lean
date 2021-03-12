@@ -18,7 +18,7 @@ def reduceEval [ReduceEval α] (e : Expr) : MetaM α :=
   ReduceEval.reduceEval e
 
 private def throwFailedToEval (e : Expr) : MetaM α :=
-  throwError! "reduceEval: failed to evaluate argument{indentExpr e}"
+  throwError "reduceEval: failed to evaluate argument{indentExpr e}"
 
 instance : ReduceEval Nat where
   reduceEval e := do

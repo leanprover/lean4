@@ -21,7 +21,7 @@ def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
   match lctx.find? fvarId with
   | some (LocalDecl.ldecl _ _ n t v _) => do
     let vType ← inferType v
-    throwError! "invalid let declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
+    throwError "invalid let declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
   | _ => unreachable!
 
 private def checkConstant (constName : Name) (us : List Level) : MetaM Unit := do
@@ -130,7 +130,7 @@ def throwAppTypeMismatch {α} (f a : Expr) (extraMsg : MessageData := Format.nil
   unless binfo.isExplicit do
     e := e.setAppPPExplicit
   let aType ← inferType a
-  throwError! "application type mismatch{indentExpr e}\nargument{indentExpr a}\n{← mkHasTypeButIsExpectedMsg aType expectedType}"
+  throwError "application type mismatch{indentExpr e}\nargument{indentExpr a}\n{← mkHasTypeButIsExpectedMsg aType expectedType}"
 
 def checkApp (f a : Expr) : MetaM Unit := do
   let fType ← inferType f

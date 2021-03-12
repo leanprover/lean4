@@ -83,22 +83,22 @@ def mkAuxName [Monad m] [MonadEnv m] (baseName : Name) (idx : Nat) : m Name := d
 def getConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstantInfo := do
   match (← getEnv).find? constName with
   | some info => pure info
-  | none      => throwError! "unknown constant '{mkConst constName}'"
+  | none      => throwError "unknown constant '{mkConst constName}'"
 
 def getConstInfoInduct [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m InductiveVal := do
   match (← getConstInfo constName) with
   | ConstantInfo.inductInfo v => pure v
-  | _                         => throwError! "'{mkConst constName}' is not a inductive type"
+  | _                         => throwError "'{mkConst constName}' is not a inductive type"
 
 def getConstInfoCtor [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstructorVal := do
   match (← getConstInfo constName) with
   | ConstantInfo.ctorInfo v => pure v
-  | _                       => throwError! "'{mkConst constName}' is not a constructor"
+  | _                       => throwError "'{mkConst constName}' is not a constructor"
 
 def getConstInfoRec [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m RecursorVal := do
   match (← getConstInfo constName) with
   | ConstantInfo.recInfo v => pure v
-  | _                      => throwError! "'{mkConst constName}' is not a recursor"
+  | _                      => throwError "'{mkConst constName}' is not a recursor"
 
 @[inline] def matchConstStruct [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (failK : Unit → m α) (k : InductiveVal → List Level → ConstructorVal → m α) : m α :=
   matchConstInduct e failK fun ival us => do
@@ -127,7 +127,7 @@ private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Decla
         && !supportedRecursors.contains declName
       | _ => false
     match unsupportedRecursor? with
-    | some (Expr.const declName ..) => throwError! "code generator does not support recursor '{declName}' yet, consider using 'match ... with' and/or structural recursion"
+    | some (Expr.const declName ..) => throwError "code generator does not support recursor '{declName}' yet, consider using 'match ... with' and/or structural recursion"
     | _ => pure ()
 
 def compileDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : Declaration) : m Unit := do

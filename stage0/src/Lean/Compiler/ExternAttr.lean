@@ -47,7 +47,7 @@ private def syntaxToExternAttrData (stx : Syntax) : AttrM ExternAttrData := do
   for entryStx in entriesStx do
     let backend := if entryStx[0].isNone then `all else entryStx[0][0].getId
     let str ← match entryStx[2].isStrLit? with
-      | none     => throwErrorAt! entryStx[2] "string literal expected"
+      | none     => throwErrorAt entryStx[2] "string literal expected"
       | some str => pure str
     if entryStx[1].isNone then
       entries := entries.push <| ExternEntry.standard backend str

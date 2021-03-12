@@ -29,7 +29,7 @@ def mkBodyForStruct (ctx : Context) (header : Header) (indVal : InductiveVal) : 
     let mut fields : Syntax ← `(Format.nil)
     let mut first := true
     if xs.size != numParams + fieldNames.size then
-      throwError! "'deriving Repr' failed, unexpected number of fields in structure"
+      throwError "'deriving Repr' failed, unexpected number of fields in structure"
     for i in [:fieldNames.size] do
       let fieldName := fieldNames[i]
       let fieldNameLit := Syntax.mkStrLit (toString fieldName)

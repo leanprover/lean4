@@ -38,6 +38,6 @@ def mkInhabitantFor (declName : Name) (xs : Array Expr) (type : Expr) : MetaM Ex
   | none   =>
   match ← mkFnInhabitant? xs type with
   | some val => pure val
-  | none => throwError! "failed to compile partial definition '{declName}', failed to show that type is inhabited"
+  | none => throwError "failed to compile partial definition '{declName}', failed to show that type is inhabited"
 
 end Lean.Elab

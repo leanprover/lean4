@@ -25,7 +25,7 @@ partial def getPatternVars (stx : Syntax) : TermElabM (Array Syntax) :=
     | `(_)            => #[]
     | `($id:ident)    => #[id]
     | `($id:ident@$e) => do (← getPatternVars e).push id
-    | _               => throwErrorAt! stx "unsupported pattern in syntax match{indentD stx}"
+    | _               => throwErrorAt stx "unsupported pattern in syntax match{indentD stx}"
 
 partial def getPatternsVars (pats : Array Syntax) : TermElabM (Array Syntax) :=
   pats.foldlM (fun vars pat => do return vars ++ (← getPatternVars pat)) #[]

@@ -67,7 +67,7 @@ private def hasTypeMsg (e type : Expr) : MessageData :=
   m!"{indentExpr e}\nhas type{indentExpr type}"
 
 private def throwAppBuilderException {α} (op : Name) (msg : MessageData) : MetaM α :=
-  throwError! "AppBuilder for '{op}', {msg}"
+  throwError "AppBuilder for '{op}', {msg}"
 
 def mkEqSymm (h : Expr) : MetaM Expr := do
   if h.isAppOf ``Eq.refl then

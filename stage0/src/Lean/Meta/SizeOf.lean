@@ -162,7 +162,7 @@ def mkSizeOfSpecLemmaName (ctorName : Name) : Name :=
   ctorName ++ `sizeOf_spec
 
 def mkSizeOfSpecLemmaInstance (ctorApp : Expr) : MetaM Expr :=
-  matchConstCtor ctorApp.getAppFn (fun _ => throwError! "failed to apply 'sizeOf' spec, constructor expected{indentExpr ctorApp}") fun ctorInfo ctorLevels => do
+  matchConstCtor ctorApp.getAppFn (fun _ => throwError "failed to apply 'sizeOf' spec, constructor expected{indentExpr ctorApp}") fun ctorInfo ctorLevels => do
     let ctorArgs     := ctorApp.getAppArgs
     let ctorFields   := ctorArgs[ctorArgs.size - ctorInfo.numFields:]
     let lemmaName  := mkSizeOfSpecLemmaName ctorInfo.name
@@ -186,10 +186,10 @@ structure Context where
 abbrev M := ReaderT Context MetaM
 
 def throwUnexpected {α} (msg : MessageData) : M α := do
-  throwError! "failed to generate sizeOf lemma for {(← read).ctorName} (use `set_option genSizeOfSpec false` to disable lemma generation), {msg}"
+  throwError "failed to generate sizeOf lemma for {(← read).ctorName} (use `set_option genSizeOfSpec false` to disable lemma generation), {msg}"
 
 def throwFailed {α} : M α := do
-  throwError! "failed to generate sizeOf lemma for {(← read).ctorName}, (use `set_option genSizeOfSpec false` to disable lemma generation)"
+  throwError "failed to generate sizeOf lemma for {(← read).ctorName}, (use `set_option genSizeOfSpec false` to disable lemma generation)"
 
 /-- Convert a recursor application into a `_sizeOf_<idx>` application. -/
 private def recToSizeOf (e : Expr) : M Expr := do

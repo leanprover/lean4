@@ -53,7 +53,6 @@ lean_object* l_Std_PersistentArray_findSomeMAux___at_Lean_Meta_subst___spec__3__
 lean_object* l_Lean_Meta_mkEqRec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_subst(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_236____closed__1;
-extern lean_object* l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__3;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_substCore___lambda__3___closed__6;
 lean_object* lean_array_get_size(lean_object*);
@@ -156,6 +155,7 @@ lean_object* l_Lean_Meta_assignExprMVar(lean_object*, lean_object*, lean_object*
 lean_object* l_Lean_Meta_substCore___lambda__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Syntax_mkApp___closed__1;
 lean_object* l_Lean_Meta_subst_match__4(lean_object*);
+extern lean_object* l_Lean_Meta_synthInstance_x3f___closed__3;
 lean_object* l_Lean_Meta_substCore___lambda__1___boxed(lean_object**);
 lean_object* l_Nat_foldM_loop___at_Lean_Meta_substCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4180,7 +4180,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean
 lean_inc(x_1);
 x_11 = lean_alloc_closure((void*)(l_Lean_Meta_getMVarTag___boxed), 6, 1);
 lean_closure_set(x_11, 0, x_1);
-x_12 = l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__3;
+x_12 = l_Lean_Meta_synthInstance_x3f___closed__3;
 x_13 = lean_box(x_3);
 x_14 = lean_box(x_5);
 lean_inc(x_1);

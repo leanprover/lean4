@@ -41,15 +41,15 @@ instance : ToString NamedArg where
 
 def throwInvalidNamedArg {α} (namedArg : NamedArg) (fn? : Option Name) : TermElabM α :=
   withRef namedArg.ref $ match fn? with
-    | some fn => throwError! "invalid argument name '{namedArg.name}' for function '{fn}'"
-    | none    => throwError! "invalid argument name '{namedArg.name}' for function"
+    | some fn => throwError "invalid argument name '{namedArg.name}' for function '{fn}'"
+    | none    => throwError "invalid argument name '{namedArg.name}' for function"
 
 /--
   Add a new named argument to `namedArgs`, and throw an error if it already contains a named argument
   with the same name. -/
 def addNamedArg (namedArgs : Array NamedArg) (namedArg : NamedArg) : TermElabM (Array NamedArg) := do
   if namedArgs.any (namedArg.name == ·.name) then
-    throwError! "argument '{namedArg.name}' was already set"
+    throwError "argument '{namedArg.name}' was already set"
   pure $ namedArgs.push namedArg
 
 private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermElabM Expr := do
@@ -137,7 +137,7 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
           throwInvalidNamedArg namedArg f.constName!
         else
           throwInvalidNamedArg namedArg none
-      throwError! "function expected at{indentExpr s.f}\nterm has type{indentExpr fType}"
+      throwError "function expected at{indentExpr s.f}\nterm has type{indentExpr fType}"
 
 /- Normalize and return the function type. -/
 private def normalizeFunType : M Expr := do
@@ -508,7 +508,7 @@ inductive LValResolution where
   | getOp    (fullName : Name) (idx : Syntax)
 
 private def throwLValError {α} (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
-  throwError! "{msg}{indentExpr e}\nhas type{indentExpr eType}"
+  throwError "{msg}{indentExpr e}\nhas type{indentExpr eType}"
 
 /-- `findMethod? env S fName`.
     1- If `env` contains `S ++ fName`, return `(S, S++fName)`
@@ -672,12 +672,12 @@ private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Ar
             let prev := xs[j]
             let prevDecl ← getLocalDecl prev.fvarId!
             if prevDecl.userName == xDecl.userName then
-              throwError! "invalid field notation, function '{fullName}' has argument with the expected type{indentExpr type}\nbut it cannot be used"
+              throwError "invalid field notation, function '{fullName}' has argument with the expected type{indentExpr type}\nbut it cannot be used"
           return (args, namedArgs.push { name := xDecl.userName, val := Arg.expr e })
         if xDecl.binderInfo.isExplicit then
           -- advance explicit argument position
           argIdx := argIdx + 1
-    throwError! "invalid field notation, function '{fullName}' does not have argument with type ({baseName} ...) that can be used, it must be explicit or implicit with an unique name"
+    throwError "invalid field notation, function '{fullName}' does not have argument with type ({baseName} ...) that can be used, it must be explicit or implicit with an unique name"
 
 private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis : Bool)
     (f : Expr) (lvals : List LVal) : TermElabM Expr :=
@@ -857,7 +857,7 @@ private def mergeFailures {α} (failures : Array (TermElabResult Expr)) : TermEl
     match failure with
     | EStateM.Result.ok _ _     => unreachable!
     | EStateM.Result.error ex _ => toMessageData ex
-  throwError! "overloaded, errors {toMessageList msgs}"
+  throwError "overloaded, errors {toMessageList msgs}"
 
 private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (ellipsis : Bool) (expectedType? : Option Expr) : TermElabM Expr := do
   let candidates ← elabAppFn f [] namedArgs args expectedType? (explicit := false) (ellipsis := ellipsis) (overloaded := false) #[]
@@ -874,7 +874,7 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
       let msgs : Array MessageData := successes.map fun success => match success with
         | EStateM.Result.ok e s => MessageData.withContext { env := s.core.env, mctx := s.meta.mctx, lctx := lctx, opts := opts } e
         | _                     => unreachable!
-      throwErrorAt! f "ambiguous, possible interpretations {toMessageList msgs}"
+      throwErrorAt f "ambiguous, possible interpretations {toMessageList msgs}"
     else
       withRef f $ mergeFailures candidates
 

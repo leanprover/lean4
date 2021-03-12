@@ -34,7 +34,6 @@ extern lean_object* l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_236____lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_setInlineAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____lambda__2___closed__3;
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Meta_addDefaultInstance___lambda__2___closed__1;
@@ -6751,18 +6750,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____lambda__2___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____lambda__2___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____lambda__2___closed__2;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
@@ -6790,7 +6778,7 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 lean_dec(x_10);
 lean_dec(x_1);
-x_14 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____lambda__2___closed__3;
+x_14 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____lambda__2___closed__2;
 x_15 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__5(x_14, x_4, x_5, x_11);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -7189,8 +7177,6 @@ l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____lambda__2___closed__1
 lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____lambda__2___closed__1);
 l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____lambda__2___closed__2 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____lambda__2___closed__2();
 lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____lambda__2___closed__2);
-l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____lambda__2___closed__3 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____lambda__2___closed__3();
-lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____lambda__2___closed__3);
 l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____closed__1 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____closed__1();
 lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____closed__1);
 l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____closed__2 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_690____closed__2();

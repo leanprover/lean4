@@ -198,19 +198,19 @@ def Attribute.Builtin.ensureNoArgs (stx : Syntax) : AttrM Unit := do
     return ()
   else match stx with
     | Syntax.missing => return () -- In the elaborator, we use `Syntax.missing` when creating attribute views for simple attributes such as `class and `inline
-    | _              => throwErrorAt! stx "unexpected attribute argument"
+    | _              => throwErrorAt stx "unexpected attribute argument"
 
 def Attribute.Builtin.getId (stx : Syntax) : AttrM Name := do
   if stx.getKind == `Lean.Parser.Attr.simple && !stx[1].isNone then
     if stx[1][0].isIdent then
       return stx[1][0].getId
     else
-      throwErrorAt! stx "unexpected attribute argument, identifier expected"
+      throwErrorAt stx "unexpected attribute argument, identifier expected"
   /- We handle `macro` here because it is handled by the generic `KeyedDeclsAttribute -/
   else if stx.getKind == `Lean.Parser.Attr.«macro» || stx.getKind == `Lean.Parser.Attr.«export» then
     return stx[1].getId
   else
-    throwErrorAt! stx "unexpected attribute argument, identifier expected"
+    throwErrorAt stx "unexpected attribute argument, identifier expected"
 
 def Attribute.Builtin.getId? (stx : Syntax) : AttrM (Option Name) := do
   if stx.getKind == `Lean.Parser.Attr.simple then
@@ -219,20 +219,20 @@ def Attribute.Builtin.getId? (stx : Syntax) : AttrM (Option Name) := do
     else
       return stx[1][0].getId
   else
-    throwErrorAt! stx "unexpected attribute argument"
+    throwErrorAt stx "unexpected attribute argument"
 
 def getAttrParamOptPrio (optPrioStx : Syntax) : AttrM Nat :=
   if optPrioStx.isNone then
     return evalPrio! default
   else match optPrioStx[0].isNatLit? with
     | some prio => return prio
-    | none => throwErrorAt! optPrioStx "priority expected"
+    | none => throwErrorAt optPrioStx "priority expected"
 
 def Attribute.Builtin.getPrio (stx : Syntax) : AttrM Nat := do
   if stx.getKind == `Lean.Parser.Attr.simple then
     getAttrParamOptPrio stx[1]
   else
-    throwErrorAt! stx "unexpected attribute argument, optional priority expected"
+    throwErrorAt stx "unexpected attribute argument, optional priority expected"
 
 
 /--
@@ -264,10 +264,10 @@ def registerTagAttribute (name : Name) (descr : String) (validate : Name → Att
     descr := descr,
     add   := fun decl stx kind => do
       Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do throwError! "invalid attribute '{name}', must be global"
+      unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
       let env ← getEnv
       unless (env.getModuleIdxFor? decl).isNone do
-        throwError! "invalid attribute '{name}', declaration is in an imported module"
+        throwError "invalid attribute '{name}', declaration is in an imported module"
       validate decl
       let env ← getEnv
       setEnv $ ext.addEntry env decl
@@ -315,10 +315,10 @@ def registerParametricAttribute {α : Type} [Inhabited α] (impl : ParametricAtt
     name  := impl.name
     descr := impl.descr
     add   := fun decl stx kind => do
-      unless kind == AttributeKind.global do throwError! "invalid attribute '{impl.name}', must be global"
+      unless kind == AttributeKind.global do throwError "invalid attribute '{impl.name}', must be global"
       let env ← getEnv
       unless (env.getModuleIdxFor? decl).isNone do
-        throwError! "invalid attribute '{impl.name}', declaration is in an imported module"
+        throwError "invalid attribute '{impl.name}', declaration is in an imported module"
       let val ← impl.getParam decl stx
       let env' := ext.addEntry env (decl, val)
       setEnv env'
@@ -374,10 +374,10 @@ def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDesc
     descr           := descr,
     add             := fun decl stx kind => do
       Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do throwError! "invalid attribute '{name}', must be global"
+      unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
       let env ← getEnv
       unless (env.getModuleIdxFor? decl).isNone do
-        throwError! "invalid attribute '{name}', declaration is in an imported module"
+        throwError "invalid attribute '{name}', declaration is in an imported module"
       validate decl val
       setEnv $ ext.addEntry env (decl, val),
     applicationTime := applicationTime

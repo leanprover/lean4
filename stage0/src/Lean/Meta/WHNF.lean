@@ -451,7 +451,7 @@ mutual
 end
 
 def unfoldDefinition (e : Expr) : MetaM Expr := do
-  let some e ← unfoldDefinition? e | throwError! "failed to unfold definition{indentExpr e}"
+  let some e ← unfoldDefinition? e | throwError "failed to unfold definition{indentExpr e}"
   return e
 
 @[specialize] partial def whnfHeadPred (e : Expr) (pred : Expr → MetaM Bool) : MetaM Expr :=

@@ -270,6 +270,7 @@ lean_object* l_Lean_Level_instantiateParams___at_Lean_Expr_instantiateLevelParam
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux_match__1(lean_object*);
 lean_object* l_Lean_Expr_updateSort_x21(lean_object*, lean_object*);
 uint8_t lean_expr_has_expr_mvar(lean_object*);
+lean_object* l_Lean_Expr_setPPUniverses(lean_object*, uint8_t);
 lean_object* l_Lean_Expr_constName_x21___closed__3;
 uint8_t l_Lean_Expr_hasLevelParam(lean_object*);
 lean_object* l_Lean_instCoeExprExprStructEq(lean_object*);
@@ -563,6 +564,7 @@ lean_object* l___private_Lean_Expr_0__Lean_Expr_etaExpandedAux_match__1___rarg(l
 lean_object* l_Lean_Literal_lt_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isFVar_match__1(lean_object*);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
+lean_object* l_Lean_Expr_setPPUniverses___closed__1;
 lean_object* l_Lean_mkForall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_instantiate1___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_etaExpandedBody_match__1(lean_object*);
@@ -659,6 +661,7 @@ lean_object* l_Lean_Expr_isCharLit___closed__2;
 lean_object* l_Lean_Expr_setOption___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_instantiateLevelParamsCore_visit___at_Lean_Expr_instantiateLevelParams___spec__1(lean_object*, lean_object*, lean_object*);
 size_t l_Lean_BinderInfo_hash(uint8_t);
+lean_object* l_Lean_Expr_setPPUniverses___closed__2;
 lean_object* l_Lean_Expr_instantiateLevelParamsCore_visit___at_Lean_Expr_instantiateLevelParamsArray___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Expr_instantiateLevelParams___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
@@ -711,6 +714,7 @@ lean_object* l_Lean_Expr_isCharLit___closed__1;
 lean_object* l_Lean_Expr_isCharLit___boxed(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint32_t l_Lean_Expr_Data_looseBVarRange(uint64_t);
+lean_object* l_Lean_Expr_setPPUniverses___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Level_instantiateParams___at_Lean_Expr_instantiateLevelParamsArray___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_containsFVar(lean_object*, lean_object*);
@@ -14301,6 +14305,43 @@ x_4 = l_Lean_Expr_setPPExplicit(x_1, x_3);
 return x_4;
 }
 }
+static lean_object* _init_l_Lean_Expr_setPPUniverses___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("universes");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Expr_setPPUniverses___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_getSanitizeNames___closed__2;
+x_2 = l_Lean_Expr_setPPUniverses___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Expr_setPPUniverses(lean_object* x_1, uint8_t x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_Lean_Expr_setPPUniverses___closed__2;
+x_4 = l_Lean_Expr_setOption___at_Lean_Expr_setPPExplicit___spec__1(x_1, x_3, x_2);
+return x_4;
+}
+}
+lean_object* l_Lean_Expr_setPPUniverses___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = lean_unbox(x_2);
+lean_dec(x_2);
+x_4 = l_Lean_Expr_setPPUniverses(x_1, x_3);
+return x_4;
+}
+}
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Expr_setAppPPExplicit___spec__1(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
@@ -14855,6 +14896,10 @@ l_Lean_Expr_updateLet_x21___closed__2 = _init_l_Lean_Expr_updateLet_x21___closed
 lean_mark_persistent(l_Lean_Expr_updateLet_x21___closed__2);
 l_Lean_Expr_setPPExplicit___closed__1 = _init_l_Lean_Expr_setPPExplicit___closed__1();
 lean_mark_persistent(l_Lean_Expr_setPPExplicit___closed__1);
+l_Lean_Expr_setPPUniverses___closed__1 = _init_l_Lean_Expr_setPPUniverses___closed__1();
+lean_mark_persistent(l_Lean_Expr_setPPUniverses___closed__1);
+l_Lean_Expr_setPPUniverses___closed__2 = _init_l_Lean_Expr_setPPUniverses___closed__2();
+lean_mark_persistent(l_Lean_Expr_setPPUniverses___closed__2);
 l_Lean_mkAnnotation___closed__1 = _init_l_Lean_mkAnnotation___closed__1();
 lean_mark_persistent(l_Lean_mkAnnotation___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

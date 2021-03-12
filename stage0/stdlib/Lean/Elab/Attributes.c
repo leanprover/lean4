@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Lean_Elab_Attribute_stx___default;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
-lean_object* l_Lean_Elab_elabAttr___rarg___lambda__10___closed__3;
 lean_object* lean_erase_macro_scopes(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1136____closed__15;
@@ -857,18 +856,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_elabAttr___rarg___lambda__10___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_elabAttr___rarg___lambda__10___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_elabAttr___rarg___lambda__10___closed__2;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
@@ -918,7 +906,7 @@ else
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 lean_dec(x_9);
-x_19 = l_Lean_Elab_elabAttr___rarg___lambda__10___closed__3;
+x_19 = l_Lean_Elab_elabAttr___rarg___lambda__10___closed__2;
 x_20 = l_Lean_throwErrorAt___rarg(x_1, x_3, x_6, x_19);
 x_21 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_20, x_8);
 return x_21;
@@ -1350,8 +1338,6 @@ l_Lean_Elab_elabAttr___rarg___lambda__10___closed__1 = _init_l_Lean_Elab_elabAtt
 lean_mark_persistent(l_Lean_Elab_elabAttr___rarg___lambda__10___closed__1);
 l_Lean_Elab_elabAttr___rarg___lambda__10___closed__2 = _init_l_Lean_Elab_elabAttr___rarg___lambda__10___closed__2();
 lean_mark_persistent(l_Lean_Elab_elabAttr___rarg___lambda__10___closed__2);
-l_Lean_Elab_elabAttr___rarg___lambda__10___closed__3 = _init_l_Lean_Elab_elabAttr___rarg___lambda__10___closed__3();
-lean_mark_persistent(l_Lean_Elab_elabAttr___rarg___lambda__10___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

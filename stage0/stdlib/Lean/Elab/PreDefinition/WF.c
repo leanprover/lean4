@@ -13,10 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_Elab_WFRecursion(lean_object*);
 lean_object* l_Lean_Elab_WFRecursion___boxed(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Term_throwErrorIfErrors___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_WFRecursion___rarg___closed__3;
 lean_object* l_Lean_Elab_WFRecursion___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_WFRecursion___rarg___closed__1;
 lean_object* l_Lean_Elab_WFRecursion___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -34,18 +34,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_WFRecursion___rarg___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_WFRecursion___rarg___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_WFRecursion___rarg___closed__2;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
@@ -53,7 +42,7 @@ lean_object* l_Lean_Elab_WFRecursion___rarg(lean_object* x_1, lean_object* x_2, 
 _start:
 {
 lean_object* x_8; lean_object* x_9; 
-x_8 = l_Lean_Elab_WFRecursion___rarg___closed__3;
+x_8 = l_Lean_Elab_WFRecursion___rarg___closed__2;
 x_9 = l_Lean_throwError___at_Lean_Elab_Term_throwErrorIfErrors___spec__1(x_8, x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
@@ -105,8 +94,6 @@ l_Lean_Elab_WFRecursion___rarg___closed__1 = _init_l_Lean_Elab_WFRecursion___rar
 lean_mark_persistent(l_Lean_Elab_WFRecursion___rarg___closed__1);
 l_Lean_Elab_WFRecursion___rarg___closed__2 = _init_l_Lean_Elab_WFRecursion___rarg___closed__2();
 lean_mark_persistent(l_Lean_Elab_WFRecursion___rarg___closed__2);
-l_Lean_Elab_WFRecursion___rarg___closed__3 = _init_l_Lean_Elab_WFRecursion___rarg___closed__3();
-lean_mark_persistent(l_Lean_Elab_WFRecursion___rarg___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

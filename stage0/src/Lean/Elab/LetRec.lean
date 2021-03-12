@@ -94,7 +94,7 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
   for view in views do
     if letRecsToLiftCurr.any fun toLift => toLift.declName == view.declName then
       withRef view.ref do
-        throwError! "'{view.declName}' has already been declared"
+        throwError "'{view.declName}' has already been declared"
   let lctx ← getLCtx
   let localInsts ← getLocalInstances
   let toLift := views.mapIdx fun i view => {

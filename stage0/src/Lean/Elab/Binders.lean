@@ -155,7 +155,7 @@ private def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit := do
 private def ensureAtomicBinderName (binderView : BinderView) : TermElabM Unit :=
   let n := binderView.id.getId.eraseMacroScopes
   unless n.isAtomic do
-    throwErrorAt! binderView.id "invalid binder name '{n}', it must be atomic"
+    throwErrorAt binderView.id "invalid binder name '{n}', it must be atomic"
 
 private partial def elabBinderViews {α} (binderViews : Array BinderView) (catchAutoBoundImplicit : Bool) (fvars : Array Expr) (k : Array Expr → TermElabM α)
     : TermElabM α :=

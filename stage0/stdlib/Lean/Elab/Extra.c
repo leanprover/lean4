@@ -29,7 +29,6 @@ lean_object* l_Lean_Elab_Term_elabBinRel_match__1(lean_object*);
 lean_object* l_Lean_Elab_Term_elabForIn___lambda__1___closed__3;
 extern lean_object* l_Array_empty___closed__1;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_15956____closed__12;
-lean_object* l_Lean_Elab_Term_elabForIn_getMonad___closed__5;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabForIn___closed__1;
 lean_object* l_Lean_Elab_Term_elabForIn_getMonad___closed__3;
@@ -2455,22 +2454,11 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Term_elabForIn_getMonad___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
 static lean_object* _init_l_Lean_Elab_Term_elabForIn_getMonad___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Term_elabForIn_getMonad___closed__2;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_Term_elabForIn_getMonad___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -2478,11 +2466,11 @@ x_1 = lean_mk_string("invalid 'forIn%' notation, expected type is not of of the 
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Term_elabForIn_getMonad___closed__5() {
+static lean_object* _init_l_Lean_Elab_Term_elabForIn_getMonad___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Term_elabForIn_getMonad___closed__4;
+x_1 = l_Lean_Elab_Term_elabForIn_getMonad___closed__3;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -2493,7 +2481,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_9; lean_object* x_10; 
-x_9 = l_Lean_Elab_Term_elabForIn_getMonad___closed__3;
+x_9 = l_Lean_Elab_Term_elabForIn_getMonad___closed__2;
 x_10 = l_Lean_throwError___at_Lean_Elab_Term_synthesizeInst___spec__1(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -2525,7 +2513,7 @@ x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
 x_15 = l_Lean_indentExpr(x_11);
-x_16 = l_Lean_Elab_Term_elabForIn_getMonad___closed__5;
+x_16 = l_Lean_Elab_Term_elabForIn_getMonad___closed__4;
 x_17 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_17, 0, x_16);
 lean_ctor_set(x_17, 1, x_15);
@@ -3806,8 +3794,6 @@ l_Lean_Elab_Term_elabForIn_getMonad___closed__3 = _init_l_Lean_Elab_Term_elabFor
 lean_mark_persistent(l_Lean_Elab_Term_elabForIn_getMonad___closed__3);
 l_Lean_Elab_Term_elabForIn_getMonad___closed__4 = _init_l_Lean_Elab_Term_elabForIn_getMonad___closed__4();
 lean_mark_persistent(l_Lean_Elab_Term_elabForIn_getMonad___closed__4);
-l_Lean_Elab_Term_elabForIn_getMonad___closed__5 = _init_l_Lean_Elab_Term_elabForIn_getMonad___closed__5();
-lean_mark_persistent(l_Lean_Elab_Term_elabForIn_getMonad___closed__5);
 l_Lean_Elab_Term_elabForIn_throwFailure___closed__1 = _init_l_Lean_Elab_Term_elabForIn_throwFailure___closed__1();
 lean_mark_persistent(l_Lean_Elab_Term_elabForIn_throwFailure___closed__1);
 l_Lean_Elab_Term_elabForIn_throwFailure___closed__2 = _init_l_Lean_Elab_Term_elabForIn_throwFailure___closed__2();

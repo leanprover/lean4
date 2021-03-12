@@ -96,9 +96,27 @@ structure Cache where
   whnfAll       : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
   deriving Inhabited
 
+/--
+ "Context" for a postponed universe constraint.
+ `lhs` and `rhs` are the surrounding `isDefEq` call when the postponed constraint was created.
+-/
+structure DefEqContext where
+  lhs            : Expr
+  rhs            : Expr
+  lctx           : LocalContext
+  localInstances : LocalInstances
+
+/--
+  Auxiliary structure for representing postponed universe constraints.
+  Remark: the fields `ref` and `rootDefEq?` are used for error message generation only.
+  Remark: we may consider improving the error message generation in the future.
+-/
 structure PostponedEntry where
-  lhs       : Level
-  rhs       : Level
+  ref  : Syntax -- We save the `ref` at entry creation time
+  lhs  : Level
+  rhs  : Level
+  ctx? : Option DefEqContext -- Context for the surrounding `isDefEq` call when entry was created
+  deriving Inhabited
 
 structure State where
   mctx        : MetavarContext := {}
@@ -109,9 +127,11 @@ structure State where
   deriving Inhabited
 
 structure Context where
-  config         : Config         := {}
-  lctx           : LocalContext   := {}
-  localInstances : LocalInstances := #[]
+  config         : Config               := {}
+  lctx           : LocalContext         := {}
+  localInstances : LocalInstances       := #[]
+  /-- Not `none` when inside of an `isDefEq` test. See `PostponedEntry`. -/
+  defEqCtx?      : Option DefEqContext  := none
 
 abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 
@@ -285,7 +305,7 @@ def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
   let mctx ← getMCtx
   match mctx.findDecl? mvarId with
   | some d => pure d
-  | none   => throwError! "unknown metavariable '{mkMVar mvarId}'"
+  | none   => throwError "unknown metavariable '{mkMVar mvarId}'"
 
 def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarKind mvarId kind
@@ -312,7 +332,7 @@ def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool := do
   let mctx ← getMCtx
   match mctx.findLevelDepth? mvarId with
   | some depth => return depth != mctx.depth
-  | _          => throwError! "unknown universe metavariable '{mkLevelMVar mvarId}'"
+  | _          => throwError "unknown universe metavariable '{mkLevelMVar mvarId}'"
 
 def renameMVar (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.renameMVar mvarId newUserName
@@ -340,7 +360,7 @@ def hasAssignableMVar (e : Expr) : MetaM Bool :=
   return (← getMCtx).hasAssignableMVar e
 
 def throwUnknownFVar (fvarId : FVarId) : MetaM α :=
-  throwError! "unknown free variable '{mkFVar fvarId}'"
+  throwError "unknown free variable '{mkFVar fvarId}'"
 
 def findLocalDecl? (fvarId : FVarId) : MetaM (Option LocalDecl) :=
   return (← getLCtx).find? fvarId
@@ -356,7 +376,7 @@ def getFVarLocalDecl (fvar : Expr) : MetaM LocalDecl :=
 def getLocalDeclFromUserName (userName : Name) : MetaM LocalDecl := do
   match (← getLCtx).findFromUserName? userName with
   | some d => pure d
-  | none   => throwError! "unknown local declaration '{userName}'"
+  | none   => throwError "unknown local declaration '{userName}'"
 
 def instantiateLevelMVars (u : Level) : MetaM Level :=
   MetavarContext.instantiateLevelMVars u

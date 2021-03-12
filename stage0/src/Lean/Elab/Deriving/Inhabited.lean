@@ -113,7 +113,7 @@ private def mkInhabitedInstance (declName : Name) : CommandElabM Unit := do
         return true
     return false
   unless (← doIt false <||> doIt true) do
-    throwError! "failed to generate 'Inhabited' instance for '{declName}'"
+    throwError "failed to generate 'Inhabited' instance for '{declName}'"
 
 def mkInhabitedInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) then

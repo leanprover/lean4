@@ -21,13 +21,13 @@ open Meta
     | some expectedType =>
       let expectedType ← whnf expectedType
       matchConstInduct expectedType.getAppFn
-        (fun _ => throwError! "invalid constructor ⟨...⟩, expected type must be an inductive type {indentExpr expectedType}")
+        (fun _ => throwError "invalid constructor ⟨...⟩, expected type must be an inductive type {indentExpr expectedType}")
         (fun ival us => do
           match ival.ctors with
           | [ctor] =>
             let newStx ← `($(mkCIdentFrom stx ctor) $(args)*)
             withMacroExpansion stx newStx $ elabTerm newStx expectedType?
-          | _ => throwError! "invalid constructor ⟨...⟩, expected type must be an inductive type with only one constructor {indentExpr expectedType}")
+          | _ => throwError "invalid constructor ⟨...⟩, expected type must be an inductive type with only one constructor {indentExpr expectedType}")
     | none => throwError "invalid constructor ⟨...⟩, expected type must be known"
   | _ => throwUnsupportedSyntax
 
@@ -211,7 +211,7 @@ private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Ex
      let heqType ← inferType heq
      let heqType ← instantiateMVars heqType
      match (← Meta.matchEq? heqType) with
-     | none => throwError! "invalid `▸` notation, argument{indentExpr heq}\nhas type{indentExpr heqType}\nequality expected"
+     | none => throwError "invalid `▸` notation, argument{indentExpr heq}\nhas type{indentExpr heqType}\nequality expected"
      | some (α, lhs, rhs) =>
        let mut lhs := lhs
        let mut rhs := rhs
@@ -222,7 +222,7 @@ private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Ex
        unless expectedAbst.hasLooseBVars do
          expectedAbst ← kabstract expectedType lhs
          unless expectedAbst.hasLooseBVars do
-           throwError! "invalid `▸` notation, expected type{indentExpr expectedType}\ndoes contain equation left-hand-side nor right-hand-side{indentExpr heqType}"
+           throwError "invalid `▸` notation, expected type{indentExpr expectedType}\ndoes contain equation left-hand-side nor right-hand-side{indentExpr heqType}"
          heq ← mkEqSymm heq
          (lhs, rhs) := (rhs, lhs)
        let hExpectedType := expectedAbst.instantiate1 lhs

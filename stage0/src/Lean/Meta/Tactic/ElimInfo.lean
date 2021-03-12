@@ -23,18 +23,18 @@ def getElimInfo (declName : Name) : MetaM ElimInfo := do
     let motive  := type.getAppFn
     let targets := type.getAppArgs
     unless motive.isFVar && targets.all (·.isFVar) && targets.size > 0 do
-      throwError! "unexpected eliminator resulting type{indentExpr type}"
+      throwError "unexpected eliminator resulting type{indentExpr type}"
     let motiveType ← inferType motive
     forallTelescopeReducing motiveType fun motiveArgs motiveResultType => do
       unless motiveArgs.size == targets.size do
-        throwError! "unexpected number of arguments at motive type{indentExpr motiveType}"
+        throwError "unexpected number of arguments at motive type{indentExpr motiveType}"
       unless motiveResultType.isSort do
-        throwError! "motive result type must be a sort{indentExpr motiveType}"
+        throwError "motive result type must be a sort{indentExpr motiveType}"
     let some motivePos ← pure (xs.indexOf? motive) |
-      throwError! "unexpected eliminator type{indentExpr declInfo.type}"
+      throwError "unexpected eliminator type{indentExpr declInfo.type}"
     let targetsPos ← targets.mapM fun target => do
       match xs.indexOf? target with
-      | none => throwError! "unexpected eliminator type{indentExpr declInfo.type}"
+      | none => throwError "unexpected eliminator type{indentExpr declInfo.type}"
       | some targetPos => pure targetPos.val
     let mut altsInfo := #[]
     for i in [:xs.size] do

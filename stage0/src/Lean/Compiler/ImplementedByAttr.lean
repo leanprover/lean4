@@ -17,7 +17,7 @@ builtin_initialize implementedByAttr : ParametricAttribute Name ← registerPara
     let fnName ← resolveGlobalConstNoOverload fnName
     let fnDecl ← getConstInfo fnName
     unless decl.type == fnDecl.type do
-      throwError! "invalid function '{fnName}' type mismatch"
+      throwError "invalid function '{fnName}' type mismatch"
     return fnName
 }
 

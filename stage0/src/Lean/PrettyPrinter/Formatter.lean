@@ -64,7 +64,7 @@ unsafe def mkFormatterAttribute : IO (KeyedDeclsAttribute Formatter) :=
       -- `isValidSyntaxNodeKind` is updated only in the next stage for new `[builtin*Parser]`s, but we try to
       -- synthesize a formatter for it immediately, so we just check for a declaration in this case
       if (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id then pure id
-      else throwError! "invalid [formatter] argument, unknown syntax kind '{id}'"
+      else throwError "invalid [formatter] argument, unknown syntax kind '{id}'"
   } `Lean.PrettyPrinter.formatterAttribute
 @[builtinInit mkFormatterAttribute] constant formatterAttribute : KeyedDeclsAttribute Formatter
 

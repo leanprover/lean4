@@ -35,7 +35,7 @@ def toAttributeKind [Monad m] [MonadResolveName m] [MonadError m] (attrKindStx :
     return AttributeKind.global
   else if attrKindStx[0][0].getKind == `Lean.Parser.Term.scoped then
     if (← getCurrNamespace).isAnonymous then
-      throwError! "scoped attributes must be used inside namespaces"
+      throwError "scoped attributes must be used inside namespaces"
     return AttributeKind.scoped
   else
     return AttributeKind.local
@@ -56,7 +56,7 @@ def elabAttr {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [Mon
       | Name.str _ s _ => pure <| Name.mkSimple s
       | _ => throwErrorAt attr  "unknown attribute"
   unless isAttribute (← getEnv) attrName do
-    throwError! "unknown attribute [{attrName}]"
+    throwError "unknown attribute [{attrName}]"
   /- The `AttrM` does not have sufficient information for expanding macros in `args`.
      So, we expand them before here before we invoke the attributer handlers implemented using `AttrM`. -/
   pure { kind := attrKind, name := attrName, stx := attr }

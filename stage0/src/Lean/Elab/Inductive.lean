@@ -126,7 +126,7 @@ private partial def checkParamsAndResultType (type firstType : Expr) (numParams 
     match type with
     | Expr.sort .. =>
       unless (← isDefEq firstType type) do
-        throwError! "resulting universe mismatch, given{indentExpr type}\nexpected type{indentExpr firstType}"
+        throwError "resulting universe mismatch, given{indentExpr type}\nexpected type{indentExpr firstType}"
     | _ =>
       throwError "unexpected inductive resulting type"
   catch
@@ -207,9 +207,9 @@ private def elabCtors (indFVars : Array Expr) (indFVar : Expr) (params : Array E
               let type ← checkParamOccs type
               forallTelescopeReducing type fun _ resultingType => do
                 unless resultingType.getAppFn == indFVar do
-                  throwError! "unexpected constructor resulting type{indentExpr resultingType}"
+                  throwError "unexpected constructor resulting type{indentExpr resultingType}"
                 unless (← isType resultingType) do
-                  throwError! "unexpected constructor resulting type, type expected{indentExpr resultingType}"
+                  throwError "unexpected constructor resulting type, type expected{indentExpr resultingType}"
               k type
         elabCtorType fun type => do
           let ctorParams ← Term.addAutoBoundImplicits ctorParams
@@ -223,12 +223,12 @@ where
       if indFVars.contains f then
         let mut args := e.getAppArgs
         unless args.size ≥ params.size do
-          throwError! "unexpected inductive type occurrence{indentExpr e}"
+          throwError "unexpected inductive type occurrence{indentExpr e}"
         for i in [:params.size] do
           let param := params[i]
           let arg := args[i]
           unless (← isDefEq param arg) do
-            throwError! "inductive datatype parameter mismatch{indentExpr arg}\nexpected{indentExpr param}"
+            throwError "inductive datatype parameter mismatch{indentExpr arg}\nexpected{indentExpr param}"
           args := args.set! i param
         return TransformStep.done (mkAppN f args)
       else
@@ -270,7 +270,7 @@ def shouldInferResultUniverse (u : Level) : TermElabM Bool := do
       Term.assignLevelMVar mvarId tmpIndParam
       pure true
     | _ =>
-      throwError! "cannot infer resulting universe level of inductive datatype, given level contains metavariables {mkSort u}, provide universe explicitly"
+      throwError "cannot infer resulting universe level of inductive datatype, given level contains metavariables {mkSort u}, provide universe explicitly"
   else
     pure false
 
@@ -288,8 +288,8 @@ def accLevelAtCtor : Level → Level → Nat → Array Level → TermElabM (Arra
   | Level.succ u _,   r, rOffset+1, us => accLevelAtCtor u r rOffset us
   | u,                r, rOffset,   us =>
     if rOffset == 0 && u == r then pure us
-    else if r.occurs u  then throwError! "failed to compute resulting universe level of inductive datatype, provide universe explicitly"
-    else if rOffset > 0 then throwError! "failed to compute resulting universe level of inductive datatype, provide universe explicitly"
+    else if r.occurs u  then throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly"
+    else if rOffset > 0 then throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly"
     else if us.contains u then pure us
     else pure (us.push u)
 
@@ -356,7 +356,7 @@ def checkResultingUniverse (u : Level) : TermElabM Unit := do
   if bootstrap.inductiveCheckResultingUniverse.get (← getOptions) then
     let u ← instantiateLevelMVars u
     if !u.isZero && !u.isNeverZero then
-      throwError! "invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u'{indentD u}"
+      throwError "invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u'{indentD u}"
 
 private def checkResultingUniverses (indTypes : List InductiveType) : TermElabM Unit := do
   checkResultingUniverse (← getResultingUniverse indTypes)

@@ -106,15 +106,15 @@ private def isModifyOp? (stx : Syntax) : TermElabM (Option Syntax) := do
       | none   => pure (some arg)
       | some s =>
         if s.getKind == `Lean.Parser.Term.structInstArrayRef then
-          throwErrorAt arg "invalid {...} notation, at most one `[..]` at a given level"
+          throwErrorAt arg "invalid \{...} notation, at most one `[..]` at a given level"
         else
-          throwErrorAt arg "invalid {...} notation, can't mix field and `[..]` at a given level"
+          throwErrorAt arg "invalid \{...} notation, can't mix field and `[..]` at a given level"
     else
       match s? with
       | none   => pure (some arg)
       | some s =>
         if s.getKind == `Lean.Parser.Term.structInstArrayRef then
-          throwErrorAt arg "invalid {...} notation, can't mix field and `[..]` at a given level"
+          throwErrorAt arg "invalid \{...} notation, can't mix field and `[..]` at a given level"
         else
           pure s?
   match s? with
@@ -147,16 +147,16 @@ private def elabModifyOp (stx modifyOp source : Syntax) (expectedType? : Option 
     cont val
 
 /- Get structure name and elaborate explicit source (if available) -/
-private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceView : Source) : TermElabM Name := do
+private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceView : Source) : TermElabM (Name × Expr) := do
   tryPostponeIfNoneOrMVar expectedType?
-  let useSource : Unit → TermElabM Name := fun _ =>
+  let useSource : Unit → TermElabM (Name × Expr) := fun _ =>
     match sourceView, expectedType? with
     | Source.explicit _ src, _ => do
       let srcType ← inferType src
       let srcType ← whnf srcType
       tryPostponeIfMVar srcType
       match srcType.getAppFn with
-      | Expr.const constName _ _ => pure constName
+      | Expr.const constName _ _ => return (constName, srcType)
       | _ => throwUnexpectedExpectedType srcType "source"
     | _, some expectedType => throwUnexpectedExpectedType expectedType
     | _, none              => throwUnknownExpectedType
@@ -165,17 +165,17 @@ private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceVi
   | some expectedType =>
     let expectedType ← whnf expectedType
     match expectedType.getAppFn with
-    | Expr.const constName _ _ => pure constName
+    | Expr.const constName _ _ => return (constName, expectedType)
     | _                        => useSource ()
 where
   throwUnknownExpectedType :=
-    throwError! "invalid \{...} notation, expected type is not known"
+    throwError "invalid \{...} notation, expected type is not known"
   throwUnexpectedExpectedType type (kind := "expected") := do
     let type ← instantiateMVars type
     if type.getAppFn.isMVar then
       throwUnknownExpectedType
     else
-      throwError! "invalid \{...} notation, {kind} type is not of the form (C ...){indentExpr type}"
+      throwError "invalid \{...} notation, {kind} type is not of the form (C ...){indentExpr type}"
 
 inductive FieldLHS where
   | fieldName  (ref : Syntax) (name : Name)
@@ -333,7 +333,7 @@ private def expandNumLitFields (s : Struct) : TermElabM Struct :=
     fields.mapM fun field => match field with
       | { lhs := FieldLHS.fieldIndex ref idx :: rest, .. } =>
         if idx == 0 then throwErrorAt ref "invalid field index, index must be greater than 0"
-        else if idx > fieldNames.size then throwErrorAt! ref "invalid field index, structure has only #{fieldNames.size} fields"
+        else if idx > fieldNames.size then throwErrorAt ref "invalid field index, structure has only #{fieldNames.size} fields"
         else pure { field with lhs := FieldLHS.fieldName ref fieldNames[idx - 1] :: rest }
       | _ => pure field
 
@@ -363,7 +363,7 @@ private def expandParentFields (s : Struct) : TermElabM Struct := do
   s.modifyFieldsM fun fields => fields.mapM fun field => match field with
     | { lhs := FieldLHS.fieldName ref fieldName :: rest, .. } =>
       match findField? env s.structName fieldName with
-      | none => throwErrorAt! ref "'{fieldName}' is not a field of structure '{s.structName}'"
+      | none => throwErrorAt ref "'{fieldName}' is not a field of structure '{s.structName}'"
       | some baseStructName =>
         if baseStructName == s.structName then pure field
         else match getPathToBaseStructure? env baseStructName s.structName with
@@ -372,7 +372,7 @@ private def expandParentFields (s : Struct) : TermElabM Struct := do
               | Name.str _ s _ => FieldLHS.fieldName ref (Name.mkSimple s)
               | _              => unreachable!
             pure { field with lhs := path ++ field.lhs }
-          | _ => throwErrorAt! ref "failed to access field '{fieldName}' in parent structure"
+          | _ => throwErrorAt ref "failed to access field '{fieldName}' in parent structure"
     | _ => pure field
 
 private abbrev FieldMap := HashMap Name Fields
@@ -384,7 +384,7 @@ private def mkFieldMap (fields : Fields) : TermElabM FieldMap :=
       match fieldMap.find? fieldName with
       | some (prevField::restFields) =>
         if field.isSimple || prevField.isSimple then
-          throwErrorAt! field.ref "field '{fieldName}' has already beed specified"
+          throwErrorAt field.ref "field '{fieldName}' has already beed specified"
         else
           return fieldMap.insert fieldName (field::prevField::restFields)
       | _ => return fieldMap.insert fieldName [field]
@@ -397,7 +397,7 @@ private def isSimpleField? : Fields → Option (Field Struct)
 private def getFieldIdx (structName : Name) (fieldNames : Array Name) (fieldName : Name) : TermElabM Nat := do
   match fieldNames.findIdx? fun n => n == fieldName with
   | some idx => pure idx
-  | none     => throwError! "field '{fieldName}' is not a valid field of '{structName}'"
+  | none     => throwError "field '{fieldName}' is not a valid field of '{structName}'"
 
 private def mkProjStx (s : Syntax) (fieldName : Name) : Syntax :=
   Syntax.node `Lean.Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
@@ -529,7 +529,7 @@ def defaultMissing? (e : Expr) : Option Expr :=
   annotation? `structInstDefault e
 
 def throwFailedToElabField {α} (fieldName : Name) (structName : Name) (msgData : MessageData) : TermElabM α :=
-  throwError! "failed to elaborate field '{fieldName}' of '{structName}, {msgData}"
+  throwError "failed to elaborate field '{fieldName}' of '{structName}, {msgData}"
 
 def trySynthStructInstance? (s : Struct) (expectedType : Expr) : TermElabM (Option Expr) := do
   if !s.allDefault then
@@ -765,7 +765,7 @@ partial def propagateLoop (hierarchyDepth : Nat) (d : Nat) (struct : Struct) : M
   | none       => pure () -- Done
   | some field =>
     if d > hierarchyDepth then
-      throwErrorAt! field.ref "field '{getFieldName field}' is missing"
+      throwErrorAt field.ref "field '{getFieldName field}' is missing"
     else withReader (fun ctx => { ctx with maxDistance := d }) do
       modify fun s => { s with progress := false }
       step struct
@@ -782,9 +782,9 @@ def propagate (struct : Struct) : TermElabM Unit :=
 end DefaultFields
 
 private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (source : Source) : TermElabM Expr := do
-  let structName ← getStructName stx expectedType? source
+  let (structName, structType) ← getStructName stx expectedType? source
   unless isStructureLike (← getEnv) structName do
-    throwError! "invalid \{...} notation, '{structName}' is not a structure"
+    throwError "invalid \{...} notation, structure type expected{indentExpr structType}"
   match mkStructView stx structName source with
   | Except.error ex  => throwError ex
   | Except.ok struct =>
@@ -801,7 +801,7 @@ private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sour
     let sourceView ← getStructSource stx
     match (← isModifyOp? stx), sourceView with
     | some modifyOp, Source.explicit source _ => elabModifyOp stx modifyOp source expectedType?
-    | some _,        _                        => throwError "invalid {...} notation, explicit source is required when using '[<index>] := <value>'"
+    | some _,        _                        => throwError "invalid \{...} notation, explicit source is required when using '[<index>] := <value>'"
     | _,             _                        => elabStructInstAux stx expectedType? sourceView
 
 builtin_initialize registerTraceClass `Elab.struct

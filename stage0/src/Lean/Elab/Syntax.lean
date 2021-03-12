@@ -51,7 +51,7 @@ def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
       let prec? ← liftMacroM <| expandOptPrecedence stx[1]
       unless prec?.isNone do throwErrorAt stx[1] ("invalid occurrence of ':<num>' modifier in head")
       unless ctx.leftRec do
-        throwErrorAt! stx[3] "invalid occurrence of '{cat}', parser algorithm does not allow this form of left recursion"
+        throwErrorAt stx[3] "invalid occurrence of '{cat}', parser algorithm does not allow this form of left recursion"
       markAsTrailingParser -- mark as trailing par
       pure true
     else
@@ -94,7 +94,7 @@ where
       let stxNew? ← liftM (liftMacroM (expandMacro? stx) : TermElabM _)
       match stxNew? with
       | some stxNew => process stxNew
-      | none => throwErrorAt! stx "unexpected syntax kind of category `syntax`: {kind}"
+      | none => throwErrorAt stx "unexpected syntax kind of category `syntax`: {kind}"
 
   /- Sequence (aka NullNode) -/
   processSeq (stx : Syntax) := do
@@ -130,7 +130,7 @@ where
 
   ensureNoPrec (stx : Syntax) :=
     unless stx[1].isNone do
-      throwErrorAt! stx[1] "unexpected precedence"
+      throwErrorAt stx[1] "unexpected precedence"
 
   processParserCategory (stx : Syntax) := do
     let catName := stx[0].getId.eraseMacroScopes
@@ -145,7 +145,7 @@ where
     match (← resolveParserName id) with
     | [(c, true)]      => ensureNoPrec stx; return mkIdentFrom stx c
     | [(c, false)]     => ensureNoPrec stx; `(ParserDescr.parser $(quote c))
-    | cs@(_ :: _ :: _) => throwError! "ambiguous parser declaration {cs.map (·.1)}"
+    | cs@(_ :: _ :: _) => throwError "ambiguous parser declaration {cs.map (·.1)}"
     | [] =>
       if Parser.isParserCategory (← getEnv) id then
         processParserCategory stx
@@ -154,7 +154,7 @@ where
         Parser.ensureConstantParserAlias id
         `(ParserDescr.const $(quote id))
       else
-        throwError! "unknown parser declaration/category/alias '{id}'"
+        throwError "unknown parser declaration/category/alias '{id}'"
 
   processUnary (stx : Syntax) := do
     let aliasName := (stx[0].getId).eraseMacroScopes
@@ -291,7 +291,7 @@ def «syntax»      := leading_parser attrKind >> "syntax " >> optPrecedence >> 
   let attrKind ← toAttributeKind stx[0]
   let cat      := stx[7].getId.eraseMacroScopes
   unless (Parser.isParserCategory env cat) do
-    throwErrorAt! stx[7] "unknown category '{cat}'"
+    throwErrorAt stx[7] "unknown category '{cat}'"
   let syntaxParser := stx[5]
   -- If the user did not provide an explicit precedence, we assign `maxPrec` to atom-like syntax and `leadPrec` otherwise.
   let precDefault  := if isAtomLikeSyntax syntaxParser then Parser.maxPrec else Parser.leadPrec
@@ -355,13 +355,13 @@ def elabMacroRulesAux (k : SyntaxNodeKind) (alts : Array Syntax) : CommandElabM 
         pure alt
       else if k' == choiceKind then
          match quoted.getArgs.find? fun quotAlt => quotAlt.getKind == k with
-         | none        => throwErrorAt! alt "invalid macro_rules alternative, expected syntax node kind '{k}'"
+         | none        => throwErrorAt alt "invalid macro_rules alternative, expected syntax node kind '{k}'"
          | some quoted =>
            let pat := pat.setArg 1 quoted
            let pats := pats.elemsAndSeps.set! 0 pat
            `(matchAltExpr| | $pats,* => $rhs)
       else
-        throwErrorAt! alt "invalid macro_rules alternative, unexpected syntax node kind '{k'}'"
+        throwErrorAt alt "invalid macro_rules alternative, unexpected syntax node kind '{k'}'"
     | _ => throwUnsupportedSyntax
   `(@[macro $(Lean.mkIdent k)] def myMacro : Macro :=
      fun $alts:matchAlt* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
@@ -378,7 +378,7 @@ def inferMacroRulesAltKind : Syntax → CommandElabM SyntaxNodeKind
 def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
   let k ← inferMacroRulesAltKind alts[0]
   if k == choiceKind then
-    throwErrorAt! alts[0]
+    throwErrorAt alts[0]
       "invalid macro_rules alternative, multiple interpretations for pattern (solution: specify node kind using `macro_rules [<kind>] ...`)"
   else
     let altsK    ← alts.filterM fun alt => do pure $ k == (← inferMacroRulesAltKind alt)
@@ -629,7 +629,7 @@ def expandElab (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
             | `($pat) => Lean.Elab.Command.withExpectedType expectedType? fun $expId => $rhs
             | _ => throwUnsupportedSyntax)
       else
-        throwErrorAt! expectedTypeSpec "syntax category '{catName}' does not support expected type specification"
+        throwErrorAt expectedTypeSpec "syntax category '{catName}' does not support expected type specification"
     else if catName == `term then
       `(@[termElab $(mkIdentFrom stx name):ident] def elabFn : Lean.Elab.Term.TermElab :=
         fun stx _ => match stx with
@@ -648,7 +648,7 @@ def expandElab (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
     else
       -- We considered making the command extensible and support new user-defined categories. We think it is unnecessary.
       -- If users want this feature, they add their own `elab` macro that uses this one as a fallback.
-      throwError! "unsupported syntax category '{catName}'"
+      throwError "unsupported syntax category '{catName}'"
   return mkNullNode #[stxCmd, elabCmd]
 
 @[builtinCommandElab «elab»] def elabElab : CommandElab :=

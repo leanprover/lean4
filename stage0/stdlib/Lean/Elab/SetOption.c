@@ -62,7 +62,6 @@ lean_object* l_Lean_throwError___at_Lean_Elab_elabSetOption___spec__3(lean_objec
 lean_object* l_Lean_Elab_elabSetOption___rarg___closed__2;
 lean_object* l_Lean_Elab_elabSetOption___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_elabSetOption_setOption___spec__1(lean_object*);
-lean_object* l_Lean_Elab_elabSetOption_setOption___rarg___lambda__4___closed__3;
 lean_object* l_Lean_Elab_elabSetOption___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkAnnotation___closed__1;
@@ -305,18 +304,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_elabSetOption_setOption___rarg___lambda__4___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_elabSetOption_setOption___rarg___lambda__4___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_elabSetOption_setOption___rarg___lambda__4___closed__2;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
@@ -339,7 +327,7 @@ lean_dec(x_3);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_13 = l_Lean_Elab_elabSetOption_setOption___rarg___lambda__4___closed__3;
+x_13 = l_Lean_Elab_elabSetOption_setOption___rarg___lambda__4___closed__2;
 x_14 = l_Lean_throwError___at_Lean_Elab_elabSetOption_setOption___spec__1___rarg(x_1, x_6, x_7, x_8, x_13);
 x_15 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_14, x_10);
 return x_15;
@@ -763,8 +751,6 @@ l_Lean_Elab_elabSetOption_setOption___rarg___lambda__4___closed__1 = _init_l_Lea
 lean_mark_persistent(l_Lean_Elab_elabSetOption_setOption___rarg___lambda__4___closed__1);
 l_Lean_Elab_elabSetOption_setOption___rarg___lambda__4___closed__2 = _init_l_Lean_Elab_elabSetOption_setOption___rarg___lambda__4___closed__2();
 lean_mark_persistent(l_Lean_Elab_elabSetOption_setOption___rarg___lambda__4___closed__2);
-l_Lean_Elab_elabSetOption_setOption___rarg___lambda__4___closed__3 = _init_l_Lean_Elab_elabSetOption_setOption___rarg___lambda__4___closed__3();
-lean_mark_persistent(l_Lean_Elab_elabSetOption_setOption___rarg___lambda__4___closed__3);
 l_Lean_Elab_elabSetOption___rarg___closed__1 = _init_l_Lean_Elab_elabSetOption___rarg___closed__1();
 lean_mark_persistent(l_Lean_Elab_elabSetOption___rarg___closed__1);
 l_Lean_Elab_elabSetOption___rarg___closed__2 = _init_l_Lean_Elab_elabSetOption___rarg___closed__2();

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.ResolveName
 import Lean.Util.Sorry
+import Lean.Util.ReplaceExpr
 import Lean.Structure
 import Lean.Meta.ExprDefEq
 import Lean.Meta.AppBuilder
@@ -405,7 +406,7 @@ def throwMVarError (m : MessageData) : TermElabM α := do
   if (← get).messages.hasErrors then
     throwAbortTerm
   else
-    throwError! m
+    throwError m
 
 def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) (extraMsg? : Option MessageData) : TermElabM Unit := do
   match mvarErrorInfo.kind with
@@ -550,7 +551,7 @@ def throwTypeMismatchError (header? : Option String) (expectedType : Expr) (eTyp
     | some extraMsg => Format.line ++ extraMsg;
   -/
   match f? with
-  | none   => throwError <| (← mkTypeMismatchError header? e eType expectedType) ++ extraMsg
+  | none   => throwError "{← mkTypeMismatchError header? e eType expectedType}{extraMsg}"
   | some f => Meta.throwAppTypeMismatch f e extraMsg
 
 @[inline] def withoutMacroStackAtErr (x : TermElabM α) : TermElabM α :=
@@ -575,14 +576,14 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
         let oldValType ← inferType oldVal
         let valType ← inferType val
         unless (← isDefEq oldValType valType) do
-          throwError! "synthesized type class instance type is not definitionally equal to expected type, synthesized{indentExpr val}\nhas type{indentExpr valType}\nexpected{indentExpr oldValType}"
-        throwError! "synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized{indentExpr val}\ninferred{indentExpr oldVal}"
+          throwError "synthesized type class instance type is not definitionally equal to expected type, synthesized{indentExpr val}\nhas type{indentExpr valType}\nexpected{indentExpr oldValType}"
+        throwError "synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized{indentExpr val}\ninferred{indentExpr oldVal}"
     else
       unless (← isDefEq (mkMVar instMVar) val) do
-        throwError! "failed to assign synthesized type class instance{indentExpr val}"
+        throwError "failed to assign synthesized type class instance{indentExpr val}"
     pure true
   | LOption.undef    => pure false -- we will try later
-  | LOption.none     => throwError! "failed to synthesize instance{indentExpr type}"
+  | LOption.none     => throwError "failed to synthesize instance{indentExpr type}"
 
 register_builtin_option autoLift : Bool := {
   defValue := true
@@ -654,8 +655,8 @@ def synthesizeInst (type : Expr) : TermElabM Expr := do
   let type ← instantiateMVars type
   match (← trySynthInstance type) with
   | LOption.some val => pure val
-  | LOption.undef    => throwError! "failed to synthesize instance{indentExpr type}"
-  | LOption.none     => throwError! "failed to synthesize instance{indentExpr type}"
+  | LOption.undef    => throwError "failed to synthesize instance{indentExpr type}"
+  | LOption.none     => throwError "failed to synthesize instance{indentExpr type}"
 
 def isMonadApp (type : Expr) : TermElabM Bool := do
   let some (m, _) ← isTypeApp? type | pure false
@@ -868,11 +869,11 @@ def tryPostponeIfNoneOrMVar (e? : Option Expr) : TermElabM Unit :=
 def tryPostponeIfHasMVars (expectedType? : Option Expr) (msg : String) : TermElabM Expr := do
   tryPostponeIfNoneOrMVar expectedType?
   let some expectedType ← pure expectedType? |
-    throwError! "{msg}, expected type must be known"
+    throwError "{msg}, expected type must be known"
   let expectedType ← instantiateMVars expectedType
   if expectedType.hasExprMVar then
     tryPostpone
-    throwError! "{msg}, expected type contains metavariables{indentExpr expectedType}"
+    throwError "{msg}, expected type contains metavariables{indentExpr expectedType}"
   pure expectedType
 
 private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
@@ -887,7 +888,7 @@ private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : Term
   an error is found. -/
 private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool)
     : List TermElab → TermElabM Expr
-  | []                => do throwError! "unexpected syntax{indentD stx}"
+  | []                => do throwError "unexpected syntax{indentD stx}"
   | (elabFn::elabFns) => do
     try
       elabFn stx expectedType?
@@ -929,7 +930,7 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
   let k := stx.getKind
   match table.find? k with
   | some elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
-  | none         => throwError! "elaboration function for '{k}' has not been implemented{indentD stx}"
+  | none         => throwError "elaboration function for '{k}' has not been implemented{indentD stx}"
 
 instance : MonadMacroAdapter TermElabM where
   getCurrMacroScope := getCurrMacroScope
@@ -1088,8 +1089,8 @@ private def tryCoeSort (α : Expr) (a : Expr) : TermElabM Expr := do
       else
         throwError "type expected"
   catch
-    | Exception.error _ msg => throwError! "type expected\n{msg}"
-    | _                     => throwError! "type expected"
+    | Exception.error _ msg => throwError "type expected\n{msg}"
+    | _                     => throwError "type expected"
 
 /--
   Make sure `e` is a type by inferring its type and making sure it is a `Expr.sort`
@@ -1144,7 +1145,7 @@ def addAutoBoundImplicits (xs : Array Expr) : TermElabM (Array Expr) := do
     let localDecl ← getLocalDecl auto.fvarId!
     for x in xs do
       if (← getMCtx).localDeclDependsOn localDecl x.fvarId! then
-        throwError! "invalid auto implicit argument '{auto}', it depends on explicitly provided argument '{x}'"
+        throwError "invalid auto implicit argument '{auto}', it depends on explicitly provided argument '{x}'"
   return autoBoundImplicits.toArray ++ xs
 
 def mkAuxName (suffix : Name) : TermElabM Name := do
@@ -1212,7 +1213,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
           pure val
         else
           withLCtx mvarDecl.lctx mvarDecl.localInstances do
-            throwError! "synthetic hole has already been defined and assigned to value incompatible with the current context{indentExpr val}"
+            throwError "synthetic hole has already been defined and assigned to value incompatible with the current context{indentExpr val}"
       | none =>
         if mctx.isDelayedAssigned mvarId then
           -- We can try to improve this case if needed.
@@ -1284,7 +1285,7 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
 def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
   if let some (e, projs) ← resolveLocalName n then
     unless explicitLevels.isEmpty do
-      throwError! "invalid use of explicit universe parameters, '{e}' is a local"
+      throwError "invalid use of explicit universe parameters, '{e}' is a local"
     return [(e, projs)]
   -- check for section variable capture by a quotation
   if let some (e, projs) := preresolved.findSome? fun (n, projs) => (← read).sectionFVars.find? n |>.map (·, projs) then
@@ -1298,7 +1299,7 @@ where process (candidates : List (Name × List String)) : TermElabM (List (Expr 
     if (← read).autoBoundImplicit && isValidAutoBoundImplicitName n then
       throwAutoBoundImplicitLocal n
     else
-      throwError! "unknown identifier '{Lean.mkConst n}'"
+      throwError "unknown identifier '{Lean.mkConst n}'"
   mkConsts candidates explicitLevels
 
 /--
@@ -1333,7 +1334,7 @@ def resolveName' (ident : Syntax) (explicitLevels : List Level) : TermElabM (Lis
           newFields := newFields.push <| mkIdentFromPos pos fieldSstr (Name.mkSimple field)
           pos := pos + fieldSstr.bsize + 1
         return (c, id, newFields.toList)
-  | _ => throwError! "identifier expected"
+  | _ => throwError "identifier expected"
 
 def resolveId? (stx : Syntax) (kind := "term") : TermElabM (Option Expr) :=
   match stx with
@@ -1344,7 +1345,7 @@ def resolveId? (stx : Syntax) (kind := "term") : TermElabM (Option Expr) :=
     match fs with
     | []  => pure none
     | [f] => pure (some f)
-    | _   =>   throwError! "ambiguous {kind}, use fully qualified name, possible interpretations {fs}"
+    | _   =>   throwError "ambiguous {kind}, use fully qualified name, possible interpretations {fs}"
   | _ => throwError "identifier expected"
 
 @[builtinTermElab cdot] def elabBadCDot : TermElab := fun stx _ =>
@@ -1369,7 +1370,9 @@ private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr :=
   let typeMVar ← mkFreshTypeMVarFor expectedType?
   let u ← getDecLevel typeMVar
   let mvar ← mkInstMVar (mkApp2 (Lean.mkConst `OfNat [u]) typeMVar (mkNatLit val))
-  return mkApp3 (Lean.mkConst `OfNat.ofNat [u]) typeMVar (mkNatLit val) mvar
+  let r := mkApp3 (Lean.mkConst `OfNat.ofNat [u]) typeMVar (mkNatLit val) mvar
+  registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
+  return r
 
 @[builtinTermElab rawNatLit] def elabRawNatLit : TermElab :=  fun stx expectedType? => do
   match stx[1].isNatLit? with
@@ -1459,7 +1462,7 @@ unsafe def evalExpr (α) (typeName : Name) (value : Expr) : TermElabM α :=
     let type ← inferType value
     let type ← whnfD type
     unless type.isConstOf typeName do
-      throwError! "unexpected type at evalExpr{indentExpr type}"
+      throwError "unexpected type at evalExpr{indentExpr type}"
     let decl := Declaration.defnDecl {
        name := name, levelParams := [], type := type,
        value := value, hints := ReducibilityHints.opaque,
@@ -1468,6 +1471,55 @@ unsafe def evalExpr (α) (typeName : Name) (value : Expr) : TermElabM α :=
     ensureNoUnassignedMVars decl
     addAndCompile decl
     evalConst α name
+
+private def throwStuckAtUniverseCnstr : TermElabM Unit := do
+  let entries ← getPostponed
+  let mut found : Std.HashSet (Level × Level) := {}
+  let mut uniqueEntries := #[]
+  for entry in entries do
+    let mut lhs := entry.lhs
+    let mut rhs := entry.rhs
+    if Level.normLt rhs lhs then
+      (lhs, rhs) := (rhs, lhs)
+    unless found.contains (lhs, rhs) do
+      found := found.insert (lhs, rhs)
+      uniqueEntries := uniqueEntries.push entry
+  for i in [1:uniqueEntries.size] do
+    logErrorAt uniqueEntries[i].ref (← mkMessage uniqueEntries[i])
+  throwErrorAt uniqueEntries[0].ref (← mkMessage uniqueEntries[0])
+where
+  /- Annotate any constant and sort in `e` that satisfies `p` with `pp.universes true` -/
+  exposeRelevantUniverses (e : Expr) (p : Level → Bool) : Expr :=
+    e.replace fun e =>
+      match e with
+      | Expr.const _ us _ => if us.any p then some (e.setPPUniverses true) else none
+      | Expr.sort u _     => if p u then some (e.setPPUniverses true) else none
+      | _                 => none
+
+  mkMessage (entry : PostponedEntry) : TermElabM MessageData := do
+    match entry.ctx? with
+    | none =>
+      return m!"stuck at solving universe constraints{indentD m!"{entry.lhs} =?= {entry.rhs}"}"
+    | some ctx =>
+      withLCtx ctx.lctx ctx.localInstances do
+        let s   := entry.lhs.collectMVars entry.rhs.collectMVars
+        /- `p u` is true if it contains a universe metavariable in `s` -/
+        let p (u : Level) := u.any fun | Level.mvar m _ => s.contains m | _ => false
+        let lhs := exposeRelevantUniverses (← instantiateMVars ctx.lhs) p
+        let rhs := exposeRelevantUniverses (← instantiateMVars ctx.rhs) p
+        addMessageContext m!"stuck at solving universe constraints{indentD m!"{entry.lhs} =?= {entry.rhs}"}\nwhile trying to unify{indentExpr lhs}\nwith{indentExpr rhs}"
+
+@[specialize] def withoutPostponingUniverseConstraints (x : TermElabM α) : TermElabM α := do
+  let postponed ← getResetPostponed
+  try
+    let a ← x
+    unless (← processPostponed (mayPostpone := false)) do
+      throwStuckAtUniverseCnstr
+    setPostponed postponed
+    return a
+  catch ex =>
+    setPostponed postponed
+    throw ex
 
 end Term
 

@@ -237,7 +237,7 @@ private def checkLetRecsToLiftTypes (funVars : Array Expr) (letRecsToLift : List
     | none        => pure ()
     | some fvarId => do
       let fnName ← getFunName fvarId letRecsToLift
-      throwErrorAt! toLift.ref "invalid type in 'let rec', it uses '{fnName}' which is being defined simultaneously"
+      throwErrorAt toLift.ref "invalid type in 'let rec', it uses '{fnName}' which is being defined simultaneously"
 
 namespace MutualClosure
 

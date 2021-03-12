@@ -116,7 +116,7 @@ def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat)
   unless max == 0 do
     let numHeartbeats ← IO.getNumHeartbeats (ε := Exception)
     if numHeartbeats - (← read).initHeartbeats > max then
-      throwError! "(deterministic) timeout at '{moduleName}', maximum number of heartbeats ({max/1000}) has been reached (use 'set_option {optionName} <num>' to set the limit)"
+      throwError "(deterministic) timeout at '{moduleName}', maximum number of heartbeats ({max/1000}) has been reached (use 'set_option {optionName} <num>' to set the limit)"
 
 def checkMaxHeartbeats (moduleName : String) : CoreM Unit := do
   checkMaxHeartbeatsCore moduleName `maxHeartbeats (← read).maxHeartbeats

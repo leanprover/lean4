@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.ResolveName
 import Lean.Util.Sorry
+import Lean.Util.ReplaceExpr
 import Lean.Structure
 import Lean.Meta.ExprDefEq
 import Lean.Meta.AppBuilder
@@ -1468,6 +1469,55 @@ unsafe def evalExpr (α) (typeName : Name) (value : Expr) : TermElabM α :=
     ensureNoUnassignedMVars decl
     addAndCompile decl
     evalConst α name
+
+private def throwStuckAtUniverseCnstr : TermElabM Unit := do
+  let entries ← getPostponed
+  let mut found : Std.HashSet (Level × Level) := {}
+  let mut uniqueEntries := #[]
+  for entry in entries do
+    let mut lhs := entry.lhs
+    let mut rhs := entry.rhs
+    if Level.normLt rhs lhs then
+      (lhs, rhs) := (rhs, lhs)
+    unless found.contains (lhs, rhs) do
+      found := found.insert (lhs, rhs)
+      uniqueEntries := uniqueEntries.push entry
+  for i in [1:uniqueEntries.size] do
+    logErrorAt uniqueEntries[i].ref (← mkMessage uniqueEntries[i])
+  throwErrorAt uniqueEntries[0].ref (← mkMessage uniqueEntries[0])
+where
+  /- Annotate any constant and sort in `e` that satisfies `p` with `pp.universes true` -/
+  exposeRelevantUniverses (e : Expr) (p : Level → Bool) : Expr :=
+    e.replace fun e =>
+      match e with
+      | Expr.const _ us _ => if us.any p then some (e.setPPUniverses true) else none
+      | Expr.sort u _     => if p u then some (e.setPPUniverses true) else none
+      | _                 => none
+
+  mkMessage (entry : PostponedEntry) : TermElabM MessageData := do
+    match entry.ctx? with
+    | none =>
+      return m!"stuck at solving universe constraints{indentD m!"{entry.lhs} =?= {entry.rhs}"}"
+    | some ctx =>
+      withLCtx ctx.lctx ctx.localInstances do
+        let s   := entry.lhs.collectMVars entry.rhs.collectMVars
+        /- `p u` is true if it contains a universe metavariable in `s` -/
+        let p (u : Level) := u.any fun | Level.mvar m _ => s.contains m | _ => false
+        let lhs := exposeRelevantUniverses (← instantiateMVars ctx.lhs) p
+        let rhs := exposeRelevantUniverses (← instantiateMVars ctx.rhs) p
+        addMessageContext m!"stuck at solving universe constraints{indentD m!"{entry.lhs} =?= {entry.rhs}"}\nwhile trying to unify{indentExpr lhs}\nwith{indentExpr rhs}"
+
+@[specialize] def withoutPostponingUniverseConstraints (x : TermElabM α) : TermElabM α := do
+  let postponed ← getResetPostponed
+  try
+    let a ← x
+    unless (← processPostponed (mayPostpone := false)) do
+      throwStuckAtUniverseCnstr
+    setPostponed postponed
+    return a
+  catch ex =>
+    setPostponed postponed
+    throw ex
 
 end Term
 

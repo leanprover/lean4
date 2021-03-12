@@ -208,11 +208,11 @@ namedPattern :=
       endPos := { line := 161, column := 29 },
       endCharUtf16 := 29 } }
 Lean.Meta.forallTelescopeReducing :=
-  { range := { pos := { line := 679, column := 0 },
+  { range := { pos := { line := 699, column := 0 },
       charUtf16 := 0,
-      endPos := { line := 680, column := 58 },
+      endPos := { line := 700, column := 58 },
       endCharUtf16 := 58 },
-    selectionRange := { pos := { line := 679, column := 4 },
+    selectionRange := { pos := { line := 699, column := 4 },
       charUtf16 := 4,
-      endPos := { line := 679, column := 27 },
+      endPos := { line := 699, column := 27 },
       endCharUtf16 := 27 } }

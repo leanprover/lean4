@@ -96,9 +96,27 @@ structure Cache where
   whnfAll       : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
   deriving Inhabited
 
+/--
+ "Context" for a postponed universe constraint.
+ `lhs` and `rhs` are the surrounding `isDefEq` call when the postponed constraint was created.
+-/
+structure DefEqContext where
+  lhs            : Expr
+  rhs            : Expr
+  lctx           : LocalContext
+  localInstances : LocalInstances
+
+/--
+  Auxiliary structure for representing postponed universe constraints.
+  Remark: the fields `ref` and `rootDefEq?` are used for error message generation only.
+  Remark: we may consider improving the error message generation in the future.
+-/
 structure PostponedEntry where
-  lhs       : Level
-  rhs       : Level
+  ref  : Syntax -- We save the `ref` at entry creation time
+  lhs  : Level
+  rhs  : Level
+  ctx? : Option DefEqContext -- Context for the surrounding `isDefEq` call when entry was created
+  deriving Inhabited
 
 structure State where
   mctx        : MetavarContext := {}
@@ -109,9 +127,11 @@ structure State where
   deriving Inhabited
 
 structure Context where
-  config         : Config         := {}
-  lctx           : LocalContext   := {}
-  localInstances : LocalInstances := #[]
+  config         : Config               := {}
+  lctx           : LocalContext         := {}
+  localInstances : LocalInstances       := #[]
+  /-- Not `none` when inside of an `isDefEq` test. See `PostponedEntry`. -/
+  defEqCtx?      : Option DefEqContext  := none
 
 abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 

@@ -531,6 +531,26 @@ abbrev LevelSet := HashSet Level
 abbrev PersistentLevelSet := PHashSet Level
 abbrev PLevelSet := PersistentLevelSet
 
+def Level.collectMVars (u : Level) (s : NameSet := {}) : NameSet :=
+  match u with
+  | succ v _   => collectMVars v s
+  | max u v _  => collectMVars u (collectMVars v s)
+  | imax u v _ => collectMVars u (collectMVars v s)
+  | mvar n _   => s.insert n
+  | _          => s
+
+def Level.find? (u : Level) (p : Level → Bool) : Option Level :=
+  if p u then
+    some u
+  else match u with
+    | succ v _   => v.find? p
+    | max u v _  => u.find? p <|> v.find? p
+    | imax u v _ => u.find? p <|> v.find? p
+    | _          => none
+
+def Level.any (u : Level) (p : Level → Bool) : Bool :=
+  u.find? p |>.isSome
+
 end Lean
 
 abbrev Nat.toLevel (n : Nat) : Lean.Level :=

@@ -417,8 +417,8 @@ protected partial def Result.quote (r : Result) (prec : Nat) : Syntax :=
   | Result.num  k         => Unhygienic.run `(level| $(quote k):numLit)
   | Result.offset r 0     => Result.quote r prec
   | Result.offset r (k+1) => addParen <| Unhygienic.run `(level| $(Result.quote r 65) + $(quote (k+1)):numLit)
-  | Result.maxNode rs     => addParen <| Unhygienic.run `(level| max $(rs.toArray.map (Result.quote · maxPrec!))*)
-  | Result.imaxNode rs    => addParen <| Unhygienic.run `(level| imax $(rs.toArray.map (Result.quote · maxPrec!))*)
+  | Result.maxNode rs     => addParen <| Unhygienic.run `(level| max $(rs.toArray.map (Result.quote · max_prec))*)
+  | Result.imaxNode rs    => addParen <| Unhygienic.run `(level| imax $(rs.toArray.map (Result.quote · max_prec))*)
 
 end PP
 

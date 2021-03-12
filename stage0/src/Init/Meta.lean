@@ -689,7 +689,7 @@ macro_rules
 macro_rules
   | `(prec| $a - $b) => do `(prec| $(quote <| (← evalPrec a) - (← evalPrec b)):numLit)
 
-macro "evalPrec! " p:prec:max : term => return quote (← evalPrec p)
+macro "eval_prec " p:prec:max : term => return quote (← evalPrec p)
 
 def evalOptPrec : Option Syntax → MacroM Nat
   | some prec => evalPrec prec
@@ -709,11 +709,11 @@ macro_rules
 macro_rules
   | `(prio| $a - $b) => do `(prio| $(quote <| (← evalPrio a) - (← evalPrio b)):numLit)
 
-macro "evalPrio! " p:prio:max : term => return quote (← evalPrio p)
+macro "eval_prio " p:prio:max : term => return quote (← evalPrio p)
 
 def evalOptPrio : Option Syntax → MacroM Nat
   | some prio => evalPrio prio
-  | none      => return evalPrio! default
+  | none      => return eval_prio default
 
 end Lean
 

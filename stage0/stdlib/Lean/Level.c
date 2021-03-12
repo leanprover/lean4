@@ -75,6 +75,7 @@ lean_object* l_Lean_Level_data_match__1___rarg(lean_object*, lean_object*, lean_
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Level_PP_Result_quote___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Level_hasMVarEx___boxed(lean_object*);
 lean_object* l_Lean_Level_mkData___closed__2;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_13941____closed__7;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Level_PP_Result_quote_match__1(lean_object*);
 uint8_t l_Lean_Level_isEquiv(lean_object*, lean_object*);
@@ -287,7 +288,6 @@ lean_object* lean_level_update_succ(lean_object*, lean_object*);
 lean_object* l_Lean_Level_getLevelOffset(lean_object*);
 lean_object* l_Lean_Level_dec___boxed(lean_object*);
 lean_object* l_Lean_Level_collectMVars_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_13868____closed__7;
 uint64_t l_Lean_instInhabitedData;
 lean_object* l_Lean_Level_ofNat_match__1(lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_PP_parenIfFalse_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5663,7 +5663,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1136____closed__30;
-x_2 = l_myMacro____x40_Init_Notation___hyg_13868____closed__7;
+x_2 = l_myMacro____x40_Init_Notation___hyg_13941____closed__7;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

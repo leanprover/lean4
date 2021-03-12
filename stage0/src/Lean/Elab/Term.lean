@@ -953,7 +953,7 @@ private def isLambdaWithImplicit (stx : Syntax) : Bool :=
   | `(fun $binders* => $body) => binders.any fun b => b.isOfKind `Lean.Parser.Term.implicitBinder || b.isOfKind `Lean.Parser.Term.instBinder
   | _                         => false
 
-private partial def dropTermParens : Syntax → Syntax | stx =>
+private partial def dropTermParens : Syntax → Syntax := fun stx =>
   match stx with
   | `(($stx)) => dropTermParens stx
   | _         => stx

@@ -77,12 +77,13 @@ instance : ToStream Std.Range Std.Range where
   toStream r := r
 
 instance [Stream ρ α] [Stream γ β] : Stream (ρ × γ) (α × β) where
-  next? | (s₁, s₂) =>
-    match Stream.next? s₁ with
-    | none => none
-    | some (a, s₁) => match Stream.next? s₂ with
+  next?
+    | (s₁, s₂) =>
+      match Stream.next? s₁ with
       | none => none
-      | some (b, s₂) => some ((a, b), (s₁, s₂))
+      | some (a, s₁) => match Stream.next? s₂ with
+        | none => none
+        | some (b, s₂) => some ((a, b), (s₁, s₂))
 
 instance : Stream (List α) α where
   next?

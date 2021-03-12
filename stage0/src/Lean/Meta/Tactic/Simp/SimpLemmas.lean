@@ -172,12 +172,12 @@ def getSimpLemmas : MetaM SimpLemmas :=
   return simpExtension.getState (← getEnv)
 
 /- Auxiliary method for adding a global declaration to a `SimpLemmas` datastructure. -/
-def SimpLemmas.addConst (s : SimpLemmas) (declName : Name) (post : Bool := true) (prio : Nat := evalPrio! default) : MetaM SimpLemmas := do
+def SimpLemmas.addConst (s : SimpLemmas) (declName : Name) (post : Bool := true) (prio : Nat := eval_prio default) : MetaM SimpLemmas := do
   let simpLemmas ← mkSimpLemmasFromConst declName post prio
   return simpLemmas.foldl addSimpLemmaEntry s
 
 /- Auxiliary method for creating simp lemmas from a proof term `val`. -/
-def mkSimpLemmas (val : Expr) (post : Bool := true) (prio : Nat := evalPrio! default) (name? : Option Name := none): MetaM (Array SimpLemma) :=
+def mkSimpLemmas (val : Expr) (post : Bool := true) (prio : Nat := eval_prio default) (name? : Option Name := none): MetaM (Array SimpLemma) :=
   withReducible do
     let type ← inferType val
     checkTypeIsProp type
@@ -190,7 +190,7 @@ def mkSimpLemmas (val : Expr) (post : Bool := true) (prio : Nat := evalPrio! def
       #[← mkSimpLemmaCore val val post prio name?]
 
 /- Auxiliary method for adding a local simp lemma to a `SimpLemmas` datastructure. -/
-def SimpLemmas.add (s : SimpLemmas) (e : Expr) (post : Bool := true) (prio : Nat := evalPrio! default) : MetaM SimpLemmas := do
+def SimpLemmas.add (s : SimpLemmas) (e : Expr) (post : Bool := true) (prio : Nat := eval_prio default) : MetaM SimpLemmas := do
   if e.isConst then
     s.addConst e.constName! post prio
   else

@@ -102,7 +102,7 @@ namespace Id
 @[simp] theorem pure_eq (a : α) : (pure a : Id α) = a := rfl
 
 instance : LawfulMonad Id := by
-  refine! { .. } <;> intros <;> rfl
+  refine' { .. } <;> intros <;> rfl
 
 end Id
 

@@ -28,7 +28,6 @@ macro "min1" : prec => `(11)   -- `(min+1) we can only `min+1` after `Meta.lean`
 /-
   `max:prec` as a term. It is equivalent to `eval_prec max` for `eval_prec` defined at `Meta.lean`.
   We use `max_prec` to workaround bootstrapping issues. -/
-macro "maxPrec!" : term => `(1024)
 macro "max_prec" : term => `(1024)
 
 macro "default" : prio => `(1000)
@@ -198,7 +197,6 @@ syntax (name := contradiction) "contradiction" : tactic
 syntax (name := apply) "apply " term : tactic
 syntax (name := exact) "exact " term : tactic
 syntax (name := refine) "refine " term : tactic
-syntax (name := refine!) "refine! " term : tactic
 syntax (name := refine') "refine' " term : tactic
 syntax (name := case) "case " ident " => " tacticSeq : tactic
 syntax (name := allGoals) "allGoals " tacticSeq : tactic

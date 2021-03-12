@@ -73,11 +73,6 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
   | `(tactic| refine $e) => refineCore e `refine (allowNaturalHoles := false)
   | _                    => throwUnsupportedSyntax
 
-@[builtinTactic «refine!»] def evalRefineBang : Tactic := fun stx =>
-  match stx with
-  | `(tactic| refine! $e) => refineCore e `refine (allowNaturalHoles := true)
-  | _                     => throwUnsupportedSyntax
-
 @[builtinTactic «refine'»] def evalRefine' : Tactic := fun stx =>
   match stx with
   | `(tactic| refine' $e) => refineCore e `refine' (allowNaturalHoles := true)

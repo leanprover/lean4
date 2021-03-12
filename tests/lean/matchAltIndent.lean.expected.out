@@ -1,0 +1,1 @@
+matchAltIndent.lean:2:0: error: expected alternative right-hand-side to start in a column greater than or equal to the corresponding '|'

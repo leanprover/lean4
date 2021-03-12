@@ -86,8 +86,7 @@ instance [Repr α] [ReprTuple β] : ReprTuple (α × β) where
   reprTuple | (a, b), xs => reprTuple b (repr a :: xs)
 
 instance [Repr α] [ReprTuple β] : Repr (α × β) where
-  reprPrec | (a, b), _ =>
-    Format.bracket "(" (Format.joinSep (reprTuple b [repr a]).reverse ("," ++ Format.line)) ")"
+  reprPrec | (a, b), _ => Format.bracket "(" (Format.joinSep (reprTuple b [repr a]).reverse ("," ++ Format.line)) ")"
 
 instance {β : α → Type v} [Repr α] [s : (x : α) → Repr (β x)] : Repr (Sigma β) where
   reprPrec | ⟨a, b⟩, _ => Format.bracket "⟨" (repr a ++ ", " ++ repr b) "⟩"

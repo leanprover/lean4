@@ -12,10 +12,10 @@ class Zero (α : Type u) where
 class One (α : Type u) where
   one : α
 
-instance [Zero α] : OfNat α (natLit! 0) where
+instance [Zero α] : OfNat α (nat_lit 0) where
   ofNat := Zero.zero
 
-instance [One α] : OfNat α (natLit! 1) where
+instance [One α] : OfNat α (nat_lit 1) where
   ofNat := One.one
 
 -- Some example structure

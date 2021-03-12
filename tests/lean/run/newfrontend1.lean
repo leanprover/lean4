@@ -94,7 +94,7 @@ by {
 theorem simple7 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 by {
   intro h1; intro _; intro h3;
-  refine! Eq.trans ?pre ?post;
+  refine' Eq.trans ?pre ?post;
   exact y;
   { exact h3 }
   { exact h1 }
@@ -102,7 +102,7 @@ by {
 
 theorem simple8 (x y z : Nat) : y = z → x = x → x = y → x = z := by
 intro h1; intro _; intro h3
-refine! Eq.trans ?pre ?post
+refine' Eq.trans ?pre ?post
 case post => exact h1
 case pre => exact h3
 
@@ -110,7 +110,7 @@ theorem simple9 (x y z : Nat) : y = z → x = x → x = y → x = z := by
 intros h1 _ h3
 traceState
 focus
-  refine! Eq.trans ?pre ?post
+  refine' Eq.trans ?pre ?post
   first
     | exact h1
       assumption
@@ -122,7 +122,7 @@ theorem simple9b (x y z : Nat) : y = z → x = x → x = y → x = z := by
 intros h1 _ h3
 traceState
 focus
-  refine! Eq.trans ?pre ?post
+  refine' Eq.trans ?pre ?post
   first
     | exact h1
     | exact y; exact h3
@@ -132,12 +132,12 @@ theorem simple9c (x y z : Nat) : y = z → x = x → x = y → x = z := by
   intros h1 _ h3
   solve
     | exact h1
-    | refine! Eq.trans ?pre ?post; exact y; exact h3; assumption
+    | refine' Eq.trans ?pre ?post; exact y; exact h3; assumption
     | exact h3
 
 theorem simple9d (x y z : Nat) : y = z → x = x → x = y → x = z := by
   intros h1 _ h3
-  refine! Eq.trans ?pre ?post
+  refine' Eq.trans ?pre ?post
   solve
     | exact h1
     | exact y

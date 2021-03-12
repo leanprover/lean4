@@ -4,19 +4,19 @@ Helper classes for Lean 3 users
 class One (α : Type u) where
   one : α
 
-instance [OfNat α (natLit! 1)] : One α where
+instance [OfNat α (nat_lit 1)] : One α where
   one := 1
 
-instance [One α] : OfNat α (natLit! 1) where
+instance [One α] : OfNat α (nat_lit 1) where
   ofNat := One.one
 
 class Zero (α : Type u) where
   zero : α
 
-instance [OfNat α (natLit! 0)] : Zero α where
+instance [OfNat α (nat_lit 0)] : Zero α where
   zero := 0
 
-instance [Zero α] : OfNat α (natLit! 0) where
+instance [Zero α] : OfNat α (nat_lit 0) where
   ofNat := Zero.zero
 
 /- Simple Matrix -/

@@ -3,7 +3,7 @@ class Zero (α : Type u) where
 
 export Zero (zero)
 
-instance [Zero α] : OfNat α (natLit! 0) where
+instance [Zero α] : OfNat α (nat_lit 0) where
   ofNat := zero
 
 class AddGroup (α : Type u) extends Add α, Zero α, Neg α where

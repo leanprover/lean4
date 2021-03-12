@@ -56,10 +56,10 @@ abbrev inv {G : Group} (a : G) : G :=
 
 postfix:max "⁻¹" => inv
 
-instance (G : Group) : OfNat (coeSort G.toMagma) (natLit! 1) where
+instance (G : Group) : OfNat (coeSort G.toMagma) (nat_lit 1) where
   ofNat := G.one
 
-instance (G : Group) : OfNat (G.toMagma.α) (natLit! 1) where
+instance (G : Group) : OfNat (G.toMagma.α) (nat_lit 1) where
   ofNat := G.one
 
 structure CommGroup extends Group where

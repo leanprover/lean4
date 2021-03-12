@@ -18,14 +18,14 @@ class One (α : Type u) where
     one : α
 export One (one)
 
-instance [One α] : OfNat α (natLit! 1) where
+instance [One α] : OfNat α (nat_lit 1) where
     ofNat := one
 
 class Zero (α : Type u) where
     zero : α
 export Zero (zero)
 
-instance [Zero α] : OfNat α (natLit! 0) where
+instance [Zero α] : OfNat α (nat_lit 0) where
     ofNat := zero
 
 class MulComm (α : Type u) [Mul α] : Prop where

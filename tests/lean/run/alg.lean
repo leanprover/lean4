@@ -17,7 +17,7 @@ instance [CommSemigroup α] : MulComm α where
 class One (α : Type u) where
   one : α
 
-instance [One α] : OfNat α (natLit! 1) where
+instance [One α] : OfNat α (nat_lit 1) where
   ofNat := One.one
 
 class Monoid (α : Type u) extends Semigroup α, One α where

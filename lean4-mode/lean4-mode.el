@@ -151,9 +151,11 @@
   '(
     ;; Handle events that may start automatic syntax checks
     (before-save-hook                    . lean4-whitespace-cleanup)
-    ;; info windows
-    (post-command-hook                   . lean4-info-buffer-refresh)
+    ;; info view
+    ;; update errors immediately, but delay querying goal
     (flycheck-after-syntax-check-hook    . lean4-info-buffer-redisplay)
+    (post-command-hook                   . lean4-info-buffer-redisplay)
+    (lsp-on-idle-hook                    . lean4-info-buffer-refresh)
     )
   "Hooks which lean4-mode needs to hook in.
 

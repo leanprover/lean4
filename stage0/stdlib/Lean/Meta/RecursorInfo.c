@@ -18,7 +18,6 @@ lean_object* l_Lean_Meta_recursorAttribute;
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getNumParams___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_mkRecName___closed__1;
 extern lean_object* l_Lean_mkMapDeclarationExtension___rarg___closed__1;
 lean_object* l_List_toStringAux___at_Lean_Meta_RecursorInfo_instToStringRecursorInfo___spec__6(uint8_t, lean_object*);
 uint8_t l_List_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getUnivLevelPos___spec__1___lambda__1(lean_object*, lean_object*);
@@ -75,6 +74,7 @@ lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim_
 lean_object* l_List_toString___at_Lean_Meta_RecursorInfo_instToStringRecursorInfo___spec__5(lean_object*);
 uint8_t l_Lean_Meta_RecursorInfo_isMinor(lean_object*, lean_object*);
 extern lean_object* l_instReprBool___closed__1;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20334____closed__3;
 lean_object* l_Lean_throwError___at_Lean_Meta_decLevel___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instToStringRecursorUnivLevelPos(lean_object*);
 extern lean_object* l_instInhabitedNat;
@@ -2264,7 +2264,7 @@ block_54:
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 lean_dec(x_18);
-x_19 = l_Lean_mkRecName___closed__1;
+x_19 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20334____closed__3;
 x_20 = lean_name_mk_string(x_16, x_19);
 x_21 = l_Lean_getConstInfoRec___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f___spec__1(x_20, x_3, x_4, x_5, x_6, x_11);
 if (lean_obj_tag(x_21) == 0)
@@ -2481,7 +2481,7 @@ block_99:
 {
 lean_object* x_76; lean_object* x_77; lean_object* x_78; 
 lean_dec(x_75);
-x_76 = l_Lean_mkRecName___closed__1;
+x_76 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20334____closed__3;
 x_77 = lean_name_mk_string(x_73, x_76);
 x_78 = l_Lean_getConstInfoRec___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f___spec__1(x_77, x_3, x_4, x_5, x_6, x_67);
 if (lean_obj_tag(x_78) == 0)

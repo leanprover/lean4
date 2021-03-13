@@ -341,9 +341,10 @@ private def getOptRotation (stx : Syntax) : Nat :=
   let gs ← getUnsolvedGoals
   let mut gsNew := []
   for g in gs do
-    setGoals [g]
-    evalTactic stx[1]
-    gsNew := gsNew ++ (← getUnsolvedGoals)
+    unless ← isExprMVarAssigned g do
+      setGoals [g]
+      evalTactic stx[1]
+      gsNew := gsNew ++ (← getUnsolvedGoals)
   setGoals gsNew
 
 @[builtinTactic tacticSeq] def evalTacticSeq : Tactic := fun stx =>

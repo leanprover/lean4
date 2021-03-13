@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_mkRecName___closed__1;
 lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_192__match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkReducibilityHintsRegularEx___boxed(lean_object*);
 lean_object* l_Lean_Declaration_foldExprM(lean_object*, lean_object*);
@@ -37,6 +36,7 @@ lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__2___rarg___lam
 lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_opaque_val_is_unsafe(lean_object*);
 lean_object* l_Lean_Declaration_forExprM___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20334____closed__3;
 uint8_t l_Lean_ConstantInfo_isUnsafe(lean_object*);
 lean_object* l_Lean_ConstantInfo_instantiateValueLevelParams___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_192____closed__6;
@@ -3475,19 +3475,11 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_mkRecName___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("rec");
-return x_1;
-}
-}
 lean_object* l_Lean_mkRecName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_mkRecName___closed__1;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20334____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -3619,8 +3611,6 @@ l_Lean_ConstantInfo_value_x21___closed__3 = _init_l_Lean_ConstantInfo_value_x21_
 lean_mark_persistent(l_Lean_ConstantInfo_value_x21___closed__3);
 l_Lean_ConstantInfo_value_x21___closed__4 = _init_l_Lean_ConstantInfo_value_x21___closed__4();
 lean_mark_persistent(l_Lean_ConstantInfo_value_x21___closed__4);
-l_Lean_mkRecName___closed__1 = _init_l_Lean_mkRecName___closed__1();
-lean_mark_persistent(l_Lean_mkRecName___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

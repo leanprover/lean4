@@ -46,6 +46,7 @@ lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFr
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Elab_Tactic_evalIntro___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19364____closed__5;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_14470____closed__13;
 lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_evalMatch___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__2___closed__4;
@@ -65,7 +66,6 @@ lean_object* l_Lean_Elab_Tactic_evalEraseAuxDiscrs___rarg___lambda__1___boxed(le
 extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_17226____closed__5;
 lean_object* l_Lean_Elab_Tactic_evalEraseAuxDiscrs_match__1(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Term_syntheticHole___elambda__1___closed__1;
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -949,7 +949,7 @@ x_27 = l_myMacro____x40_Init_Notation___hyg_14470____closed__10;
 x_28 = l_Lean_Syntax_setKind(x_26, x_27);
 x_29 = lean_unsigned_to_nat(3u);
 x_30 = l_Lean_Syntax_getArg(x_28, x_29);
-x_31 = l_Lean_Parser_Term_syntheticHole___elambda__1___closed__1;
+x_31 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19364____closed__5;
 lean_inc(x_30);
 x_32 = l_Lean_Syntax_isOfKind(x_30, x_31);
 if (x_32 == 0)

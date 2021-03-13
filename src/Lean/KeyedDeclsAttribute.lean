@@ -125,13 +125,12 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDe
       applicationTime := AttributeApplicationTime.afterCompilation
     }
   registerBuiltinAttribute {
-    name            := df.name,
-    descr           := df.descr,
-    add             := fun constName stx persistent => do
+    name            := df.name
+    descr           := df.descr
+    add             := fun constName stx attrKind => do
       let key ← df.evalKey false stx
       let val ← evalConstCheck γ df.valueTypeName constName
-      let env ← getEnv
-      setEnv <| ext.addEntry env { key := key, decl := constName, value := val },
+      ext.add { key := key, decl := constName, value := val } attrKind
     applicationTime := AttributeApplicationTime.afterCompilation
   }
   pure { defn := df, tableRef := tableRef, ext := ext }

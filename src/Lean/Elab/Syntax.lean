@@ -283,48 +283,33 @@ private partial def isAtomLikeSyntax (stx : Syntax) : Bool :=
   else
     kind == `Lean.Parser.Syntax.atom
 
-/-
-def «syntax»      := leading_parser attrKind >> "syntax " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 syntaxParser >> " : " >> ident
--/
 @[builtinCommandElab «syntax»] def elabSyntax : CommandElab := fun stx => do
-  let env ← getEnv
-  let attrKind ← toAttributeKind stx[0]
-  let cat      := stx[7].getId.eraseMacroScopes
-  unless (Parser.isParserCategory env cat) do
-    throwErrorAt stx[7] "unknown category '{cat}'"
-  let syntaxParser := stx[5]
+  let `($attrKind:attrKind syntax $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $[$ps:stx]* : $catStx) ← pure stx
+    | throwUnsupportedSyntax
+  let cat := catStx.getId.eraseMacroScopes
+  unless (Parser.isParserCategory (← getEnv) cat) do
+    throwErrorAt catStx "unknown category '{cat}'"
+  let syntaxParser := mkNullNode ps
   -- If the user did not provide an explicit precedence, we assign `maxPrec` to atom-like syntax and `leadPrec` otherwise.
   let precDefault  := if isAtomLikeSyntax syntaxParser then Parser.maxPrec else Parser.leadPrec
-  let prec := (← liftMacroM (Term.expandOptPrecedence stx[2])).getD precDefault
-  let name ←
-    match (← liftMacroM <| expandOptNamedName stx[3]) with
-    | some name => pure name
+  let prec ← match prec? with
+    | some prec => liftMacroM <| evalPrec prec
+    | none      => precDefault
+  let name ← match name? with
+    | some name => pure name.getId
     | none => mkNameFromParserSyntax cat syntaxParser
-  let prio ← liftMacroM <| expandOptNamedPrio stx[4]
+  let prio ← liftMacroM <| evalOptPrio prio?
   let stxNodeKind := (← getCurrNamespace) ++ name
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser")
   let (val, trailingParser) ← runTermElabM none fun _ => Term.toParserDescr syntaxParser cat
   let declName := mkIdentFrom stx name
   let d ←
-    match trailingParser, attrKind with
-    | true, AttributeKind.global =>
-      `(@[$catParserId:ident $(quote prio):numLit] def $declName : Lean.TrailingParserDescr :=
-         ParserDescr.trailingNode $(quote stxNodeKind) $(quote prec) $val)
-    | false, AttributeKind.global =>
-      `(@[$catParserId:ident $(quote prio):numLit] def $declName : Lean.ParserDescr :=
-         ParserDescr.node $(quote stxNodeKind) $(quote prec) $val)
-    | true, AttributeKind.scoped =>
-      `(@[scoped $catParserId:ident $(quote prio):numLit] def $declName : Lean.TrailingParserDescr :=
-         ParserDescr.trailingNode $(quote stxNodeKind) $(quote prec) $val)
-    | false, AttributeKind.scoped =>
-      `(@[scoped $catParserId:ident $(quote prio):numLit] def $declName : Lean.ParserDescr :=
-         ParserDescr.node $(quote stxNodeKind) $(quote prec) $val)
-    | true, AttributeKind.local =>
-      `(@[local $catParserId:ident $(quote prio):numLit] def $declName : Lean.TrailingParserDescr :=
-         ParserDescr.trailingNode $(quote stxNodeKind) $(quote prec) $val)
-    | false, AttributeKind.local =>
-      `(@[local $catParserId:ident $(quote prio):numLit] def $declName : Lean.ParserDescr :=
-         ParserDescr.node $(quote stxNodeKind) $(quote prec) $val)
+    if trailingParser then
+      `(@[$attrKind:attrKind $catParserId:ident $(quote prio):numLit] def $declName : Lean.TrailingParserDescr :=
+        ParserDescr.trailingNode $(quote stxNodeKind) $(quote prec) $val)
+    else
+      `(@[$attrKind:attrKind $catParserId:ident $(quote prio):numLit] def $declName : Lean.ParserDescr :=
+        ParserDescr.node $(quote stxNodeKind) $(quote prec) $val)
   trace `Elab fun _ => d
   withMacroExpansion stx d <| elabCommand d
 
@@ -501,11 +486,11 @@ private def expandNotationAux (ref : Syntax)
 
 @[builtinCommandElab «notation»] def expandNotation : CommandElab :=
   adaptExpander fun stx => do
-    -- trigger scoped checks early and only once
-    let _ ← toAttributeKind stx[0]
     let currNamespace ← getCurrNamespace
     match stx with
     | `($attrKind:attrKind notation $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $items* => $rhs) =>
+      -- trigger scoped checks early and only once
+      let _ ← toAttributeKind attrKind
       expandNotationAux stx currNamespace attrKind prec? name? prio? items rhs
     | _ => throwUnsupportedSyntax
 

@@ -23,7 +23,14 @@ def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false)
 
 def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr := do
   let e ← elabTerm stx expectedType? mayPostpone
-  Term.ensureHasType expectedType? e
+  -- We do use `Term.ensureExpectedType` because we don't want coercions being inserted here.
+  match expectedType? with
+  | none => return e
+  | some expectedType =>
+    let eType ← inferType e
+    unless (← isDefEq eType expectedType) do
+      Term.throwTypeMismatchError none expectedType eType e
+    return e
 
 /- Try to close main goal using `x target`, where `target` is the type of the main goal.  -/
 def closeMainUsing (x : Expr → TacticM Expr) : TacticM Unit := do

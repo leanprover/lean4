@@ -567,12 +567,12 @@ def getDoHaveVar (doHave : Syntax) : Name :=
     `leading_parser "have " >> Term.haveDecl`
     where
     ```
-    haveDecl := optIdent >> termParser >> (haveAssign <|> fromTerm <|> byTactic)
+    haveDecl := leading_parser optIdent >> termParser >> (haveAssign <|> fromTerm <|> byTactic)
     optIdent := optional (try (ident >> " : "))
 
     ```
   -/
-  let optIdent := doHave[1]
+  let optIdent := doHave[1][0]
   if optIdent.isNone then
     `this
   else
@@ -580,7 +580,7 @@ def getDoHaveVar (doHave : Syntax) : Name :=
 
 def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Name) := do
   -- letRecDecls is an array of `(group (optional attributes >> letDecl))`
-  let letRecDecls := doLetRec[1].getSepArgs
+  let letRecDecls := doLetRec[1][0].getSepArgs
   let letDecls := letRecDecls.map fun p => p[2]
   let mut allVars := #[]
   for letDecl in letDecls do

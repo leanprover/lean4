@@ -28,7 +28,7 @@ structure LetRecView where
 
 /-  group ("let " >> nonReservedSymbol "rec ") >> sepBy1 (group (optional «attributes» >> letDecl)) ", " >> "; " >> termParser -/
 private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
-  let decls ← letRec[1].getSepArgs.mapM fun (attrDeclStx : Syntax) => do
+  let decls ← letRec[1][0].getSepArgs.mapM fun (attrDeclStx : Syntax) => do
     let docStr? ← expandOptDocComment? attrDeclStx[0]
     let attrOptStx := attrDeclStx[1]
     let attrs ← if attrOptStx.isNone then pure #[] else elabDeclAttrs attrOptStx[0]

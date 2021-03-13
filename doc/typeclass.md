@@ -280,9 +280,9 @@ Lean elaborate the terms `(2 : Nat)` and `(2 : Rational)` as
 `OfNat.ofNat Nat 2 (instOfNatNat 2)` and
 `OfNat.ofNat Rational 2 (instOfNatRational 2)` respectively.
 We say the numerals `2` occurring in the elaborated terms are *raw* natural numbers.
-You can input the raw natural number `2` using the macro `natLit! 2`.
+You can input the raw natural number `2` using the macro `nat_lit 2`.
 ```lean
-#check natLit! 2  -- Nat
+#check nat_lit 2  -- Nat
 ```
 Raw natural numbers are *not* polymorphic.
 
@@ -293,7 +293,7 @@ class Monoid (α : Type u) where
   unit : α
   op   : α → α → α
 
-instance [s : Monoid α] : OfNat α (natLit! 1) where
+instance [s : Monoid α] : OfNat α (nat_lit 1) where
   ofNat := s.unit
 
 def getUnit [Monoid α] : α :=

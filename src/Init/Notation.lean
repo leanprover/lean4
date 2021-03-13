@@ -210,6 +210,8 @@ syntax (name := paren) "(" tacticSeq ")" : tactic
 syntax (name := withReducible) "withReducible " tacticSeq : tactic
 syntax (name := withReducibleAndInstances) "withReducibleAndInstances " tacticSeq : tactic
 syntax (name := first) "first " "|"? sepBy1(tacticSeq, "|") : tactic
+syntax (name := rotateLeft) "rotateLeft" (num)? : tactic
+syntax (name := rotateRight) "rotateRight" (num)? : tactic
 macro "try " t:tacticSeq : tactic => `(first $t | skip)
 macro:1 x:tactic " <;> " y:tactic:0 : tactic => `(tactic| focus ($x:tactic; allGoals $y:tactic))
 

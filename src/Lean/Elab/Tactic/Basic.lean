@@ -311,10 +311,21 @@ def tagUntaggedGoals (parentTag : Name) (newSuffix : Name) (newGoals : List MVar
   stx[0].forArgsM fun seqElem => evalTactic seqElem[0]
 
 @[builtinTactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic := fun stx =>
-  withRef stx[2] $ focusAndDone $ stx[1].forArgsM fun seqElem => evalTactic seqElem[0]
+  withRef stx[2] <| focusAndDone <| stx[1].forArgsM fun seqElem => evalTactic seqElem[0]
 
 @[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx =>
-  focus $ evalTactic stx[1]
+  focus <| evalTactic stx[1]
+
+private def getOptRotation (stx : Syntax) : Nat :=
+  if stx.isNone then 1 else stx[0].toNat
+
+@[builtinTactic Parser.Tactic.rotateLeft] def evalRotateLeft : Tactic := fun stx => do
+  let n := getOptRotation stx[1]
+  setGoals <| (← getGoals).rotateLeft n
+
+@[builtinTactic Parser.Tactic.rotateRight] def evalRotateRight : Tactic := fun stx => do
+  let n := getOptRotation stx[1]
+  setGoals <| (← getGoals).rotateRight n
 
 @[builtinTactic Parser.Tactic.open] def evalOpen : Tactic := fun stx => do
   let openDecls ← elabOpenDecl stx[1]

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 import Lean.Attributes
 import Lean.Compiler.InitAttr
 import Lean.ToExpr
+import Lean.ScopedEnvExtension
 
 /-!
 A builder for attributes that are applied to declarations of a common type and
@@ -38,6 +39,7 @@ structure Def (γ : Type) where
 structure OLeanEntry where
   key  : Key
   decl : Name -- Name of a declaration stored in the environment which has type `mkConst Def.valueTypeName`.
+  deriving Inhabited
 
 structure AttributeEntry (γ : Type) extends OLeanEntry where
   /- Recall that we cannot store `γ` into .olean files because it is a closure.
@@ -51,7 +53,7 @@ structure ExtensionState (γ : Type) where
   table      : Table γ := {}
   deriving Inhabited
 
-abbrev Extension (γ : Type) := PersistentEnvExtension OLeanEntry (AttributeEntry γ) (ExtensionState γ)
+abbrev Extension (γ : Type) := ScopedEnvExtension OLeanEntry (AttributeEntry γ) (ExtensionState γ)
 
 end KeyedDeclsAttribute
 
@@ -69,23 +71,6 @@ def Table.insert {γ : Type} (table : Table γ) (k : Key) (v : γ) : Table γ :=
   match table.find? k with
   | some vs => SMap.insert table k (v::vs)
   | none    => SMap.insert table k [v]
-
-private def mkInitial {γ} (tableRef : IO.Ref (Table γ)) : IO (ExtensionState γ) := do
-  let table ← tableRef.get
-  pure { table := table }
-
-private unsafe def addImported {γ} (df : Def γ) (tableRef : IO.Ref (Table γ)) (es : Array (Array OLeanEntry)) : ImportM (ExtensionState γ) := do
-  let ctx ← read
-  let mut table ← tableRef.get
-  for entries in es do
-    for entry in entries do
-      match ctx.env.evalConstCheck γ ctx.opts df.valueTypeName entry.decl with
-      | Except.ok f     => table := table.insert entry.key f
-      | Except.error ex => throw (IO.userError ex)
-  return { table := table }
-
-private def addExtensionEntry {γ} (s : ExtensionState γ) (e : AttributeEntry γ) : ExtensionState γ :=
-  { table := s.table.insert e.key e.value, newEntries := e.toOLeanEntry :: s.newEntries }
 
 def addBuiltin {γ} (attr : KeyedDeclsAttribute γ) (key : Key) (val : γ) : IO Unit :=
   attr.tableRef.modify fun m => m.insert key val
@@ -107,16 +92,19 @@ def declareBuiltin {γ} (df : Def γ) (attrDeclName : Name) (env : Environment) 
     throw (IO.userError s!"failed to emit registration code for builtin '{declName}': {msg}")
   | Except.ok env  => IO.ofExcept (setBuiltinInitAttr env name)
 
-/- TODO: add support for scoped attributes -/
 protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDeclsAttribute γ) := do
   let tableRef ← IO.mkRef ({} : Table γ)
-  let ext : Extension γ ← registerPersistentEnvExtension {
-    name            := df.name,
-    mkInitial       := mkInitial tableRef,
-    addImportedFn   := addImported df tableRef,
-    addEntryFn      := addExtensionEntry,
-    exportEntriesFn := fun s => s.newEntries.reverse.toArray,
-    statsFn         := fun s => f!"number of local entries: {s.newEntries.length}"
+  let ext : Extension γ ← registerScopedEnvExtension {
+    name         := df.name
+    mkInitial    := do return { table := (← tableRef.get) }
+    ofOLeanEntry := fun s entry => do
+      let ctx ← read
+      match ctx.env.evalConstCheck γ ctx.opts df.valueTypeName entry.decl with
+      | Except.ok f     => return { toOLeanEntry := entry, value := f }
+      | Except.error ex => throw (IO.userError ex)
+    addEntry     := fun s e =>
+      { table := s.table.insert e.key e.value, newEntries := e.toOLeanEntry :: s.newEntries }
+    toOLeanEntry := (·.toOLeanEntry)
   }
   unless df.builtinName.isAnonymous do
     registerBuiltinAttribute {

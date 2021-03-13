@@ -1016,6 +1016,7 @@ lean_object* l_Lean_Parser_Term_doSeqItem___elambda__1___closed__2;
 extern lean_object* l_Lean_Parser_Term_letrec___closed__4;
 lean_object* l_Lean_Parser_Term_doIfProp_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_many1_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__7___closed__2;
 extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19364____closed__2;
 lean_object* l___regBuiltin_Lean_Parser_Term_termReturn_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Term_doForDecl___elambda__1___closed__12;
@@ -1349,7 +1350,6 @@ lean_object* l_Lean_Parser_Term_doSeqIndent___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Term_doPatDecl_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_doExpr___elambda__1___closed__4;
 lean_object* l___regBuiltin_Lean_Parser_Term_termUnless_parenthesizer___closed__1;
-extern lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__5___closed__2;
 lean_object* l_Lean_Parser_Term_doReassign_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_doIf___elambda__1___closed__14;
 lean_object* l___regBuiltinParser_Lean_Parser_Term_doLetRec(lean_object*);
@@ -1861,7 +1861,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Term_leftArrow___elambda__1___closed__5;
-x_2 = l_Lean_KeyedDeclsAttribute_init___rarg___lambda__5___closed__2;
+x_2 = l_Lean_KeyedDeclsAttribute_init___rarg___lambda__7___closed__2;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }

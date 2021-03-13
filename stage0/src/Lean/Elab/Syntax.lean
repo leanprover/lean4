@@ -458,12 +458,9 @@ def expandNotationItemIntoPattern (stx : Syntax) : CommandElabM Syntax :=
 /-- Try to derive a `SimpleDelab` from a notation.
     The notation must be of the form `notation ... => c var_1 ... var_n`
     where `c` is a declaration in the current scope and the `var_i` are a permutation of the LHS vars. -/
-def mkSimpleDelab (vars : Array Syntax) (pat qrhs : Syntax) : OptionT CommandElabM Syntax :=
+def mkSimpleDelab (vars : Array Syntax) (pat qrhs : Syntax) : OptionT CommandElabM Syntax := do
   match qrhs with
-  | `($c:ident $args*) => go c args
-  | `($c:ident)        => go c #[]
-  | _                  => failure
-  where go c args := do
+  | `($c:ident $args*) =>
     let [(c, [])] ← resolveGlobalName c.getId | failure
     guard <| args.all (Syntax.isIdent ∘ getAntiquotTerm)
     guard <| args.allDiff
@@ -472,6 +469,10 @@ def mkSimpleDelab (vars : Array Syntax) (pat qrhs : Syntax) : OptionT CommandEla
     `(@[appUnexpander $(mkIdent c):ident] def unexpand : Lean.PrettyPrinter.Unexpander := fun
        | `($qrhs) => `($pat)
        | _        => throw ())
+  | `($c:ident)        =>
+    let [(c, [])] ← resolveGlobalName c.getId | failure
+    `(@[appUnexpander $(mkIdent c):ident] def unexpand : Lean.PrettyPrinter.Unexpander := fun _ => `($pat))
+  | _                  => failure
 
 private def expandNotationAux (ref : Syntax)
     (currNamespace : Name) (attrKind : AttributeKind) (prec? : Option Syntax) (name? : Option Syntax) (prio? : Option Syntax) (items : Array Syntax) (rhs : Syntax) : CommandElabM Syntax := do

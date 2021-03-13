@@ -267,11 +267,25 @@ syntax simpLemma := (simpPre <|> simpPost)? term
 syntax simpErase := "-" ident
 syntax (name := simp) "simp " (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? (colGt term)? (location)? : tactic
 
-syntax (name := «have») "have " haveDecl : tactic
-syntax (name := «suffices») "suffices " sufficesDecl : tactic
-syntax (name := «show») "show " term : tactic
-syntax (name := «let») "let " letDecl : tactic
+-- Auxiliary macro for lifting have/suffices/let/...
+-- It makes sure the "continuation" `?_` is the main goal after refining
+macro "refineLift " e:term : tactic => `(focus (refine $e; rotateRight))
+
+macro "have " d:haveDecl : tactic => `(refineLift have $d:haveDecl; ?_)
+/- We use a priority > default, to avoid ambiguity with previous `have` notation -/
+macro (priority := high) "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
+macro "suffices " d:sufficesDecl : tactic => `(refineLift suffices $d:sufficesDecl; ?_)
+macro "let " d:letDecl : tactic => `(refineLift let $d:letDecl; ?_)
+macro "show " e:term : tactic => `(refineLift show $e:term from ?_)
 syntax (name := letrec) withPosition(atomic(group("let " &"rec ")) letRecDecls) : tactic
+macro_rules
+  | `(tactic| let rec $d:letRecDecls) => `(tactic| refineLift let rec $d:letRecDecls; ?_)
+
+-- Similar to `refineLift`, but using `refine'`
+macro "refineLift' " e:term : tactic => `(focus (refine' $e; rotateRight))
+macro "have' " d:haveDecl : tactic => `(refineLift' have $d:haveDecl; ?_)
+macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x:ident : _ := $p)
+macro "let' " d:letDecl : tactic => `(refineLift' let $d:letDecl; ?_)
 
 syntax inductionAlt  := "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
 syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
@@ -281,8 +295,6 @@ syntax (name := cases) "cases " casesTarget,+ (" using " ident)? (inductionAlts)
 
 syntax (name := existsIntro) "exists " term : tactic
 
-/- We use a priority > default, to avoid ambiguity with the builtin `have` notation -/
-macro (priority := high) "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
 
 syntax "repeat " tacticSeq : tactic
 macro_rules

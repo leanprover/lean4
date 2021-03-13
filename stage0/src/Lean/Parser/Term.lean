@@ -73,9 +73,9 @@ def parenSpecial : Parser := optional (tupleTail <|> typeAscription)
 def optIdent : Parser := optional (atomic (ident >> " : "))
 def fromTerm   := leading_parser " from " >> termParser
 def haveAssign := leading_parser " := " >> termParser
-def haveDecl   := optIdent >> termParser >> (haveAssign <|> fromTerm <|> byTactic)
+def haveDecl   := leading_parser optIdent >> termParser >> (haveAssign <|> fromTerm <|> byTactic)
 @[builtinTermParser] def «have» := leading_parser:leadPrec withPosition ("have " >> haveDecl) >> optSemicolon termParser
-def sufficesDecl := optIdent >> termParser >> (fromTerm <|> byTactic)
+def sufficesDecl := leading_parser optIdent >> termParser >> (fromTerm <|> byTactic)
 @[builtinTermParser] def «suffices» := leading_parser:leadPrec withPosition ("suffices " >> sufficesDecl) >> optSemicolon termParser
 @[builtinTermParser] def «show»     := leading_parser:leadPrec "show " >> termParser >> (fromTerm <|> byTactic)
 def structInstArrayRef := leading_parser "[" >> termParser >>"]"
@@ -173,7 +173,7 @@ def attrInstance     := ppGroup $ leading_parser attrKind >> attrParser
 
 def attributes       := leading_parser "@[" >> sepBy1 attrInstance ", " >> "]"
 def letRecDecl       := leading_parser optional Command.docComment >> optional «attributes» >> letDecl
-def letRecDecls      := sepBy1 letRecDecl ", "
+def letRecDecls      := leading_parser sepBy1 letRecDecl ", "
 @[builtinTermParser]
 def «letrec» := leading_parser:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >> optSemicolon termParser
 

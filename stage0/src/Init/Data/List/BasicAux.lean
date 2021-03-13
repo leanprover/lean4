@@ -10,10 +10,8 @@ import Init.Util
 universes u
 
 namespace List
-/- The following functions can't be defined at `init.data.list.basic`, because they depend on `init.util`,
-   and `init.util` depends on `init.data.list.basic`. -/
-
-variable {α : Type u}
+/- The following functions can't be defined at `Init.Data.List.Basic`, because they depend on `Init.Util`,
+   and `Init.Util` depends on `Init.Data.List.Basic`. -/
 
 def get! [Inhabited α] : Nat → List α → α
   | 0,   a::as => a
@@ -68,5 +66,25 @@ def getLast? : List α → Option α
 def getLastD : List α → α → α
   | [],   a₀ => a₀
   | a::as, _ => getLast (a::as) (fun h => List.noConfusion h)
+
+def rotateLeft (xs : List α) (n : Nat := 1) : List α :=
+  let len := xs.length
+  if len ≤ 1 then
+    xs
+  else
+    let n := n % len
+    let b := xs.take n
+    let e := xs.drop n
+    e ++ b
+
+def rotateRight (xs : List α) (n : Nat := 1) : List α :=
+  let len := xs.length
+  if len ≤ 1 then
+    xs
+  else
+    let n := len - n % len
+    let b := xs.take n
+    let e := xs.drop n
+    e ++ b
 
 end List

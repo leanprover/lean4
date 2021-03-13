@@ -32,6 +32,7 @@ extern lean_object* l_Array_instReprArray___rarg___closed__5;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__9(lean_object*, size_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_1460____closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_7577____closed__4;
 lean_object* l_Lean_Meta_instReprCongrLemma___closed__1;
 lean_object* l_Std_fmt___at_Lean_Position_instToFormatPosition___spec__1(lean_object*);
 lean_object* l_Lean_Meta_mkCongrLemma_match__2(lean_object*);
@@ -236,7 +237,6 @@ lean_object* l_Lean_Meta_mkCongrLemma_onlyMVarsAt___lambda__1___boxed(lean_objec
 size_t lean_usize_of_nat(lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
 extern lean_object* l_Std_Format_sbracket___closed__3;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7650____closed__4;
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_mkCongrLemma___spec__7___at_Lean_Meta_mkCongrLemma___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlM___at___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemmas____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_117____spec__4___rarg(lean_object*, lean_object*, lean_object*);
 size_t l_USize_land(size_t, size_t);
@@ -7206,7 +7206,7 @@ lean_inc(x_29);
 x_30 = lean_ctor_get(x_26, 1);
 lean_inc(x_30);
 lean_dec(x_26);
-x_31 = l_myMacro____x40_Init_Notation___hyg_7650____closed__4;
+x_31 = l_myMacro____x40_Init_Notation___hyg_7577____closed__4;
 x_32 = lean_unsigned_to_nat(3u);
 x_33 = l_Lean_Expr_isAppOfArity(x_30, x_31, x_32);
 if (x_33 == 0)
@@ -7482,7 +7482,7 @@ lean_inc(x_101);
 x_102 = lean_ctor_get(x_98, 1);
 lean_inc(x_102);
 lean_dec(x_98);
-x_103 = l_myMacro____x40_Init_Notation___hyg_7650____closed__4;
+x_103 = l_myMacro____x40_Init_Notation___hyg_7577____closed__4;
 x_104 = lean_unsigned_to_nat(3u);
 x_105 = l_Lean_Expr_isAppOfArity(x_102, x_103, x_104);
 if (x_105 == 0)
@@ -7793,7 +7793,7 @@ lean_inc(x_179);
 x_180 = lean_ctor_get(x_176, 1);
 lean_inc(x_180);
 lean_dec(x_176);
-x_181 = l_myMacro____x40_Init_Notation___hyg_7650____closed__4;
+x_181 = l_myMacro____x40_Init_Notation___hyg_7577____closed__4;
 x_182 = lean_unsigned_to_nat(3u);
 x_183 = l_Lean_Expr_isAppOfArity(x_180, x_181, x_182);
 if (x_183 == 0)

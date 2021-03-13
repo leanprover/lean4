@@ -46,8 +46,6 @@ lean_object* l_Array_findSome_x3f___rarg(lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Array_findSomeM_x3f___spec__1___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapIdxM(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_term_x5b___x5d___closed__9;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_11810____closed__5;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_2264____closed__4;
 lean_object* l___private_Init_Data_Array_Basic_0__Array_allDiffAux___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Array_toListLitAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -278,6 +276,7 @@ lean_object* l_Array_forInUnsafe_loop___at_Array_findSome_x3f___spec__1___rarg(l
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Array_partition___spec__1(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Array_findM_x3f___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_11737____closed__5;
 lean_object* l_Array_erase___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlM_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findIdxM_x3f_match__1(lean_object*);
@@ -418,6 +417,7 @@ lean_object* l_Array_forRevM___rarg(lean_object*, lean_object*, lean_object*, le
 lean_object* l_Array_filterMapM(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Array_foldl___spec__1___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_indexOf_x3f(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_2191____closed__4;
 lean_object* l_Array_partition___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Array_mapIdxM_map_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEqv___rarg(lean_object*, lean_object*, lean_object*);
@@ -7727,7 +7727,7 @@ static lean_object* _init_l_myMacro____x40_Init_Data_Array_Basic___hyg_3594____c
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_11810____closed__5;
+x_1 = l_myMacro____x40_Init_Notation___hyg_11737____closed__5;
 x_2 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3594____closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -7833,7 +7833,7 @@ x_36 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_36, 0, x_27);
 lean_ctor_set(x_36, 1, x_35);
 x_37 = lean_array_push(x_22, x_36);
-x_38 = l_myMacro____x40_Init_Notation___hyg_2264____closed__4;
+x_38 = l_myMacro____x40_Init_Notation___hyg_2191____closed__4;
 x_39 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_39, 0, x_38);
 lean_ctor_set(x_39, 1, x_37);
@@ -7892,7 +7892,7 @@ x_64 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_64, 0, x_55);
 lean_ctor_set(x_64, 1, x_63);
 x_65 = lean_array_push(x_50, x_64);
-x_66 = l_myMacro____x40_Init_Notation___hyg_2264____closed__4;
+x_66 = l_myMacro____x40_Init_Notation___hyg_2191____closed__4;
 x_67 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_67, 0, x_66);
 lean_ctor_set(x_67, 1, x_65);

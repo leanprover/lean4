@@ -17,6 +17,7 @@ lean_object* l_Lean_Meta_assert(lean_object*, lean_object*, lean_object*, lean_o
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_7577____closed__4;
 lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
@@ -70,7 +71,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_assertAfter___spec__5(lean
 lean_object* l_Lean_mkFVar(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Meta_assertAfter_match__1(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7650____closed__4;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_assertAfter___spec__9(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_Meta_assertAfter___spec__4(lean_object*, lean_object*);
 size_t l_USize_land(size_t, size_t);
@@ -509,7 +509,7 @@ x_21 = lean_box(0);
 x_22 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_22, 0, x_19);
 lean_ctor_set(x_22, 1, x_21);
-x_23 = l_myMacro____x40_Init_Notation___hyg_7650____closed__4;
+x_23 = l_myMacro____x40_Init_Notation___hyg_7577____closed__4;
 x_24 = l_Lean_mkConst(x_23, x_22);
 x_25 = l_Lean_Meta_assertExt___lambda__1___closed__1;
 lean_inc(x_3);

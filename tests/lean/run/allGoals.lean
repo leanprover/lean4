@@ -58,3 +58,6 @@ theorem Weekday.test2 (d : Weekday) : next (previous d) = id d := by
   cases d <;> rw idEq
   traceState
   allGoals rfl
+
+def bug {a b c : Nat} (h₁ : a = b) (h₂ : b = c) : a = c := by
+  apply Eq.trans <;> assumption

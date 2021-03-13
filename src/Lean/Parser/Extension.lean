@@ -535,12 +535,13 @@ def notFollowedByCategoryTokenFn (catName : Name) : ParserFn := fun ctx s =>
   | some cat =>
     let (s, stx) := peekToken ctx s
     match stx with
-    | some (Syntax.atom _ sym) =>
+    | Except.ok (Syntax.atom _ sym) =>
       if ctx.insideQuot && sym == "$" then s
       else match cat.tables.leadingTable.find? (Name.mkSimple sym) with
       | some _ => s.mkUnexpectedError (toString catName)
       | _      => s
-    | _ => s
+    | Except.ok _    => s
+    | Except.error _ => s
 
 @[inline] def notFollowedByCategoryToken (catName : Name) : Parser := {
   fn := notFollowedByCategoryTokenFn catName

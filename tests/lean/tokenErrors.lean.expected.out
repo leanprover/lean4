@@ -1,0 +1,3 @@
+tokenErrors.lean:1:10: error: missing end of character literal
+tokenErrors.lean:4:9: error: invalid escape sequence
+tokenErrors.lean:15:0: error: end of input

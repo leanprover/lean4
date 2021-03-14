@@ -663,15 +663,16 @@ def takeWhileFn (p : Char → Bool) : ParserFn :=
 @[inline] def takeWhile1Fn (p : Char → Bool) (errorMsg : String) : ParserFn :=
   andthenFn (satisfyFn p errorMsg) (takeWhileFn p)
 
+variable (startPos : String.Pos) in
 partial def finishCommentBlock (nesting : Nat) : ParserFn := fun c s =>
   let input := c.input
   let i     := s.pos
-  if input.atEnd i then s.mkEOIError
+  if input.atEnd i then eoi s
   else
     let curr := input.get i
     let i    := input.next i
     if curr == '-' then
-      if input.atEnd i then s.mkEOIError
+      if input.atEnd i then eoi s
       else
         let curr := input.get i
         if curr == '/' then -- "-/" end of comment
@@ -680,12 +681,14 @@ partial def finishCommentBlock (nesting : Nat) : ParserFn := fun c s =>
         else
           finishCommentBlock nesting c (s.next input i)
     else if curr == '/' then
-      if input.atEnd i then s.mkEOIError
+      if input.atEnd i then eoi s
       else
         let curr := input.get i
         if curr == '-' then finishCommentBlock (nesting+1) c (s.next input i)
         else finishCommentBlock nesting c (s.setPos i)
     else finishCommentBlock nesting c (s.setPos i)
+where
+  eoi s := s.mkUnexpectedErrorAt "unterminated comment" startPos
 
 /- Consume whitespace and comments -/
 partial def whitespace : ParserFn := fun c s =>
@@ -701,13 +704,14 @@ partial def whitespace : ParserFn := fun c s =>
       if curr == '-' then andthenFn (takeUntilFn (fun c => c = '\n')) whitespace c (s.next input i)
       else s
     else if curr == '/' then
-      let i    := input.next i
-      let curr := input.get i
+      let startPos := i
+      let i        := input.next i
+      let curr     := input.get i
       if curr == '-' then
         let i    := input.next i
         let curr := input.get i
         if curr == '-' then s -- "/--" doc comment is an actual token
-        else andthenFn (finishCommentBlock 1) whitespace c (s.next input i)
+        else andthenFn (finishCommentBlock startPos 1) whitespace c (s.next input i)
       else s
     else s
 
@@ -804,7 +808,7 @@ def charLitFnAux (startPos : Nat) : ParserFn := fun c s =>
 partial def strLitFnAux (startPos : Nat) : ParserFn := fun c s =>
   let input := c.input
   let i     := s.pos
-  if input.atEnd i then s.mkEOIError
+  if input.atEnd i then s.mkUnexpectedErrorAt "unterminated string literal" startPos
   else
     let curr := input.get i
     let s    := s.setPos (input.next i)
@@ -943,37 +947,37 @@ def mkIdResult (startPos : Nat) (tk : Option Token) (val : Name) : ParserFn := f
     s.pushSyntax atom
 
 partial def identFnAux (startPos : Nat) (tk : Option Token) (r : Name) : ParserFn :=
-  let rec parse (r : Name) (c s) :=
+  let rec parse (r : Name) (c s) := do
     let input := c.input
     let i     := s.pos
-    if input.atEnd i then s.mkEOIError
-    else
-      let curr := input.get i
-      if isIdBeginEscape curr then
-        let startPart := input.next i
-        let s         := takeUntilFn isIdEndEscape c (s.setPos startPart)
-        let stopPart  := s.pos
-        let s         := satisfyFn isIdEndEscape "missing end of escaped identifier" c s
-        if s.hasError then s
-        else
-          let r := Name.mkStr r (input.extract startPart stopPart)
-          if isIdCont input s then
-            let s := s.next input s.pos
-            parse r c s
-          else
-            mkIdResult startPos tk r c s
-      else if isIdFirst curr then
-        let startPart := i
-        let s         := takeWhileFn isIdRest c (s.next input i)
-        let stopPart  := s.pos
-        let r := Name.mkStr r (input.extract startPart stopPart)
-        if isIdCont input s then
-          let s := s.next input s.pos
-          parse r c s
-        else
-          mkIdResult startPos tk r c s
+    if input.atEnd i then
+      return s.mkEOIError
+    let curr := input.get i
+    if isIdBeginEscape curr then
+      let startPart := input.next i
+      let s         := takeUntilFn isIdEndEscape c (s.setPos startPart)
+      if input.atEnd s.pos then
+        return s.mkUnexpectedErrorAt "unterminated identifier escape" startPart
+      let stopPart  := s.pos
+      let s         := s.next c.input s.pos
+      let r := Name.mkStr r (input.extract startPart stopPart)
+      if isIdCont input s then
+        let s := s.next input s.pos
+        parse r c s
       else
-        mkTokenAndFixPos startPos tk c s
+        mkIdResult startPos tk r c s
+    else if isIdFirst curr then
+      let startPart := i
+      let s         := takeWhileFn isIdRest c (s.next input i)
+      let stopPart  := s.pos
+      let r := Name.mkStr r (input.extract startPart stopPart)
+      if isIdCont input s then
+        let s := s.next input s.pos
+        parse r c s
+      else
+        mkIdResult startPos tk r c s
+    else
+      mkTokenAndFixPos startPos tk c s
   parse r
 
 private def isIdFirstOrBeginEscape (c : Char) : Bool :=

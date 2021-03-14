@@ -11,7 +11,7 @@ namespace Parser
 
 namespace Command
 def commentBody : Parser :=
-{ fn := rawFn (finishCommentBlock 1) true }
+{ fn := rawFn (fun c s => finishCommentBlock s.pos 1 c s) (trailingWs := true) }
 
 @[combinatorParenthesizer Lean.Parser.Command.commentBody] def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
 @[combinatorFormatter Lean.Parser.Command.commentBody] def commentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous

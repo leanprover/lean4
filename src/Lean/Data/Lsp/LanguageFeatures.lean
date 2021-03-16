@@ -142,6 +142,8 @@ instance : ToJson DocumentSymbolResult where
 
 inductive SemanticTokenType where
   | keyword
+  | «variable»
+  | property
   /-
   | «namespace»
   | type
@@ -151,8 +153,6 @@ inductive SemanticTokenType where
   | struct
   | typeParameter
   | parameter
-  | «variable»
-  | property
   | enumMember
   | event
   | function
@@ -167,11 +167,13 @@ inductive SemanticTokenType where
   -/
 
 def SemanticTokenType.names : Array String :=
-  #["keyword"]
+  #["keyword", "variable", "property"]
 
 -- must be the correct index in `names`
 def SemanticTokenType.toNat : SemanticTokenType → Nat
-  | keyword => 0
+  | keyword    => 0
+  | «variable» => 1
+  | property   => 2
 
 /-
 inductive SemanticTokenModifier where

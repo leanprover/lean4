@@ -528,7 +528,7 @@ section RequestHandling
             children? := syms.toArray
           } :: syms', stxs'')
 
-  def nonKeywordKinds : Array SyntaxNodeKind := #[
+  def noHighlightKinds : Array SyntaxNodeKind := #[
     -- usually have special highlighting by the client
     ``Lean.Parser.Term.sorry,
     ``Lean.Parser.Term.type,
@@ -537,35 +537,75 @@ section RequestHandling
     `antiquotName,
     ``Lean.Parser.Command.docComment]
 
-  def handleSemanticTokens (beginPos endPos : String.Pos) :
+  structure SemanticTokensContext where
+    beginPos  : String.Pos
+    endPos    : String.Pos
+    text      : FileMap
+    infoState : Elab.InfoState
+
+  structure SemanticTokensState where
+    data       : Array Nat
+    lastLspPos : Lsp.Position
+
+  partial def handleSemanticTokens (beginPos endPos : String.Pos) :
       ServerM (Task (Except IO.Error (Except RequestError SemanticTokens))) := do
     let st ← read
     let doc ← st.docRef.get
     let text := doc.meta.text
     let t ← doc.cmdSnaps.waitAll (·.beginPos < endPos)
-    IO.mapTask (t := t) fun (snaps, _) => do
-      let mut data := #[]
-      let mut lspPos := ⟨0, 0⟩
+    IO.mapTask (t := t) fun (snaps, _) =>
+      StateT.run' (s := { data := #[], lastLspPos := ⟨0, 0⟩ : SemanticTokensState }) do
       for s in snaps do
         if s.endPos <= beginPos then
           continue
-        for stx in s.stx.topDown (firstChoiceOnly := true) do
-          -- highlight keywords
-          if nonKeywordKinds.contains stx.getKind then
-            continue
-          for stx in stx.getArgs do
-            if let Syntax.atom info val := stx then
-              if let some pos := info.getPos? then
-                if val.bsize > 0 && val[0].isAlpha && beginPos <= pos && pos < endPos then
-                  let lspPos' := text.utf8PosToLspPos pos
-                  let deltaLine := lspPos'.line - lspPos.line
-                  let deltaStart := lspPos'.character - (if lspPos'.line == lspPos.line then lspPos.character else 0)
-                  let length := val.utf16Length
-                  let tokenType := SemanticTokenType.keyword.toNat
-                  let tokenModifiers := 0
-                  data := data ++ #[deltaLine, deltaStart, length, tokenType, tokenModifiers]
-                  lspPos := lspPos'
-      return Except.ok { data := data }
+        ReaderT.run (r := SemanticTokensContext.mk beginPos endPos text s.toCmdState.infoState) <|
+          go s.stx
+      return Except.ok { data := (← get).data }
+  where
+    go (stx : Syntax) := do
+      match stx with
+      | `($e.$id:ident)    => go e; addToken id SemanticTokenType.property
+      -- indistinguishable from next pattern
+      --| `(level|$id:ident) => addToken id SemanticTokenType.variable
+      | `($id:ident)       => highlightId id
+      | _ =>
+        if !noHighlightKinds.contains stx.getKind then
+          highlightKeyword stx
+          if stx.isOfKind choiceKind then
+            go stx[0]
+          else
+            stx.getArgs.forM go
+    highlightId (stx : Syntax) : ReaderT SemanticTokensContext (StateT SemanticTokensState IO) _ := do
+      if let (some pos, some tailPos) := (stx.getPos?, stx.getTailPos?) then
+        let mut first := true
+        for t in (← read).infoState.trees do
+          for t in t.smallestNodes (fun i => match i.pos? with
+              | some ipos => pos <= ipos && ipos < tailPos
+              | _         => false) do
+            if let Elab.InfoTree.context ci (Elab.InfoTree.node (Elab.Info.ofTermInfo ti) _) := t then
+              match ti.expr with
+              | Expr.fvar .. => addToken ti.stx SemanticTokenType.variable
+              | _            => if !first then addToken ti.stx SemanticTokenType.property
+              first := false
+    highlightKeyword stx := do
+      if let Syntax.atom info val := stx then
+        if val.bsize > 0 && val[0].isAlpha then
+          addToken stx SemanticTokenType.keyword
+    addToken stx type := do
+      let ⟨beginPos, endPos, text, _⟩ ← read
+      if let (some pos, some tailPos) := (stx.getPos?, stx.getTailPos?) then
+        if beginPos <= pos && pos < endPos then
+          let lspPos := (← get).lastLspPos
+          let lspPos' := text.utf8PosToLspPos pos
+          let deltaLine := lspPos'.line - lspPos.line
+          let deltaStart := lspPos'.character - (if lspPos'.line == lspPos.line then lspPos.character else 0)
+          let length := (text.utf8PosToLspPos tailPos).character - lspPos'.character
+          let tokenType := type.toNat
+          let tokenModifiers := 0
+          modify fun st => {
+            data := st.data ++ #[deltaLine, deltaStart, length, tokenType, tokenModifiers]
+            lastLspPos := lspPos'
+          }
 
   def handleSemanticTokensFull (p : SemanticTokensParams) :
       ServerM (Task (Except IO.Error (Except RequestError SemanticTokens))) := do

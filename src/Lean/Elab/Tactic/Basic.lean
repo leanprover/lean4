@@ -328,9 +328,13 @@ private def getOptRotation (stx : Syntax) : Nat :=
   setGoals <| (← getGoals).rotateRight n
 
 @[builtinTactic Parser.Tactic.open] def evalOpen : Tactic := fun stx => do
-  let openDecls ← elabOpenDecl stx[1]
-  withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
-    evalTactic stx[3]
+  try
+    pushScope
+    let openDecls ← elabOpenDecl stx[1]
+    withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
+      evalTactic stx[3]
+  finally
+    popScope
 
 @[builtinTactic Parser.Tactic.set_option] def elabSetOption : Tactic := fun stx => do
   let options ← Elab.elabSetOption stx[1] stx[2]

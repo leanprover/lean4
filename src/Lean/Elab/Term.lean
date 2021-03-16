@@ -1421,9 +1421,13 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   | some msg => elabTermEnsuringType stx[2] expectedType? (errorMsgHeader? := msg)
 
 @[builtinTermElab «open»] def elabOpen : TermElab := fun stx expectedType? => do
-  let openDecls ← elabOpenDecl stx[1]
-  withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
-    elabTerm stx[3] expectedType?
+  try
+    pushScope
+    let openDecls ← elabOpenDecl stx[1]
+    withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
+      elabTerm stx[3] expectedType?
+  finally
+    popScope
 
 @[builtinTermElab «set_option»] def elabSetOption : TermElab := fun stx expectedType? => do
   let options ← Elab.elabSetOption stx[1] stx[2]

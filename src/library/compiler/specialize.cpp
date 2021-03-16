@@ -984,6 +984,7 @@ class specialize_fn {
         if (!is_specialize_candidate(fn, args))
             return none_expr();
         // lean_trace(name("compiler", "specialize"), tout() << "specialize: " << fn << "\n";);
+        bool has_attr = has_specialize_attribute(const_name(fn));
         specialize_init_deps(fn, args, ctx);
         buffer<bool> bmask;
         get_bool_mask(const_name(fn), args.size(), bmask);
@@ -1060,7 +1061,11 @@ class specialize_fn {
                     return none_expr();
                 }
             }
-            if (respecialize) {
+            /* We should only re-specialize if the original function was marked with `[specialize]` attribute.
+               Recall that we always specialize functions containing instance implicit arguments.
+               This is a temporary workaround until we implement a proper code specializer.
+            */
+            if (has_attr && respecialize) {
                 for (comp_decl const & new_decl : new_decls) {
                     m_to_respecialize.insert(new_decl.fst());
                 }

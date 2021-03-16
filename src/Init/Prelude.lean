@@ -84,6 +84,12 @@ theorem congr {α : Sort u} {β : Sort v} {f₁ f₂ : α → β} {a₁ a₂ : �
 theorem congrFun {α : Sort u} {β : α → Sort v} {f g : (x : α) →  β x} (h : Eq f g) (a : α) : Eq (f a) (g a) :=
   h ▸ rfl
 
+theorem congrDepArg {α : Sort u} {β : α → Sort v} {a₁ a₂ : α} (f : (a : α) → β a) (h : Eq a₁ a₂) : Eq (cast (congrArg β h) (f a₁)) (f a₂) :=
+  Eq.rec (motive := fun (x : α) (h : Eq a₁ x) => Eq (cast (congrArg β h) (f a₁)) (f x)) rfl h
+
+theorem congrDep {α : Sort u} {β : α → Sort v} {a₁ a₂ : α} {f g : (a : α) → β a} (h₁ : Eq f g) (h₂ : Eq a₁ a₂) : Eq (cast (congrArg β h₂) (f a₁)) (g a₂) :=
+  Eq.trans (congrDepArg f h₂) (congrFun h₁ a₂)
+
 /-
 Initialize the Quotient Module, which effectively adds the following definitions:
 

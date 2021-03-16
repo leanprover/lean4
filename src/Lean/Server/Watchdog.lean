@@ -379,6 +379,17 @@ section MessageHandling
     let handle := fun α [FromJson α] [ToJson α] [FileSource α] => do
       let parsedParams ← parseParams α params
       let uri := fileSource parsedParams
+      try
+        findFileWorker uri
+      catch _ =>
+        -- VS Code sometimes sends us requests just after closing a file?
+        -- This is permitted by the spec, but seems pointless, and there's not much we can do,
+        -- so we return an error instead.
+        (←read).hOut.writeLspResponseError
+          { id      := id
+            code    := ErrorCode.contentModified
+            message := s!"Cannot process request to closed file '{uri}'" }
+        return
       tryWriteMessage uri ⟨id, method, parsedParams⟩ FileWorker.writeRequest
     match method with
     | "textDocument/waitForDiagnostics"   => handle WaitForDiagnosticsParams

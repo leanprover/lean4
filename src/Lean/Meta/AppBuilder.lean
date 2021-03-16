@@ -184,6 +184,41 @@ def mkCongr (h₁ h₂ : Expr) : MetaM Expr := do
     | none, _ => throwAppBuilderException ``congr ("equality proof expected" ++ hasTypeMsg h₁ hType₁)
     | _, none => throwAppBuilderException ``congr ("equality proof expected" ++ hasTypeMsg h₂ hType₂)
 
+def mkCongrDepArg (f h : Expr) : MetaM Expr := do
+  if h.isAppOf ``Eq.refl then
+    mkEqRefl (mkApp f h.appArg!)
+  else
+    let hType ← infer h
+    let fType ← infer f
+    match fType, hType.eq? with
+    | Expr.forallE n α β _, some (_, a, b) =>
+      let β' := Lean.mkLambda n BinderInfo.default α β
+      let u ← getLevel α
+      let v ← getLevel (mkApp β' a)
+      return mkApp6 (mkConst ``congrDepArg [u, v]) α β' a b f h
+    | _, none => throwAppBuilderException ``congrDepArg ("equality proof expected" ++ hasTypeMsg h hType)
+    | _, _    => throwAppBuilderException ``congrDepArg ("function expected" ++ hasTypeMsg f fType)
+
+def mkCongrDep (h₁ h₂ : Expr) : MetaM Expr := do
+  if h₁.isAppOf ``Eq.refl then
+    mkCongrDepArg h₁.appArg! h₂
+  else if h₂.isAppOf ``Eq.refl then
+    mkCongrFun h₁ h₂.appArg!
+  else
+    let hType₁ ← infer h₁
+    let hType₂ ← infer h₂
+    match hType₁.eq?, hType₂.eq? with
+    | some (ρ, f, g), some (α, a, b) =>
+      match (← whnfD ρ) with
+      | Expr.forallE n α β _ =>
+        let β' := Lean.mkLambda n BinderInfo.default α β
+        let u ← getLevel α
+        let v ← getLevel (mkApp β' a)
+        return mkApp8 (mkConst ``congrDep [u, v]) α β' a b f g h₁ h₂
+      | _    => throwAppBuilderException ``congrDep ("function expected" ++ hasTypeMsg f ρ)
+    | none, _ => throwAppBuilderException ``congrDep ("equality proof expected" ++ hasTypeMsg h₁ hType₁)
+    | _, none => throwAppBuilderException ``congrDep ("equality proof expected" ++ hasTypeMsg h₂ hType₂)
+
 private def mkAppMFinal (methodName : Name) (f : Expr) (args : Array Expr) (instMVars : Array MVarId) : MetaM Expr := do
   instMVars.forM fun mvarId => do
     let mvarDecl ← getMVarDecl mvarId

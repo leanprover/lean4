@@ -190,22 +190,22 @@ g.foo :=
       endPos := { line := 40, column := 47 },
       endCharUtf16 := 47 } }
 optParam :=
-  { range := { pos := { line := 152, column := 13 },
+  { range := { pos := { line := 158, column := 13 },
       charUtf16 := 13,
-      endPos := { line := 152, column := 66 },
+      endPos := { line := 158, column := 66 },
       endCharUtf16 := 66 },
-    selectionRange := { pos := { line := 152, column := 17 },
+    selectionRange := { pos := { line := 158, column := 17 },
       charUtf16 := 17,
-      endPos := { line := 152, column := 25 },
+      endPos := { line := 158, column := 25 },
       endCharUtf16 := 25 } }
 namedPattern :=
-  { range := { pos := { line := 161, column := 13 },
+  { range := { pos := { line := 167, column := 13 },
       charUtf16 := 13,
-      endPos := { line := 161, column := 61 },
+      endPos := { line := 167, column := 61 },
       endCharUtf16 := 61 },
-    selectionRange := { pos := { line := 161, column := 17 },
+    selectionRange := { pos := { line := 167, column := 17 },
       charUtf16 := 17,
-      endPos := { line := 161, column := 29 },
+      endPos := { line := 167, column := 29 },
       endCharUtf16 := 29 } }
 Lean.Meta.forallTelescopeReducing :=
   { range := { pos := { line := 699, column := 0 },

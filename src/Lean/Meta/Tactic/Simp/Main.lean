@@ -41,6 +41,14 @@ private def mkCongr (r₁ r₂ : Result) : MetaM Result :=
   | none,    some h  => return { expr := e, proof? := (← Meta.mkCongrArg r₁.expr h) }
   | some h₁, some h₂ => return { expr := e, proof? := (← Meta.mkCongr h₁ h₂) }
 
+private def mkCongrDep (r₁ r₂ : Result) : MetaM Result := do
+  let e := mkApp r₁.expr r₂.expr
+  match r₁.proof?, r₂.proof? with
+  | none,    none    => return { expr := e }
+  | some h,  none    => return { expr := e, proof? := (← Meta.mkCongrFun h r₂.expr) }
+  | none,    some h  => return { expr := e, proof? := (← Meta.mkCongrDepArg r₁.expr h) }
+  | some h₁, some h₂ => return { expr := e, proof? := (← Meta.mkCongrDep h₁ h₂) }
+
 private def mkImpCongr (r₁ r₂ : Result) : MetaM Result := do
   let e ← mkArrow r₁.expr r₂.expr
   match r₁.proof?, r₂.proof? with
@@ -111,6 +119,28 @@ private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
   match (← unfold? e) with
   | some e => reduce e
   | none => return e
+
+/--
+  Compute a mask `m` of size `numDiscrs` s.t. discriminant `i` can be rewritten if `m[i] == true`.
+  `motive` is the motive of the matcher application.
+
+  For example, suppose the motive is `fun (n : Nat) (v : Vec α n) => Nat`, then
+  we can rewrite the second discriminant. We cannot rewrite the first because the type
+  of the second depends on it. -/
+private def getMatcherDiscrCongrMask (motive : Expr) (numDiscrs : Nat) : Array Bool :=
+  let updateMask (e : Expr) (i : Nat) (mask : Array Bool) : Array Bool :=
+    if !e.hasLooseBVars then mask
+    else i.fold (init := mask) fun j mask => if e.hasLooseBVar j then mask.set! (i - j - 1) false else mask
+  let rec loop (e : Expr) (i : Nat) (mask : Array Bool): Array Bool :=
+    match e with
+    | Expr.lam _ d b _ => loop b (i+1) (updateMask e i mask)
+    | _ =>
+      if i != numDiscrs then
+        -- This is an ill-formed matcher application, it should not happen in practice.
+        mkArray numDiscrs false
+      else
+        updateMask e i mask
+  loop motive 0 (mkArray numDiscrs true)
 
 private partial def dsimp (e : Expr) : M Expr := do
   transform e (post := fun e => return TransformStep.done (← reduce e))
@@ -221,16 +251,47 @@ where
     else
       return none
 
+  congrMatch (info : MatcherInfo) (e : Expr) : M Result :=
+    withParent e <| e.withApp fun f args => do
+      if args.size < info.arity then
+        congrDefault e -- partially applied matcher application
+      else
+        let mask := getMatcherDiscrCongrMask args[info.getMotivePos] info.numDiscrs
+        -- We don't rewrite the parameters nor the motive
+        let mut r : Result := { expr := mkAppN f args[:info.numParams+1] }
+        -- process discriminants
+        let firstDiscrPos := info.numParams+1
+        for i in [firstDiscrPos : firstDiscrPos + info.numDiscrs] do
+          if mask[i - firstDiscrPos] then
+            r ← mkCongrDep r (← simp args[i])
+          else
+            r ← mkCongrFun r (← dsimp args[i])
+        -- process alternatives
+        let firstAltPos := firstDiscrPos + info.numDiscrs
+        for i in [firstAltPos : firstAltPos + info.numAlts] do
+          r ← mkCongr r (← simp args[i])
+        -- process over-application arguments
+        for i in [info.arity : args.size] do
+          let fType ← whnfD (← inferType r.expr)
+          if fType.isArrow then
+            r ← mkCongr r (← simp args[i])
+          else
+            r ← mkCongrFun r (← dsimp args[i])
+        return r
+
   congr (e : Expr) : M Result := do
     let f := e.getAppFn
     if f.isConst then
-      let congrLemmas ← getCongrLemmas
-      let cs := congrLemmas.get f.constName!
-      for c in cs do
-        match (← tryCongrLemma? c e) with
-        | none   => pure ()
-        | some r => return r
-      congrDefault e
+      if let some matcherInfo ← getMatcherInfo? f.constName! then
+        congrMatch matcherInfo e
+      else
+        let congrLemmas ← getCongrLemmas
+        let cs := congrLemmas.get f.constName!
+        for c in cs do
+          match (← tryCongrLemma? c e) with
+          | none   => pure ()
+          | some r => return r
+        congrDefault e
     else
       congrDefault e
 

@@ -528,6 +528,15 @@ section RequestHandling
             children? := syms.toArray
           } :: syms', stxs'')
 
+  def nonKeywordKinds : Array SyntaxNodeKind := #[
+    -- usually have special highlighting by the client
+    ``Lean.Parser.Term.sorry,
+    ``Lean.Parser.Term.type,
+    ``Lean.Parser.Term.prop,
+    -- not really keywords
+    `antiquotName,
+    ``Lean.Parser.Command.docComment]
+
   def handleSemanticTokens (beginPos endPos : String.Pos) :
       ServerM (Task (Except IO.Error (Except RequestError SemanticTokens))) := do
     let st ← read
@@ -538,9 +547,13 @@ section RequestHandling
       let mut data := #[]
       let mut lspPos := ⟨0, 0⟩
       for s in snaps do
-        if s.endPos > beginPos then
-          for stx in s.stx.topDown (firstChoiceOnly := true) do
-            -- highlight keywords
+        if s.endPos <= beginPos then
+          continue
+        for stx in s.stx.topDown (firstChoiceOnly := true) do
+          -- highlight keywords
+          if nonKeywordKinds.contains stx.getKind then
+            continue
+          for stx in stx.getArgs do
             if let Syntax.atom info val := stx then
               if let some pos := info.getPos? then
                 if val.bsize > 0 && val[0].isAlpha && beginPos <= pos && pos < endPos then

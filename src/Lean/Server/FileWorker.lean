@@ -577,7 +577,6 @@ section RequestHandling
             stx.getArgs.forM go
     highlightId (stx : Syntax) : ReaderT SemanticTokensContext (StateT SemanticTokensState IO) _ := do
       if let (some pos, some tailPos) := (stx.getPos?, stx.getTailPos?) then
-        let mut first := true
         for t in (← read).infoState.trees do
           for t in t.smallestNodes (fun i => match i.pos? with
               | some ipos => pos <= ipos && ipos < tailPos
@@ -585,8 +584,7 @@ section RequestHandling
             if let Elab.InfoTree.context ci (Elab.InfoTree.node (Elab.Info.ofTermInfo ti) _) := t then
               match ti.expr with
               | Expr.fvar .. => addToken ti.stx SemanticTokenType.variable
-              | _            => if !first then addToken ti.stx SemanticTokenType.property
-              first := false
+              | _            => if ti.stx.getPos?.get! > pos then addToken ti.stx SemanticTokenType.property
     highlightKeyword stx := do
       if let Syntax.atom info val := stx then
         if val.bsize > 0 && val[0].isAlpha then

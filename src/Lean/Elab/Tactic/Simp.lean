@@ -12,36 +12,47 @@ import Lean.Meta.Tactic.Replace
 namespace Lean.Elab.Tactic
 open Meta
 
-def finalizeSimpTarget (r : Simp.Result) : TacticM Unit := do
+def finalizeSimpTarget (r : Simp.Result) : TacticM Bool := do
   if r.expr.isConstOf ``True then
     match r.proof? with
     | some proof => closeMainGoal (← mkOfEqTrue proof)
     | none => closeMainGoal (mkConst ``True.intro)
+    return true
   else
     match r.proof? with
     | some proof => replaceMainGoal [← replaceTargetEq (← getMainGoal) r.expr proof]
     | none => replaceMainGoal [← replaceTargetDefEq (← getMainGoal) r.expr]
+    return false
 
 def simpTarget (ctx : Simp.Context) : TacticM Unit := do
   withMainContext do
-    finalizeSimpTarget (← simp (← getMainTarget) ctx)
+    discard <| finalizeSimpTarget (← simp (← getMainTarget) ctx)
 
--- TODO: improve simpLocalDecl and simpAll
--- TODO: issues: self simplification
--- TODO: add new assertion with simplified result and clear old ones after simplifying all locals
+def finalizeSimpLocalDecl (fvarId : FVarId) (r : Simp.Result) : TacticM Bool := do
+  if r.expr.isConstOf ``False then
+    match r.proof? with
+    | some proof => closeMainGoal (← mkFalseElim (← getMainTarget) (← mkEqMP proof (mkFVar fvarId)))
+    | none => closeMainGoal (← mkFalseElim (← getMainTarget) (mkFVar fvarId))
+    return true
+  else
+    match r.proof? with
+    | some proof => replaceMainGoal [(← replaceLocalDecl (← getMainGoal) fvarId r.expr proof).mvarId]
+    | none => replaceMainGoal [← changeLocalDecl (← getMainGoal) fvarId r.expr (checkDefEq := false)]
+    return false
 
 def simpLocalDeclFVarId (ctx : Simp.Context) (fvarId : FVarId) : TacticM Unit := do
   withMainContext do
     let localDecl ← getLocalDecl fvarId
-    let r ← simp localDecl.type ctx
-    match r.proof? with
-    | some proof => replaceMainGoal [(← replaceLocalDecl (← getMainGoal) fvarId r.expr proof).mvarId]
-    | none => replaceMainGoal [← changeLocalDecl (← getMainGoal) fvarId r.expr (checkDefEq := false)]
+    discard <| finalizeSimpLocalDecl fvarId (← simp localDecl.type ctx)
 
 def simpLocalDecl (ctx : Simp.Context) (userName : Name) : TacticM Unit :=
   withMainContext do
     let localDecl ← getLocalDeclFromUserName userName
     simpLocalDeclFVarId ctx localDecl.fvarId
+
+-- TODO: improve simpLocalDecl and simpAll
+-- TODO: issues: self simplification
+-- TODO: add new assertion with simplified result and clear old ones after simplifying all locals
 
 def simpAll (ctx : Simp.Context) : TacticM Unit := do
   -- TODO: fix this

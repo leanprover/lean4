@@ -300,19 +300,20 @@ builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermEl
   Recall that the notation `a[i]` is not just for accessing arrays in Lean. -/
   inductive LVal where
   | fieldIdx  (ref : Syntax) (i : Nat)
-  | fieldName (ref : Syntax) (name : String)
+    /- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierachical/composite name. -/
+  | fieldName (ref : Syntax) (name : String) (suffix? : Option Name)
   | getOp     (ref : Syntax) (idx : Syntax)
 
 def LVal.getRef : LVal → Syntax
-  | LVal.fieldIdx ref _  => ref
-  | LVal.fieldName ref _ => ref
-  | LVal.getOp ref _     => ref
+  | LVal.fieldIdx ref _    => ref
+  | LVal.fieldName ref _ _ => ref
+  | LVal.getOp ref _       => ref
 
 instance : ToString LVal where
   toString
-    | LVal.fieldIdx _ i => toString i
-    | LVal.fieldName _ n => n
-    | LVal.getOp _ idx => "[" ++ toString idx ++ "]"
+    | LVal.fieldIdx _ i    => toString i
+    | LVal.fieldName _ n _ => n
+    | LVal.getOp _ idx     => "[" ++ toString idx ++ "]"
 
 def getDeclName? : TermElabM (Option Name) := return (← read).declName?
 def getLetRecsToLift : TermElabM (List LetRecToLift) := return (← get).letRecsToLift

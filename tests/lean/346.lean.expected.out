@@ -1,0 +1,3 @@
+346.lean:10:6-10:16: error: unknown constant 'SomeType.b'
+346.lean:10:0-10:16: error: failed to synthesize
+  Lean.Eval ?m

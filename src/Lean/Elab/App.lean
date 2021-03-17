@@ -546,7 +546,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
         return LValResolution.projIdx structName (idx - 1)
     else
       throwLValError e eType m!"invalid projection, structure has only {fieldNames.size} field(s)"
-  | some structName, LVal.fieldName _ fieldName =>
+  | some structName, LVal.fieldName _ fieldName _ =>
     let env ← getEnv
     let searchEnv : Unit → TermElabM LValResolution := fun _ => do
       match findMethod? env structName (Name.mkSimple fieldName) with
@@ -580,6 +580,11 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     match env.find? fullName with
     | some _ => pure $ LValResolution.getOp fullName idx
     | none   => throwLValError e eType m!"invalid [..] notation because environment does not contain '{fullName}'"
+  | none, LVal.fieldName _ _ (some suffix) =>
+    if e.isConst then
+      throwUnknownConstant (e.constName! ++ suffix)
+    else
+      throwLValError e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
   | _, LVal.getOp _ idx =>
     throwLValError e eType "invalid [..] notation, type is not of the form (C ...) where C is a constant"
   | _, _ =>
@@ -772,12 +777,20 @@ private partial def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) 
   withReader (fun ctx => { ctx with errToSorry := funLVals.length == 1 && ctx.errToSorry }) do
     funLVals.foldlM (init := acc) fun acc (f, fIdent, fields) => do
       addTermInfo fIdent f
-      let lvals' := fields.map fun field => LVal.fieldName field field.getId.toString
+      let lvals' := toLVals fields (first := true)
       let s ← observing do
         let e ← elabAppLVals f (lvals' ++ lvals) namedArgs args expectedType? explicit ellipsis
         if overloaded then ensureHasType expectedType? e else pure e
       return acc.push s
+where
+  toName : List Syntax → Name
+    | []              => Name.anonymous
+    | field :: fields => Name.mkStr (toName fields) field.getId.toString
 
+  toLVals : List Syntax → (first : Bool) → List LVal
+    | [],            _     => []
+    | field::fields, true  => LVal.fieldName field field.getId.toString (toName (field::fields)) :: toLVals fields false
+    | field::fields, false => LVal.fieldName field field.getId.toString none :: toLVals fields false
 
 private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool) (acc : Array (TermElabResult Expr)) : TermElabM (Array (TermElabResult Expr)) :=
@@ -793,7 +806,9 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
      let f ← `($(e).$field)
      elabAppFn f lvals namedArgs args expectedType? explicit ellipsis overloaded acc
   | `($(e).$field:ident) =>
-    let newLVals := field.getId.eraseMacroScopes.components.map (fun n => LVal.fieldName field (toString n))
+    let newLVals := field.getId.eraseMacroScopes.components.map fun n =>
+      -- We use `none` here since `field` can't be part of a composite name
+      LVal.fieldName field (toString n) none
     elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
   | `($e[%$bracket $idx]) =>
     elabAppFn e (LVal.getOp bracket idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc

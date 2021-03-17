@@ -553,7 +553,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       | some (baseStructName, fullName) => pure $ LValResolution.const baseStructName structName fullName
       | none   =>
         throwLValError e eType
-          m!"invalid field notation, '{fieldName}' is not a valid \"field\" because environment does not contain '{Name.mkStr structName fieldName}'"
+          m!"invalid field notation, '{fieldName}' is not a valid \"field\" because the environment does not contain '{Name.mkStr structName fieldName}'"
     -- search local context first, then environment
     let searchCtx : Unit → TermElabM LValResolution := fun _ => do
       let fullName := Name.mkStr structName fieldName

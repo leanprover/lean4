@@ -109,12 +109,18 @@ def doFinally    := leading_parser "finally " >> doSeq
 @[builtinDoElemParser] def doAssert    := leading_parser:leadPrec "assert! " >> termParser
 
 /-
-We use `notFollowedBy` to avoid counterintuitive behavior. For example, the `if`-term parser
+We use `notFollowedBy` to avoid counterintuitive behavior.
+
+For example, the `if`-term parser
 doesn't enforce indentation restrictions, but we don't want it to be used when `doIf` fails.
 Note that parser priorities would not solve this problem since the `doIf` parser is failing while the `if`
-parser is succeeding.
+parser is succeeding. The first `notFollowedBy` prevents this problem.
+
+Consider the `doElem` `x := (a, b⟩` it contains an error since we are using `⟩` instead of `)`. Thus, `doReassign` parser fails.
+However, `doExpr` would succeed consuming just `x`, and cryptic error message is generated after that.
+The second `notFollowedBy` prevents this problem.
 -/
-@[builtinDoElemParser] def doExpr   := leading_parser notFollowedByRedefinedTermToken >> termParser
+@[builtinDoElemParser] def doExpr   := leading_parser notFollowedByRedefinedTermToken >> termParser >> notFollowedBy (symbol ":=" <|> symbol "←" <|> symbol "<-") "unexpected token after 'expr' in 'do' block"
 @[builtinDoElemParser] def doNested := leading_parser "do " >> doSeq
 
 @[builtinTermParser] def «do»  := leading_parser:maxPrec "do " >> doSeq

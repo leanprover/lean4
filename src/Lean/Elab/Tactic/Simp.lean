@@ -76,7 +76,7 @@ def elabSimpConfig (optConfig : Syntax) : TermElabM Meta.Simp.Config := do
     return {}
   else
     withLCtx {} {} <| withNewMCtxDepth <| Term.withSynthesize do
-      let c ← Term.elabTermEnsuringType optConfig[0][3] (Lean.mkConst ``Meta.Simp.Config)
+      let c ← Term.elabTermEnsuringType optConfig[3] (Lean.mkConst ``Meta.Simp.Config)
       evalSimpConfig (← instantiateMVars c)
 
 /-- Elaborate extra simp lemmas provided to `simp`. `stx` is of the `simpLemma,*` -/

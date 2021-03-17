@@ -7,7 +7,7 @@ theorem ex1 (x : Nat) : (if x > 3 ∧ True then 1 else 2) = (if x > 3 then 1 els
  by simp
 
 theorem ex2 (x : Nat) : (if x = 0 ∧ True then x + 1 else 2 + x) = (if x = 0 then 1 else x + 2) :=
-  by simp {contextual := true}
+  by simp (config := {contextual := true})
 
 #print ex2
 

@@ -37,7 +37,7 @@ theorem ex6
   (f : Nat → Nat)
   (x y : Nat)
   : (fun (h : y = 0) => y + x) = (fun _ => x + 0) := by
- simp { contextual := true }
+ simp (config := { contextual := true })
 
 theorem ex7 (x : Nat) : (let y := x + 0; y + y) = x + x := by
   simp
@@ -46,7 +46,7 @@ theorem ex7 (x : Nat) : (let y := x + 0; y + y) = x + x := by
   propext <| Iff.intro (fun _ => trivial) (fun _ _ => trivial)
 
 theorem ex8 (y x : Nat) : y = 0 → x + y = 0 → x = 0 := by
-  simp { contextual := true }
+  simp (config := { contextual := true })
 
 theorem ex9 (y x : Nat) : y = 0 → x + y = 0 → x = 0 := by
   simp

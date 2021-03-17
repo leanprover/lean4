@@ -265,7 +265,7 @@ syntax simpPre   := "↓"
 syntax simpPost  := "↑"
 syntax simpLemma := (simpPre <|> simpPost)? term
 syntax simpErase := "-" ident
-syntax (name := simp) "simp " (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? (colGt term)? (location)? : tactic
+syntax (name := simp) "simp " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? (location)? : tactic
 
 -- Auxiliary macro for lifting have/suffices/let/...
 -- It makes sure the "continuation" `?_` is the main goal after refining

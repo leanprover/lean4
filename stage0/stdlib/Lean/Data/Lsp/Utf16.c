@@ -563,6 +563,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_FileMap_utf8PosToLspPos(x_1, x_2);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }

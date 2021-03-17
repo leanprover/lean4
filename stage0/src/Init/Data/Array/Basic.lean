@@ -473,6 +473,11 @@ protected def append (as : Array α) (bs : Array α) : Array α :=
 
 instance : Append (Array α) := ⟨Array.append⟩
 
+protected def appendList (as : Array α) (bs : List α) : Array α :=
+  bs.foldl (init := as) fun r v => r.push v
+
+instance : HAppend (Array α) (List α) (Array α) := ⟨Array.appendList⟩
+
 @[inline]
 def concatMapM [Monad m] (f : α → m (Array β)) (as : Array α) : m (Array β) :=
   as.foldlM (init := empty) fun bs a => do return bs ++ (← f a)

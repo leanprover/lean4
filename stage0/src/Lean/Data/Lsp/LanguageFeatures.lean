@@ -140,5 +140,81 @@ structure DocumentSymbolResult where
 instance : ToJson DocumentSymbolResult where
   toJson dsr := toJson dsr.syms
 
+inductive SemanticTokenType where
+  | keyword
+  | «variable»
+  | property
+  /-
+  | «namespace»
+  | type
+  | «class»
+  | enum
+  | interface
+  | struct
+  | typeParameter
+  | parameter
+  | enumMember
+  | event
+  | function
+  | method
+  | «macro»
+  | modifier
+  | comment
+  | string
+  | number
+  | regexp
+  | operator
+  -/
+
+def SemanticTokenType.names : Array String :=
+  #["keyword", "variable", "property"]
+
+-- must be the correct index in `names`
+def SemanticTokenType.toNat : SemanticTokenType → Nat
+  | keyword    => 0
+  | «variable» => 1
+  | property   => 2
+
+/-
+inductive SemanticTokenModifier where
+  | declaration
+  | definition
+  | readonly
+  | static
+  | deprecated
+  | abstract
+  | async
+  | modification
+  | documentation
+  | defaultLibrary
+-/
+
+structure SemanticTokensLegend where
+  tokenTypes : Array String
+  tokenModifiers : Array String
+  deriving FromJson, ToJson
+
+structure SemanticTokensOptions where
+  legend : SemanticTokensLegend
+  range : Bool
+  full : Bool /- | {
+    delta?: boolean;
+  } -/
+  deriving FromJson, ToJson
+
+structure SemanticTokensParams where
+  textDocument : TextDocumentIdentifier
+  deriving FromJson, ToJson
+
+structure SemanticTokensRangeParams where
+  textDocument : TextDocumentIdentifier
+  range : Range
+  deriving FromJson, ToJson
+
+structure SemanticTokens where
+  -- resultId?: string;
+  data : Array Nat
+  deriving FromJson, ToJson
+
 end Lsp
 end Lean

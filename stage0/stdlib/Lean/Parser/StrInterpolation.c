@@ -25,6 +25,7 @@ extern lean_object* l_Lean_interpolatedStrKind;
 lean_object* l_Lean_Parser_mkAtomicInfo(lean_object*);
 lean_object* l_Lean_Parser_interpolatedStrFn_parse___lambda__1___boxed(lean_object*);
 lean_object* l_Lean_Parser_mkNodeToken(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_strLitFnAux___closed__1;
 lean_object* l_Lean_Parser_satisfyFn(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_interpolatedStr___elambda__1___closed__1;
@@ -46,6 +47,7 @@ lean_object* l_Lean_Parser_interpolatedStr(lean_object*);
 lean_object* l_Lean_Parser_interpolatedStr___closed__1;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 uint8_t l_Lean_Parser_interpolatedStrFn_parse___lambda__1(uint32_t);
+lean_object* l_Lean_Parser_ParserState_mkUnexpectedErrorAt(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_interpolatedStr___elambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_orelseFnCore(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_interpolatedStrFn_parse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -241,11 +243,10 @@ else
 lean_object* x_42; lean_object* x_43; 
 lean_dec(x_7);
 lean_dec(x_5);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
-x_42 = l_Lean_Parser_ParserState_mkEOIError___closed__1;
-x_43 = l_Lean_Parser_ParserState_mkUnexpectedError(x_6, x_42);
+x_42 = l_Lean_Parser_strLitFnAux___closed__1;
+x_43 = l_Lean_Parser_ParserState_mkUnexpectedErrorAt(x_6, x_42, x_4);
 return x_43;
 }
 }

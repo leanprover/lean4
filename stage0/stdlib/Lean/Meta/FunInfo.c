@@ -238,7 +238,7 @@ lean_object* x_16; size_t x_17;
 x_16 = lean_ctor_get(x_10, 0);
 lean_inc(x_16);
 lean_dec(x_10);
-x_17 = x_2 >> x_5;
+x_17 = x_2 >> x_5 % (sizeof(size_t) * 8);
 x_1 = x_16;
 x_2 = x_17;
 goto _start;
@@ -340,7 +340,7 @@ size_t x_22; size_t x_23; size_t x_24; size_t x_25; lean_object* x_26;
 x_22 = 11;
 x_23 = lean_usize_mix_hash(x_21, x_22);
 x_24 = lean_usize_mix_hash(x_20, x_23);
-x_25 = x_24 >> x_14;
+x_25 = x_24 >> x_14 % (sizeof(size_t) * 8);
 x_26 = l_Std_PersistentHashMap_insertAux___at___private_Lean_Meta_FunInfo_0__Lean_Meta_checkFunInfoCache___spec__5(x_6, x_25, x_1, x_9, x_10);
 x_4 = lean_box(0);
 x_5 = x_16;
@@ -359,7 +359,7 @@ x_30 = 13;
 x_31 = lean_usize_mix_hash(x_29, x_30);
 x_32 = lean_usize_mix_hash(x_21, x_31);
 x_33 = lean_usize_mix_hash(x_20, x_32);
-x_34 = x_33 >> x_14;
+x_34 = x_33 >> x_14 % (sizeof(size_t) * 8);
 x_35 = l_Std_PersistentHashMap_insertAux___at___private_Lean_Meta_FunInfo_0__Lean_Meta_checkFunInfoCache___spec__5(x_6, x_34, x_1, x_9, x_10);
 x_4 = lean_box(0);
 x_5 = x_16;
@@ -572,7 +572,7 @@ if (x_34 == 0)
 {
 lean_object* x_35; size_t x_36; size_t x_37; lean_object* x_38; lean_object* x_39; 
 x_35 = lean_ctor_get(x_15, 0);
-x_36 = x_2 >> x_9;
+x_36 = x_2 >> x_9 % (sizeof(size_t) * 8);
 x_37 = x_3 + x_8;
 x_38 = l_Std_PersistentHashMap_insertAux___at___private_Lean_Meta_FunInfo_0__Lean_Meta_checkFunInfoCache___spec__5(x_35, x_36, x_37, x_4, x_5);
 lean_ctor_set(x_15, 0, x_38);
@@ -587,7 +587,7 @@ lean_object* x_40; size_t x_41; size_t x_42; lean_object* x_43; lean_object* x_4
 x_40 = lean_ctor_get(x_15, 0);
 lean_inc(x_40);
 lean_dec(x_15);
-x_41 = x_2 >> x_9;
+x_41 = x_2 >> x_9 % (sizeof(size_t) * 8);
 x_42 = x_3 + x_8;
 x_43 = l_Std_PersistentHashMap_insertAux___at___private_Lean_Meta_FunInfo_0__Lean_Meta_checkFunInfoCache___spec__5(x_40, x_41, x_42, x_4, x_5);
 x_44 = lean_alloc_ctor(1, 1, 0);
@@ -703,7 +703,7 @@ if (lean_is_exclusive(x_57)) {
  lean_dec_ref(x_57);
  x_72 = lean_box(0);
 }
-x_73 = x_2 >> x_50;
+x_73 = x_2 >> x_50 % (sizeof(size_t) * 8);
 x_74 = x_3 + x_49;
 x_75 = l_Std_PersistentHashMap_insertAux___at___private_Lean_Meta_FunInfo_0__Lean_Meta_checkFunInfoCache___spec__5(x_71, x_73, x_74, x_4, x_5);
 if (lean_is_scalar(x_72)) {

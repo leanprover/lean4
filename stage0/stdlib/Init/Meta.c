@@ -57,7 +57,6 @@ lean_object* l___private_Init_Meta_0__Lean_Syntax_decodeInterpStrQuotedChar_matc
 extern lean_object* l_Lean_Parser_Syntax_addPrio___closed__4;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_expandMacros___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_withHeadRefOnly_match__1(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3594____closed__5;
 lean_object* l_Lean_termEval__prio__;
 lean_object* l_Lean_Syntax_expandInterpolatedStrChunks(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_decodeQuotedChar(lean_object*, lean_object*);
@@ -361,6 +360,7 @@ lean_object* l_Lean_mkCIdentFromRef___rarg___lambda__1(lean_object*, lean_object
 lean_object* l_Lean_mkSepArray(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_SepArray_ofElemsUsingRef___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_appendBefore_match__1(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3624____closed__5;
 lean_object* l___private_Init_Meta_0__Lean_Syntax_decodeNameLitAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isNumericSubscript___boxed(lean_object*);
 lean_object* l_Lean_evalOptPrio(lean_object*, lean_object*, lean_object*);
@@ -9361,7 +9361,7 @@ x_3 = lean_array_to_list(lean_box(0), x_2);
 x_4 = l___private_Init_Meta_0__Lean_quoteList___rarg(x_1, x_3);
 x_5 = l_Lean_mkOptionalNode___closed__2;
 x_6 = lean_array_push(x_5, x_4);
-x_7 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3594____closed__5;
+x_7 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3624____closed__5;
 x_8 = l_Lean_Syntax_mkCApp(x_7, x_6);
 return x_8;
 }

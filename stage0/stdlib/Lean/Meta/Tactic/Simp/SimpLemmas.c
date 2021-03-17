@@ -716,7 +716,7 @@ x_12 = 1;
 x_13 = x_1 - x_12;
 x_14 = 5;
 x_15 = x_14 * x_13;
-x_16 = x_11 >> x_15;
+x_16 = x_11 >> x_15 % (sizeof(size_t) * 8);
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_add(x_5, x_17);
 lean_dec(x_5);
@@ -931,7 +931,7 @@ if (x_34 == 0)
 {
 lean_object* x_35; size_t x_36; size_t x_37; lean_object* x_38; lean_object* x_39; 
 x_35 = lean_ctor_get(x_15, 0);
-x_36 = x_2 >> x_9;
+x_36 = x_2 >> x_9 % (sizeof(size_t) * 8);
 x_37 = x_3 + x_8;
 x_38 = l_Std_PersistentHashMap_insertAux___at_Lean_Meta_addSimpLemmaEntry_updateLemmaNames___spec__2(x_35, x_36, x_37, x_4, x_5);
 lean_ctor_set(x_15, 0, x_38);
@@ -946,7 +946,7 @@ lean_object* x_40; size_t x_41; size_t x_42; lean_object* x_43; lean_object* x_4
 x_40 = lean_ctor_get(x_15, 0);
 lean_inc(x_40);
 lean_dec(x_15);
-x_41 = x_2 >> x_9;
+x_41 = x_2 >> x_9 % (sizeof(size_t) * 8);
 x_42 = x_3 + x_8;
 x_43 = l_Std_PersistentHashMap_insertAux___at_Lean_Meta_addSimpLemmaEntry_updateLemmaNames___spec__2(x_40, x_41, x_42, x_4, x_5);
 x_44 = lean_alloc_ctor(1, 1, 0);
@@ -1062,7 +1062,7 @@ if (lean_is_exclusive(x_57)) {
  lean_dec_ref(x_57);
  x_72 = lean_box(0);
 }
-x_73 = x_2 >> x_50;
+x_73 = x_2 >> x_50 % (sizeof(size_t) * 8);
 x_74 = x_3 + x_49;
 x_75 = l_Std_PersistentHashMap_insertAux___at_Lean_Meta_addSimpLemmaEntry_updateLemmaNames___spec__2(x_71, x_73, x_74, x_4, x_5);
 if (lean_is_scalar(x_72)) {
@@ -1363,7 +1363,7 @@ lean_object* x_16; size_t x_17;
 x_16 = lean_ctor_get(x_10, 0);
 lean_inc(x_16);
 lean_dec(x_10);
-x_17 = x_2 >> x_5;
+x_17 = x_2 >> x_5 % (sizeof(size_t) * 8);
 x_1 = x_16;
 x_2 = x_17;
 goto _start;
@@ -1426,7 +1426,7 @@ x_12 = 1;
 x_13 = x_1 - x_12;
 x_14 = 5;
 x_15 = x_14 * x_13;
-x_16 = x_11 >> x_15;
+x_16 = x_11 >> x_15 % (sizeof(size_t) * 8);
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_add(x_5, x_17);
 lean_dec(x_5);
@@ -1641,7 +1641,7 @@ if (x_34 == 0)
 {
 lean_object* x_35; size_t x_36; size_t x_37; lean_object* x_38; lean_object* x_39; 
 x_35 = lean_ctor_get(x_15, 0);
-x_36 = x_2 >> x_9;
+x_36 = x_2 >> x_9 % (sizeof(size_t) * 8);
 x_37 = x_3 + x_8;
 x_38 = l_Std_PersistentHashMap_insertAux___at_Lean_Meta_addSimpLemmaEntry___spec__6(x_35, x_36, x_37, x_4, x_5);
 lean_ctor_set(x_15, 0, x_38);
@@ -1656,7 +1656,7 @@ lean_object* x_40; size_t x_41; size_t x_42; lean_object* x_43; lean_object* x_4
 x_40 = lean_ctor_get(x_15, 0);
 lean_inc(x_40);
 lean_dec(x_15);
-x_41 = x_2 >> x_9;
+x_41 = x_2 >> x_9 % (sizeof(size_t) * 8);
 x_42 = x_3 + x_8;
 x_43 = l_Std_PersistentHashMap_insertAux___at_Lean_Meta_addSimpLemmaEntry___spec__6(x_40, x_41, x_42, x_4, x_5);
 x_44 = lean_alloc_ctor(1, 1, 0);
@@ -1772,7 +1772,7 @@ if (lean_is_exclusive(x_57)) {
  lean_dec_ref(x_57);
  x_72 = lean_box(0);
 }
-x_73 = x_2 >> x_50;
+x_73 = x_2 >> x_50 % (sizeof(size_t) * 8);
 x_74 = x_3 + x_49;
 x_75 = l_Std_PersistentHashMap_insertAux___at_Lean_Meta_addSimpLemmaEntry___spec__6(x_71, x_73, x_74, x_4, x_5);
 if (lean_is_scalar(x_72)) {
@@ -2776,7 +2776,7 @@ lean_object* x_13; size_t x_14;
 x_13 = lean_ctor_get(x_10, 0);
 lean_inc(x_13);
 lean_dec(x_10);
-x_14 = x_2 >> x_5;
+x_14 = x_2 >> x_5 % (sizeof(size_t) * 8);
 x_1 = x_13;
 x_2 = x_14;
 goto _start;
@@ -2991,7 +2991,7 @@ if (x_27 == 0)
 lean_object* x_28; lean_object* x_29; size_t x_30; lean_object* x_31; lean_object* x_32; uint8_t x_33; 
 x_28 = lean_ctor_get(x_10, 0);
 x_29 = lean_array_set(x_4, x_8, x_9);
-x_30 = x_2 >> x_5;
+x_30 = x_2 >> x_5 % (sizeof(size_t) * 8);
 x_31 = l_Std_PersistentHashMap_eraseAux___at_Lean_Meta_SimpLemmas_erase___spec__2(x_28, x_30, x_3);
 x_32 = lean_ctor_get(x_31, 1);
 lean_inc(x_32);
@@ -3252,7 +3252,7 @@ x_99 = lean_ctor_get(x_10, 0);
 lean_inc(x_99);
 lean_dec(x_10);
 x_100 = lean_array_set(x_4, x_8, x_9);
-x_101 = x_2 >> x_5;
+x_101 = x_2 >> x_5 % (sizeof(size_t) * 8);
 x_102 = l_Std_PersistentHashMap_eraseAux___at_Lean_Meta_SimpLemmas_erase___spec__2(x_99, x_101, x_3);
 x_103 = lean_ctor_get(x_102, 1);
 lean_inc(x_103);

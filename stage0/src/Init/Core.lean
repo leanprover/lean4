@@ -101,7 +101,7 @@ inductive DoResultSBC (α σ : Type u) where
   | «continue»   : σ → DoResultSBC α σ
 
 class HasEquiv  (α : Sort u) where
-  Equiv : α → α → Prop
+  Equiv : α → α → Sort v
 
 infix:50 " ≈ "  => HasEquiv.Equiv
 

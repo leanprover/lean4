@@ -20643,7 +20643,7 @@ lean_object* x_26; size_t x_27;
 x_26 = lean_ctor_get(x_10, 0);
 lean_inc(x_26);
 lean_dec(x_10);
-x_27 = x_2 >> x_5;
+x_27 = x_2 >> x_5 % (sizeof(size_t) * 8);
 x_1 = x_26;
 x_2 = x_27;
 goto _start;
@@ -20738,7 +20738,7 @@ if (x_20 == 0)
 size_t x_21; size_t x_22; size_t x_23; lean_object* x_24; 
 x_21 = 13;
 x_22 = lean_usize_mix_hash(x_19, x_21);
-x_23 = x_22 >> x_14;
+x_23 = x_22 >> x_14 % (sizeof(size_t) * 8);
 x_24 = l_Std_PersistentHashMap_insertAux___at_Lean_Meta_Match_mkMatcherAuxDefinition___spec__5(x_6, x_23, x_1, x_9, x_10);
 x_4 = lean_box(0);
 x_5 = x_16;
@@ -20750,7 +20750,7 @@ else
 size_t x_26; size_t x_27; size_t x_28; lean_object* x_29; 
 x_26 = 11;
 x_27 = lean_usize_mix_hash(x_19, x_26);
-x_28 = x_27 >> x_14;
+x_28 = x_27 >> x_14 % (sizeof(size_t) * 8);
 x_29 = l_Std_PersistentHashMap_insertAux___at_Lean_Meta_Match_mkMatcherAuxDefinition___spec__5(x_6, x_28, x_1, x_9, x_10);
 x_4 = lean_box(0);
 x_5 = x_16;
@@ -21143,7 +21143,7 @@ if (x_63 == 0)
 {
 lean_object* x_64; size_t x_65; size_t x_66; lean_object* x_67; lean_object* x_68; 
 x_64 = lean_ctor_get(x_15, 0);
-x_65 = x_2 >> x_9;
+x_65 = x_2 >> x_9 % (sizeof(size_t) * 8);
 x_66 = x_3 + x_8;
 x_67 = l_Std_PersistentHashMap_insertAux___at_Lean_Meta_Match_mkMatcherAuxDefinition___spec__5(x_64, x_65, x_66, x_4, x_5);
 lean_ctor_set(x_15, 0, x_67);
@@ -21158,7 +21158,7 @@ lean_object* x_69; size_t x_70; size_t x_71; lean_object* x_72; lean_object* x_7
 x_69 = lean_ctor_get(x_15, 0);
 lean_inc(x_69);
 lean_dec(x_15);
-x_70 = x_2 >> x_9;
+x_70 = x_2 >> x_9 % (sizeof(size_t) * 8);
 x_71 = x_3 + x_8;
 x_72 = l_Std_PersistentHashMap_insertAux___at_Lean_Meta_Match_mkMatcherAuxDefinition___spec__5(x_69, x_70, x_71, x_4, x_5);
 x_73 = lean_alloc_ctor(1, 1, 0);
@@ -21348,7 +21348,7 @@ if (lean_is_exclusive(x_86)) {
  lean_dec_ref(x_86);
  x_119 = lean_box(0);
 }
-x_120 = x_2 >> x_79;
+x_120 = x_2 >> x_79 % (sizeof(size_t) * 8);
 x_121 = x_3 + x_78;
 x_122 = l_Std_PersistentHashMap_insertAux___at_Lean_Meta_Match_mkMatcherAuxDefinition___spec__5(x_118, x_120, x_121, x_4, x_5);
 if (lean_is_scalar(x_119)) {

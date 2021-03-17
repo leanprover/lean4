@@ -23,9 +23,14 @@ structure MatcherInfo where
   altNumParams : Array Nat
   uElimPos? : Option Nat
 
-def MatcherInfo.numAlts (matcherInfo : MatcherInfo) : Nat :=
-  matcherInfo.altNumParams.size
+def MatcherInfo.numAlts (info : MatcherInfo) : Nat :=
+  info.altNumParams.size
 
+def MatcherInfo.arity (info : MatcherInfo) : Nat :=
+  info.numParams + 1 + info.numDiscrs + info.numAlts
+
+def MatcherInfo.getMotivePos (info : MatcherInfo) : Nat :=
+  info.numParams
 namespace Extension
 
 structure Entry where
@@ -42,8 +47,8 @@ def State.switch (s : State) : State :=  { s with map := s.map.switch }
 
 builtin_initialize extension : SimplePersistentEnvExtension Entry State ←
   registerSimplePersistentEnvExtension {
-    name          := `matcher,
-    addEntryFn    := State.addEntry,
+    name          := `matcher
+    addEntryFn    := State.addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries State.addEntry {} es).switch
   }
 
@@ -62,13 +67,11 @@ end Match
 
 export Match (MatcherInfo)
 
-def getMatcherInfo? (declName : Name) : MetaM (Option MatcherInfo) := do
-  let env ← getEnv
-  return Match.Extension.getMatcherInfo? env declName
+def getMatcherInfo? (declName : Name) : MetaM (Option MatcherInfo) :=
+  return Match.Extension.getMatcherInfo? (← getEnv) declName
 
-def isMatcher (declName : Name) : MetaM Bool := do
-  let info? ← getMatcherInfo? declName
-  return info?.isSome
+def isMatcher (declName : Name) : MetaM Bool :=
+  return (← getMatcherInfo? declName).isSome
 
 structure MatcherApp where
   matcherName   : Name
@@ -86,19 +89,19 @@ def matchMatcherApp? (e : Expr) : MetaM (Option MatcherApp) :=
   | Expr.const declName declLevels _ => do
     let some info ← getMatcherInfo? declName | pure none
     let args := e.getAppArgs
-    if args.size < info.numParams + 1 + info.numDiscrs + info.numAlts then
+    if args.size < info.arity then
       return none
     else
       return some {
-        matcherName   := declName,
-        matcherLevels := declLevels.toArray,
-        uElimPos?     := info.uElimPos?,
-        params        := args.extract 0 info.numParams,
-        motive        := args.get! info.numParams,
-        discrs        := args.extract (info.numParams + 1) (info.numParams + 1 + info.numDiscrs),
-        altNumParams  := info.altNumParams,
-        alts          := args.extract (info.numParams + 1 + info.numDiscrs) (info.numParams + 1 + info.numDiscrs + info.numAlts),
-        remaining     := args.extract (info.numParams + 1 + info.numDiscrs + info.numAlts) args.size
+        matcherName   := declName
+        matcherLevels := declLevels.toArray
+        uElimPos?     := info.uElimPos?
+        params        := args.extract 0 info.numParams
+        motive        := args[info.getMotivePos]
+        discrs        := args[info.numParams + 1 : info.numParams + 1 + info.numDiscrs]
+        altNumParams  := info.altNumParams
+        alts          := args[info.numParams + 1 + info.numDiscrs : info.numParams + 1 + info.numDiscrs + info.numAlts]
+        remaining     := args[info.numParams + 1 + info.numDiscrs + info.numAlts : args.size]
       }
   | _ => return none
 

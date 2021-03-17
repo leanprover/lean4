@@ -3069,7 +3069,7 @@ x_12 = 1;
 x_13 = x_1 - x_12;
 x_14 = 5;
 x_15 = x_14 * x_13;
-x_16 = x_11 >> x_15;
+x_16 = x_11 >> x_15 % (sizeof(size_t) * 8);
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_add(x_5, x_17);
 lean_dec(x_5);
@@ -3284,7 +3284,7 @@ if (x_34 == 0)
 {
 lean_object* x_35; size_t x_36; size_t x_37; lean_object* x_38; lean_object* x_39; 
 x_35 = lean_ctor_get(x_15, 0);
-x_36 = x_2 >> x_9;
+x_36 = x_2 >> x_9 % (sizeof(size_t) * 8);
 x_37 = x_3 + x_8;
 x_38 = l_Std_PersistentHashMap_insertAux___at_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_540____spec__3(x_35, x_36, x_37, x_4, x_5);
 lean_ctor_set(x_15, 0, x_38);
@@ -3299,7 +3299,7 @@ lean_object* x_40; size_t x_41; size_t x_42; lean_object* x_43; lean_object* x_4
 x_40 = lean_ctor_get(x_15, 0);
 lean_inc(x_40);
 lean_dec(x_15);
-x_41 = x_2 >> x_9;
+x_41 = x_2 >> x_9 % (sizeof(size_t) * 8);
 x_42 = x_3 + x_8;
 x_43 = l_Std_PersistentHashMap_insertAux___at_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_540____spec__3(x_40, x_41, x_42, x_4, x_5);
 x_44 = lean_alloc_ctor(1, 1, 0);
@@ -3415,7 +3415,7 @@ if (lean_is_exclusive(x_57)) {
  lean_dec_ref(x_57);
  x_72 = lean_box(0);
 }
-x_73 = x_2 >> x_50;
+x_73 = x_2 >> x_50 % (sizeof(size_t) * 8);
 x_74 = x_3 + x_49;
 x_75 = l_Std_PersistentHashMap_insertAux___at_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_540____spec__3(x_71, x_73, x_74, x_4, x_5);
 if (lean_is_scalar(x_72)) {
@@ -4776,7 +4776,7 @@ lean_object* x_16; size_t x_17;
 x_16 = lean_ctor_get(x_10, 0);
 lean_inc(x_16);
 lean_dec(x_10);
-x_17 = x_2 >> x_5;
+x_17 = x_2 >> x_5 % (sizeof(size_t) * 8);
 x_1 = x_16;
 x_2 = x_17;
 goto _start;
@@ -6112,14 +6112,14 @@ lean_object* x_4; size_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec(x_1);
-x_5 = x_2 >> x_3;
+x_5 = x_2 >> x_3 % (sizeof(size_t) * 8);
 x_6 = lean_usize_to_nat(x_5);
 x_7 = l_Std_PersistentArray_getAux___rarg___closed__1;
 x_8 = lean_array_get(x_7, x_4, x_6);
 lean_dec(x_6);
 lean_dec(x_4);
 x_9 = 1;
-x_10 = x_9 << x_3;
+x_10 = x_9 << x_3 % (sizeof(size_t) * 8);
 x_11 = x_10 - x_9;
 x_12 = x_2 & x_11;
 x_13 = 5;
@@ -6564,9 +6564,9 @@ if (x_6 == 0)
 {
 lean_object* x_7; size_t x_8; size_t x_9; size_t x_10; size_t x_11; size_t x_12; size_t x_13; size_t x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_7 = lean_ctor_get(x_3, 0);
-x_8 = x_4 >> x_5;
+x_8 = x_4 >> x_5 % (sizeof(size_t) * 8);
 x_9 = 1;
-x_10 = x_9 << x_5;
+x_10 = x_9 << x_5 % (sizeof(size_t) * 8);
 x_11 = x_10 - x_9;
 x_12 = x_4 & x_11;
 x_13 = 5;
@@ -6601,9 +6601,9 @@ lean_object* x_23; size_t x_24; size_t x_25; size_t x_26; size_t x_27; size_t x_
 x_23 = lean_ctor_get(x_3, 0);
 lean_inc(x_23);
 lean_dec(x_3);
-x_24 = x_4 >> x_5;
+x_24 = x_4 >> x_5 % (sizeof(size_t) * 8);
 x_25 = 1;
-x_26 = x_25 << x_5;
+x_26 = x_25 << x_5 % (sizeof(size_t) * 8);
 x_27 = x_26 - x_25;
 x_28 = x_4 & x_27;
 x_29 = 5;

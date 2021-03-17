@@ -13786,12 +13786,12 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_5; size_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; size_t x_12; size_t x_13; size_t x_14; size_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_5 = lean_ctor_get(x_1, 0);
-x_6 = x_2 >> x_3;
+x_6 = x_2 >> x_3 % (sizeof(size_t) * 8);
 x_7 = lean_usize_to_nat(x_6);
 x_8 = l_Std_PersistentArray_getAux___rarg___closed__1;
 x_9 = lean_array_get(x_8, x_5, x_7);
 x_10 = 1;
-x_11 = x_10 << x_3;
+x_11 = x_10 << x_3 % (sizeof(size_t) * 8);
 x_12 = x_11 - x_10;
 x_13 = x_2 & x_12;
 x_14 = 5;
@@ -17070,12 +17070,12 @@ if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_14; size_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; size_t x_19; size_t x_20; size_t x_21; size_t x_22; size_t x_23; size_t x_24; lean_object* x_25; 
 x_14 = lean_ctor_get(x_5, 0);
-x_15 = x_6 >> x_7;
+x_15 = x_6 >> x_7 % (sizeof(size_t) * 8);
 x_16 = lean_usize_to_nat(x_15);
 x_17 = l_Std_PersistentArray_getAux___rarg___closed__1;
 x_18 = lean_array_get(x_17, x_14, x_16);
 x_19 = 1;
-x_20 = x_19 << x_7;
+x_20 = x_19 << x_7 % (sizeof(size_t) * 8);
 x_21 = x_20 - x_19;
 x_22 = x_6 & x_21;
 x_23 = 5;

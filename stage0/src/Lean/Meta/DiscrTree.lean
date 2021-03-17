@@ -163,17 +163,59 @@ private partial def whnfEta (e : Expr) : MetaM Expr := do
   | some e => whnfEta e
   | none   => pure e
 
+/--
+  Return true if `e` is one of the following
+  - A nat literal (numeral)
+  - `Nat.zero`
+  - `Nat.succ x` where `isNumeral x`
+  - `OfNat.ofNat _ x _` where `isNumeral x` -/
+private partial def isNumeral (e : Expr) : Bool :=
+  if e.isNatLit then true
+  else
+    let f := e.getAppFn
+    if !f.isConst then false
+    else
+      let fName := f.constName!
+      if fName == ``Nat.succ && e.getAppNumArgs == 1 then isNumeral e.appArg!
+      else if fName == ``OfNat.ofNat && e.getAppNumArgs == 3 then isNumeral (e.getArg! 1)
+      else if fName == ``Nat.zero && e.getAppNumArgs == 0 then true
+      else false
+
+private def isNatType (e : Expr) : MetaM Bool :=
+  return (← whnf e).isConstOf ``Nat
+
+/--
+  Return true if `e` is one of the following
+  - `Nat.add _ k` where `isNumeral k`
+  - `Add.add Nat _ _ k` where `isNumeral k`
+  - `HAdd.hAdd _ Nat _ _ k` where `isNumeral k`
+  - `Nat.succ _`
+  This function assumes `e.isAppOf fName`
+-/
+private def isOffset (fName : Name) (e : Expr) : MetaM Bool := do
+  if fName == ``Nat.add && e.getAppNumArgs == 2 then
+    return isNumeral e.appArg!
+  else if fName == ``Add.add && e.getAppNumArgs == 4 then
+    if (← isNatType (e.getArg! 0)) then return isNumeral e.appArg! else return false
+  else if fName == ``HAdd.hAdd && e.getAppNumArgs == 6 then
+    if (← isNatType (e.getArg! 1)) then return isNumeral e.appArg! else return false
+  else
+    return fName == ``Nat.succ && e.getAppNumArgs == 1
+
 /-
-  TODO: add a parameter (wildcardConsts : NameSet) to `DiscrTree.insert`.
-  Then, `DiscrTree` users may control which symbols should be treated as wildcards.
+  TODO: add hook for users adding their own functions for controlling `shouldAddAsStar`
   Different `DiscrTree` users may populate this set using, for example, attributes.
 
-  Remark: we currently tag `Nat.zero` and `Nat.succ` to avoid having to add special
-  support for `Expr.lit`. Example, suppose the discrimination tree contains the entry
+  Remark: we currently tag `Nat.zero` and "offset" terms to avoid having to add special
+  support for `Expr.lit` and offset terms.
+  Example, suppose the discrimination tree contains the entry
   `Nat.succ ?m |-> v`, and we are trying to retrieve the matches for `Expr.lit (Literal.natVal 1) _`.
   In this scenario, we want to retrieve `Nat.succ ?m |-> v` -/
-private def shouldAddAsStar (constName : Name) : Bool :=
-  constName == `Nat.zero || constName == `Nat.succ
+private def shouldAddAsStar (fName : Name) (e : Expr) : MetaM Bool := do
+  if fName == `Nat.zero then
+    return true
+  else
+    isOffset fName e
 
 def mkNoindexAnnotation (e : Expr) : Expr :=
   mkAnnotation `noindex e
@@ -181,9 +223,9 @@ def mkNoindexAnnotation (e : Expr) : Expr :=
 def hasNoindexAnnotation (e : Expr) : Bool :=
   annotation? `noindex e |>.isSome
 
-/- Remark: we use `shouldAddAsStar` only for nested terms, and `first == false` for nested terms -/
+/- Remark: we use `shouldAddAsStar` only for nested terms, and `root == false` for nested terms -/
 
-private def pushArgs (first : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) := do
+private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) := do
   if hasNoindexAnnotation e then
     return (Key.star, todo)
   else
@@ -196,11 +238,11 @@ private def pushArgs (first : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key 
     match fn with
     | Expr.lit v _       => return (Key.lit v, todo)
     | Expr.const c _ _   =>
-      if !first && shouldAddAsStar c then
-        return (Key.star, todo)
-      else
-        let nargs := e.getAppNumArgs
-        push (Key.const c nargs) nargs
+      unless root do
+        if (← shouldAddAsStar c e) then
+          return (Key.star, todo)
+      let nargs := e.getAppNumArgs
+      push (Key.const c nargs) nargs
     | Expr.fvar fvarId _ =>
       let nargs := e.getAppNumArgs
       push (Key.fvar fvarId nargs) nargs
@@ -215,13 +257,13 @@ private def pushArgs (first : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key 
     | _ =>
       return (Key.other, todo)
 
-partial def mkPathAux (first : Bool) (todo : Array Expr) (keys : Array Key) : MetaM (Array Key) := do
+partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) : MetaM (Array Key) := do
   if todo.isEmpty then
     pure keys
   else
     let e    := todo.back
     let todo := todo.pop
-    let (k, todo) ← pushArgs first todo e
+    let (k, todo) ← pushArgs root todo e
     mkPathAux false todo (keys.push k)
 
 private def initCapacity := 8
@@ -230,7 +272,7 @@ def mkPath (e : Expr) : MetaM (Array Key) := do
   withReducible do
     let todo : Array Expr := Array.mkEmpty initCapacity
     let keys : Array Key  := Array.mkEmpty initCapacity
-    mkPathAux (first := true) (todo.push e) keys
+    mkPathAux (root := true) (todo.push e) keys
 
 private partial def createNodes {α} (keys : Array Key) (v : α) (i : Nat) : Trie α :=
   if h : i < keys.size then
@@ -272,7 +314,7 @@ def insert {α} [BEq α] (d : DiscrTree α) (e : Expr) (v : α) : MetaM (DiscrTr
   let keys ← mkPath e
   return d.insertCore keys v
 
-private def getKeyArgs (e : Expr) (isMatch? : Bool) : MetaM (Key × Array Expr) := do
+private def getKeyArgs (e : Expr) (isMatch : Bool) : MetaM (Key × Array Expr) := do
   let e ← whnfEta e
   match e.getAppFn with
   | Expr.lit v _       => pure (Key.lit v, #[])
@@ -283,7 +325,7 @@ private def getKeyArgs (e : Expr) (isMatch? : Bool) : MetaM (Key × Array Expr) 
     let nargs := e.getAppNumArgs
     pure (Key.fvar fvarId nargs, e.getAppRevArgs)
   | Expr.mvar mvarId _ =>
-    if isMatch? then
+    if isMatch then
       pure (Key.other, #[])
     else do
       let ctx ← read
@@ -310,10 +352,10 @@ private def getKeyArgs (e : Expr) (isMatch? : Bool) : MetaM (Key × Array Expr) 
   | _ => pure (Key.other, #[])
 
 private abbrev getMatchKeyArgs (e : Expr) : MetaM (Key × Array Expr) :=
-  getKeyArgs e true
+  getKeyArgs e (isMatch := true)
 
 private abbrev getUnifyKeyArgs (e : Expr) : MetaM (Key × Array Expr) :=
-  getKeyArgs e false
+  getKeyArgs e (isMatch := false)
 
 private def getStarResult {α} (d : DiscrTree α) : Array α :=
   let result : Array α := Array.mkEmpty initCapacity

@@ -2393,6 +2393,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage(x_1, x_2, x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -2498,7 +2499,6 @@ x_27 = lean_ctor_get(x_16, 1);
 lean_inc(x_27);
 lean_dec(x_16);
 x_28 = l_Lean_Parser_Error_toString(x_26);
-lean_inc(x_27);
 x_29 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage(x_11, x_27, x_28);
 lean_dec(x_11);
 x_30 = 1;
@@ -2583,7 +2583,6 @@ x_59 = lean_ctor_get(x_47, 1);
 lean_inc(x_59);
 lean_dec(x_47);
 x_60 = l_Lean_Parser_Error_toString(x_58);
-lean_inc(x_59);
 x_61 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage(x_42, x_59, x_60);
 lean_dec(x_42);
 x_62 = 1;
@@ -2931,7 +2930,6 @@ if (x_6 == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; 
 x_28 = l_Lean_Parser_Error_toString(x_25);
-lean_inc(x_26);
 x_29 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage(x_11, x_26, x_28);
 lean_dec(x_11);
 x_30 = l_Std_PersistentArray_push___rarg(x_4, x_29);
@@ -2963,6 +2961,7 @@ if (x_6 == 0)
 lean_object* x_36; lean_object* x_37; lean_object* x_38; uint8_t x_39; 
 x_36 = l_Lean_Parser_Error_toString(x_25);
 x_37 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage(x_11, x_26, x_36);
+lean_dec(x_26);
 lean_dec(x_11);
 x_38 = l_Std_PersistentArray_push___rarg(x_4, x_37);
 x_39 = 1;
@@ -3050,7 +3049,6 @@ if (x_6 == 0)
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; uint8_t x_64; lean_object* x_65; 
 x_61 = l_Lean_Parser_Error_toString(x_58);
-lean_inc(x_59);
 x_62 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage(x_43, x_59, x_61);
 lean_dec(x_43);
 x_63 = l_Std_PersistentArray_push___rarg(x_4, x_62);
@@ -3086,6 +3084,7 @@ if (x_6 == 0)
 lean_object* x_71; lean_object* x_72; lean_object* x_73; uint8_t x_74; lean_object* x_75; 
 x_71 = l_Lean_Parser_Error_toString(x_58);
 x_72 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage(x_43, x_59, x_71);
+lean_dec(x_59);
 lean_dec(x_43);
 x_73 = l_Std_PersistentArray_push___rarg(x_4, x_72);
 x_74 = 1;

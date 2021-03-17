@@ -329,7 +329,7 @@ x_13 = 1;
 x_14 = x_1 - x_13;
 x_15 = 5;
 x_16 = x_15 * x_14;
-x_17 = x_12 >> x_16;
+x_17 = x_12 >> x_16 % (sizeof(size_t) * 8);
 x_18 = lean_unsigned_to_nat(1u);
 x_19 = lean_nat_add(x_5, x_18);
 lean_dec(x_5);
@@ -551,7 +551,7 @@ if (x_38 == 0)
 {
 lean_object* x_39; size_t x_40; size_t x_41; lean_object* x_42; lean_object* x_43; 
 x_39 = lean_ctor_get(x_15, 0);
-x_40 = x_2 >> x_9;
+x_40 = x_2 >> x_9 % (sizeof(size_t) * 8);
 x_41 = x_3 + x_8;
 x_42 = l_Std_PersistentHashMap_insertAux___at_Lean_ClassState_addEntry___spec__3(x_39, x_40, x_41, x_4, x_5);
 lean_ctor_set(x_15, 0, x_42);
@@ -566,7 +566,7 @@ lean_object* x_44; size_t x_45; size_t x_46; lean_object* x_47; lean_object* x_4
 x_44 = lean_ctor_get(x_15, 0);
 lean_inc(x_44);
 lean_dec(x_15);
-x_45 = x_2 >> x_9;
+x_45 = x_2 >> x_9 % (sizeof(size_t) * 8);
 x_46 = x_3 + x_8;
 x_47 = l_Std_PersistentHashMap_insertAux___at_Lean_ClassState_addEntry___spec__3(x_44, x_45, x_46, x_4, x_5);
 x_48 = lean_alloc_ctor(1, 1, 0);
@@ -684,7 +684,7 @@ if (lean_is_exclusive(x_62)) {
  lean_dec_ref(x_62);
  x_79 = lean_box(0);
 }
-x_80 = x_2 >> x_55;
+x_80 = x_2 >> x_55 % (sizeof(size_t) * 8);
 x_81 = x_3 + x_54;
 x_82 = l_Std_PersistentHashMap_insertAux___at_Lean_ClassState_addEntry___spec__3(x_78, x_80, x_81, x_4, x_5);
 if (lean_is_scalar(x_79)) {
@@ -2059,7 +2059,7 @@ lean_object* x_13; size_t x_14;
 x_13 = lean_ctor_get(x_10, 0);
 lean_inc(x_13);
 lean_dec(x_10);
-x_14 = x_2 >> x_5;
+x_14 = x_2 >> x_5 % (sizeof(size_t) * 8);
 x_1 = x_13;
 x_2 = x_14;
 goto _start;
@@ -2342,7 +2342,7 @@ lean_object* x_16; size_t x_17;
 x_16 = lean_ctor_get(x_10, 0);
 lean_inc(x_16);
 lean_dec(x_10);
-x_17 = x_2 >> x_5;
+x_17 = x_2 >> x_5 % (sizeof(size_t) * 8);
 x_1 = x_16;
 x_2 = x_17;
 goto _start;

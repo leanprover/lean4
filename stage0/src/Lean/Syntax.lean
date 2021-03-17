@@ -180,6 +180,10 @@ structure TopDown where
   firstChoiceOnly : Bool
   stx : Syntax
 
+/--
+`for _ in stx.topDown` iterates through each node and leaf in `stx` top-down, left-to-right.
+If `firstChoiceOnly` is `true`, only visit the first argument of each choice node.
+-/
 def topDown (stx : Syntax) (firstChoiceOnly := false) : TopDown := ⟨firstChoiceOnly, stx⟩
 
 partial instance : ForIn m TopDown Syntax where

@@ -33065,12 +33065,12 @@ if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_8; size_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; size_t x_15; size_t x_16; size_t x_17; size_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
 x_8 = lean_ctor_get(x_4, 0);
-x_9 = x_5 >> x_6;
+x_9 = x_5 >> x_6 % (sizeof(size_t) * 8);
 x_10 = lean_usize_to_nat(x_9);
 x_11 = l_Std_PersistentArray_getAux___rarg___closed__1;
 x_12 = lean_array_get(x_11, x_8, x_10);
 x_13 = 1;
-x_14 = x_13 << x_6;
+x_14 = x_13 << x_6 % (sizeof(size_t) * 8);
 x_15 = x_14 - x_13;
 x_16 = x_5 & x_15;
 x_17 = 5;

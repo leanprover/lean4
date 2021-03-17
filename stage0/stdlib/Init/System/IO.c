@@ -4689,11 +4689,11 @@ lean_object* x_2; uint32_t x_3; uint32_t x_4; uint32_t x_5; lean_object* x_6; ui
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = l_IO_AccessRight_flags(x_2);
 x_4 = 6;
-x_5 = x_3 << x_4;
+x_5 = x_3 << x_4 % 32;
 x_6 = lean_ctor_get(x_1, 1);
 x_7 = l_IO_AccessRight_flags(x_6);
 x_8 = 3;
-x_9 = x_7 << x_8;
+x_9 = x_7 << x_8 % 32;
 x_10 = lean_ctor_get(x_1, 2);
 x_11 = l_IO_AccessRight_flags(x_10);
 x_12 = x_9 | x_11;

@@ -276,6 +276,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Elab_getRefPosition___rarg___lambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
 lean_dec(x_2);
 return x_4;
 }
@@ -719,6 +720,7 @@ uint8_t x_7; lean_object* x_8;
 x_7 = lean_unbox(x_4);
 lean_dec(x_4);
 x_8 = l_Lean_Elab_logAt___rarg___lambda__4(x_1, x_2, x_3, x_7, x_5, x_6);
+lean_dec(x_3);
 lean_dec(x_2);
 return x_8;
 }
@@ -750,6 +752,7 @@ uint8_t x_7; lean_object* x_8;
 x_7 = lean_unbox(x_4);
 lean_dec(x_4);
 x_8 = l_Lean_Elab_logAt___rarg___lambda__7(x_1, x_2, x_3, x_7, x_5, x_6);
+lean_dec(x_3);
 lean_dec(x_2);
 return x_8;
 }
@@ -781,6 +784,8 @@ uint8_t x_8; lean_object* x_9;
 x_8 = lean_unbox(x_5);
 lean_dec(x_5);
 x_9 = l_Lean_Elab_logAt___rarg___lambda__10(x_1, x_2, x_3, x_4, x_8, x_6, x_7);
+lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_2);
 return x_9;
 }

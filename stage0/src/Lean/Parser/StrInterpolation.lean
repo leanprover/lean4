@@ -15,7 +15,7 @@ partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
   let rec parse (startPos : Nat) (c : ParserContext) (s : ParserState) : ParserState :=
     let i     := s.pos
     if input.atEnd i then
-      s.mkEOIError
+      s.mkUnexpectedErrorAt "unterminated string literal" startPos
     else
       let curr := input.get i
       let s    := s.setPos (input.next i)

@@ -170,6 +170,8 @@ where
         trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
         if i < infos.size && !infos[i].hasFwdDeps then
           r ← mkCongr r (← simp arg)
+        else if (← whnfD (← inferType r.expr)).isArrow then
+          r ← mkCongr r (← simp arg)
         else
           r ← mkCongrFun r (← dsimp arg)
         i := i + 1

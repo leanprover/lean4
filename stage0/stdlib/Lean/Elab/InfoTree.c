@@ -979,7 +979,7 @@ lean_object* x_16; size_t x_17;
 x_16 = lean_ctor_get(x_10, 0);
 lean_inc(x_16);
 lean_dec(x_10);
-x_17 = x_2 >> x_5;
+x_17 = x_2 >> x_5 % (sizeof(size_t) * 8);
 x_1 = x_16;
 x_2 = x_17;
 goto _start;
@@ -1684,6 +1684,7 @@ _start:
 lean_object* x_4; 
 x_4 = l___private_Lean_Elab_InfoTree_0__Lean_Elab_formatStxRange_fmtPos(x_1, x_2, x_3);
 lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -1742,6 +1743,7 @@ lean_inc(x_17);
 lean_dec(x_5);
 x_18 = l___private_Lean_Elab_InfoTree_0__Lean_Elab_formatStxRange_fmtPos(x_1, x_17, x_7);
 lean_dec(x_7);
+lean_dec(x_17);
 x_19 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_19, 0, x_13);
 lean_ctor_set(x_19, 1, x_18);
@@ -1757,7 +1759,6 @@ lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean
 x_21 = lean_ctor_get(x_4, 0);
 lean_inc(x_21);
 lean_dec(x_4);
-lean_inc(x_21);
 x_22 = l___private_Lean_Elab_InfoTree_0__Lean_Elab_formatStxRange_fmtPos(x_1, x_21, x_6);
 lean_dec(x_6);
 x_23 = l_Std_Format_join___closed__1;
@@ -1773,6 +1774,7 @@ if (lean_obj_tag(x_5) == 0)
 lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 x_27 = l___private_Lean_Elab_InfoTree_0__Lean_Elab_formatStxRange_fmtPos(x_1, x_21, x_7);
 lean_dec(x_7);
+lean_dec(x_21);
 x_28 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);
@@ -1790,6 +1792,7 @@ lean_inc(x_30);
 lean_dec(x_5);
 x_31 = l___private_Lean_Elab_InfoTree_0__Lean_Elab_formatStxRange_fmtPos(x_1, x_30, x_7);
 lean_dec(x_7);
+lean_dec(x_30);
 x_32 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_32, 0, x_26);
 lean_ctor_set(x_32, 1, x_31);
@@ -4544,7 +4547,7 @@ x_12 = 1;
 x_13 = x_1 - x_12;
 x_14 = 5;
 x_15 = x_14 * x_13;
-x_16 = x_11 >> x_15;
+x_16 = x_11 >> x_15 % (sizeof(size_t) * 8);
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_add(x_5, x_17);
 lean_dec(x_5);
@@ -4759,7 +4762,7 @@ if (x_34 == 0)
 {
 lean_object* x_35; size_t x_36; size_t x_37; lean_object* x_38; lean_object* x_39; 
 x_35 = lean_ctor_get(x_15, 0);
-x_36 = x_2 >> x_9;
+x_36 = x_2 >> x_9 % (sizeof(size_t) * 8);
 x_37 = x_3 + x_8;
 x_38 = l_Std_PersistentHashMap_insertAux___at_Lean_Elab_assignInfoHoleId___spec__2(x_35, x_36, x_37, x_4, x_5);
 lean_ctor_set(x_15, 0, x_38);
@@ -4774,7 +4777,7 @@ lean_object* x_40; size_t x_41; size_t x_42; lean_object* x_43; lean_object* x_4
 x_40 = lean_ctor_get(x_15, 0);
 lean_inc(x_40);
 lean_dec(x_15);
-x_41 = x_2 >> x_9;
+x_41 = x_2 >> x_9 % (sizeof(size_t) * 8);
 x_42 = x_3 + x_8;
 x_43 = l_Std_PersistentHashMap_insertAux___at_Lean_Elab_assignInfoHoleId___spec__2(x_40, x_41, x_42, x_4, x_5);
 x_44 = lean_alloc_ctor(1, 1, 0);
@@ -4890,7 +4893,7 @@ if (lean_is_exclusive(x_57)) {
  lean_dec_ref(x_57);
  x_72 = lean_box(0);
 }
-x_73 = x_2 >> x_50;
+x_73 = x_2 >> x_50 % (sizeof(size_t) * 8);
 x_74 = x_3 + x_49;
 x_75 = l_Std_PersistentHashMap_insertAux___at_Lean_Elab_assignInfoHoleId___spec__2(x_71, x_73, x_74, x_4, x_5);
 if (lean_is_scalar(x_72)) {
@@ -5285,14 +5288,14 @@ lean_object* x_4; size_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec(x_1);
-x_5 = x_2 >> x_3;
+x_5 = x_2 >> x_3 % (sizeof(size_t) * 8);
 x_6 = lean_usize_to_nat(x_5);
 x_7 = l_Std_PersistentArray_getAux___rarg___closed__1;
 x_8 = lean_array_get(x_7, x_4, x_6);
 lean_dec(x_6);
 lean_dec(x_4);
 x_9 = 1;
-x_10 = x_9 << x_3;
+x_10 = x_9 << x_3 % (sizeof(size_t) * 8);
 x_11 = x_10 - x_9;
 x_12 = x_2 & x_11;
 x_13 = 5;

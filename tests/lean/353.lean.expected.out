@@ -1,0 +1,4 @@
+353.lean:13:27-13:35: error: failed to synthesize instance
+  ArrSort.{1, ?u} Bool
+353.lean:13:41-13:49: error: failed to synthesize instance
+  Arr.{1, ?u + 1} Bool (Sort ?u)

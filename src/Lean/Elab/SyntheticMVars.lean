@@ -95,7 +95,11 @@ private def synthesizePendingCoeInstMVar
       | Exception.error _ msg => throwTypeMismatchError errorMsgHeader? expectedType eType e f? msg
       | _                     => unreachable!
 
-private def tryToSynthesizeUsingDefaultInstance (mvarId : MVarId) (defaultInstance : Name) : MetaM (Option (List SyntheticMVarDecl)) :=
+/--
+  Try to synthesize a value for `mvarId` using the given default instance.
+  Return `some (val, mvarDecls)` if successful, where `val` is the value assigned to `mvarId`, and `mvarDecls` is a list of new type class instances that need to be synthesized.
+-/
+private def tryToSynthesizeUsingDefaultInstance (mvarId : MVarId) (defaultInstance : Name) : TermElabM (Option (Expr × List SyntheticMVarDecl)) :=
   commitWhenSome? do
     let constInfo ← getConstInfo defaultInstance
     let candidate := Lean.mkConst defaultInstance (← mkFreshLevelMVars constInfo.levelParams.length)
@@ -109,11 +113,11 @@ private def tryToSynthesizeUsingDefaultInstance (mvarId : MVarId) (defaultInstan
         if bis[i] == BinderInfo.instImplicit then
            result := { mvarId := mvars[i].mvarId!, stx := (← getRef), kind := SyntheticMVarKind.typeClass } :: result
       trace[Elab.resume] "worked"
-      return some result
+      return some (candidate, result)
     else
       return none
 
-private def tryToSynthesizeUsingDefaultInstances (mvarId : MVarId) (prio : Nat) : MetaM (Option (List SyntheticMVarDecl)) :=
+private def tryToSynthesizeUsingDefaultInstances (mvarId : MVarId) (prio : Nat) : TermElabM (Option (Expr × List SyntheticMVarDecl)) :=
   withMVarContext mvarId do
     let mvarType := (← Meta.getMVarDecl mvarId).type
     match (← isClass? mvarType) with
@@ -125,7 +129,7 @@ private def tryToSynthesizeUsingDefaultInstances (mvarId : MVarId) (prio : Nat) 
         for (defaultInstance, instPrio) in defaultInstances do
           if instPrio == prio then
             match (← tryToSynthesizeUsingDefaultInstance mvarId defaultInstance) with
-            | some newMVarDecls => return some newMVarDecls
+            | some result => return some result
             | none => continue
         return none
 
@@ -139,7 +143,10 @@ private def synthesizeUsingDefaultPrio (prio : Nat) : TermElabM Bool := do
       | SyntheticMVarKind.typeClass =>
         match (← withRef mvarDecl.stx <| tryToSynthesizeUsingDefaultInstances mvarDecl.mvarId prio) with
         | none => visit mvarDecls (mvarDecl :: syntheticMVarsNew)
-        | some newMVarDecls =>
+        | some (val, newMVarDecls) =>
+          for newMVarDecl in newMVarDecls do
+            -- Register that `newMVarDecl.mvarId`s are implicit arguments of the value assigned to `mvarDecl.mvarId`
+            registerMVarErrorImplicitArgInfo newMVarDecl.mvarId (← getRef) val
           let syntheticMVarsNew := newMVarDecls ++ syntheticMVarsNew
           let syntheticMVarsNew := mvarDecls.reverse ++ syntheticMVarsNew
           modify fun s => { s with syntheticMVars := syntheticMVarsNew }

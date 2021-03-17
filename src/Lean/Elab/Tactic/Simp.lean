@@ -70,12 +70,13 @@ unsafe def evalSimpConfigUnsafe (e : Expr) : TermElabM Meta.Simp.Config :=
 
 @[implementedBy evalSimpConfigUnsafe] constant evalSimpConfig (e : Expr) : TermElabM Meta.Simp.Config
 
+/- `optConfig` is of the form `("(" "config" ":=" term ")")?` -/
 def elabSimpConfig (optConfig : Syntax) : TermElabM Meta.Simp.Config := do
   if optConfig.isNone then
     return {}
   else
     withLCtx {} {} <| withNewMCtxDepth <| Term.withSynthesize do
-      let c ← Term.elabTermEnsuringType optConfig[0] (Lean.mkConst ``Meta.Simp.Config)
+      let c ← Term.elabTermEnsuringType optConfig[0][3] (Lean.mkConst ``Meta.Simp.Config)
       evalSimpConfig (← instantiateMVars c)
 
 /-- Elaborate extra simp lemmas provided to `simp`. `stx` is of the `simpLemma,*` -/
@@ -129,12 +130,12 @@ where
       return none
 
 /-
-  "simp " ("only ")? ("[" simpLemma,* "]")? (colGt term)? (location)?
+  "simp " ("(" "config" ":=" term ")")? ("only ")? ("[" simpLemma,* "]")? (location)?
 -/
 @[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
-  let simpOnly := !stx[1].isNone
-  let ctx  ← elabSimpLemmas stx[2] {
-    config      := (← elabSimpConfig stx[3])
+  let simpOnly := !stx[2].isNone
+  let ctx  ← elabSimpLemmas stx[3] {
+    config      := (← elabSimpConfig stx[1])
     simpLemmas  := if simpOnly then {} else (← getSimpLemmas)
     congrLemmas := (← getCongrLemmas)
   }

@@ -1,43 +1,43 @@
-unsolvedIndCases.lean:3:11-3:13: error: unsolved goals
+unsolvedIndCases.lean:3:11-3:18: error: unsolved goals
 case zero
 ⊢ 0 + Nat.zero = Nat.zero
-unsolvedIndCases.lean:4:11-4:13: error: unsolved goals
+unsolvedIndCases.lean:4:11-4:18: error: unsolved goals
 case succ
 y : Nat
 ⊢ 0 + Nat.succ y = Nat.succ y
-unsolvedIndCases.lean:8:14-8:16: error: unsolved goals
+unsolvedIndCases.lean:8:14-8:21: error: unsolved goals
 case zero
 ⊢ 0 + Nat.zero = Nat.zero
-unsolvedIndCases.lean:9:14-9:16: error: unsolved goals
+unsolvedIndCases.lean:9:14-9:21: error: unsolved goals
 case succ
 y : Nat
 ih : 0 + y = y
 ⊢ 0 + Nat.succ y = Nat.succ y
-unsolvedIndCases.lean:14:11-14:13: error: unsolved goals
+unsolvedIndCases.lean:14:11-14:18: error: unsolved goals
 case succ
 y : Nat
 ⊢ 0 + Nat.succ y = Nat.succ y
-unsolvedIndCases.lean:18:18-18:20: error: unsolved goals
+unsolvedIndCases.lean:18:18-18:25: error: unsolved goals
 case ind
 x y : Nat
 h₁ : 0 < y ∧ y ≤ x
 ih : y > 0 → (x - y) % y < y
 h : y > 0
 ⊢ x % y < y
-unsolvedIndCases.lean:19:18-19:20: error: unsolved goals
+unsolvedIndCases.lean:19:18-19:25: error: unsolved goals
 case base
 x y : Nat
 h₁ : ¬(0 < y ∧ y ≤ x)
 h : y > 0
 ⊢ x % y < y
-unsolvedIndCases.lean:23:18-23:20: error: unsolved goals
+unsolvedIndCases.lean:23:18-23:25: error: unsolved goals
 case ind
 x y : Nat
 h : y > 0
 h₁ : 0 < y ∧ y ≤ x
 ih : x = x - y → y = y → x % y < y
 ⊢ x % y < y
-unsolvedIndCases.lean:24:18-24:20: error: unsolved goals
+unsolvedIndCases.lean:24:18-24:25: error: unsolved goals
 case base
 x y : Nat
 h : y > 0

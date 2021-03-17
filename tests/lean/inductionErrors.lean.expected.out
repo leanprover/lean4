@@ -1,8 +1,8 @@
-inductionErrors.lean:12:12-12:14: error: unsolved goals
+inductionErrors.lean:12:12-12:27: error: unsolved goals
 case upper
 q d : Nat
 ⊢ q + Nat.succ d > q
-inductionErrors.lean:11:12-11:14: error: unsolved goals
+inductionErrors.lean:11:12-11:27: error: unsolved goals
 case lower
 p d : Nat
 ⊢ p ≤ p + Nat.succ d

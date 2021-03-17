@@ -39,8 +39,8 @@ def isHoleRHS (rhs : Syntax) : Bool :=
   rhs.isOfKind ``Parser.Term.syntheticHole || rhs.isOfKind ``Parser.Term.hole
 
 def evalAlt (mvarId : MVarId) (alt : Syntax) (remainingGoals : Array MVarId) : TacticM (Array MVarId) :=
-  withRef (getAltDArrow alt) do -- using `=>`'s position for error messages
-    let rhs := getAltRHS alt
+  let rhs := getAltRHS alt
+  withCaseRef (getAltDArrow alt) rhs do
     if isHoleRHS rhs then
       let gs' ← withMVarContext mvarId $ withRef rhs do
         let mvarDecl ← getMVarDecl mvarId

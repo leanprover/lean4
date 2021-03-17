@@ -49,7 +49,7 @@ private def mkAuxiliaryMatchTermAux (parentTag : Name) (matchTac : Syntax) : Sta
     else withFreshMacroScope do
       let newHole ← `(?rhs)
       let newHoleId := newHole[1]
-      let newCase ← `(tactic| case $newHoleId => eraseAuxDiscrs!; ($holeOrTacticSeq:tacticSeq) )
+      let newCase ← `(tactic| case $newHoleId =>%$(alt[2]) eraseAuxDiscrs!; ($holeOrTacticSeq:tacticSeq) )
       modify fun s => { s with cases := s.cases.push newCase }
       pure <| alt.setArg 3 newHole
   let result  := matchTac.setKind ``Parser.Term.«match»

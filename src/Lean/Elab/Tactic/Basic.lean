@@ -487,22 +487,29 @@ private def findTag? (gs : List MVarId) (tag : Name) : TacticM (Option MVarId) :
   | some g => pure g
   | none   => gs.findM? (fun g => do pure $ tag.isPrefixOf (← getMVarDecl g).userName)
 
-@[builtinTactic «case»] def evalCase : Tactic := fun stx =>
-  match stx with
-  | `(tactic| case $tag => $tac:tacticSeq) => do
-     let tag := tag.getId
-     let gs ← getUnsolvedGoals
-     let some g ← findTag? gs tag | throwError "tag not found"
-     let gs := gs.erase g
-     setGoals [g]
-     let savedTag ← getMVarTag g
-     setMVarTag g Name.anonymous
-     try
-       closeUsingOrAdmit tac
-     finally
-       setMVarTag g savedTag
-     done
-     setGoals gs
+/--
+  Use position of `=> $body` for error messages.
+  If there is a line break before `body`, the message will be displayed on `=>` only,
+  but the "full range" for the info view will still include `body`. -/
+def withCaseRef [Monad m] [MonadRef m] (arrow body : Syntax) (x : m α) : m α :=
+  withRef (mkNullNode #[arrow, body]) x
+
+@[builtinTactic «case»] def evalCase : Tactic
+  | `(tactic| case $tag =>%$arr $tac:tacticSeq) => do
+    let tag := tag.getId
+    let gs ← getUnsolvedGoals
+    let some g ← findTag? gs tag | throwError "tag not found"
+    let gs := gs.erase g
+    setGoals [g]
+    let savedTag ← getMVarTag g
+    setMVarTag g Name.anonymous
+    try
+      withCaseRef arr tac do
+        closeUsingOrAdmit tac
+    finally
+      setMVarTag g savedTag
+    done
+    setGoals gs
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic «first»] partial def evalFirst : Tactic := fun stx => do

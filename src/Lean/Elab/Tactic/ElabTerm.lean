@@ -33,18 +33,13 @@ def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (mayPostpo
     return e
 
 /- Try to close main goal using `x target`, where `target` is the type of the main goal.  -/
-def closeMainUsing (x : Expr → TacticM Expr) : TacticM Unit := do
-  let (g, gs) ← getMainGoal
-  withMVarContext g do
-    let decl ← getMVarDecl g
-    let val  ← x decl.type
-    ensureHasNoMVars val
-    assignExprMVar g val
-  setGoals gs
+def closeMainGoalUsing (x : Expr → TacticM Expr) : TacticM Unit :=
+  withMainContext do
+    closeMainGoal (← x (← getMainTarget))
 
 @[builtinTactic «exact»] def evalExact : Tactic := fun stx =>
   match stx with
-  | `(tactic| exact $e) => closeMainUsing (fun type => elabTermEnsuringType e type)
+  | `(tactic| exact $e) => closeMainGoalUsing (fun type => elabTermEnsuringType e type)
   | _                   => throwUnsupportedSyntax
 
 def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) := do
@@ -68,12 +63,10 @@ def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : 
    filled by typing constraints.
    "Synthetic" metavariables are meant to be filled by tactics and are usually created using the synthetic hole notation `?<hole-name>`. -/
 def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : TacticM Unit := do
-  let (g, gs) ← getMainGoal
-  withMVarContext g do
-    let decl ← getMVarDecl g
-    let (val, gs') ← elabTermWithHoles stx decl.type tagSuffix allowNaturalHoles
-    assignExprMVar g val
-    setGoals (gs' ++ gs)
+  withMainContext do
+    let (val, mvarIds') ← elabTermWithHoles stx (← getMainTarget) tagSuffix allowNaturalHoles
+    assignExprMVar (← getMainGoal) val
+    replaceMainGoal mvarIds'
 
 @[builtinTactic «refine»] def evalRefine : Tactic := fun stx =>
   match stx with
@@ -86,14 +79,11 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
   | _                     => throwUnsupportedSyntax
 
 def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syntax) : TacticM Unit := do
-  let (g, gs) ← getMainGoal
-  let gs' ← withMVarContext g do
-    let decl ← getMVarDecl g
+  withMainContext do
     let val  ← elabTerm e none true
-    let gs'  ← tac g val
+    let mvarIds'  ← tac (← getMainGoal) val
     Term.synthesizeSyntheticMVarsNoPostponing
-    pure gs'
-  setGoals (gs' ++ gs)
+    replaceMainGoal mvarIds'
 
 @[builtinTactic Lean.Parser.Tactic.apply] def evalApply : Tactic := fun stx =>
   match stx with
@@ -114,20 +104,20 @@ def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syn
 /--
   Elaborate `stx`. If it a free variable, return it. Otherwise, assert it, and return the free variable.
   Note that, the main goal is updated when `Meta.assert` is used in the second case. -/
-def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId := do
-  let (mvarId, others) ← getMainGoal
-  withMVarContext mvarId do
+def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId :=
+  withMainContext do
     let e ← elabTerm stx none
     match e with
     | Expr.fvar fvarId _ => pure fvarId
     | _ =>
       let type ← inferType e
       let intro (userName : Name) (preserveBinderNames : Bool) : TacticM FVarId := do
+        let mvarId ← getMainGoal
         let (fvarId, mvarId) ← liftMetaM do
           let mvarId ← Meta.assert mvarId userName type e
           Meta.intro1Core mvarId preserveBinderNames
-        setGoals <| mvarId::others
-        pure fvarId
+        replaceMainGoal [mvarId]
+        return fvarId
       match userName? with
       | none          => intro `h false
       | some userName => intro userName true
@@ -135,8 +125,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
 @[builtinTactic Lean.Parser.Tactic.rename] def evalRename : Tactic := fun stx =>
   match stx with
   | `(tactic| rename $typeStx:term => $h:ident) => do
-    let (mvarId, others) ← getMainGoal
-    withMVarContext mvarId do
+    withMainContext do
       let fvarId ← withoutModifyingState <| withNewMCtxDepth do
         let type ← elabTerm typeStx none (mayPostpone := true)
         let fvarId? ← (← getLCtx).findDeclRevM? fun localDecl => do
@@ -145,9 +134,9 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
         | none => throwError "failed to find a hypothesis with type{indentExpr type}"
         | some fvarId => return fvarId
       let lctxNew := (← getLCtx).setUserName fvarId h.getId
-      let mvarNew ← mkFreshExprMVarAt lctxNew (← getLocalInstances) (← getMVarType mvarId) MetavarKind.syntheticOpaque (← getMVarTag mvarId)
-      assignExprMVar mvarId mvarNew
-      setGoals (mvarNew.mvarId! :: others)
+      let mvarNew ← mkFreshExprMVarAt lctxNew (← getLocalInstances) (← getMainTarget) MetavarKind.syntheticOpaque (← getMainTag)
+      assignExprMVar (← getMainGoal) mvarNew
+      replaceMainGoal [mvarNew.mvarId!]
   | _ => throwUnsupportedSyntax
 
 /--
@@ -163,7 +152,7 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
   return expectedType
 
 @[builtinTactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun stx =>
-  closeMainUsing fun expectedType => do
+  closeMainGoalUsing fun expectedType => do
     let expectedType ← preprocessPropToDecide expectedType
     let d ← mkDecide expectedType
     let d ← instantiateMVars d
@@ -186,7 +175,7 @@ private def mkNativeAuxDecl (baseName : Name) (type val : Expr) : TermElabM Name
   pure auxName
 
 @[builtinTactic Lean.Parser.Tactic.nativeDecide] def evalNativeDecide : Tactic := fun stx =>
-  closeMainUsing fun expectedType => do
+  closeMainGoalUsing fun expectedType => do
     let expectedType ← preprocessPropToDecide expectedType
     let d ← mkDecide expectedType
     let auxDeclName ← mkNativeAuxDecl `_nativeDecide (Lean.mkConst `Bool) d

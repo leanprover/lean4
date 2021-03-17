@@ -251,8 +251,8 @@ private def getGeneralizingFVarIds (stx : Syntax) : TacticM (Array FVarId) :=
     let generalizingStx := stx[3]
     if generalizingStx.isNone then
       pure #[]
-    else withMainMVarContext do
-      trace `Elab.induction fun _ => generalizingStx
+    else withMainContext do
+      trace[Elab.induction] "{generalizingStx}"
       let vars := generalizingStx[1].getArgs
       getFVarIds vars
 
@@ -322,11 +322,11 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
 
 @[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx => focus do
   let targets ← stx[1].getSepArgs.mapM fun target => do
-    let target ← withMainMVarContext <| elabTerm target none
+    let target ← withMainContext <| elabTerm target none
     generalizeTerm target
   let n ← generalizeVars stx targets
   let (elimName, elimInfo) ← getElimNameInfo stx[2] targets (induction := true)
-  let (mvarId, _) ← getMainGoal
+  let mvarId ← getMainGoal
   let tag ← getMVarTag mvarId
   withMVarContext mvarId do
     let result ← withRef stx[1] do -- use target position as reference
@@ -354,7 +354,7 @@ private def getTargetTerm (target : Syntax) : Syntax :=
   target[1]
 
 private def elabTaggedTerm (h? : Option Name) (termStx : Syntax) : TacticM Expr :=
-  withMainMVarContext $ withRef termStx do
+  withMainContext <| withRef termStx do
     let term ← elabTerm termStx none
     match h? with
     | none   => pure term
@@ -362,7 +362,7 @@ private def elabTaggedTerm (h? : Option Name) (termStx : Syntax) : TacticM Expr 
       let lctx ← getLCtx
       let x ← mkFreshUserName `x
       evalGeneralizeAux h? term x
-      withMainMVarContext do
+      withMainContext do
         let lctx ← getLCtx
         match lctx.findFromUserName? x with
         | some decl => pure decl.toExpr
@@ -384,7 +384,7 @@ builtin_initialize registerTraceClass `Elab.cases
   let alts :=  getAltsOfOptInductionAlts optInductionAlts
   let targetRef := stx[1]
   let (elimName, elimInfo) ← getElimNameInfo stx[2] targets (induction := false)
-  let (mvarId, _) ← getMainGoal
+  let mvarId ← getMainGoal
   let tag ← getMVarTag mvarId
   withMVarContext mvarId do
     let result ← withRef targetRef <| ElimApp.mkElimApp elimName elimInfo targets tag

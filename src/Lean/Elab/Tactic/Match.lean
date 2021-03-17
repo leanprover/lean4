@@ -14,18 +14,17 @@ open Meta
 /- Erase auxiliary `_discr` variables introduced by `match`-expression elaborator -/
 @[builtinTactic Lean.Parser.Tactic.eraseAuxDiscrs]
 def evalEraseAuxDiscrs : Tactic := fun _ => do
-  let (g, gs) ← getMainGoal
-  withMVarContext g do
+  withMainContext do
     let lctx ← getLCtx
     let auxDecls := lctx.foldl (init := []) fun auxDecls localDecl =>
       if Term.isAuxDiscrName localDecl.userName then
         localDecl.fvarId :: auxDecls
       else
         auxDecls
-    let mut g := g
+    let mut mvarId ← getMainGoal
     for auxDecl in auxDecls do
-      g ← tryClear g auxDecl
-    setGoals (g :: gs)
+      mvarId ← tryClear mvarId auxDecl
+    replaceMainGoal [mvarId]
 
 structure AuxMatchTermState where
   nextIdx : Nat := 1

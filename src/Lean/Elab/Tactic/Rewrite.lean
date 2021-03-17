@@ -30,37 +30,34 @@ private def expand (kind : SyntaxNodeKind) (token : String) (stx : Syntax) : Syn
   return expand ``Parser.Tactic.erewrite  "erewrite " stx
 
 def rewriteTarget (stx : Syntax) (symm : Bool) (mode : TransparencyMode) : TacticM Unit := do
-  let (g, gs) ← getMainGoal
-  Term.withSynthesize <| withMVarContext g do
+  Term.withSynthesize <| withMainContext do
     let e ← elabTerm stx none true
-    let target ← instantiateMVars (← getMVarDecl g).type
-    let r ← rewrite g target e symm (mode := mode)
-    let g' ← replaceTargetEq g r.eNew r.eqProof
-    setGoals (g' :: r.mvarIds ++ gs)
+    let r ← rewrite (← getMainGoal) (← getMainTarget) e symm (mode := mode)
+    let mvarId' ← replaceTargetEq (← getMainGoal) r.eNew r.eqProof
+    replaceMainGoal (mvarId' :: r.mvarIds)
 
 def rewriteLocalDeclFVarId (stx : Syntax) (symm : Bool) (fvarId : FVarId) (mode : TransparencyMode) : TacticM Unit := do
-  let (g, gs) ← getMainGoal
-  Term.withSynthesize <| withMVarContext g do
+  Term.withSynthesize <| withMainContext do
     let e ← elabTerm stx none true
     let localDecl ← getLocalDecl fvarId
-    let rwResult ← rewrite g localDecl.type e symm (mode := mode)
-    let replaceResult ← replaceLocalDecl g fvarId rwResult.eNew rwResult.eqProof
-    setGoals (replaceResult.mvarId :: rwResult.mvarIds ++ gs)
+    let rwResult ← rewrite (← getMainGoal) localDecl.type e symm (mode := mode)
+    let replaceResult ← replaceLocalDecl (← getMainGoal) fvarId rwResult.eNew rwResult.eqProof
+    replaceMainGoal (replaceResult.mvarId :: rwResult.mvarIds)
 
 def rewriteLocalDecl (stx : Syntax) (symm : Bool) (userName : Name) (mode : TransparencyMode) : TacticM Unit :=
-  withMainMVarContext do
+  withMainContext do
     let localDecl ← getLocalDeclFromUserName userName
     rewriteLocalDeclFVarId stx symm localDecl.fvarId mode
 
 def rewriteAll (stx : Syntax) (symm : Bool) (mode : TransparencyMode) : TacticM Unit := do
-  let worked ← «try» $ rewriteTarget stx symm mode
-  withMainMVarContext do
+  let worked ← tryTactic <| rewriteTarget stx symm mode
+  withMainContext do
     let mut worked := worked
     -- We must traverse backwards because `replaceLocalDecl` uses the revert/intro idiom
     for fvarId in (← getLCtx).getFVarIds.reverse do
-      worked := worked || (← «try» $ rewriteLocalDeclFVarId stx symm fvarId mode)
+      worked := worked || (← tryTactic <| rewriteLocalDeclFVarId stx symm fvarId mode)
     unless worked do
-      let (mvarId, _) ← getMainGoal
+      let mvarId ← getMainGoal
       throwTacticEx `rewrite mvarId "did not find instance of the pattern in the current goal"
 
 def evalRewriteCore (mode : TransparencyMode) : Tactic := fun stx => do

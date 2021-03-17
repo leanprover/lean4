@@ -1,3 +1,2 @@
 297.lean:1:10-1:11: error: typeclass instance problem is stuck, it is often due to metavariables
   OfNat (Sort ?u) 0
-297.lean:1:13-3:1: error: invalid universe level, u_1 is not greater than 0

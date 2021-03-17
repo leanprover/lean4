@@ -171,7 +171,7 @@ private def reportStuckSyntheticMVars : TermElabM Unit := do
       withMVarContext mvarSyntheticDecl.mvarId do
         let mvarDecl ← getMVarDecl mvarSyntheticDecl.mvarId
         unless (← get).messages.hasErrors do
-          logError <| "typeclass instance problem is stuck, it is often due to metavariables" ++ indentExpr mvarDecl.type
+          throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}"
     | SyntheticMVarKind.coe header eNew expectedType eType e f? =>
       let mvarId := eNew.appArg!.mvarId!
       withMVarContext mvarId do

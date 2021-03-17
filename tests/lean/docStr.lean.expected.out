@@ -189,30 +189,3 @@ g.foo :=
       charUtf16 := 44,
       endPos := { line := 40, column := 47 },
       endCharUtf16 := 47 } }
-optParam :=
-  { range := { pos := { line := 152, column := 13 },
-      charUtf16 := 13,
-      endPos := { line := 152, column := 66 },
-      endCharUtf16 := 66 },
-    selectionRange := { pos := { line := 152, column := 17 },
-      charUtf16 := 17,
-      endPos := { line := 152, column := 25 },
-      endCharUtf16 := 25 } }
-namedPattern :=
-  { range := { pos := { line := 161, column := 13 },
-      charUtf16 := 13,
-      endPos := { line := 161, column := 61 },
-      endCharUtf16 := 61 },
-    selectionRange := { pos := { line := 161, column := 17 },
-      charUtf16 := 17,
-      endPos := { line := 161, column := 29 },
-      endCharUtf16 := 29 } }
-Lean.Meta.forallTelescopeReducing :=
-  { range := { pos := { line := 699, column := 0 },
-      charUtf16 := 0,
-      endPos := { line := 700, column := 58 },
-      endCharUtf16 := 58 },
-    selectionRange := { pos := { line := 699, column := 4 },
-      charUtf16 := 4,
-      endPos := { line := 699, column := 27 },
-      endCharUtf16 := 27 } }

@@ -98,8 +98,5 @@ def printRangesTest : MetaM Unit := do
   printRanges `f.foo
   printRanges `g
   printRanges `g.foo
-  printRanges `optParam
-  printRanges `namedPattern
-  printRanges `Lean.Meta.forallTelescopeReducing
 
 #eval printRangesTest

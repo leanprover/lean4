@@ -1017,7 +1017,7 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
 
 def addTermInfo (stx : Syntax) (e : Expr) : TermElabM Unit := do
   if (← getInfoState).enabled then
-    pushInfoTree <| InfoTree.node (children := {}) <| Info.ofTermInfo { lctx := (← getLCtx), expr := e, stx := stx }
+    pushInfoLeaf <| Info.ofTermInfo { lctx := (← getLCtx), expr := e, stx := stx }
 
 def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDecl) :=
   return (← get).syntheticMVars.find? fun d => d.mvarId == mvarId

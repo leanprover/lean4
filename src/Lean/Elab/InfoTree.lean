@@ -187,6 +187,17 @@ def pushInfoTree (t : InfoTree) : m Unit := do
   if (← getInfoState).enabled then
     modifyInfoTrees fun ts => ts.push t
 
+def pushInfoLeaf (t : Info) : m Unit := do
+  if (← getInfoState).enabled then
+    pushInfoTree <| InfoTree.node (children := {}) t
+
+def resolveGlobalConstWithInfos [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Syntax) : m (List Name) := do
+  let ns ← resolveGlobalConst id.getId
+  if (← getInfoState).enabled then
+    for n in ns do
+      pushInfoLeaf <| Info.ofTermInfo { lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx := id }
+  return ns
+
 def mkInfoNode (info : Info) : m Unit := do
   if (← getInfoState).enabled then
     modifyInfoTrees fun ts => PersistentArray.empty.push <| InfoTree.node info ts

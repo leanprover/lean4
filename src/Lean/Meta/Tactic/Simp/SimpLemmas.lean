@@ -38,13 +38,12 @@ instance : ToMessageData SimpLemma where
 instance : BEq SimpLemma where
   beq e₁ e₂ := e₁.val == e₂.val
 
-abbrev SimpLemmaNameSet := Std.PHashSet Name
-
 structure SimpLemmas where
   pre         : DiscrTree SimpLemma := DiscrTree.empty
   post        : DiscrTree SimpLemma := DiscrTree.empty
-  lemmaNames  : SimpLemmaNameSet := {}
-  erased      : SimpLemmaNameSet := {}
+  lemmaNames  : Std.PHashSet Name := {}
+  toUnfold    : Std.PHashSet Name := {}
+  erased      : Std.PHashSet Name := {}
   deriving Inhabited
 
 def addSimpLemmaEntry (d : SimpLemmas) (e : SimpLemma) : SimpLemmas :=
@@ -53,24 +52,38 @@ def addSimpLemmaEntry (d : SimpLemmas) (e : SimpLemma) : SimpLemmas :=
   else
     { d with pre := d.pre.insertCore e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
 where
-  updateLemmaNames (s : SimpLemmaNameSet) : SimpLemmaNameSet :=
+  updateLemmaNames (s : Std.PHashSet Name) : Std.PHashSet Name :=
     match e.name? with
     | none => s
     | some name => s.insert name
+
+def SimpLemmas.addDeclToUnfold (d : SimpLemmas) (declName : Name) : SimpLemmas :=
+  { d with toUnfold := d.toUnfold.insert declName }
+
+def SimpLemmas.isDeclToUnfold (d : SimpLemmas) (declName : Name) : Bool :=
+  d.toUnfold.contains declName
 
 def SimpLemmas.isLemma (d : SimpLemmas) (declName : Name) : Bool :=
   d.lemmaNames.contains declName
 
 def SimpLemmas.erase [Monad m] [MonadError m] (d : SimpLemmas) (declName : Name) : m SimpLemmas := do
-  unless d.isLemma declName do
+  unless d.isLemma declName || d.isDeclToUnfold declName do
     throwError "'{declName}' does not have [simp] attribute"
-  return { d with erased := d.erased.insert declName, lemmaNames := d.lemmaNames.erase declName }
+  return { d with erased := d.erased.insert declName, lemmaNames := d.lemmaNames.erase declName, toUnfold := d.toUnfold.erase declName }
 
-builtin_initialize simpExtension : SimpleScopedEnvExtension SimpLemma SimpLemmas ←
+inductive SimpEntry where
+  | lemma    : SimpLemma → SimpEntry
+  | toUnfold : Name → SimpEntry
+  deriving Inhabited
+
+builtin_initialize simpExtension : SimpleScopedEnvExtension SimpEntry SimpLemmas ←
   registerSimpleScopedEnvExtension {
     name     := `simpExt
     initial  := {}
-    addEntry := addSimpLemmaEntry
+    addEntry := fun d e =>
+      match e with
+      | SimpEntry.lemma e => addSimpLemmaEntry d e
+      | SimpEntry.toUnfold n => d.addDeclToUnfold n
   }
 
 private partial def isPerm : Expr → Expr → MetaM Bool
@@ -151,17 +164,25 @@ def mkSimpLemmasFromConst (declName : Name) (post : Bool) (prio : Nat) : MetaM (
 def addSimpLemma (declName : Name) (post : Bool) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let simpLemmas ← mkSimpLemmasFromConst declName post prio
   for simpLemma in simpLemmas do
-    simpExtension.add simpLemma attrKind
+    simpExtension.add (SimpEntry.lemma simpLemma) attrKind
 
 builtin_initialize
   registerBuiltinAttribute {
     name  := `simp
     descr := "simplification lemma"
-    add   := fun declName stx attrKind => do
-      let post :=
-        if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
-      let prio ← getAttrParamOptPrio stx[2]
-      discard <| addSimpLemma declName post attrKind prio |>.run {} {}
+    add   := fun declName stx attrKind =>
+      let go : MetaM Unit := do
+        let info ← getConstInfo declName
+        if (← isProp info.type) then
+          let post :=
+            if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
+          let prio ← getAttrParamOptPrio stx[2]
+          addSimpLemma declName post attrKind prio
+        else if info.hasValue then
+          simpExtension.add (SimpEntry.toUnfold declName) attrKind
+        else
+          throwError "invalid 'simp', it is not a proposition nor a definition (to unfold)"
+      discard <| go.run {} {}
     erase := fun declName => do
       let s ← simpExtension.getState (← getEnv)
       let s ← s.erase declName

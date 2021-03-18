@@ -1152,6 +1152,20 @@ def checkWsBefore (errorMsg : String := "space before") : Parser := {
   fn   := checkWsBeforeFn errorMsg
 }
 
+def checkTailLinebreak (prev : Syntax) : Bool :=
+  match prev.getTailInfo with
+  | SourceInfo.original _ _ trailing => trailing.contains '\n'
+  | _ => false
+
+def checkLinebreakBeforeFn (errorMsg : String) : ParserFn := fun c s =>
+  let prev := s.stxStack.back
+  if checkTailLinebreak prev then s else s.mkError errorMsg
+
+def checkLinebreakBefore (errorMsg : String := "line break") : Parser := {
+  info := epsilonInfo
+  fn   := checkLinebreakBeforeFn errorMsg
+}
+
 private def pickNonNone (stack : Array Syntax) : Syntax :=
   match stack.findRev? $ fun stx => !stx.isNone with
   | none => Syntax.missing

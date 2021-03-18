@@ -18,6 +18,7 @@ namespace Parser
 builtin_initialize
   registerAlias "ws" checkWsBefore
   registerAlias "noWs" checkNoWsBefore
+  registerAlias "linebreak" checkLinebreakBefore
   registerAlias "num" numLit
   registerAlias "str" strLit
   registerAlias "char" charLit

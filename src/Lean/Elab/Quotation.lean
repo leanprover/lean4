@@ -318,9 +318,12 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
               for id in ids do
                 yes ← `(let $id := tuples.map (fun $tuple => $id); $yes)
               `(tuples)
+          let contents := if contents.size == 1
+            then contents[0]
+            else mkNullNode contents
           `(match ($(discrs).sequenceMap fun
-              | `($(contents[0])) => some $tuple
-              | _                 => none) with
+              | `($contents) => some $tuple
+              | _            => none) with
             | some $resId => $yes
             | none => $no)
     }

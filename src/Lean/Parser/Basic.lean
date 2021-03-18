@@ -541,14 +541,17 @@ def notFollowedByFn (p : ParserFn) (msg : String) : ParserFn := fun c s =>
   fn := notFollowedByFn p.fn msg
 }
 
-partial def manyAux (p : ParserFn) : ParserFn := fun c s =>
+partial def manyAux (p : ParserFn) : ParserFn := fun c s => do
   let iniSz  := s.stackSize
   let iniPos := s.pos
-  let s      := p c s
+  let mut s  := p c s
   if s.hasError then
-    if iniPos == s.pos then s.restore iniSz iniPos else s
-  else if iniPos == s.pos then s.mkUnexpectedError "invalid 'many' parser combinator application, parser did not consume anything"
-  else manyAux p c s
+    return if iniPos == s.pos then s.restore iniSz iniPos else s
+  if iniPos == s.pos then
+    return s.mkUnexpectedError "invalid 'many' parser combinator application, parser did not consume anything"
+  if s.stackSize > iniSz + 1 then
+    s := s.mkNode nullKind iniSz
+  manyAux p c s
 
 @[inline] def manyFn (p : ParserFn) : ParserFn := fun c s =>
   let iniSz  := s.stackSize
@@ -571,28 +574,31 @@ partial def manyAux (p : ParserFn) : ParserFn := fun c s =>
 }
 
 private partial def sepByFnAux (p : ParserFn) (sep : ParserFn) (allowTrailingSep : Bool) (iniSz : Nat) (pOpt : Bool) : ParserFn :=
-  let rec parse (pOpt : Bool) (c s) :=
+  let rec parse (pOpt : Bool) (c s) := do
     let sz  := s.stackSize
     let pos := s.pos
-    let s   := p c s
+    let mut s := p c s
     if s.hasError then
-      if s.pos > pos then s
+      if s.pos > pos then
+        return s
       else if pOpt then
         let s := s.restore sz pos
-        s.mkNode nullKind iniSz
+        return s.mkNode nullKind iniSz
       else
         -- append `Syntax.missing` to make clear that List is incomplete
         let s := s.pushSyntax Syntax.missing
-        s.mkNode nullKind iniSz
-    else
-      let sz  := s.stackSize
-      let pos := s.pos
-      let s   := sep c s
-      if s.hasError then
-        let s := s.restore sz pos
-        s.mkNode nullKind iniSz
-      else
-        parse allowTrailingSep c s
+        return s.mkNode nullKind iniSz
+    if s.stackSize > sz + 1 then
+      s := s.mkNode nullKind sz
+    let sz  := s.stackSize
+    let pos := s.pos
+    let s   := sep c s
+    if s.hasError then
+      let s := s.restore sz pos
+      return s.mkNode nullKind iniSz
+    if s.stackSize > sz + 1 then
+      s := s.mkNode nullKind sz
+    parse allowTrailingSep c s
   parse pOpt
 
 def sepByFn (allowTrailingSep : Bool) (p : ParserFn) (sep : ParserFn) : ParserFn := fun c s =>

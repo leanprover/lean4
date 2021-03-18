@@ -193,7 +193,6 @@ extern lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_826____
 lean_object* l_Lean_Parser_numLit___closed__1;
 lean_object* l_Lean_Parser_rawIdentFn(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_letrec___closed__4;
-extern lean_object* l_ReaderT_bind___at_Lean_PrettyPrinter_Formatter_categoryParser_formatter___spec__1___at_Lean_PrettyPrinter_Formatter_categoryParser_formatter___spec__5___closed__2;
 lean_object* l_Lean_Parser_registerAliasCore___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Parser_Extra___hyg_938____closed__4;
 lean_object* l_Lean_Parser_strLit___elambda__1(lean_object*, lean_object*);
@@ -219,6 +218,7 @@ lean_object* l_Lean_Parser_ppSpace_parenthesizer(lean_object*, lean_object*, lea
 lean_object* l_Lean_Parser_ident___closed__2;
 lean_object* l_Lean_Parser_sepByElemParser_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ppHardSpace_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___lambda__2___closed__4;
 extern lean_object* l_Lean_PrettyPrinter_mkFormatterAttribute___closed__4;
 lean_object* l_Lean_Parser_charLit_formatter___closed__2;
 lean_object* l_Lean_Parser_mkAntiquotSplice_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4099,7 +4099,7 @@ static lean_object* _init_l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_2
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_ReaderT_bind___at_Lean_PrettyPrinter_Formatter_categoryParser_formatter___spec__1___at_Lean_PrettyPrinter_Formatter_categoryParser_formatter___spec__5___closed__2;
+x_1 = l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___lambda__2___closed__4;
 x_2 = l_Lean_PrettyPrinter_mkFormatterAttribute___closed__7;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -4184,7 +4184,7 @@ static lean_object* _init_l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_2
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_ReaderT_bind___at_Lean_PrettyPrinter_Formatter_categoryParser_formatter___spec__1___at_Lean_PrettyPrinter_Formatter_categoryParser_formatter___spec__5___closed__2;
+x_1 = l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___lambda__2___closed__4;
 x_2 = l_Lean_PrettyPrinter_mkParenthesizerAttribute___closed__7;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

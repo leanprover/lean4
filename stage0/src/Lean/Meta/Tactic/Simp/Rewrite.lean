@@ -34,7 +34,7 @@ def synthesizeArgs (lemmaName : Name) (xs : Array Expr) (bis : Array BinderInfo)
 /-
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
 -/
-def rewrite (e : Expr) (s : DiscrTree SimpLemma) (erased : SimpLemmaNameSet) (discharge? : Expr → SimpM (Option Expr)) (tag : String) : SimpM Result := do
+def rewrite (e : Expr) (s : DiscrTree SimpLemma) (erased : Std.PHashSet Name) (discharge? : Expr → SimpM (Option Expr)) (tag : String) : SimpM Result := do
   let lemmas ← s.getMatch e
   if lemmas.isEmpty then
     trace[Debug.Meta.Tactic.simp] "no lemmas found for {tag}-rewriting {e}"

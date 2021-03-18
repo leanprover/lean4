@@ -21,7 +21,6 @@ structure Context where
   config      : Config
   simpLemmas  : SimpLemmas
   congrLemmas : CongrLemmas
-  toUnfold    : NameSet := {}
   parent?     : Option Expr := none
 
 structure State where

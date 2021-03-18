@@ -93,7 +93,6 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) : TacticM Simp.Co
     -/
     withMainContext do
       let mut lemmas := ctx.simpLemmas
-      let mut toUnfold : NameSet := {}
       for arg in stx[1].getSepArgs do
         if arg.getKind == ``Lean.Parser.Tactic.simpErase then
           let declName ← resolveGlobalConstNoOverload arg[1].getId
@@ -112,13 +111,13 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) : TacticM Simp.Co
               if (← isProp info.type) then
                 lemmas ← lemmas.addConst declName post
               else
-                toUnfold := toUnfold.insert declName
+                lemmas := lemmas.addDeclToUnfold declName
             else
               lemmas ← lemmas.add e post
           | _ =>
             let arg ← elabTerm arg[1] none (mayPostpone := false)
             lemmas ← lemmas.add arg post
-      return { ctx with simpLemmas := lemmas, toUnfold := toUnfold }
+      return { ctx with simpLemmas := lemmas }
 where
   resolveSimpIdLemma? (simpArgTerm : Syntax) : TacticM (Option Expr) := do
     if simpArgTerm.isIdent then

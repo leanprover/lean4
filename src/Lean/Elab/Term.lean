@@ -1019,15 +1019,17 @@ def addTermInfo (stx : Syntax) (e : Expr) : TermElabM Unit := do
   if (← getInfoState).enabled then
     pushInfoTree <| InfoTree.node (children := {}) <| Info.ofTermInfo { lctx := (← getLCtx), expr := e, stx := stx }
 
+def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDecl) :=
+  return (← get).syntheticMVars.find? fun d => d.mvarId == mvarId
+
 def mkTermInfo (stx : Syntax) (e : Expr) : TermElabM (Sum Info MVarId) := do
   let isHole? : TermElabM (Option MVarId) := do
     match e with
     | Expr.mvar mvarId _ =>
-      let isHole := (← get).syntheticMVars.any fun d => match d.kind with
-        | SyntheticMVarKind.tactic ..    => true
-        | SyntheticMVarKind.postponed .. => true
-        | _ => false
-      if isHole then pure mvarId else pure none
+      match (← getSyntheticMVarDecl? mvarId) with
+      | some { kind := SyntheticMVarKind.tactic .., .. }    => return mvarId
+      | some { kind := SyntheticMVarKind.postponed .., .. } => return mvarId
+      | _                                                   => return none
     | _ => pure none
   match (← isHole?) with
   | none        => return Sum.inl <| Info.ofTermInfo { lctx := (← getLCtx), expr := e, stx := stx }
@@ -1231,7 +1233,7 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
   let mvarId := mvar.mvarId!
   let ref ← getRef
   let declName? ← getDeclName?
-  registerSyntheticMVar ref mvarId $ SyntheticMVarKind.tactic declName? tacticCode
+  registerSyntheticMVar ref mvarId <| SyntheticMVarKind.tactic declName? tacticCode
   pure mvar
 
 @[builtinTermElab byTactic] def elabByTactic : TermElab := fun stx expectedType? =>
@@ -1248,7 +1250,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
     | none      => match n with
       | Name.str pre s _ => loop pre (s::projs)
       | _                => none
-  pure $ loop view.name []
+  return loop view.name []
 
 /- Return true iff `stx` is a `Syntax.ident`, and it is a local variable. -/
 def isLocalIdent? (stx : Syntax) : TermElabM (Option Expr) :=
@@ -1281,7 +1283,7 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
   candidates.foldlM (init := []) fun result (constName, projs) => do
     -- TODO: better suppor for `mkConst` failure. We may want to cache the failures, and report them if all candidates fail.
    let const ← mkConst constName explicitLevels
-   pure $ (const, projs) :: result
+   return (const, projs) :: result
 
 def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
   if let some (e, projs) ← resolveLocalName n then

@@ -33,3 +33,5 @@ def f4 (arg : B) : Nat :=
 def f5 (x : Nat) : B := {
   pair := ({ val := id }, { val := id })
 }
+
+#print id

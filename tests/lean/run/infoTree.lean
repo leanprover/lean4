@@ -2,20 +2,13 @@ import Lean
 
 open Lean.Elab
 
-elab "enableInfo!" : command  => enableInfoTree
-
-elab "showInfoTrees!" : command => do
-  let trees ← getInfoTrees
-  trees.forM fun tree => do
-    logInfo f!"{← tree.format}"
-
 structure A where
   val : Nat → Nat
 
 structure B where
   pair : A × A
 
-enableInfo!
+set_option trace.Elab.info true
 
 def f (x : Nat) : Nat × Nat :=
   let y := ⟨x, x⟩
@@ -40,5 +33,3 @@ def f4 (arg : B) : Nat :=
 def f5 (x : Nat) : B := {
   pair := ({ val := id }, { val := id })
 }
-
-showInfoTrees!

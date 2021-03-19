@@ -44,8 +44,7 @@ builtin_initialize congrExtension : SimpleScopedEnvExtension CongrLemma CongrLem
   }
 
 def mkCongrLemma (declName : Name) (prio : Nat) : MetaM CongrLemma := withReducible do
-  let info ← getConstInfo declName
-  let c := mkConst declName (info.levelParams.map mkLevelParam)
+  let c ← mkConstWithLevelParams declName
   let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType c)
   match type.eq? with
   | none => throwError "invalid 'congr' lemma, equality expected{indentExpr type}"

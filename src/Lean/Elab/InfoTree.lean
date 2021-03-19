@@ -33,6 +33,10 @@ structure TermInfo where
   stx  : Syntax
   deriving Inhabited
 
+structure CommandInfo where
+  stx : Syntax
+  deriving Inhabited
+
 structure FieldInfo where
   name : Name
   lctx : LocalContext
@@ -60,6 +64,7 @@ structure MacroExpansionInfo where
 inductive Info where
   | ofTacticInfo (i : TacticInfo)
   | ofTermInfo (i : TermInfo)
+  | ofCommandInfo (i : CommandInfo)
   | ofMacroExpansionInfo (i : MacroExpansionInfo)
   | ofFieldInfo (i : FieldInfo)
   deriving Inhabited
@@ -122,6 +127,9 @@ def TermInfo.format (cinfo : ContextInfo) (info : TermInfo) : IO Format := do
   cinfo.runMetaM info.lctx do
     return f!"{← Meta.ppExpr info.expr} : {← Meta.ppExpr (← Meta.inferType info.expr)} @ {formatStxRange cinfo info.stx}"
 
+def CommandInfo.format (cinfo : ContextInfo) (info : CommandInfo) : IO Format := do
+  return f!"{info.stx} @ {formatStxRange cinfo info.stx}"
+
 def FieldInfo.format (cinfo : ContextInfo) (info : FieldInfo) : IO Format := do
   cinfo.runMetaM info.lctx do
     return f!"{info.name} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {formatStxRange cinfo info.stx}"
@@ -147,6 +155,7 @@ def MacroExpansionInfo.format (cinfo : ContextInfo) (info : MacroExpansionInfo) 
 def Info.format (cinfo : ContextInfo) : Info → IO Format
   | ofTacticInfo i         => i.format cinfo
   | ofTermInfo i           => i.format cinfo
+  | ofCommandInfo i        => i.format cinfo
   | ofMacroExpansionInfo i => i.format cinfo
   | ofFieldInfo i          => i.format cinfo
 
@@ -195,13 +204,17 @@ def mkInfoNode (info : Info) : m Unit := do
   else
     x
 
-@[inline] def withInfoContext [MonadFinally m] (x : m α) (mkInfo : m Info) : m α := do
+@[inline] def withInfoTreeContext [MonadFinally m] (x : m α) (mkInfoTree : m (PersistentArray InfoTree → InfoTree)) : m α := do
   if (← getInfoState).enabled then
     let treesSaved ← getResetInfoTrees
+    let mkInfoTree ← mkInfoTree
     Prod.fst <$> MonadFinally.tryFinally' x fun _ => do
-      modifyInfoTrees fun trees => treesSaved.push <|  InfoTree.node (← mkInfo) trees
+      modifyInfoTrees fun trees => treesSaved.push <| mkInfoTree trees
   else
     x
+
+@[inline] def withInfoContext [MonadFinally m] (x : m α) (mkInfo : m Info) : m α := do
+  withInfoTreeContext x (do return InfoTree.node (← mkInfo))
 
 def getInfoHoleIdAssignment? (mvarId : MVarId) : m (Option InfoTree) :=
   return (← getInfoState).assignment[mvarId]

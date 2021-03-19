@@ -4,6 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Transform
+import Lean.Meta.Tactic.Replace
+import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Clear
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Simp.Rewrite
 
@@ -353,5 +356,57 @@ end Simp
 
 def simp (e : Expr) (ctx : Simp.Context) : MetaM Simp.Result := do profileitM Exception "simp" (← getOptions) do
   Simp.main e ctx (methods := Simp.DefaultMethods.methods)
+
+/-- See `simpTarget`. This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
+def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) : MetaM (Option MVarId) := do
+  let r ← simp (← getMVarType mvarId) ctx
+  if r.expr.isConstOf ``True then
+    match r.proof? with
+    | some proof => assignExprMVar mvarId  (← mkOfEqTrue proof)
+    | none => assignExprMVar mvarId (mkConst ``True.intro)
+    return none
+  else
+    match r.proof? with
+    | some proof => replaceTargetEq mvarId r.expr proof
+    | none => replaceTargetDefEq mvarId r.expr
+
+/--
+  Simplify the given goal target (aka type). Return `none` if the goal was closed. Return `some mvarId'` otherwise,
+  where `mvarId'` is the simplified new goal. -/
+def simpTarget (mvarId : MVarId) (ctx : Simp.Context) : MetaM (Option MVarId) :=
+  withMVarContext mvarId do
+    checkNotAssigned mvarId `simp
+    simpTargetCore mvarId ctx
+
+/--
+  Simplify `prop` (which is inhabited by `proof`). Return `none` if the goal was closed. Return `some (proof', prop')`
+  otherwise, where `proof' : prop'` and `prop'` is the simplified `prop`.
+
+  This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
+def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context) : MetaM (Option (Expr × Expr)) := do
+  let r ← simp prop ctx
+  if r.expr.isConstOf ``False then
+    match r.proof? with
+    | some eqProof => assignExprMVar mvarId (← mkFalseElim (← getMVarType mvarId) (← mkEqMP eqProof proof))
+    | none => assignExprMVar mvarId (← mkFalseElim (← getMVarType mvarId) proof)
+    return none
+  else
+    match r.proof? with
+    | some eqProof => return some ((← mkEqMP eqProof proof), r.expr)
+    | none => return some ((← mkExpectedTypeHint proof r.expr), r.expr)
+
+/--
+  Simplify the `fvarId` type at `mvarId`. Return `none` if the goal was closed. Otherwise, return the new goal,
+  new `fvarId`, and other affected free variables. -/
+def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) : MetaM (Option AssertAfterResult) := do
+  withMVarContext mvarId do
+    checkNotAssigned mvarId `simp
+    let localDecl ← getLocalDecl fvarId
+    match (← simpStep mvarId localDecl.toExpr localDecl.type ctx) with
+    | none => return none
+    | some (proof, prop) =>
+      let r ← assertAfter mvarId fvarId localDecl.userName prop proof
+      (do let mvarIdNew ← clear r.mvarId fvarId
+          pure (some { r with mvarId := mvarIdNew })) <|> pure (some r)
 
 end Lean.Meta

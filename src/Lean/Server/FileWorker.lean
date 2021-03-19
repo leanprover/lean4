@@ -578,10 +578,10 @@ section RequestHandling
     highlightId (stx : Syntax) : ReaderT SemanticTokensContext (StateT SemanticTokensState IO) _ := do
       if let (some pos, some tailPos) := (stx.getPos?, stx.getTailPos?) then
         for t in (← read).infoState.trees do
-          for t in t.smallestNodes (fun i => match i.pos? with
+          for (ci, i) in t.deepestNodes (fun i => match i.pos? with
               | some ipos => pos <= ipos && ipos < tailPos
               | _         => false) do
-            if let Elab.InfoTree.context ci (Elab.InfoTree.node (Elab.Info.ofTermInfo ti) _) := t then
+            if let Elab.Info.ofTermInfo ti := i then
               match ti.expr with
               | Expr.fvar .. => addToken ti.stx SemanticTokenType.variable
               | _            => if ti.stx.getPos?.get! > pos then addToken ti.stx SemanticTokenType.property

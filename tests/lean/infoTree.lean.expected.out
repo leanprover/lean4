@@ -1,0 +1,1939 @@
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f [])
+  (Command.optDeclSig [(Term.explicitBinder "(" [`x] [":" `Nat] [] ")")] [(Term.typeSpec ":" (term_×_ `Nat "×" `Nat))])
+  (Command.declValSimple
+   ":="
+   (Term.let
+    "let"
+    (Term.letDecl (Term.letIdDecl `y [] [] ":=" (Term.anonymousCtor "⟨" [`x "," `x] "⟩")))
+    []
+    (Term.app `id [`y]))
+   []))) @ ⟨13, 0⟩-⟨15, 6⟩
+  Nat : Type @ ⟨13, 11⟩-⟨13, 14⟩
+    Nat : Type @ ⟨13, 11⟩-⟨13, 14⟩
+  x : Nat @ ⟨13, 7⟩-⟨13, 8⟩
+  Nat × Nat : Type @ ⟨13, 18⟩-⟨13, 27⟩
+    Macro expansion
+    Nat × Nat
+    ===>
+    Prod✝ Nat Nat
+      Prod : Type → Type → Type @ ⟨13, 18⟩†-⟨13, 22⟩†
+      Nat : Type @ ⟨13, 18⟩-⟨13, 21⟩
+        Nat : Type @ ⟨13, 18⟩-⟨13, 21⟩
+      Nat : Type @ ⟨13, 24⟩-⟨13, 27⟩
+        Nat : Type @ ⟨13, 24⟩-⟨13, 27⟩
+  let y : Nat × Nat := (x, x);
+  id y : Nat × Nat @ ⟨14, 2⟩-⟨15, 6⟩
+    Nat × Nat : Type @ ⟨14, 6⟩-⟨14, 7⟩
+    (x, x) : Nat × Nat @ ⟨14, 11⟩-⟨14, 17⟩
+      Macro expansion
+      ⟨x, x⟩
+      ===>
+      Prod.mk✝ x x
+        (x, x) : Nat × Nat @ ⟨14, 11⟩†-⟨14, 16⟩
+          Prod.mk : {α β : Type} → α → β → α × β @ ⟨14, 11⟩†-⟨17, 8⟩†
+          x : Nat @ ⟨14, 12⟩-⟨14, 13⟩
+            x : Nat @ ⟨14, 12⟩-⟨14, 13⟩
+          x : Nat @ ⟨14, 15⟩-⟨14, 16⟩
+            x : Nat @ ⟨14, 15⟩-⟨14, 16⟩
+    y : Nat × Nat @ ⟨14, 6⟩-⟨14, 7⟩
+    id y : Nat × Nat @ ⟨15, 2⟩-⟨15, 6⟩
+      id : {α : Type} → α → α @ ⟨15, 2⟩-⟨15, 4⟩
+      y : Nat × Nat @ ⟨15, 5⟩-⟨15, 6⟩
+        y : Nat × Nat @ ⟨15, 5⟩-⟨15, 6⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f [])
+  (Command.optDeclSig [(Term.explicitBinder "(" [`x] [":" `Nat] [] ")")] [(Term.typeSpec ":" (term_×_ `Nat "×" `Nat))])
+  (Command.declValSimple
+   ":="
+   (Term.let
+    "let"
+    (Term.letDecl (Term.letIdDecl `y [] [] ":=" (Term.anonymousCtor "⟨" [`x "," `x] "⟩")))
+    []
+    (Term.app `id [`y]))
+   []))) @ ⟨13, 0⟩-⟨15, 6⟩
+  Nat : Type @ ⟨13, 11⟩-⟨13, 14⟩
+    Nat : Type @ ⟨13, 11⟩-⟨13, 14⟩
+  x : Nat @ ⟨13, 7⟩-⟨13, 8⟩
+  Nat × Nat : Type @ ⟨13, 18⟩-⟨13, 27⟩
+    Macro expansion
+    Nat × Nat
+    ===>
+    Prod✝ Nat Nat
+      Prod : Type → Type → Type @ ⟨13, 18⟩†-⟨13, 22⟩†
+      Nat : Type @ ⟨13, 18⟩-⟨13, 21⟩
+        Nat : Type @ ⟨13, 18⟩-⟨13, 21⟩
+      Nat : Type @ ⟨13, 24⟩-⟨13, 27⟩
+        Nat : Type @ ⟨13, 24⟩-⟨13, 27⟩
+  let y : Nat × Nat := (x, x);
+  id y : Nat × Nat @ ⟨14, 2⟩-⟨15, 6⟩
+    Nat × Nat : Type @ ⟨14, 6⟩-⟨14, 7⟩
+    (x, x) : Nat × Nat @ ⟨14, 11⟩-⟨14, 17⟩
+      Macro expansion
+      ⟨x, x⟩
+      ===>
+      Prod.mk✝ x x
+        (x, x) : Nat × Nat @ ⟨14, 11⟩†-⟨14, 16⟩
+          Prod.mk : {α β : Type} → α → β → α × β @ ⟨14, 11⟩†-⟨17, 8⟩†
+          x : Nat @ ⟨14, 12⟩-⟨14, 13⟩
+            x : Nat @ ⟨14, 12⟩-⟨14, 13⟩
+          x : Nat @ ⟨14, 15⟩-⟨14, 16⟩
+            x : Nat @ ⟨14, 15⟩-⟨14, 16⟩
+    y : Nat × Nat @ ⟨14, 6⟩-⟨14, 7⟩
+    id y : Nat × Nat @ ⟨15, 2⟩-⟨15, 6⟩
+      id : {α : Type} → α → α @ ⟨15, 2⟩-⟨15, 4⟩
+      y : Nat × Nat @ ⟨15, 5⟩-⟨15, 6⟩
+        y : Nat × Nat @ ⟨15, 5⟩-⟨15, 6⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `h [])
+  (Command.optDeclSig
+   []
+   [(Term.typeSpec
+     ":"
+     (Term.depArrow
+      (Term.explicitBinder "(" [`x `y] [":" `Nat] [] ")")
+      "→"
+      (Term.depArrow
+       (Term.explicitBinder "(" [`b] [":" `Bool] [] ")")
+       "→"
+       (term_=_ (term_+_ `x "+" (numLit "0")) "=" `x))))])
+  (Command.declValSimple
+   ":="
+   (Term.fun
+    "fun"
+    (Term.basicFun
+     [`x `y `b]
+     "=>"
+     (Term.byTactic "by" (Tactic.tacticSeq (Tactic.tacticSeq1Indented [[(Tactic.simp "simp" [] [] [] []) []]])))))
+   []))) @ ⟨17, 0⟩-⟨19, 8⟩
+  ∀ (x y : Nat), Bool → x + 0 = x : Prop @ ⟨17, 8⟩-⟨17, 44⟩
+    Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+      Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+    x : Nat @ ⟨17, 9⟩-⟨17, 10⟩
+    Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+      Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+    y : Nat @ ⟨17, 11⟩-⟨17, 12⟩
+    Bool → x + 0 = x : Prop @ ⟨17, 22⟩-⟨17, 44⟩
+      Bool : Type @ ⟨17, 27⟩-⟨17, 31⟩
+        Bool : Type @ ⟨17, 27⟩-⟨17, 31⟩
+      b : Bool @ ⟨17, 23⟩-⟨17, 24⟩
+      x + 0 = x : Prop @ ⟨17, 35⟩-⟨17, 44⟩
+        Macro expansion
+        x + 0 = x
+        ===>
+        binrel% Eq✝ (x + 0)x
+          x + 0 : Nat @ ⟨17, 35⟩-⟨17, 40⟩
+            Macro expansion
+            x + 0
+            ===>
+            HAdd.hAdd✝ x 0
+              HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨17, 35⟩†-⟨17, 44⟩†
+              x : Nat @ ⟨17, 35⟩-⟨17, 36⟩
+                x : Nat @ ⟨17, 35⟩-⟨17, 36⟩
+              0 : Nat @ ⟨17, 39⟩-⟨17, 40⟩
+          x : Nat @ ⟨17, 43⟩-⟨17, 44⟩
+            x : Nat @ ⟨17, 43⟩-⟨17, 44⟩
+  fun (x y : Nat) (b : Bool) =>
+    ofEqTrue
+      (Eq.trans (congrFun (congrArg Eq (Nat.add_zero x)) x)
+        (eqSelf x)) : ∀ (x y : Nat), Bool → x + 0 = x @ ⟨18, 2⟩-⟨19, 8⟩
+    Nat : Type @ ⟨18, 6⟩-⟨18, 7⟩
+    x : Nat @ ⟨18, 6⟩-⟨18, 7⟩
+    Nat : Type @ ⟨18, 8⟩-⟨18, 9⟩
+    y : Nat @ ⟨18, 8⟩-⟨18, 9⟩
+    Bool : Type @ ⟨18, 10⟩-⟨18, 11⟩
+    b : Bool @ ⟨18, 10⟩-⟨18, 11⟩
+    Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+    before 
+    x y : Nat
+    b : Bool
+    ⊢ x + 0 = x
+    after 
+    x y : Nat
+    b : Bool
+    ⊢ x + 0 = x
+      Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+      before 
+      x y : Nat
+      b : Bool
+      ⊢ x + 0 = x
+      after 
+      x y : Nat
+      b : Bool
+      ⊢ x + 0 = x
+        Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+        before 
+        x y : Nat
+        b : Bool
+        ⊢ x + 0 = x
+        after 
+        x y : Nat b : Bool ⊢ x + 0 = x
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f [])
+  (Command.optDeclSig [(Term.explicitBinder "(" [`x] [":" `Nat] [] ")")] [(Term.typeSpec ":" (term_×_ `Nat "×" `Nat))])
+  (Command.declValSimple
+   ":="
+   (Term.let
+    "let"
+    (Term.letDecl (Term.letIdDecl `y [] [] ":=" (Term.anonymousCtor "⟨" [`x "," `x] "⟩")))
+    []
+    (Term.app `id [`y]))
+   []))) @ ⟨13, 0⟩-⟨15, 6⟩
+  Nat : Type @ ⟨13, 11⟩-⟨13, 14⟩
+    Nat : Type @ ⟨13, 11⟩-⟨13, 14⟩
+  x : Nat @ ⟨13, 7⟩-⟨13, 8⟩
+  Nat × Nat : Type @ ⟨13, 18⟩-⟨13, 27⟩
+    Macro expansion
+    Nat × Nat
+    ===>
+    Prod✝ Nat Nat
+      Prod : Type → Type → Type @ ⟨13, 18⟩†-⟨13, 22⟩†
+      Nat : Type @ ⟨13, 18⟩-⟨13, 21⟩
+        Nat : Type @ ⟨13, 18⟩-⟨13, 21⟩
+      Nat : Type @ ⟨13, 24⟩-⟨13, 27⟩
+        Nat : Type @ ⟨13, 24⟩-⟨13, 27⟩
+  let y : Nat × Nat := (x, x);
+  id y : Nat × Nat @ ⟨14, 2⟩-⟨15, 6⟩
+    Nat × Nat : Type @ ⟨14, 6⟩-⟨14, 7⟩
+    (x, x) : Nat × Nat @ ⟨14, 11⟩-⟨14, 17⟩
+      Macro expansion
+      ⟨x, x⟩
+      ===>
+      Prod.mk✝ x x
+        (x, x) : Nat × Nat @ ⟨14, 11⟩†-⟨14, 16⟩
+          Prod.mk : {α β : Type} → α → β → α × β @ ⟨14, 11⟩†-⟨17, 8⟩†
+          x : Nat @ ⟨14, 12⟩-⟨14, 13⟩
+            x : Nat @ ⟨14, 12⟩-⟨14, 13⟩
+          x : Nat @ ⟨14, 15⟩-⟨14, 16⟩
+            x : Nat @ ⟨14, 15⟩-⟨14, 16⟩
+    y : Nat × Nat @ ⟨14, 6⟩-⟨14, 7⟩
+    id y : Nat × Nat @ ⟨15, 2⟩-⟨15, 6⟩
+      id : {α : Type} → α → α @ ⟨15, 2⟩-⟨15, 4⟩
+      y : Nat × Nat @ ⟨15, 5⟩-⟨15, 6⟩
+        y : Nat × Nat @ ⟨15, 5⟩-⟨15, 6⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `h [])
+  (Command.optDeclSig
+   []
+   [(Term.typeSpec
+     ":"
+     (Term.depArrow
+      (Term.explicitBinder "(" [`x `y] [":" `Nat] [] ")")
+      "→"
+      (Term.depArrow
+       (Term.explicitBinder "(" [`b] [":" `Bool] [] ")")
+       "→"
+       (term_=_ (term_+_ `x "+" (numLit "0")) "=" `x))))])
+  (Command.declValSimple
+   ":="
+   (Term.fun
+    "fun"
+    (Term.basicFun
+     [`x `y `b]
+     "=>"
+     (Term.byTactic "by" (Tactic.tacticSeq (Tactic.tacticSeq1Indented [[(Tactic.simp "simp" [] [] [] []) []]])))))
+   []))) @ ⟨17, 0⟩-⟨19, 8⟩
+  ∀ (x y : Nat), Bool → x + 0 = x : Prop @ ⟨17, 8⟩-⟨17, 44⟩
+    Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+      Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+    x : Nat @ ⟨17, 9⟩-⟨17, 10⟩
+    Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+      Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+    y : Nat @ ⟨17, 11⟩-⟨17, 12⟩
+    Bool → x + 0 = x : Prop @ ⟨17, 22⟩-⟨17, 44⟩
+      Bool : Type @ ⟨17, 27⟩-⟨17, 31⟩
+        Bool : Type @ ⟨17, 27⟩-⟨17, 31⟩
+      b : Bool @ ⟨17, 23⟩-⟨17, 24⟩
+      x + 0 = x : Prop @ ⟨17, 35⟩-⟨17, 44⟩
+        Macro expansion
+        x + 0 = x
+        ===>
+        binrel% Eq✝ (x + 0)x
+          x + 0 : Nat @ ⟨17, 35⟩-⟨17, 40⟩
+            Macro expansion
+            x + 0
+            ===>
+            HAdd.hAdd✝ x 0
+              HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨17, 35⟩†-⟨17, 44⟩†
+              x : Nat @ ⟨17, 35⟩-⟨17, 36⟩
+                x : Nat @ ⟨17, 35⟩-⟨17, 36⟩
+              0 : Nat @ ⟨17, 39⟩-⟨17, 40⟩
+          x : Nat @ ⟨17, 43⟩-⟨17, 44⟩
+            x : Nat @ ⟨17, 43⟩-⟨17, 44⟩
+  fun (x y : Nat) (b : Bool) =>
+    ofEqTrue
+      (Eq.trans (congrFun (congrArg Eq (Nat.add_zero x)) x)
+        (eqSelf x)) : ∀ (x y : Nat), Bool → x + 0 = x @ ⟨18, 2⟩-⟨19, 8⟩
+    Nat : Type @ ⟨18, 6⟩-⟨18, 7⟩
+    x : Nat @ ⟨18, 6⟩-⟨18, 7⟩
+    Nat : Type @ ⟨18, 8⟩-⟨18, 9⟩
+    y : Nat @ ⟨18, 8⟩-⟨18, 9⟩
+    Bool : Type @ ⟨18, 10⟩-⟨18, 11⟩
+    b : Bool @ ⟨18, 10⟩-⟨18, 11⟩
+    Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+    before 
+    x y : Nat
+    b : Bool
+    ⊢ x + 0 = x
+    after 
+    x y : Nat
+    b : Bool
+    ⊢ x + 0 = x
+      Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+      before 
+      x y : Nat
+      b : Bool
+      ⊢ x + 0 = x
+      after 
+      x y : Nat
+      b : Bool
+      ⊢ x + 0 = x
+        Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+        before 
+        x y : Nat
+        b : Bool
+        ⊢ x + 0 = x
+        after 
+        x y : Nat b : Bool ⊢ x + 0 = x
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f2 [])
+  (Command.optDeclSig
+   []
+   [(Term.typeSpec
+     ":"
+     (Term.depArrow
+      (Term.explicitBinder "(" [`x `y] [":" `Nat] [] ")")
+      "→"
+      (Term.depArrow (Term.explicitBinder "(" [`b] [":" `Bool] [] ")") "→" `Nat)))])
+  (Command.declValSimple
+   ":="
+   (Term.fun
+    "fun"
+    (Term.basicFun
+     [`x `y `b]
+     "=>"
+     (Term.let
+      "let"
+      (Term.letDecl
+       (Term.letPatDecl
+        (Term.paren "(" [`z [(Term.tupleTail "," [`w])]] ")")
+        []
+        []
+        ":="
+        (Term.paren "(" [(term_+_ `x "+" `y) [(Term.tupleTail "," [(term_-_ `x "-" `y)])]] ")")))
+      []
+      (Term.let "let" (Term.letDecl (Term.letIdDecl `z1 [] [] ":=" (term_+_ `z "+" `w))) [] (term_+_ `z "+" `z1)))))
+   []))) @ ⟨21, 0⟩-⟨25, 10⟩
+  Nat → Nat → Bool → Nat : Type @ ⟨21, 9⟩-⟨21, 39⟩
+    Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+      Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+    x : Nat @ ⟨21, 10⟩-⟨21, 11⟩
+    Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+      Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+    y : Nat @ ⟨21, 12⟩-⟨21, 13⟩
+    Bool → Nat : Type @ ⟨21, 23⟩-⟨21, 39⟩
+      Bool : Type @ ⟨21, 28⟩-⟨21, 32⟩
+        Bool : Type @ ⟨21, 28⟩-⟨21, 32⟩
+      b : Bool @ ⟨21, 24⟩-⟨21, 25⟩
+      Nat : Type @ ⟨21, 36⟩-⟨21, 39⟩
+        Nat : Type @ ⟨21, 36⟩-⟨21, 39⟩
+  fun (x y : Nat) (b : Bool) =>
+    let x : Nat × Nat := (x + y, x - y);
+    match x with 
+    | (z, w) =>
+      let z1 : Nat := z + w;
+      z + z1 : Nat → Nat → Bool → Nat @ ⟨22, 2⟩-⟨25, 10⟩
+    Nat : Type @ ⟨22, 6⟩-⟨22, 7⟩
+    x : Nat @ ⟨22, 6⟩-⟨22, 7⟩
+    Nat : Type @ ⟨22, 8⟩-⟨22, 9⟩
+    y : Nat @ ⟨22, 8⟩-⟨22, 9⟩
+    Bool : Type @ ⟨22, 10⟩-⟨22, 11⟩
+    b : Bool @ ⟨22, 10⟩-⟨22, 11⟩
+    let x : Nat × Nat := (x + y, x - y);
+    match x with 
+    | (z, w) =>
+      let z1 : Nat := z + w;
+      z + z1 : Nat @ ⟨23, 4⟩-⟨25, 10⟩
+      Macro expansion
+      let (z, w) := (x + y, x - y)
+      let z1 := z + w 
+      z + z1
+      ===>
+      let x✝ : _ := (x + y, x - y);
+      match x✝ with 
+      | (z, w) =>
+        let z1 := z + w 
+        z + z1
+        let x : Nat × Nat := (x + y, x - y);
+        match x with 
+        | (z, w) =>
+          let z1 : Nat := z + w;
+          z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩
+          Nat × Nat : Type @ ⟨23, 4⟩-⟨23, 5⟩
+          (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩-⟨23, 32⟩
+            Macro expansion
+            (x + y, x - y)
+            ===>
+            Prod.mk✝ (x + y) (x - y)
+              (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩†-⟨23, 31⟩
+                Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 18⟩†-⟨23, 25⟩†
+                x + y : Nat @ ⟨23, 19⟩-⟨23, 24⟩
+                  Macro expansion
+                  x + y
+                  ===>
+                  HAdd.hAdd✝ x y
+                    HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨23, 19⟩†-⟨23, 28⟩†
+                    x : Nat @ ⟨23, 19⟩-⟨23, 20⟩
+                      x : Nat @ ⟨23, 19⟩-⟨23, 20⟩
+                    y : Nat @ ⟨23, 23⟩-⟨23, 24⟩
+                      y : Nat @ ⟨23, 23⟩-⟨23, 24⟩
+                x - y : Nat @ ⟨23, 26⟩-⟨23, 31⟩
+                  Macro expansion
+                  x - y
+                  ===>
+                  HSub.hSub✝ x y
+                    HSub.hSub : {α β γ : Type} → [self : HSub α β γ] → α → β → γ @ ⟨23, 26⟩†-⟨24, 2⟩†
+                    x : Nat @ ⟨23, 26⟩-⟨23, 27⟩
+                      x : Nat @ ⟨23, 26⟩-⟨23, 27⟩
+                    y : Nat @ ⟨23, 30⟩-⟨23, 31⟩
+                      y : Nat @ ⟨23, 30⟩-⟨23, 31⟩
+          x✝ : Nat × Nat @ ⟨23, 4⟩†-⟨25, 10⟩†
+          match x✝ with 
+          | (z, w) =>
+            let z1 : Nat := z + w;
+            z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩
+            (z, w) : Nat × Nat @ ⟨23, 8⟩-⟨23, 14⟩
+              Macro expansion
+              (z, w)
+              ===>
+              Prod.mk✝ z w
+                (z, w) : Nat × Nat @ ⟨23, 8⟩†-⟨23, 13⟩
+                  Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 8⟩†-⟨23, 15⟩†
+                  z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
+                    z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
+                  w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
+                    w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
+            let z1 : Nat := z + w;
+            z + z1 : Nat @ ⟨24, 4⟩-⟨25, 10⟩
+              Nat : Type @ ⟨24, 8⟩-⟨24, 9⟩
+              z + w : Nat @ ⟨24, 14⟩-⟨24, 19⟩
+                Macro expansion
+                z + w
+                ===>
+                HAdd.hAdd✝ z w
+                  HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨24, 14⟩†-⟨25, 3⟩†
+                  z : Nat @ ⟨24, 14⟩-⟨24, 15⟩
+                    z : Nat @ ⟨24, 14⟩-⟨24, 15⟩
+                  w : Nat @ ⟨24, 18⟩-⟨24, 19⟩
+                    w : Nat @ ⟨24, 18⟩-⟨24, 19⟩
+              z1 : Nat @ ⟨24, 8⟩-⟨24, 10⟩
+              z + z1 : Nat @ ⟨25, 4⟩-⟨25, 10⟩
+                Macro expansion
+                z + z1
+                ===>
+                HAdd.hAdd✝ z z1
+                  HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨25, 4⟩†-⟨27, 1⟩†
+                  z : Nat @ ⟨25, 4⟩-⟨25, 5⟩
+                    z : Nat @ ⟨25, 4⟩-⟨25, 5⟩
+                  z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩
+                    z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f [])
+  (Command.optDeclSig [(Term.explicitBinder "(" [`x] [":" `Nat] [] ")")] [(Term.typeSpec ":" (term_×_ `Nat "×" `Nat))])
+  (Command.declValSimple
+   ":="
+   (Term.let
+    "let"
+    (Term.letDecl (Term.letIdDecl `y [] [] ":=" (Term.anonymousCtor "⟨" [`x "," `x] "⟩")))
+    []
+    (Term.app `id [`y]))
+   []))) @ ⟨13, 0⟩-⟨15, 6⟩
+  Nat : Type @ ⟨13, 11⟩-⟨13, 14⟩
+    Nat : Type @ ⟨13, 11⟩-⟨13, 14⟩
+  x : Nat @ ⟨13, 7⟩-⟨13, 8⟩
+  Nat × Nat : Type @ ⟨13, 18⟩-⟨13, 27⟩
+    Macro expansion
+    Nat × Nat
+    ===>
+    Prod✝ Nat Nat
+      Prod : Type → Type → Type @ ⟨13, 18⟩†-⟨13, 22⟩†
+      Nat : Type @ ⟨13, 18⟩-⟨13, 21⟩
+        Nat : Type @ ⟨13, 18⟩-⟨13, 21⟩
+      Nat : Type @ ⟨13, 24⟩-⟨13, 27⟩
+        Nat : Type @ ⟨13, 24⟩-⟨13, 27⟩
+  let y : Nat × Nat := (x, x);
+  id y : Nat × Nat @ ⟨14, 2⟩-⟨15, 6⟩
+    Nat × Nat : Type @ ⟨14, 6⟩-⟨14, 7⟩
+    (x, x) : Nat × Nat @ ⟨14, 11⟩-⟨14, 17⟩
+      Macro expansion
+      ⟨x, x⟩
+      ===>
+      Prod.mk✝ x x
+        (x, x) : Nat × Nat @ ⟨14, 11⟩†-⟨14, 16⟩
+          Prod.mk : {α β : Type} → α → β → α × β @ ⟨14, 11⟩†-⟨17, 8⟩†
+          x : Nat @ ⟨14, 12⟩-⟨14, 13⟩
+            x : Nat @ ⟨14, 12⟩-⟨14, 13⟩
+          x : Nat @ ⟨14, 15⟩-⟨14, 16⟩
+            x : Nat @ ⟨14, 15⟩-⟨14, 16⟩
+    y : Nat × Nat @ ⟨14, 6⟩-⟨14, 7⟩
+    id y : Nat × Nat @ ⟨15, 2⟩-⟨15, 6⟩
+      id : {α : Type} → α → α @ ⟨15, 2⟩-⟨15, 4⟩
+      y : Nat × Nat @ ⟨15, 5⟩-⟨15, 6⟩
+        y : Nat × Nat @ ⟨15, 5⟩-⟨15, 6⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `h [])
+  (Command.optDeclSig
+   []
+   [(Term.typeSpec
+     ":"
+     (Term.depArrow
+      (Term.explicitBinder "(" [`x `y] [":" `Nat] [] ")")
+      "→"
+      (Term.depArrow
+       (Term.explicitBinder "(" [`b] [":" `Bool] [] ")")
+       "→"
+       (term_=_ (term_+_ `x "+" (numLit "0")) "=" `x))))])
+  (Command.declValSimple
+   ":="
+   (Term.fun
+    "fun"
+    (Term.basicFun
+     [`x `y `b]
+     "=>"
+     (Term.byTactic "by" (Tactic.tacticSeq (Tactic.tacticSeq1Indented [[(Tactic.simp "simp" [] [] [] []) []]])))))
+   []))) @ ⟨17, 0⟩-⟨19, 8⟩
+  ∀ (x y : Nat), Bool → x + 0 = x : Prop @ ⟨17, 8⟩-⟨17, 44⟩
+    Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+      Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+    x : Nat @ ⟨17, 9⟩-⟨17, 10⟩
+    Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+      Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+    y : Nat @ ⟨17, 11⟩-⟨17, 12⟩
+    Bool → x + 0 = x : Prop @ ⟨17, 22⟩-⟨17, 44⟩
+      Bool : Type @ ⟨17, 27⟩-⟨17, 31⟩
+        Bool : Type @ ⟨17, 27⟩-⟨17, 31⟩
+      b : Bool @ ⟨17, 23⟩-⟨17, 24⟩
+      x + 0 = x : Prop @ ⟨17, 35⟩-⟨17, 44⟩
+        Macro expansion
+        x + 0 = x
+        ===>
+        binrel% Eq✝ (x + 0)x
+          x + 0 : Nat @ ⟨17, 35⟩-⟨17, 40⟩
+            Macro expansion
+            x + 0
+            ===>
+            HAdd.hAdd✝ x 0
+              HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨17, 35⟩†-⟨17, 44⟩†
+              x : Nat @ ⟨17, 35⟩-⟨17, 36⟩
+                x : Nat @ ⟨17, 35⟩-⟨17, 36⟩
+              0 : Nat @ ⟨17, 39⟩-⟨17, 40⟩
+          x : Nat @ ⟨17, 43⟩-⟨17, 44⟩
+            x : Nat @ ⟨17, 43⟩-⟨17, 44⟩
+  fun (x y : Nat) (b : Bool) =>
+    ofEqTrue
+      (Eq.trans (congrFun (congrArg Eq (Nat.add_zero x)) x)
+        (eqSelf x)) : ∀ (x y : Nat), Bool → x + 0 = x @ ⟨18, 2⟩-⟨19, 8⟩
+    Nat : Type @ ⟨18, 6⟩-⟨18, 7⟩
+    x : Nat @ ⟨18, 6⟩-⟨18, 7⟩
+    Nat : Type @ ⟨18, 8⟩-⟨18, 9⟩
+    y : Nat @ ⟨18, 8⟩-⟨18, 9⟩
+    Bool : Type @ ⟨18, 10⟩-⟨18, 11⟩
+    b : Bool @ ⟨18, 10⟩-⟨18, 11⟩
+    Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+    before 
+    x y : Nat
+    b : Bool
+    ⊢ x + 0 = x
+    after 
+    x y : Nat
+    b : Bool
+    ⊢ x + 0 = x
+      Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+      before 
+      x y : Nat
+      b : Bool
+      ⊢ x + 0 = x
+      after 
+      x y : Nat
+      b : Bool
+      ⊢ x + 0 = x
+        Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+        before 
+        x y : Nat
+        b : Bool
+        ⊢ x + 0 = x
+        after 
+        x y : Nat b : Bool ⊢ x + 0 = x
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f2 [])
+  (Command.optDeclSig
+   []
+   [(Term.typeSpec
+     ":"
+     (Term.depArrow
+      (Term.explicitBinder "(" [`x `y] [":" `Nat] [] ")")
+      "→"
+      (Term.depArrow (Term.explicitBinder "(" [`b] [":" `Bool] [] ")") "→" `Nat)))])
+  (Command.declValSimple
+   ":="
+   (Term.fun
+    "fun"
+    (Term.basicFun
+     [`x `y `b]
+     "=>"
+     (Term.let
+      "let"
+      (Term.letDecl
+       (Term.letPatDecl
+        (Term.paren "(" [`z [(Term.tupleTail "," [`w])]] ")")
+        []
+        []
+        ":="
+        (Term.paren "(" [(term_+_ `x "+" `y) [(Term.tupleTail "," [(term_-_ `x "-" `y)])]] ")")))
+      []
+      (Term.let "let" (Term.letDecl (Term.letIdDecl `z1 [] [] ":=" (term_+_ `z "+" `w))) [] (term_+_ `z "+" `z1)))))
+   []))) @ ⟨21, 0⟩-⟨25, 10⟩
+  Nat → Nat → Bool → Nat : Type @ ⟨21, 9⟩-⟨21, 39⟩
+    Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+      Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+    x : Nat @ ⟨21, 10⟩-⟨21, 11⟩
+    Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+      Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+    y : Nat @ ⟨21, 12⟩-⟨21, 13⟩
+    Bool → Nat : Type @ ⟨21, 23⟩-⟨21, 39⟩
+      Bool : Type @ ⟨21, 28⟩-⟨21, 32⟩
+        Bool : Type @ ⟨21, 28⟩-⟨21, 32⟩
+      b : Bool @ ⟨21, 24⟩-⟨21, 25⟩
+      Nat : Type @ ⟨21, 36⟩-⟨21, 39⟩
+        Nat : Type @ ⟨21, 36⟩-⟨21, 39⟩
+  fun (x y : Nat) (b : Bool) =>
+    let x : Nat × Nat := (x + y, x - y);
+    match x with 
+    | (z, w) =>
+      let z1 : Nat := z + w;
+      z + z1 : Nat → Nat → Bool → Nat @ ⟨22, 2⟩-⟨25, 10⟩
+    Nat : Type @ ⟨22, 6⟩-⟨22, 7⟩
+    x : Nat @ ⟨22, 6⟩-⟨22, 7⟩
+    Nat : Type @ ⟨22, 8⟩-⟨22, 9⟩
+    y : Nat @ ⟨22, 8⟩-⟨22, 9⟩
+    Bool : Type @ ⟨22, 10⟩-⟨22, 11⟩
+    b : Bool @ ⟨22, 10⟩-⟨22, 11⟩
+    let x : Nat × Nat := (x + y, x - y);
+    match x with 
+    | (z, w) =>
+      let z1 : Nat := z + w;
+      z + z1 : Nat @ ⟨23, 4⟩-⟨25, 10⟩
+      Macro expansion
+      let (z, w) := (x + y, x - y)
+      let z1 := z + w 
+      z + z1
+      ===>
+      let x✝ : _ := (x + y, x - y);
+      match x✝ with 
+      | (z, w) =>
+        let z1 := z + w 
+        z + z1
+        let x : Nat × Nat := (x + y, x - y);
+        match x with 
+        | (z, w) =>
+          let z1 : Nat := z + w;
+          z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩
+          Nat × Nat : Type @ ⟨23, 4⟩-⟨23, 5⟩
+          (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩-⟨23, 32⟩
+            Macro expansion
+            (x + y, x - y)
+            ===>
+            Prod.mk✝ (x + y) (x - y)
+              (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩†-⟨23, 31⟩
+                Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 18⟩†-⟨23, 25⟩†
+                x + y : Nat @ ⟨23, 19⟩-⟨23, 24⟩
+                  Macro expansion
+                  x + y
+                  ===>
+                  HAdd.hAdd✝ x y
+                    HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨23, 19⟩†-⟨23, 28⟩†
+                    x : Nat @ ⟨23, 19⟩-⟨23, 20⟩
+                      x : Nat @ ⟨23, 19⟩-⟨23, 20⟩
+                    y : Nat @ ⟨23, 23⟩-⟨23, 24⟩
+                      y : Nat @ ⟨23, 23⟩-⟨23, 24⟩
+                x - y : Nat @ ⟨23, 26⟩-⟨23, 31⟩
+                  Macro expansion
+                  x - y
+                  ===>
+                  HSub.hSub✝ x y
+                    HSub.hSub : {α β γ : Type} → [self : HSub α β γ] → α → β → γ @ ⟨23, 26⟩†-⟨24, 2⟩†
+                    x : Nat @ ⟨23, 26⟩-⟨23, 27⟩
+                      x : Nat @ ⟨23, 26⟩-⟨23, 27⟩
+                    y : Nat @ ⟨23, 30⟩-⟨23, 31⟩
+                      y : Nat @ ⟨23, 30⟩-⟨23, 31⟩
+          x✝ : Nat × Nat @ ⟨23, 4⟩†-⟨25, 10⟩†
+          match x✝ with 
+          | (z, w) =>
+            let z1 : Nat := z + w;
+            z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩
+            (z, w) : Nat × Nat @ ⟨23, 8⟩-⟨23, 14⟩
+              Macro expansion
+              (z, w)
+              ===>
+              Prod.mk✝ z w
+                (z, w) : Nat × Nat @ ⟨23, 8⟩†-⟨23, 13⟩
+                  Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 8⟩†-⟨23, 15⟩†
+                  z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
+                    z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
+                  w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
+                    w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
+            let z1 : Nat := z + w;
+            z + z1 : Nat @ ⟨24, 4⟩-⟨25, 10⟩
+              Nat : Type @ ⟨24, 8⟩-⟨24, 9⟩
+              z + w : Nat @ ⟨24, 14⟩-⟨24, 19⟩
+                Macro expansion
+                z + w
+                ===>
+                HAdd.hAdd✝ z w
+                  HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨24, 14⟩†-⟨25, 3⟩†
+                  z : Nat @ ⟨24, 14⟩-⟨24, 15⟩
+                    z : Nat @ ⟨24, 14⟩-⟨24, 15⟩
+                  w : Nat @ ⟨24, 18⟩-⟨24, 19⟩
+                    w : Nat @ ⟨24, 18⟩-⟨24, 19⟩
+              z1 : Nat @ ⟨24, 8⟩-⟨24, 10⟩
+              z + z1 : Nat @ ⟨25, 4⟩-⟨25, 10⟩
+                Macro expansion
+                z + z1
+                ===>
+                HAdd.hAdd✝ z z1
+                  HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨25, 4⟩†-⟨27, 1⟩†
+                  z : Nat @ ⟨25, 4⟩-⟨25, 5⟩
+                    z : Nat @ ⟨25, 4⟩-⟨25, 5⟩
+                  z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩
+                    z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f3 [])
+  (Command.optDeclSig
+   [(Term.explicitBinder
+     "("
+     [`s]
+     [":" (term_×_ `Nat "×" (Term.app `Array [(Term.paren "(" [(Term.app `Array [`Nat]) []] ")")]))]
+     []
+     ")")]
+   [(Term.typeSpec ":" (Term.app `Array [`Nat]))])
+  (Command.declValSimple
+   ":="
+   (Term.app
+    (Term.proj (Term.arrayRef (Term.proj `s "." (fieldIdx "2")) "[" (numLit "1") "]") "." `push)
+    [(Term.proj `s "." (fieldIdx "1"))])
+   []))) @ ⟨27, 0⟩-⟨28, 17⟩
+  Nat × Array (Array Nat) : Type @ ⟨27, 12⟩-⟨27, 35⟩
+    Macro expansion
+    Nat × Array (Array Nat)
+    ===>
+    Prod✝ Nat (Array (Array Nat))
+      Prod : Type → Type → Type @ ⟨27, 12⟩†-⟨27, 16⟩†
+      Nat : Type @ ⟨27, 12⟩-⟨27, 15⟩
+        Nat : Type @ ⟨27, 12⟩-⟨27, 15⟩
+      Array (Array Nat) : Type @ ⟨27, 18⟩-⟨27, 35⟩
+        Array : Type → Type @ ⟨27, 18⟩-⟨27, 23⟩
+        Array Nat : Type @ ⟨27, 24⟩-⟨27, 35⟩
+          Array Nat : Type @ ⟨27, 25⟩-⟨27, 34⟩
+            Array : Type → Type @ ⟨27, 25⟩-⟨27, 30⟩
+            Nat : Type @ ⟨27, 31⟩-⟨27, 34⟩
+              Nat : Type @ ⟨27, 31⟩-⟨27, 34⟩
+  s : Nat × Array (Array Nat) @ ⟨27, 8⟩-⟨27, 9⟩
+  Array Nat : Type @ ⟨27, 39⟩-⟨27, 48⟩
+    Array : Type → Type @ ⟨27, 39⟩-⟨27, 44⟩
+    Nat : Type @ ⟨27, 45⟩-⟨27, 48⟩
+      Nat : Type @ ⟨27, 45⟩-⟨27, 48⟩
+  Array.push (Array.getOp s.snd 1) s.fst : Array Nat @ ⟨28, 2⟩-⟨28, 17⟩
+    s : Nat × Array (Array Nat) @ ⟨28, 2⟩-⟨28, 3⟩
+    Prod.snd : {α β : Type} → α × β → β @ ⟨28, 4⟩-⟨28, 5⟩
+    Array.getOp : {α : Type} → [inst : Inhabited α] → Array α → Nat → α @ ⟨28, 5⟩-⟨28, 6⟩
+    1 : Nat @ ⟨28, 6⟩-⟨28, 7⟩
+    Array.push : {α : Type} → Array α → α → Array α @ ⟨28, 9⟩-⟨28, 13⟩
+    s.fst : Nat @ ⟨28, 14⟩-⟨28, 17⟩
+      s : Nat × Array (Array Nat) @ ⟨28, 14⟩-⟨28, 15⟩
+      Prod.fst : {α β : Type} → α × β → α @ ⟨28, 16⟩-⟨28, 17⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f [])
+  (Command.optDeclSig [(Term.explicitBinder "(" [`x] [":" `Nat] [] ")")] [(Term.typeSpec ":" (term_×_ `Nat "×" `Nat))])
+  (Command.declValSimple
+   ":="
+   (Term.let
+    "let"
+    (Term.letDecl (Term.letIdDecl `y [] [] ":=" (Term.anonymousCtor "⟨" [`x "," `x] "⟩")))
+    []
+    (Term.app `id [`y]))
+   []))) @ ⟨13, 0⟩-⟨15, 6⟩
+  Nat : Type @ ⟨13, 11⟩-⟨13, 14⟩
+    Nat : Type @ ⟨13, 11⟩-⟨13, 14⟩
+  x : Nat @ ⟨13, 7⟩-⟨13, 8⟩
+  Nat × Nat : Type @ ⟨13, 18⟩-⟨13, 27⟩
+    Macro expansion
+    Nat × Nat
+    ===>
+    Prod✝ Nat Nat
+      Prod : Type → Type → Type @ ⟨13, 18⟩†-⟨13, 22⟩†
+      Nat : Type @ ⟨13, 18⟩-⟨13, 21⟩
+        Nat : Type @ ⟨13, 18⟩-⟨13, 21⟩
+      Nat : Type @ ⟨13, 24⟩-⟨13, 27⟩
+        Nat : Type @ ⟨13, 24⟩-⟨13, 27⟩
+  let y : Nat × Nat := (x, x);
+  id y : Nat × Nat @ ⟨14, 2⟩-⟨15, 6⟩
+    Nat × Nat : Type @ ⟨14, 6⟩-⟨14, 7⟩
+    (x, x) : Nat × Nat @ ⟨14, 11⟩-⟨14, 17⟩
+      Macro expansion
+      ⟨x, x⟩
+      ===>
+      Prod.mk✝ x x
+        (x, x) : Nat × Nat @ ⟨14, 11⟩†-⟨14, 16⟩
+          Prod.mk : {α β : Type} → α → β → α × β @ ⟨14, 11⟩†-⟨17, 8⟩†
+          x : Nat @ ⟨14, 12⟩-⟨14, 13⟩
+            x : Nat @ ⟨14, 12⟩-⟨14, 13⟩
+          x : Nat @ ⟨14, 15⟩-⟨14, 16⟩
+            x : Nat @ ⟨14, 15⟩-⟨14, 16⟩
+    y : Nat × Nat @ ⟨14, 6⟩-⟨14, 7⟩
+    id y : Nat × Nat @ ⟨15, 2⟩-⟨15, 6⟩
+      id : {α : Type} → α → α @ ⟨15, 2⟩-⟨15, 4⟩
+      y : Nat × Nat @ ⟨15, 5⟩-⟨15, 6⟩
+        y : Nat × Nat @ ⟨15, 5⟩-⟨15, 6⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `h [])
+  (Command.optDeclSig
+   []
+   [(Term.typeSpec
+     ":"
+     (Term.depArrow
+      (Term.explicitBinder "(" [`x `y] [":" `Nat] [] ")")
+      "→"
+      (Term.depArrow
+       (Term.explicitBinder "(" [`b] [":" `Bool] [] ")")
+       "→"
+       (term_=_ (term_+_ `x "+" (numLit "0")) "=" `x))))])
+  (Command.declValSimple
+   ":="
+   (Term.fun
+    "fun"
+    (Term.basicFun
+     [`x `y `b]
+     "=>"
+     (Term.byTactic "by" (Tactic.tacticSeq (Tactic.tacticSeq1Indented [[(Tactic.simp "simp" [] [] [] []) []]])))))
+   []))) @ ⟨17, 0⟩-⟨19, 8⟩
+  ∀ (x y : Nat), Bool → x + 0 = x : Prop @ ⟨17, 8⟩-⟨17, 44⟩
+    Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+      Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+    x : Nat @ ⟨17, 9⟩-⟨17, 10⟩
+    Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+      Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+    y : Nat @ ⟨17, 11⟩-⟨17, 12⟩
+    Bool → x + 0 = x : Prop @ ⟨17, 22⟩-⟨17, 44⟩
+      Bool : Type @ ⟨17, 27⟩-⟨17, 31⟩
+        Bool : Type @ ⟨17, 27⟩-⟨17, 31⟩
+      b : Bool @ ⟨17, 23⟩-⟨17, 24⟩
+      x + 0 = x : Prop @ ⟨17, 35⟩-⟨17, 44⟩
+        Macro expansion
+        x + 0 = x
+        ===>
+        binrel% Eq✝ (x + 0)x
+          x + 0 : Nat @ ⟨17, 35⟩-⟨17, 40⟩
+            Macro expansion
+            x + 0
+            ===>
+            HAdd.hAdd✝ x 0
+              HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨17, 35⟩†-⟨17, 44⟩†
+              x : Nat @ ⟨17, 35⟩-⟨17, 36⟩
+                x : Nat @ ⟨17, 35⟩-⟨17, 36⟩
+              0 : Nat @ ⟨17, 39⟩-⟨17, 40⟩
+          x : Nat @ ⟨17, 43⟩-⟨17, 44⟩
+            x : Nat @ ⟨17, 43⟩-⟨17, 44⟩
+  fun (x y : Nat) (b : Bool) =>
+    ofEqTrue
+      (Eq.trans (congrFun (congrArg Eq (Nat.add_zero x)) x)
+        (eqSelf x)) : ∀ (x y : Nat), Bool → x + 0 = x @ ⟨18, 2⟩-⟨19, 8⟩
+    Nat : Type @ ⟨18, 6⟩-⟨18, 7⟩
+    x : Nat @ ⟨18, 6⟩-⟨18, 7⟩
+    Nat : Type @ ⟨18, 8⟩-⟨18, 9⟩
+    y : Nat @ ⟨18, 8⟩-⟨18, 9⟩
+    Bool : Type @ ⟨18, 10⟩-⟨18, 11⟩
+    b : Bool @ ⟨18, 10⟩-⟨18, 11⟩
+    Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+    before 
+    x y : Nat
+    b : Bool
+    ⊢ x + 0 = x
+    after 
+    x y : Nat
+    b : Bool
+    ⊢ x + 0 = x
+      Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+      before 
+      x y : Nat
+      b : Bool
+      ⊢ x + 0 = x
+      after 
+      x y : Nat
+      b : Bool
+      ⊢ x + 0 = x
+        Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+        before 
+        x y : Nat
+        b : Bool
+        ⊢ x + 0 = x
+        after 
+        x y : Nat b : Bool ⊢ x + 0 = x
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f2 [])
+  (Command.optDeclSig
+   []
+   [(Term.typeSpec
+     ":"
+     (Term.depArrow
+      (Term.explicitBinder "(" [`x `y] [":" `Nat] [] ")")
+      "→"
+      (Term.depArrow (Term.explicitBinder "(" [`b] [":" `Bool] [] ")") "→" `Nat)))])
+  (Command.declValSimple
+   ":="
+   (Term.fun
+    "fun"
+    (Term.basicFun
+     [`x `y `b]
+     "=>"
+     (Term.let
+      "let"
+      (Term.letDecl
+       (Term.letPatDecl
+        (Term.paren "(" [`z [(Term.tupleTail "," [`w])]] ")")
+        []
+        []
+        ":="
+        (Term.paren "(" [(term_+_ `x "+" `y) [(Term.tupleTail "," [(term_-_ `x "-" `y)])]] ")")))
+      []
+      (Term.let "let" (Term.letDecl (Term.letIdDecl `z1 [] [] ":=" (term_+_ `z "+" `w))) [] (term_+_ `z "+" `z1)))))
+   []))) @ ⟨21, 0⟩-⟨25, 10⟩
+  Nat → Nat → Bool → Nat : Type @ ⟨21, 9⟩-⟨21, 39⟩
+    Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+      Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+    x : Nat @ ⟨21, 10⟩-⟨21, 11⟩
+    Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+      Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+    y : Nat @ ⟨21, 12⟩-⟨21, 13⟩
+    Bool → Nat : Type @ ⟨21, 23⟩-⟨21, 39⟩
+      Bool : Type @ ⟨21, 28⟩-⟨21, 32⟩
+        Bool : Type @ ⟨21, 28⟩-⟨21, 32⟩
+      b : Bool @ ⟨21, 24⟩-⟨21, 25⟩
+      Nat : Type @ ⟨21, 36⟩-⟨21, 39⟩
+        Nat : Type @ ⟨21, 36⟩-⟨21, 39⟩
+  fun (x y : Nat) (b : Bool) =>
+    let x : Nat × Nat := (x + y, x - y);
+    match x with 
+    | (z, w) =>
+      let z1 : Nat := z + w;
+      z + z1 : Nat → Nat → Bool → Nat @ ⟨22, 2⟩-⟨25, 10⟩
+    Nat : Type @ ⟨22, 6⟩-⟨22, 7⟩
+    x : Nat @ ⟨22, 6⟩-⟨22, 7⟩
+    Nat : Type @ ⟨22, 8⟩-⟨22, 9⟩
+    y : Nat @ ⟨22, 8⟩-⟨22, 9⟩
+    Bool : Type @ ⟨22, 10⟩-⟨22, 11⟩
+    b : Bool @ ⟨22, 10⟩-⟨22, 11⟩
+    let x : Nat × Nat := (x + y, x - y);
+    match x with 
+    | (z, w) =>
+      let z1 : Nat := z + w;
+      z + z1 : Nat @ ⟨23, 4⟩-⟨25, 10⟩
+      Macro expansion
+      let (z, w) := (x + y, x - y)
+      let z1 := z + w 
+      z + z1
+      ===>
+      let x✝ : _ := (x + y, x - y);
+      match x✝ with 
+      | (z, w) =>
+        let z1 := z + w 
+        z + z1
+        let x : Nat × Nat := (x + y, x - y);
+        match x with 
+        | (z, w) =>
+          let z1 : Nat := z + w;
+          z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩
+          Nat × Nat : Type @ ⟨23, 4⟩-⟨23, 5⟩
+          (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩-⟨23, 32⟩
+            Macro expansion
+            (x + y, x - y)
+            ===>
+            Prod.mk✝ (x + y) (x - y)
+              (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩†-⟨23, 31⟩
+                Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 18⟩†-⟨23, 25⟩†
+                x + y : Nat @ ⟨23, 19⟩-⟨23, 24⟩
+                  Macro expansion
+                  x + y
+                  ===>
+                  HAdd.hAdd✝ x y
+                    HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨23, 19⟩†-⟨23, 28⟩†
+                    x : Nat @ ⟨23, 19⟩-⟨23, 20⟩
+                      x : Nat @ ⟨23, 19⟩-⟨23, 20⟩
+                    y : Nat @ ⟨23, 23⟩-⟨23, 24⟩
+                      y : Nat @ ⟨23, 23⟩-⟨23, 24⟩
+                x - y : Nat @ ⟨23, 26⟩-⟨23, 31⟩
+                  Macro expansion
+                  x - y
+                  ===>
+                  HSub.hSub✝ x y
+                    HSub.hSub : {α β γ : Type} → [self : HSub α β γ] → α → β → γ @ ⟨23, 26⟩†-⟨24, 2⟩†
+                    x : Nat @ ⟨23, 26⟩-⟨23, 27⟩
+                      x : Nat @ ⟨23, 26⟩-⟨23, 27⟩
+                    y : Nat @ ⟨23, 30⟩-⟨23, 31⟩
+                      y : Nat @ ⟨23, 30⟩-⟨23, 31⟩
+          x✝ : Nat × Nat @ ⟨23, 4⟩†-⟨25, 10⟩†
+          match x✝ with 
+          | (z, w) =>
+            let z1 : Nat := z + w;
+            z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩
+            (z, w) : Nat × Nat @ ⟨23, 8⟩-⟨23, 14⟩
+              Macro expansion
+              (z, w)
+              ===>
+              Prod.mk✝ z w
+                (z, w) : Nat × Nat @ ⟨23, 8⟩†-⟨23, 13⟩
+                  Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 8⟩†-⟨23, 15⟩†
+                  z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
+                    z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
+                  w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
+                    w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
+            let z1 : Nat := z + w;
+            z + z1 : Nat @ ⟨24, 4⟩-⟨25, 10⟩
+              Nat : Type @ ⟨24, 8⟩-⟨24, 9⟩
+              z + w : Nat @ ⟨24, 14⟩-⟨24, 19⟩
+                Macro expansion
+                z + w
+                ===>
+                HAdd.hAdd✝ z w
+                  HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨24, 14⟩†-⟨25, 3⟩†
+                  z : Nat @ ⟨24, 14⟩-⟨24, 15⟩
+                    z : Nat @ ⟨24, 14⟩-⟨24, 15⟩
+                  w : Nat @ ⟨24, 18⟩-⟨24, 19⟩
+                    w : Nat @ ⟨24, 18⟩-⟨24, 19⟩
+              z1 : Nat @ ⟨24, 8⟩-⟨24, 10⟩
+              z + z1 : Nat @ ⟨25, 4⟩-⟨25, 10⟩
+                Macro expansion
+                z + z1
+                ===>
+                HAdd.hAdd✝ z z1
+                  HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨25, 4⟩†-⟨27, 1⟩†
+                  z : Nat @ ⟨25, 4⟩-⟨25, 5⟩
+                    z : Nat @ ⟨25, 4⟩-⟨25, 5⟩
+                  z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩
+                    z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f3 [])
+  (Command.optDeclSig
+   [(Term.explicitBinder
+     "("
+     [`s]
+     [":" (term_×_ `Nat "×" (Term.app `Array [(Term.paren "(" [(Term.app `Array [`Nat]) []] ")")]))]
+     []
+     ")")]
+   [(Term.typeSpec ":" (Term.app `Array [`Nat]))])
+  (Command.declValSimple
+   ":="
+   (Term.app
+    (Term.proj (Term.arrayRef (Term.proj `s "." (fieldIdx "2")) "[" (numLit "1") "]") "." `push)
+    [(Term.proj `s "." (fieldIdx "1"))])
+   []))) @ ⟨27, 0⟩-⟨28, 17⟩
+  Nat × Array (Array Nat) : Type @ ⟨27, 12⟩-⟨27, 35⟩
+    Macro expansion
+    Nat × Array (Array Nat)
+    ===>
+    Prod✝ Nat (Array (Array Nat))
+      Prod : Type → Type → Type @ ⟨27, 12⟩†-⟨27, 16⟩†
+      Nat : Type @ ⟨27, 12⟩-⟨27, 15⟩
+        Nat : Type @ ⟨27, 12⟩-⟨27, 15⟩
+      Array (Array Nat) : Type @ ⟨27, 18⟩-⟨27, 35⟩
+        Array : Type → Type @ ⟨27, 18⟩-⟨27, 23⟩
+        Array Nat : Type @ ⟨27, 24⟩-⟨27, 35⟩
+          Array Nat : Type @ ⟨27, 25⟩-⟨27, 34⟩
+            Array : Type → Type @ ⟨27, 25⟩-⟨27, 30⟩
+            Nat : Type @ ⟨27, 31⟩-⟨27, 34⟩
+              Nat : Type @ ⟨27, 31⟩-⟨27, 34⟩
+  s : Nat × Array (Array Nat) @ ⟨27, 8⟩-⟨27, 9⟩
+  Array Nat : Type @ ⟨27, 39⟩-⟨27, 48⟩
+    Array : Type → Type @ ⟨27, 39⟩-⟨27, 44⟩
+    Nat : Type @ ⟨27, 45⟩-⟨27, 48⟩
+      Nat : Type @ ⟨27, 45⟩-⟨27, 48⟩
+  Array.push (Array.getOp s.snd 1) s.fst : Array Nat @ ⟨28, 2⟩-⟨28, 17⟩
+    s : Nat × Array (Array Nat) @ ⟨28, 2⟩-⟨28, 3⟩
+    Prod.snd : {α β : Type} → α × β → β @ ⟨28, 4⟩-⟨28, 5⟩
+    Array.getOp : {α : Type} → [inst : Inhabited α] → Array α → Nat → α @ ⟨28, 5⟩-⟨28, 6⟩
+    1 : Nat @ ⟨28, 6⟩-⟨28, 7⟩
+    Array.push : {α : Type} → Array α → α → Array α @ ⟨28, 9⟩-⟨28, 13⟩
+    s.fst : Nat @ ⟨28, 14⟩-⟨28, 17⟩
+      s : Nat × Array (Array Nat) @ ⟨28, 14⟩-⟨28, 15⟩
+      Prod.fst : {α β : Type} → α × β → α @ ⟨28, 16⟩-⟨28, 17⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f4 [])
+  (Command.optDeclSig [(Term.explicitBinder "(" [`arg] [":" `B] [] ")")] [(Term.typeSpec ":" `Nat)])
+  (Command.declValSimple ":=" (Term.app `arg.pair.fst.val [(numLit "0")]) []))) @ ⟨30, 0⟩-⟨31, 20⟩
+  B : Type @ ⟨30, 14⟩-⟨30, 15⟩
+    B : Type @ ⟨30, 14⟩-⟨30, 15⟩
+  arg : B @ ⟨30, 8⟩-⟨30, 11⟩
+  Nat : Type @ ⟨30, 19⟩-⟨30, 22⟩
+    Nat : Type @ ⟨30, 19⟩-⟨30, 22⟩
+  A.val arg.pair.fst 0 : Nat @ ⟨31, 2⟩-⟨31, 20⟩
+    arg : B @ ⟨31, 2⟩-⟨31, 5⟩
+    B.pair : B → A × A @ ⟨31, 6⟩-⟨31, 10⟩
+    Prod.fst : {α β : Type} → α × β → α @ ⟨31, 11⟩-⟨31, 14⟩
+    A.val : A → Nat → Nat @ ⟨31, 15⟩-⟨31, 18⟩
+    0 : Nat @ ⟨31, 19⟩-⟨31, 20⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f [])
+  (Command.optDeclSig [(Term.explicitBinder "(" [`x] [":" `Nat] [] ")")] [(Term.typeSpec ":" (term_×_ `Nat "×" `Nat))])
+  (Command.declValSimple
+   ":="
+   (Term.let
+    "let"
+    (Term.letDecl (Term.letIdDecl `y [] [] ":=" (Term.anonymousCtor "⟨" [`x "," `x] "⟩")))
+    []
+    (Term.app `id [`y]))
+   []))) @ ⟨13, 0⟩-⟨15, 6⟩
+  Nat : Type @ ⟨13, 11⟩-⟨13, 14⟩
+    Nat : Type @ ⟨13, 11⟩-⟨13, 14⟩
+  x : Nat @ ⟨13, 7⟩-⟨13, 8⟩
+  Nat × Nat : Type @ ⟨13, 18⟩-⟨13, 27⟩
+    Macro expansion
+    Nat × Nat
+    ===>
+    Prod✝ Nat Nat
+      Prod : Type → Type → Type @ ⟨13, 18⟩†-⟨13, 22⟩†
+      Nat : Type @ ⟨13, 18⟩-⟨13, 21⟩
+        Nat : Type @ ⟨13, 18⟩-⟨13, 21⟩
+      Nat : Type @ ⟨13, 24⟩-⟨13, 27⟩
+        Nat : Type @ ⟨13, 24⟩-⟨13, 27⟩
+  let y : Nat × Nat := (x, x);
+  id y : Nat × Nat @ ⟨14, 2⟩-⟨15, 6⟩
+    Nat × Nat : Type @ ⟨14, 6⟩-⟨14, 7⟩
+    (x, x) : Nat × Nat @ ⟨14, 11⟩-⟨14, 17⟩
+      Macro expansion
+      ⟨x, x⟩
+      ===>
+      Prod.mk✝ x x
+        (x, x) : Nat × Nat @ ⟨14, 11⟩†-⟨14, 16⟩
+          Prod.mk : {α β : Type} → α → β → α × β @ ⟨14, 11⟩†-⟨17, 8⟩†
+          x : Nat @ ⟨14, 12⟩-⟨14, 13⟩
+            x : Nat @ ⟨14, 12⟩-⟨14, 13⟩
+          x : Nat @ ⟨14, 15⟩-⟨14, 16⟩
+            x : Nat @ ⟨14, 15⟩-⟨14, 16⟩
+    y : Nat × Nat @ ⟨14, 6⟩-⟨14, 7⟩
+    id y : Nat × Nat @ ⟨15, 2⟩-⟨15, 6⟩
+      id : {α : Type} → α → α @ ⟨15, 2⟩-⟨15, 4⟩
+      y : Nat × Nat @ ⟨15, 5⟩-⟨15, 6⟩
+        y : Nat × Nat @ ⟨15, 5⟩-⟨15, 6⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `h [])
+  (Command.optDeclSig
+   []
+   [(Term.typeSpec
+     ":"
+     (Term.depArrow
+      (Term.explicitBinder "(" [`x `y] [":" `Nat] [] ")")
+      "→"
+      (Term.depArrow
+       (Term.explicitBinder "(" [`b] [":" `Bool] [] ")")
+       "→"
+       (term_=_ (term_+_ `x "+" (numLit "0")) "=" `x))))])
+  (Command.declValSimple
+   ":="
+   (Term.fun
+    "fun"
+    (Term.basicFun
+     [`x `y `b]
+     "=>"
+     (Term.byTactic "by" (Tactic.tacticSeq (Tactic.tacticSeq1Indented [[(Tactic.simp "simp" [] [] [] []) []]])))))
+   []))) @ ⟨17, 0⟩-⟨19, 8⟩
+  ∀ (x y : Nat), Bool → x + 0 = x : Prop @ ⟨17, 8⟩-⟨17, 44⟩
+    Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+      Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+    x : Nat @ ⟨17, 9⟩-⟨17, 10⟩
+    Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+      Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+    y : Nat @ ⟨17, 11⟩-⟨17, 12⟩
+    Bool → x + 0 = x : Prop @ ⟨17, 22⟩-⟨17, 44⟩
+      Bool : Type @ ⟨17, 27⟩-⟨17, 31⟩
+        Bool : Type @ ⟨17, 27⟩-⟨17, 31⟩
+      b : Bool @ ⟨17, 23⟩-⟨17, 24⟩
+      x + 0 = x : Prop @ ⟨17, 35⟩-⟨17, 44⟩
+        Macro expansion
+        x + 0 = x
+        ===>
+        binrel% Eq✝ (x + 0)x
+          x + 0 : Nat @ ⟨17, 35⟩-⟨17, 40⟩
+            Macro expansion
+            x + 0
+            ===>
+            HAdd.hAdd✝ x 0
+              HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨17, 35⟩†-⟨17, 44⟩†
+              x : Nat @ ⟨17, 35⟩-⟨17, 36⟩
+                x : Nat @ ⟨17, 35⟩-⟨17, 36⟩
+              0 : Nat @ ⟨17, 39⟩-⟨17, 40⟩
+          x : Nat @ ⟨17, 43⟩-⟨17, 44⟩
+            x : Nat @ ⟨17, 43⟩-⟨17, 44⟩
+  fun (x y : Nat) (b : Bool) =>
+    ofEqTrue
+      (Eq.trans (congrFun (congrArg Eq (Nat.add_zero x)) x)
+        (eqSelf x)) : ∀ (x y : Nat), Bool → x + 0 = x @ ⟨18, 2⟩-⟨19, 8⟩
+    Nat : Type @ ⟨18, 6⟩-⟨18, 7⟩
+    x : Nat @ ⟨18, 6⟩-⟨18, 7⟩
+    Nat : Type @ ⟨18, 8⟩-⟨18, 9⟩
+    y : Nat @ ⟨18, 8⟩-⟨18, 9⟩
+    Bool : Type @ ⟨18, 10⟩-⟨18, 11⟩
+    b : Bool @ ⟨18, 10⟩-⟨18, 11⟩
+    Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+    before 
+    x y : Nat
+    b : Bool
+    ⊢ x + 0 = x
+    after 
+    x y : Nat
+    b : Bool
+    ⊢ x + 0 = x
+      Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+      before 
+      x y : Nat
+      b : Bool
+      ⊢ x + 0 = x
+      after 
+      x y : Nat
+      b : Bool
+      ⊢ x + 0 = x
+        Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+        before 
+        x y : Nat
+        b : Bool
+        ⊢ x + 0 = x
+        after 
+        x y : Nat b : Bool ⊢ x + 0 = x
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f2 [])
+  (Command.optDeclSig
+   []
+   [(Term.typeSpec
+     ":"
+     (Term.depArrow
+      (Term.explicitBinder "(" [`x `y] [":" `Nat] [] ")")
+      "→"
+      (Term.depArrow (Term.explicitBinder "(" [`b] [":" `Bool] [] ")") "→" `Nat)))])
+  (Command.declValSimple
+   ":="
+   (Term.fun
+    "fun"
+    (Term.basicFun
+     [`x `y `b]
+     "=>"
+     (Term.let
+      "let"
+      (Term.letDecl
+       (Term.letPatDecl
+        (Term.paren "(" [`z [(Term.tupleTail "," [`w])]] ")")
+        []
+        []
+        ":="
+        (Term.paren "(" [(term_+_ `x "+" `y) [(Term.tupleTail "," [(term_-_ `x "-" `y)])]] ")")))
+      []
+      (Term.let "let" (Term.letDecl (Term.letIdDecl `z1 [] [] ":=" (term_+_ `z "+" `w))) [] (term_+_ `z "+" `z1)))))
+   []))) @ ⟨21, 0⟩-⟨25, 10⟩
+  Nat → Nat → Bool → Nat : Type @ ⟨21, 9⟩-⟨21, 39⟩
+    Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+      Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+    x : Nat @ ⟨21, 10⟩-⟨21, 11⟩
+    Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+      Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+    y : Nat @ ⟨21, 12⟩-⟨21, 13⟩
+    Bool → Nat : Type @ ⟨21, 23⟩-⟨21, 39⟩
+      Bool : Type @ ⟨21, 28⟩-⟨21, 32⟩
+        Bool : Type @ ⟨21, 28⟩-⟨21, 32⟩
+      b : Bool @ ⟨21, 24⟩-⟨21, 25⟩
+      Nat : Type @ ⟨21, 36⟩-⟨21, 39⟩
+        Nat : Type @ ⟨21, 36⟩-⟨21, 39⟩
+  fun (x y : Nat) (b : Bool) =>
+    let x : Nat × Nat := (x + y, x - y);
+    match x with 
+    | (z, w) =>
+      let z1 : Nat := z + w;
+      z + z1 : Nat → Nat → Bool → Nat @ ⟨22, 2⟩-⟨25, 10⟩
+    Nat : Type @ ⟨22, 6⟩-⟨22, 7⟩
+    x : Nat @ ⟨22, 6⟩-⟨22, 7⟩
+    Nat : Type @ ⟨22, 8⟩-⟨22, 9⟩
+    y : Nat @ ⟨22, 8⟩-⟨22, 9⟩
+    Bool : Type @ ⟨22, 10⟩-⟨22, 11⟩
+    b : Bool @ ⟨22, 10⟩-⟨22, 11⟩
+    let x : Nat × Nat := (x + y, x - y);
+    match x with 
+    | (z, w) =>
+      let z1 : Nat := z + w;
+      z + z1 : Nat @ ⟨23, 4⟩-⟨25, 10⟩
+      Macro expansion
+      let (z, w) := (x + y, x - y)
+      let z1 := z + w 
+      z + z1
+      ===>
+      let x✝ : _ := (x + y, x - y);
+      match x✝ with 
+      | (z, w) =>
+        let z1 := z + w 
+        z + z1
+        let x : Nat × Nat := (x + y, x - y);
+        match x with 
+        | (z, w) =>
+          let z1 : Nat := z + w;
+          z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩
+          Nat × Nat : Type @ ⟨23, 4⟩-⟨23, 5⟩
+          (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩-⟨23, 32⟩
+            Macro expansion
+            (x + y, x - y)
+            ===>
+            Prod.mk✝ (x + y) (x - y)
+              (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩†-⟨23, 31⟩
+                Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 18⟩†-⟨23, 25⟩†
+                x + y : Nat @ ⟨23, 19⟩-⟨23, 24⟩
+                  Macro expansion
+                  x + y
+                  ===>
+                  HAdd.hAdd✝ x y
+                    HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨23, 19⟩†-⟨23, 28⟩†
+                    x : Nat @ ⟨23, 19⟩-⟨23, 20⟩
+                      x : Nat @ ⟨23, 19⟩-⟨23, 20⟩
+                    y : Nat @ ⟨23, 23⟩-⟨23, 24⟩
+                      y : Nat @ ⟨23, 23⟩-⟨23, 24⟩
+                x - y : Nat @ ⟨23, 26⟩-⟨23, 31⟩
+                  Macro expansion
+                  x - y
+                  ===>
+                  HSub.hSub✝ x y
+                    HSub.hSub : {α β γ : Type} → [self : HSub α β γ] → α → β → γ @ ⟨23, 26⟩†-⟨24, 2⟩†
+                    x : Nat @ ⟨23, 26⟩-⟨23, 27⟩
+                      x : Nat @ ⟨23, 26⟩-⟨23, 27⟩
+                    y : Nat @ ⟨23, 30⟩-⟨23, 31⟩
+                      y : Nat @ ⟨23, 30⟩-⟨23, 31⟩
+          x✝ : Nat × Nat @ ⟨23, 4⟩†-⟨25, 10⟩†
+          match x✝ with 
+          | (z, w) =>
+            let z1 : Nat := z + w;
+            z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩
+            (z, w) : Nat × Nat @ ⟨23, 8⟩-⟨23, 14⟩
+              Macro expansion
+              (z, w)
+              ===>
+              Prod.mk✝ z w
+                (z, w) : Nat × Nat @ ⟨23, 8⟩†-⟨23, 13⟩
+                  Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 8⟩†-⟨23, 15⟩†
+                  z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
+                    z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
+                  w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
+                    w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
+            let z1 : Nat := z + w;
+            z + z1 : Nat @ ⟨24, 4⟩-⟨25, 10⟩
+              Nat : Type @ ⟨24, 8⟩-⟨24, 9⟩
+              z + w : Nat @ ⟨24, 14⟩-⟨24, 19⟩
+                Macro expansion
+                z + w
+                ===>
+                HAdd.hAdd✝ z w
+                  HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨24, 14⟩†-⟨25, 3⟩†
+                  z : Nat @ ⟨24, 14⟩-⟨24, 15⟩
+                    z : Nat @ ⟨24, 14⟩-⟨24, 15⟩
+                  w : Nat @ ⟨24, 18⟩-⟨24, 19⟩
+                    w : Nat @ ⟨24, 18⟩-⟨24, 19⟩
+              z1 : Nat @ ⟨24, 8⟩-⟨24, 10⟩
+              z + z1 : Nat @ ⟨25, 4⟩-⟨25, 10⟩
+                Macro expansion
+                z + z1
+                ===>
+                HAdd.hAdd✝ z z1
+                  HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨25, 4⟩†-⟨27, 1⟩†
+                  z : Nat @ ⟨25, 4⟩-⟨25, 5⟩
+                    z : Nat @ ⟨25, 4⟩-⟨25, 5⟩
+                  z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩
+                    z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f3 [])
+  (Command.optDeclSig
+   [(Term.explicitBinder
+     "("
+     [`s]
+     [":" (term_×_ `Nat "×" (Term.app `Array [(Term.paren "(" [(Term.app `Array [`Nat]) []] ")")]))]
+     []
+     ")")]
+   [(Term.typeSpec ":" (Term.app `Array [`Nat]))])
+  (Command.declValSimple
+   ":="
+   (Term.app
+    (Term.proj (Term.arrayRef (Term.proj `s "." (fieldIdx "2")) "[" (numLit "1") "]") "." `push)
+    [(Term.proj `s "." (fieldIdx "1"))])
+   []))) @ ⟨27, 0⟩-⟨28, 17⟩
+  Nat × Array (Array Nat) : Type @ ⟨27, 12⟩-⟨27, 35⟩
+    Macro expansion
+    Nat × Array (Array Nat)
+    ===>
+    Prod✝ Nat (Array (Array Nat))
+      Prod : Type → Type → Type @ ⟨27, 12⟩†-⟨27, 16⟩†
+      Nat : Type @ ⟨27, 12⟩-⟨27, 15⟩
+        Nat : Type @ ⟨27, 12⟩-⟨27, 15⟩
+      Array (Array Nat) : Type @ ⟨27, 18⟩-⟨27, 35⟩
+        Array : Type → Type @ ⟨27, 18⟩-⟨27, 23⟩
+        Array Nat : Type @ ⟨27, 24⟩-⟨27, 35⟩
+          Array Nat : Type @ ⟨27, 25⟩-⟨27, 34⟩
+            Array : Type → Type @ ⟨27, 25⟩-⟨27, 30⟩
+            Nat : Type @ ⟨27, 31⟩-⟨27, 34⟩
+              Nat : Type @ ⟨27, 31⟩-⟨27, 34⟩
+  s : Nat × Array (Array Nat) @ ⟨27, 8⟩-⟨27, 9⟩
+  Array Nat : Type @ ⟨27, 39⟩-⟨27, 48⟩
+    Array : Type → Type @ ⟨27, 39⟩-⟨27, 44⟩
+    Nat : Type @ ⟨27, 45⟩-⟨27, 48⟩
+      Nat : Type @ ⟨27, 45⟩-⟨27, 48⟩
+  Array.push (Array.getOp s.snd 1) s.fst : Array Nat @ ⟨28, 2⟩-⟨28, 17⟩
+    s : Nat × Array (Array Nat) @ ⟨28, 2⟩-⟨28, 3⟩
+    Prod.snd : {α β : Type} → α × β → β @ ⟨28, 4⟩-⟨28, 5⟩
+    Array.getOp : {α : Type} → [inst : Inhabited α] → Array α → Nat → α @ ⟨28, 5⟩-⟨28, 6⟩
+    1 : Nat @ ⟨28, 6⟩-⟨28, 7⟩
+    Array.push : {α : Type} → Array α → α → Array α @ ⟨28, 9⟩-⟨28, 13⟩
+    s.fst : Nat @ ⟨28, 14⟩-⟨28, 17⟩
+      s : Nat × Array (Array Nat) @ ⟨28, 14⟩-⟨28, 15⟩
+      Prod.fst : {α β : Type} → α × β → α @ ⟨28, 16⟩-⟨28, 17⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f4 [])
+  (Command.optDeclSig [(Term.explicitBinder "(" [`arg] [":" `B] [] ")")] [(Term.typeSpec ":" `Nat)])
+  (Command.declValSimple ":=" (Term.app `arg.pair.fst.val [(numLit "0")]) []))) @ ⟨30, 0⟩-⟨31, 20⟩
+  B : Type @ ⟨30, 14⟩-⟨30, 15⟩
+    B : Type @ ⟨30, 14⟩-⟨30, 15⟩
+  arg : B @ ⟨30, 8⟩-⟨30, 11⟩
+  Nat : Type @ ⟨30, 19⟩-⟨30, 22⟩
+    Nat : Type @ ⟨30, 19⟩-⟨30, 22⟩
+  A.val arg.pair.fst 0 : Nat @ ⟨31, 2⟩-⟨31, 20⟩
+    arg : B @ ⟨31, 2⟩-⟨31, 5⟩
+    B.pair : B → A × A @ ⟨31, 6⟩-⟨31, 10⟩
+    Prod.fst : {α β : Type} → α × β → α @ ⟨31, 11⟩-⟨31, 14⟩
+    A.val : A → Nat → Nat @ ⟨31, 15⟩-⟨31, 18⟩
+    0 : Nat @ ⟨31, 19⟩-⟨31, 20⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f5 [])
+  (Command.optDeclSig [(Term.explicitBinder "(" [`x] [":" `Nat] [] ")")] [(Term.typeSpec ":" `B)])
+  (Command.declValSimple
+   ":="
+   (Term.structInst
+    "{"
+    []
+    [[(Term.structInstField
+       (Term.structInstLVal `pair [])
+       ":="
+       (Term.paren
+        "("
+        [(Term.structInst
+          "{"
+          []
+          [[(Term.structInstField (Term.structInstLVal `val []) ":=" `id) []]]
+          (Term.optEllipsis [])
+          []
+          "}")
+         [(Term.tupleTail
+           ","
+           [(Term.structInst
+             "{"
+             []
+             [[(Term.structInstField (Term.structInstLVal `val []) ":=" `id) []]]
+             (Term.optEllipsis [])
+             []
+             "}")])]]
+        ")"))
+      []]]
+    (Term.optEllipsis [])
+    []
+    "}")
+   []))) @ ⟨33, 0⟩-⟨35, 1⟩
+  Nat : Type @ ⟨33, 12⟩-⟨33, 15⟩
+    Nat : Type @ ⟨33, 12⟩-⟨33, 15⟩
+  x : Nat @ ⟨33, 8⟩-⟨33, 9⟩
+  B : Type @ ⟨33, 19⟩-⟨33, 20⟩
+    B : Type @ ⟨33, 19⟩-⟨33, 20⟩
+  { pair := ({ val := id }, { val := id }) } : B @ ⟨33, 24⟩-⟨35, 1⟩
+    ({ val := id }, { val := id }) : A × A @ ⟨34, 10⟩-⟨34, 40⟩
+      Macro expansion
+      ({ val := id }, { val := id })
+      ===>
+      Prod.mk✝ { val := id } { val := id }
+        ({ val := id }, { val := id }) : A × A @ ⟨34, 10⟩†-⟨34, 39⟩
+          Prod.mk : {α β : Type} → α → β → α × β @ ⟨34, 10⟩†-⟨34, 17⟩†
+          { val := id } : A @ ⟨34, 11⟩-⟨34, 24⟩
+            id : Nat → Nat @ ⟨34, 20⟩-⟨34, 22⟩
+              id : {α : Type} → α → α @ ⟨34, 20⟩-⟨34, 22⟩
+            val : Nat → Nat := id @ ⟨34, 13⟩-⟨34, 16⟩
+          { val := id } : A @ ⟨34, 26⟩-⟨34, 39⟩
+            id : Nat → Nat @ ⟨34, 35⟩-⟨34, 37⟩
+              id : {α : Type} → α → α @ ⟨34, 35⟩-⟨34, 37⟩
+            val : Nat → Nat := id @ ⟨34, 28⟩-⟨34, 31⟩
+    pair : A × A := ({ val := id }, { val := id }) @ ⟨34, 2⟩-⟨34, 6⟩
+def id.{u} : {α : Sort u} → α → α :=
+fun {α : Sort u} (a : α) => a
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f [])
+  (Command.optDeclSig [(Term.explicitBinder "(" [`x] [":" `Nat] [] ")")] [(Term.typeSpec ":" (term_×_ `Nat "×" `Nat))])
+  (Command.declValSimple
+   ":="
+   (Term.let
+    "let"
+    (Term.letDecl (Term.letIdDecl `y [] [] ":=" (Term.anonymousCtor "⟨" [`x "," `x] "⟩")))
+    []
+    (Term.app `id [`y]))
+   []))) @ ⟨13, 0⟩-⟨15, 6⟩
+  Nat : Type @ ⟨13, 11⟩-⟨13, 14⟩
+    Nat : Type @ ⟨13, 11⟩-⟨13, 14⟩
+  x : Nat @ ⟨13, 7⟩-⟨13, 8⟩
+  Nat × Nat : Type @ ⟨13, 18⟩-⟨13, 27⟩
+    Macro expansion
+    Nat × Nat
+    ===>
+    Prod✝ Nat Nat
+      Prod : Type → Type → Type @ ⟨13, 18⟩†-⟨13, 22⟩†
+      Nat : Type @ ⟨13, 18⟩-⟨13, 21⟩
+        Nat : Type @ ⟨13, 18⟩-⟨13, 21⟩
+      Nat : Type @ ⟨13, 24⟩-⟨13, 27⟩
+        Nat : Type @ ⟨13, 24⟩-⟨13, 27⟩
+  let y : Nat × Nat := (x, x);
+  id y : Nat × Nat @ ⟨14, 2⟩-⟨15, 6⟩
+    Nat × Nat : Type @ ⟨14, 6⟩-⟨14, 7⟩
+    (x, x) : Nat × Nat @ ⟨14, 11⟩-⟨14, 17⟩
+      Macro expansion
+      ⟨x, x⟩
+      ===>
+      Prod.mk✝ x x
+        (x, x) : Nat × Nat @ ⟨14, 11⟩†-⟨14, 16⟩
+          Prod.mk : {α β : Type} → α → β → α × β @ ⟨14, 11⟩†-⟨17, 8⟩†
+          x : Nat @ ⟨14, 12⟩-⟨14, 13⟩
+            x : Nat @ ⟨14, 12⟩-⟨14, 13⟩
+          x : Nat @ ⟨14, 15⟩-⟨14, 16⟩
+            x : Nat @ ⟨14, 15⟩-⟨14, 16⟩
+    y : Nat × Nat @ ⟨14, 6⟩-⟨14, 7⟩
+    id y : Nat × Nat @ ⟨15, 2⟩-⟨15, 6⟩
+      id : {α : Type} → α → α @ ⟨15, 2⟩-⟨15, 4⟩
+      y : Nat × Nat @ ⟨15, 5⟩-⟨15, 6⟩
+        y : Nat × Nat @ ⟨15, 5⟩-⟨15, 6⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `h [])
+  (Command.optDeclSig
+   []
+   [(Term.typeSpec
+     ":"
+     (Term.depArrow
+      (Term.explicitBinder "(" [`x `y] [":" `Nat] [] ")")
+      "→"
+      (Term.depArrow
+       (Term.explicitBinder "(" [`b] [":" `Bool] [] ")")
+       "→"
+       (term_=_ (term_+_ `x "+" (numLit "0")) "=" `x))))])
+  (Command.declValSimple
+   ":="
+   (Term.fun
+    "fun"
+    (Term.basicFun
+     [`x `y `b]
+     "=>"
+     (Term.byTactic "by" (Tactic.tacticSeq (Tactic.tacticSeq1Indented [[(Tactic.simp "simp" [] [] [] []) []]])))))
+   []))) @ ⟨17, 0⟩-⟨19, 8⟩
+  ∀ (x y : Nat), Bool → x + 0 = x : Prop @ ⟨17, 8⟩-⟨17, 44⟩
+    Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+      Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+    x : Nat @ ⟨17, 9⟩-⟨17, 10⟩
+    Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+      Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩
+    y : Nat @ ⟨17, 11⟩-⟨17, 12⟩
+    Bool → x + 0 = x : Prop @ ⟨17, 22⟩-⟨17, 44⟩
+      Bool : Type @ ⟨17, 27⟩-⟨17, 31⟩
+        Bool : Type @ ⟨17, 27⟩-⟨17, 31⟩
+      b : Bool @ ⟨17, 23⟩-⟨17, 24⟩
+      x + 0 = x : Prop @ ⟨17, 35⟩-⟨17, 44⟩
+        Macro expansion
+        x + 0 = x
+        ===>
+        binrel% Eq✝ (x + 0)x
+          x + 0 : Nat @ ⟨17, 35⟩-⟨17, 40⟩
+            Macro expansion
+            x + 0
+            ===>
+            HAdd.hAdd✝ x 0
+              HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨17, 35⟩†-⟨17, 44⟩†
+              x : Nat @ ⟨17, 35⟩-⟨17, 36⟩
+                x : Nat @ ⟨17, 35⟩-⟨17, 36⟩
+              0 : Nat @ ⟨17, 39⟩-⟨17, 40⟩
+          x : Nat @ ⟨17, 43⟩-⟨17, 44⟩
+            x : Nat @ ⟨17, 43⟩-⟨17, 44⟩
+  fun (x y : Nat) (b : Bool) =>
+    ofEqTrue
+      (Eq.trans (congrFun (congrArg Eq (Nat.add_zero x)) x)
+        (eqSelf x)) : ∀ (x y : Nat), Bool → x + 0 = x @ ⟨18, 2⟩-⟨19, 8⟩
+    Nat : Type @ ⟨18, 6⟩-⟨18, 7⟩
+    x : Nat @ ⟨18, 6⟩-⟨18, 7⟩
+    Nat : Type @ ⟨18, 8⟩-⟨18, 9⟩
+    y : Nat @ ⟨18, 8⟩-⟨18, 9⟩
+    Bool : Type @ ⟨18, 10⟩-⟨18, 11⟩
+    b : Bool @ ⟨18, 10⟩-⟨18, 11⟩
+    Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+    before 
+    x y : Nat
+    b : Bool
+    ⊢ x + 0 = x
+    after 
+    x y : Nat
+    b : Bool
+    ⊢ x + 0 = x
+      Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+      before 
+      x y : Nat
+      b : Bool
+      ⊢ x + 0 = x
+      after 
+      x y : Nat
+      b : Bool
+      ⊢ x + 0 = x
+        Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+        before 
+        x y : Nat
+        b : Bool
+        ⊢ x + 0 = x
+        after 
+        x y : Nat b : Bool ⊢ x + 0 = x
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f2 [])
+  (Command.optDeclSig
+   []
+   [(Term.typeSpec
+     ":"
+     (Term.depArrow
+      (Term.explicitBinder "(" [`x `y] [":" `Nat] [] ")")
+      "→"
+      (Term.depArrow (Term.explicitBinder "(" [`b] [":" `Bool] [] ")") "→" `Nat)))])
+  (Command.declValSimple
+   ":="
+   (Term.fun
+    "fun"
+    (Term.basicFun
+     [`x `y `b]
+     "=>"
+     (Term.let
+      "let"
+      (Term.letDecl
+       (Term.letPatDecl
+        (Term.paren "(" [`z [(Term.tupleTail "," [`w])]] ")")
+        []
+        []
+        ":="
+        (Term.paren "(" [(term_+_ `x "+" `y) [(Term.tupleTail "," [(term_-_ `x "-" `y)])]] ")")))
+      []
+      (Term.let "let" (Term.letDecl (Term.letIdDecl `z1 [] [] ":=" (term_+_ `z "+" `w))) [] (term_+_ `z "+" `z1)))))
+   []))) @ ⟨21, 0⟩-⟨25, 10⟩
+  Nat → Nat → Bool → Nat : Type @ ⟨21, 9⟩-⟨21, 39⟩
+    Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+      Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+    x : Nat @ ⟨21, 10⟩-⟨21, 11⟩
+    Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+      Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩
+    y : Nat @ ⟨21, 12⟩-⟨21, 13⟩
+    Bool → Nat : Type @ ⟨21, 23⟩-⟨21, 39⟩
+      Bool : Type @ ⟨21, 28⟩-⟨21, 32⟩
+        Bool : Type @ ⟨21, 28⟩-⟨21, 32⟩
+      b : Bool @ ⟨21, 24⟩-⟨21, 25⟩
+      Nat : Type @ ⟨21, 36⟩-⟨21, 39⟩
+        Nat : Type @ ⟨21, 36⟩-⟨21, 39⟩
+  fun (x y : Nat) (b : Bool) =>
+    let x : Nat × Nat := (x + y, x - y);
+    match x with 
+    | (z, w) =>
+      let z1 : Nat := z + w;
+      z + z1 : Nat → Nat → Bool → Nat @ ⟨22, 2⟩-⟨25, 10⟩
+    Nat : Type @ ⟨22, 6⟩-⟨22, 7⟩
+    x : Nat @ ⟨22, 6⟩-⟨22, 7⟩
+    Nat : Type @ ⟨22, 8⟩-⟨22, 9⟩
+    y : Nat @ ⟨22, 8⟩-⟨22, 9⟩
+    Bool : Type @ ⟨22, 10⟩-⟨22, 11⟩
+    b : Bool @ ⟨22, 10⟩-⟨22, 11⟩
+    let x : Nat × Nat := (x + y, x - y);
+    match x with 
+    | (z, w) =>
+      let z1 : Nat := z + w;
+      z + z1 : Nat @ ⟨23, 4⟩-⟨25, 10⟩
+      Macro expansion
+      let (z, w) := (x + y, x - y)
+      let z1 := z + w 
+      z + z1
+      ===>
+      let x✝ : _ := (x + y, x - y);
+      match x✝ with 
+      | (z, w) =>
+        let z1 := z + w 
+        z + z1
+        let x : Nat × Nat := (x + y, x - y);
+        match x with 
+        | (z, w) =>
+          let z1 : Nat := z + w;
+          z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩
+          Nat × Nat : Type @ ⟨23, 4⟩-⟨23, 5⟩
+          (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩-⟨23, 32⟩
+            Macro expansion
+            (x + y, x - y)
+            ===>
+            Prod.mk✝ (x + y) (x - y)
+              (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩†-⟨23, 31⟩
+                Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 18⟩†-⟨23, 25⟩†
+                x + y : Nat @ ⟨23, 19⟩-⟨23, 24⟩
+                  Macro expansion
+                  x + y
+                  ===>
+                  HAdd.hAdd✝ x y
+                    HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨23, 19⟩†-⟨23, 28⟩†
+                    x : Nat @ ⟨23, 19⟩-⟨23, 20⟩
+                      x : Nat @ ⟨23, 19⟩-⟨23, 20⟩
+                    y : Nat @ ⟨23, 23⟩-⟨23, 24⟩
+                      y : Nat @ ⟨23, 23⟩-⟨23, 24⟩
+                x - y : Nat @ ⟨23, 26⟩-⟨23, 31⟩
+                  Macro expansion
+                  x - y
+                  ===>
+                  HSub.hSub✝ x y
+                    HSub.hSub : {α β γ : Type} → [self : HSub α β γ] → α → β → γ @ ⟨23, 26⟩†-⟨24, 2⟩†
+                    x : Nat @ ⟨23, 26⟩-⟨23, 27⟩
+                      x : Nat @ ⟨23, 26⟩-⟨23, 27⟩
+                    y : Nat @ ⟨23, 30⟩-⟨23, 31⟩
+                      y : Nat @ ⟨23, 30⟩-⟨23, 31⟩
+          x✝ : Nat × Nat @ ⟨23, 4⟩†-⟨25, 10⟩†
+          match x✝ with 
+          | (z, w) =>
+            let z1 : Nat := z + w;
+            z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩
+            (z, w) : Nat × Nat @ ⟨23, 8⟩-⟨23, 14⟩
+              Macro expansion
+              (z, w)
+              ===>
+              Prod.mk✝ z w
+                (z, w) : Nat × Nat @ ⟨23, 8⟩†-⟨23, 13⟩
+                  Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 8⟩†-⟨23, 15⟩†
+                  z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
+                    z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
+                  w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
+                    w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
+            let z1 : Nat := z + w;
+            z + z1 : Nat @ ⟨24, 4⟩-⟨25, 10⟩
+              Nat : Type @ ⟨24, 8⟩-⟨24, 9⟩
+              z + w : Nat @ ⟨24, 14⟩-⟨24, 19⟩
+                Macro expansion
+                z + w
+                ===>
+                HAdd.hAdd✝ z w
+                  HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨24, 14⟩†-⟨25, 3⟩†
+                  z : Nat @ ⟨24, 14⟩-⟨24, 15⟩
+                    z : Nat @ ⟨24, 14⟩-⟨24, 15⟩
+                  w : Nat @ ⟨24, 18⟩-⟨24, 19⟩
+                    w : Nat @ ⟨24, 18⟩-⟨24, 19⟩
+              z1 : Nat @ ⟨24, 8⟩-⟨24, 10⟩
+              z + z1 : Nat @ ⟨25, 4⟩-⟨25, 10⟩
+                Macro expansion
+                z + z1
+                ===>
+                HAdd.hAdd✝ z z1
+                  HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨25, 4⟩†-⟨27, 1⟩†
+                  z : Nat @ ⟨25, 4⟩-⟨25, 5⟩
+                    z : Nat @ ⟨25, 4⟩-⟨25, 5⟩
+                  z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩
+                    z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f3 [])
+  (Command.optDeclSig
+   [(Term.explicitBinder
+     "("
+     [`s]
+     [":" (term_×_ `Nat "×" (Term.app `Array [(Term.paren "(" [(Term.app `Array [`Nat]) []] ")")]))]
+     []
+     ")")]
+   [(Term.typeSpec ":" (Term.app `Array [`Nat]))])
+  (Command.declValSimple
+   ":="
+   (Term.app
+    (Term.proj (Term.arrayRef (Term.proj `s "." (fieldIdx "2")) "[" (numLit "1") "]") "." `push)
+    [(Term.proj `s "." (fieldIdx "1"))])
+   []))) @ ⟨27, 0⟩-⟨28, 17⟩
+  Nat × Array (Array Nat) : Type @ ⟨27, 12⟩-⟨27, 35⟩
+    Macro expansion
+    Nat × Array (Array Nat)
+    ===>
+    Prod✝ Nat (Array (Array Nat))
+      Prod : Type → Type → Type @ ⟨27, 12⟩†-⟨27, 16⟩†
+      Nat : Type @ ⟨27, 12⟩-⟨27, 15⟩
+        Nat : Type @ ⟨27, 12⟩-⟨27, 15⟩
+      Array (Array Nat) : Type @ ⟨27, 18⟩-⟨27, 35⟩
+        Array : Type → Type @ ⟨27, 18⟩-⟨27, 23⟩
+        Array Nat : Type @ ⟨27, 24⟩-⟨27, 35⟩
+          Array Nat : Type @ ⟨27, 25⟩-⟨27, 34⟩
+            Array : Type → Type @ ⟨27, 25⟩-⟨27, 30⟩
+            Nat : Type @ ⟨27, 31⟩-⟨27, 34⟩
+              Nat : Type @ ⟨27, 31⟩-⟨27, 34⟩
+  s : Nat × Array (Array Nat) @ ⟨27, 8⟩-⟨27, 9⟩
+  Array Nat : Type @ ⟨27, 39⟩-⟨27, 48⟩
+    Array : Type → Type @ ⟨27, 39⟩-⟨27, 44⟩
+    Nat : Type @ ⟨27, 45⟩-⟨27, 48⟩
+      Nat : Type @ ⟨27, 45⟩-⟨27, 48⟩
+  Array.push (Array.getOp s.snd 1) s.fst : Array Nat @ ⟨28, 2⟩-⟨28, 17⟩
+    s : Nat × Array (Array Nat) @ ⟨28, 2⟩-⟨28, 3⟩
+    Prod.snd : {α β : Type} → α × β → β @ ⟨28, 4⟩-⟨28, 5⟩
+    Array.getOp : {α : Type} → [inst : Inhabited α] → Array α → Nat → α @ ⟨28, 5⟩-⟨28, 6⟩
+    1 : Nat @ ⟨28, 6⟩-⟨28, 7⟩
+    Array.push : {α : Type} → Array α → α → Array α @ ⟨28, 9⟩-⟨28, 13⟩
+    s.fst : Nat @ ⟨28, 14⟩-⟨28, 17⟩
+      s : Nat × Array (Array Nat) @ ⟨28, 14⟩-⟨28, 15⟩
+      Prod.fst : {α β : Type} → α × β → α @ ⟨28, 16⟩-⟨28, 17⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f4 [])
+  (Command.optDeclSig [(Term.explicitBinder "(" [`arg] [":" `B] [] ")")] [(Term.typeSpec ":" `Nat)])
+  (Command.declValSimple ":=" (Term.app `arg.pair.fst.val [(numLit "0")]) []))) @ ⟨30, 0⟩-⟨31, 20⟩
+  B : Type @ ⟨30, 14⟩-⟨30, 15⟩
+    B : Type @ ⟨30, 14⟩-⟨30, 15⟩
+  arg : B @ ⟨30, 8⟩-⟨30, 11⟩
+  Nat : Type @ ⟨30, 19⟩-⟨30, 22⟩
+    Nat : Type @ ⟨30, 19⟩-⟨30, 22⟩
+  A.val arg.pair.fst 0 : Nat @ ⟨31, 2⟩-⟨31, 20⟩
+    arg : B @ ⟨31, 2⟩-⟨31, 5⟩
+    B.pair : B → A × A @ ⟨31, 6⟩-⟨31, 10⟩
+    Prod.fst : {α β : Type} → α × β → α @ ⟨31, 11⟩-⟨31, 14⟩
+    A.val : A → Nat → Nat @ ⟨31, 15⟩-⟨31, 18⟩
+    0 : Nat @ ⟨31, 19⟩-⟨31, 20⟩
+[Elab.info] (Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.def
+  "def"
+  (Command.declId `f5 [])
+  (Command.optDeclSig [(Term.explicitBinder "(" [`x] [":" `Nat] [] ")")] [(Term.typeSpec ":" `B)])
+  (Command.declValSimple
+   ":="
+   (Term.structInst
+    "{"
+    []
+    [[(Term.structInstField
+       (Term.structInstLVal `pair [])
+       ":="
+       (Term.paren
+        "("
+        [(Term.structInst
+          "{"
+          []
+          [[(Term.structInstField (Term.structInstLVal `val []) ":=" `id) []]]
+          (Term.optEllipsis [])
+          []
+          "}")
+         [(Term.tupleTail
+           ","
+           [(Term.structInst
+             "{"
+             []
+             [[(Term.structInstField (Term.structInstLVal `val []) ":=" `id) []]]
+             (Term.optEllipsis [])
+             []
+             "}")])]]
+        ")"))
+      []]]
+    (Term.optEllipsis [])
+    []
+    "}")
+   []))) @ ⟨33, 0⟩-⟨35, 1⟩
+  Nat : Type @ ⟨33, 12⟩-⟨33, 15⟩
+    Nat : Type @ ⟨33, 12⟩-⟨33, 15⟩
+  x : Nat @ ⟨33, 8⟩-⟨33, 9⟩
+  B : Type @ ⟨33, 19⟩-⟨33, 20⟩
+    B : Type @ ⟨33, 19⟩-⟨33, 20⟩
+  { pair := ({ val := id }, { val := id }) } : B @ ⟨33, 24⟩-⟨35, 1⟩
+    ({ val := id }, { val := id }) : A × A @ ⟨34, 10⟩-⟨34, 40⟩
+      Macro expansion
+      ({ val := id }, { val := id })
+      ===>
+      Prod.mk✝ { val := id } { val := id }
+        ({ val := id }, { val := id }) : A × A @ ⟨34, 10⟩†-⟨34, 39⟩
+          Prod.mk : {α β : Type} → α → β → α × β @ ⟨34, 10⟩†-⟨34, 17⟩†
+          { val := id } : A @ ⟨34, 11⟩-⟨34, 24⟩
+            id : Nat → Nat @ ⟨34, 20⟩-⟨34, 22⟩
+              id : {α : Type} → α → α @ ⟨34, 20⟩-⟨34, 22⟩
+            val : Nat → Nat := id @ ⟨34, 13⟩-⟨34, 16⟩
+          { val := id } : A @ ⟨34, 26⟩-⟨34, 39⟩
+            id : Nat → Nat @ ⟨34, 35⟩-⟨34, 37⟩
+              id : {α : Type} → α → α @ ⟨34, 35⟩-⟨34, 37⟩
+            val : Nat → Nat := id @ ⟨34, 28⟩-⟨34, 31⟩
+    pair : A × A := ({ val := id }, { val := id }) @ ⟨34, 2⟩-⟨34, 6⟩
+[Elab.info] (Command.print "#print" `id) @ ⟨37, 0⟩-⟨37, 9⟩
+  id : {α : Sort u} → α → α @ ⟨37, 7⟩-⟨37, 9⟩

@@ -85,6 +85,10 @@ def getConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Co
   | some info => pure info
   | none      => throwError "unknown constant '{mkConst constName}'"
 
+def mkConstWithLevelParams [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Expr := do
+  let info ← getConstInfo constName
+  mkConst constName (info.levelParams.map mkLevelParam)
+
 def getConstInfoInduct [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m InductiveVal := do
   match (← getConstInfo constName) with
   | ConstantInfo.inductInfo v => pure v

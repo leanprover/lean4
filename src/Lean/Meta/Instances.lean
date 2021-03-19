@@ -50,8 +50,7 @@ private def mkInstanceKey (e : Expr) : MetaM (Array DiscrTree.Key) := do
     DiscrTree.mkPath type
 
 def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
-  let cinfo ← getConstInfo declName
-  let c := mkConst declName (cinfo.levelParams.map mkLevelParam)
+  let c ← mkConstWithLevelParams declName
   let keys ← mkInstanceKey c
   instanceExtension.add { keys := keys, val := c, priority := prio, globalName? := declName } attrKind
 

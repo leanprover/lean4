@@ -27,10 +27,10 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
   let ctx ← read
   let s ← get
   let cmdCtx : Command.Context := { cmdPos := s.cmdPos, fileName := ctx.inputCtx.fileName, fileMap := ctx.inputCtx.fileMap }
-  let sNew? ← liftM $ EIO.toIO (fun _ => IO.Error.userError "unexpected error") (do let (_, s) ← (x cmdCtx).run s.commandState; pure $ some s)
-  match sNew? with
-  | some sNew => setCommandState sNew
-  | none      => pure ()
+  match ← liftM $ EIO.toIO' (do let (_, s) ← (x cmdCtx).run s.commandState; pure $ some s) with
+  | Except.error e        => throw <| IO.Error.userError s!"unexpected internal error: {← e.toMessageData.toString}"
+  | Except.ok (some sNew) => setCommandState sNew
+  | Except.ok none        => pure ()
 
 def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit := do
   runCommandElabM (Command.elabCommand stx)

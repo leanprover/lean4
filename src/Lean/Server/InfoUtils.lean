@@ -30,6 +30,7 @@ where go ctx?
 def Info.stx : Info → Syntax
   | ofTacticInfo i         => i.stx
   | ofTermInfo i           => i.stx
+  | ofCommandInfo i        => i.stx
   | ofMacroExpansionInfo i => i.before
   | ofFieldInfo i          => i.stx
 

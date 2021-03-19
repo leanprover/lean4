@@ -115,7 +115,7 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
 
 @[builtinCommandElab «printAxioms»] def elabPrintAxioms : CommandElab
   | `(#print%$tk axioms $id) => withRef tk do
-    let cs ← resolveGlobalConst id.getId
+    let cs ← resolveGlobalConstWithInfos id
     cs.forM printAxiomsOf
   | _ => throwUnsupportedSyntax
 

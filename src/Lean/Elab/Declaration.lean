@@ -271,7 +271,7 @@ def elabMutual : CommandElab := fun stx => do
   let attrs ← elabAttrs attrInsts
   let idents := stx[4].getArgs
   for ident in idents do withRef ident <| liftTermElabM none do
-    let declName ← resolveGlobalConstNoOverload ident.getId
+    let declName ← resolveGlobalConstNoOverloadWithInfo ident
     Term.applyAttributes declName attrs
     for attrName in toErase do
       Attribute.erase declName attrName

@@ -51,7 +51,7 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Boo
             -- We use `eraseCore` because the simp lemma for the hypothesis was not added yet
             lemmas ← lemmas.eraseCore arg[1].getId
           else
-            let declName ← resolveGlobalConstNoOverload arg[1].getId
+            let declName ← resolveGlobalConstNoOverloadWithInfo arg[1]
             lemmas ← lemmas.erase declName
         else
           let post :=

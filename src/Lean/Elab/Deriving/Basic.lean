@@ -32,8 +32,8 @@ def applyDerivingHandlers (className : Name) (typeNames : Array Name) : CommandE
 
 @[builtinCommandElab «deriving»] def elabDeriving : CommandElab
   | `(deriving instance $[$classes],* for $[$declNames],*) => do
-     let classes ← classes.mapM (resolveGlobalConstNoOverload ·.getId)
-     let declNames ← declNames.mapM (resolveGlobalConstNoOverload ·.getId)
+     let classes ← classes.mapM resolveGlobalConstNoOverloadWithInfo
+     let declNames ← declNames.mapM resolveGlobalConstNoOverloadWithInfo
      for cls in classes do
        try
          applyDerivingHandlers cls declNames
@@ -46,12 +46,12 @@ structure DerivingClassView where
   className : Name
 
 /- leading_parser optional (atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ") -/
-def getOptDerivingClasses [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] (optDeriving : Syntax) : m (Array DerivingClassView) := do
+def getOptDerivingClasses [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadInfoTree m] (optDeriving : Syntax) : m (Array DerivingClassView) := do
   if optDeriving.isNone then
     return #[]
   else
     optDeriving[0][1].getSepArgs.mapM fun ident => do
-      let className ← resolveGlobalConstNoOverload ident.getId
+      let className ← resolveGlobalConstNoOverloadWithInfo ident
       return { ref := ident, className := className }
 
 def DerivingClassView.applyHandlers (view : DerivingClassView) (declNames : Array Name) : CommandElabM Unit :=

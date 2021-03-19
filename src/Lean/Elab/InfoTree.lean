@@ -191,11 +191,17 @@ def pushInfoLeaf (t : Info) : m Unit := do
   if (← getInfoState).enabled then
     pushInfoTree <| InfoTree.node (children := {}) t
 
-def resolveGlobalConstWithInfos [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Syntax) : m (List Name) := do
-  let ns ← resolveGlobalConst id.getId
+def resolveGlobalConstNoOverloadWithInfo [MonadResolveName m] [MonadEnv m] [MonadError m] (stx : Syntax) (id := stx.getId) : m Name := do
+  let n ← resolveGlobalConstNoOverload id
+  if (← getInfoState).enabled then
+    pushInfoLeaf <| Info.ofTermInfo { lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx := stx }
+  return n
+
+def resolveGlobalConstWithInfos [MonadResolveName m] [MonadEnv m] [MonadError m] (stx : Syntax) (id := stx.getId) : m (List Name) := do
+  let ns ← resolveGlobalConst id
   if (← getInfoState).enabled then
     for n in ns do
-      pushInfoLeaf <| Info.ofTermInfo { lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx := id }
+      pushInfoLeaf <| Info.ofTermInfo { lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx := stx }
   return ns
 
 def mkInfoNode (info : Info) : m Unit := do

@@ -95,7 +95,7 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) : TacticM Simp.Co
       let mut lemmas := ctx.simpLemmas
       for arg in stx[1].getSepArgs do
         if arg.getKind == ``Lean.Parser.Tactic.simpErase then
-          let declName ← resolveGlobalConstNoOverload arg[1].getId
+          let declName ← resolveGlobalConstNoOverloadWithInfo arg[1]
           lemmas ← lemmas.erase declName
         else
           let post :=

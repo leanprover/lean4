@@ -4,9 +4,9 @@ f 1 fun (x : Nat) => x : Nat
 0 : Nat
 f 1 fun (x : Nat) => x : Nat
 id : ?m → ?m
-precissues.lean:15:10: error: expected command, but found term; this error may be due to parsing precedence levels, consider parenthesizing the term
+precissues.lean:15:10: error: expected command
 id : ?m → ?m
-precissues.lean:17:10: error: expected command, but found term; this error may be due to parsing precedence levels, consider parenthesizing the term
+precissues.lean:17:10: error: expected command
 1 : Nat
 id ((fun (this : True) => this) True.intro) : True
 0 = (fun (this : Nat) => this) 1 : Prop
@@ -23,4 +23,4 @@ p ∧ ¬q : Prop
 id ¬p : Prop
 ∀ (a a : Nat), a = a : Prop
 id : ?m → ?m
-precissues.lean:41:10: error: expected command, but found term; this error may be due to parsing precedence levels, consider parenthesizing the term
+precissues.lean:41:10: error: expected command

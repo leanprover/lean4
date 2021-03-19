@@ -70,10 +70,7 @@ private def consumeInput (c : ParserContext) (pos : String.Pos) : String.Pos :=
   | none   => s.pos
 
 def topLevelCommandParserFn : ParserFn :=
-  orelseFnCore
-    commandParser.fn
-    (andthenFn (lookaheadFn termParser.fn) (errorFn "expected command, but found term; this error may be due to parsing precedence levels, consider parenthesizing the term"))
-    false /- do not merge errors -/
+  commandParser.fn
 
 partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext) (s : ModuleParserState) (messages : MessageLog) : Syntax × ModuleParserState × MessageLog :=
   let rec parse (s : ModuleParserState) (messages : MessageLog) :=

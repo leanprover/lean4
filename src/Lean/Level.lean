@@ -470,7 +470,7 @@ namespace Level
 
 /- The update functions here are defined using C code. They will try to avoid
    allocating new values using pointer equality.
-   The hypotheses `(h : e.is... = true)` are used to ensure Lean will not crash
+   The hypotheses `(h : e.is...)` are used to ensure Lean will not crash
    at runtime.
    The `update*!` functions are inlined and provide a convenient way of using the
    update proofs without providing proofs.
@@ -478,7 +478,7 @@ namespace Level
    the double-match. -/
 
 @[extern "lean_level_update_succ"]
-def updateSucc (lvl : Level) (newLvl : Level) (h : lvl.isSucc = true) : Level :=
+def updateSucc (lvl : Level) (newLvl : Level) (h : lvl.isSucc) : Level :=
   mkLevelSucc newLvl
 
 @[inline] def updateSucc! (lvl : Level) (newLvl : Level) : Level :=
@@ -487,7 +487,7 @@ match lvl with
   | _          => panic! "succ level expected"
 
 @[extern "lean_level_update_max"]
-def updateMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isMax = true) : Level :=
+def updateMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isMax) : Level :=
   mkLevelMax' newLhs newRhs
 
 @[inline] def updateMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
@@ -496,7 +496,7 @@ def updateMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isMax = t
   | _             => panic! "max level expected"
 
 @[extern "lean_level_update_imax"]
-def updateIMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isIMax = true) : Level :=
+def updateIMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isIMax) : Level :=
   mkLevelIMax' newLhs newRhs
 
 @[inline] def updateIMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=

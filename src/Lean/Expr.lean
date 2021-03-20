@@ -834,7 +834,7 @@ def containsFVar (e : Expr) (fvarId : FVarId) : Bool :=
 
 /- The update functions here are defined using C code. They will try to avoid
    allocating new values using pointer equality.
-   The hypotheses `(h : e.is... = true)` are used to ensure Lean will not crash
+   The hypotheses `(h : e.is...)` are used to ensure Lean will not crash
    at runtime.
    The `update*!` functions are inlined and provide a convenient way of using the
    update proofs without providing proofs.
@@ -842,7 +842,7 @@ def containsFVar (e : Expr) (fvarId : FVarId) : Bool :=
    the double-match. -/
 
 @[extern "lean_expr_update_app"]
-def updateApp (e : Expr) (newFn : Expr) (newArg : Expr) (h : e.isApp = true) : Expr :=
+def updateApp (e : Expr) (newFn : Expr) (newArg : Expr) (h : e.isApp) : Expr :=
   mkApp newFn newArg
 
 @[inline] def updateApp! (e : Expr) (newFn : Expr) (newArg : Expr) : Expr :=
@@ -851,7 +851,7 @@ def updateApp (e : Expr) (newFn : Expr) (newArg : Expr) (h : e.isApp = true) : E
   | _            => panic! "application expected"
 
 @[extern "lean_expr_update_const"]
-def updateConst (e : Expr) (newLevels : List Level) (h : e.isConst = true) : Expr :=
+def updateConst (e : Expr) (newLevels : List Level) (h : e.isConst) : Expr :=
   mkConst e.constName! newLevels
 
 @[inline] def updateConst! (e : Expr) (newLevels : List Level) : Expr :=
@@ -860,7 +860,7 @@ def updateConst (e : Expr) (newLevels : List Level) (h : e.isConst = true) : Exp
   | _            => panic! "constant expected"
 
 @[extern "lean_expr_update_sort"]
-def updateSort (e : Expr) (newLevel : Level) (h : e.isSort = true) : Expr :=
+def updateSort (e : Expr) (newLevel : Level) (h : e.isSort) : Expr :=
   mkSort newLevel
 
 @[inline] def updateSort! (e : Expr) (newLevel : Level) : Expr :=
@@ -869,13 +869,13 @@ def updateSort (e : Expr) (newLevel : Level) (h : e.isSort = true) : Expr :=
   | _        => panic! "level expected"
 
 @[extern "lean_expr_update_proj"]
-def updateProj (e : Expr) (newExpr : Expr) (h : e.isProj = true) : Expr :=
+def updateProj (e : Expr) (newExpr : Expr) (h : e.isProj) : Expr :=
   match e with
   | proj s i _ _ => mkProj s i newExpr
   | _            => e -- unreachable because of `h`
 
 @[extern "lean_expr_update_mdata"]
-def updateMData (e : Expr) (newExpr : Expr) (h : e.isMData = true) : Expr :=
+def updateMData (e : Expr) (newExpr : Expr) (h : e.isMData) : Expr :=
   match e with
   | mdata d _ _ => mkMData d newExpr
   | _           => e -- unreachable because of `h`
@@ -891,7 +891,7 @@ def updateMData (e : Expr) (newExpr : Expr) (h : e.isMData = true) : Expr :=
   | _            => panic! "proj expected"
 
 @[extern "lean_expr_update_forall"]
-def updateForall (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) (h : e.isForall = true) : Expr :=
+def updateForall (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) (h : e.isForall) : Expr :=
   mkForall e.bindingName! newBinfo newDomain newBody
 
 @[inline] def updateForall! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
@@ -905,7 +905,7 @@ def updateForall (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody 
   | _               => panic! "forall expected"
 
 @[extern "lean_expr_update_lambda"]
-def updateLambda (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) (h : e.isLambda = true) : Expr :=
+def updateLambda (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) (h : e.isLambda) : Expr :=
   mkLambda e.bindingName! newBinfo newDomain newBody
 
 @[inline] def updateLambda! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
@@ -919,7 +919,7 @@ def updateLambda (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody 
   | _           => panic! "lambda expected"
 
 @[extern "lean_expr_update_let"]
-def updateLet (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) (h : e.isLet = true) : Expr :=
+def updateLet (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) (h : e.isLet) : Expr :=
   mkLet e.letName! newType newVal newBody
 
 @[inline] def updateLet! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=

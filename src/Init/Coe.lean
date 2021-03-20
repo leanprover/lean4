@@ -105,6 +105,9 @@ instance coeId {α : Sort u} (a : α) : CoeT α a α where
 @[inline] instance boolToProp : Coe Bool Prop where
   coe b := b = true
 
+instance boolToSort : CoeSort Bool Prop where
+  coe b := b
+
 @[inline] instance coeDecidableEq (x : Bool) : Decidable (coe x) :=
   inferInstanceAs (Decidable (x = true))
 

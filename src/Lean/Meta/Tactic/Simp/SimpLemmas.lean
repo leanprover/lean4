@@ -66,10 +66,13 @@ def SimpLemmas.isDeclToUnfold (d : SimpLemmas) (declName : Name) : Bool :=
 def SimpLemmas.isLemma (d : SimpLemmas) (declName : Name) : Bool :=
   d.lemmaNames.contains declName
 
+def SimpLemmas.eraseCore [Monad m] [MonadError m] (d : SimpLemmas) (declName : Name) : m SimpLemmas := do
+  return { d with erased := d.erased.insert declName, lemmaNames := d.lemmaNames.erase declName, toUnfold := d.toUnfold.erase declName }
+
 def SimpLemmas.erase [Monad m] [MonadError m] (d : SimpLemmas) (declName : Name) : m SimpLemmas := do
   unless d.isLemma declName || d.isDeclToUnfold declName do
     throwError "'{declName}' does not have [simp] attribute"
-  return { d with erased := d.erased.insert declName, lemmaNames := d.lemmaNames.erase declName, toUnfold := d.toUnfold.erase declName }
+  d.eraseCore declName
 
 inductive SimpEntry where
   | lemma    : SimpLemma → SimpEntry

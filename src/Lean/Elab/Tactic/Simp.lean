@@ -27,8 +27,12 @@ def elabSimpConfig (optConfig : Syntax) : TermElabM Meta.Simp.Config := do
       let c ← Term.elabTermEnsuringType optConfig[3] (Lean.mkConst ``Meta.Simp.Config)
       evalSimpConfig (← instantiateMVars c)
 
-/-- Elaborate extra simp lemmas provided to `simp`. `stx` is of the `simpLemma,*` -/
-private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) : TacticM Simp.Context := do
+/--
+  Elaborate extra simp lemmas provided to `simp`. `stx` is of the `simpLemma,*`
+  If `eraseLocal == true`, then we consider local declarations when resolving names for erased lemmas (`- id`),
+  this option only makes sense for `simp_all`.
+-/
+private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool) : TacticM Simp.Context := do
   if stx.isNone then
     return ctx
   else
@@ -43,8 +47,12 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) : TacticM Simp.Co
       let mut lemmas := ctx.simpLemmas
       for arg in stx[1].getSepArgs do
         if arg.getKind == ``Lean.Parser.Tactic.simpErase then
-          let declName ← resolveGlobalConstNoOverload arg[1].getId
-          lemmas ← lemmas.erase declName
+          if eraseLocal && (← Term.isLocalIdent? arg[1]).isSome then
+            -- We use `eraseCore` because the simp lemma for the hypothesis was not added yet
+            lemmas ← lemmas.eraseCore arg[1].getId
+          else
+            let declName ← resolveGlobalConstNoOverload arg[1].getId
+            lemmas ← lemmas.erase declName
         else
           let post :=
             if arg[0].isNone then
@@ -76,16 +84,19 @@ where
     else
       return none
 
-/-
-  "simp " ("(" "config" ":=" term ")")? ("only ")? ("[" simpLemma,* "]")? (location)?
--/
-@[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
+private def mkSimpContext (stx : Syntax) (eraseLocal : Bool) : TacticM Simp.Context := do
   let simpOnly := !stx[2].isNone
-  let ctx  ← elabSimpLemmas stx[3] {
+  elabSimpLemmas stx[3] (eraseLocal := eraseLocal) {
     config      := (← elabSimpConfig stx[1])
     simpLemmas  := if simpOnly then {} else (← getSimpLemmas)
     congrLemmas := (← getCongrLemmas)
   }
+
+/-
+  "simp " ("(" "config" ":=" term ")")? ("only ")? ("[" simpLemma,* "]")? (location)?
+-/
+@[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
+  let ctx  ← mkSimpContext stx (eraseLocal := false)
   let loc := expandOptLocation stx[4]
   match loc with
   | Location.targets hUserNames simpTarget =>
@@ -112,5 +123,11 @@ where
     let (_, mvarIdNew) ← assertHypotheses mvarId toAssert
     let mvarIdNew ← tryClearMany mvarIdNew fvarIdsToSimp
     replaceMainGoal [mvarIdNew]
+
+@[builtinTactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => do
+  let ctx  ← mkSimpContext stx (eraseLocal := true)
+  match (← simpAll (← getMainGoal) ctx) with
+  | none => replaceMainGoal []
+  | some mvarId => replaceMainGoal [mvarId]
 
 end Lean.Elab.Tactic

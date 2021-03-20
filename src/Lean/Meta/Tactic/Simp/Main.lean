@@ -359,7 +359,8 @@ def simp (e : Expr) (ctx : Simp.Context) : MetaM Simp.Result := do profileitM Ex
 
 /-- See `simpTarget`. This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
 def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) : MetaM (Option MVarId) := do
-  let r ← simp (← instantiateMVars (← getMVarType mvarId)) ctx
+  let target ← instantiateMVars (← getMVarType mvarId)
+  let r ← simp target ctx
   if r.expr.isConstOf ``True then
     match r.proof? with
     | some proof => assignExprMVar mvarId  (← mkOfEqTrue proof)
@@ -368,7 +369,11 @@ def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) : MetaM (Option MVarId
   else
     match r.proof? with
     | some proof => replaceTargetEq mvarId r.expr proof
-    | none => replaceTargetDefEq mvarId r.expr
+    | none =>
+      if target != r.expr then
+        replaceTargetDefEq mvarId r.expr
+      else
+        return mvarId
 
 /--
   Simplify the given goal target (aka type). Return `none` if the goal was closed. Return `some mvarId'` otherwise,
@@ -393,6 +398,10 @@ def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context)
   else
     match r.proof? with
     | some eqProof => return some ((← mkEqMP eqProof proof), r.expr)
-    | none => return some ((← mkExpectedTypeHint proof r.expr), r.expr)
+    | none =>
+      if r.expr != prop then
+        return some ((← mkExpectedTypeHint proof r.expr), r.expr)
+      else
+        return some (proof, r.expr)
 
 end Lean.Meta

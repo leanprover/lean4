@@ -63,12 +63,13 @@ def getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId) :=
   withMVarContext mvarId do
     let mut candidates : NameHashSet := {}
     for localDecl in (← getLCtx) do
-      candidates ← removeDeps localDecl.type candidates
-      match localDecl.value? with
-      | none => pure ()
-      | some value => candidates ← removeDeps value candidates
-      if (← isProp localDecl.type) && !localDecl.hasValue then
-        candidates := candidates.insert localDecl.fvarId
+      unless localDecl.isAuxDecl do
+        candidates ← removeDeps localDecl.type candidates
+        match localDecl.value? with
+        | none => pure ()
+        | some value => candidates ← removeDeps value candidates
+        if (← isProp localDecl.type) && !localDecl.hasValue then
+          candidates := candidates.insert localDecl.fvarId
     candidates ← removeDeps (← getMVarType mvarId) candidates
     if candidates.isEmpty then
       return #[]

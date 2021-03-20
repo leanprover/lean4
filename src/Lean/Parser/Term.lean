@@ -194,10 +194,14 @@ def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
 
 def namedArgument  := leading_parser atomic ("(" >> ident >> " := ") >> termParser >> ")"
 def ellipsis       := leading_parser ".."
-@[builtinTermParser] def app      := trailing_parser:(maxPrec-1) many1 $
+def argument       :=
   checkWsBefore "expected space" >>
   checkColGt "expected to be indented" >>
-  (namedArgument <|> ellipsis <|> termParser maxPrec)
+  (namedArgument <|> ellipsis <|> termParser argPrec)
+-- `app` precedence is `lead` (cannot be used as argument)
+-- `lhs` precedence is `max` (i.e. does not accept `arg` precedence)
+-- argument precedence is `arg` (i.e. does not accept `lead` precedence)
+@[builtinTermParser] def app      := trailing_parser:leadPrec:maxPrec many1 argument
 
 @[builtinTermParser] def proj     := trailing_parser checkNoWsBefore >> "." >> (fieldIdx <|> ident)
 @[builtinTermParser] def arrayRef := trailing_parser checkNoWsBefore >> "[" >> termParser >>"]"
@@ -210,7 +214,7 @@ def isIdent (stx : Syntax) : Bool :=
 @[builtinTermParser] def explicitUniv : TrailingParser := trailing_parser checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '.{'" >> ".{" >> sepBy1 levelParser ", " >> "}"
 @[builtinTermParser] def namedPattern : TrailingParser := trailing_parser checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '@'" >> "@" >> termParser maxPrec
 
-@[builtinTermParser] def pipeProj   := trailing_parser:minPrec " |>. " >> (fieldIdx <|> ident)
+@[builtinTermParser] def pipeProj   := trailing_parser:minPrec " |>." >> (fieldIdx <|> ident) >> many argument
 
 @[builtinTermParser] def subst := trailing_parser:75 " ▸ " >> sepBy1 (termParser 75) " ▸ "
 

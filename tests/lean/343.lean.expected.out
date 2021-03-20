@@ -2,8 +2,8 @@
 343.lean:30:24-30:54: error: stuck at solving universe constraints
   max (?u+1) (?u+1) =?= max (?u+1) (?u+1)
 while trying to unify
-  CatIsh.Obj.{max (max ?u ?u) (?u + 1) (?u + 1),
-      max ((max ?u ?u) + 1) ((max (?u + 1) (?u + 1)) + 1)}
+  CatIsh.Obj.{max (max (?u + 1) (?u + 1)) ?u ?u,
+      max ((max (?u + 1) (?u + 1)) + 1) ((max ?u ?u) + 1)}
     Catish.{max ?u ?u, max (?u + 1) (?u + 1)}
 with
   CatIsh.{max ?u ?u, max (?u + 1) (?u + 1)}

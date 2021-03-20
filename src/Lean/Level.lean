@@ -224,11 +224,11 @@ partial def normLtAux : Level → Nat → Level → Nat → Bool
   | l₁, k₁, succ l₂ _, k₂ => normLtAux l₁ k₁ l₂ (k₂+1)
   | l₁@(max l₁₁ l₁₂ _), k₁, l₂@(max l₂₁ l₂₂ _), k₂ =>
     if l₁ == l₂ then k₁ < k₂
-    else if l₁₁ == l₂₁ then normLtAux l₁₁ 0 l₂₁ 0
+    else if l₁₁ != l₂₁ then normLtAux l₁₁ 0 l₂₁ 0
     else normLtAux l₁₂ 0 l₂₂ 0
   | l₁@(imax l₁₁ l₁₂ _), k₁, l₂@(imax l₂₁ l₂₂ _), k₂ =>
     if l₁ == l₂ then k₁ < k₂
-    else if l₁₁ == l₂₁ then normLtAux l₁₁ 0 l₂₁ 0
+    else if l₁₁ != l₂₁ then normLtAux l₁₁ 0 l₂₁ 0
     else normLtAux l₁₂ 0 l₂₂ 0
   | param n₁ _, k₁, param n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.lt n₁ n₂     -- use Name.lt because it is lexicographical
   | mvar n₁ _, k₁, mvar n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.quickLt n₁ n₂  -- metavariables are temporary, the actual order doesn't matter

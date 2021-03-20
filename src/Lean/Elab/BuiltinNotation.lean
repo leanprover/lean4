@@ -97,17 +97,17 @@ private def elabParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax :
   | `(leading_parser : $prec $e) => elabParserMacroAux prec e
   | _                            => throwUnsupportedSyntax
 
-private def elabTParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax := do
+private def elabTParserMacroAux (prec lhsPrec : Syntax) (e : Syntax) : TermElabM Syntax := do
   let declName? ← getDeclName?
   match declName? with
-  | some declName => let kind := quote declName; `(Lean.Parser.trailingNode $kind $prec $e)
+  | some declName => let kind := quote declName; `(Lean.Parser.trailingNode $kind $prec $lhsPrec $e)
   | none          => throwError "invalid `trailing_parser` macro, it must be used in definitions"
 
 @[builtinTermElab «trailing_parser»] def elabTrailingParserMacro : TermElab :=
   adaptExpander fun stx => match stx with
-  | `(trailing_parser $e)         => elabTParserMacroAux (quote Parser.maxPrec) e
-  | `(trailing_parser : $prec $e) => elabTParserMacroAux prec e
-  | _                             => throwUnsupportedSyntax
+  | `(trailing_parser$[:$prec?]?$[:$lhsPrec?]? $e) =>
+    elabTParserMacroAux (prec?.getD <| quote Parser.maxPrec) (lhsPrec?.getD <| quote 0) e
+  | _ => throwUnsupportedSyntax
 
 @[builtinTermElab panic] def elabPanic : TermElab := fun stx expectedType? => do
   let arg := stx[1]

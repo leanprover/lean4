@@ -393,7 +393,7 @@ def leadingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesiz
   modify fun st => { st with contPrec := Nat.min (Parser.maxPrec-1) prec }
 
 @[combinatorParenthesizer Lean.Parser.trailingNode]
-def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesizer) : Parenthesizer := do
+def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec _ : Nat) (p : Parenthesizer) : Parenthesizer := do
   let stx ← getCur
   if k != stx.getKind then
     trace[PrettyPrinter.parenthesize.backtrack] "unexpected node kind '{stx.getKind}', expected '{k}'"

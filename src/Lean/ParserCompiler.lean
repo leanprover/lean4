@@ -130,7 +130,7 @@ def compileEmbeddedParsers : ParserDescr → MetaM Unit
   | ParserDescr.nodeWithAntiquot _ _ d => compileEmbeddedParsers d
   | ParserDescr.sepBy p _ psep _       => compileEmbeddedParsers p *> compileEmbeddedParsers psep
   | ParserDescr.sepBy1 p _ psep _      => compileEmbeddedParsers p *> compileEmbeddedParsers psep
-  | ParserDescr.trailingNode _ _ d     => compileEmbeddedParsers d
+  | ParserDescr.trailingNode _ _ _ d   => compileEmbeddedParsers d
   | ParserDescr.symbol _               => pure ()
   | ParserDescr.nonReservedSymbol _ _  => pure ()
   | ParserDescr.cat _ _                => pure ()

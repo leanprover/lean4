@@ -235,7 +235,7 @@ def node.formatter (k : SyntaxNodeKind) (p : Formatter) : Formatter := do
   visitArgs p
 
 @[combinatorFormatter Lean.Parser.trailingNode]
-def trailingNode.formatter (k : SyntaxNodeKind) (_ : Nat) (p : Formatter) : Formatter := do
+def trailingNode.formatter (k : SyntaxNodeKind) (_ _ : Nat) (p : Formatter) : Formatter := do
   checkKind k
   visitArgs do
     p;
@@ -422,6 +422,8 @@ def setExpected.formatter (expected : List String) (p : Formatter) : Formatter :
     pushLine
 
 @[combinatorFormatter Lean.Parser.checkPrec] def checkPrec.formatter : Formatter := pure ()
+@[combinatorFormatter Lean.Parser.checkLhsPrec] def checkLhsPrec.formatter : Formatter := pure ()
+@[combinatorFormatter Lean.Parser.setLhsPrec] def setLhsPrec.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkStackTop] def checkStackTop.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkNoWsBefore] def checkNoWsBefore.formatter : Formatter :=
   -- prevent automatic whitespace insertion

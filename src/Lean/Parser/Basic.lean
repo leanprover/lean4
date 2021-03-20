@@ -170,6 +170,12 @@ end Error
 
 structure ParserState where
   stxStack : Array Syntax := #[]
+  /--
+    Set to the precedence of the preceding (not surrounding) parser by `runLongestMatchParser`
+    for the use of `checkLhsPrec` in trailing parsers.
+    Note that with chaining, the preceding parser can be another trailing parser:
+    in `1 * 2 + 3`, the preceding parser is '*' when '+' is executed. -/
+  lhsPrec  : Nat := 0
   pos      : String.Pos := 0
   cache    : ParserCache
   errorMsg : Option Error := none
@@ -212,7 +218,7 @@ def toErrorMsg (ctx : ParserContext) (s : ParserState) : String :=
 
 def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
   match s with
-  | ⟨stack, pos, cache, err⟩ =>
+  | ⟨stack, lhsPrec, pos, cache, err⟩ =>
     if err != none && stack.size == iniStackSz then
       -- If there is an error but there are no new nodes on the stack, we just return `s`
       s
@@ -220,38 +226,38 @@ def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserSta
       let newNode := Syntax.node k (stack.extract iniStackSz stack.size)
       let stack   := stack.shrink iniStackSz
       let stack   := stack.push newNode
-      ⟨stack, pos, cache, err⟩
+      ⟨stack, lhsPrec, pos, cache, err⟩
 
 def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
   match s with
-  | ⟨stack, pos, cache, err⟩ =>
+  | ⟨stack, lhsPrec, pos, cache, err⟩ =>
     let newNode := Syntax.node k (stack.extract (iniStackSz - 1) stack.size)
     let stack   := stack.shrink iniStackSz
     let stack   := stack.push newNode
-    ⟨stack, pos, cache, err⟩
+    ⟨stack, lhsPrec, pos, cache, err⟩
 
 def mkError (s : ParserState) (msg : String) : ParserState :=
   match s with
-  | ⟨stack, pos, cache, _⟩ => ⟨stack, pos, cache, some { expected := [ msg ] }⟩
+  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
 
 def mkUnexpectedError (s : ParserState) (msg : String) : ParserState :=
   match s with
-  | ⟨stack, pos, cache, _⟩ => ⟨stack, pos, cache, some { unexpected := msg }⟩
+  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { unexpected := msg }⟩
 
 def mkEOIError (s : ParserState) : ParserState :=
   s.mkUnexpectedError "end of input"
 
 def mkErrorAt (s : ParserState) (msg : String) (pos : String.Pos) : ParserState :=
   match s with
-  | ⟨stack, _, cache, _⟩ => ⟨stack, pos, cache, some { expected := [ msg ] }⟩
+  | ⟨stack, lhsPrec, _, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
 
 def mkErrorsAt (s : ParserState) (ex : List String) (pos : String.Pos) : ParserState :=
   match s with
-  | ⟨stack, _, cache, _⟩ => ⟨stack, pos, cache, some { expected := ex }⟩
+  | ⟨stack, lhsPrec, _, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { expected := ex }⟩
 
 def mkUnexpectedErrorAt (s : ParserState) (msg : String) (pos : String.Pos) : ParserState :=
   match s with
-  | ⟨stack, _, cache, _⟩ => ⟨stack, pos, cache, some { unexpected := msg }⟩
+  | ⟨stack, lhsPrec, _, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { unexpected := msg }⟩
 
 end ParserState
 
@@ -375,7 +381,7 @@ def errorAtSavedPosFn (msg : String) (delta : Bool) : ParserFn := fun c s =>
   | some pos =>
     let pos := if delta then c.input.next pos else pos
     match s with
-    | ⟨stack, _, cache, _⟩ => ⟨stack, pos, cache, some { unexpected := msg }⟩
+    | ⟨stack, lhsPrec, _, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { unexpected := msg }⟩
 
 /- Generate an error at the position saved with the `withPosition` combinator.
    If `delta == true`, then it reports at saved position+1.
@@ -392,6 +398,25 @@ def checkPrecFn (prec : Nat) : ParserFn := fun c s =>
 @[inline] def checkPrec (prec : Nat) : Parser := {
   info := epsilonInfo,
   fn   := checkPrecFn prec
+}
+
+/- Succeeds if `c.lhsPrec >= prec` -/
+def checkLhsPrecFn (prec : Nat) : ParserFn := fun c s =>
+  if s.lhsPrec >= prec then s
+  else s.mkUnexpectedError "unexpected token at this precedence level; consider parenthesizing the term"
+
+@[inline] def checkLhsPrec (prec : Nat) : Parser := {
+  info := epsilonInfo,
+  fn   := checkLhsPrecFn prec
+}
+
+def setLhsPrecFn (prec : Nat) : ParserFn := fun c s =>
+  if s.hasError then s
+  else { s with lhsPrec := prec }
+
+@[inline] def setLhsPrec (prec : Nat) : Parser := {
+  info := epsilonInfo,
+  fn   := setLhsPrecFn prec
 }
 
 def checkInsideQuotFn : ParserFn := fun c s =>
@@ -430,20 +455,20 @@ def suppressInsideQuotFn (p : ParserFn) : ParserFn := fun c s =>
 }
 
 @[inline] def leadingNode (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : Parser :=
-  checkPrec prec >> node n p
+  checkPrec prec >> node n p >> setLhsPrec prec
 
 @[inline] def trailingNodeAux (n : SyntaxNodeKind) (p : Parser) : TrailingParser := {
   info := nodeInfo n p.info,
   fn   := trailingNodeFn n p.fn
 }
 
-@[inline] def trailingNode (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : TrailingParser :=
-  checkPrec prec >> trailingNodeAux n p
+@[inline] def trailingNode (n : SyntaxNodeKind) (prec lhsPrec : Nat) (p : Parser) : TrailingParser :=
+  checkPrec prec >> checkLhsPrec lhsPrec >> trailingNodeAux n p >> setLhsPrec prec
 
 def mergeOrElseErrors (s : ParserState) (error1 : Error) (iniPos : Nat) (mergeErrors : Bool) : ParserState :=
   match s with
-  | ⟨stack, pos, cache, some error2⟩ =>
-    if pos == iniPos then ⟨stack, pos, cache, some (if mergeErrors then error1.merge error2 else error2)⟩
+  | ⟨stack, lhsPrec, pos, cache, some error2⟩ =>
+    if pos == iniPos then ⟨stack, lhsPrec, pos, cache, some (if mergeErrors then error1.merge error2 else error2)⟩
     else s
   | other => other
 
@@ -490,7 +515,7 @@ def atomicFn (p : ParserFn) : ParserFn := fun c s =>
   let iniSz  := s.stackSize
   let iniPos := s.pos
   match p c s with
-  | ⟨stack, _, cache, some msg⟩ => ⟨stack.shrink iniSz, iniPos, cache, some msg⟩
+  | ⟨stack, lhsPrec, _, cache, some msg⟩ => ⟨stack.shrink iniSz, lhsPrec, iniPos, cache, some msg⟩
   | other                       => other
 
 @[inline] def atomic (p : Parser) : Parser := {
@@ -1021,11 +1046,11 @@ private def tokenFnAux : ParserFn := fun c s =>
 private def updateCache (startPos : Nat) (s : ParserState) : ParserState :=
   -- do not cache token parsing errors, which are rare and usually fatal and thus not worth an extra field in `TokenCache`
   match s with
-  | ⟨stack, pos, cache, none⟩ =>
+  | ⟨stack, lhsPrec, pos, cache, none⟩ =>
     if stack.size == 0 then s
     else
       let tk := stack.back
-      ⟨stack, pos, { tokenCache := { startPos := startPos, stopPos := pos, token := tk } }, none⟩
+      ⟨stack, lhsPrec, pos, { tokenCache := { startPos := startPos, stopPos := pos, token := tk } }, none⟩
   | other => other
 
 def tokenFn : ParserFn := fun c s =>
@@ -1290,26 +1315,26 @@ namespace ParserState
 
 def keepNewError (s : ParserState) (oldStackSize : Nat) : ParserState :=
   match s with
-  | ⟨stack, pos, cache, err⟩ => ⟨stack.shrink oldStackSize, pos, cache, err⟩
+  | ⟨stack, lhsPrec, pos, cache, err⟩ => ⟨stack.shrink oldStackSize, lhsPrec, pos, cache, err⟩
 
 def keepPrevError (s : ParserState) (oldStackSize : Nat) (oldStopPos : String.Pos) (oldError : Option Error) : ParserState :=
   match s with
-  | ⟨stack, _, cache, _⟩ => ⟨stack.shrink oldStackSize, oldStopPos, cache, oldError⟩
+  | ⟨stack, lhsPrec, _, cache, _⟩ => ⟨stack.shrink oldStackSize, lhsPrec, oldStopPos, cache, oldError⟩
 
 def mergeErrors (s : ParserState) (oldStackSize : Nat) (oldError : Error) : ParserState :=
   match s with
-  | ⟨stack, pos, cache, some err⟩ =>
+  | ⟨stack, lhsPrec, pos, cache, some err⟩ =>
     if oldError == err then s
-    else ⟨stack.shrink oldStackSize, pos, cache, some (oldError.merge err)⟩
+    else ⟨stack.shrink oldStackSize, lhsPrec, pos, cache, some (oldError.merge err)⟩
   | other                         => other
 
 def keepLatest (s : ParserState) (startStackSize : Nat) : ParserState :=
   match s with
-  | ⟨stack, pos, cache, _⟩ =>
+  | ⟨stack, lhsPrec, pos, cache, _⟩ =>
     let node  := stack.back
     let stack := stack.shrink startStackSize
     let stack := stack.push node
-    ⟨stack, pos, cache, none⟩
+    ⟨stack, lhsPrec, pos, cache, none⟩
 
 def replaceLongest (s : ParserState) (startStackSize : Nat) : ParserState :=
   s.keepLatest startStackSize
@@ -1326,7 +1351,18 @@ def invalidLongestMatchParser (s : ParserState) : ParserState :=
 
  Remark: `p` must produce exactly one syntax node.
  Remark: the `left?` is not none when we are processing trailing parsers. -/
-def runLongestMatchParser (left? : Option Syntax) (p : ParserFn) : ParserFn := fun c s =>
+def runLongestMatchParser (left? : Option Syntax) (startLhsPrec : Nat) (p : ParserFn) : ParserFn := fun c s =>
+  /-
+    We assume any registered parser `p` has one of two forms:
+    * a direct call to `leadingParser` or `trailingParser`
+    * a direct call to a (leading) token parser
+    In the first case, we can extract the precedence of the parser by having `leadingParser/trailingParser`
+    set `ParserState.lhsPrec` to it in the very end so that no nested parser can interfere.
+    In the second case, the precedence is effectively `max` (there is a `checkPrec` merely for the convenience
+    of the pretty printer) and there are no nested `leadingParser/trailingParser` calls, so the value of `lhsPrec`
+    will not be changed by the parser (nor will it be read by any leading parser). Thus we initialize the field
+    to `maxPrec` in the leading case. -/
+  let s := { s with lhsPrec := if left?.isSome then startLhsPrec else maxPrec }
   let startSize := s.stackSize
   match left? with
   | none      =>
@@ -1352,20 +1388,22 @@ def runLongestMatchParser (left? : Option Syntax) (p : ParserFn) : ParserFn := f
       else
         invalidLongestMatchParser s
 
-def longestMatchStep (left? : Option Syntax) (startSize : Nat) (startPos : String.Pos) (prevPrio : Nat) (prio : Nat) (p : ParserFn)
+def longestMatchStep (left? : Option Syntax) (startSize startLhsPrec : Nat) (startPos : String.Pos) (prevPrio : Nat) (prio : Nat) (p : ParserFn)
     : ParserContext → ParserState → ParserState × Nat := fun c s =>
   let prevErrorMsg  := s.errorMsg
   let prevStopPos   := s.pos
   let prevSize      := s.stackSize
+  let prevLhsPrec   := s.lhsPrec
   let s             := s.restore prevSize startPos
-  let s             := runLongestMatchParser left? p c s
+  let s             := runLongestMatchParser left? startLhsPrec p c s
   match prevErrorMsg, s.errorMsg with
   | none, none   => -- both succeeded
     if s.pos > prevStopPos || (s.pos == prevStopPos && prio > prevPrio)      then (s.replaceLongest startSize, prio)
-    else if s.pos < prevStopPos || (s.pos == prevStopPos && prio < prevPrio) then (s.restore prevSize prevStopPos, prevPrio) -- keep prev
-    else (s, prio)
+    else if s.pos < prevStopPos || (s.pos == prevStopPos && prio < prevPrio) then ({ s.restore prevSize prevStopPos with lhsPrec := prevLhsPrec }, prevPrio) -- keep prev
+    -- it is not clear what the precedence of a choice node should be, so we conservatively take the minimum
+    else ({s with lhsPrec := s.lhsPrec.min prevLhsPrec }, prio)
   | none, some _ => -- prev succeeded, current failed
-    (s.restore prevSize prevStopPos, prevPrio)
+    ({ s.restore prevSize prevStopPos with lhsPrec := prevLhsPrec }, prevPrio)
   | some oldError, some _ => -- both failed
     if s.pos > prevStopPos || (s.pos == prevStopPos && prio > prevPrio)      then (s.keepNewError prevSize, prio)
     else if s.pos < prevStopPos || (s.pos == prevStopPos && prio < prevPrio) then (s.keepPrevError prevSize prevStopPos prevErrorMsg, prevPrio)
@@ -1378,27 +1416,28 @@ def longestMatchStep (left? : Option Syntax) (startSize : Nat) (startPos : Strin
 def longestMatchMkResult (startSize : Nat) (s : ParserState) : ParserState :=
   if !s.hasError && s.stackSize > startSize + 1 then s.mkNode choiceKind startSize else s
 
-def longestMatchFnAux (left? : Option Syntax) (startSize : Nat) (startPos : String.Pos) (prevPrio : Nat) (ps : List (Parser × Nat)) : ParserFn :=
+def longestMatchFnAux (left? : Option Syntax) (startSize startLhsPrec : Nat) (startPos : String.Pos) (prevPrio : Nat) (ps : List (Parser × Nat)) : ParserFn :=
   let rec parse (prevPrio : Nat) (ps : List (Parser × Nat)) :=
     match ps with
     | []    => fun _ s => longestMatchMkResult startSize s
     | p::ps => fun c s =>
-      let (s, prevPrio) := longestMatchStep left? startSize startPos prevPrio p.2 p.1.fn c s
+      let (s, prevPrio) := longestMatchStep left? startSize startLhsPrec startPos prevPrio p.2 p.1.fn c s
       parse prevPrio ps c s
   parse prevPrio ps
 
 def longestMatchFn (left? : Option Syntax) : List (Parser × Nat) → ParserFn
   | []    => fun _ s => s.mkError "longestMatch: empty list"
-  | [p]   => runLongestMatchParser left? p.1.fn
+  | [p]   => fun c s => runLongestMatchParser left? s.lhsPrec p.1.fn c s
   | p::ps => fun c s =>
     let startSize := s.stackSize
+    let startLhsPrec := s.lhsPrec
     let startPos  := s.pos
-    let s         := runLongestMatchParser left? p.1.fn c s
+    let s         := runLongestMatchParser left? s.lhsPrec p.1.fn c s
     if s.hasError then
       let s := s.shrinkStack startSize
-      longestMatchFnAux left? startSize startPos p.2 ps c s
+      longestMatchFnAux left? startSize startLhsPrec startPos p.2 ps c s
     else
-      longestMatchFnAux left? startSize startPos p.2 ps c s
+      longestMatchFnAux left? startSize startLhsPrec startPos p.2 ps c s
 
 def anyOfFn : List Parser → ParserFn
   | [],    _, s => s.mkError "anyOf: empty list"

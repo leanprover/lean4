@@ -72,7 +72,7 @@ rec {
         src = ../src;
         fullSrc = ../.;
         inherit debug;
-        leanFlags = [ "-Dinterpreter.prefer_native=false" ];
+        leanFlags = [ "-Dinterpreter.prefer_native=true" ];
       });
     in (all: all // all.lean) rec {
       Init = build { name = "Init"; deps = []; };

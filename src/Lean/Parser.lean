@@ -66,7 +66,7 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer
   | ParserDescr.nodeWithAntiquot _ k d              => return node.parenthesizer k (← interpretParserDescr d)
   | ParserDescr.sepBy p sep psep trail              => return sepBy.parenthesizer (← interpretParserDescr p) sep (← interpretParserDescr psep) trail
   | ParserDescr.sepBy1 p sep psep trail             => return sepBy1.parenthesizer (← interpretParserDescr p) sep (← interpretParserDescr psep) trail
-  | ParserDescr.trailingNode k prec d               => return trailingNode.parenthesizer k prec (← interpretParserDescr d)
+  | ParserDescr.trailingNode k prec lhsPrec d       => return trailingNode.parenthesizer k prec lhsPrec (← interpretParserDescr d)
   | ParserDescr.symbol tk                           => return symbol.parenthesizer tk
   | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol.parenthesizer tk includeIdent
   | ParserDescr.parser constName                    => combinatorParenthesizerAttribute.runDeclFor constName
@@ -97,7 +97,7 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Formatter
   | ParserDescr.nodeWithAntiquot _ k d              => return node.formatter k (← interpretParserDescr d)
   | ParserDescr.sepBy p sep psep trail              => return sepBy.formatter (← interpretParserDescr p) sep (← interpretParserDescr psep) trail
   | ParserDescr.sepBy1 p sep psep trail             => return sepBy1.formatter (← interpretParserDescr p) sep (← interpretParserDescr psep) trail
-  | ParserDescr.trailingNode k prec d               => return trailingNode.formatter k prec (← interpretParserDescr d)
+  | ParserDescr.trailingNode k prec lhsPrec d       => return trailingNode.formatter k prec lhsPrec (← interpretParserDescr d)
   | ParserDescr.symbol tk                           => return symbol.formatter tk
   | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol.formatter tk
   | ParserDescr.parser constName                    => combinatorFormatterAttribute.runDeclFor constName

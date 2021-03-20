@@ -66,8 +66,10 @@ def evalRewriteCore (mode : TransparencyMode) : Tactic := fun stx => do
   let term := rule[1]
   let loc  := expandOptLocation stx[2]
   match loc with
-  | Location.target => rewriteTarget term symm mode
-  | Location.localDecls userNames => userNames.forM (rewriteLocalDecl term symm · mode)
+  | Location.targets hyps type =>
+     hyps.forM (rewriteLocalDecl term symm · mode)
+     if type then
+      rewriteTarget term symm mode
   | Location.wildcard => rewriteAll term symm mode
 
 /-

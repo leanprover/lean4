@@ -7,27 +7,26 @@ namespace Lean.Elab.Tactic
 
 inductive Location where
   | wildcard
-  | target
-  | localDecls (userNames : Array Name)
+  | targets (hypotheses : Array Name) (type : Bool)
 
 /-
 Recall that
 ```
-def locationWildcard := leading_parser "*"
-def locationTarget   := leading_parser unicodeSymbol "⊢" "|-"
-def locationHyp      := leading_parser many1 ident
-def location         := leading_parser "at " >> (locationWildcard <|> locationTarget <|> locationHyp)
+syntax locationWildcard := "*"
+syntax locationTargets  := (colGt ident)+ ("⊢" <|> "|-")?
+syntax location         := withPosition("at " locationWildcard <|> locationHyp)
 ```
 -/
 def expandLocation (stx : Syntax) : Location :=
   let arg := stx[1]
-  if arg.getKind == ``Parser.Tactic.locationWildcard then Location.wildcard
-  else if arg.getKind == ``Parser.Tactic.locationTarget then Location.target
-  else Location.localDecls $ arg[0].getArgs.map fun stx => stx.getId
+  if arg.getKind == ``Parser.Tactic.locationWildcard then
+    Location.wildcard
+  else
+    Location.targets (arg[0].getArgs.map fun stx => stx.getId) (!arg[1].isNone)
 
 def expandOptLocation (stx : Syntax) : Location :=
   if stx.isNone then
-    Location.target
+    Location.targets #[] true
   else
     expandLocation stx[0]
 

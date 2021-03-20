@@ -12,58 +12,6 @@ import Lean.Meta.Tactic.Replace
 namespace Lean.Elab.Tactic
 open Meta
 
-def finalizeSimpTarget (r : Simp.Result) : TacticM Bool := do
-  if r.expr.isConstOf ``True then
-    match r.proof? with
-    | some proof => closeMainGoal (← mkOfEqTrue proof)
-    | none => closeMainGoal (mkConst ``True.intro)
-    return true
-  else
-    match r.proof? with
-    | some proof => replaceMainGoal [← replaceTargetEq (← getMainGoal) r.expr proof]
-    | none => replaceMainGoal [← replaceTargetDefEq (← getMainGoal) r.expr]
-    return false
-
-def simpTarget (ctx : Simp.Context) : TacticM Unit := do
-  withMainContext do
-    discard <| finalizeSimpTarget (← simp (← getMainTarget) ctx)
-
-def finalizeSimpLocalDecl (fvarId : FVarId) (r : Simp.Result) : TacticM Bool := do
-  if r.expr.isConstOf ``False then
-    match r.proof? with
-    | some proof => closeMainGoal (← mkFalseElim (← getMainTarget) (← mkEqMP proof (mkFVar fvarId)))
-    | none => closeMainGoal (← mkFalseElim (← getMainTarget) (mkFVar fvarId))
-    return true
-  else
-    match r.proof? with
-    | some proof => replaceMainGoal [(← replaceLocalDecl (← getMainGoal) fvarId r.expr proof).mvarId]
-    | none => replaceMainGoal [← changeLocalDecl (← getMainGoal) fvarId r.expr (checkDefEq := false)]
-    return false
-
-def simpLocalDeclFVarId (ctx : Simp.Context) (fvarId : FVarId) : TacticM Unit := do
-  withMainContext do
-    let localDecl ← getLocalDecl fvarId
-    discard <| finalizeSimpLocalDecl fvarId (← simp localDecl.type ctx)
-
-def simpLocalDecl (ctx : Simp.Context) (userName : Name) : TacticM Unit :=
-  withMainContext do
-    let localDecl ← getLocalDeclFromUserName userName
-    simpLocalDeclFVarId ctx localDecl.fvarId
-
--- TODO: improve simpLocalDecl and simpAll
--- TODO: issues: self simplification
--- TODO: add new assertion with simplified result and clear old ones after simplifying all locals
-
-def simpAll (ctx : Simp.Context) : TacticM Unit := do
-  -- TODO: fix this
-  let worked ← tryTactic (simpTarget ctx)
-  withMainContext do
-    let mut worked := worked
-    -- We must traverse backwards because `replaceLocalDecl` uses the revert/intro idiom
-    for fvarId in (← getLCtx).getFVarIds.reverse do
-      worked := worked || (← tryTactic <| simpLocalDeclFVarId ctx fvarId)
-    unless worked do
-      throwTacticEx `simp (← getMainGoal) "failed to simplify"
 
 unsafe def evalSimpConfigUnsafe (e : Expr) : TermElabM Meta.Simp.Config :=
   Term.evalExpr Meta.Simp.Config ``Meta.Simp.Config e
@@ -140,8 +88,29 @@ where
   }
   let loc := expandOptLocation stx[4]
   match loc with
-  | Location.target => simpTarget ctx
-  | Location.localDecls userNames => userNames.forM (simpLocalDecl ctx)
-  | Location.wildcard => simpAll ctx
+  | Location.targets hUserNames simpTarget =>
+    withMainContext do
+      let fvarIds ← hUserNames.mapM fun hUserName => return (← getLocalDeclFromUserName hUserName).fvarId
+      go ctx fvarIds simpTarget
+  | Location.wildcard =>
+    withMainContext do
+      go ctx (← getNondepPropHyps (← getMainGoal)) true
+where
+  go (ctx : Simp.Context) (fvarIdsToSimp : Array FVarId) (simpType : Bool) : TacticM Unit := do
+    let mut mvarId ← getMainGoal
+    let mut toAssert : Array Hypothesis := #[]
+    for fvarId in fvarIdsToSimp do
+      let localDecl ← getLocalDecl fvarId
+      let type ← instantiateMVars localDecl.type
+      match (← simpStep mvarId (mkFVar fvarId) type ctx) with
+      | none => replaceMainGoal []; return ()
+      | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }
+    if simpType then
+      match (← simpTarget mvarId ctx) with
+      | none => replaceMainGoal []; return ()
+      | some mvarIdNew => mvarId := mvarIdNew
+    let (_, mvarIdNew) ← assertHypotheses mvarId toAssert
+    let mvarIdNew ← tryClearMany mvarIdNew fvarIdsToSimp
+    replaceMainGoal [mvarIdNew]
 
 end Lean.Elab.Tactic

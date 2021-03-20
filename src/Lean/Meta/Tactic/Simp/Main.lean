@@ -359,7 +359,7 @@ def simp (e : Expr) (ctx : Simp.Context) : MetaM Simp.Result := do profileitM Ex
 
 /-- See `simpTarget`. This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
 def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) : MetaM (Option MVarId) := do
-  let r ← simp (← getMVarType mvarId) ctx
+  let r ← simp (← instantiateMVars (← getMVarType mvarId)) ctx
   if r.expr.isConstOf ``True then
     match r.proof? with
     | some proof => assignExprMVar mvarId  (← mkOfEqTrue proof)
@@ -394,19 +394,5 @@ def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context)
     match r.proof? with
     | some eqProof => return some ((← mkEqMP eqProof proof), r.expr)
     | none => return some ((← mkExpectedTypeHint proof r.expr), r.expr)
-
-/--
-  Simplify the `fvarId` type at `mvarId`. Return `none` if the goal was closed. Otherwise, return the new goal,
-  new `fvarId`, and other affected free variables. -/
-def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) : MetaM (Option AssertAfterResult) := do
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `simp
-    let localDecl ← getLocalDecl fvarId
-    match (← simpStep mvarId localDecl.toExpr localDecl.type ctx) with
-    | none => return none
-    | some (proof, prop) =>
-      let r ← assertAfter mvarId fvarId localDecl.userName prop proof
-      (do let mvarIdNew ← clear r.mvarId fvarId
-          pure (some { r with mvarId := mvarIdNew })) <|> pure (some r)
 
 end Lean.Meta

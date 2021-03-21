@@ -34,8 +34,8 @@ structure ToParserDescrContext where
   /- See comment at `Parser.ParserCategory`. -/
   behavior : Parser.LeadingIdentBehavior
 
-abbrev ToParserDescrM := ReaderT ToParserDescrContext (StateRefT Bool TermElabM)
-private def markAsTrailingParser : ToParserDescrM Unit := set true
+abbrev ToParserDescrM := ReaderT ToParserDescrContext (StateRefT (Option Nat) TermElabM)
+private def markAsTrailingParser (lhsPrec : Nat) : ToParserDescrM Unit := set (some lhsPrec)
 
 @[inline] private def withNotFirst {α} (x : ToParserDescrM α) : ToParserDescrM α :=
   withReader (fun ctx => { ctx with first := false }) x
@@ -45,28 +45,25 @@ private def markAsTrailingParser : ToParserDescrM Unit := set true
 
 def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
   let ctx ← read
-  if ctx.first && stx.getKind == `Lean.Parser.Syntax.cat then
-    let cat := stx[0].getId.eraseMacroScopes
-    if cat == ctx.catName then
-      let prec? ← liftMacroM <| expandOptPrecedence stx[1]
-      unless prec?.isNone do throwErrorAt stx[1] ("invalid occurrence of ':<num>' modifier in head")
-      unless ctx.leftRec do
-        throwErrorAt stx[3] "invalid occurrence of '{cat}', parser algorithm does not allow this form of left recursion"
-      markAsTrailingParser -- mark as trailing par
-      pure true
-    else
-      pure false
-  else
-    pure false
+  unless ctx.first && stx.getKind == `Lean.Parser.Syntax.cat do
+    return false
+  let cat := stx[0].getId.eraseMacroScopes
+  unless cat == ctx.catName do
+    return false
+  let prec? ← liftMacroM <| expandOptPrecedence stx[1]
+  unless ctx.leftRec do
+    throwErrorAt stx[3] "invalid occurrence of '{cat}', parser algorithm does not allow this form of left recursion"
+  markAsTrailingParser (prec?.getD 0)
+  return true
 
 /--
-  Given a `stx` of category `syntax`, return a pair `(newStx, trailingParser)`,
+  Given a `stx` of category `syntax`, return a pair `(newStx, lhsPrec?)`,
   where `newStx` is of category `term`. After elaboration, `newStx` should have type
-  `TrailingParserDescr` if `trailingParser == true`, and `ParserDescr` otherwise. -/
-partial def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (Syntax × Bool) := do
+  `TrailingParserDescr` if `lhsPrec?.isSome`, and `ParserDescr` otherwise. -/
+partial def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (Syntax × Option Nat) := do
   let env ← getEnv
   let behavior := Parser.leadingIdentBehavior env catName
-  (process stx { catName := catName, first := true, leftRec := true, behavior := behavior }).run false
+  (process stx { catName := catName, first := true, leftRec := true, behavior := behavior }).run none
 where
   process (stx : Syntax) : ToParserDescrM Syntax := withRef stx do
     let kind := stx.getKind
@@ -301,12 +298,12 @@ private partial def isAtomLikeSyntax (stx : Syntax) : Bool :=
   let prio ← liftMacroM <| evalOptPrio prio?
   let stxNodeKind := (← getCurrNamespace) ++ name
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser")
-  let (val, trailingParser) ← runTermElabM none fun _ => Term.toParserDescr syntaxParser cat
+  let (val, lhsPrec?) ← runTermElabM none fun _ => Term.toParserDescr syntaxParser cat
   let declName := mkIdentFrom stx name
   let d ←
-    if trailingParser then
+    if let some lhsPrec := lhsPrec? then
       `(@[$attrKind:attrKind $catParserId:ident $(quote prio):numLit] def $declName : Lean.TrailingParserDescr :=
-        ParserDescr.trailingNode $(quote stxNodeKind) $(quote prec) $val)
+        ParserDescr.trailingNode $(quote stxNodeKind) $(quote prec) $(quote lhsPrec) $val)
     else
       `(@[$attrKind:attrKind $catParserId:ident $(quote prio):numLit] def $declName : Lean.ParserDescr :=
         ParserDescr.node $(quote stxNodeKind) $(quote prec) $val)

@@ -45,7 +45,7 @@ lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_rewrite___lambda__3___boxed(lean_object**);
 lean_object* l_Lean_Meta_rewrite___lambda__1___closed__1;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallMetaTelescopeReducingAux(lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Core___hyg_172____closed__4;
+extern lean_object* l_myMacro____x40_Init_Core___hyg_173____closed__4;
 lean_object* l_Lean_Meta_mkEqSymm(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_rewrite___lambda__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_rewrite_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -1231,7 +1231,7 @@ x_26 = lean_ctor_get(x_22, 1);
 lean_inc(x_26);
 lean_dec(x_22);
 x_27 = l_Lean_mkAppN(x_1, x_24);
-x_28 = l_myMacro____x40_Init_Core___hyg_172____closed__4;
+x_28 = l_myMacro____x40_Init_Core___hyg_173____closed__4;
 x_29 = lean_unsigned_to_nat(2u);
 x_30 = l_Lean_Expr_isAppOfArity(x_26, x_28, x_29);
 if (x_30 == 0)

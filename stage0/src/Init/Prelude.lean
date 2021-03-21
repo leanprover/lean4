@@ -1795,7 +1795,7 @@ inductive ParserDescr where
   | unary  (name : Name) (p : ParserDescr)
   | binary (name : Name) (p₁ p₂ : ParserDescr)
   | node (kind : SyntaxNodeKind) (prec : Nat) (p : ParserDescr)
-  | trailingNode (kind : SyntaxNodeKind) (prec : Nat) (p : ParserDescr)
+  | trailingNode (kind : SyntaxNodeKind) (prec lhsPrec : Nat) (p : ParserDescr)
   | symbol (val : String)
   | nonReservedSymbol (val : String) (includeIdent : Bool)
   | cat (catName : Name) (rbp : Nat)

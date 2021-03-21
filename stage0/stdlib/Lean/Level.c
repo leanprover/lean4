@@ -287,7 +287,6 @@ lean_object* lean_level_update_succ(lean_object*, lean_object*);
 lean_object* l_Lean_Level_getLevelOffset(lean_object*);
 lean_object* l_Lean_Level_dec___boxed(lean_object*);
 lean_object* l_Lean_Level_collectMVars_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_13868____closed__7;
 lean_object* l_Lean_Level_find_x3f_visit(lean_object*, lean_object*);
 uint64_t l_Lean_instInhabitedData;
 lean_object* l_Lean_Level_ofNat_match__1(lean_object*);
@@ -304,6 +303,7 @@ lean_object* l_Lean_Level_hasParam___boxed(lean_object*);
 uint8_t l_Lean_Level_occurs(lean_object*, lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_mkIMaxAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_hashEx___boxed(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_13918____closed__7;
 lean_object* l___private_Lean_Level_0__Lean_Level_PP_parenIfFalse_match__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Level_hasMVar___boxed(lean_object*);
 extern lean_object* l_prec_x28___x29___closed__3;
@@ -5612,7 +5612,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1136____closed__30;
-x_2 = l_myMacro____x40_Init_Notation___hyg_13868____closed__7;
+x_2 = l_myMacro____x40_Init_Notation___hyg_13918____closed__7;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

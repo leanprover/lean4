@@ -203,12 +203,12 @@ lean_object* l_instReprULift___rarg___closed__2;
 lean_object* l_instReprSigma(lean_object*, lean_object*);
 lean_object* lean_uint64_to_nat(uint64_t);
 lean_object* l_instReprULift___rarg___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_1272____closed__7;
 lean_object* l_instReprDecidable_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instReprSigma___rarg___closed__4;
 lean_object* lean_string_length(lean_object*);
 lean_object* l_instReprTupleProd_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_Format_sbracket___closed__2;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_1264____closed__7;
 lean_object* l_instReprDecidable___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen___boxed(lean_object*, lean_object*);
 lean_object* l_reprStr(lean_object*);
@@ -1086,7 +1086,7 @@ static lean_object* _init_l_instReprProd___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_1264____closed__7;
+x_1 = l_myMacro____x40_Init_Notation___hyg_1272____closed__7;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

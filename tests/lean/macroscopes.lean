@@ -1,7 +1,7 @@
-
+--
 open Lean
 def check (b : Bool) : IO Unit :=
-«unless» b $ throw $ IO.userError "check failed"
+unless b do throw $ IO.userError "check failed"
 
 def test1 : IO Unit := do
 let x := `x;

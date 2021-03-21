@@ -1,5 +1,3 @@
-
-
 @[inline] def f {α} (s : String) (x : IO α) : IO α := do
 IO.println "started";
 IO.println s;
@@ -13,7 +11,8 @@ controlAt IO fun runInBase => f msg (runInBase x)
 abbrev M := StateT Bool $ ExceptT String $ StateT String $ ReaderT Nat $ StateT Nat IO
 
 def tst : M Nat := do
-let a ← f'' "hello" do { let s ← getThe Nat; let ctx ← read; modifyThe Nat fun s => s + ctx; when (s > 10) $ throw "ERROR"; getThe Nat };
+let a ← f'' "hello" do {
+  let s ← getThe Nat; let ctx ← read; modifyThe Nat fun s => s + ctx; if s > 10 then { throw "ERROR" }; getThe Nat };
 modifyThe Nat Nat.succ;
 pure a
 
@@ -30,7 +29,7 @@ pure a
 controlAt IO fun runInBase => g msg (fun n => runInBase (x n))
 
 def tst2 : M Nat := do
-let a ← g' "hello" fun x => do { let s ← getThe Nat; let ctx ← read; modifyThe Nat fun s => s + ctx + x; when (s > 10) $ throw "ERROR"; getThe Nat };
+let a ← g' "hello" fun x => do { let s ← getThe Nat; let ctx ← read; modifyThe Nat fun s => s + ctx + x; if s > 10 then { throw "ERROR" }; getThe Nat };
 modifyThe Nat Nat.succ;
 pure a
 

@@ -27,12 +27,12 @@ def chainRight (a : Stream) (b : Stream) (flushEagerly : Bool := false) : Stream
     read := fun sz => do
       let bs ← a.read sz
       b.write bs
-      when flushEagerly b.flush
+      if flushEagerly then b.flush
       pure bs
     getLine := do
       let ln ← a.getLine
       b.putStr ln
-      when flushEagerly b.flush
+      if flushEagerly then b.flush
       pure ln }
 
 /-- Like `tee a | b` on Unix. See `chainOut`. -/
@@ -41,11 +41,11 @@ def chainLeft (a : Stream) (b : Stream) (flushEagerly : Bool := false) : Stream 
     flush := a.flush *> b.flush
     write := fun bs => do
       a.write bs
-      when flushEagerly a.flush
+      if flushEagerly then a.flush
       b.write bs
     putStr := fun s => do
       a.putStr s
-      when flushEagerly a.flush
+      if flushEagerly then a.flush
       b.putStr s }
 
 /-- Prefixes all written outputs with `pre`. -/

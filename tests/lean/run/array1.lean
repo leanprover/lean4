@@ -54,7 +54,7 @@ def tst : IO (List Nat) :=
 #eval #[1, 6, 5, 3, 8, 2, 0].partition fun x => x % 2 == 0
 
 def check (b : Bool) : IO Unit :=
-«unless» b $ throw $ IO.userError "check failed"
+unless b do throw $ IO.userError "check failed"
 
 #eval check $ #[].isPrefixOf #[2, 3]
 #eval check $ (#[] : Array Nat).isPrefixOf #[]

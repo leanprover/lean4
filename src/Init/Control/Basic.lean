@@ -18,14 +18,6 @@ infixr:100 " <&> " => Functor.mapRev
 
 export Functor (discard)
 
-@[macroInline]
-def when {m : Type → Type u} [Applicative m] (c : Prop) [h : Decidable c] (t : m Unit) : m Unit :=
-  if c then t else pure ()
-
-@[macroInline]
-def «unless» {m : Type → Type u} [Applicative m] (c : Prop) [h : Decidable c] (e : m Unit) : m Unit :=
-  if c then pure () else e
-
 class Alternative (f : Type u → Type v) extends Applicative f : Type (max (u+1) v) where
   failure : {α : Type u} → f α
   orElse  : {α : Type u} → f α → f α → f α

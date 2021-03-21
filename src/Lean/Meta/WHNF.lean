@@ -221,7 +221,7 @@ end
       if nonDep && !cfg.zetaNonDep then
         return e
       else
-        when cfg.trackZeta do
+        if cfg.trackZeta then
           modify fun s => { s with zetaFVarIds := s.zetaFVarIds.insert fvarId }
         whnfEasyCases v k
   | Expr.mvar mvarId _ =>

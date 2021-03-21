@@ -17,7 +17,7 @@ def tst2 (b : Bool) : M Unit :=
 traceCtx `module $ do
   tst1;
   trace[bughunt] "at test2";
-  when b $ throwError "error";
+  if b then throwError "error";
   tst1;
   pure ()
 

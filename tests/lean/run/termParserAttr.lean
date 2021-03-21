@@ -8,8 +8,8 @@ let env  ← getEnv;
 let opts ← getOptions;
 let (env, messages) ← process input env opts;
 messages.toList.forM fun msg => do IO.println (← msg.toString)
-when (failIff && messages.hasErrors) $ throwError "errors have been found";
-when (!failIff && !messages.hasErrors) $ throwError "there are no errors";
+if failIff && messages.hasErrors then throwError "errors have been found";
+if !failIff && !messages.hasErrors then throwError "there are no errors";
 pure ()
 
 open Lean.Parser

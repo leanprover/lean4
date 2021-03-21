@@ -45,7 +45,7 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) : IO
         else throwError "initialization function must have type `IO Unit`"
     afterImport := fun entries => do
       let ctx ← read
-      when runAfterImport do
+      if runAfterImport then
         for modEntries in entries do
           for (decl, initDecl) in modEntries do
             if initDecl.isAnonymous then

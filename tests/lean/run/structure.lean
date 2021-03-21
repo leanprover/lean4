@@ -15,7 +15,7 @@ structure S4 extends S2, S3 :=
 (s : Nat)
 
 def check (b : Bool) : CoreM Unit :=
-«unless» b $ throwError "check failed"
+unless b do throwError "check failed"
 
 class S5 :=
 (x y : Nat)

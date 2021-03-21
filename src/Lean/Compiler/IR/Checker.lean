@@ -114,7 +114,8 @@ def checkExpr (ty : IRType) : Expr → M Unit
       throw s!"constructor '{c.name}' has too many fields"
     if c.ssize + c.usize * usizeSize > maxCtorScalarsSize then
       throw s!"constructor '{c.name}' has too many scalar fields"
-    when (!ty.isStruct && !ty.isUnion && c.isRef) (checkObjType ty) *> checkArgs ys
+    if !ty.isStruct && !ty.isUnion && c.isRef then
+      (checkObjType ty) *> checkArgs ys
   | Expr.reset _ x          => checkObjVar x *> checkObjType ty
   | Expr.reuse x i u ys     => checkObjVar x *> checkArgs ys *> checkObjType ty
   | Expr.box xty x          => checkObjType ty *> checkScalarVar x *> checkVarType x (fun t => t == xty)

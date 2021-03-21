@@ -1,4 +1,3 @@
-
 open Lean
 
 def f : Name → Name
@@ -6,7 +5,7 @@ def f : Name → Name
 | _ => Name.anonymous
 
 def tst : IO Unit := do
-when (hash `foo.bla != hash (f `foo.bla)) $
+if hash `foo.bla != hash (f `foo.bla) then
   throw $ IO.userError "bug"
 IO.println "ok"
 

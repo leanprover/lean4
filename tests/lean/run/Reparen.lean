@@ -43,7 +43,7 @@ let stx' := unparen stx;
 let stx' ← PrettyPrinter.parenthesizeTerm stx';
 let f ← PrettyPrinter.formatTerm stx';
 IO.println f;
-when (stx != stx') $
+if (stx != stx') then
   throwError "reparenthesization failed"
 
 open Lean

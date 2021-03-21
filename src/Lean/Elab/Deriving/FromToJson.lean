@@ -1,4 +1,3 @@
-
 /-
 Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -45,7 +44,7 @@ def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
       let jsonFields := fields.map (Prod.snd ∘ mkJsonField)
       let fields := fields.map mkIdent
       let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]):ident $header.binders:explicitBinder* (j : Json)
-        : Option $(← mkInductiveApp ctx.typeInfos[0] header.argNames) := do
+        : Option $(← mkInductiveApp ctx.typeInfos[0] header.argNames) := OptionM.run do
         $[let $fields:ident ← getObjValAs? j _ $jsonFields]*
         return { $[$fields:ident := $(id fields)]* })
       return #[cmd] ++ (← mkInstanceCmds ctx ``FromJson declNames)

@@ -11,6 +11,7 @@ import Init.Data.Repr
 import Init.Data.Int.Basic
 import Init.Data.Format.Basic
 import Init.Control.Id
+import Init.Control.Option
 open Sum Subtype Nat
 
 open Std
@@ -120,11 +121,12 @@ instance {α : Type u} {p : α → Prop} [ToString α] : ToString (Subtype p) :=
   toString (val s)⟩
 
 def String.toInt? (s : String) : Option Int :=
-  if s.get 0 = '-' then do
-    let v ← (s.toSubstring.drop 1).toNat?;
-    pure <| - Int.ofNat v
-  else
-   Int.ofNat <$> s.toNat?
+  OptionM.run do
+    if s.get 0 = '-' then do
+      let v ← (s.toSubstring.drop 1).toNat?;
+      pure <| - Int.ofNat v
+    else
+     Int.ofNat <$> s.toNat?
 
 def String.isInt (s : String) : Bool :=
   if s.get 0 = '-' then

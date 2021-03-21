@@ -501,40 +501,42 @@ def toNat (stx : Syntax) : Nat :=
   | some val => val
   | none     => 0
 
-def decodeQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) := do
-  let c := s.get i
-  let i := s.next i
-  if c == '\\' then pure ('\\', i)
-  else if c = '\"' then pure ('\"', i)
-  else if c = '\'' then pure ('\'', i)
-  else if c = 'r'  then pure ('\r', i)
-  else if c = 'n'  then pure ('\n', i)
-  else if c = 't'  then pure ('\t', i)
-  else if c = 'x'  then
-    let (d₁, i) ← decodeHexDigit s i
-    let (d₂, i) ← decodeHexDigit s i
-    pure (Char.ofNat (16*d₁ + d₂), i)
-  else if c = 'u'  then do
-    let (d₁, i) ← decodeHexDigit s i
-    let (d₂, i) ← decodeHexDigit s i
-    let (d₃, i) ← decodeHexDigit s i
-    let (d₄, i) ← decodeHexDigit s i
-    pure (Char.ofNat (16*(16*(16*d₁ + d₂) + d₃) + d₄), i)
-  else
-    none
+def decodeQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) :=
+  OptionM.run do
+    let c := s.get i
+    let i := s.next i
+    if c == '\\' then pure ('\\', i)
+    else if c = '\"' then pure ('\"', i)
+    else if c = '\'' then pure ('\'', i)
+    else if c = 'r'  then pure ('\r', i)
+    else if c = 'n'  then pure ('\n', i)
+    else if c = 't'  then pure ('\t', i)
+    else if c = 'x'  then
+      let (d₁, i) ← decodeHexDigit s i
+      let (d₂, i) ← decodeHexDigit s i
+      pure (Char.ofNat (16*d₁ + d₂), i)
+    else if c = 'u'  then do
+      let (d₁, i) ← decodeHexDigit s i
+      let (d₂, i) ← decodeHexDigit s i
+      let (d₃, i) ← decodeHexDigit s i
+      let (d₄, i) ← decodeHexDigit s i
+      pure (Char.ofNat (16*(16*(16*d₁ + d₂) + d₃) + d₄), i)
+    else
+      none
 
-partial def decodeStrLitAux (s : String) (i : String.Pos) (acc : String) : Option String := do
-  let c := s.get i
-  let i := s.next i
-  if c == '\"' then
-    pure acc
-  else if s.atEnd i then
-    none
-  else if c == '\\' then do
-    let (c, i) ← decodeQuotedChar s i
-    decodeStrLitAux s i (acc.push c)
-  else
-    decodeStrLitAux s i (acc.push c)
+partial def decodeStrLitAux (s : String) (i : String.Pos) (acc : String) : Option String :=
+  OptionM.run do
+    let c := s.get i
+    let i := s.next i
+    if c == '\"' then
+      pure acc
+    else if s.atEnd i then
+      none
+    else if c == '\\' then do
+      let (c, i) ← decodeQuotedChar s i
+      decodeStrLitAux s i (acc.push c)
+    else
+      decodeStrLitAux s i (acc.push c)
 
 def decodeStrLit (s : String) : Option String :=
   decodeStrLitAux s 1 ""
@@ -545,38 +547,40 @@ def isStrLit? (stx : Syntax) : Option String :=
   | _        => none
 
 def decodeCharLit (s : String) : Option Char :=
-  let c := s.get 1
-  if c == '\\' then do
-    let (c, _) ← decodeQuotedChar s 2
-    pure c
-  else
-    pure c
+  OptionM.run do
+    let c := s.get 1
+    if c == '\\' then do
+      let (c, _) ← decodeQuotedChar s 2
+      pure c
+    else
+      pure c
 
 def isCharLit? (stx : Syntax) : Option Char :=
   match isLit? charLitKind stx with
   | some val => decodeCharLit val
   | _        => none
 
-private partial def decodeNameLitAux (s : String) (i : Nat) (r : Name) : Option Name := do
-  let continue? (i : Nat) (r : Name) : Option Name :=
-    if s.get i == '.' then
-       decodeNameLitAux s (s.next i) r
-    else if s.atEnd i then
-       pure r
+private partial def decodeNameLitAux (s : String) (i : Nat) (r : Name) : Option Name :=
+  OptionM.run do
+    let continue? (i : Nat) (r : Name) : OptionM Name :=
+      if s.get i == '.' then
+         decodeNameLitAux s (s.next i) r
+      else if s.atEnd i then
+         pure r
+      else
+         none
+    let curr := s.get i
+    if isIdBeginEscape curr then
+      let startPart := s.next i
+      let stopPart  := s.nextUntil isIdEndEscape startPart
+      if !isIdEndEscape (s.get stopPart) then none
+      else continue? (s.next stopPart) (Name.mkStr r (s.extract startPart stopPart))
+    else if isIdFirst curr then
+      let startPart := i
+      let stopPart  := s.nextWhile isIdRest startPart
+      continue? stopPart (Name.mkStr r (s.extract startPart stopPart))
     else
-       none
-  let curr := s.get i
-  if isIdBeginEscape curr then
-    let startPart := s.next i
-    let stopPart  := s.nextUntil isIdEndEscape startPart
-    if !isIdEndEscape (s.get stopPart) then none
-    else continue? (s.next stopPart) (Name.mkStr r (s.extract startPart stopPart))
-  else if isIdFirst curr then
-    let startPart := i
-    let stopPart  := s.nextWhile isIdRest startPart
-    continue? stopPart (Name.mkStr r (s.extract startPart stopPart))
-  else
-    none
+      none
 
 def decodeNameLit (s : String) : Option Name :=
   if s.get 0 == '`' then
@@ -791,16 +795,17 @@ abbrev autoParam.{u} (α : Sort u) (tactic : Lean.Syntax) : Sort u := α
 namespace Lean.Syntax
 
 private def decodeInterpStrQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) :=
-  match decodeQuotedChar s i with
-  | some r => some r
-  | none   =>
-    let c := s.get i
-    let i := s.next i
-    if c == '{' then pure ('{', i)
-    else none
+  OptionM.run do
+    match decodeQuotedChar s i with
+    | some r => some r
+    | none   =>
+      let c := s.get i
+      let i := s.next i
+      if c == '{' then pure ('{', i)
+      else none
 
 private partial def decodeInterpStrLit (s : String) : Option String :=
-  let rec loop (i : String.Pos) (acc : String) :=
+  let rec loop (i : String.Pos) (acc : String) : OptionM String :=
     let c := s.get i
     let i := s.next i
     if c == '\"' || c == '{' then

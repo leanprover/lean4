@@ -36,17 +36,18 @@ instance : ToJson Int := ⟨fun n => Json.num n⟩
 instance : FromJson String := ⟨Json.getStr?⟩
 instance : ToJson String := ⟨fun s => s⟩
 
-instance [FromJson α] : FromJson (Array α) := ⟨fun
-  | Json.arr a => a.mapM fromJson?
-  | _ => none⟩
+instance [FromJson α] : FromJson (Array α) where
+  fromJson?
+    | Json.arr a => OptionM.run <| a.mapM fromJson?
+    | _          => none
 
 instance [ToJson α] : ToJson (Array α) :=
   ⟨fun a => Json.arr (a.map toJson)⟩
 
-instance [FromJson α] : FromJson (Option α) :=
-  ⟨fun
+instance [FromJson α] : FromJson (Option α) where
+  fromJson?
     | Json.null => some none
-    | j         => some <$> fromJson? j⟩
+    | j         => some <$> fromJson? j
 
 instance [ToJson α] : ToJson (Option α) :=
   ⟨fun

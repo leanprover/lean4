@@ -493,7 +493,7 @@ section RequestHandling
       toDocumentSymbols (text : FileMap)
       | [] => ([], [])
       | stx::stxs => match stx with
-        | `(namespace $id) => sectionLikeToDocumentSymbols text stx stxs (id.getId.toString) SymbolKind.namespace id
+        | `(namespace $id)  => sectionLikeToDocumentSymbols text stx stxs (id.getId.toString) SymbolKind.namespace id
         | `(section $(id)?) => sectionLikeToDocumentSymbols text stx stxs ((·.getId.toString) <$> id |>.getD "<section>") SymbolKind.namespace (id.getD stx)
         | `(end $(id)?) => ([], stx::stxs)
         | _ =>

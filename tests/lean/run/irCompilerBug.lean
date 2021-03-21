@@ -1,4 +1,4 @@
-
+--
 
 structure Payload :=
 (key : Nat)
@@ -6,7 +6,7 @@ structure Payload :=
 
 
 
-@[noinline] def get? (p : Payload) (k : Nat) : Option Nat :=
+@[noinline] def get? (p : Payload) (k : Nat) : OptionM Nat :=
 if p.key == k then p.val else none
 
 inductive T
@@ -15,7 +15,7 @@ inductive T
 | c (i : Nat)
 | d (i : Nat)
 
-@[noinline] def foo (p : Payload) : Option T :=
+@[noinline] def foo (p : Payload) : OptionM T :=
 (do
   let i ← get? p 1;
   pure (T.a i))

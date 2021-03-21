@@ -351,10 +351,10 @@ def dec : Level → Option Level
   | param _ _    => none
   | mvar _ _     => none
   | succ l _     => l
-  | max l₁ l₂ _  => mkLevelMax <$> dec l₁ <*> dec l₂
+  | max l₁ l₂ _  => OptionM.run do return mkLevelMax (← dec l₁) (← dec l₂)
   /- Remark: `mkLevelMax` in the following line is not a typo.
      If `dec l₂` succeeds, then `imax l₁ l₂` is equivalent to `max l₁ l₂`. -/
-  | imax l₁ l₂ _ => mkLevelMax <$> dec l₁ <*> dec l₂
+  | imax l₁ l₂ _ => OptionM.run do return mkLevelMax (←  dec l₁) (← dec l₂)
 
 
 /- Level to Format/Syntax -/
@@ -540,13 +540,15 @@ def Level.collectMVars (u : Level) (s : NameSet := {}) : NameSet :=
   | _          => s
 
 def Level.find? (u : Level) (p : Level → Bool) : Option Level :=
-  if p u then
-    some u
-  else match u with
-    | succ v _   => v.find? p
-    | max u v _  => u.find? p <|> v.find? p
-    | imax u v _ => u.find? p <|> v.find? p
-    | _          => none
+  let rec visit (u : Level) : OptionM Level :=
+    if p u then
+      return u
+    else match u with
+      | succ v _   => visit v
+      | max u v _  => visit u <|> visit v
+      | imax u v _ => visit u <|> visit v
+      | _          => failure
+  visit u
 
 def Level.any (u : Level) (p : Level → Bool) : Bool :=
   u.find? p |>.isSome

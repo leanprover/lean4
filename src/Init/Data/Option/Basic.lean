@@ -40,11 +40,8 @@ def toMonad [Monad m] [Alternative m] : Option α → m α
 theorem mapId : (Option.map id : Option α → Option α) = id :=
   funext (fun o => match o with | none => rfl | some x => rfl)
 
-instance : Monad Option := {
-  pure := some
-  bind := Option.bind
-  map  := Option.map
-}
+instance : Functor Option where
+  map := Option.map
 
 @[inline] protected def filter (p : α → Bool) : Option α → Option α
   | some a => if p a then some a else none
@@ -62,11 +59,8 @@ instance : Monad Option := {
   | some a, _ => some a
   | none,   b => b
 
-/- Remark: when using the polymorphic notation `a <|> b` is not a `[macroInline]`.
-   Thus, `a <|> b` will make `Option.orelse` to behave like it was marked as `[inline]`. -/
-instance : Alternative Option where
-  failure := none
-  orElse  := Option.orElse
+instance : OrElse (Option α) where
+  orElse := Option.orElse
 
 @[inline] protected def lt (r : α → α → Prop) : Option α → Option α → Prop
   | none, some x     => True

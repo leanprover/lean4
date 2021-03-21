@@ -59,22 +59,23 @@ structure InitializeParams where
   workspaceFolders? : Option (Array WorkspaceFolder) := none
   deriving ToJson
 
-instance : FromJson InitializeParams := ⟨fun j => do
-  /- Many of these params can be null instead of not present.
-  For ease of implementation, we're liberal:
-  missing params, wrong json types and null all map to none,
-  even if LSP sometimes only allows some subset of these.
-  In cases where LSP makes a meaningful distinction
-  between different kinds of missing values, we'll
-  follow accordingly. -/
-  let processId? := j.getObjValAs? Int "processId"
-  let clientInfo? := j.getObjValAs? ClientInfo "clientInfo"
-  let rootUri? := j.getObjValAs? String "rootUri"
-  let initializationOptions? := j.getObjValAs? InitializationOptions "initializationOptions"
-  let capabilities ← j.getObjValAs? ClientCapabilities "capabilities"
-  let trace := (j.getObjValAs? Trace "trace").getD Trace.off
-  let workspaceFolders? := j.getObjValAs? (Array WorkspaceFolder) "workspaceFolders"
-  pure ⟨processId?, clientInfo?, rootUri?, initializationOptions?, capabilities, trace, workspaceFolders?⟩⟩
+instance : FromJson InitializeParams where
+  fromJson? j := OptionM.run do
+    /- Many of these params can be null instead of not present.
+    For ease of implementation, we're liberal:
+    missing params, wrong json types and null all map to none,
+    even if LSP sometimes only allows some subset of these.
+    In cases where LSP makes a meaningful distinction
+    between different kinds of missing values, we'll
+    follow accordingly. -/
+    let processId? := j.getObjValAs? Int "processId"
+    let clientInfo? := j.getObjValAs? ClientInfo "clientInfo"
+    let rootUri? := j.getObjValAs? String "rootUri"
+    let initializationOptions? := j.getObjValAs? InitializationOptions "initializationOptions"
+    let capabilities ← j.getObjValAs? ClientCapabilities "capabilities"
+    let trace := (j.getObjValAs? Trace "trace").getD Trace.off
+    let workspaceFolders? := j.getObjValAs? (Array WorkspaceFolder) "workspaceFolders"
+    return ⟨processId?, clientInfo?, rootUri?, initializationOptions?, capabilities, trace, workspaceFolders?⟩
 
 inductive InitializedParams where
   | mk

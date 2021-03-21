@@ -220,9 +220,9 @@ macro "admit" : tactic => `(exact sorry)
 macro "inferInstance" : tactic => `(exact inferInstance)
 
 syntax locationWildcard := "*"
-syntax locationTarget   := "⊢" <|> "|-"
-syntax locationHyp      := (colGt ident)+
-syntax location         := withPosition("at " locationWildcard <|> locationTarget <|> locationHyp)
+syntax locationHyp      := (colGt ident)+ ("⊢" <|> "|-")? -- TODO: delete
+syntax locationTargets  := (colGt ident)+ ("⊢" <|> "|-")?
+syntax location         := withPosition("at " locationWildcard <|> locationHyp)
 
 syntax (name := change) "change " term (location)? : tactic
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
@@ -266,6 +266,7 @@ syntax simpPost  := "↑"
 syntax simpLemma := (simpPre <|> simpPost)? term
 syntax simpErase := "-" ident
 syntax (name := simp) "simp " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? (location)? : tactic
+syntax (name := simpAll) "simp_all " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
 
 -- Auxiliary macro for lifting have/suffices/let/...
 -- It makes sure the "continuation" `?_` is the main goal after refining

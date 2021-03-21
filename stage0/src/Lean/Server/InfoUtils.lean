@@ -10,34 +10,27 @@ import Lean.Util.Sorry
 
 namespace Lean.Elab
 
-/-- Find the deepest node matching `p` in the first subtree which contains a matching node.
-The result is wrapped in all outer `ContextInfo`s. -/
-partial def InfoTree.smallestNode? (p : Info → Bool) : InfoTree → Option InfoTree
-  | context i t => context i <$> t.smallestNode? p
-  | n@(node i cs) =>
-    let cs := cs.map (·.smallestNode? p)
-    let cs := cs.filter (·.isSome)
-    if !cs.isEmpty then cs.get! 0
-    else if p i then some n
-    else none
-  | _ => none
-
-/-- For every branch, find the deepest node in that branch matching `p`
-and return all of them. Each result is wrapped in all outer `ContextInfo`s. -/
-partial def InfoTree.smallestNodes (p : Info → Bool) : InfoTree → List InfoTree
-  | context i t => t.smallestNodes p |>.map (context i)
+/--
+  For every branch, find the deepest node in that branch matching `p`
+  with a surrounding context (the innermost one) and return all of them. -/
+partial def InfoTree.deepestNodes (p : Info → Bool) : InfoTree → List (ContextInfo × Info) :=
+  go none
+where go ctx?
+  | context ctx t => go ctx t
   | n@(node i cs) =>
     let cs := cs.toList
-    let ccs := cs.map (smallestNodes p)
+    let ccs := cs.map (go ctx?)
     let cs := ccs.join
     if !cs.isEmpty then cs
-    else if p i then [n]
-    else []
+    else match ctx?, p i with
+      | some ctx, true => [(ctx, i)]
+      | _,        _    => []
   | _ => []
 
 def Info.stx : Info → Syntax
   | ofTacticInfo i         => i.stx
   | ofTermInfo i           => i.stx
+  | ofCommandInfo i        => i.stx
   | ofMacroExpansionInfo i => i.before
   | ofFieldInfo i          => i.stx
 
@@ -48,13 +41,11 @@ def Info.tailPos? (i : Info) : Option String.Pos :=
   i.stx.getTailPos? (originalOnly := true)
 
 def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextInfo × Info) :=
-  let ts := t.smallestNodes p
+  let ts := t.deepestNodes p
 
-  let infos : List (Nat × ContextInfo × Info) := ts.filterMap fun
-    | context ci (node i _) =>
-      let diff := i.tailPos?.get! - i.pos?.get!
-      some (diff, ci, i)
-    | _ => none
+  let infos := ts.map fun (ci, i) =>
+    let diff := i.tailPos?.get! - i.pos?.get!
+    (diff, ci, i)
 
   infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
 
@@ -113,17 +104,16 @@ def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option Format) := do
     | _ => return none
 
 /-- Return a flattened list of smallest-in-span tactic info nodes, sorted by position. -/
-partial def InfoTree.smallestTacticStates (t : InfoTree) : Array (Nat × ContextInfo × TacticInfo) :=
+partial def InfoTree.smallestTacticStates (t : InfoTree) : Array (String.Pos × ContextInfo × TacticInfo) :=
   let ts := tacticLeaves t
   let ts := ts.filterMap fun
-    | context ci (node i@(Info.ofTacticInfo ti) _) => some (i.pos?.get!, ci, ti)
+    | (ci, i@(Info.ofTacticInfo ti)) => some (i.pos?.get!, ci, ti)
     | _ => none
   ts.toArray.qsort fun a b => a.1 < b.1
-
-  where tacticLeaves (t : InfoTree) : List InfoTree :=
-          t.smallestNodes fun
-            | i@(Info.ofTacticInfo _) => i.pos?.isSome ∧ i.tailPos?.isSome
-            | _ => false
+where tacticLeaves t :=
+  t.deepestNodes fun
+    | i@(Info.ofTacticInfo _) => i.pos?.isSome ∧ i.tailPos?.isSome
+    | _ => false
 
 partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × TacticInfo) :=
   let ts := t.smallestTacticStates

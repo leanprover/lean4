@@ -183,7 +183,6 @@ lean_object* l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_51
 extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_17226____closed__5;
 lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1136____closed__6;
 lean_object* lean_array_fget(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_locationTarget___closed__6;
 lean_object* l_term_u03a3_x27___x2c_____closed__5;
 lean_object* l_term_u2203___x2c_____closed__2;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -257,6 +256,7 @@ lean_object* l_Lean_bracketedExplicitBinders;
 lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1136____closed__34;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_14470____closed__11;
 lean_object* l_Lean_Macro_throwErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_locationHyp___closed__6;
 extern lean_object* l_term_x25_x5b___x7c___x5d___closed__3;
 lean_object* l_myMacro____x40_Init_NotationExtra___hyg_2386____closed__1;
 lean_object* l_Lean_unifConstraint___closed__10;
@@ -1970,7 +1970,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_myMacro____x40_Init_Notation___hyg_1264____closed__6;
-x_2 = l_Lean_Parser_Tactic_locationTarget___closed__6;
+x_2 = l_Lean_Parser_Tactic_locationHyp___closed__6;
 x_3 = l_Lean_command__Unif__hint______Where___x7c_x2d_u22a2_____closed__23;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);

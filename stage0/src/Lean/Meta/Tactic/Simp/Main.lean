@@ -4,6 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Transform
+import Lean.Meta.Tactic.Replace
+import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Clear
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Simp.Rewrite
 
@@ -58,7 +61,7 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
     | none => return none
     | some projInfo =>
       if projInfo.fromClass then
-        if (← read).toUnfold.contains cinfo.name then
+        if (← read).simpLemmas.isDeclToUnfold cinfo.name then
           -- We only unfold class projections when the user explicitly requested them to be unfolded.
           -- Recall that `unfoldDefinition?` has support for unfolding this kind of projection.
           withReducibleAndInstances <| unfoldDefinition? e
@@ -88,7 +91,7 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
   let fName := f.constName!
   if (← isProjectionFn fName) then
     return none -- should be reduced by `reduceProjFn?`
-  if (← read).toUnfold.contains e.getAppFn.constName! then
+  if (← read).simpLemmas.isDeclToUnfold e.getAppFn.constName! then
     withDefault <| unfoldDefinition? e
   else
     return none
@@ -353,5 +356,52 @@ end Simp
 
 def simp (e : Expr) (ctx : Simp.Context) : MetaM Simp.Result := do profileitM Exception "simp" (← getOptions) do
   Simp.main e ctx (methods := Simp.DefaultMethods.methods)
+
+/-- See `simpTarget`. This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
+def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) : MetaM (Option MVarId) := do
+  let target ← instantiateMVars (← getMVarType mvarId)
+  let r ← simp target ctx
+  if r.expr.isConstOf ``True then
+    match r.proof? with
+    | some proof => assignExprMVar mvarId  (← mkOfEqTrue proof)
+    | none => assignExprMVar mvarId (mkConst ``True.intro)
+    return none
+  else
+    match r.proof? with
+    | some proof => replaceTargetEq mvarId r.expr proof
+    | none =>
+      if target != r.expr then
+        replaceTargetDefEq mvarId r.expr
+      else
+        return mvarId
+
+/--
+  Simplify the given goal target (aka type). Return `none` if the goal was closed. Return `some mvarId'` otherwise,
+  where `mvarId'` is the simplified new goal. -/
+def simpTarget (mvarId : MVarId) (ctx : Simp.Context) : MetaM (Option MVarId) :=
+  withMVarContext mvarId do
+    checkNotAssigned mvarId `simp
+    simpTargetCore mvarId ctx
+
+/--
+  Simplify `prop` (which is inhabited by `proof`). Return `none` if the goal was closed. Return `some (proof', prop')`
+  otherwise, where `proof' : prop'` and `prop'` is the simplified `prop`.
+
+  This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
+def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context) : MetaM (Option (Expr × Expr)) := do
+  let r ← simp prop ctx
+  if r.expr.isConstOf ``False then
+    match r.proof? with
+    | some eqProof => assignExprMVar mvarId (← mkFalseElim (← getMVarType mvarId) (← mkEqMP eqProof proof))
+    | none => assignExprMVar mvarId (← mkFalseElim (← getMVarType mvarId) proof)
+    return none
+  else
+    match r.proof? with
+    | some eqProof => return some ((← mkEqMP eqProof proof), r.expr)
+    | none =>
+      if r.expr != prop then
+        return some ((← mkExpectedTypeHint proof r.expr), r.expr)
+      else
+        return some (proof, r.expr)
 
 end Lean.Meta

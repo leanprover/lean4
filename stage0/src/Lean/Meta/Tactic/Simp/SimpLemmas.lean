@@ -66,10 +66,13 @@ def SimpLemmas.isDeclToUnfold (d : SimpLemmas) (declName : Name) : Bool :=
 def SimpLemmas.isLemma (d : SimpLemmas) (declName : Name) : Bool :=
   d.lemmaNames.contains declName
 
+def SimpLemmas.eraseCore [Monad m] [MonadError m] (d : SimpLemmas) (declName : Name) : m SimpLemmas := do
+  return { d with erased := d.erased.insert declName, lemmaNames := d.lemmaNames.erase declName, toUnfold := d.toUnfold.erase declName }
+
 def SimpLemmas.erase [Monad m] [MonadError m] (d : SimpLemmas) (declName : Name) : m SimpLemmas := do
   unless d.isLemma declName || d.isDeclToUnfold declName do
     throwError "'{declName}' does not have [simp] attribute"
-  return { d with erased := d.erased.insert declName, lemmaNames := d.lemmaNames.erase declName, toUnfold := d.toUnfold.erase declName }
+  d.eraseCore declName
 
 inductive SimpEntry where
   | lemma    : SimpLemma → SimpEntry
@@ -211,7 +214,7 @@ def mkSimpLemmas (val : Expr) (post : Bool := true) (prio : Nat := eval_prio def
       #[← mkSimpLemmaCore val val post prio name?]
 
 /- Auxiliary method for adding a local simp lemma to a `SimpLemmas` datastructure. -/
-def SimpLemmas.add (s : SimpLemmas) (e : Expr) (post : Bool := true) (prio : Nat := eval_prio default) : MetaM SimpLemmas := do
+def SimpLemmas.add (s : SimpLemmas) (e : Expr) (post : Bool := true) (prio : Nat := eval_prio default) (name? : Option Name := none): MetaM SimpLemmas := do
   if e.isConst then
     s.addConst e.constName! post prio
   else
@@ -219,14 +222,17 @@ def SimpLemmas.add (s : SimpLemmas) (e : Expr) (post : Bool := true) (prio : Nat
     return simpLemmas.foldl addSimpLemmaEntry s
 where
   getName? : MetaM (Option Name) := do
-    let f := e.getAppFn
-    if f.isConst then
-      return f.constName!
-    else if f.isFVar then
-      let localDecl ← getFVarLocalDecl f
-      return localDecl.userName
-    else
-      return none
+    match name? with
+    | some _ => return name?
+    | none   =>
+      let f := e.getAppFn
+      if f.isConst then
+        return f.constName!
+      else if f.isFVar then
+        let localDecl ← getFVarLocalDecl f
+        return localDecl.userName
+      else
+        return none
 
 def SimpLemma.getValue (simpLemma : SimpLemma) : MetaM Expr := do
   match simpLemma.val with

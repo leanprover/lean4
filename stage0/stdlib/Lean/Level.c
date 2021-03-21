@@ -3041,9 +3041,9 @@ if (x_27 == 0)
 {
 lean_object* x_28; 
 x_28 = lean_unsigned_to_nat(0u);
-x_1 = x_23;
+x_1 = x_22;
 x_2 = x_28;
-x_3 = x_25;
+x_3 = x_24;
 x_4 = x_28;
 goto _start;
 }
@@ -3051,9 +3051,9 @@ else
 {
 lean_object* x_30; 
 x_30 = lean_unsigned_to_nat(0u);
-x_1 = x_22;
+x_1 = x_23;
 x_2 = x_30;
-x_3 = x_24;
+x_3 = x_25;
 x_4 = x_30;
 goto _start;
 }
@@ -3126,9 +3126,9 @@ if (x_47 == 0)
 {
 lean_object* x_48; 
 x_48 = lean_unsigned_to_nat(0u);
-x_1 = x_43;
+x_1 = x_42;
 x_2 = x_48;
-x_3 = x_45;
+x_3 = x_44;
 x_4 = x_48;
 goto _start;
 }
@@ -3136,9 +3136,9 @@ else
 {
 lean_object* x_50; 
 x_50 = lean_unsigned_to_nat(0u);
-x_1 = x_42;
+x_1 = x_43;
 x_2 = x_50;
-x_3 = x_44;
+x_3 = x_45;
 x_4 = x_50;
 goto _start;
 }

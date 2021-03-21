@@ -202,8 +202,8 @@ uint8_t lean_axiom_val_is_unsafe(lean_object*);
 lean_object* lean_mk_axiom_val(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_ReaderT_instMonadExceptOfReaderT___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_hints___boxed(lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20453____closed__3;
 lean_object* lean_mk_quot_val(lean_object*, lean_object*, lean_object*, uint8_t);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20345____closed__3;
 lean_object* l_Lean_ConstantInfo_value_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Declaration_foldExprM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedOpaqueVal___closed__1;
@@ -3479,7 +3479,7 @@ lean_object* l_Lean_mkRecName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20345____closed__3;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20453____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

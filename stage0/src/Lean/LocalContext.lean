@@ -69,6 +69,10 @@ def value : LocalDecl → Expr
   | cdecl ..              => panic! "let declaration expected"
   | ldecl (value := v) .. => v
 
+def hasValue : LocalDecl → Bool
+  | cdecl .. => false
+  | ldecl .. => true
+
 def setValue : LocalDecl → Expr → LocalDecl
   | ldecl idx id n t _ nd, v => ldecl idx id n t v nd
   | d, _                     => d

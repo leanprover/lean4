@@ -224,11 +224,11 @@ partial def normLtAux : Level → Nat → Level → Nat → Bool
   | l₁, k₁, succ l₂ _, k₂ => normLtAux l₁ k₁ l₂ (k₂+1)
   | l₁@(max l₁₁ l₁₂ _), k₁, l₂@(max l₂₁ l₂₂ _), k₂ =>
     if l₁ == l₂ then k₁ < k₂
-    else if l₁₁ == l₂₁ then normLtAux l₁₁ 0 l₂₁ 0
+    else if l₁₁ != l₂₁ then normLtAux l₁₁ 0 l₂₁ 0
     else normLtAux l₁₂ 0 l₂₂ 0
   | l₁@(imax l₁₁ l₁₂ _), k₁, l₂@(imax l₂₁ l₂₂ _), k₂ =>
     if l₁ == l₂ then k₁ < k₂
-    else if l₁₁ == l₂₁ then normLtAux l₁₁ 0 l₂₁ 0
+    else if l₁₁ != l₂₁ then normLtAux l₁₁ 0 l₂₁ 0
     else normLtAux l₁₂ 0 l₂₂ 0
   | param n₁ _, k₁, param n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.lt n₁ n₂     -- use Name.lt because it is lexicographical
   | mvar n₁ _, k₁, mvar n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.quickLt n₁ n₂  -- metavariables are temporary, the actual order doesn't matter
@@ -470,7 +470,7 @@ namespace Level
 
 /- The update functions here are defined using C code. They will try to avoid
    allocating new values using pointer equality.
-   The hypotheses `(h : e.is... = true)` are used to ensure Lean will not crash
+   The hypotheses `(h : e.is...)` are used to ensure Lean will not crash
    at runtime.
    The `update*!` functions are inlined and provide a convenient way of using the
    update proofs without providing proofs.
@@ -478,7 +478,7 @@ namespace Level
    the double-match. -/
 
 @[extern "lean_level_update_succ"]
-def updateSucc (lvl : Level) (newLvl : Level) (h : lvl.isSucc = true) : Level :=
+def updateSucc (lvl : Level) (newLvl : Level) (h : lvl.isSucc) : Level :=
   mkLevelSucc newLvl
 
 @[inline] def updateSucc! (lvl : Level) (newLvl : Level) : Level :=
@@ -487,7 +487,7 @@ match lvl with
   | _          => panic! "succ level expected"
 
 @[extern "lean_level_update_max"]
-def updateMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isMax = true) : Level :=
+def updateMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isMax) : Level :=
   mkLevelMax' newLhs newRhs
 
 @[inline] def updateMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
@@ -496,7 +496,7 @@ def updateMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isMax = t
   | _             => panic! "max level expected"
 
 @[extern "lean_level_update_imax"]
-def updateIMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isIMax = true) : Level :=
+def updateIMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isIMax) : Level :=
   mkLevelIMax' newLhs newRhs
 
 @[inline] def updateIMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=

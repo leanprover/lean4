@@ -147,6 +147,7 @@ lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__
 lean_object* l_Lean_Meta_ppGoal_pushPending___closed__1;
 uint8_t l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasVisibleDep___spec__3(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_locationHyp___closed__3;
 lean_object* l_Lean_Meta_ppGoal_pushPending___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_6____closed__3;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -264,7 +265,6 @@ extern lean_object* l_Std_HashSet_instInhabitedHashSet___closed__1;
 lean_object* l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__10___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasVisibleDep___spec__29___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_ppGoal___spec__10(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_locationTarget___closed__3;
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitMain___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_case___closed__3;
 lean_object* l_Lean_Meta_ToHide_hasInaccessibleNameDep___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -20412,7 +20412,7 @@ static lean_object* _init_l_Lean_Meta_ppGoal___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_locationTarget___closed__3;
+x_1 = l_Lean_Parser_Tactic_locationHyp___closed__3;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

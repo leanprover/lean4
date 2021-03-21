@@ -34,4 +34,7 @@ def clear (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId :=
 def tryClear (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId :=
   clear mvarId fvarId <|> pure mvarId
 
+def tryClearMany (mvarId : MVarId) (fvarIds : Array FVarId) : MetaM MVarId := do
+  fvarIds.foldrM (init := mvarId) fun fvarId mvarId => tryClear mvarId fvarId
+
 end Lean.Meta

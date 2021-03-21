@@ -426,6 +426,7 @@ def setExpected.formatter (expected : List String) (p : Formatter) : Formatter :
 @[combinatorFormatter Lean.Parser.checkNoWsBefore] def checkNoWsBefore.formatter : Formatter :=
   -- prevent automatic whitespace insertion
   modify fun st => { st with leadWord := "" }
+@[combinatorFormatter Lean.Parser.checkLinebreakBefore] def checkLinebreakBefore.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkTailWs] def checkTailWs.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkColGe] def checkColGe.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkColGt] def checkColGt.formatter : Formatter := pure ()
@@ -464,6 +465,7 @@ instance : Coe (Formatter → Formatter → Formatter) FormatterAliasValue := { 
 builtin_initialize
   registerAlias "ws" checkWsBefore.formatter
   registerAlias "noWs" checkNoWsBefore.formatter
+  registerAlias "linebreak" checkLinebreakBefore.formatter
   registerAlias "colGt" checkColGt.formatter
   registerAlias "colGe" checkColGe.formatter
   registerAlias "lookahead" lookahead.formatter

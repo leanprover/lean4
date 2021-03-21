@@ -318,11 +318,14 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
               for id in ids do
                 yes ← `(let $id := tuples.map (fun $tuple => $id); $yes)
               `(tuples)
-          `(match ($(discrs).sequenceMap fun
-              | `($(contents[0])) => some $tuple
-              | _                 => none) with
-            | some $resId => $yes
-            | none => $no)
+          let contents := if contents.size == 1
+            then contents[0]
+            else mkNullNode contents
+          `(match OptionM.run ($(discrs).sequenceMap fun
+                | `($contents) => some $tuple
+                | _            => none) with
+              | some $resId => $yes
+              | none => $no)
     }
     else if let some idx := quoted.getArgs.findIdx? (fun arg => isAntiquotSuffixSplice arg || isAntiquotSplice arg) then do
       /-

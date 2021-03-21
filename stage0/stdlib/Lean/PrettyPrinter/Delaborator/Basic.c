@@ -198,7 +198,6 @@ lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_
 extern lean_object* l_Lean_KernelException_toMessageData___closed__15;
 lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_4____closed__2;
 lean_object* l_Lean_PrettyPrinter_Delaborator_getUnusedName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6181____closed__20;
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_PrettyPrinter_Delaborator_delabFor___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_descend___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_mkFormatterAttribute___closed__6;
@@ -358,6 +357,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_withMDataExpr_match__1(lean_object
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabFor_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bindingBody_x21(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_mkAppUnexpanderAttribute___closed__6;
+extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6195____closed__20;
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_PrettyPrinter_Delaborator_withBindingBody___spec__1(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_65____closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_getExpr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2952,7 +2952,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6181____closed__20;
+x_2 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6195____closed__20;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

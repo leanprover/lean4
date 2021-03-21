@@ -84,4 +84,26 @@ def assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName : Name) (type : Ex
     let subst := fvarIds.size.fold (init := {}) fun i subst => subst.insert fvarIds[i] (mkFVar fvarIdsNew[i])
     pure { fvarId := fvarIdNew, mvarId := mvarIdNew, subst := subst }
 
+structure Hypothesis where
+  userName : Name
+  type     : Expr
+  value    : Expr
+
+/--
+  Convert the given goal `Ctx |- target` into `Ctx, (hs[0].userName : hs[0].type) ... |-target`.
+  It assumes `hs[i].val` has type `hs[i].type`. -/
+def assertHypotheses (mvarId : MVarId) (hs : Array Hypothesis) : MetaM (Array FVarId × MVarId) := do
+  if hs.isEmpty then
+    return (#[], mvarId)
+  else withMVarContext mvarId do
+    checkNotAssigned mvarId `assertHypotheses
+    let tag    ← getMVarTag mvarId
+    let target ← getMVarType mvarId
+    let targetNew := hs.foldr (init := target) fun h targetNew =>
+      mkForall h.userName BinderInfo.default h.type targetNew
+    let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
+    let val := hs.foldl (init := mvarNew) fun val h => mkApp val h.value
+    assignExprMVar mvarId val
+    introNP mvarNew.mvarId! hs.size
+
 end Lean.Meta

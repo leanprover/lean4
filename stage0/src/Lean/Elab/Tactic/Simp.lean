@@ -12,58 +12,6 @@ import Lean.Meta.Tactic.Replace
 namespace Lean.Elab.Tactic
 open Meta
 
-def finalizeSimpTarget (r : Simp.Result) : TacticM Bool := do
-  if r.expr.isConstOf ``True then
-    match r.proof? with
-    | some proof => closeMainGoal (← mkOfEqTrue proof)
-    | none => closeMainGoal (mkConst ``True.intro)
-    return true
-  else
-    match r.proof? with
-    | some proof => replaceMainGoal [← replaceTargetEq (← getMainGoal) r.expr proof]
-    | none => replaceMainGoal [← replaceTargetDefEq (← getMainGoal) r.expr]
-    return false
-
-def simpTarget (ctx : Simp.Context) : TacticM Unit := do
-  withMainContext do
-    discard <| finalizeSimpTarget (← simp (← getMainTarget) ctx)
-
-def finalizeSimpLocalDecl (fvarId : FVarId) (r : Simp.Result) : TacticM Bool := do
-  if r.expr.isConstOf ``False then
-    match r.proof? with
-    | some proof => closeMainGoal (← mkFalseElim (← getMainTarget) (← mkEqMP proof (mkFVar fvarId)))
-    | none => closeMainGoal (← mkFalseElim (← getMainTarget) (mkFVar fvarId))
-    return true
-  else
-    match r.proof? with
-    | some proof => replaceMainGoal [(← replaceLocalDecl (← getMainGoal) fvarId r.expr proof).mvarId]
-    | none => replaceMainGoal [← changeLocalDecl (← getMainGoal) fvarId r.expr (checkDefEq := false)]
-    return false
-
-def simpLocalDeclFVarId (ctx : Simp.Context) (fvarId : FVarId) : TacticM Unit := do
-  withMainContext do
-    let localDecl ← getLocalDecl fvarId
-    discard <| finalizeSimpLocalDecl fvarId (← simp localDecl.type ctx)
-
-def simpLocalDecl (ctx : Simp.Context) (userName : Name) : TacticM Unit :=
-  withMainContext do
-    let localDecl ← getLocalDeclFromUserName userName
-    simpLocalDeclFVarId ctx localDecl.fvarId
-
--- TODO: improve simpLocalDecl and simpAll
--- TODO: issues: self simplification
--- TODO: add new assertion with simplified result and clear old ones after simplifying all locals
-
-def simpAll (ctx : Simp.Context) : TacticM Unit := do
-  -- TODO: fix this
-  let worked ← tryTactic (simpTarget ctx)
-  withMainContext do
-    let mut worked := worked
-    -- We must traverse backwards because `replaceLocalDecl` uses the revert/intro idiom
-    for fvarId in (← getLCtx).getFVarIds.reverse do
-      worked := worked || (← tryTactic <| simpLocalDeclFVarId ctx fvarId)
-    unless worked do
-      throwTacticEx `simp (← getMainGoal) "failed to simplify"
 
 unsafe def evalSimpConfigUnsafe (e : Expr) : TermElabM Meta.Simp.Config :=
   Term.evalExpr Meta.Simp.Config ``Meta.Simp.Config e
@@ -79,8 +27,12 @@ def elabSimpConfig (optConfig : Syntax) : TermElabM Meta.Simp.Config := do
       let c ← Term.elabTermEnsuringType optConfig[3] (Lean.mkConst ``Meta.Simp.Config)
       evalSimpConfig (← instantiateMVars c)
 
-/-- Elaborate extra simp lemmas provided to `simp`. `stx` is of the `simpLemma,*` -/
-private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) : TacticM Simp.Context := do
+/--
+  Elaborate extra simp lemmas provided to `simp`. `stx` is of the `simpLemma,*`
+  If `eraseLocal == true`, then we consider local declarations when resolving names for erased lemmas (`- id`),
+  this option only makes sense for `simp_all`.
+-/
+private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool) : TacticM Simp.Context := do
   if stx.isNone then
     return ctx
   else
@@ -93,11 +45,14 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) : TacticM Simp.Co
     -/
     withMainContext do
       let mut lemmas := ctx.simpLemmas
-      let mut toUnfold : NameSet := {}
       for arg in stx[1].getSepArgs do
         if arg.getKind == ``Lean.Parser.Tactic.simpErase then
-          let declName ← resolveGlobalConstNoOverload arg[1].getId
-          lemmas ← lemmas.erase declName
+          if eraseLocal && (← Term.isLocalIdent? arg[1]).isSome then
+            -- We use `eraseCore` because the simp lemma for the hypothesis was not added yet
+            lemmas ← lemmas.eraseCore arg[1].getId
+          else
+            let declName ← resolveGlobalConstNoOverloadWithInfo arg[1]
+            lemmas ← lemmas.erase declName
         else
           let post :=
             if arg[0].isNone then
@@ -112,13 +67,13 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) : TacticM Simp.Co
               if (← isProp info.type) then
                 lemmas ← lemmas.addConst declName post
               else
-                toUnfold := toUnfold.insert declName
+                lemmas := lemmas.addDeclToUnfold declName
             else
               lemmas ← lemmas.add e post
           | _ =>
             let arg ← elabTerm arg[1] none (mayPostpone := false)
             lemmas ← lemmas.add arg post
-      return { ctx with simpLemmas := lemmas, toUnfold := toUnfold }
+      return { ctx with simpLemmas := lemmas }
 where
   resolveSimpIdLemma? (simpArgTerm : Syntax) : TacticM (Option Expr) := do
     if simpArgTerm.isIdent then
@@ -129,20 +84,50 @@ where
     else
       return none
 
-/-
-  "simp " ("(" "config" ":=" term ")")? ("only ")? ("[" simpLemma,* "]")? (location)?
--/
-@[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
+private def mkSimpContext (stx : Syntax) (eraseLocal : Bool) : TacticM Simp.Context := do
   let simpOnly := !stx[2].isNone
-  let ctx  ← elabSimpLemmas stx[3] {
+  elabSimpLemmas stx[3] (eraseLocal := eraseLocal) {
     config      := (← elabSimpConfig stx[1])
     simpLemmas  := if simpOnly then {} else (← getSimpLemmas)
     congrLemmas := (← getCongrLemmas)
   }
+
+/-
+  "simp " ("(" "config" ":=" term ")")? ("only ")? ("[" simpLemma,* "]")? (location)?
+-/
+@[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
+  let ctx  ← mkSimpContext stx (eraseLocal := false)
   let loc := expandOptLocation stx[4]
   match loc with
-  | Location.target => simpTarget ctx
-  | Location.localDecls userNames => userNames.forM (simpLocalDecl ctx)
-  | Location.wildcard => simpAll ctx
+  | Location.targets hUserNames simpTarget =>
+    withMainContext do
+      let fvarIds ← hUserNames.mapM fun hUserName => return (← getLocalDeclFromUserName hUserName).fvarId
+      go ctx fvarIds simpTarget
+  | Location.wildcard =>
+    withMainContext do
+      go ctx (← getNondepPropHyps (← getMainGoal)) true
+where
+  go (ctx : Simp.Context) (fvarIdsToSimp : Array FVarId) (simpType : Bool) : TacticM Unit := do
+    let mut mvarId ← getMainGoal
+    let mut toAssert : Array Hypothesis := #[]
+    for fvarId in fvarIdsToSimp do
+      let localDecl ← getLocalDecl fvarId
+      let type ← instantiateMVars localDecl.type
+      match (← simpStep mvarId (mkFVar fvarId) type ctx) with
+      | none => replaceMainGoal []; return ()
+      | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }
+    if simpType then
+      match (← simpTarget mvarId ctx) with
+      | none => replaceMainGoal []; return ()
+      | some mvarIdNew => mvarId := mvarIdNew
+    let (_, mvarIdNew) ← assertHypotheses mvarId toAssert
+    let mvarIdNew ← tryClearMany mvarIdNew fvarIdsToSimp
+    replaceMainGoal [mvarIdNew]
+
+@[builtinTactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => do
+  let ctx  ← mkSimpContext stx (eraseLocal := true)
+  match (← simpAll (← getMainGoal) ctx) with
+  | none => replaceMainGoal []
+  | some mvarId => replaceMainGoal [mvarId]
 
 end Lean.Elab.Tactic

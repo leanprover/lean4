@@ -27,13 +27,21 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
   let ctx ← read
   let s ← get
   let cmdCtx : Command.Context := { cmdPos := s.cmdPos, fileName := ctx.inputCtx.fileName, fileMap := ctx.inputCtx.fileMap }
-  let sNew? ← liftM $ EIO.toIO (fun _ => IO.Error.userError "unexpected error") (do let (_, s) ← (x cmdCtx).run s.commandState; pure $ some s)
-  match sNew? with
-  | some sNew => setCommandState sNew
-  | none      => pure ()
+  match ← liftM $ EIO.toIO' (do let (_, s) ← (x cmdCtx).run s.commandState; pure $ some s) with
+  | Except.error e        => throw <| IO.Error.userError s!"unexpected internal error: {← e.toMessageData.toString}"
+  | Except.ok (some sNew) => setCommandState sNew
+  | Except.ok none        => pure ()
 
 def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit := do
-  runCommandElabM (Command.elabCommand stx)
+  runCommandElabM do
+    let infoTreeEnabled := (← getInfoState).enabled
+    if checkTraceOption (← getOptions) `Elab.info then
+      enableInfoTree
+    Command.elabCommand stx
+    enableInfoTree infoTreeEnabled
+    let trees ← getInfoTrees
+    for t in trees do
+      trace `Elab.info fun _ => m!"{← t.format}"
 
 def updateCmdPos : FrontendM Unit := do
   modify fun s => { s with cmdPos := s.parserState.pos }
@@ -84,6 +92,7 @@ def process (input : String) (env : Environment) (opts : Options) (fileName : Op
 
 builtin_initialize
   registerOption `printMessageEndPos { defValue := false, descr := "print end position of each message in addition to start position" }
+  registerTraceClass `Elab.info
 
 def getPrintMessageEndPos (opts : Options) : Bool :=
   opts.getBool `printMessageEndPos false

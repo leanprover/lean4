@@ -220,7 +220,16 @@ instance : MonadRecDepth CommandElabM where
 builtin_initialize registerTraceClass `Elab.command
 
 partial def elabCommand (stx : Syntax) : CommandElabM Unit :=
-  withLogging <| withRef stx <| withIncRecDepth <| withFreshMacroScope do
+  let mkInfoTree := do
+    let ctx ← read
+    let s ← get
+    let scope := s.scopes.head!
+    pure fun trees =>
+      let tree := InfoTree.node (Info.ofCommandInfo { stx := stx }) trees
+      InfoTree.context {
+        env := s.env, fileMap := ctx.fileMap, mctx := {}, currNamespace := scope.currNamespace, openDecls := scope.openDecls, options := scope.opts
+      } tree
+  withInfoTreeContext (mkInfoTree := mkInfoTree) <| withLogging <| withRef stx <| withIncRecDepth <| withFreshMacroScope do
     runLinters stx
     match stx with
     | Syntax.node k args =>

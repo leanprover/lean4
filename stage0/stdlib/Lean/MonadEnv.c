@@ -42,6 +42,7 @@ lean_object* l_Lean_findModuleOf_x3f(lean_object*);
 lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__15;
 lean_object* l_Lean_compileDecl___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_evalConst___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkConstWithLevelParams___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MonadEnv_0__Lean_checkUnsupported_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__2___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -69,6 +70,7 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_9484____closed__4;
 lean_object* l_Lean_matchConstInduct_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_matchConstRec___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_compileDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkConstWithLevelParams___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isInductive_match__1(lean_object*);
 lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__20;
 lean_object* l_Lean_setEnv(lean_object*);
@@ -87,6 +89,7 @@ lean_object* l_Lean_matchConst_match__2(lean_object*);
 lean_object* l_Lean_evalConst___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Declaration_foldExprM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__2___rarg___lambda__2(lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_ConstantInfo_levelParams(lean_object*);
 lean_object* l_Lean_isInductive(lean_object*);
 lean_object* l_Lean_addDecl_match__1(lean_object*);
 lean_object* l_Lean_evalConstCheck___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -108,6 +111,7 @@ lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__4___rarg___boxed__const__1;
 lean_object* l_Lean_addDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__16;
+lean_object* l_Lean_mkConstWithLevelParams___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_compileDecl___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -201,8 +205,11 @@ lean_object* l_Lean_getConstInfoRec___rarg(lean_object*, lean_object*, lean_obje
 lean_object* l_Lean_isInductivePredicate_visit_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_compile_decl(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkConstWithLevelParams(lean_object*);
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__2___rarg___lambda__2___closed__3;
 lean_object* l_Lean_matchConst___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_map___at_Lean_mkConstWithLevelParams___spec__1(lean_object*);
+lean_object* l_Lean_mkLevelParam(lean_object*);
 lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__17;
 lean_object* l_Lean_addDecl_match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_level_eq(lean_object*, lean_object*);
@@ -211,8 +218,8 @@ lean_object* l_Lean_getConstInfoCtor(lean_object*);
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__2___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_recOnSuffix___closed__1;
 lean_object* l_Lean_isInductivePredicate_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20453____closed__3;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20345____closed__3;
 extern lean_object* l_tryFinally___rarg___closed__1;
 lean_object* l_Lean_matchConstCtor(lean_object*, lean_object*);
 lean_object* l_Lean_isInductivePredicate(lean_object*);
@@ -1482,6 +1489,98 @@ x_2 = lean_alloc_closure((void*)(l_Lean_getConstInfo___rarg), 4, 0);
 return x_2;
 }
 }
+lean_object* l_List_map___at_Lean_mkConstWithLevelParams___spec__1(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_2; 
+x_2 = lean_box(0);
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = !lean_is_exclusive(x_1);
+if (x_3 == 0)
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_4 = lean_ctor_get(x_1, 0);
+x_5 = lean_ctor_get(x_1, 1);
+x_6 = l_Lean_mkLevelParam(x_4);
+x_7 = l_List_map___at_Lean_mkConstWithLevelParams___spec__1(x_5);
+lean_ctor_set(x_1, 1, x_7);
+lean_ctor_set(x_1, 0, x_6);
+return x_1;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_8 = lean_ctor_get(x_1, 0);
+x_9 = lean_ctor_get(x_1, 1);
+lean_inc(x_9);
+lean_inc(x_8);
+lean_dec(x_1);
+x_10 = l_Lean_mkLevelParam(x_8);
+x_11 = l_List_map___at_Lean_mkConstWithLevelParams___spec__1(x_9);
+x_12 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set(x_12, 1, x_11);
+return x_12;
+}
+}
+}
+}
+lean_object* l_Lean_mkConstWithLevelParams___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_ctor_get(x_4, 1);
+lean_inc(x_5);
+lean_dec(x_4);
+x_6 = l_Lean_ConstantInfo_levelParams(x_3);
+x_7 = l_List_map___at_Lean_mkConstWithLevelParams___spec__1(x_6);
+x_8 = l_Lean_mkConst(x_2, x_7);
+x_9 = lean_apply_2(x_5, lean_box(0), x_8);
+return x_9;
+}
+}
+lean_object* l_Lean_mkConstWithLevelParams___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_5 = lean_ctor_get(x_1, 1);
+lean_inc(x_5);
+lean_inc(x_4);
+lean_inc(x_1);
+x_6 = l_Lean_getConstInfo___rarg(x_1, x_2, x_3, x_4);
+x_7 = lean_alloc_closure((void*)(l_Lean_mkConstWithLevelParams___rarg___lambda__1___boxed), 3, 2);
+lean_closure_set(x_7, 0, x_1);
+lean_closure_set(x_7, 1, x_4);
+x_8 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_6, x_7);
+return x_8;
+}
+}
+lean_object* l_Lean_mkConstWithLevelParams(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_mkConstWithLevelParams___rarg), 4, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_mkConstWithLevelParams___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_mkConstWithLevelParams___rarg___lambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_getConstInfoInduct___rarg___lambda__1___closed__1() {
 _start:
 {
@@ -2094,7 +2193,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__2;
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20345____closed__3;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20453____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2122,7 +2221,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__5;
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20345____closed__3;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20453____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2132,7 +2231,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_myMacro____x40_Init_Notation___hyg_7577____closed__4;
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20345____closed__3;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20453____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2182,7 +2281,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_myMacro____x40_Init_Notation___hyg_9484____closed__4;
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20345____closed__3;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20453____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

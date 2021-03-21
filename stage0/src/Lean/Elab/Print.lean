@@ -69,12 +69,12 @@ private def printIdCore (id : Name) : CommandElabM Unit := do
     printInduct id us numParams numIndices t ctors u
   | none => throwUnknownId id
 
-private def printId (id : Name) : CommandElabM Unit := do
-  let cs ← resolveGlobalConst id
+private def printId (id : Syntax) : CommandElabM Unit := do
+  let cs ← resolveGlobalConstWithInfos id
   cs.forM printIdCore
 
 @[builtinCommandElab «print»] def elabPrint : CommandElab
-  | `(#print%$tk $id:ident) => withRef tk <| printId id.getId
+  | `(#print%$tk $id:ident) => withRef tk <| printId id
   | `(#print%$tk $s:strLit) => logInfoAt tk s.isStrLit?.get!
   | _                       => throwError "invalid #print command"
 
@@ -115,7 +115,7 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
 
 @[builtinCommandElab «printAxioms»] def elabPrintAxioms : CommandElab
   | `(#print%$tk axioms $id) => withRef tk do
-    let cs ← resolveGlobalConst id.getId
+    let cs ← resolveGlobalConstWithInfos id
     cs.forM printAxiomsOf
   | _ => throwUnsupportedSyntax
 

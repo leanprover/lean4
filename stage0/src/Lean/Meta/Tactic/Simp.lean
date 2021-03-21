@@ -8,6 +8,7 @@ import Lean.Meta.Tactic.Simp.CongrLemmas
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Simp.Rewrite
+import Lean.Meta.Tactic.Simp.SimpAll
 
 namespace Lean
 

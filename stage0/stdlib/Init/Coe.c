@@ -66,6 +66,7 @@ extern lean_object* l_Lean_Parser_Tactic_intro___closed__12;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_liftCoeM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeOfHTCT(lean_object*, lean_object*);
+lean_object* l_boolToSort;
 lean_object* l_coeOfHeadOfTC(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeOfTCOfTail___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHOrElse__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -853,6 +854,12 @@ _start:
 return lean_box(0);
 }
 }
+static lean_object* _init_l_boolToSort() {
+_start:
+{
+return lean_box(0);
+}
+}
 uint8_t l_coeDecidableEq(uint8_t x_1) {
 _start:
 {
@@ -1371,6 +1378,7 @@ lean_mark_persistent(l_myMacro____x40_Init_Coe___hyg_166____closed__5);
 l_myMacro____x40_Init_Coe___hyg_166____closed__6 = _init_l_myMacro____x40_Init_Coe___hyg_166____closed__6();
 lean_mark_persistent(l_myMacro____x40_Init_Coe___hyg_166____closed__6);
 l_boolToProp = _init_l_boolToProp();
+l_boolToSort = _init_l_boolToSort();
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -345,6 +345,7 @@ lean_object* l_Std_PersistentArray_anyMAux___at_Lean_LocalContext_anyM___spec__2
 lean_object* l_Std_PersistentArray_findSomeRevM_x3f___at_Lean_LocalContext_findFromUserName_x3f___spec__1(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l___private_Lean_LocalContext_0__Lean_LocalContext_getUnusedNameAux(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_LocalDecl_hasValue(lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_LocalContext_mkLocalDecl___spec__3(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_LocalContext_isSubPrefixOfAux___spec__1(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__5___rarg___lambda__2(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
@@ -445,6 +446,7 @@ lean_object* l_Lean_LocalContext_contains___boxed(lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__3___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, lean_object*, size_t, uint8_t);
 lean_object* l_Array_forInUnsafe_loop___at_Array_findIdxM_x3f___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_LocalDecl_hasValue___boxed(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__9(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_getFVarIds___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_LocalContext_findDeclRev_x3f___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1140,6 +1142,33 @@ lean_dec(x_1);
 return x_2;
 }
 }
+uint8_t l_Lean_LocalDecl_hasValue(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = 1;
+return x_3;
+}
+}
+}
+lean_object* l_Lean_LocalDecl_hasValue___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_LocalDecl_hasValue(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 lean_object* l_Lean_LocalDecl_setValue_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1433,7 +1462,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_LocalDecl_value___closed__1;
 x_2 = l_Lean_LocalDecl_setBinderInfo___closed__1;
-x_3 = lean_unsigned_to_nat(82u);
+x_3 = lean_unsigned_to_nat(86u);
 x_4 = lean_unsigned_to_nat(36u);
 x_5 = l_Lean_LocalDecl_setBinderInfo___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2676,7 +2705,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_LocalDecl_value___closed__1;
 x_2 = l_Lean_LocalContext_get_x21___closed__1;
-x_3 = lean_unsigned_to_nat(146u);
+x_3 = lean_unsigned_to_nat(150u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_LocalContext_get_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -8340,7 +8369,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_LocalDecl_value___closed__1;
 x_2 = l_Nat_foldRev_loop___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
-x_3 = lean_unsigned_to_nat(335u);
+x_3 = lean_unsigned_to_nat(339u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_LocalContext_get_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

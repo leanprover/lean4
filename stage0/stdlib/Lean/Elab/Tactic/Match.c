@@ -70,6 +70,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19483____closed__5;
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__2___closed__1;
 uint8_t l_Lean_Elab_Term_isAuxDiscrName(lean_object*);
@@ -149,7 +150,6 @@ lean_object* l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs(lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_Elab_Tactic_evalEraseAuxDiscrs___spec__4___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentArray_getAux___rarg___closed__1;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19375____closed__5;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_evalEraseAuxDiscrs___spec__5(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
@@ -933,7 +933,7 @@ x_27 = l_myMacro____x40_Init_Notation___hyg_14470____closed__10;
 x_28 = l_Lean_Syntax_setKind(x_26, x_27);
 x_29 = lean_unsigned_to_nat(3u);
 x_30 = l_Lean_Syntax_getArg(x_28, x_29);
-x_31 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19375____closed__5;
+x_31 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19483____closed__5;
 lean_inc(x_30);
 x_32 = l_Lean_Syntax_isOfKind(x_30, x_31);
 if (x_32 == 0)

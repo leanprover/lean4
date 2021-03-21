@@ -24,7 +24,9 @@ lean_object* l_OptionT_run___rarg(lean_object*);
 lean_object* l_OptionT_orElse___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instToBoolOption(lean_object*);
 lean_object* l_OptionT_lift(lean_object*);
+lean_object* l_OptionM_run___rarg___boxed(lean_object*);
 lean_object* l_OptionT_run(lean_object*, lean_object*);
+lean_object* l_OptionM_run___rarg(lean_object*);
 lean_object* l_OptionT_instMonadOptionT___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_orElse___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_instMonadOptionT___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -52,6 +54,7 @@ lean_object* l_OptionT_instMonadFunctorOptionT(lean_object*, lean_object*);
 lean_object* l_OptionT_tryCatch___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_instMonadExceptOfUnitOptionT___rarg(lean_object*);
 lean_object* l_OptionT_orElse___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_OptionM_run(lean_object*);
 lean_object* l_OptionT_instAlternativeOptionT___rarg(lean_object*);
 lean_object* l_OptionT_instMonadOptionT___rarg___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_instMonadFunctorOptionT___rarg(lean_object*, lean_object*);
@@ -873,6 +876,30 @@ lean_object* x_4;
 x_4 = l_OptionT_instMonadExceptOfUnitOptionT___rarg___lambda__1(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
+}
+}
+lean_object* l_OptionM_run___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_OptionM_run(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_OptionM_run___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+lean_object* l_OptionM_run___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_OptionM_run___rarg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* initialize_Init_Data_Option_Basic(lean_object*);

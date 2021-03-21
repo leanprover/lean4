@@ -472,6 +472,7 @@ def setExpected.parenthesizer (expected : List String) (p : Parenthesizer) : Par
 @[combinatorParenthesizer Lean.Parser.checkStackTop] def checkStackTop.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkWsBefore] def checkWsBefore.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkNoWsBefore] def checkNoWsBefore.parenthesizer : Parenthesizer := pure ()
+@[combinatorParenthesizer Lean.Parser.checkLinebreakBefore] def checkLinebreakBefore.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkTailWs] def checkTailWs.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkColGe] def checkColGe.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkColGt] def checkColGt.parenthesizer : Parenthesizer := pure ()
@@ -512,6 +513,7 @@ instance : Coe (Parenthesizer → Parenthesizer → Parenthesizer) Parenthesizer
 builtin_initialize
   registerAlias "ws" checkWsBefore.parenthesizer
   registerAlias "noWs" checkNoWsBefore.parenthesizer
+  registerAlias "linebreak" checkLinebreakBefore.parenthesizer
   registerAlias "colGt" checkColGt.parenthesizer
   registerAlias "colGe" checkColGe.parenthesizer
   registerAlias "lookahead" lookahead.parenthesizer

@@ -29,7 +29,6 @@ lean_object* l_Lean_Level_isSucc_match__1(lean_object*);
 lean_object* l_Lean_Level_collectMVars(lean_object*, lean_object*);
 lean_object* l_Lean_Level_mvarId_x21___closed__2;
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1136____closed__30;
-lean_object* l_Lean_Level_find_x3f_match__1(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 extern lean_object* l_precMax___closed__3;
 lean_object* l_Lean_Level_PP_Result_format___closed__4;
@@ -78,6 +77,7 @@ lean_object* l_Lean_Level_mkData___closed__2;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Level_PP_Result_quote_match__1(lean_object*);
 uint8_t l_Lean_Level_isEquiv(lean_object*, lean_object*);
+lean_object* l_Lean_Level_find_x3f_visit_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_PP_Result_imax_match__1(lean_object*);
 lean_object* l_Lean_Level_instBEqLevel;
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Level_PP_Result_quote___spec__1(lean_object*, lean_object*);
@@ -179,6 +179,7 @@ lean_object* l_Lean_Level_addOffsetAux(lean_object*, lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*);
 lean_object* l_Lean_Level_updateMax___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_isExplicitSubsumedAux___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Level_find_x3f_visit_match__1(lean_object*);
 lean_object* l_Lean_Level_occurs___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Level_isMaxIMax_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_isZero___boxed(lean_object*);
@@ -245,7 +246,6 @@ uint8_t l_Lean_Name_lt(lean_object*, lean_object*);
 uint32_t l_Lean_Level_Data_depth(uint64_t);
 lean_object* l_Lean_mkLevelSucc(lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Level_find_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_PP_toResult___closed__3;
 lean_object* l_Lean_Level_instQuoteLevel(lean_object*);
 lean_object* l_Lean_Level_find_x3f(lean_object*, lean_object*);
@@ -288,6 +288,7 @@ lean_object* l_Lean_Level_getLevelOffset(lean_object*);
 lean_object* l_Lean_Level_dec___boxed(lean_object*);
 lean_object* l_Lean_Level_collectMVars_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_13868____closed__7;
+lean_object* l_Lean_Level_find_x3f_visit(lean_object*, lean_object*);
 uint64_t l_Lean_instInhabitedData;
 lean_object* l_Lean_Level_ofNat_match__1(lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_PP_parenIfFalse_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7149,7 +7150,7 @@ return x_2;
 }
 }
 }
-lean_object* l_Lean_Level_find_x3f_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Lean_Level_find_x3f_visit_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -7211,55 +7212,55 @@ return x_20;
 }
 }
 }
-lean_object* l_Lean_Level_find_x3f_match__1(lean_object* x_1) {
+lean_object* l_Lean_Level_find_x3f_visit_match__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Level_find_x3f_match__1___rarg), 5, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Level_find_x3f_visit_match__1___rarg), 5, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_Level_find_x3f(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Level_find_x3f_visit(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-lean_inc(x_2);
 lean_inc(x_1);
-x_3 = lean_apply_1(x_2, x_1);
+lean_inc(x_2);
+x_3 = lean_apply_1(x_1, x_2);
 x_4 = lean_unbox(x_3);
 lean_dec(x_3);
 if (x_4 == 0)
 {
-switch (lean_obj_tag(x_1)) {
+switch (lean_obj_tag(x_2)) {
 case 1:
 {
 lean_object* x_5; 
-x_5 = lean_ctor_get(x_1, 0);
+x_5 = lean_ctor_get(x_2, 0);
 lean_inc(x_5);
-lean_dec(x_1);
-x_1 = x_5;
+lean_dec(x_2);
+x_2 = x_5;
 goto _start;
 }
 case 2:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = lean_ctor_get(x_1, 0);
+x_7 = lean_ctor_get(x_2, 0);
 lean_inc(x_7);
-x_8 = lean_ctor_get(x_1, 1);
+x_8 = lean_ctor_get(x_2, 1);
 lean_inc(x_8);
-lean_dec(x_1);
-lean_inc(x_2);
-x_9 = l_Lean_Level_find_x3f(x_7, x_2);
+lean_dec(x_2);
+lean_inc(x_1);
+x_9 = l_Lean_Level_find_x3f_visit(x_1, x_7);
 if (lean_obj_tag(x_9) == 0)
 {
-x_1 = x_8;
+x_2 = x_8;
 goto _start;
 }
 else
 {
 uint8_t x_11; 
 lean_dec(x_8);
-lean_dec(x_2);
+lean_dec(x_1);
 x_11 = !lean_is_exclusive(x_9);
 if (x_11 == 0)
 {
@@ -7280,23 +7281,23 @@ return x_13;
 case 3:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_14 = lean_ctor_get(x_1, 0);
+x_14 = lean_ctor_get(x_2, 0);
 lean_inc(x_14);
-x_15 = lean_ctor_get(x_1, 1);
+x_15 = lean_ctor_get(x_2, 1);
 lean_inc(x_15);
-lean_dec(x_1);
-lean_inc(x_2);
-x_16 = l_Lean_Level_find_x3f(x_14, x_2);
+lean_dec(x_2);
+lean_inc(x_1);
+x_16 = l_Lean_Level_find_x3f_visit(x_1, x_14);
 if (lean_obj_tag(x_16) == 0)
 {
-x_1 = x_15;
+x_2 = x_15;
 goto _start;
 }
 else
 {
 uint8_t x_18; 
 lean_dec(x_15);
-lean_dec(x_2);
+lean_dec(x_1);
 x_18 = !lean_is_exclusive(x_16);
 if (x_18 == 0)
 {
@@ -7327,18 +7328,26 @@ return x_21;
 else
 {
 lean_object* x_22; 
-lean_dec(x_2);
+lean_dec(x_1);
 x_22 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_22, 0, x_1);
+lean_ctor_set(x_22, 0, x_2);
 return x_22;
 }
+}
+}
+lean_object* l_Lean_Level_find_x3f(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Level_find_x3f_visit(x_2, x_1);
+return x_3;
 }
 }
 uint8_t l_Lean_Level_any(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_Level_find_x3f(x_1, x_2);
+x_3 = l_Lean_Level_find_x3f_visit(x_2, x_1);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 

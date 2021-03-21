@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_IO_FS_Stream_chainLeft___elambda__3___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
 uint8_t l_Lean_Server_toFileUri___lambda__1(uint32_t);
 lean_object* l_IO_FS_Stream_chainLeft___elambda__4___boxed(lean_object*, lean_object*, lean_object*);
@@ -23,6 +24,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Server_foldDocumentChanges_match__1(lean_object*);
 lean_object* l_IO_FS_Stream_withPrefix___elambda__4(lean_object*, size_t, lean_object*);
 lean_object* l_System_mkFilePath(lean_object*);
+lean_object* l_IO_FS_Stream_chainLeft___elambda__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_toFileUri___closed__1;
 lean_object* l_List_takeWhile_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_chainRight___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -61,6 +63,7 @@ lean_object* l_IO_FS_Stream_chainLeft___elambda__2(lean_object*, lean_object*);
 lean_object* l_List_takeWhile_match__1(lean_object*, lean_object*);
 lean_object* l_IO_Prim_fopenFlags(uint8_t, uint8_t);
 lean_object* l_System_FilePath_normalizePath(lean_object*);
+lean_object* l_IO_FS_Stream_chainLeft___elambda__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_chainRight___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_stream_of_handle(lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
@@ -84,6 +87,7 @@ lean_object* l_IO_FS_Stream_chainLeft___elambda__3___boxed(lean_object*, lean_ob
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_chainRight___elambda__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_maybeTee_match__1(lean_object*);
+lean_object* l_IO_FS_Stream_chainLeft___elambda__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_toFileUri___lambda__1___boxed(lean_object*);
 extern lean_object* l_Lean_instInhabitedFileMap___closed__1;
 lean_object* l_IO_FS_Stream_chainRight(lean_object*, lean_object*, uint8_t);
@@ -601,6 +605,17 @@ x_5 = l_IO_FS_Stream_chainRight(x_1, x_2, x_4);
 return x_5;
 }
 }
+lean_object* l_IO_FS_Stream_chainLeft___elambda__1___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_ctor_get(x_1, 5);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_apply_2(x_5, x_2, x_4);
+return x_6;
+}
+}
 lean_object* l_IO_FS_Stream_chainLeft___elambda__1(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -619,10 +634,8 @@ lean_dec(x_4);
 x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 lean_dec(x_8);
-x_10 = lean_ctor_get(x_2, 5);
-lean_inc(x_10);
-lean_dec(x_2);
-x_11 = lean_apply_2(x_10, x_5, x_9);
+x_10 = lean_box(0);
+x_11 = l_IO_FS_Stream_chainLeft___elambda__1___lambda__1(x_2, x_5, x_10, x_9);
 return x_11;
 }
 else
@@ -635,13 +648,13 @@ x_13 = lean_apply_1(x_4, x_12);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_14 = lean_ctor_get(x_13, 1);
+x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
-lean_dec(x_13);
-x_15 = lean_ctor_get(x_2, 5);
+x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
-lean_dec(x_2);
-x_16 = lean_apply_2(x_15, x_5, x_14);
+lean_dec(x_13);
+x_16 = l_IO_FS_Stream_chainLeft___elambda__1___lambda__1(x_2, x_5, x_14, x_15);
+lean_dec(x_14);
 return x_16;
 }
 else
@@ -708,6 +721,17 @@ x_4 = lean_apply_1(x_3, x_2);
 return x_4;
 }
 }
+lean_object* l_IO_FS_Stream_chainLeft___elambda__3___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_ctor_get(x_1, 3);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_apply_2(x_5, x_2, x_4);
+return x_6;
+}
+}
 lean_object* l_IO_FS_Stream_chainLeft___elambda__3(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -726,10 +750,8 @@ lean_dec(x_4);
 x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 lean_dec(x_8);
-x_10 = lean_ctor_get(x_2, 3);
-lean_inc(x_10);
-lean_dec(x_2);
-x_11 = lean_apply_2(x_10, x_5, x_9);
+x_10 = lean_box(0);
+x_11 = l_IO_FS_Stream_chainLeft___elambda__3___lambda__1(x_2, x_5, x_10, x_9);
 return x_11;
 }
 else
@@ -742,13 +764,13 @@ x_13 = lean_apply_1(x_4, x_12);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_14 = lean_ctor_get(x_13, 1);
+x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
-lean_dec(x_13);
-x_15 = lean_ctor_get(x_2, 3);
+x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
-lean_dec(x_2);
-x_16 = lean_apply_2(x_15, x_5, x_14);
+lean_dec(x_13);
+x_16 = l_IO_FS_Stream_chainLeft___elambda__3___lambda__1(x_2, x_5, x_14, x_15);
+lean_dec(x_14);
 return x_16;
 }
 else
@@ -912,6 +934,15 @@ lean_ctor_set(x_14, 5, x_13);
 return x_14;
 }
 }
+lean_object* l_IO_FS_Stream_chainLeft___elambda__1___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_IO_FS_Stream_chainLeft___elambda__1___lambda__1(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+return x_5;
+}
+}
 lean_object* l_IO_FS_Stream_chainLeft___elambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -920,6 +951,15 @@ x_7 = lean_unbox(x_3);
 lean_dec(x_3);
 x_8 = l_IO_FS_Stream_chainLeft___elambda__1(x_1, x_2, x_7, x_4, x_5, x_6);
 return x_8;
+}
+}
+lean_object* l_IO_FS_Stream_chainLeft___elambda__3___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_IO_FS_Stream_chainLeft___elambda__3___lambda__1(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+return x_5;
 }
 }
 lean_object* l_IO_FS_Stream_chainLeft___elambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {

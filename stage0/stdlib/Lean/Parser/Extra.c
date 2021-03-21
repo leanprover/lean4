@@ -105,7 +105,6 @@ lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_634____closed__
 lean_object* l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_276____closed__27;
 lean_object* l_Lean_initFn____x40_Lean_Parser_Extra___hyg_938____closed__2;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_634____closed__42;
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_580____at_Lean_Parser_ParserState_hasError___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_mkNode(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_nameLitNoAntiquot___closed__1;
 lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___rarg___closed__14;
@@ -190,6 +189,7 @@ lean_object* l_Lean_initFn____x40_Lean_Parser_Extra___hyg_1057____closed__8;
 lean_object* l_Lean_Parser_rawIdent___closed__3;
 lean_object* l_Lean_Parser_optional(lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___rarg___closed__6;
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_574____at_Lean_Parser_ParserState_hasError___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_826____closed__13;
 lean_object* l_Lean_Parser_numLit___closed__1;
 lean_object* l_Lean_Parser_rawIdentFn(lean_object*, lean_object*);
@@ -2188,7 +2188,7 @@ x_6 = lean_apply_2(x_1, x_2, x_3);
 x_7 = lean_ctor_get(x_6, 3);
 lean_inc(x_7);
 x_8 = lean_box(0);
-x_9 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_580____at_Lean_Parser_ParserState_hasError___spec__1(x_7, x_8);
+x_9 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_574____at_Lean_Parser_ParserState_hasError___spec__1(x_7, x_8);
 lean_dec(x_7);
 if (x_9 == 0)
 {

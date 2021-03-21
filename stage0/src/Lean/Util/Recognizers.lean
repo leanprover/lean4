@@ -106,23 +106,23 @@ def isConstructorApp (env : Environment) (e : Expr) : Bool :=
   e.isConstructorApp? env |>.isSome
 
 def constructorApp? (env : Environment) (e : Expr) : Option (ConstructorVal × Array Expr) :=
-  match e with
-  | Expr.lit (Literal.natVal n) _ =>
-    if n == 0 then do
-      let v ← getConstructorVal? env `Nat.zero
-      pure (v, #[])
-    else do
-      let v ← getConstructorVal? env `Nat.succ
-      pure (v, #[mkNatLit (n-1)])
-  | _ =>
-    match e.getAppFn with
-    | Expr.const n _ _ => do
-      let v ← getConstructorVal? env n
-      if v.numParams + v.numFields == e.getAppNumArgs then
-        pure (v, e.getAppArgs)
-      else
-        none
-    | _ => none
+  OptionM.run do
+    match e with
+    | Expr.lit (Literal.natVal n) _ =>
+      if n == 0 then do
+        let v ← getConstructorVal? env `Nat.zero
+        pure (v, #[])
+      else do
+        let v ← getConstructorVal? env `Nat.succ
+        pure (v, #[mkNatLit (n-1)])
+    | _ =>
+      match e.getAppFn with
+      | Expr.const n _ _ => do
+        let v ← getConstructorVal? env n
+        if v.numParams + v.numFields == e.getAppNumArgs then
+          pure (v, e.getAppArgs)
+        else
+          none
+      | _ => none
 
-end Expr
-end Lean
+end Lean.Expr

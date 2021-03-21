@@ -459,6 +459,7 @@ lean_object* l_Lean_ExprStructEq_beq_match__1___rarg(lean_object*, lean_object*,
 lean_object* l_Lean_Expr_isProj___boxed(lean_object*);
 lean_object* l_Lean_Expr_updateLambda_x21___closed__2;
 lean_object* l_Lean_Expr_updateFn_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5659____closed__27;
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_206__match__1(lean_object*);
 lean_object* l_Lean_Expr_getOptParamDefault_x3f___boxed(lean_object*);
@@ -572,7 +573,6 @@ lean_object* l_Lean_Literal_hash_match__1___rarg(lean_object*, lean_object*, lea
 lean_object* l_Lean_Expr_instantiateRev___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedName;
 lean_object* l_Lean_Expr_isSort___boxed(lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__27;
 lean_object* l_Lean_Expr_updateLet_x21___closed__1;
 lean_object* l_Lean_Expr_constName_x3f(lean_object*);
 lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -14271,7 +14271,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_getSanitizeNames___closed__2;
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__27;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5659____closed__27;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

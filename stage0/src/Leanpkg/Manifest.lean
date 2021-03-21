@@ -50,7 +50,7 @@ namespace Manifest
 def effectivePath (m : Manifest) : String :=
   m.path.getD "."
 
-def fromToml (t : Toml.Value) : Option Manifest := do
+def fromToml (t : Toml.Value) : Option Manifest := OptionM.run do
   let pkg ← t.lookup "package"
   let Toml.Value.str n ← pkg.lookup "name" | none
   let Toml.Value.str ver ← pkg.lookup "version" | none

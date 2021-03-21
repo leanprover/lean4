@@ -45,12 +45,14 @@ inductive TextDocumentContentChangeEvent where
   | rangeChange (range : Range) (text : String)
   | fullChange (text : String)
 
-instance : FromJson TextDocumentContentChangeEvent := ⟨fun j =>
-  (do
-    let range ← j.getObjValAs? Range "range"
-    let text ← j.getObjValAs? String "text"
-    pure $ TextDocumentContentChangeEvent.rangeChange range text) <|>
-  (TextDocumentContentChangeEvent.fullChange <$> j.getObjValAs? String "text")⟩
+instance : FromJson TextDocumentContentChangeEvent where
+  fromJson? j :=
+    (OptionM.run do
+      let range ← j.getObjValAs? Range "range"
+      let text ← j.getObjValAs? String "text"
+      return TextDocumentContentChangeEvent.rangeChange range text)
+    <|>
+    (TextDocumentContentChangeEvent.fullChange <$> j.getObjValAs? String "text")
 
 instance TextDocumentContentChangeEvent.hasToJson : ToJson TextDocumentContentChangeEvent :=
   ⟨fun o => mkObj $ match o with

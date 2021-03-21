@@ -99,7 +99,6 @@ lean_object* l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(lean_object*, lean
 lean_object* l_Lean_Attribute_erase(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_832____lambda__2___boxed(lean_object*);
 lean_object* l_Lean_getAttrParamOptPrio___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__15;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_832____closed__5;
 lean_object* l_Lean_instToStringAttributeKind_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -157,6 +156,7 @@ lean_object* l_Lean_attributeExtension___elambda__2(lean_object*);
 lean_object* l_Lean_Attribute_add___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_832____closed__7;
 extern lean_object* l_Lean_instInhabitedException___closed__1;
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5659____closed__15;
 lean_object* l_Lean_mkAttributeImplOfConstantUnsafe_match__1(lean_object*);
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnumAttributes___rarg___lambda__3___closed__4;
@@ -6034,7 +6034,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Attr_simp___closed__2;
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5658____closed__15;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5659____closed__15;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

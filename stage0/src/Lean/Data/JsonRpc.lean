@@ -171,34 +171,35 @@ instance : ToJson Message := ⟨fun m =>
         ] ++ opt "data" data?⟩
     ]⟩
 
-instance : FromJson Message := ⟨fun j => do
-  let "2.0" ← j.getObjVal? "jsonrpc" | none
-  (do let id ← j.getObjValAs? RequestID "id"
-      let method ← j.getObjValAs? String "method"
-      let params? := j.getObjValAs? Structured "params"
-      pure (Message.request id method params?)) <|>
-  (do let method ← j.getObjValAs? String "method"
-      let params? := j.getObjValAs? Structured "params"
-      pure (Message.notification method params?)) <|>
-  (do let id ← j.getObjValAs? RequestID "id"
-      let result ← j.getObjVal? "result"
-      pure (Message.response id result)) <|>
-  (do let id ← j.getObjValAs? RequestID "id"
-      let err ← j.getObjVal? "error"
-      let code ← err.getObjValAs? ErrorCode "code"
-      let message ← err.getObjValAs? String "message"
-      let data? := err.getObjVal? "data"
-      pure (Message.responseError id code message data?))⟩
+instance : FromJson Message where
+  fromJson? j := OptionM.run do
+    let "2.0" ← j.getObjVal? "jsonrpc" | none
+    (do let id ← j.getObjValAs? RequestID "id"
+        let method ← j.getObjValAs? String "method"
+        let params? := j.getObjValAs? Structured "params"
+        pure (Message.request id method params?)) <|>
+    (do let method ← j.getObjValAs? String "method"
+        let params? := j.getObjValAs? Structured "params"
+        pure (Message.notification method params?)) <|>
+    (do let id ← j.getObjValAs? RequestID "id"
+        let result ← j.getObjVal? "result"
+        pure (Message.response id result)) <|>
+    (do let id ← j.getObjValAs? RequestID "id"
+        let err ← j.getObjVal? "error"
+        let code ← err.getObjValAs? ErrorCode "code"
+        let message ← err.getObjValAs? String "message"
+        let data? := err.getObjVal? "data"
+        pure (Message.responseError id code message data?))
 
 -- TODO(WN): temporary until we have deriving FromJson
-instance [FromJson α] : FromJson (Notification α) :=
-  ⟨fun j => do
+instance [FromJson α] : FromJson (Notification α) where
+  fromJson? j := OptionM.run do
     let msg : Message ← fromJson? j
     if let Message.notification method params? := msg then
       let params ← params?
       let param : α ← fromJson? (toJson params)
       pure $ ⟨method, param⟩
-    else none⟩
+    else none
 
 end Lean.JsonRpc
 

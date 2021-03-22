@@ -9,6 +9,7 @@ import Lean.Compiler.ExternAttr
 import Lean.Meta.Check
 import Lean.Meta.Closure
 import Lean.Meta.Tactic.Cases
+import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.GeneralizeTelescope
 import Lean.Meta.Match.Basic
 import Lean.Meta.Match.MVarRenaming
@@ -144,7 +145,8 @@ private def processSkipInaccessible (p : Problem) : Problem :=
 private def processLeaf (p : Problem) : StateRefT State MetaM Unit :=
   match p.alts with
   | []       => do
-    liftM $ admit p.mvarId
+    trace[Meta.Match.match] "missing alternative"
+    admit p.mvarId
     modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
   | alt :: _ => do
     -- TODO: check whether we have unassigned metavars in rhs
@@ -219,12 +221,11 @@ partial def unify (a : Expr) (b : Expr) : M Bool := do
   if (← isDefEq a b) then
     pure true
   else
-    let a' ← expandIfVar a
-    let b' ← expandIfVar b
-    if a != a' || b != b' then unify a' b'
+    let a' ← whnfD (← expandIfVar a)
+    let b' ← whnfD (← expandIfVar b)
+    if a != a' || b != b' then
+      unify a' b'
     else match a, b with
-      | Expr.mdata _ a _, b                      => unify a b
-      | a, Expr.mdata _ b _                      => unify a b
       | Expr.fvar aFvarId _, Expr.fvar bFVarId _ => assign aFvarId b <||> assign bFVarId a
       | Expr.fvar aFvarId _, b => assign aFvarId b
       | a, Expr.fvar bFVarId _ => assign bFVarId a
@@ -237,7 +238,11 @@ private def unify? (altFVarDecls : List LocalDecl) (a b : Expr) : MetaM (Option 
   let a ← instantiateMVars a
     let b ← instantiateMVars b
     let (b, s) ← Unify.unify a b { altFVarDecls := altFVarDecls} |>.run {}
-    if b then pure s.fvarSubst else pure none
+    if b then
+      pure s.fvarSubst
+    else
+      trace[Meta.Match.unify] "failed to unify {a} =?= {b}"
+      pure none
 
 private def expandVarIntoCtor? (alt : Alt) (fvarId : FVarId) (ctorName : Name) : MetaM (Option Alt) :=
   withExistingLocalDecls alt.fvarDecls do

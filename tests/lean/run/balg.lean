@@ -14,7 +14,7 @@ abbrev mul {M : Magma} (a b : M) : M :=
 
 set_option pp.all true
 
-infix:70 (priority := high) "*" => mul
+infixl:70 (priority := high) "*" => mul
 
 structure Semigroup extends Magma where
   mul_assoc (a b c : α) : a * b * c = a * (b * c)

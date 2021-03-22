@@ -380,15 +380,17 @@ def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
 @[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro := fun stx =>
   withAttrKindGlobal stx fun stx => do
     match stx with
-    | `(infix $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
-      `(infixl $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op => $f)
-    | `(infixr $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
-      `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? lhs $op:strLit rhs $[: $prec]? => $f lhs rhs)
     | `(infixl $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
-       let prec1 := quote <| (← evalOptPrec prec) + 1
-       `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? lhs $op:strLit rhs:$prec1 => $f lhs rhs)
+      let prec1 := quote <| (← evalOptPrec prec) + 1
+      `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? lhs$[:$prec]? $op:strLit rhs:$prec1 => $f lhs rhs)
+    | `(infix $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
+      let prec1 := quote <| (← evalOptPrec prec) + 1
+      `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? lhs:$prec1 $op:strLit rhs:$prec1 => $f lhs rhs)
+    | `(infixr $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
+      let prec1 := quote <| (← evalOptPrec prec) + 1
+      `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? lhs:$prec1 $op:strLit rhs $[: $prec]? => $f lhs rhs)
     | `(prefix $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
-       `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op:strLit arg $[: $prec]? => $f arg)
+      `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op:strLit arg $[: $prec]? => $f arg)
     | `(postfix $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
       `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? arg $op:strLit => $f arg)
     | _ => Macro.throwUnsupported

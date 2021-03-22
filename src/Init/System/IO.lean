@@ -328,7 +328,9 @@ def appPath : m String := liftM Prim.appPath
 
 def appDir : m String := do
   let p ← appPath
-  realPath (System.FilePath.dirName p)
+  let some p ← pure <| System.FilePath.parent p
+    | liftM (m := IO) <| throw <| IO.userError s!"System.IO.appDir: unexpected filename '{p}'"
+  realPath p
 
 def currentDir : m String := liftM Prim.currentDir
 

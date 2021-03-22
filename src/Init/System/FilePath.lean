@@ -42,11 +42,9 @@ def normalizePath (fname : String) : String :=
     -- else if isCaseInsensitive then c.toLower
     else c
 
-def dirName (fname : String) : String :=
+def parent (fname : String) : Option String :=
   let fname := normalizePath fname
-  match fname.revPosOf pathSeparator with
-  | none => "."
-  | some pos => { str := fname, startPos := 0, stopPos := pos : Substring }.toString
+  fname.extract 0 <$> fname.revPosOf pathSeparator
 
 end FilePath
 

@@ -65,11 +65,24 @@ def initSearchPath (path : Option String := none) : IO Unit :=
     let sp ← addSearchPathFromEnv sp
     searchPathRef.set sp
 
-def findOLean (mod : Name) : IO String := do
+partial def findOLean (mod : Name) : IO String := do
   let sp ← searchPathRef.get
-  let some fname ← sp.findWithExt ".olean" mod
-    | throw $ IO.userError $ "unknown package '" ++ mod.getRoot.toString ++ "'"
-  return fname
+  if let some fname ← sp.findWithExt ".olean" mod then
+    return fname
+  else
+    let pkg := mod.getRoot
+    let mut msg := s!"unknown package '{pkg}'"
+    let rec maybeThisOne dir := do
+      let dir := s!"{dir}{pathSep}{pkg}"
+      if ← IO.fileExists dir then
+        return some s!"\nYou might need to open '{dir}' as a workspace in your editor"
+      if let some dir ← System.FilePath.parent dir then
+        maybeThisOne dir
+      else
+       return none
+    if let some msg' ← maybeThisOne (← IO.currentDir) then
+      msg := msg ++ msg'
+    throw <| IO.userError msg
 
 /-- Infer module name of source file name. -/
 @[export lean_module_name_of_file]

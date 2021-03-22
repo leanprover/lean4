@@ -13,11 +13,11 @@ Going beyond basic notations, Lean's ability to factor out common boilerplate co
 The most basic syntax extension commands allow introducing new (or overloading existing) prefix, infix, and postfix operators.
 
 ```lean
-infixl:65 " + "  => HAdd.hAdd  -- left-associative
-infix:70  " * "  => HMul.hMul  -- ditto
-infixr:80 " ^ "  => HPow.hPow  -- right-associative
-prefix:100 "-"   => Neg.neg
-postfix:max "⁻¹" => Inv.inv
+infixl:65   " + " => HAdd.hAdd  -- left-associative
+infix:50    " = " => Eq         -- non-associative
+infixr:80   " ^ " => HPow.hPow  -- right-associative
+prefix:100  "-"   => Neg.neg
+postfix:max "⁻¹"  => Inv.inv
 ```
 
 After the initial command name describing the operator kind (its "fixity"), we give the *parsing precedence* of the operator preceded by a colon `:`, then a new or existing token surrounded by double quotes (the whitespace is used for pretty printing), then the function this operator should be translated to after the arrow `=>`.
@@ -26,11 +26,11 @@ The precedence is a natural number describing how "tightly" an operator binds to
 We can make this more precise by looking at the commands above unfold to:
 
 ```lean
-notation:65 lhs " + " rhs:66 => HAdd.hAdd lhs rhs
-notation:70 lhs " * " rhs:71 => HMul.hMul lhs rhs
-notation:80 lhs " ^ " rhs:80 => HPow.hPow lhs rhs
+notation:65 lhs:65 " + " rhs:66 => HAdd.hAdd lhs rhs
+notation:50 lhs:51 " = " rhs:51 => Eq lhs rhs
+notation:80 lhs:81 " ^ " rhs:80 => HPow.hPow lhs rhs
 notation:100 "-" arg:100 => Neg.neg arg
-notation:1000 arg "⁻¹" => Inv.inv arg  -- `max` is a shorthand for precedence 1000
+notation:1000 arg:1000 "⁻¹" => Inv.inv arg  -- `max` is a shorthand for precedence 1000
 ```
 
 It turns out that all commands from the first code block are in fact command *macros* translating to the more general `notation` command.
@@ -39,9 +39,13 @@ Instead of a single token, the `notation` command accepts a mixed sequence of to
 A placeholder with precedence `p` accepts only notations with precedence at least `p` in that place.
 Thus the string `a + b + c` cannot be parsed as the equivalent of `a + (b + c)` because the right-hand side operand of an `infixl` notation has precedence one greater than the notation itself.
 In contrast, `infixr` reuses the notation's precedence for the right-hand side operand, so `a ^ b ^ c` *can* be parsed as `a ^ (b ^ c)`.
-Note that the left-hand side operand as a leading placeholder does not and cannot take a precedence because Lean uses a *left-to-right, left-most derivation* parser, or *LL* parser, so when it encounters e.g. the `+` token, the term `lhs` has already been parsed and there is nothing left to check.
-You might wonder, then, what prevents Lean from parsing `a ^ b ^ c` as `(a ^ b) ^ c` instead when there is no precedence restriction on the first operand.
-The answer is that Lean's parser follows a local *longest parse* rule in the presence of ambiguous grammars: when parsing the right-hand side of `a ^`, it will continue parsing as long as possible (as the current precedence allows), not stopping after `b` but parsing `^ c` as well.
+Note that if we used `notation` directly to introduce an infix notation like
+```lean
+notation:65 lhs:65 " ~ " rhs:65 => wobble lhs rhs
+```
+where the precedences do not sufficiently determine associativity, Lean's parser will default to right associativity.
+More precisely, Lean's parser follows a local *longest parse* rule in the presence of ambiguous grammars: when parsing the right-hand side of `a ~` in `a ~ b ~ c`, it will continue parsing as long as possible (as the current precedence allows), not stopping after `b` but parsing `~ c` as well.
+Thus the term is equivalent to `a ~ (b ~ c)`.
 
 As mentioned above, the `notation` command allows us to define arbitrary *mixfix* syntax freely mixing tokens and placeholders.
 ```lean

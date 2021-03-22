@@ -392,7 +392,7 @@ def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
     | `(prefix $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
       `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op:strLit arg $[: $prec]? => $f arg)
     | `(postfix $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
-      `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? arg $op:strLit => $f arg)
+      `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? arg$[:$prec]? $op:strLit => $f arg)
     | _ => Macro.throwUnsupported
 where
   -- set "global" `attrKind`, apply `f`, and restore `attrKind` to result

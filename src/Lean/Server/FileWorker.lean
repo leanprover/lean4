@@ -436,7 +436,7 @@ section RequestHandling
         for t in snap.toCmdState.infoState.trees do
           if let some (ci, ti) := t.goalsAt? hoverPos then
             let ci := { ci with mctx := ti.mctxAfter }
-            let goals ← ci.runMetaM {} <| ti.goalsAfter.mapM Meta.ppGoal
+            let goals ← ci.runMetaM {} <| ti.goalsAfter.mapM (fun g => Meta.withPPInaccessibleNames (Meta.ppGoal g))
             let md :=
               if goals.isEmpty then
                 "no goals"

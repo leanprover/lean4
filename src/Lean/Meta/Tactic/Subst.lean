@@ -16,7 +16,6 @@ namespace Lean.Meta
 
 def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : FVarSubst := {}) (clearH := true) : MetaM (FVarSubst × MVarId) :=
   withMVarContext mvarId do
-    let mvarId0 := mvarId
     let tag ← getMVarTag mvarId
     checkNotAssigned mvarId `subst
     let hFVarIdOriginal := hFVarId
@@ -24,8 +23,8 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
     match (← matchEq? hLocalDecl.type) with
     | none => throwTacticEx `subst mvarId "argument must be an equality proof"
     | some (α, lhs, rhs) => do
-      let a := if symm then rhs else lhs
-      let b := if symm then lhs else rhs
+      let a ← instantiateMVars <| if symm then rhs else lhs
+      let b ← instantiateMVars <| if symm then lhs else rhs
       match a with
       | Expr.fvar aFVarId _ => do
         let aFVarIdOriginal := aFVarId
@@ -45,7 +44,7 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
         let h       := mkFVar hFVarId
         /- Set skip to true if there is no local variable nor the target depend on the equality -/
         let skip ←
-          if vars.size == 2 then
+          if vars.size != 2 then
             pure false
           else
             let mvarType ← getMVarType mvarId
@@ -53,11 +52,11 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
             pure (!mctx.exprDependsOn mvarType aFVarId && !mctx.exprDependsOn mvarType hFVarId)
         if skip then
           if clearH then
-            let mvarId ← clear mvarId0 hFVarId
+            let mvarId ← clear mvarId hFVarId
             let mvarId ← clear mvarId aFVarId
             pure ({}, mvarId)
           else
-            pure ({}, mvarId0)
+            pure ({}, mvarId)
         else
           withMVarContext mvarId do
             let mvarDecl   ← getMVarDecl mvarId
@@ -66,7 +65,7 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
             match (← matchEq? hLocalDecl.type) with
             | none => unreachable!
             | some (α, lhs, rhs) => do
-              let b       := if symm then lhs else rhs
+              let b        ← instantiateMVars <| if symm then lhs else rhs
               let mctx     ← getMCtx
               let depElim := mctx.exprDependsOn mvarDecl.type hFVarId
               let cont (motive : Expr) (newType : Expr) : MetaM (FVarSubst × MVarId) := do

@@ -250,6 +250,8 @@ partial def unifyEqs (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) : Meta
                   unifyEqs numEqs mvarId subst
                 else
                   throwError "dependent elimination failed, stuck at auxiliary equation{indentExpr eqDecl.type}"
+            let a ← instantiateMVars a
+            let b ← instantiateMVars b
             match a, b with
             | Expr.fvar aFVarId _, Expr.fvar bFVarId _ =>
               /- x = y -/

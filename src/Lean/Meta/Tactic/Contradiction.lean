@@ -3,12 +3,40 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Meta.Tactic.Assumption
 import Lean.Meta.MatchUtil
+import Lean.Meta.Tactic.Assumption
+import Lean.Meta.Tactic.Cases
 
 namespace Lean.Meta
 
-def contradictionCore (mvarId : MVarId) (useDecide : Bool) : MetaM Bool := do
+def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (searchDepth : Nat) : MetaM Bool :=
+  match searchDepth with
+  | 0 => return false
+  | searchDepth + 1 =>
+    withMVarContext mvarId do
+      let localDecl ← getLocalDecl fvarId
+      let type ← whnfD localDecl.type
+      matchConstInduct type.getAppFn (fun _ => pure false) fun info _ => do
+        if info.ctors.length == 0 || info.numIndices > 0 then
+          -- We only consider inductives with no constructors and indexed families
+          commitWhen do
+            let subgoals ← try cases mvarId fvarId catch _ => return false
+            for subgoal in subgoals do
+              -- If one of the fields is uninhabited, then we are done
+              let mut found := false
+              for field in subgoal.fields do
+                let field := subgoal.subst.apply field
+                if field.isFVar then
+                  if (← elimEmptyInductive subgoal.mvarId field.fvarId! searchDepth) then
+                    found := true
+                    break
+              unless found == true do -- TODO: check why we need true here
+                return false
+            return true
+        else
+          return false
+
+def contradictionCore (mvarId : MVarId) (useDecide : Bool) (searchDepth : Nat) : MetaM Bool := do
   withMVarContext mvarId do
     checkNotAssigned mvarId `contradiction
     for localDecl in (← getLCtx) do
@@ -18,9 +46,8 @@ def contradictionCore (mvarId : MVarId) (useDecide : Bool) : MetaM Bool := do
           if let some pFVarId ← findLocalDeclWithType? p then
             assignExprMVar mvarId (← mkAbsurd (← getMVarType mvarId) (mkFVar pFVarId) localDecl.toExpr)
             return true
-        -- (h : False)
-        if (← matchFalse localDecl.type) then
-          assignExprMVar mvarId (← mkFalseElim (← getMVarType mvarId) localDecl.toExpr)
+        -- (h : <empty-inductive-type>)
+        if (← elimEmptyInductive mvarId localDecl.fvarId searchDepth) then
           return true
         -- (h : x ≠ x)
         if let some (_, lhs, rhs) ← matchNe? localDecl.type then
@@ -47,8 +74,8 @@ def contradictionCore (mvarId : MVarId) (useDecide : Bool) : MetaM Bool := do
             pure ()
     return false
 
-def contradiction (mvarId : MVarId ) (useDecide : Bool := true) : MetaM Unit :=
-  unless (← contradictionCore mvarId useDecide) do
+def contradiction (mvarId : MVarId ) (useDecide : Bool := true) (searchDepth : Nat := 2): MetaM Unit :=
+  unless (← contradictionCore mvarId useDecide searchDepth) do
     throwTacticEx `contradiction mvarId ""
 
 end Lean.Meta

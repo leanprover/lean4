@@ -253,19 +253,20 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
     else if isAntiquot quoted && !isEscapedAntiquot quoted then
       -- quotation contains a single antiquotation
       let k := antiquotKind? quoted |>.get!
-      -- Antiquotation kinds like `$id:ident` influence the parser, but also need to be considered by
-      -- `match` (but not by quotation terms). For example, `($id:ident) and `($e) are not
-      -- distinguishable without checking the kind of the node to be captured. Note that some
-      -- antiquotations like the latter one for terms do not correspond to any actual node kind
-      -- (signified by `k == Name.anonymous`), so we would only check for `ident` here.
-      --
-      -- if stx.isOfKind `ident then
-      --   let id := stx; let e := stx; ...
-      -- else
-      --   let e := stx; ...
-      let anti := getAntiquotTerm quoted
-      if anti.isIdent then
-        let rhsFn := (`(let $anti := discr; $(·)))
+      match getAntiquotTerm quoted with
+      | `(_) => unconditionally pure
+      | `($id:ident) =>
+        -- Antiquotation kinds like `$id:ident` influence the parser, but also need to be considered by
+        -- `match` (but not by quotation terms). For example, `($id:ident) and `($e) are not
+        -- distinguishable without checking the kind of the node to be captured. Note that some
+        -- antiquotations like the latter one for terms do not correspond to any actual node kind
+        -- (signified by `k == Name.anonymous`), so we would only check for `ident` here.
+        --
+        -- if stx.isOfKind `ident then
+        --   let id := stx; let e := stx; ...
+        -- else
+        --   let e := stx; ...
+        let rhsFn := (`(let $id := discr; $(·)))
         if k == Name.anonymous then unconditionally rhsFn else pure {
           check   := shape k none,
           onMatch := fun
@@ -276,7 +277,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
             | _ => uncovered,
           doMatch := fun yes no => do `(cond (Syntax.isOfKind discr $(quote k)) $(← yes []) $(← no)),
         }
-      else throwErrorAt anti "match_syntax: antiquotation must be variable {anti}"
+      | anti => throwErrorAt anti "unsupported antiquotation kind in pattern"
     else if isAntiquotSuffixSplice quoted then throwErrorAt quoted "unexpected antiquotation splice"
     else if isAntiquotSplice quoted then throwErrorAt quoted "unexpected antiquotation splice"
     else if quoted.getArgs.size == 1 && isAntiquotSuffixSplice quoted[0] then

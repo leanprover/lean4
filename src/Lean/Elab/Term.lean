@@ -105,6 +105,13 @@ structure Context where
   /-- Enable/disable implicit lambdas feature. -/
   implicitLambda     : Bool             := true
 
+/-- Saved context for postponed terms and tactics to be executed. -/
+structure SavedContext where
+  declName?  : Option Name
+  options    : Options
+  openDecls  : List OpenDecl
+  macroStack : MacroStack
+
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind where
   -- typeclass instance search
@@ -115,9 +122,9 @@ inductive SyntheticMVarKind where
      Otherwise, we generate the error `("type mismatch" ++ e ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)` -/
   | coe (header? : Option String) (eNew : Expr) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr)
   -- tactic block execution
-  | tactic (declName? : Option Name) (tacticCode : Syntax)
+  | tactic (tacticCode : Syntax) (ctx : SavedContext)
   -- `elabTerm` call that threw `Exception.postpone` (input is stored at `SyntheticMVarDecl.ref`)
-  | postponed (macroStack : MacroStack) (declName? : Option Name)
+  | postponed (ctx : SavedContext)
 
 instance : ToString SyntheticMVarKind where
   toString
@@ -877,11 +884,24 @@ def tryPostponeIfHasMVars (expectedType? : Option Expr) (msg : String) : TermEla
     throwError "{msg}, expected type contains metavariables{indentExpr expectedType}"
   pure expectedType
 
+private def saveContext : TermElabM SavedContext :=
+  return {
+    macroStack := (← read).macroStack
+    declName?  := (← read).declName?
+    options    := (← getOptions)
+    openDecls  := (← getOpenDecls)
+  }
+
+def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α := do
+  withReader (fun ctx => { ctx with declName? := savedCtx.declName?, macroStack := savedCtx.macroStack }) <|
+    withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls })
+      x
+
 private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   trace[Elab.postpone] "{stx} : {expectedType?}"
   let mvar ← mkFreshExprMVar expectedType? MetavarKind.syntheticOpaque
   let ctx ← read
-  registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed ctx.macroStack ctx.declName?)
+  registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed (← saveContext))
   pure mvar
 
 /-
@@ -1116,6 +1136,28 @@ def elabType (stx : Syntax) : TermElabM Expr := do
   withRef stx $ ensureType type
 
 /--
+  Execute `k` while catching auto bound implicit exceptions. When an exception is caught,
+  a new local declaration is created, registered, and `k` is tried to be executed again. -/
+partial def withCatchingAutoBoundExceptions (k : TermElabM α) : TermElabM α := do
+  if (← read).autoBoundImplicit then
+    let rec loop : TermElabM α := do
+      let s ← saveAllState
+      try
+        k
+      catch
+        | ex => match isAutoBoundImplicitLocalException? ex with
+          | some n =>
+            -- Restore state, declare `n`, and try again
+            s.restore
+            withLocalDecl n BinderInfo.implicit (← mkFreshTypeMVar) fun x =>
+              withReader (fun ctx => { ctx with autoBoundImplicits := ctx.autoBoundImplicits.push x } )
+                loop
+          | none   => throw ex
+    loop
+  else
+    k
+
+/--
   Elaborate `stx` creating new implicit variables for unbound ones when `autoBoundImplicit == true`, and then
   execute the continuation `k` in the potentially extended local context.
   The auto bound implicit locals are stored in the context variable `autoBoundImplicits`
@@ -1233,8 +1275,8 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
   let mvarId := mvar.mvarId!
   let ref ← getRef
   let declName? ← getDeclName?
-  registerSyntheticMVar ref mvarId <| SyntheticMVarKind.tactic declName? tacticCode
-  pure mvar
+  registerSyntheticMVar ref mvarId <| SyntheticMVarKind.tactic tacticCode (← saveContext)
+  return mvar
 
 @[builtinTermElab byTactic] def elabByTactic : TermElab := fun stx expectedType? =>
   match expectedType? with

@@ -527,50 +527,121 @@ private def checkNextPatternTypes (p : Problem) : MetaM Unit := do
           unless (← isDefEq xType eType) do
             throwError "pattern{indentExpr e}\n{← mkHasTypeButIsExpectedMsg eType xType}"
 
-private partial def process (p : Problem) : StateRefT State MetaM Unit := withIncRecDepth do
-  traceState p
-  let isInductive ← liftM $ isCurrVarInductive p
-  if isDone p then
-    processLeaf p
-  else if hasAsPattern p then
-    traceStep ("as-pattern")
-    let p ← processAsPattern p
-    process p
-  else if isNatValueTransition p then
-    traceStep ("nat value to constructor")
-    process (expandNatValuePattern p)
-  else if !isNextVar p then
-    traceStep ("non variable")
-    let p ← processNonVariable p
-    process p
-  else if isInductive && isConstructorTransition p then
-    let ps ← processConstructor p
-    ps.forM process
-  else if isVariableTransition p then
-    traceStep ("variable")
-    let p ← processVariable p
-    process p
-  else if isValueTransition p then
-    let ps ← processValue p
-    ps.forM process
-  else if isArrayLitTransition p then
-    let ps ← processArrayLit p
-    ps.forM process
-  else if hasNatValPattern p then
-    -- This branch is reachable when `p`, for example, is just values without an else-alternative.
-    -- We added it just to get better error messages.
-    traceStep ("nat value to constructor")
-    process (expandNatValuePattern p)
+private def List.moveToFront [Inhabited α] (as : List α) (i : Nat) : List α :=
+  let rec loop : (as : List α) → (i : Nat) → α × List α
+    | [],    _   => unreachable!
+    | a::as, 0   => (a, as)
+    | a::as, i+1 =>
+      let (b, bs) := loop as i
+      (b, a::bs)
+  let (b, bs) := loop as i
+  b :: bs
+
+/-- Move variable `#i` to the beginning of the to-do list `p.vars`. -/
+private def moveToFront (p : Problem) (i : Nat) : Problem := do
+  if i == 0 then
+    p
+  else if h : i < p.vars.length then
+    let x := p.vars.get i h
+    return { p with
+      vars := List.moveToFront p.vars i
+      alts := p.alts.map fun alt => { alt with patterns := List.moveToFront alt.patterns i }
+    }
   else
-    checkNextPatternTypes p
-    throwNonSupported p
+    p
+
+private partial def process (p : Problem) : StateRefT State MetaM Unit :=
+  search 0
+where
+  /- If `p.vars` is empty, then we are done. Otherwise, we process `p.vars[0]`. -/
+  tryToProcess (p : Problem) : StateRefT State MetaM Unit := withIncRecDepth do
+    traceState p
+    let isInductive ← liftM $ isCurrVarInductive p
+    if isDone p then
+      processLeaf p
+    else if hasAsPattern p then
+      traceStep ("as-pattern")
+      let p ← processAsPattern p
+      process p
+    else if isNatValueTransition p then
+      traceStep ("nat value to constructor")
+      process (expandNatValuePattern p)
+    else if !isNextVar p then
+      traceStep ("non variable")
+      let p ← processNonVariable p
+      process p
+    else if isInductive && isConstructorTransition p then
+      let ps ← processConstructor p
+      ps.forM process
+    else if isVariableTransition p then
+      traceStep ("variable")
+      let p ← processVariable p
+      process p
+    else if isValueTransition p then
+      let ps ← processValue p
+      ps.forM process
+    else if isArrayLitTransition p then
+      let ps ← processArrayLit p
+      ps.forM process
+    else if hasNatValPattern p then
+      -- This branch is reachable when `p`, for example, is just values without an else-alternative.
+      -- We added it just to get better error messages.
+      traceStep ("nat value to constructor")
+      process (expandNatValuePattern p)
+    else
+      checkNextPatternTypes p
+      throwNonSupported p
+
+  /- Return `true` if `type` does not depend on the first `i` elements in `xs` -/
+  checkVarDeps (xs : List Expr) (i : Nat) (type : Expr) : MetaM Bool := do
+    match i, xs with
+    | 0,   _     => return true
+    | _,   []    => unreachable!
+    | i+1, x::xs =>
+      if x.isFVar then
+        if (← dependsOn type x.fvarId!) then
+          return false
+      checkVarDeps xs i type
+
+  /--
+    Auxiliary method for `search`. Find next variable to "try".
+    `i` is the position of the variable s.t. `tryToProcess` failed.
+    We only consider variables that do not depend on other variables at `p.vars`. -/
+  findNext (i : Nat) : MetaM (Option Nat) := do
+    if h : i < p.vars.length then
+      let x := p.vars.get i h
+      if (← checkVarDeps p.vars i (← inferType x)) then
+        return i
+      else
+        findNext (i+1)
+    else
+      return none
+
+  /--
+    Auxiliary method for trying the next variable to process.
+    It moves variable `#i` to the front of the to-do list and invokes `tryToProcess`.
+    Note that for non-dependent elimination, variable `#0` always work.
+    If variable `#i` fails, we use `findNext` to select the next variable to try.
+    Remark: the "missing cases" error is not considered a failure. -/
+  search (i : Nat) : StateRefT State MetaM Unit := do
+    let s₁ ← getThe Meta.State
+    let s₂ ← get
+    let p' := moveToFront p i
+    try
+      tryToProcess p'
+    catch ex =>
+      match (← withGoalOf p <| findNext (i+1)) with
+      | none   => throw ex
+      | some j =>
+        trace[Meta.Match.match] "failed with #{i}, trying #{j}{indentD ex.toMessageData}"
+        set s₁; set s₂; search j
 
 private def getUElimPos? (matcherLevels : List Level) (uElim : Level) : MetaM (Option Nat) :=
   if uElim == levelZero then
-    pure none
+    return none
   else match matcherLevels.toArray.indexOf? uElim with
     | none => throwError "dependent match elimination failed, universe level not found"
-    | some pos => pure $ some pos.val
+    | some pos => return some pos.val
 
 /- See comment at `mkMatcher` before `mkAuxDefinition` -/
 register_builtin_option bootstrap.genMatcherCode : Bool := {

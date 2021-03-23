@@ -73,8 +73,8 @@ partial def findOLean (mod : Name) : IO String := do
     let pkg := mod.getRoot
     let mut msg := s!"unknown package '{pkg}'"
     let rec maybeThisOne dir := do
-      let dir := s!"{dir}{pathSep}{pkg}"
-      if ← IO.fileExists dir then
+      let pkgdir := s!"{dir}{pathSep}{pkg}"
+      if ← IO.fileExists pkgdir then
         return some s!"\nYou might need to open '{dir}' as a workspace in your editor"
       if let some dir ← System.FilePath.parent dir then
         maybeThisOne dir

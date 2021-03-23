@@ -448,8 +448,8 @@ def mkSimpleDelab (attrKind : Syntax) (vars : Array Syntax) (pat qrhs : Syntax) 
     let [(c, [])] ← resolveGlobalName c.getId | failure
     guard <| args.all (Syntax.isIdent ∘ getAntiquotTerm)
     guard <| args.allDiff
-    -- replace head constant with fresh (unused) antiquotation so we're not dependent on the exact pretty printing of the head
-    let qrhs ← `($(mkAntiquotNode (mkIdent "c")) $args*)
+    -- replace head constant with (unused) antiquotation so we're not dependent on the exact pretty printing of the head
+    let qrhs ← `($(mkAntiquotNode (← `(_))) $args*)
     `(@[$attrKind:attrKind appUnexpander $(mkIdent c):ident] def unexpand : Lean.PrettyPrinter.Unexpander := fun
        | `($qrhs) => `($pat)
        | _        => throw ())

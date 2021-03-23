@@ -32,3 +32,10 @@ def balanceRR {h c} (left : rbnode h c) (y : Int) (right : hiddenTree h) : almos
   | _, _, R a x b, HB c => LR (R a x b) y c
   | _, _, B a x b, HB c => V (R (B a x b) y c)
   | _, _, Leaf, HB c => V (R Leaf y c)
+
+def balanceRR' {h c} (left : rbnode h c) (y : Int) (right : hiddenTree h) : almostNode h :=
+  match h, c, right, left with
+  | _, _, HR c, left => RR left y c
+  | _, _, HB c, R a x b => LR (R a x b) y c
+  | _, _, HB c, B a x b => V (R (B a x b) y c)
+  | _, _, HB c, Leaf => V (R Leaf y c)

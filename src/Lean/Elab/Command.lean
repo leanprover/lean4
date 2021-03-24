@@ -330,17 +330,20 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
 @[inline] def runTermElabM {α} (declName? : Option Name) (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
   let scope ← getScope
   liftTermElabM declName? <|
-    -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
-    -- So, we use `Term.resetMessageLog`.
-    Term.withAutoBoundImplicitLocal <|
-      Term.elabBinders scope.varDecls (catchAutoBoundImplicit := true) fun xs => do
+    Term.withAutoBoundImplicit <|
+      Term.elabBinders scope.varDecls fun xs => do
+        -- We need to synthesize postponed terms because this is a checkpoint for the auto-bound implicit feature
+        -- If we don't use this checkpoint here, then auto-bound implicits in the postponed terms will not be handled correctly.
+        Term.synthesizeSyntheticMVarsNoPostponing
         let mut sectionFVars := {}
         for uid in scope.varUIds, x in xs do
           sectionFVars := sectionFVars.insert uid x
         withReader ({ · with sectionFVars := sectionFVars }) do
+          -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
+          -- So, we use `Term.resetMessageLog`.
           Term.resetMessageLog
           let xs ← Term.addAutoBoundImplicits xs
-          Term.withAutoBoundImplicitLocal (flag := false) <| elabFn xs
+          Term.withoutAutoBoundImplicit <| elabFn xs
 
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit := fun ctx ref =>
   EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
@@ -485,8 +488,8 @@ partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM Unit :=
 @[builtinCommandElab «variable»] def elabVariable : CommandElab
   | `(variable $binders*) => do
     -- Try to elaborate `binders` for sanity checking
-    runTermElabM none fun _ => Term.withAutoBoundImplicitLocal <|
-      Term.elabBinders binders (catchAutoBoundImplicit := true) fun _ => pure ()
+    runTermElabM none fun _ => Term.withAutoBoundImplicit <|
+      Term.elabBinders binders fun _ => pure ()
     let varUIds ← binders.concatMap getBracketedBinderIds |>.mapM (withFreshMacroScope ∘ MonadQuotation.addMacroScope)
     modifyScope fun scope => { scope with varDecls := scope.varDecls ++ binders, varUIds := scope.varUIds ++ varUIds }
   | _ => throwUnsupportedSyntax

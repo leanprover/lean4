@@ -294,11 +294,7 @@ mutual
               loop ()
             else
               reportStuckSyntheticMVars
-    /- Disable `autoBoundImplicit` to avoid nontermination.
-      The postponed terms have a fixed `localContext`, i.e. the context of the metavariable representing the "hole".
-      `throwAutoBoundImplicit` exception will have not effect. -/
-    withReader (fun ctx => { ctx with autoBoundImplicit := false }) do
-      loop ()
+    loop ()
 end
 
 def synthesizeSyntheticMVarsNoPostponing : TermElabM Unit :=

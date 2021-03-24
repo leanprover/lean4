@@ -342,11 +342,6 @@ def withLevelNames (levelNames : List Name) (x : TermElabM α) : TermElabM α :=
 def withoutErrToSorry (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with errToSorry := false }) x
 
-/-- Execute `x` with `autoBoundImplicit := (autoBoundImplicitLocal.get options) && flag` -/
-def withAutoBoundImplicitLocal (x : TermElabM α) (flag := true) : TermElabM α := do
-  let flag := autoBoundImplicitLocal.get (← getOptions) && flag
-  withReader (fun ctx => { ctx with autoBoundImplicit := flag, autoBoundImplicits := {} }) x
-
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do
   if (← get).messages.hasErrors then
@@ -1136,50 +1131,30 @@ def elabType (stx : Syntax) : TermElabM Expr := do
   withRef stx $ ensureType type
 
 /--
-  Execute `k` while catching auto bound implicit exceptions. When an exception is caught,
+  Enable auto-bound implicits, and execute `k` while catching auto bound implicit exceptions. When an exception is caught,
   a new local declaration is created, registered, and `k` is tried to be executed again. -/
-partial def withCatchingAutoBoundExceptions (k : TermElabM α) : TermElabM α := do
-  if (← read).autoBoundImplicit then
-    let rec loop : TermElabM α := do
-      let s ← saveAllState
-      try
-        k
-      catch
-        | ex => match isAutoBoundImplicitLocalException? ex with
-          | some n =>
-            -- Restore state, declare `n`, and try again
-            s.restore
-            withLocalDecl n BinderInfo.implicit (← mkFreshTypeMVar) fun x =>
-              withReader (fun ctx => { ctx with autoBoundImplicits := ctx.autoBoundImplicits.push x } )
-                loop
-          | none   => throw ex
-    loop
+partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
+  let flag := autoBoundImplicitLocal.get (← getOptions)
+  if flag then
+    withReader (fun ctx => { ctx with autoBoundImplicit := flag, autoBoundImplicits := {} }) do
+      let rec loop (s : SavedState) : TermElabM α := do
+        try
+          k
+        catch
+          | ex => match isAutoBoundImplicitLocalException? ex with
+            | some n =>
+              -- Restore state, declare `n`, and try again
+              s.restore
+              withLocalDecl n BinderInfo.implicit (← mkFreshTypeMVar) fun x =>
+                withReader (fun ctx => { ctx with autoBoundImplicits := ctx.autoBoundImplicits.push x } ) do
+                  loop (← saveAllState)
+            | none   => throw ex
+      loop (← saveAllState)
   else
     k
 
-/--
-  Elaborate `stx` creating new implicit variables for unbound ones when `autoBoundImplicit == true`, and then
-  execute the continuation `k` in the potentially extended local context.
-  The auto bound implicit locals are stored in the context variable `autoBoundImplicits`
- -/
-partial def elabTypeWithAutoBoundImplicit (stx : Syntax) (k : Expr → TermElabM α) : TermElabM α  := do
-  if (← read).autoBoundImplicit then
-    let rec loop : TermElabM α := do
-      let s ← saveAllState
-      try
-        k (← elabType stx)
-      catch
-        | ex => match isAutoBoundImplicitLocalException? ex with
-          | some n =>
-            -- Restore state, declare `n`, and try again
-            s.restore
-            withLocalDecl n BinderInfo.implicit (← mkFreshTypeMVar) fun x =>
-              withReader (fun ctx => { ctx with autoBoundImplicits := ctx.autoBoundImplicits.push x } )
-                loop
-          | none   => throw ex
-    loop
-  else
-    k (← elabType stx)
+def withoutAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
+  withReader (fun ctx => { ctx with autoBoundImplicit := false, autoBoundImplicits := {} }) k
 
 /--
   Return `autoBoundImplicits ++ xs.

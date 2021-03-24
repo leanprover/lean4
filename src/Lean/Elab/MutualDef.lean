@@ -74,20 +74,6 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
 private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit :=
   registerCustomErrorIfMVar type ref "failed to infer definition type"
 
-private def elabFunType (ref : Syntax) (xs : Array Expr) (view : DefView) (k : Array Expr → Expr → TermElabM α) : TermElabM α := do
-  match view.type? with
-  | some typeStx =>
-    elabTypeWithAutoBoundImplicit typeStx fun type => do
-      synthesizeSyntheticMVarsNoPostponing
-      let type ← instantiateMVars type
-      registerFailedToInferDefTypeInfo type typeStx
-      k xs (← mkForallFVars xs type)
-  | none =>
-    let hole := mkHole ref
-    let type ← elabType hole
-    registerFailedToInferDefTypeInfo type ref
-    k xs (← mkForallFVars xs type)
-
 private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHeader) := do
   let mut headers := #[]
   for view in views do
@@ -95,31 +81,41 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
       let ⟨shortDeclName, declName, levelNames⟩ ← expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
       addDeclarationRanges declName view.ref
       applyAttributesAt declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration
-      withDeclName declName <| withAutoBoundImplicitLocal <| withLevelNames levelNames <|
-        elabBinders (catchAutoBoundImplicit := true) view.binders.getArgs fun xs => do
+      withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
+        elabBinders view.binders.getArgs fun xs => do
           let refForElabFunType := view.value
-          elabFunType refForElabFunType xs view fun xs type => do
-            let mut type ← mkForallFVars (← read).autoBoundImplicits.toArray type
-            let xs ← addAutoBoundImplicits xs
-            let levelNames ← getLevelNames
-            if view.type?.isSome then
-              Term.synthesizeSyntheticMVarsNoPostponing
-              type ← instantiateMVars type
-              let pendingMVarIds ← getMVars type
-              discard <| logUnassignedUsingErrorInfos pendingMVarIds <|
-                m!"\nwhen the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed"
-            let newHeader := {
-              ref           := view.ref,
-              modifiers     := view.modifiers,
-              kind          := view.kind,
-              shortDeclName := shortDeclName,
-              declName      := declName,
-              levelNames    := levelNames,
-              numParams     := xs.size,
-              type          := type,
-              valueStx      := view.value : DefViewElabHeader }
-            check headers newHeader
-            pure newHeader
+          let type ← match view.type? with
+            | some typeStx =>
+              let type ← elabType typeStx
+              registerFailedToInferDefTypeInfo type typeStx
+              pure type
+            | none =>
+              let hole := mkHole refForElabFunType
+              let type ← elabType hole
+              registerFailedToInferDefTypeInfo type refForElabFunType
+              pure type
+          Term.synthesizeSyntheticMVarsNoPostponing
+          let type ← mkForallFVars xs type
+          let type ← mkForallFVars (← read).autoBoundImplicits.toArray type
+          let type ← instantiateMVars type
+          let xs ← addAutoBoundImplicits xs
+          let levelNames ← getLevelNames
+          if view.type?.isSome then
+            let pendingMVarIds ← getMVars type
+            discard <| logUnassignedUsingErrorInfos pendingMVarIds <|
+              m!"\nwhen the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed"
+          let newHeader := {
+            ref           := view.ref,
+            modifiers     := view.modifiers,
+            kind          := view.kind,
+            shortDeclName := shortDeclName,
+            declName      := declName,
+            levelNames    := levelNames,
+            numParams     := xs.size,
+            type          := type,
+            valueStx      := view.value : DefViewElabHeader }
+          check headers newHeader
+          pure newHeader
     headers := headers.push newHeader
   pure headers
 

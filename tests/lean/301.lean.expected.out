@@ -1,8 +1,2 @@
 301.lean:1:9-1:17: error: missing cases:
 (Nat.succ _)
-301.lean:1:21-1:24: error: type mismatch
-   ( fun (x : Nat) => ?m x)
-has type
-  (n : Nat) → ?m ( fun (x : Nat) => ?m x) n : Type ?u
-but is expected to have type
-  ?m x n : Type ?u

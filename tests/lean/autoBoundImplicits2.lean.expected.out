@@ -1,4 +1,3 @@
-autoBoundImplicits2.lean:9:0-10:3: error: invalid auto implicit argument 'b', it depends on explicitly provided argument 'n'
 g1 : ?m → ?m
 autoBoundImplicits2.lean:30:17-30:18: error: unknown universe level 'u'
 autoBoundImplicits2.lean:33:17-33:18: error: unknown universe level 'β'

@@ -128,7 +128,6 @@ def escapedChar : Quickparse Char := do
     Char.ofNat $ 4096*u1 + 256*u2 + 16*u3 + u4
   | _ => fail "illegal \\u escape"
 
-set_option trace.compiler true in
 partial def strCore (acc : String) : Quickparse String := do
   let c ← peek!
   if c = '"' then -- "

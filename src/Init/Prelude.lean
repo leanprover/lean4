@@ -628,7 +628,6 @@ theorem Nat.leStep : {n m : Nat} → LessEq n m → LessEq n (succ m)
     have LessEq n (succ m) from leStep this
     succLeSucc this
 
-set_option pp.raw true
 protected theorem Nat.leTrans : {n m k : Nat} → LessEq n m → LessEq m k → LessEq n k
   | zero,   m,      k,      h₁, h₂ => zeroLe _
   | succ n, zero,   k,      h₁, h₂ => Bool.noConfusion h₁

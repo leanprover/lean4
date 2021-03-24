@@ -276,36 +276,35 @@ theorem mem_split {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a 
 
 ## Extensible tactics
 
-In the following example, we define the notation `trivial` for the tactic DSL using
+In the following example, we define the notation `triv` for the tactic DSL using
 the command `syntax`. Then, we use the command `macro_rules` to specify what should
-be done when `trivial` is used. You can provide different expansions, and the tactic DSL
+be done when `triv` is used. You can provide different expansions, and the tactic DSL
 interpreter will try all of them until one succeeds.
 
 ```lean
 -- Define a new notation for the tactic DSL
-syntax "trivial" : tactic
+syntax "triv" : tactic
 
 macro_rules
-  | `(tactic| trivial) => `(tactic| assumption)
+  | `(tactic| triv) => `(tactic| assumption)
 
 theorem ex1 (h : p) : p := by
-  trivial
+  triv
 
--- You cannot prove the following theorem using `trivial`
+-- You cannot prove the following theorem using `triv`
 -- theorem ex2 (x : α) : x = x := by
---  trivial
+--  triv
 
--- Let's extend `trivial`. The `by` DSL interpreter
--- tries all possible macro extensions for `trivial` until one succeeds
+-- Let's extend `triv`. The `by` DSL interpreter
+-- tries all possible macro extensions for `triv` until one succeeds
 macro_rules
-  | `(tactic| trivial) => `(tactic| rfl)
+  | `(tactic| triv) => `(tactic| rfl)
 
 theorem ex2 (x : α) : x = x := by
-  trivial
+  triv
 
 theorem ex3 (x : α) (h : p) : x = x ∧ p := by
-  apply And.intro
-  repeat trivial
+  apply And.intro <;> triv
 ```
 
 # `let-rec`

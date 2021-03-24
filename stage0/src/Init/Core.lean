@@ -35,7 +35,7 @@ protected def Thunk.map {α : Type u} {β : Type v} (f : α → β) (x : Thunk �
 protected def Thunk.bind {α : Type u} {β : Type v} (x : Thunk α) (f : α → Thunk β) : Thunk β :=
   ⟨fun _ => (f x.get).get⟩
 
-abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b : α} (h : Eq a b) (m : motive a) : motive b :=
+abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b : α} (h : a = b) (m : motive a) : motive b :=
   Eq.ndrec m h
 
 structure Iff (a b : Prop) : Prop where
@@ -262,8 +262,8 @@ def typeEqOfHEq (h : a ≅ b) : α = β :=
 
 end
 
-theorem eqRecHEq {α : Sort u} {φ : α → Sort v} : {a a' : α} → (h : a = a') → (p : φ a) → (Eq.recOn (motive := fun x _ => φ x) h p) ≅ p
-  | a, _, rfl, p => HEq.refl p
+theorem eqRecHEq {α : Sort u} {φ : α → Sort v} {a a' : α} : (h : a = a') → (p : φ a) → (Eq.recOn (motive := fun x _ => φ x) h p) ≅ p
+  | rfl, p => HEq.refl p
 
 theorem heqOfEqRecEq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ : Eq.rec (motive := fun α _ => α) a h₁ = b) : a ≅ b := by
   subst h₁
@@ -271,8 +271,8 @@ theorem heqOfEqRecEq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ :
   exact h₂
   done
 
-theorem castHEq : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≅ a
-  | α, _, rfl, a => HEq.refl a
+theorem castHEq {α β : Sort u} : (h : α = β) → (a : α) → cast h a ≅ a
+  | rfl, a => HEq.refl a
 
 variable {a b c d : Prop}
 
@@ -316,16 +316,16 @@ theorem decideFalseEqFalse (h : Decidable False) : @decide False h = false :=
 
 /-- Similar to `decide`, but uses an explicit instance -/
 @[inline] def toBoolUsing {p : Prop} (d : Decidable p) : Bool :=
-  @decide p d
+  decide p (h := d)
 
 theorem toBoolUsingEqTrue {p : Prop} (d : Decidable p) (h : p) : toBoolUsing d = true :=
-  @decideEqTrue _ d h
+  decideEqTrue (s := d) h
 
 theorem ofBoolUsingEqTrue {p : Prop} {d : Decidable p} (h : toBoolUsing d = true) : p :=
-  @ofDecideEqTrue _ d h
+  ofDecideEqTrue (s := d) h
 
 theorem ofBoolUsingEqFalse {p : Prop} {d : Decidable p} (h : toBoolUsing d = false) : ¬ p :=
-  @ofDecideEqFalse _ d h
+  ofDecideEqFalse (s := d) h
 
 instance : Decidable True :=
   isTrue trivial
@@ -396,40 +396,39 @@ instance {p q} [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
 
 theorem ifPos {c : Prop} [h : Decidable c] (hc : c) {α : Sort u} {t e : α} : (ite c t e) = t :=
   match h with
-  | (isTrue  hc)  => rfl
-  | (isFalse hnc) => absurd hc hnc
+  | isTrue  hc  => rfl
+  | isFalse hnc => absurd hc hnc
 
 theorem ifNeg {c : Prop} [h : Decidable c] (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
   match h with
-  | (isTrue hc)   => absurd hc hnc
-  | (isFalse hnc) => rfl
+  | isTrue hc   => absurd hc hnc
+  | isFalse hnc => rfl
 
 theorem difPos {c : Prop} [h : Decidable c] (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = t hc :=
   match h with
-  | (isTrue  hc)  => rfl
-  | (isFalse hnc) => absurd hc hnc
+  | isTrue  hc  => rfl
+  | isFalse hnc => absurd hc hnc
 
 theorem difNeg {c : Prop} [h : Decidable c] (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = e hnc :=
   match h with
-  | (isTrue hc)   => absurd hc hnc
-  | (isFalse hnc) => rfl
+  | isTrue hc   => absurd hc hnc
+  | isFalse hnc => rfl
 
 -- Remark: dite and ite are "defally equal" when we ignore the proofs.
 theorem difEqIf (c : Prop) [h : Decidable c] {α : Sort u} (t : α) (e : α) : dite c (fun h => t) (fun h => e) = ite c t e :=
   match h with
-  | (isTrue hc)   => rfl
-  | (isFalse hnc) => rfl
+  | isTrue hc   => rfl
+  | isFalse hnc => rfl
 
 instance {c t e : Prop} [dC : Decidable c] [dT : Decidable t] [dE : Decidable e] : Decidable (if c then t else e)  :=
   match dC with
-  | (isTrue hc)  => dT
-  | (isFalse hc) => dE
+  | isTrue hc  => dT
+  | isFalse hc => dE
 
 instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT : ∀ h, Decidable (t h)] [dE : ∀ h, Decidable (e h)] : Decidable (if h : c then t h else e h)  :=
   match dC with
-  | (isTrue hc)  => dT hc
-  | (isFalse hc) => dE hc
-
+  | isTrue hc  => dT hc
+  | isFalse hc => dE hc
 
 /- Inhabited -/
 
@@ -453,8 +452,7 @@ theorem nonemptyOfExists {α : Sort u} {p : α → Prop} : Exists (fun x => p x)
 /- Subsingleton -/
 
 class Subsingleton (α : Sort u) : Prop where
-  intro ::
-    allEq : (a b : α) → a = b
+  intro :: allEq : (a b : α) → a = b
 
 protected def Subsingleton.elim {α : Sort u} [h : Subsingleton α] : (a b : α) → a = b :=
   h.allEq
@@ -469,12 +467,12 @@ instance (p : Prop) : Subsingleton p :=
 
 instance (p : Prop) : Subsingleton (Decidable p) :=
   Subsingleton.intro fun
-    | (isTrue t₁) => fun
-      | (isTrue t₂)  => proofIrrel t₁ t₂ ▸ rfl
-      | (isFalse f₂) => absurd t₁ f₂
-    | (isFalse f₁) => fun
-      | (isTrue t₂)  => absurd t₂ f₁
-      | (isFalse f₂) => proofIrrel f₁ f₂ ▸ rfl
+    | isTrue t₁ => fun
+      | isTrue t₂  => rfl
+      | isFalse f₂ => absurd t₁ f₂
+    | isFalse f₁ => fun
+      | isTrue t₂  => absurd t₂ f₁
+      | isFalse f₂ => rfl
 
 theorem recSubsingleton
      {p : Prop} [h : Decidable p]
@@ -484,8 +482,8 @@ theorem recSubsingleton
      [h₄ : ∀ (h : ¬p), Subsingleton (h₂ h)]
      : Subsingleton (Decidable.casesOn (motive := fun _ => Sort u) h h₂ h₁) :=
   match h with
-  | (isTrue h)  => h₃ h
-  | (isFalse h) => h₄ h
+  | isTrue h  => h₃ h
+  | isFalse h => h₄ h
 
 structure Equivalence {α : Sort u} (r : α → α → Prop) : Prop where
   refl  : ∀ x, r x x
@@ -543,14 +541,14 @@ instance Sum.inhabitedRight [h : Inhabited β] : Inhabited (Sum α β) where
 
 instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) := fun a b =>
   match a, b with
-  | (Sum.inl a), (Sum.inl b) =>
+  | Sum.inl a, Sum.inl b =>
     if h : a = b then isTrue (h ▸ rfl)
-    else isFalse (fun h' => Sum.noConfusion h' (fun h' => absurd h' h))
-  | (Sum.inr a), (Sum.inr b) =>
+    else isFalse fun h' => Sum.noConfusion h' fun h' => absurd h' h
+  | Sum.inr a, Sum.inr b =>
     if h : a = b then isTrue (h ▸ rfl)
-    else isFalse (fun h' => Sum.noConfusion h' (fun h' => absurd h' h))
-  | (Sum.inr a), (Sum.inl b) => isFalse (fun h => Sum.noConfusion h)
-  | (Sum.inl a), (Sum.inr b) => isFalse (fun h => Sum.noConfusion h)
+    else isFalse fun h' => Sum.noConfusion h' fun h' => absurd h' h
+  | Sum.inr a, Sum.inl b => isFalse fun h => Sum.noConfusion h
+  | Sum.inl a, Sum.inr b => isFalse fun h => Sum.noConfusion h
 
 end
 
@@ -560,16 +558,16 @@ instance [Inhabited α] [Inhabited β] : Inhabited (α × β) where
   default := (arbitrary, arbitrary)
 
 instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
-  fun ⟨a, b⟩ ⟨a', b'⟩ =>
-    match (decEq a a') with
-    | (isTrue e₁) =>
-      match (decEq b b') with
-      | (isTrue e₂)  => isTrue (e₁ ▸ e₂ ▸ rfl)
-      | (isFalse n₂) => isFalse (fun h => Prod.noConfusion h (fun e₁' e₂' => absurd e₂' n₂))
-    | (isFalse n₁) => isFalse (fun h => Prod.noConfusion h (fun e₁' e₂' => absurd e₁' n₁))
+  fun (a, b) (a', b') =>
+    match decEq a a' with
+    | isTrue e₁ =>
+      match decEq b b' with
+      | isTrue e₂  => isTrue (e₁ ▸ e₂ ▸ rfl)
+      | isFalse n₂ => isFalse fun h => Prod.noConfusion h fun e₁' e₂' => absurd e₂' n₂
+    | isFalse n₁ => isFalse fun h => Prod.noConfusion h fun e₁' e₂' => absurd e₁' n₁
 
 instance [BEq α] [BEq β] : BEq (α × β) where
-  beq := fun ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ => a₁ == a₂ && b₁ == b₂
+  beq := fun (a₁, b₁) (a₂, b₂) => a₁ == a₂ && b₁ == b₂
 
 instance [HasLess α] [HasLess β] : HasLess (α × β) where
   Less s t := s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)
@@ -914,10 +912,10 @@ variable (r : α → α → Prop)
 instance {α : Sort u} {s : Setoid α} [d : ∀ (a b : α), Decidable (a ≈ b)] : DecidableEq (Quotient s) :=
   fun (q₁ q₂ : Quotient s) =>
     Quotient.recOnSubsingleton₂ (motive := fun a b => Decidable (a = b)) q₁ q₂
-      (fun a₁ a₂ =>
-        match (d a₁ a₂) with
-        | (isTrue h₁)  => isTrue (Quotient.sound h₁)
-        | (isFalse h₂) => isFalse (fun h => absurd (Quotient.exact h) h₂))
+      fun a₁ a₂ =>
+        match d a₁ a₂ with
+        | isTrue h₁  => isTrue (Quotient.sound h₁)
+        | isFalse h₂ => isFalse fun h => absurd (Quotient.exact h) h₂
 
 /- Function extensionality -/
 
@@ -936,8 +934,8 @@ protected theorem Equiv.trans {f₁ f₂ f₃ : ∀ (x : α), β x} : Equiv f₁
   fun h₁ h₂ x => Eq.trans (h₁ x) (h₂ x)
 
 protected theorem Equiv.isEquivalence (α : Sort u) (β : α → Sort v) : Equivalence (@Function.Equiv α β) := {
-  refl := Equiv.refl,
-  symm := Equiv.symm,
+  refl := Equiv.refl
+  symm := Equiv.symm
   trans := Equiv.trans
 }
 
@@ -964,8 +962,9 @@ theorem funext {f₁ f₂ : ∀ (x : α), β x} (h : ∀ x, f₁ x = f₂ x) : f
 
 end
 
-instance {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] : Subsingleton (∀ a, β a) :=
-  ⟨fun f₁ f₂ => funext (fun a => Subsingleton.elim (f₁ a) (f₂ a))⟩
+instance {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] : Subsingleton (∀ a, β a) where
+  allEq f₁ f₂ :=
+    funext (fun a => Subsingleton.elim (f₁ a) (f₂ a))
 
 /- Squash -/
 
@@ -979,12 +978,12 @@ theorem Squash.ind {α : Type u} {motive : Squash α → Prop} (h : ∀ (a : α)
 @[inline] def Squash.lift {α β} [Subsingleton β] (s : Squash α) (f : α → β) : β :=
   Quot.lift f (fun a b _ => Subsingleton.elim _ _) s
 
-instance {α} : Subsingleton (Squash α) := ⟨fun a b =>
-  Squash.ind (motive := fun a => a = b)
-    (fun a => Squash.ind (motive := fun b => Squash.mk a = b)
-      (fun b => show Quot.mk _ a = Quot.mk _ b by apply Quot.sound; exact trivial)
-      b)
-    a⟩
+instance : Subsingleton (Squash α) where
+  allEq a b := by
+    induction a using Squash.ind
+    induction b using Squash.ind
+    apply Quot.sound
+    trivial
 
 namespace Lean
 /- Kernel reduction hints -/

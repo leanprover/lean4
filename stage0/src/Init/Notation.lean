@@ -302,6 +302,14 @@ syntax "repeat " tacticSeq : tactic
 macro_rules
   | `(tactic| repeat $seq) => `(tactic| first ($seq); repeat $seq | skip)
 
+syntax "trivial" : tactic
+
+macro_rules | `(tactic| trivial) => `(tactic| assumption)
+macro_rules | `(tactic| trivial) => `(tactic| rfl)
+macro_rules | `(tactic| trivial) => `(tactic| contradiction)
+macro_rules | `(tactic| trivial) => `(tactic| apply True.intro)
+macro_rules | `(tactic| trivial) => `(tactic| apply And.intro <;> trivial)
+
 end Tactic
 
 namespace Attr

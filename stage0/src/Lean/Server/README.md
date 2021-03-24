@@ -1,38 +1,18 @@
-## Building
+## Building & Developing
 
-The server gets built together with the main `lean` binary.
-
-## Connecting clients
-
-### Emacs with lean4-mode
-
-Works out of the box. The old, language server-less major mode can still be accessed by running `lean4-mode`.
-
-### VSCode with lsp-sample
-
-An easy way to get an LSP client is to build the [sample extension](https://github.com/Microsoft/vscode-extension-samples/tree/master/lsp-sample) and replace the server options in `extension.ts`:
-
-```typescript
-  let serverOptions: ServerOptions = {
-    command: "$LEAN4_HOME/build/$RELEASE_OR_DEBUG/stage1/bin/lean",
-    args: ["--server"],
-    options: {
-      env: {
-        LEAN_PATH: "$LEAN4_HOME/build/$RELEASE_OR_DEBUG/stage1/lib/lean/",
-        // Set to use a different Lean binary for the worker
-        //, LEAN_WORKER_PATH: "$LEAN4_HOME/build/$RELEASE_OR_DEBUG/stage1/bin/lean"
-        // Add this to log LSP messages to a folder
-        //, LEAN_SERVER_LOG_DIR: "my/log/dir"
-      }
-    }
-  };
-```
+Both watchdog and worker (see below) are part of the main `lean` binary.
+If you only change the worker (true for most changes), the "refresh file dependencies" command of your editor will reload it after you rebuild `lean` (the rebuild happens automatically with the Nix setup, just be patient because there is no intermediate build output).
+If you (also) change the watchdog, use the "restart server" command instead.
 
 ## Logging LSP requests
 
 ### In general
 
 To log all LSP messages and server output into a directory, just set the `LEAN_SERVER_LOG_DIR` environment variable. This will create a file for each I/O stream of the main server process, as well as those of each worker process.
+
+### In Emacs
+
+See the `lsp-log-io` variable.
 
 ### In VSCode
 

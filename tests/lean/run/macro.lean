@@ -7,7 +7,7 @@ axiom Union {α : Type} : Set (Set α) → Set α
 syntax:100 term " ∈ " term:99 : term
 
 macro_rules
-| `($x:term ∈ $s:term) => `(mem $x:term $s:term)
+| `($x ∈ $s) => `(mem $x $s)
 
 declare_syntax_cat index
 
@@ -18,19 +18,19 @@ syntax ident ":" term : index
 syntax "{" index " | " term "}" : term
 
 macro_rules
--- | `({ $l:term ≤ $x:ident < $u:term | $p:term }) => `(setOf (fun $x:ident => $l:term ≤ $x:ident ∧ $x:ident < $u:term ∧ $p:term))
-| `({ $x:ident : $t:term | $p:term }) => `(setOf (fun ($x:ident : $t:term) => $p:term))
-| `({ $x:term ∈ $s:term | $p:term }) => `(setOf (fun $x:term => $x:term ∈ $s:term ∧ $p:term))
-| `({ $x:term ≤ $e:term | $p:term }) => `(setOf (fun $x:term => $x:term ≤ $e:term ∧ $p:term))
-| `({ $b:term | $r:term}) => `(setOf (fun $b:term => $r:term))
+--| `({$l:term ≤ $x:ident < $u | $p}) => `(setOf (fun $x:ident => $l ≤ $x:ident ∧ $x:ident < $u ∧ $p))
+| `({$x:ident : $t | $p}) => `(setOf (fun ($x:ident : $t) => $p))
+| `({$x:term ∈ $s | $p}) => `(setOf (fun $x => $x ∈ $s ∧ $p))
+| `({$x:term ≤ $e | $p}) => `(setOf (fun $x => $x ≤ $e ∧ $p))
+| `({$b:term      | $r}) => `(setOf (fun $b => $r))
 
--- #check { 1 ≤ x < 10 | x ≠ 5 }
+--#check { 1 ≤ x < 10 | x ≠ 5 }
 #check { f : Nat → Nat | f 1  > 0 }
 
 syntax "⋃ " term ", " term : term
 
 macro_rules
-| `(⋃ $b:term, $r:term) => `(Union {$b:term | $r:term})
+| `(⋃ $b, $r) => `(Union {$b:term | $r})
 
 #check ⋃ x,              x = x
 #check ⋃ (x : Set Unit), x = x

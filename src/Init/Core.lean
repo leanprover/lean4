@@ -983,7 +983,7 @@ instance : Subsingleton (Squash α) where
     induction a using Squash.ind
     induction b using Squash.ind
     apply Quot.sound
-    exact trivial
+    trivial
 
 namespace Lean
 /- Kernel reduction hints -/

@@ -246,20 +246,20 @@ abbrev DecidableEq (α : Sort u) :=
 def decEq {α : Sort u} [s : DecidableEq α] (a b : α) : Decidable (Eq a b) :=
   s a b
 
-theorem decideEqTrue : {p : Prop} → [s : Decidable p] → p → Eq (decide p) true
-  | _, isTrue  _, _   => rfl
-  | _, isFalse h₁, h₂ => absurd h₂ h₁
+theorem decideEqTrue : [s : Decidable p] → p → Eq (decide p) true
+  | isTrue  _, _   => rfl
+  | isFalse h₁, h₂ => absurd h₂ h₁
 
-theorem decideEqFalse : {p : Prop} → [s : Decidable p] → Not p → Eq (decide p) false
-  | _, isTrue  h₁, h₂ => absurd h₁ h₂
-  | _, isFalse h, _   => rfl
+theorem decideEqFalse : [s : Decidable p] → Not p → Eq (decide p) false
+  | isTrue  h₁, h₂ => absurd h₁ h₂
+  | isFalse h, _   => rfl
 
-theorem ofDecideEqTrue {p : Prop} [s : Decidable p] : Eq (decide p) true → p := fun h =>
+theorem ofDecideEqTrue [s : Decidable p] : Eq (decide p) true → p := fun h =>
   match s with
   | isTrue  h₁ => h₁
   | isFalse h₁ => absurd h (neTrueOfEqFalse (decideEqFalse h₁))
 
-theorem ofDecideEqFalse {p : Prop} [s : Decidable p] : Eq (decide p) false → Not p := fun h =>
+theorem ofDecideEqFalse [s : Decidable p] : Eq (decide p) false → Not p := fun h =>
   match s with
   | isTrue  h₁ => absurd h (neFalseOfEqTrue (decideEqTrue h₁))
   | isFalse h₁ => h₁
@@ -276,7 +276,7 @@ class BEq (α : Type u) where
 
 open BEq (beq)
 
-instance {α : Type u} [DecidableEq α] : BEq α where
+instance [DecidableEq α] : BEq α where
   beq a b := decide (Eq a b)
 
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
@@ -298,7 +298,7 @@ instance {α : Type u} [DecidableEq α] : BEq α where
   | isFalse hp =>
     isFalse (fun h => hp (And.left h))
 
-@[macroInline] instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (Or p q) :=
+@[macroInline] instance [dp : Decidable p] [dq : Decidable q] : Decidable (Or p q) :=
   match dp with
   | isTrue  hp => isTrue (Or.inl hp)
   | isFalse hp =>
@@ -309,7 +309,7 @@ instance {α : Type u} [DecidableEq α] : BEq α where
         | Or.inl h => hp h
         | Or.inr h => hq h
 
-instance {p} [dp : Decidable p] : Decidable (Not p) :=
+instance [dp : Decidable p] : Decidable (Not p) :=
   match dp with
   | isTrue hp  => isFalse (absurd hp)
   | isFalse hp => isTrue hp
@@ -907,7 +907,7 @@ instance : Inhabited USize where
 @[extern "lean_usize_of_nat"]
 def USize.ofNat32 (n : @& Nat) (h : Less n 4294967296) : USize := {
   val := {
-    val  := n,
+    val  := n
     isLt := match USize.size, usizeSzEq with
       | _, Or.inl rfl => h
       | _, Or.inr rfl => Nat.ltTrans h (by decide)
@@ -1046,7 +1046,7 @@ attribute [extern "lean_string_data"] String.data
 def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
   match s₁, s₂ with
   | ⟨s₁⟩, ⟨s₂⟩ =>
-   dite (Eq s₁ s₂) (fun h => isTrue (congrArg _ h)) (fun h => isFalse (fun h' => String.noConfusion h' (fun h' => absurd h' h)))
+    dite (Eq s₁ s₂) (fun h => isTrue (congrArg _ h)) (fun h => isFalse (fun h' => String.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq String := String.decEq
 
@@ -1080,8 +1080,8 @@ def String.utf8ByteSize : (@& String) → Nat
   utf8ByteSize s
 
 @[inline] def String.toSubstring (s : String) : Substring := {
-  str := s,
-  startPos := 0,
+  str      := s
+  startPos := 0
   stopPos  := s.bsize
 }
 
@@ -1187,10 +1187,10 @@ class Applicative (f : Type u → Type v) extends Functor f, Pure f, Seq f, SeqL
   seqRight := fun a b => Seq.seq (Functor.map (Function.const _ id) a) b
 
 class Monad (m : Type u → Type v) extends Applicative m, Bind m : Type (max (u+1) v) where
-  map      := fun f x => bind x (Function.comp pure f)
-  seq      := fun f x => bind f fun y => Functor.map y x
-  seqLeft  := fun x y => bind x fun a => bind y (fun _ => pure a)
-  seqRight := fun x y => bind x fun _ => y
+  map      f x := bind x (Function.comp pure f)
+  seq      f x := bind f fun y => Functor.map y x
+  seqLeft  x y := bind x fun a => bind y (fun _ => pure a)
+  seqRight x y := bind x fun _ => y
 
 instance {α : Type u} {m : Type u → Type v} [Monad m] : Inhabited (α → m α) where
   default := pure
@@ -1432,9 +1432,9 @@ class MonadState (σ : outParam (Type u)) (m : Type u → Type v) where
 export MonadState (get modifyGet)
 
 instance (σ : Type u) (m : Type u → Type v) [MonadStateOf σ m] : MonadState σ m where
-  set       := MonadStateOf.set
-  get       := getThe σ
-  modifyGet := fun f => MonadStateOf.modifyGet f
+  set         := MonadStateOf.set
+  get         := getThe σ
+  modifyGet f := MonadStateOf.modifyGet f
 
 @[inline] def modify {σ : Type u} {m : Type u → Type v} [MonadState σ m] (f : σ → σ) : m PUnit :=
   modifyGet fun s => (PUnit.unit, f s)
@@ -1445,9 +1445,9 @@ instance (σ : Type u) (m : Type u → Type v) [MonadStateOf σ m] : MonadState 
 -- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer
 -- will be picked first
 instance {σ : Type u} {m : Type u → Type v} {n : Type u → Type w} [MonadLift m n] [MonadStateOf σ m] : MonadStateOf σ n where
-  get       := liftM (m := m) MonadStateOf.get
-  set       := fun s => liftM (m := m) (MonadStateOf.set s)
-  modifyGet := fun f => monadLift (m := m) (MonadState.modifyGet f)
+  get         := liftM (m := m) MonadStateOf.get
+  set       s := liftM (m := m) (MonadStateOf.set s)
+  modifyGet f := monadLift (m := m) (MonadState.modifyGet f)
 
 namespace EStateM
 
@@ -1548,8 +1548,8 @@ instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) where
 
 @[inline] def run' (x : EStateM ε σ α) (s : σ) : Option α :=
   match run x s with
-  | Result.ok v _    => some v
-  | Result.error _ _ => none
+  | Result.ok v _   => some v
+  | Result.error .. => none
 
 @[inline] def dummySave : σ → PUnit := fun _ => ⟨⟩
 
@@ -1687,13 +1687,13 @@ namespace Syntax
 
 def getKind (stx : Syntax) : SyntaxNodeKind :=
   match stx with
-  | Syntax.node k args   => k
+  | Syntax.node k args => k
   -- We use these "pseudo kinds" for antiquotation kinds.
   -- For example, an antiquotation `$id:ident` (using Lean.Parser.Term.ident)
   -- is compiled to ``if stx.isOfKind `ident ...``
-  | Syntax.missing       => `missing
-  | Syntax.atom _ v      => Name.mkSimple v
-  | Syntax.ident _ _ _ _ => identKind
+  | Syntax.missing     => `missing
+  | Syntax.atom _ v    => Name.mkSimple v
+  | Syntax.ident ..    => identKind
 
 def setKind (stx : Syntax) (k : SyntaxNodeKind) : Syntax :=
   match stx with
@@ -1734,9 +1734,9 @@ def setArg (stx : Syntax) (i : Nat) (arg : Syntax) : Syntax :=
 
 /-- Retrieve the left-most leaf's info in the Syntax tree. -/
 partial def getHeadInfo? : Syntax → Option SourceInfo
-  | atom info _      => some info
-  | ident info _ _ _ => some info
-  | node _ args      =>
+  | atom info _   => some info
+  | ident info .. => some info
+  | node _ args   =>
     let rec loop (i : Nat) : Option SourceInfo :=
       match decide (Less i args.size) with
       | true => match getHeadInfo? (args.get! i) with
@@ -1744,7 +1744,7 @@ partial def getHeadInfo? : Syntax → Option SourceInfo
          | none      => loop (hAdd i 1)
       | false => none
     loop 0
-  | _                => none
+  | _             => none
 
 /-- Retrieve the left-most leaf's info in the Syntax tree, or `none` if there is no token. -/
 partial def getHeadInfo (stx : Syntax) : SourceInfo :=
@@ -1827,8 +1827,8 @@ class MonadRef (m : Type → Type) where
 export MonadRef (getRef)
 
 instance (m n : Type → Type) [MonadLift m n] [MonadFunctor m n] [MonadRef m] : MonadRef n where
-  getRef  := liftM (getRef : m _)
-  withRef := fun ref x => monadMap (m := m) (MonadRef.withRef ref) x
+  getRef        := liftM (getRef : m _)
+  withRef ref x := monadMap (m := m) (MonadRef.withRef ref) x
 
 def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
   match ref.getPos? with
@@ -1985,8 +1985,8 @@ def addMacroScope (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
     | true  => Name.mkNum n scp
     | false =>
       { view with
-        imported   := view.scopes.foldl Name.mkNum (hAppend view.imported view.mainModule),
-        mainModule := mainModule,
+        imported   := view.scopes.foldl Name.mkNum (hAppend view.imported view.mainModule)
+        mainModule := mainModule
         scopes     := List.cons scp List.nil
       }.review
   | false =>
@@ -2060,9 +2060,9 @@ def throwErrorAt {α} (ref : Syntax) (msg : String) : MacroM α :=
   | false => withReader (fun ctx => { ctx with currRecDepth := hAdd ctx.currRecDepth 1 }) x
 
 instance : MonadQuotation MacroM where
-  getCurrMacroScope   := fun ctx => pure ctx.currMacroScope
-  getMainModule       := fun ctx => pure ctx.mainModule
-  withFreshMacroScope := Macro.withFreshMacroScope
+  getCurrMacroScope ctx := pure ctx.currMacroScope
+  getMainModule     ctx := pure ctx.mainModule
+  withFreshMacroScope   := Macro.withFreshMacroScope
 
 unsafe def mkMacroEnvImp (expandMacro? : Syntax → MacroM (Option Syntax)) : MacroEnv :=
   unsafeCast expandMacro?

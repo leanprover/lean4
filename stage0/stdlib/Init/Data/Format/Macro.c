@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_26____closed__13;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_myMacro____x40_Init_Notation___hyg_16301__expandListLit___spec__1(lean_object*, lean_object*);
 extern lean_object* l_termS_x21_____closed__7;
 lean_object* l_Std_termF_x21_____closed__7;
 lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_26____closed__6;
@@ -28,6 +27,7 @@ lean_object* l_Lean_Syntax_expandInterpolatedStr(lean_object*, lean_object*, lea
 lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_26____closed__7;
 lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_26_(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_26____closed__5;
+lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_myMacro____x40_Init_Notation___hyg_16165__expandListLit___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_termF_x21_____closed__5;
 lean_object* l_Std_termF_x21_____closed__3;
 extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__10;
@@ -310,7 +310,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_o
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 lean_dec(x_1);
-x_10 = l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_myMacro____x40_Init_Notation___hyg_16301__expandListLit___spec__1(x_2, x_3);
+x_10 = l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_myMacro____x40_Init_Notation___hyg_16165__expandListLit___spec__1(x_2, x_3);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
@@ -331,7 +331,7 @@ lean_ctor_set(x_19, 0, x_11);
 lean_ctor_set(x_19, 1, x_17);
 lean_ctor_set(x_19, 2, x_16);
 lean_ctor_set(x_19, 3, x_18);
-x_20 = l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_myMacro____x40_Init_Notation___hyg_16301__expandListLit___spec__1(x_2, x_12);
+x_20 = l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_myMacro____x40_Init_Notation___hyg_16165__expandListLit___spec__1(x_2, x_12);
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc(x_21);
 x_22 = lean_ctor_get(x_20, 1);

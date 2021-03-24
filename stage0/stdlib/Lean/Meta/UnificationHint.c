@@ -161,7 +161,6 @@ lean_object* l_Std_fmt___at_Lean_Meta_addUnificationHint___spec__3(lean_object*)
 lean_object* l_Lean_Meta_instInhabitedUnificationHints;
 lean_object* l_List_forM___at___private_Lean_Meta_UnificationHint_0__Lean_Meta_validateHint___spec__1___closed__1;
 lean_object* l_Std_PersistentHashMap_foldlMAux_traverse___at_Lean_Meta_instToFormatUnificationHints___spec__13___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7683____closed__4;
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_Meta_UnificationHints_add___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_tryUnificationHints___spec__1___closed__1;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_598____lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -246,6 +245,7 @@ lean_object* l_List_mapM___at_Lean_Meta_tryUnificationHints_tryCandidate___spec_
 lean_object* l_Lean_Meta_addUnificationHint___lambda__1___closed__4;
 extern lean_object* l_instReprIterator___closed__3;
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_7613____closed__4;
 lean_object* l_Lean_Meta_tryUnificationHints_isDefEqPattern(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_ScopedEnvExtension_getState___rarg___closed__3;
@@ -2499,7 +2499,7 @@ lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificatio
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_2 = l_myMacro____x40_Init_Notation___hyg_7683____closed__4;
+x_2 = l_myMacro____x40_Init_Notation___hyg_7613____closed__4;
 x_3 = lean_unsigned_to_nat(3u);
 x_4 = l_Lean_Expr_isAppOfArity(x_1, x_2, x_3);
 if (x_4 == 0)

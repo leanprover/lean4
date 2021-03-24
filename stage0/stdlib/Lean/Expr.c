@@ -28,6 +28,7 @@ size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_Expr_Data_hash___boxed(lean_object*);
 lean_object* l_Lean_Expr_isApp_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasAnyFVar_visit_match__1(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_14458____closed__14;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_Expr_bindingDomain_x21___boxed(lean_object*);
 uint8_t l_Lean_Expr_isCharLit(lean_object*);
@@ -105,7 +106,6 @@ size_t l_Lean_Expr_Data_hash(uint64_t);
 lean_object* l_Lean_Expr_instantiateLevelParamsCore_visit_match__1(lean_object*);
 lean_object* l_Lean_mkDecIsTrue___closed__5;
 lean_object* l_Lean_instDecidableLess___boxed(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_14594____closed__14;
 lean_object* l_Lean_mkMVar(lean_object*);
 size_t l_USize_sub(size_t, size_t);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_etaExpandedAux(lean_object*, lean_object*);
@@ -5049,7 +5049,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_Notation___hyg_14594____closed__14;
+x_2 = l_myMacro____x40_Init_Notation___hyg_14458____closed__14;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

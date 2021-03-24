@@ -235,6 +235,7 @@ lean_object* l_Lean_Parser_atomicFn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_instInhabitedParserFn___boxed(lean_object*);
 lean_object* l_Lean_Parser_withPosition(lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot___closed__11;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_15378____closed__9;
 lean_object* l_Lean_Parser_evalParserConstUnsafe_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_Parser_indexed___spec__3___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_updateCache_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -739,7 +740,6 @@ lean_object* l_Lean_Parser_PrattParsingTables_trailingTable___default;
 lean_object* l_Lean_Parser_ParserModuleContext_currNamespace___default;
 lean_object* l_Std_RBNode_insert___at_Lean_Parser_TokenMap_insert___spec__5___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_mkUnexpectedErrorAt(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_15514____closed__9;
 lean_object* l_Std_RBNode_find___at_Lean_Parser_TokenMap_insert___spec__1(lean_object*);
 lean_object* l_Lean_Parser_mergeOrElseErrors(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Std_RBNode_find___at_Lean_Parser_indexed___spec__1(lean_object*);
@@ -28944,7 +28944,7 @@ static lean_object* _init_l_Lean_Parser_mkAntiquot___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_15514____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_15378____closed__9;
 x_2 = l_String_trim(x_1);
 return x_2;
 }

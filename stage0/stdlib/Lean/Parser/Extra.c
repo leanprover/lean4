@@ -138,6 +138,7 @@ lean_object* l_Lean_Parser_termRegister__parser__alias_________closed__2;
 lean_object* l_Lean_Parser_charLit___elambda__1___closed__1;
 lean_object* l_Lean_Parser_unicodeSymbol_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_numLit___closed__3;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_15378____closed__9;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_symbolNoAntiquot_parenthesizer___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot_formatter___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_nonReservedSymbolNoAntiquot_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -410,7 +411,6 @@ extern lean_object* l_Lean_scientificLitKind;
 lean_object* l_Lean_initFn____x40_Lean_Parser_Extra___hyg_938____closed__20;
 lean_object* l_Lean_Parser_scientificLit___elambda__1___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_Parser_Extra___hyg_1057____closed__1;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_15514____closed__9;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_634____closed__35;
 lean_object* l_Lean_Parser_withPosition___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_276____closed__26;
@@ -882,7 +882,7 @@ static lean_object* _init_l_Lean_Parser_mkAntiquot_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_15514____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_15378____closed__9;
 x_2 = lean_alloc_closure((void*)(l_Lean_Parser_symbol_formatter), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -3950,7 +3950,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_termRegister__parser__alias_________closed__2;
-x_2 = lean_unsigned_to_nat(1023u);
+x_2 = lean_unsigned_to_nat(1022u);
 x_3 = l_Lean_Parser_termRegister__parser__alias_________closed__10;
 x_4 = lean_alloc_ctor(3, 3, 0);
 lean_ctor_set(x_4, 0, x_1);

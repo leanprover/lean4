@@ -227,7 +227,6 @@ lean_object* l_Array_forInUnsafe_loop_match__1(lean_object*, lean_object*);
 lean_object* l_Array_filter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_eraseIdx_x27___rarg___boxed(lean_object*, lean_object*);
 lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_11854____closed__5;
 lean_object* l_Array_getIdx_x3f___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Array_all___spec__1(lean_object*);
 lean_object* l_Array_get_x3f___rarg___boxed(lean_object*, lean_object*);
@@ -268,6 +267,7 @@ lean_object* l_Std_Format_joinSep___at_Array_instReprArray___spec__1___rarg(lean
 lean_object* l_Array_foldlMUnsafe_fold___at_Array_forM___spec__1(lean_object*, lean_object*);
 lean_object* l_Array_reverse(lean_object*);
 lean_object* l_Array_modifyM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_11742____closed__5;
 lean_object* l_Array_foldlMUnsafe___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_zipWithAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toListLitAux_match__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -7795,7 +7795,7 @@ static lean_object* _init_l_myMacro____x40_Init_Data_Array_Basic___hyg_3624____c
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_11854____closed__5;
+x_1 = l_myMacro____x40_Init_Notation___hyg_11742____closed__5;
 x_2 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3624____closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

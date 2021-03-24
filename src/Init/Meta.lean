@@ -866,6 +866,10 @@ structure Config where
   decide     : Bool := true
   deriving Inhabited, BEq, Repr
 
+-- Configuration object for `simp_all`
+structure ConfigCtx extends Config where
+  contextual := true
+
 end Meta.Simp
 
 end Lean

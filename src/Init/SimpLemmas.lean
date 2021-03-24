@@ -86,5 +86,8 @@ namespace Lean.Simp
 @[simp] theorem Or_False (p : Prop) : (p ∨ False) = p := propext <| Iff.intro (fun | Or.inl h => h | Or.inr h => False.elim h) (fun h => Or.inl h)
 @[simp] theorem False_Or (p : Prop) : (False ∨ p) = p := propext <| Iff.intro (fun | Or.inr h => h | Or.inl h => False.elim h) (fun h => Or.inr h)
 @[simp] theorem Iff_self (p : Prop) : (p ↔ p) = True := propext <| Iff.intro (fun h => trivial) (fun _ => Iff.intro id id)
+@[simp] theorem False_arrow (p : Prop) : (False → p) = True := propext <| Iff.intro (fun _ => trivial) (by intros; trivial)
+@[simp] theorem arrow_True (p : Prop) : (p → True) = True := propext <| Iff.intro (fun _ => trivial) (by intros; trivial)
+@[simp] theorem True_arrow (p : Prop) : (True → p) = p := propext <| Iff.intro (fun h => h trivial) (by intros; trivial)
 
 end Lean.Simp

@@ -66,7 +66,7 @@
 
 (defconst lean4-info-buffer-name "*Lean Goal*")
 
-(defvar lean4-goals)
+(defvar lean4-goals nil)
 
 (lsp-defun lean4-diagnostic-full-end-line ((&lean:Diagnostic :full-range (&Range :end (&Position :line))))
   line)

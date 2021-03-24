@@ -30,3 +30,4 @@ import Lean.Meta.UnificationHint
 import Lean.Meta.Inductive
 import Lean.Meta.SizeOf
 import Lean.Meta.Coe
+import Lean.Meta.SortLocalDecls

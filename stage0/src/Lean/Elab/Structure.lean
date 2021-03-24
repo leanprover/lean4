@@ -259,28 +259,31 @@ private partial def withParents (view : StructView) (i : Nat) (infos : Array Str
     k infos
 
 private def elabFieldTypeValue (view : StructFieldView) : TermElabM (Option Expr × Option Expr) := do
-  Term.withAutoBoundImplicitLocal <| Term.elabBinders (catchAutoBoundImplicit := true) view.binders.getArgs fun params => do
+  Term.withAutoBoundImplicit <| Term.elabBinders view.binders.getArgs fun params => do
     match view.type? with
     | none         =>
       match view.value? with
       | none        => return (none, none)
       | some valStx =>
+        Term.synthesizeSyntheticMVarsNoPostponing
         let params ← Term.addAutoBoundImplicits params
         let value ← Term.elabTerm valStx none
         let value ← mkLambdaFVars params value
         return (none, value)
     | some typeStx =>
-      Term.elabTypeWithAutoBoundImplicit typeStx fun type => do
-        let params ← Term.addAutoBoundImplicits params
-        match view.value? with
-        | none        =>
-          let type  ← mkForallFVars params type
-          return (type, none)
-        | some valStx =>
-          let value ← Term.elabTermEnsuringType valStx type
-          let type  ← mkForallFVars params type
-          let value ← mkLambdaFVars params value
-          return (type, value)
+      let type ← Term.elabType typeStx
+      Term.synthesizeSyntheticMVarsNoPostponing
+      let params ← Term.addAutoBoundImplicits params
+      match view.value? with
+      | none        =>
+        let type  ← mkForallFVars params type
+        return (type, none)
+      | some valStx =>
+        let value ← Term.elabTermEnsuringType valStx type
+        Term.synthesizeSyntheticMVarsNoPostponing
+        let type  ← mkForallFVars params type
+        let value ← mkLambdaFVars params value
+        return (type, value)
 
 private partial def withFields
     (views : Array StructFieldView) (i : Nat) (infos : Array StructFieldInfo) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
@@ -557,25 +560,25 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
       Term.withDeclName declName do
         let ctor ← expandCtor stx modifiers declName
         let fields ← expandFields stx modifiers declName
-        Term.withLevelNames allUserLevelNames <| Term.withAutoBoundImplicitLocal <|
-          Term.elabBinders params (catchAutoBoundImplicit := true) fun params => do
+        Term.withLevelNames allUserLevelNames <| Term.withAutoBoundImplicit <|
+          Term.elabBinders params fun params => do
+            Term.synthesizeSyntheticMVarsNoPostponing
             let params ← Term.addAutoBoundImplicits params
             let allUserLevelNames ← Term.getLevelNames
-            Term.withAutoBoundImplicitLocal (flag := false) do
-              elabStructureView {
-                ref               := stx
-                modifiers         := modifiers
-                scopeLevelNames   := scopeLevelNames
-                allUserLevelNames := allUserLevelNames
-                declName          := declName
-                isClass           := isClass
-                scopeVars         := scopeVars
-                params            := params
-                parents           := parents
-                type              := type
-                ctor              := ctor
-                fields            := fields
-              }
+            elabStructureView {
+              ref               := stx
+              modifiers         := modifiers
+              scopeLevelNames   := scopeLevelNames
+              allUserLevelNames := allUserLevelNames
+              declName          := declName
+              isClass           := isClass
+              scopeVars         := scopeVars
+              params            := params
+              parents           := parents
+              type              := type
+              ctor              := ctor
+              fields            := fields
+            }
             unless isClass do
               mkSizeOfInstances declName
             return declName

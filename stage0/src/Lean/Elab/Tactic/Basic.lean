@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Util.CollectMVars
 import Lean.Parser.Command
+import Lean.Meta.PPGoal
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.Tactic.Intro
@@ -20,8 +21,9 @@ open Meta
 def goalsToMessageData (goals : List MVarId) : MessageData :=
   MessageData.joinSep (goals.map $ MessageData.ofGoal) m!"\n\n"
 
-def Term.reportUnsolvedGoals (goals : List MVarId) : TermElabM Unit := do
-  throwError "unsolved goals\n{goalsToMessageData goals}"
+def Term.reportUnsolvedGoals (goals : List MVarId) : TermElabM Unit :=
+  withPPInaccessibleNames do
+    throwError "unsolved goals\n{goalsToMessageData goals}"
 
 namespace Tactic
 
@@ -273,7 +275,7 @@ def done : TacticM Unit := do
   unless gs.isEmpty do
     Term.reportUnsolvedGoals gs
 
-@[builtinTactic Lean.Parser.Tactic.«done»] def evalDone : Tactic := fun _ => 
+@[builtinTactic Lean.Parser.Tactic.«done»] def evalDone : Tactic := fun _ =>
   done
 
 def focus (x : TacticM α) : TacticM α := do

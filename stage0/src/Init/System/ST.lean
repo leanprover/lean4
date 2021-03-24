@@ -53,7 +53,6 @@ instance {σ α} [Inhabited α] : Inhabited (Ref σ α) where
 
 namespace Prim
 
-set_option pp.all true
 /- Auxiliary definition for showing that `ST σ α` is inhabited when we have a `Ref σ α` -/
 private noncomputable def inhabitedFromRef {σ α} (r : Ref σ α) : ST σ α :=
   let inh : Inhabited α := Classical.inhabitedOfNonempty r.h

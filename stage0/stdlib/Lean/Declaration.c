@@ -19,7 +19,6 @@ lean_object* l_Lean_Declaration_foldExprM(lean_object*, lean_object*);
 lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_192____closed__10;
 lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__2___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ReducibilityHints_lt___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20507____closed__3;
 lean_object* l_Lean_RecursorVal_getFirstIndexIdx(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_InductiveVal_isUnsafeEx___boxed(lean_object*);
@@ -83,6 +82,7 @@ lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Le
 lean_object* l_Lean_QuotVal_kindEx___boxed(lean_object*);
 lean_object* l_Lean_ConstructorVal_isUnsafeEx___boxed(lean_object*);
 lean_object* lean_mk_inductive_val(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20581____closed__3;
 uint8_t l_UInt32_decLt(uint32_t, uint32_t);
 lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__3(lean_object*);
 lean_object* l_Lean_instInhabitedConstructor___closed__1;
@@ -3479,7 +3479,7 @@ lean_object* l_Lean_mkRecName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20507____closed__3;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20581____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

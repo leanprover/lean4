@@ -21,11 +21,11 @@ private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSo
   Try to elaborate `stx` that was postponed by an elaboration method using `Expection.postpone`.
   It returns `true` if it succeeded, and `false` otherwise.
   It is used to implement `synthesizeSyntheticMVars`. -/
-private def resumePostponed (macroStack : MacroStack) (declName? : Option Name) (stx : Syntax) (mvarId : MVarId) (postponeOnError : Bool) : TermElabM Bool :=
+private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId : MVarId) (postponeOnError : Bool) : TermElabM Bool :=
   withRef stx <| withMVarContext mvarId do
     let s ← get
     try
-      withReader (fun ctx => { ctx with macroStack := macroStack, declName? := declName? }) do
+      withSavedContext savedContext do
         let mvarDecl     ← getMVarDecl mvarId
         let expectedType ← instantiateMVars mvarDecl.type
         withInfoHole mvarId do
@@ -220,9 +220,9 @@ mutual
     | SyntheticMVarKind.typeClass => synthesizePendingInstMVar mvarSyntheticDecl.mvarId
     | SyntheticMVarKind.coe header? eNew expectedType eType e f? => synthesizePendingCoeInstMVar mvarSyntheticDecl.mvarId header? eNew expectedType eType e f?
     -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
-    | SyntheticMVarKind.postponed macroStack declName? => resumePostponed macroStack declName? mvarSyntheticDecl.stx mvarSyntheticDecl.mvarId postponeOnError
-    | SyntheticMVarKind.tactic declName? tacticCode =>
-      withReader (fun ctx => { ctx with declName? := declName? }) do
+    | SyntheticMVarKind.postponed savedContext => resumePostponed savedContext mvarSyntheticDecl.stx mvarSyntheticDecl.mvarId postponeOnError
+    | SyntheticMVarKind.tactic tacticCode savedContext =>
+      withSavedContext savedContext do
         if runTactics then
           runTactic mvarSyntheticDecl.mvarId tacticCode
           return true
@@ -294,11 +294,7 @@ mutual
               loop ()
             else
               reportStuckSyntheticMVars
-    /- Disable `autoBoundImplicit` to avoid nontermination.
-      The postponed terms have a fixed `localContext`, i.e. the context of the metavariable representing the "hole".
-      `throwAutoBoundImplicit` exception will have not effect. -/
-    withReader (fun ctx => { ctx with autoBoundImplicit := false }) do
-      loop ()
+    loop ()
 end
 
 def synthesizeSyntheticMVarsNoPostponing : TermElabM Unit :=

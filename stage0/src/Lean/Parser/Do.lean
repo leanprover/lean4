@@ -123,7 +123,7 @@ The second `notFollowedBy` prevents this problem.
 @[builtinDoElemParser] def doExpr   := leading_parser notFollowedByRedefinedTermToken >> termParser >> notFollowedBy (symbol ":=" <|> symbol "←" <|> symbol "<-") "unexpected token after 'expr' in 'do' block"
 @[builtinDoElemParser] def doNested := leading_parser "do " >> doSeq
 
-@[builtinTermParser] def «do»  := leading_parser:maxPrec "do " >> doSeq
+@[builtinTermParser] def «do»  := leading_parser:argPrec "do " >> doSeq
 
 @[builtinTermParser] def doElem.quot : Parser := leading_parser "`(doElem|" >> toggleInsideQuot doElemParser >> ")"
 

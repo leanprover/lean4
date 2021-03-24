@@ -380,17 +380,19 @@ def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
 @[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro := fun stx =>
   withAttrKindGlobal stx fun stx => do
     match stx with
-    | `(infix $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
-      `(infixl $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op => $f)
-    | `(infixr $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
-      `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? lhs $op:strLit rhs $[: $prec]? => $f lhs rhs)
     | `(infixl $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
-       let prec1 := quote <| (← evalOptPrec prec) + 1
-       `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? lhs $op:strLit rhs:$prec1 => $f lhs rhs)
+      let prec1 := quote <| (← evalOptPrec prec) + 1
+      `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? lhs$[:$prec]? $op:strLit rhs:$prec1 => $f lhs rhs)
+    | `(infix $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
+      let prec1 := quote <| (← evalOptPrec prec) + 1
+      `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? lhs:$prec1 $op:strLit rhs:$prec1 => $f lhs rhs)
+    | `(infixr $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
+      let prec1 := quote <| (← evalOptPrec prec) + 1
+      `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? lhs:$prec1 $op:strLit rhs $[: $prec]? => $f lhs rhs)
     | `(prefix $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
-       `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op:strLit arg $[: $prec]? => $f arg)
+      `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op:strLit arg $[: $prec]? => $f arg)
     | `(postfix $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
-      `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? arg $op:strLit => $f arg)
+      `(notation $[: $prec]? $[(name := $name)]? $[(priority := $prio)]? arg$[:$prec]? $op:strLit => $f arg)
     | _ => Macro.throwUnsupported
 where
   -- set "global" `attrKind`, apply `f`, and restore `attrKind` to result
@@ -446,8 +448,8 @@ def mkSimpleDelab (attrKind : Syntax) (vars : Array Syntax) (pat qrhs : Syntax) 
     let [(c, [])] ← resolveGlobalName c.getId | failure
     guard <| args.all (Syntax.isIdent ∘ getAntiquotTerm)
     guard <| args.allDiff
-    -- replace head constant with fresh (unused) antiquotation so we're not dependent on the exact pretty printing of the head
-    let qrhs ← `($(mkAntiquotNode (mkIdent "c")) $args*)
+    -- replace head constant with (unused) antiquotation so we're not dependent on the exact pretty printing of the head
+    let qrhs ← `($(mkAntiquotNode (← `(_))) $args*)
     `(@[$attrKind:attrKind appUnexpander $(mkIdent c):ident] def unexpand : Lean.PrettyPrinter.Unexpander := fun
        | `($qrhs) => `($pat)
        | _        => throw ())

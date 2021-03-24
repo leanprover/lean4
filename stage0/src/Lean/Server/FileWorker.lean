@@ -195,11 +195,7 @@ section Initialization
                                    srcPath.mapM realPathNormalized
       | _                       => throw <| IO.userError s!"unexpected output from `leanpkg print-paths`:\n{stdout}\nstderr:\n{stderr}"
     else
-      -- HACK(WN): `leanpkg` currently runs in the current directory, most likely the directory where the editor
-      -- was ran, which can lead to unexpected failures. We need to support workspace folders and execute it there.
-      -- For now though, just log the failure and press onwards.
-      IO.eprintln s!"`leanpkg print-paths` failed:\n{stdout}\nstderr:\n{stderr}"
-      return []
+      throw <| IO.userError s!"`leanpkg print-paths` failed:\n{stdout}\nstderr:\n{stderr}"
 
   def compileHeader (m : DocumentMeta) (hOut : FS.Stream) : IO (Snapshot × SearchPath) := do
     let opts := {}  -- TODO
@@ -436,7 +432,7 @@ section RequestHandling
         for t in snap.toCmdState.infoState.trees do
           if let some (ci, ti) := t.goalsAt? hoverPos then
             let ci := { ci with mctx := ti.mctxAfter }
-            let goals ← ci.runMetaM {} <| ti.goalsAfter.mapM Meta.ppGoal
+            let goals ← ci.runMetaM {} <| ti.goalsAfter.mapM (fun g => Meta.withPPInaccessibleNames (Meta.ppGoal g))
             let md :=
               if goals.isEmpty then
                 "no goals"

@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_10542____closed__4;
 extern lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__5;
 lean_object* l_Lean_Meta_matchHelper_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -24,7 +23,9 @@ lean_object* l_Lean_Meta_matchNe_x3f_match__1___rarg(lean_object*, lean_object*,
 lean_object* l_Lean_Meta_matchHelper_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_matchNot_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_matchNot_x3f_match__2(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_10616____closed__4;
 lean_object* l_Lean_Meta_matchNot_x3f_match__1(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_7683____closed__4;
 lean_object* l_Lean_Meta_matchNot_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_testHelper(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
@@ -38,7 +39,6 @@ lean_object* l_Lean_Meta_matchHelper_x3f_match__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_matchFalse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 lean_object* l_Lean_Meta_matchNot_x3f_match__2___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7609____closed__4;
 lean_object* l_Lean_Meta_matchNe_x3f_match__1(lean_object*);
 lean_object* l_Lean_Expr_isConstructorApp_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_testHelper(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -340,7 +340,7 @@ lean_object* l_Lean_Meta_matchEq_x3f(lean_object* x_1, lean_object* x_2, lean_ob
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = l_myMacro____x40_Init_Notation___hyg_7609____closed__4;
+x_7 = l_myMacro____x40_Init_Notation___hyg_7683____closed__4;
 x_8 = lean_unsigned_to_nat(3u);
 x_9 = l_Lean_Expr_isAppOfArity(x_1, x_7, x_8);
 if (x_9 == 0)
@@ -635,7 +635,7 @@ lean_object* l_Lean_Meta_matchNot_x3f(lean_object* x_1, lean_object* x_2, lean_o
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_78; lean_object* x_79; uint8_t x_80; 
-x_78 = l_myMacro____x40_Init_Notation___hyg_10542____closed__4;
+x_78 = l_myMacro____x40_Init_Notation___hyg_10616____closed__4;
 x_79 = lean_unsigned_to_nat(1u);
 x_80 = l_Lean_Expr_isAppOfArity(x_1, x_78, x_79);
 if (x_80 == 0)
@@ -766,7 +766,7 @@ if (x_10 == 0)
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_11 = lean_ctor_get(x_9, 0);
 x_12 = lean_ctor_get(x_9, 1);
-x_13 = l_myMacro____x40_Init_Notation___hyg_10542____closed__4;
+x_13 = l_myMacro____x40_Init_Notation___hyg_10616____closed__4;
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = l_Lean_Expr_isAppOfArity(x_11, x_13, x_14);
 if (x_15 == 0)
@@ -922,7 +922,7 @@ x_43 = lean_ctor_get(x_9, 1);
 lean_inc(x_43);
 lean_inc(x_42);
 lean_dec(x_9);
-x_44 = l_myMacro____x40_Init_Notation___hyg_10542____closed__4;
+x_44 = l_myMacro____x40_Init_Notation___hyg_10616____closed__4;
 x_45 = lean_unsigned_to_nat(1u);
 x_46 = l_Lean_Expr_isAppOfArity(x_42, x_44, x_45);
 if (x_46 == 0)

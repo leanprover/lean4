@@ -14,9 +14,8 @@ import Lean.Meta.Tactic.FVarSubst
 
 namespace Lean.Meta
 
-def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : FVarSubst := {}) (clearH := true) : MetaM (FVarSubst × MVarId) :=
+def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : FVarSubst := {}) (clearH := true) (tryToSkip := false) : MetaM (FVarSubst × MVarId) :=
   withMVarContext mvarId do
-    let mvarId0 := mvarId
     let tag ← getMVarTag mvarId
     checkNotAssigned mvarId `subst
     let hFVarIdOriginal := hFVarId
@@ -24,8 +23,8 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
     match (← matchEq? hLocalDecl.type) with
     | none => throwTacticEx `subst mvarId "argument must be an equality proof"
     | some (α, lhs, rhs) => do
-      let a := if symm then rhs else lhs
-      let b := if symm then lhs else rhs
+      let a ← instantiateMVars <| if symm then rhs else lhs
+      let b ← instantiateMVars <| if symm then lhs else rhs
       match a with
       | Expr.fvar aFVarId _ => do
         let aFVarIdOriginal := aFVarId
@@ -45,7 +44,7 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
         let h       := mkFVar hFVarId
         /- Set skip to true if there is no local variable nor the target depend on the equality -/
         let skip ←
-          if vars.size == 2 then
+          if !tryToSkip || vars.size != 2 then
             pure false
           else
             let mvarType ← getMVarType mvarId
@@ -53,11 +52,11 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
             pure (!mctx.exprDependsOn mvarType aFVarId && !mctx.exprDependsOn mvarType hFVarId)
         if skip then
           if clearH then
-            let mvarId ← clear mvarId0 hFVarId
+            let mvarId ← clear mvarId hFVarId
             let mvarId ← clear mvarId aFVarId
             pure ({}, mvarId)
           else
-            pure ({}, mvarId0)
+            pure ({}, mvarId)
         else
           withMVarContext mvarId do
             let mvarDecl   ← getMVarDecl mvarId
@@ -66,7 +65,7 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
             match (← matchEq? hLocalDecl.type) with
             | none => unreachable!
             | some (α, lhs, rhs) => do
-              let b       := if symm then lhs else rhs
+              let b        ← instantiateMVars <| if symm then lhs else rhs
               let mctx     ← getMCtx
               let depElim := mctx.exprDependsOn mvarDecl.type hFVarId
               let cont (motive : Expr) (newType : Expr) : MetaM (FVarSubst × MVarId) := do
@@ -129,20 +128,20 @@ def subst (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId :=
         let mvarId ← assert mvarId hLocalDecl.userName newType (mkFVar hFVarId)
         let (hFVarId', mvarId) ← intro1P mvarId
         let mvarId ← clear mvarId hFVarId
-        return (← substCore mvarId hFVarId' symm).2
+        return (← substCore mvarId hFVarId' (symm := symm) (tryToSkip := true)).2
       let rhs' ← whnf rhs
       if rhs'.isFVar then
         if rhs != rhs' then
           substReduced (← mkEq lhs rhs') true
         else
-          return (← substCore mvarId hFVarId true).2
+          return (← substCore mvarId hFVarId (symm := true) (tryToSkip := true)).2
       else do
         let lhs' ← whnf lhs
         if lhs'.isFVar then
           if lhs != lhs' then
             substReduced (← mkEq lhs' rhs) false
           else
-            return (← substCore mvarId hFVarId).2
+            return (← substCore mvarId hFVarId (symm := false) (tryToSkip := true)).2
         else do
           throwTacticEx `subst mvarId m!"invalid equality proof, it is not of the form (x = t) or (t = x){indentExpr hLocalDecl.type}"
     | none =>
@@ -164,7 +163,7 @@ def subst (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId :=
                return none
            | _ => return none
         | throwTacticEx `subst mvarId m!"did not find equation for eliminating '{mkFVar hFVarId}'"
-      return (← substCore mvarId fvarId symm).2
+      return (← substCore mvarId fvarId (symm := symm) (tryToSkip := true)).2
 
 builtin_initialize registerTraceClass `Meta.Tactic.subst
 

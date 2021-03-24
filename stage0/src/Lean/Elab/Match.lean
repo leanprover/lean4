@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Match.MatchPatternAttr
 import Lean.Meta.Match.Match
+import Lean.Meta.SortLocalDecls
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.App
 import Lean.Parser.Term
@@ -563,7 +564,8 @@ def finalizePatternDecls (patternVarDecls : Array PatternVarDecl) : TermElabM (A
          let decl ← instantiateLocalDeclMVars decl
          decls := decls.push decl
        | _ => pure ()
-  return decls
+  /- We perform a topological sort (dependecies) on `decls` because the pattern elaboration process may produce a sequence where a declaration d₁ may occur after d₂ when d₂ depends on d₁. -/
+  sortLocalDecls decls
 
 open Meta.Match (Pattern Pattern.var Pattern.inaccessible Pattern.ctor Pattern.as Pattern.val Pattern.arrayLit AltLHS MatcherResult)
 

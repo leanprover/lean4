@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.FindMVar
+import Lean.Parser.Term
 import Lean.Elab.Term
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
@@ -892,9 +893,7 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
     else
       withRef f <| mergeFailures candidates
 
-partial def expandApp (stx : Syntax) (pattern := false) : TermElabM (Syntax × Array NamedArg × Array Arg × Bool) := do
-  let f    := stx[0]
-  let args := stx[1].getArgs
+partial def expandArgs (args : Array Syntax) (pattern := false) : TermElabM (Array NamedArg × Array Arg × Bool) := do
   let (args, ellipsis) :=
     if args.isEmpty then
       (args, false)
@@ -913,7 +912,11 @@ partial def expandApp (stx : Syntax) (pattern := false) : TermElabM (Syntax × A
       throwErrorAt stx "unexpected '..'"
     else
       return (namedArgs, args.push $ Arg.stx stx)
-  return (f, namedArgs, args, ellipsis)
+  return (namedArgs, args, ellipsis)
+
+def expandApp (stx : Syntax) (pattern := false) : TermElabM (Syntax × Array NamedArg × Array Arg × Bool) := do
+  let (namedArgs, args, ellipsis) ← expandArgs stx[1].getArgs
+  return (stx[0], namedArgs, args, ellipsis)
 
 @[builtinTermElab app] def elabApp : TermElab := fun stx expectedType? =>
   withoutPostponingUniverseConstraints do
@@ -926,7 +929,12 @@ private def elabAtom : TermElab := fun stx expectedType? =>
 @[builtinTermElab ident] def elabIdent : TermElab := elabAtom
 @[builtinTermElab namedPattern] def elabNamedPattern : TermElab := elabAtom
 @[builtinTermElab explicitUniv] def elabExplicitUniv : TermElab := elabAtom
-@[builtinTermElab pipeProj] def expandPipeProj : TermElab := elabAtom
+@[builtinTermElab pipeProj] def elabPipeProj : TermElab
+  | `($e |>.$f $args*), expectedType? =>
+    withoutPostponingUniverseConstraints do
+      let (namedArgs, args, ellipsis) ← expandArgs args
+      elabAppAux (← `($e |>.$f)) namedArgs args (ellipsis := ellipsis) expectedType?
+  | _, _ => throwUnsupportedSyntax
 
 @[builtinTermElab explicit] def elabExplicit : TermElab := fun stx expectedType? =>
   match stx with

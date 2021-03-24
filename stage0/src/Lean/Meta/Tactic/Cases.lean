@@ -250,6 +250,8 @@ partial def unifyEqs (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) : Meta
                   unifyEqs numEqs mvarId subst
                 else
                   throwError "dependent elimination failed, stuck at auxiliary equation{indentExpr eqDecl.type}"
+            let a ← instantiateMVars a
+            let b ← instantiateMVars b
             match a, b with
             | Expr.fvar aFVarId _, Expr.fvar bFVarId _ =>
               /- x = y -/
@@ -279,7 +281,7 @@ private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenName
   let casesOn := mkCasesOnName ctx.inductiveVal.name
   let ctors   := ctx.inductiveVal.ctors.toArray
   let s ← induction mvarId majorFVarId casesOn givenNames
-  pure $ toCasesSubgoals s ctors majorFVarId us params
+  return toCasesSubgoals s ctors majorFVarId us params
 
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) :=
   withMVarContext mvarId do

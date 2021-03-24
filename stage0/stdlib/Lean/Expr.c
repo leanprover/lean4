@@ -105,6 +105,7 @@ size_t l_Lean_Expr_Data_hash(uint64_t);
 lean_object* l_Lean_Expr_instantiateLevelParamsCore_visit_match__1(lean_object*);
 lean_object* l_Lean_mkDecIsTrue___closed__5;
 lean_object* l_Lean_instDecidableLess___boxed(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_14594____closed__14;
 lean_object* l_Lean_mkMVar(lean_object*);
 size_t l_USize_sub(size_t, size_t);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_etaExpandedAux(lean_object*, lean_object*);
@@ -266,7 +267,6 @@ uint8_t l_Lean_ExprStructEq_beq(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ExprStructEq_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Level_instantiateParams___at_Lean_Expr_instantiateLevelParams___spec__2___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_2204____closed__3;
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux_match__1(lean_object*);
 lean_object* l_Lean_Expr_updateSort_x21(lean_object*, lean_object*);
 uint8_t lean_expr_has_expr_mvar(lean_object*);
@@ -277,11 +277,9 @@ lean_object* l_Lean_instCoeExprExprStructEq(lean_object*);
 lean_object* l_Lean_Expr_updateConst_x21(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constLevels_x21(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_14520____closed__14;
 lean_object* l_Lean_Expr_hasLevelParam___boxed(lean_object*);
 lean_object* l_Lean_Expr_isConst_match__1(lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21_match__1(lean_object*);
-extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2554____closed__17;
 lean_object* l_Lean_Expr_isConstOf_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isLambda_match__1(lean_object*);
 uint8_t lean_expr_has_mvar(lean_object*);
@@ -291,6 +289,7 @@ lean_object* l___private_Lean_Expr_0__Lean_Expr_mkAppRevRangeAux___boxed(lean_ob
 lean_object* l_Lean_Expr_bindingBody_x21___closed__2;
 lean_object* l_Lean_Expr_isBinding_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_instantiateLevelParamsCore_visit_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_2278____closed__3;
 lean_object* l_Lean_BinderInfo_isInstImplicit_match__1(lean_object*);
 lean_object* l_Lean_Expr_replaceFVar(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_headBeta(lean_object*);
@@ -512,6 +511,7 @@ lean_object* l___private_Lean_Expr_0__Lean_Expr_mkDataCore___closed__1;
 lean_object* l_Lean_Expr_Data_looseBVarRange___boxed(lean_object*);
 extern lean_object* l_Lean_getSanitizeNames___closed__2;
 lean_object* l_Lean_mkAppRev(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2596____closed__17;
 lean_object* l_Lean_Expr_mkDataForBinder___boxed__const__1;
 lean_object* l_Lean_Expr_bvarIdx_x21___closed__1;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -2900,7 +2900,7 @@ return x_6;
 case 5:
 {
 lean_object* x_7; 
-x_7 = l_myMacro____x40_Init_Notation___hyg_2204____closed__3;
+x_7 = l_myMacro____x40_Init_Notation___hyg_2278____closed__3;
 return x_7;
 }
 case 6:
@@ -5028,7 +5028,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_2554____closed__17;
+x_2 = l_myMacro____x40_Init_System_IO___hyg_2596____closed__17;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
@@ -5049,7 +5049,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_Notation___hyg_14520____closed__14;
+x_2 = l_myMacro____x40_Init_Notation___hyg_14594____closed__14;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

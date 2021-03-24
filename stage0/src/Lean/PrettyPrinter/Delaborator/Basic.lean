@@ -151,7 +151,7 @@ register_builtin_option g_pp_compact_let : Bool := {
 -/
 
 def getPPAll (o : Options) : Bool := o.get `pp.all false
-def getPPBinderTypes (o : Options) : Bool := o.get `pp.binder_types (!getPPAll o)
+def getPPBinderTypes (o : Options) : Bool := o.get `pp.binder_types true
 def getPPCoercions (o : Options) : Bool := o.get `pp.coercions (!getPPAll o)
 def getPPExplicit (o : Options) : Bool := o.get `pp.explicit (getPPAll o)
 def getPPNotation (o : Options) : Bool := o.get `pp.notation (!getPPAll o)

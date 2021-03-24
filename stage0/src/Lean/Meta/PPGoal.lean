@@ -8,17 +8,20 @@ import Lean.Meta.InferType
 
 namespace Lean.Meta
 
-def ppAuxDeclsDefault := false
-builtin_initialize
-  registerOption `pp.auxDecls { defValue := ppAuxDeclsDefault, group := "pp", descr := "display auxiliary declarations used to compile recursive functions" }
-def getAuxDeclsOption (o : Options) : Bool :=
-  o.get `pp.auxDecls ppAuxDeclsDefault
+register_builtin_option pp.auxDecls : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "display auxiliary declarations used to compile recursive functions"
+}
 
-def ppInaccessibleNamesDefault := false
-builtin_initialize
-  registerOption `pp.inaccessibleNames { defValue := ppInaccessibleNamesDefault, group := "pp", descr := "display inaccessible declarations in the local context" }
-def getInaccessibleNamesOption (o : Options) : Bool :=
-  o.get `pp.inaccessibleNames ppInaccessibleNamesDefault
+register_builtin_option pp.inaccessibleNames : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "display inaccessible declarations in the local context"
+}
+
+def withPPInaccessibleNames (x : MetaM α) (flag := true) : MetaM α :=
+  withTheReader Core.Context (fun ctx => { ctx with options := pp.inaccessibleNames.setIfNotSet ctx.options flag }) x
 
 namespace ToHide
 
@@ -51,7 +54,6 @@ def moveToHiddeProp (fvarId : FVarId) : M Unit := do
     hiddenInaccessibleProp := s.hiddenInaccessibleProp.insert fvarId
     modified               := true
   }
-
 
 /- Return true if the given local declaration has a "visible dependency", that is, it contains
    a free variable that is `hiddenInaccessible`
@@ -121,7 +123,7 @@ The `goalTarget` counts as a forward dependency.
 We say a name is visible if it is a free variable with FVarId not in `hiddenInaccessible` nor `hiddenInaccessibleProp`
 -/
 def collect (goalTarget : Expr) : MetaM (NameSet × NameSet) := do
-  if getInaccessibleNamesOption (← getOptions) then
+  if pp.inaccessibleNames.get (← getOptions) then
     /- Don't hide inaccessible names when `pp.inaccessibleNames` is set to true. -/
     return ({}, {})
   else
@@ -144,7 +146,7 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
   | none          => pure "unknown goal"
   | some mvarDecl => do
     let indent         := 2 -- Use option
-    let ppAuxDecls     := getAuxDeclsOption (← getOptions)
+    let ppAuxDecls     := pp.auxDecls.get (← getOptions)
     let lctx           := mvarDecl.lctx
     let lctx           := lctx.sanitizeNames.run' { options := (← getOptions) }
     withLCtx lctx mvarDecl.localInstances do

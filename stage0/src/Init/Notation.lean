@@ -20,8 +20,9 @@ syntax:65 (name := subPrio) prio " - " prio:66 : prio
 
 end Lean.Parser.Syntax
 
-macro "max"  : prec => `(1024) -- maximum precedence used in term parsers
-macro "lead" : prec => `(1023)
+macro "max"  : prec => `(1024) -- maximum precedence used in term parsers, in particular for terms in function position (`ident`, `paren`, ...)
+macro "arg"  : prec => `(1023) -- precedence used for application arguments (`do`, `by`, ...)
+macro "lead" : prec => `(1022) -- precedence used for terms not supposed to be used as arguments (`let`, `have`, ...)
 macro "(" p:prec ")" : prec => p
 macro "min"  : prec => `(10)   -- minimum precedence used in term parsers
 macro "min1" : prec => `(11)   -- `(min+1) we can only `min+1` after `Meta.lean`

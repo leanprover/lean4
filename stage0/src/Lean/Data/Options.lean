@@ -115,8 +115,12 @@ protected structure Decl (α : Type) where
 protected def get [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : α :=
   opts.get opt.name opt.defValue
 
-protected def set [KVMap.Value α] (opts : Options) (opt : Lean.Option α) (val: α) : Options :=
+protected def set [KVMap.Value α] (opts : Options) (opt : Lean.Option α) (val : α) : Options :=
   opts.set opt.name val
+
+/-- Similar to `set`, but update `opts` only if it doesn't already contains an setting for `opt.name` -/
+protected def setIfNotSet [KVMap.Value α] (opts : Options) (opt : Lean.Option α) (val : α) : Options :=
+  if opts.contains opt.name then opts else opt.set opts val
 
 protected def register [KVMap.Value α] (name : Name) (decl : Lean.Option.Decl α) : IO (Lean.Option α) := do
   registerOption name { defValue := KVMap.Value.toDataValue decl.defValue, group := decl.group, descr := decl.descr }

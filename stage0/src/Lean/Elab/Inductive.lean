@@ -70,19 +70,21 @@ structure ElabHeaderResult where
 private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc : Array ElabHeaderResult) : TermElabM (Array ElabHeaderResult) := do
   if h : i < views.size then
     let view := views.get ⟨i, h⟩
-    let acc ← Term.withAutoBoundImplicitLocal <| Term.elabBinders view.binders.getArgs (catchAutoBoundImplicit := true) fun params => do
+    let acc ← Term.withAutoBoundImplicit <| Term.elabBinders view.binders.getArgs fun params => do
       match view.type? with
       | none         =>
         let u ← mkFreshLevelMVar
         let type := mkSort u
+        Term.synthesizeSyntheticMVarsNoPostponing
         let params ← Term.addAutoBoundImplicits params
         pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params := params, type := type, view := view }
       | some typeStx =>
-        Term.elabTypeWithAutoBoundImplicit typeStx fun type => do
-          unless (← isTypeFormerType type) do
-            throwErrorAt typeStx "invalid inductive type, resultant type is not a sort"
-          let params ← Term.addAutoBoundImplicits params
-          pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params := params, type := type, view := view }
+        let type ← Term.elabType typeStx
+        unless (← isTypeFormerType type) do
+          throwErrorAt typeStx "invalid inductive type, resultant type is not a sort"
+        Term.synthesizeSyntheticMVarsNoPostponing
+        let params ← Term.addAutoBoundImplicits params
+        pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params := params, type := type, view := view }
     elabHeaderAux views (i+1) acc
   else
     pure acc
@@ -192,7 +194,7 @@ private def isInductiveFamily (numParams : Nat) (indFVar : Expr) : TermElabM Boo
 private def elabCtors (indFVars : Array Expr) (indFVar : Expr) (params : Array Expr) (r : ElabHeaderResult) : TermElabM (List Constructor) := withRef r.view.ref do
   let indFamily ← isInductiveFamily params.size indFVar
   r.view.ctors.toList.mapM fun ctorView =>
-    Term.withAutoBoundImplicitLocal <| Term.elabBinders (catchAutoBoundImplicit := true) ctorView.binders.getArgs fun ctorParams =>
+    Term.withAutoBoundImplicit <| Term.elabBinders ctorView.binders.getArgs fun ctorParams =>
       withRef ctorView.ref do
         let rec elabCtorType (k : Expr → TermElabM Constructor) : TermElabM Constructor := do
           match ctorView.type? with
@@ -201,17 +203,18 @@ private def elabCtors (indFVars : Array Expr) (indFVar : Expr) (params : Array E
               throwError "constructor resulting type must be specified in inductive family declaration"
             k <| mkAppN indFVar params
           | some ctorType =>
-            Term.elabTypeWithAutoBoundImplicit ctorType fun type => do
-              Term.synthesizeSyntheticMVars (mayPostpone := true)
-              let type ← instantiateMVars type
-              let type ← checkParamOccs type
-              forallTelescopeReducing type fun _ resultingType => do
-                unless resultingType.getAppFn == indFVar do
-                  throwError "unexpected constructor resulting type{indentExpr resultingType}"
-                unless (← isType resultingType) do
-                  throwError "unexpected constructor resulting type, type expected{indentExpr resultingType}"
-              k type
+            let type ← Term.elabType ctorType
+            Term.synthesizeSyntheticMVars (mayPostpone := true)
+            let type ← instantiateMVars type
+            let type ← checkParamOccs type
+            forallTelescopeReducing type fun _ resultingType => do
+              unless resultingType.getAppFn == indFVar do
+                throwError "unexpected constructor resulting type{indentExpr resultingType}"
+              unless (← isType resultingType) do
+                throwError "unexpected constructor resulting type, type expected{indentExpr resultingType}"
+            k type
         elabCtorType fun type => do
+          Term.synthesizeSyntheticMVarsNoPostponing
           let ctorParams ← Term.addAutoBoundImplicits ctorParams
           let type ← mkForallFVars ctorParams type
           let type ← mkForallFVars params type

@@ -8,10 +8,10 @@ for x in xs do
 #eval f [1, 2, 3] |>.run' 0
 #eval f [1, 0, 3] |>.run' 0
 
-theorem ex1 : f [1, 2, 3] |>.run' 0 = Except.ok () :=
+theorem ex1 : (f [1, 2, 3] |>.run' 0) = Except.ok () :=
 rfl
 
-theorem ex2 : f [1, 0, 3] |>.run' 0 = Except.error "contains zero" :=
+theorem ex2 : (f [1, 0, 3] |>.run' 0) = Except.error "contains zero" :=
 rfl
 
 universes u

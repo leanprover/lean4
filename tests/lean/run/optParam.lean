@@ -4,7 +4,7 @@ def p (x : Nat := 0) : Nat × Nat :=
 theorem ex1 : p.1 = 0 :=
 rfl
 
-theorem ex2 : p (x := 1) |>.2 = 1 :=
+theorem ex2 : (p (x := 1) |>.2) = 1 :=
 rfl
 
 def c {α : Type} [Inhabited α] : α × α :=

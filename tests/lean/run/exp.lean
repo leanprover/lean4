@@ -14,7 +14,7 @@ def Expr.times : Nat → Expr → Expr
   | k, plus e₁ e₂ => plus (times k e₁) (times k e₂)
   | k, mul e₁ e₂  => mul (times k e₁) e₂
 
-theorem eval_times (k : Nat) (e : Expr) : e.times k |>.eval = k * e.eval := by
+theorem eval_times (k : Nat) (e : Expr) : (e.times k |>.eval) = k * e.eval := by
   induction e with simp [Expr.times, Expr.eval]
   | plus e₁ e₂ ih₁ ih₂ => simp [ih₁, ih₂, Nat.left_distrib]
   | mul  _ _ ih₁ ih₂   => simp [ih₁, Nat.mul_assoc]

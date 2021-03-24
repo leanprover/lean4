@@ -35,7 +35,7 @@ protected def Thunk.map {α : Type u} {β : Type v} (f : α → β) (x : Thunk �
 protected def Thunk.bind {α : Type u} {β : Type v} (x : Thunk α) (f : α → Thunk β) : Thunk β :=
   ⟨fun _ => (f x.get).get⟩
 
-abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b : α} (h : Eq a b) (m : motive a) : motive b :=
+abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b : α} (h : a = b) (m : motive a) : motive b :=
   Eq.ndrec m h
 
 structure Iff (a b : Prop) : Prop where
@@ -262,8 +262,8 @@ def typeEqOfHEq (h : a ≅ b) : α = β :=
 
 end
 
-theorem eqRecHEq {α : Sort u} {φ : α → Sort v} : {a a' : α} → (h : a = a') → (p : φ a) → (Eq.recOn (motive := fun x _ => φ x) h p) ≅ p
-  | a, _, rfl, p => HEq.refl p
+theorem eqRecHEq {α : Sort u} {φ : α → Sort v} {a a' : α} : (h : a = a') → (p : φ a) → (Eq.recOn (motive := fun x _ => φ x) h p) ≅ p
+  | rfl, p => HEq.refl p
 
 theorem heqOfEqRecEq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ : Eq.rec (motive := fun α _ => α) a h₁ = b) : a ≅ b := by
   subst h₁
@@ -271,8 +271,8 @@ theorem heqOfEqRecEq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ :
   exact h₂
   done
 
-theorem castHEq : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≅ a
-  | α, _, rfl, a => HEq.refl a
+theorem castHEq {α β : Sort u} : (h : α = β) → (a : α) → cast h a ≅ a
+  | rfl, a => HEq.refl a
 
 variable {a b c d : Prop}
 

@@ -1008,7 +1008,8 @@ private def isPatternVar (stx : Syntax) : TermElabM Bool := do
     | Expr.const fName _ _ =>
       match (← getEnv).find? fName with
       | some (ConstantInfo.ctorInfo _) => return false
-      | _ => isAtomicIdent stx
+      | some _                         => return !hasMatchPatternAttribute (← getEnv) fName
+      | _                              => isAtomicIdent stx
     | _ => isAtomicIdent stx
 where
   isAtomicIdent (stx : Syntax) : Bool :=

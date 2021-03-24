@@ -474,7 +474,7 @@ def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
 
 /-- Creates syntax for `(` <ident> `:` <type> `)` -/
 def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
-  mkNode `Lean.Parser.Term.explicitBinder #[mkAtom "(", mkNullNode #[ident], mkNullNode #[mkAtom ":", type], mkNullNode, mkAtom ")"]
+  mkNode ``Lean.Parser.Term.explicitBinder #[mkAtom "(", mkNullNode #[ident], mkNullNode #[mkAtom ":", type], mkNullNode, mkAtom ")"]
 
 /--
   Convert unassigned universe level metavariables into parameters.
@@ -606,9 +606,9 @@ The coercion from `α` to `Thunk α` cannot be implemented using an instance bec
 eagerly evaluate `e` -/
 def tryCoeThunk? (expectedType : Expr) (eType : Expr) (e : Expr) : TermElabM (Option Expr) := do
   match expectedType with
-  | Expr.app (Expr.const `Thunk u _) arg _ =>
+  | Expr.app (Expr.const ``Thunk u _) arg _ =>
     if (← isDefEq eType arg) then
-      pure (some (mkApp2 (mkConst `Thunk.mk u) arg (mkSimpleThunk e)))
+      pure (some (mkApp2 (mkConst ``Thunk.mk u) arg (mkSimpleThunk e)))
     else
       pure none
   | _ =>
@@ -630,9 +630,9 @@ private def tryCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eTyp
     | none   =>
       let u ← getLevel eType
       let v ← getLevel expectedType
-      let coeTInstType := mkAppN (mkConst `CoeT [u, v]) #[eType, e, expectedType]
+      let coeTInstType := mkAppN (mkConst ``CoeT [u, v]) #[eType, e, expectedType]
       let mvar ← mkFreshExprMVar coeTInstType MetavarKind.synthetic
-      let eNew := mkAppN (mkConst `coe [u, v]) #[eType, expectedType, e, mvar]
+      let eNew := mkAppN (mkConst ``coe [u, v]) #[eType, expectedType, e, mvar]
       let mvarId := mvar.mvarId!
       try
         withoutMacroStackAtErr do
@@ -785,16 +785,16 @@ private def tryLiftAndCoe (errorMsgHeader? : Option String) (expectedType : Expr
   let some (m, α) ← isTypeApp? eType | tryPureCoeAndSimple
   if (← isDefEq m n) then
     let some monadInst ← isMonad? n | tryCoeSimple
-    try expandCoe (← mkAppOptM `coeM #[m, α, β, none, monadInst, e]) catch _ => throwMismatch
+    try expandCoe (← mkAppOptM ``coeM #[m, α, β, none, monadInst, e]) catch _ => throwMismatch
   else if autoLift.get (← getOptions) then
     try
       -- Construct lift from `m` to `n`
-      let monadLiftType ← mkAppM `MonadLiftT #[m, n]
+      let monadLiftType ← mkAppM ``MonadLiftT #[m, n]
       let monadLiftVal  ← synthesizeInst monadLiftType
       let u_1 ← getDecLevel α
       let u_2 ← getDecLevel eType
       let u_3 ← getDecLevel expectedType
-      let eNew := mkAppN (Lean.mkConst `liftM [u_1, u_2, u_3]) #[m, n, monadLiftVal, α, e]
+      let eNew := mkAppN (Lean.mkConst ``liftM [u_1, u_2, u_3]) #[m, n, monadLiftVal, α, e]
       let eNewType ← inferType eNew
       if (← isDefEq expectedType eNewType) then
         return eNew -- approach 2 worked
@@ -802,9 +802,9 @@ private def tryLiftAndCoe (errorMsgHeader? : Option String) (expectedType : Expr
         let some monadInst ← isMonad? n | tryCoeSimple
         let u ← getLevel α
         let v ← getLevel β
-        let coeTInstType := Lean.mkForall `a BinderInfo.default α $ mkAppN (mkConst `CoeT [u, v]) #[α, mkBVar 0, β]
+        let coeTInstType := Lean.mkForall `a BinderInfo.default α $ mkAppN (mkConst ``CoeT [u, v]) #[α, mkBVar 0, β]
         let coeTInstVal ← synthesizeInst coeTInstType
-        let eNew ← expandCoe (← mkAppN (Lean.mkConst `liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, monadInst, e])
+        let eNew ← expandCoe (← mkAppN (Lean.mkConst ``liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, monadInst, e])
         let eNewType ← inferType eNew
         unless (← isDefEq expectedType eNewType) do throwMismatch
         return eNew -- approach 3 worked
@@ -959,14 +959,14 @@ private def isExplicit (stx : Syntax) : Bool :=
   | _      => false
 
 private def isExplicitApp (stx : Syntax) : Bool :=
-  stx.getKind == `Lean.Parser.Term.app && isExplicit stx[0]
+  stx.getKind == ``Lean.Parser.Term.app && isExplicit stx[0]
 
 /--
   Return true if `stx` if a lambda abstraction containing a `{}` or `[]` binder annotation.
   Example: `fun {α} (a : α) => a` -/
 private def isLambdaWithImplicit (stx : Syntax) : Bool :=
   match stx with
-  | `(fun $binders* => $body) => binders.any fun b => b.isOfKind `Lean.Parser.Term.implicitBinder || b.isOfKind `Lean.Parser.Term.instBinder
+  | `(fun $binders* => $body) => binders.any fun b => b.isOfKind ``Lean.Parser.Term.implicitBinder || b.isOfKind `Lean.Parser.Term.instBinder
   | _                         => false
 
 private partial def dropTermParens : Syntax → Syntax := fun stx =>
@@ -1097,13 +1097,13 @@ private def tryCoeSort (α : Expr) (a : Expr) : TermElabM Expr := do
   let β ← mkFreshTypeMVar
   let u ← getLevel α
   let v ← getLevel β
-  let coeSortInstType := mkAppN (Lean.mkConst `CoeSort [u, v]) #[α, β]
+  let coeSortInstType := mkAppN (Lean.mkConst ``CoeSort [u, v]) #[α, β]
   let mvar ← mkFreshExprMVar coeSortInstType MetavarKind.synthetic
   let mvarId := mvar.mvarId!
   try
     withoutMacroStackAtErr do
       if (← synthesizeCoeInstMVarCore mvarId) then
-        expandCoe <| mkAppN (Lean.mkConst `coeSort [u, v]) #[α, β, a, mvar]
+        expandCoe <| mkAppN (Lean.mkConst ``coeSort [u, v]) #[α, β, a, mvar]
       else
         throwError "type expected"
   catch
@@ -1389,8 +1389,8 @@ private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr :=
     | none     => throwIllFormedSyntax
   let typeMVar ← mkFreshTypeMVarFor expectedType?
   let u ← getDecLevel typeMVar
-  let mvar ← mkInstMVar (mkApp2 (Lean.mkConst `OfNat [u]) typeMVar (mkNatLit val))
-  let r := mkApp3 (Lean.mkConst `OfNat.ofNat [u]) typeMVar (mkNatLit val) mvar
+  let mvar ← mkInstMVar (mkApp2 (Lean.mkConst ``OfNat [u]) typeMVar (mkNatLit val))
+  let r := mkApp3 (Lean.mkConst ``OfNat.ofNat [u]) typeMVar (mkNatLit val) mvar
   registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
   return r
 
@@ -1406,12 +1406,12 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   | some (m, sign, e) =>
     let typeMVar ← mkFreshTypeMVarFor expectedType?
     let u ← getDecLevel typeMVar
-    let mvar ← mkInstMVar (mkApp (Lean.mkConst `OfScientific [u]) typeMVar)
-    return mkApp5 (Lean.mkConst `OfScientific.ofScientific [u]) typeMVar mvar (mkNatLit m) (toExpr sign) (mkNatLit e)
+    let mvar ← mkInstMVar (mkApp (Lean.mkConst ``OfScientific [u]) typeMVar)
+    return mkApp5 (Lean.mkConst ``OfScientific.ofScientific [u]) typeMVar mvar (mkNatLit m) (toExpr sign) (mkNatLit e)
 
 @[builtinTermElab charLit] def elabCharLit : TermElab := fun stx _ => do
   match stx.isCharLit? with
-  | some val => return mkApp (Lean.mkConst `Char.ofNat) (mkNatLit val.toNat)
+  | some val => return mkApp (Lean.mkConst ``Char.ofNat) (mkNatLit val.toNat)
   | none     => throwIllFormedSyntax
 
 @[builtinTermElab quotedName] def elabQuotedName : TermElab := fun stx _ =>

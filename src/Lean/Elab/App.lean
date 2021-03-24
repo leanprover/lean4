@@ -69,12 +69,12 @@ private def tryCoeFun? (α : Expr) (a : Expr) : TermElabM (Option Expr) := do
   let type ← mkArrow α (mkSort v)
   let γ ← mkFreshExprMVar type
   let u ← getLevel α
-  let coeFunInstType := mkAppN (Lean.mkConst `CoeFun [u, v]) #[α, γ]
+  let coeFunInstType := mkAppN (Lean.mkConst ``CoeFun [u, v]) #[α, γ]
   let mvar ← mkFreshExprMVar coeFunInstType MetavarKind.synthetic
   let mvarId := mvar.mvarId!
   try
     if (← synthesizeCoeInstMVarCore mvarId) then
-      expandCoe <| mkAppN (Lean.mkConst `coeFun [u, v]) #[α, γ, a, mvar]
+      expandCoe <| mkAppN (Lean.mkConst ``coeFun [u, v]) #[α, γ, a, mvar]
     else
       return none
   catch _ =>
@@ -217,9 +217,9 @@ private def shouldPropagateExpectedTypeFor (nextArg : Arg) : Bool :=
   | Arg.expr _  => false -- it has already been elaborated
   | Arg.stx stx =>
     -- TODO: make this configurable?
-    stx.getKind != `Lean.Parser.Term.hole &&
-    stx.getKind != `Lean.Parser.Term.syntheticHole &&
-    stx.getKind != `Lean.Parser.Term.byTactic
+    stx.getKind != ``Lean.Parser.Term.hole &&
+    stx.getKind != ``Lean.Parser.Term.syntheticHole &&
+    stx.getKind != ``Lean.Parser.Term.byTactic
 
 /-
   Auxiliary method for propagating the expected type. We call it as soon as we find the first explict
@@ -422,7 +422,7 @@ private def processImplicitArg (k : M Expr) : M Expr := do
 /- Return true if the next argument at `args` is of the form `_` -/
 private def isNextArgHole : M Bool := do
   match (← get).args with
-  | Arg.stx (Syntax.node `Lean.Parser.Term.hole _) :: _ => pure true
+  | Arg.stx (Syntax.node ``Lean.Parser.Term.hole _) :: _ => pure true
   | _ => pure false
 
 /-
@@ -897,18 +897,18 @@ partial def expandArgs (args : Array Syntax) (pattern := false) : TermElabM (Arr
   let (args, ellipsis) :=
     if args.isEmpty then
       (args, false)
-    else if args.back.isOfKind `Lean.Parser.Term.ellipsis then
+    else if args.back.isOfKind ``Lean.Parser.Term.ellipsis then
       (args.pop, true)
     else
       (args, false)
   let (namedArgs, args) ← args.foldlM (init := (#[], #[])) fun (namedArgs, args) stx => do
-    if stx.getKind == `Lean.Parser.Term.namedArgument then
+    if stx.getKind == ``Lean.Parser.Term.namedArgument then
       -- trailing_tparser try ("(" >> ident >> " := ") >> termParser >> ")"
       let name := stx[1].getId.eraseMacroScopes
       let val  := stx[3]
       let namedArgs ← addNamedArg namedArgs { ref := stx, name := name, val := Arg.stx val }
       return (namedArgs, args)
-    else if stx.getKind == `Lean.Parser.Term.ellipsis then
+    else if stx.getKind == ``Lean.Parser.Term.ellipsis then
       throwErrorAt stx "unexpected '..'"
     else
       return (namedArgs, args.push $ Arg.stx stx)

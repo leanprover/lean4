@@ -1050,7 +1050,7 @@ builtin_initialize
   match stx with
   | `(nomatch $discrExpr) => do
       let expectedType ← waitExpectedType expectedType?
-      let discr := Syntax.node `Lean.Parser.Term.matchDiscr #[mkNullNode, discrExpr]
+      let discr := Syntax.node ``Lean.Parser.Term.matchDiscr #[mkNullNode, discrExpr]
       elabMatchAux #[discr] #[] mkNullNode expectedType
   | _ => throwUnsupportedSyntax
 

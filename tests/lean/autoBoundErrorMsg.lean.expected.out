@@ -1,0 +1,8 @@
+autoBoundErrorMsg.lean:1:34-1:39: error: don't know how to synthesize implicit argument
+  @Eq ?m a b
+context:
+α : Sort ?u
+a b : ?m
+h : ∀ {a b : α}, a = b
+⊢ Sort ?u
+when the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed

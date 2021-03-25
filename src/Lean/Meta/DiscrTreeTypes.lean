@@ -17,6 +17,7 @@ inductive Key where
   | lit   : Literal → Key
   | star  : Key
   | other : Key
+  | arrow : Key
   deriving Inhabited, BEq
 
 protected def Key.hash : Key → USize
@@ -25,6 +26,7 @@ protected def Key.hash : Key → USize
   | Key.lit v     => mixHash 1879 $ hash v
   | Key.star      => 7883
   | Key.other     => 2411
+  | Key.arrow     => 17
 
 instance : Hashable Key := ⟨Key.hash⟩
 

@@ -91,6 +91,7 @@ def main : M (Option MVarId) := do
 end SimpAll
 
 def simpAll (mvarId : MVarId) (ctx : Simp.Context) : MetaM (Option MVarId) := do
-  SimpAll.main.run' { mvarId := mvarId, ctx := ctx }
+  withMVarContext mvarId do
+    SimpAll.main.run' { mvarId := mvarId, ctx := ctx }
 
 end Lean.Meta

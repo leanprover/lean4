@@ -767,28 +767,35 @@ where
     | Except.error { idx := idx, ex := ex } =>
       let indices ← getIndicesToInclude discrs idx
       if indices.isEmpty then
-        match first? with
-        | none => throw ex
-        | some (s, ex) => s.restore; throw ex
+        throwEx (← updateFirst first? ex)
       else
-        let first? ← updateFirst first? ex
+        let first ← updateFirst first? ex
         s.restore
-        let matchType ← updateMatchType indices matchType
+        let matchType ←
+          try
+            updateMatchType indices matchType
+          catch ex =>
+            throwEx first
         let altViews  ← addWildcardPatterns indices.size altViews
         let discrs    := indices ++ discrs
-        loop discrs matchType altViews first?
+        loop discrs matchType altViews first
 
-  updateFirst (first? : Option (SavedState × Exception)) (ex : Exception) : TermElabM (Option (SavedState × Exception)) := do
+  throwEx {α} (p : SavedState × Exception) : TermElabM α := do
+    p.1.restore; throw p.2
+
+  updateFirst (first? : Option (SavedState × Exception)) (ex : Exception) : TermElabM (SavedState × Exception) := do
     match first? with
-    | none   => return some (← saveAllState, ex)
-    | some _ => return first?
+    | none       => return (← saveAllState, ex)
+    | some first => return first
 
-  updateMatchType (indices : Array Expr) (matchType : Expr) : TermElabM Expr :=
-    indices.foldrM (init := matchType) fun index matchType => do
+  updateMatchType (indices : Array Expr) (matchType : Expr) : TermElabM Expr := do
+    let matchType ← indices.foldrM (init := matchType) fun index matchType => do
       let indexType ← inferType index
       let matchTypeBody ← kabstract matchType index
       let userName ← mkUserNameFor index
       return Lean.mkForall userName BinderInfo.default indexType matchTypeBody
+    check matchType
+    return matchType
 
   addWildcardPatterns (num : Nat) (altViews : Array MatchAltView) : TermElabM (Array MatchAltView) := do
     let hole := mkHole (← getRef)

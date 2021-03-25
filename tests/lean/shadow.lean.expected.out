@@ -15,15 +15,13 @@ context:
 α : Type u_1
 inst✝¹ : Inhabited α
 inst✝ inst : α
-β✝ δ✝ : Type
-⊢ α → β✝ → δ✝ → α × β✝ × δ✝
+⊢ {β δ : Type} → α → β → δ → α × β × δ
 shadow.lean:17:0-17:1: error: don't know how to synthesize placeholder
 context:
 α : Type u_1
-inst.68 : Inhabited α
+inst.66 : Inhabited α
 inst inst : α
-β.93 δ.94 : Type
-⊢ α → β.93 → δ.94 → α × β.93 × δ.94
+⊢ {β δ : Type} → α → β → δ → α × β × δ
 shadow.lean:20:0-20:1: error: don't know how to synthesize placeholder
 context:
 α : Type u_1
@@ -32,5 +30,4 @@ inst✝² : α
 inst✝¹ b : β
 inst : α
 inst✝ : Inhabited α
-β✝ δ✝ : Type
-⊢ α → β✝ → δ✝ → α × β✝ × δ✝
+⊢ {β δ : Type} → α → β → δ → α × β × δ

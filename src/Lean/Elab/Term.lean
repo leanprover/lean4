@@ -111,6 +111,7 @@ structure SavedContext where
   options    : Options
   openDecls  : List OpenDecl
   macroStack : MacroStack
+  errToSorry : Bool
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind where
@@ -885,10 +886,11 @@ private def saveContext : TermElabM SavedContext :=
     declName?  := (← read).declName?
     options    := (← getOptions)
     openDecls  := (← getOpenDecls)
+    errToSorry := (← read).errToSorry
   }
 
 def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α := do
-  withReader (fun ctx => { ctx with declName? := savedCtx.declName?, macroStack := savedCtx.macroStack }) <|
+  withReader (fun ctx => { ctx with declName? := savedCtx.declName?, macroStack := savedCtx.macroStack, errToSorry := savedCtx.errToSorry }) <|
     withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls })
       x
 

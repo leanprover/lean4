@@ -78,9 +78,34 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
   | `(tactic| refine' $e) => refineCore e `refine' (allowNaturalHoles := true)
   | _                     => throwUnsupportedSyntax
 
+/--
+   Given a tactic
+   ```
+   apply f
+   ```
+   we want the `apply` tactic to create all metavariables. The following
+   definition will return `@f` for `f`. That is, it will **not** create
+   metavariables for implicit arguments.
+   A similar method is also used in Lean 3.
+   This method is useful when applying lemmas such as:
+   ```
+   theorem infLeRight {s t : Set α} : s ⊓ t ≤ t
+   ```
+   where `s ≤ t` here is defined as
+   ```
+   ∀ {x : α}, x ∈ s → x ∈ t
+   ```
+-/
+def elabTermForApply (stx : Syntax) : TacticM Expr := do
+  if stx.isIdent then
+    match (← Term.resolveId? stx) with
+    | some e => return e
+    | _      => pure ()
+  elabTerm stx none (mayPostpone := true)
+
 def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syntax) : TacticM Unit := do
   withMainContext do
-    let val  ← elabTerm e none true
+    let val  ← elabTermForApply e
     let mvarIds'  ← tac (← getMainGoal) val
     Term.synthesizeSyntheticMVarsNoPostponing
     replaceMainGoal mvarIds'

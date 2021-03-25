@@ -1,5 +1,3 @@
-
-
 def f : Nat → Nat → Nat
 | 100, 2 => 0
 | _,   4 => 1
@@ -17,6 +15,11 @@ inductive BV : Nat → Type
 open BV
 
 def g : {n : Nat} → BV n → Nat → Nat
-| _, cons b v, 1000000 => g v 0
-| _, cons b v, x       => g v (x + 1)
-| _, _,        _       => 1
+  | _, cons b v, 1000000 => g v 0
+  | _, cons b v, x       => g v (x + 1)
+  | _, _,        _       => 1
+
+def g' : BV n → Nat → Nat
+  | cons b v, 1000000 => g v 0
+  | cons b v, x       => g v (x + 1)
+  | _,        _       => 1

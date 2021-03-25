@@ -20,3 +20,11 @@ def Op.f2 : {ishapes : List S} → {oshape : S} → Op ishapes oshape → T osha
   | _,  _, gemm     => arbitrary
 
 #print Op.f2
+
+def Op.f2' {ishapes : List S} {oshape : S} : Op ishapes oshape → T oshape
+  | binary _ => arbitrary
+  | gemm     => arbitrary
+
+def Op.f2'' : Op i o → T o
+  | binary _ => arbitrary
+  | gemm     => arbitrary

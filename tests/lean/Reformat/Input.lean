@@ -250,6 +250,10 @@ theorem decideEqTrue : {p : Prop} → [s : Decidable p] → p → Eq (decide p) 
   | _, isTrue  _, _   => rfl
   | _, isFalse h₁, h₂ => absurd h₂ h₁
 
+theorem decideEqTrue' : [s : Decidable p] → p → Eq (decide p) true
+  | isTrue  _, _   => rfl
+  | isFalse h₁, h₂ => absurd h₂ h₁
+
 theorem decideEqFalse : {p : Prop} → [s : Decidable p] → Not p → Eq (decide p) false
   | _, isTrue  h₁, h₂ => absurd h₁ h₂
   | _, isFalse h, _   => rfl

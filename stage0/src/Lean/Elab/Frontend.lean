@@ -39,9 +39,6 @@ def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit := do
       enableInfoTree
     Command.elabCommand stx
     enableInfoTree infoTreeEnabled
-    let trees ← getInfoTrees
-    for t in trees do
-      trace `Elab.info fun _ => m!"{← t.format}"
 
 def updateCmdPos : FrontendM Unit := do
   modify fun s => { s with cmdPos := s.parserState.pos }

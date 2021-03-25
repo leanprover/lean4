@@ -12,20 +12,30 @@ import Lean.Meta.Tactic.Replace
 namespace Lean.Elab.Tactic
 open Meta
 
-
 unsafe def evalSimpConfigUnsafe (e : Expr) : TermElabM Meta.Simp.Config :=
   Term.evalExpr Meta.Simp.Config ``Meta.Simp.Config e
-
 @[implementedBy evalSimpConfigUnsafe] constant evalSimpConfig (e : Expr) : TermElabM Meta.Simp.Config
 
-/- `optConfig` is of the form `("(" "config" ":=" term ")")?` -/
-def elabSimpConfig (optConfig : Syntax) : TermElabM Meta.Simp.Config := do
+unsafe def evalSimpConfigCtxUnsafe (e : Expr) : TermElabM Meta.Simp.ConfigCtx :=
+  Term.evalExpr Meta.Simp.ConfigCtx ``Meta.Simp.ConfigCtx e
+@[implementedBy evalSimpConfigCtxUnsafe] constant evalSimpConfigCtx (e : Expr) : TermElabM Meta.Simp.ConfigCtx
+
+/-
+  `optConfig` is of the form `("(" "config" ":=" term ")")?`
+  If `ctx == false`, the argument is assumed to have type `Meta.Simp.Config`, and `Meta.Simp.ConfigCtx` otherwise. -/
+def elabSimpConfig (optConfig : Syntax) (ctx : Bool) : TermElabM Meta.Simp.Config := do
   if optConfig.isNone then
-    return {}
+    if ctx then
+      return { : Meta.Simp.ConfigCtx }.toConfig
+    else
+      return {}
   else
     withLCtx {} {} <| withNewMCtxDepth <| Term.withSynthesize do
-      let c ← Term.elabTermEnsuringType optConfig[3] (Lean.mkConst ``Meta.Simp.Config)
-      evalSimpConfig (← instantiateMVars c)
+      let c ← Term.elabTermEnsuringType optConfig[3] (Lean.mkConst (if ctx then ``Meta.Simp.ConfigCtx else ``Meta.Simp.Config))
+      if ctx then
+        return (← evalSimpConfigCtx (← instantiateMVars c)).toConfig
+      else
+        evalSimpConfig (← instantiateMVars c)
 
 /--
   Elaborate extra simp lemmas provided to `simp`. `stx` is of the `simpLemma,*`
@@ -84,10 +94,11 @@ where
     else
       return none
 
-private def mkSimpContext (stx : Syntax) (eraseLocal : Bool) : TacticM Simp.Context := do
+--  If `ctx == false`, the argument is assumed to have type `Meta.Simp.Config`, and `Meta.Simp.ConfigCtx` otherwise. -/
+private def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (ctx := false) : TacticM Simp.Context := do
   let simpOnly := !stx[2].isNone
   elabSimpLemmas stx[3] (eraseLocal := eraseLocal) {
-    config      := (← elabSimpConfig stx[1])
+    config      := (← elabSimpConfig stx[1] (ctx := ctx))
     simpLemmas  := if simpOnly then {} else (← getSimpLemmas)
     congrLemmas := (← getCongrLemmas)
   }
@@ -125,7 +136,7 @@ where
     replaceMainGoal [mvarIdNew]
 
 @[builtinTactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => do
-  let ctx  ← mkSimpContext stx (eraseLocal := true)
+  let ctx  ← mkSimpContext stx (eraseLocal := true) (ctx := true)
   match (← simpAll (← getMainGoal) ctx) with
   | none => replaceMainGoal []
   | some mvarId => replaceMainGoal [mvarId]

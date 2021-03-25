@@ -255,6 +255,7 @@ lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta
 lean_object* l_Lean_Syntax_structEq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId___boxed(lean_object*);
 uint8_t l___private_Init_Meta_0__Lean_Meta_Simp_beqConfig____x40_Init_Meta___hyg_6032_(lean_object*, lean_object*);
+uint8_t l_Lean_Meta_Simp_ConfigCtx_contextual___default;
 lean_object* l___private_Init_Meta_0__Lean_quoteList___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isFieldIdx_x3f(lean_object*);
 lean_object* l_Lean_Syntax_setTailInfo_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -14401,6 +14402,14 @@ x_1 = l_Lean_Meta_Simp_instReprConfig___closed__1;
 return x_1;
 }
 }
+static uint8_t _init_l_Lean_Meta_Simp_ConfigCtx_contextual___default() {
+_start:
+{
+uint8_t x_1; 
+x_1 = 1;
+return x_1;
+}
+}
 lean_object* initialize_Init_Data_Array_Basic(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Meta(lean_object* w) {
@@ -14682,6 +14691,7 @@ l_Lean_Meta_Simp_instReprConfig___closed__1 = _init_l_Lean_Meta_Simp_instReprCon
 lean_mark_persistent(l_Lean_Meta_Simp_instReprConfig___closed__1);
 l_Lean_Meta_Simp_instReprConfig = _init_l_Lean_Meta_Simp_instReprConfig();
 lean_mark_persistent(l_Lean_Meta_Simp_instReprConfig);
+l_Lean_Meta_Simp_ConfigCtx_contextual___default = _init_l_Lean_Meta_Simp_ConfigCtx_contextual___default();
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

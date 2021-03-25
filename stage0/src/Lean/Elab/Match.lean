@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Util.CollectFVars
 import Lean.Meta.Match.MatchPatternAttr
 import Lean.Meta.Match.Match
 import Lean.Meta.SortLocalDecls
@@ -576,10 +577,9 @@ private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : Excep
       matchType ← whnf matchType
       match matchType with
       | Expr.forallE _ d b _ =>
-          let pattern ← elabTerm patternStx d
           let pattern ←
             try
-              withRef patternStx <| ensureHasType d pattern
+              liftM <| withSynthesize <| withoutErrToSorry <| elabTermEnsuringType patternStx d
             catch ex =>
               -- Wrap the type mismatch exception for the "discriminant refinement" feature.
               throwThe PatternElabException { ex := ex, idx := idx }
@@ -767,28 +767,73 @@ where
     | Except.error { idx := idx, ex := ex } =>
       let indices ← getIndicesToInclude discrs idx
       if indices.isEmpty then
-        match first? with
-        | none => throw ex
-        | some (s, ex) => s.restore; throw ex
+        throwEx (← updateFirst first? ex)
       else
-        let first? ← updateFirst first? ex
+        let first ← updateFirst first? ex
         s.restore
-        let matchType ← updateMatchType indices matchType
+        let indices ← collectDeps indices discrs
+        let matchType ←
+          try
+            updateMatchType indices matchType
+          catch ex =>
+            throwEx first
         let altViews  ← addWildcardPatterns indices.size altViews
         let discrs    := indices ++ discrs
-        loop discrs matchType altViews first?
+        loop discrs matchType altViews first
 
-  updateFirst (first? : Option (SavedState × Exception)) (ex : Exception) : TermElabM (Option (SavedState × Exception)) := do
+  throwEx {α} (p : SavedState × Exception) : TermElabM α := do
+    p.1.restore; throw p.2
+
+  updateFirst (first? : Option (SavedState × Exception)) (ex : Exception) : TermElabM (SavedState × Exception) := do
     match first? with
-    | none   => return some (← saveAllState, ex)
-    | some _ => return first?
+    | none       => return (← saveAllState, ex)
+    | some first => return first
 
-  updateMatchType (indices : Array Expr) (matchType : Expr) : TermElabM Expr :=
-    indices.foldrM (init := matchType) fun index matchType => do
+  containsFVar (es : Array Expr) (fvarId : FVarId) : Bool :=
+    es.any fun e => e.isFVar && e.fvarId! == fvarId
+
+  /- Update `indices` by including any free variable `x` s.t.
+     - Type of some `discr` depends on `x`.
+     - Type of `x` depends on some free variable in `indices`.
+
+     If we don't include these extra variables in indices, then
+     `updateMatchType` will generate a type incorrect term.
+     For example, suppose `discr` contains `h : @HEq α a α b`, and
+     `indices` is `#[α, b]`, and `matchType` is `@HEq α a α b → B`.
+     `updateMatchType indices matchType` produces the type
+     `(α' : Type) → (b : α') → @HEq α' a α' b → B` which is type incorrect
+     because we have `a : α`.
+     The method `collectDeps` will include `a` into `indices`.
+
+     This method does not handle dependencies among non-free variables.
+     We rely on the type checking method `check` at `updateMatchType`. -/
+  collectDeps (indices : Array Expr) (discrs : Array Expr) : TermElabM (Array Expr) := do
+    let mut s : CollectFVars.State := {}
+    for discr in discrs do
+      s := collectFVars s (← instantiateMVars (← inferType discr))
+    let (indicesFVar, indicesNonFVar) := indices.split Expr.isFVar
+    let indicesFVar := indicesFVar.map Expr.fvarId!
+    let mut toAdd := #[]
+    for fvarId in s.fvarSet.toList do
+      unless containsFVar discrs fvarId || containsFVar indices fvarId do
+        let localDecl ← getLocalDecl fvarId
+        let mctx ← getMCtx
+        for indexFVarId in indicesFVar do
+          if mctx.localDeclDependsOn localDecl indexFVarId then
+            toAdd := toAdd.push fvarId
+    let lctx ← getLCtx
+    let indicesFVar := (indicesFVar ++ toAdd).qsort fun fvarId₁ fvarId₂ =>
+      (lctx.get! fvarId₁).index < (lctx.get! fvarId₂).index
+    return indicesFVar.map mkFVar ++ indicesNonFVar
+
+  updateMatchType (indices : Array Expr) (matchType : Expr) : TermElabM Expr := do
+    let matchType ← indices.foldrM (init := matchType) fun index matchType => do
       let indexType ← inferType index
       let matchTypeBody ← kabstract matchType index
       let userName ← mkUserNameFor index
       return Lean.mkForall userName BinderInfo.default indexType matchTypeBody
+    check matchType
+    return matchType
 
   addWildcardPatterns (num : Nat) (altViews : Array MatchAltView) : TermElabM (Array MatchAltView) := do
     let hole := mkHole (← getRef)
@@ -1050,7 +1095,7 @@ builtin_initialize
   match stx with
   | `(nomatch $discrExpr) => do
       let expectedType ← waitExpectedType expectedType?
-      let discr := Syntax.node `Lean.Parser.Term.matchDiscr #[mkNullNode, discrExpr]
+      let discr := Syntax.node ``Lean.Parser.Term.matchDiscr #[mkNullNode, discrExpr]
       elabMatchAux #[discr] #[] mkNullNode expectedType
   | _ => throwUnsupportedSyntax
 

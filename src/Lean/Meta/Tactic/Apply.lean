@@ -80,7 +80,7 @@ def apply (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) :=
     let targetType ← getMVarType mvarId
     let eType      ← inferType e
     let mut (numArgs, hasMVarHead) ← getExpectedNumArgsAux eType
-    if hasMVarHead then
+    unless hasMVarHead do
       let targetTypeNumArgs ← getExpectedNumArgs targetType
       numArgs := numArgs - targetTypeNumArgs
     let (newMVars, binderInfos, eType) ← forallMetaTelescopeReducing eType (some numArgs)

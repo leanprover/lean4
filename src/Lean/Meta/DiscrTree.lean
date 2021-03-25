@@ -377,6 +377,9 @@ private def getStarResult (d : DiscrTree α) : Array α :=
   | none                  => result
   | some (Trie.node vs _) => result ++ vs
 
+private abbrev findKey (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α) :=
+  cs.binSearch (k, arbitrary) (fun a b => a.1 < b.1)
+
 partial def getMatch (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   withReducible do
     let result := getStarResult d
@@ -403,19 +406,24 @@ where
         /- We must always visit `Key.star` edges since they are wildcards.
            Thus, `todo` is not used linearly when there is `Key.star` edge
            and there is an edge for `k` and `k != Key.star`. -/
-        let visitStarChild (result : Array α) : MetaM (Array α) :=
+        let visitStar (result : Array α) : MetaM (Array α) :=
           if first.1 == Key.star then
             process todo first.2 result
           else
             return result
+        let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
+          match findKey cs k with
+          | none   => result
+          | some c => process (todo ++ args) c.2 result
+        let result ← visitStar result
         match k with
-        | Key.star => visitStarChild result
-        | _ =>
-          match cs.binSearch (k, arbitrary) (fun a b => a.1 < b.1) with
-          | none   => visitStarChild result
-          | some c =>
-            let result ← visitStarChild result
-            process (todo ++ args) c.2 result
+        | Key.star  => result
+        /-
+          Recall that dependent arrows are `(Key.other, #[])`, and non-dependent arrows are `(Key.arrow, #[a, b])`.
+          A non-dependent arrow may be an instance of a dependent arrow (stored at `DiscrTree`). Thus, we also visit the `Key.other` child.
+        -/
+        | Key.arrow => visitNonStar Key.other #[] (← visitNonStar k args result)
+        | _         => visitNonStar k args result
 
 partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   withReducible do
@@ -444,17 +452,20 @@ where
         let e     := todo.back
         let todo  := todo.pop
         let (k, args) ← getUnifyKeyArgs e
-        match k with
-        | Key.star => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
-        | _ =>
+        let visitStar (result : Array α) : MetaM (Array α) :=
           let first := cs[0]
-          let visitStarChild (result : Array α) : MetaM (Array α) :=
-            if first.1 == Key.star then
-              process 0 todo first.2 result
-            else
-              return result
-          match cs.binSearch (k, arbitrary) (fun a b => a.1 < b.1) with
-          | none   => visitStarChild result
-          | some c => process 0 (todo ++ args) c.2 (← visitStarChild result)
+          if first.1 == Key.star then
+            process 0 todo first.2 result
+          else
+            return result
+        let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
+          match findKey cs k with
+          | none   => result
+          | some c => process 0 (todo ++ args) c.2 result
+        match k with
+        | Key.star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
+        -- See comment a `getMatch` regarding non-dependent arrows vs dependent arrows
+        | Key.arrow => visitNonStar Key.other #[] (← visitNonStar k args (← visitStar result))
+        | _         => visitNonStar k args (← visitStar result)
 
 end Lean.Meta.DiscrTree

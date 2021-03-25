@@ -219,7 +219,7 @@ instance : MonadRecDepth CommandElabM where
 
 builtin_initialize registerTraceClass `Elab.command
 
-partial def elabCommand (stx : Syntax) : CommandElabM Unit :=
+partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
   let mkInfoTree := do
     let ctx ← read
     let s ← get
@@ -252,6 +252,9 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit :=
           | some elabFns => elabCommandUsing s stx elabFns
           | none         => throwError "elaboration function for '{k}' has not been implemented"
     | _ => throwError "unexpected command"
+  let trees ← getInfoTrees
+  for t in trees do
+    trace `Elab.info fun _ => m!"{← t.format}"
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
 def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab := fun stx => do

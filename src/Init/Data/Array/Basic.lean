@@ -793,4 +793,8 @@ def allDiff [BEq α] (as : Array α) : Bool :=
 def zip (as : Array α) (bs : Array β) : Array (α × β) :=
   zipWith as bs Prod.mk
 
+def split (as : Array α) (p : α → Bool) : Array α × Array α :=
+  as.foldl (init := (#[], #[])) fun (as, bs) a =>
+    if p a then (as.push a, bs) else (as, bs.push a)
+
 end Array

@@ -976,10 +976,23 @@ private partial def dropTermParens : Syntax → Syntax := fun stx =>
   | `(($stx)) => dropTermParens stx
   | _         => stx
 
+private def isHole (stx : Syntax) : Bool :=
+  match stx with
+  | `(_)          => true
+  | `(? _)        => true
+  | `(? $x:ident) => true
+  | _             => false
+
+private def isTacticBlock (stx : Syntax) : Bool :=
+  match stx with
+  | `(by $x:tacticSeq) => true
+  | _ => false
+
 /-- Block usage of implicit lambdas if `stx` is `@f` or `@f arg1 ...` or `fun` with an implicit binder annotation. -/
 def blockImplicitLambda (stx : Syntax) : Bool :=
   let stx := dropTermParens stx
-  isExplicit stx || isExplicitApp stx || isLambdaWithImplicit stx
+  -- TODO: make it extensible
+  isExplicit stx || isExplicitApp stx || isLambdaWithImplicit stx || isHole stx || isTacticBlock stx
 
 /--
   Return normalized expected type if it is of the form `{a : α} → β` or `[a : α] → β` and

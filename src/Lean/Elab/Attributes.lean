@@ -33,7 +33,7 @@ instance : Inhabited Attribute where
 def toAttributeKind [Monad m] [MonadResolveName m] [MonadError m] (attrKindStx : Syntax) : m AttributeKind := do
   if attrKindStx[0].isNone then
     return AttributeKind.global
-  else if attrKindStx[0][0].getKind == `Lean.Parser.Term.scoped then
+  else if attrKindStx[0][0].getKind == ``Lean.Parser.Term.scoped then
     if (← getCurrNamespace).isAnonymous then
       throwError "scoped attributes must be used inside namespaces"
     return AttributeKind.scoped
@@ -41,7 +41,7 @@ def toAttributeKind [Monad m] [MonadResolveName m] [MonadError m] (attrKindStx :
     return AttributeKind.local
 
 def mkAttrKindGlobal : Syntax :=
-  Syntax.node `Lean.Parser.Term.attrKind #[mkNullNode]
+  Syntax.node ``Lean.Parser.Term.attrKind #[mkNullNode]
 
 def elabAttr {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] (attrInstance : Syntax) : m Attribute := do
   /- attrInstance     := ppGroup $ leading_parser attrKind >> attrParser -/

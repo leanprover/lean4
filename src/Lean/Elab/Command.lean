@@ -252,9 +252,10 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
           | some elabFns => elabCommandUsing s stx elabFns
           | none         => throwError "elaboration function for '{k}' has not been implemented"
     | _ => throwError "unexpected command"
-  let trees ← getInfoTrees
-  for t in trees do
-    trace `Elab.info fun _ => m!"{← t.format}"
+  if checkTraceOption (← getOptions) `Elab.info then
+    let trees ← getInfoTrees
+    for t in trees do
+      logTrace `Elab.info m!"{← t.format}"
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
 def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab := fun stx => do

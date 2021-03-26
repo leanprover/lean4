@@ -319,7 +319,15 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
   | []      => unreachable!
   | x :: xs => do
     let subgoals? ← commitWhenSome? do
-       let subgoals ← cases p.mvarId x.fvarId!
+       let subgoals ←
+         try
+           cases p.mvarId x.fvarId!
+         catch ex =>
+           if p.alts.isEmpty then
+             /- If we have no alternatives and dependent pattern matching fails, then a "missing cases" error is bettern than a "stuck" error message. -/
+             return none
+           else
+             throw ex
        if subgoals.isEmpty then
          /- Easy case: we have solved problem `p` since there are no subgoals -/
          pure (some #[])

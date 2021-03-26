@@ -1,0 +1,9 @@
+implicitLambdaIssue.lean:42:12-42:13: error: don't know how to synthesize placeholder
+context:
+α : Type u_1
+x y z : Set α
+hxy : x ≤ y
+hyz : y ≤ z
+h : x ≤ y
+h' : y ≤ z
+⊢ x ≤ z

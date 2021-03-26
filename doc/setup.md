@@ -87,6 +87,13 @@ Note that if you rename `MyPackage.lean`, you also have to adjust the `name` att
 
 As in the basic setup, changes need to be saved to be visible in other files, which have then to be invalidated via an editor command.
 
+If you don't want to or cannot start the pinned editor from Nix, e.g. because you're running Lean inside WSL/a container/on a different machine, you can manually point your editor at the `lean` wrapper script the commands above use internally:
+```bash
+$ nix build .#lean-dev -o result-lean-dev
+```
+The resulting `./result-lean-dev/bin/lean` script essentially runs `nix run .#lean` in the current project's root directory when you open a Lean file or use the "refresh dependencies" command such that the correct Lean version for that project is executed.
+This includes selecting the correct stage of Lean (which it will compile on the fly, though without progress output) if you are [working on Lean itself](../make/nix.md#editor-integration).
+
 Package dependencies can be added as further input flakes and passed to the `deps` list of `buildLeanPackage`. Example: <https://github.com/Kha/testpkg2/blob/master/flake.nix#L5>
 
 For hacking, it can be useful to temporarily override an input with a local checkout/different version of a dependency:

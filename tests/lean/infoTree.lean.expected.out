@@ -157,26 +157,19 @@
     x y : Nat
     b : Bool
     ⊢ x + 0 = x
-    after 
-    x y : Nat
-    b : Bool
-    ⊢ x + 0 = x
+    after no goals
       Tactic @ ⟨19, 4⟩-⟨19, 8⟩
       before 
       x y : Nat
       b : Bool
       ⊢ x + 0 = x
-      after 
-      x y : Nat
-      b : Bool
-      ⊢ x + 0 = x
+      after no goals
         Tactic @ ⟨19, 4⟩-⟨19, 8⟩
         before 
         x y : Nat
         b : Bool
         ⊢ x + 0 = x
-        after 
-        x y : Nat b : Bool ⊢ x + 0 = x
+        after no goals
 [Elab.info] (Command.declaration
  (Command.declModifiers [] [] [] [] [] [])
  (Command.def
@@ -290,26 +283,19 @@
     x y : Nat
     b : Bool
     ⊢ x + 0 = x
-    after 
-    x y : Nat
-    b : Bool
-    ⊢ x + 0 = x
+    after no goals
       Tactic @ ⟨19, 4⟩-⟨19, 8⟩
       before 
       x y : Nat
       b : Bool
       ⊢ x + 0 = x
-      after 
-      x y : Nat
-      b : Bool
-      ⊢ x + 0 = x
+      after no goals
         Tactic @ ⟨19, 4⟩-⟨19, 8⟩
         before 
         x y : Nat
         b : Bool
         ⊢ x + 0 = x
-        after 
-        x y : Nat b : Bool ⊢ x + 0 = x
+        after no goals
 [Elab.info] (Command.declaration
  (Command.declModifiers [] [] [] [] [] [])
  (Command.def
@@ -568,26 +554,19 @@
     x y : Nat
     b : Bool
     ⊢ x + 0 = x
-    after 
-    x y : Nat
-    b : Bool
-    ⊢ x + 0 = x
+    after no goals
       Tactic @ ⟨19, 4⟩-⟨19, 8⟩
       before 
       x y : Nat
       b : Bool
       ⊢ x + 0 = x
-      after 
-      x y : Nat
-      b : Bool
-      ⊢ x + 0 = x
+      after no goals
         Tactic @ ⟨19, 4⟩-⟨19, 8⟩
         before 
         x y : Nat
         b : Bool
         ⊢ x + 0 = x
-        after 
-        x y : Nat b : Bool ⊢ x + 0 = x
+        after no goals
 [Elab.info] (Command.declaration
  (Command.declModifiers [] [] [] [] [] [])
  (Command.def
@@ -894,26 +873,19 @@
     x y : Nat
     b : Bool
     ⊢ x + 0 = x
-    after 
-    x y : Nat
-    b : Bool
-    ⊢ x + 0 = x
+    after no goals
       Tactic @ ⟨19, 4⟩-⟨19, 8⟩
       before 
       x y : Nat
       b : Bool
       ⊢ x + 0 = x
-      after 
-      x y : Nat
-      b : Bool
-      ⊢ x + 0 = x
+      after no goals
         Tactic @ ⟨19, 4⟩-⟨19, 8⟩
         before 
         x y : Nat
         b : Bool
         ⊢ x + 0 = x
-        after 
-        x y : Nat b : Bool ⊢ x + 0 = x
+        after no goals
 [Elab.info] (Command.declaration
  (Command.declModifiers [] [] [] [] [] [])
  (Command.def
@@ -1238,26 +1210,19 @@
     x y : Nat
     b : Bool
     ⊢ x + 0 = x
-    after 
-    x y : Nat
-    b : Bool
-    ⊢ x + 0 = x
+    after no goals
       Tactic @ ⟨19, 4⟩-⟨19, 8⟩
       before 
       x y : Nat
       b : Bool
       ⊢ x + 0 = x
-      after 
-      x y : Nat
-      b : Bool
-      ⊢ x + 0 = x
+      after no goals
         Tactic @ ⟨19, 4⟩-⟨19, 8⟩
         before 
         x y : Nat
         b : Bool
         ⊢ x + 0 = x
-        after 
-        x y : Nat b : Bool ⊢ x + 0 = x
+        after no goals
 [Elab.info] (Command.declaration
  (Command.declModifiers [] [] [] [] [] [])
  (Command.def
@@ -1644,26 +1609,19 @@ fun {α : Sort u} (a : α) => a
     x y : Nat
     b : Bool
     ⊢ x + 0 = x
-    after 
-    x y : Nat
-    b : Bool
-    ⊢ x + 0 = x
+    after no goals
       Tactic @ ⟨19, 4⟩-⟨19, 8⟩
       before 
       x y : Nat
       b : Bool
       ⊢ x + 0 = x
-      after 
-      x y : Nat
-      b : Bool
-      ⊢ x + 0 = x
+      after no goals
         Tactic @ ⟨19, 4⟩-⟨19, 8⟩
         before 
         x y : Nat
         b : Bool
         ⊢ x + 0 = x
-        after 
-        x y : Nat b : Bool ⊢ x + 0 = x
+        after no goals
 [Elab.info] (Command.declaration
  (Command.declModifiers [] [] [] [] [] [])
  (Command.def

@@ -1,0 +1,3 @@
+matchUnknownFVarBug.lean:2:2-2:7: error: missing cases:
+(some (Nat.succ _)), Eq.refl, (some _), Eq.refl
+none, Eq.refl, none, Eq.refl

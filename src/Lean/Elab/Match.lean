@@ -963,7 +963,9 @@ private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Synta
     if allLocal then
       return none
     else
-      let rec loop (discrs : List Syntax) (discrsNew : Array Syntax) := do
+      -- We use `foundFVars` to make sure the discriminants are distinct variables.
+      -- See: code for computing "matchType" at `elabMatchTypeAndDiscrs`
+      let rec loop (discrs : List Syntax) (discrsNew : Array Syntax) (foundFVars : NameSet) := do
         match discrs with
         | [] =>
           let discrs := Syntax.mkSep discrsNew (mkAtomFrom matchStx ", ");
@@ -972,16 +974,17 @@ private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Synta
           -- Recall that
           -- matchDiscr := leading_parser optional (ident >> ":") >> termParser
           let term := discr[1]
-          match (← isLocalIdent? term) with
-          | some _ => loop discrs (discrsNew.push discr)
-          | none   => withFreshMacroScope do
+          let addAux : TermElabM Syntax := withFreshMacroScope do
             let d ← `(_discr);
             unless isAuxDiscrName d.getId do -- Use assertion?
               throwError "unexpected internal auxiliary discriminant name"
             let discrNew := discr.setArg 1 d;
-            let r ← loop discrs (discrsNew.push discrNew)
+            let r ← loop discrs (discrsNew.push discrNew) foundFVars
             `(let _discr := $term; $r)
-      return some (← loop discrs.toList #[])
+          match (← isLocalIdent? term) with
+          | some x  => if x.isFVar then loop discrs (discrsNew.push discr) (foundFVars.insert x.fvarId!) else addAux
+          | none    => addAux
+      return some (← loop discrs.toList #[] {})
   else
     -- We do not pull non atomic discriminants when match type is provided explicitly by the user
     return none

@@ -225,10 +225,13 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
     let s ← get
     let scope := s.scopes.head!
     let tree := InfoTree.node (Info.ofCommandInfo { stx := stx }) trees
-    return InfoTree.context {
+    let tree := InfoTree.context {
       env := s.env, fileMap := ctx.fileMap, mctx := {}, currNamespace := scope.currNamespace, openDecls := scope.openDecls, options := scope.opts
     } tree
-  withInfoTreeContext (mkInfoTree := mkInfoTree) <| withLogging <| withRef stx <| withIncRecDepth <| withFreshMacroScope do
+    if checkTraceOption (← getOptions) `Elab.info then
+      logTrace `Elab.info m!"{← tree.format}"
+    return tree
+  withLogging <| withRef stx <| withInfoTreeContext (mkInfoTree := mkInfoTree) <| withIncRecDepth <| withFreshMacroScope do
     runLinters stx
     match stx with
     | Syntax.node k args =>
@@ -251,10 +254,6 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
           | some elabFns => elabCommandUsing s stx elabFns
           | none         => throwError "elaboration function for '{k}' has not been implemented"
     | _ => throwError "unexpected command"
-  if checkTraceOption (← getOptions) `Elab.info then
-    let trees ← getInfoTrees
-    for t in trees do
-      logTrace `Elab.info m!"{← t.format}"
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
 def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab := fun stx => do

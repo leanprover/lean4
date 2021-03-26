@@ -128,7 +128,7 @@ def TermInfo.format (cinfo : ContextInfo) (info : TermInfo) : IO Format := do
     return f!"{← Meta.ppExpr info.expr} : {← Meta.ppExpr (← Meta.inferType info.expr)} @ {formatStxRange cinfo info.stx}"
 
 def CommandInfo.format (cinfo : ContextInfo) (info : CommandInfo) : IO Format := do
-  return f!"{info.stx} @ {formatStxRange cinfo info.stx}"
+  return f!"command @ {formatStxRange cinfo info.stx}"
 
 def FieldInfo.format (cinfo : ContextInfo) (info : FieldInfo) : IO Format := do
   cinfo.runMetaM info.lctx do

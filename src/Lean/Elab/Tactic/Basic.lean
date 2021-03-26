@@ -433,7 +433,7 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   | `(tactic| intro)                   => introStep `_
   | `(tactic| intro $h:ident)          => introStep h.getId
   | `(tactic| intro _)                 => introStep `_
-  | `(tactic| intro $pat:term)         => evalTactic (← `(tactic| intro h; match h with | $pat:term => _; try clear h))
+  | `(tactic| intro $pat:term)         => evalTactic (← `(tactic| intro h; match h with | $pat:term => ?_; try clear h))
   | `(tactic| intro $h:term $hs:term*) => evalTactic (← `(tactic| intro $h:term; intro $hs:term*))
   | _ => throwUnsupportedSyntax
 where

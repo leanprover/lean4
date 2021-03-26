@@ -87,9 +87,11 @@
          (magit-insert-section (magit-section)
            (magit-insert-heading "Goals:")
            (magit-insert-section-body
-             (dolist (g lean4-goals)
-               (magit-insert-section (magit-section)
-                 (insert g "\n\n"))))))
+             (if (> (length lean4-goals) 0)
+                 (seq-doseq (g lean4-goals)
+                   (magit-insert-section (magit-section)
+                     (insert (lsp--fontlock-with-mode g 'lean4-info-mode) "\n\n")))
+               (insert "goals accomplished\n\n")))))
        (when selected-errors
          (magit-insert-section (magit-section)
            (magit-insert-heading "Messages:")
@@ -117,7 +119,7 @@
      "$/lean/plainGoal"
      (lsp--text-document-position-params)
      (-lambda ((goal &as &lean:PlainGoal? :goals))
-       (setq lean4-goals (--map (lsp--fontlock-with-mode it 'lean4-info-mode) goals))
+       (setq lean4-goals goals)
        (lean4-info-buffer-redisplay))
      :error-handler #'ignore
      :mode 'tick

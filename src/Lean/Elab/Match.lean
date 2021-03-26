@@ -58,9 +58,10 @@ private def elabDiscrsWitMatchType (discrStxs : Array Syntax) (matchType : Expr)
       throwError "invalid type provided to match-expression, function type with arity #{discrStxs.size} expected"
   pure (discrs, isDep)
 
-private def mkUserNameFor (e : Expr) : TermElabM Name :=
+private def mkUserNameFor (e : Expr) : TermElabM Name := do
   match e with
-  | Expr.fvar fvarId _ => do pure (← getLocalDecl fvarId).userName
+  /- Remark: we use `mkFreshUserName` to make sure we don't add a variable to the local context that can be resolved to `e`. -/
+  | Expr.fvar fvarId _ => mkFreshUserName ((← getLocalDecl fvarId).userName)
   | _                  => mkFreshBinderName
 
 /-- Return true iff `n` is an auxiliary variable created by `expandNonAtomicDiscrs?` -/

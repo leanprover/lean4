@@ -7,7 +7,7 @@ import Std.ShareCommon
 import Lean.Parser.Command
 import Lean.Util.CollectLevelParams
 import Lean.Util.FoldConsts
-import Lean.Elab.CollectFVars
+import Lean.Meta.CollectFVars
 import Lean.Elab.Command
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.Binders

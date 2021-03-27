@@ -150,6 +150,8 @@ instance : EmptyCollection NameSet := ⟨empty⟩
 instance : Inhabited NameSet := ⟨{}⟩
 def insert (s : NameSet) (n : Name) : NameSet := Std.RBTree.insert s n
 def contains (s : NameSet) (n : Name) : Bool := Std.RBMap.contains s n
+instance : ForIn m NameSet Name :=
+  inferInstanceAs (ForIn _ (Std.RBTree ..) ..)
 
 end NameSet
 

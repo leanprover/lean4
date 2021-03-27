@@ -283,9 +283,9 @@ variable {β : Type u}
     | some decl => f decl
 
 instance : ForIn m LocalContext LocalDecl where
-  forIn lctx init f := lctx.decls.forIn init fun d? b => match d? with 
+  forIn lctx init f := lctx.decls.forIn init fun d? b => match d? with
     | none   => ForInStep.yield b
-    | some d => f d b 
+    | some d => f d b
 
 end
 

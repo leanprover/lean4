@@ -122,8 +122,8 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_evalEraseAuxDiscrs_
 lean_object* l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___boxed__const__1;
 extern lean_object* l_Lean_Parser_Tactic_case___closed__2;
 lean_object* l_Lean_LocalContext_foldlM___at_Lean_Elab_Tactic_evalEraseAuxDiscrs___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_7189____closed__1;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_7194____closed__1;
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_Elab_Tactic_evalEraseAuxDiscrs___spec__3(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalEraseAuxDiscrs___rarg___closed__1;
@@ -1378,7 +1378,7 @@ lean_dec(x_183);
 x_222 = lean_ctor_get(x_6, 0);
 lean_inc(x_222);
 lean_dec(x_6);
-x_223 = l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_7189____closed__1;
+x_223 = l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_7194____closed__1;
 x_224 = l_Lean_Name_appendIndexAfter(x_223, x_222);
 x_225 = l_Lean_Name_append(x_1, x_224);
 x_226 = l_Lean_mkIdentFrom(x_30, x_225);

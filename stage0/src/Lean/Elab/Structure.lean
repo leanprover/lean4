@@ -333,7 +333,7 @@ private def getResultUniverse (type : Expr) : TermElabM Level := do
   | Expr.sort u _ => pure u
   | _             => throwError "unexpected structure resulting type"
 
-private def collectUsed (params : Array Expr) (fieldInfos : Array StructFieldInfo) : StateRefT CollectFVars.State TermElabM Unit := do
+private def collectUsed (params : Array Expr) (fieldInfos : Array StructFieldInfo) : StateRefT CollectFVars.State MetaM Unit := do
   params.forM fun p => do
     let type ← inferType p
     Term.collectUsedFVars type

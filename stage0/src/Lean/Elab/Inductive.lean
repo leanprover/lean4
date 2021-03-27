@@ -7,9 +7,9 @@ import Lean.Util.ReplaceLevel
 import Lean.Util.ReplaceExpr
 import Lean.Util.CollectLevelParams
 import Lean.Util.Constructions
+import Lean.Meta.CollectFVars
 import Lean.Meta.SizeOf
 import Lean.Elab.Command
-import Lean.Elab.CollectFVars
 import Lean.Elab.DefView
 import Lean.Elab.DeclUtil
 import Lean.Elab.Deriving.Basic
@@ -364,7 +364,7 @@ def checkResultingUniverse (u : Level) : TermElabM Unit := do
 private def checkResultingUniverses (indTypes : List InductiveType) : TermElabM Unit := do
   checkResultingUniverse (← getResultingUniverse indTypes)
 
-private def collectUsed (indTypes : List InductiveType) : StateRefT CollectFVars.State TermElabM Unit := do
+private def collectUsed (indTypes : List InductiveType) : StateRefT CollectFVars.State MetaM Unit := do
   indTypes.forM fun indType => do
     Term.collectUsedFVars indType.type
     indType.ctors.forM fun ctor =>

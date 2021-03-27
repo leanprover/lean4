@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+import Lean.Util.CollectFVars
 import Lean.Parser.Term
 import Lean.Meta.RecursorInfo
 import Lean.Meta.CollectMVars
@@ -142,7 +143,7 @@ partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targets : Array E
     catch _ =>
       setMVarKind mvarId MetavarKind.syntheticOpaque
       others := others.push mvarId
-  pure { elimApp := (← instantiateMVars s.f), alts := s.alts, others := others }
+  return { elimApp := (← instantiateMVars s.f), alts := s.alts, others := others }
 
 /- Given a goal `... targets ... |- C[targets]` associated with `mvarId`, assign
   `motiveArg := fun targets => C[targets]` -/
@@ -239,6 +240,53 @@ where
 
 end ElimApp
 
+/--
+  Return a set of `FVarId`s containing `targets` and all variables they depend on.
+
+  Remark: this method assumes `targets` are free variables.
+-/
+private partial def mkForbiddenSet (targets : Array Expr) : MetaM NameSet := do
+  loop (targets.toList.map Expr.fvarId!) {}
+where
+  visit (fvarId : FVarId) (todo : List FVarId) (s : NameSet) : MetaM (List FVarId × NameSet) := do
+    let localDecl ← getLocalDecl fvarId
+    let mut s' := collectFVars {} (← instantiateMVars localDecl.type)
+    if let some val := localDecl.value? then
+      s' := collectFVars s' (← instantiateMVars val)
+    let mut todo := todo
+    let mut s := s
+    for fvarId in s'.fvarSet do
+      unless s.contains fvarId do
+        todo := fvarId :: todo
+        s := s.insert fvarId
+    return (todo, s)
+
+  loop (todo : List FVarId) (s : NameSet) : MetaM NameSet := do
+    match todo with
+    | [] => return s
+    | fvarId::todo =>
+      if s.contains fvarId then
+        loop todo s
+      else
+        let (todo, s) ← visit fvarId todo <| s.insert fvarId
+        loop todo s
+
+/--
+  Collect forward dependencies that are not in the forbidden set, and depend on some variable in `targets`.
+
+  Remark: this method assumes `targets` are free variables.
+-/
+private def collectForwardDeps (targets : Array Expr) (forbidden : NameSet) : MetaM NameSet := do
+  let mut s : NameSet := targets.foldl (init := {}) fun s target => s.insert target.fvarId!
+  let mut r : NameSet := {}
+  for localDecl in (← getLCtx) do
+    unless forbidden.contains localDecl.fvarId do
+      unless localDecl.isAuxDecl do
+      if (← getMCtx).findLocalDeclDependsOn localDecl fun fvarId => s.contains fvarId then
+        r := r.insert localDecl.fvarId
+        s := s.insert localDecl.fvarId
+  return r
+
 /-
   Recall that
   ```
@@ -251,19 +299,28 @@ private def getGeneralizingFVarIds (stx : Syntax) : TacticM (Array FVarId) :=
     let generalizingStx := stx[3]
     if generalizingStx.isNone then
       pure #[]
-    else withMainContext do
+    else
       trace[Elab.induction] "{generalizingStx}"
       let vars := generalizingStx[1].getArgs
       getFVarIds vars
 
 -- process `generalizingVars` subterm of induction Syntax `stx`.
-private def generalizeVars (stx : Syntax) (targets : Array Expr) : TacticM Nat := do
-  let fvarIds ← getGeneralizingFVarIds stx
-  liftMetaTacticAux fun mvarId => do
+private def generalizeVars (mvarId : MVarId) (stx : Syntax) (targets : Array Expr) : TacticM (Nat × MVarId) :=
+  withMVarContext mvarId do
+    let userFVarIds ← getGeneralizingFVarIds stx
+    let forbidden ← mkForbiddenSet targets
+    let mut s ← collectForwardDeps targets forbidden
+    for userFVarId in userFVarIds do
+      if forbidden.contains userFVarId then
+        throwError "variable cannot be generalized because target depends on it{indentExpr (mkFVar userFVarId)}"
+      if s.contains userFVarId then
+        throwError "unnecessary 'generalizing' argument, variable '{mkFVar userFVarId}' is generalized automatically"
+      s := s.insert userFVarId
+    let fvarIds := s.fold (init := #[]) fun s fvarId => s.push fvarId
+    let lctx ← getLCtx
+    let fvarIds ← fvarIds.qsort fun x y => (lctx.get! x).index < (lctx.get! y).index
     let (fvarIds, mvarId') ← Meta.revert mvarId fvarIds
-    if targets.any fun target => fvarIds.contains target.fvarId! then
-      Meta.throwTacticEx `induction mvarId "major premise depends on variable being generalized"
-    pure (fvarIds.size, [mvarId'])
+    return (fvarIds.size, mvarId')
 
 -- syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
 private def getAltsOfInductionAlts (inductionAlts : Syntax) : Array Syntax :=
@@ -324,23 +381,33 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
   let targets ← stx[1].getSepArgs.mapM fun target => do
     let target ← withMainContext <| elabTerm target none
     generalizeTerm target
-  let n ← generalizeVars stx targets
   let (elimName, elimInfo) ← getElimNameInfo stx[2] targets (induction := true)
   let mvarId ← getMainGoal
   let tag ← getMVarTag mvarId
   withMVarContext mvarId do
     let result ← withRef stx[1] do -- use target position as reference
       ElimApp.mkElimApp elimName elimInfo targets tag
-    assignExprMVar mvarId result.elimApp
     let elimArgs := result.elimApp.getAppArgs
     let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]
+    checkTargets targets
+    let motiveType ← inferType elimArgs[elimInfo.motivePos]
+    let (n, mvarId) ← generalizeVars mvarId stx targets
     let targetFVarIds := targets.map (·.fvarId!)
     ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetFVarIds
     let optInductionAlts := stx[4]
     let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
     let alts := getAltsOfOptInductionAlts optInductionAlts
+    assignExprMVar mvarId result.elimApp
     ElimApp.evalAlts elimInfo result.alts optPreTac alts (numGeneralized := n) (toClear := targetFVarIds)
     appendGoals result.others.toList
+where
+  checkTargets (targets : Array Expr) : MetaM Unit := do
+    let mut foundFVars : NameSet := {}
+    for target in targets do
+      unless target.isFVar do
+        throwError "index in target's type is not a variable (consider using the `cases` tactic instead){indentExpr target}"
+      if foundFVars.contains target.fvarId! then
+        throwError "target (or one of its indices) occurs more than once{indentExpr target}"
 
 -- Recall that
 -- majorPremise := leading_parser optional (try (ident >> " : ")) >> termParser

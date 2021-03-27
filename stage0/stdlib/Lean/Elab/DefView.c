@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.DefView
-// Imports: Init Std.ShareCommon Lean.Parser.Command Lean.Util.CollectLevelParams Lean.Util.FoldConsts Lean.Elab.CollectFVars Lean.Elab.Command Lean.Elab.SyntheticMVars Lean.Elab.Binders Lean.Elab.DeclUtil
+// Imports: Init Std.ShareCommon Lean.Parser.Command Lean.Util.CollectLevelParams Lean.Util.FoldConsts Lean.Meta.CollectFVars Lean.Elab.Command Lean.Elab.SyntheticMVars Lean.Elab.Binders Lean.Elab.DeclUtil
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -86,7 +86,6 @@ lean_object* l___private_Lean_Elab_DefView_0__Lean_Elab_Command_MkInstanceName_k
 lean_object* l_Lean_Elab_Command_mkDefViewOfExample(lean_object*, lean_object*);
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1136____closed__23;
 lean_object* l_Lean_Elab_Command_mkDefView___closed__2;
-lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_elabCommand___spec__17___rarg(lean_object*);
 extern lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_57____closed__4;
 lean_object* l_Lean_Elab_Command_MkInstanceName_collect_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_MkInstanceName_append(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -104,6 +103,7 @@ lean_object* l_Lean_Elab_toAttributeKind___at_Lean_Elab_Command_mkDefViewOfInsta
 lean_object* l___private_Lean_Elab_DefView_0__Lean_Elab_Command_MkInstanceName_kindReplacements___closed__6;
 lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_DefView___hyg_1143____closed__2;
 lean_object* l_Lean_Elab_Command_mkDefViewOfConstant___closed__1;
+lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Command_elabCommand___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Elab_Command_elabCheckFailure___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_capitalize(lean_object*);
@@ -143,7 +143,6 @@ lean_object* l_Lean_Elab_Command_MkInstanceName_mkFreshInstanceName___rarg(lean_
 lean_object* l_Lean_Elab_Command_mkDefViewOfConstant___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_MkInstanceName_collect___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ResolveName_resolveGlobalName(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Command_elabCommand___spec__15(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5659____closed__22;
 lean_object* l_Lean_Elab_DefKind_isDefOrAbbrevOrOpaque_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -190,6 +189,7 @@ extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1136____close
 lean_object* l_Lean_expandMacros(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Modifiers_addAttribute(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__1;
+lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_elabCommand___spec__10___rarg(lean_object*);
 extern lean_object* l_Lean_Meta_mkArbitrary___closed__2;
 lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Command_mkDefViewOfInstance___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkDefViewOfAbbrev(lean_object*, lean_object*);
@@ -4432,7 +4432,7 @@ x_70 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_70, 0, x_69);
 x_71 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_71, 0, x_70);
-x_72 = l_Lean_throwErrorAt___at_Lean_Elab_Command_elabCommand___spec__15(x_68, x_71, x_2, x_3, x_41);
+x_72 = l_Lean_throwErrorAt___at_Lean_Elab_Command_elabCommand___spec__8(x_68, x_71, x_2, x_3, x_41);
 lean_dec(x_68);
 x_73 = !lean_is_exclusive(x_72);
 if (x_73 == 0)
@@ -4457,7 +4457,7 @@ else
 {
 lean_object* x_77; uint8_t x_78; 
 lean_dec(x_2);
-x_77 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_elabCommand___spec__17___rarg(x_41);
+x_77 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_elabCommand___spec__10___rarg(x_41);
 x_78 = !lean_is_exclusive(x_77);
 if (x_78 == 0)
 {
@@ -5785,7 +5785,7 @@ lean_object* initialize_Std_ShareCommon(lean_object*);
 lean_object* initialize_Lean_Parser_Command(lean_object*);
 lean_object* initialize_Lean_Util_CollectLevelParams(lean_object*);
 lean_object* initialize_Lean_Util_FoldConsts(lean_object*);
-lean_object* initialize_Lean_Elab_CollectFVars(lean_object*);
+lean_object* initialize_Lean_Meta_CollectFVars(lean_object*);
 lean_object* initialize_Lean_Elab_Command(lean_object*);
 lean_object* initialize_Lean_Elab_SyntheticMVars(lean_object*);
 lean_object* initialize_Lean_Elab_Binders(lean_object*);
@@ -5810,7 +5810,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Util_FoldConsts(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_CollectFVars(lean_io_mk_world());
+res = initialize_Lean_Meta_CollectFVars(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Command(lean_io_mk_world());

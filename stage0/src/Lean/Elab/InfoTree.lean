@@ -128,7 +128,7 @@ def TermInfo.format (cinfo : ContextInfo) (info : TermInfo) : IO Format := do
     return f!"{← Meta.ppExpr info.expr} : {← Meta.ppExpr (← Meta.inferType info.expr)} @ {formatStxRange cinfo info.stx}"
 
 def CommandInfo.format (cinfo : ContextInfo) (info : CommandInfo) : IO Format := do
-  return f!"{info.stx} @ {formatStxRange cinfo info.stx}"
+  return f!"command @ {formatStxRange cinfo info.stx}"
 
 def FieldInfo.format (cinfo : ContextInfo) (info : FieldInfo) : IO Format := do
   cinfo.runMetaM info.lctx do
@@ -221,17 +221,18 @@ def mkInfoNode (info : Info) : m Unit := do
   else
     x
 
-@[inline] def withInfoTreeContext [MonadFinally m] (x : m α) (mkInfoTree : m (PersistentArray InfoTree → InfoTree)) : m α := do
+@[inline] def withInfoTreeContext [MonadFinally m] (x : m α) (mkInfoTree : PersistentArray InfoTree → m InfoTree) : m α := do
   if (← getInfoState).enabled then
     let treesSaved ← getResetInfoTrees
-    let mkInfoTree ← mkInfoTree
     Prod.fst <$> MonadFinally.tryFinally' x fun _ => do
-      modifyInfoTrees fun trees => treesSaved.push <| mkInfoTree trees
+      let st    ← getInfoState
+      let tree  ← mkInfoTree st.trees
+      modifyInfoTrees fun _ => treesSaved.push tree
   else
     x
 
 @[inline] def withInfoContext [MonadFinally m] (x : m α) (mkInfo : m Info) : m α := do
-  withInfoTreeContext x (do return InfoTree.node (← mkInfo))
+  withInfoTreeContext x (fun trees => do return InfoTree.node (← mkInfo) trees)
 
 def getInfoHoleIdAssignment? (mvarId : MVarId) : m (Option InfoTree) :=
   return (← getInfoState).assignment[mvarId]

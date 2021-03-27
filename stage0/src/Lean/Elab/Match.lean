@@ -58,9 +58,10 @@ private def elabDiscrsWitMatchType (discrStxs : Array Syntax) (matchType : Expr)
       throwError "invalid type provided to match-expression, function type with arity #{discrStxs.size} expected"
   pure (discrs, isDep)
 
-private def mkUserNameFor (e : Expr) : TermElabM Name :=
+private def mkUserNameFor (e : Expr) : TermElabM Name := do
   match e with
-  | Expr.fvar fvarId _ => do pure (← getLocalDecl fvarId).userName
+  /- Remark: we use `mkFreshUserName` to make sure we don't add a variable to the local context that can be resolved to `e`. -/
+  | Expr.fvar fvarId _ => mkFreshUserName ((← getLocalDecl fvarId).userName)
   | _                  => mkFreshBinderName
 
 /-- Return true iff `n` is an auxiliary variable created by `expandNonAtomicDiscrs?` -/
@@ -962,7 +963,9 @@ private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Synta
     if allLocal then
       return none
     else
-      let rec loop (discrs : List Syntax) (discrsNew : Array Syntax) := do
+      -- We use `foundFVars` to make sure the discriminants are distinct variables.
+      -- See: code for computing "matchType" at `elabMatchTypeAndDiscrs`
+      let rec loop (discrs : List Syntax) (discrsNew : Array Syntax) (foundFVars : NameSet) := do
         match discrs with
         | [] =>
           let discrs := Syntax.mkSep discrsNew (mkAtomFrom matchStx ", ");
@@ -971,16 +974,17 @@ private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Synta
           -- Recall that
           -- matchDiscr := leading_parser optional (ident >> ":") >> termParser
           let term := discr[1]
-          match (← isLocalIdent? term) with
-          | some _ => loop discrs (discrsNew.push discr)
-          | none   => withFreshMacroScope do
+          let addAux : TermElabM Syntax := withFreshMacroScope do
             let d ← `(_discr);
             unless isAuxDiscrName d.getId do -- Use assertion?
               throwError "unexpected internal auxiliary discriminant name"
             let discrNew := discr.setArg 1 d;
-            let r ← loop discrs (discrsNew.push discrNew)
+            let r ← loop discrs (discrsNew.push discrNew) foundFVars
             `(let _discr := $term; $r)
-      return some (← loop discrs.toList #[])
+          match (← isLocalIdent? term) with
+          | some x  => if x.isFVar then loop discrs (discrsNew.push discr) (foundFVars.insert x.fvarId!) else addAux
+          | none    => addAux
+      return some (← loop discrs.toList #[] {})
   else
     -- We do not pull non atomic discriminants when match type is provided explicitly by the user
     return none

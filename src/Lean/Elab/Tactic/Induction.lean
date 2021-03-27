@@ -266,7 +266,7 @@ where
     | [] => return s
     | fvarId::todo =>
       if s.contains fvarId then
-        return s
+        loop todo s
       else
         let (todo, s) ← visit fvarId todo <| s.insert fvarId
         loop todo s

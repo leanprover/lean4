@@ -173,7 +173,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
       mkLambdaFVars xs val
 
 private def collectUsed (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
-    : StateRefT CollectFVars.State TermElabM Unit := do
+    : StateRefT CollectFVars.State MetaM Unit := do
   headers.forM fun header => collectUsedFVars header.type
   values.forM collectUsedFVars
   toLift.forM fun letRecToLift => do

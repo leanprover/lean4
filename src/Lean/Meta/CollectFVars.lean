@@ -9,16 +9,16 @@ import Lean.Elab.Term
 namespace Lean.Elab.Term
 open Meta
 
-def collectUsedFVars (e : Expr) : StateRefT CollectFVars.State TermElabM Unit := do
+def collectUsedFVars (e : Expr) : StateRefT CollectFVars.State MetaM Unit := do
   let e ← instantiateMVars e
   modify fun used => collectFVars used e
 
-def collectUsedFVarsAtFVars (fvars : Array Expr) : StateRefT CollectFVars.State TermElabM Unit :=
+def collectUsedFVarsAtFVars (fvars : Array Expr) : StateRefT CollectFVars.State MetaM Unit :=
   fvars.forM fun fvar => do
     let fvarType ← inferType fvar
     collectUsedFVars fvarType
 
-def removeUnused (vars : Array Expr) (used : CollectFVars.State) : TermElabM (LocalContext × LocalInstances × Array Expr) := do
+def removeUnused (vars : Array Expr) (used : CollectFVars.State) : MetaM (LocalContext × LocalInstances × Array Expr) := do
   let localInsts ← getLocalInstances
   let lctx ← getLCtx
   let (lctx, localInsts, newVars, _) ← vars.foldrM

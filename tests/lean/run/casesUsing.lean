@@ -88,7 +88,7 @@ theorem ex9 (xs : List α) (h : xs = [] → False) : Nonempty α := by
   | cons x _ => apply Nonempty.intro; assumption
 
 theorem modLt (x : Nat) {y : Nat} (h : y > 0) : x % y < y := by
-  induction x, y using Nat.mod.inductionOn generalizing h with
+  induction x, y using Nat.mod.inductionOn with
   | ind x y h₁ ih =>
     rw [Nat.mod_eq_sub_mod h₁.2]
     exact ih h

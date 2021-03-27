@@ -29,7 +29,8 @@ theorem eq_findSomeM_findM [Monad m] [LawfulMonad m] (p : α → m Bool) (xss : 
   | cons xs xss ih =>
     rw [← ih, ← eq_findM]
     induction xs with simp
-    | cons x xs ih => apply byCases_Bool_bind <;> simp [ih]
+    | cons x xs ih =>
+      apply byCases_Bool_bind <;> simp [ih]
 
 theorem eq_findSomeM_findM' [Monad m] [LawfulMonad m] (p : α → m Bool) (xss : List (List α)) :
     (do for xs in xss do

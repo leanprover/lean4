@@ -14,7 +14,7 @@ theorem ex3 (x : Nat) : 0 + x = x := by
   | succ y => skip -- Error: unsolved goals
 
 theorem ex4 (x : Nat) {y : Nat} (h : y > 0) : x % y < y := by
-  induction x, y using Nat.mod.inductionOn generalizing h with
+  induction x, y using Nat.mod.inductionOn with
   | ind x y h₁ ih => skip -- Error: unsolved goals
   | base x y h₁   => skip -- Error: unsolved goals
 

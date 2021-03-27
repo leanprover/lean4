@@ -1,0 +1,55 @@
+inductionGen.lean:23:2-23:14: error: index in target's type is not a variable (consider using the `cases` tactic instead)
+  n + 1
+case cons
+α : Type u_1
+n : Nat
+ys : Vec α (n + 1)
+x : α
+xs : Vec α n
+h : Vec.cons x xs = ys
+⊢ Vec.head (Vec.cons x xs) = Vec.head ys
+inductionGen.lean:29:11-29:16: warning: declaration uses 'sorry'
+case natVal
+α : ExprType
+a b✝ : Expr α
+ : a = b✝
+a✝ : Nat
+b : Expr ExprType.nat
+h : Expr.natVal a✝ = b
+⊢ eval (constProp (Expr.natVal a✝)) = eval b
+
+case boolVal
+α : ExprType
+a b✝ : Expr α
+ : a = b✝
+a✝ : Bool
+b : Expr ExprType.bool
+h : Expr.boolVal a✝ = b
+⊢ eval (constProp (Expr.boolVal a✝)) = eval b
+
+case eq
+α : ExprType
+a b✝ : Expr α
+ : a = b✝
+α✝ : ExprType
+a✝¹ a✝ : Expr α✝
+ : ∀ (b : Expr α✝), a✝¹ = b → eval (constProp a✝¹) = eval b
+ : ∀ (b : Expr α✝), a✝ = b → eval (constProp a✝) = eval b
+b : Expr ExprType.bool
+h : Expr.eq a✝¹ a✝ = b
+⊢ eval (constProp (Expr.eq a✝¹ a✝)) = eval b
+
+case add
+α : ExprType
+a b✝ : Expr α
+ : a = b✝
+a✝¹ a✝ : Expr ExprType.nat
+ : ∀ (b : Expr ExprType.nat), a✝¹ = b → eval (constProp a✝¹) = eval b
+ : ∀ (b : Expr ExprType.nat), a✝ = b → eval (constProp a✝) = eval b
+b : Expr ExprType.nat
+h : Expr.add a✝¹ a✝ = b
+⊢ eval (constProp (Expr.add a✝¹ a✝)) = eval b
+inductionGen.lean:68:9-68:14: warning: declaration uses 'sorry'
+inductionGen.lean:68:9-68:14: warning: declaration uses 'sorry'
+inductionGen.lean:68:9-68:14: warning: declaration uses 'sorry'
+inductionGen.lean:68:9-68:14: warning: declaration uses 'sorry'

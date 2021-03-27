@@ -28,13 +28,13 @@ by {
 
 theorem tst7 {α : Type} (xs : List α) (h : (a : α) → (as : List α) → xs ≠ a :: as) : xs = [] :=
 by {
-  induction xs generalizing h with
+  induction xs with
   | nil          => exact rfl
   | cons z zs ih => exact absurd rfl (h z zs)
 }
 
 theorem tst8 {α : Type} (xs : List α) (h : (a : α) → (as : List α) → xs ≠ a :: as) : xs = [] := by {
-  induction xs generalizing h;
+  induction xs;
   exact rfl;
   exact absurd rfl $ h _ _
 }
@@ -75,7 +75,7 @@ theorem tst13 (x : Tree) (h : x = Tree.leaf₁) : x.isLeaf₁ = true := by
   | _     => injection h
 
 theorem tst14 (x : Tree) (h : x = Tree.leaf₁) : x.isLeaf₁ = true := by
-  induction x generalizing h with
+  induction x with
   | leaf₁ => rfl
   | _     => injection h
 

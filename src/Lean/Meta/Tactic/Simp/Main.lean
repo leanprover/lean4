@@ -197,8 +197,7 @@ where
   /- Try to rewrite `e` children using the given congruence lemma -/
   tryCongrLemma? (c : CongrLemma) (e : Expr) : M (Option Result) := withNewMCtxDepth do
     trace[Debug.Meta.Tactic.simp.congr] "{c.theoremName}, {e}"
-    let info ← getConstInfo c.theoremName
-    let lemma := mkConst c.theoremName (← info.levelParams.mapM fun _ => mkFreshLevelMVar)
+    let lemma ← mkConstWithFreshMVarLevels c.theoremName
     let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType lemma)
     if c.hypothesesPos.any (· ≥ xs.size) then
       return none

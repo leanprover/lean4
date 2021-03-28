@@ -514,7 +514,7 @@ private def propagateExpectedType (type : Expr) (numFields : Nat) (expectedType?
           discard <| isDefEq expectedType typeBody
 
 private def mkCtorHeader (ctorVal : ConstructorVal) (expectedType? : Option Expr) : TermElabM CtorHeaderResult := do
-  let us ← ctorVal.levelParams.mapM fun _ => mkFreshLevelMVar
+  let us ← mkFreshLevelMVars ctorVal.levelParams.length
   let val  := Lean.mkConst ctorVal.name us
   let type := (ConstantInfo.ctorInfo ctorVal).instantiateTypeLevelParams us
   let r ← mkCtorHeaderAux ctorVal.numParams type val #[]
@@ -665,7 +665,7 @@ partial def mkDefaultValueAux? (struct : Struct) : Expr → TermElabM (Option Ex
 
 def mkDefaultValue? (struct : Struct) (cinfo : ConstantInfo) : TermElabM (Option Expr) :=
   withRef struct.ref do
-  let us ← cinfo.levelParams.mapM fun _ => mkFreshLevelMVar
+  let us ← mkFreshLevelMVarsFor cinfo
   mkDefaultValueAux? struct (cinfo.instantiateValueLevelParams us)
 
 /-- If `e` is a projection function of one of the given structures, then reduce it -/

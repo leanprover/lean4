@@ -10,12 +10,14 @@ namespace Lean.Meta
 structure ElimAltInfo where
   name      : Name
   numFields : Nat
+  deriving Repr
 
 structure ElimInfo where
   name       : Name
   motivePos  : Nat
   targetsPos : Array Nat := #[]
   altsInfo   : Array ElimAltInfo := #[]
+  deriving Repr
 
 def getElimInfo (declName : Name) : MetaM ElimInfo := do
   let declInfo ← getConstInfo declName

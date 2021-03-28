@@ -101,8 +101,7 @@ private def synthesizePendingCoeInstMVar
 -/
 private def tryToSynthesizeUsingDefaultInstance (mvarId : MVarId) (defaultInstance : Name) : TermElabM (Option (Expr × List SyntheticMVarDecl)) :=
   commitWhenSome? do
-    let constInfo ← getConstInfo defaultInstance
-    let candidate := Lean.mkConst defaultInstance (← mkFreshLevelMVars constInfo.levelParams.length)
+    let candidate ← mkConstWithFreshMVarLevels defaultInstance
     let (mvars, bis, _) ← forallMetaTelescopeReducing (← inferType candidate)
     let candidate := mkAppN candidate mvars
     trace[Elab.resume] "trying default instance for {mkMVar mvarId} := {candidate}"

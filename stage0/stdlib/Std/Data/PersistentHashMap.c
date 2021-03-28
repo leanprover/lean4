@@ -34,9 +34,9 @@ lean_object* l_Std_PersistentHashMap_foldlMAux___at_Std_PersistentHashMap_toList
 lean_object* l_Std_PersistentHashMap_Stats_maxDepth___default;
 lean_object* l_Std_PersistentHashMap_insertAux(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_stats(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_362____closed__22;
 lean_object* l_Std_PersistentHashMap_foldlMAux_traverse___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f_match__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_365____closed__22;
 size_t l_Std_PersistentHashMap_mod2Shift(size_t, size_t);
 lean_object* l_Std_PersistentHashMap_findEntryAux___rarg(lean_object*, lean_object*, size_t, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f_match__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4541,7 +4541,7 @@ lean_dec(x_1);
 x_19 = l_Nat_repr(x_18);
 x_20 = lean_string_append(x_17, x_19);
 lean_dec(x_19);
-x_21 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_362____closed__22;
+x_21 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_365____closed__22;
 x_22 = lean_string_append(x_20, x_21);
 return x_22;
 }

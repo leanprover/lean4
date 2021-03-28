@@ -337,6 +337,9 @@ def name (d : ConstantInfo) : Name :=
 def levelParams (d : ConstantInfo) : List Name :=
   d.toConstantVal.levelParams
 
+def numLevelParams (d : ConstantInfo) : Nat :=
+  d.levelParams.length
+
 def type (d : ConstantInfo) : Expr :=
   d.toConstantVal.type
 

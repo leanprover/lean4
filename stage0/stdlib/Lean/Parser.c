@@ -117,6 +117,7 @@ extern lean_object* l_Lean_numLitKind___closed__2;
 extern lean_object* l_Lean_PrettyPrinter_formatterAttribute;
 lean_object* l_Lean_Parser_interpolatedStr(lean_object*);
 lean_object* l_Lean_Parser_Term_char_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2933____closed__6;
 lean_object* l_Lean_PrettyPrinter_Formatter_scientificLit_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_nonReservedSymbol_parenthesizer___rarg___closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_charLit_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -134,7 +135,6 @@ extern lean_object* l_Lean_initFn____x40_Lean_Parser_Extra___hyg_1057____closed_
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__3;
 extern lean_object* l_Lean_Parser_instOrElseParser___closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___elambda__6___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2925____closed__6;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_1040____closed__6;
 extern lean_object* l_Lean_initFn____x40_Lean_Parser_Extra___hyg_1057____closed__3;
 lean_object* l_Lean_Parser_getConstAlias___rarg(lean_object*, lean_object*, lean_object*);
@@ -146,6 +146,7 @@ lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_numLit_parenthesize
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_scientificLit_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_getUnaryAlias___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_numLit_parenthesizer___closed__1;
+extern lean_object* l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2933____closed__14;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__1;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__15;
 extern lean_object* l_Lean_PrettyPrinter_Formatter_formatterAliasesRef;
@@ -162,7 +163,6 @@ lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___elambda__9(le
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__27;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__9;
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___elambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2925____closed__14;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__4;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__8;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__17;
@@ -592,7 +592,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13;
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
 lean_dec(x_9);
-x_11 = l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2925____closed__6;
+x_11 = l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2933____closed__6;
 x_12 = l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__8;
 x_13 = l_Lean_Parser_registerAliasCore___rarg(x_2, x_11, x_12, x_10);
 if (lean_obj_tag(x_13) == 0)
@@ -664,7 +664,7 @@ lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45;
 x_42 = lean_ctor_get(x_41, 1);
 lean_inc(x_42);
 lean_dec(x_41);
-x_43 = l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2925____closed__14;
+x_43 = l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2933____closed__14;
 x_44 = l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__19;
 x_45 = l_Lean_Parser_registerAliasCore___rarg(x_2, x_43, x_44, x_42);
 if (lean_obj_tag(x_45) == 0)

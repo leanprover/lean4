@@ -58,6 +58,7 @@ lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveUsingNamesp
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2925____closed__4;
 lean_object* l_Lean_aliasExtension___elambda__4___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalName(lean_object*);
 lean_object* l_Lean_throwUnknownConstant___rarg(lean_object*, lean_object*, lean_object*);
@@ -76,7 +77,6 @@ lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_initFn____x40
 lean_object* l_Std_HashMapImp_moveEntries___at_Lean_addAliasEntry___spec__15(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_resolveGlobalConst___spec__2(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_getRevAliases___spec__5(lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2917____closed__4;
 lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_getRevAliases___spec__8(lean_object*);
 lean_object* lean_add_alias(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getAliases___boxed(lean_object*, lean_object*);
@@ -2054,7 +2054,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__2;
 x_2 = l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__3;
 x_3 = l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__4;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2917____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2925____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

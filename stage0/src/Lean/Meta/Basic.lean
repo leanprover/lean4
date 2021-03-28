@@ -292,6 +292,17 @@ def mkFreshExprMVarWithId (mvarId : MVarId) (type? : Option Expr := none) (kind 
     let type ← mkFreshExprMVar (mkSort u)
     mkFreshExprMVarWithIdCore mvarId type kind userName
 
+def mkFreshLevelMVars (num : Nat) : MetaM (List Level) :=
+  num.foldM (init := []) fun _ us =>
+    return (← mkFreshLevelMVar)::us
+
+def mkFreshLevelMVarsFor (info : ConstantInfo) : MetaM (List Level) :=
+  mkFreshLevelMVars info.numLevelParams
+
+def mkConstWithFreshMVarLevels (declName : Name) : MetaM Expr := do
+  let info ← getConstInfo declName
+  return mkConst declName (← mkFreshLevelMVarsFor info)
+
 def getTransparency : MetaM TransparencyMode :=
   return (← getConfig).transparency
 

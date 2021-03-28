@@ -1294,10 +1294,6 @@ def isLocalIdent? (stx : Syntax) : TermElabM (Option Expr) :=
     | _               => pure none
   | _ => pure none
 
-def mkFreshLevelMVars (num : Nat) : MetaM (List Level) :=
-  num.foldM (init := []) fun _ us =>
-    return (← mkFreshLevelMVar)::us
-
 /--
   Create an `Expr.const` using the given name and explicit levels.
   Remark: fresh universe metavariables are created if the constant has more universe

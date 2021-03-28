@@ -19,7 +19,7 @@ lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__7;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
-extern lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_574____closed__2;
+extern lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_581____closed__2;
 lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__24;
 lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDeclsAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -282,7 +282,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_IR_tracePrefixOptionName;
-x_2 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_574____closed__2;
+x_2 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_581____closed__2;
 x_3 = l_Lean_Name_append(x_1, x_2);
 return x_3;
 }
@@ -572,7 +572,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__1;
-x_5 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_574____closed__2;
+x_5 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_581____closed__2;
 lean_inc(x_1);
 x_6 = l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDeclsAux(x_4, x_5, x_1, x_2, x_3);
 x_7 = lean_ctor_get(x_6, 1);

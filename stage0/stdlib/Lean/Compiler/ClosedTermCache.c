@@ -31,6 +31,7 @@ size_t l_USize_sub(size_t, size_t);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 uint8_t l_Std_AssocList_contains___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__7(lean_object*, lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2925____closed__4;
 extern lean_object* l_Std_PersistentHashMap_root___default___closed__2;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_closedTermCacheExt___elambda__2(lean_object*);
@@ -43,7 +44,6 @@ lean_object* l_Std_HashMapImp_expand___at_Lean_initFn____x40_Lean_Compiler_Close
 lean_object* l_Std_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__10(lean_object*, lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2917____closed__4;
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____lambda__2___closed__2;
 lean_object* l_Lean_closedTermCacheExt___closed__5;
 size_t l_USize_shiftRight(size_t, size_t);
@@ -1548,7 +1548,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____closed__2;
 x_2 = l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____closed__3;
 x_3 = l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____closed__4;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2917____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2925____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

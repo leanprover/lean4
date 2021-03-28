@@ -44,7 +44,8 @@
   (unless (get-buffer buffer)
     (with-current-buffer (get-buffer-create buffer)
       (buffer-disable-undo)
-      (magit-section-mode))))
+      (magit-section-mode)
+      (set-syntax-table lean4-syntax-table))))
 
 (defun lean4-toggle-info-buffer (buffer)
   (-if-let (window (get-buffer-window buffer))

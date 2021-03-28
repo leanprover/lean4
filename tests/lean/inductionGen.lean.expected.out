@@ -11,8 +11,6 @@ h : Vec.cons x xs = ys
 inductionGen.lean:29:11-29:16: warning: declaration uses 'sorry'
 case natVal
 α : ExprType
-a b✝ : Expr α
- : a = b✝
 a✝ : Nat
 b : Expr ExprType.nat
 h : Expr.natVal a✝ = b
@@ -20,18 +18,13 @@ h : Expr.natVal a✝ = b
 
 case boolVal
 α : ExprType
-a b✝ : Expr α
- : a = b✝
 a✝ : Bool
 b : Expr ExprType.bool
 h : Expr.boolVal a✝ = b
 ⊢ eval (constProp (Expr.boolVal a✝)) = eval b
 
 case eq
-α : ExprType
-a b✝ : Expr α
- : a = b✝
-α✝ : ExprType
+α α✝ : ExprType
 a✝¹ a✝ : Expr α✝
  : ∀ (b : Expr α✝), a✝¹ = b → eval (constProp a✝¹) = eval b
  : ∀ (b : Expr α✝), a✝ = b → eval (constProp a✝) = eval b
@@ -41,8 +34,6 @@ h : Expr.eq a✝¹ a✝ = b
 
 case add
 α : ExprType
-a b✝ : Expr α
- : a = b✝
 a✝¹ a✝ : Expr ExprType.nat
  : ∀ (b : Expr ExprType.nat), a✝¹ = b → eval (constProp a✝¹) = eval b
  : ∀ (b : Expr ExprType.nat), a✝ = b → eval (constProp a✝) = eval b

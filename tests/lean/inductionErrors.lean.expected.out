@@ -7,7 +7,7 @@ case lower.h
 p d : Nat
 ⊢ p ≤ p + Nat.succ d
 inductionErrors.lean:16:19-16:26: error: unknown constant 'elimEx2'
-inductionErrors.lean:22:8-22:9: error: insufficient number of targets for 'elimEx'
+inductionErrors.lean:22:2-25:45: error: insufficient number of targets for 'elimEx'
 inductionErrors.lean:28:16-28:23: error: unexpected eliminator resulting type
   Nat
 inductionErrors.lean:35:11-35:15: error: unsolved goals

@@ -93,6 +93,12 @@ structure Result where
   alts    : Array (Name × MVarId) := #[]
   others  : Array MVarId := #[]
 
+/--
+  Construct the an eliminator/recursor application. `targets` contains the explicit and implicit targets for
+  the eliminator. For example, the indices of builtin recursors are considered implicit targets.
+  Remark: the method `addImplicitTargets` may be used to compute the sequence of implicit and explicit targets
+  from the explicit ones.
+-/
 partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) : TermElabM Result := do
   let rec loop : M Unit := do
     match (← getFType) with
@@ -103,19 +109,15 @@ partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targets : Array E
         let motive ← mkFreshExprMVar (← getArgExpectedType) MetavarKind.syntheticOpaque
         addNewArg motive
       else if ctx.elimInfo.targetsPos.contains argPos then
-        if c.binderInfo.isExplicit then
-          let s ← get
-          let ctx ← read
-          unless s.targetPos < ctx.targets.size do
-            throwError "insufficient number of targets for '{elimName}'"
-          let target := ctx.targets[s.targetPos]
-          let expectedType ← getArgExpectedType
-          let target ← Term.ensureHasType expectedType target
-          modify fun s => { s with targetPos := s.targetPos + 1 }
-          addNewArg target
-        else
-          let target ← mkFreshExprMVar (← getArgExpectedType)
-          addNewArg target
+        let s ← get
+        let ctx ← read
+        unless s.targetPos < ctx.targets.size do
+          throwError "insufficient number of targets for '{elimName}'"
+        let target := ctx.targets[s.targetPos]
+        let expectedType ← getArgExpectedType
+        let target ← Term.ensureHasType expectedType target
+        modify fun s => { s with targetPos := s.targetPos + 1 }
+        addNewArg target
       else match c.binderInfo with
         | BinderInfo.implicit =>
           let arg ← mkFreshExprMVar (← getArgExpectedType)
@@ -385,21 +387,22 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
   let mvarId ← getMainGoal
   let tag ← getMVarTag mvarId
   withMVarContext mvarId do
-    let result ← withRef stx[1] do -- use target position as reference
-      ElimApp.mkElimApp elimName elimInfo targets tag
-    let elimArgs := result.elimApp.getAppArgs
-    let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]
+    let targets ← addImplicitTargets elimInfo targets
     checkTargets targets
-    let motiveType ← inferType elimArgs[elimInfo.motivePos]
-    let (n, mvarId) ← generalizeVars mvarId stx targets
     let targetFVarIds := targets.map (·.fvarId!)
-    ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetFVarIds
-    let optInductionAlts := stx[4]
-    let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
-    let alts := getAltsOfOptInductionAlts optInductionAlts
-    assignExprMVar mvarId result.elimApp
-    ElimApp.evalAlts elimInfo result.alts optPreTac alts (numGeneralized := n) (toClear := targetFVarIds)
-    appendGoals result.others.toList
+    let (n, mvarId) ← generalizeVars mvarId stx targets
+    withMVarContext mvarId do
+      let result ← withRef stx[1] do -- use target position as reference
+        ElimApp.mkElimApp elimName elimInfo targets tag
+      let elimArgs := result.elimApp.getAppArgs
+      let motiveType ← inferType elimArgs[elimInfo.motivePos]
+      ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetFVarIds
+      let optInductionAlts := stx[4]
+      let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
+      let alts := getAltsOfOptInductionAlts optInductionAlts
+      assignExprMVar mvarId result.elimApp
+      ElimApp.evalAlts elimInfo result.alts optPreTac alts (numGeneralized := n) (toClear := targetFVarIds)
+      appendGoals result.others.toList
 where
   checkTargets (targets : Array Expr) : MetaM Unit := do
     let mut foundFVars : NameSet := {}
@@ -454,6 +457,7 @@ builtin_initialize registerTraceClass `Elab.cases
   let mvarId ← getMainGoal
   let tag ← getMVarTag mvarId
   withMVarContext mvarId do
+    let targets ← addImplicitTargets elimInfo targets
     let result ← withRef targetRef <| ElimApp.mkElimApp elimName elimInfo targets tag
     let elimArgs := result.elimApp.getAppArgs
     let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]

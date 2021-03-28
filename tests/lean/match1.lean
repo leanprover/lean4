@@ -107,6 +107,12 @@ partial def natToBin : (n : Nat) → List Bool
 
 #eval natToBin 6
 
+partial def natToBin' : (n : Nat) → List Bool
+| 0 => []
+| n => match parity n with
+  | Parity.even j => false :: natToBin j
+  | Parity.odd  j => true  :: natToBin j
+
 partial def natToBinBad (n : Nat) : List Bool :=
 match n, parity n with
 | 0, _             => []
@@ -120,6 +126,12 @@ match n, parity n with
 | _, Parity.odd  j => true  :: natToBin j
 
 #eval natToBin2 6
+
+partial def natToBin2' (n : Nat) : List Bool :=
+match parity n with
+| Parity.even 0 => []
+| Parity.even j => false :: natToBin j
+| Parity.odd  j => true  :: natToBin j
 
 #check fun (a, b) => a -- Error type of pattern variable contains metavariables
 

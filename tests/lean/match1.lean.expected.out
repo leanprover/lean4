@@ -15,11 +15,11 @@ match1.lean:82:0-82:73: error: type mismatch during dependent match-elimination 
 expected type
   VecPred P tail✝
 [false, true, true]
-match1.lean:113:0-113:41: error: dependent match elimination failed, inaccessible pattern found
+match1.lean:119:0-119:41: error: dependent match elimination failed, inaccessible pattern found
   .(j + j)
 constructor expected
 [false, true, true]
-match1.lean:124:7-124:22: error: invalid match-expression, type of pattern variable 'a' contains metavariables
+match1.lean:136:7-136:22: error: invalid match-expression, type of pattern variable 'a' contains metavariables
   ?m
 fun (x : ?m × ?m) => ?m x : ?m × ?m → ?m
 fun (x : Nat × Nat) =>

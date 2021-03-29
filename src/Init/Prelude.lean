@@ -1764,7 +1764,7 @@ partial def getTailPos? (stx : Syntax) (originalOnly := false) : Option String.P
   | node _ args,                                        _     =>
     let rec loop (i : Nat) : Option String.Pos :=
       match decide (Less i args.size) with
-      | true => match getTailPos? (args.get! ((args.size.sub i).sub 1)) with
+      | true => match getTailPos? (args.get! ((args.size.sub i).sub 1)) originalOnly with
          | some info => some info
          | none      => loop (hAdd i 1)
       | false => none

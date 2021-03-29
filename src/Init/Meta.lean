@@ -230,6 +230,20 @@ partial def getHead? : Syntax → Option Syntax
   | node _ args      => args.findSome? getHead?
   | _                => none
 
+partial def getHeadPos? (stx : Syntax) (originalOnly := false) : Option String.Pos := do
+  match stx, originalOnly with
+  | atom (SourceInfo.original (pos := pos) ..) val,    _   => some pos
+  | atom (SourceInfo.synthetic (pos := pos) ..) _,  false  => some pos
+  | ident (SourceInfo.original (pos := pos) ..) val .., _  => some pos
+  | ident (SourceInfo.synthetic (pos := pos) ..) .., false => some pos
+  | node _ args,                                        _  =>
+    for arg in args do
+      match getHeadPos? arg originalOnly with
+      | r@(some _) => return r
+      | _ => pure ()
+    return none
+  | _, _ => none
+
 end Syntax
 
 /-- Use the head atom/identifier of the current `ref` as the `ref` -/

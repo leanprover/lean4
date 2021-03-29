@@ -244,3 +244,5 @@ instance : ReprAtom UInt16 := ⟨⟩
 instance : ReprAtom UInt32 := ⟨⟩
 instance : ReprAtom UInt64 := ⟨⟩
 instance : ReprAtom USize  := ⟨⟩
+
+deriving instance Repr for Lean.SourceInfo

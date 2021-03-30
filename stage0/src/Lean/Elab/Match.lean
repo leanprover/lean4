@@ -34,10 +34,6 @@ private def expandSimpleMatch (stx discr lhsVar rhs : Syntax) (expectedType? : O
   let newStx ← `(let $lhsVar := $discr; $rhs)
   withMacroExpansion stx newStx <| elabTerm newStx expectedType?
 
-private def expandSimpleMatchWithType (stx discr lhsVar type rhs : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
-  let newStx ← `(let $lhsVar : $type := $discr; $rhs)
-  withMacroExpansion stx newStx <| elabTerm newStx expectedType?
-
 private def elabDiscrsWitMatchType (discrStxs : Array Syntax) (matchType : Expr) (expectedType : Expr) : TermElabM (Array Expr × Bool) := do
   let mut discrs := #[]
   let mut i := 0
@@ -68,10 +64,19 @@ private def mkUserNameFor (e : Expr) : TermElabM Name := do
 def isAuxDiscrName (n : Name) : Bool :=
   n.hasMacroScopes && n.eraseMacroScopes == `_discr
 
+/- We treat `@x` as atomic to avoid unnecessary extra local declarations from being
+   inserted into the local context. Recall that `expandMatchAltsIntoMatch` uses `@` modifier.
+   Thus this is kind of discriminant is quite common. -/
+def isAtomicDiscr? (discr : Syntax) : TermElabM (Option Expr) := do
+  match discr with
+  | `($x:ident)  => isLocalIdent? x
+  | `(@$x:ident) => isLocalIdent? x
+  | _ => return none
+
 -- See expandNonAtomicDiscrs?
 private def elabAtomicDiscr (discr : Syntax) : TermElabM Expr := do
   let term := discr[1]
-  match (← isLocalIdent? term) with
+  match (← isAtomicDiscr? term) with
   | some e@(Expr.fvar fvarId _) =>
     let localDecl ← getLocalDecl fvarId
     if !isAuxDiscrName localDecl.userName then
@@ -959,7 +964,7 @@ private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Synta
   let matchOptType := getMatchOptType matchStx;
   if matchOptType.isNone then do
     let discrs := getDiscrs matchStx;
-    let allLocal ← discrs.allM fun discr => Option.isSome <$> isLocalIdent? discr[1]
+    let allLocal ← discrs.allM fun discr => Option.isSome <$> isAtomicDiscr? discr[1]
     if allLocal then
       return none
     else
@@ -981,7 +986,7 @@ private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Synta
             let discrNew := discr.setArg 1 d;
             let r ← loop discrs (discrsNew.push discrNew) foundFVars
             `(let _discr := $term; $r)
-          match (← isLocalIdent? term) with
+          match (← isAtomicDiscr? term) with
           | some x  => if x.isFVar then loop discrs (discrsNew.push discr) (foundFVars.insert x.fvarId!) else addAux
           | none    => addAux
       return some (← loop discrs.toList #[] {})
@@ -1001,7 +1006,7 @@ private def tryPostponeIfDiscrTypeIsMVar (matchStx : Syntax) : TermElabM Unit :=
     let discrs := getDiscrs matchStx
     for discr in discrs do
       let term := discr[1]
-      match (← isLocalIdent? term) with
+      match (← isAtomicDiscr? term) with
       | none   => throwErrorAt discr "unexpected discriminant" -- see `expandNonAtomicDiscrs?
       | some d =>
         let dType ← inferType d
@@ -1077,8 +1082,6 @@ where
   match stx with
   | `(match $discr:term with | $y:ident => $rhs:term) =>
      if (← isPatternVar y) then expandSimpleMatch stx discr y rhs expectedType? else elabMatchDefault stx expectedType?
-  | `(match $discr:term : $type with | $y:ident => $rhs:term) =>
-     if (← isPatternVar y) then expandSimpleMatchWithType stx discr y type rhs expectedType? else elabMatchDefault stx expectedType?
   | _ => elabMatchDefault stx expectedType?
 where
   elabMatchDefault (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do

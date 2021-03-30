@@ -430,7 +430,7 @@ lean_object* l_UInt32_ofNatCore___boxed(lean_object*, lean_object*);
 lean_object* l_decEq(lean_object*);
 lean_object* l_or___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_withRef___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_getTailPos_x3f_loop___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getTailPos_x3f_loop___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_pred(lean_object*);
 lean_object* l_instHAppend(lean_object*);
 lean_object* l_throwThe(lean_object*, lean_object*);
@@ -455,7 +455,7 @@ lean_object* l_List_set___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_instMonadEStateM___closed__1;
 lean_object* l_Array_appendCore_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instDecidableOr(lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_getTailPos_x3f_loop(lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getTailPos_x3f_loop(uint8_t, lean_object*, lean_object*);
 lean_object* l_Monad_seq___default(lean_object*);
 lean_object* l_Monad_seqLeft___default___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadLiftT__1___rarg___boxed(lean_object*);
@@ -9169,46 +9169,45 @@ x_10 = l_Lean_Syntax_getTailPos_x3f_match__1___rarg(x_1, x_9, x_3, x_4, x_5, x_6
 return x_10;
 }
 }
-lean_object* l_Lean_Syntax_getTailPos_x3f_loop(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Syntax_getTailPos_x3f_loop(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_3; uint8_t x_4; 
-x_3 = lean_array_get_size(x_1);
-x_4 = lean_nat_dec_lt(x_2, x_3);
-if (x_4 == 0)
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_array_get_size(x_2);
+x_5 = lean_nat_dec_lt(x_3, x_4);
+if (x_5 == 0)
 {
-lean_object* x_5; 
+lean_object* x_6; 
+lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
-x_5 = lean_box(0);
-return x_5;
+x_6 = lean_box(0);
+return x_6;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; 
-x_6 = lean_nat_sub(x_3, x_2);
-lean_dec(x_3);
-x_7 = lean_unsigned_to_nat(1u);
-x_8 = lean_nat_sub(x_6, x_7);
-lean_dec(x_6);
-x_9 = l_Lean_instInhabitedSyntax;
-x_10 = lean_array_get(x_9, x_1, x_8);
-lean_dec(x_8);
-x_11 = 0;
-x_12 = l_Lean_Syntax_getTailPos_x3f(x_10, x_11);
-lean_dec(x_10);
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_7 = lean_nat_sub(x_4, x_3);
+lean_dec(x_4);
+x_8 = lean_unsigned_to_nat(1u);
+x_9 = lean_nat_sub(x_7, x_8);
+lean_dec(x_7);
+x_10 = l_Lean_instInhabitedSyntax;
+x_11 = lean_array_get(x_10, x_2, x_9);
+lean_dec(x_9);
+x_12 = l_Lean_Syntax_getTailPos_x3f(x_11, x_1);
+lean_dec(x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; 
-x_13 = lean_nat_add(x_2, x_7);
-lean_dec(x_2);
-x_2 = x_13;
+x_13 = lean_nat_add(x_3, x_8);
+lean_dec(x_3);
+x_3 = x_13;
 goto _start;
 }
 else
 {
 uint8_t x_15; 
-lean_dec(x_2);
+lean_dec(x_3);
 x_15 = !lean_is_exclusive(x_12);
 if (x_15 == 0)
 {
@@ -9243,7 +9242,7 @@ case 1:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_unsigned_to_nat(0u);
-x_6 = l_Lean_Syntax_getTailPos_x3f_loop(x_4, x_5);
+x_6 = l_Lean_Syntax_getTailPos_x3f_loop(x_2, x_4, x_5);
 return x_6;
 }
 case 2:
@@ -9337,13 +9336,15 @@ return x_28;
 }
 }
 }
-lean_object* l_Lean_Syntax_getTailPos_x3f_loop___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Syntax_getTailPos_x3f_loop___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Lean_Syntax_getTailPos_x3f_loop(x_1, x_2);
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_1);
 lean_dec(x_1);
-return x_3;
+x_5 = l_Lean_Syntax_getTailPos_x3f_loop(x_4, x_2, x_3);
+lean_dec(x_2);
+return x_5;
 }
 }
 lean_object* l_Lean_Syntax_getTailPos_x3f___boxed(lean_object* x_1, lean_object* x_2) {

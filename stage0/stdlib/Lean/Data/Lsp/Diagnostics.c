@@ -97,7 +97,6 @@ lean_object* l_Lean_Lsp_PublishDiagnosticsParams_version_x3f___default;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_msgToDiagnostic___closed__2;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_197____closed__3;
 lean_object* l_Lean_MessageData_toString(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonDiagnostic____x40_Lean_Data_Lsp_Diagnostics___hyg_735____boxed(lean_object*);
 lean_object* l_Lean_Lsp_instBEqDiagnostic;
@@ -212,6 +211,7 @@ lean_object* l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_beqDiagnosticRela
 lean_object* l_Lean_Lsp_instToJsonDiagnosticSeverity___closed__6;
 lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_594____at___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_beqDiagnostic____x40_Lean_Data_Lsp_Diagnostics___hyg_543____spec__4___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_beqDiagnosticRelatedInformation____x40_Lean_Data_Lsp_Diagnostics___hyg_367__match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1348____closed__4;
 lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonDiagnostic____x40_Lean_Data_Lsp_Diagnostics___hyg_735____spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_instBEqDiagnosticRelatedInformation___closed__1;
 lean_object* l_Lean_Lsp_instFromJsonDiagnosticTag_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -830,7 +830,7 @@ static lean_object* _init_l_Lean_Lsp_instToJsonDiagnosticSeverity___closed__3() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_197____closed__3;
+x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1348____closed__4;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

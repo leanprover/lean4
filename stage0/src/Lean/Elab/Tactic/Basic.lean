@@ -169,6 +169,17 @@ mutual
 
 end
 
+/-
+  Save the current tactic state for a token `stx`.
+  This method is a no-op if `stx` has no position information.
+  We use this method to save the tactic state at punctuation such as `;`
+-/
+def saveTacticInfoForToken (stx : Syntax) : TacticM Unit := do
+  unless stx.getPos?.isNone do
+    let mctxBefore  ← getMCtx
+    let goalsBefore ← getGoals
+    withInfoContext (pure ()) (mkTacticInfo mctxBefore goalsBefore stx)
+
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline]
 def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : TacticM α) : TacticM α :=
@@ -342,17 +353,28 @@ def tagUntaggedGoals (parentTag : Name) (newSuffix : Name) (newGoals : List MVar
         idx := idx + 1
     pure mctx
 
-@[builtinTactic seq1] def evalSeq1 : Tactic := fun stx =>
-  stx[0].getSepArgs.forM evalTactic
+@[builtinTactic seq1] def evalSeq1 : Tactic := fun stx => do
+  let args := stx[0].getArgs
+  for i in [:args.size] do
+    if i % 2 == 0 then
+      evalTactic args[i]
+    else
+      saveTacticInfoForToken args[i] -- add `TacticInfo` node for `;`
 
 @[builtinTactic paren] def evalParen : Tactic := fun stx =>
   evalTactic stx[1]
 
+/- Evaluate `many (group (tactic >> optional ";")) -/
+private def evalManyTacticOptSemi (stx : Syntax) : TacticM Unit := do
+  stx.forArgsM fun seqElem => do
+    evalTactic seqElem[0]
+    saveTacticInfoForToken seqElem[1] -- add TacticInfo node for `;`
+
 @[builtinTactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic := fun stx =>
-  stx[0].forArgsM fun seqElem => evalTactic seqElem[0]
+  evalManyTacticOptSemi stx[0]
 
 @[builtinTactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic := fun stx =>
-  withRef stx[2] <| focusAndDone <| stx[1].forArgsM fun seqElem => evalTactic seqElem[0]
+  withRef stx[2] <| focusAndDone <| evalManyTacticOptSemi stx[1]
 
 @[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx =>
   focus <| evalTactic stx[1]

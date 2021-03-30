@@ -166,6 +166,11 @@ partial def getTailInfo? : Syntax → Option SourceInfo
 def getTailInfo (stx : Syntax) : SourceInfo :=
   stx.getTailInfo?.getD SourceInfo.none
 
+def getTrailingSize (stx : Syntax) : Nat :=
+  match stx.getTailInfo? with
+  | some (SourceInfo.original (trailing := trailing) ..) => trailing.bsize
+  | _ => 0
+
 @[specialize] private partial def updateLast {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
   if i == 0 then
     none

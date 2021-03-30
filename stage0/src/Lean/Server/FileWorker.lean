@@ -430,9 +430,11 @@ section RequestHandling
     withWaitFindSnap doc (fun s => s.endPos > hoverPos)
       (notFoundX := return none) fun snap => do
         for t in snap.toCmdState.infoState.trees do
-          if let some (ci, ti) := t.goalsAt? hoverPos then
-            let ci := { ci with mctx := ti.mctxAfter }
-            let goals ← ci.runMetaM {} <| ti.goalsAfter.mapM (fun g => Meta.withPPInaccessibleNames (Meta.ppGoal g))
+          if let rs@(_ :: _) := t.goalsAt? hoverPos then
+            let goals ← List.join <$> rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter } =>
+              let ci := if useAfter then { ci with mctx := ti.mctxAfter } else { ci with mctx := ti.mctxBefore }
+              let goals := if useAfter then ti.goalsAfter else ti.goalsBefore
+              ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPInaccessibleNames (Meta.ppGoal g))
             let md :=
               if goals.isEmpty then
                 "no goals"
@@ -574,13 +576,14 @@ section RequestHandling
     highlightId (stx : Syntax) : ReaderT SemanticTokensContext (StateT SemanticTokensState IO) _ := do
       if let (some pos, some tailPos) := (stx.getPos?, stx.getTailPos?) then
         for t in (← read).infoState.trees do
-          for (ci, i) in t.deepestNodes (fun i => match i.pos? with
-              | some ipos => pos <= ipos && ipos < tailPos
-              | _         => false) do
-            if let Elab.Info.ofTermInfo ti := i then
-              match ti.expr with
-              | Expr.fvar .. => addToken ti.stx SemanticTokenType.variable
-              | _            => if ti.stx.getPos?.get! > pos then addToken ti.stx SemanticTokenType.property
+          for ti in t.deepestNodes (fun
+            | _, i@(Elab.Info.ofTermInfo ti) => match i.pos? with
+              | some ipos => if pos <= ipos && ipos < tailPos then some ti else none
+              | _         => none
+            | _, _ => none) do
+            match ti.expr with
+            | Expr.fvar .. => addToken ti.stx SemanticTokenType.variable
+            | _            => if ti.stx.getPos?.get! > pos then addToken ti.stx SemanticTokenType.property
     highlightKeyword stx := do
       if let Syntax.atom info val := stx then
         if val.bsize > 0 && val[0].isAlpha then

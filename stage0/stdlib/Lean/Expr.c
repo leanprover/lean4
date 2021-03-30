@@ -253,7 +253,6 @@ lean_object* l_Lean_Expr_hasLooseBVarInExplicitDomain_match__1(lean_object*);
 lean_object* l_Lean_Expr_letName_x21___closed__3;
 lean_object* l_Lean_Expr_updateLambda_x21(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6247____closed__20;
 lean_object* l_Lean_Expr_isProj_match__1(lean_object*);
 lean_object* l_Lean_Expr_updateForall_x21___closed__2;
 lean_object* l_Lean_Expr_updateLambdaE_x21___closed__2;
@@ -337,6 +336,7 @@ lean_object* l_Lean_Expr_hasMVarEx___boxed(lean_object*);
 lean_object* l_Lean_mkAppRange___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21___boxed(lean_object*);
 lean_object* l_Lean_Expr_setAppPPExplicitForExposingMVars(lean_object*);
+extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6282____closed__20;
 lean_object* l_Lean_Expr_fvarId_x21___closed__1;
 lean_object* l_Lean_Expr_updateConst_x21___closed__2;
 lean_object* lean_expr_mk_bvar(lean_object*);
@@ -2936,7 +2936,7 @@ return x_12;
 default: 
 {
 lean_object* x_13; 
-x_13 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6247____closed__20;
+x_13 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6282____closed__20;
 return x_13;
 }
 }

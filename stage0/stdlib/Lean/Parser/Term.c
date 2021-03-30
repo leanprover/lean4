@@ -1395,7 +1395,6 @@ lean_object* l_Lean_Parser_Tactic_tacticSeq1Indented___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Level_quot___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Term_dbgTrace;
 lean_object* l_Lean_Parser_Term_dynamicQuot_formatter___closed__5;
-extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6247____closed__20;
 lean_object* l_Lean_Parser_Term_match_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_Term_emptyC___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Term_type___elambda__1___closed__15;
@@ -1981,6 +1980,7 @@ lean_object* l_Lean_Parser_Term_typeSpec_formatter___closed__1;
 lean_object* l_Lean_Parser_Term_nomatch___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_explicitBinder___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Term_haveDecl_parenthesizer___closed__9;
+extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6282____closed__20;
 lean_object* l_Lean_Parser_Term_have___elambda__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_stateRefT___elambda__1(lean_object*, lean_object*);
 lean_object* l___regBuiltinParser_Lean_Parser_Term_type(lean_object*);
@@ -40638,7 +40638,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_myMacro____x40_Init_Notation___hyg_2278____closed__2;
-x_2 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6247____closed__20;
+x_2 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6282____closed__20;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

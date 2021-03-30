@@ -391,7 +391,8 @@ private def expandMatchAltsIntoMatchAux (matchAlts : Syntax) (matchTactic : Bool
       `(match $[$discrs:term],* with $matchAlts:matchAlts)
   | n+1, discrs => withFreshMacroScope do
     let x ← `(x)
-    let body ← expandMatchAltsIntoMatchAux matchAlts matchTactic n (discrs.push x)
+    let d ← `(@$x:ident)
+    let body ← expandMatchAltsIntoMatchAux matchAlts matchTactic n (discrs.push d)
     if matchTactic then
       `(tactic| intro $x:term; $body:tactic)
     else
@@ -466,7 +467,8 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
         expandWhereDeclsOpt whereDeclsOpt matchStx
     | n+1 => withFreshMacroScope do
       let x ← `(x)
-      let body ← loop n (discrs.push x)
+      let d ← `(@$x:ident)
+      let body ← loop n (discrs.push d)
       `(@fun $x => $body)
   loop (getMatchAltsNumPatterns matchAlts) #[]
 

@@ -430,10 +430,11 @@ section RequestHandling
     withWaitFindSnap doc (fun s => s.endPos > hoverPos)
       (notFoundX := return none) fun snap => do
         for t in snap.toCmdState.infoState.trees do
-          if let some { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter } := t.goalsAt? hoverPos then
-            let ci := if useAfter then { ci with mctx := ti.mctxAfter } else ci
-            let goals := if useAfter then ti.goalsAfter else ti.goalsBefore
-            let goals ← ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPInaccessibleNames (Meta.ppGoal g))
+          if let rs@(_ :: _) := t.goalsAt? hoverPos then
+            let goals ← List.join <$> rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter } =>
+              let ci := if useAfter then { ci with mctx := ti.mctxAfter } else ci
+              let goals := if useAfter then ti.goalsAfter else ti.goalsBefore
+              ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPInaccessibleNames (Meta.ppGoal g))
             let md :=
               if goals.isEmpty then
                 "no goals"

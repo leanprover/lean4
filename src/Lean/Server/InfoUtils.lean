@@ -119,8 +119,8 @@ structure GoalsAtResult where
 
   Moreover, we instruct the LSP server to use the state after the tactic execution If hoverPos >= endPos
 -/
-partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : Option GoalsAtResult := do
-  let rs := t.deepestNodes fun
+partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult := do
+  t.deepestNodes fun
     | ctx, i@(Info.ofTacticInfo ti) => OptionM.run do
       let (some pos, some tailPos) ← pure (i.pos?, i.tailPos?)
         | failure
@@ -128,8 +128,5 @@ partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : Option Go
       guard <| pos ≤ hoverPos ∧ hoverPos < tailPos + trailSize
       return { ctxInfo := ctx, tacticInfo := ti, useAfter := hoverPos >= tailPos }
     | _, _ => none
-  match rs with
-  | r::_ => some r
-  | []   => none
 
 end Lean.Elab

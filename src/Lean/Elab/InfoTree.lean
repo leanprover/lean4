@@ -76,6 +76,16 @@ inductive InfoTree where
   | hole (mvarId : MVarId) -- The elaborator creates holes (aka metavariables) for tactics and postponed terms
   deriving Inhabited
 
+partial def InfoTree.findInfo? (p : Info → Bool) (t : InfoTree) : Option InfoTree :=
+  match t with
+  | context _ t => findInfo? p t
+  | node i ts   =>
+    if p i then
+      some t
+    else
+      ts.findSome? (findInfo? p)
+  | _ => none
+
 structure InfoState where
   enabled    : Bool := false
   assignment : PersistentHashMap MVarId InfoTree := {} -- map from holeId to InfoTree

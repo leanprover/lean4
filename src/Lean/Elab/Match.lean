@@ -64,6 +64,9 @@ private def mkUserNameFor (e : Expr) : TermElabM Name := do
 def isAuxDiscrName (n : Name) : Bool :=
   n.hasMacroScopes && n.eraseMacroScopes == `_discr
 
+/- We treat `@x` as atomic to avoid unnecessary extra local declarations from being
+   inserted into the local context. Recall that `expandMatchAltsIntoMatch` uses `@` modifier.
+   Thus this is kind of discriminant is quite common. -/
 def isAtomicDiscr? (discr : Syntax) : TermElabM (Option Expr) := do
   match discr with
   | `($x:ident)  => isLocalIdent? x

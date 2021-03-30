@@ -391,7 +391,7 @@ private def expandMatchAltsIntoMatchAux (matchAlts : Syntax) (matchTactic : Bool
       `(match $[$discrs:term],* with $matchAlts:matchAlts)
   | n+1, discrs => withFreshMacroScope do
     let x ← `(x)
-    let d ← `(@$x:ident)
+    let d ← `(@$x:ident) -- See comment below
     let body ← expandMatchAltsIntoMatchAux matchAlts matchTactic n (discrs.push d)
     if matchTactic then
       `(tactic| intro $x:term; $body:tactic)
@@ -408,17 +408,31 @@ private def expandMatchAltsIntoMatchAux (matchAlts : Syntax) (matchTactic : Bool
     expands into (for tactic == false)
     ```
     fun x_1 x_2 =>
-    match x_1, x_2 with
+    match @x_1, @x_2 with
     | 0, true => alt_1
     | i, _    => alt_2
     ```
     and (for tactic == true)
     ```
     intro x_1; intro x_2;
-    match x_1, x_2 with
+    match @x_1, @x_2 with
     | 0, true => alt_1
     | i, _    => alt_2
     ```
+
+  Remark: we add `@` to make sure we don't consume implicit arguments, and to make the behavior consistent with `fun`.
+  Example:
+  ```
+  inductive T : Type 1 :=
+  | mkT : (forall {a : Type}, a -> a) -> T
+
+  def makeT (f : forall {a : Type}, a -> a) : T :=
+    mkT f
+
+  def makeT' : (forall {a : Type}, a -> a) -> T
+  | f => mkT f
+  ```
+  The two definitions should be elaborated without errors and be equivalent.
  -/
 def expandMatchAltsIntoMatch (ref : Syntax) (matchAlts : Syntax) (tactic := false) : MacroM Syntax :=
   withRef ref <| expandMatchAltsIntoMatchAux matchAlts tactic (getMatchAltsNumPatterns matchAlts) #[]
@@ -467,7 +481,7 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
         expandWhereDeclsOpt whereDeclsOpt matchStx
     | n+1 => withFreshMacroScope do
       let x ← `(x)
-      let d ← `(@$x:ident)
+      let d ← `(@$x:ident) -- See comment at `expandMatchAltsIntoMatch`
       let body ← loop n (discrs.push d)
       `(@fun $x => $body)
   loop (getMatchAltsNumPatterns matchAlts) #[]

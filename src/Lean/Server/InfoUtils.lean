@@ -120,19 +120,39 @@ structure GoalsAtResult where
   tacticInfo : TacticInfo
   useAfter   : Bool
 
+/-
+  Try to retrieve `TacticInfo` for `hoverPos`.
+  We retrieve the `TacticInfo` `info`, if there is a node of the form `node (ofTacticInfo info) children` s.t.
+  - If `hoverPos <= headPos && hoverPos < endPos + trailingSpacesSize` and
+  - None of the `children` can provide satisfy the condition above. That is, for composite tactics such as
+    `induction`, we always give preference for information stored in nested (children) tactics.
+
+  Moreover, we instruct the LSP server to use the state after the tactic execution If hoverPos >= endPos
+-/
 partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : Option GoalsAtResult := do
-  let ts := t.smallestTacticStates
-  for i in [:ts.size] do
-    let (pos, ctxInfo, tacticInfo) := ts[i]
-    let endPos := tacticInfo.stx.getTailPos?.get!
-    if i == ts.size - 1 then
-      let trailSize := tacticInfo.stx.getTrailingSize
-      if pos <= hoverPos && hoverPos <= endPos + trailSize then
-        return some { ctxInfo := ctxInfo, tacticInfo := tacticInfo, useAfter := hoverPos >= endPos }
-    else
-      let (nextPos, _, _) := ts[i+1]
-      if pos <= hoverPos && hoverPos < nextPos then
-        return some { ctxInfo := ctxInfo, tacticInfo := tacticInfo, useAfter := hoverPos >= endPos }
-  return none
+  visit none t
+where
+  visit (ctx? : Option ContextInfo) (t : InfoTree) : Option GoalsAtResult :=
+    match t with
+    | context ctx t => visit ctx t
+    | node (Info.ofTacticInfo info) ts =>
+      match ctx? with
+      | none => visitChildren ctx? ts
+      | some ctx => match info.stx.getPos? with
+        | none => visitChildren ctx? ts
+        | some pos => match visitChildren ctx? ts with
+          | some r => some r
+          | none =>
+            let endPos := info.stx.getTailPos?.getD pos
+            let trailSize := info.stx.getTrailingSize
+            if pos <= hoverPos && hoverPos < endPos + trailSize then
+              some { ctxInfo := ctx, tacticInfo := info, useAfter := hoverPos >= endPos }
+            else
+              none
+    | node _ ts => visitChildren ctx? ts
+    | _ => none
+
+  visitChildren (ctx? : Option ContextInfo) (ts : Std.PArray InfoTree) : Option GoalsAtResult := do
+    ts.findSome? (visit ctx?)
 
 end Lean.Elab

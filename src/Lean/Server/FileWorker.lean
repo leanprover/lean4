@@ -432,7 +432,7 @@ section RequestHandling
         for t in snap.toCmdState.infoState.trees do
           if let rs@(_ :: _) := t.goalsAt? hoverPos then
             let goals ← List.join <$> rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter } =>
-              let ci := if useAfter then { ci with mctx := ti.mctxAfter } else ci
+              let ci := if useAfter then { ci with mctx := ti.mctxAfter } else { ci with mctx := ti.mctxBefore }
               let goals := if useAfter then ti.goalsAfter else ti.goalsBefore
               ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPInaccessibleNames (Meta.ppGoal g))
             let md :=

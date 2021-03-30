@@ -7,12 +7,11 @@ deriving Hashable
 
 theorem «inductive fields have different base hashes» : ∀ x, hash x = 
 match x with
-| SimpleInd.A => 2
-| SimpleInd.B => 3 := λ x => rfl
-
+| SimpleInd.A => 0
+| SimpleInd.B => 1 := λ x => rfl
 mutual 
 inductive Foo : Type → Type
-| A : Int → Foo Prop → String → Foo Int
+| A : Int → (3 = 3) → String → Foo Int
 | B : Bar → Foo String 
 deriving Hashable
 inductive Bar
@@ -21,46 +20,41 @@ inductive Bar
 deriving Hashable
 end
 
-theorem «mutually recursive types don't hash recursively» : ∀ x y, (hash x = 
-match x with
-| Foo.A a _ b => mixHash (mixHash 2 (hash a)) (hash b)
-| Foo.B _ => 3) ∧ (hash y = 
-match y with
-| Bar.C => 5
-| Bar.D _ => 7) := λ x y => ⟨rfl, rfl⟩
+#eval hash (Foo.A 3 rfl "bla")
+#eval hash (Foo.B $ Bar.D $ Foo.B Bar.C)
 
 inductive ManyConstructors | A | B | C | D | E | F | G | H | I | J | K | L 
 | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z
 deriving Hashable
 
-theorem «Each constructor is hashed as a different prime to make mixing better» : ∀ x, hash x = 
+theorem «Each constructor is hashed as a different number to make mixing better» : ∀ x, hash x = 
 match x with 
-| ManyConstructors.A => 2
-| ManyConstructors.B => 3
-| ManyConstructors.C => 5
-| ManyConstructors.D => 7
-| ManyConstructors.E => 11
-| ManyConstructors.F => 13
-| ManyConstructors.G => 17
-| ManyConstructors.H => 19
-| ManyConstructors.I => 23
-| ManyConstructors.J => 29
-| ManyConstructors.K => 31
-| ManyConstructors.L => 37
-| ManyConstructors.M => 41
-| ManyConstructors.N => 43
-| ManyConstructors.O => 47
-| ManyConstructors.P => 53
-| ManyConstructors.Q => 59
-| ManyConstructors.R => 61
-| ManyConstructors.S => 67
-| ManyConstructors.T => 71
-| ManyConstructors.U => 73
-| ManyConstructors.V => 79
-| ManyConstructors.W => 83
-| ManyConstructors.X => 89
-| ManyConstructors.Y => 97
-| ManyConstructors.Z => 101 := λ x => rfl
+| ManyConstructors.A => 0
+| ManyConstructors.B => 1
+| ManyConstructors.C => 2
+| ManyConstructors.D => 3
+| ManyConstructors.E => 4
+| ManyConstructors.F => 5
+| ManyConstructors.G => 6
+| ManyConstructors.H => 7
+| ManyConstructors.I => 8
+| ManyConstructors.J => 9
+| ManyConstructors.K => 10
+| ManyConstructors.L => 11
+| ManyConstructors.M => 12
+| ManyConstructors.N => 13
+| ManyConstructors.O => 14
+| ManyConstructors.P => 15
+| ManyConstructors.Q => 16
+| ManyConstructors.R => 17
+| ManyConstructors.S => 18
+| ManyConstructors.T => 19
+| ManyConstructors.U => 20
+| ManyConstructors.V => 21
+| ManyConstructors.W => 22
+| ManyConstructors.X => 23
+| ManyConstructors.Y => 24
+| ManyConstructors.Z => 25 := λ x => rfl
 
 structure Person := 
   FirstName : String

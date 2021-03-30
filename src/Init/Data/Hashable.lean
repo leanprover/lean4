@@ -44,3 +44,6 @@ instance : Hashable Int where
   hash 
     | Int.ofNat n => USize.ofNat (2 * n)
     | Int.negSucc n => USize.ofNat (2 * n + 1)
+
+instance (P : Prop) : Hashable P where
+  hash := Function.const P 0

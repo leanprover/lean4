@@ -1562,7 +1562,7 @@ instance nonBacktrackable : Backtrackable PUnit σ where
 
 end EStateM
 
-class Hashable (α : Type u) where
+class Hashable (α : Sort u) where
   hash : α → USize
 
 export Hashable (hash)

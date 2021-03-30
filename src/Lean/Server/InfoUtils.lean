@@ -115,15 +115,24 @@ where tacticLeaves t :=
     | i@(Info.ofTacticInfo _) => i.pos?.isSome ∧ i.tailPos?.isSome
     | _ => false
 
-partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × TacticInfo) :=
+structure GoalsAtResult where
+  ctxInfo    : ContextInfo
+  tacticInfo : TacticInfo
+  useAfter   : Bool
+
+partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : Option GoalsAtResult := do
   let ts := t.smallestTacticStates
-  -- The extent of a tactic state is (pos, pos of next tactic)
-  let extents := ts.mapIdx fun i (p, _, ti) =>
-    (p, if h : (i.val+1) < ts.size then
-          ts.get ⟨i.val+1, h⟩ |>.1
-        else
-          ti.stx.getTailPos?.get!)
-  let idx? := extents.findIdx? fun (p, tp) => p ≤ hoverPos ∧ hoverPos < tp
-  idx?.map fun idx => ts.get! idx |> fun (_, ci, ti) => (ci, ti)
+  for i in [:ts.size] do
+    let (pos, ctxInfo, tacticInfo) := ts[i]
+    let endPos := tacticInfo.stx.getTailPos?.get!
+    if i == ts.size - 1 then
+      let trailSize := tacticInfo.stx.getTrailingSize
+      if pos <= hoverPos && hoverPos <= endPos + trailSize then
+        return some { ctxInfo := ctxInfo, tacticInfo := tacticInfo, useAfter := hoverPos >= endPos }
+    else
+      let (nextPos, _, _) := ts[i+1]
+      if pos <= hoverPos && hoverPos < nextPos then
+        return some { ctxInfo := ctxInfo, tacticInfo := tacticInfo, useAfter := hoverPos >= endPos }
+  return none
 
 end Lean.Elab

@@ -13,7 +13,7 @@ namespace Lean.Elab
 /--
   For every branch, find the deepest node in that branch matching `p`
   with a surrounding context (the innermost one) and return all of them. -/
-partial def InfoTree.deepestNodes (p : Info → Bool) : InfoTree → List (ContextInfo × Info) :=
+partial def InfoTree.deepestNodes (p : ContextInfo → Info → Option α) : InfoTree → List α :=
   go none
 where go ctx?
   | context ctx t => go ctx t
@@ -22,9 +22,11 @@ where go ctx?
     let ccs := cs.map (go ctx?)
     let cs := ccs.join
     if !cs.isEmpty then cs
-    else match ctx?, p i with
-      | some ctx, true => [(ctx, i)]
-      | _,        _    => []
+    else match ctx? with
+      | some ctx => match p ctx i with
+        | some a => [a]
+        | _      => []
+      | _        => []
   | _ => []
 
 def Info.stx : Info → Syntax
@@ -41,7 +43,7 @@ def Info.tailPos? (i : Info) : Option String.Pos :=
   i.stx.getTailPos? (originalOnly := true)
 
 def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextInfo × Info) :=
-  let ts := t.deepestNodes p
+  let ts := t.deepestNodes fun ctx i => if p i then some (ctx, i) else none
 
   let infos := ts.map fun (ci, i) =>
     let diff := i.tailPos?.get! - i.pos?.get!
@@ -103,18 +105,6 @@ def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option Format) := do
 
     | _ => return none
 
-/-- Return a flattened list of smallest-in-span tactic info nodes, sorted by position. -/
-partial def InfoTree.smallestTacticStates (t : InfoTree) : Array (String.Pos × ContextInfo × TacticInfo) :=
-  let ts := tacticLeaves t
-  let ts := ts.filterMap fun
-    | (ci, i@(Info.ofTacticInfo ti)) => some (i.pos?.get!, ci, ti)
-    | _ => none
-  ts.toArray.qsort fun a b => a.1 < b.1
-where tacticLeaves t :=
-  t.deepestNodes fun
-    | i@(Info.ofTacticInfo _) => i.pos?.isSome ∧ i.tailPos?.isSome
-    | _ => false
-
 structure GoalsAtResult where
   ctxInfo    : ContextInfo
   tacticInfo : TacticInfo
@@ -123,36 +113,23 @@ structure GoalsAtResult where
 /-
   Try to retrieve `TacticInfo` for `hoverPos`.
   We retrieve the `TacticInfo` `info`, if there is a node of the form `node (ofTacticInfo info) children` s.t.
-  - If `hoverPos <= headPos && hoverPos < endPos + trailingSpacesSize` and
+  - If `hoverPos <= headPos && hoverPos < endPos + getTrailingSize` and
   - None of the `children` can provide satisfy the condition above. That is, for composite tactics such as
     `induction`, we always give preference for information stored in nested (children) tactics.
 
   Moreover, we instruct the LSP server to use the state after the tactic execution If hoverPos >= endPos
 -/
 partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : Option GoalsAtResult := do
-  visit none t
-where
-  visit (ctx? : Option ContextInfo) (t : InfoTree) : Option GoalsAtResult :=
-    match t with
-    | context ctx t => visit ctx t
-    | node (Info.ofTacticInfo info) ts =>
-      match ctx? with
-      | none => visitChildren ctx? ts
-      | some ctx => match info.stx.getPos? with
-        | none => visitChildren ctx? ts
-        | some pos => match visitChildren ctx? ts with
-          | some r => some r
-          | none =>
-            let endPos := info.stx.getTailPos?.getD pos
-            let trailSize := info.stx.getTrailingSize
-            if pos <= hoverPos && hoverPos < endPos + trailSize then
-              some { ctxInfo := ctx, tacticInfo := info, useAfter := hoverPos >= endPos }
-            else
-              none
-    | node _ ts => visitChildren ctx? ts
-    | _ => none
-
-  visitChildren (ctx? : Option ContextInfo) (ts : Std.PArray InfoTree) : Option GoalsAtResult := do
-    ts.findSome? (visit ctx?)
+  let rs := t.deepestNodes fun
+    | ctx, i@(Info.ofTacticInfo ti) => OptionM.run do
+      let (some pos, some tailPos) ← pure (i.pos?, i.tailPos?)
+        | failure
+      let trailSize := i.stx.getTrailingSize
+      guard <| pos ≤ hoverPos ∧ hoverPos < tailPos + trailSize
+      return { ctxInfo := ctx, tacticInfo := ti, useAfter := hoverPos >= tailPos }
+    | _, _ => none
+  match rs with
+  | r::_ => some r
+  | []   => none
 
 end Lean.Elab

@@ -34,10 +34,6 @@ private def expandSimpleMatch (stx discr lhsVar rhs : Syntax) (expectedType? : O
   let newStx ← `(let $lhsVar := $discr; $rhs)
   withMacroExpansion stx newStx <| elabTerm newStx expectedType?
 
-private def expandSimpleMatchWithType (stx discr lhsVar type rhs : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
-  let newStx ← `(let $lhsVar : $type := $discr; $rhs)
-  withMacroExpansion stx newStx <| elabTerm newStx expectedType?
-
 private def elabDiscrsWitMatchType (discrStxs : Array Syntax) (matchType : Expr) (expectedType : Expr) : TermElabM (Array Expr × Bool) := do
   let mut discrs := #[]
   let mut i := 0
@@ -1077,8 +1073,6 @@ where
   match stx with
   | `(match $discr:term with | $y:ident => $rhs:term) =>
      if (← isPatternVar y) then expandSimpleMatch stx discr y rhs expectedType? else elabMatchDefault stx expectedType?
-  | `(match $discr:term : $type with | $y:ident => $rhs:term) =>
-     if (← isPatternVar y) then expandSimpleMatchWithType stx discr y type rhs expectedType? else elabMatchDefault stx expectedType?
   | _ => elabMatchDefault stx expectedType?
 where
   elabMatchDefault (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do

@@ -248,13 +248,15 @@ def mkUnexpectedError (s : ParserState) (msg : String) : ParserState :=
 def mkEOIError (s : ParserState) : ParserState :=
   s.mkUnexpectedError "end of input"
 
-def mkErrorAt (s : ParserState) (msg : String) (pos : String.Pos) : ParserState :=
-  match s with
-  | ⟨stack, lhsPrec, _, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
+def mkErrorAt (s : ParserState) (msg : String) (pos : String.Pos) (initStackSz? : Option Nat := none) : ParserState :=
+  match s,  initStackSz? with
+  | ⟨stack, lhsPrec, _, cache, _⟩, none    => ⟨stack, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
+  | ⟨stack, lhsPrec, _, cache, _⟩, some sz => ⟨stack.shrink sz, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
 
-def mkErrorsAt (s : ParserState) (ex : List String) (pos : String.Pos) : ParserState :=
-  match s with
-  | ⟨stack, lhsPrec, _, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { expected := ex }⟩
+def mkErrorsAt (s : ParserState) (ex : List String) (pos : String.Pos) (initStackSz? : Option Nat := none) : ParserState :=
+  match s, initStackSz? with
+  | ⟨stack, lhsPrec, _, cache, _⟩, none    => ⟨stack, lhsPrec, pos, cache, some { expected := ex }⟩
+  | ⟨stack, lhsPrec, _, cache, _⟩, some sz => ⟨stack.shrink sz, lhsPrec, pos, cache, some { expected := ex }⟩
 
 def mkUnexpectedErrorAt (s : ParserState) (msg : String) (pos : String.Pos) : ParserState :=
   match s with
@@ -1091,14 +1093,15 @@ def rawIdentFn : ParserFn := fun c s =>
   else identFnAux i none Name.anonymous c s
 
 @[inline] def satisfySymbolFn (p : String → Bool) (expected : List String) : ParserFn := fun c s =>
+  let initStackSz := s.stackSize
   let startPos := s.pos
   let s        := tokenFn c s
   if s.hasError then
     s
   else
     match s.stxStack.back with
-    | Syntax.atom _ sym => if p sym then s else s.mkErrorsAt expected startPos
-    | _                 => s.mkErrorsAt expected startPos
+    | Syntax.atom _ sym => if p sym then s else s.mkErrorsAt expected startPos initStackSz
+    | _                 => s.mkErrorsAt expected startPos initStackSz
 
 def symbolFnAux (sym : String) (errorMsg : String) : ParserFn :=
   satisfySymbolFn (fun s => s == sym) [errorMsg]
@@ -1129,20 +1132,21 @@ def checkTailNoWs (prev : Syntax) : Bool :=
     it can still be used as an identifier outside of universes (but registering it
     as a token in a Term Syntax would not break the universe Parser). -/
 def nonReservedSymbolFnAux (sym : String) (errorMsg : String) : ParserFn := fun c s =>
+  let initStackSz := s.stackSize
   let startPos := s.pos
   let s := tokenFn c s
   if s.hasError then s
   else
     match s.stxStack.back with
     | Syntax.atom _ sym' =>
-      if sym == sym' then s else s.mkErrorAt errorMsg startPos
+      if sym == sym' then s else s.mkErrorAt errorMsg startPos initStackSz
     | Syntax.ident info rawVal _ _ =>
       if sym == rawVal.toString then
         let s := s.popSyntax
         s.pushSyntax (Syntax.atom info sym)
       else
-        s.mkErrorAt errorMsg startPos
-    | _ => s.mkErrorAt errorMsg startPos
+        s.mkErrorAt errorMsg startPos initStackSz
+    | _ => s.mkErrorAt errorMsg startPos initStackSz
 
 @[inline] def nonReservedSymbolFn (sym : String) : ParserFn :=
   nonReservedSymbolFnAux sym ("'" ++ sym ++ "'")
@@ -1234,9 +1238,10 @@ def mkAtomicInfo (k : String) : ParserInfo :=
 
 def numLitFn : ParserFn :=
   fun c s =>
+    let initStackSz := s.stackSize
     let iniPos := s.pos
     let s      := tokenFn c s
-    if !s.hasError && !(s.stxStack.back.isOfKind numLitKind) then s.mkErrorAt "numeral" iniPos else s
+    if !s.hasError && !(s.stxStack.back.isOfKind numLitKind) then s.mkErrorAt "numeral" iniPos initStackSz else s
 
 @[inline] def numLitNoAntiquot : Parser := {
   fn   := numLitFn,
@@ -1245,9 +1250,10 @@ def numLitFn : ParserFn :=
 
 def scientificLitFn : ParserFn :=
   fun c s =>
+    let initStackSz := s.stackSize
     let iniPos := s.pos
     let s      := tokenFn c s
-    if !s.hasError && !(s.stxStack.back.isOfKind scientificLitKind) then s.mkErrorAt "scientific number" iniPos else s
+    if !s.hasError && !(s.stxStack.back.isOfKind scientificLitKind) then s.mkErrorAt "scientific number" iniPos initStackSz else s
 
 @[inline] def scientificLitNoAntiquot : Parser := {
   fn   := scientificLitFn,
@@ -1255,9 +1261,10 @@ def scientificLitFn : ParserFn :=
 }
 
 def strLitFn : ParserFn := fun c s =>
+  let initStackSz := s.stackSize
   let iniPos := s.pos
   let s := tokenFn c s
-  if !s.hasError && !(s.stxStack.back.isOfKind strLitKind) then s.mkErrorAt "string literal" iniPos else s
+  if !s.hasError && !(s.stxStack.back.isOfKind strLitKind) then s.mkErrorAt "string literal" iniPos initStackSz else s
 
 @[inline] def strLitNoAntiquot : Parser := {
   fn   := strLitFn,
@@ -1265,9 +1272,10 @@ def strLitFn : ParserFn := fun c s =>
 }
 
 def charLitFn : ParserFn := fun c s =>
+  let initStackSz := s.stackSize
   let iniPos := s.pos
   let s := tokenFn c s
-  if !s.hasError && !(s.stxStack.back.isOfKind charLitKind) then s.mkErrorAt "character literal" iniPos else s
+  if !s.hasError && !(s.stxStack.back.isOfKind charLitKind) then s.mkErrorAt "character literal" iniPos initStackSz else s
 
 @[inline] def charLitNoAntiquot : Parser := {
   fn   := charLitFn,
@@ -1275,9 +1283,10 @@ def charLitFn : ParserFn := fun c s =>
 }
 
 def nameLitFn : ParserFn := fun c s =>
+  let initStackSz := s.stackSize
   let iniPos := s.pos
   let s := tokenFn c s
-  if !s.hasError && !(s.stxStack.back.isOfKind nameLitKind) then s.mkErrorAt "Name literal" iniPos else s
+  if !s.hasError && !(s.stxStack.back.isOfKind nameLitKind) then s.mkErrorAt "Name literal" iniPos initStackSz else s
 
 @[inline] def nameLitNoAntiquot : Parser := {
   fn   := nameLitFn,
@@ -1285,9 +1294,10 @@ def nameLitFn : ParserFn := fun c s =>
 }
 
 def identFn : ParserFn := fun c s =>
+  let initStackSz := s.stackSize
   let iniPos := s.pos
   let s      := tokenFn c s
-  if !s.hasError && !(s.stxStack.back.isIdent) then s.mkErrorAt "identifier" iniPos else s
+  if !s.hasError && !(s.stxStack.back.isIdent) then s.mkErrorAt "identifier" iniPos initStackSz else s
 
 @[inline] def identNoAntiquot : Parser := {
   fn   := identFn,
@@ -1299,13 +1309,14 @@ def identFn : ParserFn := fun c s =>
 }
 
 def identEqFn (id : Name) : ParserFn := fun c s =>
+  let initStackSz := s.stackSize
   let iniPos := s.pos
   let s      := tokenFn c s
   if s.hasError then
     s
   else match s.stxStack.back with
-    | Syntax.ident _ _ val _ => if val != id then s.mkErrorAt ("expected identifier '" ++ toString id ++ "'") iniPos else s
-    | _ => s.mkErrorAt "identifier" iniPos
+    | Syntax.ident _ _ val _ => if val != id then s.mkErrorAt ("expected identifier '" ++ toString id ++ "'") iniPos initStackSz else s
+    | _ => s.mkErrorAt "identifier" iniPos initStackSz
 
 @[inline] def identEq (id : Name) : Parser := {
   fn   := identEqFn id,
@@ -1913,13 +1924,14 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) (s : 
     trailingLoop tables c s
 
 def fieldIdxFn : ParserFn := fun c s =>
+  let initStackSz := s.stackSize
   let iniPos := s.pos
   let curr     := c.input.get iniPos
   if curr.isDigit && curr != '0' then
     let s     := takeWhileFn (fun c => c.isDigit) c s
     mkNodeToken fieldIdxKind iniPos c s
   else
-    s.mkErrorAt "field index" iniPos
+    s.mkErrorAt "field index" iniPos initStackSz
 
 @[inline] def fieldIdx : Parser :=
   withAntiquot (mkAntiquot "fieldIdx" `fieldIdx) {

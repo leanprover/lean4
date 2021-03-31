@@ -3,4 +3,10 @@ tokenErrors.lean:4:9: error: invalid escape sequence
 tokenErrors.lean:7:7: error: unterminated string literal
 tokenErrors.lean:10:11: error: unterminated identifier escape
 tokenErrors.lean:14:0: error: unterminated comment
+tokenErrors.lean:13:0-13:3: error: unexpected doc string
+  failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)
 tokenErrors.lean:17:0: error: unterminated comment
+inductive Nat : Type
+constructors:
+Nat.zero : Nat
+Nat.succ : Nat → Nat

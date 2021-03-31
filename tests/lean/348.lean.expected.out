@@ -1,1 +1,9 @@
 348.lean:3:24: error: expected ')'
+348.lean:2:2-2:47: error: application type mismatch
+  pure PUnit.unit
+argument
+  PUnit.unit
+has type
+  PUnit : Sort ?u
+but is expected to have type
+  String : Type

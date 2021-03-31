@@ -1,5 +1,15 @@
 unknownTactic.lean:3:3: error: unknown tactic
+unknownTactic.lean:1:41-3:8: error: unsolved goals
+x : Nat
+a✝ : x = x
+⊢ x = x
 ---
 unknownTactic.lean:8:17: error: unknown tactic
+unknownTactic.lean:8:2-8:19: error: unsolved goals
+x : Nat
+⊢ x = x
 ---
 unknownTactic.lean:14:17: error: unknown tactic
+unknownTactic.lean:14:2-14:19: error: unsolved goals
+x : Nat
+⊢ x = x

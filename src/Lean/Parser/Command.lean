@@ -34,7 +34,7 @@ def declSig          := leading_parser many (ppSpace >> (Term.simpleBinderWithou
 def optDeclSig       := leading_parser many (ppSpace >> (Term.simpleBinderWithoutType <|> Term.bracketedBinder)) >> Term.optType
 def declValSimple    := leading_parser " :=\n" >> termParser >> optional Term.whereDecls
 def declValEqns      := leading_parser Term.matchAltsWhereDecls
-def declVal          := declValSimple <|> declValEqns <|> Term.whereDecls
+def declVal          := declValSimple <|> declValEqns <|> Term.whereDecls <|> error "unexpected declaration body"
 def «abbrev»         := leading_parser "abbrev " >> declId >> optDeclSig >> declVal
 def «def»            := leading_parser "def " >> declId >> optDeclSig >> declVal
 def «theorem»        := leading_parser "theorem " >> declId >> declSig >> declVal

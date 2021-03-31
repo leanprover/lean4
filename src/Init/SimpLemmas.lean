@@ -90,4 +90,16 @@ namespace Lean.Simp
 @[simp] theorem arrow_True (p : Prop) : (p → True) = True := propext <| Iff.intro (fun _ => trivial) (by intros; trivial)
 @[simp] theorem True_arrow (p : Prop) : (True → p) = p := propext <| Iff.intro (fun h => h trivial) (by intros; trivial)
 
+@[simp] theorem or_false (b : Bool) : (b || false) = b  := by cases b <;> rfl
+@[simp] theorem or_true (b : Bool) : (b || true) = true := by cases b <;> rfl
+@[simp] theorem false_or (b : Bool) : (false || b) = b  := by cases b <;> rfl
+@[simp] theorem true_or (b : Bool) : (true || b) = true := by cases b <;> rfl
+@[simp] theorem or_self (b : Bool) : (b || b) = b       := by cases b <;> rfl
+
+@[simp] theorem and_false (b : Bool) : (b && false) = false := by cases b <;> rfl
+@[simp] theorem and_true (b : Bool) : (b && true) = b       := by cases b <;> rfl
+@[simp] theorem false_and (b : Bool) : (false && b) = false := by cases b <;> rfl
+@[simp] theorem true_and (b : Bool) : (true && b) = b       := by cases b <;> rfl
+@[simp] theorem and_self (b : Bool) : (b && b) = b          := by cases b <;> rfl
+
 end Lean.Simp

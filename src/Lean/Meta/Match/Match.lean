@@ -312,6 +312,21 @@ def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM (Option Alt)
       | _ => throwErrorAt alt.ref "dependent match elimination failed, inaccessible pattern found{indentD p.toMessageData}\nconstructor expected"
   | _ => unreachable!
 
+private def hasNonTrivialExample (p : Problem) : Bool :=
+  p.examples.any fun | Example.underscore => false | _ => true
+
+private def throwCasesException (p : Problem) (ex : Exception) : MetaM α := do
+  match ex with
+  | Exception.error ref msg =>
+    let exampleMsg :=
+      if hasNonTrivialExample p then m!" after processing{indentD <| examplesToMessageData p.examples}" else ""
+    throw <| Exception.error ref <| m!"{msg}{exampleMsg}\n" ++
+              "the dependent pattern matcher can solve the following kinds of equations\n" ++
+              "- <var> = <term> and <term> = <var>\n" ++
+              "- <term> = <term> where the terms are definitionally equal\n" ++
+              "- <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil"
+  | _ => throw ex
+
 private def processConstructor (p : Problem) : MetaM (Array Problem) := do
   trace[Meta.Match.match] "constructor step"
   let env ← getEnv
@@ -327,7 +342,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
              /- If we have no alternatives and dependent pattern matching fails, then a "missing cases" error is bettern than a "stuck" error message. -/
              return none
            else
-             throw ex
+             throwCasesException p ex
        if subgoals.isEmpty then
          /- Easy case: we have solved problem `p` since there are no subgoals -/
          pure (some #[])

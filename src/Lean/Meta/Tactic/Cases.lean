@@ -208,7 +208,7 @@ private def heqToEq (mvarId : MVarId) (eqDecl : LocalDecl) : MetaM MVarId := do
   let mvarId ← assert mvarId eqDecl.userName aEqb prf
   clear mvarId eqDecl.fvarId
 
-partial def unifyEqs (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) : MetaM (Option (MVarId × FVarSubst)) := do
+partial def unifyEqs (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) (caseName? : Option Name := none): MetaM (Option (MVarId × FVarSubst)) := do
   if numEqs == 0 then
     pure (some (mvarId, subst))
   else
@@ -217,27 +217,27 @@ partial def unifyEqs (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) : Meta
       let eqDecl ← getLocalDecl eqFVarId
       if eqDecl.type.isHEq then
         let mvarId ← heqToEq mvarId eqDecl
-        unifyEqs numEqs mvarId subst
+        unifyEqs numEqs mvarId subst caseName?
       else match eqDecl.type.eq? with
         | none => throwError "equality expected{indentExpr eqDecl.type}"
         | some (α, a, b) =>
           if (← isDefEq a b) then
             /- Skip equality -/
-            unifyEqs (numEqs - 1) (← clear mvarId eqFVarId) subst
+            unifyEqs (numEqs - 1) (← clear mvarId eqFVarId) subst caseName?
           else
             -- Remark: we use `let rec` here because otherwise the compiler would generate an insane amount of code.
             -- We can remove the `rec` after we fix the eagerly inlining issue in the compiler.
             let rec substEq (symm : Bool) := do
               /- TODO: support for acyclicity (e.g., `xs ≠ x :: xs`) -/
               let (substNew, mvarId) ← substCore mvarId eqFVarId symm subst
-              unifyEqs (numEqs - 1) mvarId substNew
+              unifyEqs (numEqs - 1) mvarId substNew caseName?
             let rec injection (a b : Expr) := do
               let env ← getEnv
               if a.isConstructorApp env && b.isConstructorApp env then
                 /- ctor_i ... = ctor_j ... -/
                 match (← injectionCore mvarId eqFVarId) with
                 | InjectionResultCore.solved                   => pure none -- this alternative has been solved
-                | InjectionResultCore.subgoal mvarId numEqsNew => unifyEqs (numEqs - 1 + numEqsNew) mvarId subst
+                | InjectionResultCore.subgoal mvarId numEqsNew => unifyEqs (numEqs - 1 + numEqsNew) mvarId subst caseName?
               else
                 let a' ← whnf a
                 let b' ← whnf b
@@ -247,9 +247,11 @@ partial def unifyEqs (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) : Meta
                   let aEqb'  ← mkEq a' b'
                   let mvarId ← assert mvarId eqDecl.userName aEqb' prf
                   let mvarId ← clear mvarId eqFVarId
-                  unifyEqs numEqs mvarId subst
+                  unifyEqs numEqs mvarId subst caseName?
                 else
-                  throwError "dependent elimination failed, stuck at auxiliary equation{indentExpr eqDecl.type}"
+                  match caseName? with
+                  | none => throwError "dependent elimination failed, failed to solve equation{indentExpr eqDecl.type}"
+                  | some caseName => throwError "dependent elimination failed, failed to solve equation{indentExpr eqDecl.type}\nat case {mkConst caseName}"
             let a ← instantiateMVars a
             let b ← instantiateMVars b
             match a, b with
@@ -264,7 +266,7 @@ partial def unifyEqs (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) : Meta
 
 private def unifyCasesEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM (Array CasesSubgoal) :=
   subgoals.foldlM (init := #[]) fun subgoals s => do
-    match (← unifyEqs numEqs s.mvarId s.subst) with
+    match (← unifyEqs numEqs s.mvarId s.subst s.ctorName) with
     | none                 => pure subgoals
     | some (mvarId, subst) =>
       pure $ subgoals.push { s with

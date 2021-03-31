@@ -12,19 +12,20 @@ macro_rules
 declare_syntax_cat index
 
 syntax term : index
-syntax term "≤" ident "<" term : index
+-- `≤` has precedence 50
+syntax term:51 "≤" ident "<" term:51 : index
 syntax ident ":" term : index
 
 syntax "{" index " | " term "}" : term
 
 macro_rules
---| `({$l:term ≤ $x:ident < $u | $p}) => `(setOf (fun $x:ident => $l ≤ $x:ident ∧ $x:ident < $u ∧ $p))
-| `({$x:ident : $t | $p}) => `(setOf (fun ($x:ident : $t) => $p))
+| `({$l:term ≤ $x < $u | $p}) => `(setOf (fun $x => $l ≤ $x ∧ $x < $u ∧ $p))
+| `({$x:ident : $t | $p}) => `(setOf (fun ($x : $t) => $p))
 | `({$x:term ∈ $s | $p}) => `(setOf (fun $x => $x ∈ $s ∧ $p))
 | `({$x:term ≤ $e | $p}) => `(setOf (fun $x => $x ≤ $e ∧ $p))
 | `({$b:term      | $r}) => `(setOf (fun $b => $r))
 
---#check { 1 ≤ x < 10 | x ≠ 5 }
+#check { 1 ≤ x < 10 | x ≠ 5 }
 #check { f : Nat → Nat | f 1  > 0 }
 
 syntax "⋃ " term ", " term : term

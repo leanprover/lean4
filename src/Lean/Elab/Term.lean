@@ -845,11 +845,14 @@ def ensureHasType (expectedType? : Option Expr) (e : Expr) (errorMsgHeader? : Op
     let eType ← inferType e
     ensureHasTypeAux expectedType? eType e none errorMsgHeader?
 
-private def exceptionToSorry (ex : Exception) (expectedType? : Option Expr) : TermElabM Expr := do
+private def mkSyntheticSorryFor (expectedType? : Option Expr) : TermElabM Expr := do
   let expectedType ← match expectedType? with
     | none              => mkFreshTypeMVar
     | some expectedType => pure expectedType
-  let syntheticSorry ← mkSyntheticSorry expectedType
+  mkSyntheticSorry expectedType
+
+private def exceptionToSorry (ex : Exception) (expectedType? : Option Expr) : TermElabM Expr := do
+  let syntheticSorry ← mkSyntheticSorryFor expectedType?
   logException ex
   pure syntheticSorry
 
@@ -1029,6 +1032,7 @@ private partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) :
 
 /- Main loop for `elabTerm` -/
 private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (implicitLambda : Bool) : Syntax → TermElabM Expr
+  | Syntax.missing => mkSyntheticSorryFor expectedType?
   | stx => withFreshMacroScope <| withIncRecDepth do
     trace[Elab.step] "expected type: {expectedType?}, term\n{stx}"
     checkMaxHeartbeats "elaborator"

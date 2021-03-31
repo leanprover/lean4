@@ -24,6 +24,11 @@ register_builtin_option pp.raw.maxDepth : Nat := {
   group    := "pp"
   descr    := "(pretty printer) maximum `Syntax` depth for raw printer"
 }
+register_builtin_option pp.rawOnError : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) fallback to 'raw' printer when pretty printer fails"
+}
 
 structure PPContext where
   env           : Environment
@@ -58,7 +63,10 @@ def ppExpr (ctx : PPContext) (e : Expr) : IO Format := do
     try
       ppExt.getState ctx.env |>.ppExpr ctx e
     catch ex =>
-      pure f!"[Error pretty printing expression: {ex}. Falling back to raw printer.]{Format.line}{e}"
+      if pp.rawOnError.get ctx.opts then
+        pure f!"[Error pretty printing expression: {ex}. Falling back to raw printer.]{Format.line}{e}"
+      else
+        pure f!"failed to pretty print expression (use 'set_option pp.rawOnError true' for raw representation)"
 
 def ppTerm (ctx : PPContext) (stx : Syntax) : IO Format :=
   if pp.raw.get ctx.opts then
@@ -67,7 +75,10 @@ def ppTerm (ctx : PPContext) (stx : Syntax) : IO Format :=
     try
       ppExt.getState ctx.env |>.ppTerm ctx stx
     catch ex =>
-      pure f!"[Error pretty printing syntax: {ex}. Falling back to raw printer.]{Format.line}{stx}"
+      if pp.rawOnError.get ctx.opts then
+        pure f!"[Error pretty printing syntax: {ex}. Falling back to raw printer.]{Format.line}{stx}"
+      else
+        pure f!"failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)"
 
 def ppGoal (ctx : PPContext) (mvarId : MVarId) : IO Format :=
     ppExt.getState ctx.env |>.ppGoal ctx mvarId

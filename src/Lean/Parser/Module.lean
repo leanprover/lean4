@@ -82,9 +82,9 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
       let s   := { cache := initCacheForInput c.input, pos := pos : ParserState }
       let s   := whitespace c s
       let s   := topLevelCommandParserFn c s
-      let stx := s.stxStack.back
       match s.errorMsg with
-      | none => (stx, { pos := s.pos }, messages)
+      | none =>
+         (s.stxStack.back, { pos := s.pos }, messages)
       | some errorMsg =>
         -- advance at least one token to prevent infinite loops
         let pos := if s.pos == pos then consumeInput c s.pos else s.pos
@@ -93,11 +93,10 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
         else
           let msg      := mkErrorMessage c s.pos (toString errorMsg)
           let messages := messages.add msg
-          -- We should replace the following line with commented one if we want to elaborate commands containing Syntax errors.
-          -- This is useful for implementing features such as autocompletion.
-          -- Right now, it is disabled since `match_syntax` fails on "partial" `Syntax` objects.
-          parse { pos := pos, recovering := true } messages
-          -- (stx, { pos := pos, recovering := true }, messages)
+          if s.stxStack.isEmpty then
+            parse { pos := pos, recovering := true } messages
+          else
+            (s.stxStack.back, { pos := pos, recovering := true }, messages)
   parse s messages
 
 -- only useful for testing since most Lean files cannot be parsed without elaboration

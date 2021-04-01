@@ -17,6 +17,7 @@ import Init.Data.Fin
 import Init.Data.UInt
 import Init.Data.Float
 import Init.Data.Option
+import Init.Data.Ord
 import Init.Data.Random
 import Init.Data.ToString
 import Init.Data.Range

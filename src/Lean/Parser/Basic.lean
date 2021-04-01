@@ -221,8 +221,15 @@ def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserSta
   match s with
   | ⟨stack, lhsPrec, pos, cache, err⟩ =>
     if err != none && stack.size == iniStackSz then
-      -- If there is an error but there are no new nodes on the stack, we just return `s`
-      s
+      -- If there is an error but there are no new nodes on the stack, use `missing` instead.
+      -- Thus we ensure the property that an syntax tree contains (at least) one `missing` node
+      -- if (and only if) there was a parse error.
+      -- We should not create an actual node of kind `k` in this case because it would mean we
+      -- choose an "arbitrary" node (in practice the last one) in an alternative of the form
+      -- `node k1 p1 <|> ... <|> node kn pn` when all parsers fail. With the code below we
+      -- instead return a less misleading single `missing` node without randomly selecting any `ki`.
+      let stack   := stack.push Syntax.missing
+      ⟨stack, lhsPrec, pos, cache, err⟩
     else
       let newNode := Syntax.node k (stack.extract iniStackSz stack.size)
       let stack   := stack.shrink iniStackSz

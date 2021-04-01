@@ -435,6 +435,8 @@ if(PREV_STAGE)
   configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
   add_custom_target(make_stdlib ALL
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    # needed for linking `leanpkg`
+    DEPENDS leancpp
     # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
     # for a parallelized nested build, but CMake doesn't let us do that.
     # We use `lean` from the previous stage, but `leanc`, headers, etc. from the current stage

@@ -10,6 +10,8 @@ import Init.Data.String
 
 inductive Ordering
 | LT | EQ | GT
+deriving Inhabited
+
 
 class Ord (α : Type u) where
   compare : α → α → Ordering

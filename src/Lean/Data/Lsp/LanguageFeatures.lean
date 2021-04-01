@@ -12,6 +12,42 @@ namespace Lsp
 
 open Json
 
+structure CompletionOptions where
+  triggerCharacters? : Option (Array String) := none
+  allCommitCharacters?: Option (Array String) := none
+  resolveProvider?: Bool := false
+  deriving FromJson, ToJson
+
+structure CompletionItem where
+  label : String
+  detail? : Option String
+  documentation? : Option MarkupContent
+  /-
+  kind? : CompletionItemKind
+  tags? : CompletionItemTag[]
+  deprecated? : boolean
+  preselect? : boolean
+  sortText? : string
+  filterText? : string
+  insertText? : string
+  insertTextFormat? : InsertTextFormat
+  insertTextMode? : InsertTextMode
+  textEdit? : TextEdit | InsertReplaceEdit
+  additionalTextEdits? : TextEdit[]
+  commitCharacters? : string[]
+  command? : Command
+  data? : any -/
+  deriving FromJson, ToJson
+
+structure CompletionList where
+  isIncomplete : Bool
+  items : Array CompletionItem
+  deriving FromJson, ToJson
+
+structure CompletionParams extends TextDocumentPositionParams where
+  -- context? : CompletionContext
+  deriving FromJson, ToJson
+
 structure Hover where
   /- NOTE we should also accept MarkedString/MarkedString[] here
   but they are deprecated, so maybe can get away without. -/

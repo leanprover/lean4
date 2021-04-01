@@ -363,6 +363,20 @@ section RequestHandling
      (this way, the server doesn't get bogged down in requests for an old state of the document).
      Requests need to manually check for whether their task has been cancelled, so that they
      can reply with a RequestCancelled error. -/
+
+  partial def handleCompletion (p : CompletionParams) :
+      ServerM (Task (Except IO.Error (Except RequestError CompletionList))) := do
+    let st ← read
+    let doc ← st.docRef.get
+    let text := doc.meta.text
+    let pos := text.lspPosToUtf8Pos p.position
+    withWaitFindSnap doc (fun s => s.endPos > pos)
+      (notFoundX := pure { items := #[], isIncomplete := true }) fun snap => do
+        for t in snap.toCmdState.infoState.trees do
+          if let some (ci, i) := t.hoverableInfoAt? pos then
+            return { items := #[], isIncomplete := true }  -- TODO
+        return { items := #[], isIncomplete := true }
+
   open Elab in
   partial def handleHover (p : HoverParams)
     : ServerM (Task (Except IO.Error (Except RequestError (Option Hover)))) := do
@@ -672,6 +686,7 @@ section MessageHandling
       queueRequest id t₁
     match method with
     | "textDocument/waitForDiagnostics"   => handle WaitForDiagnosticsParams WaitForDiagnostics handleWaitForDiagnostics
+    | "textDocument/completion"           => handle CompletionParams CompletionList handleCompletion
     | "textDocument/hover"                => handle HoverParams (Option Hover) handleHover
     | "textDocument/declaration"          => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := false)
     | "textDocument/definition"           => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := false)

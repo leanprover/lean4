@@ -40,6 +40,9 @@ instance DidChangeTextDocumentParams.hasFileSource : FileSource DidChangeTextDoc
 instance DidCloseTextDocumentParams.hasFileSource : FileSource DidCloseTextDocumentParams :=
   ⟨fun p => fileSource p.textDocument⟩
 
+instance CompletionParams.hasFileSource : FileSource CompletionParams :=
+  ⟨fun h => fileSource h.toTextDocumentPositionParams⟩
+
 instance HoverParams.hasFileSource : FileSource HoverParams :=
   ⟨fun h => fileSource h.toTextDocumentPositionParams⟩
 

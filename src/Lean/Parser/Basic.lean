@@ -1325,9 +1325,13 @@ def identEqFn (id : Name) : ParserFn := fun c s =>
 
 namespace ParserState
 
+def keepTop (s : Array Syntax) (startStackSize : Nat) : Array Syntax :=
+  let node  := s.back
+  s.shrink startStackSize |>.push node
+
 def keepNewError (s : ParserState) (oldStackSize : Nat) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, err⟩ => ⟨stack.shrink oldStackSize, lhsPrec, pos, cache, err⟩
+  | ⟨stack, lhsPrec, pos, cache, err⟩ => ⟨keepTop stack oldStackSize, lhsPrec, pos, cache, err⟩
 
 def keepPrevError (s : ParserState) (oldStackSize : Nat) (oldStopPos : String.Pos) (oldError : Option Error) : ParserState :=
   match s with
@@ -1342,11 +1346,7 @@ def mergeErrors (s : ParserState) (oldStackSize : Nat) (oldError : Error) : Pars
 
 def keepLatest (s : ParserState) (startStackSize : Nat) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, _⟩ =>
-    let node  := stack.back
-    let stack := stack.shrink startStackSize
-    let stack := stack.push node
-    ⟨stack, lhsPrec, pos, cache, none⟩
+  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨keepTop stack startStackSize, lhsPrec, pos, cache, none⟩
 
 def replaceLongest (s : ParserState) (startStackSize : Nat) : ParserState :=
   s.keepLatest startStackSize
@@ -1379,26 +1379,30 @@ def runLongestMatchParser (left? : Option Syntax) (startLhsPrec : Nat) (p : Pars
   match left? with
   | none      =>
     let s := p c s
-    if s.hasError then s
+    -- stack contains `[..., result ]`
+    if s.stackSize == startSize + 1 then
+      s -- success or error with the expected number of nodes
+    else if s.hasError then
+      -- error with an unexpected number of nodes.
+      s.shrinkStack startSize |>.pushSyntax Syntax.missing
     else
-      -- stack contains `[..., result ]`
-      if s.stackSize == startSize + 1 then
-        s
-      else
-        invalidLongestMatchParser s
+      -- parser succeded with incorrect number of nodes
+      invalidLongestMatchParser s
   | some left =>
     let s         := s.pushSyntax left
     let s         := p c s
-    if s.hasError then s
+    -- stack contains `[..., left, result ]` we must remove `left`
+    if s.stackSize == startSize + 2 then
+      -- `p` created one node, then we just remove `left` and keep it
+      let r := s.stxStack.back
+      let s := s.shrinkStack startSize -- remove `r` and `left`
+      s.pushSyntax r -- add `r` back
+    else if s.hasError then
+      -- error with an unexpected number of nodes
+      s.shrinkStack startSize |>.pushSyntax Syntax.missing
     else
-      -- stack contains `[..., left, result ]` we must remove `left`
-      if s.stackSize == startSize + 2 then
-        -- `p` created one node, then we just remove `left` and keep it
-        let r := s.stxStack.back
-        let s := s.shrinkStack startSize -- remove `r` and `left`
-        s.pushSyntax r -- add `r` back
-      else
-        invalidLongestMatchParser s
+      -- parser succeded with incorrect number of nodes
+      invalidLongestMatchParser s
 
 def longestMatchStep (left? : Option Syntax) (startSize startLhsPrec : Nat) (startPos : String.Pos) (prevPrio : Nat) (prio : Nat) (p : ParserFn)
     : ParserContext → ParserState → ParserState × Nat := fun c s =>
@@ -1417,7 +1421,7 @@ def longestMatchStep (left? : Option Syntax) (startSize startLhsPrec : Nat) (sta
   | none, some _ => -- prev succeeded, current failed
     ({ s.restore prevSize prevStopPos with lhsPrec := prevLhsPrec }, prevPrio)
   | some oldError, some _ => -- both failed
-    if s.pos > prevStopPos || (s.pos == prevStopPos && prio > prevPrio)      then (s.keepNewError prevSize, prio)
+    if s.pos > prevStopPos || (s.pos == prevStopPos && prio > prevPrio)      then (s.keepNewError startSize, prio)
     else if s.pos < prevStopPos || (s.pos == prevStopPos && prio < prevPrio) then (s.keepPrevError prevSize prevStopPos prevErrorMsg, prevPrio)
     else (s.mergeErrors prevSize oldError, prio)
   | some _, none => -- prev failed, current succeeded

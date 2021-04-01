@@ -1,5 +1,6 @@
 348.lean:3:24: error: expected ')'
-348.lean:2:2-2:47: error: application type mismatch
+348.lean:3:8-3:24: error: unexpected parentheses notation
+348.lean:3:2-3:24: error: application type mismatch
   pure PUnit.unit
 argument
   PUnit.unit

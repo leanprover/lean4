@@ -31,7 +31,7 @@ where
           indPatterns := indPatterns.push (← `(_))
         let mut ctorArgs1 := #[]
         let mut ctorArgs2 := #[]
-        let mut rhs ← `(Ordering.EQ)
+        let mut rhs ← `(Ordering.eq)
         -- add `_` for inductive parameters, they are inaccessible
         for i in [:indVal.numParams] do
           ctorArgs1 := ctorArgs1.push (← `(_))
@@ -47,18 +47,18 @@ where
             let b := mkIdent (← mkFreshUserName `b)
             ctorArgs1 := ctorArgs1.push a
             ctorArgs2 := ctorArgs2.push b
-            rhs ← `(match cmp $a:ident $b:ident with
-                    | Ordering.LT => Ordering.LT
-                    | Ordering.GT => Ordering.GT
-                    | Ordering.EQ => $rhs)
+            rhs ← `(match compare $a:ident $b:ident with
+                    | Ordering.lt => Ordering.lt
+                    | Ordering.gt => Ordering.gt
+                    | Ordering.eq => $rhs)
         let lPat ← `(@$(mkIdent ctorName):ident $ctorArgs1.reverse:term*)
         let rPat ← `(@$(mkIdent ctorName):ident $ctorArgs2.reverse:term*)
         let patterns := indPatterns ++ #[lPat, rPat]
         let ltPatterns := indPatterns ++ #[lPat, ←`(_)]
         let gtPatterns := indPatterns ++ #[←`(_), rPat]
         #[←`(matchAltExpr| | $[$(patterns):term],* => $rhs:term),
-          ←`(matchAltExpr| | $[$(ltPatterns):term],* => Ordering.LT),
-          ←`(matchAltExpr| | $[$(gtPatterns):term],* => Ordering.GT)]
+          ←`(matchAltExpr| | $[$(ltPatterns):term],* => Ordering.lt),
+          ←`(matchAltExpr| | $[$(gtPatterns):term],* => Ordering.gt)]
       alts := alts ++ alt
     return alts.pop.pop
 

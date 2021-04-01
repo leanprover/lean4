@@ -69,14 +69,15 @@ def ppExpr (ctx : PPContext) (e : Expr) : IO Format := do
         pure f!"failed to pretty print expression (use 'set_option pp.rawOnError true' for raw representation)"
 
 def ppTerm (ctx : PPContext) (stx : Syntax) : IO Format :=
+  let fmtRaw := fun () => stx.formatStx (some <| pp.raw.maxDepth.get ctx.opts) (pp.raw.showInfo.get ctx.opts)
   if pp.raw.get ctx.opts then
-    return stx.formatStx (some <| pp.raw.maxDepth.get ctx.opts) (pp.raw.showInfo.get ctx.opts)
+    return fmtRaw ()
   else
     try
       ppExt.getState ctx.env |>.ppTerm ctx stx
     catch ex =>
       if pp.rawOnError.get ctx.opts then
-        pure f!"[Error pretty printing syntax: {ex}. Falling back to raw printer.]{Format.line}{stx}"
+        pure f!"[Error pretty printing syntax: {ex}. Falling back to raw printer.]{Format.line}{fmtRaw ()}"
       else
         pure f!"failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)"
 

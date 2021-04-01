@@ -25,10 +25,10 @@ where
       let ctorInfo ← getConstInfoCtor ctorName
       let alt ← forallTelescopeReducing ctorInfo.type fun xs type => do
         let type ← Core.betaReduce type -- we 'beta-reduce' to eliminate "artificial" dependencies
-        let mut patterns := #[]
+        let mut indPatterns := #[]
         -- add `_` pattern for indices
         for i in [:indVal.numIndices] do
-          patterns := patterns.push (← `(_))
+          indPatterns := indPatterns.push (← `(_))
         let mut ctorArgs1 := #[]
         let mut ctorArgs2 := #[]
         let mut rhs ← `(Ordering.EQ)
@@ -51,11 +51,14 @@ where
                     | Ordering.LT => Ordering.LT
                     | Ordering.GT => Ordering.GT
                     | Ordering.EQ => $rhs)
-        patterns := patterns.push (← `(@$(mkIdent ctorName):ident $ctorArgs1.reverse:term*))
-        patterns := patterns.push (← `(@$(mkIdent ctorName):ident $ctorArgs2.reverse:term*))
-        #[←`(matchAltExpr| | $[$patterns:term],* => $rhs:term),
-          ←`(matchAltExpr| | @$(mkIdent ctorName):ident $ctorArgs1.reverse:term*, _ => Ordering.LT),
-          ←`(matchAltExpr| | _, @$(mkIdent ctorName):ident $ctorArgs2.reverse:term* => Ordering.GT)]
+        let lPat ← `(@$(mkIdent ctorName):ident $ctorArgs1.reverse:term*)
+        let rPat ← `(@$(mkIdent ctorName):ident $ctorArgs2.reverse:term*)
+        let patterns := indPatterns ++ #[lPat, rPat]
+        let ltPatterns := indPatterns ++ #[lPat, ←`(_)]
+        let gtPatterns := indPatterns ++ #[←`(_), rPat]
+        #[←`(matchAltExpr| | $[$(patterns):term],* => $rhs:term),
+          ←`(matchAltExpr| | $[$(ltPatterns):term],* => Ordering.LT),
+          ←`(matchAltExpr| | $[$(gtPatterns):term],* => Ordering.GT)]
       alts := alts ++ alt
     return alts.pop.pop
 

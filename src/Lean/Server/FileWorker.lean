@@ -366,7 +366,9 @@ section RequestHandling
 
   open Elab in open Meta in
   private partial def findCompletions? (doc : EditableDocument) (hoverPos : String.Pos) (infoTree : InfoTree) : IO (Option CompletionList) := do
-    if let some (ctx, Info.ofDotCompletionInfo info) := infoTree.foldInfo (init := none) choose then
+    let fileMap := doc.meta.text
+    let ⟨hoverLine, _⟩ := fileMap.toPosition hoverPos
+    if let some (ctx, Info.ofDotCompletionInfo info) := infoTree.foldInfo (init := none) (choose fileMap hoverLine) then
       info.runMetaM ctx do
         let type ← instantiateMVars (← inferType info.expr)
         match type.getAppFn with
@@ -381,17 +383,20 @@ section RequestHandling
     else
       return none
   where
-    choose (ctx : ContextInfo) (info : Info) (best? : Option (ContextInfo × Info)) : Option (ContextInfo × Info) :=
+    choose (fileMap : FileMap) (hoverLine : Nat) (ctx : ContextInfo) (info : Info) (best? : Option (ContextInfo × Info)) : Option (ContextInfo × Info) :=
       if !info.isDotCompletion then best?
       else if let some d := info.occursBefore? hoverPos then
-        match best? with
-        | none => return (ctx, info)
-        | some (_, best) =>
-          let dBest := best.occursBefore? hoverPos |>.get!
-          if d < dBest || (d == dBest && info.isSmaller best) then
-            return (ctx, info)
-          else
-            best?
+        let pos := info.tailPos?.get!
+        let ⟨line, _⟩ := fileMap.toPosition pos
+        if line != hoverLine then best?
+        else match best? with
+          | none => return (ctx, info)
+          | some (_, best) =>
+            let dBest := best.occursBefore? hoverPos |>.get!
+            if d < dBest || (d == dBest && info.isSmaller best) then
+              return (ctx, info)
+            else
+              best?
       else
         best?
 

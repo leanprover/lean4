@@ -17799,7 +17799,7 @@ static lean_object* _init_l_term___u2228_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ∨   ");
+x_1 = lean_mk_string(" ∨  ");
 return x_1;
 }
 }

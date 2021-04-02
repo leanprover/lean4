@@ -18,6 +18,7 @@ import Lean.Server.Snapshots
 import Lean.Server.Utils
 import Lean.Server.AsyncList
 import Lean.Server.InfoUtils
+import Lean.Server.Completion
 
 /-!
 For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.
@@ -372,10 +373,12 @@ section RequestHandling
     let pos := text.lspPosToUtf8Pos p.position
     withWaitFindSnap doc (fun s => s.endPos > pos)
       (notFoundX := pure { items := #[], isIncomplete := true }) fun snap => do
-        for t in snap.toCmdState.infoState.trees do
-          if let some (ci, i) := t.hoverableInfoAt? pos then
-            return { items := #[], isIncomplete := true }  -- TODO
-        return { items := #[], isIncomplete := true }
+        for infoTree in snap.toCmdState.infoState.trees do
+          for (ctx, info) in infoTree.getDotCompletionInfos do
+             dbg_trace "{← info.format ctx}"
+          if let some r ← Completion.find? doc.meta.text pos infoTree then
+            return r
+        return { items := #[ ], isIncomplete := true }
 
   open Elab in
   partial def handleHover (p : HoverParams)

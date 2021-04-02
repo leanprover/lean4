@@ -306,22 +306,27 @@ builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermEl
   Example: `a.foo[i].1` is represented as the `Syntax` `a` and the list
   `[LVal.fieldName "foo", LVal.getOp i, LVal.fieldIdx 1]`.
   Recall that the notation `a[i]` is not just for accessing arrays in Lean. -/
-  inductive LVal where
+inductive LVal where
   | fieldIdx  (ref : Syntax) (i : Nat)
-    /- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierachical/composite name. -/
-  | fieldName (ref : Syntax) (name : String) (suffix? : Option Name)
+    /- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierachical/composite name.
+       `ref` is the syntax object representing the field only. `stx` contains the object + field -/
+  | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (stx : Syntax)
   | getOp     (ref : Syntax) (idx : Syntax)
 
 def LVal.getRef : LVal → Syntax
   | LVal.fieldIdx ref _    => ref
-  | LVal.fieldName ref _ _ => ref
+  | LVal.fieldName ref ..  => ref
   | LVal.getOp ref _       => ref
+
+def LVal.isFieldName : LVal → Bool
+  | LVal.fieldName .. => true
+  | _ => false
 
 instance : ToString LVal where
   toString
-    | LVal.fieldIdx _ i    => toString i
-    | LVal.fieldName _ n _ => n
-    | LVal.getOp _ idx     => "[" ++ toString idx ++ "]"
+    | LVal.fieldIdx _ i     => toString i
+    | LVal.fieldName _ n .. => n
+    | LVal.getOp _ idx      => "[" ++ toString idx ++ "]"
 
 def getDeclName? : TermElabM (Option Name) := return (← read).declName?
 def getLetRecsToLift : TermElabM (List LetRecToLift) := return (← get).letRecsToLift
@@ -1069,6 +1074,10 @@ def mkTermInfo (stx : Syntax) (e : Expr) : TermElabM (Sum Info MVarId) := do
   | none        => return Sum.inl <| Info.ofTermInfo { lctx := (← getLCtx), expr := e, stx := stx }
   | some mvarId => return Sum.inr mvarId
 
+/-- Store in the `InfoTree` that `e` is a "dot"-completion target. -/
+def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr) (field? : Option Syntax := none) : TermElabM Unit := do
+  pushInfoLeaf <| Info.ofDotCompletionInfo { expr := e, stx := stx, lctx := (← getLCtx), field? := field?, expectedType? := expectedType? }
+
 /--
   Main function for elaborating terms.
   It extracts the elaboration methods from the environment using the node kind.
@@ -1220,6 +1229,15 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
 
 @[builtinTermElab «type»] def elabTypeStx : TermElab := fun stx _ =>
   return mkSort (mkLevelSucc (← elabOptLevel stx[1]))
+
+@[builtinTermElab «completion»] def elabCompletion : TermElab := fun stx expectedType? => do
+  let e ← elabTerm stx[0] none
+  unless e.isSorry do
+    addDotCompletionInfo stx e expectedType?
+  throwErrorAt stx[1] "invalid field notation, identifier or numeral expected"
+
+@[builtinTermElab «pipeCompletion»] def elabPipeCompletion : TermElab :=
+  elabCompletion
 
 @[builtinTermElab «hole»] def elabHole : TermElab := fun stx expectedType? => do
   let mvar ← mkFreshExprMVar expectedType?

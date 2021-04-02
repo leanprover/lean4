@@ -44,12 +44,23 @@ def Info.isTerm : Info → Bool
   | ofTermInfo _ => true
   | _ => false
 
+def Info.isDotCompletion : Info → Bool
+  | ofDotCompletionInfo .. => true
+  | _ => false
+
+def InfoTree.getDotCompletionInfos (infoTree : InfoTree) : Array (ContextInfo × DotCompletionInfo) :=
+  infoTree.foldInfo (init := #[]) fun ctx info result =>
+    match info with
+    | Info.ofDotCompletionInfo info => result.push (ctx, info)
+    | _ => result
+
 def Info.stx : Info → Syntax
   | ofTacticInfo i         => i.stx
   | ofTermInfo i           => i.stx
   | ofCommandInfo i        => i.stx
   | ofMacroExpansionInfo i => i.before
   | ofFieldInfo i          => i.stx
+  | ofDotCompletionInfo i  => i.stx
 
 def Info.pos? (i : Info) : Option String.Pos :=
   i.stx.getPos? (originalOnly := true)

@@ -547,7 +547,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
         return LValResolution.projIdx structName (idx - 1)
     else
       throwLValError e eType m!"invalid projection, structure has only {fieldNames.size} field(s)"
-  | some structName, LVal.fieldName _ fieldName _ =>
+  | some structName, LVal.fieldName _ fieldName _ _ =>
     let env ← getEnv
     let searchEnv : Unit → TermElabM LValResolution := fun _ => do
       match findMethod? env structName (Name.mkSimple fieldName) with
@@ -581,7 +581,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     match env.find? fullName with
     | some _ => pure $ LValResolution.getOp fullName idx
     | none   => throwLValError e eType m!"invalid [..] notation because environment does not contain '{fullName}'"
-  | none, LVal.fieldName _ _ (some suffix) =>
+  | none, LVal.fieldName _ _ (some suffix) _ =>
     if e.isConst then
       throwUnknownConstant (e.constName! ++ suffix)
     else
@@ -690,6 +690,8 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
   let rec loop : Expr → List LVal → TermElabM Expr
   | f, []          => elabAppArgs f namedArgs args expectedType? explicit ellipsis
   | f, lval::lvals => do
+    if let LVal.fieldName (ref := fieldStx) (stx := stx) .. := lval then
+      addDotCompletionInfo  stx f expectedType? fieldStx
     let (f, lvalRes) ← resolveLVal f lval
     match lvalRes with
     | LValResolution.projIdx structName idx =>
@@ -790,8 +792,8 @@ where
 
   toLVals : List Syntax → (first : Bool) → List LVal
     | [],            _     => []
-    | field::fields, true  => LVal.fieldName field field.getId.toString (toName (field::fields)) :: toLVals fields false
-    | field::fields, false => LVal.fieldName field field.getId.toString none :: toLVals fields false
+    | field::fields, true  => LVal.fieldName field field.getId.toString (toName (field::fields)) fIdent :: toLVals fields false
+    | field::fields, false => LVal.fieldName field field.getId.toString none fIdent :: toLVals fields false
 
 private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool) (acc : Array (TermElabResult Expr)) : TermElabM (Array (TermElabResult Expr)) :=
@@ -799,52 +801,53 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     -- Set `errToSorry` to `false` when processing choice nodes. See comment above about the interaction between `errToSorry` and `observing`.
     withReader (fun ctx => { ctx with errToSorry := false }) do
       f.getArgs.foldlM (fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit ellipsis true acc) acc
-  else match f with
-  | `($(e).$idxStx:fieldIdx) =>
-    let idx := idxStx.isFieldIdx?.get!
-    elabAppFn e (LVal.fieldIdx idxStx idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
-  | `($e |>. $field) => do
-     let f ← `($(e).$field)
-     elabAppFn f lvals namedArgs args expectedType? explicit ellipsis overloaded acc
-  | `($(e).$field:ident) =>
-    let newLVals := field.getId.eraseMacroScopes.components.map fun n =>
+  else
+    let elabFieldName (e field : Syntax) := do
+      let newLVals := field.getId.eraseMacroScopes.components.map fun n =>
       -- We use `none` here since `field` can't be part of a composite name
-      LVal.fieldName field (toString n) none
-    elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
-  | `($e[%$bracket $idx]) =>
-    elabAppFn e (LVal.getOp bracket idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
-  | `($id:ident@$t:term) =>
-    throwError "unexpected occurrence of named pattern"
-  | `($id:ident) => do
-    elabAppFnId id [] lvals namedArgs args expectedType? explicit ellipsis overloaded acc
-  | `($id:ident.{$us,*}) => do
-    let us ← elabExplicitUnivs us
-    elabAppFnId id us lvals namedArgs args expectedType? explicit ellipsis overloaded acc
-  | `(@$id:ident) =>
-    elabAppFn id lvals namedArgs args expectedType? (explicit := true) ellipsis overloaded acc
-  | `(@$id:ident.{$us,*}) =>
-    elabAppFn (f.getArg 1) lvals namedArgs args expectedType? (explicit := true) ellipsis overloaded acc
-  | `(@$t)     => throwUnsupportedSyntax -- invalid occurrence of `@`
-  | `(_)       => throwError "placeholders '_' cannot be used where a function is expected"
-  | _ => do
-    let catchPostpone := !overloaded
-    /- If we are processing a choice node, then we should use `catchPostpone == false` when elaborating terms.
-       Recall that `observing` does not catch `postponeExceptionId`. -/
-    if lvals.isEmpty && namedArgs.isEmpty && args.isEmpty then
-      /- Recall that elabAppFn is used for elaborating atomics terms **and** choice nodes that may contain
-         arbitrary terms. If they are not being used as a function, we should elaborate using the expectedType. -/
-      let s ←
-        if overloaded then
-          observing <| elabTermEnsuringType f expectedType? catchPostpone
-        else
-          observing <| elabTerm f expectedType?
-      return acc.push s
-    else
-      let s ← observing do
-        let f ← elabTerm f none catchPostpone
-        let e ← elabAppLVals f lvals namedArgs args expectedType? explicit ellipsis
-        if overloaded then ensureHasType expectedType? e else pure e
-      return acc.push s
+      LVal.fieldName field (toString n) none f
+      elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
+    let elabFieldIdx (e idxStx : Syntax) := do
+      let idx := idxStx.isFieldIdx?.get!
+      elabAppFn e (LVal.fieldIdx idxStx idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
+    match f with
+    | `($(e).$idx:fieldIdx) => elabFieldIdx e idx
+    | `($e |>. $idx:fieldIdx) => elabFieldIdx e idx
+    | `($(e).$field:ident) => elabFieldName e field
+    | `($e |>. $field:ident) => elabFieldName e field
+    | `($e[%$bracket $idx]) => elabAppFn e (LVal.getOp bracket idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
+    | `($id:ident@$t:term) =>
+      throwError "unexpected occurrence of named pattern"
+    | `($id:ident) => do
+      elabAppFnId id [] lvals namedArgs args expectedType? explicit ellipsis overloaded acc
+    | `($id:ident.{$us,*}) => do
+      let us ← elabExplicitUnivs us
+      elabAppFnId id us lvals namedArgs args expectedType? explicit ellipsis overloaded acc
+    | `(@$id:ident) =>
+      elabAppFn id lvals namedArgs args expectedType? (explicit := true) ellipsis overloaded acc
+    | `(@$id:ident.{$us,*}) =>
+      elabAppFn (f.getArg 1) lvals namedArgs args expectedType? (explicit := true) ellipsis overloaded acc
+    | `(@$t)     => throwUnsupportedSyntax -- invalid occurrence of `@`
+    | `(_)       => throwError "placeholders '_' cannot be used where a function is expected"
+    | _ => do
+      let catchPostpone := !overloaded
+      /- If we are processing a choice node, then we should use `catchPostpone == false` when elaborating terms.
+        Recall that `observing` does not catch `postponeExceptionId`. -/
+      if lvals.isEmpty && namedArgs.isEmpty && args.isEmpty then
+        /- Recall that elabAppFn is used for elaborating atomics terms **and** choice nodes that may contain
+          arbitrary terms. If they are not being used as a function, we should elaborate using the expectedType. -/
+        let s ←
+          if overloaded then
+            observing <| elabTermEnsuringType f expectedType? catchPostpone
+          else
+            observing <| elabTerm f expectedType?
+        return acc.push s
+      else
+        let s ← observing do
+          let f ← elabTerm f none catchPostpone
+          let e ← elabAppLVals f lvals namedArgs args expectedType? explicit ellipsis
+          if overloaded then ensureHasType expectedType? e else pure e
+        return acc.push s
 
 private def isSuccess (candidate : TermElabResult Expr) : Bool :=
   match candidate with

@@ -37,6 +37,10 @@ structure CommandInfo where
   stx : Syntax
   deriving Inhabited
 
+structure DotCompletionInfo extends TermInfo where
+  field?        : Option Syntax := none
+  expectedType? : Option Expr
+
 structure FieldInfo where
   name : Name
   lctx : LocalContext
@@ -67,6 +71,7 @@ inductive Info where
   | ofCommandInfo (i : CommandInfo)
   | ofMacroExpansionInfo (i : MacroExpansionInfo)
   | ofFieldInfo (i : FieldInfo)
+  | ofDotCompletionInfo (i : DotCompletionInfo)
   deriving Inhabited
 
 inductive InfoTree where
@@ -171,6 +176,7 @@ def Info.format (cinfo : ContextInfo) : Info → IO Format
   | ofCommandInfo i        => i.format cinfo
   | ofMacroExpansionInfo i => i.format cinfo
   | ofFieldInfo i          => i.format cinfo
+  | ofDotCompletionInfo i  => return f!"[.] {← i.format cinfo}"
 
 partial def InfoTree.format (tree : InfoTree) (cinfo? : Option ContextInfo := none) : IO Format := do
   match tree with

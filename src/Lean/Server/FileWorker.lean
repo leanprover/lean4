@@ -364,6 +364,10 @@ section RequestHandling
      Requests need to manually check for whether their task has been cancelled, so that they
      can reply with a RequestCancelled error. -/
 
+  private def isBlackListedForCompletion (declName : Name) : MetaM Bool := do
+    let env ← getEnv
+    return isAuxRecursor env declName || isNoConfusion env declName
+
   open Elab in open Meta in
   private partial def findCompletions? (doc : EditableDocument) (hoverPos : String.Pos) (infoTree : InfoTree) : IO (Option CompletionList) := do
     let fileMap := doc.meta.text
@@ -375,9 +379,12 @@ section RequestHandling
         | Expr.const name .. =>
           let candidates := (← getEnv).constants.fold (init := #[]) fun candidates declName declInfo =>
             if !declName.isInternal && declName.getPrefix == name then candidates.push declInfo else candidates
-          let items : Array CompletionItem ← candidates.mapM fun cinfo => do
-            let detail ← Meta.ppExpr cinfo.type
-            return { label := cinfo.name.getString!, detail? := some (toString detail), documentation? := none }
+          let items : Array CompletionItem ← candidates.filterMapM fun cinfo => do
+            if (← isBlackListedForCompletion cinfo.name) then
+              return none
+            else
+              let detail ← Meta.ppExpr cinfo.type
+              return some { label := cinfo.name.getString!, detail? := some (toString detail), documentation? := none }
           return some { items := items, isIncomplete := true }
         | _ => return none
     else

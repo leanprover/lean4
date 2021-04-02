@@ -1,0 +1,8 @@
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 1, "character": 2}}
+{"rendered": "```lean\nα : Sort ?u\n⊢ α → α\n```",
+ "goals": ["α : Sort ?u\n⊢ α → α"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 1, "character": 3}}
+{"rendered": "```lean\nα : Sort ?u\n⊢ α → α\n```",
+ "goals": ["α : Sort ?u\n⊢ α → α"]}

@@ -191,6 +191,10 @@ def getArrVal? : Json → Nat → Option Json
 def getObjValD (j : Json) (k : String) : Json :=
   (j.getObjVal? k).getD null
 
+def setObjVal! : Json → String → Json → Json
+  | obj kvs, k, v => obj <| kvs.insert strLt k v
+  | j      , _, _ => panic! "Json.setObjVal!: not an object: {j}"
+
 inductive Structured where
   | arr (elems : Array Json)
   | obj (kvPairs : RBNode String (fun _ => Json))

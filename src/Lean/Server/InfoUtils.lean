@@ -169,7 +169,7 @@ partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : List Goal
         | failure
       let trailSize := i.stx.getTrailingSize
       guard <| pos ≤ hoverPos ∧ hoverPos < tailPos + trailSize
-      return { ctxInfo := ctx, tacticInfo := ti, useAfter := hoverPos >= tailPos }
+      return { ctxInfo := ctx, tacticInfo := ti, useAfter := hoverPos > pos }
     | _, _ => none
 
 end Lean.Elab

@@ -364,6 +364,37 @@ section RequestHandling
      Requests need to manually check for whether their task has been cancelled, so that they
      can reply with a RequestCancelled error. -/
 
+  open Elab in open Meta in
+  private partial def findCompletions? (doc : EditableDocument) (hoverPos : String.Pos) (infoTree : InfoTree) : IO (Option CompletionList) := do
+    if let some (ctx, Info.ofDotCompletionInfo info) := infoTree.foldInfo (init := none) choose then
+      info.runMetaM ctx do
+        let type ← instantiateMVars (← inferType info.expr)
+        match type.getAppFn with
+        | Expr.const name .. =>
+          let candidates := (← getEnv).constants.fold (init := #[]) fun candidates declName declInfo =>
+            if !declName.isInternal && declName.getPrefix == name then candidates.push declInfo else candidates
+          let items : Array CompletionItem ← candidates.mapM fun cinfo => do
+            let detail ← Meta.ppExpr cinfo.type
+            return { label := cinfo.name.getString!, detail? := some (toString detail), documentation? := none }
+          return some { items := items, isIncomplete := true }
+        | _ => return none
+    else
+      return none
+  where
+    choose (ctx : ContextInfo) (info : Info) (best? : Option (ContextInfo × Info)) : Option (ContextInfo × Info) :=
+      if !info.isDotCompletion then best?
+      else if let some d := info.occursBefore? hoverPos then
+        match best? with
+        | none => return (ctx, info)
+        | some (_, best) =>
+          let dBest := best.occursBefore? hoverPos |>.get!
+          if d < dBest || (d == dBest && info.isSmaller best) then
+            return (ctx, info)
+          else
+            best?
+      else
+        best?
+
   partial def handleCompletion (p : CompletionParams) :
       ServerM (Task (Except IO.Error (Except RequestError CompletionList))) := do
     let st ← read
@@ -372,10 +403,10 @@ section RequestHandling
     let pos := text.lspPosToUtf8Pos p.position
     withWaitFindSnap doc (fun s => s.endPos > pos)
       (notFoundX := pure { items := #[], isIncomplete := true }) fun snap => do
-        for t in snap.toCmdState.infoState.trees do
-          if let some (ci, i) := t.hoverableInfoAt? pos then
-            return { items := #[], isIncomplete := true }  -- TODO
-        return { items := #[], isIncomplete := true }
+        for infoTree in snap.toCmdState.infoState.trees do
+          if let some r ← findCompletions? doc pos infoTree then
+            return r
+        return { items := #[ { label := "foo...", detail? := "bar", documentation? := none }], isIncomplete := true }
 
   open Elab in
   partial def handleHover (p : HoverParams)

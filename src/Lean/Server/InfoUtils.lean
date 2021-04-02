@@ -29,6 +29,21 @@ where go ctx?
       | _        => []
   | _ => []
 
+partial def InfoTree.foldInfo (f : ContextInfo → Info → α → α) (init : α) : InfoTree → α :=
+  go none init
+where go ctx? a
+  | context ctx t => go ctx a t
+  | node i ts =>
+    let a := match ctx? with
+      | none => a
+      | some ctx => f ctx i a
+    ts.foldl (init := a) (go ctx?)
+  | _ => a
+
+def Info.isTerm : Info → Bool
+  | ofTermInfo _ => true
+  | _ => false
+
 def Info.stx : Info → Syntax
   | ofTacticInfo i         => i.stx
   | ofTermInfo i           => i.stx
@@ -41,6 +56,23 @@ def Info.pos? (i : Info) : Option String.Pos :=
 
 def Info.tailPos? (i : Info) : Option String.Pos :=
   i.stx.getTailPos? (originalOnly := true)
+
+def Info.size? (i : Info) : Option Nat := OptionM.run do
+  let pos ← i.pos?
+  let tailPos ← i.tailPos?
+  return tailPos - pos
+
+-- `Info` without position information are considered to have "infinite" size
+def Info.isSmaller (i₁ i₂ : Info) : Bool :=
+  match i₁.size?, i₂.pos? with
+  | some sz₁, some sz₂ => sz₁ < sz₂
+  | some _, none => true
+  | _, _ => false
+
+def Info.occursBefore? (i : Info) (hoverPos : String.Pos) : Option Nat := OptionM.run do
+  let tailPos ← i.tailPos?
+  guard (tailPos ≤ hoverPos)
+  return hoverPos - tailPos
 
 def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextInfo × Info) :=
   let ts := t.deepestNodes fun ctx i => if p i then some (ctx, i) else none

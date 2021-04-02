@@ -133,8 +133,11 @@ where fmtPos pos info :=
     | SourceInfo.original ..  => pos
     | _                       => f!"{pos}†"
 
+def TermInfo.runMetaM (info : TermInfo) (ctx : ContextInfo) (x : MetaM α) : IO α :=
+  ctx.runMetaM info.lctx x
+
 def TermInfo.format (cinfo : ContextInfo) (info : TermInfo) : IO Format := do
-  cinfo.runMetaM info.lctx do
+  info.runMetaM cinfo do
     return f!"{← Meta.ppExpr info.expr} : {← Meta.ppExpr (← Meta.inferType info.expr)} @ {formatStxRange cinfo info.stx}"
 
 def CommandInfo.format (cinfo : ContextInfo) (info : CommandInfo) : IO Format := do

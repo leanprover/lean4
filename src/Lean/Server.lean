@@ -10,3 +10,4 @@ import Lean.Server.Snapshots
 import Lean.Server.FileSource
 import Lean.Server.Watchdog
 import Lean.Server.FileWorker
+import Lean.Server.Completion

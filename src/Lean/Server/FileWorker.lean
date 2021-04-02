@@ -18,6 +18,7 @@ import Lean.Server.Snapshots
 import Lean.Server.Utils
 import Lean.Server.AsyncList
 import Lean.Server.InfoUtils
+import Lean.Server.Completion
 
 /-!
 For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.
@@ -364,49 +365,6 @@ section RequestHandling
      Requests need to manually check for whether their task has been cancelled, so that they
      can reply with a RequestCancelled error. -/
 
-  private def isBlackListedForCompletion (declName : Name) : MetaM Bool := do
-    let env ← getEnv
-    return isAuxRecursor env declName || isNoConfusion env declName
-
-  open Elab in open Meta in
-  private partial def findCompletions? (doc : EditableDocument) (hoverPos : String.Pos) (infoTree : InfoTree) : IO (Option CompletionList) := do
-    let fileMap := doc.meta.text
-    let ⟨hoverLine, _⟩ := fileMap.toPosition hoverPos
-    if let some (ctx, Info.ofDotCompletionInfo info) := infoTree.foldInfo (init := none) (choose fileMap hoverLine) then
-      info.runMetaM ctx do
-        let type ← instantiateMVars (← inferType info.expr)
-        match type.getAppFn with
-        | Expr.const name .. =>
-          let candidates := (← getEnv).constants.fold (init := #[]) fun candidates declName declInfo =>
-            if !declName.isInternal && declName.getPrefix == name then candidates.push declInfo else candidates
-          let items : Array CompletionItem ← candidates.filterMapM fun cinfo => do
-            if (← isBlackListedForCompletion cinfo.name) then
-              return none
-            else
-              let detail ← Meta.ppExpr cinfo.type
-              return some { label := cinfo.name.getString!, detail? := some (toString detail), documentation? := none }
-          return some { items := items, isIncomplete := true }
-        | _ => return none
-    else
-      return none
-  where
-    choose (fileMap : FileMap) (hoverLine : Nat) (ctx : ContextInfo) (info : Info) (best? : Option (ContextInfo × Info)) : Option (ContextInfo × Info) :=
-      if !info.isDotCompletion then best?
-      else if let some d := info.occursBefore? hoverPos then
-        let pos := info.tailPos?.get!
-        let ⟨line, _⟩ := fileMap.toPosition pos
-        if line != hoverLine then best?
-        else match best? with
-          | none => return (ctx, info)
-          | some (_, best) =>
-            let dBest := best.occursBefore? hoverPos |>.get!
-            if d < dBest || (d == dBest && info.isSmaller best) then
-              return (ctx, info)
-            else
-              best?
-      else
-        best?
-
   partial def handleCompletion (p : CompletionParams) :
       ServerM (Task (Except IO.Error (Except RequestError CompletionList))) := do
     let st ← read
@@ -416,9 +374,11 @@ section RequestHandling
     withWaitFindSnap doc (fun s => s.endPos > pos)
       (notFoundX := pure { items := #[], isIncomplete := true }) fun snap => do
         for infoTree in snap.toCmdState.infoState.trees do
-          if let some r ← findCompletions? doc pos infoTree then
+          for (ctx, info) in infoTree.getDotCompletionInfos do
+             dbg_trace "{← info.format ctx}"
+          if let some r ← Completion.find? doc.meta.text pos infoTree then
             return r
-        return { items := #[ { label := "foo...", detail? := "bar", documentation? := none }], isIncomplete := true }
+        return { items := #[ ], isIncomplete := true }
 
   open Elab in
   partial def handleHover (p : HoverParams)

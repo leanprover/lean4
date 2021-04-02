@@ -1075,8 +1075,8 @@ def mkTermInfo (stx : Syntax) (e : Expr) : TermElabM (Sum Info MVarId) := do
   | some mvarId => return Sum.inr mvarId
 
 /-- Store in the `InfoTree` that `e` is a "dot"-completion target. -/
-def addDotCompletionInfo (stx : Syntax) (e : Expr) (field? : Option Syntax := none) : TermElabM Unit := do
-  pushInfoLeaf <| Info.ofDotCompletionInfo { expr := e, stx := stx, lctx := (← getLCtx), field? := field? }
+def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr) (field? : Option Syntax := none) : TermElabM Unit := do
+  pushInfoLeaf <| Info.ofDotCompletionInfo { expr := e, stx := stx, lctx := (← getLCtx), field? := field?, expectedType? := expectedType? }
 
 /--
   Main function for elaborating terms.
@@ -1230,10 +1230,10 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
 @[builtinTermElab «type»] def elabTypeStx : TermElab := fun stx _ =>
   return mkSort (mkLevelSucc (← elabOptLevel stx[1]))
 
-@[builtinTermElab «completion»] def elabCompletion : TermElab := fun stx _ => do
+@[builtinTermElab «completion»] def elabCompletion : TermElab := fun stx expectedType? => do
   let e ← elabTerm stx[0] none
   unless e.isSorry do
-    addDotCompletionInfo stx e
+    addDotCompletionInfo stx e expectedType?
   throwErrorAt stx[1] "invalid field notation, identifier or numeral expected"
 
 @[builtinTermElab «pipeCompletion»] def elabPipeCompletion : TermElab :=

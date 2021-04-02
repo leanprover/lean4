@@ -691,7 +691,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
   | f, []          => elabAppArgs f namedArgs args expectedType? explicit ellipsis
   | f, lval::lvals => do
     if let LVal.fieldName (ref := fieldStx) (stx := stx) .. := lval then
-      addDotCompletionInfo  stx f fieldStx
+      addDotCompletionInfo  stx f expectedType? fieldStx
     let (f, lvalRes) ← resolveLVal f lval
     match lvalRes with
     | LValResolution.projIdx structName idx =>

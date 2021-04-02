@@ -38,7 +38,8 @@ structure CommandInfo where
   deriving Inhabited
 
 structure DotCompletionInfo extends TermInfo where
-  field? : Option Syntax := none
+  field?        : Option Syntax := none
+  expectedType? : Option Expr
 
 structure FieldInfo where
   name : Name

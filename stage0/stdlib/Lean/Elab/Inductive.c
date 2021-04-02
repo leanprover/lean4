@@ -74,7 +74,6 @@ lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_mkInductiveDec
 lean_object* l_Lean_Elab_Command_instInhabitedInductiveView;
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_collectUniversesFromCtorTypeAux_match__1(lean_object*);
 lean_object* l_Lean_throwError___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_throwUnexpectedInductiveType___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Option_get___at_Lean_Elab_addMacroStack___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1095____closed__1;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_List_mapM___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_replaceIndFVarsWithConsts___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -265,6 +264,7 @@ lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_collectUnivers
 lean_object* l_Lean_Meta_withLetDecl___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabCtors_checkParamOccs___spec__10___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyDerivingHandlers___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_removeUnused___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at_Lean_ppExpr___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_mkBelow___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_mkAuxConstructions___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_mkInductiveDecl___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_transform_visit_visitLambda___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabCtors_checkParamOccs___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11136,7 +11136,7 @@ _start:
 lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_9 = lean_ctor_get(x_6, 0);
 x_10 = l_Lean_Elab_Command_bootstrap_inductiveCheckResultingUniverse;
-x_11 = l_Lean_Option_get___at_Lean_Elab_addMacroStack___spec__1(x_9, x_10);
+x_11 = l_Lean_Option_get___at_Lean_ppExpr___spec__1(x_9, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 

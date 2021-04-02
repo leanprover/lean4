@@ -9,20 +9,26 @@ import Lean.MetavarContext
 import Lean.Data.OpenDecl
 
 namespace Lean
-
-builtin_initialize
-  registerOption `pp.raw { defValue := false, group := "pp", descr := "(pretty printer) print raw expression/syntax tree" }
-  registerOption `pp.raw.showInfo { defValue := false, group := "pp", descr := "(pretty printer) print `SourceInfo` metadata with raw printer" }
-  registerOption `pp.raw.maxDepth { defValue := (32 : Nat), group := "pp", descr := "(pretty printer) maximum `Syntax` depth for raw printer" };
-
-def getSyntaxMaxDepth (opts : Options) : Nat :=
-  opts.getNat `pp.raw.maxDepth 32
-
-def getPPRaw (opts : Options) : Bool :=
-  opts.getBool `pp.raw false
-
-def getPPRawShowInfo (opts : Options) : Bool :=
-  opts.getBool `pp.raw.showInfo false
+register_builtin_option pp.raw : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) print raw expression/syntax tree"
+}
+register_builtin_option pp.raw.showInfo : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) print `SourceInfo` metadata with raw printer"
+}
+register_builtin_option pp.raw.maxDepth : Nat := {
+  defValue := 32
+  group    := "pp"
+  descr    := "(pretty printer) maximum `Syntax` depth for raw printer"
+}
+register_builtin_option pp.rawOnError : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) fallback to 'raw' printer when pretty printer fails"
+}
 
 structure PPContext where
   env           : Environment
@@ -42,7 +48,7 @@ instance : Inhabited PPFns := ⟨⟨arbitrary, arbitrary, arbitrary⟩⟩
 builtin_initialize ppFnsRef : IO.Ref PPFns ←
   IO.mkRef {
     ppExpr := fun ctx e      => return format (toString e),
-    ppTerm := fun ctx stx    => return stx.formatStx (getSyntaxMaxDepth ctx.opts)
+    ppTerm := fun ctx stx    => return stx.formatStx (some <| pp.raw.maxDepth.get ctx.opts)
     ppGoal := fun ctx mvarId => return "goal"
   }
 
@@ -51,22 +57,29 @@ builtin_initialize ppExt : EnvExtension PPFns ←
 
 def ppExpr (ctx : PPContext) (e : Expr) : IO Format := do
   let e := ctx.mctx.instantiateMVars e |>.1
-  if getPPRaw ctx.opts then
+  if pp.raw.get ctx.opts then
     return format (toString e)
   else
     try
       ppExt.getState ctx.env |>.ppExpr ctx e
     catch ex =>
-      pure f!"[Error pretty printing expression: {ex}. Falling back to raw printer.]{Format.line}{e}"
+      if pp.rawOnError.get ctx.opts then
+        pure f!"[Error pretty printing expression: {ex}. Falling back to raw printer.]{Format.line}{e}"
+      else
+        pure f!"failed to pretty print expression (use 'set_option pp.rawOnError true' for raw representation)"
 
 def ppTerm (ctx : PPContext) (stx : Syntax) : IO Format :=
-  if getPPRaw ctx.opts then
-    return stx.formatStx (getSyntaxMaxDepth ctx.opts) (getPPRawShowInfo ctx.opts)
+  let fmtRaw := fun () => stx.formatStx (some <| pp.raw.maxDepth.get ctx.opts) (pp.raw.showInfo.get ctx.opts)
+  if pp.raw.get ctx.opts then
+    return fmtRaw ()
   else
     try
       ppExt.getState ctx.env |>.ppTerm ctx stx
     catch ex =>
-      pure f!"[Error pretty printing syntax: {ex}. Falling back to raw printer.]{Format.line}{stx}"
+      if pp.rawOnError.get ctx.opts then
+        pure f!"[Error pretty printing syntax: {ex}. Falling back to raw printer.]{Format.line}{fmtRaw ()}"
+      else
+        pure f!"failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)"
 
 def ppGoal (ctx : PPContext) (mvarId : MVarId) : IO Format :=
     ppExt.getState ctx.env |>.ppGoal ctx mvarId

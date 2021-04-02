@@ -393,6 +393,7 @@ section MessageHandling
       tryWriteMessage uri ⟨id, method, parsedParams⟩ FileWorker.writeRequest
     match method with
     | "textDocument/waitForDiagnostics"   => handle WaitForDiagnosticsParams
+    | "textDocument/completion"           => handle CompletionParams
     | "textDocument/hover"                => handle HoverParams
     | "textDocument/declaration"          => handle DeclarationParams
     | "textDocument/definition"           => handle DefinitionParams
@@ -507,6 +508,10 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     willSaveWaitUntil := false
     save?             := none
   }
+  /- TODO: activate, refine
+  completionProvider? := some {
+    triggerCharacters? := some #["."]
+  } -/
   hoverProvider := true
   declarationProvider := true
   definitionProvider := true

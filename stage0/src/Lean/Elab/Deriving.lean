@@ -11,3 +11,4 @@ import Lean.Elab.Deriving.DecEq
 import Lean.Elab.Deriving.Repr
 import Lean.Elab.Deriving.FromToJson
 import Lean.Elab.Deriving.SizeOf
+import Lean.Elab.Deriving.Hashable

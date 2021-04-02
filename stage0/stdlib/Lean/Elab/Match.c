@@ -108,7 +108,6 @@ lean_object* l_Array_foldrMUnsafe_fold___at___private_Lean_Elab_Match_0__Lean_El
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAltViews_updateFirst_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Term_getPatternsVars___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_CollectPatternVars_throwCtorExpected___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Option_get___at_Lean_Elab_addMacroStack___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_CollectPatternVars_collect_processCtorAppCore___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1095____closed__1;
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabDiscrsWitMatchType___spec__1___lambda__2___closed__4;
@@ -417,6 +416,7 @@ lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_getDiscrs___boxed(lea
 lean_object* l_Lean_Elab_Term_CollectPatternVars_collect___closed__11;
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAltViews_collectDeps_match__1___rarg(lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at_Lean_ppExpr___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabMatch_elabMatchDefault___closed__1;
 lean_object* l_Lean_Elab_Term_CollectPatternVars_collect_processCtorAppContext_match__2(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -26820,7 +26820,7 @@ lean_object* x_11; lean_object* x_12; uint8_t x_13;
 x_11 = lean_ctor_get(x_8, 0);
 lean_inc(x_11);
 x_12 = l_Lean_Elab_Term_match_ignoreUnusedAlts;
-x_13 = l_Lean_Option_get___at_Lean_Elab_addMacroStack___spec__1(x_11, x_12);
+x_13 = l_Lean_Option_get___at_Lean_ppExpr___spec__1(x_11, x_12);
 lean_dec(x_11);
 if (x_13 == 0)
 {

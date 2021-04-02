@@ -221,8 +221,15 @@ def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserSta
   match s with
   | ⟨stack, lhsPrec, pos, cache, err⟩ =>
     if err != none && stack.size == iniStackSz then
-      -- If there is an error but there are no new nodes on the stack, we just return `s`
-      s
+      -- If there is an error but there are no new nodes on the stack, use `missing` instead.
+      -- Thus we ensure the property that an syntax tree contains (at least) one `missing` node
+      -- if (and only if) there was a parse error.
+      -- We should not create an actual node of kind `k` in this case because it would mean we
+      -- choose an "arbitrary" node (in practice the last one) in an alternative of the form
+      -- `node k1 p1 <|> ... <|> node kn pn` when all parsers fail. With the code below we
+      -- instead return a less misleading single `missing` node without randomly selecting any `ki`.
+      let stack   := stack.push Syntax.missing
+      ⟨stack, lhsPrec, pos, cache, err⟩
     else
       let newNode := Syntax.node k (stack.extract iniStackSz stack.size)
       let stack   := stack.shrink iniStackSz
@@ -248,13 +255,15 @@ def mkUnexpectedError (s : ParserState) (msg : String) : ParserState :=
 def mkEOIError (s : ParserState) : ParserState :=
   s.mkUnexpectedError "end of input"
 
-def mkErrorAt (s : ParserState) (msg : String) (pos : String.Pos) : ParserState :=
-  match s with
-  | ⟨stack, lhsPrec, _, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
+def mkErrorAt (s : ParserState) (msg : String) (pos : String.Pos) (initStackSz? : Option Nat := none) : ParserState :=
+  match s,  initStackSz? with
+  | ⟨stack, lhsPrec, _, cache, _⟩, none    => ⟨stack, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
+  | ⟨stack, lhsPrec, _, cache, _⟩, some sz => ⟨stack.shrink sz, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
 
-def mkErrorsAt (s : ParserState) (ex : List String) (pos : String.Pos) : ParserState :=
-  match s with
-  | ⟨stack, lhsPrec, _, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { expected := ex }⟩
+def mkErrorsAt (s : ParserState) (ex : List String) (pos : String.Pos) (initStackSz? : Option Nat := none) : ParserState :=
+  match s, initStackSz? with
+  | ⟨stack, lhsPrec, _, cache, _⟩, none    => ⟨stack, lhsPrec, pos, cache, some { expected := ex }⟩
+  | ⟨stack, lhsPrec, _, cache, _⟩, some sz => ⟨stack.shrink sz, lhsPrec, pos, cache, some { expected := ex }⟩
 
 def mkUnexpectedErrorAt (s : ParserState) (msg : String) (pos : String.Pos) : ParserState :=
   match s with
@@ -1091,14 +1100,15 @@ def rawIdentFn : ParserFn := fun c s =>
   else identFnAux i none Name.anonymous c s
 
 @[inline] def satisfySymbolFn (p : String → Bool) (expected : List String) : ParserFn := fun c s =>
+  let initStackSz := s.stackSize
   let startPos := s.pos
   let s        := tokenFn c s
   if s.hasError then
     s
   else
     match s.stxStack.back with
-    | Syntax.atom _ sym => if p sym then s else s.mkErrorsAt expected startPos
-    | _                 => s.mkErrorsAt expected startPos
+    | Syntax.atom _ sym => if p sym then s else s.mkErrorsAt expected startPos initStackSz
+    | _                 => s.mkErrorsAt expected startPos initStackSz
 
 def symbolFnAux (sym : String) (errorMsg : String) : ParserFn :=
   satisfySymbolFn (fun s => s == sym) [errorMsg]
@@ -1129,20 +1139,21 @@ def checkTailNoWs (prev : Syntax) : Bool :=
     it can still be used as an identifier outside of universes (but registering it
     as a token in a Term Syntax would not break the universe Parser). -/
 def nonReservedSymbolFnAux (sym : String) (errorMsg : String) : ParserFn := fun c s =>
+  let initStackSz := s.stackSize
   let startPos := s.pos
   let s := tokenFn c s
   if s.hasError then s
   else
     match s.stxStack.back with
     | Syntax.atom _ sym' =>
-      if sym == sym' then s else s.mkErrorAt errorMsg startPos
+      if sym == sym' then s else s.mkErrorAt errorMsg startPos initStackSz
     | Syntax.ident info rawVal _ _ =>
       if sym == rawVal.toString then
         let s := s.popSyntax
         s.pushSyntax (Syntax.atom info sym)
       else
-        s.mkErrorAt errorMsg startPos
-    | _ => s.mkErrorAt errorMsg startPos
+        s.mkErrorAt errorMsg startPos initStackSz
+    | _ => s.mkErrorAt errorMsg startPos initStackSz
 
 @[inline] def nonReservedSymbolFn (sym : String) : ParserFn :=
   nonReservedSymbolFnAux sym ("'" ++ sym ++ "'")
@@ -1234,9 +1245,10 @@ def mkAtomicInfo (k : String) : ParserInfo :=
 
 def numLitFn : ParserFn :=
   fun c s =>
+    let initStackSz := s.stackSize
     let iniPos := s.pos
     let s      := tokenFn c s
-    if !s.hasError && !(s.stxStack.back.isOfKind numLitKind) then s.mkErrorAt "numeral" iniPos else s
+    if !s.hasError && !(s.stxStack.back.isOfKind numLitKind) then s.mkErrorAt "numeral" iniPos initStackSz else s
 
 @[inline] def numLitNoAntiquot : Parser := {
   fn   := numLitFn,
@@ -1245,9 +1257,10 @@ def numLitFn : ParserFn :=
 
 def scientificLitFn : ParserFn :=
   fun c s =>
+    let initStackSz := s.stackSize
     let iniPos := s.pos
     let s      := tokenFn c s
-    if !s.hasError && !(s.stxStack.back.isOfKind scientificLitKind) then s.mkErrorAt "scientific number" iniPos else s
+    if !s.hasError && !(s.stxStack.back.isOfKind scientificLitKind) then s.mkErrorAt "scientific number" iniPos initStackSz else s
 
 @[inline] def scientificLitNoAntiquot : Parser := {
   fn   := scientificLitFn,
@@ -1255,9 +1268,10 @@ def scientificLitFn : ParserFn :=
 }
 
 def strLitFn : ParserFn := fun c s =>
+  let initStackSz := s.stackSize
   let iniPos := s.pos
   let s := tokenFn c s
-  if !s.hasError && !(s.stxStack.back.isOfKind strLitKind) then s.mkErrorAt "string literal" iniPos else s
+  if !s.hasError && !(s.stxStack.back.isOfKind strLitKind) then s.mkErrorAt "string literal" iniPos initStackSz else s
 
 @[inline] def strLitNoAntiquot : Parser := {
   fn   := strLitFn,
@@ -1265,9 +1279,10 @@ def strLitFn : ParserFn := fun c s =>
 }
 
 def charLitFn : ParserFn := fun c s =>
+  let initStackSz := s.stackSize
   let iniPos := s.pos
   let s := tokenFn c s
-  if !s.hasError && !(s.stxStack.back.isOfKind charLitKind) then s.mkErrorAt "character literal" iniPos else s
+  if !s.hasError && !(s.stxStack.back.isOfKind charLitKind) then s.mkErrorAt "character literal" iniPos initStackSz else s
 
 @[inline] def charLitNoAntiquot : Parser := {
   fn   := charLitFn,
@@ -1275,9 +1290,10 @@ def charLitFn : ParserFn := fun c s =>
 }
 
 def nameLitFn : ParserFn := fun c s =>
+  let initStackSz := s.stackSize
   let iniPos := s.pos
   let s := tokenFn c s
-  if !s.hasError && !(s.stxStack.back.isOfKind nameLitKind) then s.mkErrorAt "Name literal" iniPos else s
+  if !s.hasError && !(s.stxStack.back.isOfKind nameLitKind) then s.mkErrorAt "Name literal" iniPos initStackSz else s
 
 @[inline] def nameLitNoAntiquot : Parser := {
   fn   := nameLitFn,
@@ -1285,9 +1301,10 @@ def nameLitFn : ParserFn := fun c s =>
 }
 
 def identFn : ParserFn := fun c s =>
+  let initStackSz := s.stackSize
   let iniPos := s.pos
   let s      := tokenFn c s
-  if !s.hasError && !(s.stxStack.back.isIdent) then s.mkErrorAt "identifier" iniPos else s
+  if !s.hasError && !(s.stxStack.back.isIdent) then s.mkErrorAt "identifier" iniPos initStackSz else s
 
 @[inline] def identNoAntiquot : Parser := {
   fn   := identFn,
@@ -1299,13 +1316,14 @@ def identFn : ParserFn := fun c s =>
 }
 
 def identEqFn (id : Name) : ParserFn := fun c s =>
+  let initStackSz := s.stackSize
   let iniPos := s.pos
   let s      := tokenFn c s
   if s.hasError then
     s
   else match s.stxStack.back with
-    | Syntax.ident _ _ val _ => if val != id then s.mkErrorAt ("expected identifier '" ++ toString id ++ "'") iniPos else s
-    | _ => s.mkErrorAt "identifier" iniPos
+    | Syntax.ident _ _ val _ => if val != id then s.mkErrorAt ("expected identifier '" ++ toString id ++ "'") iniPos initStackSz else s
+    | _ => s.mkErrorAt "identifier" iniPos initStackSz
 
 @[inline] def identEq (id : Name) : Parser := {
   fn   := identEqFn id,
@@ -1314,9 +1332,13 @@ def identEqFn (id : Name) : ParserFn := fun c s =>
 
 namespace ParserState
 
+def keepTop (s : Array Syntax) (startStackSize : Nat) : Array Syntax :=
+  let node  := s.back
+  s.shrink startStackSize |>.push node
+
 def keepNewError (s : ParserState) (oldStackSize : Nat) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, err⟩ => ⟨stack.shrink oldStackSize, lhsPrec, pos, cache, err⟩
+  | ⟨stack, lhsPrec, pos, cache, err⟩ => ⟨keepTop stack oldStackSize, lhsPrec, pos, cache, err⟩
 
 def keepPrevError (s : ParserState) (oldStackSize : Nat) (oldStopPos : String.Pos) (oldError : Option Error) : ParserState :=
   match s with
@@ -1331,11 +1353,7 @@ def mergeErrors (s : ParserState) (oldStackSize : Nat) (oldError : Error) : Pars
 
 def keepLatest (s : ParserState) (startStackSize : Nat) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, _⟩ =>
-    let node  := stack.back
-    let stack := stack.shrink startStackSize
-    let stack := stack.push node
-    ⟨stack, lhsPrec, pos, cache, none⟩
+  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨keepTop stack startStackSize, lhsPrec, pos, cache, none⟩
 
 def replaceLongest (s : ParserState) (startStackSize : Nat) : ParserState :=
   s.keepLatest startStackSize
@@ -1368,26 +1386,30 @@ def runLongestMatchParser (left? : Option Syntax) (startLhsPrec : Nat) (p : Pars
   match left? with
   | none      =>
     let s := p c s
-    if s.hasError then s
+    -- stack contains `[..., result ]`
+    if s.stackSize == startSize + 1 then
+      s -- success or error with the expected number of nodes
+    else if s.hasError then
+      -- error with an unexpected number of nodes.
+      s.shrinkStack startSize |>.pushSyntax Syntax.missing
     else
-      -- stack contains `[..., result ]`
-      if s.stackSize == startSize + 1 then
-        s
-      else
-        invalidLongestMatchParser s
+      -- parser succeded with incorrect number of nodes
+      invalidLongestMatchParser s
   | some left =>
     let s         := s.pushSyntax left
     let s         := p c s
-    if s.hasError then s
+    -- stack contains `[..., left, result ]` we must remove `left`
+    if s.stackSize == startSize + 2 then
+      -- `p` created one node, then we just remove `left` and keep it
+      let r := s.stxStack.back
+      let s := s.shrinkStack startSize -- remove `r` and `left`
+      s.pushSyntax r -- add `r` back
+    else if s.hasError then
+      -- error with an unexpected number of nodes
+      s.shrinkStack startSize |>.pushSyntax Syntax.missing
     else
-      -- stack contains `[..., left, result ]` we must remove `left`
-      if s.stackSize == startSize + 2 then
-        -- `p` created one node, then we just remove `left` and keep it
-        let r := s.stxStack.back
-        let s := s.shrinkStack startSize -- remove `r` and `left`
-        s.pushSyntax r -- add `r` back
-      else
-        invalidLongestMatchParser s
+      -- parser succeded with incorrect number of nodes
+      invalidLongestMatchParser s
 
 def longestMatchStep (left? : Option Syntax) (startSize startLhsPrec : Nat) (startPos : String.Pos) (prevPrio : Nat) (prio : Nat) (p : ParserFn)
     : ParserContext → ParserState → ParserState × Nat := fun c s =>
@@ -1406,7 +1428,7 @@ def longestMatchStep (left? : Option Syntax) (startSize startLhsPrec : Nat) (sta
   | none, some _ => -- prev succeeded, current failed
     ({ s.restore prevSize prevStopPos with lhsPrec := prevLhsPrec }, prevPrio)
   | some oldError, some _ => -- both failed
-    if s.pos > prevStopPos || (s.pos == prevStopPos && prio > prevPrio)      then (s.keepNewError prevSize, prio)
+    if s.pos > prevStopPos || (s.pos == prevStopPos && prio > prevPrio)      then (s.keepNewError startSize, prio)
     else if s.pos < prevStopPos || (s.pos == prevStopPos && prio < prevPrio) then (s.keepPrevError prevSize prevStopPos prevErrorMsg, prevPrio)
     else (s.mergeErrors prevSize oldError, prio)
   | some _, none => -- prev failed, current succeeded
@@ -1913,13 +1935,14 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) (s : 
     trailingLoop tables c s
 
 def fieldIdxFn : ParserFn := fun c s =>
+  let initStackSz := s.stackSize
   let iniPos := s.pos
   let curr     := c.input.get iniPos
   if curr.isDigit && curr != '0' then
     let s     := takeWhileFn (fun c => c.isDigit) c s
     mkNodeToken fieldIdxKind iniPos c s
   else
-    s.mkErrorAt "field index" iniPos
+    s.mkErrorAt "field index" iniPos initStackSz
 
 @[inline] def fieldIdx : Parser :=
   withAntiquot (mkAntiquot "fieldIdx" `fieldIdx) {

@@ -27,6 +27,7 @@ lean_object* l_Lean_MetavarContext_addLevelMVarDecl(lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Elab_Level_instMonadOptionsLevelElabM___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___closed__4;
 size_t l_USize_sub(size_t, size_t);
+lean_object* l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_180____spec__1(lean_object*, lean_object*);
 lean_object* l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkFreshId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1(lean_object*);
@@ -65,7 +66,6 @@ lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_Level_addOffsetAux(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__5(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Option_get___at_Lean_Core_getMaxHeartbeats___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___lambda__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___closed__2;
 lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Level_elabLevel___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -812,7 +812,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = l_Lean_Elab_Level_maxUniverseOffset;
-x_6 = l_Lean_Option_get___at_Lean_Core_getMaxHeartbeats___spec__1(x_4, x_5);
+x_6 = l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_180____spec__1(x_4, x_5);
 x_7 = lean_nat_dec_le(x_1, x_6);
 if (x_7 == 0)
 {
@@ -956,7 +956,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = l_Lean_Elab_Level_maxUniverseOffset;
-x_6 = l_Lean_Option_get___at_Lean_Core_getMaxHeartbeats___spec__1(x_4, x_5);
+x_6 = l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_180____spec__1(x_4, x_5);
 x_7 = lean_nat_dec_le(x_1, x_6);
 if (x_7 == 0)
 {

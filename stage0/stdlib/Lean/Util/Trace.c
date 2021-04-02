@@ -37,7 +37,6 @@ lean_object* l_Std_PersistentArray_get_x21___at___private_Lean_Util_Trace_0__Lea
 lean_object* l___private_Lean_Util_Trace_0__Lean_withNestedTracesFinalizer___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__3;
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_traceCtx___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_sub(size_t, size_t);
@@ -56,6 +55,7 @@ lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Util_Trace_0__Lean_addNo
 extern lean_object* l_Lean_MessageData_nil;
 lean_object* l_Lean_termTrace_x5b_____x5d____;
 lean_object* l_Std_PersistentArray_getAux___at___private_Lean_Util_Trace_0__Lean_TraceState_toFormat___spec__2___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_registerTraceClass___closed__3;
 lean_object* l_Lean_enableTracing___rarg(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_1027____closed__1;
 lean_object* l_Lean_traceCtx___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -2462,18 +2462,28 @@ return x_2;
 static lean_object* _init_l_Lean_registerTraceClass___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("enable/disable tracing for the given module and submodules");
-return x_1;
+uint8_t x_1; lean_object* x_2; 
+x_1 = 0;
+x_2 = lean_alloc_ctor(1, 0, 1);
+lean_ctor_set_uint8(x_2, 0, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_registerTraceClass___closed__2() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string("enable/disable tracing for the given module and submodules");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_registerTraceClass___closed__3() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__3;
+x_1 = l_Lean_registerTraceClass___closed__1;
 x_2 = l_Lean_checkTraceOption___closed__1;
-x_3 = l_Lean_registerTraceClass___closed__1;
+x_3 = l_Lean_registerTraceClass___closed__2;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -2487,7 +2497,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = l_Lean_checkTraceOption___closed__2;
 x_4 = l_Lean_Name_append(x_3, x_1);
-x_5 = l_Lean_registerTraceClass___closed__2;
+x_5 = l_Lean_registerTraceClass___closed__3;
 x_6 = lean_register_option(x_4, x_5, x_2);
 return x_6;
 }
@@ -3926,6 +3936,8 @@ l_Lean_registerTraceClass___closed__1 = _init_l_Lean_registerTraceClass___closed
 lean_mark_persistent(l_Lean_registerTraceClass___closed__1);
 l_Lean_registerTraceClass___closed__2 = _init_l_Lean_registerTraceClass___closed__2();
 lean_mark_persistent(l_Lean_registerTraceClass___closed__2);
+l_Lean_registerTraceClass___closed__3 = _init_l_Lean_registerTraceClass___closed__3();
+lean_mark_persistent(l_Lean_registerTraceClass___closed__3);
 l_Lean_termTrace_x5b_____x5d_______closed__1 = _init_l_Lean_termTrace_x5b_____x5d_______closed__1();
 lean_mark_persistent(l_Lean_termTrace_x5b_____x5d_______closed__1);
 l_Lean_termTrace_x5b_____x5d_______closed__2 = _init_l_Lean_termTrace_x5b_____x5d_______closed__2();

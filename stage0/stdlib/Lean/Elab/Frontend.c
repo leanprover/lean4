@@ -24,11 +24,11 @@ lean_object* l_Lean_Elab_Frontend_State_commands___default;
 lean_object* l_Lean_Elab_Frontend_runCommandElabM___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_runCommandElabM_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_IO_processCommands(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_registerTraceClass___closed__1;
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_713____closed__2;
 lean_object* l_Lean_Elab_Frontend_processCommand_match__1___rarg(lean_object*, lean_object*);
 lean_object* lean_run_frontend(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_713____closed__4;
-extern lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__3;
 extern lean_object* l_Lean_Elab_Command_elabCommand___closed__2;
 lean_object* lean_environment_set_main_module(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
@@ -2355,7 +2355,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_713
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__3;
+x_1 = l_Lean_registerTraceClass___closed__1;
 x_2 = l_Lean_instInhabitedParserDescr___closed__1;
 x_3 = l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_713____closed__3;
 x_4 = lean_alloc_ctor(0, 3, 0);

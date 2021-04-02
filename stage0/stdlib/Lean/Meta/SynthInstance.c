@@ -87,6 +87,7 @@ lean_object* l_Lean_Meta_SynthInstance_consume_match__1(lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__1;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_SynthInstance_isNewAnswer___spec__1(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_SynthInstance_getInstances___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_180____spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
 lean_object* l_List_mapM___at_Lean_Meta_SynthInstance_MkTableKey_normExpr___spec__9(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Level_hasMVar(lean_object*);
@@ -276,7 +277,6 @@ lean_object* l_Lean_Meta_SynthInstance_step(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Meta_SynthInstance_tryAnswer___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_preprocessArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_SynthInstance_consume___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Option_get___at_Lean_Core_getMaxHeartbeats___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_mkHashMap___at_Lean_Meta_SynthInstance_State_tableEntries___default___spec__1(lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hyg_32____closed__3;
 lean_object* l_Lean_Meta_SynthInstance_instInhabitedConsumerNode___closed__1;
@@ -667,7 +667,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Meta_synthInstance_maxHeartbeats;
-x_3 = l_Lean_Option_get___at_Lean_Core_getMaxHeartbeats___spec__1(x_1, x_2);
+x_3 = l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_180____spec__1(x_1, x_2);
 x_4 = lean_unsigned_to_nat(1000u);
 x_5 = lean_nat_mul(x_3, x_4);
 lean_dec(x_3);
@@ -18541,7 +18541,7 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_575; lean_object* x_576; lean_object* x_577; 
 x_575 = l_Lean_Meta_synthInstance_maxSize;
-x_576 = l_Lean_Option_get___at_Lean_Core_getMaxHeartbeats___spec__1(x_3, x_575);
+x_576 = l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_180____spec__1(x_3, x_575);
 x_577 = l_Lean_Meta_getConfig(x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_2) == 0)
 {

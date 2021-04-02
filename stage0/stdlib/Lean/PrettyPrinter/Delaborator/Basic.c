@@ -88,6 +88,7 @@ lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_271
 extern lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_KeyedDeclsAttribute_getValues___spec__1___rarg___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_withAppFn___rarg___closed__1;
+lean_object* l_Std_fmt___at_Lean_ppExpr___spec__3(lean_object*);
 uint8_t l_Lean_getPPStructureProjections(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_mkDelabAttribute___closed__6;
 lean_object* l_Lean_PrettyPrinter_Delaborator_annotatePos___closed__1;
@@ -264,7 +265,6 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_withAppFnArgs___rarg(lean_object*,
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_withProj_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_fmt___at_Lean_ppExpr___spec__2(lean_object*);
 lean_object* l_ReaderT_pure___at_Lean_PrettyPrinter_Delaborator_instMonadQuotationDelabM___spec__1(lean_object*);
 extern lean_object* l_Lean_getSanitizeNames___closed__2;
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
@@ -10043,7 +10043,7 @@ goto block_39;
 else
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 
-x_42 = l_Std_fmt___at_Lean_ppExpr___spec__2(x_3);
+x_42 = l_Std_fmt___at_Lean_ppExpr___spec__3(x_3);
 x_43 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_43, 0, x_42);
 x_44 = l_Lean_KernelException_toMessageData___closed__15;

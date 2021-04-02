@@ -30,6 +30,7 @@ instance ClientCapabilities.hasToJson : ToJson ClientCapabilities :=
 -- TODO largely unimplemented
 structure ServerCapabilities where
   textDocumentSync? : Option TextDocumentSyncOptions := none
+  completionProvider? : Option CompletionOptions := none
   hoverProvider : Bool := false
   documentHighlightProvider : Bool := false
   documentSymbolProvider : Bool := false

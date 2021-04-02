@@ -111,7 +111,6 @@ lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHead
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___spec__20___closed__25;
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___closed__37;
-uint8_t l_Lean_Option_get___at_Lean_Elab_addMacroStack___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1095____closed__1;
 extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_936____closed__4;
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_noOpMatchAdaptPats___closed__3;
@@ -443,6 +442,7 @@ lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHead
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_stxQuot_expand___closed__15;
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___closed__4;
+uint8_t l_Lean_Option_get___at_Lean_ppExpr___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_stxQuot_expand___closed__3;
 lean_object* l_Array_foldrMUnsafe_fold___at___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___spec__15(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___closed__34;
@@ -12161,7 +12161,7 @@ lean_dec(x_463);
 x_464 = lean_ctor_get(x_6, 0);
 lean_inc(x_464);
 x_465 = l_Lean_Elab_Term_Quotation_hygiene;
-x_466 = l_Lean_Option_get___at_Lean_Elab_addMacroStack___spec__1(x_464, x_465);
+x_466 = l_Lean_Option_get___at_Lean_ppExpr___spec__1(x_464, x_465);
 lean_dec(x_464);
 if (x_466 == 0)
 {
@@ -12345,7 +12345,7 @@ lean_dec(x_1);
 x_548 = lean_ctor_get(x_6, 0);
 lean_inc(x_548);
 x_549 = l_Lean_Elab_Term_Quotation_hygiene;
-x_550 = l_Lean_Option_get___at_Lean_Elab_addMacroStack___spec__1(x_548, x_549);
+x_550 = l_Lean_Option_get___at_Lean_ppExpr___spec__1(x_548, x_549);
 lean_dec(x_548);
 if (x_550 == 0)
 {

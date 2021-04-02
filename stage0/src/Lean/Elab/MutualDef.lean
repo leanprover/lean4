@@ -162,8 +162,10 @@ private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal 
     expandMatchAltsWhereDecls declVal[0]
   else if declVal.isOfKind `Lean.Parser.Term.whereDecls then
     expandWhereDeclsAsStructInst declVal
+  else if declVal.isMissing then
+    Macro.throwErrorAt declVal "declaration body is missing"
   else
-    Macro.throwErrorAt declVal "unexpected definition value"
+    Macro.throwErrorAt declVal "unexpected declaration body"
 
 private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array Expr) :=
   headers.mapM fun header => withDeclName header.declName $ withLevelNames header.levelNames do

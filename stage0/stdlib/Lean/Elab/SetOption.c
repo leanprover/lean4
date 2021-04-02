@@ -18,7 +18,7 @@ lean_object* lean_erase_macro_scopes(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_elabSetOption_setOption___spec__1___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__3;
+extern lean_object* l_Lean_registerTraceClass___closed__1;
 lean_object* l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_elabSetOption___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabSetOption_setOption___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -654,7 +654,7 @@ else
 {
 lean_object* x_37; lean_object* x_38; 
 lean_dec(x_8);
-x_37 = l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__3;
+x_37 = l_Lean_registerTraceClass___closed__1;
 x_38 = l_Lean_Elab_elabSetOption_setOption___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_10, x_37);
 return x_38;
 }

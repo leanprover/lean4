@@ -106,7 +106,7 @@ macro_rules | `($x == $y) => `(binrel% BEq.beq $x $y)
 infixr:35 " /\\ " => And
 infixr:35 " ∧ "   => And
 infixr:30 " \\/ " => Or
-infixr:30 " ∨   " => Or
+infixr:30 " ∨  "  => Or
 notation:max "¬" p:40 => Not p
 
 infixl:35 " && " => and

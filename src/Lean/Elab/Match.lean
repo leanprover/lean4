@@ -1098,12 +1098,17 @@ builtin_initialize
   registerTraceClass `Elab.match
 
 -- leading_parser:leadPrec "nomatch " >> termParser
-@[builtinTermElab «nomatch»] def elabNoMatch : TermElab := fun stx expectedType? =>
+@[builtinTermElab «nomatch»] def elabNoMatch : TermElab := fun stx expectedType? => do
   match stx with
-  | `(nomatch $discrExpr) => do
+  | `(nomatch $discrExpr) =>
+    match ← isLocalIdent? discrExpr with
+    | some _ =>
       let expectedType ← waitExpectedType expectedType?
       let discr := Syntax.node ``Lean.Parser.Term.matchDiscr #[mkNullNode, discrExpr]
       elabMatchAux #[discr] #[] mkNullNode expectedType
+    | _ =>
+      let stxNew ← `(let _discr := $discrExpr; nomatch _discr)
+      withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

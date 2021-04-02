@@ -66,6 +66,9 @@ inductive F : Nat → Type
 def f0 {α : Sort u} (x : F 0) : α :=
 nomatch x
 
+def f0' {α : Sort u} (x : F 0) : α :=
+nomatch id x
+
 def f1 {α : Sort u} (x : F 0 × Bool) : α :=
 nomatch x
 

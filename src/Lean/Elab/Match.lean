@@ -138,14 +138,14 @@ def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array Matc
 /- Given `stx` a match-expression, return its alternatives. -/
 private def getMatchAlts : Syntax → Array MatchAltView
   | `(match $discrs,* $[: $ty?]? with $alts:matchAlt*) =>
-    alts.map fun alt => match alt with
-      | `(matchAltExpr| | $patterns,* => $rhs) => {
+    alts.filterMap fun alt => match alt with
+      | `(matchAltExpr| | $patterns,* => $rhs) => some {
           ref      := alt,
           patterns := patterns,
           rhs      := rhs
         }
-      | _ => unreachable!
-  | _ => unreachable!
+      | _ => none
+  | _ => #[]
 
 /--
   Auxiliary annotation used to mark terms marked with the "inaccessible" annotation `.(t)` and

@@ -144,6 +144,7 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
                                                        reducibility_hints::mk_abbreviation());
     environment new_env = env.add(new_d);
     new_env = set_reducible(new_env, below_name, reducible_status::Reducible, true);
+    new_env = completion_add_to_black_list(new_env, below_name);
     return add_protected(new_env, below_name);
 }
 

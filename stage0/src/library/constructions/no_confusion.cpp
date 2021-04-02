@@ -123,6 +123,7 @@ static optional<environment> mk_no_confusion_type(environment const & env, name 
                                                        reducibility_hints::mk_abbreviation());
     environment new_env = env.add(new_d);
     new_env = set_reducible(new_env, no_confusion_type_name, reducible_status::Reducible, true);
+    new_env = completion_add_to_black_list(new_env, no_confusion_type_name);
     return some(add_protected(new_env, no_confusion_type_name));
 }
 

@@ -204,6 +204,7 @@ def argument       :=
 @[builtinTermParser] def app      := trailing_parser:leadPrec:maxPrec many1 argument
 
 @[builtinTermParser] def proj     := trailing_parser checkNoWsBefore >> "." >> (fieldIdx <|> ident)
+@[builtinTermParser] def completion := trailing_parser checkNoWsBefore >> "."
 @[builtinTermParser] def arrayRef := trailing_parser checkNoWsBefore >> "[" >> termParser >>"]"
 @[builtinTermParser] def arrow    := trailing_parser checkPrec 25 >> unicodeSymbol " → " " -> " >> termParser 25
 
@@ -215,6 +216,7 @@ def isIdent (stx : Syntax) : Bool :=
 @[builtinTermParser] def namedPattern : TrailingParser := trailing_parser checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '@'" >> "@" >> termParser maxPrec
 
 @[builtinTermParser] def pipeProj   := trailing_parser:minPrec " |>." >> (fieldIdx <|> ident) >> many argument
+@[builtinTermParser] def pipeCompletion := trailing_parser:minPrec " |>."
 
 @[builtinTermParser] def subst := trailing_parser:75 " ▸ " >> sepBy1 (termParser 75) " ▸ "
 

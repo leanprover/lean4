@@ -36,7 +36,7 @@ section
       | some hf =>
         let tail ← readHeaderFields h
         pure (hf :: tail)
-      | none => throw $ userError s!"Invalid header field: {l}"
+      | none => throw $ userError s!"Invalid header field: {repr l}"
 
   /-- Returns the Content-Length. -/
   private def readLspHeader (h : FS.Stream) : IO Nat := do

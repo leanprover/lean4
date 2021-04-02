@@ -21,7 +21,7 @@ private def isBlackListed (env : Environment) (declName : Name) : Bool :=
 
 private def isBlackListedForCompletion (declName : Name) : MetaM Bool := do
   let env ← getEnv
-  return isAuxRecursor env declName || isNoConfusion env declName || (← isRec declName)
+  return isAuxRecursor env declName || isNoConfusion env declName || (← isRec declName) || isBlackListed env declName
 
 open Elab in open Meta in
 partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTree) : IO (Option CompletionList) := do

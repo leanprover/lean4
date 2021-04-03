@@ -120,52 +120,46 @@ extern "C" obj_res lean_stream_of_handle(obj_arg h);
 static object * g_stream_stdin  = nullptr;
 static object * g_stream_stdout = nullptr;
 static object * g_stream_stderr = nullptr;
-MK_THREAD_LOCAL_GET(object *, get_stream_current_stdin,  g_stream_stdin);
-MK_THREAD_LOCAL_GET(object *, get_stream_current_stdout, g_stream_stdout);
-MK_THREAD_LOCAL_GET(object *, get_stream_current_stderr, g_stream_stderr);
+MK_THREAD_LOCAL_GET(object_ref, get_stream_current_stdin,  g_stream_stdin);
+MK_THREAD_LOCAL_GET(object_ref, get_stream_current_stdout, g_stream_stdout);
+MK_THREAD_LOCAL_GET(object_ref, get_stream_current_stderr, g_stream_stderr);
 
 /* getStdin : IO FS.Stream */
 extern "C" obj_res lean_get_stdin(obj_arg /* w */) {
-    object * r = get_stream_current_stdin();
-    inc_ref(r);
-    return io_result_mk_ok(r);
+    return io_result_mk_ok(get_stream_current_stdin().to_obj_arg());
 }
 
 /* getStdout : IO FS.Stream */
 extern "C" obj_res lean_get_stdout(obj_arg /* w */) {
-    object * r = get_stream_current_stdout();
-    inc_ref(r);
-    return io_result_mk_ok(r);
+    return io_result_mk_ok(get_stream_current_stdout().to_obj_arg());
 }
 
 /* getStderr : IO FS.Stream */
 extern "C" obj_res lean_get_stderr(obj_arg /* w */) {
-    object * r = get_stream_current_stderr();
-    inc_ref(r);
-    return io_result_mk_ok(r);
+    return io_result_mk_ok(get_stream_current_stderr().to_obj_arg());
 }
 
 /* setStdin  : FS.Stream -> IO FS.Stream */
 extern "C" obj_res lean_get_set_stdin(obj_arg h, obj_arg /* w */) {
-    object * & x = get_stream_current_stdin();
-    object * r = x;
-    x = h;
+    object_ref & x = get_stream_current_stdin();
+    object * r = x.steal();
+    x = object_ref(h);
     return io_result_mk_ok(r);
 }
 
 /* setStdout  : FS.Stream -> IO FS.Stream */
 extern "C" obj_res lean_get_set_stdout(obj_arg h, obj_arg /* w */) {
-    object * & x = get_stream_current_stdout();
-    object * r = x;
-    x = h;
+    object_ref & x = get_stream_current_stdout();
+    object * r = x.steal();
+    x = object_ref(h);
     return io_result_mk_ok(r);
 }
 
 /* setStderr  : FS.Stream -> IO FS.Stream */
 extern "C" obj_res lean_get_set_stderr(obj_arg h, obj_arg /* w */) {
-    object * & x = get_stream_current_stderr();
-    object * r = x;
-    x = h;
+    object_ref & x = get_stream_current_stderr();
+    object * r = x.steal();
+    x = object_ref(h);
     return io_result_mk_ok(r);
 }
 

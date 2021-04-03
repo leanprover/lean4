@@ -243,7 +243,7 @@ def trailingNode.formatter (k : SyntaxNodeKind) (_ _ : Nat) (p : Formatter) : Fo
     categoryParser.formatter `foo
 
 def parseToken (s : String) : FormatterM ParserState := do
-  Parser.tokenFn {
+  Parser.tokenFn [] {
     input := s,
     fileName := "",
     fileMap := FileMap.ofString "",

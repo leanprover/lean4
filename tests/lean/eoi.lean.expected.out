@@ -1,0 +1,2 @@
+eoi.lean:2:0: error: unexpected end of input; expected ':=', 'where' or '|'
+eoi.lean:1:0-1:13: error: declaration body is missing

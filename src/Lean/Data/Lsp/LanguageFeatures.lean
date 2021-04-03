@@ -37,7 +37,7 @@ structure CompletionItem where
   commitCharacters? : string[]
   command? : Command
   data? : any -/
-  deriving FromJson, ToJson
+  deriving FromJson, ToJson, Inhabited
 
 structure CompletionList where
   isIncomplete : Bool

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Environment
 import Lean.Data.Lsp.LanguageFeatures
+import Lean.Meta.Tactic.Apply
 import Lean.Server.InfoUtils
 
 namespace Lean.Server.Completion
@@ -36,21 +37,47 @@ private partial def consumeImplicitPrefix (e : Expr) : MetaM Expr := do
       return e
   | _ => return e
 
+private def isTypeApplicable (type : Expr) (expectedType? : Option Expr) : MetaM Bool := do
+  match expectedType? with
+  | none => return true
+  | some expectedType =>
+    let mut (numArgs, hasMVarHead) ← getExpectedNumArgsAux type
+    unless hasMVarHead do
+      let targetTypeNumArgs ← getExpectedNumArgs expectedType
+      numArgs := numArgs - targetTypeNumArgs
+    let (newMVars, _, type) ← forallMetaTelescopeReducing type (some numArgs)
+    -- TODO take coercions into account
+    dbg_trace "{type} =?= {expectedType}"
+    isDefEq type expectedType
+
+private def filterBlackListed (cs : Array ConstantInfo) : MetaM (Array ConstantInfo) :=
+  cs.filterM fun c => return !(← isBlackListedForCompletion c.name)
+
+private def sortCompletionItems (items : Array CompletionItem) : Array CompletionItem :=
+  items.qsort fun i1 i2 => i1.label < i2.label
+
+private def toCompletionItem (c : ConstantInfo) : MetaM CompletionItem := do
+  let detail ← Meta.ppExpr (← consumeImplicitPrefix c.type)
+  return { label := c.name.getString!, detail? := some (toString detail), documentation? := none }
+
 private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? : Option Expr) : IO (Option CompletionList) :=
   info.runMetaM ctx do
     dbg_trace ">> {info.stx}, {info.expr}"
     let type ← instantiateMVars (← inferType info.expr)
     match type.getAppFn with
     | Expr.const name .. =>
-      let candidates := (← getEnv).constants.fold (init := #[]) fun candidates declName declInfo =>
+      let cs := (← getEnv).constants.fold (init := #[]) fun candidates declName declInfo =>
         if !declName.isInternal && declName.getPrefix == name then candidates.push declInfo else candidates
-      let items : Array CompletionItem ← candidates.filterMapM fun cinfo => do
-        if (← isBlackListedForCompletion cinfo.name) then
-          return none
+      let cs ← filterBlackListed cs
+      let mut itemsMain := #[] -- we put entries that satisfy `isTypeApplicable` first
+      let mut itemsOther := #[]
+      dbg_trace ">>>> {expectedType?}"
+      for c in cs do
+        if (← isTypeApplicable c.type expectedType?) then
+          itemsMain := itemsMain.push (← toCompletionItem c)
         else
-          let detail ← Meta.ppExpr (← consumeImplicitPrefix cinfo.type)
-          return some { label := cinfo.name.getString!, detail? := some (toString detail), documentation? := none }
-      return some { items := items, isIncomplete := true }
+          itemsOther := itemsOther.push (← toCompletionItem c)
+      return some { items := sortCompletionItems itemsMain ++ sortCompletionItems itemsOther, isIncomplete := true }
     | _ => return none
 
 private def idCompletion (ctx : ContextInfo) (lctx : LocalContext) (stx : Syntax) (openDecls : List OpenDecl) (expectedType? : Option Expr) : IO (Option CompletionList) :=

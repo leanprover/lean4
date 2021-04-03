@@ -15,11 +15,11 @@ namespace Lean.Meta
   Compute the number of expected arguments and whether the result type is of the form
   (?m ...) where ?m is an unassigned metavariable.
 -/
-private def getExpectedNumArgsAux (e : Expr) : MetaM (Nat × Bool) :=
+def getExpectedNumArgsAux (e : Expr) : MetaM (Nat × Bool) :=
   withDefault <| forallTelescopeReducing e fun xs body =>
     pure (xs.size, body.getAppFn.isMVar)
 
-private def getExpectedNumArgs (e : Expr) : MetaM Nat := do
+def getExpectedNumArgs (e : Expr) : MetaM Nat := do
   let (numArgs, _) ← getExpectedNumArgsAux e
   pure numArgs
 

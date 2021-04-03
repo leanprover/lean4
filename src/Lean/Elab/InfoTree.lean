@@ -39,7 +39,7 @@ structure CommandInfo where
 
 inductive CompletionInfo where
   | dot (termInfo : TermInfo) (field? : Option Syntax) (expectedType? : Option Expr)
-  | id (stx : Syntax) (expectedType? : Option Expr)
+  | id (stx : Syntax) (lctx : LocalContext) (openDecls : List OpenDecl) (expectedType? : Option Expr)
   | namespaceId (stx : Syntax)
   | option (stx : Syntax)
   | endSection (stx : Syntax) (scopeNames : List String)
@@ -161,7 +161,8 @@ def TermInfo.format (ctx : ContextInfo) (info : TermInfo) : IO Format := do
 def CompletionInfo.format (ctx : ContextInfo) (info : CompletionInfo) : IO Format :=
   match info with
   | CompletionInfo.dot i .. => return f!"[.] {← i.format ctx}"
-  | _                       => return f!"[.] {info.stx}"
+  | CompletionInfo.id stx lctx _ expectedType? => ctx.runMetaM lctx do return f!"[.] {stx} : {expectedType?}"
+  | _ => return f!"[.] {info.stx}"
 
 def CommandInfo.format (ctx : ContextInfo) (info : CommandInfo) : IO Format := do
   return f!"command @ {formatStxRange ctx info.stx}"

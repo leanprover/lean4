@@ -47,8 +47,9 @@ private def isTypeApplicable (type : Expr) (expectedType? : Option Expr) : MetaM
       numArgs := numArgs - targetTypeNumArgs
     let (newMVars, _, type) ← forallMetaTelescopeReducing type (some numArgs)
     -- TODO take coercions into account
-    dbg_trace "{type} =?= {expectedType}"
-    isDefEq type expectedType
+    -- We use `withReducible` to make sure we don't spend too much time unfolding definitions
+    -- Alternative: use default and small number of heartbeats
+    withReducible <| isDefEq type expectedType
 
 private def filterBlackListed (cs : Array ConstantInfo) : MetaM (Array ConstantInfo) :=
   cs.filterM fun c => return !(← isBlackListedForCompletion c.name)
@@ -62,7 +63,7 @@ private def toCompletionItem (c : ConstantInfo) : MetaM CompletionItem := do
 
 private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? : Option Expr) : IO (Option CompletionList) :=
   info.runMetaM ctx do
-    dbg_trace ">> {info.stx}, {info.expr}"
+    -- dbg_trace ">> {info.stx}, {info.expr}"
     let type ← instantiateMVars (← inferType info.expr)
     match type.getAppFn with
     | Expr.const name .. =>
@@ -71,7 +72,6 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? :
       let cs ← filterBlackListed cs
       let mut itemsMain := #[] -- we put entries that satisfy `isTypeApplicable` first
       let mut itemsOther := #[]
-      dbg_trace ">>>> {expectedType?}"
       for c in cs do
         if (← isTypeApplicable c.type expectedType?) then
           itemsMain := itemsMain.push (← toCompletionItem c)
@@ -84,14 +84,22 @@ private def idCompletion (ctx : ContextInfo) (lctx : LocalContext) (stx : Syntax
   ctx.runMetaM lctx do
     let id := stx.getId
     if id.hasMacroScopes then return none
-
     return none
+
+private def optionCompletion (ctx : ContextInfo) (stx : Syntax) : IO (Option CompletionList) := do
+  ctx.runMetaM {} do
+    let decls ← getOptionDecls
+    let opts ← getOptions
+    let items : Array CompletionItem := decls.fold (init := #[]) fun items name decl =>
+      items.push { label := name.toString, detail? := s!"({opts.get name decl.defValue}), {decl.descr}", documentation? := none }
+    return some { items := sortCompletionItems items, isIncomplete := true }
 
 partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTree) : IO (Option CompletionList) := do
   let ⟨hoverLine, _⟩ := fileMap.toPosition hoverPos
   match infoTree.foldInfo (init := none) (choose fileMap hoverLine) with
   | some (ctx, Info.ofCompletionInfo (CompletionInfo.dot info (expectedType? := expectedType?) ..)) => dotCompletion ctx info expectedType?
   | some (ctx, Info.ofCompletionInfo (CompletionInfo.id stx lctx openDecls expectedType?)) => idCompletion ctx lctx stx openDecls expectedType?
+  | some (ctx, Info.ofCompletionInfo (CompletionInfo.option stx)) => optionCompletion ctx stx
   | _ => return none
 where
   choose (fileMap : FileMap) (hoverLine : Nat) (ctx : ContextInfo) (info : Info) (best? : Option (ContextInfo × Info)) : Option (ContextInfo × Info) :=

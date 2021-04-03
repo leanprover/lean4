@@ -21,15 +21,12 @@ def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
   match val with
   | Syntax.atom _ "true"  => setOption optionName (DataValue.ofBool true)
   | Syntax.atom _ "false" => setOption optionName (DataValue.ofBool false)
-  | _ => throwError "unexpected set_option value {val}"
+  | _ =>
+    addCompletionInfo <| CompletionInfo.option (← getRef)
+    throwError "unexpected set_option value {val}"
 where
   setOption (optionName : Name) (val : DataValue) : m Options := do
-    let decl ←
-      try
-        IO.toEIO (fun (ex : IO.Error) => Exception.error (← getRef) ex.toString) (getOptionDecl optionName)
-      catch ex =>
-        addCompletionInfo <| CompletionInfo.option id
-        throw ex
+    let decl ← IO.toEIO (fun (ex : IO.Error) => Exception.error (← getRef) ex.toString) (getOptionDecl optionName)
     unless decl.defValue.sameCtor val do throwError "type mismatch at set_option"
     return (← getOptions).insert optionName val
 

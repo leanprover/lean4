@@ -26,7 +26,8 @@ private def isBlackListedForCompletion (declName : Name) : MetaM Bool := do
 open Elab in open Meta in
 partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTree) : IO (Option CompletionList) := do
   let ⟨hoverLine, _⟩ := fileMap.toPosition hoverPos
-  if let some (ctx, Info.ofDotCompletionInfo info) := infoTree.foldInfo (init := none) (choose fileMap hoverLine) then
+  match infoTree.foldInfo (init := none) (choose fileMap hoverLine) with
+  | some (ctx, Info.ofCompletionInfo (CompletionInfo.dot info ..)) =>
     info.runMetaM ctx do
       dbg_trace ">> {info.stx}, {info.expr}"
       let type ← instantiateMVars (← inferType info.expr)
@@ -42,11 +43,10 @@ partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTr
             return some { label := cinfo.name.getString!, detail? := some (toString detail), documentation? := none }
         return some { items := items, isIncomplete := true }
       | _ => return none
-  else
-    return none
+  | _ => return none
 where
   choose (fileMap : FileMap) (hoverLine : Nat) (ctx : ContextInfo) (info : Info) (best? : Option (ContextInfo × Info)) : Option (ContextInfo × Info) :=
-    if !info.isDotCompletion then best?
+    if !info.isCompletion then best?
     else if let some d := info.occursBefore? hoverPos then
       let pos := info.tailPos?.get!
       let ⟨line, _⟩ := fileMap.toPosition pos

@@ -1076,7 +1076,7 @@ def mkTermInfo (stx : Syntax) (e : Expr) : TermElabM (Sum Info MVarId) := do
 
 /-- Store in the `InfoTree` that `e` is a "dot"-completion target. -/
 def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr) (field? : Option Syntax := none) : TermElabM Unit := do
-  pushInfoLeaf <| Info.ofDotCompletionInfo { expr := e, stx := stx, lctx := (← getLCtx), field? := field?, expectedType? := expectedType? }
+  pushInfoLeaf <| Info.ofCompletionInfo <| CompletionInfo.dot { expr := e, stx := stx, lctx := (← getLCtx) } (field? := field?) (expectedType? := expectedType?)
 
 /--
   Main function for elaborating terms.

@@ -774,7 +774,7 @@ false, no elaboration function executed by `x` will reset it to
 private partial def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) (lvals : List LVal)
     (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool) (acc : Array (TermElabResult Expr))
     : TermElabM (Array (TermElabResult Expr)) := do
-  let funLVals ← withRef fIdent <| resolveName' fIdent fExplicitUnivs
+  let funLVals ← withRef fIdent <| resolveName' fIdent fExplicitUnivs expectedType?
   let overloaded := overloaded || funLVals.length > 1
   -- Set `errToSorry` to `false` if `funLVals` > 1. See comment above about the interaction between `errToSorry` and `observing`.
   withReader (fun ctx => { ctx with errToSorry := funLVals.length == 1 && ctx.errToSorry }) do

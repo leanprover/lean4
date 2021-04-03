@@ -435,7 +435,8 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
 
 @[builtinTactic skip] def evalSkip : Tactic := fun stx => pure ()
 
-@[builtinTactic unknown] def evalUnknown : Tactic := fun stx => pure ()
+@[builtinTactic unknown] def evalUnknown : Tactic := fun stx => do
+  addCompletionInfo <| CompletionInfo.tactic stx (← getGoals)
 
 @[builtinTactic failIfSuccess] def evalFailIfSuccess : Tactic := fun stx => do
   let tactic := stx[1]

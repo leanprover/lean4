@@ -1076,7 +1076,7 @@ def mkTermInfo (stx : Syntax) (e : Expr) : TermElabM (Sum Info MVarId) := do
 
 /-- Store in the `InfoTree` that `e` is a "dot"-completion target. -/
 def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr) (field? : Option Syntax := none) : TermElabM Unit := do
-  pushInfoLeaf <| Info.ofCompletionInfo <| CompletionInfo.dot { expr := e, stx := stx, lctx := (← getLCtx) } (field? := field?) (expectedType? := expectedType?)
+  addCompletionInfo <| CompletionInfo.dot { expr := e, stx := stx, lctx := (← getLCtx) } (field? := field?) (expectedType? := expectedType?)
 
 /--
   Main function for elaborating terms.
@@ -1335,18 +1335,23 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
    let const ← mkConst constName explicitLevels
    return (const, projs) :: result
 
-def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
-  if let some (e, projs) ← resolveLocalName n then
-    unless explicitLevels.isEmpty do
-      throwError "invalid use of explicit universe parameters, '{e}' is a local"
-    return [(e, projs)]
-  -- check for section variable capture by a quotation
-  if let some (e, projs) := preresolved.findSome? fun (n, projs) => (← read).sectionFVars.find? n |>.map (·, projs) then
-    return [(e, projs)]  -- section variables should shadow global decls
-  if preresolved.isEmpty then
-    process (← resolveGlobalName n)
-  else
-    process preresolved
+def resolveName (stx : Syntax) (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) (expectedType? : Option Expr := none): TermElabM (List (Expr × List String)) := do
+  try
+    if let some (e, projs) ← resolveLocalName n then
+      unless explicitLevels.isEmpty do
+        throwError "invalid use of explicit universe parameters, '{e}' is a local"
+      return [(e, projs)]
+    -- check for section variable capture by a quotation
+    if let some (e, projs) := preresolved.findSome? fun (n, projs) => (← read).sectionFVars.find? n |>.map (·, projs) then
+      return [(e, projs)]  -- section variables should shadow global decls
+    if preresolved.isEmpty then
+      process (← resolveGlobalName n)
+    else
+      process preresolved
+  catch ex =>
+    if preresolved.isEmpty && explicitLevels.isEmpty then
+      addCompletionInfo <| CompletionInfo.id stx expectedType?
+    throw ex
 where process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
   if candidates.isEmpty then
     if (← read).autoBoundImplicit && isValidAutoBoundImplicitName n then
@@ -1359,10 +1364,10 @@ where process (candidates : List (Name × List String)) : TermElabM (List (Expr 
   Similar to `resolveName`, but creates identifiers for the main part and each projection with position information derived from `ident`.
   Example: Assume resolveName `v.head.bla.boo` produces `(v.head, ["bla", "boo"])`, then this method produces
   `(v.head, id, [f₁, f₂])` where `id` is an identifier for `v.head`, and `f₁` and `f₂` are identifiers for fields `"bla"` and `"boo"`. -/
-def resolveName' (ident : Syntax) (explicitLevels : List Level) : TermElabM (List (Expr × Syntax × List Syntax)) := do
+def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × Syntax × List Syntax)) := do
   match ident with
   | Syntax.ident info rawStr n preresolved =>
-    let r ← resolveName n preresolved explicitLevels
+    let r ← resolveName ident n preresolved explicitLevels expectedType?
     r.mapM fun (c, fields) => do
       let (cSstr, fields) := fields.foldr (init := (rawStr, [])) fun field (restSstr, fs) =>
         let fieldSstr := restSstr.takeRightWhile (· ≠ '.')
@@ -1392,7 +1397,7 @@ def resolveName' (ident : Syntax) (explicitLevels : List Level) : TermElabM (Lis
 def resolveId? (stx : Syntax) (kind := "term") : TermElabM (Option Expr) :=
   match stx with
   | Syntax.ident _ _ val preresolved => do
-    let rs ← try resolveName val preresolved [] catch _ => pure []
+    let rs ← try resolveName stx val preresolved [] catch _ => pure []
     let rs := rs.filter fun ⟨f, projs⟩ => projs.isEmpty
     let fs := rs.map fun (f, _) => f
     match fs with

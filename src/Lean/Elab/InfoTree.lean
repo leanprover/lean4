@@ -40,15 +40,19 @@ structure CommandInfo where
 inductive CompletionInfo where
   | dot (termInfo : TermInfo) (field? : Option Syntax) (expectedType? : Option Expr)
   | id (stx : Syntax) (expectedType? : Option Expr)
+  | namespaceId (stx : Syntax)
   | option (stx : Syntax)
-  | endSection (stx : Syntax)
+  | endSection (stx : Syntax) (scopeNames : List String)
+  | tactic (stx : Syntax) (goals : List MVarId)
   -- TODO `import`
 
 def CompletionInfo.stx : CompletionInfo → Syntax
   | dot i .. => i.stx
   | id stx .. => stx
+  | namespaceId stx => stx
   | option stx => stx
-  | endSection stx => stx
+  | endSection stx .. => stx
+  | tactic stx .. => stx
 
 structure FieldInfo where
   name : Name
@@ -112,7 +116,7 @@ class MonadInfoTree (m : Type → Type)  where
 
 export MonadInfoTree (getInfoState modifyInfoState)
 
-instance (m n) [MonadLift m n] [MonadInfoTree m] : MonadInfoTree n where
+instance [MonadLift m n] [MonadInfoTree m] : MonadInfoTree n where
   getInfoState      := liftM (getInfoState : m _)
   modifyInfoState f := liftM (modifyInfoState f : m _)
 
@@ -223,6 +227,9 @@ def pushInfoTree (t : InfoTree) : m Unit := do
 def pushInfoLeaf (t : Info) : m Unit := do
   if (← getInfoState).enabled then
     pushInfoTree <| InfoTree.node (children := {}) t
+
+def addCompletionInfo (info : CompletionInfo) : m Unit := do
+  pushInfoLeaf <| Info.ofCompletionInfo info
 
 def resolveGlobalConstNoOverloadWithInfo [MonadResolveName m] [MonadEnv m] [MonadError m] (stx : Syntax) (id := stx.getId) : m Name := do
   let n ← resolveGlobalConstNoOverload id

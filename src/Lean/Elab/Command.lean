@@ -415,8 +415,13 @@ private def popScopes (numScopes : Nat) : CommandElabM Unit :=
     popScopes n
     throwError "invalid 'end', insufficient scopes"
   match header? with
-  | none        => unless checkAnonymousScope scopes do throwError "invalid 'end', name is missing"
-  | some header => unless checkEndHeader header scopes do throwError "invalid 'end', name mismatch"
+  | none        =>
+    unless checkAnonymousScope scopes do
+      throwError "invalid 'end', name is missing"
+  | some header =>
+    unless checkEndHeader header scopes do
+      addCompletionInfo <| CompletionInfo.endSection stx (scopes.map fun scope => scope.header)
+      throwError "invalid 'end', name mismatch"
 
 @[inline] def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
   addNamespace ns

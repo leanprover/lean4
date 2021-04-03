@@ -7,6 +7,7 @@ import Lean.Environment
 import Lean.Data.Lsp.LanguageFeatures
 import Lean.Meta.Tactic.Apply
 import Lean.Server.InfoUtils
+import Lean.Parser.Extension
 
 namespace Lean.Server.Completion
 open Lsp
@@ -86,7 +87,7 @@ private def idCompletion (ctx : ContextInfo) (lctx : LocalContext) (stx : Syntax
     if id.hasMacroScopes then return none
     return none
 
-private def optionCompletion (ctx : ContextInfo) (stx : Syntax) : IO (Option CompletionList) := do
+private def optionCompletion (ctx : ContextInfo) : IO (Option CompletionList) := do
   ctx.runMetaM {} do
     let decls ← getOptionDecls
     let opts ← getOptions
@@ -94,12 +95,25 @@ private def optionCompletion (ctx : ContextInfo) (stx : Syntax) : IO (Option Com
       items.push { label := name.toString, detail? := s!"({opts.get name decl.defValue}), {decl.descr}", documentation? := none }
     return some { items := sortCompletionItems items, isIncomplete := true }
 
+private def tacticCompletion (ctx : ContextInfo) : IO (Option CompletionList) :=
+  -- Just return the list of tactics for now.
+  ctx.runMetaM {} do
+    let table := Parser.getCategory (Parser.parserExtension.getState (← getEnv)).categories `tactic |>. get!.tables.leadingTable
+    let items : Array CompletionItem := table.fold (init := #[]) fun items tk parser =>
+      -- TODO pretty print tactic syntax
+      items.push { label := tk.toString, detail? := none, documentation? := none }
+    return some { items := sortCompletionItems items, isIncomplete := true }
+
 partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTree) : IO (Option CompletionList) := do
   let ⟨hoverLine, _⟩ := fileMap.toPosition hoverPos
   match infoTree.foldInfo (init := none) (choose fileMap hoverLine) with
-  | some (ctx, Info.ofCompletionInfo (CompletionInfo.dot info (expectedType? := expectedType?) ..)) => dotCompletion ctx info expectedType?
-  | some (ctx, Info.ofCompletionInfo (CompletionInfo.id stx lctx openDecls expectedType?)) => idCompletion ctx lctx stx openDecls expectedType?
-  | some (ctx, Info.ofCompletionInfo (CompletionInfo.option stx)) => optionCompletion ctx stx
+  | some (ctx, Info.ofCompletionInfo info) =>
+    match info with
+    | CompletionInfo.dot info (expectedType? := expectedType?) .. => dotCompletion ctx info expectedType?
+    | CompletionInfo.id stx lctx openDecls expectedType? => idCompletion ctx lctx stx openDecls expectedType?
+    | CompletionInfo.option .. => optionCompletion ctx
+    | CompletionInfo.tactic .. => tacticCompletion ctx
+    | _ => return none
   | _ => return none
 where
   choose (fileMap : FileMap) (hoverLine : Nat) (ctx : ContextInfo) (info : Info) (best? : Option (ContextInfo × Info)) : Option (ContextInfo × Info) :=

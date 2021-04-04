@@ -690,8 +690,8 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
   let rec loop : Expr → List LVal → TermElabM Expr
   | f, []          => elabAppArgs f namedArgs args expectedType? explicit ellipsis
   | f, lval::lvals => do
-    if let LVal.fieldName (ref := fieldStx) (stx := stx) .. := lval then
-      addDotCompletionInfo  stx f expectedType? fieldStx
+    if let LVal.fieldName (ref := fieldStx) (targetStx := targetStx) .. := lval then
+      addDotCompletionInfo  targetStx f expectedType? fieldStx
     let (f, lvalRes) ← resolveLVal f lval
     match lvalRes with
     | LValResolution.projIdx structName idx =>
@@ -805,7 +805,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     let elabFieldName (e field : Syntax) := do
       let newLVals := field.getId.eraseMacroScopes.components.map fun n =>
       -- We use `none` here since `field` can't be part of a composite name
-      LVal.fieldName field (toString n) none f
+      LVal.fieldName field (toString n) none e
       elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     let elabFieldIdx (e idxStx : Syntax) := do
       let idx := idxStx.isFieldIdx?.get!

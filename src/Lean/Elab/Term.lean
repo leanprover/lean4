@@ -309,8 +309,8 @@ builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermEl
 inductive LVal where
   | fieldIdx  (ref : Syntax) (i : Nat)
     /- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierachical/composite name.
-       `ref` is the syntax object representing the field only. `stx` contains the object + field -/
-  | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (stx : Syntax)
+       `ref` is the syntax object representing the field. `targetStx` is the target object being accessed. -/
+  | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (targetStx : Syntax)
   | getOp     (ref : Syntax) (idx : Syntax)
 
 def LVal.getRef : LVal → Syntax

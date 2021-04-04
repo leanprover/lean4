@@ -32,6 +32,9 @@ builtin_initialize aliasExtension : SimplePersistentEnvExtension AliasEntry Alia
 @[export lean_add_alias] def addAlias (env : Environment) (a : Name) (e : Name) : Environment :=
   aliasExtension.addEntry env (a, e)
 
+def getAliasState (env : Environment) : AliasState :=
+  aliasExtension.getState env
+
 def getAliases (env : Environment) (a : Name) : List Name :=
   match aliasExtension.getState env |>.find? a with
   | none    => []

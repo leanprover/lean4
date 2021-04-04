@@ -126,6 +126,17 @@ FOREACH(T ${LEANTESTS})
   endif()
 ENDFOREACH(T)
 
+# LEAN INTERACTIVE SERVER TESTS
+file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.lean")
+FOREACH(T ${LEANTESTS})
+  if(NOT T MATCHES "\\.#" AND NOT T MATCHES "run.lean")
+    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+    add_test(NAME "leaninteractivetest_${T_NAME}"
+             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/interactive"
+             COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
+  endif()
+ENDFOREACH(T)
+
 add_test(NAME leanpkgtest
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/b"
          COMMAND bash -c "PATH=${LEAN_BIN}:$PATH leanpkg build")

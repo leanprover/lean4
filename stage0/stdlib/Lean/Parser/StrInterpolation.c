@@ -54,7 +54,7 @@ lean_object* l_Lean_Parser_interpolatedStrFn_parse(lean_object*, lean_object*, l
 lean_object* l_Lean_Parser_mkAntiquot(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Parser_isQuotableCharForStrInterpolant___boxed(lean_object*);
 lean_object* l_Lean_Parser_interpolatedStrFn(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Parser_ParserState_mkUnexpectedError(lean_object*, lean_object*);
+lean_object* l_Lean_Parser_ParserState_mkUnexpectedError(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 extern lean_object* l_Lean_interpolatedStrLitKind;
 uint8_t l_Lean_Parser_isQuotableCharForStrInterpolant(uint32_t x_1) {
@@ -324,15 +324,16 @@ return x_16;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; 
+lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_2);
 lean_dec(x_1);
-x_17 = l_Lean_Parser_ParserState_mkEOIError___closed__1;
-x_18 = l_Lean_Parser_ParserState_mkUnexpectedError(x_3, x_17);
-return x_18;
+x_17 = lean_box(0);
+x_18 = l_Lean_Parser_ParserState_mkEOIError___closed__1;
+x_19 = l_Lean_Parser_ParserState_mkUnexpectedError(x_3, x_18, x_17);
+return x_19;
 }
 }
 }

@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.Log
-
+import Lean.Elab.InfoTree
 namespace Lean.Elab
 
 variable [Monad m] [MonadOptions m] [MonadExceptOf Exception m] [MonadRef m]
-variable [AddErrorMessageContext m] [MonadLiftT (EIO Exception) m]
+variable [AddErrorMessageContext m] [MonadLiftT (EIO Exception) m] [MonadInfoTree m]
 
 def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
   let optionName := id.getId.eraseMacroScopes
@@ -21,7 +21,9 @@ def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
   match val with
   | Syntax.atom _ "true"  => setOption optionName (DataValue.ofBool true)
   | Syntax.atom _ "false" => setOption optionName (DataValue.ofBool false)
-  | _ => throwError "unexpected set_option value {val}"
+  | _ =>
+    addCompletionInfo <| CompletionInfo.option (← getRef)
+    throwError "unexpected set_option value {val}"
 where
   setOption (optionName : Name) (val : DataValue) : m Options := do
     let decl ← IO.toEIO (fun (ex : IO.Error) => Exception.error (← getRef) ex.toString) (getOptionDecl optionName)

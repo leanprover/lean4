@@ -159,6 +159,10 @@ class Value (α : Type) where
 @[inline] def set {α : Type} [s : Value α] (m : KVMap) (k : Name) (v : α) : KVMap :=
   m.insert k (Value.toDataValue v)
 
+instance : Value DataValue where
+  toDataValue  := id
+  ofDataValue? := some
+
 instance : Value Bool where
   toDataValue  := DataValue.ofBool
   ofDataValue?

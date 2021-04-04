@@ -64,7 +64,7 @@ def isExitCommand (s : Syntax) : Bool :=
 
 private def consumeInput (c : ParserContext) (pos : String.Pos) : String.Pos :=
   let s : ParserState := { cache := initCacheForInput c.input, pos := pos }
-  let s := tokenFn c s
+  let s := tokenFn [] c s
   match s.errorMsg with
   | some _ => pos + 1
   | none   => s.pos

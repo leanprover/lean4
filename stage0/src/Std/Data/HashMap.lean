@@ -47,6 +47,12 @@ def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
 @[inline] def fold {δ : Type w} (f : δ → α → β → δ) (d : δ) (m : HashMapImp α β) : δ :=
   foldBuckets m.buckets d f
 
+@[inline] def forBucketsM {m : Type w → Type w} [Monad m] (data : HashMapBucket α β) (f : α → β → m PUnit) : m PUnit :=
+  data.val.forM fun b => b.forM f
+
+@[inline] def forM {m : Type w → Type w} [Monad m] (f : α → β → m PUnit) (h : HashMapImp α β) : m PUnit :=
+  forBucketsM h.buckets f
+
 def findEntry? [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option (α × β) :=
   match m with
   | ⟨_, buckets⟩ =>
@@ -167,6 +173,10 @@ instance : EmptyCollection (HashMap α β) := ⟨mkHashMap⟩
 @[inline] def fold {δ : Type w} (f : δ → α → β → δ) (init : δ) (m : HashMap α β) : δ :=
   match m with
   | ⟨ m, _ ⟩ => m.fold f init
+
+@[inline] def forM {m : Type w → Type w} [Monad m] (f : α → β → m PUnit) (h : HashMap α β) : m PUnit :=
+  match h with
+  | ⟨ h, _ ⟩ => h.forM f
 
 @[inline] def size (m : HashMap α β) : Nat :=
   match m with

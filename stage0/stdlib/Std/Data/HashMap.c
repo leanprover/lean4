@@ -18,6 +18,7 @@ size_t l_USize_add(size_t, size_t);
 uint8_t l_Std_HashMap_isEmpty___rarg(lean_object*);
 lean_object* l_Std_HashMapImp_moveEntries___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_fold___spec__2___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
+lean_object* l_Std_HashMapImp_forM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_fold(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_empty___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_size_match__1___rarg(lean_object*, lean_object*);
@@ -31,6 +32,7 @@ lean_object* l_Std_HashMap_toList(lean_object*, lean_object*, lean_object*, lean
 lean_object* l_Std_HashMap_contains___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_getOp___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___at_Std_HashMapImp_foldBuckets___spec__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_HashMapImp_forBucketsM(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_erase___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_numBuckets___rarg___boxed(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_foldBucketsM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -46,6 +48,7 @@ lean_object* l_Std_AssocList_foldlM___rarg(lean_object*, lean_object*, lean_obje
 lean_object* l_Std_HashMapImp_find_x3f___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapBucket_update___rarg(lean_object*, size_t, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_size_match__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_reinsertAux_match__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_foldM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -61,6 +64,7 @@ lean_object* l_Std_HashMapImp_erase(lean_object*, lean_object*);
 lean_object* l_Std_HashMap_isEmpty___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___at_Std_HashMapImp_fold___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_numBuckets___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forBucketsM___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_size_match__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_instInhabitedHashMap___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_getOp(lean_object*, lean_object*);
@@ -77,11 +81,13 @@ lean_object* l_Std_HashMapImp_reinsertAux_match__1___rarg___boxed(lean_object*, 
 lean_object* l_Std_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMapImp(lean_object*, lean_object*);
 lean_object* l_Std_HashMap_numBuckets___rarg(lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_forM___spec__1___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Std_HashMapImp_foldBuckets___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_fold___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_toList___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapBucket_update(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_forM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_findEntry_x3f___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_toList___spec__2(lean_object*, lean_object*);
@@ -95,12 +101,15 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_foldM___spec__1(lean_
 lean_object* l_Std_AssocList_foldlM___at_Std_HashMapImp_foldBuckets___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forM___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_foldM___spec__1___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 lean_object* l_Std_HashMap_numBuckets(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_foldBuckets(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_foldM___spec__1___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_foldBucketsM___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forM___spec__1___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_foldM___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forM___spec__1___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 lean_object* l_Std_HashMapImp_foldBuckets___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_HashMapImp_contains___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_findD___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -116,6 +125,7 @@ lean_object* l_Std_HashMap_find_x21___rarg(lean_object*, lean_object*, lean_obje
 lean_object* l_Std_HashMap_fold___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_fold___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_toList___rarg___boxed(lean_object*);
+lean_object* l_Std_HashMap_forM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_isEmpty___rarg___boxed(lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg___closed__2;
 lean_object* l_Std_HashMap_size___rarg___boxed(lean_object*);
@@ -131,6 +141,7 @@ lean_object* l_Std_HashMap_find_x3f___rarg___boxed(lean_object*, lean_object*, l
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_findEntry_x3f(lean_object*, lean_object*);
 lean_object* l_Std_HashMap_empty(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_forM___spec__1___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_foldBucketsM___spec__1___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_foldM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -143,6 +154,8 @@ lean_object* l_Std_HashMap_instInhabitedHashMap(lean_object*, lean_object*, lean
 lean_object* l_Std_HashMapImp_foldM(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_contains(lean_object*, lean_object*);
 lean_object* l_Std_mkHashMap(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_AssocList_forM___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forBucketsM___spec__1___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_fold___spec__2___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Std_HashMapImp_findEntry_x3f___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_size___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -154,14 +167,17 @@ lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Std_HashMap_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_find_x21_match__1(lean_object*, lean_object*);
 lean_object* l_Std_HashMap_find_x21___rarg___closed__1;
+lean_object* l_Std_HashMap_forM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_find_x21___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_find_x21___rarg___closed__2;
 lean_object* l_Std_HashMapImp_fold___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_forM___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_toArray(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_fold___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_instEmptyCollectionHashMap(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_fold___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_HashMapImp_forBucketsM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_foldM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_foldBuckets___spec__2___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -176,8 +192,11 @@ lean_object* l_Std_HashMapImp_foldBucketsM(lean_object*, lean_object*, lean_obje
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_toArray___spec__2(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_findEntry_x3f___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_erase(lean_object*, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forBucketsM___spec__1___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+lean_object* l_Std_HashMap_forM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___at_Std_HashMap_toArray___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Std_HashMap_foldM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_HashMapImp_forM(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_findD(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_contains___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_insert_match__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -191,9 +210,13 @@ lean_object* l_Std_HashMap_isEmpty(lean_object*, lean_object*, lean_object*, lea
 lean_object* l_Std_HashMap_foldM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_toArray___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___at_Std_HashMap_toArray___spec__1___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forBucketsM___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_getOp___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_findEntry_x3f(lean_object*, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forBucketsM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forM___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_foldBuckets___spec__2(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_forM___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_findEntry_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_mkIdx___boxed(lean_object*, lean_object*, lean_object*);
@@ -915,6 +938,305 @@ lean_object* x_4;
 x_4 = l_Std_HashMapImp_fold___rarg(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
+}
+}
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forBucketsM___spec__1___rarg___lambda__1(size_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, size_t x_5, lean_object* x_6) {
+_start:
+{
+size_t x_7; size_t x_8; lean_object* x_9; 
+x_7 = 1;
+x_8 = x_1 + x_7;
+x_9 = l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forBucketsM___spec__1___rarg(x_2, x_3, x_4, x_8, x_5, x_6);
+return x_9;
+}
+}
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forBucketsM___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, size_t x_5, lean_object* x_6) {
+_start:
+{
+uint8_t x_7; 
+x_7 = x_4 == x_5;
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_dec(x_6);
+x_8 = lean_ctor_get(x_1, 1);
+lean_inc(x_8);
+x_9 = lean_array_uget(x_3, x_4);
+lean_inc(x_2);
+lean_inc(x_1);
+x_10 = l_Std_AssocList_forM___rarg(x_1, x_2, x_9);
+x_11 = lean_box_usize(x_4);
+x_12 = lean_box_usize(x_5);
+x_13 = lean_alloc_closure((void*)(l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forBucketsM___spec__1___rarg___lambda__1___boxed), 6, 5);
+lean_closure_set(x_13, 0, x_11);
+lean_closure_set(x_13, 1, x_1);
+lean_closure_set(x_13, 2, x_2);
+lean_closure_set(x_13, 3, x_3);
+lean_closure_set(x_13, 4, x_12);
+x_14 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_10, x_13);
+return x_14;
+}
+else
+{
+lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+lean_dec(x_3);
+lean_dec(x_2);
+x_15 = lean_ctor_get(x_1, 0);
+lean_inc(x_15);
+lean_dec(x_1);
+x_16 = lean_ctor_get(x_15, 1);
+lean_inc(x_16);
+lean_dec(x_15);
+x_17 = lean_apply_2(x_16, lean_box(0), x_6);
+return x_17;
+}
+}
+}
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forBucketsM___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forBucketsM___spec__1___rarg___boxed), 6, 0);
+return x_4;
+}
+}
+lean_object* l_Std_HashMapImp_forBucketsM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_4 = lean_array_get_size(x_2);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = lean_nat_dec_lt(x_5, x_4);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+x_7 = lean_ctor_get(x_1, 0);
+lean_inc(x_7);
+lean_dec(x_1);
+x_8 = lean_ctor_get(x_7, 1);
+lean_inc(x_8);
+lean_dec(x_7);
+x_9 = lean_box(0);
+x_10 = lean_apply_2(x_8, lean_box(0), x_9);
+return x_10;
+}
+else
+{
+uint8_t x_11; 
+x_11 = lean_nat_dec_le(x_4, x_4);
+if (x_11 == 0)
+{
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+x_12 = lean_ctor_get(x_1, 0);
+lean_inc(x_12);
+lean_dec(x_1);
+x_13 = lean_ctor_get(x_12, 1);
+lean_inc(x_13);
+lean_dec(x_12);
+x_14 = lean_box(0);
+x_15 = lean_apply_2(x_13, lean_box(0), x_14);
+return x_15;
+}
+else
+{
+size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; 
+x_16 = 0;
+x_17 = lean_usize_of_nat(x_4);
+lean_dec(x_4);
+x_18 = lean_box(0);
+x_19 = l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forBucketsM___spec__1___rarg(x_1, x_3, x_2, x_16, x_17, x_18);
+return x_19;
+}
+}
+}
+}
+lean_object* l_Std_HashMapImp_forBucketsM(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_Std_HashMapImp_forBucketsM___rarg), 3, 0);
+return x_4;
+}
+}
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forBucketsM___spec__1___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+size_t x_7; size_t x_8; lean_object* x_9; 
+x_7 = lean_unbox_usize(x_1);
+lean_dec(x_1);
+x_8 = lean_unbox_usize(x_5);
+lean_dec(x_5);
+x_9 = l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forBucketsM___spec__1___rarg___lambda__1(x_7, x_2, x_3, x_4, x_8, x_6);
+return x_9;
+}
+}
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forBucketsM___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+size_t x_7; size_t x_8; lean_object* x_9; 
+x_7 = lean_unbox_usize(x_4);
+lean_dec(x_4);
+x_8 = lean_unbox_usize(x_5);
+lean_dec(x_5);
+x_9 = l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forBucketsM___spec__1___rarg(x_1, x_2, x_3, x_7, x_8, x_6);
+return x_9;
+}
+}
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forM___spec__1___rarg___lambda__1(size_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, size_t x_5, lean_object* x_6) {
+_start:
+{
+size_t x_7; size_t x_8; lean_object* x_9; 
+x_7 = 1;
+x_8 = x_1 + x_7;
+x_9 = l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forM___spec__1___rarg(x_2, x_3, x_4, x_8, x_5, x_6);
+return x_9;
+}
+}
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forM___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, size_t x_5, lean_object* x_6) {
+_start:
+{
+uint8_t x_7; 
+x_7 = x_4 == x_5;
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_dec(x_6);
+x_8 = lean_ctor_get(x_1, 1);
+lean_inc(x_8);
+x_9 = lean_array_uget(x_3, x_4);
+lean_inc(x_2);
+lean_inc(x_1);
+x_10 = l_Std_AssocList_forM___rarg(x_1, x_2, x_9);
+x_11 = lean_box_usize(x_4);
+x_12 = lean_box_usize(x_5);
+x_13 = lean_alloc_closure((void*)(l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forM___spec__1___rarg___lambda__1___boxed), 6, 5);
+lean_closure_set(x_13, 0, x_11);
+lean_closure_set(x_13, 1, x_1);
+lean_closure_set(x_13, 2, x_2);
+lean_closure_set(x_13, 3, x_3);
+lean_closure_set(x_13, 4, x_12);
+x_14 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_10, x_13);
+return x_14;
+}
+else
+{
+lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+lean_dec(x_3);
+lean_dec(x_2);
+x_15 = lean_ctor_get(x_1, 0);
+lean_inc(x_15);
+lean_dec(x_1);
+x_16 = lean_ctor_get(x_15, 1);
+lean_inc(x_16);
+lean_dec(x_15);
+x_17 = lean_apply_2(x_16, lean_box(0), x_6);
+return x_17;
+}
+}
+}
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forM___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forM___spec__1___rarg___boxed), 6, 0);
+return x_4;
+}
+}
+lean_object* l_Std_HashMapImp_forM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_4 = lean_ctor_get(x_3, 1);
+lean_inc(x_4);
+lean_dec(x_3);
+x_5 = lean_array_get_size(x_4);
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = lean_nat_dec_lt(x_6, x_5);
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_2);
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+lean_dec(x_1);
+x_9 = lean_ctor_get(x_8, 1);
+lean_inc(x_9);
+lean_dec(x_8);
+x_10 = lean_box(0);
+x_11 = lean_apply_2(x_9, lean_box(0), x_10);
+return x_11;
+}
+else
+{
+uint8_t x_12; 
+x_12 = lean_nat_dec_le(x_5, x_5);
+if (x_12 == 0)
+{
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_2);
+x_13 = lean_ctor_get(x_1, 0);
+lean_inc(x_13);
+lean_dec(x_1);
+x_14 = lean_ctor_get(x_13, 1);
+lean_inc(x_14);
+lean_dec(x_13);
+x_15 = lean_box(0);
+x_16 = lean_apply_2(x_14, lean_box(0), x_15);
+return x_16;
+}
+else
+{
+size_t x_17; size_t x_18; lean_object* x_19; lean_object* x_20; 
+x_17 = 0;
+x_18 = lean_usize_of_nat(x_5);
+lean_dec(x_5);
+x_19 = lean_box(0);
+x_20 = l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forM___spec__1___rarg(x_1, x_2, x_4, x_17, x_18, x_19);
+return x_20;
+}
+}
+}
+}
+lean_object* l_Std_HashMapImp_forM(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_Std_HashMapImp_forM___rarg), 3, 0);
+return x_4;
+}
+}
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forM___spec__1___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+size_t x_7; size_t x_8; lean_object* x_9; 
+x_7 = lean_unbox_usize(x_1);
+lean_dec(x_1);
+x_8 = lean_unbox_usize(x_5);
+lean_dec(x_5);
+x_9 = l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forM___spec__1___rarg___lambda__1(x_7, x_2, x_3, x_4, x_8, x_6);
+return x_9;
+}
+}
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forM___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+size_t x_7; size_t x_8; lean_object* x_9; 
+x_7 = lean_unbox_usize(x_4);
+lean_dec(x_4);
+x_8 = lean_unbox_usize(x_5);
+lean_dec(x_5);
+x_9 = l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forM___spec__1___rarg(x_1, x_2, x_3, x_7, x_8, x_6);
+return x_9;
 }
 }
 lean_object* l_Std_HashMapImp_findEntry_x3f_match__1___rarg(lean_object* x_1, lean_object* x_2) {
@@ -1665,7 +1987,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_HashMap_find_x21___rarg___closed__1;
 x_2 = l_Std_HashMap_find_x21___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(154u);
+x_3 = lean_unsigned_to_nat(160u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Std_HashMap_find_x21___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2057,6 +2379,167 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Std_HashMap_fold(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+return x_6;
+}
+}
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_forM___spec__1___rarg___lambda__1(size_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, size_t x_5, lean_object* x_6) {
+_start:
+{
+size_t x_7; size_t x_8; lean_object* x_9; 
+x_7 = 1;
+x_8 = x_1 + x_7;
+x_9 = l_Array_foldlMUnsafe_fold___at_Std_HashMap_forM___spec__1___rarg(x_2, x_3, x_4, x_8, x_5, x_6);
+return x_9;
+}
+}
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_forM___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, size_t x_5, lean_object* x_6) {
+_start:
+{
+uint8_t x_7; 
+x_7 = x_4 == x_5;
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_dec(x_6);
+x_8 = lean_ctor_get(x_1, 1);
+lean_inc(x_8);
+x_9 = lean_array_uget(x_3, x_4);
+lean_inc(x_2);
+lean_inc(x_1);
+x_10 = l_Std_AssocList_forM___rarg(x_1, x_2, x_9);
+x_11 = lean_box_usize(x_4);
+x_12 = lean_box_usize(x_5);
+x_13 = lean_alloc_closure((void*)(l_Array_foldlMUnsafe_fold___at_Std_HashMap_forM___spec__1___rarg___lambda__1___boxed), 6, 5);
+lean_closure_set(x_13, 0, x_11);
+lean_closure_set(x_13, 1, x_1);
+lean_closure_set(x_13, 2, x_2);
+lean_closure_set(x_13, 3, x_3);
+lean_closure_set(x_13, 4, x_12);
+x_14 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_10, x_13);
+return x_14;
+}
+else
+{
+lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+lean_dec(x_3);
+lean_dec(x_2);
+x_15 = lean_ctor_get(x_1, 0);
+lean_inc(x_15);
+lean_dec(x_1);
+x_16 = lean_ctor_get(x_15, 1);
+lean_inc(x_16);
+lean_dec(x_15);
+x_17 = lean_apply_2(x_16, lean_box(0), x_6);
+return x_17;
+}
+}
+}
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_forM___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_Array_foldlMUnsafe_fold___at_Std_HashMap_forM___spec__1___rarg___boxed), 6, 0);
+return x_4;
+}
+}
+lean_object* l_Std_HashMap_forM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_4 = lean_ctor_get(x_3, 1);
+lean_inc(x_4);
+lean_dec(x_3);
+x_5 = lean_array_get_size(x_4);
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = lean_nat_dec_lt(x_6, x_5);
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_2);
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+lean_dec(x_1);
+x_9 = lean_ctor_get(x_8, 1);
+lean_inc(x_9);
+lean_dec(x_8);
+x_10 = lean_box(0);
+x_11 = lean_apply_2(x_9, lean_box(0), x_10);
+return x_11;
+}
+else
+{
+uint8_t x_12; 
+x_12 = lean_nat_dec_le(x_5, x_5);
+if (x_12 == 0)
+{
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_2);
+x_13 = lean_ctor_get(x_1, 0);
+lean_inc(x_13);
+lean_dec(x_1);
+x_14 = lean_ctor_get(x_13, 1);
+lean_inc(x_14);
+lean_dec(x_13);
+x_15 = lean_box(0);
+x_16 = lean_apply_2(x_14, lean_box(0), x_15);
+return x_16;
+}
+else
+{
+size_t x_17; size_t x_18; lean_object* x_19; lean_object* x_20; 
+x_17 = 0;
+x_18 = lean_usize_of_nat(x_5);
+lean_dec(x_5);
+x_19 = lean_box(0);
+x_20 = l_Array_foldlMUnsafe_fold___at_Std_HashMap_forM___spec__1___rarg(x_1, x_2, x_4, x_17, x_18, x_19);
+return x_20;
+}
+}
+}
+}
+lean_object* l_Std_HashMap_forM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = lean_alloc_closure((void*)(l_Std_HashMap_forM___rarg), 3, 0);
+return x_6;
+}
+}
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_forM___spec__1___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+size_t x_7; size_t x_8; lean_object* x_9; 
+x_7 = lean_unbox_usize(x_1);
+lean_dec(x_1);
+x_8 = lean_unbox_usize(x_5);
+lean_dec(x_5);
+x_9 = l_Array_foldlMUnsafe_fold___at_Std_HashMap_forM___spec__1___rarg___lambda__1(x_7, x_2, x_3, x_4, x_8, x_6);
+return x_9;
+}
+}
+lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_forM___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+size_t x_7; size_t x_8; lean_object* x_9; 
+x_7 = lean_unbox_usize(x_4);
+lean_dec(x_4);
+x_8 = lean_unbox_usize(x_5);
+lean_dec(x_5);
+x_9 = l_Array_foldlMUnsafe_fold___at_Std_HashMap_forM___spec__1___rarg(x_1, x_2, x_3, x_7, x_8, x_6);
+return x_9;
+}
+}
+lean_object* l_Std_HashMap_forM___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Std_HashMap_forM(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 return x_6;

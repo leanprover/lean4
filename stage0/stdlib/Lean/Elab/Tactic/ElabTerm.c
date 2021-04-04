@@ -225,6 +225,7 @@ lean_object* l_Lean_Elab_Tactic_evalDecide___rarg___lambda__1(lean_object*, lean
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalNativeDecide___closed__1;
 lean_object* l_Lean_Elab_Tactic_evalDecide___rarg___closed__1;
 lean_object* l_Lean_indentExpr(lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_elabSetOption___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalNativeDecide(lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Elab_Tactic_evalRename___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -247,7 +248,6 @@ lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object
 extern lean_object* l_Lean_Parser_Tactic_refine_x27___closed__2;
 lean_object* l_Lean_Elab_Tactic_evalDecide___rarg___lambda__1___closed__1;
 lean_object* l_Lean_Meta_existsIntro(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_elabSetOption___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isIdent(lean_object*);
 lean_object* l_Lean_Elab_Tactic_elabTerm___lambda__1(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
@@ -5289,7 +5289,7 @@ x_35 = l_Lean_KernelException_toMessageData___closed__15;
 x_36 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_36, 0, x_34);
 lean_ctor_set(x_36, 1, x_35);
-x_37 = l_Lean_throwError___at_Lean_Elab_Tactic_elabSetOption___spec__4(x_36, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_29);
+x_37 = l_Lean_throwError___at_Lean_Elab_Tactic_elabSetOption___spec__7(x_36, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_29);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -5415,7 +5415,7 @@ x_67 = l_Lean_KernelException_toMessageData___closed__15;
 x_68 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_68, 0, x_66);
 lean_ctor_set(x_68, 1, x_67);
-x_69 = l_Lean_throwError___at_Lean_Elab_Tactic_elabSetOption___spec__4(x_68, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_61);
+x_69 = l_Lean_throwError___at_Lean_Elab_Tactic_elabSetOption___spec__7(x_68, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_61);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);

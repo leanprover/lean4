@@ -248,12 +248,12 @@ def mkError (s : ParserState) (msg : String) : ParserState :=
   match s with
   | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
 
-def mkUnexpectedError (s : ParserState) (msg : String) : ParserState :=
+def mkUnexpectedError (s : ParserState) (msg : String) (expected : List String := []) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { unexpected := msg }⟩
+  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { unexpected := msg, expected := expected }⟩
 
-def mkEOIError (s : ParserState) : ParserState :=
-  s.mkUnexpectedError "end of input"
+def mkEOIError (s : ParserState) (expected : List String := []) : ParserState :=
+  s.mkUnexpectedError "unexpected end of input" expected
 
 def mkErrorAt (s : ParserState) (msg : String) (pos : String.Pos) (initStackSz? : Option Nat := none) : ParserState :=
   match s,  initStackSz? with
@@ -1063,10 +1063,10 @@ private def updateCache (startPos : Nat) (s : ParserState) : ParserState :=
       ⟨stack, lhsPrec, pos, { tokenCache := { startPos := startPos, stopPos := pos, token := tk } }, none⟩
   | other => other
 
-def tokenFn : ParserFn := fun c s =>
+def tokenFn (expected : List String := []) : ParserFn := fun c s =>
   let input := c.input
   let i     := s.pos
-  if input.atEnd i then s.mkEOIError
+  if input.atEnd i then s.mkEOIError expected
   else
     let tkc := s.cache.tokenCache
     if tkc.startPos == i then
@@ -1079,7 +1079,7 @@ def tokenFn : ParserFn := fun c s =>
 def peekTokenAux (c : ParserContext) (s : ParserState) : ParserState × Except ParserState Syntax :=
   let iniSz  := s.stackSize
   let iniPos := s.pos
-  let s      := tokenFn c s
+  let s      := tokenFn [] c s
   if let some e := s.errorMsg then (s.restore iniSz iniPos, Except.error s)
   else
     let stx := s.stxStack.back
@@ -1102,7 +1102,7 @@ def rawIdentFn : ParserFn := fun c s =>
 @[inline] def satisfySymbolFn (p : String → Bool) (expected : List String) : ParserFn := fun c s =>
   let initStackSz := s.stackSize
   let startPos := s.pos
-  let s        := tokenFn c s
+  let s        := tokenFn expected c s
   if s.hasError then
     s
   else
@@ -1141,7 +1141,7 @@ def checkTailNoWs (prev : Syntax) : Bool :=
 def nonReservedSymbolFnAux (sym : String) (errorMsg : String) : ParserFn := fun c s =>
   let initStackSz := s.stackSize
   let startPos := s.pos
-  let s := tokenFn c s
+  let s := tokenFn [errorMsg] c s
   if s.hasError then s
   else
     match s.stxStack.back with
@@ -1247,7 +1247,7 @@ def numLitFn : ParserFn :=
   fun c s =>
     let initStackSz := s.stackSize
     let iniPos := s.pos
-    let s      := tokenFn c s
+    let s      := tokenFn ["numeral"] c s
     if !s.hasError && !(s.stxStack.back.isOfKind numLitKind) then s.mkErrorAt "numeral" iniPos initStackSz else s
 
 @[inline] def numLitNoAntiquot : Parser := {
@@ -1259,7 +1259,7 @@ def scientificLitFn : ParserFn :=
   fun c s =>
     let initStackSz := s.stackSize
     let iniPos := s.pos
-    let s      := tokenFn c s
+    let s      := tokenFn ["scientific number"] c s
     if !s.hasError && !(s.stxStack.back.isOfKind scientificLitKind) then s.mkErrorAt "scientific number" iniPos initStackSz else s
 
 @[inline] def scientificLitNoAntiquot : Parser := {
@@ -1270,7 +1270,7 @@ def scientificLitFn : ParserFn :=
 def strLitFn : ParserFn := fun c s =>
   let initStackSz := s.stackSize
   let iniPos := s.pos
-  let s := tokenFn c s
+  let s := tokenFn ["string literal"] c s
   if !s.hasError && !(s.stxStack.back.isOfKind strLitKind) then s.mkErrorAt "string literal" iniPos initStackSz else s
 
 @[inline] def strLitNoAntiquot : Parser := {
@@ -1281,7 +1281,7 @@ def strLitFn : ParserFn := fun c s =>
 def charLitFn : ParserFn := fun c s =>
   let initStackSz := s.stackSize
   let iniPos := s.pos
-  let s := tokenFn c s
+  let s := tokenFn ["char literal"] c s
   if !s.hasError && !(s.stxStack.back.isOfKind charLitKind) then s.mkErrorAt "character literal" iniPos initStackSz else s
 
 @[inline] def charLitNoAntiquot : Parser := {
@@ -1292,7 +1292,7 @@ def charLitFn : ParserFn := fun c s =>
 def nameLitFn : ParserFn := fun c s =>
   let initStackSz := s.stackSize
   let iniPos := s.pos
-  let s := tokenFn c s
+  let s := tokenFn ["Name literal"] c s
   if !s.hasError && !(s.stxStack.back.isOfKind nameLitKind) then s.mkErrorAt "Name literal" iniPos initStackSz else s
 
 @[inline] def nameLitNoAntiquot : Parser := {
@@ -1303,7 +1303,7 @@ def nameLitFn : ParserFn := fun c s =>
 def identFn : ParserFn := fun c s =>
   let initStackSz := s.stackSize
   let iniPos := s.pos
-  let s      := tokenFn c s
+  let s      := tokenFn ["identifier"] c s
   if !s.hasError && !(s.stxStack.back.isIdent) then s.mkErrorAt "identifier" iniPos initStackSz else s
 
 @[inline] def identNoAntiquot : Parser := {
@@ -1318,7 +1318,7 @@ def identFn : ParserFn := fun c s =>
 def identEqFn (id : Name) : ParserFn := fun c s =>
   let initStackSz := s.stackSize
   let iniPos := s.pos
-  let s      := tokenFn c s
+  let s      := tokenFn ["identifier"] c s
   if s.hasError then
     s
   else match s.stxStack.back with

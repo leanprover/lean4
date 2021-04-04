@@ -37,9 +37,22 @@ structure CommandInfo where
   stx : Syntax
   deriving Inhabited
 
-structure DotCompletionInfo extends TermInfo where
-  field?        : Option Syntax := none
-  expectedType? : Option Expr
+inductive CompletionInfo where
+  | dot (termInfo : TermInfo) (field? : Option Syntax) (expectedType? : Option Expr)
+  | id (stx : Syntax) (lctx : LocalContext) (expectedType? : Option Expr)
+  | namespaceId (stx : Syntax)
+  | option (stx : Syntax)
+  | endSection (stx : Syntax) (scopeNames : List String)
+  | tactic (stx : Syntax) (goals : List MVarId)
+  -- TODO `import`
+
+def CompletionInfo.stx : CompletionInfo → Syntax
+  | dot i .. => i.stx
+  | id stx .. => stx
+  | namespaceId stx => stx
+  | option stx => stx
+  | endSection stx .. => stx
+  | tactic stx .. => stx
 
 structure FieldInfo where
   name : Name
@@ -71,7 +84,7 @@ inductive Info where
   | ofCommandInfo (i : CommandInfo)
   | ofMacroExpansionInfo (i : MacroExpansionInfo)
   | ofFieldInfo (i : FieldInfo)
-  | ofDotCompletionInfo (i : DotCompletionInfo)
+  | ofCompletionInfo (i : CompletionInfo)
   deriving Inhabited
 
 inductive InfoTree where
@@ -103,7 +116,7 @@ class MonadInfoTree (m : Type → Type)  where
 
 export MonadInfoTree (getInfoState modifyInfoState)
 
-instance (m n) [MonadLift m n] [MonadInfoTree m] : MonadInfoTree n where
+instance [MonadLift m n] [MonadInfoTree m] : MonadInfoTree n where
   getInfoState      := liftM (getInfoState : m _)
   modifyInfoState f := liftM (modifyInfoState f : m _)
 
@@ -128,12 +141,12 @@ def ContextInfo.toPPContext (info : ContextInfo) (lctx : LocalContext) : PPConte
 def ContextInfo.ppSyntax (info : ContextInfo) (lctx : LocalContext) (stx : Syntax) : IO Format := do
   ppTerm (info.toPPContext lctx) stx
 
-private def formatStxRange (cinfo : ContextInfo) (stx : Syntax) : Format := do
+private def formatStxRange (ctx : ContextInfo) (stx : Syntax) : Format := do
   let pos    := stx.getPos?.getD 0
   let endPos := stx.getTailPos?.getD pos
   return f!"{fmtPos pos stx.getHeadInfo}-{fmtPos endPos stx.getTailInfo}"
 where fmtPos pos info :=
-    let pos := format <| cinfo.fileMap.toPosition pos
+    let pos := format <| ctx.fileMap.toPosition pos
     match info with
     | SourceInfo.original ..  => pos
     | _                       => f!"{pos}†"
@@ -141,55 +154,61 @@ where fmtPos pos info :=
 def TermInfo.runMetaM (info : TermInfo) (ctx : ContextInfo) (x : MetaM α) : IO α :=
   ctx.runMetaM info.lctx x
 
-def TermInfo.format (cinfo : ContextInfo) (info : TermInfo) : IO Format := do
-  info.runMetaM cinfo do
-    return f!"{← Meta.ppExpr info.expr} : {← Meta.ppExpr (← Meta.inferType info.expr)} @ {formatStxRange cinfo info.stx}"
+def TermInfo.format (ctx : ContextInfo) (info : TermInfo) : IO Format := do
+  info.runMetaM ctx do
+    return f!"{← Meta.ppExpr info.expr} : {← Meta.ppExpr (← Meta.inferType info.expr)} @ {formatStxRange ctx info.stx}"
 
-def CommandInfo.format (cinfo : ContextInfo) (info : CommandInfo) : IO Format := do
-  return f!"command @ {formatStxRange cinfo info.stx}"
+def CompletionInfo.format (ctx : ContextInfo) (info : CompletionInfo) : IO Format :=
+  match info with
+  | CompletionInfo.dot i .. => return f!"[.] {← i.format ctx}"
+  | CompletionInfo.id stx lctx expectedType? => ctx.runMetaM lctx do return f!"[.] {stx} : {expectedType?}"
+  | _ => return f!"[.] {info.stx}"
 
-def FieldInfo.format (cinfo : ContextInfo) (info : FieldInfo) : IO Format := do
-  cinfo.runMetaM info.lctx do
-    return f!"{info.name} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {formatStxRange cinfo info.stx}"
+def CommandInfo.format (ctx : ContextInfo) (info : CommandInfo) : IO Format := do
+  return f!"command @ {formatStxRange ctx info.stx}"
 
-def ContextInfo.ppGoals (cinfo : ContextInfo) (goals : List MVarId) : IO Format :=
+def FieldInfo.format (ctx : ContextInfo) (info : FieldInfo) : IO Format := do
+  ctx.runMetaM info.lctx do
+    return f!"{info.name} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {formatStxRange ctx info.stx}"
+
+def ContextInfo.ppGoals (ctx : ContextInfo) (goals : List MVarId) : IO Format :=
   if goals.isEmpty then
     return "no goals"
   else
-    cinfo.runMetaM {} (return Std.Format.prefixJoin "\n" (← goals.mapM Meta.ppGoal))
+    ctx.runMetaM {} (return Std.Format.prefixJoin "\n" (← goals.mapM Meta.ppGoal))
 
-def TacticInfo.format (cinfo : ContextInfo) (info : TacticInfo) : IO Format := do
-  let cinfoB := { cinfo with mctx := info.mctxBefore }
-  let cinfoA := { cinfo with mctx := info.mctxAfter }
-  let goalsBefore ← cinfoB.ppGoals info.goalsBefore
-  let goalsAfter  ← cinfoA.ppGoals info.goalsAfter
-  return f!"Tactic @ {formatStxRange cinfo info.stx}\nbefore {goalsBefore}\nafter {goalsAfter}"
+def TacticInfo.format (ctx : ContextInfo) (info : TacticInfo) : IO Format := do
+  let ctxB := { ctx with mctx := info.mctxBefore }
+  let ctxA := { ctx with mctx := info.mctxAfter }
+  let goalsBefore ← ctxB.ppGoals info.goalsBefore
+  let goalsAfter  ← ctxA.ppGoals info.goalsAfter
+  return f!"Tactic @ {formatStxRange ctx info.stx}\nbefore {goalsBefore}\nafter {goalsAfter}"
 
-def MacroExpansionInfo.format (cinfo : ContextInfo) (info : MacroExpansionInfo) : IO Format := do
-  let before ← cinfo.ppSyntax info.lctx info.before
-  let after  ← cinfo.ppSyntax info.lctx info.after
+def MacroExpansionInfo.format (ctx : ContextInfo) (info : MacroExpansionInfo) : IO Format := do
+  let before ← ctx.ppSyntax info.lctx info.before
+  let after  ← ctx.ppSyntax info.lctx info.after
   return f!"Macro expansion\n{before}\n===>\n{after}"
 
-def Info.format (cinfo : ContextInfo) : Info → IO Format
-  | ofTacticInfo i         => i.format cinfo
-  | ofTermInfo i           => i.format cinfo
-  | ofCommandInfo i        => i.format cinfo
-  | ofMacroExpansionInfo i => i.format cinfo
-  | ofFieldInfo i          => i.format cinfo
-  | ofDotCompletionInfo i  => return f!"[.] {← i.format cinfo}"
+def Info.format (ctx : ContextInfo) : Info → IO Format
+  | ofTacticInfo i         => i.format ctx
+  | ofTermInfo i           => i.format ctx
+  | ofCommandInfo i        => i.format ctx
+  | ofMacroExpansionInfo i => i.format ctx
+  | ofFieldInfo i          => i.format ctx
+  | ofCompletionInfo i     => i.format ctx
 
-partial def InfoTree.format (tree : InfoTree) (cinfo? : Option ContextInfo := none) : IO Format := do
+partial def InfoTree.format (tree : InfoTree) (ctx? : Option ContextInfo := none) : IO Format := do
   match tree with
   | ofJson j    => return toString j
   | hole id     => return toString id
   | context i t => format t i
-  | node i cs   => match cinfo? with
+  | node i cs   => match ctx? with
     | none => return "<context-not-available>"
-    | some cinfo =>
+    | some ctx =>
       if cs.size == 0 then
-        i.format cinfo
+        i.format ctx
       else
-        return f!"{← i.format cinfo}{Std.Format.nestD <| Std.Format.prefixJoin "\n" (← cs.toList.mapM fun c => format c cinfo?)}"
+        return f!"{← i.format ctx}{Std.Format.nestD <| Std.Format.prefixJoin "\n" (← cs.toList.mapM fun c => format c ctx?)}"
 
 section
 variable [Monad m] [MonadInfoTree m]
@@ -209,6 +228,9 @@ def pushInfoTree (t : InfoTree) : m Unit := do
 def pushInfoLeaf (t : Info) : m Unit := do
   if (← getInfoState).enabled then
     pushInfoTree <| InfoTree.node (children := {}) t
+
+def addCompletionInfo (info : CompletionInfo) : m Unit := do
+  pushInfoLeaf <| Info.ofCompletionInfo info
 
 def resolveGlobalConstNoOverloadWithInfo [MonadResolveName m] [MonadEnv m] [MonadError m] (stx : Syntax) (id := stx.getId) : m Name := do
   let n ← resolveGlobalConstNoOverload id

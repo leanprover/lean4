@@ -44,14 +44,14 @@ def Info.isTerm : Info → Bool
   | ofTermInfo _ => true
   | _ => false
 
-def Info.isDotCompletion : Info → Bool
-  | ofDotCompletionInfo .. => true
+def Info.isCompletion : Info → Bool
+  | ofCompletionInfo .. => true
   | _ => false
 
-def InfoTree.getDotCompletionInfos (infoTree : InfoTree) : Array (ContextInfo × DotCompletionInfo) :=
+def InfoTree.getCompletionInfos (infoTree : InfoTree) : Array (ContextInfo × CompletionInfo) :=
   infoTree.foldInfo (init := #[]) fun ctx info result =>
     match info with
-    | Info.ofDotCompletionInfo info => result.push (ctx, info)
+    | Info.ofCompletionInfo info => result.push (ctx, info)
     | _ => result
 
 def Info.stx : Info → Syntax
@@ -60,7 +60,7 @@ def Info.stx : Info → Syntax
   | ofCommandInfo i        => i.stx
   | ofMacroExpansionInfo i => i.before
   | ofFieldInfo i          => i.stx
-  | ofDotCompletionInfo i  => i.stx
+  | ofCompletionInfo i     => i.stx
 
 def Info.pos? (i : Info) : Option String.Pos :=
   i.stx.getPos? (originalOnly := true)
@@ -169,7 +169,7 @@ partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : List Goal
         | failure
       let trailSize := i.stx.getTrailingSize
       guard <| pos ≤ hoverPos ∧ hoverPos < tailPos + trailSize
-      return { ctxInfo := ctx, tacticInfo := ti, useAfter := hoverPos >= tailPos }
+      return { ctxInfo := ctx, tacticInfo := ti, useAfter := hoverPos > pos }
     | _, _ => none
 
 end Lean.Elab

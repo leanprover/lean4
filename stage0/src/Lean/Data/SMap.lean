@@ -64,6 +64,10 @@ def empty : SMap α β := {}
   | ⟨true, m₁, _⟩, k   => m₁.find? k
   | ⟨false, m₁, m₂⟩, k => (m₁.find? k).orElse (m₂.find? k)
 
+def forM [Monad m] (s : SMap α β) (f : α → β → m PUnit) : m PUnit := do
+  s.map₁.forM f
+  s.map₂.forM f
+
 /- Move from stage 1 into stage 2. -/
 def switch (m : SMap α β) : SMap α β :=
   if m.stage₁ then { m with stage₁ := false } else m

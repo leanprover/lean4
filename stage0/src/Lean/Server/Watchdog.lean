@@ -508,10 +508,10 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     willSaveWaitUntil := false
     save?             := none
   }
-  /- TODO: activate, refine
+  -- refine
   completionProvider? := some {
     triggerCharacters? := some #["."]
-  } -/
+  }
   hoverProvider := true
   declarationProvider := true
   definitionProvider := true

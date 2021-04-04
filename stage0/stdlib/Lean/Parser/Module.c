@@ -88,7 +88,7 @@ lean_object* l_Lean_Parser_Module_header___elambda__1___closed__17;
 lean_object* l_Lean_Parser_Module_prelude___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Module_prelude_formatter___closed__1;
 lean_object* l_Lean_Parser_Module_module_parenthesizer___closed__1;
-lean_object* l_Lean_Parser_tokenFn(lean_object*, lean_object*);
+lean_object* l_Lean_Parser_tokenFn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Module_updateTokens___closed__1;
 lean_object* l_Lean_Parser_Module_header_parenthesizer___closed__5;
 lean_object* l_Lean_Parser_Module_import___closed__9;
@@ -2799,7 +2799,7 @@ return x_3;
 lean_object* l___private_Lean_Parser_Module_0__Lean_Parser_consumeInput(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_3, 0);
@@ -2817,27 +2817,28 @@ lean_ctor_set(x_9, 1, x_8);
 lean_ctor_set(x_9, 2, x_2);
 lean_ctor_set(x_9, 3, x_5);
 lean_ctor_set(x_9, 4, x_6);
-x_10 = l_Lean_Parser_tokenFn(x_1, x_9);
-x_11 = lean_ctor_get(x_10, 4);
-lean_inc(x_11);
-if (lean_obj_tag(x_11) == 0)
-{
-lean_object* x_12; 
-lean_dec(x_2);
-x_12 = lean_ctor_get(x_10, 2);
+x_10 = lean_box(0);
+x_11 = l_Lean_Parser_tokenFn(x_10, x_1, x_9);
+x_12 = lean_ctor_get(x_11, 4);
 lean_inc(x_12);
-lean_dec(x_10);
-return x_12;
+if (lean_obj_tag(x_12) == 0)
+{
+lean_object* x_13; 
+lean_dec(x_2);
+x_13 = lean_ctor_get(x_11, 2);
+lean_inc(x_13);
+lean_dec(x_11);
+return x_13;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; 
+lean_object* x_14; lean_object* x_15; 
+lean_dec(x_12);
 lean_dec(x_11);
-lean_dec(x_10);
-x_13 = lean_unsigned_to_nat(1u);
-x_14 = lean_nat_add(x_2, x_13);
+x_14 = lean_unsigned_to_nat(1u);
+x_15 = lean_nat_add(x_2, x_14);
 lean_dec(x_2);
-return x_14;
+return x_15;
 }
 }
 }

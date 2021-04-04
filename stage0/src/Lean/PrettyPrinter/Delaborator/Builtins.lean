@@ -30,7 +30,11 @@ def delabBVar : Delab := do
 @[builtinDelab mvar]
 def delabMVar : Delab := do
   let Expr.mvar n _ ← getExpr | unreachable!
-  let n := n.replacePrefix `_uniq `m
+  let mvarDecl ← getMVarDecl n
+  let n :=
+    match mvarDecl.userName with
+    | Name.anonymous => n.replacePrefix `_uniq `m
+    | n => n
   `(?$(mkIdent n))
 
 @[builtinDelab sort]

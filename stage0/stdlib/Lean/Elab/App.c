@@ -27670,10 +27670,12 @@ goto block_348;
 else
 {
 lean_object* x_1753; lean_object* x_1754; lean_object* x_1755; lean_object* x_1756; lean_object* x_1757; 
+lean_dec(x_1);
 x_1753 = l_Lean_Syntax_getId(x_1409);
 x_1754 = lean_erase_macro_scopes(x_1753);
 x_1755 = l_Lean_Name_components(x_1754);
-x_1756 = l_List_map___at___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppFn___spec__3(x_1, x_1409, x_1755);
+lean_inc(x_1407);
+x_1756 = l_List_map___at___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppFn___spec__3(x_1407, x_1409, x_1755);
 x_1757 = l_List_append___rarg(x_1756, x_2);
 x_1 = x_1407;
 x_2 = x_1757;
@@ -29338,10 +29340,12 @@ return x_2096;
 else
 {
 lean_object* x_2118; lean_object* x_2119; lean_object* x_2120; lean_object* x_2121; lean_object* x_2122; 
+lean_dec(x_1);
 x_2118 = l_Lean_Syntax_getId(x_1783);
 x_2119 = lean_erase_macro_scopes(x_2118);
 x_2120 = l_Lean_Name_components(x_2119);
-x_2121 = l_List_map___at___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppFn___spec__4(x_1, x_1783, x_2120);
+lean_inc(x_1781);
+x_2121 = l_List_map___at___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppFn___spec__4(x_1781, x_1783, x_2120);
 x_2122 = l_List_append___rarg(x_2121, x_2);
 x_1 = x_1781;
 x_2 = x_2122;

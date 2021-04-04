@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Environment
 import Lean.Data.Lsp.LanguageFeatures
 import Lean.Meta.Tactic.Apply
+import Lean.Meta.Match.MatcherInfo
 import Lean.Server.InfoUtils
 import Lean.Parser.Extension
 
@@ -22,7 +23,12 @@ def addToBlackList (env : Environment) (declName : Name) : Environment :=
 
 private def isBlackListed (declName : Name) : MetaM Bool := do
   let env ← getEnv
-  return declName.isInternal || isAuxRecursor env declName || isNoConfusion env declName || (← isRec declName) || completionBlackListExt.isTagged env declName
+  declName.isInternal
+  <||> isAuxRecursor env declName
+  <||> isNoConfusion env declName
+  <||> isRec declName
+  <||> completionBlackListExt.isTagged env declName
+  <||> isMatcher declName
 
 private partial def consumeImplicitPrefix (e : Expr) : MetaM Expr := do
   match e with

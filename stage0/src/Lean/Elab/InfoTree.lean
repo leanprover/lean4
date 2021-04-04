@@ -161,8 +161,8 @@ def TermInfo.format (ctx : ContextInfo) (info : TermInfo) : IO Format := do
 def CompletionInfo.format (ctx : ContextInfo) (info : CompletionInfo) : IO Format :=
   match info with
   | CompletionInfo.dot i .. => return f!"[.] {← i.format ctx}"
-  | CompletionInfo.id stx lctx expectedType? => ctx.runMetaM lctx do return f!"[.] {stx} : {expectedType?}"
-  | _ => return f!"[.] {info.stx}"
+  | CompletionInfo.id stx lctx expectedType? => ctx.runMetaM lctx do return f!"[.] {stx} : {expectedType?} @ {formatStxRange ctx info.stx}"
+  | _ => return f!"[.] {info.stx} @ {formatStxRange ctx info.stx}"
 
 def CommandInfo.format (ctx : ContextInfo) (info : CommandInfo) : IO Format := do
   return f!"command @ {formatStxRange ctx info.stx}"

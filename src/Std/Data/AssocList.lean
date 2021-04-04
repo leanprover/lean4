@@ -36,6 +36,10 @@ def isEmpty : AssocList α β → Bool
 @[inline] def foldl (f : δ → α → β → δ) (init : δ) (as : AssocList α β) : δ :=
   Id.run (foldlM f init as)
 
+@[specialize] def forM (f : α → β → m PUnit) : AssocList α β → m PUnit
+  | nil         => pure ⟨⟩
+  | cons a b es => do f a b; forM f es
+
 def mapKey (f : α → δ) : AssocList α β → AssocList δ β
   | nil        => nil
   | cons k v t => cons (f k) v (mapKey f t)

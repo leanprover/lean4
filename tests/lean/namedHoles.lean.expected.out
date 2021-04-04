@@ -1,15 +1,15 @@
 namedHoles.lean:9:7-9:14: error: application type mismatch
-  f ?m ?m
+  f ?x ?x
 argument
-  ?m
+  ?x
 has type
   Nat : Type
 but is expected to have type
   Bool : Type
-g ?m ?m : Nat
+g ?x ?x : Nat
 20
-foo (fun (x : Nat) => ?m x) ?m : Nat
-bla ?m fun (x : Nat) => ?m : Nat
+foo (fun (x : Nat) => ?m x) ?hole : Nat
+bla ?hole fun (x : Nat) => ?hole : Nat
 namedHoles.lean:35:38-35:43: error: synthetic hole has already been defined with an incompatible local context
 boo (fun (x : Nat) => ?m x) fun (y : Bool) => sorry : Nat
 11

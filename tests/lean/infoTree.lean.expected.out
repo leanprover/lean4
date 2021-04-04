@@ -166,6 +166,8 @@
           | (z, w) =>
             let z1 : Nat := z + w;
             z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩
+            [.] `z : none
+            [.] `w : none
             (z, w) : Nat × Nat @ ⟨23, 8⟩-⟨23, 14⟩
               Macro expansion
               (z, w)

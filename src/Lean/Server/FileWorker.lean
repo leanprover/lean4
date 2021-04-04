@@ -371,12 +371,12 @@ section RequestHandling
     let doc ← st.docRef.get
     let text := doc.meta.text
     let pos := text.lspPosToUtf8Pos p.position
-    dbg_trace ">> handleCompletion invoked {pos}"
+    -- dbg_trace ">> handleCompletion invoked {pos}"
     withWaitFindSnap doc (fun s => s.endPos > pos)
       (notFoundX := pure { items := #[], isIncomplete := true }) fun snap => do
         for infoTree in snap.toCmdState.infoState.trees do
-          for (ctx, info) in infoTree.getCompletionInfos do
-             dbg_trace "{← info.format ctx}"
+          -- for (ctx, info) in infoTree.getCompletionInfos do
+          --   dbg_trace "{← info.format ctx}"
           if let some r ← Completion.find? doc.meta.text pos infoTree then
             return r
         return { items := #[ ], isIncomplete := true }

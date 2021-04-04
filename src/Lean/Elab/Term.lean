@@ -1350,7 +1350,7 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List (Name × List Stri
       process preresolved
   catch ex =>
     if preresolved.isEmpty && explicitLevels.isEmpty then
-      addCompletionInfo <| CompletionInfo.id stx (← getLCtx) (← getOpenDecls) expectedType?
+      addCompletionInfo <| CompletionInfo.id stx (← getLCtx) expectedType?
     throw ex
 where process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
   if candidates.isEmpty then

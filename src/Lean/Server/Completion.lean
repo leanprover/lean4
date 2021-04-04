@@ -20,12 +20,9 @@ builtin_initialize completionBlackListExt : TagDeclarationExtension ← mkTagDec
 def addToBlackList (env : Environment) (declName : Name) : Environment :=
   completionBlackListExt.tag env declName
 
-private def isBlackListed (env : Environment) (declName : Name) : Bool :=
-  completionBlackListExt.isTagged env declName
-
-private def isBlackListedForCompletion (declName : Name) : MetaM Bool := do
+private def isBlackListed (declName : Name) : MetaM Bool := do
   let env ← getEnv
-  return isAuxRecursor env declName || isNoConfusion env declName || (← isRec declName) || isBlackListed env declName
+  return declName.isInternal || isAuxRecursor env declName || isNoConfusion env declName || (← isRec declName) || completionBlackListExt.isTagged env declName
 
 private partial def consumeImplicitPrefix (e : Expr) : MetaM Expr := do
   match e with
@@ -52,40 +49,113 @@ private def isTypeApplicable (type : Expr) (expectedType? : Option Expr) : MetaM
     -- Alternative: use default and small number of heartbeats
     withReducible <| isDefEq type expectedType
 
-private def filterBlackListed (cs : Array ConstantInfo) : MetaM (Array ConstantInfo) :=
-  cs.filterM fun c => return !(← isBlackListedForCompletion c.name)
-
 private def sortCompletionItems (items : Array CompletionItem) : Array CompletionItem :=
   items.qsort fun i1 i2 => i1.label < i2.label
 
-private def toCompletionItem (c : ConstantInfo) : MetaM CompletionItem := do
-  let detail ← Meta.ppExpr (← consumeImplicitPrefix c.type)
-  return { label := c.name.getString!, detail? := some (toString detail), documentation? := none }
+private def mkCompletionItem (label : Name) (type : Expr) : MetaM CompletionItem := do
+  let detail ← Meta.ppExpr (← consumeImplicitPrefix type)
+  return { label := label.getString!, detail? := some (toString detail), documentation? := none }
+
+structure State where
+  itemsMain  : Array CompletionItem := #[]
+  itemsOther : Array CompletionItem := #[]
+
+abbrev M := OptionT $ StateRefT State MetaM
+
+private def addCompletionItem (label : Name) (type : Expr) (expectedType? : Option Expr) : M Unit := do
+  -- dbg_trace "add >>> {label}"
+  let item ← mkCompletionItem label type
+  if (← isTypeApplicable  type expectedType?) then
+    modify fun s => { s with itemsMain := s.itemsMain.push item }
+  else
+    modify fun s => { s with itemsOther := s.itemsOther.push item }
+
+private def addCompletionItemForDecl (label : Name) (declName : Name) (expectedType? : Option Expr) : M Unit := do
+  if let some c ← (← getEnv).find? declName then
+    addCompletionItem label c.type expectedType?
+
+private def runM (ctx : ContextInfo) (lctx : LocalContext) (x : M Unit) : IO (Option CompletionList) :=
+  ctx.runMetaM lctx do
+    match (← x.run |>.run {}) with
+    | (none, _) => return none
+    | (some _, s) =>
+      return some { items := sortCompletionItems s.itemsMain ++ sortCompletionItems s.itemsOther, isIncomplete := true }
+
+private def matchName (p : Name) (declName : Name) : Bool :=
+  -- TODO use fuzzy matching
+  p == declName || p.toString.isPrefixOf declName.toString -- TODO bottleneck
+
+private def idCompletionCore (ctx : ContextInfo) (stx : Syntax) (expectedType? : Option Expr) : M Unit := do
+  let id := stx.getId.eraseMacroScopes
+  -- dbg_trace ">> id {id}"
+  if id.isAtomic then
+    -- search for matches in the local context
+    for localDecl in (← getLCtx) do
+      if matchName id localDecl.userName then
+        addCompletionItem localDecl.userName localDecl.type expectedType?
+  -- search for matches in the environment
+  let env ← getEnv
+  env.constants.forM fun declName c => do
+    unless (← isBlackListed declName) do
+      let matchUsingNamespace (ns : Name): M Bool := do
+        if matchName (ns ++ id) declName then
+          addCompletionItem (declName.replacePrefix ns Name.anonymous) c.type expectedType?
+          return true
+        else
+          return false
+      if (← matchUsingNamespace Name.anonymous) then
+        return ()
+      -- use current namespace
+      let rec visitNamespaces (ns : Name) : M Bool := do
+        match ns with
+        | Name.str p .. => matchUsingNamespace ns <||> visitNamespaces p
+        | _ => return false
+      if (← visitNamespaces ctx.currNamespace) then
+        return ()
+      -- use open decls
+      for openDecl in ctx.openDecls do
+        match openDecl with
+        | OpenDecl.simple  ns exs =>
+          unless exs.contains declName do
+            if (← matchUsingNamespace ns) then
+              return ()
+        | _ => pure ()
+  -- search explicitily open `ids`
+  for openDecl in ctx.openDecls do
+    match openDecl with
+    | OpenDecl.explicit openedId resolvedId =>
+      unless (← isBlackListed resolvedId) do
+        if matchName id openedId then
+          addCompletionItemForDecl openedId resolvedId expectedType?
+    | _ => pure ()
+  -- search for aliases
+  getAliasState env |>.forM fun alias declNames => do
+    if matchName id alias then
+      declNames.forM fun declName => do
+        unless (← isBlackListed declName) do
+          addCompletionItemForDecl alias declName expectedType?
+  -- TODO search macros
+
+private def idCompletion (ctx : ContextInfo) (lctx : LocalContext) (stx : Syntax) (expectedType? : Option Expr) : IO (Option CompletionList) :=
+  runM ctx lctx do
+    idCompletionCore ctx stx expectedType?
 
 private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? : Option Expr) : IO (Option CompletionList) :=
-  info.runMetaM ctx do
+  runM ctx info.lctx do
     -- dbg_trace ">> {info.stx}, {info.expr}"
     let type ← instantiateMVars (← inferType info.expr)
     match type.getAppFn with
     | Expr.const name .. =>
-      let cs := (← getEnv).constants.fold (init := #[]) fun candidates declName declInfo =>
-        if !declName.isInternal && declName.getPrefix == name then candidates.push declInfo else candidates
-      let cs ← filterBlackListed cs
-      let mut itemsMain := #[] -- we put entries that satisfy `isTypeApplicable` first
-      let mut itemsOther := #[]
-      for c in cs do
-        if (← isTypeApplicable c.type expectedType?) then
-          itemsMain := itemsMain.push (← toCompletionItem c)
-        else
-          itemsOther := itemsOther.push (← toCompletionItem c)
-      return some { items := sortCompletionItems itemsMain ++ sortCompletionItems itemsOther, isIncomplete := true }
-    | _ => return none
-
-private def idCompletion (ctx : ContextInfo) (lctx : LocalContext) (stx : Syntax) (openDecls : List OpenDecl) (expectedType? : Option Expr) : IO (Option CompletionList) :=
-  ctx.runMetaM lctx do
-    let id := stx.getId
-    if id.hasMacroScopes then return none
-    return none
+      (← getEnv).constants.forM fun declName c => do
+        if  declName.getPrefix == name then
+          unless (← isBlackListed c.name) do
+            addCompletionItem c.name.getString! c.type expectedType?
+    | Expr.sort .. =>
+      if info.stx.isIdent then
+        idCompletionCore ctx info.stx expectedType?
+      else
+        failure
+    | _ => failure
 
 private def optionCompletion (ctx : ContextInfo) : IO (Option CompletionList) := do
   ctx.runMetaM {} do
@@ -110,11 +180,13 @@ partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTr
   | some (ctx, Info.ofCompletionInfo info) =>
     match info with
     | CompletionInfo.dot info (expectedType? := expectedType?) .. => dotCompletion ctx info expectedType?
-    | CompletionInfo.id stx lctx openDecls expectedType? => idCompletion ctx lctx stx openDecls expectedType?
+    | CompletionInfo.id stx lctx expectedType? => idCompletion ctx lctx stx expectedType?
     | CompletionInfo.option .. => optionCompletion ctx
     | CompletionInfo.tactic .. => tacticCompletion ctx
     | _ => return none
-  | _ => return none
+  | _ =>
+    -- TODO try to extract id from `fileMap` and some `ContextInfo` from `InfoTree`
+    return none
 where
   choose (fileMap : FileMap) (hoverLine : Nat) (ctx : ContextInfo) (info : Info) (best? : Option (ContextInfo × Info)) : Option (ContextInfo × Info) :=
     if !info.isCompletion then best?

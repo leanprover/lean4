@@ -327,6 +327,19 @@ structure Parser where
 
 abbrev TrailingParser := Parser
 
+def dbgTraceStateFn (label : String) (p : ParserFn) : ParserFn :=
+  fun c s =>
+    let sz := s.stxStack.size
+    let s' := p c s
+    dbg_trace "{label}
+  pos: {s'.pos}
+  err: {s'.errorMsg}
+  out: {s'.stxStack.extract sz s'.stxStack.size}" s'
+
+def dbgTraceState (label : String) (p : Parser) : Parser where
+  fn   := dbgTraceStateFn label p.fn
+  info := p.info
+
 @[noinline] def epsilonInfo : ParserInfo :=
   { firstTokens := FirstTokens.epsilon }
 

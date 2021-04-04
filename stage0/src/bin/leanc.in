@@ -17,7 +17,7 @@ set -e
 bindir=$(dirname $0)
 
 cflags=("-I$bindir/../include")
-ldflags=("-L$bindir/../lib/lean" "${LEANC_GMP:--lgmp}" @LEANC_EXTRA_FLAGS@)
+ldflags=("-L$bindir/../lib/lean" ${LEANC_GMP:-$(pkg-config --libs gmp)} @LEANC_EXTRA_FLAGS@)
 ldflags_ext=(@LEANC_STATIC_LINKER_FLAGS@)
 for arg in "$@"; do
     # passed -shared ~> switch to shared linker flags

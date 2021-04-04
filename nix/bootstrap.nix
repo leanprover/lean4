@@ -1,11 +1,11 @@
 { debug ? false, stage0debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, gnumake, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir,
+  stdenv, lib, cmake, gmp, gnumake, pkg-config, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir,
   ... } @ args:
 rec {
   inherit stdenv;
   buildCMake = args: stdenv.mkDerivation ({
-    nativeBuildInputs = [ cmake ];
-    buildInputs = [ gmp ];
+    nativeBuildInputs = [ cmake pkg-config ];
+    buildInputs = [ gmp pkg-config ];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
     dontStrip = (args.debug or debug);

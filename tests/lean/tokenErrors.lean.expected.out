@@ -6,6 +6,7 @@ tokenErrors.lean:14:0: error: unterminated comment
 tokenErrors.lean:13:0-13:3: error: unexpected doc string
   failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)
 tokenErrors.lean:17:0: error: unterminated comment
+tokenErrors.lean:16:0-16:6: error: unknown constant '[anonymous]'
 inductive Nat : Type
 constructors:
 Nat.zero : Nat

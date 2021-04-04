@@ -1469,11 +1469,7 @@ def longestMatchFn (left? : Option Syntax) : List (Parser × Nat) → ParserFn
     let startLhsPrec := s.lhsPrec
     let startPos  := s.pos
     let s         := runLongestMatchParser left? s.lhsPrec p.1.fn c s
-    if s.hasError then
-      let s := s.shrinkStack startSize
-      longestMatchFnAux left? startSize startLhsPrec startPos p.2 ps c s
-    else
-      longestMatchFnAux left? startSize startLhsPrec startPos p.2 ps c s
+    longestMatchFnAux left? startSize startLhsPrec startPos p.2 ps c s
 
 def anyOfFn : List Parser → ParserFn
   | [],    _, s => s.mkError "anyOf: empty list"

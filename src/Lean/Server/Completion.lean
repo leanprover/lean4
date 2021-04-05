@@ -196,8 +196,6 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? :
     | _ =>
       if info.stx.isIdent then
         idCompletionCore ctx info.stx expectedType?
-      else if info.stx.getKind == ``Lean.Parser.Term.completion then
-        idCompletionCore ctx info.stx[0] expectedType?
       else
         failure
 

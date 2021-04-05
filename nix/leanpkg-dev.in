@@ -2,11 +2,13 @@
 
 set -euo pipefail
 
-[[ $# -gt 0 && "$1" == print-paths && ( -f flake.nix || -d Lean && -f ../flake.nix ) ]] || exec @leanpkg@/bin/leanpkg "$@"
+[[ $# -gt 0 && "$1" == print-paths && ( -f flake.nix || -d Lean && -f ../flake.nix || ! -f leanpkg.toml ) ]] || exec @leanpkg@/bin/leanpkg "$@"
 shift
 deps="$@"
-
-target=".#print-paths"
+root=.
+# fall back to initial package if not in package
+[[ ! -f "$root/flake.nix" ]] && root="@srcRoot@"
+target="$root#print-paths"
 args=()
 # HACK: use stage 0 instead of 1 inside Lean's own `src/`
 [[ -d Lean && -f ../flake.nix ]] && target="@srcTarget@print-paths" && args=@srcArgs@

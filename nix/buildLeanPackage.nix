@@ -181,6 +181,7 @@ in rec {
     dir = "bin";
     src = ./leanpkg-dev.in;
     isExecutable = true;
+    srcRoot = fullSrc;  # use root flake.nix in case of Lean repo
     inherit bash nix srcTarget srcArgs;
     leanpkg = lean;
   };

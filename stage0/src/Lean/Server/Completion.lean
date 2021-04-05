@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Environment
+import Lean.Parser.Term
 import Lean.Data.Lsp.LanguageFeatures
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Match.MatcherInfo
@@ -69,7 +70,6 @@ structure State where
 abbrev M := OptionT $ StateRefT State MetaM
 
 private def addCompletionItem (label : Name) (type : Expr) (expectedType? : Option Expr) : M Unit := do
-  -- dbg_trace "add >>> {label}"
   let item ← mkCompletionItem label type
   if (← isTypeApplicable  type expectedType?) then
     modify fun s => { s with itemsMain := s.itemsMain.push item }
@@ -87,9 +87,34 @@ private def runM (ctx : ContextInfo) (lctx : LocalContext) (x : M Unit) : IO (Op
     | (some _, s) =>
       return some { items := sortCompletionItems s.itemsMain ++ sortCompletionItems s.itemsOther, isIncomplete := true }
 
-private def matchName (p : Name) (declName : Name) : Bool :=
-  -- TODO use fuzzy matching
-  p == declName || p.toString.isPrefixOf declName.toString -- TODO bottleneck
+private def matchAtomic (id: Name) (declName : Name) : Bool :=
+  match id, declName with
+  | Name.str Name.anonymous s₁ _, Name.str Name.anonymous s₂ _ => s₁.isPrefixOf s₂
+  | _, _ => false
+
+/--
+  Return the auto-completion label if `id` can be auto completed using `declName` assuming namespace `ns` is open.
+  This function only succeeds with atomic labels. BTW, it seems most clients only use the last part.
+-/
+private def matchDecl? (ns : Name) (id : Name) (declName : Name) : Option Name :=
+  if !ns.isPrefixOf declName then
+    none
+  else
+    let declName := declName.replacePrefix ns Name.anonymous
+    if id.isPrefixOf declName then
+      let declName := declName.replacePrefix id Name.anonymous
+      if declName.isAtomic && !declName.isAnonymous then
+        some declName
+      else
+        none
+    else
+      match id, declName with
+      | Name.str p₁ s₁ _, Name.str p₂ s₂ _ =>
+        if p₁ == p₂ && s₁.isPrefixOf s₂ then
+          some s₂
+        else
+          none
+      | _, _ => none
 
 private def idCompletionCore (ctx : ContextInfo) (stx : Syntax) (expectedType? : Option Expr) : M Unit := do
   let id := stx.getId.eraseMacroScopes
@@ -97,15 +122,16 @@ private def idCompletionCore (ctx : ContextInfo) (stx : Syntax) (expectedType? :
   if id.isAtomic then
     -- search for matches in the local context
     for localDecl in (← getLCtx) do
-      if matchName id localDecl.userName then
+      if matchAtomic id localDecl.userName then
         addCompletionItem localDecl.userName localDecl.type expectedType?
   -- search for matches in the environment
   let env ← getEnv
   env.constants.forM fun declName c => do
     unless (← isBlackListed declName) do
       let matchUsingNamespace (ns : Name): M Bool := do
-        if matchName (ns ++ id) declName then
-          addCompletionItem (declName.replacePrefix ns Name.anonymous) c.type expectedType?
+        if let some label := matchDecl? ns id declName then
+          -- dbg_trace "matched with {id}, {declName}, {label}"
+          addCompletionItem label c.type expectedType?
           return true
         else
           return false
@@ -121,7 +147,7 @@ private def idCompletionCore (ctx : ContextInfo) (stx : Syntax) (expectedType? :
       -- use open decls
       for openDecl in ctx.openDecls do
         match openDecl with
-        | OpenDecl.simple  ns exs =>
+        | OpenDecl.simple ns exs =>
           unless exs.contains declName do
             if (← matchUsingNamespace ns) then
               return ()
@@ -131,16 +157,17 @@ private def idCompletionCore (ctx : ContextInfo) (stx : Syntax) (expectedType? :
     match openDecl with
     | OpenDecl.explicit openedId resolvedId =>
       unless (← isBlackListed resolvedId) do
-        if matchName id openedId then
+        if matchAtomic id openedId then
           addCompletionItemForDecl openedId resolvedId expectedType?
     | _ => pure ()
   -- search for aliases
   getAliasState env |>.forM fun alias declNames => do
-    if matchName id alias then
+    if matchAtomic id alias then
       declNames.forM fun declName => do
         unless (← isBlackListed declName) do
           addCompletionItemForDecl alias declName expectedType?
   -- TODO search macros
+  -- TODO search namespaces
 
 private def idCompletion (ctx : ContextInfo) (lctx : LocalContext) (stx : Syntax) (expectedType? : Option Expr) : IO (Option CompletionList) :=
   runM ctx lctx do
@@ -148,20 +175,21 @@ private def idCompletion (ctx : ContextInfo) (lctx : LocalContext) (stx : Syntax
 
 private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? : Option Expr) : IO (Option CompletionList) :=
   runM ctx info.lctx do
-    -- dbg_trace ">> {info.stx}, {info.expr}"
     let type ← instantiateMVars (← inferType info.expr)
+    -- dbg_trace "dot >> {info.stx}, {info.expr} : {type}, {info.stx.isIdent}"
     match type.getAppFn with
     | Expr.const name .. =>
       (← getEnv).constants.forM fun declName c => do
         if  declName.getPrefix == name then
           unless (← isBlackListed c.name) do
             addCompletionItem c.name.getString! c.type expectedType?
-    | Expr.sort .. =>
+    | _ =>
       if info.stx.isIdent then
         idCompletionCore ctx info.stx expectedType?
+      else if info.stx.getKind == ``Lean.Parser.Term.completion then
+        idCompletionCore ctx info.stx[0] expectedType?
       else
         failure
-    | _ => failure
 
 private def optionCompletion (ctx : ContextInfo) : IO (Option CompletionList) := do
   ctx.runMetaM {} do

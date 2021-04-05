@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Environment
+import Lean.Parser.Term
 import Lean.Data.Lsp.LanguageFeatures
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Match.MatcherInfo
@@ -148,20 +149,21 @@ private def idCompletion (ctx : ContextInfo) (lctx : LocalContext) (stx : Syntax
 
 private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? : Option Expr) : IO (Option CompletionList) :=
   runM ctx info.lctx do
-    -- dbg_trace ">> {info.stx}, {info.expr}"
     let type ← instantiateMVars (← inferType info.expr)
+    -- dbg_trace "dot >> {info.stx}, {info.expr} : {type}, {info.stx.isIdent}"
     match type.getAppFn with
     | Expr.const name .. =>
       (← getEnv).constants.forM fun declName c => do
         if  declName.getPrefix == name then
           unless (← isBlackListed c.name) do
             addCompletionItem c.name.getString! c.type expectedType?
-    | Expr.sort .. =>
+    | _ =>
       if info.stx.isIdent then
         idCompletionCore ctx info.stx expectedType?
+      else if info.stx.getKind == ``Lean.Parser.Term.completion then
+        idCompletionCore ctx info.stx[0] expectedType?
       else
         failure
-    | _ => failure
 
 private def optionCompletion (ctx : ContextInfo) : IO (Option CompletionList) := do
   ctx.runMetaM {} do

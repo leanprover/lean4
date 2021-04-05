@@ -374,7 +374,7 @@ private def getMatchAltsNumPatterns (matchAlts : Syntax) : Nat :=
 def expandWhereDecls (whereDecls : Syntax) (body : Syntax) : MacroM Syntax :=
   match whereDecls with
   | `(whereDecls|where $[$decls:letRecDecl $[;]?]*) => `(let rec $decls:letRecDecl,*; $body)
-  | _ => unreachable!
+  | _ => Macro.throwUnsupported
 
 def expandWhereDeclsOpt (whereDeclsOpt : Syntax) (body : Syntax) : MacroM Syntax :=
   if whereDeclsOpt.isNone then

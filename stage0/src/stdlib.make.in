@@ -14,7 +14,7 @@ LEANMAKE_OPTS=\
 	LIB_OUT="${LIB}/lean"\
 	OLEAN_OUT="${LIB}/lean"\
 	BIN_OUT="${CMAKE_BINARY_DIR}/bin"\
-	LEAN_OPTS+="${LEAN_EXTRA_MAKE_OPTS} -Dinterpreter.prefer_native=true"\
+	LEAN_OPTS+="${LEAN_EXTRA_MAKE_OPTS} -Dinterpreter.prefer_native=false"\
 	LEANC_OPTS+="${LEANC_OPTS}"\
 	LEAN_CXX="${CMAKE_CXX_COMPILER_LAUNCHER} ${CMAKE_CXX_COMPILER}"\
 	MORE_DEPS+="${PREV_STAGE}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"\

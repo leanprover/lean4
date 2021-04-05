@@ -11,3 +11,5 @@ inductive Nat : Type
 constructors:
 Nat.zero : Nat
 Nat.succ : Nat → Nat
+tokenErrors.lean:17:1: error: unterminated comment
+tokenErrors.lean:17:0-17:1: error: unexpected command

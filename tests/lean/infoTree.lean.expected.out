@@ -229,7 +229,7 @@
     Prod.snd : {α β : Type} → α × β → β @ ⟨28, 4⟩-⟨28, 5⟩
     Array.getOp : {α : Type} → [inst : Inhabited α] → Array α → Nat → α @ ⟨28, 5⟩-⟨28, 6⟩
     1 : Nat @ ⟨28, 6⟩-⟨28, 7⟩
-    [.] Array.getOp s.snd 1 : Array Nat @ ⟨28, 2⟩-⟨28, 8⟩
+    [.] Array.getOp s.snd 1 : Array Nat @ ⟨28, 2⟩-⟨28, 8⟩ : some Array.{0} Nat
     Array.push : {α : Type} → Array α → α → Array α @ ⟨28, 9⟩-⟨28, 13⟩
     s.fst : Nat @ ⟨28, 14⟩-⟨28, 17⟩
       s : Nat × Array (Array Nat) @ ⟨28, 14⟩-⟨28, 15⟩
@@ -242,11 +242,11 @@
     Nat : Type @ ⟨30, 19⟩-⟨30, 22⟩
   A.val arg.pair.fst 0 : Nat @ ⟨31, 2⟩-⟨31, 20⟩
     arg : B @ ⟨31, 2⟩-⟨31, 5⟩
-    [.] arg : B @ ⟨31, 2⟩-⟨31, 18⟩
+    [.] arg : B @ ⟨31, 2⟩-⟨31, 18⟩ : some Nat
     B.pair : B → A × A @ ⟨31, 6⟩-⟨31, 10⟩
-    [.] arg.pair : A × A @ ⟨31, 2⟩-⟨31, 18⟩
+    [.] arg.pair : A × A @ ⟨31, 2⟩-⟨31, 18⟩ : some Nat
     Prod.fst : {α β : Type} → α × β → α @ ⟨31, 11⟩-⟨31, 14⟩
-    [.] arg.pair.fst : A @ ⟨31, 2⟩-⟨31, 18⟩
+    [.] arg.pair.fst : A @ ⟨31, 2⟩-⟨31, 18⟩ : some Nat
     A.val : A → Nat → Nat @ ⟨31, 15⟩-⟨31, 18⟩
     0 : Nat @ ⟨31, 19⟩-⟨31, 20⟩
 [Elab.info] command @ ⟨33, 0⟩-⟨35, 1⟩

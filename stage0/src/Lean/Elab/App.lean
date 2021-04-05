@@ -803,9 +803,13 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
       f.getArgs.foldlM (fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit ellipsis true acc) acc
   else
     let elabFieldName (e field : Syntax) := do
+      if field.isMissing then
+        let e ← elabTerm e none
+        unless e.isSorry do
+          addDotCompletionInfo f e expectedType?
       let newLVals := field.getId.eraseMacroScopes.components.map fun n =>
-      -- We use `none` here since `field` can't be part of a composite name
-      LVal.fieldName field (toString n) none e
+        -- We use `none` here since `field` can't be part of a composite name
+        LVal.fieldName field (toString n) none e
       elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     let elabFieldIdx (e idxStx : Syntax) := do
       let idx := idxStx.isFieldIdx?.get!
@@ -813,8 +817,8 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     match f with
     | `($(e).$idx:fieldIdx) => elabFieldIdx e idx
     | `($e |>.$idx:fieldIdx) => elabFieldIdx e idx
-    | `($(e).$field:ident) => elabFieldName e field
-    | `($e |>.$field:ident) => elabFieldName e field
+    | `($(e).$field) => elabFieldName e field
+    | `($e |>.$field) => elabFieldName e field
     | `($e[%$bracket $idx]) => elabAppFn e (LVal.getOp bracket idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     | `($id:ident@$t:term) =>
       throwError "unexpected occurrence of named pattern"

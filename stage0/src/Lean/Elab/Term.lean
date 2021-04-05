@@ -1230,14 +1230,12 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
 @[builtinTermElab «type»] def elabTypeStx : TermElab := fun stx _ =>
   return mkSort (mkLevelSucc (← elabOptLevel stx[1]))
 
-@[builtinTermElab «completion»] def elabCompletion : TermElab := fun stx expectedType? => do
+@[builtinTermElab «pipeCompletion»] def elabPipeCompletion : TermElab := fun stx expectedType? => do
   let e ← elabTerm stx[0] none
   unless e.isSorry do
+    -- dbg_trace "completion {stx} : {expectedType?}"
     addDotCompletionInfo stx e expectedType?
   throwErrorAt stx[1] "invalid field notation, identifier or numeral expected"
-
-@[builtinTermElab «pipeCompletion»] def elabPipeCompletion : TermElab :=
-  elabCompletion
 
 @[builtinTermElab «hole»] def elabHole : TermElab := fun stx expectedType? => do
   let mvar ← mkFreshExprMVar expectedType?

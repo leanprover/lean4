@@ -240,7 +240,7 @@ def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : P
   match s with
   | ⟨stack, lhsPrec, pos, cache, err⟩ =>
     let newNode := Syntax.node k (stack.extract (iniStackSz - 1) stack.size)
-    let stack   := stack.shrink iniStackSz
+    let stack   := stack.shrink (iniStackSz - 1)
     let stack   := stack.push newNode
     ⟨stack, lhsPrec, pos, cache, err⟩
 
@@ -1379,11 +1379,10 @@ def invalidLongestMatchParser (s : ParserState) : ParserState :=
 /--
  Auxiliary function used to execute parsers provided to `longestMatchFn`.
  Push `left?` into the stack if it is not `none`, and execute `p`.
- After executing `p`, remove `left`.
 
  Remark: `p` must produce exactly one syntax node.
  Remark: the `left?` is not none when we are processing trailing parsers. -/
-def runLongestMatchParser (left? : Option Syntax) (startLhsPrec : Nat) (p : ParserFn) : ParserFn := fun c s =>
+def runLongestMatchParser (left? : Option Syntax) (startLhsPrec : Nat) (p : ParserFn) : ParserFn := fun c s => do
   /-
     We assume any registered parser `p` has one of two forms:
     * a direct call to `leadingParser` or `trailingParser`
@@ -1394,35 +1393,20 @@ def runLongestMatchParser (left? : Option Syntax) (startLhsPrec : Nat) (p : Pars
     of the pretty printer) and there are no nested `leadingParser/trailingParser` calls, so the value of `lhsPrec`
     will not be changed by the parser (nor will it be read by any leading parser). Thus we initialize the field
     to `maxPrec` in the leading case. -/
-  let s := { s with lhsPrec := if left?.isSome then startLhsPrec else maxPrec }
+  let mut s := { s with lhsPrec := if left?.isSome then startLhsPrec else maxPrec }
   let startSize := s.stackSize
-  match left? with
-  | none      =>
-    let s := p c s
-    -- stack contains `[..., result ]`
-    if s.stackSize == startSize + 1 then
-      s -- success or error with the expected number of nodes
-    else if s.hasError then
-      -- error with an unexpected number of nodes.
-      s.shrinkStack startSize |>.pushSyntax Syntax.missing
-    else
-      -- parser succeded with incorrect number of nodes
-      invalidLongestMatchParser s
-  | some left =>
-    let s         := s.pushSyntax left
-    let s         := p c s
-    -- stack contains `[..., left, result ]` we must remove `left`
-    if s.stackSize == startSize + 2 then
-      -- `p` created one node, then we just remove `left` and keep it
-      let r := s.stxStack.back
-      let s := s.shrinkStack startSize -- remove `r` and `left`
-      s.pushSyntax r -- add `r` back
-    else if s.hasError then
-      -- error with an unexpected number of nodes
-      s.shrinkStack startSize |>.pushSyntax Syntax.missing
-    else
-      -- parser succeded with incorrect number of nodes
-      invalidLongestMatchParser s
+  if let some left := left? then
+    s := s.pushSyntax left
+  s := p c s
+  -- stack contains `[..., result ]`
+  if s.stackSize == startSize + 1 then
+    s -- success or error with the expected number of nodes
+  else if s.hasError then
+    -- error with an unexpected number of nodes.
+    s.shrinkStack startSize |>.pushSyntax Syntax.missing
+  else
+    -- parser succeded with incorrect number of nodes
+    invalidLongestMatchParser s
 
 def longestMatchStep (left? : Option Syntax) (startSize startLhsPrec : Nat) (startPos : String.Pos) (prevPrio : Nat) (prio : Nat) (p : ParserFn)
     : ParserContext → ParserState → ParserState × Nat := fun c s =>
@@ -1885,14 +1869,6 @@ def leadingParserAux (kind : Name) (tables : PrattParsingTables) (behavior : Lea
 def trailingLoopStep (tables : PrattParsingTables) (left : Syntax) (ps : List (Parser × Nat)) : ParserFn := fun c s =>
   longestMatchFn left (ps ++ tables.trailingParsers) c s
 
-private def mkTrailingResult (s : ParserState) (iniSz : Nat) : ParserState :=
-  let s := mkResult s iniSz
-  -- Stack contains `[..., left, result]`
-  -- We must remove `left`
-  let result := s.stxStack.back
-  let s      := s.popSyntax.popSyntax
-  s.pushSyntax result
-
 partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) (s : ParserState) : ParserState := do
   let iniSz  := s.stackSize
   let iniPos := s.pos
@@ -1905,12 +1881,12 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) (s : 
   if ps.isEmpty && tables.trailingParsers.isEmpty then
     return s -- no available trailing parser
   let left   := s.stxStack.back
+  let s      := s.popSyntax
   let s      := trailingLoopStep tables left ps c s
   if s.hasError then
-    -- Discard non-consuming parse errors and break the trailing loop instead.
+    -- Discard non-consuming parse errors and break the trailing loop instead, restoring `left`.
     -- This is necessary for fallback parsers like `app` that pretend to be always applicable.
-    return if s.pos == iniPos then s.restore iniSz iniPos else s
-  let s := mkTrailingResult s iniSz
+    return if s.pos == iniPos then s.restore (iniSz - 1) iniPos |>.pushSyntax left else s
   trailingLoop tables c s
 
 /--

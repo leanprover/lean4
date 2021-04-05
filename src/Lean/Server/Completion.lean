@@ -212,7 +212,7 @@ private def optionCompletion (ctx : ContextInfo) : IO (Option CompletionList) :=
 private def tacticCompletion (ctx : ContextInfo) : IO (Option CompletionList) :=
   -- Just return the list of tactics for now.
   ctx.runMetaM {} do
-    let table := Parser.getCategory (Parser.parserExtension.getState (← getEnv)).categories `tactic |>. get!.tables.leadingTable
+    let table := Parser.getCategory (Parser.parserExtension.getState (← getEnv)).categories `tactic |>.get!.tables.leadingTable
     let items : Array CompletionItem := table.fold (init := #[]) fun items tk parser =>
       -- TODO pretty print tactic syntax
       items.push { label := tk.toString, detail? := none, documentation? := none }

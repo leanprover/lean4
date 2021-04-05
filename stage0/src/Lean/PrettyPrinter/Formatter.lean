@@ -450,6 +450,8 @@ def interpolatedStr.formatter (p : Formatter) : Formatter := do
     | some str => push str *> goLeft
     | none     => p
 
+@[combinatorFormatter Lean.Parser.dbgTraceState] def dbgTraceState.formatter (label : String) (p : Formatter) : Formatter := p
+
 @[combinatorFormatter ite, macroInline] def ite {α : Type} (c : Prop) [h : Decidable c] (t e : Formatter) : Formatter :=
   if c then t else e
 

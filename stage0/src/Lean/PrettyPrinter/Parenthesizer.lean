@@ -494,6 +494,8 @@ def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer := do
     else
       p
 
+@[combinatorParenthesizer Lean.Parser.dbgTraceState] def dbgTraceState.parenthesizer (label : String) (p : Parenthesizer) : Parenthesizer := p
+
 @[combinatorParenthesizer ite, macroInline] def ite {α : Type} (c : Prop) [h : Decidable c] (t e : Parenthesizer) : Parenthesizer :=
   if c then t else e
 

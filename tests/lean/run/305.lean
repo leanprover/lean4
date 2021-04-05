@@ -47,7 +47,7 @@ def readArgs : Id (Array Flag.Parsed) := panic! ""
 def parse (c : Cmd) : Id Cmd.Parsed := do
   let cmdName ← readSubCmds
   let flags ← readArgs
-  let cmd := c.subCmdByFullName? cmdName |>. get!
+  let cmd := c.subCmdByFullName? cmdName |>.get!
   let defaultedFlags : Array Flag.Parsed := #[]
   -- If we uncomment /-: Cmd.Parsed -/ two lines below or comment the line below, the elaborator stops hanging.
   let flags := defaultedFlags

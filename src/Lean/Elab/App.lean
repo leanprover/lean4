@@ -812,9 +812,9 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
       elabAppFn e (LVal.fieldIdx idxStx idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     match f with
     | `($(e).$idx:fieldIdx) => elabFieldIdx e idx
-    | `($e |>. $idx:fieldIdx) => elabFieldIdx e idx
+    | `($e |>.$idx:fieldIdx) => elabFieldIdx e idx
     | `($(e).$field:ident) => elabFieldName e field
-    | `($e |>. $field:ident) => elabFieldName e field
+    | `($e |>.$field:ident) => elabFieldName e field
     | `($e[%$bracket $idx]) => elabAppFn e (LVal.getOp bracket idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     | `($id:ident@$t:term) =>
       throwError "unexpected occurrence of named pattern"

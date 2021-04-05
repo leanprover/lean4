@@ -225,7 +225,7 @@ def test8 {G : Type _} [Group G]: Group (G × G × G × G × G × G × G × G) :
 namespace Lean
 
 unsafe def Expr.dagSizeUnsafe (e : Expr) : IO Nat := do
-  let (_, s) ← visit e |>. run ({}, 0)
+  let (_, s) ← visit e |>.run ({}, 0)
   return s.2
 where
   visit (e : Expr) : StateRefT (Std.HashSet USize × Nat) IO Unit := do

@@ -42,19 +42,22 @@ private partial def consumeImplicitPrefix (e : Expr) : MetaM Expr := do
       return e
   | _ => return e
 
-private def isTypeApplicable (type : Expr) (expectedType? : Option Expr) : MetaM Bool := do
-  match expectedType? with
-  | none => return true
-  | some expectedType =>
-    let mut (numArgs, hasMVarHead) ← getExpectedNumArgsAux type
-    unless hasMVarHead do
-      let targetTypeNumArgs ← getExpectedNumArgs expectedType
-      numArgs := numArgs - targetTypeNumArgs
-    let (newMVars, _, type) ← forallMetaTelescopeReducing type (some numArgs)
-    -- TODO take coercions into account
-    -- We use `withReducible` to make sure we don't spend too much time unfolding definitions
-    -- Alternative: use default and small number of heartbeats
-    withReducible <| isDefEq type expectedType
+private def isTypeApplicable (type : Expr) (expectedType? : Option Expr) : MetaM Bool :=
+  try
+    match expectedType? with
+    | none => return true
+    | some expectedType =>
+      let mut (numArgs, hasMVarHead) ← getExpectedNumArgsAux type
+      unless hasMVarHead do
+        let targetTypeNumArgs ← getExpectedNumArgs expectedType
+        numArgs := numArgs - targetTypeNumArgs
+      let (newMVars, _, type) ← forallMetaTelescopeReducing type (some numArgs)
+      -- TODO take coercions into account
+      -- We use `withReducible` to make sure we don't spend too much time unfolding definitions
+      -- Alternative: use default and small number of heartbeats
+      withReducible <| isDefEq type expectedType
+  catch _ =>
+    return false
 
 private def sortCompletionItems (items : Array CompletionItem) : Array CompletionItem :=
   items.qsort fun i1 i2 => i1.label < i2.label
@@ -175,10 +178,17 @@ private def idCompletion (ctx : ContextInfo) (lctx : LocalContext) (stx : Syntax
 
 private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? : Option Expr) : IO (Option CompletionList) :=
   runM ctx info.lctx do
-    let type ← instantiateMVars (← inferType info.expr)
+    let name? ←
+      try
+        let type ← instantiateMVars (← inferType info.expr)
+        match type.getAppFn with
+        | Expr.const name .. => pure (some name)
+        | _ => pure none
+      catch _ =>
+        pure none
     -- dbg_trace "dot >> {info.stx}, {info.expr} : {type}, {info.stx.isIdent}"
-    match type.getAppFn with
-    | Expr.const name .. =>
+    match name? with
+    | some name =>
       (← getEnv).constants.forM fun declName c => do
         if  declName.getPrefix == name then
           unless (← isBlackListed c.name) do

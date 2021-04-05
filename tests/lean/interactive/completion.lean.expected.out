@@ -5,19 +5,19 @@
   {"label": "mk", "detail": "Nat → Foo"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completion.lean"},
- "position": {"line": 7, "character": 23}}
+ "position": {"line": 5, "character": 23}}
 {"items":
  [{"label": "foo", "detail": "Foo → Nat"},
   {"label": "mk", "detail": "Nat → Foo"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completion.lean"},
- "position": {"line": 11, "character": 28}}
+ "position": {"line": 7, "character": 28}}
 {"items":
  [{"label": "foo", "detail": "Foo → Nat"},
   {"label": "mk", "detail": "Nat → Foo"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completion.lean"},
- "position": {"line": 15, "character": 29}}
+ "position": {"line": 9, "character": 29}}
 {"items":
  [{"label": "foo", "detail": "Foo → Nat"},
   {"label": "mk", "detail": "Nat → Foo"}],

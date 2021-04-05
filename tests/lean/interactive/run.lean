@@ -14,6 +14,7 @@ def main (args : List String) : IO Unit := do
       textDocument := { uri := uri, languageId := "lean", version := 1, text := text } : DidOpenTextDocumentParams }⟩
     let _ ← Ipc.collectDiagnostics 1 uri 1
     let mut lineNo := 0
+    let mut lastActualLineNo := 0
     let mut requestNo : Nat := 2
     for line in text.splitOn "\n" do
       match line.splitOn "--^" with
@@ -26,13 +27,15 @@ def main (args : List String) : IO Unit := do
         let params := params.setObjVal! "textDocument" (toJson { uri := uri : TextDocumentIdentifier })
         -- TODO: correctly compute in presence of Unicode
         let column := ws.bsize + "--".length
-        let params := params.setObjVal! "position" (toJson { line := lineNo - 1, character := column : Lsp.Position })
+        let params := params.setObjVal! "position" (toJson { line := lastActualLineNo, character := column : Lsp.Position })
         IO.eprintln params
         Ipc.writeRequest ⟨requestNo, method, params⟩
         let resp ← Ipc.readResponseAs requestNo Json
         IO.eprintln resp.result
         requestNo := requestNo + 1
-      | _ => lineNo := lineNo + 1
+      | _ =>
+        lastActualLineNo := lineNo
+      lineNo := lineNo + 1
     Ipc.writeRequest ⟨requestNo, "shutdown", Json.null⟩
     let shutResp ← Ipc.readResponseAs requestNo Json
     assert! shutResp.result.isNull

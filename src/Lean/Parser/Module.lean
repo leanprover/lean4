@@ -88,15 +88,11 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
       | some errorMsg =>
         -- advance at least one token to prevent infinite loops
         let pos := if s.pos == pos then consumeInput c s.pos else s.pos
-        if recovering then
+        let messages := if recovering && s.stxStack.isEmpty then messages else messages.add <| mkErrorMessage c s.pos (toString errorMsg)
+        if s.stxStack.isEmpty then
           parse { pos := pos, recovering := true } messages
         else
-          let msg      := mkErrorMessage c s.pos (toString errorMsg)
-          let messages := messages.add msg
-          if s.stxStack.isEmpty then
-            parse { pos := pos, recovering := true } messages
-          else
-            (s.stxStack.back, { pos := pos, recovering := true }, messages)
+          (s.stxStack.back, { pos := pos, recovering := true }, messages)
   parse s messages
 
 -- only useful for testing since most Lean files cannot be parsed without elaboration

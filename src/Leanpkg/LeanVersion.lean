@@ -8,13 +8,15 @@ namespace Leanpkg
 def leanVersionStringCore :=
   s!"{Lean.version.major}.{Lean.version.minor}.{Lean.version.patch}"
 
+def origin := "leanprover/lean4"
+
 def leanVersionString :=
   if Lean.version.isRelease then
-      s!"leanprover/lean4:{leanVersionStringCore}"
+      s!"{origin}:{leanVersionStringCore}"
   else if Lean.version.specialDesc ≠ "" then
-      Lean.version.specialDesc
+      s!"{origin}:{Lean.version.specialDesc}"
   else
-      "master"
+      s!"{origin}:master"
 
 def uiLeanVersionString :=
 if Lean.version.isRelease then

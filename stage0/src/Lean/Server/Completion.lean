@@ -121,7 +121,7 @@ private def matchDecl? (ns : Name) (id : Name) (declName : Name) : Option Name :
 
 private def idCompletionCore (ctx : ContextInfo) (stx : Syntax) (expectedType? : Option Expr) : M Unit := do
   let id := stx.getId.eraseMacroScopes
-  -- dbg_trace ">> id {id}"
+  -- dbg_trace ">> id {id} : {expectedType?}"
   if id.isAtomic then
     -- search for matches in the local context
     for localDecl in (← getLCtx) do
@@ -196,6 +196,8 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? :
     | _ =>
       if info.stx.isIdent then
         idCompletionCore ctx info.stx expectedType?
+      else if info.stx.getKind == ``Lean.Parser.Term.completion then
+        idCompletionCore ctx info.stx[0] expectedType?
       else
         failure
 

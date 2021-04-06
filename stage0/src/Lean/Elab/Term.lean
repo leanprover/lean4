@@ -1230,12 +1230,20 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
 @[builtinTermElab «type»] def elabTypeStx : TermElab := fun stx _ =>
   return mkSort (mkLevelSucc (← elabOptLevel stx[1]))
 
-@[builtinTermElab «pipeCompletion»] def elabPipeCompletion : TermElab := fun stx expectedType? => do
-  let e ← elabTerm stx[0] none
+@[builtinTermElab «completion»] def elabCompletion : TermElab := fun stx expectedType? => do
+  /-
+    `ident.` is ambiguous in Lean, we may try to be completing a declaration name or access a "field".
+    If the identifier `ident`, the method `resolveName` adds a completion point for it using the given
+    expected type. Thus, we propagate the expected type if `stx[0]` is an identifier.
+    It doesn't "hurt" if the identifier can be resolved because the expected type is not used in this case.
+    Recall that if the name resolution fails a synthetic sorry is returned.-/
+  let e ← elabTerm stx[0] (if stx[0].isIdent then expectedType? else none)
   unless e.isSorry do
-    -- dbg_trace "completion {stx} : {expectedType?}"
     addDotCompletionInfo stx e expectedType?
   throwErrorAt stx[1] "invalid field notation, identifier or numeral expected"
+
+@[builtinTermElab «pipeCompletion»] def elabPipeCompletion : TermElab :=
+  elabCompletion
 
 @[builtinTermElab «hole»] def elabHole : TermElab := fun stx expectedType? => do
   let mvar ← mkFreshExprMVar expectedType?

@@ -1730,11 +1730,10 @@ def isNodeOf (stx : Syntax) (k : SyntaxNodeKind) (n : Nat) : Bool :=
   and (stx.isOfKind k) (beq stx.getNumArgs n)
 
 /--
-  Similar to `isNodeOf`, but also succeeds if `stx` is `Syntax.missing`.
   We use this function to implement `Syntax` pattern matching.
-  TODO: is this too liberal? -/
+  We can use it to tweak the behavior of the matcher for special node such as `Syntax.missing`. -/
 def isNodeOf' (stx : Syntax) (k : SyntaxNodeKind) (n : Nat) : Bool :=
-  or (stx.isNodeOf k n) stx.isMissing
+  stx.isNodeOf k n
 
 def setArgs (stx : Syntax) (args : Array Syntax) : Syntax :=
   match stx with

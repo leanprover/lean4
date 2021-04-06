@@ -17,10 +17,10 @@
 {"textDocument": {"uri": "file://completion2.lean"},
  "position": {"line": 30, "character": 21}}
 {"items":
- [{"label": "ex1", "detail": "?a ≤ ?b → ?a + ?a ≤ ?b + ?b"},
-  {"label": "ex2", "detail": "?a ≤ ?b → ?a + 2 ≤ ?b + 2"},
+ [{"label": "ex2", "detail": "?a ≤ ?b → ?a + 2 ≤ ?b + 2"},
   {"label": "ex3", "detail": "?a ≤ ?b → ?c ≤ ?d → ?a + ?c ≤ ?b + ?d"},
-  {"label": "ax1", "detail": "?a ≤ ?b → ?a - ?a ≤ ?b - ?b"}],
+  {"label": "ax1", "detail": "?a ≤ ?b → ?a - ?a ≤ ?b - ?b"},
+  {"label": "ex1", "detail": "?a ≤ ?b → ?a + ?a ≤ ?b + ?b"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completion2.lean"},
  "position": {"line": 37, "character": 22}}

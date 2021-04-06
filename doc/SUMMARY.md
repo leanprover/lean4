@@ -3,6 +3,7 @@
 - [What is Lean](./whatIsLean.md)
 - [Tour of Lean](./tour.md)
 - [Setting Up Lean](./setup.md)
+  - [Quickstart](./quickstart.md)
 
 # Language Manual
 

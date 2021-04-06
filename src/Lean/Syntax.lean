@@ -14,10 +14,6 @@ def SourceInfo.updateTrailing (trailing : Substring) : SourceInfo → SourceInfo
 
 /- Syntax AST -/
 
-def Syntax.isMissing : Syntax → Bool
-  | Syntax.missing => true
-  | _ => false
-
 inductive IsNode : Syntax → Prop where
   | mk (kind : SyntaxNodeKind) (args : Array Syntax) : IsNode (Syntax.node kind args)
 

@@ -628,7 +628,7 @@ private partial def sepByFnAux (p : ParserFn) (sep : ParserFn) (allowTrailingSep
     let mut s := p c s
     if s.hasError then
       if s.pos > pos then
-        return s
+        return s.mkNode nullKind iniSz
       else if pOpt then
         let s := s.restore sz pos
         return s.mkNode nullKind iniSz

@@ -373,7 +373,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
             uncovered,
         doMatch := fun yes no => do
           let cond ← match kind with
-          | `null => `(and (Syntax.isOfKind discr $(quote kind)) (BEq.beq (Array.size (Syntax.getArgs discr)) $(quote argPats.size)))
+          | `null => `(Syntax.isNodeOf' discr $(quote kind) $(quote argPats.size)) -- `isNodeOf'` also succeeds if discr is `Syntax.missing`, use `isNodeOf` to disable this
           | `ident => `(and (Syntax.isIdent discr) (BEq.beq (Syntax.getId discr) $(quote quoted.getId)))
           | _     => `(Syntax.isOfKind discr $(quote kind))
           let newDiscrs ← (List.range argPats.size).mapM fun i => `(Syntax.getArg discr $(quote i))

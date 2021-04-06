@@ -5,6 +5,8 @@ There are currently two ways to set up a Lean 4 development environment:
 * [basic setup](./setup.md#basic-setup) (Linux/macOS/Windows): uses [`elan`](https://github.com/Kha/elan) + your preinstalled editor
 * [Nix setup](./setup.md#nix-setup) (Linux/macOS/WSL): uses the [Nix](https://nixos.org/nix/) package manager for installing all dependencies localized to your project
 
+See also the [quickstart](./quickstart.md) instructions for using the basic setup with VS Code as the editor.
+
 ## Basic Setup
 
 Release builds for all supported platforms are available at <https://github.com/leanprover/lean4/releases>.

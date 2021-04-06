@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_9284____closed__4;
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__2___rarg___lambda__2___closed__4;
 uint8_t l_Lean_isRecCore(lean_object*, lean_object*);
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -47,7 +48,6 @@ lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported
 lean_object* l_Lean_getConstInfo___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_compileDecl___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__6;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_9509____closed__4;
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoRec(lean_object*);
 lean_object* l_Lean_evalConstCheck___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -136,6 +136,7 @@ lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported
 lean_object* l_Lean_addDecl(lean_object*);
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__4___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_withoutModifyingEnv___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_7424____closed__4;
 extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
 lean_object* l_Lean_Declaration_foldExprM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoCtor___rarg___lambda__1___closed__1;
@@ -178,7 +179,6 @@ lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__22;
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedName;
 lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__8;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7613____closed__4;
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoCtor___rarg___lambda__1___closed__2;
 lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__13;
@@ -189,7 +189,6 @@ lean_object* l_Lean_compileDecl___rarg___lambda__2(lean_object*, lean_object*, l
 lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__21;
 lean_object* l_Lean_isRecCore___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_findModuleOf_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20447____closed__3;
 lean_object* l_Lean_Environment_allImportedModuleNames(lean_object*);
 lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__23;
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
@@ -232,6 +231,7 @@ lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__14;
 lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__4;
 lean_object* l_Lean_compileDecl___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoInduct___rarg___lambda__1___closed__1;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20051____closed__3;
 lean_object* l_Lean_evalConst___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_add_decl(lean_object*, lean_object*);
 lean_object* l_Lean_setEnv___rarg(lean_object* x_1, lean_object* x_2) {
@@ -2193,7 +2193,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__2;
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20447____closed__3;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20051____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2221,7 +2221,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__5;
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20447____closed__3;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20051____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2230,8 +2230,8 @@ static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_7613____closed__4;
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20447____closed__3;
+x_1 = l_myMacro____x40_Init_Notation___hyg_7424____closed__4;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20051____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2240,7 +2240,7 @@ static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_7613____closed__4;
+x_1 = l_myMacro____x40_Init_Notation___hyg_7424____closed__4;
 x_2 = l_Lean_recOnSuffix___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -2250,7 +2250,7 @@ static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_7613____closed__4;
+x_1 = l_myMacro____x40_Init_Notation___hyg_7424____closed__4;
 x_2 = l_Lean_casesOnSuffix___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -2280,8 +2280,8 @@ static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_9509____closed__4;
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20447____closed__3;
+x_1 = l_myMacro____x40_Init_Notation___hyg_9284____closed__4;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20051____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2290,7 +2290,7 @@ static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_9509____closed__4;
+x_1 = l_myMacro____x40_Init_Notation___hyg_9284____closed__4;
 x_2 = l_Lean_casesOnSuffix___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

@@ -305,6 +305,7 @@ lean_object* l_Lean_Meta_DiscrTree_mkPathAux___boxed(lean_object*, lean_object*,
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar___closed__1;
 lean_object* l_Lean_Meta_DiscrTree_format___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Meta_DiscrTree_insertCore___spec__11(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_3514____closed__7;
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Meta_DiscrTree_insertCore___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -411,7 +412,6 @@ lean_object* l_Lean_Meta_DiscrTree_format___rarg___closed__1;
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_shouldAddAsStar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_instReprIterator___closed__3;
 lean_object* l_Lean_Meta_DiscrTree_insertCore___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_3559____closed__7;
 lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_Meta_DiscrTree_insertCore___spec__10___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_Meta_DiscrTree_format___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Meta_DiscrTree_getMatch___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -2997,7 +2997,7 @@ block_64:
 {
 lean_object* x_9; uint8_t x_10; 
 lean_dec(x_8);
-x_9 = l_myMacro____x40_Init_Notation___hyg_3559____closed__7;
+x_9 = l_myMacro____x40_Init_Notation___hyg_3514____closed__7;
 x_10 = lean_name_eq(x_1, x_9);
 if (x_10 == 0)
 {

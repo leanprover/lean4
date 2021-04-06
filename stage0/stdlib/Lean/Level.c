@@ -239,6 +239,7 @@ lean_object* l_Nat_imax___boxed(lean_object*, lean_object*);
 lean_object* l_List_redLength___rarg(lean_object*);
 uint8_t l_Lean_instBEqData(uint64_t, uint64_t);
 lean_object* l_Lean_Level_updateIMax_x21___closed__3;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_13478____closed__7;
 lean_object* l_Lean_levelOne___closed__1;
 lean_object* l_Lean_levelZero___closed__2;
 lean_object* l_Lean_Level_isMaxIMax___boxed(lean_object*);
@@ -272,7 +273,6 @@ lean_object* l_Lean_Level_normLtAux_match__1(lean_object*);
 lean_object* l_Lean_Level_PP_Result_quote___lambda__3___closed__2;
 uint8_t l_Lean_Level_isMVar(lean_object*);
 lean_object* l_Lean_Level_isSucc_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_13856____closed__7;
 uint64_t l_UInt32_toUInt64(uint32_t);
 lean_object* l_Std_fmt___at_Lean_Level_PP_Result_format___spec__2(lean_object*);
 lean_object* l_Lean_Level_PP_Result_format(lean_object*, uint8_t);
@@ -5612,7 +5612,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1139____closed__30;
-x_2 = l_myMacro____x40_Init_Notation___hyg_13856____closed__7;
+x_2 = l_myMacro____x40_Init_Notation___hyg_13478____closed__7;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

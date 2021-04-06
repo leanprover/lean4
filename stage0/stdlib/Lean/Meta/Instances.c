@@ -165,7 +165,6 @@ lean_object* l_Lean_Meta_addDefaultInstanceEntry(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_Meta_addInstanceEntry___spec__6(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getDefaultInstances___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5662____closed__21;
 lean_object* l_Lean_Meta_defaultInstanceExtension___closed__2;
 lean_object* l_Array_contains___at_Lean_Meta_addInstanceEntry___spec__11___boxed(lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
@@ -178,6 +177,7 @@ lean_object* l___private_Lean_Meta_Instances_0__Lean_Meta_mkInstanceKey___lambda
 lean_object* l_Lean_Meta_defaultInstanceExtension___closed__4;
 size_t l_USize_mul(size_t, size_t);
 lean_object* l_Lean_Meta_addDefaultInstance___lambda__2___closed__7;
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5527____closed__21;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_683____lambda__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instInhabitedInstances;
 lean_object* l_Lean_Meta_getGlobalInstancesIndex___boxed(lean_object*, lean_object*, lean_object*);
@@ -2772,7 +2772,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5662____closed__21;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5527____closed__21;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

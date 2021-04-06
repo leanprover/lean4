@@ -148,7 +148,6 @@ lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_838____lambda__2___boxed
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__3___closed__2;
 lean_object* l_Array_qpartition_loop___at_Lean_registerParametricAttribute___spec__4(lean_object*);
 lean_object* l_Lean_ParametricAttributeImpl_afterSet___default___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5662____closed__15;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_registerTagAttribute___closed__2;
 lean_object* l_Lean_attributeExtension___elambda__2(lean_object*);
@@ -168,6 +167,7 @@ lean_object* l_IO_mkRef___at_Lean_initFn____x40_Lean_Attributes___hyg_208____spe
 lean_object* l_Lean_registerTagAttribute___closed__5;
 lean_object* l_Lean_AttributeImpl_erase___default___rarg___closed__1;
 lean_object* l_Lean_attributeExtension___elambda__4(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5527____closed__15;
 lean_object* l_Std_RBNode_fold___at_Lean_registerTagAttribute___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_AttributeImpl_erase___default___rarg___closed__2;
 lean_object* l_Std_RBNode_find___at_Lean_EnumAttributes_getValue___spec__1___rarg___boxed(lean_object*, lean_object*);
@@ -6034,7 +6034,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Attr_simp___closed__2;
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5662____closed__15;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5527____closed__15;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

@@ -222,6 +222,7 @@ lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_mkCongrLemma___spec__11___lam
 lean_object* l_Lean_Meta_mkCongrLemma_match__3(lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_249____closed__4;
 lean_object* l_Lean_SMap_fold___at___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemmas____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_117____spec__2___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_7424____closed__4;
 lean_object* l_Lean_Meta_mkCongrLemma_onlyMVarsAt___lambda__1___boxed(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
@@ -284,7 +285,6 @@ lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_1
 lean_object* l_Std_HashMapImp_insert___at_Lean_Meta_addCongrLemmaEntry___spec__6(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7613____closed__4;
 lean_object* l_Std_PersistentHashMap_foldlMAux___at___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemmas____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_117____spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemma____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_21____closed__4;
 lean_object* l_Lean_Meta_instReprCongrLemmas___closed__1;
@@ -7083,7 +7083,7 @@ lean_inc(x_26);
 x_27 = lean_ctor_get(x_23, 1);
 lean_inc(x_27);
 lean_dec(x_23);
-x_28 = l_myMacro____x40_Init_Notation___hyg_7613____closed__4;
+x_28 = l_myMacro____x40_Init_Notation___hyg_7424____closed__4;
 x_29 = lean_unsigned_to_nat(3u);
 x_30 = l_Lean_Expr_isAppOfArity(x_27, x_28, x_29);
 if (x_30 == 0)
@@ -7354,7 +7354,7 @@ lean_inc(x_95);
 x_96 = lean_ctor_get(x_92, 1);
 lean_inc(x_96);
 lean_dec(x_92);
-x_97 = l_myMacro____x40_Init_Notation___hyg_7613____closed__4;
+x_97 = l_myMacro____x40_Init_Notation___hyg_7424____closed__4;
 x_98 = lean_unsigned_to_nat(3u);
 x_99 = l_Lean_Expr_isAppOfArity(x_96, x_97, x_98);
 if (x_99 == 0)
@@ -7660,7 +7660,7 @@ lean_inc(x_170);
 x_171 = lean_ctor_get(x_167, 1);
 lean_inc(x_171);
 lean_dec(x_167);
-x_172 = l_myMacro____x40_Init_Notation___hyg_7613____closed__4;
+x_172 = l_myMacro____x40_Init_Notation___hyg_7424____closed__4;
 x_173 = lean_unsigned_to_nat(3u);
 x_174 = l_Lean_Expr_isAppOfArity(x_171, x_172, x_173);
 if (x_174 == 0)

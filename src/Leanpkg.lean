@@ -106,6 +106,7 @@ def initPkg (n : String) (fromNew : Bool) : IO Unit := do
   IO.FS.writeFile leanpkgTomlFn s!"[package]
 name = \"{n}\"
 version = \"0.1\"
+lean_version = \"{leanVersionString}\"
 "
   IO.FS.writeFile s!"{n.capitalize}.lean" "def main : IO Unit :=
   IO.println \"Hello, world!\"

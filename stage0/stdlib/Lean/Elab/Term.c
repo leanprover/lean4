@@ -852,7 +852,6 @@ uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 lean_object* l_Lean_Meta_mkPure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_getFVarLocalDecl_x21___closed__1;
 lean_object* l_Lean_pushScope___at_Lean_Elab_Term_elabOpen___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Syntax_isNodeOf_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_tryLiftAndCoe_match__3___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
 size_t lean_usize_of_nat(lean_object*);
@@ -931,6 +930,7 @@ lean_object* l_Lean_Elab_elabSetOption_setOption___at_Lean_Elab_Term_elabSetOpti
 size_t l_USize_mod(size_t, size_t);
 lean_object* l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__14;
 lean_object* l_Lean_Elab_Term_getDeclName_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Syntax_isNodeOf(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldr___at___private_Lean_Elab_Term_0__Lean_Elab_Term_throwStuckAtUniverseCnstr_exposeRelevantUniverses___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_instMonadInfoTreeTermElabM___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_resolveId_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -23151,7 +23151,7 @@ x_5 = l_Lean_Syntax_getArg(x_1, x_4);
 x_6 = l_Lean_nullKind___closed__2;
 x_7 = lean_unsigned_to_nat(2u);
 lean_inc(x_5);
-x_8 = l_Lean_Syntax_isNodeOf_x27(x_5, x_6, x_7);
+x_8 = l_Lean_Syntax_isNodeOf(x_5, x_6, x_7);
 if (x_8 == 0)
 {
 lean_dec(x_5);
@@ -23164,7 +23164,7 @@ x_9 = lean_unsigned_to_nat(0u);
 x_10 = l_Lean_Syntax_getArg(x_5, x_9);
 x_11 = l_Lean_Syntax_getArg(x_5, x_4);
 lean_dec(x_5);
-x_12 = l_Lean_Syntax_isNodeOf_x27(x_11, x_6, x_9);
+x_12 = l_Lean_Syntax_isNodeOf(x_11, x_6, x_9);
 if (x_12 == 0)
 {
 lean_dec(x_10);

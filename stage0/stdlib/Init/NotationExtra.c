@@ -295,7 +295,6 @@ extern lean_object* l_term___xd7_____closed__5;
 extern lean_object* l_Lean_Parser_Tactic_first___closed__7;
 extern lean_object* l_termDepIfThenElse___closed__14;
 lean_object* l_myMacro____x40_Init_NotationExtra___hyg_7279____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Syntax_isNodeOf_x27(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_termDepIfThenElse___closed__9;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_unifConstraintElem___closed__6;
@@ -315,6 +314,7 @@ lean_object* l_unexpandPSigma___closed__1;
 lean_object* l_unexpandPSigma(lean_object*, lean_object*);
 lean_object* l_unexpandSigma___closed__1;
 lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5527____closed__1;
+uint8_t l_Lean_Syntax_isNodeOf(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_1040____closed__6;
 lean_object* l_Lean_bracketedExplicitBinders___closed__4;
 lean_object* l_commandClassAbbrev_______x3a_x3d_____x2c___closed__3;
@@ -2596,13 +2596,13 @@ x_14 = lean_unsigned_to_nat(2u);
 x_15 = l_Lean_Syntax_getArg(x_1, x_14);
 x_16 = l_Lean_nullKind___closed__2;
 lean_inc(x_15);
-x_17 = l_Lean_Syntax_isNodeOf_x27(x_15, x_16, x_8);
+x_17 = l_Lean_Syntax_isNodeOf(x_15, x_16, x_8);
 if (x_17 == 0)
 {
 lean_object* x_18; uint8_t x_19; 
 x_18 = lean_unsigned_to_nat(1u);
 lean_inc(x_15);
-x_19 = l_Lean_Syntax_isNodeOf_x27(x_15, x_16, x_18);
+x_19 = l_Lean_Syntax_isNodeOf(x_15, x_16, x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; 
@@ -4278,7 +4278,7 @@ x_18 = l_Lean_Syntax_getArg(x_1, x_17);
 lean_dec(x_1);
 x_19 = l_Lean_nullKind___closed__2;
 lean_inc(x_18);
-x_20 = l_Lean_Syntax_isNodeOf_x27(x_18, x_19, x_17);
+x_20 = l_Lean_Syntax_isNodeOf(x_18, x_19, x_17);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -4330,7 +4330,7 @@ else
 lean_object* x_33; uint8_t x_34; 
 x_33 = l_Lean_Syntax_getArg(x_28, x_7);
 lean_inc(x_33);
-x_34 = l_Lean_Syntax_isNodeOf_x27(x_33, x_19, x_17);
+x_34 = l_Lean_Syntax_isNodeOf(x_33, x_19, x_17);
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; 
@@ -4374,7 +4374,7 @@ x_44 = l_Lean_Syntax_getArg(x_37, x_17);
 lean_dec(x_37);
 x_45 = lean_unsigned_to_nat(2u);
 lean_inc(x_44);
-x_46 = l_Lean_Syntax_isNodeOf_x27(x_44, x_19, x_45);
+x_46 = l_Lean_Syntax_isNodeOf(x_44, x_19, x_45);
 if (x_46 == 0)
 {
 lean_object* x_47; lean_object* x_48; 
@@ -4410,7 +4410,7 @@ lean_object* x_53; uint8_t x_54;
 x_53 = l_Lean_Syntax_getArg(x_44, x_17);
 lean_dec(x_44);
 lean_inc(x_53);
-x_54 = l_Lean_Syntax_isNodeOf_x27(x_53, x_19, x_17);
+x_54 = l_Lean_Syntax_isNodeOf(x_53, x_19, x_17);
 if (x_54 == 0)
 {
 lean_object* x_55; lean_object* x_56; 
@@ -4930,7 +4930,7 @@ lean_object* x_298; lean_object* x_299; uint8_t x_300;
 x_298 = l_Lean_Syntax_getArg(x_247, x_7);
 x_299 = l_Lean_Syntax_getArg(x_247, x_17);
 lean_dec(x_247);
-x_300 = l_Lean_Syntax_isNodeOf_x27(x_299, x_19, x_7);
+x_300 = l_Lean_Syntax_isNodeOf(x_299, x_19, x_7);
 if (x_300 == 0)
 {
 lean_object* x_301; uint8_t x_302; 
@@ -5218,7 +5218,7 @@ x_18 = l_Lean_Syntax_getArg(x_1, x_17);
 lean_dec(x_1);
 x_19 = l_Lean_nullKind___closed__2;
 lean_inc(x_18);
-x_20 = l_Lean_Syntax_isNodeOf_x27(x_18, x_19, x_17);
+x_20 = l_Lean_Syntax_isNodeOf(x_18, x_19, x_17);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -5270,7 +5270,7 @@ else
 lean_object* x_33; uint8_t x_34; 
 x_33 = l_Lean_Syntax_getArg(x_28, x_7);
 lean_inc(x_33);
-x_34 = l_Lean_Syntax_isNodeOf_x27(x_33, x_19, x_17);
+x_34 = l_Lean_Syntax_isNodeOf(x_33, x_19, x_17);
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; 
@@ -5308,7 +5308,7 @@ x_42 = l_Lean_Syntax_getArg(x_37, x_17);
 lean_dec(x_37);
 x_43 = lean_unsigned_to_nat(2u);
 lean_inc(x_42);
-x_44 = l_Lean_Syntax_isNodeOf_x27(x_42, x_19, x_43);
+x_44 = l_Lean_Syntax_isNodeOf(x_42, x_19, x_43);
 if (x_44 == 0)
 {
 lean_object* x_45; lean_object* x_46; 
@@ -5345,7 +5345,7 @@ lean_object* x_52; uint8_t x_53;
 x_52 = l_Lean_Syntax_getArg(x_42, x_17);
 lean_dec(x_42);
 lean_inc(x_52);
-x_53 = l_Lean_Syntax_isNodeOf_x27(x_52, x_19, x_17);
+x_53 = l_Lean_Syntax_isNodeOf(x_52, x_19, x_17);
 if (x_53 == 0)
 {
 lean_object* x_54; lean_object* x_55; 
@@ -5579,7 +5579,7 @@ x_18 = l_Lean_Syntax_getArg(x_1, x_17);
 lean_dec(x_1);
 x_19 = l_Lean_nullKind___closed__2;
 lean_inc(x_18);
-x_20 = l_Lean_Syntax_isNodeOf_x27(x_18, x_19, x_17);
+x_20 = l_Lean_Syntax_isNodeOf(x_18, x_19, x_17);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -5631,7 +5631,7 @@ else
 lean_object* x_33; uint8_t x_34; 
 x_33 = l_Lean_Syntax_getArg(x_28, x_7);
 lean_inc(x_33);
-x_34 = l_Lean_Syntax_isNodeOf_x27(x_33, x_19, x_17);
+x_34 = l_Lean_Syntax_isNodeOf(x_33, x_19, x_17);
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; 
@@ -5669,7 +5669,7 @@ x_42 = l_Lean_Syntax_getArg(x_37, x_17);
 lean_dec(x_37);
 x_43 = lean_unsigned_to_nat(2u);
 lean_inc(x_42);
-x_44 = l_Lean_Syntax_isNodeOf_x27(x_42, x_19, x_43);
+x_44 = l_Lean_Syntax_isNodeOf(x_42, x_19, x_43);
 if (x_44 == 0)
 {
 lean_object* x_45; lean_object* x_46; 
@@ -5706,7 +5706,7 @@ lean_object* x_52; uint8_t x_53;
 x_52 = l_Lean_Syntax_getArg(x_42, x_17);
 lean_dec(x_42);
 lean_inc(x_52);
-x_53 = l_Lean_Syntax_isNodeOf_x27(x_52, x_19, x_17);
+x_53 = l_Lean_Syntax_isNodeOf(x_52, x_19, x_17);
 if (x_53 == 0)
 {
 lean_object* x_54; lean_object* x_55; 
@@ -7509,7 +7509,7 @@ x_14 = lean_unsigned_to_nat(3u);
 x_15 = l_Lean_Syntax_getArg(x_1, x_14);
 x_16 = l_Lean_nullKind___closed__2;
 x_17 = lean_unsigned_to_nat(0u);
-x_18 = l_Lean_Syntax_isNodeOf_x27(x_15, x_16, x_17);
+x_18 = l_Lean_Syntax_isNodeOf(x_15, x_16, x_17);
 if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; uint8_t x_21; 
@@ -7781,7 +7781,7 @@ if (x_46 == 0)
 lean_object* x_47; uint8_t x_48; 
 x_47 = l_Lean_nullKind___closed__2;
 lean_inc(x_45);
-x_48 = l_Lean_Syntax_isNodeOf_x27(x_45, x_47, x_44);
+x_48 = l_Lean_Syntax_isNodeOf(x_45, x_47, x_44);
 if (x_48 == 0)
 {
 lean_object* x_49; lean_object* x_50; uint8_t x_51; 
@@ -7864,12 +7864,12 @@ x_67 = l_Lean_Syntax_getArg(x_20, x_66);
 x_68 = l_Lean_nullKind___closed__2;
 x_69 = lean_unsigned_to_nat(2u);
 lean_inc(x_67);
-x_70 = l_Lean_Syntax_isNodeOf_x27(x_67, x_68, x_69);
+x_70 = l_Lean_Syntax_isNodeOf(x_67, x_68, x_69);
 if (x_70 == 0)
 {
 lean_object* x_71; uint8_t x_72; 
 x_71 = lean_unsigned_to_nat(0u);
-x_72 = l_Lean_Syntax_isNodeOf_x27(x_67, x_68, x_71);
+x_72 = l_Lean_Syntax_isNodeOf(x_67, x_68, x_71);
 if (x_72 == 0)
 {
 lean_object* x_73; lean_object* x_74; uint8_t x_75; 
@@ -7996,7 +7996,7 @@ if (x_100 == 0)
 lean_object* x_101; uint8_t x_102; 
 x_101 = l_Lean_nullKind___closed__2;
 lean_inc(x_99);
-x_102 = l_Lean_Syntax_isNodeOf_x27(x_99, x_101, x_98);
+x_102 = l_Lean_Syntax_isNodeOf(x_99, x_101, x_98);
 if (x_102 == 0)
 {
 lean_object* x_103; lean_object* x_104; uint8_t x_105; 
@@ -8220,7 +8220,7 @@ if (x_150 == 0)
 lean_object* x_151; uint8_t x_152; 
 x_151 = l_Lean_nullKind___closed__2;
 lean_inc(x_149);
-x_152 = l_Lean_Syntax_isNodeOf_x27(x_149, x_151, x_148);
+x_152 = l_Lean_Syntax_isNodeOf(x_149, x_151, x_148);
 if (x_152 == 0)
 {
 lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; lean_object* x_157; lean_object* x_158; 
@@ -8305,12 +8305,12 @@ x_171 = l_Lean_Syntax_getArg(x_20, x_170);
 x_172 = l_Lean_nullKind___closed__2;
 x_173 = lean_unsigned_to_nat(2u);
 lean_inc(x_171);
-x_174 = l_Lean_Syntax_isNodeOf_x27(x_171, x_172, x_173);
+x_174 = l_Lean_Syntax_isNodeOf(x_171, x_172, x_173);
 if (x_174 == 0)
 {
 lean_object* x_175; uint8_t x_176; 
 x_175 = lean_unsigned_to_nat(0u);
-x_176 = l_Lean_Syntax_isNodeOf_x27(x_171, x_172, x_175);
+x_176 = l_Lean_Syntax_isNodeOf(x_171, x_172, x_175);
 if (x_176 == 0)
 {
 lean_object* x_177; lean_object* x_178; lean_object* x_179; lean_object* x_180; lean_object* x_181; lean_object* x_182; 
@@ -8442,7 +8442,7 @@ if (x_206 == 0)
 lean_object* x_207; uint8_t x_208; 
 x_207 = l_Lean_nullKind___closed__2;
 lean_inc(x_205);
-x_208 = l_Lean_Syntax_isNodeOf_x27(x_205, x_207, x_204);
+x_208 = l_Lean_Syntax_isNodeOf(x_205, x_207, x_204);
 if (x_208 == 0)
 {
 lean_object* x_209; lean_object* x_210; lean_object* x_211; lean_object* x_212; lean_object* x_213; lean_object* x_214; 
@@ -8684,7 +8684,7 @@ if (x_258 == 0)
 lean_object* x_259; uint8_t x_260; 
 x_259 = l_Lean_nullKind___closed__2;
 lean_inc(x_257);
-x_260 = l_Lean_Syntax_isNodeOf_x27(x_257, x_259, x_256);
+x_260 = l_Lean_Syntax_isNodeOf(x_257, x_259, x_256);
 if (x_260 == 0)
 {
 lean_object* x_261; lean_object* x_262; lean_object* x_263; lean_object* x_264; lean_object* x_265; lean_object* x_266; 
@@ -8769,12 +8769,12 @@ x_279 = l_Lean_Syntax_getArg(x_20, x_278);
 x_280 = l_Lean_nullKind___closed__2;
 x_281 = lean_unsigned_to_nat(2u);
 lean_inc(x_279);
-x_282 = l_Lean_Syntax_isNodeOf_x27(x_279, x_280, x_281);
+x_282 = l_Lean_Syntax_isNodeOf(x_279, x_280, x_281);
 if (x_282 == 0)
 {
 lean_object* x_283; uint8_t x_284; 
 x_283 = lean_unsigned_to_nat(0u);
-x_284 = l_Lean_Syntax_isNodeOf_x27(x_279, x_280, x_283);
+x_284 = l_Lean_Syntax_isNodeOf(x_279, x_280, x_283);
 if (x_284 == 0)
 {
 lean_object* x_285; lean_object* x_286; lean_object* x_287; lean_object* x_288; lean_object* x_289; lean_object* x_290; 
@@ -8916,7 +8916,7 @@ if (x_316 == 0)
 lean_object* x_317; uint8_t x_318; 
 x_317 = l_Lean_nullKind___closed__2;
 lean_inc(x_315);
-x_318 = l_Lean_Syntax_isNodeOf_x27(x_315, x_317, x_314);
+x_318 = l_Lean_Syntax_isNodeOf(x_315, x_317, x_314);
 if (x_318 == 0)
 {
 lean_object* x_319; lean_object* x_320; lean_object* x_321; lean_object* x_322; lean_object* x_323; lean_object* x_324; 
@@ -9169,7 +9169,7 @@ lean_object* x_2; lean_object* x_3; uint8_t x_4;
 x_2 = l_Lean_nullKind___closed__2;
 x_3 = lean_unsigned_to_nat(2u);
 lean_inc(x_1);
-x_4 = l_Lean_Syntax_isNodeOf_x27(x_1, x_2, x_3);
+x_4 = l_Lean_Syntax_isNodeOf(x_1, x_2, x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -9189,7 +9189,7 @@ x_10 = l_Lean_Syntax_isNone(x_9);
 if (x_10 == 0)
 {
 uint8_t x_11; 
-x_11 = l_Lean_Syntax_isNodeOf_x27(x_9, x_2, x_8);
+x_11 = l_Lean_Syntax_isNodeOf(x_9, x_2, x_8);
 if (x_11 == 0)
 {
 lean_object* x_12; 
@@ -10986,7 +10986,7 @@ if (x_10 == 0)
 {
 lean_object* x_11; uint8_t x_12; 
 x_11 = l_Lean_nullKind___closed__2;
-x_12 = l_Lean_Syntax_isNodeOf_x27(x_9, x_11, x_8);
+x_12 = l_Lean_Syntax_isNodeOf(x_9, x_11, x_8);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 

@@ -204,6 +204,7 @@ def argument       :=
 @[builtinTermParser] def app      := trailing_parser:leadPrec:maxPrec many1 argument
 
 @[builtinTermParser] def proj     := trailing_parser checkNoWsBefore >> "." >> checkNoWsBefore >> (fieldIdx <|> ident)
+@[builtinTermParser] def completion := trailing_parser checkNoWsBefore >> "."
 @[builtinTermParser] def arrayRef := trailing_parser checkNoWsBefore >> "[" >> termParser >>"]"
 @[builtinTermParser] def arrow    := trailing_parser checkPrec 25 >> unicodeSymbol " → " " -> " >> termParser 25
 

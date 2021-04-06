@@ -8683,22 +8683,8 @@ uint8_t l_Lean_Syntax_isNodeOf_x27(lean_object* x_1, lean_object* x_2, lean_obje
 _start:
 {
 uint8_t x_4; 
-lean_inc(x_1);
 x_4 = l_Lean_Syntax_isNodeOf(x_1, x_2, x_3);
-if (x_4 == 0)
-{
-uint8_t x_5; 
-x_5 = l_Lean_Syntax_isMissing(x_1);
-lean_dec(x_1);
-return x_5;
-}
-else
-{
-uint8_t x_6; 
-lean_dec(x_1);
-x_6 = 1;
-return x_6;
-}
+return x_4;
 }
 }
 lean_object* l_Lean_Syntax_isNodeOf_x27___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

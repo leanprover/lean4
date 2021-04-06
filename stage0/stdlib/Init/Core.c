@@ -179,7 +179,6 @@ extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__10;
 lean_object* l_term___x3c_x2d_x3e_____closed__7;
 lean_object* l_Task_Priority_default;
 lean_object* l_Thunk_mk___boxed(lean_object*, lean_object*);
-uint8_t l_Lean_Syntax_isNodeOf_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_instDecidableEqQuotient___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_term___u2248_____closed__4;
 lean_object* l_instBEqProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -190,6 +189,7 @@ lean_object* l_Squash_lift(lean_object*, lean_object*, lean_object*);
 lean_object* l_term___x3c_x2d_x3e_____closed__3;
 lean_object* l_term___u2194_____closed__5;
 lean_object* l_Eq_mp(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Syntax_isNodeOf(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_term___x3c_x3d_____closed__5;
 lean_object* l_toBoolUsing(lean_object*);
 lean_object* l_Subtype_instDecidableEqSubtype_match__1(lean_object*, lean_object*, lean_object*);
@@ -681,7 +681,7 @@ lean_dec(x_1);
 x_9 = l_Lean_nullKind___closed__2;
 x_10 = lean_unsigned_to_nat(2u);
 lean_inc(x_8);
-x_11 = l_Lean_Syntax_isNodeOf_x27(x_8, x_9, x_10);
+x_11 = l_Lean_Syntax_isNodeOf(x_8, x_9, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -954,7 +954,7 @@ lean_dec(x_1);
 x_9 = l_Lean_nullKind___closed__2;
 x_10 = lean_unsigned_to_nat(2u);
 lean_inc(x_8);
-x_11 = l_Lean_Syntax_isNodeOf_x27(x_8, x_9, x_10);
+x_11 = l_Lean_Syntax_isNodeOf(x_8, x_9, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -1318,7 +1318,7 @@ lean_dec(x_1);
 x_9 = l_Lean_nullKind___closed__2;
 x_10 = lean_unsigned_to_nat(2u);
 lean_inc(x_8);
-x_11 = l_Lean_Syntax_isNodeOf_x27(x_8, x_9, x_10);
+x_11 = l_Lean_Syntax_isNodeOf(x_8, x_9, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -1784,7 +1784,7 @@ lean_dec(x_1);
 x_9 = l_Lean_nullKind___closed__2;
 x_10 = lean_unsigned_to_nat(2u);
 lean_inc(x_8);
-x_11 = l_Lean_Syntax_isNodeOf_x27(x_8, x_9, x_10);
+x_11 = l_Lean_Syntax_isNodeOf(x_8, x_9, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -2170,7 +2170,7 @@ lean_dec(x_1);
 x_9 = l_Lean_nullKind___closed__2;
 x_10 = lean_unsigned_to_nat(2u);
 lean_inc(x_8);
-x_11 = l_Lean_Syntax_isNodeOf_x27(x_8, x_9, x_10);
+x_11 = l_Lean_Syntax_isNodeOf(x_8, x_9, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 

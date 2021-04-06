@@ -82,13 +82,13 @@ lean_object* l_myMacro____x40_Init_Control_Basic___hyg_890____closed__3;
 lean_object* l_instMonadControlT__1___rarg___lambda__2(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__10;
 extern lean_object* l_term___xd7_____closed__5;
-uint8_t l_Lean_Syntax_isNodeOf_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_bool___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadControlT___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_nullKind___closed__2;
 lean_object* l_myMacro____x40_Init_Control_Basic___hyg_58____closed__3;
 lean_object* l_notM(lean_object*);
+uint8_t l_Lean_Syntax_isNodeOf(lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadControlT___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_bool(lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Control_Basic___hyg_561____closed__3;
@@ -425,7 +425,7 @@ lean_dec(x_1);
 x_9 = l_Lean_nullKind___closed__2;
 x_10 = lean_unsigned_to_nat(2u);
 lean_inc(x_8);
-x_11 = l_Lean_Syntax_isNodeOf_x27(x_8, x_9, x_10);
+x_11 = l_Lean_Syntax_isNodeOf(x_8, x_9, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -1050,7 +1050,7 @@ lean_dec(x_1);
 x_9 = l_Lean_nullKind___closed__2;
 x_10 = lean_unsigned_to_nat(2u);
 lean_inc(x_8);
-x_11 = l_Lean_Syntax_isNodeOf_x27(x_8, x_9, x_10);
+x_11 = l_Lean_Syntax_isNodeOf(x_8, x_9, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -1448,7 +1448,7 @@ lean_dec(x_1);
 x_9 = l_Lean_nullKind___closed__2;
 x_10 = lean_unsigned_to_nat(2u);
 lean_inc(x_8);
-x_11 = l_Lean_Syntax_isNodeOf_x27(x_8, x_9, x_10);
+x_11 = l_Lean_Syntax_isNodeOf(x_8, x_9, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 

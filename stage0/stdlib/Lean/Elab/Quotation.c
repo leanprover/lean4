@@ -568,7 +568,6 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_7424____closed__4;
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__22___closed__15;
 extern lean_object* l_Lean_Parser_Term_bracketedBinder_quot___elambda__1___closed__2;
 extern lean_object* l_Lean_Elab_Term_getFVarLocalDecl_x21___closed__1;
-uint8_t l_Lean_Syntax_isNodeOf_x27(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_15551____closed__5;
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___spec__20___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___spec__12___closed__3;
@@ -637,6 +636,7 @@ lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_floatOu
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__11___closed__33;
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__19(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___lambda__1___closed__11;
+uint8_t l_Lean_Syntax_isNodeOf(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_compileStxMatch_match__3(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___spec__20___closed__11;
 lean_object* l_Lean_Elab_Term_Quotation_stxQuot_expand___closed__29;
@@ -33557,7 +33557,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = l_Lean_Syntax_getArg(x_2, x_7);
 x_9 = l_Lean_nullKind___closed__2;
-x_10 = l_Lean_Syntax_isNodeOf_x27(x_8, x_9, x_7);
+x_10 = l_Lean_Syntax_isNodeOf(x_8, x_9, x_7);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -34092,7 +34092,7 @@ lean_dec(x_20);
 x_23 = lean_unsigned_to_nat(2u);
 x_24 = l_Lean_Syntax_getArg(x_1, x_23);
 x_25 = l_Lean_nullKind___closed__2;
-x_26 = l_Lean_Syntax_isNodeOf_x27(x_24, x_25, x_16);
+x_26 = l_Lean_Syntax_isNodeOf(x_24, x_25, x_16);
 if (x_26 == 0)
 {
 lean_object* x_27; 

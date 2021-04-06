@@ -301,7 +301,6 @@ extern lean_object* l_Lean_Expr_getAutoParamTactic_x3f___closed__1;
 lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandBinderModifier___closed__5;
 lean_object* l_Lean_Elab_Term_quoteAutoTactic(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_getFVarLocalDecl_x21___closed__1;
-uint8_t l_Lean_Syntax_isNodeOf_x27(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_elabBindersAux_loop(lean_object*);
 uint8_t l_Lean_Syntax_isAntiquot(lean_object*);
@@ -327,6 +326,7 @@ lean_object* l_Lean_addDecl___at_Lean_Elab_Term_evalExpr___spec__3(lean_object*,
 extern lean_object* l_Lean_Elab_Term_termElabAttribute;
 lean_object* l_Lean_mkAtomFrom(lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Binders_0__Lean_Elab_Term_getFunBinderIds_x3f___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Syntax_isNodeOf(lean_object*, lean_object*, lean_object*);
 lean_object* lean_local_ctx_mk_local_decl(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandBinderModifier___closed__3;
 extern lean_object* l_Lean_Elab_Term_instMonadQuotationTermElabM;
@@ -18505,7 +18505,7 @@ lean_object* x_3; lean_object* x_4; uint8_t x_5;
 x_3 = l_Lean_nullKind___closed__2;
 x_4 = lean_unsigned_to_nat(2u);
 lean_inc(x_2);
-x_5 = l_Lean_Syntax_isNodeOf_x27(x_2, x_3, x_4);
+x_5 = l_Lean_Syntax_isNodeOf(x_2, x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; 
@@ -18542,7 +18542,7 @@ x_15 = l_Lean_Syntax_isNone(x_14);
 if (x_15 == 0)
 {
 uint8_t x_16; 
-x_16 = l_Lean_Syntax_isNodeOf_x27(x_14, x_3, x_13);
+x_16 = l_Lean_Syntax_isNodeOf(x_14, x_3, x_13);
 if (x_16 == 0)
 {
 lean_object* x_17; 

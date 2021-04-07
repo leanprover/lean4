@@ -2,5 +2,5 @@ patvar.lean:3:0-3:22: error: missing cases:
 (List.cons _ _)
 patvar.lean:10:0-10:16: error: missing cases:
 (List.cons _ _)
-patvar.lean:14:0-14:21: error: invalid pattern variable, must be atomic
-patvar.lean:17:0-17:20: error: invalid pattern variable, must be atomic
+patvar.lean:14:2-14:9: error: invalid pattern variable, must be atomic
+patvar.lean:17:2-17:9: error: invalid pattern variable, must be atomic

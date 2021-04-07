@@ -30,7 +30,7 @@ notation:65 lhs:65 " + " rhs:66 => HAdd.hAdd lhs rhs
 notation:50 lhs:51 " = " rhs:51 => Eq lhs rhs
 notation:80 lhs:81 " ^ " rhs:80 => HPow.hPow lhs rhs
 notation:100 "-" arg:100 => Neg.neg arg
-notation:1000 arg:1000 "⁻¹" => Inv.inv arg  -- `max` is a shorthand for precedence 1000
+notation:1024 arg:1024 "⁻¹" => Inv.inv arg  -- `max` is a shorthand for precedence 1024
 ```
 
 It turns out that all commands from the first code block are in fact command *macros* translating to the more general `notation` command.

@@ -1735,6 +1735,20 @@ def isNodeOf (stx : Syntax) (k : SyntaxNodeKind) (n : Nat) : Bool :=
 def isNodeOf' (stx : Syntax) (k : SyntaxNodeKind) (n : Nat) : Bool :=
   stx.isNodeOf k n
 
+def isIdent : Syntax → Bool
+  | ident _ _ _ _ => true
+  | _             => false
+
+def getId : Syntax → Name
+  | ident _ _ val _ => val
+  | _               => Name.anonymous
+
+def matchesNull (stx : Syntax) (n : Nat) : Bool :=
+  isNodeOf stx nullKind n
+
+def matchesIdent (stx : Syntax) (id : Name) : Bool :=
+  and stx.isIdent (beq stx.getId id)
+
 def setArgs (stx : Syntax) (args : Array Syntax) : Syntax :=
   match stx with
   | node k _ => node k args

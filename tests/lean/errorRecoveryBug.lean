@@ -1,0 +1,1 @@
+inductive A | b (c :

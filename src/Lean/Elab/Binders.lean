@@ -113,34 +113,32 @@ def expandOptType (ref : Syntax) (optType : Syntax) : Syntax :=
   else
     optType[0][1]
 
-private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) :=
-  match stx with
-  | Syntax.node k args => do
-    if k == `Lean.Parser.Term.simpleBinder then
-      -- binderIdent+ >> optType
-      let ids ← getBinderIds args[0]
-      let type := expandOptType stx args[1]
-      ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.default }
-    else if k == `Lean.Parser.Term.explicitBinder then
-      -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
-      let ids ← getBinderIds args[1]
-      let type        := expandBinderType stx args[2]
-      let optModifier := args[3]
-      let type ← expandBinderModifier type optModifier
-      ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.default }
-    else if k == `Lean.Parser.Term.implicitBinder then
-      -- `{` binderIdent+ binderType `}`
-      let ids ← getBinderIds args[1]
-      let type := expandBinderType stx args[2]
-      ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.implicit }
-    else if k == `Lean.Parser.Term.instBinder then
-      -- `[` optIdent type `]`
-      let id ← expandOptIdent args[1]
-      let type := args[2]
-      pure #[ { id := id, type := type, bi := BinderInfo.instImplicit } ]
-    else
-      throwUnsupportedSyntax
-  | _ => throwUnsupportedSyntax
+private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) := do
+  let k := stx.getKind
+  if k == `Lean.Parser.Term.simpleBinder then
+    -- binderIdent+ >> optType
+    let ids ← getBinderIds stx[0]
+    let type := expandOptType stx stx[1]
+    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.default }
+  else if k == `Lean.Parser.Term.explicitBinder then
+    -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
+    let ids ← getBinderIds stx[1]
+    let type        := expandBinderType stx stx[2]
+    let optModifier := stx[3]
+    let type ← expandBinderModifier type optModifier
+    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.default }
+  else if k == `Lean.Parser.Term.implicitBinder then
+    -- `{` binderIdent+ binderType `}`
+    let ids ← getBinderIds stx[1]
+    let type := expandBinderType stx stx[2]
+    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.implicit }
+  else if k == `Lean.Parser.Term.instBinder then
+    -- `[` optIdent type `]`
+    let id ← expandOptIdent stx[1]
+    let type := stx[2]
+    pure #[ { id := id, type := type, bi := BinderInfo.instImplicit } ]
+  else
+    throwUnsupportedSyntax
 
 private def registerFailedToInferBinderTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit :=
   registerCustomErrorIfMVar type ref "failed to infer binder type"

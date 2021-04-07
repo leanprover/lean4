@@ -112,6 +112,8 @@ section FileWorker
     params     : DidChangeTextDocumentParams
     /-- Signals when `applyTime` has been reached. -/
     signalTask : Task WorkerEvent
+    /-- We should not reorder messages when delaying edits, so we queue other messages since the last request here. -/
+    queuedMsgs : Array JsonRpc.Message
 
   structure FileWorker where
     doc                : OpenDocument
@@ -281,6 +283,11 @@ section ServerM
   def tryWriteMessage (uri : DocumentUri) (msg : JsonRpc.Message) (queueFailedMessage := true) (restartCrashedWorker := false) :
       ServerM Unit := do
     let fw ← findFileWorker uri
+    let pendingEdit ← fw.groupedEditsRef.modifyGet fun
+      | some ge => (true, some { ge with queuedMsgs := ge.queuedMsgs.push msg })
+      | none    => (false, none)
+    if pendingEdit then
+      return
     match fw.state with
     | WorkerState.crashed queuedMsgs =>
       let mut queuedMsgs := queuedMsgs
@@ -345,6 +352,8 @@ section NotificationHandling
       let newDoc : OpenDocument := ⟨newMeta, oldDoc.headerAst⟩
       updateFileWorkers { fw with doc := newDoc }
       tryWriteMessage doc.uri (Notification.mk "textDocument/didChange" ge.params) (restartCrashedWorker := true)
+      for msg in ge.queuedMsgs do
+        tryWriteMessage doc.uri msg
 
   def handleDidClose (p : DidCloseTextDocumentParams) : ServerM Unit :=
     terminateFileWorker p.textDocument.uri
@@ -460,15 +469,22 @@ section MainLoop
         let now ← monoMsNow
         /- We wait `editDelay`ms since last edit before applying the changes. -/
         let applyTime := now + st.editDelay
-        let startingGroup? ← fw.groupedEditsRef.modifyGet fun
-          | some ge => (false, some { ge with applyTime := applyTime
-                                              params.textDocument := p.textDocument
-                                              params.contentChanges := ge.params.contentChanges ++ p.contentChanges } )
-          | none    => (true,  some { applyTime := applyTime
-                                      params := p
-                                      /- This is overwritten just below. -/
-                                      signalTask := Task.pure WorkerEvent.processGroupedEdits } )
-        if startingGroup? then
+        let pendingEdit ← fw.groupedEditsRef.modifyGet fun
+          | some ge => (true, some { ge with
+            applyTime := applyTime
+            params.textDocument := p.textDocument
+            params.contentChanges := ge.params.contentChanges ++ p.contentChanges
+            -- drain now-outdated messages and respond with `contentModified` below
+            queuedMsgs := #[] })
+          | none    => (false, some {
+            applyTime := applyTime
+            params := p
+            /- This is overwritten just below. -/
+            signalTask := Task.pure WorkerEvent.processGroupedEdits
+            queuedMsgs := #[] })
+        if pendingEdit then
+          fw.errorPendingRequests (←read).hOut ErrorCode.contentModified "File changed."
+        else
           let t ← fw.runEditsSignalTask
           fw.groupedEditsRef.modify (Option.map fun ge => { ge with signalTask := t } )
         mainLoop (←runClientTask)

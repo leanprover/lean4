@@ -12,7 +12,7 @@ but its execution time representation is optimized, and it is similar to C++ `st
 The Lean type checker has no special support for reducing `Array`s.
 
 You can create arrays in several ways. You can create a small array by listing consecutive values between
-`#[` and `]` and separated by colons, as shown in the following examples.
+`#[` and `]` and separated by commas, as shown in the following examples.
 
 ```lean
 #check #[1, 2, 3] -- Array Nat

@@ -224,7 +224,7 @@ As an exercise, try defining default instances for other types, such as `List` a
 The Lean standard library contains the definition `inferInstance`. It has type `{α : Type u} → [i : α] → α`,
 and is useful for triggering the type class resolution procedure when the expected type is an instance.
 ```lean
-#check @inferInstance  -- {α : Type u} → [i : α] → α
+#check @inferInstance  -- {α : Sort u_1} → [i : α] → α
 
 #check (inferInstance : Inhabited Nat) -- Inhabited Nat
 
@@ -354,7 +354,7 @@ instance [HMul α β γ] : HMul α (Array β) (Array γ) where
 
 #eval hMul 4 3                    -- 12
 #eval hMul 4 #[2, 3, 4]           -- #[8, 12, 16]
-#eval hMul (-2) #[3, -1, 4]       -- #[-6, 2, -4]
+#eval hMul (-2) #[3, -1, 4]       -- #[-6, 2, -8]
 #eval hMul 2 #[#[2, 3], #[0, 4]]  -- #[#[4, 6], #[0, 8]]
 # end Ex
 ```

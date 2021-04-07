@@ -308,98 +308,96 @@ private def doubleQuotedNameToPattern (stx : Syntax) : TermElabM Syntax := do
   | some val => nameToPattern (← resolveGlobalConstNoOverloadWithInfo stx[1] val)
   | none     => throwIllFormedSyntax
 
-partial def collect (stx : Syntax) : M Syntax := do
-  match stx with
-  | Syntax.node k args => withRef stx <| withFreshMacroScope do
-    if k == ``Lean.Parser.Term.app then
-      processCtorApp stx
-    else if k == ``Lean.Parser.Term.anonymousCtor then
-      let elems ← args[1].getArgs.mapSepElemsM collect
-      return Syntax.node k (args.set! 1 <| mkNullNode elems)
-    else if k == ``Lean.Parser.Term.structInst then
-      /-
-      ```
-      leading_parser "{" >> optional (atomic (termParser >> " with "))
-                  >> manyIndent (group (structInstField >> optional ", "))
-                  >> optional ".."
-                  >> optional (" : " >> termParser)
-                  >> " }"
-      ```
-      -/
-      let withMod := args[1]
-      unless withMod.isNone do
-        throwErrorAt withMod "invalid struct instance pattern, 'with' is not allowed in patterns"
-      let fields ← args[2].getArgs.mapM fun p => do
-          -- p is of the form (group (structInstField >> optional ", "))
-          let field := p[0]
-          -- leading_parser structInstLVal >> " := " >> termParser
-          let newVal ← collect field[2]
-          let field := field.setArg 2 newVal
-          pure <| field.setArg 0 field
-      return Syntax.node k (args.set! 2 <| mkNullNode fields)
-    else if k == ``Lean.Parser.Term.hole then
-      let r ← mkMVarSyntax
-      modify fun s => { s with vars := s.vars.push <| PatternVar.anonymousVar <| getMVarSyntaxMVarId r }
-      return r
-    else if k == ``Lean.Parser.Term.paren then
-      let arg := args[1]
-      if arg.isNone then
-        return stx -- `()`
-      else
-        let t := arg[0]
-        let s := arg[1]
-        if s.isNone || s[0].getKind == ``Lean.Parser.Term.typeAscription then
-          -- Ignore `s`, since it empty or it is a type ascription
-          let t ← collect t
-          let arg := arg.setArg 0 t
-          return Syntax.node k (args.set! 1 arg)
-        else
-          -- Tuple literal is a constructor
-          let t ← collect t
-          let arg := arg.setArg 0 t
-          let tupleTail := s[0]
-          let tupleTailElems := tupleTail[1].getArgs
-          let tupleTailElems ← tupleTailElems.mapSepElemsM collect
-          let tupleTail := tupleTail.setArg 1 <| mkNullNode tupleTailElems
-          let s         := s.setArg 0 tupleTail
-          let arg       := arg.setArg 1 s
-          return Syntax.node k (args.set! 1 arg)
-    else if k == ``Lean.Parser.Term.explicitUniv then
-      processCtor stx[0]
-    else if k == ``Lean.Parser.Term.namedPattern then
-      /- Recall that
-        def namedPattern := check... >> trailing_parser "@" >> termParser -/
-      let id := stx[0]
-      discard <| processVar id
-      let pat := stx[2]
-      let pat ← collect pat
-      `(_root_.namedPattern $id $pat)
-    else if k == ``Lean.Parser.Term.inaccessible then
-      return stx
-    else if k == strLitKind then
-      return stx
-    else if k == numLitKind then
-      return stx
-    else if k == scientificLitKind then
-      return stx
-    else if k == charLitKind then
-      return stx
-    else if k == ``Lean.Parser.Term.quotedName then
-      /- Quoted names have an elaboration function associated with them, and they will not be macro expanded.
-        Note that macro expansion is not a good option since it produces a term using the smart constructors `Name.mkStr`, `Name.mkNum`
-        instead of the constructors `Name.str` and `Name.num` -/
-      quotedNameToPattern stx
-    else if k == ``Lean.Parser.Term.doubleQuotedName then
-      /- Similar to previous case -/
-      doubleQuotedNameToPattern stx
-    else if k == choiceKind then
-      throwError "invalid pattern, notation is ambiguous"
-    else
-      throwInvalidPattern
-  | Syntax.ident .. =>
+partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroScope do
+  let k := stx.getKind
+  if k == identKind then
     processId stx
-  | stx =>
+  else if k == ``Lean.Parser.Term.app then
+    processCtorApp stx
+  else if k == ``Lean.Parser.Term.anonymousCtor then
+    let elems ← stx[1].getArgs.mapSepElemsM collect
+    return stx.setArg 1 <| mkNullNode elems
+  else if k == ``Lean.Parser.Term.structInst then
+    /-
+    ```
+    leading_parser "{" >> optional (atomic (termParser >> " with "))
+                >> manyIndent (group (structInstField >> optional ", "))
+                >> optional ".."
+                >> optional (" : " >> termParser)
+                >> " }"
+    ```
+    -/
+    let withMod := stx[1]
+    unless withMod.isNone do
+      throwErrorAt withMod "invalid struct instance pattern, 'with' is not allowed in patterns"
+    let fields ← stx[2].getArgs.mapM fun p => do
+        -- p is of the form (group (structInstField >> optional ", "))
+        let field := p[0]
+        -- leading_parser structInstLVal >> " := " >> termParser
+        let newVal ← collect field[2]
+        let field := field.setArg 2 newVal
+        pure <| field.setArg 0 field
+    return stx.setArg 2 <| mkNullNode fields
+  else if k == ``Lean.Parser.Term.hole then
+    let r ← mkMVarSyntax
+    modify fun s => { s with vars := s.vars.push <| PatternVar.anonymousVar <| getMVarSyntaxMVarId r }
+    return r
+  else if k == ``Lean.Parser.Term.paren then
+    let arg := stx[1]
+    if arg.isNone then
+      return stx -- `()`
+    else
+      let t := arg[0]
+      let s := arg[1]
+      if s.isNone || s[0].getKind == ``Lean.Parser.Term.typeAscription then
+        -- Ignore `s`, since it empty or it is a type ascription
+        let t ← collect t
+        let arg := arg.setArg 0 t
+        return stx.setArg 1 arg
+      else
+        -- Tuple literal is a constructor
+        let t ← collect t
+        let arg := arg.setArg 0 t
+        let tupleTail := s[0]
+        let tupleTailElems := tupleTail[1].getArgs
+        let tupleTailElems ← tupleTailElems.mapSepElemsM collect
+        let tupleTail := tupleTail.setArg 1 <| mkNullNode tupleTailElems
+        let s         := s.setArg 0 tupleTail
+        let arg       := arg.setArg 1 s
+        return stx.setArg 1 arg
+  else if k == ``Lean.Parser.Term.explicitUniv then
+    processCtor stx[0]
+  else if k == ``Lean.Parser.Term.namedPattern then
+    /- Recall that
+      def namedPattern := check... >> trailing_parser "@" >> termParser -/
+    let id := stx[0]
+    discard <| processVar id
+    let pat := stx[2]
+    let pat ← collect pat
+    `(_root_.namedPattern $id $pat)
+  else if k == ``Lean.Parser.Term.inaccessible then
+    return stx
+  else if k == strLitKind then
+    return stx
+  else if k == numLitKind then
+    return stx
+  else if k == scientificLitKind then
+    return stx
+  else if k == charLitKind then
+    return stx
+  else if k == ``Lean.Parser.Term.quotedName then
+    /- Quoted names have an elaboration function associated with them, and they will not be macro expanded.
+      Note that macro expansion is not a good option since it produces a term using the smart constructors `Name.mkStr`, `Name.mkNum`
+      instead of the constructors `Name.str` and `Name.num` -/
+    quotedNameToPattern stx
+  else if k == ``Lean.Parser.Term.doubleQuotedName then
+    /- Similar to previous case -/
+    doubleQuotedNameToPattern stx
+  else if k == choiceKind then
+    throwError "invalid pattern, notation is ambiguous"
+  else
     throwInvalidPattern
+
 where
 
   processCtorApp (stx : Syntax) : M Syntax := do

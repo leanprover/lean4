@@ -41,21 +41,6 @@ extern "C" void lean_internal_panic_rc_overflow() {
     lean_internal_panic("reference counter overflowed");
 }
 
-/*
-  The panic message buffering feature is used to implement
-  `Environment.evalConst`.
-*/
-std::string g_panic_messages;
-
-
-
-
-/*
-- Exit on panic (no)
-- Show error (yes)
-- (internal) Send error to buffer
-*/
-
 bool g_exit_on_panic = false;
 
 extern "C" void lean_set_exit_on_panic(bool flag) {

@@ -112,6 +112,8 @@ section FileWorker
     params     : DidChangeTextDocumentParams
     /-- Signals when `applyTime` has been reached. -/
     signalTask : Task WorkerEvent
+    /-- We should not reorder messages when delaying edits, so we queue other messages since the last request here. -/
+    queuedMsgs : Array JsonRpc.Message
 
   structure FileWorker where
     doc                : OpenDocument
@@ -123,8 +125,6 @@ section FileWorker
     groupedEditsRef    : IO.Ref (Option GroupedEdits)
 
   namespace FileWorker
-
-  variable [ToJson α]
 
   def stdin (fw : FileWorker) : FS.Stream :=
     FS.Stream.ofHandle fw.proc.stdin
@@ -140,22 +140,13 @@ section FileWorker
       fw.pendingRequestsRef.modify (fun pendingRequests => pendingRequests.erase id)
     return msg
 
-  def writeMessage (fw : FileWorker) (msg : JsonRpc.Message) : IO Unit :=
-    fw.stdin.writeLspMessage msg
-
-  def writeNotification (fw : FileWorker) (n : Notification α) : IO Unit :=
-    fw.stdin.writeLspNotification n
-
-  def writeRequest (fw : FileWorker) (r : Request α) : IO Unit := do
-    fw.stdin.writeLspRequest r
-    fw.pendingRequestsRef.modify (fun pendingRequests => pendingRequests.insert r.id r)
-
   def errorPendingRequests (fw : FileWorker) (hError : FS.Stream) (code : ErrorCode) (msg : String) : IO Unit := do
     let pendingRequests ← fw.pendingRequestsRef.modifyGet (fun pendingRequests => (pendingRequests, RBMap.empty))
     for ⟨id, _⟩ in pendingRequests do
       hError.writeLspResponseError { id := id, code := code, message := msg }
 
   partial def runEditsSignalTask (fw : FileWorker) : IO (Task WorkerEvent) := do
+    -- check `applyTime` in a loop since it might have been postponed by a subsequent edit notification
     let rec loopAction : IO WorkerEvent := do
       let now ← monoMsNow
       let some ge ← fw.groupedEditsRef.get
@@ -258,7 +249,7 @@ section ServerM
     let commTask ← forwardMessages fw
     let fw : FileWorker := { fw with commTask := commTask }
     fw.stdin.writeLspRequest ⟨0, "initialize", st.initParams⟩
-    fw.writeNotification {
+    fw.stdin.writeLspNotification {
       method := "textDocument/didOpen"
       param  := {
         textDocument := {
@@ -278,7 +269,7 @@ section ServerM
        when the header changed we'll start a new one right after
        anyways and when we're shutting down the server
        it's over either way.) -/
-    try (←findFileWorker uri).writeMessage (Message.notification "exit" none)
+    try (←findFileWorker uri).stdin.writeLspMessage (Message.notification "exit" none)
     catch err => ()
     eraseFileWorker uri
 
@@ -289,9 +280,14 @@ section ServerM
       and restarts the file worker if the `crashed` flag was already set.
       Messages that couldn't be sent can be queued up via the queueFailedMessage flag and
       will be discharged after the FileWorker is restarted. -/
-  def tryWriteMessage [Coe α JsonRpc.Message] (uri : DocumentUri) (msg : α) (writeAction : FileWorker → α → IO Unit)
-  (queueFailedMessage := true) (restartCrashedWorker := false) : ServerM Unit := do
+  def tryWriteMessage (uri : DocumentUri) (msg : JsonRpc.Message) (queueFailedMessage := true) (restartCrashedWorker := false) :
+      ServerM Unit := do
     let fw ← findFileWorker uri
+    let pendingEdit ← fw.groupedEditsRef.modifyGet fun
+      | some ge => (true, some { ge with queuedMsgs := ge.queuedMsgs.push msg })
+      | none    => (false, none)
+    if pendingEdit then
+      return
     match fw.state with
     | WorkerState.crashed queuedMsgs =>
       let mut queuedMsgs := queuedMsgs
@@ -307,7 +303,7 @@ section ServerM
       -- try to discharge all queued msgs, tracking the ones that we can't discharge
       for msg in queuedMsgs do
         try
-          newFw.writeMessage msg
+          newFw.stdin.writeLspMessage msg
         catch _ =>
           crashedMsgs := crashedMsgs.push msg
       if ¬ crashedMsgs.isEmpty then
@@ -319,9 +315,9 @@ section ServerM
         else
           #[]
       try
-        writeAction fw msg
+        fw.stdin.writeLspMessage msg
       catch _ =>
-        handleCrash uri (initialQueuedMsgs.map Coe.coe)
+        handleCrash uri initialQueuedMsgs
 end ServerM
 
 section NotificationHandling
@@ -355,7 +351,9 @@ section NotificationHandling
     else
       let newDoc : OpenDocument := ⟨newMeta, oldDoc.headerAst⟩
       updateFileWorkers { fw with doc := newDoc }
-      tryWriteMessage doc.uri ⟨"textDocument/didChange", ge.params⟩ FileWorker.writeNotification (restartCrashedWorker := true)
+      tryWriteMessage doc.uri (Notification.mk "textDocument/didChange" ge.params) (restartCrashedWorker := true)
+      for msg in ge.queuedMsgs do
+        tryWriteMessage doc.uri msg
 
   def handleDidClose (p : DidCloseTextDocumentParams) : ServerM Unit :=
     terminateFileWorker p.textDocument.uri
@@ -366,7 +364,7 @@ section NotificationHandling
       let req? ← fw.pendingRequestsRef.modifyGet (fun pendingRequests =>
         (pendingRequests.find? p.id, pendingRequests.erase p.id))
       if let some req := req? then
-        tryWriteMessage uri ⟨"$/cancelRequest", p⟩ FileWorker.writeNotification (queueFailedMessage := false)
+        tryWriteMessage uri (Notification.mk "$/cancelRequest" p) (queueFailedMessage := false)
 end NotificationHandling
 
 section MessageHandling
@@ -379,7 +377,7 @@ section MessageHandling
     let handle := fun α [FromJson α] [ToJson α] [FileSource α] => do
       let parsedParams ← parseParams α params
       let uri := fileSource parsedParams
-      try
+      let fw ← try
         findFileWorker uri
       catch _ =>
         -- VS Code sometimes sends us requests just after closing a file?
@@ -390,7 +388,9 @@ section MessageHandling
             code    := ErrorCode.contentModified
             message := s!"Cannot process request to closed file '{uri}'" }
         return
-      tryWriteMessage uri ⟨id, method, parsedParams⟩ FileWorker.writeRequest
+      let r := Request.mk id method params
+      fw.pendingRequestsRef.modify (·.insert id r)
+      tryWriteMessage uri r
     match method with
     | "textDocument/waitForDiagnostics"   => handle WaitForDiagnosticsParams
     | "textDocument/completion"           => handle CompletionParams
@@ -469,15 +469,22 @@ section MainLoop
         let now ← monoMsNow
         /- We wait `editDelay`ms since last edit before applying the changes. -/
         let applyTime := now + st.editDelay
-        let startingGroup? ← fw.groupedEditsRef.modifyGet fun
-          | some ge => (false, some { ge with applyTime := applyTime
-                                              params.textDocument := p.textDocument
-                                              params.contentChanges := ge.params.contentChanges ++ p.contentChanges } )
-          | none    => (true,  some { applyTime := applyTime
-                                      params := p
-                                      /- This is overwritten just below. -/
-                                      signalTask := Task.pure WorkerEvent.processGroupedEdits } )
-        if startingGroup? then
+        let pendingEdit ← fw.groupedEditsRef.modifyGet fun
+          | some ge => (true, some { ge with
+            applyTime := applyTime
+            params.textDocument := p.textDocument
+            params.contentChanges := ge.params.contentChanges ++ p.contentChanges
+            -- drain now-outdated messages and respond with `contentModified` below
+            queuedMsgs := #[] })
+          | none    => (false, some {
+            applyTime := applyTime
+            params := p
+            /- This is overwritten just below. -/
+            signalTask := Task.pure WorkerEvent.processGroupedEdits
+            queuedMsgs := #[] })
+        if pendingEdit then
+          fw.errorPendingRequests (←read).hOut ErrorCode.contentModified "File changed."
+        else
           let t ← fw.runEditsSignalTask
           fw.groupedEditsRef.modify (Option.map fun ge => { ge with signalTask := t } )
         mainLoop (←runClientTask)

@@ -1729,12 +1729,6 @@ def isMissing : Syntax → Bool
 def isNodeOf (stx : Syntax) (k : SyntaxNodeKind) (n : Nat) : Bool :=
   and (stx.isOfKind k) (beq stx.getNumArgs n)
 
-/--
-  We use this function to implement `Syntax` pattern matching.
-  We can use it to tweak the behavior of the matcher for special node such as `Syntax.missing`. -/
-def isNodeOf' (stx : Syntax) (k : SyntaxNodeKind) (n : Nat) : Bool :=
-  stx.isNodeOf k n
-
 def isIdent : Syntax → Bool
   | ident _ _ _ _ => true
   | _             => false

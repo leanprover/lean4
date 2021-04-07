@@ -248,7 +248,6 @@ lean_object* l_instInhabitedArrow__1___rarg(lean_object*);
 lean_object* l_instMonadExcept(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getKind___closed__1;
 lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___lambda__2(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_isNodeOf_x27___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonadLiftReaderT(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Macro_throwErrorAt___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_monadFunctorRefl___rarg(lean_object*, lean_object*);
@@ -486,7 +485,6 @@ lean_object* l_namedPattern___boxed(lean_object*, lean_object*);
 uint8_t l_or(uint8_t, uint8_t);
 lean_object* l_instInhabitedExcept(lean_object*, lean_object*);
 lean_object* l_Monad_map___default(lean_object*);
-uint8_t l_Lean_Syntax_isNodeOf_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_instBEq(lean_object*);
 lean_object* l_Nat_add___boxed(lean_object*, lean_object*);
 lean_object* l_UInt64_ofNatCore___boxed(lean_object*, lean_object*);
@@ -8683,25 +8681,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_Lean_Syntax_isNodeOf(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
-uint8_t l_Lean_Syntax_isNodeOf_x27(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; 
-x_4 = l_Lean_Syntax_isNodeOf(x_1, x_2, x_3);
-return x_4;
-}
-}
-lean_object* l_Lean_Syntax_isNodeOf_x27___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Lean_Syntax_isNodeOf_x27(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
 x_5 = lean_box(x_4);

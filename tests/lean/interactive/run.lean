@@ -1,7 +1,9 @@
 import Lean.Data.Lsp
-open IO Lean Lsp
+open Lean
+open Lean.Lsp
+open Lean.JsonRpc
 
-def main (args : List String) : IO Unit := do
+partial def main (args : List String) : IO Unit := do
   let uri := s!"file://{args.head!}"
   Ipc.runWith (←IO.appPath) #["--server"] do
     let hIn ← Ipc.stdin
@@ -41,7 +43,8 @@ def main (args : List String) : IO Unit := do
           let params := toJson params
           IO.eprintln params
           Ipc.writeNotification ⟨"textDocument/didChange", params⟩
-          let diags ← Ipc.collectDiagnostics requestNo uri versionNo
+          -- We don't want to wait for changes to be processed so we can test concurrency
+          --let diags ← Ipc.collectDiagnostics requestNo uri versionNo
           --for diag in diags do
           --  IO.eprintln (toJson diag.param)
           requestNo := requestNo + 1
@@ -55,8 +58,15 @@ def main (args : List String) : IO Unit := do
           let params := params.setObjVal! "position" (toJson pos)
           IO.eprintln params
           Ipc.writeRequest ⟨requestNo, method, params⟩
-          let resp ← Ipc.readResponseAs requestNo Json
-          IO.eprintln resp.result
+          let rec readFirstResponse := do
+            match ← Ipc.readMessage with
+            | resp@(Message.response id r) =>
+              assert! id == requestNo
+              return r
+            | Message.notification .. => readFirstResponse
+            | msg => throw <| IO.userError s!"unexpected message {toJson msg}"
+          let resp ← readFirstResponse
+          IO.eprintln resp
           requestNo := requestNo + 1
       | _ =>
         lastActualLineNo := lineNo

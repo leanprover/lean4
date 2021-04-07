@@ -8,6 +8,7 @@ See [Setup](./setup.md) for other ways and more details on setting up Lean.
     $ curl https://raw.githubusercontent.com/Kha/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain leanprover/lean4:nightly
     ```
 See the `elan` link above for other installation options and details.
+Note that using Lean with multi-file projects on Windows currently comes with some [additional limitations](./setup.md#leanpkg).
 1. Install [VS Code](https://code.visualstudio.com/).
 1. Open VS Code and install the `lean4` extension.  
 ![installing the vscode-lean4 extension](images/code-ext.png)

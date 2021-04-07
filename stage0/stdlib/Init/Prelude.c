@@ -133,6 +133,7 @@ lean_object* l_ReaderT_read___at_Lean_Macro_instMonadRefMacroM___spec__1(lean_ob
 lean_object* l_Lean_Syntax_isOfKind___boxed(lean_object*, lean_object*);
 lean_object* l_Applicative_seqRight___default___rarg___closed__2;
 lean_object* l_instInhabitedDepArrow___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_matchesNull___boxed(lean_object*, lean_object*);
 lean_object* l_EStateM_dummyRestore___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_fieldIdxKind___closed__1;
 lean_object* l_Lean_Macro_mkMacroEnvSimple;
@@ -273,6 +274,7 @@ lean_object* l_Lean_Macro_instMonadQuotationMacroM___lambda__2(lean_object*, lea
 lean_object* l_namedPattern___rarg(lean_object*);
 lean_object* l_instSubNat___closed__1;
 uint8_t l_not(uint8_t);
+lean_object* l_Lean_Syntax_isIdent_match__1(lean_object*);
 uint32_t l_Char_utf8Size___closed__3;
 lean_object* l_instMonadStateOf(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -288,6 +290,7 @@ lean_object* l_modifyThe___rarg___lambda__1(lean_object*, lean_object*);
 uint32_t lean_uint32_of_nat(lean_object*);
 uint8_t l_instDecidableNot___rarg(uint8_t);
 lean_object* l_EStateM_get___rarg(lean_object*);
+uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 lean_object* l_Lean_interpolatedStrLitKind___closed__1;
 lean_object* l_EStateM_adaptExcept_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MacroScopesView_review_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -314,6 +317,7 @@ lean_object* l_EStateM_modifyGet___rarg(lean_object*, lean_object*);
 lean_object* l_mixHash___boxed(lean_object*, lean_object*);
 uint8_t l_instDecidableEqList___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_map(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getId___boxed(lean_object*);
 lean_object* l_instMonadWithReaderOfReaderT___rarg(lean_object*, lean_object*, lean_object*);
 uint32_t l_Char_utf8Size___closed__2;
 lean_object* l_Lean_replaceRef_match__1(lean_object*);
@@ -380,6 +384,7 @@ uint32_t l_Char_utf8Size___closed__1;
 lean_object* l_Lean_Macro_instMonadQuotationMacroM___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_ReaderT_bind(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__1;
+lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_modifyGet(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mkEmpty___boxed(lean_object*, lean_object*);
@@ -514,6 +519,7 @@ lean_object* l_UInt16_decEq___boxed(lean_object*, lean_object*);
 lean_object* l_typedExpr___rarg(lean_object*);
 lean_object* l_idRhs___rarg(lean_object*);
 lean_object* l_Lean_nullKind___closed__2;
+lean_object* l_Lean_Syntax_matchesIdent___boxed(lean_object*, lean_object*);
 lean_object* l_MonadExcept_instOrElse(lean_object*, lean_object*);
 lean_object* l_EStateM_instMonadEStateM___closed__5;
 lean_object* l_Array_getOp___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -570,6 +576,7 @@ lean_object* l_instMonadWithReader(lean_object*, lean_object*);
 lean_object* l_EStateM_instMonadEStateM___closed__3;
 lean_object* l_Lean_Macro_throwError___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_inferInstanceAs(lean_object*);
+lean_object* l_Lean_Syntax_isIdent_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHAnd(lean_object*);
 lean_object* l_Lean_scientificLitKind;
 lean_object* l_Lean_SourceInfo_getPos_x3f_match__1(lean_object*);
@@ -809,6 +816,7 @@ lean_object* l_instInhabitedSort;
 lean_object* l_Array_empty(lean_object*);
 lean_object* l_Monad_seq___default___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_instMonadEStateM___closed__7;
+uint8_t l_Lean_Syntax_matchesIdent(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__5;
 lean_object* l_instMonadReader(lean_object*, lean_object*);
 lean_object* l_instPowNat;
@@ -867,6 +875,7 @@ lean_object* l_Decidable_decide(lean_object*);
 lean_object* l_Monad_map___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instHXor___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instMonadRef___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_isIdent___boxed(lean_object*);
 lean_object* l_instInhabitedReaderT(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_length___rarg(lean_object*);
 lean_object* l_List_foldl(lean_object*, lean_object*);
@@ -884,6 +893,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Name_instBEqName;
 lean_object* l_instMonadWithReaderOf___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getHeadInfo_x3f_loop___boxed(lean_object*, lean_object*);
+uint8_t l_Lean_Syntax_isIdent(lean_object*);
 lean_object* l_readThe___rarg(lean_object*);
 lean_object* l_EStateM_tryCatch___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_id___rarg(lean_object* x_1) {
@@ -8696,6 +8706,147 @@ lean_dec(x_3);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
 return x_5;
+}
+}
+lean_object* l_Lean_Syntax_isIdent_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 3)
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_dec(x_3);
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_1, 1);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_1, 2);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_1, 3);
+lean_inc(x_7);
+lean_dec(x_1);
+x_8 = lean_apply_4(x_2, x_4, x_5, x_6, x_7);
+return x_8;
+}
+else
+{
+lean_object* x_9; 
+lean_dec(x_2);
+x_9 = lean_apply_1(x_3, x_1);
+return x_9;
+}
+}
+}
+lean_object* l_Lean_Syntax_isIdent_match__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Syntax_isIdent_match__1___rarg), 3, 0);
+return x_2;
+}
+}
+uint8_t l_Lean_Syntax_isIdent(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 3)
+{
+uint8_t x_2; 
+x_2 = 1;
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
+}
+}
+}
+lean_object* l_Lean_Syntax_isIdent___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Syntax_isIdent(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Syntax_getId(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 3)
+{
+lean_object* x_2; 
+x_2 = lean_ctor_get(x_1, 2);
+lean_inc(x_2);
+return x_2;
+}
+else
+{
+lean_object* x_3; 
+x_3 = lean_box(0);
+return x_3;
+}
+}
+}
+lean_object* l_Lean_Syntax_getId___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Syntax_getId(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+uint8_t l_Lean_Syntax_matchesNull(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; uint8_t x_4; 
+x_3 = l_Lean_nullKind;
+x_4 = l_Lean_Syntax_isNodeOf(x_1, x_3, x_2);
+return x_4;
+}
+}
+lean_object* l_Lean_Syntax_matchesNull___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lean_Syntax_matchesNull(x_1, x_2);
+lean_dec(x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+uint8_t l_Lean_Syntax_matchesIdent(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = l_Lean_Syntax_isIdent(x_1);
+if (x_3 == 0)
+{
+uint8_t x_4; 
+x_4 = 0;
+return x_4;
+}
+else
+{
+lean_object* x_5; uint8_t x_6; 
+x_5 = l_Lean_Syntax_getId(x_1);
+x_6 = lean_name_eq(x_5, x_2);
+lean_dec(x_5);
+return x_6;
+}
+}
+}
+lean_object* l_Lean_Syntax_matchesIdent___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lean_Syntax_matchesIdent(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 lean_object* l_Lean_Syntax_setArgs(lean_object* x_1, lean_object* x_2) {

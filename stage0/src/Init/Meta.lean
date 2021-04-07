@@ -610,14 +610,6 @@ def isToken (token : String) : Syntax → Bool
   | atom _ val => val.trim == token.trim
   | _          => false
 
-def isIdent : Syntax → Bool
-  | ident _ _ _ _ => true
-  | _             => false
-
-def getId : Syntax → Name
-  | ident _ _ val _ => val
-  | _               => Name.anonymous
-
 def isNone (stx : Syntax) : Bool :=
   match stx with
   | Syntax.node k args => k == nullKind && args.size == 0

@@ -124,8 +124,6 @@ section FileWorker
 
   namespace FileWorker
 
-  variable [ToJson α]
-
   def stdin (fw : FileWorker) : FS.Stream :=
     FS.Stream.ofHandle fw.proc.stdin
 
@@ -140,22 +138,13 @@ section FileWorker
       fw.pendingRequestsRef.modify (fun pendingRequests => pendingRequests.erase id)
     return msg
 
-  def writeMessage (fw : FileWorker) (msg : JsonRpc.Message) : IO Unit :=
-    fw.stdin.writeLspMessage msg
-
-  def writeNotification (fw : FileWorker) (n : Notification α) : IO Unit :=
-    fw.stdin.writeLspNotification n
-
-  def writeRequest (fw : FileWorker) (r : Request α) : IO Unit := do
-    fw.stdin.writeLspRequest r
-    fw.pendingRequestsRef.modify (fun pendingRequests => pendingRequests.insert r.id r)
-
   def errorPendingRequests (fw : FileWorker) (hError : FS.Stream) (code : ErrorCode) (msg : String) : IO Unit := do
     let pendingRequests ← fw.pendingRequestsRef.modifyGet (fun pendingRequests => (pendingRequests, RBMap.empty))
     for ⟨id, _⟩ in pendingRequests do
       hError.writeLspResponseError { id := id, code := code, message := msg }
 
   partial def runEditsSignalTask (fw : FileWorker) : IO (Task WorkerEvent) := do
+    -- check `applyTime` in a loop since it might have been postponed by a subsequent edit notification
     let rec loopAction : IO WorkerEvent := do
       let now ← monoMsNow
       let some ge ← fw.groupedEditsRef.get
@@ -258,7 +247,7 @@ section ServerM
     let commTask ← forwardMessages fw
     let fw : FileWorker := { fw with commTask := commTask }
     fw.stdin.writeLspRequest ⟨0, "initialize", st.initParams⟩
-    fw.writeNotification {
+    fw.stdin.writeLspNotification {
       method := "textDocument/didOpen"
       param  := {
         textDocument := {
@@ -278,7 +267,7 @@ section ServerM
        when the header changed we'll start a new one right after
        anyways and when we're shutting down the server
        it's over either way.) -/
-    try (←findFileWorker uri).writeMessage (Message.notification "exit" none)
+    try (←findFileWorker uri).stdin.writeLspMessage (Message.notification "exit" none)
     catch err => ()
     eraseFileWorker uri
 
@@ -289,8 +278,8 @@ section ServerM
       and restarts the file worker if the `crashed` flag was already set.
       Messages that couldn't be sent can be queued up via the queueFailedMessage flag and
       will be discharged after the FileWorker is restarted. -/
-  def tryWriteMessage [Coe α JsonRpc.Message] (uri : DocumentUri) (msg : α) (writeAction : FileWorker → α → IO Unit)
-  (queueFailedMessage := true) (restartCrashedWorker := false) : ServerM Unit := do
+  def tryWriteMessage (uri : DocumentUri) (msg : JsonRpc.Message) (queueFailedMessage := true) (restartCrashedWorker := false) :
+      ServerM Unit := do
     let fw ← findFileWorker uri
     match fw.state with
     | WorkerState.crashed queuedMsgs =>
@@ -307,7 +296,7 @@ section ServerM
       -- try to discharge all queued msgs, tracking the ones that we can't discharge
       for msg in queuedMsgs do
         try
-          newFw.writeMessage msg
+          newFw.stdin.writeLspMessage msg
         catch _ =>
           crashedMsgs := crashedMsgs.push msg
       if ¬ crashedMsgs.isEmpty then
@@ -319,9 +308,9 @@ section ServerM
         else
           #[]
       try
-        writeAction fw msg
+        fw.stdin.writeLspMessage msg
       catch _ =>
-        handleCrash uri (initialQueuedMsgs.map Coe.coe)
+        handleCrash uri initialQueuedMsgs
 end ServerM
 
 section NotificationHandling
@@ -355,7 +344,7 @@ section NotificationHandling
     else
       let newDoc : OpenDocument := ⟨newMeta, oldDoc.headerAst⟩
       updateFileWorkers { fw with doc := newDoc }
-      tryWriteMessage doc.uri ⟨"textDocument/didChange", ge.params⟩ FileWorker.writeNotification (restartCrashedWorker := true)
+      tryWriteMessage doc.uri (Notification.mk "textDocument/didChange" ge.params) (restartCrashedWorker := true)
 
   def handleDidClose (p : DidCloseTextDocumentParams) : ServerM Unit :=
     terminateFileWorker p.textDocument.uri
@@ -366,7 +355,7 @@ section NotificationHandling
       let req? ← fw.pendingRequestsRef.modifyGet (fun pendingRequests =>
         (pendingRequests.find? p.id, pendingRequests.erase p.id))
       if let some req := req? then
-        tryWriteMessage uri ⟨"$/cancelRequest", p⟩ FileWorker.writeNotification (queueFailedMessage := false)
+        tryWriteMessage uri (Notification.mk "$/cancelRequest" p) (queueFailedMessage := false)
 end NotificationHandling
 
 section MessageHandling
@@ -379,7 +368,7 @@ section MessageHandling
     let handle := fun α [FromJson α] [ToJson α] [FileSource α] => do
       let parsedParams ← parseParams α params
       let uri := fileSource parsedParams
-      try
+      let fw ← try
         findFileWorker uri
       catch _ =>
         -- VS Code sometimes sends us requests just after closing a file?
@@ -390,7 +379,9 @@ section MessageHandling
             code    := ErrorCode.contentModified
             message := s!"Cannot process request to closed file '{uri}'" }
         return
-      tryWriteMessage uri ⟨id, method, parsedParams⟩ FileWorker.writeRequest
+      let r := Request.mk id method params
+      fw.pendingRequestsRef.modify (·.insert id r)
+      tryWriteMessage uri r
     match method with
     | "textDocument/waitForDiagnostics"   => handle WaitForDiagnosticsParams
     | "textDocument/completion"           => handle CompletionParams

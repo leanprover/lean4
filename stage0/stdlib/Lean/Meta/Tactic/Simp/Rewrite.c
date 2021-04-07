@@ -90,6 +90,7 @@ lean_object* l_Lean_addTrace___at_Lean_Meta_Simp_synthesizeArgs___spec__1(lean_o
 lean_object* l_Lean_Meta_Simp_rewrite___closed__4;
 uint8_t l_Std_PersistentHashMap_contains___at_Lean_Meta_SimpLemmas_isDeclToUnfold___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_rewrite___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21860____closed__5;
 lean_object* l_Lean_Meta_Simp_rewrite_tryLemma_x3f___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instQuoteBool___closed__3;
 lean_object* l_Lean_Meta_Simp_rewriteUsingDecide_x3f___closed__3;
@@ -117,7 +118,6 @@ lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_synthesizeArgs___spec_
 lean_object* l_Lean_Meta_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_rewrite___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_preprocess___closed__2;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7424____closed__4;
 extern lean_object* l_Lean_Meta_synthInstance_x3f___lambda__2___closed__8;
 size_t lean_usize_of_nat(lean_object*);
 extern lean_object* l_Lean_Syntax_mkAntiquotNode___closed__9;
@@ -157,7 +157,6 @@ lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Met
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_rewrite_tryLemma_x3f___lambda__7___closed__2;
 lean_object* l_Lean_Meta_withNewMCtxDepth___at_Lean_Meta_Simp_rewrite_tryLemma_x3f___spec__2(lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21995____closed__5;
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_rewritePost___closed__1;
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -189,6 +188,7 @@ lean_object* l_Lean_indentExpr(lean_object*);
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_synthesizeArgs___spec__3___closed__4;
 lean_object* l_Lean_Meta_Simp_synthesizeArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_7361____closed__4;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_Simp_rewrite_tryLemma_x3f___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_rewrite_inErasedSet___boxed(lean_object*, lean_object*);
@@ -5718,7 +5718,7 @@ lean_object* l_Lean_Meta_Simp_rewriteCtorEq_x3f(lean_object* x_1, lean_object* x
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = l_myMacro____x40_Init_Notation___hyg_7424____closed__4;
+x_7 = l_myMacro____x40_Init_Notation___hyg_7361____closed__4;
 x_8 = lean_unsigned_to_nat(3u);
 x_9 = l_Lean_Expr_isAppOfArity(x_1, x_7, x_8);
 if (x_9 == 0)
@@ -6913,7 +6913,7 @@ x_8 = l_Lean_Expr_hasMVar(x_1);
 if (x_8 == 0)
 {
 lean_object* x_9; uint8_t x_10; 
-x_9 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21995____closed__5;
+x_9 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21860____closed__5;
 x_10 = l_Lean_Expr_isConstOf(x_1, x_9);
 if (x_10 == 0)
 {

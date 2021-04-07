@@ -194,7 +194,6 @@ lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__1___boxed(lean_o
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_unreachIsNodeIdent___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedSyntax;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_15000____closed__9;
 lean_object* l_Lean_Syntax_instForInTopDownSyntax_match__1(lean_object*);
 lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Syntax_reprint___spec__2___closed__1;
 lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Syntax_reprint___spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -211,6 +210,7 @@ lean_object* l_Lean_Syntax_mkAntiquotSpliceNode___closed__5;
 lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__2___boxed(lean_object*);
 lean_object* l_Lean_SyntaxNode_getNumArgs___boxed(lean_object*);
 lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Syntax_reprint___spec__2(uint8_t, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_14874____closed__9;
 lean_object* l_Lean_Syntax_replaceM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Syntax_Traverser_fromSyntax(lean_object*);
@@ -7028,7 +7028,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(2);
-x_2 = l_myMacro____x40_Init_Notation___hyg_15000____closed__9;
+x_2 = l_myMacro____x40_Init_Notation___hyg_14874____closed__9;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

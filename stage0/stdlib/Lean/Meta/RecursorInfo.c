@@ -304,6 +304,7 @@ lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_RecursorInfo_0__L
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getUnivLevelPos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Attribute_Recursor_getMajorPos___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getUnivLevelPos___spec__1___lambda__1___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19919____closed__3;
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_getIdx_x3f___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -368,7 +369,6 @@ lean_object* l_Lean_throwError___at___private_Lean_Meta_RecursorInfo_0__Lean_Met
 extern lean_object* l_Array_qsort_sort___at_Lean_mkMapDeclarationExtension___spec__1___rarg___closed__1;
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotiveResultType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20051____closed__3;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_List_toStringAux___at_Lean_Meta_RecursorInfo_instToStringRecursorInfo___spec__6___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_RecursorInfo_instToStringRecursorInfo___closed__3;
@@ -2261,7 +2261,7 @@ block_54:
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 lean_dec(x_18);
-x_19 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20051____closed__3;
+x_19 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19919____closed__3;
 x_20 = lean_name_mk_string(x_16, x_19);
 x_21 = l_Lean_getConstInfoRec___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f___spec__1(x_20, x_3, x_4, x_5, x_6, x_11);
 if (lean_obj_tag(x_21) == 0)
@@ -2478,7 +2478,7 @@ block_99:
 {
 lean_object* x_76; lean_object* x_77; lean_object* x_78; 
 lean_dec(x_75);
-x_76 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20051____closed__3;
+x_76 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19919____closed__3;
 x_77 = lean_name_mk_string(x_73, x_76);
 x_78 = l_Lean_getConstInfoRec___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f___spec__1(x_77, x_3, x_4, x_5, x_6, x_67);
 if (lean_obj_tag(x_78) == 0)

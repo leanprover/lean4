@@ -612,7 +612,6 @@ lean_object* l_Lean_Parser_identFnAux_parse___boxed(lean_object*, lean_object*, 
 lean_object* l_Lean_Parser_identFnAux_parse___lambda__2___closed__1;
 lean_object* l_Lean_Parser_nameLitNoAntiquot___closed__3;
 lean_object* l_Lean_Parser_leadingParserAux_match__1___rarg(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_15000____closed__9;
 lean_object* l_Std_RBNode_find___at_Lean_Parser_indexed___spec__7___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_longestMatchMkResult(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_Parser_indexed___spec__7___rarg___boxed(lean_object*, lean_object*);
@@ -675,6 +674,7 @@ lean_object* l_Lean_Parser_runLongestMatchParser_match__1___rarg(lean_object*, l
 lean_object* l_Lean_Parser_anyOfFn_match__1(lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot___elambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_checkOutsideQuotFn(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_14874____closed__9;
 lean_object* l_Lean_Parser_identFnAux_parse___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_parserOfStackFnUnsafe_match__1(lean_object*);
 lean_object* l_Lean_Parser_sepBy___elambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -29759,7 +29759,7 @@ static lean_object* _init_l_Lean_Parser_mkAntiquot___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_15000____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_14874____closed__9;
 x_2 = l_String_trim(x_1);
 return x_2;
 }

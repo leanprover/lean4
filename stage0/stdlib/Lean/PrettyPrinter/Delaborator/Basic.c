@@ -62,7 +62,6 @@ uint8_t l_Lean_getPPExplicit(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_withBindingBody___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Meta_isLevelDefEqAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1139____closed__26;
 lean_object* l_Lean_getPPNotation___boxed(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_mkAppUnexpanderAttribute___closed__7;
 lean_object* l_Lean_PrettyPrinter_Delaborator_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_487____closed__2;
@@ -219,6 +218,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_whenNotPPOption(lean_object*, lean
 lean_object* l_Lean_PrettyPrinter_Delaborator_withBindingBody___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_pp_explicit;
 extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_instMonadQuotationParenthesizerM___closed__1;
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1139____closed__25;
 lean_object* l_Lean_PrettyPrinter_Delaborator_withBindingBodyUnusedName___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_setPPExplicit___closed__1;
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_expandCoe___spec__7___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2848,7 +2848,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1139____closed__26;
+x_2 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1139____closed__25;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

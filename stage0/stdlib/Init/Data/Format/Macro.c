@@ -24,7 +24,6 @@ lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_26____closed__10;
 lean_object* l_Std_termF_x21__;
 lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_26____closed__3;
 lean_object* l_Lean_Syntax_expandInterpolatedStr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_myMacro____x40_Init_Notation___hyg_15769__expandListLit___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_26____closed__7;
 lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_26_(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_26____closed__5;
@@ -46,6 +45,7 @@ lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_26____closed__2;
 lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_26____closed__8;
 lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_26____closed__1;
 lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_26____closed__4;
+lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_myMacro____x40_Init_Notation___hyg_15637__expandListLit___spec__1(lean_object*, lean_object*);
 static lean_object* _init_l_Std_termF_x21_____closed__1() {
 _start:
 {
@@ -310,7 +310,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_o
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 lean_dec(x_1);
-x_10 = l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_myMacro____x40_Init_Notation___hyg_15769__expandListLit___spec__1(x_2, x_3);
+x_10 = l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_myMacro____x40_Init_Notation___hyg_15637__expandListLit___spec__1(x_2, x_3);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
@@ -331,7 +331,7 @@ lean_ctor_set(x_19, 0, x_11);
 lean_ctor_set(x_19, 1, x_17);
 lean_ctor_set(x_19, 2, x_16);
 lean_ctor_set(x_19, 3, x_18);
-x_20 = l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_myMacro____x40_Init_Notation___hyg_15769__expandListLit___spec__1(x_2, x_12);
+x_20 = l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_myMacro____x40_Init_Notation___hyg_15637__expandListLit___spec__1(x_2, x_12);
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc(x_21);
 x_22 = lean_ctor_get(x_20, 1);

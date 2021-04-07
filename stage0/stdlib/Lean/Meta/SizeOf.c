@@ -209,7 +209,6 @@ lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives___rarg(le
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__6(lean_object*);
 lean_object* l_Lean_throwError___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_15551____closed__7;
 lean_object* l_Lean_Meta_forallTelescopeReducing___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__5(lean_object*);
 lean_object* l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__8(lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -225,6 +224,7 @@ extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_907____clos
 lean_object* l_List_mapM___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_addInstance(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_15419____closed__7;
 lean_object* l_List_head_x21___at_Lean_Meta_mkSizeOfFns___spec__3___boxed(lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorems___spec__2(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -270,7 +270,6 @@ lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___r
 lean_object* l_Lean_Meta_mkSizeOfFn___closed__1;
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__6(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at_Lean_Meta_mkSizeOfInstances___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7424____closed__4;
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_recToSizeOf___closed__1;
 extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
 size_t lean_usize_of_nat(lean_object*);
@@ -363,6 +362,7 @@ lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorP
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___closed__2;
 lean_object* l_Lean_getConstInfoRec___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg___closed__1;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19919____closed__3;
 lean_object* l_Lean_Meta_mkSizeOfSpecLemmaInstance___closed__1;
 lean_object* l_Lean_Meta_SizeOfSpecNested_throwFailed(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -412,6 +412,7 @@ lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___ra
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors___rarg___closed__4;
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop_match__1(lean_object*);
 lean_object* l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_7361____closed__4;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop_match__3(lean_object*);
@@ -431,7 +432,6 @@ lean_object* l_Lean_Meta_mkAdd(lean_object*, lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Meta_mkSizeOfSpecLemmaInstance___closed__2;
 lean_object* l_Lean_Meta_mkNumeral(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoCtor___at___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20051____closed__3;
 lean_object* l_Lean_getConstInfoInduct___at_Lean_Meta_mkSizeOfFns___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5230,7 +5230,7 @@ lean_dec(x_13);
 lean_inc(x_12);
 lean_inc(x_1);
 x_16 = l_Lean_Name_appendIndexAfter(x_1, x_12);
-x_17 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20051____closed__3;
+x_17 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19919____closed__3;
 x_18 = lean_name_mk_string(x_10, x_17);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -5325,7 +5325,7 @@ lean_inc(x_20);
 x_21 = lean_ctor_get(x_19, 1);
 lean_inc(x_21);
 lean_dec(x_19);
-x_22 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20051____closed__3;
+x_22 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19919____closed__3;
 lean_inc(x_1);
 x_23 = lean_name_mk_string(x_1, x_22);
 x_24 = lean_nat_add(x_5, x_16);
@@ -5493,7 +5493,7 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec(x_7);
-x_10 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20051____closed__3;
+x_10 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19919____closed__3;
 x_11 = lean_name_mk_string(x_1, x_10);
 x_12 = l_Lean_getConstInfoRec___at_Lean_Meta_mkSizeOfFn___spec__1(x_11, x_2, x_3, x_4, x_5, x_9);
 if (lean_obj_tag(x_12) == 0)
@@ -9398,7 +9398,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___closed__3;
-x_2 = l_myMacro____x40_Init_Notation___hyg_15551____closed__7;
+x_2 = l_myMacro____x40_Init_Notation___hyg_15419____closed__7;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -10768,7 +10768,7 @@ lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
-x_12 = l_myMacro____x40_Init_Notation___hyg_7424____closed__4;
+x_12 = l_myMacro____x40_Init_Notation___hyg_7361____closed__4;
 x_13 = lean_unsigned_to_nat(3u);
 x_14 = l_Lean_Expr_isAppOfArity(x_10, x_12, x_13);
 if (x_14 == 0)
@@ -11710,7 +11710,7 @@ lean_inc(x_39);
 x_40 = lean_ctor_get(x_39, 0);
 lean_inc(x_40);
 lean_dec(x_39);
-x_41 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20051____closed__3;
+x_41 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19919____closed__3;
 x_42 = lean_name_mk_string(x_40, x_41);
 lean_inc(x_42);
 x_43 = l_Lean_getConstInfoRec___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__1(x_42, x_4, x_5, x_6, x_7, x_8, x_32);

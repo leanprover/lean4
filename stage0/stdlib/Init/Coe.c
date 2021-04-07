@@ -23,6 +23,7 @@ lean_object* l_coeOfDep___rarg___boxed(lean_object*);
 lean_object* l_myMacro____x40_Init_Coe___hyg_166____closed__1;
 lean_object* l_coeOfDep(lean_object*, lean_object*, lean_object*);
 lean_object* l_instCoeTail___rarg(lean_object*, lean_object*);
+extern lean_object* l_Lean_nullKind;
 lean_object* l_instHDiv__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_coeD___rarg(lean_object*);
 lean_object* l_coeOfTCOfTail(lean_object*, lean_object*, lean_object*);
@@ -518,7 +519,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = l_Lean_Syntax_getArg(x_1, x_7);
 lean_dec(x_1);
-x_9 = l_Lean_nullKind___closed__2;
+x_9 = l_Lean_nullKind;
 lean_inc(x_8);
 x_10 = l_Lean_Syntax_isNodeOf(x_8, x_9, x_7);
 if (x_10 == 0)

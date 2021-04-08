@@ -214,7 +214,6 @@ section Initialization
       srcSearchPath := srcSearchPath ++ pkgSearchPath
     let (headerEnv, msgLog) ← Elab.processHeader headerStx opts msgLog inputCtx
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
-    let opts := opts.setBool `interpreter.prefer_native false
     let cmdState := { cmdState with infoState.enabled := true, scopes := [{ header := "", opts := opts }] }
     let headerSnap := {
       beginPos := 0

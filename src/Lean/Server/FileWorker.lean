@@ -94,6 +94,17 @@ end Utils
 
 /- Asynchronous snapshot elaboration. -/
 section Elab
+  def publishDiagnostics (m : DocumentMeta) (diagnostics : Array Lsp.Diagnostic) (hOut : FS.Stream) : IO Unit :=
+    hOut.writeLspNotification {
+      method := "textDocument/publishDiagnostics"
+      param  := {
+        uri         := m.uri
+        version?    := m.version
+        diagnostics := diagnostics
+        : PublishDiagnosticsParams
+      }
+    }
+
   /-- Elaborates the next command after `parentSnap` and emits diagnostics into `hOut`. -/
   private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream)
   : ExceptT ElabTaskError IO Snapshot := do
@@ -101,17 +112,9 @@ section Elab
     let maybeSnap ← compileNextCmd m.text.source parentSnap
     -- TODO(MH): check for interrupt with increased precision
     cancelTk.check
-    let sendDiagnostics (msgLog : MessageLog) : IO Unit := do
+    let sendMessages (msgLog : MessageLog) : IO Unit := do
       let diagnostics ← msgLog.msgs.mapM (msgToDiagnostic m.text)
-      hOut.writeLspNotification {
-        method := "textDocument/publishDiagnostics"
-        param  := {
-          uri         := m.uri
-          version?    := m.version
-          diagnostics := diagnostics.toArray
-          : PublishDiagnosticsParams
-        }
-      }
+      publishDiagnostics m diagnostics.toArray hOut
     match maybeSnap with
     | Sum.inl snap =>
       /- NOTE(MH): This relies on the client discarding old diagnostics upon receiving new ones
@@ -123,7 +126,7 @@ section Elab
         the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
         because we cannot guarantee that no further diagnostics are emitted after clearing
         them. -/
-      sendDiagnostics <| snap.msgLog.add {
+      sendMessages <| snap.msgLog.add {
         fileName := "<ignored>"
         pos      := m.text.toPosition snap.endPos
         severity := MessageSeverity.information
@@ -131,7 +134,7 @@ section Elab
       }
       snap
     | Sum.inr msgLog =>
-      sendDiagnostics msgLog
+      sendMessages msgLog
       throw ElabTaskError.eof
 
   /-- Elaborates all commands after `initSnap`, emitting the diagnostics into `hOut`. -/
@@ -227,15 +230,13 @@ section Initialization
     }
     return (headerSnap, srcSearchPath)
 
-  def initializeWorker (p : DidOpenTextDocumentParams) (i o e : FS.Stream)
+  def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream)
   : IO ServerContext := do
-    let doc := p.textDocument
     /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
       "\n", which should be enough to handle both LF and CRLF correctly.
       This is because LSP always refers to characters by (line, column),
       so if we get the line number correct it shouldn't matter that there
       is a CR there. -/
-    let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap⟩
     let (headerSnap, srcSearchPath) ← compileHeader meta o
     let cancelTk ← CancelToken.new
     let cmdSnaps ← unfoldCmdSnaps meta headerSnap cancelTk o
@@ -745,24 +746,17 @@ def initAndRunWorker (i o e : FS.Stream) : IO UInt32 := do
   -- TODO(WN): act in accordance with InitializeParams
   let _ ← i.readLspRequestAs "initialize" InitializeParams
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" DidOpenTextDocumentParams
+  let doc := param.textDocument
+  let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap⟩
   let e ← e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   try
-    let ctx ← initializeWorker param i o e
+    let ctx ← initializeWorker meta i o e
     ReaderT.run (r := ctx) mainLoop
     return 0
   catch e =>
     IO.eprintln e
-    -- diagnostic doesn't seem to be visible in either VS Code or Emacs, consult stderr instead
-    o.writeLspNotification {
-      method := "textDocument/publishDiagnostics"
-      param  := {
-        uri         := param.textDocument.uri
-        version?    := param.textDocument.version
-        diagnostics := #[{ range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩, severity? := DiagnosticSeverity.error, message := e.toString }]
-        : PublishDiagnosticsParams
-      }
-    }
+    publishDiagnostics meta #[{ range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩, severity? := DiagnosticSeverity.error, message := e.toString }] o
     return 1
 
 @[export lean_server_worker_main]

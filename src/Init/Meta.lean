@@ -297,6 +297,9 @@ def mkIdent (val : Name) : Syntax :=
 @[inline] def mkNullNode (args : Array Syntax := #[]) : Syntax :=
   Syntax.node nullKind args
 
+@[inline] def mkGroupNode (args : Array Syntax := #[]) : Syntax :=
+  Syntax.node groupKind args
+
 def mkSepArray (as : Array Syntax) (sep : Syntax) : Array Syntax := do
   let mut i := 0
   let mut r := #[]

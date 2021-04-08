@@ -263,8 +263,8 @@ Recall that `structInstField` elements have the form
 -- Remark: this code relies on the fact that `expandStruct` only transforms `fieldLHS.fieldName`
 def FieldLHS.toSyntax (first : Bool) : FieldLHS → Syntax
   | FieldLHS.modifyOp   stx _    => stx
-  | FieldLHS.fieldName  stx name => if first then mkIdentFrom stx name else mkNullNode #[mkAtomFrom stx ".", mkIdentFrom stx name]
-  | FieldLHS.fieldIndex stx _    => if first then stx else mkNullNode #[mkAtomFrom stx ".", stx]
+  | FieldLHS.fieldName  stx name => if first then mkIdentFrom stx name else mkGroupNode #[mkAtomFrom stx ".", mkIdentFrom stx name]
+  | FieldLHS.fieldIndex stx _    => if first then stx else mkGroupNode #[mkAtomFrom stx ".", stx]
 
 def FieldVal.toSyntax : FieldVal Struct → Syntax
   | FieldVal.term stx => stx

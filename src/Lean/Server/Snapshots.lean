@@ -20,15 +20,6 @@ namespace Snapshots
 
 open Elab
 
-/-- The data associated with a snapshot is different depending on whether
-it was produced from the header or from a command. -/
-inductive SnapshotData where
-  | headerData : Command.State → SnapshotData
-  | cmdData : Command.State → SnapshotData
-  -- NOTE(WN): these carry the same dat but we leave open the future
-  -- possibility of more snapshot variants. For example, within tactic blocks.
-  deriving Inhabited
-
 /-- What Lean knows about the world after the header and each command. -/
 structure Snapshot where
   /- Where the command which produced this snapshot begins. Note that
@@ -38,22 +29,18 @@ structure Snapshot where
   beginPos : String.Pos
   stx : Syntax
   mpState : Parser.ModuleParserState
-  data : SnapshotData
+  cmdState : Command.State
   deriving Inhabited
 
 namespace Snapshot
 
 def endPos (s : Snapshot) : String.Pos := s.mpState.pos
 
-def toCmdState : Snapshot → Command.State
-  | { data := SnapshotData.headerData cmdState, .. } => cmdState
-  | { data := SnapshotData.cmdData cmdState, .. } => cmdState
-
 def env (s : Snapshot) : Environment :=
-  s.toCmdState.env
+  s.cmdState.env
 
 def msgLog (s : Snapshot) : MessageLog :=
-  s.toCmdState.messages
+  s.cmdState.messages
 
 end Snapshot
 
@@ -69,7 +56,7 @@ private def ioErrorFromEmpty (ex : Empty) : IO.Error :=
 without elaborating it. -/
 def parseNextCmd (contents : String) (snap : Snapshot) : IO Syntax := do
   let inputCtx := Parser.mkInputContext contents "<input>"
-  let cmdState := snap.toCmdState
+  let cmdState := snap.cmdState
   let scope := cmdState.scopes.head!
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
   let (cmdStx, _, _) :=
@@ -81,7 +68,7 @@ def parseNextCmd (contents : String) (snap : Snapshot) : IO Syntax := do
   so it should only be done for reporting preliminary results! -/
 partial def parseAhead (contents : String) (snap : Snapshot) : IO (Array Syntax) := do
   let inputCtx := Parser.mkInputContext contents "<input>"
-  let cmdState := snap.toCmdState
+  let cmdState := snap.cmdState
   let scope := cmdState.scopes.head!
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
   go inputCtx pmctx snap.mpState #[]
@@ -101,7 +88,7 @@ through the file. -/
 -- isServer? conditionals and not be worth it due to how short it is.
 def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot MessageLog) := do
   let inputCtx := Parser.mkInputContext contents "<input>"
-  let cmdState := snap.toCmdState
+  let cmdState := snap.cmdState
   let scope := cmdState.scopes.head!
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
   let (cmdStx, cmdParserState, msgLog) :=
@@ -110,7 +97,7 @@ def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot Mess
   if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
     Sum.inr msgLog
   else
-    let cmdStateRef ← IO.mkRef { snap.toCmdState with messages := msgLog }
+    let cmdStateRef ← IO.mkRef { snap.cmdState with messages := msgLog }
     let cmdCtx : Elab.Command.Context := {
         cmdPos   := snap.endPos
         fileName := inputCtx.fileName
@@ -125,7 +112,7 @@ def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot Mess
         beginPos := cmdPos
         stx := cmdStx
         mpState := cmdParserState
-        data := SnapshotData.cmdData postCmdState
+        cmdState := postCmdState
       }
     Sum.inl postCmdSnap
 

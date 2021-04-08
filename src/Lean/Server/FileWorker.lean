@@ -229,7 +229,7 @@ section Initialization
       beginPos := 0
       stx := headerStx
       mpState := headerParserState
-      data := SnapshotData.headerData cmdState
+      cmdState := cmdState
     }
     return (headerSnap, srcSearchPath)
 
@@ -381,7 +381,7 @@ section RequestHandling
     -- dbg_trace ">> handleCompletion invoked {pos}"
     withWaitFindSnap doc (fun s => s.endPos > pos)
       (notFoundX := pure { items := #[], isIncomplete := true }) fun snap => do
-        for infoTree in snap.toCmdState.infoState.trees do
+        for infoTree in snap.cmdState.infoState.trees do
           -- for (ctx, info) in infoTree.getCompletionInfos do
           --   dbg_trace "{← info.format ctx}"
           if let some r ← Completion.find? doc.meta.text pos infoTree then
@@ -403,7 +403,7 @@ section RequestHandling
     let hoverPos := text.lspPosToUtf8Pos p.position
     withWaitFindSnap doc (fun s => s.endPos > hoverPos)
       (notFoundX := pure none) fun snap => do
-        for t in snap.toCmdState.infoState.trees do
+        for t in snap.cmdState.infoState.trees do
           if let some (ci, i) := t.hoverableInfoAt? hoverPos then
             if let some hoverFmt ← i.fmtHover? ci then
               return some <| mkHover (toString hoverFmt) i.pos?.get! i.tailPos?.get!
@@ -419,7 +419,7 @@ section RequestHandling
     let hoverPos := text.lspPosToUtf8Pos p.position
     withWaitFindSnap doc (fun s => s.endPos > hoverPos)
       (notFoundX := pure #[]) fun snap => do
-        for t in snap.toCmdState.infoState.trees do
+        for t in snap.cmdState.infoState.trees do
           if let some (ci, Info.ofTermInfo i) := t.hoverableInfoAt? hoverPos then
             let mut expr := i.expr
             if goToType? then
@@ -457,7 +457,7 @@ section RequestHandling
     let hoverPos := text.lspPosToUtf8Pos p.position
     withWaitFindSnap doc (fun s => s.endPos > hoverPos)
       (notFoundX := return none) fun snap => do
-        for t in snap.toCmdState.infoState.trees do
+        for t in snap.cmdState.infoState.trees do
           if let rs@(_ :: _) := t.goalsAt? hoverPos then
             let goals ← List.join <$> rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter } =>
               let ci := if useAfter then { ci with mctx := ti.mctxAfter } else { ci with mctx := ti.mctxBefore }
@@ -584,7 +584,7 @@ section RequestHandling
       for s in snaps do
         if s.endPos <= beginPos then
           continue
-        ReaderT.run (r := SemanticTokensContext.mk beginPos endPos text s.toCmdState.infoState) <|
+        ReaderT.run (r := SemanticTokensContext.mk beginPos endPos text s.cmdState.infoState) <|
           go s.stx
       return Except.ok { data := (← get).data }
   where

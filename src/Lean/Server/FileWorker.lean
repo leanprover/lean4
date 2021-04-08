@@ -215,11 +215,14 @@ section Initialization
     let mut srcSearchPath := [s!"{← appDir}/../lib/lean/src"]
     if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
       srcSearchPath := srcSearchPath ++ parseSearchPath p
-    -- NOTE: leanpkg does not exist in stage 0 (yet?)
-    if (← fileExists leanpkgPath) then
-      let pkgSearchPath ← leanpkgSetupSearchPath leanpkgPath m (Lean.Elab.headerToImports headerStx).toArray hOut
-      srcSearchPath := srcSearchPath ++ pkgSearchPath
-    let (headerEnv, msgLog) ← Elab.processHeader headerStx opts msgLog inputCtx
+    let (headerEnv, msgLog) ← try
+      -- NOTE: leanpkg does not exist in stage 0 (yet?)
+      if (← fileExists leanpkgPath) then
+        let pkgSearchPath ← leanpkgSetupSearchPath leanpkgPath m (Lean.Elab.headerToImports headerStx).toArray hOut
+        srcSearchPath := srcSearchPath ++ pkgSearchPath
+      Elab.processHeader headerStx opts msgLog inputCtx
+    catch e =>  -- should be from `leanpkg print-paths`
+      pure (← mkEmptyEnvironment, MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString })
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
     let cmdState := { cmdState with infoState.enabled := true, scopes := [{ header := "", opts := opts }] }
     let headerSnap := {

@@ -23,7 +23,6 @@ lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___lambda__2___bo
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1139____closed__30;
 lean_object* l_Lean_MetavarContext_addLevelMVarDecl(lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Elab_Level_instMonadOptionsLevelElabM___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___closed__4;
@@ -41,6 +40,7 @@ lean_object* l_Lean_Elab_Level_elabLevel(lean_object*, lean_object*, lean_object
 lean_object* l_Lean_Elab_Level_instAddMessageContextLevelElabM(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Level_elabLevel___spec__6(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_mkFreshLevelMVar___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1160____closed__30;
 lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___lambda__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_168____closed__4;
@@ -1203,7 +1203,7 @@ x_14 = lean_name_eq(x_4, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; uint8_t x_16; 
-x_15 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1139____closed__30;
+x_15 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1160____closed__30;
 x_16 = lean_name_eq(x_4, x_15);
 if (x_16 == 0)
 {
@@ -2010,7 +2010,7 @@ x_215 = lean_name_eq(x_4, x_214);
 if (x_215 == 0)
 {
 lean_object* x_216; uint8_t x_217; 
-x_216 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1139____closed__30;
+x_216 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1160____closed__30;
 x_217 = lean_name_eq(x_4, x_216);
 if (x_217 == 0)
 {

@@ -24,7 +24,6 @@ lean_object* l_Lean_Elab_logUnknownDecl(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_Lean_Elab_isAbortExceptionId(lean_object*);
 lean_object* l_Lean_Elab_log___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1095____closed__1;
 lean_object* l_Lean_Elab_logDbgTrace___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logError(lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
@@ -37,7 +36,7 @@ lean_object* l_Lean_Elab_logException___rarg___lambda__1___closed__2;
 lean_object* l_Lean_Elab_logDbgTrace___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logInfoAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logAt___rarg___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_100_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_102_(uint8_t, uint8_t);
 lean_object* l_Lean_Elab_logException___rarg___lambda__1___closed__1;
 lean_object* l_Lean_Elab_logException(lean_object*);
 lean_object* l_Lean_Elab_instMonadLog___rarg(lean_object*, lean_object*);
@@ -102,8 +101,9 @@ lean_object* l_Lean_Elab_logWarningAt___rarg(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Elab_logAt___rarg___lambda__10(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getRefPos___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_addClass___closed__1;
+extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1128____closed__1;
+extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_598____closed__3;
 lean_object* l_Lean_Elab_logTrace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_583____closed__3;
 lean_object* l_Lean_Elab_logAt___rarg___lambda__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logDbgTrace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -613,7 +613,7 @@ _start:
 {
 lean_object* x_7; uint8_t x_14; uint8_t x_15; 
 x_14 = 2;
-x_15 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_100_(x_6, x_14);
+x_15 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_102_(x_6, x_14);
 if (x_15 == 0)
 {
 lean_object* x_16; 
@@ -1249,8 +1249,8 @@ static lean_object* _init_l_Lean_Elab_logDbgTrace___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1095____closed__1;
-x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_583____closed__3;
+x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1128____closed__1;
+x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_598____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

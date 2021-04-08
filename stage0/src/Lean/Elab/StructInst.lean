@@ -283,7 +283,7 @@ private def toFieldLHS (stx : Syntax) : Except String FieldLHS :=
     return FieldLHS.modifyOp stx stx[1]
   else
     -- Note that the representation of the first field is different.
-    let stx := if stx.getKind == nullKind then stx[1] else stx
+    let stx := if stx.getKind == groupKind then stx[1] else stx
     if stx.isIdent then
       return FieldLHS.fieldName stx stx.getId.eraseMacroScopes
     else match stx.isFieldIdx? with

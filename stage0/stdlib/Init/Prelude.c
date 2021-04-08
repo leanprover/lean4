@@ -219,6 +219,7 @@ lean_object* l_cond(lean_object*);
 lean_object* l_EStateM_dummyRestore(lean_object*);
 lean_object* l_EStateM_instMonadEStateM___closed__9;
 lean_object* l_Applicative_map___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_groupKind___closed__1;
 lean_object* l_Monad_seqLeft___default___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_maxRecDepthErrorMessage___closed__1;
 lean_object* l_instHOrElse(lean_object*);
@@ -294,6 +295,7 @@ lean_object* l_Lean_interpolatedStrLitKind___closed__1;
 lean_object* l_EStateM_adaptExcept_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MacroScopesView_review_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ite(lean_object*, lean_object*);
+lean_object* l_Lean_groupKind___closed__2;
 lean_object* l_Lean_numLitKind;
 lean_object* l_List_set_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_tryCatch_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -539,6 +541,7 @@ lean_object* l_EStateM_seqRight(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Eq_ndrec(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isMissing_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHasLessEqNat;
+lean_object* l_Lean_groupKind;
 uint8_t l_Lean_Syntax_isMissing(lean_object*);
 lean_object* l_EStateM_throw___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_setArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -8037,6 +8040,32 @@ x_1 = l_Lean_nullKind___closed__2;
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_groupKind___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("group");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_groupKind___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_groupKind___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_groupKind() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_groupKind___closed__2;
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_identKind___closed__1() {
 _start:
 {
@@ -12122,6 +12151,12 @@ l_Lean_nullKind___closed__2 = _init_l_Lean_nullKind___closed__2();
 lean_mark_persistent(l_Lean_nullKind___closed__2);
 l_Lean_nullKind = _init_l_Lean_nullKind();
 lean_mark_persistent(l_Lean_nullKind);
+l_Lean_groupKind___closed__1 = _init_l_Lean_groupKind___closed__1();
+lean_mark_persistent(l_Lean_groupKind___closed__1);
+l_Lean_groupKind___closed__2 = _init_l_Lean_groupKind___closed__2();
+lean_mark_persistent(l_Lean_groupKind___closed__2);
+l_Lean_groupKind = _init_l_Lean_groupKind();
+lean_mark_persistent(l_Lean_groupKind);
 l_Lean_identKind___closed__1 = _init_l_Lean_identKind___closed__1();
 lean_mark_persistent(l_Lean_identKind___closed__1);
 l_Lean_identKind___closed__2 = _init_l_Lean_identKind___closed__2();

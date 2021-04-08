@@ -44,6 +44,7 @@ lean_object* l_Std_PersistentArray_mapMAux___rarg___lambda__1(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Std_PersistentArray_findSome_x3f___spec__4(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_tailOff___default;
 lean_object* l_Array_forInUnsafe_loop___at_Std_PersistentArray_findSome_x3f___spec__4___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_373____closed__22;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_toList___spec__9(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
@@ -80,7 +81,6 @@ lean_object* l_Std_PersistentArray_getOp___rarg(lean_object*, lean_object*, lean
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Std_PersistentArray_append___spec__2___rarg(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Std_PersistentArray_findSomeRev_x3f___spec__4(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forMAux(lean_object*, lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_365____closed__22;
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_toArray___spec__9___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_mapMAux___rarg___closed__2;
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_foldl___spec__11___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -12222,7 +12222,7 @@ lean_dec(x_1);
 x_14 = l_Nat_repr(x_13);
 x_15 = lean_string_append(x_12, x_14);
 lean_dec(x_14);
-x_16 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_365____closed__22;
+x_16 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_373____closed__22;
 x_17 = lean_string_append(x_15, x_16);
 return x_17;
 }

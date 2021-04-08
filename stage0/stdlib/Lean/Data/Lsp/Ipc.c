@@ -19,7 +19,7 @@ uint8_t l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_D
 lean_object* l_IO_FS_Stream_writeLspRequest___at_Lean_Lsp_Ipc_collectDiagnostics___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Ipc_ipcStdioConfig___closed__1;
 lean_object* l_Lean_Lsp_Ipc_collectDiagnostics___closed__1;
-lean_object* l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_989_(lean_object*);
+lean_object* l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1029_(lean_object*);
 lean_object* l_Lean_Lsp_Ipc_readResponseAs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Lsp_Ipc_collectDiagnostics___spec__3(lean_object*);
 extern lean_object* l_Array_empty___closed__1;
@@ -463,7 +463,7 @@ lean_inc(x_18);
 lean_dec(x_17);
 x_19 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
-x_20 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_989_(x_19);
+x_20 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1029_(x_19);
 lean_dec(x_19);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -552,7 +552,7 @@ lean_inc(x_37);
 lean_dec(x_17);
 x_38 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_38, 0, x_37);
-x_39 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_989_(x_38);
+x_39 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1029_(x_38);
 lean_dec(x_38);
 if (lean_obj_tag(x_39) == 0)
 {
@@ -677,7 +677,7 @@ lean_inc(x_64);
 lean_dec(x_63);
 x_65 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_65, 0, x_64);
-x_66 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_989_(x_65);
+x_66 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1029_(x_65);
 lean_dec(x_65);
 if (lean_obj_tag(x_66) == 0)
 {
@@ -761,7 +761,7 @@ lean_inc(x_81);
 lean_dec(x_63);
 x_82 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_82, 0, x_81);
-x_83 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_989_(x_82);
+x_83 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1029_(x_82);
 lean_dec(x_82);
 if (lean_obj_tag(x_83) == 0)
 {

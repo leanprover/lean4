@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_toString___closed__1;
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2960____closed__4;
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkMapDeclarationExtension___rarg___closed__1;
 size_t l_USize_add(size_t, size_t);
@@ -28,7 +29,6 @@ lean_object* l_Lean_ofExcept___at_Lean_ParserCompiler_CombinatorAttribute_runDec
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_throwError___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2925____closed__4;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___closed__4;
@@ -642,7 +642,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = l_Lean_mkMapDeclarationExtension___rarg___closed__1;
 x_5 = l_Lean_ParserCompiler_registerCombinatorAttribute___closed__1;
-x_6 = l_Lean_initFn____x40_Lean_Environment___hyg_2925____closed__4;
+x_6 = l_Lean_initFn____x40_Lean_Environment___hyg_2960____closed__4;
 lean_inc(x_1);
 x_7 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_7, 0, x_1);

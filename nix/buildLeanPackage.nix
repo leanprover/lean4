@@ -4,7 +4,7 @@
 let lean-final' = lean-final; in
 { name, src,  fullSrc ? src, 
   # Lean dependencies. Each entry should be an output of buildLeanPackage.
-  deps ? [ lean.Lean ], 
+  deps ? [ lean.Lean lean.Leanpkg ],
   # Static library dependencies. Each derivation `static` should contain a static library in the directory `${static}`.
   staticLibDeps ? [],
   # Lean plugin dependencies. Each derivation `plugin` should contain a plugin library at path `${plugin}/${plugin.name}`.

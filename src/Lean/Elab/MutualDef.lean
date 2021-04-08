@@ -135,7 +135,7 @@ private def expandWhereDeclsAsStructInst : Macro
       | `(letRecDecl|$decl:letPatDecl)  => Macro.throwErrorAt stx "patterns are not allowed here"
       | `(letRecDecl|$decl:letEqnsDecl) => expandLetEqnsDecl decl
       | `(letRecDecl|$decl:letIdDecl)   => pure decl
-      | _                               => unreachable!
+      | _                               => Macro.throwUnsupported
     let structInstFields ← letIdDecls.mapM fun
       | stx@`(letIdDecl|$id:ident $[$binders]* $[: $ty?]? := $val) => withRef stx do
         let mut val := val
@@ -143,9 +143,9 @@ private def expandWhereDeclsAsStructInst : Macro
           val ← `(($val : $ty))
         val ← `(fun $[$binders]* => $val:term)
         `(structInstField|$id:ident := $val)
-      | _ => unreachable!
+      | _ => Macro.throwUnsupported
     `({ $[$structInstFields,]* })
-  | _ => unreachable!
+  | _ => Macro.throwUnsupported
 
 /-
 Recall that

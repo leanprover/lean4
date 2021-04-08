@@ -82,6 +82,15 @@ def getParentStructures (env : Environment) (structName : Name) : Array Name :=
       | some parentStructName => acc.push parentStructName
       | none                  => acc
 
+/-- Return all parent structures -/
+partial def getAllParentStructures (env : Environment) (structName : Name) : Array Name :=
+  visit structName |>.run #[] |>.2
+where
+  visit (structName : Name) : StateT (Array Name) Id Unit := do
+    for p in getParentStructures env structName do
+      modify fun s => s.push p
+      visit p
+
 /-- `findField? env S fname`. If `fname` is defined in a parent `S'` of `S`, return `S'` -/
 partial def findField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
   if (getStructureFields env structName).contains fieldName then

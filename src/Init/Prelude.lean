@@ -1673,6 +1673,7 @@ instance : Inhabited Syntax where
 /- Builtin kinds -/
 def choiceKind : SyntaxNodeKind := `choice
 def nullKind : SyntaxNodeKind := `null
+def groupKind : SyntaxNodeKind := `group
 def identKind : SyntaxNodeKind := `ident
 def strLitKind : SyntaxNodeKind := `strLit
 def charLitKind : SyntaxNodeKind := `charLit

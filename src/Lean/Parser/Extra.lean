@@ -49,7 +49,7 @@ attribute [runBuiltinParserAttributeHooks]
   withAntiquot (mkAntiquot "nameLit" nameLitKind) nameLitNoAntiquot
 
 @[runBuiltinParserAttributeHooks, inline] def group (p : Parser) : Parser :=
-  node nullKind p
+  node groupKind p
 
 @[runBuiltinParserAttributeHooks, inline] def many1Indent (p : Parser) : Parser :=
   withPosition $ many1 (checkColGe "irrelevant" >> p)

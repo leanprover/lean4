@@ -91,7 +91,7 @@ def optType : Parser := optional typeSpec
 @[builtinTermParser] def explicit := leading_parser "@" >> termParser maxPrec
 @[builtinTermParser] def inaccessible := leading_parser ".(" >> termParser >> ")"
 def binderIdent : Parser  := ident <|> hole
-def binderType (requireType := false) : Parser := if requireType then group (" : " >> termParser) else optional (" : " >> termParser)
+def binderType (requireType := false) : Parser := if requireType then node nullKind (" : " >> termParser) else optional (" : " >> termParser)
 def binderTactic  := leading_parser atomic (symbol " := " >> " by ") >> Tactic.tacticSeq
 def binderDefault := leading_parser " := " >> termParser
 def explicitBinder (requireType := false) := ppGroup $ leading_parser "(" >> many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault) >> ")"

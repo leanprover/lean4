@@ -176,23 +176,32 @@ private def idCompletion (ctx : ContextInfo) (lctx : LocalContext) (stx : Syntax
   runM ctx lctx do
     idCompletionCore ctx stx expectedType?
 
+private def isDotCompletionMethod (info : ConstantInfo) : MetaM Bool :=
+  forallTelescopeReducing info.type fun xs _ => do
+    for x in xs do
+      let localDecl ← getLocalDecl x.fvarId!
+      if localDecl.type.getAppFn.isConstOf info.name.getPrefix then
+        return true
+    return false
+
 private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? : Option Expr) : IO (Option CompletionList) :=
   runM ctx info.lctx do
     let name? ←
       try
         let type ← instantiateMVars (← inferType info.expr)
+        -- dbg_trace "dot >> {info.stx}, {info.expr} : {type}, {info.stx.isIdent}"
         match type.getAppFn with
         | Expr.const name .. => pure (some name)
         | _ => pure none
       catch _ =>
         pure none
-    -- dbg_trace "dot >> {info.stx}, {info.expr} : {type}, {info.stx.isIdent}"
     match name? with
     | some name =>
       (← getEnv).constants.forM fun declName c => do
         if  declName.getPrefix == name then
           unless (← isBlackListed c.name) do
-            addCompletionItem c.name.getString! c.type expectedType?
+            if (← isDotCompletionMethod c) then
+              addCompletionItem c.name.getString! c.type expectedType?
     | _ =>
       if info.stx.isIdent then
         idCompletionCore ctx info.stx expectedType?

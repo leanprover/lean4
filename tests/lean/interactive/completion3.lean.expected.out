@@ -2,7 +2,6 @@
  "position": {"line": 7, "character": 9}}
 {"items":
  [{"label": "b", "detail": "S → Bool"},
-  {"label": "mk", "detail": "Nat → String → Bool → S"},
   {"label": "x", "detail": "S → Nat"},
   {"label": "y", "detail": "S → String"}],
  "isIncomplete": true}
@@ -10,7 +9,6 @@
  "position": {"line": 12, "character": 5}}
 {"items":
  [{"label": "b", "detail": "S → Bool"},
-  {"label": "mk", "detail": "Nat → String → Bool → S"},
   {"label": "x", "detail": "S → Nat"},
   {"label": "y", "detail": "S → String"}],
  "isIncomplete": true}
@@ -18,7 +16,6 @@
  "position": {"line": 16, "character": 5}}
 {"items":
  [{"label": "b", "detail": "S → Bool"},
-  {"label": "mk", "detail": "Nat → String → Bool → S"},
   {"label": "x", "detail": "S → Nat"},
   {"label": "y", "detail": "S → String"}],
  "isIncomplete": true}
@@ -27,6 +24,5 @@
 {"items":
  [{"label": "x", "detail": "S → Nat"},
   {"label": "b", "detail": "S → Bool"},
-  {"label": "mk", "detail": "Nat → String → Bool → S"},
   {"label": "y", "detail": "S → String"}],
  "isIncomplete": true}

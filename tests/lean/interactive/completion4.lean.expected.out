@@ -3,8 +3,6 @@
 {"items":
  [{"label": "fn1", "detail": "S → Nat → IO Unit"},
   {"label": "fn2", "detail": "S → Bool → IO Unit"},
-  {"label": "mk",
-   "detail": "(Nat → IO Unit) → (Bool → IO Unit) → (String → Bool) → S"},
   {"label": "pred", "detail": "S → String → Bool"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completion4.lean"},
@@ -12,8 +10,6 @@
 {"items":
  [{"label": "fn1", "detail": "S → Nat → IO Unit"},
   {"label": "fn2", "detail": "S → Bool → IO Unit"},
-  {"label": "mk",
-   "detail": "(Nat → IO Unit) → (Bool → IO Unit) → (String → Bool) → S"},
   {"label": "pred", "detail": "S → String → Bool"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completion4.lean"},
@@ -21,16 +17,12 @@
 {"items":
  [{"label": "fn1", "detail": "S → Nat → IO Unit"},
   {"label": "fn2", "detail": "S → Bool → IO Unit"},
-  {"label": "mk",
-   "detail": "(Nat → IO Unit) → (Bool → IO Unit) → (String → Bool) → S"},
   {"label": "pred", "detail": "S → String → Bool"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completion4.lean"},
  "position": {"line": 20, "character": 21}}
 {"items":
- [{"label": "mk",
-   "detail": "(Nat → IO Unit) → (Bool → IO Unit) → (String → Bool) → S"},
-  {"label": "fn1", "detail": "S → Nat → IO Unit"},
+ [{"label": "fn1", "detail": "S → Nat → IO Unit"},
   {"label": "fn2", "detail": "S → Bool → IO Unit"},
   {"label": "pred", "detail": "S → String → Bool"}],
  "isIncomplete": true}

@@ -1,8 +1,7 @@
 {"textDocument": {"uri": "file://completion5.lean"},
  "position": {"line": 9, "character": 15}}
 {"items":
- [{"label": "mk", "detail": "Nat → Bool → String → C"},
-  {"label": "b1", "detail": "C → String"},
+ [{"label": "b1", "detail": "C → String"},
   {"label": "f1", "detail": "C → Nat"},
   {"label": "f2", "detail": "C → Bool"}],
  "isIncomplete": true}

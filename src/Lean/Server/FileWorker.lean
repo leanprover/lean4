@@ -137,7 +137,11 @@ section Elab
   /-- Elaborates all commands after `initSnap`, emitting the diagnostics into `hOut`. -/
   def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream)
   : IO (AsyncList ElabTaskError Snapshot) := do
-    AsyncList.unfoldAsync (nextCmdSnap m . cancelTk hOut) initSnap
+    if initSnap.msgLog.hasErrors then
+      -- treat header processing errors as fatal so users aren't swamped with followup errors
+      AsyncList.nil
+    else
+      AsyncList.unfoldAsync (nextCmdSnap m . cancelTk hOut) initSnap
 end Elab
 
 -- Pending requests are tracked so they can be cancelled

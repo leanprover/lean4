@@ -414,7 +414,10 @@ section RequestHandling
       (notFoundX := pure #[]) fun snap => do
         for t in snap.toCmdState.infoState.trees do
           if let some (ci, Info.ofTermInfo i) := t.hoverableInfoAt? hoverPos then
-            let expr ← if goToType? then ci.runMetaM i.lctx <| Meta.inferType i.expr else i.expr
+            let mut expr := i.expr
+            if goToType? then
+              expr ← ci.runMetaM i.lctx do
+                Meta.instantiateMVars (← Meta.inferType expr)
             if let some n := expr.constName? then
               let mod? ← ci.runMetaM i.lctx <| findModuleOf? n
               let modUri? ← match mod? with

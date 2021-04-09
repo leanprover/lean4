@@ -184,31 +184,46 @@ private def isDotCompletionMethod (info : ConstantInfo) : MetaM Bool :=
         return true
     return false
 
+/--
+  Given a type, try to extract relevant type names for dot notation field completion.
+  We extract the type name, parent struct names, and unfold the type.
+  The process mimics the dot notation elaboration procedure at `App.lean` -/
+private partial def getDotCompletionTypeNames (type : Expr) : MetaM NameSet :=
+  return (← visit type |>.run {}).2
+where
+  visit (type : Expr) : StateRefT NameSet MetaM Unit := do
+    match type.getAppFn with
+    | Expr.const typeName .. =>
+      modify fun s => s.insert typeName
+      if isStructureLike (← getEnv) typeName then
+        for parentName in getAllParentStructures (← getEnv) typeName do
+          modify fun s => s.insert parentName
+      let type? ← try unfoldDefinition? type catch _ => pure none
+      match type? with
+      | some type => visit type
+      | none => pure ()
+    | _ => pure ()
+
 private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? : Option Expr) : IO (Option CompletionList) :=
   runM ctx info.lctx do
-    let name? ←
+    let nameSet ←
       try
-        let type ← instantiateMVars (← inferType info.expr)
-        -- dbg_trace "dot >> {info.stx}, {info.expr} : {type}, {info.stx.isIdent}"
-        match type.getAppFn with
-        | Expr.const name .. => pure (some name)
-        | _ => pure none
+        getDotCompletionTypeNames (← instantiateMVars (← inferType info.expr))
       catch _ =>
-        pure none
-    match name? with
-    | some name =>
-      (← getEnv).constants.forM fun declName c => do
-        if  declName.getPrefix == name then
-          unless (← isBlackListed c.name) do
-            if (← isDotCompletionMethod c) then
-              addCompletionItem c.name.getString! c.type expectedType?
-    | _ =>
+        pure {}
+    if nameSet.isEmpty then
       if info.stx.isIdent then
         idCompletionCore ctx info.stx expectedType?
       else if info.stx.getKind == ``Lean.Parser.Term.completion then
         idCompletionCore ctx info.stx[0] expectedType?
       else
         failure
+    else
+      (← getEnv).constants.forM fun declName c => do
+        if nameSet.contains declName.getPrefix then
+          unless (← isBlackListed c.name) do
+            if (← isDotCompletionMethod c) then
+              addCompletionItem c.name.getString! c.type expectedType?
 
 private def optionCompletion (ctx : ContextInfo) : IO (Option CompletionList) := do
   ctx.runMetaM {} do

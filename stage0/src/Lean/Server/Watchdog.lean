@@ -416,7 +416,9 @@ section MessageHandling
     /- NOTE: textDocument/didChange is handled in the main loop. -/
     | "textDocument/didClose"  => handle DidCloseTextDocumentParams handleDidClose
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
-    | _                        => (←read).hLog.putStrLn s!"Got unsupported notification: {method}"
+    | _                        =>
+      if !"$/".isPrefixOf method then  -- implementation-dependent notifications can be safely ignored
+        (←read).hLog.putStrLn s!"Got unsupported notification: {method}"
 end MessageHandling
 
 section MainLoop

@@ -94,6 +94,17 @@ end Utils
 
 /- Asynchronous snapshot elaboration. -/
 section Elab
+  def publishDiagnostics (m : DocumentMeta) (diagnostics : Array Lsp.Diagnostic) (hOut : FS.Stream) : IO Unit :=
+    hOut.writeLspNotification {
+      method := "textDocument/publishDiagnostics"
+      param  := {
+        uri         := m.uri
+        version?    := m.version
+        diagnostics := diagnostics
+        : PublishDiagnosticsParams
+      }
+    }
+
   /-- Elaborates the next command after `parentSnap` and emits diagnostics into `hOut`. -/
   private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream)
   : ExceptT ElabTaskError IO Snapshot := do
@@ -101,17 +112,9 @@ section Elab
     let maybeSnap ← compileNextCmd m.text.source parentSnap
     -- TODO(MH): check for interrupt with increased precision
     cancelTk.check
-    let sendDiagnostics (msgLog : MessageLog) : IO Unit := do
+    let sendMessages (msgLog : MessageLog) : IO Unit := do
       let diagnostics ← msgLog.msgs.mapM (msgToDiagnostic m.text)
-      hOut.writeLspNotification {
-        method := "textDocument/publishDiagnostics"
-        param  := {
-          uri         := m.uri
-          version?    := m.version
-          diagnostics := diagnostics.toArray
-          : PublishDiagnosticsParams
-        }
-      }
+      publishDiagnostics m diagnostics.toArray hOut
     match maybeSnap with
     | Sum.inl snap =>
       /- NOTE(MH): This relies on the client discarding old diagnostics upon receiving new ones
@@ -123,7 +126,7 @@ section Elab
         the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
         because we cannot guarantee that no further diagnostics are emitted after clearing
         them. -/
-      sendDiagnostics <| snap.msgLog.add {
+      sendMessages <| snap.msgLog.add {
         fileName := "<ignored>"
         pos      := m.text.toPosition snap.endPos
         severity := MessageSeverity.information
@@ -131,13 +134,17 @@ section Elab
       }
       snap
     | Sum.inr msgLog =>
-      sendDiagnostics msgLog
+      sendMessages msgLog
       throw ElabTaskError.eof
 
   /-- Elaborates all commands after `initSnap`, emitting the diagnostics into `hOut`. -/
   def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream)
   : IO (AsyncList ElabTaskError Snapshot) := do
-    AsyncList.unfoldAsync (nextCmdSnap m . cancelTk hOut) initSnap
+    if initSnap.msgLog.hasErrors then
+      -- treat header processing errors as fatal so users aren't swamped with followup errors
+      AsyncList.nil
+    else
+      AsyncList.unfoldAsync (nextCmdSnap m . cancelTk hOut) initSnap
 end Elab
 
 -- Pending requests are tracked so they can be cancelled
@@ -208,31 +215,31 @@ section Initialization
     let mut srcSearchPath := [s!"{← appDir}/../lib/lean/src"]
     if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
       srcSearchPath := srcSearchPath ++ parseSearchPath p
-    -- NOTE: leanpkg does not exist in stage 0 (yet?)
-    if (← fileExists leanpkgPath) then
-      let pkgSearchPath ← leanpkgSetupSearchPath leanpkgPath m (Lean.Elab.headerToImports headerStx).toArray hOut
-      srcSearchPath := srcSearchPath ++ pkgSearchPath
-    let (headerEnv, msgLog) ← Elab.processHeader headerStx opts msgLog inputCtx
+    let (headerEnv, msgLog) ← try
+      -- NOTE: leanpkg does not exist in stage 0 (yet?)
+      if (← fileExists leanpkgPath) then
+        let pkgSearchPath ← leanpkgSetupSearchPath leanpkgPath m (Lean.Elab.headerToImports headerStx).toArray hOut
+        srcSearchPath := srcSearchPath ++ pkgSearchPath
+      Elab.processHeader headerStx opts msgLog inputCtx
+    catch e =>  -- should be from `leanpkg print-paths`
+      pure (← mkEmptyEnvironment, MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString })
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
-    let opts := opts.setBool `interpreter.prefer_native false
     let cmdState := { cmdState with infoState.enabled := true, scopes := [{ header := "", opts := opts }] }
     let headerSnap := {
       beginPos := 0
       stx := headerStx
       mpState := headerParserState
-      data := SnapshotData.headerData cmdState
+      cmdState := cmdState
     }
     return (headerSnap, srcSearchPath)
 
-  def initializeWorker (p : DidOpenTextDocumentParams) (i o e : FS.Stream)
+  def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream)
   : IO ServerContext := do
-    let doc := p.textDocument
     /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
       "\n", which should be enough to handle both LF and CRLF correctly.
       This is because LSP always refers to characters by (line, column),
       so if we get the line number correct it shouldn't matter that there
       is a CR there. -/
-    let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap⟩
     let (headerSnap, srcSearchPath) ← compileHeader meta o
     let cancelTk ← CancelToken.new
     let cmdSnaps ← unfoldCmdSnaps meta headerSnap cancelTk o
@@ -374,7 +381,7 @@ section RequestHandling
     -- dbg_trace ">> handleCompletion invoked {pos}"
     withWaitFindSnap doc (fun s => s.endPos > pos)
       (notFoundX := pure { items := #[], isIncomplete := true }) fun snap => do
-        for infoTree in snap.toCmdState.infoState.trees do
+        for infoTree in snap.cmdState.infoState.trees do
           -- for (ctx, info) in infoTree.getCompletionInfos do
           --   dbg_trace "{← info.format ctx}"
           if let some r ← Completion.find? doc.meta.text pos infoTree then
@@ -396,7 +403,7 @@ section RequestHandling
     let hoverPos := text.lspPosToUtf8Pos p.position
     withWaitFindSnap doc (fun s => s.endPos > hoverPos)
       (notFoundX := pure none) fun snap => do
-        for t in snap.toCmdState.infoState.trees do
+        for t in snap.cmdState.infoState.trees do
           if let some (ci, i) := t.hoverableInfoAt? hoverPos then
             if let some hoverFmt ← i.fmtHover? ci then
               return some <| mkHover (toString hoverFmt) i.pos?.get! i.tailPos?.get!
@@ -412,9 +419,12 @@ section RequestHandling
     let hoverPos := text.lspPosToUtf8Pos p.position
     withWaitFindSnap doc (fun s => s.endPos > hoverPos)
       (notFoundX := pure #[]) fun snap => do
-        for t in snap.toCmdState.infoState.trees do
+        for t in snap.cmdState.infoState.trees do
           if let some (ci, Info.ofTermInfo i) := t.hoverableInfoAt? hoverPos then
-            let expr ← if goToType? then ci.runMetaM i.lctx <| Meta.inferType i.expr else i.expr
+            let mut expr := i.expr
+            if goToType? then
+              expr ← ci.runMetaM i.lctx do
+                Meta.instantiateMVars (← Meta.inferType expr)
             if let some n := expr.constName? then
               let mod? ← ci.runMetaM i.lctx <| findModuleOf? n
               let modUri? ← match mod? with
@@ -447,7 +457,7 @@ section RequestHandling
     let hoverPos := text.lspPosToUtf8Pos p.position
     withWaitFindSnap doc (fun s => s.endPos > hoverPos)
       (notFoundX := return none) fun snap => do
-        for t in snap.toCmdState.infoState.trees do
+        for t in snap.cmdState.infoState.trees do
           if let rs@(_ :: _) := t.goalsAt? hoverPos then
             let goals ← List.join <$> rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter } =>
               let ci := if useAfter then { ci with mctx := ti.mctxAfter } else { ci with mctx := ti.mctxBefore }
@@ -574,7 +584,7 @@ section RequestHandling
       for s in snaps do
         if s.endPos <= beginPos then
           continue
-        ReaderT.run (r := SemanticTokensContext.mk beginPos endPos text s.toCmdState.infoState) <|
+        ReaderT.run (r := SemanticTokensContext.mk beginPos endPos text s.cmdState.infoState) <|
           go s.stx
       return Except.ok { data := (← get).data }
   where
@@ -739,24 +749,17 @@ def initAndRunWorker (i o e : FS.Stream) : IO UInt32 := do
   -- TODO(WN): act in accordance with InitializeParams
   let _ ← i.readLspRequestAs "initialize" InitializeParams
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" DidOpenTextDocumentParams
+  let doc := param.textDocument
+  let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap⟩
   let e ← e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   try
-    let ctx ← initializeWorker param i o e
+    let ctx ← initializeWorker meta i o e
     ReaderT.run (r := ctx) mainLoop
     return 0
   catch e =>
     IO.eprintln e
-    -- diagnostic doesn't seem to be visible in either VS Code or Emacs, consult stderr instead
-    o.writeLspNotification {
-      method := "textDocument/publishDiagnostics"
-      param  := {
-        uri         := param.textDocument.uri
-        version?    := param.textDocument.version
-        diagnostics := #[{ range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩, severity? := DiagnosticSeverity.error, message := e.toString }]
-        : PublishDiagnosticsParams
-      }
-    }
+    publishDiagnostics meta #[{ range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩, severity? := DiagnosticSeverity.error, message := e.toString }] o
     return 1
 
 @[export lean_server_worker_main]

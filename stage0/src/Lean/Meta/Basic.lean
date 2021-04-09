@@ -316,7 +316,7 @@ def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
   let mctx ← getMCtx
   match mctx.findDecl? mvarId with
   | some d => pure d
-  | none   => throwError "unknown metavariable '{mkMVar mvarId}'"
+  | none   => throwError "unknown metavariable '?{mvarId}'"
 
 def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarKind mvarId kind
@@ -343,7 +343,7 @@ def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool := do
   let mctx ← getMCtx
   match mctx.findLevelDepth? mvarId with
   | some depth => return depth != mctx.depth
-  | _          => throwError "unknown universe metavariable '{mkLevelMVar mvarId}'"
+  | _          => throwError "unknown universe metavariable '?{mvarId}'"
 
 def renameMVar (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.renameMVar mvarId newUserName

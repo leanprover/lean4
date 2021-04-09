@@ -46,7 +46,6 @@ lean_object* l_Lean_Meta_isProp_match__1___rarg(lean_object*, lean_object*, lean
 lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_isAlwaysZero___boxed(lean_object*);
 lean_object* l_Lean_Meta_throwTypeExcepted___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_instantiateBetaRevRange_visit___closed__2;
-lean_object* l_Lean_mkMVar(lean_object*);
 size_t l_USize_sub(size_t, size_t);
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5717,20 +5716,19 @@ return x_2;
 lean_object* l_Lean_Meta_throwUnknownMVar___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_7 = l_Lean_mkMVar(x_1);
-x_8 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_8, 0, x_7);
-x_9 = l_Lean_Meta_getMVarDecl___closed__2;
-x_10 = lean_alloc_ctor(10, 2, 0);
-lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_8);
-x_11 = l_Lean_KernelException_toMessageData___closed__3;
-x_12 = lean_alloc_ctor(10, 2, 0);
-lean_ctor_set(x_12, 0, x_10);
-lean_ctor_set(x_12, 1, x_11);
-x_13 = l_Lean_throwError___at_Lean_Meta_throwUnknownMVar___spec__1___rarg(x_12, x_2, x_3, x_4, x_5, x_6);
-return x_13;
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_7 = lean_alloc_ctor(4, 1, 0);
+lean_ctor_set(x_7, 0, x_1);
+x_8 = l_Lean_Meta_getMVarDecl___closed__2;
+x_9 = lean_alloc_ctor(10, 2, 0);
+lean_ctor_set(x_9, 0, x_8);
+lean_ctor_set(x_9, 1, x_7);
+x_10 = l_Lean_KernelException_toMessageData___closed__3;
+x_11 = lean_alloc_ctor(10, 2, 0);
+lean_ctor_set(x_11, 0, x_9);
+lean_ctor_set(x_11, 1, x_10);
+x_12 = l_Lean_throwError___at_Lean_Meta_throwUnknownMVar___spec__1___rarg(x_11, x_2, x_3, x_4, x_5, x_6);
+return x_12;
 }
 }
 lean_object* l_Lean_Meta_throwUnknownMVar(lean_object* x_1) {

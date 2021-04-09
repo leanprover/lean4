@@ -157,7 +157,7 @@ private def inferLambdaType (e : Expr) : MetaM Expr :=
       x (mkFVar fvarId)
 
 def throwUnknownMVar {α} (mvarId : MVarId) : MetaM α :=
-  throwError "unknown metavariable '{mkMVar mvarId}'"
+  throwError "unknown metavariable '?{mvarId}'"
 
 private def inferMVarType (mvarId : MVarId) : MetaM Expr := do
   match (← getMCtx).findDecl? mvarId with

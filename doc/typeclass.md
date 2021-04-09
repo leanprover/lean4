@@ -221,11 +221,9 @@ instance [Inhabited b] : Inhabited (a -> b) where
 ```
 As an exercise, try defining default instances for other types, such as `List` and `Sum` types.
 
-The Lean standard library contains the definition `inferInstance`. It has type `{α : Type u} → [i : α] → α`,
+The Lean standard library contains the definition `inferInstance`. It has type `{α : Sort u} → [i : α] → α`,
 and is useful for triggering the type class resolution procedure when the expected type is an instance.
 ```lean
-#check @inferInstance  -- {α : Sort u_1} → [i : α] → α
-
 #check (inferInstance : Inhabited Nat) -- Inhabited Nat
 
 def foo : Inhabited (Nat × Nat) :=

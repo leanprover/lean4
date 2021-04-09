@@ -1,0 +1,5 @@
+[Meta.debug] >> fun (x : Nat) => Nat.add
+[Meta.debug] >> Nat.add
+[Meta.debug] >> HAdd.hAdd 1
+[Meta.debug] >> fun (x y z : Nat) => Nat.add z y
+[Meta.debug] >> fun (y : Nat) => Nat.add y y

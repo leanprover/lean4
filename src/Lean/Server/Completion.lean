@@ -180,7 +180,8 @@ private def isDotCompletionMethod (info : ConstantInfo) : MetaM Bool :=
   forallTelescopeReducing info.type fun xs _ => do
     for x in xs do
       let localDecl ← getLocalDecl x.fvarId!
-      if localDecl.type.getAppFn.isConstOf info.name.getPrefix then
+      let type := localDecl.type.consumeMData
+      if type.getAppFn.isConstOf info.name.getPrefix then
         return true
     return false
 

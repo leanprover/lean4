@@ -251,6 +251,20 @@ def commitIfDidNotPostpone (x : TermElabM α) : TermElabM α := do
   let r ← observing x
   applyResult r
 
+/--
+  Execute `x` but discard changes performed at `Term.State` and `Meta.State`.
+  Recall that the environment is at `Core.State`. Thus, any updates to it will
+  be preserved. This method is useful for performing computations where all
+  metavariable must be resolved or discarded. -/
+def withoutModifyingElabMetaState (x : TermElabM α) : TermElabM α := do
+  let s ← get
+  let sMeta ← getThe Meta.State
+  try
+    x
+  finally
+    set s
+    set sMeta
+
 def getLevelNames : TermElabM (List Name) :=
   return (← get).levelNames
 

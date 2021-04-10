@@ -8,12 +8,18 @@ import Lean.Util.Recognizers
 import Lean.Meta.LevelDefEq
 import Lean.Meta.DiscrTree
 import Lean.Meta.AppBuilder
+import Lean.Meta.AbstractMVars
 import Lean.Meta.Tactic.AuxLemma
 namespace Lean.Meta
 
+inductive SimpLemma.Proof where
+  | expr (val : Expr)
+  | abst (val : AbstractMVarsResult)
+  deriving Inhabited, BEq
+
 structure SimpLemma where
   keys     : Array DiscrTree.Key
-  val      : Expr
+  val      : SimpLemma.Proof
   priority : Nat
   post     : Bool
   perm     : Bool -- true is lhs and rhs are identical modulo permutation of variables
@@ -147,7 +153,7 @@ def mkSimpLemmaCore (e : Expr) (val : Expr) (post : Bool) (prio : Nat) (name? : 
       match type.eq? with
       | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs)
       | none => throwError "unexpected kind of 'simp' lemma"
-    return { keys := keys, perm := perm, post := post, val := val, name? := name?, priority := prio }
+    return { keys := keys, perm := perm, post := post, val := SimpLemma.Proof.expr val, name? := name?, priority := prio }
 
 def mkSimpLemmasFromConst (declName : Name) (post : Bool) (prio : Nat) : MetaM (Array SimpLemma) := do
   let cinfo ← getConstInfo declName
@@ -236,12 +242,13 @@ where
 
 def SimpLemma.getValue (simpLemma : SimpLemma) : MetaM Expr := do
   match simpLemma.val with
-  | Expr.const declName [] _ =>
+  | Proof.expr e@(Expr.const declName [] _) =>
     let info ← getConstInfo declName
     if info.levelParams.isEmpty then
-      return simpLemma.val
+      return e
     else
-      return simpLemma.val.updateConst! (← info.levelParams.mapM (fun _ => mkFreshLevelMVar))
-  | _ => return simpLemma.val
+      return e.updateConst! (← info.levelParams.mapM (fun _ => mkFreshLevelMVar))
+  | Proof.expr e => return e
+  | _ => throwError "NIY"
 
 end Lean.Meta

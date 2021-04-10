@@ -12,24 +12,34 @@ def synthesizeArgs (lemmaName : Name) (xs : Array Expr) (bis : Array BinderInfo)
   for x in xs, bi in bis do
     let type ← inferType x
     if bi.isInstImplicit then
-      match ← trySynthInstance type with
-      | LOption.some val =>
-        unless (← isDefEq x val) do
-          trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to assign instance{indentExpr type}"
-          return false
-      | _ =>
-        trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to synthesize instance{indentExpr type}"
+      unless (← synthesizeInstance x type) do
         return false
-    else if (← isProp type <&&> (← instantiateMVars x).isMVar) then
-      match ← discharge? type with
-      | some proof =>
-        unless (← isDefEq x proof) do
-          trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to assign proof{indentExpr type}"
+    else if (← instantiateMVars x).isMVar then
+      if (← isProp type) then
+        match ← discharge? type with
+        | some proof =>
+          unless (← isDefEq x proof) do
+            trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to assign proof{indentExpr type}"
+            return false
+        | none =>
+          trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to discharge hypotheses{indentExpr type}"
           return false
-      | none =>
-        trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to discharge hypotheses{indentExpr type}"
-        return false
+      else if (← isClass? type).isSome then
+        unless (← synthesizeInstance x type) do
+          return false
   return true
+where
+  synthesizeInstance (x type : Expr) : SimpM Bool := do
+    match ← trySynthInstance type with
+    | LOption.some val =>
+      if (← isDefEq x val) then
+        return true
+      else
+        trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to assign instance{indentExpr type}"
+        return false
+    | _ =>
+      trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to synthesize instance{indentExpr type}"
+      return false
 
 /-
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
@@ -64,6 +74,7 @@ where
           return none
         let proof ← instantiateMVars (mkAppN val xs)
         if ← hasAssignableMVar proof then
+          trace[Meta.Tactic.simp.rewrite] "{lemma}, has unassigned metavariables after unification"
           return none
         let rhs   ← instantiateMVars type.appArg!
         if e == rhs then

@@ -14,3 +14,13 @@ example : p 0 0 ∧ p 1 1 := by
   simp [foo 1]
   traceState
   simp [foo 0]
+
+namespace Foo
+
+axiom p {α} : α → Prop
+axiom foo {α} [ToString α] (n : Nat) (a : α) : p a
+
+example : p 0 := by simp [foo 0]
+example : p 0 ∧ True := by simp [foo 0]
+
+end Foo

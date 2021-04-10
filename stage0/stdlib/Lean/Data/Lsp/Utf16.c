@@ -20,6 +20,7 @@ lean_object* l_String_utf16Length___closed__1;
 lean_object* l_String_utf16PosToCodepointPosFrom___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux_match__1(lean_object*);
 extern lean_object* l_instInhabitedNat;
+lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -31,6 +32,7 @@ lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_csize16___boxed(lean_obje
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_leanPosToLspPos___boxed(lean_object*, lean_object*);
 lean_object* l_String_codepointPosToUtf8PosFrom(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_String_utf16Length___lambda__1(uint32_t, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -46,9 +48,11 @@ lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFro
 uint32_t l_Char_utf16Size(uint32_t);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
+uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_FileMap_utf8PosToLspPos___boxed(lean_object*, lean_object*);
 lean_object* l_String_utf16PosToCodepointPos(lean_object*, lean_object*);
 lean_object* l_String_codepointPosToUtf8PosFrom_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_back___at_Lean_FileMap_toPosition___spec__2(lean_object*);
 lean_object* l_Lean_FileMap_leanPosToLspPos_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_String_codepointPosToUtf8PosFrom___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -64,6 +68,7 @@ lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_String_codepointPosToUtf16PosFrom(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_utf16Length(lean_object*);
 lean_object* l_String_codepointPosToUtf8PosFrom_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint32_t l_Char_utf16Size(uint32_t x_1) {
 _start:
 {
@@ -468,22 +473,56 @@ return x_4;
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_3 = lean_ctor_get(x_1, 1);
-x_4 = lean_ctor_get(x_2, 0);
-lean_inc(x_4);
-x_5 = l_instInhabitedNat;
-x_6 = lean_array_get(x_5, x_3, x_4);
-lean_dec(x_4);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+x_5 = lean_array_get_size(x_4);
+x_6 = lean_nat_dec_lt(x_3, x_5);
+lean_dec(x_5);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+lean_dec(x_3);
 x_7 = lean_ctor_get(x_1, 0);
 x_8 = lean_ctor_get(x_2, 1);
 lean_inc(x_8);
 lean_dec(x_2);
-x_9 = lean_unsigned_to_nat(0u);
-lean_inc(x_6);
-x_10 = l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux(x_7, x_8, x_6, x_9);
-x_11 = l_String_codepointPosToUtf8PosFrom(x_7, x_6, x_10);
-return x_11;
+x_9 = l_Array_isEmpty___rarg(x_4);
+if (x_9 == 0)
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_10 = l_Array_back___at_Lean_FileMap_toPosition___spec__2(x_4);
+x_11 = lean_unsigned_to_nat(0u);
+lean_inc(x_10);
+x_12 = l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux(x_7, x_8, x_10, x_11);
+x_13 = l_String_codepointPosToUtf8PosFrom(x_7, x_10, x_12);
+return x_13;
+}
+else
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_14 = lean_unsigned_to_nat(0u);
+x_15 = l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux(x_7, x_8, x_14, x_14);
+x_16 = l_String_codepointPosToUtf8PosFrom(x_7, x_14, x_15);
+return x_16;
+}
+}
+else
+{
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_17 = lean_ctor_get(x_1, 0);
+x_18 = lean_ctor_get(x_2, 1);
+lean_inc(x_18);
+lean_dec(x_2);
+x_19 = lean_array_fget(x_4, x_3);
+lean_dec(x_3);
+x_20 = lean_unsigned_to_nat(0u);
+lean_inc(x_19);
+x_21 = l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux(x_17, x_18, x_19, x_20);
+x_22 = l_String_codepointPosToUtf8PosFrom(x_17, x_19, x_21);
+return x_22;
+}
 }
 }
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos___boxed(lean_object* x_1, lean_object* x_2) {

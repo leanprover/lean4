@@ -84,7 +84,6 @@ lean_object* l_Lean_Meta_Simp_getCongrLemmas___rarg(lean_object*, lean_object*, 
 lean_object* l_Lean_Meta_Simp_congrHypothesisExceptionId;
 lean_object* l_Lean_Meta_Simp_DefaultMethods_methods___closed__4;
 size_t l_USize_sub(size_t, size_t);
-extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpLemmas___hyg_2133____closed__1;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_simp_simpLambda___closed__1;
@@ -458,6 +457,7 @@ lean_object* l_Lean_Meta_simp(lean_object*, lean_object*, lean_object*, lean_obj
 extern lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___closed__1;
 lean_object* l_Lean_Meta_mkImpCongr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpLemmas___hyg_2217____closed__1;
 lean_object* l_Lean_Meta_getFVarLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_simp_simpArrow___closed__13;
 static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_Main___hyg_4____closed__1() {
@@ -20552,7 +20552,7 @@ lean_object* l_Lean_Meta_simpTarget(lean_object* x_1, lean_object* x_2, lean_obj
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_8 = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpLemmas___hyg_2133____closed__1;
+x_8 = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpLemmas___hyg_2217____closed__1;
 lean_inc(x_1);
 x_9 = lean_alloc_closure((void*)(l_Lean_Meta_checkNotAssigned___boxed), 7, 2);
 lean_closure_set(x_9, 0, x_1);

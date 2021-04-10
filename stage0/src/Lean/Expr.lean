@@ -931,6 +931,19 @@ def updateFn : Expr → Expr → Expr
   | e@(app f a _), g => e.updateApp! (updateFn f g) a
   | _,             g => g
 
+partial def eta (e : Expr) : Expr :=
+  match e with
+  | Expr.lam _ d b _ =>
+    let b' := b.eta
+    match b' with
+    | Expr.app f (Expr.bvar 0 _) _ =>
+      if !f.hasLooseBVar 0 then
+        f.lowerLooseBVars 1 1
+      else
+        e.updateLambdaE! d b'
+    | _ => e.updateLambdaE! d b'
+  | _ => e
+
 /- Instantiate level parameters -/
 
 @[inline] def instantiateLevelParamsCore (s : Name → Option Level) (e : Expr) : Expr :=

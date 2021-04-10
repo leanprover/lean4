@@ -105,6 +105,10 @@ section Elab
       }
     }
 
+  def publishMessages (m : DocumentMeta) (msgLog : MessageLog) (hOut : FS.Stream) : IO Unit := do
+    let diagnostics ← msgLog.msgs.mapM (msgToDiagnostic m.text)
+    publishDiagnostics m diagnostics.toArray hOut
+
   /-- Elaborates the next command after `parentSnap` and emits diagnostics into `hOut`. -/
   private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream)
   : ExceptT ElabTaskError IO Snapshot := do
@@ -112,9 +116,6 @@ section Elab
     let maybeSnap ← compileNextCmd m.text.source parentSnap
     -- TODO(MH): check for interrupt with increased precision
     cancelTk.check
-    let sendMessages (msgLog : MessageLog) : IO Unit := do
-      let diagnostics ← msgLog.msgs.mapM (msgToDiagnostic m.text)
-      publishDiagnostics m diagnostics.toArray hOut
     match maybeSnap with
     | Sum.inl snap =>
       /- NOTE(MH): This relies on the client discarding old diagnostics upon receiving new ones
@@ -126,15 +127,15 @@ section Elab
         the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
         because we cannot guarantee that no further diagnostics are emitted after clearing
         them. -/
-      sendMessages <| snap.msgLog.add {
+      publishMessages m (snap.msgLog.add {
         fileName := "<ignored>"
         pos      := m.text.toPosition snap.endPos
         severity := MessageSeverity.information
         data     := "processing..."
-      }
+      }) hOut
       snap
     | Sum.inr msgLog =>
-      sendMessages msgLog
+      publishMessages m msgLog hOut
       throw ElabTaskError.eof
 
   /-- Elaborates all commands after `initSnap`, emitting the diagnostics into `hOut`. -/
@@ -179,15 +180,7 @@ section Initialization
       if line == "" then
         return acc
       else
-        hOut.writeLspNotification {
-          method := "textDocument/publishDiagnostics"
-          param  := {
-            uri         := m.uri
-            version?    := m.version
-            diagnostics := #[{ range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩, severity? := DiagnosticSeverity.information, message := line }]
-            : PublishDiagnosticsParams
-          }
-        }
+        publishDiagnostics m #[{ range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩, severity? := DiagnosticSeverity.information, message := line }] hOut
         processStderr (acc ++ line)
     let stderr ← IO.asTask (processStderr "") Task.Priority.dedicated
     let stdout := String.trim (← leanpkgProc.stdout.readToEnd)
@@ -222,7 +215,9 @@ section Initialization
         srcSearchPath := srcSearchPath ++ pkgSearchPath
       Elab.processHeader headerStx opts msgLog inputCtx
     catch e =>  -- should be from `leanpkg print-paths`
-      pure (← mkEmptyEnvironment, MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString })
+      let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
+      publishMessages m msgs hOut
+      pure (← mkEmptyEnvironment, msgs)
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
     let cmdState := { cmdState with infoState.enabled := true, scopes := [{ header := "", opts := opts }] }
     let headerSnap := {

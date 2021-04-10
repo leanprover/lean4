@@ -8,6 +8,7 @@ import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Tactic.Location
 import Lean.Meta.Tactic.Replace
+import Lean.Elab.BuiltinNotation
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -36,6 +37,24 @@ def elabSimpConfig (optConfig : Syntax) (ctx : Bool) : TermElabM Meta.Simp.Confi
         return (← evalSimpConfigCtx (← instantiateMVars c)).toConfig
       else
         evalSimpConfig (← instantiateMVars c)
+
+private def elabSimpLemmaTerm (stx : Syntax) : TacticM Expr := do
+  withRef stx <| Term.withoutErrToSorry do
+    let e ← Term.elabTerm stx none
+    Term.synthesizeSyntheticMVarsUsingDefault
+    let e ← instantiateMVars e
+    return e.eta
+
+private def addLemma (lemmas : Meta.SimpLemmas) (e : Expr) (post : Bool): MetaM Meta.SimpLemmas := do
+  if e.isConst then
+    let declName := e.constName!
+    let info ← getConstInfo declName
+    if (← isProp info.type) then
+      lemmas.addConst declName post
+    else
+      lemmas.addDeclToUnfold declName
+  else
+    lemmas.add e post
 
 /--
   Elaborate extra simp lemmas provided to `simp`. `stx` is of the `simpLemma,*`
@@ -70,19 +89,10 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Boo
             else
               arg[0][0].getKind == ``Parser.Tactic.simpPost
           match (← resolveSimpIdLemma? arg[1]) with
-          | some e =>
-            if e.isConst then
-              let declName := e.constName!
-              let info ← getConstInfo declName
-              if (← isProp info.type) then
-                lemmas ← lemmas.addConst declName post
-              else
-                lemmas := lemmas.addDeclToUnfold declName
-            else
-              lemmas ← lemmas.add e post
+          | some e => lemmas ← addLemma lemmas e post
           | _ =>
-            let arg ← elabTerm arg[1] none (mayPostpone := false)
-            lemmas ← lemmas.add arg post
+            let e ← elabSimpLemmaTerm arg[1]
+            lemmas ← addLemma lemmas e post
       return { ctx with simpLemmas := lemmas }
 where
   resolveSimpIdLemma? (simpArgTerm : Syntax) : TacticM (Option Expr) := do
@@ -92,7 +102,7 @@ where
       catch _ =>
         return none
     else
-      return none
+      Term.elabCDotFunctionAlias? simpArgTerm
 
 --  If `ctx == false`, the argument is assumed to have type `Meta.Simp.Config`, and `Meta.Simp.ConfigCtx` otherwise. -/
 private def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (ctx := false) : TacticM Simp.Context := do

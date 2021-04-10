@@ -65,7 +65,13 @@ namespace FileMap
 /-- Computes an UTF-8 offset into `text.source`
 from an LSP-style 0-indexed (ln, col) position. -/
 def lspPosToUtf8Pos (text : FileMap) (pos : Lsp.Position) : String.Pos :=
-  let colPos := text.positions.get! (pos.line)
+  let colPos :=
+    if h : pos.line < text.positions.size then
+      text.positions.get ⟨pos.line, h⟩
+    else if text.positions.isEmpty then
+      0
+    else
+      text.positions.back
   let chr := text.source.utf16PosToCodepointPosFrom pos.character colPos
   text.source.codepointPosToUtf8PosFrom colPos chr
 

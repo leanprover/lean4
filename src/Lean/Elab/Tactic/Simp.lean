@@ -54,7 +54,7 @@ private def addLemma (lemmas : Meta.SimpLemmas) (e : Expr) (post : Bool): MetaM 
     else
       lemmas.addDeclToUnfold declName
   else
-    lemmas.add e post
+    lemmas.add (SimpLemma.Proof.expr e) post
 
 /--
   Elaborate extra simp lemmas provided to `simp`. `stx` is of the `simpLemma,*`

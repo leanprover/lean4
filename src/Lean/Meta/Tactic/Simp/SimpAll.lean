@@ -36,7 +36,7 @@ private def initEntries : M Unit := do
       let fvarId := localDecl.fvarId
       let proof  := localDecl.toExpr
       let id     ← mkFreshUserName `h
-      let simpLemmas ← (← get).ctx.simpLemmas.add proof (name? := id)
+      let simpLemmas ← (← get).ctx.simpLemmas.add (SimpLemma.Proof.expr proof) (name? := id)
       let entry : Entry := { fvarId := fvarId, userName := localDecl.userName, id := id, type := (← instantiateMVars localDecl.type), proof := proof }
       modify fun s => { s with entries := s.entries.push entry, ctx.simpLemmas := simpLemmas }
 
@@ -57,7 +57,7 @@ private partial def loop : M Bool := do
     | some (proofNew, typeNew) =>
       unless typeNew == entry.type do
         let id ← mkFreshUserName `h
-        let simpLemmasNew ← (← getSimpLemmas).add proofNew (name? := id)
+        let simpLemmasNew ← (← getSimpLemmas).add (SimpLemma.Proof.expr proofNew) (name? := id)
         modify fun s => { s with
           modified       := true
           ctx.simpLemmas := simpLemmasNew

@@ -237,7 +237,8 @@ def mkSimpLemmas (proof : SimpLemma.Proof) (post : Bool := true) (prio : Nat := 
     | SimpLemma.Proof.abst _ => withIncRecDepth do
       let val ← proof.getValue
       (← preprocessProof val).mapM fun val => do
-        mkSimpLemmaCore val (SimpLemma.Proof.abst (← abstractMVars val)) post prio name?
+        let abstVal ← abstractMVars val
+        mkSimpLemmaCore abstVal.expr (SimpLemma.Proof.abst abstVal) post prio name?
 
 /- Auxiliary method for adding a local simp lemma to a `SimpLemmas` datastructure. -/
 def SimpLemmas.add (s : SimpLemmas) (proof : SimpLemma.Proof) (post : Bool := true) (prio : Nat := eval_prio default) (name? : Option Name := none): MetaM SimpLemmas := do

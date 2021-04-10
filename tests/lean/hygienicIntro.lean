@@ -45,3 +45,8 @@ example {p q : Prop} (h₁ : p → q) (h₂ : p ∨ q) : q := by
 match h₂ with
 | Or.inl _ => apply h₁; assumption
 | Or.inr h => exact h
+
+example {p q : Prop} (h₁ : p → q) (h₂ : p ∨ q) : q := by unhygienic
+  cases h₂
+  { apply h₁; exact h } -- hygiene is disabled
+  exact h

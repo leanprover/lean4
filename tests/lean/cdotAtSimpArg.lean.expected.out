@@ -1,0 +1,6 @@
+y x : Nat
+h : y = 0
+⊢ Add.add x y = x
+y x : Nat
+h : y = 0
+⊢ Add.add x y = x

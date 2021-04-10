@@ -209,6 +209,27 @@ private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Ex
   | some stx' => withMacroExpansion stx stx' (elabTerm stx' expectedType?)
   | none      => elabTerm stx expectedType?
 
+/--
+  Helper method for elaborating terms such as `(.+.)` where a constant name is expected.
+  This method is usually used to implement tactics that function names as arguments (e.g., `simp`).
+-/
+def elabCDotFunctionAlias? (stx : Syntax) : TermElabM (Option Expr) := do
+  let some stx ← liftMacroM <| expandCDotArg? stx | pure none
+  let stx ← liftMacroM <| expandMacros stx
+  match stx with
+  | `(fun $binders* => $f:ident $args*) =>
+    if binders == args then
+      try Term.resolveId? f catch _ => return none
+    else
+      return none
+  | _ => return none
+where
+  expandCDotArg? (stx : Syntax) : MacroM (Option Syntax) :=
+    match stx with
+    | `(($e)) => Term.expandCDot? e
+    | _ => Term.expandCDot? stx
+
+
 @[builtinTermElab paren] def elabParen : TermElab := fun stx expectedType? => do
   match stx with
   | `(())           => return Lean.mkConst `Unit.unit

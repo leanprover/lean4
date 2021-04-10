@@ -1,6 +1,6 @@
 --
 
-set_option hygienicIntro false in
+set_option tactic.hygienic false in
 theorem ex1 {a p q r : Prop} : p → (p → q) → (q → r) → r := by
 intro _ h1 h2;
 apply h2;
@@ -24,7 +24,7 @@ example {p q : Prop} (h₁ : p → q) (h₂ : p ∨ q) : q := by
   { apply h₁; exact h }; -- error "unknown identifier"
   exact h
 
-set_option hygienicIntro false in
+set_option tactic.hygienic false in
 example {p q : Prop} (h₁ : p → q) (h₂ : p ∨ q) : q := by
 cases h₂;
 { apply h₁; exact h }; -- hygiene is disabled

@@ -38,18 +38,7 @@ def elabSimpConfig (optConfig : Syntax) (ctx : Bool) : TermElabM Meta.Simp.Confi
       else
         evalSimpConfig (← instantiateMVars c)
 
-private def elabSimpLemmaProof (stx : Syntax) : TermElabM SimpLemma.Proof := do
-  Term.withoutModifyingElabMetaState <| withRef stx <| Term.withoutErrToSorry do
-    let e ← Term.elabTerm stx none
-    Term.synthesizeSyntheticMVarsUsingDefault
-    let e ← instantiateMVars e
-    let e := e.eta
-    if e.hasMVar then
-      return SimpLemma.Proof.abst (← abstractMVars e)
-    else
-      return SimpLemma.Proof.expr e
-
-private def addDeclToUnfoldOrLemma (lemmas : Meta.SimpLemmas) (e : Expr) (post : Bool): MetaM Meta.SimpLemmas := do
+private def addDeclToUnfoldOrLemma (lemmas : Meta.SimpLemmas) (e : Expr) (post : Bool) : MetaM Meta.SimpLemmas := do
   if e.isConst then
     let declName := e.constName!
     let info ← getConstInfo declName
@@ -58,7 +47,20 @@ private def addDeclToUnfoldOrLemma (lemmas : Meta.SimpLemmas) (e : Expr) (post :
     else
       lemmas.addDeclToUnfold declName
   else
-    lemmas.add (SimpLemma.Proof.expr e) post
+    lemmas.add #[] e post
+
+private def addSimpLemma (lemmas : Meta.SimpLemmas) (stx : Syntax) (post : Bool) : TermElabM Meta.SimpLemmas := do
+  let (levelParams, proof) ← Term.withoutModifyingElabMetaState <| withRef stx <| Term.withoutErrToSorry do
+    let e ← Term.elabTerm stx none
+    Term.synthesizeSyntheticMVarsUsingDefault
+    let e ← instantiateMVars e
+    let e := e.eta
+    if e.hasMVar then
+      let r ← abstractMVars e
+      return (r.paramNames, r.expr)
+    else
+      return (#[], e)
+  lemmas.add levelParams proof
 
 /--
   Elaborate extra simp lemmas provided to `simp`. `stx` is of the `simpLemma,*`
@@ -94,7 +96,7 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Boo
               arg[0][0].getKind == ``Parser.Tactic.simpPost
           match (← resolveSimpIdLemma? arg[1]) with
           | some e => lemmas ← addDeclToUnfoldOrLemma lemmas e post
-          | _      => lemmas ← lemmas.add (← elabSimpLemmaProof arg[1]) post
+          | _      => lemmas ← addSimpLemma lemmas arg[1] post
       return { ctx with simpLemmas := lemmas }
 where
   resolveSimpIdLemma? (simpArgTerm : Syntax) : TacticM (Option Expr) := do

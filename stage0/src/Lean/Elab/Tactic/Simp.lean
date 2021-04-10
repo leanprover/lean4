@@ -38,14 +38,7 @@ def elabSimpConfig (optConfig : Syntax) (ctx : Bool) : TermElabM Meta.Simp.Confi
       else
         evalSimpConfig (← instantiateMVars c)
 
-private def elabSimpLemmaTerm (stx : Syntax) : TacticM Expr := do
-  withRef stx <| Term.withoutErrToSorry do
-    let e ← Term.elabTerm stx none
-    Term.synthesizeSyntheticMVarsUsingDefault
-    let e ← instantiateMVars e
-    return e.eta
-
-private def addLemma (lemmas : Meta.SimpLemmas) (e : Expr) (post : Bool): MetaM Meta.SimpLemmas := do
+private def addDeclToUnfoldOrLemma (lemmas : Meta.SimpLemmas) (e : Expr) (post : Bool) : MetaM Meta.SimpLemmas := do
   if e.isConst then
     let declName := e.constName!
     let info ← getConstInfo declName
@@ -54,7 +47,20 @@ private def addLemma (lemmas : Meta.SimpLemmas) (e : Expr) (post : Bool): MetaM 
     else
       lemmas.addDeclToUnfold declName
   else
-    lemmas.add e post
+    lemmas.add #[] e post
+
+private def addSimpLemma (lemmas : Meta.SimpLemmas) (stx : Syntax) (post : Bool) : TermElabM Meta.SimpLemmas := do
+  let (levelParams, proof) ← Term.withoutModifyingElabMetaState <| withRef stx <| Term.withoutErrToSorry do
+    let e ← Term.elabTerm stx none
+    Term.synthesizeSyntheticMVarsUsingDefault
+    let e ← instantiateMVars e
+    let e := e.eta
+    if e.hasMVar then
+      let r ← abstractMVars e
+      return (r.paramNames, r.expr)
+    else
+      return (#[], e)
+  lemmas.add levelParams proof
 
 /--
   Elaborate extra simp lemmas provided to `simp`. `stx` is of the `simpLemma,*`
@@ -89,10 +95,8 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Boo
             else
               arg[0][0].getKind == ``Parser.Tactic.simpPost
           match (← resolveSimpIdLemma? arg[1]) with
-          | some e => lemmas ← addLemma lemmas e post
-          | _ =>
-            let e ← elabSimpLemmaTerm arg[1]
-            lemmas ← addLemma lemmas e post
+          | some e => lemmas ← addDeclToUnfoldOrLemma lemmas e post
+          | _      => lemmas ← addSimpLemma lemmas arg[1] post
       return { ctx with simpLemmas := lemmas }
 where
   resolveSimpIdLemma? (simpArgTerm : Syntax) : TacticM (Option Expr) := do
@@ -118,6 +122,7 @@ private def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (ctx := false) : Ta
 -/
 @[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
   let ctx  ← mkSimpContext stx (eraseLocal := false)
+  -- trace[Meta.debug] "Lemmas {← toMessageData ctx.simpLemmas.post}"
   let loc := expandOptLocation stx[4]
   match loc with
   | Location.targets hUserNames simpTarget =>

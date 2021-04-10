@@ -254,7 +254,7 @@ where
       let mut updated := false
       for x in xs do
         if (← isProof x) then
-          s ← s.add x
+          s ← s.add #[] x
           updated := true
       if updated then
         withSimpLemmas s f
@@ -284,7 +284,7 @@ where
       trace[Debug.Meta.Tactic.simp] "ctx arrow {rp.expr} -> {q}"
       withLocalDeclD e.bindingName! rp.expr fun h => do
         let s ← getSimpLemmas
-        let s ← s.add h
+        let s ← s.add #[] h
         withSimpLemmas s do
           let rq ← simp q
           match rq.proof? with

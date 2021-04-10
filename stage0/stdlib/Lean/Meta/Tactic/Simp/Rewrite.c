@@ -3410,7 +3410,7 @@ uint8_t l_Lean_Meta_Simp_rewrite_inErasedSet(lean_object* x_1, lean_object* x_2)
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_ctor_get(x_2, 3);
+x_3 = lean_ctor_get(x_2, 4);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
@@ -3740,7 +3740,7 @@ lean_object* l_Lean_Meta_Simp_rewrite_tryLemma_x3f___lambda__4(lean_object* x_1,
 _start:
 {
 uint8_t x_14; 
-x_14 = lean_ctor_get_uint8(x_3, sizeof(void*)*4 + 1);
+x_14 = lean_ctor_get_uint8(x_3, sizeof(void*)*5 + 1);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
@@ -4642,10 +4642,6 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l_Lean_Meta_Simp_rewrite_tryLemma_x3f___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_9;
@@ -4734,10 +4730,10 @@ x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_2, x_6);
 x_8 = lean_array_fget(x_1, x_2);
 x_9 = lean_array_fget(x_1, x_7);
-x_10 = lean_ctor_get(x_8, 2);
+x_10 = lean_ctor_get(x_8, 3);
 lean_inc(x_10);
 lean_dec(x_8);
-x_11 = lean_ctor_get(x_9, 2);
+x_11 = lean_ctor_get(x_9, 3);
 lean_inc(x_11);
 lean_dec(x_9);
 x_12 = lean_nat_dec_lt(x_10, x_11);

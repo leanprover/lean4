@@ -765,7 +765,7 @@ where
     `first?` contains the first error message we found before updated the `discrs`. -/
   loop (discrs : Array Expr) (matchType : Expr) (altViews : Array MatchAltView) (first? : Option (SavedState × Exception))
       : TermElabM (Array Expr × Expr × Array (AltLHS × Expr) × Bool) := do
-    let s ← saveAllState
+    let s ← saveState
     match ← altViews.mapM (fun alt => elabMatchAltView alt matchType) |>.run with
     | Except.ok alts => return (discrs, matchType, alts, first?.isSome)
     | Except.error { idx := idx, ex := ex } =>
@@ -790,7 +790,7 @@ where
 
   updateFirst (first? : Option (SavedState × Exception)) (ex : Exception) : TermElabM (SavedState × Exception) := do
     match first? with
-    | none       => return (← saveAllState, ex)
+    | none       => return (← saveState, ex)
     | some first => return first
 
   containsFVar (es : Array Expr) (fvarId : FVarId) : Bool :=

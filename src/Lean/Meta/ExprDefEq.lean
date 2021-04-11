@@ -31,7 +31,7 @@ private def isDefEqEta (a b : Expr) : MetaM Bool := do
     match bType with
     | Expr.forallE n d _ c =>
       let b' := mkLambda n c.binderInfo d (mkApp b (mkBVar 0))
-      commitWhen <| Meta.isExprDefEqAux a b'
+      checkpointDefEq <| Meta.isExprDefEqAux a b'
     | _ => pure false
   else
     pure false
@@ -836,7 +836,7 @@ private partial def processAssignmentFOApprox (mvar : Expr) (args : Array Expr) 
     else
       trace[Meta.isDefEq.foApprox] "{mvar} {args} := {v}"
       let v := v.headBeta
-      if (← commitWhen <| processAssignmentFOApproxAux mvar args v) then
+      if (← checkpointDefEq <| processAssignmentFOApproxAux mvar args v) then
         pure true
       else
         match (← unfoldDefinition? v) with
@@ -1007,7 +1007,7 @@ private def tryHeuristic (t s : Expr) : MetaM Bool :=
       TODO: instead of throwing an exception as soon as we get stuck, we should just set a flag.
       Then the entry-point for `isDefEq` checks the flag before returning `true`.
     -/
-    commitWhen do
+    checkpointDefEq do
       let b ← isDefEqArgs tFn t.getAppArgs s.getAppArgs
               <&&>
               isListLevelDefEqAux tFn.constLevels! sFn.constLevels!
@@ -1315,12 +1315,12 @@ private partial def isDefEqQuickMVarMVar (t s : Expr) : MetaM LBool := do
   if s.isMVar && !t.isMVar then
      /- Solve `?m t =?= ?n` by trying first `?n := ?m t`.
         Reason: this assignment is precise. -/
-     if (← commitWhen (processAssignment s t)) then
+     if (← checkpointDefEq (processAssignment s t)) then
        pure LBool.true
      else
        toLBoolM <| processAssignment t s
   else
-     if (← commitWhen (processAssignment t s)) then
+     if (← checkpointDefEq (processAssignment t s)) then
        pure LBool.true
      else
        toLBoolM <| processAssignment s t
@@ -1363,11 +1363,11 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   let sFn := s.getAppFn
   if tFn.isConst && sFn.isConst && tFn.constName! == sFn.constName! then
     /- See comment at `tryHeuristic` explaining why we processe arguments before universe levels. -/
-    if (← commitWhen (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)) then
+    if (← checkpointDefEq (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)) then
       return true
     else
       isDefEqOnFailure t s
-  else if (← commitWhen (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)) then
+  else if (← checkpointDefEq (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)) then
     return true
   else
     isDefEqOnFailure t s

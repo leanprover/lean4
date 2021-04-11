@@ -195,20 +195,14 @@ partial def processPostponed (mayPostpone : Bool := true) : MetaM Bool := do
               return mayPostpone
       loop
 
-private def restore (env : Environment) (mctx : MetavarContext) (postponed : PersistentArray PostponedEntry) : MetaM Unit := do
-  setEnv env
-  setMCtx mctx
-  setPostponed postponed
-
 /--
-  `commitWhen x` executes `x` and process all postponed universe level constraints produced by `x`.
+  `checkpointDefEq x` executes `x` and process all postponed universe level constraints produced by `x`.
   We keep the modifications only if `processPostponed` return true and `x` returned `true`.
 
   Remark: postponed universe level constraints must be solved before returning. Otherwise,
   we don't know whether `x` really succeeded. -/
-@[specialize] def commitWhen (x : MetaM Bool) (mayPostpone : Bool := true) : MetaM Bool := do
-  let env  ← getEnv
-  let mctx ← getMCtx
+@[specialize] def checkpointDefEq (x : MetaM Bool) (mayPostpone : Bool := true) : MetaM Bool := do
+  let s ← saveState
   let postponed ← getResetPostponed
   try
     if (← x) then
@@ -217,24 +211,24 @@ private def restore (env : Environment) (mctx : MetavarContext) (postponed : Per
         setPostponed (postponed ++ newPostponed)
         return true
       else
-        restore env mctx postponed
+        s.restore
         return false
     else
-      restore env mctx postponed
+      s.restore
       return false
   catch ex =>
-    restore env mctx postponed
+    s.restore
     throw ex
 
 def isLevelDefEq (u v : Level) : MetaM Bool :=
   traceCtx `Meta.isLevelDefEq do
-    let b ← commitWhen (mayPostpone := true) <| Meta.isLevelDefEqAux u v
+    let b ← checkpointDefEq (mayPostpone := true) <| Meta.isLevelDefEqAux u v
     trace[Meta.isLevelDefEq] "{u} =?= {v} ... {if b then "success" else "failure"}"
     return b
 
 def isExprDefEq (t s : Expr) : MetaM Bool :=
   traceCtx `Meta.isDefEq <| withReader (fun ctx => { ctx with defEqCtx? := some { lhs := t, rhs := s, lctx := ctx.lctx, localInstances := ctx.localInstances } }) do
-    let b ← commitWhen (mayPostpone := true) <| Meta.isExprDefEqAux t s
+    let b ← checkpointDefEq (mayPostpone := true) <| Meta.isExprDefEqAux t s
     trace[Meta.isDefEq] "{t} =?= {s} ... {if b then "success" else "failure"}"
     return b
 

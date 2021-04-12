@@ -53,6 +53,10 @@ theorem append_assoc (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) 
   | nil => rfl
   | cons a as ih => simp [ih]
 
+theorem concat_eq_append : ∀ (l : List α) a, concat l a = l ++ [a]
+  | [], a => (append_nil _).symm
+  | x::xs, a => by simp [concat, concat_eq_append xs]
+
 instance : EmptyCollection (List α) := ⟨List.nil⟩
 
 protected def erase {α} [BEq α] : List α → α → List α
@@ -197,6 +201,16 @@ def drop : Nat → List α → List α
   | 0,   a     => a
   | n+1, []    => []
   | n+1, a::as => drop n as
+
+theorem get_cons_drop : ∀ (l : List α) i h,
+    List.get l i h :: List.drop (i + 1) l = List.drop i l
+  | _::_, 0, h => rfl
+  | _::_, i+1, h => get_cons_drop _ i _
+
+theorem drop_eq_nil_of_le : ∀ {l : List α} {k : Nat} (h : l.length ≤ k), l.drop k = []
+  | [], k, _ => by cases k <;> rfl
+  | a::l, 0, h => by simp at h; exact nomatch h
+  | a::l, k+1, h => by simp at h; exact @drop_eq_nil_of_le l k h
 
 def take : Nat → List α → List α
   | 0,   a     => []

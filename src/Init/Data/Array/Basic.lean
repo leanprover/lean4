@@ -502,6 +502,13 @@ def List.redLength : List α → Nat
 def List.toArray (as : List α) : Array α :=
   as.toArrayAux (Array.mkEmpty as.redLength)
 
+@[simp] theorem List.toArrayAux_data : ∀ (l : List α) a, (l.toArrayAux a).data = a.data ++ l
+  | [], r => (append_nil _).symm
+  | a::as, r => (toArrayAux_data as (r.push a)).trans $
+    by simp [Array.push, append_assoc, List.concat_eq_append]
+
+@[simp] theorem List.toArray_data (l : List α) : l.toArray.data = l := toArrayAux_data _ _
+
 export Array (mkArray)
 
 syntax "#[" sepBy(term, ", ") "]" : term
@@ -510,6 +517,12 @@ macro_rules
   | `(#[ $elems,* ]) => `(List.toArray [ $elems,* ])
 
 namespace Array
+
+theorem ext' : {a b : Array α} → a.data = b.data → a = b
+  | ⟨a⟩, ⟨_⟩, rfl => rfl
+
+@[simp] theorem data_toArray : (a : Array α) → a.data.toArray = a
+  | ⟨l⟩ => ext' l.toArray_data
 
 -- TODO(Leo): cleanup
 @[specialize]
@@ -699,46 +712,17 @@ def toListLitAux (a : Array α) (n : Nat) (hsz : a.size = n) : ∀ (i : Nat), i 
 def toArrayLit (a : Array α) (n : Nat) (hsz : a.size = n) : Array α :=
   List.toArray <| toListLitAux a n hsz n (hsz ▸ Nat.leRefl _) []
 
-theorem toArrayLitEq (a : Array α) (n : Nat) (hsz : a.size = n) : a = toArrayLit a n hsz :=
-  -- TODO: this is painful to prove without proper automation
-  sorry
-  /-
-  First, we need to prove
-  ∀ i j acc, i ≤ a.size → (toListLitAux a n hsz (i+1) hi acc).index j = if j < i then a.getLit j hsz _ else acc.index (j - i)
-  by induction
-
-  Base case is trivial
-  (j : Nat) (acc : List α) (hi : 0 ≤ a.size)
-       |- (toListLitAux a n hsz 0 hi acc).index j = if j < 0 then a.getLit j hsz _ else acc.index (j - 0)
-  ...  |- acc.index j = acc.index j
-
-  Induction
-
-  (j : Nat) (acc : List α) (hi : i+1 ≤ a.size)
-        |- (toListLitAux a n hsz (i+1) hi acc).index j = if j < i + 1 then a.getLit j hsz _ else acc.index (j - (i + 1))
-    ... |- (toListLitAux a n hsz i hi' (a.getLit i hsz _ :: acc)).index j = if j < i + 1 then a.getLit j hsz _ else acc.index (j - (i + 1))  * by def
-    ... |- if j < i     then a.getLit j hsz _ else (a.getLit i hsz _ :: acc).index (j-i)    * by induction hypothesis
-           =
-           if j < i + 1 then a.getLit j hsz _ else acc.index (j - (i + 1))
-  If j < i, then both are a.getLit j hsz _
-  If j = i, then lhs reduces else-branch to (a.getLit i hsz _) and rhs is then-brachn (a.getLit i hsz _)
-  If j >= i + 1, we use
-     - j - i >= 1 > 0
-     - (a::as).index k = as.index (k-1) If k > 0
-     - j - (i + 1) = (j - i) - 1
-     Then lhs = (a.getLit i hsz _ :: acc).index (j-i) = acc.index (j-i-1) = acc.index (j-(i+1)) = rhs
-
-  With this proof, we have
-
-  ∀ j, j < n → (toListLitAux a n hsz n _ []).index j = a.getLit j hsz _
-
-  We also need
-
-  - (toListLitAux a n hsz n _ []).length = n
-  - j < n -> (List.toArray as).getLit j _ _ = as.index j
-
-  Then using Array.extLit, we have that a = List.toArray <| toListLitAux a n hsz n _ []
-  -/
+theorem toArrayLitEq (a : Array α) (n : Nat) (hsz : a.size = n) : a = toArrayLit a n hsz := by
+  have _ from aux n
+  rw [List.drop_eq_nil_of_le (Nat.leOfEq hsz)] at this
+  exact (data_toArray a).symm.trans $ congrArg List.toArray (this _).symm
+where
+  aux : ∀ i hi, toListLitAux a n hsz i hi (a.data.drop i) = a.data
+  | 0, _ => rfl
+  | i+1, hi => by
+    simp [toListLitAux]
+    suffices _::_ = _ by rw this; apply aux
+    apply List.get_cons_drop
 
 partial def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) : Nat → Bool
   | i =>

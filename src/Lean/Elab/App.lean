@@ -593,21 +593,25 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
 
 /- whnfCore + implicit consumption.
    Example: given `e` with `eType := {α : Type} → (fun β => List β) α `, it produces `(e ?m, List ?m)` where `?m` is fresh metavariable. -/
-private partial def consumeImplicits (e eType : Expr) : TermElabM (Expr × Expr) := do
+private partial def consumeImplicits (stx : Syntax) (e eType : Expr) : TermElabM (Expr × Expr) := do
   let eType ← whnfCore eType
   match eType with
   | Expr.forallE n d b c =>
-    if !c.binderInfo.isExplicit then
+    if c.binderInfo.isImplicit then
       let mvar ← mkFreshExprMVar d
-      consumeImplicits (mkApp e mvar) (b.instantiate1 mvar)
+      registerMVarErrorHoleInfo mvar.mvarId! stx
+      consumeImplicits stx (mkApp e mvar) (b.instantiate1 mvar)
+    else if c.binderInfo.isInstImplicit then
+      let mvar ← mkInstMVar d
+      consumeImplicits stx (mkApp e mvar) (b.instantiate1 mvar)
     else match d.getOptParamDefault? with
-      | some defVal => consumeImplicits (mkApp e defVal) (b.instantiate1 defVal)
+      | some defVal => consumeImplicits stx (mkApp e defVal) (b.instantiate1 defVal)
       -- TODO: we do not handle autoParams here.
       | _ => pure (e, eType)
   | _ => pure (e, eType)
 
 private partial def resolveLValLoop (lval : LVal) (e eType : Expr) (previousExceptions : Array Exception) : TermElabM (Expr × LValResolution) := do
-  let (e, eType) ← consumeImplicits e eType
+  let (e, eType) ← consumeImplicits lval.getRef e eType
   tryPostponeIfMVar eType
   try
     let lvalRes ← resolveLValAux e eType lval

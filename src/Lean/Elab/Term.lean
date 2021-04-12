@@ -375,10 +375,6 @@ withRef Syntax.missing $ trace cls msg
 def ppGoal (mvarId : MVarId) : TermElabM Format :=
   Meta.ppGoal mvarId
 
-@[inline] def savingMCtx (x : TermElabM α) : TermElabM α := do
-  let mctx ← getMCtx
-  try x finally setMCtx mctx
-
 open Level (LevelElabM)
 
 def liftLevelM (x : LevelElabM α) : TermElabM α := do

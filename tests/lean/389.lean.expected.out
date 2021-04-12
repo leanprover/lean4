@@ -1,0 +1,8 @@
+389.lean:7:7-7:17: error: application type mismatch
+  getFoo bar
+argument
+  bar
+has type
+  Bar Nat : Type
+but is expected to have type
+  Foo ?m : Sort (max 1 ?u)

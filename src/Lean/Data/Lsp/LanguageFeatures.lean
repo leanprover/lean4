@@ -13,9 +13,9 @@ namespace Lsp
 open Json
 
 structure CompletionOptions where
-  triggerCharacters? : Option (Array String) := none
-  allCommitCharacters?: Option (Array String) := none
-  resolveProvider?: Bool := false
+  triggerCharacters?   : Option (Array String) := none
+  allCommitCharacters? : Option (Array String) := none
+  resolveProvider      : Bool := false
   deriving FromJson, ToJson
 
 structure CompletionItem where
@@ -77,9 +77,9 @@ inductive DocumentHighlightKind where
 
 instance : ToJson DocumentHighlightKind where
  toJson
-	| DocumentHighlightKind.text => 1
-	| DocumentHighlightKind.read => 2
-	| DocumentHighlightKind.write => 3
+        | DocumentHighlightKind.text => 1
+        | DocumentHighlightKind.read => 2
+        | DocumentHighlightKind.write => 3
 
 structure DocumentHighlight where
   range : Range
@@ -93,61 +93,61 @@ structure DocumentSymbolParams where
   deriving FromJson, ToJson
 
 inductive SymbolKind where
-	| file
-	| module
-	| «namespace»
-	| package
-	| «class»
-	| method
-	| property
-	| field
-	| constructor
-	| enum
-	| interface
-	| function
-	| «variable»
-	| «constant»
-	| string
-	| number
-	| boolean
-	| array
-	| object
-	| key
-	| null
-	| enumMember
-	| struct
-	| event
-	| operator
-	| typeParameter
+        | file
+        | module
+        | «namespace»
+        | package
+        | «class»
+        | method
+        | property
+        | field
+        | constructor
+        | enum
+        | interface
+        | function
+        | «variable»
+        | «constant»
+        | string
+        | number
+        | boolean
+        | array
+        | object
+        | key
+        | null
+        | enumMember
+        | struct
+        | event
+        | operator
+        | typeParameter
 
 instance : ToJson SymbolKind where
  toJson
-	| SymbolKind.file => 1
-	| SymbolKind.module => 2
-	| SymbolKind.namespace => 3
-	| SymbolKind.package => 4
-	| SymbolKind.class => 5
-	| SymbolKind.method => 6
-	| SymbolKind.property => 7
-	| SymbolKind.field => 8
-	| SymbolKind.constructor => 9
-	| SymbolKind.enum => 10
-	| SymbolKind.interface => 11
-	| SymbolKind.function => 12
-	| SymbolKind.variable => 13
-	| SymbolKind.constant => 14
-	| SymbolKind.string => 15
-	| SymbolKind.number => 16
-	| SymbolKind.boolean => 17
-	| SymbolKind.array => 18
-	| SymbolKind.object => 19
-	| SymbolKind.key => 20
-	| SymbolKind.null => 21
-	| SymbolKind.enumMember => 22
-	| SymbolKind.struct => 23
-	| SymbolKind.event => 24
-	| SymbolKind.operator => 25
-	| SymbolKind.typeParameter => 26
+        | SymbolKind.file => 1
+        | SymbolKind.module => 2
+        | SymbolKind.namespace => 3
+        | SymbolKind.package => 4
+        | SymbolKind.class => 5
+        | SymbolKind.method => 6
+        | SymbolKind.property => 7
+        | SymbolKind.field => 8
+        | SymbolKind.constructor => 9
+        | SymbolKind.enum => 10
+        | SymbolKind.interface => 11
+        | SymbolKind.function => 12
+        | SymbolKind.variable => 13
+        | SymbolKind.constant => 14
+        | SymbolKind.string => 15
+        | SymbolKind.number => 16
+        | SymbolKind.boolean => 17
+        | SymbolKind.array => 18
+        | SymbolKind.object => 19
+        | SymbolKind.key => 20
+        | SymbolKind.null => 21
+        | SymbolKind.enumMember => 22
+        | SymbolKind.struct => 23
+        | SymbolKind.event => 24
+        | SymbolKind.operator => 25
+        | SymbolKind.typeParameter => 26
 
 structure DocumentSymbolAux (Self : Type) where
   name : String

@@ -127,7 +127,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
       `(Syntax.node $(quote k) $args)
   | Syntax.atom _ val =>
     `(Syntax.atom info $(quote val))
-  | Syntax.missing => unreachable!
+  | Syntax.missing => throwUnsupportedSyntax
 
 def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
   /- Syntax quotations are monadic values depending on the current macro scope. For efficiency, we bind

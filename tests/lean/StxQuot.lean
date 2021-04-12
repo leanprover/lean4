@@ -5,6 +5,7 @@ open Lean.Elab
 
 def run {α} [ToString α] : Unhygienic α → String := toString ∘ Unhygienic.run
 
+#eval run `()
 #eval run `(Nat.one)
 #eval run `($Syntax.missing)
 namespace Lean.Syntax
@@ -14,6 +15,7 @@ namespace Lean.Syntax
 #eval run $ let id := Syntax.missing; `($id + 1)
 end Lean.Syntax
 #eval run `(1 + 1)
+#eval run `([x,])
 #eval run $ `(fun a => a) >>= pure
 #eval run $ `(def foo := 1)
 #eval run $ `(def foo := 1 def bar := 2)

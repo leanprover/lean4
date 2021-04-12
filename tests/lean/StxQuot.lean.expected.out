@@ -1,3 +1,8 @@
+StxQuot.lean:8:12: error: expected command, identifier or term
+StxQuot.lean:8:10-8:12: error: unexpected syntax
+  failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)
+StxQuot.lean:8:0-8:12: error: failed to synthesize
+  MetaEval ?m
 "`Nat.one._@.UnhygienicMain._hyg.1"
 "<missing>"
 "<missing>"
@@ -5,6 +10,11 @@
 "(term_+_ <missing> \"+\" (numLit \"1\"))"
 "(term_+_ <missing> \"+\" (numLit \"1\"))"
 "(term_+_ (numLit \"1\") \"+\" (numLit \"1\"))"
+StxQuot.lean:18:15: error: expected term
+StxQuot.lean:18:10-18:15: error: unexpected syntax
+  failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)
+StxQuot.lean:18:0-18:15: error: failed to synthesize
+  MetaEval ?m
 "(Term.fun \"fun\" (Term.basicFun [`a._@.UnhygienicMain._hyg.1] \"=>\" `a._@.UnhygienicMain._hyg.1))"
 "(Command.declaration\n (Command.declModifiers [] [] [] [] [] [])\n (Command.def\n  \"def\"\n  (Command.declId `foo._@.UnhygienicMain._hyg.1 [])\n  (Command.optDeclSig [] [])\n  (Command.declValSimple \":=\" (numLit \"1\") [])))"
 "[(Command.declaration\n  (Command.declModifiers [] [] [] [] [] [])\n  (Command.def\n   \"def\"\n   (Command.declId `foo._@.UnhygienicMain._hyg.1 [])\n   (Command.optDeclSig [] [])\n   (Command.declValSimple \":=\" (numLit \"1\") [])))\n (Command.declaration\n  (Command.declModifiers [] [] [] [] [] [])\n  (Command.def\n   \"def\"\n   (Command.declId `bar._@.UnhygienicMain._hyg.1 [])\n   (Command.optDeclSig [] [])\n   (Command.declValSimple \":=\" (numLit \"2\") [])))]"
@@ -41,6 +51,6 @@
 "(Term.sufficesDecl [] `x._@.UnhygienicMain._hyg.1 (Term.fromTerm \"from\" `x._@.UnhygienicMain._hyg.1))"
 "#[(numLit \"1\"), [(numLit \"2\") (numLit \"3\")], (numLit \"4\")]"
 "#[(numLit \"2\")]"
-StxQuot.lean:92:39-92:44: error: unexpected antiquotation splice
+StxQuot.lean:94:39-94:44: error: unexpected antiquotation splice
 fun (a : ?m) => sorry : (a : ?m) → ?m a
 "#[(some 1), (some 2)]"

@@ -375,10 +375,6 @@ withRef Syntax.missing $ trace cls msg
 def ppGoal (mvarId : MVarId) : TermElabM Format :=
   Meta.ppGoal mvarId
 
-@[inline] def savingMCtx (x : TermElabM α) : TermElabM α := do
-  let mctx ← getMCtx
-  try x finally setMCtx mctx
-
 open Level (LevelElabM)
 
 def liftLevelM (x : LevelElabM α) : TermElabM α := do
@@ -707,21 +703,22 @@ def isMonadApp (type : Expr) : TermElabM Bool := do
   x + x  -- Error: failed to synthesize `Add (IO Nat)`
   ```
 -/
-private def tryPureCoe? (errorMsgHeader? : Option String) (m β α a : Expr) : TermElabM (Option Expr) := do
-  let doIt : TermElabM (Option Expr) := do
-    try
-      let aNew ← tryCoe errorMsgHeader? β α a none
-      let aNew ← mkPure m aNew
-      pure (some aNew)
-    catch _ =>
-      pure none
-  forallTelescope α fun _ α => do
-    if (← isMonadApp α) then
-      pure none
-    else if !α.getAppFn.isMVar  then
-      doIt
-    else
-      pure none
+private def tryPureCoe? (errorMsgHeader? : Option String) (m β α a : Expr) : TermElabM (Option Expr) :=
+  commitWhenSome? do
+    let doIt : TermElabM (Option Expr) := do
+      try
+        let aNew ← tryCoe errorMsgHeader? β α a none
+        let aNew ← mkPure m aNew
+        pure (some aNew)
+      catch _ =>
+        pure none
+    forallTelescope α fun _ α => do
+      if (← isMonadApp α) then
+        pure none
+      else if !α.getAppFn.isMVar  then
+        doIt
+      else
+        pure none
 
 /-
 Try coercions and monad lifts to make sure `e` has type `expectedType`.

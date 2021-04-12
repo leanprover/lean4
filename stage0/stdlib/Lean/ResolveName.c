@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Std_HashMapImp_expand___at_Lean_addAliasEntry___spec__14(lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_toString___closed__1;
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2960____closed__4;
 lean_object* l_Lean_extractMacroScopes(lean_object*);
 size_t l_USize_add(size_t, size_t);
 extern lean_object* l_Lean_Name_getString_x21___closed__3;
@@ -259,6 +258,7 @@ lean_object* l_Lean_SMap_find_x3f___at_Lean_addAliasEntry___spec__1(lean_object*
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_initFn____x40_Lean_ResolveName___hyg_55____spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveOpenDecls(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_ResolveName_resolveGlobalName_loop___spec__4(lean_object*, lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2993____closed__4;
 lean_object* l_Lean_ResolveName_resolveNamespaceUsingOpenDecls(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getAliasState(lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
@@ -2056,7 +2056,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_initFn____x40_Lean_ResolveName___hyg_55____closed__2;
 x_2 = l_Lean_initFn____x40_Lean_ResolveName___hyg_55____closed__3;
 x_3 = l_Lean_initFn____x40_Lean_ResolveName___hyg_55____closed__4;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2960____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2993____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

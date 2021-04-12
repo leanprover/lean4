@@ -34,6 +34,7 @@ lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparenc
 lean_object* l_Lean_Meta_instReprTransparencyMode;
 lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_beqTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_11__match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_59____closed__9;
+extern lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1449____closed__4;
 lean_object* l_Lean_Meta_instBEqTransparencyMode___closed__1;
 lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_59____closed__17;
 lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_59____closed__8;
@@ -46,7 +47,6 @@ lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparenc
 lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_59____closed__13;
 lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_59____closed__23;
 lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_59____closed__6;
-extern lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1382____closed__4;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_beqTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_11__match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_TransparencyMode_lt_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -399,7 +399,7 @@ static lean_object* _init_l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_re
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1382____closed__4;
+x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1449____closed__4;
 x_2 = l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_59____closed__2;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -465,7 +465,7 @@ static lean_object* _init_l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_re
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1382____closed__4;
+x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1449____closed__4;
 x_2 = l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_59____closed__8;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -531,7 +531,7 @@ static lean_object* _init_l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_re
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1382____closed__4;
+x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1449____closed__4;
 x_2 = l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_59____closed__14;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -597,7 +597,7 @@ static lean_object* _init_l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_re
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1382____closed__4;
+x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1449____closed__4;
 x_2 = l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_59____closed__20;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

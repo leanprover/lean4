@@ -57,9 +57,9 @@ lean_object* l_List_foldlM___at_Lean_Meta_induction___spec__6___lambda__1(lean_o
 lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__7___closed__7;
 lean_object* l_Lean_Meta_induction___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_induction___closed__3;
+extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_238____closed__1;
 extern lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_mkAnswer___closed__4;
 lean_object* l_Lean_Meta_InductionSubgoal_fields___default;
-extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_236____closed__1;
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -73,7 +73,7 @@ lean_object* l_Lean_Meta_instInhabitedInductionSubgoal;
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_LocalContext_getFVars___spec__1(size_t, size_t, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams___closed__4;
-lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_2572_(lean_object*);
+lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_2578_(lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop___lambda__3___closed__3;
@@ -5665,7 +5665,7 @@ static lean_object* _init_l_Lean_Meta_induction___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_236____closed__1;
+x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_238____closed__1;
 x_2 = l_Lean_Parser_Tactic_induction___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -6065,7 +6065,7 @@ lean_dec(x_6);
 return x_12;
 }
 }
-lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_2572_(lean_object* x_1) {
+lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_2578_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -6212,7 +6212,7 @@ l_Lean_Meta_induction___closed__2 = _init_l_Lean_Meta_induction___closed__2();
 lean_mark_persistent(l_Lean_Meta_induction___closed__2);
 l_Lean_Meta_induction___closed__3 = _init_l_Lean_Meta_induction___closed__3();
 lean_mark_persistent(l_Lean_Meta_induction___closed__3);
-res = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_2572_(lean_io_mk_world());
+res = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_2578_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

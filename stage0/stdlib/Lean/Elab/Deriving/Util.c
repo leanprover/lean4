@@ -20,7 +20,6 @@ extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__4;
 lean_object* lean_erase_macro_scopes(lean_object*);
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Elab_Deriving_mkInstImplicitBinders___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_mkInstanceCmds___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_373____closed__22;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_15419____closed__1;
 extern lean_object* l_instReprSigma___rarg___closed__2;
 lean_object* l_Lean_Elab_Deriving_mkInstImplicitBinders___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -39,6 +38,7 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_2278____closed__2;
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_13954____closed__4;
 extern lean_object* l_Lean_getConstInfoInduct___rarg___lambda__1___closed__2;
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_377____closed__22;
 extern lean_object* l_Lean_command__Unif__hint______Where___x7c_x2d_u22a2_____closed__3;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*);
 lean_object* l_Lean_Meta_mkAppM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -180,7 +180,7 @@ lean_object* l_Lean_Elab_Deriving_mkInductArgNames___lambda__1___boxed(lean_obje
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1160____closed__2;
 lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_mkContext___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1128____closed__1;
+extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1131____closed__1;
 lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Elab_Deriving_mkInstImplicitBinders___spec__3(lean_object*);
 extern lean_object* l_instReprSigma___rarg___closed__6;
 lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_mkHeader___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -723,7 +723,7 @@ lean_ctor_set(x_32, 1, x_30);
 x_33 = lean_array_push(x_28, x_32);
 x_34 = l_myMacro____x40_Init_Notation___hyg_1481____closed__8;
 x_35 = lean_array_push(x_33, x_34);
-x_36 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_373____closed__22;
+x_36 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_377____closed__22;
 x_37 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_37, 0, x_19);
 lean_ctor_set(x_37, 1, x_36);
@@ -1540,7 +1540,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_mkContext___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1128____closed__1;
+x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1131____closed__1;
 x_2 = l_Lean_Elab_Deriving_mkContext___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

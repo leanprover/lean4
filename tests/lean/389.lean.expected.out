@@ -6,3 +6,4 @@ has type
   Bar Nat : Type
 but is expected to have type
   Foo ?m : Sort (max 1 ?u)
+getFoo bar.toFoo : Nat

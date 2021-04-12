@@ -97,6 +97,7 @@ lean_object* l_Lean_Meta_transform_visit___at___private_Lean_Meta_Tactic_Simp_Ma
 lean_object* l_Lean_Meta_mkCongrFun(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_simpStep(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isApp(lean_object*);
+extern lean_object* l_instReprBool___closed__1;
 lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Meta_Simp_simp_simpLambda___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_Simp_simp_simpForall___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_simp_simpArrow___closed__11;
@@ -138,7 +139,6 @@ lean_object* l_Lean_Meta_Simp_main___closed__1;
 lean_object* l_Lean_Meta_withLetDecl___at___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_dsimp___spec__9(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_postDefault(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_simp_tryCongrLemma_x3f___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_instReprBool___closed__2;
 extern lean_object* l_Lean_Meta_Simp_instInhabitedResult;
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_reduceProjFn_x3f_match__1(lean_object*);
@@ -148,7 +148,6 @@ lean_object* l___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_dsimp(lean
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_simp_withNewLemmas_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqRefl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_instReprBool___closed__4;
 lean_object* l_ReaderT_bind___at_Lean_Meta_Simp_simp_simpForall___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_simp_processCongrHypothesis___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f___at_Lean_Meta_Simp_simp___spec__2___boxed(lean_object*, lean_object*);
@@ -209,6 +208,7 @@ lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint
 lean_object* l_Lean_Meta_Simp_simp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_simp_tryCongrLemma_x3f_match__3(lean_object*);
+extern lean_object* l_instReprBool___closed__3;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21870____closed__5;
 lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
@@ -224,6 +224,7 @@ lean_object* l_Lean_Meta_Simp_simp_simpLet___closed__4;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_transform_visit_visitLambda___at___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_dsimp___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_dsimp___spec__11___boxed__const__1;
+extern lean_object* l_Lean_Meta_Simp_synthesizeArgs_synthesizeInstance___closed__2;
 lean_object* l___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_mkCongrFun(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_simp_simpArrow___closed__6;
 lean_object* l___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_dsimp___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -449,7 +450,6 @@ extern lean_object* l_Array_findSomeM_x3f___rarg___closed__1;
 lean_object* l_Lean_Meta_Simp_simp_simpStep___closed__1;
 lean_object* l___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_reduce___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_simp_tryCongrLemma_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_synthesizeArgs___spec__3___closed__2;
 lean_object* l_Lean_Meta_Simp_simp_simpStep___closed__2;
 lean_object* l_Lean_Meta_Simp_simp_simpLet___closed__6;
 lean_object* l_Lean_Meta_withLetDecl___at___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_dsimp___spec__9___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -12701,13 +12701,13 @@ _start:
 if (x_1 == 0)
 {
 lean_object* x_2; 
-x_2 = l_instReprBool___closed__2;
+x_2 = l_instReprBool___closed__1;
 return x_2;
 }
 else
 {
 lean_object* x_3; 
-x_3 = l_instReprBool___closed__4;
+x_3 = l_instReprBool___closed__3;
 return x_3;
 }
 }
@@ -16563,7 +16563,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simp_tryC
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_synthesizeArgs___spec__3___closed__2;
+x_1 = l_Lean_Meta_Simp_synthesizeArgs_synthesizeInstance___closed__2;
 x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_1502____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

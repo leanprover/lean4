@@ -649,7 +649,6 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabDiscrsWitMatchType___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabPatterns___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Term_saveAllState___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabInaccessible___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAux_match__4(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_CollectPatternVars_main___spec__3(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -884,6 +883,7 @@ lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_withElaboratedLHS___r
 lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_1564____closed__1;
 lean_object* l_List_map___at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAltView___spec__2(lean_object*);
 lean_object* l_Array_insertAt___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Term_saveState___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAltViews_loop___boxed__const__1;
 lean_object* l_List_forIn_loop___at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAux___spec__4___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_getPatternsVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -24950,7 +24950,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_10; uint8_t x_11; 
-x_10 = l_Lean_Elab_Term_saveAllState___rarg(x_4, x_5, x_6, x_7, x_8, x_9);
+x_10 = l_Lean_Elab_Term_saveState___rarg(x_4, x_5, x_6, x_7, x_8, x_9);
 x_11 = !lean_is_exclusive(x_10);
 if (x_11 == 0)
 {
@@ -25195,7 +25195,7 @@ lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAltViews_loo
 _start:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; size_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_12 = l_Lean_Elab_Term_saveAllState___rarg(x_6, x_7, x_8, x_9, x_10, x_11);
+x_12 = l_Lean_Elab_Term_saveState___rarg(x_6, x_7, x_8, x_9, x_10, x_11);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);

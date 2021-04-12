@@ -212,7 +212,6 @@ lean_object* l_Lean_Meta_throwAppTypeMismatch___rarg(lean_object*, lean_object*,
 lean_object* l_Lean_Meta_mkDecideProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqOfHEq_match__1(lean_object*);
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_598____closed__2;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_3499____closed__7;
 extern lean_object* l_Lean_instInhabitedExpr;
 lean_object* l_Lean_Meta_mkEqSymm___closed__5;
@@ -342,6 +341,7 @@ lean_object* l_Lean_Meta_mkArbitrary___closed__2;
 lean_object* l_Lean_Meta_getMVarDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqNDRec_match__1(lean_object*);
 lean_object* l_Lean_Meta_instantiateMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_691____closed__2;
 lean_object* l_Lean_isSubobjectField_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isMonad_x3f___closed__2;
@@ -6104,7 +6104,7 @@ static lean_object* _init_l_Lean_Meta_mkAppM___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_598____closed__2;
+x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_691____closed__2;
 x_2 = l_Lean_Meta_mkAppM___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

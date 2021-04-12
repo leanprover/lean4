@@ -39,7 +39,6 @@ extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 lean_object* l_Lean_KVMap_setString(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_setOptionFromString_match__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
-extern lean_object* l_instReprBool___closed__1;
 lean_object* l_Lean_Option_get___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getOptionDefaulValue(lean_object*, lean_object*);
 lean_object* l_Lean_getOptionDecls(lean_object*);
@@ -52,6 +51,7 @@ lean_object* l_Lean_KVMap_instToStringKVMap(lean_object*);
 lean_object* l_IO_mkRef___at___private_Lean_Data_Options_0__Lean_initOptionDeclsRef___spec__1(lean_object*, lean_object*);
 lean_object* l_String_splitOn(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
+extern lean_object* l_instReprBool___closed__2;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_1481____closed__8;
 lean_object* l_Lean_getOptionDecl___closed__1;
 uint8_t l_Lean_NameMap_contains___rarg(lean_object*, lean_object*);
@@ -65,6 +65,7 @@ lean_object* l_Lean_getNatOption(lean_object*);
 lean_object* l_Lean_getBoolOption___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Option_get___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_113____spec__1(lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 lean_object* l_Lean_Option_setIfNotSet___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerOption___closed__1;
 lean_object* l_Lean_registerOption___closed__2;
@@ -85,7 +86,6 @@ lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_879____closed_
 lean_object* l_Lean_setOptionFromString_match__4(lean_object*);
 lean_object* l_Lean_instMonadOptions___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_879_(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_instReprBool___closed__3;
 extern lean_object* l_Lean_instInhabitedDataValue___closed__1;
 lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_879____closed__11;
 lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -1072,7 +1072,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_instReprBool___closed__3;
+x_2 = l_instReprBool___closed__2;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -1082,7 +1082,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_instReprBool___closed__1;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

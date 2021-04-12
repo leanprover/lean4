@@ -162,7 +162,6 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_13954____closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabDoElems___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_373____closed__15;
 lean_object* l_Lean_PrettyPrinter_Delaborator_getParamKinds___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_instReprBool___closed__1;
 lean_object* l_Array_anyMUnsafe_any___at_Lean_PrettyPrinter_Delaborator_delabAppExplicit___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_PrettyPrinter_Delaborator_getParamKinds___spec__1___closed__3;
 lean_object* l_Lean_PrettyPrinter_Delaborator_withMDataExpr___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -228,6 +227,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_delabDoElems___lambda__1(lean_obje
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppMatch___closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppWithUnexpander_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_hasIdent_match__1(lean_object*);
+extern lean_object* l_instReprBool___closed__2;
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabDIte_delabBranch___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_elabScientificLit___closed__1;
@@ -276,6 +276,7 @@ lean_object* l_Array_anyMUnsafe_any___at_Lean_PrettyPrinter_Delaborator_hasIdent
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabMData_match__3(lean_object*);
 extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_373____closed__4;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_PrettyPrinter_Delaborator_delabAppMatch___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabDo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfScientific___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabSort_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -359,7 +360,6 @@ lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 extern lean_object* l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__43;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabListToArray___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_delabPatterns_usingNamesAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_instReprBool___closed__3;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabTuple___lambda__1___closed__1;
 lean_object* l___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_shouldGroupWithNext(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabIte(lean_object*);
@@ -18217,13 +18217,13 @@ x_22 = lean_ctor_get(x_1, 1);
 lean_dec(x_22);
 x_23 = lean_ctor_get(x_1, 0);
 lean_dec(x_23);
-x_24 = l_instReprBool___closed__3;
+x_24 = l_instReprBool___closed__2;
 x_25 = lean_string_dec_eq(x_11, x_24);
 if (x_25 == 0)
 {
 lean_object* x_26; uint8_t x_27; 
 lean_dec(x_2);
-x_26 = l_instReprBool___closed__1;
+x_26 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 x_27 = lean_string_dec_eq(x_11, x_26);
 if (x_27 == 0)
 {
@@ -18268,13 +18268,13 @@ else
 {
 lean_object* x_37; uint8_t x_38; 
 lean_dec(x_1);
-x_37 = l_instReprBool___closed__3;
+x_37 = l_instReprBool___closed__2;
 x_38 = lean_string_dec_eq(x_11, x_37);
 if (x_38 == 0)
 {
 lean_object* x_39; uint8_t x_40; 
 lean_dec(x_2);
-x_39 = l_instReprBool___closed__1;
+x_39 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 x_40 = lean_string_dec_eq(x_11, x_39);
 if (x_40 == 0)
 {
@@ -18351,13 +18351,13 @@ if (lean_is_exclusive(x_1)) {
  lean_dec_ref(x_1);
  x_56 = lean_box(0);
 }
-x_57 = l_instReprBool___closed__3;
+x_57 = l_instReprBool___closed__2;
 x_58 = lean_string_dec_eq(x_11, x_57);
 if (x_58 == 0)
 {
 lean_object* x_59; uint8_t x_60; 
 lean_dec(x_2);
-x_59 = l_instReprBool___closed__1;
+x_59 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 x_60 = lean_string_dec_eq(x_11, x_59);
 if (x_60 == 0)
 {
@@ -18454,13 +18454,13 @@ if (lean_is_exclusive(x_1)) {
  lean_dec_ref(x_1);
  x_81 = lean_box(0);
 }
-x_82 = l_instReprBool___closed__3;
+x_82 = l_instReprBool___closed__2;
 x_83 = lean_string_dec_eq(x_73, x_82);
 if (x_83 == 0)
 {
 lean_object* x_84; uint8_t x_85; 
 lean_dec(x_2);
-x_84 = l_instReprBool___closed__1;
+x_84 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 x_85 = lean_string_dec_eq(x_73, x_84);
 if (x_85 == 0)
 {
@@ -18877,12 +18877,12 @@ return x_39;
 else
 {
 lean_object* x_40; uint8_t x_41; 
-x_40 = l_instReprBool___closed__3;
+x_40 = l_instReprBool___closed__2;
 x_41 = lean_string_dec_eq(x_31, x_40);
 if (x_41 == 0)
 {
 lean_object* x_42; uint8_t x_43; 
-x_42 = l_instReprBool___closed__1;
+x_42 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 x_43 = lean_string_dec_eq(x_31, x_42);
 lean_dec(x_31);
 if (x_43 == 0)

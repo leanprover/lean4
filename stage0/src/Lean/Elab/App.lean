@@ -890,7 +890,7 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
       let lctx ← getLCtx
       let opts ← getOptions
       let msgs : Array MessageData := successes.map fun success => match success with
-        | EStateM.Result.ok e s => MessageData.withContext { env := s.core.env, mctx := s.meta.mctx, lctx := lctx, opts := opts } e
+        | EStateM.Result.ok e s => MessageData.withContext { env := s.meta.core.env, mctx := s.meta.meta.mctx, lctx := lctx, opts := opts } e
         | _                     => unreachable!
       throwErrorAt f "ambiguous, possible interpretations {toMessageList msgs}"
     else

@@ -83,6 +83,10 @@ instance : MonadTrace CoreM where
   getTraceState := return (← get).traceState
   modifyTraceState f := modify fun s => { s with traceState := f s.traceState }
 
+/-- Restore backtrackable parts of the state. -/
+def restore (b : State) : CoreM Unit :=
+  modify fun s => { s with env := b.env }
+
 private def mkFreshNameImp (n : Name) : CoreM Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
   return addMacroScope (← getEnv).mainModule n fresh

@@ -15,7 +15,7 @@ open Meta
 @[builtinTermElab binrel] def elabBinRel : TermElab :=  fun stx expectedType? => do
   match (← resolveId? stx[1]) with
   | some f =>
-    let s ← saveAllState
+    let s ← saveState
     let (lhs, rhs) ← withSynthesize (mayPostpone := true) do
       let mut lhs ← elabTerm stx[2] none
       let mut rhs ← elabTerm stx[3] none

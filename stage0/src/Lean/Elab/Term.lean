@@ -185,20 +185,22 @@ instance : Inhabited (TermElabM α) where
   default := throw arbitrary
 
 structure SavedState where
-  core   : Core.State
-  meta   : Meta.State
+  meta   : Meta.SavedState
   «elab» : State
   deriving Inhabited
 
-def saveAllState : TermElabM SavedState := do
-  pure { core := (← getThe Core.State), meta := (← getThe Meta.State), «elab» := (← get) }
+protected def saveState : TermElabM SavedState := do
+  pure { meta := (← Meta.saveState), «elab» := (← get) }
 
 def SavedState.restore (s : SavedState) : TermElabM Unit := do
   let traceState ← getTraceState -- We never backtrack trace message
-  set s.core
-  set s.meta
+  s.meta.restore
   set s.elab
   setTraceState traceState
+
+instance : MonadBacktrack SavedState TermElabM where
+  saveState      := Term.saveState
+  restoreState b := b.restore
 
 abbrev TermElabResult (α : Type) := EStateM.Result Exception SavedState α
 
@@ -219,15 +221,15 @@ def getMessageLog : TermElabM MessageLog :=
   If `x` fails, then it also stores exception and new state.
   Remark: we do not capture `Exception.postpone`. -/
 @[inline] def observing (x : TermElabM α) : TermElabM (TermElabResult α) := do
-  let s ← saveAllState
+  let s ← saveState
   try
     let e ← x
-    let sNew ← saveAllState
+    let sNew ← saveState
     s.restore
     pure (EStateM.Result.ok e sNew)
   catch
     | ex@(Exception.error _ _) =>
-      let sNew ← saveAllState
+      let sNew ← saveState
       s.restore
       pure (EStateM.Result.error ex sNew)
     | ex@(Exception.internal id _) =>
@@ -965,7 +967,7 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
             throw ex
 
 private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool) : TermElabM Expr := do
-  let s ← saveAllState
+  let s ← saveState
   let table := termElabAttribute.ext.getState (← getEnv) |>.table
   let k := stx.getKind
   match table.find? k with
@@ -1189,9 +1191,9 @@ partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
               s.restore
               withLocalDecl n BinderInfo.implicit (← mkFreshTypeMVar) fun x =>
                 withReader (fun ctx => { ctx with autoBoundImplicits := ctx.autoBoundImplicits.push x } ) do
-                  loop (← saveAllState)
+                  loop (← saveState)
             | none   => throw ex
-      loop (← saveAllState)
+      loop (← saveState)
   else
     k
 

@@ -87,7 +87,6 @@ lean_object* l_Lean_Elab_Term_elabBinRel___lambda__1___boxed(lean_object*, lean_
 lean_object* l_Lean_Meta_trySynthInstance(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_8308____closed__2;
 lean_object* l_Lean_mkLevelSucc(lean_object*);
-lean_object* l_Lean_Elab_Term_saveAllState___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabForIn(lean_object*);
 lean_object* l_Lean_Elab_Term_SavedState_restore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabBinRel_match__1___rarg(lean_object*, lean_object*);
@@ -115,6 +114,7 @@ lean_object* l_Lean_indentExpr(lean_object*);
 lean_object* l_Lean_Elab_Term_isLocalIdent_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabForIn___closed__7;
+lean_object* l_Lean_Elab_Term_saveState___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabForIn_getMonad___closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Term_elabBinRel___closed__1;
 lean_object* l_Lean_Elab_Term_elabForIn_throwFailure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -554,7 +554,7 @@ if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 x_20 = lean_ctor_get(x_14, 0);
-x_21 = l_Lean_Elab_Term_saveAllState___rarg(x_4, x_5, x_6, x_7, x_8, x_18);
+x_21 = l_Lean_Elab_Term_saveState___rarg(x_4, x_5, x_6, x_7, x_8, x_18);
 x_22 = lean_ctor_get(x_21, 0);
 lean_inc(x_22);
 x_23 = lean_ctor_get(x_21, 1);
@@ -1626,7 +1626,7 @@ lean_object* x_202; lean_object* x_203; lean_object* x_204; lean_object* x_205; 
 x_202 = lean_ctor_get(x_14, 0);
 lean_inc(x_202);
 lean_dec(x_14);
-x_203 = l_Lean_Elab_Term_saveAllState___rarg(x_4, x_5, x_6, x_7, x_8, x_18);
+x_203 = l_Lean_Elab_Term_saveState___rarg(x_4, x_5, x_6, x_7, x_8, x_18);
 x_204 = lean_ctor_get(x_203, 0);
 lean_inc(x_204);
 x_205 = lean_ctor_get(x_203, 1);

@@ -55,14 +55,14 @@ namespace Lean.Meta
   let (fvars, mvarId) ← loop n lctx #[] 0 s mvarType
   pure (fvars.map Expr.fvarId!, mvarId)
 
-register_builtin_option hygienicIntro : Bool := {
+register_builtin_option tactic.hygienic : Bool := {
   defValue := true
   group    := "tactic"
-  descr    := "make sure 'intro'-like tactics are hygienic"
+  descr    := "make sure tactics are hygienic"
 }
 
 def getHygienicIntro : MetaM Bool := do
-  return hygienicIntro.get (← getOptions)
+  return tactic.hygienic.get (← getOptions)
 
 private def mkAuxNameImp (preserveBinderNames : Bool) (hygienic : Bool) (useNamesForExplicitOnly : Bool)
     (lctx : LocalContext) (binderName : Name) (isExplicit : Bool) : List Name → MetaM (Name × List Name)

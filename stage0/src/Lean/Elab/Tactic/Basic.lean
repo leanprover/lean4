@@ -34,30 +34,26 @@ structure State where
   goals : List MVarId
   deriving Inhabited
 
-structure BacktrackableState where
-  env   : Environment
-  mctx  : MetavarContext
-  term  : Term.State
-  goals : List MVarId
+structure SavedState where
+  term   : Term.SavedState
+  tactic : State
 
 abbrev TacticM := ReaderT Context $ StateRefT State TermElabM
 abbrev Tactic  := Syntax → TacticM Unit
 
-def saveBacktrackableState : TacticM BacktrackableState := do
-  pure { env := (← getEnv), mctx := (← getMCtx), term := (← getThe Term.State), goals := (← get).goals }
+protected def saveState : TacticM SavedState :=
+  return { term := (← Term.saveState), tactic := (← get) }
 
-def BacktrackableState.restore (b : BacktrackableState) : TacticM Unit := do
-  setEnv b.env
-  setMCtx b.mctx
-  let infoState ← getInfoState -- we do not backtrack info state
-  let msgLog ← Term.getMessageLog -- we do not backtrack the message log
-  set b.term
-  Term.setMessageLog msgLog
-  modifyInfoState fun _ => infoState
-  modify fun s => { s with goals := b.goals }
+def SavedState.restore (b : SavedState) : TacticM Unit := do
+  b.term.restore
+  set b.tactic
+
+instance : MonadBacktrack SavedState TacticM where
+  saveState := Tactic.saveState
+  restoreState b := b.restore
 
 @[inline] protected def tryCatch {α} (x : TacticM α) (h : Exception → TacticM α) : TacticM α := do
-  let b ← saveBacktrackableState
+  let b ← saveState
   try x catch ex => b.restore; h ex
 
 instance : MonadExcept Exception TacticM where
@@ -69,23 +65,6 @@ instance : MonadExcept Exception TacticM where
 
 instance {α} : OrElse (TacticM α) where
   orElse := Tactic.orElse
-
-structure SavedState where
-  core   : Core.State
-  meta   : Meta.State
-  term   : Term.State
-  tactic : State
-  deriving Inhabited
-
-def saveAllState : TacticM SavedState := do
-  pure { core := (← getThe Core.State), meta := (← getThe Meta.State), term := (← getThe Term.State), tactic := (← get) }
-
-def SavedState.restore (s : SavedState) : TacticM Unit := do
-  set s.core; set s.meta; set s.term; set s.tactic
-
-def withoutModifyingState (x : TacticM α) : TacticM α := do
-  let s ← saveAllState
-  try x finally s.restore
 
 protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Term.Context).currMacroScope
 protected def getMainModule     : TacticM Name       := do pure (← getEnv).mainModule
@@ -145,7 +124,7 @@ mutual
           stx.getArgs.forM evalTactic
         else do
           trace[Elab.step] "{stx}"
-          let s ← saveAllState
+          let s ← saveState
           let table := (tacticElabAttribute.ext.getState (← getEnv)).table
           let k := stx.getKind
           match table.find? k with

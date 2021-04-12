@@ -67,7 +67,6 @@ lean_object* l_Lean_Compiler_foldUIntSub(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldToNat___rarg(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_natFoldFns___closed__19;
-extern lean_object* l_instReprBool___closed__1;
 lean_object* l_Lean_Compiler_foldNatDecLe___closed__2;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__9;
 lean_object* l_Lean_Compiler_foldUIntSub___boxed(lean_object*, lean_object*, lean_object*);
@@ -95,6 +94,7 @@ lean_object* l_Lean_Compiler_foldNatMul___boxed(lean_object*);
 lean_object* l_Lean_Compiler_binFoldFns___closed__2;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__22;
 lean_object* l_Lean_Compiler_NumScalarTypeInfo_toNatFn___default___closed__1;
+extern lean_object* l_instReprBool___closed__2;
 lean_object* l_Lean_Compiler_uintFoldToNatFns;
 lean_object* l_Lean_Compiler_foldNatDecLe___closed__1;
 extern lean_object* l_Lean_instQuoteBool___closed__1;
@@ -118,6 +118,7 @@ lean_object* l_Lean_Compiler_binFoldFns;
 lean_object* l_Lean_Compiler_mkNatLe___closed__2;
 lean_object* l_Lean_mkDecIsTrue(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldStrictOr___rarg(lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 lean_object* l_Lean_Compiler_natFoldFns___closed__7;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__21;
 lean_object* l_List_lookup___at_Lean_Compiler_findUnFoldFn___spec__1(lean_object*, lean_object*);
@@ -161,7 +162,6 @@ lean_object* l_Lean_Compiler_numScalarTypes___closed__15;
 lean_object* l_List_lookup___at_Lean_Compiler_findUnFoldFn___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_numScalarTypes___closed__14;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__12;
-extern lean_object* l_instReprBool___closed__3;
 lean_object* l_Lean_Compiler_boolFoldFns___closed__8;
 lean_object* l_Lean_Compiler_getBoolLit_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldUIntMod___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -3264,13 +3264,13 @@ x_22 = lean_ctor_get(x_1, 1);
 lean_dec(x_22);
 x_23 = lean_ctor_get(x_1, 0);
 lean_dec(x_23);
-x_24 = l_instReprBool___closed__3;
+x_24 = l_instReprBool___closed__2;
 x_25 = lean_string_dec_eq(x_11, x_24);
 if (x_25 == 0)
 {
 lean_object* x_26; uint8_t x_27; 
 lean_dec(x_2);
-x_26 = l_instReprBool___closed__1;
+x_26 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 x_27 = lean_string_dec_eq(x_11, x_26);
 if (x_27 == 0)
 {
@@ -3315,13 +3315,13 @@ else
 {
 lean_object* x_37; uint8_t x_38; 
 lean_dec(x_1);
-x_37 = l_instReprBool___closed__3;
+x_37 = l_instReprBool___closed__2;
 x_38 = lean_string_dec_eq(x_11, x_37);
 if (x_38 == 0)
 {
 lean_object* x_39; uint8_t x_40; 
 lean_dec(x_2);
-x_39 = l_instReprBool___closed__1;
+x_39 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 x_40 = lean_string_dec_eq(x_11, x_39);
 if (x_40 == 0)
 {
@@ -3398,13 +3398,13 @@ if (lean_is_exclusive(x_1)) {
  lean_dec_ref(x_1);
  x_56 = lean_box(0);
 }
-x_57 = l_instReprBool___closed__3;
+x_57 = l_instReprBool___closed__2;
 x_58 = lean_string_dec_eq(x_11, x_57);
 if (x_58 == 0)
 {
 lean_object* x_59; uint8_t x_60; 
 lean_dec(x_2);
-x_59 = l_instReprBool___closed__1;
+x_59 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 x_60 = lean_string_dec_eq(x_11, x_59);
 if (x_60 == 0)
 {
@@ -3501,13 +3501,13 @@ if (lean_is_exclusive(x_1)) {
  lean_dec_ref(x_1);
  x_81 = lean_box(0);
 }
-x_82 = l_instReprBool___closed__3;
+x_82 = l_instReprBool___closed__2;
 x_83 = lean_string_dec_eq(x_73, x_82);
 if (x_83 == 0)
 {
 lean_object* x_84; uint8_t x_85; 
 lean_dec(x_2);
-x_84 = l_instReprBool___closed__1;
+x_84 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 x_85 = lean_string_dec_eq(x_73, x_84);
 if (x_85 == 0)
 {
@@ -3671,12 +3671,12 @@ return x_9;
 else
 {
 lean_object* x_10; uint8_t x_11; 
-x_10 = l_instReprBool___closed__3;
+x_10 = l_instReprBool___closed__2;
 x_11 = lean_string_dec_eq(x_5, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; uint8_t x_13; 
-x_12 = l_instReprBool___closed__1;
+x_12 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 x_13 = lean_string_dec_eq(x_5, x_12);
 if (x_13 == 0)
 {

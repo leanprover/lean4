@@ -43,7 +43,6 @@ lean_object* l_instToStringChar;
 lean_object* l_instToStringUInt64___boxed(lean_object*);
 extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 lean_object* l_String_toSubstring(lean_object*);
-extern lean_object* l_instReprBool___closed__1;
 lean_object* l_instToStringPUnit(lean_object*);
 lean_object* l_String_toInt_x3f(lean_object*);
 lean_object* l_instToStringInt_match__1(lean_object*);
@@ -55,6 +54,7 @@ lean_object* l_instToStringProd___rarg(lean_object*, lean_object*, lean_object*)
 lean_object* l_String_toInt_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_instToStringSubstring(lean_object*);
+extern lean_object* l_instReprBool___closed__2;
 lean_object* l_String_toInt_x21(lean_object*);
 lean_object* l___private_Init_Data_String_Basic_0__Substring_nextn(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -63,6 +63,7 @@ lean_object* l_instToStringFormat(lean_object*);
 lean_object* l_instToStringUInt32(uint32_t);
 lean_object* l_instToStringDecidable(lean_object*);
 lean_object* l_instReprExcept___rarg___closed__2;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 lean_object* l_instToStringUInt8___boxed(lean_object*);
 lean_object* l_instToStringId__1(lean_object*);
 lean_object* l_instToStringOption_match__1(lean_object*, lean_object*);
@@ -76,7 +77,6 @@ lean_object* l_List_toStringAux_match__1(lean_object*, lean_object*);
 lean_object* l_instToStringExcept___rarg___closed__1;
 lean_object* l_instToStringInt_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instToStringOption___rarg(lean_object*, lean_object*);
-extern lean_object* l_instReprBool___closed__3;
 lean_object* l_instToStringUInt64(uint64_t);
 lean_object* l_instToStringBool(uint8_t);
 lean_object* l_instToStringString(lean_object*);
@@ -286,13 +286,13 @@ _start:
 if (x_1 == 0)
 {
 lean_object* x_2; 
-x_2 = l_instReprBool___closed__1;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 return x_2;
 }
 else
 {
 lean_object* x_3; 
-x_3 = l_instReprBool___closed__3;
+x_3 = l_instReprBool___closed__2;
 return x_3;
 }
 }
@@ -350,13 +350,13 @@ _start:
 if (x_1 == 0)
 {
 lean_object* x_2; 
-x_2 = l_instReprBool___closed__1;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 return x_2;
 }
 else
 {
 lean_object* x_3; 
-x_3 = l_instReprBool___closed__3;
+x_3 = l_instReprBool___closed__2;
 return x_3;
 }
 }

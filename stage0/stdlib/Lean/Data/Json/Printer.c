@@ -42,11 +42,11 @@ lean_object* l_Lean_Json_escape___boxed(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 extern lean_object* l_instReprBool___closed__2;
 uint8_t l_USize_decLt(size_t, size_t);
-extern lean_object* l_instReprBool___closed__4;
 lean_object* l_Lean_Json_render___closed__8;
 lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux(lean_object*, uint32_t);
 lean_object* l_Lean_Json_render___closed__1;
 extern lean_object* l_Char_quoteCore___closed__2;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 lean_object* l_Lean_Json_render___closed__2;
 lean_object* l_Lean_Json_compress(lean_object*);
 lean_object* l_Std_instToFormatFormat___boxed(lean_object*);
@@ -538,13 +538,13 @@ lean_dec(x_1);
 if (x_3 == 0)
 {
 lean_object* x_4; 
-x_4 = l_instReprBool___closed__2;
+x_4 = l_instReprBool___closed__1;
 return x_4;
 }
 else
 {
 lean_object* x_5; 
-x_5 = l_instReprBool___closed__4;
+x_5 = l_instReprBool___closed__3;
 return x_5;
 }
 }
@@ -746,13 +746,13 @@ lean_dec(x_1);
 if (x_3 == 0)
 {
 lean_object* x_4; 
-x_4 = l_instReprBool___closed__1;
+x_4 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 return x_4;
 }
 else
 {
 lean_object* x_5; 
-x_5 = l_instReprBool___closed__3;
+x_5 = l_instReprBool___closed__2;
 return x_5;
 }
 }

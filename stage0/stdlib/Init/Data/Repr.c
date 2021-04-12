@@ -89,7 +89,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_instReprBool_match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1382____closed__7;
 lean_object* l_instReprAtomUInt16;
-lean_object* l_instReprBool___closed__4;
 lean_object* l_Char_quoteCore___closed__1;
 lean_object* l_Char_quoteCore___boxed(lean_object*);
 extern lean_object* l_Int_Int_pow___closed__1;
@@ -100,6 +99,7 @@ lean_object* l_reprStr___rarg(lean_object*, lean_object*);
 lean_object* l_Nat_digitChar___boxed(lean_object*);
 lean_object* l_Int_repr(lean_object*);
 lean_object* l_Char_quoteCore___closed__2;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 lean_object* l_Int_repr_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instReprInt___boxed(lean_object*, lean_object*);
 lean_object* l_instReprSubstring___closed__1;
@@ -406,22 +406,14 @@ return x_6;
 static lean_object* _init_l_instReprBool___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("false");
-return x_1;
-}
-}
-static lean_object* _init_l_instReprBool___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_instReprBool___closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_instReprBool___closed__3() {
+static lean_object* _init_l_instReprBool___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -429,11 +421,11 @@ x_1 = lean_mk_string("true");
 return x_1;
 }
 }
-static lean_object* _init_l_instReprBool___closed__4() {
+static lean_object* _init_l_instReprBool___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_instReprBool___closed__3;
+x_1 = l_instReprBool___closed__2;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -445,13 +437,13 @@ _start:
 if (x_1 == 0)
 {
 lean_object* x_3; 
-x_3 = l_instReprBool___closed__2;
+x_3 = l_instReprBool___closed__1;
 return x_3;
 }
 else
 {
 lean_object* x_4; 
-x_4 = l_instReprBool___closed__4;
+x_4 = l_instReprBool___closed__3;
 return x_4;
 }
 }
@@ -3452,8 +3444,6 @@ l_instReprBool___closed__2 = _init_l_instReprBool___closed__2();
 lean_mark_persistent(l_instReprBool___closed__2);
 l_instReprBool___closed__3 = _init_l_instReprBool___closed__3();
 lean_mark_persistent(l_instReprBool___closed__3);
-l_instReprBool___closed__4 = _init_l_instReprBool___closed__4();
-lean_mark_persistent(l_instReprBool___closed__4);
 l_instReprDecidable___rarg___closed__1 = _init_l_instReprDecidable___rarg___closed__1();
 lean_mark_persistent(l_instReprDecidable___rarg___closed__1);
 l_instReprDecidable___rarg___closed__2 = _init_l_instReprDecidable___rarg___closed__2();

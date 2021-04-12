@@ -250,6 +250,7 @@ lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHead
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___spec__20___closed__9;
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___lambda__1___closed__16;
 lean_object* l_Lean_Elab_Term_Quotation_myMacro____x40_Lean_Elab_Quotation___hyg_3788____closed__20;
+extern lean_object* l_instReprBool___closed__2;
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___spec__8___closed__4;
 lean_object* l_Lean_Elab_Term_getMainModule___rarg(lean_object*, lean_object*);
@@ -408,7 +409,6 @@ extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__5;
 extern lean_object* l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__43;
 lean_object* l_List_forIn_loop___at___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_compileStxMatch___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___closed__38;
-extern lean_object* l_instReprBool___closed__3;
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___closed__6;
 lean_object* l_Lean_Elab_Term_Quotation_myMacro____x40_Lean_Elab_Quotation___hyg_3788____closed__23;
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___closed__21;
@@ -18398,7 +18398,7 @@ static lean_object* _init_l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quot
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_instReprBool___closed__3;
+x_1 = l_instReprBool___closed__2;
 x_2 = lean_string_utf8_byte_size(x_1);
 return x_2;
 }
@@ -18407,7 +18407,7 @@ static lean_object* _init_l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quot
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_instReprBool___closed__3;
+x_1 = l_instReprBool___closed__2;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__10___closed__3;
 x_4 = lean_alloc_ctor(0, 3, 0);

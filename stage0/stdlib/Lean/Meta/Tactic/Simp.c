@@ -16,13 +16,13 @@ extern "C" {
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_3_(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_12_(lean_object*);
+extern lean_object* l_Lean_Meta_Simp_synthesizeArgs_synthesizeInstance___closed__2;
 extern lean_object* l_Lean_Meta_Simp_rewrite___closed__5;
-extern lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_synthesizeArgs___spec__3___closed__2;
 lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_3_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_synthesizeArgs___spec__3___closed__2;
+x_2 = l_Lean_Meta_Simp_synthesizeArgs_synthesizeInstance___closed__2;
 x_3 = l_Lean_registerTraceClass(x_2, x_1);
 return x_3;
 }

@@ -11,6 +11,7 @@ import Lean.Util.Trace
 import Lean.Util.RecDepth
 import Lean.Util.PPExt
 import Lean.Util.OccursCheck
+import Lean.Util.MonadBacktrack
 import Lean.Compiler.InlineAttrs
 import Lean.Meta.TransparencyMode
 import Lean.Meta.DiscrTreeTypes
@@ -126,6 +127,11 @@ structure State where
   postponed   : PersistentArray PostponedEntry := {}
   deriving Inhabited
 
+structure SavedState where
+  core        : Core.State
+  meta        : State
+  deriving Inhabited
+
 structure Context where
   config         : Config               := {}
   lctx           : LocalContext         := {}
@@ -147,6 +153,18 @@ instance : MonadMCtx MetaM where
 
 instance : AddMessageContext MetaM where
   addMessageContext := addMessageContextFull
+
+protected def saveState : MetaM SavedState :=
+  return { core := (← getThe Core.State), meta := (← get) }
+
+/-- Restore backtrackable parts of the state. -/
+def SavedState.restore (b : SavedState) : MetaM Unit := do
+  Core.restore b.core
+  modify fun s => { s with mctx := b.meta.mctx, zetaFVarIds := b.meta.zetaFVarIds, postponed := b.meta.postponed }
+
+instance : MonadBacktrack SavedState MetaM where
+  saveState      := Meta.saveState
+  restoreState s := s.restore
 
 @[inline] def MetaM.run (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM (α × State) :=
   x ctx |>.run s
@@ -1065,22 +1083,6 @@ def mapErrorImp (x : MetaM α) (f : MessageData → MessageData) : MetaM α := d
 
 @[inline] def mapError [MonadControlT MetaM m] [Monad m] (x : m α) (f : MessageData → MessageData) : m α :=
   controlAt MetaM fun runInBase => mapErrorImp (runInBase x) f
-
-/-- `commitWhenSome? x` executes `x` and keep modifications when it returns `some a`. -/
-@[specialize] def commitWhenSome? (x? : MetaM (Option α)) : MetaM (Option α) := do
-  let env  ← getEnv
-  let mctx ← getMCtx
-  try
-    match (← x?) with
-    | some a => pure (some a)
-    | none   =>
-      setEnv env
-      setMCtx mctx
-      pure none
-  catch ex =>
-    setEnv env
-    setMCtx mctx
-    throw ex
 
 end Methods
 end Meta

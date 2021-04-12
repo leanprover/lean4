@@ -310,6 +310,8 @@ macro_rules | `(tactic| trivial) => `(tactic| contradiction)
 macro_rules | `(tactic| trivial) => `(tactic| apply True.intro)
 macro_rules | `(tactic| trivial) => `(tactic| apply And.intro <;> trivial)
 
+macro "unhygienic " t:tacticSeq : tactic => `(set_option tactic.hygienic false in $t:tacticSeq)
+
 end Tactic
 
 namespace Attr

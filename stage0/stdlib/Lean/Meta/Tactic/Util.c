@@ -84,7 +84,6 @@ lean_object* l_Lean_Meta_getMVarType___boxed(lean_object*, lean_object*, lean_ob
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_getNondepPropHyps___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarType_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_insert___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__1(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_598____closed__2;
 lean_object* l_Lean_Meta_admit___closed__1;
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_getNondepPropHyps___spec__9(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -132,6 +131,7 @@ lean_object* l_Lean_Meta_getNondepPropHyps_match__1(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_mkFreshExprMVarImpl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_691____closed__2;
 lean_object* l_Lean_throwError___at_Lean_Meta_throwTacticEx___spec__1(lean_object*);
 extern lean_object* l_Std_HashMap_instInhabitedHashMap___closed__1;
 lean_object* l_Std_PersistentArray_forIn___at_Lean_Meta_getNondepPropHyps___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -836,7 +836,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_598____closed__2;
+x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_691____closed__2;
 x_2 = l_Lean_Parser_Tactic_intro___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

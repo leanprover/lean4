@@ -50,7 +50,6 @@ lean_object* l_Lean_KVMap_setString(lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getInt_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_instForInKVMapProdNameDataValue___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_instReprBool___closed__1;
 lean_object* l_Lean_DataValue_getBoolEx_match__1(lean_object*);
 lean_object* l_Lean_KVMap_insertCore_match__1(lean_object*);
 lean_object* l_Lean_KVMap_instValueInt___lambda__1(lean_object*);
@@ -64,6 +63,7 @@ lean_object* l_Lean_KVMap_getName_match__1___rarg(lean_object*, lean_object*, le
 lean_object* l_Lean_KVMap_instBEqKVMap;
 lean_object* l_Lean_KVMap_instValueName___lambda__2(lean_object*);
 lean_object* l_Lean_KVMap_instValueString_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_instReprBool___closed__2;
 lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getString_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -71,6 +71,7 @@ lean_object* lean_mk_bool_data_value(uint8_t);
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_subsetAux_match__1(lean_object*);
 lean_object* l_Lean_KVMap_get_x3f___rarg___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 lean_object* l_Lean_KVMap_instValueName___closed__2;
 lean_object* l_Lean_KVMap_getNat_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_insert_match__1(lean_object*);
@@ -91,7 +92,6 @@ extern lean_object* l_instReprList___rarg___closed__1;
 lean_object* l_Lean_KVMap_instValueBool___closed__2;
 lean_object* l_Lean_KVMap_instValueBool;
 lean_object* l_Lean_KVMap_eqv___boxed(lean_object*, lean_object*);
-extern lean_object* l_instReprBool___closed__3;
 lean_object* l_Lean_instInhabitedDataValue___closed__1;
 lean_object* l_Lean_KVMap_getInt_match__1(lean_object*);
 lean_object* l_Lean_KVMap_find___boxed(lean_object*, lean_object*);
@@ -774,13 +774,13 @@ lean_dec(x_1);
 if (x_3 == 0)
 {
 lean_object* x_4; 
-x_4 = l_instReprBool___closed__1;
+x_4 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 return x_4;
 }
 else
 {
 lean_object* x_5; 
-x_5 = l_instReprBool___closed__3;
+x_5 = l_instReprBool___closed__2;
 return x_5;
 }
 }

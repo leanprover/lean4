@@ -263,19 +263,20 @@ private def recArgHasLooseBVarsAt (recFnName : Name) (recArgInfo : RecArgInfo) (
   app?.isSome
 
 private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) (below : Expr) (e : Expr) : M Expr :=
-  let rec loop : Expr → Expr → M Expr
-    | below, e@(Expr.lam n d b c) => do
+  let rec loop (below : Expr) (e : Expr) : M Expr := do
+    match e with
+    | Expr.lam n d b c =>
       withLocalDecl n c.binderInfo (← loop below d) fun x => do
         mkLambdaFVars #[x] (← loop below (b.instantiate1 x))
-    | below, e@(Expr.forallE n d b c) => do
+    | Expr.forallE n d b c =>
       withLocalDecl n c.binderInfo (← loop below d) fun x => do
         mkForallFVars #[x] (← loop below (b.instantiate1 x))
-    | below, Expr.letE n type val body _ => do
+    | Expr.letE n type val body _ =>
       withLetDecl n (← loop below type) (← loop below val) fun x => do
         mkLetFVars #[x] (← loop below (body.instantiate1 x))
-    | below, Expr.mdata d e _   => do pure $ mkMData d (← loop below e)
-    | below, Expr.proj n i e _  => do pure $ mkProj n i (← loop below e)
-    | below, e@(Expr.app _ _ _) => do
+    | Expr.mdata d e _   => return mkMData d (← loop below e)
+    | Expr.proj n i e _  => return mkProj n i (← loop below e)
+    | Expr.app _ _ _ =>
       let processApp (e : Expr) : M Expr :=
         e.withApp fun f args => do
           if f.isConstOf recFnName then
@@ -296,9 +297,9 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
                 let arg := argsNonFixed[i]
                 let arg ← replaceRecApps recFnName recArgInfo below arg
                 fArgs := fArgs.push arg
-            pure $ mkAppN f fArgs
+            return mkAppN f fArgs
           else
-            pure $ mkAppN (← loop below f) (← args.mapM (loop below))
+            return mkAppN (← loop below f) (← args.mapM (loop below))
       let matcherApp? ← matchMatcherApp? e
       match matcherApp? with
       | some matcherApp =>
@@ -333,7 +334,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
               mkLambdaFVars xs (← loop belowForAlt altBody)
           pure { matcherApp with alts := altsNew }.toExpr
       | none => processApp e
-    | _, e => ensureNoRecFn recFnName e
+    | e => ensureNoRecFn recFnName e
   loop below e
 
 private def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do

@@ -3,13 +3,5 @@ tokenErrors.lean:2:9: error: invalid escape sequence
 tokenErrors.lean:3:7: error: unterminated string literal
 tokenErrors.lean:4:11: error: unterminated identifier escape
 tokenErrors.lean:6:0: error: unterminated comment
-tokenErrors.lean:5:0-5:3: error: unexpected doc string
-  failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)
 tokenErrors.lean:7:0: error: unterminated comment
-tokenErrors.lean:6:0-6:6: error: unknown constant '[anonymous]'
-inductive Nat : Type
-constructors:
-Nat.zero : Nat
-Nat.succ : Nat → Nat
 tokenErrors.lean:7:1: error: unterminated comment
-tokenErrors.lean:7:0-7:1: error: unexpected command

@@ -1,2 +1,1 @@
 exitAfterParseError.lean:5:0: error: expected ':=', 'where' or '|'
-exitAfterParseError.lean:3:0-3:7: error: declaration body is missing

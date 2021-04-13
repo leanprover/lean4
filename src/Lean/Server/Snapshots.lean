@@ -6,8 +6,7 @@ Authors: Wojciech Nawrocki
 -/
 import Init.System.IO
 
-import Lean.Elab.Import
-import Lean.Elab.Command
+import Lean.Elab.Frontend
 
 /-! One can think of this module as being a partial reimplementation
 of Lean.Elab.Frontend which also stores a snapshot of the world after
@@ -91,13 +90,13 @@ def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot Mess
   let cmdState := snap.cmdState
   let scope := cmdState.scopes.head!
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
-  let (cmdStx, cmdParserState, msgLog) :=
-    Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
+  let (cmdStx, cmdParserState, parserMessages) :=
+    Parser.parseCommand inputCtx pmctx snap.mpState {}
   let cmdPos := cmdStx.getPos?.get!
   if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
-    Sum.inr msgLog
+    Sum.inr (snap.msgLog ++ parserMessages)
   else
-    let cmdStateRef ← IO.mkRef { snap.cmdState with messages := msgLog }
+    let cmdStateRef ← IO.mkRef { snap.cmdState with messages := snap.msgLog ++ parserMessages }
     let cmdCtx : Elab.Command.Context := {
         cmdPos   := snap.endPos
         fileName := inputCtx.fileName
@@ -107,7 +106,10 @@ def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot Mess
       Elab.Command.catchExceptions
         (Elab.Command.elabCommand cmdStx)
         cmdCtx cmdStateRef
-    let postCmdState ← cmdStateRef.get
+    let mut postCmdState ← cmdStateRef.get
+    if parserMessages.hasErrors && !Frontend.showPartialSyntaxErrors.get scope.opts then
+      -- discard elaboration errors
+      postCmdState := { postCmdState with messages := snap.msgLog ++ parserMessages }
     let postCmdSnap : Snapshot := {
         beginPos := cmdPos
         stx := cmdStx

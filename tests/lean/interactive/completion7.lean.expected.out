@@ -1,0 +1,14 @@
+{"textDocument": {"uri": "file://completion7.lean"},
+ "position": {"line": 0, "character": 10}}
+{"items":
+ [{"label": "And", "detail": "Prop → Prop → Prop"},
+  {"label": "AndOp", "detail": "Type u → Type u"},
+  {"label": "AndThen", "detail": "Type u → Type u"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://completion7.lean"},
+ "position": {"line": 2, "character": 11}}
+{"items":
+ [{"label": "intro", "detail": "?a → ?b → ?a ∧ ?b"},
+  {"label": "left", "detail": "?a ∧ ?b → ?a"},
+  {"label": "right", "detail": "?a ∧ ?b → ?b"}],
+ "isIncomplete": true}

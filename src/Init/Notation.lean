@@ -271,7 +271,7 @@ syntax (name := simpAll) "simp_all " ("(" &"config" " := " term ")")? (&"only ")
 
 -- Auxiliary macro for lifting have/suffices/let/...
 -- It makes sure the "continuation" `?_` is the main goal after refining
-macro "refineLift " e:term : tactic => `(focus (refine $e; rotateRight))
+macro "refineLift " e:term : tactic => `(focus (refine noImplicitLambda% $e; rotateRight))
 
 macro "have " d:haveDecl : tactic => `(refineLift have $d:haveDecl; ?_)
 /- We use a priority > default, to avoid ambiguity with previous `have` notation -/
@@ -284,7 +284,7 @@ macro_rules
   | `(tactic| let rec $d:letRecDecls) => `(tactic| refineLift let rec $d:letRecDecls; ?_)
 
 -- Similar to `refineLift`, but using `refine'`
-macro "refineLift' " e:term : tactic => `(focus (refine' $e; rotateRight))
+macro "refineLift' " e:term : tactic => `(focus (refine' noImplicitLambda% $e; rotateRight))
 macro "have' " d:haveDecl : tactic => `(refineLift' have $d:haveDecl; ?_)
 macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x:ident : _ := $p)
 macro "let' " d:letDecl : tactic => `(refineLift' let $d:letDecl; ?_)

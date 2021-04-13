@@ -26,8 +26,6 @@ example (P : Prop) : ∀ {p : P}, P := by
   refine noImplicitLambda% (have _ from 1; ?_)
   apply id
 
-#exit
--- After update stage0, we fix this
 example (P : Prop) : ∀ {p : P}, P := by
   have _ from 1
   apply id

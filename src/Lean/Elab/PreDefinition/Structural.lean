@@ -7,6 +7,7 @@ import Lean.Util.ForEachExpr
 import Lean.Meta.ForEachExpr
 import Lean.Meta.RecursorInfo
 import Lean.Meta.Match.Match
+import Lean.Meta.Transform
 import Lean.Elab.PreDefinition.Basic
 namespace Lean.Elab
 namespace Structural
@@ -376,9 +377,32 @@ private def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr)
       let brecOn       := mkApp brecOn Farg
       pure $ mkAppN brecOn otherArgs
 
+private def shouldBetaReduce (e : Expr) (recFnName : Name) : Bool :=
+  if e.isHeadBetaTarget then
+    e.getAppFn.find? (·.isConstOf recFnName) |>.isSome
+  else
+    false
+
+/--
+  Beta reduce terms where the recursive function occurs in the lambda term.
+  This is useful to improve the effectiveness of `elimRecursion`.
+  Example:
+  ```
+
+  ```
+-/
+private def preprocess (e : Expr) (recFnName : Name) : CoreM Expr :=
+  Core.transform e
+   fun e => return TransformStep.visit <|
+     if shouldBetaReduce e recFnName then
+       e.headBeta
+     else
+       e
+
 private def elimRecursion (preDef : PreDefinition) : M PreDefinition :=
   withoutModifyingEnv do lambdaTelescope preDef.value fun xs value => do
     addAsAxiom preDef
+    let value ← preprocess value preDef.declName
     trace[Elab.definition.structural] "{preDef.declName} {xs} :=\n{value}"
     let numFixed ← getFixedPrefix preDef.declName xs value
     trace[Elab.definition.structural] "numFixed: {numFixed}"

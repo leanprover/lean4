@@ -80,7 +80,7 @@ private def resolveExact (env : Environment) (id : Name) : Option Name :=
       if env.contains resolvedIdPrv then some resolvedIdPrv
       else none
 
-/- Check open namespaces -/
+/- Check `OpenDecl`s -/
 private def resolveOpenDecls (env : Environment) (id : Name) : List OpenDecl → List Name → List Name
   | [], resolvedIds => resolvedIds
   | OpenDecl.simple ns exs :: openDecls, resolvedIds =>
@@ -90,7 +90,17 @@ private def resolveOpenDecls (env : Environment) (id : Name) : List OpenDecl →
       let newResolvedIds := resolveQualifiedName env ns id
       resolveOpenDecls env id openDecls (newResolvedIds ++ resolvedIds)
   | OpenDecl.explicit openedId resolvedId :: openDecls, resolvedIds =>
-    let resolvedIds := if id == openedId then resolvedId :: resolvedIds else resolvedIds
+    let resolvedIds :=
+      if openedId == id then
+        resolvedId :: resolvedIds
+      else if openedId.isPrefixOf id then
+        let candidate := id.replacePrefix openedId resolvedId
+        if env.contains candidate then
+          candidate :: resolvedIds
+        else
+          resolvedIds
+      else
+        resolvedIds
     resolveOpenDecls env id openDecls resolvedIds
 
 def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : List (Name × List String) :=

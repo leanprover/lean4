@@ -368,7 +368,6 @@ lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doTryToCode___lambda__1(lean_object
 lean_object* l_List_map___at_Lean_Elab_Term_Do_CodeBlocl_toMessageData_loop___spec__3(lean_object*);
 lean_object* l_List_map___at___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_varsToMessageData___spec__1(lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToTerm_returnToTerm___closed__5;
-lean_object* l_Lean_throwErrorAt___at___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_mkAuxDeclFor___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_CodeBlocl_toMessageData_loop___closed__1;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Term_Do_hasTerminalAction___spec__2(lean_object*, size_t, size_t);
@@ -408,6 +407,7 @@ extern lean_object* l_Lean_Parser_Term_doIdDecl___elambda__1___closed__2;
 lean_object* l_Array_sequenceMap___at___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_expandDoIf_x3f___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_mkMonadAlias(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToTerm_continueToTerm___closed__24;
+lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Term_elabCompletion___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_CodeBlocl_toMessageData_loop___closed__8;
 lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_ToCodeBlock_expandLiftMethodAux(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToTerm_continueToTerm___closed__16;
@@ -1331,7 +1331,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = l_Lean_Elab_Term_elabLiftMethod___closed__2;
-x_11 = l_Lean_throwErrorAt___at___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppAux___spec__2(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+x_11 = l_Lean_throwErrorAt___at_Lean_Elab_Term_elabCompletion___spec__1(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
 }

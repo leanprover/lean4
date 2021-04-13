@@ -140,8 +140,9 @@ section Elab
 
   /-- Elaborates all commands after `initSnap`, emitting the diagnostics into `hOut`. -/
   def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream)
-  : IO (AsyncList ElabTaskError Snapshot) := do
-    if initSnap.msgLog.hasErrors then
+    (initial : Bool) :
+      IO (AsyncList ElabTaskError Snapshot) := do
+    if initial && initSnap.msgLog.hasErrors then
       -- treat header processing errors as fatal so users aren't swamped with followup errors
       AsyncList.nil
     else
@@ -237,7 +238,7 @@ section Initialization
       is a CR there. -/
     let (headerSnap, srcSearchPath) ← compileHeader meta o
     let cancelTk ← CancelToken.new
-    let cmdSnaps ← unfoldCmdSnaps meta headerSnap cancelTk o
+    let cmdSnaps ← unfoldCmdSnaps meta headerSnap cancelTk o (initial := true)
     let doc : EditableDocument := ⟨meta, headerSnap, cmdSnaps, cancelTk⟩
     return {
       hIn                := i
@@ -278,7 +279,7 @@ section Updates
       let mut validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos)
       if validSnaps.length = 0 then
         let cancelTk ← CancelToken.new
-        let newCmdSnaps ← unfoldCmdSnaps newMeta newHeaderSnap cancelTk st.hOut
+        let newCmdSnaps ← unfoldCmdSnaps newMeta newHeaderSnap cancelTk st.hOut (initial := true)
         st.docRef.set ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩
       else
         /- When at least one valid non-header snap exists, it may happen that a change does not fall
@@ -296,7 +297,7 @@ section Updates
           validSnaps ← validSnaps.dropLast
           lastSnap ← preLastSnap
         let cancelTk ← CancelToken.new
-        let newSnaps ← unfoldCmdSnaps newMeta lastSnap cancelTk st.hOut
+        let newSnaps ← unfoldCmdSnaps newMeta lastSnap cancelTk st.hOut (initial := false)
         let newCmdSnaps := AsyncList.ofList validSnaps ++ newSnaps
         st.docRef.set ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩
 end Updates

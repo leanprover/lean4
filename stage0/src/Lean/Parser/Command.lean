@@ -106,6 +106,7 @@ builtin_initialize
   register_parser_alias "nestedDeclModifiers" declModifiersT
   register_parser_alias "declId"              declId
   register_parser_alias "declSig"             declSig
+  register_parser_alias "declVal"             declVal
   register_parser_alias "optDeclSig"          optDeclSig
   register_parser_alias "openDecl"            openDecl
 

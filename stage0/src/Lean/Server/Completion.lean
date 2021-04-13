@@ -55,7 +55,7 @@ private def isTypeApplicable (type : Expr) (expectedType? : Option Expr) : MetaM
       -- TODO take coercions into account
       -- We use `withReducible` to make sure we don't spend too much time unfolding definitions
       -- Alternative: use default and small number of heartbeats
-      withReducible <| isDefEq type expectedType
+      withReducible <| withoutModifyingState <| isDefEq type expectedType
   catch _ =>
     return false
 
@@ -98,19 +98,22 @@ private def matchAtomic (id: Name) (declName : Name) : Bool :=
 /--
   Return the auto-completion label if `id` can be auto completed using `declName` assuming namespace `ns` is open.
   This function only succeeds with atomic labels. BTW, it seems most clients only use the last part.
+
+  Remark: `danglingDot == true` when the completion point is an identifier followed by `.`.
 -/
-private def matchDecl? (ns : Name) (id : Name) (declName : Name) : Option Name :=
+private def matchDecl? (ns : Name) (id : Name) (danglingDot : Bool) (declName : Name) : Option Name :=
+  -- dbg_trace "{ns}, {id}, {declName}, {danglingDot}"
   if !ns.isPrefixOf declName then
     none
   else
     let declName := declName.replacePrefix ns Name.anonymous
-    if id.isPrefixOf declName then
+    if id.isPrefixOf declName && danglingDot then
       let declName := declName.replacePrefix id Name.anonymous
       if declName.isAtomic && !declName.isAnonymous then
         some declName
       else
         none
-    else
+    else if !danglingDot then
       match id, declName with
       | Name.str p₁ s₁ _, Name.str p₂ s₂ _ =>
         if p₁ == p₂ && s₁.isPrefixOf s₂ then
@@ -118,9 +121,11 @@ private def matchDecl? (ns : Name) (id : Name) (declName : Name) : Option Name :
         else
           none
       | _, _ => none
+    else
+      none
 
-private def idCompletionCore (ctx : ContextInfo) (stx : Syntax) (expectedType? : Option Expr) : M Unit := do
-  let id := stx.getId.eraseMacroScopes
+private def idCompletionCore (ctx : ContextInfo) (id : Name) (danglingDot : Bool) (expectedType? : Option Expr) : M Unit := do
+  let id := id.eraseMacroScopes
   -- dbg_trace ">> id {id} : {expectedType?}"
   if id.isAtomic then
     -- search for matches in the local context
@@ -132,7 +137,7 @@ private def idCompletionCore (ctx : ContextInfo) (stx : Syntax) (expectedType? :
   env.constants.forM fun declName c => do
     unless (← isBlackListed declName) do
       let matchUsingNamespace (ns : Name): M Bool := do
-        if let some label := matchDecl? ns id declName then
+        if let some label := matchDecl? ns id danglingDot declName then
           -- dbg_trace "matched with {id}, {declName}, {label}"
           addCompletionItem label c.type expectedType?
           return true
@@ -172,9 +177,9 @@ private def idCompletionCore (ctx : ContextInfo) (stx : Syntax) (expectedType? :
   -- TODO search macros
   -- TODO search namespaces
 
-private def idCompletion (ctx : ContextInfo) (lctx : LocalContext) (stx : Syntax) (expectedType? : Option Expr) : IO (Option CompletionList) :=
+private def idCompletion (ctx : ContextInfo) (lctx : LocalContext) (id : Name) (danglingDot : Bool) (expectedType? : Option Expr) : IO (Option CompletionList) :=
   runM ctx lctx do
-    idCompletionCore ctx stx expectedType?
+    idCompletionCore ctx id danglingDot expectedType?
 
 private def isDotCompletionMethod (info : ConstantInfo) : MetaM Bool :=
   forallTelescopeReducing info.type fun xs _ => do
@@ -214,9 +219,9 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? :
         pure {}
     if nameSet.isEmpty then
       if info.stx.isIdent then
-        idCompletionCore ctx info.stx expectedType?
-      else if info.stx.getKind == ``Lean.Parser.Term.completion then
-        idCompletionCore ctx info.stx[0] expectedType?
+        idCompletionCore ctx info.stx.getId (danglingDot := false) expectedType?
+      else if info.stx.getKind == ``Lean.Parser.Term.completion && info.stx[0].isIdent then
+        idCompletionCore ctx info.stx[0].getId (danglingDot := true) expectedType?
       else
         failure
     else
@@ -249,7 +254,7 @@ partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTr
   | some (ctx, Info.ofCompletionInfo info) =>
     match info with
     | CompletionInfo.dot info (expectedType? := expectedType?) .. => dotCompletion ctx info expectedType?
-    | CompletionInfo.id stx lctx expectedType? => idCompletion ctx lctx stx expectedType?
+    | CompletionInfo.id stx id danglingDot lctx expectedType? => idCompletion ctx lctx id danglingDot expectedType?
     | CompletionInfo.option .. => optionCompletion ctx
     | CompletionInfo.tactic .. => tacticCompletion ctx
     | _ => return none

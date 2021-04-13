@@ -66,12 +66,27 @@ def isAuxDiscrName (n : Name) : Bool :=
 
 /- We treat `@x` as atomic to avoid unnecessary extra local declarations from being
    inserted into the local context. Recall that `expandMatchAltsIntoMatch` uses `@` modifier.
-   Thus this is kind of discriminant is quite common. -/
+   Thus this is kind of discriminant is quite common.
+
+   Remark: if the discriminat is `Systax.missing`, we abort the elaboration of the `match`-expression.
+   This can happen due to error recovery. Example
+   ```
+   example : (p ∨ p) → p := fun h => match
+   ```
+   If we don't abort, the elaborator loops because we will keep trying to expand
+   ```
+   match
+   ```
+   into
+   ```
+   let d := <Syntax.missing>; match
+   ```
+   Recall that `Syntax.setArg stx i arg` is a no-op when `i` is out-of-bounds. -/
 def isAtomicDiscr? (discr : Syntax) : TermElabM (Option Expr) := do
   match discr with
   | `($x:ident)  => isLocalIdent? x
   | `(@$x:ident) => isLocalIdent? x
-  | _ => return none
+  | _ => if discr.isMissing then throwAbortTerm else return none
 
 -- See expandNonAtomicDiscrs?
 private def elabAtomicDiscr (discr : Syntax) : TermElabM Expr := do

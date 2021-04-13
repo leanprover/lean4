@@ -47,10 +47,13 @@ private def expandNonAtomicExplicitSource (stx : Syntax) : TermElabM (Option Syn
       match (← isLocalIdent? source) with
       | some _ => pure none
       | none   =>
-        let src ← `(src)
-        let sourceOpt := sourceOpt.setArg 0 src
-        let stxNew    := stx.setArg 1 sourceOpt
-        `(let src := $source; $stxNew)
+        if source.isMissing then
+          throwAbortTerm
+        else
+          let src ← `(src)
+          let sourceOpt := sourceOpt.setArg 0 src
+          let stxNew    := stx.setArg 1 sourceOpt
+          `(let src := $source; $stxNew)
 
 inductive Source where
   | none     -- structure instance source has not been provieded

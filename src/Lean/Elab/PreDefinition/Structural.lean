@@ -388,7 +388,9 @@ private def shouldBetaReduce (e : Expr) (recFnName : Name) : Bool :=
   This is useful to improve the effectiveness of `elimRecursion`.
   Example:
   ```
-
+  def f : Nat → Nat
+    | 0 => 1
+    | i+1 => (fun x => f x) i
   ```
 -/
 private def preprocess (e : Expr) (recFnName : Name) : CoreM Expr :=

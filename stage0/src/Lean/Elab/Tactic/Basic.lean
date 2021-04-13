@@ -454,6 +454,7 @@ where
 private def getIntrosSize : Expr → Nat
   | Expr.forallE _ _ b _ => getIntrosSize b + 1
   | Expr.letE _ _ _ b _  => getIntrosSize b + 1
+  | Expr.mdata _ b _     => getIntrosSize b
   | _                    => 0
 
 /- Recall that `ident' := ident <|> Term.hole` -/

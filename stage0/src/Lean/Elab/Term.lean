@@ -1009,11 +1009,22 @@ private def isTacticBlock (stx : Syntax) : Bool :=
   | `(by $x:tacticSeq) => true
   | _ => false
 
+private def isNoImplicitLambda (stx : Syntax) : Bool :=
+  match stx with
+  | `(noImplicitLambda% $x:term) => true
+  | _ => false
+
+def mkNoImplicitLambdaAnnotation (type : Expr) : Expr :=
+  mkAnnotation `noImplicitLambda type
+
+def hasNoImplicitLambdaAnnotation (type : Expr) : Bool :=
+  annotation? `noImplicitLambda type |>.isSome
+
 /-- Block usage of implicit lambdas if `stx` is `@f` or `@f arg1 ...` or `fun` with an implicit binder annotation. -/
 def blockImplicitLambda (stx : Syntax) : Bool :=
   let stx := dropTermParens stx
   -- TODO: make it extensible
-  isExplicit stx || isExplicitApp stx || isLambdaWithImplicit stx || isHole stx || isTacticBlock stx
+  isExplicit stx || isExplicitApp stx || isLambdaWithImplicit stx || isHole stx || isTacticBlock stx || isNoImplicitLambda stx
 
 /--
   Return normalized expected type if it is of the form `{a : α} → β` or `[a : α] → β` and
@@ -1023,10 +1034,13 @@ private def useImplicitLambda? (stx : Syntax) (expectedType? : Option Expr) : Te
     pure none
   else match expectedType? with
     | some expectedType => do
-      let expectedType ← whnfForall expectedType
-      match expectedType with
-      | Expr.forallE _ _ _ c => if c.binderInfo.isExplicit then pure none else pure $ some expectedType
-      | _                    => pure none
+      if hasNoImplicitLambdaAnnotation expectedType then
+        pure none
+      else
+        let expectedType ← whnfForall expectedType
+        match expectedType with
+        | Expr.forallE _ _ _ c => if c.binderInfo.isExplicit then pure none else pure $ some expectedType
+        | _                    => pure none
     | _         => pure none
 
 private def elabImplicitLambdaAux (stx : Syntax) (catchExPostpone : Bool) (expectedType : Expr) (fvars : Array Expr) : TermElabM Expr := do
@@ -1327,6 +1341,9 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
   match expectedType? with
   | some expectedType => mkTacticMVar expectedType stx
   | none => throwError ("invalid 'by' tactic, expected type has not been provided")
+
+@[builtinTermElab noImplicitLambda] def elabNoImplicitLambda : TermElab := fun stx expectedType? =>
+  elabTerm stx[1] (mkNoImplicitLambdaAnnotation <$> expectedType?)
 
 def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
   let lctx ← getLCtx

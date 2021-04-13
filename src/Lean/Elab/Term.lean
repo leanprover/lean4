@@ -103,7 +103,7 @@ structure Context where
   /-- Map from internal name to fvar -/
   sectionFVars       : NameMap Expr    := {}
   /-- Enable/disable implicit lambdas feature. -/
-  implicitLambda     : Bool             := true
+  implicitLambda     : Bool            := true
 
 /-- Saved context for postponed terms and tactics to be executed. -/
 structure SavedContext where
@@ -1243,20 +1243,34 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
 @[builtinTermElab «type»] def elabTypeStx : TermElab := fun stx _ =>
   return mkSort (mkLevelSucc (← elabOptLevel stx[1]))
 
-@[builtinTermElab «completion»] def elabCompletion : TermElab := fun stx expectedType? => do
-  /-
-    `ident.` is ambiguous in Lean, we may try to be completing a declaration name or access a "field".
-    If the identifier `ident`, the method `resolveName` adds a completion point for it using the given
+/-
+ the method `resolveName` adds a completion point for it using the given
     expected type. Thus, we propagate the expected type if `stx[0]` is an identifier.
     It doesn't "hurt" if the identifier can be resolved because the expected type is not used in this case.
     Recall that if the name resolution fails a synthetic sorry is returned.-/
-  let e ← elabTerm stx[0] (if stx[0].isIdent then expectedType? else none)
+
+@[builtinTermElab «pipeCompletion»] def elabPipeCompletion : TermElab := fun stx expectedType? => do
+  let e ← elabTerm stx[0] none
   unless e.isSorry do
     addDotCompletionInfo stx e expectedType?
   throwErrorAt stx[1] "invalid field notation, identifier or numeral expected"
 
-@[builtinTermElab «pipeCompletion»] def elabPipeCompletion : TermElab :=
-  elabCompletion
+@[builtinTermElab «completion»] def elabCompletion : TermElab := fun stx expectedType? => do
+  /- `ident.` is ambiguous in Lean, we may try to be completing a declaration name or access a "field". -/
+  if stx[0].isIdent then
+    /- If we can elaborate the identifier successfully, we assume it a dot-completion. Otherwise, we treat it as
+       identifier completion with a dangling `.`.
+       Recall that the server falls back to identifier completion when dot-completion fails. -/
+    let s ← saveState
+    try
+      let e ← elabTerm stx[0] none
+      addDotCompletionInfo stx e expectedType?
+    catch _ =>
+      s.restore
+      addCompletionInfo <| CompletionInfo.id stx stx[0].getId (danglingDot := true) (← getLCtx) expectedType?
+    throwErrorAt stx[1] "invalid field notation, identifier or numeral expected"
+  else
+    elabPipeCompletion stx expectedType?
 
 @[builtinTermElab «hole»] def elabHole : TermElab := fun stx expectedType? => do
   let mvar ← mkFreshExprMVar expectedType?
@@ -1354,7 +1368,7 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
    let const ← mkConst constName explicitLevels
    return (const, projs) :: result
 
-def resolveName (stx : Syntax) (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) (expectedType? : Option Expr := none): TermElabM (List (Expr × List String)) := do
+def resolveName (stx : Syntax) (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do
   try
     if let some (e, projs) ← resolveLocalName n then
       unless explicitLevels.isEmpty do
@@ -1369,7 +1383,7 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List (Name × List Stri
       process preresolved
   catch ex =>
     if preresolved.isEmpty && explicitLevels.isEmpty then
-      addCompletionInfo <| CompletionInfo.id stx (← getLCtx) expectedType?
+      addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
     throw ex
 where process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
   if candidates.isEmpty then
@@ -1377,6 +1391,8 @@ where process (candidates : List (Name × List String)) : TermElabM (List (Expr 
       throwAutoBoundImplicitLocal n
     else
       throwError "unknown identifier '{Lean.mkConst n}'"
+  if preresolved.isEmpty && explicitLevels.isEmpty then
+    addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
   mkConsts candidates explicitLevels
 
 /--

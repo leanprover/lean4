@@ -191,6 +191,7 @@ def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
 @[builtinTermParser] def typeOf             := leading_parser "typeOf% " >> termParser maxPrec
 @[builtinTermParser] def ensureTypeOf       := leading_parser "ensureTypeOf% " >> termParser maxPrec >> strLit >> termParser
 @[builtinTermParser] def ensureExpectedType := leading_parser "ensureExpectedType% " >> strLit >> termParser maxPrec
+@[builtinTermParser] def noImplicitLambda   := leading_parser "noImplicitLambda% " >> termParser maxPrec
 
 def namedArgument  := leading_parser atomic ("(" >> ident >> " := ") >> termParser >> ")"
 def ellipsis       := leading_parser ".."

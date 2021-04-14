@@ -277,13 +277,16 @@ where
   Collect forward dependencies that are not in the forbidden set, and depend on some variable in `targets`.
 
   Remark: this method assumes `targets` are free variables.
+
+  Remark: we *not* collect instance implicit arguments nor auxiliary declarations for compiling
+  recursive declarations.
 -/
 private def collectForwardDeps (targets : Array Expr) (forbidden : NameSet) : MetaM NameSet := do
   let mut s : NameSet := targets.foldl (init := {}) fun s target => s.insert target.fvarId!
   let mut r : NameSet := {}
   for localDecl in (← getLCtx) do
     unless forbidden.contains localDecl.fvarId do
-      unless localDecl.isAuxDecl do
+      unless localDecl.isAuxDecl || localDecl.binderInfo.isInstImplicit do
       if (← getMCtx).findLocalDeclDependsOn localDecl fun fvarId => s.contains fvarId then
         r := r.insert localDecl.fvarId
         s := s.insert localDecl.fvarId

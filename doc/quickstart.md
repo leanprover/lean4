@@ -7,8 +7,8 @@ See [Setup](./setup.md) for other ways and more details on setting up Lean.
     ```sh
     $ curl https://raw.githubusercontent.com/Kha/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain leanprover/lean4:nightly
     ```
-See the `elan` link above for other installation options and details.
-Note that using Lean with multi-file projects on Windows currently comes with some [additional limitations](./setup.md#leanpkg).
+    See the `elan` link above for other installation options and details.
+    Note that using Lean with multi-file projects on Windows currently comes with some [additional limitations](./setup.md#leanpkg).
 1. Install [VS Code](https://code.visualstudio.com/).
 1. Open VS Code and install the `lean4` extension.  
 ![installing the vscode-lean4 extension](images/code-ext.png)
@@ -18,8 +18,8 @@ Note that using Lean with multi-file projects on Windows currently comes with so
     
     #eval Leanpkg.leanVersionString
     ```
-You should get a syntax-highlighted file with a "Lean Infoview" on the right that tells you the installed Lean version when placing your cursor on the last line.  
-![successful setup](images/code-success.png)
+    You should get a syntax-highlighted file with a "Lean Infoview" on the right that tells you the installed Lean version when placing your cursor on the last line.  
+    ![successful setup](images/code-success.png)
 1. You are set up! Try opening a Lean package with a `leanpkg.toml`. You can create your own packages using `leanpkg init` on the command line.
-Packages **have** to be opened using "File > Open Folder..." for imports to work.
-Saved changes are visibly in other files after running "Lean 4: Refresh File Dependencies" (`Ctrl+Shift+X`) in them.
+   Packages **have** to be opened using "File > Open Folder..." for imports to work.
+   Saved changes are visibly in other files after running "Lean 4: Refresh File Dependencies" (`Ctrl+Shift+X`) in them.

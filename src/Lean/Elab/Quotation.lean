@@ -114,7 +114,8 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
                 | none                 => Array.empty)
             | _ =>
               let arr ← ids[:ids.size-1].foldrM (fun id arr => `(Array.zip $id $arr)) ids.back
-              `(Array.map (fun $(← mkTuple ids) => $(inner[0])) $arr)
+              let tuple ← mkTuple ids
+              `(Array.map (fun $tuple => $(inner[0])) $arr)
           let arr ←
             if k == `sepBy then
               `(mkSepArray $arr (mkAtom $(getSepFromSplice arg)))

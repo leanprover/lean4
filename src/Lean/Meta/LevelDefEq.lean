@@ -82,7 +82,9 @@ private def solveSelfMax (mvarId : MVarId) (v : Level) : MetaM Unit := do
   assignLevelMVar mvarId <| mkMaxArgsDiff mvarId v n
 
 private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : MetaM Unit := do
-  modifyPostponed fun postponed => postponed.push { lhs := lhs, rhs := rhs, ref := (← getRef), ctx? := (← read).defEqCtx? }
+  let ref ← getRef
+  let ctx ← read
+  modifyPostponed fun postponed => postponed.push { lhs := lhs, rhs := rhs, ref := ref, ctx? := ctx.defEqCtx? }
 
 mutual
 

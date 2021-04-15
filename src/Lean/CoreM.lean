@@ -74,7 +74,8 @@ instance : MonadResolveName CoreM where
   getOpenDecls := return (← read).openDecls
 
 @[inline] def liftIOCore (x : IO α) : CoreM α := do
-  IO.toEIO (fun (err : IO.Error) => Exception.error (← getRef) (toString err)) x
+  let ref ← getRef
+  IO.toEIO (fun (err : IO.Error) => Exception.error ref (toString err)) x
 
 instance : MonadLift IO CoreM where
   monadLift := liftIOCore

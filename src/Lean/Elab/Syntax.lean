@@ -113,8 +113,9 @@ where
       let candidates ← resolveGlobalConstWithInfos (← getRef) parserName
       /- Convert `candidates` in a list of pairs `(c, isDescr)`, where `c` is the parser name,
          and `isDescr` is true iff `c` has type `Lean.ParserDescr` or `Lean.TrailingParser` -/
+      let env ← getEnv
       candidates.filterMap fun c =>
-         match (← getEnv).find? c with
+         match env.find? c with
          | none      => none
          | some info =>
            match info.type with

@@ -128,7 +128,8 @@ partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targets : Array E
           addNewArg arg
         | _ =>
           let arg ← mkFreshExprSyntheticOpaqueMVar (← getArgExpectedType) (tag := appendTag tag binderName)
-          modify fun s => { s with alts := s.alts.push (← getBindingName, arg.mvarId!) }
+          let x   ← getBindingName
+          modify fun s => { s with alts := s.alts.push (x, arg.mvarId!) }
           addNewArg arg
       loop
     | _ =>

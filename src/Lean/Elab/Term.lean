@@ -1392,7 +1392,8 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List (Name × List Stri
         throwError "invalid use of explicit universe parameters, '{e}' is a local"
       return [(e, projs)]
     -- check for section variable capture by a quotation
-    if let some (e, projs) := preresolved.findSome? fun (n, projs) => (← read).sectionFVars.find? n |>.map (·, projs) then
+    let ctx ← read
+    if let some (e, projs) := preresolved.findSome? fun (n, projs) => ctx.sectionFVars.find? n |>.map (·, projs) then
       return [(e, projs)]  -- section variables should shadow global decls
     if preresolved.isEmpty then
       process (← resolveGlobalName n)

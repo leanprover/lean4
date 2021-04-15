@@ -255,10 +255,12 @@ def mkInfoNode (info : Info) : m Unit := do
     Prod.fst <$> MonadFinally.tryFinally' x fun a? => do
       match a? with
       | none   => modifyInfoTrees fun _ => treesSaved
-      | some a => modifyInfoTrees fun trees =>
-        match (← mkInfo a) with
-        | Sum.inl info  => treesSaved.push <| InfoTree.node info trees
-        | Sum.inr mvaId => treesSaved.push <| InfoTree.hole mvaId
+      | some a =>
+        let info ← mkInfo a
+        modifyInfoTrees fun trees =>
+          match info with
+          | Sum.inl info  => treesSaved.push <| InfoTree.node info trees
+          | Sum.inr mvaId => treesSaved.push <| InfoTree.hole mvaId
   else
     x
 

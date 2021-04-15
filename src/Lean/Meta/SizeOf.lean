@@ -79,7 +79,7 @@ private partial def mkSizeOfMinors {α} (motiveFVars : Array Expr) (minorFVars :
 where
   loop (i : Nat) (minors : Array Expr) : MetaM α := do
     if i < minorFVars.size then
-      forallTelescopeReducing (← inferType minorFVars[i]) fun xs _ =>
+      forallTelescopeReducing (← inferType minorFVars[i]) fun xs _ => do
       forallBoundedTelescope (← inferType minorFVars'[i]) xs.size fun xs' _ => do
         let mut minor ← mkNumeral (mkConst ``Nat) 1
         for x in xs, x' in xs' do

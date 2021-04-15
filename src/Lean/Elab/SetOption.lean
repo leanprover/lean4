@@ -26,7 +26,8 @@ def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
     throwError "unexpected set_option value {val}"
 where
   setOption (optionName : Name) (val : DataValue) : m Options := do
-    let decl ← IO.toEIO (fun (ex : IO.Error) => Exception.error (← getRef) ex.toString) (getOptionDecl optionName)
+    let ref ← getRef
+    let decl ← IO.toEIO (fun (ex : IO.Error) => Exception.error ref ex.toString) (getOptionDecl optionName)
     unless decl.defValue.sameCtor val do throwError "type mismatch at set_option"
     return (← getOptions).insert optionName val
 

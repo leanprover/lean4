@@ -178,7 +178,6 @@ lean_object* l_Lean_ConstantInfo_isUnsafe_match__1(lean_object*);
 lean_object* l_Lean_instInhabitedDeclaration;
 lean_object* l_Lean_instInhabitedTheoremVal;
 lean_object* lean_mk_opaque_val(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19927____closed__3;
 lean_object* l_Lean_ConstantInfo_numLevelParams___boxed(lean_object*);
 lean_object* l_Lean_InductiveVal_nctors(lean_object*);
 lean_object* l_Lean_ReducibilityHints_lt_match__1(lean_object*);
@@ -199,6 +198,7 @@ lean_object* l_Lean_ConstantInfo_hints_match__1(lean_object*);
 lean_object* l_Lean_DefinitionVal_getSafetyEx___boxed(lean_object*);
 lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_instReprDefinitionSafety___closed__1;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19943____closed__3;
 lean_object* l_Lean_Declaration_isUnsafeInductiveDeclEx_match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_axiom_val_is_unsafe(lean_object*);
 lean_object* lean_mk_axiom_val(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -3491,7 +3491,7 @@ lean_object* l_Lean_mkRecName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19927____closed__3;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19943____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

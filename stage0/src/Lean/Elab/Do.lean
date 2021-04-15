@@ -29,13 +29,18 @@ private def getDoSeq (doStx : Syntax) : Syntax :=
 
 /-- Return true if we should not lift `(<- ...)` actions nested in the syntax nodes with the given kind. -/
 private def liftMethodDelimiter (k : SyntaxNodeKind) : Bool :=
-  k == `Lean.Parser.Term.do ||
-  k == `Lean.Parser.Term.doSeqIndent ||
-  k == `Lean.Parser.Term.doSeqBracketed ||
-  k == `Lean.Parser.Term.termReturn ||
-  k == `Lean.Parser.Term.termUnless ||
-  k == `Lean.Parser.Term.termTry ||
-  k == `Lean.Parser.Term.termFor
+  k == ``Lean.Parser.Term.do ||
+  k == ``Lean.Parser.Term.doSeqIndent ||
+  k == ``Lean.Parser.Term.doSeqBracketed ||
+  k == ``Lean.Parser.Term.termReturn ||
+  k == ``Lean.Parser.Term.termUnless ||
+  k == ``Lean.Parser.Term.termTry ||
+  k == ``Lean.Parser.Term.termFor
+
+/-- Return true if we should generate an error message when lifting a method over this kind of syntax. -/
+private def liftMethodForbiddenBinder (k : SyntaxNodeKind) : Bool :=
+  k == ``Lean.Parser.Term.fun ||
+  k == ``Lean.Parser.Term.matchAlts
 
 private partial def hasLiftMethod : Syntax → Bool
   | Syntax.node k args =>
@@ -634,7 +639,8 @@ private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx wit
       e ← withRef cond <| match cond with
         | `(doIfCond|let $pat := $d) => `(doElem| match%$i $d:term with | $pat:term => $t | _ => $e)
         | `(doIfCond|let $pat ← $d)  => `(doElem| match%$i ← $d    with | $pat:term => $t | _ => $e)
-        | _                          => `(doElem| if%$i $cond:doIfCond then $t else $e)
+        | `(doIfCond|$cond:doIfProp) => `(doElem| if%$i $cond:doIfProp then $t else $e)
+        | _                          => `(doElem| if%$i $(Syntax.missing) then $t else $e)
       eIsSeq := false
     return some e
   | _ => pure none
@@ -1126,27 +1132,30 @@ def ensureEOS (doElems : List Syntax) : M Unit :=
   unless doElems.isEmpty do
     throwError "must be last element in a 'do' sequence"
 
-private partial def expandLiftMethodAux (inQuot : Bool) : Syntax → StateT (List Syntax) MacroM Syntax
+private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Syntax → StateT (List Syntax) MacroM Syntax
   | stx@(Syntax.node k args) =>
     if liftMethodDelimiter k then
-      pure stx
+      return stx
     else if k == `Lean.Parser.Term.liftMethod && !inQuot then withFreshMacroScope do
+      if inBinder then
+        Macro.throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun` or `match`-alternative, and it can often be fixed by adding a missing `do`"
       let term := args[1]
-      let term ← expandLiftMethodAux inQuot term
+      let term ← expandLiftMethodAux inQuot inBinder term
       let auxDoElem ← `(doElem| let a ← $term:term)
       modify fun s => s ++ [auxDoElem]
       `(a)
     else do
       let inAntiquot := stx.isAntiquot && !stx.isEscapedAntiquot
-      let args ← args.mapM (expandLiftMethodAux (inQuot && !inAntiquot || stx.isQuot))
-      pure $ Syntax.node k args
+      let inBinder   := inBinder || (!inQuot && liftMethodForbiddenBinder k)
+      let args ← args.mapM (expandLiftMethodAux (inQuot && !inAntiquot || stx.isQuot) inBinder)
+      return Syntax.node k args
   | stx => pure stx
 
 def expandLiftMethod (doElem : Syntax) : MacroM (List Syntax × Syntax) := do
   if !hasLiftMethod doElem then
     pure ([], doElem)
   else
-    let (doElem, doElemsNew) ← (expandLiftMethodAux false doElem).run []
+    let (doElem, doElemsNew) ← (expandLiftMethodAux false false doElem).run []
     pure (doElemsNew, doElem)
 
 def checkLetArrowRHS (doElem : Syntax) : M Unit := do
@@ -1451,7 +1460,8 @@ mutual
 
   partial def doSeqToCode : List Syntax → M CodeBlock
     | [] => do liftMacroM mkPureUnitAction
-    | doElem::doElems => withRef doElem do
+    | doElem::doElems => withIncRecDepth <| withRef doElem do
+      checkMaxHeartbeats "'do'-expander"
       match (← liftMacroM <| expandMacro? doElem) with
       | some doElem => doSeqToCode (doElem::doElems)
       | none =>

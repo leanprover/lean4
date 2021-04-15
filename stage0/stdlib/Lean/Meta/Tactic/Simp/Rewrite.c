@@ -99,7 +99,6 @@ lean_object* l_Lean_Meta_Simp_rewrite___closed__6;
 lean_object* l_Lean_Meta_Simp_rewrite___closed__8;
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_synthesizeArgs_match__1(lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21870____closed__5;
 lean_object* l_Lean_Meta_Simp_rewrite___closed__4;
 uint8_t l_Std_PersistentHashMap_contains___at_Lean_Meta_SimpLemmas_isDeclToUnfold___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_rewrite___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -176,6 +175,7 @@ lean_object* l_Lean_Meta_instantiateMVars(lean_object*, lean_object*, lean_objec
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_rewrite___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_rewrite_tryLemma_x3f___lambda__3___closed__1;
 lean_object* l_Lean_Meta_Simp_tryRewriteCtorEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21902____closed__5;
 lean_object* l_Lean_Meta_DiscrTree_getMatch___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_insertionSort_traverse___at_Lean_Meta_Simp_rewrite___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_tryRewriteCtorEq_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -6797,7 +6797,7 @@ x_8 = l_Lean_Expr_hasMVar(x_1);
 if (x_8 == 0)
 {
 lean_object* x_9; uint8_t x_10; 
-x_9 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21870____closed__5;
+x_9 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21902____closed__5;
 x_10 = l_Lean_Expr_isConstOf(x_1, x_9);
 if (x_10 == 0)
 {

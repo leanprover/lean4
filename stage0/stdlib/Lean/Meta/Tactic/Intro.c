@@ -112,11 +112,11 @@ lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___ra
 lean_object* l_Lean_Meta_introNCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_tactic___x3c_x3b_x3e_____closed__5;
 lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__7;
 lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkAuxNameImp_match__1(lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22151____closed__7;
 lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___rarg___closed__7;
 lean_object* l_Lean_Meta_getMVarTag___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___rarg___closed__2;
@@ -1209,7 +1209,7 @@ lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Intro___hyg_633_(lean_ob
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__7;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22151____closed__7;
 x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Intro___hyg_633____closed__2;
 x_4 = l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_53____spec__1(x_2, x_3, x_1);
 return x_4;

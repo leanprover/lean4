@@ -118,7 +118,6 @@ lean_object* l_Lean_Compiler_binFoldFns;
 lean_object* l_Lean_Compiler_mkNatLe___closed__2;
 lean_object* l_Lean_mkDecIsTrue(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldStrictOr___rarg(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 lean_object* l_Lean_Compiler_natFoldFns___closed__7;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__21;
 lean_object* l_List_lookup___at_Lean_Compiler_findUnFoldFn___spec__1(lean_object*, lean_object*);
@@ -132,6 +131,7 @@ lean_object* l_Lean_Compiler_foldNatDecEq(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldUIntDiv___closed__1;
 lean_object* l_Lean_Compiler_toDecidableExpr___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_fold_un_op(uint8_t, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22151____closed__8;
 lean_object* l_Lean_Compiler_toDecidableExpr___closed__1;
 lean_object* l_Lean_Compiler_boolFoldFns___closed__6;
 lean_object* l_Lean_Compiler_unFoldFns___closed__6;
@@ -3270,7 +3270,7 @@ if (x_25 == 0)
 {
 lean_object* x_26; uint8_t x_27; 
 lean_dec(x_2);
-x_26 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
+x_26 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22151____closed__8;
 x_27 = lean_string_dec_eq(x_11, x_26);
 if (x_27 == 0)
 {
@@ -3321,7 +3321,7 @@ if (x_38 == 0)
 {
 lean_object* x_39; uint8_t x_40; 
 lean_dec(x_2);
-x_39 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
+x_39 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22151____closed__8;
 x_40 = lean_string_dec_eq(x_11, x_39);
 if (x_40 == 0)
 {
@@ -3404,7 +3404,7 @@ if (x_58 == 0)
 {
 lean_object* x_59; uint8_t x_60; 
 lean_dec(x_2);
-x_59 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
+x_59 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22151____closed__8;
 x_60 = lean_string_dec_eq(x_11, x_59);
 if (x_60 == 0)
 {
@@ -3507,7 +3507,7 @@ if (x_83 == 0)
 {
 lean_object* x_84; uint8_t x_85; 
 lean_dec(x_2);
-x_84 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
+x_84 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22151____closed__8;
 x_85 = lean_string_dec_eq(x_73, x_84);
 if (x_85 == 0)
 {
@@ -3676,7 +3676,7 @@ x_11 = lean_string_dec_eq(x_5, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; uint8_t x_13; 
-x_12 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
+x_12 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22151____closed__8;
 x_13 = lean_string_dec_eq(x_5, x_12);
 if (x_13 == 0)
 {

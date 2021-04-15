@@ -131,7 +131,8 @@ private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : M
 @[inline] def liftEIO {α} (x : EIO Exception α) : CommandElabM α := liftM x
 
 @[inline] def liftIO {α} (x : IO α) : CommandElabM α := do
-  IO.toEIO (fun (ex : IO.Error) => Exception.error (← read).ref ex.toString) x
+  let ctx ← read
+  IO.toEIO (fun (ex : IO.Error) => Exception.error ctx.ref ex.toString) x
 
 instance : MonadLiftT IO CommandElabM where
   monadLift := liftIO

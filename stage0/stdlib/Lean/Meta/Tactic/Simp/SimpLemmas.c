@@ -175,7 +175,6 @@ lean_object* l_Lean_Meta_instToFormatSimpLemma___closed__1;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instToMessageDataSimpLemma(lean_object*);
 extern lean_object* l_myMacro____x40_Init_Core___hyg_1737____closed__4;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21870____closed__5;
 lean_object* l_List_mapM___at___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkFun___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_instMetaEvalMetaM___rarg___closed__1;
 uint8_t l_Std_PersistentHashMap_contains___at_Lean_Meta_SimpLemmas_isDeclToUnfold___spec__1(lean_object*, lean_object*);
@@ -301,6 +300,7 @@ lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addSimpLemma___spec__1
 extern lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___closed__1;
 extern size_t l_Std_PersistentHashMap_insertAux___rarg___closed__2;
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21902____closed__5;
 lean_object* l_Lean_throwError___at___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_mkSimpLemmaCore___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SimpLemmas_eraseCore(lean_object*);
 lean_object* l_Std_PersistentHashMap_eraseAux___at_Lean_Meta_SimpLemmas_eraseCore___spec__2(lean_object*, size_t, lean_object*);
@@ -6122,7 +6122,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21870____closed__5;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21902____closed__5;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }

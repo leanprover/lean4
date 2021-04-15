@@ -98,7 +98,6 @@ lean_object* l_reprStr___rarg(lean_object*, lean_object*);
 lean_object* l_Nat_digitChar___boxed(lean_object*);
 lean_object* l_Int_repr(lean_object*);
 lean_object* l_Char_quoteCore___closed__2;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 lean_object* l_Int_repr_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1449____closed__6;
 lean_object* l_instReprInt___boxed(lean_object*, lean_object*);
@@ -109,6 +108,7 @@ lean_object* l_instReprDecidable(lean_object*);
 lean_object* l_instReprFin___boxed(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_reprArg___rarg(lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22151____closed__8;
 lean_object* l_instReprTuple(lean_object*);
 lean_object* l_instReprSubstring___boxed(lean_object*, lean_object*);
 lean_object* l_instReprString(lean_object*, lean_object*);
@@ -407,7 +407,7 @@ static lean_object* _init_l_instReprBool___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22151____closed__8;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

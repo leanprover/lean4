@@ -186,7 +186,6 @@ lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* l_Lean_termEval__prio_____closed__2;
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_113____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getTrailingSize_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
 lean_object* l_Lean_instQuoteSubstring___closed__2;
 lean_object* l_Lean_Syntax_isLit_x3f___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Meta_0__Lean_quoteName___closed__8;
@@ -223,6 +222,7 @@ lean_object* l_Array_isEqvAux___at_Lean_Syntax_structEq___spec__1___boxed(lean_o
 lean_object* l_Lean_Syntax_setHeadInfoAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_SepArray_ofElemsUsingRef___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_instDecidableNot___rarg(uint8_t);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22151____closed__8;
 lean_object* l_Lean_Syntax_mkStrLit___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_mkApp_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_expandInterpolatedStr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -8877,7 +8877,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_instQuoteBool___closed__2;
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22119____closed__8;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22151____closed__8;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

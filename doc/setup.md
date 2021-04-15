@@ -75,8 +75,10 @@ Note: Your system Nix might print warnings about not knowing some of the setting
 From a Lean shell, run
 ```bash
 $ nix flake new mypkg -t github:leanprover/lean4
+$ cd mypkg && git init && git add flake.nix
 ```
 to create a new Lean package in directory `mypkg` using the latest commit of Lean 4.
+Note that Nix Flakes will not recognize your `flake.nix` file unless it is visible to Git.
 Such packages follow the same directory layout as described in the basic setup above, except for a `leanpkg.toml` replaced by a `flake.nix` file set up so you can run Nix commands on it, for example:
 ```bash
 $ nix build  # build package and all dependencies

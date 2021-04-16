@@ -150,6 +150,11 @@ def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array Matc
     let patterns ← matchAlt.patterns.mapM expandMacros
     pure { matchAlt with patterns := patterns }
 
+private def getMatchGeneralizing? : Syntax → Option Bool
+  | `(match (generalizing := true) $discrs,* $[: $ty?]? with $alts:matchAlt*) => some true
+  | `(match (generalizing := false) $discrs,* $[: $ty?]? with $alts:matchAlt*) => some false
+  | _ => none
+
 /- Given `stx` a match-expression, return its alternatives. -/
 private def getMatchAlts : Syntax → Array MatchAltView
   | `(match $[$gen]? $discrs,* $[: $ty?]? with $alts:matchAlt*) =>
@@ -892,10 +897,22 @@ private def isMatchUnit? (altLHSS : List Match.AltLHS) (rhss : Array Expr) : Met
     | _ => return none
   | _ => return none
 
-private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltView) (matchOptType : Syntax) (expectedType : Expr)
+private def generalize (discrs : Array Expr) (matchType : Expr) (altViews : Array MatchAltView) (generalizing? : Option Bool) : TermElabM (Array Expr × Expr × Array MatchAltView × Bool) := do
+  let gen ←
+    match generalizing? with
+    | some g => pure g
+    | _ => isProp matchType
+  if !gen then
+    return (discrs, matchType, altViews, false)
+  else
+    -- TODO: use `getFVarsToGeneralize`
+    return (discrs, matchType, altViews, false)
+
+private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax) (altViews : Array MatchAltView) (matchOptType : Syntax) (expectedType : Expr)
     : TermElabM Expr := do
   let (discrs, matchType, altLHSS, isDep, rhss) ← commitIfDidNotPostpone do
     let ⟨discrs, matchType, isDep, altViews⟩ ← elabMatchTypeAndDiscrs discrStxs matchOptType altViews expectedType
+    let (discrs, matchType, altViews, gen) ← generalize discrs matchType altViews generalizing?
     let matchAlts ← liftMacroM <| expandMacrosInPatterns altViews
     trace[Elab.match] "matchType: {matchType}"
     let (discrs, matchType, alts, refined) ← elabMatchAltViews discrs matchType matchAlts
@@ -1072,9 +1089,10 @@ Remark the `optIdent` must be `none` at `matchDiscr`. They are expanded by `expa
 private def elabMatchCore (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   let expectedType ← waitExpectedTypeAndDiscrs stx expectedType?
   let discrStxs := (getDiscrs stx).map fun d => d
+  let gen?         := getMatchGeneralizing? stx
   let altViews     := getMatchAlts stx
   let matchOptType := getMatchOptType stx
-  elabMatchAux discrStxs altViews matchOptType expectedType
+  elabMatchAux gen? discrStxs altViews matchOptType expectedType
 
 private def isPatternVar (stx : Syntax) : TermElabM Bool := do
   match (← resolveId? stx "pattern") with
@@ -1118,7 +1136,7 @@ builtin_initialize
     | some _ =>
       let expectedType ← waitExpectedType expectedType?
       let discr := Syntax.node ``Lean.Parser.Term.matchDiscr #[mkNullNode, discrExpr]
-      elabMatchAux #[discr] #[] mkNullNode expectedType
+      elabMatchAux none #[discr] #[] mkNullNode expectedType
     | _ =>
       let stxNew ← `(let _discr := $discrExpr; nomatch _discr)
       withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?

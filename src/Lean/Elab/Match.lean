@@ -152,7 +152,7 @@ def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array Matc
 
 /- Given `stx` a match-expression, return its alternatives. -/
 private def getMatchAlts : Syntax → Array MatchAltView
-  | `(match $discrs,* $[: $ty?]? with $alts:matchAlt*) =>
+  | `(match $[$gen]? $discrs,* $[: $ty?]? with $alts:matchAlt*) =>
     alts.filterMap fun alt => match alt with
       | `(matchAltExpr| | $patterns,* => $rhs) => some {
           ref      := alt,
@@ -968,10 +968,10 @@ private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltVi
     return r
 
 private def getDiscrs (matchStx : Syntax) : Array Syntax :=
-  matchStx[1].getSepArgs
+  matchStx[2].getSepArgs
 
 private def getMatchOptType (matchStx : Syntax) : Syntax :=
-  matchStx[2]
+  matchStx[3]
 
 private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Syntax) :=
   let matchOptType := getMatchOptType matchStx;
@@ -987,7 +987,7 @@ private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Synta
         match discrs with
         | [] =>
           let discrs := Syntax.mkSep discrsNew (mkAtomFrom matchStx ", ");
-          pure (matchStx.setArg 1 discrs)
+          pure (matchStx.setArg 2 discrs)
         | discr :: discrs =>
           -- Recall that
           -- matchDiscr := leading_parser optional (ident >> ":") >> termParser

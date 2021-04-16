@@ -42,7 +42,7 @@ end Lean.Syntax
 #eval run $ do let a ← `(∀ _, c); match a with | `(∀ $a, $e) => pure a | _ => pure a
 #eval run $ do let a ← `(a); match a with | `($id:ident) => pure id | _ => pure a
 #eval run $ do let a ← `(a.{0}); match a with | `($id:ident) => pure id | _ => pure a
-#eval run $ do let a ← `(match a with | a => 1 | _ => 2); match a with | `(match $e with $eqns:matchAlt*) => pure eqns | _ => pure #[]
+#eval run $ do let a ← `(match a with | a => 1 | _ => 2); match a with | `(match $e:term with $eqns:matchAlt*) => pure eqns | _ => pure #[]
 
 def f (stx : Syntax) : Unhygienic Syntax := match stx with
   | `({ $f:ident := $e $[: $a]?}) => `({ $f:ident := $e $[: $(id a)]?})

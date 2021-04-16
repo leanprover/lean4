@@ -31,7 +31,7 @@ structure AuxMatchTermState where
   «cases» : Array Syntax := #[]
 
 private def mkAuxiliaryMatchTermAux (parentTag : Name) (matchTac : Syntax) : StateT AuxMatchTermState MacroM Syntax := do
-  let matchAlts := matchTac[4]
+  let matchAlts := matchTac[5]
   let alts      := matchAlts[0].getArgs
   let newAlts ← alts.mapM fun alt => do
     let alt    := alt.setKind ``Parser.Term.matchAlt
@@ -52,7 +52,7 @@ private def mkAuxiliaryMatchTermAux (parentTag : Name) (matchTac : Syntax) : Sta
       modify fun s => { s with cases := s.cases.push newCase }
       pure <| alt.setArg 3 newHole
   let result  := matchTac.setKind ``Parser.Term.«match»
-  let result  := result.setArg 4 (mkNode ``Parser.Term.matchAlts #[mkNullNode newAlts])
+  let result  := result.setArg 5 (mkNode ``Parser.Term.matchAlts #[mkNullNode newAlts])
   pure result
 
 private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM (Syntax × Array Syntax) := do

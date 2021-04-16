@@ -32,3 +32,4 @@ import Lean.Meta.SizeOf
 import Lean.Meta.Coe
 import Lean.Meta.SortLocalDecls
 import Lean.Meta.CollectFVars
+import Lean.Meta.GeneralizeVars

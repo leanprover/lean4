@@ -439,7 +439,7 @@ def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) (extraMsg? : Option M
   | MVarErrorKind.hole => do
     let msg : MessageData := "don't know how to synthesize placeholder"
     let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
-    logErrorAt mvarErrorInfo.ref (appendExtra msg)
+    logErrorAt mvarErrorInfo.ref (MessageData.tagged `Elab.synthPlaceholder <| appendExtra msg)
   | MVarErrorKind.custom msg =>
     logErrorAt mvarErrorInfo.ref (appendExtra msg)
 where

@@ -23,7 +23,7 @@ def goalsToMessageData (goals : List MVarId) : MessageData :=
 
 def Term.reportUnsolvedGoals (goals : List MVarId) : TermElabM Unit :=
   withPPInaccessibleNames do
-    throwError "unsolved goals\n{goalsToMessageData goals}"
+    throwError MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{goalsToMessageData goals}"
 
 namespace Tactic
 

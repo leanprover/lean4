@@ -1,0 +1,4 @@
+have.lean:3:0: error: unexpected end of input
+have.lean:2:16-2:17: error: don't know how to synthesize placeholder
+context:
+⊢ False

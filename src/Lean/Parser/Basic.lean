@@ -535,10 +535,9 @@ instance : OrElse Parser := ⟨orelse⟩
 }
 
 def atomicFn (p : ParserFn) : ParserFn := fun c s =>
-  let iniSz  := s.stackSize
   let iniPos := s.pos
   match p c s with
-  | ⟨stack, lhsPrec, _, cache, some msg⟩ => ⟨stack.shrink iniSz, lhsPrec, iniPos, cache, some msg⟩
+  | ⟨stack, lhsPrec, _, cache, some msg⟩ => ⟨stack, lhsPrec, iniPos, cache, some msg⟩
   | other                       => other
 
 @[inline] def atomic (p : Parser) : Parser := {

@@ -246,28 +246,28 @@ def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : P
 
 def mkError (s : ParserState) (msg : String) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
+  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨stack.push Syntax.missing, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
 
 def mkUnexpectedError (s : ParserState) (msg : String) (expected : List String := []) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { unexpected := msg, expected := expected }⟩
+  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨stack.push Syntax.missing, lhsPrec, pos, cache, some { unexpected := msg, expected := expected }⟩
 
 def mkEOIError (s : ParserState) (expected : List String := []) : ParserState :=
   s.mkUnexpectedError "unexpected end of input" expected
 
 def mkErrorAt (s : ParserState) (msg : String) (pos : String.Pos) (initStackSz? : Option Nat := none) : ParserState :=
   match s,  initStackSz? with
-  | ⟨stack, lhsPrec, _, cache, _⟩, none    => ⟨stack, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
-  | ⟨stack, lhsPrec, _, cache, _⟩, some sz => ⟨stack.shrink sz, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
+  | ⟨stack, lhsPrec, _, cache, _⟩, none    => ⟨stack.push Syntax.missing, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
+  | ⟨stack, lhsPrec, _, cache, _⟩, some sz => ⟨stack.shrink sz |>.push Syntax.missing, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
 
 def mkErrorsAt (s : ParserState) (ex : List String) (pos : String.Pos) (initStackSz? : Option Nat := none) : ParserState :=
   match s, initStackSz? with
-  | ⟨stack, lhsPrec, _, cache, _⟩, none    => ⟨stack, lhsPrec, pos, cache, some { expected := ex }⟩
-  | ⟨stack, lhsPrec, _, cache, _⟩, some sz => ⟨stack.shrink sz, lhsPrec, pos, cache, some { expected := ex }⟩
+  | ⟨stack, lhsPrec, _, cache, _⟩, none    => ⟨stack.push Syntax.missing, lhsPrec, pos, cache, some { expected := ex }⟩
+  | ⟨stack, lhsPrec, _, cache, _⟩, some sz => ⟨stack.shrink sz |>.push Syntax.missing, lhsPrec, pos, cache, some { expected := ex }⟩
 
 def mkUnexpectedErrorAt (s : ParserState) (msg : String) (pos : String.Pos) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, _, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { unexpected := msg }⟩
+  | ⟨stack, lhsPrec, _, cache, _⟩ => ⟨stack.push Syntax.missing, lhsPrec, pos, cache, some { unexpected := msg }⟩
 
 end ParserState
 
@@ -404,7 +404,7 @@ def errorAtSavedPosFn (msg : String) (delta : Bool) : ParserFn := fun c s =>
   | some pos =>
     let pos := if delta then c.input.next pos else pos
     match s with
-    | ⟨stack, lhsPrec, _, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { unexpected := msg }⟩
+    | ⟨stack, lhsPrec, _, cache, _⟩ => ⟨stack.push Syntax.missing, lhsPrec, pos, cache, some { unexpected := msg }⟩
 
 /- Generate an error at the position saved with the `withPosition` combinator.
    If `delta == true`, then it reports at saved position+1.

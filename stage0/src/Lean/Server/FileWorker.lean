@@ -471,6 +471,9 @@ section RequestHandling
 
         return none
 
+  def hasRange (stx : Syntax) : Bool :=
+    stx.getPos?.isSome && stx.getTailPos?.isSome
+
   def rangeOfSyntax (text : FileMap) (stx : Syntax) : Range :=
     ⟨text.utf8PosToLspPos <| stx.getPos?.get!,
      text.utf8PosToLspPos <| stx.getTailPos?.get!⟩
@@ -520,19 +523,22 @@ section RequestHandling
         | `(end $(id)?) => ([], stx::stxs)
         | _ =>
           let (syms, stxs') := toDocumentSymbols text stxs
-          if stx.isOfKind ``Lean.Parser.Command.declaration then
+          if stx.isOfKind ``Lean.Parser.Command.declaration && hasRange stx then
             let (name, selection) := match stx with
               | `($dm:declModifiers $ak:attrKind instance $[$np:namedPrio]? $[$id:ident$[.{$ls,*}]?]? $sig:declSig $val) =>
                 ((·.getId.toString) <$> id |>.getD s!"instance {sig.reprint.getD ""}", id.getD sig)
               | _ => match stx[1][1] with
                 | `(declId|$id:ident$[.{$ls,*}]?) => (id.getId.toString, id)
                 | _                               => (stx[1][0].isIdOrAtom?.getD "<unknown>", stx[1][0])
-            (DocumentSymbol.mk {
-              name := name
-              kind := SymbolKind.method
-              range := rangeOfSyntax text stx
-              selectionRange := rangeOfSyntax text selection
-            } :: syms, stxs')
+            if hasRange selection then
+              (DocumentSymbol.mk {
+                name := name
+                kind := SymbolKind.method
+                range := rangeOfSyntax text stx
+                selectionRange := rangeOfSyntax text selection
+               } :: syms, stxs')
+            else
+             (syms, stxs')
           else
             (syms, stxs')
       sectionLikeToDocumentSymbols (text : FileMap) (stx : Syntax) (stxs : List Syntax) (name : String) (kind : SymbolKind) (selection : Syntax) :=

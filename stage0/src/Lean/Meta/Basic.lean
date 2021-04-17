@@ -883,6 +883,37 @@ def withLocalDecl (name : Name) (bi : BinderInfo) (type : Expr) (k : Expr → n 
 def withLocalDeclD (name : Name) (type : Expr) (k : Expr → n α) : n α :=
   withLocalDecl name BinderInfo.default type k
 
+partial def withLocalDecls
+    [Inhabited α]
+    (declInfos : Array (Name × BinderInfo × (Array Expr → n Expr)))
+    (k : (xs : Array Expr) → n α)
+    : n α :=
+  let rec loop
+      [Inhabited α]
+      (acc : Array Expr) : n α := do
+    if acc.size < declInfos.size then
+      let (name, bi, typeCtor) := declInfos[acc.size]
+      withLocalDecl name bi (←typeCtor acc) fun x => loop (acc.push x)
+    else k acc
+
+  loop #[]
+
+def withLocalDeclsD
+    [Inhabited α]
+    (declInfos : Array (Name × (Array Expr → n Expr)))
+    (k : (xs : Array Expr) → n α)
+    : n α :=
+  withLocalDecls
+    (declInfos.map (fun (name, typeCtor) => (name, BinderInfo.default, typeCtor))) k
+
+private def withNewBinderInfosImp (bs : Array (FVarId × BinderInfo)) (k : MetaM α) : MetaM α := do
+  let lctx := bs.foldl (init := (← getLCtx)) fun lctx (fvarId, bi) =>
+      lctx.setBinderInfo fvarId bi
+  withReader (fun ctx => { ctx with lctx := lctx }) k
+
+def withNewBinderInfos (bs : Array (FVarId × BinderInfo)) (k : n α) : n α :=
+  mapMetaM (fun k => withNewBinderInfosImp bs k) k
+
 private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) : MetaM α := do
   let fvarId ← mkFreshId
   let ctx ← read

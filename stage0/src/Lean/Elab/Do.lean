@@ -149,7 +149,7 @@ inductive Code where
   | «return»     (ref : Syntax) (val : Syntax)
   /- Recall that an if-then-else may declare a variable using `optIdent` for the branches `thenBranch` and `elseBranch`. We store the variable name at `var?`. -/
   | ite          (ref : Syntax) (h? : Option Name) (optIdent : Syntax) (cond : Syntax) (thenBranch : Code) (elseBranch : Code)
-  | «match»      (ref : Syntax) (discrs : Syntax) (optType : Syntax) (alts : Array (Alt Code))
+  | «match»      (ref : Syntax) (gen : Syntax) (discrs : Syntax) (optType : Syntax) (alts : Array (Alt Code))
   | jmp          (ref : Syntax) (jpName : Name) (args : Array Syntax)
   deriving Inhabited
 
@@ -177,7 +177,7 @@ partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
     | Code.«break» _              => m!"break {us}"
     | Code.«continue» _           => m!"continue {us}"
     | Code.«return» _ v           => m!"return {v} {us}"
-    | Code.«match» _ ds t alts    =>
+    | Code.«match» _ _ ds t alts  =>
       m!"match {ds} with"
       ++ alts.foldl (init := m!"") fun acc alt => acc ++ m!"\n| {alt.patterns} => {loop alt.rhs}"
   loop codeBlock.code
@@ -185,14 +185,14 @@ partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
 /- Return true if the give code contains an exit point that satisfies `p` -/
 @[inline] partial def hasExitPointPred (c : Code) (p : Code → Bool) : Bool :=
   let rec @[specialize] loop : Code → Bool
-    | Code.decl _ _ k         => loop k
-    | Code.reassign _ _ k     => loop k
-    | Code.joinpoint _ _ b k  => loop b || loop k
-    | Code.seq _ k            => loop k
-    | Code.ite _ _ _ _ t e    => loop t || loop e
-    | Code.«match» _ _ _ alts => alts.any (loop ·.rhs)
-    | Code.jmp _ _ _          => false
-    | c                       => p c
+    | Code.decl _ _ k           => loop k
+    | Code.reassign _ _ k       => loop k
+    | Code.joinpoint _ _ b k    => loop b || loop k
+    | Code.seq _ k              => loop k
+    | Code.ite _ _ _ _ t e      => loop t || loop e
+    | Code.«match» _ _ _ _ alts => alts.any (loop ·.rhs)
+    | Code.jmp _ _ _            => false
+    | c                         => p c
   loop c
 
 def hasExitPoint (c : Code) : Bool :=
@@ -233,19 +233,19 @@ def mkAuxDeclFor {m} [Monad m] [MonadQuotation m] (e : Syntax) (mkCont : Syntax 
 /- Convert `action _ e` instructions in `c` into `let y ← e; jmp _ jp (xs y)`. -/
 partial def convertTerminalActionIntoJmp (code : Code) (jp : Name) (xs : Array Name) : MacroM Code :=
   let rec loop : Code → MacroM Code
-    | Code.decl xs stx k         => do Code.decl xs stx (← loop k)
-    | Code.reassign xs stx k     => do Code.reassign xs stx (← loop k)
-    | Code.joinpoint n ps b k    => do Code.joinpoint n ps (← loop b) (← loop k)
-    | Code.seq e k               => do Code.seq e (← loop k)
-    | Code.ite ref x? h c t e    => do Code.ite ref x? h c (← loop t) (← loop e)
-    | Code.«match» ref ds t alts => do Code.«match» ref ds t (← alts.mapM fun alt => do pure { alt with rhs := (← loop alt.rhs) })
-    | Code.action e              => mkAuxDeclFor e fun y =>
+    | Code.decl xs stx k           => do Code.decl xs stx (← loop k)
+    | Code.reassign xs stx k       => do Code.reassign xs stx (← loop k)
+    | Code.joinpoint n ps b k      => do Code.joinpoint n ps (← loop b) (← loop k)
+    | Code.seq e k                 => do Code.seq e (← loop k)
+    | Code.ite ref x? h c t e      => do Code.ite ref x? h c (← loop t) (← loop e)
+    | Code.«match» ref g ds t alts => do Code.«match» ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← loop alt.rhs) })
+    | Code.action e                => mkAuxDeclFor e fun y =>
       let ref := e
       -- We jump to `jp` with xs **and** y
       let jmpArgs := xs.map $ mkIdentFrom ref
       let jmpArgs := jmpArgs.push y
       pure $ Code.jmp ref jp jmpArgs
-    | c                          => pure c
+    | c                            => pure c
   loop code
 
 structure JPDecl where
@@ -317,18 +317,18 @@ def mkJmp (ref : Syntax) (rs : NameSet) (val : Syntax) (mkJPBody : Syntax → Ma
 
 /- `pullExitPointsAux rs c` auxiliary method for `pullExitPoints`, `rs` is the set of update variable in the current path.  -/
 partial def pullExitPointsAux : NameSet → Code → StateRefT (Array JPDecl) TermElabM Code
-  | rs, Code.decl xs stx k         => do Code.decl xs stx (← pullExitPointsAux (eraseVars rs xs) k)
-  | rs, Code.reassign xs stx k     => do Code.reassign xs stx (← pullExitPointsAux (insertVars rs xs) k)
-  | rs, Code.joinpoint j ps b k    => do Code.joinpoint j ps (← pullExitPointsAux rs b) (← pullExitPointsAux rs k)
-  | rs, Code.seq e k               => do Code.seq e (← pullExitPointsAux rs k)
-  | rs, Code.ite ref x? o c t e    => do Code.ite ref x? o c (← pullExitPointsAux (eraseOptVar rs x?) t) (← pullExitPointsAux (eraseOptVar rs x?) e)
-  | rs, Code.«match» ref ds t alts => do
-    Code.«match» ref ds t (← alts.mapM fun alt => do pure { alt with rhs := (← pullExitPointsAux (eraseVars rs alt.vars) alt.rhs) })
-  | rs, c@(Code.jmp _ _ _)         => pure c
-  | rs, Code.«break» ref           => mkSimpleJmp ref rs (Code.«break» ref)
-  | rs, Code.«continue» ref        => mkSimpleJmp ref rs (Code.«continue» ref)
-  | rs, Code.«return» ref val      => mkJmp ref rs val (fun y => pure $ Code.«return» ref y)
-  | rs, Code.action e              =>
+  | rs, Code.decl xs stx k           => do Code.decl xs stx (← pullExitPointsAux (eraseVars rs xs) k)
+  | rs, Code.reassign xs stx k       => do Code.reassign xs stx (← pullExitPointsAux (insertVars rs xs) k)
+  | rs, Code.joinpoint j ps b k      => do Code.joinpoint j ps (← pullExitPointsAux rs b) (← pullExitPointsAux rs k)
+  | rs, Code.seq e k                 => do Code.seq e (← pullExitPointsAux rs k)
+  | rs, Code.ite ref x? o c t e      => do Code.ite ref x? o c (← pullExitPointsAux (eraseOptVar rs x?) t) (← pullExitPointsAux (eraseOptVar rs x?) e)
+  | rs, Code.«match» ref g ds t alts => do
+    Code.«match» ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← pullExitPointsAux (eraseVars rs alt.vars) alt.rhs) })
+  | rs, c@(Code.jmp _ _ _)           => pure c
+  | rs, Code.«break» ref             => mkSimpleJmp ref rs (Code.«break» ref)
+  | rs, Code.«continue» ref          => mkSimpleJmp ref rs (Code.«continue» ref)
+  | rs, Code.«return» ref val        => mkJmp ref rs val (fun y => pure $ Code.«return» ref y)
+  | rs, Code.action e                =>
     -- We use `mkAuxDeclFor` because `e` is not pure.
     mkAuxDeclFor e fun y =>
       let ref := e
@@ -392,14 +392,14 @@ def pullExitPoints (c : Code) : TermElabM Code := do
 
 partial def extendUpdatedVarsAux (c : Code) (ws : NameSet) : TermElabM Code :=
   let rec update : Code → TermElabM Code
-    | Code.joinpoint j ps b k        => do Code.joinpoint j ps (← update b) (← update k)
-    | Code.seq e k                   => do Code.seq e (← update k)
-    | c@(Code.«match» ref ds t alts) => do
+    | Code.joinpoint j ps b k          => do Code.joinpoint j ps (← update b) (← update k)
+    | Code.seq e k                     => do Code.seq e (← update k)
+    | c@(Code.«match» ref g ds t alts) => do
       if alts.any fun alt => alt.vars.any fun x => ws.contains x then
         -- If a pattern variable is shadowing a variable in ws, we `pullExitPoints`
         pullExitPoints c
       else
-        Code.«match» ref ds t (← alts.mapM fun alt => do pure { alt with rhs := (← update alt.rhs) })
+        Code.«match» ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← update alt.rhs) })
     | Code.ite ref none o c t e => do Code.ite ref none o c (← update t) (← update e)
     | c@(Code.ite ref (some h) o cond t e) => do
       if ws.contains h then
@@ -505,13 +505,13 @@ def mkUnless (cond : Syntax) (c : CodeBlock) : MacroM CodeBlock := do
   let thenBranch ← mkPureUnitAction
   pure { c with code := Code.ite (← getRef) none mkNullNode cond thenBranch.code c.code }
 
-def mkMatch (ref : Syntax) (discrs : Syntax) (optType : Syntax) (alts : Array (Alt CodeBlock)) : TermElabM CodeBlock := do
+def mkMatch (ref : Syntax) (genParam : Syntax) (discrs : Syntax) (optType : Syntax) (alts : Array (Alt CodeBlock)) : TermElabM CodeBlock := do
   -- nary version of homogenize
   let ws := alts.foldl (union · ·.rhs.uvars) {}
   let alts ← alts.mapM fun alt => do
     let rhs ← extendUpdatedVars alt.rhs ws
     pure { ref := alt.ref, vars := alt.vars, patterns := alt.patterns, rhs := rhs.code : Alt Code }
-  pure { code := Code.«match» ref discrs optType alts, uvars := ws }
+  pure { code := Code.«match» ref genParam discrs optType alts, uvars := ws }
 
 /- Return a code block that executes `terminal` and then `k` with the value produced by `terminal`.
    This method assumes `terminal` is a terminal -/
@@ -995,14 +995,14 @@ partial def toTerm : Code → M Syntax
   | Code.reassign _ stx k   => do reassignToTerm stx (← toTerm k)
   | Code.seq stx k          => do seqToTerm stx (← toTerm k)
   | Code.ite ref _ o c t e  => withRef ref <| do mkIte o c (← toTerm t) (← toTerm e)
-  | Code.«match» ref discrs optType alts => do
+  | Code.«match» ref genParam discrs optType alts => do
     let mut termAlts := #[]
     for alt in alts do
       let rhs ← toTerm alt.rhs
       let termAlt := mkNode `Lean.Parser.Term.matchAlt #[mkAtomFrom alt.ref "|", alt.patterns, mkAtomFrom alt.ref "=>", rhs]
       termAlts := termAlts.push termAlt
     let termMatchAlts := mkNode `Lean.Parser.Term.matchAlts #[mkNullNode termAlts]
-    pure $ mkNode `Lean.Parser.Term.«match» #[mkAtomFrom ref "match", discrs, optType, mkAtomFrom ref "with", termMatchAlts]
+    pure $ mkNode `Lean.Parser.Term.«match» #[mkAtomFrom ref "match", genParam, discrs, optType, mkAtomFrom ref "with", termMatchAlts]
 
 def run (code : Code) (m : Syntax) (uvars : Array Name := #[]) (kind := Kind.regular) : MacroM Syntax := do
   let term ← toTerm code { m := m, kind := kind, uvars := uvars }
@@ -1385,16 +1385,17 @@ mutual
   /-- Generate `CodeBlock` for `doMatch; doElems` -/
   partial def doMatchToCode (doMatch : Syntax) (doElems: List Syntax) : M CodeBlock := do
     let ref       := doMatch
-    let discrs    := doMatch[1]
-    let optType   := doMatch[2]
-    let matchAlts := doMatch[4][0].getArgs -- Array of `doMatchAlt`
+    let genParam  := doMatch[1]
+    let discrs    := doMatch[2]
+    let optType   := doMatch[3]
+    let matchAlts := doMatch[5][0].getArgs -- Array of `doMatchAlt`
     let alts ←  matchAlts.mapM fun matchAlt => do
       let patterns := matchAlt[1]
       let vars ← getPatternsVarsEx patterns.getSepArgs
       let rhs  := matchAlt[3]
       let rhs ← doSeqToCode (getDoSeqElems rhs)
       pure { ref := matchAlt, vars := vars, patterns := patterns, rhs := rhs : Alt CodeBlock }
-    let matchCode ← mkMatch ref discrs optType alts
+    let matchCode ← mkMatch ref genParam discrs optType alts
     concatWith matchCode doElems
 
   /--
@@ -1574,7 +1575,4 @@ def expandTermUnless : Macro := toDoElem `Lean.Parser.Term.doUnless
 @[builtinMacro Lean.Parser.Term.termReturn]
 def expandTermReturn : Macro := toDoElem `Lean.Parser.Term.doReturn
 
-
-end Term
-end Elab
-end Lean
+end Lean.Elab.Term

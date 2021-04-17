@@ -255,12 +255,12 @@ theorem decideEqFalse : [s : Decidable p] → Not p → Eq (decide p) false
   | isFalse h, _   => rfl
 
 theorem ofDecideEqTrue [s : Decidable p] : Eq (decide p) true → p := fun h =>
-  match s with
+  match (generalizing := false) s with
   | isTrue  h₁ => h₁
   | isFalse h₁ => absurd h (neTrueOfEqFalse (decideEqFalse h₁))
 
 theorem ofDecideEqFalse [s : Decidable p] : Eq (decide p) false → Not p := fun h =>
-  match s with
+  match (generalizing := false) s with
   | isTrue  h₁ => absurd h (neFalseOfEqTrue (decideEqTrue h₁))
   | isFalse h₁ => h₁
 

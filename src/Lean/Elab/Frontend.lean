@@ -49,11 +49,6 @@ def setParserState (ps : Parser.ModuleParserState) : FrontendM Unit := modify fu
 def setMessages (msgs : MessageLog) : FrontendM Unit := modify fun s => { s with commandState := { s.commandState with messages := msgs } }
 def getInputContext : FrontendM Parser.InputContext := do pure (← read).inputCtx
 
-register_builtin_option showPartialSyntaxErrors : Bool := {
-  defValue := false
-  descr    := "show elaboration errors from partial syntax tree (i.e. after parser recovery)"
-}
-
 def processCommand : FrontendM Bool := do
   updateCmdPos
   let cmdState ← getCommandState
@@ -62,18 +57,15 @@ def processCommand : FrontendM Bool := do
   let scope := cmdState.scopes.head!
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
   let pos := ictx.fileMap.toPosition pstate.pos
-  match profileit "parsing" scope.opts fun _ => Parser.parseCommand ictx pmctx pstate {} with
-  | (cmd, ps, parseMessages) =>
+  match profileit "parsing" scope.opts fun _ => Parser.parseCommand ictx pmctx pstate cmdState.messages with
+  | (cmd, ps, messages) =>
     modify fun s => { s with commands := s.commands.push cmd }
     setParserState ps
-    setMessages (cmdState.messages ++ parseMessages)
+    setMessages messages
     if Parser.isEOI cmd || Parser.isExitCommand cmd then
       pure true -- Done
     else
       profileitM IO.Error "elaboration" scope.opts <| elabCommandAtFrontend cmd
-      if parseMessages.hasErrors && !showPartialSyntaxErrors.get scope.opts then
-        -- discard elaboration errors
-        setMessages (cmdState.messages ++ parseMessages)
       pure false
 
 partial def processCommands : FrontendM Unit := do

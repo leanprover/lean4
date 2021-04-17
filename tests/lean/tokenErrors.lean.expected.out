@@ -5,3 +5,4 @@ tokenErrors.lean:4:11: error: unterminated identifier escape
 tokenErrors.lean:6:0: error: unterminated comment
 tokenErrors.lean:7:0: error: unterminated comment
 tokenErrors.lean:7:1: error: unterminated comment
+tokenErrors.lean:7:0-7:1: error: unexpected command

@@ -105,7 +105,7 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | nCtx, some ctx,  ofGoal mvarId            => ppGoal (mkPPContext nCtx ctx) mvarId
   | nCtx, _,         withContext ctx d        => formatAux nCtx ctx d
   | _,    ctx,       withNamingContext nCtx d => formatAux nCtx ctx d
-  | nCtx, ctx,       tagged cls d             => do let d ← formatAux nCtx ctx d; pure $ Format.sbracket (format cls) ++ " " ++ d
+  | nCtx, ctx,       tagged _ d               => formatAux nCtx ctx d
   | nCtx, ctx,       nest n d                 => Format.nest n <$> formatAux nCtx ctx d
   | nCtx, ctx,       compose d₁ d₂            => do let d₁ ← formatAux nCtx ctx d₁; let d₂ ← formatAux nCtx ctx d₂; pure $ d₁ ++ d₂
   | nCtx, ctx,       group d                  => Format.group <$> formatAux nCtx ctx d

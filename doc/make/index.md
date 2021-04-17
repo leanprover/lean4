@@ -142,7 +142,7 @@ After building a stage, you can invoke `make -C stageN test` (or, even better,
 automatically use that stage's corresponding Lean executables, for running tests
 or compiling Lean programs manually, you need to put them into your `PATH`
 yourself. A simple option for doing that is to use
-[`elan`](https://github.com/Kha/elan), see the next section.
+[`elan`](https://github.com/leanprover/elan), see the next section.
 
 You can use any of the [supported editors](../setup.md) for editing the Lean source
 code. If you set up `elan` as below, opening `src/` as a *workspace folder* should
@@ -153,14 +153,14 @@ go-to-definition in the stdlib (automatically set when using `nix-shell`).
 Dev setup using elan
 --------------------
 
-You can use [`elan`](https://github.com/Kha/elan) to easily switch between
+You can use [`elan`](https://github.com/leanprover/elan) to easily switch between
 stages and build configurations based on the current directory, both for the
 `lean/leanc/leanmake` binaries in your shell's PATH and inside your editor.
 
 If you haven't already installed elan, you can do so, without installing a
 default version of Lean, using
 ```bash
-curl https://raw.githubusercontent.com/Kha/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain none
+curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain none
 ```
 You can use `elan toolchain link` to give a specific stage build directory a
 reference name, then use `elan override set` to associate such a name to the

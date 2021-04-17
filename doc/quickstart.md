@@ -3,9 +3,9 @@
 These instructions will walk you through setting up Lean using the "basic" setup and VS Code as the editor.
 See [Setup](./setup.md) for other ways and more details on setting up Lean.
 
-1. Install the latest Lean 4 nightly through [`elan`](https://github.com/Kha/elan): in any bash-compatible shell, run
+1. Install the latest Lean 4 nightly through [`elan`](https://github.com/leanprover/elan): in any bash-compatible shell, run
     ```sh
-    $ curl https://raw.githubusercontent.com/Kha/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain leanprover/lean4:nightly
+    $ curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain leanprover/lean4:nightly
     ```
     See the `elan` link above for other installation options and details.
     Note that using Lean with multi-file projects on Windows currently comes with some [additional limitations](./setup.md#leanpkg).

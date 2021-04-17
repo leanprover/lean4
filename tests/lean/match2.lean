@@ -78,3 +78,13 @@ def h6 {b : Bool} (x : Foo b) : Bool :=
 match b, x with
 | _, Foo.bar => true
 | b, x       => false
+
+def h6' {b : Bool} (x : Foo b) : Bool :=
+match (generalizing := true) b, x : (b : Bool) → Foo b → Bool with
+| _, Foo.bar => true
+| b, x       => false
+
+def h6'' {b : Bool} (x : Foo b) : Bool :=
+match (generalizing := false) b, x : (b : Bool) → Foo b → Bool with
+| _, Foo.bar => true
+| b, x       => false

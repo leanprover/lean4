@@ -1,10 +1,15 @@
 theorem tst1 {α : Type} {p : Prop} (xs : List α) (h₁ : (a : α) → (as : List α) → xs = a :: as → p) (h₂ : xs = [] → p) : p :=
-by match h:xs with
+by match (generalizing := false) h:xs with
    | []    => exact h₂ h
    | z::zs => apply h₁ z zs; assumption
 
+theorem tst1' {α : Type} {p : Prop} (xs : List α) (h₁ : (a : α) → (as : List α) → xs = a :: as → p) (h₂ : xs = [] → p) : p :=
+by match xs with
+   | []    => exact h₂ rfl
+   | z::zs => exact h₁ z zs rfl
+
 theorem tst2 {α : Type} {p : Prop} (xs : List α) (h₁ : (a : α) → (as : List α) → xs = a :: as → p) (h₂ : xs = [] → p) : p :=
-by match h:xs with
+by match (generalizing := false) h:xs with
    | []    => ?nilCase
    | z::zs => ?consCase;
    case consCase => exact h₁ z zs h;
@@ -17,7 +22,7 @@ by {
 }
 
 theorem tst4 {α : Type} {p : Prop} (xs : List α) (h₁ : (a : α) → (as : List α) → xs = a :: as → p) (h₂ : xs = [] → p) : p := by
-match h:xs with
+match (generalizing := false) h:xs with
 | []    => _
 | z::zs => _
 case match_2 => exact h₁ z zs h
@@ -68,11 +73,21 @@ axiom backEq {α} [Inhabited α] : (xs : List α) → (x : α) → back (xs ++ [
 axiom popBackEq {α} : (xs : List α) → (x : α) → popBack (xs ++ [x]) = xs
 
 theorem tst8 {α} [Inhabited α] (xs : List α) : xs ≠ [] → xs = popBack xs ++ [back xs] :=
-match xs, h:last xs with
+match (generalizing := false) xs, h:last xs with
 | _, ListLast.empty         => fun h => absurd rfl h
 | _, ListLast.nonEmpty ys y => fun _ => sorry
 
 theorem tst9 {α} [Inhabited α] (xs : List α) : xs ≠ [] → xs = popBack xs ++ [back xs] := by
-match xs, h:last xs with
-| _, ListLast.empty         => intro h; exact absurd rfl h
-| _, ListLast.nonEmpty ys y => intro; rw [popBackEq, backEq]
+  match (generalizing := false) xs, h:last xs with
+  | _, ListLast.empty         => intro h; exact absurd rfl h
+  | _, ListLast.nonEmpty ys y => intro; rw [popBackEq, backEq]
+
+theorem tst8' {α} [Inhabited α] (xs : List α) : xs ≠ [] → xs = popBack xs ++ [back xs] :=
+match xs, last xs with
+| _, ListLast.empty         => fun h => absurd rfl h
+| _, ListLast.nonEmpty ys y => fun _ => sorry
+
+theorem tst8'' {α} [Inhabited α] (xs : List α) (h : xs ≠ []) : xs = popBack xs ++ [back xs] :=
+match xs, last xs with
+| _, ListLast.empty         => absurd rfl h
+| _, ListLast.nonEmpty ys y => sorry

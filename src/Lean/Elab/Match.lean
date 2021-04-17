@@ -7,6 +7,7 @@ import Lean.Util.CollectFVars
 import Lean.Meta.Match.MatchPatternAttr
 import Lean.Meta.Match.Match
 import Lean.Meta.SortLocalDecls
+import Lean.Meta.GeneralizeVars
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.App
 import Lean.Parser.Term
@@ -151,7 +152,7 @@ def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array Matc
     pure { matchAlt with patterns := patterns }
 
 private def getMatchGeneralizing? : Syntax → Option Bool
-  | `(match (generalizing := true) $discrs,* $[: $ty?]? with $alts:matchAlt*) => some true
+  | `(match (generalizing := true)  $discrs,* $[: $ty?]? with $alts:matchAlt*) => some true
   | `(match (generalizing := false) $discrs,* $[: $ty?]? with $alts:matchAlt*) => some false
   | _ => none
 
@@ -897,6 +898,19 @@ private def isMatchUnit? (altLHSS : List Match.AltLHS) (rhss : Array Expr) : Met
     | _ => return none
   | _ => return none
 
+/--
+  "Generalize" variables that depend on the discriminants.
+
+  Remarks and limitations:
+  - If `matchType` is a proposition, then we generalize even when the user did not provide `(generalizing := true)`.
+    Motivation: users should have control about the actual `match`-expressions in their programs.
+  - We currently do not generalize let-decls.
+  - We abort generalization if the new `matchType` is type incorrect.
+  - Only discriminants that are free variables are considered during specialization.
+  - We "generalize" by adding new discriminants and pattern variables. We do not "clear" the generalized variables,
+    but they become inaccessible since they are shadowed by the patterns variables. We assume this is ok since
+    this is the exact behavior users would get if they had written it by hand. Recall there is no `clear` in term mode.
+-/
 private def generalize (discrs : Array Expr) (matchType : Expr) (altViews : Array MatchAltView) (generalizing? : Option Bool) : TermElabM (Array Expr × Expr × Array MatchAltView × Bool) := do
   let gen ←
     match generalizing? with
@@ -905,14 +919,41 @@ private def generalize (discrs : Array Expr) (matchType : Expr) (altViews : Arra
   if !gen then
     return (discrs, matchType, altViews, false)
   else
-    -- TODO: use `getFVarsToGeneralize`
-    return (discrs, matchType, altViews, false)
+    let ysFVarIds ← getFVarsToGeneralize discrs
+    /- let-decls are currently being ignored by the generalizer. -/
+    let ysFVarIds ← ysFVarIds.filterM fun fvarId => return !(← getLocalDecl fvarId).isLet
+    if ysFVarIds.isEmpty then
+      return (discrs, matchType, altViews, false)
+    else
+      let ys := ysFVarIds.map mkFVar
+      -- trace[Meta.debug] "ys: {ys}, discrs: {discrs}"
+      let matchType' ← forallBoundedTelescope matchType discrs.size fun ds type => do
+        let type ← mkForallFVars ys type
+        let (discrs', ds') := Array.unzip <| Array.zip discrs ds |>.filter fun (di, d) => di.isFVar
+        let type := type.replaceFVars discrs' ds'
+        mkForallFVars ds type
+      -- trace[Meta.debug] "matchType': {matchType'}"
+      if (← isTypeCorrect matchType') then
+        let discrs := discrs ++ ys
+        let ysIds ← ys.mapM fun y => do
+          let yDecl ← getLocalDecl y.fvarId!
+          return mkIdentFrom (← getRef) yDecl.userName
+        let altViews := altViews.map fun altView => { altView with patterns := altView.patterns ++ ysIds }
+        return (discrs, matchType', altViews, true)
+      else
+        return (discrs, matchType, altViews, true)
 
 private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax) (altViews : Array MatchAltView) (matchOptType : Syntax) (expectedType : Expr)
     : TermElabM Expr := do
+  let mut generalizing? := generalizing?
+  if !matchOptType.isNone then
+    if generalizing? == some true then
+      throwError "the '(generalizing := true)' parameter is not supported when the 'match' type is explicitly provided"
+    generalizing? := some false
   let (discrs, matchType, altLHSS, isDep, rhss) ← commitIfDidNotPostpone do
     let ⟨discrs, matchType, isDep, altViews⟩ ← elabMatchTypeAndDiscrs discrStxs matchOptType altViews expectedType
     let (discrs, matchType, altViews, gen) ← generalize discrs matchType altViews generalizing?
+    let isDep := isDep || gen
     let matchAlts ← liftMacroM <| expandMacrosInPatterns altViews
     trace[Elab.match] "matchType: {matchType}"
     let (discrs, matchType, alts, refined) ← elabMatchAltViews discrs matchType matchAlts

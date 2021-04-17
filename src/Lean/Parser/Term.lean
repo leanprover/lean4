@@ -134,7 +134,9 @@ def matchAlts (rhsParser : Parser := termParser) : Parser :=
 
 def matchDiscr := leading_parser optional (atomic (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> termParser
 
-def generalizingParam := leading_parser atomic ("(" >> nonReservedSymbol "generalizing") >> " := " >> (nonReservedSymbol "true" <|> nonReservedSymbol "false")  >> ")"
+def trueVal  := leading_parser nonReservedSymbol "true"
+def falseVal := leading_parser nonReservedSymbol "false"
+def generalizingParam := leading_parser atomic ("(" >> nonReservedSymbol "generalizing") >> " := " >> (trueVal <|> falseVal)  >> ")"
 
 @[builtinTermParser] def «match» := leading_parser:leadPrec "match " >> optional generalizingParam >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
 @[builtinTermParser] def «nomatch» := leading_parser:leadPrec "nomatch " >> termParser

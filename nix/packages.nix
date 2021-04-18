@@ -5,7 +5,7 @@ let
     ${nix.defaultPackage.${system}}/bin/nix --experimental-features 'nix-command flakes' --extra-substituters https://lean4.cachix.org/ --option warn-dirty false "$@"
   '';
   llvmPackages = llvmPackages_10;
-  cc = ccacheWrapper.override rec {
+  cc = (ccacheWrapper.override rec {
     # macOS doesn't like the lld override, but I guess it already uses that anyway
     cc = if system == "x86_64-darwin" then llvmPackages.clang else llvmPackages.clang.override {
       # linker go brrr
@@ -25,7 +25,10 @@ let
       set -- "''${args[@]}"
       [ -d $CCACHE_DIR ] || exec ${cc}/bin/$(basename "$0") "$@"
     '';
-  };
+  }).overrideAttrs (old: {
+    # https://github.com/NixOS/nixpkgs/issues/119779
+    installPhase = builtins.replaceStrings ["use_response_file_by_default=1"] ["use_response_file_by_default=0"] old.installPhase;
+  });
   lean = callPackage (import ./bootstrap.nix) (args // {
     stdenv = overrideCC llvmPackages.stdenv cc;
     inherit buildLeanPackage;

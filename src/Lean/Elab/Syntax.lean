@@ -322,6 +322,9 @@ def syntaxAbbrev  := leading_parser "syntax " >> ident >> " := " >> many1 syntax
   let stx' ← `(def $declName : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
   withMacroExpansion stx stx' $ elabCommand stx'
 
+private def checkRuleKind (given expected : SyntaxNodeKind) : Bool :=
+  given == expected || given == expected ++ `antiquot
+
 /-
   Remark: `k` is the user provided kind with the current namespace included.
   Recall that syntax node kinds contain the current namespace.
@@ -334,10 +337,10 @@ def elabMacroRulesAux (k : SyntaxNodeKind) (alts : Array Syntax) : CommandElabM 
         throwUnsupportedSyntax
       let quoted := getQuotContent pat
       let k' := quoted.getKind
-      if k' == k then
+      if checkRuleKind k' k then
         pure alt
       else if k' == choiceKind then
-         match quoted.getArgs.find? fun quotAlt => quotAlt.getKind == k with
+         match quoted.getArgs.find? fun quotAlt => checkRuleKind quotAlt.getKind k with
          | none        => throwErrorAt alt "invalid macro_rules alternative, expected syntax node kind '{k}'"
          | some quoted =>
            let pat := pat.setArg 1 quoted
@@ -359,13 +362,15 @@ def inferMacroRulesAltKind : Syntax → CommandElabM SyntaxNodeKind
   | _ => throwUnsupportedSyntax
 
 def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
-  let k ← inferMacroRulesAltKind alts[0]
+  let mut k ← inferMacroRulesAltKind alts[0]
+  if k.isStr && k.getString! == "antiquot" then
+    k := k.getPrefix
   if k == choiceKind then
     throwErrorAt alts[0]
       "invalid macro_rules alternative, multiple interpretations for pattern (solution: specify node kind using `macro_rules [<kind>] ...`)"
   else
-    let altsK    ← alts.filterM fun alt => do pure $ k == (← inferMacroRulesAltKind alt)
-    let altsNotK ← alts.filterM fun alt => do pure $ k != (← inferMacroRulesAltKind alt)
+    let altsK    ← alts.filterM fun alt => return checkRuleKind (← inferMacroRulesAltKind alt) k
+    let altsNotK ← alts.filterM fun alt => return !checkRuleKind (← inferMacroRulesAltKind alt) k
     let defCmd   ← elabMacroRulesAux k altsK
     if altsNotK.isEmpty then
       pure defCmd
@@ -374,9 +379,10 @@ def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
 
 @[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
   adaptExpander fun stx => match stx with
-  | `(macro_rules $alts:matchAlt*)         => elabNoKindMacroRulesAux alts
-  | `(macro_rules [$kind] $alts:matchAlt*) => do elabMacroRulesAux ((← getCurrNamespace) ++ kind.getId) alts
-  | _                                      => throwUnsupportedSyntax
+  | `(macro_rules $alts:matchAlt*)            => elabNoKindMacroRulesAux alts
+  | `(macro_rules [$kind] | $x:ident => $rhs) => `(@[macro $kind] def myMacro : Macro := fun $x:ident => $rhs)
+  | `(macro_rules [$kind] $alts:matchAlt*)    => do elabMacroRulesAux ((← getCurrNamespace) ++ kind.getId) alts
+  | _                                         => throwUnsupportedSyntax
 
 @[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro := fun stx =>
   withAttrKindGlobal stx fun stx => do

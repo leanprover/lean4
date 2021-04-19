@@ -197,6 +197,24 @@ def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofFieldInfo i          => i.format ctx
   | ofCompletionInfo i     => i.format ctx
 
+/--
+  Helper function for propagating the tactic metavariable context to its children nodes.
+  We need this function because we preserve `TacticInfo` nodes during backtracking *and* their
+  children. Moreover, we backtrack the metavariable context to undo metavariable assignments.
+  `TacticInfo` nodes save the metavariable context before/after the tactic application, and
+  can be pretty printed without any extra information. This is not the case for `TermInfo` nodes.
+  Without this function, the formatting method would often fail when processing `TermInfo` nodes
+  that are children of `TacticInfo` nodes that have been preserved during backtracking.
+  Saving the metavariable context at `TermInfo` nodes is also not a good option because
+  at `TermInfo` creation time, the metavariable context often miss information, e.g.,
+  a TC problem has not been resolved, a postponed subterm has not been elaborated, etc.
+
+  See `Term.SavedState.restore`.
+-/
+def Info.updateContext? : Option ContextInfo → Info → Option ContextInfo
+  | some ctx, ofTacticInfo i => some { ctx with mctx := i.mctxAfter }
+  | ctx?, _ => ctx?
+
 partial def InfoTree.format (tree : InfoTree) (ctx? : Option ContextInfo := none) : IO Format := do
   match tree with
   | ofJson j    => return toString j
@@ -205,10 +223,12 @@ partial def InfoTree.format (tree : InfoTree) (ctx? : Option ContextInfo := none
   | node i cs   => match ctx? with
     | none => return "<context-not-available>"
     | some ctx =>
+      let fmt ← i.format ctx
       if cs.size == 0 then
-        i.format ctx
+        return fmt
       else
-        return f!"{← i.format ctx}{Std.Format.nestD <| Std.Format.prefixJoin "\n" (← cs.toList.mapM fun c => format c ctx?)}"
+        let ctx? := i.updateContext? ctx?
+        return f!"{fmt}{Std.Format.nestD <| Std.Format.prefixJoin "\n" (← cs.toList.mapM fun c => format c ctx?)}"
 
 section
 variable [Monad m] [MonadInfoTree m]

@@ -19,7 +19,7 @@ where go ctx?
   | context ctx t => go ctx t
   | n@(node i cs) =>
     let cs := cs.toList
-    let ccs := cs.map (go ctx?)
+    let ccs := cs.map (go <| i.updateContext? ctx?)
     let cs := ccs.join
     if !cs.isEmpty then cs
     else match ctx? with
@@ -37,7 +37,7 @@ where go ctx? a
     let a := match ctx? with
       | none => a
       | some ctx => f ctx i a
-    ts.foldl (init := a) (go ctx?)
+    ts.foldl (init := a) (go <| i.updateContext? ctx?)
   | _ => a
 
 def Info.isTerm : Info → Bool

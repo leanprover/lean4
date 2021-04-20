@@ -244,7 +244,7 @@ theorem mem_split {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a 
   | cons b bs ih => cases h with
     | head a bs => exact ⟨[], ⟨bs, rfl⟩⟩
     | tail a b bs h =>
-      match (generalizing := false) bs, ih h with
+      match bs, ih h with
       | _, ⟨s, ⟨t, rfl⟩⟩ =>
         exists b::s; exists t
         rw [List.cons_append]

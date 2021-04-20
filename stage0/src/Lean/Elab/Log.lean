@@ -77,7 +77,7 @@ def logException [MonadLiftT IO m] (ex : Exception) : m Unit := do
       logError m!"internal exception: {name}"
 
 def logTrace (cls : Name) (msgData : MessageData) : m Unit := do
-  logInfo (MessageData.tagged cls msgData)
+  logInfo (MessageData.tagged cls m!"[{cls}] {msgData}")
 
 @[inline] def trace [MonadOptions m] (cls : Name) (msg : Unit → MessageData) : m Unit := do
   if checkTraceOption (← getOptions) cls then

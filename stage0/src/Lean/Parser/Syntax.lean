@@ -64,7 +64,7 @@ def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «p
 -- thus should be ignored when we use `checkInsideQuot` to prepare the next stage for a builtin syntax change
 def identPrec  := leading_parser ident >> optPrecedence
 
-def optKind : Parser := optional ("[" >> ident >> "]")
+def optKind : Parser := optional ("(" >> nonReservedSymbol "kind" >> ":=" >> ident >> ")")
 
 def notationItem := ppSpace >> withAntiquot (mkAntiquot "notationItem" `Lean.Parser.Command.notationItem) (strLit <|> identPrec)
 @[builtinCommandParser] def «notation»    := leading_parser Term.attrKind >> "notation" >> optPrecedence >> optNamedName >> optNamedPrio >> many notationItem >> darrow >> termParser

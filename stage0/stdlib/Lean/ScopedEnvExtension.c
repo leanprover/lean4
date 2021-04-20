@@ -43,7 +43,6 @@ lean_object* l_Std_AssocList_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__10___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_add___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__5(lean_object*);
-lean_object* l_Std_PersistentArray_forInAux___at_Lean_ScopedEnvExtension_activateScoped___spec__10___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_instInhabitedDescr___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_ScopedEnvExtension_activateScoped___spec__13(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
@@ -298,7 +297,6 @@ lean_object* l_Lean_SimpleScopedEnvExtension_Descr_finalizeImport___default(lean
 lean_object* l_Std_HashMapImp_insert___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__25___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_ScopedEnvExtension_activateScoped___spec__3___rarg(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_getState___rarg___closed__3;
-lean_object* l_Std_PersistentArray_forInAux___at_Lean_ScopedEnvExtension_activateScoped___spec__10___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_ScopedEnvExtension_addEntryFn___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_pushScope___rarg___closed__1;
 extern lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___closed__1;
@@ -6346,15 +6344,6 @@ x_4 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_ScopedEnvExt
 return x_4;
 }
 }
-lean_object* l_Std_PersistentArray_forInAux___at_Lean_ScopedEnvExtension_activateScoped___spec__10___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_1);
-return x_3;
-}
-}
 lean_object* l_Std_PersistentArray_forInAux___at_Lean_ScopedEnvExtension_activateScoped___spec__10___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -7017,15 +7006,6 @@ lean_dec(x_5);
 x_9 = l_Array_forInUnsafe_loop___at_Lean_ScopedEnvExtension_activateScoped___spec__12___rarg(x_1, x_2, x_3, x_7, x_8, x_6);
 lean_dec(x_3);
 return x_9;
-}
-}
-lean_object* l_Std_PersistentArray_forInAux___at_Lean_ScopedEnvExtension_activateScoped___spec__10___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_PersistentArray_forInAux___at_Lean_ScopedEnvExtension_activateScoped___spec__10___rarg___lambda__1(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 lean_object* l_Std_PersistentArray_forInAux___at_Lean_ScopedEnvExtension_activateScoped___spec__10___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

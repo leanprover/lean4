@@ -91,7 +91,7 @@ private def addNode (oldTraces : PersistentArray TraceElem) (cls : Name) (ref : 
     if traces.isEmpty then
       oldTraces
     else
-      let d := MessageData.tagged cls (MessageData.node (traces.toArray.map fun elem => elem.msg))
+      let d := MessageData.tagged cls m!"[{cls}] {MessageData.node (traces.toArray.map fun elem => elem.msg)}"
       oldTraces.push { ref := ref, msg := d }
 
 private def getResetTraces : m (PersistentArray TraceElem) := do
@@ -105,7 +105,7 @@ variable [MonadRef m] [AddMessageContext m] [MonadOptions m]
 def addTrace (cls : Name) (msg : MessageData) : m Unit := do
   let ref ← getRef
   let msg ← addMessageContext msg
-  modifyTraces fun traces => traces.push { ref := ref, msg := MessageData.tagged cls msg }
+  modifyTraces fun traces => traces.push { ref := ref, msg := MessageData.tagged cls m!"[{cls}] {msg}" }
 
 @[inline] def trace (cls : Name) (msg : Unit → MessageData) : m Unit := do
   if (← isTracingEnabledFor cls) then

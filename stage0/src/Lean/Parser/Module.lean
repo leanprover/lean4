@@ -88,11 +88,12 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
       | some errorMsg =>
         -- advance at least one token to prevent infinite loops
         let pos := if s.pos == pos then consumeInput c s.pos else s.pos
-        let messages := if recovering && s.stxStack.isEmpty then messages else messages.add <| mkErrorMessage c s.pos (toString errorMsg)
         /- We ignore commands where `getPos?` is none. This happens only on commands that have a prefix comprised of optional elements.
            For example, unification hints start with `optional («scoped» <|> «local»)`.
-           We claim a syntatically incorrect command containing no token or identifier is irrelevant for intellisense and should be ignored. -/
-        if s.stxStack.isEmpty || s.stxStack.back.getPos?.isNone then
+           We claim a syntactically incorrect command containing no token or identifier is irrelevant for intellisense and should be ignored. -/
+        let ignore := s.stxStack.isEmpty || s.stxStack.back.getPos?.isNone
+        let messages := if recovering && ignore then messages else messages.add <| mkErrorMessage c s.pos (toString errorMsg)
+        if ignore then
           parse { pos := pos, recovering := true } messages
         else
           (s.stxStack.back, { pos := pos, recovering := true }, messages)

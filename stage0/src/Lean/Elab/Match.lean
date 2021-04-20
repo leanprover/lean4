@@ -935,10 +935,22 @@ private def generalize (discrs : Array Expr) (matchType : Expr) (altViews : Arra
       -- trace[Meta.debug] "matchType': {matchType'}"
       if (← isTypeCorrect matchType') then
         let discrs := discrs ++ ys
-        let ysIds ← ys.mapM fun y => do
-          let yDecl ← getLocalDecl y.fvarId!
-          return mkIdentFrom (← getRef) yDecl.userName
-        let altViews := altViews.map fun altView => { altView with patterns := altView.patterns ++ ysIds }
+        let altViews ← altViews.mapM fun altView => do
+          let patternVars ← getPatternsVars altView.patterns
+          -- We traverse backwards because we want to keep the most recent names.
+          -- For example, if `ys` contains `#[h, h]`, we want to make sure `mkFreshUsername is applied to the first `h`,
+          -- since it is already shadowed by the second.
+          let ysUserNames ← ys.foldrM (init := #[]) fun ys ysUserNames => do
+            let yDecl ← getLocalDecl ys.fvarId!
+            let mut yUserName := yDecl.userName
+            if ysUserNames.contains yUserName then
+              yUserName ← mkFreshUserName yUserName
+            -- Explicitly provided pattern variables shadow `y`
+            else if patternVars.any fun | PatternVar.localVar x => x == yUserName | _ => false then
+              yUserName ← mkFreshUserName yUserName
+            return ysUserNames.push yUserName
+          let ysIds ← ysUserNames.reverse.mapM fun n => return mkIdentFrom (← getRef) n
+          return { altView with patterns := altView.patterns ++ ysIds }
         return (discrs, matchType', altViews, true)
       else
         return (discrs, matchType, altViews, true)

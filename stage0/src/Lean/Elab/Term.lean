@@ -194,9 +194,19 @@ protected def saveState : TermElabM SavedState := do
 
 def SavedState.restore (s : SavedState) : TermElabM Unit := do
   let traceState ← getTraceState -- We never backtrack trace message
+  -- We also preserve `TacticInfo` nodes to be able to display the tactic state of broken tactic scripts
+  let infoStateNew := (← get).infoState
+  let oldInfoSize  := s.elab.infoState.trees.size
   s.meta.restore
   set s.elab
   setTraceState traceState
+  -- Add new `TacticInfo` nodes back to restored `infoState`
+  modify fun s => { s with
+    infoState.trees := infoStateNew.trees.foldl (init := s.infoState.trees) (start := oldInfoSize) fun trees info =>
+      match info with
+      | InfoTree.node (Info.ofTacticInfo _) _ => trees.push info
+      | _ => trees
+  }
 
 instance : MonadBacktrack SavedState TermElabM where
   saveState      := Term.saveState
@@ -439,7 +449,7 @@ def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) (extraMsg? : Option M
   | MVarErrorKind.hole => do
     let msg : MessageData := "don't know how to synthesize placeholder"
     let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
-    logErrorAt mvarErrorInfo.ref (appendExtra msg)
+    logErrorAt mvarErrorInfo.ref (MessageData.tagged `Elab.synthPlaceholder <| appendExtra msg)
   | MVarErrorKind.custom msg =>
     logErrorAt mvarErrorInfo.ref (appendExtra msg)
 where

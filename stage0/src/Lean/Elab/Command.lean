@@ -206,7 +206,12 @@ instance : MonadRecDepth CommandElabM where
   getRecDepth      := return (← read).currRecDepth
   getMaxRecDepth   := return (← get).maxRecDepth
 
-@[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
+register_builtin_option showPartialSyntaxErrors : Bool := {
+  defValue := false
+  descr    := "show elaboration errors from partial syntax trees (i.e. after parser recovery)"
+}
+
+@[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit := do
   try
     x
   catch ex => match ex with
@@ -232,6 +237,7 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
     if checkTraceOption (← getOptions) `Elab.info then
       logTrace `Elab.info m!"{← tree.format}"
     return tree
+  let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
   withLogging <| withRef stx <| withInfoTreeContext (mkInfoTree := mkInfoTree) <| withIncRecDepth <| withFreshMacroScope do
     runLinters stx
     match stx with
@@ -255,6 +261,13 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
           | some elabFns => elabCommandUsing s stx elabFns
           | none         => throwError "elaboration function for '{k}' has not been implemented"
     | _ => throwError "unexpected command"
+  let mut msgs ← (← get).messages
+  -- `stx.hasMissing` should imply `initMsgs.hasErrors`, but the latter should be cheaper to check in general
+  if !showPartialSyntaxErrors.get (← getOptions) && initMsgs.hasErrors && stx.hasMissing then
+    -- discard elaboration errors, except for a few important and unlikely misleading ones, on parse error
+    msgs := ⟨msgs.msgs.filter fun msg =>
+      msg.data.hasTag `Elab.synthPlaceholder || msg.data.hasTag `Tactic.unsolvedGoals⟩
+  modify ({ · with messages := initMsgs ++ msgs })
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
 def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab := fun stx => do

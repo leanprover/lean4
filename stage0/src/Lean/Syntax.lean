@@ -229,6 +229,12 @@ where
     -- guaranteed.
     | _                                => s!" {val} "
 
+def hasMissing (stx : Syntax) : Bool := do
+  for stx in stx.topDown do
+    if stx.isMissing then
+      return true
+  return false
+
 /--
 Represents a cursor into a syntax tree that can be read, written, and advanced down/up/left/right.
 Indices are allowed to be out-of-bound, in which case `cur` is `Syntax.missing`.

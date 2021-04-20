@@ -2,7 +2,7 @@ open Lean
 
 syntax (name := myintro) "intros" sepBy(ident, ",") : tactic
 
-macro_rules [myintro]
+macro_rules (kind := myintro)
 | `(tactic| intros $x,*) => pure $ Syntax.node `Lean.Parser.Tactic.intros #[mkAtom "intros", mkNullNode x]
 
 theorem tst1 {p q : Prop} : p → q → p :=

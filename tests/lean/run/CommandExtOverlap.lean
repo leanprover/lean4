@@ -2,7 +2,7 @@ syntax (name := mycheck) "#check" sepBy(term, ",") : command
 
 open Lean
 
-macro_rules [mycheck]
+macro_rules (kind := mycheck)
 | `(#check $es,*) =>
   let cmds := es.getElems.map $ fun e => Syntax.node `Lean.Parser.Command.check #[mkAtom "#check", e]
   pure $ mkNullNode cmds

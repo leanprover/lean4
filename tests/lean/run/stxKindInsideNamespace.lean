@@ -4,7 +4,7 @@ namespace Foo
 
 syntax (name := foo) "bla!" term : term
 
-macro_rules[foo]
+macro_rules (kind := foo)
 | `(bla! $x) => pure x
 
 #check bla! 10

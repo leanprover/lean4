@@ -3,7 +3,7 @@
 -- New notation that overlaps with existing notation
 syntax (name := myPair) (priority := high) "(" term "," term ")" : term
 
-macro_rules[myPair]
+macro_rules (kind := myPair)
 | `(($a, $b)) => `([$a, $b])
 
 #eval (1, 2) -- not ambiguous since myPair parser has higher priority
@@ -20,7 +20,7 @@ macro_rules
 
 syntax (name := mySingleton) "[" term "]" : term
 
-macro_rules[mySingleton]
+macro_rules (kind := mySingleton)
 | `([$a]) => `(2 * $a)
 
 #check [1] -- ambiguous it can be `mySingleton` or the singleton list

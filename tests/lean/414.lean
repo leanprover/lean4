@@ -1,4 +1,4 @@
-macro_rules [numLit]
+macro_rules (kind := numLit)
  | `($n:numLit) => `("world")
 
 #check 2
@@ -8,7 +8,7 @@ macro_rules
 
 #check 2
 
-macro_rules [numLit]
+macro_rules (kind := numLit)
   | n => `("boo")
 
 #check 2

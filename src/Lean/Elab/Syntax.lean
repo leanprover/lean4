@@ -379,10 +379,10 @@ def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
 
 @[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
   adaptExpander fun stx => match stx with
-  | `(macro_rules $alts:matchAlt*)            => elabNoKindMacroRulesAux alts
-  | `(macro_rules [$kind] | $x:ident => $rhs) => `(@[macro $kind] def myMacro : Macro := fun $x:ident => $rhs)
-  | `(macro_rules [$kind] $alts:matchAlt*)    => do elabMacroRulesAux ((← getCurrNamespace) ++ kind.getId) alts
-  | _                                         => throwUnsupportedSyntax
+  | `(macro_rules $alts:matchAlt*)                    => elabNoKindMacroRulesAux alts
+  | `(macro_rules (kind := $kind) | $x:ident => $rhs) => `(@[macro $kind] def myMacro : Macro := fun $x:ident => $rhs)
+  | `(macro_rules (kind := $kind) $alts:matchAlt*)    => do elabMacroRulesAux ((← getCurrNamespace) ++ kind.getId) alts
+  | _                                                 => throwUnsupportedSyntax
 
 @[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro := fun stx =>
   withAttrKindGlobal stx fun stx => do

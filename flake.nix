@@ -35,7 +35,10 @@
         inherit system;
         # for `vscode-with-extensions`
         config.allowUnfree = true;
-      } // { inherit (pkgs-vscode) vscode-with-extensions; };
+        overlays = [
+          (self: super: { inherit (pkgs-vscode) vscode-with-extensions; })
+        ];
+      };
       lean-packages = pkgs.callPackage (./nix/packages.nix) { inherit nix temci mdBook; };
     in {
       packages = lean-packages // rec {

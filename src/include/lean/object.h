@@ -286,8 +286,6 @@ inline obj_res mk_thunk(obj_arg c) { return lean_mk_thunk(c); }
 inline obj_res thunk_pure(obj_arg v) { return lean_thunk_pure(v); }
 inline b_obj_res thunk_get(b_obj_arg t) { return lean_thunk_get(t); }
 inline obj_res thunk_get_own(b_obj_arg t) { return lean_thunk_get_own(t); }
-inline obj_res thunk_map(obj_arg f, obj_arg t) { return lean_thunk_map(f, t); }
-inline obj_res thunk_bind(obj_arg x, obj_arg f) { return lean_thunk_bind(x, f); }
 
 // =======================================
 // Tasks

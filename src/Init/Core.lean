@@ -16,23 +16,25 @@ def inline {α : Sort u} (a : α) : α := a
 @[inline] def flip {α : Sort u} {β : Sort v} {φ : Sort w} (f : α → β → φ) : β → α → φ :=
   fun b a => f a b
 
-/- Remark: thunks have an efficient implementation in the runtime. -/
+/--
+  Thunks are "lazy" values that are evaluated when first accessed using `Thunk.get/map/bind`.
+  The value is then stored and not recomputed for all further accesses. -/
+-- NOTE: the runtime has special support for the `Thunk` type to implement this behavior
 structure Thunk (α : Type u) : Type u where
+  -- TODO: make private
   fn : Unit → α
 
 attribute [extern "lean_mk_thunk"] Thunk.mk
 
-@[noinline, extern "lean_thunk_pure"]
-protected def Thunk.pure {α : Type u} (a : α) : Thunk α :=
+/-- Store a value in a thunk. Note that the value has already been computed, so there is no laziness. -/
+@[extern "lean_thunk_pure"] protected def Thunk.pure (a : α) : Thunk α :=
   ⟨fun _ => a⟩
-@[noinline, extern "lean_thunk_get_own"]
-protected def Thunk.get {α : Type u} (x : @& Thunk α) : α :=
+-- NOTE: we use `Thunk.get` instead of `Thunk.fn` as the accessor primitive as the latter has an additional `Unit` argument
+@[extern "lean_thunk_get_own"] protected def Thunk.get (x : @& Thunk α) : α :=
   x.fn ()
-@[noinline, extern "lean_thunk_map"]
-protected def Thunk.map {α : Type u} {β : Type v} (f : α → β) (x : Thunk α) : Thunk β :=
+@[inline] protected def Thunk.map (f : α → β) (x : Thunk α) : Thunk β :=
   ⟨fun _ => f x.get⟩
-@[noinline, extern "lean_thunk_bind"]
-protected def Thunk.bind {α : Type u} {β : Type v} (x : Thunk α) (f : α → Thunk β) : Thunk β :=
+@[inline] protected def Thunk.bind (x : Thunk α) (f : α → Thunk β) : Thunk β :=
   ⟨fun _ => (f x.get).get⟩
 
 abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b : α} (h : a = b) (m : motive a) : motive b :=

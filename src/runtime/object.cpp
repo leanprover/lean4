@@ -321,32 +321,6 @@ extern "C" b_obj_res lean_thunk_get_core(b_obj_arg t) {
     }
 }
 
-static obj_res thunk_map_fn_closure(obj_arg f, obj_arg t, obj_arg /* u */) {
-    b_obj_res v = lean_thunk_get(t);
-    lean_inc(v);
-    obj_res r = lean_apply_1(f, v);
-    lean_dec(v);
-    return r;
-}
-
-extern "C" obj_res lean_thunk_map(obj_arg f, obj_arg t) {
-    lean_assert(lean_is_closure(f));
-    lean_assert(lean_is_thunk(t));
-    return mk_thunk_3_2(thunk_map_fn_closure, f, t);
-}
-
-static obj_res thunk_bind_fn_closure(obj_arg x, obj_arg f, obj_arg /* u */) {
-    b_obj_res v = lean_thunk_get(x);
-    lean_inc(v);
-    obj_res r = lean_apply_1(f, v);
-    lean_dec(x);
-    return r;
-}
-
-extern "C" obj_res lean_thunk_bind(obj_arg x, obj_arg f) {
-    return mk_thunk_3_2(thunk_bind_fn_closure, x, f);
-}
-
 // =======================================
 // Fixpoint
 

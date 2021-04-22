@@ -1205,9 +1205,6 @@ static inline lean_obj_res lean_thunk_get_own(b_lean_obj_arg t) {
     return r;
 }
 
-lean_obj_res lean_thunk_map(lean_obj_arg f, lean_obj_arg t);
-lean_obj_res lean_thunk_bind(lean_obj_arg x, lean_obj_arg f);
-
 /* Tasks */
 
 void lean_init_task_manager();

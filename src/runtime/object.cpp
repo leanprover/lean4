@@ -290,10 +290,6 @@ extern "C" lean_obj_res lean_array_set_panic(lean_obj_arg a, lean_obj_arg v) {
 // =======================================
 // Thunks
 
-static obj_res mk_thunk_3_2(lean_cfun3 fn, obj_arg a1, obj_arg a2) {
-    return lean_mk_thunk(mk_closure_3_2(fn, a1, a2));
-}
-
 extern "C" b_obj_res lean_thunk_get_core(b_obj_arg t) {
     object * c = lean_to_thunk(t)->m_closure.exchange(nullptr);
     if (c != nullptr) {

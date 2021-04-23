@@ -1,3 +1,0 @@
-1
-envExtensionSealed.lean:13:7-13:35: error: invalid {...} notation, source type is not of the form (C ...)
-  EnvExtensionInterfaceImp.1 Nat

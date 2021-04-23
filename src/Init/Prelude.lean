@@ -353,14 +353,8 @@ instance (n : Nat) : OfNat Nat n where
 class LE (α : Type u) where le : α → α → Prop
 class LT (α : Type u) where lt : α → α → Prop
 
-abbrev HasLess.Less := @LT.lt -- TODO delete
-abbrev HasLessEq.LessEq := @LE.le -- TODO delete
-
 @[reducible] def GE.ge {α : Type u} [LE α] (a b : α) : Prop := LE.le b a
 @[reducible] def GT.gt {α : Type u} [LT α] (a b : α) : Prop := LT.lt b a
-
-@[reducible] def GreaterEq {α : Type u} [LE α] (a b : α) : Prop := LE.le b a  -- TODO delete
-@[reducible] def Greater {α : Type u} [LT α] (a b : α) : Prop := LT.lt b a    -- TODO delete
 
 class HAdd (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hAdd : α → β → γ

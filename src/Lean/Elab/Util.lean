@@ -156,7 +156,7 @@ private def expandMacro? (env : Environment) (stx : Syntax) : MacroM (Option Syn
 
 @[inline] def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] (x : MacroM α) : m α := do
   let env  ← getEnv
-  match x { macroEnv       := Macro.mkMacroEnv (expandMacro? env),
+  match x { methods        := Macro.mkMethods { expandMacro? := expandMacro? env },
             ref            := ← getRef,
             currMacroScope := ← MonadMacroAdapter.getCurrMacroScope,
             mainModule     := env.mainModule,

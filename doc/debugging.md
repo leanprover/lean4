@@ -20,7 +20,7 @@ Notable trace classes:
 * `Meta.isDefEq`: unification
 * `interpreter`: full execution trace of the interpreter. Only available in debug builds.
 
-In pure contexts, one can instead use `dbgTrace! "msg with {interpolations}" val`, which will print the message directly to stderr before evaluating val. `dbgTraceVal val` can be used as a shorthand for `dbgTrace! "{val}" val`.
+In pure contexts or when execution is aborted before the messages are finally printed, one can instead use the term `dbg_trace "msg with {interpolations}"; val` (`;` can also be replaced by a newline), which will print the message directly to stderr before evaluating `val`. `dbgTraceVal val` can be used as a shorthand for `dbg_trace "{val}"; val`.
 Note that if the return value is not actually used, the trace code is silently dropped as well.
 
 ## Debuggers

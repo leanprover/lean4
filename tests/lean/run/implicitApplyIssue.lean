@@ -7,7 +7,7 @@ infix:50 " ∈ " => HasMem.mem
 
 instance : HasMem α (Set α) := ⟨λ a s => s a⟩
 
-instance : HasLessEq (Set α) := ⟨λ s t => ∀ {x : α}, x ∈ s → x ∈ t⟩
+instance : LE (Set α) := ⟨λ s t => ∀ {x : α}, x ∈ s → x ∈ t⟩
 
 class HasInf (P : Type u) where
   inf : P → P → P

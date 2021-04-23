@@ -1,9 +1,9 @@
-class Preorder (α : Type u) extends HasLessEq α where
+class Preorder (α : Type u) extends LE α where
   le_refl  (a : α) : a ≤ a
   le_trans {a b c : α} : a ≤ b → b ≤ c → a ≤ c
 
 instance {α : Type u} {β : α → Type v} [(a : α) → Preorder (β a)] : Preorder ((a : α) → β a) where
-  LessEq f g := ∀ a, f a ≤ g a
+  le f g := ∀ a, f a ≤ g a
   le_refl f  := fun a => Preorder.le_refl (f a)
   le_trans   := fun h₁ h₂ a => Preorder.le_trans (h₁ a) (h₂ a)
 

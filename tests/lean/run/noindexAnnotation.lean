@@ -1,6 +1,6 @@
 structure Fin2 (n : Nat) :=
   (val  : Nat)
-  (isLt : Less val n)
+  (isLt : val < n)
 
 protected def Fin2.ofNat {n : Nat} (a : Nat) : Fin2 (Nat.succ n) :=
   ⟨a % Nat.succ n, Nat.mod_lt _ (Nat.zeroLtSucc _)⟩

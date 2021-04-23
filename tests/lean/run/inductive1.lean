@@ -1,5 +1,3 @@
-
-
 inductive L1.{u} (α : Type u)
 | nil
 | cons : α → L1 α → L1 α
@@ -80,7 +78,7 @@ inductive ListLast {α : Type u} : List α → Type u
 inductive Test : Nat → Type
 | mk : Test ((fun n => n.succ) Nat.zero)
 
-inductive SortedMap {α : Type u} {β : Type v} [HasLess α] : List (α × β) → Prop
+inductive SortedMap {α : Type u} {β : Type v} [LT α] : List (α × β) → Prop
 | nil : SortedMap []
 | cons : ∀ (k : α) (v : β) (l : List (α × β)),
          SortedMap l →

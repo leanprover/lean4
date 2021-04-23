@@ -1,12 +1,12 @@
 class HasMem (α : outParam $ Type u) (β : Type v) where
     mem : α → β → Prop
 
-class PartialOrder (P : Type u) extends HasLessEq P where
+class PartialOrder (P : Type u) extends LE P where
   refl (s : P) : s ≤ s
   antisymm (s t : P) : s ≤ t → t ≤ s → s = t
   trans (s t u : P) : s ≤ t → t ≤ u → s ≤ u
 
-theorem HasLessEq.LessEq.trans {P : Type _} [PartialOrder P] {x y z : P} : x ≤ y → y ≤ z → x ≤ z := PartialOrder.trans _ _ _
+theorem LE.le.trans {P : Type _} [PartialOrder P] {x y z : P} : x ≤ y → y ≤ z → x ≤ z := PartialOrder.trans _ _ _
 
 infix:50 " ∈ " => HasMem.mem
 
@@ -19,7 +19,7 @@ instance : HasMem α (Set α) := ⟨λ a s => s a⟩
 theorem ext {s t : Set α} (h : ∀ x, x ∈ s ↔ x ∈ t) : s = t :=
   funext $ λ x => propext $ h x
 
-instance : HasLessEq (Set α) := ⟨λ s t => ∀ {x : α}, x ∈ s → x ∈ t⟩
+instance : LE (Set α) := ⟨λ s t => ∀ {x : α}, x ∈ s → x ∈ t⟩
 
 instance : PartialOrder (Set α) where
   refl := λ s x => id

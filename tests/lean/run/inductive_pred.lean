@@ -1,3 +1,4 @@
+namespace Ex
 inductive LE : Nat → Nat → Prop
   | refl : LE n n
   | succ : LE n m → LE n m.succ
@@ -44,3 +45,4 @@ theorem Power2.mul : Power2 n → Power2 m → Power2 (n*m) := by
 -- theorem Power2.mul' : Power2 n → Power2 m → Power2 (n*m)
 --  | h1, base => by simp_all
 --  | h1, ind h2 => mul_left_comm .. ▸ ind (mul' h1 h2)
+end Ex

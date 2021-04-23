@@ -1,10 +1,10 @@
-def UInt32.ofNatCore' (n : Nat) (h : Less n UInt32.size) : UInt32 := {
+def UInt32.ofNatCore' (n : Nat) (h : n < UInt32.size) : UInt32 := {
   val := { val := n, isLt := h }
 }
 
 #eval UInt32.ofNatCore' 10 (by decide)
 
-def UInt64.ofNatCore' (n : Nat) (h : Less n UInt64.size) : UInt64 := {
+def UInt64.ofNatCore' (n : Nat) (h : n < UInt64.size) : UInt64 := {
   val := { val := n, isLt := h }
 }
 

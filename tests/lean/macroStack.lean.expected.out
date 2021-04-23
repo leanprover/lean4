@@ -1,7 +1,7 @@
 macroStack.lean:4:5-4:6: error: unknown identifier 'x'
 macroStack.lean:8:6-8:7: error: unknown identifier 'x'
 with resulting expansion
-  binrel% Greater✝ x 0
+  binrel% GT.gt✝ x 0
 while expanding
   x > 0
 while expanding

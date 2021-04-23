@@ -289,7 +289,7 @@ def getBracketedBinderIds : Syntax → Array Name
   | `(bracketedBinder|{$ids* $[: $ty?]?})            => ids.map Syntax.getId
   | `(bracketedBinder|[$id : $ty])                   => #[id.getId]
   | `(bracketedBinder|[$ty])                         => #[]
-  | _                                                => unreachable!
+  | _                                                => #[]
 
 private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context := do
   let scope      := s.scopes.head!

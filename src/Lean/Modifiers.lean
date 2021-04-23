@@ -17,33 +17,18 @@ def addProtected (env : Environment) (n : Name) : Environment :=
 def isProtected (env : Environment) (n : Name) : Bool :=
   protectedExt.isTagged env n
 
-builtin_initialize privateExt : EnvExtension Nat ← registerEnvExtension (pure 1)
-
 /- Private name support.
 
    Suppose the user marks as declaration `n` as private. Then, we create
-   the name: `_private.<module_name>.<index> ++ n`.
-   We say `_private.<module_name>.<index>` is the "private prefix"
-   where `<index>` comes from the environment extension `privateExt`.
+   the name: `_private.<module_name>.0 ++ n`.
+   We say `_private.<module_name>.0` is the "private prefix"
 
    We assume that `n` is a valid user name and does not contain
    `Name.num` constructors. Thus, we can easily convert from
-   private internal name to user given name.
+   private internal name to the user given name.
 -/
 
 def privateHeader : Name := `_private
-
-@[export lean_mk_private_prefix]
-def mkUniquePrivatePrefix (env : Environment) : Environment × Name :=
-  let idx := privateExt.getState env
-  let p   := Name.mkNum (privateHeader ++ env.mainModule) idx
-  let env := privateExt.setState env (idx+1)
-  (env, p)
-
-@[export lean_mk_private_name]
-def mkUniquePrivateName (env : Environment) (n : Name) : Environment × Name :=
-  let (env, p) := mkUniquePrivatePrefix env
-  (env, p ++ n)
 
 def mkPrivateName (env : Environment) (n : Name) : Name :=
   Name.mkNum (privateHeader ++ env.mainModule) 0 ++ n

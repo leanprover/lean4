@@ -59,6 +59,7 @@ extern "C" object * lean_panic_fn(object * default_val, object * msg) {
 
 extern "C" object * lean_sorry(uint8) {
     lean_internal_panic("executed 'sorry'");
+    lean_unreachable();
 }
 
 extern "C" size_t lean_object_byte_size(lean_object * o) {

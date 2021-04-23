@@ -87,10 +87,10 @@ def quickLt (n₁ n₂ : Name) : Bool :=
   else quickLtAux n₁ n₂
 
 /- Alternative HasLt instance. -/
-@[inline] protected def hasLtQuick : HasLess Name :=
+@[inline] protected def hasLtQuick : LT Name :=
   ⟨fun a b => Name.quickLt a b = true⟩
 
-@[inline] instance : DecidableRel (@Less Name Name.hasLtQuick) :=
+@[inline] instance : DecidableRel (@LT.lt Name Name.hasLtQuick) :=
   inferInstanceAs (DecidableRel (fun a b => Name.quickLt a b = true))
 
 /- The frontend does not allow user declarations to start with `_` in any of its parts.

@@ -350,11 +350,17 @@ class OfNat (α : Type u) (n : Nat) where
 instance (n : Nat) : OfNat Nat n where
   ofNat := n
 
-class HasLessEq (α : Type u) where LessEq : α → α → Prop
-class HasLess   (α : Type u) where Less : α → α → Prop
+class LE (α : Type u) where le : α → α → Prop
+class LT (α : Type u) where lt : α → α → Prop
 
-export HasLess (Less)
-export HasLessEq (LessEq)
+abbrev HasLess.Less := @LT.lt -- TODO delete
+abbrev HasLessEq.LessEq := @LE.le -- TODO delete
+
+@[reducible] def GE.ge {α : Type u} [LE α] (a b : α) : Prop := LE.le b a
+@[reducible] def GT.gt {α : Type u} [LT α] (a b : α) : Prop := LT.lt b a
+
+@[reducible] def GreaterEq {α : Type u} [LE α] (a b : α) : Prop := LE.le b a  -- TODO delete
+@[reducible] def Greater {α : Type u} [LT α] (a b : α) : Prop := LT.lt b a    -- TODO delete
 
 class HAdd (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hAdd : α → β → γ
@@ -507,9 +513,6 @@ open HMul (hMul)
 open HPow (hPow)
 open HAppend (hAppend)
 
-@[reducible] def GreaterEq {α : Type u} [HasLessEq α] (a b : α) : Prop := LessEq b a
-@[reducible] def Greater {α : Type u} [HasLess α] (a b : α) : Prop     := Less b a
-
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_nat_add"]
 protected def Nat.add : (@& Nat) → (@& Nat) → Nat
@@ -585,84 +588,84 @@ def Nat.ble : @& Nat → @& Nat → Bool
 protected def Nat.le (n m : Nat) : Prop :=
   Eq (ble n m) true
 
-instance : HasLessEq Nat where
-  LessEq := Nat.le
+instance : LE Nat where
+  le := Nat.le
 
 protected def Nat.lt (n m : Nat) : Prop :=
   Nat.le (succ n) m
 
-instance : HasLess Nat where
-  Less := Nat.lt
+instance : LT Nat where
+  lt := Nat.lt
 
-theorem Nat.notSuccLeZero : ∀ (n : Nat), LessEq (succ n) 0 → False
+theorem Nat.notSuccLeZero : ∀ (n : Nat), LE.le (succ n) 0 → False
   | 0,      h => nomatch h
   | succ n, h => nomatch h
 
-theorem Nat.notLtZero (n : Nat) : Not (Less n 0) :=
+theorem Nat.notLtZero (n : Nat) : Not (LT.lt n 0) :=
   notSuccLeZero n
 
 @[extern "lean_nat_dec_le"]
-instance Nat.decLe (n m : @& Nat) : Decidable (LessEq n m) :=
+instance Nat.decLe (n m : @& Nat) : Decidable (LE.le n m) :=
   decEq (Nat.ble n m) true
 
 @[extern "lean_nat_dec_lt"]
-instance Nat.decLt (n m : @& Nat) : Decidable (Less n m) :=
+instance Nat.decLt (n m : @& Nat) : Decidable (LT.lt n m) :=
   decLe (succ n) m
 
-theorem Nat.zeroLe : (n : Nat) → LessEq 0 n
+theorem Nat.zeroLe : (n : Nat) → LE.le 0 n
   | zero   => rfl
   | succ n => rfl
 
-theorem Nat.succLeSucc {n m : Nat} (h : LessEq n m) : LessEq (succ n) (succ m) :=
+theorem Nat.succLeSucc {n m : Nat} (h : LE.le n m) : LE.le (succ n) (succ m) :=
   h
 
-theorem Nat.zeroLtSucc (n : Nat) : Less 0 (succ n) :=
+theorem Nat.zeroLtSucc (n : Nat) : LT.lt 0 (succ n) :=
   succLeSucc (zeroLe n)
 
-theorem Nat.leStep : {n m : Nat} → LessEq n m → LessEq n (succ m)
+theorem Nat.leStep : {n m : Nat} → LE.le n m → LE.le n (succ m)
   | zero,   zero,   h => rfl
   | zero,   succ n, h => rfl
   | succ n, zero,   h => Bool.noConfusion h
   | succ n, succ m, h =>
-    have LessEq n m from h
-    have LessEq n (succ m) from leStep this
+    have LE.le n m from h
+    have LE.le n (succ m) from leStep this
     succLeSucc this
 
-protected theorem Nat.leTrans : {n m k : Nat} → LessEq n m → LessEq m k → LessEq n k
+protected theorem Nat.leTrans : {n m k : Nat} → LE.le n m → LE.le m k → LE.le n k
   | zero,   m,      k,      h₁, h₂ => zeroLe _
   | succ n, zero,   k,      h₁, h₂ => Bool.noConfusion h₁
   | succ n, succ m, zero,   h₁, h₂ => Bool.noConfusion h₂
   | succ n, succ m, succ k, h₁, h₂ =>
-    have h₁' : LessEq n m from h₁
-    have h₂' : LessEq m k from h₂
-    show LessEq n k from
+    have h₁' : LE.le n m from h₁
+    have h₂' : LE.le m k from h₂
+    show LE.le n k from
     Nat.leTrans h₁' h₂'
 
-protected theorem Nat.ltTrans {n m k : Nat} (h₁ : Less n m) : Less m k → Less n k :=
+protected theorem Nat.ltTrans {n m k : Nat} (h₁ : LT.lt n m) : LT.lt m k → LT.lt n k :=
   Nat.leTrans (leStep h₁)
 
-theorem Nat.leSucc : (n : Nat) → LessEq n (succ n)
+theorem Nat.leSucc : (n : Nat) → LE.le n (succ n)
   | zero   => rfl
   | succ n => leSucc n
 
-theorem Nat.leSuccOfLe {n m : Nat} (h : LessEq n m) : LessEq n (succ m) :=
+theorem Nat.leSuccOfLe {n m : Nat} (h : LE.le n m) : LE.le n (succ m) :=
   Nat.leTrans h (leSucc m)
 
-protected theorem Nat.eqOrLtOfLe : {n m: Nat} → LessEq n m → Or (Eq n m) (Less n m)
+protected theorem Nat.eqOrLtOfLe : {n m: Nat} → LE.le n m → Or (Eq n m) (LT.lt n m)
   | zero,   zero,   h => Or.inl rfl
   | zero,   succ n, h => Or.inr (zeroLe n)
   | succ n, zero,   h => Bool.noConfusion h
   | succ n, succ m, h =>
-    have LessEq n m from h
+    have LE.le n m from h
     match Nat.eqOrLtOfLe this with
     | Or.inl h => Or.inl (h ▸ rfl)
     | Or.inr h => Or.inr (succLeSucc h)
 
-protected def Nat.leRefl : (n : Nat) → LessEq n n
+protected def Nat.leRefl : (n : Nat) → LE.le n n
   | zero   => rfl
   | succ n => Nat.leRefl n
 
-protected theorem Nat.ltOrGe (n m : Nat) : Or (Less n m) (GreaterEq n m) :=
+protected theorem Nat.ltOrGe (n m : Nat) : Or (LT.lt n m) (GE.ge n m) :=
   match m with
   | zero   => Or.inr (zeroLe n)
   | succ m =>
@@ -673,16 +676,16 @@ protected theorem Nat.ltOrGe (n m : Nat) : Or (Less n m) (GreaterEq n m) :=
       | Or.inl h1 => Or.inl (h1 ▸ Nat.leRefl _)
       | Or.inr h1 => Or.inr h1
 
-protected theorem Nat.leAntisymm : {n m : Nat} → LessEq n m → LessEq m n → Eq n m
+protected theorem Nat.leAntisymm : {n m : Nat} → LE.le n m → LE.le m n → Eq n m
   | zero,   zero,   h₁, h₂ => rfl
   | succ n, zero,   h₁, h₂ => Bool.noConfusion h₁
   | zero,   succ m, h₁, h₂ => Bool.noConfusion h₂
   | succ n, succ m, h₁, h₂ =>
-    have h₁' : LessEq n m from h₁
-    have h₂' : LessEq m n from h₂
+    have h₁' : LE.le n m from h₁
+    have h₂' : LE.le m n from h₂
     (Nat.leAntisymm h₁' h₂') ▸ rfl
 
-protected theorem Nat.ltOfLeOfNe {n m : Nat} (h₁ : LessEq n m) (h₂ : Not (Eq n m)) : Less n m :=
+protected theorem Nat.ltOfLeOfNe {n m : Nat} (h₁ : LE.le n m) (h₂ : Not (Eq n m)) : LT.lt n m :=
   match Nat.ltOrGe n m with
   | Or.inl h₃ => h₃
   | Or.inr h₃ => absurd (Nat.leAntisymm h₁ h₃) h₂
@@ -702,16 +705,16 @@ protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
 instance : Sub Nat where
   sub := Nat.sub
 
-theorem Nat.predLePred : {n m : Nat} → LessEq n m → LessEq (pred n) (pred m)
+theorem Nat.predLePred : {n m : Nat} → LE.le n m → LE.le (pred n) (pred m)
   | zero,   zero,   h => rfl
   | zero,   succ n, h => zeroLe n
   | succ n, zero,   h => Bool.noConfusion h
   | succ n, succ m, h => h
 
-theorem Nat.leOfSuccLeSucc {n m : Nat} : LessEq (succ n) (succ m) → LessEq n m :=
+theorem Nat.leOfSuccLeSucc {n m : Nat} : LE.le (succ n) (succ m) → LE.le n m :=
   predLePred
 
-theorem Nat.leOfLtSucc {m n : Nat} : Less m (succ n) → LessEq m n :=
+theorem Nat.leOfLtSucc {m n : Nat} : LT.lt m (succ n) → LE.le m n :=
   leOfSuccLeSucc
 
 @[extern "lean_system_platform_nbits"] constant System.Platform.getNumBits : Unit → Subtype fun (n : Nat) => Or (Eq n 32) (Eq n 64) :=
@@ -725,7 +728,7 @@ theorem System.Platform.numBitsEq : Or (Eq numBits 32) (Eq numBits 64) :=
 
 structure Fin (n : Nat) where
   val  : Nat
-  isLt : Less val n
+  isLt : LT.lt val n
 
 theorem Fin.eqOfVeq {n} : ∀ {i j : Fin n}, Eq i.val j.val → Eq i j
   | ⟨v, h⟩, ⟨_, _⟩, rfl => rfl
@@ -742,14 +745,14 @@ instance (n : Nat) : DecidableEq (Fin n) :=
     | isTrue h  => isTrue (Fin.eqOfVeq h)
     | isFalse h => isFalse (Fin.neOfVne h)
 
-instance {n} : HasLess (Fin n) where
-  Less a b := Less a.val b.val
+instance {n} : LT (Fin n) where
+  lt a b := LT.lt a.val b.val
 
-instance {n} : HasLessEq (Fin n) where
-  LessEq a b := LessEq a.val b.val
+instance {n} : LE (Fin n) where
+  le a b := LE.le a.val b.val
 
-instance Fin.decLt {n} (a b : Fin n) :  Decidable (Less a b)  := Nat.decLt ..
-instance Fin.decLe {n} (a b : Fin n) : Decidable (LessEq a b) := Nat.decLe ..
+instance Fin.decLt {n} (a b : Fin n) :  Decidable (LT.lt a b)  := Nat.decLt ..
+instance Fin.decLe {n} (a b : Fin n) : Decidable (LE.le a b) := Nat.decLe ..
 
 def UInt8.size : Nat := 256
 structure UInt8 where
@@ -759,7 +762,7 @@ attribute [extern "lean_uint8_of_nat_mk"] UInt8.mk
 attribute [extern "lean_uint8_to_nat"] UInt8.val
 
 @[extern "lean_uint8_of_nat"]
-def UInt8.ofNatCore (n : @& Nat) (h : Less n UInt8.size) : UInt8 := {
+def UInt8.ofNatCore (n : @& Nat) (h : LT.lt n UInt8.size) : UInt8 := {
   val := { val := n, isLt := h }
 }
 
@@ -783,7 +786,7 @@ attribute [extern "lean_uint16_of_nat_mk"] UInt16.mk
 attribute [extern "lean_uint16_to_nat"] UInt16.val
 
 @[extern "lean_uint16_of_nat"]
-def UInt16.ofNatCore (n : @& Nat) (h : Less n UInt16.size) : UInt16 := {
+def UInt16.ofNatCore (n : @& Nat) (h : LT.lt n UInt16.size) : UInt16 := {
   val := { val := n, isLt := h }
 }
 
@@ -807,7 +810,7 @@ attribute [extern "lean_uint32_of_nat_mk"] UInt32.mk
 attribute [extern "lean_uint32_to_nat"] UInt32.val
 
 @[extern "lean_uint32_of_nat"]
-def UInt32.ofNatCore (n : @& Nat) (h : Less n UInt32.size) : UInt32 := {
+def UInt32.ofNatCore (n : @& Nat) (h : LT.lt n UInt32.size) : UInt32 := {
   val := { val := n, isLt := h }
 }
 
@@ -826,26 +829,26 @@ instance : DecidableEq UInt32 := UInt32.decEq
 instance : Inhabited UInt32 where
   default := UInt32.ofNatCore 0 (by decide)
 
-instance : HasLess UInt32 where
-  Less a b := Less a.val b.val
+instance : LT UInt32 where
+  lt a b := LT.lt a.val b.val
 
-instance : HasLessEq UInt32 where
-  LessEq a b := LessEq a.val b.val
+instance : LE UInt32 where
+  le a b := LE.le a.val b.val
 
 set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 < #2"]
-def UInt32.decLt (a b : UInt32) : Decidable (Less a b) :=
+def UInt32.decLt (a b : UInt32) : Decidable (LT.lt a b) :=
   match a, b with
-  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (Less n m))
+  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (LT.lt n m))
 
 set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 <= #2"]
-def UInt32.decLe (a b : UInt32) : Decidable (LessEq a b) :=
+def UInt32.decLe (a b : UInt32) : Decidable (LE.le a b) :=
   match a, b with
-  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (LessEq n m))
+  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (LE.le n m))
 
-instance (a b : UInt32) : Decidable (Less a b) := UInt32.decLt a b
-instance (a b : UInt32) : Decidable (LessEq a b) := UInt32.decLe a b
+instance (a b : UInt32) : Decidable (LT.lt a b) := UInt32.decLt a b
+instance (a b : UInt32) : Decidable (LE.le a b) := UInt32.decLe a b
 
 def UInt64.size : Nat := 18446744073709551616
 structure UInt64 where
@@ -855,7 +858,7 @@ attribute [extern "lean_uint64_of_nat_mk"] UInt64.mk
 attribute [extern "lean_uint64_to_nat"] UInt64.val
 
 @[extern "lean_uint64_of_nat"]
-def UInt64.ofNatCore (n : @& Nat) (h : Less n UInt64.size) : UInt64 := {
+def UInt64.ofNatCore (n : @& Nat) (h : LT.lt n UInt64.size) : UInt64 := {
   val := { val := n, isLt := h }
 }
 
@@ -886,7 +889,7 @@ attribute [extern "lean_usize_of_nat_mk"] USize.mk
 attribute [extern "lean_usize_to_nat"] USize.val
 
 @[extern "lean_usize_of_nat"]
-def USize.ofNatCore (n : @& Nat) (h : Less n USize.size) : USize := {
+def USize.ofNatCore (n : @& Nat) (h : LT.lt n USize.size) : USize := {
   val := { val := n, isLt := h }
 }
 
@@ -905,7 +908,7 @@ instance : Inhabited USize where
     | _, Or.inr rfl => by decide)
 
 @[extern "lean_usize_of_nat"]
-def USize.ofNat32 (n : @& Nat) (h : Less n 4294967296) : USize := {
+def USize.ofNat32 (n : @& Nat) (h : LT.lt n 4294967296) : USize := {
   val := {
     val  := n
     isLt := match USize.size, usizeSzEq with
@@ -915,7 +918,7 @@ def USize.ofNat32 (n : @& Nat) (h : Less n 4294967296) : USize := {
 }
 
 abbrev Nat.isValidChar (n : Nat) : Prop :=
-  Or (Less n 0xd800) (And (Less 0xdfff n) (Less n 0x110000))
+  Or (LT.lt n 0xd800) (And (LT.lt 0xdfff n) (LT.lt n 0x110000))
 
 abbrev UInt32.isValidChar (n : UInt32) : Prop :=
   n.toNat.isValidChar
@@ -926,7 +929,7 @@ structure Char where
   val   : UInt32
   valid : val.isValidChar
 
-private theorem validCharIsUInt32 {n : Nat} (h : n.isValidChar) : Less n UInt32.size :=
+private theorem validCharIsUInt32 {n : Nat} (h : n.isValidChar) : LT.lt n UInt32.size :=
   match h with
   | Or.inl h      => Nat.ltTrans h (by decide)
   | Or.inr ⟨_, h⟩ => Nat.ltTrans h (by decide)
@@ -961,11 +964,11 @@ instance : DecidableEq Char :=
 
 def Char.utf8Size (c : Char) : UInt32 :=
   let v := c.val
-  ite (LessEq v (UInt32.ofNatCore 0x7F (by decide)))
+  ite (LE.le v (UInt32.ofNatCore 0x7F (by decide)))
     (UInt32.ofNatCore 1 (by decide))
-    (ite (LessEq v (UInt32.ofNatCore 0x7FF (by decide)))
+    (ite (LE.le v (UInt32.ofNatCore 0x7FF (by decide)))
       (UInt32.ofNatCore 2 (by decide))
-      (ite (LessEq v (UInt32.ofNatCore 0xFFFF (by decide)))
+      (ite (LE.le v (UInt32.ofNatCore 0xFFFF (by decide)))
         (UInt32.ofNatCore 3 (by decide))
         (UInt32.ofNatCore 4 (by decide))))
 
@@ -1029,11 +1032,11 @@ def List.concat {α : Type u} : List α → α → List α
   | nil,       b => cons b nil
   | cons a as, b => cons a (concat as b)
 
-def List.get {α : Type u} : (as : List α) → (i : Nat) → Less i as.length → α
+def List.get {α : Type u} : (as : List α) → (i : Nat) → LT.lt i as.length → α
   | nil,       i,          h => absurd h (Nat.notLtZero _)
   | cons a as, 0,          h => a
   | cons a as, Nat.succ i, h =>
-    have Less i.succ as.length.succ from length_cons .. ▸ h
+    have LT.lt i.succ as.length.succ from length_cons .. ▸ h
     get as i (Nat.leOfSuccLeSucc this)
 
 structure String where
@@ -1120,7 +1123,7 @@ def Array.get {α : Type u} (a : @& Array α) (i : @& Fin a.size) : α :=
   a.data.get i.val i.isLt
 
 @[inline] def Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
-  dite (Less i a.size) (fun h => a.get ⟨i, h⟩) (fun _ => v₀)
+  dite (LT.lt i a.size) (fun h => a.get ⟨i, h⟩) (fun _ => v₀)
 
 /- "Comfortable" version of `fget`. It performs a bound check at runtime. -/
 @[extern "lean_array_get"]
@@ -1141,7 +1144,7 @@ def Array.set (a : Array α) (i : @& Fin a.size) (v : α) : Array α := {
 }
 
 @[inline] def Array.setD (a : Array α) (i : Nat) (v : α) : Array α :=
-  dite (Less i a.size) (fun h => a.set ⟨i, h⟩ v) (fun _ => a)
+  dite (LT.lt i a.size) (fun h => a.set ⟨i, h⟩ v) (fun _ => a)
 
 @[extern "lean_array_set"]
 def Array.set! (a : Array α) (i : @& Nat) (v : α) : Array α :=
@@ -1150,7 +1153,7 @@ def Array.set! (a : Array α) (i : @& Nat) (v : α) : Array α :=
 -- Slower `Array.append` used in quotations.
 protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : Array α :=
   let rec loop (i : Nat) (j : Nat) (as : Array α) : Array α :=
-    dite (Less j bs.size)
+    dite (LT.lt j bs.size)
       (fun hlt =>
         match i with
         | 0           => as
@@ -1201,7 +1204,7 @@ instance {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α] : Inhabi
 -- A fusion of Haskell's `sequence` and `map`
 def Array.sequenceMap {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : α → m β) : m (Array β) :=
   let rec loop (i : Nat) (j : Nat) (bs : Array β) : m (Array β) :=
-    dite (Less j as.size)
+    dite (LT.lt j as.size)
       (fun hlt =>
         match i with
         | 0           => pure bs
@@ -1603,7 +1606,7 @@ def mkStr (p : Name) (s : String) : Name :=
 
 @[export lean_name_mk_numeral]
 def mkNum (p : Name) (v : Nat) : Name :=
-  Name.num p v (mixHash (hash p) (dite (Less v USize.size) (fun h => USize.ofNatCore v h) (fun _ => USize.ofNat32 17 (by decide))))
+  Name.num p v (mixHash (hash p) (dite (LT.lt v USize.size) (fun h => USize.ofNatCore v h) (fun _ => USize.ofNat32 17 (by decide))))
 
 def mkSimple (s : String) : Name :=
   mkStr Name.anonymous s
@@ -1760,7 +1763,7 @@ partial def getHeadInfo? : Syntax → Option SourceInfo
   | ident info .. => some info
   | node _ args   =>
     let rec loop (i : Nat) : Option SourceInfo :=
-      match decide (Less i args.size) with
+      match decide (LT.lt i args.size) with
       | true => match getHeadInfo? (args.get! i) with
          | some info => some info
          | none      => loop (hAdd i 1)
@@ -1785,7 +1788,7 @@ partial def getTailPos? (stx : Syntax) (originalOnly := false) : Option String.P
   | ident (SourceInfo.synthetic (endPos := pos) ..) .., false => some pos
   | node _ args,                                        _     =>
     let rec loop (i : Nat) : Option String.Pos :=
-      match decide (Less i args.size) with
+      match decide (LT.lt i args.size) with
       | true => match getTailPos? (args.get! ((args.size.sub i).sub 1)) originalOnly with
          | some info => some info
          | none      => loop (hAdd i 1)

@@ -56,8 +56,8 @@ instance : Sub Float       := ⟨Float.sub⟩
 instance : Mul Float       := ⟨Float.mul⟩
 instance : Div Float       := ⟨Float.div⟩
 instance : Neg Float       := ⟨Float.neg⟩
-instance : HasLess Float   := ⟨Float.lt⟩
-instance : HasLessEq Float := ⟨Float.le⟩
+instance : LT Float        := ⟨Float.lt⟩
+instance : LE Float        := ⟨Float.le⟩
 
 @[extern c inline "#1 == #2"] constant Float.beq (a b : Float) : Bool
 

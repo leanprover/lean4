@@ -84,15 +84,15 @@ instance : Sub Int where
 inductive NonNeg : Int → Prop where
   | mk (n : Nat) : NonNeg (ofNat n)
 
-protected def LessEq (a b : Int) : Prop := NonNeg (b - a)
+protected def le (a b : Int) : Prop := NonNeg (b - a)
 
-instance : HasLessEq Int where
-  LessEq := Int.LessEq
+instance : LE Int where
+  le := Int.le
 
-protected def Less (a b : Int) : Prop := (a + 1) ≤ b
+protected def lt (a b : Int) : Prop := (a + 1) ≤ b
 
-instance : HasLess Int where
-  Less := Int.Less
+instance : LT Int where
+  lt := Int.lt
 
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_int_dec_eq"]

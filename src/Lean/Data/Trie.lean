@@ -42,10 +42,10 @@ partial def insert (t : Trie α) (s : String) (val : α) : Trie α :=
       | false =>
         let c := s.get i
         let i := s.next i
-        let t := match RBNode.find Char.lt m c with
+        let t := match RBNode.find (.<.) m c with
           | none   => insertEmpty i
           | some t => loop t i
-        Trie.Node v (RBNode.insert Char.lt m c t)
+        Trie.Node v (RBNode.insert (.<.) m c t)
   loop t 0
 
 partial def find? (t : Trie α) (s : String) : Option α :=
@@ -56,7 +56,7 @@ partial def find? (t : Trie α) (s : String) : Option α :=
       | false =>
         let c := s.get i
         let i := s.next i
-        match RBNode.find Char.lt m c with
+        match RBNode.find (.<.) m c with
         | none   => none
         | some t => loop t i
   loop t 0
@@ -75,7 +75,7 @@ partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : String.Pos
         let acc := updtAcc v i acc
         let c   := s.get i
         let i   := s.next i
-        match RBNode.find Char.lt m c with
+        match RBNode.find (.<.) m c with
         | some t => loop t i acc
         | none   => acc
   loop t i (i, none)

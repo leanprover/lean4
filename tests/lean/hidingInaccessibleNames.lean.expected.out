@@ -37,13 +37,11 @@ x✝ : [] ≠ []
 ⊢ Nat
 case inl
 p q : Prop
-h : p ∨ q
  : p
 ⊢ q ∨ p
 
 case inr
 p q : Prop
-h : p ∨ q
  : q
 ⊢ q ∨ p
 hidingInaccessibleNames.lean:23:25-23:26: error: don't know how to synthesize placeholder

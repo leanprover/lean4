@@ -1,26 +1,22 @@
 case intro
 n : Nat
 m : Nat := n
-h : ∃ (k : Nat), id k = m
 a : Nat
 e : id a = m
 ⊢ 0 + n = n
 case intro
 a : Nat
 m : Nat := id a
-h : ∃ (k : Nat), id k = m
 ⊢ 0 + id a = id a
 case intro
 n : Nat
 m : Nat := n
-h : ∃ (k : Nat), m = id k
 a : Nat
 e : m = id a
 ⊢ 0 + n = n
 case intro
 n : Nat
 m : Nat := n
-h : ∃ (k : Nat), m = id k
 ⊢ 0 + n = n
 substlet.lean:25:2-25:9: error: tactic 'subst' failed, variable 'v' is a let-declaration
 n : Nat

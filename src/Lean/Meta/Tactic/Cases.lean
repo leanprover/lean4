@@ -221,48 +221,59 @@ partial def unifyEqs (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) (caseN
       else match eqDecl.type.eq? with
         | none => throwError "equality expected{indentExpr eqDecl.type}"
         | some (α, a, b) =>
-          if (← isDefEq a b) then
-            /- Skip equality -/
-            unifyEqs (numEqs - 1) (← clear mvarId eqFVarId) subst caseName?
-          else
-            -- Remark: we use `let rec` here because otherwise the compiler would generate an insane amount of code.
-            -- We can remove the `rec` after we fix the eagerly inlining issue in the compiler.
-            let rec substEq (symm : Bool) := do
-              /- TODO: support for acyclicity (e.g., `xs ≠ x :: xs`) -/
-              let (substNew, mvarId) ← substCore mvarId eqFVarId symm subst
+          /-
+            Remark: we do not check `isDefeq` here because we would fail to substitute equalities
+            such as `x = t` and `t = x` when `x` and `t` are proofs (proof irrelanvance).
+          -/
+          /- Remark: we use `let rec` here because otherwise the compiler would generate an insane amount of code.
+            We can remove the `rec` after we fix the eagerly inlining issue in the compiler. -/
+          let rec substEq (symm : Bool) := do
+            /- TODO: support for acyclicity (e.g., `xs ≠ x :: xs`) -/
+            /- Remark: `substCore` fails if the equation is of the form `x = x` -/
+            if let some (substNew, mvarId) ← observing? (substCore mvarId eqFVarId symm subst) then
               unifyEqs (numEqs - 1) mvarId substNew caseName?
-            let rec injection (a b : Expr) := do
-              let env ← getEnv
-              if a.isConstructorApp env && b.isConstructorApp env then
-                /- ctor_i ... = ctor_j ... -/
-                match (← injectionCore mvarId eqFVarId) with
-                | InjectionResultCore.solved                   => pure none -- this alternative has been solved
-                | InjectionResultCore.subgoal mvarId numEqsNew => unifyEqs (numEqs - 1 + numEqsNew) mvarId subst caseName?
+            else if (← isDefEq a b) then
+              /- Skip equality -/
+              unifyEqs (numEqs - 1) (← clear mvarId eqFVarId) subst caseName?
+            else
+              throwError "dependent elimination failed, failed to solve equation{indentExpr eqDecl.type}"
+          let rec injection (a b : Expr) := do
+            let env ← getEnv
+            if a.isConstructorApp env && b.isConstructorApp env then
+              /- ctor_i ... = ctor_j ... -/
+              match (← injectionCore mvarId eqFVarId) with
+              | InjectionResultCore.solved                   => pure none -- this alternative has been solved
+              | InjectionResultCore.subgoal mvarId numEqsNew => unifyEqs (numEqs - 1 + numEqsNew) mvarId subst caseName?
+            else
+              let a' ← whnf a
+              let b' ← whnf b
+              if a' != a || b' != b then
+                /- Reduced lhs/rhs of current equality -/
+                let prf := mkFVar eqFVarId
+                let aEqb'  ← mkEq a' b'
+                let mvarId ← assert mvarId eqDecl.userName aEqb' prf
+                let mvarId ← clear mvarId eqFVarId
+                unifyEqs numEqs mvarId subst caseName?
               else
-                let a' ← whnf a
-                let b' ← whnf b
-                if a' != a || b' != b then
-                  /- Reduced lhs/rhs of current equality -/
-                  let prf := mkFVar eqFVarId
-                  let aEqb'  ← mkEq a' b'
-                  let mvarId ← assert mvarId eqDecl.userName aEqb' prf
-                  let mvarId ← clear mvarId eqFVarId
-                  unifyEqs numEqs mvarId subst caseName?
-                else
-                  match caseName? with
-                  | none => throwError "dependent elimination failed, failed to solve equation{indentExpr eqDecl.type}"
-                  | some caseName => throwError "dependent elimination failed, failed to solve equation{indentExpr eqDecl.type}\nat case {mkConst caseName}"
-            let a ← instantiateMVars a
-            let b ← instantiateMVars b
-            match a, b with
-            | Expr.fvar aFVarId _, Expr.fvar bFVarId _ =>
-              /- x = y -/
-              let aDecl ← getLocalDecl aFVarId
-              let bDecl ← getLocalDecl bFVarId
-              substEq (aDecl.index < bDecl.index)
-            | Expr.fvar .., _   => /- x = t -/ substEq (symm := false)
-            | _, Expr.fvar ..   => /- t = x -/ substEq (symm := true)
-            | a, b              => injection a b
+                match caseName? with
+                | none => throwError "dependent elimination failed, failed to solve equation{indentExpr eqDecl.type}"
+                | some caseName => throwError "dependent elimination failed, failed to solve equation{indentExpr eqDecl.type}\nat case {mkConst caseName}"
+          let a ← instantiateMVars a
+          let b ← instantiateMVars b
+          match a, b with
+          | Expr.fvar aFVarId _, Expr.fvar bFVarId _ =>
+            /- x = y -/
+            let aDecl ← getLocalDecl aFVarId
+            let bDecl ← getLocalDecl bFVarId
+            substEq (aDecl.index < bDecl.index)
+          | Expr.fvar .., _   => /- x = t -/ substEq (symm := false)
+          | _, Expr.fvar ..   => /- t = x -/ substEq (symm := true)
+          | a, b              =>
+            if (← isDefEq a b) then
+              /- Skip equality -/
+              unifyEqs (numEqs - 1) (← clear mvarId eqFVarId) subst caseName?
+            else
+              injection a b
 
 private def unifyCasesEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM (Array CasesSubgoal) :=
   subgoals.foldlM (init := #[]) fun subgoals s => do

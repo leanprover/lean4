@@ -18,6 +18,7 @@ lean_object* l_Lean_Expr_isBinding___boxed(lean_object*);
 lean_object* l_Lean_Expr_letName_x21___closed__2;
 lean_object* l_Lean_Expr_data_match__1(lean_object*);
 lean_object* l_Lean_Expr_ctorName___closed__7;
+lean_object* l_Lean_instLTLiteral;
 uint8_t l_Lean_Expr_bindingInfo_x21(lean_object*);
 lean_object* l_Lean_Expr_updateSort___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -106,7 +107,6 @@ lean_object* l_Lean_Expr_hasLevelParamEx___boxed(lean_object*);
 size_t l_Lean_Expr_Data_hash(uint64_t);
 lean_object* l_Lean_Expr_instantiateLevelParamsCore_visit_match__1(lean_object*);
 lean_object* l_Lean_mkDecIsTrue___closed__5;
-lean_object* l_Lean_instDecidableLess___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkMVar(lean_object*);
 size_t l_USize_sub(size_t, size_t);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_etaExpandedAux(lean_object*, lean_object*);
@@ -318,6 +318,7 @@ lean_object* l_Lean_Expr_updateProj_x21(lean_object*, lean_object*);
 lean_object* l_Lean_Level_instantiateParams___at_Lean_Expr_instantiateLevelParams___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsTrue___closed__1;
 lean_object* l_Lean_Expr_instantiateLevelParams(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_instDecidableLt___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAutoParamTactic_x3f___boxed(lean_object*);
 lean_object* l_Lean_Expr_isForall_match__1(lean_object*);
 lean_object* l_Lean_BinderInfo_isExplicit_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -359,7 +360,6 @@ lean_object* l_Lean_Expr_data_match__1___rarg(lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Literal_lt_match__1(lean_object*);
 lean_object* l_Lean_mkAppRange(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isCharLit___closed__3;
-lean_object* l_Lean_instHasLessLiteral;
 lean_object* l_Lean_Literal_type___closed__4;
 lean_object* l_Lean_mkDecIsTrue___closed__4;
 lean_object* lean_expr_mk_lit(lean_object*);
@@ -480,7 +480,6 @@ lean_object* l_Lean_Expr_constLevels_x21___closed__1;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Array_foldrMUnsafe_fold___at_Lean_mkAppRev___spec__1(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Expr_getOptParamDefault_x3f___closed__1;
-uint8_t l_Lean_instDecidableLess(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_221__match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isMVar(lean_object*);
 uint8_t lean_expr_equal(lean_object*, lean_object*);
@@ -653,6 +652,7 @@ lean_object* l_Lean_Expr_etaExpandedStrict_x3f(lean_object*);
 lean_object* l_Lean_Expr_updateLambdaE_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasLooseBVar___boxed(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Expr_setAppPPExplicit___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_13978____closed__14;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 uint64_t l_UInt64_shiftRight(uint64_t, uint64_t);
@@ -660,6 +660,7 @@ lean_object* l_Lean_Expr_hasLooseBVars___boxed(lean_object*);
 lean_object* lean_lit_type(lean_object*);
 lean_object* l_Lean_instBEqLiteral;
 lean_object* l_Lean_Expr_getArgD___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_instDecidableLt(lean_object*, lean_object*);
 lean_object* l_Lean_instBEqBinderInfo___closed__1;
 lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isCharLit___closed__2;
@@ -711,7 +712,6 @@ lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object
 uint8_t l_Lean_Expr_isSort(lean_object*);
 uint8_t l_Lean_Expr_isLet(lean_object*);
 lean_object* l_Lean_Expr_isStringLit_match__1(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_13954____closed__14;
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isLet___boxed(lean_object*);
 lean_object* l_Lean_Expr_bindingInfo_x21___closed__2;
@@ -1073,7 +1073,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_instHasLessLiteral() {
+static lean_object* _init_l_Lean_instLTLiteral() {
 _start:
 {
 lean_object* x_1; 
@@ -1081,7 +1081,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-uint8_t l_Lean_instDecidableLess(lean_object* x_1, lean_object* x_2) {
+uint8_t l_Lean_instDecidableLt(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -1089,11 +1089,11 @@ x_3 = l_Lean_Literal_lt(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_instDecidableLess___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_instDecidableLt___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_instDecidableLess(x_1, x_2);
+x_3 = l_Lean_instDecidableLt(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -5130,7 +5130,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_Notation___hyg_13954____closed__14;
+x_2 = l_myMacro____x40_Init_Notation___hyg_13978____closed__14;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -15200,8 +15200,8 @@ l_Lean_instHashableLiteral___closed__1 = _init_l_Lean_instHashableLiteral___clos
 lean_mark_persistent(l_Lean_instHashableLiteral___closed__1);
 l_Lean_instHashableLiteral = _init_l_Lean_instHashableLiteral();
 lean_mark_persistent(l_Lean_instHashableLiteral);
-l_Lean_instHasLessLiteral = _init_l_Lean_instHasLessLiteral();
-lean_mark_persistent(l_Lean_instHasLessLiteral);
+l_Lean_instLTLiteral = _init_l_Lean_instLTLiteral();
+lean_mark_persistent(l_Lean_instLTLiteral);
 l_Lean_instInhabitedBinderInfo = _init_l_Lean_instInhabitedBinderInfo();
 l_Lean_instBEqBinderInfo___closed__1 = _init_l_Lean_instBEqBinderInfo___closed__1();
 lean_mark_persistent(l_Lean_instBEqBinderInfo___closed__1);

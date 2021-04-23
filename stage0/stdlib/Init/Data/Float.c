@@ -21,6 +21,7 @@ lean_object* l_Float_cosh___boxed(lean_object*);
 lean_object* l_instAddFloat___closed__1;
 double sin(double);
 double asin(double);
+lean_object* l_instLTFloat;
 double tan(double);
 lean_object* l_Float_ofInt_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_floatSpec___elambda__1(lean_object*, lean_object*);
@@ -41,7 +42,6 @@ lean_object* l_Float_log10___boxed(lean_object*);
 lean_object* l_Float_div___boxed(lean_object*, lean_object*);
 lean_object* l_Float_pow___boxed(lean_object*, lean_object*);
 lean_object* l_Float_toUInt64___boxed(lean_object*);
-lean_object* l_instHasLessFloat;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Float_cbrt___boxed(lean_object*);
 lean_object* l_Float_ofInt_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -82,6 +82,7 @@ lean_object* l_Float_neg___boxed(lean_object*);
 lean_object* l_Float_log___boxed(lean_object*);
 lean_object* l_instPowFloat___closed__1;
 lean_object* l_instDivFloat;
+lean_object* l_instLEFloat;
 double log10(double);
 lean_object* l_Float_ofInt___boxed(lean_object*);
 lean_object* l_Float_atan___boxed(lean_object*);
@@ -119,7 +120,6 @@ double exp2(double);
 lean_object* l_instMulFloat;
 lean_object* l_Float_beq___boxed(lean_object*, lean_object*);
 lean_object* l_instNegFloat___closed__1;
-lean_object* l_instHasLessEqFloat;
 double l_Float_ofInt(lean_object*);
 lean_object* l_instBEqFloat___closed__1;
 lean_object* l_Float_exp___boxed(lean_object*);
@@ -455,7 +455,7 @@ x_1 = l_instNegFloat___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_instHasLessFloat() {
+static lean_object* _init_l_instLTFloat() {
 _start:
 {
 lean_object* x_1; 
@@ -463,7 +463,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_instHasLessEqFloat() {
+static lean_object* _init_l_instLEFloat() {
 _start:
 {
 lean_object* x_1; 
@@ -1005,10 +1005,10 @@ l_instNegFloat___closed__1 = _init_l_instNegFloat___closed__1();
 lean_mark_persistent(l_instNegFloat___closed__1);
 l_instNegFloat = _init_l_instNegFloat();
 lean_mark_persistent(l_instNegFloat);
-l_instHasLessFloat = _init_l_instHasLessFloat();
-lean_mark_persistent(l_instHasLessFloat);
-l_instHasLessEqFloat = _init_l_instHasLessEqFloat();
-lean_mark_persistent(l_instHasLessEqFloat);
+l_instLTFloat = _init_l_instLTFloat();
+lean_mark_persistent(l_instLTFloat);
+l_instLEFloat = _init_l_instLEFloat();
+lean_mark_persistent(l_instLEFloat);
 l_instBEqFloat___closed__1 = _init_l_instBEqFloat___closed__1();
 lean_mark_persistent(l_instBEqFloat___closed__1);
 l_instBEqFloat = _init_l_instBEqFloat();

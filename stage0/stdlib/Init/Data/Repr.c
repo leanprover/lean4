@@ -87,6 +87,7 @@ lean_object* l_instReprSum___rarg___closed__2;
 lean_object* l_String_quote___closed__3;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_instReprBool_match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22181____closed__8;
 lean_object* l_instReprAtomUInt16;
 lean_object* l_Char_quoteCore___closed__1;
 lean_object* l_Char_quoteCore___boxed(lean_object*);
@@ -100,7 +101,6 @@ lean_object* l_Int_repr(lean_object*);
 lean_object* l_Char_quoteCore___closed__2;
 lean_object* l_Int_repr_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1449____closed__6;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22157____closed__8;
 lean_object* l_instReprInt___boxed(lean_object*, lean_object*);
 lean_object* l_instReprSubstring___closed__1;
 lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1449____closed__2;
@@ -407,7 +407,7 @@ static lean_object* _init_l_instReprBool___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22157____closed__8;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22181____closed__8;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

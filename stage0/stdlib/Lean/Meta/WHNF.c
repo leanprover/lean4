@@ -47,6 +47,7 @@ lean_object* l_Lean_Meta_reduceMatcher_x3f___lambda__1(lean_object*, lean_object
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Meta_reduceNative_x3f___closed__6;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_7614____closed__6;
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_deltaBetaDefinition___at_Lean_Meta_unfoldDefinition_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNatValue(lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_deltaBetaDefinition___at_Lean_Meta_unfoldDefinition_x3f___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -412,7 +413,6 @@ lean_object* l_Lean_Meta_reduceRecMatcher_x3f_match__1___rarg(lean_object*, lean
 lean_object* l_Lean_Meta_reduceBinNatOp___closed__9;
 lean_object* l_Lean_Meta_whnfUntil(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduceNat_x3f___closed__6;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7602____closed__6;
 lean_object* l_Lean_getProjectionFnInfo_x3f___at___private_Lean_Meta_WHNF_0__Lean_Meta_unfoldProjInst___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Nat_instModNat___closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -21896,7 +21896,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Literal_type___closed__2;
-x_2 = l_myMacro____x40_Init_Notation___hyg_7602____closed__6;
+x_2 = l_myMacro____x40_Init_Notation___hyg_7614____closed__6;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

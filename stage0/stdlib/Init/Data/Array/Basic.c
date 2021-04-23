@@ -338,6 +338,7 @@ uint8_t l_Array_anyMUnsafe_any___at_Array_any___spec__1___rarg(lean_object*, lea
 lean_object* l_Array_findRevM_x3f(lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Array_concatMapM___spec__1___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_11358____closed__5;
 lean_object* l_Array_unzip___rarg(lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_allDiffAuxAux_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -635,7 +636,6 @@ lean_object* l_Array_foldrMUnsafe_fold___at_Array_foldr___spec__1___rarg___boxed
 lean_object* l_Array_isEqvAux_match__1(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Array_foldr(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_11334____closed__5;
 lean_object* l_Array_foldlMUnsafe_fold___at_Array_filterMap___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_indexOfAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findSomeM_x3f_match__1(lean_object*, lean_object*);
@@ -7814,7 +7814,7 @@ static lean_object* _init_l_myMacro____x40_Init_Data_Array_Basic___hyg_3752____c
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_11334____closed__5;
+x_1 = l_myMacro____x40_Init_Notation___hyg_11358____closed__5;
 x_2 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3752____closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

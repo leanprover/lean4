@@ -21,6 +21,7 @@ lean_object* l_Quotient_hrecOn___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_lift(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_reduceBool(uint8_t);
 lean_object* l_inline(lean_object*);
+lean_object* l_instLTProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Core___hyg_173____closed__5;
 lean_object* l_instDecidableDite(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_lift_u2082(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -51,7 +52,6 @@ lean_object* l_Quot_indep(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Eq_ndrecOn___rarg(lean_object*);
 lean_object* l_term___x21_x3d_____closed__2;
-lean_object* l_instHasLessProd(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_term___u2260_____closed__1;
 lean_object* l_myMacro____x40_Init_Core___hyg_935____closed__7;
 lean_object* l_Quot_liftOn___rarg(lean_object*, lean_object*, lean_object*);
@@ -177,6 +177,7 @@ lean_object* l_Squash_mk(lean_object*);
 lean_object* lean_mk_thunk(lean_object*);
 lean_object* l_Thunk_bind___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__10;
+lean_object* l_instLTProd(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_term___x3c_x2d_x3e_____closed__7;
 lean_object* l_Task_Priority_default;
 lean_object* l_Thunk_mk___boxed(lean_object*, lean_object*);
@@ -283,7 +284,6 @@ lean_object* lean_thunk_bind(lean_object*, lean_object*);
 lean_object* l_instInhabitedTrue;
 lean_object* l_Quotient_recOn___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quot_recOn(lean_object*, lean_object*, lean_object*);
-lean_object* l_instHasLessProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Quot_hrecOn___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_inline___rarg(lean_object* x_1) {
 _start:
@@ -3013,7 +3013,7 @@ x_3 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 0);
 return x_3;
 }
 }
-lean_object* l_instHasLessProd(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_instLTProd(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -3021,11 +3021,11 @@ x_5 = lean_box(0);
 return x_5;
 }
 }
-lean_object* l_instHasLessProd___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_instLTProd___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_instHasLessProd(x_1, x_2, x_3, x_4);
+x_5 = l_instLTProd(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
 return x_5;

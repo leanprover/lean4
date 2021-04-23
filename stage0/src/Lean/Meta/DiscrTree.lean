@@ -62,7 +62,7 @@ def Key.lt : Key → Key → Bool
   | Key.const n₁ a₁, Key.const n₂ a₂ => Name.quickLt n₁ n₂ || (n₁ == n₂ && a₁ < a₂)
   | k₁,              k₂              => k₁.ctorIdx < k₂.ctorIdx
 
-instance : HasLess Key := ⟨fun a b => Key.lt a b⟩
+instance : LT Key := ⟨fun a b => Key.lt a b⟩
 instance (a b : Key) : Decidable (a < b) := inferInstanceAs (Decidable (Key.lt a b))
 
 def Key.format : Key → Format

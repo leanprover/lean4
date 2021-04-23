@@ -46,8 +46,8 @@ instance : Mul UInt8       := ⟨UInt8.mul⟩
 instance : Mod UInt8       := ⟨UInt8.mod⟩
 instance : HMod UInt8 Nat UInt8 := ⟨UInt8.modn⟩
 instance : Div UInt8       := ⟨UInt8.div⟩
-instance : HasLess UInt8   := ⟨UInt8.lt⟩
-instance : HasLessEq UInt8 := ⟨UInt8.le⟩
+instance : LT UInt8        := ⟨UInt8.lt⟩
+instance : LE UInt8        := ⟨UInt8.le⟩
 
 @[extern c inline "~ #1"]
 def UInt8.complement (a:UInt8) : UInt8 := 0-(a+1)
@@ -112,8 +112,8 @@ instance : Mul UInt16       := ⟨UInt16.mul⟩
 instance : Mod UInt16       := ⟨UInt16.mod⟩
 instance : HMod UInt16 Nat UInt16 := ⟨UInt16.modn⟩
 instance : Div UInt16       := ⟨UInt16.div⟩
-instance : HasLess UInt16   := ⟨UInt16.lt⟩
-instance : HasLessEq UInt16 := ⟨UInt16.le⟩
+instance : LT UInt16        := ⟨UInt16.lt⟩
+instance : LE UInt16        := ⟨UInt16.le⟩
 
 @[extern c inline "~ #1"]
 def UInt16.complement (a:UInt16) : UInt16 := 0-(a+1)
@@ -237,8 +237,8 @@ instance : Mul UInt64       := ⟨UInt64.mul⟩
 instance : Mod UInt64       := ⟨UInt64.mod⟩
 instance : HMod UInt64 Nat UInt64 := ⟨UInt64.modn⟩
 instance : Div UInt64       := ⟨UInt64.div⟩
-instance : HasLess UInt64   := ⟨UInt64.lt⟩
-instance : HasLessEq UInt64 := ⟨UInt64.le⟩
+instance : LT UInt64        := ⟨UInt64.lt⟩
+instance : LE UInt64        := ⟨UInt64.le⟩
 
 @[extern c inline "~ #1"]
 def UInt64.complement (a:UInt64) : UInt64 := 0-(a+1)
@@ -315,8 +315,8 @@ instance : Mul USize       := ⟨USize.mul⟩
 instance : Mod USize       := ⟨USize.mod⟩
 instance : HMod USize Nat USize := ⟨USize.modn⟩
 instance : Div USize       := ⟨USize.div⟩
-instance : HasLess USize   := ⟨USize.lt⟩
-instance : HasLessEq USize := ⟨USize.le⟩
+instance : LT USize        := ⟨USize.lt⟩
+instance : LE USize        := ⟨USize.le⟩
 
 @[extern c inline "~ #1"]
 def USize.complement (a:USize) : USize := 0-(a+1)

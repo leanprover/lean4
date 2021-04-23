@@ -78,6 +78,5 @@ end Option
 deriving instance DecidableEq for Option
 deriving instance BEq for Option
 
-instance [HasLess α] : HasLess (Option α) := {
-  Less := Option.lt (· < ·)
-}
+instance [LT α] : LT (Option α) where
+  lt := Option.lt (· < ·)

@@ -26,10 +26,10 @@ lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Op
 lean_object* l_Option_isSome___rarg___boxed(lean_object*);
 lean_object* l_Option_orElse___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Option_instFunctorOption___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instLTOption(lean_object*, lean_object*);
 lean_object* l_Option_filter___rarg(lean_object*, lean_object*);
 lean_object* l_Option_bind___rarg(lean_object*, lean_object*);
 lean_object* l_Option_toBool_match__1(lean_object*, lean_object*);
-lean_object* l_instHasLessOption(lean_object*, lean_object*);
 lean_object* l_Option_toBool(lean_object*);
 lean_object* l_Option_lt_match__1(lean_object*, lean_object*);
 lean_object* l_instBEqOption___rarg(lean_object*);
@@ -72,6 +72,7 @@ lean_object* l_Option_orElse_match__1___rarg(lean_object*, lean_object*, lean_ob
 uint8_t l_Option_isNone___rarg(lean_object*);
 lean_object* l_Option_getD_match__1(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_590____rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_instLTOption___boxed(lean_object*, lean_object*);
 uint8_t l_Option_toBool___rarg(lean_object*);
 lean_object* l_Option_instFunctorOption___closed__3;
 lean_object* l_Option_instDecidableRelLt(lean_object*, lean_object*);
@@ -79,7 +80,6 @@ lean_object* l_Option_getD___rarg(lean_object*, lean_object*);
 lean_object* l_Option_instDecidableRelLt___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_bind_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_filter(lean_object*);
-lean_object* l_instHasLessOption___boxed(lean_object*, lean_object*);
 lean_object* l_Option_toBool___rarg___boxed(lean_object*);
 lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_713____rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_toMonad_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1320,7 +1320,7 @@ x_2 = lean_alloc_closure((void*)(l_instBEqOption___rarg), 1, 0);
 return x_2;
 }
 }
-lean_object* l_instHasLessOption(lean_object* x_1, lean_object* x_2) {
+lean_object* l_instLTOption(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -1328,11 +1328,11 @@ x_3 = lean_box(0);
 return x_3;
 }
 }
-lean_object* l_instHasLessOption___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_instLTOption___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_instHasLessOption(x_1, x_2);
+x_3 = l_instLTOption(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }

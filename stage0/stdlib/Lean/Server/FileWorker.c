@@ -398,6 +398,7 @@ lean_object* l_IO_FS_Stream_writeLspResponse___at_Lean_Server_FileWorker_handleR
 lean_object* l_Lean_Server_FileWorker_compileHeader___lambda__4___closed__1;
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_Server_FileWorker_updateDocument___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_17364____closed__2;
 lean_object* lean_format_pretty(lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_updateDocument___lambda__3___closed__1;
 extern lean_object* l_Lean_choiceKind;
@@ -494,7 +495,6 @@ lean_object* l_Lean_Server_FileWorker_rangeOfSyntax(lean_object*, lean_object*);
 lean_object* l_List_mapM___at_Lean_Server_FileWorker_handlePlainGoal___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_publishMessages___spec__4(lean_object*, size_t, size_t, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_17340____closed__2;
 lean_object* l_Lean_isRec___at___private_Lean_Server_Completion_0__Lean_Server_Completion_isBlackListed___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 extern lean_object* l_Lean_nullKind___closed__1;
@@ -25409,7 +25409,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Term_mkExplicitBinder___closed__1;
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_17340____closed__2;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_17364____closed__2;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }

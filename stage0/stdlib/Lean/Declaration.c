@@ -195,7 +195,6 @@ lean_object* l_Lean_instInhabitedInductiveType___closed__1;
 lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_204____closed__1;
 lean_object* l_Lean_Declaration_forExprM(lean_object*);
 lean_object* l_Lean_ConstantInfo_hints_match__1(lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19949____closed__3;
 lean_object* l_Lean_DefinitionVal_getSafetyEx___boxed(lean_object*);
 lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_instReprDefinitionSafety___closed__1;
@@ -210,6 +209,7 @@ lean_object* l_Lean_Declaration_foldExprM___rarg(lean_object*, lean_object*, lea
 lean_object* l_Lean_instInhabitedOpaqueVal___closed__1;
 lean_object* l_Lean_InductiveVal_isReflexiveEx___boxed(lean_object*);
 lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_204____closed__9;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19973____closed__3;
 uint32_t lean_reducibility_hints_get_height(lean_object*);
 lean_object* l_Lean_mkInductiveValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_isUnsafe___boxed(lean_object*);
@@ -3491,7 +3491,7 @@ lean_object* l_Lean_mkRecName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19949____closed__3;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19973____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

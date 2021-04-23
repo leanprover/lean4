@@ -99,13 +99,13 @@ def foldNatPow (_ : Bool) (a₁ a₂ : Expr) : Option Expr :=
       failure
 
 def mkNatEq (a b : Expr) : Expr :=
-  mkAppN (mkConst `Eq [levelOne]) #[(mkConst `Nat), a, b]
+  mkAppN (mkConst ``Eq [levelOne]) #[(mkConst `Nat), a, b]
 
 def mkNatLt (a b : Expr) : Expr :=
-  mkAppN (mkConst `HasLess.Less [levelZero]) #[mkConst `Nat, mkConst `Nat.less, a, b]
+  mkAppN (mkConst ``LT.lt [levelZero]) #[mkConst `Nat, mkConst `Nat.less, a, b]
 
 def mkNatLe (a b : Expr) : Expr :=
-  mkAppN (mkConst `HasLessEq.LessEq [levelZero]) #[mkConst `Nat, mkConst `Nat.lessEq, a, b]
+  mkAppN (mkConst ``LE.le [levelZero]) #[mkConst `Nat, mkConst `Nat.lessEq, a, b]
 
 def toDecidableExpr (beforeErasure : Bool) (pred : Expr) (r : Bool) : Expr :=
   match beforeErasure, r with
@@ -126,19 +126,18 @@ def foldNatDecLt := foldNatBinPred mkNatLt (fun a b => a < b)
 def foldNatDecLe := foldNatBinPred mkNatLe (fun a b => a ≤ b)
 
 def natFoldFns : List (Name × BinFoldFn) :=
-  [(`Nat.add, foldNatAdd),
-   (`Nat.mul, foldNatMul),
-   (`Nat.div, foldNatDiv),
-   (`Nat.mod, foldNatMod),
-   (`Nat.pow, foldNatPow),
-   (`Nat.pow._main, foldNatPow),
-   (`Nat.decEq, foldNatDecEq),
-   (`Nat.decLt, foldNatDecLt),
-   (`Nat.decLe, foldNatDecLe)]
+  [(``Nat.add, foldNatAdd),
+   (``Nat.mul, foldNatMul),
+   (``Nat.div, foldNatDiv),
+   (``Nat.mod, foldNatMod),
+   (``Nat.pow, foldNatPow),
+   (``Nat.decEq, foldNatDecEq),
+   (``Nat.decLt, foldNatDecLt),
+   (``Nat.decLe, foldNatDecLe)]
 
 def getBoolLit : Expr → Option Bool
-  | Expr.const `Bool.true _ _  => some true
-  | Expr.const `Bool.false _ _ => some false
+  | Expr.const ``Bool.true _ _  => some true
+  | Expr.const ``Bool.false _ _ => some false
   | _                          => none
 
 def foldStrictAnd (_ : Bool) (a₁ a₂ : Expr) : Option Expr :=
@@ -187,8 +186,8 @@ def uintFoldToNatFns : List (Name × UnFoldFn) :=
   numScalarTypes.foldl (fun r info => (info.toNatFn, foldToNat) :: r) []
 
 def unFoldFns : List (Name × UnFoldFn) :=
-  [(`Nat.succ, foldNatSucc),
-   (`Char.ofNat, foldCharOfNat)]
+  [(``Nat.succ, foldNatSucc),
+   (``Char.ofNat, foldCharOfNat)]
   ++ uintFoldToNatFns
 
 def findBinFoldFn (fn : Name) : Option BinFoldFn :=

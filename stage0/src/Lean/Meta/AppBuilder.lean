@@ -415,11 +415,11 @@ def mkDecideProof (p : Expr) : MetaM Expr := do
 
 /-- Return `a < b` -/
 def mkLt (a b : Expr) : MetaM Expr :=
-  mkAppM ``HasLess.Less #[a, b]
+  mkAppM ``LT.lt #[a, b]
 
 /-- Return `a <= b` -/
 def mkLe (a b : Expr) : MetaM Expr :=
-  mkAppM ``HasLessEq.LessEq #[a, b]
+  mkAppM ``LE.le #[a, b]
 
 /-- Return `arbitrary α` -/
 def mkArbitrary (α : Expr) : MetaM Expr :=

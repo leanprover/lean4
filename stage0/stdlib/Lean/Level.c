@@ -198,7 +198,6 @@ lean_object* l_Lean_Level_PP_Result_quote___lambda__1(lean_object*, lean_object*
 lean_object* l___private_Lean_Level_0__Lean_Level_accMax(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_PP_Result_succ(lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_isExplicitSubsumed___boxed(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_13352____closed__7;
 lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_Format_paren___closed__4;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -238,6 +237,7 @@ lean_object* lean_level_update_imax(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_imax___boxed(lean_object*, lean_object*);
 lean_object* l_List_redLength___rarg(lean_object*);
 uint8_t l_Lean_instBEqData(uint64_t, uint64_t);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_13376____closed__7;
 lean_object* l_Lean_Level_updateIMax_x21___closed__3;
 lean_object* l_Lean_levelOne___closed__1;
 lean_object* l_Lean_levelZero___closed__2;
@@ -5612,7 +5612,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1160____closed__29;
-x_2 = l_myMacro____x40_Init_Notation___hyg_13352____closed__7;
+x_2 = l_myMacro____x40_Init_Notation___hyg_13376____closed__7;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

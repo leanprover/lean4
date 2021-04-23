@@ -32,6 +32,7 @@ lean_object* l_List_notElem___rarg___boxed(lean_object*, lean_object*, lean_obje
 lean_object* l_List_map_u2082(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_any___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_List_zipWith_match__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_instLTList(lean_object*, lean_object*);
 uint8_t l_List_foldr___at_List_any___spec__1___rarg(lean_object*, uint8_t, lean_object*);
 lean_object* l_List_all(lean_object*);
 lean_object* l_List_spanAux___rarg(lean_object*, lean_object*, lean_object*);
@@ -78,16 +79,17 @@ lean_object* l_List_iota_match__1___rarg(lean_object*, lean_object*, lean_object
 lean_object* l_List_iota_match__1(lean_object*);
 lean_object* l_List_eraseIdx_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_join___rarg(lean_object*);
+lean_object* l_List_instLEList(lean_object*, lean_object*);
 lean_object* l_List_pure___rarg(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_List_drop(lean_object*);
-lean_object* l_List_instListDecidableLessEq(lean_object*);
 lean_object* l_List_drop_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_or___boxed(lean_object*);
 lean_object* l_List_replicate___rarg(lean_object*, lean_object*);
 lean_object* l_List_isEmpty___rarg___boxed(lean_object*);
 lean_object* l_List_eraseRepsAux_match__1(lean_object*, lean_object*);
 lean_object* l_List_any(lean_object*);
+lean_object* l_List_instLTList___boxed(lean_object*, lean_object*);
 lean_object* l_List_bind___rarg(lean_object*, lean_object*);
 lean_object* l_List_hasDecidableLt_match__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterAux___at_List_removeAll___spec__1(lean_object*);
@@ -109,7 +111,6 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t l_List_all___rarg(lean_object*, lean_object*);
 lean_object* l_List_filterAux___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_zip___rarg___lambda__1(lean_object*, lean_object*);
-lean_object* l_List_instListDecidableLessEq___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_List_foldr___at_List_or___spec__1(uint8_t, lean_object*);
 lean_object* l_List_instEmptyCollectionList(lean_object*);
 lean_object* l_List_enumFrom_match__1(lean_object*, lean_object*);
@@ -133,10 +134,8 @@ lean_object* l_List_hasDecidableLt_match__5___rarg___boxed(lean_object*, lean_ob
 lean_object* l_List_drop_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_zipWith(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_foldr___at_List_all___spec__1___rarg(lean_object*, uint8_t, lean_object*);
-lean_object* l_List_less(lean_object*, lean_object*);
 lean_object* l_List_enumFrom_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_erase_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_lessEq(lean_object*, lean_object*);
 lean_object* l_List_lookup(lean_object*, lean_object*);
 lean_object* l_List_beq_match__1(lean_object*, lean_object*);
 lean_object* l_List_eraseDupsAux(lean_object*);
@@ -146,7 +145,9 @@ lean_object* l_List_eraseRepsAux_match__1___rarg(lean_object*, lean_object*, lea
 lean_object* l_List_isEqv_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_unzip(lean_object*, lean_object*);
 lean_object* l_List_map(lean_object*, lean_object*);
+uint8_t l_List_instListDecidableLe___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_eraseReps___rarg(lean_object*, lean_object*);
+lean_object* l_List_instListDecidableLe(lean_object*);
 lean_object* l_List_removeAll(lean_object*);
 lean_object* l_List_map_u2082___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_enumFrom___rarg(lean_object*, lean_object*);
@@ -169,7 +170,6 @@ uint8_t l_List_beq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_drop___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_List_partition___rarg___closed__1;
 lean_object* l_List_instBEqList___rarg(lean_object*);
-uint8_t l_List_instListDecidableLessEq___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldr___at_List_all___spec__1(lean_object*);
 lean_object* l_List_init(lean_object*);
 lean_object* l_List_find_x3f___rarg(lean_object*, lean_object*);
@@ -200,7 +200,6 @@ lean_object* l_List_replicate_loop_match__1___rarg___boxed(lean_object*, lean_ob
 lean_object* l_List_filterMap_match__1(lean_object*, lean_object*);
 lean_object* l_List_findSome_x3f(lean_object*, lean_object*);
 lean_object* l_List_dropLast___rarg(lean_object*);
-lean_object* l_List_less___boxed(lean_object*, lean_object*);
 lean_object* l_List_hasDecidableLt_match__5___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_List_zip___rarg(lean_object*, lean_object*);
 lean_object* l_List_and___boxed(lean_object*);
@@ -221,6 +220,7 @@ lean_object* l_List_groupBy(lean_object*);
 lean_object* l_List_instAppendList___closed__1;
 lean_object* l_List_reverseAux___rarg(lean_object*, lean_object*);
 lean_object* l_List_isPrefixOf_match__1(lean_object*, lean_object*);
+lean_object* l_List_instListDecidableLe___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_List_any___rarg(lean_object*, lean_object*);
 lean_object* l_List_hasDecidableLt_match__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_init_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -234,6 +234,7 @@ lean_object* l_List_zip___rarg___closed__1;
 lean_object* l_List_intersperse(lean_object*);
 uint8_t l_List_contains___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_replicate_loop___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_instLEList___boxed(lean_object*, lean_object*);
 lean_object* l_List_hasDecidableLt_match__4___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_List_eraseDups___rarg(lean_object*, lean_object*);
 lean_object* l_List_isEmpty_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -242,7 +243,6 @@ lean_object* l_List_hasDecidableLt___rarg___boxed(lean_object*, lean_object*, le
 lean_object* l_List_partitionAux_match__1(lean_object*, lean_object*);
 lean_object* l_List_lookup_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_elem(lean_object*);
-lean_object* l_List_lessEq___boxed(lean_object*, lean_object*);
 lean_object* l_List_partition___rarg(lean_object*, lean_object*);
 lean_object* l_List_reverseAux_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
@@ -4254,7 +4254,7 @@ x_2 = lean_alloc_closure((void*)(l_List_pure___rarg), 1, 0);
 return x_2;
 }
 }
-lean_object* l_List_less(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_instLTList(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -4262,11 +4262,11 @@ x_3 = lean_box(0);
 return x_3;
 }
 }
-lean_object* l_List_less___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_instLTList___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_List_less(x_1, x_2);
+x_3 = l_List_instLTList(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -4592,7 +4592,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* l_List_lessEq(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_instLEList(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -4600,16 +4600,16 @@ x_3 = lean_box(0);
 return x_3;
 }
 }
-lean_object* l_List_lessEq___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_instLEList___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_List_lessEq(x_1, x_2);
+x_3 = l_List_instLEList(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
 }
-uint8_t l_List_instListDecidableLessEq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+uint8_t l_List_instListDecidableLe___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; uint8_t x_6; 
@@ -4618,19 +4618,19 @@ x_6 = l_instDecidableNot___rarg(x_5);
 return x_6;
 }
 }
-lean_object* l_List_instListDecidableLessEq(lean_object* x_1) {
+lean_object* l_List_instListDecidableLe(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_instListDecidableLessEq___rarg___boxed), 4, 0);
+x_2 = lean_alloc_closure((void*)(l_List_instListDecidableLe___rarg___boxed), 4, 0);
 return x_2;
 }
 }
-lean_object* l_List_instListDecidableLessEq___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_List_instListDecidableLe___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; lean_object* x_6; 
-x_5 = l_List_instListDecidableLessEq___rarg(x_1, x_2, x_3, x_4);
+x_5 = l_List_instListDecidableLe___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_1);
 x_6 = lean_box(x_5);
 return x_6;

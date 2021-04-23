@@ -24,7 +24,7 @@ def addToBlackList (env : Environment) (declName : Name) : Environment :=
 
 private def isBlackListed (declName : Name) : MetaM Bool := do
   let env ← getEnv
-  declName.isInternal
+  (declName.isInternal && !isPrivateName declName)
   <||> isAuxRecursor env declName
   <||> isNoConfusion env declName
   <||> isRec declName
@@ -95,34 +95,44 @@ private def matchAtomic (id: Name) (declName : Name) : Bool :=
   | Name.str Name.anonymous s₁ _, Name.str Name.anonymous s₂ _ => s₁.isPrefixOf s₂
   | _, _ => false
 
+private def normPrivateName (declName : Name) : MetaM Name := do
+  match privateToUserName? declName with
+  | none => return declName
+  | some userName =>
+    if mkPrivateName (← getEnv) userName == declName then
+      return userName
+    else
+      return declName
+
 /--
   Return the auto-completion label if `id` can be auto completed using `declName` assuming namespace `ns` is open.
   This function only succeeds with atomic labels. BTW, it seems most clients only use the last part.
 
   Remark: `danglingDot == true` when the completion point is an identifier followed by `.`.
 -/
-private def matchDecl? (ns : Name) (id : Name) (danglingDot : Bool) (declName : Name) : Option Name :=
+private def matchDecl? (ns : Name) (id : Name) (danglingDot : Bool) (declName : Name) : MetaM (Option Name) := do
   -- dbg_trace "{ns}, {id}, {declName}, {danglingDot}"
+  let declName ← normPrivateName declName
   if !ns.isPrefixOf declName then
-    none
+    return none
   else
     let declName := declName.replacePrefix ns Name.anonymous
     if id.isPrefixOf declName && danglingDot then
       let declName := declName.replacePrefix id Name.anonymous
       if declName.isAtomic && !declName.isAnonymous then
-        some declName
+        return some declName
       else
-        none
+        return none
     else if !danglingDot then
       match id, declName with
       | Name.str p₁ s₁ _, Name.str p₂ s₂ _ =>
         if p₁ == p₂ && s₁.isPrefixOf s₂ then
-          some s₂
+          return some s₂
         else
-          none
+          return none
       | _, _ => none
     else
-      none
+      return none
 
 private def idCompletionCore (ctx : ContextInfo) (id : Name) (danglingDot : Bool) (expectedType? : Option Expr) : M Unit := do
   let id := id.eraseMacroScopes
@@ -137,7 +147,7 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (danglingDot : Bool
   env.constants.forM fun declName c => do
     unless (← isBlackListed declName) do
       let matchUsingNamespace (ns : Name): M Bool := do
-        if let some label := matchDecl? ns id danglingDot declName then
+        if let some label ← matchDecl? ns id danglingDot declName then
           -- dbg_trace "matched with {id}, {declName}, {label}"
           addCompletionItem label c.type expectedType?
           return true
@@ -181,12 +191,12 @@ private def idCompletion (ctx : ContextInfo) (lctx : LocalContext) (id : Name) (
   runM ctx lctx do
     idCompletionCore ctx id danglingDot expectedType?
 
-private def isDotCompletionMethod (info : ConstantInfo) : MetaM Bool :=
+private def isDotCompletionMethod (typeName : Name) (info : ConstantInfo) : MetaM Bool :=
   forallTelescopeReducing info.type fun xs _ => do
     for x in xs do
       let localDecl ← getLocalDecl x.fvarId!
       let type := localDecl.type.consumeMData
-      if type.getAppFn.isConstOf info.name.getPrefix then
+      if type.getAppFn.isConstOf typeName then
         return true
     return false
 
@@ -226,9 +236,10 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? :
         failure
     else
       (← getEnv).constants.forM fun declName c => do
-        if nameSet.contains declName.getPrefix then
+        let typeName := (← normPrivateName declName).getPrefix
+        if nameSet.contains typeName then
           unless (← isBlackListed c.name) do
-            if (← isDotCompletionMethod c) then
+            if (← isDotCompletionMethod typeName c) then
               addCompletionItem c.name.getString! c.type expectedType?
 
 private def optionCompletion (ctx : ContextInfo) : IO (Option CompletionList) := do

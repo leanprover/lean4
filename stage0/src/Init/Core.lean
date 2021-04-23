@@ -569,16 +569,16 @@ instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
 instance [BEq α] [BEq β] : BEq (α × β) where
   beq := fun (a₁, b₁) (a₂, b₂) => a₁ == a₂ && b₁ == b₂
 
-instance [HasLess α] [HasLess β] : HasLess (α × β) where
-  Less s t := s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)
+instance [LT α] [LT β] : LT (α × β) where
+  lt s t := s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)
 
 instance prodHasDecidableLt
-    [HasLess α] [HasLess β] [DecidableEq α] [DecidableEq β]
+    [LT α] [LT β] [DecidableEq α] [DecidableEq β]
     [(a b : α) → Decidable (a < b)] [(a b : β) → Decidable (a < b)]
     : (s t : α × β) → Decidable (s < t) :=
   fun t s => inferInstanceAs (Decidable (_ ∨ _))
 
-theorem Prod.ltDef [HasLess α] [HasLess β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
+theorem Prod.ltDef [LT α] [LT β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
   rfl
 
 theorem Prod.ext (p : α × β) : (p.1, p.2) = p := by

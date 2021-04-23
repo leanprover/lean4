@@ -846,7 +846,6 @@ lean_object* l_Lean_Parser_PrattParsingTables_trailingParsers___default;
 lean_object* l_Lean_Parser_noFirstTokenInfo___elambda__2(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_withoutPosition(lean_object*);
 lean_object* l_Lean_Parser_nameLitFn___closed__2;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_14880____closed__9;
 lean_object* l_Array_qsort_sort___at_Lean_Parser_Error_toString___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_ins___at_Lean_Parser_TokenMap_insert___spec__6___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_Parser_SyntaxNodeKindSet_insert___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -1033,6 +1032,7 @@ lean_object* l_Lean_Parser_mkAntiquot___closed__2;
 lean_object* l_Lean_Parser_withResultOfInfo(lean_object*);
 lean_object* l_Lean_Parser_withAntiquotSuffixSpliceFn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Basic___hyg_7420____lambda__1(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_14904____closed__9;
 lean_object* l_Lean_Parser_categoryParserOfStack___elambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qpartition_loop___at_Lean_Parser_Error_toString___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_identFn(lean_object*, lean_object*);
@@ -29802,7 +29802,7 @@ static lean_object* _init_l_Lean_Parser_mkAntiquot___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_14880____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_14904____closed__9;
 x_2 = l_String_trim(x_1);
 return x_2;
 }

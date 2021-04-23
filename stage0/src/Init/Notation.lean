@@ -78,12 +78,12 @@ prefix:100 "-"   => Neg.neg
 prefix:100 "~~~"   => Complement.complement
 
 -- declare ASCII alternatives first so that the latter Unicode unexpander wins
-infix:50 " <= " => HasLessEq.LessEq
-infix:50 " ≤ "  => HasLessEq.LessEq
-infix:50 " < "  => HasLess.Less
-infix:50 " >= " => GreaterEq
-infix:50 " ≥ "  => GreaterEq
-infix:50 " > "  => Greater
+infix:50 " <= " => LE.le
+infix:50 " ≤ "  => LE.le
+infix:50 " < "  => LT.lt
+infix:50 " >= " => GE.ge
+infix:50 " ≥ "  => GE.ge
+infix:50 " > "  => GT.gt
 infix:50 " = "  => Eq
 infix:50 " == " => BEq.beq
 infix:50 " ~= " => HEq
@@ -94,12 +94,12 @@ infix:50 " ≅ "  => HEq
   It has better support for applying coercions. For example, suppose we have `binrel% Eq n i` where `n : Nat` and
   `i : Int`. The default elaborator fails because we don't have a coercion from `Int` to `Nat`, but
   `binrel%` succeeds because it also tries a coercion from `Nat` to `Int` even when the nat occurs before the int. -/
-macro_rules | `($x <= $y) => `(binrel% HasLessEq.LessEq $x $y)
-macro_rules | `($x ≤ $y)  => `(binrel% HasLessEq.LessEq $x $y)
-macro_rules | `($x < $y)  => `(binrel% HasLess.Less $x $y)
-macro_rules | `($x > $y)  => `(binrel% Greater $x $y)
-macro_rules | `($x >= $y) => `(binrel% GreaterEq $x $y)
-macro_rules | `($x ≥ $y)  => `(binrel% GreaterEq $x $y)
+macro_rules | `($x <= $y) => `(binrel% LE.le $x $y)
+macro_rules | `($x ≤ $y)  => `(binrel% LE.le $x $y)
+macro_rules | `($x < $y)  => `(binrel% LT.lt $x $y)
+macro_rules | `($x > $y)  => `(binrel% GT.gt $x $y)
+macro_rules | `($x >= $y) => `(binrel% GE.ge $x $y)
+macro_rules | `($x ≥ $y)  => `(binrel% GE.ge $x $y)
 macro_rules | `($x = $y)  => `(binrel% Eq $x $y)
 macro_rules | `($x == $y) => `(binrel% BEq.beq $x $y)
 

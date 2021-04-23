@@ -70,7 +70,6 @@ lean_object* l_Lean_Syntax_instToStringSyntax___lambda__1(lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___closed__9;
 lean_object* l_Lean_Syntax_instToStringSyntax___closed__2;
 lean_object* l_List_map___at_Lean_Syntax_formatStxAux___spec__1(lean_object*, uint8_t, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_14880____closed__9;
 lean_object* l_Std_fmt___at___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo___spec__3(lean_object*);
 lean_object* l_List_map___at_Lean_Syntax_formatStxAux___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_instReprName___closed__2;
@@ -80,6 +79,7 @@ lean_object* l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo___clo
 lean_object* l_Lean_Syntax_formatStxAux___closed__6;
 lean_object* l_List_map___at_Lean_Syntax_formatStxAux___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_fmt___at___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo___spec__4(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_14904____closed__9;
 lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Std_fmt___at___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo___spec__3___boxed(lean_object*);
@@ -213,7 +213,7 @@ static lean_object* _init_l___private_Init_Data_Format_Syntax_0__Lean_Syntax_for
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_14880____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_14904____closed__9;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

@@ -31,7 +31,6 @@ uint8_t l_Std_HashSetImp_contains___at_Lean_NameHashSet_contains___spec__1(lean_
 lean_object* l_Std_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* l_Lean_Name_isInternal___boxed(lean_object*);
-lean_object* l_Lean_Name_instDecidableRelLessNameHasLtQuick___boxed(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Name_getString_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_isPrefixOf_match__1(lean_object*);
@@ -40,6 +39,7 @@ lean_object* l_List_replace___at_Lean_NameHashSet_insert___spec__6(lean_object*,
 lean_object* l_Lean_Name_getPrefix_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_quickLt___boxed(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
+uint8_t l_Lean_Name_instDecidableRelLtNameHasLtQuick(lean_object*, lean_object*);
 lean_object* l_Lean_Name_updatePrefix(lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_expand___at_Lean_NameHashSet_insert___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Name_isAnonymous___boxed(lean_object*);
@@ -97,7 +97,6 @@ size_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Lean_Name_eqStr___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_NameMap_contains___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_List_replace___at_Lean_NameHashSet_insert___spec__6___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Name_instDecidableRelLessNameHasLtQuick(lean_object*, lean_object*);
 lean_object* l_Lean_Name_isAnonymous_match__1(lean_object*);
 uint8_t l_Lean_Name_isAtomic(lean_object*);
 lean_object* l_Lean_NameHashSet_empty___closed__1;
@@ -106,6 +105,7 @@ lean_object* l_Lean_Name_getNumParts(lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_NameMap_contains___spec__1(lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_instDecidableRelLtNameHasLtQuick___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_NameMap_find_x3f(lean_object*);
 lean_object* l_Std_HashSetImp_insert___at_Lean_NameHashSet_insert___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_NameSet_empty;
@@ -1461,7 +1461,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-uint8_t l_Lean_Name_instDecidableRelLessNameHasLtQuick(lean_object* x_1, lean_object* x_2) {
+uint8_t l_Lean_Name_instDecidableRelLtNameHasLtQuick(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -1469,11 +1469,11 @@ x_3 = l_Lean_Name_quickLt(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_Name_instDecidableRelLessNameHasLtQuick___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Name_instDecidableRelLtNameHasLtQuick___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_Name_instDecidableRelLessNameHasLtQuick(x_1, x_2);
+x_3 = l_Lean_Name_instDecidableRelLtNameHasLtQuick(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);

@@ -13,42 +13,40 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Char_instDecidableLess___boxed(lean_object*, lean_object*);
-uint8_t l_Char_instDecidableLessEq(uint32_t, uint32_t);
 lean_object* l_Char_isAlpha___boxed(lean_object*);
+uint8_t l_Char_instDecidableLt(uint32_t, uint32_t);
 lean_object* l_Char_toUpper(uint32_t);
 uint8_t l_Char_isUpper(uint32_t);
 uint8_t l_Char_isDigit(uint32_t);
-lean_object* l_Char_instDecidableLessEq___boxed(lean_object*, lean_object*);
+lean_object* l_Char_instDecidableLt___boxed(lean_object*, lean_object*);
 uint8_t l_Char_isWhitespace(uint32_t);
 lean_object* l_Char_toNat___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-uint8_t l_Char_lt(uint32_t, uint32_t);
 lean_object* l_Char_toNat(uint32_t);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Char_toLower___boxed(lean_object*);
 uint8_t l_UInt32_decLt(uint32_t, uint32_t);
 uint8_t l_Char_isLower(uint32_t);
 lean_object* l_Char_isAlphanum___boxed(lean_object*);
+uint8_t l_Char_instDecidableLe(uint32_t, uint32_t);
 lean_object* l_Char_isWhitespace___boxed(lean_object*);
 uint8_t l_Char_isAlpha(uint32_t);
+lean_object* l_Char_instLEChar;
 uint32_t l_Char_instInhabitedChar;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
-lean_object* l_Char_instHasLessEqChar;
+lean_object* l_Char_instLTChar;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_Char_isAlphanum(uint32_t);
 lean_object* l_Char_toLower(uint32_t);
-lean_object* l_Char_instHasLessChar;
 lean_object* l_Char_isLower___boxed(lean_object*);
 lean_object* l_Char_toUpper___boxed(lean_object*);
-uint8_t l_Char_instDecidableLess(uint32_t, uint32_t);
-lean_object* l_Char_lt___boxed(lean_object*, lean_object*);
 lean_object* l_Char_isUpper___boxed(lean_object*);
 uint8_t l_UInt32_decLe(uint32_t, uint32_t);
+lean_object* l_Char_instDecidableLe___boxed(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_Char_ofNat(lean_object*);
 lean_object* l_Char_isDigit___boxed(lean_object*);
-static lean_object* _init_l_Char_instHasLessChar() {
+static lean_object* _init_l_Char_instLTChar() {
 _start:
 {
 lean_object* x_1; 
@@ -56,7 +54,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_Char_instHasLessEqChar() {
+static lean_object* _init_l_Char_instLEChar() {
 _start:
 {
 lean_object* x_1; 
@@ -64,7 +62,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-uint8_t l_Char_lt(uint32_t x_1, uint32_t x_2) {
+uint8_t l_Char_instDecidableLt(uint32_t x_1, uint32_t x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -72,7 +70,7 @@ x_3 = x_1 < x_2;
 return x_3;
 }
 }
-lean_object* l_Char_lt___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Char_instDecidableLt___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint32_t x_3; uint32_t x_4; uint8_t x_5; lean_object* x_6; 
@@ -80,33 +78,12 @@ x_3 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox_uint32(x_2);
 lean_dec(x_2);
-x_5 = l_Char_lt(x_3, x_4);
+x_5 = l_Char_instDecidableLt(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
 }
-uint8_t l_Char_instDecidableLess(uint32_t x_1, uint32_t x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = x_1 < x_2;
-return x_3;
-}
-}
-lean_object* l_Char_instDecidableLess___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint32_t x_3; uint32_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox_uint32(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox_uint32(x_2);
-lean_dec(x_2);
-x_5 = l_Char_instDecidableLess(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-uint8_t l_Char_instDecidableLessEq(uint32_t x_1, uint32_t x_2) {
+uint8_t l_Char_instDecidableLe(uint32_t x_1, uint32_t x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -114,7 +91,7 @@ x_3 = x_1 <= x_2;
 return x_3;
 }
 }
-lean_object* l_Char_instDecidableLessEq___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Char_instDecidableLe___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint32_t x_3; uint32_t x_4; uint8_t x_5; lean_object* x_6; 
@@ -122,7 +99,7 @@ x_3 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox_uint32(x_2);
 lean_dec(x_2);
-x_5 = l_Char_instDecidableLessEq(x_3, x_4);
+x_5 = l_Char_instDecidableLe(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -472,10 +449,10 @@ _G_initialized = true;
 res = initialize_Init_Data_UInt(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Char_instHasLessChar = _init_l_Char_instHasLessChar();
-lean_mark_persistent(l_Char_instHasLessChar);
-l_Char_instHasLessEqChar = _init_l_Char_instHasLessEqChar();
-lean_mark_persistent(l_Char_instHasLessEqChar);
+l_Char_instLTChar = _init_l_Char_instLTChar();
+lean_mark_persistent(l_Char_instLTChar);
+l_Char_instLEChar = _init_l_Char_instLEChar();
+lean_mark_persistent(l_Char_instLEChar);
 l_Char_instInhabitedChar = _init_l_Char_instInhabitedChar();
 return lean_io_result_mk_ok(lean_box(0));
 }

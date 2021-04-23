@@ -11,13 +11,11 @@ import Init.Data.UInt
 
 namespace Char
 
-protected def Less (a b : Char) : Prop := a.val < b.val
-protected def LessEq (a b : Char) : Prop := a.val ≤ b.val
+protected def lt (a b : Char) : Prop := a.val < b.val
+protected def le (a b : Char) : Prop := a.val ≤ b.val
 
-instance : HasLess Char   := ⟨Char.Less⟩
-instance : HasLessEq Char := ⟨Char.LessEq⟩
-
-protected def lt (a b : Char) : Bool := a.val < b.val
+instance : LT Char := ⟨Char.lt⟩
+instance : LE Char := ⟨Char.le⟩
 
 instance (a b : Char) :  Decidable (a < b) :=
   UInt32.decLt _ _

@@ -18,7 +18,7 @@ class Ord (α : Type u) where
 
 export Ord (compare)
 
-def compareOfLessAndEq {α} (x y : α) [HasLess α] [Decidable (x < y)] [DecidableEq α] : Ordering :=
+def compareOfLessAndEq {α} (x y : α) [LT α] [Decidable (x < y)] [DecidableEq α] : Ordering :=
   if x < y then Ordering.lt
   else if x = y then Ordering.eq
   else Ordering.gt

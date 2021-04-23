@@ -48,11 +48,12 @@ lean_object* l_Int_toNat___boxed(lean_object*);
 lean_object* l_Int_mod___boxed(lean_object*, lean_object*);
 uint8_t lean_int_dec_nonneg(lean_object*);
 lean_object* l_Int_div_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Int_instLTInt;
 lean_object* l_Int_instInhabitedInt;
 lean_object* l_Int_instModInt___closed__1;
 lean_object* l_Int_negOfNat___boxed(lean_object*);
 lean_object* l_Int_negOfNat_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Int_instHasLessEqInt;
+lean_object* l_Int_instLEInt;
 lean_object* l_Int_natMod___boxed(lean_object*, lean_object*);
 lean_object* l_Int_toNat(lean_object*);
 lean_object* l_Int_toNat_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -70,7 +71,6 @@ uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* l_Int_instInhabitedInt___closed__1;
 lean_object* lean_nat_abs(lean_object*);
 lean_object* lean_int_div(lean_object*, lean_object*);
-lean_object* l_Int_instHasLessInt;
 lean_object* l_Int_ofNat___boxed(lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
@@ -336,7 +336,7 @@ x_1 = l_Int_instSubInt___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_Int_instHasLessEqInt() {
+static lean_object* _init_l_Int_instLEInt() {
 _start:
 {
 lean_object* x_1; 
@@ -344,7 +344,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_Int_instHasLessInt() {
+static lean_object* _init_l_Int_instLTInt() {
 _start:
 {
 lean_object* x_1; 
@@ -755,10 +755,10 @@ l_Int_instSubInt___closed__1 = _init_l_Int_instSubInt___closed__1();
 lean_mark_persistent(l_Int_instSubInt___closed__1);
 l_Int_instSubInt = _init_l_Int_instSubInt();
 lean_mark_persistent(l_Int_instSubInt);
-l_Int_instHasLessEqInt = _init_l_Int_instHasLessEqInt();
-lean_mark_persistent(l_Int_instHasLessEqInt);
-l_Int_instHasLessInt = _init_l_Int_instHasLessInt();
-lean_mark_persistent(l_Int_instHasLessInt);
+l_Int_instLEInt = _init_l_Int_instLEInt();
+lean_mark_persistent(l_Int_instLEInt);
+l_Int_instLTInt = _init_l_Int_instLTInt();
+lean_mark_persistent(l_Int_instLTInt);
 l_Int_instDivInt___closed__1 = _init_l_Int_instDivInt___closed__1();
 lean_mark_persistent(l_Int_instDivInt___closed__1);
 l_Int_instDivInt = _init_l_Int_instDivInt();

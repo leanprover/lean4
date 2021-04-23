@@ -133,7 +133,6 @@ lean_object* l_String_takeWhile(lean_object*, lean_object*);
 lean_object* l_String_push_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___at_String_join___spec__1___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l_String_instHasLessString;
 lean_object* l_Nat_repeat_loop___at_String_pushn___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_instDecidableNot___rarg(uint8_t);
 uint8_t l_String_contains(lean_object*, uint32_t);
@@ -271,6 +270,7 @@ lean_object* l_String_foldlAux(lean_object*);
 lean_object* l_String_toNat_x3f___boxed(lean_object*);
 lean_object* l_String_foldrAux_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_posOf___boxed(lean_object*, lean_object*);
+lean_object* l_String_instLTString;
 lean_object* l_String_isPrefixOf_loop___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Substring_atEnd(lean_object*, lean_object*);
 lean_object* l_String_isPrefixOf___boxed(lean_object*, lean_object*);
@@ -343,7 +343,7 @@ x_2 = lean_string_mk(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_String_instHasLessString() {
+static lean_object* _init_l_String_instLTString() {
 _start:
 {
 lean_object* x_1; 
@@ -5138,8 +5138,8 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Option_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_String_instHasLessString = _init_l_String_instHasLessString();
-lean_mark_persistent(l_String_instHasLessString);
+l_String_instLTString = _init_l_String_instLTString();
+lean_mark_persistent(l_String_instLTString);
 l_String_instInhabitedString = _init_l_String_instInhabitedString();
 lean_mark_persistent(l_String_instInhabitedString);
 l_String_instAppendString___closed__1 = _init_l_String_instAppendString___closed__1();

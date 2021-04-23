@@ -355,7 +355,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
           let sliceDiscr ← `(mkNullNode (discr.getArgs.extract $(quote idx) (discr.getNumArgs - $(quote numSuffix))))
           let suffixDiscrs ← (List.range numSuffix).mapM fun i =>
             `(Syntax.getArg discr (discr.getNumArgs - $(quote (numSuffix - i))))
-          `(ite (GreaterEq discr.getNumArgs $(quote (quoted.getNumArgs - 1)))
+          `(ite (GE.ge discr.getNumArgs $(quote (quoted.getNumArgs - 1)))
               $(← yes (prefixDiscrs ++ sliceDiscr :: suffixDiscrs))
               $(← no))
       }

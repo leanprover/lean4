@@ -114,7 +114,7 @@ def mkFreshInstanceName : CommandElabM Name := do
   return Lean.Elab.mkFreshInstanceName s.env idx
 
 partial def main (type : Syntax) : CommandElabM Name := do
-  /- We use `expandMacros` to expand notation such as `x < y` into `HasLess.Less x y` -/
+  /- We use `expandMacros` to expand notation such as `x < y` into `LT.lt x y` -/
   let type ← liftMacroM <| expandMacros type
   let (_, str) ← collect type |>.run ""
   if str.isEmpty then

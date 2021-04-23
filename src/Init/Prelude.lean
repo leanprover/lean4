@@ -2042,8 +2042,15 @@ inductive Exception where
   | error             : Syntax → String → Exception
   | unsupportedSyntax : Exception
 
+constant State.ExtraPointed : PointedType.{0}
+
+def State.Extra : Type := State.ExtraPointed.type
+instance : Inhabited State.Extra where
+  default := State.ExtraPointed.val
+
 structure State where
   macroScope : MacroScope
+  extra      : State.Extra
   deriving Inhabited
 
 end Macro

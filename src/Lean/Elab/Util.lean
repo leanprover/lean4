@@ -161,7 +161,8 @@ private def expandMacro? (env : Environment) (stx : Syntax) : MacroM (Option Syn
             currMacroScope := ← MonadMacroAdapter.getCurrMacroScope,
             mainModule     := env.mainModule,
             currRecDepth   := ← MonadRecDepth.getRecDepth,
-            maxRecDepth    := ← MonadRecDepth.getMaxRecDepth } { macroScope := (← MonadMacroAdapter.getNextMacroScope) } with
+            maxRecDepth    := ← MonadRecDepth.getMaxRecDepth }
+          { macroScope := (← MonadMacroAdapter.getNextMacroScope), extra := arbitrary } with
   | EStateM.Result.error Macro.Exception.unsupportedSyntax _ => throwUnsupportedSyntax
   | EStateM.Result.error (Macro.Exception.error ref msg) _   => throwErrorAt ref msg
   | EStateM.Result.ok a  s                                   => MonadMacroAdapter.setNextMacroScope s.macroScope; pure a

@@ -2042,9 +2042,13 @@ inductive Exception where
   | error             : Syntax → String → Exception
   | unsupportedSyntax : Exception
 
+structure State where
+  macroScope : MacroScope
+  deriving Inhabited
+
 end Macro
 
-abbrev MacroM := ReaderT Macro.Context (EStateM Macro.Exception MacroScope)
+abbrev MacroM := ReaderT Macro.Context (EStateM Macro.Exception Macro.State)
 
 abbrev Macro := Syntax → MacroM Syntax
 
@@ -2069,7 +2073,7 @@ def throwErrorAt {α} (ref : Syntax) (msg : String) : MacroM α :=
   withRef ref (throwError msg)
 
 @[inline] protected def withFreshMacroScope {α} (x : MacroM α) : MacroM α :=
-  bind (modifyGet (fun s => (s, hAdd s 1))) fun fresh =>
+  bind (modifyGet (fun s => (s.macroScope, { s with macroScope := hAdd s.macroScope 1 }))) fun fresh =>
   withReader (fun ctx => { ctx with currMacroScope := fresh }) x
 
 @[inline] def withIncRecDepth {α} (ref : Syntax) (x : MacroM α) : MacroM α :=

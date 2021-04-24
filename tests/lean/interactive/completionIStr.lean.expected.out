@@ -1,0 +1,7 @@
+{"textDocument": {"uri": "file://completionIStr.lean"},
+ "position": {"line": 5, "character": 34}}
+{"items":
+ [{"label": "b1", "detail": "C → String"},
+  {"label": "f1", "detail": "C → Nat"},
+  {"label": "f2", "detail": "C → Bool"}],
+ "isIncomplete": true}

@@ -157,17 +157,19 @@ private def expandMacro? (env : Environment) (stx : Syntax) : MacroM (Option Syn
 @[inline] def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] [MonadResolveName m] (x : MacroM α) : m α := do
   let env  ← getEnv
   let currNamespace ← getCurrNamespace
-  match x { methodsOld     := Macro.mkMethodsOld { expandMacro? := expandMacro? env }
+  let methods := Macro.mkMethods {
+    expandMacro?     := expandMacro? env
+    hasDecl          := fun declName => return env.contains declName
+    getCurrNamespace := return currNamespace
+  }
+  match x { methodsOld     := methods
             ref            := ← getRef
             currMacroScope := ← MonadMacroAdapter.getCurrMacroScope
             mainModule     := env.mainModule
             currRecDepth   := ← MonadRecDepth.getRecDepth
             maxRecDepth    := ← MonadRecDepth.getMaxRecDepth
-            methods        := Macro.mkMethods {
-              expandMacro?     := expandMacro? env
-              hasDecl          := fun declName => return env.contains declName
-              getCurrNamespace := return currNamespace
-            } }
+            methods        := methods
+          }
           { macroScope := (← MonadMacroAdapter.getNextMacroScope), extra := arbitrary } with
   | EStateM.Result.error Macro.Exception.unsupportedSyntax _ => throwUnsupportedSyntax
   | EStateM.Result.error (Macro.Exception.error ref msg) _   => throwErrorAt ref msg

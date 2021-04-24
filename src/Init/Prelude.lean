@@ -2114,24 +2114,9 @@ unsafe def getMethodsImp : MacroM Methods :=
 
 @[implementedBy getMethodsImp] constant getMethods : MacroM Methods
 
-structure MethodsOld where
-  expandMacro?     : Syntax → MacroM (Option Syntax)
-  deriving Inhabited
-
-unsafe def mkMethodsOldImp (descr : MethodsOld) : MethodsRef :=
-  unsafeCast descr
-
-@[implementedBy mkMethodsOldImp]
-constant mkMethodsOld (descr : MethodsOld) : MethodsRef
-
-unsafe def getMethodsOldImp : MacroM MethodsOld :=
-  bind read fun ctx => pure (unsafeCast (ctx.methodsOld))
-
-@[implementedBy getMethodsOldImp] constant getMethodsOld : MacroM MethodsOld
-
 /-- `expandMacro? stx` return `some stxNew` if `stx` is a macro, and `stxNew` is its expansion. -/
 def expandMacro? (stx : Syntax) : MacroM (Option Syntax) := do
-  (← getMethodsOld).expandMacro? stx
+  (← getMethods).expandMacro? stx
 
 /-- Return `true` if the environment contains a declaration with name `declName` -/
 def hasDecl (declName : Name) : MacroM Bool := do

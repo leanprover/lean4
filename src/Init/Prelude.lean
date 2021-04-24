@@ -2026,11 +2026,9 @@ def maxRecDepthErrorMessage : String :=
 namespace Macro
 
 /- References -/
-constant MethodsRefPointed : PointedType.{0}
+private constant MethodsRefPointed : PointedType.{0}
 
-def MethodsRef : Type := MethodsRefPointed.type
-instance : Inhabited MethodsRef where
-  default := MethodsRefPointed.val
+private def MethodsRef : Type := MethodsRefPointed.type
 
 structure Context where
   methods        : MethodsRef
@@ -2102,7 +2100,10 @@ unsafe def mkMethodsImp (methods : Methods) : MethodsRef :=
   unsafeCast methods
 
 @[implementedBy mkMethodsImp]
-constant mkMethods (methods : Methods) : MethodsRef
+constant mkMethods (methods : Methods) : MethodsRef := MethodsRefPointed.val
+
+instance : Inhabited MethodsRef where
+  default := mkMethods arbitrary
 
 unsafe def getMethodsImp : MacroM Methods :=
   bind read fun ctx => pure (unsafeCast (ctx.methods))

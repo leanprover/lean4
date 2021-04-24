@@ -1,0 +1,2 @@
+some (Name.mkStr (Name.mkStr Name.anonymous "Lean") "Macro") : Option Name
+[(Lean.Name.mkStr (Lean.Name.mkStr Lean.Name.anonymous "Nat") "succ", [])] : List (Lean.Name × List ?m)

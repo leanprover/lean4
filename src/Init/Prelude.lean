@@ -2091,9 +2091,11 @@ instance : MonadQuotation MacroM where
   withFreshMacroScope   := Macro.withFreshMacroScope
 
 structure Methods where
-  expandMacro?     : Syntax → MacroM (Option Syntax)
-  getCurrNamespace : MacroM Name
-  hasDecl          : Name → MacroM Bool
+  expandMacro?      : Syntax → MacroM (Option Syntax)
+  getCurrNamespace  : MacroM Name
+  hasDecl           : Name → MacroM Bool
+  resolveNamespace? : Name → MacroM (Option Name)
+  resolveGlobalName : Name → MacroM (List (Prod Name (List String)))
   deriving Inhabited
 
 unsafe def mkMethodsImp (methods : Methods) : MethodsRef :=
@@ -2117,6 +2119,12 @@ def hasDecl (declName : Name) : MacroM Bool := do
 
 def getCurrNamespace : MacroM Name := do
   (← getMethods).getCurrNamespace
+
+def resolveNamespace? (n : Name) : MacroM (Option Name) := do
+  (← getMethods).resolveNamespace? n
+
+def resolveGlobalName (n : Name) : MacroM (List (Prod Name (List String))) := do
+  (← getMethods).resolveGlobalName n
 
 def trace (clsName : Name) (msg : String) : MacroM Unit := do
   modify fun s => { s with traceMsgs := List.cons (Prod.mk clsName msg) s.traceMsgs }

@@ -30,12 +30,12 @@ instance : Inhabited Attribute where
   attrKind := leading_parser optional («scoped» <|> «local»)
   ```
 -/
-def toAttributeKind [Monad m] [MonadResolveName m] [MonadError m] (attrKindStx : Syntax) : m AttributeKind := do
+def toAttributeKind (attrKindStx : Syntax) : MacroM AttributeKind := do
   if attrKindStx[0].isNone then
     return AttributeKind.global
   else if attrKindStx[0][0].getKind == ``Lean.Parser.Term.scoped then
-    if (← getCurrNamespace).isAnonymous then
-      throwError "scoped attributes must be used inside namespaces"
+    if (← Macro.getCurrNamespace).isAnonymous then
+      throw <| Macro.Exception.error (← getRef) "scoped attributes must be used inside namespaces"
     return AttributeKind.scoped
   else
     return AttributeKind.local
@@ -45,7 +45,7 @@ def mkAttrKindGlobal : Syntax :=
 
 def elabAttr {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (attrInstance : Syntax) : m Attribute := do
   /- attrInstance     := ppGroup $ leading_parser attrKind >> attrParser -/
-  let attrKind ← toAttributeKind attrInstance[0]
+  let attrKind ← liftMacroM <| toAttributeKind attrInstance[0]
   let attr := attrInstance[1]  
   let attr ← liftMacroM <| expandMacros attr
   let attrName ←

@@ -229,6 +229,7 @@ lean_object* l_Lean_traceCtx___rarg___lambda__5___boxed(lean_object*, lean_objec
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_2278____closed__4;
 lean_object* l_Lean_termTrace_x5b_____x5d_______closed__5;
 extern lean_object* l_prec_x28___x29___closed__3;
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_36____closed__6;
 lean_object* l_Lean_printTraces___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_TraceState_enabled___default;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -248,7 +249,6 @@ lean_object* l_Lean_getTraces___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_traceCtx___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_withNestedTraces___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_traceCtx___rarg___lambda__3(lean_object*, uint8_t, lean_object*);
-lean_object* l_Lean_checkTraceOption___closed__2;
 extern lean_object* l_tryFinally___rarg___closed__1;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_14904____closed__9;
 uint8_t l___private_Lean_Util_Trace_0__Lean_checkTraceOptionAux(lean_object*, lean_object*);
@@ -1249,17 +1249,9 @@ return x_4;
 static lean_object* _init_l_Lean_checkTraceOption___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("trace");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_checkTraceOption___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_checkTraceOption___closed__1;
+x_2 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_36____closed__6;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -1272,7 +1264,7 @@ x_3 = l_List_isEmpty___rarg(x_1);
 if (x_3 == 0)
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_4 = l_Lean_checkTraceOption___closed__2;
+x_4 = l_Lean_checkTraceOption___closed__1;
 x_5 = l_Lean_Name_append(x_4, x_2);
 x_6 = l___private_Lean_Util_Trace_0__Lean_checkTraceOptionAux(x_1, x_5);
 lean_dec(x_5);
@@ -2584,7 +2576,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_registerTraceClass___closed__1;
-x_2 = l_Lean_checkTraceOption___closed__1;
+x_2 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_36____closed__6;
 x_3 = l_Lean_registerTraceClass___closed__2;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
@@ -2597,7 +2589,7 @@ lean_object* l_Lean_registerTraceClass(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = l_Lean_checkTraceOption___closed__2;
+x_3 = l_Lean_checkTraceOption___closed__1;
 x_4 = l_Lean_Name_append(x_3, x_1);
 x_5 = l_Lean_registerTraceClass___closed__3;
 x_6 = lean_register_option(x_4, x_5, x_2);
@@ -2740,7 +2732,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Syntax_addPrec___closed__2;
-x_2 = l_Lean_checkTraceOption___closed__1;
+x_2 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_36____closed__6;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -4028,8 +4020,6 @@ l_Lean_resetTraceState___rarg___closed__1 = _init_l_Lean_resetTraceState___rarg_
 lean_mark_persistent(l_Lean_resetTraceState___rarg___closed__1);
 l_Lean_checkTraceOption___closed__1 = _init_l_Lean_checkTraceOption___closed__1();
 lean_mark_persistent(l_Lean_checkTraceOption___closed__1);
-l_Lean_checkTraceOption___closed__2 = _init_l_Lean_checkTraceOption___closed__2();
-lean_mark_persistent(l_Lean_checkTraceOption___closed__2);
 l___private_Lean_Util_Trace_0__Lean_addNode___rarg___lambda__1___closed__1 = _init_l___private_Lean_Util_Trace_0__Lean_addNode___rarg___lambda__1___closed__1();
 lean_mark_persistent(l___private_Lean_Util_Trace_0__Lean_addNode___rarg___lambda__1___closed__1);
 l___private_Lean_Util_Trace_0__Lean_addNode___rarg___lambda__1___closed__2 = _init_l___private_Lean_Util_Trace_0__Lean_addNode___rarg___lambda__1___closed__2();

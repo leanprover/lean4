@@ -88,6 +88,7 @@ lean_object* l_Lean_ClassEntry_lt___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Class_0__Lean_checkOutParam___closed__4;
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Std_mkHashMap___at_Lean_ClassState_hasOutParam___default___spec__2(lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5684____closed__15;
 lean_object* l_Std_AssocList_find_x3f___at_Lean_hasOutParams___spec__6(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerTagAttribute___closed__5;
 lean_object* l___private_Lean_Class_0__Lean_consumeNLambdas_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -100,7 +101,6 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_117_(uint8_t, uint8_t);
 lean_object* l_Std_AssocList_replace___at_Lean_ClassState_addEntry___spec__11___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_classExtension___closed__2;
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5484____closed__15;
 extern lean_object* l_Std_PersistentHashMap_insertAux___rarg___closed__3;
 lean_object* l_Lean_SMap_insert___at_Lean_ClassState_addEntry___spec__1(lean_object*, lean_object*, uint8_t);
 lean_object* l___private_Lean_Class_0__Lean_checkOutParam(lean_object*, lean_object*, lean_object*);
@@ -3798,7 +3798,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5484____closed__15;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5684____closed__15;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

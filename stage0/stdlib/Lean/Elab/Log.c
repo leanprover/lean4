@@ -68,7 +68,6 @@ lean_object* l_Lean_Elab_logAt___rarg___lambda__1___boxed(lean_object*, lean_obj
 lean_object* l_Lean_Elab_instMonadLog(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getRefPosition___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logAt___rarg___lambda__4(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1169____closed__1;
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 extern lean_object* l_Lean_KernelException_toMessageData___closed__15;
 uint8_t l_Lean_MessageData_hasSyntheticSorry(lean_object*);
@@ -85,6 +84,7 @@ lean_object* l_Lean_Elab_trace___rarg(lean_object*, lean_object*, lean_object*, 
 lean_object* l_Lean_Elab_logAt___rarg___lambda__9(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logAt___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Util_Trace_0__Lean_addNode___rarg___lambda__1___closed__1;
+extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1248____closed__1;
 lean_object* l_Lean_Elab_logAt___rarg___lambda__7(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logException_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getRefPos(lean_object*);
@@ -1269,7 +1269,7 @@ static lean_object* _init_l_Lean_Elab_logDbgTrace___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1169____closed__1;
+x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1248____closed__1;
 x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_742____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

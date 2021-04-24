@@ -30,7 +30,6 @@ lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a_x3d___
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_2278____closed__2;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_getOptionDecl___spec__1___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1160____closed__3;
 lean_object* l_Lean_KVMap_setNat(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a_x3d_____closed__3;
 extern lean_object* l_Array_empty___closed__1;
@@ -67,6 +66,7 @@ lean_object* l_Lean_getNatOption(lean_object*);
 lean_object* l_Lean_getBoolOption___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Option_get___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_113____spec__1(lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__3;
 lean_object* l_Lean_Option_setIfNotSet___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerOption___closed__1;
 lean_object* l_Lean_registerOption___closed__2;
@@ -2042,7 +2042,7 @@ static lean_object* _init_l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_8
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1160____closed__3;
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__3;
 x_2 = l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_897____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

@@ -8,8 +8,15 @@ Extra notation that depends on Init/Meta
 prelude
 import Init.Meta
 import Init.Data.Array.Subarray
-
+import Init.Data.ToString
 namespace Lean
+
+syntax "Macro.trace[" ident "]" interpolatedStr(term) : term
+
+macro_rules
+  | `(Macro.trace[$id] $s) => `(Macro.trace $(quote id.getId) (s! $s))
+
+
 -- Auxiliary parsers and functions for declaring notation with binders
 
 syntax binderIdent                := ident <|> "_"

@@ -2033,27 +2033,20 @@ instance : Inhabited MethodsRef where
   default := MethodsRefPointed.val
 
 structure Context where
-  methodsOld     : MethodsRef
+  methods        : MethodsRef
   mainModule     : Name
   currMacroScope : MacroScope
   currRecDepth   : Nat := 0
   maxRecDepth    : Nat := defaultMaxRecDepth
   ref            : Syntax
-  methods        : MethodsRef
 
 inductive Exception where
   | error             : Syntax → String → Exception
   | unsupportedSyntax : Exception
 
-constant State.ExtraPointed : PointedType.{0}
-
-def State.Extra : Type := State.ExtraPointed.type
-instance : Inhabited State.Extra where
-  default := State.ExtraPointed.val
-
 structure State where
   macroScope : MacroScope
-  extra      : State.Extra
+  traceMsgs  : List (Prod Name String) := List.nil
   deriving Inhabited
 
 end Macro
@@ -2098,9 +2091,11 @@ instance : MonadQuotation MacroM where
   withFreshMacroScope   := Macro.withFreshMacroScope
 
 structure Methods where
-  expandMacro?     : Syntax → MacroM (Option Syntax)
-  getCurrNamespace : MacroM Name
-  hasDecl          : Name → MacroM Bool
+  expandMacro?      : Syntax → MacroM (Option Syntax)
+  getCurrNamespace  : MacroM Name
+  hasDecl           : Name → MacroM Bool
+  resolveNamespace? : Name → MacroM (Option Name)
+  resolveGlobalName : Name → MacroM (List (Prod Name (List String)))
   deriving Inhabited
 
 unsafe def mkMethodsImp (methods : Methods) : MethodsRef :=
@@ -2124,6 +2119,15 @@ def hasDecl (declName : Name) : MacroM Bool := do
 
 def getCurrNamespace : MacroM Name := do
   (← getMethods).getCurrNamespace
+
+def resolveNamespace? (n : Name) : MacroM (Option Name) := do
+  (← getMethods).resolveNamespace? n
+
+def resolveGlobalName (n : Name) : MacroM (List (Prod Name (List String))) := do
+  (← getMethods).resolveGlobalName n
+
+def trace (clsName : Name) (msg : String) : MacroM Unit := do
+  modify fun s => { s with traceMsgs := List.cons (Prod.mk clsName msg) s.traceMsgs }
 
 end Macro
 

@@ -251,6 +251,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_getExprKind___closed__6;
 lean_object* l_Lean_PrettyPrinter_Delaborator_instAlternativeDelabM___closed__3;
 extern lean_object* l_Lean_Parser_Command_notation___elambda__1___closed__1;
 lean_object* l_Lean_SMap_find_x3f___at_Lean_PrettyPrinter_Delaborator_delabFor___spec__2___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__25;
 lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_94____closed__2;
 lean_object* l_Lean_PrettyPrinter_Delaborator_getPPOption___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_4____closed__3;
@@ -276,7 +277,6 @@ lean_object* l_Lean_getPPAll___boxed(lean_object*);
 lean_object* l_Lean_getPPSafeShadowing___boxed(lean_object*);
 lean_object* l_Lean_getPPStructureInstances___boxed(lean_object*);
 lean_object* l_Lean_getPPUniverses___boxed(lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1160____closed__25;
 lean_object* l_Lean_PrettyPrinter_Delaborator_mkDelabAttribute___closed__12;
 lean_object* l_Lean_PrettyPrinter_Delaborator_instAlternativeDelabM;
 lean_object* l_Lean_PrettyPrinter_Delaborator_getExprKind_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -2848,7 +2848,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1160____closed__25;
+x_2 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__25;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

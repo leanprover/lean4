@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppMArgs_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at___private_Lean_Meta_AppBuilder_0__Lean_Meta_throwAppBuilderException___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_4745____closed__4;
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_throwAppBuilderException___rarg___closed__3;
 lean_object* l_Lean_Meta_mkImpCongrCtx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -360,6 +359,7 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_11358____closed__7;
 lean_object* l_Lean_Meta_mkEqOfHEq___lambda__1___closed__1;
 lean_object* l_Lean_Meta_mkHEqTrans___closed__1;
 lean_object* l_Lean_Meta_mkHEqSymm_match__1(lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_4945____closed__4;
 lean_object* l_Lean_Meta_mkEqOfHEq_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkHEqRefl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqOfHEq___lambda__1___closed__2;
@@ -11736,7 +11736,7 @@ _start:
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_7 = l_Lean_mkOptionalNode___closed__2;
 x_8 = lean_array_push(x_7, x_1);
-x_9 = l_myMacro____x40_Init_NotationExtra___hyg_4745____closed__4;
+x_9 = l_myMacro____x40_Init_NotationExtra___hyg_4945____closed__4;
 x_10 = l_Lean_Meta_mkAppM(x_9, x_8, x_2, x_3, x_4, x_5, x_6);
 return x_10;
 }

@@ -104,7 +104,6 @@ lean_object* l_Std_RBNode_forIn_visit___at_Lean_Server_Watchdog_mainLoop___spec_
 lean_object* l_IO_FS_Stream_readNotificationAs___at_Lean_Server_Watchdog_initAndRunWatchdogAux___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Watchdog_initAndRunWatchdogAux(lean_object*, lean_object*);
 lean_object* l_IO_sleep(uint32_t, lean_object*);
-extern lean_object* l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_225____closed__9;
 lean_object* l_Lean_Server_Watchdog_handleNotification___closed__2;
 lean_object* l_IO_throwServerError___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Watchdog_mkLeanServerCapabilities___closed__8;
@@ -392,6 +391,7 @@ lean_object* l_Lean_Server_Watchdog_findFileWorker___boxed(lean_object*, lean_ob
 lean_object* l_Lean_Server_Watchdog_mainLoop___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Lsp_instToJsonTextDocumentSyncKind___closed__1;
 lean_object* l_Lean_Server_Watchdog_handleEdits_match__2___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_36____closed__6;
 lean_object* l_Lean_Server_Watchdog_handleCancelRequest_match__2___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Watchdog_handleEdits___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
@@ -18347,7 +18347,7 @@ x_27 = l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams
 x_28 = l_Lean_Json_getObjValAs_x3f___at_Lean_JsonRpc_instFromJsonMessage___spec__2(x_22, x_27);
 x_29 = l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_225____closed__4;
 x_30 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonInitializeParams___spec__3(x_22, x_29);
-x_31 = l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_225____closed__9;
+x_31 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_36____closed__6;
 x_32 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonInitializeParams___spec__5(x_22, x_31);
 x_33 = l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_225____closed__8;
 x_34 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonInitializeParams___spec__6(x_22, x_33);

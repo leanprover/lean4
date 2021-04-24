@@ -38,6 +38,7 @@ structure State where
   nextInstIdx    : Nat := 1 -- for generating anonymous instance names
   ngen           : NameGenerator := {}
   infoState      : InfoState := {}
+  traceState      : TraceState    := {}
   deriving Inhabited
 
 structure Context where
@@ -89,6 +90,10 @@ instance : AddMessageContext CommandElabM where
 instance : MonadRef CommandElabM where
   getRef := Command.getRef
   withRef ref x := withReader (fun ctx => { ctx with ref := ref }) x
+
+instance : MonadTrace CommandElabM where
+  getTraceState := return (← get).traceState
+  modifyTraceState f := modify fun s => { s with traceState := f s.traceState }
 
 instance : AddErrorMessageContext CommandElabM where
   add ref msg := do
@@ -185,12 +190,25 @@ constant mkCommandElabAttribute : IO (KeyedDeclsAttribute CommandElab)
 
 builtin_initialize commandElabAttribute : KeyedDeclsAttribute CommandElab ← mkCommandElabAttribute
 
+private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog :=
+  traceState.traces.foldl (init := log) fun (log : MessageLog) traceElem =>
+      let ref := replaceRef traceElem.ref ctx.ref;
+      let pos := ref.getPos?.getD 0;
+      log.add (mkMessageCore ctx.fileName ctx.fileMap traceElem.msg MessageSeverity.information pos)
+
+private def addTraceAsMessages : CommandElabM Unit := do
+  let ctx ← read
+  modify fun s => { s with
+    messages          := addTraceAsMessagesCore ctx s.messages s.traceState
+    traceState.traces := {}
+  }
+
 private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → CommandElabM Unit
   | []                => throwError "unexpected syntax{indentD stx}"
   | (elabFn::elabFns) =>
     catchInternalId unsupportedSyntaxExceptionId
-      (elabFn stx)
-      (fun _ => do set s; elabCommandUsing s stx elabFns)
+      (do elabFn stx; addTraceAsMessages)
+      (fun _ => do set s; addTraceAsMessages; elabCommandUsing s stx elabFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : CommandElabM α) : CommandElabM α :=
@@ -309,12 +327,6 @@ private def mkTermState (scope : Scope) (s : State) : Term.State := {
   infoState.enabled := s.infoState.enabled
 }
 
-private def addTraceAsMessages (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog :=
-  traceState.traces.foldl (init := log) fun (log : MessageLog) traceElem =>
-      let ref := replaceRef traceElem.ref ctx.ref;
-      let pos := ref.getPos?.getD 0;
-      log.add (mkMessageCore ctx.fileName ctx.fileMap traceElem.msg MessageSeverity.information pos)
-
 def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandElabM α := do
   let ctx ← read
   let s   ← get
@@ -334,7 +346,7 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
     } tree
   modify fun s => { s with
     env             := coreS.env
-    messages        := addTraceAsMessages ctx (s.messages ++ termS.messages) coreS.traceState
+    messages        := addTraceAsMessagesCore ctx (s.messages ++ termS.messages) coreS.traceState
     nextMacroScope  := coreS.nextMacroScope
     ngen            := coreS.ngen
     infoState.trees := s.infoState.trees.append infoTrees

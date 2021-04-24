@@ -49,7 +49,7 @@ def mkContext (declName : Name) : MetaM Context := do
   let indVal ← getConstInfoInduct declName
   let typeInfos ← indVal.all.toArray.mapM getConstInfoInduct
   let motiveTypes ← typeInfos.mapM motiveType
-  let motives := ←motiveTypes.mapIdxM fun j motive => do
+  let motives ←motiveTypes.mapIdxM fun j motive => do
     (←motiveName motiveTypes j.val, motive)
   let headers := typeInfos.mapM $ mkHeader motives indVal.numParams
   return { 
@@ -65,9 +65,9 @@ where
     else mkFreshUserName "motive"
 
   mkHeader 
-    (motives : Array (Name × Expr)) 
-    (numParams : Nat) 
-    (indVal : InductiveVal) : MetaM Expr := do
+      (motives : Array (Name × Expr)) 
+      (numParams : Nat) 
+      (indVal : InductiveVal) : MetaM Expr := do
     let header ← forallTelescope indVal.type fun xs t => do
       withNewBinderInfos (xs.map fun x => (x.fvarId!, BinderInfo.implicit)) $
       mkForallFVars xs $ ←mkArrow (mkAppN (mkIndValConst indVal) xs) t
@@ -116,7 +116,7 @@ where
   modifyBinders (vars : Variables) (i : Nat) := do
     if i < vars.args.size then
       let binder := vars.args[i]
-      let binderType := ←inferType binder
+      let binderType ←inferType binder
       if ←checkCount binderType then
         mkProofBelowBinder vars binder binderType fun indValIdx x =>
           mkMotiveBinder vars indValIdx binder binderType fun y =>
@@ -144,18 +144,15 @@ where
   
   checkCount (domain : Expr) : MetaM Bool := do
     let run (x : StateRefT Nat MetaM Expr) : MetaM (Expr × Nat) := StateRefT'.run x 0
-    let (_, cnt) := ←run $ transform domain fun e => do
+    let (_, cnt) ←run $ transform domain fun e => do
       if let some name := e.constName? then
         if let some idx := ctx.typeInfos.findIdx? fun indVal => indVal.name == name then
-          let cnt := ←get
+          let cnt ←get
           set $ cnt + 1
       TransformStep.visit e
 
     if cnt > 1 then 
-      let message := 
-        "only arrows are allowed as premises. Multiple recursive occurrences detected:\n  "
-        ++ (←ppExpr domain)
-      throwError message
+      throwError "only arrows are allowed as premises. Multiple recursive occurrences detected:{indentExpr domain}"
     
     return cnt == 1
   
@@ -166,10 +163,7 @@ where
       {α : Type} (k : Nat → Expr → MetaM α) : MetaM α := do
     forallTelescope domain fun xs t => do
       let fail _ := do
-        let message :=
-          "only trivial inductive applications supported in premises:\n  "
-          ++ (←ppExpr t)
-        throwError message
+        throwError "only trivial inductive applications supported in premises:{indentExpr t}"
 
       t.withApp fun f args => do
         if let some name := f.constName? then
@@ -194,8 +188,6 @@ where
       {α : Type} (k : Expr → MetaM α) : MetaM α := do
     forallTelescope domain fun xs t => do
       t.withApp fun f args => do
-        let name := f.constName!
-        let indVal := ctx.typeInfos[indValIdx]
         let hApp := mkAppN binder xs
         let t := mkAppN vars.motives[indValIdx] $ args[ctx.numParams:] ++ #[hApp]
         let newDomain ← mkForallFVars xs t
@@ -215,9 +207,9 @@ def mkConstructor (ctx : Context) (i : Nat) (ctor : Name) : MetaM Constructor :=
     type := type }
 
 def mkInductiveType 
-  (ctx : Context) 
-  (i : Fin ctx.typeInfos.size) 
-  (indVal : InductiveVal) : MetaM InductiveType := do
+    (ctx : Context) 
+    (i : Fin ctx.typeInfos.size) 
+    (indVal : InductiveVal) : MetaM InductiveType := do
   return {
     name := ctx.proofBelowNames[i]
     type := ctx.headers[i]
@@ -253,7 +245,7 @@ where
     match ←vars.indHyps.findSomeM? 
       (fun ih => do try some $ (←apply m $ mkFVar ih) catch ex => none) with
     | some goals => goals
-    | none => throwError "cannot apply induction hypothesis: {←ppGoal m}"
+    | none => throwError "cannot apply induction hypothesis: {MessageData.ofGoal m}"
   
   induction (m : MVarId) (vars : BrecOnVariables) : MetaM (List MVarId) := do
     let params := vars.params.map mkFVar
@@ -264,7 +256,7 @@ where
       forallTelescope motive fun xs _ => do
       mkLambdaFVars xs $ mkAppN (mkConst ctx.proofBelowNames[idx] levelParams) $ (params ++ motives ++ xs)
     withMVarContext m do
-    let recursorInfo ← getConstInfo $ indVal.name ++ "rec"
+    let recursorInfo ← getConstInfo $ mkRecName indVal.name
     let recLevels := 
       if recursorInfo.numLevelParams > levelParams.length 
       then levelZero::levelParams 
@@ -360,8 +352,10 @@ def mkProofBelow (declName : Name) : MetaM Unit := do
       trace[Meta.ProofBelow] "added {ctx.proofBelowNames}"
       ctx.proofBelowNames.forM Lean.mkCasesOn
       for i in [:ctx.typeInfos.size] do
-        let decl ← ProofBelow.mkBrecOnDecl ctx i
-        addDecl decl
+        try
+          let decl ← ProofBelow.mkBrecOnDecl ctx i
+          addDecl decl
+        catch e => trace[Meta.ProofBelow] "failed to prove brecOn for {ctx.proofBelowNames[i]}\n{e.toMessageData}"
     else trace[Meta.ProofBelow] "Not recursive"
   else trace[Meta.ProofBelow] "Not inductive predicate"
 

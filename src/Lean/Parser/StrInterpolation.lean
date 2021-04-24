@@ -39,7 +39,7 @@ partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
           else
             let s := s.pushSyntax Syntax.missing
             let s := s.mkNode interpolatedStrKind stackSize
-            s.setError "expected '}'"
+            s.setError "'}'"
       else
         parse startPos c s
   let startPos := s.pos

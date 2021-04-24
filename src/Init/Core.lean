@@ -437,7 +437,7 @@ instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT :
 instance : Inhabited Prop where
   default := True
 
-deriving instance Inhabited for Bool, NonScalar, PNonScalar, True, ForInStep
+deriving instance Inhabited for NonScalar, PNonScalar, True, ForInStep
 
 class inductive Nonempty (α : Sort u) : Prop where
   | intro (val : α) : Nonempty α

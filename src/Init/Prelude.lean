@@ -195,6 +195,8 @@ instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) wher
 instance (α : Sort u) {β : α → Sort v} [(a : α) → Inhabited (β a)] : Inhabited ((a : α) → β a) where
   default := fun _ => arbitrary
 
+deriving instance Inhabited for Bool
+
 /-- Universe lifting operation from Sort to Type -/
 structure PLift (α : Sort u) : Type u where
   up :: (down : α)
@@ -2031,12 +2033,13 @@ instance : Inhabited MethodsRef where
   default := MethodsRefPointed.val
 
 structure Context where
-  methods        : MethodsRef
+  methodsOld     : MethodsRef
   mainModule     : Name
   currMacroScope : MacroScope
   currRecDepth   : Nat := 0
   maxRecDepth    : Nat := defaultMaxRecDepth
   ref            : Syntax
+  methods        : MethodsRef
 
 inductive Exception where
   | error             : Syntax → String → Exception
@@ -2095,23 +2098,47 @@ instance : MonadQuotation MacroM where
   withFreshMacroScope   := Macro.withFreshMacroScope
 
 structure Methods where
-  expandMacro? : Syntax → MacroM (Option Syntax)
+  expandMacro?     : Syntax → MacroM (Option Syntax)
+  getCurrNamespace : MacroM Name
+  hasDecl          : Name → MacroM Bool
   deriving Inhabited
 
-unsafe def mkMethodsImp (descr : Methods) : MethodsRef :=
-  unsafeCast descr
+unsafe def mkMethodsImp (methods : Methods) : MethodsRef :=
+  unsafeCast methods
 
 @[implementedBy mkMethodsImp]
-constant mkMethods (descr : Methods) : MethodsRef
+constant mkMethods (methods : Methods) : MethodsRef
 
 unsafe def getMethodsImp : MacroM Methods :=
   bind read fun ctx => pure (unsafeCast (ctx.methods))
 
 @[implementedBy getMethodsImp] constant getMethods : MacroM Methods
 
+structure MethodsOld where
+  expandMacro?     : Syntax → MacroM (Option Syntax)
+  deriving Inhabited
+
+unsafe def mkMethodsOldImp (descr : MethodsOld) : MethodsRef :=
+  unsafeCast descr
+
+@[implementedBy mkMethodsOldImp]
+constant mkMethodsOld (descr : MethodsOld) : MethodsRef
+
+unsafe def getMethodsOldImp : MacroM MethodsOld :=
+  bind read fun ctx => pure (unsafeCast (ctx.methodsOld))
+
+@[implementedBy getMethodsOldImp] constant getMethodsOld : MacroM MethodsOld
+
 /-- `expandMacro? stx` return `some stxNew` if `stx` is a macro, and `stxNew` is its expansion. -/
 def expandMacro? (stx : Syntax) : MacroM (Option Syntax) := do
-  (← getMethods).expandMacro? stx
+  (← getMethodsOld).expandMacro? stx
+
+/-- Return `true` if the environment contains a declaration with name `declName` -/
+def hasDecl (declName : Name) : MacroM Bool := do
+  (← getMethods).hasDecl declName
+
+def getCurrNamespace : MacroM Name := do
+  (← getMethods).getCurrNamespace
 
 end Macro
 

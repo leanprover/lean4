@@ -154,7 +154,7 @@ private def expandMacro? (env : Environment) (stx : Syntax) : MacroM (Option Syn
     | Macro.Exception.unsupportedSyntax => pure none
     | ex                                => throw ex
 
-@[inline] def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] [MonadResolveName m] (x : MacroM α) : m α := do
+@[inline] def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (x : MacroM α) : m α := do
   let env  ← getEnv
   let currNamespace ← getCurrNamespace
   let methods := Macro.mkMethods {
@@ -168,13 +168,15 @@ private def expandMacro? (env : Environment) (stx : Syntax) : MacroM (Option Syn
             mainModule     := env.mainModule
             currRecDepth   := ← MonadRecDepth.getRecDepth
             maxRecDepth    := ← MonadRecDepth.getMaxRecDepth
-          }
-          { macroScope := (← MonadMacroAdapter.getNextMacroScope), extra := arbitrary } with
+          } { macroScope := (← MonadMacroAdapter.getNextMacroScope) } with
   | EStateM.Result.error Macro.Exception.unsupportedSyntax _ => throwUnsupportedSyntax
   | EStateM.Result.error (Macro.Exception.error ref msg) _   => throwErrorAt ref msg
-  | EStateM.Result.ok a  s                                   => MonadMacroAdapter.setNextMacroScope s.macroScope; pure a
+  | EStateM.Result.ok a  s                                   =>
+    MonadMacroAdapter.setNextMacroScope s.macroScope
+    s.traceMsgs.reverse.forM fun (clsName, msg) => trace clsName fun _ => msg
+    pure a
 
-@[inline] def adaptMacro {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m]  [MonadResolveName m] (x : Macro) (stx : Syntax) : m Syntax :=
+@[inline] def adaptMacro {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m]  [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (x : Macro) (stx : Syntax) : m Syntax :=
   liftMacroM (x stx)
 
 partial def mkUnusedBaseName [Monad m] [MonadEnv m] [MonadResolveName m] (baseName : Name) : m Name := do

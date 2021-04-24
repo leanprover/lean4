@@ -2044,15 +2044,9 @@ inductive Exception where
   | error             : Syntax → String → Exception
   | unsupportedSyntax : Exception
 
-constant State.ExtraPointed : PointedType.{0}
-
-def State.Extra : Type := State.ExtraPointed.type
-instance : Inhabited State.Extra where
-  default := State.ExtraPointed.val
-
 structure State where
   macroScope : MacroScope
-  extra      : State.Extra
+  traceMsgs  : List (Prod Name String) := List.nil
   deriving Inhabited
 
 end Macro
@@ -2123,6 +2117,9 @@ def hasDecl (declName : Name) : MacroM Bool := do
 
 def getCurrNamespace : MacroM Name := do
   (← getMethods).getCurrNamespace
+
+def trace (clsName : Name) (msg : String) : MacroM Unit := do
+  modify fun s => { s with traceMsgs := List.cons (Prod.mk clsName msg) s.traceMsgs }
 
 end Macro
 

@@ -43,10 +43,10 @@ def toAttributeKind [Monad m] [MonadResolveName m] [MonadError m] (attrKindStx :
 def mkAttrKindGlobal : Syntax :=
   Syntax.node ``Lean.Parser.Term.attrKind #[mkNullNode]
 
-def elabAttr {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] (attrInstance : Syntax) : m Attribute := do
+def elabAttr {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (attrInstance : Syntax) : m Attribute := do
   /- attrInstance     := ppGroup $ leading_parser attrKind >> attrParser -/
   let attrKind ← toAttributeKind attrInstance[0]
-  let attr := attrInstance[1]
+  let attr := attrInstance[1]  
   let attr ← liftMacroM <| expandMacros attr
   let attrName ←
     if attr.getKind == ``Parser.Attr.simple then
@@ -61,14 +61,14 @@ def elabAttr {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [Mon
      So, we expand them before here before we invoke the attributer handlers implemented using `AttrM`. -/
   pure { kind := attrKind, name := attrName, stx := attr }
 
-def elabAttrs {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] (attrInstances : Array Syntax) : m (Array Attribute) := do
+def elabAttrs {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (attrInstances : Array Syntax) : m (Array Attribute) := do
   let mut attrs := #[]
   for attr in attrInstances do
     attrs := attrs.push (← elabAttr attr)
   return attrs
 
 -- leading_parser "@[" >> sepBy1 attrInstance ", " >> "]"
-def elabDeclAttrs {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] (stx : Syntax) : m (Array Attribute) :=
+def elabDeclAttrs {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (stx : Syntax) : m (Array Attribute) :=
   elabAttrs stx[1].getSepArgs
 
 end Lean.Elab

@@ -162,13 +162,12 @@ private def expandMacro? (env : Environment) (stx : Syntax) : MacroM (Option Syn
     hasDecl          := fun declName => return env.contains declName
     getCurrNamespace := return currNamespace
   }
-  match x { methodsOld     := methods
+  match x { methods        := methods
             ref            := ← getRef
             currMacroScope := ← MonadMacroAdapter.getCurrMacroScope
             mainModule     := env.mainModule
             currRecDepth   := ← MonadRecDepth.getRecDepth
             maxRecDepth    := ← MonadRecDepth.getMaxRecDepth
-            methods        := methods
           }
           { macroScope := (← MonadMacroAdapter.getNextMacroScope), extra := arbitrary } with
   | EStateM.Result.error Macro.Exception.unsupportedSyntax _ => throwUnsupportedSyntax

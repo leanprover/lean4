@@ -2033,13 +2033,12 @@ instance : Inhabited MethodsRef where
   default := MethodsRefPointed.val
 
 structure Context where
-  methodsOld     : MethodsRef
+  methods        : MethodsRef
   mainModule     : Name
   currMacroScope : MacroScope
   currRecDepth   : Nat := 0
   maxRecDepth    : Nat := defaultMaxRecDepth
   ref            : Syntax
-  methods        : MethodsRef
 
 inductive Exception where
   | error             : Syntax → String → Exception

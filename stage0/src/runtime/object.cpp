@@ -59,6 +59,7 @@ extern "C" object * lean_panic_fn(object * default_val, object * msg) {
 
 extern "C" object * lean_sorry(uint8) {
     lean_internal_panic("executed 'sorry'");
+    lean_unreachable();
 }
 
 extern "C" size_t lean_object_byte_size(lean_object * o) {
@@ -290,10 +291,6 @@ extern "C" lean_obj_res lean_array_set_panic(lean_obj_arg a, lean_obj_arg v) {
 // =======================================
 // Thunks
 
-static obj_res mk_thunk_3_2(lean_cfun3 fn, obj_arg a1, obj_arg a2) {
-    return lean_mk_thunk(mk_closure_3_2(fn, a1, a2));
-}
-
 extern "C" b_obj_res lean_thunk_get_core(b_obj_arg t) {
     object * c = lean_to_thunk(t)->m_closure.exchange(nullptr);
     if (c != nullptr) {
@@ -319,32 +316,6 @@ extern "C" b_obj_res lean_thunk_get_core(b_obj_arg t) {
         }
         return lean_to_thunk(t)->m_value;
     }
-}
-
-static obj_res thunk_map_fn_closure(obj_arg f, obj_arg t, obj_arg /* u */) {
-    b_obj_res v = lean_thunk_get(t);
-    lean_inc(v);
-    obj_res r = lean_apply_1(f, v);
-    lean_dec(v);
-    return r;
-}
-
-extern "C" obj_res lean_thunk_map(obj_arg f, obj_arg t) {
-    lean_assert(lean_is_closure(f));
-    lean_assert(lean_is_thunk(t));
-    return mk_thunk_3_2(thunk_map_fn_closure, f, t);
-}
-
-static obj_res thunk_bind_fn_closure(obj_arg x, obj_arg f, obj_arg /* u */) {
-    b_obj_res v = lean_thunk_get(x);
-    lean_inc(v);
-    obj_res r = lean_apply_1(f, v);
-    lean_dec(x);
-    return r;
-}
-
-extern "C" obj_res lean_thunk_bind(obj_arg x, obj_arg f) {
-    return mk_thunk_3_2(thunk_bind_fn_closure, x, f);
 }
 
 // =======================================

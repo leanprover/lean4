@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 extern lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__5;
+extern lean_object* l_myMacro____x40_Init_Core___hyg_1751____closed__4;
 lean_object* l_Lean_Meta_matchHelper_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
@@ -23,7 +24,6 @@ lean_object* l_Lean_Meta_matchHelper_x3f_match__1___rarg(lean_object*, lean_obje
 lean_object* l_Lean_Meta_matchNot_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_10195____closed__4;
 lean_object* l_Lean_Meta_matchNot_x3f_match__2(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Core___hyg_1737____closed__4;
 lean_object* l_Lean_Meta_matchNot_x3f_match__1(lean_object*);
 lean_object* l_Lean_Meta_matchNot_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_testHelper(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1148,7 +1148,7 @@ lean_object* l_Lean_Meta_matchNe_x3f(lean_object* x_1, lean_object* x_2, lean_ob
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_72; lean_object* x_73; uint8_t x_74; 
-x_72 = l_myMacro____x40_Init_Core___hyg_1737____closed__4;
+x_72 = l_myMacro____x40_Init_Core___hyg_1751____closed__4;
 x_73 = lean_unsigned_to_nat(3u);
 x_74 = l_Lean_Expr_isAppOfArity(x_1, x_72, x_73);
 if (x_74 == 0)
@@ -1300,7 +1300,7 @@ if (x_10 == 0)
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_11 = lean_ctor_get(x_9, 0);
 x_12 = lean_ctor_get(x_9, 1);
-x_13 = l_myMacro____x40_Init_Core___hyg_1737____closed__4;
+x_13 = l_myMacro____x40_Init_Core___hyg_1751____closed__4;
 x_14 = lean_unsigned_to_nat(3u);
 x_15 = l_Lean_Expr_isAppOfArity(x_11, x_13, x_14);
 if (x_15 == 0)
@@ -1422,7 +1422,7 @@ x_40 = lean_ctor_get(x_9, 1);
 lean_inc(x_40);
 lean_inc(x_39);
 lean_dec(x_9);
-x_41 = l_myMacro____x40_Init_Core___hyg_1737____closed__4;
+x_41 = l_myMacro____x40_Init_Core___hyg_1751____closed__4;
 x_42 = lean_unsigned_to_nat(3u);
 x_43 = l_Lean_Expr_isAppOfArity(x_39, x_41, x_42);
 if (x_43 == 0)

@@ -195,6 +195,8 @@ instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) wher
 instance (α : Sort u) {β : α → Sort v} [(a : α) → Inhabited (β a)] : Inhabited ((a : α) → β a) where
   default := fun _ => arbitrary
 
+deriving instance Inhabited for Bool
+
 /-- Universe lifting operation from Sort to Type -/
 structure PLift (α : Sort u) : Type u where
   up :: (down : α)
@@ -353,14 +355,8 @@ instance (n : Nat) : OfNat Nat n where
 class LE (α : Type u) where le : α → α → Prop
 class LT (α : Type u) where lt : α → α → Prop
 
-abbrev HasLess.Less := @LT.lt -- TODO delete
-abbrev HasLessEq.LessEq := @LE.le -- TODO delete
-
 @[reducible] def GE.ge {α : Type u} [LE α] (a b : α) : Prop := LE.le b a
 @[reducible] def GT.gt {α : Type u} [LT α] (a b : α) : Prop := LT.lt b a
-
-@[reducible] def GreaterEq {α : Type u} [LE α] (a b : α) : Prop := LE.le b a  -- TODO delete
-@[reducible] def Greater {α : Type u} [LT α] (a b : α) : Prop := LT.lt b a    -- TODO delete
 
 class HAdd (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hAdd : α → β → γ
@@ -2030,27 +2026,39 @@ def maxRecDepthErrorMessage : String :=
 namespace Macro
 
 /- References -/
-constant MacroEnvPointed : PointedType.{0}
+constant MethodsRefPointed : PointedType.{0}
 
-def MacroEnv : Type := MacroEnvPointed.type
-instance : Inhabited MacroEnv where
-  default := MacroEnvPointed.val
+def MethodsRef : Type := MethodsRefPointed.type
+instance : Inhabited MethodsRef where
+  default := MethodsRefPointed.val
 
 structure Context where
-  macroEnv       : MacroEnv
+  methodsOld     : MethodsRef
   mainModule     : Name
   currMacroScope : MacroScope
   currRecDepth   : Nat := 0
   maxRecDepth    : Nat := defaultMaxRecDepth
   ref            : Syntax
+  methods        : MethodsRef
 
 inductive Exception where
   | error             : Syntax → String → Exception
   | unsupportedSyntax : Exception
 
+constant State.ExtraPointed : PointedType.{0}
+
+def State.Extra : Type := State.ExtraPointed.type
+instance : Inhabited State.Extra where
+  default := State.ExtraPointed.val
+
+structure State where
+  macroScope : MacroScope
+  extra      : State.Extra
+  deriving Inhabited
+
 end Macro
 
-abbrev MacroM := ReaderT Macro.Context (EStateM Macro.Exception MacroScope)
+abbrev MacroM := ReaderT Macro.Context (EStateM Macro.Exception Macro.State)
 
 abbrev Macro := Syntax → MacroM Syntax
 
@@ -2075,7 +2083,7 @@ def throwErrorAt {α} (ref : Syntax) (msg : String) : MacroM α :=
   withRef ref (throwError msg)
 
 @[inline] protected def withFreshMacroScope {α} (x : MacroM α) : MacroM α :=
-  bind (modifyGet (fun s => (s, hAdd s 1))) fun fresh =>
+  bind (modifyGet (fun s => (s.macroScope, { s with macroScope := hAdd s.macroScope 1 }))) fun fresh =>
   withReader (fun ctx => { ctx with currMacroScope := fresh }) x
 
 @[inline] def withIncRecDepth {α} (ref : Syntax) (x : MacroM α) : MacroM α :=
@@ -2089,25 +2097,48 @@ instance : MonadQuotation MacroM where
   getMainModule     ctx := pure ctx.mainModule
   withFreshMacroScope   := Macro.withFreshMacroScope
 
-unsafe def mkMacroEnvImp (expandMacro? : Syntax → MacroM (Option Syntax)) : MacroEnv :=
-  unsafeCast expandMacro?
+structure Methods where
+  expandMacro?     : Syntax → MacroM (Option Syntax)
+  getCurrNamespace : MacroM Name
+  hasDecl          : Name → MacroM Bool
+  deriving Inhabited
 
-@[implementedBy mkMacroEnvImp]
-constant mkMacroEnv (expandMacro? : Syntax → MacroM (Option Syntax)) : MacroEnv
+unsafe def mkMethodsImp (methods : Methods) : MethodsRef :=
+  unsafeCast methods
 
-def expandMacroNotAvailable? (stx : Syntax) : MacroM (Option Syntax) :=
-  throwErrorAt stx "expandMacro has not been set"
+@[implementedBy mkMethodsImp]
+constant mkMethods (methods : Methods) : MethodsRef
 
-def mkMacroEnvSimple : MacroEnv :=
-  mkMacroEnv expandMacroNotAvailable?
+unsafe def getMethodsImp : MacroM Methods :=
+  bind read fun ctx => pure (unsafeCast (ctx.methods))
 
-unsafe def expandMacro?Imp (stx : Syntax) : MacroM (Option Syntax) :=
-  bind read fun ctx =>
-  let f : Syntax → MacroM (Option Syntax) := unsafeCast (ctx.macroEnv)
-  f stx
+@[implementedBy getMethodsImp] constant getMethods : MacroM Methods
+
+structure MethodsOld where
+  expandMacro?     : Syntax → MacroM (Option Syntax)
+  deriving Inhabited
+
+unsafe def mkMethodsOldImp (descr : MethodsOld) : MethodsRef :=
+  unsafeCast descr
+
+@[implementedBy mkMethodsOldImp]
+constant mkMethodsOld (descr : MethodsOld) : MethodsRef
+
+unsafe def getMethodsOldImp : MacroM MethodsOld :=
+  bind read fun ctx => pure (unsafeCast (ctx.methodsOld))
+
+@[implementedBy getMethodsOldImp] constant getMethodsOld : MacroM MethodsOld
 
 /-- `expandMacro? stx` return `some stxNew` if `stx` is a macro, and `stxNew` is its expansion. -/
-@[implementedBy expandMacro?Imp] constant expandMacro? : Syntax → MacroM (Option Syntax)
+def expandMacro? (stx : Syntax) : MacroM (Option Syntax) := do
+  (← getMethodsOld).expandMacro? stx
+
+/-- Return `true` if the environment contains a declaration with name `declName` -/
+def hasDecl (declName : Name) : MacroM Bool := do
+  (← getMethods).hasDecl declName
+
+def getCurrNamespace : MacroM Name := do
+  (← getMethods).getCurrNamespace
 
 end Macro
 

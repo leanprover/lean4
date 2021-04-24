@@ -44,4 +44,12 @@ export MonadBacktrack (saveState restoreState)
   finally
     restoreState s
 
+@[specialize] def observing? [Monad m] [MonadBacktrack s m] [MonadExcept ε m] (x : m α) : m (Option α) := do
+  let s ← saveState
+  try
+    x
+  catch _ =>
+    restoreState s
+    return none
+
 end Lean

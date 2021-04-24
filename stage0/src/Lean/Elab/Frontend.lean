@@ -23,14 +23,13 @@ abbrev FrontendM := ReaderT Context $ StateRefT State IO
 def setCommandState (commandState : Command.State) : FrontendM Unit :=
   modify fun s => { s with commandState := commandState }
 
-@[inline] def runCommandElabM (x : Command.CommandElabM Unit) : FrontendM Unit := do
+@[inline] def runCommandElabM (x : Command.CommandElabM α) : FrontendM α := do
   let ctx ← read
   let s ← get
   let cmdCtx : Command.Context := { cmdPos := s.cmdPos, fileName := ctx.inputCtx.fileName, fileMap := ctx.inputCtx.fileMap }
-  match ← liftM $ EIO.toIO' (do let (_, s) ← (x cmdCtx).run s.commandState; pure $ some s) with
-  | Except.error e        => throw <| IO.Error.userError s!"unexpected internal error: {← e.toMessageData.toString}"
-  | Except.ok (some sNew) => setCommandState sNew
-  | Except.ok none        => pure ()
+  match ← liftM <| EIO.toIO' <| (x cmdCtx).run s.commandState with
+  | Except.error e      => throw <| IO.Error.userError s!"unexpected internal error: {← e.toMessageData.toString}"
+  | Except.ok (a, sNew) => setCommandState sNew; return a
 
 def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit := do
   runCommandElabM do

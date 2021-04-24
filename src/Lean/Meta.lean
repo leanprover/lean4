@@ -29,6 +29,7 @@ import Lean.Meta.PPGoal
 import Lean.Meta.UnificationHint
 import Lean.Meta.Inductive
 import Lean.Meta.SizeOf
+import Lean.Meta.ProofBelow
 import Lean.Meta.Coe
 import Lean.Meta.SortLocalDecls
 import Lean.Meta.CollectFVars

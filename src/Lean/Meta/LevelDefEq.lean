@@ -84,6 +84,7 @@ private def solveSelfMax (mvarId : MVarId) (v : Level) : MetaM Unit := do
 private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : MetaM Unit := do
   let ref ← getRef
   let ctx ← read
+  trace[Meta.isLevelDefEq.stuck] "{lhs} =?= {rhs}"
   modifyPostponed fun postponed => postponed.push { lhs := lhs, rhs := rhs, ref := ref, ctx? := ctx.defEqCtx? }
 
 mutual
@@ -107,7 +108,9 @@ mutual
       Bool.toLBool <$> isLevelDefEqAux levelZero v₂
     | Level.zero _, Level.succ .. => return LBool.false
     | Level.succ u _, v =>
-      if u.isMVar && u.occurs v then
+      if v.isParam then
+        return LBool.false
+      else if u.isMVar && u.occurs v then
         return LBool.undef
       else
         match (← Meta.decLevel? v) with

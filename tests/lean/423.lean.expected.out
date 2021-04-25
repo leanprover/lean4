@@ -6,3 +6,27 @@ has type
   T : Sort u
 but is expected to have type
   Nat : Type
+423.lean:5:33-5:38: error: application type mismatch
+  Add T
+argument
+  T
+has type
+  Sort u : Type u
+but is expected to have type
+  Type ?u : Type (?u + 1)
+423.lean:5:41-5:50: error: application type mismatch
+  OfNat T
+argument
+  T
+has type
+  Sort u : Type u
+but is expected to have type
+  Type ?u : Type (?u + 1)
+423.lean:5:55-5:60: error: application type mismatch
+  HAdd.hAdd a
+argument
+  a
+has type
+  T : Sort u
+but is expected to have type
+  Nat : Type

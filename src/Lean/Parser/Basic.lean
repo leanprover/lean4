@@ -754,7 +754,9 @@ partial def whitespace : ParserFn := fun c s =>
   if input.atEnd i then s
   else
     let curr := input.get i
-    if curr.isWhitespace then whitespace c (s.next input i)
+    if curr == '\t' then
+      s.mkUnexpectedError "tabs are not allowed; please configure your editor to expand them"
+    else if curr.isWhitespace then whitespace c (s.next input i)
     else if curr == '-' then
       let i    := input.next i
       let curr := input.get i

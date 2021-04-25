@@ -312,7 +312,11 @@ private def propagateExpectedType (fvar : Expr) (fvarType : Expr) (s : State) : 
       discard <| isDefEq fvarType d
       let b := b.instantiate1 fvar
       pure { s with expectedType? := some b }
-    | _ => pure { s with expectedType? := none }
+    | _ =>
+      if expectedType.getAppFn.isMVar then
+        pure { s with expectedType? := none }
+      else
+        throwError "expected type is not a function type{indentExpr expectedType}"
 
 private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat) (s : State) : TermElabM State := do
   if h : i < binderViews.size then

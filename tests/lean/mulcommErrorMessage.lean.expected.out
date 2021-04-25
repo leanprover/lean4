@@ -1,0 +1,2 @@
+mulcommErrorMessage.lean:8:17-8:18: error: expected type is not a function type
+  a✝ * b✝ = b✝ * a✝

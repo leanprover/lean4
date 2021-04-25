@@ -1,12 +1,34 @@
-mulcommErrorMessage.lean:8:17-8:18: error: expected type is not a function type
-  a✝ * b✝ = b✝ * a✝
+mulcommErrorMessage.lean:8:13-13:25: error: type mismatch
+  fun (a : ?m) (b : ?m a) => ?m a b
+has type
+  (a : ?m) → (b : ?m a) → ?m a b : Sort (imax ?u ?u ?u)
+but is expected to have type
+  a✝ * b✝ = b✝ * a✝ : Prop
 the following variables have been introduced by the implicit lamda feature
   a✝ : Bool
   b✝ : Bool
 you can disable implict lambdas using `@` or writing a lambda expression with `{}` or `[]` binder annotations.
-mulcommErrorMessage.lean:16:5-16:6: error: expected type is not a function type
-  a✝ * b✝ = b✝ * a✝
+mulcommErrorMessage.lean:11:22-11:25: error: type mismatch
+  rfl
+has type
+  true = true : Prop
+but is expected to have type
+  true = false : Prop
+mulcommErrorMessage.lean:16:3-17:47: error: type mismatch
+  fun (a b : Bool) => Bool.casesOn a (?m a b) (?m a b)
+has type
+  (a b : Bool) → ?m a b a : Sort (imax 1 1 ?u)
+but is expected to have type
+  a✝ * b✝ = b✝ * a✝ : Prop
 the following variables have been introduced by the implicit lamda feature
   a✝ : Bool
   b✝ : Bool
 you can disable implict lambdas using `@` or writing a lambda expression with `{}` or `[]` binder annotations.
+mulcommErrorMessage.lean:16:12-17:47: error: application type mismatch
+  Bool.casesOn a ?m (Bool.casesOn b ?m ?m)
+argument
+  Bool.casesOn b ?m ?m
+has type
+  ?m a b b : Sort ?u
+but is expected to have type
+  ?m a b true : Sort ?u

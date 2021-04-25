@@ -255,7 +255,7 @@ where
      | some (α, lhs, rhs) =>
        let mut lhs := lhs
        let mut rhs := rhs
-       let mkMotive (typeWithLooseBVar : Expr) :=
+       let mkMotive (typeWithLooseBVar : Expr) := do
          withLocalDeclD (← mkFreshUserName `x) α fun x => do
            mkLambdaFVars #[x] $ typeWithLooseBVar.instantiate1 x
        let mut expectedAbst ← kabstract expectedType rhs

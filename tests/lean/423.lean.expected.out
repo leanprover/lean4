@@ -1,0 +1,8 @@
+423.lean:3:35-3:40: error: application type mismatch
+  HAdd.hAdd a
+argument
+  a
+has type
+  T : Sort u
+but is expected to have type
+  Nat : Type

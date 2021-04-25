@@ -120,7 +120,7 @@ partial def main (type : Syntax) : CommandElabM Name := do
   if str.isEmpty then
     mkFreshInstanceName
   else
-    mkUnusedBaseName <| Name.mkSimple ("inst" ++ str)
+    liftMacroM <| mkUnusedBaseName <| Name.mkSimple ("inst" ++ str)
 
 end MkInstanceName
 
@@ -139,7 +139,7 @@ def mkDefViewOfConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
 
 def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
   -- leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal
-  let attrKind        ← toAttributeKind stx[0]
+  let attrKind        ← liftMacroM <| toAttributeKind stx[0]
   let prio            ← liftMacroM <| expandOptNamedPrio stx[2]
   let attrStx         ← `(attr| instance $(quote prio):numLit)
   let (binders, type) := expandDeclSig stx[4]

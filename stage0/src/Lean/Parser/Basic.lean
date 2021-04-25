@@ -244,6 +244,10 @@ def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : P
     let stack   := stack.push newNode
     ⟨stack, lhsPrec, pos, cache, err⟩
 
+def setError (s : ParserState) (msg : String) : ParserState :=
+  match s with
+  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
+
 def mkError (s : ParserState) (msg : String) : ParserState :=
   match s with
   | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨stack.push Syntax.missing, lhsPrec, pos, cache, some { expected := [ msg ] }⟩

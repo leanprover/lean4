@@ -240,7 +240,7 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
   ```
   It generates the names `term_+_` and `term[_,]`
 -/
-partial def mkNameFromParserSyntax (catName : Name) (stx : Syntax) : CommandElabM Name :=
+partial def mkNameFromParserSyntax (catName : Name) (stx : Syntax) : MacroM Name := do
   mkUnusedBaseName <| Name.mkSimple <| appendCatName <| visit stx ""
 where
   visit (stx : Syntax) (acc : String) : String :=
@@ -295,7 +295,7 @@ private partial def isAtomLikeSyntax (stx : Syntax) : Bool :=
     | none      => precDefault
   let name ← match name? with
     | some name => pure name.getId
-    | none => mkNameFromParserSyntax cat syntaxParser
+    | none => liftMacroM <| mkNameFromParserSyntax cat syntaxParser
   let prio ← liftMacroM <| evalOptPrio prio?
   let stxNodeKind := (← getCurrNamespace) ++ name
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser")
@@ -422,14 +422,14 @@ private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
     | stx => stx
 
 /- Convert `notation` command lhs item into a `syntax` command item -/
-def expandNotationItemIntoSyntaxItem (stx : Syntax) : CommandElabM Syntax :=
+def expandNotationItemIntoSyntaxItem (stx : Syntax) : MacroM Syntax :=
   let k := stx.getKind
   if k == `Lean.Parser.Command.identPrec then
     pure $ Syntax.node `Lean.Parser.Syntax.cat #[mkIdentFrom stx `term,  stx[1]]
   else if k == strLitKind then
     pure $ Syntax.node `Lean.Parser.Syntax.atom #[stx]
   else
-    throwUnsupportedSyntax
+    Macro.throwUnsupported
 
 def strLitToPattern (stx: Syntax) : MacroM Syntax :=
   match stx.isStrLit? with
@@ -437,22 +437,22 @@ def strLitToPattern (stx: Syntax) : MacroM Syntax :=
   | none     => Macro.throwUnsupported
 
 /- Convert `notation` command lhs item into a pattern element -/
-def expandNotationItemIntoPattern (stx : Syntax) : CommandElabM Syntax :=
+def expandNotationItemIntoPattern (stx : Syntax) : MacroM Syntax :=
   let k := stx.getKind
   if k == `Lean.Parser.Command.identPrec then
     mkAntiquotNode stx[0]
   else if k == strLitKind then
-    liftMacroM <| strLitToPattern stx
+    strLitToPattern stx
   else
-    throwUnsupportedSyntax
+    Macro.throwUnsupported
 
 /-- Try to derive a `SimpleDelab` from a notation.
     The notation must be of the form `notation ... => c var_1 ... var_n`
     where `c` is a declaration in the current scope and the `var_i` are a permutation of the LHS vars. -/
-def mkSimpleDelab (attrKind : Syntax) (vars : Array Syntax) (pat qrhs : Syntax) : OptionT CommandElabM Syntax := do
+def mkSimpleDelab (attrKind : Syntax) (vars : Array Syntax) (pat qrhs : Syntax) : OptionT MacroM Syntax := do
   match qrhs with
   | `($c:ident $args*) =>
-    let [(c, [])] ← resolveGlobalName c.getId | failure
+    let [(c, [])] ← Macro.resolveGlobalName c.getId | failure
     guard <| args.all (Syntax.isIdent ∘ getAntiquotTerm)
     guard <| args.allDiff
     -- replace head constant with (unused) antiquotation so we're not dependent on the exact pretty printing of the head
@@ -461,13 +461,13 @@ def mkSimpleDelab (attrKind : Syntax) (vars : Array Syntax) (pat qrhs : Syntax) 
        | `($qrhs) => `($pat)
        | _        => throw ())
   | `($c:ident)        =>
-    let [(c, [])] ← resolveGlobalName c.getId | failure
+    let [(c, [])] ← Macro.resolveGlobalName c.getId | failure
     `(@[$attrKind:attrKind appUnexpander $(mkIdent c):ident] def unexpand : Lean.PrettyPrinter.Unexpander := fun _ => `($pat))
   | _                  => failure
 
 private def expandNotationAux (ref : Syntax)
-    (currNamespace : Name) (attrKind : Syntax) (prec? : Option Syntax) (name? : Option Syntax) (prio? : Option Syntax) (items : Array Syntax) (rhs : Syntax) : CommandElabM Syntax := do
-  let prio ← liftMacroM <| evalOptPrio prio?
+    (currNamespace : Name) (attrKind : Syntax) (prec? : Option Syntax) (name? : Option Syntax) (prio? : Option Syntax) (items : Array Syntax) (rhs : Syntax) : MacroM Syntax := do
+  let prio ← evalOptPrio prio?
   -- build parser
   let syntaxParts ← items.mapM expandNotationItemIntoSyntaxItem
   let cat := mkIdentFrom ref `term
@@ -490,15 +490,12 @@ private def expandNotationAux (ref : Syntax)
   | some delabDecl => mkNullNode #[stxDecl, macroDecl, delabDecl]
   | none           => mkNullNode #[stxDecl, macroDecl]
 
-@[builtinCommandElab «notation»] def expandNotation : CommandElab :=
-  adaptExpander fun stx => do
-    let currNamespace ← getCurrNamespace
-    match stx with
-    | `($attrKind:attrKind notation $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $items* => $rhs) =>
-      -- trigger scoped checks early and only once
-      let _ ← toAttributeKind attrKind
-      expandNotationAux stx currNamespace attrKind prec? name? prio? items rhs
-    | _ => throwUnsupportedSyntax
+@[builtinMacro Lean.Parser.Command.notation] def expandNotation : Macro
+  | stx@`($attrKind:attrKind notation $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $items* => $rhs) => do
+    -- trigger scoped checks early and only once
+    let _ ← toAttributeKind attrKind
+    expandNotationAux stx (← Macro.getCurrNamespace) attrKind prec? name? prio? items rhs
+  | _ => Macro.throwUnsupported
 
 /- Convert `macro` argument into a `syntax` command item -/
 def expandMacroArgIntoSyntaxItem : Macro
@@ -531,28 +528,28 @@ def expandMacroArgIntoPattern (stx : Syntax) : MacroM Syntax := do
 
 
 /- «macro» := leading_parser suppressInsideQuot (Term.attrKind >> "macro " >> optPrecedence >> optNamedName >> optNamedPrio >> macroHead >> many macroArg >> macroTail) -/
-def expandMacro (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
+@[builtinMacro Lean.Parser.Command.macro] def expandMacro : Macro := fun stx => do
   let attrKind := stx[0]
   let prec := stx[2].getOptional?
-  let name? ← liftMacroM <| expandOptNamedName stx[3]
-  let prio  ← liftMacroM <| expandOptNamedPrio stx[4]
+  let name? ← expandOptNamedName stx[3]
+  let prio  ← expandOptNamedPrio stx[4]
   let head := stx[5]
   let args := stx[6].getArgs
   let cat  := stx[8]
   -- build parser
-  let stxPart  ← liftMacroM <| expandMacroArgIntoSyntaxItem head
-  let stxParts ← liftMacroM <| args.mapM expandMacroArgIntoSyntaxItem
+  let stxPart  ← expandMacroArgIntoSyntaxItem head
+  let stxParts ← args.mapM expandMacroArgIntoSyntaxItem
   let stxParts := #[stxPart] ++ stxParts
   -- name
   let name ← match name? with
     | some name => pure name
     | none => mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
   -- build macro rules
-  let patHead ← liftMacroM <| expandMacroArgIntoPattern head
-  let patArgs ← liftMacroM <| args.mapM expandMacroArgIntoPattern
+  let patHead ← expandMacroArgIntoPattern head
+  let patArgs ← args.mapM expandMacroArgIntoPattern
   /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
      So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
-  let pat := Syntax.node (currNamespace ++ name) (#[patHead] ++ patArgs)
+  let pat := Syntax.node ((← Macro.getCurrNamespace) ++ name) (#[patHead] ++ patArgs)
   if stx.getArgs.size == 11 then
     -- `stx` is of the form `macro $head $args* : $cat => term`
     let rhs := stx[10]
@@ -565,10 +562,6 @@ def expandMacro (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := d
     let stxCmd ← `(Parser.Command.syntax| $attrKind:attrKind syntax $(prec)? (name := $(mkIdentFrom stx name):ident) (priority := $(quote prio):numLit) $[$stxParts]* : $cat)
     let macroRulesCmd ← `(macro_rules | `($pat) => `($rhsBody))
     return mkNullNode #[stxCmd, macroRulesCmd]
-
-@[builtinCommandElab «macro»] def elabMacro : CommandElab :=
-  adaptExpander fun stx => do
-    expandMacro (← getCurrNamespace) stx
 
 builtin_initialize
   registerTraceClass `Elab.syntax
@@ -602,8 +595,8 @@ def expandElab (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
   -- name
   let name ← match name? with
     | some name => pure name
-    | none => mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
-  -- build pattern for `martch_syntax
+    | none => liftMacroM <| mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
+  -- build pattern for syntax `match`
   let patHead ← liftMacroM <| expandMacroArgIntoPattern head
   let patArgs ← liftMacroM <| args.mapM expandMacroArgIntoPattern
   let pat := Syntax.node (currNamespace ++ name) (#[patHead] ++ patArgs)

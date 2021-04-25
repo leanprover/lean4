@@ -667,6 +667,7 @@ lean_object* l_Lean_Elab_Command_addUnivLevel(lean_object*, lean_object*, lean_o
 uint8_t l_Lean_Syntax_isNodeOf(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedNameGenerator___closed__1;
 extern lean_object* l_Lean_instInhabitedTraceState___closed__1;
+extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1253____closed__1;
 lean_object* l_List_drop___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_instMonadRecDepthCommandElabM___closed__4;
 lean_object* l_Lean_Elab_Command_instMonadTraceCommandElabM___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -715,7 +716,6 @@ lean_object* l_Lean_Elab_Command_elabEvalUnsafe___lambda__6(lean_object*, lean_o
 extern lean_object* l_Lean_Parser_Command_end___elambda__1___closed__1;
 lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Command___hyg_1501____closed__1;
 lean_object* l_Lean_Elab_pushInfoTree___at_Lean_Elab_Command_elabEnd___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1248____closed__1;
 lean_object* l_Lean_Elab_Command_elabExport___closed__1;
 lean_object* l_Lean_Elab_addMacroStack___at_Lean_Elab_Command_instAddErrorMessageContextCommandElabM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabReduce(lean_object*);
@@ -9624,7 +9624,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_Command___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1248____closed__1;
+x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1253____closed__1;
 x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_4162____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -13321,7 +13321,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabCommand___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1248____closed__1;
+x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1253____closed__1;
 x_2 = l_Lean_Elab_Command_elabCommand___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

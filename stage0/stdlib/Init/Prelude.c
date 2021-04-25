@@ -179,7 +179,6 @@ lean_object* l_Lean_instInhabitedParserDescr;
 lean_object* l_instLTFin(lean_object*);
 lean_object* l_EStateM_dummySave(lean_object*, lean_object*);
 lean_object* l_instInhabitedOption(lean_object*);
-lean_object* l_Lean_Macro_MethodsRefPointed;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Substring_bsize_match__1(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -790,6 +789,7 @@ lean_object* l___private_Init_Prelude_0__Lean_assembleParts___closed__1;
 lean_object* l_Lean_Syntax_getOp___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Macro_instInhabitedMethods;
 lean_object* l_instHOrElse___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Prelude_0__Lean_Macro_MethodsRefPointed;
 lean_object* l_dite___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_utf8ByteSize___boxed(lean_object*);
 lean_object* l_id___rarg(lean_object*);
@@ -797,6 +797,7 @@ lean_object* l_Lean_interpolatedStrKind___closed__1;
 lean_object* l_Monad_seqLeft___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_arbitrary(lean_object*);
 lean_object* l___private_Init_Prelude_0__Lean_simpMacroScopesAux_match__1(lean_object*);
+lean_object* l_Lean_Macro_instInhabitedMethodsRef___closed__1;
 lean_object* l_Eq_ndrec___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_getPos_x3f(lean_object*, uint8_t);
 lean_object* lean_simp_macro_scopes(lean_object*);
@@ -11140,15 +11141,7 @@ x_1 = l_Lean_maxRecDepthErrorMessage___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Macro_MethodsRefPointed() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Macro_instInhabitedMethodsRef() {
+static lean_object* _init_l___private_Init_Prelude_0__Lean_Macro_MethodsRefPointed() {
 _start:
 {
 lean_object* x_1; 
@@ -12090,6 +12083,23 @@ lean_dec(x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Macro_instInhabitedMethodsRef___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Macro_instInhabitedMethods___closed__5;
+x_2 = x_1;
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Macro_instInhabitedMethodsRef() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Macro_instInhabitedMethodsRef___closed__1;
+return x_1;
+}
+}
 lean_object* l_Lean_Macro_getMethodsImp(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -12655,10 +12665,8 @@ l_Lean_maxRecDepthErrorMessage___closed__1 = _init_l_Lean_maxRecDepthErrorMessag
 lean_mark_persistent(l_Lean_maxRecDepthErrorMessage___closed__1);
 l_Lean_maxRecDepthErrorMessage = _init_l_Lean_maxRecDepthErrorMessage();
 lean_mark_persistent(l_Lean_maxRecDepthErrorMessage);
-l_Lean_Macro_MethodsRefPointed = _init_l_Lean_Macro_MethodsRefPointed();
-lean_mark_persistent(l_Lean_Macro_MethodsRefPointed);
-l_Lean_Macro_instInhabitedMethodsRef = _init_l_Lean_Macro_instInhabitedMethodsRef();
-lean_mark_persistent(l_Lean_Macro_instInhabitedMethodsRef);
+l___private_Init_Prelude_0__Lean_Macro_MethodsRefPointed = _init_l___private_Init_Prelude_0__Lean_Macro_MethodsRefPointed();
+lean_mark_persistent(l___private_Init_Prelude_0__Lean_Macro_MethodsRefPointed);
 l_Lean_Macro_Context_currRecDepth___default = _init_l_Lean_Macro_Context_currRecDepth___default();
 lean_mark_persistent(l_Lean_Macro_Context_currRecDepth___default);
 l_Lean_Macro_Context_maxRecDepth___default = _init_l_Lean_Macro_Context_maxRecDepth___default();
@@ -12703,6 +12711,10 @@ l_Lean_Macro_instInhabitedMethods___closed__5 = _init_l_Lean_Macro_instInhabited
 lean_mark_persistent(l_Lean_Macro_instInhabitedMethods___closed__5);
 l_Lean_Macro_instInhabitedMethods = _init_l_Lean_Macro_instInhabitedMethods();
 lean_mark_persistent(l_Lean_Macro_instInhabitedMethods);
+l_Lean_Macro_instInhabitedMethodsRef___closed__1 = _init_l_Lean_Macro_instInhabitedMethodsRef___closed__1();
+lean_mark_persistent(l_Lean_Macro_instInhabitedMethodsRef___closed__1);
+l_Lean_Macro_instInhabitedMethodsRef = _init_l_Lean_Macro_instInhabitedMethodsRef();
+lean_mark_persistent(l_Lean_Macro_instInhabitedMethodsRef);
 l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__1 = _init_l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__1();
 lean_mark_persistent(l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__1);
 l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__2 = _init_l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__2();

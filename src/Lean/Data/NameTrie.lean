@@ -16,13 +16,19 @@ instance : ToString NamePart where
     | NamePart.str s => s
     | NamePart.num n => toString n
 
+def NamePart.cmp : NamePart → NamePart → Ordering
+  | NamePart.str a, NamePart.str b => compare a b
+  | NamePart.num a, NamePart.num b => compare a b
+  | NamePart.num _, NamePart.str _ => Ordering.lt
+  | _, _ => Ordering.gt
+
 def NamePart.lt : NamePart → NamePart → Bool
   | NamePart.str a, NamePart.str b => a < b
   | NamePart.num a, NamePart.num b => a < b
   | NamePart.num _, NamePart.str _ => true
   | _, _ => false
 
-def NameTrie (β : Type u) := PrefixTree NamePart β NamePart.lt
+def NameTrie (β : Type u) := PrefixTree NamePart β NamePart.cmp
 
 private def toKey (n : Name) : List NamePart :=
   loop n []

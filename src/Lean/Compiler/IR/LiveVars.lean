@@ -79,7 +79,7 @@ def FnBody.hasLiveVar (b : FnBody) (ctx : LocalContext) (x : VarId) : Bool :=
   (IsLive.visitFnBody x.idx b).run' ctx
 
 abbrev LiveVarSet   := VarIdSet
-abbrev JPLiveVarMap := Std.RBMap JoinPointId LiveVarSet (fun j₁ j₂ => j₁.idx < j₂.idx)
+abbrev JPLiveVarMap := Std.RBMap JoinPointId LiveVarSet (fun j₁ j₂ => compare j₁.idx j₂.idx)
 
 instance : Inhabited LiveVarSet where
   default := {}

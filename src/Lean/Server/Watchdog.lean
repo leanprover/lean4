@@ -96,7 +96,7 @@ section Utils
     | crashed (queuedMsgs : Array JsonRpc.Message)
     | running
 
-  abbrev PendingRequestMap := RBMap RequestID JsonRpc.Message (fun a b => Decidable.decide (a < b))
+  abbrev PendingRequestMap := RBMap RequestID JsonRpc.Message compare
 
   private def parseHeaderAst (input : String) : IO Syntax := do
     let inputCtx   := Parser.mkInputContext input "<input>"
@@ -166,7 +166,7 @@ section FileWorker
 end FileWorker
 
 section ServerM
-  abbrev FileWorkerMap := RBMap DocumentUri FileWorker (fun a b => Decidable.decide (a < b))
+  abbrev FileWorkerMap := RBMap DocumentUri FileWorker compare
 
   structure ServerContext where
     hIn            : FS.Stream

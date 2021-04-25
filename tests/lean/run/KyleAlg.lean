@@ -191,22 +191,26 @@ theorem Product.ext : {p q : α × β} → p.1 = q.1 → p.2 = q.2 → p = q
 
 instance [Semigroup α] [Semigroup β] : Semigroup (α × β) where
     mulAssoc := by
+        intros
         apply Product.ext
         apply mulAssoc
         apply mulAssoc
 
 instance [Monoid α] [Monoid β] : Monoid (α × β) where
     oneMul := by
+        intros
         apply Product.ext
         apply oneMul
         apply oneMul
     mulOne := by
+        intros
         apply Product.ext
         apply mulOne
         apply mulOne
 
 instance [Group α] [Group β] : Group (α × β) where
     invMul := by
+        intros
         apply Product.ext
         apply invMul
         apply invMul

@@ -11,3 +11,7 @@ instance : MulComm Bool where
     | true, false  => rfl
     | false, true  => rfl
     | false, false => rfl
+
+instance : MulComm Bool :=
+  ⟨λ a b => Bool.casesOn a (Bool.casesOn b _ _)
+                           (Bool.casesOn b _ _)⟩

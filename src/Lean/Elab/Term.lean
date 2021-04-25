@@ -932,17 +932,28 @@ private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : Term
   registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed (← saveContext))
   pure mvar
 
+private def decorateErrorMessageWithLambdaImplicitVars (ref : Syntax) (msg : MessageData) (impFVars : Array Expr) : TermElabM Exception := do
+  if impFVars.isEmpty then
+    return Exception.error ref msg
+  else
+    let mut msg := m!"{msg}\nthe following variables have been introduced by the implicit lamda feature"
+    for impFVar in impFVars do
+      msg := m!"{msg}{indentD m!"{impFVar} : {← inferType impFVar}"}"
+    msg := m!"{msg}\nyou can disable implict lambdas using `@` or writing a lambda expression with `\{}` or `[]` binder annotations."
+    return Exception.error ref msg
+
 /-
   Helper function for `elabTerm` is tries the registered elaboration functions for `stxNode` kind until it finds one that supports the syntax or
   an error is found. -/
-private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool)
+private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool) (impFVars : Array Expr)
     : List TermElab → TermElabM Expr
   | []                => do throwError "unexpected syntax{indentD stx}"
   | (elabFn::elabFns) => do
     try
       elabFn stx expectedType?
     catch ex => match ex with
-      | Exception.error _ _ =>
+      | Exception.error ref msg =>
+        let ex ← decorateErrorMessageWithLambdaImplicitVars ref msg impFVars
         if (← read).errToSorry then
           exceptionToSorry ex expectedType?
         else
@@ -952,7 +963,7 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
           exceptionToSorry ex expectedType?
         else if id == unsupportedSyntaxExceptionId then
           s.restore
-          elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
+          elabUsingElabFnsAux s stx expectedType? catchExPostpone impFVars elabFns
         else if catchExPostpone && id == postponeExceptionId then
           /- If `elab` threw `Exception.postpone`, we reset any state modifications.
              For example, we want to make sure pending synthetic metavariables created by `elab` before
@@ -973,12 +984,12 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
           else
             throw ex
 
-private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool) : TermElabM Expr := do
+private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool) (impFVars : Array Expr): TermElabM Expr := do
   let s ← saveState
   let table := termElabAttribute.ext.getState (← getEnv) |>.table
   let k := stx.getKind
   match table.find? k with
-  | some elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
+  | some elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone impFVars elabFns
   | none         => throwError "elaboration function for '{k}' has not been implemented{indentD stx}"
 
 instance : MonadMacroAdapter TermElabM where
@@ -1053,24 +1064,27 @@ private def useImplicitLambda? (stx : Syntax) (expectedType? : Option Expr) : Te
         | _                    => pure none
     | _         => pure none
 
-private def elabImplicitLambdaAux (stx : Syntax) (catchExPostpone : Bool) (expectedType : Expr) (fvars : Array Expr) : TermElabM Expr := do
-  let body ← elabUsingElabFns stx expectedType catchExPostpone
+private def elabImplicitLambdaAux (stx : Syntax) (catchExPostpone : Bool) (expectedType : Expr) (impFVars : Array Expr) : TermElabM Expr := do
+  let body ← elabUsingElabFns stx expectedType catchExPostpone impFVars
   let body ← ensureHasType expectedType body
-  let r ← mkLambdaFVars fvars body
+  let r ← mkLambdaFVars impFVars body
   trace[Elab.implicitForall] r
   pure r
 
-private partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) : Expr → Array Expr → TermElabM Expr
-  | type@(Expr.forallE n d b c), fvars =>
-    if c.binderInfo.isExplicit then
+private partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) (type : Expr) : TermElabM Expr :=
+  loop type #[]
+where
+  loop
+    | type@(Expr.forallE n d b c), fvars =>
+      if c.binderInfo.isExplicit then
+        elabImplicitLambdaAux stx catchExPostpone type fvars
+      else withFreshMacroScope do
+        let n ← MonadQuotation.addMacroScope n
+        withLocalDecl n c.binderInfo d fun fvar => do
+          let type ← whnfForall (b.instantiate1 fvar)
+          loop type (fvars.push fvar)
+    | type, fvars =>
       elabImplicitLambdaAux stx catchExPostpone type fvars
-    else withFreshMacroScope do
-      let n ← MonadQuotation.addMacroScope n
-      withLocalDecl n c.binderInfo d fun fvar => do
-        let type ← whnfForall (b.instantiate1 fvar)
-        elabImplicitLambda stx catchExPostpone type (fvars.push fvar)
-  | type, fvars =>
-    elabImplicitLambdaAux stx catchExPostpone type fvars
 
 /- Main loop for `elabTerm` -/
 private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (implicitLambda : Bool) : Syntax → TermElabM Expr
@@ -1088,8 +1102,8 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     | _ =>
       let implicit? ← if implicitLambda && (← read).implicitLambda then useImplicitLambda? stx expectedType? else pure none
       match implicit? with
-      | some expectedType => elabImplicitLambda stx catchExPostpone expectedType #[]
-      | none              => elabUsingElabFns stx expectedType? catchExPostpone
+      | some expectedType => elabImplicitLambda stx catchExPostpone expectedType
+      | none              => elabUsingElabFns stx expectedType? catchExPostpone (impFVars := #[])
 
 def addTermInfo (stx : Syntax) (e : Expr) : TermElabM Unit := do
   if (← getInfoState).enabled then

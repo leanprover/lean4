@@ -1,2 +1,12 @@
 mulcommErrorMessage.lean:8:17-8:18: error: expected type is not a function type
   a✝ * b✝ = b✝ * a✝
+the following variables have been introduced by the implicit lamda feature
+  a✝ : Bool
+  b✝ : Bool
+you can disable implict lambdas using `@` or writing a lambda expression with `{}` or `[]` binder annotations.
+mulcommErrorMessage.lean:16:5-16:6: error: expected type is not a function type
+  a✝ * b✝ = b✝ * a✝
+the following variables have been introduced by the implicit lamda feature
+  a✝ : Bool
+  b✝ : Bool
+you can disable implict lambdas using `@` or writing a lambda expression with `{}` or `[]` binder annotations.

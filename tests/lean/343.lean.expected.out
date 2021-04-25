@@ -4,6 +4,8 @@
 while trying to unify
   CatIsh.Obj.{max (max (?u + 1) (?u + 1)) ?u ?u,
       max ((max (?u + 1) (?u + 1)) + 1) ((max ?u ?u) + 1)}
-    Catish.{max ?u ?u, max (?u + 1) (?u + 1)}
+    Catish.{max ?u ?u,
+      max (?u + 1) (?u + 1)} : Type (max ((max (?u + 1) (?u + 1)) + 1) ((max ?u ?u) + 1))
 with
-  CatIsh.{max ?u ?u, max (?u + 1) (?u + 1)}
+  CatIsh.{max ?u ?u,
+    max (?u + 1) (?u + 1)} : Type (max ((max ?u ?u) + 1) ((max (?u + 1) (?u + 1)) + 1))

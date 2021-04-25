@@ -37,10 +37,40 @@ private def liftMethodDelimiter (k : SyntaxNodeKind) : Bool :=
   k == ``Lean.Parser.Term.termTry ||
   k == ``Lean.Parser.Term.termFor
 
+/-- Given `stx` which is a `letPatDecl`, `letEqnsDecl`, or `letIdDecl`, return true if it has binders. -/
+private def letDeclArgHasBinders (letDeclArg : Syntax) : Bool :=
+  let k := letDeclArg.getKind
+  if k == ``Lean.Parser.Term.letPatDecl then
+    false
+  else if k == ``Lean.Parser.Term.letEqnsDecl then
+    true
+  else if k == ``Lean.Parser.Term.letIdDecl then
+    -- letIdLhs := ident >> checkWsBefore "expected space before binders" >> many (ppSpace >> (simpleBinderWithoutType <|> bracketedBinder)) >> optType
+    let binders := letDeclArg[1]
+    binders.getNumArgs > 0
+  else
+    false
+
+/-- Return `true` if the given `letDecl` contains binders. -/
+private def letDeclHasBinders (letDecl : Syntax) : Bool :=
+  letDeclArgHasBinders letDecl[0]
+
 /-- Return true if we should generate an error message when lifting a method over this kind of syntax. -/
-private def liftMethodForbiddenBinder (k : SyntaxNodeKind) : Bool :=
-  k == ``Lean.Parser.Term.fun ||
-  k == ``Lean.Parser.Term.matchAlts
+private def liftMethodForbiddenBinder (stx : Syntax) : Bool :=
+  let k := stx.getKind
+  if k == ``Lean.Parser.Term.fun || k == ``Lean.Parser.Term.matchAlts ||
+     k == ``Lean.Parser.Term.doLetRec || k == ``Lean.Parser.Term.letrec  then
+     -- It is never ok to lift over this kind of binder
+    true
+  -- The following kinds of `let`-expressions require extra checks to decide whether they contain binders or not
+  else if k == ``Lean.Parser.Term.let then
+    letDeclHasBinders stx[1]
+  else if k == ``Lean.Parser.Term.doLet then
+    letDeclHasBinders stx[2]
+  else if k == ``Lean.Parser.Term.doLetArrow then
+    letDeclArgHasBinders stx[2]
+  else
+    false
 
 private partial def hasLiftMethod : Syntax → Bool
   | Syntax.node k args =>
@@ -1138,7 +1168,7 @@ private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Synt
       return stx
     else if k == `Lean.Parser.Term.liftMethod && !inQuot then withFreshMacroScope do
       if inBinder then
-        Macro.throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun` or `match`-alternative, and it can often be fixed by adding a missing `do`"
+        Macro.throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`"
       let term := args[1]
       let term ← expandLiftMethodAux inQuot inBinder term
       let auxDoElem ← `(doElem| let a ← $term:term)
@@ -1146,7 +1176,7 @@ private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Synt
       `(a)
     else do
       let inAntiquot := stx.isAntiquot && !stx.isEscapedAntiquot
-      let inBinder   := inBinder || (!inQuot && liftMethodForbiddenBinder k)
+      let inBinder   := inBinder || (!inQuot && liftMethodForbiddenBinder stx)
       let args ← args.mapM (expandLiftMethodAux (inQuot && !inAntiquot || stx.isQuot) inBinder)
       return Syntax.node k args
   | stx => pure stx

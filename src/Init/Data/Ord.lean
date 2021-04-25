@@ -10,7 +10,7 @@ import Init.Data.String
 
 inductive Ordering where
   | lt | eq | gt
-deriving Inhabited
+deriving Inhabited, BEq
 
 
 class Ord (α : Type u) where
@@ -36,4 +36,15 @@ instance : Ord Bool where
   | _, _ => Ordering.eq
 
 instance : Ord String where
+  compare x y := compareOfLessAndEq x y
+
+instance (n : Nat) : Ord (Fin n) where
+  compare x y := compare x.val y.val
+
+def USize.cmp (a b : USize) : Ordering := compare a.val b.val
+
+instance : Ord USize where
+  compare x y := compare x.val y.val
+
+instance : Ord Char where 
   compare x y := compareOfLessAndEq x y

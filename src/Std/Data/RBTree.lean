@@ -7,99 +7,99 @@ import Std.Data.RBMap
 namespace Std
 universes u v w
 
-def RBTree (α : Type u) (lt : α → α → Bool) : Type u :=
-  RBMap α Unit lt
+def RBTree (α : Type u) (cmp : α → α → Ordering) : Type u :=
+  RBMap α Unit cmp
 
 instance : Inhabited (RBTree α p) where
   default := RBMap.empty
 
-@[inline] def mkRBTree (α : Type u) (lt : α → α → Bool) : RBTree α lt :=
-  mkRBMap α Unit lt
+@[inline] def mkRBTree (α : Type u) (cmp : α → α → Ordering) : RBTree α cmp :=
+  mkRBMap α Unit cmp
 
-instance (α : Type u) (lt : α → α → Bool) : EmptyCollection (RBTree α lt) :=
-  ⟨mkRBTree α lt⟩
+instance (α : Type u) (cmp : α → α → Ordering) : EmptyCollection (RBTree α cmp) :=
+  ⟨mkRBTree α cmp⟩
 
 namespace RBTree
-variable {α : Type u} {β : Type v} {lt : α → α → Bool}
+variable {α : Type u} {β : Type v} {cmp : α → α → Ordering}
 
-@[inline] def empty : RBTree α lt :=
+@[inline] def empty : RBTree α cmp :=
   RBMap.empty
 
-@[inline] def depth (f : Nat → Nat → Nat) (t : RBTree α lt) : Nat :=
+@[inline] def depth (f : Nat → Nat → Nat) (t : RBTree α cmp) : Nat :=
   RBMap.depth f t
 
-@[inline] def fold (f : β → α → β) (init : β) (t : RBTree α lt) : β :=
+@[inline] def fold (f : β → α → β) (init : β) (t : RBTree α cmp) : β :=
   RBMap.fold (fun r a _ => f r a) init t
 
-@[inline] def revFold (f : β → α → β) (init : β) (t : RBTree α lt) : β :=
+@[inline] def revFold (f : β → α → β) (init : β) (t : RBTree α cmp) : β :=
   RBMap.revFold (fun r a _ => f r a) init t
 
-@[inline] def foldM {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (t : RBTree α lt) : m β :=
+@[inline] def foldM {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (t : RBTree α cmp) : m β :=
   RBMap.foldM (fun r a _ => f r a) init t
 
-@[inline] def forM {m : Type v → Type w} [Monad m] (f : α → m PUnit) (t : RBTree α lt) : m PUnit :=
+@[inline] def forM {m : Type v → Type w} [Monad m] (f : α → m PUnit) (t : RBTree α cmp) : m PUnit :=
   t.foldM (fun _ a => f a) ⟨⟩
 
-@[inline] protected def forIn [Monad m] (t : RBTree α lt) (init : σ) (f : α → σ → m (ForInStep σ)) : m σ :=
+@[inline] protected def forIn [Monad m] (t : RBTree α cmp) (init : σ) (f : α → σ → m (ForInStep σ)) : m σ :=
   t.val.forIn init (fun a _ acc => f a acc)
 
-instance : ForIn m (RBTree α lt) α where
+instance : ForIn m (RBTree α cmp) α where
   forIn := RBTree.forIn
 
-@[inline] def isEmpty (t : RBTree α lt) : Bool :=
+@[inline] def isEmpty (t : RBTree α cmp) : Bool :=
   RBMap.isEmpty t
 
-@[specialize] def toList (t : RBTree α lt) : List α :=
+@[specialize] def toList (t : RBTree α cmp) : List α :=
   t.revFold (fun as a => a::as) []
 
-@[inline] protected def min (t : RBTree α lt) : Option α :=
+@[inline] protected def min (t : RBTree α cmp) : Option α :=
   match RBMap.min t with
   | some ⟨a, _⟩ => some a
   | none        => none
 
-@[inline] protected def max (t : RBTree α lt) : Option α :=
+@[inline] protected def max (t : RBTree α cmp) : Option α :=
   match RBMap.max t with
   | some ⟨a, _⟩ => some a
   | none        => none
 
-instance [Repr α] : Repr (RBTree α lt) where
+instance [Repr α] : Repr (RBTree α cmp) where
   reprPrec t prec := Repr.addAppParen ("Std.rbtreeOf " ++ repr t.toList) prec
 
-@[inline] def insert (t : RBTree α lt) (a : α) : RBTree α lt :=
+@[inline] def insert (t : RBTree α cmp) (a : α) : RBTree α cmp :=
   RBMap.insert t a ()
 
-@[inline] def erase (t : RBTree α lt) (a : α) : RBTree α lt :=
+@[inline] def erase (t : RBTree α cmp) (a : α) : RBTree α cmp :=
   RBMap.erase t a
 
-@[specialize] def ofList : List α → RBTree α lt
+@[specialize] def ofList : List α → RBTree α cmp
   | []    => mkRBTree ..
   | x::xs => (ofList xs).insert x
 
-@[inline] def find? (t : RBTree α lt) (a : α) : Option α :=
+@[inline] def find? (t : RBTree α cmp) (a : α) : Option α :=
   match RBMap.findCore? t a with
   | some ⟨a, _⟩ => some a
   | none        => none
 
-@[inline] def contains (t : RBTree α lt) (a : α) : Bool :=
+@[inline] def contains (t : RBTree α cmp) (a : α) : Bool :=
   (t.find? a).isSome
 
-def fromList (l : List α) (lt : α → α → Bool) : RBTree α lt :=
-  l.foldl insert (mkRBTree α lt)
+def fromList (l : List α) (cmp : α → α → Ordering) : RBTree α cmp :=
+  l.foldl insert (mkRBTree α cmp)
 
-@[inline] def all (t : RBTree α lt) (p : α → Bool) : Bool :=
+@[inline] def all (t : RBTree α cmp) (p : α → Bool) : Bool :=
   RBMap.all t (fun a _ => p a)
 
-@[inline] def any (t : RBTree α lt) (p : α → Bool) : Bool :=
+@[inline] def any (t : RBTree α cmp) (p : α → Bool) : Bool :=
   RBMap.any t (fun a _ => p a)
 
-def subset (t₁ t₂ : RBTree α lt) : Bool :=
+def subset (t₁ t₂ : RBTree α cmp) : Bool :=
   t₁.all fun a => (t₂.find? a).toBool
 
-def seteq (t₁ t₂ : RBTree α lt) : Bool :=
+def seteq (t₁ t₂ : RBTree α cmp) : Bool :=
   subset t₁ t₂ && subset t₂ t₁
 
 end RBTree
 
-def rbtreeOf {α : Type u} (l : List α) (lt : α → α → Bool) : RBTree α lt :=
-  RBTree.fromList l lt
+def rbtreeOf {α : Type u} (l : List α) (cmp : α → α → Ordering) : RBTree α cmp :=
+  RBTree.fromList l cmp
 end Std

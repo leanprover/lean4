@@ -45,6 +45,7 @@ protected def normalize : JsonNumber → Int × Nat × Int
           break
       (sign, mAbs, -(e : Int) + nDigits)
 
+-- todo (Dany): We should have an Ordering version of this.
 def lt (a b : JsonNumber) : Bool :=
   let (as, am, ae) := a.normalize
   let (bs, bm, be) := b.normalize
@@ -77,6 +78,12 @@ instance : LT JsonNumber :=
 
 instance (a b : JsonNumber) : Decidable (a < b) :=
   inferInstanceAs (Decidable (lt a b = true))
+  
+instance : Ord JsonNumber where
+  compare x y := 
+    if x < y then Ordering.lt 
+    else if x > y then Ordering.gt
+    else Ordering.eq
 
 protected def toString : JsonNumber → String
   | ⟨m, 0⟩ => m.repr
@@ -140,7 +147,7 @@ def mkObj (o : List (String × Json)) : Json :=
   obj $ do
     let mut kvPairs := RBNode.leaf
     for ⟨k, v⟩ in o do
-      kvPairs := kvPairs.insert strLt k v
+      kvPairs := kvPairs.insert compare k v
     kvPairs
 
 instance : Coe Nat Json := ⟨fun n => Json.num n⟩
@@ -181,7 +188,7 @@ def getNum? : Json → Option JsonNumber
   | _     => none
 
 def getObjVal? : Json → String → Option Json
-  | obj kvs, k => kvs.find strLt k
+  | obj kvs, k => kvs.find compare k
   | _      , _ => none
 
 def getArrVal? : Json → Nat → Option Json
@@ -192,7 +199,7 @@ def getObjValD (j : Json) (k : String) : Json :=
   (j.getObjVal? k).getD null
 
 def setObjVal! : Json → String → Json → Json
-  | obj kvs, k, v => obj <| kvs.insert strLt k v
+  | obj kvs, k, v => obj <| kvs.insert compare k v
   | j      , _, _ => panic! "Json.setObjVal!: not an object: {j}"
 
 inductive Structured where

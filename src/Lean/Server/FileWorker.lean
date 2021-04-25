@@ -150,7 +150,7 @@ section Elab
 end Elab
 
 -- Pending requests are tracked so they can be cancelled
-abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) (fun a b => Decidable.decide (a < b))
+abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) compare
 
 structure ServerContext where
   hIn                : FS.Stream

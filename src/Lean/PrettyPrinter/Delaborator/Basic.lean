@@ -165,7 +165,7 @@ def getPPUnicode (o : Options) : Bool := o.get `pp.unicode true
 def getPPSafeShadowing (o : Options) : Bool := o.get `pp.safe_shadowing true
 
 /-- Associate pretty printer options to a specific subterm using a synthetic position. -/
-abbrev OptionsPerPos := Std.RBMap Nat Options (fun a b => a < b)
+abbrev OptionsPerPos := Std.RBMap Nat Options compare
 
 namespace PrettyPrinter
 namespace Delaborator

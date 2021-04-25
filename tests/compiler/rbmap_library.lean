@@ -4,14 +4,14 @@ open Std
 def check (b : Bool) : IO Unit := do
 unless b do IO.println "ERROR"
 
-def sz {α β : Type} {lt : α → α → Bool} (m : RBMap α β lt) : Nat :=
+def sz {α β : Type} {cmp : α → α → Ordering} (m : RBMap α β cmp) : Nat :=
 m.fold (fun sz _ _ => sz+1) 0
 
-def depth {α β : Type} {lt : α → α → Bool} (m : RBMap α β lt) : Nat :=
+def depth {α β : Type} {cmp : α → α → Ordering} (m : RBMap α β cmp) : Nat :=
 m.depth Nat.max
 
 def tst1 : IO Unit :=
-do let Map := RBMap String Nat (fun a b => a < b)
+do let Map := RBMap String Nat compare
    let m : Map := {}
    let m := m.insert "hello" 0
    let m := m.insert "world" 1
@@ -23,7 +23,7 @@ do let Map := RBMap String Nat (fun a b => a < b)
    pure ()
 
 def tst2 : IO Unit :=
-do let Map := RBMap Nat Nat (fun a b => a < b)
+do let Map := RBMap Nat Nat compare
    let m : Map := {}
    let n : Nat := 10000
    let mut m := n.fold (fun i (m : Map) => m.insert i (i*10)) m
@@ -37,7 +37,7 @@ do let Map := RBMap Nat Nat (fun a b => a < b)
    IO.println (">> " ++ toString (depth m) ++ ", " ++ toString (sz m))
    pure ()
 
-abbrev Map := RBMap Nat Nat (fun a b => a < b)
+abbrev Map := RBMap Nat Nat compare
 
 def mkRandMap (max : Nat) : Nat → Map → Array (Nat × Nat) → IO (Map × Array (Nat × Nat))
 | 0,     m, a => pure (m, a)

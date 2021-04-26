@@ -8,5 +8,5 @@ inductive Pos : Expr → Prop
   | add  : Pos e₁ → Pos e₂ → Pos (Expr.add e₁ e₂)
   | fn   : ((n : Nat) → Pos (f n)) → Pos (Expr.fn f)
 
-#print PosProofBelow
+#print Pos.below
 #print Pos.brecOn

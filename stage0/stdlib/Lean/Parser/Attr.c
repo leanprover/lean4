@@ -41,6 +41,7 @@ lean_object* l_Lean_Parser_Attr_macro___closed__7;
 lean_object* l_Lean_Parser_Attr_export___closed__3;
 lean_object* l_Lean_Parser_Attr_macro___closed__8;
 lean_object* l_Lean_Parser_Attr_extern___elambda__1___closed__12;
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_711____at_Lean_Parser_ParserState_hasError___spec__1(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_Attr_instance_formatter(lean_object*);
 lean_object* l_Lean_Parser_many(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -436,7 +437,6 @@ extern lean_object* l_Lean_Attribute_Builtin_getId___closed__4;
 lean_object* l_Lean_Parser_Attr_instance_formatter___closed__3;
 lean_object* l_Lean_Parser_Attr_instance___elambda__1___closed__9;
 lean_object* l_Lean_Parser_Attr_defaultInstance___elambda__1___closed__1;
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_713____at_Lean_Parser_ParserState_hasError___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Attr_instance___closed__8;
 lean_object* l_Lean_Parser_Attr_recursor_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Attr_extern_formatter___closed__7;
@@ -736,7 +736,7 @@ x_4 = l_Lean_Parser_checkPrecFn(x_3, x_1, x_2);
 x_5 = lean_ctor_get(x_4, 4);
 lean_inc(x_5);
 x_6 = lean_box(0);
-x_7 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_713____at_Lean_Parser_ParserState_hasError___spec__1(x_5, x_6);
+x_7 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_711____at_Lean_Parser_ParserState_hasError___spec__1(x_5, x_6);
 lean_dec(x_5);
 if (x_7 == 0)
 {

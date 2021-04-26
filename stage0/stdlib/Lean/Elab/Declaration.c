@@ -175,8 +175,8 @@ extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5684____closed__22
 lean_object* l_Lean_Elab_Command_elabAxiom___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_namespace___elambda__1___closed__2;
 lean_object* l___regBuiltin_Lean_Elab_Command_expandMutualPreamble(lean_object*);
-extern lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_897____closed__2;
 lean_object* l_Lean_Elab_Command_expandInitCmd___closed__10;
+extern lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_895____closed__2;
 extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2973____closed__16;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_elabAttr___spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_609____closed__2;
@@ -8889,7 +8889,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Elab_macroAttribute;
-x_3 = l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_897____closed__2;
+x_3 = l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_895____closed__2;
 x_4 = l___regBuiltin_Lean_Elab_Command_expandBuiltinInitialize___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;

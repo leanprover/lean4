@@ -60,7 +60,7 @@ lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Hashable_mkMatch_mkA
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_13978____closed__6;
 lean_object* l_Lean_Elab_Deriving_Hashable_mkAuxFunction___closed__5;
 lean_object* l_Lean_Elab_Deriving_Hashable_mkHashFuncs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_948____closed__4;
+extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_947____closed__4;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Deriving_Hashable_mkHashableHandler___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_mkDiscrs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts_match__2___rarg(lean_object*, lean_object*);
@@ -715,7 +715,7 @@ x_38 = l_Lean_Expr_getAppFn(x_36);
 lean_dec(x_36);
 x_39 = l_Lean_Expr_constName_x21(x_38);
 lean_dec(x_38);
-x_40 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_948____closed__4;
+x_40 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_947____closed__4;
 x_41 = l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(x_40, x_14, x_15, x_37);
 x_42 = lean_ctor_get(x_41, 0);
 lean_inc(x_42);

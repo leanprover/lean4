@@ -945,10 +945,12 @@ def withExistingLocalDecls (decls : List LocalDecl) : n α → n α :=
   mapMetaM <| withExistingLocalDeclsImp decls
 
 private def withNewMCtxDepthImp (x : MetaM α) : MetaM α := do
-  let s ← get
-  let savedMCtx  := s.mctx
-  modifyMCtx fun mctx => mctx.incDepth
-  try x finally setMCtx savedMCtx
+  let saved ← get
+  modify fun s => { s with mctx := s.mctx.incDepth, postponed := {} }
+  try
+    x
+  finally
+    modify fun s => { s with mctx := saved.mctx, postponed := saved.postponed }
 
 /--
   Save cache and `MetavarContext`, bump the `MetavarContext` depth, execute `x`,

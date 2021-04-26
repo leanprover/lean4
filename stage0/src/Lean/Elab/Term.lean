@@ -1653,7 +1653,7 @@ where
         let p (u : Level) := u.any fun | Level.mvar m _ => s.contains m | _ => false
         let lhs := exposeRelevantUniverses (← instantiateMVars ctx.lhs) p
         let rhs := exposeRelevantUniverses (← instantiateMVars ctx.rhs) p
-        addMessageContext m!"stuck at solving universe constraints{indentD m!"{entry.lhs} =?= {entry.rhs}"}\nwhile trying to unify{indentExpr lhs}\nwith{indentExpr rhs}"
+        addMessageContext m!"stuck at solving universe constraints{indentD m!"{entry.lhs} =?= {entry.rhs}"}\nwhile trying to unify{indentD m!"{lhs} : {← inferType lhs}"}\nwith{indentD m!"{rhs} : {← inferType rhs}"}"
 
 @[specialize] def withoutPostponingUniverseConstraints (x : TermElabM α) : TermElabM α := do
   let postponed ← getResetPostponed

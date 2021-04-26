@@ -7,7 +7,7 @@ def typeOf {α : Sort u} (a : α) := α
 
 theorem LE_brecOn : typeOf @LE.brecOn = 
 ∀ {motive : (a a_1 : Nat) → LE a a_1 → Prop} {a a_1 : Nat} (x : LE a a_1),
-  (∀ (a a_2 : Nat) (x : LE a a_2), @LEProofBelow motive a a_2 x → motive a a_2 x) → motive a a_1 x := rfl
+  (∀ (a a_2 : Nat) (x : LE a a_2), @LE.below motive a a_2 x → motive a a_2 x) → motive a a_1 x := rfl
 
 theorem LE.trans : LE m n → LE n o → LE m o := by
   intro h1 h2
@@ -24,7 +24,7 @@ inductive Even : Nat → Prop
   | ss   : Even n → Even n.succ.succ
 
 theorem Even_brecOn : typeOf @Even.brecOn = ∀ {motive : (a : Nat) → Even a → Prop} {a : Nat} (x : Even a),
-  (∀ (a : Nat) (x : Even a), @EvenProofBelow motive a x → motive a x) → motive a x := rfl
+  (∀ (a : Nat) (x : Even a), @Even.below motive a x → motive a x) → motive a x := rfl
 
 theorem Even.add : Even n → Even m → Even (n+m) := by
   intro h1 h2
@@ -44,7 +44,7 @@ inductive Power2 : Nat → Prop
   | ind  : Power2 n → Power2 (2*n) -- Note that index here is not a constructor
   
 theorem Power2_brecOn : typeOf @Power2.brecOn = ∀ {motive : (a : Nat) → Power2 a → Prop} {a : Nat} (x : Power2 a),
-  (∀ (a : Nat) (x : Power2 a), @Power2ProofBelow motive a x → motive a x) → motive a x := rfl
+  (∀ (a : Nat) (x : Power2 a), @Power2.below motive a x → motive a x) → motive a x := rfl
 
 theorem Power2.mul : Power2 n → Power2 m → Power2 (n*m) := by
   intro h1 h2
@@ -82,11 +82,11 @@ def deterministic {X : Type} (R : X → X → Prop) :=
 theorem step_deterministic' : deterministic step := λ x y₁ y₂ hy₁ hy₂ => 
   @step.brecOn (λ s t st => ∀ y₂, s ==> y₂ → t = y₂) _ _ hy₁ (λ s t st hy₁ y₂ hy₂ => 
     match hy₁, hy₂ with
-    | stepProofBelow.ST_PlusConstConst _ _, step.ST_PlusConstConst _ _ => rfl
-    | stepProofBelow.ST_Plus1 _ _ _ _ hy₁ ih, step.ST_Plus1 _ t₁' _ _ => by rw ←ih t₁'; assumption
-    | stepProofBelow.ST_Plus1 _ _ _ _ hy₁ ih, step.ST_Plus2 _ _ _ _ => by cases hy₁
-    | stepProofBelow.ST_Plus2 _ _ _ _ _ ih, step.ST_Plus2 _ _ t₂ _ => by rw ←ih t₂; assumption
-    | stepProofBelow.ST_Plus2 _ _ _ _ hy₁ _, step.ST_PlusConstConst _ _ => by cases hy₁
+    | step.below.ST_PlusConstConst _ _, step.ST_PlusConstConst _ _ => rfl
+    | step.below.ST_Plus1 _ _ _ _ hy₁ ih, step.ST_Plus1 _ t₁' _ _ => by rw ←ih t₁'; assumption
+    | step.below.ST_Plus1 _ _ _ _ hy₁ ih, step.ST_Plus2 _ _ _ _ => by cases hy₁
+    | step.below.ST_Plus2 _ _ _ _ _ ih, step.ST_Plus2 _ _ t₂ _ => by rw ←ih t₂; assumption
+    | step.below.ST_Plus2 _ _ _ _ hy₁ _, step.ST_PlusConstConst _ _ => by cases hy₁
     ) y₂ hy₂ 
 
 section NestedRecursion
@@ -111,9 +111,9 @@ axiom FS {n : Nat} : P n → P (f (f n))
 theorem foo' : ∀ {n}, is_nat n → P n := fun h => 
   @is_nat.brecOn (fun n hn => P n) _ h fun n h ih => 
   match ih with
-  | is_natProofBelow.Z => F0 
-  | is_natProofBelow.S _ is_natProofBelow.Z _ => F1
-  | is_natProofBelow.S _ (is_natProofBelow.S a b hx) h₂ => FS hx
+  | is_nat.below.Z => F0 
+  | is_nat.below.S _ is_nat.below.Z _ => F1
+  | is_nat.below.S _ (is_nat.below.S a b hx) h₂ => FS hx
 
 end NestedRecursion
 

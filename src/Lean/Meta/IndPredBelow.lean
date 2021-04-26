@@ -8,23 +8,21 @@ import Lean.Util.Constructions
 import Lean.Meta.Transform
 import Lean.Meta.Tactic
 
-namespace Lean.Meta
-
-namespace ProofBelow
+namespace Lean.Meta.IndPredBelow
 
 /--
-  The context used in the creation of the `ProofBelow` scheme for inductive predicates.
+  The context used in the creation of the `below` scheme for inductive predicates.
 -/  
 structure Context where
   motives : Array (Name × Expr)
   typeInfos : Array InductiveVal
-  proofBelowNames : Array Name
+  belowNames : Array Name
   headers : Array Expr
   numParams : Nat
 
 /--
   Collection of variables used to keep track of the positions of binders in the construction
-  of `ProofBelow` motives and constructors.
+  of `below` motives and constructors.
 -/
 structure Variables where
   target : Array Expr
@@ -57,7 +55,7 @@ def mkContext (declName : Name) : MetaM Context := do
     typeInfos := typeInfos
     numParams := indVal.numParams
     headers := ←headers
-    proofBelowNames := ←indVal.all.toArray.mapM (·.appendAfter "ProofBelow") }
+    belowNames := ←indVal.all.toArray.map (· ++ `below) }
 where 
   motiveName (motiveTypes : Array Expr) (i : Nat) : MetaM Name := 
     if motiveTypes.size > 1 
@@ -89,7 +87,7 @@ where
     
 partial def mkCtorType 
     (ctx : Context) 
-    (proofBelowIdx : Nat) 
+    (belowIdx : Nat) 
     (originalCtor : ConstructorVal) : MetaM Expr := 
   forallTelescope originalCtor.type fun xs t => addHeaderVars 
     { innerType := t
@@ -101,7 +99,7 @@ partial def mkCtorType
 where
   addHeaderVars (vars : Variables) := do
     let headersWithNames ← ctx.headers.mapIdxM fun idx header =>
-      (ctx.proofBelowNames[idx], fun _ => pure header)
+      (ctx.belowNames[idx], fun _ => pure header)
 
     withLocalDeclsD headersWithNames fun xs =>
       addMotives { vars with indVal := xs } 
@@ -118,7 +116,7 @@ where
       let binder := vars.args[i]
       let binderType ←inferType binder
       if ←checkCount binderType then
-        mkProofBelowBinder vars binder binderType fun indValIdx x =>
+        mkBelowBinder vars binder binderType fun indValIdx x =>
           mkMotiveBinder vars indValIdx binder binderType fun y =>
             modifyBinders { vars with target := vars.target ++ #[binder, x, y]} i.succ
       else modifyBinders { vars with target := vars.target.push binder } i.succ
@@ -130,7 +128,7 @@ where
         mkAppN 
           (mkConst originalCtor.name $ ctx.typeInfos[0].levelParams.map mkLevelParam)
           (vars.params ++ vars.args)
-      let innerType := mkAppN vars.indVal[proofBelowIdx] $
+      let innerType := mkAppN vars.indVal[belowIdx] $
         vars.params ++ vars.motives ++ args[ctx.numParams:] ++ #[hApp]
       let x ← mkForallFVars vars.target innerType 
       replaceTempVars vars x
@@ -139,7 +137,7 @@ where
     let levelParams := 
       ctx.typeInfos[0].levelParams.map mkLevelParam
 
-    ctor.replaceFVars vars.indVal $ ctx.proofBelowNames.map fun indVal =>
+    ctor.replaceFVars vars.indVal $ ctx.belowNames.map fun indVal =>
       mkConst indVal levelParams
   
   checkCount (domain : Expr) : MetaM Bool := do
@@ -156,7 +154,7 @@ where
     
     return cnt == 1
   
-  mkProofBelowBinder 
+  mkBelowBinder 
       (vars : Variables) 
       (binder : Expr) 
       (domain : Expr) 
@@ -200,7 +198,7 @@ where
 
 def mkConstructor (ctx : Context) (i : Nat) (ctor : Name) : MetaM Constructor := do
   let ctorInfo ← getConstInfoCtor ctor
-  let name := ctor.updatePrefix ctx.proofBelowNames[i]
+  let name := ctor.updatePrefix ctx.belowNames[i]
   let type ← mkCtorType ctx i ctorInfo
   return { 
     name := name
@@ -211,11 +209,11 @@ def mkInductiveType
     (i : Fin ctx.typeInfos.size) 
     (indVal : InductiveVal) : MetaM InductiveType := do
   return {
-    name := ctx.proofBelowNames[i]
+    name := ctx.belowNames[i]
     type := ctx.headers[i]
     ctors := ←indVal.ctors.mapM (mkConstructor ctx i) }
 
-def mkProofBelowDecl (ctx : Context) : MetaM Declaration := do
+def mkBelowDecl (ctx : Context) : MetaM Declaration := do
   let lparams := ctx.typeInfos[0].levelParams
   Declaration.inductDecl 
     lparams 
@@ -254,7 +252,7 @@ where
     let motives ← ctx.motives.mapIdxM fun idx (_, motive) => do
       let motive ← instantiateForall motive params
       forallTelescope motive fun xs _ => do
-      mkLambdaFVars xs $ mkAppN (mkConst ctx.proofBelowNames[idx] levelParams) $ (params ++ motives ++ xs)
+      mkLambdaFVars xs $ mkAppN (mkConst ctx.belowNames[idx] levelParams) $ (params ++ motives ++ xs)
     withMVarContext m do
     let recursorInfo ← getConstInfo $ mkRecName indVal.name
     let recLevels := 
@@ -267,11 +265,11 @@ where
   applyCtors (ms : List MVarId) : MetaM $ List MVarId := do
     let mss ← ms.toArray.mapIdxM fun idx m => do
       let m ← introNPRec m 
-      (←getMVarType m).withApp fun proofBelow args =>
+      (←getMVarType m).withApp fun below args =>
       args.back.withApp fun ctor args =>
-      let ctor := ctor.constName!.updatePrefix proofBelow.constName!
+      let ctor := ctor.constName!.updatePrefix below.constName!
       withMVarContext m do
-      let ctor := mkConst ctor proofBelow.constLevels!
+      let ctor := mkConst ctor below.constLevels!
       apply m ctor 
     return mss.foldr List.append []
 
@@ -334,32 +332,31 @@ where
         let args := params ++ motives ++ ys
         let premise :=
           mkAppN 
-            (mkConst ctx.proofBelowNames[idx.val] levels) args
+            (mkConst ctx.belowNames[idx.val] levels) args
         let conclusion :=
           mkAppN motives[idx] ys
         mkForallFVars ys (←mkArrow premise conclusion)
     (←name, mkDomain)
 
-end ProofBelow
 
-def mkProofBelow (declName : Name) : MetaM Unit := do
+def mkBelow (declName : Name) : MetaM Unit := do
   if (←isInductivePredicate declName) then
     let x ← getConstInfoInduct declName
     if x.isRec then
-      let ctx ← ProofBelow.mkContext declName
-      let decl ← ProofBelow.mkProofBelowDecl ctx
+      let ctx ← IndPredBelow.mkContext declName
+      let decl ← IndPredBelow.mkBelowDecl ctx
       addDecl decl
-      trace[Meta.ProofBelow] "added {ctx.proofBelowNames}"
-      ctx.proofBelowNames.forM Lean.mkCasesOn
+      trace[Meta.IndPredBelow] "added {ctx.belowNames}"
+      ctx.belowNames.forM Lean.mkCasesOn
       for i in [:ctx.typeInfos.size] do
         try
-          let decl ← ProofBelow.mkBrecOnDecl ctx i
+          let decl ← IndPredBelow.mkBrecOnDecl ctx i
           addDecl decl
-        catch e => trace[Meta.ProofBelow] "failed to prove brecOn for {ctx.proofBelowNames[i]}\n{e.toMessageData}"
-    else trace[Meta.ProofBelow] "Not recursive"
-  else trace[Meta.ProofBelow] "Not inductive predicate"
+        catch e => trace[Meta.IndPredBelow] "failed to prove brecOn for {ctx.belowNames[i]}\n{e.toMessageData}"
+    else trace[Meta.IndPredBelow] "Not recursive"
+  else trace[Meta.IndPredBelow] "Not inductive predicate"
 
 builtin_initialize
-  registerTraceClass `Meta.ProofBelow
+  registerTraceClass `Meta.IndPredBelow
 
-end Lean.Meta
+end Lean.Meta.IndPredBelow

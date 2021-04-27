@@ -1105,7 +1105,7 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
       (do let newStx ← adaptMacro (getMacros env) stx; pure (some newStx))
       (fun _ => pure none)
     match stxNew? with
-    | some stxNew => withMacroExpansion stx stxNew $ elabTermAux expectedType? catchExPostpone implicitLambda stxNew
+    | some stxNew => withMacroExpansion stx stxNew <| withRef stxNew <| elabTermAux expectedType? catchExPostpone implicitLambda stxNew
     | _ =>
       let implicit? ← if implicitLambda && (← read).implicitLambda then useImplicitLambda? stx expectedType? else pure none
       match implicit? with

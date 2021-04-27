@@ -17,6 +17,7 @@ infixl:65   " + " => HAdd.hAdd  -- left-associative
 infix:50    " = " => Eq         -- non-associative
 infixr:80   " ^ " => HPow.hPow  -- right-associative
 prefix:100  "-"   => Neg.neg
+# set_option quotPrecheck false
 postfix:max "⁻¹"  => Inv.inv
 ```
 
@@ -30,6 +31,7 @@ notation:65 lhs:65 " + " rhs:66 => HAdd.hAdd lhs rhs
 notation:50 lhs:51 " = " rhs:51 => Eq lhs rhs
 notation:80 lhs:81 " ^ " rhs:80 => HPow.hPow lhs rhs
 notation:100 "-" arg:100 => Neg.neg arg
+# set_option quotPrecheck false
 notation:1024 arg:1024 "⁻¹" => Inv.inv arg  -- `max` is a shorthand for precedence 1024
 ```
 
@@ -41,6 +43,7 @@ Thus the string `a + b + c` cannot be parsed as the equivalent of `a + (b + c)` 
 In contrast, `infixr` reuses the notation's precedence for the right-hand side operand, so `a ^ b ^ c` *can* be parsed as `a ^ (b ^ c)`.
 Note that if we used `notation` directly to introduce an infix notation like
 ```lean
+# set_option quotPrecheck false
 notation:65 lhs:65 " ~ " rhs:65 => wobble lhs rhs
 ```
 where the precedences do not sufficiently determine associativity, Lean's parser will default to right associativity.
@@ -49,6 +52,7 @@ Thus the term is equivalent to `a ~ (b ~ c)`.
 
 As mentioned above, the `notation` command allows us to define arbitrary *mixfix* syntax freely mixing tokens and placeholders.
 ```lean
+# set_option quotPrecheck false
 notation:max "(" e ")" => e
 notation:10 Γ " ⊢ " e " : " τ => Typing Γ e τ
 ```

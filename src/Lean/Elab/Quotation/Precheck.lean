@@ -25,13 +25,22 @@ protected def withNewLocal (l : Name) (x : PrecheckM α) : PrecheckM α :=
 protected def withNewLocals (ls : Array Name) (x : PrecheckM α) : PrecheckM α :=
   withReader (fun ctx => { ctx with quotLCtx := ls.foldl NameSet.insert ctx.quotLCtx }) x
 
+register_builtin_option quotPrecheck : Bool := {
+  defValue := true
+  descr    := "Enable eager name analysis on notations in order to find unbound identifiers early.
+Note that type-sensitive syntax (\"elaborators\") needs special support for this kind of check, so it might need to be turned off when using such syntax."
+}
+
 unsafe def mkPrecheckAttribute : IO (KeyedDeclsAttribute Precheck) :=
   KeyedDeclsAttribute.init {
     builtinName := `builtinQuotPrecheck,
     name := `quotPrecheck,
-    descr    := "Register a double backtick syntax quotation precheck.
+    descr    := "Register a double backtick syntax quotation pre-check.
 
-  [quotPrecheck k] registers a declaration of type `Lean.Elab.Term.Quotation.Precheck` for the `SyntaxNodeKind` `k`.",
+[quotPrecheck k] registers a declaration of type `Lean.Elab.Term.Quotation.Precheck` for the `SyntaxNodeKind` `k`.
+It should implement eager name analysis on the passed syntax by throwing an exception on unbound identifiers,
+and calling `precheck` recursively on nested terms, potentially with an extended local context (`withNewLocal`).
+Macros without registered precheck hook are unfolded, and identifier-less syntax is ultimately assumed to be well-formed.",
     valueTypeName := ``Precheck
   } `Lean.Elab.Term.Quotation.precheckAttribute
 @[builtinInit mkPrecheckAttribute] constant precheckAttribute : KeyedDeclsAttribute Precheck
@@ -47,7 +56,8 @@ partial def precheck : Precheck := fun stx => do
   if let some stx' ← liftMacroM <| Macro.expandMacro? stx then
     precheck stx'
     return
-  throwErrorAt stx "no macro or precheck hook for syntax kind '{stx.getKind}' found{indentD stx}"
+  throwErrorAt stx "no macro or `[quotPrecheck]` instance for syntax kind '{stx.getKind}' found{indentD stx}
+This means we cannot eagerly check your notation/quotation for unbound identifiers; you can use `set_option quotPrecheck false` to disable this check."
 where
   hasIdent stx := do
     for stx in stx.topDown do
@@ -56,7 +66,8 @@ where
     return false
 
 def runPrecheck (stx : Syntax) : TermElabM Unit := do
-  if hygiene.get (← getOptions) then
+  let opts ← getOptions
+  if quotPrecheck.get opts && hygiene.get opts then
     precheck stx |>.run { quotLCtx := {} }
 
 @[builtinQuotPrecheck ident] def precheckIdent : Precheck

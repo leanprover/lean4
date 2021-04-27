@@ -485,7 +485,7 @@ private def expandNotationAux (ref : Syntax)
   let fullName := currNamespace ++ name
   let pat := Syntax.node fullName patArgs
   let stxDecl ← `($attrKind:attrKind syntax $[: $prec?]? (name := $(mkIdent name)) (priority := $(quote prio):numLit) $[$syntaxParts]* : $cat)
-  let macroDecl ← `(macro_rules | `($pat) => `($qrhs))
+  let macroDecl ← `(macro_rules | `($pat) => ``($qrhs))
   match (← mkSimpleDelab attrKind vars pat qrhs |>.run) with
   | some delabDecl => mkNullNode #[stxDecl, macroDecl, delabDecl]
   | none           => mkNullNode #[stxDecl, macroDecl]

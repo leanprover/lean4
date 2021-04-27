@@ -1,2 +1,2 @@
-277a.lean:3:7-3:15: error: unknown identifier 'nonexistant✝'
-277a.lean:3:0-3:25: error: cannot evaluate code because it uses 'sorry' and/or contains errors
+277a.lean:4:7-4:15: error: unknown identifier 'nonexistant'
+277a.lean:4:0-4:25: error: cannot evaluate code because it uses 'sorry' and/or contains errors

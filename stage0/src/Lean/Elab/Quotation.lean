@@ -18,11 +18,6 @@ open Lean.Parser.Term
 open Lean.Syntax
 open Meta
 
-register_builtin_option hygiene : Bool := {
-  defValue := true
-  descr    := "Annotate identifiers in quotations such that they are resolved relative to the scope at their declaration, not that at their eventual use/expansion, to avoid accidental capturing. Note that quotations/notations already defined are unaffected."
-}
-
 /-- `C[$(e)]` ~> `let a := e; C[$a]`. Used in the implementation of antiquot splices. -/
 private partial def floatOutAntiquotTerms : Syntax → StateT (Syntax → TermElabM Syntax) TermElabM Syntax
   | stx@(Syntax.node k args) => do

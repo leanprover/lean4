@@ -527,14 +527,14 @@ def levelMVarToParam' (e : Expr) : StateRefT Nat TermElabM Expr := do
 /--
   Auxiliary method for creating fresh binder names.
   Do not confuse with the method for creating fresh free/meta variable ids. -/
-def mkFreshBinderName : TermElabM Name :=
+def mkFreshBinderName [Monad m] [MonadQuotation m] : m Name :=
   withFreshMacroScope $ MonadQuotation.addMacroScope `x
 
 /--
   Auxiliary method for creating a `Syntax.ident` containing
   a fresh name. This method is intended for creating fresh binder names.
   It is just a thin layer on top of `mkFreshUserName`. -/
-def mkFreshIdent (ref : Syntax) : TermElabM Syntax :=
+def mkFreshIdent [Monad m] [MonadQuotation m] (ref : Syntax) : m Syntax :=
   return mkIdentFrom ref (← mkFreshBinderName)
 
 private def applyAttributesCore
@@ -1105,7 +1105,7 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
       (do let newStx ← adaptMacro (getMacros env) stx; pure (some newStx))
       (fun _ => pure none)
     match stxNew? with
-    | some stxNew => withMacroExpansion stx stxNew $ elabTermAux expectedType? catchExPostpone implicitLambda stxNew
+    | some stxNew => withMacroExpansion stx stxNew <| withRef stxNew <| elabTermAux expectedType? catchExPostpone implicitLambda stxNew
     | _ =>
       let implicit? ← if implicitLambda && (← read).implicitLambda then useImplicitLambda? stx expectedType? else pure none
       match implicit? with

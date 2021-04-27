@@ -561,11 +561,6 @@ def concat (terminal : CodeBlock) (kRef : Syntax) (y? : Option Name) (k : CodeBl
 def getLetIdDeclVar (letIdDecl : Syntax) : Name :=
   letIdDecl[0].getId
 
-def getPatternVarNames (pvars : Array PatternVar) : Array Name :=
-  pvars.filterMap fun
-    | PatternVar.localVar x => some x
-    | _ => none
-
 -- support both regular and syntax match
 def getPatternVarsEx (pattern : Syntax) : TermElabM (Array Name) :=
   getPatternVarNames <$> getPatternVars pattern <|>

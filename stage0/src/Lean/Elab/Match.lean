@@ -376,16 +376,7 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
         let arg := arg.setArg 0 t
         return stx.setArg 1 arg
       else
-        -- Tuple literal is a constructor
-        let t ← collect t
-        let arg := arg.setArg 0 t
-        let tupleTail := s[0]
-        let tupleTailElems := tupleTail[1].getArgs
-        let tupleTailElems ← tupleTailElems.mapSepElemsM collect
-        let tupleTail := tupleTail.setArg 1 <| mkNullNode tupleTailElems
-        let s         := s.setArg 0 tupleTail
-        let arg       := arg.setArg 1 s
-        return stx.setArg 1 arg
+        return stx
   else if k == ``Lean.Parser.Term.explicitUniv then
     processCtor stx[0]
   else if k == ``Lean.Parser.Term.namedPattern then
@@ -521,7 +512,7 @@ private def collectPatternVars (alt : MatchAltView) : TermElabM (Array PatternVa
   return (s.vars, alt)
 
 /- Return the pattern variables in the given pattern.
-  Remark: this method is not used here, but in other macros (e.g., at `Do.lean`). -/
+   Remark: this method is not used by the main `match` elaborator, but in the precheck hook and other macros (e.g., at `Do.lean`). -/
 def getPatternVars (patternStx : Syntax) : TermElabM (Array PatternVar) := do
   let patternStx ← liftMacroM <| expandMacros patternStx
   let (_, s) ← (CollectPatternVars.collect patternStx).run {}
@@ -533,6 +524,24 @@ def getPatternsVars (patterns : Array Syntax) : TermElabM (Array PatternVar) := 
       discard <| CollectPatternVars.collect (← liftMacroM <| expandMacros pattern)
   let (_, s) ← collect.run {}
   return s.vars
+
+def getPatternVarNames (pvars : Array PatternVar) : Array Name :=
+  pvars.filterMap fun
+    | PatternVar.localVar x => some x
+    | _ => none
+
+open Lean.Elab.Term.Quotation in
+@[builtinQuotPrecheck Lean.Parser.Term.match] def precheckMatch : Precheck
+  | `(match $[$discrs:term],* with $[| $[$patss],* => $rhss]*) => do
+    discrs.forM precheck
+    for (pats, rhs) in patss.zip rhss do
+      let vars ←
+        try
+          getPatternsVars pats
+        catch
+          | _ => return  -- can happen in case of pattern antiquotations
+      Quotation.withNewLocals (getPatternVarNames vars) <| precheck rhs
+  | _ => throwUnsupportedSyntax
 
 /- We convert the collected `PatternVar`s intro `PatternVarDecl` -/
 inductive PatternVarDecl where

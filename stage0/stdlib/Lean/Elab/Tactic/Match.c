@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
+extern lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_9257____closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalMatch(lean_object*);
 size_t l_USize_add(size_t, size_t);
 extern lean_object* l_Lean_Parser_Tactic_eraseAuxDiscrs___elambda__1___closed__2;
@@ -89,7 +90,6 @@ lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_Match_0__Lea
 lean_object* l_List_forIn_loop___at_Lean_Elab_Tactic_evalEraseAuxDiscrs___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_setKind(lean_object*, lean_object*);
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_8556____closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__1;
 extern lean_object* l___private_Lean_Elab_Tactic_Basic_0__Lean_Elab_Tactic_sortFVarIds___closed__1;
 extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19003____closed__5;
@@ -1593,7 +1593,7 @@ lean_dec(x_277);
 x_316 = lean_ctor_get(x_6, 0);
 lean_inc(x_316);
 lean_dec(x_6);
-x_317 = l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_8556____closed__1;
+x_317 = l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_9257____closed__1;
 x_318 = l_Lean_Name_appendIndexAfter(x_317, x_316);
 x_319 = l_Lean_Name_append(x_1, x_318);
 x_320 = l_Lean_mkIdentFrom(x_30, x_319);

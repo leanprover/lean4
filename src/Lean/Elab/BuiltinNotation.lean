@@ -230,7 +230,7 @@ where
     match ← expandCDot? e with
     | some e => `(($e : $type))
     | none   => Macro.throwUnsupported
-  | `(($e))         => do return (← expandCDot? e).getD e
+  | `(($e))         => return (← expandCDot? e).getD e
   | `(($e, $es,*))  => do
     let pairs ← mkPairs (#[e] ++ es)
     (← expandCDot? pairs).getD pairs
@@ -240,7 +240,7 @@ where
   match stx with
   | `(($e : $type)) =>
     let type ← withSynthesize (mayPostpone := true) <| elabType type
-    let e ← elabTerm e expectedType?
+    let e ← elabTerm e type
     ensureHasType type e
   | _ => throwUnsupportedSyntax
 

@@ -97,3 +97,11 @@ open Parser.Term
   match Syntax.setHeadInfo (← `(fun x =>%$(Syntax.atom (SourceInfo.synthetic 2 2) "") x)) (SourceInfo.synthetic 1 1) with
   | `(fun%$i1 $x =>%$i2 $y) => pure #[i1.getPos?, i2.getPos?]
   | _ => unreachable!
+
+#eval run ``(x)
+#eval run ``(id)
+#eval run ``(pure)
+#eval run ``(fun x => x)
+#eval run ``(fun x => y)
+#eval run ``(fun x y => x y)
+#eval run ``(fun ⟨x, y⟩ => x)

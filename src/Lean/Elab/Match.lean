@@ -376,16 +376,7 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
         let arg := arg.setArg 0 t
         return stx.setArg 1 arg
       else
-        -- Tuple literal is a constructor
-        let t ← collect t
-        let arg := arg.setArg 0 t
-        let tupleTail := s[0]
-        let tupleTailElems := tupleTail[1].getArgs
-        let tupleTailElems ← tupleTailElems.mapSepElemsM collect
-        let tupleTail := tupleTail.setArg 1 <| mkNullNode tupleTailElems
-        let s         := s.setArg 0 tupleTail
-        let arg       := arg.setArg 1 s
-        return stx.setArg 1 arg
+        return stx
   else if k == ``Lean.Parser.Term.explicitUniv then
     processCtor stx[0]
   else if k == ``Lean.Parser.Term.namedPattern then

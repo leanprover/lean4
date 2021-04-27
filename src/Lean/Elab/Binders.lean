@@ -216,8 +216,8 @@ def elabBinders {α} (binders : Array Syntax) (k : Array Expr → TermElabM α) 
 /--
   Auxiliary functions for converting `id_1 ... id_n` application into `#[id_1, ..., id_m]`
   It is used at `expandFunBinders`. -/
-private partial def getFunBinderIds? (stx : Syntax) : OptionT TermElabM (Array Syntax) :=
-  let convertElem (stx : Syntax) : OptionT TermElabM Syntax :=
+private partial def getFunBinderIds? (stx : Syntax) : OptionT MacroM (Array Syntax) :=
+  let convertElem (stx : Syntax) : OptionT MacroM Syntax :=
     match stx with
     | `(_) => do let ident ← mkFreshIdent stx; pure ident
     | `($id:ident) => return id
@@ -248,11 +248,11 @@ private partial def getFunBinderIds? (stx : Syntax) : OptionT TermElabM (Array S
   See local function `processAsPattern` at `expandFunBindersAux`.
 
   The resulting `Bool` is true if a pattern was found. We use it "mark" a macro expansion. -/
-partial def expandFunBinders (binders : Array Syntax) (body : Syntax) : TermElabM (Array Syntax × Syntax × Bool) :=
+partial def expandFunBinders (binders : Array Syntax) (body : Syntax) : MacroM (Array Syntax × Syntax × Bool) :=
   let rec loop (body : Syntax) (i : Nat) (newBinders : Array Syntax) := do
     if h : i < binders.size then
       let binder := binders.get ⟨i, h⟩
-      let processAsPattern : Unit → TermElabM (Array Syntax × Syntax × Bool) := fun _ => do
+      let processAsPattern : Unit → MacroM (Array Syntax × Syntax × Bool) := fun _ => do
         let pattern := binder
         let major ← mkFreshIdent binder
         let (binders, newBody, _) ← loop body (i+1) (newBinders.push $ mkExplicitBinder major (mkHole binder))
@@ -479,33 +479,35 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
       else
         expandWhereDeclsOpt whereDeclsOpt matchStx
     | n+1 => withFreshMacroScope do
-      let x ← `(x)
-      let d ← `(@$x:ident) -- See comment at `expandMatchAltsIntoMatch`
+      let d ← `(@x) -- See comment at `expandMatchAltsIntoMatch`
       let body ← loop n (discrs.push d)
-      `(@fun $x => $body)
+      `(@fun x => $body)
   loop (getMatchAltsNumPatterns matchAlts) #[]
 
-@[builtinTermElab «fun»] partial def elabFun : TermElab :=
-  fun stx expectedType? => loop stx expectedType?
-where
-  loop (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
-    match stx with
-    | `(fun $binders* => $body) => do
-      let (binders, body, expandedPattern) ← expandFunBinders binders body
-      if expandedPattern then
-        let newStx ← `(fun $binders* => $body)
-        loop newStx expectedType?
-      else
-        elabFunBinders binders expectedType? fun xs expectedType? => do
-          /- We ensure the expectedType here since it will force coercions to be applied if needed.
-             If we just use `elabTerm`, then we will need to a coercion `Coe (α → β) (α → δ)` whenever there is a coercion `Coe β δ`,
-             and another instance for the dependent version. -/
-          let e ← elabTermEnsuringType body expectedType?
-          mkLambdaFVars xs e
-    | `(fun $m:matchAlts) => do
-      let stxNew ← liftMacroM $ expandMatchAltsIntoMatch stx m
-      withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
-    | _ => throwUnsupportedSyntax
+@[builtinMacro Lean.Parser.Term.fun] partial def expandFun : Macro
+  | `(fun $binders* => $body) => do
+    let (binders, body, expandedPattern) ← expandFunBinders binders body
+    if expandedPattern then
+      `(fun $binders* => $body)
+    else
+      Macro.throwUnsupported
+  | stx@`(fun $m:matchAlts) => expandMatchAltsIntoMatch stx m
+  | _ => Macro.throwUnsupported
+
+@[builtinTermElab «fun»] partial def elabFun : TermElab := fun stx expectedType? =>
+  match stx with
+  | `(fun $binders* => $body) => do
+    -- We can assume all `match` binders have been iteratively expanded by the above macro here, though
+    -- we still need to call `expandFunBinders` once to obtain `binders` in a normal form
+    -- expected by `elabFunBinder`.
+    let (binders, body, expandedPattern) ← liftMacroM <| expandFunBinders binders body
+    elabFunBinders binders expectedType? fun xs expectedType? => do
+      /- We ensure the expectedType here since it will force coercions to be applied if needed.
+          If we just use `elabTerm`, then we will need to a coercion `Coe (α → β) (α → δ)` whenever there is a coercion `Coe β δ`,
+          and another instance for the dependent version. -/
+      let e ← elabTermEnsuringType body expectedType?
+      mkLambdaFVars xs e
+  | _ => throwUnsupportedSyntax
 
 /- If `useLetExpr` is true, then a kernel let-expression `let x : type := val; body` is created.
    Otherwise, we create a term of the form `(fun (x : type) => body) val`

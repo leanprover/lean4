@@ -55,8 +55,9 @@ where
         return true
     return false
 
-def runPrecheck (stx : Syntax) : TermElabM Unit :=
-  precheck stx |>.run { quotLCtx := {} }
+def runPrecheck (stx : Syntax) : TermElabM Unit := do
+  if hygiene.get (← getOptions) then
+    precheck stx |>.run { quotLCtx := {} }
 
 @[builtinQuotPrecheck ident] def precheckIdent : Precheck
   | Syntax.ident info rawVal val preresolved => do

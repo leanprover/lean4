@@ -18,7 +18,7 @@ class Ord (α : Type u) where
 
 export Ord (compare)
 
-def compareOfLessAndEq {α} (x y : α) [LT α] [Decidable (x < y)] [DecidableEq α] : Ordering :=
+@[inline] def compareOfLessAndEq {α} (x y : α) [LT α] [Decidable (x < y)] [DecidableEq α] : Ordering :=
   if x < y then Ordering.lt
   else if x = y then Ordering.eq
   else Ordering.gt
@@ -44,7 +44,7 @@ instance (n : Nat) : Ord (Fin n) where
 def USize.cmp (a b : USize) : Ordering := compare a.val b.val
 
 instance : Ord USize where
-  compare x y := compare x.val y.val
+  compare x y := compareOfLessAndEq x y
 
-instance : Ord Char where 
+instance : Ord Char where
   compare x y := compareOfLessAndEq x y

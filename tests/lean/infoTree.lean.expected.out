@@ -150,28 +150,27 @@
             (x + y, x - y)
             ===>
             Prod.mk✝ (x + y) (x - y)
-              (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩†-⟨23, 31⟩
-                Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 18⟩†-⟨23, 25⟩†
-                x + y : Nat @ ⟨23, 19⟩-⟨23, 24⟩
-                  Macro expansion
-                  x + y
-                  ===>
-                  HAdd.hAdd✝ x y
-                    HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨23, 19⟩†-⟨23, 28⟩†
+              Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 18⟩†-⟨23, 25⟩†
+              x + y : Nat @ ⟨23, 19⟩-⟨23, 24⟩
+                Macro expansion
+                x + y
+                ===>
+                HAdd.hAdd✝ x y
+                  HAdd.hAdd : {α β γ : Type} → [self : HAdd α β γ] → α → β → γ @ ⟨23, 19⟩†-⟨23, 28⟩†
+                  x : Nat @ ⟨23, 19⟩-⟨23, 20⟩
                     x : Nat @ ⟨23, 19⟩-⟨23, 20⟩
-                      x : Nat @ ⟨23, 19⟩-⟨23, 20⟩
+                  y : Nat @ ⟨23, 23⟩-⟨23, 24⟩
                     y : Nat @ ⟨23, 23⟩-⟨23, 24⟩
-                      y : Nat @ ⟨23, 23⟩-⟨23, 24⟩
-                x - y : Nat @ ⟨23, 26⟩-⟨23, 31⟩
-                  Macro expansion
-                  x - y
-                  ===>
-                  HSub.hSub✝ x y
-                    HSub.hSub : {α β γ : Type} → [self : HSub α β γ] → α → β → γ @ ⟨23, 26⟩†-⟨24, 2⟩†
+              x - y : Nat @ ⟨23, 26⟩-⟨23, 31⟩
+                Macro expansion
+                x - y
+                ===>
+                HSub.hSub✝ x y
+                  HSub.hSub : {α β γ : Type} → [self : HSub α β γ] → α → β → γ @ ⟨23, 26⟩†-⟨24, 2⟩†
+                  x : Nat @ ⟨23, 26⟩-⟨23, 27⟩
                     x : Nat @ ⟨23, 26⟩-⟨23, 27⟩
-                      x : Nat @ ⟨23, 26⟩-⟨23, 27⟩
+                  y : Nat @ ⟨23, 30⟩-⟨23, 31⟩
                     y : Nat @ ⟨23, 30⟩-⟨23, 31⟩
-                      y : Nat @ ⟨23, 30⟩-⟨23, 31⟩
           x✝ : Nat × Nat @ ⟨23, 4⟩†-⟨25, 10⟩†
           match x✝ with 
           | (z, w) =>
@@ -179,17 +178,14 @@
             z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩
             [.] `z : none @ ⟨23, 9⟩-⟨23, 10⟩
             [.] `w : none @ ⟨23, 12⟩-⟨23, 13⟩
-            (z, w) : Nat × Nat @ ⟨23, 8⟩-⟨23, 14⟩
-              Macro expansion
-              (z, w)
-              ===>
-              Prod.mk✝ z w
-                (z, w) : Nat × Nat @ ⟨23, 8⟩†-⟨23, 13⟩
-                  Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 8⟩†-⟨23, 15⟩†
-                  z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
-                    z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
-                  w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
-                    w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
+            (z, w) : Nat × Nat @ ⟨23, 4⟩†-⟨23, 13⟩
+              Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 4⟩†-⟨23, 11⟩†
+              Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩†
+              Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩†
+              z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
+                z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
+              w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
+                w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
             let z1 : Nat := z + w;
             z + z1 : Nat @ ⟨24, 4⟩-⟨25, 10⟩
               Nat : Type @ ⟨24, 8⟩-⟨24, 9⟩
@@ -222,24 +218,27 @@
     Prod✝ Nat (Array (Array Nat))
       Prod : Type → Type → Type @ ⟨27, 12⟩†-⟨27, 16⟩†
       Nat : Type @ ⟨27, 12⟩-⟨27, 15⟩
-        [.] `Nat : some Type.{?_uniq.1452} @ ⟨27, 12⟩-⟨27, 15⟩
+        [.] `Nat : some Type.{?_uniq.1458} @ ⟨27, 12⟩-⟨27, 15⟩
         Nat : Type @ ⟨27, 12⟩-⟨27, 15⟩
       Array (Array Nat) : Type @ ⟨27, 18⟩-⟨27, 35⟩
-        [.] `Array : some Type.{?_uniq.1451} @ ⟨27, 18⟩-⟨27, 23⟩
+        [.] `Array : some Type.{?_uniq.1457} @ ⟨27, 18⟩-⟨27, 23⟩
         Array : Type → Type @ ⟨27, 18⟩-⟨27, 23⟩
         Array Nat : Type @ ⟨27, 24⟩-⟨27, 35⟩
-          Array Nat : Type @ ⟨27, 25⟩-⟨27, 34⟩
-            [.] `Array : some Type.{?_uniq.1453} @ ⟨27, 25⟩-⟨27, 30⟩
+          Macro expansion
+          (Array Nat)
+          ===>
+          Array Nat
+            [.] `Array : some Type.{?_uniq.1459} @ ⟨27, 25⟩-⟨27, 30⟩
             Array : Type → Type @ ⟨27, 25⟩-⟨27, 30⟩
             Nat : Type @ ⟨27, 31⟩-⟨27, 34⟩
-              [.] `Nat : some Type.{?_uniq.1454} @ ⟨27, 31⟩-⟨27, 34⟩
+              [.] `Nat : some Type.{?_uniq.1460} @ ⟨27, 31⟩-⟨27, 34⟩
               Nat : Type @ ⟨27, 31⟩-⟨27, 34⟩
   s : Nat × Array (Array Nat) @ ⟨27, 8⟩-⟨27, 9⟩
   Array Nat : Type @ ⟨27, 39⟩-⟨27, 48⟩
-    [.] `Array : some Sort.{?_uniq.1456} @ ⟨27, 39⟩-⟨27, 44⟩
+    [.] `Array : some Sort.{?_uniq.1462} @ ⟨27, 39⟩-⟨27, 44⟩
     Array : Type → Type @ ⟨27, 39⟩-⟨27, 44⟩
     Nat : Type @ ⟨27, 45⟩-⟨27, 48⟩
-      [.] `Nat : some Type.{?_uniq.1457} @ ⟨27, 45⟩-⟨27, 48⟩
+      [.] `Nat : some Type.{?_uniq.1463} @ ⟨27, 45⟩-⟨27, 48⟩
       Nat : Type @ ⟨27, 45⟩-⟨27, 48⟩
   Array.push (Array.getOp s.snd 1) s.fst : Array Nat @ ⟨28, 2⟩-⟨28, 17⟩
     s : Nat × Array (Array Nat) @ ⟨28, 2⟩-⟨28, 3⟩
@@ -253,11 +252,11 @@
       Prod.fst : {α β : Type} → α × β → α @ ⟨28, 16⟩-⟨28, 17⟩
 [Elab.info] command @ ⟨30, 0⟩-⟨31, 20⟩
   B : Type @ ⟨30, 14⟩-⟨30, 15⟩
-    [.] `B : some Sort.{?_uniq.1498} @ ⟨30, 14⟩-⟨30, 15⟩
+    [.] `B : some Sort.{?_uniq.1504} @ ⟨30, 14⟩-⟨30, 15⟩
     B : Type @ ⟨30, 14⟩-⟨30, 15⟩
   arg : B @ ⟨30, 8⟩-⟨30, 11⟩
   Nat : Type @ ⟨30, 19⟩-⟨30, 22⟩
-    [.] `Nat : some Sort.{?_uniq.1500} @ ⟨30, 19⟩-⟨30, 22⟩
+    [.] `Nat : some Sort.{?_uniq.1506} @ ⟨30, 19⟩-⟨30, 22⟩
     Nat : Type @ ⟨30, 19⟩-⟨30, 22⟩
   A.val arg.pair.fst 0 : Nat @ ⟨31, 2⟩-⟨31, 20⟩
     arg : B @ ⟨31, 2⟩-⟨31, 5⟩
@@ -270,11 +269,11 @@
     0 : Nat @ ⟨31, 19⟩-⟨31, 20⟩
 [Elab.info] command @ ⟨33, 0⟩-⟨35, 1⟩
   Nat : Type @ ⟨33, 12⟩-⟨33, 15⟩
-    [.] `Nat : some Sort.{?_uniq.1520} @ ⟨33, 12⟩-⟨33, 15⟩
+    [.] `Nat : some Sort.{?_uniq.1526} @ ⟨33, 12⟩-⟨33, 15⟩
     Nat : Type @ ⟨33, 12⟩-⟨33, 15⟩
   x : Nat @ ⟨33, 8⟩-⟨33, 9⟩
   B : Type @ ⟨33, 19⟩-⟨33, 20⟩
-    [.] `B : some Sort.{?_uniq.1522} @ ⟨33, 19⟩-⟨33, 20⟩
+    [.] `B : some Sort.{?_uniq.1528} @ ⟨33, 19⟩-⟨33, 20⟩
     B : Type @ ⟨33, 19⟩-⟨33, 20⟩
   { pair := ({ val := id }, { val := id }) } : B @ ⟨33, 24⟩-⟨35, 1⟩
     ({ val := id }, { val := id }) : A × A @ ⟨34, 10⟩-⟨34, 40⟩
@@ -282,18 +281,17 @@
       ({ val := id }, { val := id })
       ===>
       Prod.mk✝ { val := id } { val := id }
-        ({ val := id }, { val := id }) : A × A @ ⟨34, 10⟩†-⟨34, 39⟩
-          Prod.mk : {α β : Type} → α → β → α × β @ ⟨34, 10⟩†-⟨34, 17⟩†
-          { val := id } : A @ ⟨34, 11⟩-⟨34, 24⟩
-            id : Nat → Nat @ ⟨34, 20⟩-⟨34, 22⟩
-              [.] `id : some Nat -> Nat @ ⟨34, 20⟩-⟨34, 22⟩
-              id : {α : Type} → α → α @ ⟨34, 20⟩-⟨34, 22⟩
-            val : Nat → Nat := id @ ⟨34, 13⟩-⟨34, 16⟩
-          { val := id } : A @ ⟨34, 26⟩-⟨34, 39⟩
-            id : Nat → Nat @ ⟨34, 35⟩-⟨34, 37⟩
-              [.] `id : some Nat -> Nat @ ⟨34, 35⟩-⟨34, 37⟩
-              id : {α : Type} → α → α @ ⟨34, 35⟩-⟨34, 37⟩
-            val : Nat → Nat := id @ ⟨34, 28⟩-⟨34, 31⟩
+        Prod.mk : {α β : Type} → α → β → α × β @ ⟨34, 10⟩†-⟨34, 17⟩†
+        { val := id } : A @ ⟨34, 11⟩-⟨34, 24⟩
+          id : Nat → Nat @ ⟨34, 20⟩-⟨34, 22⟩
+            [.] `id : some Nat -> Nat @ ⟨34, 20⟩-⟨34, 22⟩
+            id : {α : Type} → α → α @ ⟨34, 20⟩-⟨34, 22⟩
+          val : Nat → Nat := id @ ⟨34, 13⟩-⟨34, 16⟩
+        { val := id } : A @ ⟨34, 26⟩-⟨34, 39⟩
+          id : Nat → Nat @ ⟨34, 35⟩-⟨34, 37⟩
+            [.] `id : some Nat -> Nat @ ⟨34, 35⟩-⟨34, 37⟩
+            id : {α : Type} → α → α @ ⟨34, 35⟩-⟨34, 37⟩
+          val : Nat → Nat := id @ ⟨34, 28⟩-⟨34, 31⟩
     pair : A × A := ({ val := id }, { val := id }) @ ⟨34, 2⟩-⟨34, 6⟩
 def id.{u} : {α : Sort u} → α → α :=
 fun {α : Sort u} (a : α) => a

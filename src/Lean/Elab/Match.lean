@@ -512,7 +512,7 @@ private def collectPatternVars (alt : MatchAltView) : TermElabM (Array PatternVa
   return (s.vars, alt)
 
 /- Return the pattern variables in the given pattern.
-  Remark: this method is not used here, but in other macros (e.g., at `Do.lean`). -/
+   Remark: this method is not used by the main `match` elaborator, but in the precheck hook and other macros (e.g., at `Do.lean`). -/
 def getPatternVars (patternStx : Syntax) : TermElabM (Array PatternVar) := do
   let patternStx ← liftMacroM <| expandMacros patternStx
   let (_, s) ← (CollectPatternVars.collect patternStx).run {}
@@ -524,6 +524,24 @@ def getPatternsVars (patterns : Array Syntax) : TermElabM (Array PatternVar) := 
       discard <| CollectPatternVars.collect (← liftMacroM <| expandMacros pattern)
   let (_, s) ← collect.run {}
   return s.vars
+
+def getPatternVarNames (pvars : Array PatternVar) : Array Name :=
+  pvars.filterMap fun
+    | PatternVar.localVar x => some x
+    | _ => none
+
+open Lean.Elab.Term.Quotation in
+@[builtinQuotPrecheck Lean.Parser.Term.match] def precheckMatch : Precheck
+  | `(match $[$discrs:term],* with $[| $[$patss],* => $rhss]*) => do
+    discrs.forM precheck
+    for (pats, rhs) in patss.zip rhss do
+      let vars ←
+        try
+          getPatternsVars pats
+        catch
+          | _ => return  -- can happen in case of pattern antiquotations
+      Quotation.withNewLocals (getPatternVarNames vars) <| precheck rhs
+  | _ => throwUnsupportedSyntax
 
 /- We convert the collected `PatternVar`s intro `PatternVarDecl` -/
 inductive PatternVarDecl where

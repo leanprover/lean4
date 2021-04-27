@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Elab.Quotation.Precheck
 import Lean.Elab.Term
 import Lean.Parser.Term
 
@@ -493,6 +494,18 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
       Macro.throwUnsupported
   | stx@`(fun $m:matchAlts) => expandMatchAltsIntoMatch stx m
   | _ => Macro.throwUnsupported
+
+open Lean.Elab.Term.Quotation in
+@[builtinQuotPrecheck Lean.Parser.Term.fun] def precheckFun : Precheck
+  | `(fun $binders* => $body) => do
+    let (binders, body, expandedPattern) ← liftMacroM <| expandFunBinders binders body
+    let mut ids := #[]
+    for b in binders do
+      for v in ← matchBinder b do
+        Quotation.withNewLocals ids <| precheck v.type
+        ids := ids.push v.id.getId
+    Quotation.withNewLocals ids <| precheck body
+  | _ => throwUnsupportedSyntax
 
 @[builtinTermElab «fun»] partial def elabFun : TermElab := fun stx expectedType? =>
   match stx with

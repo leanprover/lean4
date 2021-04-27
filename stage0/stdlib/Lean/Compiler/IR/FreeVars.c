@@ -2113,23 +2113,23 @@ x_8 = lean_nat_dec_lt(x_2, x_5);
 if (x_8 == 0)
 {
 uint8_t x_9; 
-x_9 = lean_nat_dec_lt(x_5, x_2);
+x_9 = lean_nat_dec_eq(x_2, x_5);
 if (x_9 == 0)
-{
-lean_object* x_10; lean_object* x_11; 
-lean_inc(x_6);
-lean_inc(x_5);
-x_10 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_10, 0, x_5);
-lean_ctor_set(x_10, 1, x_6);
-x_11 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_11, 0, x_10);
-return x_11;
-}
-else
 {
 x_1 = x_7;
 goto _start;
+}
+else
+{
+lean_object* x_11; lean_object* x_12; 
+lean_inc(x_6);
+lean_inc(x_5);
+x_11 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_11, 0, x_5);
+lean_ctor_set(x_11, 1, x_6);
+x_12 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_12, 0, x_11);
+return x_12;
 }
 }
 else

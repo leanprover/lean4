@@ -94,31 +94,32 @@ def isBlack : RBNode α β → Bool
 
 section Insert
 
-variable (lt : α → α → Bool)
+variable (cmp : α → α → Ordering)
 
 @[specialize] def ins : RBNode α β → (k : α) → β k → RBNode α β
   | leaf,               kx, vx => node red leaf kx vx leaf
   | node red a ky vy b, kx, vx =>
-     if lt kx ky then node red (ins a kx vx) ky vy b
-     else if lt ky kx then node red a ky vy (ins b kx vx)
-     else node red a kx vx b
+    match cmp kx ky with
+    | Ordering.lt => node red (ins a kx vx) ky vy b
+    | Ordering.gt => node red a ky vy (ins b kx vx)
+    | Ordering.eq => node red a kx vx b
   | node black a ky vy b, kx, vx =>
-      if lt kx ky then
-        if isRed a then balance1 ky vy b (ins a kx vx)
+    match cmp kx ky with
+    | Ordering.lt => 
+      if isRed a then balance1 ky vy b (ins a kx vx)
         else node black (ins a kx vx) ky vy b
-      else if lt ky kx then
+    | Ordering.gt =>
         if isRed b then balance2 a ky vy (ins b kx vx)
         else node black a ky vy (ins b kx vx)
-      else
-         node black a kx vx b
+    | Ordering.eq => node black a kx vx b
 
 def setBlack : RBNode α β → RBNode α β
   | node _ l k v r => node black l k v r
   | e              => e
 
 @[specialize] def insert (t : RBNode α β) (k : α) (v : β k) : RBNode α β :=
-  if isRed t then setBlack (ins lt t k v)
-  else ins lt t k v
+  if isRed t then setBlack (ins cmp t k v)
+  else ins cmp t k v
 
 end Insert
 
@@ -166,55 +167,59 @@ partial def appendTrees :  RBNode α β → RBNode α β → RBNode α β
 
 section Erase
 
-variable (lt : α → α → Bool)
+variable (cmp : α → α → Ordering)
 
 @[specialize] def del (x : α) : RBNode α β → RBNode α β
   | leaf           => leaf
   | node _ a y v b =>
-    if lt x y then
+    match cmp x y with
+    | Ordering.lt =>
       if a.isBlack then balLeft (del x a) y v b
       else node red (del x a) y v b
-    else if lt y x then
+    | Ordering.gt =>
       if b.isBlack then balRight a y v (del x b)
       else node red a y v (del x b)
-    else appendTrees a b
+    | Ordering.eq => appendTrees a b
 
 @[specialize] def erase (x : α) (t : RBNode α β) : RBNode α β :=
-  let t := del lt x t;
+  let t := del cmp x t;
   t.setBlack
 
 end Erase
 
 section Membership
-variable (lt : α → α → Bool)
+variable (cmp : α → α → Ordering)
 
 @[specialize] def findCore : RBNode α β → (k : α) → Option (Sigma (fun k => β k))
   | leaf,             x => none
   | node _ a ky vy b, x =>
-     if lt x ky then findCore a x
-     else if lt ky x then findCore b x
-     else some ⟨ky, vy⟩
+    match cmp x ky with
+    | Ordering.lt => findCore a x
+    | Ordering.gt => findCore b x
+    | Ordering.eq => some ⟨ky, vy⟩
 
 @[specialize] def find {β : Type v} : RBNode α (fun _ => β) → α → Option β
   | leaf,             x => none
   | node _ a ky vy b, x =>
-    if lt x ky then find a x
-    else if lt ky x then find b x
-    else some vy
+    match cmp x ky with
+    | Ordering.lt => find a x
+    | Ordering.gt => find b x
+    | Ordering.eq => some vy
 
 @[specialize] def lowerBound : RBNode α β → α → Option (Sigma β) → Option (Sigma β)
   | leaf,             x, lb => lb
   | node _ a ky vy b, x, lb =>
-    if lt x ky then lowerBound a x lb
-    else if lt ky x then lowerBound b x (some ⟨ky, vy⟩)
-    else some ⟨ky, vy⟩
+    match cmp x ky with
+    | Ordering.lt => lowerBound a x lb
+    | Ordering.gt => lowerBound b x (some ⟨ky, vy⟩)
+    | Ordering.eq => some ⟨ky, vy⟩
 
 end Membership
 
-inductive WellFormed (lt : α → α → Bool) : RBNode α β → Prop where
-  | leafWff : WellFormed lt leaf
-  | insertWff {n n' : RBNode α β} {k : α} {v : β k} : WellFormed lt n → n' = insert lt n k v → WellFormed lt n'
-  | eraseWff {n n' : RBNode α β} {k : α} : WellFormed lt n → n' = erase lt k n → WellFormed lt n'
+inductive WellFormed (cmp : α → α → Ordering) : RBNode α β → Prop where
+  | leafWff : WellFormed cmp leaf
+  | insertWff {n n' : RBNode α β} {k : α} {v : β k} : WellFormed cmp n → n' = insert cmp n k v → WellFormed cmp n'
+  | eraseWff {n n' : RBNode α β} {k : α} : WellFormed cmp n → n' = erase cmp k n → WellFormed cmp n'
 
 end RBNode
 
@@ -222,124 +227,124 @@ open Std.RBNode
 
 /- TODO(Leo): define dRBMap -/
 
-def RBMap (α : Type u) (β : Type v) (lt : α → α → Bool) : Type (max u v) :=
-  {t : RBNode α (fun _ => β) // t.WellFormed lt }
+def RBMap (α : Type u) (β : Type v) (cmp : α → α → Ordering) : Type (max u v) :=
+  {t : RBNode α (fun _ => β) // t.WellFormed cmp }
 
-@[inline] def mkRBMap (α : Type u) (β : Type v) (lt : α → α → Bool) : RBMap α β lt :=
+@[inline] def mkRBMap (α : Type u) (β : Type v) (cmp : α → α → Ordering) : RBMap α β cmp :=
   ⟨leaf, WellFormed.leafWff⟩
 
-@[inline] def RBMap.empty {α : Type u} {β : Type v} {lt : α → α → Bool} : RBMap α β lt :=
+@[inline] def RBMap.empty {α : Type u} {β : Type v} {cmp : α → α → Ordering} : RBMap α β cmp :=
   mkRBMap ..
 
-instance (α : Type u) (β : Type v) (lt : α → α → Bool) : EmptyCollection (RBMap α β lt) :=
+instance (α : Type u) (β : Type v) (cmp : α → α → Ordering) : EmptyCollection (RBMap α β cmp) :=
   ⟨RBMap.empty⟩
 
 namespace RBMap
-variable {α : Type u} {β : Type v} {σ : Type w} {lt : α → α → Bool}
+variable {α : Type u} {β : Type v} {σ : Type w} {cmp : α → α → Ordering}
 
-def depth (f : Nat → Nat → Nat) (t : RBMap α β lt) : Nat :=
+def depth (f : Nat → Nat → Nat) (t : RBMap α β cmp) : Nat :=
   t.val.depth f
 
-@[inline] def fold (f : σ → α → β → σ) : (init : σ) → RBMap α β lt → σ
+@[inline] def fold (f : σ → α → β → σ) : (init : σ) → RBMap α β cmp → σ
   | b, ⟨t, _⟩ => t.fold f b
 
-@[inline] def revFold (f : σ → α → β → σ) : (init : σ) → RBMap α β lt → σ
+@[inline] def revFold (f : σ → α → β → σ) : (init : σ) → RBMap α β cmp → σ
   | b, ⟨t, _⟩ => t.revFold f b
 
-@[inline] def foldM [Monad m] (f : σ → α → β → m σ) : (init : σ) → RBMap α β lt → m σ
+@[inline] def foldM [Monad m] (f : σ → α → β → m σ) : (init : σ) → RBMap α β cmp → m σ
   | b, ⟨t, _⟩ => t.foldM f b
 
-@[inline] def forM [Monad m] (f : α → β → m PUnit) (t : RBMap α β lt) : m PUnit :=
+@[inline] def forM [Monad m] (f : α → β → m PUnit) (t : RBMap α β cmp) : m PUnit :=
   t.foldM (fun _ k v => f k v) ⟨⟩
 
-@[inline] protected def forIn [Monad m] (t : RBMap α β lt) (init : σ) (f : (α × β) → σ → m (ForInStep σ)) : m σ :=
+@[inline] protected def forIn [Monad m] (t : RBMap α β cmp) (init : σ) (f : (α × β) → σ → m (ForInStep σ)) : m σ :=
   t.val.forIn init (fun a b acc => f (a, b) acc)
 
-instance : ForIn m (RBMap α β lt) (α × β) where
+instance : ForIn m (RBMap α β cmp) (α × β) where
   forIn := RBMap.forIn
 
-@[inline] def isEmpty : RBMap α β lt → Bool
+@[inline] def isEmpty : RBMap α β cmp → Bool
   | ⟨leaf, _⟩ => true
   | _         => false
 
-@[specialize] def toList : RBMap α β lt → List (α × β)
+@[specialize] def toList : RBMap α β cmp → List (α × β)
   | ⟨t, _⟩ => t.revFold (fun ps k v => (k, v)::ps) []
 
-@[inline] protected def min : RBMap α β lt → Option (α × β)
+@[inline] protected def min : RBMap α β cmp → Option (α × β)
   | ⟨t, _⟩ =>
     match t.min with
     | some ⟨k, v⟩ => some (k, v)
     | none        => none
 
-@[inline] protected def max : RBMap α β lt → Option (α × β)
+@[inline] protected def max : RBMap α β cmp → Option (α × β)
   | ⟨t, _⟩ =>
     match t.max with
     | some ⟨k, v⟩ => some (k, v)
     | none        => none
 
-instance [Repr α] [Repr β] : Repr (RBMap α β lt) where
+instance [Repr α] [Repr β] : Repr (RBMap α β cmp) where
   reprPrec m prec := Repr.addAppParen ("Std.rbmapOf " ++ repr m.toList) prec
 
-@[inline] def insert : RBMap α β lt → α → β → RBMap α β lt
-  | ⟨t, w⟩, k, v => ⟨t.insert lt k v, WellFormed.insertWff w rfl⟩
+@[inline] def insert : RBMap α β cmp → α → β → RBMap α β cmp
+  | ⟨t, w⟩, k, v => ⟨t.insert cmp k v, WellFormed.insertWff w rfl⟩
 
-@[inline] def erase : RBMap α β lt → α → RBMap α β lt
-  | ⟨t, w⟩, k => ⟨t.erase lt k, WellFormed.eraseWff w rfl⟩
+@[inline] def erase : RBMap α β cmp → α → RBMap α β cmp
+  | ⟨t, w⟩, k => ⟨t.erase cmp k, WellFormed.eraseWff w rfl⟩
 
-@[specialize] def ofList : List (α × β) → RBMap α β lt
+@[specialize] def ofList : List (α × β) → RBMap α β cmp
   | []        => mkRBMap ..
   | ⟨k,v⟩::xs => (ofList xs).insert k v
 
-@[inline] def findCore? : RBMap α β lt → α → Option (Sigma (fun (k : α) => β))
-  | ⟨t, _⟩, x => t.findCore lt x
+@[inline] def findCore? : RBMap α β cmp → α → Option (Sigma (fun (k : α) => β))
+  | ⟨t, _⟩, x => t.findCore cmp x
 
-@[inline] def find? : RBMap α β lt → α → Option β
-  | ⟨t, _⟩, x => t.find lt x
+@[inline] def find? : RBMap α β cmp → α → Option β
+  | ⟨t, _⟩, x => t.find cmp x
 
-@[inline] def findD (t : RBMap α β lt) (k : α) (v₀ : β) : β :=
+@[inline] def findD (t : RBMap α β cmp) (k : α) (v₀ : β) : β :=
   (t.find? k).getD v₀
 
 /-- (lowerBound k) retrieves the kv pair of the largest key smaller than or equal to `k`,
     if it exists. -/
-@[inline] def lowerBound : RBMap α β lt → α → Option (Sigma (fun (k : α) => β))
-  | ⟨t, _⟩, x => t.lowerBound lt x none
+@[inline] def lowerBound : RBMap α β cmp → α → Option (Sigma (fun (k : α) => β))
+  | ⟨t, _⟩, x => t.lowerBound cmp x none
 
-@[inline] def contains (t : RBMap α β lt) (a : α) : Bool :=
+@[inline] def contains (t : RBMap α β cmp) (a : α) : Bool :=
   (t.find? a).isSome
 
-@[inline] def fromList (l : List (α × β)) (lt : α → α → Bool) : RBMap α β lt :=
-  l.foldl (fun r p => r.insert p.1 p.2) (mkRBMap α β lt)
+@[inline] def fromList (l : List (α × β)) (cmp : α → α → Ordering) : RBMap α β cmp :=
+  l.foldl (fun r p => r.insert p.1 p.2) (mkRBMap α β cmp)
 
-@[inline] def all : RBMap α β lt → (α → β → Bool) → Bool
+@[inline] def all : RBMap α β cmp → (α → β → Bool) → Bool
   | ⟨t, _⟩, p => t.all p
 
-@[inline] def any : RBMap α β lt → (α → β → Bool) → Bool
+@[inline] def any : RBMap α β cmp → (α → β → Bool) → Bool
   | ⟨t, _⟩, p => t.any p
 
-def size (m : RBMap α β lt) : Nat :=
+def size (m : RBMap α β cmp) : Nat :=
   m.fold (fun sz _ _ => sz+1) 0
 
-def maxDepth (t : RBMap α β lt) : Nat :=
+def maxDepth (t : RBMap α β cmp) : Nat :=
   t.val.depth Nat.max
 
-@[inline] def min! [Inhabited α] [Inhabited β] (t : RBMap α β lt) : α × β :=
+@[inline] def min! [Inhabited α] [Inhabited β] (t : RBMap α β cmp) : α × β :=
   match t.min with
   | some p => p
   | none   => panic! "map is empty"
 
-@[inline] def max! [Inhabited α] [Inhabited β] (t : RBMap α β lt) : α × β :=
+@[inline] def max! [Inhabited α] [Inhabited β] (t : RBMap α β cmp) : α × β :=
   match t.max with
   | some p => p
   | none   => panic! "map is empty"
 
-@[inline] def find! [Inhabited β] (t : RBMap α β lt) (k : α) : β :=
+@[inline] def find! [Inhabited β] (t : RBMap α β cmp) (k : α) : β :=
   match t.find? k with
   | some b => b
   | none   => panic! "key is not in the map"
 
 end RBMap
 
-def rbmapOf {α : Type u} {β : Type v} (l : List (α × β)) (lt : α → α → Bool) : RBMap α β lt :=
-  RBMap.fromList l lt
+def rbmapOf {α : Type u} {β : Type v} (l : List (α × β)) (cmp : α → α → Ordering) : RBMap α β cmp :=
+  RBMap.fromList l cmp
 
 end Std

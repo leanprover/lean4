@@ -440,7 +440,7 @@ end Decl
 open Std (RBTree RBTree.empty RBMap)
 
 /-- Set of variable and join point names -/
-abbrev IndexSet := RBTree Index Index.lt
+abbrev IndexSet := RBTree Index compare
 instance : Inhabited IndexSet := ⟨{}⟩
 
 def mkIndexSet (idx : Index) : IndexSet :=
@@ -451,7 +451,7 @@ inductive LocalContextEntry where
   | localVar  : IRType → Expr → LocalContextEntry
   | joinPoint : Array Param → FnBody → LocalContextEntry
 
-abbrev LocalContext := RBMap Index LocalContextEntry Index.lt
+abbrev LocalContext := RBMap Index LocalContextEntry compare
 
 def LocalContext.addLocal (ctx : LocalContext) (x : VarId) (t : IRType) (v : Expr) : LocalContext :=
   ctx.insert x.idx (LocalContextEntry.localVar t v)
@@ -507,7 +507,7 @@ def LocalContext.getValue (ctx : LocalContext) (x : VarId) : Option Expr :=
   | some (LocalContextEntry.localVar _ v) => some v
   | other => none
 
-abbrev IndexRenaming := RBMap Index Index Index.lt
+abbrev IndexRenaming := RBMap Index Index compare
 
 class AlphaEqv (α : Type) where
   aeqv : IndexRenaming → α → α → Bool
@@ -599,7 +599,7 @@ def FnBody.beq (b₁ b₂ : FnBody) : Bool :=
 
 instance : BEq FnBody := ⟨FnBody.beq⟩
 
-abbrev VarIdSet := RBTree VarId (fun x y => x.idx < y.idx)
+abbrev VarIdSet := RBTree VarId (fun x y => compare x.idx y.idx)
 instance : Inhabited VarIdSet := ⟨{}⟩
 
 def mkIf (x : VarId) (t e : FnBody) : FnBody :=

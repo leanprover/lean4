@@ -21,7 +21,7 @@ def empty : PrefixTreeNode α β :=
   PrefixTreeNode.Node none RBNode.leaf
 
 @[specialize]
-partial def insert (t : PrefixTreeNode α β) (lt : α → α → Bool) (k : List α) (val : β) : PrefixTreeNode α β :=
+partial def insert (t : PrefixTreeNode α β) (cmp : α → α → Ordering) (k : List α) (val : β) : PrefixTreeNode α β :=
   let rec insertEmpty (k : List α) : PrefixTreeNode α β :=
     match k with
     | [] => PrefixTreeNode.Node (some val) RBNode.leaf
@@ -32,24 +32,24 @@ partial def insert (t : PrefixTreeNode α β) (lt : α → α → Bool) (k : Lis
     | PrefixTreeNode.Node v m, [] =>
       PrefixTreeNode.Node (some val) m -- overrides old value
     | PrefixTreeNode.Node v m, k :: ks =>
-      let t := match RBNode.find lt m k with
+      let t := match RBNode.find cmp m k with
         | none   => insertEmpty ks
         | some t => loop t ks
-      PrefixTreeNode.Node v (RBNode.insert lt m k t)
+      PrefixTreeNode.Node v (RBNode.insert cmp m k t)
   loop t k
 
 @[specialize]
-partial def find? (t : PrefixTreeNode α β) (lt : α → α → Bool) (k : List α) : Option β :=
+partial def find? (t : PrefixTreeNode α β) (cmp : α → α → Ordering) (k : List α) : Option β :=
   let rec loop
     | PrefixTreeNode.Node val m, [] => val
     | PrefixTreeNode.Node val m, k :: ks =>
-      match RBNode.find lt m k with
+      match RBNode.find cmp m k with
       | none   => none
       | some t => loop t ks
   loop t k
 
 @[specialize]
-partial def foldMatchingM [Monad m] (t : PrefixTreeNode α β) (lt : α → α → Bool) (k : List α) (init : σ) (f : β → σ → m σ) : m σ :=
+partial def foldMatchingM [Monad m] (t : PrefixTreeNode α β) (cmp : α → α → Ordering) (k : List α) (init : σ) (f : β → σ → m σ) : m σ :=
   let rec fold : PrefixTreeNode α β → σ → m σ
     | PrefixTreeNode.Node b? n, d => do
       let d ← match b? with
@@ -59,19 +59,19 @@ partial def foldMatchingM [Monad m] (t : PrefixTreeNode α β) (lt : α → α �
   let rec find : List α → PrefixTreeNode α β → σ → m σ
     | [],    t, d => fold t d
     | k::ks, PrefixTreeNode.Node _ m, d =>
-      match RBNode.find lt m k with
+      match RBNode.find cmp m k with
       | none   => pure init
       | some t => find ks t d
   find k t init
 
-inductive WellFormed (lt : α → α → Bool) : PrefixTreeNode α β → Prop where
-  | emptyWff    : WellFormed lt empty
-  | insertWff  {t : PrefixTreeNode α β} {k : List α} {val : β} : WellFormed lt t → WellFormed lt (insert t lt k val)
+inductive WellFormed (cmp : α → α → Ordering) : PrefixTreeNode α β → Prop where
+  | emptyWff    : WellFormed cmp empty
+  | insertWff  {t : PrefixTreeNode α β} {k : List α} {val : β} : WellFormed cmp t → WellFormed cmp (insert t cmp k val)
 
 end PrefixTreeNode
 
-def PrefixTree (α : Type u) (β : Type v) (lt : α → α → Bool) : Type (max u v) :=
-  { t : PrefixTreeNode α β // t.WellFormed lt }
+def PrefixTree (α : Type u) (β : Type v) (cmp : α → α → Ordering) : Type (max u v) :=
+  { t : PrefixTreeNode α β // t.WellFormed cmp }
 
 open PrefixTreeNode
 

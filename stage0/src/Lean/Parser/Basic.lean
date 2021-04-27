@@ -1535,7 +1535,7 @@ def eoiFn : ParserFn := fun c s =>
 open Std (RBMap RBMap.empty)
 
 /-- A multimap indexed by tokens. Used for indexing parsers by their leading token. -/
-def TokenMap (α : Type) := RBMap Name (List α) Name.quickLt
+def TokenMap (α : Type) := RBMap Name (List α) Name.quickCmp
 
 namespace TokenMap
 

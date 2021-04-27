@@ -249,7 +249,7 @@ partial def objectCore (anyCore : Unit → Quickparse Json) : Quickparse (RBNode
   else if c = ',' then
     ws
     let kvs ← objectCore anyCore
-    kvs.insert strLt k v
+    kvs.insert compare k v
   else
     fail "unexpected character in object"
 

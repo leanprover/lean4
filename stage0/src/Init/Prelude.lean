@@ -830,7 +830,7 @@ instance : LT UInt32 where
 
 instance : LE UInt32 where
   le a b := LE.le a.val b.val
-
+ 
 set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 < #2"]
 def UInt32.decLt (a b : UInt32) : Decidable (LT.lt a b) :=

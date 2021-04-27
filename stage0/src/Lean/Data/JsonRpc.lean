@@ -21,7 +21,7 @@ inductive RequestID where
   | str (s : String)
   | num (n : JsonNumber)
   | null
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Ord
 
 instance : ToString RequestID where
   toString

@@ -113,6 +113,7 @@ lean_object* l_Lean_instInhabitedEnvironment___closed__4;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Monad_seqRight___default___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* lean_read_module_data(lean_object*, lean_object*);
+lean_object* l_Lean_Name_quickLt___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_imp___elambda__3___rarg___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -235,7 +236,6 @@ lean_object* l_Array_anyMUnsafe_any___at_Lean_mkMapDeclarationExtension___spec__
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_insertAux___rarg___closed__3;
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_NameSet_instForInNameSetName___closed__1;
 lean_object* l_EStateM_bind___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -284,6 +284,7 @@ lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerSimpl
 lean_object* l___private_Lean_Environment_0__Lean_setImportedEntries___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_namespacesExt___elambda__1(lean_object*);
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
+uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 lean_object* l_IO_fileExists___at_Lean_importModules_importMods___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1439____closed__4;
 lean_object* l_Lean_mkMapDeclarationExtension___rarg(lean_object*, lean_object*, lean_object*);
@@ -428,6 +429,7 @@ lean_object* l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1___
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___lambda__1(lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2___closed__1;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1___closed__1;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_mkModuleData___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_setState___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_namespacesExt___elambda__2(lean_object*);
@@ -6012,6 +6014,14 @@ goto _start;
 }
 }
 }
+static lean_object* _init_l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Name_quickLt___boxed), 2, 0);
+return x_1;
+}
+}
 lean_object* l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -6065,7 +6075,7 @@ if (x_23 == 0)
 {
 lean_object* x_24; lean_object* x_25; 
 lean_dec(x_16);
-x_24 = l_Lean_NameSet_instForInNameSetName___closed__1;
+x_24 = l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1___closed__1;
 lean_inc_n(x_2, 2);
 x_25 = l_Array_qpartition_loop___at_Lean_mkTagDeclarationExtension___spec__2(x_24, x_3, x_19, x_17, x_2, x_2);
 x_4 = x_25;
@@ -6078,7 +6088,7 @@ lean_dec(x_19);
 x_26 = lean_array_swap(x_17, x_16, x_3);
 lean_dec(x_16);
 x_27 = lean_array_get(x_18, x_26, x_3);
-x_28 = l_Lean_NameSet_instForInNameSetName___closed__1;
+x_28 = l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1___closed__1;
 lean_inc_n(x_2, 2);
 x_29 = l_Array_qpartition_loop___at_Lean_mkTagDeclarationExtension___spec__2(x_28, x_3, x_27, x_26, x_2, x_2);
 x_4 = x_29;
@@ -6098,7 +6108,7 @@ if (x_33 == 0)
 {
 lean_object* x_34; lean_object* x_35; 
 lean_dec(x_16);
-x_34 = l_Lean_NameSet_instForInNameSetName___closed__1;
+x_34 = l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1___closed__1;
 lean_inc_n(x_2, 2);
 x_35 = l_Array_qpartition_loop___at_Lean_mkTagDeclarationExtension___spec__2(x_34, x_3, x_32, x_30, x_2, x_2);
 x_4 = x_35;
@@ -6111,7 +6121,7 @@ lean_dec(x_32);
 x_36 = lean_array_swap(x_30, x_16, x_3);
 lean_dec(x_16);
 x_37 = lean_array_get(x_18, x_36, x_3);
-x_38 = l_Lean_NameSet_instForInNameSetName___closed__1;
+x_38 = l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1___closed__1;
 lean_inc_n(x_2, 2);
 x_39 = l_Array_qpartition_loop___at_Lean_mkTagDeclarationExtension___spec__2(x_38, x_3, x_37, x_36, x_2, x_2);
 x_4 = x_39;
@@ -7655,12 +7665,14 @@ x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = lean_ctor_get(x_1, 2);
 x_7 = lean_ctor_get(x_1, 3);
-x_8 = l_Lean_Name_quickLt(x_2, x_5);
-if (x_8 == 0)
+x_8 = l_Lean_Name_quickCmp(x_2, x_5);
+switch (x_8) {
+case 0:
 {
-uint8_t x_9; 
-x_9 = l_Lean_Name_quickLt(x_5, x_2);
-if (x_9 == 0)
+x_1 = x_4;
+goto _start;
+}
+case 1:
 {
 lean_object* x_10; 
 lean_inc(x_6);
@@ -7668,16 +7680,11 @@ x_10 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_10, 0, x_6);
 return x_10;
 }
-else
+default: 
 {
 x_1 = x_7;
 goto _start;
 }
-}
-else
-{
-x_1 = x_4;
-goto _start;
 }
 }
 }
@@ -13438,6 +13445,8 @@ l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4___closed__2 = _in
 lean_mark_persistent(l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4___closed__2);
 l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1 = _init_l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1();
 lean_mark_persistent(l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1);
+l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1___closed__1 = _init_l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1___closed__1();
+lean_mark_persistent(l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1___closed__1);
 l_Lean_mkTagDeclarationExtension___closed__1 = _init_l_Lean_mkTagDeclarationExtension___closed__1();
 lean_mark_persistent(l_Lean_mkTagDeclarationExtension___closed__1);
 l_Lean_mkTagDeclarationExtension___closed__2 = _init_l_Lean_mkTagDeclarationExtension___closed__2();

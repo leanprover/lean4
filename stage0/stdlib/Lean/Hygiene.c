@@ -22,7 +22,6 @@ lean_object* l_Lean_getSanitizeNames___closed__4;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_ReaderT_read___at_Lean_Unhygienic_instMonadQuotationUnhygienic___spec__1(lean_object*, lean_object*);
-uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserName(uint8_t, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Hygiene___hyg_316____closed__2;
@@ -56,6 +55,7 @@ lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNameAux___closed
 lean_object* l_Lean_Unhygienic_run___rarg(lean_object*);
 lean_object* l___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux_match__2(lean_object*);
 lean_object* l_Lean_getSanitizeNames___closed__3;
+uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_sanitizeName___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Unhygienic_instMonadQuotationUnhygienic___closed__10;
@@ -1018,12 +1018,14 @@ x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = lean_ctor_get(x_1, 2);
 x_7 = lean_ctor_get(x_1, 3);
-x_8 = l_Lean_Name_quickLt(x_2, x_5);
-if (x_8 == 0)
+x_8 = l_Lean_Name_quickCmp(x_2, x_5);
+switch (x_8) {
+case 0:
 {
-uint8_t x_9; 
-x_9 = l_Lean_Name_quickLt(x_5, x_2);
-if (x_9 == 0)
+x_1 = x_4;
+goto _start;
+}
+case 1:
 {
 lean_object* x_10; 
 lean_inc(x_6);
@@ -1031,16 +1033,11 @@ x_10 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_10, 0, x_6);
 return x_10;
 }
-else
+default: 
 {
 x_1 = x_7;
 goto _start;
 }
-}
-else
-{
-x_1 = x_4;
-goto _start;
 }
 }
 }
@@ -1369,12 +1366,14 @@ x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = lean_ctor_get(x_1, 2);
 x_7 = lean_ctor_get(x_1, 3);
-x_8 = l_Lean_Name_quickLt(x_2, x_5);
-if (x_8 == 0)
+x_8 = l_Lean_Name_quickCmp(x_2, x_5);
+switch (x_8) {
+case 0:
 {
-uint8_t x_9; 
-x_9 = l_Lean_Name_quickLt(x_5, x_2);
-if (x_9 == 0)
+x_1 = x_4;
+goto _start;
+}
+case 1:
 {
 lean_object* x_10; 
 lean_inc(x_6);
@@ -1382,16 +1381,11 @@ x_10 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_10, 0, x_6);
 return x_10;
 }
-else
+default: 
 {
 x_1 = x_7;
 goto _start;
 }
-}
-else
-{
-x_1 = x_4;
-goto _start;
 }
 }
 }

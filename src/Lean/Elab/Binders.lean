@@ -531,13 +531,13 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
     if useLetExpr then
       withLetDecl id.getId type val fun x => do
         addLocalVarInfo id x
-        let body ← elabTerm body expectedType?
+        let body ← elabTermEnsuringType body expectedType?
         let body ← instantiateMVars body
         mkLetFVars #[x] body
     else
       let f ← withLocalDecl id.getId BinderInfo.default type fun x => do
         addLocalVarInfo id x
-        let body ← elabTerm body expectedType?
+        let body ← elabTermEnsuringType body expectedType?
         let body ← instantiateMVars body
         mkLambdaFVars #[x] body
       pure <| mkApp f val

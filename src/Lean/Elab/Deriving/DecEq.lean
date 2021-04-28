@@ -21,7 +21,7 @@ def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunNam
   `(match $[$discrs],* with $alts:matchAlt*)
 where
   mkSameCtorRhs : List (Syntax × Syntax × Bool) → TermElabM Syntax
-    | [] => `(isTrue rfl)
+    | [] => ``(isTrue rfl)
     | (a, b, recField) :: todo => withFreshMacroScope do
       let rhs ←
         `(if h : $a = $b then

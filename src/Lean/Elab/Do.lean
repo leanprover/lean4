@@ -326,7 +326,7 @@ def mkSimpleJmp (ref : Syntax) (rs : NameSet) (c : Code) : StateRefT (Array JPDe
   let xs := nameSetToArray rs
   let jp ← addFreshJP (xs.map fun x => (x, true)) c
   if xs.isEmpty then
-    let unit ← `(Unit.unit)
+    let unit ← ``(Unit.unit)
     return Code.jmp ref jp #[unit]
   else
     return Code.jmp ref jp (xs.map $ mkIdentFrom ref)
@@ -362,7 +362,7 @@ partial def pullExitPointsAux : NameSet → Code → StateRefT (Array JPDecl) Te
     -- We use `mkAuxDeclFor` because `e` is not pure.
     mkAuxDeclFor e fun y =>
       let ref := e
-      mkJmp ref rs y (fun yFresh => do pure $ Code.action (← `(Pure.pure $yFresh)))
+      mkJmp ref rs y (fun yFresh => do pure $ Code.action (← ``(Pure.pure $yFresh)))
 
 /-
 Auxiliary operation for adding new variables to the collection of updated variables in a CodeBlock.
@@ -523,10 +523,10 @@ def mkIte (ref : Syntax) (optIdent : Syntax) (cond : Syntax) (thenBranch : CodeB
   }
 
 private def mkUnit : MacroM Syntax :=
-  `((⟨⟩ : PUnit))
+  ``((⟨⟩ : PUnit))
 
 private def mkPureUnit : MacroM Syntax :=
-  `(pure PUnit.unit)
+  ``(pure PUnit.unit)
 
 def mkPureUnitAction : MacroM CodeBlock := do
   mkTerminalAction (← mkPureUnit)
@@ -703,7 +703,7 @@ private def mkTuple (elems : Array Syntax) : MacroM Syntax := do
     pure elems[0]
   else
     (elems.extract 0 (elems.size - 1)).foldrM
-      (fun elem tuple => `(MProd.mk $elem $tuple))
+      (fun elem tuple => ``(MProd.mk $elem $tuple))
       (elems.back)
 
 /- Return `some action` if `doElem` is a `doExpr <action>`-/
@@ -862,49 +862,49 @@ def returnToTerm (val : Syntax) : M Syntax := do
   let ctx ← read
   let u ← mkUVarTuple
   match ctx.kind with
-  | Kind.regular         => if ctx.uvars.isEmpty then `(Pure.pure $val) else `(Pure.pure (MProd.mk $val $u))
-  | Kind.forIn           => `(Pure.pure (ForInStep.done $u))
-  | Kind.forInWithReturn => `(Pure.pure (ForInStep.done (MProd.mk (some $val) $u)))
+  | Kind.regular         => if ctx.uvars.isEmpty then ``(Pure.pure $val) else ``(Pure.pure (MProd.mk $val $u))
+  | Kind.forIn           => ``(Pure.pure (ForInStep.done $u))
+  | Kind.forInWithReturn => ``(Pure.pure (ForInStep.done (MProd.mk (some $val) $u)))
   | Kind.nestedBC        => unreachable!
-  | Kind.nestedPR        => `(Pure.pure (DoResultPR.«return» $val $u))
-  | Kind.nestedSBC       => `(Pure.pure (DoResultSBC.«pureReturn» $val $u))
-  | Kind.nestedPRBC      => `(Pure.pure (DoResultPRBC.«return» $val $u))
+  | Kind.nestedPR        => ``(Pure.pure (DoResultPR.«return» $val $u))
+  | Kind.nestedSBC       => ``(Pure.pure (DoResultSBC.«pureReturn» $val $u))
+  | Kind.nestedPRBC      => ``(Pure.pure (DoResultPRBC.«return» $val $u))
 
 def continueToTerm : M Syntax := do
   let ctx ← read
   let u ← mkUVarTuple
   match ctx.kind with
   | Kind.regular         => unreachable!
-  | Kind.forIn           => `(Pure.pure (ForInStep.yield $u))
-  | Kind.forInWithReturn => `(Pure.pure (ForInStep.yield (MProd.mk none $u)))
-  | Kind.nestedBC        => `(Pure.pure (DoResultBC.«continue» $u))
+  | Kind.forIn           => ``(Pure.pure (ForInStep.yield $u))
+  | Kind.forInWithReturn => ``(Pure.pure (ForInStep.yield (MProd.mk none $u)))
+  | Kind.nestedBC        => ``(Pure.pure (DoResultBC.«continue» $u))
   | Kind.nestedPR        => unreachable!
-  | Kind.nestedSBC       => `(Pure.pure (DoResultSBC.«continue» $u))
-  | Kind.nestedPRBC      => `(Pure.pure (DoResultPRBC.«continue» $u))
+  | Kind.nestedSBC       => ``(Pure.pure (DoResultSBC.«continue» $u))
+  | Kind.nestedPRBC      => ``(Pure.pure (DoResultPRBC.«continue» $u))
 
 def breakToTerm : M Syntax := do
   let ctx ← read
   let u ← mkUVarTuple
   match ctx.kind with
   | Kind.regular         => unreachable!
-  | Kind.forIn           => `(Pure.pure (ForInStep.done $u))
-  | Kind.forInWithReturn => `(Pure.pure (ForInStep.done (MProd.mk none $u)))
-  | Kind.nestedBC        => `(Pure.pure (DoResultBC.«break» $u))
+  | Kind.forIn           => ``(Pure.pure (ForInStep.done $u))
+  | Kind.forInWithReturn => ``(Pure.pure (ForInStep.done (MProd.mk none $u)))
+  | Kind.nestedBC        => ``(Pure.pure (DoResultBC.«break» $u))
   | Kind.nestedPR        => unreachable!
-  | Kind.nestedSBC       => `(Pure.pure (DoResultSBC.«break» $u))
-  | Kind.nestedPRBC      => `(Pure.pure (DoResultPRBC.«break» $u))
+  | Kind.nestedSBC       => ``(Pure.pure (DoResultSBC.«break» $u))
+  | Kind.nestedPRBC      => ``(Pure.pure (DoResultPRBC.«break» $u))
 
 def actionTerminalToTerm (action : Syntax) : M Syntax := withRef action <| withFreshMacroScope do
   let ctx ← read
   let u ← mkUVarTuple
   match ctx.kind with
-  | Kind.regular         => if ctx.uvars.isEmpty then pure action else `(Bind.bind $action fun y => Pure.pure (MProd.mk y $u))
-  | Kind.forIn           => `(Bind.bind $action fun (_ : PUnit) => Pure.pure (ForInStep.yield $u))
-  | Kind.forInWithReturn => `(Bind.bind $action fun (_ : PUnit) => Pure.pure (ForInStep.yield (MProd.mk none $u)))
+  | Kind.regular         => if ctx.uvars.isEmpty then pure action else ``(Bind.bind $action fun y => Pure.pure (MProd.mk y $u))
+  | Kind.forIn           => ``(Bind.bind $action fun (_ : PUnit) => Pure.pure (ForInStep.yield $u))
+  | Kind.forInWithReturn => ``(Bind.bind $action fun (_ : PUnit) => Pure.pure (ForInStep.yield (MProd.mk none $u)))
   | Kind.nestedBC        => unreachable!
-  | Kind.nestedPR        => `(Bind.bind $action fun y => (Pure.pure (DoResultPR.«pure» y $u)))
-  | Kind.nestedSBC       => `(Bind.bind $action fun y => (Pure.pure (DoResultSBC.«pureReturn» y $u)))
-  | Kind.nestedPRBC      => `(Bind.bind $action fun y => (Pure.pure (DoResultPRBC.«pure» y $u)))
+  | Kind.nestedPR        => ``(Bind.bind $action fun y => (Pure.pure (DoResultPR.«pure» y $u)))
+  | Kind.nestedSBC       => ``(Bind.bind $action fun y => (Pure.pure (DoResultSBC.«pureReturn» y $u)))
+  | Kind.nestedPRBC      => ``(Bind.bind $action fun y => (Pure.pure (DoResultPRBC.«pure» y $u)))
 
 def seqToTerm (action : Syntax) (k : Syntax) : M Syntax := withRef action <| withFreshMacroScope do
   if action.getKind == `Lean.Parser.Term.doDbgTrace then
@@ -914,8 +914,8 @@ def seqToTerm (action : Syntax) (k : Syntax) : M Syntax := withRef action <| wit
     let cond := action[1]
     `(assert! $cond; $k)
   else
-    let action ← withRef action `(($action : $((←read).m) PUnit))
-    `(Bind.bind $action (fun (_ : PUnit) => $k))
+    let action ← withRef action ``(($action : $((←read).m) PUnit))
+    ``(Bind.bind $action (fun (_ : PUnit) => $k))
 
 def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := withRef decl <| withFreshMacroScope do
   let kind := decl.getKind
@@ -937,7 +937,7 @@ def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := withRef decl <| withFr
       match isDoExpr? doElem with
       | some action =>
         let action ← withRef action `(($action : $((← read).m) $type))
-        `(Bind.bind $action (fun ($id:ident : $type) => $k))
+        ``(Bind.bind $action (fun ($id:ident : $type) => $k))
       | none        => Macro.throwErrorAt decl "unexpected kind of 'do' declaration"
     else
       Macro.throwErrorAt decl "unexpected kind of 'do' declaration"
@@ -972,10 +972,10 @@ def reassignToTerm (reassign : Syntax) (k : Syntax) : MacroM Syntax := withRef r
 
 def mkIte (optIdent : Syntax) (cond : Syntax) (thenBranch : Syntax) (elseBranch : Syntax) : MacroM Syntax := do
   if optIdent.isNone then
-    `(ite $cond $thenBranch $elseBranch)
+    ``(ite $cond $thenBranch $elseBranch)
   else
     let h := optIdent[0]
-    `(dite $cond (fun $h => $thenBranch) (fun $h => $elseBranch))
+    ``(dite $cond (fun $h => $thenBranch) (fun $h => $elseBranch))
 
 def mkJoinPoint (j : Name) (ps : Array (Name × Bool)) (body : Syntax) (k : Syntax) : M Syntax := withRef body <| withFreshMacroScope do
   let pTypes ← ps.mapM fun ⟨id, useTypeOf⟩ => do if useTypeOf then `(typeOf% $(← mkIdentFromRef id)) else `(_)
@@ -1369,7 +1369,7 @@ mutual
       let doForDecls := doForDecls.eraseIdx 1
       let body := doFor[3]
       withFreshMacroScope do
-        let toStreamFn ← withRef ys `(toStream)
+        let toStreamFn ← withRef ys ``(toStream)
         let auxDo ←
           `(do let mut s := $toStreamFn:ident $ys
                for $doForDecls:doForDecl,* do
@@ -1467,10 +1467,10 @@ mutual
       (fun term «catch» => do
         let catchTerm ← toTerm «catch».codeBlock
         if catch.optType.isNone then
-          `(MonadExcept.tryCatch $term (fun $(«catch».x):ident => $catchTerm))
+          ``(MonadExcept.tryCatch $term (fun $(«catch».x):ident => $catchTerm))
         else
           let type := «catch».optType[1]
-          `(tryCatchThe $type $term (fun $(«catch».x):ident => $catchTerm)))
+          ``(tryCatchThe $type $term (fun $(«catch».x):ident => $catchTerm)))
       term
     let term ← match finallyCode? with
       | none             => pure term
@@ -1480,7 +1480,7 @@ mutual
         if hasBreakContinueReturn finallyCode.code then
           throwError "'finally' currently does 'return', 'break', nor 'continue'"
         let finallyTerm ← liftMacroM <| ToTerm.run finallyCode.code ctx.m {} ToTerm.Kind.regular
-        `(tryFinally $term $finallyTerm)
+        ``(tryFinally $term $finallyTerm)
     let doElemsNew ← liftMacroM <| ToTerm.matchNestedTermResult term uvars a r bc
     doSeqToCode (doElemsNew ++ doElems)
 

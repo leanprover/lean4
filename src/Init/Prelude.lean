@@ -18,7 +18,9 @@ abbrev Function.comp {α : Sort u} {β : Sort v} {δ : Sort w} (f : β → δ) (
 abbrev Function.const {α : Sort u} (β : Sort v) (a : α) : β → α :=
   fun x => a
 
+set_option checkBinderAnnotations false in
 @[reducible] def inferInstance {α : Sort u} [i : α] : α := i
+set_option checkBinderAnnotations false in
 @[reducible] def inferInstanceAs (α : Sort u) [i : α] : α := i
 
 set_option bootstrap.inductiveCheckResultingUniverse false in
@@ -830,7 +832,7 @@ instance : LT UInt32 where
 
 instance : LE UInt32 where
   le a b := LE.le a.val b.val
- 
+
 set_option bootstrap.genMatcherCode false in
 @[extern c inline "#1 < #2"]
 def UInt32.decLt (a b : UInt32) : Decidable (LT.lt a b) :=

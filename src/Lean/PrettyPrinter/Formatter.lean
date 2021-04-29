@@ -412,7 +412,8 @@ def sepByNoAntiquot.formatter (p pSep : Formatter) : Formatter := do
 @[combinatorFormatter Lean.Parser.setExpected]
 def setExpected.formatter (expected : List String) (p : Formatter) : Formatter := p
 
-@[combinatorFormatter Lean.Parser.toggleInsideQuot] def toggleInsideQuot.formatter (p : Formatter) : Formatter := p
+@[combinatorFormatter Lean.Parser.incQuotDepth] def incQuotDepth.formatter (p : Formatter) : Formatter := p
+@[combinatorFormatter Lean.Parser.decQuotDepth] def decQuotDepth.formatter (p : Formatter) : Formatter := p
 @[combinatorFormatter Lean.Parser.suppressInsideQuot] def suppressInsideQuot.formatter (p : Formatter) : Formatter := p
 @[combinatorFormatter Lean.Parser.evalInsideQuot] def evalInsideQuot.formatter (declName : Name) (p : Formatter) : Formatter := p
 

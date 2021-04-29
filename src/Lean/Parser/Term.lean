@@ -226,11 +226,11 @@ def isIdent (stx : Syntax) : Bool :=
 @[builtinTermParser] def subst := trailing_parser:75 " ▸ " >> sepBy1 (termParser 75) " ▸ "
 
 -- NOTE: Doesn't call `categoryParser` directly in contrast to most other "static" quotations, so call `evalInsideQuot` explicitly
-@[builtinTermParser] def funBinder.quot : Parser := leading_parser "`(funBinder|"  >> toggleInsideQuot (evalInsideQuot ``funBinder funBinder) >> ")"
+@[builtinTermParser] def funBinder.quot : Parser := leading_parser "`(funBinder|"  >> incQuotDepth (evalInsideQuot ``funBinder funBinder) >> ")"
 def bracketedBinderF := bracketedBinder  -- no default arg
-@[builtinTermParser] def bracketedBinder.quot : Parser := leading_parser "`(bracketedBinder|"  >> toggleInsideQuot (evalInsideQuot ``bracketedBinderF bracketedBinder) >> ")"
-@[builtinTermParser] def matchDiscr.quot : Parser := leading_parser "`(matchDiscr|"  >> toggleInsideQuot (evalInsideQuot ``matchDiscr matchDiscr) >> ")"
-@[builtinTermParser] def attr.quot : Parser := leading_parser "`(attr|"  >> toggleInsideQuot attrParser >> ")"
+@[builtinTermParser] def bracketedBinder.quot : Parser := leading_parser "`(bracketedBinder|"  >> incQuotDepth (evalInsideQuot ``bracketedBinderF bracketedBinder) >> ")"
+@[builtinTermParser] def matchDiscr.quot : Parser := leading_parser "`(matchDiscr|"  >> incQuotDepth (evalInsideQuot ``matchDiscr matchDiscr) >> ")"
+@[builtinTermParser] def attr.quot : Parser := leading_parser "`(attr|"  >> incQuotDepth attrParser >> ")"
 
 @[builtinTermParser] def panic       := leading_parser:leadPrec "panic! " >> termParser
 @[builtinTermParser] def unreachable := leading_parser:leadPrec "unreachable!"
@@ -245,14 +245,14 @@ def macroLastArg   := macroDollarArg <|> macroArg
 -- Macro for avoiding exponentially big terms when using `STWorld`
 @[builtinTermParser] def stateRefT   := leading_parser "StateRefT" >> macroArg >> macroLastArg
 
-@[builtinTermParser] def dynamicQuot := leading_parser "`(" >> ident >> "|" >> toggleInsideQuot (parserOfStack 1) >> ")"
+@[builtinTermParser] def dynamicQuot := leading_parser "`(" >> ident >> "|" >> incQuotDepth (parserOfStack 1) >> ")"
 
 end Term
 
-@[builtinTermParser default+1] def Tactic.quot    : Parser := leading_parser "`(tactic|" >> toggleInsideQuot tacticParser >> ")"
-@[builtinTermParser] def Tactic.quotSeq : Parser := leading_parser "`(tactic|" >> toggleInsideQuot Tactic.seq1 >> ")"
+@[builtinTermParser default+1] def Tactic.quot    : Parser := leading_parser "`(tactic|" >> incQuotDepth tacticParser >> ")"
+@[builtinTermParser] def Tactic.quotSeq : Parser := leading_parser "`(tactic|" >> incQuotDepth Tactic.seq1 >> ")"
 
-@[builtinTermParser] def Level.quot  : Parser := leading_parser "`(level|" >> toggleInsideQuot levelParser >> ")"
+@[builtinTermParser] def Level.quot  : Parser := leading_parser "`(level|" >> incQuotDepth levelParser >> ")"
 
 builtin_initialize
   register_parser_alias "letDecl"         Term.letDecl

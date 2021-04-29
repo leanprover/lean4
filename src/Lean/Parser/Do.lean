@@ -125,7 +125,7 @@ The second `notFollowedBy` prevents this problem.
 
 @[builtinTermParser] def «do»  := leading_parser:argPrec "do " >> doSeq
 
-@[builtinTermParser] def doElem.quot : Parser := leading_parser "`(doElem|" >> toggleInsideQuot doElemParser >> ")"
+@[builtinTermParser] def doElem.quot : Parser := leading_parser "`(doElem|" >> incQuotDepth doElemParser >> ")"
 
 /- macros for using `unless`, `for`, `try`, `return` as terms. They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...` -/
 @[builtinTermParser] def termUnless := leading_parser "unless " >> withForbidden "do" termParser >> "do " >> doSeq

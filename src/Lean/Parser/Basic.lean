@@ -1696,7 +1696,7 @@ def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
 
 @[inline] def tokenWithAntiquotFn (p : ParserFn) : ParserFn := fun c s => do
   let s := p c s
-  if s.hasError then
+  if s.hasError || c.quotDepth == 0 then
     return s
   let iniSz  := s.stackSize
   let iniPos := s.pos
@@ -1739,7 +1739,9 @@ def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := true
     checkNoWsBefore "no space before spliced term" >> antiquotExpr >>
     nameP
 
-def tryAnti (c : ParserContext) (s : ParserState) : Bool :=
+def tryAnti (c : ParserContext) (s : ParserState) : Bool := do
+  if c.quotDepth == 0 then
+    return false
   let (s, stx) := peekToken c s
   match stx with
   | Except.ok stx@(Syntax.atom _ sym) => sym == "$"
@@ -1768,7 +1770,7 @@ def mkAntiquotSplice (kind : SyntaxNodeKind) (p suffix : Parser) : Parser :=
 
 @[inline] def withAntiquotSuffixSpliceFn (kind : SyntaxNodeKind) (p suffix : ParserFn) : ParserFn := fun c s => do
   let s := p c s
-  if s.hasError || !s.stxStack.back.isAntiquot then
+  if s.hasError || c.quotDepth == 0 || !s.stxStack.back.isAntiquot then
     return s
   let iniSz  := s.stackSize
   let iniPos := s.pos
@@ -1852,7 +1854,7 @@ def parserOfStack (offset : Nat) (prec : Nat := 0) : Parser :=
 /-- Run `declName` if possible and inside a quotation, or else `p`. The `ParserInfo` will always be taken from `p`. -/
 def evalInsideQuot (declName : Name) (p : Parser) : Parser := { p with
   fn := fun c s =>
-    if c.insideQuot && c.env.contains declName then
+    if c.quotDepth > 0 && !c.suppressInsideQuot && c.env.contains declName then
       evalParserConst declName c s
     else
       p.fn c s }

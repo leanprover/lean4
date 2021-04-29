@@ -156,7 +156,6 @@ lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnumAttributes___rarg___lambda__3___closed__4;
 lean_object* l_Lean_instInhabitedAttributeImpl___closed__1;
 lean_object* l_Lean_mkAttributeImplOfConstant___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5684____closed__15;
 lean_object* l_Lean_AttributeImpl_erase___default___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedAttributeExtensionState___closed__1;
 lean_object* l_Lean_mkAttributeImplOfConstant___closed__1;
@@ -253,6 +252,7 @@ lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean
 lean_object* l_Lean_instInhabitedAttributeImpl___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParametricAttribute_setParam(lean_object*);
 lean_object* l_Lean_Attribute_Builtin_getId_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5717____closed__15;
 lean_object* l_Array_qpartition_loop___at_Lean_registerEnumAttributes___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_attributeExtension___closed__1;
 lean_object* l_Lean_setEnv___at_Lean_registerTagAttribute___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6035,7 +6035,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Attr_simp___closed__2;
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5684____closed__15;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5717____closed__15;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

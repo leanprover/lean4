@@ -156,6 +156,11 @@ private def ensureAtomicBinderName (binderView : BinderView) : TermElabM Unit :=
   unless n.isAtomic do
     throwErrorAt binderView.id "invalid binder name '{n}', it must be atomic"
 
+register_builtin_option checkBinderAnnotations : Bool := {
+  defValue := true
+  descr    := "check whether type is a class instance whenever the binder annotation `[...]` is used"
+}
+
 private partial def elabBinderViews {α} (binderViews : Array BinderView) (fvars : Array Expr) (k : Array Expr → TermElabM α)
     : TermElabM α :=
   let rec loop (i : Nat) (fvars : Array Expr) : TermElabM α := do
@@ -164,6 +169,9 @@ private partial def elabBinderViews {α} (binderViews : Array BinderView) (fvars
       ensureAtomicBinderName binderView
       let type ← elabType binderView.type
       registerFailedToInferBinderTypeInfo type binderView.type
+      if binderView.bi.isInstImplicit && checkBinderAnnotations.get (← getOptions) then
+        unless (← isClass? type).isSome do
+          throwErrorAt binderView.type "invalid binder annotation, type is not a class instance{indentExpr type}\nuse the command `set_option checkBinderAnnotations false` to disable the check"
       withLocalDecl binderView.id.getId binderView.bi type fun fvar => do
         addLocalVarInfo binderView.id fvar
         loop (i+1) (fvars.push fvar)

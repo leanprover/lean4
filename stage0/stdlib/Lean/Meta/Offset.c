@@ -14,13 +14,12 @@
 extern "C" {
 #endif
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_isOffset_match__1(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_3744____closed__7;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewMCtxDepthImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isDefEqOffset_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffsetAux(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffsetAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_3989____closed__7;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_3762____closed__7;
 lean_object* l_Lean_Meta_evalNat_visit___closed__11;
 lean_object* l_Lean_Meta_evalNat_visit___closed__12;
 lean_object* l_Lean_Meta_isExprDefEqAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -48,12 +47,12 @@ lean_object* l_Lean_Meta_withNewMCtxDepth___at_Lean_Meta_isDefEqOffset___spec__1
 extern lean_object* l_Lean_Literal_type___closed__1;
 lean_object* l_Lean_Meta_evalNat_match__1(lean_object*);
 extern lean_object* l_Lean_Expr_isCharLit___closed__3;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_3499____closed__7;
 lean_object* l_Lean_Meta_isDefEqOffset_match__1(lean_object*);
 lean_object* l_Lean_Meta_evalNat_visit___closed__18;
 extern lean_object* l_Lean_Literal_type___closed__2;
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_isOffset_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_evalNat_visit___closed__13;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_3514____closed__7;
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffsetAux_match__2___rarg(lean_object*, uint8_t, lean_object*, lean_object*);
 extern lean_object* l_Lean_Syntax_decodeNatLitVal_x3f___closed__1;
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffsetAux_match__1(lean_object*);
@@ -78,6 +77,7 @@ lean_object* l_Lean_Meta_evalNat_visit___closed__2;
 lean_object* l_Lean_Meta_instantiateMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffset(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_mkOffset___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_4010____closed__7;
 lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_Meta_evalNat_visit___closed__7;
@@ -1249,12 +1249,12 @@ block_155:
 {
 lean_object* x_46; uint8_t x_47; 
 lean_dec(x_45);
-x_46 = l_myMacro____x40_Init_Notation___hyg_3744____closed__7;
+x_46 = l_myMacro____x40_Init_Notation___hyg_3762____closed__7;
 x_47 = lean_name_eq(x_27, x_46);
 if (x_47 == 0)
 {
 lean_object* x_48; uint8_t x_49; 
-x_48 = l_myMacro____x40_Init_Notation___hyg_3989____closed__7;
+x_48 = l_myMacro____x40_Init_Notation___hyg_4010____closed__7;
 x_49 = lean_name_eq(x_27, x_48);
 if (x_49 == 0)
 {
@@ -1963,7 +1963,7 @@ x_209 = lean_name_eq(x_27, x_208);
 if (x_209 == 0)
 {
 lean_object* x_210; uint8_t x_211; 
-x_210 = l_myMacro____x40_Init_Notation___hyg_3499____closed__7;
+x_210 = l_myMacro____x40_Init_Notation___hyg_3514____closed__7;
 x_211 = lean_name_eq(x_27, x_210);
 if (x_211 == 0)
 {
@@ -2002,7 +2002,7 @@ x_218 = lean_nat_dec_eq(x_29, x_217);
 if (x_218 == 0)
 {
 lean_object* x_219; uint8_t x_220; 
-x_219 = l_myMacro____x40_Init_Notation___hyg_3499____closed__7;
+x_219 = l_myMacro____x40_Init_Notation___hyg_3514____closed__7;
 x_220 = lean_name_eq(x_27, x_219);
 if (x_220 == 0)
 {
@@ -4048,7 +4048,7 @@ block_112:
 {
 lean_object* x_33; uint8_t x_34; 
 lean_dec(x_32);
-x_33 = l_myMacro____x40_Init_Notation___hyg_3499____closed__7;
+x_33 = l_myMacro____x40_Init_Notation___hyg_3514____closed__7;
 x_34 = lean_name_eq(x_29, x_33);
 lean_dec(x_29);
 if (x_34 == 0)
@@ -5329,7 +5329,7 @@ block_41:
 {
 lean_object* x_31; uint8_t x_32; 
 lean_dec(x_30);
-x_31 = l_myMacro____x40_Init_Notation___hyg_3499____closed__7;
+x_31 = l_myMacro____x40_Init_Notation___hyg_3514____closed__7;
 x_32 = lean_name_eq(x_27, x_31);
 lean_dec(x_27);
 if (x_32 == 0)

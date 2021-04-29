@@ -68,7 +68,6 @@ lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getString_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_bool_data_value(uint8_t);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22181____closed__8;
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_subsetAux_match__1(lean_object*);
 lean_object* l_Lean_KVMap_get_x3f___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -166,6 +165,7 @@ lean_object* l_Lean_KVMap_instValueInt___closed__1;
 lean_object* l_Lean_KVMap_forIn(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_instValueNat___lambda__2(lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22323____closed__8;
 lean_object* l_Lean_instCoeNatDataValue(lean_object*);
 lean_object* l_Lean_KVMap_findCore___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getString___boxed(lean_object*, lean_object*, lean_object*);
@@ -774,7 +774,7 @@ lean_dec(x_1);
 if (x_3 == 0)
 {
 lean_object* x_4; 
-x_4 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22181____closed__8;
+x_4 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22323____closed__8;
 return x_4;
 }
 else

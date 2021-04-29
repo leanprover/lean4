@@ -253,6 +253,7 @@ uint8_t l_Lean_Server_FileWorker_handleWaitForDiagnostics___lambda__1(lean_objec
 lean_object* l_Lean_Server_FileWorker_handleRequest_match__2___rarg___closed__9;
 extern lean_object* l_Lean_JsonRpc_instToJsonMessage___closed__10;
 lean_object* l_Lean_Server_FileWorker_queueRequest___lambda__1(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5717____closed__22;
 extern lean_object* l_Lean_JsonRpc_instToJsonMessage___closed__5;
 lean_object* l_Lean_Server_FileWorker_handleRequest_match__2___rarg___closed__8;
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__3;
@@ -297,6 +298,7 @@ lean_object* l_Lean_Server_FileWorker_handleWaitForDiagnostics___lambda__4___clo
 lean_object* l_Lean_Json_compress(lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_exit___elambda__1___closed__1;
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5717____closed__25;
 lean_object* l_Lean_Server_FileWorker_handleWaitForDiagnostics___closed__1;
 lean_object* l_Std_PersistentArray_mapM___at_Lean_Server_FileWorker_publishMessages___spec__1___boxed__const__1;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_handleRequest___spec__13___boxed(lean_object*, lean_object*, lean_object*);
@@ -335,7 +337,6 @@ lean_object* l_IO_AsyncList_append___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handlePlainGoal_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forIn___at_Lean_Server_FileWorker_handleSemanticTokens_highlightId___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_IO_FS_Stream_readLspNotificationAs___closed__1;
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5684____closed__25;
 lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_toJsonSemanticTokens____x40_Lean_Data_Lsp_LanguageFeatures___hyg_1631_(lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_Server_FileWorker_queueRequest___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_compileHeader___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -358,7 +359,6 @@ lean_object* l_Lean_Server_FileWorker_parseParams___at_Lean_Server_FileWorker_ha
 lean_object* l_Std_RBNode_appendTrees___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleCompletion_match__2(lean_object*);
 lean_object* l_Lean_Elab_Command_mkState(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5684____closed__22;
 lean_object* l_Lean_Server_FileWorker_leanpkgSetupSearchPath_processStderr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_namespace___elambda__1___closed__2;
 lean_object* l_IO_AsyncList_waitFind_x3f___at_Lean_Server_FileWorker_withWaitFindSnap___spec__1(lean_object*, lean_object*, lean_object*);
@@ -396,7 +396,6 @@ lean_object* l_IO_FS_Stream_writeLspResponse___at_Lean_Server_FileWorker_handleR
 lean_object* l_Lean_Server_FileWorker_compileHeader___lambda__4___closed__1;
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_Server_FileWorker_updateDocument___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_17364____closed__2;
 lean_object* lean_format_pretty(lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_updateDocument___lambda__3___closed__1;
 extern lean_object* l_Lean_choiceKind;
@@ -605,6 +604,7 @@ lean_object* l_Std_PersistentArray_toArray___rarg(lean_object*);
 lean_object* l_Lean_Elab_Info_tailPos_x3f(lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleRequest_match__2___rarg___closed__1;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_17506____closed__2;
 lean_object* l_Lean_Server_FileWorker_handleHover_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_List_get_x21___at_Lean_Server_FileWorker_updateDocument___spec__2(lean_object*, lean_object*);
@@ -21494,7 +21494,7 @@ _start:
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_7 = lean_unsigned_to_nat(4u);
 x_8 = l_Lean_Syntax_getArg(x_1, x_7);
-x_9 = l_myMacro____x40_Init_NotationExtra___hyg_5684____closed__25;
+x_9 = l_myMacro____x40_Init_NotationExtra___hyg_5717____closed__25;
 lean_inc(x_2);
 x_10 = lean_name_mk_string(x_2, x_9);
 lean_inc(x_8);
@@ -22789,7 +22789,7 @@ else
 lean_object* x_116; lean_object* x_117; lean_object* x_118; uint8_t x_119; 
 x_116 = lean_unsigned_to_nat(1u);
 x_117 = l_Lean_Syntax_getArg(x_4, x_116);
-x_118 = l_myMacro____x40_Init_NotationExtra___hyg_5684____closed__22;
+x_118 = l_myMacro____x40_Init_NotationExtra___hyg_5717____closed__22;
 lean_inc(x_117);
 x_119 = l_Lean_Syntax_isOfKind(x_117, x_118);
 if (x_119 == 0)
@@ -23903,7 +23903,7 @@ else
 lean_object* x_371; lean_object* x_372; lean_object* x_373; uint8_t x_374; 
 x_371 = lean_unsigned_to_nat(1u);
 x_372 = l_Lean_Syntax_getArg(x_4, x_371);
-x_373 = l_myMacro____x40_Init_NotationExtra___hyg_5684____closed__22;
+x_373 = l_myMacro____x40_Init_NotationExtra___hyg_5717____closed__22;
 lean_inc(x_372);
 x_374 = l_Lean_Syntax_isOfKind(x_372, x_373);
 if (x_374 == 0)
@@ -25409,7 +25409,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Term_mkExplicitBinder___closed__1;
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_17364____closed__2;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_17506____closed__2;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }

@@ -127,12 +127,12 @@ infixr:100 " <$> " => Functor.map
 syntax (name := termDepIfThenElse) ppGroup(ppDedent("if " ident " : " term " then" ppSpace term ppDedent(ppSpace "else") ppSpace term)) : term
 
 macro_rules
-  | `(if $h:ident : $c then $t:term else $e:term) => `(dite $c (fun $h:ident => $t) (fun $h:ident => $e))
+  | `(if $h:ident : $c then $t:term else $e:term) => ``(dite $c (fun $h:ident => $t) (fun $h:ident => $e))
 
 syntax (name := termIfThenElse) ppGroup(ppDedent("if " term " then" ppSpace term ppDedent(ppSpace "else") ppSpace term)) : term
 
 macro_rules
-  | `(if $c then $t:term else $e:term) => `(ite $c $t $e)
+  | `(if $c then $t:term else $e:term) => ``(ite $c $t $e)
 
 macro "if " "let " pat:term " := " d:term " then " t:term " else " e:term : term =>
   `(match $d:term with | $pat:term => $t | _ => $e)
@@ -160,8 +160,8 @@ macro_rules
 syntax "{ " ident (" : " term)? " // " term " }" : term
 
 macro_rules
-  | `({ $x : $type // $p }) => `(Subtype (fun ($x:ident : $type) => $p))
-  | `({ $x // $p })         => `(Subtype (fun ($x:ident : _) => $p))
+  | `({ $x : $type // $p }) => ``(Subtype (fun ($x:ident : $type) => $p))
+  | `({ $x // $p })         => ``(Subtype (fun ($x:ident : _) => $p))
 
 /-
   `without_expected_type t` instructs Lean to elaborate `t` without an expected type.
@@ -180,9 +180,9 @@ macro_rules
       match i, skip with
       | 0,   _     => pure result
       | i+1, true  => expandListLit i false result
-      | i+1, false => expandListLit i true  (← `(List.cons $(elems.elemsAndSeps[i]) $result))
+      | i+1, false => expandListLit i true  (← ``(List.cons $(elems.elemsAndSeps[i]) $result))
     if elems.elemsAndSeps.size < 64 then
-      expandListLit elems.elemsAndSeps.size false (← `(List.nil))
+      expandListLit elems.elemsAndSeps.size false (← ``(List.nil))
     else
       `(%[ $elems,* | List.nil ])
 

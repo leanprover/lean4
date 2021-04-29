@@ -31,7 +31,6 @@ lean_object* l_Lean_throwError___at_Lean_Elab_elabSetOption___spec__4(lean_objec
 extern lean_object* l_instReprBool___closed__2;
 lean_object* l_Lean_throwError___at_Lean_Elab_elabSetOption_setOption___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabSetOption_setOption___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22181____closed__8;
 lean_object* l_Lean_Elab_elabSetOption___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabSetOption___rarg___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabSetOption_match__2___rarg(lean_object*, lean_object*, lean_object*);
@@ -65,6 +64,7 @@ lean_object* l_Lean_KVMap_insertCore(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabSetOption_setOption___rarg___lambda__4___closed__2;
 lean_object* l_Lean_throwError___at_Lean_Elab_elabSetOption___spec__2(lean_object*);
 lean_object* l_IO_toEIO___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22323____closed__8;
 lean_object* l_Lean_throwError___at_Lean_Elab_elabSetOption_setOption___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabSetOption(lean_object*);
 uint8_t l_Lean_DataValue_sameCtor(lean_object*, lean_object*);
@@ -94,7 +94,7 @@ if (x_8 == 0)
 {
 lean_object* x_9; uint8_t x_10; 
 lean_dec(x_2);
-x_9 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22181____closed__8;
+x_9 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22323____closed__8;
 x_10 = lean_string_dec_eq(x_6, x_9);
 lean_dec(x_6);
 if (x_10 == 0)
@@ -791,7 +791,7 @@ x_25 = lean_string_dec_eq(x_23, x_24);
 if (x_25 == 0)
 {
 lean_object* x_26; uint8_t x_27; 
-x_26 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22181____closed__8;
+x_26 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_22323____closed__8;
 x_27 = lean_string_dec_eq(x_23, x_26);
 lean_dec(x_23);
 if (x_27 == 0)

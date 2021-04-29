@@ -132,7 +132,7 @@ structure ParserModuleContext where
 structure ParserContext extends InputContext, ParserModuleContext where
   prec               : Nat
   tokens             : TokenTable
-  insideQuot         : Bool := false
+  quotDepth          : Nat := 0
   suppressInsideQuot : Bool := false
   savedPos?          : Option String.Pos := none
   forbiddenTk?       : Option Token := none
@@ -447,7 +447,7 @@ def setLhsPrecFn (prec : Nat) : ParserFn := fun c s =>
 }
 
 def checkInsideQuotFn : ParserFn := fun c s =>
-  if c.insideQuot then s
+  if c.quotDepth > 0 && !c.suppressInsideQuot then s
   else s.mkUnexpectedError "unexpected syntax outside syntax quotation"
 
 @[inline] def checkInsideQuot : Parser := {
@@ -456,7 +456,7 @@ def checkInsideQuotFn : ParserFn := fun c s =>
 }
 
 def checkOutsideQuotFn : ParserFn := fun c s =>
-  if !c.insideQuot then s
+  if !c.quotDepth == 0 || c.suppressInsideQuot then s
   else s.mkUnexpectedError "unexpected syntax inside syntax quotation"
 
 @[inline] def checkOutsideQuot : Parser := {
@@ -464,13 +464,17 @@ def checkOutsideQuotFn : ParserFn := fun c s =>
   fn   := checkOutsideQuotFn
 }
 
-def toggleInsideQuotFn (p : ParserFn) : ParserFn := fun c s =>
-  if c.suppressInsideQuot then p c s
-  else p { c with insideQuot := !c.insideQuot } s
+def addQuotDepthFn (i : Int) (p : ParserFn) : ParserFn := fun c s =>
+  p { c with quotDepth := c.quotDepth + i |>.toNat } s
 
-@[inline] def toggleInsideQuot (p : Parser) : Parser := {
+@[inline] def incQuotDepth (p : Parser) : Parser := {
   info := p.info,
-  fn   := toggleInsideQuotFn p.fn
+  fn   := addQuotDepthFn 1 p.fn
+}
+
+@[inline] def decQuotDepth (p : Parser) : Parser := {
+  info := p.info,
+  fn   := addQuotDepthFn (-1) p.fn
 }
 
 def suppressInsideQuotFn (p : ParserFn) : ParserFn := fun c s =>
@@ -1687,12 +1691,12 @@ def pushNone : Parser :=
   { fn := fun c s => s.pushSyntax mkNullNode }
 
 -- We support two kinds of antiquotations: `$id` and `$(t)`, where `id` is a term identifier and `t` is a term.
-def antiquotNestedExpr : Parser := node `antiquotNestedExpr (symbolNoAntiquot "(" >> toggleInsideQuot termParser >> symbolNoAntiquot ")")
+def antiquotNestedExpr : Parser := node `antiquotNestedExpr (symbolNoAntiquot "(" >> decQuotDepth termParser >> symbolNoAntiquot ")")
 def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
 
 @[inline] def tokenWithAntiquotFn (p : ParserFn) : ParserFn := fun c s => do
   let s := p c s
-  if s.hasError then
+  if s.hasError || c.quotDepth == 0 then
     return s
   let iniSz  := s.stackSize
   let iniPos := s.pos
@@ -1735,7 +1739,9 @@ def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := true
     checkNoWsBefore "no space before spliced term" >> antiquotExpr >>
     nameP
 
-def tryAnti (c : ParserContext) (s : ParserState) : Bool :=
+def tryAnti (c : ParserContext) (s : ParserState) : Bool := do
+  if c.quotDepth == 0 then
+    return false
   let (s, stx) := peekToken c s
   match stx with
   | Except.ok stx@(Syntax.atom _ sym) => sym == "$"
@@ -1764,7 +1770,7 @@ def mkAntiquotSplice (kind : SyntaxNodeKind) (p suffix : Parser) : Parser :=
 
 @[inline] def withAntiquotSuffixSpliceFn (kind : SyntaxNodeKind) (p suffix : ParserFn) : ParserFn := fun c s => do
   let s := p c s
-  if s.hasError || !s.stxStack.back.isAntiquot then
+  if s.hasError || c.quotDepth == 0 || !s.stxStack.back.isAntiquot then
     return s
   let iniSz  := s.stackSize
   let iniPos := s.pos
@@ -1848,7 +1854,7 @@ def parserOfStack (offset : Nat) (prec : Nat := 0) : Parser :=
 /-- Run `declName` if possible and inside a quotation, or else `p`. The `ParserInfo` will always be taken from `p`. -/
 def evalInsideQuot (declName : Name) (p : Parser) : Parser := { p with
   fn := fun c s =>
-    if c.insideQuot && c.env.contains declName then
+    if c.quotDepth > 0 && !c.suppressInsideQuot && c.env.contains declName then
       evalParserConst declName c s
     else
       p.fn c s }

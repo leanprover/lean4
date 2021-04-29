@@ -42,9 +42,9 @@ end Syntax
 
 namespace Term
 
-@[builtinTermParser] def stx.quot : Parser := leading_parser "`(stx|"  >> toggleInsideQuot syntaxParser >> ")"
-@[builtinTermParser] def prec.quot : Parser := leading_parser "`(prec|"  >> toggleInsideQuot precedenceParser >> ")"
-@[builtinTermParser] def prio.quot : Parser := leading_parser "`(prio|"  >> toggleInsideQuot priorityParser >> ")"
+@[builtinTermParser] def stx.quot : Parser := leading_parser "`(stx|"  >> incQuotDepth syntaxParser >> ")"
+@[builtinTermParser] def prec.quot : Parser := leading_parser "`(prec|"  >> incQuotDepth precedenceParser >> ")"
+@[builtinTermParser] def prio.quot : Parser := leading_parser "`(prio|"  >> incQuotDepth priorityParser >> ")"
 
 end Term
 
@@ -76,9 +76,9 @@ def macroArgSimple := leading_parser ident >> checkNoWsBefore "no space before '
 def macroArgSymbol := leading_parser strLit >> optional (atomic <| checkNoWsBefore >> "%" >> checkNoWsBefore >> ident)
 def macroArg  := macroArgSymbol <|> atomic macroArgSimple
 def macroHead := macroArg
-def macroTailTactic   : Parser := atomic (" : " >> identEq "tactic") >> darrow >> ("`(" >> toggleInsideQuot Tactic.seq1 >> ")" <|> termParser)
-def macroTailCommand  : Parser := atomic (" : " >> identEq "command") >> darrow >> ("`(" >> toggleInsideQuot (many1Unbox commandParser) >> ")" <|> termParser)
-def macroTailDefault  : Parser := atomic (" : " >> ident) >> darrow >> (("`(" >> toggleInsideQuot (categoryParserOfStack 2) >> ")") <|> termParser)
+def macroTailTactic   : Parser := atomic (" : " >> identEq "tactic") >> darrow >> ("`(" >> incQuotDepth Tactic.seq1 >> ")" <|> termParser)
+def macroTailCommand  : Parser := atomic (" : " >> identEq "command") >> darrow >> ("`(" >> incQuotDepth (many1Unbox commandParser) >> ")" <|> termParser)
+def macroTailDefault  : Parser := atomic (" : " >> ident) >> darrow >> (("`(" >> incQuotDepth (categoryParserOfStack 2) >> ")") <|> termParser)
 def macroTail := macroTailTactic <|> macroTailCommand <|> macroTailDefault
 @[builtinCommandParser] def «macro»       := leading_parser suppressInsideQuot (Term.attrKind >> "macro " >> optPrecedence >> optNamedName >> optNamedPrio >> macroHead >> many macroArg >> macroTail)
 

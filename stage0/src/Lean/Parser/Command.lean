@@ -15,7 +15,7 @@ namespace Parser
   Multiple command will be put in a `null node, but a single command will not (so that you can directly
   match against a quotation in a command kind's elaborator). -/
 -- TODO: use two separate quotation parsers with parser priorities instead
-@[builtinTermParser] def Term.quot := leading_parser "`(" >> toggleInsideQuot (termParser <|> many1Unbox commandParser) >> ")"
+@[builtinTermParser] def Term.quot := leading_parser "`(" >> incQuotDepth (termParser <|> many1Unbox commandParser) >> ")"
 @[builtinTermParser] def Term.precheckedQuot := leading_parser "`" >> Term.quot
 
 namespace Command

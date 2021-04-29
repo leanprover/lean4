@@ -36,6 +36,7 @@ builtin_initialize
   registerAlias "interpolatedStr" interpolatedStr
   registerAlias "orelse" orelse
   registerAlias "andthen" andthen
+  registerAlias "incQuotDepth" incQuotDepth
 
 end Parser
 

@@ -49,7 +49,8 @@ fun (a : ?m) => sorry : (a : ?m) → ?m a
 StxQuot.lean:101:13-101:14: error: unknown identifier 'x'
 "`id._@.UnhygienicMain._hyg.1"
 "`pure._@.UnhygienicMain._hyg.1"
+"(termFoo_ \"foo\" <missing>)"
 "(Term.fun \"fun\" (Term.basicFun [`x._@.UnhygienicMain._hyg.1] \"=>\" `x._@.UnhygienicMain._hyg.1))"
-StxQuot.lean:105:22-105:23: error: unknown identifier 'y'
+StxQuot.lean:107:22-107:23: error: unknown identifier 'y'
 "(Term.fun\n \"fun\"\n (Term.basicFun\n  [`x._@.UnhygienicMain._hyg.1 `y._@.UnhygienicMain._hyg.1]\n  \"=>\"\n  (Term.app `x._@.UnhygienicMain._hyg.1 [`y._@.UnhygienicMain._hyg.1])))"
 "(Term.fun\n \"fun\"\n (Term.basicFun\n  [(Term.anonymousCtor \"⟨\" [`x._@.UnhygienicMain._hyg.1 \",\" `y._@.UnhygienicMain._hyg.1] \"⟩\")]\n  \"=>\"\n  `x._@.UnhygienicMain._hyg.1))"

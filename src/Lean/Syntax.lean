@@ -412,5 +412,8 @@ def mkAntiquotSuffixSpliceNode (kind : SyntaxNodeKind) (inner : Syntax) (suffix 
 def isTokenAntiquot (stx : Syntax) : Bool :=
   stx.isOfKind `token_antiquot
 
+def isAnyAntiquot (stx : Syntax) : Bool :=
+  stx.isAntiquot || stx.isAntiquotSplice || stx.isAntiquotSuffixSplice || stx.isTokenAntiquot
+
 end Syntax
 end Lean

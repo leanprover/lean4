@@ -101,6 +101,8 @@ open Parser.Term
 #eval run ``(x)
 #eval run ``(id)
 #eval run ``(pure)
+syntax "foo" term : term
+#eval run ``(foo $(Syntax.missing))  -- syntax with no quoted identifiers should be ignored
 #eval run ``(fun x => x)
 #eval run ``(fun x => y)
 #eval run ``(fun x y => x y)

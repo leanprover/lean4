@@ -75,6 +75,7 @@ open Meta
   | `(suffices $[$x :]? $type by $tac:tacticSeq $[;]? $body) => `(have $[$x :]? $type from $body; by $tac:tacticSeq)
   | _                                                        => Macro.throwUnsupported
 
+open Lean.Parser in
 private def elabParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax := do
   let (some declName) ← getDeclName?
     | throwError "invalid `leading_parser` macro, it must be used in definitions"
@@ -82,13 +83,9 @@ private def elabParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax :
   | { name := Name.str _ s _, scopes :=  scps, .. } =>
     let kind := quote declName
     let s    := quote s
-    let p ← `(Lean.Parser.leadingNode $kind $prec $e)
-    if scps == [] then
-      -- TODO simplify the following quotation as soon as we have coercions
-      `(OrElse.orElse (Lean.Parser.mkAntiquot $s (some $kind)) $p)
-    else
-      -- if the parser decl is hidden by hygiene, it doesn't make sense to provide an antiquotation kind
-      `(OrElse.orElse (Lean.Parser.mkAntiquot $s none) $p)
+    -- if the parser decl is hidden by hygiene, it doesn't make sense to provide an antiquotation kind
+    let antiquotKind ← if scps == [] then `(some $kind) else `(none)
+    ``(withAntiquot (mkAntiquot $s $antiquotKind) (leadingNode $kind $prec $e))
   | _  => throwError "invalid `leading_parser` macro, unexpected declaration name"
 
 @[builtinTermElab «leading_parser»] def elabLeadingParserMacro : TermElab :=
@@ -100,7 +97,7 @@ private def elabParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax :
 private def elabTParserMacroAux (prec lhsPrec : Syntax) (e : Syntax) : TermElabM Syntax := do
   let declName? ← getDeclName?
   match declName? with
-  | some declName => let kind := quote declName; `(Lean.Parser.trailingNode $kind $prec $lhsPrec $e)
+  | some declName => let kind := quote declName; ``(Lean.Parser.trailingNode $kind $prec $lhsPrec $e)
   | none          => throwError "invalid `trailing_parser` macro, it must be used in definitions"
 
 @[builtinTermElab «trailing_parser»] def elabTrailingParserMacro : TermElab :=

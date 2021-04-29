@@ -18,6 +18,7 @@ lean_object* l_Lean_Syntax_getQuotContent___closed__1;
 lean_object* l_Lean_Syntax_isAntiquot_match__1(lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_unescapeAntiquot(lean_object*);
+uint8_t l_Lean_Syntax_isAnyAntiquot(lean_object*);
 uint8_t l_Lean_Syntax_isAntiquotSuffixSplice(lean_object*);
 lean_object* l_Lean_Syntax_replaceM___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getTailWithPos(lean_object*);
@@ -261,6 +262,7 @@ lean_object* l_Lean_Syntax_MonadTraverser_getIdx___rarg(lean_object*, lean_objec
 lean_object* l_Lean_Syntax_mkAntiquotNode_match__2(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Syntax_instForInTopDownSyntax___spec__2(lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Syntax_instForInTopDownSyntax___spec__2___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_isAnyAntiquot___boxed(lean_object*);
 lean_object* l_Lean_Syntax_getAntiquotSuffixSpliceInner___boxed(lean_object*);
 lean_object* l_Lean_Syntax_isTokenAntiquot___closed__1;
 lean_object* l_Lean_Syntax_topDown___boxed(lean_object*, lean_object*);
@@ -8288,6 +8290,59 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Syntax_isTokenAntiquot(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+uint8_t l_Lean_Syntax_isAnyAntiquot(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; 
+x_2 = l_Lean_Syntax_isAntiquot(x_1);
+if (x_2 == 0)
+{
+uint8_t x_3; 
+x_3 = l_Lean_Syntax_isAntiquotSplice(x_1);
+if (x_3 == 0)
+{
+uint8_t x_4; 
+x_4 = l_Lean_Syntax_isAntiquotSuffixSplice(x_1);
+if (x_4 == 0)
+{
+uint8_t x_5; 
+x_5 = l_Lean_Syntax_isTokenAntiquot(x_1);
+return x_5;
+}
+else
+{
+uint8_t x_6; 
+lean_dec(x_1);
+x_6 = 1;
+return x_6;
+}
+}
+else
+{
+uint8_t x_7; 
+lean_dec(x_1);
+x_7 = 1;
+return x_7;
+}
+}
+else
+{
+uint8_t x_8; 
+lean_dec(x_1);
+x_8 = 1;
+return x_8;
+}
+}
+}
+lean_object* l_Lean_Syntax_isAnyAntiquot___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Syntax_isAnyAntiquot(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }

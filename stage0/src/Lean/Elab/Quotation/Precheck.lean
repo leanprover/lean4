@@ -49,9 +49,9 @@ partial def precheck : Precheck := fun stx => do
   if let p::_ := precheckAttribute.getValues (← getEnv) stx.getKind then
     if ← catchInternalId unsupportedSyntaxExceptionId (do withRef stx <| p stx; true) (fun _ => false) then
       return
-  if stx.isAntiquot then
+  if stx.isAnyAntiquot then
     return
-  if !hasIdent stx then
+  if !hasQuotedIdent stx then
     return  -- we only precheck identifiers, so there is nothing to check here
   if let some stx' ← liftMacroM <| Macro.expandMacro? stx then
     precheck stx'
@@ -59,11 +59,13 @@ partial def precheck : Precheck := fun stx => do
   throwErrorAt stx "no macro or `[quotPrecheck]` instance for syntax kind '{stx.getKind}' found{indentD stx}
 This means we cannot eagerly check your notation/quotation for unbound identifiers; you can use `set_option quotPrecheck false` to disable this check."
 where
-  hasIdent stx := do
-    for stx in stx.topDown do
-      if stx.isIdent then
-        return true
-    return false
+  hasQuotedIdent
+    | Syntax.ident .. => true
+    | stx =>
+      if stx.isAnyAntiquot then
+        false
+      else
+        stx.getArgs.any hasQuotedIdent
 
 def runPrecheck (stx : Syntax) : TermElabM Unit := do
   let opts ← getOptions

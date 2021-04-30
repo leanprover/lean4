@@ -29,3 +29,34 @@ end
 #check bla! 10 -- Error unknown identifier `bla!`
 
 def bla! := 20 -- bla! is still a valid identifier
+
+syntax "bar!" term:max : term
+
+ -- Error scoped attributes must be used inside namespaces
+scoped macro_rules | `(bar! $x) => `($x + 10)
+
+section
+
+local macro_rules | `(bar! $x) => `($x + 20)
+
+#check bar! 10
+
+end
+
+-- Error no elaboration function
+#check bar! 10
+
+namespace Bar
+
+scoped macro_rules | `(bar! $x) => `($x + 10)
+
+#check bar! 10
+
+end Bar
+
+-- Error no elaboration function
+#check bar! 10
+
+open Bar
+
+#check bar! 10

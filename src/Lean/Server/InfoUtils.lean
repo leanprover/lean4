@@ -156,11 +156,11 @@ structure GoalsAtResult where
 /-
   Try to retrieve `TacticInfo` for `hoverPos`.
   We retrieve the `TacticInfo` `info`, if there is a node of the form `node (ofTacticInfo info) children` s.t.
-  - If `hoverPos <= headPos && hoverPos < endPos + getTrailingSize` and
+  - `hoverPos` is sufficiently inside `info`'s range (see code), and
   - None of the `children` can provide satisfy the condition above. That is, for composite tactics such as
     `induction`, we always give preference for information stored in nested (children) tactics.
 
-  Moreover, we instruct the LSP server to use the state after the tactic execution If hoverPos >= endPos
+  Moreover, we instruct the LSP server to use the state after the tactic execution if hoverPos >= endPos
 -/
 partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult := do
   t.deepestNodes fun
@@ -168,7 +168,9 @@ partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : List Goal
       let (some pos, some tailPos) ← pure (i.pos?, i.tailPos?)
         | failure
       let trailSize := i.stx.getTrailingSize
-      guard <| pos ≤ hoverPos ∧ hoverPos < tailPos + trailSize
+      -- NOTE: include position just after tactic, i.e. when the cursor is still adjacent
+      -- (even when `trailSize == 0`, which is the case at EOF)
+      guard <| pos ≤ hoverPos ∧ hoverPos < tailPos + Nat.max 1 trailSize
       return { ctxInfo := ctx, tacticInfo := ti, useAfter := hoverPos > pos }
     | _, _ => none
 

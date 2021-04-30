@@ -20,13 +20,21 @@ partial def main (args : List String) : IO Unit := do
     let mut versionNo : Nat := 2
     let mut requestNo : Nat := 2
     for line in text.splitOn "\n" do
-      match line.splitOn "--^" with
+      match line.splitOn "--" with
       | [ws, directive] =>
+        let line ← match directive[0] with
+          | 'v' => pure <| lineNo + 1  -- TODO: support subsequent 'v'... or not
+          | '^' => pure <| lastActualLineNo
+          | _ =>
+            lastActualLineNo := lineNo
+            lineNo := lineNo + 1
+            continue
+        let directive := directive.drop 1
         let colon := directive.posOf ':'
         let method := directive.extract 0 colon |>.trim
         -- TODO: correctly compute in presence of Unicode
         let column := ws.bsize + "--".length
-        let pos : Lsp.Position := { line := lastActualLineNo, character := column }
+        let pos : Lsp.Position := { line := line, character := column }
         let params := if colon < directive.bsize then directive.extract (colon + 1) directive.bsize |>.trim else "{}"
         match method with
         | "insert" =>

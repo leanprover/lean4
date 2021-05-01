@@ -10,3 +10,10 @@ example : α → α := by
 
 example : α → α := by
                   --^ $/lean/plainGoal
+
+example : 0 + n = n := by
+  induction n with
+  | zero => rfl
+       --^ $/lean/plainGoal
+  | succ
+   --^ $/lean/plainGoal

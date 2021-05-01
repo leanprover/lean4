@@ -50,6 +50,7 @@ uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_
 lean_object* l_List_map___at_Lean_Elab_addPreDefinitions___spec__3(lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_addAndCompilePartial___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_TermInfo_format___closed__1;
 uint8_t l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_isNonRecursive___lambda__1(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__7(lean_object*, lean_object*);
 lean_object* l_Std_mkHashMap___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__23(lean_object*);
@@ -101,7 +102,6 @@ lean_object* l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_collectMVarsA
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___rarg___closed__1;
 lean_object* l_Lean_SCC_scc___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__5___closed__1;
-extern lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___lambda__2___closed__1;
 lean_object* l_List_forM___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__24(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_instInhabitedPreDefinition;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
@@ -3928,7 +3928,7 @@ x_20 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_Elab_addPre
 lean_closure_set(x_20, 0, x_1);
 lean_closure_set(x_20, 1, x_2);
 lean_closure_set(x_20, 2, x_3);
-x_21 = l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___lambda__2___closed__1;
+x_21 = l_Lean_Elab_TermInfo_format___closed__1;
 x_22 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg), 7, 2);
 lean_closure_set(x_22, 0, x_20);
 lean_closure_set(x_22, 1, x_21);
@@ -4018,7 +4018,7 @@ x_44 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_Elab_addPre
 lean_closure_set(x_44, 0, x_1);
 lean_closure_set(x_44, 1, x_2);
 lean_closure_set(x_44, 2, x_3);
-x_45 = l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___lambda__2___closed__1;
+x_45 = l_Lean_Elab_TermInfo_format___closed__1;
 x_46 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg), 7, 2);
 lean_closure_set(x_46, 0, x_44);
 lean_closure_set(x_46, 1, x_45);

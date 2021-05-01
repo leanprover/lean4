@@ -10,6 +10,11 @@ import Lean.Meta.Tactic
 
 namespace Lean.Meta.IndPredBelow
 
+register_builtin_option maxBackwardChainingDepth : Nat := {
+    defValue := 10
+    descr    := "The maximum search depth used in the backwards chaining part of the proof of `brecOn` for inductive predicates."
+  } 
+
 /--
   The context used in the creation of the `below` scheme for inductive predicates.
 -/  
@@ -227,8 +232,9 @@ partial def proveBrecOn (ctx : Context) (indVal : InductiveVal) (type : Expr) : 
   let [m] ← applyIH m vars | 
     throwError "applying the induction hypothesis should only return one goal"
   let ms ← induction m vars
-  let ms ← applyCtors ms 
-  ms.forM (closeGoal vars)
+  let ms ← applyCtors ms
+  let maxDepth := maxBackwardChainingDepth.get $ ←getOptions
+  ms.forM (closeGoal vars maxDepth)
   instantiateMVars main
 where
   intros (m : MVarId) : MetaM (MVarId × BrecOnVariables) := do
@@ -253,7 +259,6 @@ where
       let motive ← instantiateForall motive params
       forallTelescope motive fun xs _ => do
       mkLambdaFVars xs $ mkAppN (mkConst ctx.belowNames[idx] levelParams) $ (params ++ motives ++ xs)
-    withMVarContext m do
     let recursorInfo ← getConstInfo $ mkRecName indVal.name
     let recLevels := 
       if recursorInfo.numLevelParams > levelParams.length 
@@ -265,45 +270,50 @@ where
   applyCtors (ms : List MVarId) : MetaM $ List MVarId := do
     let mss ← ms.toArray.mapIdxM fun idx m => do
       let m ← introNPRec m 
-      (←getMVarType m).withApp fun below args =>
-      args.back.withApp fun ctor args =>
-      let ctor := ctor.constName!.updatePrefix below.constName!
+      (←getMVarType m).withApp fun below args => 
       withMVarContext m do
-      let ctor := mkConst ctor below.constLevels!
+      args.back.withApp fun ctor ctorArgs => do
+      let ctorName := ctor.constName!.updatePrefix below.constName!
+      let ctor := mkConst ctorName below.constLevels!
+      let ctorInfo ← getConstInfoCtor ctorName
+      let (mvars, _, t) ← forallMetaTelescope ctorInfo.type
+      let ctor := mkAppN ctor mvars
       apply m ctor 
     return mss.foldr List.append []
 
   introNPRec (m : MVarId) : MetaM MVarId := do
     if (←getMVarType m).isForall then introNPRec (←intro1P m).2 else m
   
-  closeGoal (vars : BrecOnVariables) (m : MVarId) : MetaM Unit := do
+  closeGoal (vars : BrecOnVariables) (maxDepth : Nat) (m : MVarId) : MetaM Unit := do
     unless ←isExprMVarAssigned m do
       let m ← introNPRec m
-      unless ←solveByAssumption m do
-        let subGoals ← applyIH m vars
-        subGoals.forM (closeGoal vars)
+      unless ←backwardsChaining m maxDepth do
+        withMVarContext m do
+        throwError "couldn't solve by backwards chaining ({``maxBackwardChainingDepth} = {maxDepth}): {MessageData.ofGoal m}"
   
-  solveByAssumption (m : MVarId) : MetaM Bool := do
-    withMVarContext m do
-    let lctx ← getLCtx 
-    let mTy ← getMVarType m
-    lctx.anyM fun localDecl => do
-      let (mvars, _, t) ← forallMetaTelescope localDecl.type
-      commitWhen do
-      if ←isDefEq mTy t then 
-        assignExprMVar m t
-        if ←mvars.allM (fun v => isExprMVarAssigned v.mvarId!) then 
-          assignExprMVar m (mkAppN (mkFVar localDecl.fvarId) mvars)
-          true
+  backwardsChaining (m : MVarId) (depth : Nat) : MetaM Bool := do
+    if depth = 0 then false
+    else
+      withMVarContext m do
+      let lctx ← getLCtx 
+      let mTy ← getMVarType m
+      lctx.anyM fun localDecl => 
+        commitWhen do
+        let (mvars, _, t) ← forallMetaTelescope localDecl.type
+        if ←isDefEq mTy t then 
+          assignExprMVar m (mkAppN localDecl.toExpr mvars)
+          mvars.allM fun v => do
+            if ←isExprMVarAssigned v.mvarId! then true
+            else 
+              backwardsChaining v.mvarId! (depth - 1)
         else false
-      else false
 
 def mkBrecOnDecl (ctx : Context) (idx : Nat) : MetaM Declaration := do
   let type ← mkType
   let indVal := ctx.typeInfos[idx]
   let name := indVal.name ++ brecOnSuffix
   Declaration.thmDecl { 
-    name := indVal.name ++ brecOnSuffix
+    name := name
     levelParams := indVal.levelParams
     type := type
     value := ←proveBrecOn ctx indVal type }
@@ -337,7 +347,6 @@ where
           mkAppN motives[idx] ys
         mkForallFVars ys (←mkArrow premise conclusion)
     (←name, mkDomain)
-
 
 def mkBelow (declName : Name) : MetaM Unit := do
   if (←isInductivePredicate declName) then

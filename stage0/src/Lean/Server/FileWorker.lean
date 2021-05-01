@@ -375,7 +375,8 @@ section RequestHandling
     let text := doc.meta.text
     let pos := text.lspPosToUtf8Pos p.position
     -- dbg_trace ">> handleCompletion invoked {pos}"
-    withWaitFindSnap doc (fun s => s.endPos > pos)
+    -- NOTE: use `>=` since the cursor can be *after* the input
+    withWaitFindSnap doc (fun s => s.endPos >= pos)
       (notFoundX := pure { items := #[], isIncomplete := true }) fun snap => do
         for infoTree in snap.cmdState.infoState.trees do
           -- for (ctx, info) in infoTree.getCompletionInfos do
@@ -451,7 +452,8 @@ section RequestHandling
     let doc ← st.docRef.get
     let text := doc.meta.text
     let hoverPos := text.lspPosToUtf8Pos p.position
-    withWaitFindSnap doc (fun s => s.endPos > hoverPos)
+    -- NOTE: use `>=` since the cursor can be *after* the input
+    withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
       (notFoundX := return none) fun snap => do
         for t in snap.cmdState.infoState.trees do
           if let rs@(_ :: _) := t.goalsAt? hoverPos then

@@ -43,6 +43,30 @@ open Meta
     elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType? (explicit := false) (ellipsis := false)
   | none   => throwUnknownConstant stx[1].getId
 
+@[builtinTermElab binop] def elabBinOp : TermElab :=  fun stx expectedType? => do
+  match stx with
+  | `(binop% $f $lhs $rhs) =>
+    match expectedType? with
+    | none =>
+      -- We elaborate as a normal application when expected type is not available
+      let stxNew ← `($f:ident $lhs $rhs)
+      withMacroExpansion stx stxNew <| elabTerm stxNew none
+    | some expectedType =>
+      match (← resolveId? f) with
+      | some f =>
+        withSynthesize (mayPostpone := true) do
+          let lhs ← elabTerm lhs none
+          let rhs ← elabTerm rhs none
+          if lhs.isAppOfArity ``OfNat.ofNat 3 && rhs.isAppOfArity ``OfNat.ofNat 3 then
+            -- We want the numerals in terms such as `(1 + 1 : Int)` to be elaborated as `Int`
+            elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType (explicit := false) (ellipsis := false)
+          else
+            -- We use `withSynthesize` to force TC resolution and default instances to be used.
+            -- Note that we do not provide the expected type to make sure it can be inferred by the TC procedure. See issue #382
+            elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] (expectedType? := none) (explicit := false) (ellipsis := false)
+       | none   => throwUnknownConstant stx[1].getId
+  | _ => throwUnsupportedSyntax
+
 @[builtinTermElab forInMacro] def elabForIn : TermElab :=  fun stx expectedType? => do
   match stx with
   | `(forIn% $col $init $body) =>

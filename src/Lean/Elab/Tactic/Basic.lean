@@ -289,10 +289,10 @@ def admitGoal (mvarId : MVarId) : TacticM Unit := do
   assignExprMVar mvarId (← mkSorry mvarType (synthetic := true))
 
 /- Close the main goal using the given tactic. If it fails, log the error and `admit` -/
-def closeUsingOrAdmit (tac : Syntax) : TacticM Unit := do
+def closeUsingOrAdmit (tac : TacticM Unit) : TacticM Unit := do
   let mvarId :: mvarIds ← getUnsolvedGoals | throwNoGoalsToBeSolved
   try
-    focusAndDone (evalTactic tac)
+    focusAndDone tac
   catch ex =>
     logException ex
     admitGoal mvarId
@@ -542,7 +542,7 @@ def withCaseRef [Monad m] [MonadRef m] (arrow body : Syntax) (x : m α) : m α :
   withRef (mkNullNode #[arrow, body]) x
 
 @[builtinTactic «case»] def evalCase : Tactic
-  | `(tactic| case $tag $hs* =>%$arr $tac:tacticSeq) => do
+  | stx@`(tactic| case $tag $hs* =>%$arr $tac:tacticSeq) => do
     let tag := tag.getId
     let gs ← getUnsolvedGoals
     let some g ← findTag? gs tag | throwError "tag not found"
@@ -576,7 +576,7 @@ def withCaseRef [Monad m] [MonadRef m] (arrow body : Syntax) (x : m α) : m α :
     setMVarTag g Name.anonymous
     try
       withCaseRef arr tac do
-        closeUsingOrAdmit tac
+        closeUsingOrAdmit (withTacticInfoContext stx (evalTactic tac))
     finally
       setMVarTag g savedTag
     done

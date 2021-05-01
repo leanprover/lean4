@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 uint8_t l_Lean_Syntax_isQuot(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_15342____closed__13;
 size_t l_USize_add(size_t, size_t);
 extern lean_object* l_Lean_Parser_Term_namedPattern___elambda__1___closed__2;
 uint8_t l_Lean_Syntax_isTokenAntiquot(lean_object*);
@@ -38,7 +39,6 @@ uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Std_PersistentArray_forInAux___at_Lean_Elab_Term_addAutoBoundImplicits___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at___private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_getPatternVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_14110____closed__13;
 lean_object* l_Lean_Elab_Term_Quotation_getPatternVars___closed__2;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -927,7 +927,7 @@ x_9 = l_Lean_Syntax_isQuot(x_1);
 if (x_9 == 0)
 {
 lean_object* x_10; uint8_t x_11; 
-x_10 = l_myMacro____x40_Init_Notation___hyg_14110____closed__13;
+x_10 = l_myMacro____x40_Init_Notation___hyg_15342____closed__13;
 lean_inc(x_1);
 x_11 = l_Lean_Syntax_isOfKind(x_1, x_10);
 if (x_11 == 0)

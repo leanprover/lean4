@@ -106,6 +106,7 @@ lean_object* l_Lean_Meta_Match_Pattern_toMessageData___closed__4;
 lean_object* l_List_mapM___at_Lean_Meta_Match_Problem_toMessageData___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkArrayLit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwErrorAt___at_Lean_Meta_Match_Alt_checkAndReplaceFVarId___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_15342____closed__14;
 lean_object* l_Lean_Meta_Match_Pattern_replaceFVarId(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEqGuarded(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_Match_Alt_checkAndReplaceFVarId___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -115,7 +116,6 @@ lean_object* l_List_mapM___at_Lean_Meta_Match_Pattern_toExpr_visit___spec__2___b
 lean_object* l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Meta_Match_Alt_toMessageData___spec__2(lean_object*);
 lean_object* l_Lean_Meta_Match_Example_toMessageData_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_14110____closed__14;
 lean_object* l_List_map___at_Lean_Meta_Match_Pattern_applyFVarSubst___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Alt_toMessageData___closed__2;
 lean_object* l_List_map___at_Lean_Meta_Match_Example_applyFVarSubst___spec__1(lean_object*, lean_object*);
@@ -6421,7 +6421,7 @@ static lean_object* _init_l_Lean_Meta_Match_Example_toMessageData___closed__1() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_14110____closed__14;
+x_1 = l_myMacro____x40_Init_Notation___hyg_15342____closed__14;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

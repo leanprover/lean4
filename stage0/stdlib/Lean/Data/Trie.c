@@ -52,7 +52,7 @@ lean_object* l_Std_RBNode_ins___at_Lean_Parser_Trie_insert_loop___spec__6___rarg
 lean_object* l_Std_RBNode_find___at_Lean_Parser_Trie_insert_loop___spec__1___rarg(lean_object*, uint32_t);
 uint8_t l_UInt32_decLt(uint32_t, uint32_t);
 lean_object* l_Lean_Parser_Trie_matchPrefix_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1441____closed__4;
+extern lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;
 lean_object* l_Std_RBNode_find___at_Lean_Parser_Trie_insert_loop___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_ins___at_Lean_Parser_Trie_insert_loop___spec__6(lean_object*);
 lean_object* l_Std_RBNode_ins___at_Lean_Parser_Trie_insert_loop___spec__4___rarg(lean_object*, uint32_t, lean_object*);
@@ -11081,7 +11081,7 @@ x_11 = l___private_Lean_Data_Trie_0__Lean_Parser_Trie_toStringAux___rarg(x_5);
 x_12 = lean_box(1);
 x_13 = l_Std_Format_joinSep___at_instReprProd___spec__1(x_11, x_12);
 lean_dec(x_11);
-x_14 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1441____closed__4;
+x_14 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;
 x_15 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
 lean_ctor_set(x_15, 1, x_13);

@@ -254,16 +254,15 @@ uint8_t l_Lean_Server_FileWorker_handleWaitForDiagnostics___lambda__1(lean_objec
 lean_object* l_Lean_Server_FileWorker_handleRequest_match__2___rarg___closed__9;
 extern lean_object* l_Lean_JsonRpc_instToJsonMessage___closed__10;
 lean_object* l_Lean_Server_FileWorker_queueRequest___lambda__1(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5717____closed__22;
 extern lean_object* l_Lean_JsonRpc_instToJsonMessage___closed__5;
 lean_object* l_Lean_Server_FileWorker_handleRequest_match__2___rarg___closed__8;
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__3;
 lean_object* l_Lean_Elab_InfoTree_deepestNodes___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_updateDocument_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_initAndRunWorker_match__3___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleNotification___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_instInhabitedEditableDocument___closed__4;
 lean_object* l_Lean_Server_FileWorker_handleWaitForDiagnostics___lambda__3___closed__4;
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__7;
 lean_object* l_IO_getStdin___at_Lean_Server_FileWorker_workerMain___spec__1(lean_object*);
 lean_object* lean_io_as_task(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleWaitForDiagnostics_waitLoop(lean_object*, lean_object*, lean_object*);
@@ -272,6 +271,7 @@ lean_object* l_Lean_Server_FileWorker_handleRequest___lambda__5(lean_object*, le
 lean_object* l_Lean_Server_FileWorker_compileHeader___closed__2;
 lean_object* l_Lean_Server_FileWorker_handleDocumentHighlight(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_setBlack___rarg(lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__25;
 lean_object* l_Lean_Server_FileWorker_leanpkgSetupSearchPath___closed__4;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_FileWorker_handleSemanticTokens_highlightId___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_writeLspResponse___at_Lean_Server_FileWorker_handleRequest___spec__2(lean_object*, lean_object*, lean_object*);
@@ -283,7 +283,6 @@ lean_object* l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonWaitForDiagnost
 lean_object* l_Lean_Server_FileWorker_parseParams___at_Lean_Server_FileWorker_handleRequest___spec__14(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at_Lean_Server_FileWorker_handleSemanticTokens___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleDefinition___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__7;
 lean_object* l_Lean_Server_FileWorker_handleRequest___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_mainLoop___closed__1;
@@ -299,7 +298,6 @@ lean_object* l_Lean_Server_FileWorker_handleWaitForDiagnostics___lambda__4___clo
 lean_object* l_Lean_Json_compress(lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_exit___elambda__1___closed__1;
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5717____closed__25;
 lean_object* l_Lean_Server_FileWorker_handleWaitForDiagnostics___closed__1;
 lean_object* l_Std_PersistentArray_mapM___at_Lean_Server_FileWorker_publishMessages___spec__1___boxed__const__1;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_handleRequest___spec__13___boxed(lean_object*, lean_object*, lean_object*);
@@ -448,6 +446,7 @@ lean_object* l_Lean_Server_FileWorker_parseParams_match__1(lean_object*, lean_ob
 lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_toJsonDocumentHighlight____x40_Lean_Data_Lsp_LanguageFeatures___hyg_903_(lean_object*);
 extern lean_object* l_Lean_Parser_instInhabitedModuleParserState___closed__1;
 lean_object* l_Lean_Server_FileWorker_handleCompletion___closed__1;
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__22;
 lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonCancelParams____x40_Lean_Data_Lsp_Basic___hyg_88_(lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
@@ -561,6 +560,7 @@ lean_object* l_String_intercalate(lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_sectionLikeToDocumentSymbols_match__1(lean_object*);
 lean_object* l_List_redLength___rarg(lean_object*);
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__5;
 extern lean_object* l_List_partition___rarg___closed__1;
 lean_object* l_Lean_Server_FileWorker_handleDefinition___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__2(lean_object*, lean_object*);
@@ -571,6 +571,7 @@ lean_object* l_Lean_Server_FileWorker_leanpkgSetupSearchPath(lean_object*, lean_
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_FileWorker_handlePlainGoal___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_server_worker_main(lean_object*);
 lean_object* l_List_forIn_loop___at_Lean_Server_FileWorker_handleSemanticTokens_highlightId___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__22;
 lean_object* l_Lean_Server_FileWorker_handleHover_match__1(lean_object*);
 lean_object* l_Lean_Server_FileWorker_queueRequest(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_compileHeader_match__2(lean_object*);
@@ -596,7 +597,6 @@ lean_object* l_Lean_Server_FileWorker_handleRequest_match__2___rarg___closed__2;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_FileWorker_handleDefinition___spec__7___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleCompletion_match__2___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_RBNode_isRed___rarg(lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__5;
 lean_object* l_Lean_Server_FileWorker_handleSemanticTokens___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_FileWorker_handleDefinition___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_JsonRpc_instToJsonErrorCode___closed__32;
@@ -605,7 +605,6 @@ lean_object* l_Std_PersistentArray_toArray___rarg(lean_object*);
 lean_object* l_Lean_Elab_Info_tailPos_x3f(lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleRequest_match__2___rarg___closed__1;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_17506____closed__2;
 lean_object* l_Lean_Server_FileWorker_handleHover_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_List_get_x21___at_Lean_Server_FileWorker_updateDocument___spec__2(lean_object*, lean_object*);
@@ -620,6 +619,7 @@ lean_object* l_Lean_Server_FileWorker_withWaitFindSnap___rarg___lambda__1___clos
 lean_object* l_Lean_Server_FileWorker_handleRequest_match__2___rarg___closed__4;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_addSearchPathFromEnv(lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__3;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_FileWorker_handlePlainGoal___spec__9(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_FileWorker_handleSemanticTokens_highlightId___spec__5___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_get_stdout(lean_object*);
@@ -634,7 +634,6 @@ extern lean_object* l_Lean_JsonRpc_instToJsonErrorCode___closed__4;
 lean_object* l_Lean_Server_FileWorker_handleSemanticTokens_highlightId_match__1(lean_object*);
 extern lean_object* l_Lean_JsonRpc_instToJsonErrorCode___closed__40;
 lean_object* l_Lean_Server_FileWorker_leanpkgSetupSearchPath___closed__6;
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__22;
 lean_object* l_Lean_Server_FileWorker_parseParams___at_Lean_Server_FileWorker_handleRequest___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_findDeclarationRanges_x3f___at_Lean_Server_FileWorker_handleDefinition___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forInAux___at_Lean_Server_FileWorker_handleHover___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -747,7 +746,6 @@ extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l_Lean_Server_FileWorker_handleRequest_match__2___rarg___closed__3;
 lean_object* l_Lean_Server_maybeTee(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_compileHeader___closed__3;
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__1;
 lean_object* l_Lean_Server_FileWorker_updateDocument___closed__1;
 lean_object* l_Lean_Server_FileWorker_compileHeader___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleSemanticTokens___lambda__2___closed__1;
@@ -780,6 +778,7 @@ lean_object* l_Lean_Server_FileWorker_handlePlainGoal___lambda__1(lean_object*, 
 extern lean_object* l_Lean_JsonRpc_instToJsonErrorCode___closed__12;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_FileWorker_handleDefinition___spec__7___lambda__2___closed__1;
 lean_object* l_Lean_Server_FileWorker_withWaitFindSnap___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__21;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_FileWorker_handleDefinition___spec__7___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_FileWorker_handleDefinition___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_sectionLikeToDocumentSymbols_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -792,7 +791,6 @@ lean_object* l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_nextCm
 lean_object* l_Lean_Server_FileWorker_handleDocumentHighlight_highlightReturn_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_276____closed__2;
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__21;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_FileWorker_handleSemanticTokens_highlightId___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___boxed(lean_object*, lean_object*);
 lean_object* lean_task_pure(lean_object*);
@@ -807,6 +805,7 @@ lean_object* l_Lean_Server_FileWorker_handleRequest_match__1___rarg(lean_object*
 lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleSemanticTokens___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_handleRequest___spec__10___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__2;
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_nextCmdSnap___closed__1;
 lean_object* l_Lean_Server_FileWorker_handleCancelRequest(lean_object*, lean_object*, lean_object*);
@@ -835,6 +834,7 @@ lean_object* l_Std_PersistentArray_mapM___at_Lean_Server_FileWorker_publishMessa
 lean_object* l_List_forIn_loop___at_Lean_Server_FileWorker_handleSemanticTokens___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_term_x5b___x5d___closed__3;
 lean_object* l_Lean_findModuleOf_x3f___at_Lean_Server_FileWorker_handleDefinition___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__1;
 lean_object* l_Lean_Server_FileWorker_handleRequest_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forIn___at_Lean_Server_FileWorker_handleHover___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -21517,7 +21517,7 @@ _start:
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_7 = lean_unsigned_to_nat(4u);
 x_8 = l_Lean_Syntax_getArg(x_1, x_7);
-x_9 = l_myMacro____x40_Init_NotationExtra___hyg_5717____closed__25;
+x_9 = l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__25;
 lean_inc(x_2);
 x_10 = lean_name_mk_string(x_2, x_9);
 lean_inc(x_8);
@@ -21530,7 +21530,7 @@ lean_dec(x_8);
 x_12 = lean_unsigned_to_nat(1u);
 x_13 = l_Lean_Syntax_getArg(x_3, x_12);
 x_14 = l_Lean_Syntax_getArg(x_13, x_12);
-x_15 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__21;
+x_15 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__21;
 x_16 = lean_name_mk_string(x_2, x_15);
 lean_inc(x_14);
 x_17 = l_Lean_Syntax_isOfKind(x_14, x_16);
@@ -21766,7 +21766,7 @@ lean_dec(x_7);
 x_13 = l_Lean_Syntax_getArg(x_3, x_11);
 lean_dec(x_3);
 x_14 = l_Lean_Syntax_getArg(x_13, x_11);
-x_15 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__21;
+x_15 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__21;
 x_16 = lean_name_mk_string(x_2, x_15);
 lean_inc(x_14);
 x_17 = l_Lean_Syntax_isOfKind(x_14, x_16);
@@ -21912,7 +21912,7 @@ lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint
 x_52 = lean_unsigned_to_nat(0u);
 x_53 = l_Lean_Syntax_getArg(x_7, x_52);
 lean_dec(x_7);
-x_54 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__21;
+x_54 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__21;
 x_55 = lean_name_mk_string(x_2, x_54);
 lean_inc(x_53);
 x_56 = l_Lean_Syntax_isOfKind(x_53, x_55);
@@ -22415,7 +22415,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleDocumentSymbol_toDocume
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__3;
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__3;
 x_2 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_Basic___hyg_371____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -22478,7 +22478,7 @@ if (x_14 == 0)
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_40; uint8_t x_41; 
 x_15 = lean_ctor_get(x_13, 0);
 x_16 = lean_ctor_get(x_13, 1);
-x_40 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__5;
+x_40 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__5;
 lean_inc(x_4);
 x_41 = l_Lean_Syntax_isOfKind(x_4, x_40);
 if (x_41 == 0)
@@ -22508,7 +22508,7 @@ lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; uint
 x_44 = lean_unsigned_to_nat(1u);
 x_45 = l_Lean_Syntax_getArg(x_4, x_44);
 x_46 = l_Lean_Syntax_getArg(x_45, x_44);
-x_47 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__22;
+x_47 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__22;
 lean_inc(x_46);
 x_48 = l_Lean_Syntax_isOfKind(x_46, x_47);
 if (x_48 == 0)
@@ -22657,7 +22657,7 @@ else
 lean_object* x_79; lean_object* x_80; lean_object* x_81; uint8_t x_82; 
 x_79 = lean_unsigned_to_nat(0u);
 x_80 = l_Lean_Syntax_getArg(x_4, x_79);
-x_81 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__7;
+x_81 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__7;
 x_82 = l_Lean_Syntax_isOfKind(x_80, x_81);
 if (x_82 == 0)
 {
@@ -22665,7 +22665,7 @@ lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; uint
 x_83 = lean_unsigned_to_nat(1u);
 x_84 = l_Lean_Syntax_getArg(x_4, x_83);
 x_85 = l_Lean_Syntax_getArg(x_84, x_83);
-x_86 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__22;
+x_86 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__22;
 lean_inc(x_85);
 x_87 = l_Lean_Syntax_isOfKind(x_85, x_86);
 if (x_87 == 0)
@@ -22812,7 +22812,7 @@ else
 lean_object* x_116; lean_object* x_117; lean_object* x_118; uint8_t x_119; 
 x_116 = lean_unsigned_to_nat(1u);
 x_117 = l_Lean_Syntax_getArg(x_4, x_116);
-x_118 = l_myMacro____x40_Init_NotationExtra___hyg_5717____closed__22;
+x_118 = l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__22;
 lean_inc(x_117);
 x_119 = l_Lean_Syntax_isOfKind(x_117, x_118);
 if (x_119 == 0)
@@ -22821,7 +22821,7 @@ lean_object* x_120; lean_object* x_121; lean_object* x_122; uint8_t x_123;
 lean_dec(x_117);
 x_120 = l_Lean_Syntax_getArg(x_4, x_116);
 x_121 = l_Lean_Syntax_getArg(x_120, x_116);
-x_122 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__22;
+x_122 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__22;
 lean_inc(x_121);
 x_123 = l_Lean_Syntax_isOfKind(x_121, x_122);
 if (x_123 == 0)
@@ -22967,7 +22967,7 @@ else
 {
 lean_object* x_152; lean_object* x_153; uint8_t x_154; 
 x_152 = l_Lean_Syntax_getArg(x_117, x_79);
-x_153 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__1;
+x_153 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__1;
 x_154 = l_Lean_Syntax_isOfKind(x_152, x_153);
 if (x_154 == 0)
 {
@@ -22975,7 +22975,7 @@ lean_object* x_155; lean_object* x_156; lean_object* x_157; uint8_t x_158;
 lean_dec(x_117);
 x_155 = l_Lean_Syntax_getArg(x_4, x_116);
 x_156 = l_Lean_Syntax_getArg(x_155, x_116);
-x_157 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__22;
+x_157 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__22;
 lean_inc(x_156);
 x_158 = l_Lean_Syntax_isOfKind(x_156, x_157);
 if (x_158 == 0)
@@ -23136,7 +23136,7 @@ lean_dec(x_188);
 lean_dec(x_117);
 x_192 = l_Lean_Syntax_getArg(x_4, x_116);
 x_193 = l_Lean_Syntax_getArg(x_192, x_116);
-x_194 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__22;
+x_194 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__22;
 lean_inc(x_193);
 x_195 = l_Lean_Syntax_isOfKind(x_193, x_194);
 if (x_195 == 0)
@@ -23292,7 +23292,7 @@ lean_dec(x_223);
 lean_dec(x_117);
 x_226 = l_Lean_Syntax_getArg(x_4, x_116);
 x_227 = l_Lean_Syntax_getArg(x_226, x_116);
-x_228 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__22;
+x_228 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__22;
 lean_inc(x_227);
 x_229 = l_Lean_Syntax_isOfKind(x_227, x_228);
 if (x_229 == 0)
@@ -23439,7 +23439,7 @@ lean_object* x_257; lean_object* x_258; lean_object* x_259; lean_object* x_260;
 lean_free_object(x_13);
 x_257 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_257, 0, x_223);
-x_258 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__3;
+x_258 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__3;
 x_259 = lean_box(0);
 lean_inc(x_4);
 x_260 = l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lambda__4(x_117, x_258, x_4, x_259, x_257);
@@ -23455,7 +23455,7 @@ lean_object* x_261; lean_object* x_262; lean_object* x_263; lean_object* x_264;
 lean_dec(x_188);
 lean_free_object(x_13);
 x_261 = lean_box(0);
-x_262 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__3;
+x_262 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__3;
 x_263 = lean_box(0);
 lean_inc(x_4);
 x_264 = l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lambda__4(x_117, x_262, x_4, x_263, x_261);
@@ -23576,7 +23576,7 @@ x_266 = lean_ctor_get(x_13, 1);
 lean_inc(x_266);
 lean_inc(x_265);
 lean_dec(x_13);
-x_281 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__5;
+x_281 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__5;
 lean_inc(x_4);
 x_282 = l_Lean_Syntax_isOfKind(x_4, x_281);
 if (x_282 == 0)
@@ -23614,7 +23614,7 @@ lean_object* x_287; lean_object* x_288; lean_object* x_289; lean_object* x_290; 
 x_287 = lean_unsigned_to_nat(1u);
 x_288 = l_Lean_Syntax_getArg(x_4, x_287);
 x_289 = l_Lean_Syntax_getArg(x_288, x_287);
-x_290 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__22;
+x_290 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__22;
 lean_inc(x_289);
 x_291 = l_Lean_Syntax_isOfKind(x_289, x_290);
 if (x_291 == 0)
@@ -23767,7 +23767,7 @@ else
 lean_object* x_328; lean_object* x_329; lean_object* x_330; uint8_t x_331; 
 x_328 = lean_unsigned_to_nat(0u);
 x_329 = l_Lean_Syntax_getArg(x_4, x_328);
-x_330 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__7;
+x_330 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__7;
 x_331 = l_Lean_Syntax_isOfKind(x_329, x_330);
 if (x_331 == 0)
 {
@@ -23775,7 +23775,7 @@ lean_object* x_332; lean_object* x_333; lean_object* x_334; lean_object* x_335; 
 x_332 = lean_unsigned_to_nat(1u);
 x_333 = l_Lean_Syntax_getArg(x_4, x_332);
 x_334 = l_Lean_Syntax_getArg(x_333, x_332);
-x_335 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__22;
+x_335 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__22;
 lean_inc(x_334);
 x_336 = l_Lean_Syntax_isOfKind(x_334, x_335);
 if (x_336 == 0)
@@ -23926,7 +23926,7 @@ else
 lean_object* x_371; lean_object* x_372; lean_object* x_373; uint8_t x_374; 
 x_371 = lean_unsigned_to_nat(1u);
 x_372 = l_Lean_Syntax_getArg(x_4, x_371);
-x_373 = l_myMacro____x40_Init_NotationExtra___hyg_5717____closed__22;
+x_373 = l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__22;
 lean_inc(x_372);
 x_374 = l_Lean_Syntax_isOfKind(x_372, x_373);
 if (x_374 == 0)
@@ -23935,7 +23935,7 @@ lean_object* x_375; lean_object* x_376; lean_object* x_377; uint8_t x_378;
 lean_dec(x_372);
 x_375 = l_Lean_Syntax_getArg(x_4, x_371);
 x_376 = l_Lean_Syntax_getArg(x_375, x_371);
-x_377 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__22;
+x_377 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__22;
 lean_inc(x_376);
 x_378 = l_Lean_Syntax_isOfKind(x_376, x_377);
 if (x_378 == 0)
@@ -24085,7 +24085,7 @@ else
 {
 lean_object* x_413; lean_object* x_414; uint8_t x_415; 
 x_413 = l_Lean_Syntax_getArg(x_372, x_328);
-x_414 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__1;
+x_414 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__1;
 x_415 = l_Lean_Syntax_isOfKind(x_413, x_414);
 if (x_415 == 0)
 {
@@ -24093,7 +24093,7 @@ lean_object* x_416; lean_object* x_417; lean_object* x_418; uint8_t x_419;
 lean_dec(x_372);
 x_416 = l_Lean_Syntax_getArg(x_4, x_371);
 x_417 = l_Lean_Syntax_getArg(x_416, x_371);
-x_418 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__22;
+x_418 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__22;
 lean_inc(x_417);
 x_419 = l_Lean_Syntax_isOfKind(x_417, x_418);
 if (x_419 == 0)
@@ -24258,7 +24258,7 @@ lean_dec(x_455);
 lean_dec(x_372);
 x_459 = l_Lean_Syntax_getArg(x_4, x_371);
 x_460 = l_Lean_Syntax_getArg(x_459, x_371);
-x_461 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__22;
+x_461 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__22;
 lean_inc(x_460);
 x_462 = l_Lean_Syntax_isOfKind(x_460, x_461);
 if (x_462 == 0)
@@ -24418,7 +24418,7 @@ lean_dec(x_496);
 lean_dec(x_372);
 x_499 = l_Lean_Syntax_getArg(x_4, x_371);
 x_500 = l_Lean_Syntax_getArg(x_499, x_371);
-x_501 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__22;
+x_501 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__22;
 lean_inc(x_500);
 x_502 = l_Lean_Syntax_isOfKind(x_500, x_501);
 if (x_502 == 0)
@@ -24568,7 +24568,7 @@ else
 lean_object* x_536; lean_object* x_537; lean_object* x_538; lean_object* x_539; 
 x_536 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_536, 0, x_496);
-x_537 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__3;
+x_537 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__3;
 x_538 = lean_box(0);
 lean_inc(x_4);
 x_539 = l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lambda__4(x_372, x_537, x_4, x_538, x_536);
@@ -24583,7 +24583,7 @@ else
 lean_object* x_540; lean_object* x_541; lean_object* x_542; lean_object* x_543; 
 lean_dec(x_455);
 x_540 = lean_box(0);
-x_541 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__3;
+x_541 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__3;
 x_542 = lean_box(0);
 lean_inc(x_4);
 x_543 = l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lambda__4(x_372, x_541, x_4, x_542, x_540);
@@ -25432,7 +25432,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Term_mkExplicitBinder___closed__1;
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_17506____closed__2;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__2;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }

@@ -36,7 +36,6 @@ extern lean_object* l_Lean_unifConstraint___closed__3;
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_getNumPostponed(lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq___closed__2;
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__4___closed__4;
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_917____closed__1;
 lean_object* l_Lean_Meta_checkpointDefEq___at_Lean_Meta_isLevelDefEq___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__4___closed__5;
 lean_object* l_Lean_Meta_saveState___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -110,6 +109,7 @@ lean_object* l_Lean_Meta_processPostponed_loop___closed__6;
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_getNumPostponed___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_decLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getDecLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_911____closed__1;
 uint8_t l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_strictOccursMax_visit(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEqGuarded(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___closed__5;
@@ -3364,7 +3364,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___closed__2;
-x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_917____closed__1;
+x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_911____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -19618,7 +19618,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___closed__2;
-x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_917____closed__1;
+x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_911____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

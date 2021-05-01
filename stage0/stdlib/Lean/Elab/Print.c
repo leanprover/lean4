@@ -61,6 +61,7 @@ lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_levelParamsToMessa
 lean_object* l_Lean_resolveGlobalConst___at___private_Lean_Elab_Print_0__Lean_Elab_Command_printId___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_print___elambda__1___closed__2;
 lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader_match__2___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__19;
 lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_printIdCore(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_levelParamsToMessageData___boxed(lean_object*);
@@ -159,7 +160,6 @@ lean_object* l_List_forIn_loop___at___private_Lean_Elab_Print_0__Lean_Elab_Comma
 lean_object* l_Lean_Elab_Command_getRef(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader___closed__10;
 extern lean_object* l_instReprIterator___closed__3;
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__19;
 extern lean_object* l_Lean_Meta_ppGoal_ppVars___closed__3;
 lean_object* l_Lean_Elab_Command_elabPrintAxioms(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
@@ -1878,7 +1878,7 @@ lean_inc(x_23);
 x_24 = lean_ctor_get(x_20, 2);
 lean_inc(x_24);
 lean_dec(x_20);
-x_25 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__19;
+x_25 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__19;
 x_26 = l___private_Lean_Elab_Print_0__Lean_Elab_Command_printDefLike(x_25, x_1, x_23, x_24, x_21, x_22, x_2, x_3, x_7);
 lean_dec(x_2);
 lean_dec(x_23);

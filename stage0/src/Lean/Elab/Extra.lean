@@ -43,6 +43,10 @@ open Meta
     elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType? (explicit := false) (ellipsis := false)
   | none   => throwUnknownConstant stx[1].getId
 
+-- TODO: move to another file?
+private def hasUnknownType (e : Expr) : MetaM Bool :=
+  return (← inferType e).getAppFn.isMVar
+
 @[builtinTermElab binop] def elabBinOp : TermElab :=  fun stx expectedType? => do
   match stx with
   | `(binop% $f $lhs $rhs) =>
@@ -54,16 +58,23 @@ open Meta
     | some expectedType =>
       match (← resolveId? f) with
       | some f =>
-        withSynthesize (mayPostpone := true) do
+        let syntheticMVarsSaved := (← get).syntheticMVars
+        modify fun s => { s with syntheticMVars := [] }
+        try
           let lhs ← elabTerm lhs none
           let rhs ← elabTerm rhs none
-          if lhs.isAppOfArity ``OfNat.ofNat 3 && rhs.isAppOfArity ``OfNat.ofNat 3 then
-            -- We want the numerals in terms such as `(1 + 1 : Int)` to be elaborated as `Int`
+          if (← hasUnknownType lhs) && (← hasUnknownType rhs) then
+            -- We want the numerals in terms such as `(1 + 1)` `(2 * 3 + 4)` to be elaborated using the expected type
+            -- This is particularly important when there is no coercion from `Nat` to the expected type.
             elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType (explicit := false) (ellipsis := false)
           else
-            -- We use `withSynthesize` to force TC resolution and default instances to be used.
+            -- We force TC resolution and default instances to be used.
             -- Note that we do not provide the expected type to make sure it can be inferred by the TC procedure. See issue #382
-            elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] (expectedType? := none) (explicit := false) (ellipsis := false)
+            let r ← elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] (expectedType? := none) (explicit := false) (ellipsis := false)
+            synthesizeSyntheticMVarsUsingDefault
+            return r
+        finally
+          modify fun s => { s with syntheticMVars := s.syntheticMVars ++ syntheticMVarsSaved }
        | none   => throwUnknownConstant stx[1].getId
   | _ => throwUnsupportedSyntax
 

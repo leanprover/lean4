@@ -269,7 +269,6 @@ lean_object* l_Lean_Environment_isConstructor_match__1(lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_modifyState___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedPersistentEnvExtension___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_importModules___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1441____closed__4;
 lean_object* l_Std_AssocList_replace___at_Lean_Environment_addAux___spec__11(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_size___at_Lean_Environment_displayStats___spec__3___boxed(lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
@@ -284,6 +283,7 @@ lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerSimpl
 lean_object* l___private_Lean_Environment_0__Lean_setImportedEntries___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_namespacesExt___elambda__1(lean_object*);
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
+extern lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 lean_object* l_IO_fileExists___at_Lean_importModules_importMods___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkMapDeclarationExtension___rarg(lean_object*, lean_object*, lean_object*);
@@ -12133,7 +12133,7 @@ x_23 = l_Std_Format_isNil(x_22);
 if (x_23 == 0)
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
-x_24 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1441____closed__4;
+x_24 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;
 x_25 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_25, 0, x_24);
 lean_ctor_set(x_25, 1, x_22);

@@ -266,6 +266,7 @@ lean_object* l_Lean_Syntax_isAnyAntiquot___boxed(lean_object*);
 lean_object* l_Lean_Syntax_getAntiquotSuffixSpliceInner___boxed(lean_object*);
 lean_object* l_Lean_Syntax_isTokenAntiquot___closed__1;
 lean_object* l_Lean_Syntax_topDown___boxed(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_16268____closed__9;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Syntax_hasMissing___spec__2(lean_object*, uint8_t, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Syntax_hasMissing___spec__1___lambda__1(lean_object*, lean_object*);
@@ -323,7 +324,6 @@ lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Syntax_reprint_
 lean_object* l_Lean_Syntax_getAntiquotSpliceSuffix___boxed(lean_object*);
 lean_object* l_Lean_Syntax_isQuot___boxed(lean_object*);
 lean_object* l_Lean_Syntax_modifyArgs(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_15036____closed__9;
 lean_object* l_Lean_SyntaxNode_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_antiquotKind_x3f(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Syntax_rewriteBottomUp___spec__2(lean_object*, size_t, size_t, lean_object*);
@@ -7416,7 +7416,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(2);
-x_2 = l_myMacro____x40_Init_Notation___hyg_15036____closed__9;
+x_2 = l_myMacro____x40_Init_Notation___hyg_16268____closed__9;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

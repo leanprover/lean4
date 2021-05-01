@@ -46,6 +46,7 @@ extern lean_object* l_Lean_instInhabitedKeyedDeclsAttribute___closed__4;
 extern lean_object* l_Lean_identKind___closed__2;
 lean_object* l_Lean_Elab_liftMacroM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_mkTermElabAttributeUnsafe___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_16268____closed__8;
 lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Term_Quotation_precheck___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_mkPrecheckAttribute___closed__2;
 lean_object* l_Lean_Elab_Term_Quotation_initFn____x40_Lean_Elab_Quotation_Precheck___hyg_68____closed__1;
@@ -68,7 +69,6 @@ lean_object* l_Lean_Elab_Term_Quotation_mkPrecheckAttribute(lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Term_Quotation_precheck___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_Quotation_precheckParen___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_13502____closed__8;
 lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Term_Quotation_precheck___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_precheckApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_precheckIdent___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -175,10 +175,10 @@ lean_object* l_Lean_KeyedDeclsAttribute_init___rarg(lean_object*, lean_object*, 
 lean_object* l_Lean_Elab_Term_Quotation_precheckIdent_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_Quotation_hygiene;
 lean_object* l_Lean_Elab_Term_Quotation_mkPrecheckAttribute___closed__3;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_14734____closed__8;
 lean_object* l_Lean_Elab_Term_Quotation_runPrecheck(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_mkPrecheckAttribute___closed__7;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_Quotation_withNewLocals___spec__1(lean_object*, size_t, size_t, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_15036____closed__8;
 lean_object* l_Lean_Elab_Term_Quotation_precheckIdent___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_precheck_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalName___at_Lean_Elab_Term_Quotation_precheckIdent___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2852,7 +2852,7 @@ lean_object* l_Lean_Elab_Term_Quotation_precheckParen(lean_object* x_1, lean_obj
 _start:
 {
 lean_object* x_10; uint8_t x_11; 
-x_10 = l_myMacro____x40_Init_Notation___hyg_13502____closed__8;
+x_10 = l_myMacro____x40_Init_Notation___hyg_14734____closed__8;
 lean_inc(x_1);
 x_11 = l_Lean_Syntax_isOfKind(x_1, x_10);
 if (x_11 == 0)
@@ -2937,7 +2937,7 @@ else
 lean_object* x_27; lean_object* x_28; uint8_t x_29; 
 x_27 = l_Lean_Syntax_getArg(x_22, x_16);
 lean_dec(x_22);
-x_28 = l_myMacro____x40_Init_Notation___hyg_15036____closed__8;
+x_28 = l_myMacro____x40_Init_Notation___hyg_16268____closed__8;
 lean_inc(x_27);
 x_29 = l_Lean_Syntax_isOfKind(x_27, x_28);
 if (x_29 == 0)
@@ -3238,7 +3238,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Elab_Term_Quotation_precheckAttribute;
-x_3 = l_myMacro____x40_Init_Notation___hyg_13502____closed__8;
+x_3 = l_myMacro____x40_Init_Notation___hyg_14734____closed__8;
 x_4 = l___regBuiltin_Lean_Elab_Term_Quotation_precheckParen___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;

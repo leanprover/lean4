@@ -205,6 +205,11 @@ def elabCDotFunctionAlias? (stx : Syntax) : TermElabM (Option Expr) := do
       try Term.resolveId? f catch _ => return none
     else
       return none
+  | `(fun $binders* => binop% $f:ident $a $b) =>
+    if binders == #[a, b] then
+      try Term.resolveId? f catch _ => return none
+    else
+      return none
   | _ => return none
 where
   expandCDotArg? (stx : Syntax) : MacroM (Option Syntax) :=

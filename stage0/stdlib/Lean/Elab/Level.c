@@ -91,8 +91,8 @@ uint8_t l_Lean_Elab_isValidAutoBoundLevelName(lean_object*);
 lean_object* l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Level_elabLevel___spec__2(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___rarg___lambda__1___closed__4;
 lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__5___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__30;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__30;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM;
 lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__4(lean_object*, lean_object*, lean_object*);
@@ -1203,7 +1203,7 @@ x_14 = lean_name_eq(x_4, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; uint8_t x_16; 
-x_15 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__30;
+x_15 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__30;
 x_16 = lean_name_eq(x_4, x_15);
 if (x_16 == 0)
 {
@@ -2010,7 +2010,7 @@ x_215 = lean_name_eq(x_4, x_214);
 if (x_215 == 0)
 {
 lean_object* x_216; uint8_t x_217; 
-x_216 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__30;
+x_216 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__30;
 x_217 = lean_name_eq(x_4, x_216);
 if (x_217 == 0)
 {

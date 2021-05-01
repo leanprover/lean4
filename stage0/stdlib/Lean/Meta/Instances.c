@@ -206,7 +206,6 @@ lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertVal___
 lean_object* l_Std_fmt___at_Lean_Level_PP_Result_format___spec__1(lean_object*);
 lean_object* l_Lean_Meta_instInhabitedDefaultInstances;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5717____closed__21;
 extern lean_object* l_Lean_Meta_DiscrTree_instInhabitedKey;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_243____closed__4;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -220,6 +219,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_USize_decLe(size_t, size_t);
 uint8_t l_Std_RBNode_isRed___rarg(lean_object*);
 extern lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__21;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_243____closed__1;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_addDefaultInstance_match__2(lean_object*);
@@ -2772,7 +2772,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5717____closed__21;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__21;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

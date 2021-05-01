@@ -93,7 +93,6 @@ lean_object* l_Lean_resolveNamespace___at___private_Lean_Elab_Open_0__Lean_Elab_
 lean_object* l_Lean_Elab_OpenDecl_elabOpenDecl___rarg___lambda__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logAt___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenOnly___spec__5___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple(lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__3;
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__2___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_resolveNamespace___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenOnly___spec__1___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -182,6 +181,7 @@ lean_object* l_StateRefT_x27_get___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenHiding___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenOnly___spec__6(lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__3;
 lean_object* l_Lean_Elab_logAt___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenOnly___spec__5___rarg___lambda__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 extern lean_object* l_Lean_resolveNamespace___rarg___lambda__1___closed__1;
@@ -3714,7 +3714,7 @@ goto block_26;
 block_26:
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_21 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1360____closed__3;
+x_21 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__3;
 x_22 = lean_box(x_20);
 lean_inc(x_3);
 x_23 = lean_alloc_closure((void*)(l_Lean_Elab_OpenDecl_elabOpenDecl___rarg___lambda__2___boxed), 14, 13);

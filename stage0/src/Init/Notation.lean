@@ -76,6 +76,21 @@ infixl:75 " >>> "  => HShiftRight.hShiftRight
 infixr:80 " ^ "  => HPow.hPow
 prefix:100 "-"   => Neg.neg
 prefix:100 "~~~"   => Complement.complement
+/-
+  Remark: the infix commands above ensure a delaborator is generated for each relations.
+  We redefine the macros below to be able to use the auxiliary `binop%` elaboration helper for binary operators.
+  It addresses issue #382. -/
+macro_rules | `($x ||| $y) => `(binop% HOr.hOr $x $y)
+macro_rules | `($x ^^^ $y) => `(binop% HXor.hXor $x $y)
+macro_rules | `($x &&& $y) => `(binop% HAnd.hAnd $x $y)
+macro_rules | `($x + $y)   => `(binop% HAdd.hAdd $x $y)
+macro_rules | `($x - $y)   => `(binop% HSub.hSub $x $y)
+macro_rules | `($x * $y)   => `(binop% HMul.hMul $x $y)
+macro_rules | `($x / $y)   => `(binop% HDiv.hDiv $x $y)
+macro_rules | `($x % $y)   => `(binop% HMod.hMod $x $y)
+macro_rules | `($x <<< $y) => `(binop% HShiftLeft.hShiftLeft $x $y)
+macro_rules | `($x >>> $y) => `(binop% HShiftRight.hShiftRight $x $y)
+macro_rules | `($x ^ $y)   => `(binop% HPow.hPow $x $y)
 
 -- declare ASCII alternatives first so that the latter Unicode unexpander wins
 infix:50 " <= " => LE.le

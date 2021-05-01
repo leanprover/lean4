@@ -84,7 +84,7 @@ lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Le
 lean_object* lean_mk_inductive_val(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t);
 lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_204__match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 uint8_t l_UInt32_decLt(uint32_t, uint32_t);
-extern lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1441____closed__4;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__3;
 lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_204____closed__18;
 lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__3(lean_object*);
 lean_object* l_Lean_instInhabitedConstructor___closed__1;
@@ -96,6 +96,7 @@ lean_object* lean_instantiate_type_lparams(lean_object*, lean_object*);
 lean_object* l_Lean_RecursorVal_isUnsafeEx___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_hasValue___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
+extern lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;
 lean_object* l_Lean_InductiveVal_isNestedEx___boxed(lean_object*);
 lean_object* l_Lean_RecursorVal_getFirstMinorIdx___boxed(lean_object*);
 lean_object* l___private_Lean_Declaration_0__Lean_beqDefinitionSafety____x40_Lean_Declaration___hyg_161__match__1(lean_object*);
@@ -136,7 +137,6 @@ lean_object* l_Lean_ConstantInfo_hints_match__1___rarg(lean_object*, lean_object
 lean_object* l_Lean_RecursorVal_getInduct(lean_object*);
 lean_object* lean_mk_constructor_val(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_mkDefinitionValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20115____closed__3;
 lean_object* l_Lean_ConstantInfo_value_x3f_match__1(lean_object*);
 lean_object* l_Lean_instInhabitedDeclaration___closed__1;
 lean_object* l_Lean_ReducibilityHints_getHeightEx___boxed(lean_object*);
@@ -814,7 +814,7 @@ static lean_object* _init_l___private_Lean_Declaration_0__Lean_reprDefinitionSaf
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1441____closed__4;
+x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;
 x_2 = l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_204____closed__2;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -880,7 +880,7 @@ static lean_object* _init_l___private_Lean_Declaration_0__Lean_reprDefinitionSaf
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1441____closed__4;
+x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;
 x_2 = l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_204____closed__8;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -946,7 +946,7 @@ static lean_object* _init_l___private_Lean_Declaration_0__Lean_reprDefinitionSaf
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1441____closed__4;
+x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;
 x_2 = l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_204____closed__14;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -3491,7 +3491,7 @@ lean_object* l_Lean_mkRecName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20115____closed__3;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

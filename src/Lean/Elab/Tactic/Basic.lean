@@ -95,6 +95,20 @@ private def evalTacticUsing (s : SavedState) (stx : Syntax) (tactics : List Tact
 def getGoals : TacticM (List MVarId) :=
   return (← get).goals
 
+def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx : Syntax) : TacticM Info :=
+  return Info.ofTacticInfo {
+    mctxBefore    := mctxBefore
+    goalsBefore   := goalsBefore
+    stx           := stx
+    mctxAfter     := (← getMCtx)
+    goalsAfter    := (← getGoals)
+  }
+
+@[inline] def withTacticInfoContext (stx : Syntax) (x : TacticM α) : TacticM α := do
+  let mctxBefore  ← getMCtx
+  let goalsBefore ← getGoals
+  withInfoContext x (mkTacticInfo mctxBefore goalsBefore stx)
+
 mutual
 
   partial def expandTacticMacroFns (stx : Syntax) (macros : List Macro) : TacticM Unit :=
@@ -132,19 +146,8 @@ mutual
           | none         => expandTacticMacro stx
       | _ => throwError "unexpected command"
 
-  partial def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx : Syntax) : TacticM Info :=
-    return Info.ofTacticInfo {
-      mctxBefore    := mctxBefore
-      goalsBefore   := goalsBefore
-      stx           := stx
-      mctxAfter     := (← getMCtx)
-      goalsAfter    := (← getGoals)
-    }
-
-  partial def evalTactic (stx : Syntax) : TacticM Unit := do
-    let mctxBefore  ← getMCtx
-    let goalsBefore ← getGoals
-    withInfoContext (evalTacticAux stx) (mkTacticInfo mctxBefore goalsBefore stx)
+  partial def evalTactic (stx : Syntax) : TacticM Unit :=
+    withTacticInfoContext stx (evalTacticAux stx)
 
 end
 
@@ -155,9 +158,7 @@ end
 -/
 def saveTacticInfoForToken (stx : Syntax) : TacticM Unit := do
   unless stx.getPos?.isNone do
-    let mctxBefore  ← getMCtx
-    let goalsBefore ← getGoals
-    withInfoContext (pure ()) (mkTacticInfo mctxBefore goalsBefore stx)
+    withTacticInfoContext stx (pure ())
 
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline]

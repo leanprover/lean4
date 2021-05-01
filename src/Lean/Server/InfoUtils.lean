@@ -13,17 +13,16 @@ namespace Lean.Elab
 /--
   For every branch, find the deepest node in that branch matching `p`
   with a surrounding context (the innermost one) and return all of them. -/
-partial def InfoTree.deepestNodes (p : ContextInfo → Info → Option α) : InfoTree → List α :=
+partial def InfoTree.deepestNodes (p : ContextInfo → Info → Std.PersistentArray InfoTree → Option α) : InfoTree → List α :=
   go none
 where go ctx?
   | context ctx t => go ctx t
   | n@(node i cs) =>
-    let cs := cs.toList
-    let ccs := cs.map (go <| i.updateContext? ctx?)
-    let cs := ccs.join
-    if !cs.isEmpty then cs
+    let ccs := cs.toList.map (go <| i.updateContext? ctx?)
+    let cs' := ccs.join
+    if !cs'.isEmpty then cs'
     else match ctx? with
-      | some ctx => match p ctx i with
+      | some ctx => match p ctx i cs with
         | some a => [a]
         | _      => []
       | _        => []
@@ -86,7 +85,7 @@ def Info.occursBefore? (i : Info) (hoverPos : String.Pos) : Option Nat := Option
   return hoverPos - tailPos
 
 def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextInfo × Info) :=
-  let ts := t.deepestNodes fun ctx i => if p i then some (ctx, i) else none
+  let ts := t.deepestNodes fun ctx i _ => if p i then some (ctx, i) else none
 
   let infos := ts.map fun (ci, i) =>
     let diff := i.tailPos?.get! - i.pos?.get!
@@ -160,18 +159,34 @@ structure GoalsAtResult where
   - None of the `children` can provide satisfy the condition above. That is, for composite tactics such as
     `induction`, we always give preference for information stored in nested (children) tactics.
 
-  Moreover, we instruct the LSP server to use the state after the tactic execution if hoverPos >= endPos
+  Moreover, we instruct the LSP server to use the state after the tactic execution if hoverPos >= endPos *and*
+  there is no nested tactic info (i.e. it is a leaf tactic; tactic combinators should decide for themselves
+  where to show intermediate/final states)
 -/
 partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult := do
   t.deepestNodes fun
-    | ctx, i@(Info.ofTacticInfo ti) => OptionM.run do
+    | ctx, i@(Info.ofTacticInfo ti), cs => OptionM.run do
       let (some pos, some tailPos) ← pure (i.pos?, i.tailPos?)
         | failure
       let trailSize := i.stx.getTrailingSize
       -- NOTE: include position just after tactic, i.e. when the cursor is still adjacent
       -- (even when `trailSize == 0`, which is the case at EOF)
       guard <| pos ≤ hoverPos ∧ hoverPos < tailPos + Nat.max 1 trailSize
-      return { ctxInfo := ctx, tacticInfo := ti, useAfter := hoverPos > pos }
-    | _, _ => none
+      return { ctxInfo := ctx, tacticInfo := ti, useAfter :=
+        hoverPos > pos && !cs.any (hasNestedTactic pos tailPos) }
+    | _, _, _ => none
+where
+  hasNestedTactic (pos tailPos) : InfoTree → Bool
+    | InfoTree.node (Info.ofTacticInfo ti) cs => do
+      if let `(by $t) := ti.stx then
+        return false  -- ignore term-nested proofs such as in `simp [show p by ...]`
+      if let (some pos', some tailPos') := (ti.stx.getPos?, ti.stx.getTailPos?) then
+        -- ignore nested infos of the same tactic, e.g. from expansion
+        if (pos', tailPos') != (pos, tailPos) then
+          return true
+      cs.any (hasNestedTactic pos tailPos)
+    | InfoTree.node (Info.ofMacroExpansionInfo _) cs =>
+      cs.any (hasNestedTactic pos tailPos)
+    | _ => false
 
 end Lean.Elab

@@ -268,10 +268,6 @@ def resolveGlobalConstWithInfos [MonadResolveName m] [MonadEnv m] [MonadError m]
       pushInfoLeaf <| Info.ofTermInfo { lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx := stx }
   return ns
 
-def mkInfoNode (info : Info) : m Unit := do
-  if (← getInfoState).enabled then
-    modifyInfoTrees fun ts => PersistentArray.empty.push <| InfoTree.node info ts
-
 @[inline] def withInfoContext' [MonadFinally m] (x : m α) (mkInfo : α → m (Sum Info MVarId)) : m α := do
   if (← getInfoState).enabled then
     let treesSaved ← getResetInfoTrees

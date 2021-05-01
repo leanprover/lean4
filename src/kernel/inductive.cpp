@@ -593,7 +593,8 @@ public:
                     expr u_app  = mk_app(u_i, xs);
                     C_app = mk_app(C_app, u_app);
                     expr v_i_ty = mk_pi(xs, C_app);
-                    expr v_i    = mk_local_decl(name("v").append_after(i), v_i_ty, binder_info());
+                    local_decl u_i_decl = m_lctx.get_local_decl(fvar_name(u_i));
+                    expr v_i    = mk_local_decl(u_i_decl.get_user_name().append_after("_ih"), v_i_ty, binder_info());
                     v.push_back(v_i);
                 }
                 expr minor_ty   = mk_pi(b_u, mk_pi(v, C_app));

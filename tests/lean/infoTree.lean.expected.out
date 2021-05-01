@@ -81,7 +81,7 @@
     y : Nat @ ⟨18, 8⟩-⟨18, 9⟩
     Bool : Type @ ⟨18, 10⟩-⟨18, 11⟩
     b : Bool @ ⟨18, 10⟩-⟨18, 11⟩
-    Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+    Tactic @ ⟨18, 15⟩-⟨19, 8⟩
     before 
     x y : Nat
     b : Bool
@@ -99,6 +99,12 @@
         b : Bool
         ⊢ x + 0 = x
         after no goals
+          Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+          before 
+          x y : Nat
+          b : Bool
+          ⊢ x + 0 = x
+          after no goals
 [Elab.info] command @ ⟨21, 0⟩-⟨25, 10⟩
   Nat → Nat → Bool → Nat : Type @ ⟨21, 9⟩-⟨21, 39⟩
     Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩

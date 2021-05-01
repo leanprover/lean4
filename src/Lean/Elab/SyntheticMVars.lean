@@ -8,7 +8,7 @@ import Lean.Elab.Term
 import Lean.Elab.Tactic.Basic
 
 namespace Lean.Elab.Term
-open Tactic (TacticM evalTactic getUnsolvedGoals mkTacticInfo)
+open Tactic (TacticM evalTactic getUnsolvedGoals withTacticInfoContext)
 open Meta
 
 /-- Auxiliary function used to implement `synthesizeSyntheticMVars`. -/
@@ -211,13 +211,7 @@ mutual
     modifyThe Meta.State fun s => { s with mctx := s.mctx.instantiateMVarDeclMVars mvarId }
     let remainingGoals ← withInfoHole mvarId <|
       liftTacticElabM mvarId do
-        let mctxBefore  ← getMCtx
-        -- NOTE: we need an outer node as `withInfoHole` discards all trees but the last one
-        withInfoContext (do
-            -- push separate leaf for `by` so we show the initial state on the whole token
-            pushInfoLeaf (← mkTacticInfo mctxBefore [mvarId] byTk)
-            evalTactic code)
-          (mkTacticInfo mctxBefore [mvarId] tacticCode)
+        withTacticInfoContext tacticCode (evalTactic code)
         getUnsolvedGoals
     unless remainingGoals.isEmpty do reportUnsolvedGoals remainingGoals
 

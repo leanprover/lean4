@@ -1,8 +1,20 @@
 {"textDocument": {"uri": "file://plainGoal.lean"},
- "position": {"line": 1, "character": 2}}
+ "position": {"line": 0, "character": 20}}
 {"rendered": "```lean\nα : Sort ?u\n⊢ α → α\n```",
  "goals": ["α : Sort ?u\n⊢ α → α"]}
 {"textDocument": {"uri": "file://plainGoal.lean"},
- "position": {"line": 1, "character": 3}}
+ "position": {"line": 0, "character": 21}}
+{"rendered": "```lean\nα : Sort ?u\n⊢ α → α\n```",
+ "goals": ["α : Sort ?u\n⊢ α → α"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 3, "character": 2}}
+{"rendered": "```lean\nα : Sort ?u\n⊢ α → α\n```",
+ "goals": ["α : Sort ?u\n⊢ α → α"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 3, "character": 3}}
 {"rendered": "```lean\nα : Sort ?u\na : α\n⊢ α\n```",
  "goals": ["α : Sort ?u\na : α\n⊢ α"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 8, "character": 20}}
+{"rendered": "```lean\nα : Sort ?u\n⊢ α → α\n```",
+ "goals": ["α : Sort ?u\n⊢ α → α"]}

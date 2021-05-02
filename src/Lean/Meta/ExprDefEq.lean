@@ -289,7 +289,7 @@ where
       let start := lctx.getFVar! xs[0] |>.index
       let stop  := lctx.getFVar! xs.back |>.index
       for i in [start+1:stop] do
-        match lctx.getAt! i with
+        match lctx.getAt? i with
         | some localDecl =>
           if localDecl.isLet then
             return true
@@ -331,7 +331,7 @@ where
       if i+1 == (← read) then
         return ()
       else
-        match (← getLCtx).getAt! (i+1) with
+        match (← getLCtx).getAt? (i+1) with
         | none => collectLetDepsAux i
         | some localDecl =>
           if (← get).contains localDecl.fvarId then
@@ -360,7 +360,7 @@ where
     let stop  := lctx.getFVar! xs.back |>.index
     let mut ys := #[]
     for i in [start:stop+1] do
-      match lctx.getAt! i with
+      match lctx.getAt? i with
       | none => pure ()
       | some localDecl =>
         if s.contains localDecl.fvarId then

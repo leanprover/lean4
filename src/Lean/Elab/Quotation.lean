@@ -406,7 +406,9 @@ private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : T
   trace[Elab.match_syntax] "match {discrs} with {alts}"
   match discrs, alts with
   | [],            ([], rhs)::_ => pure rhs  -- nothing left to match
-  | _,             []           => throwError "non-exhaustive 'match' (syntax)"
+  | _,             []           =>
+   logError "non-exhaustive 'match' (syntax)"
+   pure Syntax.missing
   | discr::discrs, alt::alts    => do
     let info ← getHeadInfo alt
     let pat  := alt.1.head!

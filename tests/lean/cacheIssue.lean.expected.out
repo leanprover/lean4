@@ -1,0 +1,3 @@
+foo Bool : Foo (Bool → Nat) ({p : Bool} → Nat)
+(foo Bool).f : Unit → Bool → Nat
+(bar Bool).f : Unit → Bool → Nat

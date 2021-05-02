@@ -75,11 +75,11 @@ lean_object* l_String_toName(lean_object*);
 lean_object* l_Lean_setOptionFromString___closed__4;
 lean_object* l_Lean_instMonadOptions(lean_object*, lean_object*);
 lean_object* l_Lean_getOptionDecl(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23549____closed__8;
 lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_892____closed__12;
 lean_object* l_Lean_OptionDecl_descr___default;
 lean_object* l_Lean_instToStringOptions;
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23565____closed__8;
 lean_object* l_Lean_setOptionFromString_match__4(lean_object*);
 lean_object* l_Lean_instMonadOptions___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_892____closed__19;
@@ -1079,7 +1079,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23549____closed__8;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23565____closed__8;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

@@ -82,6 +82,7 @@ lean_object* l_Lean_Parser_Term_matchDiscr___closed__4;
 lean_object* l_Lean_Parser_Term_sufficesDecl_parenthesizer___closed__1;
 lean_object* l___regBuiltinParser_Lean_Parser_Term_suffices(lean_object*);
 lean_object* l_Lean_Parser_Term_proj_formatter___closed__2;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__4;
 lean_object* l_Lean_Parser_Term_stateRefT___closed__3;
 lean_object* l_Lean_Parser_Term_paren_formatter___closed__3;
 lean_object* l_Lean_Parser_Term_explicit___elambda__1___closed__4;
@@ -105,6 +106,7 @@ lean_object* l_Lean_Parser_Term_macroLastArg_formatter___closed__2;
 lean_object* l___regBuiltin_Lean_Parser_Term_pipeCompletion_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Term_trueVal_parenthesizer___closed__1;
 lean_object* l___regBuiltin_Lean_Parser_Term_forall_parenthesizer___closed__1;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__5;
 lean_object* l_Lean_Parser_Term_have_parenthesizer___closed__7;
 lean_object* l_Lean_Parser_Term_byTactic_formatter___closed__4;
 lean_object* l_Lean_Parser_Term_structInst___elambda__1___closed__10;
@@ -170,6 +172,7 @@ lean_object* l_Lean_Parser_Command_docComment___closed__3;
 lean_object* l_Lean_Parser_Term_ensureExpectedType;
 lean_object* l_Lean_Parser_Term_explicitBinder_formatter___closed__6;
 lean_object* l_Lean_Parser_andthenInfo(lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__3;
 lean_object* l_Lean_Parser_Term_have___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Term_ensureExpectedType___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Term_explicit___elambda__1___closed__2;
@@ -183,6 +186,7 @@ lean_object* l_Lean_Parser_Term_explicit_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_Term_whereDecls_formatter___closed__5;
 lean_object* l_Lean_Parser_Term_sort___elambda__1___closed__8;
 lean_object* l_Lean_Parser_Term_binderTactic___elambda__1___closed__6;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20086____closed__1;
 lean_object* l_Lean_Parser_Term_emptyC_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_tacticSeqBracketed___closed__9;
 lean_object* l_Lean_Parser_Term_pipeProj_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -329,13 +333,13 @@ lean_object* l_Lean_Parser_Term_attributes___elambda__1(lean_object*, lean_objec
 lean_object* l_Lean_Parser_Term_fun_formatter___closed__3;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_9627____closed__1;
 lean_object* l_Lean_Parser_Tactic_tacticSeq1Indented_formatter___closed__2;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__2;
 lean_object* l_Lean_Parser_Term_nomatch___elambda__1___closed__5;
 lean_object* l_Lean_Parser_Term_noindex___elambda__1___closed__11;
 lean_object* l_Lean_Parser_Term_attributes_formatter___closed__6;
 lean_object* l_Lean_Parser_Term_letPatDecl_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_Term_proj___closed__10;
 lean_object* l_Lean_Parser_Term_noImplicitLambda___elambda__1___closed__10;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20070____closed__1;
 lean_object* l_Lean_Parser_Term_unreachable___closed__6;
 lean_object* l_Lean_Parser_Term_letRecDecl___elambda__1___closed__9;
 lean_object* l_Lean_Parser_Term_let_formatter___closed__7;
@@ -495,7 +499,6 @@ lean_object* l_Lean_Parser_Term_simpleBinder___closed__1;
 lean_object* l_Lean_Parser_Term_binop_parenthesizer___closed__1;
 lean_object* l___regBuiltin_Lean_Parser_Term_panic_parenthesizer(lean_object*);
 lean_object* l_Lean_Parser_Term_letRecDecl___elambda__1___closed__8;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20070____closed__2;
 lean_object* l_Lean_Parser_Term_subst___closed__4;
 lean_object* l___regBuiltin_Lean_Parser_Term_leading__parser_parenthesizer(lean_object*);
 lean_object* l_Lean_Parser_Term_funImplicitBinder___elambda__1(lean_object*, lean_object*);
@@ -1113,6 +1116,7 @@ lean_object* l_Lean_Parser_Term_leading__parser___elambda__1___closed__13;
 lean_object* l_Lean_Parser_Term_str_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_structInstLVal_parenthesizer___closed__10;
 lean_object* l_Lean_Parser_Term_funSimpleBinder;
+extern lean_object* l_Lean_Parser_Tactic_case___closed__10;
 lean_object* l___regBuiltin_Lean_Parser_Tactic_quotSeq_formatter___closed__1;
 lean_object* l_Lean_Parser_Tactic_tacticSeq1Indented_parenthesizer___closed__1;
 lean_object* l___regBuiltin_Lean_Parser_Term_byTactic_formatter(lean_object*);
@@ -1152,7 +1156,6 @@ lean_object* l_Lean_Parser_Term_letrec___closed__11;
 lean_object* l___regBuiltin_Lean_Parser_Term_bracketedBinder_quot_parenthesizer(lean_object*);
 lean_object* l_Lean_Parser_Term_funBinder_quot___elambda__1___closed__10;
 lean_object* l_Lean_Parser_Term_match_parenthesizer___closed__9;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__4;
 lean_object* l_Lean_Parser_Term_optEllipsis___closed__2;
 lean_object* l_Lean_Parser_Term_letDecl_parenthesizer___closed__7;
 lean_object* l_Lean_Parser_Term_binderTactic_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1286,7 +1289,6 @@ lean_object* l_Lean_Parser_Term_forall_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_Tactic_quot_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_Term_simpleBinderWithoutType___closed__4;
 lean_object* l_Lean_Parser_Term_optEllipsis___elambda__1___closed__2;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__3;
 lean_object* l_Lean_Parser_Term_structInst___elambda__1___closed__22;
 lean_object* l_Lean_Parser_Term_generalizingParam___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_whereDecls_parenthesizer___closed__2;
@@ -1419,9 +1421,7 @@ lean_object* l_Lean_Parser_Term_hole___closed__4;
 lean_object* l_Lean_Parser_Term_structInstLVal___closed__3;
 lean_object* l_Lean_Parser_Term_fun___closed__6;
 lean_object* l_Lean_Parser_Tactic_quot___elambda__1___closed__6;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__3;
 lean_object* l_Lean_Parser_Tactic_quotSeq_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__4;
 lean_object* l_Lean_Parser_Term_matchDiscr___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Term_num___closed__2;
 lean_object* l_Lean_Parser_Term_typeAscription___elambda__1___closed__5;
@@ -1485,6 +1485,7 @@ lean_object* l_Lean_Parser_Term_typeOf___closed__5;
 lean_object* l_Lean_Parser_Term_anonymousCtor___closed__5;
 lean_object* l_Lean_Parser_Term_quotedName___closed__2;
 lean_object* l_Lean_Parser_Term_namedPattern;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__3;
 lean_object* l_Lean_Parser_Term_binrel___elambda__1___closed__9;
 lean_object* l_Lean_Parser_Tactic_tacticSeqBracketed_parenthesizer___closed__11;
 lean_object* l_Lean_Parser_Term_unreachable___closed__7;
@@ -1585,6 +1586,7 @@ lean_object* l_Lean_Parser_Term_structInst_parenthesizer___closed__6;
 lean_object* l_Lean_Parser_Term_funImplicitBinder___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Term_pipeCompletion_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_assert___closed__1;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__3;
 lean_object* l_Lean_Parser_Term_forall___elambda__1___closed__11;
 lean_object* l_Lean_Parser_Term_sufficesDecl___closed__3;
 lean_object* l_Lean_Parser_Term_fun___elambda__1___closed__8;
@@ -1670,7 +1672,6 @@ lean_object* l_Lean_Parser_Term_inaccessible___elambda__1___closed__15;
 lean_object* l_Lean_Parser_Term_typeSpec___closed__2;
 lean_object* l_Lean_Parser_Term_attributes___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Term_dynamicQuot___closed__7;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23549____closed__8;
 lean_object* l_Lean_Parser_Term_letIdDecl_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_funBinder_quot___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_optEllipsis_formatter___closed__4;
@@ -1737,6 +1738,7 @@ lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Term___hyg_4179____closed__
 lean_object* l_Lean_Parser_Term_let__fun___elambda__1___closed__16;
 lean_object* l_Lean_Parser_Term_trailing__parser_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_Term_explicitBinder_formatter___closed__8;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__3;
 lean_object* l_Lean_Parser_Term_explicitBinder___closed__7;
 lean_object* l_Lean_Parser_Term_match___closed__5;
 lean_object* l_Lean_Parser_checkWsBeforeFn(lean_object*, lean_object*, lean_object*);
@@ -1790,6 +1792,7 @@ lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Term___hyg_4179____closed__
 lean_object* l_Lean_Parser_Term_explicitUniv_formatter___closed__6;
 lean_object* l_Lean_Parser_Term_syntheticHole___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Term_paren_formatter___closed__9;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23565____closed__8;
 lean_object* l_Lean_Parser_Term_structInstField___closed__2;
 lean_object* l_Lean_Parser_Term_letrec_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Term_type___elambda__1___closed__10;
@@ -1928,7 +1931,6 @@ extern lean_object* l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrin
 lean_object* l_Lean_Parser_Term_borrowed___elambda__1___closed__11;
 lean_object* l_Lean_Parser_Term_fromTerm___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Term_matchDiscr___elambda__1___closed__9;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__3;
 extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__28;
 lean_object* l_Lean_Parser_Term_show___closed__4;
 lean_object* l_Lean_Parser_Term_structInstLVal___elambda__1___closed__15;
@@ -2051,7 +2053,6 @@ lean_object* l_Lean_Parser_Term_anonymousCtor_formatter___closed__5;
 lean_object* l_Lean_Parser_Term_ensureTypeOf___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Tactic_quot___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Term_sort___closed__4;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__2;
 lean_object* l_Lean_Parser_Term_sufficesDecl_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_forall___elambda__1___closed__27;
 lean_object* l_Lean_Parser_Term_show_formatter___closed__3;
@@ -2440,7 +2441,6 @@ lean_object* l_Lean_Parser_Term_explicit_formatter(lean_object*, lean_object*, l
 lean_object* l_Lean_Parser_Term_dbgTrace___elambda__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_explicit___closed__7;
 lean_object* l_Lean_Parser_Term_completion___closed__1;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_23742____closed__1;
 lean_object* l_Lean_Parser_Term_namedPattern___closed__5;
 lean_object* l_Lean_Parser_Term_bracketedBinder_quot_parenthesizer___closed__5;
 lean_object* l_Lean_Parser_Term_structInstLVal___elambda__1___closed__12;
@@ -2451,6 +2451,7 @@ lean_object* l_Lean_Parser_Term_doubleQuotedName_parenthesizer___closed__4;
 lean_object* l_Lean_Parser_Term_attrKind___closed__4;
 lean_object* l_Lean_Parser_Term_noImplicitLambda___closed__3;
 lean_object* l_Lean_Parser_Term_doubleQuotedName;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__2;
 lean_object* l___regBuiltin_Lean_Parser_Term_prop_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Term_borrowed_formatter___closed__1;
 lean_object* l_Lean_Parser_Term_typeOf___elambda__1___closed__6;
@@ -2543,6 +2544,7 @@ lean_object* l_Lean_Parser_Tactic_tacticSeqBracketed___elambda__1___closed__9;
 lean_object* l_Lean_Parser_Term_argument_parenthesizer___closed__6;
 lean_object* l_Lean_Parser_Term_scoped_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_matchDiscr_quot_parenthesizer___closed__6;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__3;
 lean_object* l_Lean_Parser_Term_ensureExpectedType___elambda__1___closed__10;
 lean_object* l_Lean_Parser_Term_funBinder_quot;
 lean_object* l_Lean_Parser_Tactic_tacticSeqBracketed___closed__3;
@@ -2636,10 +2638,10 @@ lean_object* l_Lean_Parser_Term_typeAscription_formatter___closed__3;
 lean_object* l_Lean_Parser_Term_inaccessible___elambda__1___closed__9;
 lean_object* l_Lean_Parser_Term_generalizingParam_formatter___closed__7;
 lean_object* l_Lean_Parser_Term_let___elambda__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_23758____closed__2;
 lean_object* l___regBuiltinParser_Lean_Parser_Term_nomatch(lean_object*);
 lean_object* l_Lean_Parser_Term_structInstField;
 lean_object* l___regBuiltin_Lean_Parser_Term_app_parenthesizer___closed__1;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__2;
 lean_object* l_Lean_Parser_Term_borrowed___elambda__1___closed__9;
 lean_object* l_Lean_Parser_Term_typeAscription___closed__3;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Term___hyg_4179____closed__19;
@@ -2652,6 +2654,7 @@ lean_object* l_Lean_Parser_Term_assert___closed__6;
 lean_object* l_Lean_Parser_Term_typeOf_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_cdot___closed__6;
 lean_object* l_Lean_Parser_Term_arrayRef___closed__6;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__1;
 lean_object* l_Lean_Parser_Term_borrowed_formatter___closed__4;
 lean_object* l_Lean_Parser_Term_depArrow___elambda__1___closed__15;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_fieldIdx_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2701,6 +2704,7 @@ lean_object* l_Lean_Parser_Term_funBinder_quot___elambda__1___closed__5;
 lean_object* l_Lean_Parser_Term_proj___closed__1;
 lean_object* l_Lean_Parser_Term_optEllipsis___closed__3;
 lean_object* l_Lean_Parser_Term_forall_formatter___closed__4;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_23758____closed__1;
 lean_object* l_Lean_Parser_Term_letIdLhs___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_withPosition_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinParser_Lean_Parser_Term_str___closed__1;
@@ -2763,7 +2767,6 @@ lean_object* l_Lean_Parser_Term_letIdLhs___closed__2;
 lean_object* l___regBuiltin_Lean_Parser_Term_noImplicitLambda_parenthesizer(lean_object*);
 lean_object* l_Lean_Parser_Term_show___closed__3;
 lean_object* l_Lean_Parser_Term_completion;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__1;
 lean_object* l_Lean_Parser_Term_structInst___elambda__1___closed__29;
 lean_object* l_Lean_Parser_Term_dynamicQuot___elambda__1___closed__16;
 lean_object* l_Lean_Parser_Term_letrec___closed__9;
@@ -2825,6 +2828,7 @@ lean_object* l_Lean_Parser_Term_ensureExpectedType___closed__3;
 lean_object* l_Lean_Parser_Term_dbgTrace___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Term_scoped___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Term_explicit___closed__3;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__2;
 lean_object* l_Lean_Parser_Term_binderType___closed__3;
 lean_object* l_Lean_Parser_Term_str_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_anonymousCtor___elambda__1___closed__15;
@@ -2844,7 +2848,6 @@ lean_object* l_Lean_Parser_Term_ensureExpectedType___closed__5;
 lean_object* l_Lean_Parser_Term_forall_formatter___closed__11;
 lean_object* l_Lean_Parser_Term_emptyC___closed__4;
 lean_object* l_Lean_Parser_Term_argument_formatter___closed__1;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__3;
 extern lean_object* l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_3015____closed__11;
 lean_object* l___regBuiltin_Lean_Parser_Term_let__delayed_formatter___closed__1;
 lean_object* l_Lean_Parser_Term_let__fun___elambda__1___closed__12;
@@ -2853,7 +2856,6 @@ lean_object* l_Lean_Parser_Term_structInst___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Term_let_formatter___closed__4;
 lean_object* l_Lean_Parser_Term_funSimpleBinder___closed__3;
 lean_object* l_Lean_Parser_Term_depArrow_parenthesizer___closed__1;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_23742____closed__2;
 lean_object* l___regBuiltin_Lean_Parser_Term_arrayRef_formatter(lean_object*);
 lean_object* l_Lean_Parser_nodeWithAntiquot_parenthesizer___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_groupKind;
@@ -2904,6 +2906,7 @@ extern lean_object* l_Lean_Parser_Level_hole___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Term_prop___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Term_tupleTail;
 lean_object* l_Lean_Parser_Term_macroArg;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__4;
 lean_object* l_Lean_Parser_Term_typeAscription___closed__5;
 lean_object* l_Lean_Parser_Term_generalizingParam___elambda__1___closed__15;
 lean_object* l_Lean_Parser_Term_let__fun_parenthesizer___closed__5;
@@ -3137,7 +3140,6 @@ lean_object* l_Lean_Parser_Term_structInstArrayRef___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Term_letDecl_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_structInstLVal___elambda__1___closed__13;
 lean_object* l___regBuiltinParser_Lean_Parser_Term_pipeProj(lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__4;
 lean_object* l_Lean_Parser_Term_emptyC___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Term_attrInstance___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Term_instBinder___closed__8;
@@ -3368,6 +3370,7 @@ lean_object* l_Lean_Parser_Term_generalizingParam___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Term_paren___elambda__1___closed__8;
 lean_object* l_Lean_Parser_Term_suffices_formatter___closed__1;
 lean_object* l_Lean_Parser_Term_structInst_formatter___closed__3;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__4;
 lean_object* l_Lean_Parser_Term_binrel___elambda__1___closed__5;
 lean_object* l_Lean_Parser_Term_structInst___elambda__1___closed__19;
 lean_object* l_Lean_Parser_Tactic_tacticSeq;
@@ -3610,7 +3613,6 @@ lean_object* l_Lean_Parser_Term_binop___closed__3;
 lean_object* l___regBuiltin_Lean_Parser_Term_ensureExpectedType_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_sepBy1_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_ensureTypeOf___elambda__1___closed__7;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__1;
 lean_object* l___regBuiltin_Lean_Parser_Term_inaccessible_formatter(lean_object*);
 lean_object* l_Lean_Parser_Term_noImplicitLambda___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Term_explicit___elambda__1___closed__12;
@@ -3636,7 +3638,6 @@ lean_object* l_Lean_Parser_Term_noImplicitLambda___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Term_binrel___closed__8;
 lean_object* l___regBuiltin_Lean_Parser_Term_forall_formatter(lean_object*);
 lean_object* l_Lean_Parser_Tactic_tacticSeq1Indented_parenthesizer___closed__3;
-extern lean_object* l_Lean_Parser_Tactic_case___closed__7;
 lean_object* l_Lean_Parser_Term_hole;
 lean_object* l_Lean_Parser_Term_dynamicQuot___closed__13;
 lean_object* l___regBuiltinParser_Lean_Parser_Term_scientific(lean_object*);
@@ -3695,12 +3696,12 @@ lean_object* l_Lean_Parser_Term_ellipsis_formatter___closed__2;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Term___hyg_4179____closed__1;
 lean_object* l_Lean_Parser_Term_namedArgument_formatter___closed__5;
 lean_object* l_Lean_Parser_Term_ensureTypeOf_formatter___closed__2;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18748____closed__2;
 lean_object* l_Lean_Parser_Term_optExprPrecedence;
 lean_object* l___regBuiltinParser_Lean_Parser_Term_prop(lean_object*);
 lean_object* l_Lean_Parser_Term_panic___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Term_trailing__parser___closed__5;
 lean_object* l_Lean_Parser_Term_haveDecl_parenthesizer___closed__6;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__2;
 lean_object* l_Lean_Parser_Term_byTactic___elambda__1___closed__10;
 lean_object* l___regBuiltin_Lean_Parser_Term_structInst_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Term_attr_quot___elambda__1___closed__16;
@@ -3727,6 +3728,7 @@ lean_object* l_Lean_Parser_Term_letRecDecl___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Term_bracketedBinder_quot___closed__1;
 lean_object* l_Lean_Parser_Tactic_quot___closed__3;
 lean_object* l_Lean_Parser_nodeFn(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20781____closed__1;
 lean_object* l_Lean_Parser_Term_structInstLVal___elambda__1___closed__16;
 lean_object* l_Lean_Parser_Term_funBinder_formatter___closed__3;
 lean_object* l_Lean_Parser_Term_typeSpec___closed__1;
@@ -3749,7 +3751,7 @@ lean_object* l_Lean_Parser_Term_funImplicitBinder_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_Term_letIdDecl_parenthesizer___closed__4;
 lean_object* l_Lean_Parser_Tactic_tacticSeq1Indented___elambda__1___closed__20;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_16821____closed__1;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__2;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__1;
 lean_object* l_Lean_Parser_Term_letPatDecl_formatter___closed__1;
 lean_object* l_Lean_Parser_Term_falseVal___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_typeAscription___closed__2;
@@ -3771,7 +3773,6 @@ lean_object* l_Lean_Parser_Term_let__fun___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Term_macroDollarArg_parenthesizer___closed__1;
 lean_object* l___regBuiltin_Lean_Parser_Term_binrel_formatter(lean_object*);
 lean_object* l_Lean_Parser_Term_proj_parenthesizer___closed__2;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20765____closed__2;
 lean_object* l_Lean_Parser_Term_forall___elambda__1___closed__18;
 lean_object* l___regBuiltin_Lean_Parser_Term_let__fun_formatter___closed__1;
 lean_object* l_Lean_Parser_Term_panic___elambda__1___closed__8;
@@ -3828,6 +3829,7 @@ lean_object* l_Lean_Parser_Term_cdot_formatter(lean_object*, lean_object*, lean_
 lean_object* l_Lean_Parser_Term_argument___closed__6;
 lean_object* l_Lean_Parser_Term_stateRefT___closed__5;
 lean_object* l_Lean_Parser_Term_letRecDecls___closed__4;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20086____closed__2;
 lean_object* l_Lean_Parser_Term_let__delayed___elambda__1___closed__8;
 lean_object* l_Lean_Parser_Term_binop___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Term_unreachable_formatter___closed__1;
@@ -3923,7 +3925,6 @@ lean_object* l___regBuiltin_Lean_Parser_Term_hole_formatter(lean_object*);
 lean_object* l_Lean_Parser_Term_binderTactic___closed__6;
 lean_object* l___regBuiltinParser_Lean_Parser_Term_dbgTrace(lean_object*);
 lean_object* l_Lean_Parser_Term_macroDollarArg_formatter___closed__1;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__1;
 lean_object* l_Lean_Parser_Term_structInst___elambda__1___closed__17;
 lean_object* l_Lean_Parser_Term_fromTerm___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Term_dbgTrace___elambda__1___closed__14;
@@ -3935,7 +3936,6 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_2278____closed__4;
 lean_object* l___regBuiltin_Lean_Parser_Term_bracketedBinder_quot_formatter(lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Parser_Term_funBinder___closed__2;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20765____closed__1;
 lean_object* l_Lean_Parser_Term_basicFun_formatter___closed__1;
 lean_object* l_Lean_Parser_Term_matchDiscr_quot___elambda__1___closed__11;
 lean_object* l_Lean_Parser_Term_stateRefT_parenthesizer___closed__1;
@@ -4073,6 +4073,7 @@ lean_object* l_Lean_Parser_Term_funImplicitBinder___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Term_sufficesDecl_formatter___closed__3;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Term___hyg_4179____closed__28;
 lean_object* l_Lean_Parser_Term_attr_quot_formatter___closed__6;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__2;
 lean_object* l_Lean_Parser_Term_pipeProj_parenthesizer___closed__4;
 lean_object* l_Lean_Parser_Term_attr_quot___closed__9;
 lean_object* l_Lean_Parser_Tactic_quotSeq___elambda__1___closed__6;
@@ -4141,7 +4142,6 @@ lean_object* l_Lean_Parser_Term_argument_formatter___closed__4;
 lean_object* l_Lean_Parser_Term_funSimpleBinder_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_Term_prop_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_sort___elambda__1___closed__9;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__5;
 lean_object* l___regBuiltin_Lean_Parser_Term_str_formatter(lean_object*);
 lean_object* l_Lean_Parser_Term_subst_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_app___closed__2;
@@ -4181,6 +4181,7 @@ lean_object* l_Lean_Parser_Term_borrowed___closed__8;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_noindex___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_type___elambda__1___closed__1;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__1;
 lean_object* l_Lean_Parser_Term_doubleQuotedName_formatter___closed__3;
 lean_object* l_Lean_Parser_Term_anonymousCtor_formatter___closed__7;
 lean_object* l_Lean_Parser_Term_structInstLVal___elambda__1___closed__11;
@@ -4211,6 +4212,7 @@ lean_object* l_Lean_Parser_Term_noImplicitLambda___elambda__1___closed__11;
 lean_object* l_Lean_Parser_Term_letIdLhs;
 lean_object* l_Lean_Parser_Term_letRecDecl___closed__1;
 lean_object* l_Lean_Parser_Term_explicitBinder_formatter___closed__3;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18748____closed__1;
 lean_object* l_Lean_Parser_Term_suffices_formatter___closed__3;
 lean_object* l_Lean_Parser_Term_binop___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Term_funBinder_quot___elambda__1___closed__11;
@@ -4229,7 +4231,6 @@ extern lean_object* l_Lean_Parser_mkAntiquotSplice___closed__7;
 lean_object* l_Lean_Parser_Term_inaccessible___elambda__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_letrec___closed__3;
 lean_object* l_Lean_Parser_Term_matchDiscr___elambda__1___closed__3;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__3;
 lean_object* l_Lean_Parser_Term_matchAlts_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_binderTactic_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_Term_letIdLhs___elambda__1___closed__7;
@@ -4264,7 +4265,6 @@ lean_object* l_Lean_Parser_Term_let__delayed___elambda__1___closed__9;
 lean_object* l_Lean_Parser_Term_dynamicQuot___elambda__1___closed__10;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_15342____closed__12;
 lean_object* l_Lean_Parser_Term_attr_quot___elambda__1___closed__7;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__5;
 lean_object* l_Lean_Parser_Term_generalizingParam_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_ParserState_mkUnexpectedError(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_inaccessible_formatter___closed__1;
@@ -4344,7 +4344,6 @@ lean_object* l___regBuiltin_Lean_Parser_Term_arrayRef_formatter___closed__1;
 lean_object* l_Lean_Parser_Term_dbgTrace_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_Term_pipeCompletion_formatter(lean_object*);
 lean_object* l_Lean_Parser_Term_tupleTail_formatter___closed__1;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__1;
 lean_object* l_Lean_Parser_Term_matchAlt___closed__6;
 lean_object* l_Lean_Parser_Term_macroLastArg_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_ensureTypeOf___closed__5;
@@ -4383,6 +4382,8 @@ lean_object* l_Lean_Parser_Term_matchDiscr_parenthesizer___closed__5;
 lean_object* l_Lean_Parser_Tactic_quotSeq___closed__2;
 lean_object* l_Lean_Parser_Term_have_parenthesizer___closed__5;
 lean_object* l_Lean_PrettyPrinter_Formatter_notFollowedBy_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20781____closed__2;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__2;
 lean_object* l_Lean_Parser_Term_byTactic___closed__2;
 lean_object* l_Lean_Parser_Term_attrKind___closed__5;
 lean_object* l_Lean_Parser_Term_prop___elambda__1___closed__13;
@@ -4422,7 +4423,6 @@ lean_object* l_Lean_Parser_Term_forall___elambda__1___closed__24;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_tokenWithAntiquot_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_nomatch___elambda__1___closed__7;
 extern lean_object* l_Lean_Parser_Level_paren___elambda__1___closed__4;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__2;
 lean_object* l_Lean_Parser_Term_borrowed___elambda__1___closed__15;
 lean_object* l_Lean_Parser_Term_namedPattern___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Tactic_tacticSeqBracketed___elambda__1___closed__16;
@@ -4493,6 +4493,7 @@ lean_object* l_Lean_Parser_Term_local___closed__5;
 lean_object* l_Lean_Parser_Level_quot_parenthesizer___closed__5;
 lean_object* l_Lean_Parser_Term_funBinder_quot_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_Term_letrec___closed__10;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__5;
 lean_object* l_Lean_Parser_Term_haveAssign_formatter___closed__2;
 lean_object* l_Lean_Parser_Term_paren_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Term_emptyC_formatter___closed__4;
@@ -4500,7 +4501,6 @@ lean_object* l_Lean_Parser_Term_fromTerm_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Term_explicitBinder_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_checkColGtFn___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_namedArgument___closed__4;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__2;
 lean_object* l_Lean_Parser_Term_forInMacro_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_Tactic_tacticSeq1Indented___elambda__1___closed__5;
 extern lean_object* l_addParenHeuristic___closed__1;
@@ -5246,7 +5246,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_tacticSeq1Indented___elambda__1__
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__5;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__5;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -5256,7 +5256,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_tacticSeq1Indented___elambda__1__
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__4;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__4;
 x_2 = l_Lean_Parser_Tactic_tacticSeq1Indented___elambda__1___closed__1;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -5473,7 +5473,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_tacticSeq1Indented___elambda__1__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__5;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__5;
 x_2 = l_Lean_Parser_Tactic_tacticSeq1Indented___elambda__1___closed__21;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_nodeFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -5576,7 +5576,7 @@ lean_ctor_set(x_26, 5, x_25);
 lean_ctor_set(x_26, 6, x_21);
 lean_ctor_set_uint8(x_26, sizeof(void*)*7, x_20);
 x_27 = lean_apply_2(x_15, x_26, x_7);
-x_28 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__5;
+x_28 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__5;
 x_29 = l_Lean_Parser_ParserState_mkNode(x_27, x_28, x_12);
 x_30 = lean_ctor_get(x_29, 4);
 lean_inc(x_30);
@@ -5626,7 +5626,7 @@ lean_ctor_set(x_40, 5, x_39);
 lean_ctor_set(x_40, 6, x_21);
 lean_ctor_set_uint8(x_40, sizeof(void*)*7, x_20);
 x_41 = lean_apply_2(x_15, x_40, x_7);
-x_42 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__5;
+x_42 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__5;
 x_43 = l_Lean_Parser_ParserState_mkNode(x_41, x_42, x_12);
 x_44 = lean_ctor_get(x_43, 4);
 lean_inc(x_44);
@@ -5701,7 +5701,7 @@ lean_ctor_set(x_59, 5, x_58);
 lean_ctor_set(x_59, 6, x_21);
 lean_ctor_set_uint8(x_59, sizeof(void*)*7, x_20);
 x_60 = lean_apply_2(x_15, x_59, x_7);
-x_61 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__5;
+x_61 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__5;
 x_62 = l_Lean_Parser_ParserState_mkNode(x_60, x_61, x_12);
 x_63 = lean_ctor_get(x_62, 4);
 lean_inc(x_63);
@@ -5739,7 +5739,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = l_Lean_Parser_Tactic_tacticSeq1Indented___elambda__1___closed__20;
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__5;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__5;
 x_4 = l_Lean_Parser_nodeInfo(x_3, x_2);
 return x_4;
 }
@@ -6375,8 +6375,8 @@ static lean_object* _init_l_Lean_Parser_Tactic_tacticSeq___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_Tactic_case___closed__7;
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__3;
+x_1 = l_Lean_Parser_Tactic_case___closed__10;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__3;
 x_3 = l_Lean_Parser_Tactic_tacticSeq___closed__3;
 x_4 = 0;
 x_5 = l_Lean_Parser_nodeWithAntiquot(x_1, x_2, x_3, x_4);
@@ -6473,7 +6473,7 @@ lean_inc(x_5);
 x_6 = lean_array_get_size(x_5);
 lean_dec(x_5);
 x_7 = lean_apply_2(x_4, x_1, x_2);
-x_8 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__2;
+x_8 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__2;
 x_9 = l_Lean_Parser_ParserState_mkNode(x_7, x_8, x_6);
 return x_9;
 }
@@ -6485,7 +6485,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = l_Lean_Parser_Tactic_seq1___elambda__1___closed__7;
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__2;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__2;
 x_4 = l_Lean_Parser_nodeInfo(x_3, x_2);
 return x_4;
 }
@@ -6629,7 +6629,7 @@ static lean_object* _init_l_Lean_Parser_Term_byTactic___elambda__1___closed__1()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_23742____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_23758____closed__2;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -6639,7 +6639,7 @@ static lean_object* _init_l_Lean_Parser_Term_byTactic___elambda__1___closed__2()
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_23742____closed__1;
+x_1 = l_myMacro____x40_Init_Notation___hyg_23758____closed__1;
 x_2 = l_Lean_Parser_Term_byTactic___elambda__1___closed__1;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -6711,7 +6711,7 @@ static lean_object* _init_l_Lean_Parser_Term_byTactic___elambda__1___closed__9()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_23742____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_23758____closed__2;
 x_2 = l_Lean_Parser_Term_byTactic___elambda__1___closed__7;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_nodeFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -6857,7 +6857,7 @@ if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; 
 lean_dec(x_4);
-x_23 = l_myMacro____x40_Init_Notation___hyg_23742____closed__2;
+x_23 = l_myMacro____x40_Init_Notation___hyg_23758____closed__2;
 x_24 = l_Lean_Parser_ParserState_mkNode(x_20, x_23, x_14);
 x_25 = lean_ctor_get(x_24, 4);
 lean_inc(x_25);
@@ -6881,7 +6881,7 @@ else
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; 
 lean_inc(x_1);
 x_28 = lean_apply_2(x_4, x_1, x_20);
-x_29 = l_myMacro____x40_Init_Notation___hyg_23742____closed__2;
+x_29 = l_myMacro____x40_Init_Notation___hyg_23758____closed__2;
 x_30 = l_Lean_Parser_ParserState_mkNode(x_28, x_29, x_14);
 x_31 = lean_ctor_get(x_30, 4);
 lean_inc(x_31);
@@ -6939,7 +6939,7 @@ static lean_object* _init_l_Lean_Parser_Term_byTactic___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_23742____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_23758____closed__2;
 x_2 = l_Lean_Parser_Term_byTactic___closed__2;
 x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
@@ -7010,7 +7010,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = l_term___u2218_____closed__6;
-x_3 = l_myMacro____x40_Init_Notation___hyg_23742____closed__2;
+x_3 = l_myMacro____x40_Init_Notation___hyg_23758____closed__2;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_byTactic;
 x_6 = lean_unsigned_to_nat(1000u);
@@ -7225,7 +7225,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_tacticSeq1Indented_formatter___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__4;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__4;
 x_2 = l_Lean_Parser_Tactic_tacticSeq1Indented___elambda__1___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -7250,7 +7250,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_tacticSeq1Indented_formatter___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__5;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__5;
 x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_Tactic_tacticSeq1Indented_formatter___closed__2;
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_leadingNode_formatter___boxed), 8, 3);
@@ -7302,8 +7302,8 @@ lean_object* l_Lean_Parser_Tactic_tacticSeq_formatter(lean_object* x_1, lean_obj
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; 
-x_6 = l_Lean_Parser_Tactic_case___closed__7;
-x_7 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__3;
+x_6 = l_Lean_Parser_Tactic_case___closed__10;
+x_7 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__3;
 x_8 = l_Lean_Parser_Tactic_tacticSeq_formatter___closed__3;
 x_9 = 0;
 x_10 = l_Lean_Parser_nodeWithAntiquot_formatter(x_6, x_7, x_8, x_9, x_1, x_2, x_3, x_4, x_5);
@@ -7314,7 +7314,7 @@ static lean_object* _init_l_Lean_Parser_Term_byTactic_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_23742____closed__1;
+x_1 = l_myMacro____x40_Init_Notation___hyg_23758____closed__1;
 x_2 = l_Lean_Parser_Term_byTactic___elambda__1___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -7359,7 +7359,7 @@ static lean_object* _init_l_Lean_Parser_Term_byTactic_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_23742____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_23758____closed__2;
 x_2 = l_Lean_Parser_leadPrec;
 x_3 = l_Lean_Parser_Term_byTactic_formatter___closed__4;
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_leadingNode_formatter___boxed), 8, 3);
@@ -7392,7 +7392,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_PrettyPrinter_formatterAttribute;
-x_3 = l_myMacro____x40_Init_Notation___hyg_23742____closed__2;
+x_3 = l_myMacro____x40_Init_Notation___hyg_23758____closed__2;
 x_4 = l___regBuiltin_Lean_Parser_Term_byTactic_formatter___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
@@ -7581,7 +7581,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_tacticSeq1Indented_parenthesizer_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__5;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__5;
 x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_Tactic_tacticSeq1Indented_parenthesizer___closed__2;
 x_4 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer___boxed), 8, 3);
@@ -7633,7 +7633,7 @@ lean_object* l_Lean_Parser_Tactic_tacticSeq_parenthesizer(lean_object* x_1, lean
 _start:
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; 
-x_6 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__3;
+x_6 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__3;
 x_7 = l_Lean_Parser_Tactic_tacticSeq_parenthesizer___closed__3;
 x_8 = 0;
 x_9 = l_Lean_Parser_nodeWithAntiquot_parenthesizer___rarg(x_6, x_7, x_8, x_1, x_2, x_3, x_4, x_5);
@@ -7677,7 +7677,7 @@ static lean_object* _init_l_Lean_Parser_Term_byTactic_parenthesizer___closed__4(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_23742____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_23758____closed__2;
 x_2 = l_Lean_Parser_leadPrec;
 x_3 = l_Lean_Parser_Term_byTactic_parenthesizer___closed__3;
 x_4 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer___boxed), 8, 3);
@@ -7710,7 +7710,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_PrettyPrinter_parenthesizerAttribute;
-x_3 = l_myMacro____x40_Init_Notation___hyg_23742____closed__2;
+x_3 = l_myMacro____x40_Init_Notation___hyg_23758____closed__2;
 x_4 = l___regBuiltin_Lean_Parser_Term_byTactic_parenthesizer___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
@@ -10599,7 +10599,7 @@ static lean_object* _init_l_Lean_Parser_Term_syntheticHole___elambda__1___closed
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__5;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__5;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -10609,7 +10609,7 @@ static lean_object* _init_l_Lean_Parser_Term_syntheticHole___elambda__1___closed
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__4;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__4;
 x_2 = l_Lean_Parser_Term_syntheticHole___elambda__1___closed__1;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -10644,7 +10644,7 @@ static lean_object* _init_l_Lean_Parser_Term_syntheticHole___elambda__1___closed
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__5;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__5;
 x_2 = l_Lean_Parser_Term_syntheticHole___elambda__1___closed__4;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_nodeFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -10775,7 +10775,7 @@ lean_dec(x_19);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-x_21 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__5;
+x_21 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__5;
 x_22 = l_Lean_Parser_ParserState_mkNode(x_18, x_21, x_12);
 x_23 = lean_ctor_get(x_22, 4);
 lean_inc(x_23);
@@ -10802,7 +10802,7 @@ x_27 = l_Lean_Parser_Term_hole___closed__5;
 x_28 = 1;
 lean_inc(x_1);
 x_29 = l_Lean_Parser_orelseFnCore(x_26, x_27, x_28, x_1, x_18);
-x_30 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__5;
+x_30 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__5;
 x_31 = l_Lean_Parser_ParserState_mkNode(x_29, x_30, x_12);
 x_32 = lean_ctor_get(x_31, 4);
 lean_inc(x_32);
@@ -10862,7 +10862,7 @@ static lean_object* _init_l_Lean_Parser_Term_syntheticHole___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__5;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__5;
 x_2 = l_Lean_Parser_Term_syntheticHole___closed__2;
 x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
@@ -10933,7 +10933,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = l_term___u2218_____closed__6;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__5;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__5;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_syntheticHole;
 x_6 = lean_unsigned_to_nat(1000u);
@@ -10945,7 +10945,7 @@ static lean_object* _init_l_Lean_Parser_Term_syntheticHole_formatter___closed__1
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__4;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__4;
 x_2 = l_Lean_Parser_Term_syntheticHole___elambda__1___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -10984,7 +10984,7 @@ static lean_object* _init_l_Lean_Parser_Term_syntheticHole_formatter___closed__4
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__5;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__5;
 x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_Term_syntheticHole_formatter___closed__3;
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_leadingNode_formatter___boxed), 8, 3);
@@ -11017,7 +11017,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_PrettyPrinter_formatterAttribute;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__5;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__5;
 x_4 = l___regBuiltin_Lean_Parser_Term_syntheticHole_formatter___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
@@ -11064,7 +11064,7 @@ static lean_object* _init_l_Lean_Parser_Term_syntheticHole_parenthesizer___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__5;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__5;
 x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_Term_syntheticHole_parenthesizer___closed__3;
 x_4 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer___boxed), 8, 3);
@@ -11097,7 +11097,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_PrettyPrinter_parenthesizerAttribute;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__5;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__5;
 x_4 = l___regBuiltin_Lean_Parser_Term_syntheticHole_parenthesizer___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
@@ -11107,7 +11107,7 @@ static lean_object* _init_l_Lean_Parser_Term_sorry___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18748____closed__2;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -11117,7 +11117,7 @@ static lean_object* _init_l_Lean_Parser_Term_sorry___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18748____closed__1;
 x_2 = l_Lean_Parser_Term_sorry___elambda__1___closed__1;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -11128,7 +11128,7 @@ static lean_object* _init_l_Lean_Parser_Term_sorry___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18748____closed__1;
 x_2 = l_String_trim(x_1);
 return x_2;
 }
@@ -11157,7 +11157,7 @@ static lean_object* _init_l_Lean_Parser_Term_sorry___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18748____closed__2;
 x_2 = l_Lean_Parser_Term_sorry___elambda__1___closed__5;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_nodeFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -11253,7 +11253,7 @@ lean_dec(x_16);
 if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
-x_18 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__2;
+x_18 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18748____closed__2;
 x_19 = l_Lean_Parser_ParserState_mkNode(x_15, x_18, x_12);
 x_20 = lean_ctor_get(x_19, 4);
 lean_inc(x_20);
@@ -11286,7 +11286,7 @@ lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean
 x_26 = lean_box(0);
 lean_inc(x_1);
 x_27 = l_Lean_Parser_Level_paren___elambda__1___lambda__1(x_15, x_1, x_9, x_26);
-x_28 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__2;
+x_28 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18748____closed__2;
 x_29 = l_Lean_Parser_ParserState_mkNode(x_27, x_28, x_12);
 x_30 = lean_ctor_get(x_29, 4);
 lean_inc(x_30);
@@ -11308,7 +11308,7 @@ return x_32;
 else
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; uint8_t x_36; 
-x_33 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__2;
+x_33 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18748____closed__2;
 x_34 = l_Lean_Parser_ParserState_mkNode(x_15, x_33, x_12);
 x_35 = lean_ctor_get(x_34, 4);
 lean_inc(x_35);
@@ -11353,7 +11353,7 @@ static lean_object* _init_l_Lean_Parser_Term_sorry___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18748____closed__2;
 x_2 = l_Lean_Parser_Term_sorry___closed__1;
 x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
@@ -11424,7 +11424,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = l_term___u2218_____closed__6;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__2;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18748____closed__2;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_sorry;
 x_6 = lean_unsigned_to_nat(1000u);
@@ -11436,7 +11436,7 @@ static lean_object* _init_l_Lean_Parser_Term_sorry_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18748____closed__1;
 x_2 = l_Lean_Parser_Term_sorry___elambda__1___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -11451,7 +11451,7 @@ static lean_object* _init_l_Lean_Parser_Term_sorry_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18748____closed__1;
 x_2 = lean_alloc_closure((void*)(l_Lean_Parser_symbol_formatter), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -11461,7 +11461,7 @@ static lean_object* _init_l_Lean_Parser_Term_sorry_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18748____closed__2;
 x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_Term_sorry_formatter___closed__2;
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_leadingNode_formatter___boxed), 8, 3);
@@ -11494,7 +11494,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_PrettyPrinter_formatterAttribute;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__2;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18748____closed__2;
 x_4 = l___regBuiltin_Lean_Parser_Term_sorry_formatter___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
@@ -11517,7 +11517,7 @@ static lean_object* _init_l_Lean_Parser_Term_sorry_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18748____closed__2;
 x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_mkAntiquot_parenthesizer___rarg___closed__1;
 x_4 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer___boxed), 8, 3);
@@ -11550,7 +11550,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_PrettyPrinter_parenthesizerAttribute;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18732____closed__2;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18748____closed__2;
 x_4 = l___regBuiltin_Lean_Parser_Term_sorry_parenthesizer___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
@@ -15563,7 +15563,7 @@ static lean_object* _init_l_Lean_Parser_Term_fromTerm___elambda__1___closed__1()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__4;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__4;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -15573,7 +15573,7 @@ static lean_object* _init_l_Lean_Parser_Term_fromTerm___elambda__1___closed__2()
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__3;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__3;
 x_2 = l_Lean_Parser_Term_fromTerm___elambda__1___closed__1;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -15633,7 +15633,7 @@ static lean_object* _init_l_Lean_Parser_Term_fromTerm___elambda__1___closed__8()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__4;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__4;
 x_2 = l_Lean_Parser_Term_fromTerm___elambda__1___closed__7;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_nodeFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -15764,7 +15764,7 @@ lean_dec(x_19);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-x_21 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__4;
+x_21 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__4;
 x_22 = l_Lean_Parser_ParserState_mkNode(x_18, x_21, x_12);
 x_23 = lean_ctor_get(x_22, 4);
 lean_inc(x_23);
@@ -15790,7 +15790,7 @@ x_26 = l_term___u2218_____closed__6;
 x_27 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_28 = l_Lean_Parser_categoryParser___elambda__1(x_26, x_27, x_1, x_18);
-x_29 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__4;
+x_29 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__4;
 x_30 = l_Lean_Parser_ParserState_mkNode(x_28, x_29, x_12);
 x_31 = lean_ctor_get(x_30, 4);
 lean_inc(x_31);
@@ -15847,7 +15847,7 @@ static lean_object* _init_l_Lean_Parser_Term_fromTerm___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__4;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__4;
 x_2 = l_Lean_Parser_Term_fromTerm___closed__2;
 x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
@@ -15917,7 +15917,7 @@ static lean_object* _init_l_Lean_Parser_Term_haveAssign___elambda__1___closed__1
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__3;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__3;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -15927,7 +15927,7 @@ static lean_object* _init_l_Lean_Parser_Term_haveAssign___elambda__1___closed__2
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__2;
 x_2 = l_Lean_Parser_Term_haveAssign___elambda__1___closed__1;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -15979,7 +15979,7 @@ static lean_object* _init_l_Lean_Parser_Term_haveAssign___elambda__1___closed__7
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__3;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__3;
 x_2 = l_Lean_Parser_Term_haveAssign___elambda__1___closed__6;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_nodeFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -16110,7 +16110,7 @@ lean_dec(x_19);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-x_21 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__3;
+x_21 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__3;
 x_22 = l_Lean_Parser_ParserState_mkNode(x_18, x_21, x_12);
 x_23 = lean_ctor_get(x_22, 4);
 lean_inc(x_23);
@@ -16136,7 +16136,7 @@ x_26 = l_term___u2218_____closed__6;
 x_27 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_28 = l_Lean_Parser_categoryParser___elambda__1(x_26, x_27, x_1, x_18);
-x_29 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__3;
+x_29 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__3;
 x_30 = l_Lean_Parser_ParserState_mkNode(x_28, x_29, x_12);
 x_31 = lean_ctor_get(x_30, 4);
 lean_inc(x_31);
@@ -16193,7 +16193,7 @@ static lean_object* _init_l_Lean_Parser_Term_haveAssign___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__3;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__3;
 x_2 = l_Lean_Parser_Term_haveAssign___closed__2;
 x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
@@ -16263,7 +16263,7 @@ static lean_object* _init_l_Lean_Parser_Term_haveDecl___elambda__1___closed__1()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__1;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -16334,7 +16334,7 @@ static lean_object* _init_l_Lean_Parser_Term_haveDecl___elambda__1___closed__7()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__1;
 x_2 = l_Lean_Parser_Term_haveDecl___elambda__1___closed__6;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_nodeFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -16412,7 +16412,7 @@ lean_dec(x_16);
 if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
-x_18 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__1;
+x_18 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__1;
 x_19 = l_Lean_Parser_ParserState_mkNode(x_15, x_18, x_14);
 x_20 = lean_ctor_get(x_19, 4);
 lean_inc(x_20);
@@ -16445,7 +16445,7 @@ lean_dec(x_26);
 if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; 
-x_28 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__1;
+x_28 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__1;
 x_29 = l_Lean_Parser_ParserState_mkNode(x_25, x_28, x_14);
 x_30 = lean_ctor_get(x_29, 4);
 lean_inc(x_30);
@@ -16472,7 +16472,7 @@ x_34 = l_Lean_Parser_Term_haveDecl___elambda__1___closed__3;
 x_35 = 1;
 lean_inc(x_1);
 x_36 = l_Lean_Parser_orelseFnCore(x_33, x_34, x_35, x_1, x_25);
-x_37 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__1;
+x_37 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__1;
 x_38 = l_Lean_Parser_ParserState_mkNode(x_36, x_37, x_14);
 x_39 = lean_ctor_get(x_38, 4);
 lean_inc(x_39);
@@ -16559,7 +16559,7 @@ static lean_object* _init_l_Lean_Parser_Term_haveDecl___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__1;
 x_2 = l_Lean_Parser_Term_haveDecl___closed__4;
 x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
@@ -17022,7 +17022,7 @@ static lean_object* _init_l_Lean_Parser_Term_have___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__3;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__3;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -17032,7 +17032,7 @@ static lean_object* _init_l_Lean_Parser_Term_have___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__2;
 x_2 = l_Lean_Parser_Term_have___elambda__1___closed__1;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -17085,7 +17085,7 @@ static lean_object* _init_l_Lean_Parser_Term_have___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__3;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__3;
 x_2 = l_Lean_Parser_Term_have___elambda__1___closed__6;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_nodeFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -17273,7 +17273,7 @@ if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; uint8_t x_38; 
 lean_dec(x_4);
-x_35 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__3;
+x_35 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__3;
 x_36 = l_Lean_Parser_ParserState_mkNode(x_32, x_35, x_14);
 x_37 = lean_ctor_get(x_36, 4);
 lean_inc(x_37);
@@ -17297,7 +17297,7 @@ else
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; 
 lean_inc(x_1);
 x_40 = lean_apply_2(x_4, x_1, x_32);
-x_41 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__3;
+x_41 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__3;
 x_42 = l_Lean_Parser_ParserState_mkNode(x_40, x_41, x_14);
 x_43 = lean_ctor_get(x_42, 4);
 lean_inc(x_43);
@@ -17413,7 +17413,7 @@ if (x_70 == 0)
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; uint8_t x_74; 
 lean_dec(x_4);
-x_71 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__3;
+x_71 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__3;
 x_72 = l_Lean_Parser_ParserState_mkNode(x_68, x_71, x_14);
 x_73 = lean_ctor_get(x_72, 4);
 lean_inc(x_73);
@@ -17437,7 +17437,7 @@ else
 lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; uint8_t x_80; 
 lean_inc(x_1);
 x_76 = lean_apply_2(x_4, x_1, x_68);
-x_77 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__3;
+x_77 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__3;
 x_78 = l_Lean_Parser_ParserState_mkNode(x_76, x_77, x_14);
 x_79 = lean_ctor_get(x_78, 4);
 lean_inc(x_79);
@@ -17578,7 +17578,7 @@ if (x_111 == 0)
 {
 lean_object* x_112; lean_object* x_113; lean_object* x_114; uint8_t x_115; 
 lean_dec(x_4);
-x_112 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__3;
+x_112 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__3;
 x_113 = l_Lean_Parser_ParserState_mkNode(x_109, x_112, x_14);
 x_114 = lean_ctor_get(x_113, 4);
 lean_inc(x_114);
@@ -17602,7 +17602,7 @@ else
 lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; uint8_t x_121; 
 lean_inc(x_1);
 x_117 = lean_apply_2(x_4, x_1, x_109);
-x_118 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__3;
+x_118 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__3;
 x_119 = l_Lean_Parser_ParserState_mkNode(x_117, x_118, x_14);
 x_120 = lean_ctor_get(x_119, 4);
 lean_inc(x_120);
@@ -17673,7 +17673,7 @@ static lean_object* _init_l_Lean_Parser_Term_have___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__3;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__3;
 x_2 = l_Lean_Parser_Term_have___closed__3;
 x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
@@ -17753,7 +17753,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = l_term___u2218_____closed__6;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__3;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__3;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_have;
 x_6 = lean_unsigned_to_nat(1000u);
@@ -17796,7 +17796,7 @@ static lean_object* _init_l_Lean_Parser_Term_haveAssign_formatter___closed__1() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__2;
 x_2 = l_Lean_Parser_Term_haveAssign___elambda__1___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -17833,7 +17833,7 @@ static lean_object* _init_l_Lean_Parser_Term_haveAssign_formatter___closed__4() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__3;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__3;
 x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_Term_haveAssign_formatter___closed__3;
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_leadingNode_formatter___boxed), 8, 3);
@@ -17857,7 +17857,7 @@ static lean_object* _init_l_Lean_Parser_Term_fromTerm_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__3;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__3;
 x_2 = l_Lean_Parser_Term_fromTerm___elambda__1___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -17894,7 +17894,7 @@ static lean_object* _init_l_Lean_Parser_Term_fromTerm_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__4;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__4;
 x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_Term_fromTerm_formatter___closed__3;
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_leadingNode_formatter___boxed), 8, 3);
@@ -18005,7 +18005,7 @@ static lean_object* _init_l_Lean_Parser_Term_haveDecl_formatter___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__1;
 x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_Term_haveDecl_formatter___closed__8;
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_leadingNode_formatter___boxed), 8, 3);
@@ -18045,7 +18045,7 @@ static lean_object* _init_l_Lean_Parser_Term_have_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__2;
 x_2 = l_Lean_Parser_Term_have___elambda__1___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -18122,7 +18122,7 @@ static lean_object* _init_l_Lean_Parser_Term_have_formatter___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__3;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__3;
 x_2 = l_Lean_Parser_leadPrec;
 x_3 = l_Lean_Parser_Term_have_formatter___closed__7;
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_leadingNode_formatter___boxed), 8, 3);
@@ -18155,7 +18155,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_PrettyPrinter_formatterAttribute;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__3;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__3;
 x_4 = l___regBuiltin_Lean_Parser_Term_have_formatter___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
@@ -18209,7 +18209,7 @@ static lean_object* _init_l_Lean_Parser_Term_haveAssign_parenthesizer___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__3;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__3;
 x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_Term_typeAscription_parenthesizer___closed__2;
 x_4 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer___boxed), 8, 3);
@@ -18246,7 +18246,7 @@ static lean_object* _init_l_Lean_Parser_Term_fromTerm_parenthesizer___closed__2(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__4;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__4;
 x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_Term_typeAscription_parenthesizer___closed__2;
 x_4 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer___boxed), 8, 3);
@@ -18355,7 +18355,7 @@ static lean_object* _init_l_Lean_Parser_Term_haveDecl_parenthesizer___closed__9(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20567____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20583____closed__1;
 x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_Term_haveDecl_parenthesizer___closed__8;
 x_4 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer___boxed), 8, 3);
@@ -18457,7 +18457,7 @@ static lean_object* _init_l_Lean_Parser_Term_have_parenthesizer___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__3;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__3;
 x_2 = l_Lean_Parser_leadPrec;
 x_3 = l_Lean_Parser_Term_have_parenthesizer___closed__6;
 x_4 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer___boxed), 8, 3);
@@ -18490,7 +18490,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_PrettyPrinter_parenthesizerAttribute;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20371____closed__3;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20387____closed__3;
 x_4 = l___regBuiltin_Lean_Parser_Term_have_parenthesizer___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
@@ -19219,7 +19219,7 @@ static lean_object* _init_l_Lean_Parser_Term_suffices___elambda__1___closed__1()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20765____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20781____closed__2;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -19229,7 +19229,7 @@ static lean_object* _init_l_Lean_Parser_Term_suffices___elambda__1___closed__2()
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20765____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20781____closed__1;
 x_2 = l_Lean_Parser_Term_suffices___elambda__1___closed__1;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -19273,7 +19273,7 @@ static lean_object* _init_l_Lean_Parser_Term_suffices___elambda__1___closed__6()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20765____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20781____closed__2;
 x_2 = l_Lean_Parser_Term_suffices___elambda__1___closed__5;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_nodeFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -19461,7 +19461,7 @@ if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; uint8_t x_38; 
 lean_dec(x_4);
-x_35 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20765____closed__2;
+x_35 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20781____closed__2;
 x_36 = l_Lean_Parser_ParserState_mkNode(x_32, x_35, x_14);
 x_37 = lean_ctor_get(x_36, 4);
 lean_inc(x_37);
@@ -19485,7 +19485,7 @@ else
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; 
 lean_inc(x_1);
 x_40 = lean_apply_2(x_4, x_1, x_32);
-x_41 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20765____closed__2;
+x_41 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20781____closed__2;
 x_42 = l_Lean_Parser_ParserState_mkNode(x_40, x_41, x_14);
 x_43 = lean_ctor_get(x_42, 4);
 lean_inc(x_43);
@@ -19601,7 +19601,7 @@ if (x_70 == 0)
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; uint8_t x_74; 
 lean_dec(x_4);
-x_71 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20765____closed__2;
+x_71 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20781____closed__2;
 x_72 = l_Lean_Parser_ParserState_mkNode(x_68, x_71, x_14);
 x_73 = lean_ctor_get(x_72, 4);
 lean_inc(x_73);
@@ -19625,7 +19625,7 @@ else
 lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; uint8_t x_80; 
 lean_inc(x_1);
 x_76 = lean_apply_2(x_4, x_1, x_68);
-x_77 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20765____closed__2;
+x_77 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20781____closed__2;
 x_78 = l_Lean_Parser_ParserState_mkNode(x_76, x_77, x_14);
 x_79 = lean_ctor_get(x_78, 4);
 lean_inc(x_79);
@@ -19766,7 +19766,7 @@ if (x_111 == 0)
 {
 lean_object* x_112; lean_object* x_113; lean_object* x_114; uint8_t x_115; 
 lean_dec(x_4);
-x_112 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20765____closed__2;
+x_112 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20781____closed__2;
 x_113 = l_Lean_Parser_ParserState_mkNode(x_109, x_112, x_14);
 x_114 = lean_ctor_get(x_113, 4);
 lean_inc(x_114);
@@ -19790,7 +19790,7 @@ else
 lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; uint8_t x_121; 
 lean_inc(x_1);
 x_117 = lean_apply_2(x_4, x_1, x_109);
-x_118 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20765____closed__2;
+x_118 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20781____closed__2;
 x_119 = l_Lean_Parser_ParserState_mkNode(x_117, x_118, x_14);
 x_120 = lean_ctor_get(x_119, 4);
 lean_inc(x_120);
@@ -19861,7 +19861,7 @@ static lean_object* _init_l_Lean_Parser_Term_suffices___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20765____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20781____closed__2;
 x_2 = l_Lean_Parser_Term_suffices___closed__3;
 x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
@@ -19941,7 +19941,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = l_term___u2218_____closed__6;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20765____closed__2;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20781____closed__2;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_suffices;
 x_6 = lean_unsigned_to_nat(1000u);
@@ -20016,7 +20016,7 @@ static lean_object* _init_l_Lean_Parser_Term_suffices_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20765____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20781____closed__1;
 x_2 = l_Lean_Parser_Term_suffices___elambda__1___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -20083,7 +20083,7 @@ static lean_object* _init_l_Lean_Parser_Term_suffices_formatter___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20765____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20781____closed__2;
 x_2 = l_Lean_Parser_leadPrec;
 x_3 = l_Lean_Parser_Term_suffices_formatter___closed__6;
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_leadingNode_formatter___boxed), 8, 3);
@@ -20116,7 +20116,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_PrettyPrinter_formatterAttribute;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20765____closed__2;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20781____closed__2;
 x_4 = l___regBuiltin_Lean_Parser_Term_suffices_formatter___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
@@ -20242,7 +20242,7 @@ static lean_object* _init_l_Lean_Parser_Term_suffices_parenthesizer___closed__6(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20765____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20781____closed__2;
 x_2 = l_Lean_Parser_leadPrec;
 x_3 = l_Lean_Parser_Term_suffices_parenthesizer___closed__5;
 x_4 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer___boxed), 8, 3);
@@ -20275,7 +20275,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_PrettyPrinter_parenthesizerAttribute;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20765____closed__2;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20781____closed__2;
 x_4 = l___regBuiltin_Lean_Parser_Term_suffices_parenthesizer___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
@@ -20285,7 +20285,7 @@ static lean_object* _init_l_Lean_Parser_Term_show___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__2;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -20295,7 +20295,7 @@ static lean_object* _init_l_Lean_Parser_Term_show___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__1;
 x_2 = l_Lean_Parser_Term_show___elambda__1___closed__1;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -20347,7 +20347,7 @@ static lean_object* _init_l_Lean_Parser_Term_show___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__2;
 x_2 = l_Lean_Parser_Term_show___elambda__1___closed__6;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_nodeFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -20478,7 +20478,7 @@ lean_dec(x_19);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-x_21 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__2;
+x_21 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__2;
 x_22 = l_Lean_Parser_ParserState_mkNode(x_18, x_21, x_12);
 x_23 = lean_ctor_get(x_22, 4);
 lean_inc(x_23);
@@ -20511,7 +20511,7 @@ lean_dec(x_29);
 if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; 
-x_31 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__2;
+x_31 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__2;
 x_32 = l_Lean_Parser_ParserState_mkNode(x_28, x_31, x_12);
 x_33 = lean_ctor_get(x_32, 4);
 lean_inc(x_33);
@@ -20538,7 +20538,7 @@ x_37 = l_Lean_Parser_Term_byTactic___closed__7;
 x_38 = 1;
 lean_inc(x_1);
 x_39 = l_Lean_Parser_orelseFnCore(x_36, x_37, x_38, x_1, x_28);
-x_40 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__2;
+x_40 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__2;
 x_41 = l_Lean_Parser_ParserState_mkNode(x_39, x_40, x_12);
 x_42 = lean_ctor_get(x_41, 4);
 lean_inc(x_42);
@@ -20594,7 +20594,7 @@ static lean_object* _init_l_Lean_Parser_Term_show___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__2;
 x_2 = l_Lean_Parser_Term_show___closed__2;
 x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
@@ -20665,7 +20665,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = l_term___u2218_____closed__6;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__2;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__2;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_show;
 x_6 = lean_unsigned_to_nat(1000u);
@@ -20677,7 +20677,7 @@ static lean_object* _init_l_Lean_Parser_Term_show_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__1;
 x_2 = l_Lean_Parser_Term_show___elambda__1___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -20714,7 +20714,7 @@ static lean_object* _init_l_Lean_Parser_Term_show_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__2;
 x_2 = l_Lean_Parser_leadPrec;
 x_3 = l_Lean_Parser_Term_show_formatter___closed__3;
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_leadingNode_formatter___boxed), 8, 3);
@@ -20747,7 +20747,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_PrettyPrinter_formatterAttribute;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__2;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__2;
 x_4 = l___regBuiltin_Lean_Parser_Term_show_formatter___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
@@ -20782,7 +20782,7 @@ static lean_object* _init_l_Lean_Parser_Term_show_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__2;
 x_2 = l_Lean_Parser_leadPrec;
 x_3 = l_Lean_Parser_Term_show_parenthesizer___closed__2;
 x_4 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer___boxed), 8, 3);
@@ -20815,7 +20815,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_PrettyPrinter_parenthesizerAttribute;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21136____closed__2;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21152____closed__2;
 x_4 = l___regBuiltin_Lean_Parser_Term_show_parenthesizer___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
@@ -31597,7 +31597,7 @@ static lean_object* _init_l_Lean_Parser_Term_falseVal___elambda__1___closed__5()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23549____closed__8;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23565____closed__8;
 x_2 = l_String_trim(x_1);
 return x_2;
 }
@@ -33116,7 +33116,7 @@ static lean_object* _init_l_Lean_Parser_Term_falseVal_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23549____closed__8;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23565____closed__8;
 x_2 = 0;
 x_3 = lean_box(x_2);
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_nonReservedSymbol_formatter___boxed), 7, 2);
@@ -39829,7 +39829,7 @@ static lean_object* _init_l_Lean_Parser_Term_letDecl___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__3;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__3;
 x_2 = l_String_trim(x_1);
 return x_2;
 }
@@ -39859,7 +39859,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Term_letDecl___closed__3;
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__3;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__3;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_notFollowedByFn___boxed), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -41378,7 +41378,7 @@ static lean_object* _init_l_Lean_Parser_Term_letDecl_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__3;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__3;
 x_2 = 0;
 x_3 = lean_box(x_2);
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_nonReservedSymbol_formatter___boxed), 7, 2);
@@ -46147,7 +46147,7 @@ static lean_object* _init_l_Lean_Parser_Term_letRecDecls___elambda__1___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__1;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -46183,7 +46183,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = l_Lean_Parser_Term_letRecDecls___elambda__1___closed__3;
 x_2 = lean_ctor_get(x_1, 1);
 lean_inc(x_2);
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__1;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__1;
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_nodeFn), 4, 2);
 lean_closure_set(x_4, 0, x_3);
 lean_closure_set(x_4, 1, x_2);
@@ -46253,7 +46253,7 @@ x_14 = lean_array_get_size(x_13);
 lean_dec(x_13);
 lean_inc(x_1);
 x_15 = lean_apply_2(x_4, x_1, x_9);
-x_16 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__1;
+x_16 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__1;
 x_17 = l_Lean_Parser_ParserState_mkNode(x_15, x_16, x_14);
 x_18 = lean_ctor_get(x_17, 4);
 lean_inc(x_18);
@@ -46291,7 +46291,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = l_Lean_Parser_Term_letRecDecls___elambda__1___closed__3;
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__1;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__1;
 x_4 = l_Lean_Parser_nodeInfo(x_3, x_2);
 return x_4;
 }
@@ -47173,7 +47173,7 @@ static lean_object* _init_l_Lean_Parser_Term_letrec___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__2;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -47229,7 +47229,7 @@ static lean_object* _init_l_Lean_Parser_Term_letrec___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__2;
 x_2 = l_Lean_Parser_Term_letrec___elambda__1___closed__5;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_nodeFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -47397,7 +47397,7 @@ if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; uint8_t x_38; 
 lean_dec(x_4);
-x_35 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__2;
+x_35 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__2;
 x_36 = l_Lean_Parser_ParserState_mkNode(x_32, x_35, x_14);
 x_37 = lean_ctor_get(x_36, 4);
 lean_inc(x_37);
@@ -47421,7 +47421,7 @@ else
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; 
 lean_inc(x_1);
 x_40 = lean_apply_2(x_4, x_1, x_32);
-x_41 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__2;
+x_41 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__2;
 x_42 = l_Lean_Parser_ParserState_mkNode(x_40, x_41, x_14);
 x_43 = lean_ctor_get(x_42, 4);
 lean_inc(x_43);
@@ -47645,7 +47645,7 @@ if (x_99 == 0)
 {
 lean_object* x_100; lean_object* x_101; lean_object* x_102; uint8_t x_103; 
 lean_dec(x_4);
-x_100 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__2;
+x_100 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__2;
 x_101 = l_Lean_Parser_ParserState_mkNode(x_97, x_100, x_14);
 x_102 = lean_ctor_get(x_101, 4);
 lean_inc(x_102);
@@ -47669,7 +47669,7 @@ else
 lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; uint8_t x_109; 
 lean_inc(x_1);
 x_105 = lean_apply_2(x_4, x_1, x_97);
-x_106 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__2;
+x_106 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__2;
 x_107 = l_Lean_Parser_ParserState_mkNode(x_105, x_106, x_14);
 x_108 = lean_ctor_get(x_107, 4);
 lean_inc(x_108);
@@ -47918,7 +47918,7 @@ if (x_169 == 0)
 {
 lean_object* x_170; lean_object* x_171; lean_object* x_172; uint8_t x_173; 
 lean_dec(x_4);
-x_170 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__2;
+x_170 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__2;
 x_171 = l_Lean_Parser_ParserState_mkNode(x_167, x_170, x_14);
 x_172 = lean_ctor_get(x_171, 4);
 lean_inc(x_172);
@@ -47942,7 +47942,7 @@ else
 lean_object* x_175; lean_object* x_176; lean_object* x_177; lean_object* x_178; uint8_t x_179; 
 lean_inc(x_1);
 x_175 = lean_apply_2(x_4, x_1, x_167);
-x_176 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__2;
+x_176 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__2;
 x_177 = l_Lean_Parser_ParserState_mkNode(x_175, x_176, x_14);
 x_178 = lean_ctor_get(x_177, 4);
 lean_inc(x_178);
@@ -48162,7 +48162,7 @@ static lean_object* _init_l_Lean_Parser_Term_letrec___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__2;
 x_2 = l_Lean_Parser_Term_letrec___closed__5;
 x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
@@ -48242,7 +48242,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = l_term___u2218_____closed__6;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__2;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__2;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_letrec;
 x_6 = lean_unsigned_to_nat(1000u);
@@ -48835,7 +48835,7 @@ static lean_object* _init_l_Lean_Parser_Term_letRecDecls_formatter___closed__4()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__1;
 x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_Term_letRecDecls_formatter___closed__3;
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_leadingNode_formatter___boxed), 8, 3);
@@ -48951,7 +48951,7 @@ static lean_object* _init_l_Lean_Parser_Term_letrec_formatter___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__2;
 x_2 = l_Lean_Parser_leadPrec;
 x_3 = l_Lean_Parser_Term_letrec_formatter___closed__8;
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_leadingNode_formatter___boxed), 8, 3);
@@ -48984,7 +48984,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_PrettyPrinter_formatterAttribute;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__2;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__2;
 x_4 = l___regBuiltin_Lean_Parser_Term_letrec_formatter___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
@@ -49510,7 +49510,7 @@ static lean_object* _init_l_Lean_Parser_Term_letRecDecls_parenthesizer___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__1;
 x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_Term_letRecDecls_parenthesizer___closed__3;
 x_4 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer___boxed), 8, 3);
@@ -49599,7 +49599,7 @@ static lean_object* _init_l_Lean_Parser_Term_letrec_parenthesizer___closed__7() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__2;
 x_2 = l_Lean_Parser_leadPrec;
 x_3 = l_Lean_Parser_Term_letrec_parenthesizer___closed__6;
 x_4 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer___boxed), 8, 3);
@@ -49632,7 +49632,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_PrettyPrinter_parenthesizerAttribute;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21341____closed__2;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__2;
 x_4 = l___regBuiltin_Lean_Parser_Term_letrec_parenthesizer___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
@@ -55050,7 +55050,7 @@ static lean_object* _init_l_Lean_Parser_Term_noImplicitLambda___elambda__1___clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20070____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20086____closed__2;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -55060,7 +55060,7 @@ static lean_object* _init_l_Lean_Parser_Term_noImplicitLambda___elambda__1___clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20070____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20086____closed__1;
 x_2 = l_Lean_Parser_Term_noImplicitLambda___elambda__1___closed__1;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -55120,7 +55120,7 @@ static lean_object* _init_l_Lean_Parser_Term_noImplicitLambda___elambda__1___clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20070____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20086____closed__2;
 x_2 = l_Lean_Parser_Term_noImplicitLambda___elambda__1___closed__7;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_nodeFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -55251,7 +55251,7 @@ lean_dec(x_19);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-x_21 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20070____closed__2;
+x_21 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20086____closed__2;
 x_22 = l_Lean_Parser_ParserState_mkNode(x_18, x_21, x_12);
 x_23 = lean_ctor_get(x_22, 4);
 lean_inc(x_23);
@@ -55277,7 +55277,7 @@ x_26 = l_term___u2218_____closed__6;
 x_27 = l_Lean_Parser_maxPrec;
 lean_inc(x_1);
 x_28 = l_Lean_Parser_categoryParser___elambda__1(x_26, x_27, x_1, x_18);
-x_29 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20070____closed__2;
+x_29 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20086____closed__2;
 x_30 = l_Lean_Parser_ParserState_mkNode(x_28, x_29, x_12);
 x_31 = lean_ctor_get(x_30, 4);
 lean_inc(x_31);
@@ -55334,7 +55334,7 @@ static lean_object* _init_l_Lean_Parser_Term_noImplicitLambda___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20070____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20086____closed__2;
 x_2 = l_Lean_Parser_Term_noImplicitLambda___closed__2;
 x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
@@ -55405,7 +55405,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = l_term___u2218_____closed__6;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20070____closed__2;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20086____closed__2;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_noImplicitLambda;
 x_6 = lean_unsigned_to_nat(1000u);
@@ -55417,7 +55417,7 @@ static lean_object* _init_l_Lean_Parser_Term_noImplicitLambda_formatter___closed
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20070____closed__1;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20086____closed__1;
 x_2 = l_Lean_Parser_Term_noImplicitLambda___elambda__1___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -55454,7 +55454,7 @@ static lean_object* _init_l_Lean_Parser_Term_noImplicitLambda_formatter___closed
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20070____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20086____closed__2;
 x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_Term_noImplicitLambda_formatter___closed__3;
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_leadingNode_formatter___boxed), 8, 3);
@@ -55487,7 +55487,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_PrettyPrinter_formatterAttribute;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20070____closed__2;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20086____closed__2;
 x_4 = l___regBuiltin_Lean_Parser_Term_noImplicitLambda_formatter___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
@@ -55510,7 +55510,7 @@ static lean_object* _init_l_Lean_Parser_Term_noImplicitLambda_parenthesizer___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20070____closed__2;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20086____closed__2;
 x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_Term_explicit_parenthesizer___closed__3;
 x_4 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer___boxed), 8, 3);
@@ -55543,7 +55543,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_PrettyPrinter_parenthesizerAttribute;
-x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20070____closed__2;
+x_3 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_20086____closed__2;
 x_4 = l___regBuiltin_Lean_Parser_Term_noImplicitLambda_parenthesizer___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
@@ -70900,7 +70900,7 @@ lean_object* l_Lean_Parser_Tactic_seq1_formatter(lean_object* x_1, lean_object* 
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__2;
+x_6 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__2;
 x_7 = l_Lean_Parser_Tactic_seq1_formatter___closed__2;
 x_8 = l_Lean_PrettyPrinter_Formatter_node_formatter(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
 return x_8;
@@ -71027,7 +71027,7 @@ lean_object* l_Lean_Parser_Tactic_seq1_parenthesizer(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18097____closed__2;
+x_6 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__2;
 x_7 = l_Lean_Parser_Tactic_seq1_parenthesizer___closed__1;
 x_8 = l_Lean_PrettyPrinter_Parenthesizer_node_parenthesizer(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
 return x_8;

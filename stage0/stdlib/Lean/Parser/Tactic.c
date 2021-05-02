@@ -73,6 +73,7 @@ lean_object* l_Lean_Parser_Tactic_nativeDecide_parenthesizer___closed__2;
 lean_object* l___regBuiltinParser_Lean_Parser_Tactic_unknown(lean_object*);
 lean_object* l_Lean_Parser_Tactic_matchRhs___closed__1;
 lean_object* l_Lean_Parser_Tactic_introMatch___closed__3;
+extern lean_object* l_Lean_Parser_Tactic_case___closed__11;
 lean_object* l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Tactic_eraseAuxDiscrs___elambda__1___closed__9;
 lean_object* l_Lean_Parser_Tactic_match_formatter___closed__1;
@@ -284,7 +285,6 @@ lean_object* l_Lean_Parser_symbolInfo(lean_object*);
 extern lean_object* l___regBuiltin_Lean_Parser_Term_syntheticHole_formatter___closed__1;
 extern lean_object* l_Lean_Parser_Tactic_tacticSeq;
 lean_object* l_Lean_Parser_Tactic_match___elambda__1___closed__1;
-extern lean_object* l_Lean_Parser_Tactic_case___closed__8;
 lean_object* l_Lean_Parser_orelseFnCore(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_epsilonInfo;
 lean_object* l_Lean_Parser_Tactic_eraseAuxDiscrs___closed__6;
@@ -406,7 +406,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Parser_parserAliasesRef;
-x_3 = l_Lean_Parser_Tactic_case___closed__8;
+x_3 = l_Lean_Parser_Tactic_case___closed__11;
 x_4 = l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Tactic___hyg_5____closed__1;
 x_5 = l_Lean_Parser_registerAliasCore___rarg(x_2, x_3, x_4, x_1);
 if (lean_obj_tag(x_5) == 0)

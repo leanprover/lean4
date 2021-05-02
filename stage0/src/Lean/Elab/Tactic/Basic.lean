@@ -541,11 +541,35 @@ def withCaseRef [Monad m] [MonadRef m] (arrow body : Syntax) (x : m α) : m α :
   withRef (mkNullNode #[arrow, body]) x
 
 @[builtinTactic «case»] def evalCase : Tactic
-  | `(tactic| case $tag =>%$arr $tac:tacticSeq) => do
+  | `(tactic| case $tag $hs* =>%$arr $tac:tacticSeq) => do
     let tag := tag.getId
     let gs ← getUnsolvedGoals
     let some g ← findTag? gs tag | throwError "tag not found"
     let gs := gs.erase g
+    let mut g := g
+    unless hs.isEmpty do
+      let mvarDecl ← getMVarDecl g
+      let mut lctx := mvarDecl.lctx
+      let mut hs   := hs
+      let n := lctx.numIndices
+      for i in [:n] do
+        let j := n - i - 1
+        match lctx.getAt? j with
+        | none => pure ()
+        | some localDecl =>
+          if localDecl.userName.hasMacroScopes then
+            let h := hs.back
+            if h.isIdent then
+              let newName := h.getId
+              lctx := lctx.setUserName localDecl.fvarId newName
+            hs := hs.pop
+            if hs.isEmpty then
+              break
+      unless hs.isEmpty do
+        logError m!"too many variable names provided at 'case'"
+      let mvarNew ← mkFreshExprMVarAt lctx mvarDecl.localInstances mvarDecl.type MetavarKind.syntheticOpaque mvarDecl.userName
+      assignExprMVar g mvarNew
+      g := mvarNew.mvarId!
     setGoals [g]
     let savedTag ← getMVarTag g
     setMVarTag g Name.anonymous

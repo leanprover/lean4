@@ -541,7 +541,7 @@ def withCaseRef [Monad m] [MonadRef m] (arrow body : Syntax) (x : m α) : m α :
   withRef (mkNullNode #[arrow, body]) x
 
 @[builtinTactic «case»] def evalCase : Tactic
-  | `(tactic| case $tag =>%$arr $tac:tacticSeq) => do
+  | `(tactic| case $tag $hs* =>%$arr $tac:tacticSeq) => do
     let tag := tag.getId
     let gs ← getUnsolvedGoals
     let some g ← findTag? gs tag | throwError "tag not found"

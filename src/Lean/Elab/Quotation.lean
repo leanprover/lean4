@@ -383,7 +383,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       { info with onMatch := fun taken => match info.onMatch taken with
           | covered f exh => covered (fun alt => f alt >>= adaptRhs (`(let $id := discr; $(·)))) exh
           | r             => r }
-    | _               => throwErrorAt pat "match_syntax: unexpected pattern kind {pat}"
+    | _               => throwErrorAt pat "match (syntax) : unexpected pattern kind {pat}"
 
 -- Bind right-hand side to new `let_delayed` decl in order to prevent code duplication
 private def deduplicate (floatedLetDecls : Array Syntax) : Alt → TermElabM (Array Syntax × Alt)
@@ -406,7 +406,7 @@ private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : T
   trace[Elab.match_syntax] "match {discrs} with {alts}"
   match discrs, alts with
   | [],            ([], rhs)::_ => pure rhs  -- nothing left to match
-  | _,             []           => throwError "non-exhaustive 'match_syntax'"
+  | _,             []           => throwError "non-exhaustive 'match' (syntax)"
   | discr::discrs, alt::alts    => do
     let info ← getHeadInfo alt
     let pat  := alt.1.head!

@@ -141,3 +141,15 @@ theorem ex15 (p q : Nat) : p ≤ q ∨ p > q := by
   { apply Or.inl; apply Nat.leRefl }
   { apply Or.inr; show q + d.succ > q; admit }
   { apply Or.inl; show p ≤ p + d.succ; admit }
+
+theorem ex16 {p q : Prop} (h : p ∨ q) : q ∨ p := by
+  induction h
+  case inl h' => exact Or.inr h'
+  case inr h' => exact Or.inl h'
+
+theorem ex17 (n : Nat) : 0 + n = n := by
+  induction n
+  case zero => rfl
+  case succ m ih =>
+    show Nat.succ (0 + m) = Nat.succ m
+    rw ih

@@ -82,21 +82,22 @@ theorem mod_eq_sub_mod {a b : Nat} (h : a ≥ b) : a % b = (a - b) % b :=
   | Or.inr h₁ => (mod_eq a b).symm ▸ ifPos ⟨h₁, h⟩
 
 theorem mod_lt (x : Nat) {y : Nat} : y > 0 → x % y < y := by
-   refine mod.inductionOn (motive := fun x y => y > 0 → x % y < y) x y ?k1 ?k2
-   case k1 =>
-     intro x y ⟨_, h₁⟩ h₂ h₃
-     rw [mod_eq_sub_mod h₁]
-     exact h₂ h₃
-   case k2 =>
-     intro x y h₁ h₂
-     have h₁ : ¬ 0 < y ∨ ¬ y ≤ x from Iff.mp (Decidable.notAndIffOrNot _ _) h₁
-     match h₁ with
-     | Or.inl h₁ => exact absurd h₂ h₁
-     | Or.inr h₁ =>
-       have hgt : y > x from gtOfNotLe h₁
-       have heq : x % y = x from mod_eq_of_lt hgt
-       rw [← heq] at hgt
-       exact hgt
+  induction x, y using mod.inductionOn with
+  | base x y h₁ =>
+    intro h₂
+    have h₁ : ¬ 0 < y ∨ ¬ y ≤ x from Iff.mp (Decidable.notAndIffOrNot _ _) h₁
+    match h₁ with
+    | Or.inl h₁ => exact absurd h₂ h₁
+    | Or.inr h₁ =>
+      have hgt : y > x from gtOfNotLe h₁
+      have heq : x % y = x from mod_eq_of_lt hgt
+      rw [← heq] at hgt
+      exact hgt
+  | ind x y h h₂ =>
+    intro h₃
+    let ⟨_, h₁⟩ := h
+    rw [mod_eq_sub_mod h₁]
+    exact h₂ h₃
 
 theorem mod_le (x y : Nat) : x % y ≤ x := by
   match Nat.ltOrGe x y with

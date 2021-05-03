@@ -104,11 +104,11 @@ private def isModifyOp? (stx : Syntax) : TermElabM (Option Syntax) := do
     -/
     let lval := arg[0]
     let k    := lval[0].getKind
-    if k == `Lean.Parser.Term.structInstArrayRef then
+    if k == ``Lean.Parser.Term.structInstArrayRef then
       match s? with
       | none   => pure (some arg)
       | some s =>
-        if s.getKind == `Lean.Parser.Term.structInstArrayRef then
+        if s.getKind == ``Lean.Parser.Term.structInstArrayRef then
           throwErrorAt arg "invalid \{...} notation, at most one `[..]` at a given level"
         else
           throwErrorAt arg "invalid \{...} notation, can't mix field and `[..]` at a given level"
@@ -116,13 +116,13 @@ private def isModifyOp? (stx : Syntax) : TermElabM (Option Syntax) := do
       match s? with
       | none   => pure (some arg)
       | some s =>
-        if s.getKind == `Lean.Parser.Term.structInstArrayRef then
+        if s.getKind == ``Lean.Parser.Term.structInstArrayRef then
           throwErrorAt arg "invalid \{...} notation, can't mix field and `[..]` at a given level"
         else
           pure s?
   match s? with
   | none   => pure none
-  | some s => if s[0][0].getKind == `Lean.Parser.Term.structInstArrayRef then pure s? else pure none
+  | some s => if s[0][0].getKind == ``Lean.Parser.Term.structInstArrayRef then pure s? else pure none
 
 private def elabModifyOp (stx modifyOp source : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   let cont (val : Syntax) : TermElabM Expr := do
@@ -139,7 +139,7 @@ private def elabModifyOp (stx modifyOp source : Syntax) (expectedType? : Option 
   else
     let s ← `(s)
     let valFirst  := rest[0]
-    let valFirst  := if valFirst.getKind == `Lean.Parser.Term.structInstArrayRef then valFirst else valFirst[1]
+    let valFirst  := if valFirst.getKind == ``Lean.Parser.Term.structInstArrayRef then valFirst else valFirst[1]
     let restArgs  := rest.getArgs
     let valRest   := mkNullNode restArgs[1:restArgs.size]
     let valField  := modifyOp.setArg 0 <| Syntax.node ``Parser.Term.structInstLVal #[valFirst, valRest]
@@ -282,7 +282,7 @@ def Field.toSyntax : Field Struct → Syntax
     | _ => unreachable!
 
 private def toFieldLHS (stx : Syntax) : Except String FieldLHS :=
-  if stx.getKind == `Lean.Parser.Term.structInstArrayRef then
+  if stx.getKind == ``Lean.Parser.Term.structInstArrayRef then
     return FieldLHS.modifyOp stx stx[1]
   else
     -- Note that the representation of the first field is different.
@@ -403,7 +403,7 @@ private def getFieldIdx (structName : Name) (fieldNames : Array Name) (fieldName
   | none     => throwError "field '{fieldName}' is not a valid field of '{structName}'"
 
 private def mkProjStx (s : Syntax) (fieldName : Name) : Syntax :=
-  Syntax.node `Lean.Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
+  Syntax.node ``Lean.Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
 
 private def mkSubstructSource (structName : Name) (fieldNames : Array Name) (fieldName : Name) (src : Source) : TermElabM Source :=
   match src with
@@ -661,7 +661,7 @@ partial def mkDefaultValueAux? (struct : Struct) : Expr → TermElabM (Option Ex
       let arg ← mkFreshExprMVar d
       mkDefaultValueAux? struct (b.instantiate1 arg)
   | e =>
-    if e.isAppOfArity `id 2 then
+    if e.isAppOfArity ``id 2 then
       pure (some e.appArg!)
     else
       pure (some e)

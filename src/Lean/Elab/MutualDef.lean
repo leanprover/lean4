@@ -612,7 +612,12 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
   let newHeaders ← process.run' 1
   newHeaders.mapM fun header => return { header with type := (← instantiateMVars header.type) }
 
-def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit := do
+def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit :=
+  if isExample views then
+    withoutModifyingEnv go
+  else
+    go
+where go := do
   let scopeLevelNames ← getLevelNames
   let headers ← elabHeaders views
   let headers ← levelMVarToParamHeaders views headers
@@ -630,10 +635,7 @@ def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit :
       let preDefs ← levelMVarToParamPreDecls preDefs
       let preDefs ← instantiateMVarsAtPreDecls preDefs
       let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
-      if isExample views then
-        withoutModifyingEnv <| addPreDefinitions preDefs
-      else
-        addPreDefinitions preDefs
+      addPreDefinitions preDefs
 
 end Term
 namespace Command

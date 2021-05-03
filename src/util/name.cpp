@@ -354,24 +354,16 @@ name operator+(name const & n1, name const & n2) {
     }
 }
 
+extern "C" obj_res lean_name_append_after(obj_arg n, obj_arg s);
+extern "C" obj_res lean_name_append_before(obj_arg n, obj_arg s);
+extern "C" obj_res lean_name_append_index_after(obj_arg n, obj_arg i);
+
 name name::append_before(char const * p) const {
-    if (is_anonymous()) {
-        return name(p);
-    } else if (is_string()) {
-        return name(get_prefix(), string_ref(std::string(p) + get_string().to_std_string()));
-    } else {
-        return name(name(get_prefix(), p), get_numeral());
-    }
+    return name(lean_name_append_before(to_obj_arg(), lean_mk_string(p)));
 }
 
 name name::append_after(char const * s) const {
-    if (is_anonymous()) {
-        return name(s);
-    } else if (is_string()) {
-        return name(get_prefix(), string_ref(get_string().to_std_string() + std::string(s)));
-    } else {
-        return name(*this, s);
-    }
+    return name(lean_name_append_after(to_obj_arg(), lean_mk_string(s)));
 }
 
 name name::get_subscript_base() const {
@@ -383,10 +375,7 @@ name name::get_subscript_base() const {
 }
 
 name name::append_after(unsigned i) const {
-    name b = get_subscript_base();
-    std::ostringstream s;
-    s << b.get_string().to_std_string() << "_" << i;
-    return name(b.get_prefix(), string_ref(s.str()));
+    return name(lean_name_append_index_after(to_obj_arg(), lean_unsigned_to_nat(i)));
 }
 
 optional<pair<name, unsigned>> name::is_subscripted() const {

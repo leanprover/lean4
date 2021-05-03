@@ -1,0 +1,4 @@
+LNot.unpackFun : LNot ?m → ∀ (p : ?m), ¬?m p
+Funtype.unpack : LNot ?m → ∀ (p : ?m), ¬?m p
+LNot.applyFun : LNot ?m → ∀ {p : ?m}, ¬?m p
+Funtype.apply : LNot ?m → ∀ {p : ?m}, ¬?m p

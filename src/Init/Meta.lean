@@ -235,6 +235,9 @@ partial def getHead? : Syntax → Option Syntax
   | node _ args      => args.findSome? getHead?
   | _                => none
 
+def copyHeadTailInfoFrom (target source : Syntax) : Syntax :=
+  target.setHeadInfo source.getHeadInfo |>.setTailInfo source.getTailInfo
+
 end Syntax
 
 /-- Use the head atom/identifier of the current `ref` as the `ref` -/

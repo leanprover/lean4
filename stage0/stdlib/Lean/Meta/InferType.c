@@ -39,6 +39,7 @@ lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_inferMVarType___boxed(
 lean_object* l_Lean_throwError___at_Lean_Meta_throwFunctionExpected___spec__1(lean_object*);
 lean_object* l_Lean_Expr_instantiateBetaRevRange_visit___closed__1;
 lean_object* l_Std_PersistentHashMap_insertAux_traverse___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_ExprStructEq_instHashableExprStructEq;
 lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1313____spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Expr_instantiateBetaRevRange_visit___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -83,6 +84,7 @@ lean_object* l_Array_foldrMUnsafe_fold___at___private_Lean_Meta_InferType_0__Lea
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_Expr_instantiateBetaRevRange___closed__6;
 lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_inferForallType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_ExprStructEq_instBEqExprStructEq;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___at_Lean_Expr_instantiateBetaRevRange_visit___spec__7(lean_object*, lean_object*);
 extern lean_object* l_Lean_throwUnknownConstant___rarg___closed__2;
@@ -142,7 +144,6 @@ extern lean_object* l_Lean_Meta_getMVarDecl___closed__2;
 lean_object* l_Lean_Expr_instantiateBetaRevRange_visit___closed__4;
 extern lean_object* l_Lean_Meta_inferTypeRef;
 lean_object* l_Std_AssocList_find_x3f___at_Lean_Expr_instantiateBetaRevRange_visit___spec__2___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_instHashableExpr;
 size_t l_Lean_Expr_hash(lean_object*);
 lean_object* l_Lean_Expr_instantiateBetaRevRange_visit___closed__9;
 lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_isArrowProposition(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -200,7 +201,6 @@ lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isTypeQuick(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelSucc(lean_object*);
 lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_isAlwaysZero_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_expr_eqv(lean_object*, lean_object*);
 uint8_t lean_expr_equal(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_USize_decLe(size_t, size_t);
@@ -247,7 +247,6 @@ lean_object* l_instHashableNat___boxed(lean_object*);
 lean_object* l_Std_mkHashMap___at_Lean_Expr_instantiateBetaRevRange___spec__1(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_throwUnknownMVar___spec__1(lean_object*);
 size_t lean_usize_mix_hash(size_t, size_t);
-extern lean_object* l_Lean_Expr_instBEqExpr;
 lean_object* l_Lean_Meta_isProofQuick___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_instantiateBetaRevRange_visit___closed__5;
 lean_object* l_Lean_Meta_lambdaLetTelescope___at___private_Lean_Meta_InferType_0__Lean_Meta_inferLambdaType___spec__1(lean_object*);
@@ -629,7 +628,7 @@ x_7 = lean_ctor_get(x_4, 0);
 x_8 = lean_ctor_get(x_4, 1);
 x_9 = lean_ctor_get(x_1, 0);
 x_10 = lean_ctor_get(x_1, 1);
-x_11 = lean_expr_eqv(x_7, x_9);
+x_11 = lean_expr_equal(x_7, x_9);
 if (x_11 == 0)
 {
 x_2 = x_6;
@@ -693,7 +692,7 @@ x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_ctor_get(x_4, 1);
 x_8 = lean_ctor_get(x_1, 0);
 x_9 = lean_ctor_get(x_1, 1);
-x_10 = lean_expr_eqv(x_6, x_8);
+x_10 = lean_expr_equal(x_6, x_8);
 if (x_10 == 0)
 {
 x_2 = x_5;
@@ -865,7 +864,7 @@ x_11 = lean_ctor_get(x_1, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_1, 1);
 lean_inc(x_12);
-x_13 = lean_expr_eqv(x_9, x_11);
+x_13 = lean_expr_equal(x_9, x_11);
 lean_dec(x_11);
 lean_dec(x_9);
 if (x_13 == 0)
@@ -918,7 +917,7 @@ x_22 = lean_ctor_get(x_1, 0);
 lean_inc(x_22);
 x_23 = lean_ctor_get(x_1, 1);
 lean_inc(x_23);
-x_24 = lean_expr_eqv(x_20, x_22);
+x_24 = lean_expr_equal(x_20, x_22);
 lean_dec(x_22);
 lean_dec(x_20);
 if (x_24 == 0)
@@ -1263,7 +1262,7 @@ static lean_object* _init_l_Lean_Expr_instantiateBetaRevRange_visit___closed__2(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Expr_instBEqExpr;
+x_1 = l_Lean_ExprStructEq_instBEqExprStructEq;
 x_2 = l_Lean_Expr_instantiateBetaRevRange_visit___closed__1;
 x_3 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -1283,7 +1282,7 @@ static lean_object* _init_l_Lean_Expr_instantiateBetaRevRange_visit___closed__4(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Expr_instHashableExpr;
+x_1 = l_Lean_ExprStructEq_instHashableExprStructEq;
 x_2 = l_Lean_Expr_instantiateBetaRevRange_visit___closed__3;
 x_3 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 2);
 lean_closure_set(x_3, 0, x_1);

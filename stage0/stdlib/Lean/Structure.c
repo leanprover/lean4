@@ -99,7 +99,7 @@ lean_object* l_Lean_getPathToBaseStructureAux___boxed(lean_object*, lean_object*
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_MapDeclarationExtension_contains___at_Lean_Environment_isProjectionFn___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsAux(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_appendBefore(lean_object*, lean_object*);
+lean_object* lean_name_append_before(lean_object*, lean_object*);
 lean_object* l_Lean_getAllParentStructures_visit(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_getPathToBaseStructureAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -323,7 +323,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_myMacro____x40_Init_Notation___hyg_15342____closed__14;
-x_3 = l_Lean_Name_appendBefore(x_1, x_2);
+x_3 = lean_name_append_before(x_1, x_2);
 return x_3;
 }
 }
@@ -1015,7 +1015,7 @@ x_4 = l_Lean_getStructureCtor(x_1, x_2);
 x_5 = lean_ctor_get(x_4, 3);
 lean_inc(x_5);
 x_6 = l_myMacro____x40_Init_Notation___hyg_15342____closed__14;
-x_7 = l_Lean_Name_appendBefore(x_3, x_6);
+x_7 = lean_name_append_before(x_3, x_6);
 x_8 = lean_ctor_get(x_4, 0);
 lean_inc(x_8);
 lean_dec(x_4);

@@ -609,10 +609,10 @@ section RequestHandling
       if let (some pos, some tailPos) := (stx.getPos?, stx.getTailPos?) then
         for t in (← read).infoState.trees do
           for ti in t.deepestNodes (fun
-            | _, i@(Elab.Info.ofTermInfo ti) => match i.pos? with
+            | _, i@(Elab.Info.ofTermInfo ti), _ => match i.pos? with
               | some ipos => if pos <= ipos && ipos < tailPos then some ti else none
               | _         => none
-            | _, _ => none) do
+            | _, _, _ => none) do
             match ti.expr with
             | Expr.fvar .. => addToken ti.stx SemanticTokenType.variable
             | _            => if ti.stx.getPos?.get! > pos then addToken ti.stx SemanticTokenType.property

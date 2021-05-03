@@ -171,8 +171,7 @@ macro_rules
     for parent in parents do
       auxBinders := auxBinders.push (← `(bracketedBinder| [ $parent:term ]))
       ctorArgs   := ctorArgs.push inferInst
-    let view := Lean.extractMacroScopes name.getId
-    let ctor := mkIdentFrom name { view with name := view.name ++ `mk }.review
+    let ctor := mkIdentFrom name <| name.getId.modifyBase (. ++ `mk)
     `(class $name:ident $params* extends $[$parents:term],*
       instance $auxBinders:explicitBinder* : @ $name:ident $typeArgs* :=
         @ $ctor:ident $ctorArgs*)

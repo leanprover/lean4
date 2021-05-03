@@ -177,6 +177,7 @@ size_t l_List_foldl___at_Lean_mkConst___spec__1(size_t, lean_object*);
 lean_object* l_Lean_Expr_bindingName_x21_match__1(lean_object*);
 lean_object* l_Lean_Expr_getAppArgs___closed__1;
 uint8_t l_Lean_Level_hasParam(lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__26;
 lean_object* l_Lean_Expr_updateApp_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mkAppRevRange(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isHeadBetaTargetFn_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -408,7 +409,6 @@ lean_object* l_Lean_mkFreshFVarId___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_consumeMData(lean_object*);
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__25;
 uint64_t l_UInt64_land(uint64_t, uint64_t);
-extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6463____closed__20;
 lean_object* l_Lean_Expr_isMData_match__1(lean_object*);
 lean_object* lean_expr_mk_app(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constName_x21___closed__2;
@@ -427,7 +427,6 @@ size_t lean_usize_of_nat(lean_object*);
 extern uint64_t l_instInhabitedUInt64___closed__1;
 lean_object* l_Lean_mkSimpleThunkType(lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_betaRevAux_match__1(lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__27;
 size_t l_Lean_ExprStructEq_hash(lean_object*);
 uint8_t l_Lean_Expr_isAutoParam(lean_object*);
 lean_object* l_Lean_Expr_getAutoParamTactic_x3f___closed__2;
@@ -452,6 +451,7 @@ lean_object* l_Lean_Expr_setAppPPExplicit(lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_betaRevAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ctorName___closed__9;
 lean_object* l_Lean_Expr_instantiateRevRange___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6466____closed__20;
 lean_object* l_Lean_Expr_hasLooseBVarInExplicitDomain_match__1___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 uint8_t l_Lean_instInhabitedBinderInfo;
 lean_object* l_Lean_Expr_updateLambda_x21___closed__1;
@@ -3017,7 +3017,7 @@ return x_12;
 default: 
 {
 lean_object* x_13; 
-x_13 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6463____closed__20;
+x_13 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6466____closed__20;
 return x_13;
 }
 }
@@ -14817,7 +14817,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_getSanitizeNames___closed__2;
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__27;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__26;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

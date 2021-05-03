@@ -54,7 +54,7 @@ def evalAlt (mvarId : MVarId) (alt : Syntax) (remainingGoals : Array MVarId) : T
       return remainingGoals ++ gs'
     else
       setGoals [mvarId]
-      closeUsingOrAdmit rhs
+      closeUsingOrAdmit (withTacticInfoContext alt (evalTactic rhs))
       return remainingGoals
 
 /-

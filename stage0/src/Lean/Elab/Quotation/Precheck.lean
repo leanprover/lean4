@@ -31,6 +31,11 @@ register_builtin_option quotPrecheck : Bool := {
 Note that type-sensitive syntax (\"elaborators\") needs special support for this kind of check, so it might need to be turned off when using such syntax."
 }
 
+register_builtin_option quotPrecheck.allowSectionVars : Bool := {
+  defValue := false
+  descr    := "Allow occurrences of section variables in checked quotations, it is useful when declaring local notation."
+}
+
 unsafe def mkPrecheckAttribute : IO (KeyedDeclsAttribute Precheck) :=
   KeyedDeclsAttribute.init {
     builtinName := `builtinQuotPrecheck,
@@ -79,6 +84,8 @@ def runPrecheck (stx : Syntax) : TermElabM Unit := do
     if let _::_ ← resolveGlobalName val then
       return
     if (← read).quotLCtx.contains val then
+      return
+    if quotPrecheck.allowSectionVars.get (← getOptions) && (← readThe Term.Context).sectionVars.contains val then
       return
     throwError "unknown identifier '{val}'"
   | _ => throwUnsupportedSyntax

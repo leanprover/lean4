@@ -381,11 +381,11 @@ def elabNoKindMacroRulesAux (attrKind : Syntax) (alts : Array Syntax) : CommandE
 
 @[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
   adaptExpander fun stx => match stx with
-  | `($attrKind:attrKind macro_rules $alts:matchAlt*) => 
+  | `($attrKind:attrKind macro_rules $alts:matchAlt*) =>
     elabNoKindMacroRulesAux attrKind alts
-  | `($attrKind:attrKind macro_rules (kind := $kind) | $x:ident => $rhs) => 
+  | `($attrKind:attrKind macro_rules (kind := $kind) | $x:ident => $rhs) =>
     `(@[$attrKind:attrKind macro $kind] def myMacro : Macro := fun $x:ident => $rhs)
-  | `($attrKind:attrKind macro_rules (kind := $kind) $alts:matchAlt*) => 
+  | `($attrKind:attrKind macro_rules (kind := $kind) $alts:matchAlt*) =>
     do elabMacroRulesAux attrKind ((← getCurrNamespace) ++ kind.getId) alts
   | _  => throwUnsupportedSyntax
 
@@ -470,6 +470,11 @@ def mkSimpleDelab (attrKind : Syntax) (vars : Array Syntax) (pat qrhs : Syntax) 
     `(@[$attrKind:attrKind appUnexpander $(mkIdent c):ident] def unexpand : Lean.PrettyPrinter.Unexpander := fun _ => `($pat))
   | _                  => failure
 
+private def isLocalAttrKind (attrKind : Syntax) : Bool :=
+  match attrKind with
+  | `(Parser.Term.attrKind| local) => true
+  | _ => false
+
 private def expandNotationAux (ref : Syntax)
     (currNamespace : Name) (attrKind : Syntax) (prec? : Option Syntax) (name? : Option Syntax) (prio? : Option Syntax) (items : Array Syntax) (rhs : Syntax) : MacroM Syntax := do
   let prio ← evalOptPrio prio?
@@ -490,7 +495,10 @@ private def expandNotationAux (ref : Syntax)
   let fullName := currNamespace ++ name
   let pat := Syntax.node fullName patArgs
   let stxDecl ← `($attrKind:attrKind syntax $[: $prec?]? (name := $(mkIdent name)) (priority := $(quote prio):numLit) $[$syntaxParts]* : $cat)
-  let macroDecl ← `(macro_rules | `($pat) => ``($qrhs))
+  let mut macroDecl ← `(macro_rules | `($pat) => ``($qrhs))
+  if isLocalAttrKind attrKind then
+    -- Make sure the quotation pre-checker takes section variables into account for local notation.
+    macroDecl ← `(section set_option quotPrecheck.allowSectionVars true $macroDecl end)
   match (← mkSimpleDelab attrKind vars pat qrhs |>.run) with
   | some delabDecl => mkNullNode #[stxDecl, macroDecl, delabDecl]
   | none           => mkNullNode #[stxDecl, macroDecl]

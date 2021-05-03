@@ -199,7 +199,7 @@ lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_isInductiveHypothesis_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addDecl___at___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addDecl___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
+lean_object* lean_name_append_index_after(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -297,7 +297,7 @@ lean_object* l_Lean_setEnv___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSp
 lean_object* l_List_redLength___rarg(lean_object*);
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop_match__2(lean_object*);
-lean_object* l_Lean_Name_appendAfter(lean_object*, lean_object*);
+lean_object* lean_name_append_after(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at_Lean_Meta_mkSizeOfInstances___spec__2___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isInductivePredicate___at_Lean_Meta_mkSizeOfInstances___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5231,7 +5231,7 @@ lean_inc(x_15);
 lean_dec(x_13);
 lean_inc(x_12);
 lean_inc(x_1);
-x_16 = l_Lean_Name_appendIndexAfter(x_1, x_12);
+x_16 = lean_name_append_index_after(x_1, x_12);
 x_17 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__3;
 x_18 = lean_name_mk_string(x_10, x_17);
 lean_inc(x_7);
@@ -5331,10 +5331,10 @@ x_22 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21357____closed__
 lean_inc(x_1);
 x_23 = lean_name_mk_string(x_1, x_22);
 x_24 = lean_nat_add(x_5, x_16);
-x_25 = l_Lean_Name_appendIndexAfter(x_23, x_24);
+x_25 = lean_name_append_index_after(x_23, x_24);
 lean_inc(x_18);
 lean_inc(x_2);
-x_26 = l_Lean_Name_appendIndexAfter(x_2, x_18);
+x_26 = lean_name_append_index_after(x_2, x_18);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -9523,7 +9523,7 @@ x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_dec(x_13);
 x_16 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___closed__1;
-x_17 = l_Lean_Name_appendAfter(x_11, x_16);
+x_17 = lean_name_append_after(x_11, x_16);
 x_18 = lean_st_ref_get(x_7, x_15);
 x_19 = !lean_is_exclusive(x_18);
 if (x_19 == 0)

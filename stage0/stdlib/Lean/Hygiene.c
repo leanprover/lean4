@@ -77,7 +77,7 @@ lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserName___closed__1
 lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserName___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Unhygienic_instMonadQuotationUnhygienic___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_appendAfter(lean_object*, lean_object*);
+lean_object* lean_name_append_after(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Hygiene___hyg_314____closed__3;
 lean_object* l_Lean_getSanitizeNames___boxed(lean_object*);
 lean_object* l_Lean_Unhygienic_instMonadQuotationUnhygienic___closed__5;
@@ -494,7 +494,7 @@ x_9 = l_Nat_toSuperscriptString(x_3);
 x_10 = l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNameAux___closed__3;
 x_11 = lean_string_append(x_10, x_9);
 lean_dec(x_9);
-x_12 = l_Lean_Name_appendAfter(x_2, x_11);
+x_12 = lean_name_append_after(x_2, x_11);
 return x_12;
 }
 else
@@ -502,7 +502,7 @@ else
 lean_object* x_13; lean_object* x_14; 
 lean_dec(x_3);
 x_13 = l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNameAux___closed__3;
-x_14 = l_Lean_Name_appendAfter(x_2, x_13);
+x_14 = lean_name_append_after(x_2, x_13);
 return x_14;
 }
 }
@@ -653,7 +653,7 @@ x_14 = l_Nat_toSuperscriptString(x_12);
 x_15 = l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserName___closed__1;
 x_16 = lean_string_append(x_15, x_14);
 lean_dec(x_14);
-x_17 = l_Lean_Name_appendAfter(x_13, x_16);
+x_17 = lean_name_append_after(x_13, x_16);
 return x_17;
 }
 }

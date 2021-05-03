@@ -108,7 +108,7 @@ lean_object* l_Lean_matchConstStruct_match__1___rarg(lean_object*, lean_object*,
 lean_object* l_Lean_getConstInfoInduct(lean_object*);
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__4___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
+lean_object* lean_name_append_index_after(lean_object*, lean_object*);
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__4___rarg___boxed__const__1;
 lean_object* l_Lean_addDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__16;
@@ -1359,7 +1359,7 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 lean_inc(x_3);
 lean_inc(x_2);
-x_4 = l_Lean_Name_appendIndexAfter(x_2, x_3);
+x_4 = lean_name_append_index_after(x_2, x_3);
 lean_inc(x_1);
 x_5 = l_Lean_Environment_contains(x_1, x_4);
 if (x_5 == 0)

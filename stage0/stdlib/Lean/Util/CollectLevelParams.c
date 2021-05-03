@@ -45,7 +45,7 @@ lean_object* l_Lean_CollectLevelParams_instInhabitedState;
 lean_object* l_List_replace___at_Lean_CollectLevelParams_visitExpr___spec__7___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_elem___at_Lean_CollectLevelParams_visitLevel___spec__2(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
+lean_object* lean_name_append_index_after(lean_object*, lean_object*);
 lean_object* l_List_replace___at_Lean_CollectLevelParams_visitLevel___spec__7(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Std_mkHashSet___at_Lean_CollectLevelParams_State_visitedExpr___default___spec__1(lean_object*);
@@ -2764,7 +2764,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 lean_inc(x_3);
 lean_inc(x_2);
-x_4 = l_Lean_Name_appendIndexAfter(x_2, x_3);
+x_4 = lean_name_append_index_after(x_2, x_3);
 x_5 = l_Lean_mkLevelParam(x_4);
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1(x_6, x_5);

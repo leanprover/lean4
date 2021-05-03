@@ -29,11 +29,11 @@ partial def Expr.instantiateBetaRevRange (e : Expr) (start : Nat) (stop : Nat) (
   else
     e
 where
-  visit (e : Expr) (offset : Nat) : MonadStateCacheT (Expr × Nat) Expr Id Expr :=
+  visit (e : Expr) (offset : Nat) : MonadStateCacheT (ExprStructEq × Nat) Expr Id Expr :=
     if offset >= e.looseBVarRange then
       -- `e` doesn't have free variables
       return e
-    else checkCache (e, offset) fun _ => do
+    else checkCache ({ val := e : ExprStructEq }, offset) fun _ => do
       match e with
       | Expr.forallE _ d b _   => return e.updateForallE! (← visit d offset) (← visit b (offset+1))
       | Expr.lam _ d b _       => return e.updateLambdaE! (← visit d offset) (← visit b (offset+1))

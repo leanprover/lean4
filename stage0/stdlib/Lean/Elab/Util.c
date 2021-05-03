@@ -107,7 +107,7 @@ lean_object* l_Lean_Syntax_prettyPrint_match__1(lean_object*);
 lean_object* l_Lean_Elab_adaptMacro___rarg___lambda__2___boxed(lean_object**);
 extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__5;
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_36____closed__8;
-lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
+lean_object* lean_name_append_index_after(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Elab_getMacros___spec__6___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_checkSyntaxNodeKindAtNamespacesAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_instMonadMacroAdapter(lean_object*, lean_object*);
@@ -3324,7 +3324,7 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 lean_inc(x_3);
 lean_inc(x_1);
-x_6 = l_Lean_Name_appendIndexAfter(x_1, x_3);
+x_6 = lean_name_append_index_after(x_1, x_3);
 lean_inc(x_6);
 x_7 = l_Lean_Name_append(x_2, x_6);
 lean_inc(x_4);

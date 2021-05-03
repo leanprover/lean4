@@ -668,7 +668,6 @@ lean_object* l_Lean_Elab_Term_mkTermInfo_match__1(lean_object*);
 lean_object* l_Lean_Elab_Term_TermElabM_run_x27___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_applyResult_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabCharLit_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__28;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_forM___at_Lean_Elab_Term_instMetaEvalTermElabM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabSetOption_setOption___at_Lean_Elab_Term_elabSetOption___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -912,6 +911,7 @@ lean_object* l_Lean_InternalExceptionId_getName(lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_getDelayedRoot(lean_object*, lean_object*);
 lean_object* l_Lean_addDecl___at_Lean_Elab_Term_evalExpr___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__27;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_instMetaEvalTermElabM___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_LVal_getRef(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_elabOpen___spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -23969,7 +23969,7 @@ uint8_t l___private_Lean_Elab_Term_0__Lean_Elab_Term_isExplicit(lean_object* x_1
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__28;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__27;
 x_3 = l_Lean_Syntax_isOfKind(x_1, x_2);
 return x_3;
 }

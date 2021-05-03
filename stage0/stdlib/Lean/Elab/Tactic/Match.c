@@ -90,7 +90,7 @@ lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_expandMacro_x3f___boxed(lea
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__2___closed__3;
 lean_object* l_List_forIn_loop___at_Lean_Elab_Tactic_evalEraseAuxDiscrs___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_setKind(lean_object*, lean_object*);
-lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
+lean_object* lean_name_append_index_after(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__1;
 extern lean_object* l___private_Lean_Elab_Tactic_Basic_0__Lean_Elab_Tactic_sortFVarIds___closed__1;
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_Elab_Tactic_evalEraseAuxDiscrs___spec__4(lean_object*, lean_object*);
@@ -1597,7 +1597,7 @@ x_319 = lean_ctor_get(x_6, 0);
 lean_inc(x_319);
 lean_dec(x_6);
 x_320 = l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_9329____closed__1;
-x_321 = l_Lean_Name_appendIndexAfter(x_320, x_319);
+x_321 = lean_name_append_index_after(x_320, x_319);
 x_322 = l_Lean_Name_append(x_1, x_321);
 x_323 = l_Lean_mkIdentFrom(x_30, x_322);
 lean_dec(x_30);

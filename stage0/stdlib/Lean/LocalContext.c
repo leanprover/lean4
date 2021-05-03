@@ -209,7 +209,7 @@ lean_object* l_Lean_LocalContext_findDeclM_x3f___rarg___lambda__1(lean_object*, 
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__14___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Std_PersistentArray_anyM___at_Lean_LocalContext_allM___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_LocalContext_any___spec__4(lean_object*, lean_object*, size_t, size_t);
-lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
+lean_object* lean_name_append_index_after(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_findDeclRev_x3f___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_setBinderInfo___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_set___rarg(lean_object*, lean_object*, lean_object*);
@@ -4777,7 +4777,7 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 lean_inc(x_3);
 lean_inc(x_2);
-x_4 = l_Lean_Name_appendIndexAfter(x_2, x_3);
+x_4 = lean_name_append_index_after(x_2, x_3);
 lean_inc(x_4);
 lean_inc(x_1);
 x_5 = lean_local_ctx_uses_user_name(x_1, x_4);

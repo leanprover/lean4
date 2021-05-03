@@ -115,7 +115,7 @@ lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
 uint8_t l_Std_PersistentHashMap_containsAtAux___at_Lean_isClass___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_hasOutParams_match__1(lean_object*);
 lean_object* l_Lean_isClass___boxed(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__15;
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__14;
 lean_object* l_Lean_classExtension___closed__5;
 size_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Nat_repr(lean_object*);
@@ -3798,7 +3798,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__15;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__14;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

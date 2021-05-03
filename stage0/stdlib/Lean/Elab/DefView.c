@@ -106,6 +106,7 @@ lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_mkDefView
 lean_object* l___private_Lean_Elab_DefView_0__Lean_Elab_Command_MkInstanceName_kindReplacements___closed__6;
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__6___rarg(lean_object*);
 lean_object* l_Lean_Elab_Command_mkDefViewOfConstant___closed__1;
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__20;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Elab_Command_elabCheckFailure___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_capitalize(lean_object*);
@@ -170,7 +171,6 @@ extern lean_object* l_Lean_Syntax_mkApp___closed__1;
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 uint8_t l_String_isEmpty(lean_object*);
 lean_object* l_Lean_Elab_Command_mkDefViewOfTheorem_match__1(lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__22;
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__6(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Command_mkDefViewOfInstance___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_mkDefViewOfInstance___spec__6___rarg(lean_object*);
@@ -6331,7 +6331,7 @@ x_15 = l_Lean_Elab_Command_getMainModule___rarg(x_4, x_14);
 x_16 = lean_ctor_get(x_15, 1);
 lean_inc(x_16);
 lean_dec(x_15);
-x_17 = l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__21;
+x_17 = l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__20;
 x_18 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_18, 0, x_11);
 lean_ctor_set(x_18, 1, x_17);
@@ -6598,7 +6598,7 @@ x_10 = lean_name_eq(x_2, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; uint8_t x_12; 
-x_11 = l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__22;
+x_11 = l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__21;
 x_12 = lean_name_eq(x_2, x_11);
 if (x_12 == 0)
 {
@@ -6755,7 +6755,7 @@ x_14 = lean_name_eq(x_6, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; uint8_t x_16; 
-x_15 = l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__22;
+x_15 = l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__21;
 x_16 = lean_name_eq(x_6, x_15);
 if (x_16 == 0)
 {

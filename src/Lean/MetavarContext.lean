@@ -1036,11 +1036,11 @@ structure State where
   mctx         : MetavarContext
   paramNames   : Array Name := #[]
   nextParamIdx : Nat
-  cache        : HashMap Expr Expr := {}
+  cache        : HashMap ExprStructEq Expr := {}
 
 abbrev M := ReaderT Context $ StateM State
 
-instance : MonadCache Expr Expr M where
+instance : MonadCache ExprStructEq Expr M where
   findCached? e   := return (← get).cache.find? e
   cache       e v := modify fun s => { s with cache := s.cache.insert e v }
 
@@ -1076,7 +1076,7 @@ partial def main (e : Expr) : M Expr :=
   if !e.hasMVar then
     return e
   else
-    checkCache e fun _ => do
+    checkCache { val := e : ExprStructEq } fun _ => do
       match e with
       | Expr.proj _ _ s _    => return e.updateProj! (← main s)
       | Expr.forallE _ d b _ => return e.updateForallE! (← main d) (← main b)

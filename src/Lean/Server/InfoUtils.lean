@@ -164,7 +164,7 @@ structure GoalsAtResult where
   where to show intermediate/final states)
 -/
 partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult := do
-  t.deepestNodes fun
+  let rs := t.deepestNodes fun
     | ctx, i@(Info.ofTacticInfo ti), cs => OptionM.run do
       let (some pos, some tailPos) ← pure (i.pos?, i.tailPos?)
         | failure
@@ -175,6 +175,13 @@ partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : List Goal
       return { ctxInfo := ctx, tacticInfo := ti, useAfter :=
         hoverPos > pos && !cs.any (hasNestedTactic pos tailPos) }
     | _, _, _ => none
+  if let r::_ := rs then
+    -- The above lenient heuristics return both goals when the cursor is placed adjacent
+    -- to two infos, such as in `skip;` (recall that `;` also has a tactic info).
+    -- Select goals with the minimum position only to resolve this.
+    -- NOTE: We can assume that the list is sorted by position
+    return rs.filter (·.tacticInfo.stx.getPos? == r.tacticInfo.stx.getPos?)
+  return rs
 where
   hasNestedTactic (pos tailPos) : InfoTree → Bool
     | InfoTree.node (Info.ofTacticInfo ti) cs => do

@@ -13,7 +13,11 @@ example : α → α := by
 
 example : 0 + n = n := by
   induction n with
-  | zero => rfl
+  | zero => simp; simp
        --^ $/lean/plainGoal
   | succ
    --^ $/lean/plainGoal
+
+example : α → α := by
+  intro a; apply a
+       --^ $/lean/plainGoal

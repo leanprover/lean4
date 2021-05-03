@@ -32,3 +32,7 @@
  "```lean\ncase succ\nn✝ : Nat\nn_ih✝ : 0 + n✝ = n✝\n⊢ 0 + Nat.succ n✝ = Nat.succ n✝\n```",
  "goals":
  ["case succ\nn✝ : Nat\nn_ih✝ : 0 + n✝ = n✝\n⊢ 0 + Nat.succ n✝ = Nat.succ n✝"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 21, "character": 9}}
+{"rendered": "```lean\nα : Sort ?u\na : α\n⊢ α\n```",
+ "goals": ["α : Sort ?u\na : α\n⊢ α"]}

@@ -519,10 +519,10 @@ partial def instantiateLevelMVars [Monad m] [MonadMCtx m] : Level → m Level
   | lvl => pure lvl
 
 /-- instantiateExprMVars main function -/
-partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLiftT (ST ω) m] (e : Expr) : MonadCacheT Expr Expr m Expr :=
+partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLiftT (ST ω) m] (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
   if !e.hasMVar then
     pure e
-  else checkCache e fun _ => do match e with
+  else checkCache { val := e : ExprStructEq } fun _ => do match e with
     | Expr.proj _ _ s _    => return e.updateProj! (← instantiateExprMVars s)
     | Expr.forallE _ d b _ => return e.updateForallE! (← instantiateExprMVars d) (← instantiateExprMVars b)
     | Expr.lam _ d b _     => return e.updateLambdaE! (← instantiateExprMVars d) (← instantiateExprMVars b)
@@ -531,10 +531,10 @@ partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLi
     | Expr.sort lvl _      => return e.updateSort! (← instantiateLevelMVars lvl)
     | Expr.mdata _ b _     => return e.updateMData! (← instantiateExprMVars b)
     | Expr.app ..          => e.withApp fun f args => do
-      let instArgs (f : Expr) : MonadCacheT Expr Expr m Expr := do
+      let instArgs (f : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         let args ← args.mapM instantiateExprMVars
         pure (mkAppN f args)
-      let instApp : MonadCacheT Expr Expr m Expr := do
+      let instApp : MonadCacheT ExprStructEq Expr m Expr := do
         let wasMVar := f.isMVar
         let f ← instantiateExprMVars f
         if wasMVar && f.isLambda then
@@ -581,7 +581,7 @@ partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLi
               let result := mkAppRange result fvars.size args.size args
               pure result
       | _ => instApp
-    | e@(Expr.mvar mvarId _)   => checkCache e fun _ => do
+    | e@(Expr.mvar mvarId _)   => checkCache { val := e : ExprStructEq } fun _ => do
       let mctx ← getMCtx
       match mctx.getExprAssignment? mvarId with
       | some newE => do
@@ -599,7 +599,7 @@ def instantiateMVars (mctx : MetavarContext) (e : Expr) : Expr × MetavarContext
   if !e.hasMVar then
     (e, mctx)
   else
-    let instantiate {ω} (e : Expr) : (MonadCacheT Expr Expr $ StateRefT MetavarContext $ ST ω) Expr :=
+    let instantiate {ω} (e : Expr) : (MonadCacheT ExprStructEq Expr $ StateRefT MetavarContext $ ST ω) Expr :=
       instantiateExprMVars e
     runST fun _ => instantiate e |>.run |>.run mctx
 

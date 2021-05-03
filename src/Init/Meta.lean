@@ -89,24 +89,38 @@ def capitalize : Name → Name
   | Name.str p s _ => Name.mkStr p s.capitalize
   | n              => n
 
-def appendAfter : Name → String → Name
-  | str p s _, suffix => Name.mkStr p (s ++ suffix)
-  | n,         suffix => Name.mkStr n suffix
-
-def appendIndexAfter : Name → Nat → Name
-  | str p s _, idx => Name.mkStr p (s ++ "_" ++ toString idx)
-  | n,         idx => Name.mkStr n ("_" ++ toString idx)
-
-def appendBefore : Name → String → Name
-  | anonymous, pre => Name.mkStr anonymous pre
-  | str p s _, pre => Name.mkStr p (pre ++ s)
-  | num p n _, pre => Name.mkNum (Name.mkStr p pre) n
-
 def replacePrefix : Name → Name → Name → Name
   | anonymous,     anonymous, newP => newP
   | anonymous,     _,         _    => anonymous
   | n@(str p s _), queryP,    newP => if n == queryP then newP else Name.mkStr (p.replacePrefix queryP newP) s
   | n@(num p s _), queryP,    newP => if n == queryP then newP else Name.mkNum (p.replacePrefix queryP newP) s
+
+/-- Remove macros scopes, apply `f`, and put them back -/
+@[inline] def modifyBase (n : Name) (f : Name → Name) : Name :=
+  if n.hasMacroScopes then
+    let view := extractMacroScopes n
+    { view with name := f view.name }.review
+  else
+    f n
+
+@[export lean_name_append_after]
+def appendAfter (n : Name) (suffix : String) : Name :=
+  n.modifyBase fun
+    | str p s _ => Name.mkStr p (s ++ suffix)
+    | n         => Name.mkStr n suffix
+
+@[export lean_name_append_index_after]
+def appendIndexAfter (n : Name) (idx : Nat) : Name :=
+  n.modifyBase fun
+    | str p s _ => Name.mkStr p (s ++ "_" ++ toString idx)
+    | n         => Name.mkStr n ("_" ++ toString idx)
+
+@[export lean_name_append_before]
+def appendBefore (n : Name) (pre : String) : Name :=
+  n.modifyBase fun
+    | anonymous => Name.mkStr anonymous pre
+    | str p s _ => Name.mkStr p (pre ++ s)
+    | num p n _ => Name.mkNum (Name.mkStr p pre) n
 
 end Name
 

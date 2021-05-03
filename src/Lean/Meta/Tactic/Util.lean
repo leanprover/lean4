@@ -20,9 +20,7 @@ def setMVarTag (mvarId : MVarId) (tag : Name) : MetaM Unit := do
   modify fun s => { s with mctx := s.mctx.setMVarUserName mvarId tag }
 
 def appendTag (tag : Name) (suffix : Name) : Name :=
-  let view := extractMacroScopes tag
-  let view := { view with name := view.name ++ suffix.eraseMacroScopes }
-  view.review
+  tag.modifyBase (. ++ suffix.eraseMacroScopes)
 
 def appendTagSuffix (mvarId : MVarId) (suffix : Name) : MetaM Unit := do
   let tag ← getMVarTag mvarId

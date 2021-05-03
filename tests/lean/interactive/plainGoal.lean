@@ -27,3 +27,10 @@ example (h1 : n = m) (h2 : m = 0) : 0 = n := by
  --^ $/lean/plainGoal
        --^ $/lean/plainGoal
            --^ $/lean/plainGoal
+
+example : 0 + n = n := by
+  induction n
+  focus
+ --^ $/lean/plainGoal
+    rfl
+-- TODO: goal state after dedent

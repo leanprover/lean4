@@ -168,15 +168,6 @@ private def getMatchAlts : Syntax → Array MatchAltView
       | _ => none
   | _ => #[]
 
-/--
-  Auxiliary annotation used to mark terms marked with the "inaccessible" annotation `.(t)` and
-  `_` in patterns. -/
-def mkInaccessible (e : Expr) : Expr :=
-  mkAnnotation `_inaccessible e
-
-def inaccessible? (e : Expr) : Option Expr :=
-  annotation? `_inaccessible e
-
 inductive PatternVar where
   | localVar     (userName : Name)
   -- anonymous variables (`_`) are encoded using metavariables
@@ -199,6 +190,8 @@ private def mkMVarSyntax : TermElabM Syntax := do
 /-- Given a syntax node constructed using `mkMVarSyntax`, return its MVarId -/
 private def getMVarSyntaxMVarId (stx : Syntax) : MVarId :=
   stx[0].getKind
+
+open Meta.Match (mkInaccessible inaccessible?)
 
 /--
   The elaboration function for `Syntax` created using `mkMVarSyntax`.

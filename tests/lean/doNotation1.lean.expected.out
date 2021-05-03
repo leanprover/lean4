@@ -27,7 +27,7 @@ doNotation1.lean:51:0-51:13: error: type mismatch
 has type
   EIO IO.Error (IO.Ref Bool) : Type
 but is expected to have type
-  EIO IO.Error Unit : Type
+  IO Unit : Type
 doNotation1.lean:58:2-58:20: error: type mismatch, result value has type
   Unit : Type
 but is expected to have type

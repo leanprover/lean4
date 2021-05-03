@@ -3,7 +3,7 @@ doErrorMsg.lean:3:2-3:13: error: type mismatch
 has type
   EIO IO.Error IO.FS.Stream : Type
 but is expected to have type
-  EIO IO.Error PUnit : Type
+  IO PUnit : Type
 doErrorMsg.lean:15:19-15:21: error: type mismatch
   f1
 has type

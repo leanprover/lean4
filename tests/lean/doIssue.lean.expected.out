@@ -3,13 +3,13 @@ doIssue.lean:2:2-2:3: error: type mismatch
 has type
   Nat : Type
 but is expected to have type
-  EIO IO.Error PUnit : Type
+  IO PUnit : Type
 doIssue.lean:10:2-10:13: error: type mismatch
   Array.set! xs 0 1
 has type
   Array Nat : Type
 but is expected to have type
-  EIO IO.Error PUnit : Type
+  IO PUnit : Type
 doIssue.lean:18:2-18:20: error: application type mismatch
   pure (Array.set! xs 0 1)
 argument

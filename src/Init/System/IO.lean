@@ -445,6 +445,8 @@ def run (args : SpawnArgs) : IO String := do
     throw <| IO.userError <| "process '" ++ args.cmd ++ "' exited with code " ++ toString out.exitCode
   pure out.stdout
 
+@[extern "lean_io_exit"] constant exit : UInt8 → IO α
+
 end Process
 
 structure AccessRight where

@@ -837,6 +837,10 @@ extern "C" obj_res lean_io_wait_any(b_obj_arg task_list, obj_arg) {
     return io_result_mk_ok(v);
 }
 
+extern "C" obj_res lean_io_exit(obj_arg obj, obj_arg /* w */) {
+    exit((size_t) obj);
+}
+
 void initialize_io() {
     g_io_error_nullptr_read = mk_io_user_error(mk_string("null reference read"));
     mark_persistent(g_io_error_nullptr_read);

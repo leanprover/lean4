@@ -17,7 +17,7 @@ open Meta
   Structure instances are of the form:
 
       "{" >> optional (atomic (termParser >> " with "))
-          >> manyIndent (group (structInstField >> optional ", "))
+          >> manyIndent (group ((structInstFieldAbbrev <|> structInstField) >> optional ", "))
           >> optEllipsis
           >> optional (" : " >> termParser)
           >> " }"
@@ -94,35 +94,38 @@ private def getStructSource (stx : Syntax) : TermElabM Source :=
 -/
 private def isModifyOp? (stx : Syntax) : TermElabM (Option Syntax) := do
   let s? ← stx[2].getArgs.foldlM (init := none) fun s? p =>
-    /- p is of the form `(group (structInstField >> optional ", "))` -/
+    /- p is of the form `(group ((structInstFieldAbbrev <|> structInstField) >> optional ", "))` -/
     let arg := p[0]
-    /- Remark: the syntax for `structInstField` is
-       ```
-       def structInstLVal   := leading_parser (ident <|> numLit <|> structInstArrayRef) >> many (group ("." >> (ident <|> numLit)) <|> structInstArrayRef)
-       def structInstField  := leading_parser structInstLVal >> " := " >> termParser
-       ```
-    -/
-    let lval := arg[0]
-    let k    := lval[0].getKind
-    if k == `Lean.Parser.Term.structInstArrayRef then
-      match s? with
-      | none   => pure (some arg)
-      | some s =>
-        if s.getKind == `Lean.Parser.Term.structInstArrayRef then
-          throwErrorAt arg "invalid \{...} notation, at most one `[..]` at a given level"
-        else
-          throwErrorAt arg "invalid \{...} notation, can't mix field and `[..]` at a given level"
+    if arg.getKind == ``Lean.Parser.Term.structInstField then
+      /- Remark: the syntax for `structInstField` is
+         ```
+         def structInstLVal   := leading_parser (ident <|> numLit <|> structInstArrayRef) >> many (group ("." >> (ident <|> numLit)) <|> structInstArrayRef)
+         def structInstField  := leading_parser structInstLVal >> " := " >> termParser
+         ```
+      -/
+      let lval := arg[0]
+      let k    := lval[0].getKind
+      if k == ``Lean.Parser.Term.structInstArrayRef then
+        match s? with
+        | none   => pure (some arg)
+        | some s =>
+          if s.getKind == ``Lean.Parser.Term.structInstArrayRef then
+            throwErrorAt arg "invalid \{...} notation, at most one `[..]` at a given level"
+          else
+            throwErrorAt arg "invalid \{...} notation, can't mix field and `[..]` at a given level"
+      else
+        match s? with
+        | none   => pure (some arg)
+        | some s =>
+          if s.getKind == ``Lean.Parser.Term.structInstArrayRef then
+            throwErrorAt arg "invalid \{...} notation, can't mix field and `[..]` at a given level"
+          else
+            pure s?
     else
-      match s? with
-      | none   => pure (some arg)
-      | some s =>
-        if s.getKind == `Lean.Parser.Term.structInstArrayRef then
-          throwErrorAt arg "invalid \{...} notation, can't mix field and `[..]` at a given level"
-        else
-          pure s?
+      pure s?
   match s? with
   | none   => pure none
-  | some s => if s[0][0].getKind == `Lean.Parser.Term.structInstArrayRef then pure s? else pure none
+  | some s => if s[0][0].getKind == ``Lean.Parser.Term.structInstArrayRef then pure s? else pure none
 
 private def elabModifyOp (stx modifyOp source : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   let cont (val : Syntax) : TermElabM Expr := do
@@ -139,7 +142,7 @@ private def elabModifyOp (stx modifyOp source : Syntax) (expectedType? : Option 
   else
     let s ← `(s)
     let valFirst  := rest[0]
-    let valFirst  := if valFirst.getKind == `Lean.Parser.Term.structInstArrayRef then valFirst else valFirst[1]
+    let valFirst  := if valFirst.getKind == ``Lean.Parser.Term.structInstArrayRef then valFirst else valFirst[1]
     let restArgs  := rest.getArgs
     let valRest   := mkNullNode restArgs[1:restArgs.size]
     let valField  := modifyOp.setArg 0 <| Syntax.node ``Parser.Term.structInstLVal #[valFirst, valRest]
@@ -281,8 +284,8 @@ def Field.toSyntax : Field Struct → Syntax
     | first::rest => stx.setArg 0 <| mkNullNode #[first.toSyntax true, mkNullNode <| rest.toArray.map (FieldLHS.toSyntax false) ]
     | _ => unreachable!
 
-private def toFieldLHS (stx : Syntax) : Except String FieldLHS :=
-  if stx.getKind == `Lean.Parser.Term.structInstArrayRef then
+private def toFieldLHS (stx : Syntax) : MacroM FieldLHS :=
+  if stx.getKind == ``Lean.Parser.Term.structInstArrayRef then
     return FieldLHS.modifyOp stx stx[1]
   else
     -- Note that the representation of the first field is different.
@@ -291,19 +294,25 @@ private def toFieldLHS (stx : Syntax) : Except String FieldLHS :=
       return FieldLHS.fieldName stx stx.getId.eraseMacroScopes
     else match stx.isFieldIdx? with
       | some idx => return FieldLHS.fieldIndex stx idx
-      | none     => throw "unexpected structure syntax"
+      | none     => Macro.throwError "unexpected structure syntax"
 
-private def mkStructView (stx : Syntax) (structName : Name) (source : Source) : Except String Struct := do
+private def mkStructView (stx : Syntax) (structName : Name) (source : Source) : MacroM Struct := do
   /- Recall that `stx` is of the form
      ```
      leading_parser "{" >> optional (atomic (termParser >> " with "))
-                 >> manyIndent (group (structInstField >> optional ", "))
+                 >> manyIndent (group ((structInstFieldAbbrev <|> structInstField) >> optional ", "))
                  >> optional ".."
                  >> optional (" : " >> termParser)
                  >> " }"
      ```
   -/
-  let fieldsStx := stx[2].getArgs.map (·[0])
+  let fieldsStx ← stx[2].getArgs.mapM fun stx =>
+    let stx := stx[0]
+    if stx.getKind == ``Lean.Parser.Term.structInstField then
+      return stx
+    else
+      let id := stx[0]
+      `(Lean.Parser.Term.structInstField| $id:ident := $id:ident)
   let fields ← fieldsStx.toList.mapM fun fieldStx => do
     let val   := fieldStx[2]
     let first ← toFieldLHS fieldStx[0][0]
@@ -403,7 +412,7 @@ private def getFieldIdx (structName : Name) (fieldNames : Array Name) (fieldName
   | none     => throwError "field '{fieldName}' is not a valid field of '{structName}'"
 
 private def mkProjStx (s : Syntax) (fieldName : Name) : Syntax :=
-  Syntax.node `Lean.Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
+  Syntax.node ``Lean.Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
 
 private def mkSubstructSource (structName : Name) (fieldNames : Array Name) (fieldName : Name) (src : Source) : TermElabM Source :=
   match src with
@@ -661,7 +670,7 @@ partial def mkDefaultValueAux? (struct : Struct) : Expr → TermElabM (Option Ex
       let arg ← mkFreshExprMVar d
       mkDefaultValueAux? struct (b.instantiate1 arg)
   | e =>
-    if e.isAppOfArity `id 2 then
+    if e.isAppOfArity ``id 2 then
       pure (some e.appArg!)
     else
       pure (some e)
@@ -788,14 +797,12 @@ private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sour
   let (structName, structType) ← getStructName stx expectedType? source
   unless isStructureLike (← getEnv) structName do
     throwError "invalid \{...} notation, structure type expected{indentExpr structType}"
-  match mkStructView stx structName source with
-  | Except.error ex  => throwError ex
-  | Except.ok struct =>
-    let struct ← expandStruct struct
-    trace[Elab.struct] "{struct}"
-    let (r, struct) ← elabStruct struct expectedType?
-    DefaultFields.propagate struct
-    pure r
+  let struct ← liftMacroM <| mkStructView stx structName source
+  let struct ← expandStruct struct
+  trace[Elab.struct] "{struct}"
+  let (r, struct) ← elabStruct struct expectedType?
+  DefaultFields.propagate struct
+  return r
 
 @[builtinTermElab structInst] def elabStructInst : TermElab := fun stx expectedType? => do
   match (← expandNonAtomicExplicitSource stx) with

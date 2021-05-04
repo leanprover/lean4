@@ -72,17 +72,26 @@ private def unresolveOpenDecls (c : Name) : List OpenDecl → DelabM Name
 -- NOTE: not a registered delaborator, as `const` is never called (see [delab] description)
 def delabConst : Delab := do
   let Expr.const c ls _ ← getExpr | unreachable!
-  let c ← if (← getPPOption getPPFullNames) then pure c else
+  let c₀ := c
+  let mut c ← if (← getPPOption getPPFullNames) then pure c else
     let ctx ← read
     let env ← getEnv
     let as := getRevAliases env c
     -- might want to use a more clever heuristic such as selecting the shortest alias...
     let c := as.headD c
     unresolveUsingNamespace c ctx.currNamespace <|> unresolveOpenDecls c ctx.openDecls <|> pure c
-  let c ← if (← getPPOption getPPPrivateNames) then pure c else pure $ (privateToUserName? c).getD c
+  unless (← getPPOption getPPPrivateNames) do
+    c := (privateToUserName? c).getD c
   let ppUnivs ← getPPOption getPPUniverses
   if ls.isEmpty || !ppUnivs then
-    pure $ mkIdent c
+    if (← getLCtx).usesUserName c then
+      -- `c` is also a local declaration
+      if c == c₀ then
+        -- `c` is the fully qualified named. So, we append the `_root_` prefix
+        c := `_root_ ++ c
+      else
+        c := c₀
+    return mkIdent c
   else
     `($(mkIdent c).{$[$(ls.toArray.map quote)],*})
 

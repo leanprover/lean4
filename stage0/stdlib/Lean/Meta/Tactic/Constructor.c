@@ -21,13 +21,13 @@ lean_object* l_Lean_Meta_existsIntro___closed__1;
 lean_object* l_Lean_Meta_existsIntro___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__1;
 lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__2;
 lean_object* l_Lean_Meta_existsIntro_match__1(lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
-lean_object* l_Lean_getConstInfo___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_apply(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -602,7 +602,7 @@ lean_object* x_32; lean_object* x_33;
 x_32 = lean_ctor_get(x_27, 0);
 lean_inc(x_32);
 lean_dec(x_27);
-x_33 = l_Lean_getConstInfo___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_32, x_5, x_6, x_7, x_8, x_18);
+x_33 = l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spec__1(x_32, x_5, x_6, x_7, x_8, x_18);
 if (lean_obj_tag(x_33) == 0)
 {
 lean_object* x_34; 

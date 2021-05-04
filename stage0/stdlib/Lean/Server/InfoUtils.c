@@ -154,6 +154,7 @@ lean_object* l_Lean_Elab_Info_fmtHover_x3f___lambda__2___closed__2;
 lean_object* l_Lean_Elab_InfoTree_deepestNodes_go_match__1(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_foldlM___at_Lean_Elab_InfoTree_foldInfo_go___spec__14___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__20___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_23638____closed__2;
 extern lean_object* l_Lean_charLitKind;
 lean_object* l_Lean_Elab_InfoTree_smallestInfo_x3f_match__2___rarg(lean_object*, lean_object*);
 uint8_t l_Std_PersistentArray_anyM___at_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___spec__6(lean_object*, lean_object*, lean_object*);
@@ -176,7 +177,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spe
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__17(lean_object*);
 lean_object* l_Lean_Elab_InfoTree_foldInfo_go_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_InfoTree_goalsAt_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_23758____closed__2;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Array_getMax_x3f___at_Lean_Elab_InfoTree_smallestInfo_x3f___spec__2___boxed(lean_object*);
 lean_object* l_Lean_Elab_Info_fmtHover_x3f___lambda__2___closed__4;
@@ -5508,7 +5508,7 @@ lean_inc(x_6);
 lean_dec(x_4);
 x_7 = lean_ctor_get(x_6, 2);
 lean_inc(x_7);
-x_8 = l_myMacro____x40_Init_Notation___hyg_23758____closed__2;
+x_8 = l_myMacro____x40_Init_Notation___hyg_23638____closed__2;
 lean_inc(x_7);
 x_9 = l_Lean_Syntax_isOfKind(x_7, x_8);
 if (x_9 == 0)

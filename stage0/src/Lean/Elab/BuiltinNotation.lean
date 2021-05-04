@@ -57,9 +57,9 @@ open Meta
 
 @[builtinMacro Lean.Parser.Term.show] def expandShow : Macro := fun stx =>
   match stx with
-  | `(show $type from $val)         => let thisId := mkIdentFrom stx `this; `(let_fun $thisId : $type := $val; $thisId)
-  | `(show $type by $tac:tacticSeq) => `(show $type from by $tac:tacticSeq)
-  | _                               => Macro.throwUnsupported
+  | `(show $type from $val)            => let thisId := mkIdentFrom stx `this; `(let_fun $thisId : $type := $val; $thisId)
+  | `(show $type by%$b $tac:tacticSeq) => `(show $type from by%$b $tac:tacticSeq)
+  | _                                  => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.have] def expandHave : Macro := fun stx =>
   let mkId (x? : Option Syntax) : Syntax :=
@@ -67,13 +67,13 @@ open Meta
   match stx with
   | `(have $[$x :]? $type from $val $[;]? $body)              => let x := mkId x; `(let_fun $x : $type := $val; $body)
   | `(have $[$x :]? $type := $val $[;]? $body)                => let x := mkId x; `(let_fun $x : $type := $val; $body)
-  | `(have $[$x :]? $type by $tac:tacticSeq $[;]? $body)      => `(have $[$x :]? $type from by $tac:tacticSeq; $body)
+  | `(have $[$x :]? $type by%$b $tac:tacticSeq $[;]? $body)   => `(have $[$x :]? $type from by%$b $tac:tacticSeq; $body)
   | _                                                         => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.suffices] def expandSuffices : Macro
-  | `(suffices $[$x :]? $type from $val $[;]? $body)         => `(have $[$x :]? $type from $body; $val)
-  | `(suffices $[$x :]? $type by $tac:tacticSeq $[;]? $body) => `(have $[$x :]? $type from $body; by $tac:tacticSeq)
-  | _                                                        => Macro.throwUnsupported
+  | `(suffices $[$x :]? $type from $val $[;]? $body)            => `(have $[$x :]? $type from $body; $val)
+  | `(suffices $[$x :]? $type by%$b $tac:tacticSeq $[;]? $body) => `(have $[$x :]? $type from $body; by%$b $tac:tacticSeq)
+  | _                                                           => Macro.throwUnsupported
 
 open Lean.Parser in
 private def elabParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax := do

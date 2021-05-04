@@ -48,10 +48,10 @@ lean_object* l_Lean_Json_render___closed__1;
 extern lean_object* l_Char_quoteCore___closed__2;
 lean_object* l_Lean_Json_render___closed__2;
 lean_object* l_Lean_Json_compress(lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23565____closed__8;
 lean_object* l_Std_instToFormatFormat___boxed(lean_object*);
 extern lean_object* l_instReprBool___closed__3;
 lean_object* lean_format_pretty(lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23445____closed__8;
 lean_object* l_Lean_Json_renderString(lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_Json_renderString___boxed(lean_object*);
@@ -746,7 +746,7 @@ lean_dec(x_1);
 if (x_3 == 0)
 {
 lean_object* x_4; 
-x_4 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23565____closed__8;
+x_4 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23445____closed__8;
 return x_4;
 }
 else

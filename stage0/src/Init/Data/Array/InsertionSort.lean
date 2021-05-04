@@ -23,6 +23,6 @@ where
     | j'+1 =>
       have h' : j' < a.size by subst j; exact Nat.ltTrans (Nat.ltSuccSelf _) h
       if lt (a.get ⟨j, h⟩) (a.get ⟨j', h'⟩) then
-        swapLoop (a.swap ⟨j, h⟩ ⟨j', h'⟩) j' (by rw size_swap; assumption done)
+        swapLoop (a.swap ⟨j, h⟩ ⟨j', h'⟩) j' (by rw [size_swap]; assumption done)
       else
         a

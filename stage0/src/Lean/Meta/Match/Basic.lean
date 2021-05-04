@@ -256,4 +256,53 @@ structure MatcherResult where
   counterExamples : List CounterExample
   unusedAltIdxs   : List Nat
 
+/--
+  Auxiliary annotation used to mark terms marked with the "inaccessible" annotation `.(t)` and
+  `_` in patterns. -/
+def mkInaccessible (e : Expr) : Expr :=
+  mkAnnotation `_inaccessible e
+
+def inaccessible? (e : Expr) : Option Expr :=
+  annotation? `_inaccessible e
+
+/--
+  Convert a expression occurring as the argument of a `match` motive application back into a `Pattern`
+  For example, we can use this method to convert `x::y::xs` at
+  ```
+  ...
+  (motive : List Nat → Sort u_1) (xs : List Nat) (h_1 : (x y : Nat) → (xs : List Nat) → motive (x :: y :: xs))
+  ...
+  ```
+  into a pattern object
+-/
+partial def toPattern (e : Expr) : MetaM Pattern := do
+  match inaccessible? e with
+  | some t => return Pattern.inaccessible t
+  | none =>
+    match e.arrayLit? with
+    | some (α, lits) =>
+      return Pattern.arrayLit α (← lits.mapM toPattern)
+    | none =>
+      if e.isAppOfArity `namedPattern 3 then
+        let p ← toPattern <| e.getArg! 2
+        match e.getArg! 1 with
+        | Expr.fvar fvarId _ => return Pattern.as fvarId p
+        | _                  => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
+      else if e.isNatLit || e.isStringLit || e.isCharLit then
+        return Pattern.val e
+      else if e.isFVar then
+        return Pattern.var e.fvarId!
+      else
+        let newE ← whnf e
+        if newE != e then
+          toPattern newE
+        else matchConstCtor e.getAppFn (fun _ => throwError "unexpected pattern{indentExpr e}") fun v us => do
+          let args := e.getAppArgs
+          unless args.size == v.numParams + v.numFields do
+            throwError "unexpected pattern{indentExpr e}"
+          let params := args.extract 0 v.numParams
+          let fields := args.extract v.numParams args.size
+          let fields ← fields.mapM toPattern
+          return Pattern.ctor v.name us params.toList fields.toList
+
 end Lean.Meta.Match

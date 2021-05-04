@@ -356,8 +356,13 @@ private def evalManyTacticOptSemi (stx : Syntax) : TacticM Unit := do
 @[builtinTactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic := fun stx =>
   withRef stx[2] <| focusAndDone <| evalManyTacticOptSemi stx[1]
 
-@[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx =>
-  focus <| evalTactic stx[1]
+@[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx => do
+  let mctxBefore  ← getMCtx
+  let goalsBefore ← getGoals
+  focus do
+    -- show focused state on `focus`
+    withInfoContext (pure ()) (mkTacticInfo mctxBefore goalsBefore stx[0])
+    evalTactic stx[1]
 
 private def getOptRotation (stx : Syntax) : Nat :=
   if stx.isNone then 1 else stx[0].toNat

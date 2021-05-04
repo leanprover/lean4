@@ -185,7 +185,7 @@ def TacticInfo.format (ctx : ContextInfo) (info : TacticInfo) : IO Format := do
   let ctxA := { ctx with mctx := info.mctxAfter }
   let goalsBefore ← ctxB.ppGoals info.goalsBefore
   let goalsAfter  ← ctxA.ppGoals info.goalsAfter
-  return f!"Tactic @ {formatStxRange ctx info.stx}\nbefore {goalsBefore}\nafter {goalsAfter}"
+  return f!"Tactic @ {formatStxRange ctx info.stx}\n{info.stx}\nbefore {goalsBefore}\nafter {goalsAfter}"
 
 def MacroExpansionInfo.format (ctx : ContextInfo) (info : MacroExpansionInfo) : IO Format := do
   let before ← ctx.ppSyntax info.lctx info.before

@@ -70,7 +70,6 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isCoeDecl___closed__27;
 lean_object* l_Lean_Meta_isCoeDecl___closed__4;
 lean_object* l_ReaderT_bind___at_Lean_Meta_expandCoe___spec__12___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_HashMapImp_find_x3f___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_visit___spec__1(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_transform_visit_visitLambda___at_Lean_Meta_expandCoe___spec__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isCoeDecl___closed__26;
@@ -93,6 +92,7 @@ lean_object* l_Lean_Meta_isCoeDecl___closed__23;
 lean_object* l_Lean_Meta_isCoeDecl___closed__41;
 lean_object* l_Lean_Meta_isCoeDecl___closed__24;
 uint8_t l_Lean_Expr_isConst(lean_object*);
+lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Core_transform_visit___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isCoeDecl___closed__20;
 lean_object* l_Lean_Meta_isCoeDecl___closed__10;
 lean_object* l_Lean_Meta_isCoeDecl___closed__32;
@@ -2739,7 +2739,7 @@ if (x_14 == 0)
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_15 = lean_ctor_get(x_13, 0);
 x_16 = lean_ctor_get(x_13, 1);
-x_17 = l_Std_HashMapImp_find_x3f___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_visit___spec__1(x_15, x_5);
+x_17 = l_Std_HashMapImp_find_x3f___at_Lean_Core_transform_visit___spec__1(x_15, x_5);
 lean_dec(x_15);
 if (lean_obj_tag(x_17) == 0)
 {
@@ -2887,7 +2887,7 @@ x_42 = lean_ctor_get(x_13, 1);
 lean_inc(x_42);
 lean_inc(x_41);
 lean_dec(x_13);
-x_43 = l_Std_HashMapImp_find_x3f___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_visit___spec__1(x_41, x_5);
+x_43 = l_Std_HashMapImp_find_x3f___at_Lean_Core_transform_visit___spec__1(x_41, x_5);
 lean_dec(x_41);
 if (lean_obj_tag(x_43) == 0)
 {

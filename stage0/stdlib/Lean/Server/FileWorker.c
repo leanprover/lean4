@@ -20,7 +20,6 @@ lean_object* l_Lean_MapDeclarationExtension_find_x3f___at_Lean_findDeclarationRa
 lean_object* l_Lean_Server_FileWorker_handleWaitForDiagnostics___lambda__3(lean_object*, lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 extern lean_object* l_Lean_Name_toString___closed__1;
-lean_object* l_IO_FS_Handle_readToEnd_read___at_IO_Process_output___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_CancelToken_check___at___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_nextCmdSnap___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleWaitForDiagnostics___lambda__1___boxed(lean_object*);
 size_t l_USize_add(size_t, size_t);
@@ -122,6 +121,7 @@ extern lean_object* l_Lean_Lsp_instInhabitedRange___closed__1;
 extern lean_object* l_Array_empty___closed__1;
 extern lean_object* l_Lean_Elab_Info_fmtHover_x3f___lambda__2___closed__3;
 extern lean_object* l_Lean_JsonRpc_instToJsonErrorCode___closed__16;
+lean_object* l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleNotification___closed__1;
 lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Completion_find_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -176,7 +176,6 @@ lean_object* l_Std_PersistentArray_forInAux___at_Lean_Server_FileWorker_handleCo
 lean_object* l_IO_sleep(uint32_t, lean_object*);
 extern lean_object* l_Lean_Lsp_instFromJsonDiagnosticSeverity___closed__2;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_FileWorker_handleCompletion___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_getConstInfo___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_ExceptT_lift___rarg___closed__1;
 lean_object* l_Lean_Server_FileWorker_handleHover_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_throwServerError___rarg(lean_object*, lean_object*);
@@ -344,6 +343,7 @@ lean_object* l_Lean_Server_FileWorker_withWaitFindSnap___rarg(lean_object*, lean
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_logSnapContent(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_IO_FS_Stream_readRequestAs___closed__3;
+lean_object* l_IO_FS_Handle_readToEnd_read___at_IO_Process_output___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleWaitForDiagnostics___lambda__3___closed__3;
 lean_object* l_Lean_Server_FileWorker_handleSemanticTokensFull___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_instInhabitedEditableDocument___closed__3;
@@ -626,6 +626,7 @@ lean_object* lean_get_stdout(lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_sectionLikeToDocumentSymbols(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Server_FileWorker_updateDocument(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_nextCmdSnap___closed__3;
+lean_object* l_IO_ofExcept___at_IO_Process_output___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_findDeclarationRanges_x3f___at_Lean_Server_FileWorker_handleDefinition___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forInAux___at_Lean_Server_FileWorker_handleSemanticTokens_highlightId___spec__3___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader(lean_object*, lean_object*);
@@ -713,7 +714,6 @@ lean_object* l_Lean_Meta_ppGoal___boxed(lean_object*, lean_object*, lean_object*
 lean_object* l_Lean_Server_FileWorker_leanpkgSetupSearchPath_processStderr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forInAux___at_Lean_Server_FileWorker_handleCompletion___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_ofExcept___at_IO_Process_output___spec__5(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Util_Trace_0__Lean_addNode___rarg___lambda__1___closed__2;
 lean_object* l_Lean_Syntax_getTailPos_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_Server_Snapshots_Snapshot_msgLog(lean_object*);
@@ -3793,7 +3793,7 @@ lean_inc(x_27);
 lean_dec(x_25);
 x_28 = lean_ctor_get(x_20, 1);
 lean_inc(x_28);
-x_29 = l_IO_FS_Handle_readToEnd_read___at_IO_Process_output___spec__3(x_28, x_22, x_27);
+x_29 = l_IO_FS_Handle_readToEnd_read___at_IO_Process_output___spec__1(x_28, x_22, x_27);
 lean_dec(x_28);
 if (lean_obj_tag(x_29) == 0)
 {
@@ -3806,7 +3806,7 @@ lean_dec(x_29);
 x_32 = l_String_trim(x_30);
 lean_dec(x_30);
 x_33 = lean_task_get_own(x_26);
-x_34 = l_IO_ofExcept___at_IO_Process_output___spec__5(x_33, x_31);
+x_34 = l_IO_ofExcept___at_IO_Process_output___spec__3(x_33, x_31);
 if (lean_obj_tag(x_34) == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; 
@@ -13169,7 +13169,7 @@ _start:
 {
 lean_object* x_7; 
 lean_inc(x_1);
-x_7 = l_Lean_getConstInfo___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 

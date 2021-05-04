@@ -79,7 +79,6 @@ lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_892____closed_
 lean_object* l_Lean_OptionDecl_descr___default;
 lean_object* l_Lean_instToStringOptions;
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23565____closed__8;
 lean_object* l_Lean_setOptionFromString_match__4(lean_object*);
 lean_object* l_Lean_instMonadOptions___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_892____closed__19;
@@ -92,6 +91,7 @@ lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* lean_get_option_decls_array(lean_object*);
 lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_892____closed__2;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23445____closed__8;
 lean_object* l_Lean_getNatOption___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_setInt(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_KVMap_contains(lean_object*, lean_object*);
@@ -1079,7 +1079,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23565____closed__8;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23445____closed__8;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

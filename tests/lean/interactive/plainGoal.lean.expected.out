@@ -46,8 +46,8 @@
  "goals": ["n m : Nat\nh1 : n = m\nh2 : m = 0\n⊢ 0 = m"]}
 {"textDocument": {"uri": "file://plainGoal.lean"},
  "position": {"line": 25, "character": 13}}
-{"rendered": "```lean\nn m : Nat\nh1 : n = m\nh2 : m = 0\n⊢ 0 = 0\n```",
- "goals": ["n m : Nat\nh1 : n = m\nh2 : m = 0\n⊢ 0 = 0"]}
+{"rendered": "```lean\nn m : Nat\nh1 : n = m\nh2 : m = 0\n⊢ 0 = n\n```",
+ "goals": ["n m : Nat\nh1 : n = m\nh2 : m = 0\n⊢ 0 = n"]}
 {"textDocument": {"uri": "file://plainGoal.lean"},
  "position": {"line": 32, "character": 3}}
 {"rendered": "```lean\ncase zero\n⊢ 0 + Nat.zero = Nat.zero\n```",

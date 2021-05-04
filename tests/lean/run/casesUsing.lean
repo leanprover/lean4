@@ -30,7 +30,7 @@ axiom Nat.parityElim (motive : Nat → Sort u)
   : motive n
 
 theorem time2Eq (n : Nat) : 2*n = n + n := by
-  rw Nat.mul_comm
+  rw [Nat.mul_comm]
   show (0 + n) + n = n+n
   simp
 
@@ -39,11 +39,11 @@ theorem ex3 (n : Nat) : Exists (fun m => n = m + m ∨ n = m + m + 1) := by
   | even i =>
     apply Exists.intro i
     apply Or.inl
-    rw time2Eq
+    rw [time2Eq]
   | odd i =>
     apply Exists.intro i
     apply Or.inr
-    rw time2Eq
+    rw [time2Eq]
 
 open Nat in
 theorem ex3b (n : Nat) : Exists (fun m => n = m + m ∨ n = m + m + 1) := by
@@ -51,11 +51,11 @@ theorem ex3b (n : Nat) : Exists (fun m => n = m + m ∨ n = m + m + 1) := by
   | even i =>
     apply Exists.intro i
     apply Or.inl
-    rw time2Eq
+    rw [time2Eq]
   | odd i =>
     apply Exists.intro i
     apply Or.inr
-    rw time2Eq
+    rw [time2Eq]
 
 def ex4 {α} (xs : List α) (h : xs = [] → False) : α := by
   cases he:xs with
@@ -152,4 +152,4 @@ theorem ex17 (n : Nat) : 0 + n = n := by
   case zero => rfl
   case succ m ih =>
     show Nat.succ (0 + m) = Nat.succ m
-    rw ih
+    rw [ih]

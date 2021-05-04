@@ -138,16 +138,16 @@ theorem subZero [AddGroup α] {a : α} : a + -(0 : α) = a := by
     rw [←addZero (a := a), addAssoc, negZero, addZero]
 
 theorem negNeg [AddGroup α] {a : α} : -(-a) = a := by {
-    rw ←addZero (a := - -a);
-    rw ←negAdd (a := a);
-    rw ←addAssoc;
-    rw negAdd;
-    rw zeroAdd;
+    rw [←addZero (a := - -a)];
+    rw [←negAdd (a := a)];
+    rw [←addAssoc];
+    rw [negAdd];
+    rw [zeroAdd];
 }
 
 theorem addNeg [AddGroup α] {a : α} : a + -a = 0 := by {
-    have h : - -a + -a = 0 := by { rw negAdd };
-    rw negNeg at h;
+    have h : - -a + -a = 0 := by { rw [negAdd] };
+    rw [negNeg] at h;
     exact h
 }
 
@@ -162,14 +162,14 @@ theorem addIdemIffZero [AddGroup α] {a : α} : a + a = a ↔ a = 0 := by
     focus
         intro h
         subst a
-        rw addZero
+        rw [addZero]
 
 instance [Ring α] : ZeroMul α := by {
     apply ZeroMul.mk;
     intro a;
     have h : 0 * a + 0 * a = 0 * a := by { rw [←rightDistrib, addZero] };
-    rw addIdemIffZero (a := 0 * a) at h;
-    rw h;
+    rw [addIdemIffZero (a := 0 * a)] at h;
+    rw [h];
 }
 
 example [Ring α] : Semiring α := inferInstance

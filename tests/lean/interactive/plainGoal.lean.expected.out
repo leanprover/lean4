@@ -38,8 +38,8 @@
  "goals": ["α : Sort ?u\na : α\n⊢ α"]}
 {"textDocument": {"uri": "file://plainGoal.lean"},
  "position": {"line": 25, "character": 3}}
-{"rendered": "```lean\nn m : Nat\nh1 : n = m\nh2 : m = 0\n⊢ 0 = 0\n```",
- "goals": ["n m : Nat\nh1 : n = m\nh2 : m = 0\n⊢ 0 = 0"]}
+{"rendered": "```lean\nn m : Nat\nh1 : n = m\nh2 : m = 0\n⊢ 0 = n\n```",
+ "goals": ["n m : Nat\nh1 : n = m\nh2 : m = 0\n⊢ 0 = n"]}
 {"textDocument": {"uri": "file://plainGoal.lean"},
  "position": {"line": 25, "character": 9}}
 {"rendered": "```lean\nn m : Nat\nh1 : n = m\nh2 : m = 0\n⊢ 0 = m\n```",

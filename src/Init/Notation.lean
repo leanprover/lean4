@@ -246,30 +246,18 @@ syntax (name := changeWith) "change " term " with " term (location)? : tactic
 syntax rwRule    := ("←" <|> "<-")? term
 syntax rwRuleSeq := "[" rwRule,+,? "]"
 
-syntax (name := rewrite) "rewrite " rwRule (location)? : tactic
-syntax (name := rewriteSeq) (priority := high) "rewrite " rwRuleSeq (location)? : tactic
-syntax (name := erewrite) "erewrite " rwRule (location)? : tactic
-syntax (name := erewriteSeq) (priority := high) "erewrite " rwRuleSeq (location)? : tactic
+syntax (name := rewriteSeq) "rewrite " rwRuleSeq (location)? : tactic
+syntax (name := erewriteSeq) "erewrite " rwRuleSeq (location)? : tactic
 
-syntax (name := rw) "rw " rwRule (location)? : tactic
-syntax (name := rwSeq) (priority := high) "rw " rwRuleSeq (location)? : tactic
-syntax (name := erw) "erw " rwRule (location)? : tactic
-syntax (name := erwSeq) (priority := high) "erw " rwRuleSeq (location)? : tactic
+syntax (name := rwSeq) "rw " rwRuleSeq (location)? : tactic
+syntax (name := erwSeq) "erw " rwRuleSeq (location)? : tactic
 
 private def withCheapRefl (tac : Syntax) : MacroM Syntax :=
   `(tactic| $tac; try (withReducible rfl))
 
-@[macro rw]
-def expandRw : Macro :=
-  fun stx => withCheapRefl (stx.setKind `Lean.Parser.Tactic.rewrite |>.setArg 0 (mkAtomFrom stx "rewrite"))
-
 @[macro rwSeq]
 def expandRwSeq : Macro :=
   fun stx => withCheapRefl (stx.setKind `Lean.Parser.Tactic.rewriteSeq |>.setArg 0 (mkAtomFrom stx "rewrite"))
-
-@[macro erw]
-def expandERw : Macro :=
-  fun stx => withCheapRefl (stx.setKind `Lean.Parser.Tactic.erewrite |>.setArg 0 (mkAtomFrom stx "erewrite"))
 
 @[macro erwSeq]
 def expandERwSeq : Macro :=

@@ -192,7 +192,7 @@ theorem succ_sub_succ (n m : Nat) : succ n - succ m = n - m :=
   succ_sub_succ_eq_sub n m
 
 protected theorem sub_self : ∀ (n : Nat), n - n = 0
-  | 0        => by rw Nat.sub_zero
+  | 0        => by rw [Nat.sub_zero]
   | (succ n) => by rw [succ_sub_succ, Nat.sub_self n]
 
 protected theorem ltOfLtOfLe {n m k : Nat} : n < m → m ≤ k → n < k :=

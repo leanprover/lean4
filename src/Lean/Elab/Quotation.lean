@@ -76,7 +76,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
       getAntiquotTerm stx
     else if isTokenAntiquot stx && !isEscapedAntiquot stx then
       match stx[0] with
-      | Syntax.atom _ val => `(Syntax.atom (Option.getD (getHeadInfo $(getAntiquotTerm stx)) info) $(quote val))
+      | Syntax.atom _ val => `(Syntax.atom (Option.getD (getHeadInfo? $(getAntiquotTerm stx)) info) $(quote val))
       | _                 => throwErrorAt stx "expected token"
     else if isAntiquotSuffixSplice stx && !isEscapedAntiquot stx then
       -- splices must occur in a `many` node

@@ -1,0 +1,4 @@
+Set.insert (Set.insert (Set.insert Set.empty 1) 2) 3 : Set Nat
+fun (x y : Nat) => g { x := x, y := y } : Nat → Nat → Nat
+fun (x y : Nat) => Set.insert (Set.insert Set.empty x) y : Nat → Nat → Set Nat
+fun (x y : Nat) => { x := x, y := y } : Nat → Nat → Point

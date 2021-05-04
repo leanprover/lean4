@@ -82,24 +82,28 @@
     Bool : Type @ ⟨18, 10⟩-⟨18, 11⟩
     b : Bool @ ⟨18, 10⟩-⟨18, 11⟩
     Tactic @ ⟨18, 15⟩-⟨19, 8⟩
+    (Term.byTactic "by" (Tactic.tacticSeq (Tactic.tacticSeq1Indented [(group (Tactic.simp "simp" [] [] [] []) [])])))
     before 
     x y : Nat
     b : Bool
     ⊢ x + 0 = x
     after no goals
       Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+      (Tactic.tacticSeq (Tactic.tacticSeq1Indented [(group (Tactic.simp "simp" [] [] [] []) [])]))
       before 
       x y : Nat
       b : Bool
       ⊢ x + 0 = x
       after no goals
         Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+        (Tactic.tacticSeq1Indented [(group (Tactic.simp "simp" [] [] [] []) [])])
         before 
         x y : Nat
         b : Bool
         ⊢ x + 0 = x
         after no goals
           Tactic @ ⟨19, 4⟩-⟨19, 8⟩
+          (Tactic.simp "simp" [] [] [] [])
           before 
           x y : Nat
           b : Bool

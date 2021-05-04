@@ -144,24 +144,28 @@ syntax "class " "abbrev " declId bracketedBinder* ":=" withPosition(group(colGe 
 
 namespace Lean.Syntax
 
-def paramsToVars (params : Array Syntax) : MacroM (Array Syntax × Array Syntax) := do
+/--
+  Extracts the explicitly bound identifiers from an `Array` of `bracketedBinder`(s).
+  In other words, this extracts the explicit arguments from an array of parameters.
+  **Example**: The binders `(a b : A) (c : C) [x : X] [Y]` produce `#{a, b]`.
+-/
+def paramsToArgs (params : Array Syntax) : MacroM (Array Syntax) := do
   let mut args := #[]
-  let mut binders := #[]
   for param in params do
     match param with
     | `(bracketedBinder| ( $ids:ident* $[: $type:term]? ) ) =>
       args := args ++ ids
-      binders := binders.push (← `(bracketedBinder| { $ids:ident* }) )
-    | `(bracketedBinder| [ $id:ident : $type:term ] ) =>
-      binders := binders.push param
-    | `(bracketedBinder| [ $type:term ] ) =>
-      binders := binders.push param
+    | `(bracketedBinder| [ $[ $id:ident : ]? $type:term ] ) =>
+      continue
     | `(bracketedBinder| { $ids:ident* $[: $type ]? } ) =>
-      binders := binders.push param
+      continue
     | _ => 
       Lean.Macro.throwErrorAt param "unknown binder"
-  return (args, binders)
+  return args
 
+/--
+  Extracts the pair `(ident, universe vars)` from a `declId`.
+-/
 def expandDeclId (id : Syntax) : Syntax × Array Syntax :=
   (id[0], id[1][1].getArgs.getEvenElems)
 
@@ -170,14 +174,14 @@ end Lean.Syntax
 macro_rules
   | `(class abbrev $id $params* := $[ $parents:term $[,]? ]*) => do
     let (name, uvars) := Syntax.expandDeclId id
-    let (typeArgs, varBinders) ← Syntax.paramsToVars params
     let ctor := mkIdentFrom name <| name.getId.modifyBase (. ++ `mk)
     let parentBinders ← parents.mapM fun p => `(bracketedBinder| [ $p:term ])
+    let typeArgs ← Syntax.paramsToArgs params
     `(
     class $id $params* extends $[$parents:term],*
     section 
     universes $uvars:ident*
-    variable $varBinders:bracketedBinder*
+    variable $params:bracketedBinder*
     instance $parentBinders:bracketedBinder* 
       : $name:ident $typeArgs* := $ctor:ident
     end

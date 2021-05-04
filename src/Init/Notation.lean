@@ -252,21 +252,20 @@ syntax (name := erewriteSeq) "erewrite " rwRuleSeq (location)? : tactic
 syntax (name := rwSeq) "rw " rwRuleSeq (location)? : tactic
 syntax (name := erwSeq) "erw " rwRuleSeq (location)? : tactic
 
-private def withCheapRefl (tac : Syntax) : MacroM Syntax :=
-  `(tactic| $tac; try (withReducible rfl))
+def rwWithRfl (kind : SyntaxNodeKind) (atom : String) (stx : Syntax) : MacroM Syntax := do
+  -- We show the `rfl` state on `]`
+  let seq   := stx[1]
+  let rbrak := seq[2]
+  -- Replace `]` token with one without position information in the expanded tactic
+  let seq   := seq.setArg 2 (mkAtom "]")
+  let tac   := stx.setKind kind |>.setArg 0 (mkAtomFrom stx atom) |>.setArg 1 seq
+  `(tactic| $tac; try (withReducible rfl%$rbrak))
 
-@[macro rwSeq]
-def expandRwSeq : Macro := fun stx =>
-  let rbrak := stx[1][2]
-  -- show "cheap refl" state on `]`
-  withRef rbrak <|
-    withCheapRefl (stx.setKind `Lean.Parser.Tactic.rewriteSeq |>.setArg 0 (mkAtomFrom stx "rewrite"))
+@[macro rwSeq] def expandRwSeq : Macro :=
+  rwWithRfl ``Lean.Parser.Tactic.rewriteSeq "rewrite"
 
-@[macro erwSeq]
-def expandERwSeq : Macro := fun stx =>
-  let rbrak := stx[1][2]
-  withRef rbrak <|
-    withCheapRefl (stx.setKind `Lean.Parser.Tactic.erewriteSeq |>.setArg 0 (mkAtomFrom stx "erewrite"))
+@[macro erwSeq] def expandERwSeq : Macro :=
+  rwWithRfl ``Lean.Parser.Tactic.erewriteSeq "erewrite"
 
 syntax (name := injection) "injection " term (" with " (colGt (ident <|> "_"))+)? : tactic
 

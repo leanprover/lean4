@@ -981,6 +981,10 @@ export Option (none some)
 instance {α} : Inhabited (Option α) where
   default := none
 
+@[macroInline] def Option.getD : Option α → α → α
+  | some x, _ => x
+  | none,   e => e
+
 inductive List (α : Type u) where
   | nil : List α
   | cons (head : α) (tail : List α) : List α
@@ -1806,6 +1810,9 @@ def SourceInfo.fromRef (ref : Syntax) : SourceInfo :=
   match ref.getPos?, ref.getTailPos? with
   | some pos, some tailPos => SourceInfo.synthetic pos tailPos
   | _,        _            => SourceInfo.none
+
+def mkAtom (val : String) : Syntax :=
+  Syntax.atom SourceInfo.none val
 
 def mkAtomFrom (src : Syntax) (val : String) : Syntax :=
   Syntax.atom src.getHeadInfo val

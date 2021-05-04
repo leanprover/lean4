@@ -14,10 +14,6 @@ def toMonad [Monad m] [Alternative m] : Option α → m α
   | none     => failure
   | some a   => pure a
 
-@[macroInline] def getD : Option α → α → α
-  | some x, _ => x
-  | none,   e => e
-
 @[inline] def toBool : Option α → Bool
   | some _ => true
   | none   => false

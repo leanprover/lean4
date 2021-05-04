@@ -260,9 +260,6 @@ end Syntax
   | none => x
   | some ref => withRef ref x
 
-def mkAtom (val : String) : Syntax :=
-  Syntax.atom SourceInfo.none val
-
 @[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : Syntax :=
   Syntax.node k args
 

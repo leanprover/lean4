@@ -67,8 +67,6 @@ def evalRewriteCore (mode : TransparencyMode) : Tactic := fun stx => do
           if type then
             rewriteTarget term symm mode
         | Location.wildcard => rewriteAll term symm mode
-  -- show final state on `]`
-  withTacticInfoContext rbrak (pure ())
 
 @[builtinTactic Lean.Parser.Tactic.rewriteSeq] def evalRewriteSeq : Tactic :=
   evalRewriteCore TransparencyMode.instances

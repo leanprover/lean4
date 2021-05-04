@@ -256,12 +256,17 @@ private def withCheapRefl (tac : Syntax) : MacroM Syntax :=
   `(tactic| $tac; try (withReducible rfl))
 
 @[macro rwSeq]
-def expandRwSeq : Macro :=
-  fun stx => withCheapRefl (stx.setKind `Lean.Parser.Tactic.rewriteSeq |>.setArg 0 (mkAtomFrom stx "rewrite"))
+def expandRwSeq : Macro := fun stx =>
+  let rbrak := stx[1][2]
+  -- show "cheap refl" state on `]`
+  withRef rbrak <|
+    withCheapRefl (stx.setKind `Lean.Parser.Tactic.rewriteSeq |>.setArg 0 (mkAtomFrom stx "rewrite"))
 
 @[macro erwSeq]
-def expandERwSeq : Macro :=
-  fun stx => withCheapRefl (stx.setKind `Lean.Parser.Tactic.erewriteSeq |>.setArg 0 (mkAtomFrom stx "erewrite"))
+def expandERwSeq : Macro := fun stx =>
+  let rbrak := stx[1][2]
+  withRef rbrak <|
+    withCheapRefl (stx.setKind `Lean.Parser.Tactic.erewriteSeq |>.setArg 0 (mkAtomFrom stx "erewrite"))
 
 syntax (name := injection) "injection " term (" with " (colGt (ident <|> "_"))+)? : tactic
 

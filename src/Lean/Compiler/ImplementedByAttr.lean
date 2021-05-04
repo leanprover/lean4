@@ -9,8 +9,8 @@ import Lean.MonadEnv
 namespace Lean.Compiler
 
 builtin_initialize implementedByAttr : ParametricAttribute Name ← registerParametricAttribute {
-  name := `implementedBy,
-  descr := "name of the Lean (probably unsafe) function that implements opaque constant",
+  name := `implementedBy
+  descr := "name of the Lean (probably unsafe) function that implements opaque constant"
   getParam := fun declName stx => do
     let decl ← getConstInfo declName
     let fnName ← Attribute.Builtin.getId stx
@@ -18,6 +18,8 @@ builtin_initialize implementedByAttr : ParametricAttribute Name ← registerPara
     let fnDecl ← getConstInfo fnName
     unless decl.type == fnDecl.type do
       throwError "invalid function '{fnName}' type mismatch"
+    if decl.name == fnDecl.name then
+      throwError "invalid 'implementedBy' argument '{fnName}', function cannot be implemented by itself"
     return fnName
 }
 

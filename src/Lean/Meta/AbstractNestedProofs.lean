@@ -21,7 +21,7 @@ structure Context where
 structure State where
   nextIdx : Nat := 1
 
-abbrev M := ReaderT Context $ MonadCacheT Expr Expr $ StateRefT State MetaM
+abbrev M := ReaderT Context $ MonadCacheT ExprStructEq Expr $ StateRefT State MetaM
 
 private def mkAuxLemma (e : Expr) : M Expr := do
   let ctx ← read
@@ -47,7 +47,7 @@ partial def visit (e : Expr) : M Expr := do
            | none       => pure localDecl
         lctx :=lctx.modifyLocalDecl xFVarId fun _ => localDecl
       withLCtx lctx localInstances k
-    checkCache e fun _ => do
+    checkCache { val := e : ExprStructEq } fun _ => do
       if (← isNonTrivialProof e) then
         mkAuxLemma e
       else match e with

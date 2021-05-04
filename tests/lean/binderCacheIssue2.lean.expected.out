@@ -1,0 +1,2 @@
+def foo.{u, u_1} : {P : Sort u} → Bar P → Type :=
+fun {P : Sort u} (B : Bar P) => Foo ((p : P) → Bar.fn p) ({p : P} → Bar.fn p)

@@ -706,14 +706,14 @@ instance : ToString Exception where
 structure State where
   mctx  : MetavarContext
   ngen  : NameGenerator
-  cache : HashMap Expr Expr := {}
+  cache : HashMap ExprStructEq Expr := {}
 
 abbrev MCore := EStateM Exception State
 abbrev M     := ReaderT Bool (EStateM Exception State)
 
 def preserveOrder : M Bool := read
 
-instance : MonadHashMapCacheAdapter Expr Expr M where
+instance : MonadHashMapCacheAdapter ExprStructEq Expr M where
   getCache    := do let s ← get; pure s.cache
   modifyCache := fun f => modify fun s => { s with cache := f s.cache }
 
@@ -827,7 +827,7 @@ private def anyDependsOn (mctx : MetavarContext) (es : Array Expr) (fvarId : FVa
 mutual
 
   private partial def visit (xs : Array Expr) (e : Expr) : M Expr :=
-    if !e.hasMVar then pure e else checkCache e fun _ => elim xs e
+    if !e.hasMVar then pure e else checkCache { val := e : ExprStructEq } fun _ => elim xs e
 
   private partial def elim (xs : Array Expr) (e : Expr) : M Expr :=
     match e with

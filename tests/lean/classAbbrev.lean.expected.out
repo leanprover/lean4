@@ -1,0 +1,3 @@
+classAbbrev.lean:4:13-4:22: error: type expected
+failed to synthesize instance
+  CoeSort (Type ?u → Type ?u) ?m

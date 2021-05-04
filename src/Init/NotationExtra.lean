@@ -140,41 +140,48 @@ macro_rules
     C.mk _ ... _ inferInstance ... inferInstance
   ```
 -/
-syntax "class " "abbrev " ident bracketedBinder* ":=" withPosition(group(colGe term ","?)*) : command
+syntax "class " "abbrev " declId bracketedBinder* ":=" withPosition(group(colGe term ","?)*) : command
+
+namespace Lean.Syntax
+
+def paramsToVars (params : Array Syntax) : MacroM (Array Syntax × Array Syntax) := do
+  let mut args := #[]
+  let mut binders := #[]
+  for param in params do
+    match param with
+    | `(bracketedBinder| ( $ids:ident* $[: $type:term]? ) ) =>
+      args := args ++ ids
+      binders := binders.push (← `(bracketedBinder| { $ids:ident* }) )
+    | `(bracketedBinder| [ $id:ident : $type:term ] ) =>
+      binders := binders.push param
+    | `(bracketedBinder| [ $type:term ] ) =>
+      binders := binders.push param
+    | `(bracketedBinder| { $ids:ident* $[: $type ]? } ) =>
+      binders := binders.push param
+    | _ => 
+      Lean.Macro.throwErrorAt param "unknown binder"
+  return (args, binders)
+
+def expandDeclId (id : Syntax) : Syntax × Array Syntax :=
+  (id[0], id[1][1].getArgs.getEvenElems)
+
+end Lean.Syntax
 
 macro_rules
-  | `(class abbrev $name:ident $params* := $[ $parents:term $[,]? ]*) => do
-    let mut auxBinders := #[]
-    let mut typeArgs   := #[]
-    let mut ctorArgs   := #[]
-    let hole ← `(_)
-    for param in params do
-      match param with
-      | `(bracketedBinder| ( $ids:ident* $[: $type:term]? ) ) =>
-         auxBinders := auxBinders.push (← `(bracketedBinder| { $ids:ident* }) )
-         typeArgs   := typeArgs ++ ids
-         ctorArgs   := ctorArgs ++ ids.map fun _ => hole
-      | `(bracketedBinder| [ $id:ident : $type:term ] ) =>
-         auxBinders := auxBinders.push param
-         typeArgs   := typeArgs.push hole
-         ctorArgs   := ctorArgs.push hole
-      | `(bracketedBinder| [ $type:term ] ) =>
-         auxBinders := auxBinders.push param
-         typeArgs   := typeArgs.push hole
-         ctorArgs   := ctorArgs.push hole
-      | `(bracketedBinder| { $ids:ident* $[: $type ]? } ) =>
-         auxBinders := auxBinders.push param
-         typeArgs   := typeArgs ++ ids.map fun _ => hole
-         ctorArgs   := typeArgs ++ ids.map fun _ => hole
-      | _ => Lean.Macro.throwErrorAt param "unexpected binder at `class abbrev` macro"
-    let inferInst ← `(inferInstance)
-    for parent in parents do
-      auxBinders := auxBinders.push (← `(bracketedBinder| [ $parent:term ]))
-      ctorArgs   := ctorArgs.push inferInst
+  | `(class abbrev $id $params* := $[ $parents:term $[,]? ]*) => do
+    let (name, uvars) := Syntax.expandDeclId id
+    let (typeArgs, varBinders) ← Syntax.paramsToVars params
     let ctor := mkIdentFrom name <| name.getId.modifyBase (. ++ `mk)
-    `(class $name:ident $params* extends $[$parents:term],*
-      instance $auxBinders:explicitBinder* : @ $name:ident $typeArgs* :=
-        @ $ctor:ident $ctorArgs*)
+    let parentBinders ← parents.mapM fun p => `(bracketedBinder| [ $p:term ])
+    `(
+    class $id $params* extends $[$parents:term],*
+    section 
+    universes $uvars:ident*
+    variable $varBinders:bracketedBinder*
+    instance $parentBinders:bracketedBinder* 
+      : $name:ident $typeArgs* := $ctor:ident
+    end
+    )
 
 /-
   Similar to `first`, but succeeds only if one the given tactics solves the curretn goal.

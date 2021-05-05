@@ -1,0 +1,19 @@
+fn : {p : P} → Bar.fn p
+439.lean:18:7-18:12: error: function expected at
+  Fn.imp fn ?m
+term has type
+  Bar.fn ?m
+439.lean:29:7-29:11: error: function expected at
+  Fn.imp fn ?m
+term has type
+  Bar.fn ?m
+Fn.imp fn p : Bar.fn p
+Fn.imp fn' p Bp : Bar.fn p
+439.lean:39:7-39:12: error: application type mismatch
+  Fn.imp fn' ?m p
+argument
+  p
+has type
+  P : Sort u
+but is expected to have type
+  Bar.fn ?m : Sort ?u

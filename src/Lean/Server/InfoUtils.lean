@@ -159,7 +159,7 @@ structure GoalsAtResult where
   - None of the `children` can provide satisfy the condition above. That is, for composite tactics such as
     `induction`, we always give preference for information stored in nested (children) tactics.
 
-  Moreover, we instruct the LSP server to use the state after the tactic execution if hoverPos >= endPos *and*
+  Moreover, we instruct the LSP server to use the state after the tactic execution if `hoverPos > pos` *and*
   there is no nested tactic info (i.e. it is a leaf tactic; tactic combinators should decide for themselves
   where to show intermediate/final states)
 -/

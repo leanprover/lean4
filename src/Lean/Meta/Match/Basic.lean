@@ -9,6 +9,15 @@ import Lean.Meta.Match.CaseArraySizes
 
 namespace Lean.Meta.Match
 
+/--
+  Auxiliary annotation used to mark terms marked with the "inaccessible" annotation `.(t)` and
+  `_` in patterns. -/
+def mkInaccessible (e : Expr) : Expr :=
+  mkAnnotation `_inaccessible e
+
+def inaccessible? (e : Expr) : Option Expr :=
+  annotation? `_inaccessible e
+
 inductive Pattern : Type where
   | inaccessible (e : Expr) : Pattern
   | var          (fvarId : FVarId) : Pattern
@@ -36,7 +45,7 @@ where
     match p with
     | inaccessible e                 =>
       if annotate then
-        pure (mkAnnotation `inaccessible e)
+        pure (mkInaccessible e)
       else
         pure e
     | var fvarId                     => pure $ mkFVar fvarId
@@ -255,15 +264,6 @@ structure MatcherResult where
   matcher         : Expr -- The matcher. It is not just `Expr.const matcherName` because the type of the major premises may contain free variables.
   counterExamples : List CounterExample
   unusedAltIdxs   : List Nat
-
-/--
-  Auxiliary annotation used to mark terms marked with the "inaccessible" annotation `.(t)` and
-  `_` in patterns. -/
-def mkInaccessible (e : Expr) : Expr :=
-  mkAnnotation `_inaccessible e
-
-def inaccessible? (e : Expr) : Option Expr :=
-  annotation? `_inaccessible e
 
 /--
   Convert a expression occurring as the argument of a `match` motive application back into a `Pattern`

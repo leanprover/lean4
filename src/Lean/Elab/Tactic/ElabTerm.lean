@@ -98,7 +98,7 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
 -/
 def elabTermForApply (stx : Syntax) : TacticM Expr := do
   if stx.isIdent then
-    match (← Term.resolveId? stx) with
+    match (← Term.resolveId? stx (withInfo := true)) with
     | some e => return e
     | _      => pure ()
   elabTerm stx none (mayPostpone := true)

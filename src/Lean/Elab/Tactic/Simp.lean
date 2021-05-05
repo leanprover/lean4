@@ -102,7 +102,7 @@ where
   resolveSimpIdLemma? (simpArgTerm : Syntax) : TacticM (Option Expr) := do
     if simpArgTerm.isIdent then
       try
-        Term.resolveId? simpArgTerm
+        Term.resolveId? simpArgTerm (withInfo := true)
       catch _ =>
         return none
     else

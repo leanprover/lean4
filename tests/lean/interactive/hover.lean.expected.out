@@ -1,0 +1,15 @@
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 1, "character": 8}}
+{"range":
+ {"start": {"line": 1, "character": 8}, "end": {"line": 1, "character": 18}},
+ "contents": {"value": "```lean\nTrue.intro : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 5, "character": 8}}
+{"range":
+ {"start": {"line": 5, "character": 8}, "end": {"line": 5, "character": 18}},
+ "contents": {"value": "```lean\nTrue.intro : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 10, "character": 4}}
+{"range":
+ {"start": {"line": 10, "character": 4}, "end": {"line": 10, "character": 12}},
+ "contents": {"value": "```lean\nNat.zero : Nat\n```", "kind": "markdown"}}

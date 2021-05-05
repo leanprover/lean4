@@ -418,7 +418,7 @@ where
 
   /- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[matchPattern]` attribute) -/
   processId (stx : Syntax) : M Syntax := do
-    match (← resolveId? stx "pattern") with
+    match (← resolveId? stx "pattern" (withInfo := true)) with
     | none   => processVar stx
     | some f => match f with
       | Expr.const fName _ _ =>
@@ -480,7 +480,7 @@ where
       | `($fId:ident)  => pure (fId, false)
       | `(@$fId:ident) => pure (fId, true)
       | _              => throwError "identifier expected"
-    let some (Expr.const fName _ _) ← resolveId? fId "pattern" | throwCtorExpected
+    let some (Expr.const fName _ _) ← resolveId? fId "pattern" (withInfo := true) | throwCtorExpected
     let fInfo ← getConstInfo fName
     let paramDecls ← forallTelescopeReducing fInfo.type fun xs _ => xs.mapM fun x => do
       let d ← getFVarLocalDecl x

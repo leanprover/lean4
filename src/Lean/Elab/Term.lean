@@ -1475,7 +1475,7 @@ def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? :
         return (c, id, newFields.toList)
   | _ => throwError "identifier expected"
 
-def resolveId? (stx : Syntax) (kind := "term") : TermElabM (Option Expr) :=
+def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (Option Expr) :=
   match stx with
   | Syntax.ident _ _ val preresolved => do
     let rs ← try resolveName stx val preresolved [] catch _ => pure []
@@ -1483,8 +1483,11 @@ def resolveId? (stx : Syntax) (kind := "term") : TermElabM (Option Expr) :=
     let fs := rs.map fun (f, _) => f
     match fs with
     | []  => pure none
-    | [f] => pure (some f)
-    | _   =>   throwError "ambiguous {kind}, use fully qualified name, possible interpretations {fs}"
+    | [f] =>
+      if withInfo then
+        addTermInfo stx f
+      pure (some f)
+    | _   => throwError "ambiguous {kind}, use fully qualified name, possible interpretations {fs}"
   | _ => throwError "identifier expected"
 
 @[builtinTermElab cdot] def elabBadCDot : TermElab := fun stx _ =>

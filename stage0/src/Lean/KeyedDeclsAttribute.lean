@@ -7,6 +7,7 @@ import Lean.Attributes
 import Lean.Compiler.InitAttr
 import Lean.ToExpr
 import Lean.ScopedEnvExtension
+import Lean.Compiler.IR.CompilerM
 
 /-!
 A builder for attributes that are applied to declarations of a common type and
@@ -129,8 +130,13 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDe
     descr           := df.descr
     add             := fun constName stx attrKind => do
       let key ← df.evalKey false stx
-      let val ← evalConstCheck γ df.valueTypeName constName
-      ext.add { key := key, decl := constName, value := val } attrKind
+      match IR.getSorryDep (← getEnv) constName with
+      | none =>
+        let val ← evalConstCheck γ df.valueTypeName constName
+        ext.add { key := key, decl := constName, value := val } attrKind
+      | _ =>
+        -- If the declaration contains `sorry`, we skip `evalConstCheck` to avoid unnecessary bizarre error message
+        pure ()
     applicationTime := AttributeApplicationTime.afterCompilation
   }
   pure { defn := df, tableRef := tableRef, ext := ext }

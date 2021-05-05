@@ -17,6 +17,7 @@ lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Lean_SCC_State_data___default___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SCC_scc(lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671____rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf(lean_object*);
 lean_object* l_Lean_SCC_Data_index_x3f___default;
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_push___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -72,7 +73,6 @@ extern lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___closed
 lean_object* l_Nat_decEq___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_SCC_State_nextIndex___default;
-lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_711____rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_SCC_Data_index_x3f___default() {
 _start:
 {
@@ -1461,7 +1461,7 @@ x_19 = lean_ctor_get(x_16, 0);
 lean_inc(x_19);
 lean_dec(x_16);
 x_20 = l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___rarg___closed__2;
-x_21 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_711____rarg(x_20, x_18, x_19);
+x_21 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671____rarg(x_20, x_18, x_19);
 x_22 = lean_unbox(x_21);
 lean_dec(x_21);
 if (x_22 == 0)
@@ -1496,7 +1496,7 @@ x_28 = lean_ctor_get(x_25, 0);
 lean_inc(x_28);
 lean_dec(x_25);
 x_29 = l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___rarg___closed__2;
-x_30 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_711____rarg(x_29, x_27, x_28);
+x_30 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671____rarg(x_29, x_27, x_28);
 x_31 = lean_unbox(x_30);
 lean_dec(x_30);
 if (x_31 == 0)

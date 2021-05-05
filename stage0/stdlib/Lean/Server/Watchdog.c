@@ -123,6 +123,7 @@ extern lean_object* l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonIni
 lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_Watchdog_initAndRunWatchdog___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_readMessage(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Watchdog_initAndRunWatchdogAux___closed__2;
+extern uint8_t l_Lean_expandExternPatternAux___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Watchdog_parseParams___at_Lean_Server_Watchdog_handleRequest___spec__8(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_parseImports___closed__1;
@@ -157,7 +158,6 @@ lean_object* l_Std_RBNode_find___at_Lean_Server_Watchdog_findFileWorker___spec__
 lean_object* l_IO_mkRef___at_Lean_Server_Watchdog_startFileWorker___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_forIn_visit___at_Lean_Server_Watchdog_shutdown___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Watchdog_parseParams___at_Lean_Server_Watchdog_handleNotification___spec__3(lean_object*, lean_object*, lean_object*);
-uint8_t l_instDecidableNot___rarg(uint8_t);
 extern lean_object* l_Lean_Parser_Command_initialize___elambda__1___closed__1;
 lean_object* l_Lean_Server_Watchdog_runClientTask___closed__1;
 lean_object* l_Lean_Server_Watchdog_handleDidClose(lean_object*, lean_object*, lean_object*);
@@ -190,6 +190,7 @@ lean_object* lean_io_wait(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Watchdog_eraseFileWorker(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Watchdog_runClientTask___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Watchdog_handleDidClose___boxed(lean_object*, lean_object*, lean_object*);
+extern uint8_t l_Lean_expandExternPatternAux___closed__2;
 lean_object* l_Std_RBNode_appendTrees___rarg(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_Server_Watchdog_handleCancelRequest___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Watchdog_parseParams___rarg___closed__1;
@@ -231,7 +232,6 @@ lean_object* l_Lean_Server_Watchdog_handleRequest_match__2___rarg___closed__2;
 lean_object* l_Lean_Server_Watchdog_FileWorker_stdout(lean_object*);
 uint8_t l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_ordRequestID____x40_Lean_Data_JsonRpc___hyg_91_(lean_object*, lean_object*);
 lean_object* lean_server_watchdog_main(lean_object*, lean_object*);
-uint8_t l_Lean_Server_Watchdog_tryWriteMessage___lambda__1___closed__2;
 lean_object* l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__1(lean_object*, lean_object*);
 lean_object* l_IO_mkRef___at_Lean_Server_Watchdog_startFileWorker___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_forIn_visit___at_Lean_Server_Watchdog_handleCancelRequest___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -428,7 +428,6 @@ lean_object* l_Lean_Server_Watchdog_parseParams___at_Lean_Server_Watchdog_handle
 lean_object* l_Lean_Server_Watchdog_handleRequest_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_ins___at_Lean_Server_Watchdog_handleRequest___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Watchdog_initAndRunWatchdog___lambda__2___closed__1;
-uint8_t l_Lean_Server_Watchdog_tryWriteMessage___lambda__1___closed__1;
 lean_object* l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeResult____x40_Lean_Data_Lsp_InitShutdown___hyg_457_(lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Watchdog_handleRequest_match__2(lean_object*);
@@ -5774,24 +5773,6 @@ goto _start;
 }
 }
 }
-static uint8_t _init_l_Lean_Server_Watchdog_tryWriteMessage___lambda__1___closed__1() {
-_start:
-{
-uint8_t x_1; uint8_t x_2; 
-x_1 = 0;
-x_2 = l_instDecidableNot___rarg(x_1);
-return x_2;
-}
-}
-static uint8_t _init_l_Lean_Server_Watchdog_tryWriteMessage___lambda__1___closed__2() {
-_start:
-{
-uint8_t x_1; uint8_t x_2; 
-x_1 = 1;
-x_2 = l_instDecidableNot___rarg(x_1);
-return x_2;
-}
-}
 lean_object* l_Lean_Server_Watchdog_tryWriteMessage___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -5839,7 +5820,7 @@ x_24 = l_Array_isEmpty___rarg(x_22);
 if (x_24 == 0)
 {
 uint8_t x_25; 
-x_25 = l_Lean_Server_Watchdog_tryWriteMessage___lambda__1___closed__1;
+x_25 = l_Lean_expandExternPatternAux___closed__1;
 if (x_25 == 0)
 {
 lean_object* x_26; 
@@ -5861,7 +5842,7 @@ return x_27;
 else
 {
 uint8_t x_28; 
-x_28 = l_Lean_Server_Watchdog_tryWriteMessage___lambda__1___closed__2;
+x_28 = l_Lean_expandExternPatternAux___closed__2;
 if (x_28 == 0)
 {
 lean_object* x_29; 
@@ -5893,7 +5874,7 @@ x_33 = l_Array_isEmpty___rarg(x_31);
 if (x_33 == 0)
 {
 uint8_t x_34; 
-x_34 = l_Lean_Server_Watchdog_tryWriteMessage___lambda__1___closed__1;
+x_34 = l_Lean_expandExternPatternAux___closed__1;
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; 
@@ -5916,7 +5897,7 @@ return x_37;
 else
 {
 uint8_t x_38; 
-x_38 = l_Lean_Server_Watchdog_tryWriteMessage___lambda__1___closed__2;
+x_38 = l_Lean_expandExternPatternAux___closed__2;
 if (x_38 == 0)
 {
 lean_object* x_39; lean_object* x_40; 
@@ -19920,8 +19901,6 @@ l_Lean_Server_Watchdog_startFileWorker___closed__5 = _init_l_Lean_Server_Watchdo
 lean_mark_persistent(l_Lean_Server_Watchdog_startFileWorker___closed__5);
 l_Lean_Server_Watchdog_terminateFileWorker___closed__1 = _init_l_Lean_Server_Watchdog_terminateFileWorker___closed__1();
 lean_mark_persistent(l_Lean_Server_Watchdog_terminateFileWorker___closed__1);
-l_Lean_Server_Watchdog_tryWriteMessage___lambda__1___closed__1 = _init_l_Lean_Server_Watchdog_tryWriteMessage___lambda__1___closed__1();
-l_Lean_Server_Watchdog_tryWriteMessage___lambda__1___closed__2 = _init_l_Lean_Server_Watchdog_tryWriteMessage___lambda__1___closed__2();
 l_Lean_Server_Watchdog_handleEdits___lambda__1___closed__1 = _init_l_Lean_Server_Watchdog_handleEdits___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Server_Watchdog_handleEdits___lambda__1___closed__1);
 l_Lean_Server_Watchdog_handleEdits___closed__1 = _init_l_Lean_Server_Watchdog_handleEdits___closed__1();

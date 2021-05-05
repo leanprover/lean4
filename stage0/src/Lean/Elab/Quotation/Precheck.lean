@@ -77,17 +77,33 @@ def runPrecheck (stx : Syntax) : TermElabM Unit := do
   if quotPrecheck.get opts && hygiene.get opts then
     precheck stx |>.run { quotLCtx := {} }
 
-@[builtinQuotPrecheck ident] def precheckIdent : Precheck
+private def isSectionVariable (e : Expr) : TermElabM Bool := do
+  return (← read).sectionFVars.any fun _ v => e == v
+
+@[builtinQuotPrecheck ident] def precheckIdent : Precheck := fun stx =>
+  match stx with
   | Syntax.ident info rawVal val preresolved => do
     if !preresolved.isEmpty then
       return
+    /- The precheck currently ignores field notation.
+       For example: the following notation is accepted although `foo` is not a valid field name for a `Nat` value.
+       ```
+       def x := 0
+       notation "x++" => x.foo
+       ```
+    -/
     if let _::_ ← resolveGlobalName val then
       return
     if (← read).quotLCtx.contains val then
       return
-    if quotPrecheck.allowSectionVars.get (← getOptions) && (← readThe Term.Context).sectionVars.contains val then
-      return
-    throwError "unknown identifier '{val}'"
+    let rs ← try resolveName stx val [] [] catch _ => pure []
+    for (e, _) in rs do
+      match e with
+      | Expr.fvar fvarId .. =>
+        if quotPrecheck.allowSectionVars.get (← getOptions) && (← isSectionVariable e) then
+          return
+      | _ => pure ()
+    throwError "unknown identifier '{val}' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check."
   | _ => throwUnsupportedSyntax
 
 @[builtinQuotPrecheck Lean.Parser.Term.app] def precheckApp : Precheck

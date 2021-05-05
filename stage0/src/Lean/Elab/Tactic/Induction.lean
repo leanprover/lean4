@@ -176,66 +176,72 @@ private def checkAltNames (alts : Array (Name × MVarId)) (altsSyntax : Array Sy
 def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (optPreTac : Syntax) (altsSyntax : Array Syntax)
     (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[]) : TacticM Unit := do
   checkAltNames alts altsSyntax
-  let mut usedWildcard := false
   let hasAlts := altsSyntax.size > 0
-  let mut subgoals := #[] -- when alternatives are not provided, we accumulate subgoals here
-  let mut altsSyntax := altsSyntax
-  for (altName, altMVarId) in alts do
-    let numFields ← getAltNumFields elimInfo altName
-    let altStx? ←
-      match altsSyntax.findIdx? (fun alt => getAltName alt == altName) with
-      | some idx =>
-        let altStx := altsSyntax[idx]
-        altsSyntax := altsSyntax.eraseIdx idx
-        pure (some altStx)
-      | none => match altsSyntax.findIdx? (fun alt => getAltName alt == `_) with
+  if hasAlts then
+    -- default to initial state outside of alts
+    withInfoContext go (Info.ofTacticInfo ⟨← getMCtx, ← getGoals, ← getRef, ← getMCtx, ← getGoals⟩)
+  else go
+where
+  go := do
+    let hasAlts := altsSyntax.size > 0
+    let mut usedWildcard := false
+    let mut subgoals := #[] -- when alternatives are not provided, we accumulate subgoals here
+    let mut altsSyntax := altsSyntax
+    for (altName, altMVarId) in alts do
+      let numFields ← getAltNumFields elimInfo altName
+      let altStx? ←
+        match altsSyntax.findIdx? (fun alt => getAltName alt == altName) with
         | some idx =>
-          usedWildcard := true
-          pure (some altsSyntax[idx])
-        | none =>
-          pure none
-    match altStx? with
-    | none =>
-      let mut (_, altMVarId) ← introN altMVarId numFields
-      match (← Cases.unifyEqs numEqs altMVarId {}) with
-      | none   => pure () -- alternative is not reachable
-      | some (altMVarId, _) =>
-        let (_, altMVarId) ← introNP altMVarId numGeneralized
-        for fvarId in toClear do
-          altMVarId ← tryClear altMVarId fvarId
-        let altMVarIds ← applyPreTac altMVarId
-        if !hasAlts then
-          -- User did not provide alternatives using `|`
-          subgoals := subgoals ++ altMVarIds.toArray
-        else if altMVarIds.isEmpty then
-          pure ()
-        else
-          logError m!"alternative '{altName}' has not been provided"
-          altMVarIds.forM admitGoal
-    | some altStx =>
-      subgoals ← withRef altStx do
-        let altVarNames := getAltVarNames altStx
-        if altVarNames.size > numFields then
-          logError m!"too many variable names provided at alternative '{altName}', #{altVarNames.size} provided, but #{numFields} expected"
-        let mut (_, altMVarId) ← introN altMVarId numFields altVarNames.toList (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
+          let altStx := altsSyntax[idx]
+          altsSyntax := altsSyntax.eraseIdx idx
+          pure (some altStx)
+        | none => match altsSyntax.findIdx? (fun alt => getAltName alt == `_) with
+          | some idx =>
+            usedWildcard := true
+            pure (some altsSyntax[idx])
+          | none =>
+            pure none
+      match altStx? with
+      | none =>
+        let mut (_, altMVarId) ← introN altMVarId numFields
         match (← Cases.unifyEqs numEqs altMVarId {}) with
-        | none   => throwError "alternative '{altName}' is not needed"
+        | none   => pure () -- alternative is not reachable
         | some (altMVarId, _) =>
           let (_, altMVarId) ← introNP altMVarId numGeneralized
           for fvarId in toClear do
             altMVarId ← tryClear altMVarId fvarId
           let altMVarIds ← applyPreTac altMVarId
-          if altMVarIds.isEmpty then
-            throwError "alternative '{altName}' is not needed"
+          if !hasAlts then
+            -- User did not provide alternatives using `|`
+            subgoals := subgoals ++ altMVarIds.toArray
+          else if altMVarIds.isEmpty then
+            pure ()
           else
-            altMVarIds.foldlM (init := subgoals) fun subgoal altMVarId =>
-              evalAlt altMVarId altStx subgoals
-  if usedWildcard then
-    altsSyntax := altsSyntax.filter fun alt => getAltName alt != `_
-  unless altsSyntax.isEmpty do
-    logErrorAt altsSyntax[0] "unused alternative"
-  setGoals subgoals.toList
-where
+            logError m!"alternative '{altName}' has not been provided"
+            altMVarIds.forM admitGoal
+      | some altStx =>
+        subgoals ← withRef altStx do
+          let altVarNames := getAltVarNames altStx
+          if altVarNames.size > numFields then
+            logError m!"too many variable names provided at alternative '{altName}', #{altVarNames.size} provided, but #{numFields} expected"
+          let mut (_, altMVarId) ← introN altMVarId numFields altVarNames.toList (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
+          match (← Cases.unifyEqs numEqs altMVarId {}) with
+          | none   => throwError "alternative '{altName}' is not needed"
+          | some (altMVarId, _) =>
+            let (_, altMVarId) ← introNP altMVarId numGeneralized
+            for fvarId in toClear do
+              altMVarId ← tryClear altMVarId fvarId
+            let altMVarIds ← applyPreTac altMVarId
+            if altMVarIds.isEmpty then
+              throwError "alternative '{altName}' is not needed"
+            else
+              altMVarIds.foldlM (init := subgoals) fun subgoal altMVarId =>
+                evalAlt altMVarId altStx subgoals
+    if usedWildcard then
+      altsSyntax := altsSyntax.filter fun alt => getAltName alt != `_
+    unless altsSyntax.isEmpty do
+      logErrorAt altsSyntax[0] "unused alternative"
+    setGoals subgoals.toList
   applyPreTac (mvarId : MVarId) : TacticM (List MVarId) :=
     if optPreTac.isNone then
       return [mvarId]

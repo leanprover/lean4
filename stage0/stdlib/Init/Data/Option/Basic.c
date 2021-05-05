@@ -13,16 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Option_getD___rarg___boxed(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671____rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_instOrElseOption(lean_object*);
 lean_object* l_Option_all___rarg(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_548____at_instDecidableEqOption___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_bind(lean_object*, lean_object*);
 lean_object* l_Option_instDecidableRelLt_match__1(lean_object*, lean_object*);
-lean_object* l_Option_getD(lean_object*);
 lean_object* l_Option_toBool_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_orElse(lean_object*);
-lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_588__match__1(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_711__match__1(lean_object*, lean_object*);
 lean_object* l_Option_isSome___rarg___boxed(lean_object*);
 lean_object* l_Option_orElse___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Option_instFunctorOption___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -30,20 +28,21 @@ lean_object* l_instLTOption(lean_object*, lean_object*);
 lean_object* l_Option_filter___rarg(lean_object*, lean_object*);
 lean_object* l_Option_bind___rarg(lean_object*, lean_object*);
 lean_object* l_Option_toBool_match__1(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671__match__1(lean_object*, lean_object*);
 lean_object* l_Option_toBool(lean_object*);
 lean_object* l_Option_lt_match__1(lean_object*, lean_object*);
 lean_object* l_instBEqOption___rarg(lean_object*);
 lean_object* l_Option_instFunctorOption;
 lean_object* l_Option_all(lean_object*);
-lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_711_(lean_object*);
+lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671_(lean_object*);
 uint8_t l_Option_isSome___rarg(lean_object*);
-lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_588__match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_isSome(lean_object*);
 lean_object* l_Option_orElse_match__1(lean_object*, lean_object*);
 lean_object* l_Option_orElse___rarg(lean_object*, lean_object*);
 lean_object* l_Option_isNone___rarg___boxed(lean_object*);
 lean_object* l_instDecidableEqOption(lean_object*);
 lean_object* l_Option_toMonad___rarg(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_548____rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_toMonad_match__1(lean_object*, lean_object*);
 lean_object* l_Option_instDecidableRelLt_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_toMonad(lean_object*, lean_object*, lean_object*);
@@ -51,7 +50,9 @@ lean_object* l_Option_instOrElseOption___rarg(lean_object*, lean_object*);
 lean_object* l_Option_instFunctorOption___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_toMonad___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_lt_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_548____at_instDecidableEqOption___spec__1(lean_object*);
 lean_object* l_Option_instFunctorOption___closed__1;
+lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_548__match__1(lean_object*, lean_object*);
 lean_object* l_Option_bind_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instBEqOption(lean_object*);
 lean_object* l_Option_any(lean_object*);
@@ -61,27 +62,21 @@ lean_object* l_Option_instOrElseOption___rarg___boxed(lean_object*, lean_object*
 lean_object* l_Option_isNone(lean_object*);
 lean_object* l_Option_any___rarg(lean_object*, lean_object*);
 lean_object* l_instDecidableEqOption___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_588____at_instDecidableEqOption___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_588_(lean_object*);
-lean_object* l_Option_getD_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_548_(lean_object*);
 lean_object* l_Option_map___rarg(lean_object*, lean_object*);
 lean_object* l_Option_map(lean_object*, lean_object*);
 lean_object* l_Option_orElse_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Option_isNone___rarg(lean_object*);
-lean_object* l_Option_getD_match__1(lean_object*, lean_object*);
 lean_object* l_instLTOption___boxed(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_588____rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Option_toBool___rarg(lean_object*);
 lean_object* l_Option_instFunctorOption___closed__3;
 lean_object* l_Option_instDecidableRelLt(lean_object*, lean_object*);
-lean_object* l_Option_getD___rarg(lean_object*, lean_object*);
 lean_object* l_Option_instDecidableRelLt___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_711__match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671__match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_bind_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_filter(lean_object*);
-lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_588____at_instDecidableEqOption___spec__1(lean_object*);
 lean_object* l_Option_toBool___rarg___boxed(lean_object*);
-lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_711____rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_548__match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_toMonad_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -157,71 +152,6 @@ lean_object* x_4;
 x_4 = l_Option_toMonad(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
-}
-}
-lean_object* l_Option_getD_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_5; 
-lean_dec(x_3);
-x_5 = lean_apply_1(x_4, x_2);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_4);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_2(x_3, x_6, x_2);
-return x_7;
-}
-}
-}
-lean_object* l_Option_getD_match__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Option_getD_match__1___rarg), 4, 0);
-return x_3;
-}
-}
-lean_object* l_Option_getD___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_inc(x_2);
-return x_2;
-}
-else
-{
-lean_object* x_3; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-return x_3;
-}
-}
-}
-lean_object* l_Option_getD(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Option_getD___rarg___boxed), 2, 0);
-return x_2;
-}
-}
-lean_object* l_Option_getD___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Option_getD___rarg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 lean_object* l_Option_toBool_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -999,7 +929,7 @@ x_3 = lean_alloc_closure((void*)(l_Option_instDecidableRelLt___rarg), 3, 0);
 return x_3;
 }
 }
-lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_588__match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_548__match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1055,15 +985,15 @@ return x_15;
 }
 }
 }
-lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_588__match__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_548__match__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_588__match__1___rarg), 6, 0);
+x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_548__match__1___rarg), 6, 0);
 return x_3;
 }
 }
-lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_588____rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_548____rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -1111,15 +1041,15 @@ return x_12;
 }
 }
 }
-lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_588_(lean_object* x_1) {
+lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_548_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_588____rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_548____rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_588____at_instDecidableEqOption___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_548____at_instDecidableEqOption___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -1167,11 +1097,11 @@ return x_12;
 }
 }
 }
-lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_588____at_instDecidableEqOption___spec__1(lean_object* x_1) {
+lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_548____at_instDecidableEqOption___spec__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_588____at_instDecidableEqOption___spec__1___rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_548____at_instDecidableEqOption___spec__1___rarg), 3, 0);
 return x_2;
 }
 }
@@ -1179,7 +1109,7 @@ lean_object* l_instDecidableEqOption___rarg(lean_object* x_1, lean_object* x_2, 
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_588____at_instDecidableEqOption___spec__1___rarg(x_1, x_2, x_3);
+x_4 = l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_548____at_instDecidableEqOption___spec__1___rarg(x_1, x_2, x_3);
 return x_4;
 }
 }
@@ -1191,7 +1121,7 @@ x_2 = lean_alloc_closure((void*)(l_instDecidableEqOption___rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_711__match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671__match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1239,15 +1169,15 @@ return x_12;
 }
 }
 }
-lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_711__match__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671__match__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_711__match__1___rarg), 5, 0);
+x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671__match__1___rarg), 5, 0);
 return x_3;
 }
 }
-lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_711____rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671____rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -1295,11 +1225,11 @@ return x_12;
 }
 }
 }
-lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_711_(lean_object* x_1) {
+lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_711____rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671____rarg), 3, 0);
 return x_2;
 }
 }
@@ -1307,7 +1237,7 @@ lean_object* l_instBEqOption___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_711____rarg), 3, 1);
+x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671____rarg), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }

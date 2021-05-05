@@ -265,23 +265,20 @@ def delabAppMatch : Delab := whenPPOption getPPNotation do
 
 @[builtinDelab mdata]
 def delabMData : Delab := do
-  -- only interpret `pp.` values by default
-  let Expr.mdata m _ _ ← getExpr | unreachable!
-  let mut posOpts := (← read).optionsPerPos
-  let mut inaccessible := false
-  let pos := (← read).pos
-  for (k, v) in m do
-    if (`pp).isPrefixOf k then
-      let opts := posOpts.find? pos |>.getD {}
-      posOpts := posOpts.insert pos (opts.insert k v)
-    if k == `inaccessible then
-      inaccessible := true
-  withReader ({ · with optionsPerPos := posOpts }) do
+  if let some _ := Lean.Meta.Match.inaccessible? (← getExpr) then
     let s ← withMDataExpr delab
-    if inaccessible then
-      `(.($s))
-    else
-      pure s
+    `(.($s))
+  else
+    -- only interpret `pp.` values by default
+    let Expr.mdata m _ _ ← getExpr | unreachable!
+    let mut posOpts := (← read).optionsPerPos
+    let pos := (← read).pos
+    for (k, v) in m do
+      if (`pp).isPrefixOf k then
+        let opts := posOpts.find? pos |>.getD {}
+        posOpts := posOpts.insert pos (opts.insert k v)
+    withReader ({ · with optionsPerPos := posOpts }) do
+      withMDataExpr delab
 
 /--
 Check for a `Syntax.ident` of the given name anywhere in the tree.

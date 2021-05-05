@@ -87,7 +87,7 @@ def runPrecheck (stx : Syntax) : TermElabM Unit := do
       return
     if quotPrecheck.allowSectionVars.get (← getOptions) && (← readThe Term.Context).sectionVars.contains val then
       return
-    throwError "unknown identifier '{val}'"
+    throwError "unknown identifier '{val}' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check."
   | _ => throwUnsupportedSyntax
 
 @[builtinQuotPrecheck Lean.Parser.Term.app] def precheckApp : Precheck

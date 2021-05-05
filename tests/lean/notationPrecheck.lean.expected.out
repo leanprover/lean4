@@ -1,4 +1,4 @@
-notationPrecheck.lean:1:25-1:26: error: unknown identifier 'a'
+notationPrecheck.lean:1:25-1:26: error: unknown identifier 'a' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check.
 notationPrecheck.lean:1:0-1:26: error: cannot evaluate code because it uses 'sorry' and/or contains errors
 notationPrecheck.lean:4:16-4:19: error: no macro or `[quotPrecheck]` instance for syntax kind 'termB_' found
   b x

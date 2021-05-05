@@ -159,7 +159,12 @@ constant mkAntiquot.formatter' (name : String) (kind : Option SyntaxNodeKind) (a
 constant interpretParserDescr' : ParserDescr → CoreM Formatter
 
 unsafe def formatterForKindUnsafe (k : SyntaxNodeKind) : Formatter := do
-  (← liftM $ runForNodeKind formatterAttribute k interpretParserDescr')
+  if k == `missing then
+    push "<missing>"
+    goLeft
+  else
+    let f ← runForNodeKind formatterAttribute k interpretParserDescr'
+    f
 
 @[implementedBy formatterForKindUnsafe]
 constant formatterForKind (k : SyntaxNodeKind) : Formatter

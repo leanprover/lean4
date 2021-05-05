@@ -269,7 +269,11 @@ constant mkAntiquot.parenthesizer' (name : String) (kind : Option SyntaxNodeKind
 constant interpretParserDescr' : ParserDescr → CoreM Parenthesizer
 
 unsafe def parenthesizerForKindUnsafe (k : SyntaxNodeKind) : Parenthesizer := do
-  (← liftM $ runForNodeKind parenthesizerAttribute k interpretParserDescr')
+  if k == `missing then
+    pure ()
+  else
+    let p ← runForNodeKind parenthesizerAttribute k interpretParserDescr'
+    p
 
 @[implementedBy parenthesizerForKindUnsafe]
 constant parenthesizerForKind (k : SyntaxNodeKind) : Parenthesizer

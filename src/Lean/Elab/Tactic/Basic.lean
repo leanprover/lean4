@@ -144,7 +144,7 @@ mutual
           match table.find? k with
           | some evalFns => evalTacticUsing s stx evalFns
           | none         => expandTacticMacro stx
-      | _ => throwError "unexpected command"
+      | _ => throwError m!"unexpected tactic{indentD stx}"
 
   partial def evalTactic (stx : Syntax) : TacticM Unit :=
     withTacticInfoContext stx (evalTacticAux stx)

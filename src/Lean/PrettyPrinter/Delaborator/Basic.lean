@@ -180,6 +180,7 @@ structure Context where
   optionsPerPos  : OptionsPerPos
   currNamespace  : Name
   openDecls      : List OpenDecl
+  inPattern      : Bool := false -- true whe delaborating `match` patterns
 
 -- Exceptions from delaborators are not expected. We use an internal exception to signal whether
 -- the delaborator was able to produce a Syntax object.

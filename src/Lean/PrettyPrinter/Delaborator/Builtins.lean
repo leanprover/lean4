@@ -179,16 +179,17 @@ structure AppMatchState where
 /--
   Extract arguments of motive applications from the matcher type.
   For the example below: `#[#[`([])], #[`(a::as)]]` -/
-private partial def delabPatterns (st : AppMatchState) : DelabM (Array (Array Syntax)) := do
-  let ty ← instantiateForall st.matcherTy st.params
-  forallTelescope ty fun params _ => do
-    -- skip motive and discriminators
-    let alts := Array.ofSubarray $ params[1 + st.discrs.size:]
-    alts.mapIdxM fun idx alt => do
-      let ty ← inferType alt
-      withReader ({ · with expr := ty }) $
-        usingNames st.varNames[idx] do
-          withAppFnArgs (pure #[]) (fun pats => do pure $ pats.push (← delab))
+private partial def delabPatterns (st : AppMatchState) : DelabM (Array (Array Syntax)) :=
+  withReader (fun ctx => { ctx with inPattern := true }) do
+    let ty ← instantiateForall st.matcherTy st.params
+    forallTelescope ty fun params _ => do
+      -- skip motive and discriminators
+      let alts := Array.ofSubarray $ params[1 + st.discrs.size:]
+      alts.mapIdxM fun idx alt => do
+        let ty ← inferType alt
+        withReader ({ · with expr := ty }) $
+          usingNames st.varNames[idx] do
+            withAppFnArgs (pure #[]) (fun pats => do pure $ pats.push (← delab))
 where
   usingNames {α} (varNames : Array Name) (x : DelabM α) : DelabM α :=
     usingNamesAux 0 varNames x
@@ -267,7 +268,10 @@ def delabAppMatch : Delab := whenPPOption getPPNotation do
 def delabMData : Delab := do
   if let some _ := Lean.Meta.Match.inaccessible? (← getExpr) then
     let s ← withMDataExpr delab
-    `(.($s))
+    if (← read).inPattern then
+      `(.($s)) -- We only include the inaccessible annotation when we are delaborating patterns
+    else
+      return s
   else
     -- only interpret `pp.` values by default
     let Expr.mdata m _ _ ← getExpr | unreachable!

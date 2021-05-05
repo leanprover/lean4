@@ -147,7 +147,7 @@ namespace Lean.Syntax
 /--
   Extracts the explicitly bound identifiers from an `Array` of `bracketedBinder`(s).
   In other words, this extracts the explicit arguments from an array of parameters.
-  **Example**: The binders `(a b : A) (c : C) [x : X] [Y]` produce `#{a, b]`.
+  **Example**: The binders `(a b : A) {c : C} [x : X] [Y]` produce `#{a, b]`.
 -/
 def paramsToArgs (params : Array Syntax) : MacroM (Array Syntax) := do
   let mut args := #[]

@@ -192,13 +192,14 @@ structure SavedState where
 protected def saveState : TermElabM SavedState := do
   pure { meta := (← Meta.saveState), «elab» := (← get) }
 
-def SavedState.restore (s : SavedState) : TermElabM Unit := do
+def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElabM Unit := do
   let traceState ← getTraceState -- We never backtrack trace message
-  let infoState := (← get).infoState -- We also do not backtrack the info nodes
+  let infoState := (← get).infoState -- We also do not backtrack the info nodes when `restoreInfo == false`
   s.meta.restore
   set s.elab
   setTraceState traceState
-  modify fun s => { s with infoState := infoState }
+  unless restoreInfo do
+    modify fun s => { s with infoState := infoState }
 
 instance : MonadBacktrack SavedState TermElabM where
   saveState      := Term.saveState
@@ -220,22 +221,26 @@ def getMessageLog : TermElabM MessageLog :=
 
 /--
   Execute `x`, save resulting expression and new state.
-  If `x` fails, then it also stores exception and new state.
-  Remark: we do not capture `Exception.postpone`. -/
+  We remove any `Info` created by `x`.
+  The info nodes are committed when we execute `applyResult`.
+  We use `observing` to implement overloaded notation and decls.
+  We want to save `Info` nodes for the chosen alternative.
+-/
 @[inline] def observing (x : TermElabM α) : TermElabM (TermElabResult α) := do
   let s ← saveState
   try
     let e ← x
     let sNew ← saveState
-    s.restore
+    s.restore (restoreInfo := true)
     pure (EStateM.Result.ok e sNew)
   catch
     | ex@(Exception.error _ _) =>
       let sNew ← saveState
-      s.restore
+      s.restore (restoreInfo := true)
       pure (EStateM.Result.error ex sNew)
     | ex@(Exception.internal id _) =>
-      if id == postponeExceptionId then s.restore
+      if id == postponeExceptionId then
+        s.restore (restoreInfo := true)
       throw ex
 
 /--
@@ -243,8 +248,8 @@ def getMessageLog : TermElabM MessageLog :=
   We use this method to implement overloaded notation and symbols. -/
 @[inline] def applyResult (result : TermElabResult α) : TermElabM α :=
   match result with
-  | EStateM.Result.ok a r     => do r.restore; pure a
-  | EStateM.Result.error ex r => do r.restore; throw ex
+  | EStateM.Result.ok a r     => do r.restore (restoreInfo := true); pure a
+  | EStateM.Result.error ex r => do r.restore (restoreInfo := true); throw ex
 
 /--
   Execute `x`, but keep state modifications only if `x` did not postpone.

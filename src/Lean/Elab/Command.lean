@@ -306,7 +306,7 @@ def getBracketedBinderIds : Syntax → Array Name
   | `(bracketedBinder|($ids* $[: $ty?]? $(annot?)?)) => ids.map Syntax.getId
   | `(bracketedBinder|{$ids* $[: $ty?]?})            => ids.map Syntax.getId
   | `(bracketedBinder|[$id : $ty])                   => #[id.getId]
-  | `(bracketedBinder|[$ty])                         => #[]
+  | `(bracketedBinder|[$ty])                         => #[Name.anonymous]
   | _                                                => #[]
 
 private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context := do

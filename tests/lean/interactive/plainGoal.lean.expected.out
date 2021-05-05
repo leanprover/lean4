@@ -51,3 +51,11 @@
  "position": {"line": 32, "character": 3}}
 {"rendered": "```lean\ncase zero\n⊢ 0 + Nat.zero = Nat.zero\n```",
  "goals": ["case zero\n⊢ 0 + Nat.zero = Nat.zero"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 38, "character": 3}}
+{"rendered": "```lean\nn : Nat\n⊢ 0 + n = n\n```",
+ "goals": ["n : Nat\n⊢ 0 + n = n"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 42, "character": 3}}
+{"rendered": "```lean\nn : Nat\n⊢ 0 + n = n\n```",
+ "goals": ["n : Nat\n⊢ 0 + n = n"]}

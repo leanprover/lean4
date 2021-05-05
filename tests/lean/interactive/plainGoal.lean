@@ -34,3 +34,11 @@ example : 0 + n = n := by
  --^ $/lean/plainGoal
     rfl
 -- TODO: goal state after dedent
+
+example : 0 + n = n := by
+  induction n with
+ --^ $/lean/plainGoal
+
+example : 0 + n = n := by
+  cases n with
+ --^ $/lean/plainGoal

@@ -121,6 +121,7 @@ lean_object* l_Lean_instInhabitedDefinitionVal;
 lean_object* l_Lean_instInhabitedConstantInfo;
 lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_204____closed__8;
 lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_204____closed__17;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21262____closed__3;
 lean_object* l_Lean_ConstantInfo_isCtor___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_hints(lean_object*);
 lean_object* l_Lean_mkQuotValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -218,7 +219,6 @@ lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Le
 lean_object* l_Lean_instInhabitedConstructorVal___closed__1;
 uint8_t l_Lean_instInhabitedQuotKind;
 lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_204____boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21245____closed__3;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedRecursorRule___closed__1;
 static lean_object* _init_l_Lean_instInhabitedReducibilityHints() {
@@ -3491,7 +3491,7 @@ lean_object* l_Lean_mkRecName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21245____closed__3;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21262____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

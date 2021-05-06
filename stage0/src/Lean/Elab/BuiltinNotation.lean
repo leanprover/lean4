@@ -139,10 +139,6 @@ private def elabTParserMacroAux (prec lhsPrec : Syntax) (e : Syntax) : TermElabM
   let stxNew ← `(sorryAx _ false)
   withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
 
-@[builtinTermElab emptyC] def expandEmptyC : TermElab := fun stx expectedType? => do
-  let stxNew ← `(EmptyCollection.emptyCollection)
-  withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
-
 /-- Return syntax `Prod.mk elems[0] (Prod.mk elems[1] ... (Prod.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
 partial def mkPairs (elems : Array Syntax) : MacroM Syntax :=
   let rec loop (i : Nat) (acc : Syntax) := do

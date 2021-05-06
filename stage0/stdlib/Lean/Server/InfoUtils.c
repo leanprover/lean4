@@ -20,7 +20,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spe
 size_t l_USize_add(size_t, size_t);
 extern lean_object* l_Lean_fieldIdxKind;
 lean_object* l_Lean_Elab_InfoTree_hoverableInfoAt_x3f___lambda__1___closed__5;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__3;
 lean_object* l_Lean_Elab_Info_isCompletion_match__1(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_Elab_InfoTree_foldInfo_go___spec__16___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -32,7 +31,6 @@ extern lean_object* l_Lean_Meta_ppGoal_ppVars___closed__1;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__21___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 uint8_t l_Std_PersistentArray_anyMAux___at_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___spec__7(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_23646____closed__2;
 lean_object* l_Lean_Elab_InfoTree_goalsAt_x3f_match__1(lean_object*);
 lean_object* l_List_map___at_Lean_Elab_InfoTree_deepestNodes_go___spec__1(lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___spec__5(lean_object*, lean_object*, lean_object*, size_t, size_t);
@@ -136,6 +134,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_Elab_InfoTree_foldInfo_go___spec__2(lean_object*);
 lean_object* l_Lean_Elab_InfoTree_smallestInfo_x3f_match__1(lean_object*);
 extern lean_object* l_Lean_strLitKind;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_23663____closed__2;
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_goalsAt_x3f___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_InfoTree_hoverableInfoAt_x3f___lambda__1___closed__6;
@@ -253,6 +252,7 @@ lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMA
 uint8_t l_Std_PersistentArray_anyMAux___at_Lean_Elab_InfoTree_goalsAt_x3f___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__12(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__11___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18130____closed__3;
 lean_object* l_Lean_Elab_Info_stx___boxed(lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyM___at_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -5508,7 +5508,7 @@ lean_inc(x_6);
 lean_dec(x_4);
 x_7 = lean_ctor_get(x_6, 2);
 lean_inc(x_7);
-x_8 = l_myMacro____x40_Init_Notation___hyg_23646____closed__2;
+x_8 = l_myMacro____x40_Init_Notation___hyg_23663____closed__2;
 lean_inc(x_7);
 x_9 = l_Lean_Syntax_isOfKind(x_7, x_8);
 if (x_9 == 0)
@@ -5527,7 +5527,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15;
 x_12 = lean_unsigned_to_nat(1u);
 x_13 = l_Lean_Syntax_getArg(x_7, x_12);
 lean_dec(x_7);
-x_14 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18113____closed__3;
+x_14 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18130____closed__3;
 x_15 = l_Lean_Syntax_isOfKind(x_13, x_14);
 if (x_15 == 0)
 {

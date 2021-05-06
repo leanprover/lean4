@@ -571,7 +571,6 @@ lean_object* l___private_Lean_Expr_0__Lean_Expr_etaExpandedAux_match__1___rarg(l
 lean_object* l_Lean_Literal_lt_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isFVar_match__1(lean_object*);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
-extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2982____closed__17;
 lean_object* l_Lean_Expr_setPPUniverses___closed__1;
 lean_object* l_Lean_mkForall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_instantiate1___boxed(lean_object*, lean_object*);
@@ -646,6 +645,7 @@ lean_object* l_Lean_Expr_isAtomic___boxed(lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux_match__1(lean_object*);
 lean_object* l_Lean_Expr_Data_nonDepLet___boxed(lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2986____closed__17;
 lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* l_Lean_Level_instantiateParams(lean_object*, lean_object*);
 lean_object* l_Lean_mkStrLit(lean_object*);
@@ -5109,7 +5109,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_2982____closed__17;
+x_2 = l_myMacro____x40_Init_System_IO___hyg_2986____closed__17;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }

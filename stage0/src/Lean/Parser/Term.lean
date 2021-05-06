@@ -64,7 +64,6 @@ def optSemicolon (p : Parser) : Parser := ppDedent $ optional ";" >> ppLine >> p
 @[builtinTermParser] def syntheticHole := leading_parser "?" >> (ident <|> hole)
 @[builtinTermParser] def «sorry» := leading_parser "sorry"
 @[builtinTermParser] def cdot   := leading_parser symbol "·" <|> "."
-@[builtinTermParser] def emptyC := leading_parser "∅" <|> (symbol "{" >> "}")
 def typeAscription := leading_parser " : " >> termParser
 def tupleTail      := leading_parser ", " >> sepBy1 termParser ", "
 def parenSpecial : Parser := optional (tupleTail <|> typeAscription)

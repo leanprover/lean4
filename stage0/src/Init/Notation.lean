@@ -214,6 +214,7 @@ syntax (name := apply) "apply " term : tactic
 syntax (name := exact) "exact " term : tactic
 syntax (name := refine) "refine " term : tactic
 syntax (name := refine') "refine' " term : tactic
+syntax (name := constructor) "constructor" : tactic
 syntax (name := case) "case " ident (ident <|> "_")* " => " tacticSeq : tactic
 syntax (name := allGoals) "allGoals " tacticSeq : tactic
 syntax (name := focus) "focus " tacticSeq : tactic

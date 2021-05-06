@@ -115,6 +115,12 @@ def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syn
   | `(tactic| apply $e) => evalApplyLikeTactic Meta.apply e
   | _ => throwUnsupportedSyntax
 
+@[builtinTactic Lean.Parser.Tactic.constructor] def evalConstructor : Tactic := fun stx =>
+  withMainContext do
+    let mvarIds'  ← Meta.constructor (← getMainGoal)
+    Term.synthesizeSyntheticMVarsNoPostponing
+    replaceMainGoal mvarIds'
+
 @[builtinTactic Lean.Parser.Tactic.existsIntro] def evalExistsIntro : Tactic := fun stx =>
   match stx with
   | `(tactic| exists $e) => evalApplyLikeTactic (fun mvarId e => return [(← Meta.existsIntro mvarId e)]) e

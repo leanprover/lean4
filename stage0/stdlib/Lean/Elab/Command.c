@@ -382,6 +382,7 @@ lean_object* l_Lean_Elab_Command_instMonadEnvCommandElabM___closed__2;
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Elab_Command_instAddMessageContextCommandElabM___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_instMonadResolveNameCommandElabM___closed__2;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23470____closed__8;
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at___private_Lean_Elab_Command_0__Lean_Elab_Command_addTraceAsMessagesCore___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_instInhabitedState___closed__1;
 extern lean_object* l_Lean_Parser_Term_implicitBinder___elambda__1___closed__1;
@@ -395,7 +396,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Command_0__Lean_
 lean_object* l_Lean_Syntax_isStrLit_x3f(lean_object*);
 lean_object* l_Lean_Elab_Command_elabEvalUnsafe___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_instMonadTraceCommandElabM___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23453____closed__8;
 lean_object* l_Lean_Elab_Command_withFreshMacroScope(lean_object*);
 lean_object* l_Lean_Elab_mkMessageCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Elab_elabSetOption_setOption___at_Lean_Elab_Command_elabSetOption___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -31207,7 +31207,7 @@ x_13 = lean_string_dec_eq(x_11, x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; uint8_t x_15; 
-x_14 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23453____closed__8;
+x_14 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23470____closed__8;
 x_15 = lean_string_dec_eq(x_11, x_14);
 lean_dec(x_11);
 if (x_15 == 0)

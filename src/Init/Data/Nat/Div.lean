@@ -95,7 +95,7 @@ theorem mod_lt (x : Nat) {y : Nat} : y > 0 → x % y < y := by
       exact hgt
   | ind x y h h₂ =>
     intro h₃
-    let ⟨_, h₁⟩ := h
+    have ⟨_, h₁⟩ := h
     rw [mod_eq_sub_mod h₁]
     exact h₂ h₃
 

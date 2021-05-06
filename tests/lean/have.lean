@@ -1,5 +1,5 @@
 example : False :=
-  have False := _
+  have False from _
 
 example : 5 = 3 :=
   have t : True := _

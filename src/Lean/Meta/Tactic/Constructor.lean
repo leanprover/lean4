@@ -9,6 +9,20 @@ import Lean.Meta.Tactic.Apply
 
 namespace Lean.Meta
 
+def constructor (mvarId : MVarId) : MetaM (List MVarId) := do
+  withMVarContext mvarId do
+    checkNotAssigned mvarId `constructor
+    let target ← getMVarType' mvarId
+    matchConstInduct target.getAppFn
+      (fun _ => throwTacticEx `constructor mvarId "target is not an inductive datatype")
+      fun ival us => do
+        for ctor in ival.ctors do
+          try
+            return ← apply mvarId (Lean.mkConst ctor us)
+          catch _ =>
+            pure ()
+        throwTacticEx `constructor mvarId "no applicable constructor found"
+
 def existsIntro (mvarId : MVarId) (w : Expr) : MetaM MVarId := do
   withMVarContext mvarId do
     checkNotAssigned mvarId `exists

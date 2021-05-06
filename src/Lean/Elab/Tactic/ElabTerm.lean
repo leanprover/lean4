@@ -33,14 +33,21 @@ def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (mayPostpo
     return e
 
 /- Try to close main goal using `x target`, where `target` is the type of the main goal.  -/
-def closeMainGoalUsing (x : Expr → TacticM Expr) : TacticM Unit :=
+def closeMainGoalUsing (x : Expr → TacticM Expr) (checkUnassigned := true) : TacticM Unit :=
   withMainContext do
-    closeMainGoal (← x (← getMainTarget))
+    closeMainGoal (checkUnassigned := checkUnassigned) (← x (← getMainTarget))
+
+private def logUnassignedAndAbort (mvarIds : Array MVarId) : TacticM Unit := do
+   if (← Term.logUnassignedUsingErrorInfos mvarIds) then
+     throwAbortTactic
 
 @[builtinTactic «exact»] def evalExact : Tactic := fun stx =>
   match stx with
-  | `(tactic| exact $e) => closeMainGoalUsing (fun type => elabTermEnsuringType e type)
-  | _                   => throwUnsupportedSyntax
+  | `(tactic| exact $e) => closeMainGoalUsing (checkUnassigned := false) fun type => do
+    let r ← elabTermEnsuringType e type
+    logUnassignedAndAbort (← getMVars r)
+    return r
+  | _ => throwUnsupportedSyntax
 
 def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) := do
   let val ← elabTermEnsuringType stx expectedType?
@@ -53,7 +60,7 @@ def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : 
     else
       let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← getMVarDecl mvarId).kind.isNatural
       let syntheticMVarIds ← newMVarIds.filterM fun mvarId => return !(← getMVarDecl mvarId).kind.isNatural
-      discard <| Term.logUnassignedUsingErrorInfos naturalMVarIds
+      logUnassignedAndAbort naturalMVarIds
       pure syntheticMVarIds.toList
   tagUntaggedGoals (← getMainTag) tagSuffix newMVarIds
   pure (val, newMVarIds)

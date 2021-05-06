@@ -1,0 +1,5 @@
+constructorTac.lean:6:23-6:34: error: tactic 'constructor' failed, no applicable constructor found
+n m : Nat
+⊢ Le n m
+constructorTac.lean:8:21-8:32: error: tactic 'constructor' failed, target is not an inductive datatype
+⊢ Type

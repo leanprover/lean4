@@ -14,7 +14,7 @@ inductive Weekday where
 ```
 
 The `Weekday` type has 7 constructors/elements. The constructors live in the `Weekday` namespace
-Think of `sunday`, `monday`, …, saturday as being distinct elements of `Weekday`,
+Think of `sunday`, `monday`, …, `saturday` as being distinct elements of `Weekday`,
 with no other distinguishing properties.
 ```lean
 # inductive Weekday where

@@ -39,7 +39,6 @@ lean_object* l_Array_back_x3f(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Array_forM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
-extern lean_object* l_addParenHeuristic___closed__2;
 lean_object* l_Array_reverse_rev___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mkArray___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_split___rarg___boxed(lean_object*, lean_object*);
@@ -619,6 +618,7 @@ lean_object* l_Array_zipWithAux___at_Array_zip___spec__1(lean_object*, lean_obje
 lean_object* l_Array_foldlMUnsafe_fold___at_Array_forM___spec__1___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Array_split___spec__1(lean_object*);
 lean_object* l_Array_mapIdxM_map___at_Array_mapIdx___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_addParenHeuristic___closed__1;
 lean_object* l_Array_findSomeM_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findIdxM_x3f___rarg___closed__1;
 lean_object* l_Array_isEqvAux_match__1___rarg(uint8_t, lean_object*, lean_object*);
@@ -6953,7 +6953,7 @@ static lean_object* _init_l_Array_instReprArray___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_addParenHeuristic___closed__2;
+x_1 = l_addParenHeuristic___closed__1;
 x_2 = lean_string_length(x_1);
 return x_2;
 }
@@ -6971,7 +6971,7 @@ static lean_object* _init_l_Array_instReprArray___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_addParenHeuristic___closed__2;
+x_1 = l_addParenHeuristic___closed__1;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -7699,7 +7699,7 @@ static lean_object* _init_l_term_x23_x5b___x2c_x5d___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_addParenHeuristic___closed__2;
+x_1 = l_addParenHeuristic___closed__1;
 x_2 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

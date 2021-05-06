@@ -37,7 +37,6 @@ lean_object* l_Std_PersistentHashMap_stats(lean_object*, lean_object*, lean_obje
 lean_object* l_Std_PersistentHashMap_foldlMAux_traverse___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f_match__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_Std_PersistentHashMap_mod2Shift(size_t, size_t);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_369____closed__22;
 lean_object* l_Std_PersistentHashMap_findEntryAux___rarg(lean_object*, lean_object*, size_t, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f_match__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_erase(lean_object*, lean_object*);
@@ -150,6 +149,7 @@ lean_object* l_Std_PersistentHashMap_findD___rarg___boxed(lean_object*, lean_obj
 lean_object* l_Std_PersistentHashMap_findD___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f(lean_object*, lean_object*);
+extern lean_object* l_term_x7b_x7d___closed__5;
 lean_object* l_Std_PersistentHashMap_insertAux_match__2(lean_object*, lean_object*, lean_object*);
 size_t l_Std_PersistentHashMap_div2Shift(size_t, size_t);
 lean_object* l_Std_PersistentHashMap_mod2Shift___boxed(lean_object*, lean_object*);
@@ -4541,7 +4541,7 @@ lean_dec(x_1);
 x_19 = l_Nat_repr(x_18);
 x_20 = lean_string_append(x_17, x_19);
 lean_dec(x_19);
-x_21 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_369____closed__22;
+x_21 = l_term_x7b_x7d___closed__5;
 x_22 = lean_string_append(x_20, x_21);
 return x_22;
 }

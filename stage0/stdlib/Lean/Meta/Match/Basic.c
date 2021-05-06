@@ -33,7 +33,6 @@ lean_object* l_List_foldl___at_Lean_Meta_Match_Pattern_toMessageData___spec__1(l
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Meta_Match_Pattern_hasExprMVar___boxed(lean_object*);
-extern lean_object* l_addParenHeuristic___closed__2;
 lean_object* l_Lean_throwError___at_Lean_Meta_whnf___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_term_x5b___x5d___closed__9;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -266,6 +265,7 @@ lean_object* l_List_foldr___at_Lean_Meta_Match_Pattern_hasExprMVar___spec__1___b
 lean_object* l_Lean_Meta_Match_Alt_applyFVarSubst(lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Meta_Match_Example_replaceFVarId___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_instToFormatArray___rarg___closed__1;
+extern lean_object* l_addParenHeuristic___closed__1;
 lean_object* l_Lean_LocalDecl_applyFVarSubst(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Alt_toMessageData___closed__3;
 lean_object* l_Lean_Meta_Match_Pattern_toExpr(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -572,7 +572,7 @@ static lean_object* _init_l_Lean_Meta_Match_Pattern_toMessageData___closed__5() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_addParenHeuristic___closed__2;
+x_1 = l_addParenHeuristic___closed__1;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

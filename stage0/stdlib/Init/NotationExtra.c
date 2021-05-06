@@ -76,7 +76,6 @@ extern lean_object* l_Lean_Parser_Tactic_intro___closed__4;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_term_u03a3___x2c_____closed__5;
 extern lean_object* l_Lean_identKind___closed__2;
-lean_object* l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___lambda__2___closed__3;
 lean_object* l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_16268____closed__8;
 lean_object* l_term___xd7____1;
@@ -259,6 +258,7 @@ lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__6;
 lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__1;
 lean_object* l_Array_forInUnsafe_loop___at___private_Init_NotationExtra_0__Lean_mkHintBody___spec__1___closed__3;
 lean_object* l_Lean_command__Unif__hint______Where___x7c_x2d_u22a2_____closed__11;
+extern lean_object* l_term_x7b_x7d___closed__3;
 lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__22;
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_unexpand____x40_Init_Notation___hyg_2258____spec__1(lean_object*);
 lean_object* l_termExists___x2c_____closed__3;
@@ -287,6 +287,7 @@ lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_36____closed__4;
 lean_object* l_term_u03a3___x2c_____closed__3;
 lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__27;
 lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__34;
+extern lean_object* l_term_x7b_x7d___closed__5;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__13;
 lean_object* l_myMacro____x40_Init_NotationExtra___hyg_7451____boxed(lean_object*, lean_object*, lean_object*);
@@ -488,7 +489,6 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_15342____closed__11;
 lean_object* l_Lean_command__Unif__hint______Where___x7c_x2d_u22a2_____closed__4;
 lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__13;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Syntax_SepArray_getElems___spec__1(lean_object*, size_t, size_t, lean_object*);
-extern lean_object* l_addParenHeuristic___closed__1;
 lean_object* l_Array_foldrMUnsafe_fold___at_myMacro____x40_Init_NotationExtra___hyg_5248____spec__4(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__8;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_16821____closed__2;
@@ -7865,14 +7865,6 @@ x_1 = lean_mk_string("implicitBinder");
 return x_1;
 }
 }
-static lean_object* _init_l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___lambda__2___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("}");
-return x_1;
-}
-}
 lean_object* l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
 _start:
 {
@@ -7925,7 +7917,7 @@ lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean
 x_28 = lean_ctor_get(x_26, 0);
 x_29 = l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___lambda__2___closed__2;
 x_30 = lean_name_mk_string(x_7, x_29);
-x_31 = l_addParenHeuristic___closed__1;
+x_31 = l_term_x7b_x7d___closed__3;
 lean_inc(x_28);
 x_32 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_32, 0, x_28);
@@ -7943,7 +7935,7 @@ x_38 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_38, 0, x_35);
 lean_ctor_set(x_38, 1, x_8);
 x_39 = lean_array_push(x_37, x_38);
-x_40 = l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___lambda__2___closed__3;
+x_40 = l_term_x7b_x7d___closed__5;
 x_41 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_41, 0, x_28);
 lean_ctor_set(x_41, 1, x_40);
@@ -7983,7 +7975,7 @@ lean_inc(x_56);
 lean_dec(x_26);
 x_58 = l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___lambda__2___closed__2;
 x_59 = lean_name_mk_string(x_7, x_58);
-x_60 = l_addParenHeuristic___closed__1;
+x_60 = l_term_x7b_x7d___closed__3;
 lean_inc(x_56);
 x_61 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_61, 0, x_56);
@@ -8001,7 +7993,7 @@ x_67 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_67, 0, x_64);
 lean_ctor_set(x_67, 1, x_8);
 x_68 = lean_array_push(x_66, x_67);
-x_69 = l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___lambda__2___closed__3;
+x_69 = l_term_x7b_x7d___closed__5;
 x_70 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_70, 0, x_56);
 lean_ctor_set(x_70, 1, x_69);
@@ -11775,8 +11767,6 @@ l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____sp
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___lambda__2___closed__1);
 l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___lambda__2___closed__2 = _init_l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___lambda__2___closed__2();
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___lambda__2___closed__2);
-l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___lambda__2___closed__3 = _init_l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___lambda__2___closed__3();
-lean_mark_persistent(l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___lambda__2___closed__3);
 l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___closed__1 = _init_l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___closed__1();
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___closed__1);
 l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___closed__2 = _init_l_Array_forInUnsafe_loop___at_myMacro____x40_Init_NotationExtra___hyg_5711____spec__3___closed__2();

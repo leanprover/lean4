@@ -41,30 +41,53 @@ structure SavedState where
 abbrev TacticM := ReaderT Context $ StateRefT State TermElabM
 abbrev Tactic  := Syntax → TacticM Unit
 
+def getGoals : TacticM (List MVarId) :=
+  return (← get).goals
+
+def setGoals (mvarIds : List MVarId) : TacticM Unit :=
+  modify fun s => { s with goals := mvarIds }
+
+def pruneSolvedGoals : TacticM Unit := do
+  let gs ← getGoals
+  let gs ← gs.filterM fun g => not <$> isExprMVarAssigned g
+  setGoals gs
+
+def getUnsolvedGoals : TacticM (List MVarId) := do
+  pruneSolvedGoals
+  getGoals
+
+@[inline] private def TacticM.runCore (x : TacticM α) (ctx : Context) (s : State) : TermElabM (α × State) :=
+  x ctx |>.run s
+
+@[inline] private def TacticM.runCore' (x : TacticM α) (ctx : Context) (s : State) : TermElabM α :=
+  Prod.fst <$> x.runCore ctx s
+
+def run (mvarId : MVarId) (x : TacticM Unit) : TermElabM (List MVarId) :=
+  withMVarContext mvarId do
+   let savedSyntheticMVars := (← get).syntheticMVars
+   modify fun s => { s with syntheticMVars := [] }
+   let aux : TacticM (List MVarId) :=
+     /- Important: the following `try` does not backtrack the state.
+        This is intentional because we don't want to backtrack the error messages when we catch the "abort internal exception"
+        We must define `run` here because we define `MonadExcept` instance for `TacticM` -/
+     try
+       x; getUnsolvedGoals
+     catch ex =>
+       if isAbortTacticException ex then
+         getUnsolvedGoals
+       else
+         throw ex
+   try
+     aux.runCore' { main := mvarId } { goals := [mvarId] }
+   finally
+     modify fun s => { s with syntheticMVars := savedSyntheticMVars }
+
 protected def saveState : TacticM SavedState :=
   return { term := (← Term.saveState), tactic := (← get) }
 
 def SavedState.restore (b : SavedState) : TacticM Unit := do
   b.term.restore
   set b.tactic
-
-instance : MonadBacktrack SavedState TacticM where
-  saveState := Tactic.saveState
-  restoreState b := b.restore
-
-@[inline] protected def tryCatch {α} (x : TacticM α) (h : Exception → TacticM α) : TacticM α := do
-  let b ← saveState
-  try x catch ex => b.restore; h ex
-
-instance : MonadExcept Exception TacticM where
-  throw    := throw
-  tryCatch := Tactic.tryCatch
-
-@[inline] protected def orElse {α} (x y : TacticM α) : TacticM α := do
-  try x catch _ => y
-
-instance {α} : OrElse (TacticM α) where
-  orElse := Tactic.orElse
 
 protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Term.Context).currMacroScope
 protected def getMainModule     : TacticM Name       := do pure (← getEnv).mainModule
@@ -73,6 +96,13 @@ unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=
   mkElabAttribute Tactic `Lean.Elab.Tactic.tacticElabAttribute `builtinTactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic"
 
 @[builtinInit mkTacticAttribute] constant tacticElabAttribute : KeyedDeclsAttribute Tactic
+
+/-
+Important: we must define `evalTacticUsing` and `expandTacticMacroFns` before we define
+the instance `MonadExcept` for `TacticM` since it backtracks the state including error messages,
+and this is bad when rethrowing the exception at the `catch` block in these methods.
+We marked these places with a `(*)` in these methods.
+-/
 
 private def evalTacticUsing (s : SavedState) (stx : Syntax) (tactics : List Tactic) : TacticM Unit := do
   let rec loop : List Tactic → TacticM Unit
@@ -83,7 +113,7 @@ private def evalTacticUsing (s : SavedState) (stx : Syntax) (tactics : List Tact
       catch
       | ex@(Exception.error _ _) =>
         match evalFns with
-        | []      => throw ex
+        | []      => throw ex -- (*)
         | evalFns => s.restore; loop evalFns
       | ex@(Exception.internal id _) =>
         if id == unsupportedSyntaxExceptionId then
@@ -91,9 +121,6 @@ private def evalTacticUsing (s : SavedState) (stx : Syntax) (tactics : List Tact
         else
           throw ex
   loop tactics
-
-def getGoals : TacticM (List MVarId) :=
-  return (← get).goals
 
 def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx : Syntax) : TacticM Info :=
   return Info.ofTacticInfo {
@@ -120,7 +147,7 @@ mutual
           let stx' ← adaptMacro m stx
           evalTactic stx'
         catch ex =>
-          if ms.isEmpty then throw ex
+          if ms.isEmpty then throw ex -- (*)
           loop ms
     loop macros
 
@@ -138,7 +165,7 @@ mutual
           stx.getArgs.forM evalTactic
         else do
           trace[Elab.step] "{stx}"
-          let s ← saveState
+          let s ← Tactic.saveState
           let table := (tacticElabAttribute.ext.getState (← getEnv)).table
           let k := stx.getKind
           match table.find? k with
@@ -150,6 +177,24 @@ mutual
     withTacticInfoContext stx (evalTacticAux stx)
 
 end
+
+instance : MonadBacktrack SavedState TacticM where
+  saveState := Tactic.saveState
+  restoreState b := b.restore
+
+@[inline] protected def tryCatch {α} (x : TacticM α) (h : Exception → TacticM α) : TacticM α := do
+  let b ← saveState
+  try x catch ex => b.restore; h ex
+
+instance : MonadExcept Exception TacticM where
+  throw    := throw
+  tryCatch := Tactic.tryCatch
+
+@[inline] protected def orElse {α} (x y : TacticM α) : TacticM α := do
+  try x catch _ => y
+
+instance {α} : OrElse (TacticM α) where
+  orElse := Tactic.orElse
 
 /-
   Save the current tactic state for a token `stx`.
@@ -171,9 +216,6 @@ def adaptExpander (exp : Syntax → TacticM Syntax) : Tactic := fun stx => do
   let stx' ← exp stx
   withMacroExpansion stx stx' $ evalTactic stx'
 
-def setGoals (mvarIds : List MVarId) : TacticM Unit :=
-  modify fun s => { s with goals := mvarIds }
-
 def appendGoals (mvarIds : List MVarId) : TacticM Unit :=
   modify fun s => { s with goals := s.goals ++ mvarIds }
 
@@ -183,15 +225,6 @@ def throwNoGoalsToBeSolved : TacticM α :=
 def replaceMainGoal (mvarIds : List MVarId) : TacticM Unit := do
   let (mvarId :: mvarIds') ← getGoals | throwNoGoalsToBeSolved
   modify fun s => { s with goals := mvarIds ++ mvarIds' }
-
-def pruneSolvedGoals : TacticM Unit := do
-  let gs ← getGoals
-  let gs ← gs.filterM fun g => not <$> isExprMVarAssigned g
-  setGoals gs
-
-def getUnsolvedGoals : TacticM (List MVarId) := do
-  pruneSolvedGoals
-  getGoals
 
 /-- Return the first goal. -/
 def getMainGoal : TacticM MVarId := do
@@ -600,11 +633,5 @@ where
       evalTactic tacs[i] <|> loop tacs (i+1)
 
 builtin_initialize registerTraceClass `Elab.tactic
-
-@[inline] def TacticM.run (x : TacticM α) (ctx : Context) (s : State) : TermElabM (α × State) :=
-  x ctx |>.run s
-
-@[inline] def TacticM.run' (x : TacticM α) (ctx : Context) (s : State) : TermElabM α :=
-  Prod.fst <$> x.run ctx s
 
 end Lean.Elab.Tactic

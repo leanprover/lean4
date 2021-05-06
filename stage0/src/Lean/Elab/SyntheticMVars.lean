@@ -193,26 +193,14 @@ private def getSomeSynthethicMVarsRef : TermElabM Syntax := do
 
 mutual
 
-  partial def liftTacticElabM {α} (mvarId : MVarId) (x : TacticM α) : TermElabM α :=
-    withMVarContext mvarId do
-      let savedSyntheticMVars := (← get).syntheticMVars
-      modify fun s => { s with syntheticMVars := [] }
-      try
-        let a ← x.run' { main := mvarId } { goals := [mvarId] }
-        synthesizeSyntheticMVars (mayPostpone := false)
-        pure a
-      finally
-        modify fun s => { s with syntheticMVars := savedSyntheticMVars }
-
   partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
     /- Recall, `tacticCode` is the whole `by ...` expression. -/
     let byTk := tacticCode[0]
     let code := tacticCode[1]
     modifyThe Meta.State fun s => { s with mctx := s.mctx.instantiateMVarDeclMVars mvarId }
-    let remainingGoals ← withInfoHole mvarId <|
-      liftTacticElabM mvarId do
-        withTacticInfoContext tacticCode (evalTactic code)
-        getUnsolvedGoals
+    let remainingGoals ← withInfoHole mvarId <| Tactic.run mvarId do
+       withTacticInfoContext tacticCode (evalTactic code)
+       synthesizeSyntheticMVars (mayPostpone := false)
     unless remainingGoals.isEmpty do reportUnsolvedGoals remainingGoals
 
   /-- Try to synthesize the given pending synthetic metavariable. -/

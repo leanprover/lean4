@@ -12,6 +12,7 @@ builtin_initialize postponeExceptionId : InternalExceptionId ← registerInterna
 builtin_initialize unsupportedSyntaxExceptionId : InternalExceptionId ← registerInternalExceptionId `unsupportedSyntax
 builtin_initialize abortCommandExceptionId : InternalExceptionId ← registerInternalExceptionId `abortCommandElab
 builtin_initialize abortTermExceptionId : InternalExceptionId ← registerInternalExceptionId `abortTermElab
+builtin_initialize abortTacticExceptionId : InternalExceptionId ← registerInternalExceptionId `abortTactic
 builtin_initialize autoBoundImplicitExceptionId : InternalExceptionId ← registerInternalExceptionId `autoBoundImplicit
 
 def throwPostpone [MonadExceptOf Exception m] : m α :=
@@ -46,8 +47,17 @@ def throwAbortCommand {α m} [MonadExcept Exception m] : m α :=
 def throwAbortTerm {α m} [MonadExcept Exception m] : m α :=
   throw <| Exception.internal abortTermExceptionId
 
+-- Throw exception to abort evaluation of the current tactic without producing any error message
+def throwAbortTactic {α m} [MonadExcept Exception m] : m α :=
+  throw <| Exception.internal abortTacticExceptionId
+
+def isAbortTacticException (ex : Exception) : Bool :=
+  match ex with
+  | Exception.internal id .. => id == abortTacticExceptionId
+  | _ => false
+
 def isAbortExceptionId (id : InternalExceptionId) : Bool :=
-  id == abortCommandExceptionId || id == abortTermExceptionId
+  id == abortCommandExceptionId || id == abortTermExceptionId || id == abortTacticExceptionId
 
 def mkMessageCore (fileName : String) (fileMap : FileMap) (msgData : MessageData) (severity : MessageSeverity) (pos : String.Pos) : Message :=
   let pos := fileMap.toPosition pos

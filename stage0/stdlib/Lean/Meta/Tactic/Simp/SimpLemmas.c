@@ -174,7 +174,6 @@ lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpLemmas___hyg_2179____closed__5;
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Meta_addSimpLemmaEntry___spec__3(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Meta_instToFormatSimpLemma___closed__1;
-extern lean_object* l_myMacro____x40_Init_Core___hyg_1766____closed__4;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instToMessageDataSimpLemma(lean_object*);
 lean_object* l_List_mapM___at___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkFun___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -338,6 +337,7 @@ lean_object* l___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_isPerm_ma
 lean_object* l_Lean_Meta_SimpLemma_getName___closed__2;
 lean_object* l_Lean_indentExpr(lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpLemmas___hyg_374____closed__2;
+extern lean_object* l_myMacro____x40_Init_Core___hyg_2016____closed__4;
 uint8_t l_Lean_Meta_instBEqSimpLemma(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_mkSimpLemmaCore___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
@@ -6168,7 +6168,7 @@ x_16 = l_Lean_Expr_isAppOfArity(x_10, x_14, x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; uint8_t x_19; 
-x_17 = l_myMacro____x40_Init_Core___hyg_1766____closed__4;
+x_17 = l_myMacro____x40_Init_Core___hyg_2016____closed__4;
 x_18 = lean_unsigned_to_nat(3u);
 x_19 = l_Lean_Expr_isAppOfArity(x_10, x_17, x_18);
 if (x_19 == 0)
@@ -6827,7 +6827,7 @@ x_167 = l_Lean_Expr_isAppOfArity(x_161, x_165, x_166);
 if (x_167 == 0)
 {
 lean_object* x_168; lean_object* x_169; uint8_t x_170; 
-x_168 = l_myMacro____x40_Init_Core___hyg_1766____closed__4;
+x_168 = l_myMacro____x40_Init_Core___hyg_2016____closed__4;
 x_169 = lean_unsigned_to_nat(3u);
 x_170 = l_Lean_Expr_isAppOfArity(x_161, x_168, x_169);
 if (x_170 == 0)

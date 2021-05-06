@@ -98,6 +98,7 @@ lean_object* l_List_toStringAux(lean_object*);
 lean_object* l_instToStringUSize(size_t);
 lean_object* l_instToStringIterator___boxed(lean_object*);
 lean_object* l_instToStringSigma(lean_object*, lean_object*);
+extern lean_object* l_term_x7b_x7d___closed__3;
 lean_object* l_String_toInt_x21_match__1(lean_object*);
 lean_object* l_instToStringSum___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instToStringSum___rarg___closed__1;
@@ -158,7 +159,6 @@ extern lean_object* l_prec_x28___x29___closed__3;
 lean_object* l_instToStringDecidable_match__1(lean_object*, lean_object*);
 lean_object* l_OptionT_instAlternativeOptionT___rarg(lean_object*);
 lean_object* l_instToStringULift___rarg(lean_object*, lean_object*);
-lean_object* l_addParenHeuristic___closed__3;
 lean_object* l_instToStringProd(lean_object*, lean_object*);
 lean_object* l_String_toNat_x3f(lean_object*);
 lean_object* l_OptionT_instMonadOptionT___rarg(lean_object*);
@@ -927,19 +927,11 @@ static lean_object* _init_l_addParenHeuristic___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{");
-return x_1;
-}
-}
-static lean_object* _init_l_addParenHeuristic___closed__2() {
-_start:
-{
-lean_object* x_1; 
 x_1 = lean_mk_string("#[");
 return x_1;
 }
 }
-static lean_object* _init_l_addParenHeuristic___closed__3() {
+static lean_object* _init_l_addParenHeuristic___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -961,18 +953,18 @@ x_5 = l_String_isPrefixOf(x_4, x_1);
 if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; 
-x_6 = l_addParenHeuristic___closed__1;
+x_6 = l_term_x7b_x7d___closed__3;
 x_7 = l_String_isPrefixOf(x_6, x_1);
 if (x_7 == 0)
 {
 lean_object* x_8; uint8_t x_9; 
-x_8 = l_addParenHeuristic___closed__2;
+x_8 = l_addParenHeuristic___closed__1;
 x_9 = l_String_isPrefixOf(x_8, x_1);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_10 = lean_string_utf8_byte_size(x_1);
-x_11 = l_addParenHeuristic___closed__3;
+x_11 = l_addParenHeuristic___closed__2;
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = l_String_anyAux_loop(x_1, x_10, x_11, x_12);
 lean_dec(x_10);
@@ -1783,8 +1775,6 @@ l_addParenHeuristic___closed__1 = _init_l_addParenHeuristic___closed__1();
 lean_mark_persistent(l_addParenHeuristic___closed__1);
 l_addParenHeuristic___closed__2 = _init_l_addParenHeuristic___closed__2();
 lean_mark_persistent(l_addParenHeuristic___closed__2);
-l_addParenHeuristic___closed__3 = _init_l_addParenHeuristic___closed__3();
-lean_mark_persistent(l_addParenHeuristic___closed__3);
 l_instToStringOption___rarg___closed__1 = _init_l_instToStringOption___rarg___closed__1();
 lean_mark_persistent(l_instToStringOption___rarg___closed__1);
 l_instToStringSum___rarg___closed__1 = _init_l_instToStringSum___rarg___closed__1();

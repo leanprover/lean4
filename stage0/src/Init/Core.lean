@@ -110,6 +110,9 @@ infix:50 " ≈ "  => HasEquiv.Equiv
 class EmptyCollection (α : Type u) where
   emptyCollection : α
 
+notation "{" "}" => EmptyCollection.emptyCollection
+notation "∅"     => EmptyCollection.emptyCollection
+
 /- Remark: tasks have an efficient implementation in the runtime. -/
 structure Task (α : Type u) : Type u where
   pure :: (get : α)

@@ -607,11 +607,11 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
     let type    := expandOptType stx optType
     let val     := letDecl[4]
     let stxNew ← `(let x : $type := $val; match x with | $pat => $body)
-    let stxNew  := match useLetExpr, elabBodyFirst with
+    let stxNew := match useLetExpr, elabBodyFirst with
       | true,  false => stxNew
       | true,  true  => stxNew.setKind `Lean.Parser.Term.«let_delayed»
-      | false, true  => stxNew.setKind `Lean.Parser.Term.«let_fun»
-      | false, false => unreachable!
+      | false, false => stxNew.setKind `Lean.Parser.Term.«let_fun»
+      | false, true  => unreachable!
     withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   else if letDecl.getKind == `Lean.Parser.Term.letEqnsDecl then
     let letDeclIdNew ← liftMacroM <| expandLetEqnsDecl letDecl

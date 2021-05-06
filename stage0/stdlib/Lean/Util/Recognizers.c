@@ -50,7 +50,6 @@ lean_object* l_Lean_Expr_natAdd_x3f___boxed(lean_object*);
 lean_object* l_Lean_Expr_isConstructorApp___boxed(lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_12692____closed__7;
 lean_object* l_Lean_Expr_isConstructorApp_x3f_match__2___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Core___hyg_1766____closed__4;
 lean_object* l_Lean_Expr_heq_x3f(lean_object*);
 lean_object* l_Lean_Expr_arrayLit_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app4_x3f___boxed(lean_object*, lean_object*);
@@ -100,6 +99,7 @@ lean_object* l_Lean_Expr_const_x3f_match__1___rarg(lean_object*, lean_object*, l
 lean_object* l_Lean_Expr_not_x3f___boxed(lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_11514____closed__4;
 lean_object* l_Lean_Expr_listLit_x3f_loop(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Core___hyg_2016____closed__4;
 lean_object* l_Lean_Expr_arrow_x3f_match__1(lean_object*);
 lean_object* l_Lean_Expr_isConstructorApp_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isConstructorApp_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -383,7 +383,7 @@ lean_object* l_Lean_Expr_ne_x3f(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_2 = l_myMacro____x40_Init_Core___hyg_1766____closed__4;
+x_2 = l_myMacro____x40_Init_Core___hyg_2016____closed__4;
 x_3 = lean_unsigned_to_nat(3u);
 x_4 = l_Lean_Expr_isAppOfArity(x_1, x_2, x_3);
 if (x_4 == 0)

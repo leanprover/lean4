@@ -63,7 +63,6 @@ lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lea
 extern lean_object* l_Lean_registerInternalExceptionId___closed__2;
 lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_369____closed__22;
 lean_object* l_Lean_Meta_Attribute_Recursor_getMajorPos___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -234,6 +233,7 @@ extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2259____closed__6;
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
+extern lean_object* l_term_x7b_x7d___closed__5;
 lean_object* l_Lean_Meta_Attribute_Recursor_getMajorPos___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMotiveLevel_match__1(lean_object*);
 lean_object* l_Lean_Meta_RecursorInfo_instToStringRecursorInfo___closed__12;
@@ -1410,7 +1410,7 @@ x_82 = lean_string_append(x_80, x_81);
 x_83 = lean_string_append(x_82, x_40);
 lean_dec(x_40);
 x_84 = lean_string_append(x_83, x_7);
-x_85 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_369____closed__22;
+x_85 = l_term_x7b_x7d___closed__5;
 x_86 = lean_string_append(x_84, x_85);
 return x_86;
 }

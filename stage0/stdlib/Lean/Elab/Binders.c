@@ -23677,17 +23677,17 @@ lean_dec(x_3);
 if (x_2 == 0)
 {
 lean_object* x_7; lean_object* x_8; 
-lean_dec(x_5);
+lean_dec(x_6);
 x_7 = lean_box(0);
-x_8 = lean_apply_1(x_6, x_7);
+x_8 = lean_apply_1(x_5, x_7);
 return x_8;
 }
 else
 {
 lean_object* x_9; lean_object* x_10; 
-lean_dec(x_6);
+lean_dec(x_5);
 x_9 = lean_box(0);
-x_10 = lean_apply_1(x_5, x_9);
+x_10 = lean_apply_1(x_6, x_9);
 return x_10;
 }
 }
@@ -24109,25 +24109,25 @@ if (x_3 == 0)
 {
 if (x_4 == 0)
 {
-lean_object* x_175; lean_object* x_176; lean_object* x_177; lean_object* x_178; lean_object* x_179; 
-lean_dec(x_174);
-x_175 = l_Lean_instInhabitedSyntax;
-x_176 = l_Lean_Elab_Term_elabLetDeclCore___closed__2;
-x_177 = lean_panic_fn(x_175, x_176);
-lean_inc(x_177);
+lean_object* x_175; lean_object* x_176; lean_object* x_177; lean_object* x_178; 
+x_175 = l_Lean_Parser_Term_let__fun___elambda__1___closed__2;
+x_176 = l_Lean_Syntax_setKind(x_174, x_175);
+lean_inc(x_176);
 lean_inc(x_1);
-x_178 = lean_alloc_closure((void*)(l_Lean_Elab_Term_adaptExpander___lambda__1), 10, 3);
-lean_closure_set(x_178, 0, x_1);
-lean_closure_set(x_178, 1, x_177);
-lean_closure_set(x_178, 2, x_2);
-x_179 = l_Lean_Elab_withMacroExpansionInfo___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__2(x_1, x_177, x_178, x_5, x_6, x_7, x_8, x_9, x_10, x_100);
-return x_179;
+x_177 = lean_alloc_closure((void*)(l_Lean_Elab_Term_adaptExpander___lambda__1), 10, 3);
+lean_closure_set(x_177, 0, x_1);
+lean_closure_set(x_177, 1, x_176);
+lean_closure_set(x_177, 2, x_2);
+x_178 = l_Lean_Elab_withMacroExpansionInfo___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__2(x_1, x_176, x_177, x_5, x_6, x_7, x_8, x_9, x_10, x_100);
+return x_178;
 }
 else
 {
-lean_object* x_180; lean_object* x_181; lean_object* x_182; lean_object* x_183; 
-x_180 = l_Lean_Parser_Term_let__fun___elambda__1___closed__2;
-x_181 = l_Lean_Syntax_setKind(x_174, x_180);
+lean_object* x_179; lean_object* x_180; lean_object* x_181; lean_object* x_182; lean_object* x_183; 
+lean_dec(x_174);
+x_179 = l_Lean_instInhabitedSyntax;
+x_180 = l_Lean_Elab_Term_elabLetDeclCore___closed__2;
+x_181 = lean_panic_fn(x_179, x_180);
 lean_inc(x_181);
 lean_inc(x_1);
 x_182 = lean_alloc_closure((void*)(l_Lean_Elab_Term_adaptExpander___lambda__1), 10, 3);

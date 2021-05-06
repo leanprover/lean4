@@ -115,3 +115,16 @@ theorem ex12 (m n : Nat) : Le m n → Le n m → m = n := by
       subst ih
       apply absurd h2 (ex11 _)
       done
+
+inductive Foo : Nat → Prop where
+  | foo : Foo 0
+  | bar : Foo 0
+  | baz : Foo 1
+
+example (f : Foo 0) : True := by
+  cases f with
+  | _ => trivial
+
+example (f : Foo n) (h : n = 0) : True := by
+  induction f with simp at h
+  | _ => trivial

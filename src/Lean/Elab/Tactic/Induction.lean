@@ -189,6 +189,7 @@ where
     let mut altsSyntax := altsSyntax
     for (altName, altMVarId) in alts do
       let numFields ← getAltNumFields elimInfo altName
+      let mut isWildcard := false
       let altStx? ←
         match altsSyntax.findIdx? (fun alt => getAltName alt == altName) with
         | some idx =>
@@ -197,7 +198,7 @@ where
           pure (some altStx)
         | none => match altsSyntax.findIdx? (fun alt => getAltName alt == `_) with
           | some idx =>
-            usedWildcard := true
+            isWildcard := true
             pure (some altsSyntax[idx])
           | none =>
             pure none
@@ -220,23 +221,30 @@ where
             logError m!"alternative '{altName}' has not been provided"
             altMVarIds.forM admitGoal
       | some altStx =>
-        subgoals ← withRef altStx do
+        (subgoals, usedWildcard) ← withRef altStx do
+          let unusedAlt :=
+            if isWildcard then
+              pure (#[], usedWildcard)
+            else
+              throwError "alternative '{altName}' is not needed"
           let altVarNames := getAltVarNames altStx
           if altVarNames.size > numFields then
             logError m!"too many variable names provided at alternative '{altName}', #{altVarNames.size} provided, but #{numFields} expected"
           let mut (_, altMVarId) ← introN altMVarId numFields altVarNames.toList (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
           match (← Cases.unifyEqs numEqs altMVarId {}) with
-          | none   => throwError "alternative '{altName}' is not needed"
+          | none => unusedAlt
           | some (altMVarId, _) =>
             let (_, altMVarId) ← introNP altMVarId numGeneralized
             for fvarId in toClear do
               altMVarId ← tryClear altMVarId fvarId
             let altMVarIds ← applyPreTac altMVarId
             if altMVarIds.isEmpty then
-              throwError "alternative '{altName}' is not needed"
+              unusedAlt
             else
-              altMVarIds.foldlM (init := subgoals) fun subgoal altMVarId =>
-                evalAlt altMVarId altStx subgoals
+              let mut subgoals := subgoals
+              for altMVarId in altMVarIds do
+                subgoals ← evalAlt altMVarId altStx subgoals
+              pure (subgoals, usedWildcard || isWildcard)
     if usedWildcard then
       altsSyntax := altsSyntax.filter fun alt => getAltName alt != `_
     unless altsSyntax.isEmpty do

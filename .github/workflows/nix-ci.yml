@@ -29,6 +29,8 @@ jobs:
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}
+    env:
+      NIX_BUILD_ARGS: -v --print-build-logs --fallback
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -75,14 +77,14 @@ jobs:
       - name: Build
         run: |
           # .o files are not a runtime dependency on macOS because of lack of thin archives
-          nix build -v --print-build-logs .#stage0 .#stage1 .#Lean.oTree -o push-build
+          nix build $NIX_BUILD_ARGS .#stage0 .#stage1 .#Lean.oTree -o push-build
       - name: Test
         run: |
-          nix build -v --print-build-logs .#test -o push-test
+          nix build $NIX_BUILD_ARGS .#test -o push-test
       - name: Build manual
         run: |
-          nix build -v --print-build-logs .#mdbook .#doc-test -o push-doc
-          nix build -v --print-build-logs .#doc
+          nix build $NIX_BUILD_ARGS .#mdbook .#doc-test -o push-doc
+          nix build $NIX_BUILD_ARGS .#doc
         if: matrix.name == 'Linux'
       - name: Push to Cachix
         run: |

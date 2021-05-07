@@ -24,3 +24,16 @@ x : Nat
 h1 : ∀ (x : Nat), x > 0 → f x = x
 h2 : x > 0
 ⊢ f x = x
+exactErrorPos.lean:22:38-22:39: error: don't know how to synthesize placeholder
+context:
+f : Nat → Nat
+x : Nat
+h1 : ∀ (x : Nat), x > 0 → f x = x
+h2 : x > 0
+⊢ x > 0
+exactErrorPos.lean:21:99-23:12: error: unsolved goals
+f : Nat → Nat
+x : Nat
+h1 : ∀ (x : Nat), x > 0 → f x = x
+h2 : x > 0
+⊢ f x = x

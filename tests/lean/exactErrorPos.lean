@@ -17,3 +17,7 @@ theorem ex4 (f : Nat → Nat) (x : Nat) (h1 : (x : Nat) → x > 0 → f x = x) (
 theorem ex5 (f g : Nat → Nat) (x : Nat) (h1 : (x : Nat) → x > 0 → f x = x) (h2 : x > 0) (h3 : g x = x) : f x = x := by
   first | apply h3 | apply h1
   assumption
+
+theorem ex6 (f : Nat → Nat) (x : Nat) (h1 : (x : Nat) → x > 0 → f x = x) (h2 : x > 0) : f x = x := by
+  first | refine h1 _ _ | refine h1 _ _
+  assumption

@@ -207,7 +207,7 @@ def maybeParenthesize (cat : Name) (canJuxtapose : Bool) (mkParen : Syntax → S
   trace[PrettyPrinter.parenthesize] "parenthesizing (cont := {(st.contPrec, st.contCat)}){indentD (fmt stx)}"
   x
   let { minPrec := some minPrec, trailPrec := trailPrec, trailCat := trailCat, .. } ← get
-    | panic! s!"maybeParenthesize: visited a syntax tree without precedences?!{line ++ fmt stx}"
+    | trace[PrettyPrinter.parenthesize] "visited a syntax tree without precedences?!{line ++ fmt stx}"
   trace[PrettyPrinter.parenthesize] ("...precedences are {prec} >? {minPrec}" ++ if canJuxtapose then m!", {(trailPrec, trailCat)} <=? {(st.contPrec, st.contCat)}" else "")
   -- Should we parenthesize?
   if (prec > minPrec || canJuxtapose && match trailPrec, st.contPrec with | some trailPrec, some contPrec => trailCat == st.contCat && trailPrec <= contPrec | _, _ => false) then

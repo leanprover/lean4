@@ -266,6 +266,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
         if k == Name.anonymous then unconditionally rhsFn else pure {
           check   := shape k none,
           onMatch := fun
+            | other _ => undecided
             | taken@(shape k' sz) =>
               if k' == k then
                 covered (adaptRhs rhsFn ∘ noOpMatchAdaptPats taken) (exhaustive := sz.isNone)
@@ -338,6 +339,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       pure {
         check    := slice idx numSuffix
         onMatch  := fun
+          | other _ => undecided
           | slice p s =>
             if p == idx && s == numSuffix then
               let argPats := quoted.getArgs.mapIdx fun i arg =>
@@ -362,11 +364,14 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       let argPats := quoted.getArgs.map fun arg => Unhygienic.run `(`($(arg)))
       pure {
         check := shape kind argPats.size,
-        onMatch := fun taken =>
-          if (match taken with | shape k' sz => k' == kind && sz == argPats.size | _ => false : Bool) then
-            covered (fun (pats, rhs) => (argPats.toList ++ pats, rhs)) (exhaustive := true)
-          else
-            uncovered,
+        onMatch := fun
+          | other _ => undecided
+          | shape k' sz =>
+            if k' == kind && sz == argPats.size then
+              covered (fun (pats, rhs) => (argPats.toList ++ pats, rhs)) (exhaustive := true)
+            else
+              uncovered
+          | _ => uncovered,
         doMatch := fun yes no => do
           let cond ← match kind with
           | `null => `(Syntax.matchesNull discr $(quote argPats.size))

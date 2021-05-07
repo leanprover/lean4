@@ -15,8 +15,12 @@ open Meta
 
 /- `elabTerm` for Tactics and basic tactics that use it. -/
 
-def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr :=
-  withRef stx <| Term.withoutErrToSorry do
+def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr := do
+  /- We have disabled `Term.withoutErrToSorry` to improve error recovery.
+     When we were using it, any tactic using `elabTerm` would be interrupted at elaboration errors.
+     Tactics that do not want to proceed should check whether the result contains sythetic sorrys or
+     disable `errToSorry` before invoking `elabTerm` -/
+  withRef stx do -- <| Term.withoutErrToSorry do
     let e ← Term.elabTerm stx expectedType?
     Term.synthesizeSyntheticMVars mayPostpone
     instantiateMVars e

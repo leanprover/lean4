@@ -166,7 +166,7 @@ partial instance : ToJson DocumentSymbol where
   toJson :=
     let rec go
       | DocumentSymbol.mk sym =>
-        have ToJson DocumentSymbol := ⟨go⟩
+        have ToJson DocumentSymbol from ⟨go⟩
         toJson sym
     go
 

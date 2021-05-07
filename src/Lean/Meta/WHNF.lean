@@ -294,6 +294,7 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
 /- Given an expression `e`, compute its WHNF and if the result is a constructor, return field #i. -/
 def project? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
   let e ← whnf e
+  let e := toCtorIfLit e
   matchConstCtor e.getAppFn (fun _ => pure none) fun ctorVal _ =>
     let numArgs := e.getAppNumArgs
     let idx := ctorVal.numParams + i

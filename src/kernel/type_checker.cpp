@@ -366,6 +366,8 @@ optional<expr> type_checker::reduce_proj(expr const & e, bool cheap) {
         c = whnf_core(proj_expr(e), cheap);
     else
         c = whnf(proj_expr(e));
+    if (is_string_lit(c))
+        c = string_lit_to_constructor(c);
     buffer<expr> args;
     expr const & mk = get_app_args(c, args);
     if (!is_constant(mk))

@@ -178,6 +178,45 @@ mutual
 
 end
 
+def throwNoGoalsToBeSolved : TacticM α :=
+  throwError "no goals to be solved"
+
+def done : TacticM Unit := do
+  let gs ← getUnsolvedGoals
+  unless gs.isEmpty do
+    Term.reportUnsolvedGoals gs
+
+def focus (x : TacticM α) : TacticM α := do
+  let mvarId :: mvarIds ← getUnsolvedGoals | throwNoGoalsToBeSolved
+  setGoals [mvarId]
+  let a ← x
+  let mvarIds' ← getUnsolvedGoals
+  setGoals (mvarIds' ++ mvarIds)
+  pure a
+
+def focusAndDone (tactic : TacticM α) : TacticM α :=
+  focus do
+    let a ← tactic
+    done
+    pure a
+
+/- Assign `mvarId := sorry` -/
+def admitGoal (mvarId : MVarId) : TacticM Unit := do
+  let mvarType ← inferType (mkMVar mvarId)
+  assignExprMVar mvarId (← mkSorry mvarType (synthetic := true))
+
+/- Close the main goal using the given tactic. If it fails, log the error and `admit` -/
+def closeUsingOrAdmit (tac : TacticM Unit) : TacticM Unit := do
+  /- Important: we must define `closeUsingOrAdmit` before we define
+     the instance `MonadExcept` for `TacticM` since it backtracks the state including error messages. -/
+  let mvarId :: mvarIds ← getUnsolvedGoals | throwNoGoalsToBeSolved
+  try
+    focusAndDone tac
+  catch ex =>
+    logException ex
+    admitGoal mvarId
+    setGoals mvarIds
+
 instance : MonadBacktrack SavedState TacticM where
   saveState := Tactic.saveState
   restoreState b := b.restore
@@ -218,9 +257,6 @@ def adaptExpander (exp : Syntax → TacticM Syntax) : Tactic := fun stx => do
 
 def appendGoals (mvarIds : List MVarId) : TacticM Unit :=
   modify fun s => { s with goals := s.goals ++ mvarIds }
-
-def throwNoGoalsToBeSolved : TacticM α :=
-  throwError "no goals to be solved"
 
 def replaceMainGoal (mvarIds : List MVarId) : TacticM Unit := do
   let (mvarId :: mvarIds') ← getGoals | throwNoGoalsToBeSolved
@@ -294,42 +330,8 @@ def closeMainGoal (val : Expr) (checkUnassigned := true): TacticM Unit := do
     let gs ← tactic mvarId
     pure ((), gs)
 
-def done : TacticM Unit := do
-  let gs ← getUnsolvedGoals
-  unless gs.isEmpty do
-    Term.reportUnsolvedGoals gs
-
 @[builtinTactic Lean.Parser.Tactic.«done»] def evalDone : Tactic := fun _ =>
   done
-
-def focus (x : TacticM α) : TacticM α := do
-  let mvarId :: mvarIds ← getUnsolvedGoals | throwNoGoalsToBeSolved
-  setGoals [mvarId]
-  let a ← x
-  let mvarIds' ← getUnsolvedGoals
-  setGoals (mvarIds' ++ mvarIds)
-  pure a
-
-def focusAndDone (tactic : TacticM α) : TacticM α :=
-  focus do
-    let a ← tactic
-    done
-    pure a
-
-/- Assign `mvarId := sorry` -/
-def admitGoal (mvarId : MVarId) : TacticM Unit := do
-  let mvarType ← inferType (mkMVar mvarId)
-  assignExprMVar mvarId (← mkSorry mvarType (synthetic := true))
-
-/- Close the main goal using the given tactic. If it fails, log the error and `admit` -/
-def closeUsingOrAdmit (tac : TacticM Unit) : TacticM Unit := do
-  let mvarId :: mvarIds ← getUnsolvedGoals | throwNoGoalsToBeSolved
-  try
-    focusAndDone tac
-  catch ex =>
-    logException ex
-    admitGoal mvarId
-    setGoals mvarIds
 
 def tryTactic? (tactic : TacticM α) : TacticM (Option α) := do
   try
@@ -343,7 +345,6 @@ def tryTactic (tactic : TacticM α) : TacticM Bool := do
     pure true
   catch _ =>
     pure false
-
 /--
   Use `parentTag` to tag untagged goals at `newGoals`.
   If there are multiple new untagged goals, they are named using `<parentTag>.<newSuffix>_<idx>` where `idx > 0`.

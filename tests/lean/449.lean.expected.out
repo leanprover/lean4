@@ -1,0 +1,10 @@
+449.lean:7:54-7:55: error: don't know how to synthesize placeholder
+context:
+m n : Nat
+ih : m * n = n * m
+⊢ m * n + m = m * n + succ zero * m
+449.lean:13:19-13:20: error: don't know how to synthesize placeholder
+context:
+x y : Prop
+h : y
+⊢ x

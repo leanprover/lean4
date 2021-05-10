@@ -50,7 +50,6 @@ def evalRewriteCore (mode : TransparencyMode) : Tactic := fun stx => do
   let loc   := expandOptLocation stx[2]
   -- show initial state up to (incl.) `[`
   withTacticInfoContext (mkNullNode #[token, lbrak]) (pure ())
-  let mut newTacs := #[]
   let numRules := (rules.size + 1) / 2
   for i in [:numRules] do
     let rule := rules[i * 2]

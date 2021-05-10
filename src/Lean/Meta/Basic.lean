@@ -440,8 +440,8 @@ def mkForallFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedL
 def mkLambdaFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) : MetaM Expr :=
   if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.mkLambda xs e usedOnly usedLetOnly
 
-def mkLetFVars (xs : Array Expr) (e : Expr) : MetaM Expr :=
-  mkLambdaFVars xs e
+def mkLetFVars (xs : Array Expr) (e : Expr) (usedLetOnly := true) : MetaM Expr :=
+  mkLambdaFVars xs e (usedLetOnly := usedLetOnly)
 
 def mkArrow (d b : Expr) : MetaM Expr := do
   let n ← mkFreshUserName `x

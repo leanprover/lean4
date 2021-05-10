@@ -1,0 +1,4 @@
+450.lean:2:11-2:12: error: don't know how to synthesize placeholder
+context:
+⊢ ?m
+450.lean:2:6-2:7: error: failed to infer 'let' declaration type

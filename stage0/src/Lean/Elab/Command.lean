@@ -486,7 +486,7 @@ partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM Unit :=
   elabChoiceAux stx.getArgs 0
 
 @[builtinCommandElab «universe»] def elabUniverse : CommandElab := fun n => do
-  addUnivLevel n[1]
+  n[1].forArgsM addUnivLevel
 
 @[builtinCommandElab «universes»] def elabUniverses : CommandElab := fun n => do
   n[1].forArgsM addUnivLevel

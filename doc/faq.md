@@ -54,6 +54,6 @@ We expect similar independent checkers will be built for Lean 4.
 
 * Should I open a new issue?
 
-We use [github](https://github.com/leanprover/lean4/issues) to track bugs and new features.
+We use [GitHub](https://github.com/leanprover/lean4/issues) to track bugs and new features.
 Bug reports are always welcome, but nitpicking issues are not (e.g., the error message is confusing).
 RFC issues are created by developers only.

@@ -258,7 +258,7 @@ def getAt? (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
   lctx.decls.get! i
 
 section
-universes u v
+universe u v
 variable {m : Type u → Type v} [Monad m]
 variable {β : Type u}
 
@@ -345,7 +345,7 @@ def mkForall (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
   mkBinding false lctx xs b
 
 section
-universes u
+universe u
 variable {m : Type → Type u} [Monad m]
 
 @[inline] def anyM (lctx : LocalContext) (p : LocalDecl → m Bool) : m Bool :=

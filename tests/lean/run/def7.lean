@@ -9,7 +9,7 @@ def szn.{u} {α : Type u} (n : Nat) : InfTree α → InfTree α → Nat
 | node c, leaf b => 0
 | node c, node d => szn n (c n) (d n)
 
-universes u
+universe u
 
 theorem ex1 {α : Type u} (n : Nat) (c : Nat → InfTree α) (d : Nat → InfTree α) : szn n (node c) (node d) = szn n (c n) (d n) :=
 rfl

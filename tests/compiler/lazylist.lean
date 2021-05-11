@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 
-universes u v w
+universe u v w
 
 inductive LazyList (α : Type u)
 | nil                               : LazyList α

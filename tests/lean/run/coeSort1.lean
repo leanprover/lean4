@@ -1,6 +1,6 @@
 --
 
-universes u
+universe u
 
 def Below (n : Nat) : Nat → Prop :=
   (· < n)

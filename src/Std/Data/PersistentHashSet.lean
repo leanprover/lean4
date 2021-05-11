@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 import Std.Data.PersistentHashMap
 
 namespace Std
-universes u v
+universe u v
 
 structure PersistentHashSet (α : Type u) [BEq α] [Hashable α] where
   (set : PersistentHashMap α Unit)

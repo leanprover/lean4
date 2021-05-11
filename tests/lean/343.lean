@@ -14,7 +14,7 @@ def Catish : CatIsh :=
     Hom := FunctorIsh
   }
 
-universes m o
+universe m o
 unif_hint (mvar : CatIsh) where
   Catish.{m,o} =?= mvar |- mvar.Obj =?= CatIsh.{m,o}
 

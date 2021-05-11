@@ -10,7 +10,7 @@ import Init.Data.UInt
 import Init.Data.Repr
 import Init.Data.ToString.Basic
 import Init.Util
-universes u v w
+universe u v w
 
 namespace Array
 variable {α : Type u}

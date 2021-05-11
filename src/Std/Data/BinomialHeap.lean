@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 namespace Std
-universes u
+universe u
 namespace BinomialHeapImp
 
 structure HeapNodeAux (α : Type u) (h : Type u) where

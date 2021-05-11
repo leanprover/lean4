@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 namespace Std
-universes u
+universe u
 /--
 A difference List is a Function that, given a List, returns the original
 contents of the difference List prepended to the given List.

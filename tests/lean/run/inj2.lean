@@ -1,4 +1,4 @@
-universes u v
+universe u v
 
 inductive Vec2 (α : Type u) (β : Type v) : Nat → Type (max u v)
 | nil  : Vec2 α β 0

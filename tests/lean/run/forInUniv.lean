@@ -1,5 +1,5 @@
 
-universes u
+universe u
 
 def f {α : Type u} [BEq α] (xs : List α) (y : α) : α := do
 for x in xs do

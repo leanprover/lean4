@@ -9,7 +9,7 @@ import Init.Data.List.BasicAux
 import Init.Data.String
 import Init.System.IO
 
-universes u v w w'
+universe u v w w'
 
 inductive color
 | Red | Black

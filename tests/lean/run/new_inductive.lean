@@ -1,4 +1,4 @@
-universes u v
+universe u v
 
 inductive myList (α : Type u)
 | nil  : myList α

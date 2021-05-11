@@ -1,4 +1,4 @@
-universes u v
+universe u v
 
 inductive Imf {α : Type u} {β : Type v} (f : α → β) : β → Type (max u v)
 | mk : (a : α) → Imf f (f a)

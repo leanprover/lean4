@@ -6,7 +6,7 @@ Authors: Daniel Selsam
 Simple stack API implemented using an array.
 -/
 namespace Std
-universes u v w
+universe u v w
 
 structure Stack (α : Type u) where
   vals : Array α := #[]

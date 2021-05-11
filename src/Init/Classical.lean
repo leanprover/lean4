@@ -7,7 +7,7 @@ prelude
 import Init.Core
 import Init.NotationExtra
 
-universes u v
+universe u v
 
 /- Classical reasoning support -/
 

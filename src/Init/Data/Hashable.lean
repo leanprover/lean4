@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.UInt
 import Init.Data.String
-universes u
+universe u
 
 instance : Hashable Nat where
   hash n := USize.ofNat n

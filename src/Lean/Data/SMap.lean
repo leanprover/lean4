@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Std.Data.HashMap
 import Std.Data.PersistentHashMap
-universes u v w w'
+universe u v w w'
 
 namespace Lean
 

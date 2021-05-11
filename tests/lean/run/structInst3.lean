@@ -1,5 +1,5 @@
 
-universes u
+universe u
 
 namespace Ex1
 

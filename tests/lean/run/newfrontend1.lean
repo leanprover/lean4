@@ -305,7 +305,7 @@ def altTst3 {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
 #check_failure 1 + true
 
 /-
-universes u v
+universe u v
 
 /-
   MonadFunctorT.{u ?M_1 v} (λ (β : Type u), m α) (λ (β : Type u), m' α) n n'

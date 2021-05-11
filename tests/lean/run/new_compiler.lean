@@ -1,6 +1,6 @@
 
 
-universes u v w r s
+universe u v w r s
 
 set_option trace.compiler.stage1 true
 -- set_option pp.explicit true

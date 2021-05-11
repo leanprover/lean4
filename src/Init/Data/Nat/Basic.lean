@@ -5,7 +5,7 @@ Authors: Floris van Doorn, Leonardo de Moura
 -/
 prelude
 import Init.SimpLemmas
-universes u
+universe u
 
 namespace Nat
 

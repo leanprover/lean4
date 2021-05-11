@@ -8,7 +8,7 @@ import Init.SimpLemmas
 import Init.Data.Nat.Basic
 open Decidable List
 
-universes u v w
+universe u v w
 
 variable {α : Type u} {β : Type v} {γ : Type w}
 

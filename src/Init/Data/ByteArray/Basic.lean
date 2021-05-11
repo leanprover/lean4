@@ -8,7 +8,7 @@ import Init.Data.Array.Basic
 import Init.Data.Array.Subarray
 import Init.Data.UInt
 import Init.Data.Option.Basic
-universes u
+universe u
 
 structure ByteArray where
   data : Array UInt8

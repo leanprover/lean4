@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Std.Data.RBMap
 namespace Std
-universes u v w
+universe u v w
 
 def RBTree (α : Type u) (cmp : α → α → Ordering) : Type u :=
   RBMap α Unit cmp

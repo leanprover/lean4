@@ -1,4 +1,4 @@
-universes u
+universe u
 
 def concat {α} : List α → α → List α
   | [],    a => [a]

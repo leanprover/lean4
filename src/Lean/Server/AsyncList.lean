@@ -8,7 +8,7 @@ import Init.System.IO
 
 namespace IO
 
-universes u v
+universe u v
 
 /-- An async IO list is like a lazy list but instead of being *unevaluated* `Thunk`s,
 lazy tails are `Task`s *being evaluated asynchronously*. A tail can signal the end

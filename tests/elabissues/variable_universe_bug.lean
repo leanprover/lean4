@@ -7,7 +7,7 @@ we don't want to bother fixing the C++ bug, and we don't want to add a failing t
 The issue is that collecting implicit locals does not collect additional universe parameters
 the locals depend on.
 -/
-universes v u
+universe v u
 class Category (C : Type u) :=
 (Hom : ∀ (X Y : C), Type v)
 

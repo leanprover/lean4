@@ -21,7 +21,7 @@ example {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
   .. StateT.Monad }
 
 -- works
-universes u v
+universe u v
 example {m m' σ σ'} {n n' : Type u → Type v} [MonadFunctor m m' n n'] [MonadStateAdapter σ σ' m m'] : MonadStateAdapter σ σ' n n' :=
 ⟨fun σ'' α split join => monadMap (fun α => (adaptState split join : m α → m' α))⟩
 

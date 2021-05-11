@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 
-universes u v w
+universe u v w
 
 @[inline] def id {α : Sort u} (a : α) : α := a
 

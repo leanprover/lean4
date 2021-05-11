@@ -1,4 +1,4 @@
-universes u
+universe u
 
 axiom elimEx (motive : Nat → Nat → Sort u) (x y : Nat)
   (diag  : (a : Nat) → motive a a)

@@ -3,7 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
-universes u v w w'
+universe u v w w'
 namespace Std
 
 /- List-like type to avoid extra level of indirection -/

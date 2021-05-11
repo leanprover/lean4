@@ -1,4 +1,4 @@
-universes u v w
+universe u v w
 
 structure A (α : Type u) :=
 (f : (β : Type u) → α → β → α)

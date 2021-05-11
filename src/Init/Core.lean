@@ -9,7 +9,7 @@ prelude
 import Init.Prelude
 import Init.SizeOf
 
-universes u v w
+universe u v w
 
 def inline {α : Sort u} (a : α) : α := a
 
@@ -807,7 +807,7 @@ protected abbrev hrecOn
 end
 
 section
-universes uA uB uC
+universe uA uB uC
 variable {α : Sort uA} {β : Sort uB} {φ : Sort uC}
 variable [s₁ : Setoid α] [s₂ : Setoid β]
 
@@ -888,7 +888,7 @@ theorem exact [s : Setoid α] {a b : α} : Quotient.mk a = Quotient.mk b → a �
 end Exact
 
 section
-universes uA uB uC
+universe uA uB uC
 variable {α : Sort uA} {β : Sort uB}
 variable [s₁ : Setoid α] [s₂ : Setoid β]
 

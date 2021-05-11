@@ -6,7 +6,7 @@ open Lean.Meta.Match
 
 /- Infrastructure for testing -/
 
-universes u v
+universe u v
 
 def check (x : Bool) : IO Unit := do
 unless x do

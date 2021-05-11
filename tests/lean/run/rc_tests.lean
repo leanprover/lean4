@@ -1,5 +1,5 @@
 
-universes u v
+universe u v
 
 -- set_option pp.binder_types false
 set_option pp.explicit true

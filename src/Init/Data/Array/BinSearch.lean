@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Array.Basic
-universes u v
+universe u v
 
 -- TODO: CLEANUP
 

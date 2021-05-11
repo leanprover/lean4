@@ -11,7 +11,7 @@ the bind operator forces the universes of the two applications of M to be the sa
 So, we can not naively write:
 -/
 
-universes u v
+universe u v
 axiom Foo : Type u → Type v
 @[instance] axiom fooMonad : Monad Foo
 

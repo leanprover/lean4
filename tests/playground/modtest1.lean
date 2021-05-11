@@ -26,7 +26,7 @@ testParser "
 prelude
 import init.core
 
-universes u v
+universe u v
   def b : Type
 
 class Alternative (f : Type u → Type v) extends Applicative f : Type (max (u+1) v) :=

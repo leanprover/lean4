@@ -1,4 +1,4 @@
-universes u
+universe u
 
 inductive Partial (α : Type u)
 | val (a : α) : Partial

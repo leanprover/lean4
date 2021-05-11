@@ -622,8 +622,7 @@ def withCaseRef [Monad m] [MonadRef m] (arrow body : Syntax) (x : m α) : m α :
     setGoals gs
   | _ => throwUnsupportedSyntax
 
--- syntax (name := firstNew) "firstNew " withPosition((colGe "|" tacticSeq)+) : tactic
-@[builtinTactic «firstNew»] partial def evalFirstNew : Tactic := fun stx => do
+@[builtinTactic «first»] partial def evalFirst : Tactic := fun stx => do
   let tacs := stx[1].getArgs
   if tacs.isEmpty then throwUnsupportedSyntax
   loop tacs 0
@@ -633,20 +632,6 @@ where
       evalTactic tacs[i][1]
     else
       evalTactic tacs[i][1] <|> loop tacs (i+1)
-
-@[builtinTactic «first»] partial def evalFirst : Tactic := fun stx => do
-  if stx.getNumArgs == 2 then
-    evalFirstNew stx
-  else
-    let tacs := stx[2].getSepArgs
-    if tacs.isEmpty then throwUnsupportedSyntax
-    loop tacs 0
-where
-  loop (tacs : Array Syntax) (i : Nat) :=
-    if i == tacs.size - 1 then
-      evalTactic tacs[i]
-    else
-      evalTactic tacs[i] <|> loop tacs (i+1)
 
 builtin_initialize registerTraceClass `Elab.tactic
 

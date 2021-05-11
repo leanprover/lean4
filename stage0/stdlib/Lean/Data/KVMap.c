@@ -147,7 +147,6 @@ lean_object* l_Lean_KVMap_instValueNat___closed__1;
 lean_object* l_Lean_KVMap_instValueNat___closed__2;
 lean_object* l_Lean_DataValue_str_match__1(lean_object*);
 uint8_t l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_17_(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23515____closed__8;
 lean_object* l_Lean_KVMap_get(lean_object*);
 lean_object* l_Lean_KVMap_empty;
 lean_object* l_Lean_KVMap_instValueString;
@@ -159,6 +158,7 @@ uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getBool_match__1(lean_object*);
 extern lean_object* l_Int_instInhabitedInt___closed__1;
 lean_object* l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_17__match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
 lean_object* lean_nat_abs(lean_object*);
 lean_object* l_Lean_KVMap_subset_match__1(lean_object*);
 lean_object* l_Lean_KVMap_instValueName___lambda__1(lean_object*);
@@ -774,7 +774,7 @@ lean_dec(x_1);
 if (x_3 == 0)
 {
 lean_object* x_4; 
-x_4 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23515____closed__8;
+x_4 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
 return x_4;
 }
 else

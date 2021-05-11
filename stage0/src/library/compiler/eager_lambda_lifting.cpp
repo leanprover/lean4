@@ -139,13 +139,17 @@ class eager_lambda_lifting_fn {
                             ok = false;
                             return false;
                         } else {
-                            if (!collect_fvars_core(d.get_type(), collected, fvars))
+                            if (!collect_fvars_core(d.get_type(), collected, fvars)) {
+                                ok = false;
                                 return false;
+                            }
                             if (m_closed_fvars.contains(fvar_name(x))) {
                                 /* If x only depends on global constants and other variables in m_closed_fvars.
                                    Then, we also collect the other variables at m_closed_fvars. */
-                                if (!collect_fvars_core(*d.get_value(), collected, fvars))
+                                if (!collect_fvars_core(*d.get_value(), collected, fvars)) {
+                                    ok = false;
                                     return false;
+                                }
                             }
                             fvars.push_back(x);
                         }

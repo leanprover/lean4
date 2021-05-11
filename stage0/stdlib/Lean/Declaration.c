@@ -43,7 +43,6 @@ lean_object* lean_mk_inductive_decl(lean_object*, lean_object*, lean_object*, ui
 lean_object* l_List_foldlM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConstructorValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedConstantVal___closed__1;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21307____closed__3;
 lean_object* l_Lean_instInhabitedAxiomVal___closed__1;
 lean_object* l_Lean_ConstantInfo_value_x3f___boxed(lean_object*);
 lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_204____closed__6;
@@ -185,6 +184,7 @@ lean_object* l_Lean_ReducibilityHints_lt_match__1(lean_object*);
 lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__4___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x21___closed__3;
 lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21281____closed__3;
 lean_object* l_Lean_instInhabitedInductiveVal;
 lean_object* l_Lean_ConstantInfo_isCtor_match__1(lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x21(lean_object*);
@@ -3491,7 +3491,7 @@ lean_object* l_Lean_mkRecName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21307____closed__3;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21281____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

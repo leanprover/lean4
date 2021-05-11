@@ -18,6 +18,7 @@ lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg(lean_ob
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___elambda__10(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__35;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_strLit_parenthesizer(lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_first___closed__8;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___elambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_ident_parenthesizer___closed__1;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_charLit_parenthesizer___closed__1;
@@ -155,7 +156,6 @@ lean_object* l_Lean_Parser_Term_ident_parenthesizer(lean_object*, lean_object*, 
 extern lean_object* l_Lean_PrettyPrinter_combinatorParenthesizerAttribute;
 extern lean_object* l_Lean_Parser_tokenWithAntiquotFn___lambda__2___closed__4;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__2;
-extern lean_object* l_Lean_Parser_Tactic_firstNew___closed__6;
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___elambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_numLit_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___elambda__9(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -173,6 +173,7 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr_match__1___
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4_(lean_object*);
 extern lean_object* l_Lean_Parser_instAndThenParser___closed__1;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_scientificLit_parenthesizer___closed__1;
+extern lean_object* l_Lean_Parser_Tactic_first___closed__6;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__34;
 extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_parenthesizerAliasesRef;
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___elambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -208,7 +209,6 @@ lean_object* l_Lean_Parser_many1(lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_ident_parenthesizer(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_andthen_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___elambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_firstNew___closed__8;
 extern lean_object* l_Lean_Parser_leadingNode_formatter___closed__2;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__26;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_node_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -693,7 +693,7 @@ lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41;
 x_38 = lean_ctor_get(x_37, 1);
 lean_inc(x_38);
 lean_dec(x_37);
-x_39 = l_Lean_Parser_Tactic_firstNew___closed__8;
+x_39 = l_Lean_Parser_Tactic_first___closed__8;
 x_40 = l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__17;
 x_41 = l_Lean_Parser_registerAliasCore___rarg(x_2, x_39, x_40, x_38);
 if (lean_obj_tag(x_41) == 0)
@@ -756,7 +756,7 @@ lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69;
 x_66 = lean_ctor_get(x_65, 1);
 lean_inc(x_66);
 lean_dec(x_65);
-x_67 = l_Lean_Parser_Tactic_firstNew___closed__6;
+x_67 = l_Lean_Parser_Tactic_first___closed__6;
 x_68 = l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__31;
 x_69 = l_Lean_Parser_registerAliasCore___rarg(x_2, x_67, x_68, x_66);
 if (lean_obj_tag(x_69) == 0)

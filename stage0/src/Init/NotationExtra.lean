@@ -177,9 +177,9 @@ macro_rules
         @ $ctor:ident $ctorArgs*)
 
 /-
-  Similar to `first`, but succeeds only if one the given tactics solves the curretn goal.
+  Similar to `first`, but succeeds only if one the given tactics solves the current goal.
 -/
-syntax "solve " "|"? sepBy1(tacticSeq, "|") : tactic
+syntax (name := solve) "solve " withPosition((group(colGe "|" tacticSeq))+) : tactic
 
 macro_rules
-  | `(tactic| solve $[|]? $ts:tacticSeq|*) => `(tactic| focus first $[($ts); done]|*)
+  | `(tactic| solve $[| $ts]* ) => `(tactic| focus first $[| ($ts); done]*)

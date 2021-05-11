@@ -42,7 +42,7 @@ open Lean.Parser.Tactic in
 macro "rwd " x:term : tactic => `(rw [$x:term]; done)
 
 theorem ex (a b c : α) (h₁ : a = b) (h₂ : a = c) : b = a ∧ c = a := by
-  apply And.intro <;> first rwd h₁ | rwd h₂
+  apply And.intro <;> first | rwd h₁ | rwd h₂
 
 theorem idEq (a : α) : id a = a :=
   rfl

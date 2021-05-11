@@ -1,0 +1,9 @@
+{"textDocument": {"uri": "file://partialNamespace.lean"},
+ "position": {"line": 0, "character": 2}}
+[{"selectionRange":
+  {"start": {"line": 0, "character": 0}, "end": {"line": 0, "character": 9}},
+  "range":
+  {"start": {"line": 0, "character": 0}, "end": {"line": 0, "character": 9}},
+  "name": "[anonymous]",
+  "kind": 3,
+  "children": []}]

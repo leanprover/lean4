@@ -8,7 +8,7 @@ import Init.Data.Option.Basic
 import Init.Control.Basic
 import Init.Control.Except
 
-universes u v
+universe u v
 
 instance {α} : ToBool (Option α) := ⟨Option.toBool⟩
 

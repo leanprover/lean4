@@ -69,7 +69,6 @@ declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» 
 @[builtinCommandParser] def «end»          := leading_parser "end " >> optional ident
 @[builtinCommandParser] def «variable»     := leading_parser "variable" >> many1 Term.bracketedBinder
 @[builtinCommandParser] def «universe»     := leading_parser "universe " >> many1 ident
-@[builtinCommandParser] def «universes»    := leading_parser "universes " >> many1 ident
 @[builtinCommandParser] def check          := leading_parser "#check " >> termParser
 @[builtinCommandParser] def check_failure  := leading_parser "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check
 @[builtinCommandParser] def reduce         := leading_parser "#reduce " >> termParser

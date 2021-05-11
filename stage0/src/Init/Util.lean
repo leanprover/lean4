@@ -7,7 +7,7 @@ prelude
 import Init.Data.String.Basic
 import Init.Data.ToString.Basic
 
-universes u v
+universe u v
 /- debugging helper functions -/
 @[neverExtract, extern "lean_dbg_trace"]
 def dbgTrace {α : Type u} (s : String) (f : Unit → α) : α := f ()

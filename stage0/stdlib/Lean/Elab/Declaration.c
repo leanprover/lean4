@@ -263,7 +263,6 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_16268____closed__9;
 lean_object* l_Lean_Elab_Command_expandMutualNamespace_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_expandInitCmd___closed__3;
 lean_object* l_Lean_Elab_Command_getRef(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Command_universes___elambda__1___closed__1;
 lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_splitMutualPreamble_loop(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_expandDeclSig(lean_object*);
 lean_object* l_Lean_Elab_Term_elabType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4810,25 +4809,36 @@ x_8 = lean_name_eq(x_2, x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; uint8_t x_10; 
-x_9 = l_Lean_Parser_Command_universes___elambda__1___closed__1;
+x_9 = l_Lean_Parser_Command_check___elambda__1___closed__2;
 x_10 = lean_name_eq(x_2, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; uint8_t x_12; 
-x_11 = l_Lean_Parser_Command_check___elambda__1___closed__2;
+x_11 = l_Lean_Parser_Command_set__option___elambda__1___closed__1;
 x_12 = lean_name_eq(x_2, x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; uint8_t x_14; 
-x_13 = l_Lean_Parser_Command_set__option___elambda__1___closed__1;
+x_13 = l_Lean_Parser_Command_open___elambda__1___closed__1;
 x_14 = lean_name_eq(x_2, x_13);
-if (x_14 == 0)
-{
-lean_object* x_15; uint8_t x_16; 
-x_15 = l_Lean_Parser_Command_open___elambda__1___closed__1;
-x_16 = lean_name_eq(x_2, x_15);
 lean_dec(x_2);
+return x_14;
+}
+else
+{
+uint8_t x_15; 
+lean_dec(x_2);
+x_15 = 1;
+return x_15;
+}
+}
+else
+{
+uint8_t x_16; 
+lean_dec(x_2);
+x_16 = 1;
 return x_16;
+}
 }
 else
 {
@@ -4852,30 +4862,6 @@ uint8_t x_19;
 lean_dec(x_2);
 x_19 = 1;
 return x_19;
-}
-}
-else
-{
-uint8_t x_20; 
-lean_dec(x_2);
-x_20 = 1;
-return x_20;
-}
-}
-else
-{
-uint8_t x_21; 
-lean_dec(x_2);
-x_21 = 1;
-return x_21;
-}
-}
-else
-{
-uint8_t x_22; 
-lean_dec(x_2);
-x_22 = 1;
-return x_22;
 }
 }
 }

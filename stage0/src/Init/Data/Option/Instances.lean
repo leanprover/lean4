@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Option.Basic
 
-universes u v
+universe u v
 
 theorem Option.eqOfEqSome {α : Type u} : ∀ {x y : Option α}, (∀z, x = some z ↔ y = some z) → x = y
   | none,   none,   h => rfl

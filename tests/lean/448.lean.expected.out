@@ -1,0 +1,2 @@
+448.lean:21:2-23:20: error: failed to synthesize instance
+  MonadExceptOf IO.Error M

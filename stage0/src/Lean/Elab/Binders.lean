@@ -547,7 +547,16 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
     else
       let val  ← elabTermEnsuringType valStx type
       let type ← mkForallFVars xs type
-      let val  ← mkLambdaFVars xs val
+      /- By default `mkLambdaFVars` and `mkLetFVars` create binders only for let-declarations that are actually used
+         in the body. This generates counterintuitive behavior in the elaborator since users will not be notified
+         about holes such as
+         ```
+          def ex : Nat :=
+            let x := _
+            42
+         ```
+       -/
+      let val  ← mkLambdaFVars xs val (usedLetOnly := false)
       pure (type, val, xs.size)
   trace[Elab.let.decl] "{id.getId} : {type} := {val}"
   let result ←
@@ -556,18 +565,18 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
         addLocalVarInfo id x
         let body ← elabTermEnsuringType body expectedType?
         let body ← instantiateMVars body
-        mkLetFVars #[x] body
+        mkLetFVars #[x] body (usedLetOnly := false)
     else
       let f ← withLocalDecl id.getId BinderInfo.default type fun x => do
         addLocalVarInfo id x
         let body ← elabTermEnsuringType body expectedType?
         let body ← instantiateMVars body
-        mkLambdaFVars #[x] body
+        mkLambdaFVars #[x] body (usedLetOnly := false)
       pure <| mkApp f val
   if elabBodyFirst then
     forallBoundedTelescope type arity fun xs type => do
       let valResult ← elabTermEnsuringType valStx type
-      let valResult ← mkLambdaFVars xs valResult
+      let valResult ← mkLambdaFVars xs valResult (usedLetOnly := false)
       unless (← isDefEq val valResult) do
         throwError "unexpected error when elaborating 'let'"
   pure result

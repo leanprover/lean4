@@ -49,9 +49,9 @@ private def getFirstCtor (d : Name) : MetaM (Option Name) := do
   let some (ConstantInfo.inductInfo { ctors := ctor::_, ..}) ← getConstNoEx? d | pure none
   return some ctor
 
-private def mkNullaryCtor (type : Expr) (nparams : Nat) : MetaM (Option Expr) :=
+private def mkNullaryCtor (type : Expr) (nparams : Nat) : MetaM (Option Expr) := do
   match type.getAppFn with
-  | Expr.const d lvls _ => do
+  | Expr.const d lvls _ =>
     let (some ctor) ← getFirstCtor d | pure none
     return mkAppN (mkConst ctor lvls) (type.getAppArgs.shrink nparams)
   | _ =>
@@ -72,7 +72,7 @@ private def getRecRuleFor (recVal : RecursorVal) (major : Expr) : Option Recurso
 
 private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM (Option Expr) := do
   let majorType ← inferType major
-  let majorType ← whnf majorType
+  let majorType ← instantiateMVars (← whnf majorType)
   let majorTypeI := majorType.getAppFn
   if !majorTypeI.isConstOf recVal.getInduct then
     return none
@@ -294,6 +294,7 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
 /- Given an expression `e`, compute its WHNF and if the result is a constructor, return field #i. -/
 def project? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
   let e ← whnf e
+  let e := toCtorIfLit e
   matchConstCtor e.getAppFn (fun _ => pure none) fun ctorVal _ =>
     let numArgs := e.getAppNumArgs
     let idx := ctorVal.numParams + i

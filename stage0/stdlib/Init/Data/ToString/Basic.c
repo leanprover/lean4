@@ -67,7 +67,6 @@ lean_object* l_instToStringUInt8___boxed(lean_object*);
 lean_object* l_instToStringId__1(lean_object*);
 lean_object* l_instToStringOption_match__1(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23470____closed__8;
 lean_object* l_instToStringUnit___boxed(lean_object*);
 lean_object* l_String_toInt_x3f___closed__3;
 lean_object* l_instToStringIterator(lean_object*);
@@ -122,6 +121,7 @@ lean_object* l_instToStringString___boxed(lean_object*);
 lean_object* l_instReprExcept___rarg___closed__1;
 extern lean_object* l_Id_instMonadId;
 lean_object* l_instToStringOption(lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23515____closed__8;
 uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
 lean_object* l_instReprExcept___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toString(lean_object*);
@@ -286,7 +286,7 @@ _start:
 if (x_1 == 0)
 {
 lean_object* x_2; 
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23470____closed__8;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23515____closed__8;
 return x_2;
 }
 else
@@ -350,7 +350,7 @@ _start:
 if (x_1 == 0)
 {
 lean_object* x_2; 
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23470____closed__8;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23515____closed__8;
 return x_2;
 }
 else

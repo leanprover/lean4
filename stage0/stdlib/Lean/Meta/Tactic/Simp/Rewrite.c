@@ -60,13 +60,13 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Meta_Simp_synthesizeArgs_synthesizeInstance___closed__5;
 lean_object* l_Lean_Meta_Simp_rewrite_tryLemma_x3f___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isClass_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23266____closed__5;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_synthesizeArgs___spec__1___closed__4;
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 uint8_t lean_expr_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_postDefault(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_Simp_rewrite_tryLemma_x3f___spec__1(lean_object*, lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23221____closed__5;
 lean_object* l_Lean_Meta_Simp_rewrite___closed__9;
 lean_object* l_Lean_Meta_Simp_synthesizeArgs_synthesizeInstance___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -6853,7 +6853,7 @@ x_8 = l_Lean_Expr_hasMVar(x_1);
 if (x_8 == 0)
 {
 lean_object* x_9; uint8_t x_10; 
-x_9 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23221____closed__5;
+x_9 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23266____closed__5;
 x_10 = l_Lean_Expr_isConstOf(x_1, x_9);
 if (x_10 == 0)
 {

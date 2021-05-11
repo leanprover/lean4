@@ -67,13 +67,10 @@ open Meta
   match stx with
   | `(have $[$x :]? $type from $val $[;]? $body)              => let x := mkId x; `(let_fun $x : $type := $val; $body)
   | `(have $[$x :]? $type by%$b $tac:tacticSeq $[;]? $body)   => `(have $[$x :]? $type from by%$b $tac:tacticSeq; $body)
-  | _                                                         =>
-    -- TODO: fix `match` syntax, and avoid this workaround
-    match stx with
-    | `(have $x:ident : $type:term := $val $[;]? $body)         => `(let_fun $x:ident : $type:term := $val; $body)
-    | `(have $x:ident := $val:term $[;]? $body)                 => `(let_fun $x:ident := $val:term ; $body)
-    | `(have $pattern:term := $val:term $[;]? $body)            => `(let_fun $pattern:term := $val:term ; $body)
-    | _                                                         => Macro.throwUnsupported
+  | `(have $x:ident : $type:term := $val $[;]? $body)         => `(let_fun $x:ident : $type:term := $val; $body)
+  | `(have $x:ident := $val:term $[;]? $body)                 => `(let_fun $x:ident := $val:term ; $body)
+  | `(have $pattern:term := $val:term $[;]? $body)            => `(let_fun $pattern:term := $val:term ; $body)
+  | _                                                         => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.suffices] def expandSuffices : Macro
   | `(suffices $[$x :]? $type from $val $[;]? $body)            => `(have $[$x :]? $type from $body; $val)

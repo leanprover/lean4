@@ -209,7 +209,6 @@ lean_object* l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_186
 lean_object* l_Lean_Server_FileWorker_instInhabitedCancelToken;
 lean_object* l_Lean_Server_FileWorker_handleDefinition_match__2(lean_object*);
 lean_object* l_Std_PersistentArray_forIn___at_Lean_Server_FileWorker_handlePlainGoal___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18765____closed__2;
 extern lean_object* l_Lean_auxRecExt;
 extern lean_object* l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_225____closed__8;
 lean_object* l_Lean_Server_FileWorker_unfoldCmdSnaps___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -359,6 +358,7 @@ lean_object* l_Lean_Server_FileWorker_parseParams___at_Lean_Server_FileWorker_ha
 lean_object* l_Std_RBNode_appendTrees___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleCompletion_match__2(lean_object*);
 lean_object* l_Lean_Elab_Command_mkState(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18810____closed__2;
 lean_object* l_Lean_Server_FileWorker_leanpkgSetupSearchPath_processStderr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_namespace___elambda__1___closed__2;
 lean_object* l_IO_AsyncList_waitFind_x3f___at_Lean_Server_FileWorker_withWaitFindSnap___spec__1(lean_object*, lean_object*, lean_object*);
@@ -25432,7 +25432,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Term_mkExplicitBinder___closed__1;
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18765____closed__2;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18810____closed__2;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }

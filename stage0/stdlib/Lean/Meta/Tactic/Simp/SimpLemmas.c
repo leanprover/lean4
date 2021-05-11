@@ -98,6 +98,7 @@ lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Meta_Tactic_Simp_SimpLem
 lean_object* l_List_mapM___at___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_preprocess___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkSimpLemmas(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_addSimpLemmaEntry___spec__12(lean_object*, lean_object*, size_t, size_t);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23266____closed__5;
 lean_object* l_Lean_Meta_SimpLemmas_erase___rarg___closed__1;
 lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -113,7 +114,6 @@ lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Meta_addSimpLemmaEntry___
 lean_object* l_Lean_Meta_SimpLemmas_eraseCore___at_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpLemmas___hyg_2179____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpLemmas___hyg_2179____closed__4;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23221____closed__5;
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at_Lean_Meta_addSimpLemmaEntry___spec__9(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SimpLemmas_erase___rarg___closed__2;
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_Meta_addSimpLemmaEntry___spec__6(lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -6120,7 +6120,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23221____closed__5;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23266____closed__5;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }

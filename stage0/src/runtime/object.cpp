@@ -2026,7 +2026,11 @@ extern "C" object * lean_mk_array(obj_arg n, obj_arg v) {
     for (; it != end; ++it) {
         *it = v;
     }
-    if (sz > 1) lean_inc_n(v, sz - 1);
+    if (sz == 0) {
+        lean_dec(v);
+    } else if (sz > 1) {
+        lean_inc_n(v, sz - 1);
+    }
     return r;
 }
 

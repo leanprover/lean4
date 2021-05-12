@@ -59,3 +59,7 @@
  "position": {"line": 42, "character": 3}}
 {"rendered": "```lean\nn : Nat\n⊢ 0 + n = n\n```",
  "goals": ["n : Nat\n⊢ 0 + n = n"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 46, "character": 3}}
+{"rendered": "```lean\na b : Nat\n⊢ a = b\n```",
+ "goals": ["a b : Nat\n⊢ a = b"]}

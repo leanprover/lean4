@@ -42,3 +42,7 @@ example : 0 + n = n := by
 example : 0 + n = n := by
   cases n with
  --^ $/lean/plainGoal
+
+example : ∀ a b : Nat, a = b := by
+  intro a b
+ --^ $/lean/plainGoal

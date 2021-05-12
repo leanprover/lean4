@@ -1,0 +1,6 @@
+456.lean:1:18-1:35: error: failed to solve universe constraint
+  u =?= max 1 ?u
+while trying to unify
+  Sort u : Type u
+with
+  Type : Type 1

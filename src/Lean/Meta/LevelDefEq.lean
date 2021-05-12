@@ -3,6 +3,8 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Util.CollectMVars
+import Lean.Util.ReplaceExpr
 import Lean.Meta.Basic
 import Lean.Meta.InferType
 
@@ -168,15 +170,47 @@ def getResetPostponed : MetaM (PersistentArray PostponedEntry) := do
   setPostponed {}
   return ps
 
-private def processPostponedStep : MetaM Bool :=
+/-- Annotate any constant and sort in `e` that satisfies `p` with `pp.universes true` -/
+private def exposeRelevantUniverses (e : Expr) (p : Level → Bool) : Expr :=
+  e.replace fun
+    | Expr.const _ us _ => if us.any p then some (e.setPPUniverses true) else none
+    | Expr.sort u _     => if p u then some (e.setPPUniverses true) else none
+    | _                 => none
+
+private def mkLeveErrorMessageCore (header : String) (entry : PostponedEntry) : MetaM MessageData := do
+  match entry.ctx? with
+  | none =>
+    return m!"{header}{indentD m!"{entry.lhs} =?= {entry.rhs}"}"
+  | some ctx =>
+    withLCtx ctx.lctx ctx.localInstances do
+      let s   := entry.lhs.collectMVars entry.rhs.collectMVars
+      /- `p u` is true if it contains a universe metavariable in `s` -/
+      let p (u : Level) := u.any fun | Level.mvar m _ => s.contains m | _ => false
+      let lhs := exposeRelevantUniverses (← instantiateMVars ctx.lhs) p
+      let rhs := exposeRelevantUniverses (← instantiateMVars ctx.rhs) p
+      try
+        addMessageContext m!"{header}{indentD m!"{entry.lhs} =?= {entry.rhs}"}\nwhile trying to unify{indentD m!"{lhs} : {← inferType lhs}"}\nwith{indentD m!"{rhs} : {← inferType rhs}"}"
+      catch _ =>
+        addMessageContext m!"{header}{indentD m!"{entry.lhs} =?= {entry.rhs}"}\nwhile trying to unify{indentD lhs}\nwith{indentD rhs}"
+
+def mkLevelStuckErrorMessage (entry : PostponedEntry) : MetaM MessageData := do
+  mkLeveErrorMessageCore "stuck at solving universe constraint" entry
+
+def mkLevelErrorMessage (entry : PostponedEntry) : MetaM MessageData := do
+  mkLeveErrorMessageCore "failed to solve universe constraint" entry
+
+private def processPostponedStep (exceptionOnFailure : Bool) : MetaM Bool :=
   traceCtx `Meta.isLevelDefEq.postponed.step do
     let ps ← getResetPostponed
     for p in ps do
       unless (← withReader (fun ctx => { ctx with defEqCtx? := p.ctx? }) <| isLevelDefEqAux p.lhs p.rhs) do
-        return false
+        if exceptionOnFailure then
+          throwError (← mkLevelErrorMessage p)
+        else
+          return false
     return true
 
-partial def processPostponed (mayPostpone : Bool := true) : MetaM Bool := do
+partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure := false) : MetaM Bool := do
   if (← getNumPostponed) == 0 then
     return true
   else
@@ -187,7 +221,7 @@ partial def processPostponed (mayPostpone : Bool := true) : MetaM Bool := do
           return true
         else
           trace[Meta.isLevelDefEq.postponed] "processing #{numPostponed} postponed is-def-eq level constraints"
-          if !(← processPostponedStep) then
+          if !(← processPostponedStep exceptionOnFailure) then
             return false
           else
             let numPostponed' ← getNumPostponed

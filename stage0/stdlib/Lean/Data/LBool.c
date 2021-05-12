@@ -35,13 +35,13 @@ lean_object* l_Bool_toLBool___boxed(lean_object*);
 lean_object* l_Lean_LBool_and___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_LBool_and_match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*);
 uint8_t l_Lean_instInhabitedLBool;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23522____closed__8;
 lean_object* l_Lean_instBEqLBool___closed__1;
 lean_object* l_toLBoolM___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_instBEqLBool;
 lean_object* l_Bool_toLBool_match__1(lean_object*);
 uint8_t l_Lean_LBool_neg(uint8_t);
 uint8_t l_Bool_toLBool(uint8_t);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
 lean_object* l_Lean_LBool_toString___closed__1;
 lean_object* l_Lean_LBool_and_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_11____boxed(lean_object*, lean_object*);
@@ -424,7 +424,7 @@ switch (x_1) {
 case 0:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23522____closed__8;
 return x_2;
 }
 case 1:

@@ -218,6 +218,7 @@ syntax (name := constructor) "constructor" : tactic
 syntax (name := case) "case " ident (ident <|> "_")* " => " tacticSeq : tactic
 syntax (name := allGoals) "allGoals " tacticSeq : tactic
 syntax (name := focus) "focus " tacticSeq : tactic
+syntax (name := block) "-" tacticSeq : tactic
 syntax (name := skip) "skip" : tactic
 syntax (name := done) "done" : tactic
 syntax (name := traceState) "traceState" : tactic

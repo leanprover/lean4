@@ -132,6 +132,7 @@ uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_addTrace___at_Lean_Meta_mkCongrLemma___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_186____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_IndPredBelow_mkBelow___closed__7;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21304____closed__3;
 lean_object* l_Lean_Meta_withLocalDecls_loop___at_Lean_Meta_IndPredBelow_mkCtorType_addMotives___spec__3___closed__1;
 lean_object* l_Lean_throwError___at_Lean_Meta_IndPredBelow_proveBrecOn_applyIH___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_IndPredBelow_mkBrecOnDecl_mkType___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -383,7 +384,6 @@ lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_IndPredBelow_mkCtorType_repla
 lean_object* l_Lean_Meta_IndPredBelow_mkContext_addMotives_match__1(lean_object*);
 lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Meta_IndPredBelow_proveBrecOn_applyCtors___spec__4(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Meta_IndPredBelow_mkContext_addMotives___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21281____closed__3;
 extern lean_object* l_Lean_instInhabitedInductiveVal;
 lean_object* l_Lean_Meta_IndPredBelow_proveBrecOn_intros_match__1___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
@@ -8313,7 +8313,7 @@ lean_dec(x_30);
 x_33 = lean_ctor_get(x_23, 0);
 lean_inc(x_33);
 lean_dec(x_23);
-x_34 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21281____closed__3;
+x_34 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_21304____closed__3;
 x_35 = lean_name_mk_string(x_33, x_34);
 x_36 = l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spec__1(x_35, x_5, x_6, x_7, x_8, x_32);
 if (lean_obj_tag(x_36) == 0)

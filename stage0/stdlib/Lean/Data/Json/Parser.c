@@ -111,6 +111,7 @@ lean_object* l_Lean_Json_Parser_strCore___lambda__1___boxed(lean_object*, lean_o
 lean_object* l_Lean_Json_Parser_objectCore___closed__2;
 lean_object* l_Lean_Json_Parser_num___lambda__5___closed__3;
 lean_object* l_Lean_Json_Parser_escapedChar___boxed__const__3;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23522____closed__8;
 lean_object* l_Lean_Json_Parser_lookahead___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_Parser_num___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_Parser_num___lambda__3___closed__1___boxed__const__1;
@@ -124,7 +125,6 @@ lean_object* l_Lean_Quickparse_instMonadQuickparse___closed__9;
 lean_object* l_Lean_Quickparse_peek_x3f(lean_object*);
 lean_object* l_Lean_Json_parse___closed__1;
 lean_object* l_Lean_Json_Parser_lookahead(lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
 lean_object* l_Lean_Json_Parser_hexChar(lean_object*);
 lean_object* l_Lean_Quickparse_instMonadQuickparse___closed__4;
 lean_object* l_Lean_Json_Parser_objectCore___closed__3;
@@ -4793,7 +4793,7 @@ return x_87;
 else
 {
 lean_object* x_88; lean_object* x_89; 
-x_88 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
+x_88 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23522____closed__8;
 x_89 = l_Lean_Quickparse_expect(x_88, x_1);
 if (lean_obj_tag(x_89) == 0)
 {

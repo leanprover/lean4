@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpLemmas___hyg_2179____spec__1(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23250____closed__5;
 lean_object* l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at_Lean_Meta_addSimpLemmaEntry___spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_modifyState___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
@@ -26,6 +25,7 @@ lean_object* l___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_mkSimpLem
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_checkTypeIsProp___closed__1;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_10540____closed__4;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23273____closed__5;
 lean_object* l_Lean_Meta_SimpLemma_name_x3f___default;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Std_fmt___at_Lean_Position_instToFormatPosition___spec__1(lean_object*);
@@ -6120,7 +6120,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23250____closed__5;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23273____closed__5;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }

@@ -67,11 +67,11 @@ lean_object* l_Lean_Json_render___closed__5;
 lean_object* l_Lean_Json_render___closed__3;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23522____closed__8;
 extern lean_object* l_Id_instMonadId;
 lean_object* l_String_foldlAux_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_render_match__1(lean_object*);
 lean_object* l_Lean_Json_instToFormatJson;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
 lean_object* l_Lean_Json_render___closed__4;
 lean_object* l_Lean_Json_instToStringJson(lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_16268____closed__9;
@@ -746,7 +746,7 @@ lean_dec(x_1);
 if (x_3 == 0)
 {
 lean_object* x_4; 
-x_4 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
+x_4 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23522____closed__8;
 return x_4;
 }
 else

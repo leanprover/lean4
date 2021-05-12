@@ -429,6 +429,7 @@ lean_object* l_Lean_mkHole(lean_object*);
 lean_object* l_Lean_Syntax_expandInterpolatedStr___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_scientificLitKind;
 lean_object* l_Array_foldlMUnsafe_fold___at_Array_getSepElems___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23522____closed__8;
 uint8_t l_Array_isEqvAux___at_Lean_Syntax_structEq___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instQuoteString___boxed(lean_object*);
 lean_object* l_Lean_Syntax_expandInterpolatedStrChunks___closed__1;
@@ -471,7 +472,6 @@ lean_object* l_Lean_evalPrec___closed__1;
 lean_object* l_Lean_Name_toStringWithSep___closed__1;
 lean_object* l_Lean_NameGenerator_curr(lean_object*);
 lean_object* l_Lean_Syntax_SepArray_getElems___rarg___boxed(lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
 lean_object* l_Lean_Syntax_isNameLit_x3f___boxed(lean_object*);
 lean_object* l___private_Init_Meta_0__Array_mapSepElemsMAux___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6460____closed__10;
@@ -9214,7 +9214,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_instQuoteBool___closed__2;
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23522____closed__8;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

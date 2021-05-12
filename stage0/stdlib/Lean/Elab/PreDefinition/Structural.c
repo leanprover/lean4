@@ -272,6 +272,7 @@ lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structu
 lean_object* l_Lean_throwError___at___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_findRecArg_loop___spec__8___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_replaceRecApps_loop___lambda__1(lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_toBelowAux_match__2___rarg___closed__1;
+extern lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_mkLeveErrorMessageCore___lambda__3___closed__5;
 lean_object* l_Lean_Meta_mapErrorImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_replaceRecApps_loop___spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_transform___at_Lean_Core_betaReduce___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -495,7 +496,6 @@ lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structu
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_mkBRecOn___closed__6;
 uint8_t l_Lean_LocalDecl_isLet(lean_object*);
-extern lean_object* l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__3;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_updateAlts___lambda__2___closed__1;
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_findRecArg_loop___rarg___lambda__1(lean_object*, lean_object*);
@@ -10189,7 +10189,7 @@ x_121 = l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_r
 x_122 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_122, 0, x_121);
 lean_ctor_set(x_122, 1, x_120);
-x_123 = l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__3;
+x_123 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_mkLeveErrorMessageCore___lambda__3___closed__5;
 x_124 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_124, 0, x_122);
 lean_ctor_set(x_124, 1, x_123);

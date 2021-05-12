@@ -411,6 +411,7 @@ lean_object* l_Lean_Parser_termRegister__parser__alias_________closed__10;
 lean_object* l_Lean_initFn____x40_Lean_Parser_Extra___hyg_938____closed__10;
 lean_object* l_Lean_Parser_mkAntiquot_formatter___closed__7;
 lean_object* l_Lean_Parser_nameLit_parenthesizer___closed__2;
+extern lean_object* l_Lean_Parser_trailingLoopStep___closed__1;
 lean_object* l_Lean_Parser_many___elambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_charLit_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_symbolInfo(lean_object*);
@@ -577,7 +578,6 @@ lean_object* l_Lean_initFn____x40_Lean_Parser_Extra___hyg_1075_(lean_object*);
 lean_object* l_Lean_Parser_ppLine_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_categoryParser_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_andthenFn(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Parser_many1Indent___closed__2;
 static lean_object* _init_l_Lean_Parser_leadingNode_formatter___closed__1() {
 _start:
 {
@@ -3197,16 +3197,8 @@ return x_10;
 static lean_object* _init_l_Lean_Parser_many1Indent___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("irrelevant");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Parser_many1Indent___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_many1Indent___closed__1;
+x_1 = l_Lean_Parser_trailingLoopStep___closed__1;
 x_2 = lean_alloc_closure((void*)(l_Lean_Parser_checkColGeFn___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -3223,7 +3215,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
 lean_dec(x_1);
-x_6 = l_Lean_Parser_many1Indent___closed__2;
+x_6 = l_Lean_Parser_many1Indent___closed__1;
 x_7 = lean_alloc_closure((void*)(l_Lean_Parser_andthenFn), 4, 2);
 lean_closure_set(x_7, 0, x_6);
 lean_closure_set(x_7, 1, x_5);
@@ -3295,7 +3287,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
 lean_dec(x_1);
-x_6 = l_Lean_Parser_many1Indent___closed__2;
+x_6 = l_Lean_Parser_many1Indent___closed__1;
 x_7 = lean_alloc_closure((void*)(l_Lean_Parser_andthenFn), 4, 2);
 lean_closure_set(x_7, 0, x_6);
 lean_closure_set(x_7, 1, x_5);
@@ -6662,8 +6654,6 @@ l_Lean_Parser_nameLit = _init_l_Lean_Parser_nameLit();
 lean_mark_persistent(l_Lean_Parser_nameLit);
 l_Lean_Parser_many1Indent___closed__1 = _init_l_Lean_Parser_many1Indent___closed__1();
 lean_mark_persistent(l_Lean_Parser_many1Indent___closed__1);
-l_Lean_Parser_many1Indent___closed__2 = _init_l_Lean_Parser_many1Indent___closed__2();
-lean_mark_persistent(l_Lean_Parser_many1Indent___closed__2);
 l_Lean_Parser_ppHardSpace = _init_l_Lean_Parser_ppHardSpace();
 lean_mark_persistent(l_Lean_Parser_ppHardSpace);
 l_Lean_Parser_ppSpace = _init_l_Lean_Parser_ppSpace();

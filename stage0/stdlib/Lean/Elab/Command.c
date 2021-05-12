@@ -585,6 +585,7 @@ lean_object* l_Lean_Elab_Command_liftIO___rarg___boxed(lean_object*, lean_object
 lean_object* l_Lean_Elab_Command_instMonadInfoTreeCommandElabM___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_Elab_Command_elabCommand___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabSetOption___at_Lean_Elab_Command_elabSetOption___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_mkLeveErrorMessageCore___lambda__3___closed__5;
 lean_object* l_Lean_Elab_Command_elabEvalUnsafe___lambda__5___closed__1;
 lean_object* l_Lean_Elab_Command_modifyScope___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_elabSetOption___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -681,6 +682,7 @@ lean_object* l_Lean_Elab_Command_instMonadRefCommandElabM___closed__3;
 lean_object* l_Lean_throwError___at_Lean_Elab_Command_expandDeclId___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_macroAttribute;
 lean_object* l_Lean_Elab_Command_elabCommand_match__3(lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23522____closed__8;
 lean_object* l_Lean_Elab_Command_liftTermElabM_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_withMacroExpansion___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_environment_main_module(lean_object*);
@@ -755,7 +757,6 @@ lean_object* l___private_Lean_Elab_Command_0__Lean_Elab_Command_mkTermContext___
 lean_object* l_Lean_Elab_Command_elabNamespace(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_State_infoState___default___closed__1;
 extern lean_object* l_Lean_Elab_pp_macroStack;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
 lean_object* l_Lean_Elab_Command_getMainModule___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_instMonadLiftTIOCommandElabM(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabOpen(lean_object*);
@@ -954,7 +955,6 @@ lean_object* l_Lean_Elab_Command_liftEIO___rarg(lean_object*, lean_object*, lean
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_instMonadEnvCommandElabM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__3;
 lean_object* l_Lean_Elab_Command_lintersRef;
 lean_object* l_Lean_Elab_Command_runTermElabM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -25981,7 +25981,7 @@ x_28 = l_Lean_KernelException_toMessageData___closed__15;
 x_29 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_29, 0, x_28);
 lean_ctor_set(x_29, 1, x_27);
-x_30 = l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__3;
+x_30 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_mkLeveErrorMessageCore___lambda__3___closed__5;
 x_31 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set(x_31, 1, x_30);
@@ -26035,7 +26035,7 @@ x_41 = l_Lean_KernelException_toMessageData___closed__15;
 x_42 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_42, 0, x_41);
 lean_ctor_set(x_42, 1, x_40);
-x_43 = l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__3;
+x_43 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_mkLeveErrorMessageCore___lambda__3___closed__5;
 x_44 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_44, 0, x_42);
 lean_ctor_set(x_44, 1, x_43);
@@ -31207,7 +31207,7 @@ x_13 = lean_string_dec_eq(x_11, x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; uint8_t x_15; 
-x_14 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
+x_14 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23522____closed__8;
 x_15 = lean_string_dec_eq(x_11, x_14);
 lean_dec(x_11);
 if (x_15 == 0)

@@ -128,11 +128,11 @@ lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFr
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___spec__4(lean_object*, lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__5(lean_object*);
 lean_object* l_Lean_Elab_Info_fmtHover_x3f___lambda__2___closed__5;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18162____closed__3;
 extern lean_object* l_Lean_numLitKind;
 lean_object* l_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_Elab_InfoTree_foldInfo_go___spec__2(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_23692____closed__2;
 lean_object* l_Lean_Elab_InfoTree_smallestInfo_x3f_match__1(lean_object*);
 extern lean_object* l_Lean_strLitKind;
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_goalsAt_x3f___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -169,6 +169,7 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spe
 lean_object* l_List_filterAux___at_Lean_Elab_InfoTree_goalsAt_x3f___spec__7___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_InfoTree_foldInfo_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_23715____closed__2;
 lean_object* l_Lean_Elab_InfoTree_deepestNodes_go(lean_object*);
 lean_object* l_Lean_Elab_InfoTree_smallestInfo_x3f_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Info_stx(lean_object*);
@@ -262,7 +263,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spe
 lean_object* l_Lean_Elab_InfoTree_deepestNodes_go_match__2(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__13(lean_object*);
 lean_object* l_Lean_Elab_Info_fmtHover_x3f___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18139____closed__3;
 uint8_t l_Array_contains___at_Lean_Elab_InfoTree_hoverableInfoAt_x3f___spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_Elab_Info_isTerm(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -4858,8 +4858,7 @@ lean_inc(x_6);
 lean_dec(x_1);
 x_7 = lean_ctor_get(x_5, 0);
 lean_inc(x_7);
-lean_dec(x_5);
-x_8 = lean_apply_2(x_2, x_7, x_6);
+x_8 = lean_apply_3(x_2, x_5, x_7, x_6);
 return x_8;
 }
 case 3:
@@ -5010,6 +5009,7 @@ if (x_6 == 0)
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_array_uget(x_3, x_4);
 x_8 = l_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic(x_1, x_2, x_7);
+lean_dec(x_7);
 if (x_8 == 0)
 {
 size_t x_9; size_t x_10; 
@@ -5120,6 +5120,7 @@ if (x_6 == 0)
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_array_uget(x_3, x_4);
 x_8 = l_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic(x_1, x_2, x_7);
+lean_dec(x_7);
 if (x_8 == 0)
 {
 size_t x_9; size_t x_10; 
@@ -5235,6 +5236,7 @@ if (x_6 == 0)
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_array_uget(x_3, x_4);
 x_8 = l_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic(x_1, x_2, x_7);
+lean_dec(x_7);
 if (x_8 == 0)
 {
 size_t x_9; size_t x_10; 
@@ -5345,6 +5347,7 @@ if (x_6 == 0)
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_array_uget(x_3, x_4);
 x_8 = l_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic(x_1, x_2, x_7);
+lean_dec(x_7);
 if (x_8 == 0)
 {
 size_t x_9; size_t x_10; 
@@ -5427,61 +5430,59 @@ return x_5;
 uint8_t l_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; uint8_t x_7; lean_object* x_8; 
-x_6 = lean_ctor_get(x_4, 2);
-x_7 = 0;
-x_8 = l_Lean_Syntax_getPos_x3f(x_6, x_7);
-if (lean_obj_tag(x_8) == 0)
+lean_object* x_6; 
+x_6 = l_Lean_Elab_Info_pos_x3f(x_4);
+if (lean_obj_tag(x_6) == 0)
 {
-uint8_t x_9; 
-x_9 = l_Std_PersistentArray_anyM___at_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___spec__1(x_1, x_2, x_3);
-return x_9;
+uint8_t x_7; 
+x_7 = l_Std_PersistentArray_anyM___at_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___spec__1(x_1, x_2, x_3);
+return x_7;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; 
-x_10 = lean_ctor_get(x_8, 0);
-lean_inc(x_10);
+lean_object* x_8; lean_object* x_9; 
+x_8 = lean_ctor_get(x_6, 0);
+lean_inc(x_8);
+lean_dec(x_6);
+x_9 = l_Lean_Elab_Info_tailPos_x3f(x_4);
+if (lean_obj_tag(x_9) == 0)
+{
+uint8_t x_10; 
 lean_dec(x_8);
-x_11 = l_Lean_Syntax_getTailPos_x3f(x_6, x_7);
-if (lean_obj_tag(x_11) == 0)
-{
-uint8_t x_12; 
-lean_dec(x_10);
-x_12 = l_Std_PersistentArray_anyM___at_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___spec__1(x_1, x_2, x_3);
-return x_12;
+x_10 = l_Std_PersistentArray_anyM___at_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___spec__1(x_1, x_2, x_3);
+return x_10;
 }
 else
 {
-lean_object* x_13; uint8_t x_14; 
-x_13 = lean_ctor_get(x_11, 0);
-lean_inc(x_13);
+lean_object* x_11; uint8_t x_12; 
+x_11 = lean_ctor_get(x_9, 0);
+lean_inc(x_11);
+lean_dec(x_9);
+x_12 = lean_nat_dec_eq(x_8, x_1);
+lean_dec(x_8);
+if (x_12 == 0)
+{
+uint8_t x_13; 
 lean_dec(x_11);
-x_14 = lean_nat_dec_eq(x_10, x_1);
-lean_dec(x_10);
+x_13 = 1;
+return x_13;
+}
+else
+{
+uint8_t x_14; 
+x_14 = lean_nat_dec_eq(x_11, x_2);
+lean_dec(x_11);
 if (x_14 == 0)
 {
 uint8_t x_15; 
-lean_dec(x_13);
 x_15 = 1;
 return x_15;
 }
 else
 {
 uint8_t x_16; 
-x_16 = lean_nat_dec_eq(x_13, x_2);
-lean_dec(x_13);
-if (x_16 == 0)
-{
-uint8_t x_17; 
-x_17 = 1;
-return x_17;
-}
-else
-{
-uint8_t x_18; 
-x_18 = l_Std_PersistentArray_anyM___at_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___spec__1(x_1, x_2, x_3);
-return x_18;
+x_16 = l_Std_PersistentArray_anyM___at_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___spec__1(x_1, x_2, x_3);
+return x_16;
 }
 }
 }
@@ -5495,86 +5496,66 @@ if (lean_obj_tag(x_3) == 1)
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_3, 0);
-lean_inc(x_4);
 switch (lean_obj_tag(x_4)) {
 case 0:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_5 = lean_ctor_get(x_3, 1);
-lean_inc(x_5);
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_4, 0);
+x_6 = l_Lean_Elab_Info_stx(x_4);
+x_7 = l_myMacro____x40_Init_Notation___hyg_23715____closed__2;
 lean_inc(x_6);
-lean_dec(x_4);
-x_7 = lean_ctor_get(x_6, 2);
-lean_inc(x_7);
-x_8 = l_myMacro____x40_Init_Notation___hyg_23692____closed__2;
-lean_inc(x_7);
-x_9 = l_Lean_Syntax_isOfKind(x_7, x_8);
-if (x_9 == 0)
+x_8 = l_Lean_Syntax_isOfKind(x_6, x_7);
+if (x_8 == 0)
 {
-lean_object* x_10; uint8_t x_11; 
-lean_dec(x_7);
-x_10 = lean_box(0);
-x_11 = l_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___lambda__2(x_1, x_2, x_5, x_6, x_10);
+lean_object* x_9; uint8_t x_10; 
 lean_dec(x_6);
-lean_dec(x_5);
-return x_11;
+x_9 = lean_box(0);
+x_10 = l_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___lambda__2(x_1, x_2, x_5, x_4, x_9);
+return x_10;
 }
 else
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
-x_12 = lean_unsigned_to_nat(1u);
-x_13 = l_Lean_Syntax_getArg(x_7, x_12);
-lean_dec(x_7);
-x_14 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18139____closed__3;
-x_15 = l_Lean_Syntax_isOfKind(x_13, x_14);
-if (x_15 == 0)
-{
-lean_object* x_16; uint8_t x_17; 
-x_16 = lean_box(0);
-x_17 = l_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___lambda__2(x_1, x_2, x_5, x_6, x_16);
+lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+x_11 = lean_unsigned_to_nat(1u);
+x_12 = l_Lean_Syntax_getArg(x_6, x_11);
 lean_dec(x_6);
-lean_dec(x_5);
+x_13 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_18162____closed__3;
+x_14 = l_Lean_Syntax_isOfKind(x_12, x_13);
+if (x_14 == 0)
+{
+lean_object* x_15; uint8_t x_16; 
+x_15 = lean_box(0);
+x_16 = l_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___lambda__2(x_1, x_2, x_5, x_4, x_15);
+return x_16;
+}
+else
+{
+uint8_t x_17; 
+x_17 = 0;
 return x_17;
-}
-else
-{
-uint8_t x_18; 
-lean_dec(x_6);
-lean_dec(x_5);
-x_18 = 0;
-return x_18;
 }
 }
 }
 case 3:
 {
-lean_object* x_19; uint8_t x_20; 
-lean_dec(x_4);
-x_19 = lean_ctor_get(x_3, 1);
-lean_inc(x_19);
-lean_dec(x_3);
-x_20 = l_Std_PersistentArray_anyM___at_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___spec__6(x_1, x_2, x_19);
-lean_dec(x_19);
-return x_20;
+lean_object* x_18; uint8_t x_19; 
+x_18 = lean_ctor_get(x_3, 1);
+x_19 = l_Std_PersistentArray_anyM___at_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___spec__6(x_1, x_2, x_18);
+return x_19;
 }
 default: 
 {
-uint8_t x_21; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_21 = 0;
-return x_21;
+uint8_t x_20; 
+x_20 = 0;
+return x_20;
 }
 }
 }
 else
 {
-uint8_t x_22; 
-lean_dec(x_3);
-x_22 = 0;
-return x_22;
+uint8_t x_21; 
+x_21 = 0;
+return x_21;
 }
 }
 }
@@ -5754,6 +5735,7 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic(x_1, x_2, x_3);
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_5 = lean_box(x_4);
@@ -5804,6 +5786,7 @@ if (x_6 == 0)
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_array_uget(x_3, x_4);
 x_8 = l_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic(x_1, x_2, x_7);
+lean_dec(x_7);
 if (x_8 == 0)
 {
 size_t x_9; size_t x_10; 
@@ -5914,6 +5897,7 @@ if (x_6 == 0)
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_array_uget(x_3, x_4);
 x_8 = l_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic(x_1, x_2, x_7);
+lean_dec(x_7);
 if (x_8 == 0)
 {
 size_t x_9; size_t x_10; 

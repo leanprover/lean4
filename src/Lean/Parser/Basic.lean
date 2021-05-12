@@ -1878,6 +1878,21 @@ def leadingParserAux (kind : Name) (tables : PrattParsingTables) (behavior : Lea
   withAntiquotFn antiquotParser (leadingParserAux kind tables behavior)
 
 def trailingLoopStep (tables : PrattParsingTables) (left : Syntax) (ps : List (Parser × Nat)) : ParserFn := fun c s =>
+  /- Trailing tokens must be indented in whitespace-sensitive contexts.
+     This is so that code such as
+     ```
+     do
+       f a
+       - g b
+     ```
+     or
+     ```
+     by
+       apply f a
+       - apply g b
+     ```
+     is parsed as two actions/tactics instead of one big expression. -/
+  let s := checkColGtFn "irrelevant" c s
   longestMatchFn left (ps ++ tables.trailingParsers) c s
 
 partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) (s : ParserState) : ParserState := do

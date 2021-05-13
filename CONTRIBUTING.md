@@ -39,11 +39,10 @@ For issues marked as [`help wanted`](https://github.com/leanprover/lean4/issues?
 
 ## Unexpected Pull Requests
 
-We have very few core developers, and we cannot review arbitrary pull requests (PR).
-So, please contact the core developers before investing your time on a nontrivial modification.
-We suggest the following workflow:
-* Discuss with the Lean community on Zulip what the trade-offs are, whether the community is interested in your feature, and broadly supports it.
-* Create an issue on the [Lean 4 repository at GitHub](https://github.com/leanprover/lean4/issues), tag it with RFC.
+We have very few core developers, and we cannot review arbitrary pull requests (PRs). Moreover, many features involve subtle tradeoffs, and it may require significant time and energy to even assess a proposed design. We suggest the following workflow:
+
+* First, discuss your idea with the Lean community on Zulip. Ask the community to help collect examples, document the requirements, and detect complications.
+* If there is broad support, create a detailed issue for it on the Lean 4 repository at GitHub, and tag the issue with `RFC`.
 * Ask the community for help documenting the requirements, and for collecting examples and concerns.
 * Wait for one of the core developers to give you a "go ahead". At this point, the core developers will work with you to make sure your PR gets merged.
 

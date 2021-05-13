@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura, Sebastian Ullrich
+Authors: Leonardo de Moura, Sebastian Ullrich, Mario Caneiro
 -/
 import Lean.Util.CollectMVars
 import Lean.Parser.Command
@@ -397,6 +397,37 @@ private def evalManyTacticOptSemi (stx : Syntax) : TacticM Unit := do
     -- show focused state on `focus`
     withInfoContext (pure ()) (mkTacticInfo mctxBefore goalsBefore stx[0])
     evalTactic stx[1]
+
+/--
+The block structuring tactic. Blocks are started by an initial `-` and
+all tactics in the same indentation level are part of a block:
+```
+- tac1
+  tac2
+  tac3
+```
+A block hides all but the first goal, which must be closed at the end of the block.
+
+In this version, `tac1` produces two subgoals that are handled by `tac2` and `tac3` respectively:
+```
+- tac1
+  - tac2
+  - tac3
+```
+Blocks are a simple way to make it clear where and how goals are produced and discharged.
+Furthermore, errors in one block do not affect the processing of the rest of the proof: every block
+always discharges the goal it is tasked with, and will report a (non-fatal) error if not all
+subgoals are handled.
+-/
+@[builtinTactic Parser.Tactic.block] def evalBlock : Tactic := fun stx => do
+  let mctxBefore  ← getMCtx
+  let goalsBefore ← getGoals
+  focus do
+    -- show focused state on/after `-`
+    withInfoContext (pure ()) (mkTacticInfo mctxBefore goalsBefore stx[0])
+    withRef stx[0] do
+      closeUsingOrAdmit do
+        evalTactic stx[1]
 
 private def getOptRotation (stx : Syntax) : Nat :=
   if stx.isNone then 1 else stx[0].toNat

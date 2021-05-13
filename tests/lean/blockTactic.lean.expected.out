@@ -1,0 +1,21 @@
+blockTactic.lean:12:2-12:3: error: unsolved goals
+case a
+p : Prop
+h : True → True → p
+⊢ True
+
+case a
+p : Prop
+h : True → True → p
+⊢ True
+blockTactic.lean:13:2-13:11: error: no goals to be solved
+blockTactic.lean:25:4-25:11: error: tactic 'assumption' failed, 
+case a
+p : Prop
+h : False → False → p
+⊢ False
+blockTactic.lean:26:4-26:11: error: tactic 'assumption' failed, 
+case a
+p : Prop
+h : False → False → p
+⊢ False

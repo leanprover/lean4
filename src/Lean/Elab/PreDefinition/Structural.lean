@@ -188,12 +188,10 @@ private partial def toBelowAux (C : Expr) : Expr → Expr → Expr → MetaM Exp
     match belowDict with
     | Expr.app (Expr.app (Expr.const `PProd _ _) d1 _) d2 _ =>
       (do toBelowAux C d1 arg (← mkAppM `PProd.fst #[F]))
-      <|>
-      (do toBelowAux C d2 arg (← mkAppM `PProd.snd #[F]))
+        <|> (do toBelowAux C d2 arg (← mkAppM `PProd.snd #[F]))
     | Expr.app (Expr.app (Expr.const `And _ _) d1 _) d2 _ =>
       (do toBelowAux C d1 arg (← mkAppM `And.left #[F]))
-      <|>
-      (do toBelowAux C d2 arg (← mkAppM `And.right #[F]))
+        <|> (do toBelowAux C d2 arg (← mkAppM `And.right #[F]))
     | _ => forallTelescopeReducing belowDict fun xs belowDict => do
       let argArgs := arg.getAppArgs
       unless argArgs.size >= xs.size do throwToBelowFailed

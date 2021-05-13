@@ -87,12 +87,9 @@ def checkSyntaxNodeKindAtNamespaces (k : Name) : AttrM Name := do
 
 def syntaxNodeKindOfAttrParam (defaultParserNamespace : Name) (stx : Syntax) : AttrM SyntaxNodeKind := do
   let k ← Attribute.Builtin.getId stx
-  checkSyntaxNodeKind k
-  <|>
-  checkSyntaxNodeKindAtNamespaces k
-  <|>
-  checkSyntaxNodeKind (defaultParserNamespace ++ k)
-  <|>
+  checkSyntaxNodeKind k <|>
+  checkSyntaxNodeKindAtNamespaces k <|>
+  checkSyntaxNodeKind (defaultParserNamespace ++ k) <|>
   throwError "invalid syntax node kind '{k}'"
 
 private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax :=

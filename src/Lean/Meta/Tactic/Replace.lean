@@ -65,7 +65,7 @@ def replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqPro
     let result ← assertAfter mvarId localDecl'.fvarId localDecl.userName typeNew typeNewPr
     (do let mvarIdNew ← clear result.mvarId fvarId
         pure { result with mvarId := mvarIdNew })
-    <|> pure result
+      <|> pure result
 where
   findMaxFVar (e : Expr) : StateRefT LocalDecl MetaM Unit :=
     e.forEach' fun e => do

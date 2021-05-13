@@ -25,11 +25,11 @@ def addToBlackList (env : Environment) (declName : Name) : Environment :=
 private def isBlackListed (declName : Name) : MetaM Bool := do
   let env ← getEnv
   (declName.isInternal && !isPrivateName declName)
-  <||> isAuxRecursor env declName
-  <||> isNoConfusion env declName
-  <||> isRec declName
-  <||> completionBlackListExt.isTagged env declName
-  <||> isMatcher declName
+    <||> isAuxRecursor env declName
+    <||> isNoConfusion env declName
+    <||> isRec declName
+    <||> completionBlackListExt.isTagged env declName
+    <||> isMatcher declName
 
 private partial def consumeImplicitPrefix (e : Expr) : MetaM Expr := do
   match e with

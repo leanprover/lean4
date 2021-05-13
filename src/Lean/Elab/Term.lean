@@ -1021,6 +1021,11 @@ private def isNoImplicitLambda (stx : Syntax) : Bool :=
   | `(noImplicitLambda% $x:term) => true
   | _ => false
 
+private def isTypeAscription (stx : Syntax) : Bool :=
+  match stx with
+  | `(($e : $type)) => true
+  | _               => false
+
 def mkNoImplicitLambdaAnnotation (type : Expr) : Expr :=
   mkAnnotation `noImplicitLambda type
 
@@ -1031,7 +1036,8 @@ def hasNoImplicitLambdaAnnotation (type : Expr) : Bool :=
 def blockImplicitLambda (stx : Syntax) : Bool :=
   let stx := dropTermParens stx
   -- TODO: make it extensible
-  isExplicit stx || isExplicitApp stx || isLambdaWithImplicit stx || isHole stx || isTacticBlock stx || isNoImplicitLambda stx
+  isExplicit stx || isExplicitApp stx || isLambdaWithImplicit stx || isHole stx || isTacticBlock stx ||
+  isNoImplicitLambda stx || isTypeAscription stx
 
 /--
   Return normalized expected type if it is of the form `{a : α} → β` or `[a : α] → β` and

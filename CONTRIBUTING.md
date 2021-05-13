@@ -42,7 +42,7 @@ For issues marked as [`help wanted`](https://github.com/leanprover/lean4/issues?
 We have very few core developers, and we cannot review arbitrary pull requests (PR).
 So, please contact the core developers before investing your time on a nontrivial modification.
 We suggest the following workflow:
-* Discuss with the Lean community it Zulip whether there is interest.
+* Discuss with the Lean community in Zulip whether there is interest.
 * Create an issue on the [Lean 4 repository at GitHub](https://github.com/leanprover/lean4/issues), tag it with RFC.
 * Ask the community to help documenting the requirements, collecting examples and concerns.
 * Wait for one of the core developers to give you a "go ahead". At this point, the core developers will work with you to make sure your PR gets merged.

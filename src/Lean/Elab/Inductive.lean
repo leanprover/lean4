@@ -9,6 +9,7 @@ import Lean.Util.CollectLevelParams
 import Lean.Util.Constructions
 import Lean.Meta.CollectFVars
 import Lean.Meta.SizeOf
+import Lean.Meta.Injective
 import Lean.Meta.IndPredBelow
 import Lean.Elab.Command
 import Lean.Elab.DefView
@@ -519,6 +520,8 @@ def elabInductiveViews (views : Array InductiveView) : CommandElabM Unit := do
     mkInductiveDecl vars views
     mkSizeOfInstances view0.declName
     Lean.Meta.IndPredBelow.mkBelow view0.declName
+    -- for view in views do
+    --  mkInjectiveTheorems view.declName
   applyDerivingHandlers views
 
 end Lean.Elab.Command

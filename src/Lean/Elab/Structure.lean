@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Parser.Command
 import Lean.Meta.Closure
 import Lean.Meta.SizeOf
+import Lean.Meta.Injective
 import Lean.Elab.Command
 import Lean.Elab.DeclModifiers
 import Lean.Elab.DeclUtil
@@ -581,6 +582,7 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
             }
             unless isClass do
               mkSizeOfInstances declName
+              -- mkInjectiveTheorems declName
             return declName
   derivingClassViews.forM fun view => view.applyHandlers #[declName]
 

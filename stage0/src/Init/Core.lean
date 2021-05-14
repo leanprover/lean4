@@ -46,8 +46,6 @@ structure Iff (a b : Prop) : Prop where
 infix:20 " <-> " => Iff
 infix:20 " ↔ "   => Iff
 
-/- Eq basic support -/
-
 inductive Sum (α : Type u) (β : Type v) where
   | inl (val : α) : Sum α β
   | inr (val : β) : Sum α β
@@ -649,6 +647,9 @@ end Setoid
 /- Propositional extensionality -/
 
 axiom propext {a b : Prop} : (a ↔ b) → a = b
+
+theorem Eq.propIntro {a b : Prop} (h₁ : a → b) (h₂ : b → a) : a = b :=
+  propext <| Iff.intro h₁ h₂
 
 /- Quotients -/
 

@@ -1021,6 +1021,11 @@ private def isNoImplicitLambda (stx : Syntax) : Bool :=
   | `(noImplicitLambda% $x:term) => true
   | _ => false
 
+private def isTypeAscription (stx : Syntax) : Bool :=
+  match stx with
+  | `(($e : $type)) => true
+  | _               => false
+
 def mkNoImplicitLambdaAnnotation (type : Expr) : Expr :=
   mkAnnotation `noImplicitLambda type
 
@@ -1031,7 +1036,8 @@ def hasNoImplicitLambdaAnnotation (type : Expr) : Bool :=
 def blockImplicitLambda (stx : Syntax) : Bool :=
   let stx := dropTermParens stx
   -- TODO: make it extensible
-  isExplicit stx || isExplicitApp stx || isLambdaWithImplicit stx || isHole stx || isTacticBlock stx || isNoImplicitLambda stx
+  isExplicit stx || isExplicitApp stx || isLambdaWithImplicit stx || isHole stx || isTacticBlock stx ||
+  isNoImplicitLambda stx || isTypeAscription stx
 
 /--
   Return normalized expected type if it is of the form `{a : α} → β` or `[a : α] → β` and
@@ -1619,6 +1625,7 @@ unsafe def evalExpr (α) (typeName : Name) (value : Expr) : TermElabM α :=
     evalConst α name
 
 private def throwStuckAtUniverseCnstr : TermElabM Unit := do
+  -- This code assumes `entries` is not empty. Note that `processPostponed` uses `exceptionOnFailure` to guarantee this property
   let entries ← getPostponed
   let mut found : Std.HashSet (Level × Level) := {}
   let mut uniqueEntries := #[]
@@ -1631,35 +1638,14 @@ private def throwStuckAtUniverseCnstr : TermElabM Unit := do
       found := found.insert (lhs, rhs)
       uniqueEntries := uniqueEntries.push entry
   for i in [1:uniqueEntries.size] do
-    logErrorAt uniqueEntries[i].ref (← mkMessage uniqueEntries[i])
-  throwErrorAt uniqueEntries[0].ref (← mkMessage uniqueEntries[0])
-where
-  /- Annotate any constant and sort in `e` that satisfies `p` with `pp.universes true` -/
-  exposeRelevantUniverses (e : Expr) (p : Level → Bool) : Expr :=
-    e.replace fun e =>
-      match e with
-      | Expr.const _ us _ => if us.any p then some (e.setPPUniverses true) else none
-      | Expr.sort u _     => if p u then some (e.setPPUniverses true) else none
-      | _                 => none
-
-  mkMessage (entry : PostponedEntry) : TermElabM MessageData := do
-    match entry.ctx? with
-    | none =>
-      return m!"stuck at solving universe constraints{indentD m!"{entry.lhs} =?= {entry.rhs}"}"
-    | some ctx =>
-      withLCtx ctx.lctx ctx.localInstances do
-        let s   := entry.lhs.collectMVars entry.rhs.collectMVars
-        /- `p u` is true if it contains a universe metavariable in `s` -/
-        let p (u : Level) := u.any fun | Level.mvar m _ => s.contains m | _ => false
-        let lhs := exposeRelevantUniverses (← instantiateMVars ctx.lhs) p
-        let rhs := exposeRelevantUniverses (← instantiateMVars ctx.rhs) p
-        addMessageContext m!"stuck at solving universe constraints{indentD m!"{entry.lhs} =?= {entry.rhs}"}\nwhile trying to unify{indentD m!"{lhs} : {← inferType lhs}"}\nwith{indentD m!"{rhs} : {← inferType rhs}"}"
+    logErrorAt uniqueEntries[i].ref (← mkLevelStuckErrorMessage uniqueEntries[i])
+  throwErrorAt uniqueEntries[0].ref (← mkLevelStuckErrorMessage uniqueEntries[0])
 
 @[specialize] def withoutPostponingUniverseConstraints (x : TermElabM α) : TermElabM α := do
   let postponed ← getResetPostponed
   try
     let a ← x
-    unless (← processPostponed (mayPostpone := false)) do
+    unless (← processPostponed (mayPostpone := false) (exceptionOnFailure := true)) do
       throwStuckAtUniverseCnstr
     setPostponed postponed
     return a

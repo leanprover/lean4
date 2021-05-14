@@ -20,13 +20,14 @@ open Std (HashMap)
 structure State where
   ngen         : NameGenerator
   lctx         : LocalContext
+  mctx         : MetavarContext
   nextParamIdx : Nat := 0
   paramNames   : Array Name := #[]
   fvars        : Array Expr  := #[]
   lmap         : HashMap Name Level := {}
   emap         : HashMap Name Expr  := {}
 
-abbrev M := ReaderT MetavarContext (StateM State)
+abbrev M := StateM State
 
 def mkFreshId : M Name := do
   let s ← get
@@ -45,12 +46,11 @@ private partial def abstractLevelMVars (u : Level) : M Level := do
     | Level.max v w _     => return u.updateMax! (← abstractLevelMVars v) (← abstractLevelMVars w)
     | Level.imax v w _    => return u.updateIMax! (← abstractLevelMVars v) (← abstractLevelMVars w)
     | Level.mvar mvarId _ =>
-      let mctx ← read
-      let depth := mctx.getLevelDepth mvarId;
-      if depth != mctx.depth then
+      let s ← get
+      let depth := s.mctx.getLevelDepth mvarId;
+      if depth != s.mctx.depth then
         return u -- metavariables from lower depths are treated as constants
       else
-        let s ← get
         match s.lmap.find? mvarId with
         | some u => pure u
         | none   =>
@@ -76,26 +76,30 @@ partial def abstractExprMVars (e : Expr) : M Expr := do
     | e@(Expr.forallE _ d b _) => return e.updateForallE! (← abstractExprMVars d) (← abstractExprMVars b)
     | e@(Expr.letE _ t v b _)  => return e.updateLet! (← abstractExprMVars t) (← abstractExprMVars v) (← abstractExprMVars b)
     | e@(Expr.mvar mvarId _)   =>
-      let mctx ← read
-      let decl := mctx.getDecl mvarId
-      if decl.depth != mctx.depth then
+      let s ← get
+      let decl := s.mctx.getDecl mvarId
+      if decl.depth != s.mctx.depth then
         return e
       else
-        let s ← get
-        match s.emap.find? mvarId with
-        | some e =>
-          return e
-        | none   =>
-          let type   ← abstractExprMVars decl.type
-          let fvarId ← mkFreshId
-          let fvar := mkFVar fvarId;
-          let userName := if decl.userName.isAnonymous then (`x).appendIndexAfter s.fvars.size else decl.userName
-          modify fun s => {
-            s with
-            emap  := s.emap.insert mvarId fvar,
-            fvars := s.fvars.push fvar,
-            lctx  := s.lctx.mkLocalDecl fvarId userName type }
-          return fvar
+        let (eNew, mctxNew) ← s.mctx.instantiateMVars e
+        if e != eNew then
+          modify fun s => { s with mctx := mctxNew }
+          abstractExprMVars eNew
+        else
+          match s.emap.find? mvarId with
+          | some e =>
+            return e
+          | none   =>
+            let type   ← abstractExprMVars decl.type
+            let fvarId ← mkFreshId
+            let fvar := mkFVar fvarId;
+            let userName := if decl.userName.isAnonymous then (`x).appendIndexAfter s.fvars.size else decl.userName
+            modify fun s => {
+              s with
+              emap  := s.emap.insert mvarId fvar,
+              fvars := s.fvars.push fvar,
+              lctx  := s.lctx.mkLocalDecl fvarId userName type }
+            return fvar
 
 end AbstractMVars
 
@@ -119,8 +123,9 @@ end AbstractMVars
   Application: we use this method to cache the results of type class resolution. -/
 def abstractMVars (e : Expr) : MetaM AbstractMVarsResult := do
   let e ← instantiateMVars e
-  let (e, s) := AbstractMVars.abstractExprMVars e (← getMCtx) { lctx := (← getLCtx), ngen := (← getNGen) }
+  let (e, s) := AbstractMVars.abstractExprMVars e { mctx := (← getMCtx), lctx := (← getLCtx), ngen := (← getNGen) }
   setNGen s.ngen
+  setMCtx s.mctx
   let e := s.lctx.mkLambda s.fvars e
   pure { paramNames := s.paramNames, numMVars := s.fvars.size, expr := e }
 

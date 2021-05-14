@@ -99,6 +99,11 @@ def openDecl         := openHiding <|> openRenaming <|> openOnly <|> openSimple
 
 @[builtinCommandParser] def «in»  := trailing_parser " in " >> commandParser
 
+/-
+  This is an auxiliary command for generation constructor injectivity theorems for inductive types defined at `Prelude.lean`.
+  It is meant for bootstrapping purposes only. -/
+@[builtinCommandParser] def genInjectiveTheorems := leading_parser "gen_injective_theorems% " >> ident
+
 @[runBuiltinParserAttributeHooks] abbrev declModifiersF := declModifiers false
 @[runBuiltinParserAttributeHooks] abbrev declModifiersT := declModifiers true
 

@@ -156,7 +156,7 @@ structure GoalsAtResult where
   Try to retrieve `TacticInfo` for `hoverPos`.
   We retrieve the `TacticInfo` `info`, if there is a node of the form `node (ofTacticInfo info) children` s.t.
   - `hoverPos` is sufficiently inside `info`'s range (see code), and
-  - None of the `children` can provide satisfy the condition above. That is, for composite tactics such as
+  - None of the `children` satisfy the condition above. That is, for composite tactics such as
     `induction`, we always give preference for information stored in nested (children) tactics.
 
   Moreover, we instruct the LSP server to use the state after the tactic execution if `hoverPos > pos` *and*
@@ -184,10 +184,10 @@ partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : List Goal
   return rs
 where
   hasNestedTactic (pos tailPos) : InfoTree → Bool
-    | InfoTree.node (Info.ofTacticInfo ti) cs => do
-      if let `(by $t) := ti.stx then
+    | InfoTree.node i@(Info.ofTacticInfo _) cs => do
+      if let `(by $t) := i.stx then
         return false  -- ignore term-nested proofs such as in `simp [show p by ...]`
-      if let (some pos', some tailPos') := (ti.stx.getPos?, ti.stx.getTailPos?) then
+      if let (some pos', some tailPos') := (i.pos?, i.tailPos?) then
         -- ignore nested infos of the same tactic, e.g. from expansion
         if (pos', tailPos') != (pos, tailPos) then
           return true

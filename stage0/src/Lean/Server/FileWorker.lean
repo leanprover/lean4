@@ -476,7 +476,7 @@ section RequestHandling
   def hasRange (stx : Syntax) : Bool :=
     stx.getPos?.isSome && stx.getTailPos?.isSome
 
-  def rangeOfSyntax (text : FileMap) (stx : Syntax) : Range :=
+  def rangeOfSyntax! (text : FileMap) (stx : Syntax) : Range :=
     ⟨text.utf8PosToLspPos <| stx.getPos?.get!,
      text.utf8PosToLspPos <| stx.getTailPos?.get!⟩
 
@@ -488,10 +488,10 @@ section RequestHandling
     let rec highlightReturn? (doRange? : Option Range) : Syntax → Option DocumentHighlight
       | stx@`(doElem|return%$i $e) =>
         if stx.getPos?.get! <= pos && pos < stx.getTailPos?.get! then
-          some { range := doRange?.getD (rangeOfSyntax text i), kind? := DocumentHighlightKind.text }
+          some { range := doRange?.getD (rangeOfSyntax! text i), kind? := DocumentHighlightKind.text }
         else
           highlightReturn? doRange? e
-      | `(do%$i $elems) => highlightReturn? (rangeOfSyntax text i) elems
+      | `(do%$i $elems) => highlightReturn? (rangeOfSyntax! text i) elems
       | stx => stx.getArgs.findSome? (highlightReturn? doRange?)
 
     withWaitFindSnap doc (fun s => s.endPos > pos)
@@ -536,8 +536,8 @@ section RequestHandling
               (DocumentSymbol.mk {
                 name := name
                 kind := SymbolKind.method
-                range := rangeOfSyntax text stx
-                selectionRange := rangeOfSyntax text selection
+                range := rangeOfSyntax! text stx
+                selectionRange := rangeOfSyntax! text selection
                } :: syms, stxs')
             else
              (syms, stxs')
@@ -550,11 +550,13 @@ section RequestHandling
           let endStx := match stxs' with
             | endStx::_ => endStx
             | []        => (stx::stxs').getLast!
+          -- we can assume that commands always have at least one position (see `parseCommand`)
+          let range := rangeOfSyntax! text (mkNullNode #[stx, endStx])
           (DocumentSymbol.mk {
-            name := name
-            kind := kind
-            range := ⟨(rangeOfSyntax text stx).start, (rangeOfSyntax text endStx).«end»⟩
-            selectionRange := rangeOfSyntax text selection
+            name
+            kind
+            range
+            selectionRange := if hasRange selection then rangeOfSyntax! text selection else range
             children? := syms.toArray
           } :: syms', stxs'')
 

@@ -58,7 +58,7 @@ def Not (a : Prop) : Prop := a → False
 inductive Eq {α : Sort u} (a : α) : α → Prop where
   | refl {} : Eq a a
 
-abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq a b) : motive b :=
+@[simp] abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq a b) : motive b :=
   Eq.rec (motive := fun α _ => motive α) m h
 
 @[matchPattern] def rfl {α : Sort u} {a : α} : Eq a a := Eq.refl a

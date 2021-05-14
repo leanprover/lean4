@@ -1,0 +1,28 @@
+ppProofs.lean:1:47-1:48: error: don't know how to synthesize placeholder
+context:
+α β : Sort u_1
+b : β
+a : α
+h : α = β
+⊢ h ▸ a = b
+ppProofs.lean:2:50-2:51: error: don't know how to synthesize placeholder
+context:
+α β : Sort u_1
+b : β
+a : α
+h : α = β
+⊢ (_ : α = β) ▸ a = b
+ppProofs.lean:4:50-4:51: error: don't know how to synthesize placeholder
+context:
+α β : Sort u_1
+b : β
+a : α
+h : α = β
+⊢ _ ▸ a = b
+ppProofs.lean:6:50-6:51: error: don't know how to synthesize placeholder
+context:
+α β : Sort u_1
+b : β
+a : α
+h : α = β
+⊢ id h ▸ a = b

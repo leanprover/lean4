@@ -13,6 +13,7 @@ def Options.empty : Options  := {}
 instance : Inhabited Options where
   default := {}
 instance : ToString Options := inferInstanceAs (ToString KVMap)
+instance : ForIn m Options (Name × DataValue) := inferInstanceAs (ForIn _ KVMap _)
 
 structure OptionDecl where
   defValue : DataValue
@@ -111,6 +112,9 @@ protected structure Decl (α : Type) where
   defValue : α
   group    : String := ""
   descr    : String := ""
+
+protected def get? [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : Option α :=
+  opts.get? opt.name
 
 protected def get [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : α :=
   opts.get opt.name opt.defValue

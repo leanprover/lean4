@@ -94,21 +94,6 @@ end Utils
 
 /- Asynchronous snapshot elaboration. -/
 section Elab
-  def publishDiagnostics (m : DocumentMeta) (diagnostics : Array Lsp.Diagnostic) (hOut : FS.Stream) : IO Unit :=
-    hOut.writeLspNotification {
-      method := "textDocument/publishDiagnostics"
-      param  := {
-        uri         := m.uri
-        version?    := m.version
-        diagnostics := diagnostics
-        : PublishDiagnosticsParams
-      }
-    }
-
-  def publishMessages (m : DocumentMeta) (msgLog : MessageLog) (hOut : FS.Stream) : IO Unit := do
-    let diagnostics ← msgLog.msgs.mapM (msgToDiagnostic m.text)
-    publishDiagnostics m diagnostics.toArray hOut
-
   /-- Elaborates the next command after `parentSnap` and emits diagnostics into `hOut`. -/
   private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream)
   : ExceptT ElabTaskError IO Snapshot := do

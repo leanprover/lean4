@@ -75,6 +75,8 @@ namespace Lean.Simp
 @[simp] theorem Ne_Eq (a b : α) : (a ≠ b) = Not (a = b) := rfl
 @[simp] theorem ite_True (a b : α) : (if True then a else b) = a := rfl
 @[simp] theorem ite_False (a b : α) : (if False then a else b) = b := rfl
+@[simp] theorem dite_True {α : Sort u} {t : True → α} {e : ¬ True → α} : (dite True t e) = t True.intro := rfl
+@[simp] theorem dite_False {α : Sort u} {t : False → α} {e : ¬ False → α} : (dite False t e) = e notFalse := rfl
 @[simp] theorem And_self (p : Prop) : (p ∧ p) = p := propext <| Iff.intro (fun h => h.1) (fun h => ⟨h, h⟩)
 @[simp] theorem And_True (p : Prop) : (p ∧ True) = p := propext <| Iff.intro (fun h => h.1) (fun h => ⟨h, trivial⟩)
 @[simp] theorem True_And (p : Prop) : (True ∧ p) = p := propext <| Iff.intro (fun h => h.2) (fun h => ⟨trivial, h⟩)

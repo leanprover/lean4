@@ -12,14 +12,20 @@ b : β
 a : α
 h : α = β
 ⊢ (_ : α = β) ▸ a = b
-ppProofs.lean:4:50-4:51: error: don't know how to synthesize placeholder
+ppProofs.lean:3:50-3:57: error: unsolved goals
+α β : Sort ?u
+b : β
+a : α
+h : α = β
+⊢ (_ : α = β) ▸ a = b
+ppProofs.lean:5:50-5:51: error: don't know how to synthesize placeholder
 context:
 α β : Sort u_1
 b : β
 a : α
 h : α = β
 ⊢ _ ▸ a = b
-ppProofs.lean:6:50-6:51: error: don't know how to synthesize placeholder
+ppProofs.lean:7:50-7:51: error: don't know how to synthesize placeholder
 context:
 α β : Sort u_1
 b : β

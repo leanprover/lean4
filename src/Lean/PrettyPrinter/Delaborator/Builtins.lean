@@ -629,4 +629,9 @@ def delabEqNDRec : Delab := whenPPOption getPPNotation do
   let h ← withAppArg delab
   `($h ▸ $m)
 
+@[builtinDelab app.Eq.rec]
+def delabEqRec : Delab := whenPPOption getPPNotation do
+  -- relevant signature parts as in `Eq.ndrec`
+  delabEqNDRec
+
 end Lean.PrettyPrinter.Delaborator

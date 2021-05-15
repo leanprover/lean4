@@ -321,6 +321,11 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS} -Wl,--export-all")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-all")
   set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -Wl,--export-all")
+  # We currently have too many symbols in our executable for Windows; see
+  # https://github.com/leanprover/lean4/issues/466
+  # and
+  # https://github.com/leanprover/lean4/issues/467
+  set(LEAN_EXTRA_MAKE_OPTS "-Dcompiler.extract_closed=false")
 else()
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS} -rdynamic")
   set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -ldl")

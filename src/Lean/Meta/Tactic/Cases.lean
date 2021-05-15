@@ -321,6 +321,28 @@ end Cases
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) :=
   Cases.cases mvarId majorFVarId givenNames
 
+def casesRec (mvarId : MVarId) (p : LocalDecl → MetaM Bool) : MetaM (List MVarId) :=
+  saturate mvarId fun mvarId =>
+    withMVarContext mvarId do
+      for localDecl in (← getLCtx) do
+        if (← p localDecl) then
+          try
+            let r ← cases mvarId localDecl.fvarId
+            return some <| r.toList.map (·.mvarId)
+          catch _ =>
+            pure ()
+      return none
+
+def casesAnd (mvarId : MVarId) : MetaM MVarId := do
+  let mvarIds ← casesRec mvarId fun localDecl => return (← instantiateMVars localDecl.type).isAppOfArity ``And 2
+  exactlyOne mvarIds
+
+def substEqs (mvarId : MVarId) : MetaM MVarId := do
+  let mvarIds ← casesRec mvarId fun localDecl => do
+    let type ← instantiateMVars localDecl.type
+    return type.isEq || type.isHEq
+  exactlyOne mvarIds
+
 builtin_initialize registerTraceClass `Meta.Tactic.cases
 
 end Lean.Meta

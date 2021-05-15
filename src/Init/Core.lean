@@ -651,6 +651,22 @@ axiom propext {a b : Prop} : (a ↔ b) → a = b
 theorem Eq.propIntro {a b : Prop} (h₁ : a → b) (h₂ : b → a) : a = b :=
   propext <| Iff.intro h₁ h₂
 
+gen_injective_theorems% Prod
+gen_injective_theorems% PProd
+gen_injective_theorems% MProd
+gen_injective_theorems% Subtype
+gen_injective_theorems% Fin
+gen_injective_theorems% Array
+gen_injective_theorems% Sum
+gen_injective_theorems% PSum
+gen_injective_theorems% Nat
+gen_injective_theorems% Option
+gen_injective_theorems% List
+gen_injective_theorems% Except
+gen_injective_theorems% EStateM.Result
+gen_injective_theorems% Lean.Name
+gen_injective_theorems% Lean.Syntax
+
 /- Quotients -/
 
 -- Iff can now be used to do substitutions in a calculation

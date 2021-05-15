@@ -5,7 +5,10 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Tactic.Injection
 import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Simp.SimpAll
+import Lean.Meta.Tactic.Cases
+import Lean.Meta.Tactic.Subst
+import Lean.Meta.Tactic.Simp.Types
+import Lean.Meta.Tactic.Assumption
 
 namespace Lean.Meta
 
@@ -67,19 +70,19 @@ private def mkInjectiveTheoremType (ctorVal : ConstructorVal) : MetaM Expr :=
 private def throwInjectiveTheoremFailure {α} (ctorName : Name) (mvarId : MVarId) : MetaM α :=
   throwError "failed to prove injective theorem for constructor '{ctorName}', use 'set_option genInjective false' to disable the generation{indentD <| MessageData.ofGoal mvarId}"
 
-private def simpAllInj (ctorName : Name) (mvarId : MVarId) : MetaM Unit := do
-  match (← simpAll mvarId (← Simp.Context.mkDefault)) with
-  | none => pure ()
-  | some mvarId => throwInjectiveTheoremFailure ctorName mvarId
+private def solveEqOfCtorEq (ctorName : Name) (mvarId : MVarId) (h : FVarId) : MetaM Unit := do
+  match (← injection mvarId h) with
+  | InjectionResult.solved => unreachable!
+  | InjectionResult.subgoal mvarId .. =>
+    (← splitAnd mvarId).forM fun mvarId =>
+      unless (← assumptionCore mvarId) do
+        throwInjectiveTheoremFailure ctorName mvarId
 
 private def mkInjectiveTheoremValue (ctorName : Name) (targetType : Expr) : MetaM Expr :=
   forallTelescopeReducing targetType fun xs type => do
     let mvar ← mkFreshExprSyntheticOpaqueMVar type
-    match (← injection mvar.mvarId! xs.back.fvarId!) with
-    | InjectionResult.solved => mkLambdaFVars xs mvar
-    | InjectionResult.subgoal mvarId .. =>
-      simpAllInj ctorName mvarId
-      mkLambdaFVars xs mvar
+    solveEqOfCtorEq ctorName mvar.mvarId! xs.back.fvarId!
+    mkLambdaFVars xs mvar
 
 def mkInjectiveTheoremNameFor (ctorName : Name) : Name :=
   ctorName ++ `inj
@@ -107,16 +110,16 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
       | throwError "unexpected number of subgoals when proving injective theorem for constructor '{ctorName}'"
     let (h, mvarId₁) ← intro1 mvarId₁
     let (_, mvarId₂) ← intro1 mvarId₂
-    simpAllInj ctorName mvarId₂
-    match (← injection mvarId₁ h) with
-    | InjectionResult.solved => mkLambdaFVars xs mvar
-    | InjectionResult.subgoal mvarId .. =>
-      simpAllInj ctorName mvarId
-      mkLambdaFVars xs mvar
+    solveEqOfCtorEq ctorName mvarId₁ h
+    let mvarId₂ ← casesAnd mvarId₂
+    let mvarId₂ ← substEqs mvarId₂
+    applyRefl mvarId₂
+    mkLambdaFVars xs mvar
 
 private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
   let type  ← mkInjectiveEqTheoremType ctorVal
   let value ← mkInjectiveEqTheoremValue ctorVal.name type
+  check value
   let name := mkInjectiveEqTheoremNameFor ctorVal.name
   addDecl <| Declaration.thmDecl {
     name

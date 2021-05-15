@@ -12,20 +12,20 @@ import Lean.Meta.Tactic.Assumption
 
 namespace Lean.Meta
 
-private def mkAnd (args : Array Expr) : Expr := do
+private def mkAnd? (args : Array Expr) : Option Expr := do
   if args.isEmpty then
-    return mkConst ``True
+    return none
   else
     let mut result := args.back
     for arg in args.reverse[1:] do
       result := mkApp2 (mkConst ``And) arg result
     return result
 
-private partial def mkInjectiveTheoremTypeCore (ctorVal : ConstructorVal) (useEq : Bool) : MetaM Expr := do
+private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useEq : Bool) : MetaM (Option Expr) := do
   let us := ctorVal.levelParams.map mkLevelParam
   forallBoundedTelescope ctorVal.type ctorVal.numParams fun params type =>
   forallTelescope type fun args1 resultType => do
-    let jp (args2 args2New : Array Expr) : MetaM Expr := do
+    let jp (args2 args2New : Array Expr) : MetaM (Option Expr) := do
       let lhs := mkAppN (mkAppN (mkConst ctorVal.name us) params) args1
       let rhs := mkAppN (mkAppN (mkConst ctorVal.name us) params) args2
       let eq ← mkEq lhs rhs
@@ -37,14 +37,16 @@ private partial def mkInjectiveTheoremTypeCore (ctorVal : ConstructorVal) (useEq
             eqs := eqs.push (← mkEq arg1 arg2)
           else
             eqs := eqs.push (← mkHEq arg1 arg2)
-      let andEqs := mkAnd eqs
-      let result ←
-        if useEq then
-          mkEq eq andEqs
-        else
-          mkArrow eq andEqs
-      mkForallFVars params (← mkForallFVars args1 (← mkForallFVars args2New result))
-    let rec mkArgs2 (i : Nat) (type : Expr) (args2 args2New : Array Expr) : MetaM Expr := do
+      if let some andEqs ← mkAnd? eqs then
+        let result ←
+          if useEq then
+            mkEq eq andEqs
+          else
+            mkArrow eq andEqs
+        mkForallFVars params (← mkForallFVars args1 (← mkForallFVars args2New result))
+      else
+        return none
+    let rec mkArgs2 (i : Nat) (type : Expr) (args2 args2New : Array Expr) : MetaM (Option Expr) := do
       if h : i < args1.size then
         match (← whnf type) with
         | Expr.forallE n d b _ =>
@@ -64,8 +66,8 @@ private partial def mkInjectiveTheoremTypeCore (ctorVal : ConstructorVal) (useEq
       withNewBinderInfos (args1.map fun arg1 => (arg1.fvarId!, BinderInfo.implicit)) <|
         mkArgs2 0 type #[] #[]
 
-private def mkInjectiveTheoremType (ctorVal : ConstructorVal) : MetaM Expr :=
-  mkInjectiveTheoremTypeCore ctorVal false
+private def mkInjectiveTheoremType? (ctorVal : ConstructorVal) : MetaM (Option Expr) :=
+  mkInjectiveTheoremTypeCore? ctorVal false
 
 private def throwInjectiveTheoremFailure {α} (ctorName : Name) (mvarId : MVarId) : MetaM α :=
   throwError "failed to prove injective theorem for constructor '{ctorName}', use 'set_option genInjective false' to disable the generation{indentD <| MessageData.ofGoal mvarId}"
@@ -88,7 +90,8 @@ def mkInjectiveTheoremNameFor (ctorName : Name) : Name :=
   ctorName ++ `inj
 
 private def mkInjectiveTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
-  let type  ← mkInjectiveTheoremType ctorVal
+  let some type ← mkInjectiveTheoremType? ctorVal
+    | return ()
   let value ← mkInjectiveTheoremValue ctorVal.name type
   addDecl <| Declaration.thmDecl {
     name        := mkInjectiveTheoremNameFor ctorVal.name
@@ -100,8 +103,8 @@ private def mkInjectiveTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
 def mkInjectiveEqTheoremNameFor (ctorName : Name) : Name :=
   ctorName ++ `injEq
 
-private def mkInjectiveEqTheoremType (ctorVal : ConstructorVal) : MetaM Expr :=
-  mkInjectiveTheoremTypeCore ctorVal true
+private def mkInjectiveEqTheoremType? (ctorVal : ConstructorVal) : MetaM (Option Expr) :=
+  mkInjectiveTheoremTypeCore? ctorVal true
 
 private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : MetaM Expr := do
   forallTelescopeReducing targetType fun xs type => do
@@ -117,9 +120,9 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
     mkLambdaFVars xs mvar
 
 private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
-  let type  ← mkInjectiveEqTheoremType ctorVal
+  let some type ← mkInjectiveEqTheoremType? ctorVal
+    | return ()
   let value ← mkInjectiveEqTheoremValue ctorVal.name type
-  check value
   let name := mkInjectiveEqTheoremNameFor ctorVal.name
   addDecl <| Declaration.thmDecl {
     name

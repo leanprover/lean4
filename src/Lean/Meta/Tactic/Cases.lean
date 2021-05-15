@@ -326,11 +326,11 @@ def casesRec (mvarId : MVarId) (p : LocalDecl → MetaM Bool) : MetaM (List MVar
     withMVarContext mvarId do
       for localDecl in (← getLCtx) do
         if (← p localDecl) then
-          try
+          let r? ← observing? do
             let r ← cases mvarId localDecl.fvarId
-            return some <| r.toList.map (·.mvarId)
-          catch _ =>
-            pure ()
+            return r.toList.map (·.mvarId)
+          if r?.isSome then
+            return r?
       return none
 
 def casesAnd (mvarId : MVarId) : MetaM MVarId := do

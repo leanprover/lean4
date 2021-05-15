@@ -140,10 +140,11 @@ register_builtin_option genInjective : Bool := {
 def mkInjectiveTheorems (declName : Name) : MetaM Unit := do
   if (← getEnv).contains ``Eq.propIntro && genInjective.get (← getOptions) &&  !(← isInductivePredicate declName) then
     let info ← getConstInfoInduct declName
-    for ctor in info.ctors do
-      let ctorVal ← getConstInfoCtor ctor
-      if ctorVal.numFields > 0 then
-        mkInjectiveTheorem ctorVal
-        mkInjectiveEqTheorem ctorVal
+    unless info.isUnsafe do
+      for ctor in info.ctors do
+        let ctorVal ← getConstInfoCtor ctor
+        if ctorVal.numFields > 0 then
+          mkInjectiveTheorem ctorVal
+          mkInjectiveEqTheorem ctorVal
 
 end Lean.Meta

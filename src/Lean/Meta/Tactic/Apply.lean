@@ -97,4 +97,13 @@ def apply (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) :=
     result.forM headBetaMVarType
     return result
 
+def splitAnd (mvarId : MVarId) : MetaM (List MVarId) := do
+  saturate mvarId fun mvarId =>
+    observing? <| apply mvarId (mkConst ``And.intro)
+
+def applyRefl (mvarId : MVarId) : MetaM Unit :=
+  withMVarContext mvarId do
+    let some [] ← observing? do apply mvarId (mkConst ``Eq.refl [← mkFreshLevelMVar])
+      | throwTacticEx `refl mvarId ""
+
 end Lean.Meta

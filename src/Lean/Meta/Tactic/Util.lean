@@ -87,4 +87,25 @@ where
       get
     visit |>.run' candidates
 
+partial def saturate (mvarId : MVarId) (x : MVarId → MetaM (Option (List MVarId))) : MetaM (List MVarId) := do
+  let (_, r) ← go mvarId |>.run #[]
+  return r.toList
+where
+  go (mvarId : MVarId) : StateRefT (Array MVarId) MetaM Unit :=
+    withIncRecDepth do
+      match (← x mvarId) with
+      | none => modify fun s => s.push mvarId
+      | some mvarIds => mvarIds.forM go
+
+def exactlyOne (mvarIds : List MVarId) (msg : MessageData := "unexpected number of goals") : MetaM MVarId :=
+  match mvarIds with
+  | [mvarId] => return mvarId
+  | _        => throwError msg
+
+def ensureAtMostOne (mvarIds : List MVarId) (msg : MessageData := "unexpected number of goals") : MetaM (Option MVarId) :=
+  match mvarIds with
+  | []       => return none
+  | [mvarId] => return some mvarId
+  | _        => throwError msg
+
 end Lean.Meta

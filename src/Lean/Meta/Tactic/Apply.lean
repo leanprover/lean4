@@ -101,9 +101,9 @@ def splitAnd (mvarId : MVarId) : MetaM (List MVarId) := do
   saturate mvarId fun mvarId =>
     observing? <| apply mvarId (mkConst ``And.intro)
 
-def applyRefl (mvarId : MVarId) : MetaM Unit :=
+def applyRefl (mvarId : MVarId) (msg : MessageData) : MetaM Unit :=
   withMVarContext mvarId do
     let some [] ← observing? do apply mvarId (mkConst ``Eq.refl [← mkFreshLevelMVar])
-      | throwTacticEx `refl mvarId ""
+      | throwTacticEx `refl mvarId msg
 
 end Lean.Meta

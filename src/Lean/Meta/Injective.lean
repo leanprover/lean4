@@ -69,8 +69,11 @@ private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useE
 private def mkInjectiveTheoremType? (ctorVal : ConstructorVal) : MetaM (Option Expr) :=
   mkInjectiveTheoremTypeCore? ctorVal false
 
+private def injTheoremFailureHeader (ctorName : Name) : MessageData :=
+  m!"failed to prove injectivity theorem for constructor '{ctorName}', use 'set_option genInjectivity false' to disable the generation"
+
 private def throwInjectiveTheoremFailure {α} (ctorName : Name) (mvarId : MVarId) : MetaM α :=
-  throwError "failed to prove injective theorem for constructor '{ctorName}', use 'set_option genInjective false' to disable the generation{indentD <| MessageData.ofGoal mvarId}"
+  throwError "{injTheoremFailureHeader ctorName}{indentD <| MessageData.ofGoal mvarId}"
 
 private def solveEqOfCtorEq (ctorName : Name) (mvarId : MVarId) (h : FVarId) : MetaM Unit := do
   match (← injection mvarId h) with
@@ -116,7 +119,7 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
     solveEqOfCtorEq ctorName mvarId₁ h
     let mvarId₂ ← casesAnd mvarId₂
     let mvarId₂ ← substEqs mvarId₂
-    applyRefl mvarId₂
+    applyRefl mvarId₂ (injTheoremFailureHeader ctorName)
     mkLambdaFVars xs mvar
 
 private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
@@ -132,13 +135,13 @@ private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
   }
   addSimpLemma name (post := true) AttributeKind.global (prio := eval_prio default)
 
-register_builtin_option genInjective : Bool := {
+register_builtin_option genInjectivity : Bool := {
   defValue := true
-  descr    := "generate injective theorems for inductive datatype constructors"
+  descr    := "generate injectivity theorems for inductive datatype constructors"
 }
 
 def mkInjectiveTheorems (declName : Name) : MetaM Unit := do
-  if (← getEnv).contains ``Eq.propIntro && genInjective.get (← getOptions) &&  !(← isInductivePredicate declName) then
+  if (← getEnv).contains ``Eq.propIntro && genInjectivity.get (← getOptions) &&  !(← isInductivePredicate declName) then
     let info ← getConstInfoInduct declName
     unless info.isUnsafe do
       for ctor in info.ctors do

@@ -520,8 +520,8 @@ def elabInductiveViews (views : Array InductiveView) : CommandElabM Unit := do
     mkInductiveDecl vars views
     mkSizeOfInstances view0.declName
     Lean.Meta.IndPredBelow.mkBelow view0.declName
-    -- for view in views do
-    --  mkInjectiveTheorems view.declName
+    for view in views do
+      mkInjectiveTheorems view.declName
   applyDerivingHandlers views
 
 end Lean.Elab.Command

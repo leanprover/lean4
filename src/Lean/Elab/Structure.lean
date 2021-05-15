@@ -582,7 +582,7 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
             }
             unless isClass do
               mkSizeOfInstances declName
-              -- mkInjectiveTheorems declName
+              mkInjectiveTheorems declName
             return declName
   derivingClassViews.forM fun view => view.applyHandlers #[declName]
 

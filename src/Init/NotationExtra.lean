@@ -136,45 +136,18 @@ macro_rules
   into
   ```
   class C <params> extends D_1, ..., D_n
-  instance <params> [D_1] ... [D_n] : C <params> :=
-    C.mk _ ... _ inferInstance ... inferInstance
+  attribute [instance] C.mk
   ```
 -/
-syntax "class " "abbrev " ident bracketedBinder* ":=" withPosition(group(colGe term ","?)*) : command
+syntax declModifiers "class " "abbrev " declId 
+  bracketedBinder* ":=" withPosition(group(colGe term ","?)*) : command
 
 macro_rules
-  | `(class abbrev $name:ident $params* := $[ $parents:term $[,]? ]*) => do
-    let mut auxBinders := #[]
-    let mut typeArgs   := #[]
-    let mut ctorArgs   := #[]
-    let hole ← `(_)
-    for param in params do
-      match param with
-      | `(bracketedBinder| ( $ids:ident* $[: $type:term]? ) ) =>
-         auxBinders := auxBinders.push (← `(bracketedBinder| { $ids:ident* }) )
-         typeArgs   := typeArgs ++ ids
-         ctorArgs   := ctorArgs ++ ids.map fun _ => hole
-      | `(bracketedBinder| [ $id:ident : $type:term ] ) =>
-         auxBinders := auxBinders.push param
-         typeArgs   := typeArgs.push hole
-         ctorArgs   := ctorArgs.push hole
-      | `(bracketedBinder| [ $type:term ] ) =>
-         auxBinders := auxBinders.push param
-         typeArgs   := typeArgs.push hole
-         ctorArgs   := ctorArgs.push hole
-      | `(bracketedBinder| { $ids:ident* $[: $type ]? } ) =>
-         auxBinders := auxBinders.push param
-         typeArgs   := typeArgs ++ ids.map fun _ => hole
-         ctorArgs   := typeArgs ++ ids.map fun _ => hole
-      | _ => Lean.Macro.throwErrorAt param "unexpected binder at `class abbrev` macro"
-    let inferInst ← `(inferInstance)
-    for parent in parents do
-      auxBinders := auxBinders.push (← `(bracketedBinder| [ $parent:term ]))
-      ctorArgs   := ctorArgs.push inferInst
+  | `($mods:declModifiers class abbrev $id $params* := $[ $parents:term $[,]? ]*) =>
+    let name := id[0]
     let ctor := mkIdentFrom name <| name.getId.modifyBase (. ++ `mk)
-    `(class $name:ident $params* extends $[$parents:term],*
-      instance $auxBinders:explicitBinder* : @ $name:ident $typeArgs* :=
-        @ $ctor:ident $ctorArgs*)
+    `($mods:declModifiers class $id $params* extends $[$parents:term],*
+      attribute [instance] $ctor)
 
 /-
   Similar to `first`, but succeeds only if one the given tactics solves the current goal.

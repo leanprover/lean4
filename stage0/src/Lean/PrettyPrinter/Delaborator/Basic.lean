@@ -96,6 +96,17 @@ register_builtin_option pp.safe_shadowing  : Bool := {
   group    := "pp"
   descr    := "(pretty printer) allow variable shadowing if there is no collision"
 }
+register_builtin_option pp.proofs : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) if set to false, replace proofs appearing as an argument to a function with a placeholder"
+}
+register_builtin_option pp.proofs.withType : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) when eliding a proof (see `pp.proofs`), show its type instead"
+}
+
 -- TODO:
 /-
 register_builtin_option g_pp_max_depth : Nat := {
@@ -107,11 +118,6 @@ register_builtin_option g_pp_max_steps : Nat := {
   defValue := false
   group    := "pp"
   descr    := "(pretty printer) maximum number of visited expressions, after that it will use ellipsis"
-}
-register_builtin_option g_pp_proofs : Bool := {
-  defValue := false
-  group    := "pp"
-  descr    := "(pretty printer) if set to false, the type will be displayed instead of the value for every proof appearing as an argument to a function"
 }
 register_builtin_option g_pp_locals_full_names : Bool := {
   defValue := false
@@ -163,6 +169,8 @@ def getPPFullNames (o : Options) : Bool := o.get `pp.full_names (getPPAll o)
 def getPPPrivateNames (o : Options) : Bool := o.get `pp.private_names (getPPAll o)
 def getPPUnicode (o : Options) : Bool := o.get `pp.unicode true
 def getPPSafeShadowing (o : Options) : Bool := o.get `pp.safe_shadowing true
+def getPPProofs (o : Options) : Bool := o.get pp.proofs.name (getPPAll o)
+def getPPProofsWithType (o : Options) : Bool := o.get pp.proofs.withType.name true
 
 /-- Associate pretty printer options to a specific subterm using a synthetic position. -/
 abbrev OptionsPerPos := Std.RBMap Nat Options compare
@@ -255,7 +263,10 @@ def getExprKind : DelabM Name := do
 /-- Evaluate option accessor, using subterm-specific options if set. -/
 def getPPOption (opt : Options → Bool) : DelabM Bool := do
   let ctx ← read
-  let opts ← ctx.optionsPerPos.find? ctx.pos |>.getD ctx.defaultOptions
+  let mut opts := ctx.defaultOptions
+  if let some opts' ← ctx.optionsPerPos.find? ctx.pos then
+    for (k, v) in opts' do
+      opts := opts.insert k v
   return opt opts
 
 def whenPPOption (opt : Options → Bool) (d : Delab) : Delab := do
@@ -361,7 +372,19 @@ partial def delabFor : Name → Delab
       -- have `app.Option.some` fall back to `app` etc.
       delabFor k.getRoot
 
-def delab : Delab := do
+partial def delab : Delab := do
+  unless (← getPPOption getPPProofs) do
+    let e ← getExpr
+    -- no need to hide atomic proofs
+    unless e.isAtomic do
+      try
+        let ty ← Meta.inferType (← getExpr)
+        if ← Meta.isProp ty then
+          if ← getPPOption getPPProofsWithType then
+            return ← ``((_ : $(← descend ty 0 delab)))
+          else
+            return ← ``(_)
+      catch _ => pure ()
   let k ← getExprKind
   delabFor k <|> (liftM $ show MetaM Syntax from throwError "don't know how to delaborate '{k}'")
 
@@ -382,7 +405,14 @@ end Delaborator
 /-- "Delaborate" the given term into surface-level syntax using the default and given subterm-specific options. -/
 def delab (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Syntax := do
   trace[PrettyPrinter.delab.input] "{fmt e}"
-  let opts ← MonadOptions.getOptions
+  let mut opts ← MonadOptions.getOptions
+  -- default `pp.proofs` to `true` if `e` is a proof
+  if pp.proofs.get? opts == none then
+    try
+      let ty ← Meta.inferType e
+      if ← Meta.isProp ty then
+        opts := pp.proofs.set opts true
+    catch _ => pure ()
   catchInternalId Delaborator.delabFailureId
     (Delaborator.delab.run { expr := e, defaultOptions := opts, optionsPerPos := optionsPerPos, currNamespace := currNamespace, openDecls := openDecls })
     (fun _ => unreachable!)

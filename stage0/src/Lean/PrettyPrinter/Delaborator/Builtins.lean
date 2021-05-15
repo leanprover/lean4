@@ -611,16 +611,27 @@ partial def delabDoElems : DelabM (List Syntax) := do
 
 @[builtinDelab app.Bind.bind]
 def delabDo : Delab := whenPPOption getPPNotation do
-  unless (← getExpr).isAppOfArity `Bind.bind 6 do
-    failure
+  guard <| (← getExpr).isAppOfArity `Bind.bind 6
   let elems ← delabDoElems
   let items ← elems.toArray.mapM (`(doSeqItem|$(·):doElem))
   `(do $items:doSeqItem*)
 
 @[builtinDelab app.sorryAx]
 def delabSorryAx : Delab := whenPPOption getPPNotation do
-  unless (← getExpr).isAppOfArity ``sorryAx 2 do
-    failure
+  guard <| (← getExpr).isAppOfArity ``sorryAx 2
   `(sorry)
+
+@[builtinDelab app.Eq.ndrec]
+def delabEqNDRec : Delab := whenPPOption getPPNotation do
+  guard <| (← getExpr).getAppNumArgs == 6
+  -- Eq.ndrec.{u1, u2} : {α : Sort u2} → {a : α} → {motive : α → Sort u1} → (m : motive a) → {b : α} → (h : a = b) → motive b
+  let m ← withAppFn <| withAppFn <| withAppArg delab
+  let h ← withAppArg delab
+  `($h ▸ $m)
+
+@[builtinDelab app.Eq.rec]
+def delabEqRec : Delab := whenPPOption getPPNotation do
+  -- relevant signature parts as in `Eq.ndrec`
+  delabEqNDRec
 
 end Lean.PrettyPrinter.Delaborator

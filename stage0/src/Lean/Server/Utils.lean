@@ -121,6 +121,21 @@ def foldDocumentChanges (changes : @& Array Lsp.TextDocumentContentChangeEvent) 
   -- NOTE: We assume Lean files are below 16 EiB.
   changes.foldl accumulateChanges (oldText, 0xffffffff)
 
+def publishDiagnostics (m : DocumentMeta) (diagnostics : Array Lsp.Diagnostic) (hOut : FS.Stream) : IO Unit :=
+  hOut.writeLspNotification {
+    method := "textDocument/publishDiagnostics"
+    param  := {
+      uri         := m.uri
+      version?    := m.version
+      diagnostics := diagnostics
+      : PublishDiagnosticsParams
+    }
+  }
+
+def publishMessages (m : DocumentMeta) (msgLog : MessageLog) (hOut : FS.Stream) : IO Unit := do
+  let diagnostics ← msgLog.msgs.mapM (msgToDiagnostic m.text)
+  publishDiagnostics m diagnostics.toArray hOut
+
 end Lean.Server
 
 namespace List

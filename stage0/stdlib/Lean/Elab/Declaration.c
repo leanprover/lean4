@@ -53,6 +53,7 @@ lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getDeclarationRange___at_Lean_Elab_Command_elabAxiom___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Elab_Modifiers_isProtected(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Declaration_0__Lean_Elab_Command_inductiveSyntaxToView___spec__3___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_932____closed__2;
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__12;
 lean_object* l___regBuiltin_Lean_Elab_Command_expandInitialize___closed__1;
 lean_object* l_Lean_Elab_Command_checkValidCtorModifier___at___private_Lean_Elab_Declaration_0__Lean_Elab_Command_inductiveSyntaxToView___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -163,7 +164,6 @@ lean_object* l_Lean_throwError___at_Lean_Elab_Command_elabCommand___spec__21(lea
 extern lean_object* l_Lean_Parser_Command_namespace___elambda__1___closed__2;
 lean_object* l___regBuiltin_Lean_Elab_Command_expandMutualPreamble(lean_object*);
 lean_object* l_Lean_Elab_Command_expandInitCmd___closed__10;
-extern lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_894____closed__2;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_elabAttr___spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_609____closed__2;
 lean_object* l_Lean_Elab_Command_expandDeclNamespace_x3f_match__1(lean_object*);
@@ -8175,7 +8175,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Elab_macroAttribute;
-x_3 = l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_894____closed__2;
+x_3 = l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_932____closed__2;
 x_4 = l___regBuiltin_Lean_Elab_Command_expandBuiltinInitialize___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;

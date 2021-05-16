@@ -1,0 +1,9 @@
+440.lean:1:21-1:22: error: don't know how to synthesize placeholder
+context:
+⊢ True
+440.lean:4:29-4:30: error: don't know how to synthesize placeholder
+context:
+x : Nat
+⊢ Nat
+f : Nat → Nat
+440.lean:11:0-11:9: error: cannot evaluate code because it uses 'sorry' and/or contains errors

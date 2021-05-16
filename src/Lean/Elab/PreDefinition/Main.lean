@@ -46,16 +46,21 @@ private def getMVarsAtPreDef (preDef : PreDefinition) : MetaM (Array MVarId) := 
   let (_, s) ← (collectMVarsAtPreDef preDef).run {}
   pure s.result
 
-private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM Unit := do
+private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM PreDefinition := do
   let pendingMVarIds ← getMVarsAtPreDef preDef
   if (← logUnassignedUsingErrorInfos pendingMVarIds) then
-    throwAbortCommand
+    let preDef := { preDef with value := (← mkSorry preDef.type (synthetic := true)) }
+    if (← getMVarsAtPreDef preDef).isEmpty then
+      return preDef
+    else
+      throwAbortCommand
+  else
+    return preDef
 
 def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := do
   for preDef in preDefs do
     trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
-  for preDef in preDefs do
-    ensureNoUnassignedMVarsAtPreDef preDef
+  let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
   for preDefs in partitionPreDefs preDefs do
     trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
     if preDefs.size == 1 && isNonRecursive preDefs[0] then

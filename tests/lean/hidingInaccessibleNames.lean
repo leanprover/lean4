@@ -4,7 +4,7 @@ def f : (xs : List Nat) → Nat → xs ≠ [] → Nat
   | _, _, _ => _
 
 set_option pp.inaccessibleNames true in
-def f : (xs : List Nat) → Nat → xs ≠ [] → Nat
+def f' : (xs : List Nat) → Nat → xs ≠ [] → Nat
   | [], _, _ => _
   | [a,b], _, _ => _
   | _, _, _ =>  _

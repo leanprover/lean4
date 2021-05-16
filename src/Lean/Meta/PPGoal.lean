@@ -20,8 +20,11 @@ register_builtin_option pp.inaccessibleNames : Bool := {
   descr    := "display inaccessible declarations in the local context"
 }
 
-def withPPInaccessibleNames (x : MetaM α) (flag := true) : MetaM α :=
+def withPPInaccessibleNamesImp (flag : Bool) (x : MetaM α) : MetaM α :=
   withTheReader Core.Context (fun ctx => { ctx with options := pp.inaccessibleNames.setIfNotSet ctx.options flag }) x
+
+def withPPInaccessibleNames [MonadControlT MetaM m] [Monad m] (x : m α) (flag := true) : m α :=
+  mapMetaM (withPPInaccessibleNamesImp flag) x
 
 namespace ToHide
 

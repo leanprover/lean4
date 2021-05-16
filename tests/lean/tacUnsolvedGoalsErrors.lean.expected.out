@@ -1,0 +1,46 @@
+tacUnsolvedGoalsErrors.lean:2:9-3:8: error: unsolved goals
+p q r : Prop
+h1 : p ∨ q
+h2 : p → q
+⊢ q
+tacUnsolvedGoalsErrors.lean:4:2-5:9: error: unsolved goals
+p q r : Prop
+h1 : p ∨ q
+h2 : p → q
+this : q
+⊢ q
+tacUnsolvedGoalsErrors.lean:10:2-10:3: error: unsolved goals
+p q r : Prop
+h1 : p ∨ q
+h2 : p → q
+⊢ q
+tacUnsolvedGoalsErrors.lean:11:2-12:9: error: unsolved goals
+p q r : Prop
+h1 : p ∨ q
+h2 : p → q
+this : q
+⊢ q
+tacUnsolvedGoalsErrors.lean:17:9-17:10: error: unsolved goals
+case inl
+p q r : Prop
+h2 : p → q
+h✝ : p
+⊢ q
+tacUnsolvedGoalsErrors.lean:19:9-19:10: error: unsolved goals
+case inr
+p q r : Prop
+h2 : p → q
+h✝ : q
+⊢ q
+tacUnsolvedGoalsErrors.lean:31:2-31:3: error: unsolved goals
+case inl
+p q r : Prop
+h2 : p → q
+h✝ : p
+⊢ q
+tacUnsolvedGoalsErrors.lean:33:2-33:3: error: unsolved goals
+case inr
+p q r : Prop
+h2 : p → q
+h✝ : q
+⊢ q

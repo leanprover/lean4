@@ -1,4 +1,4 @@
-
+--
 
 theorem ex1 : False :=
 by {
@@ -13,7 +13,7 @@ by {
 }
 
 set_option pp.auxDecls true in
-theorem ex1 : False :=
+theorem ex3 : False :=
 by {
    assumption -- should not use the auxiliary declaration `ex1 : False`
 }

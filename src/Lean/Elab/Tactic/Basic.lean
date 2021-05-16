@@ -15,15 +15,23 @@ import Lean.Meta.Tactic.Subst
 import Lean.Elab.Util
 import Lean.Elab.Term
 import Lean.Elab.Binders
+
 namespace Lean.Elab
 open Meta
+
+/- Assign `mvarId := sorry` -/
+def admitGoal (mvarId : MVarId) : MetaM Unit :=
+  withMVarContext mvarId do
+    let mvarType ← inferType (mkMVar mvarId)
+    assignExprMVar mvarId (← mkSorry mvarType (synthetic := true))
 
 def goalsToMessageData (goals : List MVarId) : MessageData :=
   MessageData.joinSep (goals.map $ MessageData.ofGoal) m!"\n\n"
 
 def Term.reportUnsolvedGoals (goals : List MVarId) : TermElabM Unit :=
   withPPInaccessibleNames do
-    throwError MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{goalsToMessageData goals}"
+    logError <| MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{goalsToMessageData goals}"
+    goals.forM fun mvarId => admitGoal mvarId
 
 namespace Tactic
 
@@ -185,6 +193,7 @@ def done : TacticM Unit := do
   let gs ← getUnsolvedGoals
   unless gs.isEmpty do
     Term.reportUnsolvedGoals gs
+    throwAbortTactic
 
 def focus (x : TacticM α) : TacticM α := do
   let mvarId :: mvarIds ← getUnsolvedGoals | throwNoGoalsToBeSolved
@@ -199,11 +208,6 @@ def focusAndDone (tactic : TacticM α) : TacticM α :=
     let a ← tactic
     done
     pure a
-
-/- Assign `mvarId := sorry` -/
-def admitGoal (mvarId : MVarId) : TacticM Unit := do
-  let mvarType ← inferType (mkMVar mvarId)
-  assignExprMVar mvarId (← mkSorry mvarType (synthetic := true))
 
 /- Close the main goal using the given tactic. If it fails, log the error and `admit` -/
 def closeUsingOrAdmit (tac : TacticM Unit) : TacticM Unit := do
@@ -388,7 +392,7 @@ private def evalManyTacticOptSemi (stx : Syntax) : TacticM Unit := do
   evalManyTacticOptSemi stx[0]
 
 @[builtinTactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic := fun stx =>
-  withRef stx[2] <| focusAndDone <| evalManyTacticOptSemi stx[1]
+  withRef stx[2] <| closeUsingOrAdmit <| evalManyTacticOptSemi stx[1]
 
 @[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx => do
   let mctxBefore  ← getMCtx

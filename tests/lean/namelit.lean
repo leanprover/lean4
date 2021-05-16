@@ -1,4 +1,4 @@
---
+set_option pp.notation false
 
 #check `foo
 #check `foo.bla

@@ -19,6 +19,5 @@ bla true
     [Elab.app.finalize] after etaArgs, true : Bool
 [Elab.command] end 
 def Bla.bla : Lean.ParserDescr :=
-Lean.ParserDescr.node (Lean.Name.mkStr (Lean.Name.mkStr Lean.Name.anonymous "Bla") "bla") 1022
-  (Lean.ParserDescr.binary (Lean.Name.mkStr Lean.Name.anonymous "andthen") (Lean.ParserDescr.symbol "bla")
-    (Lean.ParserDescr.cat (Lean.Name.mkStr Lean.Name.anonymous "term") 0))
+Lean.ParserDescr.node `Bla.bla 1022
+  (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol "bla") (Lean.ParserDescr.cat `term 0))

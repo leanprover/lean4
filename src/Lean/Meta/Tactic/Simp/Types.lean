@@ -18,10 +18,11 @@ structure Result where
 abbrev Cache := ExprMap Result
 
 structure Context where
-  config      : Config      := {}
-  simpLemmas  : SimpLemmas  := {}
-  congrLemmas : CongrLemmas := {}
-  parent?     : Option Expr := none
+  config         : Config      := {}
+  simpLemmas     : SimpLemmas  := {}
+  congrLemmas    : CongrLemmas := {}
+  parent?        : Option Expr := none
+  dischargeDepth : Nat      := 0
 
 def Context.mkDefault : MetaM Context :=
   return { config := {}, simpLemmas := (← getSimpLemmas), congrLemmas := (← getCongrLemmas) }

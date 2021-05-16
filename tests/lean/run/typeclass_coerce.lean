@@ -71,7 +71,7 @@ axiom Top (α : Type) (n : Nat) : Type
 #print "-----"
 
 set_option synthInstance.maxSize 256
-set_option synthInstance.maxHeartbeats 5000
+set_option synthInstance.maxHeartbeats 500000
 
 #synth HasCoerce (Top Unit Nat.zero)
                  (Top Unit Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ)

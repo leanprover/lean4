@@ -81,7 +81,6 @@ extern lean_object* l_Lean_Parser_Tactic_subst___closed__1;
 lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___closed__19;
 lean_object* l_Lean_getConstInfoCtor___at_Lean_Elab_Deriving_DecEq_mkMatch_mkAlts___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Elab_Deriving_DecEq_mkDecEqCmds___spec__1(lean_object*);
-extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_947____closed__4;
 lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_DecEq_mkMatch_mkAlts___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__24;
 lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___closed__11;
@@ -96,6 +95,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_16821____closed__11;
 lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_DecEq_mkMatch_mkAlts___spec__5___closed__1;
 extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__3;
+extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_969____closed__4;
 extern lean_object* l_Lean_groupKind___closed__2;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_assumption___closed__1;
@@ -3021,7 +3021,7 @@ lean_dec(x_38);
 if (x_39 == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; 
-x_40 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_947____closed__4;
+x_40 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_969____closed__4;
 x_41 = l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(x_40, x_14, x_15, x_16);
 x_42 = lean_ctor_get(x_41, 0);
 lean_inc(x_42);
@@ -3194,7 +3194,7 @@ lean_dec(x_99);
 if (x_100 == 0)
 {
 lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; 
-x_101 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_947____closed__4;
+x_101 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_969____closed__4;
 x_102 = l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(x_101, x_14, x_15, x_16);
 x_103 = lean_ctor_get(x_102, 0);
 lean_inc(x_103);

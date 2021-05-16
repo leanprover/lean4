@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_instBEqOccurrences___closed__1;
-lean_object* l_List_beq___at___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_15____spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Occurrences_isAll_match__1(lean_object*);
 lean_object* l_Lean_Occurrences_contains___boxed(lean_object*, lean_object*);
 lean_object* l_List_elem___at_Lean_Occurrences_contains___spec__1___boxed(lean_object*, lean_object*);
@@ -24,15 +23,16 @@ lean_object* l_Lean_instBEqOccurrences;
 uint8_t l_Lean_Occurrences_contains(lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedOccurrences;
 uint8_t l_List_elem___at_Lean_Occurrences_contains___spec__1(lean_object*, lean_object*);
-uint8_t l_List_beq___at___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_15____spec__1(lean_object*, lean_object*);
-lean_object* l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_15__match__1(lean_object*);
-lean_object* l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_15____boxed(lean_object*, lean_object*);
-uint8_t l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_15_(lean_object*, lean_object*);
+lean_object* l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31____boxed(lean_object*, lean_object*);
+lean_object* l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31__match__1(lean_object*);
+uint8_t l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31_(lean_object*, lean_object*);
+uint8_t l_List_beq___at___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31____spec__1(lean_object*, lean_object*);
+lean_object* l_List_beq___at___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31____spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Occurrences_contains_match__1(lean_object*);
+lean_object* l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31__match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Occurrences_isAll_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Occurrences_isAll___boxed(lean_object*);
 uint8_t l_Lean_Occurrences_isAll(lean_object*);
-lean_object* l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_15__match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_instInhabitedOccurrences() {
 _start:
 {
@@ -41,7 +41,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-lean_object* l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_15__match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+lean_object* l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31__match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -118,15 +118,15 @@ return x_17;
 }
 }
 }
-lean_object* l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_15__match__1(lean_object* x_1) {
+lean_object* l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31__match__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_15__match__1___rarg), 6, 0);
+x_2 = lean_alloc_closure((void*)(l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31__match__1___rarg), 6, 0);
 return x_2;
 }
 }
-uint8_t l_List_beq___at___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_15____spec__1(lean_object* x_1, lean_object* x_2) {
+uint8_t l_List_beq___at___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31____spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -176,7 +176,7 @@ goto _start;
 }
 }
 }
-uint8_t l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_15_(lean_object* x_1, lean_object* x_2) {
+uint8_t l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -202,7 +202,7 @@ if (lean_obj_tag(x_2) == 1)
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_2, 0);
-x_7 = l_List_beq___at___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_15____spec__1(x_5, x_6);
+x_7 = l_List_beq___at___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31____spec__1(x_5, x_6);
 return x_7;
 }
 else
@@ -219,7 +219,7 @@ if (lean_obj_tag(x_2) == 2)
 lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_9 = lean_ctor_get(x_1, 0);
 x_10 = lean_ctor_get(x_2, 0);
-x_11 = l_List_beq___at___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_15____spec__1(x_9, x_10);
+x_11 = l_List_beq___at___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31____spec__1(x_9, x_10);
 return x_11;
 }
 else
@@ -232,22 +232,22 @@ return x_12;
 }
 }
 }
-lean_object* l_List_beq___at___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_15____spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_beq___at___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31____spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_List_beq___at___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_15____spec__1(x_1, x_2);
+x_3 = l_List_beq___at___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31____spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_15____boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_15_(x_1, x_2);
+x_3 = l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -258,7 +258,7 @@ static lean_object* _init_l_Lean_instBEqOccurrences___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_15____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31____boxed), 2, 0);
 return x_1;
 }
 }

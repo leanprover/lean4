@@ -15,11 +15,11 @@ extern "C" {
 #endif
 lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_writeLspRequest___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_16_(lean_object*, lean_object*);
+uint8_t l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_32_(lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_writeLspRequest___at_Lean_Lsp_Ipc_collectDiagnostics___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Ipc_ipcStdioConfig___closed__1;
 lean_object* l_Lean_Lsp_Ipc_collectDiagnostics___closed__1;
-lean_object* l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1029_(lean_object*);
+lean_object* l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1139_(lean_object*);
 lean_object* l_Lean_Lsp_Ipc_readResponseAs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Lsp_Ipc_collectDiagnostics___spec__3(lean_object*);
 extern lean_object* l_Array_empty___closed__1;
@@ -33,7 +33,7 @@ lean_object* lean_io_process_spawn(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Ipc_stdin(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__1;
 lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_toJsonWaitForDiagnosticsParams____x40_Lean_Data_Lsp_Extra___hyg_8_(lean_object*);
+lean_object* l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_toJsonWaitForDiagnosticsParams____x40_Lean_Data_Lsp_Extra___hyg_23_(lean_object*);
 lean_object* l_Lean_Lsp_Ipc_runWith___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__2;
 lean_object* l_Lean_Lsp_Ipc_runWith(lean_object*);
@@ -463,7 +463,7 @@ lean_inc(x_18);
 lean_dec(x_17);
 x_19 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
-x_20 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1029_(x_19);
+x_20 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1139_(x_19);
 lean_dec(x_19);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -552,7 +552,7 @@ lean_inc(x_37);
 lean_dec(x_17);
 x_38 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_38, 0, x_37);
-x_39 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1029_(x_38);
+x_39 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1139_(x_38);
 lean_dec(x_38);
 if (lean_obj_tag(x_39) == 0)
 {
@@ -677,7 +677,7 @@ lean_inc(x_64);
 lean_dec(x_63);
 x_65 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_65, 0, x_64);
-x_66 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1029_(x_65);
+x_66 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1139_(x_65);
 lean_dec(x_65);
 if (lean_obj_tag(x_66) == 0)
 {
@@ -761,7 +761,7 @@ lean_inc(x_81);
 lean_dec(x_63);
 x_82 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_82, 0, x_81);
-x_83 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1029_(x_82);
+x_83 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1139_(x_82);
 lean_dec(x_82);
 if (lean_obj_tag(x_83) == 0)
 {
@@ -854,7 +854,7 @@ lean_dec(x_100);
 x_101 = lean_ctor_get(x_5, 0);
 lean_inc(x_101);
 lean_dec(x_5);
-x_102 = l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_16_(x_101, x_1);
+x_102 = l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_32_(x_101, x_1);
 lean_dec(x_101);
 if (x_102 == 0)
 {
@@ -880,7 +880,7 @@ lean_dec(x_4);
 x_106 = lean_ctor_get(x_5, 0);
 lean_inc(x_106);
 lean_dec(x_5);
-x_107 = l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_16_(x_106, x_1);
+x_107 = l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_32_(x_106, x_1);
 lean_dec(x_106);
 if (x_107 == 0)
 {
@@ -914,7 +914,7 @@ lean_inc(x_114);
 x_115 = lean_ctor_get(x_5, 1);
 lean_inc(x_115);
 lean_dec(x_5);
-x_116 = l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_16_(x_114, x_1);
+x_116 = l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_32_(x_114, x_1);
 lean_dec(x_114);
 if (x_116 == 0)
 {
@@ -950,7 +950,7 @@ lean_inc(x_124);
 x_125 = lean_ctor_get(x_5, 1);
 lean_inc(x_125);
 lean_dec(x_5);
-x_126 = l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_16_(x_124, x_1);
+x_126 = l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_32_(x_124, x_1);
 lean_dec(x_124);
 if (x_126 == 0)
 {
@@ -1016,7 +1016,7 @@ lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Lsp_Ipc_collectDiagnostics__
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_toJsonWaitForDiagnosticsParams____x40_Lean_Data_Lsp_Extra___hyg_8_(x_1);
+x_2 = l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_toJsonWaitForDiagnosticsParams____x40_Lean_Data_Lsp_Extra___hyg_23_(x_1);
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 lean_dec(x_2);

@@ -219,7 +219,7 @@ where
             pure ()
           else
             logError m!"alternative '{altName}' has not been provided"
-            altMVarIds.forM admitGoal
+            altMVarIds.forM fun mvarId => admitGoal mvarId
       | some altStx =>
         (subgoals, usedWildcard) ← withRef altStx do
           let unusedAlt :=

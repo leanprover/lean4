@@ -331,14 +331,20 @@ def main (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Result := 
 namespace DefaultMethods
 mutual
   partial def discharge? (e : Expr) : SimpM (Option Expr) := do
-    let r ← simp e methods
-    if r.expr.isConstOf ``True then
-      try
-        return some (← mkOfEqTrue (← r.getProof))
-      catch _ =>
-        return none
-    else
+    let ctx ← read
+    if ctx.dischargeDepth >= ctx.config.maxDischargeDepth then
+      trace[Meta.Tactic.simp.discharge] "maximum discharge depth has been reached"
       return none
+    else
+      withReader (fun ctx => { ctx with dischargeDepth := ctx.dischargeDepth + 1 }) do
+        let r ← simp e methods
+        if r.expr.isConstOf ``True then
+          try
+            return some (← mkOfEqTrue (← r.getProof))
+          catch _ =>
+            return none
+        else
+          return none
 
   partial def pre (e : Expr) : SimpM Step :=
     preDefault e discharge?

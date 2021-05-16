@@ -14,9 +14,11 @@
 extern "C" {
 #endif
 uint8_t l_Lean_Meta_Simp_rewrite_inErasedSet(lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1037____closed__2;
 extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23250____closed__5;
 size_t l_USize_add(size_t, size_t);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewMCtxDepthImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1037____closed__1;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 extern lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__4___closed__1;
 lean_object* l_Lean_Meta_Simp_rewrite_tryLemma_x3f___lambda__4___closed__2;
@@ -70,7 +72,6 @@ uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_Meta_Simp_rewrite___closed__9;
 lean_object* l_Lean_Meta_Simp_synthesizeArgs_synthesizeInstance___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_740____closed__2;
 lean_object* l_Lean_Meta_mkDecide(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqRefl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_rewriteCtorEq_x3f___closed__2;
@@ -94,7 +95,6 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallMetaTelescopeReducin
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_synthesizeArgs_synthesizeInstance___closed__7;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_740____closed__1;
 lean_object* l_Lean_Meta_Simp_synthesizeArgs___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_rewriteUsingDecide_x3f___closed__4;
 lean_object* l_Lean_Meta_Simp_synthesizeArgs___closed__1;
@@ -575,7 +575,7 @@ static lean_object* _init_l_Lean_Meta_Simp_synthesizeArgs_synthesizeInstance___c
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_740____closed__2;
+x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1037____closed__2;
 x_2 = l_Lean_Parser_Tactic_intro___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -4980,7 +4980,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_Simp_rewrite___closed__2;
-x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_740____closed__1;
+x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1037____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -8304,7 +8304,7 @@ _start:
 lean_object* x_10; uint8_t x_11; 
 x_10 = lean_ctor_get(x_3, 0);
 lean_inc(x_10);
-x_11 = lean_ctor_get_uint8(x_10, sizeof(void*)*1 + 9);
+x_11 = lean_ctor_get_uint8(x_10, sizeof(void*)*2 + 9);
 lean_dec(x_10);
 if (x_11 == 0)
 {
@@ -8643,7 +8643,7 @@ if (lean_obj_tag(x_11) == 0)
 lean_object* x_12; uint8_t x_13; 
 x_12 = lean_ctor_get(x_3, 0);
 lean_inc(x_12);
-x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*1 + 9);
+x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*2 + 9);
 lean_dec(x_12);
 if (x_13 == 0)
 {

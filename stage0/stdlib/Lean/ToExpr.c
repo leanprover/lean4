@@ -101,11 +101,11 @@ extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3717____closed_
 lean_object* l_Lean_instToExprProd_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instToExprArray___rarg___lambda__1___closed__1;
 lean_object* l_Lean_instToExprChar___lambda__1(uint32_t);
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_3190____closed__17;
 lean_object* l_Lean_Name_toExprAux___closed__2;
 lean_object* l_Lean_instToExprChar___lambda__1___boxed(lean_object*);
 lean_object* l_Lean_instToExprProd___rarg___lambda__1___closed__2;
 extern lean_object* l_Lean_myMacro____x40_Init_Notation___hyg_17039____closed__5;
-extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2986____closed__17;
 lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* l_Lean_mkStrLit(lean_object*);
 lean_object* l_Lean_Name_toExprAux___closed__3;
@@ -395,7 +395,7 @@ static lean_object* _init_l_Lean_instToExprUnit___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_System_IO___hyg_2986____closed__17;
+x_1 = l_myMacro____x40_Init_System_IO___hyg_3190____closed__17;
 x_2 = l_Lean_instToExprUnit___lambda__1___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

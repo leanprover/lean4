@@ -201,7 +201,8 @@ mutual
     let remainingGoals ← withInfoHole mvarId <| Tactic.run mvarId do
        withTacticInfoContext tacticCode (evalTactic code)
        synthesizeSyntheticMVars (mayPostpone := false)
-    unless remainingGoals.isEmpty do reportUnsolvedGoals remainingGoals
+    unless remainingGoals.isEmpty do
+      reportUnsolvedGoals remainingGoals
 
   /-- Try to synthesize the given pending synthetic metavariable. -/
   private partial def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool :=

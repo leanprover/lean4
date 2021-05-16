@@ -1,3 +1,4 @@
+set_option genInjectivity false
 structure Foo where
   x1  : Nat := 0
   x2  : Nat := 0

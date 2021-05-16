@@ -31,7 +31,7 @@ def elabSimpConfig (optConfig : Syntax) (ctx : Bool) : TermElabM Meta.Simp.Confi
     else
       return {}
   else
-    withLCtx {} {} <| withNewMCtxDepth <| Term.withSynthesize do
+    withoutModifyingState <| withLCtx {} {} <| Term.withSynthesize do
       let c ← Term.elabTermEnsuringType optConfig[3] (Lean.mkConst (if ctx then ``Meta.Simp.ConfigCtx else ``Meta.Simp.Config))
       if ctx then
         return (← evalSimpConfigCtx (← instantiateMVars c)).toConfig

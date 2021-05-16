@@ -272,7 +272,6 @@ theorem heqOfEqRecEq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ :
   subst h₁
   apply heqOfEq
   exact h₂
-  done
 
 theorem castHEq {α β : Sort u} : (h : α = β) → (a : α) → cast h a ≅ a
   | rfl, a => HEq.refl a

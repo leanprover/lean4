@@ -9,8 +9,8 @@ import Lean.Data.Format
 namespace Lean
 
 def SourceInfo.updateTrailing (trailing : Substring) : SourceInfo → SourceInfo
-  | SourceInfo.original leading pos _ => SourceInfo.original leading pos trailing
-  | info                              => info
+  | SourceInfo.original leading pos _ endPos => SourceInfo.original leading pos trailing endPos
+  | info                                     => info
 
 /- Syntax AST -/
 
@@ -113,8 +113,8 @@ def getIdAt (stx : Syntax) (i : Nat) : Name :=
   Id.run $ stx.rewriteBottomUpM fn
 
 private def updateInfo : SourceInfo → String.Pos → String.Pos → SourceInfo
-  | SourceInfo.original lead pos trail, leadStart, trailStop =>
-    SourceInfo.original { lead with startPos := leadStart } pos { trail with stopPos := trailStop }
+  | SourceInfo.original lead pos trail endPos, leadStart, trailStop =>
+    SourceInfo.original { lead with startPos := leadStart } pos { trail with stopPos := trailStop } endPos
   | info, _, _ => info
 
 private def chooseNiceTrailStop (trail : Substring) : String.Pos :=
@@ -124,12 +124,12 @@ trail.startPos + trail.posOf '\n'
    or the beginning of the String. -/
 @[inline]
 private def updateLeadingAux : Syntax → StateM String.Pos (Option Syntax)
-  | atom info@(SourceInfo.original lead pos trail) val => do
+  | atom info@(SourceInfo.original lead _ trail _) val => do
     let trailStop := chooseNiceTrailStop trail
     let newInfo := updateInfo info (← get) trailStop
     set trailStop
     pure $ some (atom newInfo val)
-  | ident info@(SourceInfo.original lead pos trail) rawVal val pre => do
+  | ident info@(SourceInfo.original lead _ trail _) rawVal val pre => do
     let trailStop := chooseNiceTrailStop trail
     let newInfo := updateInfo info (← get) trailStop
     set trailStop
@@ -222,7 +222,7 @@ partial def reprint (stx : Syntax) : Option String :=
 where
   reprintLeaf (info : SourceInfo) (val : String) : String :=
     match info with
-    | SourceInfo.original lead _ trail => s!"{lead}{val}{trail}"
+    | SourceInfo.original lead _ _ trail => s!"{lead}{val}{trail}"
     -- no source info => add gracious amounts of whitespace to definitely separate tokens
     -- Note that the proper pretty printer does not use this function.
     -- The parser as well always produces source info, so round-tripping is still

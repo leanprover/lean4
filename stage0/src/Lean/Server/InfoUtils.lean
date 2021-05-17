@@ -172,15 +172,18 @@ partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : List Goal
       -- NOTE: include position just after tactic, i.e. when the cursor is still adjacent
       -- (even when `trailSize == 0`, which is the case at EOF)
       guard <| pos ≤ hoverPos ∧ hoverPos < tailPos + Nat.max 1 trailSize
+      dbg_trace ">>> {i.stx}, pos: {pos}, hoverPos: {hoverPos}, tailPos: {tailPos}, trailSize: {trailSize}"
       return { ctxInfo := ctx, tacticInfo := ti, useAfter :=
         hoverPos > pos && !cs.any (hasNestedTactic pos tailPos) }
     | _, _, _ => none
+  dbg_trace "HERE #{rs.map fun r => toString r.tacticInfo.stx ++ " @ " ++ toString r.tacticInfo.stx.getPos?}"
   if let r::_ := rs then
     -- The above lenient heuristics return both goals when the cursor is placed adjacent
     -- to two infos, such as in `skip;` (recall that `;` also has a tactic info).
     -- Select goals with the minimum position only to resolve this.
     -- NOTE: We can assume that the list is sorted by position
-    return rs.filter (·.tacticInfo.stx.getPos? == r.tacticInfo.stx.getPos?)
+    let rs := rs.filter (·.tacticInfo.stx.getPos? == r.tacticInfo.stx.getPos?)
+    return rs
   return rs
 where
   hasNestedTactic (pos tailPos) : InfoTree → Bool

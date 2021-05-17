@@ -790,11 +790,11 @@ private def rawAux (startPos : Nat) (trailingWs : Bool) : ParserFn := fun c s =>
     let s        := whitespace c s
     let stopPos' := s.pos
     let trailing := { str := input, startPos := stopPos, stopPos := stopPos' : Substring }
-    let atom     := mkAtom (SourceInfo.original leading startPos trailing) val
+    let atom     := mkAtom (SourceInfo.original leading startPos trailing (startPos + val.bsize)) val
     s.pushSyntax atom
   else
     let trailing := mkEmptySubstringAt input stopPos
-    let atom     := mkAtom (SourceInfo.original leading startPos trailing) val
+    let atom     := mkAtom (SourceInfo.original leading startPos trailing (startPos + val.bsize)) val
     s.pushSyntax atom
 
 /-- Match an arbitrary Parser and return the consumed String in a `Syntax.atom`. -/
@@ -849,7 +849,7 @@ def mkNodeToken (n : SyntaxNodeKind) (startPos : Nat) : ParserFn := fun c s =>
   let s         := whitespace c s
   let wsStopPos := s.pos
   let trailing  := { str := input, startPos := stopPos, stopPos := wsStopPos : Substring }
-  let info      := SourceInfo.original leading startPos trailing
+  let info      := SourceInfo.original leading startPos trailing stopPos
   s.pushSyntax (Syntax.mkLit n val info)
 
 def charLitFnAux (startPos : Nat) : ParserFn := fun c s =>
@@ -991,7 +991,7 @@ def mkTokenAndFixPos (startPos : Nat) (tk : Option Token) : ParserFn := fun c s 
       let s         := whitespace c s
       let wsStopPos := s.pos
       let trailing  := { str := input, startPos := stopPos, stopPos := wsStopPos : Substring }
-      let atom      := mkAtom (SourceInfo.original leading startPos trailing) tk
+      let atom      := mkAtom (SourceInfo.original leading startPos trailing stopPos) tk
       s.pushSyntax atom
 
 def mkIdResult (startPos : Nat) (tk : Option Token) (val : Name) : ParserFn := fun c s =>
@@ -1005,7 +1005,7 @@ def mkIdResult (startPos : Nat) (tk : Option Token) (val : Name) : ParserFn := f
     let trailingStopPos := s.pos
     let leading         := mkEmptySubstringAt input startPos
     let trailing        := { str := input, startPos := stopPos, stopPos := trailingStopPos : Substring }
-    let info            := SourceInfo.original leading startPos trailing
+    let info            := SourceInfo.original leading startPos trailing stopPos
     let atom            := mkIdent info rawVal val
     s.pushSyntax atom
 
@@ -1150,8 +1150,8 @@ def symbolInfo (sym : String) : ParserInfo := {
 
 def checkTailNoWs (prev : Syntax) : Bool :=
   match prev.getTailInfo with
-  | SourceInfo.original _ _ trailing => trailing.stopPos == trailing.startPos
-  | _                                => false
+  | SourceInfo.original _ _ trailing _ => trailing.stopPos == trailing.startPos
+  | _                                  => false
 
 /-- Check if the following token is the symbol _or_ identifier `sym`. Useful for
     parsing local tokens that have not been added to the token table (but may have
@@ -1205,8 +1205,8 @@ partial def strAux (sym : String) (errorMsg : String) (j : Nat) :ParserFn :=
 
 def checkTailWs (prev : Syntax) : Bool :=
   match prev.getTailInfo with
-  | SourceInfo.original _ _ trailing => trailing.stopPos > trailing.startPos
-  | _                                => false
+  | SourceInfo.original _ _ trailing _ => trailing.stopPos > trailing.startPos
+  | _                                  => false
 
 def checkWsBeforeFn (errorMsg : String) : ParserFn := fun c s =>
   let prev := s.stxStack.back
@@ -1219,7 +1219,7 @@ def checkWsBefore (errorMsg : String := "space before") : Parser := {
 
 def checkTailLinebreak (prev : Syntax) : Bool :=
   match prev.getTailInfo with
-  | SourceInfo.original _ _ trailing => trailing.contains '\n'
+  | SourceInfo.original _ _ trailing _ => trailing.contains '\n'
   | _ => false
 
 def checkLinebreakBeforeFn (errorMsg : String) : ParserFn := fun c s =>

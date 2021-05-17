@@ -1641,7 +1641,7 @@ inductive SourceInfo where
     Token from original input with whitespace and position information.
     `leading` will be inferred after parsing by `Syntax.updateLeading`. During parsing,
     it is not at all clear what the preceding token was, especially with backtracking. -/
-  | original (leading : Substring) (pos : String.Pos) (trailing : Substring)
+  | original (leading : Substring) (pos : String.Pos) (trailing : Substring) (endPos : String.Pos)
   /-
     Synthesized token (e.g. from a quotation) annotated with a span from the original source.
     In the delaborator, we "misuse" this constructor to store synthetic positions identifying

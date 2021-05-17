@@ -15,9 +15,9 @@ open Std.Format
 
 private def formatInfo (showInfo : Bool) (info : SourceInfo) (f : Format) : Format :=
   match showInfo, info with
-  | true, SourceInfo.original lead pos trail => f!"{lead}:{f}:{pos}:{trail}"
-  | true, SourceInfo.synthetic pos endPos    => f!"{pos}:{f}:{endPos}"
-  | _,    _                                  => f
+  | true, SourceInfo.original lead pos endPos trail => f!"{lead}:{f}:{pos}:{endPos}:{trail}"
+  | true, SourceInfo.synthetic pos endPos           => f!"{pos}:{f}:{endPos}"
+  | _,    _                                         => f
 
 partial def formatStxAux (maxDepth : Option Nat) (showInfo : Bool) : Nat → Syntax → Format
   | _,     atom info val     => formatInfo showInfo info $ format (repr val)

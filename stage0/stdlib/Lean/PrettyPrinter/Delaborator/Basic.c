@@ -91,11 +91,11 @@ lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_271____closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6600____closed__22;
 lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_181____closed__4;
 lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_271____closed__2;
 extern lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_KeyedDeclsAttribute_getValues___spec__1___rarg___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
-extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6592____closed__22;
 lean_object* l_Lean_PrettyPrinter_Delaborator_withAppFn___rarg___closed__1;
 lean_object* l_Std_fmt___at_Lean_ppExpr___spec__3(lean_object*);
 uint8_t l_Lean_getPPStructureProjections(lean_object*);
@@ -3180,7 +3180,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6592____closed__22;
+x_2 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6600____closed__22;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

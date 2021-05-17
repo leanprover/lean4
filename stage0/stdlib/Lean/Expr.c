@@ -163,8 +163,8 @@ lean_object* l_Lean_Literal_type___closed__3;
 lean_object* l_Lean_Expr_isLet_match__1(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6600____closed__22;
 lean_object* lean_expr_lift_loose_bvars(lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6592____closed__22;
 uint8_t lean_expr_has_level_mvar(lean_object*);
 lean_object* l_Lean_ExprStructEq_instBEqExprStructEq___closed__1;
 lean_object* l_Lean_Expr_updateForall_x21___closed__1;
@@ -3017,7 +3017,7 @@ return x_12;
 default: 
 {
 lean_object* x_13; 
-x_13 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6592____closed__22;
+x_13 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6600____closed__22;
 return x_13;
 }
 }

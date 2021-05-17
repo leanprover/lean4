@@ -1461,7 +1461,7 @@ def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? :
         ({ restSstr with stopPos := restSstr.stopPos - (fieldSstr.bsize + 1) }, (field, fieldSstr) :: fs)
       let mkIdentFromPos pos rawVal val :=
         let info := match info with
-        | SourceInfo.original .. => SourceInfo.original "".toSubstring pos "".toSubstring
+        | SourceInfo.original .. => SourceInfo.original "".toSubstring pos "".toSubstring (pos + rawVal.bsize)
         | _                      => SourceInfo.synthetic pos (pos + rawVal.bsize)
         Syntax.ident info rawVal val []
       let id := match c with

@@ -211,8 +211,8 @@ def setTailInfo (stx : Syntax) (info : SourceInfo) : Syntax :=
 
 def unsetTrailing (stx : Syntax) : Syntax :=
   match stx.getTailInfo with
-  | SourceInfo.original lead pos trail => stx.setTailInfo (SourceInfo.original lead pos "".toSubstring)
-  | _                                  => stx
+  | SourceInfo.original lead pos trail endPos => stx.setTailInfo (SourceInfo.original lead pos "".toSubstring endPos)
+  | _                                         => stx
 
 @[specialize] private partial def updateFirst {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
   if h : i < a.size then

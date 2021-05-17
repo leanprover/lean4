@@ -1784,9 +1784,9 @@ def getPos? (stx : Syntax) (originalOnly := false) : Option String.Pos :=
 
 partial def getTailPos? (stx : Syntax) (originalOnly := false) : Option String.Pos :=
   match stx, originalOnly with
-  | atom (SourceInfo.original (pos := pos) ..) val,    _      => some (pos.add val.bsize)
+  | atom (SourceInfo.original (endPos := pos) ..) ..,    _    => some pos
   | atom (SourceInfo.synthetic (endPos := pos) ..) _,  false  => some pos
-  | ident (SourceInfo.original (pos := pos) ..) val .., _     => some (pos.add val.bsize)
+  | ident (SourceInfo.original (endPos := pos) ..) .., _      => some pos
   | ident (SourceInfo.synthetic (endPos := pos) ..) .., false => some pos
   | node _ args,                                        _     =>
     let rec loop (i : Nat) : Option String.Pos :=

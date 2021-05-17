@@ -139,14 +139,14 @@ macro_rules
   attribute [instance] C.mk
   ```
 -/
-syntax declModifiers "class " "abbrev " declId 
-  bracketedBinder* ":=" withPosition(group(colGe term ","?)*) : command
+syntax declModifiers "class " "abbrev " declId bracketedBinder* (":" term)? 
+  ":=" withPosition(group(colGe term ","?)*) : command
 
 macro_rules
-  | `($mods:declModifiers class abbrev $id $params* := $[ $parents:term $[,]? ]*) =>
+  | `($mods:declModifiers class abbrev $id $params* $[: $ty:term]? := $[ $parents:term $[,]? ]*) =>
     let name := id[0]
     let ctor := mkIdentFrom name <| name.getId.modifyBase (. ++ `mk)
-    `($mods:declModifiers class $id $params* extends $[$parents:term],*
+    `($mods:declModifiers class $id $params* extends $[$parents:term],* $[: $ty]?
       attribute [instance] $ctor)
 
 /-

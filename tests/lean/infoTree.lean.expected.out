@@ -159,7 +159,7 @@
         | (z, w) =>
           let z1 : Nat := z + w;
           z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩
-          Nat × Nat : Type @ ⟨23, 4⟩-⟨23, 5⟩
+          Nat × Nat : Type @ ⟨23, 4⟩-⟨23, 7⟩
           (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩-⟨23, 32⟩
             Macro expansion
             (x + y, x - y)
@@ -202,7 +202,7 @@
                 w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
             let z1 : Nat := z + w;
             z + z1 : Nat @ ⟨24, 4⟩-⟨25, 10⟩
-              Nat : Type @ ⟨24, 8⟩-⟨24, 9⟩
+              Nat : Type @ ⟨24, 8⟩-⟨24, 10⟩
               z + w : Nat @ ⟨24, 14⟩-⟨24, 19⟩
                 Macro expansion
                 z + w

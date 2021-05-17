@@ -7240,7 +7240,7 @@ static lean_object* _init_l_Lean_Elab_assignInfoHoleId___rarg___lambda__2___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("( a ).isNone\n  ");
+x_1 = lean_mk_string("(12364 a )12400.12401isNone12407");
 return x_1;
 }
 }

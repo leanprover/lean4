@@ -1709,7 +1709,7 @@ static lean_object* _init_l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solveSel
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("v.isMax\n  ");
+x_1 = lean_mk_string("v.isMax3004");
 return x_1;
 }
 }

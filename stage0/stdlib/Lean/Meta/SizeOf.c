@@ -4020,7 +4020,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMino
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("minorFVars.size == minorFVars'.size\n  ");
+x_1 = lean_mk_string("minorFVars.size3059==3062minorFVars'.size3079");
 return x_1;
 }
 }

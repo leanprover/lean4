@@ -32984,7 +32984,7 @@ static lean_object* _init_l___private_Lean_Elab_Match_0__Lean_Elab_Term_isMatchU
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("altLHSS.length == rhss.size\n  ");
+x_1 = lean_mk_string("altLHSS.length41770==41773rhss.size41783");
 return x_1;
 }
 }

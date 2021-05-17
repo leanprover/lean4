@@ -222,7 +222,7 @@ partial def reprint (stx : Syntax) : Option String :=
 where
   reprintLeaf (info : SourceInfo) (val : String) : String :=
     match info with
-    | SourceInfo.original lead _ _ trail => s!"{lead}{val}{trail}"
+    | SourceInfo.original lead _ trail _ => s!"{lead}{val}{trail}"
     -- no source info => add gracious amounts of whitespace to definitely separate tokens
     -- Note that the proper pretty printer does not use this function.
     -- The parser as well always produces source info, so round-tripping is still

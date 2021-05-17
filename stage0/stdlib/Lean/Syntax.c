@@ -173,7 +173,6 @@ lean_object* l_Lean_Syntax_updateLeading(lean_object*);
 lean_object* l_Lean_Syntax_hasMissing_match__1(lean_object*);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_chooseNiceTrailStop(lean_object*);
 lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_Syntax_mkAntiquotNode___closed__14;
 lean_object* l_Lean_Syntax_reprint_reprintLeaf(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop_match__1(lean_object*, lean_object*);
@@ -3672,43 +3671,35 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 3);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = l_Nat_repr(x_4);
-x_6 = lean_ctor_get(x_3, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_3, 1);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_3, 2);
-lean_inc(x_8);
-lean_dec(x_3);
-x_9 = lean_string_utf8_extract(x_6, x_7, x_8);
+x_4 = lean_ctor_get(x_1, 2);
+x_5 = lean_ctor_get(x_3, 0);
+x_6 = lean_ctor_get(x_3, 1);
+x_7 = lean_ctor_get(x_3, 2);
+x_8 = lean_string_utf8_extract(x_5, x_6, x_7);
+x_9 = l_Lean_instInhabitedParserDescr___closed__1;
+x_10 = lean_string_append(x_9, x_8);
 lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-x_10 = l_Lean_instInhabitedParserDescr___closed__1;
 x_11 = lean_string_append(x_10, x_9);
-lean_dec(x_9);
-x_12 = lean_string_append(x_11, x_10);
-x_13 = lean_string_append(x_12, x_2);
-x_14 = lean_string_append(x_13, x_10);
-x_15 = lean_string_append(x_14, x_5);
-lean_dec(x_5);
-x_16 = lean_string_append(x_15, x_10);
-return x_16;
+x_12 = lean_string_append(x_11, x_2);
+x_13 = lean_string_append(x_12, x_9);
+x_14 = lean_ctor_get(x_4, 0);
+x_15 = lean_ctor_get(x_4, 1);
+x_16 = lean_ctor_get(x_4, 2);
+x_17 = lean_string_utf8_extract(x_14, x_15, x_16);
+x_18 = lean_string_append(x_13, x_17);
+lean_dec(x_17);
+x_19 = lean_string_append(x_18, x_9);
+return x_19;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-lean_dec(x_1);
-x_17 = l___private_Init_Data_Format_Basic_0__Std_Format_be___closed__1;
-x_18 = lean_string_append(x_17, x_2);
-x_19 = lean_string_append(x_18, x_17);
-return x_19;
+lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_20 = l___private_Init_Data_Format_Basic_0__Std_Format_be___closed__1;
+x_21 = lean_string_append(x_20, x_2);
+x_22 = lean_string_append(x_21, x_20);
+return x_22;
 }
 }
 }
@@ -3718,6 +3709,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_Syntax_reprint_reprintLeaf(x_1, x_2);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -4041,6 +4033,7 @@ x_66 = lean_ctor_get(x_2, 1);
 lean_inc(x_66);
 x_67 = l_Lean_Syntax_reprint_reprintLeaf(x_65, x_66);
 lean_dec(x_66);
+lean_dec(x_65);
 x_68 = lean_string_append(x_3, x_67);
 lean_dec(x_67);
 x_69 = lean_alloc_ctor(1, 1, 0);
@@ -4068,6 +4061,7 @@ lean_dec(x_73);
 lean_dec(x_72);
 x_76 = l_Lean_Syntax_reprint_reprintLeaf(x_71, x_75);
 lean_dec(x_75);
+lean_dec(x_71);
 x_77 = lean_string_append(x_3, x_76);
 lean_dec(x_76);
 x_78 = lean_alloc_ctor(1, 1, 0);

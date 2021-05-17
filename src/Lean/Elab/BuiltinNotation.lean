@@ -234,7 +234,12 @@ where
   | `(($e, $es,*))  => do
     let pairs ← mkPairs (#[e] ++ es)
     (← expandCDot? pairs).getD pairs
-  | stx => throw <| Macro.Exception.error stx "unexpected parentheses notation"
+  | stx =>
+    if !stx[1][0].isMissing && stx[1][1].isMissing then
+      -- parsed `(` and `term`, assume it's a basic parenthesis to get any elaboration output at all
+      `(($(stx[1][0])))
+    else
+      throw <| Macro.Exception.error stx "unexpected parentheses notation"
 
 @[builtinTermElab paren] def elabParen : TermElab := fun stx expectedType? => do
   match stx with

@@ -63,3 +63,7 @@
  "position": {"line": 46, "character": 3}}
 {"rendered": "```lean\na b : Nat\n⊢ a = b\n```",
  "goals": ["a b : Nat\n⊢ a = b"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 49, "character": 20}}
+{"rendered": "```lean\nα : Sort ?u\n⊢ α → α\n```",
+ "goals": ["α : Sort ?u\n⊢ α → α"]}

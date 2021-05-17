@@ -266,7 +266,7 @@ def pushTokenCore (tk : String) : FormatterM Unit := do
 
 def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
   match info with
-  | SourceInfo.original _ _ ss =>
+  | SourceInfo.original _ _ ss _ =>
     -- preserve non-whitespace content (i.e. comments)
     let ss' := ss.trim
     if !ss'.isEmpty then
@@ -297,7 +297,7 @@ def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
     modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" }
 
   match info with
-  | SourceInfo.original ss _ _ =>
+  | SourceInfo.original ss _ _ _ =>
     -- preserve non-whitespace content (i.e. comments)
     let ss' := ss.trim
     if !ss'.isEmpty then

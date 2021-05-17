@@ -217,15 +217,15 @@ def maybeParenthesize (cat : Name) (canJuxtapose : Bool) (mkParen : Syntax → S
       if idx > 0 then goRight
       let mut stx ← getCur
       -- Move leading/trailing whitespace of `stx` outside of parentheses
-      if let SourceInfo.original _ pos trail := stx.getHeadInfo then
-        stx := stx.setHeadInfo (SourceInfo.original "".toSubstring pos trail)
-      if let SourceInfo.original lead pos _ := stx.getTailInfo then
-        stx := stx.setTailInfo (SourceInfo.original lead pos "".toSubstring)
+      if let SourceInfo.original _ pos trail endPos := stx.getHeadInfo then
+        stx := stx.setHeadInfo (SourceInfo.original "".toSubstring pos trail endPos)
+      if let SourceInfo.original lead pos _ endPos := stx.getTailInfo then
+        stx := stx.setTailInfo (SourceInfo.original lead pos "".toSubstring endPos)
       let mut stx' := mkParen stx
-      if let SourceInfo.original lead pos _ := stx.getHeadInfo then
-        stx' := stx'.setHeadInfo (SourceInfo.original lead pos "".toSubstring)
-      if let SourceInfo.original _ pos trail := stx.getTailInfo then
-        stx' := stx'.setTailInfo (SourceInfo.original "".toSubstring pos trail)
+      if let SourceInfo.original lead pos _ endPos := stx.getHeadInfo then
+        stx' := stx'.setHeadInfo (SourceInfo.original lead pos "".toSubstring endPos)
+      if let SourceInfo.original _ pos trail endPos := stx.getTailInfo then
+        stx' := stx'.setTailInfo (SourceInfo.original "".toSubstring pos trail endPos)
       trace[PrettyPrinter.parenthesize] "parenthesized: {stx'.formatStx none}"
       setCur stx'
       goLeft

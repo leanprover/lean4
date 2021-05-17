@@ -53,7 +53,7 @@ def parseHeader (inputCtx : InputContext) : IO (Syntax × ModuleParserState × M
     pure (stx, { pos := s.pos }, {})
 
 private def mkEOI (pos : String.Pos) : Syntax :=
-  let atom := mkAtom (SourceInfo.original "".toSubstring pos "".toSubstring) ""
+  let atom := mkAtom (SourceInfo.original "".toSubstring pos "".toSubstring pos) ""
   Syntax.node `Lean.Parser.Module.eoi #[atom]
 
 def isEOI (s : Syntax) : Bool :=

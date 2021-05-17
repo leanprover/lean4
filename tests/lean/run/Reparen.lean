@@ -6,9 +6,9 @@ open Std.Format open Std
 
 def unparenAux (parens body : Syntax) : Syntax :=
 match parens.getHeadInfo, body.getHeadInfo, body.getTailInfo, parens.getTailInfo with
-| SourceInfo.original lead _ _, SourceInfo.original _ pos trail,
-  SourceInfo.original endLead endPos _, SourceInfo.original _ _ endTrail =>
-    body.setHeadInfo (SourceInfo.original lead pos trail) |>.setTailInfo (SourceInfo.original endLead endPos endTrail)
+| SourceInfo.original lead _ _ _, SourceInfo.original _ pos trail pos',
+  SourceInfo.original endLead endPos _ endPos', SourceInfo.original _ _ endTrail _ =>
+    body.setHeadInfo (SourceInfo.original lead pos trail pos') |>.setTailInfo (SourceInfo.original endLead endPos endTrail endPos')
 | _, _, _, _ => body
 
 partial def unparen : Syntax → Syntax

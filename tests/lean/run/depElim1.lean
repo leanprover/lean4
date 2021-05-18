@@ -160,7 +160,7 @@ def mkTester (elimName : Name) (majors : List Expr) (lhss : List AltLHS) (inProp
 generalizeTelescope majors.toArray fun majors => do
   let resultType := if inProp then mkConst `True /- some proposition -/ else mkConst `Nat
   let matchType ← mkForallFVars majors resultType
-  Match.mkMatcher elimName matchType majors.size lhss
+  Match.mkMatcher { matcherName := elimName, matchType, numDiscrs := majors.size, lhss }
 
 def test (ex : Name) (numPats : Nat) (elimName : Name) (inProp : Bool := false) : MetaM Unit :=
 withDepElimFrom ex numPats fun majors alts => do

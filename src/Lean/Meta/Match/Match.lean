@@ -700,6 +700,13 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (B
     modifyEnv fun env => matcherExt.modifyState env fun s => s.insert (result.value, compile) name
     return (true, mkAppN (mkConst name result.levelArgs.toList) result.exprArgs)
 
+
+structure MkMatcherInput where
+  matcherName : Name 
+  matchType : Expr
+  numDiscrs : Nat
+  lhss : List Match.AltLHS
+
 /-
 Create a dependent matcher for `matchType` where `matchType` is of the form
 `(a_1 : A_1) -> (a_2 : A_2[a_1]) -> ... -> (a_n : A_n[a_1, a_2, ... a_{n-1}]) -> B[a_1, ..., a_n]`
@@ -709,7 +716,8 @@ The number of patterns must be the same in each `AltLHS`.
 The generated matcher has the structure described at `MatcherInfo`. The motive argument is of the form
 `(motive : (a_1 : A_1) -> (a_2 : A_2[a_1]) -> ... -> (a_n : A_n[a_1, a_2, ... a_{n-1}]) -> Sort v)`
 where `v` is a universe parameter or 0 if `B[a_1, ..., a_n]` is a proposition. -/
-def mkMatcher (matcherName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : MetaM MatcherResult :=
+def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult :=
+  let ⟨matcherName, matchType, numDiscrs, lhss⟩ := input
   forallBoundedTelescope matchType numDiscrs fun majors matchTypeBody => do
   checkNumPatterns majors lhss
   /- We generate an matcher that can eliminate using different motives with different universe levels.

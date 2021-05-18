@@ -929,8 +929,8 @@ where
     let wildcards := mkArray num hole
     return altViews.map fun altView => { altView with patterns := wildcards ++ altView.patterns }
 
-def mkMatcher (elimName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : TermElabM MatcherResult :=
-  Meta.Match.mkMatcher elimName matchType numDiscrs lhss
+def mkMatcher (input : Meta.Match.MkMatcherInput) : TermElabM MatcherResult :=
+  Meta.Match.mkMatcher input
 
 register_builtin_option match.ignoreUnusedAlts : Bool := {
   defValue := false
@@ -1032,7 +1032,7 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
   else
     let numDiscrs := discrs.size
     let matcherName ← mkAuxName `match
-    let matcherResult ← mkMatcher matcherName matchType numDiscrs altLHSS
+    let matcherResult ← mkMatcher { matcherName, matchType, numDiscrs, lhss := altLHSS }
     let motive ← forallBoundedTelescope matchType numDiscrs fun xs matchType => mkLambdaFVars xs matchType
     reportMatcherResultErrors altLHSS matcherResult
     let r := mkApp matcherResult.matcher motive

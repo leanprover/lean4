@@ -1,7 +1,26 @@
+import Lean
+
+def checkWithMkMatcherInput (matcher : Lean.Name) : Lean.MetaM Unit :=
+  Lean.Meta.Match.withMkMatcherInput matcher fun input => do
+  let res ← Lean.Meta.Match.mkMatcher input
+  let origMatcher ← Lean.getConstInfo matcher
+  if not <| input.matcherName == matcher then
+    throwError "matcher name not reconstructed correctly: {matcher} ≟ {input.matcherName}"
+  
+  let lCtx ← Lean.getLCtx
+  let fvars ← Lean.collectFVars {} res.matcher
+  let closure ← Lean.Meta.Closure.mkLambda (fvars.fvarSet.toList.toArray.map lCtx.get!) res.matcher
+
+  let origTy := origMatcher.value! 
+  let newTy ← closure
+  if not <| ←Lean.Meta.isDefEq origTy newTy then
+    throwError "matcher {matcher} does not round-trip correctly:\n{origTy} ≟ {newTy}"
+  
 def f (xs : List Nat) : List Bool :=
 xs.map fun
   | 0 => true
   | _ => false
+#eval checkWithMkMatcherInput ``f.match_1
 
 #eval f [1, 2, 0, 2]
 
@@ -27,6 +46,7 @@ theorem ex3 {p q r : Prop} : p ∨ q → r → (q ∧ r) ∨ (p ∧ r) :=
 by intro
  | Or.inl hp, h => { apply Or.inr; apply And.intro; assumption; assumption }
  | Or.inr hq, h => { apply Or.inl; exact ⟨hq, h⟩ }
+#eval checkWithMkMatcherInput ``ex3.match_1
 
 inductive C
 | mk₁ : Nat → C
@@ -35,10 +55,12 @@ inductive C
 def C.x : C → Nat
 | C.mk₁ x   => x
 | C.mk₂ x _ => x
+#eval checkWithMkMatcherInput ``C.x.match_1
 
 def head : {α : Type} → List α → Option α
 | _, a::as => some a
 | _, _     => none
+#eval checkWithMkMatcherInput ``head.match_1
 
 theorem ex4 : head [1, 2] = some 1 :=
 rfl
@@ -67,10 +89,12 @@ inductive Vec.{u} (α : Type u) : Nat → Type u
 def Vec.mapHead1 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β → δ) → Option δ
 | _,   nil,       nil,       f => none
 | _, cons a as, cons b bs,   f => some (f a b)
+#eval checkWithMkMatcherInput ``Vec.mapHead1.match_1
 
 def Vec.mapHead2 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β → δ) → Option δ
 | _, nil,            nil,         f => none
 | _, @cons _ n a as, cons b bs,   f => some (f a b)
+#eval checkWithMkMatcherInput ``Vec.mapHead2.match_1
 
 def Vec.mapHead3 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β → δ) → Option δ
 | _, nil,            nil,         f => none
@@ -83,6 +107,7 @@ inductive Foo
 def Foo.z : Foo → Nat
 | mk₁ (z := z) .. => z
 | mk₂ (z := z) .. => z
+#eval checkWithMkMatcherInput ``Foo.z.match_1
 
 #eval (Foo.mk₁ 10 20 30 40).z
 
@@ -92,6 +117,7 @@ rfl
 def Foo.addY? : Foo × Foo → Option Nat
 | (mk₁ (y := y₁) .., mk₁ (y := y₂) ..) => some (y₁ + y₂)
 | _ => none
+#eval checkWithMkMatcherInput ``Foo.addY?.match_1
 
 #eval Foo.addY? (Foo.mk₁ 1 2 3 4, Foo.mk₁ 10 20 30 40)
 
@@ -106,6 +132,7 @@ partial def filter {α} (p : α → Bool) : {n : Nat} → Vec α n → Sigma fun
 | _, Vec.cons x xs  => match p x, filter p xs with
   | true,  ⟨_, ys⟩ => ⟨_, Vec.cons x ys⟩
   | false, ys      => ys
+#eval checkWithMkMatcherInput ``filter.match_1
 
 inductive Bla
 | ofNat  (x : Nat)
@@ -114,11 +141,13 @@ inductive Bla
 def Bla.optional? : Bla → Option Nat
 | ofNat x  => some x
 | ofBool _ => none
+#eval checkWithMkMatcherInput ``Bla.optional?.match_1
 
 def Bla.isNat? (b : Bla) : Option { x : Nat // optional? b = some x } :=
 match b.optional? with
 | some y => some ⟨y, rfl⟩
 | none   => none
+#eval checkWithMkMatcherInput ``Bla.isNat?.match_1
 
 def foo (b : Bla) : Option Nat := b.optional?
 theorem fooEq (b : Bla) : foo b = b.optional? :=
@@ -128,8 +157,10 @@ def Bla.isNat2? (b : Bla) : Option { x : Nat // optional? b = some x } :=
 match h:foo b with
 | some y => some ⟨y, Eq.trans (fooEq b).symm h⟩
 | none   => none
+#eval checkWithMkMatcherInput ``Bla.isNat2?.match_1
 
 def foo2 (x : Nat) : Nat :=
 match x, rfl : (y : Nat) → x = y → Nat with
 | 0,   h => 0
 | x+1, h => 1
+#eval checkWithMkMatcherInput ``foo2.match_1

@@ -762,6 +762,33 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult :=
       if s.used.contains i then r else i::r
     pure { matcher := matcher, counterExamples := s.counterExamples, unusedAltIdxs := unusedAltIdxs.reverse }
 
+def withMkMatcherInput (matcherName : Name) (k : MkMatcherInput → MetaM α) : MetaM α := do
+  let some matcherInfo ← getMatcherInfo? matcherName | throwError "not a matcher: {matcherName}"
+  let matcherConst ← getConstInfo matcherName
+  forallBoundedTelescope matcherConst.type (some matcherInfo.arity) fun xs t => do
+  let params := xs[:matcherInfo.numParams]
+  let motive := xs[matcherInfo.numParams]
+  let discrs := xs[matcherInfo.numParams + 1:matcherInfo.numParams + 1 + matcherInfo.numDiscrs]
+  let alts := xs[matcherInfo.numParams + 1 + matcherInfo.numDiscrs:]
+  let u := 
+    if let some idx := matcherInfo.uElimPos? 
+    then mkLevelParam matcherConst.levelParams.toArray[idx]
+    else levelZero
+  let matchType ← mkForallFVars discrs (mkConst ``PUnit [u])
+  let lhss ← alts.toArray.mapIdxM fun idx t => do 
+    let ty ← inferType t
+    forallTelescope ty fun xs body => do 
+    let xs ← xs.filterM fun x => dependsOn body x.fvarId!
+    body.withApp fun f args => do
+    let ctx ← getLCtx
+    let localDecls := xs.map ctx.getFVar!
+    let patterns ← args.mapM Match.toPattern 
+    return { 
+      ref := Syntax.missing
+      fvarDecls := localDecls.toList
+      patterns := patterns.toList : Match.AltLHS }
+  k { matcherName, matchType, numDiscrs := matcherInfo.numDiscrs, lhss := lhss.toList }
+
 end Match
 
 /- Auxiliary function for MatcherApp.addArg -/

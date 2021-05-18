@@ -48,7 +48,7 @@ This is because modules are discovered not from a directory listing anymore but 
 # Editor Integration
 
 As in the standard Nix setup.
-After adding `src/` as an LSP workspace using `lsp-workspace-folder-add`, it should automatically fall back to using stage 0 in there.
+After adding `src/` as an LSP workspace, it should automatically fall back to using stage 0 in there.
 
 Note that the UX of `emacs/vscode-dev` is quite different from the Make-based setup regarding the compilation of dependencies:
 there is no mutable directory incrementally filled by the build that we could point the editor at for .olean files.

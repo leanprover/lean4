@@ -488,20 +488,6 @@ def concatMap (f : α → Array β) (as : Array α) : Array β :=
 
 end Array
 
-@[inlineIfReduce]
-def List.toArrayAux : List α → Array α → Array α
-  | [],    r => r
-  | a::as, r => toArrayAux as (r.push a)
-
-@[inlineIfReduce]
-def List.redLength : List α → Nat
-  | []    => 0
-  | _::as => as.redLength + 1
-
-@[inline, matchPattern, export lean_list_to_array]
-def List.toArray (as : List α) : Array α :=
-  as.toArrayAux (Array.mkEmpty as.redLength)
-
 export Array (mkArray)
 
 syntax "#[" sepBy(term, ", ") "]" : term

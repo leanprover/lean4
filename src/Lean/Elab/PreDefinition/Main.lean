@@ -82,4 +82,8 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := do
           let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
           m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
 
+builtin_initialize
+  registerTraceClass `Elab.definition.body
+  registerTraceClass `Elab.definition.scc
+
 end Lean.Elab

@@ -81,7 +81,7 @@ private def elabAtomicDiscr (discr : Syntax) : TermElabM Expr := do
       instantiateMVars localDecl.value
   | _ => throwErrorAt discr "unexpected discriminant"
 
-structure ElabMatchTypeAndDiscsResult where
+structure ElabMatchTypeAndDiscrsResult where
   discrs    : Array Expr
   matchType : Expr
   /- `true` when performing dependent elimination. We use this to decide whether we optimize the "match unit" case.
@@ -90,7 +90,7 @@ structure ElabMatchTypeAndDiscsResult where
   alts      : Array MatchAltView
 
 private def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptType : Syntax) (matchAltViews : Array MatchAltView) (expectedType : Expr)
-      : TermElabM ElabMatchTypeAndDiscsResult := do
+      : TermElabM ElabMatchTypeAndDiscrsResult := do
     let numDiscrs := discrStxs.size
     if matchOptType.isNone then
       (elabDiscrs discrStxs.size *> get).run' { discrs := #[], isDep := false, matchType := expectedType, alts := matchAltViews }
@@ -122,7 +122,7 @@ private def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptType : Sy
       return (discrs, isDep)
 
     /- Elaborate discriminants inferring the match-type -/
-    elabDiscrs (i : Nat) : StateRefT ElabMatchTypeAndDiscsResult TermElabM Unit := do
+    elabDiscrs (i : Nat) : StateRefT ElabMatchTypeAndDiscrsResult TermElabM Unit := do
       match i with
       | 0   => modify fun s => { s with discrs := s.discrs.reverse }
       | i+1 =>

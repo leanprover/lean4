@@ -76,9 +76,9 @@ private def elabAtomicDiscr (discr : Syntax) : TermElabM Expr := do
   | some e@(Expr.fvar fvarId _) =>
     let localDecl ← getLocalDecl fvarId
     if !isAuxDiscrName localDecl.userName then
-      pure e -- it is not an auxiliary local created by `expandNonAtomicDiscrs?`
+      return e -- it is not an auxiliary local created by `expandNonAtomicDiscrs?`
     else
-      pure localDecl.value
+      instantiateMVars localDecl.value
   | _ => throwErrorAt discr "unexpected discriminant"
 
 structure ElabMatchTypeAndDiscsResult where
@@ -89,11 +89,11 @@ structure ElabMatchTypeAndDiscsResult where
   isDep     : Bool
   alts      : Array MatchAltView
 
-  private def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptType : Syntax) (matchAltViews : Array MatchAltView) (expectedType : Expr)
+private def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptType : Syntax) (matchAltViews : Array MatchAltView) (expectedType : Expr)
       : TermElabM ElabMatchTypeAndDiscsResult := do
     let numDiscrs := discrStxs.size
     if matchOptType.isNone then
-      elabDiscrs discrStxs.size (discrs := #[]) (isDep := false) expectedType matchAltViews
+      (elabDiscrs discrStxs.size *> get).run' { discrs := #[], isDep := false, matchType := expectedType, alts := matchAltViews }
     else
       let matchTypeStx := matchOptType[0][1]
       let matchType ← elabType matchTypeStx
@@ -122,20 +122,21 @@ structure ElabMatchTypeAndDiscsResult where
       return (discrs, isDep)
 
     /- Elaborate discriminants inferring the match-type -/
-    elabDiscrs (i : Nat) (discrs : Array Expr) (matchType : Expr) (isDep : Bool) (matchAltViews : Array MatchAltView) := do
+    elabDiscrs (i : Nat) : StateRefT ElabMatchTypeAndDiscsResult TermElabM Unit := do
       match i with
-      | 0   => return { discrs := discrs.reverse, matchType := matchType, isDep := isDep, alts := matchAltViews }
+      | 0   => modify fun s => { s with discrs := s.discrs.reverse }
       | i+1 =>
         let discrStx := discrStxs[i]
         let discr ← elabAtomicDiscr discrStx
         let discr ← instantiateMVars discr
         let discrType ← inferType discr
         let discrType ← instantiateMVars discrType
-        let matchTypeBody ← kabstract matchType discr
-        let isDep := isDep || matchTypeBody.hasLooseBVars
+        let matchTypeBody ← kabstract (← get).matchType discr
+        modify fun s => { s with isDep := s.isDep || matchTypeBody.hasLooseBVars }
         let userName ← mkUserNameFor discr
         if discrStx[0].isNone then
-          elabDiscrs i (discrs.push discr) (Lean.mkForall userName BinderInfo.default discrType matchTypeBody) isDep matchAltViews
+          modify fun s => { s with discrs := s.discrs.push discr, matchType := Lean.mkForall userName BinderInfo.default discrType matchTypeBody }
+          elabDiscrs i
         else
           let identStx := discrStx[0][0]
           withLocalDeclD userName discrType fun x => do
@@ -144,10 +145,11 @@ structure ElabMatchTypeAndDiscsResult where
               let matchTypeBody := matchTypeBody.instantiate1 x
               let matchType ← mkForallFVars #[x, h] matchTypeBody
               let refl ← mkEqRefl discr
-              let discrs := (discrs.push refl).push discr
-              let matchAltViews := matchAltViews.map fun altView =>
-                { altView with patterns := altView.patterns.insertAt (i+1) identStx }
-              elabDiscrs i discrs matchType isDep matchAltViews
+              modify fun s => { s with
+                discrs := s.discrs.push refl |>.push discr,
+                alts   := s.alts.map fun altView => { altView with patterns := altView.patterns.insertAt (i+1) identStx }
+              }
+              elabDiscrs i
 
 def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array MatchAltView) := do
   matchAlts.mapM fun matchAlt => do

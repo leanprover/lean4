@@ -174,12 +174,13 @@ private def checkAltNames (alts : Array (Name × MVarId)) (altsSyntax : Array Sy
         throwErrorAt altStx "invalid alternative name '{altName}'"
 
 def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (optPreTac : Syntax) (altsSyntax : Array Syntax)
+    (initialInfo : Info)
     (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[]) : TacticM Unit := do
   checkAltNames alts altsSyntax
   let hasAlts := altsSyntax.size > 0
   if hasAlts then
     -- default to initial state outside of alts
-    withInfoContext go (Info.ofTacticInfo ⟨← getMCtx, ← getGoals, ← getRef, ← getMCtx, ← getGoals⟩)
+    withInfoContext go initialInfo
   else go
 where
   go := do
@@ -352,6 +353,8 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
     generalizeTerm target
   let (elimName, elimInfo) ← getElimNameInfo stx[2] targets (induction := true)
   let mvarId ← getMainGoal
+  -- save initial info before main goal is reassigned
+  let initInfo ← mkTacticInfo (← getMCtx) (← getUnsolvedGoals) (← getRef)
   let tag ← getMVarTag mvarId
   withMVarContext mvarId do
     let targets ← addImplicitTargets elimInfo targets
@@ -368,7 +371,7 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
       let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
       let alts := getAltsOfOptInductionAlts optInductionAlts
       assignExprMVar mvarId result.elimApp
-      ElimApp.evalAlts elimInfo result.alts optPreTac alts (numGeneralized := n) (toClear := targetFVarIds)
+      ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo (numGeneralized := n) (toClear := targetFVarIds)
       appendGoals result.others.toList
 where
   checkTargets (targets : Array Expr) : MetaM Unit := do
@@ -422,6 +425,8 @@ builtin_initialize registerTraceClass `Elab.cases
   let targetRef := stx[1]
   let (elimName, elimInfo) ← getElimNameInfo stx[2] targets (induction := false)
   let mvarId ← getMainGoal
+  -- save initial info before main goal is reassigned
+  let initInfo ← mkTacticInfo (← getMCtx) (← getUnsolvedGoals) (← getRef)
   let tag ← getMVarTag mvarId
   withMVarContext mvarId do
     let targets ← addImplicitTargets elimInfo targets
@@ -434,6 +439,6 @@ builtin_initialize registerTraceClass `Elab.cases
     withMVarContext mvarId do
       ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetsNew
       assignExprMVar mvarId result.elimApp
-      ElimApp.evalAlts elimInfo result.alts optPreTac alts (numEqs := targets.size) (toClear := targetsNew)
+      ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo (numEqs := targets.size) (toClear := targetsNew)
 
 end Lean.Elab.Tactic

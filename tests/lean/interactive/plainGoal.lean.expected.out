@@ -67,3 +67,9 @@
  "position": {"line": 49, "character": 20}}
 {"rendered": "```lean\nα : Sort ?u\n⊢ α → α\n```",
  "goals": ["α : Sort ?u\n⊢ α → α"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 53, "character": 3}}
+{"rendered":
+ "```lean\nα : Sort ?u\np : α → Prop\na b : α\ninst✝ : DecidablePred p\nh : ∀ {p : α → Prop} [inst : DecidablePred p], p a → p b\n⊢ p a\n```",
+ "goals":
+ ["α : Sort ?u\np : α → Prop\na b : α\ninst✝ : DecidablePred p\nh : ∀ {p : α → Prop} [inst : DecidablePred p], p a → p b\n⊢ p a"]}

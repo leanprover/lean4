@@ -45,3 +45,6 @@ exact h₁ h₃
 theorem ex7 (p q r : Prop) (h₁ : q → r) (h₂ : p ↔ q) (h₃ : p) : r := by
 rw [h₂] at h₃;
 exact h₁ h₃
+
+example (α : Type) (p : Prop) (a b c : α) (h : p → a = b) : a = c := by
+  rw [h _]  -- should manifest goal `⊢ p`, like `rw [h]` would

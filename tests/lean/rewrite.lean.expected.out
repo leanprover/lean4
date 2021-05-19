@@ -19,3 +19,15 @@ m n k : Nat
  : n = m
 h : k = m
 ⊢ k = n
+rewrite.lean:49:69-50:10: error: unsolved goals
+α : Type
+p : Prop
+a b c : α
+h : p → a = b
+⊢ b = c
+
+α : Type
+p : Prop
+a b c : α
+h : p → a = b
+⊢ p

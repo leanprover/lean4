@@ -49,3 +49,8 @@ example : ∀ a b : Nat, a = b := by
 
 example : α → α := (by
                   --^ $/lean/plainGoal
+
+example (p : α → Prop) (a b : α) [DecidablePred p] (h : ∀ {p} [DecidablePred p], p a → p b) : p b := by
+  apply h _
+ --^ $/lean/plainGoal
+ -- should not display solved goal `⊢ DecidablePred p`

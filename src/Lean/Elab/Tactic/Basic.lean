@@ -136,12 +136,12 @@ def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx 
     goalsBefore   := goalsBefore
     stx           := stx
     mctxAfter     := (← getMCtx)
-    goalsAfter    := (← getGoals)
+    goalsAfter    := (← getUnsolvedGoals)
   }
 
 @[inline] def withTacticInfoContext (stx : Syntax) (x : TacticM α) : TacticM α := do
   let mctxBefore  ← getMCtx
-  let goalsBefore ← getGoals
+  let goalsBefore ← getUnsolvedGoals
   withInfoContext x (mkTacticInfo mctxBefore goalsBefore stx)
 
 mutual
@@ -396,7 +396,7 @@ private def evalManyTacticOptSemi (stx : Syntax) : TacticM Unit := do
 
 @[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx => do
   let mctxBefore  ← getMCtx
-  let goalsBefore ← getGoals
+  let goalsBefore ← getUnsolvedGoals
   focus do
     -- show focused state on `focus`
     withInfoContext (pure ()) (mkTacticInfo mctxBefore goalsBefore stx[0])

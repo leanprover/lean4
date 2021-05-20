@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabDeriving___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_getOptDerivingClasses___spec__1(lean_object*);
 lean_object* l_Lean_Elab_derivingHandlersRef;
 lean_object* l_Lean_mkConstWithLevelParams___at_Lean_Elab_elabDeriving___spec__6(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -52,7 +51,6 @@ uint8_t l_USize_decLt(size_t, size_t);
 uint8_t l_Lean_NameMap_contains___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getOptDerivingClasses___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_throwUnknownConstant___rarg___closed__2;
-lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_elabDeriving___spec__8(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_empty;
 lean_object* l_Lean_ConstantInfo_levelParams(lean_object*);
@@ -65,6 +63,7 @@ lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___hyg_11_(lean_o
 lean_object* l_Lean_Elab_registerBuiltinDerivingHandler___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_elabDeriving___spec__9(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabDeriving___boxed__const__1;
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* l_Lean_Elab_defaultHandler___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_registerBuiltinDerivingHandler___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -87,11 +86,11 @@ lean_object* l_List_filterAux___at_Lean_resolveGlobalConst___spec__1(lean_object
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_getOptDerivingClasses___spec__1___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_Elab_applyDerivingHandlers___spec__1(lean_object*, lean_object*);
 lean_object* lean_expr_dbg_to_string(lean_object*);
+extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1258____closed__1;
 extern lean_object* l_Lean_KernelException_toMessageData___closed__15;
 lean_object* l_Lean_ResolveName_resolveGlobalName(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
 size_t lean_usize_of_nat(lean_object*);
-extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1262____closed__1;
 lean_object* l_Lean_resolveGlobalName___at_Lean_Elab_elabDeriving___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_DerivingClassView_applyHandlers(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_Elab_applyDerivingHandlers___spec__1___boxed(lean_object*, lean_object*);
@@ -246,10 +245,10 @@ return x_12;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 lean_dec(x_2);
-x_13 = l_Lean_Name_toString___closed__1;
-x_14 = l_Lean_Name_toStringWithSep(x_13, x_1);
+x_13 = 1;
+x_14 = l_Lean_Name_toString(x_1, x_13);
 x_15 = l_Lean_Elab_registerBuiltinDerivingHandler___lambda__2___closed__1;
 x_16 = lean_string_append(x_15, x_14);
 lean_dec(x_14);
@@ -281,10 +280,10 @@ return x_24;
 }
 else
 {
-lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
+uint8_t x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 lean_dec(x_2);
-x_25 = l_Lean_Name_toString___closed__1;
-x_26 = l_Lean_Name_toStringWithSep(x_25, x_1);
+x_25 = 1;
+x_26 = l_Lean_Name_toString(x_1, x_25);
 x_27 = l_Lean_Elab_registerBuiltinDerivingHandler___lambda__2___closed__1;
 x_28 = lean_string_append(x_27, x_26);
 lean_dec(x_26);
@@ -2212,7 +2211,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___h
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1262____closed__1;
+x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1258____closed__1;
 x_2 = l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___hyg_610____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

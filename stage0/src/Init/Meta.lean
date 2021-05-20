@@ -69,15 +69,45 @@ def isIdEndEscape (c : Char) : Bool := c = idEndEscape
 
 namespace Name
 
-def toStringWithSep (sep : String) : Name → String
-  | anonymous         => "[anonymous]"
-  | str anonymous s _ => s
-  | num anonymous v _ => toString v
-  | str n s _         => toStringWithSep sep n ++ sep ++ s
-  | num n v _         => toStringWithSep sep n ++ sep ++ Nat.repr v
+def getRoot : Name → Name
+  | anonymous             => anonymous
+  | n@(str anonymous _ _) => n
+  | n@(num anonymous _ _) => n
+  | str n _ _             => getRoot n
+  | num n _ _             => getRoot n
 
-protected def toString : Name → String :=
-  toStringWithSep "."
+@[export lean_is_inaccessible_user_name]
+def isInaccessibleUserName : Name → Bool
+  | Name.str _ s _   => s.contains '✝' || s == "_inaccessible"
+  | Name.num p idx _ => isInaccessibleUserName p
+  | _                => false
+
+def escapePart (s : String) : Option String :=
+  if s.length > 0 && isIdFirst s[0] && (s.toSubstring.drop 1).all isIdRest then s
+  else if s.any isIdEndEscape then none
+  else some <| idBeginEscape.toString ++ s ++ idEndEscape.toString
+
+-- NOTE: does not roundtrip even with `escape = true` if name is anonymous or contains numeric part or `idEndEscape`
+variable (sep : String) (escape : Bool)
+def toStringWithSep : Name → String
+  | anonymous         => "[anonymous]"
+  | str anonymous s _ => maybeEscape s
+  | num anonymous v _ => toString v
+  | str n s _         => toStringWithSep n ++ sep ++ maybeEscape s
+  | num n v _         => toStringWithSep n ++ sep ++ Nat.repr v
+where
+  maybeEscape s := if escape then escapePart s |>.getD s else s
+
+protected def toString (n : Name) (escape := true) : String :=
+  -- never escape "prettified" inaccessible names or macro scopes or pseudo-syntax introduced by the delaborator
+  toStringWithSep "." (escape && !n.isInaccessibleUserName && !n.hasMacroScopes && !maybePseudoSyntax) n
+where
+  maybePseudoSyntax :=
+    if let Name.str _ s _ := n.getRoot then
+      -- could be pseudo-syntax for loose bvar or universe mvar, output as is
+      "#".isPrefixOf s || "?".isPrefixOf s
+    else
+      false
 
 instance : ToString Name where
   toString n := n.toString
@@ -368,6 +398,9 @@ def mkNumLit (val : String) (info := SourceInfo.none) : Syntax :=
 
 def mkScientificLit (val : String) (info := SourceInfo.none) : Syntax :=
   mkLit scientificLitKind val info
+
+def mkNameLit (val : String) (info := SourceInfo.none) : Syntax :=
+  mkLit nameLitKind val info
 
 /- Recall that we don't have special Syntax constructors for storing numeric and string atoms.
    The idea is to have an extensible approach where embedded DSLs may have new kind of atoms and/or
@@ -665,12 +698,23 @@ instance : Quote String := ⟨Syntax.mkStrLit⟩
 instance : Quote Nat := ⟨fun n => Syntax.mkNumLit <| toString n⟩
 instance : Quote Substring := ⟨fun s => Syntax.mkCApp `String.toSubstring #[quote s.toString]⟩
 
-private def quoteName : Name → Syntax
-  | Name.anonymous => mkCIdent ``Name.anonymous
-  | Name.str n s _ => Syntax.mkCApp ``Name.mkStr #[quoteName n, quote s]
-  | Name.num n i _ => Syntax.mkCApp ``Name.mkNum #[quoteName n, quote i]
+-- in contrast to `Name.toString`, we can, and want to be, precise here
+private def getEscapedNameParts? (acc : List String) : Name → OptionM (List String)
+  | Name.anonymous => acc
+  | Name.str n s _ => do
+    let s ← Name.escapePart s
+    getEscapedNameParts? (s::acc) n
+  | Name.num n i _ => none
 
-instance : Quote Name := ⟨quoteName⟩
+private def quoteNameMk : Name → Syntax
+  | Name.anonymous => mkCIdent ``Name.anonymous
+  | Name.str n s _ => Syntax.mkCApp ``Name.mkStr #[quoteNameMk n, quote s]
+  | Name.num n i _ => Syntax.mkCApp ``Name.mkNum #[quoteNameMk n, quote i]
+
+instance : Quote Name where
+  quote n := match getEscapedNameParts? [] n with
+    | some ss => mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ ".".intercalate ss)]
+    | none    => quoteNameMk n
 
 instance {α β : Type} [Quote α] [Quote β] : Quote (α × β) where
   quote

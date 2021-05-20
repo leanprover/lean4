@@ -1163,6 +1163,20 @@ protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : 
       (fun _ => as)
   loop bs.size 0 as
 
+@[inlineIfReduce]
+def List.toArrayAux : List α → Array α → Array α
+  | nil,       r => r
+  | cons a as, r => toArrayAux as (r.push a)
+
+@[inlineIfReduce]
+def List.redLength : List α → Nat
+  | nil       => 0
+  | cons _ as => as.redLength.succ
+
+@[inline, matchPattern, export lean_list_to_array]
+def List.toArray (as : List α) : Array α :=
+  as.toArrayAux (Array.mkEmpty as.redLength)
+
 class Bind (m : Type u → Type v) where
   bind : {α β : Type u} → m α → (α → m β) → m β
 

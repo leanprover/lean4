@@ -19,7 +19,6 @@ lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_Meta_DiscrTree_insertCo
 lean_object* l_Array_binSearchAux___at_Lean_Meta_DiscrTree_getUnify_process___spec__10___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Meta_DiscrTree_getMatch___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_Meta_DiscrTree_format___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Array_binSearchAux___at_Lean_Meta_DiscrTree_getUnify_process___spec__11(lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Meta_DiscrTree_getUnify___spec__16(lean_object*);
 size_t l_USize_add(size_t, size_t);
@@ -152,7 +151,6 @@ lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNatType(le
 lean_object* l_Std_fmt___at_Lean_Meta_DiscrTree_Trie_format___spec__3___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_DiscrTree_getUnify___spec__4___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___at_Lean_Meta_DiscrTree_getMatch_process___spec__6(lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Meta_DiscrTree_getUnify___spec__8___rarg(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_mkNoindexAnnotation(lean_object*);
@@ -216,6 +214,7 @@ lean_object* l_Array_binSearchAux___at_Lean_Meta_DiscrTree_getUnify_process___sp
 lean_object* l_Lean_Meta_DiscrTree_mkPathAux(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAnnotation(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__5;
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Meta_DiscrTree_getUnify___spec__6(lean_object*);
 lean_object* l_List_format___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_DiscrTree_insertCore___spec__1(lean_object*);
@@ -1062,9 +1061,9 @@ return x_2;
 lean_object* l_Std_fmt___at_Lean_Meta_DiscrTree_Key_format___spec__1(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Name_toString___closed__1;
-x_3 = l_Lean_Name_toStringWithSep(x_2, x_1);
+uint8_t x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = 1;
+x_3 = l_Lean_Name_toString(x_1, x_2);
 x_4 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_4, 0, x_3);
 return x_4;

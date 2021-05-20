@@ -3,7 +3,6 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
-import Lean.Hygiene
 import Lean.Meta.InferType
 
 namespace Lean.Meta
@@ -132,7 +131,7 @@ def collect (goalTarget : Expr) : MetaM (NameSet × NameSet) := do
   else
     let lctx ← getLCtx
     let hiddenInaccessible := lctx.foldl (init := {}) fun hiddenInaccessible localDecl => do
-      if isInaccessibleUserName localDecl.userName then
+      if localDecl.userName.isInaccessibleUserName then
         hiddenInaccessible.insert localDecl.fvarId
       else
         hiddenInaccessible

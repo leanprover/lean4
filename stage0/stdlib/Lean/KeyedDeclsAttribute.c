@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Std_AssocList_find_x3f___at_Lean_KeyedDeclsAttribute_getValues___spec__7___rarg(lean_object*, lean_object*);
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_instInhabitedDef(lean_object*);
@@ -93,7 +92,6 @@ extern lean_object* l_Lean_ScopedEnvExtension_instInhabitedDescr___rarg___closed
 extern lean_object* l_Lean_instInhabitedException___closed__1;
 lean_object* l_Lean_KeyedDeclsAttribute_instInhabitedExtensionState___closed__1;
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_KeyedDeclsAttribute_Table_insert___spec__11(lean_object*);
-lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_KeyedDeclsAttribute_init___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerTagAttribute___closed__5;
@@ -128,6 +126,7 @@ lean_object* l_Lean_ofExcept___at_Lean_KeyedDeclsAttribute_init___spec__4(lean_o
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_KeyedDeclsAttribute_getValues___spec__6___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__4;
 extern lean_object* l_Lean_instInhabitedPersistentEnvExtension___closed__2;
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* l_Lean_KeyedDeclsAttribute_Def_evalKey___default___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_Def_evalKey___default___boxed(lean_object*);
@@ -3457,10 +3456,10 @@ uint8_t x_32;
 x_32 = !lean_is_exclusive(x_31);
 if (x_32 == 0)
 {
-lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
+lean_object* x_33; uint8_t x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_33 = lean_ctor_get(x_31, 0);
-x_34 = l_Lean_Name_toString___closed__1;
-x_35 = l_Lean_Name_toStringWithSep(x_34, x_5);
+x_34 = 1;
+x_35 = l_Lean_Name_toString(x_5, x_34);
 x_36 = l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__11;
 x_37 = lean_string_append(x_36, x_35);
 lean_dec(x_35);
@@ -3478,14 +3477,14 @@ return x_31;
 }
 else
 {
-lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; 
+lean_object* x_44; lean_object* x_45; uint8_t x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; 
 x_44 = lean_ctor_get(x_31, 0);
 x_45 = lean_ctor_get(x_31, 1);
 lean_inc(x_45);
 lean_inc(x_44);
 lean_dec(x_31);
-x_46 = l_Lean_Name_toString___closed__1;
-x_47 = l_Lean_Name_toStringWithSep(x_46, x_5);
+x_46 = 1;
+x_47 = l_Lean_Name_toString(x_5, x_46);
 x_48 = l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__11;
 x_49 = lean_string_append(x_48, x_47);
 lean_dec(x_47);

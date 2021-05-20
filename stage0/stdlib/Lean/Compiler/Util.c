@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Compiler_checkIsDefinition_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_atMostOnce___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_objectType___closed__3;
@@ -37,7 +36,6 @@ lean_object* l_Lean_Compiler_checkIsDefinition___closed__3;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_get_decl_names_for_code_gen(lean_object*);
 lean_object* l_Lean_Compiler_mkLcProof___closed__1;
-lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_neutralExpr;
 lean_object* l_Lean_Compiler_isEagerLambdaLiftingName___boxed(lean_object*);
 lean_object* l_Lean_Compiler_atMostOnce_visit___boxed(lean_object*, lean_object*, lean_object*);
@@ -49,6 +47,7 @@ lean_object* l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1;
 lean_object* l_Lean_Compiler_atMostOnce_skip___boxed(lean_object*);
 lean_object* l_Lean_Compiler_atMostOnce_seq_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_isUnsafeRecName_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* l_Lean_Compiler_atMostOnce_match__1(lean_object*);
 lean_object* l_Lean_Compiler_neutralExpr___closed__3;
 lean_object* l_Lean_Compiler_voidType___closed__2;
@@ -1573,9 +1572,9 @@ lean_inc(x_2);
 x_3 = lean_environment_find(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = l_Lean_Name_toString___closed__1;
-x_5 = l_Lean_Name_toStringWithSep(x_4, x_2);
+uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_4 = 1;
+x_5 = l_Lean_Name_toString(x_2, x_4);
 x_6 = l_Lean_Compiler_checkIsDefinition___closed__1;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
@@ -1610,10 +1609,10 @@ return x_13;
 }
 default: 
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 lean_dec(x_11);
-x_14 = l_Lean_Name_toString___closed__1;
-x_15 = l_Lean_Name_toStringWithSep(x_14, x_2);
+x_14 = 1;
+x_15 = l_Lean_Name_toString(x_2, x_14);
 x_16 = l_Lean_Compiler_checkIsDefinition___closed__2;
 x_17 = lean_string_append(x_16, x_15);
 lean_dec(x_15);

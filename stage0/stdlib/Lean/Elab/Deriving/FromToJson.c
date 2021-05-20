@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHandler___lambda__1___closed__22;
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHandler___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandler_match__1(lean_object*);
@@ -72,7 +71,6 @@ lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandler(lean_object
 lean_object* l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHandler___lambda__1___closed__10;
 lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandler___lambda__1___closed__3;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_15342____closed__5;
-lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_SepArray_ofElems(lean_object*, lean_object*);
 extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_391____closed__2;
 lean_object* l_Array_zip___rarg(lean_object*, lean_object*);
@@ -99,6 +97,7 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_14734____closed__7;
 extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__3;
 lean_object* l_Lean_getStructureFieldsFlattened(lean_object*, lean_object*, uint8_t);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_2278____closed__3;
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandler_match__1___rarg(lean_object*, lean_object*);
 extern lean_object* l___private_Init_Meta_0__Lean_quoteOption___rarg___closed__2;
@@ -218,9 +217,9 @@ return x_1;
 lean_object* l_Lean_Elab_Deriving_FromToJson_mkJsonField(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
-x_2 = l_Lean_Name_toString___closed__1;
-x_3 = l_Lean_Name_toStringWithSep(x_2, x_1);
+uint8_t x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
+x_2 = 1;
+x_3 = l_Lean_Name_toString(x_1, x_2);
 x_4 = l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__1;
 x_5 = l_String_dropRightWhile(x_3, x_4);
 x_6 = lean_string_dec_eq(x_3, x_5);
@@ -230,23 +229,22 @@ x_8 = l_Lean_Syntax_mkStrLit(x_5, x_7);
 lean_dec(x_5);
 if (x_6 == 0)
 {
-uint8_t x_9; lean_object* x_10; lean_object* x_11; 
-x_9 = 1;
-x_10 = lean_box(x_9);
-x_11 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_11, 0, x_10);
-lean_ctor_set(x_11, 1, x_8);
-return x_11;
+lean_object* x_9; lean_object* x_10; 
+x_9 = lean_box(x_2);
+x_10 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_10, 0, x_9);
+lean_ctor_set(x_10, 1, x_8);
+return x_10;
 }
 else
 {
-uint8_t x_12; lean_object* x_13; lean_object* x_14; 
-x_12 = 0;
-x_13 = lean_box(x_12);
-x_14 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_8);
-return x_14;
+uint8_t x_11; lean_object* x_12; lean_object* x_13; 
+x_11 = 0;
+x_12 = lean_box(x_11);
+x_13 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_13, 0, x_12);
+lean_ctor_set(x_13, 1, x_8);
+return x_13;
 }
 }
 }

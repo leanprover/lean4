@@ -116,6 +116,7 @@ lean_object* l_Lean_Elab_Term_getCurrMacroScope(lean_object*, lean_object*, lean
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_16821____closed__12;
 lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_mkInstanceCmds___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1258____closed__1;
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__6;
 extern lean_object* l_Lean_instInhabitedExpr;
 extern lean_object* l_term_x7b_x7d___closed__3;
@@ -133,7 +134,6 @@ lean_object* l_Lean_addTrace___at___private_Lean_Elab_Term_0__Lean_Elab_Term_pos
 extern lean_object* l_term_x7b_x7d___closed__5;
 lean_object* l_Lean_Elab_Deriving_mkImplicitBinders___boxed__const__1;
 extern lean_object* l_Lean_Parser_Tactic_inductionAlt___closed__5;
-extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1262____closed__1;
 extern lean_object* l_Lean_nullKind___closed__2;
 lean_object* l_Lean_Elab_Deriving_mkInstanceCmds___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_mkHeader(lean_object*);
@@ -1494,7 +1494,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_mkContext___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1262____closed__1;
+x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1258____closed__1;
 x_2 = l_Lean_Elab_Deriving_mkContext___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

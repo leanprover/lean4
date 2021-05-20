@@ -20,13 +20,6 @@ def getPrefix : Name → Name
   | str p s _ => p
   | num p s _ => p
 
-def getRoot : Name → Name
-  | anonymous             => anonymous
-  | n@(str anonymous _ _) => n
-  | n@(num anonymous _ _) => n
-  | str n _ _             => getRoot n
-  | num n _ _             => getRoot n
-
 def getString! : Name → String
   | str _ s _ => s
   | _         => unreachable!

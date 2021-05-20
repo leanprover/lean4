@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Syntax_formatStxAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_List_map___at_Lean_Syntax_formatStxAux___spec__5(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___closed__1;
 extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__4;
@@ -39,12 +38,12 @@ lean_object* l_Lean_Syntax_formatStxAux___closed__2;
 lean_object* l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo_match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Syntax_formatStxAux___spec__4(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___closed__3;
 lean_object* l_List_map___at_Lean_Syntax_formatStxAux___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___closed__5;
 lean_object* l_Std_fmt___at___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo___spec__2(lean_object*);
 lean_object* l_List_map___at_Lean_Syntax_formatStxAux___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* l_Lean_Syntax_instToFormatSyntax(lean_object*);
 lean_object* l_Lean_Syntax_formatStx___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
@@ -830,12 +829,12 @@ x_10 = l_Lean_nullKind;
 x_11 = lean_name_eq(x_6, x_10);
 if (x_11 == 0)
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
+lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_12 = l_Lean_Parser_Syntax_addPrec___closed__4;
 x_13 = lean_box(0);
 x_14 = l_Lean_Name_replacePrefix(x_6, x_12, x_13);
-x_15 = l_Lean_Name_toString___closed__1;
-x_16 = l_Lean_Name_toStringWithSep(x_15, x_14);
+x_15 = 1;
+x_16 = l_Lean_Name_toString(x_14, x_15);
 x_17 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
 x_18 = lean_array_get_size(x_7);
@@ -1141,14 +1140,14 @@ return x_135;
 }
 default: 
 {
-lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; 
+lean_object* x_136; lean_object* x_137; uint8_t x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; 
 x_136 = lean_ctor_get(x_4, 0);
 lean_inc(x_136);
 x_137 = lean_ctor_get(x_4, 2);
 lean_inc(x_137);
 lean_dec(x_4);
-x_138 = l_Lean_Name_toString___closed__1;
-x_139 = l_Lean_Name_toStringWithSep(x_138, x_137);
+x_138 = 1;
+x_139 = l_Lean_Name_toString(x_137, x_138);
 x_140 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_140, 0, x_139);
 x_141 = l_Lean_Name_instReprName___closed__2;

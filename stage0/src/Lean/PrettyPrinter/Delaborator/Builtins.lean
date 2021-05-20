@@ -630,8 +630,25 @@ def delabEqNDRec : Delab := whenPPOption getPPNotation do
   `($h ▸ $m)
 
 @[builtinDelab app.Eq.rec]
-def delabEqRec : Delab := whenPPOption getPPNotation do
+def delabEqRec : Delab :=
   -- relevant signature parts as in `Eq.ndrec`
   delabEqNDRec
+
+def reifyName : Expr → DelabM Name
+  | Expr.const ``Lean.Name.anonymous .. => Name.anonymous
+  | Expr.app (Expr.app (Expr.const ``Lean.Name.mkStr ..) n _) (Expr.lit (Literal.strVal s) _) _ => do
+    (← reifyName n).mkStr s
+  | Expr.app (Expr.app (Expr.const ``Lean.Name.mkNum ..) n _) (Expr.lit (Literal.natVal i) _) _ => do
+    (← reifyName n).mkNum i
+  | _ => failure
+
+@[builtinDelab app.Lean.Name.mkStr]
+def delabNameMkStr : Delab := whenPPOption getPPNotation do
+  let n ← reifyName (← getExpr)
+  -- not guaranteed to be a syntactically valid name, but usually more helpful than the explicit version
+  mkNode ``Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{n}"]
+
+@[builtinDelab app.Lean.Name.mkNum]
+def delabNameMkNum : Delab := delabNameMkStr
 
 end Lean.PrettyPrinter.Delaborator

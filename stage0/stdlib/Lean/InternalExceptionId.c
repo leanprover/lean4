@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Lean_Name_toString___closed__1;
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_InternalExceptionId_toString(lean_object*);
 lean_object* l_Lean_registerInternalExceptionId___closed__1;
@@ -33,10 +32,10 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_registerInternalExceptionId___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_instBEqInternalExceptionId___closed__1;
-lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* l_Lean_instInhabitedInternalExceptionId;
 lean_object* l___private_Lean_InternalExceptionId_0__Lean_beqInternalExceptionId____x40_Lean_InternalExceptionId___hyg_23____boxed(lean_object*, lean_object*);
 lean_object* l_IO_mkRef___at_Lean_initFn____x40_Lean_InternalExceptionId___hyg_70____spec__1(lean_object*, lean_object*);
@@ -318,10 +317,10 @@ return x_10;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 lean_dec(x_6);
-x_11 = l_Lean_Name_toString___closed__1;
-x_12 = l_Lean_Name_toStringWithSep(x_11, x_1);
+x_11 = 1;
+x_12 = l_Lean_Name_toString(x_1, x_11);
 x_13 = l_Lean_registerInternalExceptionId___closed__1;
 x_14 = lean_string_append(x_13, x_12);
 lean_dec(x_12);
@@ -353,10 +352,10 @@ return x_22;
 }
 else
 {
-lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+uint8_t x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 lean_dec(x_18);
-x_23 = l_Lean_Name_toString___closed__1;
-x_24 = l_Lean_Name_toStringWithSep(x_23, x_1);
+x_23 = 1;
+x_24 = l_Lean_Name_toString(x_1, x_23);
 x_25 = l_Lean_registerInternalExceptionId___closed__1;
 x_26 = lean_string_append(x_25, x_24);
 lean_dec(x_24);

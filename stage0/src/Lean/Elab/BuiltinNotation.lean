@@ -62,20 +62,21 @@ open Meta
   | _                                  => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.have] def expandHave : Macro := fun stx =>
-  let mkId (x? : Option Syntax) : Syntax :=
-    x?.getD <| mkIdentFrom stx `this
+  let thisId := mkIdentFrom stx `this
   match stx with
-  | `(have $[$x :]? $type from $val $[;]? $body)              => let x := mkId x; `(let_fun $x : $type := $val; $body)
-  | `(have $[$x :]? $type by%$b $tac:tacticSeq $[;]? $body)   => `(have $[$x :]? $type from by%$b $tac:tacticSeq; $body)
-  | `(have $x:ident : $type:term := $val $[;]? $body)         => `(let_fun $x:ident : $type:term := $val; $body)
-  | `(have $x:ident := $val:term $[;]? $body)                 => `(let_fun $x:ident := $val:term ; $body)
+  | `(have $x $bs* $[: $type]? := $val $[;]? $body)           => `(let_fun $x $bs* $[: $type]? := $val; $body)
+  | `(have : $type := $val $[;]? $body)                       => `(have $thisId : $type := $val; $body)
+  | `(have $x $bs* $[: $type]? $alts:matchAlts $[;]? $body)   => `(let_fun $x $bs* $[: $type]? $alts:matchAlts; $body)
+  | `(have : $type $alts:matchAlts $[;]? $body)               => `(have $thisId : $type $alts:matchAlts; $body)
   | `(have $pattern:term := $val:term $[;]? $body)            => `(let_fun $pattern:term := $val:term ; $body)
   | _                                                         => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.suffices] def expandSuffices : Macro
-  | `(suffices $[$x :]? $type from $val $[;]? $body)            => `(have $[$x :]? $type from $body; $val)
-  | `(suffices $[$x :]? $type by%$b $tac:tacticSeq $[;]? $body) => `(have $[$x :]? $type from $body; by%$b $tac:tacticSeq)
-  | _                                                           => Macro.throwUnsupported
+  | `(suffices $x:ident : $type from $val $[;]? $body)            => `(have $x : $type := $body; $val)
+  | `(suffices $type:term from $val $[;]? $body)                  => `(have : $type := $body; $val)
+  | `(suffices $x:ident : $type by%$b $tac:tacticSeq $[;]? $body) => `(have $x : $type := $body; by%$b $tac:tacticSeq)
+  | `(suffices $type:term by%$b $tac:tacticSeq $[;]? $body)       => `(have $type := $body; by%$b $tac:tacticSeq)
+  | _                                                             => Macro.throwUnsupported
 
 open Lean.Parser in
 private def elabParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax := do

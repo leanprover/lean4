@@ -163,7 +163,6 @@ lean_object* l_Lean_Literal_type___closed__3;
 lean_object* l_Lean_Expr_isLet_match__1(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6600____closed__22;
 lean_object* lean_expr_lift_loose_bvars(lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_has_level_mvar(lean_object*);
 lean_object* l_Lean_ExprStructEq_instBEqExprStructEq___closed__1;
@@ -380,6 +379,7 @@ lean_object* l___private_Lean_Expr_0__Lean_mkAppRangeAux___boxed(lean_object*, l
 lean_object* l_Lean_Expr_updateProj_x21___closed__3;
 lean_object* l_Lean_Expr_hasAnyFVar_visit_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Literal_type___closed__2;
+extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6985____closed__22;
 lean_object* l_Lean_Expr_mkDataForLet___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_instantiate___boxed(lean_object*, lean_object*);
 uint8_t l___private_Lean_Expr_0__Lean_beqLiteral____x40_Lean_Expr___hyg_30_(lean_object*, lean_object*);
@@ -3017,7 +3017,7 @@ return x_12;
 default: 
 {
 lean_object* x_13; 
-x_13 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6600____closed__22;
+x_13 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6985____closed__22;
 return x_13;
 }
 }

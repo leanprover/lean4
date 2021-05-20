@@ -135,6 +135,7 @@ lean_object* l_Lean_throwError___at_Lean_Elab_Command_mkDefView___spec__1___boxe
 lean_object* l_ReaderT_pure___at_Lean_Elab_liftMacroM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Command_mkDefViewOfInstance___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1258____closed__1;
 lean_object* l___private_Lean_Elab_DefView_0__Lean_Elab_Command_MkInstanceName_kindReplacements___closed__16;
 lean_object* l_Lean_Elab_instInhabitedDefView;
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1354____closed__22;
@@ -150,7 +151,6 @@ size_t lean_usize_of_nat(lean_object*);
 uint8_t l_Lean_Elab_DefKind_isTheorem(uint8_t);
 lean_object* l_List_forM___at_Lean_Elab_Command_elabCommand___spec__15(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1262____closed__1;
 lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Command_mkDefViewOfInstance___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_nullKind___closed__2;
 lean_object* l_Lean_throwError___at_Lean_Elab_Command_mkDefViewOfInstance___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6382,7 +6382,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_DefView___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1262____closed__1;
+x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1258____closed__1;
 x_2 = l_Lean_Elab_Command_initFn____x40_Lean_Elab_DefView___hyg_1264____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

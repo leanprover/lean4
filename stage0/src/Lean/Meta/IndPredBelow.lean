@@ -348,6 +348,31 @@ where
         mkForallFVars ys (←mkArrow premise conclusion)
     (←name, mkDomain)
 
+/-- Given a constructor name, find the indices of the corresponding `below` version thereof. -/
+partial def getBelowIndices (ctorName : Name) : MetaM $ Array Nat := do
+  let ctorInfo ← getConstInfoCtor ctorName
+  let belowCtorInfo ← getConstInfoCtor (ctorName.updatePrefix $ ctorInfo.induct ++ `below)
+  let belowInductInfo ← getConstInfoInduct belowCtorInfo.induct
+  forallTelescope ctorInfo.type fun xs t => do
+  loop xs belowCtorInfo.type #[] 0 0 
+
+where 
+  loop 
+      (xs : Array Expr) 
+      (rest : Expr) 
+      (belowIndices : Array Nat) 
+      (xIdx yIdx : Nat) : MetaM $ Array Nat := do 
+    if xIdx ≥ xs.size then belowIndices else
+    let x := xs[xIdx]
+    let xTy ← inferType x
+    let yTy := rest.bindingDomain!
+    if ←isDefEq xTy yTy then 
+      let rest ← instantiateForall rest #[x]
+      loop xs rest (belowIndices.push yIdx) (xIdx + 1) (yIdx + 1)
+    else 
+      forallBoundedTelescope rest (some 1) fun ys rest =>
+      loop xs rest belowIndices xIdx (yIdx + 1)
+
 def mkBelow (declName : Name) : MetaM Unit := do
   if (←isInductivePredicate declName) then
     let x ← getConstInfoInduct declName

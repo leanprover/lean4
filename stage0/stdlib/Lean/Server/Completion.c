@@ -16,7 +16,6 @@ extern "C" {
 uint8_t l_Array_qsort_sort___at___private_Lean_Server_Completion_0__Lean_Server_Completion_sortCompletionItems___spec__1___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Completion_completionBlackListExt___closed__4;
 uint8_t l_Lean_isRecCore(lean_object*, lean_object*);
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Std_PersistentHashMap_foldlM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__33___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Completion_completionBlackListExt___elambda__4(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Completion_completionBlackListExt___elambda__4___boxed(lean_object*, lean_object*);
@@ -122,7 +121,6 @@ lean_object* l_Lean_Server_Completion_completionBlackListExt___elambda__2___boxe
 lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_addCompletionItem___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_mkEmpty___closed__1;
-lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_instInhabitedParserCategory;
 lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___closed__3;
 lean_object* l_Lean_Server_Completion_completionBlackListExt___elambda__3___boxed(lean_object*, lean_object*);
@@ -174,6 +172,7 @@ lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_idComp
 lean_object* l_ReaderT_bind___at___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_forM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__22(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletion___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_matchAtomic___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_isTypeApplicable___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -12344,7 +12343,7 @@ return x_2;
 }
 else
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
@@ -12355,9 +12354,9 @@ x_7 = lean_ctor_get(x_3, 3);
 lean_inc(x_7);
 lean_dec(x_3);
 x_8 = l_Std_RBNode_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___spec__1(x_1, x_2, x_4);
-x_9 = l_Lean_Name_toString___closed__1;
+x_9 = 1;
 lean_inc(x_5);
-x_10 = l_Lean_Name_toStringWithSep(x_9, x_5);
+x_10 = l_Lean_Name_toString(x_5, x_9);
 x_11 = lean_ctor_get(x_6, 0);
 lean_inc(x_11);
 x_12 = l_Lean_KVMap_findCore(x_1, x_5);
@@ -12588,7 +12587,7 @@ return x_1;
 }
 else
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
@@ -12597,8 +12596,8 @@ x_5 = lean_ctor_get(x_2, 3);
 lean_inc(x_5);
 lean_dec(x_2);
 x_6 = l_Std_RBNode_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___spec__1(x_1, x_3);
-x_7 = l_Lean_Name_toString___closed__1;
-x_8 = l_Lean_Name_toStringWithSep(x_7, x_4);
+x_7 = 1;
+x_8 = l_Lean_Name_toString(x_4, x_7);
 x_9 = lean_box(0);
 x_10 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_10, 0, x_8);

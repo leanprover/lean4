@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_Level_dec(lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux(lean_object*, lean_object*, uint8_t, lean_object*);
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Level_instantiateParams_match__1(lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_PP_Result_formatLst_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qsort_sort___at_Lean_Level_normalize___spec__2___closed__1;
@@ -107,7 +106,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Level_updateMax_x21___closed__2;
 lean_object* l_Lean_Level_PP_Result_max_match__1(lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_isAlreadyNormalizedCheap___boxed(lean_object*);
-lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_Level_isParam_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_addOffsetAux_match__1(lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux_match__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -153,6 +151,7 @@ uint64_t l_Lean_Level_mkData(size_t, lean_object*, uint8_t, uint8_t);
 lean_object* lean_level_update_max(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Level_any(lean_object*, lean_object*);
 lean_object* lean_level_mk_max_simp(lean_object*, lean_object*);
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* l_Lean_Level_normalize___closed__1;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint32_t l_UInt64_toUInt32(uint64_t);
@@ -5221,9 +5220,9 @@ return x_10;
 lean_object* l_Std_fmt___at_Lean_Level_PP_Result_format___spec__1(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Name_toString___closed__1;
-x_3 = l_Lean_Name_toStringWithSep(x_2, x_1);
+uint8_t x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = 1;
+x_3 = l_Lean_Name_toString(x_1, x_2);
 x_4 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_4, 0, x_3);
 return x_4;

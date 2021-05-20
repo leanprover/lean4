@@ -62,12 +62,6 @@ private def mkInaccessibleUserName (unicode : Bool) : Name → Name
       Name.mkNum (mkInaccessibleUserName unicode p) idx
   | n => n
 
-@[export lean_is_inaccessible_user_name]
-def isInaccessibleUserName : Name → Bool
-  | Name.str _ s _   => s.contains '✝' || s == "_inaccessible"
-  | Name.num p idx _ => isInaccessibleUserName p
-  | _                => false
-
 def sanitizeNamesDefault := true
 def getSanitizeNames (o : Options) : Bool:= o.get `pp.sanitizeNames sanitizeNamesDefault
 builtin_initialize

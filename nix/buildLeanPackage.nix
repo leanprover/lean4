@@ -9,7 +9,7 @@ let lean-final' = lean-final; in
   staticLibDeps ? [],
   # Lean plugin dependencies. Each derivation `plugin` should contain a plugin library at path `${plugin}/${plugin.name}`.
   pluginDeps ? [],
-  debug ? false, leanFlags ? [], leancFlags ? [], executableName ? lib.toLower name,
+  debug ? false, leanFlags ? [], leancFlags ? [], linkFlags ? [], executableName ? lib.toLower name,
   srcTarget ? "..#stage0", srcArgs ? "(\${args[*]})", lean-final ? lean-final' }:
 with builtins; let
   # "Init.Core" ~> "Init/Core"
@@ -156,7 +156,9 @@ in rec {
   '';
   executable = runCommand executableName { buildInputs = [ stdenv.cc ]; } ''
     mkdir -p $out/bin
-    ${leanc}/bin/leanc -x none ${staticLib}/* ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)} -o $out/bin/${executableName}
+    ${leanc}/bin/leanc -x none ${staticLib}/* ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)} \
+      -o $out/bin/${executableName} \
+      ${lib.concatStringsSep " " linkFlags}
   '';
 
   lean-package = writeShellScriptBin "lean" ''

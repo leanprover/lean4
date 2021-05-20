@@ -45,8 +45,11 @@ def rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
           let eqRefl ← mkEqRefl e
           let eqPrf ← mkEqNDRec motive eqRefl heq
           postprocessAppMVars `rewrite mvarId newMVars binderInfos
-          let newMVars ← newMVars.filterM fun mvar => not <$> isExprMVarAssigned mvar.mvarId!
-          pure { eNew := eNew, eqProof := eqPrf, mvarIds := newMVars.toList.map Expr.mvarId! }
+          let newMVarIds ← newMVars.map Expr.mvarId! |>.filterM (not <$> isExprMVarAssigned ·)
+          let otherMVarIds ← getMVarsNoDelayed eqPrf
+          let otherMVarIds := otherMVarIds.filter (!newMVarIds.contains ·)
+          let newMVarIds := newMVarIds ++ otherMVarIds
+          pure { eNew := eNew, eqProof := eqPrf, mvarIds := newMVarIds.toList }
         match symm with
         | false => cont heq heqType lhs rhs
         | true  => do

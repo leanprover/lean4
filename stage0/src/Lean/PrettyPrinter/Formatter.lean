@@ -336,27 +336,11 @@ def unicodeSymbolNoAntiquot.formatter (sym asciiSym : String) : Formatter := do
 
 @[combinatorFormatter Lean.Parser.identNoAntiquot]
 def identNoAntiquot.formatter : Formatter := do
-  checkKind identKind;
+  checkKind identKind
   let Syntax.ident info _ id _ ← getCur
     | throwError m!"not an ident: {← getCur}"
   let id := id.simpMacroScopes
-  let s := id.toString;
-  if id.isAnonymous then
-    pushToken info "[anonymous]"
-  else if isInaccessibleUserName id || id.components.any Name.isNum ||
-    -- loose bvar
-    "#".isPrefixOf s then
-    -- not parsable anyway, output as-is
-    pushToken info s
-  else
-    -- try to parse `s` as-is; if it fails, escape
-    let pst ← parseToken s
-    if pst.pos == s.bsize then
-      pushToken info s
-    else
-      -- TODO: do something better than escaping all parts
-      let id := (id.components.map fun c => "«" ++ toString c ++ "»").foldl Name.mkStr Name.anonymous
-      pushToken info id.toString
+  pushToken info id.toString
   goLeft
 
 @[combinatorFormatter Lean.Parser.rawIdentNoAntiquot] def rawIdentNoAntiquot.formatter : Formatter := do

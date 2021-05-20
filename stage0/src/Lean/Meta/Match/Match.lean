@@ -700,6 +700,13 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (B
     modifyEnv fun env => matcherExt.modifyState env fun s => s.insert (result.value, compile) name
     return (true, mkAppN (mkConst name result.levelArgs.toList) result.exprArgs)
 
+
+structure MkMatcherInput where
+  matcherName : Name 
+  matchType : Expr
+  numDiscrs : Nat
+  lhss : List Match.AltLHS
+
 /-
 Create a dependent matcher for `matchType` where `matchType` is of the form
 `(a_1 : A_1) -> (a_2 : A_2[a_1]) -> ... -> (a_n : A_n[a_1, a_2, ... a_{n-1}]) -> B[a_1, ..., a_n]`
@@ -709,7 +716,8 @@ The number of patterns must be the same in each `AltLHS`.
 The generated matcher has the structure described at `MatcherInfo`. The motive argument is of the form
 `(motive : (a_1 : A_1) -> (a_2 : A_2[a_1]) -> ... -> (a_n : A_n[a_1, a_2, ... a_{n-1}]) -> Sort v)`
 where `v` is a universe parameter or 0 if `B[a_1, ..., a_n]` is a proposition. -/
-def mkMatcher (matcherName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : MetaM MatcherResult :=
+def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult :=
+  let ⟨matcherName, matchType, numDiscrs, lhss⟩ := input
   forallBoundedTelescope matchType numDiscrs fun majors matchTypeBody => do
   checkNumPatterns majors lhss
   /- We generate an matcher that can eliminate using different motives with different universe levels.
@@ -753,6 +761,33 @@ def mkMatcher (matcherName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : 
     let unusedAltIdxs := lhss.length.fold (init := []) fun i r =>
       if s.used.contains i then r else i::r
     pure { matcher := matcher, counterExamples := s.counterExamples, unusedAltIdxs := unusedAltIdxs.reverse }
+
+def withMkMatcherInput (matcherName : Name) (k : MkMatcherInput → MetaM α) : MetaM α := do
+  let some matcherInfo ← getMatcherInfo? matcherName | throwError "not a matcher: {matcherName}"
+  let matcherConst ← getConstInfo matcherName
+  forallBoundedTelescope matcherConst.type (some matcherInfo.arity) fun xs t => do
+  let params := xs[:matcherInfo.numParams]
+  let motive := xs[matcherInfo.numParams]
+  let discrs := xs[matcherInfo.numParams + 1:matcherInfo.numParams + 1 + matcherInfo.numDiscrs]
+  let alts := xs[matcherInfo.numParams + 1 + matcherInfo.numDiscrs:]
+  let u := 
+    if let some idx := matcherInfo.uElimPos? 
+    then mkLevelParam matcherConst.levelParams.toArray[idx]
+    else levelZero
+  let matchType ← mkForallFVars discrs (mkConst ``PUnit [u])
+  let lhss ← alts.toArray.mapIdxM fun idx t => do 
+    let ty ← inferType t
+    forallTelescope ty fun xs body => do 
+    let xs ← xs.filterM fun x => dependsOn body x.fvarId!
+    body.withApp fun f args => do
+    let ctx ← getLCtx
+    let localDecls := xs.map ctx.getFVar!
+    let patterns ← args.mapM Match.toPattern 
+    return { 
+      ref := Syntax.missing
+      fvarDecls := localDecls.toList
+      patterns := patterns.toList : Match.AltLHS }
+  k { matcherName, matchType, numDiscrs := matcherInfo.numDiscrs, lhss := lhss.toList }
 
 end Match
 

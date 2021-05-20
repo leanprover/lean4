@@ -103,11 +103,22 @@ def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot Mess
         fileName := inputCtx.fileName
         fileMap  := inputCtx.fileMap
       }
-    EIO.toIO ioErrorFromEmpty $
-      Elab.Command.catchExceptions
-        (Elab.Command.elabCommand cmdStx)
-        cmdCtx cmdStateRef
-    let postCmdState ← cmdStateRef.get
+    let (output, _) ← IO.FS.withIsolatedStreams do
+      EIO.toIO ioErrorFromEmpty do
+        Elab.Command.catchExceptions
+          (Elab.Command.elabCommand cmdStx)
+          cmdCtx cmdStateRef
+    let mut postCmdState ← cmdStateRef.get
+    if !output.isEmpty then
+      postCmdState := {
+        postCmdState with
+        messages := postCmdState.messages.add {
+          fileName := inputCtx.fileName
+          severity := MessageSeverity.information
+          pos      := inputCtx.fileMap.toPosition snap.endPos
+          data     := output
+        }
+      }
     let postCmdSnap : Snapshot := {
         beginPos := cmdPos
         stx := cmdStx

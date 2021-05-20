@@ -35,26 +35,6 @@ private def expandSimpleMatch (stx discr lhsVar rhs : Syntax) (expectedType? : O
   let newStx ← `(let $lhsVar := $discr; $rhs)
   withMacroExpansion stx newStx <| elabTerm newStx expectedType?
 
-private def elabDiscrsWitMatchType (discrStxs : Array Syntax) (matchType : Expr) (expectedType : Expr) : TermElabM (Array Expr × Bool) := do
-  let mut discrs := #[]
-  let mut i := 0
-  let mut matchType := matchType
-  let mut isDep := false
-  for discrStx in discrStxs do
-    i := i + 1
-    matchType ← whnf matchType
-    match matchType with
-    | Expr.forallE _ d b _ =>
-      let discr ← fullApproxDefEq <| elabTermEnsuringType discrStx[1] d
-      trace[Elab.match] "discr #{i} {discr} : {d}"
-      if b.hasLooseBVars then
-        isDep := true
-      matchType ← b.instantiate1 discr
-      discrs := discrs.push discr
-    | _ =>
-      throwError "invalid type provided to match-expression, function type with arity #{discrStxs.size} expected"
-  pure (discrs, isDep)
-
 private def mkUserNameFor (e : Expr) : TermElabM Name := do
   match e with
   /- Remark: we use `mkFreshUserName` to make sure we don't add a variable to the local context that can be resolved to `e`. -/
@@ -96,12 +76,12 @@ private def elabAtomicDiscr (discr : Syntax) : TermElabM Expr := do
   | some e@(Expr.fvar fvarId _) =>
     let localDecl ← getLocalDecl fvarId
     if !isAuxDiscrName localDecl.userName then
-      pure e -- it is not an auxiliary local created by `expandNonAtomicDiscrs?`
+      return e -- it is not an auxiliary local created by `expandNonAtomicDiscrs?`
     else
-      pure localDecl.value
+      instantiateMVars localDecl.value
   | _ => throwErrorAt discr "unexpected discriminant"
 
-structure ElabMatchTypeAndDiscsResult where
+structure ElabMatchTypeAndDiscrsResult where
   discrs    : Array Expr
   matchType : Expr
   /- `true` when performing dependent elimination. We use this to decide whether we optimize the "match unit" case.
@@ -109,42 +89,74 @@ structure ElabMatchTypeAndDiscsResult where
   isDep     : Bool
   alts      : Array MatchAltView
 
-private def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptType : Syntax) (matchAltViews : Array MatchAltView) (expectedType : Expr)
-    : TermElabM ElabMatchTypeAndDiscsResult := do
-  let numDiscrs := discrStxs.size
-  if matchOptType.isNone then
-    let rec loop (i : Nat) (discrs : Array Expr) (matchType : Expr) (isDep : Bool) (matchAltViews : Array MatchAltView) := do
-      match i with
-      | 0   => return { discrs := discrs.reverse, matchType := matchType, isDep := isDep, alts := matchAltViews }
-      | i+1 =>
-        let discrStx := discrStxs[i]
-        let discr ← elabAtomicDiscr discrStx
-        let discr ← instantiateMVars discr
+private partial def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptType : Syntax) (matchAltViews : Array MatchAltView) (expectedType : Expr)
+      : TermElabM ElabMatchTypeAndDiscrsResult := do
+    let numDiscrs := discrStxs.size
+    if matchOptType.isNone then
+      elabDiscrs 0 #[]
+    else
+      let matchTypeStx := matchOptType[0][1]
+      let matchType ← elabType matchTypeStx
+      let (discrs, isDep) ← elabDiscrsWitMatchType matchType expectedType
+      return { discrs := discrs, matchType := matchType, isDep := isDep, alts := matchAltViews }
+  where
+    /- Easy case: elaborate discriminant when the match-type has been explicitly provided by the user.  -/
+    elabDiscrsWitMatchType (matchType : Expr) (expectedType : Expr) : TermElabM (Array Expr × Bool) := do
+      let mut discrs := #[]
+      let mut i := 0
+      let mut matchType := matchType
+      let mut isDep := false
+      for discrStx in discrStxs do
+        i := i + 1
+        matchType ← whnf matchType
+        match matchType with
+        | Expr.forallE _ d b _ =>
+          let discr ← fullApproxDefEq <| elabTermEnsuringType discrStx[1] d
+          trace[Elab.match] "discr #{i} {discr} : {d}"
+          if b.hasLooseBVars then
+            isDep := true
+          matchType ← b.instantiate1 discr
+          discrs := discrs.push discr
+        | _ =>
+          throwError "invalid type provided to match-expression, function type with arity #{discrStxs.size} expected"
+      return (discrs, isDep)
+
+    markIsDep (r : ElabMatchTypeAndDiscrsResult) :=
+      { r with isDep := true }
+
+    /- Elaborate discriminants inferring the match-type -/
+    elabDiscrs (i : Nat) (discrs : Array Expr) : TermElabM ElabMatchTypeAndDiscrsResult := do
+      if h : i < discrStxs.size then
+        let discrStx := discrStxs.get ⟨i, h⟩
+        let discr     ← elabAtomicDiscr discrStx
+        let discr     ← instantiateMVars discr
         let discrType ← inferType discr
         let discrType ← instantiateMVars discrType
-        let matchTypeBody ← kabstract matchType discr
-        let isDep := isDep || matchTypeBody.hasLooseBVars
+        let discrs    := discrs.push discr
         let userName ← mkUserNameFor discr
         if discrStx[0].isNone then
-          loop i (discrs.push discr) (Lean.mkForall userName BinderInfo.default discrType matchTypeBody) isDep matchAltViews
+          let mut result ← elabDiscrs (i + 1) discrs
+          let matchTypeBody ← kabstract result.matchType discr
+          if matchTypeBody.hasLooseBVars then
+            result := markIsDep result
+          return { result with matchType := Lean.mkForall userName BinderInfo.default discrType matchTypeBody }
         else
+          let discrs := discrs.push (← mkEqRefl discr)
+          let result ← elabDiscrs (i + 1) discrs
+          let result := markIsDep result
           let identStx := discrStx[0][0]
           withLocalDeclD userName discrType fun x => do
             let eqType ← mkEq discr x
             withLocalDeclD identStx.getId eqType fun h => do
+              let matchTypeBody ← kabstract result.matchType discr
               let matchTypeBody := matchTypeBody.instantiate1 x
               let matchType ← mkForallFVars #[x, h] matchTypeBody
-              let refl ← mkEqRefl discr
-              let discrs := (discrs.push refl).push discr
-              let matchAltViews := matchAltViews.map fun altView =>
-                { altView with patterns := altView.patterns.insertAt (i+1) identStx }
-              loop i discrs matchType isDep matchAltViews
-    loop discrStxs.size (discrs := #[]) (isDep := false) expectedType matchAltViews
-  else
-    let matchTypeStx := matchOptType[0][1]
-    let matchType ← elabType matchTypeStx
-    let (discrs, isDep) ← elabDiscrsWitMatchType discrStxs matchType expectedType
-    return { discrs := discrs, matchType := matchType, isDep := isDep, alts := matchAltViews }
+              return { result with
+                matchType := matchType
+                alts      := result.alts.map fun altView => { altView with patterns := altView.patterns.insertAt (i+1) identStx }
+              }
+      else
+        return { discrs, alts := matchAltViews, isDep := false, matchType := expectedType }
 
 def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array MatchAltView) := do
   matchAlts.mapM fun matchAlt => do
@@ -929,8 +941,8 @@ where
     let wildcards := mkArray num hole
     return altViews.map fun altView => { altView with patterns := wildcards ++ altView.patterns }
 
-def mkMatcher (elimName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : TermElabM MatcherResult :=
-  Meta.Match.mkMatcher elimName matchType numDiscrs lhss
+def mkMatcher (input : Meta.Match.MkMatcherInput) : TermElabM MatcherResult :=
+  Meta.Match.mkMatcher input
 
 register_builtin_option match.ignoreUnusedAlts : Bool := {
   defValue := false
@@ -1032,7 +1044,7 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
   else
     let numDiscrs := discrs.size
     let matcherName ← mkAuxName `match
-    let matcherResult ← mkMatcher matcherName matchType numDiscrs altLHSS
+    let matcherResult ← mkMatcher { matcherName, matchType, numDiscrs, lhss := altLHSS }
     let motive ← forallBoundedTelescope matchType numDiscrs fun xs matchType => mkLambdaFVars xs matchType
     reportMatcherResultErrors altLHSS matcherResult
     let r := mkApp matcherResult.matcher motive

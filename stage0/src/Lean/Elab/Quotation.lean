@@ -55,6 +55,27 @@ def resolveSectionVariable (sectionVars : NameMap Name) (id : Name) : List (Name
     | _, _ => []
   loop extractionResult.name []
 
+/-- Transform sequence of pushes and appends into acceptable code -/
+def ArrayStxBuilder := Sum (Array Syntax) Syntax
+
+namespace ArrayStxBuilder
+
+def empty : ArrayStxBuilder := Sum.inl #[]
+
+def build : ArrayStxBuilder → Syntax
+  | Sum.inl elems => quote elems
+  | Sum.inr arr   => arr
+
+def push (b : ArrayStxBuilder) (elem : Syntax) : ArrayStxBuilder :=
+  match b with
+  | Sum.inl elems => Sum.inl <| elems.push elem
+  | Sum.inr arr   => Sum.inr <| mkCApp ``Array.push #[arr, elem]
+
+def append (b : ArrayStxBuilder) (arr : Syntax) (appendName := ``Array.append) : ArrayStxBuilder :=
+  Sum.inr <| mkCApp appendName #[b.build, arr]
+
+end ArrayStxBuilder
+
 -- Elaborate the content of a syntax quotation term
 private partial def quoteSyntax : Syntax → TermElabM Syntax
   | Syntax.ident info rawVal val preresolved => do
@@ -84,19 +105,21 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
     else if isAntiquotSplice stx && !isEscapedAntiquot stx then
       throwErrorAt stx "unexpected antiquotation splice"
     else
-      let empty ← `(Array.empty);
       -- if escaped antiquotation, decrement by one escape level
       let stx := unescapeAntiquot stx
-      let args ← stx.getArgs.foldlM (fun args arg => do
+      let mut args := ArrayStxBuilder.empty
+      let appendName := if (← getEnv).contains ``Array.append then ``Array.append else ``Array.appendCore
+      for arg in stx.getArgs do
         if k == nullKind && isAntiquotSuffixSplice arg then
           let antiquot := getAntiquotSuffixSpliceInner arg
-          match antiquotSuffixSplice? arg with
-          | `optional => `(Array.appendCore $args (match $(getAntiquotTerm antiquot):term with
-            | some x => Array.empty.push x
-            | none   => Array.empty))
-          | `many     => `(Array.appendCore $args $(getAntiquotTerm antiquot))
-          | `sepBy    => `(Array.appendCore $args (@SepArray.elemsAndSeps $(getSepFromSplice arg) $(getAntiquotTerm antiquot)))
-          | k         => throwErrorAt arg "invalid antiquotation suffix splice kind '{k}'"
+          args := args.append (appendName := appendName) <| ←
+            match antiquotSuffixSplice? arg with
+            | `optional => `(match $(getAntiquotTerm antiquot):term with
+              | some x => Array.empty.push x
+              | none   => Array.empty)
+            | `many     => getAntiquotTerm antiquot
+            | `sepBy    => `(@SepArray.elemsAndSeps $(getSepFromSplice arg) $(getAntiquotTerm antiquot))
+            | k         => throwErrorAt arg "invalid antiquotation suffix splice kind '{k}'"
         else if k == nullKind && isAntiquotSplice arg then
           let k := antiquotSpliceKind? arg
           let (arg, bindLets) ← floatOutAntiquotTerms arg |>.run pure
@@ -116,11 +139,11 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
               `(mkSepArray $arr (mkAtom $(getSepFromSplice arg)))
             else arr
           let arr ← bindLets arr
-          `(Array.appendCore $args $arr)
+          args := args.append arr
         else do
-          let arg ← quoteSyntax arg;
-          `(Array.push $args $arg)) empty
-      `(Syntax.node $(quote k) $args)
+          let arg ← quoteSyntax arg
+          args := args.push arg
+      `(Syntax.node $(quote k) $(args.build))
   | Syntax.atom _ val =>
     `(Syntax.atom info $(quote val))
   | Syntax.missing => throwUnsupportedSyntax

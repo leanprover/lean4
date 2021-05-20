@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__2(lean_object*);
 lean_object* l_Lean_rootNamespace;
 extern lean_object* l_term_x5b___x5d___closed__9;
@@ -25,9 +24,9 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_rootNamespace___closed__1;
 lean_object* l_List_toStringAux___at_Lean_OpenDecl_instToStringOpenDecl___spec__3(uint8_t, lean_object*);
 lean_object* l_Lean_rootNamespace___closed__2;
-lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_removeRoot(lean_object*);
 extern lean_object* l_instReprList___rarg___closed__1;
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* l_Lean_OpenDecl_instInhabitedOpenDecl;
 lean_object* l_Lean_OpenDecl_instToStringOpenDecl_match__1(lean_object*);
 lean_object* l_Lean_OpenDecl_instToStringOpenDecl(lean_object*);
@@ -160,14 +159,14 @@ return x_3;
 }
 else
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; 
+lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_2, 1);
 lean_inc(x_5);
 lean_dec(x_2);
-x_6 = l_Lean_Name_toString___closed__1;
-x_7 = l_Lean_Name_toStringWithSep(x_6, x_4);
+x_6 = 1;
+x_7 = l_Lean_Name_toString(x_4, x_6);
 x_8 = l_term_x5b___x5d___closed__5;
 x_9 = lean_string_append(x_8, x_7);
 lean_dec(x_7);
@@ -188,14 +187,14 @@ return x_13;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; 
+lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; 
 x_14 = lean_ctor_get(x_2, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_2, 1);
 lean_inc(x_15);
 lean_dec(x_2);
-x_16 = l_Lean_Name_toString___closed__1;
-x_17 = l_Lean_Name_toStringWithSep(x_16, x_14);
+x_16 = 1;
+x_17 = l_Lean_Name_toString(x_14, x_16);
 x_18 = 0;
 x_19 = l_List_toStringAux___at_Lean_OpenDecl_instToStringOpenDecl___spec__3(x_18, x_15);
 x_20 = lean_string_append(x_17, x_19);
@@ -274,14 +273,14 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 lean_dec(x_1);
-x_4 = l_Lean_Name_toString___closed__1;
-x_5 = l_Lean_Name_toStringWithSep(x_4, x_2);
+x_4 = 1;
+x_5 = l_Lean_Name_toString(x_2, x_4);
 x_6 = lean_box(0);
 x_7 = l_List_beq___at_Lean_OpenDecl_instToStringOpenDecl___spec__1(x_3, x_6);
 if (x_7 == 0)
@@ -306,17 +305,17 @@ return x_13;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_14 = lean_ctor_get(x_1, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_1, 1);
 lean_inc(x_15);
 lean_dec(x_1);
-x_16 = l_Lean_Name_toString___closed__1;
-x_17 = l_Lean_Name_toStringWithSep(x_16, x_14);
+x_16 = 1;
+x_17 = l_Lean_Name_toString(x_14, x_16);
 x_18 = l_Lean_OpenDecl_instToStringOpenDecl___closed__2;
 x_19 = lean_string_append(x_17, x_18);
-x_20 = l_Lean_Name_toStringWithSep(x_16, x_15);
+x_20 = l_Lean_Name_toString(x_15, x_16);
 x_21 = lean_string_append(x_19, x_20);
 lean_dec(x_20);
 return x_21;

@@ -2323,7 +2323,7 @@ static lean_object* _init_l_Lean_Expr_instantiateBetaRevRange___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("stop1134≤1138args.size1148");
+x_1 = lean_mk_string("stop ≤ args.size\n    ");
 return x_1;
 }
 }

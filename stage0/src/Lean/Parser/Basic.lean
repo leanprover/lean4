@@ -1054,9 +1054,9 @@ private def nameLitAux (startPos : Nat) : ParserFn := fun c s =>
   else
     let stx := s.stxStack.back
     match stx with
-    | Syntax.ident _ rawStr _ _ =>
+    | Syntax.ident info rawStr _ _ =>
       let s := s.popSyntax
-      s.pushSyntax (Syntax.node nameLitKind #[mkAtomFrom stx rawStr.toString])
+      s.pushSyntax (Syntax.mkNameLit rawStr.toString info)
     | _ => s.mkError "invalid Name literal"
 
 private def tokenFnAux : ParserFn := fun c s =>

@@ -29,11 +29,11 @@ def f : wrap → Nat
   | _ => 1
 
 example (a : Nat) : True := by
-  have ∀ n, n ≥ 0 → a ≤ a from fun _ _ => Nat.leRefl ..
+  have : ∀ n, n ≥ 0 → a ≤ a := fun _ _ => Nat.leRefl ..
   exact True.intro
 
 example (ᾰ : Nat) : True := by
-  have ∀ n, n ≥ 0 → ᾰ ≤ ᾰ from fun _ _ => Nat.leRefl ..
+  have : ∀ n, n ≥ 0 → ᾰ ≤ ᾰ := fun _ _ => Nat.leRefl ..
   exact True.intro
 
 inductive Vec.{u} (α : Type u) : Nat → Type u

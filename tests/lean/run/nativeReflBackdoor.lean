@@ -20,13 +20,13 @@ match b with
 | true  =>
   /- The following `nativeDecide` is going to use `g` to evaluate `f`
      because of the `implementedBy` directive. -/
-  have (f true) = false by nativeDecide
+  have : (f true) = false := by nativeDecide
   this
 | false => rfl
 
 theorem trueEqFalse : true = false :=
-have h₁ : f true = true  from rfl;
-have h₂ : f true = false from fConst true;
+have h₁ : f true = true  := rfl;
+have h₂ : f true = false := fConst true;
 Eq.trans h₁.symm h₂
 
 /-

@@ -12,15 +12,15 @@ def f (x : Nat) (g : Nat → Nat) := g x
 
 #check f 1 (fun x => x)
 
-#check id have True from ⟨⟩; this -- should fail
+#check id have : True := ⟨⟩; this -- should fail
 
 #check id let x := 10; x
 
 #check 1
 
-#check id (have True from ⟨⟩; this)
+#check id (have : True := ⟨⟩; this)
 
-#check 0 = have Nat from 1; this
+#check 0 = have : Nat := 1; this
 #check 0 = let x := 0; x
 
 variable (p q r : Prop)

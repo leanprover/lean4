@@ -37,8 +37,8 @@ theorem L.appendNil {α} : (as : L α) → append as nil = as
 | nil       => rfl
 | cons a as =>
   show cons a (fun _ => append (as ()) nil) = cons a as from
-  have ih : append (as ()) nil = as () from appendNil $ as ()
-  have thunkAux : (fun _ => as ()) = as from funext fun x => by
+  have ih : append (as ()) nil = as () := appendNil $ as ()
+  have thunkAux : (fun _ => as ()) = as := funext fun x => by
     cases x
     exact rfl
   by rw [ih, thunkAux]

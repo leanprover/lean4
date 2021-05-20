@@ -84,7 +84,7 @@ partial def moveEntries [Hashable α] (i : Nat) (source : Array (AssocList α β
 
 def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapImp α β :=
   let nbuckets := buckets.val.size * 2
-  have nbuckets > 0 from Nat.mulPos buckets.property (by decide)
+  have : nbuckets > 0 := Nat.mulPos buckets.property (by decide)
   let new_buckets : HashMapBucket α β := ⟨mkArray nbuckets AssocList.nil, by simp; assumption⟩
   { size    := size,
     buckets := moveEntries 0 buckets.val new_buckets }

@@ -38,8 +38,8 @@ theorem dropLastLen {α} (xs : List α) : (n : Nat) → xs.length = n+1 → (dro
   | []    => intros; contradiction
   | [a]   =>
     intro n h
-    have 1 = n + 1 from h
-    have 0 = n by injection this; assumption
+    have : 1 = n + 1 := h
+    have : 0 = n := by injection this; assumption
     subst this
     rfl
   | x₁::x₂::xs =>
@@ -49,8 +49,8 @@ theorem dropLastLen {α} (xs : List α) : (n : Nat) → xs.length = n+1 → (dro
       simp [lengthCons] at h
       injection h
     | succ n =>
-      have (x₁ :: x₂ :: xs).length = xs.length + 2 by simp [lengthCons]
-      have xs.length = n by rw [this] at h; injection h with h; injection h with h; assumption
+      have : (x₁ :: x₂ :: xs).length = xs.length + 2 := by simp [lengthCons]
+      have : xs.length = n := by rw [this] at h; injection h with h; injection h with h; assumption
       simp [dropLast, lengthCons, dropLastLen (x₂::xs) xs.length (lengthCons ..), this]
 
 @[inline]
@@ -66,7 +66,7 @@ def concatElim {α}
       subst aux
       apply base ()
     | n+1, xs, h => by
-      have notNil : xs ≠ [] by intro h1; subst h1; injection h
+      have notNil : xs ≠ [] := by intro h1; subst h1; injection h
       let ih  := aux n (dropLast xs) (dropLastLen _ _ h)
       let aux := ind (dropLast xs) (last xs notNil) ih
       rw [concatEq] at aux

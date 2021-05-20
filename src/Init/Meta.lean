@@ -792,7 +792,7 @@ private partial def filterSepElemsMAux {m : Type → Type} [Monad m] (a : Array 
       if acc.isEmpty then
         filterSepElemsMAux a p (i+2) (acc.push stx)
       else if hz : i ≠ 0 then
-        have i.pred < i from Nat.predLt hz
+        have : i.pred < i := Nat.predLt hz
         let sepStx := a.get ⟨i.pred, Nat.ltTrans this h⟩
         filterSepElemsMAux a p (i+2) ((acc.push sepStx).push stx)
       else

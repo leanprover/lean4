@@ -65,14 +65,14 @@ theorem mod.inductionOn.{u}
   div.inductionOn x y ind base
 
 theorem mod_zero (a : Nat) : a % 0 = a :=
-  have (if 0 < 0 ∧ 0 ≤ a then (a - 0) % 0 else a) = a from
-    have h : ¬ (0 < 0 ∧ 0 ≤ a) from fun ⟨h₁, _⟩ => absurd h₁ (Nat.ltIrrefl _)
+  have : (if 0 < 0 ∧ 0 ≤ a then (a - 0) % 0 else a) = a :=
+    have h : ¬ (0 < 0 ∧ 0 ≤ a) := fun ⟨h₁, _⟩ => absurd h₁ (Nat.ltIrrefl _)
     ifNeg h
   (mod_eq a 0).symm ▸ this
 
 theorem mod_eq_of_lt {a b : Nat} (h : a < b) : a % b = a :=
-  have (if 0 < b ∧ b ≤ a then (a - b) % b else a) = a from
-    have h' : ¬(0 < b ∧ b ≤ a) from fun ⟨_, h₁⟩ => absurd h₁ (Nat.notLeOfGt h)
+  have : (if 0 < b ∧ b ≤ a then (a - b) % b else a) = a :=
+    have h' : ¬(0 < b ∧ b ≤ a) := fun ⟨_, h₁⟩ => absurd h₁ (Nat.notLeOfGt h)
     ifNeg h'
   (mod_eq a b).symm ▸ this
 
@@ -85,12 +85,12 @@ theorem mod_lt (x : Nat) {y : Nat} : y > 0 → x % y < y := by
   induction x, y using mod.inductionOn with
   | base x y h₁ =>
     intro h₂
-    have h₁ : ¬ 0 < y ∨ ¬ y ≤ x from Iff.mp (Decidable.notAndIffOrNot _ _) h₁
+    have h₁ : ¬ 0 < y ∨ ¬ y ≤ x := Iff.mp (Decidable.notAndIffOrNot _ _) h₁
     match h₁ with
     | Or.inl h₁ => exact absurd h₂ h₁
     | Or.inr h₁ =>
-      have hgt : y > x from gtOfNotLe h₁
-      have heq : x % y = x from mod_eq_of_lt hgt
+      have hgt : y > x := gtOfNotLe h₁
+      have heq : x % y = x := mod_eq_of_lt hgt
       rw [← heq] at hgt
       exact hgt
   | ind x y h h₂ =>
@@ -108,7 +108,7 @@ theorem mod_le (x y : Nat) : x % y ≤ x := by
 
 @[simp] theorem zero_mod (b : Nat) : 0 % b = 0 := by
   rw [mod_eq]
-  have ¬ (0 < b ∧ b ≤ 0) by
+  have : ¬ (0 < b ∧ b ≤ 0) := by
     intro ⟨h₁, h₂⟩
     exact absurd (Nat.ltOfLtOfLe h₁ h₂) (Nat.ltIrrefl 0)
   simp [this]
@@ -117,8 +117,8 @@ theorem mod_le (x y : Nat) : x % y ≤ x := by
   rw [mod_eq_sub_mod (Nat.leRefl _), Nat.sub_self, zero_mod]
 
 theorem mod_one (x : Nat) : x % 1 = 0 := by
-  have h : x % 1 < 1 from mod_lt x (by decide)
-  have (y : Nat) → y < 1 → y = 0 by
+  have h : x % 1 < 1 := mod_lt x (by decide)
+  have : (y : Nat) → y < 1 → y = 0 := by
     intro y
     cases y with
     | zero   => intro h; rfl

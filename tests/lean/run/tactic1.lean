@@ -12,7 +12,7 @@ by {
 
 theorem ex3 (x y z : Nat) (h₁ : x = y) (h₂ : z = y) : x = z :=
 by {
-  have y = z from h₂.symm;
+  have : y = z := h₂.symm;
   apply Eq.trans;
   exact h₁;
   assumption
@@ -44,14 +44,14 @@ by {
 }
 
 theorem ex7 (x y z : Nat) (h₁ : x = y) (h₂ : z = y) : x = z := by
-have y = z by apply Eq.symm; assumption
+have : y = z := by apply Eq.symm; assumption
 apply Eq.trans
 exact h₁
 assumption
 
 theorem ex8 (x y z : Nat) (h₁ : x = y) (h₂ : z = y) : x = z :=
 by apply Eq.trans h₁;
-   have y = z by
+   have : y = z := by
      apply Eq.symm;
      assumption;
    exact this

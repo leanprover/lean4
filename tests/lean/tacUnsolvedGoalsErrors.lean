@@ -1,11 +1,11 @@
 theorem ex1 (p q r : Prop) (h1 : p ∨ q) (h2 : p → q) : q :=
-  have q by -- Error here
+  have : q := by -- Error here
     skip
   by skip -- Error here
      skip
 
 theorem ex2 (p q r : Prop) (h1 : p ∨ q) (h2 : p → q) : q :=
-  have q by {
+  have : q := by {
     skip
   } -- Error here
   by skip -- Error here

@@ -13,7 +13,7 @@ by {
 }
 
 theorem test3 {α} (a b : α) (as bs : List α) (h : (x : List α) → (y : List α) → x = y) : as = bs :=
-have a::as = b::bs from h (a::as) (b::bs);
+have : a::as = b::bs := h (a::as) (b::bs);
 by {
   injection this with h1 h2;
   exact h2

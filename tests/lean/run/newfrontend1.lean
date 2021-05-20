@@ -379,7 +379,7 @@ by intros h1 h2 h3;
 
 theorem simple21 (x y z : Nat) : y = z → x = x → y = x → x = z :=
 fun h1 _ h3 =>
-  have x = y from by { apply Eq.symm; assumption };
+  have : x = y := by { apply Eq.symm; assumption };
   Eq.trans this (by assumption)
 
 theorem simple22 (x y z : Nat) : y = z → y = x → id (x = z + 0) :=
@@ -391,12 +391,12 @@ fun h1 h2 => show x = z + 0 by
 
 theorem simple23 (x y z : Nat) : y = z → x = x → y = x → x = z :=
 fun h1 _ h3 =>
-  have x = y by apply Eq.symm; assumption
+  have : x = y := by apply Eq.symm; assumption
   Eq.trans this (by assumption)
 
 theorem simple24 (x y z : Nat) : y = z → x = x → y = x → x = z :=
 fun h1 _ h3 =>
-  have h : x = y by apply Eq.symm; assumption
+  have h : x = y := by apply Eq.symm; assumption
   Eq.trans h (by assumption)
 
 def f1 (x : Nat) : Nat :=

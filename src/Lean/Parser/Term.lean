@@ -71,9 +71,6 @@ def parenSpecial : Parser := optional (tupleTail <|> typeAscription)
 @[builtinTermParser] def anonymousCtor := leading_parser "⟨" >> sepBy termParser ", " >> "⟩"
 def optIdent : Parser := optional (atomic (ident >> " : "))
 def fromTerm   := leading_parser " from " >> termParser
-def haveAssign := leading_parser " := " >> termParser
-def haveDecl   := leading_parser optIdent >> termParser >> (haveAssign <|> fromTerm <|> byTactic)
-@[builtinTermParser] def «have» := leading_parser:leadPrec withPosition ("have " >> haveDecl) >> optSemicolon termParser
 def sufficesDecl := leading_parser optIdent >> termParser >> (fromTerm <|> byTactic)
 @[builtinTermParser] def «suffices» := leading_parser:leadPrec withPosition ("suffices " >> sufficesDecl) >> optSemicolon termParser
 @[builtinTermParser] def «show»     := leading_parser:leadPrec "show " >> termParser >> (fromTerm <|> byTactic)
@@ -169,6 +166,15 @@ def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFoll
 @[builtinTermParser] def «let» := leading_parser:leadPrec  withPosition ("let " >> letDecl) >> optSemicolon termParser
 @[builtinTermParser] def «let_fun»     := leading_parser:leadPrec withPosition ((symbol "let_fun " <|> "let_λ") >> letDecl) >> optSemicolon termParser
 @[builtinTermParser] def «let_delayed» := leading_parser:leadPrec withPosition ("let_delayed " >> letDecl) >> optSemicolon termParser
+
+-- like `let_fun` but with optional name
+def haveIdLhs    := nodeWithAntiquot "haveIdLhs" `Lean.Parser.Term.haveIdLhs      <| ident >> checkWsBefore "expected space before binders" >> many (ppSpace >> (simpleBinderWithoutType <|> bracketedBinder)) >> optType
+def haveNoIdLhs  := nodeWithAntiquot "haveNoIdLhs" `Lean.Parser.Term.haveNoIdLhs  <| typeSpec
+def haveLhs      := haveIdLhs <|> haveNoIdLhs
+def haveIdDecl   := nodeWithAntiquot "haveIdDecl"   `Lean.Parser.Term.haveIdDecl   $ atomic (haveLhs >> " := ") >> termParser
+def haveEqnsDecl := nodeWithAntiquot "haveEqnsDecl" `Lean.Parser.Term.haveEqnsDecl $ haveLhs >> matchAlts
+def haveDecl     := nodeWithAntiquot "haveDecl" `Lean.Parser.Term.haveDecl (haveIdDecl <|> letPatDecl <|> haveEqnsDecl)
+@[builtinTermParser] def «have» := leading_parser:leadPrec withPosition ("have " >> haveDecl) >> optSemicolon termParser
 
 def «scoped» := leading_parser "scoped "
 def «local»  := leading_parser "local "

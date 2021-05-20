@@ -264,6 +264,7 @@ structure MatcherResult where
   matcher         : Expr -- The matcher. It is not just `Expr.const matcherName` because the type of the major premises may contain free variables.
   counterExamples : List CounterExample
   unusedAltIdxs   : List Nat
+  addMatcher      : MetaM Unit
 
 /--
   Convert a expression occurring as the argument of a `match` motive application back into a `Pattern`

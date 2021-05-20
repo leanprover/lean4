@@ -167,6 +167,7 @@ withDepElimFrom ex numPats fun majors alts => do
   let majors := majors.map mkFVar
   trace[Meta.debug] m!"majors: {majors.toArray}"
   let r ← mkTester elimName majors alts inProp
+  r.addMatcher
   unless r.counterExamples.isEmpty do
     throwError m!"missing cases:\n{counterExamplesToMessageData r.counterExamples}"
   unless r.unusedAltIdxs.isEmpty do

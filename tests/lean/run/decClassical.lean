@@ -1,9 +1,9 @@
 open Classical
 
 theorem ex : if (fun x => x + 1) = (fun x => x + 2) then False else True := by
-  have (fun x => x + 1) ≠ (fun x => x + 2) by
+  have : (fun x => x + 1) ≠ (fun x => x + 2) := by
     intro h
-    have 1 = 2 from congrFun h 0
+    have : 1 = 2 := congrFun h 0
     contradiction
   rw [ifNeg this]
   exact True.intro

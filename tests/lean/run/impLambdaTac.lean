@@ -19,13 +19,13 @@ example (P : Prop) : ∀ {p : P}, P := by
   apply id
 
 example (P : Prop) : ∀ p : P, P := by
-  have _ from 1
+  have : _ := 1
   apply id
 
 example (P : Prop) : ∀ {p : P}, P := by
-  refine noImplicitLambda% (have _ from 1; ?_)
+  refine noImplicitLambda% (have : _ := 1; ?_)
   apply id
 
 example (P : Prop) : ∀ {p : P}, P := by
-  have _ from 1
+  have : _ := 1
   apply id

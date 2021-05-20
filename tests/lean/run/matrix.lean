@@ -39,7 +39,7 @@ where
     match i, h with
     | 0, h   => acc
     | i+1, h =>
-      have i < m from Nat.ltOfLtOfLe (Nat.ltSuccSelf _) h
+      have : i < m := Nat.ltOfLtOfLe (Nat.ltSuccSelf _) h
       loop i (Nat.leOfLt this) (acc + u ⟨i, this⟩ * v ⟨i, this⟩)
 
 instance [Zero α] : Zero (Matrix m n α) where

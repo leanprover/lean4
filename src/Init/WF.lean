@@ -155,7 +155,7 @@ def Nat.ltWf : WellFounded Nat.lt := by
   | succ n ih =>
     apply Acc.intro (Nat.succ n)
     intro m h
-    have m = n ∨ m < n from Nat.eqOrLtOfLe (Nat.leOfSuccLeSucc h)
+    have : m = n ∨ m < n := Nat.eqOrLtOfLe (Nat.leOfSuccLeSucc h)
     match this with
     | Or.inl e => subst e; assumption
     | Or.inr e => exact Acc.inv ih e

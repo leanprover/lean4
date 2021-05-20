@@ -211,7 +211,7 @@ def isUnaryNode : Node α β → Option (α × β)
   | Node.entries entries         => isUnaryEntries entries 0 none
   | Node.collision keys vals heq =>
     if h : 1 = keys.size then
-      have 0 < keys.size by rw [←h]; decide
+      have : 0 < keys.size := by rw [←h]; decide
       some (keys.get ⟨0, this⟩, vals.get ⟨0, by rw [←heq]; assumption⟩)
     else
       none
@@ -222,7 +222,7 @@ partial def eraseAux [BEq α] : Node α β → USize → α → Node α β × Bo
     | some idx =>
       let ⟨keys', keq⟩ := keys.eraseIdx' idx
       let ⟨vals', veq⟩ := vals.eraseIdx' (Eq.ndrec idx heq)
-      have keys.size - 1 = vals.size - 1 by rw [heq]
+      have : keys.size - 1 = vals.size - 1 := by rw [heq]
       (Node.collision keys' vals' (keq.trans (this.trans veq.symm)), true)
     | none     => (n, false)
   | n@(Node.entries entries), h, k =>

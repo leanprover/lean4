@@ -64,7 +64,7 @@ theorem inv_inv [Group α] (a : α) : (a⁻¹)⁻¹ = a :=
   inv_eq_of_mul_eq_one (mul_left_inv a)
 
 theorem mul_right_inv [Group α] (a : α) : a * a⁻¹ = 1 := by
-  have a⁻¹⁻¹ * a⁻¹ = 1 by rw [mul_left_inv]
+  have : a⁻¹⁻¹ * a⁻¹ = 1 := by rw [mul_left_inv]
   rw [inv_inv] at this
   assumption
 

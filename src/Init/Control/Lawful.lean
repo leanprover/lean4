@@ -75,7 +75,7 @@ theorem bind_congr [Bind m] {x : m α} {f g : α → m β} (h : ∀ a, f a = g a
   simp [funext h]
 
 @[simp] theorem bind_pure_unit [Monad m] [LawfulMonad m] {x : m PUnit} : (x >>= fun _ => pure ⟨⟩) = x := by
-  have (x >>= fun _ => pure ⟨⟩) = (x >>= pure) by
+  have : (x >>= fun _ => pure ⟨⟩) = (x >>= pure) := by
     apply bind_congr; intro u
     cases u; simp
   rw [bind_pure] at this

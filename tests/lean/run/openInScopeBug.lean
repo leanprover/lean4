@@ -13,8 +13,8 @@ theorem ex1 : f (g (g (g x))) = x := by
   simp [Foo.ax1, Foo.ax2]
 
 theorem ex2 : f (g (g (g x))) = x :=
-  have h₁ : f (g (g (g x))) = f (g x) by simp; /- try again with `Foo` scoped lemmas -/ open Foo in simp
-  have h₂ : f (g x) = x               by simp; open Foo in simp
+  have h₁ : f (g (g (g x))) = f (g x) := by simp; /- try again with `Foo` scoped lemmas -/ open Foo in simp
+  have h₂ : f (g x) = x               := by simp; open Foo in simp
   Eq.trans h₁ h₂
   -- open Foo in simp -- works
 

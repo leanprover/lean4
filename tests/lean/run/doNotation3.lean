@@ -1,16 +1,16 @@
 theorem zeroLtOfLt : {a b : Nat} → a < b → 0 < b
 | 0,   _, h => h
 | a+1, b, h =>
-  have a < b from Nat.ltTrans (Nat.ltSuccSelf _) h
+  have : a < b := Nat.ltTrans (Nat.ltSuccSelf _) h
   zeroLtOfLt this
 
 def fold {m α β} [Monad m] (as : Array α) (b : β) (f : α → β → m β) : m β := do
 let rec loop : (i : Nat) → i ≤ as.size → β → m β
   | 0,   h, b => b
   | i+1, h, b => do
-    have h' : i < as.size          from Nat.ltOfLtOfLe (Nat.ltSuccSelf i) h
-    have as.size - 1 < as.size     from Nat.subLt (zeroLtOfLt h') (by decide)
-    have as.size - 1 - i < as.size from Nat.ltOfLeOfLt (Nat.subLe (as.size - 1) i) this
+    have h' : i < as.size          := Nat.ltOfLtOfLe (Nat.ltSuccSelf i) h
+    have : as.size - 1 < as.size     := Nat.subLt (zeroLtOfLt h') (by decide)
+    have : as.size - 1 - i < as.size := Nat.ltOfLeOfLt (Nat.subLe (as.size - 1) i) this
     let b ← f (as.get ⟨as.size - 1 - i, this⟩) b
     loop i (Nat.leOfLt h') b
 loop as.size (Nat.leRefl _) b
@@ -25,9 +25,9 @@ let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
   match i, h with
   | 0,   h => return b
   | i+1, h =>
-    have h' : i < as.size          from Nat.ltOfLtOfLe (Nat.ltSuccSelf i) h
-    have as.size - 1 < as.size     from Nat.subLt (zeroLtOfLt h') (by decide)
-    have as.size - 1 - i < as.size from Nat.ltOfLeOfLt (Nat.subLe (as.size - 1) i) this
+    have h' : i < as.size          := Nat.ltOfLtOfLe (Nat.ltSuccSelf i) h
+    have : as.size - 1 < as.size     := Nat.subLt (zeroLtOfLt h') (by decide)
+    have : as.size - 1 - i < as.size := Nat.ltOfLeOfLt (Nat.subLe (as.size - 1) i) this
     let b ← f (as.get ⟨as.size - 1 - i, this⟩) b
     loop i (Nat.leOfLt h') b
 loop as.size (Nat.leRefl _) b

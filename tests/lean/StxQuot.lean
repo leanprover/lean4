@@ -107,9 +107,3 @@ syntax "foo" term : term
 #eval run ``(fun x => y)
 #eval run ``(fun x y => x y)
 #eval run ``(fun ⟨x, y⟩ => x)
-
-#eval run do
-  match ← `(have x := y; z) with
-  | `(have $[$x :]? $type from $val $[;]? $body)   => pure 0
-  | `(have $pattern:term := $val:term $[;]? $body) => pure 1
-  | _                                              => pure 2

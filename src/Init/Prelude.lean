@@ -108,7 +108,7 @@ inductive HEq {α : Sort u} (a : α) : {β : Sort u} → β → Prop where
   HEq.refl a
 
 theorem eqOfHEq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
-  have (α β : Sort u) → (a : α) → (b : β) → HEq a b → (h : Eq α β) → Eq (cast h a) b from
+  have : (α β : Sort u) → (a : α) → (b : β) → HEq a b → (h : Eq α β) → Eq (cast h a) b :=
     fun α β a b h₁ =>
       HEq.rec (motive := fun {β} (b : β) (h : HEq a b) => (h₂ : Eq α β) → Eq (cast h₂ a) b)
         (fun (h₂ : Eq α α) => rfl)
@@ -555,8 +555,8 @@ theorem Nat.eqOfBeqEqTrue : {n m : Nat} → Eq (beq n m) true → Eq n m
   | zero,   succ m, h => Bool.noConfusion h
   | succ n, zero,   h => Bool.noConfusion h
   | succ n, succ m, h =>
-    have Eq (beq n m) true from h
-    have Eq n m from eqOfBeqEqTrue this
+    have : Eq (beq n m) true := h
+    have : Eq n m := eqOfBeqEqTrue this
     this ▸ rfl
 
 theorem Nat.neOfBeqEqFalse : {n m : Nat} → Eq (beq n m) false → Not (Eq n m)
@@ -564,7 +564,7 @@ theorem Nat.neOfBeqEqFalse : {n m : Nat} → Eq (beq n m) false → Not (Eq n m)
   | zero,   succ m, h₁, h₂ => Nat.noConfusion h₂
   | succ n, zero,   h₁, h₂ => Nat.noConfusion h₂
   | succ n, succ m, h₁, h₂ =>
-    have Eq (beq n m) false from h₁
+    have : Eq (beq n m) false := h₁
     Nat.noConfusion h₂ (fun h₂ => absurd h₂ (neOfBeqEqFalse this))
 
 @[extern "lean_nat_dec_eq"]
@@ -625,8 +625,8 @@ theorem Nat.leStep : {n m : Nat} → LE.le n m → LE.le n (succ m)
   | zero,   succ n, h => rfl
   | succ n, zero,   h => Bool.noConfusion h
   | succ n, succ m, h =>
-    have LE.le n m from h
-    have LE.le n (succ m) from leStep this
+    have : LE.le n m := h
+    have : LE.le n (succ m) := leStep this
     succLeSucc this
 
 protected theorem Nat.leTrans : {n m k : Nat} → LE.le n m → LE.le m k → LE.le n k
@@ -634,8 +634,8 @@ protected theorem Nat.leTrans : {n m k : Nat} → LE.le n m → LE.le m k → LE
   | succ n, zero,   k,      h₁, h₂ => Bool.noConfusion h₁
   | succ n, succ m, zero,   h₁, h₂ => Bool.noConfusion h₂
   | succ n, succ m, succ k, h₁, h₂ =>
-    have h₁' : LE.le n m from h₁
-    have h₂' : LE.le m k from h₂
+    have h₁' : LE.le n m := h₁
+    have h₂' : LE.le m k := h₂
     show LE.le n k from
     Nat.leTrans h₁' h₂'
 
@@ -654,7 +654,7 @@ protected theorem Nat.eqOrLtOfLe : {n m: Nat} → LE.le n m → Or (Eq n m) (LT.
   | zero,   succ n, h => Or.inr (zeroLe n)
   | succ n, zero,   h => Bool.noConfusion h
   | succ n, succ m, h =>
-    have LE.le n m from h
+    have : LE.le n m := h
     match Nat.eqOrLtOfLe this with
     | Or.inl h => Or.inl (h ▸ rfl)
     | Or.inr h => Or.inr (succLeSucc h)
@@ -679,8 +679,8 @@ protected theorem Nat.leAntisymm : {n m : Nat} → LE.le n m → LE.le m n → E
   | succ n, zero,   h₁, h₂ => Bool.noConfusion h₁
   | zero,   succ m, h₁, h₂ => Bool.noConfusion h₂
   | succ n, succ m, h₁, h₂ =>
-    have h₁' : LE.le n m from h₁
-    have h₂' : LE.le m n from h₂
+    have h₁' : LE.le n m := h₁
+    have h₂' : LE.le m n := h₂
     (Nat.leAntisymm h₁' h₂') ▸ rfl
 
 protected theorem Nat.ltOfLeOfNe {n m : Nat} (h₁ : LE.le n m) (h₂ : Not (Eq n m)) : LT.lt n m :=
@@ -1038,7 +1038,7 @@ def List.get {α : Type u} : (as : List α) → (i : Nat) → LT.lt i as.length 
   | nil,       i,          h => absurd h (Nat.notLtZero _)
   | cons a as, 0,          h => a
   | cons a as, Nat.succ i, h =>
-    have LT.lt i.succ as.length.succ from length_cons .. ▸ h
+    have : LT.lt i.succ as.length.succ := length_cons .. ▸ h
     get as i (Nat.leOfSuccLeSucc this)
 
 structure String where

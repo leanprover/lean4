@@ -111,7 +111,7 @@ inductive HEq {α : Sort u} (a : α) : {β : Sort u} → β → Prop
   HEq.refl a
 
 theorem eqOfHEq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
-  have (α β : Sort u) → (a : α) → (b : β) → HEq a b → (h : Eq α β) → Eq (cast h a) b from
+  have : (α β : Sort u) → (a : α) → (b : β) → HEq a b → (h : Eq α β) → Eq (cast h a) b :=
     fun α β a b h₁ =>
       HEq.rec (motive := fun {β} (b : β) (h : HEq a b) => (h₂ : Eq α β) → Eq (cast h₂ a) b)
         (fun (h₂ : Eq α α) => rfl)

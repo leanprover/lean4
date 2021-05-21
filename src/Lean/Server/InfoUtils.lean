@@ -163,26 +163,18 @@ structure GoalsAtResult where
   there is no nested tactic info (i.e. it is a leaf tactic; tactic combinators should decide for themselves
   where to show intermediate/final states)
 -/
-partial def InfoTree.goalsAt? (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult := do
-  let rs := t.deepestNodes fun
+partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult := do
+  t.deepestNodes fun
     | ctx, i@(Info.ofTacticInfo ti), cs => OptionM.run do
       let (some pos, some tailPos) ← pure (i.pos?, i.tailPos?)
         | failure
       let trailSize := i.stx.getTrailingSize
-      -- NOTE: include position just after tactic, i.e. when the cursor is still adjacent
-      -- (even when `trailSize == 0`, which is the case at EOF)
-      guard <| pos ≤ hoverPos ∧ hoverPos < tailPos + Nat.max 1 trailSize
+      -- show info at EOF even if strictly outside token + trail
+      let atEOF := tailPos == text.source.bsize
+      guard <| pos ≤ hoverPos ∧ (hoverPos < tailPos + trailSize || atEOF)
       return { ctxInfo := ctx, tacticInfo := ti, useAfter :=
         hoverPos > pos && !cs.any (hasNestedTactic pos tailPos) }
     | _, _, _ => none
-  if let r::_ := rs then
-    -- The above lenient heuristics return both goals when the cursor is placed adjacent
-    -- to two infos, such as in `skip;` (recall that `;` also has a tactic info).
-    -- Select goals with the minimum position only to resolve this.
-    -- NOTE: We can assume that the list is sorted by position
-    let rs := rs.filter (·.tacticInfo.stx.getPos? == r.tacticInfo.stx.getPos?)
-    return rs
-  return rs
 where
   hasNestedTactic (pos tailPos) : InfoTree → Bool
     | InfoTree.node i@(Info.ofTacticInfo _) cs => do

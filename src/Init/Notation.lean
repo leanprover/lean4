@@ -232,6 +232,11 @@ syntax (name := rotateRight) "rotateRight" (num)? : tactic
 macro "try " t:tacticSeq : tactic => `(first | $t | skip)
 macro:1 x:tactic " <;> " y:tactic:0 : tactic => `(tactic| focus ($x:tactic; allGoals $y:tactic))
 
+syntax ("·" <|> ".") tacticSeq : tactic
+macro_rules
+  | `(tactic| ·%$dot $ts:tacticSeq) => `(tactic| {%$dot ($ts:tacticSeq) })
+
+
 macro "rfl" : tactic => `(exact rfl)
 macro "admit" : tactic => `(exact sorry)
 macro "inferInstance" : tactic => `(exact inferInstance)

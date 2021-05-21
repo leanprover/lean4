@@ -8,6 +8,7 @@ import Lean.Meta.ForEachExpr
 import Lean.Meta.RecursorInfo
 import Lean.Meta.Match.Match
 import Lean.Meta.Transform
+import Lean.Meta.IndPredBelow
 import Lean.Elab.PreDefinition.Basic
 namespace Lean.Elab
 namespace Structural
@@ -65,6 +66,7 @@ structure RecArgInfo where
   indParams   : Array Expr  -- inductive datatype parameters of the argument we are recursing on
   indIndices  : Array Expr  -- inductive datatype indices of the argument we are recursing on, it is equal to `indicesPos.map fun i => ys.get! i`
   reflexive   : Bool        -- true if we are recursing over a reflexive inductive datatype
+  indPred     : Bool        -- true if the type is an inductive predicate
 
 private def getIndexMinPos (xs : Array Expr) (indices : Array Expr) : Nat := do
   let mut minPos := xs.size
@@ -107,6 +109,7 @@ structure State where
      We use this information to generate the auxiliary `_sunfold` definition needed by the smart unfolding
      technique used at WHNF. -/
   matcherBelowDep : NameSet := {}
+  addMatchers : Array $ MetaM Unit := #[]
 
 abbrev M := StateRefT State MetaM
 
@@ -174,7 +177,8 @@ private partial def findRecArg {α} (numFixed : Nat) (xs : Array Expr) (k : RecA
                          indLevels   := us
                          indParams   := indParams
                          indIndices  := indIndices
-                         reflexive := indInfo.isReflexive })
+                         reflexive := indInfo.isReflexive
+                         indPred := ←isInductivePredicate indInfo.name })
                     (fun msg => m!"argument #{i+1} was not used for structural recursion{indentD msg}"))
                   (loop (i+1))
     else
@@ -354,6 +358,59 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
     | e => ensureNoRecFn recFnName e
   loop below e
 
+private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecArgInfo) (below : Expr) (e : Expr) : M Expr :=
+  let rec loop (e : Expr) : M Expr := do
+    match e with
+    | Expr.lam n d b c =>
+      withLocalDecl n c.binderInfo (← loop d) fun x => do
+        mkLambdaFVars #[x] (← loop (b.instantiate1 x))
+    | Expr.forallE n d b c =>
+      withLocalDecl n c.binderInfo (← loop d) fun x => do
+        mkForallFVars #[x] (← loop (b.instantiate1 x))
+    | Expr.letE n type val body _ =>
+      withLetDecl n (← loop type) (← loop val) fun x => do
+        mkLetFVars #[x] (← loop (body.instantiate1 x))
+    | Expr.mdata d e _   => return mkMData d (← loop e)
+    | Expr.proj n i e _  => return mkProj n i (← loop e)
+    | Expr.app _ _ _ =>
+      let processApp (e : Expr) : M Expr := do
+        let lCtx ← getLCtx
+        e.withApp fun f args => do
+          if f.isConstOf recFnName then
+            lCtx.getFVars.forM (fun x => do 
+              trace[Elab.definition.structural] "{x} : {←inferType x}")
+            let ty ← inferType e
+            let main ← mkFreshExprSyntheticOpaqueMVar ty
+            withMVarContext main.mvarId! do
+            assumption main.mvarId!
+            main
+          else
+            return mkAppN (← loop f) (← args.mapM loop)
+      let matcherApp? ← matchMatcherApp? e
+      match matcherApp? with
+      | some matcherApp =>
+        if !recArgHasLooseBVarsAt recFnName recArgInfo e then
+          processApp e
+        else
+          trace[Elab.definition.structural] "matcherApp before adding below transformation:\n{matcherApp.toExpr}"
+          if true then
+            if let some (t, idx) ← IndPredBelow.findBelowIdx matcherApp then
+              let (newApp, addMatcher) ← IndPredBelow.mkBelowMatcher matcherApp idx
+              modify fun s => { s with addMatchers := s.addMatchers.push addMatcher }
+              { newApp with discrs := newApp.discrs.push t }.toExpr |> loop
+            else
+              processApp e
+          else
+          trace[Elab.definition.structural] "below before matcherApp transformation: {below} : {← inferType below}"
+          let main ← mkFreshExprSyntheticOpaqueMVar below
+          trace[Meta.IndPredBelow.debug] "{←Meta.ppGoal main.mvarId!}"
+          let (newApp, addMatcher) ← IndPredBelow.mkBelowMatcher matcherApp recArgInfo.pos 
+          modify fun s => { s with addMatchers := s.addMatchers.push addMatcher }
+          { newApp with discrs := newApp.discrs.push below}.toExpr |> processApp
+      | none => processApp e
+    | e => ensureNoRecFn recFnName e
+  loop e
+
 private def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
   let type  := (← inferType value).headBeta
   let major := recArgInfo.ys[recArgInfo.pos]
@@ -392,6 +449,37 @@ private def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr)
       let Farg         ← mkLambdaFVars (recArgInfo.indIndices ++ #[major, below] ++ otherArgs) valueNew
       let brecOn       := mkApp brecOn Farg
       pure $ mkAppN brecOn otherArgs
+      
+private def mkIndPredBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
+  let type  := (← inferType value).headBeta
+  let major := recArgInfo.ys[recArgInfo.pos]
+  let otherArgs := recArgInfo.ys.filter fun y => y != major && !recArgInfo.indIndices.contains y
+  trace[Elab.definition.structural] "fixedParams: {recArgInfo.fixedParams}, otherArgs: {otherArgs}"
+  let motive ← mkForallFVars otherArgs type
+  let motive ← mkLambdaFVars (recArgInfo.indIndices.push major) motive
+  trace[Elab.definition.structural] "brecOn motive: {motive}"
+  let brecOn :=
+      Lean.mkConst (mkBRecOnName recArgInfo.indName) recArgInfo.indLevels
+  let brecOn := mkAppN brecOn recArgInfo.indParams
+  let brecOn := mkApp brecOn motive
+  let brecOn := mkAppN brecOn recArgInfo.indIndices
+  let brecOn := mkApp brecOn major
+  check brecOn
+  let brecOnType ← inferType brecOn
+  trace[Elab.definition.structural] "brecOn     {brecOn}"
+  trace[Elab.definition.structural] "brecOnType {brecOnType}"
+  forallBoundedTelescope brecOnType (some 1) fun F _ => do
+    let F := F[0]
+    let FType ← inferType F
+    trace[Elab.definition.structural] "FType: {FType}"
+    let FType ← instantiateForall FType recArgInfo.indIndices
+    let FType ← instantiateForall FType #[major]
+    forallBoundedTelescope FType (some 1) fun below _ => do
+      let below := below[0]
+      let valueNew     ← replaceIndPredRecApps recFnName recArgInfo below value
+      let Farg         ← mkLambdaFVars (recArgInfo.indIndices ++ #[major, below] ++ otherArgs) valueNew
+      let brecOn       := mkApp brecOn Farg
+      pure $ mkAppN brecOn otherArgs
 
 private def shouldBetaReduce (e : Expr) (recFnName : Name) : Bool :=
   if e.isHeadBetaTarget then
@@ -426,7 +514,9 @@ private def elimRecursion (preDef : PreDefinition) : M PreDefinition :=
     trace[Elab.definition.structural] "numFixed: {numFixed}"
     findRecArg numFixed xs fun recArgInfo => do
       -- when (recArgInfo.indName == `Nat) throwStructuralFailed -- HACK to skip Nat argument
-      let valueNew ← mkBRecOn preDef.declName recArgInfo value
+      let valueNew ← 
+        if recArgInfo.indPred then mkIndPredBRecOn preDef.declName recArgInfo value
+        else mkBRecOn preDef.declName recArgInfo value
       let valueNew ← mkLambdaFVars xs valueNew
       trace[Elab.definition.structural] "result: {valueNew}"
       -- Recursive applications may still occur in expressions that were not visited by replaceRecApps (e.g., in types)
@@ -487,6 +577,7 @@ def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
     throwError "structural recursion does not handle mutually recursive functions"
   else do
     let (preDefNonRec, state) ← run $ elimRecursion preDefs[0]
+    state.addMatchers.forM liftM
     mapError (addNonRec preDefNonRec) (fun msg => m!"structural recursion failed, produced type incorrect term{indentD msg}")
     addAndCompilePartialRec preDefs
     addSmartUnfoldingDef preDefs[0] state

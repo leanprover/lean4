@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <cstdlib>
 #include <cctype>
+#include <filesystem>
 #include <sys/stat.h>
 #include "util/io.h"
 #include <lean/alloc.h>
@@ -466,6 +467,28 @@ extern "C" obj_res lean_io_is_dir(b_obj_arg fname, obj_arg) {
 extern "C" obj_res lean_io_file_exists(b_obj_arg fname, obj_arg) {
     bool b = !!std::ifstream(string_cstr(fname));
     return io_result_mk_ok(box(b));
+}
+
+/*
+structure DirEntry where
+  path     : String
+  fileName : String
+
+constant readDir : String → IO (Array DirEntry)
+*/
+extern "C" obj_res lean_io_read_dir(b_obj_arg dirname, obj_arg) {
+    object * arr = array_mk_empty();
+    try {
+        for (const auto & ent : std::filesystem::directory_iterator(string_cstr(dirname))) {
+            object * lent = alloc_cnstr(0, 2, 0);
+            cnstr_set(lent, 0, lean_mk_string(ent.path().c_str()));
+            cnstr_set(lent, 1, lean_mk_string(ent.path().filename().c_str()));
+            arr = lean_array_push(arr, lent);
+        }
+        return io_result_mk_ok(arr);
+    } catch (std::filesystem::filesystem_error const & e) {
+        return io_result_mk_error(e.what());
+    }
 }
 
 extern "C" obj_res lean_io_remove_file(b_obj_arg fname, obj_arg) {

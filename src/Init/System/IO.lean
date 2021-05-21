@@ -326,6 +326,14 @@ def fileExists : String → m Bool := liftM ∘ Prim.fileExists
 def removeFile : String → m Unit := liftM ∘ Prim.removeFile
 def appPath : m String := liftM Prim.appPath
 
+structure DirEntry where
+  path     : String
+  fileName : String
+  deriving Repr
+
+@[extern "lean_io_read_dir"]
+constant readDir : String → IO (Array DirEntry)
+
 def appDir : m String := do
   let p ← appPath
   let some p ← pure <| System.FilePath.parent p

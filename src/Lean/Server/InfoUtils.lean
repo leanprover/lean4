@@ -159,7 +159,7 @@ structure GoalsAtResult where
   - None of the `children` satisfy the condition above. That is, for composite tactics such as
     `induction`, we always give preference for information stored in nested (children) tactics.
 
-  Moreover, we instruct the LSP server to use the state after the tactic execution if `hoverPos > pos` *and*
+  Moreover, we instruct the LSP server to use the state after the tactic execution if the hover is inside the info *and*
   there is no nested tactic info (i.e. it is a leaf tactic; tactic combinators should decide for themselves
   where to show intermediate/final states)
 -/
@@ -173,7 +173,7 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
       let atEOF := tailPos == text.source.bsize
       guard <| pos ≤ hoverPos ∧ (hoverPos < tailPos + trailSize || atEOF)
       return { ctxInfo := ctx, tacticInfo := ti, useAfter :=
-        hoverPos > pos && !cs.any (hasNestedTactic pos tailPos) }
+        hoverPos > pos && (hoverPos >= tailPos || !cs.any (hasNestedTactic pos tailPos)) }
     | _, _, _ => none
 where
   hasNestedTactic (pos tailPos) : InfoTree → Bool

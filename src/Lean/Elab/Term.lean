@@ -1163,6 +1163,22 @@ def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPo
   let e ← elabTerm stx expectedType? catchExPostpone implicitLambda
   withRef stx <| ensureHasType expectedType? e errorMsgHeader?
 
+/-- Execute `x` and return `some` if no new errors were recorded or exceptions was thrown. Otherwise, return `none` -/
+def commitIfNoErrors? (x : TermElabM α) : TermElabM (Option α) := do
+  let saved ← saveState
+  modify fun s => { s with messages := {} }
+  try
+    let a ← x
+    if (← get).messages.hasErrors then
+      restoreState saved
+      return none
+    else
+      modify fun s => { s with messages := saved.elab.messages ++ s.messages }
+      return a
+  catch _ =>
+    restoreState saved
+    return none
+
 /-- Adapt a syntax transformation to a regular, term-producing elaborator. -/
 def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab := fun stx expectedType? => do
   let stx' ← exp stx

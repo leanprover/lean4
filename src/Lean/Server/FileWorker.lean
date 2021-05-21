@@ -441,7 +441,7 @@ section RequestHandling
     withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
       (notFoundX := return none) fun snap => do
         for t in snap.cmdState.infoState.trees do
-          if let rs@(_ :: _) := t.goalsAt? hoverPos then
+          if let rs@(_ :: _) := t.goalsAt? doc.meta.text hoverPos then
             let goals ← List.join <$> rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter } =>
               let ci := if useAfter then { ci with mctx := ti.mctxAfter } else { ci with mctx := ti.mctxBefore }
               let goals := if useAfter then ti.goalsAfter else ti.goalsBefore

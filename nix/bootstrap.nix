@@ -77,21 +77,24 @@ rec {
     in (all: all // all.lean) rec {
       Init = build { name = "Init"; deps = []; };
       Std  = build { name = "Std";  deps = [ Init ]; };
-      Lean = build { name = "Lean"; deps = [ Init Std ]; };
-      Leanpkg = build { name = "Leanpkg"; deps = [ Init Std Lean ]; };
+      Lean = build { name = "Lean"; deps = [ Init Std ]; linkFlags = ["${stdlibLinkFlags} -rdynamic ${leancpp}/lib/lean.cpp.o"]; };
+      Leanpkg = build { name = "Leanpkg"; deps = [ Init Std Lean ]; linkFlags = ["${stdlibLinkFlags} -rdynamic"]; };
       inherit (Lean) emacs-dev emacs-package vscode-dev vscode-package;
       mods = Init.mods // Std.mods // Lean.mods;
+      stdlibLinkFlags = "-L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean";
       leanc = writeShellScriptBin "leanc" ''
-        ${lean-bin-tools-unwrapped}/bin/leanc -L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean "$@"
+        ${lean-bin-tools-unwrapped}/bin/leanc ${stdlibLinkFlags} "$@"
       '';
-      lean = wrapStage(stdenv.mkDerivation {
+      lean = Lean.executable;
+      leanpkg = Leanpkg.executable;
+      # derivation following the directory layout of the "basic" setup, mostly useful for running tests
+      lean-all = wrapStage(stdenv.mkDerivation {
         name = "lean-${desc}";
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
           ln -sf ${leancpp}/lib/lean/libleancpp.* ${Leanpkg.modRoot}/* ${Lean.staticLib}/* ${Lean.modRoot}/* ${Std.staticLib}/* ${Std.modRoot}/* ${Init.staticLib}/* ${Init.modRoot}/* $out/lib/lean/
-          ${leanc}/bin/leanc -x none -rdynamic ${leancpp}/lib/lean.cpp.o -o $out/bin/lean
-          ${leanc}/bin/leanc -x none -rdynamic ${Leanpkg.staticLib}/* -o $out/bin/leanpkg
           # put everything in a single final derivation so `IO.appDir` references work
+          cp ${lean}/bin/lean ${leanpkg}/bin/leanpkg $out/bin
           for i in ${lean-bin-tools-unwrapped} ${leanc}; do
             ${lndir}/bin/lndir -silent $i $out
           done
@@ -106,7 +109,7 @@ rec {
         postConfigure = ''
           patchShebangs ../../tests
           rm -r bin lib include share
-          ln -sf ${lean}/* .
+          ln -sf ${lean-all}/* .
         '';
         buildPhase = ''
           ctest --output-on-failure -E 'leancomptest_(doc_example|foreign)' -j$NIX_BUILD_CORES

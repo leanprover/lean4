@@ -89,7 +89,7 @@ let
   doc-test = stdenv.mkDerivation {
     name ="lean-doc-test";
     src = ../.;
-    buildInputs = [ lean-mdbook lean.stage1 strace ];
+    buildInputs = [ lean-mdbook lean.stage1.Leanpkg.lean-package strace ];
     patchPhase = ''
       cd doc
       patchShebangs test

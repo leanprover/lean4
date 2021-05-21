@@ -32,13 +32,13 @@ p q r : Prop
 h2 : p → q
 h✝ : q
 ⊢ q
-tacUnsolvedGoalsErrors.lean:31:2-31:3: error: unsolved goals
+tacUnsolvedGoalsErrors.lean:26:2-27:8: error: unsolved goals
 case inl
 p q r : Prop
 h2 : p → q
 h✝ : p
 ⊢ q
-tacUnsolvedGoalsErrors.lean:33:2-33:3: error: unsolved goals
+tacUnsolvedGoalsErrors.lean:28:2-29:8: error: unsolved goals
 case inr
 p q r : Prop
 h2 : p → q

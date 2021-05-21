@@ -185,7 +185,6 @@ in rec {
     isExecutable = true;
     srcRoot = fullSrc;  # use root flake.nix in case of Lean repo
     inherit bash nix srcTarget srcArgs;
-    leanpkg = lean;
   };
   lean-dev = symlinkJoin { name = "lean-dev"; paths = [ lean-bin-dev leanpkg-dev ]; };
   emacs-dev = makeEmacsWrapper "emacs-dev" lean-dev;

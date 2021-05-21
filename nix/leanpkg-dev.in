@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-[[ $# -gt 0 && "$1" == print-paths && ( -f flake.nix || -d Lean && -f ../flake.nix || ! -f leanpkg.toml ) ]] || exec @leanpkg@/bin/leanpkg "$@"
+[[ $# -gt 0 && "$1" == print-paths ]] || { echo "This is just a simple Nix adapter for `leanpkg print-paths`. Please use the `leanpkg` attribute for the real thing."; exit 1; }
 shift
 deps="$@"
 root=.
@@ -15,6 +15,6 @@ args=()
 for dep in $deps; do
     target="$target.\"$dep\""
 done
-# -v only has "built ...", but "-vv" is a bit too verbose
 echo "Building dependencies..." >&2
+# -v only has "built ...", but "-vv" is a bit too verbose
 @nix@/bin/nix run "$target" ${args[*]} -v

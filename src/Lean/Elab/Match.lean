@@ -608,8 +608,111 @@ If the refinement process fails, we report the original error message.
 /- Auxiliary structure for storing an type mismatch exception when processing the
    pattern #`idx` of some alternative. -/
 structure PatternElabException where
-  ex  : Exception
-  idx : Nat
+  ex          : Exception
+  patternIdx  : Nat -- Discriminant that sh
+  pathToIndex : List Nat -- Path to the problematic inductive type index that produced the type mismatch
+
+/--
+  This method is part of the "discriminant refinement" procedure. It in invoked when the
+  type of the `pattern` does not match the expected type. The expected type is based on the
+  motive computed using the `match` discriminants.
+  It tries to compute a path to an index of the discriminant type.
+  For example, suppose the user has written
+  ```
+  inductive Mem (a : α) : List α → Prop where
+    | head {as} : Mem a (a::as)
+    | tail {as} : Mem a as → Mem a (a'::as)
+
+  infix:50 " ∈ " => Mem
+
+  example (a b : Nat) (h : a ∈ [b]) : b = a :=
+  match h with
+  | Mem.head => rfl
+  ```
+  The motive for the match is `a ∈ [b] → b = a`, and get a type mismatch between the type
+  of `Mem.head` and `a ∈ [b]`. This procedure return the path `[2, 1]` to the index `b`.
+  We use it to produce the following refinement
+  ```
+  example (a b : Nat) (h : a ∈ [b]) : b = a :=
+  match b, h with
+  | _, Mem.head => rfl
+  ```
+  which produces the new motive `(x : Nat) →  a ∈ [x] → x = a`
+  After this refinement step, the `match` is elaborated successfully.
+
+  This method relies on the fact that the dependent pattern matcher compiler solves equations
+  between indices of indexed inductive families.
+  The following kinds of equations are supported by this compiler:
+  - `x = t`
+  - `t = x`
+  - `ctor ... = ctor ...`
+
+  where `x` is a free variable, `t` is an arbitrary term, and `ctor` is constructor.
+  Our procedure ensures that "information" is not lost, and will *not* succeed in an
+  example such as
+  ```
+  example (a b : Nat) (f : Nat → Nat) (h : f a ∈ [f b]) : f b = f a :=
+    match h with
+    | Mem.head => rfl
+  ```
+  and will not add `f b` as a new discriminant. We may add an option in the future to
+  enable this more liberal form of refinement.
+-/
+private partial def findDiscrRefinementPath (pattern : Expr) (expected : Expr) : OptionT MetaM (List Nat) := do
+  goType (← instantiateMVars (← inferType pattern)) expected
+where
+  checkCompatibleApps (t d : Expr) : OptionT MetaM Unit := do
+    guard d.isApp
+    guard <| t.getAppNumArgs == d.getAppNumArgs
+    let tFn := t.getAppFn
+    let dFn := d.getAppFn
+    guard <| tFn.isConst && dFn.isConst
+    guard (← isDefEq tFn dFn)
+
+  -- Visitor for inductive types
+  goType (t d : Expr) : OptionT MetaM (List Nat) := do
+    trace[Meta.debug] "type {t} =?= {d}"
+    let t ← whnf t
+    let d ← whnf d
+    checkCompatibleApps t d
+    matchConstInduct t.getAppFn (fun _ => failure) fun info _ => do
+      let tArgs := t.getAppArgs
+      let dArgs := d.getAppArgs
+      for i in [:info.numParams] do
+        let tArg := tArgs[i]
+        let dArg := dArgs[i]
+        unless (← isDefEq tArg dArg) do
+          return i :: (← goType tArg dArg)
+      for i in [info.numParams : tArgs.size] do
+        let tArg := tArgs[i]
+        let dArg := dArgs[i]
+        unless (← isDefEq tArg dArg) do
+          return i :: (← goIndex tArg dArg)
+      failure
+
+  -- Visitor for indexed families
+  goIndex (t d : Expr) : OptionT MetaM (List Nat) := do
+    if t.isFVar || d.isFVar then
+      return [] -- Found refinement path
+    else
+      let t ← whnf t
+      let d ← whnf d
+      trace[Meta.debug] "index {t} =?= {d}"
+      checkCompatibleApps t d
+      matchConstCtor t.getAppFn (fun _ => failure) fun info _ => do
+        let tArgs := t.getAppArgs
+        let dArgs := d.getAppArgs
+        for i in [:info.numParams] do
+          let tArg := tArgs[i]
+          let dArg := dArgs[i]
+          unless (← isDefEq tArg dArg) do
+            failure
+        for i in [info.numParams : tArgs.size] do
+          let tArg := tArgs[i]
+          let dArg := dArgs[i]
+          unless (← isDefEq tArg dArg) do
+            return i :: (← goIndex tArg dArg)
+        failure
 
 private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : ExceptT PatternElabException TermElabM (Array Expr × Expr) :=
   withReader (fun ctx => { ctx with implicitLambda := false }) do
@@ -620,14 +723,23 @@ private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : Excep
       matchType ← whnf matchType
       match matchType with
       | Expr.forallE _ d b _ =>
-          let pattern ←
-            try
-              liftM <| withSynthesize <| withoutErrToSorry <| elabTermEnsuringType patternStx d
-            catch ex =>
-              -- Wrap the type mismatch exception for the "discriminant refinement" feature.
-              throwThe PatternElabException { ex := ex, idx := idx }
-          matchType := b.instantiate1 pattern
-          patterns  := patterns.push pattern
+        let pattern ← do
+          let s ← saveState
+          try
+            liftM <| withSynthesize <| withoutErrToSorry <| elabTermEnsuringType patternStx d
+          catch ex : Exception =>
+            restoreState s
+            match (← liftM <| commitIfNoErrors? <| withoutErrToSorry <| elabTermAndSynthesize patternStx none) with
+            | some pattern =>
+              match ← findDiscrRefinementPath pattern d |>.run with
+              | some path =>
+                trace[Meta.debug] "refinement path: {path}"
+                -- Wrap the type mismatch exception for the "discriminant refinement" feature.
+                throwThe PatternElabException { ex := ex, patternIdx := idx, pathToIndex := path }
+              | none => restoreState s; throw ex
+            | none => throw ex
+        matchType := b.instantiate1 pattern
+        patterns  := patterns.push pattern
       | _ => throwError "unexpected match type"
     return (patterns, matchType)
 
@@ -865,7 +977,8 @@ where
     let (discrs', matchType', altViews', refined) ← generalize discrs matchType altViews generalizing?
     match ← altViews'.mapM (fun altView => elabMatchAltView altView matchType') |>.run with
     | Except.ok alts => return (discrs', matchType', alts, first?.isSome || refined)
-    | Except.error { idx := idx, ex := ex } =>
+    | Except.error { patternIdx := idx, pathToIndex := pathToIndex, ex := ex } =>
+      -- TODO: use `pathToIndex`
       let indices ← getIndicesToInclude discrs idx
       if indices.isEmpty then
         throwEx (← updateFirst first? ex)

@@ -54,3 +54,17 @@ example (p : α → Prop) (a b : α) [DecidablePred p] (h : ∀ {p} [DecidablePr
   apply h _
  --^ $/lean/plainGoal
  -- should not display solved goal `⊢ DecidablePred p`
+
+example : True ∧ False := by
+  constructor
+  { constructor }
+ --^ $/lean/plainGoal
+  { }
+ --^ $/lean/plainGoal
+
+example : True ∧ False := by
+  constructor
+  · constructor
+ --^ $/lean/plainGoal
+  ·
+ --^ $/lean/plainGoal

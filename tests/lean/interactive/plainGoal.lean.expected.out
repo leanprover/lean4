@@ -73,3 +73,17 @@
  "```lean\nα : Sort ?u\np : α → Prop\na b : α\ninst✝ : DecidablePred p\nh : ∀ {p : α → Prop} [inst : DecidablePred p], p a → p b\n⊢ p a\n```",
  "goals":
  ["α : Sort ?u\np : α → Prop\na b : α\ninst✝ : DecidablePred p\nh : ∀ {p : α → Prop} [inst : DecidablePred p], p a → p b\n⊢ p a"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 59, "character": 3}}
+{"rendered": "```lean\ncase left\n⊢ True\n```", "goals": ["case left\n⊢ True"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 61, "character": 3}}
+{"rendered": "```lean\ncase right\n⊢ False\n```",
+ "goals": ["case right\n⊢ False"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 66, "character": 3}}
+{"rendered": "```lean\ncase left\n⊢ True\n```", "goals": ["case left\n⊢ True"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 68, "character": 3}}
+{"rendered": "```lean\ncase right\n⊢ False\n```",
+ "goals": ["case right\n⊢ False"]}

@@ -153,6 +153,7 @@ private def mkSimpLemmaCore (e : Expr) (levelParams : Array Name) (proof : Expr)
   let type ← instantiateMVars (← inferType e)
   withNewMCtxDepth do
     let (xs, _, type) ← withReducible <| forallMetaTelescopeReducing type
+    let type ← whnfR type
     let (keys, perm) ←
       match type.eq? with
       | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs)

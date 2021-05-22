@@ -692,11 +692,11 @@ where
 
   -- Visitor for indexed families
   goIndex (t d : Expr) : OptionT MetaM (List Nat) := do
+    let t ← whnfD t
+    let d ← whnfD d
     if t.isFVar || d.isFVar then
       return [] -- Found refinement path
     else
-      let t ← whnf t
-      let d ← whnf d
       trace[Meta.debug] "index {t} =?= {d}"
       checkCompatibleApps t d
       matchConstCtor t.getAppFn (fun _ => failure) fun info _ => do
@@ -896,17 +896,18 @@ private def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : ExceptT P
       return (altLHS, rhs)
 
 /--
-  Collect indices for the "discriminant refinement feature". This method is invoked
+  Collect problematic index for the "discriminant refinement feature". This method is invoked
   when we detect a type mismatch at a pattern #`idx` of some alternative. -/
-private def getIndicesToInclude (discrs : Array Expr) (idx : Nat) : TermElabM (Array Expr) := do
-  let discrType ← whnfD (← inferType discrs[idx])
-  matchConstInduct discrType.getAppFn (fun _ => return #[]) fun info _ => do
-    let mut result := #[]
-    let args := discrType.getAppArgs
-    for arg in args[info.numParams : args.size] do
-      unless (← discrs.anyM fun discr => isDefEq discr arg) do
-        result := result.push arg
-    return result
+private partial def getIndexToInclude? (discr : Expr) (pathToIndex : List Nat) : TermElabM (Option Expr) := do
+  go (← inferType discr) pathToIndex |>.run
+where
+  go (e : Expr) (path : List Nat) : OptionT MetaM Expr := do
+    match path with
+    | [] => return e
+    | i::path =>
+      let e ← whnfD e
+      guard <| e.isApp && i < e.getAppNumArgs
+      go (e.getArg! i) path
 
 /--
   "Generalize" variables that depend on the discriminants.
@@ -977,23 +978,24 @@ where
     let (discrs', matchType', altViews', refined) ← generalize discrs matchType altViews generalizing?
     match ← altViews'.mapM (fun altView => elabMatchAltView altView matchType') |>.run with
     | Except.ok alts => return (discrs', matchType', alts, first?.isSome || refined)
-    | Except.error { patternIdx := idx, pathToIndex := pathToIndex, ex := ex } =>
-      -- TODO: use `pathToIndex`
-      let indices ← getIndicesToInclude discrs idx
-      if indices.isEmpty then
+    | Except.error { patternIdx := patternIdx, pathToIndex := pathToIndex, ex := ex } =>
+      trace[Meta.debug] "pathToIndex: {toString pathToIndex}"
+      let some index ← getIndexToInclude? discrs[patternIdx] pathToIndex
+        | throwEx (← updateFirst first? ex)
+      trace[Meta.debug] "index: {index}"
+      if (← discrs.anyM fun discr => isDefEq discr index) then
         throwEx (← updateFirst first? ex)
-      else
-        let first ← updateFirst first? ex
-        s.restore
-        let indices ← collectDeps indices discrs
-        let matchType ←
-          try
-            updateMatchType indices matchType
-          catch ex =>
-            throwEx first
-        let altViews  ← addWildcardPatterns indices.size altViews
-        let discrs    := indices ++ discrs
-        loop discrs matchType altViews first
+      let first ← updateFirst first? ex
+      s.restore
+      let indices ← collectDeps #[index] discrs
+      let matchType ←
+        try
+          updateMatchType indices matchType
+        catch ex =>
+          throwEx first
+      let altViews  ← addWildcardPatterns indices.size altViews
+      let discrs    := indices ++ discrs
+      loop discrs matchType altViews first
 
   throwEx {α} (p : SavedState × Exception) : TermElabM α := do
     p.1.restore; throw p.2
@@ -1020,7 +1022,11 @@ where
      The method `collectDeps` will include `a` into `indices`.
 
      This method does not handle dependencies among non-free variables.
-     We rely on the type checking method `check` at `updateMatchType`. -/
+     We rely on the type checking method `check` at `updateMatchType`.
+
+     Remark: `indices : Array Expr` does not need to be an array anymore.
+     We should cleanup this code, and use `index : Expr` instead.
+   -/
   collectDeps (indices : Array Expr) (discrs : Array Expr) : TermElabM (Array Expr) := do
     let mut s : CollectFVars.State := {}
     for discr in discrs do

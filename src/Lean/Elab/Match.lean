@@ -714,6 +714,16 @@ where
             return i :: (← goIndex tArg dArg)
         failure
 
+private partial def eraseIndices (type : Expr) : MetaM Expr := do
+  let type' ← whnfD type
+  matchConstInduct type'.getAppFn (fun _ => return type) fun info _ => do
+    let args := type'.getAppArgs
+    let params ← args[:info.numParams].toArray.mapM eraseIndices
+    let result := mkAppN type'.getAppFn params
+    let resultType ← inferType result
+    let (newIndices, _, _) ←  forallMetaTelescopeReducing resultType (some (args.size - info.numParams))
+    return mkAppN result newIndices
+
 private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : ExceptT PatternElabException TermElabM (Array Expr × Expr) :=
   withReader (fun ctx => { ctx with implicitLambda := false }) do
     let mut patterns  := #[]
@@ -729,11 +739,12 @@ private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : Excep
             liftM <| withSynthesize <| withoutErrToSorry <| elabTermEnsuringType patternStx d
           catch ex : Exception =>
             restoreState s
-            match (← liftM <| commitIfNoErrors? <| withoutErrToSorry <| elabTermAndSynthesize patternStx none) with
+            match (← liftM <| commitIfNoErrors? <| withoutErrToSorry do elabTermAndSynthesize patternStx (← eraseIndices d)) with
             | some pattern =>
               match ← findDiscrRefinementPath pattern d |>.run with
               | some path =>
                 trace[Meta.debug] "refinement path: {path}"
+                restoreState s
                 -- Wrap the type mismatch exception for the "discriminant refinement" feature.
                 throwThe PatternElabException { ex := ex, patternIdx := idx, pathToIndex := path }
               | none => restoreState s; throw ex

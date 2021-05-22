@@ -156,7 +156,7 @@ private def mkSimpLemmaCore (e : Expr) (levelParams : Array Name) (proof : Expr)
     let (keys, perm) ←
       match type.eq? with
       | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs)
-      | none => throwError "unexpected kind of 'simp' lemma"
+      | none => throwError "unexpected kind of 'simp' theorem{indentExpr type}"
     return { keys := keys, perm := perm, post := post, levelParams := levelParams, proof := proof, name? := name?, priority := prio }
 
 private def mkSimpLemmasFromConst (declName : Name) (post : Bool) (prio : Nat) : MetaM (Array SimpLemma) := do
@@ -182,7 +182,7 @@ def addSimpLemma (declName : Name) (post : Bool) (attrKind : AttributeKind) (pri
 builtin_initialize
   registerBuiltinAttribute {
     name  := `simp
-    descr := "simplification lemma"
+    descr := "simplification theorem"
     add   := fun declName stx attrKind =>
       let go : MetaM Unit := do
         let info ← getConstInfo declName

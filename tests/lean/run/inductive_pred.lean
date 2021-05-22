@@ -128,7 +128,7 @@ axiom FS {n : Nat} : P n → P (f (f n))
 theorem foo : ∀ {n}, is_nat n → P n
 | _, is_nat.Z => F0
 | _, is_nat.S is_nat.Z => F1
-| _, is_nat.S (@is_nat.S n h) => FS (foo h)
+| _, is_nat.S (is_nat.S h) => FS (foo h)
 
 theorem foo' : ∀ {n}, is_nat n → P n := fun h =>
   @is_nat.brecOn (fun n hn => P n) _ h fun n h ih =>

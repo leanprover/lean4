@@ -100,10 +100,10 @@ theorem step_deterministic' : deterministic step := λ x y₁ y₂ hy₁ hy₂ =
   @step.brecOn (λ s t st => ∀ y₂, s ==> y₂ → t = y₂) _ _ hy₁ (λ s t st hy₁ y₂ hy₂ =>
     match hy₁, hy₂ with
     | step.below.ST_PlusConstConst _ _, step.ST_PlusConstConst _ _ => rfl
-    | step.below.ST_Plus1 _ _ _ _ hy₁ ih, step.ST_Plus1 _ t₁' _ _ => by rw [←ih t₁']; assumption
-    | step.below.ST_Plus1 _ _ _ _ hy₁ ih, step.ST_Plus2 _ _ _ _ => by cases hy₁
-    | step.below.ST_Plus2 _ _ _ _ _ ih, step.ST_Plus2 _ _ t₂ _ => by rw [←ih t₂]; assumption
-    | step.below.ST_Plus2 _ _ _ _ hy₁ _, step.ST_PlusConstConst _ _ => by cases hy₁
+    | step.below.ST_Plus1 _ _ _ hy₁ ih, step.ST_Plus1 _ t₁' _ _ => by rw [←ih t₁']; assumption
+    | step.below.ST_Plus1 _ _ _ hy₁ ih, step.ST_Plus2 _ _ _ _ => by cases hy₁
+    | step.below.ST_Plus2 _ _ _ _ ih, step.ST_Plus2 _ _ t₂ _ => by rw [←ih t₂]; assumption
+    | step.below.ST_Plus2 _ _ _ hy₁ _, step.ST_PlusConstConst _ _ => by cases hy₁
     ) y₂ hy₂
 
 section NestedRecursion
@@ -125,14 +125,14 @@ axiom FS {n : Nat} : P n → P (f (f n))
 -- theorem foo : ∀ {n}, is_nat n → P n
 -- | _, is_nat.Z => F0
 -- | _, is_nat.S is_nat.Z => F1
--- | _, is_nat.S (@is_nat.S n h) => FS (foo h)
+-- | _, is_nat.S (is_nat.S h) => FS (foo h)
 
 theorem foo' : ∀ {n}, is_nat n → P n := fun h =>
   @is_nat.brecOn (fun n hn => P n) _ h fun n h ih =>
   match ih with
   | is_nat.below.Z => F0
-  | is_nat.below.S _ is_nat.below.Z _ => F1
-  | is_nat.below.S _ (is_nat.below.S a b hx) h₂ => FS hx
+  | is_nat.below.S is_nat.below.Z _ => F1
+  | is_nat.below.S (is_nat.below.S b hx) h₂ => FS hx
 
 end NestedRecursion
 

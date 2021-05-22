@@ -377,11 +377,8 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
         let lCtx ← getLCtx
         e.withApp fun f args => do
           if f.isConstOf recFnName then
-            lCtx.getFVars.forM (fun x => do 
-              trace[Elab.definition.structural] "{x} : {←inferType x}")
             let ty ← inferType e
             let main ← mkFreshExprSyntheticOpaqueMVar ty
-            withMVarContext main.mvarId! do
             assumption main.mvarId!
             main
           else
@@ -393,20 +390,15 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
           processApp e
         else
           trace[Elab.definition.structural] "matcherApp before adding below transformation:\n{matcherApp.toExpr}"
-          if true then
-            if let some (t, idx) ← IndPredBelow.findBelowIdx matcherApp then
-              let (newApp, addMatcher) ← IndPredBelow.mkBelowMatcher matcherApp idx
-              modify fun s => { s with addMatchers := s.addMatchers.push addMatcher }
-              { newApp with discrs := newApp.discrs.push t }.toExpr |> loop
-            else
-              processApp e
+          if let some (t, idx) ← IndPredBelow.findBelowIdx matcherApp then
+            let (newApp, addMatcher) ← IndPredBelow.mkBelowMatcher matcherApp idx
+            modify fun s => { s with addMatchers := s.addMatchers.push addMatcher }
+            let newApp := { newApp with discrs := newApp.discrs.push t }.toExpr 
+            trace[Elab.definition.structural] "{newApp}"
+            loop newApp
           else
-          trace[Elab.definition.structural] "below before matcherApp transformation: {below} : {← inferType below}"
-          let main ← mkFreshExprSyntheticOpaqueMVar below
-          trace[Meta.IndPredBelow.debug] "{←Meta.ppGoal main.mvarId!}"
-          let (newApp, addMatcher) ← IndPredBelow.mkBelowMatcher matcherApp recArgInfo.pos 
-          modify fun s => { s with addMatchers := s.addMatchers.push addMatcher }
-          { newApp with discrs := newApp.discrs.push below}.toExpr |> processApp
+            trace[Elab.definition.structural] "could not add below discriminant"
+            processApp e
       | none => processApp e
     | e => ensureNoRecFn recFnName e
   loop e

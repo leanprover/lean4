@@ -148,16 +148,36 @@ inductive is_nat : Nat -> Prop
 | Z : is_nat 0
 | S {n} : is_nat n → is_nat (F n)
 
+inductive is_nat_T : Nat -> Type
+| Z : is_nat_T 0
+| S {n} : is_nat_T n → is_nat_T (F n)
+
 axiom P : Nat → Prop
 axiom F0 : P 0
 axiom F1 : P (F 0)
 axiom FS {n : Nat} : P n → P (F (F n))
+
+axiom T : Nat → Type
+axiom TF0 : T 0
+axiom TF1 : T (F 0)
+axiom TFS {n : Nat} : T n → T (F (F n))
 
 -- set_option trace.Elab.definition.structural true in
 theorem «nested recursion» : ∀ {n}, is_nat n → P n
 | _, is_nat.Z => F0
 | _, is_nat.S is_nat.Z => F1
 | _, is_nat.S (is_nat.S h) => FS («nested recursion» h)
+
+theorem «nested recursion, inaccessible» : ∀ {n}, is_nat n → P n
+| _, .(is_nat.Z) => F0
+| _, is_nat.S .(is_nat.Z) => F1
+| _, is_nat.S (is_nat.S h) => FS («nested recursion, inaccessible» h)
+
+theorem «reordered discriminants, type» : ∀ n, is_nat_T n → Nat → T n := fun n hn m => 
+match n, m, hn with
+| _, _, is_nat_T.Z => TF0
+| _, _, is_nat_T.S is_nat_T.Z => TF1
+| _, m, is_nat_T.S (is_nat_T.S h) => TFS («reordered discriminants, type» _ h m)
 
 theorem «reordered discriminants» : ∀ n, is_nat n → Nat → P n := fun n hn m => 
 match n, m, hn with

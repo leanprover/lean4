@@ -549,7 +549,6 @@ where
     motive
 
 def findBelowIdx (matcherApp : MatcherApp) : MetaM $ Option (Expr × Nat) := do
-  let tmp ← mkFreshExprSyntheticOpaqueMVar matcherApp.discrs[0]
   withMkMatcherInput matcherApp.matcherName fun mkMatcherInput =>
   forallBoundedTelescope mkMatcherInput.matchType mkMatcherInput.numDiscrs fun xs t => 
   xs.findSomeM? fun x => do
@@ -561,8 +560,8 @@ def findBelowIdx (matcherApp : MatcherApp) : MetaM $ Option (Expr × Nat) := do
     let belowTy ← belowType matcherApp.motive xs idx
     let belowTy ← belowTy.replaceFVars xs matcherApp.discrs
     let below ← mkFreshExprSyntheticOpaqueMVar belowTy
-    withMVarContext tmp.mvarId! do
     try 
+      trace[Meta.IndPredBelow.match] "{←Meta.ppGoal below.mvarId!}"
       if ←backwardsChaining below.mvarId! 10 then
         trace[Meta.IndPredBelow.match] "Found below term in the local context: {below}"
         if ←matcherApp.discrs.anyM (isDefEq below) then none else

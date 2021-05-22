@@ -158,8 +158,33 @@ private def processAsPattern (p : Problem) : MetaM Problem :=
   | []      => unreachable!
   | x :: xs => withGoalOf p do
     let alts ← p.alts.mapM fun alt => match alt.patterns with
-      | Pattern.as fvarId p :: ps => { alt with patterns := p :: ps }.checkAndReplaceFVarId fvarId x
-      | _                         => pure alt
+      | Pattern.as fvarId p :: ps =>
+        /- We used to use `checkAndReplaceFVarId` here, but `x` and `fvarId` may have different types
+           when dependent types are beind used. Let's consider the repro for issue #471
+           ```
+            inductive vec : Nat → Type
+            | nil : vec 0
+            | cons : Int → vec n → vec n.succ
+
+            def vec_len : vec n → Nat
+            | vec.nil => 0
+            | x@(vec.cons h t) => vec_len t + 1
+
+           ```
+           we reach the state
+          ```
+            [Meta.Match.match] remaining variables: [x✝:(vec n✝)]
+            alternatives:
+              [n:(Nat), x:(vec (Nat.succ n)), h:(Int), t:(vec n)] |- [x@(vec.cons n h t)] => h_1 n x h t
+              [x✝:(vec n✝)] |- [x✝] => h_2 n✝ x✝
+          ```
+          The variables `x✝:(vec n✝)` and `x:(vec (Nat.succ n))` have different types, but we perform the substitution anyway,
+          because we claim the "discrepancy" will be corrected after we process the pattern `(vec.cons n h t)`.
+          The right-hand-side is temporarily type incorrect, but we claim this is fine because it will be type correct again after
+          we the pattern `(vec.cons n h t)`. TODO: try to find a cleaner solution.
+         -/
+        { alt with patterns := p :: ps }.replaceFVarId fvarId x
+      | _ => pure alt
     pure { p with alts := alts }
 
 private def processVariable (p : Problem) : MetaM Problem :=
@@ -682,7 +707,7 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
   let compile := bootstrap.genMatcherCode.get (← getOptions)
   let result ← Closure.mkValueTypeClosure type value (zeta := false)
   let env ← getEnv
-  let mkMatcherConst name := 
+  let mkMatcherConst name :=
     mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
   match (matcherExt.getState env).find? (result.value, compile) with
   | some nameNew => (mkMatcherConst nameNew, none)
@@ -707,7 +732,7 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
 
 
 structure MkMatcherInput where
-  matcherName : Name 
+  matcherName : Name
   matchType : Expr
   numDiscrs : Nat
   lhss : List Match.AltLHS
@@ -755,27 +780,27 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult :=
        | negSucc n => succ n
        ```
        which is defined **before** `Int.decLt` -/
-    
+
     let (matcher, addMatcher) ← mkMatcherAuxDefinition matcherName type val
     trace[Meta.Match.debug] "matcher levels: {matcher.getAppFn.constLevels!}, uElim: {uElimGen}"
     let uElimPos? ← getUElimPos? matcher.getAppFn.constLevels! uElimGen
     discard <| isLevelDefEq uElimGen uElim
-    let addMatcher := 
+    let addMatcher :=
       match addMatcher with
-      | some addMatcher => 
+      | some addMatcher =>
         { numParams := matcher.getAppNumArgs
-          numDiscrs, 
+          numDiscrs,
           altNumParams := minors.map Prod.snd,
           uElimPos? }
         |> addMatcher
       | none => ()
-        
+
     trace[Meta.Match.debug] "matcher: {matcher}"
     let unusedAltIdxs := lhss.length.fold (init := []) fun i r =>
       if s.used.contains i then r else i::r
-    pure { 
-      matcher, 
-      counterExamples := s.counterExamples, 
+    pure {
+      matcher,
+      counterExamples := s.counterExamples,
       unusedAltIdxs := unusedAltIdxs.reverse,
       addMatcher }
 
@@ -787,20 +812,20 @@ def withMkMatcherInput (matcherName : Name) (k : MkMatcherInput → MetaM α) : 
   let motive := xs[matcherInfo.numParams]
   let discrs := xs[matcherInfo.numParams + 1:matcherInfo.numParams + 1 + matcherInfo.numDiscrs]
   let alts := xs[matcherInfo.numParams + 1 + matcherInfo.numDiscrs:]
-  let u := 
-    if let some idx := matcherInfo.uElimPos? 
+  let u :=
+    if let some idx := matcherInfo.uElimPos?
     then mkLevelParam matcherConst.levelParams.toArray[idx]
     else levelZero
   let matchType ← mkForallFVars discrs (mkConst ``PUnit [u])
-  let lhss ← alts.toArray.mapIdxM fun idx t => do 
+  let lhss ← alts.toArray.mapIdxM fun idx t => do
     let ty ← inferType t
-    forallTelescope ty fun xs body => do 
+    forallTelescope ty fun xs body => do
     let xs ← xs.filterM fun x => dependsOn body x.fvarId!
     body.withApp fun f args => do
     let ctx ← getLCtx
     let localDecls := xs.map ctx.getFVar!
-    let patterns ← args.mapM Match.toPattern 
-    return { 
+    let patterns ← args.mapM Match.toPattern
+    return {
       ref := Syntax.missing
       fvarDecls := localDecls.toList
       patterns := patterns.toList : Match.AltLHS }

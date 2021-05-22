@@ -28,30 +28,30 @@ theorem chooseSpec {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : p (choose 
 theorem em (p : Prop) : p ∨ ¬p :=
   let U (x : Prop) : Prop := x = True ∨ p;
   let V (x : Prop) : Prop := x = False ∨ p;
-  have exU : ∃ x, U x from ⟨True, Or.inl rfl⟩;
-  have exV : ∃ x, V x from ⟨False, Or.inl rfl⟩;
+  have exU : ∃ x, U x := ⟨True, Or.inl rfl⟩;
+  have exV : ∃ x, V x := ⟨False, Or.inl rfl⟩;
   let u : Prop := choose exU;
   let v : Prop := choose exV;
-  have uDef : U u from chooseSpec exU;
-  have vDef : V v from chooseSpec exV;
-  have notUvOrP : u ≠ v ∨ p from
+  have uDef : U u := chooseSpec exU;
+  have vDef : V v := chooseSpec exV;
+  have notUvOrP : u ≠ v ∨ p :=
     match uDef, vDef with
     | Or.inr h, _ => Or.inr h
     | _, Or.inr h => Or.inr h
     | Or.inl hut, Or.inl hvf =>
-      have hne : u ≠ v from hvf.symm ▸ hut.symm ▸ trueNeFalse
+      have hne : u ≠ v := hvf.symm ▸ hut.symm ▸ trueNeFalse
       Or.inl hne
-  have pImpliesUv : p → u = v from
+  have pImpliesUv : p → u = v :=
     fun hp =>
-    have hpred : U = V from
+    have hpred : U = V :=
       funext fun x =>
-        have hl : (x = True ∨ p) → (x = False ∨ p) from
+        have hl : (x = True ∨ p) → (x = False ∨ p) :=
           fun a => Or.inr hp;
-        have hr : (x = False ∨ p) → (x = True ∨ p) from
+        have hr : (x = False ∨ p) → (x = True ∨ p) :=
           fun a => Or.inr hp;
         show (x = True ∨ p) = (x = False ∨ p) from
           propext (Iff.intro hl hr);
-    have h₀ : ∀ exU exV, @choose _ U exU = @choose _ V exV from
+    have h₀ : ∀ exU exV, @choose _ U exU = @choose _ V exV :=
       hpred ▸ fun exU exV => rfl;
     show u = v from h₀ ..;
   match notUvOrP with

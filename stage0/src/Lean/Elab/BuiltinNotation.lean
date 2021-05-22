@@ -75,7 +75,7 @@ open Meta
   | `(suffices $x:ident : $type from $val $[;]? $body)            => `(have $x : $type := $body; $val)
   | `(suffices $type:term from $val $[;]? $body)                  => `(have : $type := $body; $val)
   | `(suffices $x:ident : $type by%$b $tac:tacticSeq $[;]? $body) => `(have $x : $type := $body; by%$b $tac:tacticSeq)
-  | `(suffices $type:term by%$b $tac:tacticSeq $[;]? $body)       => `(have $type := $body; by%$b $tac:tacticSeq)
+  | `(suffices $type:term by%$b $tac:tacticSeq $[;]? $body)       => `(have : $type := $body; by%$b $tac:tacticSeq)
   | _                                                             => Macro.throwUnsupported
 
 open Lean.Parser in

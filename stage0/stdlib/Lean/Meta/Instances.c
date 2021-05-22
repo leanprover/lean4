@@ -138,7 +138,6 @@ extern lean_object* l_Lean_Meta_DiscrTree_root___default___closed__1;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_153____closed__5;
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Meta_addInstanceEntry___spec__3(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__20;
 extern lean_object* l_Lean_instInhabitedPersistentEnvExtension___closed__2;
 extern lean_object* l_Lean_Meta_instMetaEvalMetaM___rarg___closed__2;
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
@@ -199,6 +198,7 @@ lean_object* l_Lean_setEnv___at_Lean_Meta_setInlineAttribute___spec__2(lean_obje
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_287____lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 size_t l_USize_land(size_t, size_t);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_4847____lambda__3___closed__9;
 lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_mkPath(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2769,7 +2769,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__20;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_4847____lambda__3___closed__9;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

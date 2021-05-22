@@ -103,7 +103,7 @@ extern lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_mkLeveErrorMes
 lean_object* l_Lean_Meta_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 size_t lean_usize_of_nat(lean_object*);
-extern lean_object* l_Lean_Expr_setPPExplicit___closed__1;
+extern lean_object* l_Lean_Expr_setPPExplicit___closed__2;
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_getFunctionDomain(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Meta_InferType_0__Lean_Meta_inferForallType___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_setAppPPExplicit(lean_object*);
@@ -1963,7 +1963,7 @@ x_11 = l_Lean_KVMap_getBool(x_8, x_9, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; uint8_t x_13; 
-x_12 = l_Lean_Expr_setPPExplicit___closed__1;
+x_12 = l_Lean_Expr_setPPExplicit___closed__2;
 x_13 = l_Lean_KVMap_getBool(x_8, x_12, x_10);
 lean_dec(x_8);
 if (x_13 == 0)

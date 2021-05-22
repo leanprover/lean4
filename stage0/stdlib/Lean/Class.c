@@ -114,7 +114,6 @@ lean_object* l_Lean_hasOutParams_match__1(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Class___hyg_692____lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Class___hyg_692____closed__2;
 lean_object* l_Lean_isClass___boxed(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__14;
 lean_object* l_Lean_classExtension___closed__5;
 lean_object* l_Lean_initFn____x40_Lean_Class___hyg_692____lambda__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 size_t l_Lean_Name_hash(lean_object*);
@@ -172,6 +171,7 @@ extern lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___closed_
 lean_object* l_Lean_initFn____x40_Lean_Class___hyg_692_(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Class___hyg_70_(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Class___hyg_692____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_4847____lambda__3___closed__4;
 extern lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___closed__2;
 lean_object* l_Std_PersistentHashMap_containsAux___at_Lean_isClass___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_initFn____x40_Lean_Class___hyg_692____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3797,7 +3797,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_5711____closed__14;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_4847____lambda__3___closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

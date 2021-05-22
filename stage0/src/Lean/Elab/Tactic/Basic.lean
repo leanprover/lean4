@@ -136,13 +136,16 @@ def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx 
     goalsBefore   := goalsBefore
     stx           := stx
     mctxAfter     := (← getMCtx)
-    goalsAfter    := (← getGoals)
+    goalsAfter    := (← getUnsolvedGoals)
   }
 
-@[inline] def withTacticInfoContext (stx : Syntax) (x : TacticM α) : TacticM α := do
+def mkInitialTacticInfo (stx : Syntax) : TacticM (TacticM Info) := do
   let mctxBefore  ← getMCtx
-  let goalsBefore ← getGoals
-  withInfoContext x (mkTacticInfo mctxBefore goalsBefore stx)
+  let goalsBefore ← getUnsolvedGoals
+  return mkTacticInfo mctxBefore goalsBefore stx
+
+@[inline] def withTacticInfoContext (stx : Syntax) (x : TacticM α) : TacticM α := do
+  withInfoContext x (← mkInitialTacticInfo stx)
 
 mutual
 
@@ -391,15 +394,18 @@ private def evalManyTacticOptSemi (stx : Syntax) : TacticM Unit := do
 @[builtinTactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic := fun stx =>
   evalManyTacticOptSemi stx[0]
 
-@[builtinTactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic := fun stx =>
-  withRef stx[2] <| closeUsingOrAdmit <| evalManyTacticOptSemi stx[1]
+@[builtinTactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic := fun stx => do
+  let initInfo ← mkInitialTacticInfo stx[0]
+  withRef stx[2] <| closeUsingOrAdmit do
+    -- save state before/after entering focus on `{`
+    withInfoContext (pure ()) initInfo
+    evalManyTacticOptSemi stx[1]
 
 @[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx => do
-  let mctxBefore  ← getMCtx
-  let goalsBefore ← getGoals
+  let mkInfo ← mkInitialTacticInfo stx[0]
   focus do
     -- show focused state on `focus`
-    withInfoContext (pure ()) (mkTacticInfo mctxBefore goalsBefore stx[0])
+    withInfoContext (pure ()) mkInfo
     evalTactic stx[1]
 
 private def getOptRotation (stx : Syntax) : Nat :=

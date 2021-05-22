@@ -23,7 +23,6 @@ lean_object* l_instReprList_match__1(lean_object*, lean_object*);
 lean_object* l_instReprBool_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instReprIterator(lean_object*, lean_object*);
 lean_object* l_instReprPUnit___closed__2;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_1346____closed__7;
 lean_object* l_instReprOption___rarg___closed__1;
 lean_object* l_instReprOption___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
@@ -172,6 +171,7 @@ extern lean_object* l_Std_Format_sbracket___closed__3;
 lean_object* l_instReprId__1___rarg(lean_object*);
 lean_object* l_instReprProd_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instReprSum___rarg___closed__3;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19379____closed__8;
 lean_object* l_instReprSubstring(lean_object*, lean_object*);
 lean_object* l_instReprDecidable_match__1(lean_object*, lean_object*);
 lean_object* l_Char_quoteCore___closed__3;
@@ -192,6 +192,7 @@ lean_object* l_instReprDecidable___rarg(uint8_t, lean_object*);
 lean_object* l_instReprTupleProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_hexDigitRepr(lean_object*);
 lean_object* l_instReprUnit___boxed(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_1198____closed__7;
 lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__5;
 lean_object* l_Std_Format_joinSep___at_instReprList__1___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instReprSum_match__1(lean_object*, lean_object*, lean_object*);
@@ -202,7 +203,6 @@ extern lean_object* l_Int_instInhabitedInt___closed__1;
 lean_object* l_instReprAtomUInt64;
 lean_object* l_instReprAtomChar;
 lean_object* l_instReprUInt32___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
 lean_object* l_instReprPUnit(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 lean_object* l_instReprBool(uint8_t, lean_object*);
@@ -407,7 +407,7 @@ static lean_object* _init_l_instReprBool___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19379____closed__8;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -1098,7 +1098,7 @@ static lean_object* _init_l_instReprProd___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_1346____closed__7;
+x_1 = l_myMacro____x40_Init_Notation___hyg_1198____closed__7;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

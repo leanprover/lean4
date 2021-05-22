@@ -222,7 +222,7 @@ theorem neFalseOfSelf : p → p ≠ False :=
 
 theorem neTrueOfNot : ¬p → p ≠ True :=
   fun (hnp : ¬p) (h : p = True) =>
-    have ¬True from h ▸ hnp
+    have : ¬True := h ▸ hnp
     this trivial
 
 theorem trueNeFalse : ¬True = False :=

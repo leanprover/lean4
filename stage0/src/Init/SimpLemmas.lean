@@ -35,16 +35,16 @@ theorem impCongr {p₁ p₂ : Sort u} {q₁ q₂ : Sort v} (h₁ : p₁ = p₂) 
 theorem impCongrCtx {p₁ p₂ q₁ q₂ : Prop} (h₁ : p₁ = p₂) (h₂ : p₂ → q₁ = q₂) : (p₁ → q₁) = (p₂ → q₂) :=
   propext <| Iff.intro
     (fun h hp₂ =>
-      have p₁ from h₁ ▸ hp₂
-      have q₁ from h this
+      have : p₁ := h₁ ▸ hp₂
+      have : q₁ := h this
       h₂ hp₂ ▸ this)
     (fun h hp₁ =>
-      have hp₂ : p₂ from h₁ ▸ hp₁
-      have q₂ from h hp₂
+      have hp₂ : p₂ := h₁ ▸ hp₁
+      have : q₂ := h hp₂
       h₂ hp₂ ▸ this)
 
 theorem forallCongr {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a = q a)) : (∀ a, p a) = (∀ a, q a) :=
-  have p = q from funext h
+  have : p = q := funext h
   this ▸ rfl
 
 @[congr]

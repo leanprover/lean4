@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Std_RBNode_insert___at_Lean_Json_mkObj___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_shiftl(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getStr_x3f_match__1(lean_object*);
@@ -179,6 +178,7 @@ lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_JsonNumber_instCoeNatJsonNumber;
 lean_object* l_Lean_JsonNumber_instDecidableLt___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_instCoeNatJsonNumber___closed__1;
+extern lean_object* l_Lean_Parser_Tactic_tactic_xb7_x2e_____closed__5;
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -3166,7 +3166,7 @@ lean_dec(x_31);
 x_38 = lean_int_dec_eq(x_22, x_6);
 x_39 = lean_string_append(x_21, x_28);
 lean_dec(x_28);
-x_40 = l_Lean_Name_toString___closed__1;
+x_40 = l_Lean_Parser_Tactic_tactic_xb7_x2e_____closed__5;
 x_41 = lean_string_append(x_39, x_40);
 x_42 = lean_string_append(x_41, x_37);
 lean_dec(x_37);

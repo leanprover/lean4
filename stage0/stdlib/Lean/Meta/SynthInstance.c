@@ -303,6 +303,7 @@ lean_object* l_Std_AssocList_find_x3f___at_Lean_Meta_SynthInstance_MkTableKey_no
 lean_object* l_Lean_mkFVar(lean_object*);
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 lean_object* l_Lean_Meta_synthInstance_x3f___lambda__2___closed__8;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_71____closed__2;
 lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Meta_SynthInstance_tryResolve___spec__1___rarg(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Std_AssocList_find_x3f___at_Lean_Meta_SynthInstance_findEntry_x3f___spec__2___boxed(lean_object*, lean_object*);
@@ -478,7 +479,6 @@ lean_object* l_Lean_profileitM___at_Lean_Meta_synthInstance_x3f___spec__8___rarg
 lean_object* l_Lean_Meta_SynthInstance_State_tableEntries___default___closed__1;
 lean_object* l_Lean_Meta_mkFreshLevelMVar___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__6;
-extern lean_object* l_Lean_mkOptionalNode___closed__2;
 extern lean_object* l_Lean_maxRecDepth___closed__1;
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_Meta_synthInstance_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5667,7 +5667,7 @@ lean_dec(x_12);
 x_21 = lean_ctor_get(x_13, 0);
 lean_inc(x_21);
 lean_dec(x_13);
-x_22 = l_Lean_mkOptionalNode___closed__2;
+x_22 = l_myMacro____x40_Init_Notation___hyg_71____closed__2;
 x_23 = lean_array_push(x_22, x_3);
 x_24 = l_Array_empty___closed__1;
 x_25 = lean_alloc_ctor(0, 2, 0);

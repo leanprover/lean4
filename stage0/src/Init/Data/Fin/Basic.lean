@@ -29,7 +29,7 @@ protected def ofNat' {n : Nat} (a : Nat) (h : n > 0) : Fin n :=
 private theorem mlt {b : Nat} : {a : Nat} → a < n → b % n < n
   | 0,   h => Nat.mod_lt _ h
   | a+1, h =>
-    have n > 0 from Nat.ltTrans (Nat.zeroLtSucc _) h;
+    have : n > 0 := Nat.ltTrans (Nat.zeroLtSucc _) h;
     Nat.mod_lt _ this
 
 protected def add : Fin n → Fin n → Fin n

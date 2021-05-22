@@ -90,7 +90,7 @@ def swapAt! (a : Array α) (i : Nat) (v : α) : α × Array α :=
   if h : i < a.size then
     swapAt a ⟨i, h⟩ v
   else
-    have Inhabited α from ⟨v⟩
+    have : Inhabited α := ⟨v⟩
     panic! ("index " ++ toString i ++ " out of bounds")
 
 @[extern "lean_array_pop"]
@@ -143,7 +143,7 @@ def modifyOp [Inhabited α] (self : Array α) (idx : Nat) (f : α → α) : Arra
 private theorem zeroLtOfLt : {a b : Nat} → a < b → 0 < b
   | 0,   _, h => h
   | a+1, b, h =>
-    have a < b from Nat.ltTrans (Nat.ltSuccSelf _) h
+    have : a < b := Nat.ltTrans (Nat.ltSuccSelf _) h
     zeroLtOfLt this
 
 /- Reference implementation for `forIn` -/
@@ -153,9 +153,9 @@ protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m
     match i, h with
     | 0,   _ => pure b
     | i+1, h =>
-      have h' : i < as.size          from Nat.ltOfLtOfLe (Nat.ltSuccSelf i) h
-      have as.size - 1 < as.size     from Nat.subLt (zeroLtOfLt h') (by decide)
-      have as.size - 1 - i < as.size from Nat.ltOfLeOfLt (Nat.subLe (as.size - 1) i) this
+      have h' : i < as.size            := Nat.ltOfLtOfLe (Nat.ltSuccSelf i) h
+      have : as.size - 1 < as.size     := Nat.subLt (zeroLtOfLt h') (by decide)
+      have : as.size - 1 - i < as.size := Nat.ltOfLeOfLt (Nat.subLe (as.size - 1) i) this
       match (← f (as.get ⟨as.size - 1 - i, this⟩) b) with
       | ForInStep.done b  => pure b
       | ForInStep.yield b => loop i (Nat.leOfLt h') b
@@ -225,7 +225,7 @@ def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α
     else match i, h with
       | 0, _   => pure b
       | i+1, h =>
-        have i < as.size from Nat.ltOfLtOfLe (Nat.ltSuccSelf _) h
+        have : i < as.size := Nat.ltOfLtOfLe (Nat.ltSuccSelf _) h
         fold i (Nat.leOfLt this) (← f (as.get ⟨i, this⟩) b)
   if h : start ≤ as.size then
     if stop < start then
@@ -262,9 +262,9 @@ def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : 
     match i, inv with
     | 0,    _  => pure bs
     | i+1, inv =>
-      have j < as.size by rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_left_comm]; apply Nat.leAddRight
+      have : j < as.size := by rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_left_comm]; apply Nat.leAddRight
       let idx : Fin as.size := ⟨j, this⟩
-      have i + (j + 1) = as.size by rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
+      have : i + (j + 1) = as.size := by rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
       map i (j+1) this (bs.push (← f idx (as.get idx)))
   map as.size 0 rfl (mkEmpty as.size)
 
@@ -339,12 +339,12 @@ def findSomeRevM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] 
   let rec @[specialize] find : (i : Nat) → i ≤ as.size → m (Option β)
     | 0,   h => pure none
     | i+1, h => do
-      have i < as.size from Nat.ltOfLtOfLe (Nat.ltSuccSelf _) h
+      have : i < as.size := Nat.ltOfLtOfLe (Nat.ltSuccSelf _) h
       let r ← f (as.get ⟨i, this⟩)
       match r with
       | some v => pure r
       | none   =>
-        have i ≤ as.size from Nat.leOfLt this
+        have : i ≤ as.size := Nat.leOfLt this
         find i this
   find as.size (Nat.leRefl _)
 
@@ -412,7 +412,7 @@ def findIdx? {α : Type u} (as : Array α) (p : α → Bool) : Option Nat :=
         if p (as.get ⟨j, hlt⟩) then
           some j
         else
-          have i + (j+1) = as.size by
+          have : i + (j+1) = as.size := by
             rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
           loop i (j+1) this
     else
@@ -576,17 +576,17 @@ theorem ext (a b : Array α)
       cases b with
       | nil => rw [List.length_cons] at h₁; injection h₁
       | cons b bs =>
-        have hz₁ : 0 < (a::as).length by rw [List.length_cons]; apply Nat.zeroLtSucc
-        have hz₂ : 0 < (b::bs).length by rw [List.length_cons]; apply Nat.zeroLtSucc
-        have headEq : a = b from h₂ 0 hz₁ hz₂
-        have h₁' : as.length = bs.length by rw [List.length_cons, List.length_cons] at h₁; injection h₁; assumption
-        have h₂' : (i : Nat) → (hi₁ : i < as.length) → (hi₂ : i < bs.length) → as.get i hi₁ = bs.get i hi₂ by
+        have hz₁ : 0 < (a::as).length := by rw [List.length_cons]; apply Nat.zeroLtSucc
+        have hz₂ : 0 < (b::bs).length := by rw [List.length_cons]; apply Nat.zeroLtSucc
+        have headEq : a = b := h₂ 0 hz₁ hz₂
+        have h₁' : as.length = bs.length := by rw [List.length_cons, List.length_cons] at h₁; injection h₁; assumption
+        have h₂' : (i : Nat) → (hi₁ : i < as.length) → (hi₂ : i < bs.length) → as.get i hi₁ = bs.get i hi₂ := by
           intro i hi₁ hi₂
-          have hi₁' : i+1 < (a::as).length by rw [List.length_cons]; apply Nat.succ_lt_succ; assumption
-          have hi₂' : i+1 < (b::bs).length by rw [List.length_cons]; apply Nat.succ_lt_succ; assumption
-          have (a::as).get (i+1) hi₁' = (b::bs).get (i+1) hi₂' from h₂ (i+1) hi₁' hi₂'
+          have hi₁' : i+1 < (a::as).length := by rw [List.length_cons]; apply Nat.succ_lt_succ; assumption
+          have hi₂' : i+1 < (b::bs).length := by rw [List.length_cons]; apply Nat.succ_lt_succ; assumption
+          have : (a::as).get (i+1) hi₁' = (b::bs).get (i+1) hi₂' := h₂ (i+1) hi₁' hi₂'
           apply this
-        have tailEq : as = bs from ih bs h₁' h₂'
+        have tailEq : as = bs := ih bs h₁' h₂'
         rw [headEq, tailEq]
   cases a; cases b
   apply congrArg
@@ -748,7 +748,7 @@ def isPrefixOf [BEq α] (as bs : Array α) : Bool :=
 private def allDiffAuxAux [BEq α] (as : Array α) (a : α) : forall (i : Nat), i < as.size → Bool
   | 0,   h => true
   | i+1, h =>
-    have i < as.size from Nat.ltTrans (Nat.ltSuccSelf _) h;
+    have : i < as.size := Nat.ltTrans (Nat.ltSuccSelf _) h;
     a != as.get ⟨i, this⟩ && allDiffAuxAux as a i this
 
 private partial def allDiffAux [BEq α] (as : Array α) : Nat → Bool

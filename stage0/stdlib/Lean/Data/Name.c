@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_Name_isAtomic___boxed(lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
-extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Name_getPrefix_match__1(lean_object*);
 lean_object* l_Lean_Name_mkSimple(lean_object*);
 lean_object* l_Lean_Name_getString_x21___closed__3;
@@ -173,6 +172,7 @@ lean_object* l_Lean_Name_isAtomic_match__1___rarg(lean_object*, lean_object*, le
 lean_object* l_Lean_Name_components(lean_object*);
 lean_object* l_Lean_Name_isPrefixOf_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_NameMap_instEmptyCollectionNameMap(lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_tactic_xb7_x2e_____closed__5;
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -10077,7 +10077,7 @@ lean_object* l_String_toName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Lean_Name_toString___closed__1;
+x_2 = l_Lean_Parser_Tactic_tactic_xb7_x2e_____closed__5;
 x_3 = l_String_splitOn(x_1, x_2);
 x_4 = lean_box(0);
 x_5 = l_List_foldl___at_String_toName___spec__1(x_4, x_3);

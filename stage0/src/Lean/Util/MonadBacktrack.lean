@@ -52,4 +52,8 @@ export MonadBacktrack (saveState restoreState)
     restoreState s
     return none
 
+instance [MonadBacktrack s m] [Monad m] : MonadBacktrack s (ExceptT ε m) where
+  saveState      := ExceptT.lift saveState
+  restoreState s := ExceptT.lift <| restoreState s
+
 end Lean

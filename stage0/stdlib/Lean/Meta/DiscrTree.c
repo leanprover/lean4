@@ -100,6 +100,7 @@ lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Meta_DiscrTree_getMatch__
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_DiscrTree_getMatch___spec__7___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_getMatch_process_match__2(lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Meta_DiscrTree_getUnify___spec__16___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_3082____closed__7;
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Meta_DiscrTree_getUnify___spec__2(lean_object*);
 lean_object* l_Array_binSearchAux___at_Lean_Meta_DiscrTree_getMatch_process___spec__2(lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Meta_DiscrTree_getUnify___spec__8(lean_object*);
@@ -304,7 +305,7 @@ lean_object* l_Lean_Meta_DiscrTree_mkPathAux___boxed(lean_object*, lean_object*,
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar___closed__1;
 lean_object* l_Lean_Meta_DiscrTree_format___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Meta_DiscrTree_insertCore___spec__11(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_3514____closed__7;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_71____closed__2;
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Meta_DiscrTree_insertCore___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -343,8 +344,8 @@ lean_object* l_Lean_Meta_DiscrTree_getMatch_process___rarg(lean_object*, lean_ob
 lean_object* l_Lean_Meta_DiscrTree_insertCore___rarg___closed__2;
 lean_object* l_Lean_Meta_DiscrTree_getUnify___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___at_Lean_Meta_DiscrTree_getUnify_process___spec__6(lean_object*);
-extern lean_object* l_Lean_Syntax_mkApp___closed__1;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_DiscrTree_getUnify_process___spec__14___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_1318____closed__8;
 lean_object* l_Array_binSearchAux___at_Lean_Meta_DiscrTree_getUnify_process___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getStarResult___rarg(lean_object*);
 extern lean_object* l_Lean_Meta_DiscrTree_instInhabitedKey;
@@ -447,7 +448,6 @@ lean_object* l_Array_binSearchAux___at_Lean_Meta_DiscrTree_getMatch_process___sp
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getUnifyKeyArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_Meta_DiscrTree_getUnify___spec__11___rarg___closed__1;
 lean_object* l_Lean_Meta_DiscrTree_Trie_format_match__2(lean_object*, lean_object*);
-extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l_Array_binSearchAux___at_Lean_Meta_DiscrTree_getMatch_process___spec__4(lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Meta_DiscrTree_getMatch___spec__9(lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Meta_DiscrTree_insertCore___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2996,7 +2996,7 @@ block_64:
 {
 lean_object* x_9; uint8_t x_10; 
 lean_dec(x_8);
-x_9 = l_myMacro____x40_Init_Notation___hyg_3514____closed__7;
+x_9 = l_myMacro____x40_Init_Notation___hyg_3082____closed__7;
 x_10 = lean_name_eq(x_1, x_9);
 if (x_10 == 0)
 {
@@ -5008,7 +5008,7 @@ lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_6 = l_Lean_mkOptionalNode___closed__2;
+x_6 = l_myMacro____x40_Init_Notation___hyg_71____closed__2;
 x_7 = lean_array_push(x_6, x_2);
 x_8 = l_Array_empty___closed__1;
 x_9 = lean_alloc_ctor(0, 2, 0);
@@ -5027,7 +5027,7 @@ lean_dec(x_12);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_10);
 lean_ctor_set(x_14, 1, x_13);
-x_15 = l_Lean_mkOptionalNode___closed__2;
+x_15 = l_myMacro____x40_Init_Notation___hyg_71____closed__2;
 x_16 = lean_array_push(x_15, x_14);
 x_17 = l_Array_empty___closed__1;
 x_18 = lean_alloc_ctor(0, 2, 0);
@@ -7428,7 +7428,7 @@ x_53 = l_Lean_Expr_hasLooseBVars(x_52);
 if (x_53 == 0)
 {
 lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; 
-x_54 = l_Lean_Syntax_mkApp___closed__1;
+x_54 = l_myMacro____x40_Init_Notation___hyg_1318____closed__8;
 x_55 = lean_array_push(x_54, x_51);
 x_56 = lean_array_push(x_55, x_52);
 x_57 = lean_box(5);
@@ -7694,7 +7694,7 @@ x_108 = l_Lean_Expr_hasLooseBVars(x_107);
 if (x_108 == 0)
 {
 lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; 
-x_109 = l_Lean_Syntax_mkApp___closed__1;
+x_109 = l_myMacro____x40_Init_Notation___hyg_1318____closed__8;
 x_110 = lean_array_push(x_109, x_106);
 x_111 = lean_array_push(x_110, x_107);
 x_112 = lean_box(5);

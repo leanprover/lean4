@@ -677,13 +677,15 @@ builtin_initialize matcherExt : EnvExtension (Std.PHashMap (Expr × Bool) Name) 
 
 /- Similar to `mkAuxDefinition`, but uses the cache `matcherExt`.
    It also returns an Boolean that indicates whether a new matcher function was added to the environment or not. -/
-def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (Bool × Expr) := do
+def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (Expr × (Option $ MatcherInfo → MetaM Unit)) := do
   trace[Meta.debug] "{name} : {type} := {value}"
   let compile := bootstrap.genMatcherCode.get (← getOptions)
   let result ← Closure.mkValueTypeClosure type value (zeta := false)
   let env ← getEnv
+  let mkMatcherConst name := 
+    mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
   match (matcherExt.getState env).find? (result.value, compile) with
-  | some nameNew => return (false, mkAppN (mkConst nameNew result.levelArgs.toList) result.exprArgs)
+  | some nameNew => (mkMatcherConst nameNew, none)
   | none =>
     let decl := Declaration.defnDecl {
       name        := name,
@@ -694,11 +696,14 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (B
       safety      := if env.hasUnsafe result.type || env.hasUnsafe result.value then DefinitionSafety.unsafe else DefinitionSafety.safe
     }
     trace[Meta.debug] "{name} : {result.type} := {result.value}"
-    addDecl decl
-    if compile then
-      compileDecl decl
-    modifyEnv fun env => matcherExt.modifyState env fun s => s.insert (result.value, compile) name
-    return (true, mkAppN (mkConst name result.levelArgs.toList) result.exprArgs)
+    let addMatcher : MatcherInfo → MetaM Unit := fun mi => do
+      addDecl decl
+      if compile then
+        compileDecl decl
+      modifyEnv fun env => matcherExt.modifyState env fun s => s.insert (result.value, compile) name
+      addMatcherInfo name mi
+      setInlineAttribute name
+    (mkMatcherConst name, some addMatcher)
 
 
 structure MkMatcherInput where
@@ -750,17 +755,29 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult :=
        | negSucc n => succ n
        ```
        which is defined **before** `Int.decLt` -/
-    let (isNewMatcher, matcher) ← mkMatcherAuxDefinition matcherName type val
+    
+    let (matcher, addMatcher) ← mkMatcherAuxDefinition matcherName type val
     trace[Meta.Match.debug] "matcher levels: {matcher.getAppFn.constLevels!}, uElim: {uElimGen}"
     let uElimPos? ← getUElimPos? matcher.getAppFn.constLevels! uElimGen
     discard <| isLevelDefEq uElimGen uElim
-    if isNewMatcher then
-      addMatcherInfo matcherName { numParams := matcher.getAppNumArgs, numDiscrs := numDiscrs, altNumParams := minors.map Prod.snd, uElimPos? := uElimPos? }
-      setInlineAttribute matcherName
+    let addMatcher := 
+      match addMatcher with
+      | some addMatcher => 
+        { numParams := matcher.getAppNumArgs
+          numDiscrs, 
+          altNumParams := minors.map Prod.snd,
+          uElimPos? }
+        |> addMatcher
+      | none => ()
+        
     trace[Meta.Match.debug] "matcher: {matcher}"
     let unusedAltIdxs := lhss.length.fold (init := []) fun i r =>
       if s.used.contains i then r else i::r
-    pure { matcher := matcher, counterExamples := s.counterExamples, unusedAltIdxs := unusedAltIdxs.reverse }
+    pure { 
+      matcher, 
+      counterExamples := s.counterExamples, 
+      unusedAltIdxs := unusedAltIdxs.reverse,
+      addMatcher }
 
 def withMkMatcherInput (matcherName : Name) (k : MkMatcherInput → MetaM α) : MetaM α := do
   let some matcherInfo ← getMatcherInfo? matcherName | throwError "not a matcher: {matcherName}"

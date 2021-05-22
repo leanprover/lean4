@@ -15,9 +15,9 @@ extern "C" {
 #endif
 lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__1;
 lean_object* lean_string_push(lean_object*, uint32_t);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__3;
 size_t l_USize_add(size_t, size_t);
 lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___boxed(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_1346____closed__7;
 lean_object* l_Lean_Json_escape(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Lean_Json_render___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -47,6 +47,8 @@ lean_object* l_Lean_Json_render___closed__1;
 extern lean_object* l_Char_quoteCore___closed__2;
 lean_object* l_Lean_Json_render___closed__2;
 lean_object* l_Lean_Json_compress(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_14133____closed__9;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__4;
 lean_object* l_Std_instToFormatFormat___boxed(lean_object*);
 extern lean_object* l_instReprBool___closed__3;
 lean_object* lean_format_pretty(lean_object*, lean_object*);
@@ -55,12 +57,11 @@ lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_Json_renderString___boxed(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Json_compress___spec__1(size_t, size_t, lean_object*);
 uint32_t l_Nat_digitChar(lean_object*);
-extern lean_object* l_term_x7b_x7d___closed__3;
 lean_object* l_Std_Format_joinSep___rarg(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 extern lean_object* l_Lean_nullKind___closed__1;
 extern lean_object* l_Std_Format_sbracket___closed__3;
-extern lean_object* l_term_x7b_x7d___closed__5;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19379____closed__8;
 lean_object* l_Array_mapMUnsafe_map___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 extern lean_object* l_Char_quoteCore___closed__3;
 lean_object* l_Lean_Json_render___closed__5;
@@ -68,13 +69,12 @@ lean_object* l_Lean_Json_render___closed__3;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 extern lean_object* l_Id_instMonadId;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_1198____closed__7;
 lean_object* l_String_foldlAux_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_render_match__1(lean_object*);
 lean_object* l_Lean_Json_instToFormatJson;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
 lean_object* l_Lean_Json_render___closed__4;
 lean_object* l_Lean_Json_instToStringJson(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_16268____closed__9;
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
 lean_object* l_Lean_Json_render(lean_object*);
 lean_object* lean_string_length(lean_object*);
@@ -426,7 +426,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; 
 x_4 = l_Lean_Json_renderString(x_2);
-x_5 = l_myMacro____x40_Init_Notation___hyg_16268____closed__9;
+x_5 = l_myMacro____x40_Init_Notation___hyg_14133____closed__9;
 x_6 = lean_string_append(x_4, x_5);
 x_7 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
@@ -486,7 +486,7 @@ static lean_object* _init_l_Lean_Json_render___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_term_x7b_x7d___closed__3;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__4;
 x_2 = lean_string_length(x_1);
 return x_2;
 }
@@ -504,7 +504,7 @@ static lean_object* _init_l_Lean_Json_render___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_term_x7b_x7d___closed__3;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__4;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -514,7 +514,7 @@ static lean_object* _init_l_Lean_Json_render___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_term_x7b_x7d___closed__5;
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__3;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -713,7 +713,7 @@ lean_dec(x_4);
 x_9 = l_Lean_instInhabitedParserDescr___closed__1;
 x_10 = lean_string_append(x_9, x_8);
 lean_dec(x_8);
-x_11 = l_myMacro____x40_Init_Notation___hyg_16268____closed__9;
+x_11 = l_myMacro____x40_Init_Notation___hyg_14133____closed__9;
 x_12 = lean_string_append(x_10, x_11);
 x_13 = l_Lean_Json_compress(x_5);
 x_14 = lean_string_append(x_12, x_13);
@@ -746,7 +746,7 @@ lean_dec(x_1);
 if (x_3 == 0)
 {
 lean_object* x_4; 
-x_4 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
+x_4 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19379____closed__8;
 return x_4;
 }
 else
@@ -789,7 +789,7 @@ x_14 = x_10;
 x_15 = l_Array_mapMUnsafe_map___at_Lean_Json_compress___spec__1(x_12, x_13, x_14);
 x_16 = x_15;
 x_17 = lean_array_to_list(lean_box(0), x_16);
-x_18 = l_myMacro____x40_Init_Notation___hyg_1346____closed__7;
+x_18 = l_myMacro____x40_Init_Notation___hyg_1198____closed__7;
 x_19 = l_String_intercalate(x_18, x_17);
 x_20 = l_term_x5b___x5d___closed__3;
 x_21 = lean_string_append(x_20, x_19);
@@ -806,12 +806,12 @@ lean_inc(x_24);
 lean_dec(x_1);
 x_25 = lean_box(0);
 x_26 = l_Std_RBNode_fold___at_Lean_Json_compress___spec__2(x_25, x_24);
-x_27 = l_myMacro____x40_Init_Notation___hyg_1346____closed__7;
+x_27 = l_myMacro____x40_Init_Notation___hyg_1198____closed__7;
 x_28 = l_String_intercalate(x_27, x_26);
-x_29 = l_term_x7b_x7d___closed__3;
+x_29 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__4;
 x_30 = lean_string_append(x_29, x_28);
 lean_dec(x_28);
-x_31 = l_term_x7b_x7d___closed__5;
+x_31 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__3;
 x_32 = lean_string_append(x_30, x_31);
 return x_32;
 }

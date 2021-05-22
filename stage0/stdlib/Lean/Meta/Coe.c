@@ -25,7 +25,6 @@ lean_object* l_Lean_Meta_isCoeDecl___closed__17;
 lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_expandCoe___spec__11___boxed__const__1;
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_expandCoe___spec__7___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isCoeDecl___boxed(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Coe___hyg_166____closed__1;
 lean_object* l_Lean_Meta_isCoeDecl___closed__2;
 lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isCoeDecl___closed__44;
@@ -55,8 +54,8 @@ lean_object* l_Lean_Meta_isCoeDecl___closed__29;
 extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
 lean_object* l_Lean_Meta_unfoldDefinition_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isCoeDecl___closed__3;
-extern lean_object* l_myMacro____x40_Init_Coe___hyg_166____closed__4;
 uint8_t l_USize_decLt(size_t, size_t);
+extern lean_object* l_myMacro____x40_Init_Coe___hyg_162____closed__4;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_expandCoe___spec__7___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
@@ -80,6 +79,7 @@ lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*,
 lean_object* l_Lean_Meta_isCoeDecl___closed__34;
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_expandCoe___spec__8(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_transform_visit_visitLet___at_Lean_Meta_expandCoe___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Coe___hyg_162____closed__1;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isCoeDecl___closed__15;
 lean_object* l_Lean_Meta_isCoeDecl___closed__30;
@@ -297,7 +297,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_isCoeDecl___closed__16;
-x_2 = l_myMacro____x40_Init_Coe___hyg_166____closed__1;
+x_2 = l_myMacro____x40_Init_Coe___hyg_162____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -325,7 +325,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_isCoeDecl___closed__19;
-x_2 = l_myMacro____x40_Init_Coe___hyg_166____closed__1;
+x_2 = l_myMacro____x40_Init_Coe___hyg_162____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -353,7 +353,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_isCoeDecl___closed__22;
-x_2 = l_myMacro____x40_Init_Coe___hyg_166____closed__1;
+x_2 = l_myMacro____x40_Init_Coe___hyg_162____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -381,7 +381,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_isCoeDecl___closed__25;
-x_2 = l_myMacro____x40_Init_Coe___hyg_166____closed__1;
+x_2 = l_myMacro____x40_Init_Coe___hyg_162____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -409,7 +409,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_isCoeDecl___closed__28;
-x_2 = l_myMacro____x40_Init_Coe___hyg_166____closed__1;
+x_2 = l_myMacro____x40_Init_Coe___hyg_162____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -437,7 +437,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_isCoeDecl___closed__31;
-x_2 = l_myMacro____x40_Init_Coe___hyg_166____closed__1;
+x_2 = l_myMacro____x40_Init_Coe___hyg_162____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -465,7 +465,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_isCoeDecl___closed__34;
-x_2 = l_myMacro____x40_Init_Coe___hyg_166____closed__1;
+x_2 = l_myMacro____x40_Init_Coe___hyg_162____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -493,7 +493,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_isCoeDecl___closed__37;
-x_2 = l_myMacro____x40_Init_Coe___hyg_166____closed__1;
+x_2 = l_myMacro____x40_Init_Coe___hyg_162____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -521,7 +521,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_isCoeDecl___closed__40;
-x_2 = l_myMacro____x40_Init_Coe___hyg_166____closed__1;
+x_2 = l_myMacro____x40_Init_Coe___hyg_162____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -566,7 +566,7 @@ uint8_t l_Lean_Meta_isCoeDecl(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_myMacro____x40_Init_Coe___hyg_166____closed__4;
+x_2 = l_myMacro____x40_Init_Coe___hyg_162____closed__4;
 x_3 = lean_name_eq(x_1, x_2);
 if (x_3 == 0)
 {

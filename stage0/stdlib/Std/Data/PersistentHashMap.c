@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__3;
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Std_PersistentHashMap_empty___rarg___boxed(lean_object*, lean_object*);
@@ -20,7 +21,6 @@ lean_object* l_Std_PersistentHashMap_isUnaryEntries___rarg___boxed(lean_object*,
 lean_object* l_Std_PersistentHashMap_isEmpty___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_indexOfAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Std_PersistentHashMap_findEntryAux(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_root___default___closed__1;
 lean_object* l_Std_PersistentHashMap_foldlMAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -149,13 +149,13 @@ lean_object* l_Std_PersistentHashMap_findD___rarg___boxed(lean_object*, lean_obj
 lean_object* l_Std_PersistentHashMap_findD___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f(lean_object*, lean_object*);
-extern lean_object* l_term_x7b_x7d___closed__5;
 lean_object* l_Std_PersistentHashMap_insertAux_match__2(lean_object*, lean_object*, lean_object*);
 size_t l_Std_PersistentHashMap_div2Shift(size_t, size_t);
 lean_object* l_Std_PersistentHashMap_mod2Shift___boxed(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldl(lean_object*, lean_object*, lean_object*);
 size_t l_USize_land(size_t, size_t);
 lean_object* l_Std_PersistentHashMap_findEntry_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_928____closed__7;
 lean_object* l_Std_PersistentHashMap_Stats_toString___closed__3;
 lean_object* l_Std_PersistentHashMap_insertAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_instInhabitedNode___closed__1;
@@ -178,7 +178,6 @@ lean_object* l_Std_PersistentHashMap_root___default(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_eraseAux_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
-lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1;
 lean_object* l_Std_PersistentHashMap_mul2Shift___boxed(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_eraseAux_match__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentHashMap_toList___spec__3(lean_object*, lean_object*);
@@ -752,20 +751,11 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(4u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_5 = l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1;
+x_5 = l_myMacro____x40_Init_Notation___hyg_928____closed__7;
 x_6 = lean_array_push(x_5, x_1);
 x_7 = lean_array_push(x_6, x_3);
 x_8 = lean_array_push(x_5, x_2);
@@ -4541,7 +4531,7 @@ lean_dec(x_1);
 x_19 = l_Nat_repr(x_18);
 x_20 = lean_string_append(x_17, x_19);
 lean_dec(x_19);
-x_21 = l_term_x7b_x7d___closed__5;
+x_21 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__3;
 x_22 = lean_string_append(x_20, x_21);
 return x_22;
 }
@@ -4586,8 +4576,6 @@ l_Std_PersistentHashMap_root___default___closed__2 = _init_l_Std_PersistentHashM
 lean_mark_persistent(l_Std_PersistentHashMap_root___default___closed__2);
 l_Std_PersistentHashMap_size___default = _init_l_Std_PersistentHashMap_size___default();
 lean_mark_persistent(l_Std_PersistentHashMap_size___default);
-l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1 = _init_l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1();
-lean_mark_persistent(l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1);
 l_Std_PersistentHashMap_insertAux___rarg___closed__1 = _init_l_Std_PersistentHashMap_insertAux___rarg___closed__1();
 l_Std_PersistentHashMap_insertAux___rarg___closed__2 = _init_l_Std_PersistentHashMap_insertAux___rarg___closed__2();
 l_Std_PersistentHashMap_insertAux___rarg___closed__3 = _init_l_Std_PersistentHashMap_insertAux___rarg___closed__3();

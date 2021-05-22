@@ -26,6 +26,7 @@ lean_object* l_Std_PersistentArray_foldlM___at_Std_PersistentArray_foldl___spec_
 lean_object* l_Std_PersistentArray_root___default___closed__2;
 lean_object* l_Array_mapMUnsafe_map___at_Std_PersistentArray_map___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forMAux___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__3;
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Std_PersistentArray_append___spec__3___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_foldlM___at_Std_PersistentArray_toList___spec__1(lean_object*);
@@ -348,7 +349,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Array_toPersistentArray___spec__1(le
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Std_PersistentArray_filter___spec__10___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_toList___spec__11___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_instInhabitedPersistentArray(lean_object*);
-extern lean_object* l_term_x7b_x7d___closed__5;
 lean_object* l_Std_PersistentArray_any___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_toArray___spec__11(lean_object*);
 lean_object* l_Std_mkPArray___rarg(lean_object*, lean_object*);
@@ -12222,7 +12222,7 @@ lean_dec(x_1);
 x_14 = l_Nat_repr(x_13);
 x_15 = lean_string_append(x_12, x_14);
 lean_dec(x_14);
-x_16 = l_term_x7b_x7d___closed__5;
+x_16 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__3;
 x_17 = lean_string_append(x_15, x_16);
 return x_17;
 }

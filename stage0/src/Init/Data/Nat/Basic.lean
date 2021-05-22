@@ -67,7 +67,7 @@ theorem succ_Eq_add_one (n : Nat) : succ n = n + 1 :=
 protected theorem add_comm : ∀ (n m : Nat), n + m = m + n
   | n, 0   => Eq.symm (Nat.zero_add n)
   | n, m+1 => by
-    have succ (n + m) = succ (m + n) by apply congrArg; apply Nat.add_comm
+    have : succ (n + m) = succ (m + n) := by apply congrArg; apply Nat.add_comm
     rw [succ_add m n]
     apply this
 
@@ -123,21 +123,21 @@ protected theorem left_distrib (n m k : Nat) : n * (m + k) = n * m + n * k := by
   | succ n ih => simp [succ_mul, ih]; rw [Nat.add_assoc, Nat.add_assoc (n*m)]; apply congrArg; apply Nat.add_left_comm
 
 protected theorem right_distrib (n m k : Nat) : (n + m) * k = n * k + m * k :=
-  have h₁ : (n + m) * k = k * (n + m)     from Nat.mul_comm ..
-  have h₂ : k * (n + m) = k * n + k * m   from Nat.left_distrib ..
-  have h₃ : k * n + k * m = n * k + k * m from Nat.mul_comm n k ▸ rfl
-  have h₄ : n * k + k * m = n * k + m * k from Nat.mul_comm m k ▸ rfl
+  have h₁ : (n + m) * k = k * (n + m)     := Nat.mul_comm ..
+  have h₂ : k * (n + m) = k * n + k * m   := Nat.left_distrib ..
+  have h₃ : k * n + k * m = n * k + k * m := Nat.mul_comm n k ▸ rfl
+  have h₄ : n * k + k * m = n * k + m * k := Nat.mul_comm m k ▸ rfl
   ((h₁.trans h₂).trans h₃).trans h₄
 
 protected theorem mul_assoc : ∀ (n m k : Nat), (n * m) * k = n * (m * k)
   | n, m, 0      => rfl
   | n, m, succ k =>
-    have h₁ : n * m * succ k = n * m * (k + 1)              from rfl
-    have h₂ : n * m * (k + 1) = (n * m * k) + n * m * 1     from Nat.left_distrib ..
-    have h₃ : (n * m * k) + n * m * 1 = (n * m * k) + n * m by rw [Nat.mul_one (n*m)]
-    have h₄ : (n * m * k) + n * m = (n * (m * k)) + n * m   by rw [Nat.mul_assoc n m k]
-    have h₅ : (n * (m * k)) + n * m = n * (m * k + m)       from (Nat.left_distrib n (m*k) m).symm
-    have h₆ : n * (m * k + m) = n * (m * succ k)            from Nat.mul_succ m k ▸ rfl
+    have h₁ : n * m * succ k = n * m * (k + 1)              := rfl
+    have h₂ : n * m * (k + 1) = (n * m * k) + n * m * 1     := Nat.left_distrib ..
+    have h₃ : (n * m * k) + n * m * 1 = (n * m * k) + n * m := by rw [Nat.mul_one (n*m)]
+    have h₄ : (n * m * k) + n * m = (n * (m * k)) + n * m   := by rw [Nat.mul_assoc n m k]
+    have h₅ : (n * (m * k)) + n * m = n * (m * k + m)       := (Nat.left_distrib n (m*k) m).symm
+    have h₆ : n * (m * k + m) = n * (m * succ k)            := Nat.mul_succ m k ▸ rfl
     ((((h₁.trans h₂).trans h₃).trans h₄).trans h₅).trans h₆
 
 /- Inequalities -/
@@ -254,8 +254,8 @@ theorem ltOrEqOrLeSucc {m n : Nat} (h : m ≤ succ n) : m ≤ n ∨ m = succ n :
   Decidable.byCases
     (fun (h' : m = succ n) => Or.inr h')
     (fun (h' : m ≠ succ n) =>
-       have m < succ n from Nat.ltOfLeAndNe h h'
-       have succ m ≤ succ n from succLeOfLt this
+       have : m < succ n := Nat.ltOfLeAndNe h h'
+       have : succ m ≤ succ n := succLeOfLt this
        Or.inl (leOfSuccLeSucc this))
 
 theorem leAddRight : ∀ (n k : Nat), n ≤ n + k
@@ -270,8 +270,8 @@ theorem le.dest : ∀ {n m : Nat}, n ≤ m → Exists (fun k => n + k = m)
   | zero,   succ n, h => ⟨succ n, Nat.add_comm 0 (succ n) ▸ rfl⟩
   | succ n, zero,   h => Bool.noConfusion h
   | succ n, succ m, h =>
-    have n ≤ m from h
-    have Exists (fun k => n + k = m) from dest this
+    have : n ≤ m := h
+    have : Exists (fun k => n + k = m) := dest this
     match this with
     | ⟨k, h⟩ => ⟨k, show succ n + k = succ m from ((succ_add n k).symm ▸ h ▸ rfl)⟩
 
@@ -282,7 +282,7 @@ protected theorem notLeOfGt {n m : Nat} (h : n > m) : ¬ n ≤ m := fun h₁ =>
   match Nat.ltOrGe n m with
   | Or.inl h₂ => absurd (Nat.ltTrans h h₂) (Nat.ltIrrefl _)
   | Or.inr h₂ =>
-    have Heq : n = m from Nat.leAntisymm h₁ h₂
+    have Heq : n = m := Nat.leAntisymm h₁ h₂
     absurd (@Eq.subst _ _ _ _ Heq h) (Nat.ltIrrefl m)
 
 theorem gtOfNotLe {n m : Nat} (h : ¬ n ≤ m) : n > m :=
@@ -293,8 +293,8 @@ theorem gtOfNotLe {n m : Nat} (h : ¬ n ≤ m) : n > m :=
 protected theorem addLeAddLeft {n m : Nat} (h : n ≤ m) (k : Nat) : k + n ≤ k + m :=
   match le.dest h with
   | ⟨w, hw⟩ =>
-    have h₁ : k + n + w = k + (n + w) from Nat.add_assoc ..
-    have h₂ : k + (n + w) = k + m     from congrArg _ hw
+    have h₁ : k + n + w = k + (n + w) := Nat.add_assoc ..
+    have h₂ : k + (n + w) = k + m     := congrArg _ hw
     le.intro <| h₁.trans h₂
 
 protected theorem addLeAddRight {n m : Nat} (h : n ≤ m) (k : Nat) : n + k ≤ m + k := by
@@ -336,7 +336,7 @@ theorem succNeZero (n : Nat) : succ n ≠ 0 :=
 theorem mulLeMulLeft {n m : Nat} (k : Nat) (h : n ≤ m) : k * n ≤ k * m :=
   match le.dest h with
   | ⟨l, hl⟩ =>
-    have k * n + k * l = k * m from Nat.left_distrib k n l ▸ hl.symm ▸ rfl
+    have : k * n + k * l = k * m := Nat.left_distrib k n l ▸ hl.symm ▸ rfl
     le.intro this
 
 theorem mulLeMulRight {n m : Nat} (k : Nat) (h : n ≤ m) : n * k ≤ m * k :=
@@ -352,7 +352,7 @@ protected theorem mulLtMulOfPosRight {n m k : Nat} (h : n < m) (hk : k > 0) : n 
   Nat.mul_comm k m ▸ Nat.mul_comm k n ▸ Nat.mulLtMulOfPosLeft h hk
 
 protected theorem mulPos {n m : Nat} (ha : n > 0) (hb : m > 0) : n * m > 0 :=
-  have h : 0 * m < n * m from Nat.mulLtMulOfPosRight ha hb
+  have h : 0 * m < n * m := Nat.mulLtMulOfPosRight ha hb
   Nat.zero_mul m ▸ h
 
 /- power -/
@@ -368,12 +368,12 @@ theorem powLePowOfLeLeft {n m : Nat} (h : n ≤ m) : ∀ (i : Nat), n^i ≤ m^i
 
 theorem powLePowOfLeRight {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤ j → n^i ≤ n^j
   | 0,      h =>
-    have i = 0 from eqZeroOfLeZero h
+    have : i = 0 := eqZeroOfLeZero h
     this.symm ▸ Nat.leRefl _
   | succ j, h =>
     match ltOrEqOrLeSucc h with
     | Or.inl h => show n^i ≤ n^j * n from
-      have n^i * 1 ≤ n^j * n from Nat.mulLeMul (powLePowOfLeRight hx h) hx
+      have : n^i * 1 ≤ n^j * n := Nat.mulLeMul (powLePowOfLeRight hx h) hx
       Nat.mul_one (n^i) ▸ this
     | Or.inr h =>
       h.symm ▸ Nat.leRefl _

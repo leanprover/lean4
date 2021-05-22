@@ -71,6 +71,7 @@ lean_object* l_instToStringUnit___boxed(lean_object*);
 lean_object* l_String_toInt_x3f___closed__3;
 lean_object* l_instToStringIterator(lean_object*);
 extern lean_object* l_instReprList___rarg___closed__1;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__4;
 uint8_t l_Substring_isNat(lean_object*);
 lean_object* l_List_toStringAux_match__1(lean_object*, lean_object*);
 lean_object* l_instToStringExcept___rarg___closed__1;
@@ -97,7 +98,6 @@ lean_object* l_List_toStringAux(lean_object*);
 lean_object* l_instToStringUSize(size_t);
 lean_object* l_instToStringIterator___boxed(lean_object*);
 lean_object* l_instToStringSigma(lean_object*, lean_object*);
-extern lean_object* l_term_x7b_x7d___closed__3;
 lean_object* l_String_toInt_x21_match__1(lean_object*);
 lean_object* l_instToStringSum___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instToStringSum___rarg___closed__1;
@@ -106,6 +106,7 @@ lean_object* l_List_toString_match__1___rarg(lean_object*, lean_object*, lean_ob
 lean_object* l_Char_isWhitespace___boxed(lean_object*);
 lean_object* l_instToStringExcept___rarg___closed__2;
 lean_object* l_List_toString_match__1(lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19379____closed__8;
 lean_object* l_instToStringExcept(lean_object*, lean_object*);
 lean_object* l_instReprExcept___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_term_x2d_____closed__3;
@@ -135,7 +136,6 @@ uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* l_instToStringProd_match__1___rarg(lean_object*, lean_object*);
 extern lean_object* l_Int_instInhabitedInt___closed__1;
 lean_object* l_instReprExcept_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
 lean_object* l_instToStringSum___rarg___closed__2;
 lean_object* lean_nat_abs(lean_object*);
 lean_object* l_instToStringSum_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -286,7 +286,7 @@ _start:
 if (x_1 == 0)
 {
 lean_object* x_2; 
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19379____closed__8;
 return x_2;
 }
 else
@@ -350,7 +350,7 @@ _start:
 if (x_1 == 0)
 {
 lean_object* x_2; 
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_23499____closed__8;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19379____closed__8;
 return x_2;
 }
 else
@@ -953,7 +953,7 @@ x_5 = l_String_isPrefixOf(x_4, x_1);
 if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; 
-x_6 = l_term_x7b_x7d___closed__3;
+x_6 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__4;
 x_7 = l_String_isPrefixOf(x_6, x_1);
 if (x_7 == 0)
 {

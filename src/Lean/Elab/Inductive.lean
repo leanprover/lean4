@@ -469,14 +469,14 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
     let rs ← elabHeader views
     withInductiveLocalDecls rs fun params indFVars => do
       let numExplicitParams := params.size
-      let mut indTypes := #[]
+      let mut indTypesArray := #[]
       for i in [:views.size] do
         let indFVar := indFVars[i]
         let r       := rs[i]
         let type  ← mkForallFVars params r.type
         let ctors ← elabCtors indFVars indFVar params r
-        indTypes := indTypes.push { name := r.view.declName, type := type, ctors := ctors : InductiveType }
-      let indTypes := indTypes.toList
+        indTypesArray := indTypesArray.push { name := r.view.declName, type := type, ctors := ctors : InductiveType }
+      let indTypes := indTypesArray.toList
       Term.synthesizeSyntheticMVarsNoPostponing
       let u ← getResultingUniverse indTypes
       let inferLevel ← shouldInferResultUniverse u

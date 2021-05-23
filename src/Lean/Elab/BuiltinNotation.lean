@@ -292,10 +292,10 @@ where
 
 @[builtinTermElab stateRefT] def elabStateRefT : TermElab := fun stx _ => do
   let σ ← elabType stx[1]
-  let mut m := stx[2]
-  if m.getKind == `Lean.Parser.Term.macroDollarArg then
-    m := m[1]
-  let m ← elabTerm m (← mkArrow (mkSort levelOne) (mkSort levelOne))
+  let mut mStx := stx[2]
+  if mStx.getKind == `Lean.Parser.Term.macroDollarArg then
+    mStx := mStx[1]
+  let m ← elabTerm mStx (← mkArrow (mkSort levelOne) (mkSort levelOne))
   let ω ← mkFreshExprMVar (mkSort levelOne)
   let stWorld ← mkAppM `STWorld #[ω, m]
   discard <| mkInstMVar stWorld

@@ -213,13 +213,13 @@ partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad 
   | leaf vs =>
     for v in vs do
       match (← f v b) with
-      | r@(ForInStep.done b) => return r
+      | r@(ForInStep.done _) => return r
       | ForInStep.yield bNew => b := bNew
     return ForInStep.yield b
   | node cs =>
     for c in cs do
       match (← forInAux f c b) with
-      | r@(ForInStep.done b) => return r
+      | r@(ForInStep.done _) => return r
       | ForInStep.yield bNew => b := bNew
     return ForInStep.yield b
 
@@ -230,7 +230,7 @@ partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad 
     let mut b := b
     for v in t.tail do
       match (← f v b) with
-      | ForInStep.done b => return b
+      | ForInStep.done r => return r
       | ForInStep.yield bNew => b := bNew
     return b
 

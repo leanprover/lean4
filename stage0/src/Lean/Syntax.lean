@@ -195,7 +195,7 @@ partial instance : ForIn m TopDown Syntax where
             for arg in args do
               match ← loop arg b with
               | ForInStep.yield b' => b := b'
-              | ForInStep.done b   => return ForInStep.done b
+              | ForInStep.done b'  => return ForInStep.done b'
         return ForInStep.yield b
       | ForInStep.done b => return ForInStep.done b
     match ← @loop stx init ⟨init⟩ with
@@ -213,10 +213,10 @@ partial def reprint (stx : Syntax) : Option String :=
         if kind == choiceKind then
           -- this visit the first arg twice, but that should hardly be a problem
           -- given that choice nodes are quite rare and small
-          let s ← reprint args[0]
+          let s0 ← reprint args[0]
           for arg in args[1:] do
             let s' ← reprint stx
-            guard (s == s')
+            guard (s0 == s')
       | _ => pure ()
     return s
 where

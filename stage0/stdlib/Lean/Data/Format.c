@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6905____closed__4;
 lean_object* l_Lean_instToFormatName(lean_object*);
 lean_object* l_Std_Format_format_unicode___closed__1;
 lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_25____spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -22,6 +21,7 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Std_Format_joinSep___at_Lean_formatKVMap___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_Format_initFn____x40_Lean_Data_Format___hyg_49____closed__2;
 extern lean_object* l_Std_Format_defWidth;
+extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6907____closed__4;
 lean_object* l_Std_Format_initFn____x40_Lean_Data_Format___hyg_25____closed__2;
 lean_object* l_Std_Format_getWidth(lean_object*);
 extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
@@ -864,7 +864,7 @@ x_4 = 1;
 x_5 = l_Lean_Name_toString(x_2, x_4);
 x_6 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
-x_7 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6905____closed__4;
+x_7 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6907____closed__4;
 x_8 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_8, 0, x_6);
 lean_ctor_set(x_8, 1, x_7);
@@ -1017,7 +1017,7 @@ x_8 = 1;
 x_9 = l_Lean_Name_toString(x_6, x_8);
 x_10 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_10, 0, x_9);
-x_11 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6905____closed__4;
+x_11 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6907____closed__4;
 x_12 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
@@ -1155,7 +1155,7 @@ x_52 = 1;
 x_53 = l_Lean_Name_toString(x_50, x_52);
 x_54 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_54, 0, x_53);
-x_55 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6905____closed__4;
+x_55 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6907____closed__4;
 x_56 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_56, 0, x_54);
 lean_ctor_set(x_56, 1, x_55);

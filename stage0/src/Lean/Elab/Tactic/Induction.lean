@@ -208,8 +208,8 @@ where
         let mut (_, altMVarId) ← introN altMVarId numFields
         match (← Cases.unifyEqs numEqs altMVarId {}) with
         | none   => pure () -- alternative is not reachable
-        | some (altMVarId, _) =>
-          let (_, altMVarId) ← introNP altMVarId numGeneralized
+        | some (altMVarId', _) =>
+          (_, altMVarId) ← introNP altMVarId' numGeneralized
           for fvarId in toClear do
             altMVarId ← tryClear altMVarId fvarId
           let altMVarIds ← applyPreTac altMVarId
@@ -234,8 +234,8 @@ where
           let mut (_, altMVarId) ← introN altMVarId numFields altVarNames.toList (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
           match (← Cases.unifyEqs numEqs altMVarId {}) with
           | none => unusedAlt
-          | some (altMVarId, _) =>
-            let (_, altMVarId) ← introNP altMVarId numGeneralized
+          | some (altMVarId', _) =>
+            (_, altMVarId) ← introNP altMVarId' numGeneralized
             for fvarId in toClear do
               altMVarId ← tryClear altMVarId fvarId
             let altMVarIds ← applyPreTac altMVarId
@@ -243,8 +243,8 @@ where
               unusedAlt
             else
               let mut subgoals := subgoals
-              for altMVarId in altMVarIds do
-                subgoals ← evalAlt altMVarId altStx subgoals
+              for altMVarId' in altMVarIds do
+                subgoals ← evalAlt altMVarId' altStx subgoals
               pure (subgoals, usedWildcard || isWildcard)
     if usedWildcard then
       altsSyntax := altsSyntax.filter fun alt => getAltName alt != `_

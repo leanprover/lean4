@@ -15,9 +15,9 @@ extern "C" {
 #endif
 lean_object* l_Lean_BinderInfo_isImplicit___boxed(lean_object*);
 lean_object* l_Lean_Expr_isBinding___boxed(lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1094____closed__26;
 lean_object* l_Lean_Expr_letName_x21___closed__2;
 lean_object* l_Lean_Expr_data_match__1(lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1093____closed__26;
 lean_object* l_Lean_Expr_ctorName___closed__7;
 lean_object* l_Lean_instLTLiteral;
 uint8_t l_Lean_Expr_bindingInfo_x21(lean_object*);
@@ -240,9 +240,9 @@ uint8_t l_Lean_Expr_Data_hasExprMVar(uint64_t);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Literal_type(lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getParamSubstArray(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6905____closed__22;
 lean_object* l_Lean_Expr_bindingName_x21___closed__3;
 lean_object* l_Lean_Expr_hasLooseBVarInExplicitDomain___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6907____closed__22;
 lean_object* l_Lean_Expr_isConstOf___boxed(lean_object*, lean_object*);
 lean_object* lean_expr_mk_mdata(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isSort_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -2969,7 +2969,7 @@ return x_4;
 case 3:
 {
 lean_object* x_5; 
-x_5 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1093____closed__26;
+x_5 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1094____closed__26;
 return x_5;
 }
 case 4:
@@ -3017,7 +3017,7 @@ return x_12;
 default: 
 {
 lean_object* x_13; 
-x_13 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6905____closed__22;
+x_13 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6907____closed__22;
 return x_13;
 }
 }

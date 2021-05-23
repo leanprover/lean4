@@ -213,7 +213,7 @@ lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Open_0__Lean_Elab
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_activateScoped___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logAt___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenOnly___spec__5___rarg___lambda__11(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1093____closed__3;
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1094____closed__3;
 lean_object* l_Lean_Elab_logUnknownDecl___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenHiding___spec__3(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenOnly___spec__6___rarg___lambda__3(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logAt___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenOnly___spec__5___rarg___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3713,7 +3713,7 @@ goto block_26;
 block_26:
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_21 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1093____closed__3;
+x_21 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1094____closed__3;
 x_22 = lean_box(x_20);
 lean_inc(x_3);
 x_23 = lean_alloc_closure((void*)(l_Lean_Elab_OpenDecl_elabOpenDecl___rarg___lambda__2___boxed), 14, 13);

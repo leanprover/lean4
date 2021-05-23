@@ -143,6 +143,7 @@ lean_object* l_Lean_attributeExtension___elambda__3(lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute___lambda__2___closed__2;
 lean_object* l_Lean_registerEnumAttributes___rarg___lambda__3___closed__1;
 lean_object* l_Lean_TagAttribute_hasTag___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_4848____lambda__3___closed__4;
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__3___closed__2;
 lean_object* l_Array_qpartition_loop___at_Lean_registerParametricAttribute___spec__4(lean_object*);
 lean_object* l_Lean_ParametricAttributeImpl_afterSet___default___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -374,7 +375,6 @@ lean_object* l_Lean_registerEnumAttributes___rarg___closed__1;
 lean_object* l_Std_HashMapImp_contains___at_Lean_registerAttributeImplBuilder___spec__7___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedAttributeImpl___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___at_Lean_ParametricAttribute_getParam___spec__2(lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_4847____lambda__3___closed__4;
 extern lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___closed__2;
 lean_object* l_Lean_throwError___at_Lean_Attribute_Builtin_getId___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TagAttribute_hasTag_match__1(lean_object*);
@@ -477,10 +477,10 @@ lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Std_RBNode_fold___at_Lean_registerParametricAttribute___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_getBuiltinAttributeImpl___closed__1;
 lean_object* l_Std_RBNode_find___at_Lean_EnumAttributes_setValue___spec__1(lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1093____closed__14;
 lean_object* l_Lean_registerAttributeImplBuilder(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_getBuiltinAttributeNames___spec__2___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1094____closed__14;
 lean_object* l_Lean_attributeExtension___elambda__1(lean_object*);
 lean_object* l_Lean_registerAttributeOfDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_getBuiltinAttributeImpl___spec__2(lean_object*, size_t, lean_object*);
@@ -6034,7 +6034,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Attr_simp___closed__2;
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_4847____lambda__3___closed__4;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_4848____lambda__3___closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -6045,7 +6045,7 @@ _start:
 lean_object* x_5; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 lean_inc(x_1);
 x_11 = l_Lean_Syntax_getKind(x_1);
-x_12 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1093____closed__14;
+x_12 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1094____closed__14;
 x_13 = lean_name_eq(x_11, x_12);
 if (x_13 == 0)
 {
@@ -6343,7 +6343,7 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_22; uint8_t x_23; 
 lean_inc(x_1);
 x_5 = l_Lean_Syntax_getKind(x_1);
-x_22 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1093____closed__14;
+x_22 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1094____closed__14;
 x_23 = lean_name_eq(x_5, x_22);
 if (x_23 == 0)
 {
@@ -6576,7 +6576,7 @@ _start:
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 lean_inc(x_1);
 x_5 = l_Lean_Syntax_getKind(x_1);
-x_6 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1093____closed__14;
+x_6 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1094____closed__14;
 x_7 = lean_name_eq(x_5, x_6);
 lean_dec(x_5);
 if (x_7 == 0)
@@ -6889,7 +6889,7 @@ _start:
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 lean_inc(x_1);
 x_5 = l_Lean_Syntax_getKind(x_1);
-x_6 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1093____closed__14;
+x_6 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1094____closed__14;
 x_7 = lean_name_eq(x_5, x_6);
 lean_dec(x_5);
 if (x_7 == 0)

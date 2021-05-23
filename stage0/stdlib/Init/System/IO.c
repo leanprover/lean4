@@ -231,7 +231,7 @@ lean_object* l_IO_Prim_Handle_write___boxed(lean_object*, lean_object*, lean_obj
 lean_object* lean_io_allocprof(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_IO_FS_Handle_getLine(lean_object*);
-extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_902____closed__1;
+extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_903____closed__1;
 lean_object* l_myMacro____x40_Init_System_IO___hyg_3180____closed__19;
 lean_object* l_IO_getNumHeartbeats___boxed(lean_object*, lean_object*);
 lean_object* l_IO_eprint(lean_object*);
@@ -1524,7 +1524,7 @@ static lean_object* _init_l_IO_Prim_fopenFlags___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_902____closed__1;
+x_1 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_903____closed__1;
 x_2 = l_IO_Prim_fopenFlags___closed__2;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
@@ -1534,7 +1534,7 @@ static lean_object* _init_l_IO_Prim_fopenFlags___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_902____closed__1;
+x_1 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_903____closed__1;
 x_2 = l_IO_Prim_fopenFlags___closed__4;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;

@@ -637,19 +637,19 @@ private partial def sepByFnAux (p : ParserFn) (sep : ParserFn) (allowTrailingSep
       if s.pos > pos then
         return s.mkNode nullKind iniSz
       else if pOpt then
-        let s := s.restore sz pos
+        s := s.restore sz pos
         return s.mkNode nullKind iniSz
       else
         -- append `Syntax.missing` to make clear that List is incomplete
-        let s := s.pushSyntax Syntax.missing
+        s := s.pushSyntax Syntax.missing
         return s.mkNode nullKind iniSz
     if s.stackSize > sz + 1 then
       s := s.mkNode nullKind sz
     let sz  := s.stackSize
     let pos := s.pos
-    let s   := sep c s
+    s := sep c s
     if s.hasError then
-      let s := s.restore sz pos
+      s := s.restore sz pos
       return s.mkNode nullKind iniSz
     if s.stackSize > sz + 1 then
       s := s.mkNode nullKind sz

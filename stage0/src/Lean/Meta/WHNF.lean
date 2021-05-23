@@ -95,7 +95,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
     if recVal.k then
       let newMajor ← toCtorWhenK recVal major
       major := newMajor.getD major
-    let major := toCtorIfLit major
+    major := toCtorIfLit major
     match getRecRuleFor recVal major with
     | some rule =>
       let majorArgs := major.getAppArgs

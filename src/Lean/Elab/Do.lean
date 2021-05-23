@@ -1150,6 +1150,14 @@ def checkReassignable (xs : Array Name) : M Unit := do
     unless ctx.mutableVars.contains x do
       throwInvalidReassignment x
 
+def checkNotShadowingMutable (xs : Array Name) : M Unit := do
+  let throwInvalidShadowing (x : Name) : M Unit :=
+    throwError "mutable variable '{x.simpMacroScopes}' cannot be shadowed"
+  let ctx ← read
+  for x in xs do
+    if ctx.mutableVars.contains x then
+      throwInvalidShadowing x
+
 @[inline] def withFor {α} (x : M α) : M α :=
   withReader (fun ctx => { ctx with insideFor := true }) x
 
@@ -1265,6 +1273,7 @@ mutual
     let decl    := doLetArrow[2]
     if decl.getKind == `Lean.Parser.Term.doIdDecl then
       let y := decl[0].getId
+      checkNotShadowingMutable #[y]
       let doElem := decl[3]
       let k ← withNewMutableVars #[y] (isMutableLet doLetArrow) (doSeqToCode doElems)
       match isDoExpr? doElem with
@@ -1396,6 +1405,7 @@ mutual
         doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
     else withRef doFor do
       let x         := doForDecls[0][0]
+      withRef x <| checkNotShadowingMutable (← getPatternVarsEx x)
       let xs        := doForDecls[0][2]
       let forElems  := getDoSeqElems doFor[3]
       let forInBodyCodeBlock ← withFor (doSeqToCode forElems)
@@ -1432,6 +1442,7 @@ mutual
     let alts ←  matchAlts.mapM fun matchAlt => do
       let patterns := matchAlt[1]
       let vars ← getPatternsVarsEx patterns.getSepArgs
+      withRef patterns <| checkNotShadowingMutable vars
       let rhs  := matchAlt[3]
       let rhs ← doSeqToCode (getDoSeqElems rhs)
       pure { ref := matchAlt, vars := vars, patterns := patterns, rhs := rhs : Alt CodeBlock }
@@ -1454,6 +1465,8 @@ mutual
     let catches ← doTry[2].getArgs.mapM fun catchStx => do
       if catchStx.getKind == `Lean.Parser.Term.doCatch then
         let x       := catchStx[1]
+        if x.isIdent then
+          withRef x <| checkNotShadowingMutable #[x.getId]
         let optType := catchStx[2]
         let c ← doSeqToCode (getDoSeqElems catchStx[4])
         pure { x := x, optType := optType, codeBlock := c : Catch }
@@ -1518,12 +1531,15 @@ mutual
           let k := doElem.getKind
           if k == `Lean.Parser.Term.doLet then
             let vars ← getDoLetVars doElem
+            checkNotShadowingMutable vars
             mkVarDeclCore vars doElem <$> withNewMutableVars vars (isMutableLet doElem) (doSeqToCode doElems)
           else if k == `Lean.Parser.Term.doHave then
             let var := getDoHaveVar doElem
+            checkNotShadowingMutable #[var]
             mkVarDeclCore #[var] doElem <$> (doSeqToCode doElems)
           else if k == `Lean.Parser.Term.doLetRec then
             let vars ← getDoLetRecVars doElem
+            checkNotShadowingMutable vars
             mkVarDeclCore vars doElem <$> (doSeqToCode doElems)
           else if k == `Lean.Parser.Term.doReassign then
             let vars ← getDoReassignVars doElem

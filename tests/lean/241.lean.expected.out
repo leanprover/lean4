@@ -1,0 +1,13 @@
+241.lean:3:2-3:14: error: mutable variable 'xs' cannot be shadowed
+241.lean:9:2-9:24: error: mutable variable 'xs' cannot be shadowed
+241.lean:16:4-16:12: error: mutable variable 'xs' cannot be shadowed
+241.lean:22:2-22:28: error: mutable variable 'xs' cannot be shadowed
+241.lean:28:2-28:18: error: mutable variable 'xs' cannot be shadowed
+241.lean:34:9-34:16: error: mutable variable 'xs' cannot be shadowed
+241.lean:41:9-41:16: error: mutable variable 'xs' cannot be shadowed
+241.lean:48:9-48:16: error: mutable variable 'xs' cannot be shadowed
+241.lean:58:6-58:27: error: mutable variable 'xs' cannot be shadowed
+241.lean:67:8-67:10: error: mutable variable 'xs' cannot be shadowed
+241.lean:72:6-72:13: error: mutable variable 'xs' cannot be shadowed
+241.lean:78:6-78:8: error: mutable variable 'xs' cannot be shadowed
+241.lean:84:2-86:17: error: mutable variable 'xs' cannot be shadowed

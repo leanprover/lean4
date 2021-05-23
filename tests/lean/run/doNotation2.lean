@@ -34,8 +34,8 @@ def h (x : Nat) (y : Nat) : Nat := do
 let mut x := x
 let mut y := y
 if x > 0 then
-  let y := x + 1 -- this is a new `y` that shadows the one above
-  x := y
+  let y' := x + 1
+  x := y'
 else
   y := y + 1
 return x + y

@@ -63,7 +63,7 @@ do IO.setRandSeed seed
        m := m.erase k
      i := i + 1
    check (sz m == a.size / 2)
-   let i := 0
+   i := 0
    for (k, v) in a do
      if i % 2 == 1 then
        check (m.find? k == some v)

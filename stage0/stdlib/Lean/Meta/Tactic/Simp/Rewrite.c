@@ -5009,7 +5009,7 @@ static lean_object* _init_l_Lean_Meta_Simp_rewrite___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("no lemmas found for ");
+x_1 = lean_mk_string("no theorems found for ");
 return x_1;
 }
 }

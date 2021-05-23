@@ -3895,7 +3895,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid 'congr' lemma, arguments in the left-hand-side must be variables or sorts");
+x_1 = lean_mk_string("invalid 'congr' theorem, arguments in the left-hand-side must be variables or sorts");
 return x_1;
 }
 }
@@ -4025,7 +4025,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid 'congr' lemma, argument #");
+x_1 = lean_mk_string("invalid 'congr' theorem, argument #");
 return x_1;
 }
 }
@@ -4303,7 +4303,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid 'congr' lemma, parameter #");
+x_1 = lean_mk_string("invalid 'congr' theorem, parameter #");
 return x_1;
 }
 }
@@ -6671,7 +6671,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Meta_mkCongrLemma___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid 'congr' lemma, equality left/right-hand sides must be applications of the same function");
+x_1 = lean_mk_string("invalid 'congr' theorem, equality left/right-hand sides must be applications of the same function");
 return x_1;
 }
 }
@@ -6960,7 +6960,7 @@ static lean_object* _init_l_Lean_Meta_mkCongrLemma___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid 'congr' lemma, equality expected");
+x_1 = lean_mk_string("invalid 'congr' theorem, equality expected");
 return x_1;
 }
 }
@@ -8580,7 +8580,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_CongrL
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("congruence lemma");
+x_1 = lean_mk_string("congruence theorem");
 return x_1;
 }
 }

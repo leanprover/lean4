@@ -186,10 +186,10 @@ structure Context where
 abbrev M := ReaderT Context MetaM
 
 def throwUnexpected {α} (msg : MessageData) : M α := do
-  throwError "failed to generate sizeOf lemma for {(← read).ctorName} (use `set_option genSizeOfSpec false` to disable lemma generation), {msg}"
+  throwError "failed to generate sizeOf theorem for {(← read).ctorName} (use `set_option genSizeOfSpec false` to disable theorem generation), {msg}"
 
 def throwFailed {α} : M α := do
-  throwError "failed to generate sizeOf lemma for {(← read).ctorName}, (use `set_option genSizeOfSpec false` to disable lemma generation)"
+  throwError "failed to generate sizeOf theorem for {(← read).ctorName}, (use `set_option genSizeOfSpec false` to disable theorem generation)"
 
 /-- Convert a recursor application into a `_sizeOf_<idx>` application. -/
 private def recToSizeOf (e : Expr) : M Expr := do

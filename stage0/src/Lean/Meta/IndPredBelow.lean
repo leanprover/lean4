@@ -123,6 +123,7 @@ where
       if ←checkCount binderType then
         mkBelowBinder vars binder binderType fun indValIdx x =>
           mkMotiveBinder vars indValIdx binder binderType fun y =>
+            withNewBinderInfos #[(binder.fvarId!, BinderInfo.implicit)] do
             modifyBinders { vars with target := vars.target ++ #[binder, x, y]} i.succ
       else modifyBinders { vars with target := vars.target.push binder } i.succ
     else rebuild vars

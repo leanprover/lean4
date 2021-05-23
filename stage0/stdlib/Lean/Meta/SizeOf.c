@@ -6311,7 +6311,7 @@ static lean_object* _init_l_Lean_Meta_SizeOfSpecNested_throwUnexpected___rarg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to generate sizeOf lemma for ");
+x_1 = lean_mk_string("failed to generate sizeOf theorem for ");
 return x_1;
 }
 }
@@ -6328,7 +6328,7 @@ static lean_object* _init_l_Lean_Meta_SizeOfSpecNested_throwUnexpected___rarg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" (use `set_option genSizeOfSpec false` to disable lemma generation), ");
+x_1 = lean_mk_string(" (use `set_option genSizeOfSpec false` to disable theorem generation), ");
 return x_1;
 }
 }
@@ -6452,7 +6452,7 @@ static lean_object* _init_l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", (use `set_option genSizeOfSpec false` to disable lemma generation)");
+x_1 = lean_mk_string(", (use `set_option genSizeOfSpec false` to disable theorem generation)");
 return x_1;
 }
 }

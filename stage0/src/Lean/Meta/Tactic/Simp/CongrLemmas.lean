@@ -47,16 +47,16 @@ def mkCongrLemma (declName : Name) (prio : Nat) : MetaM CongrLemma := withReduci
   let c ← mkConstWithLevelParams declName
   let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType c)
   match type.eq? with
-  | none => throwError "invalid 'congr' lemma, equality expected{indentExpr type}"
+  | none => throwError "invalid 'congr' theorem, equality expected{indentExpr type}"
   | some (_, lhs, rhs) =>
     lhs.withApp fun lhsFn lhsArgs => rhs.withApp fun rhsFn rhsArgs => do
       unless lhsFn.isConst && rhsFn.isConst && lhsFn.constName! == rhsFn.constName! && lhsArgs.size == rhsArgs.size do
-        throwError "invalid 'congr' lemma, equality left/right-hand sides must be applications of the same function{indentExpr type}"
+        throwError "invalid 'congr' theorem, equality left/right-hand sides must be applications of the same function{indentExpr type}"
       let mut foundMVars : NameSet := {}
       for lhsArg in lhsArgs do
         unless lhsArg.isSort do
           unless lhsArg.isMVar do
-            throwError "invalid 'congr' lemma, arguments in the left-hand-side must be variables or sorts{indentExpr lhs}"
+            throwError "invalid 'congr' theorem, arguments in the left-hand-side must be variables or sorts{indentExpr lhs}"
           foundMVars := foundMVars.insert lhsArg.mvarId!
       let mut i := 0
       let mut hypothesesPos := #[]
@@ -70,18 +70,18 @@ def mkCongrLemma (declName : Name) (prio : Nat) : MetaM CongrLemma := withReduci
               for y in ys do
                 let yType ← inferType y
                 unless onlyMVarsAt yType foundMVars do
-                  throwError "invalid 'congr' lemma, argument #{j+1} of parameter #{i+1} contains unresolved parameter{indentExpr yType}"
+                  throwError "invalid 'congr' theorem, argument #{j+1} of parameter #{i+1} contains unresolved parameter{indentExpr yType}"
                 j := j + 1
               unless onlyMVarsAt xLhs foundMVars do
-                throwError "invalid 'congr' lemma, parameter #{i+1} is not a valid hypothesis, the left-hand-side contains unresolved parameters{indentExpr xLhs}"
+                throwError "invalid 'congr' theorem, parameter #{i+1} is not a valid hypothesis, the left-hand-side contains unresolved parameters{indentExpr xLhs}"
               let xRhsFn := xRhs.getAppFn
               unless xRhsFn.isMVar do
-                throwError "invalid 'congr' lemma, parameter #{i+1} is not a valid hypothesis, the right-hand-side head is not a metavariable{indentExpr xRhs}"
+                throwError "invalid 'congr' theorem, parameter #{i+1} is not a valid hypothesis, the right-hand-side head is not a metavariable{indentExpr xRhs}"
               unless !foundMVars.contains xRhsFn.mvarId! do
-                throwError "invalid 'congr' lemma, parameter #{i+1} is not a valid hypothesis, the right-hand-side head was already resolved{indentExpr xRhs}"
+                throwError "invalid 'congr' theorem, parameter #{i+1} is not a valid hypothesis, the right-hand-side head was already resolved{indentExpr xRhs}"
               for arg in xRhs.getAppArgs do
                 unless arg.isFVar do
-                  throwError "invalid 'congr' lemma, parameter #{i+1} is not a valid hypothesis, the right-hand-side argument is not local variable{indentExpr xRhs}"
+                  throwError "invalid 'congr' theorem, parameter #{i+1} is not a valid hypothesis, the right-hand-side argument is not local variable{indentExpr xRhs}"
               pure (some xRhsFn)
           match rhsFn? with
           | none       => pure ()
@@ -108,7 +108,7 @@ def addCongrLemma (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Me
 builtin_initialize
   registerBuiltinAttribute {
     name  := `congr
-    descr := "congruence lemma"
+    descr := "congruence theorem"
     add   := fun declName stx attrKind => do
       let prio ← getAttrParamOptPrio stx[1]
       discard <| addCongrLemma declName attrKind prio |>.run {} {}

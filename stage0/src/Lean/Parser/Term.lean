@@ -168,11 +168,9 @@ def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFoll
 @[builtinTermParser] def «let_delayed» := leading_parser:leadPrec withPosition ("let_delayed " >> letDecl) >> optSemicolon termParser
 
 -- like `let_fun` but with optional name
-def haveIdLhs    := nodeWithAntiquot "haveIdLhs" `Lean.Parser.Term.haveIdLhs      <| ident >> checkWsBefore "expected space before binders" >> many (ppSpace >> (simpleBinderWithoutType <|> bracketedBinder)) >> optType
-def haveNoIdLhs  := nodeWithAntiquot "haveNoIdLhs" `Lean.Parser.Term.haveNoIdLhs  <| typeSpec
-def haveLhs      := haveIdLhs <|> haveNoIdLhs
-def haveIdDecl   := nodeWithAntiquot "haveIdDecl"   `Lean.Parser.Term.haveIdDecl   $ atomic (haveLhs >> " := ") >> termParser
-def haveEqnsDecl := nodeWithAntiquot "haveEqnsDecl" `Lean.Parser.Term.haveEqnsDecl $ haveLhs >> matchAlts
+def haveIdLhs    := optional (ident >> many (ppSpace >> (simpleBinderWithoutType <|> bracketedBinder))) >> optType
+def haveIdDecl   := nodeWithAntiquot "haveIdDecl"   `Lean.Parser.Term.haveIdDecl   $ atomic (haveIdLhs >> " := ") >> termParser
+def haveEqnsDecl := nodeWithAntiquot "haveEqnsDecl" `Lean.Parser.Term.haveEqnsDecl $ haveIdLhs >> matchAlts
 def haveDecl     := nodeWithAntiquot "haveDecl" `Lean.Parser.Term.haveDecl (haveIdDecl <|> letPatDecl <|> haveEqnsDecl)
 @[builtinTermParser] def «have» := leading_parser:leadPrec withPosition ("have " >> haveDecl) >> optSemicolon termParser
 

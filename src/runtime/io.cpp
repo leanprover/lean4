@@ -2,7 +2,7 @@
 Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura
+Authors: Leonardo de Moura, Sebastian Ullrich
 */
 #if defined(LEAN_WINDOWS)
 #include <windows.h>
@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #ifndef LEAN_WINDOWS
 #include <csignal>
 #endif
+#include <dirent.h>
 #include <fcntl.h>
 #include <iostream>
 #include <chrono>
@@ -466,6 +467,33 @@ extern "C" obj_res lean_io_is_dir(b_obj_arg fname, obj_arg) {
 extern "C" obj_res lean_io_file_exists(b_obj_arg fname, obj_arg) {
     bool b = !!std::ifstream(string_cstr(fname));
     return io_result_mk_ok(box(b));
+}
+
+/*
+structure DirEntry where
+  root     : String
+  filename : String
+
+constant readDir : String → IO (Array DirEntry)
+*/
+extern "C" obj_res lean_io_read_dir(b_obj_arg dirname, obj_arg) {
+    object * arr = array_mk_empty();
+    DIR * dp = opendir(string_cstr(dirname));
+    if (!dp) {
+        return io_result_mk_error(decode_io_error(errno, dirname));
+    }
+    while (dirent * entry = readdir(dp)) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+        object * lentry = alloc_cnstr(0, 2, 0);
+        lean_inc(dirname);
+        cnstr_set(lentry, 0, dirname);
+        cnstr_set(lentry, 1, lean_mk_string(entry->d_name));
+        arr = lean_array_push(arr, lentry);
+    }
+    lean_assert(closedir(dp) == 0);
+    return io_result_mk_ok(arr);
 }
 
 extern "C" obj_res lean_io_remove_file(b_obj_arg fname, obj_arg) {

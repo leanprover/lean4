@@ -10,7 +10,17 @@ while [[ "$root" != / ]]; do
 done
 # fall back to initial package if not in package
 [[ ! -f "$root/flake.nix" ]] && root="@srcRoot@"
-target="$root#lean"
+
+# use Lean w/ package unless in server mode (which has its own LEAN_PATH logic)
+target="$root#lean-package"
+for arg in "$@"; do
+    case $arg in
+        --server | --worker)
+            target="$root#lean"
+            ;;
+    esac
+done
+
 args=(-- "$@")
 # HACK: use stage 0 instead of 1 inside Lean's own `src/`
 [[ -d Lean && -f ../flake.nix ]] && target="@srcTarget@" && args=@srcArgs@

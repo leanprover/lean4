@@ -10,7 +10,7 @@ open IO Lean Lsp
     hIn.write (←FS.readBinFile "open_empty.log")
     hIn.flush
     let diags ← Ipc.collectDiagnostics 1 "file:///empty" 1
-    assert! diags.length == 1
+    assert! diags.length >= 1
 
     Ipc.writeNotification ⟨"exit", Json.null⟩
     discard Ipc.waitForExit

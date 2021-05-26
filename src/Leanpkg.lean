@@ -82,14 +82,21 @@ def execMake (makeArgs leanArgs : List String) (leanPath : String) : IO Unit := 
   }
   execCmd spawnArgs
 
+def getRootPart : IO Lean.Name := do
+  let entries ← FilePath.readDir "."
+  match entries.filter (FilePath.extension ·.fileName == "lean") with
+  | #[rootFile] => FilePath.withExtension rootFile.fileName "" |>.toString
+  | #[]         => throw <| IO.userError s!"no '.lean' file found in {← IO.realPath "."}"
+  | _           => throw <| IO.userError s!"{← IO.realPath "."} must contain a unique '.lean' file as the package root"
+
 def buildImports (imports : List String) (leanArgs : List String) : IO Unit := do
   unless ← leanpkgTomlFn.pathExists do
     return
   let manifest ← readManifest
   let cfg ← configure
   let imports := imports.map (·.toName)
-  -- TODO: shoddy check
-  let localImports := imports.filter fun i => i.getRoot.toString.toLower == manifest.name.toLower
+  let root ← getRootPart
+  let localImports := imports.filter (·.getRoot == root)
   if localImports != [] then
     let oleans := localImports.map fun i => Lean.modPathToFilePath ⟨"build"⟩ i |>.withExtension "olean" |>.toString
     execMake oleans leanArgs cfg.leanPath

@@ -492,7 +492,7 @@ extern "C" obj_res lean_io_read_dir(b_obj_arg dirname, obj_arg) {
         cnstr_set(lentry, 1, lean_mk_string(entry->d_name));
         arr = lean_array_push(arr, lentry);
     }
-    lean_assert(closedir(dp) == 0);
+    lean_always_assert(closedir(dp) == 0);
     return io_result_mk_ok(arr);
 }
 

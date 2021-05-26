@@ -202,8 +202,8 @@ section Initialization
       Elab.processHeader headerStx opts msgLog inputCtx
     catch e =>  -- should be from `leanpkg print-paths`
       let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
-      publishMessages m msgs hOut
       pure (← mkEmptyEnvironment, msgs)
+    publishMessages m msgLog hOut
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
     let cmdState := { cmdState with infoState.enabled := true, scopes := [{ header := "", opts := opts }] }
     let headerSnap := {

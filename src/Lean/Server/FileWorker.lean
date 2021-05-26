@@ -189,14 +189,14 @@ section Initialization
     let inputCtx := Parser.mkInputContext m.text.source "<input>"
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
     let leanpkgPath ← match ← IO.getEnv "LEAN_SYSROOT" with
-      | some path => s!"{path}/bin/leanpkg{System.FilePath.exeSuffix}"
-      | _         => s!"{← appDir}/leanpkg{System.FilePath.exeSuffix}"
-    let mut srcSearchPath := [s!"{← appDir}/../lib/lean/src"]
+      | some path => pure <| (path : System.FilePath) / "bin" / s!"leanpkg{System.FilePath.exeSuffix}"
+      | _         => pure <| (← appDir) / s!"leanpkg{System.FilePath.exeSuffix}"
+    let mut srcSearchPath := [(← appDir) / ".." / "lib" / "lean" / "src"]
     if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
       srcSearchPath := srcSearchPath ++ parseSearchPath p
     let (headerEnv, msgLog) ← try
       -- NOTE: leanpkg does not exist in stage 0 (yet?)
-      if (← fileExists leanpkgPath) then
+      if (← System.FilePath.pathExists leanpkgPath) then
         let pkgSearchPath ← leanpkgSetupSearchPath leanpkgPath m (Lean.Elab.headerToImports headerStx).toArray hOut
         srcSearchPath := srcSearchPath ++ pkgSearchPath
       Elab.processHeader headerStx opts msgLog inputCtx

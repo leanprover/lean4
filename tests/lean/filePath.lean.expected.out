@@ -1,0 +1,19 @@
+true
+false
+"a/b"
+"a/b/c"
+"/b/c"
+some "a"
+some "a/b"
+none
+some "b"
+some "b"
+some "b.tar"
+some ".gitignore"
+"a/c"
+none
+some "txt"
+none
+"a/b.tar.xz"
+"a/b.tar"
+"a/b.tar.gz"

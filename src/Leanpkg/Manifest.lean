@@ -80,6 +80,6 @@ def fromFile (fn : String) : IO Manifest := do
 
 end Manifest
 
-def leanpkgTomlFn := "leanpkg.toml"
+def leanpkgTomlFn : System.FilePath := "leanpkg.toml"
 
 end Leanpkg

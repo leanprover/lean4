@@ -8,6 +8,9 @@ import Init.System.Platform
 import Init.Data.String.Basic
 
 namespace System
+-- TODO: make opaque?
+abbrev FilePath := String
+
 namespace FilePath
 open Platform
 
@@ -35,20 +38,78 @@ if isWindows then ".exe" else ""
 /-- Case-insensitive file system -/
 def isCaseInsensitive : Bool := isWindows || isOSX
 
-def normalizePath (fname : String) : String :=
-  if pathSeparators.length == 1 && !isCaseInsensitive then fname
-  else fname.map fun c =>
-    if pathSeparators.any (fun c' => c == c') then pathSeparator
-    -- else if isCaseInsensitive then c.toLower
+-- TODO: normalize `a/`, `a//b`, etc.
+def normalize (p : FilePath) (normalizeCase := isCaseInsensitive) : FilePath :=
+  if pathSeparators.length == 1 && !normalizeCase then p
+  else p.map fun c =>
+    if pathSeparators.contains c then pathSeparator
+    else if normalizeCase then c.toLower
     else c
 
-def parent (fname : String) : Option String :=
-  let fname := normalizePath fname
-  fname.extract 0 <$> fname.revPosOf pathSeparator
+-- the following functions follow the names and semantics from Rust's `std::path::Path`
+
+def isAbsolute (p : FilePath) : Bool :=
+  pathSeparators.contains p.front || (isWindows && p.bsize >= 1 && p[1] == ':')
+
+def isRelative (p : FilePath) : Bool :=
+  !p.isAbsolute
+
+def join (p sub : FilePath) : FilePath :=
+  if sub.isAbsolute then
+    sub
+  else
+    p ++ pathSeparator.toString ++ sub
+
+instance : Div FilePath where
+  div := FilePath.join
+
+-- when `FilePath` is opaque
+--instance : HDiv FilePath String FilePath where
+--  hDiv := FilePath.join
+
+private def posOfLastSep (p : FilePath) : Option String.Pos :=
+  p.revFind pathSeparators.contains
+
+def parent (p : FilePath) : Option FilePath :=
+  p.extract 0 <$> posOfLastSep p
+
+def fileName (p : FilePath) : Option String :=
+  let lastPart := match posOfLastSep p with
+    | some sepPos => p.extract (sepPos + 1) p.bsize
+    | none        => p
+  if lastPart.isEmpty || lastPart == "." || lastPart == ".." then none else some lastPart
+
+/-- Extracts the stem (non-extension) part of `p.fileName`. -/
+def fileStem (p : FilePath) : Option String :=
+  p.fileName.map fun fname =>
+    match fname.revPosOf '.' with
+    | some 0   => fname
+    | some pos => fname.extract 0 pos
+    | none     => fname
+
+def extension (p : FilePath) : Option String :=
+  p.fileName.bind fun fname =>
+    match fname.revPosOf '.' with
+    | some 0   => none
+    | some pos => fname.extract (pos + 1) fname.bsize
+    | none     => none
+
+def withFileName (p : FilePath) (fname : String) : FilePath :=
+  match p.parent with
+  | none => fname
+  | some p => p / fname
+
+def withExtension (p : FilePath) (ext : String) : FilePath :=
+  match p.fileStem with
+  | none => p
+  | some stem => p.withFileName (if ext.isEmpty then stem else stem ++ "." ++ ext)
+
+def components (p : FilePath) : List String :=
+  p.normalize (normalizeCase := false) |>.splitOn pathSeparator.toString
 
 end FilePath
 
-def mkFilePath (parts : List String) : String :=
+def mkFilePath (parts : List String) : FilePath :=
   String.intercalate FilePath.pathSeparator.toString parts
 
 end System

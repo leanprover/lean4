@@ -581,7 +581,7 @@ where
     else do
       modify fun s => { s with moduleNameSet := s.moduleNameSet.insert i.module }
       let mFile ← findOLean i.module
-      unless (← IO.fileExists mFile) do
+      unless (← mFile.pathExists) do
         throw $ IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
       let (mod, region) ← readModuleData mFile
       importMods mod.imports.toList

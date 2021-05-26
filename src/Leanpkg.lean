@@ -18,7 +18,7 @@ def readManifest : IO Manifest := do
 def writeManifest (manifest : Lean.Syntax) (fn : String) : IO Unit := do
   IO.FS.writeFile fn manifest.reprint.get!
 
-def lockFileName := ".leanpkg-lock"
+def lockFileName : System.FilePath := ".leanpkg-lock"
 
 partial def withLockFile (x : IO α) : IO α := do
   acquire
@@ -36,7 +36,7 @@ partial def withLockFile (x : IO α) : IO α := do
           -- `x` mode doesn't seem to work on Windows even though it's listed at
           -- https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/fopen-wfopen?view=msvc-160
           -- ...? Let's use the slightly racy approach then.
-          if ← IO.fileExists lockFileName then
+          if ← lockFileName.pathExists then
             throw <| IO.Error.alreadyExists 0 ""
           discard <| IO.Prim.Handle.mk lockFileName "w"
       catch
@@ -67,7 +67,7 @@ def configure : IO Configuration := do
       }
   let sep := System.FilePath.searchPathSeparator.toString
   return {
-    leanPath    := sep.intercalate <| paths.map (· ++ "/build")
+    leanPath    := sep.intercalate <| paths.map (· / "build")
     leanSrcPath := sep.intercalate paths
   }
 
@@ -82,7 +82,7 @@ def execMake (makeArgs leanArgs : List String) (leanPath : String) : IO Unit := 
   execCmd spawnArgs
 
 def buildImports (imports : List String) (leanArgs : List String) : IO Unit := do
-  unless (← IO.fileExists leanpkgTomlFn) do
+  unless ← leanpkgTomlFn.pathExists do
     return
   let manifest ← readManifest
   let cfg ← configure
@@ -113,8 +113,7 @@ lean_version = \"{leanVersionString}\"
 "
   let h ← IO.FS.Handle.mk ".gitignore" IO.FS.Mode.append (bin := false)
   h.putStr initGitignoreContents
-  let gitEx ← IO.isDir ".git"
-  unless gitEx do
+  unless ← System.FilePath.isDir ".git" do
     (do
       execCmd {cmd := "git", args := #["init", "-q"]}
       unless upstreamGitBranch = "master" do

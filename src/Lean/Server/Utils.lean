@@ -91,8 +91,8 @@ def maybeTee (fName : String) (isOut : Bool) (h : FS.Stream) : IO FS.Stream := d
       h.chainRight hTee true
 
 /-- Transform the given path to a file:// URI. -/
-def toFileUri (fname : String) : Lsp.DocumentUri :=
-  let fname := System.FilePath.normalizePath fname
+def toFileUri (fname : System.FilePath) : Lsp.DocumentUri :=
+  let fname := fname.normalize
   let fname := if System.Platform.isWindows then
     fname.map fun c => if c == '\\' then '/' else c
   else

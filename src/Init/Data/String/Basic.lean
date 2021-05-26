@@ -109,6 +109,23 @@ def revPosOf (s : String) (c : Char) : Option Pos :=
   if s.bsize == 0 then none
   else revPosOfAux s c (s.prev s.bsize)
 
+partial def findAux (s : String) (p : Char → Bool) (stopPos : Pos) (pos : Pos) : Pos :=
+  if pos == stopPos then pos
+  else if p (s.get pos) then pos
+       else findAux s p stopPos (s.next pos)
+
+@[inline] def find (s : String) (p : Char → Bool) : Pos :=
+  findAux s p s.bsize 0
+
+partial def revFindAux (s : String) (p : Char → Bool) (pos : Pos) : Option Pos :=
+ if p (s.get pos) then some pos
+ else if pos == 0 then none
+ else revFindAux s p (s.prev pos)
+
+def revFind (s : String) (p : Char → Bool) : Option Pos :=
+  if s.bsize == 0 then none
+  else revFindAux s p (s.prev s.bsize)
+
 private def utf8ExtractAux₂ : List Char → Pos → Pos → List Char
   | [],    _, _ => []
   | c::cs, i, e => if i = e then [] else c :: utf8ExtractAux₂ cs (i + csize c) e
@@ -471,7 +488,8 @@ def toNat? (s : Substring) : Option Nat :=
     none
 
 def beq (ss1 ss2 : Substring) : Bool :=
-  ss1.toString == ss2.toString
+  -- TODO: should not allocate
+  ss1.bsize == ss2.bsize && ss1.toString == ss2.toString
 
 instance hasBeq : BEq Substring := ⟨beq⟩
 
@@ -502,6 +520,12 @@ def takeRightWhile (s : String) (p : Char → Bool) : String :=
 
 def dropRightWhile (s : String) (p : Char → Bool) : String :=
   (s.toSubstring.dropRightWhile p).toString
+
+def startsWith (s pre : String) : Bool :=
+  s.toSubstring.take pre.length == pre.toSubstring
+
+def endsWith (s post : String) : Bool :=
+  s.toSubstring.takeRight post.length == post.toSubstring
 
 def trimRight (s : String) : String :=
   s.toSubstring.trimRight.toString

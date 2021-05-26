@@ -87,15 +87,16 @@ partial def findOLean (mod : Name) : IO FilePath := do
 /-- Infer module name of source file name. -/
 @[export lean_module_name_of_file]
 def moduleNameOfFileName (fname : FilePath) (rootDir : Option FilePath) : IO Name := do
-  let fname ← realPathNormalized fname
+  let fname ← IO.realPath fname
   let rootDir ← match rootDir with
     | some rootDir => pure rootDir
     | none         => IO.currentDir
   let mut rootDir ← realPathNormalized rootDir
   if !rootDir.endsWith System.FilePath.pathSeparator.toString then
     rootDir := rootDir ++ System.FilePath.pathSeparator.toString
-  if !rootDir.isPrefixOf fname then
+  if !rootDir.isPrefixOf fname.normalize then
     throw $ IO.userError s!"input file '{fname}' must be contained in root directory ({rootDir})"
+  -- NOTE: use `fname` instead of `fname.normalize` to preserve casing on all platforms
   let fnameSuffix := fname.drop rootDir.length
   let modNameStr := System.FilePath.withExtension fnameSuffix ""
   let modName    := modNameStr.components.foldl Name.mkStr Name.anonymous

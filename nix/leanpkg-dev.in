@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-[[ $# -gt 0 && "$1" == print-paths ]] || { echo "This is just a simple Nix adapter for `leanpkg print-paths`. Please use the `leanpkg` attribute for the real thing."; exit 1; }
+[[ $# -gt 0 && "$1" == print-paths ]] || { echo 'This is just a simple Nix adapter for `leanpkg print-paths`. Please use the `lean-all` attribute for the real thing.'; exit 1; }
 shift
 deps="$@"
 root=.

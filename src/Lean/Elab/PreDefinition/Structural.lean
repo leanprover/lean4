@@ -358,7 +358,8 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
     | e => ensureNoRecFn recFnName e
   loop below e
 
-private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecArgInfo) (below : Expr) (e : Expr) : M Expr :=
+private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecArgInfo) (motive : Expr) (e : Expr) : M Expr := do
+  let maxDepth := IndPredBelow.maxBackwardChainingDepth.get $ ←getOptions
   let rec loop (e : Expr) : M Expr := do
     match e with
     | Expr.lam n d b c =>
@@ -378,9 +379,11 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
         e.withApp fun f args => do
           if f.isConstOf recFnName then
             let ty ← inferType e
-            let main ← mkFreshExprSyntheticOpaqueMVar ty
-            assumption main.mvarId!
-            main
+            let main ← mkFreshExprSyntheticOpaqueMVar ty 
+            if ←IndPredBelow.backwardsChaining main.mvarId! maxDepth then
+              main
+            else
+              throwError "could not solve using backwards chaining {←Meta.ppGoal main.mvarId!}"
           else
             return mkAppN (← loop f) (← args.mapM loop)
       let matcherApp? ← matchMatcherApp? e
@@ -390,15 +393,20 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
           processApp e
         else
           trace[Elab.definition.structural] "matcherApp before adding below transformation:\n{matcherApp.toExpr}"
-          if let some (t, idx) ← IndPredBelow.findBelowIdx matcherApp then
-            let (newApp, addMatcher) ← IndPredBelow.mkBelowMatcher matcherApp idx
-            modify fun s => { s with addMatchers := s.addMatchers.push addMatcher }
-            let newApp := { newApp with discrs := newApp.discrs.push t }.toExpr 
-            trace[Elab.definition.structural] "{newApp}"
-            loop newApp
-          else
-            trace[Elab.definition.structural] "could not add below discriminant"
-            processApp e
+          let rec addBelow (matcherApp : MatcherApp) : M Expr := do
+            if let some (t, idx) ← IndPredBelow.findBelowIdx matcherApp.discrs motive then
+              let (newApp, addMatcher) ← IndPredBelow.mkBelowMatcher matcherApp motive t idx
+              modify fun s => { s with addMatchers := s.addMatchers.push addMatcher }
+              let some newApp ← matchMatcherApp? newApp | throwError "not a matcherApp: {newApp}"
+              addBelow newApp
+            else matcherApp.toExpr
+            
+          let newApp ← addBelow matcherApp
+          if newApp == matcherApp.toExpr then
+            throwError "could not add below discriminant"
+          else 
+            trace[Elab.definition.structural] "modified matcher:\n{newApp}"
+            processApp newApp
       | none => processApp e
     | e => ensureNoRecFn recFnName e
   loop e
@@ -467,8 +475,13 @@ private def mkIndPredBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value 
     let FType ← instantiateForall FType recArgInfo.indIndices
     let FType ← instantiateForall FType #[major]
     forallBoundedTelescope FType (some 1) fun below _ => do
+      let lctx ← getLCtx
+      let lctx := lctx.erase F.fvarId!
+      withTheReader Meta.Context (fun ctx => { ctx with lctx }) do
+      let main ← mkFreshExprSyntheticOpaqueMVar FType
+      trace[Elab.definition.structural] "asdf\n{←Meta.ppGoal main.mvarId!}"
       let below := below[0]
-      let valueNew     ← replaceIndPredRecApps recFnName recArgInfo below value
+      let valueNew     ← replaceIndPredRecApps recFnName recArgInfo motive value
       let Farg         ← mkLambdaFVars (recArgInfo.indIndices ++ #[major, below] ++ otherArgs) valueNew
       let brecOn       := mkApp brecOn Farg
       pure $ mkAppN brecOn otherArgs

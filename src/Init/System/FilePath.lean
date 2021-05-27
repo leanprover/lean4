@@ -114,6 +114,9 @@ end FilePath
 def mkFilePath (parts : List String) : FilePath :=
   ⟨String.intercalate FilePath.pathSeparator.toString parts⟩
 
+instance : Coe String FilePath where
+  coe := FilePath.mk
+
 abbrev SearchPath := List FilePath
 
 namespace SearchPath

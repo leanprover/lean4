@@ -193,3 +193,13 @@ def tst10 : MetaM Unit := do
   assert! !(← getConstInfoInduct `Prod).isNested
 
 #eval tst10
+
+def tst11 : MetaM Unit := do
+  print "----- tst11 -----"
+  withLocalDeclD `x (mkConst ``True) fun x =>
+  withLocalDeclD `y (mkConst ``True) fun y => do
+    checkM (isDefEq x y)
+    checkM (withoutProofIrrelevance do return !(← isDefEq x y))
+    pure ()
+
+#eval tst11

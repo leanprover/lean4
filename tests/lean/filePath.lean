@@ -2,7 +2,7 @@ open System
 open System.Platform
 
 def norm (f : FilePath) : String :=
-  f.map fun c => if c == '\\' then '/' else c
+  f.toString.map fun c => if c == '\\' then '/' else c
 
 #eval FilePath.isAbsolute (if isWindows then "C:\\foo" else "/foo")
 #eval FilePath.isAbsolute "a/b"
@@ -11,9 +11,9 @@ def norm (f : FilePath) : String :=
 #eval norm <| ("a" : FilePath) / "b" / "c"
 #eval norm <| ("a" : FilePath) / "/b/c"
 
-#eval FilePath.parent "a/b"
+#eval norm <$> FilePath.parent "a/b"
 #eval norm <$> FilePath.parent "a/b/c"
-#eval FilePath.parent "a"
+#eval norm <$> FilePath.parent "a"
 
 #eval FilePath.fileName "a/b"
 

@@ -1,1 +1,1 @@
-#[{ root := "Reformat", fileName := "Input.lean" }]
+#[{ root := FilePath.mk "Reformat", fileName := "Input.lean" }]

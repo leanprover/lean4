@@ -466,9 +466,9 @@ instance : Inhabited ModuleData :=
   ⟨{imports := arbitrary, constants := arbitrary, entries := arbitrary }⟩
 
 @[extern 3 "lean_save_module_data"]
-constant saveModuleData (fname : @& String) (m : ModuleData) : IO Unit
+constant saveModuleData (fname : @& System.FilePath) (m : ModuleData) : IO Unit
 @[extern 2 "lean_read_module_data"]
-constant readModuleData (fname : @& String) : IO (ModuleData × CompactedRegion)
+constant readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion)
 
 /--
   Free compacted regions of imports. No live references to imported objects may exist at the time of invocation; in
@@ -508,7 +508,7 @@ def mkModuleData (env : Environment) : IO ModuleData := do
   }
 
 @[export lean_write_module]
-def writeModule (env : Environment) (fname : String) : IO Unit := do
+def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
   let modData ← mkModuleData env; saveModuleData fname modData
 
 private partial def getEntriesFor (mod : ModuleData) (extId : Name) (i : Nat) : Array EnvExtensionEntry :=

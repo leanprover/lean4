@@ -6,6 +6,8 @@ Authors: Gabriel Ebner, Sebastian Ullrich
 import Leanpkg.Resolve
 import Leanpkg.Git
 
+open System
+
 namespace Leanpkg
 
 def readManifest : IO Manifest := do
@@ -15,10 +17,10 @@ def readManifest : IO Manifest := do
        ++ ", but package requires " ++ m.leanVersion ++ "\n"
   return m
 
-def writeManifest (manifest : Lean.Syntax) (fn : String) : IO Unit := do
+def writeManifest (manifest : Lean.Syntax) (fn : FilePath) : IO Unit := do
   IO.FS.writeFile fn manifest.reprint.get!
 
-def lockFileName : System.FilePath := ".leanpkg-lock"
+def lockFileName : System.FilePath := ⟨".leanpkg-lock"⟩
 
 partial def withLockFile (x : IO α) : IO α := do
   acquire
@@ -57,18 +59,17 @@ def configure : IO Configuration := do
   let assg ← solveDeps d
   let paths ← constructPath assg
   for path in paths do
-    unless path == "./." do
+    unless path == FilePath.mk "." / "." do
       -- build recursively
       -- TODO: share build of common dependencies
       execCmd {
-        cmd := (← IO.appPath)
+        cmd := (← IO.appPath).toString
         cwd := path
         args := #["build"]
       }
-  let sep := System.FilePath.searchPathSeparator.toString
   return {
-    leanPath    := sep.intercalate <| paths.map (· / "build")
-    leanSrcPath := sep.intercalate paths
+    leanPath    := SearchPath.toString <| paths.map (fun (p : FilePath) => p / "build")
+    leanSrcPath := paths.toString
   }
 
 def execMake (makeArgs leanArgs : List String) (leanPath : String) : IO Unit := withLockFile do
@@ -90,7 +91,7 @@ def buildImports (imports : List String) (leanArgs : List String) : IO Unit := d
   -- TODO: shoddy check
   let localImports := imports.filter fun i => i.getRoot.toString.toLower == manifest.name.toLower
   if localImports != [] then
-    let oleans := localImports.map fun i => s!"\"build{Lean.modPathToFilePath i}.olean\""
+    let oleans := localImports.map fun i => Lean.modPathToFilePath ⟨"build"⟩ i |>.withExtension "olean" |>.toString
     execMake oleans leanArgs cfg.leanPath
   IO.println cfg.leanPath
   IO.println cfg.leanSrcPath
@@ -108,12 +109,12 @@ name = \"{n}\"
 version = \"0.1\"
 lean_version = \"{leanVersionString}\"
 "
-  IO.FS.writeFile s!"{n.capitalize}.lean" "def main : IO Unit :=
+  IO.FS.writeFile ⟨s!"{n.capitalize}.lean"⟩ "def main : IO Unit :=
   IO.println \"Hello, world!\"
 "
-  let h ← IO.FS.Handle.mk ".gitignore" IO.FS.Mode.append (bin := false)
+  let h ← IO.FS.Handle.mk ⟨".gitignore"⟩ IO.FS.Mode.append (bin := false)
   h.putStr initGitignoreContents
-  unless ← System.FilePath.isDir ".git" do
+  unless ← System.FilePath.isDir ⟨".git"⟩ do
     (do
       execCmd {cmd := "git", args := #["init", "-q"]}
       unless upstreamGitBranch = "master" do

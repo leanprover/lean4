@@ -13,32 +13,31 @@ import Lean.Data.Name
 namespace Lean
 open System
 
-def realPathNormalized (p : FilePath) : IO String := do
+def realPathNormalized (p : FilePath) : IO FilePath := do
   (← IO.realPath p).normalize
 
+variable (base : FilePath) in
 def modPathToFilePath : Name → FilePath
   | Name.str p h _              => modPathToFilePath p / h
-  | Name.anonymous              => ""
+  | Name.anonymous              => base
   | Name.num p _ _              => panic! "ill-formed import"
 
-abbrev SearchPath := List FilePath
+/-- A `.olean' search path. -/
+abbrev SearchPath := System.SearchPath
 
 namespace SearchPath
 
 /-- If the package of `mod` can be found in `sp`, return the path with extension
-`ext` (`.lean` or `.olean`) corresponding to `mod`. Otherwise, return `none.` -/
+`ext` (`lean` or `olean`) corresponding to `mod`. Otherwise, return `none.` -/
 def findWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FilePath) := do
   let pkg := mod.getRoot.toString
   let root? ← sp.findM? fun p =>
-    (p / pkg).isDir <||> (p / (pkg ++ ext)).pathExists
-  return root?.map (· ++ modPathToFilePath mod ++ ext)
+    (p / pkg).isDir <||> ((p / pkg).withExtension ext).pathExists
+  return root?.map (modPathToFilePath · mod |>.withExtension ext)
 
 end SearchPath
 
 builtin_initialize searchPathRef : IO.Ref SearchPath ← IO.mkRef {}
-
-def parseSearchPath (path : String) (sp : SearchPath := ∅) : SearchPath :=
-  System.FilePath.splitSearchPath path ++ sp
 
 @[extern c inline "LEAN_IS_STAGE0"]
 private constant isStage0 (u : Unit) : Bool
@@ -55,12 +54,12 @@ def addSearchPathFromEnv (sp : SearchPath) : IO SearchPath := do
   let val ← IO.getEnv "LEAN_PATH"
   match val with
   | none     => pure sp
-  | some val => parseSearchPath val sp
+  | some val => pure <| SearchPath.parse val ++ sp
 
 @[export lean_init_search_path]
 def initSearchPath (path : Option String := none) : IO Unit :=
   match path with
-  | some path => searchPathRef.set <| parseSearchPath path
+  | some path => searchPathRef.set <| SearchPath.parse path
   | none      => do
     let sp ← getBuiltinSearchPath
     let sp ← addSearchPathFromEnv sp
@@ -68,10 +67,10 @@ def initSearchPath (path : Option String := none) : IO Unit :=
 
 partial def findOLean (mod : Name) : IO FilePath := do
   let sp ← searchPathRef.get
-  if let some fname ← sp.findWithExt ".olean" mod then
+  if let some fname ← sp.findWithExt "olean" mod then
     return fname
   else
-    let pkg : FilePath := mod.getRoot.toString
+    let pkg := FilePath.mk mod.getRoot.toString
     let mut msg := s!"unknown package '{pkg}'"
     let rec maybeThisOne dir := do
       if ← (pkg / dir).isDir then
@@ -92,13 +91,13 @@ def moduleNameOfFileName (fname : FilePath) (rootDir : Option FilePath) : IO Nam
     | some rootDir => pure rootDir
     | none         => IO.currentDir
   let mut rootDir ← realPathNormalized rootDir
-  if !rootDir.endsWith System.FilePath.pathSeparator.toString then
-    rootDir := rootDir ++ System.FilePath.pathSeparator.toString
-  if !rootDir.isPrefixOf fname.normalize then
+  if !rootDir.toString.endsWith System.FilePath.pathSeparator.toString then
+    rootDir := ⟨rootDir.toString ++ System.FilePath.pathSeparator.toString⟩
+  if !rootDir.toString.isPrefixOf fname.normalize.toString then
     throw $ IO.userError s!"input file '{fname}' must be contained in root directory ({rootDir})"
   -- NOTE: use `fname` instead of `fname.normalize` to preserve casing on all platforms
-  let fnameSuffix := fname.drop rootDir.length
-  let modNameStr := System.FilePath.withExtension fnameSuffix ""
+  let fnameSuffix := fname.toString.drop rootDir.toString.length
+  let modNameStr := FilePath.mk fnameSuffix |>.withExtension ""
   let modName    := modNameStr.components.foldl Name.mkStr Name.anonymous
   pure modName
 

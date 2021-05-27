@@ -43,7 +43,7 @@ def materialize (relpath : FilePath) (dep : Dependency) : Solver Unit :=
     IO.eprintln s!"{dep.name}: using local path {depdir}"
     modify (·.insert dep.name depdir)
   | Source.git url rev branch => do
-    let depdir : FilePath := "build" / "deps" / dep.name
+    let depdir := FilePath.mk "build" / "deps" / dep.name
     if ← depdir.isDir then
       IO.eprint s!"{dep.name}: trying to update {depdir} to revision {rev}"
       IO.eprintln (match branch with | none => "" | some branch => "@" ++ branch)
@@ -53,7 +53,7 @@ def materialize (relpath : FilePath) (dep : Dependency) : Solver Unit :=
         execCmd {cmd := "git", args := #["fetch"], cwd := depdir}
     else
       IO.eprintln s!"{dep.name}: cloning {url} to {depdir}"
-      execCmd {cmd := "git", args := #["clone", url, depdir]}
+      execCmd {cmd := "git", args := #["clone", url, depdir.toString]}
     let hash ← gitParseOriginRevision depdir rev
     execCmd {cmd := "git", args := #["checkout", "--detach", hash], cwd := depdir}
     modify (·.insert dep.name depdir)
@@ -67,15 +67,14 @@ def solveDepsCore (relPath : FilePath) (d : Manifest) : (maxDepth : Nat) → Sol
       let p ← resolvedPath dep.name
       let d' ← Manifest.fromFile $ p / "leanpkg.toml"
       unless d'.name = dep.name do
-        throw <| IO.userError <| d.name ++ " (in " ++ relPath ++ ") depends on " ++ d'.name ++
-          ", but resolved dependency has name " ++ dep.name ++ " (in " ++ p ++ ")"
+        throw <| IO.userError s!"{d.name} (in {relPath}) depends on {d'.name}, but resolved dependency has name {dep.name} (in {p})"
       solveDepsCore p d' maxDepth
 
 def solveDeps (d : Manifest) : IO Assignment := do
-  let (_, assg) ← (solveDepsCore "." d 1024).run <| Assignment.empty.insert d.name "."
+  let (_, assg) ← (solveDepsCore ⟨"."⟩ d 1024).run <| Assignment.empty.insert d.name ⟨"."⟩
   assg
 
-def constructPathCore (depname : String) (dirname : FilePath) : IO String := do
+def constructPathCore (depname : String) (dirname : FilePath) : IO FilePath := do
   let path ← Manifest.effectivePath (← Manifest.fromFile <| dirname / leanpkgTomlFn)
   return dirname / path
 

@@ -1,0 +1,10 @@
+fun {α : Type} (motive : List α → List α → Type) (h1 : Unit → motive [] []) (h2 : (x : List α) → motive x [])
+  (h3 : (x x_1 : List α) → motive x x_1) =>
+  match [], [] with 
+  | [], [] => h1 Unit.unit
+  | x, [] => h2 x
+  | x, x_1 =>
+    h3 x
+      x_1 : {α : Type} →
+  (motive : List α → List α → Type) →
+    (Unit → motive [] []) → ((x : List α) → motive x []) → ((x x_1 : List α) → motive x x_1) → motive [] []

@@ -135,7 +135,7 @@ def paux : PNat → PNat → PNat
  | PNat.succ x, y =>
    match pf x y with
    | PNat.zero => pf x y
-   | v => pf x v + 1
+   | v => PNat.succ (pf x v)
 
 theorem ex (x y : Nat) : f x y = aux x y := by
   cases x
@@ -168,10 +168,12 @@ theorem «nested recursion» : ∀ {n}, is_nat n → P n
 | _, is_nat.S is_nat.Z => F1
 | _, is_nat.S (is_nat.S h) => FS («nested recursion» h)
 
-theorem «nested recursion, inaccessible» : ∀ {n}, is_nat n → P n
-| _, .(is_nat.Z) => F0
-| _, is_nat.S .(is_nat.Z) => F1
-| _, is_nat.S (is_nat.S h) => FS («nested recursion, inaccessible» h)
+/-- forbidding this, because it shouldn't exist in the first place.
+    We don't expect this kind of inconsistent inaccessible patterns. -/
+-- theorem «nested recursion, inaccessible» : ∀ {n}, is_nat n → P n
+-- | _, .(is_nat.Z) => F0
+-- | _, is_nat.S .(is_nat.Z) => F1
+-- | _, is_nat.S (is_nat.S h) => FS («nested recursion, inaccessible» h)
 
 theorem «reordered discriminants, type» : ∀ n, is_nat_T n → Nat → T n := fun n hn m => 
 match n, m, hn with
@@ -185,14 +187,15 @@ match n, m, hn with
 | _, _, is_nat.S is_nat.Z => F1
 | _, m, is_nat.S (is_nat.S h) => FS («reordered discriminants» _ h m)
 
-def «unsupported nesting» (xs : List Nat) : True :=
-  match xs with
-  | List.nil => True.intro
-  | y::ys =>
-    match ys with
-    | List.nil      => True.intro
-    | _::_::zs      => «unsupported nesting» zs 
-    | zs            => «unsupported nesting» ys 
+/-- known unsupported case for types, just here for reference. -/
+-- def «unsupported nesting» (xs : List Nat) : True :=
+--   match xs with
+--   | List.nil => True.intro
+--   | y::ys =>
+--     match ys with
+--     | List.nil      => True.intro
+--     | _::_::zs      => «unsupported nesting» zs 
+--     | zs            => «unsupported nesting» ys 
 
 def «unsupported nesting, predicate» (xs : PList Nat) : True :=
   match xs with

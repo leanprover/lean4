@@ -479,7 +479,6 @@ private def mkIndPredBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value 
       let lctx := lctx.erase F.fvarId!
       withTheReader Meta.Context (fun ctx => { ctx with lctx }) do
       let main ← mkFreshExprSyntheticOpaqueMVar FType
-      trace[Elab.definition.structural] "asdf\n{←Meta.ppGoal main.mvarId!}"
       let below := below[0]
       let valueNew     ← replaceIndPredRecApps recFnName recArgInfo motive value
       let Farg         ← mkLambdaFVars (recArgInfo.indIndices ++ #[major, below] ++ otherArgs) valueNew

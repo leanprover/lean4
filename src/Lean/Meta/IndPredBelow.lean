@@ -381,8 +381,9 @@ where
 private def belowType (motive : Expr) (xs : Array Expr) (idx : Nat) : MetaM $ Name × Expr := do
   (←inferType xs[idx]).withApp fun type args => do
   let indName := type.constName!
-  let belowType := mkApp (mkConst (indName ++ `below) type.constLevels!) motive
-  let belowType := mkAppN belowType $ args.push xs[idx]
+  let indInfo ← getConstInfoInduct indName
+  let belowArgs := args[:indInfo.numParams] ++ #[motive] ++ args[indInfo.numParams:] ++ #[xs[idx]]
+  let belowType := mkAppN (mkConst (indName ++ `below) type.constLevels!) belowArgs
   (indName, belowType)
 
 partial def mkBelowMatcher
@@ -393,7 +394,7 @@ partial def mkBelowMatcher
   let mkMatcherInput ← getMkMatcherInputInContext matcherApp
   let (indName, belowType, motive, matchType) ← 
     forallBoundedTelescope mkMatcherInput.matchType mkMatcherInput.numDiscrs fun xs t => do
-    let (indName, belowType) ← IndPredBelow.belowType belowMotive xs idx
+    let (indName, belowType) ← belowType belowMotive xs idx
     let matchType ← 
       withLocalDeclD (←mkFreshUserName `h_below) belowType fun h_below => do
       mkForallFVars (xs.push h_below) t
@@ -417,7 +418,7 @@ partial def mkBelowMatcher
     trace[Meta.IndPredBelow.match] "alt {idx}:\n{alt} ↦ {newAlt}"
     newAlt
 
-  let matcherName := mkMatcherInput.matcherName ++ s!"below_{idx}"
+  let matcherName ← mkFreshUserName mkMatcherInput.matcherName
   withExistingLocalDecls (lhss.foldl (init := []) fun s v => s ++ v.fvarDecls) do
     for lhs in lhss do
       trace[Meta.IndPredBelow.match] "{←lhs.patterns.mapM (·.toMessageData)}"
@@ -483,7 +484,7 @@ where
     | Pattern.var varId => 
       let var := mkFVar varId
       (←inferType var).withApp fun ind args => do
-      let tgtType := mkAppN (mkConst (ind.constName! ++ `below) ind.constLevels!) (#[belowMotive] ++ args ++ #[var])
+      let (_, tgtType) ← belowType belowMotive #[var] 0
       withLocalDeclD (←mkFreshUserName `h) tgtType fun h => do
       let localDecl ← getFVarLocalDecl h
       (#[localDecl], Pattern.var h.fvarId!)

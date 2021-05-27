@@ -41,7 +41,17 @@ instance : Ord String where
 instance (n : Nat) : Ord (Fin n) where
   compare x y := compare x.val y.val
 
-def USize.cmp (a b : USize) : Ordering := compare a.val b.val
+instance : Ord UInt8 where
+  compare x y := compareOfLessAndEq x y
+
+instance : Ord UInt16 where
+  compare x y := compareOfLessAndEq x y
+
+instance : Ord UInt32 where
+  compare x y := compareOfLessAndEq x y
+
+instance : Ord UInt64 where
+  compare x y := compareOfLessAndEq x y
 
 instance : Ord USize where
   compare x y := compareOfLessAndEq x y

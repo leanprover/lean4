@@ -12,6 +12,7 @@ import Init.System.IOError
 import Init.System.FilePath
 import Init.System.ST
 import Init.Data.ToString.Macro
+import Init.Data.Ord
 
 open System
 
@@ -183,8 +184,6 @@ def fopenFlags (m : FS.Mode) (b : Bool) : String :=
 
 @[extern "lean_io_getenv"] constant getEnv (var : @& String) : IO (Option String)
 @[extern "lean_io_realpath"] constant realPath (fname : FilePath) : IO FilePath
-@[extern "lean_io_is_dir"] constant isDir (fname : @& FilePath) : IO Bool
-@[extern "lean_io_file_exists"] constant pathExists (fname : @& FilePath) : IO Bool
 @[extern "lean_io_remove_file"] constant removeFile (fname : @& FilePath) : IO Unit
 @[extern "lean_io_app_dir"] constant appPath : IO FilePath
 @[extern "lean_io_current_dir"] constant currentDir : IO FilePath
@@ -274,6 +273,26 @@ structure DirEntry where
 def DirEntry.path (entry : DirEntry) : FilePath :=
   entry.root / entry.fileName
 
+inductive FileType where
+  | dir
+  | file
+  | symlink
+  | other
+  deriving Repr, BEq
+
+structure SystemTime where
+  sec  : Int
+  nsec : UInt32
+  deriving Repr, BEq, Ord
+
+structure Metadata where
+  --permissions : ...
+  accessed : SystemTime
+  modified : SystemTime
+  byteSize : UInt64
+  type     : FileType
+  deriving Repr
+
 end FS
 end IO
 
@@ -281,11 +300,20 @@ namespace System.FilePath
 open IO
 variable [Monad m] [MonadLiftT IO m]
 
-def isDir : FilePath → m Bool := liftM ∘ Prim.isDir
-def pathExists : FilePath → m Bool := liftM ∘ Prim.pathExists
-
 @[extern "lean_io_read_dir"]
 constant readDir : @& FilePath → IO (Array IO.FS.DirEntry)
+
+@[extern "lean_io_metadata"]
+constant metadata : @& FilePath → IO IO.FS.Metadata
+
+def isDir (p : FilePath) : IO Bool :=
+  try
+    return (← p.metadata).type == IO.FS.FileType.dir
+  catch _ =>
+    return false
+
+def pathExists (p : FilePath) : IO Bool :=
+  (p.metadata *> pure true) <|> pure false
 
 end System.FilePath
 

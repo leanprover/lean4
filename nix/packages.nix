@@ -101,7 +101,7 @@ let
     dontInstall = true;
   };
 in {
-  inherit cc lean4-mode buildLeanPackage llvmPackages;
+  inherit cc lean4-mode buildLeanPackage llvmPackages vscode-lean4;
   lean = lean.stage1;
   stage0print-paths = lean.stage1.Leanpkg.print-paths;
   HEAD-as-stage0 = (lean.stage1.Lean.overrideArgs { srcTarget = "..#stage0-from-input.stage0"; srcArgs = "(--override-input lean-stage0 ..\?rev=$(git rev-parse HEAD) -- -Dinterpreter.prefer_native=false \"$@\")"; });
@@ -116,5 +116,6 @@ in {
     "$@" |& ts -i "(%.S)]" | ts -s "[%M:%S"
   '';
   mdbook = lean-mdbook;
+  vscode = lean-vscode;
   inherit doc doc-test;
 } // lean.stage1.Lean // lean.stage1 // lean

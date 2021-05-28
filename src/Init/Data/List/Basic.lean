@@ -357,4 +357,12 @@ def dropLast {α} : List α → List α
     simp[dropLast, ih]
     rfl
 
+def maximum? [LT α] [DecidableRel (@LT.lt α _)] : List α → Option α
+  | []    => none
+  | a::as => some <| as.foldl max a
+
+def minimum? [LE α] [DecidableRel (@LE.le α _)] : List α → Option α
+  | []    => none
+  | a::as => some <| as.foldl min a
+
 end List

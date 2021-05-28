@@ -16,11 +16,13 @@ open System
 def realPathNormalized (p : FilePath) : IO FilePath := do
   (← IO.realPath p).normalize
 
-variable (base : FilePath) in
-def modPathToFilePath : Name → FilePath
-  | Name.str p h _              => modPathToFilePath p / h
-  | Name.anonymous              => base
-  | Name.num p _ _              => panic! "ill-formed import"
+def modToFilePath (base : FilePath) (mod : Name) (ext : String) : FilePath :=
+  go mod |>.withExtension ext
+where
+  go : Name → FilePath
+  | Name.str p h _ => go p / h
+  | Name.anonymous => base
+  | Name.num p _ _ => panic! "ill-formed import"
 
 /-- A `.olean' search path. -/
 abbrev SearchPath := System.SearchPath
@@ -33,7 +35,7 @@ def findWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FileP
   let pkg := mod.getRoot.toString
   let root? ← sp.findM? fun p =>
     (p / pkg).isDir <||> ((p / pkg).withExtension ext).pathExists
-  return root?.map (modPathToFilePath · mod |>.withExtension ext)
+  return root?.map (modToFilePath · mod ext)
 
 end SearchPath
 

@@ -5,6 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich
 -/
 import Leanpkg.Resolve
 import Leanpkg.Git
+import Leanpkg.Build
 
 open System
 
@@ -68,7 +69,7 @@ def configure : IO Configuration := do
         args := #["build"]
       }
   return {
-    leanPath    := SearchPath.toString <| paths.map (fun (p : FilePath) => p / "build")
+    leanPath    := SearchPath.toString <| paths.map (· / Build.buildPath)
     leanSrcPath := SearchPath.toString paths
   }
 
@@ -98,13 +99,21 @@ def buildImports (imports : List String) (leanArgs : List String) : IO Unit := d
   let root ← getRootPart
   let localImports := imports.filter (·.getRoot == root)
   if localImports != [] then
-    let oleans := localImports.map fun i => Lean.modPathToFilePath ⟨"build"⟩ i |>.withExtension "olean" |>.toString
-    execMake oleans leanArgs cfg.leanPath
+    if ← FilePath.pathExists "Makefile" then
+      let oleans := localImports.map fun i => Lean.modToFilePath "build" i "olean" |>.toString
+      execMake oleans leanArgs cfg.leanPath
+    else
+      Build.buildModules root localImports leanArgs cfg.leanPath
   IO.println cfg.leanPath
   IO.println cfg.leanSrcPath
 
 def build (makeArgs leanArgs : List String) : IO Unit := do
-  execMake makeArgs leanArgs (← configure).leanPath
+  let cfg ← configure
+  let root ← getRootPart
+  if makeArgs != [] || (← FilePath.pathExists "Makefile") then
+    execMake (s!"PKG={root}" :: makeArgs) leanArgs cfg.leanPath
+  else
+    Build.buildModules root [root] leanArgs cfg.leanPath
 
 def initGitignoreContents :=
   "/build

@@ -50,15 +50,24 @@ partial def withLockFile (x : IO α) : IO α := do
           acquire (firstTime := false)
         | e => throw e
 
+def getRootPart (pkg : FilePath := ".") : IO Lean.Name := do
+  let entries ← pkg.readDir
+  match entries.filter (FilePath.extension ·.fileName == "lean") with
+  | #[rootFile] => FilePath.withExtension rootFile.fileName "" |>.toString
+  | #[]         => throw <| IO.userError s!"no '.lean' file found in {← IO.realPath "."}"
+  | _           => throw <| IO.userError s!"{← IO.realPath "."} must contain a unique '.lean' file as the package root"
+
 structure Configuration :=
   leanPath    : String
   leanSrcPath : String
+  moreDeps    : List FilePath
 
 def configure : IO Configuration := do
   let d ← readManifest
   IO.eprintln $ "configuring " ++ d.name ++ " " ++ d.version
   let assg ← solveDeps d
   let paths ← constructPath assg
+  let mut moreDeps := [leanpkgTomlFn]
   for path in paths do
     unless path == FilePath.mk "." / "." do
       -- build recursively
@@ -68,27 +77,22 @@ def configure : IO Configuration := do
         cwd := path
         args := #["build"]
       }
+      moreDeps := (path / Build.buildPath / (← getRootPart path).toString |>.withExtension "olean") :: moreDeps
   return {
     leanPath    := SearchPath.toString <| paths.map (· / Build.buildPath)
     leanSrcPath := SearchPath.toString paths
+    moreDeps
   }
 
-def execMake (makeArgs leanArgs : List String) (leanPath : String) : IO Unit := withLockFile do
+def execMake (makeArgs : List String) (cfg : Build.Config) : IO Unit := withLockFile do
   let manifest ← readManifest
-  let leanArgs := (match manifest.timeout with | some t => ["-T", toString t] | none => []) ++ leanArgs
+  let leanArgs := (match manifest.timeout with | some t => ["-T", toString t] | none => []) ++ cfg.leanArgs
   let mut spawnArgs := {
     cmd := "sh"
     cwd := manifest.effectivePath
-    args := #["-c", s!"\"{← IO.appDir}/leanmake\" LEAN_OPTS=\"{" ".intercalate leanArgs}\" LEAN_PATH=\"{leanPath}\" {" ".intercalate makeArgs} >&2"]
+    args := #["-c", s!"\"{← IO.appDir}/leanmake\" PKG={cfg.pkg} LEAN_OPTS=\"{" ".intercalate leanArgs}\" LEAN_PATH=\"{cfg.leanPath}\" {" ".intercalate makeArgs} MORE_DEPS+=\"{" ".intercalate (cfg.moreDeps.map toString)}\" >&2"]
   }
   execCmd spawnArgs
-
-def getRootPart : IO Lean.Name := do
-  let entries ← FilePath.readDir "."
-  match entries.filter (FilePath.extension ·.fileName == "lean") with
-  | #[rootFile] => FilePath.withExtension rootFile.fileName "" |>.toString
-  | #[]         => throw <| IO.userError s!"no '.lean' file found in {← IO.realPath "."}"
-  | _           => throw <| IO.userError s!"{← IO.realPath "."} must contain a unique '.lean' file as the package root"
 
 def buildImports (imports : List String) (leanArgs : List String) : IO Unit := do
   unless ← leanpkgTomlFn.pathExists do
@@ -99,21 +103,23 @@ def buildImports (imports : List String) (leanArgs : List String) : IO Unit := d
   let root ← getRootPart
   let localImports := imports.filter (·.getRoot == root)
   if localImports != [] then
+    let buildCfg : Build.Config := { pkg := root, leanArgs, leanPath := cfg.leanPath, moreDeps := cfg.moreDeps }
     if ← FilePath.pathExists "Makefile" then
       let oleans := localImports.map fun i => Lean.modToFilePath "build" i "olean" |>.toString
-      execMake oleans leanArgs cfg.leanPath
+      execMake oleans buildCfg
     else
-      Build.buildModules root localImports leanArgs cfg.leanPath
+      Build.buildModules buildCfg localImports
   IO.println cfg.leanPath
   IO.println cfg.leanSrcPath
 
 def build (makeArgs leanArgs : List String) : IO Unit := do
   let cfg ← configure
   let root ← getRootPart
+  let buildCfg : Build.Config := { pkg := root, leanArgs, leanPath := cfg.leanPath, moreDeps := cfg.moreDeps }
   if makeArgs != [] || (← FilePath.pathExists "Makefile") then
-    execMake (s!"PKG={root}" :: makeArgs) leanArgs cfg.leanPath
+    execMake leanArgs buildCfg
   else
-    Build.buildModules root [root] leanArgs cfg.leanPath
+    Build.buildModules buildCfg [root]
 
 def initGitignoreContents :=
   "/build

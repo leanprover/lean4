@@ -536,6 +536,18 @@ extern "C" obj_res lean_io_metadata(b_obj_arg fname, obj_arg) {
     return io_result_mk_ok(mdata);
 }
 
+extern "C" obj_res lean_io_create_dir(b_obj_arg p, obj_arg) {
+#ifdef LEAN_WINDOWS
+    if (mkdir(string_cstr(p)) == 0) {
+#else
+    if (mkdir(string_cstr(p), 0777) == 0) {
+#endif
+        return io_result_mk_ok(box(0));
+    } else {
+        return io_result_mk_error(decode_io_error(errno, p));
+    }
+}
+
 extern "C" obj_res lean_io_remove_file(b_obj_arg fname, obj_arg) {
     if (std::remove(string_cstr(fname)) == 0) {
         return io_result_mk_ok(box(0));

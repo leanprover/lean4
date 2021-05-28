@@ -381,6 +381,23 @@ def appDir : m FilePath := do
 
 def currentDir : m FilePath := liftM Prim.currentDir
 
+@[extern "lean_io_create_dir"]
+constant createDir : @& FilePath → IO Unit
+
+partial def createDirAll (p : FilePath) : IO Unit := do
+  if ← p.isDir then
+    return ()
+  if let some parent := p.parent then
+    createDirAll parent
+  try
+    createDir p
+  catch
+    | e =>
+      if ← p.isDir then
+        pure ()  -- I guess someone else was faster
+      else
+        throw e
+
 end
 
 namespace Process

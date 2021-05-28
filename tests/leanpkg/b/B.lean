@@ -1,5 +1,6 @@
 import A
-import B.Foo
+import B.Bar
+import B.Baz
 
 def main : IO Unit :=
   IO.println s!"Hello, {foo} {name}!"

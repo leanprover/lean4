@@ -111,6 +111,14 @@ constant mapTask (f : α → IO β) (t : Task α) (prio := Task.Priority.default
 @[extern "lean_io_bind_task"]
 constant bindTask (t : Task α) (f : α → IO (Task (Except IO.Error β))) (prio := Task.Priority.default) : IO (Task (Except IO.Error β))
 
+def mapTasks (f : List α → IO β) (tasks : List (Task α)) (prio := Task.Priority.default) : IO (Task (Except IO.Error β)) :=
+  go tasks []
+where
+  go
+    | t::ts, as =>
+      IO.bindTask t (fun a => go ts (a :: as)) prio
+    | [], as => IO.asTask (f as.reverse) prio
+
 /-- Check if the task's cancellation flag has been set by calling `IO.cancel` or dropping the last reference to the task. -/
 @[extern "lean_io_check_canceled"] constant checkCanceled : IO Bool
 
@@ -283,7 +291,7 @@ inductive FileType where
 structure SystemTime where
   sec  : Int
   nsec : UInt32
-  deriving Repr, BEq, Ord
+  deriving Repr, BEq, Ord, Inhabited
 
 structure Metadata where
   --permissions : ...

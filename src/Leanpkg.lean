@@ -69,7 +69,7 @@ def configure : IO Configuration := do
       }
   return {
     leanPath    := SearchPath.toString <| paths.map (fun (p : FilePath) => p / "build")
-    leanSrcPath := paths.toString
+    leanSrcPath := SearchPath.toString paths
   }
 
 def execMake (makeArgs leanArgs : List String) (leanPath : String) : IO Unit := withLockFile do

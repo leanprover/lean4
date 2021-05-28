@@ -736,7 +736,7 @@ extern "C" obj_res lean_io_wait(obj_arg t, obj_arg) {
     return io_result_mk_ok(lean_task_get_own(t));
 }
 
-extern "C" obj_res lean_io_wait_any(b_obj_arg task_list) {
+extern "C" obj_res lean_io_wait_any(b_obj_arg task_list, obj_arg) {
     object * t = lean_io_wait_any_core(task_list);
     object * v = lean_task_get(t);
     lean_inc(v);

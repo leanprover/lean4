@@ -211,7 +211,12 @@ def splitCmdlineArgs : List String → IO (String × List String × List String)
 
 end Leanpkg
 
-def main (args : List String) : IO Unit := do
-  Lean.initSearchPath none  -- HACK
-  let (cmd, outerArgs, innerArgs) ← Leanpkg.splitCmdlineArgs args
-  Leanpkg.main cmd outerArgs innerArgs
+def main (args : List String) : IO UInt32 := do
+  try
+    Lean.initSearchPath none  -- HACK
+    let (cmd, outerArgs, innerArgs) ← Leanpkg.splitCmdlineArgs args
+    Leanpkg.main cmd outerArgs innerArgs
+    pure 0
+  catch e =>
+    IO.eprintln e  -- avoid "uncaught exception: ..."
+    pure 1

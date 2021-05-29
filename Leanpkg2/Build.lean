@@ -23,7 +23,7 @@ def buildImports (manifest : Manifest) (imports : List String) (leanArgs : List 
       let oleans := localImports.map fun i => Lean.modToFilePath "build" i "olean" |>.toString
       execMake manifest oleans buildCfg
     else
-      Build.buildModules buildCfg localImports
+      Build.buildModules manifest buildCfg localImports
   IO.println cfg.leanPath
   IO.println cfg.leanSrcPath
 
@@ -31,7 +31,7 @@ def build (manifest : Manifest) (makeArgs leanArgs : List String := []) : IO Uni
   let cfg ← configure manifest
   let root ← getRootPart <| manifest.effectivePath
   let buildCfg : Build.Config := { pkg := root, leanArgs, leanPath := cfg.leanPath, moreDeps := cfg.moreDeps }
-  --if makeArgs != [] || (← FilePath.pathExists "Makefile") then
-  execMake manifest makeArgs buildCfg
-  --else
-  -- Build.buildModules buildCfg [root]
+  if makeArgs != [] || (← FilePath.pathExists "Makefile") then
+    execMake manifest makeArgs buildCfg
+  else
+    Build.buildModules manifest buildCfg [root]

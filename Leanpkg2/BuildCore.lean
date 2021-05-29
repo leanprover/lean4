@@ -5,6 +5,7 @@ Authors: Sebastian Ullrich
 -/
 import Lean.Data.Name
 import Lean.Elab.Import
+import Leanpkg2.Manifest
 import Leanpkg2.Proc
 
 open Lean
@@ -25,6 +26,7 @@ structure Config where
 structure Context extends Config where
   parents       : List Name := []
   moreDepsMTime : IO.FS.SystemTime
+  manifest      : Manifest
 
 deriving instance Inhabited for IO.FS.SystemTime
 deriving instance Inhabited for Task
@@ -51,7 +53,8 @@ partial def buildModule (mod : Name) : BuildM Result := do
     -- already visited
     return r
 
-  let leanFile := modToFilePath "." mod "lean"
+  let srcPath := ctx.manifest.effectivePath
+  let leanFile := modToFilePath srcPath mod "lean"
   let leanMData ← leanFile.metadata
 
   -- recursively build dependencies and calculate transitive `maxMTime`
@@ -62,7 +65,7 @@ partial def buildModule (mod : Name) : BuildM Result := do
   let maxMTime := List.maximum? (leanMData.modified :: ctx.moreDepsMTime :: depMTimes) |>.get!
 
   -- check whether we have an up-to-date .olean
-  let oleanFile := modToFilePath buildPath mod "olean"
+  let oleanFile := modToFilePath (srcPath / buildPath) mod "olean"
   try
     if (← oleanFile.metadata).modified >= maxMTime then
       let r := { maxMTime, task := Task.pure (Except.ok ()) }
@@ -77,7 +80,7 @@ partial def buildModule (mod : Name) : BuildM Result := do
       -- propagate failure
       throw e
     try
-      let cFile := modToFilePath tempBuildPath mod "c"
+      let cFile := modToFilePath (srcPath / tempBuildPath) mod "c"
       IO.createDirAll oleanFile.parent.get!
       IO.createDirAll cFile.parent.get!
       execCmd {
@@ -94,9 +97,9 @@ partial def buildModule (mod : Name) : BuildM Result := do
   modify fun st => { st with modTasks := st.modTasks.insert mod r }
   return r
 
-def buildModules (cfg : Config) (mods : List Name) : IO Unit := do
+def buildModules (manifest : Manifest) (cfg : Config) (mods : List Name) : IO Unit := do
   let moreDepsMTime := (← cfg.moreDeps.mapM (·.metadata)).map (·.modified) |>.maximum? |>.getD ⟨0, 0⟩
-  let rs ← mods.mapM buildModule |>.run { toConfig := cfg, moreDepsMTime } |>.run' {}
+  let rs ← mods.mapM buildModule |>.run { toConfig := cfg, moreDepsMTime, manifest } |>.run' {}
   for r in rs do
     if let Except.error _ ← IO.wait r.task then
       -- actual error has already been printed above

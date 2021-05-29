@@ -1,5 +1,5 @@
 { debug ? false, stage0debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, gnumake, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir,
+  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir,
   ... } @ args:
 rec {
   inherit stdenv;
@@ -29,6 +29,7 @@ rec {
       mkdir $out
       mv bin/ include/ share/ $out/
       substituteInPlace $out/bin/leanmake --replace "make" "${gnumake}/bin/make"
+      substituteInPlace $out/share/lean/lean.mk --replace "/usr/bin/env bash" "${bash}/bin/bash"
     '';
   };
   leancpp = buildCMake {

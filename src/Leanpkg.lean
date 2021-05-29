@@ -117,7 +117,7 @@ def build (makeArgs leanArgs : List String) : IO Unit := do
   let root ← getRootPart
   let buildCfg : Build.Config := { pkg := root, leanArgs, leanPath := cfg.leanPath, moreDeps := cfg.moreDeps }
   if makeArgs != [] || (← FilePath.pathExists "Makefile") then
-    execMake leanArgs buildCfg
+    execMake makeArgs buildCfg
   else
     Build.buildModules buildCfg [root]
 

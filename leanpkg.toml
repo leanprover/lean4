@@ -1,4 +1,3 @@
 [package]
-name = "Leanpkg"
+name = "leanpkg2"
 version = "0.1"
-lean_version = "leanprover/lean4:nightly-2021-05-26"

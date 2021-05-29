@@ -7,7 +7,7 @@ import Leanpkg2.Init
 import Leanpkg2.Configure
 import Leanpkg2.Make
 import Leanpkg2.Build
-import Leanpkg2.Manifest
+import Leanpkg2.TomlManifest
 
 namespace Leanpkg2
 
@@ -66,7 +66,7 @@ directory."
 def cli : (cmd : String) → (leanpkgArgs leanArgs : List String) → IO Unit
 | "init",         [name],         []        => init name
 | "configure",    [],             []        => discard do configure (← readManifest)
-| "print-paths",  leanpkgArgs,    leanArgs  => do buildImports (← readManifest) leanpkgArgs leanArgs
+| "print-paths",  imports,        leanArgs  => do printPaths (← readManifest) imports leanArgs
 | "build",        makeArgs,       leanArgs  => do build (← readManifest) makeArgs leanArgs
 | "help",         ["init"],       []        => IO.println helpInit
 | "help",         ["configure"],  []        => IO.println helpConfigure

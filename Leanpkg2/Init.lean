@@ -5,7 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Leanpkg2.Git
 import Leanpkg2.Proc
-import Leanpkg2.Manifest
+import Leanpkg2.TomlManifest
 
 namespace Leanpkg2
 
@@ -26,7 +26,7 @@ lean_version = \"{leanVersionString}\"
 "
 
 def initPkg (pkgName : String) (fromNew : Bool) : IO Unit := do
-  IO.FS.writeFile leanpkgTomlFn (leanpkgFileContents pkgName)
+  IO.FS.writeFile leanpkgToml (leanpkgFileContents pkgName)
   IO.FS.writeFile ⟨s!"{pkgName.capitalize}.lean"⟩ mainFileContents
   let h ← IO.FS.Handle.mk ⟨".gitignore"⟩ IO.FS.Mode.append (bin := false)
   h.putStr initGitignoreContents

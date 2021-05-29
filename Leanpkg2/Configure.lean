@@ -3,7 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
-import Leanpkg2.BuildCore
+import Leanpkg2.BuildConfig
 import Leanpkg2.Resolve
 
 open System
@@ -27,19 +27,19 @@ def configure (manifest : Manifest) : IO Configuration := do
     "configuring " ++ manifest.name ++ " " ++ manifest.version
   let paths ← solveDeps manifest
   let mut moreDeps := []
-  for (pkgpath, srcpath) in paths do
-    unless pkgpath == "." do
+  for (pkgPath, srcPath) in paths do
+    unless pkgPath == "." do
       -- build recursively
       -- TODO: share build of common dependencies
       execCmd {
         cmd := (← IO.appPath).toString
-        cwd := pkgpath
+        cwd := pkgPath
         args := #["build"]
       }
-      let pkgRoot := srcpath / Build.buildPath / (← getRootPart srcpath).toString
+      let pkgRoot := srcPath / buildPath / (← getRootPart srcPath).toString
       moreDeps := pkgRoot.withExtension "olean" :: moreDeps
   return {
-    leanPath    := SearchPath.toString <| paths.map (·.2 / Build.buildPath)
+    leanPath    := SearchPath.toString <| paths.map (·.2 / buildPath)
     leanSrcPath := SearchPath.toString <| paths.map (·.2)
     moreDeps
   }

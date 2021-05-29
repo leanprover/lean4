@@ -4,13 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Leanpkg2.Manifest
-import Leanpkg2.BuildCore
+import Leanpkg2.BuildConfig
 
 open System
 
 namespace Leanpkg2
 
-def lockFileName : System.FilePath := ⟨".leanpkg-lock"⟩
+def lockFileName : System.FilePath := ".leanpkg-lock"
 
 partial def withLockFile (x : IO α) : IO α := do
   acquire
@@ -39,7 +39,7 @@ partial def withLockFile (x : IO α) : IO α := do
           acquire (firstTime := false)
         | e => throw e
 
-def execMake (manifest : Manifest) (makeArgs : List String) (cfg : Build.Config) : IO Unit := withLockFile do
+def execMake (manifest : Manifest) (makeArgs : List String) (cfg : BuildConfig) : IO Unit := withLockFile do
   let timeoutArgs :=
     match manifest.timeout with
     | some t => ["-T", toString t]

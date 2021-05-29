@@ -3,9 +3,9 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
-import Leanpkg2.Manifest
-import Leanpkg2.Proc
 import Leanpkg2.Git
+import Leanpkg2.Proc
+import Leanpkg2.TomlManifest
 
 open System
 
@@ -65,13 +65,13 @@ def solveDepsCore (relPath : FilePath) (d : Manifest) : (maxDepth : Nat) → Sol
     deps.forM (materialize relPath)
     for dep in deps do
       let p ← resolvedPath dep.name
-      let d' ← Manifest.fromFile $ p / "leanpkg.toml"
+      let d' ← Manifest.fromTomlFile <| p / "leanpkg.toml"
       unless d'.name = dep.name do
         throw <| IO.userError s!"{d.name} (in {relPath}) depends on {d'.name}, but resolved dependency has name {dep.name} (in {p})"
       solveDepsCore p d' maxDepth
 
 def constructPath (depname : String) (dirname : FilePath) : IO (FilePath × FilePath) := do
-  let path ← Manifest.effectivePath (← Manifest.fromFile <| dirname / leanpkgTomlFn)
+  let path ← Manifest.effectivePath (← Manifest.fromTomlFile <| dirname / leanpkgToml)
   (dirname, dirname / path)
 
 def solveDeps (d : Manifest) : IO (List (FilePath × FilePath)) := do

@@ -4,8 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Leanpkg2.Init
-import Leanpkg2.Configure
-import Leanpkg2.Make
 import Leanpkg2.Build
 import Leanpkg2.TomlManifest
 
@@ -65,7 +63,7 @@ directory."
 
 def cli : (cmd : String) → (leanpkgArgs leanArgs : List String) → IO Unit
 | "init",         [name],         []        => init name
-| "configure",    [],             []        => discard do configure (← readManifest)
+| "configure",    [],             []        => do configure (← readManifest)
 | "print-paths",  imports,        leanArgs  => do printPaths (← readManifest) imports leanArgs
 | "build",        makeArgs,       leanArgs  => do build (← readManifest) makeArgs leanArgs
 | "help",         ["init"],       []        => IO.println helpInit

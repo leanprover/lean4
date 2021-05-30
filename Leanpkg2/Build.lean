@@ -8,7 +8,6 @@ import Lean.Elab.Import
 import Leanpkg2.Resolve
 import Leanpkg2.Manifest
 import Leanpkg2.BuildConfig
-import Leanpkg2.Configure
 import Leanpkg2.Make
 import Leanpkg2.Proc
 
@@ -52,7 +51,7 @@ partial def buildModule (mod : Name) : BuildM Result := do
 
   -- recursively build dependencies and calculate transitive `maxMTime`
   let (imports, _, _) ← Elab.parseImports (← IO.FS.readFile leanFile) leanFile.toString
-  let localImports := imports.filter (·.module.getRoot == ctx.pkg)
+  let localImports := imports.filter (·.module.getRoot == ctx.module)
   let deps ← localImports.mapM (buildModule ·.module)
   let depMTimes ← deps.mapM (·.maxMTime)
   let maxMTime := List.maximum? (leanMData.modified :: ctx.moreDepsMTime :: depMTimes) |>.get!
@@ -98,30 +97,44 @@ def buildModules (manifest : Manifest) (cfg : BuildConfig) (mods : List Name) : 
       -- actual error has already been printed above
       throw <| IO.userError "Build failed."
 
-def buildImports (manifest : Manifest) (cfg : Configuration) (imports leanArgs : List String := []) : IO Unit := do
-  let root : Name := manifest.module
+def buildImports (manifest : Manifest) (cfg : BuildConfig) (imports leanArgs : List String := []) : IO Unit := do
   let imports := imports.map (·.toName)
-  let localImports := imports.filter (·.getRoot == root)
+  let localImports := imports.filter (·.getRoot == cfg.module)
   if localImports != [] then
-    let buildCfg : BuildConfig := { pkg := root, leanArgs, leanPath := cfg.leanPath, moreDeps := cfg.moreDeps }
     if ← FilePath.pathExists "Makefile" then
       let oleans := localImports.map fun i =>
         Lean.modToFilePath (manifest.effectivePath / buildPath) i "olean" |>.toString
-      execMake manifest oleans buildCfg
+      execMake manifest oleans cfg
     else
-      buildModules manifest buildCfg localImports
+      buildModules manifest cfg localImports
+
+def buildDeps (manifest : Manifest) : IO (List Package) := do
+  let pkgs ← solveDeps manifest
+  for pkg in pkgs do
+    unless pkg.dir.toString == "." do
+      -- build recursively
+      -- TODO: share build of common dependencies
+      execCmd {
+        cwd := pkg.dir
+        cmd := (← IO.appDir) / "lean" |>.toString
+        args := #["--run", "Package.lean"]
+      }
+  return pkgs
+
+def configure (manifest : Manifest) : IO Unit := do
+  discard <| buildDeps manifest
 
 def printPaths (manifest : Manifest) (imports leanArgs : List String := []) : IO Unit := do
-  let cfg ← configure manifest
+  let pkgs ← buildDeps manifest
+  let cfg := BuildConfig.fromPackages manifest.module leanArgs pkgs
   buildImports manifest cfg imports leanArgs
   IO.println cfg.leanPath
-  IO.println cfg.leanSrcPath
+  IO.println <| SearchPath.toString <| pkgs.map (·.sourceDir)
 
 def build (manifest : Manifest) (makeArgs leanArgs : List String := []) : IO Unit := do
-  let cfg ← configure manifest
-  IO.eprintln $ "building " ++ manifest.name ++ " " ++ manifest.version
-  let buildCfg : BuildConfig := { pkg := manifest.module, leanArgs, leanPath := cfg.leanPath, moreDeps := cfg.moreDeps }
+  let pkgs ← buildDeps manifest
+  let cfg := BuildConfig.fromPackages manifest.module leanArgs pkgs
   if makeArgs != [] || (← FilePath.pathExists "Makefile") then
-    execMake manifest makeArgs buildCfg
+    execMake manifest makeArgs cfg
   else
-    buildModules manifest buildCfg [manifest.module]
+    buildModules manifest cfg [manifest.module]

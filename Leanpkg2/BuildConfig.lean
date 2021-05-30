@@ -27,8 +27,18 @@ def buildRoot (self : Package)  : FilePath :=
 end Package
 
 structure BuildConfig where
-  pkg      : Name
+  module   : Name
   leanArgs : List String
   leanPath : String
   -- things like `leanpkg.toml` and olean roots of dependencies that should also trigger rebuilds
   moreDeps : List FilePath
+
+namespace BuildConfig
+
+def fromPackages (module : Name) (leanArgs : List String) (pkgs : List Package) : BuildConfig := {
+  module, leanArgs,
+  leanPath := SearchPath.toString <| pkgs.map (·.buildDir)
+  moreDeps := pkgs.filter (·.dir.toString != ".") |>.map (·.buildRoot.withExtension "olean")
+}
+
+end BuildConfig

@@ -48,6 +48,6 @@ def execMake (manifest : Manifest) (makeArgs : List String) (cfg : BuildConfig) 
   let mut spawnArgs := {
     cmd := "sh"
     cwd := manifest.effectivePath
-    args := #["-c", s!"\"{← IO.appDir}/leanmake\" PKG={cfg.pkg} LEAN_OPTS=\"{" ".intercalate leanArgs}\" LEAN_PATH=\"{cfg.leanPath}\" {" ".intercalate makeArgs} MORE_DEPS+=\"{" ".intercalate (cfg.moreDeps.map toString)}\" >&2"]
+    args := #["-c", s!"\"{← IO.appDir}/leanmake\" PKG={cfg.module} LEAN_OPTS=\"{" ".intercalate leanArgs}\" LEAN_PATH=\"{cfg.leanPath}\" {" ".intercalate makeArgs} MORE_DEPS+=\"{" ".intercalate (cfg.moreDeps.map toString)}\" >&2"]
   }
   execCmd spawnArgs

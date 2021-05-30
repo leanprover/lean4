@@ -60,10 +60,10 @@ instance : Ord Char where
   compare x y := compareOfLessAndEq x y
 
 
-instance [Ord α] : LT α where
+def ltOfOrd [Ord α] : LT α where
   lt a b := compare a b == Ordering.lt
 
-instance [Ord α] : DecidableRel (@LT.lt α _) :=
+instance [Ord α] : DecidableRel (@LT.lt α ltOfOrd) :=
   inferInstanceAs (DecidableRel (fun a b => compare a b == Ordering.lt))
 
 def Ordering.isLE : Ordering → Bool
@@ -71,8 +71,8 @@ def Ordering.isLE : Ordering → Bool
   | Ordering.eq => true
   | Ordering.gt => false
 
-instance [Ord α] : LE α where
+def leOfOrd [Ord α] : LE α where
   le a b := (compare a b).isLE
 
-instance [Ord α] : DecidableRel (@LE.le α _) :=
+instance [Ord α] : DecidableRel (@LE.le α leOfOrd) :=
   inferInstanceAs (DecidableRel (fun a b => (compare a b).isLE))

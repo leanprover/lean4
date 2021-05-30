@@ -20,9 +20,6 @@ structure BuildContext extends BuildConfig where
   moreDepsMTime : IO.FS.SystemTime
   manifest      : Manifest
 
-deriving instance Inhabited for IO.FS.SystemTime
-deriving instance Inhabited for Task
-
 structure Result where
   maxMTime : IO.FS.SystemTime
   task     : Task (Except IO.Error Unit)

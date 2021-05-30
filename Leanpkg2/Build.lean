@@ -99,8 +99,8 @@ def buildModules (manifest : Manifest) (cfg : BuildConfig) (mods : List Name) : 
       throw <| IO.userError "Build failed."
 
 def buildImports (manifest : Manifest) (cfg : Configuration) (imports leanArgs : List String := []) : IO Unit := do
+  let root : Name := manifest.module
   let imports := imports.map (·.toName)
-  let root ← getRootPart <| manifest.effectivePath
   let localImports := imports.filter (·.getRoot == root)
   if localImports != [] then
     let buildCfg : BuildConfig := { pkg := root, leanArgs, leanPath := cfg.leanPath, moreDeps := cfg.moreDeps }
@@ -119,9 +119,9 @@ def printPaths (manifest : Manifest) (imports leanArgs : List String := []) : IO
 
 def build (manifest : Manifest) (makeArgs leanArgs : List String := []) : IO Unit := do
   let cfg ← configure manifest
-  let root ← getRootPart <| manifest.effectivePath
-  let buildCfg : BuildConfig := { pkg := root, leanArgs, leanPath := cfg.leanPath, moreDeps := cfg.moreDeps }
+  IO.eprintln $ "building " ++ manifest.name ++ " " ++ manifest.version
+  let buildCfg : BuildConfig := { pkg := manifest.module, leanArgs, leanPath := cfg.leanPath, moreDeps := cfg.moreDeps }
   if makeArgs != [] || (← FilePath.pathExists "Makefile") then
     execMake manifest makeArgs buildCfg
   else
-    buildModules manifest buildCfg [root]
+    buildModules manifest buildCfg [manifest.module]

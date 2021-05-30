@@ -16,6 +16,16 @@ namespace Leanpkg2
 def buildPath : FilePath := "build"
 def tempBuildPath := buildPath / "temp"
 
+namespace Package
+
+def buildDir (self : Package) : FilePath :=
+  self.dir / Leanpkg2.buildPath
+
+def buildRoot (self : Package)  : FilePath :=
+  self.buildDir / self.manifest.module
+
+end Package
+
 structure BuildConfig where
   pkg      : Name
   leanArgs : List String

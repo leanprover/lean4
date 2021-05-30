@@ -10,36 +10,27 @@ open System
 
 namespace Leanpkg2
 
-def getRootPart (pkg : FilePath := ".") : IO Lean.Name := do
-  let entries ← pkg.readDir
-  match entries.filter (FilePath.extension ·.fileName == "lean") with
-  | #[rootFile] => FilePath.withExtension rootFile.fileName "" |>.toString
-  | #[]         => throw <| IO.userError s!"no '.lean' file found in {← IO.realPath "."}"
-  | _           => throw <| IO.userError s!"{← IO.realPath "."} must contain a unique '.lean' file as the package root"
-
 structure Configuration :=
   leanPath    : String
   leanSrcPath : String
   moreDeps    : List FilePath
 
 def configure (manifest : Manifest) : IO Configuration := do
-  IO.eprintln $
-    "configuring " ++ manifest.name ++ " " ++ manifest.version
-  let paths ← solveDeps manifest
+  IO.eprintln $ "configuring " ++ manifest.name ++ " " ++ manifest.version
+  let pkgs ← solveDeps manifest
   let mut moreDeps := []
-  for (pkgPath, srcPath) in paths do
-    unless pkgPath == "." do
+  for pkg in pkgs do
+    unless pkg.dir.toString == "." do
       -- build recursively
       -- TODO: share build of common dependencies
       execCmd {
-        cmd := (← IO.appPath).toString
-        cwd := pkgPath
-        args := #["build"]
+        cwd := pkg.dir
+        cmd := (← IO.appDir) / "lean" |>.toString
+        args := #["--run", "Package.lean"]
       }
-      let pkgRoot := srcPath / buildPath / (← getRootPart srcPath).toString
-      moreDeps := pkgRoot.withExtension "olean" :: moreDeps
+      moreDeps := pkg.buildRoot.withExtension "olean" :: moreDeps
   return {
-    leanPath    := SearchPath.toString <| paths.map (·.2 / buildPath)
-    leanSrcPath := SearchPath.toString <| paths.map (·.2)
+    leanPath    := SearchPath.toString <| pkgs.map (·.buildDir)
+    leanSrcPath := SearchPath.toString <| pkgs.map (·.sourceDir)
     moreDeps
   }

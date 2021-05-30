@@ -36,13 +36,16 @@ namespace Manifest
 
 def fromToml (t : Toml.Value) : Option Manifest := OptionM.run do
   let pkg ← t.lookup "package"
-  let Toml.Value.str n ← pkg.lookup "name" | none
-  let Toml.Value.str ver ← pkg.lookup "version" | none
-  let leanVer ← match pkg.lookup "lean_version" with
+  let Toml.Value.str name ← pkg.lookup "name" | none
+  let Toml.Value.str version ← pkg.lookup "version" | none
+  let module := match pkg.lookup "module" with
+    | some (Toml.Value.str mod) => mod
+    | _ => name.capitalize
+  let leanVersion ← match pkg.lookup "lean_version" with
     | some (Toml.Value.str leanVer) => some leanVer
     | none => some leanVersionString
     | _ => none
-  let tm ← match pkg.lookup "timeout" with
+  let timeout ← match pkg.lookup "timeout" with
     | some (Toml.Value.nat timeout) => some (some timeout)
     | none => some none
     | _ => none
@@ -51,9 +54,8 @@ def fromToml (t : Toml.Value) : Option Manifest := OptionM.run do
     | none => some none
     | _ => none
   let Toml.Value.table deps ← t.lookup "dependencies" <|> some (Toml.Value.table []) | none
-  let deps ← deps.mapM fun ⟨n, src⟩ => do Dependency.mk n (← Source.fromToml src)
-  return { name := n, version := ver, leanVersion := leanVer,
-           path := path, dependencies := deps, timeout := tm }
+  let dependencies ← deps.mapM fun ⟨n, src⟩ => do Dependency.mk n (← Source.fromToml src)
+  return { name, module, version, leanVersion, path, dependencies, timeout }
 
 def fromTomlFile (fn : System.FilePath) : IO Manifest := do
   let cnts ← IO.FS.readFile fn

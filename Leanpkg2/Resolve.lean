@@ -65,19 +65,15 @@ def solveDepsCore (relPath : FilePath) (d : Manifest) : (maxDepth : Nat) → Sol
     deps.forM (materialize relPath)
     for dep in deps do
       let p ← resolvedPath dep.name
-      let d' ← Manifest.fromTomlFile <| p / "leanpkg.toml"
+      let d' ← Manifest.fromTomlFile <| p / leanpkgToml
       unless d'.name = dep.name do
         throw <| IO.userError s!"{d.name} (in {relPath}) depends on {d'.name}, but resolved dependency has name {dep.name} (in {p})"
       solveDepsCore p d' maxDepth
 
-def constructPath (depname : String) (dirname : FilePath) : IO (FilePath × FilePath) := do
-  let path ← Manifest.effectivePath (← Manifest.fromTomlFile <| dirname / leanpkgToml)
-  (dirname, dirname / path)
-
-def solveDeps (d : Manifest) : IO (List (FilePath × FilePath)) := do
-  let (_, assg) ← (solveDepsCore ⟨"."⟩ d 1024).run <| Assignment.empty.insert d.name ⟨"."⟩
-  assg.reverse.mapM fun ⟨depname, dirname⟩ =>
+def solveDeps (m : Manifest) : IO (List Package) := do
+  let (_, assg) ← (solveDepsCore ⟨"."⟩ m 1024).run <| Assignment.empty.insert m.name ⟨"."⟩
+  assg.reverse.mapM fun ⟨depname, dirname⟩ => do
     if dirname == "." then
-      (dirname, dirname / d.effectivePath)
+      return ⟨ dirname, m ⟩
     else
-      constructPath depname dirname
+      return ⟨ dirname, ← Manifest.fromTomlFile <| dirname / leanpkgToml ⟩

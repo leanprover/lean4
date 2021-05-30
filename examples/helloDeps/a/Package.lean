@@ -5,15 +5,12 @@ import Leanpkg2.Manifest
 open Leanpkg2
 
 def manifest : Manifest := {
-  name := "hello",
+  name := "a",
   version := "1.0",
 }
 
-def configure : IO Unit :=
-  discard <| Leanpkg2.configure manifest
-
 def build : IO Unit :=
-  Leanpkg2.build manifest ["bin"]
+  Leanpkg2.build manifest ["lib"]
 
 def main : IO Unit :=
   build

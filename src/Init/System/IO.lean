@@ -293,6 +293,9 @@ structure SystemTime where
   nsec : UInt32
   deriving Repr, BEq, Ord, Inhabited
 
+instance : LT SystemTime := ltOfOrd
+instance : LE SystemTime := leOfOrd
+
 structure Metadata where
   --permissions : ...
   accessed : SystemTime

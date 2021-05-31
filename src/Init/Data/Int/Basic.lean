@@ -160,7 +160,7 @@ def toNat : Int → Nat
 
 def natMod (m n : Int) : Nat := (m % n).toNat
 
-protected def Int.pow (m : Int) : Nat → Int
+protected def pow (m : Int) : Nat → Int
   | 0      => 1
   | succ n => Int.pow m n * m
 

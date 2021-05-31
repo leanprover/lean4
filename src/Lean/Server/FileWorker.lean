@@ -172,7 +172,11 @@ section Initialization
     let stdout := String.trim (← leanpkgProc.stdout.readToEnd)
     let stderr ← IO.ofExcept stderr.get
     if (← leanpkgProc.wait) == 0 then
-      match stdout.split (· == '\n') with
+      let leanpkgLines := stdout.split (· == '\n')
+      -- ignore any output up to the last two lines
+      -- TODO: leanpkg should instead redirect nested stdout output to stderr
+      let leanpkgLines := leanpkgLines.drop (leanpkgLines.length - 2)
+      match leanpkgLines with
       | [""]                    => pure []  -- e.g. no leanpkg.toml
       | [leanPath, leanSrcPath] => let sp ← getBuiltinSearchPath
                                    let sp ← addSearchPathFromEnv sp

@@ -146,7 +146,7 @@ private def registerFailedToInferBinderTypeInfo (type : Expr) (ref : Syntax) : T
 
 private def addLocalVarInfoCore (lctx : LocalContext) (stx : Syntax) (fvar : Expr) : TermElabM Unit := do
   if (← getInfoState).enabled then
-    pushInfoTree <| InfoTree.node (children := {}) <| Info.ofTermInfo { lctx := lctx, expr := fvar, stx := stx }
+    pushInfoTree <| InfoTree.node (children := {}) <| Info.ofTermInfo { lctx := lctx, expr := fvar, stx, expectedType? := none }
 
 private def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit := do
   addLocalVarInfoCore (← getLCtx) stx fvar

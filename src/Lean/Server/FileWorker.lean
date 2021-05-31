@@ -482,7 +482,7 @@ section RequestHandling
         for t in snap.cmdState.infoState.trees do
           if let some (ci, Info.ofTermInfo i) := t.termGoalAt? hoverPos then
             let goal ← ci.runMetaM i.lctx <| open Meta in do
-              let ty ← instantiateMVars <|<- inferType i.expr
+              let ty ← instantiateMVars <| i.expectedType?.getD (← inferType i.expr)
               withPPInaccessibleNames <| Meta.ppGoal (← mkFreshExprMVar ty).mvarId!
             let range := if hasRange i.stx then rangeOfSyntax! text i.stx else ⟨p.position, p.position⟩
             return some { goal := toString goal, range }

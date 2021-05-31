@@ -578,6 +578,8 @@ extern "C" obj_res lean_io_app_dir(obj_arg) {
     if (!realpath(buf1, buf2))
         return io_result_mk_error("failed to resolve symbolic links when locating application");
     return io_result_mk_ok(mk_string(buf2));
+#elif defined(LEAN_EMSCRIPTEN)
+    return io_result_mk_error("no app directory exists on Emscripten");
 #else
     // Linux version
     char path[PATH_MAX];

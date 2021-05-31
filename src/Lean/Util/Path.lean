@@ -45,6 +45,8 @@ builtin_initialize searchPathRef : IO.Ref SearchPath ← IO.mkRef {}
 private constant isStage0 (u : Unit) : Bool
 
 def getBuiltinSearchPath : IO SearchPath := do
+  if System.Platform.isEmscripten then
+    return ["/lib/lean"]
   let appDir ← IO.appDir
   let mut buildDir := appDir / ".."
   -- use stage1 stdlib with stage0 executable (which should never be distributed outside of the build directory)

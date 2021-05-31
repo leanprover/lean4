@@ -17,7 +17,7 @@
  "position": {"line": 2, "character": 29}}
 {"range":
  {"start": {"line": 2, "character": 28}, "end": {"line": 2, "character": 46}},
- "goal": "⊢ 1 < Nat.succ 1"}
+ "goal": "⊢ 1 < 2"}
 {"textDocument": {"uri": "file://plainTermGoal.lean"},
  "position": {"line": 2, "character": 44}}
 {"range":
@@ -27,7 +27,7 @@
  "position": {"line": 11, "character": 10}}
 {"range":
  {"start": {"line": 11, "character": 10}, "end": {"line": 11, "character": 18}},
- "goal": "y : Int\n⊢ Nat"}
+ "goal": "y : Int\n⊢ OptionM Nat"}
 {"textDocument": {"uri": "file://plainTermGoal.lean"},
  "position": {"line": 16, "character": 16}}
 {"range":
@@ -57,4 +57,4 @@
  "position": {"line": 31, "character": 8}}
 {"range":
  {"start": {"line": 31, "character": 8}, "end": {"line": 31, "character": 24}},
- "goal": "n : Nat\n⊢ n < Nat.succ n"}
+ "goal": "n : Nat\n⊢ n < n + 1"}

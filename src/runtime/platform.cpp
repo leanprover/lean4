@@ -30,4 +30,12 @@ extern "C" uint8 lean_system_platform_osx(obj_arg) {
     return 0;
 #endif
 }
+
+extern "C" uint8 lean_system_platform_emscripten(obj_arg) {
+#if defined(LEAN_EMSCRIPTEN)
+    return 1;
+#else
+    return 0;
+#endif
+}
 }

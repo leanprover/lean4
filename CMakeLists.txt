@@ -8,6 +8,9 @@ foreach(var ${vars})
   if("${currentHelpString}" MATCHES "No help, variable specified on the command line." OR "${currentHelpString}" STREQUAL "")
     list(APPEND CL_ARGS "-D${var}=${${var}}")
   endif()
+  if(("${var}" MATCHES "CMAKE_.*") AND NOT ("${var}" MATCHES "CMAKE_BUILD_TYPE") AND NOT ("${var}" MATCHES "CMAKE_HOME_DIRECTORY"))
+    list(APPEND PLATFORM_ARGS "-D${var}=${${var}}")
+  endif()
 endforeach()
 
 include(ExternalProject)
@@ -17,9 +20,9 @@ ExternalProject_add(stage0
   SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"
   SOURCE_SUBDIR src
   BINARY_DIR stage0
-  # always use standard release build (discarding LEAN_CXX_EXTRA_FLAGS etc.) for stage0 since it is assumed to be "good"
+  # always use standard release build (discarding LEAN_CXX_EXTRA_FLAGS etc.) for stage0 since it is assumed to be "good", but still pass through CMake platform arguments (compiler, toolchain file, ..)
   # do not rebuild stage0 when git hash changes; it's not from this commit anyway
-  CMAKE_ARGS -DSTAGE=0 -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_BUILD_TYPE=Release -DUSE_GITHASH=OFF
+  CMAKE_ARGS -DSTAGE=0 -DCMAKE_BUILD_TYPE=Release -DUSE_GITHASH=OFF ${PLATFORM_ARGS}
   BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
   INSTALL_COMMAND ""  # skip install
 )

@@ -6,6 +6,7 @@ endif()
 if(NOT (DEFINED STAGE))
   message(FATAL_ERROR "STAGE must be set; use the CMakeLists.txt in the root folder")
 endif()
+include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
 set(LEAN_VERSION_MINOR 0)
@@ -117,14 +118,13 @@ if (NOT("${CHECK_OLEAN_VERSION}" MATCHES "ON"))
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_IGNORE_OLEAN_VERSION")
 endif()
 
-if("${CMAKE_C_COMPILER}" MATCHES "emcc")
-    set(EMSCRIPTEN ON)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     set(MULTI_THREAD OFF)
-    set(TCMALLOC OFF)
-    set(CFLAGS_EMSCRIPTEN "-Oz -O3")
-    set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} ${CFLAGS_EMSCRIPTEN} -D LEAN_EMSCRIPTEN")
-    set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} --memory-init-file 0 --llvm-lto 1 -s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0 ${CFLAGS_EMSCRIPTEN}")
-    set(LEAN_JS_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}" CACHE STRING "location of olean files for lean.js")
+    # From https://emscripten.org/docs/compiling/WebAssembly.html#backends:
+    # > The simple and safe thing is to pass all -s flags at both compile and link time.
+    set(EMSCRIPTEN_SETTINGS "-s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0 -fexceptions")
+    set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_EMSCRIPTEN ${EMSCRIPTEN_SETTINGS}")
+    set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} ${EMSCRIPTEN_SETTINGS}")
 endif()
 if (CMAKE_CROSSCOMPILING_EMULATOR)
   # emscripten likes to quote "node"
@@ -240,8 +240,8 @@ elseif (MSVC)
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/O2 /Oi /Zi ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
     set(LEAN_EXTRA_LINKER_FLAGS        "/LTCG:INCREMENTAL ${LEAN_EXTRA_LINKER_FLAGS}")
     set(CMAKE_STATIC_LINKER_FLAGS      "${CMAKE_STATIC_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS}")
-elseif (EMSCRIPTEN)
-    message(STATUS "Emscripten is detected: Make sure the wraped compiler supports C++14")
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+    message(STATUS "Emscripten is detected: Make sure the wrapped compiler supports C++14")
 else()
     message(FATAL_ERROR "Unsupported compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif ()
@@ -249,7 +249,12 @@ endif ()
 if (NOT MSVC)
     set(CMAKE_CXX_FLAGS                "-Wall -Wextra -std=c++14 ${CMAKE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS_DEBUG          "-g3 ${CMAKE_CXX_FLAGS_DEBUG}")
-    set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os ${CMAKE_CXX_FLAGS_MINSIZEREL}")
+    if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+      # smallest+slower | -Oz .. -Os .. -O3 | largest+faster
+      set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Oz ${CMAKE_CXX_FLAGS_MINSIZEREL}")
+    else ()
+      set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os ${CMAKE_CXX_FLAGS_MINSIZEREL}")
+    endif ()
     set(CMAKE_CXX_FLAGS_RELEASE        "-O3 ${CMAKE_CXX_FLAGS_RELEASE}")
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g3 -fno-omit-frame-pointer ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 elseif (MULTI_THREAD)
@@ -259,30 +264,26 @@ elseif (MULTI_THREAD)
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MT ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 endif ()
 
-if (EMSCRIPTEN)
-    set(gmp_install_prefix ${CMAKE_CURRENT_BINARY_DIR}/gmp-root)
-    # The plethory of configure arguments only makes sure that gmp thinks sizeof(mp_limb_t) == sizeof(long) == 4
-    ExternalProject_Add(
-            gmp
-            URL https://gmplib.org/download/gmp/gmp-6.1.1.tar.bz2
-            URL_HASH SHA256=a8109865f2893f1373b0a8ed5ff7429de8db696fc451b1036bd7bdf95bbeffd6
-            BUILD_IN_SOURCE 1
-            CONFIGURE_COMMAND emconfigure ./configure "CC_FOR_BUILD=gcc" "CCAS=gcc -c" "CFLAGS=-m32 -DPIC ${CFLAGS_EMSCRIPTEN}" --host=x86_64-pc-linux-gnu --build=i686-pc-linux-gnu --disable-assembly --prefix=${gmp_install_prefix}
-            BUILD_COMMAND emmake make -j4
-            INSTALL_COMMAND make install
-    )
-    add_library(lean_external_deps INTERFACE)
-    target_link_libraries(lean_external_deps INTERFACE ${gmp_install_prefix}/lib/libgmp.so)
-    include_directories(lean_external_deps INTERFACE ${gmp_install_prefix}/include)
-    add_dependencies(lean_external_deps gmp)
-    set(EXTRA_LIBS lean_external_deps)
+if ("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
+  set(gmp_install_prefix ${CMAKE_CURRENT_BINARY_DIR}/gmp-root)
+  ExternalProject_Add(
+    gmp
+    URL https://gmplib.org/download/gmp/gmp-6.2.1.tar.bz2
+    URL_HASH SHA256=eae9326beb4158c386e39a356818031bd28f3124cf915f8c5b1dc4c7a36b4d7c
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND emconfigure ./configure "CFLAGS=${EMSCRIPTEN_SETTINGS}" --host=wasm32-unknown-emscripten --disable-assembly --prefix=${gmp_install_prefix}
+    BUILD_COMMAND emmake make -j4
+    INSTALL_COMMAND emmake make install
+  )
+  include_directories(${gmp_install_prefix}/include)
+  set(EXTRA_LIBS ${EXTRA_LIBS} ${gmp_install_prefix}/lib/libgmp.a)
 else()
-    # GMP
-    find_package(GMP 5.0.5 REQUIRED)
-    include_directories(${GMP_INCLUDE_DIR})
-    set(COPY_LIBS ${COPY_LIBS} ${GMP_LIBRARIES})
-    # dlopen
-    set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
+  # dlopen
+  set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
+  # GMP
+  find_package(GMP 5.0.5 REQUIRED)
+  include_directories(${GMP_INCLUDE_DIR})
+  set(EXTRA_LIBS ${EXTRA_LIBS} ${GMP_LIBRARIES})
 endif()
 
 # ccache
@@ -295,8 +296,6 @@ if(CCACHE)
     message(WARNING "Failed to find ccache, prepare for longer and redundant builds...")
   endif()
 endif()
-
-set(EXTRA_LIBS ${EXTRA_LIBS} ${COPY_LIBS})
 
 # Python
 find_package(PythonInterp)
@@ -382,12 +381,6 @@ install(DIRECTORY ${LEAN_BINARY_DIR}/include/lean DESTINATION include)
 configure_file(${LEAN_SOURCE_DIR}/lean.mk.in ${LEAN_BINARY_DIR}/share/lean/lean.mk)
 install(DIRECTORY ${LEAN_BINARY_DIR}/share/lean DESTINATION share)
 
-if(EMSCRIPTEN)
-    set(LEAN_LIBRARY_TYPE SHARED)
-else()
-   set(LEAN_LIBRARY_TYPE STATIC)
-endif()
-
 include_directories(${LEAN_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})  # version.h etc., "private" headers
 include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" headers
@@ -418,10 +411,14 @@ else()
     add_subdirectory(../stdlib stdlib)
   endif()
 
-  add_library(leancpp ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
+  add_library(leancpp STATIC ${LEAN_OBJS})
   set_target_properties(leancpp PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean"
     OUTPUT_NAME leancpp)
+  if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+    # HACK(WN): we need a dependency here, otherwise leancpp starts building before GMP headers are downloaded; the first target built within leancpp is initialize
+    add_dependencies(initialize gmp)
+  endif ()
 endif()
 install(FILES ${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a DESTINATION lib/lean)
 

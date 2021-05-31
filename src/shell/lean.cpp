@@ -380,8 +380,9 @@ void check_optarg(char const * option_name) {
 }
 
 int main(int argc, char ** argv) {
-#if defined(LEAN_EMSCRIPTEN)
-    EM_ASM(
+#ifdef LEAN_EMSCRIPTEN
+    // TODO(WN): Node.js stuff
+    /*EM_ASM(
         var lean_path = process.env['LEAN_PATH'];
         if (lean_path) {
             ENV['LEAN_PATH'] = lean_path;
@@ -397,9 +398,8 @@ int main(int argc, char ** argv) {
             FS.chdir(process.cwd());
         } catch (e) {
             console.log(e);
-        });
-#endif
-#if LEAN_WINDOWS
+        });*/
+#elif defined(LEAN_WINDOWS)
     // "best practice" according to https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-seterrormode
     SetErrorMode(SEM_FAILCRITICALERRORS);
 #endif

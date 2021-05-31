@@ -1,8 +1,16 @@
 add_library(shell OBJECT lean.cpp)
 
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}
-  COMMAND sh -c "LEANC_GMP=${GMP_LIBRARIES} ${CMAKE_BINARY_DIR}/bin/leanc -x none ${CMAKE_EXE_LINKER_FLAGS} $<TARGET_OBJECTS:shell> -o ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"
-  DEPENDS Init Std Lean leancpp shell)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}
+    COMMAND sh -c "emcc -L${CMAKE_BINARY_DIR}/lib/lean -L${gmp_install_prefix}/lib/ ${CMAKE_EXE_LINKER_FLAGS} ${LEANC_STATIC_LINKER_FLAGS} -lgmp $<TARGET_OBJECTS:shell> -o ${CMAKE_BINARY_DIR}/bin/lean.js"
+    DEPENDS Init Std Lean leancpp shell)
+    # The rest is irrelevant for Emscripten
+    return()
+else ()
+  add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}
+    COMMAND sh -c "LEANC_GMP=${GMP_LIBRARIES} ${CMAKE_BINARY_DIR}/bin/leanc -x none ${CMAKE_EXE_LINKER_FLAGS} $<TARGET_OBJECTS:shell> -o ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"
+    DEPENDS Init Std Lean leancpp shell)
+endif ()
 
 add_custom_target(lean ALL
   DEPENDS ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX})

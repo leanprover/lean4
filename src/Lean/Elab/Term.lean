@@ -1115,14 +1115,14 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
       | some expectedType => elabImplicitLambda stx catchExPostpone expectedType
       | none              => elabUsingElabFns stx expectedType? catchExPostpone
 
-def addTermInfo (stx : Syntax) (e : Expr) : TermElabM Unit := do
+def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) : TermElabM Unit := do
   if (← getInfoState).enabled then
-    pushInfoLeaf <| Info.ofTermInfo { lctx := (← getLCtx), expr := e, stx := stx }
+    pushInfoLeaf <| Info.ofTermInfo { lctx := (← getLCtx), expr := e, stx, expectedType? }
 
 def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDecl) :=
   return (← get).syntheticMVars.find? fun d => d.mvarId == mvarId
 
-def mkTermInfo (stx : Syntax) (e : Expr) : TermElabM (Sum Info MVarId) := do
+def mkTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) : TermElabM (Sum Info MVarId) := do
   let isHole? : TermElabM (Option MVarId) := do
     match e with
     | Expr.mvar mvarId _ =>
@@ -1132,12 +1132,12 @@ def mkTermInfo (stx : Syntax) (e : Expr) : TermElabM (Sum Info MVarId) := do
       | _                                                   => return none
     | _ => pure none
   match (← isHole?) with
-  | none        => return Sum.inl <| Info.ofTermInfo { lctx := (← getLCtx), expr := e, stx := stx }
+  | none        => return Sum.inl <| Info.ofTermInfo { lctx := (← getLCtx), expr := e, stx, expectedType? }
   | some mvarId => return Sum.inr mvarId
 
 /-- Store in the `InfoTree` that `e` is a "dot"-completion target. -/
 def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr) (field? : Option Syntax := none) : TermElabM Unit := do
-  addCompletionInfo <| CompletionInfo.dot { expr := e, stx := stx, lctx := (← getLCtx) } (field? := field?) (expectedType? := expectedType?)
+  addCompletionInfo <| CompletionInfo.dot { expr := e, stx, lctx := (← getLCtx), expectedType? } (field? := field?) (expectedType? := expectedType?)
 
 /--
   Main function for elaborating terms.
@@ -1157,7 +1157,7 @@ def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr)
   We use this flag to implement, for example, the `@` modifier. If `Context.implicitLambda == false`, then this parameter has no effect.
   -/
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) : TermElabM Expr :=
-  withInfoContext' (withRef stx <| elabTermAux expectedType? catchExPostpone implicitLambda stx) (mkTermInfo stx)
+  withInfoContext' (withRef stx <| elabTermAux expectedType? catchExPostpone implicitLambda stx) (mkTermInfo stx (expectedType? := expectedType?))
 
 def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
   let e ← elabTerm stx expectedType? catchExPostpone implicitLambda

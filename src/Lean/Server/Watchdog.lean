@@ -404,6 +404,7 @@ section MessageHandling
     | "textDocument/semanticTokens/range" => handle SemanticTokensRangeParams
     | "textDocument/semanticTokens/full"  => handle SemanticTokensParams
     | "$/lean/plainGoal"                  => handle PlainGoalParams
+    | "$/lean/plainTermGoal"              => handle PlainTermGoalParams
     | _                                   =>
       (←read).hOut.writeLspResponseError
         { id      := id

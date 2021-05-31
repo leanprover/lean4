@@ -73,5 +73,8 @@ instance SemanticTokensRangeParams.hasFileSource : FileSource SemanticTokensRang
 instance PlainGoalParams.hasFileSource : FileSource PlainGoalParams :=
   ⟨fun p => fileSource p.textDocument⟩
 
+instance : FileSource PlainTermGoalParams where
+  fileSource p := fileSource p.textDocument
+
 end Lsp
 end Lean

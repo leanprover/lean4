@@ -470,6 +470,24 @@ section RequestHandling
     ⟨text.utf8PosToLspPos <| stx.getPos?.get!,
      text.utf8PosToLspPos <| stx.getTailPos?.get!⟩
 
+  open Elab in
+  partial def handlePlainTermGoal (p : PlainTermGoalParams)
+    : ServerM (Task (Except IO.Error (Except RequestError (Option PlainTermGoal)))) := do
+    let st ← read
+    let doc ← st.docRef.get
+    let text := doc.meta.text
+    let hoverPos := text.lspPosToUtf8Pos p.position
+    withWaitFindSnap doc (fun s => s.endPos > hoverPos)
+      (notFoundX := pure none) fun snap => do
+        for t in snap.cmdState.infoState.trees do
+          if let some (ci, Info.ofTermInfo i) := t.termGoalAt? hoverPos then
+            let goal ← ci.runMetaM i.lctx <| open Meta in do
+              let ty ← instantiateMVars <|<- inferType i.expr
+              withPPInaccessibleNames <| Meta.ppGoal (← mkFreshExprMVar ty).mvarId!
+            let range := if hasRange i.stx then rangeOfSyntax! text i.stx else ⟨p.position, p.position⟩
+            return some { goal := toString goal, range }
+        return none
+
   partial def handleDocumentHighlight (p : DocumentHighlightParams) :
     ServerM (Task (Except IO.Error (Except RequestError (Array DocumentHighlight)))) := do
     let doc ← (← read).docRef.get
@@ -706,6 +724,7 @@ section MessageHandling
     | "textDocument/semanticTokens/full"  => handle SemanticTokensParams SemanticTokens handleSemanticTokensFull
     | "textDocument/semanticTokens/range" => handle SemanticTokensRangeParams SemanticTokens handleSemanticTokensRange
     | "$/lean/plainGoal"                  => handle PlainGoalParams (Option PlainGoal) handlePlainGoal
+    | "$/lean/plainTermGoal"              => handle PlainTermGoalParams (Option PlainTermGoal) handlePlainTermGoal
     | _ => throwServerError s!"Got unsupported request: {method}"
 end MessageHandling
 

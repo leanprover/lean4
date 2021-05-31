@@ -42,4 +42,12 @@ structure PlainGoal where
   goals : Array String
   deriving FromJson, ToJson
 
+structure PlainTermGoalParams extends TextDocumentPositionParams
+  deriving FromJson, ToJson
+
+structure PlainTermGoal where
+  goal : String
+  range : Range
+  deriving FromJson, ToJson
+
 end Lean.Lsp

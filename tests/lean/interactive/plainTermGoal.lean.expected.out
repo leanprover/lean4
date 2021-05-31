@@ -1,0 +1,60 @@
+{"textDocument": {"uri": "file://plainTermGoal.lean"},
+ "position": {"line": 2, "character": 13}}
+{"range":
+ {"start": {"line": 2, "character": 2}, "end": {"line": 2, "character": 46}},
+ "goal": "⊢ 0 < 2"}
+{"textDocument": {"uri": "file://plainTermGoal.lean"},
+ "position": {"line": 2, "character": 14}}
+{"range":
+ {"start": {"line": 2, "character": 14}, "end": {"line": 2, "character": 27}},
+ "goal": "⊢ 0 < 1"}
+{"textDocument": {"uri": "file://plainTermGoal.lean"},
+ "position": {"line": 2, "character": 15}}
+{"range":
+ {"start": {"line": 2, "character": 14}, "end": {"line": 2, "character": 27}},
+ "goal": "⊢ 0 < 1"}
+{"textDocument": {"uri": "file://plainTermGoal.lean"},
+ "position": {"line": 2, "character": 29}}
+{"range":
+ {"start": {"line": 2, "character": 28}, "end": {"line": 2, "character": 46}},
+ "goal": "⊢ 1 < Nat.succ 1"}
+{"textDocument": {"uri": "file://plainTermGoal.lean"},
+ "position": {"line": 2, "character": 44}}
+{"range":
+ {"start": {"line": 2, "character": 44}, "end": {"line": 2, "character": 45}},
+ "goal": "⊢ Nat"}
+{"textDocument": {"uri": "file://plainTermGoal.lean"},
+ "position": {"line": 11, "character": 10}}
+{"range":
+ {"start": {"line": 11, "character": 10}, "end": {"line": 11, "character": 18}},
+ "goal": "y : Int\n⊢ Nat"}
+{"textDocument": {"uri": "file://plainTermGoal.lean"},
+ "position": {"line": 16, "character": 16}}
+{"range":
+ {"start": {"line": 16, "character": 16}, "end": {"line": 16, "character": 17}},
+ "goal": "m n : Nat\n⊢ ?m m n < n"}
+{"textDocument": {"uri": "file://plainTermGoal.lean"},
+ "position": {"line": 19, "character": 18}}
+{"range":
+ {"start": {"line": 19, "character": 18}, "end": {"line": 19, "character": 23}},
+ "goal": "⊢ True"}
+{"textDocument": {"uri": "file://plainTermGoal.lean"},
+ "position": {"line": 23, "character": 2}}
+{"range":
+ {"start": {"line": 23, "character": 2}, "end": {"line": 23, "character": 66}},
+ "goal": "⊢ ∀ (n : Nat), n < n + 42"}
+{"textDocument": {"uri": "file://plainTermGoal.lean"},
+ "position": {"line": 23, "character": 6}}
+{"range":
+ {"start": {"line": 23, "character": 6}, "end": {"line": 23, "character": 7}},
+ "goal": "⊢ Type"}
+{"textDocument": {"uri": "file://plainTermGoal.lean"},
+ "position": {"line": 29, "character": 6}}
+{"range":
+ {"start": {"line": 29, "character": 6}, "end": {"line": 29, "character": 18}},
+ "goal": "n : Nat\n⊢ ∀ (n m : Nat), n + m = m + n"}
+{"textDocument": {"uri": "file://plainTermGoal.lean"},
+ "position": {"line": 31, "character": 8}}
+{"range":
+ {"start": {"line": 31, "character": 8}, "end": {"line": 31, "character": 24}},
+ "goal": "n : Nat\n⊢ n < Nat.succ n"}

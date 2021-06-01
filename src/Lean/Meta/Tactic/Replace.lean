@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Util.ForEachExpr
 import Lean.Meta.AppBuilder
+import Lean.Meta.MatchUtil
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Revert
 import Lean.Meta.Tactic.Intro
@@ -101,5 +102,17 @@ def changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (checkD
     | Expr.forallE n d b c => do check d; finalize (mkForall n c.binderInfo typeNew b)
     | Expr.letE n t v b _  => do check t; finalize (mkLet n typeNew v b)
     | _ => throwTacticEx `changeHypothesis mvarId "unexpected auxiliary target"
+
+def modifyTarget (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := do
+  withMVarContext mvarId do
+    checkNotAssigned mvarId `modifyTarget
+    change mvarId (← f (← getMVarType mvarId)) (checkDefEq := false)
+
+def modifyTargetEqLHS (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := do
+   modifyTarget mvarId fun target => do
+     if let some (_, lhs, rhs) ← matchEq? target then
+       mkEq (← f lhs) rhs
+     else
+       throwTacticEx `modifyTargetEqLHS mvarId m!"equality expected{indentExpr target}"
 
 end Lean.Meta

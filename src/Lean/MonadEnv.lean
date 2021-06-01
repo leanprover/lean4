@@ -122,6 +122,8 @@ def addDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : Decla
 private def supportedRecursors :=
   #[``Empty.rec, ``False.rec, ``Eq.rec, ``Eq.recOn, ``Eq.casesOn, ``False.casesOn, ``Empty.casesOn, ``And.rec, ``And.casesOn]
 
+/- This is a temporary workaround for generating better error messages for the compiler. It can be deleted after we
+   rewrite the remaining parts of the compiler in Lean.  -/
 private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Declaration) : m Unit := do
   let env ← getEnv
   decl.forExprM fun e =>
@@ -137,8 +139,10 @@ private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Decla
 def compileDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : Declaration) : m Unit := do
   match (← getEnv).compileDecl (← getOptions) decl with
   | Except.ok env   => setEnv env
+  | Except.error (KernelException.other msg) =>
+    checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
+    throwError msg
   | Except.error ex =>
-    checkUnsupported decl -- Generate nicer error message for unsupported recursors
     throwKernelException ex
 
 def addAndCompile [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : Declaration) : m Unit := do

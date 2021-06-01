@@ -819,7 +819,7 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
     mkForallFVars discrs (mkConst ``PUnit [u])
 
   let matcherType ← instantiateForall matcherType matcherApp.discrs 
-  let lhss ← Array.toList $ ←forallBoundedTelescope matcherType (some matcherApp.alts.size) fun alts _ => 
+  let lhss := Array.toList $ ←forallBoundedTelescope matcherType (some matcherApp.alts.size) fun alts _ => 
     alts.mapM fun alt => do
     let ty ← inferType alt
     forallTelescope ty fun xs body => do 

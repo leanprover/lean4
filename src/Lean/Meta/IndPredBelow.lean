@@ -237,16 +237,16 @@ partial def backwardsChaining (m : MVarId) (depth : Nat) : MetaM Bool := do
     let lctx ← getLCtx 
     let mTy ← getMVarType m
     lctx.anyM fun localDecl => 
-      if localDecl.isAuxDecl then false else
-      commitWhen do
-      let (mvars, _, t) ← forallMetaTelescope localDecl.type
-      if ←isDefEq mTy t then 
-        assignExprMVar m (mkAppN localDecl.toExpr mvars)
-        mvars.allM fun v => do
-          if ←isExprMVarAssigned v.mvarId! then true
-          else 
-            backwardsChaining v.mvarId! (depth - 1)
-      else false
+      if localDecl.isAuxDecl then 
+        false 
+      else 
+        commitWhen do
+        let (mvars, _, t) ← forallMetaTelescope localDecl.type
+        if ←isDefEq mTy t then 
+          assignExprMVar m (mkAppN localDecl.toExpr mvars)
+          mvars.allM fun v => 
+            isExprMVarAssigned v.mvarId! <||> backwardsChaining v.mvarId! (depth - 1)
+        else false
           
 partial def proveBrecOn (ctx : Context) (indVal : InductiveVal) (type : Expr) : MetaM Expr := do
   let main ← mkFreshExprSyntheticOpaqueMVar type
@@ -386,6 +386,20 @@ private def belowType (motive : Expr) (xs : Array Expr) (idx : Nat) : MetaM $ Na
   let belowType := mkAppN (mkConst (indName ++ `below) type.constLevels!) belowArgs
   (indName, belowType)
 
+/-- This function adds an additional `below` discriminant to a matcher application.
+    It is used for modifying the patterns, such that the structural recursion can use the new
+    `below` predicate instead of the original one and thus be used prove structural recursion.
+    
+    It takes as parameters:
+    - matcherApp: a matcher application
+    - belowMotive: the motive, that the `below` type should carry
+    - below: an expression from the local context that is the `below` version of a predicate
+             and can be used for structural recursion
+    - idx: the index of the original predicate discriminant.
+    
+    It returns:
+    - A matcher application as an expression
+    - A side-effect for adding the matcher to the environment -/
 partial def mkBelowMatcher
     (matcherApp : MatcherApp) 
     (belowMotive : Expr) 
@@ -424,6 +438,8 @@ partial def mkBelowMatcher
       trace[Meta.IndPredBelow.match] "{←lhs.patterns.mapM (·.toMessageData)}"
   let res ← Match.mkMatcher { matcherName, matchType, numDiscrs := (mkMatcherInput.numDiscrs + 1), lhss }
   res.addMatcher
+  -- if a wrong index is picked, the resulting matcher can be type-incorrect.
+  -- we check here, so that errors can propagate higher up the call stack.
   check res.matcher
   let args := #[motive] ++ matcherApp.discrs.push below ++ alts
   let newApp := mkApp res.matcher motive
@@ -465,6 +481,12 @@ where
       let belowIndices ← IndPredBelow.getBelowIndices ctorName
       let belowIndices := belowIndices[ctorInfo.numParams:].toArray.map (· - belowCtor.numParams)
 
+      -- belowFieldOpts starts off with an array of empty fields.
+      -- We then go over pattern's fields and set the appropriate fields to values.
+      -- In general, there are fewer `fields` than `belowFieldOpts`, because the 
+      -- `belowCtor` carries a `below`, a non-`below` and a `motive` version of each 
+      -- field that occurs in a recursive application of the inductive predicate.
+      -- `belowIndices` is a mapping from non-`below` to the `below` version of each field.
       let mut belowFieldOpts := mkArray belowCtor.numFields none
       let fields := fields.toArray
       for fieldIdx in [:fields.size] do
@@ -509,7 +531,7 @@ where
           let belowFieldOpts := belowFieldOpts.set! (belowFields.size + 1) transformedField
           let belowField := 
             match belowField with 
-            | Pattern.ctor _ _ _ _ => Pattern.inaccessible belowFieldExpr 
+            | Pattern.ctor .. => Pattern.inaccessible belowFieldExpr 
             | _ => belowField
           loop belowCtor belowFieldOpts (belowFields.push belowField) (additionalFVars ++ fvars)
         else
@@ -541,18 +563,17 @@ def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat
   match f.constName?, xs.indexOf? x with
   | some name, some idx => do
     if ←isInductivePredicate name then
-    let (_, belowTy) ← belowType motive xs idx
-    let below ← mkFreshExprSyntheticOpaqueMVar belowTy
-    try 
-      trace[Meta.IndPredBelow.match] "{←Meta.ppGoal below.mvarId!}"
-      if ←backwardsChaining below.mvarId! 10 then
-        trace[Meta.IndPredBelow.match] "Found below term in the local context: {below}"
-        if ←xs.anyM (isDefEq below) then none else
-        (below, idx.val)
-      else 
-        trace[Meta.IndPredBelow.match] "could not find below term in the local context"
-        none
-    catch _ => none
+      let (_, belowTy) ← belowType motive xs idx
+      let below ← mkFreshExprSyntheticOpaqueMVar belowTy
+      try 
+        trace[Meta.IndPredBelow.match] "{←Meta.ppGoal below.mvarId!}"
+        if ←backwardsChaining below.mvarId! 10 then
+          trace[Meta.IndPredBelow.match] "Found below term in the local context: {below}"
+          if ←xs.anyM (isDefEq below) then none else (below, idx.val)
+        else 
+          trace[Meta.IndPredBelow.match] "could not find below term in the local context"
+          none
+      catch _ => none
     else none
   | _, _ => none
     

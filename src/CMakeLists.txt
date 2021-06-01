@@ -267,12 +267,12 @@ endif ()
 if ("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
   include_directories(${GMP_INSTALL_PREFIX}/include)
 else()
-  # dlopen
-  set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
   # GMP
   find_package(GMP 5.0.5 REQUIRED)
   include_directories(${GMP_INCLUDE_DIR})
-  set(EXTRA_LIBS ${EXTRA_LIBS} ${GMP_LIBRARIES})
+  set(COPY_LIBS ${COPY_LIBS} ${GMP_LIBRARIES})
+  # dlopen
+  set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
 endif()
 
 # ccache
@@ -285,6 +285,9 @@ if(CCACHE)
     message(WARNING "Failed to find ccache, prepare for longer and redundant builds...")
   endif()
 endif()
+
+# TODO: copy COPY_LIBS when lean libraries become shared rather than static
+set(EXTRA_LIBS ${EXTRA_LIBS} ${COPY_LIBS})
 
 # Python
 find_package(PythonInterp)

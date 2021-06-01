@@ -109,6 +109,11 @@ structure State where
      We use this information to generate the auxiliary `_sunfold` definition needed by the smart unfolding
      technique used at WHNF. -/
   matcherBelowDep : NameSet := {}
+  /- As part of the inductive predicates case, we keep adding more and more discriminants from the
+     local context and build up a bigger matcher application until we reach a fixed point.
+     As a side-effect, this creates matchers. Here we capture all these side-effects, because
+     the construction rolls back any changes done to the environment and the side-effects
+     need to be replayed. -/
   addMatchers : Array $ MetaM Unit := #[]
 
 abbrev M := StateRefT State MetaM
@@ -375,7 +380,6 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
     | Expr.proj n i e _  => return mkProj n i (← loop e)
     | Expr.app _ _ _ =>
       let processApp (e : Expr) : M Expr := do
-        let lCtx ← getLCtx
         e.withApp fun f args => do
           if f.isConstOf recFnName then
             let ty ← inferType e
@@ -383,11 +387,10 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
             if ←IndPredBelow.backwardsChaining main.mvarId! maxDepth then
               main
             else
-              throwError "could not solve using backwards chaining {←Meta.ppGoal main.mvarId!}"
+              throwError "could not solve using backwards chaining {MessageData.ofGoal main.mvarId!}"
           else
             return mkAppN (← loop f) (← args.mapM loop)
-      let matcherApp? ← matchMatcherApp? e
-      match matcherApp? with
+      match ←matchMatcherApp? e with
       | some matcherApp =>
         if !recArgHasLooseBVarsAt recFnName recArgInfo e then
           processApp e
@@ -468,22 +471,24 @@ private def mkIndPredBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value 
   let brecOnType ← inferType brecOn
   trace[Elab.definition.structural] "brecOn     {brecOn}"
   trace[Elab.definition.structural] "brecOnType {brecOnType}"
-  forallBoundedTelescope brecOnType (some 1) fun F _ => do
+  -- we need to close the telescope here, because the local context is used:
+  -- The root cause was, that this copied code puts an ih : FType into the 
+  -- local context and later, when we use the local context to build the recursive 
+  -- call, it uses this ih. But that ih doesn't exist in the actual brecOn call. 
+  -- That's why it must go.
+  let FType ← forallBoundedTelescope brecOnType (some 1) fun F _ => do
     let F := F[0]
     let FType ← inferType F
     trace[Elab.definition.structural] "FType: {FType}"
     let FType ← instantiateForall FType recArgInfo.indIndices
-    let FType ← instantiateForall FType #[major]
-    forallBoundedTelescope FType (some 1) fun below _ => do
-      let lctx ← getLCtx
-      let lctx := lctx.erase F.fvarId!
-      withTheReader Meta.Context (fun ctx => { ctx with lctx }) do
-      let main ← mkFreshExprSyntheticOpaqueMVar FType
-      let below := below[0]
-      let valueNew     ← replaceIndPredRecApps recFnName recArgInfo motive value
-      let Farg         ← mkLambdaFVars (recArgInfo.indIndices ++ #[major, below] ++ otherArgs) valueNew
-      let brecOn       := mkApp brecOn Farg
-      pure $ mkAppN brecOn otherArgs
+    instantiateForall FType #[major]
+  forallBoundedTelescope FType (some 1) fun below _ => do
+    let main ← mkFreshExprSyntheticOpaqueMVar FType
+    let below := below[0]
+    let valueNew     ← replaceIndPredRecApps recFnName recArgInfo motive value
+    let Farg         ← mkLambdaFVars (recArgInfo.indIndices ++ #[major, below] ++ otherArgs) valueNew
+    let brecOn       := mkApp brecOn Farg
+    pure $ mkAppN brecOn otherArgs
 
 private def shouldBetaReduce (e : Expr) (recFnName : Name) : Bool :=
   if e.isHeadBetaTarget then

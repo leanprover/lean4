@@ -265,18 +265,7 @@ elseif (MULTI_THREAD)
 endif ()
 
 if ("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
-  set(gmp_install_prefix ${CMAKE_CURRENT_BINARY_DIR}/gmp-root)
-  ExternalProject_Add(
-    gmp
-    URL https://gmplib.org/download/gmp/gmp-6.2.1.tar.bz2
-    URL_HASH SHA256=eae9326beb4158c386e39a356818031bd28f3124cf915f8c5b1dc4c7a36b4d7c
-    BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND emconfigure ./configure "CFLAGS=${EMSCRIPTEN_SETTINGS}" --host=wasm32-unknown-emscripten --disable-assembly --prefix=${gmp_install_prefix}
-    BUILD_COMMAND emmake make -j4
-    INSTALL_COMMAND emmake make install
-  )
-  include_directories(${gmp_install_prefix}/include)
-  set(EXTRA_LIBS ${EXTRA_LIBS} ${gmp_install_prefix}/lib/libgmp.a)
+  include_directories(${GMP_INSTALL_PREFIX}/include)
 else()
   # dlopen
   set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
@@ -415,10 +404,6 @@ else()
   set_target_properties(leancpp PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean"
     OUTPUT_NAME leancpp)
-  if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-    # HACK(WN): we need a dependency here, otherwise leancpp starts building before GMP headers are downloaded; the first target built within leancpp is initialize
-    add_dependencies(initialize gmp)
-  endif ()
 endif()
 install(FILES ${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a DESTINATION lib/lean)
 

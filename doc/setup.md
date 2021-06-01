@@ -34,7 +34,7 @@ Foo/
   A/...   # further nesting
 build/  # `leanpkg` output directory
 ```
-Note however that `leanpkg` currently depends on `make` (and `sh`) for recursive compilation.
+Note however that producing native binaries and libraries (`leanpkg build bin/lb`) currently depends on `make` and an external C compiler for recursive compilation.
 It has been tested on Windows by installing these tools using [MSYS2](https://www.msys2.org/), but [MinGW](http://www.mingw.org/) or WSL should work, too.
 
 ### Editing

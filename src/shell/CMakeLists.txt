@@ -2,7 +2,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   add_executable(lean lean.cpp)
   set_target_properties(lean PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
-  target_link_libraries(lean Init Std Lean leancpp "${GMP_INSTALL_PREFIX}/lib/libgmp.a")
+  target_link_libraries(lean Init Std Lean leancpp "${GMP_INSTALL_PREFIX}/lib/libgmp.a" "-lnodefs.js")
 else ()
   add_library(shell OBJECT lean.cpp)
   add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}

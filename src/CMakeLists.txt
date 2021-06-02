@@ -122,9 +122,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     set(MULTI_THREAD OFF)
     # From https://emscripten.org/docs/compiling/WebAssembly.html#backends:
     # > The simple and safe thing is to pass all -s flags at both compile and link time.
-    set(EMSCRIPTEN_SETTINGS "-s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0 -fexceptions")
+    set(EMSCRIPTEN_SETTINGS "-s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0 -s MAIN_MODULE=1 -fexceptions")
     set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_EMSCRIPTEN ${EMSCRIPTEN_SETTINGS}")
     set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} ${EMSCRIPTEN_SETTINGS}")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EMSCRIPTEN_SETTINGS}")
 endif()
 if (CMAKE_CROSSCOMPILING_EMULATOR)
   # emscripten likes to quote "node"

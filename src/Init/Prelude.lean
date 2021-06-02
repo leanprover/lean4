@@ -1593,6 +1593,9 @@ class Hashable (α : Sort u) where
 export Hashable (hash)
 
 @[extern "lean_usize_mix_hash"]
+constant mixUSizeHash (u₁ u₂ : USize) : USize
+
+@[extern "lean_usize_mix_hash"]
 constant mixHash (u₁ u₂ : USize) : USize
 
 @[extern "lean_string_hash"]

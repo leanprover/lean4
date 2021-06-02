@@ -1587,11 +1587,6 @@ instance nonBacktrackable : Backtrackable PUnit σ where
 
 end EStateM
 
-class HashableUSize (α : Sort u) where
-  hashUSize : α → USize
-
-export HashableUSize (hashUSize)
-
 class Hashable (α : Sort u) where
   hash : α → UInt64
 
@@ -1603,14 +1598,8 @@ constant UInt64.toUSize (u : UInt64) : USize
 @[extern c inline "(uint64_t)#1"]
 constant USize.toUInt64 (u : USize) : UInt64
 
-instance [Hashable α] : HashableUSize α where
-  hashUSize n := hash n |>.toUSize
-
 @[extern "lean_uint64_mix_hash"]
 constant mixHash (u₁ u₂ : UInt64) : UInt64
-
-@[extern "lean_usize_mix_hash"]
-constant mixUSizeHash (u₁ u₂ : USize) : USize
 
 @[extern "lean_string_hash"]
 protected constant String.hash (s : @& String) : UInt64

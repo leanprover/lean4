@@ -109,7 +109,6 @@ lean_object* l___private_Lean_Level_0__Lean_Level_isAlreadyNormalizedCheap___box
 lean_object* l_Lean_Level_isParam_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_addOffsetAux_match__1(lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux_match__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t l_UInt64_toUSize(uint64_t);
 lean_object* l_Lean_Level_mvarId_x21___closed__3;
 extern uint64_t l_instInhabitedUInt64;
 lean_object* l___private_Lean_Level_0__Lean_Level_mkMaxAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -147,7 +146,7 @@ uint64_t l_Lean_Level_data(lean_object*);
 lean_object* l_Lean_Level_any___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Level_isNeverZero_match__1(lean_object*);
 lean_object* l_Lean_Level_PP_Result_succ_match__1(lean_object*);
-uint64_t l_Lean_Level_mkData(size_t, lean_object*, uint8_t, uint8_t);
+uint64_t l_Lean_Level_mkData(uint64_t, lean_object*, uint8_t, uint8_t);
 lean_object* lean_level_update_max(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Level_any(lean_object*, lean_object*);
 lean_object* lean_level_mk_max_simp(lean_object*, lean_object*);
@@ -258,7 +257,6 @@ lean_object* l_Lean_Level_normLt___boxed(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_Level_mkNaryMax(lean_object*);
 lean_object* l_Lean_Level_Data_depth___boxed(lean_object*);
-uint32_t l_USize_toUInt32(size_t);
 lean_object* l_Lean_Level_PP_Result_quote___lambda__3___closed__1;
 lean_object* l_Lean_Level_normalize(lean_object*);
 uint64_t l_UInt64_shiftLeft(uint64_t, uint64_t);
@@ -295,6 +293,7 @@ lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux_match__1(lean_ob
 lean_object* l___private_Lean_Level_0__Lean_Level_skipExplicit(lean_object*, lean_object*);
 lean_object* l_Lean_Level_isEquiv___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux___at_Lean_Level_normalize___spec__1(lean_object*, uint8_t, lean_object*);
+uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 lean_object* lean_level_mk_zero(lean_object*);
 uint8_t l_Lean_Level_isZero(lean_object*);
 extern lean_object* l_prec_x28___x29___closed__7;
@@ -340,7 +339,6 @@ lean_object* l_Lean_Level_addOffsetAux_match__1___rarg___boxed(lean_object*, lea
 lean_object* l_Lean_Level_instantiateParams_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_level_mk_mvar(lean_object*);
 lean_object* l_Lean_Level_format(lean_object*);
-size_t lean_usize_mix_hash(size_t, size_t);
 lean_object* l_Lean_Level_quote(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
@@ -566,7 +564,7 @@ x_2 = lean_box_uint64(x_1);
 return x_2;
 }
 }
-uint64_t l_Lean_Level_mkData(size_t x_1, lean_object* x_2, uint8_t x_3, uint8_t x_4) {
+uint64_t l_Lean_Level_mkData(uint64_t x_1, lean_object* x_2, uint8_t x_3, uint8_t x_4) {
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
@@ -575,7 +573,7 @@ x_6 = lean_nat_dec_lt(x_5, x_2);
 if (x_6 == 0)
 {
 uint32_t x_7; uint64_t x_8; uint64_t x_9; uint64_t x_10; uint64_t x_11; uint64_t x_12; uint64_t x_13; uint64_t x_14; uint64_t x_15; uint64_t x_16; uint64_t x_17; uint64_t x_18; uint64_t x_19; uint64_t x_20; 
-x_7 = (uint32_t)x_1;
+x_7 = ((uint32_t)x_1);
 x_8 = ((uint64_t)x_7);
 x_9 = (uint64_t)x_3;
 x_10 = 32;
@@ -606,8 +604,8 @@ return x_24;
 lean_object* l_Lean_Level_mkData___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-size_t x_5; uint8_t x_6; uint8_t x_7; uint64_t x_8; lean_object* x_9; 
-x_5 = lean_unbox_usize(x_1);
+uint64_t x_5; uint8_t x_6; uint8_t x_7; uint64_t x_8; lean_object* x_9; 
+x_5 = lean_unbox_uint64(x_1);
 lean_dec(x_1);
 x_6 = lean_unbox(x_3);
 lean_dec(x_3);
@@ -1096,7 +1094,7 @@ return x_3;
 static uint64_t _init_l_Lean_levelZero___closed__1() {
 _start:
 {
-size_t x_1; lean_object* x_2; uint8_t x_3; uint64_t x_4; 
+uint64_t x_1; lean_object* x_2; uint8_t x_3; uint64_t x_4; 
 x_1 = 2221;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = 0;
@@ -1125,137 +1123,132 @@ return x_1;
 lean_object* l_Lean_mkLevelMVar(lean_object* x_1) {
 _start:
 {
-size_t x_2; uint64_t x_3; size_t x_4; size_t x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; uint64_t x_9; lean_object* x_10; 
+uint64_t x_2; uint64_t x_3; uint64_t x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; uint64_t x_8; lean_object* x_9; 
 x_2 = 2237;
 x_3 = l_Lean_Name_hash(x_1);
-x_4 = (size_t)x_3;
-x_5 = lean_usize_mix_hash(x_2, x_4);
-x_6 = lean_unsigned_to_nat(0u);
-x_7 = 1;
-x_8 = 0;
-x_9 = l_Lean_Level_mkData(x_5, x_6, x_7, x_8);
-x_10 = lean_alloc_ctor(5, 1, 8);
-lean_ctor_set(x_10, 0, x_1);
-lean_ctor_set_uint64(x_10, sizeof(void*)*1, x_9);
-return x_10;
+x_4 = lean_uint64_mix_hash(x_2, x_3);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = 1;
+x_7 = 0;
+x_8 = l_Lean_Level_mkData(x_4, x_5, x_6, x_7);
+x_9 = lean_alloc_ctor(5, 1, 8);
+lean_ctor_set(x_9, 0, x_1);
+lean_ctor_set_uint64(x_9, sizeof(void*)*1, x_8);
+return x_9;
 }
 }
 lean_object* l_Lean_mkLevelParam(lean_object* x_1) {
 _start:
 {
-size_t x_2; uint64_t x_3; size_t x_4; size_t x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; uint64_t x_9; lean_object* x_10; 
+uint64_t x_2; uint64_t x_3; uint64_t x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; uint64_t x_8; lean_object* x_9; 
 x_2 = 2239;
 x_3 = l_Lean_Name_hash(x_1);
-x_4 = (size_t)x_3;
-x_5 = lean_usize_mix_hash(x_2, x_4);
-x_6 = lean_unsigned_to_nat(0u);
-x_7 = 0;
-x_8 = 1;
-x_9 = l_Lean_Level_mkData(x_5, x_6, x_7, x_8);
-x_10 = lean_alloc_ctor(4, 1, 8);
-lean_ctor_set(x_10, 0, x_1);
-lean_ctor_set_uint64(x_10, sizeof(void*)*1, x_9);
-return x_10;
+x_4 = lean_uint64_mix_hash(x_2, x_3);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = 0;
+x_7 = 1;
+x_8 = l_Lean_Level_mkData(x_4, x_5, x_6, x_7);
+x_9 = lean_alloc_ctor(4, 1, 8);
+lean_ctor_set(x_9, 0, x_1);
+lean_ctor_set_uint64(x_9, sizeof(void*)*1, x_8);
+return x_9;
 }
 }
 lean_object* l_Lean_mkLevelSucc(lean_object* x_1) {
 _start:
 {
-size_t x_2; uint64_t x_3; size_t x_4; size_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10; uint64_t x_11; lean_object* x_12; 
+uint64_t x_2; uint64_t x_3; uint64_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_9; uint64_t x_10; lean_object* x_11; 
 x_2 = 2243;
 x_3 = l_Lean_Level_hash(x_1);
-x_4 = (size_t)x_3;
-x_5 = lean_usize_mix_hash(x_2, x_4);
-x_6 = l_Lean_Level_depth(x_1);
-x_7 = lean_unsigned_to_nat(1u);
-x_8 = lean_nat_add(x_6, x_7);
-lean_dec(x_6);
-x_9 = l_Lean_Level_hasMVar(x_1);
-x_10 = l_Lean_Level_hasParam(x_1);
-x_11 = l_Lean_Level_mkData(x_5, x_8, x_9, x_10);
-lean_dec(x_8);
-x_12 = lean_alloc_ctor(1, 1, 8);
-lean_ctor_set(x_12, 0, x_1);
-lean_ctor_set_uint64(x_12, sizeof(void*)*1, x_11);
-return x_12;
+x_4 = lean_uint64_mix_hash(x_2, x_3);
+x_5 = l_Lean_Level_depth(x_1);
+x_6 = lean_unsigned_to_nat(1u);
+x_7 = lean_nat_add(x_5, x_6);
+lean_dec(x_5);
+x_8 = l_Lean_Level_hasMVar(x_1);
+x_9 = l_Lean_Level_hasParam(x_1);
+x_10 = l_Lean_Level_mkData(x_4, x_7, x_8, x_9);
+lean_dec(x_7);
+x_11 = lean_alloc_ctor(1, 1, 8);
+lean_ctor_set(x_11, 0, x_1);
+lean_ctor_set_uint64(x_11, sizeof(void*)*1, x_10);
+return x_11;
 }
 }
 lean_object* l_Lean_mkLevelMax(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-size_t x_3; uint64_t x_4; size_t x_5; uint64_t x_6; size_t x_7; size_t x_8; size_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; uint8_t x_16; 
+uint64_t x_3; uint64_t x_4; uint64_t x_5; uint64_t x_6; uint64_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; uint8_t x_14; 
 x_3 = 2251;
 x_4 = l_Lean_Level_hash(x_1);
-x_5 = (size_t)x_4;
-x_6 = l_Lean_Level_hash(x_2);
-x_7 = (size_t)x_6;
-x_8 = lean_usize_mix_hash(x_5, x_7);
-x_9 = lean_usize_mix_hash(x_3, x_8);
-x_10 = l_Lean_Level_depth(x_1);
-x_11 = l_Lean_Level_depth(x_2);
-x_12 = l_Nat_max(x_10, x_11);
-lean_dec(x_11);
+x_5 = l_Lean_Level_hash(x_2);
+x_6 = lean_uint64_mix_hash(x_4, x_5);
+x_7 = lean_uint64_mix_hash(x_3, x_6);
+x_8 = l_Lean_Level_depth(x_1);
+x_9 = l_Lean_Level_depth(x_2);
+x_10 = l_Nat_max(x_8, x_9);
+lean_dec(x_9);
+lean_dec(x_8);
+x_11 = lean_unsigned_to_nat(1u);
+x_12 = lean_nat_add(x_10, x_11);
 lean_dec(x_10);
-x_13 = lean_unsigned_to_nat(1u);
-x_14 = lean_nat_add(x_12, x_13);
+x_13 = l_Lean_Level_hasMVar(x_1);
+x_14 = l_Lean_Level_hasParam(x_1);
+if (x_13 == 0)
+{
+uint8_t x_15; 
+x_15 = l_Lean_Level_hasMVar(x_2);
+if (x_14 == 0)
+{
+uint8_t x_16; uint64_t x_17; lean_object* x_18; 
+x_16 = l_Lean_Level_hasParam(x_2);
+x_17 = l_Lean_Level_mkData(x_7, x_12, x_15, x_16);
 lean_dec(x_12);
-x_15 = l_Lean_Level_hasMVar(x_1);
-x_16 = l_Lean_Level_hasParam(x_1);
-if (x_15 == 0)
-{
-uint8_t x_17; 
-x_17 = l_Lean_Level_hasMVar(x_2);
-if (x_16 == 0)
-{
-uint8_t x_18; uint64_t x_19; lean_object* x_20; 
-x_18 = l_Lean_Level_hasParam(x_2);
-x_19 = l_Lean_Level_mkData(x_9, x_14, x_17, x_18);
-lean_dec(x_14);
-x_20 = lean_alloc_ctor(2, 2, 8);
-lean_ctor_set(x_20, 0, x_1);
-lean_ctor_set(x_20, 1, x_2);
-lean_ctor_set_uint64(x_20, sizeof(void*)*2, x_19);
-return x_20;
+x_18 = lean_alloc_ctor(2, 2, 8);
+lean_ctor_set(x_18, 0, x_1);
+lean_ctor_set(x_18, 1, x_2);
+lean_ctor_set_uint64(x_18, sizeof(void*)*2, x_17);
+return x_18;
 }
 else
 {
-uint8_t x_21; uint64_t x_22; lean_object* x_23; 
-x_21 = 1;
-x_22 = l_Lean_Level_mkData(x_9, x_14, x_17, x_21);
-lean_dec(x_14);
-x_23 = lean_alloc_ctor(2, 2, 8);
-lean_ctor_set(x_23, 0, x_1);
-lean_ctor_set(x_23, 1, x_2);
-lean_ctor_set_uint64(x_23, sizeof(void*)*2, x_22);
-return x_23;
+uint8_t x_19; uint64_t x_20; lean_object* x_21; 
+x_19 = 1;
+x_20 = l_Lean_Level_mkData(x_7, x_12, x_15, x_19);
+lean_dec(x_12);
+x_21 = lean_alloc_ctor(2, 2, 8);
+lean_ctor_set(x_21, 0, x_1);
+lean_ctor_set(x_21, 1, x_2);
+lean_ctor_set_uint64(x_21, sizeof(void*)*2, x_20);
+return x_21;
 }
 }
 else
 {
-if (x_16 == 0)
+if (x_14 == 0)
 {
-uint8_t x_24; uint8_t x_25; uint64_t x_26; lean_object* x_27; 
-x_24 = l_Lean_Level_hasParam(x_2);
-x_25 = 1;
-x_26 = l_Lean_Level_mkData(x_9, x_14, x_25, x_24);
-lean_dec(x_14);
-x_27 = lean_alloc_ctor(2, 2, 8);
-lean_ctor_set(x_27, 0, x_1);
-lean_ctor_set(x_27, 1, x_2);
-lean_ctor_set_uint64(x_27, sizeof(void*)*2, x_26);
-return x_27;
+uint8_t x_22; uint8_t x_23; uint64_t x_24; lean_object* x_25; 
+x_22 = l_Lean_Level_hasParam(x_2);
+x_23 = 1;
+x_24 = l_Lean_Level_mkData(x_7, x_12, x_23, x_22);
+lean_dec(x_12);
+x_25 = lean_alloc_ctor(2, 2, 8);
+lean_ctor_set(x_25, 0, x_1);
+lean_ctor_set(x_25, 1, x_2);
+lean_ctor_set_uint64(x_25, sizeof(void*)*2, x_24);
+return x_25;
 }
 else
 {
-uint8_t x_28; uint64_t x_29; lean_object* x_30; 
-x_28 = 1;
-x_29 = l_Lean_Level_mkData(x_9, x_14, x_28, x_28);
-lean_dec(x_14);
-x_30 = lean_alloc_ctor(2, 2, 8);
-lean_ctor_set(x_30, 0, x_1);
-lean_ctor_set(x_30, 1, x_2);
-lean_ctor_set_uint64(x_30, sizeof(void*)*2, x_29);
-return x_30;
+uint8_t x_26; uint64_t x_27; lean_object* x_28; 
+x_26 = 1;
+x_27 = l_Lean_Level_mkData(x_7, x_12, x_26, x_26);
+lean_dec(x_12);
+x_28 = lean_alloc_ctor(2, 2, 8);
+lean_ctor_set(x_28, 0, x_1);
+lean_ctor_set(x_28, 1, x_2);
+lean_ctor_set_uint64(x_28, sizeof(void*)*2, x_27);
+return x_28;
 }
 }
 }
@@ -1263,79 +1256,77 @@ return x_30;
 lean_object* l_Lean_mkLevelIMax(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-size_t x_3; uint64_t x_4; size_t x_5; uint64_t x_6; size_t x_7; size_t x_8; size_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; uint8_t x_16; 
+uint64_t x_3; uint64_t x_4; uint64_t x_5; uint64_t x_6; uint64_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; uint8_t x_14; 
 x_3 = 2267;
 x_4 = l_Lean_Level_hash(x_1);
-x_5 = (size_t)x_4;
-x_6 = l_Lean_Level_hash(x_2);
-x_7 = (size_t)x_6;
-x_8 = lean_usize_mix_hash(x_5, x_7);
-x_9 = lean_usize_mix_hash(x_3, x_8);
-x_10 = l_Lean_Level_depth(x_1);
-x_11 = l_Lean_Level_depth(x_2);
-x_12 = l_Nat_max(x_10, x_11);
-lean_dec(x_11);
+x_5 = l_Lean_Level_hash(x_2);
+x_6 = lean_uint64_mix_hash(x_4, x_5);
+x_7 = lean_uint64_mix_hash(x_3, x_6);
+x_8 = l_Lean_Level_depth(x_1);
+x_9 = l_Lean_Level_depth(x_2);
+x_10 = l_Nat_max(x_8, x_9);
+lean_dec(x_9);
+lean_dec(x_8);
+x_11 = lean_unsigned_to_nat(1u);
+x_12 = lean_nat_add(x_10, x_11);
 lean_dec(x_10);
-x_13 = lean_unsigned_to_nat(1u);
-x_14 = lean_nat_add(x_12, x_13);
+x_13 = l_Lean_Level_hasMVar(x_1);
+x_14 = l_Lean_Level_hasParam(x_1);
+if (x_13 == 0)
+{
+uint8_t x_15; 
+x_15 = l_Lean_Level_hasMVar(x_2);
+if (x_14 == 0)
+{
+uint8_t x_16; uint64_t x_17; lean_object* x_18; 
+x_16 = l_Lean_Level_hasParam(x_2);
+x_17 = l_Lean_Level_mkData(x_7, x_12, x_15, x_16);
 lean_dec(x_12);
-x_15 = l_Lean_Level_hasMVar(x_1);
-x_16 = l_Lean_Level_hasParam(x_1);
-if (x_15 == 0)
-{
-uint8_t x_17; 
-x_17 = l_Lean_Level_hasMVar(x_2);
-if (x_16 == 0)
-{
-uint8_t x_18; uint64_t x_19; lean_object* x_20; 
-x_18 = l_Lean_Level_hasParam(x_2);
-x_19 = l_Lean_Level_mkData(x_9, x_14, x_17, x_18);
-lean_dec(x_14);
-x_20 = lean_alloc_ctor(3, 2, 8);
-lean_ctor_set(x_20, 0, x_1);
-lean_ctor_set(x_20, 1, x_2);
-lean_ctor_set_uint64(x_20, sizeof(void*)*2, x_19);
-return x_20;
+x_18 = lean_alloc_ctor(3, 2, 8);
+lean_ctor_set(x_18, 0, x_1);
+lean_ctor_set(x_18, 1, x_2);
+lean_ctor_set_uint64(x_18, sizeof(void*)*2, x_17);
+return x_18;
 }
 else
 {
-uint8_t x_21; uint64_t x_22; lean_object* x_23; 
-x_21 = 1;
-x_22 = l_Lean_Level_mkData(x_9, x_14, x_17, x_21);
-lean_dec(x_14);
-x_23 = lean_alloc_ctor(3, 2, 8);
-lean_ctor_set(x_23, 0, x_1);
-lean_ctor_set(x_23, 1, x_2);
-lean_ctor_set_uint64(x_23, sizeof(void*)*2, x_22);
-return x_23;
+uint8_t x_19; uint64_t x_20; lean_object* x_21; 
+x_19 = 1;
+x_20 = l_Lean_Level_mkData(x_7, x_12, x_15, x_19);
+lean_dec(x_12);
+x_21 = lean_alloc_ctor(3, 2, 8);
+lean_ctor_set(x_21, 0, x_1);
+lean_ctor_set(x_21, 1, x_2);
+lean_ctor_set_uint64(x_21, sizeof(void*)*2, x_20);
+return x_21;
 }
 }
 else
 {
-if (x_16 == 0)
+if (x_14 == 0)
 {
-uint8_t x_24; uint8_t x_25; uint64_t x_26; lean_object* x_27; 
-x_24 = l_Lean_Level_hasParam(x_2);
-x_25 = 1;
-x_26 = l_Lean_Level_mkData(x_9, x_14, x_25, x_24);
-lean_dec(x_14);
-x_27 = lean_alloc_ctor(3, 2, 8);
-lean_ctor_set(x_27, 0, x_1);
-lean_ctor_set(x_27, 1, x_2);
-lean_ctor_set_uint64(x_27, sizeof(void*)*2, x_26);
-return x_27;
+uint8_t x_22; uint8_t x_23; uint64_t x_24; lean_object* x_25; 
+x_22 = l_Lean_Level_hasParam(x_2);
+x_23 = 1;
+x_24 = l_Lean_Level_mkData(x_7, x_12, x_23, x_22);
+lean_dec(x_12);
+x_25 = lean_alloc_ctor(3, 2, 8);
+lean_ctor_set(x_25, 0, x_1);
+lean_ctor_set(x_25, 1, x_2);
+lean_ctor_set_uint64(x_25, sizeof(void*)*2, x_24);
+return x_25;
 }
 else
 {
-uint8_t x_28; uint64_t x_29; lean_object* x_30; 
-x_28 = 1;
-x_29 = l_Lean_Level_mkData(x_9, x_14, x_28, x_28);
-lean_dec(x_14);
-x_30 = lean_alloc_ctor(3, 2, 8);
-lean_ctor_set(x_30, 0, x_1);
-lean_ctor_set(x_30, 1, x_2);
-lean_ctor_set_uint64(x_30, sizeof(void*)*2, x_29);
-return x_30;
+uint8_t x_26; uint64_t x_27; lean_object* x_28; 
+x_26 = 1;
+x_27 = l_Lean_Level_mkData(x_7, x_12, x_26, x_26);
+lean_dec(x_12);
+x_28 = lean_alloc_ctor(3, 2, 8);
+lean_ctor_set(x_28, 0, x_1);
+lean_ctor_set(x_28, 1, x_2);
+lean_ctor_set_uint64(x_28, sizeof(void*)*2, x_27);
+return x_28;
 }
 }
 }

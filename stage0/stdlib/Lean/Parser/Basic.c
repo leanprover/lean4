@@ -63,7 +63,6 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Parser_trailingLoop___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_sepByInfo(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_Parser_indexed___spec__2___rarg___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
 lean_object* l_Lean_Parser_Parser_info___default;
 lean_object* l_Lean_Parser_ParserState_shrinkStack___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_indexed_match__2(lean_object*, lean_object*);
@@ -121,6 +120,7 @@ lean_object* l_Lean_Parser_unicodeSymbolInfo___elambda__2(lean_object*, lean_obj
 lean_object* l_Lean_Parser_identFnAux_parse___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_tokenWithAntiquotFn___lambda__2___closed__6;
 uint8_t l_Lean_Parser_isQuotableCharDefault(uint32_t);
+extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 lean_object* l_Lean_Parser_hexNumberFn___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_parserOfStackFnUnsafe_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_peekTokenAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -4996,7 +4996,7 @@ lean_object* l_Lean_Parser_instInhabitedParserInfo___lambda__2(lean_object* x_1)
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
+x_2 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 return x_2;
 }
 }

@@ -29,7 +29,6 @@ lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 extern lean_object* l_Array_instReprArray___rarg___closed__5;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_Meta_instReprCongrLemma___closed__1;
-extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
 lean_object* l_Std_fmt___at_Lean_Position_instToFormatPosition___spec__1(lean_object*);
 lean_object* l_Lean_Meta_mkCongrLemma_match__2(lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
@@ -53,6 +52,7 @@ lean_object* l___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCong
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__6(lean_object*, size_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__6___lambda__3___closed__2;
 lean_object* l_Std_PersistentHashMap_foldlM___at___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemmas____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_156____spec__4___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 lean_object* l_Std_AssocList_contains___at_Lean_Meta_addCongrLemmaEntry___spec__7___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_mkCongrLemma___spec__9___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instInhabitedCongrLemma;
@@ -758,7 +758,7 @@ _start:
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = 1;
 x_2 = l_Lean_Meta_CongrLemmas_lemmas___default___closed__1;
-x_3 = l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
+x_3 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 x_4 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_3);

@@ -58,7 +58,6 @@ lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_mmodifyJPs___spec__1___rarg___l
 uint8_t l_Lean_IR_IRType_isStruct(lean_object*);
 lean_object* l_Lean_IR_mmodifyJPs(lean_object*);
 lean_object* l_Lean_IR_mmodifyJPs___rarg(lean_object*, lean_object*, lean_object*);
-size_t l_Lean_IR_instHashableUSizeJoinPointId(lean_object*);
 uint8_t l_Lean_IR_IRType_isIrrelevant(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_IRType_isObj_match__1(lean_object*);
@@ -133,6 +132,7 @@ lean_object* l_Lean_IR_CtorInfo_isRef___boxed(lean_object*);
 lean_object* l_Lean_IR_VarId_alphaEqv___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_addParamRename(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_IRType_isUnion_match__1(lean_object*);
+uint64_t l_Lean_IR_instHashableVarId(lean_object*);
 lean_object* l_Lean_IR_IRType_instBEqIRType___closed__1;
 lean_object* l_Lean_IR_FnBody_isTerminal___boxed(lean_object*);
 lean_object* l_Lean_IR_IRType_isIrrelevant_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -158,6 +158,7 @@ lean_object* l_Std_RBNode_balRight___rarg(lean_object*, lean_object*, lean_objec
 uint8_t l_Std_RBNode_isBlack___rarg(lean_object*);
 lean_object* l_Lean_IR_LocalContext_isLocalVar_match__1(lean_object*);
 extern lean_object* l_Lean_instQuoteBool___closed__3;
+lean_object* l_Lean_IR_instHashableVarId___boxed(lean_object*);
 lean_object* l_Lean_IR_LocalContext_getValue(lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_addParam(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_body_match__1(lean_object*);
@@ -187,6 +188,7 @@ lean_object* l_Lean_IR_instInhabitedIRType;
 lean_object* lean_ir_mk_num_expr(lean_object*);
 lean_object* l_Lean_IR_FnBody_nil;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_LocalContext_addParams___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint64_t lean_uint64_of_nat(lean_object*);
 lean_object* l_Lean_IR_flattenAux(lean_object*, lean_object*);
 lean_object* l_Lean_IR_instAlphaEqvArg;
 lean_object* lean_ir_mk_app_expr(lean_object*, lean_object*);
@@ -198,6 +200,7 @@ lean_object* l_Lean_IR_instInhabitedParam;
 lean_object* l_Lean_IR_AltCore_mmodifyBody___rarg___closed__1;
 lean_object* l_Lean_IR_AltCore_setBody_match__1(lean_object*);
 lean_object* l_Std_RBNode_balLeft___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_IR_instHashableJoinPointId___boxed(lean_object*);
 lean_object* lean_ir_mk_proj_expr(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Alt_ctor(lean_object*, lean_object*);
 lean_object* l_Lean_IR_instInhabitedParam___closed__1;
@@ -217,7 +220,6 @@ lean_object* l_Lean_IR_instToFormatVarId(lean_object*);
 lean_object* l_Lean_IR_AltCore_mmodifyBody(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_mmodifyJPs___spec__1___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 extern lean_object* l_Array_swapAt_x21___rarg___closed__3;
-lean_object* l_Lean_IR_instHashableUSizeVarId___boxed(lean_object*);
 lean_object* l_Std_Range_forIn_loop___at_Lean_IR_addParamsRename___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_1318____closed__8;
 lean_object* l_Lean_IR_FnBody_body_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -232,7 +234,6 @@ extern lean_object* l_Lean_instQuoteBool___closed__2;
 uint8_t l_Lean_IR_instBEqVarId(lean_object*, lean_object*);
 lean_object* l_Lean_IR_VarId_alphaEqv_match__1(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-lean_object* l_Lean_IR_instHashableUSizeJoinPointId___boxed(lean_object*);
 uint8_t l_Std_RBNode_isRed___rarg(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_mmodifyJPs___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_CtorInfo_isScalar___boxed(lean_object*);
@@ -247,6 +248,7 @@ lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_IR_instAlphaEqvArg___closed__1;
 lean_object* lean_ir_mk_jmp(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Expr_alphaEqv_match__1(lean_object*);
+uint64_t l_Lean_IR_instHashableJoinPointId(lean_object*);
 lean_object* l_Lean_IR_IRType_isUnion_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_isJP___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_mkIf___closed__2;
@@ -323,7 +325,6 @@ lean_object* l_Lean_IR_instInhabitedIndexSet;
 lean_object* l_Lean_IR_Alt_default(lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_IR_mkIndexSet___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_isExtern___boxed(lean_object*);
-size_t l_Lean_IR_instHashableUSizeVarId(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_eraseJoinPointDecl___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -416,21 +417,21 @@ lean_ctor_set(x_5, 0, x_4);
 return x_5;
 }
 }
-size_t l_Lean_IR_instHashableUSizeVarId(lean_object* x_1) {
+uint64_t l_Lean_IR_instHashableVarId(lean_object* x_1) {
 _start:
 {
-size_t x_2; 
-x_2 = lean_usize_of_nat(x_1);
+uint64_t x_2; 
+x_2 = lean_uint64_of_nat(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_IR_instHashableUSizeVarId___boxed(lean_object* x_1) {
+lean_object* l_Lean_IR_instHashableVarId___boxed(lean_object* x_1) {
 _start:
 {
-size_t x_2; lean_object* x_3; 
-x_2 = l_Lean_IR_instHashableUSizeVarId(x_1);
+uint64_t x_2; lean_object* x_3; 
+x_2 = l_Lean_IR_instHashableVarId(x_1);
 lean_dec(x_1);
-x_3 = lean_box_usize(x_2);
+x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
@@ -485,21 +486,21 @@ lean_ctor_set(x_5, 0, x_4);
 return x_5;
 }
 }
-size_t l_Lean_IR_instHashableUSizeJoinPointId(lean_object* x_1) {
+uint64_t l_Lean_IR_instHashableJoinPointId(lean_object* x_1) {
 _start:
 {
-size_t x_2; 
-x_2 = lean_usize_of_nat(x_1);
+uint64_t x_2; 
+x_2 = lean_uint64_of_nat(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_IR_instHashableUSizeJoinPointId___boxed(lean_object* x_1) {
+lean_object* l_Lean_IR_instHashableJoinPointId___boxed(lean_object* x_1) {
 _start:
 {
-size_t x_2; lean_object* x_3; 
-x_2 = l_Lean_IR_instHashableUSizeJoinPointId(x_1);
+uint64_t x_2; lean_object* x_3; 
+x_2 = l_Lean_IR_instHashableJoinPointId(x_1);
 lean_dec(x_1);
-x_3 = lean_box_usize(x_2);
+x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }

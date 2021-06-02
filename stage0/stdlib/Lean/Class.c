@@ -23,7 +23,6 @@ lean_object* l___private_Lean_Class_0__Lean_consumeNLambdas_match__1(lean_object
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_hasOutParams___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_moveEntries___at_Lean_ClassState_addEntry___spec__9(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
 extern lean_object* l_Char_quote___closed__1;
 lean_object* l_Lean_ClassState_switch(lean_object*);
 lean_object* l_Lean_classExtension___closed__3;
@@ -39,6 +38,7 @@ lean_object* l_Lean_addClass___closed__4;
 lean_object* l_Lean_ClassState_addEntry(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_initFn____x40_Lean_Class___hyg_70____spec__3(lean_object*, size_t, size_t, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
+extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 lean_object* l_Lean_SMap_contains___at_Lean_isClass___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_isOutParam___closed__2;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -273,7 +273,7 @@ _start:
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = 1;
 x_2 = l_Lean_SMap_empty___at_Lean_ClassState_hasOutParam___default___spec__1___closed__1;
-x_3 = l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
+x_3 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 x_4 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_3);

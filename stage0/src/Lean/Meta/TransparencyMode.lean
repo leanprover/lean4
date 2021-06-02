@@ -11,13 +11,13 @@ inductive TransparencyMode where
 
 namespace TransparencyMode
 
-def hash : TransparencyMode → USize
+def hash : TransparencyMode → UInt64
   | all       => 7
   | default   => 11
   | reducible => 13
   | instances => 17
 
-instance : HashableUSize TransparencyMode := ⟨hash⟩
+instance : Hashable TransparencyMode := ⟨hash⟩
 
 def lt : TransparencyMode → TransparencyMode → Bool
   | reducible, default   => true

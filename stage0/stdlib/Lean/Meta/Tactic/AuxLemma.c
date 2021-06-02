@@ -35,10 +35,10 @@ size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_Lean_Meta_mkAuxLemma___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAuxLemma___closed__2;
+extern lean_object* l_Lean_Meta_Cache_synthInstance___default___closed__1;
 lean_object* l_Lean_Meta_instInhabitedAuxLemmas___closed__1;
 lean_object* l_Lean_Meta_mkAuxLemma___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_UInt64_toUSize(uint64_t);
-extern lean_object* l_Lean_Meta_Cache_synthInstance___default___closed__2;
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_mkAuxLemma___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Meta_mkAuxLemma___spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -97,7 +97,7 @@ static lean_object* _init_l_Lean_Meta_AuxLemmas_lemmas___default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Cache_synthInstance___default___closed__2;
+x_1 = l_Lean_Meta_Cache_synthInstance___default___closed__1;
 return x_1;
 }
 }
@@ -106,7 +106,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_Meta_Cache_synthInstance___default___closed__2;
+x_2 = l_Lean_Meta_Cache_synthInstance___default___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -126,7 +126,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(1u);
-x_2 = l_Lean_Meta_Cache_synthInstance___default___closed__2;
+x_2 = l_Lean_Meta_Cache_synthInstance___default___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

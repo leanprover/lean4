@@ -28,7 +28,6 @@ lean_object* l_Lean_KeyedDeclsAttribute_declareBuiltin(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Std_mkHashMap___at_Lean_KeyedDeclsAttribute_instInhabitedExtensionState___spec__1___rarg(lean_object*);
 lean_object* l_Std_AssocList_replace___at_Lean_KeyedDeclsAttribute_Table_insert___spec__30___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
 lean_object* l_IO_mkRef___at_Lean_KeyedDeclsAttribute_init___spec__2(lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___closed__4;
 lean_object* l_Std_HashMapImp_expand___at_Lean_KeyedDeclsAttribute_Table_insert___spec__27(lean_object*);
@@ -42,6 +41,7 @@ lean_object* l_Lean_KeyedDeclsAttribute_Def_evalKey___default___rarg(lean_object
 lean_object* l_Lean_KeyedDeclsAttribute_instInhabitedDef___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_KeyedDeclsAttribute_getValues___spec__5(lean_object*);
+extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 lean_object* l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__8;
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_KeyedDeclsAttribute_Table_insert___spec__13___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedKeyedDeclsAttribute___closed__4;
@@ -464,7 +464,7 @@ _start:
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = 1;
 x_2 = l_Lean_KeyedDeclsAttribute_ExtensionState_table___default___closed__1;
-x_3 = l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
+x_3 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 x_4 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_3);
@@ -511,7 +511,7 @@ _start:
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = 1;
 x_2 = l_Lean_KeyedDeclsAttribute_instInhabitedExtensionState___closed__1;
-x_3 = l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
+x_3 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 x_4 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_3);
@@ -4828,7 +4828,7 @@ _start:
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = 1;
 x_2 = l_Lean_KeyedDeclsAttribute_init___rarg___closed__1;
-x_3 = l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
+x_3 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 x_4 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_3);

@@ -39,7 +39,6 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_mkAttributeImplOfBuilder___closed__1;
 uint8_t l_Std_AssocList_contains___at_Lean_registerAttributeImplBuilder___spec__2(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
 lean_object* l_List_map___at_Lean_registerEnumAttributes___spec__9___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_getBuiltinAttributeNames___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
@@ -69,6 +68,7 @@ lean_object* l_Std_AssocList_foldlM___at_Lean_registerAttributeImplBuilder___spe
 lean_object* l_Lean_getBuiltinAttributeImpl(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Attr_simp___closed__2;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
+extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 lean_object* l_Array_qsort_sort___at_Lean_registerEnumAttributes___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___at_Lean_EnumAttributes_getValue___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerParametricAttribute___spec__7___rarg(lean_object*, lean_object*);
@@ -1377,7 +1377,7 @@ lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_254_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
+x_2 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 x_3 = l_IO_mkRef___at_Lean_initFn____x40_Lean_Attributes___hyg_254____spec__1(x_2, x_1);
 return x_3;
 }
@@ -3121,7 +3121,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
+x_2 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

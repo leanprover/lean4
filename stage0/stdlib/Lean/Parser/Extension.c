@@ -41,7 +41,6 @@ lean_object* l_Lean_Parser_compileParserDescr_visit_match__3___rarg(lean_object*
 lean_object* l_Lean_Parser_mkParserContext(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___at___private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkParserOfConstantUnsafe_match__1(lean_object*);
-extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
 lean_object* l_Std_RBNode_find___at_Lean_Parser_getAlias___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux___at___private_Lean_Parser_Extension_0__Lean_Parser_ParserAttribute_add___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_registerParserAttributeImplBuilder_match__1(lean_object*);
@@ -61,6 +60,7 @@ lean_object* l_Lean_Parser_instCoeArrowParserParserParserAliasValue(lean_object*
 lean_object* l_IO_ofExcept___at___private_Lean_Parser_Extension_0__Lean_Parser_addBuiltinParserCategory___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_registerParserAttributeHook(lean_object*, lean_object*);
 lean_object* l_List_foldlM___at_Lean_Parser_addParserTokens___spec__1(lean_object*, lean_object*);
+extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 lean_object* l_Lean_Parser_mkParserOfConstantAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserExtension_addEntryImpl_match__1(lean_object*);
 extern lean_object* l_Lean_Parser_errorAtSavedPos___closed__1;
@@ -626,7 +626,7 @@ lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_23_(lean_ob
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
+x_2 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 x_3 = l_IO_mkRef___at_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_23____spec__1(x_2, x_1);
 return x_3;
 }
@@ -733,7 +733,7 @@ lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_132_(lean_o
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
+x_2 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 x_3 = l_IO_mkRef___at_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_132____spec__1(x_2, x_1);
 return x_3;
 }
@@ -1807,7 +1807,7 @@ static lean_object* _init_l_Lean_Parser_ParserExtension_State_kinds___default() 
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
+x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 return x_1;
 }
 }
@@ -1815,7 +1815,7 @@ static lean_object* _init_l_Lean_Parser_ParserExtension_State_categories___defau
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
+x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 return x_1;
 }
 }
@@ -1824,7 +1824,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Trie_empty___closed__1;
-x_2 = l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
+x_2 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 x_3 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -13112,7 +13112,7 @@ lean_dec(x_34);
 x_36 = lean_ctor_get(x_30, 1);
 lean_inc(x_36);
 lean_dec(x_30);
-x_37 = l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
+x_37 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 x_38 = lean_apply_1(x_36, x_37);
 x_39 = lean_box(0);
 lean_inc(x_6);

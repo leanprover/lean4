@@ -33,30 +33,30 @@ open Std (HashMap)
 
 /-- Adapter for implementing `MonadCache` interface using `HashMap`s.
     We just have to specify how to extract/modify the `HashMap`. -/
-class MonadHashMapCacheAdapter (α β : Type) (m : Type → Type) [BEq α] [HashableUSize α] where
+class MonadHashMapCacheAdapter (α β : Type) (m : Type → Type) [BEq α] [Hashable α] where
   getCache    : m (HashMap α β)
   modifyCache : (HashMap α β → HashMap α β) → m Unit
 
 namespace MonadHashMapCacheAdapter
 
-@[inline] def findCached? {α β : Type} {m : Type → Type} [BEq α] [HashableUSize α] [Monad m] [MonadHashMapCacheAdapter α β m] (a : α) : m (Option β) := do
+@[inline] def findCached? {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [Monad m] [MonadHashMapCacheAdapter α β m] (a : α) : m (Option β) := do
   let c ← getCache
   pure (c.find? a)
 
-@[inline] def cache {α β : Type} {m : Type → Type} [BEq α] [HashableUSize α] [MonadHashMapCacheAdapter α β m] (a : α) (b : β) : m Unit :=
+@[inline] def cache {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [MonadHashMapCacheAdapter α β m] (a : α) (b : β) : m Unit :=
   modifyCache fun s => s.insert a b
 
-instance {α β : Type} {m : Type → Type} [BEq α] [HashableUSize α] [Monad m] [MonadHashMapCacheAdapter α β m] : MonadCache α β m where
+instance {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [Monad m] [MonadHashMapCacheAdapter α β m] : MonadCache α β m where
   findCached? := MonadHashMapCacheAdapter.findCached?
   cache       := MonadHashMapCacheAdapter.cache
 
 end MonadHashMapCacheAdapter
 
-def MonadCacheT {ω} (α β : Type) (m : Type → Type) [STWorld ω m] [BEq α] [HashableUSize α] := StateRefT (HashMap α β) m
+def MonadCacheT {ω} (α β : Type) (m : Type → Type) [STWorld ω m] [BEq α] [Hashable α] := StateRefT (HashMap α β) m
 
 namespace MonadCacheT
 
-variable {ω α β : Type} {m : Type → Type} [STWorld ω m] [BEq α] [HashableUSize α] [MonadLiftT (ST ω) m] [Monad m]
+variable {ω α β : Type} {m : Type → Type} [STWorld ω m] [BEq α] [Hashable α] [MonadLiftT (ST ω) m] [Monad m]
 
 instance  : MonadHashMapCacheAdapter α β (MonadCacheT α β m) where
   getCache := (get : StateRefT' ..)
@@ -75,11 +75,11 @@ instance [MonadRef m] : MonadRef (MonadCacheT α β m) := inferInstanceAs (Monad
 end MonadCacheT
 
 /- Similar to `MonadCacheT`, but using `StateT` instead of `StateRefT` -/
-def MonadStateCacheT (α β : Type) (m : Type → Type) [BEq α] [HashableUSize α] := StateT (HashMap α β) m
+def MonadStateCacheT (α β : Type) (m : Type → Type) [BEq α] [Hashable α] := StateT (HashMap α β) m
 
 namespace MonadStateCacheT
 
-variable {ω α β : Type} {m : Type → Type} [STWorld ω m] [BEq α] [HashableUSize α] [MonadLiftT (ST ω) m] [Monad m]
+variable {ω α β : Type} {m : Type → Type} [STWorld ω m] [BEq α] [Hashable α] [MonadLiftT (ST ω) m] [Monad m]
 
 instance  : MonadHashMapCacheAdapter α β (MonadStateCacheT α β m) where
   getCache := (get : StateT ..)

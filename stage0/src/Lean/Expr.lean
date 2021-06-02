@@ -121,7 +121,7 @@ def BinderInfo.toUInt64 : BinderInfo → UInt64
   | BinderInfo.auxDecl        => 4
 
 @[inline] private def Expr.mkDataCore
-    (h : USize) (looseBVarRange : Nat)
+    (h : UInt64) (looseBVarRange : Nat)
     (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) (bi : BinderInfo)
     : Expr.Data :=
   if looseBVarRange > Nat.pow 2 24 - 1 then panic! "bound variable index is too big"
@@ -137,13 +137,13 @@ def BinderInfo.toUInt64 : BinderInfo → UInt64
       looseBVarRange.toUInt64.shiftLeft 40
     r
 
-def Expr.mkData (h : USize) (looseBVarRange : Nat := 0) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) : Expr.Data :=
+def Expr.mkData (h : UInt64) (looseBVarRange : Nat := 0) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) : Expr.Data :=
   Expr.mkDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam false BinderInfo.default
 
-def Expr.mkDataForBinder (h : USize) (looseBVarRange : Nat) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.Data :=
+def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.Data :=
   Expr.mkDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam false bi
 
-def Expr.mkDataForLet (h : USize) (looseBVarRange : Nat) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : Expr.Data :=
+def Expr.mkDataForLet (h : UInt64) (looseBVarRange : Nat) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : Expr.Data :=
   Expr.mkDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet BinderInfo.default
 
 open Expr
@@ -225,7 +225,7 @@ def looseBVarRange (e : Expr) : Nat :=
 def binderInfo (e : Expr) : BinderInfo :=
   e.data.binderInfo
 
-@[export lean_expr_hash] def hashEx : Expr → USize := hashUSize
+@[export lean_expr_hash] def hashEx : Expr → UInt64 := hash
 @[export lean_expr_has_fvar] def hasFVarEx : Expr → Bool := hasFVar
 @[export lean_expr_has_expr_mvar] def hasExprMVarEx : Expr → Bool := hasExprMVar
 @[export lean_expr_has_level_mvar] def hasLevelMVarEx : Expr → Bool := hasLevelMVar
@@ -237,7 +237,7 @@ def binderInfo (e : Expr) : BinderInfo :=
 end Expr
 
 def mkLit (l : Literal) : Expr :=
-  Expr.lit l $ mkData (mixUSizeHash 3 (hashUSize l))
+  Expr.lit l $ mkData (mixHash 3 (hash l))
 
 def mkNatLit (n : Nat) : Expr :=
   mkLit (Literal.natVal n)
@@ -246,7 +246,7 @@ def mkStrLit (s : String) : Expr :=
   mkLit (Literal.strVal s)
 
 def mkConst (n : Name) (lvls : List Level := []) : Expr :=
-  Expr.const n lvls $ mkData (mixUSizeHash 5 $ mixUSizeHash (hashUSize n) (hashUSize lvls)) 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
+  Expr.const n lvls $ mkData (mixHash 5 $ mixHash (hash n) (hash lvls)) 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
 
 def Literal.type : Literal → Expr
   | Literal.natVal _ => mkConst `Nat
@@ -256,26 +256,26 @@ def Literal.type : Literal → Expr
 def Literal.typeEx : Literal → Expr := Literal.type
 
 def mkBVar (idx : Nat) : Expr :=
-  Expr.bvar idx $ mkData (mixUSizeHash 7 $ hashUSize idx) (idx+1)
+  Expr.bvar idx $ mkData (mixHash 7 $ hash idx) (idx+1)
 
 def mkSort (lvl : Level) : Expr :=
-  Expr.sort lvl $ mkData (mixUSizeHash 11 $ hashUSize lvl) 0 false false lvl.hasMVar lvl.hasParam
+  Expr.sort lvl $ mkData (mixHash 11 $ hash lvl) 0 false false lvl.hasMVar lvl.hasParam
 
 def mkFVar (fvarId : FVarId) : Expr :=
-  Expr.fvar fvarId $ mkData (mixUSizeHash 13 $ hashUSize fvarId) 0 true
+  Expr.fvar fvarId $ mkData (mixHash 13 $ hash fvarId) 0 true
 
 def mkMVar (fvarId : MVarId) : Expr :=
-  Expr.mvar fvarId $ mkData (mixUSizeHash 17 $ hashUSize fvarId) 0 false true
+  Expr.mvar fvarId $ mkData (mixHash 17 $ hash fvarId) 0 false true
 
 def mkMData (d : MData) (e : Expr) : Expr :=
-  Expr.mdata d e $ mkData (mixUSizeHash 19 $ hashUSize e) e.looseBVarRange e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
+  Expr.mdata d e $ mkData (mixHash 19 $ hash e) e.looseBVarRange e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkProj (s : Name) (i : Nat) (e : Expr) : Expr :=
-  Expr.proj s i e $ mkData (mixUSizeHash 23 $ mixUSizeHash (hashUSize s) $ mixUSizeHash (hashUSize i) (hashUSize e))
+  Expr.proj s i e $ mkData (mixHash 23 $ mixHash (hash s) $ mixHash (hash i) (hash e))
       e.looseBVarRange e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkApp (f a : Expr) : Expr :=
-  Expr.app f a $ mkData (mixUSizeHash 29 $ mixUSizeHash (hashUSize f) (hashUSize a))
+  Expr.app f a $ mkData (mixHash 29 $ mixHash (hash f) (hash a))
     (Nat.max f.looseBVarRange a.looseBVarRange)
     (f.hasFVar || a.hasFVar)
     (f.hasExprMVar || a.hasExprMVar)
@@ -284,7 +284,7 @@ def mkApp (f a : Expr) : Expr :=
 
 def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
   -- let x := x.eraseMacroScopes
-  Expr.lam x t b $ mkDataForBinder (mixUSizeHash 31 $ mixUSizeHash (hashUSize t) (hashUSize b))
+  Expr.lam x t b $ mkDataForBinder (mixHash 31 $ mixHash (hash t) (hash b))
     (Nat.max t.looseBVarRange (b.looseBVarRange - 1))
     (t.hasFVar || b.hasFVar)
     (t.hasExprMVar || b.hasExprMVar)
@@ -294,7 +294,7 @@ def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
 
 def mkForall (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
   -- let x := x.eraseMacroScopes
-  Expr.forallE x t b $ mkDataForBinder (mixUSizeHash 37 $ mixUSizeHash (hashUSize t) (hashUSize b))
+  Expr.forallE x t b $ mkDataForBinder (mixHash 37 $ mixHash (hash t) (hash b))
     (Nat.max t.looseBVarRange (b.looseBVarRange - 1))
     (t.hasFVar || b.hasFVar)
     (t.hasExprMVar || b.hasExprMVar)
@@ -312,7 +312,7 @@ def mkSimpleThunk (type : Expr) : Expr :=
 
 def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) : Expr :=
   -- let x := x.eraseMacroScopes
-  Expr.letE x t v b $ mkDataForLet (mixUSizeHash 41 $ mixUSizeHash (hashUSize t) $ mixUSizeHash (hashUSize v) (hashUSize b))
+  Expr.letE x t v b $ mkDataForLet (mixHash 41 $ mixHash (hash t) $ mixHash (hash v) (hash b))
     (Nat.max (Nat.max t.looseBVarRange v.looseBVarRange) (b.looseBVarRange - 1))
     (t.hasFVar || v.hasFVar || b.hasFVar)
     (t.hasExprMVar || v.hasExprMVar || b.hasExprMVar)

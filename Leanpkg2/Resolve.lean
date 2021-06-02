@@ -31,7 +31,7 @@ def materializeGit
 def materialize (relPath : FilePath) (dep : Dependency) : IO FilePath :=
   match dep.src with
   | Source.path dir => do
-    let depdir := dir / relPath
+    let depdir := relPath / dir
     IO.eprintln s!"{dep.name}: using local path {depdir}"
     depdir
   | Source.git url rev branch => do

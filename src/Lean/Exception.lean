@@ -78,7 +78,7 @@ instance [Monad m] [MonadRecDepth m] : MonadRecDepth (ReaderT ρ m) where
 instance [Monad m] [MonadRecDepth m] : MonadRecDepth (StateRefT' ω σ m) :=
   inferInstanceAs (MonadRecDepth (ReaderT _ _))
 
-instance [BEq α] [HashableUSize α] [Monad m] [STWorld ω m] [MonadRecDepth m] : MonadRecDepth (MonadCacheT α β m) :=
+instance [BEq α] [Hashable α] [Monad m] [STWorld ω m] [MonadRecDepth m] : MonadRecDepth (MonadCacheT α β m) :=
   inferInstanceAs (MonadRecDepth (StateRefT' _ _ _))
 
 @[inline] def withIncRecDepth [Monad m] [MonadError m] [MonadRecDepth m] (x : m α) : m α := do

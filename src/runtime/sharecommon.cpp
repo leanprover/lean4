@@ -25,7 +25,7 @@ extern "C" uint8 lean_sharecommon_eq(b_obj_arg o1, b_obj_arg o2) {
     return memcmp(reinterpret_cast<char*>(o1) + header_sz, reinterpret_cast<char*>(o2) + header_sz, sz1 - header_sz) == 0;
 }
 
-extern "C" usize lean_sharecommon_hash(b_obj_arg o) {
+extern "C" uint64_t lean_sharecommon_hash(b_obj_arg o) {
     lean_assert(!lean_is_scalar(o));
     size_t sz = lean_object_byte_size(o);
     size_t header_sz = sizeof(lean_object);

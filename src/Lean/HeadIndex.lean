@@ -21,16 +21,16 @@ inductive HeadIndex where
 namespace HeadIndex
 
 protected def HeadIndex.hash : HeadIndex → USize
-  | fvar fvarId         => mixUSizeHash 11 $ hash fvarId
-  | mvar mvarId         => mixUSizeHash 13 $ hash mvarId
-  | const constName     => mixUSizeHash 17 $ hash constName
-  | proj structName idx => mixUSizeHash 19 $ mixUSizeHash (hash structName) (hash idx)
-  | lit litVal          => mixUSizeHash 23 $ hash litVal
+  | fvar fvarId         => mixUSizeHash 11 $ hashUSize fvarId
+  | mvar mvarId         => mixUSizeHash 13 $ hashUSize mvarId
+  | const constName     => mixUSizeHash 17 $ hashUSize constName
+  | proj structName idx => mixUSizeHash 19 $ mixUSizeHash (hashUSize structName) (hashUSize idx)
+  | lit litVal          => mixUSizeHash 23 $ hashUSize litVal
   | sort                => 29
   | lam                 => 31
   | forallE             => 37
 
-instance : Hashable HeadIndex := ⟨HeadIndex.hash⟩
+instance : HashableUSize HeadIndex := ⟨HeadIndex.hash⟩
 
 end HeadIndex
 

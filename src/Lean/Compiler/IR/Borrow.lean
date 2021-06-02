@@ -20,8 +20,8 @@ def beq : Key → Key → Bool
 instance : BEq Key := ⟨beq⟩
 
 def getHash : Key → USize
-  | (f, x) => mixUSizeHash (hash f) (hash x)
-instance : Hashable Key := ⟨getHash⟩
+  | (f, x) => mixUSizeHash (hashUSize f) (hashUSize x)
+instance : HashableUSize Key := ⟨getHash⟩
 end OwnedSet
 
 open OwnedSet (Key) in
@@ -41,10 +41,10 @@ inductive Key where
   deriving BEq
 
 def getHash : Key → USize
-  | Key.decl n  => hash n
-  | Key.jp n id => mixUSizeHash (hash n) (hash id)
+  | Key.decl n  => hashUSize n
+  | Key.jp n id => mixUSizeHash (hashUSize n) (hashUSize id)
 
-instance : Hashable Key := ⟨getHash⟩
+instance : HashableUSize Key := ⟨getHash⟩
 end ParamMap
 
 open ParamMap (Key)

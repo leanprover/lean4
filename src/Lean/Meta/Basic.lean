@@ -80,8 +80,8 @@ structure InfoCacheKey where
   deriving Inhabited, BEq
 
 namespace InfoCacheKey
-instance : Hashable InfoCacheKey :=
-  ⟨fun ⟨transparency, expr, nargs⟩ => mixUSizeHash (hash transparency) <| mixUSizeHash (hash expr) (hash nargs)⟩
+instance : HashableUSize InfoCacheKey :=
+  ⟨fun ⟨transparency, expr, nargs⟩ => mixUSizeHash (hashUSize transparency) <| mixUSizeHash (hashUSize expr) (hashUSize nargs)⟩
 end InfoCacheKey
 
 open Std (PersistentArray PersistentHashMap)

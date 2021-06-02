@@ -14,7 +14,7 @@ namespace Lean.SCC
 open Std
 
 section
-variable (α : Type) [BEq α] [Hashable α]
+variable (α : Type) [BEq α] [HashableUSize α]
 
 structure Data where
   index?   : Option Nat := none
@@ -30,7 +30,7 @@ structure State where
 abbrev M := StateM (State α)
 end
 
-variable {α : Type} [BEq α] [Hashable α]
+variable {α : Type} [BEq α] [HashableUSize α]
 
 private def getDataOf (a : α) : M α Data := do
   let s ← get

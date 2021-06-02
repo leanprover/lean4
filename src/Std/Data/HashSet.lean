@@ -46,40 +46,40 @@ def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
 @[inline] def fold {δ : Type w} (f : δ → α → δ) (d : δ) (m : HashSetImp α) : δ :=
   foldBuckets m.buckets d f
 
-def find? [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : Option α :=
+def find? [BEq α] [HashableUSize α] (m : HashSetImp α) (a : α) : Option α :=
   match m with
   | ⟨_, buckets⟩ =>
-    let ⟨i, h⟩ := mkIdx buckets.property (hash a)
+    let ⟨i, h⟩ := mkIdx buckets.property (hashUSize a)
     (buckets.val.uget i h).find? (fun a' => a == a')
 
-def contains [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : Bool :=
+def contains [BEq α] [HashableUSize α] (m : HashSetImp α) (a : α) : Bool :=
   match m with
   | ⟨_, buckets⟩ =>
-    let ⟨i, h⟩ := mkIdx buckets.property (hash a)
+    let ⟨i, h⟩ := mkIdx buckets.property (hashUSize a)
     (buckets.val.uget i h).contains a
 
 -- TODO: remove `partial` by using well-founded recursion
-partial def moveEntries [Hashable α] (i : Nat) (source : Array (List α)) (target : HashSetBucket α) : HashSetBucket α :=
+partial def moveEntries [HashableUSize α] (i : Nat) (source : Array (List α)) (target : HashSetBucket α) : HashSetBucket α :=
   if h : i < source.size then
      let idx : Fin source.size := ⟨i, h⟩
      let es  : List α   := source.get idx
      -- We remove `es` from `source` to make sure we can reuse its memory cells when performing es.foldl
      let source                := source.set idx []
-     let target                := es.foldl (reinsertAux hash) target
+     let target                := es.foldl (reinsertAux hashUSize) target
      moveEntries (i+1) source target
   else target
 
-def expand [Hashable α] (size : Nat) (buckets : HashSetBucket α) : HashSetImp α :=
+def expand [HashableUSize α] (size : Nat) (buckets : HashSetBucket α) : HashSetImp α :=
   let nbuckets := buckets.val.size * 2
   have : nbuckets > 0 := Nat.mulPos buckets.property (by decide)
   let new_buckets : HashSetBucket α := ⟨mkArray nbuckets [], by rw [Array.size_mkArray]; assumption⟩
   { size    := size,
     buckets := moveEntries 0 buckets.val new_buckets }
 
-def insert [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :=
+def insert [BEq α] [HashableUSize α] (m : HashSetImp α) (a : α) : HashSetImp α :=
   match m with
   | ⟨size, buckets⟩ =>
-    let ⟨i, h⟩ := mkIdx buckets.property (hash a)
+    let ⟨i, h⟩ := mkIdx buckets.property (hashUSize a)
     let bkt    := buckets.val.uget i h
     if bkt.contains a
     then ⟨size, buckets.update i (bkt.replace a a) h⟩
@@ -90,31 +90,31 @@ def insert [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :
       then { size := size', buckets := buckets' }
       else expand size' buckets'
 
-def erase [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :=
+def erase [BEq α] [HashableUSize α] (m : HashSetImp α) (a : α) : HashSetImp α :=
   match m with
   | ⟨ size, buckets ⟩ =>
-    let ⟨i, h⟩ := mkIdx buckets.property (hash a)
+    let ⟨i, h⟩ := mkIdx buckets.property (hashUSize a)
     let bkt    := buckets.val.uget i h
     if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
     else m
 
-inductive WellFormed [BEq α] [Hashable α] : HashSetImp α → Prop where
+inductive WellFormed [BEq α] [HashableUSize α] : HashSetImp α → Prop where
   | mkWff     : ∀ n,                  WellFormed (mkHashSetImp n)
   | insertWff : ∀ m a, WellFormed m → WellFormed (insert m a)
   | eraseWff  : ∀ m a, WellFormed m → WellFormed (erase m a)
 
 end HashSetImp
 
-def HashSet (α : Type u) [BEq α] [Hashable α] :=
+def HashSet (α : Type u) [BEq α] [HashableUSize α] :=
   { m : HashSetImp α // m.WellFormed }
 
 open HashSetImp
 
-def mkHashSet {α : Type u} [BEq α] [Hashable α] (nbuckets := 8) : HashSet α :=
+def mkHashSet {α : Type u} [BEq α] [HashableUSize α] (nbuckets := 8) : HashSet α :=
   ⟨ mkHashSetImp nbuckets, WellFormed.mkWff nbuckets ⟩
 
 namespace HashSet
-variable {α : Type u} [BEq α] [Hashable α]
+variable {α : Type u} [BEq α] [HashableUSize α]
 
 instance : Inhabited (HashSet α) where
   default := mkHashSet

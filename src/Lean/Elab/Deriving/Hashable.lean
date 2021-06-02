@@ -61,9 +61,9 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
   let binders    := header.binders
   if ctx.usePartial then
     -- TODO(Dany): Get rid of this code branch altogether once we have well-founded recursion
-    `(private partial def $(mkIdent auxFunName):ident $binders:explicitBinder* : USize := $body:term) 
+    `(private partial def $(mkIdent auxFunName):ident $binders:explicitBinder* : USize := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:explicitBinder* : USize := $body:term) 
+    `(private def $(mkIdent auxFunName):ident $binders:explicitBinder* : USize := $body:term)
 
 def mkHashFuncs (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]
@@ -86,5 +86,5 @@ def mkHashableHandler (declNames : Array Name) : CommandElabM Bool := do
     return false
 
 builtin_initialize
-  registerBuiltinDerivingHandler ``Hashable mkHashableHandler
+  registerBuiltinDerivingHandler ``HashableUSize mkHashableHandler
   registerTraceClass `Elab.Deriving.hashable

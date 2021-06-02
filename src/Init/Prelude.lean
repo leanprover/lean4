@@ -1587,10 +1587,10 @@ instance nonBacktrackable : Backtrackable PUnit σ where
 
 end EStateM
 
-class Hashable (α : Sort u) where
-  hash : α → USize
+class HashableUSize (α : Sort u) where
+  hashUSize : α → USize
 
-export Hashable (hash)
+export HashableUSize (hashUSize)
 
 @[extern "lean_usize_mix_hash"]
 constant mixUSizeHash (u₁ u₂ : USize) : USize
@@ -1601,8 +1601,8 @@ constant mixUSizeHash (u₁ u₂ : USize) : USize
 @[extern "lean_string_hash"]
 protected constant String.hash (s : @& String) : USize
 
-instance : Hashable String where
-  hash := String.hash
+instance : HashableUSize String where
+  hashUSize := String.hash
 
 namespace Lean
 
@@ -1620,18 +1620,18 @@ protected def Name.hash : Name → USize
   | Name.str p s h => h
   | Name.num p v h => h
 
-instance : Hashable Name where
-  hash := Name.hash
+instance : HashableUSize Name where
+  hashUSize := Name.hash
 
 namespace Name
 
 @[export lean_name_mk_string]
 def mkStr (p : Name) (s : String) : Name :=
-  Name.str p s (mixUSizeHash (hash p) (hash s))
+  Name.str p s (mixUSizeHash (hashUSize p) (hashUSize s))
 
 @[export lean_name_mk_numeral]
 def mkNum (p : Name) (v : Nat) : Name :=
-  Name.num p v (mixUSizeHash (hash p) (dite (LT.lt v USize.size) (fun h => USize.ofNatCore v h) (fun _ => USize.ofNat32 17 (by decide))))
+  Name.num p v (mixUSizeHash (hashUSize p) (dite (LT.lt v USize.size) (fun h => USize.ofNatCore v h) (fun _ => USize.ofNat32 17 (by decide))))
 
 def mkSimple (s : String) : Name :=
   mkStr Name.anonymous s

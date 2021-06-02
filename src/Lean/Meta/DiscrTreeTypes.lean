@@ -21,14 +21,14 @@ inductive Key where
   deriving Inhabited, BEq
 
 protected def Key.hash : Key → USize
-  | Key.const n a => mixUSizeHash 5237 $ mixUSizeHash (hash n) (hash a)
-  | Key.fvar n a  => mixUSizeHash 3541 $ mixUSizeHash (hash n) (hash a)
-  | Key.lit v     => mixUSizeHash 1879 $ hash v
+  | Key.const n a => mixUSizeHash 5237 $ mixUSizeHash (hashUSize n) (hashUSize a)
+  | Key.fvar n a  => mixUSizeHash 3541 $ mixUSizeHash (hashUSize n) (hashUSize a)
+  | Key.lit v     => mixUSizeHash 1879 $ hashUSize v
   | Key.star      => 7883
   | Key.other     => 2411
   | Key.arrow     => 17
 
-instance : Hashable Key := ⟨Key.hash⟩
+instance : HashableUSize Key := ⟨Key.hash⟩
 
 inductive Trie (α : Type) where
   | node (vs : Array α) (children : Array (Key × Trie α)) : Trie α

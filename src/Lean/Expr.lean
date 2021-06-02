@@ -14,10 +14,10 @@ inductive Literal where
   deriving Inhabited, BEq
 
 protected def Literal.hash : Literal → USize
-  | Literal.natVal v => hash v
-  | Literal.strVal v => hash v
+  | Literal.natVal v => hashUSize v
+  | Literal.strVal v => hashUSize v
 
-instance : Hashable Literal := ⟨Literal.hash⟩
+instance : HashableUSize Literal := ⟨Literal.hash⟩
 
 def Literal.lt : Literal → Literal → Bool
   | Literal.natVal _,  Literal.strVal _  => true
@@ -47,7 +47,7 @@ def BinderInfo.isExplicit : BinderInfo → Bool
   | BinderInfo.instImplicit   => false
   | _                         => true
 
-instance : Hashable BinderInfo := ⟨BinderInfo.hash⟩
+instance : HashableUSize BinderInfo := ⟨BinderInfo.hash⟩
 
 def BinderInfo.isInstImplicit : BinderInfo → Bool
   | BinderInfo.instImplicit => true
@@ -201,7 +201,7 @@ def ctorName : Expr → String
 protected def hash (e : Expr) : USize :=
   e.data.hash
 
-instance : Hashable Expr := ⟨Expr.hash⟩
+instance : HashableUSize Expr := ⟨Expr.hash⟩
 
 def hasFVar (e : Expr) : Bool :=
   e.data.hasFVar
@@ -225,7 +225,7 @@ def looseBVarRange (e : Expr) : Nat :=
 def binderInfo (e : Expr) : BinderInfo :=
   e.data.binderInfo
 
-@[export lean_expr_hash] def hashEx : Expr → USize := hash
+@[export lean_expr_hash] def hashEx : Expr → USize := hashUSize
 @[export lean_expr_has_fvar] def hasFVarEx : Expr → Bool := hasFVar
 @[export lean_expr_has_expr_mvar] def hasExprMVarEx : Expr → Bool := hasExprMVar
 @[export lean_expr_has_level_mvar] def hasLevelMVarEx : Expr → Bool := hasLevelMVar
@@ -237,7 +237,7 @@ def binderInfo (e : Expr) : BinderInfo :=
 end Expr
 
 def mkLit (l : Literal) : Expr :=
-  Expr.lit l $ mkData (mixUSizeHash 3 (hash l))
+  Expr.lit l $ mkData (mixUSizeHash 3 (hashUSize l))
 
 def mkNatLit (n : Nat) : Expr :=
   mkLit (Literal.natVal n)
@@ -246,7 +246,7 @@ def mkStrLit (s : String) : Expr :=
   mkLit (Literal.strVal s)
 
 def mkConst (n : Name) (lvls : List Level := []) : Expr :=
-  Expr.const n lvls $ mkData (mixUSizeHash 5 $ mixUSizeHash (hash n) (hash lvls)) 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
+  Expr.const n lvls $ mkData (mixUSizeHash 5 $ mixUSizeHash (hashUSize n) (hashUSize lvls)) 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
 
 def Literal.type : Literal → Expr
   | Literal.natVal _ => mkConst `Nat
@@ -256,26 +256,26 @@ def Literal.type : Literal → Expr
 def Literal.typeEx : Literal → Expr := Literal.type
 
 def mkBVar (idx : Nat) : Expr :=
-  Expr.bvar idx $ mkData (mixUSizeHash 7 $ hash idx) (idx+1)
+  Expr.bvar idx $ mkData (mixUSizeHash 7 $ hashUSize idx) (idx+1)
 
 def mkSort (lvl : Level) : Expr :=
-  Expr.sort lvl $ mkData (mixUSizeHash 11 $ hash lvl) 0 false false lvl.hasMVar lvl.hasParam
+  Expr.sort lvl $ mkData (mixUSizeHash 11 $ hashUSize lvl) 0 false false lvl.hasMVar lvl.hasParam
 
 def mkFVar (fvarId : FVarId) : Expr :=
-  Expr.fvar fvarId $ mkData (mixUSizeHash 13 $ hash fvarId) 0 true
+  Expr.fvar fvarId $ mkData (mixUSizeHash 13 $ hashUSize fvarId) 0 true
 
 def mkMVar (fvarId : MVarId) : Expr :=
-  Expr.mvar fvarId $ mkData (mixUSizeHash 17 $ hash fvarId) 0 false true
+  Expr.mvar fvarId $ mkData (mixUSizeHash 17 $ hashUSize fvarId) 0 false true
 
 def mkMData (d : MData) (e : Expr) : Expr :=
-  Expr.mdata d e $ mkData (mixUSizeHash 19 $ hash e) e.looseBVarRange e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
+  Expr.mdata d e $ mkData (mixUSizeHash 19 $ hashUSize e) e.looseBVarRange e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkProj (s : Name) (i : Nat) (e : Expr) : Expr :=
-  Expr.proj s i e $ mkData (mixUSizeHash 23 $ mixUSizeHash (hash s) $ mixUSizeHash (hash i) (hash e))
+  Expr.proj s i e $ mkData (mixUSizeHash 23 $ mixUSizeHash (hashUSize s) $ mixUSizeHash (hashUSize i) (hashUSize e))
       e.looseBVarRange e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkApp (f a : Expr) : Expr :=
-  Expr.app f a $ mkData (mixUSizeHash 29 $ mixUSizeHash (hash f) (hash a))
+  Expr.app f a $ mkData (mixUSizeHash 29 $ mixUSizeHash (hashUSize f) (hashUSize a))
     (Nat.max f.looseBVarRange a.looseBVarRange)
     (f.hasFVar || a.hasFVar)
     (f.hasExprMVar || a.hasExprMVar)
@@ -284,7 +284,7 @@ def mkApp (f a : Expr) : Expr :=
 
 def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
   -- let x := x.eraseMacroScopes
-  Expr.lam x t b $ mkDataForBinder (mixUSizeHash 31 $ mixUSizeHash (hash t) (hash b))
+  Expr.lam x t b $ mkDataForBinder (mixUSizeHash 31 $ mixUSizeHash (hashUSize t) (hashUSize b))
     (Nat.max t.looseBVarRange (b.looseBVarRange - 1))
     (t.hasFVar || b.hasFVar)
     (t.hasExprMVar || b.hasExprMVar)
@@ -294,7 +294,7 @@ def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
 
 def mkForall (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
   -- let x := x.eraseMacroScopes
-  Expr.forallE x t b $ mkDataForBinder (mixUSizeHash 37 $ mixUSizeHash (hash t) (hash b))
+  Expr.forallE x t b $ mkDataForBinder (mixUSizeHash 37 $ mixUSizeHash (hashUSize t) (hashUSize b))
     (Nat.max t.looseBVarRange (b.looseBVarRange - 1))
     (t.hasFVar || b.hasFVar)
     (t.hasExprMVar || b.hasExprMVar)
@@ -312,7 +312,7 @@ def mkSimpleThunk (type : Expr) : Expr :=
 
 def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) : Expr :=
   -- let x := x.eraseMacroScopes
-  Expr.letE x t v b $ mkDataForLet (mixUSizeHash 41 $ mixUSizeHash (hash t) $ mixUSizeHash (hash v) (hash b))
+  Expr.letE x t v b $ mkDataForLet (mixUSizeHash 41 $ mixUSizeHash (hashUSize t) $ mixUSizeHash (hashUSize v) (hashUSize b))
     (Nat.max (Nat.max t.looseBVarRange v.looseBVarRange) (b.looseBVarRange - 1))
     (t.hasFVar || v.hasFVar || b.hasFVar)
     (t.hasExprMVar || v.hasExprMVar || b.hasExprMVar)
@@ -719,7 +719,7 @@ protected def hash : ExprStructEq → USize
   | ⟨e⟩ => e.hash
 
 instance : BEq ExprStructEq := ⟨ExprStructEq.beq⟩
-instance : Hashable ExprStructEq := ⟨ExprStructEq.hash⟩
+instance : HashableUSize ExprStructEq := ⟨ExprStructEq.hash⟩
 instance : ToString ExprStructEq := ⟨fun e => toString e.val⟩
 
 end ExprStructEq

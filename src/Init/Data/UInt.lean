@@ -300,8 +300,6 @@ def USize.shiftLeft (a b : USize) : USize := ⟨a.val <<< (modn b System.Platfor
 def USize.shiftRight (a b : USize) : USize := ⟨a.val >>> (modn b System.Platform.numBits).val⟩
 @[extern c inline "#1"]
 def UInt32.toUSize (a : UInt32) : USize := a.toNat.toUSize
-@[extern c inline "((size_t)#1)"]
-def UInt64.toUSize (a : UInt64) : USize := a.toNat.toUSize
 @[extern c inline "(uint32_t)#1"]
 def USize.toUInt32 (a : USize) : UInt32 := a.toNat.toUInt32
 

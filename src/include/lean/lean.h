@@ -1169,7 +1169,7 @@ static inline bool lean_string_ne(b_lean_obj_arg s1, b_lean_obj_arg s2) { return
 bool lean_string_lt(b_lean_obj_arg s1, b_lean_obj_arg s2);
 static inline uint8_t lean_string_dec_eq(b_lean_obj_arg s1, b_lean_obj_arg s2) { return lean_string_eq(s1, s2); }
 static inline uint8_t lean_string_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2) { return lean_string_lt(s1, s2); }
-size_t lean_string_hash(b_lean_obj_arg);
+uint64_t lean_string_hash(b_lean_obj_arg);
 
 /* Thunks */
 

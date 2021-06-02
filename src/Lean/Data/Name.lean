@@ -13,7 +13,7 @@ instance : Coe String Name := ⟨Name.mkSimple⟩
 namespace Name
 
 @[export lean_name_hash] def hashEx : Name → USize :=
-  Name.hash
+  fun n => Name.hash n |>.toUSize
 
 def getPrefix : Name → Name
   | anonymous => anonymous
@@ -62,31 +62,31 @@ def cmp : Name → Name → Ordering
   | anonymous,   anonymous   => Ordering.eq
   | anonymous,   _           => Ordering.lt
   | _,           anonymous   => Ordering.gt
-  | num p₁ i₁ _, num p₂ i₂ _ => 
-    match cmp p₁ p₂ with  
+  | num p₁ i₁ _, num p₂ i₂ _ =>
+    match cmp p₁ p₂ with
     | Ordering.eq => compare i₁ i₂
     | ord => ord
   | num _ _ _,   str _ _ _   => Ordering.lt
   | str _ _ _,   num _ _ _   => Ordering.gt
-  | str p₁ n₁ _, str p₂ n₂ _ => 
-    match cmp p₁ p₂ with 
+  | str p₁ n₁ _, str p₂ n₂ _ =>
+    match cmp p₁ p₂ with
     | Ordering.eq => compare n₁ n₂
     | ord => ord
-    
+
 def lt (x y : Name) : Bool :=
   cmp x y == Ordering.lt
 
-def quickCmpAux : Name → Name → Ordering 
+def quickCmpAux : Name → Name → Ordering
   | anonymous, anonymous   => Ordering.eq
   | anonymous, _           => Ordering.lt
   | _,         anonymous   => Ordering.gt
-  | num n v _, num n' v' _ => 
+  | num n v _, num n' v' _ =>
     match compare v v' with
     | Ordering.eq => n.quickCmpAux n'
     | ord => ord
   | num _ _ _, str _ _ _   => Ordering.lt
   | str _ _ _, num _ _ _   => Ordering.gt
-  | str n s _, str n' s' _ => 
+  | str n s _, str n' s' _ =>
     match compare s s' with
     | Ordering.eq => n.quickCmpAux n'
     | ord => ord

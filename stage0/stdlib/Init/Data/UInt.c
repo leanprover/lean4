@@ -115,7 +115,6 @@ lean_object* l_instComplementUInt32;
 uint32_t l_UInt32_add(uint32_t, uint32_t);
 lean_object* l_instModUInt64;
 lean_object* l_instDecidableLt__3___boxed(lean_object*, lean_object*);
-size_t l_UInt64_toUSize(uint64_t);
 lean_object* l_USize_complement___boxed(lean_object*);
 uint32_t l_UInt32_div(uint32_t, uint32_t);
 lean_object* l_instDivUSize___closed__1;
@@ -283,7 +282,6 @@ uint32_t l_UInt32_mul(uint32_t, uint32_t);
 size_t l_Nat_toUSize(lean_object*);
 uint32_t l_UInt32_mod(uint32_t, uint32_t);
 lean_object* l_UInt32_complement___boxed(lean_object*);
-lean_object* l_UInt64_toUSize___boxed(lean_object*);
 size_t l_USize_lor(size_t, size_t);
 lean_object* l_instMulUInt32___closed__1;
 lean_object* l_instMulUSize___closed__1;
@@ -2485,17 +2483,6 @@ uint32_t x_2; size_t x_3; lean_object* x_4;
 x_2 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
 x_3 = x_2;
-x_4 = lean_box_usize(x_3);
-return x_4;
-}
-}
-lean_object* l_UInt64_toUSize___boxed(lean_object* x_1) {
-_start:
-{
-uint64_t x_2; size_t x_3; lean_object* x_4; 
-x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
-x_3 = ((size_t)x_2);
 x_4 = lean_box_usize(x_3);
 return x_4;
 }

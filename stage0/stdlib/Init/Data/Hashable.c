@@ -416,7 +416,7 @@ size_t l_instHashableUSizeUInt64(uint64_t x_1) {
 _start:
 {
 size_t x_2; 
-x_2 = ((size_t)x_1);
+x_2 = (size_t)x_1;
 return x_2;
 }
 }

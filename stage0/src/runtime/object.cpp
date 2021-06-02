@@ -1860,7 +1860,7 @@ extern "C" obj_res lean_string_utf8_set(obj_arg s, b_obj_arg i0, uint32 c) {
     return mk_string(new_s);
 }
 
-extern "C" usize lean_string_hash(b_obj_arg s) {
+extern "C" uint64 lean_string_hash(b_obj_arg s) {
     usize sz = lean_string_size(s) - 1;
     char const * str = lean_string_cstr(s);
     return hash_str(sz, str, 11);

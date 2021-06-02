@@ -1592,14 +1592,27 @@ class HashableUSize (α : Sort u) where
 
 export HashableUSize (hashUSize)
 
+class Hashable (α : Sort u) where
+  hash : α → UInt64
+
+export Hashable (hash)
+
+@[extern c inline "(size_t)#1"]
+constant UInt64.toUSize (u : UInt64) : USize
+
+@[extern c inline "(uint64_t)#1"]
+constant USize.toUInt64 (u : USize) : UInt64
+
+@[extern "lean_uint64_mix_hash"]
+constant mixHash (u₁ u₂ : UInt64) : UInt64
+
 @[extern "lean_usize_mix_hash"]
 constant mixUSizeHash (u₁ u₂ : USize) : USize
 
--- @[extern "lean_usize_mix_hash"]
--- constant mixHash (u₁ u₂ : USize) : USize
-
 @[extern "lean_string_hash"]
 protected constant String.hash (s : @& String) : USize
+@[extern "lean_string_hash"]
+protected constant String.hashUSize (s : @& String) : USize
 
 instance : HashableUSize String where
   hashUSize := String.hash

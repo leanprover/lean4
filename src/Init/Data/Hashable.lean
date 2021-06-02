@@ -12,7 +12,7 @@ instance : Hashable Nat where
   hash n := USize.ofNat n
 
 instance [Hashable α] [Hashable β] : Hashable (α × β) where
-  hash | (a, b) => mixHash (hash a) (hash b)
+  hash | (a, b) => mixUSizeHash (hash a) (hash b)
 
 instance : Hashable Bool where
   hash
@@ -21,15 +21,15 @@ instance : Hashable Bool where
 
 protected def Option.hash [Hashable α] : Option α → USize
   | none   => 11
-  | some a => mixHash (hash a) 13
+  | some a => mixUSizeHash (hash a) 13
 
 instance [Hashable α] : Hashable (Option α) where
   hash
     | none   => 11
-    | some a => mixHash (hash a) 13
+    | some a => mixUSizeHash (hash a) 13
 
 instance [Hashable α] : Hashable (List α) where
-  hash as := as.foldl (fun r a => mixHash r (hash a)) 7
+  hash as := as.foldl (fun r a => mixUSizeHash r (hash a)) 7
 
 instance : Hashable UInt32 where
   hash n := n.toUSize
@@ -41,7 +41,7 @@ instance : Hashable USize where
   hash n := n
 
 instance : Hashable Int where
-  hash 
+  hash
     | Int.ofNat n => USize.ofNat (2 * n)
     | Int.negSucc n => USize.ofNat (2 * n + 1)
 

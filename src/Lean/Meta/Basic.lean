@@ -81,7 +81,7 @@ structure InfoCacheKey where
 
 namespace InfoCacheKey
 instance : Hashable InfoCacheKey :=
-  ⟨fun ⟨transparency, expr, nargs⟩ => mixHash (hash transparency) <| mixHash (hash expr) (hash nargs)⟩
+  ⟨fun ⟨transparency, expr, nargs⟩ => mixUSizeHash (hash transparency) <| mixUSizeHash (hash expr) (hash nargs)⟩
 end InfoCacheKey
 
 open Std (PersistentArray PersistentHashMap)

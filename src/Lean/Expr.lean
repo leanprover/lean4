@@ -237,7 +237,7 @@ def binderInfo (e : Expr) : BinderInfo :=
 end Expr
 
 def mkLit (l : Literal) : Expr :=
-  Expr.lit l $ mkData (mixHash 3 (hash l))
+  Expr.lit l $ mkData (mixUSizeHash 3 (hash l))
 
 def mkNatLit (n : Nat) : Expr :=
   mkLit (Literal.natVal n)
@@ -246,7 +246,7 @@ def mkStrLit (s : String) : Expr :=
   mkLit (Literal.strVal s)
 
 def mkConst (n : Name) (lvls : List Level := []) : Expr :=
-  Expr.const n lvls $ mkData (mixHash 5 $ mixHash (hash n) (hash lvls)) 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
+  Expr.const n lvls $ mkData (mixUSizeHash 5 $ mixUSizeHash (hash n) (hash lvls)) 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
 
 def Literal.type : Literal → Expr
   | Literal.natVal _ => mkConst `Nat
@@ -256,26 +256,26 @@ def Literal.type : Literal → Expr
 def Literal.typeEx : Literal → Expr := Literal.type
 
 def mkBVar (idx : Nat) : Expr :=
-  Expr.bvar idx $ mkData (mixHash 7 $ hash idx) (idx+1)
+  Expr.bvar idx $ mkData (mixUSizeHash 7 $ hash idx) (idx+1)
 
 def mkSort (lvl : Level) : Expr :=
-  Expr.sort lvl $ mkData (mixHash 11 $ hash lvl) 0 false false lvl.hasMVar lvl.hasParam
+  Expr.sort lvl $ mkData (mixUSizeHash 11 $ hash lvl) 0 false false lvl.hasMVar lvl.hasParam
 
 def mkFVar (fvarId : FVarId) : Expr :=
-  Expr.fvar fvarId $ mkData (mixHash 13 $ hash fvarId) 0 true
+  Expr.fvar fvarId $ mkData (mixUSizeHash 13 $ hash fvarId) 0 true
 
 def mkMVar (fvarId : MVarId) : Expr :=
-  Expr.mvar fvarId $ mkData (mixHash 17 $ hash fvarId) 0 false true
+  Expr.mvar fvarId $ mkData (mixUSizeHash 17 $ hash fvarId) 0 false true
 
 def mkMData (d : MData) (e : Expr) : Expr :=
-  Expr.mdata d e $ mkData (mixHash 19 $ hash e) e.looseBVarRange e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
+  Expr.mdata d e $ mkData (mixUSizeHash 19 $ hash e) e.looseBVarRange e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkProj (s : Name) (i : Nat) (e : Expr) : Expr :=
-  Expr.proj s i e $ mkData (mixHash 23 $ mixHash (hash s) $ mixHash (hash i) (hash e))
+  Expr.proj s i e $ mkData (mixUSizeHash 23 $ mixUSizeHash (hash s) $ mixUSizeHash (hash i) (hash e))
       e.looseBVarRange e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkApp (f a : Expr) : Expr :=
-  Expr.app f a $ mkData (mixHash 29 $ mixHash (hash f) (hash a))
+  Expr.app f a $ mkData (mixUSizeHash 29 $ mixUSizeHash (hash f) (hash a))
     (Nat.max f.looseBVarRange a.looseBVarRange)
     (f.hasFVar || a.hasFVar)
     (f.hasExprMVar || a.hasExprMVar)
@@ -284,7 +284,7 @@ def mkApp (f a : Expr) : Expr :=
 
 def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
   -- let x := x.eraseMacroScopes
-  Expr.lam x t b $ mkDataForBinder (mixHash 31 $ mixHash (hash t) (hash b))
+  Expr.lam x t b $ mkDataForBinder (mixUSizeHash 31 $ mixUSizeHash (hash t) (hash b))
     (Nat.max t.looseBVarRange (b.looseBVarRange - 1))
     (t.hasFVar || b.hasFVar)
     (t.hasExprMVar || b.hasExprMVar)
@@ -294,7 +294,7 @@ def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
 
 def mkForall (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
   -- let x := x.eraseMacroScopes
-  Expr.forallE x t b $ mkDataForBinder (mixHash 37 $ mixHash (hash t) (hash b))
+  Expr.forallE x t b $ mkDataForBinder (mixUSizeHash 37 $ mixUSizeHash (hash t) (hash b))
     (Nat.max t.looseBVarRange (b.looseBVarRange - 1))
     (t.hasFVar || b.hasFVar)
     (t.hasExprMVar || b.hasExprMVar)
@@ -312,7 +312,7 @@ def mkSimpleThunk (type : Expr) : Expr :=
 
 def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) : Expr :=
   -- let x := x.eraseMacroScopes
-  Expr.letE x t v b $ mkDataForLet (mixHash 41 $ mixHash (hash t) $ mixHash (hash v) (hash b))
+  Expr.letE x t v b $ mkDataForLet (mixUSizeHash 41 $ mixUSizeHash (hash t) $ mixUSizeHash (hash v) (hash b))
     (Nat.max (Nat.max t.looseBVarRange v.looseBVarRange) (b.looseBVarRange - 1))
     (t.hasFVar || v.hasFVar || b.hasFVar)
     (t.hasExprMVar || v.hasExprMVar || b.hasExprMVar)

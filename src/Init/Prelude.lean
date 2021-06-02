@@ -1595,8 +1595,8 @@ export Hashable (hash)
 @[extern "lean_usize_mix_hash"]
 constant mixUSizeHash (u₁ u₂ : USize) : USize
 
-@[extern "lean_usize_mix_hash"]
-constant mixHash (u₁ u₂ : USize) : USize
+-- @[extern "lean_usize_mix_hash"]
+-- constant mixHash (u₁ u₂ : USize) : USize
 
 @[extern "lean_string_hash"]
 protected constant String.hash (s : @& String) : USize
@@ -1627,11 +1627,11 @@ namespace Name
 
 @[export lean_name_mk_string]
 def mkStr (p : Name) (s : String) : Name :=
-  Name.str p s (mixHash (hash p) (hash s))
+  Name.str p s (mixUSizeHash (hash p) (hash s))
 
 @[export lean_name_mk_numeral]
 def mkNum (p : Name) (v : Nat) : Name :=
-  Name.num p v (mixHash (hash p) (dite (LT.lt v USize.size) (fun h => USize.ofNatCore v h) (fun _ => USize.ofNat32 17 (by decide))))
+  Name.num p v (mixUSizeHash (hash p) (dite (LT.lt v USize.size) (fun h => USize.ofNatCore v h) (fun _ => USize.ofNat32 17 (by decide))))
 
 def mkSimple (s : String) : Name :=
   mkStr Name.anonymous s

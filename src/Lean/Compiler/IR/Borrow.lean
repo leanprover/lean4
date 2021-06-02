@@ -19,9 +19,9 @@ def beq : Key → Key → Bool
 
 instance : BEq Key := ⟨beq⟩
 
-def getHash : Key → USize
-  | (f, x) => mixUSizeHash (hashUSize f) (hashUSize x)
-instance : HashableUSize Key := ⟨getHash⟩
+def getHash : Key → UInt64
+  | (f, x) => mixHash (hash f) (hash x)
+instance : Hashable Key := ⟨getHash⟩
 end OwnedSet
 
 open OwnedSet (Key) in
@@ -40,11 +40,11 @@ inductive Key where
   | jp   (name : FunId) (jpid : JoinPointId)
   deriving BEq
 
-def getHash : Key → USize
-  | Key.decl n  => hashUSize n
-  | Key.jp n id => mixUSizeHash (hashUSize n) (hashUSize id)
+def getHash : Key → UInt64
+  | Key.decl n  => hash n
+  | Key.jp n id => mixHash (hash n) (hash id)
 
-instance : HashableUSize Key := ⟨getHash⟩
+instance : Hashable Key := ⟨getHash⟩
 end ParamMap
 
 open ParamMap (Key)

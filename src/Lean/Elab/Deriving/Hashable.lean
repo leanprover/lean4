@@ -86,5 +86,5 @@ def mkHashableHandler (declNames : Array Name) : CommandElabM Bool := do
     return false
 
 builtin_initialize
-  registerBuiltinDerivingHandler ``HashableUSize mkHashableHandler
+  registerBuiltinDerivingHandler ``Hashable mkHashableHandler
   registerTraceClass `Elab.Deriving.hashable

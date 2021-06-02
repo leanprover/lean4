@@ -25,6 +25,7 @@ version = \"0.1\"
 lean_version = \"{leanVersionString}\"
 "
 
+open Git in
 def initPkg (pkgName : String) (fromNew : Bool) : IO Unit := do
   IO.FS.writeFile leanpkgToml (leanpkgFileContents pkgName)
   IO.FS.writeFile ⟨s!"{pkgName.capitalize}.lean"⟩ mainFileContents
@@ -32,9 +33,10 @@ def initPkg (pkgName : String) (fromNew : Bool) : IO Unit := do
   h.putStr initGitignoreContents
   unless ← System.FilePath.isDir ⟨".git"⟩ do
     (do
-      execCmd {cmd := "git", args := #["init", "-q"]}
-      unless upstreamGitBranch = "master" do
-        execCmd {cmd := "git", args := #["checkout", "-B", upstreamGitBranch]}
-    ) <|> IO.eprintln "WARNING: failed to initialize git repository"
+      quietInit
+      unless upstreamBranch = "master" do
+        checkoutBranch upstreamBranch
+    ) <|>
+      IO.eprintln "WARNING: failed to initialize git repository"
 
 def init (pkgName : String) := initPkg pkgName false

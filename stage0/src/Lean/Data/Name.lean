@@ -12,8 +12,8 @@ instance : Coe String Name := ⟨Name.mkSimple⟩
 
 namespace Name
 
-@[export lean_name_hash] def hashEx : Name → USize :=
-  fun n => Name.hash n |>.toUSize
+@[export lean_name_hash] def hashEx : Name → UInt64 :=
+  Name.hash
 
 def getPrefix : Name → Name
   | anonymous => anonymous

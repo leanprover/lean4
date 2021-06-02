@@ -26,6 +26,7 @@ structure Manifest where
   path : Option FilePath := none
   module : String := name.capitalize
   dependencies : List Dependency := []
+  deriving Inhabited
 
 namespace Manifest
 
@@ -37,8 +38,15 @@ end Manifest
 structure Package where
   dir : FilePath
   manifest : Manifest
+  deriving Inhabited
 
 namespace Package
+
+def name (self : Package) : String :=
+  self.manifest.name
+
+def dependencies (self : Package) : List Dependency :=
+  self.manifest.dependencies
 
 def sourceDir (self : Package) : FilePath :=
   self.dir / self.manifest.effectivePath

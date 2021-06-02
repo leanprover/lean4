@@ -106,7 +106,6 @@ lean_object* l_Lean_Elab_withInfoContext_x27___rarg___lambda__2___boxed(lean_obj
 lean_object* l_Lean_Elab_pushInfoLeaf(lean_object*);
 lean_object* l_Lean_Elab_withInfoHole(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_instInhabitedCache___closed__1;
 lean_object* l_Lean_Meta_ppGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_mkEmpty___closed__1;
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Elab_assignInfoHoleId___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -226,6 +225,7 @@ lean_object* l_Lean_Elab_pushInfoLeaf___rarg___lambda__1(lean_object*, lean_obje
 lean_object* l_Lean_Elab_ContextInfo_ppGoals___closed__1;
 lean_object* l___private_Lean_Elab_InfoTree_0__Lean_Elab_modifyInfoTrees___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addCompletionInfo___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_instInhabitedCache___closed__2;
 size_t l_USize_land(size_t, size_t);
 lean_object* l_Lean_Elab_pushInfoLeaf___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_MacroExpansionInfo_format___closed__4;
@@ -2002,7 +2002,7 @@ x_10 = lean_ctor_get(x_1, 2);
 x_11 = lean_ctor_get(x_1, 3);
 x_12 = lean_ctor_get(x_1, 4);
 x_13 = lean_ctor_get(x_1, 5);
-x_14 = l_Lean_Meta_instInhabitedCache___closed__1;
+x_14 = l_Lean_Meta_instInhabitedCache___closed__2;
 x_15 = l_Lean_NameSet_empty;
 x_16 = l_Std_PersistentArray_empty___closed__1;
 lean_inc(x_10);

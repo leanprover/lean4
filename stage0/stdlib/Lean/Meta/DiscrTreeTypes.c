@@ -31,7 +31,7 @@ lean_object* l_Lean_Meta_DiscrTree_instBEqKey;
 uint8_t l___private_Lean_Expr_0__Lean_beqLiteral____x40_Lean_Expr___hyg_30_(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_instInhabitedKey;
-size_t l_Lean_Literal_hash(lean_object*);
+uint64_t l_Lean_Literal_hash(lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_beqKey____x40_Lean_Meta_DiscrTreeTypes___hyg_73__match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_beqKey____x40_Lean_Meta_DiscrTreeTypes___hyg_73__match__1(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Key_hash___boxed(lean_object*);
@@ -519,30 +519,31 @@ return x_17;
 }
 case 2:
 {
-lean_object* x_18; size_t x_19; size_t x_20; size_t x_21; 
+lean_object* x_18; size_t x_19; uint64_t x_20; size_t x_21; size_t x_22; 
 x_18 = lean_ctor_get(x_1, 0);
 x_19 = 1879;
 x_20 = l_Lean_Literal_hash(x_18);
-x_21 = lean_usize_mix_hash(x_19, x_20);
-return x_21;
+x_21 = (size_t)x_20;
+x_22 = lean_usize_mix_hash(x_19, x_21);
+return x_22;
 }
 case 3:
 {
-size_t x_22; 
-x_22 = 7883;
-return x_22;
+size_t x_23; 
+x_23 = 7883;
+return x_23;
 }
 case 4:
 {
-size_t x_23; 
-x_23 = 2411;
-return x_23;
+size_t x_24; 
+x_24 = 2411;
+return x_24;
 }
 default: 
 {
-size_t x_24; 
-x_24 = 17;
-return x_24;
+size_t x_25; 
+x_25 = 17;
+return x_25;
 }
 }
 }

@@ -300,7 +300,6 @@ lean_object* l_Lean_Elab_Command_elabEvalUnsafe___lambda__5(lean_object*, lean_o
 lean_object* l_Lean_Syntax_hasMissing(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_instMonadEnvCommandElabM___closed__4;
-extern lean_object* l_Lean_Meta_instInhabitedCache___closed__1;
 lean_object* l_Lean_Elab_Command_elabReduce___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_mkEmpty___closed__1;
 lean_object* l___private_Lean_Elab_InfoTree_0__Lean_Elab_getResetInfoTrees___at_Lean_Elab_Command_elabCommand___spec__22___rarg___boxed(lean_object*, lean_object*);
@@ -341,6 +340,7 @@ lean_object* l_Lean_Elab_Command_instMonadResolveNameCommandElabM;
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Command_0__Lean_Elab_Command_addTraceAsMessagesCore___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_instMonadResolveNameCommandElabM___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabCommand___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_Term_instInhabitedSavedState___closed__2;
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Command_0__Lean_Elab_Command_addTraceAsMessagesCore___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Elab_Command_0__Lean_Elab_Command_checkAnonymousScope(lean_object*);
 lean_object* l_Lean_Elab_applyVisibility___at_Lean_Elab_Command_expandDeclId___spec__3(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -15480,7 +15480,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_MetavarContext_instInhabitedMetavarContext___closed__1;
-x_2 = l_Lean_Meta_instInhabitedCache___closed__1;
+x_2 = l_Lean_Elab_Term_instInhabitedSavedState___closed__2;
 x_3 = l_Lean_NameSet_empty;
 x_4 = l_Std_PersistentArray_empty___closed__1;
 x_5 = lean_alloc_ctor(0, 4, 0);

@@ -48,7 +48,7 @@ lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux(lean_object*
 lean_object* l_Lean_Expr_toHeadIndex_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_HeadIndex_0__Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_65_(lean_object*, lean_object*);
 lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t l_Lean_Literal_hash(lean_object*);
+uint64_t l_Lean_Literal_hash(lean_object*);
 lean_object* l_Lean_HeadIndex_HeadIndex_hash_match__1(lean_object*);
 lean_object* l_Lean_instBEqHeadIndex___closed__1;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -683,30 +683,31 @@ return x_24;
 }
 case 4:
 {
-lean_object* x_25; size_t x_26; size_t x_27; size_t x_28; 
+lean_object* x_25; size_t x_26; uint64_t x_27; size_t x_28; size_t x_29; 
 x_25 = lean_ctor_get(x_1, 0);
 x_26 = 23;
 x_27 = l_Lean_Literal_hash(x_25);
-x_28 = lean_usize_mix_hash(x_26, x_27);
-return x_28;
+x_28 = (size_t)x_27;
+x_29 = lean_usize_mix_hash(x_26, x_28);
+return x_29;
 }
 case 5:
 {
-size_t x_29; 
-x_29 = 29;
-return x_29;
+size_t x_30; 
+x_30 = 29;
+return x_30;
 }
 case 6:
 {
-size_t x_30; 
-x_30 = 31;
-return x_30;
+size_t x_31; 
+x_31 = 31;
+return x_31;
 }
 default: 
 {
-size_t x_31; 
-x_31 = 37;
-return x_31;
+size_t x_32; 
+x_32 = 37;
+return x_32;
 }
 }
 }

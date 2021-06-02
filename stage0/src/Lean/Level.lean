@@ -27,8 +27,8 @@ def Level.Data := UInt64
 instance : Inhabited Level.Data :=
   inferInstanceAs (Inhabited UInt64)
 
-def Level.Data.hash (c : Level.Data) : USize :=
-  c.toUInt32.toUSize
+def Level.Data.hash (c : Level.Data) : UInt64 :=
+  c.toUInt32.toUInt64
 
 instance : BEq Level.Data :=
   ⟨fun (a b : UInt64) => a == b⟩
@@ -69,10 +69,10 @@ namespace Level
   | max _ _ d  => d
   | imax _ _ d => d
 
-protected def hash (u : Level) : USize :=
+protected def hash (u : Level) : UInt64 :=
   u.data.hash
 
-instance : HashableUSize Level := ⟨Level.hash⟩
+instance : Hashable Level := ⟨Level.hash⟩
 
 def depth (u : Level) : Nat :=
   u.data.depth.toNat
@@ -83,7 +83,7 @@ def hasMVar (u : Level) : Bool :=
 def hasParam (u : Level) : Bool :=
   u.data.hasParam
 
-@[export lean_level_hash] def hashEx : Level → USize := Level.hash
+@[export lean_level_hash] def hashEx (u : Level) : UInt32 := hash u |>.toUInt32
 @[export lean_level_has_mvar] def hasMVarEx : Level → Bool := hasMVar
 @[export lean_level_has_param] def hasParamEx : Level → Bool := hasParam
 @[export lean_level_depth] def depthEx (u : Level) : UInt32 := u.data.depth

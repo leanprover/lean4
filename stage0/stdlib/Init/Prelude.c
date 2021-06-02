@@ -67,6 +67,7 @@ lean_object* l_Lean_Syntax_getPos_x3f___boxed(lean_object*, lean_object*);
 lean_object* l_EStateM_instMonadStateOfEStateM___closed__2;
 lean_object* l_Lean_Macro_getCurrNamespace(lean_object*, lean_object*);
 lean_object* l_Fin_decLt___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_instHashableUSize___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Macro_instInhabitedState___closed__1;
 lean_object* l_List_hasDecEq_match__2___rarg(uint8_t, lean_object*, lean_object*);
 uint8_t l_UInt8_decEq(uint8_t, uint8_t);
@@ -105,6 +106,7 @@ lean_object* l_instDecidableEqUInt8___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Macro_instInhabitedState;
 lean_object* l_Lean_Syntax_getHeadInfo_x3f_loop_match__1(lean_object*);
 lean_object* l_Lean_withRef___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instHashableUSize(lean_object*);
 lean_object* l_arbitrary___rarg___boxed(lean_object*);
 lean_object* l_ReaderT_bind___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_run(lean_object*, lean_object*, lean_object*);
@@ -372,7 +374,6 @@ lean_object* l_Lean_Syntax_getArgs___boxed(lean_object*);
 lean_object* l_Lean_Syntax_setKind(lean_object*, lean_object*);
 lean_object* l_Applicative_seqLeft___default(lean_object*);
 lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
-size_t l_instHashableUSizeString(lean_object*);
 lean_object* l_UInt32_decLt___boxed(lean_object*, lean_object*);
 lean_object* l_UInt32_toNat___boxed(lean_object*);
 lean_object* l_Lean_MacroScopesView_review_match__1(lean_object*);
@@ -496,7 +497,6 @@ lean_object* l___private_Init_Prelude_0__Lean_assembleParts_match__1(lean_object
 lean_object* l_Lean_Syntax_setKind_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Prelude_0__Lean_assembleParts(lean_object*, lean_object*);
 lean_object* l_min___boxed(lean_object*, lean_object*);
-size_t l_Lean_instHashableUSizeName(lean_object*);
 lean_object* l_EStateM_instOrElseEStateM(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_instDecidableEqFin___rarg(lean_object*, lean_object*);
 uint8_t l_Fin_decLt___rarg(lean_object*, lean_object*);
@@ -803,6 +803,7 @@ lean_object* l_Array_appendCore_loop_match__1___rarg(lean_object*, lean_object*,
 lean_object* l_instHashableString___closed__1;
 lean_object* l_Lean_Macro_instMonadRefMacroM___closed__3;
 lean_object* l_instMonadStateOf___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
+size_t l_instHashableUSize___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__7;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Macro_instMonadRefMacroM___spec__2(lean_object*, lean_object*);
@@ -829,7 +830,6 @@ lean_object* l_Lean_Syntax_getTailPos_x3f_loop_match__1___rarg(lean_object*, lea
 lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__3;
 lean_object* l_EStateM_bind(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_UInt32_val___boxed(lean_object*);
-lean_object* l_Lean_instHashableUSizeName___boxed(lean_object*);
 lean_object* l_dite___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* lean_system_platform_nbits(lean_object*);
@@ -864,7 +864,6 @@ uint32_t lean_uint32_of_nat(lean_object*);
 lean_object* l_instInhabitedSort;
 lean_object* l_Array_empty(lean_object*);
 lean_object* l_Monad_seq___default___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_instHashableUSizeString___boxed(lean_object*);
 lean_object* l_EStateM_instMonadEStateM___closed__7;
 uint8_t l_Lean_Syntax_matchesIdent(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__5;
@@ -7756,6 +7755,34 @@ x_4 = lean_box_uint64(x_3);
 return x_4;
 }
 }
+size_t l_instHashableUSize___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; uint64_t x_4; size_t x_5; 
+x_3 = lean_apply_1(x_1, x_2);
+x_4 = lean_unbox_uint64(x_3);
+lean_dec(x_3);
+x_5 = (size_t)x_4;
+return x_5;
+}
+}
+lean_object* l_instHashableUSize(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_instHashableUSize___rarg___boxed), 2, 0);
+return x_2;
+}
+}
+lean_object* l_instHashableUSize___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+size_t x_3; lean_object* x_4; 
+x_3 = l_instHashableUSize___rarg(x_1, x_2);
+x_4 = lean_box_usize(x_3);
+return x_4;
+}
+}
 lean_object* l_mixHash___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -7789,25 +7816,6 @@ uint64_t x_2; lean_object* x_3;
 x_2 = lean_string_hash(x_1);
 lean_dec(x_1);
 x_3 = lean_box_uint64(x_2);
-return x_3;
-}
-}
-size_t l_instHashableUSizeString(lean_object* x_1) {
-_start:
-{
-uint64_t x_2; size_t x_3; 
-x_2 = lean_string_hash(x_1);
-x_3 = (size_t)x_2;
-return x_3;
-}
-}
-lean_object* l_instHashableUSizeString___boxed(lean_object* x_1) {
-_start:
-{
-size_t x_2; lean_object* x_3; 
-x_2 = l_instHashableUSizeString(x_1);
-lean_dec(x_1);
-x_3 = lean_box_usize(x_2);
 return x_3;
 }
 }
@@ -7939,25 +7947,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_instHashableName___closed__1;
 return x_1;
-}
-}
-size_t l_Lean_instHashableUSizeName(lean_object* x_1) {
-_start:
-{
-uint64_t x_2; size_t x_3; 
-x_2 = l_Lean_Name_hash(x_1);
-x_3 = (size_t)x_2;
-return x_3;
-}
-}
-lean_object* l_Lean_instHashableUSizeName___boxed(lean_object* x_1) {
-_start:
-{
-size_t x_2; lean_object* x_3; 
-x_2 = l_Lean_instHashableUSizeName(x_1);
-lean_dec(x_1);
-x_3 = lean_box_usize(x_2);
-return x_3;
 }
 }
 lean_object* lean_name_mk_string(lean_object* x_1, lean_object* x_2) {

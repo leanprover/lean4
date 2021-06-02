@@ -27,13 +27,13 @@ open Std (HashMap PHashMap)
      that an entry was "removed" from the hashtable.
    - We do not need additional bookkeeping for extracting the local entries.
 -/
-structure SMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
+structure SMap (α : Type u) (β : Type v) [BEq α] [HashableUSize α] where
   stage₁ : Bool         := true
   map₁   : HashMap α β  := {}
   map₂   : PHashMap α β := {}
 
 namespace SMap
-variable {α : Type u} {β : Type v} [BEq α] [Hashable α]
+variable {α : Type u} {β : Type v} [BEq α] [HashableUSize α]
 
 instance : Inhabited (SMap α β) := ⟨{}⟩
 def empty : SMap α β := {}
@@ -92,10 +92,10 @@ def toList (m : SMap α β) : List (α × β) :=
 
 end SMap
 
-def List.toSMap [BEq α] [Hashable α] (es : List (α × β)) : SMap α β :=
+def List.toSMap [BEq α] [HashableUSize α] (es : List (α × β)) : SMap α β :=
   es.foldl (init := {}) fun s (a, b) => s.insert a b
 
-instance {_ : BEq α} {_ : Hashable α} [Repr α] [Repr β] : Repr (SMap α β) where
+instance {_ : BEq α} {_ : HashableUSize α} [Repr α] [Repr β] : Repr (SMap α β) where
   reprPrec v prec := Repr.addAppParen (reprArg v.toList ++ ".toSMap") prec
 
 end Lean

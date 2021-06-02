@@ -17,7 +17,7 @@ def hash : TransparencyMode → USize
   | reducible => 13
   | instances => 17
 
-instance : Hashable TransparencyMode := ⟨hash⟩
+instance : HashableUSize TransparencyMode := ⟨hash⟩
 
 def lt : TransparencyMode → TransparencyMode → Bool
   | reducible, default   => true

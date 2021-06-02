@@ -35,6 +35,7 @@ lean_object* l_Lean_ForEachExpr_visit___rarg___lambda__4(lean_object*, lean_obje
 lean_object* l_Lean_ForEachExpr_visit___at_Lean_Expr_forEach___spec__1___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forEach___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instHashableUSizeExpr;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forEach___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -48,7 +49,6 @@ lean_object* l_Lean_ForEachExpr_visit___at_Lean_Expr_forEach___spec__1___rarg___
 lean_object* l_Lean_ForEachExpr_visit___at_Lean_Expr_forEach___spec__1___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ForEachExpr_visit___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_MonadCacheT_run___rarg___closed__1;
-extern lean_object* l_Lean_Expr_instHashableExpr;
 size_t l_Lean_Expr_hash(lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_Lean_ForEachExpr_visit___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -244,7 +244,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = l_Lean_Expr_instBEqExpr;
-x_5 = l_Lean_Expr_instHashableExpr;
+x_5 = l_Lean_Expr_instHashableUSizeExpr;
 x_6 = l_Std_HashMapImp_find_x3f___rarg(x_4, x_5, x_3, x_1);
 x_7 = lean_ctor_get(x_2, 0);
 lean_inc(x_7);
@@ -459,7 +459,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = l_Lean_Expr_instBEqExpr;
-x_5 = l_Lean_Expr_instHashableExpr;
+x_5 = l_Lean_Expr_instHashableUSizeExpr;
 x_6 = l_Std_HashMapImp_insert___rarg(x_4, x_5, x_3, x_1, x_2);
 x_7 = lean_box(0);
 x_8 = lean_alloc_ctor(0, 2, 0);

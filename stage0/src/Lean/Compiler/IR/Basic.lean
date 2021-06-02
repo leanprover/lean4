@@ -35,12 +35,12 @@ abbrev Index.lt (a b : Index) : Bool := a < b
 instance : BEq VarId := ⟨fun a b => a.idx == b.idx⟩
 instance : ToString VarId := ⟨fun a => "x_" ++ toString a.idx⟩
 instance : ToFormat VarId := ⟨fun a => toString a⟩
-instance : Hashable VarId := ⟨fun a => hash a.idx⟩
+instance : HashableUSize VarId := ⟨fun a => hashUSize a.idx⟩
 
 instance : BEq JoinPointId := ⟨fun a b => a.idx == b.idx⟩
 instance : ToString JoinPointId := ⟨fun a => "block_" ++ toString a.idx⟩
 instance : ToFormat JoinPointId := ⟨fun a => toString a⟩
-instance : Hashable JoinPointId := ⟨fun a => hash a.idx⟩
+instance : HashableUSize JoinPointId := ⟨fun a => hashUSize a.idx⟩
 
 abbrev MData := KVMap
 abbrev MData.empty : MData := {}

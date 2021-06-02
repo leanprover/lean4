@@ -53,46 +53,46 @@ def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
 @[inline] def forM {m : Type w → Type w} [Monad m] (f : α → β → m PUnit) (h : HashMapImp α β) : m PUnit :=
   forBucketsM h.buckets f
 
-def findEntry? [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option (α × β) :=
+def findEntry? [BEq α] [HashableUSize α] (m : HashMapImp α β) (a : α) : Option (α × β) :=
   match m with
   | ⟨_, buckets⟩ =>
-    let ⟨i, h⟩ := mkIdx buckets.property (hash a)
+    let ⟨i, h⟩ := mkIdx buckets.property (hashUSize a)
     (buckets.val.uget i h).findEntry? a
 
-def find? [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option β :=
+def find? [BEq α] [HashableUSize α] (m : HashMapImp α β) (a : α) : Option β :=
   match m with
   | ⟨_, buckets⟩ =>
-    let ⟨i, h⟩ := mkIdx buckets.property (hash a)
+    let ⟨i, h⟩ := mkIdx buckets.property (hashUSize a)
     (buckets.val.uget i h).find? a
 
-def contains [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Bool :=
+def contains [BEq α] [HashableUSize α] (m : HashMapImp α β) (a : α) : Bool :=
   match m with
   | ⟨_, buckets⟩ =>
-    let ⟨i, h⟩ := mkIdx buckets.property (hash a)
+    let ⟨i, h⟩ := mkIdx buckets.property (hashUSize a)
     (buckets.val.uget i h).contains a
 
 -- TODO: remove `partial` by using well-founded recursion
-partial def moveEntries [Hashable α] (i : Nat) (source : Array (AssocList α β)) (target : HashMapBucket α β) : HashMapBucket α β :=
+partial def moveEntries [HashableUSize α] (i : Nat) (source : Array (AssocList α β)) (target : HashMapBucket α β) : HashMapBucket α β :=
   if h : i < source.size then
      let idx : Fin source.size := ⟨i, h⟩
      let es  : AssocList α β   := source.get idx
      -- We remove `es` from `source` to make sure we can reuse its memory cells when performing es.foldl
      let source                := source.set idx AssocList.nil
-     let target                := es.foldl (reinsertAux hash) target
+     let target                := es.foldl (reinsertAux hashUSize) target
      moveEntries (i+1) source target
   else target
 
-def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapImp α β :=
+def expand [HashableUSize α] (size : Nat) (buckets : HashMapBucket α β) : HashMapImp α β :=
   let nbuckets := buckets.val.size * 2
   have : nbuckets > 0 := Nat.mulPos buckets.property (by decide)
   let new_buckets : HashMapBucket α β := ⟨mkArray nbuckets AssocList.nil, by simp; assumption⟩
   { size    := size,
     buckets := moveEntries 0 buckets.val new_buckets }
 
-def insert [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) (b : β) : HashMapImp α β :=
+def insert [BEq α] [HashableUSize α] (m : HashMapImp α β) (a : α) (b : β) : HashMapImp α β :=
   match m with
   | ⟨size, buckets⟩ =>
-    let ⟨i, h⟩ := mkIdx buckets.property (hash a)
+    let ⟨i, h⟩ := mkIdx buckets.property (hashUSize a)
     let bkt    := buckets.val.uget i h
     if bkt.contains a then
       ⟨size, buckets.update i (bkt.replace a b) h⟩
@@ -104,31 +104,31 @@ def insert [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) (b : β) : Has
       else
         expand size' buckets'
 
-def erase [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : HashMapImp α β :=
+def erase [BEq α] [HashableUSize α] (m : HashMapImp α β) (a : α) : HashMapImp α β :=
   match m with
   | ⟨ size, buckets ⟩ =>
-    let ⟨i, h⟩ := mkIdx buckets.property (hash a)
+    let ⟨i, h⟩ := mkIdx buckets.property (hashUSize a)
     let bkt    := buckets.val.uget i h
     if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
     else m
 
-inductive WellFormed [BEq α] [Hashable α] : HashMapImp α β → Prop where
+inductive WellFormed [BEq α] [HashableUSize α] : HashMapImp α β → Prop where
   | mkWff     : ∀ n,                    WellFormed (mkHashMapImp n)
   | insertWff : ∀ m a b, WellFormed m → WellFormed (insert m a b)
   | eraseWff  : ∀ m a,   WellFormed m → WellFormed (erase m a)
 
 end HashMapImp
 
-def HashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] :=
+def HashMap (α : Type u) (β : Type v) [BEq α] [HashableUSize α] :=
   { m : HashMapImp α β // m.WellFormed }
 
 open Std.HashMapImp
 
-def mkHashMap {α : Type u} {β : Type v} [BEq α] [Hashable α] (nbuckets := 8) : HashMap α β :=
+def mkHashMap {α : Type u} {β : Type v} [BEq α] [HashableUSize α] (nbuckets := 8) : HashMap α β :=
   ⟨ mkHashMapImp nbuckets, WellFormed.mkWff nbuckets ⟩
 
 namespace HashMap
-variable {α : Type u} {β : Type v} [BEq α] [Hashable α]
+variable {α : Type u} {β : Type v} [BEq α] [HashableUSize α]
 
 instance : Inhabited (HashMap α β) where
   default := mkHashMap

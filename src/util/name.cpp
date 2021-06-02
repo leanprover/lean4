@@ -20,10 +20,6 @@ Author: Leonardo de Moura
 #include "util/ascii.h"
 
 namespace lean {
-extern "C" size_t lean_name_hash_usize(b_obj_arg n) {
-    return name::hash(n);
-}
-
 extern "C" obj_res lean_name_mk_string(obj_arg p, obj_arg s);
 extern "C" obj_res lean_name_mk_numeral(obj_arg p, obj_arg n);
 

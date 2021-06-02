@@ -49,13 +49,9 @@ def fromToml (t : Toml.Value) : Option Manifest := OptionM.run do
     | some (Toml.Value.nat timeout) => some (some timeout)
     | none => some none
     | _ => none
-  let path ← match pkg.lookup "path" with
-    | some (Toml.Value.str path) => some (some ⟨path⟩)
-    | none => some none
-    | _ => none
   let Toml.Value.table deps ← t.lookup "dependencies" <|> some (Toml.Value.table []) | none
   let dependencies ← deps.mapM fun ⟨n, src⟩ => do Dependency.mk n (← Source.fromToml src)
-  return { name, module, version, leanVersion, path, dependencies, timeout }
+  return { name, module, version, leanVersion, dependencies, timeout }
 
 def fromTomlFile (fn : System.FilePath) : IO Manifest := do
   let cnts ← IO.FS.readFile fn

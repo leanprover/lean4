@@ -18,7 +18,6 @@ namespace Leanpkg2
 structure BuildContext extends BuildConfig where
   parents       : List Name := []
   moreDepsMTime : IO.FS.SystemTime
-  manifest      : Manifest
 
 structure Result where
   maxMTime : IO.FS.SystemTime
@@ -42,8 +41,7 @@ partial def buildModule (mod : Name) : BuildM Result := do
     -- already visited
     return r
 
-  let srcPath := ctx.manifest.effectivePath
-  let leanFile := modToFilePath srcPath mod "lean"
+  let leanFile := modToFilePath "." mod "lean"
   let leanMData ← leanFile.metadata
 
   -- recursively build dependencies and calculate transitive `maxMTime`
@@ -54,7 +52,7 @@ partial def buildModule (mod : Name) : BuildM Result := do
   let maxMTime := List.maximum? (leanMData.modified :: ctx.moreDepsMTime :: depMTimes) |>.get!
 
   -- check whether we have an up-to-date .olean
-  let oleanFile := modToFilePath (srcPath / buildPath) mod "olean"
+  let oleanFile := modToFilePath buildPath mod "olean"
   try
     if (← oleanFile.metadata).modified >= maxMTime then
       let r := { maxMTime, task := Task.pure (Except.ok ()) }
@@ -69,7 +67,7 @@ partial def buildModule (mod : Name) : BuildM Result := do
       -- propagate failure
       throw e
     try
-      let cFile := modToFilePath (srcPath / tempBuildPath) mod "c"
+      let cFile := modToFilePath tempBuildPath mod "c"
       IO.createDirAll oleanFile.parent.get!
       IO.createDirAll cFile.parent.get!
       execCmd {
@@ -88,7 +86,7 @@ partial def buildModule (mod : Name) : BuildM Result := do
 
 def buildModules (manifest : Manifest) (cfg : BuildConfig) (mods : List Name) : IO Unit := do
   let moreDepsMTime := (← cfg.moreDeps.mapM (·.metadata)).map (·.modified) |>.maximum? |>.getD ⟨0, 0⟩
-  let rs ← mods.mapM buildModule |>.run { toBuildConfig := cfg, moreDepsMTime, manifest } |>.run' {}
+  let rs ← mods.mapM buildModule |>.run { toBuildConfig := cfg, moreDepsMTime } |>.run' {}
   for r in rs do
     if let Except.error _ ← IO.wait r.task then
       -- actual error has already been printed above
@@ -100,7 +98,7 @@ def buildImports (manifest : Manifest) (cfg : BuildConfig) (imports leanArgs : L
   if localImports != [] then
     if ← FilePath.pathExists "Makefile" then
       let oleans := localImports.map fun i =>
-        Lean.modToFilePath (manifest.effectivePath / buildPath) i "olean" |>.toString
+        Lean.modToFilePath buildPath i "olean" |>.toString
       execMake manifest oleans cfg
     else
       buildModules manifest cfg localImports

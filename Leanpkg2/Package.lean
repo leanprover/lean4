@@ -27,17 +27,9 @@ structure Manifest where
   version : String
   leanVersion : String := leanVersionString
   timeout : Option Nat := none
-  path : Option FilePath := none
   module : String := name.capitalize
   dependencies : List Dependency := []
   deriving Inhabited
-
-namespace Manifest
-
-def effectivePath (m : Manifest) : FilePath :=
-  m.path.getD ⟨"."⟩
-
-end Manifest
 
 structure Package where
   dir : FilePath
@@ -53,7 +45,7 @@ def dependencies (self : Package) : List Dependency :=
   self.manifest.dependencies
 
 def sourceDir (self : Package) : FilePath :=
-  self.dir / self.manifest.effectivePath
+  self.dir
 
 def sourceRoot (self : Package)  : FilePath :=
   self.sourceDir / self.manifest.module

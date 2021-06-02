@@ -136,6 +136,22 @@ def publishMessages (m : DocumentMeta) (msgLog : MessageLog) (hOut : FS.Stream) 
   let diagnostics ← msgLog.msgs.mapM (msgToDiagnostic m.text)
   publishDiagnostics m diagnostics.toArray hOut
 
+def publishProgress (m : DocumentMeta) (processing : Array LeanFileProgressProcessingInfo) (hOut : FS.Stream) : IO Unit :=
+  hOut.writeLspNotification {
+    method := "$/lean/fileProgress"
+    param := {
+      textDocument := { uri := m.uri, version? := m.version }
+      processing
+      : LeanFileProgressParams
+    }
+  }
+
+def publishProgressAtPos (m : DocumentMeta) (pos : String.Pos) (hOut : FS.Stream) : IO Unit :=
+  publishProgress m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.bsize⟩ }] hOut
+
+def publishProgressDone (m : DocumentMeta) (hOut : FS.Stream) : IO Unit :=
+  publishProgress m #[] hOut
+
 end Lean.Server
 
 namespace List

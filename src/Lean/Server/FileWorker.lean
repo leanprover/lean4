@@ -98,6 +98,7 @@ section Elab
   private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream)
   : ExceptT ElabTaskError IO Snapshot := do
     cancelTk.check
+    publishProgressAtPos m parentSnap.endPos hOut
     let maybeSnap ← compileNextCmd m.text.source parentSnap
     -- TODO(MH): check for interrupt with increased precision
     cancelTk.check
@@ -112,15 +113,11 @@ section Elab
         the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
         because we cannot guarantee that no further diagnostics are emitted after clearing
         them. -/
-      publishMessages m (snap.msgLog.add {
-        fileName := "<ignored>"
-        pos      := m.text.toPosition snap.endPos
-        severity := MessageSeverity.information
-        data     := "processing..."
-      }) hOut
+      publishMessages m snap.msgLog hOut
       snap
     | Sum.inr msgLog =>
       publishMessages m msgLog hOut
+      publishProgressDone m hOut
       throw ElabTaskError.eof
 
   /-- Elaborates all commands after `initSnap`, emitting the diagnostics into `hOut`. -/

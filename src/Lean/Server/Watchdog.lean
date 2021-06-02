@@ -229,7 +229,7 @@ section ServerM
       | Except.error e => WorkerEvent.ioError e
 
   def startFileWorker (m : DocumentMeta) : ServerM Unit := do
-    publishDiagnostics m #[{ range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩, severity? := DiagnosticSeverity.information, message := "starting new server for file..." }] (← read).hOut
+    publishProgressAtPos m 0 (← read).hOut
     let st ← read
     let headerAst ← parseHeaderAst m.text.source
     let workerProc ← Process.spawn {

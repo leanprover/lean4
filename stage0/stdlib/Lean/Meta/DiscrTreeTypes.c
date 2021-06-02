@@ -21,11 +21,12 @@ lean_object* l_Lean_Meta_DiscrTree_instInhabitedKey___closed__1;
 extern lean_object* l_Std_PersistentHashMap_root___default___closed__2;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_instHashableUSizeKey___closed__1;
+size_t l_UInt64_toUSize(uint64_t);
 uint8_t l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_beqKey____x40_Lean_Meta_DiscrTreeTypes___hyg_73_(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Key_hash_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_root___default___closed__1;
-size_t l_Lean_Name_hash(lean_object*);
+uint64_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_instBEqKey;
 uint8_t l___private_Lean_Expr_0__Lean_beqLiteral____x40_Lean_Expr___hyg_30_(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -492,54 +493,56 @@ _start:
 switch (lean_obj_tag(x_1)) {
 case 0:
 {
-lean_object* x_2; lean_object* x_3; size_t x_4; size_t x_5; size_t x_6; size_t x_7; size_t x_8; 
+lean_object* x_2; lean_object* x_3; size_t x_4; uint64_t x_5; size_t x_6; size_t x_7; size_t x_8; size_t x_9; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = 5237;
 x_5 = l_Lean_Name_hash(x_2);
-x_6 = lean_usize_of_nat(x_3);
-x_7 = lean_usize_mix_hash(x_5, x_6);
-x_8 = lean_usize_mix_hash(x_4, x_7);
-return x_8;
+x_6 = (size_t)x_5;
+x_7 = lean_usize_of_nat(x_3);
+x_8 = lean_usize_mix_hash(x_6, x_7);
+x_9 = lean_usize_mix_hash(x_4, x_8);
+return x_9;
 }
 case 1:
 {
-lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; size_t x_13; size_t x_14; size_t x_15; 
-x_9 = lean_ctor_get(x_1, 0);
-x_10 = lean_ctor_get(x_1, 1);
-x_11 = 3541;
-x_12 = l_Lean_Name_hash(x_9);
-x_13 = lean_usize_of_nat(x_10);
-x_14 = lean_usize_mix_hash(x_12, x_13);
-x_15 = lean_usize_mix_hash(x_11, x_14);
-return x_15;
+lean_object* x_10; lean_object* x_11; size_t x_12; uint64_t x_13; size_t x_14; size_t x_15; size_t x_16; size_t x_17; 
+x_10 = lean_ctor_get(x_1, 0);
+x_11 = lean_ctor_get(x_1, 1);
+x_12 = 3541;
+x_13 = l_Lean_Name_hash(x_10);
+x_14 = (size_t)x_13;
+x_15 = lean_usize_of_nat(x_11);
+x_16 = lean_usize_mix_hash(x_14, x_15);
+x_17 = lean_usize_mix_hash(x_12, x_16);
+return x_17;
 }
 case 2:
 {
-lean_object* x_16; size_t x_17; size_t x_18; size_t x_19; 
-x_16 = lean_ctor_get(x_1, 0);
-x_17 = 1879;
-x_18 = l_Lean_Literal_hash(x_16);
-x_19 = lean_usize_mix_hash(x_17, x_18);
-return x_19;
+lean_object* x_18; size_t x_19; size_t x_20; size_t x_21; 
+x_18 = lean_ctor_get(x_1, 0);
+x_19 = 1879;
+x_20 = l_Lean_Literal_hash(x_18);
+x_21 = lean_usize_mix_hash(x_19, x_20);
+return x_21;
 }
 case 3:
 {
-size_t x_20; 
-x_20 = 7883;
-return x_20;
+size_t x_22; 
+x_22 = 7883;
+return x_22;
 }
 case 4:
 {
-size_t x_21; 
-x_21 = 2411;
-return x_21;
+size_t x_23; 
+x_23 = 2411;
+return x_23;
 }
 default: 
 {
-size_t x_22; 
-x_22 = 17;
-return x_22;
+size_t x_24; 
+x_24 = 17;
+return x_24;
 }
 }
 }

@@ -1610,41 +1610,45 @@ constant mixHash (u₁ u₂ : UInt64) : UInt64
 constant mixUSizeHash (u₁ u₂ : USize) : USize
 
 @[extern "lean_string_hash"]
-protected constant String.hash (s : @& String) : USize
-@[extern "lean_string_hash"]
-protected constant String.hashUSize (s : @& String) : USize
+protected constant String.hash (s : @& String) : UInt64
 
 instance : HashableUSize String where
-  hashUSize := String.hash
+  hashUSize s := String.hash s |>.toUSize
+
+instance : Hashable String where
+  hash := String.hash
 
 namespace Lean
 
 /- Hierarchical names -/
 inductive Name where
   | anonymous : Name
-  | str : Name → String → USize → Name
-  | num : Name → Nat → USize → Name
+  | str : Name → String → UInt64 → Name
+  | num : Name → Nat → UInt64 → Name
 
 instance : Inhabited Name where
   default := Name.anonymous
 
-protected def Name.hash : Name → USize
-  | Name.anonymous => USize.ofNat32 1723 (by decide)
+protected def Name.hash : Name → UInt64
+  | Name.anonymous => UInt64.ofNatCore 1723 (by decide)
   | Name.str p s h => h
   | Name.num p v h => h
 
+instance : Hashable Name where
+  hash := Name.hash
+
 instance : HashableUSize Name where
-  hashUSize := Name.hash
+  hashUSize n := Name.hash n |>.toUSize
 
 namespace Name
 
 @[export lean_name_mk_string]
 def mkStr (p : Name) (s : String) : Name :=
-  Name.str p s (mixUSizeHash (hashUSize p) (hashUSize s))
+  Name.str p s (mixHash (hash p) (hash s))
 
 @[export lean_name_mk_numeral]
 def mkNum (p : Name) (v : Nat) : Name :=
-  Name.num p v (mixUSizeHash (hashUSize p) (dite (LT.lt v USize.size) (fun h => USize.ofNatCore v h) (fun _ => USize.ofNat32 17 (by decide))))
+  Name.num p v (mixHash (hash p) (dite (LT.lt v UInt64.size) (fun h => UInt64.ofNatCore v h) (fun _ => UInt64.ofNatCore 17 (by decide))))
 
 def mkSimple (s : String) : Name :=
   mkStr Name.anonymous s

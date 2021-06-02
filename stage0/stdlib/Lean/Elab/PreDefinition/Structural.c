@@ -5415,7 +5415,7 @@ x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 if (lean_obj_tag(x_8) == 0)
 {
-lean_object* x_9; uint64_t x_10; lean_object* x_11; uint64_t x_12; lean_object* x_13; uint64_t x_14; lean_object* x_15; size_t x_16; lean_object* x_17; uint8_t x_18; 
+lean_object* x_9; uint64_t x_10; lean_object* x_11; uint64_t x_12; lean_object* x_13; uint64_t x_14; lean_object* x_15; uint64_t x_16; lean_object* x_17; uint8_t x_18; 
 x_9 = lean_ctor_get(x_1, 1);
 lean_inc(x_9);
 x_10 = lean_ctor_get_uint64(x_1, sizeof(void*)*2);
@@ -5429,7 +5429,7 @@ x_14 = lean_ctor_get_uint64(x_6, sizeof(void*)*2);
 lean_dec(x_6);
 x_15 = lean_ctor_get(x_7, 1);
 lean_inc(x_15);
-x_16 = lean_ctor_get_usize(x_7, 2);
+x_16 = lean_ctor_get_uint64(x_7, sizeof(void*)*2);
 lean_dec(x_7);
 x_17 = l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_toBelowAux_match__2___rarg___closed__1;
 x_18 = lean_string_dec_eq(x_15, x_17);
@@ -5458,7 +5458,7 @@ lean_dec(x_1);
 x_22 = lean_box_uint64(x_14);
 x_23 = lean_box_uint64(x_12);
 x_24 = lean_box_uint64(x_10);
-x_25 = lean_box_usize(x_16);
+x_25 = lean_box_uint64(x_16);
 x_26 = lean_apply_7(x_3, x_13, x_22, x_11, x_23, x_9, x_24, x_25);
 return x_26;
 }
@@ -5473,7 +5473,7 @@ lean_dec(x_1);
 x_27 = lean_box_uint64(x_14);
 x_28 = lean_box_uint64(x_12);
 x_29 = lean_box_uint64(x_10);
-x_30 = lean_box_usize(x_16);
+x_30 = lean_box_uint64(x_16);
 x_31 = lean_apply_7(x_2, x_13, x_27, x_11, x_28, x_9, x_29, x_30);
 return x_31;
 }

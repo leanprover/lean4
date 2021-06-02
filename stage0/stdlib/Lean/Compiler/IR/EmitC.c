@@ -1523,13 +1523,13 @@ x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 if (lean_obj_tag(x_8) == 0)
 {
-lean_object* x_9; size_t x_10; lean_object* x_11; lean_object* x_12; 
+lean_object* x_9; uint64_t x_10; lean_object* x_11; lean_object* x_12; 
 lean_dec(x_3);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
-x_10 = lean_ctor_get_usize(x_7, 2);
+x_10 = lean_ctor_get_uint64(x_7, sizeof(void*)*2);
 lean_dec(x_7);
-x_11 = lean_box_usize(x_10);
+x_11 = lean_box_uint64(x_10);
 x_12 = lean_apply_2(x_2, x_9, x_11);
 return x_12;
 }

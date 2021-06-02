@@ -110,6 +110,7 @@ lean_object* l___private_Lean_Level_0__Lean_Level_isAlreadyNormalizedCheap___box
 lean_object* l_Lean_Level_isParam_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_addOffsetAux_match__1(lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux_match__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+size_t l_UInt64_toUSize(uint64_t);
 lean_object* l_Lean_Level_mvarId_x21___closed__3;
 extern uint64_t l_instInhabitedUInt64;
 lean_object* l___private_Lean_Level_0__Lean_Level_mkMaxAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -165,7 +166,7 @@ lean_object* l_Lean_Level_depth___boxed(lean_object*);
 lean_object* lean_level_mk_imax_simp(lean_object*, lean_object*);
 lean_object* l_Lean_Level_toNat(lean_object*);
 lean_object* l_Lean_Level_normLtAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-size_t l_Lean_Name_hash(lean_object*);
+uint64_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_Level_updateSucc_x21___closed__3;
 lean_object* l_Lean_Level_PP_Result_quote___lambda__4___closed__1;
@@ -1124,35 +1125,37 @@ return x_1;
 lean_object* l_Lean_mkLevelMVar(lean_object* x_1) {
 _start:
 {
-size_t x_2; size_t x_3; size_t x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; uint64_t x_8; lean_object* x_9; 
+size_t x_2; uint64_t x_3; size_t x_4; size_t x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; uint64_t x_9; lean_object* x_10; 
 x_2 = 2237;
 x_3 = l_Lean_Name_hash(x_1);
-x_4 = lean_usize_mix_hash(x_2, x_3);
-x_5 = lean_unsigned_to_nat(0u);
-x_6 = 1;
-x_7 = 0;
-x_8 = l_Lean_Level_mkData(x_4, x_5, x_6, x_7);
-x_9 = lean_alloc_ctor(5, 1, 8);
-lean_ctor_set(x_9, 0, x_1);
-lean_ctor_set_uint64(x_9, sizeof(void*)*1, x_8);
-return x_9;
+x_4 = (size_t)x_3;
+x_5 = lean_usize_mix_hash(x_2, x_4);
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = 1;
+x_8 = 0;
+x_9 = l_Lean_Level_mkData(x_5, x_6, x_7, x_8);
+x_10 = lean_alloc_ctor(5, 1, 8);
+lean_ctor_set(x_10, 0, x_1);
+lean_ctor_set_uint64(x_10, sizeof(void*)*1, x_9);
+return x_10;
 }
 }
 lean_object* l_Lean_mkLevelParam(lean_object* x_1) {
 _start:
 {
-size_t x_2; size_t x_3; size_t x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; uint64_t x_8; lean_object* x_9; 
+size_t x_2; uint64_t x_3; size_t x_4; size_t x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; uint64_t x_9; lean_object* x_10; 
 x_2 = 2239;
 x_3 = l_Lean_Name_hash(x_1);
-x_4 = lean_usize_mix_hash(x_2, x_3);
-x_5 = lean_unsigned_to_nat(0u);
-x_6 = 0;
-x_7 = 1;
-x_8 = l_Lean_Level_mkData(x_4, x_5, x_6, x_7);
-x_9 = lean_alloc_ctor(4, 1, 8);
-lean_ctor_set(x_9, 0, x_1);
-lean_ctor_set_uint64(x_9, sizeof(void*)*1, x_8);
-return x_9;
+x_4 = (size_t)x_3;
+x_5 = lean_usize_mix_hash(x_2, x_4);
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = 0;
+x_8 = 1;
+x_9 = l_Lean_Level_mkData(x_5, x_6, x_7, x_8);
+x_10 = lean_alloc_ctor(4, 1, 8);
+lean_ctor_set(x_10, 0, x_1);
+lean_ctor_set_uint64(x_10, sizeof(void*)*1, x_9);
+return x_10;
 }
 }
 lean_object* l_Lean_mkLevelSucc(lean_object* x_1) {

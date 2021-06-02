@@ -5166,7 +5166,7 @@ x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 if (lean_obj_tag(x_4) == 1)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; lean_object* x_11; lean_object* x_12; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint64_t x_10; lean_object* x_11; lean_object* x_12; 
 lean_dec(x_3);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
@@ -5179,9 +5179,9 @@ x_8 = lean_ctor_get(x_4, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_4, 1);
 lean_inc(x_9);
-x_10 = lean_ctor_get_usize(x_4, 2);
+x_10 = lean_ctor_get_uint64(x_4, sizeof(void*)*2);
 lean_dec(x_4);
-x_11 = lean_box_usize(x_10);
+x_11 = lean_box_uint64(x_10);
 x_12 = lean_apply_6(x_2, x_8, x_9, x_11, x_7, x_5, x_6);
 return x_12;
 }

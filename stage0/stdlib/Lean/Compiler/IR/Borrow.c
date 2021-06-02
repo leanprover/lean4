@@ -81,6 +81,7 @@ lean_object* l_Lean_IR_Borrow_OwnedSet_beq_match__1___rarg(lean_object*, lean_ob
 lean_object* l_Lean_IR_Borrow_instToFormatParamMap___closed__1;
 lean_object* l_Std_AssocList_find_x3f___at_Lean_IR_Borrow_ApplyParamMap_visitFnBody___spec__2(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+size_t l_UInt64_toUSize(uint64_t);
 lean_object* l_Std_AssocList_foldlM___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__1;
 lean_object* l_Lean_IR_AltCore_body(lean_object*);
 lean_object* l_Lean_IR_Borrow_ParamMap_getHash___boxed(lean_object*);
@@ -114,7 +115,7 @@ lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_IR_FnBody_isTerminal(lean_object*);
 lean_object* l_Lean_IR_Borrow_ApplyParamMap_visitDecls___boxed(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___closed__20;
-size_t l_Lean_Name_hash(lean_object*);
+uint64_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_IR_Borrow_ApplyParamMap_visitFnBody___spec__1(lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Std_AssocList_replace___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__6(lean_object*, lean_object*, lean_object*);
@@ -351,13 +352,14 @@ return x_2;
 size_t l_Lean_IR_Borrow_OwnedSet_getHash(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; size_t x_4; size_t x_5; size_t x_6; 
+lean_object* x_2; lean_object* x_3; uint64_t x_4; size_t x_5; size_t x_6; size_t x_7; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = l_Lean_Name_hash(x_2);
-x_5 = lean_usize_of_nat(x_3);
-x_6 = lean_usize_mix_hash(x_4, x_5);
-return x_6;
+x_5 = (size_t)x_4;
+x_6 = lean_usize_of_nat(x_3);
+x_7 = lean_usize_mix_hash(x_5, x_6);
+return x_7;
 }
 }
 lean_object* l_Lean_IR_Borrow_OwnedSet_getHash___boxed(lean_object* x_1) {
@@ -947,20 +949,22 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_object* x_2; size_t x_3; 
+lean_object* x_2; uint64_t x_3; size_t x_4; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = l_Lean_Name_hash(x_2);
-return x_3;
+x_4 = (size_t)x_3;
+return x_4;
 }
 else
 {
-lean_object* x_4; lean_object* x_5; size_t x_6; size_t x_7; size_t x_8; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_1, 1);
-x_6 = l_Lean_Name_hash(x_4);
-x_7 = lean_usize_of_nat(x_5);
-x_8 = lean_usize_mix_hash(x_6, x_7);
-return x_8;
+lean_object* x_5; lean_object* x_6; uint64_t x_7; size_t x_8; size_t x_9; size_t x_10; 
+x_5 = lean_ctor_get(x_1, 0);
+x_6 = lean_ctor_get(x_1, 1);
+x_7 = l_Lean_Name_hash(x_5);
+x_8 = (size_t)x_7;
+x_9 = lean_usize_of_nat(x_6);
+x_10 = lean_usize_mix_hash(x_8, x_9);
+return x_10;
 }
 }
 }

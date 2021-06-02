@@ -34,6 +34,15 @@ instance : FromJson WaitForDiagnostics :=
 instance : ToJson WaitForDiagnostics :=
   ⟨fun o => mkObj []⟩
 
+structure LeanFileProgressProcessingInfo where
+  range : Range
+  deriving FromJson, ToJson
+
+structure LeanFileProgressParams where
+  textDocument : VersionedTextDocumentIdentifier
+  processing : Array LeanFileProgressProcessingInfo
+  deriving FromJson, ToJson
+
 structure PlainGoalParams extends TextDocumentPositionParams
   deriving FromJson, ToJson
 

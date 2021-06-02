@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-extern "C" usize lean_level_hash(obj_arg l);
+extern "C" unsigned lean_level_hash(obj_arg l);
 extern "C" unsigned lean_level_depth(obj_arg l);
 extern "C" uint8 lean_level_has_mvar(obj_arg l);
 extern "C" uint8 lean_level_has_param(obj_arg l);

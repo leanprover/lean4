@@ -13,11 +13,11 @@ inductive Literal where
   | strVal (val : String)
   deriving Inhabited, BEq
 
-protected def Literal.hash : Literal → USize
-  | Literal.natVal v => hashUSize v
-  | Literal.strVal v => hashUSize v
+protected def Literal.hash : Literal → UInt64
+  | Literal.natVal v => hash v
+  | Literal.strVal v => hash v
 
-instance : HashableUSize Literal := ⟨Literal.hash⟩
+instance : Hashable Literal := ⟨Literal.hash⟩
 
 def Literal.lt : Literal → Literal → Bool
   | Literal.natVal _,  Literal.strVal _  => true
@@ -34,7 +34,7 @@ inductive BinderInfo where
   | default | implicit | strictImplicit | instImplicit | auxDecl
   deriving Inhabited, BEq
 
-def BinderInfo.hash : BinderInfo → USize
+def BinderInfo.hash : BinderInfo → UInt64
   | BinderInfo.default        => 947
   | BinderInfo.implicit       => 1019
   | BinderInfo.strictImplicit => 1087
@@ -47,7 +47,7 @@ def BinderInfo.isExplicit : BinderInfo → Bool
   | BinderInfo.instImplicit   => false
   | _                         => true
 
-instance : HashableUSize BinderInfo := ⟨BinderInfo.hash⟩
+instance : Hashable BinderInfo := ⟨BinderInfo.hash⟩
 
 def BinderInfo.isInstImplicit : BinderInfo → Bool
   | BinderInfo.instImplicit => true
@@ -79,8 +79,8 @@ def Expr.Data := UInt64
 instance: Inhabited Expr.Data :=
   inferInstanceAs (Inhabited UInt64)
 
-def Expr.Data.hash (c : Expr.Data) : USize :=
-  c.toUInt32.toUSize
+def Expr.Data.hash (c : Expr.Data) : UInt64 :=
+  c.toUInt32.toUInt64
 
 instance : BEq Expr.Data where
   beq (a b : UInt64) := a == b
@@ -198,10 +198,10 @@ def ctorName : Expr → String
   | mdata _ _ _     => "mdata"
   | proj _ _ _ _    => "proj"
 
-protected def hash (e : Expr) : USize :=
+protected def hash (e : Expr) : UInt64 :=
   e.data.hash
 
-instance : HashableUSize Expr := ⟨Expr.hash⟩
+instance : Hashable Expr := ⟨Expr.hash⟩
 
 def hasFVar (e : Expr) : Bool :=
   e.data.hasFVar
@@ -715,11 +715,11 @@ namespace ExprStructEq
 protected def beq : ExprStructEq → ExprStructEq → Bool
   | ⟨e₁⟩, ⟨e₂⟩ => Expr.equal e₁ e₂
 
-protected def hash : ExprStructEq → USize
+protected def hash : ExprStructEq → UInt64
   | ⟨e⟩ => e.hash
 
 instance : BEq ExprStructEq := ⟨ExprStructEq.beq⟩
-instance : HashableUSize ExprStructEq := ⟨ExprStructEq.hash⟩
+instance : Hashable ExprStructEq := ⟨ExprStructEq.hash⟩
 instance : ToString ExprStructEq := ⟨fun e => toString e.val⟩
 
 end ExprStructEq

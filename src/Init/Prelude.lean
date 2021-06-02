@@ -1603,6 +1603,9 @@ constant UInt64.toUSize (u : UInt64) : USize
 @[extern c inline "(uint64_t)#1"]
 constant USize.toUInt64 (u : USize) : UInt64
 
+instance [Hashable α] : HashableUSize α where
+  hashUSize n := hash n |>.toUSize
+
 @[extern "lean_uint64_mix_hash"]
 constant mixHash (u₁ u₂ : UInt64) : UInt64
 
@@ -1611,9 +1614,6 @@ constant mixUSizeHash (u₁ u₂ : USize) : USize
 
 @[extern "lean_string_hash"]
 protected constant String.hash (s : @& String) : UInt64
-
-instance : HashableUSize String where
-  hashUSize s := String.hash s |>.toUSize
 
 instance : Hashable String where
   hash := String.hash
@@ -1636,9 +1636,6 @@ protected def Name.hash : Name → UInt64
 
 instance : Hashable Name where
   hash := Name.hash
-
-instance : HashableUSize Name where
-  hashUSize n := Name.hash n |>.toUSize
 
 namespace Name
 

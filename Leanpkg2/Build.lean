@@ -6,7 +6,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 import Lean.Data.Name
 import Lean.Elab.Import
 import Leanpkg2.Resolve
-import Leanpkg2.Manifest
+import Leanpkg2.Package
 import Leanpkg2.BuildConfig
 import Leanpkg2.Make
 import Leanpkg2.Proc

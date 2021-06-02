@@ -3,14 +3,14 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
-import Leanpkg2.Manifest
+import Leanpkg2.Package
 import Leanpkg2.BuildConfig
 
 open System
 
 namespace Leanpkg2
 
-def lockFileName : System.FilePath := ".leanpkg-lock"
+def lockFileName : FilePath := ".leanpkg-lock"
 
 partial def withLockFile (x : IO α) : IO α := do
   acquire
@@ -22,7 +22,7 @@ partial def withLockFile (x : IO α) : IO α := do
     acquire (firstTime := true) :=
       try
         -- TODO: lock file should ideally contain PID
-        if !System.Platform.isWindows then
+        if !Platform.isWindows then
           discard <| IO.Prim.Handle.mk lockFileName "wx"
         else
           -- `x` mode doesn't seem to work on Windows even though it's listed at

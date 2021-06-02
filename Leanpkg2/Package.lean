@@ -10,6 +10,10 @@ open Lean System
 
 namespace Leanpkg2
 
+def buildPath : FilePath := "build"
+def tempBuildPath := buildPath / "temp"
+def depsPath := buildPath / "deps"
+
 inductive Source where
   | path (dir : FilePath) : Source
   | git (url rev : String) (branch : Option String) : Source
@@ -53,5 +57,11 @@ def sourceDir (self : Package) : FilePath :=
 
 def sourceRoot (self : Package)  : FilePath :=
   self.sourceDir / self.manifest.module
+
+def buildDir (self : Package) : FilePath :=
+  self.dir / Leanpkg2.buildPath
+
+def buildRoot (self : Package)  : FilePath :=
+  self.buildDir / self.manifest.module
 
 end Package

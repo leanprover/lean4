@@ -1,5 +1,4 @@
 import Leanpkg2.Build
-import Leanpkg2.Manifest
 
 open Leanpkg2 System
 

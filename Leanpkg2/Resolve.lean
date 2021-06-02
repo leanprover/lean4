@@ -12,8 +12,6 @@ open System
 
 namespace Leanpkg2
 
-def depsPath := buildPath / "deps"
-
 def Assignment := List (String × Package)
 
 namespace Assignment

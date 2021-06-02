@@ -5,26 +5,13 @@ Authors: Sebastian Ullrich
 -/
 import Lean.Data.Name
 import Lean.Elab.Import
-import Leanpkg2.Manifest
+import Leanpkg2.Package
 import Leanpkg2.Proc
 
 open Lean
 open System
 
 namespace Leanpkg2
-
-def buildPath : FilePath := "build"
-def tempBuildPath := buildPath / "temp"
-
-namespace Package
-
-def buildDir (self : Package) : FilePath :=
-  self.dir / Leanpkg2.buildPath
-
-def buildRoot (self : Package)  : FilePath :=
-  self.buildDir / self.manifest.module
-
-end Package
 
 structure BuildConfig where
   module   : Name
@@ -40,5 +27,3 @@ def fromPackages (module : Name) (leanArgs : List String) (pkgs : List Package) 
   leanPath := SearchPath.toString <| pkgs.map (·.buildDir)
   moreDeps := pkgs.filter (·.dir.toString != ".") |>.map (·.buildRoot.withExtension "olean")
 }
-
-end BuildConfig

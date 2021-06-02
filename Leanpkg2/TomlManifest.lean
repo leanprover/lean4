@@ -5,7 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Leanpkg2.Toml
 import Leanpkg2.LeanVersion
-import Leanpkg2.Manifest
+import Leanpkg2.Package
 
 open System
 

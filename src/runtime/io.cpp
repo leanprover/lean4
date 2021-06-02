@@ -11,6 +11,9 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <mach-o/dyld.h>
 #include <unistd.h>
 #else
+#if defined(LEAN_EMSCRIPTEN)
+#include <emscripten.h>
+#endif
 // Linux include files
 #include <unistd.h> // NOLINT
 #include <sys/mman.h>
@@ -556,7 +559,7 @@ extern "C" obj_res lean_io_remove_file(b_obj_arg fname, obj_arg) {
     }
 }
 
-extern "C" obj_res lean_io_app_dir(obj_arg) {
+extern "C" obj_res lean_io_app_path(obj_arg) {
 #if defined(LEAN_WINDOWS)
     HMODULE hModule = GetModuleHandleW(NULL);
     WCHAR path[MAX_PATH];
@@ -579,7 +582,24 @@ extern "C" obj_res lean_io_app_dir(obj_arg) {
         return io_result_mk_error("failed to resolve symbolic links when locating application");
     return io_result_mk_ok(mk_string(buf2));
 #elif defined(LEAN_EMSCRIPTEN)
-    return io_result_mk_error("no app directory exists on Emscripten");
+    // See https://emscripten.org/docs/api_reference/emscripten.h.html#c.EM_ASM_INT
+    char* appPath = reinterpret_cast<char*>(EM_ASM_INT({
+        if ((typeof process === "undefined") || (process.release.name !== "node")) {
+            return 0;
+        }
+
+        var lengthBytes = lengthBytesUTF8(__filename)+1;
+        var pathOnWasmHeap = _malloc(lengthBytes);
+        stringToUTF8(__filename, pathOnWasmHeap, lengthBytes);
+        return pathOnWasmHeap;
+    }));
+    if (appPath == nullptr) {
+        return io_result_mk_error("no Lean executable file exists in WASM outside of Node.js");
+    }
+
+    object * appPathLean = mk_string(appPath);
+    free(appPath);
+    return io_result_mk_ok(appPathLean);
 #else
     // Linux version
     char path[PATH_MAX];
@@ -816,7 +836,7 @@ void initialize_io() {
     mark_persistent(g_stream_stderr);
     g_stream_stdin  = lean_stream_of_handle(io_wrap_handle(stdin));
     mark_persistent(g_stream_stdin);
-#ifndef LEAN_WINDOWS
+#if !defined(LEAN_WINDOWS) && !defined(LEAN_EMSCRIPTEN)
     // We want to handle SIGPIPE ourselves
     lean_always_assert(signal(SIGPIPE, SIG_IGN) != SIG_ERR);
 #endif

@@ -19,7 +19,7 @@ project(LEAN CXX C)
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
   # For Emscripten, we build GMP before any of the stages and reuse it in all of them.
   set(GMP_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/gmp-root)
-  set(EMSCRIPTEN_SETTINGS "-s ALLOW_MEMORY_GROWTH=1")
+  set(EMSCRIPTEN_SETTINGS "-s ALLOW_MEMORY_GROWTH=1 -s MAIN_MODULE=1")
   ExternalProject_Add(
     gmp
     URL https://gmplib.org/download/gmp/gmp-6.2.1.tar.bz2

@@ -983,7 +983,6 @@ lean_object* l_Lean_Parser_Command_attribute_formatter___closed__2;
 lean_object* l_Lean_Parser_Command_inductive___elambda__1___closed__13;
 lean_object* l_Lean_Parser_Command_classInductive_parenthesizer___closed__4;
 lean_object* l_Lean_Parser_Command_structSimpleBinder___closed__3;
-extern lean_object* l_Int_Int_pow___closed__1;
 extern lean_object* l_Lean_Parser_Term_forall_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_Command_end_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_Command_axiom_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3450,6 +3449,7 @@ lean_object* l_Lean_Parser_Command_resolve__name_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_Command_universes_formatter___closed__2;
 lean_object* l_Lean_Parser_Command_inductive___elambda__1___closed__12;
 lean_object* l___regBuiltinParser_Lean_Parser_Command_synth(lean_object*);
+extern lean_object* l_Int_pow___closed__1;
 lean_object* l_Lean_Parser_Command_classTk_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_abbrev_parenthesizer___closed__8;
 lean_object* l_Lean_Parser_Command_initialize_parenthesizer___closed__8;
@@ -3585,7 +3585,7 @@ static lean_object* _init_l_Lean_Parser_Term_quot___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_Int_pow___closed__1;
+x_1 = l_Int_pow___closed__1;
 x_2 = l_Lean_Parser_Term_quot___elambda__1___closed__7;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_addQuotDepthFn___boxed), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -3759,7 +3759,7 @@ goto block_24;
 else
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; 
-x_28 = l_Int_Int_pow___closed__1;
+x_28 = l_Int_pow___closed__1;
 x_29 = l_Lean_Parser_Term_quot___elambda__1___closed__7;
 lean_inc(x_1);
 x_30 = l_Lean_Parser_addQuotDepthFn(x_28, x_29, x_1, x_25);

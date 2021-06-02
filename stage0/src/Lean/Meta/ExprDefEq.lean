@@ -1189,21 +1189,24 @@ private def isLetFVar (fvarId : FVarId) : MetaM Bool := do
   pure decl.isLet
 
 private def isDefEqProofIrrel (t s : Expr) : MetaM LBool := do
-  let status ← isProofQuick t
-  match status with
-  | LBool.false =>
-    pure LBool.undef
-  | LBool.true  =>
-    let tType ← inferType t
-    let sType ← inferType s
-    toLBoolM <| Meta.isExprDefEqAux tType sType
-  | LBool.undef =>
-    let tType ← inferType t
-    if (← isProp tType) then
+  if (← getConfig).proofIrrelevance then
+    let status ← isProofQuick t
+    match status with
+    | LBool.false =>
+      pure LBool.undef
+    | LBool.true  =>
+      let tType ← inferType t
       let sType ← inferType s
       toLBoolM <| Meta.isExprDefEqAux tType sType
-    else
-      pure LBool.undef
+    | LBool.undef =>
+      let tType ← inferType t
+      if (← isProp tType) then
+        let sType ← inferType s
+        toLBoolM <| Meta.isExprDefEqAux tType sType
+      else
+        pure LBool.undef
+  else
+    pure LBool.undef
 
 /- Try to solve constraint of the form `?m args₁ =?= ?m args₂`.
    - First try to unify `args₁` and `args₂`, and return true if successful

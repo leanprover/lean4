@@ -114,6 +114,7 @@ notation "∅"     => EmptyCollection.emptyCollection
 /- Remark: tasks have an efficient implementation in the runtime. -/
 structure Task (α : Type u) : Type u where
   pure :: (get : α)
+  deriving Inhabited
 
 attribute [extern "lean_task_pure"] Task.pure
 attribute [extern "lean_task_get_own"] Task.get

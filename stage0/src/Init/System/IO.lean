@@ -12,6 +12,9 @@ import Init.System.IOError
 import Init.System.FilePath
 import Init.System.ST
 import Init.Data.ToString.Macro
+import Init.Data.Ord
+
+open System
 
 /-- Like https://hackage.haskell.org/package/ghc-Prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld.
     Makes sure we never reorder `IO` operations.
@@ -108,6 +111,14 @@ constant mapTask (f : α → IO β) (t : Task α) (prio := Task.Priority.default
 @[extern "lean_io_bind_task"]
 constant bindTask (t : Task α) (f : α → IO (Task (Except IO.Error β))) (prio := Task.Priority.default) : IO (Task (Except IO.Error β))
 
+def mapTasks (f : List α → IO β) (tasks : List (Task α)) (prio := Task.Priority.default) : IO (Task (Except IO.Error β)) :=
+  go tasks []
+where
+  go
+    | t::ts, as =>
+      IO.bindTask t (fun a => go ts (a :: as)) prio
+    | [], as => IO.asTask (f as.reverse) prio
+
 /-- Check if the task's cancellation flag has been set by calling `IO.cancel` or dropping the last reference to the task. -/
 @[extern "lean_io_check_canceled"] constant checkCanceled : IO Bool
 
@@ -170,7 +181,7 @@ def fopenFlags (m : FS.Mode) (b : Bool) : String :=
   let bin := if b then "b" else "t"
   mode ++ bin
 
-@[extern "lean_io_prim_handle_mk"] constant Handle.mk (s : @& String) (mode : @& String) : IO Handle
+@[extern "lean_io_prim_handle_mk"] constant Handle.mk (fn : @& FilePath) (mode : @& String) : IO Handle
 @[extern "lean_io_prim_handle_is_eof"] constant Handle.isEof (h : @& Handle) : IO Bool
 @[extern "lean_io_prim_handle_flush"] constant Handle.flush (h : @& Handle) : IO Unit
 @[extern "lean_io_prim_handle_read"] constant Handle.read  (h : @& Handle) (bytes : USize) : IO ByteArray
@@ -180,23 +191,21 @@ def fopenFlags (m : FS.Mode) (b : Bool) : String :=
 @[extern "lean_io_prim_handle_put_str"] constant Handle.putStr (h : @& Handle) (s : @& String) : IO Unit
 
 @[extern "lean_io_getenv"] constant getEnv (var : @& String) : IO (Option String)
-@[extern "lean_io_realpath"] constant realPath (fname : String) : IO String
-@[extern "lean_io_is_dir"] constant isDir (fname : @& String) : IO Bool
-@[extern "lean_io_file_exists"] constant fileExists (fname : @& String) : IO Bool
-@[extern "lean_io_remove_file"] constant removeFile (fname : @& String) : IO Unit
-@[extern "lean_io_app_dir"] constant appPath : IO String
-@[extern "lean_io_current_dir"] constant currentDir : IO String
+@[extern "lean_io_realpath"] constant realPath (fname : FilePath) : IO FilePath
+@[extern "lean_io_remove_file"] constant removeFile (fname : @& FilePath) : IO Unit
+@[extern "lean_io_app_dir"] constant appPath : IO FilePath
+@[extern "lean_io_current_dir"] constant currentDir : IO FilePath
 
 end Prim
 
 namespace FS
 variable [Monad m] [MonadLiftT IO m]
 
-def Handle.mk (s : String) (Mode : Mode) (bin : Bool := true) : m Handle :=
-  liftM (Prim.Handle.mk s (Prim.fopenFlags Mode bin))
+def Handle.mk (fn : FilePath) (Mode : Mode) (bin : Bool := true) : m Handle :=
+  liftM (Prim.Handle.mk fn (Prim.fopenFlags Mode bin))
 
 @[inline]
-def withFile (fn : String) (mode : Mode) (f : Handle → m α) : m α :=
+def withFile (fn : FilePath) (mode : Mode) (f : Handle → m α) : m α :=
   Handle.mk fn mode >>= f
 
 /-- returns whether the end of the file has been reached while reading a file.
@@ -231,15 +240,15 @@ partial def Handle.readToEnd (h : Handle) : m String := do
     if line.length == 0 then pure s else read (s ++ line)
   read ""
 
-def readBinFile (fname : String) : m ByteArray := do
+def readBinFile (fname : FilePath) : m ByteArray := do
   let h ← Handle.mk fname Mode.read true
   h.readBinToEnd
 
-def readFile (fname : String) : m String := do
+def readFile (fname : FilePath) : m String := do
   let h ← Handle.mk fname Mode.read false
   h.readToEnd
 
-partial def lines (fname : String) : m (Array String) := do
+partial def lines (fname : FilePath) : m (Array String) := do
   let h ← Handle.mk fname Mode.read false
   let rec read (lines : Array String) := do
     let line ← h.getLine
@@ -253,23 +262,73 @@ partial def lines (fname : String) : m (Array String) := do
       pure <| lines.push line
   read #[]
 
-def writeBinFile (fname : String) (content : ByteArray) : m Unit := do
+def writeBinFile (fname : FilePath) (content : ByteArray) : m Unit := do
   let h ← Handle.mk fname Mode.write true
   h.write content
 
-def writeFile (fname : String) (content : String) : m Unit := do
+def writeFile (fname : FilePath) (content : String) : m Unit := do
   let h ← Handle.mk fname Mode.write false
   h.putStr content
 
-namespace Stream
-
-def putStrLn (strm : FS.Stream) (s : String) : m Unit :=
+def Stream.putStrLn (strm : FS.Stream) (s : String) : m Unit :=
   liftM (strm.putStr (s.push '\n'))
 
-end Stream
+structure DirEntry where
+  root     : FilePath
+  fileName : String
+  deriving Repr
+
+def DirEntry.path (entry : DirEntry) : FilePath :=
+  entry.root / entry.fileName
+
+inductive FileType where
+  | dir
+  | file
+  | symlink
+  | other
+  deriving Repr, BEq
+
+structure SystemTime where
+  sec  : Int
+  nsec : UInt32
+  deriving Repr, BEq, Ord, Inhabited
+
+instance : LT SystemTime := ltOfOrd
+instance : LE SystemTime := leOfOrd
+
+structure Metadata where
+  --permissions : ...
+  accessed : SystemTime
+  modified : SystemTime
+  byteSize : UInt64
+  type     : FileType
+  deriving Repr
 
 end FS
+end IO
 
+namespace System.FilePath
+open IO
+variable [Monad m] [MonadLiftT IO m]
+
+@[extern "lean_io_read_dir"]
+constant readDir : @& FilePath → IO (Array IO.FS.DirEntry)
+
+@[extern "lean_io_metadata"]
+constant metadata : @& FilePath → IO IO.FS.Metadata
+
+def isDir (p : FilePath) : IO Bool :=
+  try
+    return (← p.metadata).type == IO.FS.FileType.dir
+  catch _ =>
+    return false
+
+def pathExists (p : FilePath) : IO Bool :=
+  (p.metadata *> pure true) <|> pure false
+
+end System.FilePath
+
+namespace IO
 section
 variable [Monad m] [MonadLiftT IO m]
 
@@ -320,19 +379,35 @@ private def eprintlnAux (s : String) : IO Unit :=
   eprintln s
 
 def getEnv : String → m (Option String) := liftM ∘ Prim.getEnv
-def realPath : String → m String := liftM ∘ Prim.realPath
-def isDir : String → m Bool := liftM ∘ Prim.isDir
-def fileExists : String → m Bool := liftM ∘ Prim.fileExists
-def removeFile : String → m Unit := liftM ∘ Prim.removeFile
-def appPath : m String := liftM Prim.appPath
 
-def appDir : m String := do
+def realPath : FilePath → m FilePath := liftM ∘ Prim.realPath
+def removeFile : FilePath → m Unit := liftM ∘ Prim.removeFile
+def appPath : m FilePath := liftM Prim.appPath
+
+def appDir : m FilePath := do
   let p ← appPath
-  let some p ← pure <| System.FilePath.parent p
+  let some p ← pure p.parent
     | liftM (m := IO) <| throw <| IO.userError s!"System.IO.appDir: unexpected filename '{p}'"
   realPath p
 
-def currentDir : m String := liftM Prim.currentDir
+def currentDir : m FilePath := liftM Prim.currentDir
+
+@[extern "lean_io_create_dir"]
+constant createDir : @& FilePath → IO Unit
+
+partial def createDirAll (p : FilePath) : IO Unit := do
+  if ← p.isDir then
+    return ()
+  if let some parent := p.parent then
+    createDirAll parent
+  try
+    createDir p
+  catch
+    | e =>
+      if ← p.isDir then
+        pure ()  -- I guess someone else was faster
+      else
+        throw e
 
 end
 
@@ -361,7 +436,7 @@ structure SpawnArgs extends StdioConfig where
   /- Arguments for the process -/
   args : Array String := #[]
   /- Working directory for the process. Inherit from current process if `none`. -/
-  cwd : Option String := none
+  cwd : Option FilePath := none
   /- Add or remove environment variables for the process. -/
   env : Array (String × Option String) := #[]
 
@@ -420,9 +495,9 @@ def FileRight.flags (acc : FileRight) : UInt32 :=
   let o : UInt32 := acc.other.flags
   u.lor <| g.lor o
 
-@[extern "lean_chmod"] constant Prim.setAccessRights (filename : @& String) (mode : UInt32) : IO Unit
+@[extern "lean_chmod"] constant Prim.setAccessRights (filename : @& FilePath) (mode : UInt32) : IO Unit
 
-def setAccessRights (filename : String) (mode : FileRight) : IO Unit :=
+def setAccessRights (filename : FilePath) (mode : FileRight) : IO Unit :=
   Prim.setAccessRights filename mode.flags
 
 /- References -/

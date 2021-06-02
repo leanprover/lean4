@@ -152,12 +152,12 @@ section Initialization
   /-- Use `leanpkg print-paths` to compile dependencies on the fly and add them to `LEAN_PATH`.
   Compilation progress is reported to `hOut` via LSP notifications. Return the search path for
   source files. -/
-  partial def leanpkgSetupSearchPath (leanpkgPath : String) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO SearchPath := do
+  partial def leanpkgSetupSearchPath (leanpkgPath : System.FilePath) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO SearchPath := do
     let leanpkgProc ← Process.spawn {
       stdin  := Process.Stdio.null
       stdout := Process.Stdio.piped
       stderr := Process.Stdio.piped
-      cmd    := leanpkgPath
+      cmd    := leanpkgPath.toString
       args   := #["print-paths"] ++ imports.map (toString ·.module)
     }
     -- progress notification: report latest stderr line
@@ -172,13 +172,17 @@ section Initialization
     let stdout := String.trim (← leanpkgProc.stdout.readToEnd)
     let stderr ← IO.ofExcept stderr.get
     if (← leanpkgProc.wait) == 0 then
-      match stdout.split (· == '\n') with
+      let leanpkgLines := stdout.split (· == '\n')
+      -- ignore any output up to the last two lines
+      -- TODO: leanpkg should instead redirect nested stdout output to stderr
+      let leanpkgLines := leanpkgLines.drop (leanpkgLines.length - 2)
+      match leanpkgLines with
       | [""]                    => pure []  -- e.g. no leanpkg.toml
       | [leanPath, leanSrcPath] => let sp ← getBuiltinSearchPath
                                    let sp ← addSearchPathFromEnv sp
-                                   let sp ← parseSearchPath leanPath sp
+                                   let sp := System.SearchPath.parse leanPath ++ sp
                                    searchPathRef.set sp
-                                   let srcPath := parseSearchPath leanSrcPath
+                                   let srcPath := System.SearchPath.parse leanSrcPath
                                    srcPath.mapM realPathNormalized
       | _                       => throw <| IO.userError s!"unexpected output from `leanpkg print-paths`:\n{stdout}\nstderr:\n{stderr}"
     else
@@ -189,21 +193,22 @@ section Initialization
     let inputCtx := Parser.mkInputContext m.text.source "<input>"
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
     let leanpkgPath ← match ← IO.getEnv "LEAN_SYSROOT" with
-      | some path => s!"{path}/bin/leanpkg{System.FilePath.exeSuffix}"
-      | _         => s!"{← appDir}/leanpkg{System.FilePath.exeSuffix}"
-    let mut srcSearchPath := [s!"{← appDir}/../lib/lean/src"]
+      | some path => pure <| System.FilePath.mk path / "bin" / "leanpkg"
+      | _         => pure <| (← appDir) / "leanpkg"
+    let leanpkgPath := leanpkgPath.withExtension System.FilePath.exeExtension
+    let mut srcSearchPath := [(← appDir) / ".." / "lib" / "lean" / "src"]
     if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
-      srcSearchPath := srcSearchPath ++ parseSearchPath p
+      srcSearchPath := srcSearchPath ++ System.SearchPath.parse p
     let (headerEnv, msgLog) ← try
       -- NOTE: leanpkg does not exist in stage 0 (yet?)
-      if (← fileExists leanpkgPath) then
+      if (← System.FilePath.pathExists leanpkgPath) then
         let pkgSearchPath ← leanpkgSetupSearchPath leanpkgPath m (Lean.Elab.headerToImports headerStx).toArray hOut
         srcSearchPath := srcSearchPath ++ pkgSearchPath
       Elab.processHeader headerStx opts msgLog inputCtx
     catch e =>  -- should be from `leanpkg print-paths`
       let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
-      publishMessages m msgs hOut
       pure (← mkEmptyEnvironment, msgs)
+    publishMessages m msgLog hOut
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
     let cmdState := { cmdState with infoState.enabled := true, scopes := [{ header := "", opts := opts }] }
     let headerSnap := {
@@ -411,7 +416,7 @@ section RequestHandling
               let mod? ← ci.runMetaM i.lctx <| findModuleOf? n
               let modUri? ← match mod? with
                 | some modName =>
-                  let modFname? ← st.srcSearchPath.findWithExt ".lean" modName
+                  let modFname? ← st.srcSearchPath.findWithExt "lean" modName
                   pure <| modFname?.map toFileUri
                 | none         => pure <| some doc.meta.uri
 

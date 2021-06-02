@@ -57,7 +57,6 @@ lean_object* l_Lean_ConstantInfo_value_x21___closed__1;
 lean_object* l_Lean_instInhabitedDefinitionVal___closed__1;
 lean_object* l_Lean_ConstantInfo_value_x21___boxed(lean_object*);
 lean_object* l_Lean_instBEqDefinitionSafety;
-extern lean_object* l_Int_Int_pow___closed__1;
 lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_249____closed__6;
 lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_InductiveVal_isRecEx___boxed(lean_object*);
@@ -218,6 +217,7 @@ lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Le
 uint8_t l_Lean_ReducibilityHints_lt(lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedConstructorVal___closed__1;
 uint8_t l_Lean_instInhabitedQuotKind;
+extern lean_object* l_Int_pow___closed__1;
 lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_249____closed__4;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedRecursorRule___closed__1;
@@ -838,7 +838,7 @@ static lean_object* _init_l___private_Lean_Declaration_0__Lean_reprDefinitionSaf
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_Int_pow___closed__1;
+x_1 = l_Int_pow___closed__1;
 x_2 = l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_249____closed__2;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -904,7 +904,7 @@ static lean_object* _init_l___private_Lean_Declaration_0__Lean_reprDefinitionSaf
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_Int_pow___closed__1;
+x_1 = l_Int_pow___closed__1;
 x_2 = l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_249____closed__8;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -970,7 +970,7 @@ static lean_object* _init_l___private_Lean_Declaration_0__Lean_reprDefinitionSaf
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_Int_pow___closed__1;
+x_1 = l_Int_pow___closed__1;
 x_2 = l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_249____closed__14;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

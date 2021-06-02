@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Meta.Transform
 import Lean.Meta.Tactic.Injection
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Cases
@@ -21,9 +22,17 @@ private def mkAnd? (args : Array Expr) : Option Expr := do
       result := mkApp2 (mkConst ``And) arg result
     return result
 
+def elimOptParam (type : Expr) : CoreM Expr := do
+  Core.transform type fun e =>
+    if e.isAppOfArity  ``optParam 2 then
+      return TransformStep.visit (e.getArg! 0)
+    else
+      return TransformStep.visit e
+
 private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useEq : Bool) : MetaM (Option Expr) := do
   let us := ctorVal.levelParams.map mkLevelParam
-  forallBoundedTelescope ctorVal.type ctorVal.numParams fun params type =>
+  let type ← elimOptParam ctorVal.type
+  forallBoundedTelescope type ctorVal.numParams fun params type =>
   forallTelescope type fun args1 resultType => do
     let jp (args2 args2New : Array Expr) : MetaM (Option Expr) := do
       let lhs := mkAppN (mkAppN (mkConst ctorVal.name us) params) args1

@@ -309,7 +309,6 @@ lean_object* l_Lean_Parser_scientificLitFn___closed__2;
 lean_object* l_Lean_Parser_antiquotNestedExpr___elambda__1___closed__3;
 lean_object* l_Lean_Parser_instInhabitedParserCategory;
 lean_object* l_Lean_Parser_scientificLitFn___closed__1;
-extern lean_object* l_Int_Int_pow___closed__1;
 lean_object* l_Lean_Parser_setExpectedFn_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_rawIdentFn(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkAntiquotSplice___boxed(lean_object*, lean_object*, lean_object*);
@@ -1076,6 +1075,7 @@ lean_object* l_Lean_Parser_numberFnAux___boxed(lean_object*, lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Syntax_forArgsM___spec__1(lean_object*);
 lean_object* l_Lean_Parser_fieldIdxFn(lean_object*, lean_object*);
+extern lean_object* l_Int_pow___closed__1;
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_hexNumberFn___closed__2;
 lean_object* l_Lean_Parser_mkIdent(lean_object*, lean_object*, lean_object*);
@@ -6678,7 +6678,7 @@ if (x_2 == 0)
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_1, 1);
-x_4 = l_Int_Int_pow___closed__1;
+x_4 = l_Int_pow___closed__1;
 x_5 = lean_alloc_closure((void*)(l_Lean_Parser_addQuotDepthFn___boxed), 4, 2);
 lean_closure_set(x_5, 0, x_4);
 lean_closure_set(x_5, 1, x_3);
@@ -6693,7 +6693,7 @@ x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_dec(x_1);
-x_8 = l_Int_Int_pow___closed__1;
+x_8 = l_Int_pow___closed__1;
 x_9 = lean_alloc_closure((void*)(l_Lean_Parser_addQuotDepthFn___boxed), 4, 2);
 lean_closure_set(x_9, 0, x_8);
 lean_closure_set(x_9, 1, x_7);
@@ -6708,7 +6708,7 @@ static lean_object* _init_l_Lean_Parser_decQuotDepth___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Int_Int_pow___closed__1;
+x_1 = l_Int_pow___closed__1;
 x_2 = lean_int_neg(x_1);
 return x_2;
 }

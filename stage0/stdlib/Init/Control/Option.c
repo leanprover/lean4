@@ -15,10 +15,13 @@ extern "C" {
 #endif
 lean_object* l_OptionT_instMonadOptionT(lean_object*);
 lean_object* l_OptionT_instAlternativeOptionT(lean_object*);
+lean_object* l_OptionT_mk___rarg___boxed(lean_object*);
 lean_object* l_OptionT_instMonadOptionT___rarg___lambda__9___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_tryCatch(lean_object*);
 lean_object* l_OptionT_bind___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_instMonadLiftOptionT(lean_object*);
+lean_object* l_OptionT_instMonadExceptOfOptionT(lean_object*, lean_object*, lean_object*);
+lean_object* l_OptionT_instMonadExceptOfOptionT___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_bind(lean_object*);
 lean_object* l_OptionT_run___rarg(lean_object*);
 lean_object* l_OptionT_orElse___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -37,6 +40,7 @@ lean_object* l_OptionT_run___rarg___boxed(lean_object*);
 lean_object* l_OptionT_instMonadExceptOfUnitOptionT___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_instMonadExceptOfUnitOptionT___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_tryCatch___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_OptionT_instMonadExceptOfOptionT___rarg(lean_object*);
 lean_object* l_OptionT_instMonadOptionT___rarg___lambda__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_bind_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_instMonadOptionT___rarg___lambda__3(lean_object*, lean_object*, lean_object*);
@@ -46,6 +50,8 @@ lean_object* l_OptionT_instMonadOptionT___rarg___lambda__9(lean_object*, lean_ob
 lean_object* l_OptionT_bind_match__1(lean_object*, lean_object*);
 lean_object* l_OptionT_instMonadLiftOptionT___rarg(lean_object*);
 lean_object* l_OptionT_lift___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_OptionT_mk___rarg(lean_object*);
+lean_object* l_instMonadExceptOfExceptT___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_pure(lean_object*);
 lean_object* l_OptionT_pure___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instToBoolOption___closed__1;
@@ -60,7 +66,9 @@ lean_object* l_OptionT_instMonadOptionT___rarg___lambda__7(lean_object*, lean_ob
 lean_object* l_OptionT_instMonadFunctorOptionT___rarg(lean_object*, lean_object*);
 lean_object* l_OptionT_instMonadOptionT___rarg(lean_object*);
 lean_object* l_OptionT_fail(lean_object*);
+lean_object* l_OptionT_mk(lean_object*, lean_object*);
 lean_object* l_OptionT_instMonadOptionT___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instMonadExceptOfExceptT___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_instMonadOptionT___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_orElse_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_fail___rarg(lean_object*, lean_object*);
@@ -102,6 +110,30 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_OptionT_run___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_OptionT_mk___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_OptionT_mk(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_OptionT_mk___rarg___boxed), 1, 0);
+return x_3;
+}
+}
+lean_object* l_OptionT_mk___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_OptionT_mk___rarg(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -874,6 +906,38 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_OptionT_instMonadExceptOfUnitOptionT___rarg___lambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+lean_object* l_OptionT_instMonadExceptOfOptionT___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_inc(x_1);
+x_2 = lean_alloc_closure((void*)(l_instMonadExceptOfExceptT___rarg___lambda__1), 3, 1);
+lean_closure_set(x_2, 0, x_1);
+x_3 = lean_alloc_closure((void*)(l_instMonadExceptOfExceptT___rarg___lambda__2), 4, 1);
+lean_closure_set(x_3, 0, x_1);
+x_4 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_3);
+return x_4;
+}
+}
+lean_object* l_OptionT_instMonadExceptOfOptionT(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_OptionT_instMonadExceptOfOptionT___rarg), 1, 0);
+return x_4;
+}
+}
+lean_object* l_OptionT_instMonadExceptOfOptionT___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_OptionT_instMonadExceptOfOptionT(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
 }

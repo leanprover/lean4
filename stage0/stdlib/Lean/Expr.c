@@ -353,6 +353,7 @@ lean_object* l_Lean_Expr_getArg_x21___boxed(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Expr_bindingDomain_x21___closed__1;
 lean_object* l_Lean_Expr_isConst_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_BinderInfo_isInstImplicit_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_4276____closed__17;
 lean_object* l_Lean_Expr_instantiateLevelParamsCore_visit___at_Lean_Expr_instantiateLevelParams___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ctorName___closed__3;
 lean_object* l_Lean_Expr_hasAnyFVar_visit___at_Lean_Expr_containsFVar___spec__1___boxed(lean_object*, lean_object*);
@@ -437,7 +438,6 @@ lean_object* l_Lean_Expr_ctorName(lean_object*);
 lean_object* l_Lean_Expr_replaceFVarId(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isSort_match__1(lean_object*);
-extern lean_object* l_myMacro____x40_Init_System_IO___hyg_3180____closed__17;
 lean_object* l_Lean_Expr_data___boxed(lean_object*);
 lean_object* l_Lean_Expr_setPPExplicit___closed__1;
 lean_object* lean_expr_update_proj(lean_object*, lean_object*);
@@ -5109,7 +5109,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_3180____closed__17;
+x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__17;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }

@@ -496,7 +496,6 @@ lean_object* l_Lean_Parser_Command_elab_formatter___closed__13;
 lean_object* l_Lean_Parser_Command_elab;
 lean_object* l_Lean_Parser_Command_elab___closed__7;
 lean_object* l_Lean_Parser_Command_identPrec___closed__5;
-extern lean_object* l_Int_Int_pow___closed__1;
 lean_object* l_Lean_Parser_Syntax_sepBy___closed__9;
 lean_object* l_Lean_Parser_Term_prio_quot_parenthesizer___closed__5;
 lean_object* l_Lean_Parser_Syntax_sepBy___elambda__1___closed__6;
@@ -1771,6 +1770,7 @@ lean_object* l_Lean_Parser_Command_macroArgSymbol___elambda__1___closed__8;
 lean_object* l_Lean_Parser_Syntax_nonReserved___elambda__1___closed__11;
 lean_object* l___regBuiltin_Lean_Parser_Term_prec_quot_parenthesizer___closed__1;
 lean_object* l___regBuiltin_Lean_Parser_Command_mixfix_parenthesizer(lean_object*);
+extern lean_object* l_Int_pow___closed__1;
 lean_object* l___regBuiltin_Lean_Parser_Command_macro_formatter___closed__1;
 lean_object* l_Lean_Parser_Command_elab_formatter___closed__14;
 lean_object* l_Lean_Parser_Command_notationItem_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7885,7 +7885,7 @@ static lean_object* _init_l_Lean_Parser_Term_stx_quot___elambda__1___closed__6()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_Int_pow___closed__1;
+x_1 = l_Int_pow___closed__1;
 x_2 = l_Lean_Parser_Term_stx_quot___elambda__1___closed__5;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_addQuotDepthFn___boxed), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -8116,7 +8116,7 @@ goto block_24;
 else
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; 
-x_28 = l_Int_Int_pow___closed__1;
+x_28 = l_Int_pow___closed__1;
 x_29 = l_Lean_Parser_Term_stx_quot___elambda__1___closed__5;
 lean_inc(x_1);
 x_30 = l_Lean_Parser_addQuotDepthFn(x_28, x_29, x_1, x_25);
@@ -8558,7 +8558,7 @@ static lean_object* _init_l_Lean_Parser_Term_prec_quot___elambda__1___closed__6(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_Int_pow___closed__1;
+x_1 = l_Int_pow___closed__1;
 x_2 = l_Lean_Parser_Term_prec_quot___elambda__1___closed__5;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_addQuotDepthFn___boxed), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -8789,7 +8789,7 @@ goto block_24;
 else
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; 
-x_28 = l_Int_Int_pow___closed__1;
+x_28 = l_Int_pow___closed__1;
 x_29 = l_Lean_Parser_Term_prec_quot___elambda__1___closed__5;
 lean_inc(x_1);
 x_30 = l_Lean_Parser_addQuotDepthFn(x_28, x_29, x_1, x_25);
@@ -9239,7 +9239,7 @@ static lean_object* _init_l_Lean_Parser_Term_prio_quot___elambda__1___closed__5(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_Int_pow___closed__1;
+x_1 = l_Int_pow___closed__1;
 x_2 = l_Lean_Parser_Attr_simple___elambda__1___closed__5;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_addQuotDepthFn___boxed), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -9470,7 +9470,7 @@ goto block_24;
 else
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; 
-x_28 = l_Int_Int_pow___closed__1;
+x_28 = l_Int_pow___closed__1;
 x_29 = l_Lean_Parser_Attr_simple___elambda__1___closed__5;
 lean_inc(x_1);
 x_30 = l_Lean_Parser_addQuotDepthFn(x_28, x_29, x_1, x_25);
@@ -19447,7 +19447,7 @@ static lean_object* _init_l_Lean_Parser_Command_macroTailCommand___elambda__1___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_Int_pow___closed__1;
+x_1 = l_Int_pow___closed__1;
 x_2 = l_Lean_Parser_Term_quot___elambda__1___closed__6;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_addQuotDepthFn___boxed), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -19620,7 +19620,7 @@ static lean_object* _init_l_Lean_Parser_Command_macroTailDefault___elambda__1___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_Int_pow___closed__1;
+x_1 = l_Int_pow___closed__1;
 x_2 = l_Lean_Parser_Command_macroTailDefault___elambda__1___closed__1;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_addQuotDepthFn___boxed), 4, 2);
 lean_closure_set(x_3, 0, x_1);

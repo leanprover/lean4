@@ -90,7 +90,6 @@ lean_object* l_instReprBool_match__1___rarg(uint8_t, lean_object*, lean_object*,
 lean_object* l_instReprAtomUInt16;
 lean_object* l_Char_quoteCore___closed__1;
 lean_object* l_Char_quoteCore___boxed(lean_object*);
-extern lean_object* l_Int_Int_pow___closed__1;
 lean_object* l_instReprOption___rarg___closed__3;
 lean_object* l_instReprDecidable_match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_reprStr___rarg(lean_object*, lean_object*);
@@ -255,6 +254,7 @@ lean_object* l_instReprBool_match__1(lean_object*);
 lean_object* l_charToHex___boxed(lean_object*);
 extern lean_object* l_Std_Format_paren___closed__3;
 lean_object* l_instReprSigma___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Int_pow___closed__1;
 extern lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___closed__1;
 lean_object* lean_uint8_to_nat(uint8_t);
 lean_object* l_instReprProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3143,7 +3143,7 @@ static lean_object* _init_l___private_Init_Data_Repr_0__reprSourceInfo____x40_In
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_Int_pow___closed__1;
+x_1 = l_Int_pow___closed__1;
 x_2 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__9;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -3316,7 +3316,7 @@ lean_ctor_set(x_64, 1, x_52);
 x_65 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_65, 0, x_64);
 lean_ctor_set(x_65, 1, x_12);
-x_66 = l_Int_Int_pow___closed__1;
+x_66 = l_Int_pow___closed__1;
 x_67 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_67, 0, x_66);
 lean_ctor_set(x_67, 1, x_65);
@@ -3372,7 +3372,7 @@ return x_88;
 else
 {
 lean_object* x_89; lean_object* x_90; uint8_t x_91; lean_object* x_92; lean_object* x_93; 
-x_89 = l_Int_Int_pow___closed__1;
+x_89 = l_Int_pow___closed__1;
 x_90 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_90, 0, x_89);
 lean_ctor_set(x_90, 1, x_83);

@@ -203,8 +203,8 @@ extern lean_object* l_Lean_IR_instInhabitedParam;
 lean_object* l_Lean_IR_UnreachableBranches_Value_format___closed__5;
 lean_object* l_Lean_IR_UnreachableBranches_functionSummariesExt___elambda__2(lean_object*);
 size_t l_USize_mul(size_t, size_t);
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_3629____closed__4;
 lean_object* l_List_format___at_Lean_IR_UnreachableBranches_Value_format___spec__3(lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_3630____closed__4;
 lean_object* l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_609____closed__1;
 extern lean_object* l_instReprList___rarg___closed__2;
 lean_object* l_Lean_IR_UnreachableBranches_projValue___boxed(lean_object*, lean_object*);
@@ -4428,7 +4428,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_609____closed__2;
 x_2 = l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_609____closed__3;
 x_3 = l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_609____closed__4;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_3630____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_3629____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

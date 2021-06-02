@@ -360,6 +360,12 @@ class LT (α : Type u) where lt : α → α → Prop
 @[reducible] def GE.ge {α : Type u} [LE α] (a b : α) : Prop := LE.le b a
 @[reducible] def GT.gt {α : Type u} [LT α] (a b : α) : Prop := LT.lt b a
 
+@[inline] def max [LT α] [DecidableRel (@LT.lt α _)] (a b : α) : α :=
+  ite (LT.lt b a) a b
+
+@[inline] def min [LE α] [DecidableRel (@LE.le α _)] (a b : α) : α :=
+  ite (LE.le a b) a b
+
 class HAdd (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hAdd : α → β → γ
 
@@ -1585,6 +1591,9 @@ class Hashable (α : Sort u) where
   hash : α → USize
 
 export Hashable (hash)
+
+@[extern "lean_usize_mix_hash"]
+constant mixUSizeHash (u₁ u₂ : USize) : USize
 
 @[extern "lean_usize_mix_hash"]
 constant mixHash (u₁ u₂ : USize) : USize

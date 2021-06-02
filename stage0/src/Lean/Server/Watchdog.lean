@@ -178,7 +178,7 @@ section ServerM
     /-- We store these to pass them to workers. -/
     initParams     : InitializeParams
     editDelay      : Nat
-    workerPath     : String
+    workerPath     : System.FilePath
 
   abbrev ServerM := ReaderT ServerContext IO
 
@@ -234,7 +234,7 @@ section ServerM
     let headerAst ← parseHeaderAst m.text.source
     let workerProc ← Process.spawn {
       toStdioConfig := workerCfg
-      cmd           := st.workerPath
+      cmd           := st.workerPath.toString
       args          := #["--worker"] ++ st.args.toArray
     }
     let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
@@ -553,9 +553,9 @@ def initAndRunWatchdogAux : ServerM Unit := do
 def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
   let mut workerPath ← IO.appPath
   if let some path := (←IO.getEnv "LEAN_SYSROOT") then
-    workerPath := s!"{path}/bin/lean{System.FilePath.exeSuffix}"
+    workerPath := System.FilePath.mk path / "bin" / "lean" |>.withExtension System.FilePath.exeExtension
   if let some path := (←IO.getEnv "LEAN_WORKER_PATH") then
-    workerPath := path
+    workerPath := System.FilePath.mk path
   let fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap)
   let i ← maybeTee "wdIn.txt" false i
   let o ← maybeTee "wdOut.txt" true o

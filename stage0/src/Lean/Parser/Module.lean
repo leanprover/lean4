@@ -116,16 +116,15 @@ partial def testParseModuleAux (env : Environment) (inputCtx : InputContext) (s 
   parse s msgs stxs
 
 def testParseModule (env : Environment) (fname contents : String) : IO Syntax := do
-  let fname ← IO.realPath fname
   let inputCtx := mkInputContext contents fname
   let (header, state, messages) ← parseHeader inputCtx
   let cmds ← testParseModuleAux env inputCtx state messages #[]
   let stx := Syntax.node `Lean.Parser.Module.module #[header, mkListNode cmds]
   pure stx.updateLeading
 
-def testParseFile (env : Environment) (fname : String) : IO Syntax := do
+def testParseFile (env : Environment) (fname : System.FilePath) : IO Syntax := do
   let contents ← IO.FS.readFile fname
-  testParseModule env fname contents
+  testParseModule env fname.toString contents
 
 end Parser
 end Lean

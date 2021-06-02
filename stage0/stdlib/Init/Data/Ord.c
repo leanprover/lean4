@@ -13,44 +13,70 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+uint8_t l_Ordering_isLE(uint8_t);
 lean_object* l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_10__match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_instOrdBool(uint8_t, uint8_t);
+lean_object* l_instOrdUInt8___boxed(lean_object*, lean_object*);
 lean_object* l_instOrdUSize___boxed(lean_object*, lean_object*);
+uint8_t l_UInt64_decEq(uint64_t, uint64_t);
+lean_object* l_Ordering_isLE_match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
+uint8_t l_UInt8_decEq(uint8_t, uint8_t);
 uint8_t l_USize_decEq(size_t, size_t);
+lean_object* l_instDecidableRelLtLtOfOrd___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instBEqOrdering___closed__1;
 lean_object* l_instOrdFin___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_instOrdFin___boxed(lean_object*);
+lean_object* l_instOrdUInt64___boxed(lean_object*, lean_object*);
 lean_object* l_instOrdNat___boxed(lean_object*, lean_object*);
 lean_object* l_instBEqOrdering;
+uint8_t l_instDecidableRelLeLeOfOrd___rarg(lean_object*, lean_object*, lean_object*);
+uint8_t l_instOrdUInt8(uint8_t, uint8_t);
 uint8_t l_USize_decLt(size_t, size_t);
+uint8_t l_instOrdUInt64(uint64_t, uint64_t);
 lean_object* l_instOrdFin(lean_object*);
-uint8_t l_USize_cmp(size_t, size_t);
+lean_object* l_instDecidableRelLeLeOfOrd___rarg___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t l_UInt8_decLt(uint8_t, uint8_t);
+lean_object* l_ltOfOrd___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_instOrdBool_match__1(lean_object*);
 uint8_t l_UInt32_decLt(uint32_t, uint32_t);
 uint8_t l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_10_(uint8_t, uint8_t);
 uint8_t l_instInhabitedOrdering;
+uint8_t l_instOrdUInt16(uint16_t, uint16_t);
+uint8_t l_UInt64_decLt(uint64_t, uint64_t);
 lean_object* l_instOrdBool_match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_10____boxed(lean_object*, lean_object*);
+lean_object* l_instOrdUInt32___boxed(lean_object*, lean_object*);
+lean_object* l_leOfOrd(lean_object*, lean_object*);
+lean_object* l_instOrdUInt16___boxed(lean_object*, lean_object*);
 uint8_t l_instOrdInt(lean_object*, lean_object*);
+lean_object* l_Ordering_isLE_match__1(lean_object*);
 uint8_t l_instOrdFin___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_10__match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_instOrdNat(lean_object*, lean_object*);
+lean_object* l_ltOfOrd(lean_object*, lean_object*);
+lean_object* l_instDecidableRelLtLtOfOrd(lean_object*);
+lean_object* l_Ordering_isLE___boxed(lean_object*);
+lean_object* l_leOfOrd___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_10__match__1(lean_object*);
 lean_object* l_instOrdString___boxed(lean_object*, lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+lean_object* l_Ordering_isLE_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instOrdBool___boxed(lean_object*, lean_object*);
 uint8_t l_compareOfLessAndEq___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+uint8_t l_instOrdUInt32(uint32_t, uint32_t);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
+uint8_t l_UInt16_decLt(uint16_t, uint16_t);
 uint8_t l_instOrdUSize(size_t, size_t);
 lean_object* l_instOrdInt___boxed(lean_object*, lean_object*);
+uint8_t l_UInt16_decEq(uint16_t, uint16_t);
 uint8_t l_instOrdString(lean_object*, lean_object*);
 lean_object* l_instOrdChar___boxed(lean_object*, lean_object*);
-lean_object* lean_usize_to_nat(size_t);
+lean_object* l_instDecidableRelLeLeOfOrd(lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
+uint8_t l_instDecidableRelLtLtOfOrd___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instOrdBool_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_instOrdChar(uint32_t, uint32_t);
-lean_object* l_USize_cmp___boxed(lean_object*, lean_object*);
 lean_object* l_compareOfLessAndEq(lean_object*);
 lean_object* l_compareOfLessAndEq___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
@@ -605,51 +631,174 @@ lean_dec(x_1);
 return x_2;
 }
 }
-uint8_t l_USize_cmp(size_t x_1, size_t x_2) {
+uint8_t l_instOrdUInt8(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_usize_to_nat(x_1);
-x_4 = lean_usize_to_nat(x_2);
-x_5 = lean_nat_dec_lt(x_3, x_4);
-if (x_5 == 0)
+uint8_t x_3; 
+x_3 = x_1 < x_2;
+if (x_3 == 0)
+{
+uint8_t x_4; 
+x_4 = x_1 == x_2;
+if (x_4 == 0)
+{
+uint8_t x_5; 
+x_5 = 2;
+return x_5;
+}
+else
 {
 uint8_t x_6; 
-x_6 = lean_nat_dec_eq(x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-if (x_6 == 0)
+x_6 = 1;
+return x_6;
+}
+}
+else
 {
 uint8_t x_7; 
-x_7 = 2;
+x_7 = 0;
 return x_7;
 }
-else
-{
-uint8_t x_8; 
-x_8 = 1;
-return x_8;
 }
 }
-else
-{
-uint8_t x_9; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_9 = 0;
-return x_9;
-}
-}
-}
-lean_object* l_USize_cmp___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_instOrdUInt8___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-size_t x_3; size_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox_usize(x_1);
+uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_unbox(x_1);
 lean_dec(x_1);
-x_4 = lean_unbox_usize(x_2);
+x_4 = lean_unbox(x_2);
 lean_dec(x_2);
-x_5 = l_USize_cmp(x_3, x_4);
+x_5 = l_instOrdUInt8(x_3, x_4);
+x_6 = lean_box(x_5);
+return x_6;
+}
+}
+uint8_t l_instOrdUInt16(uint16_t x_1, uint16_t x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = x_1 < x_2;
+if (x_3 == 0)
+{
+uint8_t x_4; 
+x_4 = x_1 == x_2;
+if (x_4 == 0)
+{
+uint8_t x_5; 
+x_5 = 2;
+return x_5;
+}
+else
+{
+uint8_t x_6; 
+x_6 = 1;
+return x_6;
+}
+}
+else
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
+}
+}
+}
+lean_object* l_instOrdUInt16___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint16_t x_3; uint16_t x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_unbox(x_1);
+lean_dec(x_1);
+x_4 = lean_unbox(x_2);
+lean_dec(x_2);
+x_5 = l_instOrdUInt16(x_3, x_4);
+x_6 = lean_box(x_5);
+return x_6;
+}
+}
+uint8_t l_instOrdUInt32(uint32_t x_1, uint32_t x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = x_1 < x_2;
+if (x_3 == 0)
+{
+uint8_t x_4; 
+x_4 = x_1 == x_2;
+if (x_4 == 0)
+{
+uint8_t x_5; 
+x_5 = 2;
+return x_5;
+}
+else
+{
+uint8_t x_6; 
+x_6 = 1;
+return x_6;
+}
+}
+else
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
+}
+}
+}
+lean_object* l_instOrdUInt32___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint32_t x_3; uint32_t x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_4 = lean_unbox_uint32(x_2);
+lean_dec(x_2);
+x_5 = l_instOrdUInt32(x_3, x_4);
+x_6 = lean_box(x_5);
+return x_6;
+}
+}
+uint8_t l_instOrdUInt64(uint64_t x_1, uint64_t x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = x_1 < x_2;
+if (x_3 == 0)
+{
+uint8_t x_4; 
+x_4 = x_1 == x_2;
+if (x_4 == 0)
+{
+uint8_t x_5; 
+x_5 = 2;
+return x_5;
+}
+else
+{
+uint8_t x_6; 
+x_6 = 1;
+return x_6;
+}
+}
+else
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
+}
+}
+}
+lean_object* l_instOrdUInt64___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint64_t x_3; uint64_t x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_unbox_uint64(x_1);
+lean_dec(x_1);
+x_4 = lean_unbox_uint64(x_2);
+lean_dec(x_2);
+x_5 = l_instOrdUInt64(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -738,6 +887,180 @@ lean_dec(x_2);
 x_5 = l_instOrdChar(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
+}
+}
+lean_object* l_ltOfOrd(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_box(0);
+return x_3;
+}
+}
+lean_object* l_ltOfOrd___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_ltOfOrd(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+uint8_t l_instDecidableRelLtLtOfOrd___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; uint8_t x_6; uint8_t x_7; 
+x_4 = lean_apply_2(x_1, x_2, x_3);
+x_5 = lean_unbox(x_4);
+lean_dec(x_4);
+x_6 = 0;
+x_7 = l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_10_(x_5, x_6);
+return x_7;
+}
+}
+lean_object* l_instDecidableRelLtLtOfOrd(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_instDecidableRelLtLtOfOrd___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+lean_object* l_instDecidableRelLtLtOfOrd___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_instDecidableRelLtLtOfOrd___rarg(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
+lean_object* l_Ordering_isLE_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+switch (x_1) {
+case 0:
+{
+lean_object* x_5; lean_object* x_6; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_5 = lean_box(0);
+x_6 = lean_apply_1(x_2, x_5);
+return x_6;
+}
+case 1:
+{
+lean_object* x_7; lean_object* x_8; 
+lean_dec(x_4);
+lean_dec(x_2);
+x_7 = lean_box(0);
+x_8 = lean_apply_1(x_3, x_7);
+return x_8;
+}
+default: 
+{
+lean_object* x_9; lean_object* x_10; 
+lean_dec(x_3);
+lean_dec(x_2);
+x_9 = lean_box(0);
+x_10 = lean_apply_1(x_4, x_9);
+return x_10;
+}
+}
+}
+}
+lean_object* l_Ordering_isLE_match__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Ordering_isLE_match__1___rarg___boxed), 4, 0);
+return x_2;
+}
+}
+lean_object* l_Ordering_isLE_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_1);
+lean_dec(x_1);
+x_6 = l_Ordering_isLE_match__1___rarg(x_5, x_2, x_3, x_4);
+return x_6;
+}
+}
+uint8_t l_Ordering_isLE(uint8_t x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_box(x_1);
+if (lean_obj_tag(x_2) == 2)
+{
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
+}
+else
+{
+uint8_t x_4; 
+lean_dec(x_2);
+x_4 = 1;
+return x_4;
+}
+}
+}
+lean_object* l_Ordering_isLE___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; uint8_t x_3; lean_object* x_4; 
+x_2 = lean_unbox(x_1);
+lean_dec(x_1);
+x_3 = l_Ordering_isLE(x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+lean_object* l_leOfOrd(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_box(0);
+return x_3;
+}
+}
+lean_object* l_leOfOrd___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_leOfOrd(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+uint8_t l_instDecidableRelLeLeOfOrd___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; uint8_t x_6; 
+x_4 = lean_apply_2(x_1, x_2, x_3);
+x_5 = lean_unbox(x_4);
+lean_dec(x_4);
+x_6 = l_Ordering_isLE(x_5);
+return x_6;
+}
+}
+lean_object* l_instDecidableRelLeLeOfOrd(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_instDecidableRelLeLeOfOrd___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+lean_object* l_instDecidableRelLeLeOfOrd___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_instDecidableRelLeLeOfOrd___rarg(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
 lean_object* initialize_Init_Data_Int(lean_object*);

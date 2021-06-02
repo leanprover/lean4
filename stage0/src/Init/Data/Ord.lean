@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Author: Dany Fabian
+Authors: Dany Fabian, Sebastian Ullrich
 -/
 
 prelude
@@ -41,10 +41,38 @@ instance : Ord String where
 instance (n : Nat) : Ord (Fin n) where
   compare x y := compare x.val y.val
 
-def USize.cmp (a b : USize) : Ordering := compare a.val b.val
+instance : Ord UInt8 where
+  compare x y := compareOfLessAndEq x y
+
+instance : Ord UInt16 where
+  compare x y := compareOfLessAndEq x y
+
+instance : Ord UInt32 where
+  compare x y := compareOfLessAndEq x y
+
+instance : Ord UInt64 where
+  compare x y := compareOfLessAndEq x y
 
 instance : Ord USize where
   compare x y := compareOfLessAndEq x y
 
 instance : Ord Char where
   compare x y := compareOfLessAndEq x y
+
+
+def ltOfOrd [Ord α] : LT α where
+  lt a b := compare a b == Ordering.lt
+
+instance [Ord α] : DecidableRel (@LT.lt α ltOfOrd) :=
+  inferInstanceAs (DecidableRel (fun a b => compare a b == Ordering.lt))
+
+def Ordering.isLE : Ordering → Bool
+  | Ordering.lt => true
+  | Ordering.eq => true
+  | Ordering.gt => false
+
+def leOfOrd [Ord α] : LE α where
+  le a b := (compare a b).isLE
+
+instance [Ord α] : DecidableRel (@LE.le α leOfOrd) :=
+  inferInstanceAs (DecidableRel (fun a b => (compare a b).isLE))

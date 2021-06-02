@@ -58,7 +58,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_isReducible_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__1___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_isReducible_match__1___rarg(uint8_t, lean_object*, lean_object*);
-extern lean_object* l_Int_Int_pow___closed__1;
 lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_reprReducibilityStatus____x40_Lean_ReducibilityAttrs___hyg_11__match__1(lean_object*);
 lean_object* l_Std_RBNode_fold___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__2___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerTagAttribute___closed__5;
@@ -166,6 +165,7 @@ lean_object* l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_Reducibi
 lean_object* l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isReducible___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_reprReducibilityStatus____x40_Lean_ReducibilityAttrs___hyg_11____closed__11;
+extern lean_object* l_Int_pow___closed__1;
 extern lean_object* l_Array_qsort_sort___at_Lean_mkMapDeclarationExtension___spec__1___rarg___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
@@ -275,7 +275,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_reprReducib
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_Int_pow___closed__1;
+x_1 = l_Int_pow___closed__1;
 x_2 = l___private_Lean_ReducibilityAttrs_0__Lean_reprReducibilityStatus____x40_Lean_ReducibilityAttrs___hyg_11____closed__2;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -341,7 +341,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_reprReducib
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_Int_pow___closed__1;
+x_1 = l_Int_pow___closed__1;
 x_2 = l___private_Lean_ReducibilityAttrs_0__Lean_reprReducibilityStatus____x40_Lean_ReducibilityAttrs___hyg_11____closed__8;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -407,7 +407,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_reprReducib
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_Int_pow___closed__1;
+x_1 = l_Int_pow___closed__1;
 x_2 = l___private_Lean_ReducibilityAttrs_0__Lean_reprReducibilityStatus____x40_Lean_ReducibilityAttrs___hyg_11____closed__14;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

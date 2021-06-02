@@ -10,7 +10,7 @@ def execCmd (args : IO.Process.SpawnArgs) : IO Unit := do
   let cmdstr := " ".intercalate (args.cmd :: args.args.toList)
   IO.eprintln <| "> " ++ envstr ++
     match args.cwd with
-    | some cwd => cmdstr ++ "    # in directory " ++ cwd
+    | some cwd => s!"{cmdstr}    # in directory {cwd}"
     | none     => cmdstr
   let child ← IO.Process.spawn args
   let exitCode ← child.wait

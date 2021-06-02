@@ -5,6 +5,9 @@ Authors: Gabriel Ebner, Sebastian Ullrich
 -/
 import Leanpkg.Resolve
 import Leanpkg.Git
+import Leanpkg.Build
+
+open System
 
 namespace Leanpkg
 
@@ -15,10 +18,10 @@ def readManifest : IO Manifest := do
        ++ ", but package requires " ++ m.leanVersion ++ "\n"
   return m
 
-def writeManifest (manifest : Lean.Syntax) (fn : String) : IO Unit := do
+def writeManifest (manifest : Lean.Syntax) (fn : FilePath) : IO Unit := do
   IO.FS.writeFile fn manifest.reprint.get!
 
-def lockFileName := ".leanpkg-lock"
+def lockFileName : System.FilePath := ⟨".leanpkg-lock"⟩
 
 partial def withLockFile (x : IO α) : IO α := do
   acquire
@@ -36,7 +39,7 @@ partial def withLockFile (x : IO α) : IO α := do
           -- `x` mode doesn't seem to work on Windows even though it's listed at
           -- https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/fopen-wfopen?view=msvc-160
           -- ...? Let's use the slightly racy approach then.
-          if ← IO.fileExists lockFileName then
+          if ← lockFileName.pathExists then
             throw <| IO.Error.alreadyExists 0 ""
           discard <| IO.Prim.Handle.mk lockFileName "w"
       catch
@@ -47,56 +50,76 @@ partial def withLockFile (x : IO α) : IO α := do
           acquire (firstTime := false)
         | e => throw e
 
+def getRootPart (pkg : FilePath := ".") : IO Lean.Name := do
+  let entries ← pkg.readDir
+  match entries.filter (FilePath.extension ·.fileName == "lean") with
+  | #[rootFile] => FilePath.withExtension rootFile.fileName "" |>.toString
+  | #[]         => throw <| IO.userError s!"no '.lean' file found in {← IO.realPath "."}"
+  | _           => throw <| IO.userError s!"{← IO.realPath "."} must contain a unique '.lean' file as the package root"
+
 structure Configuration :=
   leanPath    : String
   leanSrcPath : String
+  moreDeps    : List FilePath
 
 def configure : IO Configuration := do
   let d ← readManifest
   IO.eprintln $ "configuring " ++ d.name ++ " " ++ d.version
   let assg ← solveDeps d
   let paths ← constructPath assg
+  let mut moreDeps := [leanpkgTomlFn]
   for path in paths do
-    unless path == "./." do
+    unless path == FilePath.mk "." / "." do
       -- build recursively
       -- TODO: share build of common dependencies
       execCmd {
-        cmd := (← IO.appPath)
+        cmd := (← IO.appPath).toString
         cwd := path
         args := #["build"]
       }
-  let sep := System.FilePath.searchPathSeparator.toString
+      moreDeps := (path / Build.buildPath / (← getRootPart path).toString |>.withExtension "olean") :: moreDeps
   return {
-    leanPath    := sep.intercalate <| paths.map (· ++ "/build")
-    leanSrcPath := sep.intercalate paths
+    leanPath    := SearchPath.toString <| paths.map (· / Build.buildPath)
+    leanSrcPath := SearchPath.toString paths
+    moreDeps
   }
 
-def execMake (makeArgs leanArgs : List String) (leanPath : String) : IO Unit := withLockFile do
+def execMake (makeArgs : List String) (cfg : Build.Config) : IO Unit := withLockFile do
   let manifest ← readManifest
-  let leanArgs := (match manifest.timeout with | some t => ["-T", toString t] | none => []) ++ leanArgs
+  let leanArgs := (match manifest.timeout with | some t => ["-T", toString t] | none => []) ++ cfg.leanArgs
   let mut spawnArgs := {
     cmd := "sh"
     cwd := manifest.effectivePath
-    args := #["-c", s!"\"{← IO.appDir}/leanmake\" LEAN_OPTS=\"{" ".intercalate leanArgs}\" LEAN_PATH=\"{leanPath}\" {" ".intercalate makeArgs} >&2"]
+    args := #["-c", s!"\"{← IO.appDir}/leanmake\" PKG={cfg.pkg} LEAN_OPTS=\"{" ".intercalate leanArgs}\" LEAN_PATH=\"{cfg.leanPath}\" {" ".intercalate makeArgs} MORE_DEPS+=\"{" ".intercalate (cfg.moreDeps.map toString)}\" >&2"]
   }
   execCmd spawnArgs
 
 def buildImports (imports : List String) (leanArgs : List String) : IO Unit := do
-  unless (← IO.fileExists leanpkgTomlFn) do
+  unless ← leanpkgTomlFn.pathExists do
     return
   let manifest ← readManifest
   let cfg ← configure
   let imports := imports.map (·.toName)
-  -- TODO: shoddy check
-  let localImports := imports.filter fun i => i.getRoot.toString.toLower == manifest.name.toLower
+  let root ← getRootPart
+  let localImports := imports.filter (·.getRoot == root)
   if localImports != [] then
-    let oleans := localImports.map fun i => s!"\"build{Lean.modPathToFilePath i}.olean\""
-    execMake oleans leanArgs cfg.leanPath
+    let buildCfg : Build.Config := { pkg := root, leanArgs, leanPath := cfg.leanPath, moreDeps := cfg.moreDeps }
+    if ← FilePath.pathExists "Makefile" then
+      let oleans := localImports.map fun i => Lean.modToFilePath "build" i "olean" |>.toString
+      execMake oleans buildCfg
+    else
+      Build.buildModules buildCfg localImports
   IO.println cfg.leanPath
   IO.println cfg.leanSrcPath
 
 def build (makeArgs leanArgs : List String) : IO Unit := do
-  execMake makeArgs leanArgs (← configure).leanPath
+  let cfg ← configure
+  let root ← getRootPart
+  let buildCfg : Build.Config := { pkg := root, leanArgs, leanPath := cfg.leanPath, moreDeps := cfg.moreDeps }
+  if makeArgs != [] || (← FilePath.pathExists "Makefile") then
+    execMake makeArgs buildCfg
+  else
+    Build.buildModules buildCfg [root]
 
 def initGitignoreContents :=
   "/build
@@ -108,13 +131,12 @@ name = \"{n}\"
 version = \"0.1\"
 lean_version = \"{leanVersionString}\"
 "
-  IO.FS.writeFile s!"{n.capitalize}.lean" "def main : IO Unit :=
+  IO.FS.writeFile ⟨s!"{n.capitalize}.lean"⟩ "def main : IO Unit :=
   IO.println \"Hello, world!\"
 "
-  let h ← IO.FS.Handle.mk ".gitignore" IO.FS.Mode.append (bin := false)
+  let h ← IO.FS.Handle.mk ⟨".gitignore"⟩ IO.FS.Mode.append (bin := false)
   h.putStr initGitignoreContents
-  let gitEx ← IO.isDir ".git"
-  unless gitEx do
+  unless ← System.FilePath.isDir ⟨".git"⟩ do
     (do
       execCmd {cmd := "git", args := #["init", "-q"]}
       unless upstreamGitBranch = "master" do
@@ -195,7 +217,12 @@ def splitCmdlineArgs : List String → IO (String × List String × List String)
 
 end Leanpkg
 
-def main (args : List String) : IO Unit := do
-  Lean.initSearchPath none  -- HACK
-  let (cmd, outerArgs, innerArgs) ← Leanpkg.splitCmdlineArgs args
-  Leanpkg.main cmd outerArgs innerArgs
+def main (args : List String) : IO UInt32 := do
+  try
+    Lean.initSearchPath none  -- HACK
+    let (cmd, outerArgs, innerArgs) ← Leanpkg.splitCmdlineArgs args
+    Leanpkg.main cmd outerArgs innerArgs
+    pure 0
+  catch e =>
+    IO.eprintln e  -- avoid "uncaught exception: ..."
+    pure 1

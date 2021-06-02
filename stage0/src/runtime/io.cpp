@@ -2,7 +2,7 @@
 Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura
+Authors: Leonardo de Moura, Sebastian Ullrich
 */
 #if defined(LEAN_WINDOWS)
 #include <windows.h>
@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #ifndef LEAN_WINDOWS
 #include <csignal>
 #endif
+#include <dirent.h>
 #include <fcntl.h>
 #include <iostream>
 #include <chrono>
@@ -453,19 +454,98 @@ extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg) {
 #endif
 }
 
-extern "C" obj_res lean_io_is_dir(b_obj_arg fname, obj_arg) {
-    struct stat st;
-    if (stat(string_cstr(fname), &st) == 0) {
-        bool b = S_ISDIR(st.st_mode);
-        return io_result_mk_ok(box(b));
-    } else {
-        return io_result_mk_ok(box(0));
+/*
+structure DirEntry where
+  root     : String
+  filename : String
+
+constant readDir : @& FilePath → IO (Array DirEntry)
+*/
+extern "C" obj_res lean_io_read_dir(b_obj_arg dirname, obj_arg) {
+    object * arr = array_mk_empty();
+    DIR * dp = opendir(string_cstr(dirname));
+    if (!dp) {
+        return io_result_mk_error(decode_io_error(errno, dirname));
     }
+    while (dirent * entry = readdir(dp)) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+        object * lentry = alloc_cnstr(0, 2, 0);
+        lean_inc(dirname);
+        cnstr_set(lentry, 0, dirname);
+        cnstr_set(lentry, 1, lean_mk_string(entry->d_name));
+        arr = lean_array_push(arr, lentry);
+    }
+    lean_always_assert(closedir(dp) == 0);
+    return io_result_mk_ok(arr);
 }
 
-extern "C" obj_res lean_io_file_exists(b_obj_arg fname, obj_arg) {
-    bool b = !!std::ifstream(string_cstr(fname));
-    return io_result_mk_ok(box(b));
+/*
+inductive FileType where
+  | dir
+  | file
+  | symlink
+  | other
+
+structure SystemTime where
+  sec  : Int
+  nsec : UInt32
+
+structure Metadata where
+  --permissions : ...
+  accessed : SystemTime
+  modified : SystemTime
+  byteSize : UInt64
+  type     : FileType
+
+constant metadata : @& FilePath → IO IO.FS.Metadata
+*/
+static obj_res timespec_to_obj(timespec const & ts) {
+    object * o = alloc_cnstr(0, 1, sizeof(uint32));
+    cnstr_set(o, 0, lean_int64_to_int(ts.tv_sec));
+    cnstr_set_uint32(o, sizeof(object *), ts.tv_nsec);
+    return o;
+}
+
+extern "C" obj_res lean_io_metadata(b_obj_arg fname, obj_arg) {
+    struct stat st;
+    if (stat(string_cstr(fname), &st) != 0) {
+        return io_result_mk_error(decode_io_error(errno, fname));
+    }
+    object * mdata = alloc_cnstr(0, 2, sizeof(uint64) + sizeof(uint8));
+#ifdef __APPLE__
+    cnstr_set(mdata, 0, timespec_to_obj(st.st_atimespec));
+    cnstr_set(mdata, 1, timespec_to_obj(st.st_mtimespec));
+#elif defined(LEAN_WINDOWS)
+    // TOOD: sub-second precision on Windows
+    cnstr_set(mdata, 0, timespec_to_obj(timespec { st.st_atime, 0 }));
+    cnstr_set(mdata, 1, timespec_to_obj(timespec { st.st_mtime, 0 }));
+#else
+    cnstr_set(mdata, 0, timespec_to_obj(st.st_atim));
+    cnstr_set(mdata, 1, timespec_to_obj(st.st_mtim));
+#endif
+    cnstr_set_uint64(mdata, 2 * sizeof(object *), st.st_size);
+    cnstr_set_uint8(mdata, 2 * sizeof(object *) + sizeof(uint64),
+                    S_ISDIR(st.st_mode) ? 0 :
+                    S_ISREG(st.st_mode) ? 1 :
+#ifndef LEAN_WINDOWS
+                    S_ISLNK(st.st_mode) ? 2 :
+#endif
+                    3);
+    return io_result_mk_ok(mdata);
+}
+
+extern "C" obj_res lean_io_create_dir(b_obj_arg p, obj_arg) {
+#ifdef LEAN_WINDOWS
+    if (mkdir(string_cstr(p)) == 0) {
+#else
+    if (mkdir(string_cstr(p), 0777) == 0) {
+#endif
+        return io_result_mk_ok(box(0));
+    } else {
+        return io_result_mk_error(decode_io_error(errno, p));
+    }
 }
 
 extern "C" obj_res lean_io_remove_file(b_obj_arg fname, obj_arg) {
@@ -708,7 +788,7 @@ extern "C" obj_res lean_io_wait(obj_arg t, obj_arg) {
     return io_result_mk_ok(lean_task_get_own(t));
 }
 
-extern "C" obj_res lean_io_wait_any(b_obj_arg task_list) {
+extern "C" obj_res lean_io_wait_any(b_obj_arg task_list, obj_arg) {
     object * t = lean_io_wait_any_core(task_list);
     object * v = lean_task_get(t);
     lean_inc(v);

@@ -11,72 +11,73 @@ with a directory `A/`. `import A` resolves to `path/A.olean`.
 import Lean.Data.Name
 
 namespace Lean
-open System.FilePath (pathSeparator extSeparator)
-private def pathSep : String := toString pathSeparator
+open System
 
-def realPathNormalized (fname : String) : IO String := do
-  let fname ← IO.realPath fname
-  pure (System.FilePath.normalizePath fname)
+def realPathNormalized (p : FilePath) : IO FilePath := do
+  (← IO.realPath p).normalize
 
-def modPathToFilePath : Name → String
-  | Name.str p h _              => modPathToFilePath p ++ pathSep ++ h
-  | Name.anonymous              => ""
-  | Name.num p _ _              => panic! "ill-formed import"
+def modToFilePath (base : FilePath) (mod : Name) (ext : String) : FilePath :=
+  go mod |>.withExtension ext
+where
+  go : Name → FilePath
+  | Name.str p h _ => go p / h
+  | Name.anonymous => base
+  | Name.num p _ _ => panic! "ill-formed import"
 
-abbrev SearchPath := List String
+/-- A `.olean' search path. -/
+abbrev SearchPath := System.SearchPath
 
 namespace SearchPath
 
 /-- If the package of `mod` can be found in `sp`, return the path with extension
-`ext` (`.lean` or `.olean`) corresponding to `mod`. Otherwise, return `none.` -/
-def findWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option String) := do
+`ext` (`lean` or `olean`) corresponding to `mod`. Otherwise, return `none.` -/
+def findWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FilePath) := do
   let pkg := mod.getRoot.toString
-  let root? ← sp.findM? (fun path =>
-    IO.isDir s!"{path}{pathSep}{pkg}" <||> IO.fileExists s!"{path}{pathSep}{pkg}{ext}")
-  return root?.map (· ++ modPathToFilePath mod ++ ext)
+  let root? ← sp.findM? fun p =>
+    (p / pkg).isDir <||> ((p / pkg).withExtension ext).pathExists
+  return root?.map (modToFilePath · mod ext)
 
 end SearchPath
 
 builtin_initialize searchPathRef : IO.Ref SearchPath ← IO.mkRef {}
-
-def parseSearchPath (path : String) (sp : SearchPath := ∅) : SearchPath :=
-  System.FilePath.splitSearchPath path ++ sp
 
 @[extern c inline "LEAN_IS_STAGE0"]
 private constant isStage0 (u : Unit) : Bool
 
 def getBuiltinSearchPath : IO SearchPath := do
   let appDir ← IO.appDir
+  let mut buildDir := appDir / ".."
   -- use stage1 stdlib with stage0 executable (which should never be distributed outside of the build directory)
-  pure [appDir ++ pathSep ++ ".." ++ (if isStage0 () then pathSep ++ ".." ++ pathSep ++ "stage1" else "") ++ pathSep ++ "lib" ++ pathSep ++ "lean"]
+  if isStage0 () then
+    buildDir := buildDir / ".." / "stage1"
+  [buildDir / "lib" / "lean"]
 
 def addSearchPathFromEnv (sp : SearchPath) : IO SearchPath := do
   let val ← IO.getEnv "LEAN_PATH"
   match val with
   | none     => pure sp
-  | some val => parseSearchPath val sp
+  | some val => pure <| SearchPath.parse val ++ sp
 
 @[export lean_init_search_path]
 def initSearchPath (path : Option String := none) : IO Unit :=
   match path with
-  | some path => searchPathRef.set <| parseSearchPath path
+  | some path => searchPathRef.set <| SearchPath.parse path
   | none      => do
     let sp ← getBuiltinSearchPath
     let sp ← addSearchPathFromEnv sp
     searchPathRef.set sp
 
-partial def findOLean (mod : Name) : IO String := do
+partial def findOLean (mod : Name) : IO FilePath := do
   let sp ← searchPathRef.get
-  if let some fname ← sp.findWithExt ".olean" mod then
+  if let some fname ← sp.findWithExt "olean" mod then
     return fname
   else
-    let pkg := mod.getRoot
+    let pkg := FilePath.mk mod.getRoot.toString
     let mut msg := s!"unknown package '{pkg}'"
     let rec maybeThisOne dir := do
-      let pkgdir := s!"{dir}{pathSep}{pkg}"
-      if ← IO.fileExists pkgdir then
+      if ← (pkg / dir).isDir then
         return some s!"\nYou might need to open '{dir}' as a workspace in your editor"
-      if let some dir ← System.FilePath.parent dir then
+      if let some dir ← dir.parent then
         maybeThisOne dir
       else
        return none
@@ -86,22 +87,20 @@ partial def findOLean (mod : Name) : IO String := do
 
 /-- Infer module name of source file name. -/
 @[export lean_module_name_of_file]
-def moduleNameOfFileName (fname : String) (rootDir : Option String) : IO Name := do
-  let fname ← realPathNormalized fname
+def moduleNameOfFileName (fname : FilePath) (rootDir : Option FilePath) : IO Name := do
+  let fname ← IO.realPath fname
   let rootDir ← match rootDir with
     | some rootDir => pure rootDir
     | none         => IO.currentDir
-  let rootDir ← realPathNormalized rootDir
-  if !rootDir.isPrefixOf fname then
+  let mut rootDir ← realPathNormalized rootDir
+  if !rootDir.toString.endsWith System.FilePath.pathSeparator.toString then
+    rootDir := ⟨rootDir.toString ++ System.FilePath.pathSeparator.toString⟩
+  if !rootDir.toString.isPrefixOf fname.normalize.toString then
     throw $ IO.userError s!"input file '{fname}' must be contained in root directory ({rootDir})"
-  let fnameSuffix := fname.drop rootDir.length
-  let fnameSuffix := if fnameSuffix.get 0 == pathSeparator then fnameSuffix.drop 1 else fnameSuffix
-  let some extPos ← pure (fnameSuffix.revPosOf '.')
-    | throw (IO.userError ("failed to convert file name '" ++ fname ++ "' to module name, extension is missing"))
-  let modNameStr := fnameSuffix.extract 0 extPos
-  let extStr     := fnameSuffix.extract (extPos + 1) fnameSuffix.bsize
-  let parts      := modNameStr.splitOn pathSep
-  let modName    := parts.foldl Name.mkStr Name.anonymous
+  -- NOTE: use `fname` instead of `fname.normalize` to preserve casing on all platforms
+  let fnameSuffix := fname.toString.drop rootDir.toString.length
+  let modNameStr := FilePath.mk fnameSuffix |>.withExtension ""
+  let modName    := modNameStr.components.foldl Name.mkStr Name.anonymous
   pure modName
 
 end Lean

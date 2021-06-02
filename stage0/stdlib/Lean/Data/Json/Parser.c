@@ -52,7 +52,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Json_Parser_anyCore(lean_object*);
 lean_object* l_Lean_Quickparse_instMonadQuickparse___closed__2;
 lean_object* l_Lean_Json_Parser_escapedChar___boxed__const__6;
-extern lean_object* l_Int_Int_pow___closed__1;
 lean_object* l_Lean_Json_Parser_escapedChar___boxed__const__2;
 lean_object* l_Lean_Quickparse_expect(lean_object*, lean_object*);
 lean_object* l_Lean_Json_Parser_anyCore___rarg___closed__6;
@@ -169,6 +168,7 @@ lean_object* l_Lean_Json_Parser_escapedChar_match__1___rarg___boxed(lean_object*
 lean_object* l_Lean_Json_Parser_natNonZero(lean_object*);
 lean_object* l_Lean_Json_Parser_num___lambda__5___closed__2___boxed__const__1;
 lean_object* l_Lean_Quickparse_pure___rarg(lean_object*, lean_object*);
+extern lean_object* l_Int_pow___closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Char_ofNat(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -3555,7 +3555,7 @@ x_8 = x_5 == x_7;
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
-x_9 = l_Int_Int_pow___closed__1;
+x_9 = l_Int_pow___closed__1;
 x_10 = lean_apply_2(x_6, x_9, x_1);
 return x_10;
 }

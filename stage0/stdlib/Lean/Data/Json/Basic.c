@@ -53,7 +53,6 @@ extern lean_object* l_instReprProd___rarg___closed__1;
 lean_object* l___private_Init_Data_String_Basic_0__Substring_nextn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_lt_match__2___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-extern lean_object* l_Int_Int_pow___closed__1;
 lean_object* l_Lean_Json_getObj_x3f_match__1(lean_object*);
 lean_object* l_Int_repr(lean_object*);
 lean_object* l_Lean_JsonNumber_shiftl_match__1(lean_object*);
@@ -94,6 +93,7 @@ lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_
 lean_object* l_Lean_Json_getNat_x3f___boxed(lean_object*);
 lean_object* l___private_Init_Data_String_Basic_0__Substring_takeRightWhileAux___at_Lean_JsonNumber_toString___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_normalize(lean_object*);
+lean_object* l_Int_pow(lean_object*, lean_object*);
 lean_object* l_Lean_Json_instCoeIntJson(lean_object*);
 uint8_t l_Lean_JsonNumber_instOrdJsonNumber(lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_ltProp;
@@ -172,7 +172,6 @@ uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjVal_x3f(lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at_Lean_JsonNumber_normalize___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_isNull_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Int_Int_pow(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjVal_x3f___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_JsonNumber_instCoeNatJsonNumber;
@@ -180,6 +179,7 @@ lean_object* l_Lean_JsonNumber_instDecidableLt___boxed(lean_object*, lean_object
 lean_object* l_Lean_JsonNumber_instCoeNatJsonNumber___closed__1;
 extern lean_object* l_Lean_Parser_Tactic_tactic_xb7_x2e_____closed__5;
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
+extern lean_object* l_Int_pow___closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Json_Basic_0__Lean_decEqJsonNumber____x40_Lean_Data_Json_Basic___hyg_22____boxed(lean_object*, lean_object*);
@@ -433,7 +433,7 @@ static lean_object* _init_l_Lean_JsonNumber_normalize___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Int_Int_pow___closed__1;
+x_1 = l_Int_pow___closed__1;
 x_2 = lean_int_neg(x_1);
 return x_2;
 }
@@ -513,7 +513,7 @@ return x_19;
 else
 {
 lean_object* x_20; lean_object* x_21; 
-x_20 = l_Int_Int_pow___closed__1;
+x_20 = l_Int_pow___closed__1;
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_17);
@@ -643,7 +643,7 @@ if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; 
 lean_dec(x_3);
-x_17 = l_Int_Int_pow___closed__1;
+x_17 = l_Int_pow___closed__1;
 lean_ctor_set(x_1, 0, x_17);
 x_18 = lean_apply_1(x_4, x_1);
 return x_18;
@@ -661,7 +661,7 @@ if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; 
 lean_dec(x_3);
-x_23 = l_Int_Int_pow___closed__1;
+x_23 = l_Int_pow___closed__1;
 lean_ctor_set(x_1, 0, x_23);
 x_24 = lean_apply_1(x_4, x_1);
 return x_24;
@@ -687,7 +687,7 @@ if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 lean_dec(x_3);
-x_28 = l_Int_Int_pow___closed__1;
+x_28 = l_Int_pow___closed__1;
 x_29 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_29, 0, x_28);
 lean_ctor_set(x_29, 1, x_6);
@@ -707,7 +707,7 @@ if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 lean_dec(x_3);
-x_35 = l_Int_Int_pow___closed__1;
+x_35 = l_Int_pow___closed__1;
 x_36 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set(x_36, 1, x_6);
@@ -3135,7 +3135,7 @@ x_24 = lean_nat_sub(x_3, x_23);
 lean_dec(x_23);
 lean_dec(x_3);
 x_25 = l_Lean_JsonNumber_toString___closed__1;
-x_26 = l_Int_Int_pow(x_25, x_24);
+x_26 = l_Int_pow(x_25, x_24);
 lean_dec(x_24);
 x_27 = lean_int_div(x_17, x_26);
 x_28 = l_Int_repr(x_27);

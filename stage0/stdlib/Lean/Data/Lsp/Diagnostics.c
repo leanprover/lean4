@@ -81,7 +81,6 @@ lean_object* l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_beqPublishDiagnos
 lean_object* l_Lean_Lsp_instToJsonDiagnosticSeverity___closed__10;
 lean_object* l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonLocation____x40_Lean_Data_Lsp_Basic___hyg_611_(lean_object*);
 lean_object* l_Lean_Lsp_instFromJsonDiagnosticSeverity(lean_object*);
-extern lean_object* l_Int_Int_pow___closed__1;
 lean_object* l_Lean_Lsp_instFromJsonDiagnosticRelatedInformation;
 extern lean_object* l_Lean_JsonRpc_instToJsonMessage___closed__10;
 lean_object* l_Lean_Json_opt___at___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJsonDiagnostic____x40_Lean_Data_Lsp_Diagnostics___hyg_794____spec__5(lean_object*, lean_object*);
@@ -255,6 +254,7 @@ lean_object* l_Lean_Lsp_instFromJsonDiagnosticSeverity_match__1___rarg(lean_obje
 lean_object* l_Lean_Lsp_instFromJsonDiagnosticSeverity_match__1(lean_object*);
 lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671____at___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_beqDiagnostic____x40_Lean_Data_Lsp_Diagnostics___hyg_649____spec__6___boxed(lean_object*, lean_object*);
 uint8_t l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_beqPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1026_(lean_object*, lean_object*);
+extern lean_object* l_Int_pow___closed__1;
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1139____spec__3(size_t, size_t, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -808,7 +808,7 @@ static lean_object* _init_l_Lean_Lsp_instToJsonDiagnosticSeverity___closed__1() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_Int_pow___closed__1;
+x_1 = l_Int_pow___closed__1;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

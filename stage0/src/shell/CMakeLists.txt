@@ -139,4 +139,11 @@ ENDFOREACH(T)
 
 add_test(NAME leanpkgtest
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/b"
-         COMMAND bash -c "PATH=${LEAN_BIN}:$PATH leanpkg build")
+         COMMAND bash -c "
+           set -eu
+           export PATH=${LEAN_BIN}:$PATH
+           leanpkg build
+           # linking requires some manual steps
+           (cd ../a; leanpkg build lib)
+           leanpkg build bin LINK_OPTS=../a/build/lib/libA.a
+           ./build/bin/B")

@@ -287,6 +287,7 @@ lean_object* l_Lean_Macro_instMonadQuotationMacroM___lambda__2(lean_object*, lea
 lean_object* l_namedPattern___rarg(lean_object*);
 lean_object* l_instSubNat___closed__1;
 uint8_t l_not(uint8_t);
+lean_object* l_min(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isIdent_match__1(lean_object*);
 uint32_t l_Char_utf8Size___closed__3;
 lean_object* l_instMonadStateOf(lean_object*, lean_object*, lean_object*);
@@ -330,6 +331,7 @@ lean_object* l_EStateM_modifyGet___rarg(lean_object*, lean_object*);
 lean_object* l_mixHash___boxed(lean_object*, lean_object*);
 uint8_t l_instDecidableEqList___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_map(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_mixUSizeHash___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId___boxed(lean_object*);
 lean_object* l_instMonadWithReaderOfReaderT___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Macro_instInhabitedMethods___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -491,6 +493,7 @@ uint16_t lean_uint16_of_nat_mk(lean_object*);
 lean_object* l___private_Init_Prelude_0__Lean_assembleParts_match__1(lean_object*);
 lean_object* l_Lean_Syntax_setKind_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Prelude_0__Lean_assembleParts(lean_object*, lean_object*);
+lean_object* l_min___boxed(lean_object*, lean_object*);
 lean_object* l_EStateM_instOrElseEStateM(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_instDecidableEqFin___rarg(lean_object*, lean_object*);
 uint8_t l_Fin_decLt___rarg(lean_object*, lean_object*);
@@ -614,6 +617,7 @@ lean_object* l_Lean_Syntax_getHeadInfo_x3f___boxed(lean_object*);
 lean_object* l_String_utf8ByteSize_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_EStateM_instMonadEStateM___closed__6;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+lean_object* l_max(lean_object*, lean_object*);
 lean_object* l_Lean_Macro_withIncRecDepth(lean_object*);
 lean_object* l_Lean_Name_append_match__1(lean_object*);
 lean_object* l_and_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -680,6 +684,7 @@ lean_object* l_Lean_Macro_getMethodsImp(lean_object*, lean_object*);
 lean_object* l_Lean_Name_hasMacroScopes___closed__1;
 lean_object* l_Lean_instMonadQuotation___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
+lean_object* l_max___boxed(lean_object*, lean_object*);
 lean_object* l_throwThe___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_UInt32_decEq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -813,6 +818,7 @@ lean_object* l_Lean_Macro_instInhabitedMethodsRef___closed__1;
 lean_object* l_Eq_ndrec___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_getPos_x3f(lean_object*, uint8_t);
 lean_object* lean_simp_macro_scopes(lean_object*);
+lean_object* l_max___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getTailPos_x3f_loop_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__3;
 lean_object* l_EStateM_bind(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -862,6 +868,7 @@ lean_object* l_UInt64_size;
 lean_object* l_Monad_seqRight___default(lean_object*);
 lean_object* l_USize_ofNat32___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_hash___boxed(lean_object*);
+size_t lean_usize_mix_hash(size_t, size_t);
 lean_object* l_instHPow___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_defaultMaxRecDepth;
 lean_object* l_Applicative_seqLeft___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -904,6 +911,7 @@ lean_object* l_instMonadWithReaderOfReaderT(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Macro_Context_maxRecDepth___default;
 lean_object* l_instDecidableAnd_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHAdd(lean_object*);
+lean_object* l_min___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Prelude_0__Lean_extractMacroScopesAux___closed__1;
 lean_object* l_List_toArrayAux_match__1(lean_object*, lean_object*);
 lean_object* l_unsafeCast___boxed(lean_object*, lean_object*, lean_object*);
@@ -1910,6 +1918,82 @@ lean_object* x_2;
 x_2 = l_instOfNatNat(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+lean_object* l_max___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+lean_inc(x_2);
+lean_inc(x_3);
+x_4 = lean_apply_2(x_1, x_3, x_2);
+x_5 = lean_unbox(x_4);
+lean_dec(x_4);
+if (x_5 == 0)
+{
+lean_dec(x_2);
+return x_3;
+}
+else
+{
+lean_dec(x_3);
+return x_2;
+}
+}
+}
+lean_object* l_max(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_max___rarg), 3, 0);
+return x_3;
+}
+}
+lean_object* l_max___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_max(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+lean_object* l_min___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+lean_inc(x_3);
+lean_inc(x_2);
+x_4 = lean_apply_2(x_1, x_2, x_3);
+x_5 = lean_unbox(x_4);
+lean_dec(x_4);
+if (x_5 == 0)
+{
+lean_dec(x_2);
+return x_3;
+}
+else
+{
+lean_dec(x_3);
+return x_2;
+}
+}
+}
+lean_object* l_min(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_min___rarg), 3, 0);
+return x_3;
+}
+}
+lean_object* l_min___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_min(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 lean_object* l_instHAdd___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -7640,6 +7724,19 @@ _start:
 lean_object* x_2; 
 x_2 = l_EStateM_nonBacktrackable___closed__3;
 return x_2;
+}
+}
+lean_object* l_mixUSizeHash___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+size_t x_3; size_t x_4; size_t x_5; lean_object* x_6; 
+x_3 = lean_unbox_usize(x_1);
+lean_dec(x_1);
+x_4 = lean_unbox_usize(x_2);
+lean_dec(x_2);
+x_5 = lean_usize_mix_hash(x_3, x_4);
+x_6 = lean_box_usize(x_5);
+return x_6;
 }
 }
 lean_object* l_mixHash___boxed(lean_object* x_1, lean_object* x_2) {

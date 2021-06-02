@@ -1471,6 +1471,10 @@ extern "C" uint64 lean_uint64_big_modn(uint64 a1, b_lean_obj_arg) {
     return a1;
 }
 
+extern "C" uint64 lean_uint64_mix_hash(uint64 a1, uint64 a2) {
+  return hash(a1, a2);
+}
+
 extern "C" usize lean_usize_of_big_nat(b_obj_arg a) {
     return mpz_value(a).get_size_t();
 }

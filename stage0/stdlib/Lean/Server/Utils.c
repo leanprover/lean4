@@ -24,6 +24,7 @@ lean_object* l_IO_FS_Stream_writeLspNotification___at_Lean_Server_publishDiagnos
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Server_foldDocumentChanges_match__1(lean_object*);
+extern uint8_t l_System_FilePath_isCaseInsensitive;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_IO_FS_Stream_withPrefix___elambda__4(lean_object*, size_t, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_publishMessages___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -71,9 +72,9 @@ lean_object* l_IO_FS_Stream_chainLeft___elambda__2(lean_object*, lean_object*);
 extern lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop_match__2___rarg___closed__1;
 lean_object* l_List_takeWhile_match__1(lean_object*, lean_object*);
 lean_object* l_IO_Prim_fopenFlags(uint8_t, uint8_t);
-lean_object* l_System_FilePath_normalizePath(lean_object*);
 lean_object* l_IO_FS_Stream_writeLspMessage(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_chainLeft___elambda__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_System_FilePath_normalize(lean_object*, uint8_t);
 lean_object* l_IO_FS_Stream_chainRight___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_publishMessages___spec__4(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Server_publishDiagnostics___spec__2(lean_object*);
@@ -1529,32 +1530,33 @@ return x_1;
 lean_object* l_Lean_Server_toFileUri(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint8_t x_3; 
-x_2 = l_System_FilePath_normalizePath(x_1);
-x_3 = l_System_Platform_isWindows;
-if (x_3 == 0)
+uint8_t x_2; lean_object* x_3; uint8_t x_4; 
+x_2 = l_System_FilePath_isCaseInsensitive;
+x_3 = l_System_FilePath_normalize(x_1, x_2);
+x_4 = l_System_Platform_isWindows;
+if (x_4 == 0)
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = l_Lean_Server_toFileUri___closed__1;
-x_5 = l_String_dropWhile(x_2, x_4);
-lean_dec(x_2);
-x_6 = l_Lean_Server_toFileUri___closed__2;
-x_7 = lean_string_append(x_6, x_5);
-lean_dec(x_5);
-return x_7;
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_5 = l_Lean_Server_toFileUri___closed__1;
+x_6 = l_String_dropWhile(x_3, x_5);
+lean_dec(x_3);
+x_7 = l_Lean_Server_toFileUri___closed__2;
+x_8 = lean_string_append(x_7, x_6);
+lean_dec(x_6);
+return x_8;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_String_mapAux___at_Lean_Server_toFileUri___spec__1(x_8, x_2);
-x_10 = l_Lean_Server_toFileUri___closed__1;
-x_11 = l_String_dropWhile(x_9, x_10);
-lean_dec(x_9);
-x_12 = l_Lean_Server_toFileUri___closed__2;
-x_13 = lean_string_append(x_12, x_11);
-lean_dec(x_11);
-return x_13;
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_9 = lean_unsigned_to_nat(0u);
+x_10 = l_String_mapAux___at_Lean_Server_toFileUri___spec__1(x_9, x_3);
+x_11 = l_Lean_Server_toFileUri___closed__1;
+x_12 = l_String_dropWhile(x_10, x_11);
+lean_dec(x_10);
+x_13 = l_Lean_Server_toFileUri___closed__2;
+x_14 = lean_string_append(x_13, x_12);
+lean_dec(x_12);
+return x_14;
 }
 }
 }

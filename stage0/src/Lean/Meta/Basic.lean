@@ -56,6 +56,8 @@ structure Config where
   /- When `trackZeta == true`, we store zetaFVarIds all free variables that have been zeta-expanded. -/
   trackZeta          : Bool := false
   unificationHints   : Bool := true
+  /- Enables proof irrelevance at `isDefEq` -/
+  proofIrrelevance   : Bool := true
 
 structure ParamInfo where
   implicit     : Bool      := false
@@ -455,6 +457,9 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 
 @[inline] def withTrackingZeta (x : n α) : n α :=
   withConfig (fun cfg => { cfg with trackZeta := true }) x
+
+@[inline] def withoutProofIrrelevance (x : n α) : n α :=
+  withConfig (fun cfg => { cfg with proofIrrelevance := false }) x
 
 @[inline] def withTransparency (mode : TransparencyMode) : n α → n α :=
   mapMetaM <| withConfig (fun config => { config with transparency := mode })

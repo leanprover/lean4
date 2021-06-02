@@ -69,10 +69,10 @@ partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target :
     | _ => loop
   loop
 
-def runWith (cmd : String) (args : Array String := #[]) (test : IpcM α) : IO α := do
+def runWith (lean : System.FilePath) (args : Array String := #[]) (test : IpcM α) : IO α := do
   let proc ← Process.spawn {
     toStdioConfig := ipcStdioConfig
-    cmd := cmd
+    cmd := lean.toString
     args := args }
   ReaderT.run test proc
 

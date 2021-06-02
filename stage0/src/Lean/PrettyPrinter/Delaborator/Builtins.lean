@@ -200,21 +200,37 @@ where
       x
 
 /-- Skip `numParams` binders, and execute `x varNames` where `varNames` contains the new binder names. -/
-private def skippingBinders {α} (numParams : Nat) (x : Array Name → DelabM α) : DelabM α :=
+private partial def skippingBinders {α} (numParams : Nat) (x : Array Name → DelabM α) : DelabM α :=
   loop numParams #[]
 where
   loop : Nat → Array Name → DelabM α
     | 0,   varNames => x varNames
     | n+1, varNames => do
-      let varName ← (← getExpr).bindingName!.eraseMacroScopes
-      -- Pattern variables cannot shadow each other
-      if varNames.contains varName then
-        let varName := (← getLCtx).getUnusedName varName
-        withBindingBody varName do
-          loop n (varNames.push varName)
+      let rec visitLambda : DelabM α := do
+        let varName ← (← getExpr).bindingName!.eraseMacroScopes
+        -- Pattern variables cannot shadow each other
+        if varNames.contains varName then
+          let varName := (← getLCtx).getUnusedName varName
+          withBindingBody varName do
+            loop n (varNames.push varName)
+        else
+          withBindingBodyUnusedName fun id => do
+            loop n (varNames.push id.getId)
+      let e ← getExpr
+      if e.isLambda then
+        visitLambda
       else
-        withBindingBodyUnusedName fun id => do
-          loop n (varNames.push id.getId)
+        -- eta expand `e`
+        let e ← forallTelescopeReducing (← inferType e) fun xs _ => do
+          if xs.size == 1 && (← inferType xs[0]).isConstOf ``Unit then
+            -- `e` might be a thunk create by the dependent pattern matching compiler, and `xs[0]` may not even be a pattern variable.
+            -- If it is a pattern variable, it doesn't look too bad to use `()` instead of the pattern variable.
+            -- If it becomes a problem in the future, we should modify the dependent pattern matching compiler, and make sure
+            -- it adds an annotation to distinguish these two cases.
+            mkLambdaFVars xs (mkApp e (mkConst ``Unit.unit))
+          else
+            mkLambdaFVars xs (mkAppN e xs)
+        withReader (fun ctx => { ctx with expr := e }) visitLambda
 
 /--
   Delaborate applications of "matchers" such as

@@ -199,7 +199,7 @@ class ll_infer_type_fn {
                 }
                 return *g_bot;
             }
-            throw exception(sstream() << "compiler failed to infer low level type, unknown declaration '" << const_name(e) << "'");
+            throw exception(sstream() << "failed to compile definition, consider marking it as 'noncomputable' because it depends on '" << const_name(e) << "', and it does not have executable code");
         }
     }
 

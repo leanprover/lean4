@@ -6,17 +6,19 @@ Authors: Gabriel Ebner, Sebastian Ullrich
 import Leanpkg.Toml
 import Leanpkg.LeanVersion
 
+open System
+
 namespace Leanpkg
 
 inductive Source where
-  | path (dirName : String) : Source
+  | path (dir : System.FilePath) : Source
   | git (url rev : String) (branch : Option String) : Source
 
 namespace Source
 
 def fromToml (v : Toml.Value) : Option Source :=
-  (do let Toml.Value.str dirName ← v.lookup "path" | none
-      path dirName) <|>
+  (do let Toml.Value.str dir ← v.lookup "path" | none
+      path ⟨dir⟩) <|>
   (do let Toml.Value.str url ← v.lookup "git" | none
       let Toml.Value.str rev ← v.lookup "rev" | none
       match v.lookup "branch" with
@@ -25,7 +27,7 @@ def fromToml (v : Toml.Value) : Option Source :=
       | _ => none)
 
 def toToml : Source → Toml.Value
-  | path dirName => Toml.Value.table [("path", Toml.Value.str dirName)]
+  | path dir => Toml.Value.table [("path", Toml.Value.str dir.toString)]
   | git url rev none =>
     Toml.Value.table [("git", Toml.Value.str url), ("rev", Toml.Value.str rev)]
   | git url rev (some branch) =>
@@ -42,13 +44,13 @@ structure Manifest where
   version : String
   leanVersion : String := leanVersionString
   timeout : Option Nat := none
-  path : Option String := none
+  path : Option FilePath := none
   dependencies : List Dependency := []
 
 namespace Manifest
 
-def effectivePath (m : Manifest) : String :=
-  m.path.getD "."
+def effectivePath (m : Manifest) : FilePath :=
+  m.path.getD ⟨"."⟩
 
 def fromToml (t : Toml.Value) : Option Manifest := OptionM.run do
   let pkg ← t.lookup "package"
@@ -63,7 +65,7 @@ def fromToml (t : Toml.Value) : Option Manifest := OptionM.run do
     | none => some none
     | _ => none
   let path ← match pkg.lookup "path" with
-    | some (Toml.Value.str path) => some (some path)
+    | some (Toml.Value.str path) => some (some ⟨path⟩)
     | none => some none
     | _ => none
   let Toml.Value.table deps ← t.lookup "dependencies" <|> some (Toml.Value.table []) | none
@@ -71,7 +73,7 @@ def fromToml (t : Toml.Value) : Option Manifest := OptionM.run do
   return { name := n, version := ver, leanVersion := leanVer,
            path := path, dependencies := deps, timeout := tm }
 
-def fromFile (fn : String) : IO Manifest := do
+def fromFile (fn : System.FilePath) : IO Manifest := do
   let cnts ← IO.FS.readFile fn
   let toml ← Toml.parse cnts
   let some manifest ← pure (fromToml toml)
@@ -80,6 +82,6 @@ def fromFile (fn : String) : IO Manifest := do
 
 end Manifest
 
-def leanpkgTomlFn := "leanpkg.toml"
+def leanpkgTomlFn : System.FilePath := ⟨"leanpkg.toml"⟩
 
 end Leanpkg

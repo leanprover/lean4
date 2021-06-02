@@ -473,21 +473,30 @@ section MainLoop
         /- We wait `editDelay`ms since last edit before applying the changes. -/
         let applyTime := now + st.editDelay
         let pendingEdit ← fw.groupedEditsRef.modifyGet fun
-          | some ge => (true, some { ge with
+          | some ge => (some ge.queuedMsgs, some { ge with
             applyTime := applyTime
             params.textDocument := p.textDocument
             params.contentChanges := ge.params.contentChanges ++ p.contentChanges
             -- drain now-outdated messages and respond with `contentModified` below
             queuedMsgs := #[] })
-          | none    => (false, some {
+          | none    => (none, some {
             applyTime := applyTime
             params := p
             /- This is overwritten just below. -/
             signalTask := Task.pure WorkerEvent.processGroupedEdits
             queuedMsgs := #[] })
-        if pendingEdit then
-          fw.errorPendingRequests (←read).hOut ErrorCode.contentModified "File changed."
-        else
+        match pendingEdit with
+        | some queuedMsgs =>
+          for msg in queuedMsgs do
+            match msg with
+            | JsonRpc.Message.request id _ _ =>
+              (← read).hOut.writeLspResponseError {
+                id := id
+                code := ErrorCode.contentModified
+                message := "File changed."
+              }
+            | _ => () -- notifications do not need to be cancelled
+        | _ =>
           let t ← fw.runEditsSignalTask
           fw.groupedEditsRef.modify (Option.map fun ge => { ge with signalTask := t } )
         mainLoop (←runClientTask)

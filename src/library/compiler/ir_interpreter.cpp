@@ -827,7 +827,10 @@ private:
             }
         } else {
             if (decl_tag(e.m_decl) == decl_kind::Extern) {
-                throw exception(sstream() << "could not find native implementation of external declaration '" << fn << "'");
+                string_ref mangled = name_mangle(fn, *g_mangle_prefix);
+                string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
+                throw exception(sstream() << "could not find native implementation of external declaration '" << fn
+                                          << "' (symbols '" << boxed_mangled.data() << "' or '" << mangled.data() << "')");
             }
             // evaluate args in old stack frame
             for (const auto & arg : args) {

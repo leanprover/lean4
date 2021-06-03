@@ -13,7 +13,7 @@ namespace Leanpkg2
 
 namespace Source
 
-def fromToml (v : Toml.Value) : Option Source :=
+def fromToml? (v : Toml.Value) : Option Source :=
   (do let Toml.Value.str dir ← v.lookup "path" | none
       path ⟨dir⟩) <|>
   (do let Toml.Value.str url ← v.lookup "git" | none
@@ -34,13 +34,14 @@ end Source
 
 namespace Manifest
 
-def fromToml (t : Toml.Value) : Option Manifest := OptionM.run do
+def fromToml? (t : Toml.Value) : Option Manifest := OptionM.run do
   let pkg ← t.lookup "package"
   let Toml.Value.str name ← pkg.lookup "name" | none
   let Toml.Value.str version ← pkg.lookup "version" | none
-  let module := match pkg.lookup "module" with
+  let module ← match pkg.lookup "module" with
     | some (Toml.Value.str mod) => mod
-    | _ => name.capitalize
+    | none => some name.capitalize
+    | _ => none
   let leanVersion ← match pkg.lookup "lean_version" with
     | some (Toml.Value.str leanVer) => some leanVer
     | none => some leanVersionString
@@ -50,19 +51,23 @@ def fromToml (t : Toml.Value) : Option Manifest := OptionM.run do
     | none => some none
     | _ => none
   let Toml.Value.table deps ← t.lookup "dependencies" <|> some (Toml.Value.table []) | none
-  let dependencies ← deps.mapM fun ⟨n, src⟩ => do Dependency.mk n (← Source.fromToml src)
+  let dependencies ← deps.mapM fun ⟨n, src⟩ => do Dependency.mk n (← Source.fromToml? src)
   return { name, module, version, leanVersion, dependencies, timeout }
 
-def fromTomlFile (fn : System.FilePath) : IO Manifest := do
-  let cnts ← IO.FS.readFile fn
-  let toml ← Toml.parse cnts
-  let some manifest ← pure (fromToml toml)
-    | throw <| IO.userError s!"cannot read manifest from {fn}"
+def fromTomlString? (str : String) : IO (Option Manifest) := do
+  fromToml? (← Toml.parse str)
+
+def fromTomlFile? (path : FilePath) : IO (Option Manifest) := do
+  fromTomlString? (← IO.FS.readFile path)
+
+def fromTomlFile (path : FilePath) : IO Manifest := do
+  let some manifest ← fromTomlFile? path
+    | throw <| IO.userError s!"manifest (at {path}) is ill-formed"
   manifest
 
 end Manifest
 
-def leanpkgToml : System.FilePath := "leanpkg.toml"
+def leanpkgToml : FilePath := "leanpkg.toml"
 
 def readManifest : IO Manifest := do
   let m ← Manifest.fromTomlFile leanpkgToml
@@ -70,6 +75,3 @@ def readManifest : IO Manifest := do
     IO.eprintln $ "\nWARNING: Lean version mismatch: installed version is " ++ leanVersionString
        ++ ", but package requires " ++ m.leanVersion ++ "\n"
   return m
-
-def writeManifest (manifest : Lean.Syntax) (fn : FilePath) : IO Unit := do
-  IO.FS.writeFile fn manifest.reprint.get!

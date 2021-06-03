@@ -42,6 +42,7 @@ def materialize (relPath : FilePath) (dep : Dependency) : IO FilePath :=
 def Assignment := List (String × Package)
 
 namespace Assignment
+
 def empty : Assignment := []
 
 def contains (a : Assignment) (s : String) : Bool :=
@@ -65,7 +66,7 @@ def resolvedPackage (d : String) : Solver Package := do
   pkg
 
 def solveDepsCore
-  (pkgName : String) (relPath : FilePath) (deps : List Dependency)
+(pkgName : String) (relPath : FilePath) (deps : List Dependency)
 : (maxDepth : Nat) → Solver Unit
   | 0 => throw <| IO.userError "maximum dependency resolution depth reached"
   | maxDepth + 1 => do

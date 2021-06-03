@@ -1,15 +1,14 @@
 /-
 Copyright (c) 2021 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Sebastian Ullrich
+Authors: Sebastian Ullrich, Mac Malone
 -/
 import Lean.Data.Name
 import Lean.Elab.Import
 import Leanpkg2.Package
 import Leanpkg2.Proc
 
-open Lean
-open System
+open Lean System
 
 namespace Leanpkg2
 
@@ -22,8 +21,11 @@ structure BuildConfig where
 
 namespace BuildConfig
 
-def fromPackages (module : Name) (leanArgs : List String) (pkgs : List Package) : BuildConfig := {
+def fromPackages
+(module : Name) (leanArgs : List String) (pkgs : List Package)
+: BuildConfig := {
   module, leanArgs,
   leanPath := SearchPath.toString <| pkgs.map (·.buildDir)
-  moreDeps := pkgs.filter (·.dir.toString != ".") |>.map (·.buildRoot.withExtension "olean")
+  moreDeps := pkgs.filter (·.dir.toString != ".") |>.map
+    (·.buildRoot.withExtension "olean")
 }

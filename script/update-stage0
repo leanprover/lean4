@@ -2,7 +2,11 @@
 set -euo pipefail
 
 rm -r stage0 || true
-mkdir -p stage0/
+mkdir -p stage0/stdlib/
+cat <<EOF >> stage0/stdlib/CMakeLists.txt
+set(CMAKE_C_COMPILER_LAUNCHER "env;LEAN_CXX=\${CMAKE_CXX_COMPILER_LAUNCHER} \${CMAKE_CXX_COMPILER}")
+set(CMAKE_C_COMPILER "\${CMAKE_BINARY_DIR}/bin/leanc")
+EOF
 for pkg in Init Std Lean; do
     # ensure deterministic ordering
     c_files="$pkg.c $(cd src; find $pkg -name '*.lean' | sed s/.lean/.c/ | LC_ALL=C sort | tr '\n' ' ')"

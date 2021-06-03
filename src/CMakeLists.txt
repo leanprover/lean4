@@ -72,6 +72,7 @@ set(MINGW_LOCAL_DIR       "C:/msys64/mingw64/bin"      CACHE STRING "where to fi
 
 if ("${FAKE_FREE}" MATCHES "ON")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_FAKE_FREE")
+  set(LEANC_EXTRA_C_FLAGS "${LEANC_EXTRA_C_FLAGS} -D LEAN_FAKE_FREE")
 endif()
 
 if ("${LAZY_RC}" MATCHES "ON")
@@ -112,10 +113,12 @@ endif()
 
 if ("${RUNTIME_STATS}" MATCHES "ON")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_RUNTIME_STATS")
+  set(LEANC_EXTRA_C_FLAGS "${LEANC_EXTRA_C_FLAGS} -D LEAN_RUNTIME_STATS")
 endif()
 
 if (NOT("${CHECK_OLEAN_VERSION}" MATCHES "ON"))
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_IGNORE_OLEAN_VERSION")
+  set(LEANC_EXTRA_C_FLAGS "${LEANC_EXTRA_C_FLAGS} -D LEAN_IGNORE_OLEAN_VERSION")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
@@ -132,10 +135,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     # > The simple and safe thing is to pass all -s flags at both compile and link time.
     set(EMSCRIPTEN_SETTINGS "-s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0 -s MAIN_MODULE=1 -fexceptions")
     set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_EMSCRIPTEN ${EMSCRIPTEN_SETTINGS}")
+    set(LEANC_EXTRA_C_FLAGS "${LEANC_EXTRA_C_FLAGS} -D LEAN_EMSCRIPTEN ${EMSCRIPTEN_SETTINGS}")
     set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} ${EMSCRIPTEN_SETTINGS}")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EMSCRIPTEN_SETTINGS}")
-    set(LEANC_OPTS "${LEANC_OPTS} ${EMSCRIPTEN_SETTINGS}")
-    set(LEANC_GMP "${GMP_INSTALL_PREFIX}/lib/libgmp.a")
 endif()
 if (CMAKE_CROSSCOMPILING_EMULATOR)
   # emscripten likes to quote "node"
@@ -157,7 +158,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} /STACK:${LEAN_WIN_STACK_SIZE}")
   else()
     set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -Wl,--stack,${LEAN_WIN_STACK_SIZE}")
-    set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -Wl,--stack,${LEAN_WIN_STACK_SIZE}")
+    set(LEANC_EXTRA_LINKER_FLAGS "${LEANC_EXTRA_LINKER_FLAGS} -Wl,--stack,${LEAN_WIN_STACK_SIZE}")
     set(EXTRA_UTIL_LIBS ${EXTRA_UTIL_LIBS} -lpsapi)
   endif()
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_WINDOWS -D LEAN_WIN_STACK_SIZE=${LEAN_WIN_STACK_SIZE}")
@@ -170,14 +171,15 @@ endif ()
 
 if(NOT MULTI_THREAD)
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
-  set(LEANC_OPTS "${LEANC_OPTS} -U LEAN_MULTI_THREAD")
   set(AUTO_THREAD_FINALIZATION OFF)
 else()
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_MULTI_THREAD")
+  set(LEANC_EXTRA_C_FLAGS "${LEANC_EXTRA_C_FLAGS} -D LEAN_MULTI_THREAD")
 endif()
 
 if(AUTO_THREAD_FINALIZATION AND NOT MSVC)
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_AUTO_THREAD_FINALIZATION")
+  set(LEANC_EXTRA_C_FLAGS "${LEANC_EXTRA_C_FLAGS} -D LEAN_AUTO_THREAD_FINALIZATION")
 endif()
 
 if(LLVM)
@@ -189,6 +191,7 @@ if(LLVM)
 
   include_directories(${LLVM_INCLUDE_DIRS})
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_LLVM")
+  set(LEANC_EXTRA_C_FLAGS "${LEANC_EXTRA_C_FLAGS} -D LEAN_LLVM")
 
   # Find the libraries that correspond to the LLVM components
   #   that we wish to use and define llvm_libs
@@ -280,6 +283,7 @@ endif ()
 
 if ("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
   include_directories(${GMP_INSTALL_PREFIX}/include)
+  set(GMP_LIBRARIES "${GMP_INSTALL_PREFIX}/lib/libgmp.a")
 else()
   # GMP
   find_package(GMP 5.0.5 REQUIRED)
@@ -312,6 +316,8 @@ include_directories(${CMAKE_BINARY_DIR}/include)
 # the linker flags necessary on other platforms.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean -lnodefs.js")
 else()
   # `-pie` defaulting is not consistent on Linux distributions, so let's default to off
   set(LEANC_STATIC_LINKER_FLAGS "-no-pie -Wl,--start-group -lleancpp -lInit -lStd -lLean -Wl,--end-group")
@@ -333,7 +339,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(LEAN_EXTRA_MAKE_OPTS "-Dcompiler.extract_closed=false")
 else()
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS} -rdynamic")
-  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -ldl")
+  set(LEANC_EXTRA_LINKER_FLAGS "${LEANC_EXTRA_LINKER_FLAGS} -ldl")
 endif()
 
 # Allow `lean` symbols in plugins without linking directly against it. If we linked against the
@@ -343,13 +349,13 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   # import library created by the `lean` target
   set(LEANC_SHARED_LINKER_FLAGS "$bindir/lean.exe.a")
 elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
-  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_EXTRA_FLAGS} -Wl,-undefined,dynamic_lookup")
+  set(LEANC_SHARED_LINKER_FLAGS "-Wl,-undefined,dynamic_lookup")
 endif()
 # Linux ignores undefined symbols in shared libraries by default
 
 if(MULTI_THREAD AND NOT MSVC AND (NOT ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")))
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
-    set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -pthread")
+    set(LEANC_EXTRA_C_FLAGS "${LEANC_EXTRA_C_FLAGS} -pthread")
 endif()
 
 # Git HASH

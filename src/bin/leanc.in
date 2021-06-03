@@ -29,5 +29,4 @@ done
 
 [ -n "$LEAN_CXX" ] || LEAN_CXX=c++
 
-# Note the `-x c` for treating all input as C code
-$LEAN_CXX -D LEAN_MULTI_THREAD "${cflags[@]}" -x c "$@" -x none "${ldflags_ext[@]}" "${ldflags[@]}" -Wno-unused-command-line-argument
+$LEAN_CXX -D LEAN_MULTI_THREAD "${cflags[@]}" "$@" "${ldflags_ext[@]}" "${ldflags[@]}" -Wno-unused-command-line-argument

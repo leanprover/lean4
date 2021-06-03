@@ -120,16 +120,28 @@ endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     set(MULTI_THREAD OFF)
+    # TODO(WN): code size/performance tradeoffs
+    # - we're using -O3; it's /okay/
+    # - -flto crashes at runtime
+    # - -Oz produces quite slow code
+    # - system libraries such as OpenGL are included in the JS but shouldn't be
+    # - we need EMSCRIPTEN_KEEPALIVE annotations on exports to run meta-dce (-s MAIN_MODULE=2)
+    # - -fexceptions is a slow JS blob, remove when more runtimes support the WASM exceptions spec
+
     # From https://emscripten.org/docs/compiling/WebAssembly.html#backends:
     # > The simple and safe thing is to pass all -s flags at both compile and link time.
     set(EMSCRIPTEN_SETTINGS "-s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0 -s MAIN_MODULE=1 -fexceptions")
     set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_EMSCRIPTEN ${EMSCRIPTEN_SETTINGS}")
     set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} ${EMSCRIPTEN_SETTINGS}")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EMSCRIPTEN_SETTINGS}")
+    set(LEANC_OPTS "${LEANC_OPTS} ${EMSCRIPTEN_SETTINGS}")
+    set(LEANC_GMP "${GMP_INSTALL_PREFIX}/lib/libgmp.a")
 endif()
 if (CMAKE_CROSSCOMPILING_EMULATOR)
   # emscripten likes to quote "node"
   string(REPLACE "\"" "" CMAKE_CROSSCOMPILING_EMULATOR ${CMAKE_CROSSCOMPILING_EMULATOR})
+  # HACK(WN): lazy compilation makes Node.js startup time a bad but tolerable ~4s
+  set(CMAKE_CROSSCOMPILING_EMULATOR "${CMAKE_CROSSCOMPILING_EMULATOR} --wasm-lazy-compilation")
 else()
   set(CMAKE_CROSSCOMPILING_EMULATOR)
 endif()
@@ -158,6 +170,7 @@ endif ()
 
 if(NOT MULTI_THREAD)
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
+  set(LEANC_OPTS "${LEANC_OPTS} -U LEAN_MULTI_THREAD")
   set(AUTO_THREAD_FINALIZATION OFF)
 else()
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_MULTI_THREAD")
@@ -421,7 +434,7 @@ if(PREV_STAGE)
   file(RELATIVE_PATH LIB ${LEAN_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
 
   string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
-  set(LEANC_OPTS "${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
+  set(LEANC_OPTS "${LEANC_OPTS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
 
   configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
   add_custom_target(make_stdlib ALL

@@ -12,6 +12,7 @@ endif
 
 LEAN = lean
 LEANC = leanc
+LEAN_AR = ar
 OUT = build
 OLEAN_OUT = $(OUT)
 TEMP_OUT = $(OUT)/temp
@@ -71,7 +72,7 @@ ifdef CMAKE_LIKE_OUTPUT
 endif
 	@mkdir -p "$(@D)"
 ifdef PROFILE
-	\time -f "%U %S" leanc -c -o $@ $< $(LEANC_OPTS) 2>&1 > /dev/null | awk '{ printf "C compilation %fs\n", $$1 + $$2 }' > /dev/stderr
+	\time -f "%U %S" $(LEANC) -c -o $@ $< $(LEANC_OPTS) 2>&1 > /dev/null | awk '{ printf "C compilation %fs\n", $$1 + $$2 }' > /dev/stderr
 else
 	$(LEANC) -c -o $@ $< $(LEANC_OPTS)
 endif
@@ -81,14 +82,14 @@ ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Linking $@"
 endif
 ifdef PROFILE
-	\time -f "%U %S" leanc -o "$@" -x none $^ $(LINK_OPTS) 2>&1 > /dev/null | awk '{ printf "C linking %fs\n", $$1 + $$2 }' > /dev/stderr
+	\time -f "%U %S" $(LEANC) -o "$@" $^ $(LINK_OPTS) 2>&1 > /dev/null | awk '{ printf "C linking %fs\n", $$1 + $$2 }' > /dev/stderr
 else
-	$(LEANC) -o "$@" -x none $^ $(LINK_OPTS)
+	$(LEANC) -o "$@" $^ $(LINK_OPTS)
 endif
 
 $(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.o)) | $(LIB_OUT)
 	@rm -f $@
-	@ar rcs $@ $^
+	@$(LEAN_AR) rcs $@ $^
 
 clean:
 	rm -rf $(OUT)

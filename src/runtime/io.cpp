@@ -449,9 +449,7 @@ extern "C" obj_res lean_io_getenv(b_obj_arg env_var, obj_arg) {
 }
 
 extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg) {
-#if defined(LEAN_EMSCRIPTEN)
-    return io_result_mk_ok(fname);
-#elif defined(LEAN_WINDOWS)
+#if defined(LEAN_WINDOWS)
     constexpr unsigned BufferSize = 8192;
     char buffer[BufferSize];
     DWORD retval = GetFullPathName(string_cstr(fname), BufferSize, buffer, nullptr);
@@ -467,8 +465,7 @@ extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg) {
         return io_result_mk_ok(mk_string(buffer));
     }
 #else
-    constexpr unsigned BufferSize = 8192;
-    char buffer[BufferSize];
+    char buffer[PATH_MAX];
     char * tmp = realpath(string_cstr(fname), buffer);
     if (tmp) {
         obj_res s = mk_string(tmp);

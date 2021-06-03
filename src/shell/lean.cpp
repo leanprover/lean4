@@ -388,6 +388,11 @@ int main(int argc, char ** argv) {
             throw new Error("The Lean command-line driver can only run under Node.js. For the embeddable WASM library, see lean_wasm.cpp.");
         }
 
+        var lean_path = process.env["LEAN_PATH"];
+        if (lean_path) {
+            ENV["LEAN_PATH"] = lean_path;
+        }
+
         // We cannot mount /, see https://github.com/emscripten-core/emscripten/issues/2040
         FS.mount(NODEFS, { root: "/home" }, "/home");
         FS.mount(NODEFS, { root: "/tmp" }, "/tmp");

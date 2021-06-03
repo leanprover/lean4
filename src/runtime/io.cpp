@@ -415,12 +415,37 @@ extern "C" obj_res lean_io_get_num_heartbeats(obj_arg /* w */) {
 }
 
 extern "C" obj_res lean_io_getenv(b_obj_arg env_var, obj_arg) {
+#if defined(LEAN_EMSCRIPTEN)
+    // HACK(WN): getenv doesn't seem to work in Emscripten even though it should
+    // see https://emscripten.org/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#interacting-with-code-environment-variables
+    char* val = reinterpret_cast<char*>(EM_ASM_INT({
+        var envVar = UTF8ToString($0);
+        var val = ENV[envVar];
+        if (val) {
+            var lengthBytes = lengthBytesUTF8(val)+1;
+            var valOnWasmHeap = _malloc(lengthBytes);
+            stringToUTF8(val, valOnWasmHeap, lengthBytes);
+            return valOnWasmHeap;
+        } else {
+            return 0;
+        }
+    }, string_cstr(env_var)));
+
+    if (val) {
+        object * valLean = mk_string(val);
+        free(val);
+        return io_result_mk_ok(mk_option_some(valLean));
+    } else {
+        return io_result_mk_ok(mk_option_none());
+    }
+#else
     char * val = std::getenv(string_cstr(env_var));
     if (val) {
         return io_result_mk_ok(mk_option_some(mk_string(val)));
     } else {
         return io_result_mk_ok(mk_option_none());
     }
+#endif
 }
 
 extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg) {

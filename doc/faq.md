@@ -56,4 +56,4 @@ We expect similar independent checkers will be built for Lean 4.
 
 We use [GitHub](https://github.com/leanprover/lean4/issues) to track bugs and new features.
 Bug reports are always welcome, but nitpicking issues are not (e.g., the error message is confusing).
-RFC issues are created by developers only.
+See also our [contribution guidelines](../CONTRIBUTING.md).

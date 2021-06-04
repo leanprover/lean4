@@ -38,7 +38,7 @@ jobs:
           - name: Linux fsanitize
             os: ubuntu-latest
             # turn off custom allocator to make LSAN do its magic
-            CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_C_FLAGS=-fsanitize=address,undefined -DSMALL_ALLOCATOR=OFF
+            CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined -DSMALL_ALLOCATOR=OFF
           - name: macOS
             os: macos-latest
             release: true

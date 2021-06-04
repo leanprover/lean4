@@ -16,8 +16,8 @@
 set -e
 bindir=$(dirname $0)
 
-cflags=("-I$bindir/../include" @LEANC_EXTRA_C_FLAGS@)
-ldflags=("-L$bindir/../lib/lean" "${LEANC_GMP:--lgmp}" @LEANC_EXTRA_LINKER_FLAGS@)
+cflags=("-I$bindir/../include" @LEANC_EXTRA_FLAGS@)
+ldflags=("-L$bindir/../lib/lean" "${LEANC_GMP:--lgmp}")
 ldflags_ext=(@LEANC_STATIC_LINKER_FLAGS@)
 args=("$@")
 for arg in "$@"; do

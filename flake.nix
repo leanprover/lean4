@@ -34,10 +34,10 @@
       packages = lean-packages // rec {
         debug = lean-packages.override { debug = true; };
         stage0debug = lean-packages.override { stage0debug = true; };
-        sanitized = lean-packages.override { extraCMakeFlags = [ "-DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined" "-DLEANC_EXTRA_C_FLAGS=-fsanitize=address,undefined" "-DSMALL_ALLOCATOR=OFF" ]; };
+        sanitized = lean-packages.override { extraCMakeFlags = [ "-DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined" "-DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined" "-DSMALL_ALLOCATOR=OFF" ]; };
         sandebug = sanitized.override { debug = true; };
         tsan = lean-packages.override {
-          extraCMakeFlags = [ "-DLEAN_EXTRA_CXX_FLAGS=-fsanitize=thread" "-DLEANC_EXTRA_C_FLAGS=-fsanitize=thread" "-DCOMPRESSED_OBJECT_HEADER=OFF" ];
+          extraCMakeFlags = [ "-DLEAN_EXTRA_CXX_FLAGS=-fsanitize=thread" "-DLEANC_EXTRA_FLAGS=-fsanitize=thread" "-DCOMPRESSED_OBJECT_HEADER=OFF" ];
           stage0 = (lean-packages.override {
             # Compressed headers currently trigger data race reports in tsan.
             # Turn them off for stage 0 as well so stage 1 can read its own stdlib.

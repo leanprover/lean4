@@ -10,11 +10,17 @@ import Lean.Data.Lsp.Basic
 
 /-!
 This file contains Lean-specific extensions to LSP.
-The following additional packets are supported:
-- "textDocument/waitForDiagnostics": Yields a response when all the diagnostics for a version of the document
+The following additional requests and notifications are supported:
+
+- `textDocument/waitForDiagnostics`: Yields a response when all the diagnostics for a version of the document
   greater or equal to the specified one have been emitted. If the request specifies a version above the most
   recently processed one, the server will delay the response until it does receive the specified version.
   Exists for synchronization purposes, e.g. during testing or when external tools might want to use our LSP server.
+
+- `$/lean/fileProgress`: Notification that contains the ranges of the document that are still being processed
+  by the server.
+
+- `$/lean/plainGoal`: Returns the goal(s) at the specified position, pretty-printed as a string.
 -/
 
 namespace Lean.Lsp
@@ -33,6 +39,15 @@ instance : FromJson WaitForDiagnostics :=
 
 instance : ToJson WaitForDiagnostics :=
   ⟨fun o => mkObj []⟩
+
+structure LeanFileProgressProcessingInfo where
+  range : Range
+  deriving FromJson, ToJson
+
+structure LeanFileProgressParams where
+  textDocument : VersionedTextDocumentIdentifier
+  processing : Array LeanFileProgressProcessingInfo
+  deriving FromJson, ToJson
 
 structure PlainGoalParams extends TextDocumentPositionParams
   deriving FromJson, ToJson

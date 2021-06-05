@@ -1889,7 +1889,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_Hashable_mkAuxFunction___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("USize");
+x_1 = lean_mk_string("UInt64");
 return x_1;
 }
 }

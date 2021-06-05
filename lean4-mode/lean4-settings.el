@@ -62,6 +62,11 @@ using `font-lock-comment-face' instead of the `✝` suffix used by Lean."
   :group 'lean
   :type 'boolean)
 
+(defcustom lean4-show-file-progress t
+  "Highlights file progress in the current buffer."
+  :group 'lean
+  :type 'boolean)
+
 (defcustom lean4-keybinding-std-exe1 (kbd "C-c C-x")
   "Lean Keybinding for std-exe #1"
   :group 'lean4-keybinding :type 'key-sequence)

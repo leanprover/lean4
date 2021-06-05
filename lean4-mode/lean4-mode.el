@@ -40,6 +40,7 @@
 (require 'lean4-info)
 (require 'lean4-leanpkg)
 (require 'lean4-dev)
+(require 'lean4-fringe)
 
 (defun lean4-compile-string (exe-name args file-name)
   "Concatenate EXE-NAME, ARGS, and FILE-NAME."
@@ -223,7 +224,8 @@ Invokes `lean4-mode-hook'.
 (lsp-register-client
  (make-lsp-client :new-connection (lsp-stdio-connection (lambda () `(,(lean4-get-executable lean4-executable-name) "--server")))
                   :major-modes '(lean4-mode)
-                  :server-id 'lean4-lsp))
+                  :server-id 'lean4-lsp
+                  :notification-handlers (ht ("$/lean/fileProgress" #'lean4-fringe-update))))
 
 (add-hook 'lean4-mode-hook #'lsp)
 

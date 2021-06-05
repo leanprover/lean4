@@ -42,19 +42,21 @@
   "Face to highlight the fringe of Lean file progress."
   :group 'lean)
 
-(defun lean4-fringe-update-progress-overlays (processing)
+(defvar-local lean4-fringe-data nil)
+
+(defun lean4-fringe-update-progress-overlays ()
   (dolist (ov lean4-fringe-overlays) (delete-overlay ov))
   (setq lean4-fringe-overlays nil)
-  (when lean4-show-file-progress)
-  (seq-doseq (item processing)
-    (let* ((reg (lean4-fringe-region item))
-           (ov (make-overlay (car reg) (cdr reg))))
-      (setq lean4-fringe-overlays (cons ov lean4-fringe-overlays))
-      (overlay-put ov 'face 'lean4-fringe-face)
-      (overlay-put ov 'line-prefix
-                   (propertize " " 'display
-                               '(left-fringe lean4-fringe-fringe-bitmap lean4-fringe-fringe-face)))
-      (overlay-put ov 'help-echo (format "processing...")))))
+  (when lean4-show-file-progress
+    (seq-doseq (item lean4-fringe-data)
+      (let* ((reg (lean4-fringe-region item))
+             (ov (make-overlay (car reg) (cdr reg))))
+        (setq lean4-fringe-overlays (cons ov lean4-fringe-overlays))
+        (overlay-put ov 'face 'lean4-fringe-face)
+        (overlay-put ov 'line-prefix
+                     (propertize " " 'display
+                                 '(left-fringe lean4-fringe-fringe-bitmap lean4-fringe-fringe-face)))
+        (overlay-put ov 'help-echo (format "processing..."))))))
 
 (defvar-local lean4-fringe-delay-timer nil)
 
@@ -62,13 +64,14 @@
   (dolist (buf (lsp--workspace-buffers workspace))
     (lsp-with-current-buffer buf
       (when (equal (lsp--buffer-uri) uri)
+        (setq lean4-fringe-data processing)
         (save-match-data
           (when (not (memq lean4-fringe-delay-timer timer-list))
             (setq lean4-fringe-delay-timer
                   (run-at-time "300 milliseconds" nil
                                (lambda (buf)
                                  (with-current-buffer buf
-                                   (lean4-fringe-update-progress-overlays processing)))
+                                   (lean4-fringe-update-progress-overlays)))
                                (current-buffer)))))))))
 
 (provide 'lean4-fringe)

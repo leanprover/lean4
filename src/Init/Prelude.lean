@@ -1877,14 +1877,18 @@ def reservedMacroScope := 0
 def firstFrontendMacroScope := hAdd reservedMacroScope 1
 
 class MonadRef (m : Type → Type) where
-  getRef      : m Syntax
-  withRef {α} : Syntax → m α → m α
+  getRef             : m Syntax
+  withRef {α}        : Syntax → m α → m α
+  getElaborator      : m Name
+  withElaborator {α} : Name → m α → m α
 
 export MonadRef (getRef)
 
 instance (m n : Type → Type) [MonadLift m n] [MonadFunctor m n] [MonadRef m] : MonadRef n where
-  getRef        := liftM (getRef : m _)
-  withRef ref x := monadMap (m := m) (MonadRef.withRef ref) x
+  getRef              := liftM (getRef : m _)
+  withRef ref x       := monadMap (m := m) (MonadRef.withRef ref) x
+  getElaborator       := liftM (MonadRef.getElaborator : m _)
+  withElaborator e x  := monadMap (m := m) (MonadRef.withElaborator e) x
 
 def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
   match ref.getPos? with
@@ -2072,6 +2076,7 @@ structure Context where
   currRecDepth   : Nat := 0
   maxRecDepth    : Nat := defaultMaxRecDepth
   ref            : Syntax
+  elaborator     : Name
 
 inductive Exception where
   | error             : Syntax → String → Exception
@@ -2091,8 +2096,10 @@ abbrev Macro := Syntax → MacroM Syntax
 namespace Macro
 
 instance : MonadRef MacroM where
-  getRef     := bind read fun ctx => pure ctx.ref
-  withRef    := fun ref x => withReader (fun ctx => { ctx with ref := ref }) x
+  getRef           := bind read fun ctx => pure ctx.ref
+  withRef ref      := withReader (fun ctx => { ctx with ref })
+  getElaborator    := bind read fun ctx => pure ctx.elaborator
+  withElaborator e := withReader (fun ctx => { ctx with elaborator := e })
 
 def addMacroScope (n : Name) : MacroM Name :=
   bind read fun ctx =>
@@ -2184,6 +2191,8 @@ abbrev Unexpander := Syntax → UnexpandM Syntax
 instance : MonadQuotation UnexpandM where
   getRef              := pure Syntax.missing
   withRef             := fun _ => id
+  getElaborator       := pure Name.anonymous
+  withElaborator      := fun _ => id
   getCurrMacroScope   := pure 0
   getMainModule       := pure `_fakeMod
   withFreshMacroScope := id

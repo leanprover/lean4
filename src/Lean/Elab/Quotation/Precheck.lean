@@ -58,7 +58,7 @@ partial def precheck : Precheck := fun stx => do
     return
   if !hasQuotedIdent stx then
     return  -- we only precheck identifiers, so there is nothing to check here
-  if let some stx' ← liftMacroM <| Macro.expandMacro? stx then
+  if let some stx' ← liftMacroM <| expandMacro? stx then
     precheck stx'
     return
   throwErrorAt stx "no macro or `[quotPrecheck]` instance for syntax kind '{stx.getKind}' found{indentD stx}

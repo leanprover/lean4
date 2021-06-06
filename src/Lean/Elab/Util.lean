@@ -119,17 +119,15 @@ constant mkMacroAttribute : IO (KeyedDeclsAttribute Macro)
 
 builtin_initialize macroAttribute : KeyedDeclsAttribute Macro ← mkMacroAttribute
 
-private def expandMacroFns (stx : Syntax) : List Macro → MacroM Syntax
-  | []    => throw Macro.Exception.unsupportedSyntax
-  | m::ms => do
+def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Syntax)) := fun stx => do
+  for e in macroAttribute.getEntries env stx.getKind do
     try
-      m stx
+      let stx' ← e.value stx
+      return (e.decl, stx')
     catch
-      | Macro.Exception.unsupportedSyntax => expandMacroFns stx ms
+      | Macro.Exception.unsupportedSyntax => pure ()
       | ex                                => throw ex
-
-def getMacros (env : Environment) : Macro := fun stx =>
-  expandMacroFns stx (macroAttribute.getValues env stx.getKind)
+  return none
 
 class MonadMacroAdapter (m : Type → Type) where
   getCurrMacroScope                  : m MacroScope
@@ -142,20 +140,16 @@ instance (m n) [MonadLift m n] [MonadMacroAdapter m] : MonadMacroAdapter n := {
   setNextMacroScope := fun s => liftM (MonadMacroAdapter.setNextMacroScope s : m _)
 }
 
-private def expandMacro? (env : Environment) (stx : Syntax) : MacroM (Option Syntax) := do
-  try
-    let newStx ← getMacros env stx
-    pure (some newStx)
-  catch
-    | Macro.Exception.unsupportedSyntax => pure none
-    | ex                                => throw ex
-
 def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (x : MacroM α) : m α := do
   let env  ← getEnv
   let currNamespace ← getCurrNamespace
   let openDecls ← getOpenDecls
   let methods := Macro.mkMethods {
-    expandMacro?     := expandMacro? env
+    -- TODO: record recursive expansions in info tree?
+    expandMacro?     := fun stx => do
+      match ← expandMacroImpl? env stx with
+      | some (_, stx) => some stx
+      | none          => none
     hasDecl          := fun declName => return env.contains declName
     getCurrNamespace := return currNamespace
     resolveNamespace? := fun n => return ResolveName.resolveNamespace? env currNamespace openDecls n
@@ -163,6 +157,7 @@ def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEn
   }
   match x { methods        := methods
             ref            := ← getRef
+            elaborator     := ← MonadRef.getElaborator
             currMacroScope := ← MonadMacroAdapter.getCurrMacroScope
             mainModule     := env.mainModule
             currRecDepth   := ← MonadRecDepth.getRecDepth

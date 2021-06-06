@@ -2,7 +2,7 @@
 Copyright (c) 2020 Wojciech Nawrocki. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Authors: Wojciech Nawrocki, Leonardo de Moura
+Authors: Wojciech Nawrocki, Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Data.Position
 import Lean.Expr
@@ -27,15 +27,19 @@ structure ContextInfo where
   openDecls     : List OpenDecl  := []
   deriving Inhabited
 
-structure TermInfo where
+/-- An elaboration step -/
+structure ElabInfo where
+  elaborator : Name
+  stx : Syntax
+  deriving Inhabited
+
+structure TermInfo extends ElabInfo where
   lctx : LocalContext -- The local context when the term was elaborated.
   expectedType? : Option Expr
   expr : Expr
-  stx  : Syntax
   deriving Inhabited
 
-structure CommandInfo where
-  stx : Syntax
+structure CommandInfo extends ElabInfo where
   deriving Inhabited
 
 inductive CompletionInfo where
@@ -65,18 +69,16 @@ structure FieldInfo where
 /- We store the list of goals before and after the execution of a tactic.
    We also store the metavariable context at each time since, we want to unassigned metavariables
    at tactic execution time to be displayed as `?m...`. -/
-structure TacticInfo where
+structure TacticInfo extends ElabInfo where
   mctxBefore  : MetavarContext
   goalsBefore : List MVarId
-  stx         : Syntax
   mctxAfter   : MetavarContext
   goalsAfter  : List MVarId
   deriving Inhabited
 
-structure MacroExpansionInfo where
+structure MacroExpansionInfo extends ElabInfo where
   lctx   : LocalContext -- The local context when the macro was expanded.
-  before : Syntax
-  after  : Syntax
+  output : Syntax
   deriving Inhabited
 
 inductive Info where
@@ -189,9 +191,9 @@ def TacticInfo.format (ctx : ContextInfo) (info : TacticInfo) : IO Format := do
   return f!"Tactic @ {formatStxRange ctx info.stx}\n{info.stx}\nbefore {goalsBefore}\nafter {goalsAfter}"
 
 def MacroExpansionInfo.format (ctx : ContextInfo) (info : MacroExpansionInfo) : IO Format := do
-  let before ← ctx.ppSyntax info.lctx info.before
-  let after  ← ctx.ppSyntax info.lctx info.after
-  return f!"Macro expansion\n{before}\n===>\n{after}"
+  let stx    ← ctx.ppSyntax info.lctx info.stx
+  let output ← ctx.ppSyntax info.lctx info.output
+  return f!"Macro expansion\n{stx}\n===>\n{output}"
 
 def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofTacticInfo i         => i.format ctx
@@ -200,6 +202,14 @@ def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofMacroExpansionInfo i => i.format ctx
   | ofFieldInfo i          => i.format ctx
   | ofCompletionInfo i     => i.format ctx
+
+def Info.toElabInfo? : Info → Option ElabInfo
+  | ofTacticInfo i         => some i.toElabInfo
+  | ofTermInfo i           => some i.toElabInfo
+  | ofCommandInfo i        => some i.toElabInfo
+  | ofMacroExpansionInfo i => some i.toElabInfo
+  | ofFieldInfo i          => none
+  | ofCompletionInfo i     => none
 
 /--
   Helper function for propagating the tactic metavariable context to its children nodes.
@@ -259,14 +269,14 @@ def addCompletionInfo (info : CompletionInfo) : m Unit := do
 def resolveGlobalConstNoOverloadWithInfo [MonadResolveName m] [MonadEnv m] [MonadError m] (stx : Syntax) (id := stx.getId) (expectedType? : Option Expr := none) : m Name := do
   let n ← resolveGlobalConstNoOverload id
   if (← getInfoState).enabled then
-    pushInfoLeaf <| Info.ofTermInfo { lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx, expectedType? }
+    pushInfoLeaf <| Info.ofTermInfo { elaborator := (← MonadRef.getElaborator), lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx, expectedType? }
   return n
 
 def resolveGlobalConstWithInfos [MonadResolveName m] [MonadEnv m] [MonadError m] (stx : Syntax) (id := stx.getId) (expectedType? : Option Expr := none) : m (List Name) := do
   let ns ← resolveGlobalConst id
   if (← getInfoState).enabled then
     for n in ns do
-      pushInfoLeaf <| Info.ofTermInfo { lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx, expectedType? }
+      pushInfoLeaf <| Info.ofTermInfo { elaborator := (← MonadRef.getElaborator), lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx, expectedType? }
   return ns
 
 @[inline] def withInfoContext' [MonadFinally m] (x : m α) (mkInfo : α → m (Sum Info MVarId)) : m α := do
@@ -305,12 +315,12 @@ def assignInfoHoleId (mvarId : MVarId) (infoTree : InfoTree) : m Unit := do
   modifyInfoState fun s => { s with assignment := s.assignment.insert mvarId infoTree }
 end
 
-def withMacroExpansionInfo [MonadFinally m] [Monad m] [MonadInfoTree m] [MonadLCtx m] (before after : Syntax) (x : m α) : m α :=
+def withMacroExpansionInfo [MonadFinally m] [Monad m] [MonadInfoTree m] [MonadLCtx m] [MonadRef m] (stx output : Syntax) (x : m α) : m α :=
   let mkInfo : m Info := do
     return Info.ofMacroExpansionInfo {
+      elaborator := ← MonadRef.getElaborator
       lctx   := (← getLCtx)
-      before := before
-      after  := after
+      stx, output
     }
   withInfoContext x mkInfo
 

@@ -145,8 +145,7 @@ private def registerFailedToInferBinderTypeInfo (type : Expr) (ref : Syntax) : T
   registerCustomErrorIfMVar type ref "failed to infer binder type"
 
 private def addLocalVarInfoCore (lctx : LocalContext) (stx : Syntax) (fvar : Expr) : TermElabM Unit := do
-  if (← getInfoState).enabled then
-    pushInfoTree <| InfoTree.node (children := {}) <| Info.ofTermInfo { lctx := lctx, expr := fvar, stx, expectedType? := none }
+  withLCtx lctx {} <| addTermInfo stx fvar
 
 private def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit := do
   addLocalVarInfoCore (← getLCtx) stx fvar

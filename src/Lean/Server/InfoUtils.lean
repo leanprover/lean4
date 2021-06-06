@@ -57,7 +57,7 @@ def Info.stx : Info → Syntax
   | ofTacticInfo i         => i.stx
   | ofTermInfo i           => i.stx
   | ofCommandInfo i        => i.stx
-  | ofMacroExpansionInfo i => i.before
+  | ofMacroExpansionInfo i => i.stx
   | ofFieldInfo i          => i.stx
   | ofCompletionInfo i     => i.stx
 

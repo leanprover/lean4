@@ -16,7 +16,7 @@
 {"textDocument": {"uri": "file://plainTermGoal.lean"},
  "position": {"line": 2, "character": 29}}
 {"range":
- {"start": {"line": 2, "character": 28}, "end": {"line": 2, "character": 46}},
+ {"start": {"line": 2, "character": 29}, "end": {"line": 2, "character": 45}},
  "goal": "⊢ 1 < 2"}
 {"textDocument": {"uri": "file://plainTermGoal.lean"},
  "position": {"line": 2, "character": 44}}

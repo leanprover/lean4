@@ -154,15 +154,18 @@ where fmtPos pos info :=
     | SourceInfo.original ..  => pos
     | _                       => f!"{pos}†"
 
+private def formatElabInfo (ctx : ContextInfo) (info : ElabInfo) : Format :=
+  f!"{formatStxRange ctx info.stx} @ {info.elaborator}"
+
 def TermInfo.runMetaM (info : TermInfo) (ctx : ContextInfo) (x : MetaM α) : IO α :=
   ctx.runMetaM info.lctx x
 
 def TermInfo.format (ctx : ContextInfo) (info : TermInfo) : IO Format := do
   info.runMetaM ctx do
     try
-      return f!"{← Meta.ppExpr info.expr} : {← Meta.ppExpr (← Meta.inferType info.expr)} @ {formatStxRange ctx info.stx}"
+      return f!"{← Meta.ppExpr info.expr} : {← Meta.ppExpr (← Meta.inferType info.expr)} @ {formatElabInfo ctx info.toElabInfo}"
     catch _ =>
-      return f!"{← Meta.ppExpr info.expr} : <failed-to-infer-type> @ {formatStxRange ctx info.stx}"
+      return f!"{← Meta.ppExpr info.expr} : <failed-to-infer-type> @ {formatElabInfo ctx info.toElabInfo}"
 
 def CompletionInfo.format (ctx : ContextInfo) (info : CompletionInfo) : IO Format :=
   match info with
@@ -171,7 +174,7 @@ def CompletionInfo.format (ctx : ContextInfo) (info : CompletionInfo) : IO Forma
   | _ => return f!"[.] {info.stx} @ {formatStxRange ctx info.stx}"
 
 def CommandInfo.format (ctx : ContextInfo) (info : CommandInfo) : IO Format := do
-  return f!"command @ {formatStxRange ctx info.stx}"
+  return f!"command @ {formatElabInfo ctx info.toElabInfo}"
 
 def FieldInfo.format (ctx : ContextInfo) (info : FieldInfo) : IO Format := do
   ctx.runMetaM info.lctx do
@@ -188,7 +191,7 @@ def TacticInfo.format (ctx : ContextInfo) (info : TacticInfo) : IO Format := do
   let ctxA := { ctx with mctx := info.mctxAfter }
   let goalsBefore ← ctxB.ppGoals info.goalsBefore
   let goalsAfter  ← ctxA.ppGoals info.goalsAfter
-  return f!"Tactic @ {formatStxRange ctx info.stx}\n{info.stx}\nbefore {goalsBefore}\nafter {goalsAfter}"
+  return f!"Tactic @ {formatElabInfo ctx info.toElabInfo}\n{info.stx}\nbefore {goalsBefore}\nafter {goalsAfter}"
 
 def MacroExpansionInfo.format (ctx : ContextInfo) (info : MacroExpansionInfo) : IO Format := do
   let stx    ← ctx.ppSyntax info.lctx info.stx

@@ -2,8 +2,6 @@
   description = "Lean interactive theorem prover";
 
   inputs.nixpkgs.url = github:NixOS/nixpkgs/nixpkgs-unstable;
-  # HACK: remove when ccache(?) works with nixpkgs master again
-  inputs.nixpkgs-vscode.url = github:NixOS/nixpkgs/nixpkgs-unstable;
   inputs.flake-utils.url = github:numtide/flake-utils;
   inputs.temci = {
     url = github:parttimenerd/temci;
@@ -24,20 +22,12 @@
     inputs.mdBook.follows = "mdBook";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-vscode, flake-utils, temci, nix, mdBook, lean-stage0 }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, flake-utils, temci, nix, mdBook, lean-stage0 }: flake-utils.lib.eachDefaultSystem (system:
     let
-      pkgs-vscode = import nixpkgs-vscode {
-        inherit system;
-        # for `vscode-with-extensions`
-        config.allowUnfree = true;
-      };
       pkgs = import nixpkgs {
         inherit system;
         # for `vscode-with-extensions`
         config.allowUnfree = true;
-        overlays = [
-          (self: super: { inherit (pkgs-vscode) vscode-with-extensions; })
-        ];
       };
       lean-packages = pkgs.callPackage (./nix/packages.nix) { inherit nix temci mdBook; };
     in {

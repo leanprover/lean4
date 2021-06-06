@@ -62,8 +62,8 @@ let
   vscode-lean4 = vscode-utils.extensionFromVscodeMarketplace {
       name = "lean4";
       publisher = "leanprover";
-      version = "0.0.23";
-      sha256 = "sha256-DlP3O2mMAIXV7XwcZFHpa4Vp/9cxxtu9O+gQUW8MddA=";
+      version = "0.0.30";
+      sha256 = "sha256-tx0F3COuDT52y7OC9ymxoye5vfgV7Lv/iB6qrzU3/P4=";
   };
   lean-vscode = vscode-with-extensions.override {
     vscodeExtensions = [ vscode-lean4 ];
@@ -73,7 +73,7 @@ let
     src = mdBook;
     cargoDeps = drv.cargoDeps.overrideAttrs (_: {
       inherit src;
-      outputHash = "sha256-j14HdGcDtWpFFn/lTlbvQFsM7JLSc+OsSOooliiP4tw=";
+      outputHash = "sha256-yunC62ISnWZ5ifbJPWq+TrFkajBRNYhYq+zofAOAo1U=";
     });
     doCheck = false;
   });

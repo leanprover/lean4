@@ -125,7 +125,7 @@ def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         let jsonFields := fields.map (Prod.snd ∘ mkJsonField)
         let fields := fields.map mkIdent
         let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]):ident $header.binders:explicitBinder* (j : Json)
-          : Option $(← mkInductiveApp ctx.typeInfos[0] header.argNames) := OptionM.run do
+          : Except String $(← mkInductiveApp ctx.typeInfos[0] header.argNames) := do
           $[let $fields:ident ← getObjValAs? j _ $jsonFields]*
           return { $[$fields:ident := $(id fields)]* })
         return #[cmd] ++ (← mkInstanceCmds ctx ``FromJson declNames)
@@ -140,7 +140,7 @@ def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         let alts ← mkAlts indVal 
         let matchCmd ← alts.foldrM (fun xs x => `($xs <|> $x)) (←`(none))
         let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]):ident $header.binders:explicitBinder* (json : Json)
-          : Option $(← mkInductiveApp ctx.typeInfos[0] header.argNames) :=
+          : Except String $(← mkInductiveApp ctx.typeInfos[0] header.argNames) :=
             $matchCmd )
         return #[cmd] ++ (← mkInstanceCmds ctx ``FromJson declNames)
       cmds.forM elabCommand
@@ -170,7 +170,7 @@ where
           else `(none)
         let stx ← 
           `((parseTagged json $(quote ctor.getString!) $(quote ctorInfo.numFields) $(quote userNamesOpt)).bind 
-            (fun jsons => OptionM.run do
+            (fun jsons => do
             $[let $identNames:ident ← fromJson? $jsonAccess]*
             return $(mkIdent ctor):ident $identNames*))
         (stx, ctorInfo.numFields)

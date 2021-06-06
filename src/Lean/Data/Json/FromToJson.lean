@@ -11,7 +11,7 @@ namespace Lean
 universes u
 
 class FromJson (α : Type u) where
-  fromJson? : Json → Option α
+  fromJson? : Json → Except String α
 
 export FromJson (fromJson?)
 
@@ -20,7 +20,7 @@ class ToJson (α : Type u) where
 
 export ToJson (toJson)
 
-instance : FromJson Json := ⟨some⟩
+instance : FromJson Json := ⟨Except.ok⟩
 instance : ToJson Json := ⟨id⟩
 
 instance : FromJson JsonNumber := ⟨Json.getNum?⟩
@@ -38,15 +38,15 @@ instance : ToJson String := ⟨fun s => s⟩
 
 instance [FromJson α] : FromJson (Array α) where
   fromJson?
-    | Json.arr a => OptionM.run <| a.mapM fromJson?
-    | _          => none
+    | Json.arr a => a.mapM fromJson?
+    | _          => throw "JSON array expected"
 
 instance [ToJson α] : ToJson (Array α) :=
   ⟨fun a => Json.arr (a.map toJson)⟩
 
 instance [FromJson α] : FromJson (Option α) where
   fromJson?
-    | Json.null => some none
+    | Json.null => Except.ok none
     | j         => some <$> fromJson? j
 
 instance [ToJson α] : ToJson (Option α) :=
@@ -59,16 +59,16 @@ namespace Json
 instance : FromJson Structured := ⟨fun
   | arr a => Structured.arr a
   | obj o => Structured.obj o
-  | _     => none⟩
+  | _     => throw "structured object expected"⟩
 
 instance : ToJson Structured := ⟨fun
   | Structured.arr a => arr a
   | Structured.obj o => obj o⟩
 
-def toStructured? [ToJson α] (v : α) : Option Structured :=
+def toStructured? [ToJson α] (v : α) : Except String Structured :=
   fromJson? (toJson v)
 
-def getObjValAs? (j : Json) (α : Type u) [FromJson α] (k : String) : Option α :=
+def getObjValAs? (j : Json) (α : Type u) [FromJson α] (k : String) : Except String α :=
   fromJson? <| j.getObjValD k
 
 def opt [ToJson α] (k : String) : Option α → List (String × Json)

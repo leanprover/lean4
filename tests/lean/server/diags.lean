@@ -19,7 +19,7 @@ open IO Lean Lsp
       FS.writeFile "content_diag.json.produced" (toString <| toJson (diag : JsonRpc.Message))
 
       if let some (refDiag : JsonRpc.Notification PublishDiagnosticsParams) :=
-        OptionM.run $ (Json.parse $ ←FS.readFile "content_diag.json").toOption >>= fromJson?
+        (Json.parse $ ←FS.readFile "content_diag.json") >>= fromJson?
       then
         assert! (diag == refDiag)
       else

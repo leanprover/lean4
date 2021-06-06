@@ -133,9 +133,9 @@ inductive MarkupKind where
   | plaintext | markdown
 
 instance : FromJson MarkupKind := ⟨fun
-  | str "plaintext" => some MarkupKind.plaintext
-  | str "markdown"  => some MarkupKind.markdown
-  | _               => none⟩
+  | str "plaintext" => Except.ok MarkupKind.plaintext
+  | str "markdown"  => Except.ok MarkupKind.markdown
+  | _               => throw "unknown MarkupKind"⟩
 
 instance : ToJson MarkupKind := ⟨fun
   | MarkupKind.plaintext => str "plaintext"

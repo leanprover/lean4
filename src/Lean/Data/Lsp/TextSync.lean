@@ -21,10 +21,10 @@ inductive TextDocumentSyncKind where
 
 instance : FromJson TextDocumentSyncKind := ⟨fun j =>
   match j.getNat? with
-  | some 0 => TextDocumentSyncKind.none
-  | some 1 => TextDocumentSyncKind.full
-  | some 2 => TextDocumentSyncKind.incremental
-  | _      => none⟩
+  | Except.ok 0 => TextDocumentSyncKind.none
+  | Except.ok 1 => TextDocumentSyncKind.full
+  | Except.ok 2 => TextDocumentSyncKind.incremental
+  | _      => throw "unknown TextDocumentSyncKind"⟩
 
 instance : ToJson TextDocumentSyncKind := ⟨fun
   | TextDocumentSyncKind.none        => 0
@@ -47,7 +47,7 @@ inductive TextDocumentContentChangeEvent where
 
 instance : FromJson TextDocumentContentChangeEvent where
   fromJson? j :=
-    (OptionM.run do
+    (do
       let range ← j.getObjValAs? Range "range"
       let text ← j.getObjValAs? String "text"
       return TextDocumentContentChangeEvent.rangeChange range text)

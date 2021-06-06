@@ -13,6 +13,7 @@ namespace Lean.Elab.Level
 structure Context where
   options           : Options
   ref               : Syntax
+  elaborator        : Name
   autoBoundImplicit : Bool
 
 structure State where
@@ -26,8 +27,10 @@ instance : MonadOptions LevelElabM where
   getOptions := return (← read).options
 
 instance : MonadRef LevelElabM where
-  getRef        := return (← read).ref
-  withRef ref x := withReader (fun ctx => { ctx with ref := ref }) x
+  getRef           := return (← read).ref
+  withRef ref x    := withReader (fun ctx => { ctx with ref := ref }) x
+  getElaborator    := return (← read).elaborator
+  withElaborator e := withReader ({ · with elaborator := e })
 
 instance : AddMessageContext LevelElabM where
   addMessageContext msg := pure msg

@@ -2,6 +2,7 @@ open Lean
 
 def exec (x : MacroM α) : Option α :=
   match x {
+      elaborator := Name.anonymous
       mainModule := `Expander
       currMacroScope := 0
       ref := arbitrary

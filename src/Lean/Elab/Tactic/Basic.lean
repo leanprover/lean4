@@ -109,33 +109,9 @@ unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=
 
 @[builtinInit mkTacticAttribute] constant tacticElabAttribute : KeyedDeclsAttribute Tactic
 
-/-
-Important: we must define `evalTacticUsing` and `expandTacticMacroFns` before we define
-the instance `MonadExcept` for `TacticM` since it backtracks the state including error messages,
-and this is bad when rethrowing the exception at the `catch` block in these methods.
-We marked these places with a `(*)` in these methods.
--/
-
-private def evalTacticUsing (s : SavedState) (stx : Syntax) (tactics : List Tactic) : TacticM Unit := do
-  let rec loop : List Tactic → TacticM Unit
-    | []              => throwErrorAt stx "unexpected syntax {indentD stx}"
-    | evalFn::evalFns => do
-      try
-        evalFn stx
-      catch
-      | ex@(Exception.error _ _) =>
-        match evalFns with
-        | []      => throw ex -- (*)
-        | evalFns => s.restore; loop evalFns
-      | ex@(Exception.internal id _) =>
-        if id == unsupportedSyntaxExceptionId then
-          s.restore; loop evalFns
-        else
-          throw ex
-  loop tactics
-
 def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx : Syntax) : TacticM Info :=
   return Info.ofTacticInfo {
+    elaborator    := (← MonadRef.getElaborator)
     mctxBefore    := mctxBefore
     goalsBefore   := goalsBefore
     stx           := stx
@@ -151,23 +127,50 @@ def mkInitialTacticInfo (stx : Syntax) : TacticM (TacticM Info) := do
 @[inline] def withTacticInfoContext (stx : Syntax) (x : TacticM α) : TacticM α := do
   withInfoContext x (← mkInitialTacticInfo stx)
 
+/-
+Important: we must define `evalTacticUsing` and `expandTacticMacroFns` before we define
+the instance `MonadExcept` for `TacticM` since it backtracks the state including error messages,
+and this is bad when rethrowing the exception at the `catch` block in these methods.
+We marked these places with a `(*)` in these methods.
+-/
+
+private def evalTacticUsing (s : SavedState) (stx : Syntax) (tactics : List (KeyedDeclsAttribute.AttributeEntry Tactic)) : TacticM Unit := do
+  let rec loop
+    | []              => throwErrorAt stx "unexpected syntax {indentD stx}"
+    | evalFn::evalFns => do
+      try
+        MonadRef.withElaborator evalFn.decl <| withTacticInfoContext stx <| evalFn.value stx
+      catch
+      | ex@(Exception.error _ _) =>
+        match evalFns with
+        | []      => throw ex -- (*)
+        | evalFns => s.restore; loop evalFns
+      | ex@(Exception.internal id _) =>
+        if id == unsupportedSyntaxExceptionId then
+          s.restore; loop evalFns
+        else
+          throw ex
+  loop tactics
+
 mutual
 
-  partial def expandTacticMacroFns (stx : Syntax) (macros : List Macro) : TacticM Unit :=
-    let rec loop : List Macro → TacticM Unit
+  partial def expandTacticMacroFns (stx : Syntax) (macros : List (KeyedDeclsAttribute.AttributeEntry Macro)) : TacticM Unit :=
+    let rec loop
       | []    => throwErrorAt stx "tactic '{stx.getKind}' has not been implemented"
       | m::ms => do
         let scp ← getCurrMacroScope
         try
-          let stx' ← adaptMacro m stx
-          evalTactic stx'
+          MonadRef.withElaborator m.decl do
+            withTacticInfoContext stx do
+              let stx' ← adaptMacro m.value stx
+              evalTactic stx'
         catch ex =>
           if ms.isEmpty then throw ex -- (*)
           loop ms
     loop macros
 
   partial def expandTacticMacro (stx : Syntax) : TacticM Unit := do
-    expandTacticMacroFns stx (macroAttribute.getValues (← getEnv) stx.getKind)
+    expandTacticMacroFns stx (macroAttribute.getEntries (← getEnv) stx.getKind)
 
   partial def evalTacticAux (stx : Syntax) : TacticM Unit :=
     withRef stx $ withIncRecDepth $ withFreshMacroScope $ match stx with
@@ -178,13 +181,13 @@ mutual
         else do
           trace[Elab.step] "{stx}"
           let s ← Tactic.saveState
-          match tacticElabAttribute.getValues (← getEnv) stx.getKind with
+          match tacticElabAttribute.getEntries (← getEnv) stx.getKind with
           | []      => expandTacticMacro stx
           | evalFns => evalTacticUsing s stx evalFns
       | _ => throwError m!"unexpected tactic{indentD stx}"
 
   partial def evalTactic (stx : Syntax) : TacticM Unit :=
-    withTacticInfoContext stx (evalTacticAux stx)
+    evalTacticAux stx
 
 end
 

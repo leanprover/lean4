@@ -22,38 +22,47 @@ structure Dependency where
   name : String
   src : Source
 
-structure Manifest where
+structure PackageConfig where
   name : String
   version : String
   leanVersion : String := leanVersionString
   timeout : Option Nat := none
-  module : String := name.capitalize
+  module : Name := name.capitalize
   dependencies : List Dependency := []
   deriving Inhabited
 
 structure Package where
   dir : FilePath
-  manifest : Manifest
+  config : PackageConfig
   deriving Inhabited
 
 namespace Package
 
-def name (self : Package) : String :=
-  self.manifest.name
+def name (self : Package) :=
+  self.config.name
 
-def dependencies (self : Package) : List Dependency :=
-  self.manifest.dependencies
+def module (self : Package) :=
+  self.config.module
 
-def sourceDir (self : Package) : FilePath :=
+def dependencies (self : Package) :=
+  self.config.dependencies
+
+def timeout (self : Package) :=
+  self.config.timeout
+
+def sourceDir (self : Package) :=
   self.dir
 
-def sourceRoot (self : Package)  : FilePath :=
-  self.sourceDir / self.manifest.module
+def sourceRoot (self : Package) :=
+  self.sourceDir / self.config.module.toString
 
-def buildDir (self : Package) : FilePath :=
+def buildDir (self : Package) :=
   self.dir / Leanpkg2.buildPath
 
-def buildRoot (self : Package)  : FilePath :=
-  self.buildDir / self.manifest.module
+def buildRoot (self : Package) :=
+  self.buildDir / self.config.module.toString
+
+def oleanRoot (self : Package) :=
+  self.buildRoot.withExtension "olean"
 
 end Package

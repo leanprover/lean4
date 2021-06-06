@@ -5,7 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Leanpkg2.Git
 import Leanpkg2.Proc
-import Leanpkg2.TomlManifest
+import Leanpkg2.TomlConfig
 
 namespace Leanpkg2
 

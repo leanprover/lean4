@@ -5,7 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Leanpkg2.Init
 import Leanpkg2.Build
-import Leanpkg2.TomlManifest
+import Leanpkg2.TomlConfig
 
 namespace Leanpkg2
 
@@ -61,11 +61,18 @@ Usage:
 This command creates a new Lean package with the given name in the current
 directory."
 
+def getRootPkg : IO Package := do
+  let cfg ← PackageConfig.fromTomlFile leanpkgToml
+  if cfg.leanVersion ≠ leanVersionString then
+    IO.eprintln $ "\nWARNING: Lean version mismatch: installed version is " ++
+      leanVersionString ++ ", but package requires " ++ cfg.leanVersion ++ "\n"
+  return ⟨".", cfg⟩
+
 def cli : (cmd : String) → (leanpkgArgs leanArgs : List String) → IO Unit
 | "init",         [name],         []        => init name
-| "configure",    [],             []        => do configure (← readManifest)
-| "print-paths",  imports,        leanArgs  => do printPaths (← readManifest) imports leanArgs
-| "build",        makeArgs,       leanArgs  => do build (← readManifest) makeArgs leanArgs
+| "configure",    [],             []        => do configure (← getRootPkg)
+| "print-paths",  imports,        leanArgs  => do printPaths (← getRootPkg) imports leanArgs
+| "build",        makeArgs,       leanArgs  => do build (← getRootPkg) makeArgs leanArgs
 | "help",         ["init"],       []        => IO.println helpInit
 | "help",         ["configure"],  []        => IO.println helpConfigure
 | "help",         ["build"],      []        => IO.println helpBuild

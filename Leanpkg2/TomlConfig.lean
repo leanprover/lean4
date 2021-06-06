@@ -11,6 +11,8 @@ open System
 
 namespace Leanpkg2
 
+def leanpkgToml : FilePath := "leanpkg.toml"
+
 namespace Source
 
 def fromToml? (v : Toml.Value) : Option Source :=
@@ -32,9 +34,9 @@ def toToml : Source → Toml.Value
 
 end Source
 
-namespace Manifest
+namespace PackageConfig
 
-def fromToml? (t : Toml.Value) : Option Manifest := OptionM.run do
+def fromToml? (t : Toml.Value) : Option PackageConfig := OptionM.run do
   let pkg ← t.lookup "package"
   let Toml.Value.str name ← pkg.lookup "name" | none
   let Toml.Value.str version ← pkg.lookup "version" | none
@@ -54,24 +56,15 @@ def fromToml? (t : Toml.Value) : Option Manifest := OptionM.run do
   let dependencies ← deps.mapM fun ⟨n, src⟩ => do Dependency.mk n (← Source.fromToml? src)
   return { name, module, version, leanVersion, dependencies, timeout }
 
-def fromTomlString? (str : String) : IO (Option Manifest) := do
+def fromTomlString? (str : String) : IO (Option PackageConfig) := do
   fromToml? (← Toml.parse str)
 
-def fromTomlFile? (path : FilePath) : IO (Option Manifest) := do
+def fromTomlFile? (path : FilePath) : IO (Option PackageConfig) := do
   fromTomlString? (← IO.FS.readFile path)
 
-def fromTomlFile (path : FilePath) : IO Manifest := do
-  let some manifest ← fromTomlFile? path
-    | throw <| IO.userError s!"manifest (at {path}) is ill-formed"
-  manifest
+def fromTomlFile (path : FilePath) : IO PackageConfig := do
+  let some config ← fromTomlFile? path
+    | throw <| IO.userError s!"configuration (at {path}) is ill-formed"
+  config
 
-end Manifest
-
-def leanpkgToml : FilePath := "leanpkg.toml"
-
-def readManifest : IO Manifest := do
-  let m ← Manifest.fromTomlFile leanpkgToml
-  if m.leanVersion ≠ leanVersionString then
-    IO.eprintln $ "\nWARNING: Lean version mismatch: installed version is " ++ leanVersionString
-       ++ ", but package requires " ++ m.leanVersion ++ "\n"
-  return m
+end PackageConfig

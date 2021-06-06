@@ -2,7 +2,7 @@ import Leanpkg2.Build
 
 open Leanpkg2 System
 
-def manifest : Manifest := {
+def package : PackageConfig := {
   name := "b",
   version := "1.0",
   dependencies := [
@@ -11,7 +11,7 @@ def manifest : Manifest := {
 }
 
 def build : IO Unit := do
-  Leanpkg2.build manifest ["bin", "LINK_OPTS=../a/build/lib/libA.a"]
+  Leanpkg2.build ⟨".", package⟩ ["bin", "LINK_OPTS=../a/build/lib/libA.a"]
 
 def main : IO Unit :=
   build

@@ -7,13 +7,28 @@ import Lean.Data.Name
 import Lean.Elab.Import
 import Leanpkg2.Resolve
 import Leanpkg2.Package
-import Leanpkg2.BuildConfig
 import Leanpkg2.Make
 import Leanpkg2.Proc
 
 open Lean System
 
 namespace Leanpkg2
+
+structure BuildConfig where
+  module   : Name
+  leanArgs : List String
+  leanPath : String
+  -- things like `leanpkg.toml` and olean roots of dependencies that should also trigger rebuilds
+  moreDeps : List FilePath
+
+def mkBuildConfig
+(pkg : Package) (deps : List Package) (leanArgs : List String)
+: BuildConfig := {
+  leanArgs,
+  module := pkg.module
+  leanPath := SearchPath.toString <| deps.map (·.buildDir)
+  moreDeps := deps.filter (·.dir != pkg.dir) |>.map (·.oleanRoot)
+}
 
 structure BuildContext extends BuildConfig where
   parents       : List Name := []
@@ -84,7 +99,7 @@ partial def buildModule (mod : Name) : BuildM Result := do
   modify fun st => { st with modTasks := st.modTasks.insert mod r }
   return r
 
-def buildModules (manifest : Manifest) (cfg : BuildConfig) (mods : List Name) : IO Unit := do
+def buildModules (cfg : BuildConfig) (mods : List Name) : IO Unit := do
   let moreDepsMTime := (← cfg.moreDeps.mapM (·.metadata)).map (·.modified) |>.maximum? |>.getD ⟨0, 0⟩
   let rs ← mods.mapM buildModule |>.run { toBuildConfig := cfg, moreDepsMTime } |>.run' {}
   for r in rs do
@@ -92,44 +107,42 @@ def buildModules (manifest : Manifest) (cfg : BuildConfig) (mods : List Name) : 
       -- actual error has already been printed above
       throw <| IO.userError "Build failed."
 
-def buildImports (manifest : Manifest) (cfg : BuildConfig) (imports leanArgs : List String := []) : IO Unit := do
+def buildImports (pkg : Package) (deps : List Package) (imports leanArgs : List String := []) : IO Unit := do
   let imports := imports.map (·.toName)
-  let localImports := imports.filter (·.getRoot == cfg.module)
+  let localImports := imports.filter (·.getRoot == pkg.module)
   if localImports != [] then
     if ← FilePath.pathExists "Makefile" then
       let oleans := localImports.map fun i =>
         Lean.modToFilePath buildPath i "olean" |>.toString
-      execMake manifest oleans cfg
+      execMake pkg deps oleans leanArgs
     else
-      buildModules manifest cfg localImports
+      buildModules (mkBuildConfig pkg deps leanArgs) localImports
 
-def buildDeps (manifest : Manifest) : IO (List Package) := do
-  let pkgs ← solveDeps manifest
-  for pkg in pkgs do
-    unless pkg.dir.toString == "." do
+def buildDeps (pkg : Package) : IO (List Package) := do
+  let deps ← solveDeps pkg
+  for dep in deps do
+    unless dep.dir == pkg.dir do
       -- build recursively
       -- TODO: share build of common dependencies
       execCmd {
-        cwd := pkg.dir
+        cwd := dep.dir
         cmd := (← IO.appDir) / "lean" |>.toString
         args := #["--run", "Package.lean"]
       }
-  return pkgs
+  return deps
 
-def configure (manifest : Manifest) : IO Unit := do
-  discard <| buildDeps manifest
+def configure (pkg : Package) : IO Unit := do
+  discard <| buildDeps pkg
 
-def printPaths (manifest : Manifest) (imports leanArgs : List String := []) : IO Unit := do
-  let pkgs ← buildDeps manifest
-  let cfg := BuildConfig.fromPackages manifest.module leanArgs pkgs
-  buildImports manifest cfg imports leanArgs
-  IO.println cfg.leanPath
-  IO.println <| SearchPath.toString <| pkgs.map (·.sourceDir)
+def printPaths (pkg : Package) (imports leanArgs : List String := []) : IO Unit := do
+  let deps ← buildDeps pkg
+  buildImports pkg deps imports leanArgs
+  IO.println <| SearchPath.toString <| deps.map (·.buildDir)
+  IO.println <| SearchPath.toString <| deps.map (·.sourceDir)
 
-def build (manifest : Manifest) (makeArgs leanArgs : List String := []) : IO Unit := do
-  let pkgs ← buildDeps manifest
-  let cfg := BuildConfig.fromPackages manifest.module leanArgs pkgs
+def build (pkg : Package) (makeArgs leanArgs : List String := []) : IO Unit := do
+  let deps ← buildDeps pkg
   if makeArgs != [] || (← FilePath.pathExists "Makefile") then
-    execMake manifest makeArgs cfg
+    execMake pkg deps makeArgs leanArgs
   else
-    buildModules manifest cfg [manifest.module]
+    buildModules (mkBuildConfig pkg deps leanArgs) [pkg.module]

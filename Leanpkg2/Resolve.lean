@@ -4,9 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Leanpkg2.Git
-import Leanpkg2.Proc
-import Leanpkg2.TomlManifest
-import Leanpkg2.BuildConfig
+import Leanpkg2.TomlConfig
 
 open System
 
@@ -28,14 +26,14 @@ def materializeGit
     let hash ← parseOriginRevision rev dir
     checkoutDetach hash dir
 
-def materialize (relPath : FilePath) (dep : Dependency) : IO FilePath :=
+def materialize (pkgDir : FilePath) (dep : Dependency) : IO FilePath :=
   match dep.src with
   | Source.path dir => do
-    let depdir := relPath / dir
+    let depdir := pkgDir / dir
     IO.eprintln s!"{dep.name}: using local path {depdir}"
     depdir
   | Source.git url rev branch => do
-    let depdir := depsPath / dep.name
+    let depdir := pkgDir / depsPath / dep.name
     materializeGit dep.name depdir url rev branch
     depdir
 
@@ -65,23 +63,29 @@ def resolvedPackage (d : String) : Solver Package := do
   let some pkg ← pure ((← get).lookup d) | unreachable!
   pkg
 
-def solveDepsCore
-(pkgName : String) (relPath : FilePath) (deps : List Dependency)
-: (maxDepth : Nat) → Solver Unit
+def solveDepsCore (pkg : Package) : (maxDepth : Nat) → Solver Unit
   | 0 => throw <| IO.userError "maximum dependency resolution depth reached"
   | maxDepth + 1 => do
-    let newDeps ← deps.filterM (notYetAssigned ·.name)
+    let newDeps ← pkg.dependencies.filterM (notYetAssigned ·.name)
     for dep in newDeps do
-      let dir ← materialize relPath dep
-      let m ← Manifest.fromTomlFile <| dir / leanpkgToml
-      modify (·.insert dep.name ⟨dir, m⟩)
+      let dir ← materialize pkg.dir dep
+      let cfg ← PackageConfig.fromTomlFile <| dir / leanpkgToml
+      modify (·.insert dep.name ⟨dir, cfg⟩)
     for dep in newDeps do
       let depPkg ← resolvedPackage dep.name
       unless depPkg.name = dep.name do
-        throw <| IO.userError s!"{pkgName} (in {relPath}) depends on {depPkg.name}, but resolved dependency has name {dep.name} (in {depPkg.dir})"
-      solveDepsCore depPkg.name depPkg.dir depPkg.dependencies maxDepth
+        throw <| IO.userError <|
+          s!"{pkg.name} (in {pkg.dir}) depends on {dep.name}, " ++
+          s!"but resolved dependency has name {depPkg.name} (in {depPkg.dir})"
+      solveDepsCore depPkg maxDepth
 
-def solveDeps (m : Manifest) : IO (List Package) := do
-  let solver := solveDepsCore m.name ⟨"."⟩ m.dependencies 1024
-  let (_, assg) ← solver.run (Assignment.empty.insert m.name ⟨".", m⟩)
+/--
+  Resolves the dependency tree for the given package,
+  downloading and/or updating missing dependencies as necessary.
+
+  Note that resulting list of dependencies *will* include the given package.
+-/
+def solveDeps (pkg : Package) : IO (List Package) := do
+  let solver := solveDepsCore pkg 1024
+  let (_, assg) ← solver.run (Assignment.empty.insert pkg.name ⟨pkg.dir, pkg.config⟩)
   assg.reverse.mapM (·.2)

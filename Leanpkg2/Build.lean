@@ -118,24 +118,23 @@ def buildImports (pkg : Package) (deps : List Package) (imports leanArgs : List 
     else
       buildModules (mkBuildConfig pkg deps leanArgs) localImports
 
-
-def doBuild (pkg : Package) (deps : List Package) (makeArgs leanArgs : List String := []) : IO Unit := do
+def buildPkg (pkg : Package) (deps : List Package) (makeArgs leanArgs : List String := []) : IO Unit := do
   if makeArgs != [] || (← FilePath.pathExists "Makefile") then
     execMake pkg deps makeArgs leanArgs
   else
     buildModules (mkBuildConfig pkg deps leanArgs) [pkg.module]
 
-def buildDeps (pkg : Package) : IO (List Package) := do
+def buildDeps (pkg : Package) (makeArgs leanArgs : List String := []) : IO (List Package) := do
   let deps ← solveDeps pkg
   for dep in deps do
     unless dep.dir == pkg.dir do
       -- build recursively
       -- TODO: share build of common dependencies
       let depDeps ← solveDeps dep
-      doBuild dep depDeps ["lib"]
+      buildPkg dep depDeps makeArgs leanArgs
   return deps
 
-def configure (pkg : Package) : IO Unit := do
+def configure (pkg : Package) : IO Unit :=
   discard <| buildDeps pkg
 
 def printPaths (pkg : Package) (imports leanArgs : List String := []) : IO Unit := do
@@ -145,5 +144,5 @@ def printPaths (pkg : Package) (imports leanArgs : List String := []) : IO Unit 
   IO.println <| SearchPath.toString <| deps.map (·.sourceDir)
 
 def build (pkg : Package) (makeArgs leanArgs : List String := []) : IO Unit := do
-  let deps ← buildDeps pkg
-  doBuild pkg deps makeArgs leanArgs
+  let deps ← buildDeps pkg (if makeArgs.contains "bin" then ["lib"] else [])
+  buildPkg pkg deps makeArgs leanArgs

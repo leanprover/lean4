@@ -9,9 +9,3 @@ def package : PackageConfig := {
     { name := "a", src := Source.path (FilePath.mk ".." / "a") }
   ]
 }
-
-def build : IO Unit := do
-  Leanpkg2.build ⟨".", package⟩ ["bin", "LINK_OPTS=../a/build/lib/libA.a"]
-
-def main : IO Unit :=
-  build

@@ -1,2 +1,2 @@
 export LEAN_PATH=../../build
-lean --run Package.lean
+lean --run ../../Leanpkg2.lean build bin

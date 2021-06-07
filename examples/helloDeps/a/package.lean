@@ -1,14 +1,6 @@
-import Leanpkg2.Build
+import Leanpkg2.Package
 
-open Leanpkg2
-
-def package : PackageConfig := {
+def package : Leanpkg2.PackageConfig := {
   name := "a",
   version := "1.0",
 }
-
-def build : IO Unit :=
-  Leanpkg2.build ⟨".", package⟩ ["lib"]
-
-def main : IO Unit :=
-  build

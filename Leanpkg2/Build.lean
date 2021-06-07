@@ -118,17 +118,21 @@ def buildImports (pkg : Package) (deps : List Package) (imports leanArgs : List 
     else
       buildModules (mkBuildConfig pkg deps leanArgs) localImports
 
+
+def doBuild (pkg : Package) (deps : List Package) (makeArgs leanArgs : List String := []) : IO Unit := do
+  if makeArgs != [] || (← FilePath.pathExists "Makefile") then
+    execMake pkg deps makeArgs leanArgs
+  else
+    buildModules (mkBuildConfig pkg deps leanArgs) [pkg.module]
+
 def buildDeps (pkg : Package) : IO (List Package) := do
   let deps ← solveDeps pkg
   for dep in deps do
     unless dep.dir == pkg.dir do
       -- build recursively
       -- TODO: share build of common dependencies
-      execCmd {
-        cwd := dep.dir
-        cmd := (← IO.appDir) / "lean" |>.toString
-        args := #["--run", "Package.lean"]
-      }
+      let depDeps ← solveDeps dep
+      doBuild dep depDeps ["lib"]
   return deps
 
 def configure (pkg : Package) : IO Unit := do
@@ -142,7 +146,4 @@ def printPaths (pkg : Package) (imports leanArgs : List String := []) : IO Unit 
 
 def build (pkg : Package) (makeArgs leanArgs : List String := []) : IO Unit := do
   let deps ← buildDeps pkg
-  if makeArgs != [] || (← FilePath.pathExists "Makefile") then
-    execMake pkg deps makeArgs leanArgs
-  else
-    buildModules (mkBuildConfig pkg deps leanArgs) [pkg.module]
+  doBuild pkg deps makeArgs leanArgs

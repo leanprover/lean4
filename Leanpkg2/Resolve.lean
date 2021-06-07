@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Leanpkg2.Git
-import Leanpkg2.TomlConfig
+import Leanpkg2.LeanConfig
 
 open System
 
@@ -69,7 +69,7 @@ def solveDepsCore (pkg : Package) : (maxDepth : Nat) → Solver Unit
     let newDeps ← pkg.dependencies.filterM (notYetAssigned ·.name)
     for dep in newDeps do
       let dir ← materialize pkg.dir dep
-      let cfg ← PackageConfig.fromTomlFile <| dir / leanpkgToml
+      let cfg ← PackageConfig.fromLeanFile <| dir / leanConfigFile
       modify (·.insert dep.name ⟨dir, cfg⟩)
     for dep in newDeps do
       let depPkg ← resolvedPackage dep.name

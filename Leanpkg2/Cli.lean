@@ -5,7 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Leanpkg2.Init
 import Leanpkg2.Build
-import Leanpkg2.TomlConfig
+import Leanpkg2.LeanConfig
 
 namespace Leanpkg2
 
@@ -62,7 +62,7 @@ This command creates a new Lean package with the given name in the current
 directory."
 
 def getRootPkg : IO Package := do
-  let cfg ← PackageConfig.fromTomlFile leanpkgToml
+  let cfg ← PackageConfig.fromLeanFile leanConfigFile
   if cfg.leanVersion ≠ leanVersionString then
     IO.eprintln $ "\nWARNING: Lean version mismatch: installed version is " ++
       leanVersionString ++ ", but package requires " ++ cfg.leanVersion ++ "\n"

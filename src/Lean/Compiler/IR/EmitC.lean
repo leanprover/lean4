@@ -24,6 +24,10 @@ structure Context where
   jpMap       : JPParamsMap := {}
   mainFn      : FunId := arbitrary
   mainParams  : Array Param := #[]
+  /- We are regularly hitting the maximum number of symbols exportable from a Windows DLL/PE (2^16).
+     See issue #466. So, to save symbols, we create initialization macros instead of initialization functions
+     for extracted close terms. This is a bit hackish, but after we refactor the compiler we will seldom need
+     initialization functions and we will be able to remove this hack. -/
   initMacro?  : Option String := none
 
 abbrev M := ReaderT Context (EStateM String String)

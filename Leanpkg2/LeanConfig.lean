@@ -11,7 +11,7 @@ open Lean Elab System
 
 namespace Leanpkg2
 
-def leanConfigFile : FilePath := "package.lean"
+def leanPkgFile : FilePath := "package.lean"
 
 namespace PackageConfig
 

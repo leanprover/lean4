@@ -69,7 +69,7 @@ def solveDepsCore (pkg : Package) : (maxDepth : Nat) → Solver Unit
     let newDeps ← pkg.dependencies.filterM (notYetAssigned ·.name)
     for dep in newDeps do
       let dir ← materialize pkg.dir dep
-      let cfg ← PackageConfig.fromLeanFile <| dir / leanConfigFile
+      let cfg ← PackageConfig.fromLeanFile <| dir / leanPkgFile
       modify (·.insert dep.name ⟨dir, cfg⟩)
     for dep in newDeps do
       let depPkg ← resolvedPackage dep.name

@@ -62,7 +62,7 @@ This command creates a new Lean package with the given name in the current
 directory."
 
 def getRootPkg : IO Package := do
-  let cfg ← PackageConfig.fromLeanFile leanConfigFile
+  let cfg ← PackageConfig.fromLeanFile leanPkgFile
   if cfg.leanVersion ≠ leanVersionString then
     IO.eprintln $ "\nWARNING: Lean version mismatch: installed version is " ++
       leanVersionString ++ ", but package requires " ++ cfg.leanVersion ++ "\n"

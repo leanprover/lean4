@@ -3,11 +3,11 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
-import Leanpkg2.Git
-import Leanpkg2.Proc
-import Leanpkg2.LeanConfig
+import Lake.Git
+import Lake.Proc
+import Lake.LeanConfig
 
-namespace Leanpkg2
+namespace Lake
 
 def initGitignoreContents :=
 "/build
@@ -19,9 +19,9 @@ def mainFileContents :=
 "
 
 def leanPkgFileContents (pkgName : String) :=
-s!"import Leanpkg2.Package
+s!"import Lake.Package
 
-def package : Leanpkg2.PackageConfig := \{
+def package : Lake.PackageConfig := \{
   name := \"{pkgName}\"
   version := \"0.1\"
   leanVersion := \"{leanVersionString}\"

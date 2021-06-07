@@ -3,7 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich
 -/
-namespace Leanpkg2
+namespace Lake
 
 def execCmd (args : IO.Process.SpawnArgs) : IO Unit := do
   let envstr := String.join <| args.env.toList.map fun (k, v) => s!"{k}={v.getD ""} "

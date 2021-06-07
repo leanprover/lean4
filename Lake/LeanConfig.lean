@@ -5,11 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lean
-import Leanpkg2.Package
+import Lake.Package
 
 open Lean Elab System
 
-namespace Leanpkg2
+namespace Lake
 
 def leanPkgFile : FilePath := "package.lean"
 

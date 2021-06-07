@@ -3,14 +3,14 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
-import Leanpkg2.Proc
-import Leanpkg2.Package
+import Lake.Proc
+import Lake.Package
 
 open System
 
-namespace Leanpkg2
+namespace Lake
 
-def lockfile : FilePath := ".leanpkg-lock"
+def lockfile : FilePath := ".lake-lock"
 
 partial def withLockFile (x : IO α) : IO α := do
   acquire
@@ -34,7 +34,7 @@ partial def withLockFile (x : IO α) : IO α := do
       catch
         | IO.Error.alreadyExists _ _ => do
           if firstTime then
-            IO.eprintln s!"Waiting for prior leanpkg invocation to finish... (remove '{lockfile}' if stuck)"
+            IO.eprintln s!"Waiting for prior lake invocation to finish... (remove '{lockfile}' if stuck)"
           IO.sleep (ms := 300)
           acquire (firstTime := false)
         | e => throw e

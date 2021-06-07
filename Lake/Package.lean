@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lean.Data.Name
-import Leanpkg2.LeanVersion
+import Lake.LeanVersion
 
 open Lean System
 
-namespace Leanpkg2
+namespace Lake
 
 def buildPath : FilePath := "build"
 def tempBuildPath := buildPath / "temp"
@@ -57,7 +57,7 @@ def sourceRoot (self : Package) :=
   self.sourceDir / self.config.module.toString
 
 def buildDir (self : Package) :=
-  self.dir / Leanpkg2.buildPath
+  self.dir / Lake.buildPath
 
 def buildRoot (self : Package) :=
   self.buildDir / self.config.module.toString

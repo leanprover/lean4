@@ -3,12 +3,12 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
-import Leanpkg2.Proc
-import Leanpkg2.LeanVersion
+import Lake.Proc
+import Lake.LeanVersion
 
 open System
 
-namespace Leanpkg2.Git
+namespace Lake.Git
 
 def upstreamBranch :=
   "master"

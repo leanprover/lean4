@@ -1,6 +1,6 @@
-import Leanpkg2.Build
+import Lake.Build
 
-open Leanpkg2 System
+open Lake System
 
 def package : PackageConfig := {
   name := "b"

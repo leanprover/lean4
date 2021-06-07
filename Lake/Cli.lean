@@ -3,27 +3,27 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
-import Leanpkg2.Init
-import Leanpkg2.Build
-import Leanpkg2.LeanConfig
+import Lake.Init
+import Lake.Build
+import Lake.LeanConfig
 
-namespace Leanpkg2
+namespace Lake
 
 def usage :=
-"Lean package manager, version " ++ uiLeanVersionString ++ "
-Usage: leanpkg <command>
+"Lake, version " ++ uiLeanVersionString ++ "
+Usage: lake <command>
 
 init <name>      create a Lean package in the current directory
 configure        download and build dependencies
 build [<args>]   configure and build *.olean files
 
-See `leanpkg help <command>` for more information on a specific command."
+See `lake help <command>` for more information on a specific command."
 
 def helpConfigure :=
 "Download dependencies
 
 Usage:
-  leanpkg configure
+  lake configure
 
 This command sets up the `build/deps` directory.
 
@@ -36,27 +36,27 @@ def helpBuild :=
 "Download dependencies and build *.olean files
 
 Usage:
-  leanpkg build [<leanmake-args>] [-- <lean-args>]
+  lake build [<leanmake-args>] [-- <lean-args>]
 
-This command invokes `leanpkg configure` followed by `leanmake <leanmake-args> LEAN_OPTS=<lean-args>`.
+This command invokes `lake configure` followed by `leanmake <leanmake-args> LEAN_OPTS=<lean-args>`.
 If defined, the `package.timeout` configuration value is passed to Lean via its `-T` parameter.
 If no <lean-args> are given, only .olean files will be produced in `build/`. If `lib` or `bin`
 is passed instead, the extracted C code is compiled with `c++` and a static library in `build/lib`
-or an executable in `build/bin`, respectively, is created. `leanpkg build bin` requires a declaration
+or an executable in `build/bin`, respectively, is created. `lake build bin` requires a declaration
 of name `main` in the root namespace, which must return `IO Unit` or `IO UInt32` (the exit code) and
 may accept the program's command line arguments as a `List String` parameter.
 
 NOTE: building and linking dependent libraries currently has to be done manually, e.g.
 ```
-$ (cd a; leanpkg build lib)
-$ (cd b; leanpkg build bin LINK_OPTS=../a/build/lib/libA.a)
+$ (cd a; lake build lib)
+$ (cd b; lake build bin LINK_OPTS=../a/build/lib/libA.a)
 ```"
 
 def helpInit :=
 "Create a new Lean package in the current directory
 
 Usage:
-  leanpkg init <name>
+  lake init <name>
 
 This command creates a new Lean package with the given name in the current
 directory."
@@ -68,7 +68,7 @@ def getRootPkg : IO Package := do
       leanVersionString ++ ", but package requires " ++ cfg.leanVersion ++ "\n"
   return ⟨".", cfg⟩
 
-def cli : (cmd : String) → (leanpkgArgs leanArgs : List String) → IO Unit
+def cli : (cmd : String) → (lakeArgs leanArgs : List String) → IO Unit
 | "init",         [name],         []        => init name
 | "configure",    [],             []        => do configure (← getRootPkg)
 | "print-paths",  imports,        leanArgs  => do printPaths (← getRootPkg) imports leanArgs

@@ -1,2 +1,2 @@
 def main : IO Unit :=
-  IO.println "Hello from Leanpkg2!"
+  IO.println "Hello from Lake!"

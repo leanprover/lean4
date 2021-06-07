@@ -3,12 +3,12 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
-import Leanpkg2.Git
-import Leanpkg2.LeanConfig
+import Lake.Git
+import Lake.LeanConfig
 
 open System
 
-namespace Leanpkg2
+namespace Lake
 
 open Git in
 def materializeGit

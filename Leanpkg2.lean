@@ -7,7 +7,6 @@ import Leanpkg2.Cli
 
 def main (args : List String) : IO UInt32 := do
   try
-    Lean.initSearchPath none  -- HACK
     let (cmd, outerArgs, innerArgs) ← Leanpkg2.splitCmdlineArgs args
     Leanpkg2.cli cmd outerArgs innerArgs
     pure 0

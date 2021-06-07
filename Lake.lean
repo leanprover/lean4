@@ -12,8 +12,9 @@ def main (args : List String) : IO UInt32 := do
       uses when intepreting package configuration files.
 
       Also, in order to find the Lean stdlib (e.g., `Init`),
-      the executable needs to be either colocated with Lean or
-      have LEAN_PATH include the directory with its dynamic libraries.
+      the executable needs to either be colocated with Lean or
+      have `LEAN_PATH` include the directory with its `.olean` files
+      (e.g., `<lean-home>/lib/lean`).
     -/
     Lean.initSearchPath none
     let (cmd, outerArgs, innerArgs) ← Lake.splitCmdlineArgs args

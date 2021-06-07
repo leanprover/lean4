@@ -18,7 +18,8 @@ structure BuildConfig where
   module   : Name
   leanArgs : List String
   leanPath : String
-  -- things like `leanpkg.toml` and olean roots of dependencies that should also trigger rebuilds
+  -- things that should also trigger rebuilds
+  -- ex. olean roots of dependencies
   moreDeps : List FilePath
 
 def mkBuildConfig

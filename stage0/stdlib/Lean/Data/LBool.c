@@ -47,14 +47,13 @@ lean_object* l_Lean_LBool_and_match__1___rarg___boxed(lean_object*, lean_object*
 lean_object* l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_11____boxed(lean_object*, lean_object*);
 lean_object* l_toLBoolM___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_LBool_instToStringLBool___closed__1;
-static uint8_t _init_l_Lean_instInhabitedLBool() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
+#define _init_l_Lean_instInhabitedLBool(__INIT_VAR__) { \
+{\
+uint8_t x_1; \
+x_1 = 0;\
+__INIT_VAR__ = x_1; goto l_Lean_instInhabitedLBool_end;\
+}\
+l_Lean_instInhabitedLBool_end: ((void) 0);}
 lean_object* l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_11__match__1___rarg(uint8_t x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -231,22 +230,20 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_instBEqLBool___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_11____boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_instBEqLBool() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_instBEqLBool___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_instBEqLBool___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_11____boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_instBEqLBool___closed__1_end;\
+}\
+l_Lean_instBEqLBool___closed__1_end: ((void) 0);}
+#define _init_l_Lean_instBEqLBool(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_instBEqLBool___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_instBEqLBool_end;\
+}\
+l_Lean_instBEqLBool_end: ((void) 0);}
 lean_object* l_Lean_LBool_neg_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -409,14 +406,13 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_LBool_toString___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("undef");
-return x_1;
-}
-}
+#define _init_l_Lean_LBool_toString___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("undef");\
+__INIT_VAR__ = x_1; goto l_Lean_LBool_toString___closed__1_end;\
+}\
+l_Lean_LBool_toString___closed__1_end: ((void) 0);}
 lean_object* l_Lean_LBool_toString(uint8_t x_1) {
 _start:
 {
@@ -452,22 +448,20 @@ x_3 = l_Lean_LBool_toString(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_LBool_instToStringLBool___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_LBool_toString___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_LBool_instToStringLBool() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_LBool_instToStringLBool___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_LBool_instToStringLBool___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_LBool_toString___boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_LBool_instToStringLBool___closed__1_end;\
+}\
+l_Lean_LBool_instToStringLBool___closed__1_end: ((void) 0);}
+#define _init_l_Lean_LBool_instToStringLBool(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_LBool_instToStringLBool___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_LBool_instToStringLBool_end;\
+}\
+l_Lean_LBool_instToStringLBool_end: ((void) 0);}
 lean_object* l_Bool_toLBool_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -590,16 +584,16 @@ _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_instInhabitedLBool = _init_l_Lean_instInhabitedLBool();
-l_Lean_instBEqLBool___closed__1 = _init_l_Lean_instBEqLBool___closed__1();
+_init_l_Lean_instInhabitedLBool(l_Lean_instInhabitedLBool);
+_init_l_Lean_instBEqLBool___closed__1(l_Lean_instBEqLBool___closed__1);
 lean_mark_persistent(l_Lean_instBEqLBool___closed__1);
-l_Lean_instBEqLBool = _init_l_Lean_instBEqLBool();
+_init_l_Lean_instBEqLBool(l_Lean_instBEqLBool);
 lean_mark_persistent(l_Lean_instBEqLBool);
-l_Lean_LBool_toString___closed__1 = _init_l_Lean_LBool_toString___closed__1();
+_init_l_Lean_LBool_toString___closed__1(l_Lean_LBool_toString___closed__1);
 lean_mark_persistent(l_Lean_LBool_toString___closed__1);
-l_Lean_LBool_instToStringLBool___closed__1 = _init_l_Lean_LBool_instToStringLBool___closed__1();
+_init_l_Lean_LBool_instToStringLBool___closed__1(l_Lean_LBool_instToStringLBool___closed__1);
 lean_mark_persistent(l_Lean_LBool_instToStringLBool___closed__1);
-l_Lean_LBool_instToStringLBool = _init_l_Lean_LBool_instToStringLBool();
+_init_l_Lean_LBool_instToStringLBool(l_Lean_LBool_instToStringLBool);
 lean_mark_persistent(l_Lean_LBool_instToStringLBool);
 return lean_io_result_mk_ok(lean_box(0));
 }

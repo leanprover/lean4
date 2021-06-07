@@ -62,14 +62,13 @@ lean_object* l_Lean_Exception_hasSyntheticSorry_match__1(lean_object*);
 uint8_t l_Lean_Expr_isSorry(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Expr_isSorry_match__1___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("sorryAx");
-return x_1;
-}
-}
+#define _init_l_Lean_Expr_isSorry_match__1___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("sorryAx");\
+__INIT_VAR__ = x_1; goto l_Lean_Expr_isSorry_match__1___rarg___closed__1_end;\
+}\
+l_Lean_Expr_isSorry_match__1___rarg___closed__1_end: ((void) 0);}
 lean_object* l_Lean_Expr_isSorry_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -3099,16 +3098,15 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Expr_hasSorry_match__1___rarg), 9, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Expr_hasSorry___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Expr_isSorry_match__1___rarg___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Expr_hasSorry___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Expr_isSorry_match__1___rarg___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Expr_hasSorry___closed__1_end;\
+}\
+l_Lean_Expr_hasSorry___closed__1_end: ((void) 0);}
 uint8_t l_Lean_Expr_hasSorry(lean_object* x_1) {
 _start:
 {
@@ -4267,9 +4265,9 @@ lean_dec_ref(res);
 res = initialize_Lean_Exception(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Expr_isSorry_match__1___rarg___closed__1 = _init_l_Lean_Expr_isSorry_match__1___rarg___closed__1();
+_init_l_Lean_Expr_isSorry_match__1___rarg___closed__1(l_Lean_Expr_isSorry_match__1___rarg___closed__1);
 lean_mark_persistent(l_Lean_Expr_isSorry_match__1___rarg___closed__1);
-l_Lean_Expr_hasSorry___closed__1 = _init_l_Lean_Expr_hasSorry___closed__1();
+_init_l_Lean_Expr_hasSorry___closed__1(l_Lean_Expr_hasSorry___closed__1);
 lean_mark_persistent(l_Lean_Expr_hasSorry___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

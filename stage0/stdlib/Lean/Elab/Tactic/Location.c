@@ -143,18 +143,17 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_expandOptLocation___closed__1() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l_Array_empty___closed__1;
-x_2 = 1;
-x_3 = lean_alloc_ctor(1, 1, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Elab_Tactic_expandOptLocation___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; uint8_t x_2; lean_object* x_3; \
+x_1 = l_Array_empty___closed__1;\
+x_2 = 1;\
+x_3 = lean_alloc_ctor(1, 1, 1);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Elab_Tactic_expandOptLocation___closed__1_end;\
+}\
+l_Lean_Elab_Tactic_expandOptLocation___closed__1_end: ((void) 0);}
 lean_object* l_Lean_Elab_Tactic_expandOptLocation(lean_object* x_1) {
 _start:
 {
@@ -195,7 +194,7 @@ _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_Tactic_expandOptLocation___closed__1 = _init_l_Lean_Elab_Tactic_expandOptLocation___closed__1();
+_init_l_Lean_Elab_Tactic_expandOptLocation___closed__1(l_Lean_Elab_Tactic_expandOptLocation___closed__1);
 lean_mark_persistent(l_Lean_Elab_Tactic_expandOptLocation___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

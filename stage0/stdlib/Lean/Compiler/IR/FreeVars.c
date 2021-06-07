@@ -256,22 +256,20 @@ x_5 = lean_apply_1(x_2, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_IR_MaxIndex_instAndThenCollector___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_MaxIndex_seq), 3, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_IR_MaxIndex_instAndThenCollector() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_IR_MaxIndex_instAndThenCollector___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_IR_MaxIndex_instAndThenCollector___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_MaxIndex_seq), 3, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_IR_MaxIndex_instAndThenCollector___closed__1_end;\
+}\
+l_Lean_IR_MaxIndex_instAndThenCollector___closed__1_end: ((void) 0);}
+#define _init_l_Lean_IR_MaxIndex_instAndThenCollector(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_IR_MaxIndex_instAndThenCollector___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_IR_MaxIndex_instAndThenCollector_end;\
+}\
+l_Lean_IR_MaxIndex_instAndThenCollector_end: ((void) 0);}
 lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_MaxIndex_collectArg_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1626,14 +1624,13 @@ x_2 = lean_alloc_closure((void*)(l_Lean_IR_MaxIndex_collectFnBody_match__1___rar
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_IR_MaxIndex_collectFnBody___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_IR_MaxIndex_collectFnBody), 2, 0);
-return x_1;
-}
-}
+#define _init_l_Lean_IR_MaxIndex_collectFnBody___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_IR_MaxIndex_collectFnBody), 2, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_IR_MaxIndex_collectFnBody___closed__1_end;\
+}\
+l_Lean_IR_MaxIndex_collectFnBody___closed__1_end: ((void) 0);}
 lean_object* l_Lean_IR_MaxIndex_collectFnBody(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2376,22 +2373,20 @@ x_6 = lean_apply_2(x_2, x_3, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_IR_FreeIndices_instAndThenCollector___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_seq), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_IR_FreeIndices_instAndThenCollector() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_IR_FreeIndices_instAndThenCollector___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_IR_FreeIndices_instAndThenCollector___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_seq), 4, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_IR_FreeIndices_instAndThenCollector___closed__1_end;\
+}\
+l_Lean_IR_FreeIndices_instAndThenCollector___closed__1_end: ((void) 0);}
+#define _init_l_Lean_IR_FreeIndices_instAndThenCollector(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_IR_FreeIndices_instAndThenCollector___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_IR_FreeIndices_instAndThenCollector_end;\
+}\
+l_Lean_IR_FreeIndices_instAndThenCollector_end: ((void) 0);}
 lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2901,14 +2896,13 @@ lean_dec(x_2);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_IR_FreeIndices_collectFnBody___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_IR_FreeIndices_collectFnBody), 3, 0);
-return x_1;
-}
-}
+#define _init_l_Lean_IR_FreeIndices_collectFnBody___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_IR_FreeIndices_collectFnBody), 3, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_IR_FreeIndices_collectFnBody___closed__1_end;\
+}\
+l_Lean_IR_FreeIndices_collectFnBody___closed__1_end: ((void) 0);}
 lean_object* l_Lean_IR_FreeIndices_collectFnBody(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -4416,17 +4410,17 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_IR_MaxIndex_instAndThenCollector___closed__1 = _init_l_Lean_IR_MaxIndex_instAndThenCollector___closed__1();
+_init_l_Lean_IR_MaxIndex_instAndThenCollector___closed__1(l_Lean_IR_MaxIndex_instAndThenCollector___closed__1);
 lean_mark_persistent(l_Lean_IR_MaxIndex_instAndThenCollector___closed__1);
-l_Lean_IR_MaxIndex_instAndThenCollector = _init_l_Lean_IR_MaxIndex_instAndThenCollector();
+_init_l_Lean_IR_MaxIndex_instAndThenCollector(l_Lean_IR_MaxIndex_instAndThenCollector);
 lean_mark_persistent(l_Lean_IR_MaxIndex_instAndThenCollector);
-l_Lean_IR_MaxIndex_collectFnBody___closed__1 = _init_l_Lean_IR_MaxIndex_collectFnBody___closed__1();
+_init_l_Lean_IR_MaxIndex_collectFnBody___closed__1(l_Lean_IR_MaxIndex_collectFnBody___closed__1);
 lean_mark_persistent(l_Lean_IR_MaxIndex_collectFnBody___closed__1);
-l_Lean_IR_FreeIndices_instAndThenCollector___closed__1 = _init_l_Lean_IR_FreeIndices_instAndThenCollector___closed__1();
+_init_l_Lean_IR_FreeIndices_instAndThenCollector___closed__1(l_Lean_IR_FreeIndices_instAndThenCollector___closed__1);
 lean_mark_persistent(l_Lean_IR_FreeIndices_instAndThenCollector___closed__1);
-l_Lean_IR_FreeIndices_instAndThenCollector = _init_l_Lean_IR_FreeIndices_instAndThenCollector();
+_init_l_Lean_IR_FreeIndices_instAndThenCollector(l_Lean_IR_FreeIndices_instAndThenCollector);
 lean_mark_persistent(l_Lean_IR_FreeIndices_instAndThenCollector);
-l_Lean_IR_FreeIndices_collectFnBody___closed__1 = _init_l_Lean_IR_FreeIndices_collectFnBody___closed__1();
+_init_l_Lean_IR_FreeIndices_collectFnBody___closed__1(l_Lean_IR_FreeIndices_collectFnBody___closed__1);
 lean_mark_persistent(l_Lean_IR_FreeIndices_collectFnBody___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

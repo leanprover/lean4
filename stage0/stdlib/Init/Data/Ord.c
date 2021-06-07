@@ -82,14 +82,13 @@ lean_object* l_compareOfLessAndEq___rarg___boxed(lean_object*, lean_object*, lea
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-static uint8_t _init_l_instInhabitedOrdering() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
+#define _init_l_instInhabitedOrdering(__INIT_VAR__) { \
+{\
+uint8_t x_1; \
+x_1 = 0;\
+__INIT_VAR__ = x_1; goto l_instInhabitedOrdering_end;\
+}\
+l_instInhabitedOrdering_end: ((void) 0);}
 lean_object* l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_10__match__1___rarg(uint8_t x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -266,22 +265,20 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_instBEqOrdering___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_10____boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instBEqOrdering() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instBEqOrdering___closed__1;
-return x_1;
-}
-}
+#define _init_l_instBEqOrdering___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_10____boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instBEqOrdering___closed__1_end;\
+}\
+l_instBEqOrdering___closed__1_end: ((void) 0);}
+#define _init_l_instBEqOrdering(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instBEqOrdering___closed__1;\
+__INIT_VAR__ = x_1; goto l_instBEqOrdering_end;\
+}\
+l_instBEqOrdering_end: ((void) 0);}
 uint8_t l_compareOfLessAndEq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5) {
 _start:
 {
@@ -1076,10 +1073,10 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_instInhabitedOrdering = _init_l_instInhabitedOrdering();
-l_instBEqOrdering___closed__1 = _init_l_instBEqOrdering___closed__1();
+_init_l_instInhabitedOrdering(l_instInhabitedOrdering);
+_init_l_instBEqOrdering___closed__1(l_instBEqOrdering___closed__1);
 lean_mark_persistent(l_instBEqOrdering___closed__1);
-l_instBEqOrdering = _init_l_instBEqOrdering();
+_init_l_instBEqOrdering(l_instBEqOrdering);
 lean_mark_persistent(l_instBEqOrdering);
 return lean_io_result_mk_ok(lean_box(0));
 }

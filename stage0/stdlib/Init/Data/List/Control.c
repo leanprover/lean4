@@ -219,14 +219,13 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_List_mapA___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_List_mapA___rarg___lambda__1), 2, 0);
-return x_1;
-}
-}
+#define _init_l_List_mapA___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_List_mapA___rarg___lambda__1), 2, 0);\
+__INIT_VAR__ = x_1; goto l_List_mapA___rarg___closed__1_end;\
+}\
+l_List_mapA___rarg___closed__1_end: ((void) 0);}
 lean_object* l_List_mapA___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -1563,7 +1562,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_List_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_List_mapA___rarg___closed__1 = _init_l_List_mapA___rarg___closed__1();
+_init_l_List_mapA___rarg___closed__1(l_List_mapA___rarg___closed__1);
 lean_mark_persistent(l_List_mapA___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

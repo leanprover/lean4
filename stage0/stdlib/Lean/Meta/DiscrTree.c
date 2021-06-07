@@ -912,14 +912,13 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Meta_DiscrTree_instLTKey() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
+#define _init_l_Lean_Meta_DiscrTree_instLTKey(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_DiscrTree_instLTKey_end;\
+}\
+l_Lean_Meta_DiscrTree_instLTKey_end: ((void) 0);}
 uint8_t l_Lean_Meta_DiscrTree_instDecidableLt(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1070,44 +1069,40 @@ lean_ctor_set(x_4, 0, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Meta_DiscrTree_Key_format___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_stx___x2a___closed__3;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_DiscrTree_Key_format___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("◾");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_DiscrTree_Key_format___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_DiscrTree_Key_format___closed__2;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_DiscrTree_Key_format___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_forInUnsafe_loop___at___private_Init_NotationExtra_0__Lean_mkHintBody___spec__1___closed__4;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Meta_DiscrTree_Key_format___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_stx___x2a___closed__3;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_DiscrTree_Key_format___closed__1_end;\
+}\
+l_Lean_Meta_DiscrTree_Key_format___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_DiscrTree_Key_format___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("◾");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_DiscrTree_Key_format___closed__2_end;\
+}\
+l_Lean_Meta_DiscrTree_Key_format___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Meta_DiscrTree_Key_format___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_DiscrTree_Key_format___closed__2;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_DiscrTree_Key_format___closed__3_end;\
+}\
+l_Lean_Meta_DiscrTree_Key_format___closed__3_end: ((void) 0);}
+#define _init_l_Lean_Meta_DiscrTree_Key_format___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Array_forInUnsafe_loop___at___private_Init_NotationExtra_0__Lean_mkHintBody___spec__1___closed__4;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_DiscrTree_Key_format___closed__4_end;\
+}\
+l_Lean_Meta_DiscrTree_Key_format___closed__4_end: ((void) 0);}
 lean_object* l_Lean_Meta_DiscrTree_Key_format(lean_object* x_1) {
 _start:
 {
@@ -1179,22 +1174,20 @@ return x_14;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_DiscrTree_instToFormatKey___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_DiscrTree_Key_format), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_DiscrTree_instToFormatKey() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_DiscrTree_instToFormatKey___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_Meta_DiscrTree_instToFormatKey___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_DiscrTree_Key_format), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_DiscrTree_instToFormatKey___closed__1_end;\
+}\
+l_Lean_Meta_DiscrTree_instToFormatKey___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_DiscrTree_instToFormatKey(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Meta_DiscrTree_instToFormatKey___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_DiscrTree_instToFormatKey_end;\
+}\
+l_Lean_Meta_DiscrTree_instToFormatKey_end: ((void) 0);}
 lean_object* l_Lean_Meta_DiscrTree_Key_arity_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -1299,17 +1292,16 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_DiscrTree_instInhabitedTrie___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_empty___closed__1;
-x_2 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_2, 0, x_1);
-lean_ctor_set(x_2, 1, x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Meta_DiscrTree_instInhabitedTrie___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Array_empty___closed__1;\
+x_2 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+lean_ctor_set(x_2, 1, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_DiscrTree_instInhabitedTrie___closed__1_end;\
+}\
+l_Lean_Meta_DiscrTree_instInhabitedTrie___closed__1_end: ((void) 0);}
 lean_object* l_Lean_Meta_DiscrTree_instInhabitedTrie(lean_object* x_1) {
 _start:
 {
@@ -1376,16 +1368,15 @@ x_2 = l_Lean_Meta_DiscrTree_Key_format(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_List_map___at_Lean_Meta_DiscrTree_Trie_format___spec__2___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_rename___closed__6;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_List_map___at_Lean_Meta_DiscrTree_Trie_format___spec__2___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Parser_Tactic_rename___closed__6;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_List_map___at_Lean_Meta_DiscrTree_Trie_format___spec__2___rarg___closed__1_end;\
+}\
+l_List_map___at_Lean_Meta_DiscrTree_Trie_format___spec__2___rarg___closed__1_end: ((void) 0);}
 lean_object* l_List_map___at_Lean_Meta_DiscrTree_Trie_format___spec__2___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1542,36 +1533,33 @@ x_2 = lean_alloc_closure((void*)(l_Std_fmt___at_Lean_Meta_DiscrTree_Trie_format_
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("node");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__2;
-x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("node");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__1_end;\
+}\
+l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__1;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__2_end;\
+}\
+l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__2;\
+x_2 = lean_box(0);\
+x_3 = lean_alloc_ctor(4, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__3_end;\
+}\
+l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__3_end: ((void) 0);}
 lean_object* l_Lean_Meta_DiscrTree_Trie_format___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2027,19 +2015,18 @@ x_2 = lean_alloc_closure((void*)(l_Std_PersistentHashMap_foldlM___at_Lean_Meta_D
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_DiscrTree_format___rarg___closed__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = 1;
-x_2 = lean_box(0);
-x_3 = lean_box(x_1);
-x_4 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-return x_4;
-}
-}
+#define _init_l_Lean_Meta_DiscrTree_format___rarg___closed__1(__INIT_VAR__) { \
+{\
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; \
+x_1 = 1;\
+x_2 = lean_box(0);\
+x_3 = lean_box(x_1);\
+x_4 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_4, 0, x_3);\
+lean_ctor_set(x_4, 1, x_2);\
+__INIT_VAR__ = x_4; goto l_Lean_Meta_DiscrTree_format___rarg___closed__1_end;\
+}\
+l_Lean_Meta_DiscrTree_format___rarg___closed__1_end: ((void) 0);}
 lean_object* l_Lean_Meta_DiscrTree_format___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2140,49 +2127,44 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Meta_DiscrTree_instToFormatDiscrTree___r
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("_discr_tree_tmp");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__2;
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId;
-x_2 = l_Lean_mkMVar(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar___closed__1;
-return x_1;
-}
-}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("_discr_tree_tmp");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__1_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__1_end: ((void) 0);}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__2_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__2_end: ((void) 0);}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__2;\
+__INIT_VAR__ = x_1; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId_end: ((void) 0);}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId;\
+x_2 = l_Lean_mkMVar(x_1);\
+__INIT_VAR__ = x_2; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar___closed__1_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar___closed__1_end: ((void) 0);}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar___closed__1;\
+__INIT_VAR__ = x_1; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar_end: ((void) 0);}
 lean_object* l_Lean_Meta_DiscrTree_instInhabitedDiscrTree(lean_object* x_1) {
 _start:
 {
@@ -2625,70 +2607,63 @@ return x_23;
 }
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("OfNat");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__2;
-x_2 = l_Lean_Expr_isCharLit___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("zero");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Literal_type___closed__2;
-x_2 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__4;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__6() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("succ");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Literal_type___closed__2;
-x_2 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__6;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("OfNat");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__1_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__1_end: ((void) 0);}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__2_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__2_end: ((void) 0);}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__2;\
+x_2 = l_Lean_Expr_isCharLit___closed__3;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__3_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__3_end: ((void) 0);}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("zero");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__4_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__4_end: ((void) 0);}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_Literal_type___closed__2;\
+x_2 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__4;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__5_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__5_end: ((void) 0);}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__6(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("succ");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__6_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__6_end: ((void) 0);}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__7(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_Literal_type___closed__2;\
+x_2 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__6;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__7_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__7_end: ((void) 0);}
 uint8_t l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral(lean_object* x_1) {
 _start:
 {
@@ -2903,52 +2878,47 @@ return x_22;
 }
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Add");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("add");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__2;
-x_2 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Literal_type___closed__2;
-x_2 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Add");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__1_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__1_end: ((void) 0);}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__2_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__2_end: ((void) 0);}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("add");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__3_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__3_end: ((void) 0);}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__2;\
+x_2 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__3;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__4_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__4_end: ((void) 0);}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_Literal_type___closed__2;\
+x_2 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__3;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__5_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__5_end: ((void) 0);}
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -3353,24 +3323,22 @@ lean_dec(x_1);
 return x_8;
 }
 }
-static lean_object* _init_l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("noindex");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("noindex");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__1_end;\
+}\
+l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__2_end;\
+}\
+l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__2_end: ((void) 0);}
 lean_object* l_Lean_Meta_DiscrTree_mkNoindexAnnotation(lean_object* x_1) {
 _start:
 {
@@ -4743,23 +4711,21 @@ x_10 = l_Lean_Meta_DiscrTree_mkPathAux(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_initCapacity() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(8u);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_DiscrTree_mkPath___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_initCapacity;
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_initCapacity(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_unsigned_to_nat(8u);\
+__INIT_VAR__ = x_1; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_initCapacity_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_initCapacity_end: ((void) 0);}
+#define _init_l_Lean_Meta_DiscrTree_mkPath___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_initCapacity;\
+x_2 = lean_mk_empty_array_with_capacity(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_DiscrTree_mkPath___closed__1_end;\
+}\
+l_Lean_Meta_DiscrTree_mkPath___closed__1_end: ((void) 0);}
 lean_object* l_Lean_Meta_DiscrTree_mkPath(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -5108,26 +5074,24 @@ x_3 = lean_alloc_closure((void*)(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_Di
 return x_3;
 }
 }
-static lean_object* _init_l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_DiscrTree_instInhabitedTrie(lean_box(0));
-return x_1;
-}
-}
-static lean_object* _init_l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_DiscrTree_instInhabitedKey;
-x_2 = l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
+#define _init_l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Meta_DiscrTree_instInhabitedTrie(lean_box(0));\
+__INIT_VAR__ = x_1; goto l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__1_end;\
+}\
+l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__1_end: ((void) 0);}
+#define _init_l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_Meta_DiscrTree_instInhabitedKey;\
+x_2 = l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__1;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__2_end;\
+}\
+l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__2_end: ((void) 0);}
 lean_object* l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg(lean_object* x_1) {
 _start:
 {
@@ -5150,18 +5114,17 @@ x_2 = lean_alloc_closure((void*)(l_Array_back___at___private_Lean_Meta_DiscrTree
 return x_2;
 }
 }
-static lean_object* _init_l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__3___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_DiscrTree_instInhabitedKey___closed__1;
-x_2 = l_Lean_Meta_DiscrTree_instInhabitedTrie___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
+#define _init_l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__3___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_Meta_DiscrTree_instInhabitedKey___closed__1;\
+x_2 = l_Lean_Meta_DiscrTree_instInhabitedTrie___closed__1;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__3___rarg___closed__1_end;\
+}\
+l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__3___rarg___closed__1_end: ((void) 0);}
 lean_object* l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -6941,51 +6904,46 @@ x_2 = lean_alloc_closure((void*)(l_Std_PersistentHashMap_insert___at_Lean_Meta_D
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_DiscrTree_instInhabitedDiscrTree(lean_box(0));
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.DiscrTree");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.DiscrTree.insertCore");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("invalid key sequence");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Meta_DiscrTree_insertCore___rarg___closed__2;
-x_2 = l_Lean_Meta_DiscrTree_insertCore___rarg___closed__3;
-x_3 = lean_unsigned_to_nat(310u);
-x_4 = lean_unsigned_to_nat(23u);
-x_5 = l_Lean_Meta_DiscrTree_insertCore___rarg___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
+#define _init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Meta_DiscrTree_instInhabitedDiscrTree(lean_box(0));\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_DiscrTree_insertCore___rarg___closed__1_end;\
+}\
+l_Lean_Meta_DiscrTree_insertCore___rarg___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Lean.Meta.DiscrTree");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_DiscrTree_insertCore___rarg___closed__2_end;\
+}\
+l_Lean_Meta_DiscrTree_insertCore___rarg___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Lean.Meta.DiscrTree.insertCore");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_DiscrTree_insertCore___rarg___closed__3_end;\
+}\
+l_Lean_Meta_DiscrTree_insertCore___rarg___closed__3_end: ((void) 0);}
+#define _init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("invalid key sequence");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_DiscrTree_insertCore___rarg___closed__4_end;\
+}\
+l_Lean_Meta_DiscrTree_insertCore___rarg___closed__4_end: ((void) 0);}
+#define _init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; \
+x_1 = l_Lean_Meta_DiscrTree_insertCore___rarg___closed__2;\
+x_2 = l_Lean_Meta_DiscrTree_insertCore___rarg___closed__3;\
+x_3 = lean_unsigned_to_nat(310u);\
+x_4 = lean_unsigned_to_nat(23u);\
+x_5 = l_Lean_Meta_DiscrTree_insertCore___rarg___closed__4;\
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);\
+__INIT_VAR__ = x_6; goto l_Lean_Meta_DiscrTree_insertCore___rarg___closed__5_end;\
+}\
+l_Lean_Meta_DiscrTree_insertCore___rarg___closed__5_end: ((void) 0);}
 lean_object* l_Lean_Meta_DiscrTree_insertCore___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -7198,30 +7156,28 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Meta_DiscrTree_insert___rarg), 9, 0);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(4);
-x_2 = l_Array_empty___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(3);
-x_2 = l_Array_empty___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(4);\
+x_2 = l_Array_empty___closed__1;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__1_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__1_end: ((void) 0);}
+#define _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(3);\
+x_2 = l_Array_empty___closed__1;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__2_end;\
+}\
+l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__2_end: ((void) 0);}
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -9579,18 +9535,17 @@ x_2 = lean_alloc_closure((void*)(l_Array_binSearchAux___at_Lean_Meta_DiscrTree_g
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_DiscrTree_getMatch_process___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(4);
-x_2 = l_Lean_Meta_DiscrTree_instInhabitedTrie___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Meta_DiscrTree_getMatch_process___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(4);\
+x_2 = l_Lean_Meta_DiscrTree_instInhabitedTrie___closed__1;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_DiscrTree_getMatch_process___rarg___closed__1_end;\
+}\
+l_Lean_Meta_DiscrTree_getMatch_process___rarg___closed__1_end: ((void) 0);}
 lean_object* l_Lean_Meta_DiscrTree_getMatch_process___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -22764,14 +22719,13 @@ x_11 = l_Lean_Meta_DiscrTree_getUnify_process___rarg(x_9, x_10, x_3, x_1, x_4, x
 return x_11;
 }
 }
-static lean_object* _init_l_Std_PersistentHashMap_foldlMAux___at_Lean_Meta_DiscrTree_getUnify___spec__11___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_PersistentHashMap_foldlMAux___at_Lean_Meta_DiscrTree_getUnify___spec__11___rarg___lambda__1___boxed), 8, 0);
-return x_1;
-}
-}
+#define _init_l_Std_PersistentHashMap_foldlMAux___at_Lean_Meta_DiscrTree_getUnify___spec__11___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Std_PersistentHashMap_foldlMAux___at_Lean_Meta_DiscrTree_getUnify___spec__11___rarg___lambda__1___boxed), 8, 0);\
+__INIT_VAR__ = x_1; goto l_Std_PersistentHashMap_foldlMAux___at_Lean_Meta_DiscrTree_getUnify___spec__11___rarg___closed__1_end;\
+}\
+l_Std_PersistentHashMap_foldlMAux___at_Lean_Meta_DiscrTree_getUnify___spec__11___rarg___closed__1_end: ((void) 0);}
 lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_Meta_DiscrTree_getUnify___spec__11___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -25596,97 +25550,97 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_InferType(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_DiscrTree_instLTKey = _init_l_Lean_Meta_DiscrTree_instLTKey();
+_init_l_Lean_Meta_DiscrTree_instLTKey(l_Lean_Meta_DiscrTree_instLTKey);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_instLTKey);
-l_Lean_Meta_DiscrTree_Key_format___closed__1 = _init_l_Lean_Meta_DiscrTree_Key_format___closed__1();
+_init_l_Lean_Meta_DiscrTree_Key_format___closed__1(l_Lean_Meta_DiscrTree_Key_format___closed__1);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_Key_format___closed__1);
-l_Lean_Meta_DiscrTree_Key_format___closed__2 = _init_l_Lean_Meta_DiscrTree_Key_format___closed__2();
+_init_l_Lean_Meta_DiscrTree_Key_format___closed__2(l_Lean_Meta_DiscrTree_Key_format___closed__2);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_Key_format___closed__2);
-l_Lean_Meta_DiscrTree_Key_format___closed__3 = _init_l_Lean_Meta_DiscrTree_Key_format___closed__3();
+_init_l_Lean_Meta_DiscrTree_Key_format___closed__3(l_Lean_Meta_DiscrTree_Key_format___closed__3);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_Key_format___closed__3);
-l_Lean_Meta_DiscrTree_Key_format___closed__4 = _init_l_Lean_Meta_DiscrTree_Key_format___closed__4();
+_init_l_Lean_Meta_DiscrTree_Key_format___closed__4(l_Lean_Meta_DiscrTree_Key_format___closed__4);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_Key_format___closed__4);
-l_Lean_Meta_DiscrTree_instToFormatKey___closed__1 = _init_l_Lean_Meta_DiscrTree_instToFormatKey___closed__1();
+_init_l_Lean_Meta_DiscrTree_instToFormatKey___closed__1(l_Lean_Meta_DiscrTree_instToFormatKey___closed__1);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_instToFormatKey___closed__1);
-l_Lean_Meta_DiscrTree_instToFormatKey = _init_l_Lean_Meta_DiscrTree_instToFormatKey();
+_init_l_Lean_Meta_DiscrTree_instToFormatKey(l_Lean_Meta_DiscrTree_instToFormatKey);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_instToFormatKey);
-l_Lean_Meta_DiscrTree_instInhabitedTrie___closed__1 = _init_l_Lean_Meta_DiscrTree_instInhabitedTrie___closed__1();
+_init_l_Lean_Meta_DiscrTree_instInhabitedTrie___closed__1(l_Lean_Meta_DiscrTree_instInhabitedTrie___closed__1);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_instInhabitedTrie___closed__1);
-l_List_map___at_Lean_Meta_DiscrTree_Trie_format___spec__2___rarg___closed__1 = _init_l_List_map___at_Lean_Meta_DiscrTree_Trie_format___spec__2___rarg___closed__1();
+_init_l_List_map___at_Lean_Meta_DiscrTree_Trie_format___spec__2___rarg___closed__1(l_List_map___at_Lean_Meta_DiscrTree_Trie_format___spec__2___rarg___closed__1);
 lean_mark_persistent(l_List_map___at_Lean_Meta_DiscrTree_Trie_format___spec__2___rarg___closed__1);
-l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__1 = _init_l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__1();
+_init_l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__1(l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__1);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__1);
-l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__2 = _init_l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__2();
+_init_l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__2(l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__2);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__2);
-l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__3 = _init_l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__3();
+_init_l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__3(l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__3);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__3);
-l_Lean_Meta_DiscrTree_format___rarg___closed__1 = _init_l_Lean_Meta_DiscrTree_format___rarg___closed__1();
+_init_l_Lean_Meta_DiscrTree_format___rarg___closed__1(l_Lean_Meta_DiscrTree_format___rarg___closed__1);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_format___rarg___closed__1);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__1 = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__1();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__1(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__1);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__1);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__2 = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__2();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__2(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__2);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId___closed__2);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpMVarId);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar___closed__1 = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar___closed__1();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar___closed__1(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar___closed__1);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar___closed__1);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_tmpStar);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__1 = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__1();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__1(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__1);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__1);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__2 = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__2();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__2(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__2);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__2);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__3 = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__3();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__3(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__3);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__3);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__4 = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__4();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__4(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__4);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__4);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__5 = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__5();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__5(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__5);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__5);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__6 = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__6();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__6(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__6);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__6);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__7 = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__7();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__7(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__7);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isNumeral___closed__7);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__1 = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__1();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__1(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__1);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__1);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__2 = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__2();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__2(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__2);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__2);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__3 = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__3();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__3(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__3);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__3);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__4 = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__4();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__4(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__4);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__4);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__5 = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__5();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__5(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__5);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_isOffset___closed__5);
-l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__1 = _init_l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__1();
+_init_l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__1(l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__1);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__1);
-l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__2 = _init_l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__2();
+_init_l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__2(l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__2);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__2);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_initCapacity = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_initCapacity();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_initCapacity(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_initCapacity);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_initCapacity);
-l_Lean_Meta_DiscrTree_mkPath___closed__1 = _init_l_Lean_Meta_DiscrTree_mkPath___closed__1();
+_init_l_Lean_Meta_DiscrTree_mkPath___closed__1(l_Lean_Meta_DiscrTree_mkPath___closed__1);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_mkPath___closed__1);
-l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__1 = _init_l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__1();
+_init_l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__1(l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__1);
 lean_mark_persistent(l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__1);
-l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__2 = _init_l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__2();
+_init_l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__2(l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__2);
 lean_mark_persistent(l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__2);
-l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__3___rarg___closed__1 = _init_l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__3___rarg___closed__1();
+_init_l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__3___rarg___closed__1(l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__3___rarg___closed__1);
 lean_mark_persistent(l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__3___rarg___closed__1);
-l_Lean_Meta_DiscrTree_insertCore___rarg___closed__1 = _init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__1();
+_init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__1(l_Lean_Meta_DiscrTree_insertCore___rarg___closed__1);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_insertCore___rarg___closed__1);
-l_Lean_Meta_DiscrTree_insertCore___rarg___closed__2 = _init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__2();
+_init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__2(l_Lean_Meta_DiscrTree_insertCore___rarg___closed__2);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_insertCore___rarg___closed__2);
-l_Lean_Meta_DiscrTree_insertCore___rarg___closed__3 = _init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__3();
+_init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__3(l_Lean_Meta_DiscrTree_insertCore___rarg___closed__3);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_insertCore___rarg___closed__3);
-l_Lean_Meta_DiscrTree_insertCore___rarg___closed__4 = _init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__4();
+_init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__4(l_Lean_Meta_DiscrTree_insertCore___rarg___closed__4);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_insertCore___rarg___closed__4);
-l_Lean_Meta_DiscrTree_insertCore___rarg___closed__5 = _init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__5();
+_init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__5(l_Lean_Meta_DiscrTree_insertCore___rarg___closed__5);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_insertCore___rarg___closed__5);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__1 = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__1();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__1(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__1);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__1);
-l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__2 = _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__2();
+_init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__2(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__2);
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__2);
-l_Lean_Meta_DiscrTree_getMatch_process___rarg___closed__1 = _init_l_Lean_Meta_DiscrTree_getMatch_process___rarg___closed__1();
+_init_l_Lean_Meta_DiscrTree_getMatch_process___rarg___closed__1(l_Lean_Meta_DiscrTree_getMatch_process___rarg___closed__1);
 lean_mark_persistent(l_Lean_Meta_DiscrTree_getMatch_process___rarg___closed__1);
-l_Std_PersistentHashMap_foldlMAux___at_Lean_Meta_DiscrTree_getUnify___spec__11___rarg___closed__1 = _init_l_Std_PersistentHashMap_foldlMAux___at_Lean_Meta_DiscrTree_getUnify___spec__11___rarg___closed__1();
+_init_l_Std_PersistentHashMap_foldlMAux___at_Lean_Meta_DiscrTree_getUnify___spec__11___rarg___closed__1(l_Std_PersistentHashMap_foldlMAux___at_Lean_Meta_DiscrTree_getUnify___spec__11___rarg___closed__1);
 lean_mark_persistent(l_Std_PersistentHashMap_foldlMAux___at_Lean_Meta_DiscrTree_getUnify___spec__11___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

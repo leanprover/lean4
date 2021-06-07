@@ -1169,14 +1169,13 @@ lean_dec(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_IR_instInhabitedLiveVarSet() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
+#define _init_l_Lean_IR_instInhabitedLiveVarSet(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_IR_instInhabitedLiveVarSet_end;\
+}\
+l_Lean_IR_instInhabitedLiveVarSet_end: ((void) 0);}
 lean_object* l_Std_RBNode_ins___at_Lean_IR_mkLiveVarSet___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -3941,14 +3940,13 @@ return x_7;
 }
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_accumulate___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_accumulate___lambda__1___boxed), 2, 0);
-return x_1;
-}
-}
+#define _init_l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_accumulate___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_accumulate___lambda__1___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_accumulate___closed__1_end;\
+}\
+l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_accumulate___closed__1_end: ((void) 0);}
 lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_accumulate(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -8024,9 +8022,9 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_FreeVars(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_IR_instInhabitedLiveVarSet = _init_l_Lean_IR_instInhabitedLiveVarSet();
+_init_l_Lean_IR_instInhabitedLiveVarSet(l_Lean_IR_instInhabitedLiveVarSet);
 lean_mark_persistent(l_Lean_IR_instInhabitedLiveVarSet);
-l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_accumulate___closed__1 = _init_l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_accumulate___closed__1();
+_init_l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_accumulate___closed__1(l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_accumulate___closed__1);
 lean_mark_persistent(l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_accumulate___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

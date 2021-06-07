@@ -73,22 +73,20 @@ lean_object* l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f(lean_object*, lean_obj
 lean_object* l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Sorry_visitDecl_match__1(lean_object*);
-static lean_object* _init_l_Lean_IR_Sorry_State_localSorryMap___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_IR_Sorry_State_modified___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
+#define _init_l_Lean_IR_Sorry_State_localSorryMap___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_IR_Sorry_State_localSorryMap___default_end;\
+}\
+l_Lean_IR_Sorry_State_localSorryMap___default_end: ((void) 0);}
+#define _init_l_Lean_IR_Sorry_State_modified___default(__INIT_VAR__) { \
+{\
+uint8_t x_1; \
+x_1 = 0;\
+__INIT_VAR__ = x_1; goto l_Lean_IR_Sorry_State_modified___default_end;\
+}\
+l_Lean_IR_Sorry_State_modified___default_end: ((void) 0);}
 lean_object* l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -236,24 +234,22 @@ x_2 = lean_alloc_closure((void*)(l_Lean_IR_Sorry_visitExpr_match__1___rarg), 4, 
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("sorryAx");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("sorryAx");\
+__INIT_VAR__ = x_1; goto l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__1_end;\
+}\
+l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__1_end: ((void) 0);}
+#define _init_l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__2_end;\
+}\
+l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__2_end: ((void) 0);}
 lean_object* l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -2013,18 +2009,17 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Lean_IR_updateSorryDep___closed__1() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = 0;
-x_3 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_IR_updateSorryDep___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; uint8_t x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = 0;\
+x_3 = lean_alloc_ctor(0, 1, 1);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_IR_updateSorryDep___closed__1_end;\
+}\
+l_Lean_IR_updateSorryDep___closed__1_end: ((void) 0);}
 lean_object* l_Lean_IR_updateSorryDep(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2111,14 +2106,14 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_CompilerM(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_IR_Sorry_State_localSorryMap___default = _init_l_Lean_IR_Sorry_State_localSorryMap___default();
+_init_l_Lean_IR_Sorry_State_localSorryMap___default(l_Lean_IR_Sorry_State_localSorryMap___default);
 lean_mark_persistent(l_Lean_IR_Sorry_State_localSorryMap___default);
-l_Lean_IR_Sorry_State_modified___default = _init_l_Lean_IR_Sorry_State_modified___default();
-l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__1 = _init_l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__1();
+_init_l_Lean_IR_Sorry_State_modified___default(l_Lean_IR_Sorry_State_modified___default);
+_init_l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__1(l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__1);
 lean_mark_persistent(l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__1);
-l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__2 = _init_l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__2();
+_init_l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__2(l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__2);
 lean_mark_persistent(l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__2);
-l_Lean_IR_updateSorryDep___closed__1 = _init_l_Lean_IR_updateSorryDep___closed__1();
+_init_l_Lean_IR_updateSorryDep___closed__1(l_Lean_IR_updateSorryDep___closed__1);
 lean_mark_persistent(l_Lean_IR_updateSorryDep___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

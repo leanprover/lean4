@@ -152,43 +152,39 @@ x_3 = lean_alloc_closure((void*)(l_List_get_x21_match__1___rarg), 5, 0);
 return x_3;
 }
 }
-static lean_object* _init_l_List_get_x21___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Init.Data.List.BasicAux");
-return x_1;
-}
-}
-static lean_object* _init_l_List_get_x21___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("List.get!");
-return x_1;
-}
-}
-static lean_object* _init_l_List_get_x21___rarg___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("invalid index");
-return x_1;
-}
-}
-static lean_object* _init_l_List_get_x21___rarg___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_List_get_x21___rarg___closed__1;
-x_2 = l_List_get_x21___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(19u);
-x_4 = lean_unsigned_to_nat(18u);
-x_5 = l_List_get_x21___rarg___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
+#define _init_l_List_get_x21___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Init.Data.List.BasicAux");\
+__INIT_VAR__ = x_1; goto l_List_get_x21___rarg___closed__1_end;\
+}\
+l_List_get_x21___rarg___closed__1_end: ((void) 0);}
+#define _init_l_List_get_x21___rarg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("List.get!");\
+__INIT_VAR__ = x_1; goto l_List_get_x21___rarg___closed__2_end;\
+}\
+l_List_get_x21___rarg___closed__2_end: ((void) 0);}
+#define _init_l_List_get_x21___rarg___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("invalid index");\
+__INIT_VAR__ = x_1; goto l_List_get_x21___rarg___closed__3_end;\
+}\
+l_List_get_x21___rarg___closed__3_end: ((void) 0);}
+#define _init_l_List_get_x21___rarg___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; \
+x_1 = l_List_get_x21___rarg___closed__1;\
+x_2 = l_List_get_x21___rarg___closed__2;\
+x_3 = lean_unsigned_to_nat(19u);\
+x_4 = lean_unsigned_to_nat(18u);\
+x_5 = l_List_get_x21___rarg___closed__3;\
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);\
+__INIT_VAR__ = x_6; goto l_List_get_x21___rarg___closed__4_end;\
+}\
+l_List_get_x21___rarg___closed__4_end: ((void) 0);}
 lean_object* l_List_get_x21___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -391,35 +387,32 @@ x_3 = lean_alloc_closure((void*)(l_List_head_x21_match__1___rarg), 3, 0);
 return x_3;
 }
 }
-static lean_object* _init_l_List_head_x21___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("List.head!");
-return x_1;
-}
-}
-static lean_object* _init_l_List_head_x21___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("empty list");
-return x_1;
-}
-}
-static lean_object* _init_l_List_head_x21___rarg___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_List_get_x21___rarg___closed__1;
-x_2 = l_List_head_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(30u);
-x_4 = lean_unsigned_to_nat(12u);
-x_5 = l_List_head_x21___rarg___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
+#define _init_l_List_head_x21___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("List.head!");\
+__INIT_VAR__ = x_1; goto l_List_head_x21___rarg___closed__1_end;\
+}\
+l_List_head_x21___rarg___closed__1_end: ((void) 0);}
+#define _init_l_List_head_x21___rarg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("empty list");\
+__INIT_VAR__ = x_1; goto l_List_head_x21___rarg___closed__2_end;\
+}\
+l_List_head_x21___rarg___closed__2_end: ((void) 0);}
+#define _init_l_List_head_x21___rarg___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; \
+x_1 = l_List_get_x21___rarg___closed__1;\
+x_2 = l_List_head_x21___rarg___closed__1;\
+x_3 = lean_unsigned_to_nat(30u);\
+x_4 = lean_unsigned_to_nat(12u);\
+x_5 = l_List_head_x21___rarg___closed__2;\
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);\
+__INIT_VAR__ = x_6; goto l_List_head_x21___rarg___closed__3_end;\
+}\
+l_List_head_x21___rarg___closed__3_end: ((void) 0);}
 lean_object* l_List_head_x21___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -561,27 +554,25 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_tail_x21___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("List.tail!");
-return x_1;
-}
-}
-static lean_object* _init_l_List_tail_x21___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_List_get_x21___rarg___closed__1;
-x_2 = l_List_tail_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(42u);
-x_4 = lean_unsigned_to_nat(13u);
-x_5 = l_List_head_x21___rarg___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
+#define _init_l_List_tail_x21___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("List.tail!");\
+__INIT_VAR__ = x_1; goto l_List_tail_x21___rarg___closed__1_end;\
+}\
+l_List_tail_x21___rarg___closed__1_end: ((void) 0);}
+#define _init_l_List_tail_x21___rarg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; \
+x_1 = l_List_get_x21___rarg___closed__1;\
+x_2 = l_List_tail_x21___rarg___closed__1;\
+x_3 = lean_unsigned_to_nat(42u);\
+x_4 = lean_unsigned_to_nat(13u);\
+x_5 = l_List_head_x21___rarg___closed__2;\
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);\
+__INIT_VAR__ = x_6; goto l_List_tail_x21___rarg___closed__2_end;\
+}\
+l_List_tail_x21___rarg___closed__2_end: ((void) 0);}
 lean_object* l_List_tail_x21___rarg(lean_object* x_1) {
 _start:
 {
@@ -827,27 +818,25 @@ x_2 = lean_alloc_closure((void*)(l_List_getLast___rarg), 2, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_List_getLast_x21___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("List.getLast!");
-return x_1;
-}
-}
-static lean_object* _init_l_List_getLast_x21___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_List_get_x21___rarg___closed__1;
-x_2 = l_List_getLast_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(59u);
-x_4 = lean_unsigned_to_nat(13u);
-x_5 = l_List_head_x21___rarg___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
+#define _init_l_List_getLast_x21___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("List.getLast!");\
+__INIT_VAR__ = x_1; goto l_List_getLast_x21___rarg___closed__1_end;\
+}\
+l_List_getLast_x21___rarg___closed__1_end: ((void) 0);}
+#define _init_l_List_getLast_x21___rarg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; \
+x_1 = l_List_get_x21___rarg___closed__1;\
+x_2 = l_List_getLast_x21___rarg___closed__1;\
+x_3 = lean_unsigned_to_nat(59u);\
+x_4 = lean_unsigned_to_nat(13u);\
+x_5 = l_List_head_x21___rarg___closed__2;\
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);\
+__INIT_VAR__ = x_6; goto l_List_getLast_x21___rarg___closed__2_end;\
+}\
+l_List_getLast_x21___rarg___closed__2_end: ((void) 0);}
 lean_object* l_List_getLast_x21___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1097,27 +1086,27 @@ lean_dec_ref(res);
 res = initialize_Init_Util(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_List_get_x21___rarg___closed__1 = _init_l_List_get_x21___rarg___closed__1();
+_init_l_List_get_x21___rarg___closed__1(l_List_get_x21___rarg___closed__1);
 lean_mark_persistent(l_List_get_x21___rarg___closed__1);
-l_List_get_x21___rarg___closed__2 = _init_l_List_get_x21___rarg___closed__2();
+_init_l_List_get_x21___rarg___closed__2(l_List_get_x21___rarg___closed__2);
 lean_mark_persistent(l_List_get_x21___rarg___closed__2);
-l_List_get_x21___rarg___closed__3 = _init_l_List_get_x21___rarg___closed__3();
+_init_l_List_get_x21___rarg___closed__3(l_List_get_x21___rarg___closed__3);
 lean_mark_persistent(l_List_get_x21___rarg___closed__3);
-l_List_get_x21___rarg___closed__4 = _init_l_List_get_x21___rarg___closed__4();
+_init_l_List_get_x21___rarg___closed__4(l_List_get_x21___rarg___closed__4);
 lean_mark_persistent(l_List_get_x21___rarg___closed__4);
-l_List_head_x21___rarg___closed__1 = _init_l_List_head_x21___rarg___closed__1();
+_init_l_List_head_x21___rarg___closed__1(l_List_head_x21___rarg___closed__1);
 lean_mark_persistent(l_List_head_x21___rarg___closed__1);
-l_List_head_x21___rarg___closed__2 = _init_l_List_head_x21___rarg___closed__2();
+_init_l_List_head_x21___rarg___closed__2(l_List_head_x21___rarg___closed__2);
 lean_mark_persistent(l_List_head_x21___rarg___closed__2);
-l_List_head_x21___rarg___closed__3 = _init_l_List_head_x21___rarg___closed__3();
+_init_l_List_head_x21___rarg___closed__3(l_List_head_x21___rarg___closed__3);
 lean_mark_persistent(l_List_head_x21___rarg___closed__3);
-l_List_tail_x21___rarg___closed__1 = _init_l_List_tail_x21___rarg___closed__1();
+_init_l_List_tail_x21___rarg___closed__1(l_List_tail_x21___rarg___closed__1);
 lean_mark_persistent(l_List_tail_x21___rarg___closed__1);
-l_List_tail_x21___rarg___closed__2 = _init_l_List_tail_x21___rarg___closed__2();
+_init_l_List_tail_x21___rarg___closed__2(l_List_tail_x21___rarg___closed__2);
 lean_mark_persistent(l_List_tail_x21___rarg___closed__2);
-l_List_getLast_x21___rarg___closed__1 = _init_l_List_getLast_x21___rarg___closed__1();
+_init_l_List_getLast_x21___rarg___closed__1(l_List_getLast_x21___rarg___closed__1);
 lean_mark_persistent(l_List_getLast_x21___rarg___closed__1);
-l_List_getLast_x21___rarg___closed__2 = _init_l_List_getLast_x21___rarg___closed__2();
+_init_l_List_getLast_x21___rarg___closed__2(l_List_getLast_x21___rarg___closed__2);
 lean_mark_persistent(l_List_getLast_x21___rarg___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }

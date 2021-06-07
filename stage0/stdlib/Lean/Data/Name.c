@@ -178,22 +178,20 @@ uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_instCoeStringName;
-static lean_object* _init_l_Lean_instCoeStringName___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Name_mkSimple), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_instCoeStringName() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_instCoeStringName___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_instCoeStringName___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_Name_mkSimple), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_instCoeStringName___closed__1_end;\
+}\
+l_Lean_instCoeStringName___closed__1_end: ((void) 0);}
+#define _init_l_Lean_instCoeStringName(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_instCoeStringName___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_instCoeStringName_end;\
+}\
+l_Lean_instCoeStringName_end: ((void) 0);}
 uint64_t lean_name_hash(lean_object* x_1) {
 _start:
 {
@@ -327,43 +325,39 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Name_getString_x21_match__1___rarg), 3, 
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Name_getString_x21___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Data.Name");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Name_getString_x21___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Name.getString!");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Name_getString_x21___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Name_getString_x21___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Name_getString_x21___closed__1;
-x_2 = l_Lean_Name_getString_x21___closed__2;
-x_3 = lean_unsigned_to_nat(25u);
-x_4 = lean_unsigned_to_nat(17u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
+#define _init_l_Lean_Name_getString_x21___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Lean.Data.Name");\
+__INIT_VAR__ = x_1; goto l_Lean_Name_getString_x21___closed__1_end;\
+}\
+l_Lean_Name_getString_x21___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Name_getString_x21___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Lean.Name.getString!");\
+__INIT_VAR__ = x_1; goto l_Lean_Name_getString_x21___closed__2_end;\
+}\
+l_Lean_Name_getString_x21___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Name_getString_x21___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("unreachable code has been reached");\
+__INIT_VAR__ = x_1; goto l_Lean_Name_getString_x21___closed__3_end;\
+}\
+l_Lean_Name_getString_x21___closed__3_end: ((void) 0);}
+#define _init_l_Lean_Name_getString_x21___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; \
+x_1 = l_Lean_Name_getString_x21___closed__1;\
+x_2 = l_Lean_Name_getString_x21___closed__2;\
+x_3 = lean_unsigned_to_nat(25u);\
+x_4 = lean_unsigned_to_nat(17u);\
+x_5 = l_Lean_Name_getString_x21___closed__3;\
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);\
+__INIT_VAR__ = x_6; goto l_Lean_Name_getString_x21___closed__4_end;\
+}\
+l_Lean_Name_getString_x21___closed__4_end: ((void) 0);}
 lean_object* l_Lean_Name_getString_x21(lean_object* x_1) {
 _start:
 {
@@ -1468,14 +1462,13 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Name_hasLtQuick() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
+#define _init_l_Lean_Name_hasLtQuick(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_Name_hasLtQuick_end;\
+}\
+l_Lean_Name_hasLtQuick_end: ((void) 0);}
 uint8_t l_Lean_Name_instDecidableRelLtNameHasLtQuick(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -7026,30 +7019,27 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_NameSet_empty() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_NameSet_instEmptyCollectionNameSet() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_NameSet_instInhabitedNameSet() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
-}
-}
+#define _init_l_Lean_NameSet_empty(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_NameSet_empty_end;\
+}\
+l_Lean_NameSet_empty_end: ((void) 0);}
+#define _init_l_Lean_NameSet_instEmptyCollectionNameSet(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_NameSet_empty;\
+__INIT_VAR__ = x_1; goto l_Lean_NameSet_instEmptyCollectionNameSet_end;\
+}\
+l_Lean_NameSet_instEmptyCollectionNameSet_end: ((void) 0);}
+#define _init_l_Lean_NameSet_instInhabitedNameSet(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_NameSet_empty;\
+__INIT_VAR__ = x_1; goto l_Lean_NameSet_instInhabitedNameSet_end;\
+}\
+l_Lean_NameSet_instInhabitedNameSet_end: ((void) 0);}
 lean_object* l_Std_RBNode_ins___at_Lean_NameSet_insert___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -9610,26 +9600,24 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_NameSet_instForInNameSetName___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Name_quickCmp___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_NameSet_instForInNameSetName___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_NameSet_instForInNameSetName___closed__1;
-x_2 = lean_alloc_closure((void*)(l_Std_RBTree_forIn___boxed), 4, 3);
-lean_closure_set(x_2, 0, lean_box(0));
-lean_closure_set(x_2, 1, x_1);
-lean_closure_set(x_2, 2, lean_box(0));
-return x_2;
-}
-}
+#define _init_l_Lean_NameSet_instForInNameSetName___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_Name_quickCmp___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_NameSet_instForInNameSetName___closed__1_end;\
+}\
+l_Lean_NameSet_instForInNameSetName___closed__1_end: ((void) 0);}
+#define _init_l_Lean_NameSet_instForInNameSetName___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_NameSet_instForInNameSetName___closed__1;\
+x_2 = lean_alloc_closure((void*)(l_Std_RBTree_forIn___boxed), 4, 3);\
+lean_closure_set(x_2, 0, lean_box(0));\
+lean_closure_set(x_2, 1, x_1);\
+lean_closure_set(x_2, 2, lean_box(0));\
+__INIT_VAR__ = x_2; goto l_Lean_NameSet_instForInNameSetName___closed__2_end;\
+}\
+l_Lean_NameSet_instForInNameSetName___closed__2_end: ((void) 0);}
 lean_object* l_Lean_NameSet_instForInNameSetName(lean_object* x_1) {
 _start:
 {
@@ -9646,39 +9634,35 @@ x_2 = l_Std_mkHashSetImp___rarg(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_NameHashSet_empty___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
-x_2 = l_Std_mkHashSetImp___rarg(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_NameHashSet_empty() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_NameHashSet_empty___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_NameHashSet_instEmptyCollectionNameHashSet() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_HashSet_instInhabitedHashSet___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_NameHashSet_instInhabitedNameHashSet() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_HashSet_instInhabitedHashSet___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_NameHashSet_empty___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = lean_unsigned_to_nat(8u);\
+x_2 = l_Std_mkHashSetImp___rarg(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_NameHashSet_empty___closed__1_end;\
+}\
+l_Lean_NameHashSet_empty___closed__1_end: ((void) 0);}
+#define _init_l_Lean_NameHashSet_empty(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_NameHashSet_empty___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_NameHashSet_empty_end;\
+}\
+l_Lean_NameHashSet_empty_end: ((void) 0);}
+#define _init_l_Lean_NameHashSet_instEmptyCollectionNameHashSet(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Std_HashSet_instInhabitedHashSet___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_NameHashSet_instEmptyCollectionNameHashSet_end;\
+}\
+l_Lean_NameHashSet_instEmptyCollectionNameHashSet_end: ((void) 0);}
+#define _init_l_Lean_NameHashSet_instInhabitedNameHashSet(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Std_HashSet_instInhabitedHashSet___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_NameHashSet_instInhabitedNameHashSet_end;\
+}\
+l_Lean_NameHashSet_instInhabitedNameHashSet_end: ((void) 0);}
 uint8_t l_List_elem___at_Lean_NameHashSet_insert___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -10121,37 +10105,37 @@ lean_dec_ref(res);
 res = initialize_Std_Data_RBTree(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_instCoeStringName___closed__1 = _init_l_Lean_instCoeStringName___closed__1();
+_init_l_Lean_instCoeStringName___closed__1(l_Lean_instCoeStringName___closed__1);
 lean_mark_persistent(l_Lean_instCoeStringName___closed__1);
-l_Lean_instCoeStringName = _init_l_Lean_instCoeStringName();
+_init_l_Lean_instCoeStringName(l_Lean_instCoeStringName);
 lean_mark_persistent(l_Lean_instCoeStringName);
-l_Lean_Name_getString_x21___closed__1 = _init_l_Lean_Name_getString_x21___closed__1();
+_init_l_Lean_Name_getString_x21___closed__1(l_Lean_Name_getString_x21___closed__1);
 lean_mark_persistent(l_Lean_Name_getString_x21___closed__1);
-l_Lean_Name_getString_x21___closed__2 = _init_l_Lean_Name_getString_x21___closed__2();
+_init_l_Lean_Name_getString_x21___closed__2(l_Lean_Name_getString_x21___closed__2);
 lean_mark_persistent(l_Lean_Name_getString_x21___closed__2);
-l_Lean_Name_getString_x21___closed__3 = _init_l_Lean_Name_getString_x21___closed__3();
+_init_l_Lean_Name_getString_x21___closed__3(l_Lean_Name_getString_x21___closed__3);
 lean_mark_persistent(l_Lean_Name_getString_x21___closed__3);
-l_Lean_Name_getString_x21___closed__4 = _init_l_Lean_Name_getString_x21___closed__4();
+_init_l_Lean_Name_getString_x21___closed__4(l_Lean_Name_getString_x21___closed__4);
 lean_mark_persistent(l_Lean_Name_getString_x21___closed__4);
-l_Lean_Name_hasLtQuick = _init_l_Lean_Name_hasLtQuick();
+_init_l_Lean_Name_hasLtQuick(l_Lean_Name_hasLtQuick);
 lean_mark_persistent(l_Lean_Name_hasLtQuick);
-l_Lean_NameSet_empty = _init_l_Lean_NameSet_empty();
+_init_l_Lean_NameSet_empty(l_Lean_NameSet_empty);
 lean_mark_persistent(l_Lean_NameSet_empty);
-l_Lean_NameSet_instEmptyCollectionNameSet = _init_l_Lean_NameSet_instEmptyCollectionNameSet();
+_init_l_Lean_NameSet_instEmptyCollectionNameSet(l_Lean_NameSet_instEmptyCollectionNameSet);
 lean_mark_persistent(l_Lean_NameSet_instEmptyCollectionNameSet);
-l_Lean_NameSet_instInhabitedNameSet = _init_l_Lean_NameSet_instInhabitedNameSet();
+_init_l_Lean_NameSet_instInhabitedNameSet(l_Lean_NameSet_instInhabitedNameSet);
 lean_mark_persistent(l_Lean_NameSet_instInhabitedNameSet);
-l_Lean_NameSet_instForInNameSetName___closed__1 = _init_l_Lean_NameSet_instForInNameSetName___closed__1();
+_init_l_Lean_NameSet_instForInNameSetName___closed__1(l_Lean_NameSet_instForInNameSetName___closed__1);
 lean_mark_persistent(l_Lean_NameSet_instForInNameSetName___closed__1);
-l_Lean_NameSet_instForInNameSetName___closed__2 = _init_l_Lean_NameSet_instForInNameSetName___closed__2();
+_init_l_Lean_NameSet_instForInNameSetName___closed__2(l_Lean_NameSet_instForInNameSetName___closed__2);
 lean_mark_persistent(l_Lean_NameSet_instForInNameSetName___closed__2);
-l_Lean_NameHashSet_empty___closed__1 = _init_l_Lean_NameHashSet_empty___closed__1();
+_init_l_Lean_NameHashSet_empty___closed__1(l_Lean_NameHashSet_empty___closed__1);
 lean_mark_persistent(l_Lean_NameHashSet_empty___closed__1);
-l_Lean_NameHashSet_empty = _init_l_Lean_NameHashSet_empty();
+_init_l_Lean_NameHashSet_empty(l_Lean_NameHashSet_empty);
 lean_mark_persistent(l_Lean_NameHashSet_empty);
-l_Lean_NameHashSet_instEmptyCollectionNameHashSet = _init_l_Lean_NameHashSet_instEmptyCollectionNameHashSet();
+_init_l_Lean_NameHashSet_instEmptyCollectionNameHashSet(l_Lean_NameHashSet_instEmptyCollectionNameHashSet);
 lean_mark_persistent(l_Lean_NameHashSet_instEmptyCollectionNameHashSet);
-l_Lean_NameHashSet_instInhabitedNameHashSet = _init_l_Lean_NameHashSet_instInhabitedNameHashSet();
+_init_l_Lean_NameHashSet_instInhabitedNameHashSet(l_Lean_NameHashSet_instInhabitedNameHashSet);
 lean_mark_persistent(l_Lean_NameHashSet_instInhabitedNameHashSet);
 return lean_io_result_mk_ok(lean_box(0));
 }

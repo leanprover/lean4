@@ -154,42 +154,38 @@ x_5 = lean_alloc_closure((void*)(l_EStateM_instReprResult_match__1___rarg), 4, 0
 return x_5;
 }
 }
-static lean_object* _init_l_EStateM_instReprResult___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("EStateM.Result.ok ");
-return x_1;
-}
-}
-static lean_object* _init_l_EStateM_instReprResult___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_EStateM_instReprResult___rarg___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_EStateM_instReprResult___rarg___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("EStateM.Result.error ");
-return x_1;
-}
-}
-static lean_object* _init_l_EStateM_instReprResult___rarg___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_EStateM_instReprResult___rarg___closed__3;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_EStateM_instReprResult___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("EStateM.Result.ok ");\
+__INIT_VAR__ = x_1; goto l_EStateM_instReprResult___rarg___closed__1_end;\
+}\
+l_EStateM_instReprResult___rarg___closed__1_end: ((void) 0);}
+#define _init_l_EStateM_instReprResult___rarg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_EStateM_instReprResult___rarg___closed__1;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_EStateM_instReprResult___rarg___closed__2_end;\
+}\
+l_EStateM_instReprResult___rarg___closed__2_end: ((void) 0);}
+#define _init_l_EStateM_instReprResult___rarg___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("EStateM.Result.error ");\
+__INIT_VAR__ = x_1; goto l_EStateM_instReprResult___rarg___closed__3_end;\
+}\
+l_EStateM_instReprResult___rarg___closed__3_end: ((void) 0);}
+#define _init_l_EStateM_instReprResult___rarg___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_EStateM_instReprResult___rarg___closed__3;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_EStateM_instReprResult___rarg___closed__4_end;\
+}\
+l_EStateM_instReprResult___rarg___closed__4_end: ((void) 0);}
 lean_object* l_EStateM_instReprResult___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -584,13 +580,13 @@ lean_dec_ref(res);
 res = initialize_Init_Data_ToString_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_EStateM_instReprResult___rarg___closed__1 = _init_l_EStateM_instReprResult___rarg___closed__1();
+_init_l_EStateM_instReprResult___rarg___closed__1(l_EStateM_instReprResult___rarg___closed__1);
 lean_mark_persistent(l_EStateM_instReprResult___rarg___closed__1);
-l_EStateM_instReprResult___rarg___closed__2 = _init_l_EStateM_instReprResult___rarg___closed__2();
+_init_l_EStateM_instReprResult___rarg___closed__2(l_EStateM_instReprResult___rarg___closed__2);
 lean_mark_persistent(l_EStateM_instReprResult___rarg___closed__2);
-l_EStateM_instReprResult___rarg___closed__3 = _init_l_EStateM_instReprResult___rarg___closed__3();
+_init_l_EStateM_instReprResult___rarg___closed__3(l_EStateM_instReprResult___rarg___closed__3);
 lean_mark_persistent(l_EStateM_instReprResult___rarg___closed__3);
-l_EStateM_instReprResult___rarg___closed__4 = _init_l_EStateM_instReprResult___rarg___closed__4();
+_init_l_EStateM_instReprResult___rarg___closed__4(l_EStateM_instReprResult___rarg___closed__4);
 lean_mark_persistent(l_EStateM_instReprResult___rarg___closed__4);
 return lean_io_result_mk_ok(lean_box(0));
 }

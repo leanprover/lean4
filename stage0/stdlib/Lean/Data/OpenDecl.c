@@ -39,26 +39,24 @@ lean_object* l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1;
 uint8_t l_List_beq___at_Lean_OpenDecl_instToStringOpenDecl___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_term_x5b___x5d___closed__3;
-static lean_object* _init_l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_OpenDecl_instInhabitedOpenDecl() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = lean_box(0);\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_2);\
+lean_ctor_set(x_3, 1, x_1);\
+__INIT_VAR__ = x_3; goto l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1_end;\
+}\
+l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1_end: ((void) 0);}
+#define _init_l_Lean_OpenDecl_instInhabitedOpenDecl(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_OpenDecl_instInhabitedOpenDecl_end;\
+}\
+l_Lean_OpenDecl_instInhabitedOpenDecl_end: ((void) 0);}
 lean_object* l_Lean_OpenDecl_instToStringOpenDecl_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -252,22 +250,20 @@ return x_18;
 }
 }
 }
-static lean_object* _init_l_Lean_OpenDecl_instToStringOpenDecl___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string(" hiding ");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_OpenDecl_instToStringOpenDecl___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string(" → ");
-return x_1;
-}
-}
+#define _init_l_Lean_OpenDecl_instToStringOpenDecl___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string(" hiding ");\
+__INIT_VAR__ = x_1; goto l_Lean_OpenDecl_instToStringOpenDecl___closed__1_end;\
+}\
+l_Lean_OpenDecl_instToStringOpenDecl___closed__1_end: ((void) 0);}
+#define _init_l_Lean_OpenDecl_instToStringOpenDecl___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string(" → ");\
+__INIT_VAR__ = x_1; goto l_Lean_OpenDecl_instToStringOpenDecl___closed__2_end;\
+}\
+l_Lean_OpenDecl_instToStringOpenDecl___closed__2_end: ((void) 0);}
 lean_object* l_Lean_OpenDecl_instToStringOpenDecl(lean_object* x_1) {
 _start:
 {
@@ -343,32 +339,29 @@ x_4 = l_List_toStringAux___at_Lean_OpenDecl_instToStringOpenDecl___spec__3(x_3, 
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_rootNamespace___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("_root_");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_rootNamespace___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_rootNamespace___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_rootNamespace() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_rootNamespace___closed__2;
-return x_1;
-}
-}
+#define _init_l_Lean_rootNamespace___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("_root_");\
+__INIT_VAR__ = x_1; goto l_Lean_rootNamespace___closed__1_end;\
+}\
+l_Lean_rootNamespace___closed__1_end: ((void) 0);}
+#define _init_l_Lean_rootNamespace___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_rootNamespace___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_rootNamespace___closed__2_end;\
+}\
+l_Lean_rootNamespace___closed__2_end: ((void) 0);}
+#define _init_l_Lean_rootNamespace(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_rootNamespace___closed__2;\
+__INIT_VAR__ = x_1; goto l_Lean_rootNamespace_end;\
+}\
+l_Lean_rootNamespace_end: ((void) 0);}
 lean_object* l_Lean_removeRoot(lean_object* x_1) {
 _start:
 {
@@ -392,19 +385,19 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Name(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1 = _init_l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1();
+_init_l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1(l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1);
 lean_mark_persistent(l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1);
-l_Lean_OpenDecl_instInhabitedOpenDecl = _init_l_Lean_OpenDecl_instInhabitedOpenDecl();
+_init_l_Lean_OpenDecl_instInhabitedOpenDecl(l_Lean_OpenDecl_instInhabitedOpenDecl);
 lean_mark_persistent(l_Lean_OpenDecl_instInhabitedOpenDecl);
-l_Lean_OpenDecl_instToStringOpenDecl___closed__1 = _init_l_Lean_OpenDecl_instToStringOpenDecl___closed__1();
+_init_l_Lean_OpenDecl_instToStringOpenDecl___closed__1(l_Lean_OpenDecl_instToStringOpenDecl___closed__1);
 lean_mark_persistent(l_Lean_OpenDecl_instToStringOpenDecl___closed__1);
-l_Lean_OpenDecl_instToStringOpenDecl___closed__2 = _init_l_Lean_OpenDecl_instToStringOpenDecl___closed__2();
+_init_l_Lean_OpenDecl_instToStringOpenDecl___closed__2(l_Lean_OpenDecl_instToStringOpenDecl___closed__2);
 lean_mark_persistent(l_Lean_OpenDecl_instToStringOpenDecl___closed__2);
-l_Lean_rootNamespace___closed__1 = _init_l_Lean_rootNamespace___closed__1();
+_init_l_Lean_rootNamespace___closed__1(l_Lean_rootNamespace___closed__1);
 lean_mark_persistent(l_Lean_rootNamespace___closed__1);
-l_Lean_rootNamespace___closed__2 = _init_l_Lean_rootNamespace___closed__2();
+_init_l_Lean_rootNamespace___closed__2(l_Lean_rootNamespace___closed__2);
 lean_mark_persistent(l_Lean_rootNamespace___closed__2);
-l_Lean_rootNamespace = _init_l_Lean_rootNamespace();
+_init_l_Lean_rootNamespace(l_Lean_rootNamespace);
 lean_mark_persistent(l_Lean_rootNamespace);
 return lean_io_result_mk_ok(lean_box(0));
 }

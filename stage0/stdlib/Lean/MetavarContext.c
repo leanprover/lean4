@@ -1216,26 +1216,24 @@ lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMA
 lean_object* l_Array_mapMUnsafe_map___at_Lean_MetavarContext_instantiateMVars___spec__20___rarg(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_MetavarContext_hasAssignedMVar(lean_object*, lean_object*);
 lean_object* l_List_toStringAux___at_Lean_MetavarContext_MkBinding_instToStringException___spec__3___boxed(lean_object*, lean_object*);
-static lean_object* _init_l_Lean_instInhabitedLocalInstance___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_instInhabitedExpr___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_instInhabitedLocalInstance() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_instInhabitedLocalInstance___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_instInhabitedLocalInstance___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_instInhabitedExpr___closed__1;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_instInhabitedLocalInstance___closed__1_end;\
+}\
+l_Lean_instInhabitedLocalInstance___closed__1_end: ((void) 0);}
+#define _init_l_Lean_instInhabitedLocalInstance(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_instInhabitedLocalInstance___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_instInhabitedLocalInstance_end;\
+}\
+l_Lean_instInhabitedLocalInstance_end: ((void) 0);}
 uint8_t l_Lean_instBEqLocalInstance(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1334,14 +1332,13 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static uint8_t _init_l_Lean_instInhabitedMetavarKind() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
+#define _init_l_Lean_instInhabitedMetavarKind(__INIT_VAR__) { \
+{\
+uint8_t x_1; \
+x_1 = 0;\
+__INIT_VAR__ = x_1; goto l_Lean_instInhabitedMetavarKind_end;\
+}\
+l_Lean_instInhabitedMetavarKind_end: ((void) 0);}
 lean_object* l_Lean_MetavarKind_isSyntheticOpaque_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1488,51 +1485,47 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_MetavarDecl_userName___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarDecl_numScopeArgs___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(0u);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_instInhabitedMetavarDecl___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
-x_1 = lean_box(0);
-x_2 = l_Lean_instInhabitedLocalContext___closed__1;
-x_3 = l_Lean_instInhabitedExpr___closed__1;
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = l_Array_empty___closed__1;
-x_6 = 0;
-x_7 = lean_alloc_ctor(0, 6, 1);
-lean_ctor_set(x_7, 0, x_1);
-lean_ctor_set(x_7, 1, x_2);
-lean_ctor_set(x_7, 2, x_3);
-lean_ctor_set(x_7, 3, x_4);
-lean_ctor_set(x_7, 4, x_5);
-lean_ctor_set(x_7, 5, x_4);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6, x_6);
-return x_7;
-}
-}
-static lean_object* _init_l_Lean_instInhabitedMetavarDecl() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_instInhabitedMetavarDecl___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_MetavarDecl_userName___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarDecl_userName___default_end;\
+}\
+l_Lean_MetavarDecl_userName___default_end: ((void) 0);}
+#define _init_l_Lean_MetavarDecl_numScopeArgs___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_unsigned_to_nat(0u);\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarDecl_numScopeArgs___default_end;\
+}\
+l_Lean_MetavarDecl_numScopeArgs___default_end: ((void) 0);}
+#define _init_l_Lean_instInhabitedMetavarDecl___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_instInhabitedLocalContext___closed__1;\
+x_3 = l_Lean_instInhabitedExpr___closed__1;\
+x_4 = lean_unsigned_to_nat(0u);\
+x_5 = l_Array_empty___closed__1;\
+x_6 = 0;\
+x_7 = lean_alloc_ctor(0, 6, 1);\
+lean_ctor_set(x_7, 0, x_1);\
+lean_ctor_set(x_7, 1, x_2);\
+lean_ctor_set(x_7, 2, x_3);\
+lean_ctor_set(x_7, 3, x_4);\
+lean_ctor_set(x_7, 4, x_5);\
+lean_ctor_set(x_7, 5, x_4);\
+lean_ctor_set_uint8(x_7, sizeof(void*)*6, x_6);\
+__INIT_VAR__ = x_7; goto l_Lean_instInhabitedMetavarDecl___closed__1_end;\
+}\
+l_Lean_instInhabitedMetavarDecl___closed__1_end: ((void) 0);}
+#define _init_l_Lean_instInhabitedMetavarDecl(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_instInhabitedMetavarDecl___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_instInhabitedMetavarDecl_end;\
+}\
+l_Lean_instInhabitedMetavarDecl_end: ((void) 0);}
 lean_object* lean_mk_metavar_decl(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, uint8_t x_6) {
 _start:
 {
@@ -1559,54 +1552,48 @@ x_8 = lean_mk_metavar_decl(x_1, x_2, x_3, x_4, x_5, x_7);
 return x_8;
 }
 }
-static lean_object* _init_l_Lean_MetavarContext_depth___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(0u);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_lDepth___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_decls___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_lAssignment___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_eAssignment___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_dAssignment___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_MetavarContext_depth___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_unsigned_to_nat(0u);\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_depth___default_end;\
+}\
+l_Lean_MetavarContext_depth___default_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_lDepth___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_lDepth___default_end;\
+}\
+l_Lean_MetavarContext_lDepth___default_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_decls___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_decls___default_end;\
+}\
+l_Lean_MetavarContext_decls___default_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_lAssignment___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_lAssignment___default_end;\
+}\
+l_Lean_MetavarContext_lAssignment___default_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_eAssignment___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_eAssignment___default_end;\
+}\
+l_Lean_MetavarContext_eAssignment___default_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_dAssignment___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_dAssignment___default_end;\
+}\
+l_Lean_MetavarContext_dAssignment___default_end: ((void) 0);}
 lean_object* l_Lean_instMonadMCtx___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1644,30 +1631,28 @@ x_3 = lean_alloc_closure((void*)(l_Lean_instMonadMCtx___rarg), 2, 0);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_MetavarContext_instInhabitedMetavarContext___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
-x_3 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-lean_ctor_set(x_3, 2, x_2);
-lean_ctor_set(x_3, 3, x_2);
-lean_ctor_set(x_3, 4, x_2);
-lean_ctor_set(x_3, 5, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_instInhabitedMetavarContext() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_MetavarContext_instInhabitedMetavarContext___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_MetavarContext_instInhabitedMetavarContext___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_unsigned_to_nat(0u);\
+x_2 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;\
+x_3 = lean_alloc_ctor(0, 6, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+lean_ctor_set(x_3, 2, x_2);\
+lean_ctor_set(x_3, 3, x_2);\
+lean_ctor_set(x_3, 4, x_2);\
+lean_ctor_set(x_3, 5, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_MetavarContext_instInhabitedMetavarContext___closed__1_end;\
+}\
+l_Lean_MetavarContext_instInhabitedMetavarContext___closed__1_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_instInhabitedMetavarContext(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_MetavarContext_instInhabitedMetavarContext___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_instInhabitedMetavarContext_end;\
+}\
+l_Lean_MetavarContext_instInhabitedMetavarContext_end: ((void) 0);}
 lean_object* lean_mk_metavar_ctx(lean_object* x_1) {
 _start:
 {
@@ -3141,43 +3126,39 @@ x_2 = lean_alloc_closure((void*)(l_Lean_MetavarContext_getDecl_match__1___rarg),
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MetavarContext_getDecl___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.MetavarContext");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_getDecl___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.MetavarContext.getDecl");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_getDecl___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("unknown metavariable");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_getDecl___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_MetavarContext_getDecl___closed__1;
-x_2 = l_Lean_MetavarContext_getDecl___closed__2;
-x_3 = lean_unsigned_to_nat(341u);
-x_4 = lean_unsigned_to_nat(17u);
-x_5 = l_Lean_MetavarContext_getDecl___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
+#define _init_l_Lean_MetavarContext_getDecl___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Lean.MetavarContext");\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_getDecl___closed__1_end;\
+}\
+l_Lean_MetavarContext_getDecl___closed__1_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_getDecl___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Lean.MetavarContext.getDecl");\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_getDecl___closed__2_end;\
+}\
+l_Lean_MetavarContext_getDecl___closed__2_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_getDecl___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("unknown metavariable");\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_getDecl___closed__3_end;\
+}\
+l_Lean_MetavarContext_getDecl___closed__3_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_getDecl___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; \
+x_1 = l_Lean_MetavarContext_getDecl___closed__1;\
+x_2 = l_Lean_MetavarContext_getDecl___closed__2;\
+x_3 = lean_unsigned_to_nat(341u);\
+x_4 = lean_unsigned_to_nat(17u);\
+x_5 = l_Lean_MetavarContext_getDecl___closed__3;\
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);\
+__INIT_VAR__ = x_6; goto l_Lean_MetavarContext_getDecl___closed__4_end;\
+}\
+l_Lean_MetavarContext_getDecl___closed__4_end: ((void) 0);}
 lean_object* l_Lean_MetavarContext_getDecl(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -3421,16 +3402,15 @@ x_2 = lean_alloc_closure((void*)(l_Std_PersistentHashMap_foldlMAux_traverse___at
 return x_2;
 }
 }
-static lean_object* _init_l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_findUserName_x3f___spec__3___lambda__1___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_findUserName_x3f___spec__3___lambda__1___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = lean_box(0);\
+x_2 = lean_alloc_ctor(1, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_findUserName_x3f___spec__3___lambda__1___closed__1_end;\
+}\
+l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_findUserName_x3f___spec__3___lambda__1___closed__1_end: ((void) 0);}
 lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_findUserName_x3f___spec__3___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -4190,27 +4170,25 @@ x_2 = lean_alloc_closure((void*)(l_Lean_MetavarContext_getLevelDepth_match__1___
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MetavarContext_getLevelDepth___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.MetavarContext.getLevelDepth");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_getLevelDepth___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_MetavarContext_getDecl___closed__1;
-x_2 = l_Lean_MetavarContext_getLevelDepth___closed__1;
-x_3 = lean_unsigned_to_nat(370u);
-x_4 = lean_unsigned_to_nat(14u);
-x_5 = l_Lean_MetavarContext_getDecl___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
+#define _init_l_Lean_MetavarContext_getLevelDepth___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Lean.MetavarContext.getLevelDepth");\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_getLevelDepth___closed__1_end;\
+}\
+l_Lean_MetavarContext_getLevelDepth___closed__1_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_getLevelDepth___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; \
+x_1 = l_Lean_MetavarContext_getDecl___closed__1;\
+x_2 = l_Lean_MetavarContext_getLevelDepth___closed__1;\
+x_3 = lean_unsigned_to_nat(370u);\
+x_4 = lean_unsigned_to_nat(14u);\
+x_5 = l_Lean_MetavarContext_getDecl___closed__3;\
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);\
+__INIT_VAR__ = x_6; goto l_Lean_MetavarContext_getLevelDepth___closed__2_end;\
+}\
+l_Lean_MetavarContext_getLevelDepth___closed__2_end: ((void) 0);}
 lean_object* l_Lean_MetavarContext_getLevelDepth(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -4310,27 +4288,25 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_MetavarContext_renameMVar___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.MetavarContext.renameMVar");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_renameMVar___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_MetavarContext_getDecl___closed__1;
-x_2 = l_Lean_MetavarContext_renameMVar___closed__1;
-x_3 = lean_unsigned_to_nat(379u);
-x_4 = lean_unsigned_to_nat(21u);
-x_5 = l_Lean_MetavarContext_getDecl___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
+#define _init_l_Lean_MetavarContext_renameMVar___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Lean.MetavarContext.renameMVar");\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_renameMVar___closed__1_end;\
+}\
+l_Lean_MetavarContext_renameMVar___closed__1_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_renameMVar___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; \
+x_1 = l_Lean_MetavarContext_getDecl___closed__1;\
+x_2 = l_Lean_MetavarContext_renameMVar___closed__1;\
+x_3 = lean_unsigned_to_nat(379u);\
+x_4 = lean_unsigned_to_nat(21u);\
+x_5 = l_Lean_MetavarContext_getDecl___closed__3;\
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);\
+__INIT_VAR__ = x_6; goto l_Lean_MetavarContext_renameMVar___closed__2_end;\
+}\
+l_Lean_MetavarContext_renameMVar___closed__2_end: ((void) 0);}
 lean_object* l_Lean_MetavarContext_renameMVar(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -8185,35 +8161,32 @@ return x_2;
 }
 }
 }
-static lean_object* _init_l_Lean_MetavarContext_isLevelAssignable___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.MetavarContext.isLevelAssignable");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_isLevelAssignable___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("unknown universe metavariable");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_isLevelAssignable___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_MetavarContext_getDecl___closed__1;
-x_2 = l_Lean_MetavarContext_isLevelAssignable___closed__1;
-x_3 = lean_unsigned_to_nat(430u);
-x_4 = lean_unsigned_to_nat(14u);
-x_5 = l_Lean_MetavarContext_isLevelAssignable___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
+#define _init_l_Lean_MetavarContext_isLevelAssignable___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Lean.MetavarContext.isLevelAssignable");\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_isLevelAssignable___closed__1_end;\
+}\
+l_Lean_MetavarContext_isLevelAssignable___closed__1_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_isLevelAssignable___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("unknown universe metavariable");\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_isLevelAssignable___closed__2_end;\
+}\
+l_Lean_MetavarContext_isLevelAssignable___closed__2_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_isLevelAssignable___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; \
+x_1 = l_Lean_MetavarContext_getDecl___closed__1;\
+x_2 = l_Lean_MetavarContext_isLevelAssignable___closed__1;\
+x_3 = lean_unsigned_to_nat(430u);\
+x_4 = lean_unsigned_to_nat(14u);\
+x_5 = l_Lean_MetavarContext_isLevelAssignable___closed__2;\
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);\
+__INIT_VAR__ = x_6; goto l_Lean_MetavarContext_isLevelAssignable___closed__3_end;\
+}\
+l_Lean_MetavarContext_isLevelAssignable___closed__3_end: ((void) 0);}
 uint8_t l_Lean_MetavarContext_isLevelAssignable(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -13769,15 +13742,14 @@ x_7 = lean_apply_2(x_6, lean_box(0), x_4);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__2___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__2___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__2___boxed__const__1_end;\
+}\
+l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__2___boxed__const__1_end: ((void) 0);}
 lean_object* l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__2(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -13851,15 +13823,14 @@ return x_33;
 }
 }
 }
-static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__3___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__3___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__3___boxed__const__1_end;\
+}\
+l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__3___boxed__const__1_end: ((void) 0);}
 lean_object* l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__3(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -13933,15 +13904,14 @@ return x_33;
 }
 }
 }
-static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__4___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__4___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__4___boxed__const__1_end;\
+}\
+l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__4___boxed__const__1_end: ((void) 0);}
 lean_object* l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__4(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -14036,15 +14006,14 @@ x_13 = lean_apply_2(x_12, lean_box(0), x_10);
 return x_13;
 }
 }
-static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__6___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__6___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__6___boxed__const__1_end;\
+}\
+l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__6___boxed__const__1_end: ((void) 0);}
 lean_object* l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__6(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
@@ -14106,15 +14075,14 @@ return x_31;
 }
 }
 }
-static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__7___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__7___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__7___boxed__const__1_end;\
+}\
+l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__7___boxed__const__1_end: ((void) 0);}
 lean_object* l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__7(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, uint8_t x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
@@ -14213,15 +14181,14 @@ return x_34;
 }
 }
 }
-static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__8___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__8___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__8___boxed__const__1_end;\
+}\
+l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__8___boxed__const__1_end: ((void) 0);}
 lean_object* l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__8(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -14295,15 +14262,14 @@ return x_33;
 }
 }
 }
-static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__9___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__9___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__9___boxed__const__1_end;\
+}\
+l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__9___boxed__const__1_end: ((void) 0);}
 lean_object* l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__9(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -14377,15 +14343,14 @@ return x_33;
 }
 }
 }
-static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__10___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__10___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__10___boxed__const__1_end;\
+}\
+l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__10___boxed__const__1_end: ((void) 0);}
 lean_object* l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__10(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -14459,15 +14424,14 @@ return x_33;
 }
 }
 }
-static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__11___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__11___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__11___boxed__const__1_end;\
+}\
+l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__11___boxed__const__1_end: ((void) 0);}
 lean_object* l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__11(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -14541,15 +14505,14 @@ return x_33;
 }
 }
 }
-static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__12___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__12___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__12___boxed__const__1_end;\
+}\
+l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__12___boxed__const__1_end: ((void) 0);}
 lean_object* l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__12(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -14623,15 +14586,14 @@ return x_33;
 }
 }
 }
-static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__13___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__13___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__13___boxed__const__1_end;\
+}\
+l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__13___boxed__const__1_end: ((void) 0);}
 lean_object* l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__13(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -14705,15 +14667,14 @@ return x_33;
 }
 }
 }
-static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__14___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__14___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__14___boxed__const__1_end;\
+}\
+l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__14___boxed__const__1_end: ((void) 0);}
 lean_object* l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__14(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -14787,15 +14748,14 @@ return x_33;
 }
 }
 }
-static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__15___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__15___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__15___boxed__const__1_end;\
+}\
+l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__15___boxed__const__1_end: ((void) 0);}
 lean_object* l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__15(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -17237,34 +17197,31 @@ x_2 = lean_alloc_closure((void*)(l_modify___at_Lean_MetavarContext_instMonadMCtx
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_StateRefT_x27_get___at_Lean_MetavarContext_instMonadMCtxMetavarContextST___spec__1___rarg___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_modify___at_Lean_MetavarContext_instMonadMCtxMetavarContextST___spec__2___rarg___boxed), 3, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__1;
-x_2 = l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__2;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_StateRefT_x27_get___at_Lean_MetavarContext_instMonadMCtxMetavarContextST___spec__1___rarg___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__1_end;\
+}\
+l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__1_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_modify___at_Lean_MetavarContext_instMonadMCtxMetavarContextST___spec__2___rarg___boxed), 3, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__2_end;\
+}\
+l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__2_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__1;\
+x_2 = l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__2;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__3_end;\
+}\
+l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__3_end: ((void) 0);}
 lean_object* l_Lean_MetavarContext_instMonadMCtxMetavarContextST(lean_object* x_1) {
 _start:
 {
@@ -21472,15 +21429,14 @@ x_2 = lean_alloc_closure((void*)(l_Array_mapMUnsafe_map___at_Lean_MetavarContext
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateMVars___spec__33___rarg___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateMVars___spec__33___rarg___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateMVars___spec__33___rarg___boxed__const__1_end;\
+}\
+l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateMVars___spec__33___rarg___boxed__const__1_end: ((void) 0);}
 lean_object* l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateMVars___spec__33___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -27621,15 +27577,14 @@ x_2 = lean_alloc_closure((void*)(l_Lean_MetavarContext_instantiateExprMVars___at
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MetavarContext_instantiateMVars___lambda__1___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
-x_2 = l_Std_mkHashMapImp___rarg(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_MetavarContext_instantiateMVars___lambda__1___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = lean_unsigned_to_nat(8u);\
+x_2 = l_Std_mkHashMapImp___rarg(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_MetavarContext_instantiateMVars___lambda__1___closed__1_end;\
+}\
+l_Lean_MetavarContext_instantiateMVars___lambda__1___closed__1_end: ((void) 0);}
 lean_object* l_Lean_MetavarContext_instantiateMVars___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -30118,15 +30073,14 @@ x_2 = l_Std_mkHashSetImp___rarg(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MetavarContext_findExprDependsOn___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
-x_2 = l_Std_mkHashSetImp___rarg(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_MetavarContext_findExprDependsOn___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = lean_unsigned_to_nat(8u);\
+x_2 = l_Std_mkHashSetImp___rarg(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_MetavarContext_findExprDependsOn___closed__1_end;\
+}\
+l_Lean_MetavarContext_findExprDependsOn___closed__1_end: ((void) 0);}
 lean_object* l_Lean_MetavarContext_findExprDependsOn(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -30169,19 +30123,18 @@ return x_13;
 }
 }
 }
-static lean_object* _init_l_Lean_MetavarContext_findLocalDeclDependsOn___closed__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = 0;
-x_2 = l_Std_HashSet_instInhabitedHashSet___closed__1;
-x_3 = lean_box(x_1);
-x_4 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-return x_4;
-}
-}
+#define _init_l_Lean_MetavarContext_findLocalDeclDependsOn___closed__1(__INIT_VAR__) { \
+{\
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; \
+x_1 = 0;\
+x_2 = l_Std_HashSet_instInhabitedHashSet___closed__1;\
+x_3 = lean_box(x_1);\
+x_4 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_4, 0, x_3);\
+lean_ctor_set(x_4, 1, x_2);\
+__INIT_VAR__ = x_4; goto l_Lean_MetavarContext_findLocalDeclDependsOn___closed__1_end;\
+}\
+l_Lean_MetavarContext_findLocalDeclDependsOn___closed__1_end: ((void) 0);}
 lean_object* l_Lean_MetavarContext_findLocalDeclDependsOn(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -36581,46 +36534,41 @@ return x_18;
 }
 }
 }
-static lean_object* _init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("failed to revert ");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string(", '");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("' depends on them, and it is an auxiliary declaration created by the elaborator");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string(" (possible solution: use tactic 'clear' to remove '");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("' from local context)");
-return x_1;
-}
-}
+#define _init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("failed to revert ");\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_MkBinding_instToStringException___closed__1_end;\
+}\
+l_Lean_MetavarContext_MkBinding_instToStringException___closed__1_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string(", '");\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_MkBinding_instToStringException___closed__2_end;\
+}\
+l_Lean_MetavarContext_MkBinding_instToStringException___closed__2_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("' depends on them, and it is an auxiliary declaration created by the elaborator");\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_MkBinding_instToStringException___closed__3_end;\
+}\
+l_Lean_MetavarContext_MkBinding_instToStringException___closed__3_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string(" (possible solution: use tactic 'clear' to remove '");\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_MkBinding_instToStringException___closed__4_end;\
+}\
+l_Lean_MetavarContext_MkBinding_instToStringException___closed__4_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("' from local context)");\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_MkBinding_instToStringException___closed__5_end;\
+}\
+l_Lean_MetavarContext_MkBinding_instToStringException___closed__5_end: ((void) 0);}
 lean_object* l_Lean_MetavarContext_MkBinding_instToStringException(lean_object* x_1) {
 _start:
 {
@@ -36687,14 +36635,13 @@ x_4 = l_List_toStringAux___at_Lean_MetavarContext_MkBinding_instToStringExceptio
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_MetavarContext_MkBinding_State_cache___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_HashMap_instInhabitedHashMap___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_MetavarContext_MkBinding_State_cache___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Std_HashMap_instInhabitedHashMap___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_MkBinding_State_cache___default_end;\
+}\
+l_Lean_MetavarContext_MkBinding_State_cache___default_end: ((void) 0);}
 lean_object* l_Lean_MetavarContext_MkBinding_preserveOrder(uint8_t x_1, lean_object* x_2) {
 _start:
 {
@@ -36830,62 +36777,56 @@ return x_15;
 }
 }
 }
-static lean_object* _init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___lambda__1___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___lambda__2___boxed), 3, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__1;
-x_2 = l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__2;
-x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___spec__1___rarg___boxed), 4, 2);
-lean_closure_set(x_3, 0, x_1);
-lean_closure_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___lambda__3___boxed), 3, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__3;
-x_2 = l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__4;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__5;
-return x_1;
-}
-}
+#define _init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___lambda__1___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__1_end;\
+}\
+l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__1_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___lambda__2___boxed), 3, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__2_end;\
+}\
+l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__2_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__1;\
+x_2 = l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__2;\
+x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___spec__1___rarg___boxed), 4, 2);\
+lean_closure_set(x_3, 0, x_1);\
+lean_closure_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__3_end;\
+}\
+l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__3_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___lambda__3___boxed), 3, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__4_end;\
+}\
+l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__4_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__3;\
+x_2 = l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__4;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__5_end;\
+}\
+l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__5_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__5;\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM_end;\
+}\
+l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM_end: ((void) 0);}
 lean_object* l_ReaderT_bind___at_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -46332,15 +46273,14 @@ lean_ctor_set(x_9, 1, x_6);
 return x_9;
 }
 }
-static lean_object* _init_l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar_cont___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar_cont___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar_cont___boxed__const__1_end;\
+}\
+l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar_cont___boxed__const__1_end: ((void) 0);}
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar_cont(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, uint8_t x_8, lean_object* x_9, lean_object* x_10, uint8_t x_11, lean_object* x_12) {
 _start:
 {
@@ -49243,15 +49183,14 @@ return x_25;
 }
 }
 }
-static lean_object* _init_l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___boxed__const__1_end;\
+}\
+l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___boxed__const__1_end: ((void) 0);}
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5) {
 _start:
 {
@@ -50622,15 +50561,14 @@ return x_25;
 }
 }
 }
-static lean_object* _init_l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar___boxed__const__1_end;\
+}\
+l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar___boxed__const__1_end: ((void) 0);}
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5) {
 _start:
 {
@@ -52874,15 +52812,14 @@ return x_258;
 }
 }
 }
-static lean_object* _init_l_Lean_MetavarContext_MkBinding_mkBinding___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_instMonadEST___closed__1;
-x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_MetavarContext_MkBinding_mkBinding___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_instMonadEST___closed__1;\
+x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_MetavarContext_MkBinding_mkBinding___closed__1_end;\
+}\
+l_Lean_MetavarContext_MkBinding_mkBinding___closed__1_end: ((void) 0);}
 lean_object* l_Lean_MetavarContext_MkBinding_mkBinding(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5, uint8_t x_6, uint8_t x_7, lean_object* x_8) {
 _start:
 {
@@ -53929,22 +53866,20 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_MetavarContext_LevelMVarToParam_State_paramNames___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Array_empty___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_LevelMVarToParam_State_cache___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_HashMap_instInhabitedHashMap___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_MetavarContext_LevelMVarToParam_State_paramNames___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Array_empty___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_LevelMVarToParam_State_paramNames___default_end;\
+}\
+l_Lean_MetavarContext_LevelMVarToParam_State_paramNames___default_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_LevelMVarToParam_State_cache___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Std_HashMap_instInhabitedHashMap___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_LevelMVarToParam_State_cache___default_end;\
+}\
+l_Lean_MetavarContext_LevelMVarToParam_State_cache___default_end: ((void) 0);}
 lean_object* l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -54002,42 +53937,38 @@ return x_17;
 }
 }
 }
-static lean_object* _init_l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___lambda__1___boxed), 3, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___lambda__2___boxed), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__1;
-x_2 = l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__2;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__3;
-return x_1;
-}
-}
+#define _init_l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___lambda__1___boxed), 3, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__1_end;\
+}\
+l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__1_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___lambda__2___boxed), 4, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__2_end;\
+}\
+l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__2_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__1;\
+x_2 = l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__2;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__3_end;\
+}\
+l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__3_end: ((void) 0);}
+#define _init_l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__3;\
+__INIT_VAR__ = x_1; goto l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM_end;\
+}\
+l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM_end: ((void) 0);}
 lean_object* l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -54921,15 +54852,14 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Lean_MetavarContext_LevelMVarToParam_main_visitApp___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_MetavarContext_LevelMVarToParam_main_visitApp___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_MetavarContext_LevelMVarToParam_main_visitApp___boxed__const__1_end;\
+}\
+l_Lean_MetavarContext_LevelMVarToParam_main_visitApp___boxed__const__1_end: ((void) 0);}
 lean_object* l_Lean_MetavarContext_LevelMVarToParam_main_visitApp(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -56449,14 +56379,13 @@ x_4 = lean_array_push(x_1, x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___lambda__1___boxed), 3, 0);
-return x_1;
-}
-}
+#define _init_l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___lambda__1___boxed), 3, 0);\
+__INIT_VAR__ = x_1; goto l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___closed__1_end;\
+}\
+l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___closed__1_end: ((void) 0);}
 lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -56599,146 +56528,146 @@ lean_dec_ref(res);
 res = initialize_Lean_LocalContext(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_instInhabitedLocalInstance___closed__1 = _init_l_Lean_instInhabitedLocalInstance___closed__1();
+_init_l_Lean_instInhabitedLocalInstance___closed__1(l_Lean_instInhabitedLocalInstance___closed__1);
 lean_mark_persistent(l_Lean_instInhabitedLocalInstance___closed__1);
-l_Lean_instInhabitedLocalInstance = _init_l_Lean_instInhabitedLocalInstance();
+_init_l_Lean_instInhabitedLocalInstance(l_Lean_instInhabitedLocalInstance);
 lean_mark_persistent(l_Lean_instInhabitedLocalInstance);
-l_Lean_instInhabitedMetavarKind = _init_l_Lean_instInhabitedMetavarKind();
-l_Lean_MetavarDecl_userName___default = _init_l_Lean_MetavarDecl_userName___default();
+_init_l_Lean_instInhabitedMetavarKind(l_Lean_instInhabitedMetavarKind);
+_init_l_Lean_MetavarDecl_userName___default(l_Lean_MetavarDecl_userName___default);
 lean_mark_persistent(l_Lean_MetavarDecl_userName___default);
-l_Lean_MetavarDecl_numScopeArgs___default = _init_l_Lean_MetavarDecl_numScopeArgs___default();
+_init_l_Lean_MetavarDecl_numScopeArgs___default(l_Lean_MetavarDecl_numScopeArgs___default);
 lean_mark_persistent(l_Lean_MetavarDecl_numScopeArgs___default);
-l_Lean_instInhabitedMetavarDecl___closed__1 = _init_l_Lean_instInhabitedMetavarDecl___closed__1();
+_init_l_Lean_instInhabitedMetavarDecl___closed__1(l_Lean_instInhabitedMetavarDecl___closed__1);
 lean_mark_persistent(l_Lean_instInhabitedMetavarDecl___closed__1);
-l_Lean_instInhabitedMetavarDecl = _init_l_Lean_instInhabitedMetavarDecl();
+_init_l_Lean_instInhabitedMetavarDecl(l_Lean_instInhabitedMetavarDecl);
 lean_mark_persistent(l_Lean_instInhabitedMetavarDecl);
-l_Lean_MetavarContext_depth___default = _init_l_Lean_MetavarContext_depth___default();
+_init_l_Lean_MetavarContext_depth___default(l_Lean_MetavarContext_depth___default);
 lean_mark_persistent(l_Lean_MetavarContext_depth___default);
-l_Lean_MetavarContext_lDepth___default = _init_l_Lean_MetavarContext_lDepth___default();
+_init_l_Lean_MetavarContext_lDepth___default(l_Lean_MetavarContext_lDepth___default);
 lean_mark_persistent(l_Lean_MetavarContext_lDepth___default);
-l_Lean_MetavarContext_decls___default = _init_l_Lean_MetavarContext_decls___default();
+_init_l_Lean_MetavarContext_decls___default(l_Lean_MetavarContext_decls___default);
 lean_mark_persistent(l_Lean_MetavarContext_decls___default);
-l_Lean_MetavarContext_lAssignment___default = _init_l_Lean_MetavarContext_lAssignment___default();
+_init_l_Lean_MetavarContext_lAssignment___default(l_Lean_MetavarContext_lAssignment___default);
 lean_mark_persistent(l_Lean_MetavarContext_lAssignment___default);
-l_Lean_MetavarContext_eAssignment___default = _init_l_Lean_MetavarContext_eAssignment___default();
+_init_l_Lean_MetavarContext_eAssignment___default(l_Lean_MetavarContext_eAssignment___default);
 lean_mark_persistent(l_Lean_MetavarContext_eAssignment___default);
-l_Lean_MetavarContext_dAssignment___default = _init_l_Lean_MetavarContext_dAssignment___default();
+_init_l_Lean_MetavarContext_dAssignment___default(l_Lean_MetavarContext_dAssignment___default);
 lean_mark_persistent(l_Lean_MetavarContext_dAssignment___default);
-l_Lean_MetavarContext_instInhabitedMetavarContext___closed__1 = _init_l_Lean_MetavarContext_instInhabitedMetavarContext___closed__1();
+_init_l_Lean_MetavarContext_instInhabitedMetavarContext___closed__1(l_Lean_MetavarContext_instInhabitedMetavarContext___closed__1);
 lean_mark_persistent(l_Lean_MetavarContext_instInhabitedMetavarContext___closed__1);
-l_Lean_MetavarContext_instInhabitedMetavarContext = _init_l_Lean_MetavarContext_instInhabitedMetavarContext();
+_init_l_Lean_MetavarContext_instInhabitedMetavarContext(l_Lean_MetavarContext_instInhabitedMetavarContext);
 lean_mark_persistent(l_Lean_MetavarContext_instInhabitedMetavarContext);
-l_Lean_MetavarContext_getDecl___closed__1 = _init_l_Lean_MetavarContext_getDecl___closed__1();
+_init_l_Lean_MetavarContext_getDecl___closed__1(l_Lean_MetavarContext_getDecl___closed__1);
 lean_mark_persistent(l_Lean_MetavarContext_getDecl___closed__1);
-l_Lean_MetavarContext_getDecl___closed__2 = _init_l_Lean_MetavarContext_getDecl___closed__2();
+_init_l_Lean_MetavarContext_getDecl___closed__2(l_Lean_MetavarContext_getDecl___closed__2);
 lean_mark_persistent(l_Lean_MetavarContext_getDecl___closed__2);
-l_Lean_MetavarContext_getDecl___closed__3 = _init_l_Lean_MetavarContext_getDecl___closed__3();
+_init_l_Lean_MetavarContext_getDecl___closed__3(l_Lean_MetavarContext_getDecl___closed__3);
 lean_mark_persistent(l_Lean_MetavarContext_getDecl___closed__3);
-l_Lean_MetavarContext_getDecl___closed__4 = _init_l_Lean_MetavarContext_getDecl___closed__4();
+_init_l_Lean_MetavarContext_getDecl___closed__4(l_Lean_MetavarContext_getDecl___closed__4);
 lean_mark_persistent(l_Lean_MetavarContext_getDecl___closed__4);
-l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_findUserName_x3f___spec__3___lambda__1___closed__1 = _init_l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_findUserName_x3f___spec__3___lambda__1___closed__1();
+_init_l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_findUserName_x3f___spec__3___lambda__1___closed__1(l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_findUserName_x3f___spec__3___lambda__1___closed__1);
 lean_mark_persistent(l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_findUserName_x3f___spec__3___lambda__1___closed__1);
-l_Lean_MetavarContext_getLevelDepth___closed__1 = _init_l_Lean_MetavarContext_getLevelDepth___closed__1();
+_init_l_Lean_MetavarContext_getLevelDepth___closed__1(l_Lean_MetavarContext_getLevelDepth___closed__1);
 lean_mark_persistent(l_Lean_MetavarContext_getLevelDepth___closed__1);
-l_Lean_MetavarContext_getLevelDepth___closed__2 = _init_l_Lean_MetavarContext_getLevelDepth___closed__2();
+_init_l_Lean_MetavarContext_getLevelDepth___closed__2(l_Lean_MetavarContext_getLevelDepth___closed__2);
 lean_mark_persistent(l_Lean_MetavarContext_getLevelDepth___closed__2);
-l_Lean_MetavarContext_renameMVar___closed__1 = _init_l_Lean_MetavarContext_renameMVar___closed__1();
+_init_l_Lean_MetavarContext_renameMVar___closed__1(l_Lean_MetavarContext_renameMVar___closed__1);
 lean_mark_persistent(l_Lean_MetavarContext_renameMVar___closed__1);
-l_Lean_MetavarContext_renameMVar___closed__2 = _init_l_Lean_MetavarContext_renameMVar___closed__2();
+_init_l_Lean_MetavarContext_renameMVar___closed__2(l_Lean_MetavarContext_renameMVar___closed__2);
 lean_mark_persistent(l_Lean_MetavarContext_renameMVar___closed__2);
-l_Lean_MetavarContext_isLevelAssignable___closed__1 = _init_l_Lean_MetavarContext_isLevelAssignable___closed__1();
+_init_l_Lean_MetavarContext_isLevelAssignable___closed__1(l_Lean_MetavarContext_isLevelAssignable___closed__1);
 lean_mark_persistent(l_Lean_MetavarContext_isLevelAssignable___closed__1);
-l_Lean_MetavarContext_isLevelAssignable___closed__2 = _init_l_Lean_MetavarContext_isLevelAssignable___closed__2();
+_init_l_Lean_MetavarContext_isLevelAssignable___closed__2(l_Lean_MetavarContext_isLevelAssignable___closed__2);
 lean_mark_persistent(l_Lean_MetavarContext_isLevelAssignable___closed__2);
-l_Lean_MetavarContext_isLevelAssignable___closed__3 = _init_l_Lean_MetavarContext_isLevelAssignable___closed__3();
+_init_l_Lean_MetavarContext_isLevelAssignable___closed__3(l_Lean_MetavarContext_isLevelAssignable___closed__3);
 lean_mark_persistent(l_Lean_MetavarContext_isLevelAssignable___closed__3);
-l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__2___boxed__const__1 = _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__2___boxed__const__1();
+_init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__2___boxed__const__1(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__2___boxed__const__1);
 lean_mark_persistent(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__2___boxed__const__1);
-l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__3___boxed__const__1 = _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__3___boxed__const__1();
+_init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__3___boxed__const__1(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__3___boxed__const__1);
 lean_mark_persistent(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__3___boxed__const__1);
-l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__4___boxed__const__1 = _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__4___boxed__const__1();
+_init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__4___boxed__const__1(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__4___boxed__const__1);
 lean_mark_persistent(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__4___boxed__const__1);
-l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__6___boxed__const__1 = _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__6___boxed__const__1();
+_init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__6___boxed__const__1(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__6___boxed__const__1);
 lean_mark_persistent(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__6___boxed__const__1);
-l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__7___boxed__const__1 = _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__7___boxed__const__1();
+_init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__7___boxed__const__1(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__7___boxed__const__1);
 lean_mark_persistent(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__7___boxed__const__1);
-l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__8___boxed__const__1 = _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__8___boxed__const__1();
+_init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__8___boxed__const__1(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__8___boxed__const__1);
 lean_mark_persistent(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__8___boxed__const__1);
-l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__9___boxed__const__1 = _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__9___boxed__const__1();
+_init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__9___boxed__const__1(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__9___boxed__const__1);
 lean_mark_persistent(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__9___boxed__const__1);
-l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__10___boxed__const__1 = _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__10___boxed__const__1();
+_init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__10___boxed__const__1(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__10___boxed__const__1);
 lean_mark_persistent(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__10___boxed__const__1);
-l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__11___boxed__const__1 = _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__11___boxed__const__1();
+_init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__11___boxed__const__1(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__11___boxed__const__1);
 lean_mark_persistent(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__11___boxed__const__1);
-l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__12___boxed__const__1 = _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__12___boxed__const__1();
+_init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__12___boxed__const__1(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__12___boxed__const__1);
 lean_mark_persistent(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__12___boxed__const__1);
-l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__13___boxed__const__1 = _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__13___boxed__const__1();
+_init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__13___boxed__const__1(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__13___boxed__const__1);
 lean_mark_persistent(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__13___boxed__const__1);
-l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__14___boxed__const__1 = _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__14___boxed__const__1();
+_init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__14___boxed__const__1(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__14___boxed__const__1);
 lean_mark_persistent(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__14___boxed__const__1);
-l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__15___boxed__const__1 = _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__15___boxed__const__1();
+_init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__15___boxed__const__1(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__15___boxed__const__1);
 lean_mark_persistent(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__39___rarg___lambda__15___boxed__const__1);
-l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__1 = _init_l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__1();
+_init_l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__1(l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__1);
 lean_mark_persistent(l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__1);
-l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__2 = _init_l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__2();
+_init_l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__2(l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__2);
 lean_mark_persistent(l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__2);
-l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__3 = _init_l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__3();
+_init_l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__3(l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__3);
 lean_mark_persistent(l_Lean_MetavarContext_instMonadMCtxMetavarContextST___closed__3);
-l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateMVars___spec__33___rarg___boxed__const__1 = _init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateMVars___spec__33___rarg___boxed__const__1();
+_init_l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateMVars___spec__33___rarg___boxed__const__1(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateMVars___spec__33___rarg___boxed__const__1);
 lean_mark_persistent(l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateMVars___spec__33___rarg___boxed__const__1);
-l_Lean_MetavarContext_instantiateMVars___lambda__1___closed__1 = _init_l_Lean_MetavarContext_instantiateMVars___lambda__1___closed__1();
+_init_l_Lean_MetavarContext_instantiateMVars___lambda__1___closed__1(l_Lean_MetavarContext_instantiateMVars___lambda__1___closed__1);
 lean_mark_persistent(l_Lean_MetavarContext_instantiateMVars___lambda__1___closed__1);
-l_Lean_MetavarContext_findExprDependsOn___closed__1 = _init_l_Lean_MetavarContext_findExprDependsOn___closed__1();
+_init_l_Lean_MetavarContext_findExprDependsOn___closed__1(l_Lean_MetavarContext_findExprDependsOn___closed__1);
 lean_mark_persistent(l_Lean_MetavarContext_findExprDependsOn___closed__1);
-l_Lean_MetavarContext_findLocalDeclDependsOn___closed__1 = _init_l_Lean_MetavarContext_findLocalDeclDependsOn___closed__1();
+_init_l_Lean_MetavarContext_findLocalDeclDependsOn___closed__1(l_Lean_MetavarContext_findLocalDeclDependsOn___closed__1);
 lean_mark_persistent(l_Lean_MetavarContext_findLocalDeclDependsOn___closed__1);
-l_Lean_MetavarContext_MkBinding_instToStringException___closed__1 = _init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__1();
+_init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__1(l_Lean_MetavarContext_MkBinding_instToStringException___closed__1);
 lean_mark_persistent(l_Lean_MetavarContext_MkBinding_instToStringException___closed__1);
-l_Lean_MetavarContext_MkBinding_instToStringException___closed__2 = _init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__2();
+_init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__2(l_Lean_MetavarContext_MkBinding_instToStringException___closed__2);
 lean_mark_persistent(l_Lean_MetavarContext_MkBinding_instToStringException___closed__2);
-l_Lean_MetavarContext_MkBinding_instToStringException___closed__3 = _init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__3();
+_init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__3(l_Lean_MetavarContext_MkBinding_instToStringException___closed__3);
 lean_mark_persistent(l_Lean_MetavarContext_MkBinding_instToStringException___closed__3);
-l_Lean_MetavarContext_MkBinding_instToStringException___closed__4 = _init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__4();
+_init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__4(l_Lean_MetavarContext_MkBinding_instToStringException___closed__4);
 lean_mark_persistent(l_Lean_MetavarContext_MkBinding_instToStringException___closed__4);
-l_Lean_MetavarContext_MkBinding_instToStringException___closed__5 = _init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__5();
+_init_l_Lean_MetavarContext_MkBinding_instToStringException___closed__5(l_Lean_MetavarContext_MkBinding_instToStringException___closed__5);
 lean_mark_persistent(l_Lean_MetavarContext_MkBinding_instToStringException___closed__5);
-l_Lean_MetavarContext_MkBinding_State_cache___default = _init_l_Lean_MetavarContext_MkBinding_State_cache___default();
+_init_l_Lean_MetavarContext_MkBinding_State_cache___default(l_Lean_MetavarContext_MkBinding_State_cache___default);
 lean_mark_persistent(l_Lean_MetavarContext_MkBinding_State_cache___default);
-l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__1 = _init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__1();
+_init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__1(l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__1);
 lean_mark_persistent(l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__1);
-l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__2 = _init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__2();
+_init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__2(l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__2);
 lean_mark_persistent(l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__2);
-l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__3 = _init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__3();
+_init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__3(l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__3);
 lean_mark_persistent(l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__3);
-l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__4 = _init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__4();
+_init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__4(l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__4);
 lean_mark_persistent(l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__4);
-l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__5 = _init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__5();
+_init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__5(l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__5);
 lean_mark_persistent(l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM___closed__5);
-l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM = _init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM();
+_init_l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM(l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM);
 lean_mark_persistent(l_Lean_MetavarContext_MkBinding_instMonadHashMapCacheAdapterExprStructEqExprM);
-l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar_cont___boxed__const__1 = _init_l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar_cont___boxed__const__1();
+_init_l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar_cont___boxed__const__1(l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar_cont___boxed__const__1);
 lean_mark_persistent(l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar_cont___boxed__const__1);
-l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___boxed__const__1 = _init_l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___boxed__const__1();
+_init_l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___boxed__const__1(l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___boxed__const__1);
 lean_mark_persistent(l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___boxed__const__1);
-l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar___boxed__const__1 = _init_l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar___boxed__const__1();
+_init_l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar___boxed__const__1(l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar___boxed__const__1);
 lean_mark_persistent(l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar___boxed__const__1);
-l_Lean_MetavarContext_MkBinding_mkBinding___closed__1 = _init_l_Lean_MetavarContext_MkBinding_mkBinding___closed__1();
+_init_l_Lean_MetavarContext_MkBinding_mkBinding___closed__1(l_Lean_MetavarContext_MkBinding_mkBinding___closed__1);
 lean_mark_persistent(l_Lean_MetavarContext_MkBinding_mkBinding___closed__1);
-l_Lean_MetavarContext_LevelMVarToParam_State_paramNames___default = _init_l_Lean_MetavarContext_LevelMVarToParam_State_paramNames___default();
+_init_l_Lean_MetavarContext_LevelMVarToParam_State_paramNames___default(l_Lean_MetavarContext_LevelMVarToParam_State_paramNames___default);
 lean_mark_persistent(l_Lean_MetavarContext_LevelMVarToParam_State_paramNames___default);
-l_Lean_MetavarContext_LevelMVarToParam_State_cache___default = _init_l_Lean_MetavarContext_LevelMVarToParam_State_cache___default();
+_init_l_Lean_MetavarContext_LevelMVarToParam_State_cache___default(l_Lean_MetavarContext_LevelMVarToParam_State_cache___default);
 lean_mark_persistent(l_Lean_MetavarContext_LevelMVarToParam_State_cache___default);
-l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__1 = _init_l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__1();
+_init_l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__1(l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__1);
 lean_mark_persistent(l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__1);
-l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__2 = _init_l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__2();
+_init_l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__2(l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__2);
 lean_mark_persistent(l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__2);
-l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__3 = _init_l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__3();
+_init_l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__3(l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__3);
 lean_mark_persistent(l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM___closed__3);
-l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM = _init_l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM();
+_init_l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM(l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM);
 lean_mark_persistent(l_Lean_MetavarContext_LevelMVarToParam_instMonadCacheExprStructEqExprM);
-l_Lean_MetavarContext_LevelMVarToParam_main_visitApp___boxed__const__1 = _init_l_Lean_MetavarContext_LevelMVarToParam_main_visitApp___boxed__const__1();
+_init_l_Lean_MetavarContext_LevelMVarToParam_main_visitApp___boxed__const__1(l_Lean_MetavarContext_LevelMVarToParam_main_visitApp___boxed__const__1);
 lean_mark_persistent(l_Lean_MetavarContext_LevelMVarToParam_main_visitApp___boxed__const__1);
-l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___closed__1 = _init_l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___closed__1();
+_init_l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___closed__1(l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___closed__1);
 lean_mark_persistent(l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

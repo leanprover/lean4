@@ -588,16 +588,15 @@ lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFr
 lean_object* l_Array_toPArray___rarg(lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Std_PersistentArray_toList___spec__10___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forInAux_match__1(lean_object*, lean_object*);
-static lean_object* _init_l_Std_instInhabitedPersistentArrayNode___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_empty___closed__1;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_Std_instInhabitedPersistentArrayNode___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Array_empty___closed__1;\
+x_2 = lean_alloc_ctor(0, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Std_instInhabitedPersistentArrayNode___closed__1_end;\
+}\
+l_Std_instInhabitedPersistentArrayNode___closed__1_end: ((void) 0);}
 lean_object* l_Std_instInhabitedPersistentArrayNode(lean_object* x_1) {
 _start:
 {
@@ -674,41 +673,37 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-static size_t _init_l_Std_PersistentArray_initShift() {
-_start:
-{
-size_t x_1; 
-x_1 = 5;
-return x_1;
-}
-}
-static size_t _init_l_Std_PersistentArray_branching() {
-_start:
-{
-size_t x_1; 
-x_1 = 32;
-return x_1;
-}
-}
-static lean_object* _init_l_Std_PersistentArray_root___default___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(32u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Std_PersistentArray_root___default___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_PersistentArray_root___default___closed__1;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_Std_PersistentArray_initShift(__INIT_VAR__) { \
+{\
+size_t x_1; \
+x_1 = 5;\
+__INIT_VAR__ = x_1; goto l_Std_PersistentArray_initShift_end;\
+}\
+l_Std_PersistentArray_initShift_end: ((void) 0);}
+#define _init_l_Std_PersistentArray_branching(__INIT_VAR__) { \
+{\
+size_t x_1; \
+x_1 = 32;\
+__INIT_VAR__ = x_1; goto l_Std_PersistentArray_branching_end;\
+}\
+l_Std_PersistentArray_branching_end: ((void) 0);}
+#define _init_l_Std_PersistentArray_root___default___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = lean_unsigned_to_nat(32u);\
+x_2 = lean_mk_empty_array_with_capacity(x_1);\
+__INIT_VAR__ = x_2; goto l_Std_PersistentArray_root___default___closed__1_end;\
+}\
+l_Std_PersistentArray_root___default___closed__1_end: ((void) 0);}
+#define _init_l_Std_PersistentArray_root___default___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Std_PersistentArray_root___default___closed__1;\
+x_2 = lean_alloc_ctor(0, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Std_PersistentArray_root___default___closed__2_end;\
+}\
+l_Std_PersistentArray_root___default___closed__2_end: ((void) 0);}
 lean_object* l_Std_PersistentArray_root___default(lean_object* x_1) {
 _start:
 {
@@ -725,47 +720,43 @@ x_2 = l_Std_PersistentArray_root___default___closed__1;
 return x_2;
 }
 }
-static lean_object* _init_l_Std_PersistentArray_size___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(0u);
-return x_1;
-}
-}
-static size_t _init_l_Std_PersistentArray_shift___default() {
-_start:
-{
-size_t x_1; 
-x_1 = 5;
-return x_1;
-}
-}
-static lean_object* _init_l_Std_PersistentArray_tailOff___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(0u);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_instInhabitedPersistentArray___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; size_t x_4; lean_object* x_5; 
-x_1 = l_Std_instInhabitedPersistentArrayNode___closed__1;
-x_2 = l_Array_empty___closed__1;
-x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_instInhabitedUSize___closed__1;
-x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_3);
-lean_ctor_set(x_5, 3, x_3);
-lean_ctor_set_usize(x_5, 4, x_4);
-return x_5;
-}
-}
+#define _init_l_Std_PersistentArray_size___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_unsigned_to_nat(0u);\
+__INIT_VAR__ = x_1; goto l_Std_PersistentArray_size___default_end;\
+}\
+l_Std_PersistentArray_size___default_end: ((void) 0);}
+#define _init_l_Std_PersistentArray_shift___default(__INIT_VAR__) { \
+{\
+size_t x_1; \
+x_1 = 5;\
+__INIT_VAR__ = x_1; goto l_Std_PersistentArray_shift___default_end;\
+}\
+l_Std_PersistentArray_shift___default_end: ((void) 0);}
+#define _init_l_Std_PersistentArray_tailOff___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_unsigned_to_nat(0u);\
+__INIT_VAR__ = x_1; goto l_Std_PersistentArray_tailOff___default_end;\
+}\
+l_Std_PersistentArray_tailOff___default_end: ((void) 0);}
+#define _init_l_Std_instInhabitedPersistentArray___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; size_t x_4; lean_object* x_5; \
+x_1 = l_Std_instInhabitedPersistentArrayNode___closed__1;\
+x_2 = l_Array_empty___closed__1;\
+x_3 = lean_unsigned_to_nat(0u);\
+x_4 = l_instInhabitedUSize___closed__1;\
+x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);\
+lean_ctor_set(x_5, 0, x_1);\
+lean_ctor_set(x_5, 1, x_2);\
+lean_ctor_set(x_5, 2, x_3);\
+lean_ctor_set(x_5, 3, x_3);\
+lean_ctor_set_usize(x_5, 4, x_4);\
+__INIT_VAR__ = x_5; goto l_Std_instInhabitedPersistentArray___closed__1_end;\
+}\
+l_Std_instInhabitedPersistentArray___closed__1_end: ((void) 0);}
 lean_object* l_Std_instInhabitedPersistentArray(lean_object* x_1) {
 _start:
 {
@@ -774,23 +765,22 @@ x_2 = l_Std_instInhabitedPersistentArray___closed__1;
 return x_2;
 }
 }
-static lean_object* _init_l_Std_PersistentArray_empty___closed__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = 5;
-x_2 = l_Std_PersistentArray_root___default___closed__2;
-x_3 = l_Std_PersistentArray_root___default___closed__1;
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
-lean_ctor_set(x_5, 0, x_2);
-lean_ctor_set(x_5, 1, x_3);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set(x_5, 3, x_4);
-lean_ctor_set_usize(x_5, 4, x_1);
-return x_5;
-}
-}
+#define _init_l_Std_PersistentArray_empty___closed__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; \
+x_1 = 5;\
+x_2 = l_Std_PersistentArray_root___default___closed__2;\
+x_3 = l_Std_PersistentArray_root___default___closed__1;\
+x_4 = lean_unsigned_to_nat(0u);\
+x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);\
+lean_ctor_set(x_5, 0, x_2);\
+lean_ctor_set(x_5, 1, x_3);\
+lean_ctor_set(x_5, 2, x_4);\
+lean_ctor_set(x_5, 3, x_4);\
+lean_ctor_set_usize(x_5, 4, x_1);\
+__INIT_VAR__ = x_5; goto l_Std_PersistentArray_empty___closed__1_end;\
+}\
+l_Std_PersistentArray_empty___closed__1_end: ((void) 0);}
 lean_object* l_Std_PersistentArray_empty(lean_object* x_1) {
 _start:
 {
@@ -950,14 +940,13 @@ x_8 = l_Std_PersistentArray_getAux_match__1___rarg(x_1, x_6, x_7, x_4, x_5);
 return x_8;
 }
 }
-static lean_object* _init_l_Std_PersistentArray_getAux___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_instInhabitedPersistentArrayNode(lean_box(0));
-return x_1;
-}
-}
+#define _init_l_Std_PersistentArray_getAux___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Std_instInhabitedPersistentArrayNode(lean_box(0));\
+__INIT_VAR__ = x_1; goto l_Std_PersistentArray_getAux___rarg___closed__1_end;\
+}\
+l_Std_PersistentArray_getAux___rarg___closed__1_end: ((void) 0);}
 lean_object* l_Std_PersistentArray_getAux___rarg(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4) {
 _start:
 {
@@ -2027,24 +2016,22 @@ x_2 = lean_alloc_closure((void*)(l_Std_PersistentArray_mkNewTail___rarg), 1, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_PersistentArray_tooBig___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_USize_size;
-x_2 = lean_unsigned_to_nat(8u);
-x_3 = lean_nat_div(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_PersistentArray_tooBig() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_PersistentArray_tooBig___closed__1;
-return x_1;
-}
-}
+#define _init_l_Std_PersistentArray_tooBig___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_USize_size;\
+x_2 = lean_unsigned_to_nat(8u);\
+x_3 = lean_nat_div(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Std_PersistentArray_tooBig___closed__1_end;\
+}\
+l_Std_PersistentArray_tooBig___closed__1_end: ((void) 0);}
+#define _init_l_Std_PersistentArray_tooBig(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Std_PersistentArray_tooBig___closed__1;\
+__INIT_VAR__ = x_1; goto l_Std_PersistentArray_tooBig_end;\
+}\
+l_Std_PersistentArray_tooBig_end: ((void) 0);}
 lean_object* l_Std_PersistentArray_push___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2229,18 +2216,17 @@ x_3 = lean_alloc_closure((void*)(l_Std_PersistentArray_popLeaf_match__2___rarg),
 return x_3;
 }
 }
-static lean_object* _init_l_Std_PersistentArray_popLeaf___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Std_PersistentArray_root___default___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
+#define _init_l_Std_PersistentArray_popLeaf___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Std_PersistentArray_root___default___closed__1;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Std_PersistentArray_popLeaf___rarg___closed__1_end;\
+}\
+l_Std_PersistentArray_popLeaf___rarg___closed__1_end: ((void) 0);}
 lean_object* l_Std_PersistentArray_popLeaf___rarg(lean_object* x_1) {
 _start:
 {
@@ -8174,14 +8160,13 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_PersistentArray_instAppendPersistentArray___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_PersistentArray_append___rarg___boxed), 2, 0);
-return x_1;
-}
-}
+#define _init_l_Std_PersistentArray_instAppendPersistentArray___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Std_PersistentArray_append___rarg___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_Std_PersistentArray_instAppendPersistentArray___closed__1_end;\
+}\
+l_Std_PersistentArray_instAppendPersistentArray___closed__1_end: ((void) 0);}
 lean_object* l_Std_PersistentArray_instAppendPersistentArray(lean_object* x_1) {
 _start:
 {
@@ -11420,22 +11405,20 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_PersistentArray_mapMAux___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_PersistentArray_mapMAux___rarg___lambda__1), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_PersistentArray_mapMAux___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_PersistentArray_mapMAux___rarg___lambda__2), 1, 0);
-return x_1;
-}
-}
+#define _init_l_Std_PersistentArray_mapMAux___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Std_PersistentArray_mapMAux___rarg___lambda__1), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Std_PersistentArray_mapMAux___rarg___closed__1_end;\
+}\
+l_Std_PersistentArray_mapMAux___rarg___closed__1_end: ((void) 0);}
+#define _init_l_Std_PersistentArray_mapMAux___rarg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Std_PersistentArray_mapMAux___rarg___lambda__2), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Std_PersistentArray_mapMAux___rarg___closed__2_end;\
+}\
+l_Std_PersistentArray_mapMAux___rarg___closed__2_end: ((void) 0);}
 lean_object* l_Std_PersistentArray_mapMAux___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -12177,30 +12160,27 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_PersistentArray_Stats_toString___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("{nodes := ");
-return x_1;
-}
-}
-static lean_object* _init_l_Std_PersistentArray_Stats_toString___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string(", depth := ");
-return x_1;
-}
-}
-static lean_object* _init_l_Std_PersistentArray_Stats_toString___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string(", tail size := ");
-return x_1;
-}
-}
+#define _init_l_Std_PersistentArray_Stats_toString___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("{nodes := ");\
+__INIT_VAR__ = x_1; goto l_Std_PersistentArray_Stats_toString___closed__1_end;\
+}\
+l_Std_PersistentArray_Stats_toString___closed__1_end: ((void) 0);}
+#define _init_l_Std_PersistentArray_Stats_toString___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string(", depth := ");\
+__INIT_VAR__ = x_1; goto l_Std_PersistentArray_Stats_toString___closed__2_end;\
+}\
+l_Std_PersistentArray_Stats_toString___closed__2_end: ((void) 0);}
+#define _init_l_Std_PersistentArray_Stats_toString___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string(", tail size := ");\
+__INIT_VAR__ = x_1; goto l_Std_PersistentArray_Stats_toString___closed__3_end;\
+}\
+l_Std_PersistentArray_Stats_toString___closed__3_end: ((void) 0);}
 lean_object* l_Std_PersistentArray_Stats_toString(lean_object* x_1) {
 _start:
 {
@@ -12231,22 +12211,20 @@ x_17 = lean_string_append(x_15, x_16);
 return x_17;
 }
 }
-static lean_object* _init_l_Std_PersistentArray_instToStringStats___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_PersistentArray_Stats_toString), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_PersistentArray_instToStringStats() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_PersistentArray_instToStringStats___closed__1;
-return x_1;
-}
-}
+#define _init_l_Std_PersistentArray_instToStringStats___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Std_PersistentArray_Stats_toString), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Std_PersistentArray_instToStringStats___closed__1_end;\
+}\
+l_Std_PersistentArray_instToStringStats___closed__1_end: ((void) 0);}
+#define _init_l_Std_PersistentArray_instToStringStats(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Std_PersistentArray_instToStringStats___closed__1;\
+__INIT_VAR__ = x_1; goto l_Std_PersistentArray_instToStringStats_end;\
+}\
+l_Std_PersistentArray_instToStringStats_end: ((void) 0);}
 lean_object* l_Nat_foldAux___at_Std_mkPersistentArray___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -12281,14 +12259,13 @@ x_2 = lean_alloc_closure((void*)(l_Nat_foldAux___at_Std_mkPersistentArray___spec
 return x_2;
 }
 }
-static lean_object* _init_l_Std_mkPersistentArray___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_PersistentArray_empty(lean_box(0));
-return x_1;
-}
-}
+#define _init_l_Std_mkPersistentArray___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Std_PersistentArray_empty(lean_box(0));\
+__INIT_VAR__ = x_1; goto l_Std_mkPersistentArray___rarg___closed__1_end;\
+}\
+l_Std_mkPersistentArray___rarg___closed__1_end: ((void) 0);}
 lean_object* l_Std_mkPersistentArray___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -12544,48 +12521,48 @@ _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_instInhabitedPersistentArrayNode___closed__1 = _init_l_Std_instInhabitedPersistentArrayNode___closed__1();
+_init_l_Std_instInhabitedPersistentArrayNode___closed__1(l_Std_instInhabitedPersistentArrayNode___closed__1);
 lean_mark_persistent(l_Std_instInhabitedPersistentArrayNode___closed__1);
-l_Std_PersistentArray_initShift = _init_l_Std_PersistentArray_initShift();
-l_Std_PersistentArray_branching = _init_l_Std_PersistentArray_branching();
-l_Std_PersistentArray_root___default___closed__1 = _init_l_Std_PersistentArray_root___default___closed__1();
+_init_l_Std_PersistentArray_initShift(l_Std_PersistentArray_initShift);
+_init_l_Std_PersistentArray_branching(l_Std_PersistentArray_branching);
+_init_l_Std_PersistentArray_root___default___closed__1(l_Std_PersistentArray_root___default___closed__1);
 lean_mark_persistent(l_Std_PersistentArray_root___default___closed__1);
-l_Std_PersistentArray_root___default___closed__2 = _init_l_Std_PersistentArray_root___default___closed__2();
+_init_l_Std_PersistentArray_root___default___closed__2(l_Std_PersistentArray_root___default___closed__2);
 lean_mark_persistent(l_Std_PersistentArray_root___default___closed__2);
-l_Std_PersistentArray_size___default = _init_l_Std_PersistentArray_size___default();
+_init_l_Std_PersistentArray_size___default(l_Std_PersistentArray_size___default);
 lean_mark_persistent(l_Std_PersistentArray_size___default);
-l_Std_PersistentArray_shift___default = _init_l_Std_PersistentArray_shift___default();
-l_Std_PersistentArray_tailOff___default = _init_l_Std_PersistentArray_tailOff___default();
+_init_l_Std_PersistentArray_shift___default(l_Std_PersistentArray_shift___default);
+_init_l_Std_PersistentArray_tailOff___default(l_Std_PersistentArray_tailOff___default);
 lean_mark_persistent(l_Std_PersistentArray_tailOff___default);
-l_Std_instInhabitedPersistentArray___closed__1 = _init_l_Std_instInhabitedPersistentArray___closed__1();
+_init_l_Std_instInhabitedPersistentArray___closed__1(l_Std_instInhabitedPersistentArray___closed__1);
 lean_mark_persistent(l_Std_instInhabitedPersistentArray___closed__1);
-l_Std_PersistentArray_empty___closed__1 = _init_l_Std_PersistentArray_empty___closed__1();
+_init_l_Std_PersistentArray_empty___closed__1(l_Std_PersistentArray_empty___closed__1);
 lean_mark_persistent(l_Std_PersistentArray_empty___closed__1);
-l_Std_PersistentArray_getAux___rarg___closed__1 = _init_l_Std_PersistentArray_getAux___rarg___closed__1();
+_init_l_Std_PersistentArray_getAux___rarg___closed__1(l_Std_PersistentArray_getAux___rarg___closed__1);
 lean_mark_persistent(l_Std_PersistentArray_getAux___rarg___closed__1);
-l_Std_PersistentArray_tooBig___closed__1 = _init_l_Std_PersistentArray_tooBig___closed__1();
+_init_l_Std_PersistentArray_tooBig___closed__1(l_Std_PersistentArray_tooBig___closed__1);
 lean_mark_persistent(l_Std_PersistentArray_tooBig___closed__1);
-l_Std_PersistentArray_tooBig = _init_l_Std_PersistentArray_tooBig();
+_init_l_Std_PersistentArray_tooBig(l_Std_PersistentArray_tooBig);
 lean_mark_persistent(l_Std_PersistentArray_tooBig);
-l_Std_PersistentArray_popLeaf___rarg___closed__1 = _init_l_Std_PersistentArray_popLeaf___rarg___closed__1();
+_init_l_Std_PersistentArray_popLeaf___rarg___closed__1(l_Std_PersistentArray_popLeaf___rarg___closed__1);
 lean_mark_persistent(l_Std_PersistentArray_popLeaf___rarg___closed__1);
-l_Std_PersistentArray_instAppendPersistentArray___closed__1 = _init_l_Std_PersistentArray_instAppendPersistentArray___closed__1();
+_init_l_Std_PersistentArray_instAppendPersistentArray___closed__1(l_Std_PersistentArray_instAppendPersistentArray___closed__1);
 lean_mark_persistent(l_Std_PersistentArray_instAppendPersistentArray___closed__1);
-l_Std_PersistentArray_mapMAux___rarg___closed__1 = _init_l_Std_PersistentArray_mapMAux___rarg___closed__1();
+_init_l_Std_PersistentArray_mapMAux___rarg___closed__1(l_Std_PersistentArray_mapMAux___rarg___closed__1);
 lean_mark_persistent(l_Std_PersistentArray_mapMAux___rarg___closed__1);
-l_Std_PersistentArray_mapMAux___rarg___closed__2 = _init_l_Std_PersistentArray_mapMAux___rarg___closed__2();
+_init_l_Std_PersistentArray_mapMAux___rarg___closed__2(l_Std_PersistentArray_mapMAux___rarg___closed__2);
 lean_mark_persistent(l_Std_PersistentArray_mapMAux___rarg___closed__2);
-l_Std_PersistentArray_Stats_toString___closed__1 = _init_l_Std_PersistentArray_Stats_toString___closed__1();
+_init_l_Std_PersistentArray_Stats_toString___closed__1(l_Std_PersistentArray_Stats_toString___closed__1);
 lean_mark_persistent(l_Std_PersistentArray_Stats_toString___closed__1);
-l_Std_PersistentArray_Stats_toString___closed__2 = _init_l_Std_PersistentArray_Stats_toString___closed__2();
+_init_l_Std_PersistentArray_Stats_toString___closed__2(l_Std_PersistentArray_Stats_toString___closed__2);
 lean_mark_persistent(l_Std_PersistentArray_Stats_toString___closed__2);
-l_Std_PersistentArray_Stats_toString___closed__3 = _init_l_Std_PersistentArray_Stats_toString___closed__3();
+_init_l_Std_PersistentArray_Stats_toString___closed__3(l_Std_PersistentArray_Stats_toString___closed__3);
 lean_mark_persistent(l_Std_PersistentArray_Stats_toString___closed__3);
-l_Std_PersistentArray_instToStringStats___closed__1 = _init_l_Std_PersistentArray_instToStringStats___closed__1();
+_init_l_Std_PersistentArray_instToStringStats___closed__1(l_Std_PersistentArray_instToStringStats___closed__1);
 lean_mark_persistent(l_Std_PersistentArray_instToStringStats___closed__1);
-l_Std_PersistentArray_instToStringStats = _init_l_Std_PersistentArray_instToStringStats();
+_init_l_Std_PersistentArray_instToStringStats(l_Std_PersistentArray_instToStringStats);
 lean_mark_persistent(l_Std_PersistentArray_instToStringStats);
-l_Std_mkPersistentArray___rarg___closed__1 = _init_l_Std_mkPersistentArray___rarg___closed__1();
+_init_l_Std_mkPersistentArray___rarg___closed__1(l_Std_mkPersistentArray___rarg___closed__1);
 lean_mark_persistent(l_Std_mkPersistentArray___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

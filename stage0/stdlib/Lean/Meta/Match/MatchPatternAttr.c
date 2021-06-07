@@ -38,40 +38,36 @@ lean_ctor_set(x_6, 1, x_4);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("matchPattern");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("mark that a definition can be used in a pattern (remark: the dependent pattern matching compiler will unfold the definition)");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____lambda__1___boxed), 4, 0);
-return x_1;
-}
-}
+#define _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("matchPattern");\
+__INIT_VAR__ = x_1; goto l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__1_end;\
+}\
+l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__1_end: ((void) 0);}
+#define _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__2_end;\
+}\
+l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__2_end: ((void) 0);}
+#define _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("mark that a definition can be used in a pattern (remark: the dependent pattern matching compiler will unfold the definition)");\
+__INIT_VAR__ = x_1; goto l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__3_end;\
+}\
+l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__3_end: ((void) 0);}
+#define _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____lambda__1___boxed), 4, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__4_end;\
+}\
+l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__4_end: ((void) 0);}
 lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3_(lean_object* x_1) {
 _start:
 {
@@ -127,13 +123,13 @@ lean_dec_ref(res);
 res = initialize_Lean_Attributes(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__1 = _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__1();
+_init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__1(l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__1);
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__1);
-l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__2 = _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__2();
+_init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__2(l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__2);
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__2);
-l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__3 = _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__3();
+_init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__3(l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__3);
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__3);
-l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__4 = _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__4();
+_init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__4(l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__4);
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__4);
 res = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;

@@ -101,31 +101,28 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_FloatArray_empty___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_float_array(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_FloatArray_empty() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_FloatArray_empty___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_FloatArray_instInhabitedFloatArray() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_FloatArray_empty;
-return x_1;
-}
-}
+#define _init_l_FloatArray_empty___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = lean_unsigned_to_nat(0u);\
+x_2 = lean_mk_empty_float_array(x_1);\
+__INIT_VAR__ = x_2; goto l_FloatArray_empty___closed__1_end;\
+}\
+l_FloatArray_empty___closed__1_end: ((void) 0);}
+#define _init_l_FloatArray_empty(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_FloatArray_empty___closed__1;\
+__INIT_VAR__ = x_1; goto l_FloatArray_empty_end;\
+}\
+l_FloatArray_empty_end: ((void) 0);}
+#define _init_l_FloatArray_instInhabitedFloatArray(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_FloatArray_empty;\
+__INIT_VAR__ = x_1; goto l_FloatArray_instInhabitedFloatArray_end;\
+}\
+l_FloatArray_instInhabitedFloatArray_end: ((void) 0);}
 lean_object* l_FloatArray_push_match__1___rarg(lean_object* x_1, double x_2, lean_object* x_3) {
 _start:
 {
@@ -657,11 +654,11 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Option_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_FloatArray_empty___closed__1 = _init_l_FloatArray_empty___closed__1();
+_init_l_FloatArray_empty___closed__1(l_FloatArray_empty___closed__1);
 lean_mark_persistent(l_FloatArray_empty___closed__1);
-l_FloatArray_empty = _init_l_FloatArray_empty();
+_init_l_FloatArray_empty(l_FloatArray_empty);
 lean_mark_persistent(l_FloatArray_empty);
-l_FloatArray_instInhabitedFloatArray = _init_l_FloatArray_instInhabitedFloatArray();
+_init_l_FloatArray_instInhabitedFloatArray(l_FloatArray_instInhabitedFloatArray);
 lean_mark_persistent(l_FloatArray_instInhabitedFloatArray);
 return lean_io_result_mk_ok(lean_box(0));
 }

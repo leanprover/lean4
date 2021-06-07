@@ -88,30 +88,27 @@ lean_dec(x_1);
 return x_6;
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("_u");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("_x");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("__");
-return x_1;
-}
-}
+#define _init_l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("_u");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__1_end;\
+}\
+l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__1_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("_x");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__2_end;\
+}\
+l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__2_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("__");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__3_end;\
+}\
+l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__3_end: ((void) 0);}
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -400,14 +397,13 @@ lean_dec(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_mkModuleInitializationFunctionName___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("initialize_");
-return x_1;
-}
-}
+#define _init_l_Lean_mkModuleInitializationFunctionName___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("initialize_");\
+__INIT_VAR__ = x_1; goto l_Lean_mkModuleInitializationFunctionName___closed__1_end;\
+}\
+l_Lean_mkModuleInitializationFunctionName___closed__1_end: ((void) 0);}
 lean_object* lean_mk_module_initialization_function_name(lean_object* x_1) {
 _start:
 {
@@ -433,13 +429,13 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Name(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__1 = _init_l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__1();
+_init_l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__1(l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__1);
 lean_mark_persistent(l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__1);
-l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__2 = _init_l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__2();
+_init_l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__2(l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__2);
 lean_mark_persistent(l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__2);
-l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__3 = _init_l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__3();
+_init_l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__3(l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__3);
 lean_mark_persistent(l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__3);
-l_Lean_mkModuleInitializationFunctionName___closed__1 = _init_l_Lean_mkModuleInitializationFunctionName___closed__1();
+_init_l_Lean_mkModuleInitializationFunctionName___closed__1(l_Lean_mkModuleInitializationFunctionName___closed__1);
 lean_mark_persistent(l_Lean_mkModuleInitializationFunctionName___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

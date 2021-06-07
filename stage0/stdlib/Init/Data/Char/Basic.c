@@ -46,22 +46,20 @@ lean_object* l_Char_instDecidableLe___boxed(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_Char_ofNat(lean_object*);
 lean_object* l_Char_isDigit___boxed(lean_object*);
-static lean_object* _init_l_Char_instLTChar() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Char_instLEChar() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
+#define _init_l_Char_instLTChar(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Char_instLTChar_end;\
+}\
+l_Char_instLTChar_end: ((void) 0);}
+#define _init_l_Char_instLEChar(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Char_instLEChar_end;\
+}\
+l_Char_instLEChar_end: ((void) 0);}
 uint8_t l_Char_instDecidableLt(uint32_t x_1, uint32_t x_2) {
 _start:
 {
@@ -122,14 +120,13 @@ x_3 = l_Char_toNat(x_2);
 return x_3;
 }
 }
-static uint32_t _init_l_Char_instInhabitedChar() {
-_start:
-{
-uint32_t x_1; 
-x_1 = 65;
-return x_1;
-}
-}
+#define _init_l_Char_instInhabitedChar(__INIT_VAR__) { \
+{\
+uint32_t x_1; \
+x_1 = 65;\
+__INIT_VAR__ = x_1; goto l_Char_instInhabitedChar_end;\
+}\
+l_Char_instInhabitedChar_end: ((void) 0);}
 uint8_t l_Char_isWhitespace(uint32_t x_1) {
 _start:
 {
@@ -449,11 +446,11 @@ _G_initialized = true;
 res = initialize_Init_Data_UInt(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Char_instLTChar = _init_l_Char_instLTChar();
+_init_l_Char_instLTChar(l_Char_instLTChar);
 lean_mark_persistent(l_Char_instLTChar);
-l_Char_instLEChar = _init_l_Char_instLEChar();
+_init_l_Char_instLEChar(l_Char_instLEChar);
 lean_mark_persistent(l_Char_instLEChar);
-l_Char_instInhabitedChar = _init_l_Char_instInhabitedChar();
+_init_l_Char_instInhabitedChar(l_Char_instInhabitedChar);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

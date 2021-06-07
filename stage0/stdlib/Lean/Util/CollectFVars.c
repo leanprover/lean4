@@ -61,51 +61,46 @@ x_2 = l_Std_mkHashSetImp___rarg(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_CollectFVars_State_visitedExpr___default___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
-x_2 = l_Std_mkHashSetImp___rarg(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_CollectFVars_State_visitedExpr___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_CollectFVars_State_visitedExpr___default___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_CollectFVars_State_fvarSet___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_CollectFVars_instInhabitedState___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_HashSet_instInhabitedHashSet___closed__1;
-x_2 = l_Lean_NameSet_empty;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_CollectFVars_instInhabitedState() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_CollectFVars_instInhabitedState___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_CollectFVars_State_visitedExpr___default___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = lean_unsigned_to_nat(8u);\
+x_2 = l_Std_mkHashSetImp___rarg(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_CollectFVars_State_visitedExpr___default___closed__1_end;\
+}\
+l_Lean_CollectFVars_State_visitedExpr___default___closed__1_end: ((void) 0);}
+#define _init_l_Lean_CollectFVars_State_visitedExpr___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_CollectFVars_State_visitedExpr___default___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_CollectFVars_State_visitedExpr___default_end;\
+}\
+l_Lean_CollectFVars_State_visitedExpr___default_end: ((void) 0);}
+#define _init_l_Lean_CollectFVars_State_fvarSet___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_NameSet_empty;\
+__INIT_VAR__ = x_1; goto l_Lean_CollectFVars_State_fvarSet___default_end;\
+}\
+l_Lean_CollectFVars_State_fvarSet___default_end: ((void) 0);}
+#define _init_l_Lean_CollectFVars_instInhabitedState___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Std_HashSet_instInhabitedHashSet___closed__1;\
+x_2 = l_Lean_NameSet_empty;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_CollectFVars_instInhabitedState___closed__1_end;\
+}\
+l_Lean_CollectFVars_instInhabitedState___closed__1_end: ((void) 0);}
+#define _init_l_Lean_CollectFVars_instInhabitedState(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_CollectFVars_instInhabitedState___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_CollectFVars_instInhabitedState_end;\
+}\
+l_Lean_CollectFVars_instInhabitedState_end: ((void) 0);}
 uint8_t l_List_elem___at_Lean_CollectFVars_visit___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1999,15 +1994,15 @@ lean_dec_ref(res);
 res = initialize_Lean_Expr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_CollectFVars_State_visitedExpr___default___closed__1 = _init_l_Lean_CollectFVars_State_visitedExpr___default___closed__1();
+_init_l_Lean_CollectFVars_State_visitedExpr___default___closed__1(l_Lean_CollectFVars_State_visitedExpr___default___closed__1);
 lean_mark_persistent(l_Lean_CollectFVars_State_visitedExpr___default___closed__1);
-l_Lean_CollectFVars_State_visitedExpr___default = _init_l_Lean_CollectFVars_State_visitedExpr___default();
+_init_l_Lean_CollectFVars_State_visitedExpr___default(l_Lean_CollectFVars_State_visitedExpr___default);
 lean_mark_persistent(l_Lean_CollectFVars_State_visitedExpr___default);
-l_Lean_CollectFVars_State_fvarSet___default = _init_l_Lean_CollectFVars_State_fvarSet___default();
+_init_l_Lean_CollectFVars_State_fvarSet___default(l_Lean_CollectFVars_State_fvarSet___default);
 lean_mark_persistent(l_Lean_CollectFVars_State_fvarSet___default);
-l_Lean_CollectFVars_instInhabitedState___closed__1 = _init_l_Lean_CollectFVars_instInhabitedState___closed__1();
+_init_l_Lean_CollectFVars_instInhabitedState___closed__1(l_Lean_CollectFVars_instInhabitedState___closed__1);
 lean_mark_persistent(l_Lean_CollectFVars_instInhabitedState___closed__1);
-l_Lean_CollectFVars_instInhabitedState = _init_l_Lean_CollectFVars_instInhabitedState();
+_init_l_Lean_CollectFVars_instInhabitedState(l_Lean_CollectFVars_instInhabitedState);
 lean_mark_persistent(l_Lean_CollectFVars_instInhabitedState);
 return lean_io_result_mk_ok(lean_box(0));
 }

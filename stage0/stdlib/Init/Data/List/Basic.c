@@ -378,14 +378,13 @@ x_2 = lean_alloc_closure((void*)(l_List_append___rarg), 2, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_List_instAppendList___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_List_append___rarg), 2, 0);
-return x_1;
-}
-}
+#define _init_l_List_instAppendList___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_List_append___rarg), 2, 0);\
+__INIT_VAR__ = x_1; goto l_List_instAppendList___closed__1_end;\
+}\
+l_List_instAppendList___closed__1_end: ((void) 0);}
 lean_object* l_List_instAppendList(lean_object* x_1) {
 _start:
 {
@@ -1429,17 +1428,16 @@ x_2 = lean_alloc_closure((void*)(l_List_partitionAux___rarg), 3, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_List_partition___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_2, 0, x_1);
-lean_ctor_set(x_2, 1, x_1);
-return x_2;
-}
-}
+#define _init_l_List_partition___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = lean_box(0);\
+x_2 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+lean_ctor_set(x_2, 1, x_1);\
+__INIT_VAR__ = x_2; goto l_List_partition___rarg___closed__1_end;\
+}\
+l_List_partition___rarg___closed__1_end: ((void) 0);}
 lean_object* l_List_partition___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -3547,14 +3545,13 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_List_zip___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_List_zip___rarg___lambda__1), 2, 0);
-return x_1;
-}
-}
+#define _init_l_List_zip___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_List_zip___rarg___lambda__1), 2, 0);\
+__INIT_VAR__ = x_1; goto l_List_zip___rarg___closed__1_end;\
+}\
+l_List_zip___rarg___closed__1_end: ((void) 0);}
 lean_object* l_List_zip___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -5517,11 +5514,11 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_List_instAppendList___closed__1 = _init_l_List_instAppendList___closed__1();
+_init_l_List_instAppendList___closed__1(l_List_instAppendList___closed__1);
 lean_mark_persistent(l_List_instAppendList___closed__1);
-l_List_partition___rarg___closed__1 = _init_l_List_partition___rarg___closed__1();
+_init_l_List_partition___rarg___closed__1(l_List_partition___rarg___closed__1);
 lean_mark_persistent(l_List_partition___rarg___closed__1);
-l_List_zip___rarg___closed__1 = _init_l_List_zip___rarg___closed__1();
+_init_l_List_zip___rarg___closed__1(l_List_zip___rarg___closed__1);
 lean_mark_persistent(l_List_zip___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

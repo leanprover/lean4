@@ -394,24 +394,22 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_isDotCompletionMethod_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_forM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isIdent(lean_object*);
-static lean_object* _init_l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("blackListCompletion");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("blackListCompletion");\
+__INIT_VAR__ = x_1; goto l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__1_end;\
+}\
+l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__1_end: ((void) 0);}
+#define _init_l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__2_end;\
+}\
+l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__2_end: ((void) 0);}
 lean_object* l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6_(lean_object* x_1) {
 _start:
 {
@@ -463,58 +461,53 @@ x_3 = lean_alloc_closure((void*)(l_Lean_Server_Completion_completionBlackListExt
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_Completion_completionBlackListExt___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Server_Completion_completionBlackListExt___elambda__4___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_Completion_completionBlackListExt___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Server_Completion_completionBlackListExt___elambda__3___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_Completion_completionBlackListExt___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Server_Completion_completionBlackListExt___elambda__2___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_Completion_completionBlackListExt___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Server_Completion_completionBlackListExt___elambda__1___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_Completion_completionBlackListExt___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_1 = l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___closed__2;
-x_2 = lean_box(0);
-x_3 = l_Lean_Server_Completion_completionBlackListExt___closed__1;
-x_4 = l_Lean_Server_Completion_completionBlackListExt___closed__2;
-x_5 = l_Lean_Server_Completion_completionBlackListExt___closed__3;
-x_6 = l_Lean_Server_Completion_completionBlackListExt___closed__4;
-x_7 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_7, 0, x_1);
-lean_ctor_set(x_7, 1, x_2);
-lean_ctor_set(x_7, 2, x_3);
-lean_ctor_set(x_7, 3, x_4);
-lean_ctor_set(x_7, 4, x_5);
-lean_ctor_set(x_7, 5, x_6);
-return x_7;
-}
-}
+#define _init_l_Lean_Server_Completion_completionBlackListExt___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_Server_Completion_completionBlackListExt___elambda__4___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Server_Completion_completionBlackListExt___closed__1_end;\
+}\
+l_Lean_Server_Completion_completionBlackListExt___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Server_Completion_completionBlackListExt___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_Server_Completion_completionBlackListExt___elambda__3___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Server_Completion_completionBlackListExt___closed__2_end;\
+}\
+l_Lean_Server_Completion_completionBlackListExt___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Server_Completion_completionBlackListExt___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_Server_Completion_completionBlackListExt___elambda__2___boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Server_Completion_completionBlackListExt___closed__3_end;\
+}\
+l_Lean_Server_Completion_completionBlackListExt___closed__3_end: ((void) 0);}
+#define _init_l_Lean_Server_Completion_completionBlackListExt___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_Server_Completion_completionBlackListExt___elambda__1___boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Server_Completion_completionBlackListExt___closed__4_end;\
+}\
+l_Lean_Server_Completion_completionBlackListExt___closed__4_end: ((void) 0);}
+#define _init_l_Lean_Server_Completion_completionBlackListExt___closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; \
+x_1 = l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___closed__2;\
+x_2 = lean_box(0);\
+x_3 = l_Lean_Server_Completion_completionBlackListExt___closed__1;\
+x_4 = l_Lean_Server_Completion_completionBlackListExt___closed__2;\
+x_5 = l_Lean_Server_Completion_completionBlackListExt___closed__3;\
+x_6 = l_Lean_Server_Completion_completionBlackListExt___closed__4;\
+x_7 = lean_alloc_ctor(0, 6, 0);\
+lean_ctor_set(x_7, 0, x_1);\
+lean_ctor_set(x_7, 1, x_2);\
+lean_ctor_set(x_7, 2, x_3);\
+lean_ctor_set(x_7, 3, x_4);\
+lean_ctor_set(x_7, 4, x_5);\
+lean_ctor_set(x_7, 5, x_6);\
+__INIT_VAR__ = x_7; goto l_Lean_Server_Completion_completionBlackListExt___closed__5_end;\
+}\
+l_Lean_Server_Completion_completionBlackListExt___closed__5_end: ((void) 0);}
 lean_object* l_Lean_Server_Completion_completionBlackListExt___elambda__1___boxed(lean_object* x_1) {
 _start:
 {
@@ -1873,14 +1866,13 @@ x_5 = lean_string_dec_lt(x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Array_qsort_sort___at___private_Lean_Server_Completion_0__Lean_Server_Completion_sortCompletionItems___spec__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Array_qsort_sort___at___private_Lean_Server_Completion_0__Lean_Server_Completion_sortCompletionItems___spec__1___lambda__1___boxed), 2, 0);
-return x_1;
-}
-}
+#define _init_l_Array_qsort_sort___at___private_Lean_Server_Completion_0__Lean_Server_Completion_sortCompletionItems___spec__1___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Array_qsort_sort___at___private_Lean_Server_Completion_0__Lean_Server_Completion_sortCompletionItems___spec__1___lambda__1___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_Array_qsort_sort___at___private_Lean_Server_Completion_0__Lean_Server_Completion_sortCompletionItems___spec__1___closed__1_end;\
+}\
+l_Array_qsort_sort___at___private_Lean_Server_Completion_0__Lean_Server_Completion_sortCompletionItems___spec__1___closed__1_end: ((void) 0);}
 lean_object* l_Array_qsort_sort___at___private_Lean_Server_Completion_0__Lean_Server_Completion_sortCompletionItems___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2177,32 +2169,29 @@ lean_dec(x_1);
 return x_8;
 }
 }
-static lean_object* _init_l_Lean_Server_Completion_State_itemsMain___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Array_empty___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_Completion_State_itemsOther___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Array_empty___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_addCompletionItem___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Server_Completion_State_itemsMain___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Array_empty___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Server_Completion_State_itemsMain___default_end;\
+}\
+l_Lean_Server_Completion_State_itemsMain___default_end: ((void) 0);}
+#define _init_l_Lean_Server_Completion_State_itemsOther___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Array_empty___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Server_Completion_State_itemsOther___default_end;\
+}\
+l_Lean_Server_Completion_State_itemsOther___default_end: ((void) 0);}
+#define _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_addCompletionItem___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = lean_box(0);\
+x_2 = lean_alloc_ctor(1, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l___private_Lean_Server_Completion_0__Lean_Server_Completion_addCompletionItem___closed__1_end;\
+}\
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_addCompletionItem___closed__1_end: ((void) 0);}
 lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_addCompletionItem(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -2770,35 +2759,32 @@ return x_30;
 }
 }
 }
-static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_empty___closed__1;
-x_2 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_2, 0, x_1);
-lean_ctor_set(x_2, 1, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__1;
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___lambda__1___boxed), 6, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___lambda__3___boxed), 6, 0);
-return x_1;
-}
-}
+#define _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Array_empty___closed__1;\
+x_2 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+lean_ctor_set(x_2, 1, x_1);\
+__INIT_VAR__ = x_2; goto l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__1_end;\
+}\
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__1_end: ((void) 0);}
+#define _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__1;\
+x_2 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___lambda__1___boxed), 6, 1);\
+lean_closure_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__2_end;\
+}\
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__2_end: ((void) 0);}
+#define _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___lambda__3___boxed), 6, 0);\
+__INIT_VAR__ = x_1; goto l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__3_end;\
+}\
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__3_end: ((void) 0);}
 lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -3784,38 +3770,35 @@ return x_40;
 }
 }
 }
-static lean_object* _init_l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_addCompletionItem___closed__1;
-x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__1;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__2;
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_addCompletionItem___closed__1;\
+x_2 = lean_box(0);\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__1_end;\
+}\
+l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__1_end: ((void) 0);}
+#define _init_l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__1;\
+x_2 = lean_alloc_ctor(0, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__2_end;\
+}\
+l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__2_end: ((void) 0);}
+#define _init_l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__2;\
+x_2 = lean_alloc_ctor(1, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__3_end;\
+}\
+l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__3_end: ((void) 0);}
 lean_object* l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14) {
 _start:
 {
@@ -5615,16 +5598,15 @@ return x_38;
 }
 }
 }
-static lean_object* _init_l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__18___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_List_forIn_loop___at_Lean_Elab_resolveGlobalConstWithInfos___spec__1___rarg___lambda__1___closed__1;
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__18___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_List_forIn_loop___at_Lean_Elab_resolveGlobalConstWithInfos___spec__1___rarg___lambda__1___closed__1;\
+x_2 = lean_alloc_ctor(1, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__18___closed__1_end;\
+}\
+l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__18___closed__1_end: ((void) 0);}
 lean_object* l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__18(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -11382,14 +11364,13 @@ return x_11;
 }
 }
 }
-static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_getDotCompletionTypeNames_visit___lambda__2___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_getDotCompletionTypeNames_visit___lambda__1), 7, 0);
-return x_1;
-}
-}
+#define _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_getDotCompletionTypeNames_visit___lambda__2___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_getDotCompletionTypeNames_visit___lambda__1), 7, 0);\
+__INIT_VAR__ = x_1; goto l___private_Lean_Server_Completion_0__Lean_Server_Completion_getDotCompletionTypeNames_visit___lambda__2___closed__1_end;\
+}\
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_getDotCompletionTypeNames_visit___lambda__2___closed__1_end: ((void) 0);}
 lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_getDotCompletionTypeNames_visit___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -12113,16 +12094,15 @@ return x_35;
 }
 }
 }
-static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__3___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_NameSet_empty;
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__3___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_NameSet_empty;\
+x_2 = lean_alloc_ctor(1, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__3___closed__1_end;\
+}\
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__3___closed__1_end: ((void) 0);}
 lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -12352,14 +12332,13 @@ lean_dec(x_2);
 return x_8;
 }
 }
-static lean_object* _init_l_Std_RBNode_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___spec__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("), ");
-return x_1;
-}
-}
+#define _init_l_Std_RBNode_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___spec__1___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("), ");\
+__INIT_VAR__ = x_1; goto l_Std_RBNode_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___spec__1___closed__1_end;\
+}\
+l_Std_RBNode_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___spec__1___closed__1_end: ((void) 0);}
 lean_object* l_Std_RBNode_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -12524,34 +12503,31 @@ lean_ctor_set(x_14, 1, x_6);
 return x_14;
 }
 }
-static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___lambda__1___boxed), 5, 0);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___lambda__2___boxed), 6, 0);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__1;
-x_2 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__2;
-x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg), 7, 2);
-lean_closure_set(x_3, 0, x_1);
-lean_closure_set(x_3, 1, x_2);
-return x_3;
-}
-}
+#define _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___lambda__1___boxed), 5, 0);\
+__INIT_VAR__ = x_1; goto l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__1_end;\
+}\
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__1_end: ((void) 0);}
+#define _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___lambda__2___boxed), 6, 0);\
+__INIT_VAR__ = x_1; goto l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__2_end;\
+}\
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__2_end: ((void) 0);}
+#define _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__1;\
+x_2 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__2;\
+x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg), 7, 2);\
+lean_closure_set(x_3, 0, x_1);\
+lean_closure_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__3_end;\
+}\
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__3_end: ((void) 0);}
 lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -12763,34 +12739,31 @@ return x_43;
 }
 }
 }
-static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___lambda__1___boxed), 5, 0);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___lambda__2___boxed), 6, 0);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__1;
-x_2 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__2;
-x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg), 7, 2);
-lean_closure_set(x_3, 0, x_1);
-lean_closure_set(x_3, 1, x_2);
-return x_3;
-}
-}
+#define _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___lambda__1___boxed), 5, 0);\
+__INIT_VAR__ = x_1; goto l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__1_end;\
+}\
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__1_end: ((void) 0);}
+#define _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___lambda__2___boxed), 6, 0);\
+__INIT_VAR__ = x_1; goto l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__2_end;\
+}\
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__2_end: ((void) 0);}
+#define _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__1;\
+x_2 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__2;\
+x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg), 7, 2);\
+lean_closure_set(x_3, 0, x_1);\
+lean_closure_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__3_end;\
+}\
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__3_end: ((void) 0);}
 lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -13726,64 +13699,64 @@ lean_dec_ref(res);
 res = initialize_Lean_Parser_Extension(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__1 = _init_l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__1();
+_init_l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__1(l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__1);
 lean_mark_persistent(l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__1);
-l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__2 = _init_l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__2();
+_init_l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__2(l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__2);
 lean_mark_persistent(l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6____closed__2);
-l_Lean_Server_Completion_completionBlackListExt___closed__1 = _init_l_Lean_Server_Completion_completionBlackListExt___closed__1();
+_init_l_Lean_Server_Completion_completionBlackListExt___closed__1(l_Lean_Server_Completion_completionBlackListExt___closed__1);
 lean_mark_persistent(l_Lean_Server_Completion_completionBlackListExt___closed__1);
-l_Lean_Server_Completion_completionBlackListExt___closed__2 = _init_l_Lean_Server_Completion_completionBlackListExt___closed__2();
+_init_l_Lean_Server_Completion_completionBlackListExt___closed__2(l_Lean_Server_Completion_completionBlackListExt___closed__2);
 lean_mark_persistent(l_Lean_Server_Completion_completionBlackListExt___closed__2);
-l_Lean_Server_Completion_completionBlackListExt___closed__3 = _init_l_Lean_Server_Completion_completionBlackListExt___closed__3();
+_init_l_Lean_Server_Completion_completionBlackListExt___closed__3(l_Lean_Server_Completion_completionBlackListExt___closed__3);
 lean_mark_persistent(l_Lean_Server_Completion_completionBlackListExt___closed__3);
-l_Lean_Server_Completion_completionBlackListExt___closed__4 = _init_l_Lean_Server_Completion_completionBlackListExt___closed__4();
+_init_l_Lean_Server_Completion_completionBlackListExt___closed__4(l_Lean_Server_Completion_completionBlackListExt___closed__4);
 lean_mark_persistent(l_Lean_Server_Completion_completionBlackListExt___closed__4);
-l_Lean_Server_Completion_completionBlackListExt___closed__5 = _init_l_Lean_Server_Completion_completionBlackListExt___closed__5();
+_init_l_Lean_Server_Completion_completionBlackListExt___closed__5(l_Lean_Server_Completion_completionBlackListExt___closed__5);
 lean_mark_persistent(l_Lean_Server_Completion_completionBlackListExt___closed__5);
 res = l_Lean_Server_Completion_initFn____x40_Lean_Server_Completion___hyg_6_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Server_Completion_completionBlackListExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Server_Completion_completionBlackListExt);
 lean_dec_ref(res);
-l_Array_qsort_sort___at___private_Lean_Server_Completion_0__Lean_Server_Completion_sortCompletionItems___spec__1___closed__1 = _init_l_Array_qsort_sort___at___private_Lean_Server_Completion_0__Lean_Server_Completion_sortCompletionItems___spec__1___closed__1();
+_init_l_Array_qsort_sort___at___private_Lean_Server_Completion_0__Lean_Server_Completion_sortCompletionItems___spec__1___closed__1(l_Array_qsort_sort___at___private_Lean_Server_Completion_0__Lean_Server_Completion_sortCompletionItems___spec__1___closed__1);
 lean_mark_persistent(l_Array_qsort_sort___at___private_Lean_Server_Completion_0__Lean_Server_Completion_sortCompletionItems___spec__1___closed__1);
-l_Lean_Server_Completion_State_itemsMain___default = _init_l_Lean_Server_Completion_State_itemsMain___default();
+_init_l_Lean_Server_Completion_State_itemsMain___default(l_Lean_Server_Completion_State_itemsMain___default);
 lean_mark_persistent(l_Lean_Server_Completion_State_itemsMain___default);
-l_Lean_Server_Completion_State_itemsOther___default = _init_l_Lean_Server_Completion_State_itemsOther___default();
+_init_l_Lean_Server_Completion_State_itemsOther___default(l_Lean_Server_Completion_State_itemsOther___default);
 lean_mark_persistent(l_Lean_Server_Completion_State_itemsOther___default);
-l___private_Lean_Server_Completion_0__Lean_Server_Completion_addCompletionItem___closed__1 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_addCompletionItem___closed__1();
+_init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_addCompletionItem___closed__1(l___private_Lean_Server_Completion_0__Lean_Server_Completion_addCompletionItem___closed__1);
 lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_addCompletionItem___closed__1);
-l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__1 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__1();
+_init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__1(l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__1);
 lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__1);
-l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__2 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__2();
+_init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__2(l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__2);
 lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__2);
-l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__3 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__3();
+_init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__3(l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__3);
 lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM___closed__3);
-l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__1 = _init_l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__1();
+_init_l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__1(l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__1);
 lean_mark_persistent(l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__1);
-l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__2 = _init_l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__2();
+_init_l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__2(l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__2);
 lean_mark_persistent(l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__2);
-l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__3 = _init_l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__3();
+_init_l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__3(l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__3);
 lean_mark_persistent(l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___closed__3);
-l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__18___closed__1 = _init_l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__18___closed__1();
+_init_l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__18___closed__1(l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__18___closed__1);
 lean_mark_persistent(l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__18___closed__1);
-l___private_Lean_Server_Completion_0__Lean_Server_Completion_getDotCompletionTypeNames_visit___lambda__2___closed__1 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_getDotCompletionTypeNames_visit___lambda__2___closed__1();
+_init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_getDotCompletionTypeNames_visit___lambda__2___closed__1(l___private_Lean_Server_Completion_0__Lean_Server_Completion_getDotCompletionTypeNames_visit___lambda__2___closed__1);
 lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_getDotCompletionTypeNames_visit___lambda__2___closed__1);
-l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__3___closed__1 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__3___closed__1();
+_init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__3___closed__1(l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__3___closed__1);
 lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__3___closed__1);
-l_Std_RBNode_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___spec__1___closed__1 = _init_l_Std_RBNode_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___spec__1___closed__1();
+_init_l_Std_RBNode_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___spec__1___closed__1(l_Std_RBNode_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___spec__1___closed__1);
 lean_mark_persistent(l_Std_RBNode_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___spec__1___closed__1);
-l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__1 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__1();
+_init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__1(l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__1);
 lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__1);
-l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__2 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__2();
+_init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__2(l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__2);
 lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__2);
-l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__3 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__3();
+_init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__3(l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__3);
 lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__3);
-l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__1 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__1();
+_init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__1(l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__1);
 lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__1);
-l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__2 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__2();
+_init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__2(l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__2);
 lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__2);
-l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__3 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__3();
+_init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__3(l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__3);
 lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }

@@ -129,14 +129,13 @@ lean_dec(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_String_utf16Length___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_utf16Length___lambda__1___boxed), 2, 0);
-return x_1;
-}
-}
+#define _init_l_String_utf16Length___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_String_utf16Length___lambda__1___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_String_utf16Length___closed__1_end;\
+}\
+l_String_utf16Length___closed__1_end: ((void) 0);}
 lean_object* l_String_utf16Length(lean_object* x_1) {
 _start:
 {
@@ -632,7 +631,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Position(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_String_utf16Length___closed__1 = _init_l_String_utf16Length___closed__1();
+_init_l_String_utf16Length___closed__1(l_String_utf16Length___closed__1);
 lean_mark_persistent(l_String_utf16Length___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

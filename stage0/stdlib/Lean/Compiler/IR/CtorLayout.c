@@ -108,80 +108,72 @@ x_2 = l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("obj@");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_IR_CtorFieldInfo_format___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("usize@");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_IR_CtorFieldInfo_format___closed__3;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("scalar#");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_IR_CtorFieldInfo_format___closed__5;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_inductionAlt___closed__5;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_14133____closed__9;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_IR_CtorFieldInfo_format___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("obj@");\
+__INIT_VAR__ = x_1; goto l_Lean_IR_CtorFieldInfo_format___closed__1_end;\
+}\
+l_Lean_IR_CtorFieldInfo_format___closed__1_end: ((void) 0);}
+#define _init_l_Lean_IR_CtorFieldInfo_format___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_IR_CtorFieldInfo_format___closed__1;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_IR_CtorFieldInfo_format___closed__2_end;\
+}\
+l_Lean_IR_CtorFieldInfo_format___closed__2_end: ((void) 0);}
+#define _init_l_Lean_IR_CtorFieldInfo_format___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("usize@");\
+__INIT_VAR__ = x_1; goto l_Lean_IR_CtorFieldInfo_format___closed__3_end;\
+}\
+l_Lean_IR_CtorFieldInfo_format___closed__3_end: ((void) 0);}
+#define _init_l_Lean_IR_CtorFieldInfo_format___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_IR_CtorFieldInfo_format___closed__3;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_IR_CtorFieldInfo_format___closed__4_end;\
+}\
+l_Lean_IR_CtorFieldInfo_format___closed__4_end: ((void) 0);}
+#define _init_l_Lean_IR_CtorFieldInfo_format___closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("scalar#");\
+__INIT_VAR__ = x_1; goto l_Lean_IR_CtorFieldInfo_format___closed__5_end;\
+}\
+l_Lean_IR_CtorFieldInfo_format___closed__5_end: ((void) 0);}
+#define _init_l_Lean_IR_CtorFieldInfo_format___closed__6(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_IR_CtorFieldInfo_format___closed__5;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_IR_CtorFieldInfo_format___closed__6_end;\
+}\
+l_Lean_IR_CtorFieldInfo_format___closed__6_end: ((void) 0);}
+#define _init_l_Lean_IR_CtorFieldInfo_format___closed__7(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Parser_Tactic_inductionAlt___closed__5;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_IR_CtorFieldInfo_format___closed__7_end;\
+}\
+l_Lean_IR_CtorFieldInfo_format___closed__7_end: ((void) 0);}
+#define _init_l_Lean_IR_CtorFieldInfo_format___closed__8(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_myMacro____x40_Init_Notation___hyg_14133____closed__9;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_IR_CtorFieldInfo_format___closed__8_end;\
+}\
+l_Lean_IR_CtorFieldInfo_format___closed__8_end: ((void) 0);}
 lean_object* l_Lean_IR_CtorFieldInfo_format(lean_object* x_1) {
 _start:
 {
@@ -266,22 +258,20 @@ return x_30;
 }
 }
 }
-static lean_object* _init_l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_IR_CtorFieldInfo_format), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_IR_CtorFieldInfo_format), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1_end;\
+}\
+l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1_end: ((void) 0);}
+#define _init_l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo_end;\
+}\
+l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo_end: ((void) 0);}
 lean_object* l_Lean_IR_getCtorLayout___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -309,25 +299,25 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_Format(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_IR_CtorFieldInfo_format___closed__1 = _init_l_Lean_IR_CtorFieldInfo_format___closed__1();
+_init_l_Lean_IR_CtorFieldInfo_format___closed__1(l_Lean_IR_CtorFieldInfo_format___closed__1);
 lean_mark_persistent(l_Lean_IR_CtorFieldInfo_format___closed__1);
-l_Lean_IR_CtorFieldInfo_format___closed__2 = _init_l_Lean_IR_CtorFieldInfo_format___closed__2();
+_init_l_Lean_IR_CtorFieldInfo_format___closed__2(l_Lean_IR_CtorFieldInfo_format___closed__2);
 lean_mark_persistent(l_Lean_IR_CtorFieldInfo_format___closed__2);
-l_Lean_IR_CtorFieldInfo_format___closed__3 = _init_l_Lean_IR_CtorFieldInfo_format___closed__3();
+_init_l_Lean_IR_CtorFieldInfo_format___closed__3(l_Lean_IR_CtorFieldInfo_format___closed__3);
 lean_mark_persistent(l_Lean_IR_CtorFieldInfo_format___closed__3);
-l_Lean_IR_CtorFieldInfo_format___closed__4 = _init_l_Lean_IR_CtorFieldInfo_format___closed__4();
+_init_l_Lean_IR_CtorFieldInfo_format___closed__4(l_Lean_IR_CtorFieldInfo_format___closed__4);
 lean_mark_persistent(l_Lean_IR_CtorFieldInfo_format___closed__4);
-l_Lean_IR_CtorFieldInfo_format___closed__5 = _init_l_Lean_IR_CtorFieldInfo_format___closed__5();
+_init_l_Lean_IR_CtorFieldInfo_format___closed__5(l_Lean_IR_CtorFieldInfo_format___closed__5);
 lean_mark_persistent(l_Lean_IR_CtorFieldInfo_format___closed__5);
-l_Lean_IR_CtorFieldInfo_format___closed__6 = _init_l_Lean_IR_CtorFieldInfo_format___closed__6();
+_init_l_Lean_IR_CtorFieldInfo_format___closed__6(l_Lean_IR_CtorFieldInfo_format___closed__6);
 lean_mark_persistent(l_Lean_IR_CtorFieldInfo_format___closed__6);
-l_Lean_IR_CtorFieldInfo_format___closed__7 = _init_l_Lean_IR_CtorFieldInfo_format___closed__7();
+_init_l_Lean_IR_CtorFieldInfo_format___closed__7(l_Lean_IR_CtorFieldInfo_format___closed__7);
 lean_mark_persistent(l_Lean_IR_CtorFieldInfo_format___closed__7);
-l_Lean_IR_CtorFieldInfo_format___closed__8 = _init_l_Lean_IR_CtorFieldInfo_format___closed__8();
+_init_l_Lean_IR_CtorFieldInfo_format___closed__8(l_Lean_IR_CtorFieldInfo_format___closed__8);
 lean_mark_persistent(l_Lean_IR_CtorFieldInfo_format___closed__8);
-l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1 = _init_l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1();
+_init_l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1(l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1);
 lean_mark_persistent(l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1);
-l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo = _init_l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo();
+_init_l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo(l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo);
 lean_mark_persistent(l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo);
 return lean_io_result_mk_ok(lean_box(0));
 }

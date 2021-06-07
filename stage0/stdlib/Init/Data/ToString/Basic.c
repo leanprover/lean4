@@ -776,24 +776,22 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_instToStringChar___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_instInhabitedParserDescr___closed__1;
-x_2 = lean_alloc_closure((void*)(l_String_push___boxed), 2, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_instToStringChar() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instToStringChar___closed__1;
-return x_1;
-}
-}
+#define _init_l_instToStringChar___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_instInhabitedParserDescr___closed__1;\
+x_2 = lean_alloc_closure((void*)(l_String_push___boxed), 2, 1);\
+lean_closure_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_instToStringChar___closed__1_end;\
+}\
+l_instToStringChar___closed__1_end: ((void) 0);}
+#define _init_l_instToStringChar(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instToStringChar___closed__1;\
+__INIT_VAR__ = x_1; goto l_instToStringChar_end;\
+}\
+l_instToStringChar_end: ((void) 0);}
 lean_object* l_instToStringFin___rarg(lean_object* x_1) {
 _start:
 {
@@ -923,22 +921,20 @@ x_3 = lean_format_pretty(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_addParenHeuristic___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("#[");
-return x_1;
-}
-}
-static lean_object* _init_l_addParenHeuristic___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Char_isWhitespace___boxed), 1, 0);
-return x_1;
-}
-}
+#define _init_l_addParenHeuristic___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("#[");\
+__INIT_VAR__ = x_1; goto l_addParenHeuristic___closed__1_end;\
+}\
+l_addParenHeuristic___closed__1_end: ((void) 0);}
+#define _init_l_addParenHeuristic___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Char_isWhitespace___boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_addParenHeuristic___closed__2_end;\
+}\
+l_addParenHeuristic___closed__2_end: ((void) 0);}
 lean_object* l_addParenHeuristic(lean_object* x_1) {
 _start:
 {
@@ -1047,14 +1043,13 @@ x_3 = lean_alloc_closure((void*)(l_instToStringOption_match__1___rarg), 3, 0);
 return x_3;
 }
 }
-static lean_object* _init_l_instToStringOption___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("(some ");
-return x_1;
-}
-}
+#define _init_l_instToStringOption___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("(some ");\
+__INIT_VAR__ = x_1; goto l_instToStringOption___rarg___closed__1_end;\
+}\
+l_instToStringOption___rarg___closed__1_end: ((void) 0);}
 lean_object* l_instToStringOption___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1124,22 +1119,20 @@ x_4 = lean_alloc_closure((void*)(l_instToStringSum_match__1___rarg), 3, 0);
 return x_4;
 }
 }
-static lean_object* _init_l_instToStringSum___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("(inl ");
-return x_1;
-}
-}
-static lean_object* _init_l_instToStringSum___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("(inr ");
-return x_1;
-}
-}
+#define _init_l_instToStringSum___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("(inl ");\
+__INIT_VAR__ = x_1; goto l_instToStringSum___rarg___closed__1_end;\
+}\
+l_instToStringSum___rarg___closed__1_end: ((void) 0);}
+#define _init_l_instToStringSum___rarg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("(inr ");\
+__INIT_VAR__ = x_1; goto l_instToStringSum___rarg___closed__2_end;\
+}\
+l_instToStringSum___rarg___closed__2_end: ((void) 0);}
 lean_object* l_instToStringSum___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1316,15 +1309,14 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_String_toInt_x3f___lambda__2___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Id_instMonadId;
-x_2 = l_OptionT_instAlternativeOptionT___rarg(x_1);
-return x_2;
-}
-}
+#define _init_l_String_toInt_x3f___lambda__2___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Id_instMonadId;\
+x_2 = l_OptionT_instAlternativeOptionT___rarg(x_1);\
+__INIT_VAR__ = x_2; goto l_String_toInt_x3f___lambda__2___closed__1_end;\
+}\
+l_String_toInt_x3f___lambda__2___closed__1_end: ((void) 0);}
 lean_object* l_String_toInt_x3f___lambda__2(lean_object* x_1) {
 _start:
 {
@@ -1342,31 +1334,28 @@ x_8 = lean_apply_2(x_4, lean_box(0), x_7);
 return x_8;
 }
 }
-static lean_object* _init_l_String_toInt_x3f___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_toInt_x3f___lambda__1), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_String_toInt_x3f___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Id_instMonadId;
-x_2 = l_OptionT_instMonadOptionT___rarg(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_String_toInt_x3f___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_toInt_x3f___lambda__2), 1, 0);
-return x_1;
-}
-}
+#define _init_l_String_toInt_x3f___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_String_toInt_x3f___lambda__1), 1, 0);\
+__INIT_VAR__ = x_1; goto l_String_toInt_x3f___closed__1_end;\
+}\
+l_String_toInt_x3f___closed__1_end: ((void) 0);}
+#define _init_l_String_toInt_x3f___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Id_instMonadId;\
+x_2 = l_OptionT_instMonadOptionT___rarg(x_1);\
+__INIT_VAR__ = x_2; goto l_String_toInt_x3f___closed__2_end;\
+}\
+l_String_toInt_x3f___closed__2_end: ((void) 0);}
+#define _init_l_String_toInt_x3f___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_String_toInt_x3f___lambda__2), 1, 0);\
+__INIT_VAR__ = x_1; goto l_String_toInt_x3f___closed__3_end;\
+}\
+l_String_toInt_x3f___closed__3_end: ((void) 0);}
 lean_object* l_String_toInt_x3f(lean_object* x_1) {
 _start:
 {
@@ -1488,14 +1477,13 @@ x_2 = lean_alloc_closure((void*)(l_String_toInt_x21_match__1___rarg), 3, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_String_toInt_x21___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Int expected");
-return x_1;
-}
-}
+#define _init_l_String_toInt_x21___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Int expected");\
+__INIT_VAR__ = x_1; goto l_String_toInt_x21___closed__1_end;\
+}\
+l_String_toInt_x21___closed__1_end: ((void) 0);}
 lean_object* l_String_toInt_x21(lean_object* x_1) {
 _start:
 {
@@ -1552,22 +1540,20 @@ x_4 = lean_alloc_closure((void*)(l_instToStringExcept_match__1___rarg), 3, 0);
 return x_4;
 }
 }
-static lean_object* _init_l_instToStringExcept___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("error: ");
-return x_1;
-}
-}
-static lean_object* _init_l_instToStringExcept___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("ok: ");
-return x_1;
-}
-}
+#define _init_l_instToStringExcept___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("error: ");\
+__INIT_VAR__ = x_1; goto l_instToStringExcept___rarg___closed__1_end;\
+}\
+l_instToStringExcept___rarg___closed__1_end: ((void) 0);}
+#define _init_l_instToStringExcept___rarg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("ok: ");\
+__INIT_VAR__ = x_1; goto l_instToStringExcept___rarg___closed__2_end;\
+}\
+l_instToStringExcept___rarg___closed__2_end: ((void) 0);}
 lean_object* l_instToStringExcept___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1640,42 +1626,38 @@ x_4 = lean_alloc_closure((void*)(l_instReprExcept_match__1___rarg), 4, 0);
 return x_4;
 }
 }
-static lean_object* _init_l_instReprExcept___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Except.error ");
-return x_1;
-}
-}
-static lean_object* _init_l_instReprExcept___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_instReprExcept___rarg___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_instReprExcept___rarg___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Except.ok ");
-return x_1;
-}
-}
-static lean_object* _init_l_instReprExcept___rarg___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_instReprExcept___rarg___closed__3;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_instReprExcept___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Except.error ");\
+__INIT_VAR__ = x_1; goto l_instReprExcept___rarg___closed__1_end;\
+}\
+l_instReprExcept___rarg___closed__1_end: ((void) 0);}
+#define _init_l_instReprExcept___rarg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_instReprExcept___rarg___closed__1;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_instReprExcept___rarg___closed__2_end;\
+}\
+l_instReprExcept___rarg___closed__2_end: ((void) 0);}
+#define _init_l_instReprExcept___rarg___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Except.ok ");\
+__INIT_VAR__ = x_1; goto l_instReprExcept___rarg___closed__3_end;\
+}\
+l_instReprExcept___rarg___closed__3_end: ((void) 0);}
+#define _init_l_instReprExcept___rarg___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_instReprExcept___rarg___closed__3;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_instReprExcept___rarg___closed__4_end;\
+}\
+l_instReprExcept___rarg___closed__4_end: ((void) 0);}
 lean_object* l_instReprExcept___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1767,41 +1749,41 @@ lean_dec_ref(res);
 res = initialize_Init_Control_Option(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_instToStringChar___closed__1 = _init_l_instToStringChar___closed__1();
+_init_l_instToStringChar___closed__1(l_instToStringChar___closed__1);
 lean_mark_persistent(l_instToStringChar___closed__1);
-l_instToStringChar = _init_l_instToStringChar();
+_init_l_instToStringChar(l_instToStringChar);
 lean_mark_persistent(l_instToStringChar);
-l_addParenHeuristic___closed__1 = _init_l_addParenHeuristic___closed__1();
+_init_l_addParenHeuristic___closed__1(l_addParenHeuristic___closed__1);
 lean_mark_persistent(l_addParenHeuristic___closed__1);
-l_addParenHeuristic___closed__2 = _init_l_addParenHeuristic___closed__2();
+_init_l_addParenHeuristic___closed__2(l_addParenHeuristic___closed__2);
 lean_mark_persistent(l_addParenHeuristic___closed__2);
-l_instToStringOption___rarg___closed__1 = _init_l_instToStringOption___rarg___closed__1();
+_init_l_instToStringOption___rarg___closed__1(l_instToStringOption___rarg___closed__1);
 lean_mark_persistent(l_instToStringOption___rarg___closed__1);
-l_instToStringSum___rarg___closed__1 = _init_l_instToStringSum___rarg___closed__1();
+_init_l_instToStringSum___rarg___closed__1(l_instToStringSum___rarg___closed__1);
 lean_mark_persistent(l_instToStringSum___rarg___closed__1);
-l_instToStringSum___rarg___closed__2 = _init_l_instToStringSum___rarg___closed__2();
+_init_l_instToStringSum___rarg___closed__2(l_instToStringSum___rarg___closed__2);
 lean_mark_persistent(l_instToStringSum___rarg___closed__2);
-l_String_toInt_x3f___lambda__2___closed__1 = _init_l_String_toInt_x3f___lambda__2___closed__1();
+_init_l_String_toInt_x3f___lambda__2___closed__1(l_String_toInt_x3f___lambda__2___closed__1);
 lean_mark_persistent(l_String_toInt_x3f___lambda__2___closed__1);
-l_String_toInt_x3f___closed__1 = _init_l_String_toInt_x3f___closed__1();
+_init_l_String_toInt_x3f___closed__1(l_String_toInt_x3f___closed__1);
 lean_mark_persistent(l_String_toInt_x3f___closed__1);
-l_String_toInt_x3f___closed__2 = _init_l_String_toInt_x3f___closed__2();
+_init_l_String_toInt_x3f___closed__2(l_String_toInt_x3f___closed__2);
 lean_mark_persistent(l_String_toInt_x3f___closed__2);
-l_String_toInt_x3f___closed__3 = _init_l_String_toInt_x3f___closed__3();
+_init_l_String_toInt_x3f___closed__3(l_String_toInt_x3f___closed__3);
 lean_mark_persistent(l_String_toInt_x3f___closed__3);
-l_String_toInt_x21___closed__1 = _init_l_String_toInt_x21___closed__1();
+_init_l_String_toInt_x21___closed__1(l_String_toInt_x21___closed__1);
 lean_mark_persistent(l_String_toInt_x21___closed__1);
-l_instToStringExcept___rarg___closed__1 = _init_l_instToStringExcept___rarg___closed__1();
+_init_l_instToStringExcept___rarg___closed__1(l_instToStringExcept___rarg___closed__1);
 lean_mark_persistent(l_instToStringExcept___rarg___closed__1);
-l_instToStringExcept___rarg___closed__2 = _init_l_instToStringExcept___rarg___closed__2();
+_init_l_instToStringExcept___rarg___closed__2(l_instToStringExcept___rarg___closed__2);
 lean_mark_persistent(l_instToStringExcept___rarg___closed__2);
-l_instReprExcept___rarg___closed__1 = _init_l_instReprExcept___rarg___closed__1();
+_init_l_instReprExcept___rarg___closed__1(l_instReprExcept___rarg___closed__1);
 lean_mark_persistent(l_instReprExcept___rarg___closed__1);
-l_instReprExcept___rarg___closed__2 = _init_l_instReprExcept___rarg___closed__2();
+_init_l_instReprExcept___rarg___closed__2(l_instReprExcept___rarg___closed__2);
 lean_mark_persistent(l_instReprExcept___rarg___closed__2);
-l_instReprExcept___rarg___closed__3 = _init_l_instReprExcept___rarg___closed__3();
+_init_l_instReprExcept___rarg___closed__3(l_instReprExcept___rarg___closed__3);
 lean_mark_persistent(l_instReprExcept___rarg___closed__3);
-l_instReprExcept___rarg___closed__4 = _init_l_instReprExcept___rarg___closed__4();
+_init_l_instReprExcept___rarg___closed__4(l_instReprExcept___rarg___closed__4);
 lean_mark_persistent(l_instReprExcept___rarg___closed__4);
 return lean_io_result_mk_ok(lean_box(0));
 }

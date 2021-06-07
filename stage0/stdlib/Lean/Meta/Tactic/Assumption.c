@@ -1086,16 +1086,15 @@ return x_40;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_assumptionCore___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Parser_Tactic_assumption___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Meta_assumptionCore___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Parser_Tactic_assumption___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_assumptionCore___closed__1_end;\
+}\
+l_Lean_Meta_assumptionCore___closed__1_end: ((void) 0);}
 lean_object* l_Lean_Meta_assumptionCore(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -1124,16 +1123,15 @@ lean_dec(x_2);
 return x_8;
 }
 }
-static lean_object* _init_l_Lean_Meta_assumption___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Format_join___closed__1;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Meta_assumption___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Std_Format_join___closed__1;\
+x_2 = lean_alloc_ctor(0, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_assumption___closed__1_end;\
+}\
+l_Lean_Meta_assumption___closed__1_end: ((void) 0);}
 lean_object* l_Lean_Meta_assumption(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -1245,9 +1243,9 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Util(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_assumptionCore___closed__1 = _init_l_Lean_Meta_assumptionCore___closed__1();
+_init_l_Lean_Meta_assumptionCore___closed__1(l_Lean_Meta_assumptionCore___closed__1);
 lean_mark_persistent(l_Lean_Meta_assumptionCore___closed__1);
-l_Lean_Meta_assumption___closed__1 = _init_l_Lean_Meta_assumption___closed__1();
+_init_l_Lean_Meta_assumption___closed__1(l_Lean_Meta_assumption___closed__1);
 lean_mark_persistent(l_Lean_Meta_assumption___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

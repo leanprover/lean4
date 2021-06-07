@@ -245,34 +245,31 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_constructor___lambda__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("no applicable constructor found");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_constructor___lambda__1___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_constructor___lambda__1___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_constructor___lambda__1___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_constructor___lambda__1___closed__2;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Meta_constructor___lambda__1___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("no applicable constructor found");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_constructor___lambda__1___closed__1_end;\
+}\
+l_Lean_Meta_constructor___lambda__1___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_constructor___lambda__1___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_constructor___lambda__1___closed__1;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_constructor___lambda__1___closed__2_end;\
+}\
+l_Lean_Meta_constructor___lambda__1___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Meta_constructor___lambda__1___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_constructor___lambda__1___closed__2;\
+x_2 = lean_alloc_ctor(0, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_constructor___lambda__1___closed__3_end;\
+}\
+l_Lean_Meta_constructor___lambda__1___closed__3_end: ((void) 0);}
 lean_object* l_Lean_Meta_constructor___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -283,34 +280,31 @@ x_11 = l_Lean_Meta_throwTacticEx___rarg(x_1, x_2, x_9, x_10, x_4, x_5, x_6, x_7,
 return x_11;
 }
 }
-static lean_object* _init_l_Lean_Meta_constructor___lambda__2___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("target is not an inductive datatype");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_constructor___lambda__2___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_constructor___lambda__2___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_constructor___lambda__2___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_constructor___lambda__2___closed__2;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Meta_constructor___lambda__2___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("target is not an inductive datatype");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_constructor___lambda__2___closed__1_end;\
+}\
+l_Lean_Meta_constructor___lambda__2___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_constructor___lambda__2___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_constructor___lambda__2___closed__1;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_constructor___lambda__2___closed__2_end;\
+}\
+l_Lean_Meta_constructor___lambda__2___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Meta_constructor___lambda__2___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_constructor___lambda__2___closed__2;\
+x_2 = lean_alloc_ctor(0, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_constructor___lambda__2___closed__3_end;\
+}\
+l_Lean_Meta_constructor___lambda__2___closed__3_end: ((void) 0);}
 lean_object* l_Lean_Meta_constructor___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -500,16 +494,15 @@ return x_48;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_constructor___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Parser_Tactic_constructor___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Meta_constructor___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Parser_Tactic_constructor___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_constructor___closed__1_end;\
+}\
+l_Lean_Meta_constructor___closed__1_end: ((void) 0);}
 lean_object* l_Lean_Meta_constructor(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -622,34 +615,31 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Meta_existsIntro_match__2___rarg), 2, 0)
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_existsIntro___lambda__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("unexpected number of subgoals");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_existsIntro___lambda__1___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_existsIntro___lambda__1___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_existsIntro___lambda__1___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_existsIntro___lambda__1___closed__2;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Meta_existsIntro___lambda__1___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("unexpected number of subgoals");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_existsIntro___lambda__1___closed__1_end;\
+}\
+l_Lean_Meta_existsIntro___lambda__1___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_existsIntro___lambda__1___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_existsIntro___lambda__1___closed__1;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_existsIntro___lambda__1___closed__2_end;\
+}\
+l_Lean_Meta_existsIntro___lambda__1___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Meta_existsIntro___lambda__1___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_existsIntro___lambda__1___closed__2;\
+x_2 = lean_alloc_ctor(0, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_existsIntro___lambda__1___closed__3_end;\
+}\
+l_Lean_Meta_existsIntro___lambda__1___closed__3_end: ((void) 0);}
 lean_object* l_Lean_Meta_existsIntro___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
@@ -943,62 +933,56 @@ return x_76;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_existsIntro___lambda__2___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("target is not an inductive datatype with one constructor");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_existsIntro___lambda__2___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_existsIntro___lambda__2___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_existsIntro___lambda__2___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_existsIntro___lambda__2___closed__2;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_existsIntro___lambda__2___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("constructor must have at least two fields");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_existsIntro___lambda__2___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_existsIntro___lambda__2___closed__4;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_existsIntro___lambda__2___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_existsIntro___lambda__2___closed__5;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Meta_existsIntro___lambda__2___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("target is not an inductive datatype with one constructor");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_existsIntro___lambda__2___closed__1_end;\
+}\
+l_Lean_Meta_existsIntro___lambda__2___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_existsIntro___lambda__2___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_existsIntro___lambda__2___closed__1;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_existsIntro___lambda__2___closed__2_end;\
+}\
+l_Lean_Meta_existsIntro___lambda__2___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Meta_existsIntro___lambda__2___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_existsIntro___lambda__2___closed__2;\
+x_2 = lean_alloc_ctor(0, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_existsIntro___lambda__2___closed__3_end;\
+}\
+l_Lean_Meta_existsIntro___lambda__2___closed__3_end: ((void) 0);}
+#define _init_l_Lean_Meta_existsIntro___lambda__2___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("constructor must have at least two fields");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_existsIntro___lambda__2___closed__4_end;\
+}\
+l_Lean_Meta_existsIntro___lambda__2___closed__4_end: ((void) 0);}
+#define _init_l_Lean_Meta_existsIntro___lambda__2___closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_existsIntro___lambda__2___closed__4;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_existsIntro___lambda__2___closed__5_end;\
+}\
+l_Lean_Meta_existsIntro___lambda__2___closed__5_end: ((void) 0);}
+#define _init_l_Lean_Meta_existsIntro___lambda__2___closed__6(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_existsIntro___lambda__2___closed__5;\
+x_2 = lean_alloc_ctor(0, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_existsIntro___lambda__2___closed__6_end;\
+}\
+l_Lean_Meta_existsIntro___lambda__2___closed__6_end: ((void) 0);}
 lean_object* l_Lean_Meta_existsIntro___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -1310,16 +1294,15 @@ return x_72;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_existsIntro___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_termExists___x2c_____closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Meta_existsIntro___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_termExists___x2c_____closed__3;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_existsIntro___closed__1_end;\
+}\
+l_Lean_Meta_existsIntro___closed__1_end: ((void) 0);}
 lean_object* l_Lean_Meta_existsIntro(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -1380,39 +1363,39 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Apply(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_constructor___lambda__1___closed__1 = _init_l_Lean_Meta_constructor___lambda__1___closed__1();
+_init_l_Lean_Meta_constructor___lambda__1___closed__1(l_Lean_Meta_constructor___lambda__1___closed__1);
 lean_mark_persistent(l_Lean_Meta_constructor___lambda__1___closed__1);
-l_Lean_Meta_constructor___lambda__1___closed__2 = _init_l_Lean_Meta_constructor___lambda__1___closed__2();
+_init_l_Lean_Meta_constructor___lambda__1___closed__2(l_Lean_Meta_constructor___lambda__1___closed__2);
 lean_mark_persistent(l_Lean_Meta_constructor___lambda__1___closed__2);
-l_Lean_Meta_constructor___lambda__1___closed__3 = _init_l_Lean_Meta_constructor___lambda__1___closed__3();
+_init_l_Lean_Meta_constructor___lambda__1___closed__3(l_Lean_Meta_constructor___lambda__1___closed__3);
 lean_mark_persistent(l_Lean_Meta_constructor___lambda__1___closed__3);
-l_Lean_Meta_constructor___lambda__2___closed__1 = _init_l_Lean_Meta_constructor___lambda__2___closed__1();
+_init_l_Lean_Meta_constructor___lambda__2___closed__1(l_Lean_Meta_constructor___lambda__2___closed__1);
 lean_mark_persistent(l_Lean_Meta_constructor___lambda__2___closed__1);
-l_Lean_Meta_constructor___lambda__2___closed__2 = _init_l_Lean_Meta_constructor___lambda__2___closed__2();
+_init_l_Lean_Meta_constructor___lambda__2___closed__2(l_Lean_Meta_constructor___lambda__2___closed__2);
 lean_mark_persistent(l_Lean_Meta_constructor___lambda__2___closed__2);
-l_Lean_Meta_constructor___lambda__2___closed__3 = _init_l_Lean_Meta_constructor___lambda__2___closed__3();
+_init_l_Lean_Meta_constructor___lambda__2___closed__3(l_Lean_Meta_constructor___lambda__2___closed__3);
 lean_mark_persistent(l_Lean_Meta_constructor___lambda__2___closed__3);
-l_Lean_Meta_constructor___closed__1 = _init_l_Lean_Meta_constructor___closed__1();
+_init_l_Lean_Meta_constructor___closed__1(l_Lean_Meta_constructor___closed__1);
 lean_mark_persistent(l_Lean_Meta_constructor___closed__1);
-l_Lean_Meta_existsIntro___lambda__1___closed__1 = _init_l_Lean_Meta_existsIntro___lambda__1___closed__1();
+_init_l_Lean_Meta_existsIntro___lambda__1___closed__1(l_Lean_Meta_existsIntro___lambda__1___closed__1);
 lean_mark_persistent(l_Lean_Meta_existsIntro___lambda__1___closed__1);
-l_Lean_Meta_existsIntro___lambda__1___closed__2 = _init_l_Lean_Meta_existsIntro___lambda__1___closed__2();
+_init_l_Lean_Meta_existsIntro___lambda__1___closed__2(l_Lean_Meta_existsIntro___lambda__1___closed__2);
 lean_mark_persistent(l_Lean_Meta_existsIntro___lambda__1___closed__2);
-l_Lean_Meta_existsIntro___lambda__1___closed__3 = _init_l_Lean_Meta_existsIntro___lambda__1___closed__3();
+_init_l_Lean_Meta_existsIntro___lambda__1___closed__3(l_Lean_Meta_existsIntro___lambda__1___closed__3);
 lean_mark_persistent(l_Lean_Meta_existsIntro___lambda__1___closed__3);
-l_Lean_Meta_existsIntro___lambda__2___closed__1 = _init_l_Lean_Meta_existsIntro___lambda__2___closed__1();
+_init_l_Lean_Meta_existsIntro___lambda__2___closed__1(l_Lean_Meta_existsIntro___lambda__2___closed__1);
 lean_mark_persistent(l_Lean_Meta_existsIntro___lambda__2___closed__1);
-l_Lean_Meta_existsIntro___lambda__2___closed__2 = _init_l_Lean_Meta_existsIntro___lambda__2___closed__2();
+_init_l_Lean_Meta_existsIntro___lambda__2___closed__2(l_Lean_Meta_existsIntro___lambda__2___closed__2);
 lean_mark_persistent(l_Lean_Meta_existsIntro___lambda__2___closed__2);
-l_Lean_Meta_existsIntro___lambda__2___closed__3 = _init_l_Lean_Meta_existsIntro___lambda__2___closed__3();
+_init_l_Lean_Meta_existsIntro___lambda__2___closed__3(l_Lean_Meta_existsIntro___lambda__2___closed__3);
 lean_mark_persistent(l_Lean_Meta_existsIntro___lambda__2___closed__3);
-l_Lean_Meta_existsIntro___lambda__2___closed__4 = _init_l_Lean_Meta_existsIntro___lambda__2___closed__4();
+_init_l_Lean_Meta_existsIntro___lambda__2___closed__4(l_Lean_Meta_existsIntro___lambda__2___closed__4);
 lean_mark_persistent(l_Lean_Meta_existsIntro___lambda__2___closed__4);
-l_Lean_Meta_existsIntro___lambda__2___closed__5 = _init_l_Lean_Meta_existsIntro___lambda__2___closed__5();
+_init_l_Lean_Meta_existsIntro___lambda__2___closed__5(l_Lean_Meta_existsIntro___lambda__2___closed__5);
 lean_mark_persistent(l_Lean_Meta_existsIntro___lambda__2___closed__5);
-l_Lean_Meta_existsIntro___lambda__2___closed__6 = _init_l_Lean_Meta_existsIntro___lambda__2___closed__6();
+_init_l_Lean_Meta_existsIntro___lambda__2___closed__6(l_Lean_Meta_existsIntro___lambda__2___closed__6);
 lean_mark_persistent(l_Lean_Meta_existsIntro___lambda__2___closed__6);
-l_Lean_Meta_existsIntro___closed__1 = _init_l_Lean_Meta_existsIntro___closed__1();
+_init_l_Lean_Meta_existsIntro___closed__1(l_Lean_Meta_existsIntro___closed__1);
 lean_mark_persistent(l_Lean_Meta_existsIntro___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

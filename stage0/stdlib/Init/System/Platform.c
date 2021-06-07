@@ -52,57 +52,51 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-static uint8_t _init_l_System_Platform_isWindows___closed__1() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; 
-x_1 = lean_box(0);
-x_2 = lean_system_platform_windows(x_1);
-return x_2;
-}
-}
-static uint8_t _init_l_System_Platform_isWindows() {
-_start:
-{
-uint8_t x_1; 
-x_1 = l_System_Platform_isWindows___closed__1;
-return x_1;
-}
-}
-static uint8_t _init_l_System_Platform_isOSX___closed__1() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; 
-x_1 = lean_box(0);
-x_2 = lean_system_platform_osx(x_1);
-return x_2;
-}
-}
-static uint8_t _init_l_System_Platform_isOSX() {
-_start:
-{
-uint8_t x_1; 
-x_1 = l_System_Platform_isOSX___closed__1;
-return x_1;
-}
-}
-static uint8_t _init_l_System_Platform_isEmscripten___closed__1() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; 
-x_1 = lean_box(0);
-x_2 = lean_system_platform_emscripten(x_1);
-return x_2;
-}
-}
-static uint8_t _init_l_System_Platform_isEmscripten() {
-_start:
-{
-uint8_t x_1; 
-x_1 = l_System_Platform_isEmscripten___closed__1;
-return x_1;
-}
-}
+#define _init_l_System_Platform_isWindows___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; uint8_t x_2; \
+x_1 = lean_box(0);\
+x_2 = lean_system_platform_windows(x_1);\
+__INIT_VAR__ = x_2; goto l_System_Platform_isWindows___closed__1_end;\
+}\
+l_System_Platform_isWindows___closed__1_end: ((void) 0);}
+#define _init_l_System_Platform_isWindows(__INIT_VAR__) { \
+{\
+uint8_t x_1; \
+x_1 = l_System_Platform_isWindows___closed__1;\
+__INIT_VAR__ = x_1; goto l_System_Platform_isWindows_end;\
+}\
+l_System_Platform_isWindows_end: ((void) 0);}
+#define _init_l_System_Platform_isOSX___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; uint8_t x_2; \
+x_1 = lean_box(0);\
+x_2 = lean_system_platform_osx(x_1);\
+__INIT_VAR__ = x_2; goto l_System_Platform_isOSX___closed__1_end;\
+}\
+l_System_Platform_isOSX___closed__1_end: ((void) 0);}
+#define _init_l_System_Platform_isOSX(__INIT_VAR__) { \
+{\
+uint8_t x_1; \
+x_1 = l_System_Platform_isOSX___closed__1;\
+__INIT_VAR__ = x_1; goto l_System_Platform_isOSX_end;\
+}\
+l_System_Platform_isOSX_end: ((void) 0);}
+#define _init_l_System_Platform_isEmscripten___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; uint8_t x_2; \
+x_1 = lean_box(0);\
+x_2 = lean_system_platform_emscripten(x_1);\
+__INIT_VAR__ = x_2; goto l_System_Platform_isEmscripten___closed__1_end;\
+}\
+l_System_Platform_isEmscripten___closed__1_end: ((void) 0);}
+#define _init_l_System_Platform_isEmscripten(__INIT_VAR__) { \
+{\
+uint8_t x_1; \
+x_1 = l_System_Platform_isEmscripten___closed__1;\
+__INIT_VAR__ = x_1; goto l_System_Platform_isEmscripten_end;\
+}\
+l_System_Platform_isEmscripten_end: ((void) 0);}
 lean_object* initialize_Init_Data_Nat_Basic(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_System_Platform(lean_object* w) {
@@ -112,12 +106,12 @@ _G_initialized = true;
 res = initialize_Init_Data_Nat_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_System_Platform_isWindows___closed__1 = _init_l_System_Platform_isWindows___closed__1();
-l_System_Platform_isWindows = _init_l_System_Platform_isWindows();
-l_System_Platform_isOSX___closed__1 = _init_l_System_Platform_isOSX___closed__1();
-l_System_Platform_isOSX = _init_l_System_Platform_isOSX();
-l_System_Platform_isEmscripten___closed__1 = _init_l_System_Platform_isEmscripten___closed__1();
-l_System_Platform_isEmscripten = _init_l_System_Platform_isEmscripten();
+_init_l_System_Platform_isWindows___closed__1(l_System_Platform_isWindows___closed__1);
+_init_l_System_Platform_isWindows(l_System_Platform_isWindows);
+_init_l_System_Platform_isOSX___closed__1(l_System_Platform_isOSX___closed__1);
+_init_l_System_Platform_isOSX(l_System_Platform_isOSX);
+_init_l_System_Platform_isEmscripten___closed__1(l_System_Platform_isEmscripten___closed__1);
+_init_l_System_Platform_isEmscripten(l_System_Platform_isEmscripten);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

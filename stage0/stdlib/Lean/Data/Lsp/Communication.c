@@ -168,14 +168,13 @@ x_2 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_Communication_0__IO_F
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("\x0d\n");
-return x_1;
-}
-}
+#define _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("\x0d\n");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField___closed__1_end;\
+}\
+l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField___closed__1_end: ((void) 0);}
 lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField(lean_object* x_1) {
 _start:
 {
@@ -304,14 +303,13 @@ x_2 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_Communication_0__IO_F
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___lambda__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Invalid header field: ");
-return x_1;
-}
-}
+#define _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___lambda__1___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Invalid header field: ");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___lambda__1___closed__1_end;\
+}\
+l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___lambda__1___closed__1_end: ((void) 0);}
 lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -422,24 +420,22 @@ return x_32;
 }
 }
 }
-static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Stream was closed");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__1;
-x_2 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Stream was closed");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__1_end;\
+}\
+l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__1_end: ((void) 0);}
+#define _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__1;\
+x_2 = lean_alloc_ctor(18, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__2_end;\
+}\
+l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__2_end: ((void) 0);}
 lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -774,38 +770,34 @@ return x_18;
 }
 }
 }
-static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Content-Length");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("No Content-Length field in header: ");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Content-Length header field value '");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("' is not a Nat");
-return x_1;
-}
-}
+#define _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Content-Length");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__1_end;\
+}\
+l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__1_end: ((void) 0);}
+#define _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("No Content-Length field in header: ");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__2_end;\
+}\
+l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__2_end: ((void) 0);}
+#define _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Content-Length header field value '");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__3_end;\
+}\
+l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__3_end: ((void) 0);}
+#define _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("' is not a Nat");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__4_end;\
+}\
+l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__4_end: ((void) 0);}
 lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -979,14 +971,13 @@ lean_dec(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_IO_FS_Stream_readLspMessage___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Cannot read LSP message: ");
-return x_1;
-}
-}
+#define _init_l_IO_FS_Stream_readLspMessage___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Cannot read LSP message: ");\
+__INIT_VAR__ = x_1; goto l_IO_FS_Stream_readLspMessage___closed__1_end;\
+}\
+l_IO_FS_Stream_readLspMessage___closed__1_end: ((void) 0);}
 lean_object* l_IO_FS_Stream_readLspMessage(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1093,14 +1084,13 @@ return x_40;
 }
 }
 }
-static lean_object* _init_l_IO_FS_Stream_readLspRequestAs___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Cannot read LSP request: ");
-return x_1;
-}
-}
+#define _init_l_IO_FS_Stream_readLspRequestAs___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Cannot read LSP request: ");\
+__INIT_VAR__ = x_1; goto l_IO_FS_Stream_readLspRequestAs___closed__1_end;\
+}\
+l_IO_FS_Stream_readLspRequestAs___closed__1_end: ((void) 0);}
 lean_object* l_IO_FS_Stream_readLspRequestAs(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -1209,14 +1199,13 @@ return x_43;
 }
 }
 }
-static lean_object* _init_l_IO_FS_Stream_readLspNotificationAs___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Cannot read LSP notification: ");
-return x_1;
-}
-}
+#define _init_l_IO_FS_Stream_readLspNotificationAs___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Cannot read LSP notification: ");\
+__INIT_VAR__ = x_1; goto l_IO_FS_Stream_readLspNotificationAs___closed__1_end;\
+}\
+l_IO_FS_Stream_readLspNotificationAs___closed__1_end: ((void) 0);}
 lean_object* l_IO_FS_Stream_readLspNotificationAs(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -1325,14 +1314,13 @@ return x_43;
 }
 }
 }
-static lean_object* _init_l_IO_FS_Stream_readLspResponseAs___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Cannot read LSP response: ");
-return x_1;
-}
-}
+#define _init_l_IO_FS_Stream_readLspResponseAs___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Cannot read LSP response: ");\
+__INIT_VAR__ = x_1; goto l_IO_FS_Stream_readLspResponseAs___closed__1_end;\
+}\
+l_IO_FS_Stream_readLspResponseAs___closed__1_end: ((void) 0);}
 lean_object* l_IO_FS_Stream_readLspResponseAs(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -1441,22 +1429,20 @@ return x_43;
 }
 }
 }
-static lean_object* _init_l_IO_FS_Stream_writeLspMessage___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Content-Length: ");
-return x_1;
-}
-}
-static lean_object* _init_l_IO_FS_Stream_writeLspMessage___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("\x0d\n\x0d\n");
-return x_1;
-}
-}
+#define _init_l_IO_FS_Stream_writeLspMessage___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Content-Length: ");\
+__INIT_VAR__ = x_1; goto l_IO_FS_Stream_writeLspMessage___closed__1_end;\
+}\
+l_IO_FS_Stream_writeLspMessage___closed__1_end: ((void) 0);}
+#define _init_l_IO_FS_Stream_writeLspMessage___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("\x0d\n\x0d\n");\
+__INIT_VAR__ = x_1; goto l_IO_FS_Stream_writeLspMessage___closed__2_end;\
+}\
+l_IO_FS_Stream_writeLspMessage___closed__2_end: ((void) 0);}
 lean_object* l_IO_FS_Stream_writeLspMessage(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2085,33 +2071,33 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_JsonRpc(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField___closed__1 = _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField___closed__1();
+_init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField___closed__1(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField___closed__1);
 lean_mark_persistent(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_parseHeaderField___closed__1);
-l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___lambda__1___closed__1 = _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___lambda__1___closed__1();
+_init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___lambda__1___closed__1(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___lambda__1___closed__1);
 lean_mark_persistent(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___lambda__1___closed__1);
-l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__1 = _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__1();
+_init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__1(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__1);
 lean_mark_persistent(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__1);
-l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__2 = _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__2();
+_init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__2(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__2);
 lean_mark_persistent(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readHeaderFields___closed__2);
-l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__1 = _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__1();
+_init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__1(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__1);
 lean_mark_persistent(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__1);
-l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__2 = _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__2();
+_init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__2(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__2);
 lean_mark_persistent(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__2);
-l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__3 = _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__3();
+_init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__3(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__3);
 lean_mark_persistent(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__3);
-l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__4 = _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__4();
+_init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__4(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__4);
 lean_mark_persistent(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader___closed__4);
-l_IO_FS_Stream_readLspMessage___closed__1 = _init_l_IO_FS_Stream_readLspMessage___closed__1();
+_init_l_IO_FS_Stream_readLspMessage___closed__1(l_IO_FS_Stream_readLspMessage___closed__1);
 lean_mark_persistent(l_IO_FS_Stream_readLspMessage___closed__1);
-l_IO_FS_Stream_readLspRequestAs___closed__1 = _init_l_IO_FS_Stream_readLspRequestAs___closed__1();
+_init_l_IO_FS_Stream_readLspRequestAs___closed__1(l_IO_FS_Stream_readLspRequestAs___closed__1);
 lean_mark_persistent(l_IO_FS_Stream_readLspRequestAs___closed__1);
-l_IO_FS_Stream_readLspNotificationAs___closed__1 = _init_l_IO_FS_Stream_readLspNotificationAs___closed__1();
+_init_l_IO_FS_Stream_readLspNotificationAs___closed__1(l_IO_FS_Stream_readLspNotificationAs___closed__1);
 lean_mark_persistent(l_IO_FS_Stream_readLspNotificationAs___closed__1);
-l_IO_FS_Stream_readLspResponseAs___closed__1 = _init_l_IO_FS_Stream_readLspResponseAs___closed__1();
+_init_l_IO_FS_Stream_readLspResponseAs___closed__1(l_IO_FS_Stream_readLspResponseAs___closed__1);
 lean_mark_persistent(l_IO_FS_Stream_readLspResponseAs___closed__1);
-l_IO_FS_Stream_writeLspMessage___closed__1 = _init_l_IO_FS_Stream_writeLspMessage___closed__1();
+_init_l_IO_FS_Stream_writeLspMessage___closed__1(l_IO_FS_Stream_writeLspMessage___closed__1);
 lean_mark_persistent(l_IO_FS_Stream_writeLspMessage___closed__1);
-l_IO_FS_Stream_writeLspMessage___closed__2 = _init_l_IO_FS_Stream_writeLspMessage___closed__2();
+_init_l_IO_FS_Stream_writeLspMessage___closed__2(l_IO_FS_Stream_writeLspMessage___closed__2);
 lean_mark_persistent(l_IO_FS_Stream_writeLspMessage___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }

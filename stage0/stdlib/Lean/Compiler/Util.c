@@ -89,178 +89,159 @@ lean_object* l_Lean_Compiler_unreachableExpr___closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_unreachableExpr___closed__3;
 lean_object* l_Lean_Compiler_atMostOnce_visitFVar_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Compiler_neutralExpr___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("_neutral");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_neutralExpr___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_neutralExpr___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_neutralExpr___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_neutralExpr___closed__2;
-x_3 = l_Lean_mkConst(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_neutralExpr() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_neutralExpr___closed__3;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_unreachableExpr___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("_unreachable");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_unreachableExpr___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_unreachableExpr___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_unreachableExpr___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_unreachableExpr___closed__2;
-x_3 = l_Lean_mkConst(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_unreachableExpr() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_unreachableExpr___closed__3;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_objectType___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("_obj");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_objectType___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_objectType___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_objectType___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_objectType___closed__2;
-x_3 = l_Lean_mkConst(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_objectType() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_objectType___closed__3;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_voidType___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("_void");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_voidType___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_voidType___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_voidType___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_voidType___closed__2;
-x_3 = l_Lean_mkConst(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_voidType() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_voidType___closed__3;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_mkLcProof___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("lcProof");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_mkLcProof___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_mkLcProof___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_mkLcProof___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_mkLcProof___closed__2;
-x_3 = l_Lean_mkConst(x_2, x_1);
-return x_3;
-}
-}
+#define _init_l_Lean_Compiler_neutralExpr___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("_neutral");\
+__INIT_VAR__ = x_1; goto l_Lean_Compiler_neutralExpr___closed__1_end;\
+}\
+l_Lean_Compiler_neutralExpr___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Compiler_neutralExpr___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Compiler_neutralExpr___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Compiler_neutralExpr___closed__2_end;\
+}\
+l_Lean_Compiler_neutralExpr___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Compiler_neutralExpr___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Compiler_neutralExpr___closed__2;\
+x_3 = l_Lean_mkConst(x_2, x_1);\
+__INIT_VAR__ = x_3; goto l_Lean_Compiler_neutralExpr___closed__3_end;\
+}\
+l_Lean_Compiler_neutralExpr___closed__3_end: ((void) 0);}
+#define _init_l_Lean_Compiler_neutralExpr(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Compiler_neutralExpr___closed__3;\
+__INIT_VAR__ = x_1; goto l_Lean_Compiler_neutralExpr_end;\
+}\
+l_Lean_Compiler_neutralExpr_end: ((void) 0);}
+#define _init_l_Lean_Compiler_unreachableExpr___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("_unreachable");\
+__INIT_VAR__ = x_1; goto l_Lean_Compiler_unreachableExpr___closed__1_end;\
+}\
+l_Lean_Compiler_unreachableExpr___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Compiler_unreachableExpr___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Compiler_unreachableExpr___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Compiler_unreachableExpr___closed__2_end;\
+}\
+l_Lean_Compiler_unreachableExpr___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Compiler_unreachableExpr___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Compiler_unreachableExpr___closed__2;\
+x_3 = l_Lean_mkConst(x_2, x_1);\
+__INIT_VAR__ = x_3; goto l_Lean_Compiler_unreachableExpr___closed__3_end;\
+}\
+l_Lean_Compiler_unreachableExpr___closed__3_end: ((void) 0);}
+#define _init_l_Lean_Compiler_unreachableExpr(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Compiler_unreachableExpr___closed__3;\
+__INIT_VAR__ = x_1; goto l_Lean_Compiler_unreachableExpr_end;\
+}\
+l_Lean_Compiler_unreachableExpr_end: ((void) 0);}
+#define _init_l_Lean_Compiler_objectType___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("_obj");\
+__INIT_VAR__ = x_1; goto l_Lean_Compiler_objectType___closed__1_end;\
+}\
+l_Lean_Compiler_objectType___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Compiler_objectType___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Compiler_objectType___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Compiler_objectType___closed__2_end;\
+}\
+l_Lean_Compiler_objectType___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Compiler_objectType___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Compiler_objectType___closed__2;\
+x_3 = l_Lean_mkConst(x_2, x_1);\
+__INIT_VAR__ = x_3; goto l_Lean_Compiler_objectType___closed__3_end;\
+}\
+l_Lean_Compiler_objectType___closed__3_end: ((void) 0);}
+#define _init_l_Lean_Compiler_objectType(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Compiler_objectType___closed__3;\
+__INIT_VAR__ = x_1; goto l_Lean_Compiler_objectType_end;\
+}\
+l_Lean_Compiler_objectType_end: ((void) 0);}
+#define _init_l_Lean_Compiler_voidType___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("_void");\
+__INIT_VAR__ = x_1; goto l_Lean_Compiler_voidType___closed__1_end;\
+}\
+l_Lean_Compiler_voidType___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Compiler_voidType___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Compiler_voidType___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Compiler_voidType___closed__2_end;\
+}\
+l_Lean_Compiler_voidType___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Compiler_voidType___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Compiler_voidType___closed__2;\
+x_3 = l_Lean_mkConst(x_2, x_1);\
+__INIT_VAR__ = x_3; goto l_Lean_Compiler_voidType___closed__3_end;\
+}\
+l_Lean_Compiler_voidType___closed__3_end: ((void) 0);}
+#define _init_l_Lean_Compiler_voidType(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Compiler_voidType___closed__3;\
+__INIT_VAR__ = x_1; goto l_Lean_Compiler_voidType_end;\
+}\
+l_Lean_Compiler_voidType_end: ((void) 0);}
+#define _init_l_Lean_Compiler_mkLcProof___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("lcProof");\
+__INIT_VAR__ = x_1; goto l_Lean_Compiler_mkLcProof___closed__1_end;\
+}\
+l_Lean_Compiler_mkLcProof___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Compiler_mkLcProof___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Compiler_mkLcProof___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Compiler_mkLcProof___closed__2_end;\
+}\
+l_Lean_Compiler_mkLcProof___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Compiler_mkLcProof___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Compiler_mkLcProof___closed__2;\
+x_3 = l_Lean_mkConst(x_2, x_1);\
+__INIT_VAR__ = x_3; goto l_Lean_Compiler_mkLcProof___closed__3_end;\
+}\
+l_Lean_Compiler_mkLcProof___closed__3_end: ((void) 0);}
 lean_object* l_Lean_Compiler_mkLcProof(lean_object* x_1) {
 _start:
 {
@@ -340,22 +321,20 @@ return x_11;
 }
 }
 }
-static lean_object* _init_l_Lean_Compiler_atMostOnce_instAndThenVisitor___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_atMostOnce_seq), 3, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_atMostOnce_instAndThenVisitor() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_atMostOnce_instAndThenVisitor___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_Compiler_atMostOnce_instAndThenVisitor___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_atMostOnce_seq), 3, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Compiler_atMostOnce_instAndThenVisitor___closed__1_end;\
+}\
+l_Lean_Compiler_atMostOnce_instAndThenVisitor___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Compiler_atMostOnce_instAndThenVisitor(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Compiler_atMostOnce_instAndThenVisitor___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Compiler_atMostOnce_instAndThenVisitor_end;\
+}\
+l_Lean_Compiler_atMostOnce_instAndThenVisitor_end: ((void) 0);}
 lean_object* l_Lean_Compiler_atMostOnce_skip(lean_object* x_1) {
 _start:
 {
@@ -464,29 +443,27 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Compiler_atMostOnce_visitFVar_match__1__
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_atMostOnce_visitFVar___closed__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 1;
-x_2 = lean_alloc_ctor(0, 0, 2);
-lean_ctor_set_uint8(x_2, 0, x_1);
-lean_ctor_set_uint8(x_2, 1, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Compiler_atMostOnce_visitFVar___closed__2() {
-_start:
-{
-uint8_t x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = 1;
-x_2 = 0;
-x_3 = lean_alloc_ctor(0, 0, 2);
-lean_ctor_set_uint8(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, 1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Compiler_atMostOnce_visitFVar___closed__1(__INIT_VAR__) { \
+{\
+uint8_t x_1; lean_object* x_2; \
+x_1 = 1;\
+x_2 = lean_alloc_ctor(0, 0, 2);\
+lean_ctor_set_uint8(x_2, 0, x_1);\
+lean_ctor_set_uint8(x_2, 1, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Compiler_atMostOnce_visitFVar___closed__1_end;\
+}\
+l_Lean_Compiler_atMostOnce_visitFVar___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Compiler_atMostOnce_visitFVar___closed__2(__INIT_VAR__) { \
+{\
+uint8_t x_1; uint8_t x_2; lean_object* x_3; \
+x_1 = 1;\
+x_2 = 0;\
+x_3 = lean_alloc_ctor(0, 0, 2);\
+lean_ctor_set_uint8(x_3, 0, x_1);\
+lean_ctor_set_uint8(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Compiler_atMostOnce_visitFVar___closed__2_end;\
+}\
+l_Lean_Compiler_atMostOnce_visitFVar___closed__2_end: ((void) 0);}
 lean_object* l_Lean_Compiler_atMostOnce_visitFVar(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1080,18 +1057,17 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_atMostOnce___closed__1() {
-_start:
-{
-uint8_t x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = 0;
-x_2 = 1;
-x_3 = lean_alloc_ctor(0, 0, 2);
-lean_ctor_set_uint8(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, 1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Compiler_atMostOnce___closed__1(__INIT_VAR__) { \
+{\
+uint8_t x_1; uint8_t x_2; lean_object* x_3; \
+x_1 = 0;\
+x_2 = 1;\
+x_3 = lean_alloc_ctor(0, 0, 2);\
+lean_ctor_set_uint8(x_3, 0, x_1);\
+lean_ctor_set_uint8(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Compiler_atMostOnce___closed__1_end;\
+}\
+l_Lean_Compiler_atMostOnce___closed__1_end: ((void) 0);}
 uint8_t lean_at_most_once(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1114,14 +1090,13 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("_elambda_");
-return x_1;
-}
-}
+#define _init_l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("_elambda_");\
+__INIT_VAR__ = x_1; goto l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1_end;\
+}\
+l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1_end: ((void) 0);}
 lean_object* lean_mk_eager_lambda_lifting_name(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1187,14 +1162,13 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Compiler_isEagerLambdaLiftingName_match_
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_isEagerLambdaLiftingName___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("_elambda");
-return x_1;
-}
-}
+#define _init_l_Lean_Compiler_isEagerLambdaLiftingName___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("_elambda");\
+__INIT_VAR__ = x_1; goto l_Lean_Compiler_isEagerLambdaLiftingName___closed__1_end;\
+}\
+l_Lean_Compiler_isEagerLambdaLiftingName___closed__1_end: ((void) 0);}
 uint8_t lean_is_eager_lambda_lifting_name(lean_object* x_1) {
 _start:
 {
@@ -1538,32 +1512,29 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Compiler_checkIsDefinition_match__1___ra
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("unknow declaration '");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("declaration is not a definition '");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Compiler_checkIsDefinition___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("unknow declaration '");\
+__INIT_VAR__ = x_1; goto l_Lean_Compiler_checkIsDefinition___closed__1_end;\
+}\
+l_Lean_Compiler_checkIsDefinition___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Compiler_checkIsDefinition___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("declaration is not a definition '");\
+__INIT_VAR__ = x_1; goto l_Lean_Compiler_checkIsDefinition___closed__2_end;\
+}\
+l_Lean_Compiler_checkIsDefinition___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Compiler_checkIsDefinition___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = lean_box(0);\
+x_2 = lean_alloc_ctor(1, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Compiler_checkIsDefinition___closed__3_end;\
+}\
+l_Lean_Compiler_checkIsDefinition___closed__3_end: ((void) 0);}
 lean_object* l_Lean_Compiler_checkIsDefinition(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1626,14 +1597,13 @@ return x_20;
 }
 }
 }
-static lean_object* _init_l_Lean_Compiler_mkUnsafeRecName___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("_unsafe_rec");
-return x_1;
-}
-}
+#define _init_l_Lean_Compiler_mkUnsafeRecName___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("_unsafe_rec");\
+__INIT_VAR__ = x_1; goto l_Lean_Compiler_mkUnsafeRecName___closed__1_end;\
+}\
+l_Lean_Compiler_mkUnsafeRecName___closed__1_end: ((void) 0);}
 lean_object* lean_mk_unsafe_rec_name(lean_object* x_1) {
 _start:
 {
@@ -1743,65 +1713,65 @@ lean_dec_ref(res);
 res = initialize_Lean_Environment(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Compiler_neutralExpr___closed__1 = _init_l_Lean_Compiler_neutralExpr___closed__1();
+_init_l_Lean_Compiler_neutralExpr___closed__1(l_Lean_Compiler_neutralExpr___closed__1);
 lean_mark_persistent(l_Lean_Compiler_neutralExpr___closed__1);
-l_Lean_Compiler_neutralExpr___closed__2 = _init_l_Lean_Compiler_neutralExpr___closed__2();
+_init_l_Lean_Compiler_neutralExpr___closed__2(l_Lean_Compiler_neutralExpr___closed__2);
 lean_mark_persistent(l_Lean_Compiler_neutralExpr___closed__2);
-l_Lean_Compiler_neutralExpr___closed__3 = _init_l_Lean_Compiler_neutralExpr___closed__3();
+_init_l_Lean_Compiler_neutralExpr___closed__3(l_Lean_Compiler_neutralExpr___closed__3);
 lean_mark_persistent(l_Lean_Compiler_neutralExpr___closed__3);
-l_Lean_Compiler_neutralExpr = _init_l_Lean_Compiler_neutralExpr();
+_init_l_Lean_Compiler_neutralExpr(l_Lean_Compiler_neutralExpr);
 lean_mark_persistent(l_Lean_Compiler_neutralExpr);
-l_Lean_Compiler_unreachableExpr___closed__1 = _init_l_Lean_Compiler_unreachableExpr___closed__1();
+_init_l_Lean_Compiler_unreachableExpr___closed__1(l_Lean_Compiler_unreachableExpr___closed__1);
 lean_mark_persistent(l_Lean_Compiler_unreachableExpr___closed__1);
-l_Lean_Compiler_unreachableExpr___closed__2 = _init_l_Lean_Compiler_unreachableExpr___closed__2();
+_init_l_Lean_Compiler_unreachableExpr___closed__2(l_Lean_Compiler_unreachableExpr___closed__2);
 lean_mark_persistent(l_Lean_Compiler_unreachableExpr___closed__2);
-l_Lean_Compiler_unreachableExpr___closed__3 = _init_l_Lean_Compiler_unreachableExpr___closed__3();
+_init_l_Lean_Compiler_unreachableExpr___closed__3(l_Lean_Compiler_unreachableExpr___closed__3);
 lean_mark_persistent(l_Lean_Compiler_unreachableExpr___closed__3);
-l_Lean_Compiler_unreachableExpr = _init_l_Lean_Compiler_unreachableExpr();
+_init_l_Lean_Compiler_unreachableExpr(l_Lean_Compiler_unreachableExpr);
 lean_mark_persistent(l_Lean_Compiler_unreachableExpr);
-l_Lean_Compiler_objectType___closed__1 = _init_l_Lean_Compiler_objectType___closed__1();
+_init_l_Lean_Compiler_objectType___closed__1(l_Lean_Compiler_objectType___closed__1);
 lean_mark_persistent(l_Lean_Compiler_objectType___closed__1);
-l_Lean_Compiler_objectType___closed__2 = _init_l_Lean_Compiler_objectType___closed__2();
+_init_l_Lean_Compiler_objectType___closed__2(l_Lean_Compiler_objectType___closed__2);
 lean_mark_persistent(l_Lean_Compiler_objectType___closed__2);
-l_Lean_Compiler_objectType___closed__3 = _init_l_Lean_Compiler_objectType___closed__3();
+_init_l_Lean_Compiler_objectType___closed__3(l_Lean_Compiler_objectType___closed__3);
 lean_mark_persistent(l_Lean_Compiler_objectType___closed__3);
-l_Lean_Compiler_objectType = _init_l_Lean_Compiler_objectType();
+_init_l_Lean_Compiler_objectType(l_Lean_Compiler_objectType);
 lean_mark_persistent(l_Lean_Compiler_objectType);
-l_Lean_Compiler_voidType___closed__1 = _init_l_Lean_Compiler_voidType___closed__1();
+_init_l_Lean_Compiler_voidType___closed__1(l_Lean_Compiler_voidType___closed__1);
 lean_mark_persistent(l_Lean_Compiler_voidType___closed__1);
-l_Lean_Compiler_voidType___closed__2 = _init_l_Lean_Compiler_voidType___closed__2();
+_init_l_Lean_Compiler_voidType___closed__2(l_Lean_Compiler_voidType___closed__2);
 lean_mark_persistent(l_Lean_Compiler_voidType___closed__2);
-l_Lean_Compiler_voidType___closed__3 = _init_l_Lean_Compiler_voidType___closed__3();
+_init_l_Lean_Compiler_voidType___closed__3(l_Lean_Compiler_voidType___closed__3);
 lean_mark_persistent(l_Lean_Compiler_voidType___closed__3);
-l_Lean_Compiler_voidType = _init_l_Lean_Compiler_voidType();
+_init_l_Lean_Compiler_voidType(l_Lean_Compiler_voidType);
 lean_mark_persistent(l_Lean_Compiler_voidType);
-l_Lean_Compiler_mkLcProof___closed__1 = _init_l_Lean_Compiler_mkLcProof___closed__1();
+_init_l_Lean_Compiler_mkLcProof___closed__1(l_Lean_Compiler_mkLcProof___closed__1);
 lean_mark_persistent(l_Lean_Compiler_mkLcProof___closed__1);
-l_Lean_Compiler_mkLcProof___closed__2 = _init_l_Lean_Compiler_mkLcProof___closed__2();
+_init_l_Lean_Compiler_mkLcProof___closed__2(l_Lean_Compiler_mkLcProof___closed__2);
 lean_mark_persistent(l_Lean_Compiler_mkLcProof___closed__2);
-l_Lean_Compiler_mkLcProof___closed__3 = _init_l_Lean_Compiler_mkLcProof___closed__3();
+_init_l_Lean_Compiler_mkLcProof___closed__3(l_Lean_Compiler_mkLcProof___closed__3);
 lean_mark_persistent(l_Lean_Compiler_mkLcProof___closed__3);
-l_Lean_Compiler_atMostOnce_instAndThenVisitor___closed__1 = _init_l_Lean_Compiler_atMostOnce_instAndThenVisitor___closed__1();
+_init_l_Lean_Compiler_atMostOnce_instAndThenVisitor___closed__1(l_Lean_Compiler_atMostOnce_instAndThenVisitor___closed__1);
 lean_mark_persistent(l_Lean_Compiler_atMostOnce_instAndThenVisitor___closed__1);
-l_Lean_Compiler_atMostOnce_instAndThenVisitor = _init_l_Lean_Compiler_atMostOnce_instAndThenVisitor();
+_init_l_Lean_Compiler_atMostOnce_instAndThenVisitor(l_Lean_Compiler_atMostOnce_instAndThenVisitor);
 lean_mark_persistent(l_Lean_Compiler_atMostOnce_instAndThenVisitor);
-l_Lean_Compiler_atMostOnce_visitFVar___closed__1 = _init_l_Lean_Compiler_atMostOnce_visitFVar___closed__1();
+_init_l_Lean_Compiler_atMostOnce_visitFVar___closed__1(l_Lean_Compiler_atMostOnce_visitFVar___closed__1);
 lean_mark_persistent(l_Lean_Compiler_atMostOnce_visitFVar___closed__1);
-l_Lean_Compiler_atMostOnce_visitFVar___closed__2 = _init_l_Lean_Compiler_atMostOnce_visitFVar___closed__2();
+_init_l_Lean_Compiler_atMostOnce_visitFVar___closed__2(l_Lean_Compiler_atMostOnce_visitFVar___closed__2);
 lean_mark_persistent(l_Lean_Compiler_atMostOnce_visitFVar___closed__2);
-l_Lean_Compiler_atMostOnce___closed__1 = _init_l_Lean_Compiler_atMostOnce___closed__1();
+_init_l_Lean_Compiler_atMostOnce___closed__1(l_Lean_Compiler_atMostOnce___closed__1);
 lean_mark_persistent(l_Lean_Compiler_atMostOnce___closed__1);
-l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1 = _init_l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1();
+_init_l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1(l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1);
 lean_mark_persistent(l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1);
-l_Lean_Compiler_isEagerLambdaLiftingName___closed__1 = _init_l_Lean_Compiler_isEagerLambdaLiftingName___closed__1();
+_init_l_Lean_Compiler_isEagerLambdaLiftingName___closed__1(l_Lean_Compiler_isEagerLambdaLiftingName___closed__1);
 lean_mark_persistent(l_Lean_Compiler_isEagerLambdaLiftingName___closed__1);
-l_Lean_Compiler_checkIsDefinition___closed__1 = _init_l_Lean_Compiler_checkIsDefinition___closed__1();
+_init_l_Lean_Compiler_checkIsDefinition___closed__1(l_Lean_Compiler_checkIsDefinition___closed__1);
 lean_mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__1);
-l_Lean_Compiler_checkIsDefinition___closed__2 = _init_l_Lean_Compiler_checkIsDefinition___closed__2();
+_init_l_Lean_Compiler_checkIsDefinition___closed__2(l_Lean_Compiler_checkIsDefinition___closed__2);
 lean_mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__2);
-l_Lean_Compiler_checkIsDefinition___closed__3 = _init_l_Lean_Compiler_checkIsDefinition___closed__3();
+_init_l_Lean_Compiler_checkIsDefinition___closed__3(l_Lean_Compiler_checkIsDefinition___closed__3);
 lean_mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__3);
-l_Lean_Compiler_mkUnsafeRecName___closed__1 = _init_l_Lean_Compiler_mkUnsafeRecName___closed__1();
+_init_l_Lean_Compiler_mkUnsafeRecName___closed__1(l_Lean_Compiler_mkUnsafeRecName___closed__1);
 lean_mark_persistent(l_Lean_Compiler_mkUnsafeRecName___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

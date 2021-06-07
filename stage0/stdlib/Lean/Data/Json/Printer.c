@@ -91,22 +91,20 @@ lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_Json_render_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_mk(lean_object*);
 extern lean_object* l_term_x5b___x5d___closed__3;
-static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("\\u");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("\\r");
-return x_1;
-}
-}
+#define _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("\\u");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__1_end;\
+}\
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__1_end: ((void) 0);}
+#define _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("\\r");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__2_end;\
+}\
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__2_end: ((void) 0);}
 lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux(lean_object* x_1, uint32_t x_2) {
 _start:
 {
@@ -255,14 +253,13 @@ x_4 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux(x_1, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Json_escape___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___boxed), 2, 0);
-return x_1;
-}
-}
+#define _init_l_Lean_Json_escape___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Json_escape___closed__1_end;\
+}\
+l_Lean_Json_escape___closed__1_end: ((void) 0);}
 lean_object* l_Lean_Json_escape(lean_object* x_1) {
 _start:
 {
@@ -448,78 +445,70 @@ lean_ctor_set(x_14, 1, x_1);
 return x_14;
 }
 }
-static lean_object* _init_l_Lean_Json_render___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_nullKind___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Json_render___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Json_render), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Json_render___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_instToFormatFormat___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Json_render___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Json_render___lambda__1___boxed), 3, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Json_render___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__4;
-x_2 = lean_string_length(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Json_render___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Json_render___closed__5;
-x_2 = lean_nat_to_int(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Json_render___closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__4;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Json_render___closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__3;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Json_render___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_nullKind___closed__1;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Json_render___closed__1_end;\
+}\
+l_Lean_Json_render___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Json_render___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_Json_render), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Json_render___closed__2_end;\
+}\
+l_Lean_Json_render___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Json_render___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Std_instToFormatFormat___boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Json_render___closed__3_end;\
+}\
+l_Lean_Json_render___closed__3_end: ((void) 0);}
+#define _init_l_Lean_Json_render___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_Json_render___lambda__1___boxed), 3, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Json_render___closed__4_end;\
+}\
+l_Lean_Json_render___closed__4_end: ((void) 0);}
+#define _init_l_Lean_Json_render___closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__4;\
+x_2 = lean_string_length(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Json_render___closed__5_end;\
+}\
+l_Lean_Json_render___closed__5_end: ((void) 0);}
+#define _init_l_Lean_Json_render___closed__6(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Json_render___closed__5;\
+x_2 = lean_nat_to_int(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Json_render___closed__6_end;\
+}\
+l_Lean_Json_render___closed__6_end: ((void) 0);}
+#define _init_l_Lean_Json_render___closed__7(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__4;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Json_render___closed__7_end;\
+}\
+l_Lean_Json_render___closed__7_end: ((void) 0);}
+#define _init_l_Lean_Json_render___closed__8(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15852____closed__3;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Json_render___closed__8_end;\
+}\
+l_Lean_Json_render___closed__8_end: ((void) 0);}
 lean_object* l_Lean_Json_render(lean_object* x_1) {
 _start:
 {
@@ -830,14 +819,13 @@ x_6 = l_Array_mapMUnsafe_map___at_Lean_Json_compress___spec__1(x_4, x_5, x_3);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Json_instToFormatJson() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Json_render___closed__2;
-return x_1;
-}
-}
+#define _init_l_Lean_Json_instToFormatJson(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Json_render___closed__2;\
+__INIT_VAR__ = x_1; goto l_Lean_Json_instToFormatJson_end;\
+}\
+l_Lean_Json_instToFormatJson_end: ((void) 0);}
 lean_object* l_Lean_Json_instToStringJson(lean_object* x_1) {
 _start:
 {
@@ -864,29 +852,29 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Json_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__1 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__1();
+_init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__1(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__1);
 lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__1);
-l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__2 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__2();
+_init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__2(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__2);
 lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__2);
-l_Lean_Json_escape___closed__1 = _init_l_Lean_Json_escape___closed__1();
+_init_l_Lean_Json_escape___closed__1(l_Lean_Json_escape___closed__1);
 lean_mark_persistent(l_Lean_Json_escape___closed__1);
-l_Lean_Json_render___closed__1 = _init_l_Lean_Json_render___closed__1();
+_init_l_Lean_Json_render___closed__1(l_Lean_Json_render___closed__1);
 lean_mark_persistent(l_Lean_Json_render___closed__1);
-l_Lean_Json_render___closed__2 = _init_l_Lean_Json_render___closed__2();
+_init_l_Lean_Json_render___closed__2(l_Lean_Json_render___closed__2);
 lean_mark_persistent(l_Lean_Json_render___closed__2);
-l_Lean_Json_render___closed__3 = _init_l_Lean_Json_render___closed__3();
+_init_l_Lean_Json_render___closed__3(l_Lean_Json_render___closed__3);
 lean_mark_persistent(l_Lean_Json_render___closed__3);
-l_Lean_Json_render___closed__4 = _init_l_Lean_Json_render___closed__4();
+_init_l_Lean_Json_render___closed__4(l_Lean_Json_render___closed__4);
 lean_mark_persistent(l_Lean_Json_render___closed__4);
-l_Lean_Json_render___closed__5 = _init_l_Lean_Json_render___closed__5();
+_init_l_Lean_Json_render___closed__5(l_Lean_Json_render___closed__5);
 lean_mark_persistent(l_Lean_Json_render___closed__5);
-l_Lean_Json_render___closed__6 = _init_l_Lean_Json_render___closed__6();
+_init_l_Lean_Json_render___closed__6(l_Lean_Json_render___closed__6);
 lean_mark_persistent(l_Lean_Json_render___closed__6);
-l_Lean_Json_render___closed__7 = _init_l_Lean_Json_render___closed__7();
+_init_l_Lean_Json_render___closed__7(l_Lean_Json_render___closed__7);
 lean_mark_persistent(l_Lean_Json_render___closed__7);
-l_Lean_Json_render___closed__8 = _init_l_Lean_Json_render___closed__8();
+_init_l_Lean_Json_render___closed__8(l_Lean_Json_render___closed__8);
 lean_mark_persistent(l_Lean_Json_render___closed__8);
-l_Lean_Json_instToFormatJson = _init_l_Lean_Json_instToFormatJson();
+_init_l_Lean_Json_instToFormatJson(l_Lean_Json_instToFormatJson);
 lean_mark_persistent(l_Lean_Json_instToFormatJson);
 return lean_io_result_mk_ok(lean_box(0));
 }

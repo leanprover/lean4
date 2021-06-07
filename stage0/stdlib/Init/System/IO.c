@@ -707,16 +707,15 @@ x_2 = l_instMonadEST___closed__1;
 return x_2;
 }
 }
-static lean_object* _init_l_instMonadFinallyEIO___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_EStateM_instMonadFinallyEStateM), 4, 2);
-lean_closure_set(x_1, 0, lean_box(0));
-lean_closure_set(x_1, 1, lean_box(0));
-return x_1;
-}
-}
+#define _init_l_instMonadFinallyEIO___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_EStateM_instMonadFinallyEStateM), 4, 2);\
+lean_closure_set(x_1, 0, lean_box(0));\
+lean_closure_set(x_1, 1, lean_box(0));\
+__INIT_VAR__ = x_1; goto l_instMonadFinallyEIO___closed__1_end;\
+}\
+l_instMonadFinallyEIO___closed__1_end: ((void) 0);}
 lean_object* l_instMonadFinallyEIO(lean_object* x_1) {
 _start:
 {
@@ -762,14 +761,13 @@ x_3 = lean_alloc_closure((void*)(l_MonadExcept_orelse___at_instOrElseEIO___spec_
 return x_3;
 }
 }
-static lean_object* _init_l_instOrElseEIO___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_MonadExcept_orelse___at_instOrElseEIO___spec__1___rarg), 3, 0);
-return x_1;
-}
-}
+#define _init_l_instOrElseEIO___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_MonadExcept_orelse___at_instOrElseEIO___spec__1___rarg), 3, 0);\
+__INIT_VAR__ = x_1; goto l_instOrElseEIO___closed__1_end;\
+}\
+l_instOrElseEIO___closed__1_end: ((void) 0);}
 lean_object* l_instOrElseEIO(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1645,126 +1643,113 @@ x_7 = l_IO_Prim_fopenFlags_match__1___rarg(x_6, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_IO_Prim_fopenFlags___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("r");
-return x_1;
-}
-}
-static lean_object* _init_l_IO_Prim_fopenFlags___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("t");
-return x_1;
-}
-}
-static lean_object* _init_l_IO_Prim_fopenFlags___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_IO_Prim_fopenFlags___closed__1;
-x_2 = l_IO_Prim_fopenFlags___closed__2;
-x_3 = lean_string_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_IO_Prim_fopenFlags___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("b");
-return x_1;
-}
-}
-static lean_object* _init_l_IO_Prim_fopenFlags___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_IO_Prim_fopenFlags___closed__1;
-x_2 = l_IO_Prim_fopenFlags___closed__4;
-x_3 = lean_string_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_IO_Prim_fopenFlags___closed__6() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("w");
-return x_1;
-}
-}
-static lean_object* _init_l_IO_Prim_fopenFlags___closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_IO_Prim_fopenFlags___closed__6;
-x_2 = l_IO_Prim_fopenFlags___closed__2;
-x_3 = lean_string_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_IO_Prim_fopenFlags___closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_IO_Prim_fopenFlags___closed__6;
-x_2 = l_IO_Prim_fopenFlags___closed__4;
-x_3 = lean_string_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_IO_Prim_fopenFlags___closed__9() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("r+");
-return x_1;
-}
-}
-static lean_object* _init_l_IO_Prim_fopenFlags___closed__10() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_IO_Prim_fopenFlags___closed__9;
-x_2 = l_IO_Prim_fopenFlags___closed__2;
-x_3 = lean_string_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_IO_Prim_fopenFlags___closed__11() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_IO_Prim_fopenFlags___closed__9;
-x_2 = l_IO_Prim_fopenFlags___closed__4;
-x_3 = lean_string_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_IO_Prim_fopenFlags___closed__12() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_903____closed__1;
-x_2 = l_IO_Prim_fopenFlags___closed__2;
-x_3 = lean_string_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_IO_Prim_fopenFlags___closed__13() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_903____closed__1;
-x_2 = l_IO_Prim_fopenFlags___closed__4;
-x_3 = lean_string_append(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l_IO_Prim_fopenFlags___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("r");\
+__INIT_VAR__ = x_1; goto l_IO_Prim_fopenFlags___closed__1_end;\
+}\
+l_IO_Prim_fopenFlags___closed__1_end: ((void) 0);}
+#define _init_l_IO_Prim_fopenFlags___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("t");\
+__INIT_VAR__ = x_1; goto l_IO_Prim_fopenFlags___closed__2_end;\
+}\
+l_IO_Prim_fopenFlags___closed__2_end: ((void) 0);}
+#define _init_l_IO_Prim_fopenFlags___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_IO_Prim_fopenFlags___closed__1;\
+x_2 = l_IO_Prim_fopenFlags___closed__2;\
+x_3 = lean_string_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_IO_Prim_fopenFlags___closed__3_end;\
+}\
+l_IO_Prim_fopenFlags___closed__3_end: ((void) 0);}
+#define _init_l_IO_Prim_fopenFlags___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("b");\
+__INIT_VAR__ = x_1; goto l_IO_Prim_fopenFlags___closed__4_end;\
+}\
+l_IO_Prim_fopenFlags___closed__4_end: ((void) 0);}
+#define _init_l_IO_Prim_fopenFlags___closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_IO_Prim_fopenFlags___closed__1;\
+x_2 = l_IO_Prim_fopenFlags___closed__4;\
+x_3 = lean_string_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_IO_Prim_fopenFlags___closed__5_end;\
+}\
+l_IO_Prim_fopenFlags___closed__5_end: ((void) 0);}
+#define _init_l_IO_Prim_fopenFlags___closed__6(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("w");\
+__INIT_VAR__ = x_1; goto l_IO_Prim_fopenFlags___closed__6_end;\
+}\
+l_IO_Prim_fopenFlags___closed__6_end: ((void) 0);}
+#define _init_l_IO_Prim_fopenFlags___closed__7(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_IO_Prim_fopenFlags___closed__6;\
+x_2 = l_IO_Prim_fopenFlags___closed__2;\
+x_3 = lean_string_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_IO_Prim_fopenFlags___closed__7_end;\
+}\
+l_IO_Prim_fopenFlags___closed__7_end: ((void) 0);}
+#define _init_l_IO_Prim_fopenFlags___closed__8(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_IO_Prim_fopenFlags___closed__6;\
+x_2 = l_IO_Prim_fopenFlags___closed__4;\
+x_3 = lean_string_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_IO_Prim_fopenFlags___closed__8_end;\
+}\
+l_IO_Prim_fopenFlags___closed__8_end: ((void) 0);}
+#define _init_l_IO_Prim_fopenFlags___closed__9(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("r+");\
+__INIT_VAR__ = x_1; goto l_IO_Prim_fopenFlags___closed__9_end;\
+}\
+l_IO_Prim_fopenFlags___closed__9_end: ((void) 0);}
+#define _init_l_IO_Prim_fopenFlags___closed__10(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_IO_Prim_fopenFlags___closed__9;\
+x_2 = l_IO_Prim_fopenFlags___closed__2;\
+x_3 = lean_string_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_IO_Prim_fopenFlags___closed__10_end;\
+}\
+l_IO_Prim_fopenFlags___closed__10_end: ((void) 0);}
+#define _init_l_IO_Prim_fopenFlags___closed__11(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_IO_Prim_fopenFlags___closed__9;\
+x_2 = l_IO_Prim_fopenFlags___closed__4;\
+x_3 = lean_string_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_IO_Prim_fopenFlags___closed__11_end;\
+}\
+l_IO_Prim_fopenFlags___closed__11_end: ((void) 0);}
+#define _init_l_IO_Prim_fopenFlags___closed__12(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_903____closed__1;\
+x_2 = l_IO_Prim_fopenFlags___closed__2;\
+x_3 = lean_string_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_IO_Prim_fopenFlags___closed__12_end;\
+}\
+l_IO_Prim_fopenFlags___closed__12_end: ((void) 0);}
+#define _init_l_IO_Prim_fopenFlags___closed__13(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_903____closed__1;\
+x_2 = l_IO_Prim_fopenFlags___closed__4;\
+x_3 = lean_string_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_IO_Prim_fopenFlags___closed__13_end;\
+}\
+l_IO_Prim_fopenFlags___closed__13_end: ((void) 0);}
 lean_object* l_IO_Prim_fopenFlags(uint8_t x_1, uint8_t x_2) {
 _start:
 {
@@ -2631,66 +2616,60 @@ x_2 = lean_alloc_closure((void*)(l_IO_FS_Stream_putStrLn___rarg), 3, 0);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("root");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__2;
-x_3 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__3;
-x_2 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6907____closed__4;
-x_3 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("fileName");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__5;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("root");\
+__INIT_VAR__ = x_1; goto l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__1_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__1_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__1;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__2_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__2_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__2;\
+x_3 = lean_alloc_ctor(4, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__3_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__3_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__3;\
+x_2 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6907____closed__4;\
+x_3 = lean_alloc_ctor(4, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__4_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__4_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("fileName");\
+__INIT_VAR__ = x_1; goto l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__5_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__5_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__6(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__5;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__6_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__6_end: ((void) 0);}
 lean_object* l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2761,22 +2740,20 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_IO_FS_instReprDirEntry___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_IO_FS_instReprDirEntry() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_IO_FS_instReprDirEntry___closed__1;
-return x_1;
-}
-}
+#define _init_l_IO_FS_instReprDirEntry___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_IO_FS_instReprDirEntry___closed__1_end;\
+}\
+l_IO_FS_instReprDirEntry___closed__1_end: ((void) 0);}
+#define _init_l_IO_FS_instReprDirEntry(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_IO_FS_instReprDirEntry___closed__1;\
+__INIT_VAR__ = x_1; goto l_IO_FS_instReprDirEntry_end;\
+}\
+l_IO_FS_instReprDirEntry_end: ((void) 0);}
 lean_object* l_IO_FS_DirEntry_path(lean_object* x_1) {
 _start:
 {
@@ -2856,270 +2833,246 @@ x_7 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___h
 return x_7;
 }
 }
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("IO.FS.FileType.dir");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;
-x_2 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__2;
-x_3 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__4() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__3;
-x_2 = 0;
-x_3 = lean_alloc_ctor(5, 1, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_pow___closed__1;
-x_2 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__2;
-x_3 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__6() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__5;
-x_2 = 0;
-x_3 = lean_alloc_ctor(5, 1, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__7() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("IO.FS.FileType.file");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__7;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__9() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;
-x_2 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__8;
-x_3 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__10() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__9;
-x_2 = 0;
-x_3 = lean_alloc_ctor(5, 1, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__11() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_pow___closed__1;
-x_2 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__8;
-x_3 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__12() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__11;
-x_2 = 0;
-x_3 = lean_alloc_ctor(5, 1, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__13() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("IO.FS.FileType.symlink");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__14() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__13;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__15() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;
-x_2 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__14;
-x_3 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__16() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__15;
-x_2 = 0;
-x_3 = lean_alloc_ctor(5, 1, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__17() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_pow___closed__1;
-x_2 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__14;
-x_3 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__18() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__17;
-x_2 = 0;
-x_3 = lean_alloc_ctor(5, 1, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__19() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("IO.FS.FileType.other");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__20() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__19;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__21() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;
-x_2 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__20;
-x_3 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__22() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__21;
-x_2 = 0;
-x_3 = lean_alloc_ctor(5, 1, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__23() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_pow___closed__1;
-x_2 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__20;
-x_3 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__24() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__23;
-x_2 = 0;
-x_3 = lean_alloc_ctor(5, 1, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("IO.FS.FileType.dir");\
+__INIT_VAR__ = x_1; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__1_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__1_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__1;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__2_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__2_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;\
+x_2 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__2;\
+x_3 = lean_alloc_ctor(3, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__3_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__3_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; uint8_t x_2; lean_object* x_3; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__3;\
+x_2 = 0;\
+x_3 = lean_alloc_ctor(5, 1, 1);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__4_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__4_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Int_pow___closed__1;\
+x_2 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__2;\
+x_3 = lean_alloc_ctor(3, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__5_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__5_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__6(__INIT_VAR__) { \
+{\
+lean_object* x_1; uint8_t x_2; lean_object* x_3; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__5;\
+x_2 = 0;\
+x_3 = lean_alloc_ctor(5, 1, 1);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__6_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__6_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__7(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("IO.FS.FileType.file");\
+__INIT_VAR__ = x_1; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__7_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__7_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__8(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__7;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__8_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__8_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__9(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;\
+x_2 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__8;\
+x_3 = lean_alloc_ctor(3, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__9_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__9_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__10(__INIT_VAR__) { \
+{\
+lean_object* x_1; uint8_t x_2; lean_object* x_3; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__9;\
+x_2 = 0;\
+x_3 = lean_alloc_ctor(5, 1, 1);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__10_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__10_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__11(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Int_pow___closed__1;\
+x_2 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__8;\
+x_3 = lean_alloc_ctor(3, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__11_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__11_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__12(__INIT_VAR__) { \
+{\
+lean_object* x_1; uint8_t x_2; lean_object* x_3; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__11;\
+x_2 = 0;\
+x_3 = lean_alloc_ctor(5, 1, 1);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__12_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__12_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__13(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("IO.FS.FileType.symlink");\
+__INIT_VAR__ = x_1; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__13_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__13_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__14(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__13;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__14_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__14_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__15(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;\
+x_2 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__14;\
+x_3 = lean_alloc_ctor(3, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__15_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__15_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__16(__INIT_VAR__) { \
+{\
+lean_object* x_1; uint8_t x_2; lean_object* x_3; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__15;\
+x_2 = 0;\
+x_3 = lean_alloc_ctor(5, 1, 1);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__16_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__16_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__17(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Int_pow___closed__1;\
+x_2 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__14;\
+x_3 = lean_alloc_ctor(3, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__17_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__17_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__18(__INIT_VAR__) { \
+{\
+lean_object* x_1; uint8_t x_2; lean_object* x_3; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__17;\
+x_2 = 0;\
+x_3 = lean_alloc_ctor(5, 1, 1);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__18_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__18_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__19(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("IO.FS.FileType.other");\
+__INIT_VAR__ = x_1; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__19_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__19_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__20(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__19;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__20_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__20_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__21(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;\
+x_2 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__20;\
+x_3 = lean_alloc_ctor(3, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__21_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__21_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__22(__INIT_VAR__) { \
+{\
+lean_object* x_1; uint8_t x_2; lean_object* x_3; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__21;\
+x_2 = 0;\
+x_3 = lean_alloc_ctor(5, 1, 1);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__22_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__22_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__23(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Int_pow___closed__1;\
+x_2 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__20;\
+x_3 = lean_alloc_ctor(3, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__23_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__23_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__24(__INIT_VAR__) { \
+{\
+lean_object* x_1; uint8_t x_2; lean_object* x_3; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__23;\
+x_2 = 0;\
+x_3 = lean_alloc_ctor(5, 1, 1);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__24_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__24_end: ((void) 0);}
 lean_object* l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737_(uint8_t x_1, lean_object* x_2) {
 _start:
 {
@@ -3218,22 +3171,20 @@ lean_dec(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_IO_FS_instReprFileType___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_IO_FS_instReprFileType() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_IO_FS_instReprFileType___closed__1;
-return x_1;
-}
-}
+#define _init_l_IO_FS_instReprFileType___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_IO_FS_instReprFileType___closed__1_end;\
+}\
+l_IO_FS_instReprFileType___closed__1_end: ((void) 0);}
+#define _init_l_IO_FS_instReprFileType(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_IO_FS_instReprFileType___closed__1;\
+__INIT_VAR__ = x_1; goto l_IO_FS_instReprFileType_end;\
+}\
+l_IO_FS_instReprFileType_end: ((void) 0);}
 lean_object* l___private_Init_System_IO_0__IO_FS_beqFileType____x40_Init_System_IO___hyg_1855__match__1___rarg(uint8_t x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -3457,82 +3408,74 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_IO_FS_instBEqFileType___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Init_System_IO_0__IO_FS_beqFileType____x40_Init_System_IO___hyg_1855____boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_IO_FS_instBEqFileType() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_IO_FS_instBEqFileType___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("sec");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__2;
-x_3 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__3;
-x_2 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6907____closed__4;
-x_3 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("nsec");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__5;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_IO_FS_instBEqFileType___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Init_System_IO_0__IO_FS_beqFileType____x40_Init_System_IO___hyg_1855____boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_IO_FS_instBEqFileType___closed__1_end;\
+}\
+l_IO_FS_instBEqFileType___closed__1_end: ((void) 0);}
+#define _init_l_IO_FS_instBEqFileType(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_IO_FS_instBEqFileType___closed__1;\
+__INIT_VAR__ = x_1; goto l_IO_FS_instBEqFileType_end;\
+}\
+l_IO_FS_instBEqFileType_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("sec");\
+__INIT_VAR__ = x_1; goto l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__1_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__1_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__1;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__2_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__2_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__2;\
+x_3 = lean_alloc_ctor(4, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__3_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__3_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__3;\
+x_2 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6907____closed__4;\
+x_3 = lean_alloc_ctor(4, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__4_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__4_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("nsec");\
+__INIT_VAR__ = x_1; goto l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__5_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__5_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__6(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__5;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__6_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__6_end: ((void) 0);}
 lean_object* l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -3598,22 +3541,20 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_IO_FS_instReprSystemTime___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_IO_FS_instReprSystemTime() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_IO_FS_instReprSystemTime___closed__1;
-return x_1;
-}
-}
+#define _init_l_IO_FS_instReprSystemTime___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_IO_FS_instReprSystemTime___closed__1_end;\
+}\
+l_IO_FS_instReprSystemTime___closed__1_end: ((void) 0);}
+#define _init_l_IO_FS_instReprSystemTime(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_IO_FS_instReprSystemTime___closed__1;\
+__INIT_VAR__ = x_1; goto l_IO_FS_instReprSystemTime_end;\
+}\
+l_IO_FS_instReprSystemTime_end: ((void) 0);}
 lean_object* l___private_Init_System_IO_0__IO_FS_beqSystemTime____x40_Init_System_IO___hyg_2016__match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -3683,22 +3624,20 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_IO_FS_instBEqSystemTime___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Init_System_IO_0__IO_FS_beqSystemTime____x40_Init_System_IO___hyg_2016____boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_IO_FS_instBEqSystemTime() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_IO_FS_instBEqSystemTime___closed__1;
-return x_1;
-}
-}
+#define _init_l_IO_FS_instBEqSystemTime___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Init_System_IO_0__IO_FS_beqSystemTime____x40_Init_System_IO___hyg_2016____boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_IO_FS_instBEqSystemTime___closed__1_end;\
+}\
+l_IO_FS_instBEqSystemTime___closed__1_end: ((void) 0);}
+#define _init_l_IO_FS_instBEqSystemTime(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_IO_FS_instBEqSystemTime___closed__1;\
+__INIT_VAR__ = x_1; goto l_IO_FS_instBEqSystemTime_end;\
+}\
+l_IO_FS_instBEqSystemTime_end: ((void) 0);}
 lean_object* l___private_Init_System_IO_0__IO_FS_ordSystemTime____x40_Init_System_IO___hyg_2097__match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -3844,154 +3783,138 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_IO_FS_instOrdSystemTime___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Init_System_IO_0__IO_FS_ordSystemTime____x40_Init_System_IO___hyg_2097____boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_IO_FS_instOrdSystemTime() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_IO_FS_instOrdSystemTime___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_IO_FS_instInhabitedSystemTime___closed__1() {
-_start:
-{
-lean_object* x_1; uint32_t x_2; lean_object* x_3; 
-x_1 = l_Int_instInhabitedInt___closed__1;
-x_2 = l_instInhabitedUInt32___closed__1;
-x_3 = lean_alloc_ctor(0, 1, 4);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_IO_FS_instInhabitedSystemTime() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_IO_FS_instInhabitedSystemTime___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_IO_FS_instLTSystemTime() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_IO_FS_instLESystemTime() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("accessed");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__2;
-x_3 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__3;
-x_2 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6907____closed__4;
-x_3 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("modified");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__5;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__7() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("byteSize");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__7;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__9() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("type");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__10() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__9;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_IO_FS_instOrdSystemTime___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Init_System_IO_0__IO_FS_ordSystemTime____x40_Init_System_IO___hyg_2097____boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_IO_FS_instOrdSystemTime___closed__1_end;\
+}\
+l_IO_FS_instOrdSystemTime___closed__1_end: ((void) 0);}
+#define _init_l_IO_FS_instOrdSystemTime(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_IO_FS_instOrdSystemTime___closed__1;\
+__INIT_VAR__ = x_1; goto l_IO_FS_instOrdSystemTime_end;\
+}\
+l_IO_FS_instOrdSystemTime_end: ((void) 0);}
+#define _init_l_IO_FS_instInhabitedSystemTime___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; uint32_t x_2; lean_object* x_3; \
+x_1 = l_Int_instInhabitedInt___closed__1;\
+x_2 = l_instInhabitedUInt32___closed__1;\
+x_3 = lean_alloc_ctor(0, 1, 4);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_2);\
+__INIT_VAR__ = x_3; goto l_IO_FS_instInhabitedSystemTime___closed__1_end;\
+}\
+l_IO_FS_instInhabitedSystemTime___closed__1_end: ((void) 0);}
+#define _init_l_IO_FS_instInhabitedSystemTime(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_IO_FS_instInhabitedSystemTime___closed__1;\
+__INIT_VAR__ = x_1; goto l_IO_FS_instInhabitedSystemTime_end;\
+}\
+l_IO_FS_instInhabitedSystemTime_end: ((void) 0);}
+#define _init_l_IO_FS_instLTSystemTime(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_IO_FS_instLTSystemTime_end;\
+}\
+l_IO_FS_instLTSystemTime_end: ((void) 0);}
+#define _init_l_IO_FS_instLESystemTime(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_IO_FS_instLESystemTime_end;\
+}\
+l_IO_FS_instLESystemTime_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("accessed");\
+__INIT_VAR__ = x_1; goto l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__1_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__1_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__1;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__2_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__2_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__2;\
+x_3 = lean_alloc_ctor(4, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__3_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__3_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__3;\
+x_2 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_6907____closed__4;\
+x_3 = lean_alloc_ctor(4, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__4_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__4_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("modified");\
+__INIT_VAR__ = x_1; goto l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__5_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__5_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__6(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__5;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__6_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__6_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__7(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("byteSize");\
+__INIT_VAR__ = x_1; goto l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__7_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__7_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__8(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__7;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__8_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__8_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__9(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("type");\
+__INIT_VAR__ = x_1; goto l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__9_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__9_end: ((void) 0);}
+#define _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__10(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__9;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__10_end;\
+}\
+l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__10_end: ((void) 0);}
 lean_object* l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -4092,22 +4015,20 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_IO_FS_instReprMetadata___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_IO_FS_instReprMetadata() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_IO_FS_instReprMetadata___closed__1;
-return x_1;
-}
-}
+#define _init_l_IO_FS_instReprMetadata___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_IO_FS_instReprMetadata___closed__1_end;\
+}\
+l_IO_FS_instReprMetadata___closed__1_end: ((void) 0);}
+#define _init_l_IO_FS_instReprMetadata(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_IO_FS_instReprMetadata___closed__1;\
+__INIT_VAR__ = x_1; goto l_IO_FS_instReprMetadata_end;\
+}\
+l_IO_FS_instReprMetadata_end: ((void) 0);}
 lean_object* l_System_FilePath_readDir___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -4279,14 +4200,13 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_IO_getStdin___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_IO_Prim_getStdin___boxed), 1, 0);
-return x_1;
-}
-}
+#define _init_l_IO_getStdin___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_IO_Prim_getStdin___boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_IO_getStdin___rarg___closed__1_end;\
+}\
+l_IO_getStdin___rarg___closed__1_end: ((void) 0);}
 lean_object* l_IO_getStdin___rarg(lean_object* x_1) {
 _start:
 {
@@ -4304,14 +4224,13 @@ x_2 = lean_alloc_closure((void*)(l_IO_getStdin___rarg), 1, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_IO_getStdout___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_IO_Prim_getStdout___boxed), 1, 0);
-return x_1;
-}
-}
+#define _init_l_IO_getStdout___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_IO_Prim_getStdout___boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_IO_getStdout___rarg___closed__1_end;\
+}\
+l_IO_getStdout___rarg___closed__1_end: ((void) 0);}
 lean_object* l_IO_getStdout___rarg(lean_object* x_1) {
 _start:
 {
@@ -4329,14 +4248,13 @@ x_2 = lean_alloc_closure((void*)(l_IO_getStdout___rarg), 1, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_IO_getStderr___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_IO_Prim_getStderr___boxed), 1, 0);
-return x_1;
-}
-}
+#define _init_l_IO_getStderr___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_IO_Prim_getStderr___boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_IO_getStderr___rarg___closed__1_end;\
+}\
+l_IO_getStderr___rarg___closed__1_end: ((void) 0);}
 lean_object* l_IO_getStderr___rarg(lean_object* x_1) {
 _start:
 {
@@ -4883,14 +4801,13 @@ x_2 = lean_alloc_closure((void*)(l_IO_removeFile___rarg), 2, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_IO_appPath___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_IO_Prim_appPath___boxed), 1, 0);
-return x_1;
-}
-}
+#define _init_l_IO_appPath___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_IO_Prim_appPath___boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_IO_appPath___rarg___closed__1_end;\
+}\
+l_IO_appPath___rarg___closed__1_end: ((void) 0);}
 lean_object* l_IO_appPath___rarg(lean_object* x_1) {
 _start:
 {
@@ -4938,14 +4855,13 @@ x_2 = lean_alloc_closure((void*)(l_IO_appDir_match__1___rarg), 3, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_IO_appDir___rarg___lambda__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("System.IO.appDir: unexpected filename '");
-return x_1;
-}
-}
+#define _init_l_IO_appDir___rarg___lambda__1___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("System.IO.appDir: unexpected filename '");\
+__INIT_VAR__ = x_1; goto l_IO_appDir___rarg___lambda__1___closed__1_end;\
+}\
+l_IO_appDir___rarg___lambda__1___closed__1_end: ((void) 0);}
 lean_object* l_IO_appDir___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -5028,14 +4944,13 @@ lean_dec(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_IO_currentDir___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_IO_Prim_currentDir___boxed), 1, 0);
-return x_1;
-}
-}
+#define _init_l_IO_currentDir___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_IO_Prim_currentDir___boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_IO_currentDir___rarg___closed__1_end;\
+}\
+l_IO_currentDir___rarg___closed__1_end: ((void) 0);}
 lean_object* l_IO_currentDir___rarg(lean_object* x_1) {
 _start:
 {
@@ -5324,54 +5239,48 @@ x_6 = l_IO_Process_Stdio_toHandleType_match__1___rarg(x_5, x_2, x_3, x_4);
 return x_6;
 }
 }
-static uint8_t _init_l_IO_Process_StdioConfig_stdin___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
-static uint8_t _init_l_IO_Process_StdioConfig_stdout___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
-static uint8_t _init_l_IO_Process_StdioConfig_stderr___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
-static lean_object* _init_l_IO_Process_SpawnArgs_args___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Array_empty___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_IO_Process_SpawnArgs_cwd___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_IO_Process_SpawnArgs_env___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Array_empty___closed__1;
-return x_1;
-}
-}
+#define _init_l_IO_Process_StdioConfig_stdin___default(__INIT_VAR__) { \
+{\
+uint8_t x_1; \
+x_1 = 1;\
+__INIT_VAR__ = x_1; goto l_IO_Process_StdioConfig_stdin___default_end;\
+}\
+l_IO_Process_StdioConfig_stdin___default_end: ((void) 0);}
+#define _init_l_IO_Process_StdioConfig_stdout___default(__INIT_VAR__) { \
+{\
+uint8_t x_1; \
+x_1 = 1;\
+__INIT_VAR__ = x_1; goto l_IO_Process_StdioConfig_stdout___default_end;\
+}\
+l_IO_Process_StdioConfig_stdout___default_end: ((void) 0);}
+#define _init_l_IO_Process_StdioConfig_stderr___default(__INIT_VAR__) { \
+{\
+uint8_t x_1; \
+x_1 = 1;\
+__INIT_VAR__ = x_1; goto l_IO_Process_StdioConfig_stderr___default_end;\
+}\
+l_IO_Process_StdioConfig_stderr___default_end: ((void) 0);}
+#define _init_l_IO_Process_SpawnArgs_args___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Array_empty___closed__1;\
+__INIT_VAR__ = x_1; goto l_IO_Process_SpawnArgs_args___default_end;\
+}\
+l_IO_Process_SpawnArgs_args___default_end: ((void) 0);}
+#define _init_l_IO_Process_SpawnArgs_cwd___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_IO_Process_SpawnArgs_cwd___default_end;\
+}\
+l_IO_Process_SpawnArgs_cwd___default_end: ((void) 0);}
+#define _init_l_IO_Process_SpawnArgs_env___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Array_empty___closed__1;\
+__INIT_VAR__ = x_1; goto l_IO_Process_SpawnArgs_env___default_end;\
+}\
+l_IO_Process_SpawnArgs_env___default_end: ((void) 0);}
 lean_object* l_IO_Process_spawn___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -6261,22 +6170,20 @@ lean_ctor_set(x_5, 1, x_3);
 return x_5;
 }
 }
-static lean_object* _init_l_IO_Process_run___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("process '");
-return x_1;
-}
-}
-static lean_object* _init_l_IO_Process_run___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("' exited with code ");
-return x_1;
-}
-}
+#define _init_l_IO_Process_run___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("process '");\
+__INIT_VAR__ = x_1; goto l_IO_Process_run___closed__1_end;\
+}\
+l_IO_Process_run___closed__1_end: ((void) 0);}
+#define _init_l_IO_Process_run___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("' exited with code ");\
+__INIT_VAR__ = x_1; goto l_IO_Process_run___closed__2_end;\
+}\
+l_IO_Process_run___closed__2_end: ((void) 0);}
 lean_object* l_IO_Process_run(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -6408,159 +6315,143 @@ lean_dec(x_1);
 return x_4;
 }
 }
-static uint8_t _init_l_IO_AccessRight_read___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l_IO_AccessRight_write___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l_IO_AccessRight_execution___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint32_t _init_l_IO_AccessRight_flags___closed__1() {
-_start:
-{
-uint32_t x_1; uint32_t x_2; 
-x_1 = 0;
-x_2 = x_1 | x_1;
-return x_2;
-}
-}
-static uint32_t _init_l_IO_AccessRight_flags___closed__2() {
-_start:
-{
-uint32_t x_1; uint32_t x_2; uint32_t x_3; 
-x_1 = 0;
-x_2 = l_IO_AccessRight_flags___closed__1;
-x_3 = x_1 | x_2;
-return x_3;
-}
-}
-static uint32_t _init_l_IO_AccessRight_flags___closed__3() {
-_start:
-{
-uint32_t x_1; uint32_t x_2; uint32_t x_3; 
-x_1 = 0;
-x_2 = 1;
-x_3 = x_1 | x_2;
-return x_3;
-}
-}
-static uint32_t _init_l_IO_AccessRight_flags___closed__4() {
-_start:
-{
-uint32_t x_1; uint32_t x_2; uint32_t x_3; 
-x_1 = 0;
-x_2 = l_IO_AccessRight_flags___closed__3;
-x_3 = x_1 | x_2;
-return x_3;
-}
-}
-static uint32_t _init_l_IO_AccessRight_flags___closed__5() {
-_start:
-{
-uint32_t x_1; uint32_t x_2; uint32_t x_3; 
-x_1 = 0;
-x_2 = 2;
-x_3 = x_2 | x_1;
-return x_3;
-}
-}
-static uint32_t _init_l_IO_AccessRight_flags___closed__6() {
-_start:
-{
-uint32_t x_1; uint32_t x_2; uint32_t x_3; 
-x_1 = 0;
-x_2 = l_IO_AccessRight_flags___closed__5;
-x_3 = x_1 | x_2;
-return x_3;
-}
-}
-static uint32_t _init_l_IO_AccessRight_flags___closed__7() {
-_start:
-{
-uint32_t x_1; uint32_t x_2; uint32_t x_3; 
-x_1 = 2;
-x_2 = 1;
-x_3 = x_1 | x_2;
-return x_3;
-}
-}
-static uint32_t _init_l_IO_AccessRight_flags___closed__8() {
-_start:
-{
-uint32_t x_1; uint32_t x_2; uint32_t x_3; 
-x_1 = 0;
-x_2 = l_IO_AccessRight_flags___closed__7;
-x_3 = x_1 | x_2;
-return x_3;
-}
-}
-static uint32_t _init_l_IO_AccessRight_flags___closed__9() {
-_start:
-{
-uint32_t x_1; uint32_t x_2; uint32_t x_3; 
-x_1 = 4;
-x_2 = l_IO_AccessRight_flags___closed__1;
-x_3 = x_1 | x_2;
-return x_3;
-}
-}
-static uint32_t _init_l_IO_AccessRight_flags___closed__10() {
-_start:
-{
-uint32_t x_1; uint32_t x_2; uint32_t x_3; 
-x_1 = 4;
-x_2 = l_IO_AccessRight_flags___closed__3;
-x_3 = x_1 | x_2;
-return x_3;
-}
-}
-static uint32_t _init_l_IO_AccessRight_flags___closed__11() {
-_start:
-{
-uint32_t x_1; uint32_t x_2; uint32_t x_3; 
-x_1 = 2;
-x_2 = 0;
-x_3 = x_1 | x_2;
-return x_3;
-}
-}
-static uint32_t _init_l_IO_AccessRight_flags___closed__12() {
-_start:
-{
-uint32_t x_1; uint32_t x_2; uint32_t x_3; 
-x_1 = 4;
-x_2 = l_IO_AccessRight_flags___closed__11;
-x_3 = x_1 | x_2;
-return x_3;
-}
-}
-static uint32_t _init_l_IO_AccessRight_flags___closed__13() {
-_start:
-{
-uint32_t x_1; uint32_t x_2; uint32_t x_3; 
-x_1 = 4;
-x_2 = l_IO_AccessRight_flags___closed__7;
-x_3 = x_1 | x_2;
-return x_3;
-}
-}
+#define _init_l_IO_AccessRight_read___default(__INIT_VAR__) { \
+{\
+uint8_t x_1; \
+x_1 = 0;\
+__INIT_VAR__ = x_1; goto l_IO_AccessRight_read___default_end;\
+}\
+l_IO_AccessRight_read___default_end: ((void) 0);}
+#define _init_l_IO_AccessRight_write___default(__INIT_VAR__) { \
+{\
+uint8_t x_1; \
+x_1 = 0;\
+__INIT_VAR__ = x_1; goto l_IO_AccessRight_write___default_end;\
+}\
+l_IO_AccessRight_write___default_end: ((void) 0);}
+#define _init_l_IO_AccessRight_execution___default(__INIT_VAR__) { \
+{\
+uint8_t x_1; \
+x_1 = 0;\
+__INIT_VAR__ = x_1; goto l_IO_AccessRight_execution___default_end;\
+}\
+l_IO_AccessRight_execution___default_end: ((void) 0);}
+#define _init_l_IO_AccessRight_flags___closed__1(__INIT_VAR__) { \
+{\
+uint32_t x_1; uint32_t x_2; \
+x_1 = 0;\
+x_2 = x_1 | x_1;\
+__INIT_VAR__ = x_2; goto l_IO_AccessRight_flags___closed__1_end;\
+}\
+l_IO_AccessRight_flags___closed__1_end: ((void) 0);}
+#define _init_l_IO_AccessRight_flags___closed__2(__INIT_VAR__) { \
+{\
+uint32_t x_1; uint32_t x_2; uint32_t x_3; \
+x_1 = 0;\
+x_2 = l_IO_AccessRight_flags___closed__1;\
+x_3 = x_1 | x_2;\
+__INIT_VAR__ = x_3; goto l_IO_AccessRight_flags___closed__2_end;\
+}\
+l_IO_AccessRight_flags___closed__2_end: ((void) 0);}
+#define _init_l_IO_AccessRight_flags___closed__3(__INIT_VAR__) { \
+{\
+uint32_t x_1; uint32_t x_2; uint32_t x_3; \
+x_1 = 0;\
+x_2 = 1;\
+x_3 = x_1 | x_2;\
+__INIT_VAR__ = x_3; goto l_IO_AccessRight_flags___closed__3_end;\
+}\
+l_IO_AccessRight_flags___closed__3_end: ((void) 0);}
+#define _init_l_IO_AccessRight_flags___closed__4(__INIT_VAR__) { \
+{\
+uint32_t x_1; uint32_t x_2; uint32_t x_3; \
+x_1 = 0;\
+x_2 = l_IO_AccessRight_flags___closed__3;\
+x_3 = x_1 | x_2;\
+__INIT_VAR__ = x_3; goto l_IO_AccessRight_flags___closed__4_end;\
+}\
+l_IO_AccessRight_flags___closed__4_end: ((void) 0);}
+#define _init_l_IO_AccessRight_flags___closed__5(__INIT_VAR__) { \
+{\
+uint32_t x_1; uint32_t x_2; uint32_t x_3; \
+x_1 = 0;\
+x_2 = 2;\
+x_3 = x_2 | x_1;\
+__INIT_VAR__ = x_3; goto l_IO_AccessRight_flags___closed__5_end;\
+}\
+l_IO_AccessRight_flags___closed__5_end: ((void) 0);}
+#define _init_l_IO_AccessRight_flags___closed__6(__INIT_VAR__) { \
+{\
+uint32_t x_1; uint32_t x_2; uint32_t x_3; \
+x_1 = 0;\
+x_2 = l_IO_AccessRight_flags___closed__5;\
+x_3 = x_1 | x_2;\
+__INIT_VAR__ = x_3; goto l_IO_AccessRight_flags___closed__6_end;\
+}\
+l_IO_AccessRight_flags___closed__6_end: ((void) 0);}
+#define _init_l_IO_AccessRight_flags___closed__7(__INIT_VAR__) { \
+{\
+uint32_t x_1; uint32_t x_2; uint32_t x_3; \
+x_1 = 2;\
+x_2 = 1;\
+x_3 = x_1 | x_2;\
+__INIT_VAR__ = x_3; goto l_IO_AccessRight_flags___closed__7_end;\
+}\
+l_IO_AccessRight_flags___closed__7_end: ((void) 0);}
+#define _init_l_IO_AccessRight_flags___closed__8(__INIT_VAR__) { \
+{\
+uint32_t x_1; uint32_t x_2; uint32_t x_3; \
+x_1 = 0;\
+x_2 = l_IO_AccessRight_flags___closed__7;\
+x_3 = x_1 | x_2;\
+__INIT_VAR__ = x_3; goto l_IO_AccessRight_flags___closed__8_end;\
+}\
+l_IO_AccessRight_flags___closed__8_end: ((void) 0);}
+#define _init_l_IO_AccessRight_flags___closed__9(__INIT_VAR__) { \
+{\
+uint32_t x_1; uint32_t x_2; uint32_t x_3; \
+x_1 = 4;\
+x_2 = l_IO_AccessRight_flags___closed__1;\
+x_3 = x_1 | x_2;\
+__INIT_VAR__ = x_3; goto l_IO_AccessRight_flags___closed__9_end;\
+}\
+l_IO_AccessRight_flags___closed__9_end: ((void) 0);}
+#define _init_l_IO_AccessRight_flags___closed__10(__INIT_VAR__) { \
+{\
+uint32_t x_1; uint32_t x_2; uint32_t x_3; \
+x_1 = 4;\
+x_2 = l_IO_AccessRight_flags___closed__3;\
+x_3 = x_1 | x_2;\
+__INIT_VAR__ = x_3; goto l_IO_AccessRight_flags___closed__10_end;\
+}\
+l_IO_AccessRight_flags___closed__10_end: ((void) 0);}
+#define _init_l_IO_AccessRight_flags___closed__11(__INIT_VAR__) { \
+{\
+uint32_t x_1; uint32_t x_2; uint32_t x_3; \
+x_1 = 2;\
+x_2 = 0;\
+x_3 = x_1 | x_2;\
+__INIT_VAR__ = x_3; goto l_IO_AccessRight_flags___closed__11_end;\
+}\
+l_IO_AccessRight_flags___closed__11_end: ((void) 0);}
+#define _init_l_IO_AccessRight_flags___closed__12(__INIT_VAR__) { \
+{\
+uint32_t x_1; uint32_t x_2; uint32_t x_3; \
+x_1 = 4;\
+x_2 = l_IO_AccessRight_flags___closed__11;\
+x_3 = x_1 | x_2;\
+__INIT_VAR__ = x_3; goto l_IO_AccessRight_flags___closed__12_end;\
+}\
+l_IO_AccessRight_flags___closed__12_end: ((void) 0);}
+#define _init_l_IO_AccessRight_flags___closed__13(__INIT_VAR__) { \
+{\
+uint32_t x_1; uint32_t x_2; uint32_t x_3; \
+x_1 = 4;\
+x_2 = l_IO_AccessRight_flags___closed__7;\
+x_3 = x_1 | x_2;\
+__INIT_VAR__ = x_3; goto l_IO_AccessRight_flags___closed__13_end;\
+}\
+l_IO_AccessRight_flags___closed__13_end: ((void) 0);}
 uint32_t l_IO_AccessRight_flags(lean_object* x_1) {
 _start:
 {
@@ -6656,42 +6547,38 @@ x_3 = lean_box_uint32(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_IO_FileRight_user___default___closed__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_alloc_ctor(0, 0, 3);
-lean_ctor_set_uint8(x_2, 0, x_1);
-lean_ctor_set_uint8(x_2, 1, x_1);
-lean_ctor_set_uint8(x_2, 2, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_IO_FileRight_user___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_IO_FileRight_user___default___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_IO_FileRight_group___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_IO_FileRight_user___default___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_IO_FileRight_other___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_IO_FileRight_user___default___closed__1;
-return x_1;
-}
-}
+#define _init_l_IO_FileRight_user___default___closed__1(__INIT_VAR__) { \
+{\
+uint8_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_alloc_ctor(0, 0, 3);\
+lean_ctor_set_uint8(x_2, 0, x_1);\
+lean_ctor_set_uint8(x_2, 1, x_1);\
+lean_ctor_set_uint8(x_2, 2, x_1);\
+__INIT_VAR__ = x_2; goto l_IO_FileRight_user___default___closed__1_end;\
+}\
+l_IO_FileRight_user___default___closed__1_end: ((void) 0);}
+#define _init_l_IO_FileRight_user___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_IO_FileRight_user___default___closed__1;\
+__INIT_VAR__ = x_1; goto l_IO_FileRight_user___default_end;\
+}\
+l_IO_FileRight_user___default_end: ((void) 0);}
+#define _init_l_IO_FileRight_group___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_IO_FileRight_user___default___closed__1;\
+__INIT_VAR__ = x_1; goto l_IO_FileRight_group___default_end;\
+}\
+l_IO_FileRight_group___default_end: ((void) 0);}
+#define _init_l_IO_FileRight_other___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_IO_FileRight_user___default___closed__1;\
+__INIT_VAR__ = x_1; goto l_IO_FileRight_other___default_end;\
+}\
+l_IO_FileRight_other___default_end: ((void) 0);}
 uint32_t l_IO_FileRight_flags(lean_object* x_1) {
 _start:
 {
@@ -7003,22 +6890,20 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_IO_FS_Stream_Buffer_data___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_ByteArray_empty;
-return x_1;
-}
-}
-static lean_object* _init_l_IO_FS_Stream_Buffer_pos___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(0u);
-return x_1;
-}
-}
+#define _init_l_IO_FS_Stream_Buffer_data___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_ByteArray_empty;\
+__INIT_VAR__ = x_1; goto l_IO_FS_Stream_Buffer_data___default_end;\
+}\
+l_IO_FS_Stream_Buffer_data___default_end: ((void) 0);}
+#define _init_l_IO_FS_Stream_Buffer_pos___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_unsigned_to_nat(0u);\
+__INIT_VAR__ = x_1; goto l_IO_FS_Stream_Buffer_pos___default_end;\
+}\
+l_IO_FS_Stream_Buffer_pos___default_end: ((void) 0);}
 lean_object* l_IO_FS_Stream_ofBuffer_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -7638,14 +7523,13 @@ return x_7;
 }
 }
 }
-static lean_object* _init_l_IO_FS_Stream_ofBuffer___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_IO_FS_Stream_ofBuffer___elambda__5), 1, 0);
-return x_1;
-}
-}
+#define _init_l_IO_FS_Stream_ofBuffer___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_IO_FS_Stream_ofBuffer___elambda__5), 1, 0);\
+__INIT_VAR__ = x_1; goto l_IO_FS_Stream_ofBuffer___closed__1_end;\
+}\
+l_IO_FS_Stream_ofBuffer___closed__1_end: ((void) 0);}
 lean_object* l_IO_FS_Stream_ofBuffer(lean_object* x_1) {
 _start:
 {
@@ -8328,34 +8212,31 @@ lean_ctor_set(x_4, 1, x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_IO_FS_withIsolatedStreams___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_ByteArray_empty;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_IO_FS_withIsolatedStreams___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_IO_FS_withIsolatedStreams___rarg___lambda__1), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_IO_FS_withIsolatedStreams___rarg___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_IO_FS_withIsolatedStreams___rarg___lambda__2), 2, 0);
-return x_1;
-}
-}
+#define _init_l_IO_FS_withIsolatedStreams___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_ByteArray_empty;\
+x_2 = lean_unsigned_to_nat(0u);\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_IO_FS_withIsolatedStreams___rarg___closed__1_end;\
+}\
+l_IO_FS_withIsolatedStreams___rarg___closed__1_end: ((void) 0);}
+#define _init_l_IO_FS_withIsolatedStreams___rarg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_IO_FS_withIsolatedStreams___rarg___lambda__1), 2, 0);\
+__INIT_VAR__ = x_1; goto l_IO_FS_withIsolatedStreams___rarg___closed__2_end;\
+}\
+l_IO_FS_withIsolatedStreams___rarg___closed__2_end: ((void) 0);}
+#define _init_l_IO_FS_withIsolatedStreams___rarg___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_IO_FS_withIsolatedStreams___rarg___lambda__2), 2, 0);\
+__INIT_VAR__ = x_1; goto l_IO_FS_withIsolatedStreams___rarg___closed__3_end;\
+}\
+l_IO_FS_withIsolatedStreams___rarg___closed__3_end: ((void) 0);}
 lean_object* l_IO_FS_withIsolatedStreams___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -8685,295 +8566,268 @@ x_2 = lean_alloc_closure((void*)(l_Lean_runEval___rarg), 3, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_termPrintln_x21_______closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("termPrintln!__");
-return x_1;
-}
-}
-static lean_object* _init_l_termPrintln_x21_______closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_termPrintln_x21_______closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_termPrintln_x21_______closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("println! ");
-return x_1;
-}
-}
-static lean_object* _init_l_termPrintln_x21_______closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_termPrintln_x21_______closed__3;
-x_2 = lean_alloc_ctor(5, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_termPrintln_x21_______closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_1198____closed__6;
-x_2 = l_termS_x21_____closed__7;
-x_3 = l_termDepIfThenElse___closed__14;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_termPrintln_x21_______closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Syntax_addPrec___closed__10;
-x_2 = l_termPrintln_x21_______closed__4;
-x_3 = l_termPrintln_x21_______closed__5;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_termPrintln_x21_______closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_termPrintln_x21_______closed__2;
-x_2 = lean_unsigned_to_nat(1022u);
-x_3 = l_termPrintln_x21_______closed__6;
-x_4 = lean_alloc_ctor(3, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_termPrintln_x21____() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_termPrintln_x21_______closed__7;
-return x_1;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("IO.println");
-return x_1;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__1;
-x_2 = lean_string_utf8_byte_size(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__1;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__2;
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("IO");
-return x_1;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__4;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__6() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("println");
-return x_1;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__5;
-x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__6;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__7;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__9() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__8;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__10() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__4;
-x_2 = lean_string_utf8_byte_size(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__11() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__4;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__10;
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__12() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__5;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__13() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__12;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__14() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Unit");
-return x_1;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__15() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__14;
-x_2 = lean_string_utf8_byte_size(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__16() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__14;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__15;
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__17() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__14;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__18() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__17;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__19() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__18;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
+#define _init_l_termPrintln_x21_______closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("termPrintln!__");\
+__INIT_VAR__ = x_1; goto l_termPrintln_x21_______closed__1_end;\
+}\
+l_termPrintln_x21_______closed__1_end: ((void) 0);}
+#define _init_l_termPrintln_x21_______closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_termPrintln_x21_______closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_termPrintln_x21_______closed__2_end;\
+}\
+l_termPrintln_x21_______closed__2_end: ((void) 0);}
+#define _init_l_termPrintln_x21_______closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("println! ");\
+__INIT_VAR__ = x_1; goto l_termPrintln_x21_______closed__3_end;\
+}\
+l_termPrintln_x21_______closed__3_end: ((void) 0);}
+#define _init_l_termPrintln_x21_______closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_termPrintln_x21_______closed__3;\
+x_2 = lean_alloc_ctor(5, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_termPrintln_x21_______closed__4_end;\
+}\
+l_termPrintln_x21_______closed__4_end: ((void) 0);}
+#define _init_l_termPrintln_x21_______closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; \
+x_1 = l_myMacro____x40_Init_Notation___hyg_1198____closed__6;\
+x_2 = l_termS_x21_____closed__7;\
+x_3 = l_termDepIfThenElse___closed__14;\
+x_4 = lean_alloc_ctor(2, 3, 0);\
+lean_ctor_set(x_4, 0, x_1);\
+lean_ctor_set(x_4, 1, x_2);\
+lean_ctor_set(x_4, 2, x_3);\
+__INIT_VAR__ = x_4; goto l_termPrintln_x21_______closed__5_end;\
+}\
+l_termPrintln_x21_______closed__5_end: ((void) 0);}
+#define _init_l_termPrintln_x21_______closed__6(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; \
+x_1 = l_Lean_Parser_Syntax_addPrec___closed__10;\
+x_2 = l_termPrintln_x21_______closed__4;\
+x_3 = l_termPrintln_x21_______closed__5;\
+x_4 = lean_alloc_ctor(2, 3, 0);\
+lean_ctor_set(x_4, 0, x_1);\
+lean_ctor_set(x_4, 1, x_2);\
+lean_ctor_set(x_4, 2, x_3);\
+__INIT_VAR__ = x_4; goto l_termPrintln_x21_______closed__6_end;\
+}\
+l_termPrintln_x21_______closed__6_end: ((void) 0);}
+#define _init_l_termPrintln_x21_______closed__7(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; \
+x_1 = l_termPrintln_x21_______closed__2;\
+x_2 = lean_unsigned_to_nat(1022u);\
+x_3 = l_termPrintln_x21_______closed__6;\
+x_4 = lean_alloc_ctor(3, 3, 0);\
+lean_ctor_set(x_4, 0, x_1);\
+lean_ctor_set(x_4, 1, x_2);\
+lean_ctor_set(x_4, 2, x_3);\
+__INIT_VAR__ = x_4; goto l_termPrintln_x21_______closed__7_end;\
+}\
+l_termPrintln_x21_______closed__7_end: ((void) 0);}
+#define _init_l_termPrintln_x21____(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_termPrintln_x21_______closed__7;\
+__INIT_VAR__ = x_1; goto l_termPrintln_x21_____end;\
+}\
+l_termPrintln_x21_____end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("IO.println");\
+__INIT_VAR__ = x_1; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__1_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__1_end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__1;\
+x_2 = lean_string_utf8_byte_size(x_1);\
+__INIT_VAR__ = x_2; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__2_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__2_end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; \
+x_1 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__1;\
+x_2 = lean_unsigned_to_nat(0u);\
+x_3 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__2;\
+x_4 = lean_alloc_ctor(0, 3, 0);\
+lean_ctor_set(x_4, 0, x_1);\
+lean_ctor_set(x_4, 1, x_2);\
+lean_ctor_set(x_4, 2, x_3);\
+__INIT_VAR__ = x_4; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__3_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__3_end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("IO");\
+__INIT_VAR__ = x_1; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__4_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__4_end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__4;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__5_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__5_end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__6(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("println");\
+__INIT_VAR__ = x_1; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__6_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__6_end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__7(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__5;\
+x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__6;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__7_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__7_end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__8(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__7;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_2);\
+lean_ctor_set(x_3, 1, x_1);\
+__INIT_VAR__ = x_3; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__8_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__8_end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__9(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__8;\
+x_3 = lean_alloc_ctor(1, 2, 0);\
+lean_ctor_set(x_3, 0, x_2);\
+lean_ctor_set(x_3, 1, x_1);\
+__INIT_VAR__ = x_3; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__9_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__9_end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__10(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__4;\
+x_2 = lean_string_utf8_byte_size(x_1);\
+__INIT_VAR__ = x_2; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__10_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__10_end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__11(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; \
+x_1 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__4;\
+x_2 = lean_unsigned_to_nat(0u);\
+x_3 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__10;\
+x_4 = lean_alloc_ctor(0, 3, 0);\
+lean_ctor_set(x_4, 0, x_1);\
+lean_ctor_set(x_4, 1, x_2);\
+lean_ctor_set(x_4, 2, x_3);\
+__INIT_VAR__ = x_4; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__11_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__11_end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__12(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__5;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_2);\
+lean_ctor_set(x_3, 1, x_1);\
+__INIT_VAR__ = x_3; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__12_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__12_end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__13(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__12;\
+x_3 = lean_alloc_ctor(1, 2, 0);\
+lean_ctor_set(x_3, 0, x_2);\
+lean_ctor_set(x_3, 1, x_1);\
+__INIT_VAR__ = x_3; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__13_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__13_end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__14(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Unit");\
+__INIT_VAR__ = x_1; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__14_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__14_end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__15(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__14;\
+x_2 = lean_string_utf8_byte_size(x_1);\
+__INIT_VAR__ = x_2; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__15_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__15_end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__16(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; \
+x_1 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__14;\
+x_2 = lean_unsigned_to_nat(0u);\
+x_3 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__15;\
+x_4 = lean_alloc_ctor(0, 3, 0);\
+lean_ctor_set(x_4, 0, x_1);\
+lean_ctor_set(x_4, 1, x_2);\
+lean_ctor_set(x_4, 2, x_3);\
+__INIT_VAR__ = x_4; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__16_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__16_end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__17(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__14;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__17_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__17_end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__18(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__17;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_2);\
+lean_ctor_set(x_3, 1, x_1);\
+__INIT_VAR__ = x_3; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__18_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__18_end: ((void) 0);}
+#define _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__19(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_myMacro____x40_Init_System_IO___hyg_4276____closed__18;\
+x_3 = lean_alloc_ctor(1, 2, 0);\
+lean_ctor_set(x_3, 0, x_2);\
+lean_ctor_set(x_3, 1, x_1);\
+__INIT_VAR__ = x_3; goto l_myMacro____x40_Init_System_IO___hyg_4276____closed__19_end;\
+}\
+l_myMacro____x40_Init_System_IO___hyg_4276____closed__19_end: ((void) 0);}
 lean_object* l_myMacro____x40_Init_System_IO___hyg_4276_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -9539,278 +9393,278 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Ord(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_instMonadFinallyEIO___closed__1 = _init_l_instMonadFinallyEIO___closed__1();
+_init_l_instMonadFinallyEIO___closed__1(l_instMonadFinallyEIO___closed__1);
 lean_mark_persistent(l_instMonadFinallyEIO___closed__1);
-l_instOrElseEIO___closed__1 = _init_l_instOrElseEIO___closed__1();
+_init_l_instOrElseEIO___closed__1(l_instOrElseEIO___closed__1);
 lean_mark_persistent(l_instOrElseEIO___closed__1);
-l_IO_Prim_fopenFlags___closed__1 = _init_l_IO_Prim_fopenFlags___closed__1();
+_init_l_IO_Prim_fopenFlags___closed__1(l_IO_Prim_fopenFlags___closed__1);
 lean_mark_persistent(l_IO_Prim_fopenFlags___closed__1);
-l_IO_Prim_fopenFlags___closed__2 = _init_l_IO_Prim_fopenFlags___closed__2();
+_init_l_IO_Prim_fopenFlags___closed__2(l_IO_Prim_fopenFlags___closed__2);
 lean_mark_persistent(l_IO_Prim_fopenFlags___closed__2);
-l_IO_Prim_fopenFlags___closed__3 = _init_l_IO_Prim_fopenFlags___closed__3();
+_init_l_IO_Prim_fopenFlags___closed__3(l_IO_Prim_fopenFlags___closed__3);
 lean_mark_persistent(l_IO_Prim_fopenFlags___closed__3);
-l_IO_Prim_fopenFlags___closed__4 = _init_l_IO_Prim_fopenFlags___closed__4();
+_init_l_IO_Prim_fopenFlags___closed__4(l_IO_Prim_fopenFlags___closed__4);
 lean_mark_persistent(l_IO_Prim_fopenFlags___closed__4);
-l_IO_Prim_fopenFlags___closed__5 = _init_l_IO_Prim_fopenFlags___closed__5();
+_init_l_IO_Prim_fopenFlags___closed__5(l_IO_Prim_fopenFlags___closed__5);
 lean_mark_persistent(l_IO_Prim_fopenFlags___closed__5);
-l_IO_Prim_fopenFlags___closed__6 = _init_l_IO_Prim_fopenFlags___closed__6();
+_init_l_IO_Prim_fopenFlags___closed__6(l_IO_Prim_fopenFlags___closed__6);
 lean_mark_persistent(l_IO_Prim_fopenFlags___closed__6);
-l_IO_Prim_fopenFlags___closed__7 = _init_l_IO_Prim_fopenFlags___closed__7();
+_init_l_IO_Prim_fopenFlags___closed__7(l_IO_Prim_fopenFlags___closed__7);
 lean_mark_persistent(l_IO_Prim_fopenFlags___closed__7);
-l_IO_Prim_fopenFlags___closed__8 = _init_l_IO_Prim_fopenFlags___closed__8();
+_init_l_IO_Prim_fopenFlags___closed__8(l_IO_Prim_fopenFlags___closed__8);
 lean_mark_persistent(l_IO_Prim_fopenFlags___closed__8);
-l_IO_Prim_fopenFlags___closed__9 = _init_l_IO_Prim_fopenFlags___closed__9();
+_init_l_IO_Prim_fopenFlags___closed__9(l_IO_Prim_fopenFlags___closed__9);
 lean_mark_persistent(l_IO_Prim_fopenFlags___closed__9);
-l_IO_Prim_fopenFlags___closed__10 = _init_l_IO_Prim_fopenFlags___closed__10();
+_init_l_IO_Prim_fopenFlags___closed__10(l_IO_Prim_fopenFlags___closed__10);
 lean_mark_persistent(l_IO_Prim_fopenFlags___closed__10);
-l_IO_Prim_fopenFlags___closed__11 = _init_l_IO_Prim_fopenFlags___closed__11();
+_init_l_IO_Prim_fopenFlags___closed__11(l_IO_Prim_fopenFlags___closed__11);
 lean_mark_persistent(l_IO_Prim_fopenFlags___closed__11);
-l_IO_Prim_fopenFlags___closed__12 = _init_l_IO_Prim_fopenFlags___closed__12();
+_init_l_IO_Prim_fopenFlags___closed__12(l_IO_Prim_fopenFlags___closed__12);
 lean_mark_persistent(l_IO_Prim_fopenFlags___closed__12);
-l_IO_Prim_fopenFlags___closed__13 = _init_l_IO_Prim_fopenFlags___closed__13();
+_init_l_IO_Prim_fopenFlags___closed__13(l_IO_Prim_fopenFlags___closed__13);
 lean_mark_persistent(l_IO_Prim_fopenFlags___closed__13);
-l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__1 = _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__1();
+_init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__1(l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__1);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__1);
-l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__2 = _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__2();
+_init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__2(l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__2);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__2);
-l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__3 = _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__3();
+_init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__3(l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__3);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__3);
-l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__4 = _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__4();
+_init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__4(l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__4);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__4);
-l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__5 = _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__5();
+_init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__5(l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__5);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__5);
-l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__6 = _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__6();
+_init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__6(l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__6);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__6);
-l_IO_FS_instReprDirEntry___closed__1 = _init_l_IO_FS_instReprDirEntry___closed__1();
+_init_l_IO_FS_instReprDirEntry___closed__1(l_IO_FS_instReprDirEntry___closed__1);
 lean_mark_persistent(l_IO_FS_instReprDirEntry___closed__1);
-l_IO_FS_instReprDirEntry = _init_l_IO_FS_instReprDirEntry();
+_init_l_IO_FS_instReprDirEntry(l_IO_FS_instReprDirEntry);
 lean_mark_persistent(l_IO_FS_instReprDirEntry);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__1 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__1();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__1(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__1);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__1);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__2 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__2();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__2(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__2);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__2);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__3 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__3();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__3(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__3);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__3);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__4 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__4();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__4(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__4);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__4);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__5 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__5();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__5(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__5);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__5);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__6 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__6();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__6(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__6);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__6);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__7 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__7();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__7(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__7);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__7);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__8 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__8();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__8(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__8);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__8);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__9 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__9();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__9(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__9);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__9);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__10 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__10();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__10(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__10);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__10);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__11 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__11();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__11(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__11);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__11);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__12 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__12();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__12(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__12);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__12);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__13 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__13();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__13(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__13);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__13);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__14 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__14();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__14(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__14);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__14);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__15 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__15();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__15(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__15);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__15);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__16 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__16();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__16(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__16);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__16);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__17 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__17();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__17(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__17);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__17);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__18 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__18();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__18(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__18);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__18);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__19 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__19();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__19(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__19);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__19);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__20 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__20();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__20(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__20);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__20);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__21 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__21();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__21(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__21);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__21);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__22 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__22();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__22(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__22);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__22);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__23 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__23();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__23(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__23);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__23);
-l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__24 = _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__24();
+_init_l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__24(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__24);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_1737____closed__24);
-l_IO_FS_instReprFileType___closed__1 = _init_l_IO_FS_instReprFileType___closed__1();
+_init_l_IO_FS_instReprFileType___closed__1(l_IO_FS_instReprFileType___closed__1);
 lean_mark_persistent(l_IO_FS_instReprFileType___closed__1);
-l_IO_FS_instReprFileType = _init_l_IO_FS_instReprFileType();
+_init_l_IO_FS_instReprFileType(l_IO_FS_instReprFileType);
 lean_mark_persistent(l_IO_FS_instReprFileType);
-l_IO_FS_instBEqFileType___closed__1 = _init_l_IO_FS_instBEqFileType___closed__1();
+_init_l_IO_FS_instBEqFileType___closed__1(l_IO_FS_instBEqFileType___closed__1);
 lean_mark_persistent(l_IO_FS_instBEqFileType___closed__1);
-l_IO_FS_instBEqFileType = _init_l_IO_FS_instBEqFileType();
+_init_l_IO_FS_instBEqFileType(l_IO_FS_instBEqFileType);
 lean_mark_persistent(l_IO_FS_instBEqFileType);
-l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__1 = _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__1();
+_init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__1(l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__1);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__1);
-l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__2 = _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__2();
+_init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__2(l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__2);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__2);
-l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__3 = _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__3();
+_init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__3(l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__3);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__3);
-l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__4 = _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__4();
+_init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__4(l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__4);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__4);
-l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__5 = _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__5();
+_init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__5(l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__5);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__5);
-l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__6 = _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__6();
+_init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__6(l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__6);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_1952____closed__6);
-l_IO_FS_instReprSystemTime___closed__1 = _init_l_IO_FS_instReprSystemTime___closed__1();
+_init_l_IO_FS_instReprSystemTime___closed__1(l_IO_FS_instReprSystemTime___closed__1);
 lean_mark_persistent(l_IO_FS_instReprSystemTime___closed__1);
-l_IO_FS_instReprSystemTime = _init_l_IO_FS_instReprSystemTime();
+_init_l_IO_FS_instReprSystemTime(l_IO_FS_instReprSystemTime);
 lean_mark_persistent(l_IO_FS_instReprSystemTime);
-l_IO_FS_instBEqSystemTime___closed__1 = _init_l_IO_FS_instBEqSystemTime___closed__1();
+_init_l_IO_FS_instBEqSystemTime___closed__1(l_IO_FS_instBEqSystemTime___closed__1);
 lean_mark_persistent(l_IO_FS_instBEqSystemTime___closed__1);
-l_IO_FS_instBEqSystemTime = _init_l_IO_FS_instBEqSystemTime();
+_init_l_IO_FS_instBEqSystemTime(l_IO_FS_instBEqSystemTime);
 lean_mark_persistent(l_IO_FS_instBEqSystemTime);
-l_IO_FS_instOrdSystemTime___closed__1 = _init_l_IO_FS_instOrdSystemTime___closed__1();
+_init_l_IO_FS_instOrdSystemTime___closed__1(l_IO_FS_instOrdSystemTime___closed__1);
 lean_mark_persistent(l_IO_FS_instOrdSystemTime___closed__1);
-l_IO_FS_instOrdSystemTime = _init_l_IO_FS_instOrdSystemTime();
+_init_l_IO_FS_instOrdSystemTime(l_IO_FS_instOrdSystemTime);
 lean_mark_persistent(l_IO_FS_instOrdSystemTime);
-l_IO_FS_instInhabitedSystemTime___closed__1 = _init_l_IO_FS_instInhabitedSystemTime___closed__1();
+_init_l_IO_FS_instInhabitedSystemTime___closed__1(l_IO_FS_instInhabitedSystemTime___closed__1);
 lean_mark_persistent(l_IO_FS_instInhabitedSystemTime___closed__1);
-l_IO_FS_instInhabitedSystemTime = _init_l_IO_FS_instInhabitedSystemTime();
+_init_l_IO_FS_instInhabitedSystemTime(l_IO_FS_instInhabitedSystemTime);
 lean_mark_persistent(l_IO_FS_instInhabitedSystemTime);
-l_IO_FS_instLTSystemTime = _init_l_IO_FS_instLTSystemTime();
+_init_l_IO_FS_instLTSystemTime(l_IO_FS_instLTSystemTime);
 lean_mark_persistent(l_IO_FS_instLTSystemTime);
-l_IO_FS_instLESystemTime = _init_l_IO_FS_instLESystemTime();
+_init_l_IO_FS_instLESystemTime(l_IO_FS_instLESystemTime);
 lean_mark_persistent(l_IO_FS_instLESystemTime);
-l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__1 = _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__1();
+_init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__1(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__1);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__1);
-l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__2 = _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__2();
+_init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__2(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__2);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__2);
-l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__3 = _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__3();
+_init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__3(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__3);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__3);
-l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__4 = _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__4();
+_init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__4(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__4);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__4);
-l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__5 = _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__5();
+_init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__5(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__5);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__5);
-l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__6 = _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__6();
+_init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__6(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__6);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__6);
-l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__7 = _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__7();
+_init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__7(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__7);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__7);
-l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__8 = _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__8();
+_init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__8(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__8);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__8);
-l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__9 = _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__9();
+_init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__9(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__9);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__9);
-l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__10 = _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__10();
+_init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__10(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__10);
 lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2280____closed__10);
-l_IO_FS_instReprMetadata___closed__1 = _init_l_IO_FS_instReprMetadata___closed__1();
+_init_l_IO_FS_instReprMetadata___closed__1(l_IO_FS_instReprMetadata___closed__1);
 lean_mark_persistent(l_IO_FS_instReprMetadata___closed__1);
-l_IO_FS_instReprMetadata = _init_l_IO_FS_instReprMetadata();
+_init_l_IO_FS_instReprMetadata(l_IO_FS_instReprMetadata);
 lean_mark_persistent(l_IO_FS_instReprMetadata);
-l_IO_getStdin___rarg___closed__1 = _init_l_IO_getStdin___rarg___closed__1();
+_init_l_IO_getStdin___rarg___closed__1(l_IO_getStdin___rarg___closed__1);
 lean_mark_persistent(l_IO_getStdin___rarg___closed__1);
-l_IO_getStdout___rarg___closed__1 = _init_l_IO_getStdout___rarg___closed__1();
+_init_l_IO_getStdout___rarg___closed__1(l_IO_getStdout___rarg___closed__1);
 lean_mark_persistent(l_IO_getStdout___rarg___closed__1);
-l_IO_getStderr___rarg___closed__1 = _init_l_IO_getStderr___rarg___closed__1();
+_init_l_IO_getStderr___rarg___closed__1(l_IO_getStderr___rarg___closed__1);
 lean_mark_persistent(l_IO_getStderr___rarg___closed__1);
-l_IO_appPath___rarg___closed__1 = _init_l_IO_appPath___rarg___closed__1();
+_init_l_IO_appPath___rarg___closed__1(l_IO_appPath___rarg___closed__1);
 lean_mark_persistent(l_IO_appPath___rarg___closed__1);
-l_IO_appDir___rarg___lambda__1___closed__1 = _init_l_IO_appDir___rarg___lambda__1___closed__1();
+_init_l_IO_appDir___rarg___lambda__1___closed__1(l_IO_appDir___rarg___lambda__1___closed__1);
 lean_mark_persistent(l_IO_appDir___rarg___lambda__1___closed__1);
-l_IO_currentDir___rarg___closed__1 = _init_l_IO_currentDir___rarg___closed__1();
+_init_l_IO_currentDir___rarg___closed__1(l_IO_currentDir___rarg___closed__1);
 lean_mark_persistent(l_IO_currentDir___rarg___closed__1);
-l_IO_Process_StdioConfig_stdin___default = _init_l_IO_Process_StdioConfig_stdin___default();
-l_IO_Process_StdioConfig_stdout___default = _init_l_IO_Process_StdioConfig_stdout___default();
-l_IO_Process_StdioConfig_stderr___default = _init_l_IO_Process_StdioConfig_stderr___default();
-l_IO_Process_SpawnArgs_args___default = _init_l_IO_Process_SpawnArgs_args___default();
+_init_l_IO_Process_StdioConfig_stdin___default(l_IO_Process_StdioConfig_stdin___default);
+_init_l_IO_Process_StdioConfig_stdout___default(l_IO_Process_StdioConfig_stdout___default);
+_init_l_IO_Process_StdioConfig_stderr___default(l_IO_Process_StdioConfig_stderr___default);
+_init_l_IO_Process_SpawnArgs_args___default(l_IO_Process_SpawnArgs_args___default);
 lean_mark_persistent(l_IO_Process_SpawnArgs_args___default);
-l_IO_Process_SpawnArgs_cwd___default = _init_l_IO_Process_SpawnArgs_cwd___default();
+_init_l_IO_Process_SpawnArgs_cwd___default(l_IO_Process_SpawnArgs_cwd___default);
 lean_mark_persistent(l_IO_Process_SpawnArgs_cwd___default);
-l_IO_Process_SpawnArgs_env___default = _init_l_IO_Process_SpawnArgs_env___default();
+_init_l_IO_Process_SpawnArgs_env___default(l_IO_Process_SpawnArgs_env___default);
 lean_mark_persistent(l_IO_Process_SpawnArgs_env___default);
-l_IO_Process_run___closed__1 = _init_l_IO_Process_run___closed__1();
+_init_l_IO_Process_run___closed__1(l_IO_Process_run___closed__1);
 lean_mark_persistent(l_IO_Process_run___closed__1);
-l_IO_Process_run___closed__2 = _init_l_IO_Process_run___closed__2();
+_init_l_IO_Process_run___closed__2(l_IO_Process_run___closed__2);
 lean_mark_persistent(l_IO_Process_run___closed__2);
-l_IO_AccessRight_read___default = _init_l_IO_AccessRight_read___default();
-l_IO_AccessRight_write___default = _init_l_IO_AccessRight_write___default();
-l_IO_AccessRight_execution___default = _init_l_IO_AccessRight_execution___default();
-l_IO_AccessRight_flags___closed__1 = _init_l_IO_AccessRight_flags___closed__1();
-l_IO_AccessRight_flags___closed__2 = _init_l_IO_AccessRight_flags___closed__2();
-l_IO_AccessRight_flags___closed__3 = _init_l_IO_AccessRight_flags___closed__3();
-l_IO_AccessRight_flags___closed__4 = _init_l_IO_AccessRight_flags___closed__4();
-l_IO_AccessRight_flags___closed__5 = _init_l_IO_AccessRight_flags___closed__5();
-l_IO_AccessRight_flags___closed__6 = _init_l_IO_AccessRight_flags___closed__6();
-l_IO_AccessRight_flags___closed__7 = _init_l_IO_AccessRight_flags___closed__7();
-l_IO_AccessRight_flags___closed__8 = _init_l_IO_AccessRight_flags___closed__8();
-l_IO_AccessRight_flags___closed__9 = _init_l_IO_AccessRight_flags___closed__9();
-l_IO_AccessRight_flags___closed__10 = _init_l_IO_AccessRight_flags___closed__10();
-l_IO_AccessRight_flags___closed__11 = _init_l_IO_AccessRight_flags___closed__11();
-l_IO_AccessRight_flags___closed__12 = _init_l_IO_AccessRight_flags___closed__12();
-l_IO_AccessRight_flags___closed__13 = _init_l_IO_AccessRight_flags___closed__13();
-l_IO_FileRight_user___default___closed__1 = _init_l_IO_FileRight_user___default___closed__1();
+_init_l_IO_AccessRight_read___default(l_IO_AccessRight_read___default);
+_init_l_IO_AccessRight_write___default(l_IO_AccessRight_write___default);
+_init_l_IO_AccessRight_execution___default(l_IO_AccessRight_execution___default);
+_init_l_IO_AccessRight_flags___closed__1(l_IO_AccessRight_flags___closed__1);
+_init_l_IO_AccessRight_flags___closed__2(l_IO_AccessRight_flags___closed__2);
+_init_l_IO_AccessRight_flags___closed__3(l_IO_AccessRight_flags___closed__3);
+_init_l_IO_AccessRight_flags___closed__4(l_IO_AccessRight_flags___closed__4);
+_init_l_IO_AccessRight_flags___closed__5(l_IO_AccessRight_flags___closed__5);
+_init_l_IO_AccessRight_flags___closed__6(l_IO_AccessRight_flags___closed__6);
+_init_l_IO_AccessRight_flags___closed__7(l_IO_AccessRight_flags___closed__7);
+_init_l_IO_AccessRight_flags___closed__8(l_IO_AccessRight_flags___closed__8);
+_init_l_IO_AccessRight_flags___closed__9(l_IO_AccessRight_flags___closed__9);
+_init_l_IO_AccessRight_flags___closed__10(l_IO_AccessRight_flags___closed__10);
+_init_l_IO_AccessRight_flags___closed__11(l_IO_AccessRight_flags___closed__11);
+_init_l_IO_AccessRight_flags___closed__12(l_IO_AccessRight_flags___closed__12);
+_init_l_IO_AccessRight_flags___closed__13(l_IO_AccessRight_flags___closed__13);
+_init_l_IO_FileRight_user___default___closed__1(l_IO_FileRight_user___default___closed__1);
 lean_mark_persistent(l_IO_FileRight_user___default___closed__1);
-l_IO_FileRight_user___default = _init_l_IO_FileRight_user___default();
+_init_l_IO_FileRight_user___default(l_IO_FileRight_user___default);
 lean_mark_persistent(l_IO_FileRight_user___default);
-l_IO_FileRight_group___default = _init_l_IO_FileRight_group___default();
+_init_l_IO_FileRight_group___default(l_IO_FileRight_group___default);
 lean_mark_persistent(l_IO_FileRight_group___default);
-l_IO_FileRight_other___default = _init_l_IO_FileRight_other___default();
+_init_l_IO_FileRight_other___default(l_IO_FileRight_other___default);
 lean_mark_persistent(l_IO_FileRight_other___default);
-l_IO_FS_Stream_Buffer_data___default = _init_l_IO_FS_Stream_Buffer_data___default();
+_init_l_IO_FS_Stream_Buffer_data___default(l_IO_FS_Stream_Buffer_data___default);
 lean_mark_persistent(l_IO_FS_Stream_Buffer_data___default);
-l_IO_FS_Stream_Buffer_pos___default = _init_l_IO_FS_Stream_Buffer_pos___default();
+_init_l_IO_FS_Stream_Buffer_pos___default(l_IO_FS_Stream_Buffer_pos___default);
 lean_mark_persistent(l_IO_FS_Stream_Buffer_pos___default);
-l_IO_FS_Stream_ofBuffer___closed__1 = _init_l_IO_FS_Stream_ofBuffer___closed__1();
+_init_l_IO_FS_Stream_ofBuffer___closed__1(l_IO_FS_Stream_ofBuffer___closed__1);
 lean_mark_persistent(l_IO_FS_Stream_ofBuffer___closed__1);
-l_IO_FS_withIsolatedStreams___rarg___closed__1 = _init_l_IO_FS_withIsolatedStreams___rarg___closed__1();
+_init_l_IO_FS_withIsolatedStreams___rarg___closed__1(l_IO_FS_withIsolatedStreams___rarg___closed__1);
 lean_mark_persistent(l_IO_FS_withIsolatedStreams___rarg___closed__1);
-l_IO_FS_withIsolatedStreams___rarg___closed__2 = _init_l_IO_FS_withIsolatedStreams___rarg___closed__2();
+_init_l_IO_FS_withIsolatedStreams___rarg___closed__2(l_IO_FS_withIsolatedStreams___rarg___closed__2);
 lean_mark_persistent(l_IO_FS_withIsolatedStreams___rarg___closed__2);
-l_IO_FS_withIsolatedStreams___rarg___closed__3 = _init_l_IO_FS_withIsolatedStreams___rarg___closed__3();
+_init_l_IO_FS_withIsolatedStreams___rarg___closed__3(l_IO_FS_withIsolatedStreams___rarg___closed__3);
 lean_mark_persistent(l_IO_FS_withIsolatedStreams___rarg___closed__3);
-l_termPrintln_x21_______closed__1 = _init_l_termPrintln_x21_______closed__1();
+_init_l_termPrintln_x21_______closed__1(l_termPrintln_x21_______closed__1);
 lean_mark_persistent(l_termPrintln_x21_______closed__1);
-l_termPrintln_x21_______closed__2 = _init_l_termPrintln_x21_______closed__2();
+_init_l_termPrintln_x21_______closed__2(l_termPrintln_x21_______closed__2);
 lean_mark_persistent(l_termPrintln_x21_______closed__2);
-l_termPrintln_x21_______closed__3 = _init_l_termPrintln_x21_______closed__3();
+_init_l_termPrintln_x21_______closed__3(l_termPrintln_x21_______closed__3);
 lean_mark_persistent(l_termPrintln_x21_______closed__3);
-l_termPrintln_x21_______closed__4 = _init_l_termPrintln_x21_______closed__4();
+_init_l_termPrintln_x21_______closed__4(l_termPrintln_x21_______closed__4);
 lean_mark_persistent(l_termPrintln_x21_______closed__4);
-l_termPrintln_x21_______closed__5 = _init_l_termPrintln_x21_______closed__5();
+_init_l_termPrintln_x21_______closed__5(l_termPrintln_x21_______closed__5);
 lean_mark_persistent(l_termPrintln_x21_______closed__5);
-l_termPrintln_x21_______closed__6 = _init_l_termPrintln_x21_______closed__6();
+_init_l_termPrintln_x21_______closed__6(l_termPrintln_x21_______closed__6);
 lean_mark_persistent(l_termPrintln_x21_______closed__6);
-l_termPrintln_x21_______closed__7 = _init_l_termPrintln_x21_______closed__7();
+_init_l_termPrintln_x21_______closed__7(l_termPrintln_x21_______closed__7);
 lean_mark_persistent(l_termPrintln_x21_______closed__7);
-l_termPrintln_x21____ = _init_l_termPrintln_x21____();
+_init_l_termPrintln_x21____(l_termPrintln_x21____);
 lean_mark_persistent(l_termPrintln_x21____);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__1 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__1();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__1(l_myMacro____x40_Init_System_IO___hyg_4276____closed__1);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__1);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__2 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__2();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__2(l_myMacro____x40_Init_System_IO___hyg_4276____closed__2);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__2);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__3 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__3();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__3(l_myMacro____x40_Init_System_IO___hyg_4276____closed__3);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__3);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__4 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__4();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__4(l_myMacro____x40_Init_System_IO___hyg_4276____closed__4);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__4);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__5 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__5();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__5(l_myMacro____x40_Init_System_IO___hyg_4276____closed__5);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__5);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__6 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__6();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__6(l_myMacro____x40_Init_System_IO___hyg_4276____closed__6);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__6);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__7 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__7();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__7(l_myMacro____x40_Init_System_IO___hyg_4276____closed__7);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__7);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__8 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__8();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__8(l_myMacro____x40_Init_System_IO___hyg_4276____closed__8);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__8);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__9 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__9();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__9(l_myMacro____x40_Init_System_IO___hyg_4276____closed__9);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__9);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__10 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__10();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__10(l_myMacro____x40_Init_System_IO___hyg_4276____closed__10);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__10);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__11 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__11();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__11(l_myMacro____x40_Init_System_IO___hyg_4276____closed__11);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__11);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__12 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__12();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__12(l_myMacro____x40_Init_System_IO___hyg_4276____closed__12);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__12);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__13 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__13();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__13(l_myMacro____x40_Init_System_IO___hyg_4276____closed__13);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__13);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__14 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__14();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__14(l_myMacro____x40_Init_System_IO___hyg_4276____closed__14);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__14);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__15 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__15();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__15(l_myMacro____x40_Init_System_IO___hyg_4276____closed__15);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__15);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__16 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__16();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__16(l_myMacro____x40_Init_System_IO___hyg_4276____closed__16);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__16);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__17 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__17();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__17(l_myMacro____x40_Init_System_IO___hyg_4276____closed__17);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__17);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__18 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__18();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__18(l_myMacro____x40_Init_System_IO___hyg_4276____closed__18);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__18);
-l_myMacro____x40_Init_System_IO___hyg_4276____closed__19 = _init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__19();
+_init_l_myMacro____x40_Init_System_IO___hyg_4276____closed__19(l_myMacro____x40_Init_System_IO___hyg_4276____closed__19);
 lean_mark_persistent(l_myMacro____x40_Init_System_IO___hyg_4276____closed__19);
 return lean_io_result_mk_ok(lean_box(0));
 }

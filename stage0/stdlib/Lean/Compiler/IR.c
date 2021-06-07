@@ -277,296 +277,265 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_tracePrefixOptionName;
-x_2 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_597____closed__2;
-x_3 = l_Lean_Name_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("elim_dead_branches");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__2;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_tracePrefixOptionName;
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__3;
-x_3 = l_Lean_Name_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("push_proj");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__5;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_tracePrefixOptionName;
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__6;
-x_3 = l_Lean_Name_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("reset_reuse");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__9() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__8;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__10() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_tracePrefixOptionName;
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__9;
-x_3 = l_Lean_Name_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__11() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("elim_dead");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__12() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__11;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__13() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_tracePrefixOptionName;
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__12;
-x_3 = l_Lean_Name_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__14() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("simp_case");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__15() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__14;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__16() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_tracePrefixOptionName;
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__15;
-x_3 = l_Lean_Name_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__17() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("borrow");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__18() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__17;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__19() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_tracePrefixOptionName;
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__18;
-x_3 = l_Lean_Name_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__20() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("boxing");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__21() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__20;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__22() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_tracePrefixOptionName;
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__21;
-x_3 = l_Lean_Name_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__23() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("rc");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__24() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__23;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__25() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_tracePrefixOptionName;
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__24;
-x_3 = l_Lean_Name_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__26() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("expand_reset_reuse");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__27() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__26;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__28() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_tracePrefixOptionName;
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__27;
-x_3 = l_Lean_Name_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__29() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("result");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__30() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__29;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__31() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_tracePrefixOptionName;
-x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__30;
-x_3 = l_Lean_Name_append(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_IR_tracePrefixOptionName;\
+x_2 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_597____closed__2;\
+x_3 = l_Lean_Name_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__1_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__1_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("elim_dead_branches");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__2_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__2_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__2;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__3_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__3_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_IR_tracePrefixOptionName;\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__3;\
+x_3 = l_Lean_Name_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__4_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__4_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("push_proj");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__5_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__5_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__6(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__5;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__6_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__6_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__7(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_IR_tracePrefixOptionName;\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__6;\
+x_3 = l_Lean_Name_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__7_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__7_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__8(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("reset_reuse");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__8_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__8_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__9(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__8;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__9_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__9_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__10(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_IR_tracePrefixOptionName;\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__9;\
+x_3 = l_Lean_Name_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__10_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__10_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__11(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("elim_dead");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__11_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__11_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__12(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__11;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__12_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__12_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__13(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_IR_tracePrefixOptionName;\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__12;\
+x_3 = l_Lean_Name_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__13_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__13_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__14(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("simp_case");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__14_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__14_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__15(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__14;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__15_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__15_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__16(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_IR_tracePrefixOptionName;\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__15;\
+x_3 = l_Lean_Name_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__16_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__16_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__17(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("borrow");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__17_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__17_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__18(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__17;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__18_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__18_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__19(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_IR_tracePrefixOptionName;\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__18;\
+x_3 = l_Lean_Name_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__19_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__19_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__20(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("boxing");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__20_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__20_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__21(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__20;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__21_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__21_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__22(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_IR_tracePrefixOptionName;\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__21;\
+x_3 = l_Lean_Name_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__22_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__22_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__23(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("rc");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__23_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__23_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__24(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__23;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__24_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__24_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__25(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_IR_tracePrefixOptionName;\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__24;\
+x_3 = l_Lean_Name_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__25_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__25_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__26(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("expand_reset_reuse");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__26_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__26_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__27(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__26;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__27_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__27_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__28(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_IR_tracePrefixOptionName;\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__27;\
+x_3 = l_Lean_Name_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__28_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__28_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__29(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("result");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__29_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__29_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__30(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__29;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__30_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__30_end: ((void) 0);}
+#define _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__31(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_IR_tracePrefixOptionName;\
+x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__30;\
+x_3 = l_Lean_Name_append(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__31_end;\
+}\
+l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__31_end: ((void) 0);}
 lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1415,67 +1384,67 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_Sorry(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__1 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__1();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__1(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__1);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__1);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__2 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__2();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__2(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__2);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__2);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__3 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__3();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__3(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__3);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__3);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__4 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__4();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__4(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__4);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__4);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__5 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__5();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__5(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__5);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__5);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__6 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__6();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__6(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__6);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__6);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__7 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__7();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__7(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__7);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__7);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__8 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__8();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__8(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__8);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__8);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__9 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__9();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__9(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__9);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__9);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__10 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__10();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__10(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__10);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__10);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__11 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__11();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__11(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__11);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__11);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__12 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__12();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__12(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__12);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__12);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__13 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__13();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__13(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__13);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__13);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__14 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__14();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__14(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__14);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__14);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__15 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__15();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__15(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__15);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__15);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__16 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__16();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__16(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__16);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__16);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__17 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__17();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__17(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__17);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__17);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__18 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__18();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__18(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__18);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__18);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__19 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__19();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__19(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__19);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__19);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__20 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__20();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__20(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__20);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__20);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__21 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__21();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__21(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__21);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__21);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__22 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__22();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__22(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__22);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__22);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__23 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__23();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__23(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__23);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__23);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__24 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__24();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__24(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__24);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__24);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__25 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__25();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__25(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__25);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__25);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__26 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__26();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__26(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__26);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__26);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__27 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__27();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__27(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__27);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__27);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__28 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__28();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__28(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__28);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__28);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__29 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__29();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__29(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__29);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__29);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__30 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__30();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__30(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__30);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__30);
-l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__31 = _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__31();
+_init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__31(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__31);
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__31);
 return lean_io_result_mk_ok(lean_box(0));
 }

@@ -72,30 +72,28 @@ lean_object* l_Lean_Server_Snapshots_compileNextCmd_match__1___rarg(lean_object*
 lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__1;
 lean_object* l_Lean_Server_Snapshots_Snapshot_env(lean_object*);
 lean_object* l_Lean_Server_Snapshots_compileNextCmd(lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_box(0);
-x_3 = l_Lean_Parser_instInhabitedModuleParserState___closed__1;
-x_4 = l_Lean_Elab_Command_instInhabitedState___closed__1;
-x_5 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_3);
-lean_ctor_set(x_5, 3, x_4);
-return x_5;
-}
-}
-static lean_object* _init_l_Lean_Server_Snapshots_instInhabitedSnapshot() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; \
+x_1 = lean_unsigned_to_nat(0u);\
+x_2 = lean_box(0);\
+x_3 = l_Lean_Parser_instInhabitedModuleParserState___closed__1;\
+x_4 = l_Lean_Elab_Command_instInhabitedState___closed__1;\
+x_5 = lean_alloc_ctor(0, 4, 0);\
+lean_ctor_set(x_5, 0, x_1);\
+lean_ctor_set(x_5, 1, x_2);\
+lean_ctor_set(x_5, 2, x_3);\
+lean_ctor_set(x_5, 3, x_4);\
+__INIT_VAR__ = x_5; goto l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__1_end;\
+}\
+l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Server_Snapshots_instInhabitedSnapshot(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Server_Snapshots_instInhabitedSnapshot_end;\
+}\
+l_Lean_Server_Snapshots_instInhabitedSnapshot_end: ((void) 0);}
 lean_object* l_Lean_Server_Snapshots_Snapshot_endPos(lean_object* x_1) {
 _start:
 {
@@ -544,14 +542,13 @@ lean_ctor_set(x_9, 1, x_6);
 return x_9;
 }
 }
-static lean_object* _init_l_Lean_Server_Snapshots_compileNextCmd___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Snapshots_0__Lean_Server_Snapshots_ioErrorFromEmpty___boxed), 1, 0);
-return x_1;
-}
-}
+#define _init_l_Lean_Server_Snapshots_compileNextCmd___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Snapshots_0__Lean_Server_Snapshots_ioErrorFromEmpty___boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Server_Snapshots_compileNextCmd___closed__1_end;\
+}\
+l_Lean_Server_Snapshots_compileNextCmd___closed__1_end: ((void) 0);}
 lean_object* l_Lean_Server_Snapshots_compileNextCmd(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1167,11 +1164,11 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Command(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__1 = _init_l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__1();
+_init_l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__1(l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__1);
 lean_mark_persistent(l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__1);
-l_Lean_Server_Snapshots_instInhabitedSnapshot = _init_l_Lean_Server_Snapshots_instInhabitedSnapshot();
+_init_l_Lean_Server_Snapshots_instInhabitedSnapshot(l_Lean_Server_Snapshots_instInhabitedSnapshot);
 lean_mark_persistent(l_Lean_Server_Snapshots_instInhabitedSnapshot);
-l_Lean_Server_Snapshots_compileNextCmd___closed__1 = _init_l_Lean_Server_Snapshots_compileNextCmd___closed__1();
+_init_l_Lean_Server_Snapshots_compileNextCmd___closed__1(l_Lean_Server_Snapshots_compileNextCmd___closed__1);
 lean_mark_persistent(l_Lean_Server_Snapshots_compileNextCmd___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

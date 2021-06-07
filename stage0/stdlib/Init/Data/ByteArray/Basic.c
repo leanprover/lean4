@@ -105,31 +105,28 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_ByteArray_empty___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_byte_array(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_ByteArray_empty() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_ByteArray_empty___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_ByteArray_instInhabitedByteArray() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_ByteArray_empty;
-return x_1;
-}
-}
+#define _init_l_ByteArray_empty___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = lean_unsigned_to_nat(0u);\
+x_2 = lean_mk_empty_byte_array(x_1);\
+__INIT_VAR__ = x_2; goto l_ByteArray_empty___closed__1_end;\
+}\
+l_ByteArray_empty___closed__1_end: ((void) 0);}
+#define _init_l_ByteArray_empty(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_ByteArray_empty___closed__1;\
+__INIT_VAR__ = x_1; goto l_ByteArray_empty_end;\
+}\
+l_ByteArray_empty_end: ((void) 0);}
+#define _init_l_ByteArray_instInhabitedByteArray(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_ByteArray_empty;\
+__INIT_VAR__ = x_1; goto l_ByteArray_instInhabitedByteArray_end;\
+}\
+l_ByteArray_instInhabitedByteArray_end: ((void) 0);}
 lean_object* l_ByteArray_push_match__1___rarg(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
 _start:
 {
@@ -344,22 +341,20 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_ByteArray_instAppendByteArray___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_ByteArray_append___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_ByteArray_instAppendByteArray() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_ByteArray_instAppendByteArray___closed__1;
-return x_1;
-}
-}
+#define _init_l_ByteArray_instAppendByteArray___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_ByteArray_append___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_ByteArray_instAppendByteArray___closed__1_end;\
+}\
+l_ByteArray_instAppendByteArray___closed__1_end: ((void) 0);}
+#define _init_l_ByteArray_instAppendByteArray(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_ByteArray_instAppendByteArray___closed__1;\
+__INIT_VAR__ = x_1; goto l_ByteArray_instAppendByteArray_end;\
+}\
+l_ByteArray_instAppendByteArray_end: ((void) 0);}
 lean_object* l_ByteArray_toList_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -713,15 +708,15 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Option_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_ByteArray_empty___closed__1 = _init_l_ByteArray_empty___closed__1();
+_init_l_ByteArray_empty___closed__1(l_ByteArray_empty___closed__1);
 lean_mark_persistent(l_ByteArray_empty___closed__1);
-l_ByteArray_empty = _init_l_ByteArray_empty();
+_init_l_ByteArray_empty(l_ByteArray_empty);
 lean_mark_persistent(l_ByteArray_empty);
-l_ByteArray_instInhabitedByteArray = _init_l_ByteArray_instInhabitedByteArray();
+_init_l_ByteArray_instInhabitedByteArray(l_ByteArray_instInhabitedByteArray);
 lean_mark_persistent(l_ByteArray_instInhabitedByteArray);
-l_ByteArray_instAppendByteArray___closed__1 = _init_l_ByteArray_instAppendByteArray___closed__1();
+_init_l_ByteArray_instAppendByteArray___closed__1(l_ByteArray_instAppendByteArray___closed__1);
 lean_mark_persistent(l_ByteArray_instAppendByteArray___closed__1);
-l_ByteArray_instAppendByteArray = _init_l_ByteArray_instAppendByteArray();
+_init_l_ByteArray_instAppendByteArray(l_ByteArray_instAppendByteArray);
 lean_mark_persistent(l_ByteArray_instAppendByteArray);
 return lean_io_result_mk_ok(lean_box(0));
 }

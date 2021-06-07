@@ -462,42 +462,38 @@ return x_8;
 }
 }
 }
-static lean_object* _init_l_Option_instFunctorOption___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Option_instFunctorOption___lambda__1), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Option_instFunctorOption___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Option_instFunctorOption___lambda__2), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Option_instFunctorOption___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Option_instFunctorOption___closed__1;
-x_2 = l_Option_instFunctorOption___closed__2;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Option_instFunctorOption() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Option_instFunctorOption___closed__3;
-return x_1;
-}
-}
+#define _init_l_Option_instFunctorOption___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Option_instFunctorOption___lambda__1), 4, 0);\
+__INIT_VAR__ = x_1; goto l_Option_instFunctorOption___closed__1_end;\
+}\
+l_Option_instFunctorOption___closed__1_end: ((void) 0);}
+#define _init_l_Option_instFunctorOption___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Option_instFunctorOption___lambda__2), 4, 0);\
+__INIT_VAR__ = x_1; goto l_Option_instFunctorOption___closed__2_end;\
+}\
+l_Option_instFunctorOption___closed__2_end: ((void) 0);}
+#define _init_l_Option_instFunctorOption___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Option_instFunctorOption___closed__1;\
+x_2 = l_Option_instFunctorOption___closed__2;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Option_instFunctorOption___closed__3_end;\
+}\
+l_Option_instFunctorOption___closed__3_end: ((void) 0);}
+#define _init_l_Option_instFunctorOption(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Option_instFunctorOption___closed__3;\
+__INIT_VAR__ = x_1; goto l_Option_instFunctorOption_end;\
+}\
+l_Option_instFunctorOption_end: ((void) 0);}
 lean_object* l_Option_filter___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1284,13 +1280,13 @@ lean_dec_ref(res);
 res = initialize_Init_Coe(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Option_instFunctorOption___closed__1 = _init_l_Option_instFunctorOption___closed__1();
+_init_l_Option_instFunctorOption___closed__1(l_Option_instFunctorOption___closed__1);
 lean_mark_persistent(l_Option_instFunctorOption___closed__1);
-l_Option_instFunctorOption___closed__2 = _init_l_Option_instFunctorOption___closed__2();
+_init_l_Option_instFunctorOption___closed__2(l_Option_instFunctorOption___closed__2);
 lean_mark_persistent(l_Option_instFunctorOption___closed__2);
-l_Option_instFunctorOption___closed__3 = _init_l_Option_instFunctorOption___closed__3();
+_init_l_Option_instFunctorOption___closed__3(l_Option_instFunctorOption___closed__3);
 lean_mark_persistent(l_Option_instFunctorOption___closed__3);
-l_Option_instFunctorOption = _init_l_Option_instFunctorOption();
+_init_l_Option_instFunctorOption(l_Option_instFunctorOption);
 lean_mark_persistent(l_Option_instFunctorOption);
 return lean_io_result_mk_ok(lean_box(0));
 }

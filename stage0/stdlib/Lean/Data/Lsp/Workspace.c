@@ -27,14 +27,13 @@ lean_object* l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJsonWorkspaceFo
 lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonLocation____x40_Lean_Data_Lsp_Basic___hyg_611____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_instToJsonWorkspaceFolder;
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_JsonRpc_instFromJsonMessage___spec__2(lean_object*, lean_object*);
-static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_toJsonWorkspaceFolder____x40_Lean_Data_Lsp_Workspace___hyg_24____closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("name");
-return x_1;
-}
-}
+#define _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_toJsonWorkspaceFolder____x40_Lean_Data_Lsp_Workspace___hyg_24____closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("name");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_toJsonWorkspaceFolder____x40_Lean_Data_Lsp_Workspace___hyg_24____closed__1_end;\
+}\
+l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_toJsonWorkspaceFolder____x40_Lean_Data_Lsp_Workspace___hyg_24____closed__1_end: ((void) 0);}
 lean_object* l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_toJsonWorkspaceFolder____x40_Lean_Data_Lsp_Workspace___hyg_24_(lean_object* x_1) {
 _start:
 {
@@ -82,22 +81,20 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Lsp_instToJsonWorkspaceFolder___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_toJsonWorkspaceFolder____x40_Lean_Data_Lsp_Workspace___hyg_24____boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instToJsonWorkspaceFolder() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Lsp_instToJsonWorkspaceFolder___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_Lsp_instToJsonWorkspaceFolder___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_toJsonWorkspaceFolder____x40_Lean_Data_Lsp_Workspace___hyg_24____boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instToJsonWorkspaceFolder___closed__1_end;\
+}\
+l_Lean_Lsp_instToJsonWorkspaceFolder___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Lsp_instToJsonWorkspaceFolder(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Lsp_instToJsonWorkspaceFolder___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instToJsonWorkspaceFolder_end;\
+}\
+l_Lean_Lsp_instToJsonWorkspaceFolder_end: ((void) 0);}
 lean_object* l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJsonWorkspaceFolder____x40_Lean_Data_Lsp_Workspace___hyg_58_(lean_object* x_1) {
 _start:
 {
@@ -165,22 +162,20 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Lsp_instFromJsonWorkspaceFolder___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJsonWorkspaceFolder____x40_Lean_Data_Lsp_Workspace___hyg_58____boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instFromJsonWorkspaceFolder() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Lsp_instFromJsonWorkspaceFolder___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_Lsp_instFromJsonWorkspaceFolder___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJsonWorkspaceFolder____x40_Lean_Data_Lsp_Workspace___hyg_58____boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instFromJsonWorkspaceFolder___closed__1_end;\
+}\
+l_Lean_Lsp_instFromJsonWorkspaceFolder___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Lsp_instFromJsonWorkspaceFolder(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Lsp_instFromJsonWorkspaceFolder___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instFromJsonWorkspaceFolder_end;\
+}\
+l_Lean_Lsp_instFromJsonWorkspaceFolder_end: ((void) 0);}
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Basic(lean_object*);
 lean_object* initialize_Lean_Data_Json(lean_object*);
@@ -198,15 +193,15 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Json(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_toJsonWorkspaceFolder____x40_Lean_Data_Lsp_Workspace___hyg_24____closed__1 = _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_toJsonWorkspaceFolder____x40_Lean_Data_Lsp_Workspace___hyg_24____closed__1();
+_init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_toJsonWorkspaceFolder____x40_Lean_Data_Lsp_Workspace___hyg_24____closed__1(l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_toJsonWorkspaceFolder____x40_Lean_Data_Lsp_Workspace___hyg_24____closed__1);
 lean_mark_persistent(l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_toJsonWorkspaceFolder____x40_Lean_Data_Lsp_Workspace___hyg_24____closed__1);
-l_Lean_Lsp_instToJsonWorkspaceFolder___closed__1 = _init_l_Lean_Lsp_instToJsonWorkspaceFolder___closed__1();
+_init_l_Lean_Lsp_instToJsonWorkspaceFolder___closed__1(l_Lean_Lsp_instToJsonWorkspaceFolder___closed__1);
 lean_mark_persistent(l_Lean_Lsp_instToJsonWorkspaceFolder___closed__1);
-l_Lean_Lsp_instToJsonWorkspaceFolder = _init_l_Lean_Lsp_instToJsonWorkspaceFolder();
+_init_l_Lean_Lsp_instToJsonWorkspaceFolder(l_Lean_Lsp_instToJsonWorkspaceFolder);
 lean_mark_persistent(l_Lean_Lsp_instToJsonWorkspaceFolder);
-l_Lean_Lsp_instFromJsonWorkspaceFolder___closed__1 = _init_l_Lean_Lsp_instFromJsonWorkspaceFolder___closed__1();
+_init_l_Lean_Lsp_instFromJsonWorkspaceFolder___closed__1(l_Lean_Lsp_instFromJsonWorkspaceFolder___closed__1);
 lean_mark_persistent(l_Lean_Lsp_instFromJsonWorkspaceFolder___closed__1);
-l_Lean_Lsp_instFromJsonWorkspaceFolder = _init_l_Lean_Lsp_instFromJsonWorkspaceFolder();
+_init_l_Lean_Lsp_instFromJsonWorkspaceFolder(l_Lean_Lsp_instFromJsonWorkspaceFolder);
 lean_mark_persistent(l_Lean_Lsp_instFromJsonWorkspaceFolder);
 return lean_io_result_mk_ok(lean_box(0));
 }

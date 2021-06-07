@@ -327,86 +327,77 @@ x_2 = lean_alloc_closure((void*)(l_Lean_throwError___at_Lean_Meta_throwLetTypeMi
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Check");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.throwLetTypeMismatchMessage");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1;
-x_2 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(25u);
-x_4 = lean_unsigned_to_nat(9u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("invalid let declaration, term");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("\nhas type");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("\nbut is expected to have type");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Lean.Meta.Check");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1_end;\
+}\
+l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Lean.Meta.throwLetTypeMismatchMessage");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__2_end;\
+}\
+l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; \
+x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1;\
+x_2 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__2;\
+x_3 = lean_unsigned_to_nat(25u);\
+x_4 = lean_unsigned_to_nat(9u);\
+x_5 = l_Lean_Name_getString_x21___closed__3;\
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);\
+__INIT_VAR__ = x_6; goto l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3_end;\
+}\
+l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3_end: ((void) 0);}
+#define _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("invalid let declaration, term");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4_end;\
+}\
+l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4_end: ((void) 0);}
+#define _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__5_end;\
+}\
+l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__5_end: ((void) 0);}
+#define _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("\nhas type");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6_end;\
+}\
+l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6_end: ((void) 0);}
+#define _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7_end;\
+}\
+l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7_end: ((void) 0);}
+#define _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("\nbut is expected to have type");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8_end;\
+}\
+l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8_end: ((void) 0);}
+#define _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9_end;\
+}\
+l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9_end: ((void) 0);}
 lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -1933,24 +1924,22 @@ lean_dec(x_7);
 return x_14;
 }
 }
-static lean_object* _init_l_Lean_Meta_addPPExplicitToExposeDiff___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("all");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_addPPExplicitToExposeDiff___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_getSanitizeNames___closed__2;
-x_2 = l_Lean_Meta_addPPExplicitToExposeDiff___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Meta_addPPExplicitToExposeDiff___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("all");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_addPPExplicitToExposeDiff___closed__1_end;\
+}\
+l_Lean_Meta_addPPExplicitToExposeDiff___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_addPPExplicitToExposeDiff___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_getSanitizeNames___closed__2;\
+x_2 = l_Lean_Meta_addPPExplicitToExposeDiff___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_addPPExplicitToExposeDiff___closed__2_end;\
+}\
+l_Lean_Meta_addPPExplicitToExposeDiff___closed__2_end: ((void) 0);}
 lean_object* l_Lean_Meta_addPPExplicitToExposeDiff(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -2006,23 +1995,21 @@ return x_18;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("has type");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__1;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("has type");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__1_end;\
+}\
+l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__1;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__2_end;\
+}\
+l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__2_end: ((void) 0);}
 lean_object* l_Lean_Meta_mkHasTypeButIsExpectedMsg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -2362,23 +2349,21 @@ x_2 = lean_alloc_closure((void*)(l_Lean_throwError___at_Lean_Meta_throwAppTypeMi
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("\nargument");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__1;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("\nargument");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__1_end;\
+}\
+l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__1;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__2_end;\
+}\
+l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__2_end: ((void) 0);}
 lean_object* l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -3619,14 +3604,13 @@ return x_23;
 }
 }
 }
-static lean_object* _init_l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkLambdaLet___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkLambdaLet___lambda__1___boxed), 7, 0);
-return x_1;
-}
-}
+#define _init_l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkLambdaLet___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkLambdaLet___lambda__1___boxed), 7, 0);\
+__INIT_VAR__ = x_1; goto l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkLambdaLet___closed__1_end;\
+}\
+l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkLambdaLet___closed__1_end: ((void) 0);}
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkLambdaLet(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -4152,14 +4136,13 @@ return x_41;
 }
 }
 }
-static lean_object* _init_l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkForall___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkForall___lambda__1___boxed), 7, 0);
-return x_1;
-}
-}
+#define _init_l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkForall___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkForall___lambda__1___boxed), 7, 0);\
+__INIT_VAR__ = x_1; goto l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkForall___closed__1_end;\
+}\
+l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkForall___closed__1_end: ((void) 0);}
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkForall(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -4222,24 +4205,22 @@ lean_dec(x_1);
 return x_8;
 }
 }
-static lean_object* _init_l_Lean_Meta_check___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("check");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_check___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1046____closed__2;
-x_2 = l_Lean_Meta_check___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Meta_check___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("check");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_check___closed__1_end;\
+}\
+l_Lean_Meta_check___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_check___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1046____closed__2;\
+x_2 = l_Lean_Meta_check___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_check___closed__2_end;\
+}\
+l_Lean_Meta_check___closed__2_end: ((void) 0);}
 lean_object* l_Lean_Meta_check(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -5747,24 +5728,22 @@ return x_392;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_isTypeCorrect___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("typeError");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_isTypeCorrect___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1046____closed__2;
-x_2 = l_Lean_Meta_isTypeCorrect___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Meta_isTypeCorrect___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("typeError");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_isTypeCorrect___closed__1_end;\
+}\
+l_Lean_Meta_isTypeCorrect___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_isTypeCorrect___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1046____closed__2;\
+x_2 = l_Lean_Meta_isTypeCorrect___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_isTypeCorrect___closed__2_end;\
+}\
+l_Lean_Meta_isTypeCorrect___closed__2_end: ((void) 0);}
 lean_object* l_Lean_Meta_isTypeCorrect(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -5998,47 +5977,47 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_LevelDefEq(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1 = _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1();
+_init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1);
 lean_mark_persistent(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1);
-l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__2 = _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__2();
+_init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__2(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__2);
 lean_mark_persistent(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__2);
-l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3 = _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3();
+_init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3);
 lean_mark_persistent(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3);
-l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4 = _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4();
+_init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4);
 lean_mark_persistent(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4);
-l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__5 = _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__5();
+_init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__5(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__5);
 lean_mark_persistent(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__5);
-l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6 = _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6();
+_init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6);
 lean_mark_persistent(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6);
-l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7 = _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7();
+_init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7);
 lean_mark_persistent(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7);
-l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8 = _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8();
+_init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8);
 lean_mark_persistent(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8);
-l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9 = _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9();
+_init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9);
 lean_mark_persistent(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9);
-l_Lean_Meta_addPPExplicitToExposeDiff___closed__1 = _init_l_Lean_Meta_addPPExplicitToExposeDiff___closed__1();
+_init_l_Lean_Meta_addPPExplicitToExposeDiff___closed__1(l_Lean_Meta_addPPExplicitToExposeDiff___closed__1);
 lean_mark_persistent(l_Lean_Meta_addPPExplicitToExposeDiff___closed__1);
-l_Lean_Meta_addPPExplicitToExposeDiff___closed__2 = _init_l_Lean_Meta_addPPExplicitToExposeDiff___closed__2();
+_init_l_Lean_Meta_addPPExplicitToExposeDiff___closed__2(l_Lean_Meta_addPPExplicitToExposeDiff___closed__2);
 lean_mark_persistent(l_Lean_Meta_addPPExplicitToExposeDiff___closed__2);
-l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__1 = _init_l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__1();
+_init_l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__1(l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__1);
 lean_mark_persistent(l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__1);
-l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__2 = _init_l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__2();
+_init_l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__2(l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__2);
 lean_mark_persistent(l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__2);
-l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__1 = _init_l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__1();
+_init_l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__1(l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__1);
 lean_mark_persistent(l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__1);
-l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__2 = _init_l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__2();
+_init_l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__2(l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__2);
 lean_mark_persistent(l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__2);
-l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkLambdaLet___closed__1 = _init_l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkLambdaLet___closed__1();
+_init_l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkLambdaLet___closed__1(l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkLambdaLet___closed__1);
 lean_mark_persistent(l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkLambdaLet___closed__1);
-l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkForall___closed__1 = _init_l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkForall___closed__1();
+_init_l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkForall___closed__1(l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkForall___closed__1);
 lean_mark_persistent(l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkForall___closed__1);
-l_Lean_Meta_check___closed__1 = _init_l_Lean_Meta_check___closed__1();
+_init_l_Lean_Meta_check___closed__1(l_Lean_Meta_check___closed__1);
 lean_mark_persistent(l_Lean_Meta_check___closed__1);
-l_Lean_Meta_check___closed__2 = _init_l_Lean_Meta_check___closed__2();
+_init_l_Lean_Meta_check___closed__2(l_Lean_Meta_check___closed__2);
 lean_mark_persistent(l_Lean_Meta_check___closed__2);
-l_Lean_Meta_isTypeCorrect___closed__1 = _init_l_Lean_Meta_isTypeCorrect___closed__1();
+_init_l_Lean_Meta_isTypeCorrect___closed__1(l_Lean_Meta_isTypeCorrect___closed__1);
 lean_mark_persistent(l_Lean_Meta_isTypeCorrect___closed__1);
-l_Lean_Meta_isTypeCorrect___closed__2 = _init_l_Lean_Meta_isTypeCorrect___closed__2();
+_init_l_Lean_Meta_isTypeCorrect___closed__2(l_Lean_Meta_isTypeCorrect___closed__2);
 lean_mark_persistent(l_Lean_Meta_isTypeCorrect___closed__2);
 res = l_Lean_Meta_initFn____x40_Lean_Meta_Check___hyg_1914_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;

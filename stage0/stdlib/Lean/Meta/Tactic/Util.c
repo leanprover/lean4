@@ -525,40 +525,36 @@ x_2 = lean_alloc_closure((void*)(l_Lean_throwError___at_Lean_Meta_throwTacticEx_
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_throwTacticEx___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("tactic '");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_throwTacticEx___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_throwTacticEx___rarg___closed__1;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_throwTacticEx___rarg___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("' failed, ");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_throwTacticEx___rarg___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_throwTacticEx___rarg___closed__3;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Meta_throwTacticEx___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("tactic '");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_throwTacticEx___rarg___closed__1_end;\
+}\
+l_Lean_Meta_throwTacticEx___rarg___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_throwTacticEx___rarg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_throwTacticEx___rarg___closed__1;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_throwTacticEx___rarg___closed__2_end;\
+}\
+l_Lean_Meta_throwTacticEx___rarg___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Meta_throwTacticEx___rarg___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("' failed, ");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_throwTacticEx___rarg___closed__3_end;\
+}\
+l_Lean_Meta_throwTacticEx___rarg___closed__3_end: ((void) 0);}
+#define _init_l_Lean_Meta_throwTacticEx___rarg___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_throwTacticEx___rarg___closed__3;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_throwTacticEx___rarg___closed__4_end;\
+}\
+l_Lean_Meta_throwTacticEx___rarg___closed__4_end: ((void) 0);}
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -626,34 +622,31 @@ lean_dec(x_4);
 return x_10;
 }
 }
-static lean_object* _init_l_Lean_Meta_checkNotAssigned___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("metavariable has already been assigned");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_checkNotAssigned___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_checkNotAssigned___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_checkNotAssigned___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_checkNotAssigned___closed__2;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Meta_checkNotAssigned___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("metavariable has already been assigned");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_checkNotAssigned___closed__1_end;\
+}\
+l_Lean_Meta_checkNotAssigned___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_checkNotAssigned___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_checkNotAssigned___closed__1;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_checkNotAssigned___closed__2_end;\
+}\
+l_Lean_Meta_checkNotAssigned___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Meta_checkNotAssigned___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_checkNotAssigned___closed__2;\
+x_2 = lean_alloc_ctor(0, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_checkNotAssigned___closed__3_end;\
+}\
+l_Lean_Meta_checkNotAssigned___closed__3_end: ((void) 0);}
 lean_object* l_Lean_Meta_checkNotAssigned(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -875,16 +868,15 @@ return x_22;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_225____closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1046____closed__2;
-x_2 = l_Lean_Parser_Tactic_intro___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_225____closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1046____closed__2;\
+x_2 = l_Lean_Parser_Tactic_intro___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_225____closed__1_end;\
+}\
+l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_225____closed__1_end: ((void) 0);}
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_225_(lean_object* x_1) {
 _start:
 {
@@ -1044,16 +1036,15 @@ return x_23;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_admit___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Parser_Tactic_tacticAdmit___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Meta_admit___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Parser_Tactic_tacticAdmit___closed__3;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_admit___closed__1_end;\
+}\
+l_Lean_Meta_admit___closed__1_end: ((void) 0);}
 lean_object* l_Lean_Meta_admit(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -4271,18 +4262,17 @@ return x_58;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_getNondepPropHyps___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_instMonadLCtxMetaM___closed__1;
-x_2 = l_Lean_Meta_instMonadLCtxMetaM___closed__2;
-x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg), 7, 2);
-lean_closure_set(x_3, 0, x_1);
-lean_closure_set(x_3, 1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Meta_getNondepPropHyps___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_Meta_instMonadLCtxMetaM___closed__1;\
+x_2 = l_Lean_Meta_instMonadLCtxMetaM___closed__2;\
+x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg), 7, 2);\
+lean_closure_set(x_3, 0, x_1);\
+lean_closure_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_getNondepPropHyps___closed__1_end;\
+}\
+l_Lean_Meta_getNondepPropHyps___closed__1_end: ((void) 0);}
 lean_object* l_Lean_Meta_getNondepPropHyps(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -5358,28 +5348,28 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_PPGoal(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_throwTacticEx___rarg___closed__1 = _init_l_Lean_Meta_throwTacticEx___rarg___closed__1();
+_init_l_Lean_Meta_throwTacticEx___rarg___closed__1(l_Lean_Meta_throwTacticEx___rarg___closed__1);
 lean_mark_persistent(l_Lean_Meta_throwTacticEx___rarg___closed__1);
-l_Lean_Meta_throwTacticEx___rarg___closed__2 = _init_l_Lean_Meta_throwTacticEx___rarg___closed__2();
+_init_l_Lean_Meta_throwTacticEx___rarg___closed__2(l_Lean_Meta_throwTacticEx___rarg___closed__2);
 lean_mark_persistent(l_Lean_Meta_throwTacticEx___rarg___closed__2);
-l_Lean_Meta_throwTacticEx___rarg___closed__3 = _init_l_Lean_Meta_throwTacticEx___rarg___closed__3();
+_init_l_Lean_Meta_throwTacticEx___rarg___closed__3(l_Lean_Meta_throwTacticEx___rarg___closed__3);
 lean_mark_persistent(l_Lean_Meta_throwTacticEx___rarg___closed__3);
-l_Lean_Meta_throwTacticEx___rarg___closed__4 = _init_l_Lean_Meta_throwTacticEx___rarg___closed__4();
+_init_l_Lean_Meta_throwTacticEx___rarg___closed__4(l_Lean_Meta_throwTacticEx___rarg___closed__4);
 lean_mark_persistent(l_Lean_Meta_throwTacticEx___rarg___closed__4);
-l_Lean_Meta_checkNotAssigned___closed__1 = _init_l_Lean_Meta_checkNotAssigned___closed__1();
+_init_l_Lean_Meta_checkNotAssigned___closed__1(l_Lean_Meta_checkNotAssigned___closed__1);
 lean_mark_persistent(l_Lean_Meta_checkNotAssigned___closed__1);
-l_Lean_Meta_checkNotAssigned___closed__2 = _init_l_Lean_Meta_checkNotAssigned___closed__2();
+_init_l_Lean_Meta_checkNotAssigned___closed__2(l_Lean_Meta_checkNotAssigned___closed__2);
 lean_mark_persistent(l_Lean_Meta_checkNotAssigned___closed__2);
-l_Lean_Meta_checkNotAssigned___closed__3 = _init_l_Lean_Meta_checkNotAssigned___closed__3();
+_init_l_Lean_Meta_checkNotAssigned___closed__3(l_Lean_Meta_checkNotAssigned___closed__3);
 lean_mark_persistent(l_Lean_Meta_checkNotAssigned___closed__3);
-l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_225____closed__1 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_225____closed__1();
+_init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_225____closed__1(l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_225____closed__1);
 lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_225____closed__1);
 res = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_225_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_admit___closed__1 = _init_l_Lean_Meta_admit___closed__1();
+_init_l_Lean_Meta_admit___closed__1(l_Lean_Meta_admit___closed__1);
 lean_mark_persistent(l_Lean_Meta_admit___closed__1);
-l_Lean_Meta_getNondepPropHyps___closed__1 = _init_l_Lean_Meta_getNondepPropHyps___closed__1();
+_init_l_Lean_Meta_getNondepPropHyps___closed__1(l_Lean_Meta_getNondepPropHyps___closed__1);
 lean_mark_persistent(l_Lean_Meta_getNondepPropHyps___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

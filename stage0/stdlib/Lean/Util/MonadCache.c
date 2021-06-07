@@ -561,18 +561,17 @@ lean_dec(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_MonadCacheT_run___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_HashMap_instInhabitedHashMap___closed__1;
-x_2 = lean_alloc_closure((void*)(l_ST_Prim_mkRef___boxed), 4, 3);
-lean_closure_set(x_2, 0, lean_box(0));
-lean_closure_set(x_2, 1, lean_box(0));
-lean_closure_set(x_2, 2, x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_MonadCacheT_run___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Std_HashMap_instInhabitedHashMap___closed__1;\
+x_2 = lean_alloc_closure((void*)(l_ST_Prim_mkRef___boxed), 4, 3);\
+lean_closure_set(x_2, 0, lean_box(0));\
+lean_closure_set(x_2, 1, lean_box(0));\
+lean_closure_set(x_2, 2, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_MonadCacheT_run___rarg___closed__1_end;\
+}\
+l_Lean_MonadCacheT_run___rarg___closed__1_end: ((void) 0);}
 lean_object* l_Lean_MonadCacheT_run___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1056,7 +1055,7 @@ lean_dec_ref(res);
 res = initialize_Std_Data_HashMap(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_MonadCacheT_run___rarg___closed__1 = _init_l_Lean_MonadCacheT_run___rarg___closed__1();
+_init_l_Lean_MonadCacheT_run___rarg___closed__1(l_Lean_MonadCacheT_run___rarg___closed__1);
 lean_mark_persistent(l_Lean_MonadCacheT_run___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

@@ -56,14 +56,13 @@ lean_object* l_Lean_Expr_FoldConstsImpl_visited___boxed(lean_object*, lean_objec
 lean_object* l_Lean_Expr_getUsedConstants(lean_object*);
 lean_object* l_Lean_Expr_FoldConstsImpl_foldUnsafe___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_foldConsts___rarg(lean_object*, lean_object*);
-static size_t _init_l_Lean_Expr_FoldConstsImpl_cacheSize() {
-_start:
-{
-size_t x_1; 
-x_1 = 8192;
-return x_1;
-}
-}
+#define _init_l_Lean_Expr_FoldConstsImpl_cacheSize(__INIT_VAR__) { \
+{\
+size_t x_1; \
+x_1 = 8192;\
+__INIT_VAR__ = x_1; goto l_Lean_Expr_FoldConstsImpl_cacheSize_end;\
+}\
+l_Lean_Expr_FoldConstsImpl_cacheSize_end: ((void) 0);}
 lean_object* l_Lean_Expr_FoldConstsImpl_visited(lean_object* x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
@@ -737,26 +736,24 @@ x_7 = l_Lean_Expr_FoldConstsImpl_fold___rarg(x_1, x_6, x_3, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Expr_FoldConstsImpl_initCache___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Expr_FindImpl_initCache___closed__1;
-x_2 = l_Std_HashSet_instInhabitedHashSet___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Expr_FoldConstsImpl_initCache() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Expr_FoldConstsImpl_initCache___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_Expr_FoldConstsImpl_initCache___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_Expr_FindImpl_initCache___closed__1;\
+x_2 = l_Std_HashSet_instInhabitedHashSet___closed__1;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Expr_FoldConstsImpl_initCache___closed__1_end;\
+}\
+l_Lean_Expr_FoldConstsImpl_initCache___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Expr_FoldConstsImpl_initCache(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Expr_FoldConstsImpl_initCache___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Expr_FoldConstsImpl_initCache_end;\
+}\
+l_Lean_Expr_FoldConstsImpl_initCache_end: ((void) 0);}
 lean_object* l_Lean_Expr_FoldConstsImpl_foldUnsafe___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -820,14 +817,13 @@ x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Expr_getUsedConstants___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Expr_getUsedConstants___lambda__1), 2, 0);
-return x_1;
-}
-}
+#define _init_l_Lean_Expr_getUsedConstants___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_Expr_getUsedConstants___lambda__1), 2, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Expr_getUsedConstants___closed__1_end;\
+}\
+l_Lean_Expr_getUsedConstants___closed__1_end: ((void) 0);}
 lean_object* l_Lean_Expr_getUsedConstants(lean_object* x_1) {
 _start:
 {
@@ -971,15 +967,14 @@ return x_3;
 }
 }
 }
-static lean_object* _init_l_Lean_getMaxHeight___boxed__const__1() {
-_start:
-{
-uint32_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_uint32(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_getMaxHeight___boxed__const__1(__INIT_VAR__) { \
+{\
+uint32_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_uint32(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_getMaxHeight___boxed__const__1_end;\
+}\
+l_Lean_getMaxHeight___boxed__const__1_end: ((void) 0);}
 lean_object* l_Lean_getMaxHeight(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1024,14 +1019,14 @@ lean_dec_ref(res);
 res = initialize_Lean_Environment(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Expr_FoldConstsImpl_cacheSize = _init_l_Lean_Expr_FoldConstsImpl_cacheSize();
-l_Lean_Expr_FoldConstsImpl_initCache___closed__1 = _init_l_Lean_Expr_FoldConstsImpl_initCache___closed__1();
+_init_l_Lean_Expr_FoldConstsImpl_cacheSize(l_Lean_Expr_FoldConstsImpl_cacheSize);
+_init_l_Lean_Expr_FoldConstsImpl_initCache___closed__1(l_Lean_Expr_FoldConstsImpl_initCache___closed__1);
 lean_mark_persistent(l_Lean_Expr_FoldConstsImpl_initCache___closed__1);
-l_Lean_Expr_FoldConstsImpl_initCache = _init_l_Lean_Expr_FoldConstsImpl_initCache();
+_init_l_Lean_Expr_FoldConstsImpl_initCache(l_Lean_Expr_FoldConstsImpl_initCache);
 lean_mark_persistent(l_Lean_Expr_FoldConstsImpl_initCache);
-l_Lean_Expr_getUsedConstants___closed__1 = _init_l_Lean_Expr_getUsedConstants___closed__1();
+_init_l_Lean_Expr_getUsedConstants___closed__1(l_Lean_Expr_getUsedConstants___closed__1);
 lean_mark_persistent(l_Lean_Expr_getUsedConstants___closed__1);
-l_Lean_getMaxHeight___boxed__const__1 = _init_l_Lean_getMaxHeight___boxed__const__1();
+_init_l_Lean_getMaxHeight___boxed__const__1(l_Lean_getMaxHeight___boxed__const__1);
 lean_mark_persistent(l_Lean_getMaxHeight___boxed__const__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

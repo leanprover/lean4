@@ -51,14 +51,13 @@ lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_o
 lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_Meta_MVarRenaming_find_x3f___spec__1___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_ReplaceImpl_initCache;
-static lean_object* _init_l_Lean_Meta_MVarRenaming_map___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
+#define _init_l_Lean_Meta_MVarRenaming_map___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_MVarRenaming_map___default_end;\
+}\
+l_Lean_Meta_MVarRenaming_map___default_end: ((void) 0);}
 uint8_t l_Lean_Meta_MVarRenaming_isEmpty(lean_object* x_1) {
 _start:
 {
@@ -1064,7 +1063,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Util_ReplaceExpr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_MVarRenaming_map___default = _init_l_Lean_Meta_MVarRenaming_map___default();
+_init_l_Lean_Meta_MVarRenaming_map___default(l_Lean_Meta_MVarRenaming_map___default);
 lean_mark_persistent(l_Lean_Meta_MVarRenaming_map___default);
 return lean_io_result_mk_ok(lean_box(0));
 }

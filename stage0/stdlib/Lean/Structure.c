@@ -532,64 +532,58 @@ x_2 = lean_alloc_closure((void*)(l_Lean_getStructureCtor_match__1___rarg), 3, 0)
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_getStructureCtor___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Structure");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_getStructureCtor___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.getStructureCtor");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_getStructureCtor___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("structure expected");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_getStructureCtor___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_getStructureCtor___closed__1;
-x_2 = l_Lean_getStructureCtor___closed__2;
-x_3 = lean_unsigned_to_nat(44u);
-x_4 = lean_unsigned_to_nat(9u);
-x_5 = l_Lean_getStructureCtor___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
-static lean_object* _init_l_Lean_getStructureCtor___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("ill-formed environment");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_getStructureCtor___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_getStructureCtor___closed__1;
-x_2 = l_Lean_getStructureCtor___closed__2;
-x_3 = lean_unsigned_to_nat(43u);
-x_4 = lean_unsigned_to_nat(11u);
-x_5 = l_Lean_getStructureCtor___closed__5;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
+#define _init_l_Lean_getStructureCtor___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Lean.Structure");\
+__INIT_VAR__ = x_1; goto l_Lean_getStructureCtor___closed__1_end;\
+}\
+l_Lean_getStructureCtor___closed__1_end: ((void) 0);}
+#define _init_l_Lean_getStructureCtor___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Lean.getStructureCtor");\
+__INIT_VAR__ = x_1; goto l_Lean_getStructureCtor___closed__2_end;\
+}\
+l_Lean_getStructureCtor___closed__2_end: ((void) 0);}
+#define _init_l_Lean_getStructureCtor___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("structure expected");\
+__INIT_VAR__ = x_1; goto l_Lean_getStructureCtor___closed__3_end;\
+}\
+l_Lean_getStructureCtor___closed__3_end: ((void) 0);}
+#define _init_l_Lean_getStructureCtor___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; \
+x_1 = l_Lean_getStructureCtor___closed__1;\
+x_2 = l_Lean_getStructureCtor___closed__2;\
+x_3 = lean_unsigned_to_nat(44u);\
+x_4 = lean_unsigned_to_nat(9u);\
+x_5 = l_Lean_getStructureCtor___closed__3;\
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);\
+__INIT_VAR__ = x_6; goto l_Lean_getStructureCtor___closed__4_end;\
+}\
+l_Lean_getStructureCtor___closed__4_end: ((void) 0);}
+#define _init_l_Lean_getStructureCtor___closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("ill-formed environment");\
+__INIT_VAR__ = x_1; goto l_Lean_getStructureCtor___closed__5_end;\
+}\
+l_Lean_getStructureCtor___closed__5_end: ((void) 0);}
+#define _init_l_Lean_getStructureCtor___closed__6(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; \
+x_1 = l_Lean_getStructureCtor___closed__1;\
+x_2 = l_Lean_getStructureCtor___closed__2;\
+x_3 = lean_unsigned_to_nat(43u);\
+x_4 = lean_unsigned_to_nat(11u);\
+x_5 = l_Lean_getStructureCtor___closed__5;\
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);\
+__INIT_VAR__ = x_6; goto l_Lean_getStructureCtor___closed__6_end;\
+}\
+l_Lean_getStructureCtor___closed__6_end: ((void) 0);}
 lean_object* l_Lean_getStructureCtor(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -897,35 +891,32 @@ x_2 = lean_alloc_closure((void*)(l___private_Lean_Structure_0__Lean_isSubobjectF
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Structure.0.Lean.isSubobjectFieldAux");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("ill-formed structure");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_getStructureCtor___closed__1;
-x_2 = l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__1;
-x_3 = lean_unsigned_to_nat(66u);
-x_4 = lean_unsigned_to_nat(13u);
-x_5 = l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
+#define _init_l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("_private.Lean.Structure.0.Lean.isSubobjectFieldAux");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__1_end;\
+}\
+l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__1_end: ((void) 0);}
+#define _init_l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("ill-formed structure");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__2_end;\
+}\
+l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__2_end: ((void) 0);}
+#define _init_l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; \
+x_1 = l_Lean_getStructureCtor___closed__1;\
+x_2 = l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__1;\
+x_3 = lean_unsigned_to_nat(66u);\
+x_4 = lean_unsigned_to_nat(13u);\
+x_5 = l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__2;\
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);\
+__INIT_VAR__ = x_6; goto l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__3_end;\
+}\
+l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__3_end: ((void) 0);}
 lean_object* l___private_Lean_Structure_0__Lean_isSubobjectFieldAux(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -2131,23 +2122,23 @@ lean_dec_ref(res);
 res = initialize_Lean_ProjFns(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_getStructureCtor___closed__1 = _init_l_Lean_getStructureCtor___closed__1();
+_init_l_Lean_getStructureCtor___closed__1(l_Lean_getStructureCtor___closed__1);
 lean_mark_persistent(l_Lean_getStructureCtor___closed__1);
-l_Lean_getStructureCtor___closed__2 = _init_l_Lean_getStructureCtor___closed__2();
+_init_l_Lean_getStructureCtor___closed__2(l_Lean_getStructureCtor___closed__2);
 lean_mark_persistent(l_Lean_getStructureCtor___closed__2);
-l_Lean_getStructureCtor___closed__3 = _init_l_Lean_getStructureCtor___closed__3();
+_init_l_Lean_getStructureCtor___closed__3(l_Lean_getStructureCtor___closed__3);
 lean_mark_persistent(l_Lean_getStructureCtor___closed__3);
-l_Lean_getStructureCtor___closed__4 = _init_l_Lean_getStructureCtor___closed__4();
+_init_l_Lean_getStructureCtor___closed__4(l_Lean_getStructureCtor___closed__4);
 lean_mark_persistent(l_Lean_getStructureCtor___closed__4);
-l_Lean_getStructureCtor___closed__5 = _init_l_Lean_getStructureCtor___closed__5();
+_init_l_Lean_getStructureCtor___closed__5(l_Lean_getStructureCtor___closed__5);
 lean_mark_persistent(l_Lean_getStructureCtor___closed__5);
-l_Lean_getStructureCtor___closed__6 = _init_l_Lean_getStructureCtor___closed__6();
+_init_l_Lean_getStructureCtor___closed__6(l_Lean_getStructureCtor___closed__6);
 lean_mark_persistent(l_Lean_getStructureCtor___closed__6);
-l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__1 = _init_l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__1();
+_init_l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__1(l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__1);
 lean_mark_persistent(l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__1);
-l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__2 = _init_l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__2();
+_init_l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__2(l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__2);
 lean_mark_persistent(l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__2);
-l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__3 = _init_l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__3();
+_init_l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__3(l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__3);
 lean_mark_persistent(l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }

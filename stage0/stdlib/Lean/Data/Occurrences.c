@@ -33,14 +33,13 @@ lean_object* l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lea
 lean_object* l_Lean_Occurrences_isAll_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Occurrences_isAll___boxed(lean_object*);
 uint8_t l_Lean_Occurrences_isAll(lean_object*);
-static lean_object* _init_l_Lean_instInhabitedOccurrences() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
+#define _init_l_Lean_instInhabitedOccurrences(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_instInhabitedOccurrences_end;\
+}\
+l_Lean_instInhabitedOccurrences_end: ((void) 0);}
 lean_object* l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31__match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -254,22 +253,20 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_instBEqOccurrences___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31____boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_instBEqOccurrences() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_instBEqOccurrences___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_instBEqOccurrences___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_31____boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_instBEqOccurrences___closed__1_end;\
+}\
+l_Lean_instBEqOccurrences___closed__1_end: ((void) 0);}
+#define _init_l_Lean_instBEqOccurrences(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_instBEqOccurrences___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_instBEqOccurrences_end;\
+}\
+l_Lean_instBEqOccurrences_end: ((void) 0);}
 lean_object* l_Lean_Occurrences_contains_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -468,11 +465,11 @@ _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_instInhabitedOccurrences = _init_l_Lean_instInhabitedOccurrences();
+_init_l_Lean_instInhabitedOccurrences(l_Lean_instInhabitedOccurrences);
 lean_mark_persistent(l_Lean_instInhabitedOccurrences);
-l_Lean_instBEqOccurrences___closed__1 = _init_l_Lean_instBEqOccurrences___closed__1();
+_init_l_Lean_instBEqOccurrences___closed__1(l_Lean_instBEqOccurrences___closed__1);
 lean_mark_persistent(l_Lean_instBEqOccurrences___closed__1);
-l_Lean_instBEqOccurrences = _init_l_Lean_instBEqOccurrences();
+_init_l_Lean_instBEqOccurrences(l_Lean_instBEqOccurrences);
 lean_mark_persistent(l_Lean_instBEqOccurrences);
 return lean_io_result_mk_ok(lean_box(0));
 }

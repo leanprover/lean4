@@ -248,28 +248,26 @@ x_6 = l_Std_HashMapBucket_update___rarg(x_1, x_5, x_3, x_4);
 return x_6;
 }
 }
-static lean_object* _init_l_Std_mkHashMapImp___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = lean_unsigned_to_nat(8u);
-x_3 = lean_mk_array(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_mkHashMapImp___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Std_mkHashMapImp___rarg___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
+#define _init_l_Std_mkHashMapImp___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = lean_unsigned_to_nat(8u);\
+x_3 = lean_mk_array(x_2, x_1);\
+__INIT_VAR__ = x_3; goto l_Std_mkHashMapImp___rarg___closed__1_end;\
+}\
+l_Std_mkHashMapImp___rarg___closed__1_end: ((void) 0);}
+#define _init_l_Std_mkHashMapImp___rarg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_unsigned_to_nat(0u);\
+x_2 = l_Std_mkHashMapImp___rarg___closed__1;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Std_mkHashMapImp___rarg___closed__2_end;\
+}\
+l_Std_mkHashMapImp___rarg___closed__2_end: ((void) 0);}
 lean_object* l_Std_mkHashMapImp___rarg(lean_object* x_1) {
 _start:
 {
@@ -1745,15 +1743,14 @@ lean_dec(x_3);
 return x_5;
 }
 }
-static lean_object* _init_l_Std_HashMap_instInhabitedHashMap___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
-x_2 = l_Std_mkHashMapImp___rarg(x_1);
-return x_2;
-}
-}
+#define _init_l_Std_HashMap_instInhabitedHashMap___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = lean_unsigned_to_nat(8u);\
+x_2 = l_Std_mkHashMapImp___rarg(x_1);\
+__INIT_VAR__ = x_2; goto l_Std_HashMap_instInhabitedHashMap___closed__1_end;\
+}\
+l_Std_HashMap_instInhabitedHashMap___closed__1_end: ((void) 0);}
 lean_object* l_Std_HashMap_instInhabitedHashMap(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1967,43 +1964,39 @@ x_3 = lean_alloc_closure((void*)(l_Std_HashMap_find_x21_match__1___rarg), 3, 0);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_HashMap_find_x21___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Std.Data.HashMap");
-return x_1;
-}
-}
-static lean_object* _init_l_Std_HashMap_find_x21___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Std.HashMap.find!");
-return x_1;
-}
-}
-static lean_object* _init_l_Std_HashMap_find_x21___rarg___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("key is not in the map");
-return x_1;
-}
-}
-static lean_object* _init_l_Std_HashMap_find_x21___rarg___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Std_HashMap_find_x21___rarg___closed__1;
-x_2 = l_Std_HashMap_find_x21___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(160u);
-x_4 = lean_unsigned_to_nat(14u);
-x_5 = l_Std_HashMap_find_x21___rarg___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
+#define _init_l_Std_HashMap_find_x21___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Std.Data.HashMap");\
+__INIT_VAR__ = x_1; goto l_Std_HashMap_find_x21___rarg___closed__1_end;\
+}\
+l_Std_HashMap_find_x21___rarg___closed__1_end: ((void) 0);}
+#define _init_l_Std_HashMap_find_x21___rarg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Std.HashMap.find!");\
+__INIT_VAR__ = x_1; goto l_Std_HashMap_find_x21___rarg___closed__2_end;\
+}\
+l_Std_HashMap_find_x21___rarg___closed__2_end: ((void) 0);}
+#define _init_l_Std_HashMap_find_x21___rarg___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("key is not in the map");\
+__INIT_VAR__ = x_1; goto l_Std_HashMap_find_x21___rarg___closed__3_end;\
+}\
+l_Std_HashMap_find_x21___rarg___closed__3_end: ((void) 0);}
+#define _init_l_Std_HashMap_find_x21___rarg___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; \
+x_1 = l_Std_HashMap_find_x21___rarg___closed__1;\
+x_2 = l_Std_HashMap_find_x21___rarg___closed__2;\
+x_3 = lean_unsigned_to_nat(160u);\
+x_4 = lean_unsigned_to_nat(14u);\
+x_5 = l_Std_HashMap_find_x21___rarg___closed__3;\
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);\
+__INIT_VAR__ = x_6; goto l_Std_HashMap_find_x21___rarg___closed__4_end;\
+}\
+l_Std_HashMap_find_x21___rarg___closed__4_end: ((void) 0);}
 lean_object* l_Std_HashMap_find_x21___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -3029,19 +3022,19 @@ lean_dec_ref(res);
 res = initialize_Std_Data_AssocList(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_mkHashMapImp___rarg___closed__1 = _init_l_Std_mkHashMapImp___rarg___closed__1();
+_init_l_Std_mkHashMapImp___rarg___closed__1(l_Std_mkHashMapImp___rarg___closed__1);
 lean_mark_persistent(l_Std_mkHashMapImp___rarg___closed__1);
-l_Std_mkHashMapImp___rarg___closed__2 = _init_l_Std_mkHashMapImp___rarg___closed__2();
+_init_l_Std_mkHashMapImp___rarg___closed__2(l_Std_mkHashMapImp___rarg___closed__2);
 lean_mark_persistent(l_Std_mkHashMapImp___rarg___closed__2);
-l_Std_HashMap_instInhabitedHashMap___closed__1 = _init_l_Std_HashMap_instInhabitedHashMap___closed__1();
+_init_l_Std_HashMap_instInhabitedHashMap___closed__1(l_Std_HashMap_instInhabitedHashMap___closed__1);
 lean_mark_persistent(l_Std_HashMap_instInhabitedHashMap___closed__1);
-l_Std_HashMap_find_x21___rarg___closed__1 = _init_l_Std_HashMap_find_x21___rarg___closed__1();
+_init_l_Std_HashMap_find_x21___rarg___closed__1(l_Std_HashMap_find_x21___rarg___closed__1);
 lean_mark_persistent(l_Std_HashMap_find_x21___rarg___closed__1);
-l_Std_HashMap_find_x21___rarg___closed__2 = _init_l_Std_HashMap_find_x21___rarg___closed__2();
+_init_l_Std_HashMap_find_x21___rarg___closed__2(l_Std_HashMap_find_x21___rarg___closed__2);
 lean_mark_persistent(l_Std_HashMap_find_x21___rarg___closed__2);
-l_Std_HashMap_find_x21___rarg___closed__3 = _init_l_Std_HashMap_find_x21___rarg___closed__3();
+_init_l_Std_HashMap_find_x21___rarg___closed__3(l_Std_HashMap_find_x21___rarg___closed__3);
 lean_mark_persistent(l_Std_HashMap_find_x21___rarg___closed__3);
-l_Std_HashMap_find_x21___rarg___closed__4 = _init_l_Std_HashMap_find_x21___rarg___closed__4();
+_init_l_Std_HashMap_find_x21___rarg___closed__4(l_Std_HashMap_find_x21___rarg___closed__4);
 lean_mark_persistent(l_Std_HashMap_find_x21___rarg___closed__4);
 return lean_io_result_mk_ok(lean_box(0));
 }

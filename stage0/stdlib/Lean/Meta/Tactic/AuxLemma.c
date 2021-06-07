@@ -85,64 +85,58 @@ lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_o
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAuxLemma_match__1(lean_object*);
 lean_object* lean_add_decl(lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Meta_AuxLemmas_idx___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(1u);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_AuxLemmas_lemmas___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Cache_synthInstance___default___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_instInhabitedAuxLemmas___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_Meta_Cache_synthInstance___default___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_instInhabitedAuxLemmas() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_instInhabitedAuxLemmas___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = l_Lean_Meta_Cache_synthInstance___default___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__1;
-x_2 = lean_alloc_closure((void*)(l_EStateM_pure___rarg), 2, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Meta_AuxLemmas_idx___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_unsigned_to_nat(1u);\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_AuxLemmas_idx___default_end;\
+}\
+l_Lean_Meta_AuxLemmas_idx___default_end: ((void) 0);}
+#define _init_l_Lean_Meta_AuxLemmas_lemmas___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Meta_Cache_synthInstance___default___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_AuxLemmas_lemmas___default_end;\
+}\
+l_Lean_Meta_AuxLemmas_lemmas___default_end: ((void) 0);}
+#define _init_l_Lean_Meta_instInhabitedAuxLemmas___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_unsigned_to_nat(0u);\
+x_2 = l_Lean_Meta_Cache_synthInstance___default___closed__1;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_instInhabitedAuxLemmas___closed__1_end;\
+}\
+l_Lean_Meta_instInhabitedAuxLemmas___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_instInhabitedAuxLemmas(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Meta_instInhabitedAuxLemmas___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_instInhabitedAuxLemmas_end;\
+}\
+l_Lean_Meta_instInhabitedAuxLemmas_end: ((void) 0);}
+#define _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_unsigned_to_nat(1u);\
+x_2 = l_Lean_Meta_Cache_synthInstance___default___closed__1;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__1_end;\
+}\
+l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__1;\
+x_2 = lean_alloc_closure((void*)(l_EStateM_pure___rarg), 2, 1);\
+lean_closure_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__2_end;\
+}\
+l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__2_end: ((void) 0);}
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44_(lean_object* x_1) {
 _start:
 {
@@ -966,24 +960,22 @@ return x_18;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_mkAuxLemma___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("_auxLemma");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_mkAuxLemma___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Meta_mkAuxLemma___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Meta_mkAuxLemma___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("_auxLemma");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_mkAuxLemma___closed__1_end;\
+}\
+l_Lean_Meta_mkAuxLemma___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_mkAuxLemma___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Meta_mkAuxLemma___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_mkAuxLemma___closed__2_end;\
+}\
+l_Lean_Meta_mkAuxLemma___closed__2_end: ((void) 0);}
 lean_object* l_Lean_Meta_mkAuxLemma(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -1658,26 +1650,26 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_AuxLemmas_idx___default = _init_l_Lean_Meta_AuxLemmas_idx___default();
+_init_l_Lean_Meta_AuxLemmas_idx___default(l_Lean_Meta_AuxLemmas_idx___default);
 lean_mark_persistent(l_Lean_Meta_AuxLemmas_idx___default);
-l_Lean_Meta_AuxLemmas_lemmas___default = _init_l_Lean_Meta_AuxLemmas_lemmas___default();
+_init_l_Lean_Meta_AuxLemmas_lemmas___default(l_Lean_Meta_AuxLemmas_lemmas___default);
 lean_mark_persistent(l_Lean_Meta_AuxLemmas_lemmas___default);
-l_Lean_Meta_instInhabitedAuxLemmas___closed__1 = _init_l_Lean_Meta_instInhabitedAuxLemmas___closed__1();
+_init_l_Lean_Meta_instInhabitedAuxLemmas___closed__1(l_Lean_Meta_instInhabitedAuxLemmas___closed__1);
 lean_mark_persistent(l_Lean_Meta_instInhabitedAuxLemmas___closed__1);
-l_Lean_Meta_instInhabitedAuxLemmas = _init_l_Lean_Meta_instInhabitedAuxLemmas();
+_init_l_Lean_Meta_instInhabitedAuxLemmas(l_Lean_Meta_instInhabitedAuxLemmas);
 lean_mark_persistent(l_Lean_Meta_instInhabitedAuxLemmas);
-l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__1 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__1();
+_init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__1(l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__1);
 lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__1);
-l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__2 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__2();
+_init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__2(l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__2);
 lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44____closed__2);
 res = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_44_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_auxLemmasExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Meta_auxLemmasExt);
 lean_dec_ref(res);
-l_Lean_Meta_mkAuxLemma___closed__1 = _init_l_Lean_Meta_mkAuxLemma___closed__1();
+_init_l_Lean_Meta_mkAuxLemma___closed__1(l_Lean_Meta_mkAuxLemma___closed__1);
 lean_mark_persistent(l_Lean_Meta_mkAuxLemma___closed__1);
-l_Lean_Meta_mkAuxLemma___closed__2 = _init_l_Lean_Meta_mkAuxLemma___closed__2();
+_init_l_Lean_Meta_mkAuxLemma___closed__2(l_Lean_Meta_mkAuxLemma___closed__2);
 lean_mark_persistent(l_Lean_Meta_mkAuxLemma___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }

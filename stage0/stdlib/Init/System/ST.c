@@ -87,14 +87,13 @@ lean_object* l_instMonadExceptOfEST(lean_object*, lean_object*);
 lean_object* l_ST_Ref_take___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_runST_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_runST___rarg(lean_object*);
-static lean_object* _init_l_instMonadEST___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_EStateM_instMonadEStateM(lean_box(0), lean_box(0));
-return x_1;
-}
-}
+#define _init_l_instMonadEST___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_EStateM_instMonadEStateM(lean_box(0), lean_box(0));\
+__INIT_VAR__ = x_1; goto l_instMonadEST___closed__1_end;\
+}\
+l_instMonadEST___closed__1_end: ((void) 0);}
 lean_object* l_instMonadEST(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -103,23 +102,21 @@ x_3 = l_instMonadEST___closed__1;
 return x_3;
 }
 }
-static lean_object* _init_l_instMonadExceptOfEST___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_EStateM_nonBacktrackable(lean_box(0));
-return x_1;
-}
-}
-static lean_object* _init_l_instMonadExceptOfEST___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_instMonadExceptOfEST___closed__1;
-x_2 = l_EStateM_instMonadExceptOfEStateM___rarg(x_1);
-return x_2;
-}
-}
+#define _init_l_instMonadExceptOfEST___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_EStateM_nonBacktrackable(lean_box(0));\
+__INIT_VAR__ = x_1; goto l_instMonadExceptOfEST___closed__1_end;\
+}\
+l_instMonadExceptOfEST___closed__1_end: ((void) 0);}
+#define _init_l_instMonadExceptOfEST___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_instMonadExceptOfEST___closed__1;\
+x_2 = l_EStateM_instMonadExceptOfEStateM___rarg(x_1);\
+__INIT_VAR__ = x_2; goto l_instMonadExceptOfEST___closed__2_end;\
+}\
+l_instMonadExceptOfEST___closed__2_end: ((void) 0);}
 lean_object* l_instMonadExceptOfEST(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -395,14 +392,13 @@ x_4 = lean_alloc_closure((void*)(l_instMonadLiftSTEST___rarg), 2, 0);
 return x_4;
 }
 }
-static lean_object* _init_l_ST_RefPointed() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
+#define _init_l_ST_RefPointed(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_ST_RefPointed_end;\
+}\
+l_ST_RefPointed_end: ((void) 0);}
 lean_object* l_ST_instInhabitedRef(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1011,13 +1007,13 @@ lean_dec_ref(res);
 res = initialize_Init_Control_Reader(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_instMonadEST___closed__1 = _init_l_instMonadEST___closed__1();
+_init_l_instMonadEST___closed__1(l_instMonadEST___closed__1);
 lean_mark_persistent(l_instMonadEST___closed__1);
-l_instMonadExceptOfEST___closed__1 = _init_l_instMonadExceptOfEST___closed__1();
+_init_l_instMonadExceptOfEST___closed__1(l_instMonadExceptOfEST___closed__1);
 lean_mark_persistent(l_instMonadExceptOfEST___closed__1);
-l_instMonadExceptOfEST___closed__2 = _init_l_instMonadExceptOfEST___closed__2();
+_init_l_instMonadExceptOfEST___closed__2(l_instMonadExceptOfEST___closed__2);
 lean_mark_persistent(l_instMonadExceptOfEST___closed__2);
-l_ST_RefPointed = _init_l_ST_RefPointed();
+_init_l_ST_RefPointed(l_ST_RefPointed);
 lean_mark_persistent(l_ST_RefPointed);
 return lean_io_result_mk_ok(lean_box(0));
 }

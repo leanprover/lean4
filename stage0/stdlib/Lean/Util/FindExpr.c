@@ -37,14 +37,13 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_FindImpl_findM_x3f_visit(lean_object*, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_FindImpl_findM_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_occurs(lean_object*, lean_object*);
-static size_t _init_l_Lean_Expr_FindImpl_cacheSize() {
-_start:
-{
-size_t x_1; 
-x_1 = 8192;
-return x_1;
-}
-}
+#define _init_l_Lean_Expr_FindImpl_cacheSize(__INIT_VAR__) { \
+{\
+size_t x_1; \
+x_1 = 8192;\
+__INIT_VAR__ = x_1; goto l_Lean_Expr_FindImpl_cacheSize_end;\
+}\
+l_Lean_Expr_FindImpl_cacheSize_end: ((void) 0);}
 lean_object* l_Lean_Expr_FindImpl_visited(lean_object* x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
@@ -1115,24 +1114,22 @@ x_6 = l_Lean_Expr_FindImpl_findM_x3f(x_1, x_5, x_3, x_4);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Expr_FindImpl_initCache___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(8192u);
-x_2 = lean_box(0);
-x_3 = lean_mk_array(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Expr_FindImpl_initCache() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Expr_FindImpl_initCache___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_Expr_FindImpl_initCache___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_unsigned_to_nat(8192u);\
+x_2 = lean_box(0);\
+x_3 = lean_mk_array(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Expr_FindImpl_initCache___closed__1_end;\
+}\
+l_Lean_Expr_FindImpl_initCache___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Expr_FindImpl_initCache(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Expr_FindImpl_initCache___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Expr_FindImpl_initCache_end;\
+}\
+l_Lean_Expr_FindImpl_initCache_end: ((void) 0);}
 lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1463,10 +1460,10 @@ lean_dec_ref(res);
 res = initialize_Lean_Expr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Expr_FindImpl_cacheSize = _init_l_Lean_Expr_FindImpl_cacheSize();
-l_Lean_Expr_FindImpl_initCache___closed__1 = _init_l_Lean_Expr_FindImpl_initCache___closed__1();
+_init_l_Lean_Expr_FindImpl_cacheSize(l_Lean_Expr_FindImpl_cacheSize);
+_init_l_Lean_Expr_FindImpl_initCache___closed__1(l_Lean_Expr_FindImpl_initCache___closed__1);
 lean_mark_persistent(l_Lean_Expr_FindImpl_initCache___closed__1);
-l_Lean_Expr_FindImpl_initCache = _init_l_Lean_Expr_FindImpl_initCache();
+_init_l_Lean_Expr_FindImpl_initCache(l_Lean_Expr_FindImpl_initCache);
 lean_mark_persistent(l_Lean_Expr_FindImpl_initCache);
 return lean_io_result_mk_ok(lean_box(0));
 }

@@ -2569,14 +2569,13 @@ return x_28;
 }
 }
 }
-static lean_object* _init_l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___lambda__1___boxed), 7, 0);
-return x_1;
-}
-}
+#define _init_l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___lambda__1___boxed), 7, 0);\
+__INIT_VAR__ = x_1; goto l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___closed__1_end;\
+}\
+l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___closed__1_end: ((void) 0);}
 lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -3574,7 +3573,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_InferType(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___closed__1 = _init_l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___closed__1();
+_init_l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___closed__1(l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___closed__1);
 lean_mark_persistent(l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

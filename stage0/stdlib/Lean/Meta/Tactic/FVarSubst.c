@@ -75,30 +75,27 @@ uint8_t l_Lean_Meta_FVarSubst_isEmpty(lean_object*);
 lean_object* l_Lean_LocalDecl_applyFVarSubst(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_ReplaceImpl_initCache;
 lean_object* l_Lean_Expr_applyFVarSubst(lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Meta_FVarSubst_map___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_instInhabitedFVarSubst() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_FVarSubst_empty() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
+#define _init_l_Lean_Meta_FVarSubst_map___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_FVarSubst_map___default_end;\
+}\
+l_Lean_Meta_FVarSubst_map___default_end: ((void) 0);}
+#define _init_l_Lean_Meta_instInhabitedFVarSubst(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_instInhabitedFVarSubst_end;\
+}\
+l_Lean_Meta_instInhabitedFVarSubst_end: ((void) 0);}
+#define _init_l_Lean_Meta_FVarSubst_empty(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_FVarSubst_empty_end;\
+}\
+l_Lean_Meta_FVarSubst_empty_end: ((void) 0);}
 uint8_t l_Lean_Meta_FVarSubst_isEmpty(lean_object* x_1) {
 _start:
 {
@@ -1512,11 +1509,11 @@ lean_dec_ref(res);
 res = initialize_Lean_Util_ReplaceExpr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_FVarSubst_map___default = _init_l_Lean_Meta_FVarSubst_map___default();
+_init_l_Lean_Meta_FVarSubst_map___default(l_Lean_Meta_FVarSubst_map___default);
 lean_mark_persistent(l_Lean_Meta_FVarSubst_map___default);
-l_Lean_Meta_instInhabitedFVarSubst = _init_l_Lean_Meta_instInhabitedFVarSubst();
+_init_l_Lean_Meta_instInhabitedFVarSubst(l_Lean_Meta_instInhabitedFVarSubst);
 lean_mark_persistent(l_Lean_Meta_instInhabitedFVarSubst);
-l_Lean_Meta_FVarSubst_empty = _init_l_Lean_Meta_FVarSubst_empty();
+_init_l_Lean_Meta_FVarSubst_empty(l_Lean_Meta_FVarSubst_empty);
 lean_mark_persistent(l_Lean_Meta_FVarSubst_empty);
 return lean_io_result_mk_ok(lean_box(0));
 }

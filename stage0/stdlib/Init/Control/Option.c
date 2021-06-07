@@ -74,14 +74,13 @@ lean_object* l_OptionT_orElse_match__1___rarg(lean_object*, lean_object*, lean_o
 lean_object* l_OptionT_fail___rarg(lean_object*, lean_object*);
 lean_object* l_Option_toBool___rarg___boxed(lean_object*);
 lean_object* l_OptionT_instMonadOptionT___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_instToBoolOption___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Option_toBool___rarg___boxed), 1, 0);
-return x_1;
-}
-}
+#define _init_l_instToBoolOption___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Option_toBool___rarg___boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_instToBoolOption___closed__1_end;\
+}\
+l_instToBoolOption___closed__1_end: ((void) 0);}
 lean_object* l_instToBoolOption(lean_object* x_1) {
 _start:
 {
@@ -983,7 +982,7 @@ lean_dec_ref(res);
 res = initialize_Init_Control_Except(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_instToBoolOption___closed__1 = _init_l_instToBoolOption___closed__1();
+_init_l_instToBoolOption___closed__1(l_instToBoolOption___closed__1);
 lean_mark_persistent(l_instToBoolOption___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

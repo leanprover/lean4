@@ -158,32 +158,29 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Meta_revert_match__3___rarg), 3, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MetavarContext_MkBinding_instToStringException___closed__1;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string(", it is an auxiliary declaration created to represent recursive definitions");
-return x_1;
-}
-}
-static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__2;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
+#define _init_l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_MetavarContext_MkBinding_instToStringException___closed__1;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__1_end;\
+}\
+l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__1_end: ((void) 0);}
+#define _init_l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string(", it is an auxiliary declaration created to represent recursive definitions");\
+__INIT_VAR__ = x_1; goto l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__2_end;\
+}\
+l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__2_end: ((void) 0);}
+#define _init_l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__2;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__3_end;\
+}\
+l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__3_end: ((void) 0);}
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -764,23 +761,21 @@ return x_42;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_revert___lambda__2___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("failed to revert variables ");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_revert___lambda__2___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_revert___lambda__2___closed__1;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Meta_revert___lambda__2___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("failed to revert variables ");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_revert___lambda__2___closed__1_end;\
+}\
+l_Lean_Meta_revert___lambda__2___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_revert___lambda__2___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_revert___lambda__2___closed__1;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_revert___lambda__2___closed__2_end;\
+}\
+l_Lean_Meta_revert___lambda__2___closed__2_end: ((void) 0);}
 lean_object* l_Lean_Meta_revert___lambda__2(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -1293,16 +1288,15 @@ return x_155;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_revert___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Parser_Tactic_revert___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Meta_revert___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Parser_Tactic_revert___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_revert___closed__1_end;\
+}\
+l_Lean_Meta_revert___closed__1_end: ((void) 0);}
 lean_object* l_Lean_Meta_revert(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -1460,17 +1454,17 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Clear(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__1 = _init_l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__1();
+_init_l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__1(l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__1);
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__1);
-l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__2 = _init_l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__2();
+_init_l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__2(l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__2);
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__2);
-l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__3 = _init_l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__3();
+_init_l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__3(l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__3);
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__3);
-l_Lean_Meta_revert___lambda__2___closed__1 = _init_l_Lean_Meta_revert___lambda__2___closed__1();
+_init_l_Lean_Meta_revert___lambda__2___closed__1(l_Lean_Meta_revert___lambda__2___closed__1);
 lean_mark_persistent(l_Lean_Meta_revert___lambda__2___closed__1);
-l_Lean_Meta_revert___lambda__2___closed__2 = _init_l_Lean_Meta_revert___lambda__2___closed__2();
+_init_l_Lean_Meta_revert___lambda__2___closed__2(l_Lean_Meta_revert___lambda__2___closed__2);
 lean_mark_persistent(l_Lean_Meta_revert___lambda__2___closed__2);
-l_Lean_Meta_revert___closed__1 = _init_l_Lean_Meta_revert___closed__1();
+_init_l_Lean_Meta_revert___closed__1(l_Lean_Meta_revert___closed__1);
 lean_mark_persistent(l_Lean_Meta_revert___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

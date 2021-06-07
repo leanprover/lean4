@@ -551,118 +551,104 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_instAddUInt8___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt8_add___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instAddUInt8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instAddUInt8___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instSubUInt8___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt8_sub___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instSubUInt8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instSubUInt8___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instMulUInt8___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt8_mul___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instMulUInt8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instMulUInt8___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instModUInt8___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt8_mod___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instModUInt8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instModUInt8___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instHModUInt8NatUInt8___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt8_modn___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instHModUInt8NatUInt8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instHModUInt8NatUInt8___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instDivUInt8___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt8_div___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instDivUInt8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instDivUInt8___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instLTUInt8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_instLEUInt8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
+#define _init_l_instAddUInt8___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt8_add___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instAddUInt8___closed__1_end;\
+}\
+l_instAddUInt8___closed__1_end: ((void) 0);}
+#define _init_l_instAddUInt8(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instAddUInt8___closed__1;\
+__INIT_VAR__ = x_1; goto l_instAddUInt8_end;\
+}\
+l_instAddUInt8_end: ((void) 0);}
+#define _init_l_instSubUInt8___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt8_sub___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instSubUInt8___closed__1_end;\
+}\
+l_instSubUInt8___closed__1_end: ((void) 0);}
+#define _init_l_instSubUInt8(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instSubUInt8___closed__1;\
+__INIT_VAR__ = x_1; goto l_instSubUInt8_end;\
+}\
+l_instSubUInt8_end: ((void) 0);}
+#define _init_l_instMulUInt8___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt8_mul___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instMulUInt8___closed__1_end;\
+}\
+l_instMulUInt8___closed__1_end: ((void) 0);}
+#define _init_l_instMulUInt8(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instMulUInt8___closed__1;\
+__INIT_VAR__ = x_1; goto l_instMulUInt8_end;\
+}\
+l_instMulUInt8_end: ((void) 0);}
+#define _init_l_instModUInt8___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt8_mod___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instModUInt8___closed__1_end;\
+}\
+l_instModUInt8___closed__1_end: ((void) 0);}
+#define _init_l_instModUInt8(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instModUInt8___closed__1;\
+__INIT_VAR__ = x_1; goto l_instModUInt8_end;\
+}\
+l_instModUInt8_end: ((void) 0);}
+#define _init_l_instHModUInt8NatUInt8___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt8_modn___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instHModUInt8NatUInt8___closed__1_end;\
+}\
+l_instHModUInt8NatUInt8___closed__1_end: ((void) 0);}
+#define _init_l_instHModUInt8NatUInt8(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instHModUInt8NatUInt8___closed__1;\
+__INIT_VAR__ = x_1; goto l_instHModUInt8NatUInt8_end;\
+}\
+l_instHModUInt8NatUInt8_end: ((void) 0);}
+#define _init_l_instDivUInt8___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt8_div___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instDivUInt8___closed__1_end;\
+}\
+l_instDivUInt8___closed__1_end: ((void) 0);}
+#define _init_l_instDivUInt8(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instDivUInt8___closed__1;\
+__INIT_VAR__ = x_1; goto l_instDivUInt8_end;\
+}\
+l_instDivUInt8_end: ((void) 0);}
+#define _init_l_instLTUInt8(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_instLTUInt8_end;\
+}\
+l_instLTUInt8_end: ((void) 0);}
+#define _init_l_instLEUInt8(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_instLEUInt8_end;\
+}\
+l_instLEUInt8_end: ((void) 0);}
 lean_object* l_UInt8_complement___boxed(lean_object* x_1) {
 _start:
 {
@@ -674,102 +660,90 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_instComplementUInt8___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt8_complement___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instComplementUInt8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instComplementUInt8___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instAndOpUInt8___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt8_land___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instAndOpUInt8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instAndOpUInt8___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instOrOpUInt8___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt8_lor___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instOrOpUInt8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instOrOpUInt8___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instXorUInt8___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt8_xor___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instXorUInt8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instXorUInt8___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftLeftUInt8___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt8_shiftLeft___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftLeftUInt8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instShiftLeftUInt8___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftRightUInt8___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt8_shiftRight___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftRightUInt8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instShiftRightUInt8___closed__1;
-return x_1;
-}
-}
+#define _init_l_instComplementUInt8___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt8_complement___boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_instComplementUInt8___closed__1_end;\
+}\
+l_instComplementUInt8___closed__1_end: ((void) 0);}
+#define _init_l_instComplementUInt8(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instComplementUInt8___closed__1;\
+__INIT_VAR__ = x_1; goto l_instComplementUInt8_end;\
+}\
+l_instComplementUInt8_end: ((void) 0);}
+#define _init_l_instAndOpUInt8___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt8_land___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instAndOpUInt8___closed__1_end;\
+}\
+l_instAndOpUInt8___closed__1_end: ((void) 0);}
+#define _init_l_instAndOpUInt8(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instAndOpUInt8___closed__1;\
+__INIT_VAR__ = x_1; goto l_instAndOpUInt8_end;\
+}\
+l_instAndOpUInt8_end: ((void) 0);}
+#define _init_l_instOrOpUInt8___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt8_lor___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instOrOpUInt8___closed__1_end;\
+}\
+l_instOrOpUInt8___closed__1_end: ((void) 0);}
+#define _init_l_instOrOpUInt8(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instOrOpUInt8___closed__1;\
+__INIT_VAR__ = x_1; goto l_instOrOpUInt8_end;\
+}\
+l_instOrOpUInt8_end: ((void) 0);}
+#define _init_l_instXorUInt8___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt8_xor___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instXorUInt8___closed__1_end;\
+}\
+l_instXorUInt8___closed__1_end: ((void) 0);}
+#define _init_l_instXorUInt8(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instXorUInt8___closed__1;\
+__INIT_VAR__ = x_1; goto l_instXorUInt8_end;\
+}\
+l_instXorUInt8_end: ((void) 0);}
+#define _init_l_instShiftLeftUInt8___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt8_shiftLeft___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instShiftLeftUInt8___closed__1_end;\
+}\
+l_instShiftLeftUInt8___closed__1_end: ((void) 0);}
+#define _init_l_instShiftLeftUInt8(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instShiftLeftUInt8___closed__1;\
+__INIT_VAR__ = x_1; goto l_instShiftLeftUInt8_end;\
+}\
+l_instShiftLeftUInt8_end: ((void) 0);}
+#define _init_l_instShiftRightUInt8___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt8_shiftRight___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instShiftRightUInt8___closed__1_end;\
+}\
+l_instShiftRightUInt8___closed__1_end: ((void) 0);}
+#define _init_l_instShiftRightUInt8(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instShiftRightUInt8___closed__1;\
+__INIT_VAR__ = x_1; goto l_instShiftRightUInt8_end;\
+}\
+l_instShiftRightUInt8_end: ((void) 0);}
 lean_object* l_UInt8_decLt___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1036,118 +1010,104 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_instAddUInt16___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt16_add___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instAddUInt16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instAddUInt16___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instSubUInt16___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt16_sub___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instSubUInt16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instSubUInt16___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instMulUInt16___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt16_mul___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instMulUInt16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instMulUInt16___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instModUInt16___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt16_mod___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instModUInt16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instModUInt16___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instHModUInt16NatUInt16___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt16_modn___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instHModUInt16NatUInt16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instHModUInt16NatUInt16___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instDivUInt16___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt16_div___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instDivUInt16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instDivUInt16___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instLTUInt16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_instLEUInt16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
+#define _init_l_instAddUInt16___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt16_add___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instAddUInt16___closed__1_end;\
+}\
+l_instAddUInt16___closed__1_end: ((void) 0);}
+#define _init_l_instAddUInt16(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instAddUInt16___closed__1;\
+__INIT_VAR__ = x_1; goto l_instAddUInt16_end;\
+}\
+l_instAddUInt16_end: ((void) 0);}
+#define _init_l_instSubUInt16___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt16_sub___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instSubUInt16___closed__1_end;\
+}\
+l_instSubUInt16___closed__1_end: ((void) 0);}
+#define _init_l_instSubUInt16(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instSubUInt16___closed__1;\
+__INIT_VAR__ = x_1; goto l_instSubUInt16_end;\
+}\
+l_instSubUInt16_end: ((void) 0);}
+#define _init_l_instMulUInt16___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt16_mul___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instMulUInt16___closed__1_end;\
+}\
+l_instMulUInt16___closed__1_end: ((void) 0);}
+#define _init_l_instMulUInt16(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instMulUInt16___closed__1;\
+__INIT_VAR__ = x_1; goto l_instMulUInt16_end;\
+}\
+l_instMulUInt16_end: ((void) 0);}
+#define _init_l_instModUInt16___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt16_mod___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instModUInt16___closed__1_end;\
+}\
+l_instModUInt16___closed__1_end: ((void) 0);}
+#define _init_l_instModUInt16(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instModUInt16___closed__1;\
+__INIT_VAR__ = x_1; goto l_instModUInt16_end;\
+}\
+l_instModUInt16_end: ((void) 0);}
+#define _init_l_instHModUInt16NatUInt16___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt16_modn___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instHModUInt16NatUInt16___closed__1_end;\
+}\
+l_instHModUInt16NatUInt16___closed__1_end: ((void) 0);}
+#define _init_l_instHModUInt16NatUInt16(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instHModUInt16NatUInt16___closed__1;\
+__INIT_VAR__ = x_1; goto l_instHModUInt16NatUInt16_end;\
+}\
+l_instHModUInt16NatUInt16_end: ((void) 0);}
+#define _init_l_instDivUInt16___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt16_div___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instDivUInt16___closed__1_end;\
+}\
+l_instDivUInt16___closed__1_end: ((void) 0);}
+#define _init_l_instDivUInt16(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instDivUInt16___closed__1;\
+__INIT_VAR__ = x_1; goto l_instDivUInt16_end;\
+}\
+l_instDivUInt16_end: ((void) 0);}
+#define _init_l_instLTUInt16(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_instLTUInt16_end;\
+}\
+l_instLTUInt16_end: ((void) 0);}
+#define _init_l_instLEUInt16(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_instLEUInt16_end;\
+}\
+l_instLEUInt16_end: ((void) 0);}
 lean_object* l_UInt16_complement___boxed(lean_object* x_1) {
 _start:
 {
@@ -1159,102 +1119,90 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_instComplementUInt16___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt16_complement___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instComplementUInt16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instComplementUInt16___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instAndOpUInt16___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt16_land___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instAndOpUInt16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instAndOpUInt16___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instOrOpUInt16___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt16_lor___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instOrOpUInt16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instOrOpUInt16___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instXorUInt16___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt16_xor___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instXorUInt16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instXorUInt16___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftLeftUInt16___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt16_shiftLeft___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftLeftUInt16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instShiftLeftUInt16___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftRightUInt16___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt16_shiftRight___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftRightUInt16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instShiftRightUInt16___closed__1;
-return x_1;
-}
-}
+#define _init_l_instComplementUInt16___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt16_complement___boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_instComplementUInt16___closed__1_end;\
+}\
+l_instComplementUInt16___closed__1_end: ((void) 0);}
+#define _init_l_instComplementUInt16(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instComplementUInt16___closed__1;\
+__INIT_VAR__ = x_1; goto l_instComplementUInt16_end;\
+}\
+l_instComplementUInt16_end: ((void) 0);}
+#define _init_l_instAndOpUInt16___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt16_land___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instAndOpUInt16___closed__1_end;\
+}\
+l_instAndOpUInt16___closed__1_end: ((void) 0);}
+#define _init_l_instAndOpUInt16(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instAndOpUInt16___closed__1;\
+__INIT_VAR__ = x_1; goto l_instAndOpUInt16_end;\
+}\
+l_instAndOpUInt16_end: ((void) 0);}
+#define _init_l_instOrOpUInt16___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt16_lor___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instOrOpUInt16___closed__1_end;\
+}\
+l_instOrOpUInt16___closed__1_end: ((void) 0);}
+#define _init_l_instOrOpUInt16(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instOrOpUInt16___closed__1;\
+__INIT_VAR__ = x_1; goto l_instOrOpUInt16_end;\
+}\
+l_instOrOpUInt16_end: ((void) 0);}
+#define _init_l_instXorUInt16___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt16_xor___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instXorUInt16___closed__1_end;\
+}\
+l_instXorUInt16___closed__1_end: ((void) 0);}
+#define _init_l_instXorUInt16(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instXorUInt16___closed__1;\
+__INIT_VAR__ = x_1; goto l_instXorUInt16_end;\
+}\
+l_instXorUInt16_end: ((void) 0);}
+#define _init_l_instShiftLeftUInt16___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt16_shiftLeft___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instShiftLeftUInt16___closed__1_end;\
+}\
+l_instShiftLeftUInt16___closed__1_end: ((void) 0);}
+#define _init_l_instShiftLeftUInt16(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instShiftLeftUInt16___closed__1;\
+__INIT_VAR__ = x_1; goto l_instShiftLeftUInt16_end;\
+}\
+l_instShiftLeftUInt16_end: ((void) 0);}
+#define _init_l_instShiftRightUInt16___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt16_shiftRight___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instShiftRightUInt16___closed__1_end;\
+}\
+l_instShiftRightUInt16___closed__1_end: ((void) 0);}
+#define _init_l_instShiftRightUInt16(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instShiftRightUInt16___closed__1;\
+__INIT_VAR__ = x_1; goto l_instShiftRightUInt16_end;\
+}\
+l_instShiftRightUInt16_end: ((void) 0);}
 lean_object* l_UInt16_decLt___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1553,102 +1501,90 @@ x_3 = lean_box_uint32(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_instAddUInt32___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt32_add___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instAddUInt32() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instAddUInt32___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instSubUInt32___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt32_sub___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instSubUInt32() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instSubUInt32___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instMulUInt32___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt32_mul___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instMulUInt32() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instMulUInt32___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instModUInt32___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt32_mod___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instModUInt32() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instModUInt32___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instHModUInt32NatUInt32___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt32_modn___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instHModUInt32NatUInt32() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instHModUInt32NatUInt32___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instDivUInt32___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt32_div___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instDivUInt32() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instDivUInt32___closed__1;
-return x_1;
-}
-}
+#define _init_l_instAddUInt32___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt32_add___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instAddUInt32___closed__1_end;\
+}\
+l_instAddUInt32___closed__1_end: ((void) 0);}
+#define _init_l_instAddUInt32(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instAddUInt32___closed__1;\
+__INIT_VAR__ = x_1; goto l_instAddUInt32_end;\
+}\
+l_instAddUInt32_end: ((void) 0);}
+#define _init_l_instSubUInt32___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt32_sub___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instSubUInt32___closed__1_end;\
+}\
+l_instSubUInt32___closed__1_end: ((void) 0);}
+#define _init_l_instSubUInt32(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instSubUInt32___closed__1;\
+__INIT_VAR__ = x_1; goto l_instSubUInt32_end;\
+}\
+l_instSubUInt32_end: ((void) 0);}
+#define _init_l_instMulUInt32___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt32_mul___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instMulUInt32___closed__1_end;\
+}\
+l_instMulUInt32___closed__1_end: ((void) 0);}
+#define _init_l_instMulUInt32(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instMulUInt32___closed__1;\
+__INIT_VAR__ = x_1; goto l_instMulUInt32_end;\
+}\
+l_instMulUInt32_end: ((void) 0);}
+#define _init_l_instModUInt32___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt32_mod___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instModUInt32___closed__1_end;\
+}\
+l_instModUInt32___closed__1_end: ((void) 0);}
+#define _init_l_instModUInt32(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instModUInt32___closed__1;\
+__INIT_VAR__ = x_1; goto l_instModUInt32_end;\
+}\
+l_instModUInt32_end: ((void) 0);}
+#define _init_l_instHModUInt32NatUInt32___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt32_modn___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instHModUInt32NatUInt32___closed__1_end;\
+}\
+l_instHModUInt32NatUInt32___closed__1_end: ((void) 0);}
+#define _init_l_instHModUInt32NatUInt32(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instHModUInt32NatUInt32___closed__1;\
+__INIT_VAR__ = x_1; goto l_instHModUInt32NatUInt32_end;\
+}\
+l_instHModUInt32NatUInt32_end: ((void) 0);}
+#define _init_l_instDivUInt32___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt32_div___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instDivUInt32___closed__1_end;\
+}\
+l_instDivUInt32___closed__1_end: ((void) 0);}
+#define _init_l_instDivUInt32(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instDivUInt32___closed__1;\
+__INIT_VAR__ = x_1; goto l_instDivUInt32_end;\
+}\
+l_instDivUInt32_end: ((void) 0);}
 lean_object* l_UInt32_complement___boxed(lean_object* x_1) {
 _start:
 {
@@ -1660,102 +1596,90 @@ x_4 = lean_box_uint32(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_instComplementUInt32___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt32_complement___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instComplementUInt32() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instComplementUInt32___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instAndOpUInt32___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt32_land___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instAndOpUInt32() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instAndOpUInt32___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instOrOpUInt32___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt32_lor___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instOrOpUInt32() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instOrOpUInt32___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instXorUInt32___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt32_xor___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instXorUInt32() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instXorUInt32___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftLeftUInt32___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt32_shiftLeft___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftLeftUInt32() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instShiftLeftUInt32___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftRightUInt32___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt32_shiftRight___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftRightUInt32() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instShiftRightUInt32___closed__1;
-return x_1;
-}
-}
+#define _init_l_instComplementUInt32___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt32_complement___boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_instComplementUInt32___closed__1_end;\
+}\
+l_instComplementUInt32___closed__1_end: ((void) 0);}
+#define _init_l_instComplementUInt32(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instComplementUInt32___closed__1;\
+__INIT_VAR__ = x_1; goto l_instComplementUInt32_end;\
+}\
+l_instComplementUInt32_end: ((void) 0);}
+#define _init_l_instAndOpUInt32___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt32_land___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instAndOpUInt32___closed__1_end;\
+}\
+l_instAndOpUInt32___closed__1_end: ((void) 0);}
+#define _init_l_instAndOpUInt32(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instAndOpUInt32___closed__1;\
+__INIT_VAR__ = x_1; goto l_instAndOpUInt32_end;\
+}\
+l_instAndOpUInt32_end: ((void) 0);}
+#define _init_l_instOrOpUInt32___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt32_lor___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instOrOpUInt32___closed__1_end;\
+}\
+l_instOrOpUInt32___closed__1_end: ((void) 0);}
+#define _init_l_instOrOpUInt32(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instOrOpUInt32___closed__1;\
+__INIT_VAR__ = x_1; goto l_instOrOpUInt32_end;\
+}\
+l_instOrOpUInt32_end: ((void) 0);}
+#define _init_l_instXorUInt32___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt32_xor___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instXorUInt32___closed__1_end;\
+}\
+l_instXorUInt32___closed__1_end: ((void) 0);}
+#define _init_l_instXorUInt32(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instXorUInt32___closed__1;\
+__INIT_VAR__ = x_1; goto l_instXorUInt32_end;\
+}\
+l_instXorUInt32_end: ((void) 0);}
+#define _init_l_instShiftLeftUInt32___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt32_shiftLeft___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instShiftLeftUInt32___closed__1_end;\
+}\
+l_instShiftLeftUInt32___closed__1_end: ((void) 0);}
+#define _init_l_instShiftLeftUInt32(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instShiftLeftUInt32___closed__1;\
+__INIT_VAR__ = x_1; goto l_instShiftLeftUInt32_end;\
+}\
+l_instShiftLeftUInt32_end: ((void) 0);}
+#define _init_l_instShiftRightUInt32___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt32_shiftRight___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instShiftRightUInt32___closed__1_end;\
+}\
+l_instShiftRightUInt32___closed__1_end: ((void) 0);}
+#define _init_l_instShiftRightUInt32(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instShiftRightUInt32___closed__1;\
+__INIT_VAR__ = x_1; goto l_instShiftRightUInt32_end;\
+}\
+l_instShiftRightUInt32_end: ((void) 0);}
 lean_object* l_UInt64_ofNat___boxed(lean_object* x_1) {
 _start:
 {
@@ -1998,118 +1922,104 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_instAddUInt64___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt64_add___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instAddUInt64() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instAddUInt64___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instSubUInt64___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt64_sub___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instSubUInt64() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instSubUInt64___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instMulUInt64___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt64_mul___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instMulUInt64() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instMulUInt64___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instModUInt64___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt64_mod___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instModUInt64() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instModUInt64___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instHModUInt64NatUInt64___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt64_modn___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instHModUInt64NatUInt64() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instHModUInt64NatUInt64___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instDivUInt64___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt64_div___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instDivUInt64() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instDivUInt64___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instLTUInt64() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_instLEUInt64() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
+#define _init_l_instAddUInt64___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt64_add___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instAddUInt64___closed__1_end;\
+}\
+l_instAddUInt64___closed__1_end: ((void) 0);}
+#define _init_l_instAddUInt64(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instAddUInt64___closed__1;\
+__INIT_VAR__ = x_1; goto l_instAddUInt64_end;\
+}\
+l_instAddUInt64_end: ((void) 0);}
+#define _init_l_instSubUInt64___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt64_sub___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instSubUInt64___closed__1_end;\
+}\
+l_instSubUInt64___closed__1_end: ((void) 0);}
+#define _init_l_instSubUInt64(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instSubUInt64___closed__1;\
+__INIT_VAR__ = x_1; goto l_instSubUInt64_end;\
+}\
+l_instSubUInt64_end: ((void) 0);}
+#define _init_l_instMulUInt64___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt64_mul___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instMulUInt64___closed__1_end;\
+}\
+l_instMulUInt64___closed__1_end: ((void) 0);}
+#define _init_l_instMulUInt64(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instMulUInt64___closed__1;\
+__INIT_VAR__ = x_1; goto l_instMulUInt64_end;\
+}\
+l_instMulUInt64_end: ((void) 0);}
+#define _init_l_instModUInt64___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt64_mod___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instModUInt64___closed__1_end;\
+}\
+l_instModUInt64___closed__1_end: ((void) 0);}
+#define _init_l_instModUInt64(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instModUInt64___closed__1;\
+__INIT_VAR__ = x_1; goto l_instModUInt64_end;\
+}\
+l_instModUInt64_end: ((void) 0);}
+#define _init_l_instHModUInt64NatUInt64___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt64_modn___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instHModUInt64NatUInt64___closed__1_end;\
+}\
+l_instHModUInt64NatUInt64___closed__1_end: ((void) 0);}
+#define _init_l_instHModUInt64NatUInt64(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instHModUInt64NatUInt64___closed__1;\
+__INIT_VAR__ = x_1; goto l_instHModUInt64NatUInt64_end;\
+}\
+l_instHModUInt64NatUInt64_end: ((void) 0);}
+#define _init_l_instDivUInt64___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt64_div___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instDivUInt64___closed__1_end;\
+}\
+l_instDivUInt64___closed__1_end: ((void) 0);}
+#define _init_l_instDivUInt64(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instDivUInt64___closed__1;\
+__INIT_VAR__ = x_1; goto l_instDivUInt64_end;\
+}\
+l_instDivUInt64_end: ((void) 0);}
+#define _init_l_instLTUInt64(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_instLTUInt64_end;\
+}\
+l_instLTUInt64_end: ((void) 0);}
+#define _init_l_instLEUInt64(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_instLEUInt64_end;\
+}\
+l_instLEUInt64_end: ((void) 0);}
 lean_object* l_UInt64_complement___boxed(lean_object* x_1) {
 _start:
 {
@@ -2121,102 +2031,90 @@ x_4 = lean_box_uint64(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_instComplementUInt64___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt64_complement___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instComplementUInt64() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instComplementUInt64___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instAndOpUInt64___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt64_land___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instAndOpUInt64() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instAndOpUInt64___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instOrOpUInt64___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt64_lor___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instOrOpUInt64() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instOrOpUInt64___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instXorUInt64___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt64_xor___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instXorUInt64() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instXorUInt64___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftLeftUInt64___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt64_shiftLeft___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftLeftUInt64() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instShiftLeftUInt64___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftRightUInt64___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt64_shiftRight___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftRightUInt64() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instShiftRightUInt64___closed__1;
-return x_1;
-}
-}
+#define _init_l_instComplementUInt64___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt64_complement___boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_instComplementUInt64___closed__1_end;\
+}\
+l_instComplementUInt64___closed__1_end: ((void) 0);}
+#define _init_l_instComplementUInt64(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instComplementUInt64___closed__1;\
+__INIT_VAR__ = x_1; goto l_instComplementUInt64_end;\
+}\
+l_instComplementUInt64_end: ((void) 0);}
+#define _init_l_instAndOpUInt64___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt64_land___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instAndOpUInt64___closed__1_end;\
+}\
+l_instAndOpUInt64___closed__1_end: ((void) 0);}
+#define _init_l_instAndOpUInt64(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instAndOpUInt64___closed__1;\
+__INIT_VAR__ = x_1; goto l_instAndOpUInt64_end;\
+}\
+l_instAndOpUInt64_end: ((void) 0);}
+#define _init_l_instOrOpUInt64___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt64_lor___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instOrOpUInt64___closed__1_end;\
+}\
+l_instOrOpUInt64___closed__1_end: ((void) 0);}
+#define _init_l_instOrOpUInt64(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instOrOpUInt64___closed__1;\
+__INIT_VAR__ = x_1; goto l_instOrOpUInt64_end;\
+}\
+l_instOrOpUInt64_end: ((void) 0);}
+#define _init_l_instXorUInt64___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt64_xor___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instXorUInt64___closed__1_end;\
+}\
+l_instXorUInt64___closed__1_end: ((void) 0);}
+#define _init_l_instXorUInt64(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instXorUInt64___closed__1;\
+__INIT_VAR__ = x_1; goto l_instXorUInt64_end;\
+}\
+l_instXorUInt64_end: ((void) 0);}
+#define _init_l_instShiftLeftUInt64___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt64_shiftLeft___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instShiftLeftUInt64___closed__1_end;\
+}\
+l_instShiftLeftUInt64___closed__1_end: ((void) 0);}
+#define _init_l_instShiftLeftUInt64(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instShiftLeftUInt64___closed__1;\
+__INIT_VAR__ = x_1; goto l_instShiftLeftUInt64_end;\
+}\
+l_instShiftLeftUInt64_end: ((void) 0);}
+#define _init_l_instShiftRightUInt64___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_UInt64_shiftRight___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instShiftRightUInt64___closed__1_end;\
+}\
+l_instShiftRightUInt64___closed__1_end: ((void) 0);}
+#define _init_l_instShiftRightUInt64(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instShiftRightUInt64___closed__1;\
+__INIT_VAR__ = x_1; goto l_instShiftRightUInt64_end;\
+}\
+l_instShiftRightUInt64_end: ((void) 0);}
 lean_object* l_Bool_toUInt64___boxed(lean_object* x_1) {
 _start:
 {
@@ -2516,118 +2414,104 @@ x_3 = lean_box_usize(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_instAddUSize___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_USize_add___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instAddUSize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instAddUSize___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instSubUSize___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_USize_sub___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instSubUSize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instSubUSize___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instMulUSize___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_USize_mul___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instMulUSize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instMulUSize___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instModUSize___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_USize_mod___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instModUSize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instModUSize___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instHModUSizeNatUSize___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_USize_modn___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instHModUSizeNatUSize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instHModUSizeNatUSize___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instDivUSize___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_USize_div___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instDivUSize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instDivUSize___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instLTUSize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_instLEUSize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
+#define _init_l_instAddUSize___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_USize_add___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instAddUSize___closed__1_end;\
+}\
+l_instAddUSize___closed__1_end: ((void) 0);}
+#define _init_l_instAddUSize(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instAddUSize___closed__1;\
+__INIT_VAR__ = x_1; goto l_instAddUSize_end;\
+}\
+l_instAddUSize_end: ((void) 0);}
+#define _init_l_instSubUSize___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_USize_sub___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instSubUSize___closed__1_end;\
+}\
+l_instSubUSize___closed__1_end: ((void) 0);}
+#define _init_l_instSubUSize(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instSubUSize___closed__1;\
+__INIT_VAR__ = x_1; goto l_instSubUSize_end;\
+}\
+l_instSubUSize_end: ((void) 0);}
+#define _init_l_instMulUSize___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_USize_mul___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instMulUSize___closed__1_end;\
+}\
+l_instMulUSize___closed__1_end: ((void) 0);}
+#define _init_l_instMulUSize(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instMulUSize___closed__1;\
+__INIT_VAR__ = x_1; goto l_instMulUSize_end;\
+}\
+l_instMulUSize_end: ((void) 0);}
+#define _init_l_instModUSize___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_USize_mod___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instModUSize___closed__1_end;\
+}\
+l_instModUSize___closed__1_end: ((void) 0);}
+#define _init_l_instModUSize(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instModUSize___closed__1;\
+__INIT_VAR__ = x_1; goto l_instModUSize_end;\
+}\
+l_instModUSize_end: ((void) 0);}
+#define _init_l_instHModUSizeNatUSize___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_USize_modn___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instHModUSizeNatUSize___closed__1_end;\
+}\
+l_instHModUSizeNatUSize___closed__1_end: ((void) 0);}
+#define _init_l_instHModUSizeNatUSize(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instHModUSizeNatUSize___closed__1;\
+__INIT_VAR__ = x_1; goto l_instHModUSizeNatUSize_end;\
+}\
+l_instHModUSizeNatUSize_end: ((void) 0);}
+#define _init_l_instDivUSize___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_USize_div___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instDivUSize___closed__1_end;\
+}\
+l_instDivUSize___closed__1_end: ((void) 0);}
+#define _init_l_instDivUSize(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instDivUSize___closed__1;\
+__INIT_VAR__ = x_1; goto l_instDivUSize_end;\
+}\
+l_instDivUSize_end: ((void) 0);}
+#define _init_l_instLTUSize(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_instLTUSize_end;\
+}\
+l_instLTUSize_end: ((void) 0);}
+#define _init_l_instLEUSize(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_instLEUSize_end;\
+}\
+l_instLEUSize_end: ((void) 0);}
 lean_object* l_USize_complement___boxed(lean_object* x_1) {
 _start:
 {
@@ -2639,102 +2523,90 @@ x_4 = lean_box_usize(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_instComplementUSize___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_USize_complement___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instComplementUSize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instComplementUSize___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instAndOpUSize___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_USize_land___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instAndOpUSize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instAndOpUSize___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instOrOpUSize___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_USize_lor___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instOrOpUSize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instOrOpUSize___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instXorUSize___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_USize_xor___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instXorUSize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instXorUSize___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftLeftUSize___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_USize_shiftLeft___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftLeftUSize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instShiftLeftUSize___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftRightUSize___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_USize_shiftRight___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instShiftRightUSize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instShiftRightUSize___closed__1;
-return x_1;
-}
-}
+#define _init_l_instComplementUSize___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_USize_complement___boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_instComplementUSize___closed__1_end;\
+}\
+l_instComplementUSize___closed__1_end: ((void) 0);}
+#define _init_l_instComplementUSize(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instComplementUSize___closed__1;\
+__INIT_VAR__ = x_1; goto l_instComplementUSize_end;\
+}\
+l_instComplementUSize_end: ((void) 0);}
+#define _init_l_instAndOpUSize___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_USize_land___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instAndOpUSize___closed__1_end;\
+}\
+l_instAndOpUSize___closed__1_end: ((void) 0);}
+#define _init_l_instAndOpUSize(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instAndOpUSize___closed__1;\
+__INIT_VAR__ = x_1; goto l_instAndOpUSize_end;\
+}\
+l_instAndOpUSize_end: ((void) 0);}
+#define _init_l_instOrOpUSize___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_USize_lor___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instOrOpUSize___closed__1_end;\
+}\
+l_instOrOpUSize___closed__1_end: ((void) 0);}
+#define _init_l_instOrOpUSize(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instOrOpUSize___closed__1;\
+__INIT_VAR__ = x_1; goto l_instOrOpUSize_end;\
+}\
+l_instOrOpUSize_end: ((void) 0);}
+#define _init_l_instXorUSize___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_USize_xor___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instXorUSize___closed__1_end;\
+}\
+l_instXorUSize___closed__1_end: ((void) 0);}
+#define _init_l_instXorUSize(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instXorUSize___closed__1;\
+__INIT_VAR__ = x_1; goto l_instXorUSize_end;\
+}\
+l_instXorUSize_end: ((void) 0);}
+#define _init_l_instShiftLeftUSize___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_USize_shiftLeft___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instShiftLeftUSize___closed__1_end;\
+}\
+l_instShiftLeftUSize___closed__1_end: ((void) 0);}
+#define _init_l_instShiftLeftUSize(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instShiftLeftUSize___closed__1;\
+__INIT_VAR__ = x_1; goto l_instShiftLeftUSize_end;\
+}\
+l_instShiftLeftUSize_end: ((void) 0);}
+#define _init_l_instShiftRightUSize___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_USize_shiftRight___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_instShiftRightUSize___closed__1_end;\
+}\
+l_instShiftRightUSize___closed__1_end: ((void) 0);}
+#define _init_l_instShiftRightUSize(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_instShiftRightUSize___closed__1;\
+__INIT_VAR__ = x_1; goto l_instShiftRightUSize_end;\
+}\
+l_instShiftRightUSize_end: ((void) 0);}
 lean_object* l_USize_decLt___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2816,261 +2688,261 @@ lean_dec_ref(res);
 res = initialize_Init_System_Platform(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_instAddUInt8___closed__1 = _init_l_instAddUInt8___closed__1();
+_init_l_instAddUInt8___closed__1(l_instAddUInt8___closed__1);
 lean_mark_persistent(l_instAddUInt8___closed__1);
-l_instAddUInt8 = _init_l_instAddUInt8();
+_init_l_instAddUInt8(l_instAddUInt8);
 lean_mark_persistent(l_instAddUInt8);
-l_instSubUInt8___closed__1 = _init_l_instSubUInt8___closed__1();
+_init_l_instSubUInt8___closed__1(l_instSubUInt8___closed__1);
 lean_mark_persistent(l_instSubUInt8___closed__1);
-l_instSubUInt8 = _init_l_instSubUInt8();
+_init_l_instSubUInt8(l_instSubUInt8);
 lean_mark_persistent(l_instSubUInt8);
-l_instMulUInt8___closed__1 = _init_l_instMulUInt8___closed__1();
+_init_l_instMulUInt8___closed__1(l_instMulUInt8___closed__1);
 lean_mark_persistent(l_instMulUInt8___closed__1);
-l_instMulUInt8 = _init_l_instMulUInt8();
+_init_l_instMulUInt8(l_instMulUInt8);
 lean_mark_persistent(l_instMulUInt8);
-l_instModUInt8___closed__1 = _init_l_instModUInt8___closed__1();
+_init_l_instModUInt8___closed__1(l_instModUInt8___closed__1);
 lean_mark_persistent(l_instModUInt8___closed__1);
-l_instModUInt8 = _init_l_instModUInt8();
+_init_l_instModUInt8(l_instModUInt8);
 lean_mark_persistent(l_instModUInt8);
-l_instHModUInt8NatUInt8___closed__1 = _init_l_instHModUInt8NatUInt8___closed__1();
+_init_l_instHModUInt8NatUInt8___closed__1(l_instHModUInt8NatUInt8___closed__1);
 lean_mark_persistent(l_instHModUInt8NatUInt8___closed__1);
-l_instHModUInt8NatUInt8 = _init_l_instHModUInt8NatUInt8();
+_init_l_instHModUInt8NatUInt8(l_instHModUInt8NatUInt8);
 lean_mark_persistent(l_instHModUInt8NatUInt8);
-l_instDivUInt8___closed__1 = _init_l_instDivUInt8___closed__1();
+_init_l_instDivUInt8___closed__1(l_instDivUInt8___closed__1);
 lean_mark_persistent(l_instDivUInt8___closed__1);
-l_instDivUInt8 = _init_l_instDivUInt8();
+_init_l_instDivUInt8(l_instDivUInt8);
 lean_mark_persistent(l_instDivUInt8);
-l_instLTUInt8 = _init_l_instLTUInt8();
+_init_l_instLTUInt8(l_instLTUInt8);
 lean_mark_persistent(l_instLTUInt8);
-l_instLEUInt8 = _init_l_instLEUInt8();
+_init_l_instLEUInt8(l_instLEUInt8);
 lean_mark_persistent(l_instLEUInt8);
-l_instComplementUInt8___closed__1 = _init_l_instComplementUInt8___closed__1();
+_init_l_instComplementUInt8___closed__1(l_instComplementUInt8___closed__1);
 lean_mark_persistent(l_instComplementUInt8___closed__1);
-l_instComplementUInt8 = _init_l_instComplementUInt8();
+_init_l_instComplementUInt8(l_instComplementUInt8);
 lean_mark_persistent(l_instComplementUInt8);
-l_instAndOpUInt8___closed__1 = _init_l_instAndOpUInt8___closed__1();
+_init_l_instAndOpUInt8___closed__1(l_instAndOpUInt8___closed__1);
 lean_mark_persistent(l_instAndOpUInt8___closed__1);
-l_instAndOpUInt8 = _init_l_instAndOpUInt8();
+_init_l_instAndOpUInt8(l_instAndOpUInt8);
 lean_mark_persistent(l_instAndOpUInt8);
-l_instOrOpUInt8___closed__1 = _init_l_instOrOpUInt8___closed__1();
+_init_l_instOrOpUInt8___closed__1(l_instOrOpUInt8___closed__1);
 lean_mark_persistent(l_instOrOpUInt8___closed__1);
-l_instOrOpUInt8 = _init_l_instOrOpUInt8();
+_init_l_instOrOpUInt8(l_instOrOpUInt8);
 lean_mark_persistent(l_instOrOpUInt8);
-l_instXorUInt8___closed__1 = _init_l_instXorUInt8___closed__1();
+_init_l_instXorUInt8___closed__1(l_instXorUInt8___closed__1);
 lean_mark_persistent(l_instXorUInt8___closed__1);
-l_instXorUInt8 = _init_l_instXorUInt8();
+_init_l_instXorUInt8(l_instXorUInt8);
 lean_mark_persistent(l_instXorUInt8);
-l_instShiftLeftUInt8___closed__1 = _init_l_instShiftLeftUInt8___closed__1();
+_init_l_instShiftLeftUInt8___closed__1(l_instShiftLeftUInt8___closed__1);
 lean_mark_persistent(l_instShiftLeftUInt8___closed__1);
-l_instShiftLeftUInt8 = _init_l_instShiftLeftUInt8();
+_init_l_instShiftLeftUInt8(l_instShiftLeftUInt8);
 lean_mark_persistent(l_instShiftLeftUInt8);
-l_instShiftRightUInt8___closed__1 = _init_l_instShiftRightUInt8___closed__1();
+_init_l_instShiftRightUInt8___closed__1(l_instShiftRightUInt8___closed__1);
 lean_mark_persistent(l_instShiftRightUInt8___closed__1);
-l_instShiftRightUInt8 = _init_l_instShiftRightUInt8();
+_init_l_instShiftRightUInt8(l_instShiftRightUInt8);
 lean_mark_persistent(l_instShiftRightUInt8);
-l_instAddUInt16___closed__1 = _init_l_instAddUInt16___closed__1();
+_init_l_instAddUInt16___closed__1(l_instAddUInt16___closed__1);
 lean_mark_persistent(l_instAddUInt16___closed__1);
-l_instAddUInt16 = _init_l_instAddUInt16();
+_init_l_instAddUInt16(l_instAddUInt16);
 lean_mark_persistent(l_instAddUInt16);
-l_instSubUInt16___closed__1 = _init_l_instSubUInt16___closed__1();
+_init_l_instSubUInt16___closed__1(l_instSubUInt16___closed__1);
 lean_mark_persistent(l_instSubUInt16___closed__1);
-l_instSubUInt16 = _init_l_instSubUInt16();
+_init_l_instSubUInt16(l_instSubUInt16);
 lean_mark_persistent(l_instSubUInt16);
-l_instMulUInt16___closed__1 = _init_l_instMulUInt16___closed__1();
+_init_l_instMulUInt16___closed__1(l_instMulUInt16___closed__1);
 lean_mark_persistent(l_instMulUInt16___closed__1);
-l_instMulUInt16 = _init_l_instMulUInt16();
+_init_l_instMulUInt16(l_instMulUInt16);
 lean_mark_persistent(l_instMulUInt16);
-l_instModUInt16___closed__1 = _init_l_instModUInt16___closed__1();
+_init_l_instModUInt16___closed__1(l_instModUInt16___closed__1);
 lean_mark_persistent(l_instModUInt16___closed__1);
-l_instModUInt16 = _init_l_instModUInt16();
+_init_l_instModUInt16(l_instModUInt16);
 lean_mark_persistent(l_instModUInt16);
-l_instHModUInt16NatUInt16___closed__1 = _init_l_instHModUInt16NatUInt16___closed__1();
+_init_l_instHModUInt16NatUInt16___closed__1(l_instHModUInt16NatUInt16___closed__1);
 lean_mark_persistent(l_instHModUInt16NatUInt16___closed__1);
-l_instHModUInt16NatUInt16 = _init_l_instHModUInt16NatUInt16();
+_init_l_instHModUInt16NatUInt16(l_instHModUInt16NatUInt16);
 lean_mark_persistent(l_instHModUInt16NatUInt16);
-l_instDivUInt16___closed__1 = _init_l_instDivUInt16___closed__1();
+_init_l_instDivUInt16___closed__1(l_instDivUInt16___closed__1);
 lean_mark_persistent(l_instDivUInt16___closed__1);
-l_instDivUInt16 = _init_l_instDivUInt16();
+_init_l_instDivUInt16(l_instDivUInt16);
 lean_mark_persistent(l_instDivUInt16);
-l_instLTUInt16 = _init_l_instLTUInt16();
+_init_l_instLTUInt16(l_instLTUInt16);
 lean_mark_persistent(l_instLTUInt16);
-l_instLEUInt16 = _init_l_instLEUInt16();
+_init_l_instLEUInt16(l_instLEUInt16);
 lean_mark_persistent(l_instLEUInt16);
-l_instComplementUInt16___closed__1 = _init_l_instComplementUInt16___closed__1();
+_init_l_instComplementUInt16___closed__1(l_instComplementUInt16___closed__1);
 lean_mark_persistent(l_instComplementUInt16___closed__1);
-l_instComplementUInt16 = _init_l_instComplementUInt16();
+_init_l_instComplementUInt16(l_instComplementUInt16);
 lean_mark_persistent(l_instComplementUInt16);
-l_instAndOpUInt16___closed__1 = _init_l_instAndOpUInt16___closed__1();
+_init_l_instAndOpUInt16___closed__1(l_instAndOpUInt16___closed__1);
 lean_mark_persistent(l_instAndOpUInt16___closed__1);
-l_instAndOpUInt16 = _init_l_instAndOpUInt16();
+_init_l_instAndOpUInt16(l_instAndOpUInt16);
 lean_mark_persistent(l_instAndOpUInt16);
-l_instOrOpUInt16___closed__1 = _init_l_instOrOpUInt16___closed__1();
+_init_l_instOrOpUInt16___closed__1(l_instOrOpUInt16___closed__1);
 lean_mark_persistent(l_instOrOpUInt16___closed__1);
-l_instOrOpUInt16 = _init_l_instOrOpUInt16();
+_init_l_instOrOpUInt16(l_instOrOpUInt16);
 lean_mark_persistent(l_instOrOpUInt16);
-l_instXorUInt16___closed__1 = _init_l_instXorUInt16___closed__1();
+_init_l_instXorUInt16___closed__1(l_instXorUInt16___closed__1);
 lean_mark_persistent(l_instXorUInt16___closed__1);
-l_instXorUInt16 = _init_l_instXorUInt16();
+_init_l_instXorUInt16(l_instXorUInt16);
 lean_mark_persistent(l_instXorUInt16);
-l_instShiftLeftUInt16___closed__1 = _init_l_instShiftLeftUInt16___closed__1();
+_init_l_instShiftLeftUInt16___closed__1(l_instShiftLeftUInt16___closed__1);
 lean_mark_persistent(l_instShiftLeftUInt16___closed__1);
-l_instShiftLeftUInt16 = _init_l_instShiftLeftUInt16();
+_init_l_instShiftLeftUInt16(l_instShiftLeftUInt16);
 lean_mark_persistent(l_instShiftLeftUInt16);
-l_instShiftRightUInt16___closed__1 = _init_l_instShiftRightUInt16___closed__1();
+_init_l_instShiftRightUInt16___closed__1(l_instShiftRightUInt16___closed__1);
 lean_mark_persistent(l_instShiftRightUInt16___closed__1);
-l_instShiftRightUInt16 = _init_l_instShiftRightUInt16();
+_init_l_instShiftRightUInt16(l_instShiftRightUInt16);
 lean_mark_persistent(l_instShiftRightUInt16);
-l_instAddUInt32___closed__1 = _init_l_instAddUInt32___closed__1();
+_init_l_instAddUInt32___closed__1(l_instAddUInt32___closed__1);
 lean_mark_persistent(l_instAddUInt32___closed__1);
-l_instAddUInt32 = _init_l_instAddUInt32();
+_init_l_instAddUInt32(l_instAddUInt32);
 lean_mark_persistent(l_instAddUInt32);
-l_instSubUInt32___closed__1 = _init_l_instSubUInt32___closed__1();
+_init_l_instSubUInt32___closed__1(l_instSubUInt32___closed__1);
 lean_mark_persistent(l_instSubUInt32___closed__1);
-l_instSubUInt32 = _init_l_instSubUInt32();
+_init_l_instSubUInt32(l_instSubUInt32);
 lean_mark_persistent(l_instSubUInt32);
-l_instMulUInt32___closed__1 = _init_l_instMulUInt32___closed__1();
+_init_l_instMulUInt32___closed__1(l_instMulUInt32___closed__1);
 lean_mark_persistent(l_instMulUInt32___closed__1);
-l_instMulUInt32 = _init_l_instMulUInt32();
+_init_l_instMulUInt32(l_instMulUInt32);
 lean_mark_persistent(l_instMulUInt32);
-l_instModUInt32___closed__1 = _init_l_instModUInt32___closed__1();
+_init_l_instModUInt32___closed__1(l_instModUInt32___closed__1);
 lean_mark_persistent(l_instModUInt32___closed__1);
-l_instModUInt32 = _init_l_instModUInt32();
+_init_l_instModUInt32(l_instModUInt32);
 lean_mark_persistent(l_instModUInt32);
-l_instHModUInt32NatUInt32___closed__1 = _init_l_instHModUInt32NatUInt32___closed__1();
+_init_l_instHModUInt32NatUInt32___closed__1(l_instHModUInt32NatUInt32___closed__1);
 lean_mark_persistent(l_instHModUInt32NatUInt32___closed__1);
-l_instHModUInt32NatUInt32 = _init_l_instHModUInt32NatUInt32();
+_init_l_instHModUInt32NatUInt32(l_instHModUInt32NatUInt32);
 lean_mark_persistent(l_instHModUInt32NatUInt32);
-l_instDivUInt32___closed__1 = _init_l_instDivUInt32___closed__1();
+_init_l_instDivUInt32___closed__1(l_instDivUInt32___closed__1);
 lean_mark_persistent(l_instDivUInt32___closed__1);
-l_instDivUInt32 = _init_l_instDivUInt32();
+_init_l_instDivUInt32(l_instDivUInt32);
 lean_mark_persistent(l_instDivUInt32);
-l_instComplementUInt32___closed__1 = _init_l_instComplementUInt32___closed__1();
+_init_l_instComplementUInt32___closed__1(l_instComplementUInt32___closed__1);
 lean_mark_persistent(l_instComplementUInt32___closed__1);
-l_instComplementUInt32 = _init_l_instComplementUInt32();
+_init_l_instComplementUInt32(l_instComplementUInt32);
 lean_mark_persistent(l_instComplementUInt32);
-l_instAndOpUInt32___closed__1 = _init_l_instAndOpUInt32___closed__1();
+_init_l_instAndOpUInt32___closed__1(l_instAndOpUInt32___closed__1);
 lean_mark_persistent(l_instAndOpUInt32___closed__1);
-l_instAndOpUInt32 = _init_l_instAndOpUInt32();
+_init_l_instAndOpUInt32(l_instAndOpUInt32);
 lean_mark_persistent(l_instAndOpUInt32);
-l_instOrOpUInt32___closed__1 = _init_l_instOrOpUInt32___closed__1();
+_init_l_instOrOpUInt32___closed__1(l_instOrOpUInt32___closed__1);
 lean_mark_persistent(l_instOrOpUInt32___closed__1);
-l_instOrOpUInt32 = _init_l_instOrOpUInt32();
+_init_l_instOrOpUInt32(l_instOrOpUInt32);
 lean_mark_persistent(l_instOrOpUInt32);
-l_instXorUInt32___closed__1 = _init_l_instXorUInt32___closed__1();
+_init_l_instXorUInt32___closed__1(l_instXorUInt32___closed__1);
 lean_mark_persistent(l_instXorUInt32___closed__1);
-l_instXorUInt32 = _init_l_instXorUInt32();
+_init_l_instXorUInt32(l_instXorUInt32);
 lean_mark_persistent(l_instXorUInt32);
-l_instShiftLeftUInt32___closed__1 = _init_l_instShiftLeftUInt32___closed__1();
+_init_l_instShiftLeftUInt32___closed__1(l_instShiftLeftUInt32___closed__1);
 lean_mark_persistent(l_instShiftLeftUInt32___closed__1);
-l_instShiftLeftUInt32 = _init_l_instShiftLeftUInt32();
+_init_l_instShiftLeftUInt32(l_instShiftLeftUInt32);
 lean_mark_persistent(l_instShiftLeftUInt32);
-l_instShiftRightUInt32___closed__1 = _init_l_instShiftRightUInt32___closed__1();
+_init_l_instShiftRightUInt32___closed__1(l_instShiftRightUInt32___closed__1);
 lean_mark_persistent(l_instShiftRightUInt32___closed__1);
-l_instShiftRightUInt32 = _init_l_instShiftRightUInt32();
+_init_l_instShiftRightUInt32(l_instShiftRightUInt32);
 lean_mark_persistent(l_instShiftRightUInt32);
-l_instAddUInt64___closed__1 = _init_l_instAddUInt64___closed__1();
+_init_l_instAddUInt64___closed__1(l_instAddUInt64___closed__1);
 lean_mark_persistent(l_instAddUInt64___closed__1);
-l_instAddUInt64 = _init_l_instAddUInt64();
+_init_l_instAddUInt64(l_instAddUInt64);
 lean_mark_persistent(l_instAddUInt64);
-l_instSubUInt64___closed__1 = _init_l_instSubUInt64___closed__1();
+_init_l_instSubUInt64___closed__1(l_instSubUInt64___closed__1);
 lean_mark_persistent(l_instSubUInt64___closed__1);
-l_instSubUInt64 = _init_l_instSubUInt64();
+_init_l_instSubUInt64(l_instSubUInt64);
 lean_mark_persistent(l_instSubUInt64);
-l_instMulUInt64___closed__1 = _init_l_instMulUInt64___closed__1();
+_init_l_instMulUInt64___closed__1(l_instMulUInt64___closed__1);
 lean_mark_persistent(l_instMulUInt64___closed__1);
-l_instMulUInt64 = _init_l_instMulUInt64();
+_init_l_instMulUInt64(l_instMulUInt64);
 lean_mark_persistent(l_instMulUInt64);
-l_instModUInt64___closed__1 = _init_l_instModUInt64___closed__1();
+_init_l_instModUInt64___closed__1(l_instModUInt64___closed__1);
 lean_mark_persistent(l_instModUInt64___closed__1);
-l_instModUInt64 = _init_l_instModUInt64();
+_init_l_instModUInt64(l_instModUInt64);
 lean_mark_persistent(l_instModUInt64);
-l_instHModUInt64NatUInt64___closed__1 = _init_l_instHModUInt64NatUInt64___closed__1();
+_init_l_instHModUInt64NatUInt64___closed__1(l_instHModUInt64NatUInt64___closed__1);
 lean_mark_persistent(l_instHModUInt64NatUInt64___closed__1);
-l_instHModUInt64NatUInt64 = _init_l_instHModUInt64NatUInt64();
+_init_l_instHModUInt64NatUInt64(l_instHModUInt64NatUInt64);
 lean_mark_persistent(l_instHModUInt64NatUInt64);
-l_instDivUInt64___closed__1 = _init_l_instDivUInt64___closed__1();
+_init_l_instDivUInt64___closed__1(l_instDivUInt64___closed__1);
 lean_mark_persistent(l_instDivUInt64___closed__1);
-l_instDivUInt64 = _init_l_instDivUInt64();
+_init_l_instDivUInt64(l_instDivUInt64);
 lean_mark_persistent(l_instDivUInt64);
-l_instLTUInt64 = _init_l_instLTUInt64();
+_init_l_instLTUInt64(l_instLTUInt64);
 lean_mark_persistent(l_instLTUInt64);
-l_instLEUInt64 = _init_l_instLEUInt64();
+_init_l_instLEUInt64(l_instLEUInt64);
 lean_mark_persistent(l_instLEUInt64);
-l_instComplementUInt64___closed__1 = _init_l_instComplementUInt64___closed__1();
+_init_l_instComplementUInt64___closed__1(l_instComplementUInt64___closed__1);
 lean_mark_persistent(l_instComplementUInt64___closed__1);
-l_instComplementUInt64 = _init_l_instComplementUInt64();
+_init_l_instComplementUInt64(l_instComplementUInt64);
 lean_mark_persistent(l_instComplementUInt64);
-l_instAndOpUInt64___closed__1 = _init_l_instAndOpUInt64___closed__1();
+_init_l_instAndOpUInt64___closed__1(l_instAndOpUInt64___closed__1);
 lean_mark_persistent(l_instAndOpUInt64___closed__1);
-l_instAndOpUInt64 = _init_l_instAndOpUInt64();
+_init_l_instAndOpUInt64(l_instAndOpUInt64);
 lean_mark_persistent(l_instAndOpUInt64);
-l_instOrOpUInt64___closed__1 = _init_l_instOrOpUInt64___closed__1();
+_init_l_instOrOpUInt64___closed__1(l_instOrOpUInt64___closed__1);
 lean_mark_persistent(l_instOrOpUInt64___closed__1);
-l_instOrOpUInt64 = _init_l_instOrOpUInt64();
+_init_l_instOrOpUInt64(l_instOrOpUInt64);
 lean_mark_persistent(l_instOrOpUInt64);
-l_instXorUInt64___closed__1 = _init_l_instXorUInt64___closed__1();
+_init_l_instXorUInt64___closed__1(l_instXorUInt64___closed__1);
 lean_mark_persistent(l_instXorUInt64___closed__1);
-l_instXorUInt64 = _init_l_instXorUInt64();
+_init_l_instXorUInt64(l_instXorUInt64);
 lean_mark_persistent(l_instXorUInt64);
-l_instShiftLeftUInt64___closed__1 = _init_l_instShiftLeftUInt64___closed__1();
+_init_l_instShiftLeftUInt64___closed__1(l_instShiftLeftUInt64___closed__1);
 lean_mark_persistent(l_instShiftLeftUInt64___closed__1);
-l_instShiftLeftUInt64 = _init_l_instShiftLeftUInt64();
+_init_l_instShiftLeftUInt64(l_instShiftLeftUInt64);
 lean_mark_persistent(l_instShiftLeftUInt64);
-l_instShiftRightUInt64___closed__1 = _init_l_instShiftRightUInt64___closed__1();
+_init_l_instShiftRightUInt64___closed__1(l_instShiftRightUInt64___closed__1);
 lean_mark_persistent(l_instShiftRightUInt64___closed__1);
-l_instShiftRightUInt64 = _init_l_instShiftRightUInt64();
+_init_l_instShiftRightUInt64(l_instShiftRightUInt64);
 lean_mark_persistent(l_instShiftRightUInt64);
-l_instAddUSize___closed__1 = _init_l_instAddUSize___closed__1();
+_init_l_instAddUSize___closed__1(l_instAddUSize___closed__1);
 lean_mark_persistent(l_instAddUSize___closed__1);
-l_instAddUSize = _init_l_instAddUSize();
+_init_l_instAddUSize(l_instAddUSize);
 lean_mark_persistent(l_instAddUSize);
-l_instSubUSize___closed__1 = _init_l_instSubUSize___closed__1();
+_init_l_instSubUSize___closed__1(l_instSubUSize___closed__1);
 lean_mark_persistent(l_instSubUSize___closed__1);
-l_instSubUSize = _init_l_instSubUSize();
+_init_l_instSubUSize(l_instSubUSize);
 lean_mark_persistent(l_instSubUSize);
-l_instMulUSize___closed__1 = _init_l_instMulUSize___closed__1();
+_init_l_instMulUSize___closed__1(l_instMulUSize___closed__1);
 lean_mark_persistent(l_instMulUSize___closed__1);
-l_instMulUSize = _init_l_instMulUSize();
+_init_l_instMulUSize(l_instMulUSize);
 lean_mark_persistent(l_instMulUSize);
-l_instModUSize___closed__1 = _init_l_instModUSize___closed__1();
+_init_l_instModUSize___closed__1(l_instModUSize___closed__1);
 lean_mark_persistent(l_instModUSize___closed__1);
-l_instModUSize = _init_l_instModUSize();
+_init_l_instModUSize(l_instModUSize);
 lean_mark_persistent(l_instModUSize);
-l_instHModUSizeNatUSize___closed__1 = _init_l_instHModUSizeNatUSize___closed__1();
+_init_l_instHModUSizeNatUSize___closed__1(l_instHModUSizeNatUSize___closed__1);
 lean_mark_persistent(l_instHModUSizeNatUSize___closed__1);
-l_instHModUSizeNatUSize = _init_l_instHModUSizeNatUSize();
+_init_l_instHModUSizeNatUSize(l_instHModUSizeNatUSize);
 lean_mark_persistent(l_instHModUSizeNatUSize);
-l_instDivUSize___closed__1 = _init_l_instDivUSize___closed__1();
+_init_l_instDivUSize___closed__1(l_instDivUSize___closed__1);
 lean_mark_persistent(l_instDivUSize___closed__1);
-l_instDivUSize = _init_l_instDivUSize();
+_init_l_instDivUSize(l_instDivUSize);
 lean_mark_persistent(l_instDivUSize);
-l_instLTUSize = _init_l_instLTUSize();
+_init_l_instLTUSize(l_instLTUSize);
 lean_mark_persistent(l_instLTUSize);
-l_instLEUSize = _init_l_instLEUSize();
+_init_l_instLEUSize(l_instLEUSize);
 lean_mark_persistent(l_instLEUSize);
-l_instComplementUSize___closed__1 = _init_l_instComplementUSize___closed__1();
+_init_l_instComplementUSize___closed__1(l_instComplementUSize___closed__1);
 lean_mark_persistent(l_instComplementUSize___closed__1);
-l_instComplementUSize = _init_l_instComplementUSize();
+_init_l_instComplementUSize(l_instComplementUSize);
 lean_mark_persistent(l_instComplementUSize);
-l_instAndOpUSize___closed__1 = _init_l_instAndOpUSize___closed__1();
+_init_l_instAndOpUSize___closed__1(l_instAndOpUSize___closed__1);
 lean_mark_persistent(l_instAndOpUSize___closed__1);
-l_instAndOpUSize = _init_l_instAndOpUSize();
+_init_l_instAndOpUSize(l_instAndOpUSize);
 lean_mark_persistent(l_instAndOpUSize);
-l_instOrOpUSize___closed__1 = _init_l_instOrOpUSize___closed__1();
+_init_l_instOrOpUSize___closed__1(l_instOrOpUSize___closed__1);
 lean_mark_persistent(l_instOrOpUSize___closed__1);
-l_instOrOpUSize = _init_l_instOrOpUSize();
+_init_l_instOrOpUSize(l_instOrOpUSize);
 lean_mark_persistent(l_instOrOpUSize);
-l_instXorUSize___closed__1 = _init_l_instXorUSize___closed__1();
+_init_l_instXorUSize___closed__1(l_instXorUSize___closed__1);
 lean_mark_persistent(l_instXorUSize___closed__1);
-l_instXorUSize = _init_l_instXorUSize();
+_init_l_instXorUSize(l_instXorUSize);
 lean_mark_persistent(l_instXorUSize);
-l_instShiftLeftUSize___closed__1 = _init_l_instShiftLeftUSize___closed__1();
+_init_l_instShiftLeftUSize___closed__1(l_instShiftLeftUSize___closed__1);
 lean_mark_persistent(l_instShiftLeftUSize___closed__1);
-l_instShiftLeftUSize = _init_l_instShiftLeftUSize();
+_init_l_instShiftLeftUSize(l_instShiftLeftUSize);
 lean_mark_persistent(l_instShiftLeftUSize);
-l_instShiftRightUSize___closed__1 = _init_l_instShiftRightUSize___closed__1();
+_init_l_instShiftRightUSize___closed__1(l_instShiftRightUSize___closed__1);
 lean_mark_persistent(l_instShiftRightUSize___closed__1);
-l_instShiftRightUSize = _init_l_instShiftRightUSize();
+_init_l_instShiftRightUSize(l_instShiftRightUSize);
 lean_mark_persistent(l_instShiftRightUSize);
 return lean_io_result_mk_ok(lean_box(0));
 }

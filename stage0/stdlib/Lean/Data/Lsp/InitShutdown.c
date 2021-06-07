@@ -152,14 +152,13 @@ lean_object* l_Lean_Lsp_Trace_hasToJson___closed__3;
 lean_object* l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeResult____x40_Lean_Data_Lsp_InitShutdown___hyg_560_(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_JsonRpc_instFromJsonMessage___spec__2(lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Lsp_ClientInfo_version_x3f___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
+#define _init_l_Lean_Lsp_ClientInfo_version_x3f___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_ClientInfo_version_x3f___default_end;\
+}\
+l_Lean_Lsp_ClientInfo_version_x3f___default_end: ((void) 0);}
 lean_object* l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonClientInfo____x40_Lean_Data_Lsp_InitShutdown___hyg_26_(lean_object* x_1) {
 _start:
 {
@@ -199,22 +198,20 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Lsp_instToJsonClientInfo___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonClientInfo____x40_Lean_Data_Lsp_InitShutdown___hyg_26____boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instToJsonClientInfo() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Lsp_instToJsonClientInfo___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_Lsp_instToJsonClientInfo___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonClientInfo____x40_Lean_Data_Lsp_InitShutdown___hyg_26____boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instToJsonClientInfo___closed__1_end;\
+}\
+l_Lean_Lsp_instToJsonClientInfo___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Lsp_instToJsonClientInfo(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Lsp_instToJsonClientInfo___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instToJsonClientInfo_end;\
+}\
+l_Lean_Lsp_instToJsonClientInfo_end: ((void) 0);}
 lean_object* l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_fromJsonClientInfo____x40_Lean_Data_Lsp_InitShutdown___hyg_55_(lean_object* x_1) {
 _start:
 {
@@ -282,46 +279,41 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Lsp_instFromJsonClientInfo___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_fromJsonClientInfo____x40_Lean_Data_Lsp_InitShutdown___hyg_55____boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instFromJsonClientInfo() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Lsp_instFromJsonClientInfo___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("off");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("messages");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("verbose");
-return x_1;
-}
-}
+#define _init_l_Lean_Lsp_instFromJsonClientInfo___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_fromJsonClientInfo____x40_Lean_Data_Lsp_InitShutdown___hyg_55____boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instFromJsonClientInfo___closed__1_end;\
+}\
+l_Lean_Lsp_instFromJsonClientInfo___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Lsp_instFromJsonClientInfo(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Lsp_instFromJsonClientInfo___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instFromJsonClientInfo_end;\
+}\
+l_Lean_Lsp_instFromJsonClientInfo_end: ((void) 0);}
+#define _init_l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("off");\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__1_end;\
+}\
+l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("messages");\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__2_end;\
+}\
+l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("verbose");\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__3_end;\
+}\
+l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__3_end: ((void) 0);}
 lean_object* l_Lean_Lsp_instFromJsonTrace_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -406,39 +398,36 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Lsp_instFromJsonTrace_match__1___rarg), 
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Lsp_instFromJsonTrace___closed__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 2;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instFromJsonTrace___closed__2() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 1;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instFromJsonTrace___closed__3() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Lsp_instFromJsonTrace___closed__1(__INIT_VAR__) { \
+{\
+uint8_t x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = 2;\
+x_2 = lean_box(x_1);\
+x_3 = lean_alloc_ctor(1, 1, 0);\
+lean_ctor_set(x_3, 0, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Lsp_instFromJsonTrace___closed__1_end;\
+}\
+l_Lean_Lsp_instFromJsonTrace___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Lsp_instFromJsonTrace___closed__2(__INIT_VAR__) { \
+{\
+uint8_t x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = 1;\
+x_2 = lean_box(x_1);\
+x_3 = lean_alloc_ctor(1, 1, 0);\
+lean_ctor_set(x_3, 0, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Lsp_instFromJsonTrace___closed__2_end;\
+}\
+l_Lean_Lsp_instFromJsonTrace___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Lsp_instFromJsonTrace___closed__3(__INIT_VAR__) { \
+{\
+uint8_t x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = 0;\
+x_2 = lean_box(x_1);\
+x_3 = lean_alloc_ctor(1, 1, 0);\
+lean_ctor_set(x_3, 0, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Lsp_instFromJsonTrace___closed__3_end;\
+}\
+l_Lean_Lsp_instFromJsonTrace___closed__3_end: ((void) 0);}
 lean_object* l_Lean_Lsp_instFromJsonTrace(lean_object* x_1) {
 _start:
 {
@@ -561,36 +550,33 @@ x_6 = l_Lean_Lsp_Trace_hasToJson_match__1___rarg(x_5, x_2, x_3, x_4);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Lsp_Trace_hasToJson___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__1;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Lsp_Trace_hasToJson___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__2;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Lsp_Trace_hasToJson___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__3;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Lsp_Trace_hasToJson___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__1;\
+x_2 = lean_alloc_ctor(3, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Lsp_Trace_hasToJson___closed__1_end;\
+}\
+l_Lean_Lsp_Trace_hasToJson___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Lsp_Trace_hasToJson___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__2;\
+x_2 = lean_alloc_ctor(3, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Lsp_Trace_hasToJson___closed__2_end;\
+}\
+l_Lean_Lsp_Trace_hasToJson___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Lsp_Trace_hasToJson___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__3;\
+x_2 = lean_alloc_ctor(3, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Lsp_Trace_hasToJson___closed__3_end;\
+}\
+l_Lean_Lsp_Trace_hasToJson___closed__3_end: ((void) 0);}
 lean_object* l_Lean_Lsp_Trace_hasToJson(uint8_t x_1) {
 _start:
 {
@@ -626,14 +612,13 @@ x_3 = l_Lean_Lsp_Trace_hasToJson(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializationOptions____x40_Lean_Data_Lsp_InitShutdown___hyg_175____closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("editDelay");
-return x_1;
-}
-}
+#define _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializationOptions____x40_Lean_Data_Lsp_InitShutdown___hyg_175____closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("editDelay");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializationOptions____x40_Lean_Data_Lsp_InitShutdown___hyg_175____closed__1_end;\
+}\
+l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializationOptions____x40_Lean_Data_Lsp_InitShutdown___hyg_175____closed__1_end: ((void) 0);}
 lean_object* l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializationOptions____x40_Lean_Data_Lsp_InitShutdown___hyg_175_(lean_object* x_1) {
 _start:
 {
@@ -649,22 +634,20 @@ x_7 = l_Lean_Json_mkObj(x_6);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Lsp_instToJsonInitializationOptions___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializationOptions____x40_Lean_Data_Lsp_InitShutdown___hyg_175_), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instToJsonInitializationOptions() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Lsp_instToJsonInitializationOptions___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_Lsp_instToJsonInitializationOptions___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializationOptions____x40_Lean_Data_Lsp_InitShutdown___hyg_175_), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instToJsonInitializationOptions___closed__1_end;\
+}\
+l_Lean_Lsp_instToJsonInitializationOptions___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Lsp_instToJsonInitializationOptions(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Lsp_instToJsonInitializationOptions___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instToJsonInitializationOptions_end;\
+}\
+l_Lean_Lsp_instToJsonInitializationOptions_end: ((void) 0);}
 lean_object* l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_fromJsonInitializationOptions____x40_Lean_Data_Lsp_InitShutdown___hyg_195_(lean_object* x_1) {
 _start:
 {
@@ -707,70 +690,62 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Lsp_instFromJsonInitializationOptions___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_fromJsonInitializationOptions____x40_Lean_Data_Lsp_InitShutdown___hyg_195____boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instFromJsonInitializationOptions() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Lsp_instFromJsonInitializationOptions___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_InitializeParams_processId_x3f___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_InitializeParams_clientInfo_x3f___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_InitializeParams_rootUri_x3f___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_InitializeParams_initializationOptions_x3f___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Lsp_InitializeParams_trace___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_InitializeParams_workspaceFolders_x3f___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
+#define _init_l_Lean_Lsp_instFromJsonInitializationOptions___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_fromJsonInitializationOptions____x40_Lean_Data_Lsp_InitShutdown___hyg_195____boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instFromJsonInitializationOptions___closed__1_end;\
+}\
+l_Lean_Lsp_instFromJsonInitializationOptions___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Lsp_instFromJsonInitializationOptions(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Lsp_instFromJsonInitializationOptions___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instFromJsonInitializationOptions_end;\
+}\
+l_Lean_Lsp_instFromJsonInitializationOptions_end: ((void) 0);}
+#define _init_l_Lean_Lsp_InitializeParams_processId_x3f___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_InitializeParams_processId_x3f___default_end;\
+}\
+l_Lean_Lsp_InitializeParams_processId_x3f___default_end: ((void) 0);}
+#define _init_l_Lean_Lsp_InitializeParams_clientInfo_x3f___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_InitializeParams_clientInfo_x3f___default_end;\
+}\
+l_Lean_Lsp_InitializeParams_clientInfo_x3f___default_end: ((void) 0);}
+#define _init_l_Lean_Lsp_InitializeParams_rootUri_x3f___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_InitializeParams_rootUri_x3f___default_end;\
+}\
+l_Lean_Lsp_InitializeParams_rootUri_x3f___default_end: ((void) 0);}
+#define _init_l_Lean_Lsp_InitializeParams_initializationOptions_x3f___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_InitializeParams_initializationOptions_x3f___default_end;\
+}\
+l_Lean_Lsp_InitializeParams_initializationOptions_x3f___default_end: ((void) 0);}
+#define _init_l_Lean_Lsp_InitializeParams_trace___default(__INIT_VAR__) { \
+{\
+uint8_t x_1; \
+x_1 = 0;\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_InitializeParams_trace___default_end;\
+}\
+l_Lean_Lsp_InitializeParams_trace___default_end: ((void) 0);}
+#define _init_l_Lean_Lsp_InitializeParams_workspaceFolders_x3f___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_InitializeParams_workspaceFolders_x3f___default_end;\
+}\
+l_Lean_Lsp_InitializeParams_workspaceFolders_x3f___default_end: ((void) 0);}
 lean_object* l_Lean_Json_opt___at___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -923,150 +898,136 @@ return x_14;
 }
 }
 }
-static lean_object* _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("processId");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("clientInfo");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("rootUri");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("initializationOptions");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("capabilities");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__5;
-x_2 = l_Lean_Lsp_ClientCapabilities_hasToJson___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__6;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("workspaceFolders");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__9() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_26____closed__6;
-x_2 = l_Lean_Lsp_Trace_hasToJson___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__10() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__9;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__11() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_26____closed__6;
-x_2 = l_Lean_Lsp_Trace_hasToJson___closed__2;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__12() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__11;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__13() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_26____closed__6;
-x_2 = l_Lean_Lsp_Trace_hasToJson___closed__3;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__14() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__13;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
+#define _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("processId");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__1_end;\
+}\
+l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__1_end: ((void) 0);}
+#define _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("clientInfo");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__2_end;\
+}\
+l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__2_end: ((void) 0);}
+#define _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("rootUri");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__3_end;\
+}\
+l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__3_end: ((void) 0);}
+#define _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("initializationOptions");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__4_end;\
+}\
+l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__4_end: ((void) 0);}
+#define _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("capabilities");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__5_end;\
+}\
+l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__5_end: ((void) 0);}
+#define _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__6(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__5;\
+x_2 = l_Lean_Lsp_ClientCapabilities_hasToJson___closed__1;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__6_end;\
+}\
+l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__6_end: ((void) 0);}
+#define _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__7(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__6;\
+x_3 = lean_alloc_ctor(1, 2, 0);\
+lean_ctor_set(x_3, 0, x_2);\
+lean_ctor_set(x_3, 1, x_1);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__7_end;\
+}\
+l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__7_end: ((void) 0);}
+#define _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__8(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("workspaceFolders");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__8_end;\
+}\
+l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__8_end: ((void) 0);}
+#define _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__9(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_26____closed__6;\
+x_2 = l_Lean_Lsp_Trace_hasToJson___closed__1;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__9_end;\
+}\
+l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__9_end: ((void) 0);}
+#define _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__10(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__9;\
+x_3 = lean_alloc_ctor(1, 2, 0);\
+lean_ctor_set(x_3, 0, x_2);\
+lean_ctor_set(x_3, 1, x_1);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__10_end;\
+}\
+l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__10_end: ((void) 0);}
+#define _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__11(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_26____closed__6;\
+x_2 = l_Lean_Lsp_Trace_hasToJson___closed__2;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__11_end;\
+}\
+l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__11_end: ((void) 0);}
+#define _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__12(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__11;\
+x_3 = lean_alloc_ctor(1, 2, 0);\
+lean_ctor_set(x_3, 0, x_2);\
+lean_ctor_set(x_3, 1, x_1);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__12_end;\
+}\
+l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__12_end: ((void) 0);}
+#define _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__13(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_26____closed__6;\
+x_2 = l_Lean_Lsp_Trace_hasToJson___closed__3;\
+x_3 = lean_alloc_ctor(0, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__13_end;\
+}\
+l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__13_end: ((void) 0);}
+#define _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__14(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__13;\
+x_3 = lean_alloc_ctor(1, 2, 0);\
+lean_ctor_set(x_3, 0, x_2);\
+lean_ctor_set(x_3, 1, x_1);\
+__INIT_VAR__ = x_3; goto l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__14_end;\
+}\
+l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__14_end: ((void) 0);}
 lean_object* l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298_(lean_object* x_1) {
 _start:
 {
@@ -1215,22 +1176,20 @@ x_6 = l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_InitShutdown_0__Lean_L
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Lsp_instToJsonInitializeParams___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298_), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instToJsonInitializeParams() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Lsp_instToJsonInitializeParams___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_Lsp_instToJsonInitializeParams___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298_), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instToJsonInitializeParams___closed__1_end;\
+}\
+l_Lean_Lsp_instToJsonInitializeParams___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Lsp_instToJsonInitializeParams(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Lsp_instToJsonInitializeParams___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instToJsonInitializeParams_end;\
+}\
+l_Lean_Lsp_instToJsonInitializeParams_end: ((void) 0);}
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonInitializeParams___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1567,16 +1526,15 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Lsp_instFromJsonInitializedParams___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Lsp_instFromJsonInitializedParams___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = lean_box(0);\
+x_2 = lean_alloc_ctor(1, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Lsp_instFromJsonInitializedParams___closed__1_end;\
+}\
+l_Lean_Lsp_instFromJsonInitializedParams___closed__1_end: ((void) 0);}
 lean_object* l_Lean_Lsp_instFromJsonInitializedParams(lean_object* x_1) {
 _start:
 {
@@ -1611,14 +1569,13 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Lsp_ServerInfo_version_x3f___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
+#define _init_l_Lean_Lsp_ServerInfo_version_x3f___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_ServerInfo_version_x3f___default_end;\
+}\
+l_Lean_Lsp_ServerInfo_version_x3f___default_end: ((void) 0);}
 lean_object* l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonServerInfo____x40_Lean_Data_Lsp_InitShutdown___hyg_465_(lean_object* x_1) {
 _start:
 {
@@ -1658,22 +1615,20 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Lsp_instToJsonServerInfo___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonServerInfo____x40_Lean_Data_Lsp_InitShutdown___hyg_465____boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instToJsonServerInfo() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Lsp_instToJsonServerInfo___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_Lsp_instToJsonServerInfo___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonServerInfo____x40_Lean_Data_Lsp_InitShutdown___hyg_465____boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instToJsonServerInfo___closed__1_end;\
+}\
+l_Lean_Lsp_instToJsonServerInfo___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Lsp_instToJsonServerInfo(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Lsp_instToJsonServerInfo___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instToJsonServerInfo_end;\
+}\
+l_Lean_Lsp_instToJsonServerInfo_end: ((void) 0);}
 lean_object* l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_fromJsonServerInfo____x40_Lean_Data_Lsp_InitShutdown___hyg_494_(lean_object* x_1) {
 _start:
 {
@@ -1741,30 +1696,27 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Lsp_instFromJsonServerInfo___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_fromJsonServerInfo____x40_Lean_Data_Lsp_InitShutdown___hyg_494____boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instFromJsonServerInfo() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Lsp_instFromJsonServerInfo___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_InitializeResult_serverInfo_x3f___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
+#define _init_l_Lean_Lsp_instFromJsonServerInfo___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_fromJsonServerInfo____x40_Lean_Data_Lsp_InitShutdown___hyg_494____boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instFromJsonServerInfo___closed__1_end;\
+}\
+l_Lean_Lsp_instFromJsonServerInfo___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Lsp_instFromJsonServerInfo(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Lsp_instFromJsonServerInfo___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instFromJsonServerInfo_end;\
+}\
+l_Lean_Lsp_instFromJsonServerInfo_end: ((void) 0);}
+#define _init_l_Lean_Lsp_InitializeResult_serverInfo_x3f___default(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_box(0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_InitializeResult_serverInfo_x3f___default_end;\
+}\
+l_Lean_Lsp_InitializeResult_serverInfo_x3f___default_end: ((void) 0);}
 lean_object* l_Lean_Json_opt___at___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeResult____x40_Lean_Data_Lsp_InitShutdown___hyg_560____spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1791,14 +1743,13 @@ return x_8;
 }
 }
 }
-static lean_object* _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeResult____x40_Lean_Data_Lsp_InitShutdown___hyg_560____closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("serverInfo");
-return x_1;
-}
-}
+#define _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeResult____x40_Lean_Data_Lsp_InitShutdown___hyg_560____closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("serverInfo");\
+__INIT_VAR__ = x_1; goto l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeResult____x40_Lean_Data_Lsp_InitShutdown___hyg_560____closed__1_end;\
+}\
+l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeResult____x40_Lean_Data_Lsp_InitShutdown___hyg_560____closed__1_end: ((void) 0);}
 lean_object* l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeResult____x40_Lean_Data_Lsp_InitShutdown___hyg_560_(lean_object* x_1) {
 _start:
 {
@@ -1840,22 +1791,20 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Lsp_instToJsonInitializeResult___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeResult____x40_Lean_Data_Lsp_InitShutdown___hyg_560_), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instToJsonInitializeResult() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Lsp_instToJsonInitializeResult___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_Lsp_instToJsonInitializeResult___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeResult____x40_Lean_Data_Lsp_InitShutdown___hyg_560_), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instToJsonInitializeResult___closed__1_end;\
+}\
+l_Lean_Lsp_instToJsonInitializeResult___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Lsp_instToJsonInitializeResult(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Lsp_instToJsonInitializeResult___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instToJsonInitializeResult_end;\
+}\
+l_Lean_Lsp_instToJsonInitializeResult_end: ((void) 0);}
 lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_fromJsonInitializeResult____x40_Lean_Data_Lsp_InitShutdown___hyg_589____spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2002,22 +1951,20 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Lsp_instFromJsonInitializeResult___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_fromJsonInitializeResult____x40_Lean_Data_Lsp_InitShutdown___hyg_589____boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instFromJsonInitializeResult() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Lsp_instFromJsonInitializeResult___closed__1;
-return x_1;
-}
-}
+#define _init_l_Lean_Lsp_instFromJsonInitializeResult___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_fromJsonInitializeResult____x40_Lean_Data_Lsp_InitShutdown___hyg_589____boxed), 1, 0);\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instFromJsonInitializeResult___closed__1_end;\
+}\
+l_Lean_Lsp_instFromJsonInitializeResult___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Lsp_instFromJsonInitializeResult(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Lean_Lsp_instFromJsonInitializeResult___closed__1;\
+__INIT_VAR__ = x_1; goto l_Lean_Lsp_instFromJsonInitializeResult_end;\
+}\
+l_Lean_Lsp_instFromJsonInitializeResult_end: ((void) 0);}
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Capabilities(lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Workspace(lean_object*);
@@ -2039,110 +1986,110 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Json(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Lsp_ClientInfo_version_x3f___default = _init_l_Lean_Lsp_ClientInfo_version_x3f___default();
+_init_l_Lean_Lsp_ClientInfo_version_x3f___default(l_Lean_Lsp_ClientInfo_version_x3f___default);
 lean_mark_persistent(l_Lean_Lsp_ClientInfo_version_x3f___default);
-l_Lean_Lsp_instToJsonClientInfo___closed__1 = _init_l_Lean_Lsp_instToJsonClientInfo___closed__1();
+_init_l_Lean_Lsp_instToJsonClientInfo___closed__1(l_Lean_Lsp_instToJsonClientInfo___closed__1);
 lean_mark_persistent(l_Lean_Lsp_instToJsonClientInfo___closed__1);
-l_Lean_Lsp_instToJsonClientInfo = _init_l_Lean_Lsp_instToJsonClientInfo();
+_init_l_Lean_Lsp_instToJsonClientInfo(l_Lean_Lsp_instToJsonClientInfo);
 lean_mark_persistent(l_Lean_Lsp_instToJsonClientInfo);
-l_Lean_Lsp_instFromJsonClientInfo___closed__1 = _init_l_Lean_Lsp_instFromJsonClientInfo___closed__1();
+_init_l_Lean_Lsp_instFromJsonClientInfo___closed__1(l_Lean_Lsp_instFromJsonClientInfo___closed__1);
 lean_mark_persistent(l_Lean_Lsp_instFromJsonClientInfo___closed__1);
-l_Lean_Lsp_instFromJsonClientInfo = _init_l_Lean_Lsp_instFromJsonClientInfo();
+_init_l_Lean_Lsp_instFromJsonClientInfo(l_Lean_Lsp_instFromJsonClientInfo);
 lean_mark_persistent(l_Lean_Lsp_instFromJsonClientInfo);
-l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__1 = _init_l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__1();
+_init_l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__1(l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__1);
 lean_mark_persistent(l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__1);
-l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__2 = _init_l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__2();
+_init_l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__2(l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__2);
 lean_mark_persistent(l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__2);
-l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__3 = _init_l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__3();
+_init_l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__3(l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__3);
 lean_mark_persistent(l_Lean_Lsp_instFromJsonTrace_match__1___rarg___closed__3);
-l_Lean_Lsp_instFromJsonTrace___closed__1 = _init_l_Lean_Lsp_instFromJsonTrace___closed__1();
+_init_l_Lean_Lsp_instFromJsonTrace___closed__1(l_Lean_Lsp_instFromJsonTrace___closed__1);
 lean_mark_persistent(l_Lean_Lsp_instFromJsonTrace___closed__1);
-l_Lean_Lsp_instFromJsonTrace___closed__2 = _init_l_Lean_Lsp_instFromJsonTrace___closed__2();
+_init_l_Lean_Lsp_instFromJsonTrace___closed__2(l_Lean_Lsp_instFromJsonTrace___closed__2);
 lean_mark_persistent(l_Lean_Lsp_instFromJsonTrace___closed__2);
-l_Lean_Lsp_instFromJsonTrace___closed__3 = _init_l_Lean_Lsp_instFromJsonTrace___closed__3();
+_init_l_Lean_Lsp_instFromJsonTrace___closed__3(l_Lean_Lsp_instFromJsonTrace___closed__3);
 lean_mark_persistent(l_Lean_Lsp_instFromJsonTrace___closed__3);
-l_Lean_Lsp_Trace_hasToJson___closed__1 = _init_l_Lean_Lsp_Trace_hasToJson___closed__1();
+_init_l_Lean_Lsp_Trace_hasToJson___closed__1(l_Lean_Lsp_Trace_hasToJson___closed__1);
 lean_mark_persistent(l_Lean_Lsp_Trace_hasToJson___closed__1);
-l_Lean_Lsp_Trace_hasToJson___closed__2 = _init_l_Lean_Lsp_Trace_hasToJson___closed__2();
+_init_l_Lean_Lsp_Trace_hasToJson___closed__2(l_Lean_Lsp_Trace_hasToJson___closed__2);
 lean_mark_persistent(l_Lean_Lsp_Trace_hasToJson___closed__2);
-l_Lean_Lsp_Trace_hasToJson___closed__3 = _init_l_Lean_Lsp_Trace_hasToJson___closed__3();
+_init_l_Lean_Lsp_Trace_hasToJson___closed__3(l_Lean_Lsp_Trace_hasToJson___closed__3);
 lean_mark_persistent(l_Lean_Lsp_Trace_hasToJson___closed__3);
-l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializationOptions____x40_Lean_Data_Lsp_InitShutdown___hyg_175____closed__1 = _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializationOptions____x40_Lean_Data_Lsp_InitShutdown___hyg_175____closed__1();
+_init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializationOptions____x40_Lean_Data_Lsp_InitShutdown___hyg_175____closed__1(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializationOptions____x40_Lean_Data_Lsp_InitShutdown___hyg_175____closed__1);
 lean_mark_persistent(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializationOptions____x40_Lean_Data_Lsp_InitShutdown___hyg_175____closed__1);
-l_Lean_Lsp_instToJsonInitializationOptions___closed__1 = _init_l_Lean_Lsp_instToJsonInitializationOptions___closed__1();
+_init_l_Lean_Lsp_instToJsonInitializationOptions___closed__1(l_Lean_Lsp_instToJsonInitializationOptions___closed__1);
 lean_mark_persistent(l_Lean_Lsp_instToJsonInitializationOptions___closed__1);
-l_Lean_Lsp_instToJsonInitializationOptions = _init_l_Lean_Lsp_instToJsonInitializationOptions();
+_init_l_Lean_Lsp_instToJsonInitializationOptions(l_Lean_Lsp_instToJsonInitializationOptions);
 lean_mark_persistent(l_Lean_Lsp_instToJsonInitializationOptions);
-l_Lean_Lsp_instFromJsonInitializationOptions___closed__1 = _init_l_Lean_Lsp_instFromJsonInitializationOptions___closed__1();
+_init_l_Lean_Lsp_instFromJsonInitializationOptions___closed__1(l_Lean_Lsp_instFromJsonInitializationOptions___closed__1);
 lean_mark_persistent(l_Lean_Lsp_instFromJsonInitializationOptions___closed__1);
-l_Lean_Lsp_instFromJsonInitializationOptions = _init_l_Lean_Lsp_instFromJsonInitializationOptions();
+_init_l_Lean_Lsp_instFromJsonInitializationOptions(l_Lean_Lsp_instFromJsonInitializationOptions);
 lean_mark_persistent(l_Lean_Lsp_instFromJsonInitializationOptions);
-l_Lean_Lsp_InitializeParams_processId_x3f___default = _init_l_Lean_Lsp_InitializeParams_processId_x3f___default();
+_init_l_Lean_Lsp_InitializeParams_processId_x3f___default(l_Lean_Lsp_InitializeParams_processId_x3f___default);
 lean_mark_persistent(l_Lean_Lsp_InitializeParams_processId_x3f___default);
-l_Lean_Lsp_InitializeParams_clientInfo_x3f___default = _init_l_Lean_Lsp_InitializeParams_clientInfo_x3f___default();
+_init_l_Lean_Lsp_InitializeParams_clientInfo_x3f___default(l_Lean_Lsp_InitializeParams_clientInfo_x3f___default);
 lean_mark_persistent(l_Lean_Lsp_InitializeParams_clientInfo_x3f___default);
-l_Lean_Lsp_InitializeParams_rootUri_x3f___default = _init_l_Lean_Lsp_InitializeParams_rootUri_x3f___default();
+_init_l_Lean_Lsp_InitializeParams_rootUri_x3f___default(l_Lean_Lsp_InitializeParams_rootUri_x3f___default);
 lean_mark_persistent(l_Lean_Lsp_InitializeParams_rootUri_x3f___default);
-l_Lean_Lsp_InitializeParams_initializationOptions_x3f___default = _init_l_Lean_Lsp_InitializeParams_initializationOptions_x3f___default();
+_init_l_Lean_Lsp_InitializeParams_initializationOptions_x3f___default(l_Lean_Lsp_InitializeParams_initializationOptions_x3f___default);
 lean_mark_persistent(l_Lean_Lsp_InitializeParams_initializationOptions_x3f___default);
-l_Lean_Lsp_InitializeParams_trace___default = _init_l_Lean_Lsp_InitializeParams_trace___default();
-l_Lean_Lsp_InitializeParams_workspaceFolders_x3f___default = _init_l_Lean_Lsp_InitializeParams_workspaceFolders_x3f___default();
+_init_l_Lean_Lsp_InitializeParams_trace___default(l_Lean_Lsp_InitializeParams_trace___default);
+_init_l_Lean_Lsp_InitializeParams_workspaceFolders_x3f___default(l_Lean_Lsp_InitializeParams_workspaceFolders_x3f___default);
 lean_mark_persistent(l_Lean_Lsp_InitializeParams_workspaceFolders_x3f___default);
-l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__1 = _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__1();
+_init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__1(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__1);
 lean_mark_persistent(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__1);
-l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__2 = _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__2();
+_init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__2(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__2);
 lean_mark_persistent(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__2);
-l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__3 = _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__3();
+_init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__3(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__3);
 lean_mark_persistent(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__3);
-l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__4 = _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__4();
+_init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__4(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__4);
 lean_mark_persistent(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__4);
-l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__5 = _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__5();
+_init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__5(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__5);
 lean_mark_persistent(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__5);
-l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__6 = _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__6();
+_init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__6(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__6);
 lean_mark_persistent(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__6);
-l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__7 = _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__7();
+_init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__7(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__7);
 lean_mark_persistent(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__7);
-l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__8 = _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__8();
+_init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__8(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__8);
 lean_mark_persistent(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__8);
-l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__9 = _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__9();
+_init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__9(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__9);
 lean_mark_persistent(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__9);
-l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__10 = _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__10();
+_init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__10(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__10);
 lean_mark_persistent(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__10);
-l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__11 = _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__11();
+_init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__11(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__11);
 lean_mark_persistent(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__11);
-l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__12 = _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__12();
+_init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__12(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__12);
 lean_mark_persistent(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__12);
-l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__13 = _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__13();
+_init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__13(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__13);
 lean_mark_persistent(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__13);
-l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__14 = _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__14();
+_init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__14(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__14);
 lean_mark_persistent(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_298____closed__14);
-l_Lean_Lsp_instToJsonInitializeParams___closed__1 = _init_l_Lean_Lsp_instToJsonInitializeParams___closed__1();
+_init_l_Lean_Lsp_instToJsonInitializeParams___closed__1(l_Lean_Lsp_instToJsonInitializeParams___closed__1);
 lean_mark_persistent(l_Lean_Lsp_instToJsonInitializeParams___closed__1);
-l_Lean_Lsp_instToJsonInitializeParams = _init_l_Lean_Lsp_instToJsonInitializeParams();
+_init_l_Lean_Lsp_instToJsonInitializeParams(l_Lean_Lsp_instToJsonInitializeParams);
 lean_mark_persistent(l_Lean_Lsp_instToJsonInitializeParams);
-l_Lean_Lsp_instFromJsonInitializedParams___closed__1 = _init_l_Lean_Lsp_instFromJsonInitializedParams___closed__1();
+_init_l_Lean_Lsp_instFromJsonInitializedParams___closed__1(l_Lean_Lsp_instFromJsonInitializedParams___closed__1);
 lean_mark_persistent(l_Lean_Lsp_instFromJsonInitializedParams___closed__1);
-l_Lean_Lsp_ServerInfo_version_x3f___default = _init_l_Lean_Lsp_ServerInfo_version_x3f___default();
+_init_l_Lean_Lsp_ServerInfo_version_x3f___default(l_Lean_Lsp_ServerInfo_version_x3f___default);
 lean_mark_persistent(l_Lean_Lsp_ServerInfo_version_x3f___default);
-l_Lean_Lsp_instToJsonServerInfo___closed__1 = _init_l_Lean_Lsp_instToJsonServerInfo___closed__1();
+_init_l_Lean_Lsp_instToJsonServerInfo___closed__1(l_Lean_Lsp_instToJsonServerInfo___closed__1);
 lean_mark_persistent(l_Lean_Lsp_instToJsonServerInfo___closed__1);
-l_Lean_Lsp_instToJsonServerInfo = _init_l_Lean_Lsp_instToJsonServerInfo();
+_init_l_Lean_Lsp_instToJsonServerInfo(l_Lean_Lsp_instToJsonServerInfo);
 lean_mark_persistent(l_Lean_Lsp_instToJsonServerInfo);
-l_Lean_Lsp_instFromJsonServerInfo___closed__1 = _init_l_Lean_Lsp_instFromJsonServerInfo___closed__1();
+_init_l_Lean_Lsp_instFromJsonServerInfo___closed__1(l_Lean_Lsp_instFromJsonServerInfo___closed__1);
 lean_mark_persistent(l_Lean_Lsp_instFromJsonServerInfo___closed__1);
-l_Lean_Lsp_instFromJsonServerInfo = _init_l_Lean_Lsp_instFromJsonServerInfo();
+_init_l_Lean_Lsp_instFromJsonServerInfo(l_Lean_Lsp_instFromJsonServerInfo);
 lean_mark_persistent(l_Lean_Lsp_instFromJsonServerInfo);
-l_Lean_Lsp_InitializeResult_serverInfo_x3f___default = _init_l_Lean_Lsp_InitializeResult_serverInfo_x3f___default();
+_init_l_Lean_Lsp_InitializeResult_serverInfo_x3f___default(l_Lean_Lsp_InitializeResult_serverInfo_x3f___default);
 lean_mark_persistent(l_Lean_Lsp_InitializeResult_serverInfo_x3f___default);
-l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeResult____x40_Lean_Data_Lsp_InitShutdown___hyg_560____closed__1 = _init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeResult____x40_Lean_Data_Lsp_InitShutdown___hyg_560____closed__1();
+_init_l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeResult____x40_Lean_Data_Lsp_InitShutdown___hyg_560____closed__1(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeResult____x40_Lean_Data_Lsp_InitShutdown___hyg_560____closed__1);
 lean_mark_persistent(l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeResult____x40_Lean_Data_Lsp_InitShutdown___hyg_560____closed__1);
-l_Lean_Lsp_instToJsonInitializeResult___closed__1 = _init_l_Lean_Lsp_instToJsonInitializeResult___closed__1();
+_init_l_Lean_Lsp_instToJsonInitializeResult___closed__1(l_Lean_Lsp_instToJsonInitializeResult___closed__1);
 lean_mark_persistent(l_Lean_Lsp_instToJsonInitializeResult___closed__1);
-l_Lean_Lsp_instToJsonInitializeResult = _init_l_Lean_Lsp_instToJsonInitializeResult();
+_init_l_Lean_Lsp_instToJsonInitializeResult(l_Lean_Lsp_instToJsonInitializeResult);
 lean_mark_persistent(l_Lean_Lsp_instToJsonInitializeResult);
-l_Lean_Lsp_instFromJsonInitializeResult___closed__1 = _init_l_Lean_Lsp_instFromJsonInitializeResult___closed__1();
+_init_l_Lean_Lsp_instFromJsonInitializeResult___closed__1(l_Lean_Lsp_instFromJsonInitializeResult___closed__1);
 lean_mark_persistent(l_Lean_Lsp_instFromJsonInitializeResult___closed__1);
-l_Lean_Lsp_instFromJsonInitializeResult = _init_l_Lean_Lsp_instFromJsonInitializeResult();
+_init_l_Lean_Lsp_instFromJsonInitializeResult(l_Lean_Lsp_instFromJsonInitializeResult);
 lean_mark_persistent(l_Lean_Lsp_instFromJsonInitializeResult);
 return lean_io_result_mk_ok(lean_box(0));
 }

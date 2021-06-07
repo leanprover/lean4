@@ -571,32 +571,29 @@ return x_25;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("after intro rest ");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_substCore___lambda__1___closed__1;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_Data_Format_Basic_0__Std_Format_be___closed__1;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Meta_substCore___lambda__1___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("after intro rest ");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_substCore___lambda__1___closed__1_end;\
+}\
+l_Lean_Meta_substCore___lambda__1___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__1___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_substCore___lambda__1___closed__1;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_substCore___lambda__1___closed__2_end;\
+}\
+l_Lean_Meta_substCore___lambda__1___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__1___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l___private_Init_Data_Format_Basic_0__Std_Format_be___closed__1;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_substCore___lambda__1___closed__3_end;\
+}\
+l_Lean_Meta_substCore___lambda__1___closed__3_end: ((void) 0);}
 lean_object* l_Lean_Meta_substCore___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15, lean_object* x_16) {
 _start:
 {
@@ -1545,53 +1542,48 @@ return x_33;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_substCore___lambda__8___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Tactic.Subst");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__8___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.substCore");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__8___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Meta_substCore___lambda__8___closed__1;
-x_2 = l_Lean_Meta_substCore___lambda__8___closed__2;
-x_3 = lean_unsigned_to_nat(66u);
-x_4 = lean_unsigned_to_nat(22u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__8___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("_h");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__8___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Meta_substCore___lambda__8___closed__4;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Meta_substCore___lambda__8___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Lean.Meta.Tactic.Subst");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_substCore___lambda__8___closed__1_end;\
+}\
+l_Lean_Meta_substCore___lambda__8___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__8___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("Lean.Meta.substCore");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_substCore___lambda__8___closed__2_end;\
+}\
+l_Lean_Meta_substCore___lambda__8___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__8___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; \
+x_1 = l_Lean_Meta_substCore___lambda__8___closed__1;\
+x_2 = l_Lean_Meta_substCore___lambda__8___closed__2;\
+x_3 = lean_unsigned_to_nat(66u);\
+x_4 = lean_unsigned_to_nat(22u);\
+x_5 = l_Lean_Name_getString_x21___closed__3;\
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);\
+__INIT_VAR__ = x_6; goto l_Lean_Meta_substCore___lambda__8___closed__3_end;\
+}\
+l_Lean_Meta_substCore___lambda__8___closed__3_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__8___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("_h");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_substCore___lambda__8___closed__4_end;\
+}\
+l_Lean_Meta_substCore___lambda__8___closed__4_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__8___closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Meta_substCore___lambda__8___closed__4;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_substCore___lambda__8___closed__5_end;\
+}\
+l_Lean_Meta_substCore___lambda__8___closed__5_end: ((void) 0);}
 lean_object* l_Lean_Meta_substCore___lambda__8(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, uint8_t x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15, lean_object* x_16, lean_object* x_17, lean_object* x_18, lean_object* x_19, lean_object* x_20) {
 _start:
 {
@@ -2344,57 +2336,51 @@ return x_49;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_substCore___lambda__10___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("reverted variables ");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__10___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_substCore___lambda__10___closed__1;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__10___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("after intro2 ");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__10___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_substCore___lambda__10___closed__3;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__10___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("after revert ");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__10___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_substCore___lambda__10___closed__5;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Meta_substCore___lambda__10___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("reverted variables ");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_substCore___lambda__10___closed__1_end;\
+}\
+l_Lean_Meta_substCore___lambda__10___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__10___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_substCore___lambda__10___closed__1;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_substCore___lambda__10___closed__2_end;\
+}\
+l_Lean_Meta_substCore___lambda__10___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__10___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("after intro2 ");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_substCore___lambda__10___closed__3_end;\
+}\
+l_Lean_Meta_substCore___lambda__10___closed__3_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__10___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_substCore___lambda__10___closed__3;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_substCore___lambda__10___closed__4_end;\
+}\
+l_Lean_Meta_substCore___lambda__10___closed__4_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__10___closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("after revert ");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_substCore___lambda__10___closed__5_end;\
+}\
+l_Lean_Meta_substCore___lambda__10___closed__5_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__10___closed__6(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_substCore___lambda__10___closed__5;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_substCore___lambda__10___closed__6_end;\
+}\
+l_Lean_Meta_substCore___lambda__10___closed__6_end: ((void) 0);}
 lean_object* l_Lean_Meta_substCore___lambda__10(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, uint8_t x_6, lean_object* x_7, uint8_t x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14) {
 _start:
 {
@@ -4862,238 +4848,213 @@ return x_145;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Parser_Tactic_subst___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("argument must be an equality proof");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_substCore___lambda__20___closed__2;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_substCore___lambda__20___closed__3;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("invalid equality proof, it is not of the form ");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_substCore___lambda__20___closed__5;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__7() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("\nafter WHNF, variable expected, but obtained");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_substCore___lambda__20___closed__7;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__9() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("(x = t)");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__10() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_substCore___lambda__20___closed__9;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__11() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_substCore___lambda__20___closed__6;
-x_2 = l_Lean_Meta_substCore___lambda__20___closed__10;
-x_3 = lean_alloc_ctor(10, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__12() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_substCore___lambda__20___closed__11;
-x_2 = l_Lean_KernelException_toMessageData___closed__15;
-x_3 = lean_alloc_ctor(10, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__13() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_225____closed__1;
-x_2 = l_Lean_Parser_Tactic_subst___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__14() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("' occurs at");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__15() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_substCore___lambda__20___closed__14;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("substituting ");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__17() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_substCore___lambda__20___closed__16;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__18() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string(" (id: ");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__19() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_substCore___lambda__20___closed__18;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__20() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string(") with ");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__21() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_substCore___lambda__20___closed__20;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__22() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("(t = x)");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__23() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_substCore___lambda__20___closed__22;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__24() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_substCore___lambda__20___closed__6;
-x_2 = l_Lean_Meta_substCore___lambda__20___closed__23;
-x_3 = lean_alloc_ctor(10, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__25() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_substCore___lambda__20___closed__24;
-x_2 = l_Lean_KernelException_toMessageData___closed__15;
-x_3 = lean_alloc_ctor(10, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = lean_box(0);\
+x_2 = l_Lean_Parser_Tactic_subst___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_substCore___lambda__20___closed__1_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("argument must be an equality proof");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_substCore___lambda__20___closed__2_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_substCore___lambda__20___closed__2;\
+x_2 = lean_alloc_ctor(2, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_substCore___lambda__20___closed__3_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__3_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_substCore___lambda__20___closed__3;\
+x_2 = lean_alloc_ctor(0, 1, 0);\
+lean_ctor_set(x_2, 0, x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_substCore___lambda__20___closed__4_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__4_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__5(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("invalid equality proof, it is not of the form ");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_substCore___lambda__20___closed__5_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__5_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__6(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_substCore___lambda__20___closed__5;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_substCore___lambda__20___closed__6_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__6_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__7(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("\nafter WHNF, variable expected, but obtained");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_substCore___lambda__20___closed__7_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__7_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__8(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_substCore___lambda__20___closed__7;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_substCore___lambda__20___closed__8_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__8_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__9(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("(x = t)");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_substCore___lambda__20___closed__9_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__9_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__10(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_substCore___lambda__20___closed__9;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_substCore___lambda__20___closed__10_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__10_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__11(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_Meta_substCore___lambda__20___closed__6;\
+x_2 = l_Lean_Meta_substCore___lambda__20___closed__10;\
+x_3 = lean_alloc_ctor(10, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_substCore___lambda__20___closed__11_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__11_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__12(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_Meta_substCore___lambda__20___closed__11;\
+x_2 = l_Lean_KernelException_toMessageData___closed__15;\
+x_3 = lean_alloc_ctor(10, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_substCore___lambda__20___closed__12_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__12_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__13(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_225____closed__1;\
+x_2 = l_Lean_Parser_Tactic_subst___closed__1;\
+x_3 = lean_name_mk_string(x_1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_substCore___lambda__20___closed__13_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__13_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__14(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("' occurs at");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_substCore___lambda__20___closed__14_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__14_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__15(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_substCore___lambda__20___closed__14;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_substCore___lambda__20___closed__15_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__15_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__16(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("substituting ");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_substCore___lambda__20___closed__16_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__16_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__17(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_substCore___lambda__20___closed__16;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_substCore___lambda__20___closed__17_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__17_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__18(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string(" (id: ");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_substCore___lambda__20___closed__18_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__18_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__19(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_substCore___lambda__20___closed__18;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_substCore___lambda__20___closed__19_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__19_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__20(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string(") with ");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_substCore___lambda__20___closed__20_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__20_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__21(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_substCore___lambda__20___closed__20;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_substCore___lambda__20___closed__21_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__21_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__22(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("(t = x)");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_substCore___lambda__20___closed__22_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__22_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__23(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_substCore___lambda__20___closed__22;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_substCore___lambda__20___closed__23_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__23_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__24(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_Meta_substCore___lambda__20___closed__6;\
+x_2 = l_Lean_Meta_substCore___lambda__20___closed__23;\
+x_3 = lean_alloc_ctor(10, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_substCore___lambda__20___closed__24_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__24_end: ((void) 0);}
+#define _init_l_Lean_Meta_substCore___lambda__20___closed__25(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; lean_object* x_3; \
+x_1 = l_Lean_Meta_substCore___lambda__20___closed__24;\
+x_2 = l_Lean_KernelException_toMessageData___closed__15;\
+x_3 = lean_alloc_ctor(10, 2, 0);\
+lean_ctor_set(x_3, 0, x_1);\
+lean_ctor_set(x_3, 1, x_2);\
+__INIT_VAR__ = x_3; goto l_Lean_Meta_substCore___lambda__20___closed__25_end;\
+}\
+l_Lean_Meta_substCore___lambda__20___closed__25_end: ((void) 0);}
 lean_object* l_Lean_Meta_substCore___lambda__20(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, uint8_t x_5, uint8_t x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
@@ -8848,23 +8809,21 @@ x_10 = l_Std_PersistentArray_findSomeM_x3f___at_Lean_Meta_subst___spec__2(x_1, x
 return x_10;
 }
 }
-static lean_object* _init_l_Lean_Meta_subst___lambda__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("did not find equation for eliminating '");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_subst___lambda__1___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_subst___lambda__1___closed__1;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Meta_subst___lambda__1___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("did not find equation for eliminating '");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_subst___lambda__1___closed__1_end;\
+}\
+l_Lean_Meta_subst___lambda__1___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_subst___lambda__1___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_subst___lambda__1___closed__1;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_subst___lambda__1___closed__2_end;\
+}\
+l_Lean_Meta_subst___lambda__1___closed__2_end: ((void) 0);}
 lean_object* l_Lean_Meta_subst___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -9026,40 +8985,36 @@ return x_50;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_subst___lambda__2___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("' is a let-declaration");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_subst___lambda__2___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_subst___lambda__2___closed__1;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_subst___lambda__2___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("invalid equality proof, it is not of the form (x = t) or (t = x)");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_subst___lambda__2___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_subst___lambda__2___closed__3;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_Meta_subst___lambda__2___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("' is a let-declaration");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_subst___lambda__2___closed__1_end;\
+}\
+l_Lean_Meta_subst___lambda__2___closed__1_end: ((void) 0);}
+#define _init_l_Lean_Meta_subst___lambda__2___closed__2(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_subst___lambda__2___closed__1;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_subst___lambda__2___closed__2_end;\
+}\
+l_Lean_Meta_subst___lambda__2___closed__2_end: ((void) 0);}
+#define _init_l_Lean_Meta_subst___lambda__2___closed__3(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("invalid equality proof, it is not of the form (x = t) or (t = x)");\
+__INIT_VAR__ = x_1; goto l_Lean_Meta_subst___lambda__2___closed__3_end;\
+}\
+l_Lean_Meta_subst___lambda__2___closed__3_end: ((void) 0);}
+#define _init_l_Lean_Meta_subst___lambda__2___closed__4(__INIT_VAR__) { \
+{\
+lean_object* x_1; lean_object* x_2; \
+x_1 = l_Lean_Meta_subst___lambda__2___closed__3;\
+x_2 = l_Lean_stringToMessageData(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_Meta_subst___lambda__2___closed__4_end;\
+}\
+l_Lean_Meta_subst___lambda__2___closed__4_end: ((void) 0);}
 lean_object* l_Lean_Meta_subst___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -10070,95 +10025,95 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_FVarSubst(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_substCore___lambda__1___closed__1 = _init_l_Lean_Meta_substCore___lambda__1___closed__1();
+_init_l_Lean_Meta_substCore___lambda__1___closed__1(l_Lean_Meta_substCore___lambda__1___closed__1);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__1___closed__1);
-l_Lean_Meta_substCore___lambda__1___closed__2 = _init_l_Lean_Meta_substCore___lambda__1___closed__2();
+_init_l_Lean_Meta_substCore___lambda__1___closed__2(l_Lean_Meta_substCore___lambda__1___closed__2);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__1___closed__2);
-l_Lean_Meta_substCore___lambda__1___closed__3 = _init_l_Lean_Meta_substCore___lambda__1___closed__3();
+_init_l_Lean_Meta_substCore___lambda__1___closed__3(l_Lean_Meta_substCore___lambda__1___closed__3);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__1___closed__3);
-l_Lean_Meta_substCore___lambda__8___closed__1 = _init_l_Lean_Meta_substCore___lambda__8___closed__1();
+_init_l_Lean_Meta_substCore___lambda__8___closed__1(l_Lean_Meta_substCore___lambda__8___closed__1);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__8___closed__1);
-l_Lean_Meta_substCore___lambda__8___closed__2 = _init_l_Lean_Meta_substCore___lambda__8___closed__2();
+_init_l_Lean_Meta_substCore___lambda__8___closed__2(l_Lean_Meta_substCore___lambda__8___closed__2);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__8___closed__2);
-l_Lean_Meta_substCore___lambda__8___closed__3 = _init_l_Lean_Meta_substCore___lambda__8___closed__3();
+_init_l_Lean_Meta_substCore___lambda__8___closed__3(l_Lean_Meta_substCore___lambda__8___closed__3);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__8___closed__3);
-l_Lean_Meta_substCore___lambda__8___closed__4 = _init_l_Lean_Meta_substCore___lambda__8___closed__4();
+_init_l_Lean_Meta_substCore___lambda__8___closed__4(l_Lean_Meta_substCore___lambda__8___closed__4);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__8___closed__4);
-l_Lean_Meta_substCore___lambda__8___closed__5 = _init_l_Lean_Meta_substCore___lambda__8___closed__5();
+_init_l_Lean_Meta_substCore___lambda__8___closed__5(l_Lean_Meta_substCore___lambda__8___closed__5);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__8___closed__5);
-l_Lean_Meta_substCore___lambda__10___closed__1 = _init_l_Lean_Meta_substCore___lambda__10___closed__1();
+_init_l_Lean_Meta_substCore___lambda__10___closed__1(l_Lean_Meta_substCore___lambda__10___closed__1);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__10___closed__1);
-l_Lean_Meta_substCore___lambda__10___closed__2 = _init_l_Lean_Meta_substCore___lambda__10___closed__2();
+_init_l_Lean_Meta_substCore___lambda__10___closed__2(l_Lean_Meta_substCore___lambda__10___closed__2);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__10___closed__2);
-l_Lean_Meta_substCore___lambda__10___closed__3 = _init_l_Lean_Meta_substCore___lambda__10___closed__3();
+_init_l_Lean_Meta_substCore___lambda__10___closed__3(l_Lean_Meta_substCore___lambda__10___closed__3);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__10___closed__3);
-l_Lean_Meta_substCore___lambda__10___closed__4 = _init_l_Lean_Meta_substCore___lambda__10___closed__4();
+_init_l_Lean_Meta_substCore___lambda__10___closed__4(l_Lean_Meta_substCore___lambda__10___closed__4);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__10___closed__4);
-l_Lean_Meta_substCore___lambda__10___closed__5 = _init_l_Lean_Meta_substCore___lambda__10___closed__5();
+_init_l_Lean_Meta_substCore___lambda__10___closed__5(l_Lean_Meta_substCore___lambda__10___closed__5);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__10___closed__5);
-l_Lean_Meta_substCore___lambda__10___closed__6 = _init_l_Lean_Meta_substCore___lambda__10___closed__6();
+_init_l_Lean_Meta_substCore___lambda__10___closed__6(l_Lean_Meta_substCore___lambda__10___closed__6);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__10___closed__6);
-l_Lean_Meta_substCore___lambda__20___closed__1 = _init_l_Lean_Meta_substCore___lambda__20___closed__1();
+_init_l_Lean_Meta_substCore___lambda__20___closed__1(l_Lean_Meta_substCore___lambda__20___closed__1);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__1);
-l_Lean_Meta_substCore___lambda__20___closed__2 = _init_l_Lean_Meta_substCore___lambda__20___closed__2();
+_init_l_Lean_Meta_substCore___lambda__20___closed__2(l_Lean_Meta_substCore___lambda__20___closed__2);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__2);
-l_Lean_Meta_substCore___lambda__20___closed__3 = _init_l_Lean_Meta_substCore___lambda__20___closed__3();
+_init_l_Lean_Meta_substCore___lambda__20___closed__3(l_Lean_Meta_substCore___lambda__20___closed__3);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__3);
-l_Lean_Meta_substCore___lambda__20___closed__4 = _init_l_Lean_Meta_substCore___lambda__20___closed__4();
+_init_l_Lean_Meta_substCore___lambda__20___closed__4(l_Lean_Meta_substCore___lambda__20___closed__4);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__4);
-l_Lean_Meta_substCore___lambda__20___closed__5 = _init_l_Lean_Meta_substCore___lambda__20___closed__5();
+_init_l_Lean_Meta_substCore___lambda__20___closed__5(l_Lean_Meta_substCore___lambda__20___closed__5);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__5);
-l_Lean_Meta_substCore___lambda__20___closed__6 = _init_l_Lean_Meta_substCore___lambda__20___closed__6();
+_init_l_Lean_Meta_substCore___lambda__20___closed__6(l_Lean_Meta_substCore___lambda__20___closed__6);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__6);
-l_Lean_Meta_substCore___lambda__20___closed__7 = _init_l_Lean_Meta_substCore___lambda__20___closed__7();
+_init_l_Lean_Meta_substCore___lambda__20___closed__7(l_Lean_Meta_substCore___lambda__20___closed__7);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__7);
-l_Lean_Meta_substCore___lambda__20___closed__8 = _init_l_Lean_Meta_substCore___lambda__20___closed__8();
+_init_l_Lean_Meta_substCore___lambda__20___closed__8(l_Lean_Meta_substCore___lambda__20___closed__8);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__8);
-l_Lean_Meta_substCore___lambda__20___closed__9 = _init_l_Lean_Meta_substCore___lambda__20___closed__9();
+_init_l_Lean_Meta_substCore___lambda__20___closed__9(l_Lean_Meta_substCore___lambda__20___closed__9);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__9);
-l_Lean_Meta_substCore___lambda__20___closed__10 = _init_l_Lean_Meta_substCore___lambda__20___closed__10();
+_init_l_Lean_Meta_substCore___lambda__20___closed__10(l_Lean_Meta_substCore___lambda__20___closed__10);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__10);
-l_Lean_Meta_substCore___lambda__20___closed__11 = _init_l_Lean_Meta_substCore___lambda__20___closed__11();
+_init_l_Lean_Meta_substCore___lambda__20___closed__11(l_Lean_Meta_substCore___lambda__20___closed__11);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__11);
-l_Lean_Meta_substCore___lambda__20___closed__12 = _init_l_Lean_Meta_substCore___lambda__20___closed__12();
+_init_l_Lean_Meta_substCore___lambda__20___closed__12(l_Lean_Meta_substCore___lambda__20___closed__12);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__12);
-l_Lean_Meta_substCore___lambda__20___closed__13 = _init_l_Lean_Meta_substCore___lambda__20___closed__13();
+_init_l_Lean_Meta_substCore___lambda__20___closed__13(l_Lean_Meta_substCore___lambda__20___closed__13);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__13);
-l_Lean_Meta_substCore___lambda__20___closed__14 = _init_l_Lean_Meta_substCore___lambda__20___closed__14();
+_init_l_Lean_Meta_substCore___lambda__20___closed__14(l_Lean_Meta_substCore___lambda__20___closed__14);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__14);
-l_Lean_Meta_substCore___lambda__20___closed__15 = _init_l_Lean_Meta_substCore___lambda__20___closed__15();
+_init_l_Lean_Meta_substCore___lambda__20___closed__15(l_Lean_Meta_substCore___lambda__20___closed__15);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__15);
-l_Lean_Meta_substCore___lambda__20___closed__16 = _init_l_Lean_Meta_substCore___lambda__20___closed__16();
+_init_l_Lean_Meta_substCore___lambda__20___closed__16(l_Lean_Meta_substCore___lambda__20___closed__16);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__16);
-l_Lean_Meta_substCore___lambda__20___closed__17 = _init_l_Lean_Meta_substCore___lambda__20___closed__17();
+_init_l_Lean_Meta_substCore___lambda__20___closed__17(l_Lean_Meta_substCore___lambda__20___closed__17);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__17);
-l_Lean_Meta_substCore___lambda__20___closed__18 = _init_l_Lean_Meta_substCore___lambda__20___closed__18();
+_init_l_Lean_Meta_substCore___lambda__20___closed__18(l_Lean_Meta_substCore___lambda__20___closed__18);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__18);
-l_Lean_Meta_substCore___lambda__20___closed__19 = _init_l_Lean_Meta_substCore___lambda__20___closed__19();
+_init_l_Lean_Meta_substCore___lambda__20___closed__19(l_Lean_Meta_substCore___lambda__20___closed__19);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__19);
-l_Lean_Meta_substCore___lambda__20___closed__20 = _init_l_Lean_Meta_substCore___lambda__20___closed__20();
+_init_l_Lean_Meta_substCore___lambda__20___closed__20(l_Lean_Meta_substCore___lambda__20___closed__20);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__20);
-l_Lean_Meta_substCore___lambda__20___closed__21 = _init_l_Lean_Meta_substCore___lambda__20___closed__21();
+_init_l_Lean_Meta_substCore___lambda__20___closed__21(l_Lean_Meta_substCore___lambda__20___closed__21);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__21);
-l_Lean_Meta_substCore___lambda__20___closed__22 = _init_l_Lean_Meta_substCore___lambda__20___closed__22();
+_init_l_Lean_Meta_substCore___lambda__20___closed__22(l_Lean_Meta_substCore___lambda__20___closed__22);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__22);
-l_Lean_Meta_substCore___lambda__20___closed__23 = _init_l_Lean_Meta_substCore___lambda__20___closed__23();
+_init_l_Lean_Meta_substCore___lambda__20___closed__23(l_Lean_Meta_substCore___lambda__20___closed__23);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__23);
-l_Lean_Meta_substCore___lambda__20___closed__24 = _init_l_Lean_Meta_substCore___lambda__20___closed__24();
+_init_l_Lean_Meta_substCore___lambda__20___closed__24(l_Lean_Meta_substCore___lambda__20___closed__24);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__24);
-l_Lean_Meta_substCore___lambda__20___closed__25 = _init_l_Lean_Meta_substCore___lambda__20___closed__25();
+_init_l_Lean_Meta_substCore___lambda__20___closed__25(l_Lean_Meta_substCore___lambda__20___closed__25);
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__20___closed__25);
-l_Lean_Meta_subst___lambda__1___closed__1 = _init_l_Lean_Meta_subst___lambda__1___closed__1();
+_init_l_Lean_Meta_subst___lambda__1___closed__1(l_Lean_Meta_subst___lambda__1___closed__1);
 lean_mark_persistent(l_Lean_Meta_subst___lambda__1___closed__1);
-l_Lean_Meta_subst___lambda__1___closed__2 = _init_l_Lean_Meta_subst___lambda__1___closed__2();
+_init_l_Lean_Meta_subst___lambda__1___closed__2(l_Lean_Meta_subst___lambda__1___closed__2);
 lean_mark_persistent(l_Lean_Meta_subst___lambda__1___closed__2);
-l_Lean_Meta_subst___lambda__2___closed__1 = _init_l_Lean_Meta_subst___lambda__2___closed__1();
+_init_l_Lean_Meta_subst___lambda__2___closed__1(l_Lean_Meta_subst___lambda__2___closed__1);
 lean_mark_persistent(l_Lean_Meta_subst___lambda__2___closed__1);
-l_Lean_Meta_subst___lambda__2___closed__2 = _init_l_Lean_Meta_subst___lambda__2___closed__2();
+_init_l_Lean_Meta_subst___lambda__2___closed__2(l_Lean_Meta_subst___lambda__2___closed__2);
 lean_mark_persistent(l_Lean_Meta_subst___lambda__2___closed__2);
-l_Lean_Meta_subst___lambda__2___closed__3 = _init_l_Lean_Meta_subst___lambda__2___closed__3();
+_init_l_Lean_Meta_subst___lambda__2___closed__3(l_Lean_Meta_subst___lambda__2___closed__3);
 lean_mark_persistent(l_Lean_Meta_subst___lambda__2___closed__3);
-l_Lean_Meta_subst___lambda__2___closed__4 = _init_l_Lean_Meta_subst___lambda__2___closed__4();
+_init_l_Lean_Meta_subst___lambda__2___closed__4(l_Lean_Meta_subst___lambda__2___closed__4);
 lean_mark_persistent(l_Lean_Meta_subst___lambda__2___closed__4);
 res = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Subst___hyg_1816_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;

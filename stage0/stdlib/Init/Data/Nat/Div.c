@@ -87,22 +87,20 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Nat_instDivNat___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Nat_div___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Nat_instDivNat() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Nat_instDivNat___closed__1;
-return x_1;
-}
-}
+#define _init_l_Nat_instDivNat___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Nat_div___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_Nat_instDivNat___closed__1_end;\
+}\
+l_Nat_instDivNat___closed__1_end: ((void) 0);}
+#define _init_l_Nat_instDivNat(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Nat_instDivNat___closed__1;\
+__INIT_VAR__ = x_1; goto l_Nat_instDivNat_end;\
+}\
+l_Nat_instDivNat_end: ((void) 0);}
 lean_object* l___private_Init_Data_Nat_Div_0__Nat_mod_F(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -156,22 +154,20 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Nat_instModNat___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Nat_mod___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Nat_instModNat() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Nat_instModNat___closed__1;
-return x_1;
-}
-}
+#define _init_l_Nat_instModNat___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Nat_mod___boxed), 2, 0);\
+__INIT_VAR__ = x_1; goto l_Nat_instModNat___closed__1_end;\
+}\
+l_Nat_instModNat___closed__1_end: ((void) 0);}
+#define _init_l_Nat_instModNat(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = l_Nat_instModNat___closed__1;\
+__INIT_VAR__ = x_1; goto l_Nat_instModNat_end;\
+}\
+l_Nat_instModNat_end: ((void) 0);}
 lean_object* initialize_Init_WF(lean_object*);
 lean_object* initialize_Init_Data_Nat_Basic(lean_object*);
 static bool _G_initialized = false;
@@ -185,13 +181,13 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Nat_instDivNat___closed__1 = _init_l_Nat_instDivNat___closed__1();
+_init_l_Nat_instDivNat___closed__1(l_Nat_instDivNat___closed__1);
 lean_mark_persistent(l_Nat_instDivNat___closed__1);
-l_Nat_instDivNat = _init_l_Nat_instDivNat();
+_init_l_Nat_instDivNat(l_Nat_instDivNat);
 lean_mark_persistent(l_Nat_instDivNat);
-l_Nat_instModNat___closed__1 = _init_l_Nat_instModNat___closed__1();
+_init_l_Nat_instModNat___closed__1(l_Nat_instModNat___closed__1);
 lean_mark_persistent(l_Nat_instModNat___closed__1);
-l_Nat_instModNat = _init_l_Nat_instModNat();
+_init_l_Nat_instModNat(l_Nat_instModNat);
 lean_mark_persistent(l_Nat_instModNat);
 return lean_io_result_mk_ok(lean_box(0));
 }

@@ -265,14 +265,13 @@ x_3 = lean_alloc_closure((void*)(l_Lean_instToStringLOption_match__1___rarg), 4,
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_instToStringLOption___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("undef");
-return x_1;
-}
-}
+#define _init_l_Lean_instToStringLOption___rarg___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_mk_string("undef");\
+__INIT_VAR__ = x_1; goto l_Lean_instToStringLOption___rarg___closed__1_end;\
+}\
+l_Lean_instToStringLOption___rarg___closed__1_end: ((void) 0);}
 lean_object* l_Lean_instToStringLOption___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -437,7 +436,7 @@ _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_instToStringLOption___rarg___closed__1 = _init_l_Lean_instToStringLOption___rarg___closed__1();
+_init_l_Lean_instToStringLOption___rarg___closed__1(l_Lean_instToStringLOption___rarg___closed__1);
 lean_mark_persistent(l_Lean_instToStringLOption___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

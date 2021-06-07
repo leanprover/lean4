@@ -2814,14 +2814,13 @@ return x_35;
 }
 }
 }
-static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__3___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_IR_NormalizeIds_normFnBody), 3, 0);
-return x_1;
-}
-}
+#define _init_l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__3___closed__1(__INIT_VAR__) { \
+{\
+lean_object* x_1; \
+x_1 = lean_alloc_closure((void*)(l_Lean_IR_NormalizeIds_normFnBody), 3, 0);\
+__INIT_VAR__ = x_1; goto l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__3___closed__1_end;\
+}\
+l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__3___closed__1_end: ((void) 0);}
 lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__3(size_t x_1, size_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -2863,15 +2862,14 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Lean_IR_NormalizeIds_normFnBody___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
+#define _init_l_Lean_IR_NormalizeIds_normFnBody___boxed__const__1(__INIT_VAR__) { \
+{\
+size_t x_1; lean_object* x_2; \
+x_1 = 0;\
+x_2 = lean_box_usize(x_1);\
+__INIT_VAR__ = x_2; goto l_Lean_IR_NormalizeIds_normFnBody___boxed__const__1_end;\
+}\
+l_Lean_IR_NormalizeIds_normFnBody___boxed__const__1_end: ((void) 0);}
 lean_object* l_Lean_IR_NormalizeIds_normFnBody(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -8642,9 +8640,9 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__3___closed__1 = _init_l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__3___closed__1();
+_init_l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__3___closed__1(l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__3___closed__1);
 lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__3___closed__1);
-l_Lean_IR_NormalizeIds_normFnBody___boxed__const__1 = _init_l_Lean_IR_NormalizeIds_normFnBody___boxed__const__1();
+_init_l_Lean_IR_NormalizeIds_normFnBody___boxed__const__1(l_Lean_IR_NormalizeIds_normFnBody___boxed__const__1);
 lean_mark_persistent(l_Lean_IR_NormalizeIds_normFnBody___boxed__const__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

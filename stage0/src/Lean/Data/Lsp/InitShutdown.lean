@@ -28,10 +28,10 @@ inductive Trace where
 
 instance : FromJson Trace := ⟨fun j =>
   match j.getStr? with
-  | some "off"      => Trace.off
-  | some "messages" => Trace.messages
-  | some "verbose"  => Trace.verbose
-  | _               => none⟩
+  | Except.ok "off"      => Trace.off
+  | Except.ok "messages" => Trace.messages
+  | Except.ok "verbose"  => Trace.verbose
+  | _               => throw "uknown trace"⟩
 
 instance Trace.hasToJson : ToJson Trace :=
 ⟨fun
@@ -60,7 +60,7 @@ structure InitializeParams where
   deriving ToJson
 
 instance : FromJson InitializeParams where
-  fromJson? j := OptionM.run do
+  fromJson? j := do
     /- Many of these params can be null instead of not present.
     For ease of implementation, we're liberal:
     missing params, wrong json types and null all map to none,
@@ -73,9 +73,16 @@ instance : FromJson InitializeParams where
     let rootUri? := j.getObjValAs? String "rootUri"
     let initializationOptions? := j.getObjValAs? InitializationOptions "initializationOptions"
     let capabilities ← j.getObjValAs? ClientCapabilities "capabilities"
-    let trace := (j.getObjValAs? Trace "trace").getD Trace.off
+    let trace := (j.getObjValAs? Trace "trace").toOption.getD Trace.off
     let workspaceFolders? := j.getObjValAs? (Array WorkspaceFolder) "workspaceFolders"
-    return ⟨processId?, clientInfo?, rootUri?, initializationOptions?, capabilities, trace, workspaceFolders?⟩
+    return ⟨
+      processId?.toOption, 
+      clientInfo?.toOption, 
+      rootUri?.toOption, 
+      initializationOptions?.toOption, 
+      capabilities, 
+      trace, 
+      workspaceFolders?.toOption⟩
 
 inductive InitializedParams where
   | mk

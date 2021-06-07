@@ -106,3 +106,13 @@ check_eq "2" ys #[xs₀, xs₁, xs₂, xs₃]
 pure ()
 
 #eval test3
+
+def test4 : IO Unit := do
+let fn4 := "foo4.txt"
+withFile fn4 Mode.write fun h => do pure ();
+let ys ← withFile fn4 Mode.read $ fun h => h.read 1;
+check_eq "1" [] ys.toList
+let ys ← withFile fn4 Mode.read $ fun h => h.read 1;
+check_eq "2" [] ys.toList
+
+#eval test4

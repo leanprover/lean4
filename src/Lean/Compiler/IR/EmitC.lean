@@ -19,11 +19,12 @@ open ExplicitBoxing (requiresBoxedVersion mkBoxedName isBoxedName)
 def leanMainFn := "_lean_main"
 
 structure Context where
-  env        : Environment
-  modName    : Name
-  jpMap      : JPParamsMap := {}
-  mainFn     : FunId := arbitrary
-  mainParams : Array Param := #[]
+  env         : Environment
+  modName     : Name
+  jpMap       : JPParamsMap := {}
+  mainFn      : FunId := arbitrary
+  mainParams  : Array Param := #[]
+  initMacro?  : Option String := none
 
 abbrev M := ReaderT Context (EStateM String String)
 
@@ -35,11 +36,19 @@ def getDecl (n : Name) : M Decl := do
   | some d => pure d
   | none   => throw s!"unknown declaration '{n}'"
 
-@[inline] def emit {α : Type} [ToString α] (a : α) : M Unit :=
+def emit {α : Type} [ToString α] (a : α) : M Unit :=
   modify fun out => out ++ toString a
 
-@[inline] def emitLn {α : Type} [ToString α] (a : α) : M Unit := do
-  emit a; emit "\n"
+def emitLn {α : Type} [ToString α] (a : α) : M Unit := do
+  emit a;
+  if let some _ := (← read).initMacro? then
+    emit "\\"
+  emit "\n"
+
+def emitJP (j : JoinPointId) : M Unit := do
+  match (← read).initMacro? with
+  | some macroName => emit macroName; emit "_"; emit j
+  | _ => emit j
 
 def emitLns {α : Type} [ToString α] (as : List α) : M Unit :=
   as.forM fun a => emitLn a
@@ -311,7 +320,7 @@ def emitJmp (j : JoinPointId) (xs : Array Arg) : M Unit := do
     let p := ps[i]
     let x := xs[i]
     emit p.x; emit " = "; emitArg x; emitLn ";"
-  emit "goto "; emit j; emitLn ";"
+  emit "goto "; emitJP j; emitLn ";"
 
 def emitLhs (z : VarId) : M Unit := do
   emit z; emit " = "
@@ -604,13 +613,16 @@ partial def emitBlock (b : FnBody) : M Unit := do
   | FnBody.uset x i y b        => emitUSet x i y; emitBlock b
   | FnBody.sset x i o y t b    => emitSSet x i o y t; emitBlock b
   | FnBody.mdata _ b           => emitBlock b
-  | FnBody.ret x               => emit "return "; emitArg x; emitLn ";"
   | FnBody.case _ x xType alts => emitCase x xType alts
   | FnBody.jmp j xs            => emitJmp j xs
   | FnBody.unreachable         => emitLn "lean_internal_panic_unreachable();"
+  | FnBody.ret x               =>
+    match (← read).initMacro? with
+    | some macroName => emit "__INIT_VAR__ = "; emitArg x; emit "; goto "; emit macroName; emitLn "_end;"
+    | none => emit "return "; emitArg x; emitLn ";"
 
 partial def emitJPs : FnBody → M Unit
-  | FnBody.jdecl j xs v b => do emit j; emitLn ":"; emitFnBody v; emitJPs b
+  | FnBody.jdecl j xs v b => do emitJP j; emitLn ":"; emitFnBody v; emitJPs b
   | e                     => do unless e.isTerminal do emitJPs e.body
 
 partial def emitFnBody (b : FnBody) : M Unit := do
@@ -631,10 +643,8 @@ def emitDeclAux (d : Decl) : M Unit := do
     match d with
     | Decl.fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
       let baseName ← toCName f;
-      if xs.size == 0 then
-        emit "static "
-      emit (toCType t); emit " ";
       if xs.size > 0 then
+        emit (toCType t); emit " ";
         emit baseName;
         emit "(";
         if xs.size > closureMaxArgs && isBoxedName d.name then
@@ -645,16 +655,19 @@ def emitDeclAux (d : Decl) : M Unit := do
             let x := xs[i]
             emit (toCType x.ty); emit " "; emit x.x
         emit ")"
+        emitLn " {";
+        if xs.size > closureMaxArgs && isBoxedName d.name then
+          xs.size.forM fun i => do
+            let x := xs[i]
+            emit "lean_object* "; emit x.x; emit " = _args["; emit i; emitLn "];"
+        emitLn "_start:";
+        withReader (fun ctx => { ctx with mainFn := f, mainParams := xs }) (emitFnBody b);
+        emitLn "}"
       else
-        emit ("_init_" ++ baseName ++ "()")
-      emitLn " {";
-      if xs.size > closureMaxArgs && isBoxedName d.name then
-        xs.size.forM fun i => do
-          let x := xs[i]
-          emit "lean_object* "; emit x.x; emit " = _args["; emit i; emitLn "];"
-      emitLn "_start:";
-      withReader (fun ctx => { ctx with mainFn := f, mainParams := xs }) (emitFnBody b);
-      emitLn "}"
+        emit "#define ";
+        emitLn ("_init_" ++ baseName ++ "(__INIT_VAR__) { \\")
+        withReader (fun ctx => { ctx with initMacro? := baseName }) do emitFnBody b
+        emit baseName; emit "_end: ((void) 0);";  emitLn "}"
     | _ => pure ()
 
 def emitDecl (d : Decl) : M Unit := do
@@ -691,7 +704,7 @@ def emitDeclInit (d : Decl) : M Unit := do
       emitMarkPersistent d n
       emitLn "lean_dec_ref(res);"
     | _ =>
-      emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n
+      emitCInitName n; emit "("; emitCName n; emitLn ");"; emitMarkPersistent d n
 
 def emitInitFn : M Unit := do
   let env ← getEnv

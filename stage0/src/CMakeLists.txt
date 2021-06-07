@@ -6,6 +6,7 @@ endif()
 if(NOT (DEFINED STAGE))
   message(FATAL_ERROR "STAGE must be set; use the CMakeLists.txt in the root folder")
 endif()
+include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
 set(LEAN_VERSION_MINOR 0)
@@ -71,6 +72,7 @@ set(MINGW_LOCAL_DIR       "C:/msys64/mingw64/bin"      CACHE STRING "where to fi
 
 if ("${FAKE_FREE}" MATCHES "ON")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_FAKE_FREE")
+  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -D LEAN_FAKE_FREE")
 endif()
 
 if ("${LAZY_RC}" MATCHES "ON")
@@ -111,24 +113,36 @@ endif()
 
 if ("${RUNTIME_STATS}" MATCHES "ON")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_RUNTIME_STATS")
+  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -D LEAN_RUNTIME_STATS")
 endif()
 
 if (NOT("${CHECK_OLEAN_VERSION}" MATCHES "ON"))
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_IGNORE_OLEAN_VERSION")
+  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -D LEAN_IGNORE_OLEAN_VERSION")
 endif()
 
-if("${CMAKE_C_COMPILER}" MATCHES "emcc")
-    set(EMSCRIPTEN ON)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     set(MULTI_THREAD OFF)
-    set(TCMALLOC OFF)
-    set(CFLAGS_EMSCRIPTEN "-Oz -O3")
-    set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} ${CFLAGS_EMSCRIPTEN} -D LEAN_EMSCRIPTEN")
-    set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} --memory-init-file 0 --llvm-lto 1 -s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0 ${CFLAGS_EMSCRIPTEN}")
-    set(LEAN_JS_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}" CACHE STRING "location of olean files for lean.js")
+    # TODO(WN): code size/performance tradeoffs
+    # - we're using -O3; it's /okay/
+    # - -flto crashes at runtime
+    # - -Oz produces quite slow code
+    # - system libraries such as OpenGL are included in the JS but shouldn't be
+    # - we need EMSCRIPTEN_KEEPALIVE annotations on exports to run meta-dce (-s MAIN_MODULE=2)
+    # - -fexceptions is a slow JS blob, remove when more runtimes support the WASM exceptions spec
+
+    # From https://emscripten.org/docs/compiling/WebAssembly.html#backends:
+    # > The simple and safe thing is to pass all -s flags at both compile and link time.
+    set(EMSCRIPTEN_SETTINGS "-s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0 -s MAIN_MODULE=1 -fexceptions")
+    set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_EMSCRIPTEN ${EMSCRIPTEN_SETTINGS}")
+    set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -D LEAN_EMSCRIPTEN ${EMSCRIPTEN_SETTINGS}")
+    set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} ${EMSCRIPTEN_SETTINGS}")
 endif()
 if (CMAKE_CROSSCOMPILING_EMULATOR)
   # emscripten likes to quote "node"
   string(REPLACE "\"" "" CMAKE_CROSSCOMPILING_EMULATOR ${CMAKE_CROSSCOMPILING_EMULATOR})
+  # HACK(WN): lazy compilation makes Node.js startup time a bad but tolerable ~4s
+  set(CMAKE_CROSSCOMPILING_EMULATOR "${CMAKE_CROSSCOMPILING_EMULATOR} --wasm-lazy-compilation")
 else()
   set(CMAKE_CROSSCOMPILING_EMULATOR)
 endif()
@@ -160,10 +174,12 @@ if(NOT MULTI_THREAD)
   set(AUTO_THREAD_FINALIZATION OFF)
 else()
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_MULTI_THREAD")
+  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -D LEAN_MULTI_THREAD")
 endif()
 
 if(AUTO_THREAD_FINALIZATION AND NOT MSVC)
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_AUTO_THREAD_FINALIZATION")
+  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -D LEAN_AUTO_THREAD_FINALIZATION")
 endif()
 
 if(LLVM)
@@ -175,6 +191,7 @@ if(LLVM)
 
   include_directories(${LLVM_INCLUDE_DIRS})
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_LLVM")
+  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -D LEAN_LLVM")
 
   # Find the libraries that correspond to the LLVM components
   #   that we wish to use and define llvm_libs
@@ -240,8 +257,8 @@ elseif (MSVC)
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/O2 /Oi /Zi ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
     set(LEAN_EXTRA_LINKER_FLAGS        "/LTCG:INCREMENTAL ${LEAN_EXTRA_LINKER_FLAGS}")
     set(CMAKE_STATIC_LINKER_FLAGS      "${CMAKE_STATIC_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS}")
-elseif (EMSCRIPTEN)
-    message(STATUS "Emscripten is detected: Make sure the wraped compiler supports C++14")
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+    message(STATUS "Emscripten is detected: Make sure the wrapped compiler supports C++14")
 else()
     message(FATAL_ERROR "Unsupported compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif ()
@@ -249,7 +266,12 @@ endif ()
 if (NOT MSVC)
     set(CMAKE_CXX_FLAGS                "-Wall -Wextra -std=c++14 ${CMAKE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS_DEBUG          "-g3 ${CMAKE_CXX_FLAGS_DEBUG}")
-    set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os ${CMAKE_CXX_FLAGS_MINSIZEREL}")
+    if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+      # smallest+slower | -Oz .. -Os .. -O3 | largest+faster
+      set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Oz ${CMAKE_CXX_FLAGS_MINSIZEREL}")
+    else ()
+      set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os ${CMAKE_CXX_FLAGS_MINSIZEREL}")
+    endif ()
     set(CMAKE_CXX_FLAGS_RELEASE        "-O3 ${CMAKE_CXX_FLAGS_RELEASE}")
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g3 -fno-omit-frame-pointer ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 elseif (MULTI_THREAD)
@@ -259,30 +281,16 @@ elseif (MULTI_THREAD)
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MT ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 endif ()
 
-if (EMSCRIPTEN)
-    set(gmp_install_prefix ${CMAKE_CURRENT_BINARY_DIR}/gmp-root)
-    # The plethory of configure arguments only makes sure that gmp thinks sizeof(mp_limb_t) == sizeof(long) == 4
-    ExternalProject_Add(
-            gmp
-            URL https://gmplib.org/download/gmp/gmp-6.1.1.tar.bz2
-            URL_HASH SHA256=a8109865f2893f1373b0a8ed5ff7429de8db696fc451b1036bd7bdf95bbeffd6
-            BUILD_IN_SOURCE 1
-            CONFIGURE_COMMAND emconfigure ./configure "CC_FOR_BUILD=gcc" "CCAS=gcc -c" "CFLAGS=-m32 -DPIC ${CFLAGS_EMSCRIPTEN}" --host=x86_64-pc-linux-gnu --build=i686-pc-linux-gnu --disable-assembly --prefix=${gmp_install_prefix}
-            BUILD_COMMAND emmake make -j4
-            INSTALL_COMMAND make install
-    )
-    add_library(lean_external_deps INTERFACE)
-    target_link_libraries(lean_external_deps INTERFACE ${gmp_install_prefix}/lib/libgmp.so)
-    include_directories(lean_external_deps INTERFACE ${gmp_install_prefix}/include)
-    add_dependencies(lean_external_deps gmp)
-    set(EXTRA_LIBS lean_external_deps)
+if ("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
+  include_directories(${GMP_INSTALL_PREFIX}/include)
+  set(GMP_LIBRARIES "${GMP_INSTALL_PREFIX}/lib/libgmp.a")
 else()
-    # GMP
-    find_package(GMP 5.0.5 REQUIRED)
-    include_directories(${GMP_INCLUDE_DIR})
-    set(COPY_LIBS ${COPY_LIBS} ${GMP_LIBRARIES})
-    # dlopen
-    set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
+  # GMP
+  find_package(GMP 5.0.5 REQUIRED)
+  include_directories(${GMP_INCLUDE_DIR})
+  set(COPY_LIBS ${COPY_LIBS} ${GMP_LIBRARIES})
+  # dlopen
+  set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
 endif()
 
 # ccache
@@ -296,6 +304,7 @@ if(CCACHE)
   endif()
 endif()
 
+# TODO: copy COPY_LIBS when lean libraries become shared rather than static
 set(EXTRA_LIBS ${EXTRA_LIBS} ${COPY_LIBS})
 
 # Python
@@ -307,6 +316,8 @@ include_directories(${CMAKE_BINARY_DIR}/include)
 # the linker flags necessary on other platforms.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean -lnodefs.js")
 else()
   # `-pie` defaulting is not consistent on Linux distributions, so let's default to off
   set(LEANC_STATIC_LINKER_FLAGS "-no-pie -Wl,--start-group -lleancpp -lInit -lStd -lLean -Wl,--end-group")
@@ -328,7 +339,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(LEAN_EXTRA_MAKE_OPTS "-Dcompiler.extract_closed=false")
 else()
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS} -rdynamic")
-  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -ldl")
+  set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -ldl")
+  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -ldl")
 endif()
 
 # Allow `lean` symbols in plugins without linking directly against it. If we linked against the
@@ -338,7 +350,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   # import library created by the `lean` target
   set(LEANC_SHARED_LINKER_FLAGS "$bindir/lean.exe.a")
 elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
-  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_EXTRA_FLAGS} -Wl,-undefined,dynamic_lookup")
+  set(LEANC_SHARED_LINKER_FLAGS "-Wl,-undefined,dynamic_lookup")
 endif()
 # Linux ignores undefined symbols in shared libraries by default
 
@@ -382,12 +394,6 @@ install(DIRECTORY ${LEAN_BINARY_DIR}/include/lean DESTINATION include)
 configure_file(${LEAN_SOURCE_DIR}/lean.mk.in ${LEAN_BINARY_DIR}/share/lean/lean.mk)
 install(DIRECTORY ${LEAN_BINARY_DIR}/share/lean DESTINATION share)
 
-if(EMSCRIPTEN)
-    set(LEAN_LIBRARY_TYPE SHARED)
-else()
-   set(LEAN_LIBRARY_TYPE STATIC)
-endif()
-
 include_directories(${LEAN_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})  # version.h etc., "private" headers
 include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" headers
@@ -418,7 +424,7 @@ else()
     add_subdirectory(../stdlib stdlib)
   endif()
 
-  add_library(leancpp ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
+  add_library(leancpp STATIC ${LEAN_OBJS})
   set_target_properties(leancpp PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean"
     OUTPUT_NAME leancpp)
@@ -435,7 +441,8 @@ if(PREV_STAGE)
   file(RELATIVE_PATH LIB ${LEAN_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
 
   string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
-  set(LEANC_OPTS "${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
+  # These are used in lean.mk and passed through by stdlib.make
+  set(LEANC_OPTS "${LEANC_OPTS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
 
   configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
   add_custom_target(make_stdlib ALL

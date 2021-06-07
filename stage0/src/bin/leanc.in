@@ -16,18 +16,19 @@
 set -e
 bindir=$(dirname $0)
 
-cflags=("-I$bindir/../include")
-ldflags=("-L$bindir/../lib/lean" "${LEANC_GMP:--lgmp}" @LEANC_EXTRA_FLAGS@)
+cflags=("-I$bindir/../include" @LEANC_EXTRA_FLAGS@)
+ldflags=("-L$bindir/../lib/lean" "${LEANC_GMP:--lgmp}")
 ldflags_ext=(@LEANC_STATIC_LINKER_FLAGS@)
+args=("$@")
 for arg in "$@"; do
     # passed -shared ~> switch to shared linker flags
-    [[ $arg == "-shared" ]] && ldflags_ext=(@LEANC_SHARED_LINKER_FLAGS@)
-    [[ $arg == "-c" ]] && ldflags=() && ldflags_ext=()
-    [[ $arg == "-print-cflags" ]] && echo "${cflags[@]} ${cflags_ext[@]}" && exit
-    [[ $arg == "-print-ldflags" ]] && echo "${ldflags_ext[@]} ${ldflags[@]}" && exit
+    [[ $arg == "-shared" ]] && ldflags_ext=(@LEANC_SHARED_LINKER_FLAGS@) && args=("-x" "c" "$@" "-x" "none")
+    # Note the `-x c` for treating all input as C code
+    [[ $arg == "-c" ]] && ldflags=() && ldflags_ext=() && args=("-x" "c" "$@" "-x" "none")
+    [[ $arg == "-print-cflags" ]] && echo "${cflags[@]}" && exit
+    [[ $arg == "-print-ldflags" ]] && echo "${cflags[@]} ${ldflags_ext[@]} ${ldflags[@]}" && exit
 done
 
 [ -n "$LEAN_CXX" ] || LEAN_CXX=c++
 
-# Note the `-x c` for treating all input as C code
-$LEAN_CXX -D LEAN_MULTI_THREAD "${cflags[@]}" -x c "$@" -x none "${ldflags_ext[@]}" "${ldflags[@]}" -Wno-unused-command-line-argument
+$LEAN_CXX "${cflags[@]}" "${args[@]}" "${ldflags_ext[@]}" "${ldflags[@]}" -Wno-unused-command-line-argument

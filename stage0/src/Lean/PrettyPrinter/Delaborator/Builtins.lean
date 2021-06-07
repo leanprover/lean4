@@ -159,7 +159,7 @@ def delabAppWithUnexpander : Delab := whenPPOption getPPNotation do
   | _ => pure stx
 where
   go c stx := do
-    let some (f::_) ← pure <| (appUnexpanderAttribute.ext.getState (← getEnv)).table.find? c
+    let f::_ ← pure <| appUnexpanderAttribute.getValues (← getEnv) c
       | pure stx
     let EStateM.Result.ok stx _ ← f stx |>.run ()
       | pure stx

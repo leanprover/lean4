@@ -537,7 +537,7 @@ lean_object* l_IO_Prim_Handle_putStr___boxed(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_IO_withStdout(lean_object*);
 lean_object* l_timeit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_io_app_dir(lean_object*);
+lean_object* lean_io_app_path(lean_object*);
 extern lean_object* l_unexpand____x40_Init_Notation___hyg_1981____closed__1;
 lean_object* l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1641____closed__2;
 lean_object* l_IO_FS_Handle_isEof___rarg(lean_object*, lean_object*);
@@ -1942,7 +1942,7 @@ lean_object* l_IO_Prim_appPath___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_io_app_dir(x_1);
+x_2 = lean_io_app_path(x_1);
 return x_2;
 }
 }

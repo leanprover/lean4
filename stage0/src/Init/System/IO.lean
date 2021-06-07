@@ -193,7 +193,7 @@ def fopenFlags (m : FS.Mode) (b : Bool) : String :=
 @[extern "lean_io_getenv"] constant getEnv (var : @& String) : IO (Option String)
 @[extern "lean_io_realpath"] constant realPath (fname : FilePath) : IO FilePath
 @[extern "lean_io_remove_file"] constant removeFile (fname : @& FilePath) : IO Unit
-@[extern "lean_io_app_dir"] constant appPath : IO FilePath
+@[extern "lean_io_app_path"] constant appPath : IO FilePath
 @[extern "lean_io_current_dir"] constant currentDir : IO FilePath
 
 end Prim

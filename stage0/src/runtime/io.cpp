@@ -11,6 +11,9 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <mach-o/dyld.h>
 #include <unistd.h>
 #else
+#if defined(LEAN_EMSCRIPTEN)
+#include <emscripten.h>
+#endif
 // Linux include files
 #include <unistd.h> // NOLINT
 #include <sys/mman.h>
@@ -412,18 +415,41 @@ extern "C" obj_res lean_io_get_num_heartbeats(obj_arg /* w */) {
 }
 
 extern "C" obj_res lean_io_getenv(b_obj_arg env_var, obj_arg) {
+#if defined(LEAN_EMSCRIPTEN)
+    // HACK(WN): getenv doesn't seem to work in Emscripten even though it should
+    // see https://emscripten.org/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#interacting-with-code-environment-variables
+    char* val = reinterpret_cast<char*>(EM_ASM_INT({
+        var envVar = UTF8ToString($0);
+        var val = ENV[envVar];
+        if (val) {
+            var lengthBytes = lengthBytesUTF8(val)+1;
+            var valOnWasmHeap = _malloc(lengthBytes);
+            stringToUTF8(val, valOnWasmHeap, lengthBytes);
+            return valOnWasmHeap;
+        } else {
+            return 0;
+        }
+    }, string_cstr(env_var)));
+
+    if (val) {
+        object * valLean = mk_string(val);
+        free(val);
+        return io_result_mk_ok(mk_option_some(valLean));
+    } else {
+        return io_result_mk_ok(mk_option_none());
+    }
+#else
     char * val = std::getenv(string_cstr(env_var));
     if (val) {
         return io_result_mk_ok(mk_option_some(mk_string(val)));
     } else {
         return io_result_mk_ok(mk_option_none());
     }
+#endif
 }
 
 extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg) {
-#if defined(LEAN_EMSCRIPTEN)
-    return io_result_mk_ok(fname);
-#elif defined(LEAN_WINDOWS)
+#if defined(LEAN_WINDOWS)
     constexpr unsigned BufferSize = 8192;
     char buffer[BufferSize];
     DWORD retval = GetFullPathName(string_cstr(fname), BufferSize, buffer, nullptr);
@@ -439,8 +465,7 @@ extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg) {
         return io_result_mk_ok(mk_string(buffer));
     }
 #else
-    constexpr unsigned BufferSize = 8192;
-    char buffer[BufferSize];
+    char buffer[PATH_MAX];
     char * tmp = realpath(string_cstr(fname), buffer);
     if (tmp) {
         obj_res s = mk_string(tmp);
@@ -556,7 +581,7 @@ extern "C" obj_res lean_io_remove_file(b_obj_arg fname, obj_arg) {
     }
 }
 
-extern "C" obj_res lean_io_app_dir(obj_arg) {
+extern "C" obj_res lean_io_app_path(obj_arg) {
 #if defined(LEAN_WINDOWS)
     HMODULE hModule = GetModuleHandleW(NULL);
     WCHAR path[MAX_PATH];
@@ -578,6 +603,25 @@ extern "C" obj_res lean_io_app_dir(obj_arg) {
     if (!realpath(buf1, buf2))
         return io_result_mk_error("failed to resolve symbolic links when locating application");
     return io_result_mk_ok(mk_string(buf2));
+#elif defined(LEAN_EMSCRIPTEN)
+    // See https://emscripten.org/docs/api_reference/emscripten.h.html#c.EM_ASM_INT
+    char* appPath = reinterpret_cast<char*>(EM_ASM_INT({
+        if ((typeof process === "undefined") || (process.release.name !== "node")) {
+            return 0;
+        }
+
+        var lengthBytes = lengthBytesUTF8(__filename)+1;
+        var pathOnWasmHeap = _malloc(lengthBytes);
+        stringToUTF8(__filename, pathOnWasmHeap, lengthBytes);
+        return pathOnWasmHeap;
+    }));
+    if (appPath == nullptr) {
+        return io_result_mk_error("no Lean executable file exists in WASM outside of Node.js");
+    }
+
+    object * appPathLean = mk_string(appPath);
+    free(appPath);
+    return io_result_mk_ok(appPathLean);
 #else
     // Linux version
     char path[PATH_MAX];
@@ -814,7 +858,7 @@ void initialize_io() {
     mark_persistent(g_stream_stderr);
     g_stream_stdin  = lean_stream_of_handle(io_wrap_handle(stdin));
     mark_persistent(g_stream_stdin);
-#ifndef LEAN_WINDOWS
+#if !defined(LEAN_WINDOWS) && !defined(LEAN_EMSCRIPTEN)
     // We want to handle SIGPIPE ourselves
     lean_always_assert(signal(SIGPIPE, SIG_IGN) != SIG_ERR);
 #endif

@@ -106,7 +106,7 @@ lean_object* l_System_SearchPath_parse(lean_object*);
 extern lean_object* l_prec_x28___x29___closed__7;
 lean_object* lean_string_length(lean_object*);
 lean_object* l_System_FilePath_parent(lean_object*);
-lean_object* lean_io_app_dir(lean_object*);
+lean_object* lean_io_app_path(lean_object*);
 lean_object* l_System_FilePath_withExtension(lean_object*, lean_object*);
 lean_object* l_Lean_findOLean_maybeThisOne(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_drop(lean_object*, lean_object*);
@@ -614,7 +614,7 @@ lean_object* l_IO_appPath___at_Lean_getBuiltinSearchPath___spec__2(lean_object* 
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_io_app_dir(x_1);
+x_2 = lean_io_app_path(x_1);
 return x_2;
 }
 }
@@ -622,7 +622,7 @@ lean_object* l_IO_appDir___at_Lean_getBuiltinSearchPath___spec__1(lean_object* x
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_io_app_dir(x_1);
+x_2 = lean_io_app_path(x_1);
 if (lean_obj_tag(x_2) == 0)
 {
 uint8_t x_3; 

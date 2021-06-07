@@ -163,10 +163,7 @@ mutual
     loop macros
 
   partial def expandTacticMacro (stx : Syntax) : TacticM Unit := do
-    let k        := stx.getKind
-    let table    := (macroAttribute.ext.getState (← getEnv)).table
-    let macroFns := (table.find? k).getD []
-    expandTacticMacroFns stx macroFns
+    expandTacticMacroFns stx (macroAttribute.getValues (← getEnv) stx.getKind)
 
   partial def evalTacticAux (stx : Syntax) : TacticM Unit :=
     withRef stx $ withIncRecDepth $ withFreshMacroScope $ match stx with
@@ -177,11 +174,9 @@ mutual
         else do
           trace[Elab.step] "{stx}"
           let s ← Tactic.saveState
-          let table := (tacticElabAttribute.ext.getState (← getEnv)).table
-          let k := stx.getKind
-          match table.find? k with
-          | some evalFns => evalTacticUsing s stx evalFns
-          | none         => expandTacticMacro stx
+          match tacticElabAttribute.getValues (← getEnv) stx.getKind with
+          | []      => expandTacticMacro stx
+          | evalFns => evalTacticUsing s stx evalFns
       | _ => throwError m!"unexpected tactic{indentD stx}"
 
   partial def evalTactic (stx : Syntax) : TacticM Unit :=

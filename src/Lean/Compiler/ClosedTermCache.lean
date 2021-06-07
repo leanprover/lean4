@@ -7,23 +7,22 @@ import Lean.Environment
 
 namespace Lean
 
-abbrev ClosedTermCache := SMap Expr Name
+structure ClosedTermCache where
+  map        : Std.PHashMap Expr Name := {}
+  constNames : NameSet := {}
+  deriving Inhabited
 
-builtin_initialize closedTermCacheExt : SimplePersistentEnvExtension (Expr × Name) ClosedTermCache ←
-registerSimplePersistentEnvExtension {
-  name       := `closedTermCache,
-  addImportedFn := fun as =>
-    let cache : ClosedTermCache := mkStateFromImportedEntries (fun s (p : Expr × Name) => s.insert p.1 p.2) {} as;
-    cache.switch,
-  addEntryFn := fun s ⟨e, n⟩ => s.insert e n
-}
+builtin_initialize closedTermCacheExt : EnvExtension ClosedTermCache ← registerEnvExtension (pure {})
 
 @[export lean_cache_closed_term_name]
 def cacheClosedTermName (env : Environment) (e : Expr) (n : Name) : Environment :=
-closedTermCacheExt.addEntry env (e, n)
+  closedTermCacheExt.modifyState env fun s => { s with map := s.map.insert e n, constNames := s.constNames.insert n }
 
 @[export lean_get_closed_term_name]
 def getClosedTermName? (env : Environment) (e : Expr) : Option Name :=
-(closedTermCacheExt.getState env).find? e
+  (closedTermCacheExt.getState env).map.find? e
+
+def isClosedTermName (env : Environment) (n : Name) : Bool :=
+  (closedTermCacheExt.getState env).constNames.contains n
 
 end Lean

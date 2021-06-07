@@ -13,9 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_PrefixTree_forMatchingM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrefixTreeNode_insert_loop(lean_object*, lean_object*);
-lean_object* l_Lean_PrefixTree_empty___closed__1;
+static lean_object* l_Lean_PrefixTree_empty___closed__1;
 lean_object* l_Lean_PrefixTreeNode_foldMatchingM_fold_match__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrefixTreeNode_find_x3f_loop___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrefixTreeNode_find_x3f_loop(lean_object*, lean_object*);
@@ -30,6 +31,7 @@ lean_object* l_Lean_PrefixTreeNode_find_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_PrefixTree_forMatchingM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_foldM___at_Lean_PrefixTreeNode_foldMatchingM_fold___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrefixTree_foldM(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrefixTree_forMatchingM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrefixTreeNode_insert_insertEmpty_match__1(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_foldM___at_Lean_PrefixTreeNode_foldMatchingM_fold___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -37,11 +39,10 @@ lean_object* l_Lean_instInhabitedPrefixTree(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_PrefixTreeNode_foldMatchingM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrefixTreeNode_insert_insertEmpty_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrefixTreeNode_insert_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_instInhabitedPrefixTreeNode___closed__1;
+static lean_object* l_Lean_instInhabitedPrefixTreeNode___closed__1;
 lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrefixTreeNode_insert_insertEmpty___rarg(lean_object*, lean_object*);
-lean_object* l_ReaderT_instMonadReaderT___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrefixTreeNode_foldMatchingM_fold_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrefixTreeNode_insert_loop_match__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_foldM___at_Lean_PrefixTreeNode_foldMatchingM_fold___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -940,11 +941,19 @@ x_4 = lean_alloc_closure((void*)(l_Lean_PrefixTreeNode_foldMatchingM_find___at_L
 return x_4;
 }
 }
+lean_object* l_Lean_PrefixTree_forMatchingM___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_1(x_1, x_2);
+return x_4;
+}
+}
 lean_object* l_Lean_PrefixTree_forMatchingM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_alloc_closure((void*)(l_ReaderT_instMonadReaderT___rarg___lambda__7___boxed), 3, 1);
+x_6 = lean_alloc_closure((void*)(l_Lean_PrefixTree_forMatchingM___rarg___lambda__1___boxed), 3, 1);
 lean_closure_set(x_6, 0, x_5);
 x_7 = lean_box(0);
 x_8 = l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_PrefixTree_forMatchingM___spec__1___rarg(x_2, x_1, x_7, x_6, x_4, x_3, x_7);
@@ -956,6 +965,15 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_alloc_closure((void*)(l_Lean_PrefixTree_forMatchingM___rarg), 5, 0);
+return x_4;
+}
+}
+lean_object* l_Lean_PrefixTree_forMatchingM___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_PrefixTree_forMatchingM___rarg___lambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
 return x_4;
 }
 }
@@ -1025,7 +1043,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_box(0);
-x_6 = lean_alloc_closure((void*)(l_ReaderT_instMonadReaderT___rarg___lambda__7___boxed), 3, 1);
+x_6 = lean_alloc_closure((void*)(l_Lean_PrefixTree_forMatchingM___rarg___lambda__1___boxed), 3, 1);
 lean_closure_set(x_6, 0, x_4);
 x_7 = lean_box(0);
 x_8 = l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_PrefixTree_forM___spec__1___rarg(x_2, x_1, x_7, x_6, x_5, x_3, x_7);

@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_instBEqOccurrences___closed__1;
+static lean_object* l_Lean_instBEqOccurrences___closed__1;
 lean_object* l_Lean_Occurrences_isAll_match__1(lean_object*);
 lean_object* l_Lean_Occurrences_contains___boxed(lean_object*, lean_object*);
 lean_object* l_List_elem___at_Lean_Occurrences_contains___spec__1___boxed(lean_object*, lean_object*);

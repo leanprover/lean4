@@ -15,7 +15,9 @@ extern "C" {
 #endif
 size_t l_USize_add(size_t, size_t);
 lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_mkSimpCase___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault___boxed(lean_object*);
+static lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault___closed__1;
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Std_Range_forIn_loop___at___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_getOccsOf___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -23,7 +25,6 @@ lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_maxOccs_match__1(l
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_simpCase_match__2(lean_object*);
-extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_IR_FnBody_simpCase_match__2___rarg(lean_object*, lean_object*);
@@ -586,6 +587,15 @@ return x_5;
 }
 }
 }
+static lean_object* _init_l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
 lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault(lean_object* x_1) {
 _start:
 {
@@ -670,7 +680,7 @@ if (x_10 == 0)
 lean_object* x_13; lean_object* x_14; 
 lean_dec(x_5);
 lean_dec(x_2);
-x_13 = l_Array_empty___closed__1;
+x_13 = l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault___closed__1;
 x_14 = lean_array_push(x_13, x_12);
 return x_14;
 }
@@ -683,7 +693,7 @@ if (x_15 == 0)
 lean_object* x_16; lean_object* x_17; 
 lean_dec(x_5);
 lean_dec(x_2);
-x_16 = l_Array_empty___closed__1;
+x_16 = l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault___closed__1;
 x_17 = lean_array_push(x_16, x_12);
 return x_17;
 }
@@ -693,7 +703,7 @@ size_t x_18; size_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_2
 x_18 = 0;
 x_19 = lean_usize_of_nat(x_2);
 lean_dec(x_2);
-x_20 = l_Array_empty___closed__1;
+x_20 = l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault___closed__1;
 x_21 = l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault___spec__1(x_5, x_1, x_18, x_19, x_20);
 lean_dec(x_5);
 x_22 = lean_array_push(x_21, x_12);
@@ -780,7 +790,7 @@ if (x_20 == 0)
 {
 lean_object* x_21; 
 lean_dec(x_18);
-x_21 = l_Array_empty___closed__1;
+x_21 = l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault___closed__1;
 x_5 = x_21;
 goto block_17;
 }
@@ -792,7 +802,7 @@ if (x_22 == 0)
 {
 lean_object* x_23; 
 lean_dec(x_18);
-x_23 = l_Array_empty___closed__1;
+x_23 = l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault___closed__1;
 x_5 = x_23;
 goto block_17;
 }
@@ -802,7 +812,7 @@ size_t x_24; size_t x_25; lean_object* x_26; lean_object* x_27;
 x_24 = 0;
 x_25 = lean_usize_of_nat(x_18);
 lean_dec(x_18);
-x_26 = l_Array_empty___closed__1;
+x_26 = l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault___closed__1;
 x_27 = l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_mkSimpCase___spec__1(x_4, x_24, x_25, x_26);
 x_5 = x_27;
 goto block_17;
@@ -1246,6 +1256,8 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_Format(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault___closed__1 = _init_l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault___closed__1();
+lean_mark_persistent(l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

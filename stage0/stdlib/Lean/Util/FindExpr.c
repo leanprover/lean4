@@ -23,7 +23,7 @@ lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_occurs___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_FindImpl_findM_x3f_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_find_x3f(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_FindImpl_initCache___closed__1;
+static lean_object* l_Lean_Expr_FindImpl_initCache___closed__1;
 lean_object* l_Lean_Expr_FindImpl_findM_x3f_visit_match__1(lean_object*);
 lean_object* l_Lean_Expr_occurs___boxed(lean_object*, lean_object*);
 size_t l_USize_mod(size_t, size_t);

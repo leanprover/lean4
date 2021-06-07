@@ -21,7 +21,7 @@ lean_object* l_Std_Queue_dequeue_x3f(lean_object*);
 lean_object* l_Std_Queue_dequeue_x3f_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Queue_enqueue(lean_object*);
 lean_object* l_Std_Queue_dequeue_x3f___rarg(lean_object*);
-lean_object* l_Std_Queue_empty___closed__1;
+static lean_object* l_Std_Queue_empty___closed__1;
 lean_object* l_Std_Queue_enqueue___rarg(lean_object*, lean_object*);
 lean_object* l_Std_Queue_dequeue_x3f_match__2(lean_object*, lean_object*);
 lean_object* l_Std_Queue_eList___default(lean_object*);

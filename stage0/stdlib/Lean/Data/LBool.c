@@ -20,7 +20,7 @@ uint8_t l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hy
 lean_object* l_Lean_LBool_instToStringLBool;
 lean_object* l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_11__match__1(lean_object*);
 lean_object* l_Lean_LBool_toString___boxed(lean_object*);
-extern lean_object* l_instReprBool___closed__2;
+static lean_object* l_Lean_LBool_toString___closed__2;
 lean_object* l_Bool_toLBool_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_toLBoolM(lean_object*);
 lean_object* l_Bool_toLBool_match__1___rarg(uint8_t, lean_object*, lean_object*);
@@ -29,24 +29,24 @@ lean_object* l_Lean_LBool_neg_match__1(lean_object*);
 lean_object* l_Lean_LBool_neg_match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LBool_and(uint8_t, uint8_t);
 lean_object* l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_11__match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_LBool_toString___closed__3;
 lean_object* l_Lean_LBool_and_match__1(lean_object*);
 lean_object* l_Lean_LBool_neg___boxed(lean_object*);
 lean_object* l_Bool_toLBool___boxed(lean_object*);
 lean_object* l_Lean_LBool_and___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_LBool_and_match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19379____closed__8;
 uint8_t l_Lean_instInhabitedLBool;
-lean_object* l_Lean_instBEqLBool___closed__1;
+static lean_object* l_Lean_instBEqLBool___closed__1;
 lean_object* l_toLBoolM___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_instBEqLBool;
 lean_object* l_Bool_toLBool_match__1(lean_object*);
 uint8_t l_Lean_LBool_neg(uint8_t);
 uint8_t l_Bool_toLBool(uint8_t);
-lean_object* l_Lean_LBool_toString___closed__1;
+static lean_object* l_Lean_LBool_toString___closed__1;
 lean_object* l_Lean_LBool_and_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_11____boxed(lean_object*, lean_object*);
 lean_object* l_toLBoolM___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_LBool_instToStringLBool___closed__1;
+static lean_object* l_Lean_LBool_instToStringLBool___closed__1;
 static uint8_t _init_l_Lean_instInhabitedLBool() {
 _start:
 {
@@ -413,6 +413,22 @@ static lean_object* _init_l_Lean_LBool_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
+x_1 = lean_mk_string("false");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_LBool_toString___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("true");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_LBool_toString___closed__3() {
+_start:
+{
+lean_object* x_1; 
 x_1 = lean_mk_string("undef");
 return x_1;
 }
@@ -424,19 +440,19 @@ switch (x_1) {
 case 0:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_19379____closed__8;
+x_2 = l_Lean_LBool_toString___closed__1;
 return x_2;
 }
 case 1:
 {
 lean_object* x_3; 
-x_3 = l_instReprBool___closed__2;
+x_3 = l_Lean_LBool_toString___closed__2;
 return x_3;
 }
 default: 
 {
 lean_object* x_4; 
-x_4 = l_Lean_LBool_toString___closed__1;
+x_4 = l_Lean_LBool_toString___closed__3;
 return x_4;
 }
 }
@@ -597,6 +613,10 @@ l_Lean_instBEqLBool = _init_l_Lean_instBEqLBool();
 lean_mark_persistent(l_Lean_instBEqLBool);
 l_Lean_LBool_toString___closed__1 = _init_l_Lean_LBool_toString___closed__1();
 lean_mark_persistent(l_Lean_LBool_toString___closed__1);
+l_Lean_LBool_toString___closed__2 = _init_l_Lean_LBool_toString___closed__2();
+lean_mark_persistent(l_Lean_LBool_toString___closed__2);
+l_Lean_LBool_toString___closed__3 = _init_l_Lean_LBool_toString___closed__3();
+lean_mark_persistent(l_Lean_LBool_toString___closed__3);
 l_Lean_LBool_instToStringLBool___closed__1 = _init_l_Lean_LBool_instToStringLBool___closed__1();
 lean_mark_persistent(l_Lean_LBool_instToStringLBool___closed__1);
 l_Lean_LBool_instToStringLBool = _init_l_Lean_LBool_instToStringLBool();

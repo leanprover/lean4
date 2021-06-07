@@ -14,23 +14,22 @@
 extern "C" {
 #endif
 lean_object* lean_string_push(lean_object*, uint32_t);
-lean_object* l_Lean_Elab_headerToImports___closed__4;
+static lean_object* l_Lean_Elab_headerToImports___closed__4;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
-extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_headerToImports___closed__2;
+static lean_object* l_Lean_Elab_headerToImports___closed__2;
 lean_object* l_Lean_Elab_headerToImports(lean_object*);
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_parseImports_match__1(lean_object*);
-lean_object* l_Lean_Elab_headerToImports___closed__1;
+static lean_object* l_Lean_Elab_headerToImports___closed__1;
 lean_object* l_Lean_Elab_headerToImports___boxed(lean_object*);
 lean_object* l_Lean_findOLean(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_processHeader(lean_object*, lean_object*, lean_object*, lean_object*, uint32_t, lean_object*);
-lean_object* l_Lean_Elab_parseImports___closed__1;
+static lean_object* l_Lean_Elab_parseImports___closed__1;
 lean_object* l_Lean_Elab_parseImports_match__1___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_headerToImports___closed__3;
+static lean_object* l_Lean_Elab_headerToImports___closed__3;
 lean_object* l_Lean_Elab_printImports_match__1(lean_object*);
 lean_object* l_IO_print___at_IO_println___spec__1(lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at_Lean_Elab_printImports___spec__2(lean_object*, lean_object*, lean_object*);
@@ -38,6 +37,7 @@ lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_Elab_processHeader___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at_Lean_Elab_printImports___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_processHeader___closed__1;
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_ofString(lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
@@ -230,6 +230,14 @@ lean_dec(x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Elab_processHeader___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("");
+return x_1;
+}
+}
 lean_object* l_Lean_Elab_processHeader(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint32_t x_5, lean_object* x_6) {
 _start:
 {
@@ -301,7 +309,7 @@ lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_33; lean_obje
 x_30 = lean_unsigned_to_nat(0u);
 x_31 = l_Lean_FileMap_toPosition(x_24, x_30);
 x_32 = 2;
-x_33 = l_Lean_instInhabitedParserDescr___closed__1;
+x_33 = l_Lean_Elab_processHeader___closed__1;
 lean_inc(x_25);
 x_34 = lean_alloc_ctor(0, 5, 1);
 lean_ctor_set(x_34, 0, x_25);
@@ -326,7 +334,7 @@ lean_dec(x_23);
 x_38 = l_Lean_FileMap_toPosition(x_24, x_37);
 lean_dec(x_37);
 x_39 = 2;
-x_40 = l_Lean_instInhabitedParserDescr___closed__1;
+x_40 = l_Lean_Elab_processHeader___closed__1;
 lean_inc(x_25);
 x_41 = lean_alloc_ctor(0, 5, 1);
 lean_ctor_set(x_41, 0, x_25);
@@ -367,7 +375,7 @@ lean_object* x_54; lean_object* x_55; uint8_t x_56; lean_object* x_57; lean_obje
 x_54 = lean_unsigned_to_nat(0u);
 x_55 = l_Lean_FileMap_toPosition(x_48, x_54);
 x_56 = 2;
-x_57 = l_Lean_instInhabitedParserDescr___closed__1;
+x_57 = l_Lean_Elab_processHeader___closed__1;
 lean_inc(x_49);
 x_58 = lean_alloc_ctor(0, 5, 1);
 lean_ctor_set(x_58, 0, x_49);
@@ -394,7 +402,7 @@ lean_dec(x_47);
 x_63 = l_Lean_FileMap_toPosition(x_48, x_62);
 lean_dec(x_62);
 x_64 = 2;
-x_65 = l_Lean_instInhabitedParserDescr___closed__1;
+x_65 = l_Lean_Elab_processHeader___closed__1;
 lean_inc(x_49);
 x_66 = lean_alloc_ctor(0, 5, 1);
 lean_ctor_set(x_66, 0, x_49);
@@ -1122,6 +1130,8 @@ l_Lean_Elab_headerToImports___closed__3 = _init_l_Lean_Elab_headerToImports___cl
 lean_mark_persistent(l_Lean_Elab_headerToImports___closed__3);
 l_Lean_Elab_headerToImports___closed__4 = _init_l_Lean_Elab_headerToImports___closed__4();
 lean_mark_persistent(l_Lean_Elab_headerToImports___closed__4);
+l_Lean_Elab_processHeader___closed__1 = _init_l_Lean_Elab_processHeader___closed__1();
+lean_mark_persistent(l_Lean_Elab_processHeader___closed__1);
 l_Lean_Elab_parseImports___closed__1 = _init_l_Lean_Elab_parseImports___closed__1();
 lean_mark_persistent(l_Lean_Elab_parseImports___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

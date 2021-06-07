@@ -18,33 +18,33 @@ lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux(lean_object*, lean_object*, lean_object*);
 uint8_t l_Char_isDigit(uint32_t);
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__1;
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux_match__1(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
-lean_object* l_Lean_mkModuleInitializationFunctionName___closed__1;
+static lean_object* l_Lean_mkModuleInitializationFunctionName___closed__1;
 uint32_t l_Nat_digitChar(lean_object*);
 lean_object* l_String_Iterator_next(lean_object*);
 uint8_t l_Char_isAlpha(uint32_t);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_13362____closed__14;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Lean_String_mangle(lean_object*);
 lean_object* lean_mk_module_initialization_function_name(lean_object*);
 uint32_t l_String_Iterator_curr(lean_object*);
-lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__2;
+static lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__2;
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux_match__2(lean_object*);
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux(lean_object*);
-lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__1;
+static lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__1;
 lean_object* lean_name_mangle(lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
-lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__3;
+static lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__3;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux_match__1(lean_object*);
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_String_mangle___closed__1;
 lean_object* lean_uint32_to_nat(uint32_t);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -240,6 +240,14 @@ return x_3;
 }
 }
 }
+static lean_object* _init_l_Lean_String_mangle___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("");
+return x_1;
+}
+}
 lean_object* l_Lean_String_mangle(lean_object* x_1) {
 _start:
 {
@@ -249,7 +257,7 @@ x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_3);
-x_5 = l_Lean_instInhabitedParserDescr___closed__1;
+x_5 = l_Lean_String_mangle___closed__1;
 x_6 = l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux(x_2, x_4, x_5);
 return x_6;
 }
@@ -336,6 +344,14 @@ x_2 = lean_alloc_closure((void*)(l___private_Lean_Compiler_NameMangling_0__Lean_
 return x_2;
 }
 }
+static lean_object* _init_l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("_");
+return x_1;
+}
+}
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux(lean_object* x_1) {
 _start:
 {
@@ -343,7 +359,7 @@ switch (lean_obj_tag(x_1)) {
 case 0:
 {
 lean_object* x_2; 
-x_2 = l_Lean_instInhabitedParserDescr___closed__1;
+x_2 = l_Lean_String_mangle___closed__1;
 return x_2;
 }
 case 1:
@@ -363,7 +379,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux(x_3);
-x_7 = l_myMacro____x40_Init_Notation___hyg_13362____closed__14;
+x_7 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__1;
 x_8 = lean_string_append(x_6, x_7);
 x_9 = lean_string_append(x_8, x_5);
 lean_dec(x_5);
@@ -379,7 +395,7 @@ x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 lean_dec(x_1);
 x_12 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux(x_10);
-x_13 = l_myMacro____x40_Init_Notation___hyg_13362____closed__14;
+x_13 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__1;
 x_14 = lean_string_append(x_12, x_13);
 x_15 = l_Nat_repr(x_11);
 x_16 = lean_string_append(x_14, x_15);
@@ -412,7 +428,7 @@ lean_object* lean_mk_module_initialization_function_name(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Lean_instInhabitedParserDescr___closed__1;
+x_2 = l_Lean_String_mangle___closed__1;
 x_3 = lean_name_mangle(x_1, x_2);
 x_4 = l_Lean_mkModuleInitializationFunctionName___closed__1;
 x_5 = lean_string_append(x_4, x_3);
@@ -439,6 +455,10 @@ l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__2 = _i
 lean_mark_persistent(l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__2);
 l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__3 = _init_l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__3();
 lean_mark_persistent(l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__3);
+l_Lean_String_mangle___closed__1 = _init_l_Lean_String_mangle___closed__1();
+lean_mark_persistent(l_Lean_String_mangle___closed__1);
+l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__1 = _init_l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__1();
+lean_mark_persistent(l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__1);
 l_Lean_mkModuleInitializationFunctionName___closed__1 = _init_l_Lean_mkModuleInitializationFunctionName___closed__1();
 lean_mark_persistent(l_Lean_mkModuleInitializationFunctionName___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

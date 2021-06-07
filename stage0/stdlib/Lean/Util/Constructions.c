@@ -13,18 +13,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_brec_on(lean_object*, lean_object*);
 lean_object* l_Lean_mkCasesOn(lean_object*);
 lean_object* l_Lean_mkIBelow___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkBelowImp___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkBInductionOn___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_cases_on(lean_object*, lean_object*);
-lean_object* l_Monad_seqRight___default___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkRecOnImp___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkBRecOnImp___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkCasesOn___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkBelow___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_mkIBelow(lean_object*);
 lean_object* l_Lean_mkNoConfusion___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_ibelow(lean_object*, lean_object*);
@@ -46,6 +46,7 @@ lean_object* l_Lean_mkIBelowImp___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkRecOn___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkCasesOnImp___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkBInductionOn(lean_object*);
+lean_object* l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_below(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Constructions_0__Lean_adaptFn_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkBelow___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -158,7 +159,14 @@ x_2 = lean_alloc_closure((void*)(l___private_Lean_Util_Constructions_0__Lean_ada
 return x_2;
 }
 }
-lean_object* l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
@@ -185,7 +193,7 @@ lean_dec(x_8);
 x_12 = lean_ctor_get(x_6, 1);
 lean_inc(x_12);
 lean_dec(x_6);
-x_13 = lean_alloc_closure((void*)(l_Monad_seqRight___default___rarg___lambda__1___boxed), 2, 1);
+x_13 = lean_alloc_closure((void*)(l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_13, 0, x_11);
 x_14 = lean_apply_1(x_12, x_13);
 return x_14;
@@ -200,7 +208,7 @@ x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_2, 0);
 lean_inc(x_8);
-x_9 = lean_alloc_closure((void*)(l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__1), 7, 6);
+x_9 = lean_alloc_closure((void*)(l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__2), 7, 6);
 lean_closure_set(x_9, 0, x_5);
 lean_closure_set(x_9, 1, x_6);
 lean_closure_set(x_9, 2, x_1);
@@ -217,6 +225,16 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg), 6, 0);
 return x_2;
+}
+}
+lean_object* l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__1(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 lean_object* l_Lean_mkCasesOn___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -246,7 +264,7 @@ lean_dec(x_7);
 x_11 = lean_ctor_get(x_5, 1);
 lean_inc(x_11);
 lean_dec(x_5);
-x_12 = lean_alloc_closure((void*)(l_Monad_seqRight___default___rarg___lambda__1___boxed), 2, 1);
+x_12 = lean_alloc_closure((void*)(l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_12, 0, x_10);
 x_13 = lean_apply_1(x_11, x_12);
 return x_13;
@@ -315,7 +333,7 @@ lean_dec(x_7);
 x_11 = lean_ctor_get(x_5, 1);
 lean_inc(x_11);
 lean_dec(x_5);
-x_12 = lean_alloc_closure((void*)(l_Monad_seqRight___default___rarg___lambda__1___boxed), 2, 1);
+x_12 = lean_alloc_closure((void*)(l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_12, 0, x_10);
 x_13 = lean_apply_1(x_11, x_12);
 return x_13;
@@ -384,7 +402,7 @@ lean_dec(x_7);
 x_11 = lean_ctor_get(x_5, 1);
 lean_inc(x_11);
 lean_dec(x_5);
-x_12 = lean_alloc_closure((void*)(l_Monad_seqRight___default___rarg___lambda__1___boxed), 2, 1);
+x_12 = lean_alloc_closure((void*)(l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_12, 0, x_10);
 x_13 = lean_apply_1(x_11, x_12);
 return x_13;
@@ -453,7 +471,7 @@ lean_dec(x_7);
 x_11 = lean_ctor_get(x_5, 1);
 lean_inc(x_11);
 lean_dec(x_5);
-x_12 = lean_alloc_closure((void*)(l_Monad_seqRight___default___rarg___lambda__1___boxed), 2, 1);
+x_12 = lean_alloc_closure((void*)(l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_12, 0, x_10);
 x_13 = lean_apply_1(x_11, x_12);
 return x_13;
@@ -522,7 +540,7 @@ lean_dec(x_7);
 x_11 = lean_ctor_get(x_5, 1);
 lean_inc(x_11);
 lean_dec(x_5);
-x_12 = lean_alloc_closure((void*)(l_Monad_seqRight___default___rarg___lambda__1___boxed), 2, 1);
+x_12 = lean_alloc_closure((void*)(l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_12, 0, x_10);
 x_13 = lean_apply_1(x_11, x_12);
 return x_13;
@@ -591,7 +609,7 @@ lean_dec(x_7);
 x_11 = lean_ctor_get(x_5, 1);
 lean_inc(x_11);
 lean_dec(x_5);
-x_12 = lean_alloc_closure((void*)(l_Monad_seqRight___default___rarg___lambda__1___boxed), 2, 1);
+x_12 = lean_alloc_closure((void*)(l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_12, 0, x_10);
 x_13 = lean_apply_1(x_11, x_12);
 return x_13;
@@ -660,7 +678,7 @@ lean_dec(x_7);
 x_11 = lean_ctor_get(x_5, 1);
 lean_inc(x_11);
 lean_dec(x_5);
-x_12 = lean_alloc_closure((void*)(l_Monad_seqRight___default___rarg___lambda__1___boxed), 2, 1);
+x_12 = lean_alloc_closure((void*)(l___private_Lean_Util_Constructions_0__Lean_adaptFn___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_12, 0, x_10);
 x_13 = lean_apply_1(x_11, x_12);
 return x_13;

@@ -13,23 +13,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+static lean_object* l_Lean_Meta_DiscrTree_root___default___closed__2;
 lean_object* l_Lean_Meta_DiscrTree_Key_hash_match__1(lean_object*);
-lean_object* l_Lean_Meta_DiscrTree_instBEqKey___closed__1;
+static lean_object* l_Lean_Meta_DiscrTree_instBEqKey___closed__1;
 lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_beqKey____x40_Lean_Meta_DiscrTreeTypes___hyg_73____boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_root___default(lean_object*);
-lean_object* l_Lean_Meta_DiscrTree_instInhabitedKey___closed__1;
+static lean_object* l_Lean_Meta_DiscrTree_instInhabitedKey___closed__1;
 lean_object* l_Lean_Meta_DiscrTree_instHashableKey;
-extern lean_object* l_Std_PersistentHashMap_root___default___closed__2;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 uint8_t l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_beqKey____x40_Lean_Meta_DiscrTreeTypes___hyg_73_(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Key_hash_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_DiscrTree_root___default___closed__1;
+static lean_object* l_Lean_Meta_DiscrTree_root___default___closed__1;
 uint64_t l_Lean_Name_hash(lean_object*);
+static lean_object* l_Lean_Meta_DiscrTree_root___default___closed__3;
 lean_object* l_Lean_Meta_DiscrTree_instBEqKey;
+lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 uint8_t l___private_Lean_Expr_0__Lean_beqLiteral____x40_Lean_Expr___hyg_30_(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_DiscrTree_instHashableKey___closed__1;
+static lean_object* l_Lean_Meta_DiscrTree_instHashableKey___closed__1;
 lean_object* l_Lean_Meta_DiscrTree_instInhabitedKey;
 uint64_t l_Lean_Literal_hash(lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_beqKey____x40_Lean_Meta_DiscrTreeTypes___hyg_73__match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -573,8 +575,26 @@ return x_1;
 static lean_object* _init_l_Lean_Meta_DiscrTree_root___default___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_DiscrTree_root___default___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_DiscrTree_root___default___closed__1;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_DiscrTree_root___default___closed__3() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_PersistentHashMap_root___default___closed__2;
+x_1 = l_Lean_Meta_DiscrTree_root___default___closed__2;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -586,7 +606,7 @@ lean_object* l_Lean_Meta_DiscrTree_root___default(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Meta_DiscrTree_root___default___closed__1;
+x_2 = l_Lean_Meta_DiscrTree_root___default___closed__3;
 return x_2;
 }
 }
@@ -617,6 +637,10 @@ l_Lean_Meta_DiscrTree_instHashableKey = _init_l_Lean_Meta_DiscrTree_instHashable
 lean_mark_persistent(l_Lean_Meta_DiscrTree_instHashableKey);
 l_Lean_Meta_DiscrTree_root___default___closed__1 = _init_l_Lean_Meta_DiscrTree_root___default___closed__1();
 lean_mark_persistent(l_Lean_Meta_DiscrTree_root___default___closed__1);
+l_Lean_Meta_DiscrTree_root___default___closed__2 = _init_l_Lean_Meta_DiscrTree_root___default___closed__2();
+lean_mark_persistent(l_Lean_Meta_DiscrTree_root___default___closed__2);
+l_Lean_Meta_DiscrTree_root___default___closed__3 = _init_l_Lean_Meta_DiscrTree_root___default___closed__3();
+lean_mark_persistent(l_Lean_Meta_DiscrTree_root___default___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

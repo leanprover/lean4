@@ -24,7 +24,6 @@ lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_FnBody_pushProj___spec__3___box
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_pushProjs___spec__12(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_IR_FnBody_pushProj_match__1___rarg(lean_object*, lean_object*);
-extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_pushProjs___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapIdxM_map___at_Lean_IR_pushProjs___spec__2___at_Lean_IR_pushProjs___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_pushProj_match__1(lean_object*);
@@ -82,6 +81,7 @@ lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_pushProjs___spec__4___at_Lean_I
 lean_object* l_Array_mapIdxM_map___at_Lean_IR_pushProjs___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_updateBody_x21(lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
+static lean_object* l_Lean_IR_FnBody_pushProj___closed__1;
 lean_object* l_Lean_IR_Decl_pushProj(lean_object*);
 lean_object* l_Lean_IR_Decl_normalizeIds(lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
@@ -2276,6 +2276,15 @@ goto _start;
 }
 }
 }
+static lean_object* _init_l_Lean_IR_FnBody_pushProj___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_IR_FnBody_pushProj(lean_object* x_1) {
 _start:
 {
@@ -2311,7 +2320,7 @@ x_17 = l_Array_mapMUnsafe_map___at_Lean_IR_FnBody_pushProj___spec__2(x_15, x_7, 
 x_18 = x_17;
 lean_inc(x_12);
 x_19 = l_Lean_IR_mkIndexSet(x_12);
-x_20 = l_Array_empty___closed__1;
+x_20 = l_Lean_IR_FnBody_pushProj___closed__1;
 x_21 = l_Lean_IR_pushProjs(x_10, x_13, x_18, x_20, x_19);
 x_22 = lean_ctor_get(x_21, 0);
 lean_inc(x_22);
@@ -2349,7 +2358,7 @@ x_37 = l_Array_mapMUnsafe_map___at_Lean_IR_FnBody_pushProj___spec__2(x_35, x_7, 
 x_38 = x_37;
 lean_inc(x_31);
 x_39 = l_Lean_IR_mkIndexSet(x_31);
-x_40 = l_Array_empty___closed__1;
+x_40 = l_Lean_IR_FnBody_pushProj___closed__1;
 x_41 = l_Lean_IR_pushProjs(x_10, x_33, x_38, x_40, x_39);
 x_42 = lean_ctor_get(x_41, 0);
 lean_inc(x_42);
@@ -2493,6 +2502,8 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_NormIds(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_IR_FnBody_pushProj___closed__1 = _init_l_Lean_IR_FnBody_pushProj___closed__1();
+lean_mark_persistent(l_Lean_IR_FnBody_pushProj___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

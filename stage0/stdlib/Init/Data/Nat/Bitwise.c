@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Nat_shiftRight___boxed(lean_object*, lean_object*);
-lean_object* l_Nat_instOrOpNat___closed__1;
+static lean_object* l_Nat_instOrOpNat___closed__1;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Nat_instXorNat;
 lean_object* l_Nat_shiftLeft___boxed(lean_object*, lean_object*);
@@ -23,16 +23,16 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_lxor(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l_Nat_instShiftRightNat___closed__1;
+static lean_object* l_Nat_instShiftRightNat___closed__1;
 lean_object* l_Nat_instOrOpNat;
 lean_object* l_Nat_instAndOpNat;
-lean_object* l_Nat_instShiftLeftNat___closed__1;
+static lean_object* l_Nat_instShiftLeftNat___closed__1;
 lean_object* l_Nat_lor___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_bitwise(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_lor(lean_object*, lean_object*);
 lean_object* l_Nat_xor___boxed(lean_object*, lean_object*);
-lean_object* l_Nat_instXorNat___closed__1;
-lean_object* l_Nat_instAndOpNat___closed__1;
+static lean_object* l_Nat_instXorNat___closed__1;
+static lean_object* l_Nat_instAndOpNat___closed__1;
 lean_object* l_Nat_shiftLeft_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_instShiftLeftNat;
 lean_object* lean_nat_shiftl(lean_object*, lean_object*);

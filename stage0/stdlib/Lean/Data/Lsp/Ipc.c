@@ -15,29 +15,30 @@ extern "C" {
 #endif
 lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_writeLspRequest___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 uint8_t l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_32_(lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_writeLspRequest___at_Lean_Lsp_Ipc_collectDiagnostics___spec__2(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Lsp_Ipc_ipcStdioConfig___closed__1;
-lean_object* l_Lean_Lsp_Ipc_collectDiagnostics___closed__1;
+static lean_object* l_Lean_Lsp_Ipc_ipcStdioConfig___closed__1;
+static lean_object* l_Lean_Lsp_Ipc_collectDiagnostics___closed__1;
 lean_object* l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1139_(lean_object*);
 lean_object* l_Lean_Lsp_Ipc_readResponseAs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Lsp_Ipc_collectDiagnostics___spec__3(lean_object*);
-extern lean_object* l_Array_empty___closed__1;
-extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_readLspMessage(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
+static lean_object* l_Lean_Lsp_Ipc_runWith___rarg___closed__1;
 lean_object* l_Lean_Lsp_Ipc_collectDiagnostics(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_process_spawn(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Ipc_stdin(lean_object*, lean_object*);
-lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__1;
+static lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__1;
 lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_toJsonWaitForDiagnosticsParams____x40_Lean_Data_Lsp_Extra___hyg_23_(lean_object*);
 lean_object* l_Lean_Lsp_Ipc_runWith___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__2;
+static lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__2;
+static lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__4;
 lean_object* l_Lean_Lsp_Ipc_runWith(lean_object*);
-lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop_match__2___rarg___closed__1;
+static lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop_match__2___rarg___closed__1;
 lean_object* l_IO_FS_Stream_writeLspMessage(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Ipc_stdout(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Ipc_writeNotification___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -52,7 +53,7 @@ lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop_match__2(lean_object*);
 lean_object* l_Lean_Lsp_Ipc_readMessage(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Ipc_writeNotification(lean_object*);
 lean_object* l_Lean_Lsp_Ipc_waitForExit(lean_object*, lean_object*);
-lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__3;
+static lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__3;
 lean_object* l_Lean_Lsp_Ipc_writeRequest___at_Lean_Lsp_Ipc_collectDiagnostics___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_writeLspNotification___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Ipc_waitForExit___boxed(lean_object*, lean_object*);
@@ -391,6 +392,14 @@ _start:
 {
 lean_object* x_1; 
 x_1 = lean_mk_string("Waiting for diagnostics failed: ");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("");
 return x_1;
 }
 }
@@ -930,7 +939,7 @@ lean_dec(x_2);
 x_118 = l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__3;
 x_119 = lean_string_append(x_118, x_115);
 lean_dec(x_115);
-x_120 = l_Lean_instInhabitedParserDescr___closed__1;
+x_120 = l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__4;
 x_121 = lean_string_append(x_119, x_120);
 x_122 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_122, 0, x_121);
@@ -965,7 +974,7 @@ lean_dec(x_2);
 x_128 = l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__3;
 x_129 = lean_string_append(x_128, x_125);
 lean_dec(x_125);
-x_130 = l_Lean_instInhabitedParserDescr___closed__1;
+x_130 = l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__4;
 x_131 = lean_string_append(x_129, x_130);
 x_132 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_132, 0, x_131);
@@ -1121,13 +1130,22 @@ return x_15;
 }
 }
 }
+static lean_object* _init_l_Lean_Lsp_Ipc_runWith___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_Lsp_Ipc_runWith___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_5 = lean_box(0);
 x_6 = l_Lean_Lsp_Ipc_ipcStdioConfig;
-x_7 = l_Array_empty___closed__1;
+x_7 = l_Lean_Lsp_Ipc_runWith___rarg___closed__1;
 x_8 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_8, 0, x_6);
 lean_ctor_set(x_8, 1, x_1);
@@ -1220,8 +1238,12 @@ l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__2 = _init_l_Lean_Lsp_Ipc_collec
 lean_mark_persistent(l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__2);
 l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__3 = _init_l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__3();
 lean_mark_persistent(l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__3);
+l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__4 = _init_l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__4();
+lean_mark_persistent(l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__4);
 l_Lean_Lsp_Ipc_collectDiagnostics___closed__1 = _init_l_Lean_Lsp_Ipc_collectDiagnostics___closed__1();
 lean_mark_persistent(l_Lean_Lsp_Ipc_collectDiagnostics___closed__1);
+l_Lean_Lsp_Ipc_runWith___rarg___closed__1 = _init_l_Lean_Lsp_Ipc_runWith___rarg___closed__1();
+lean_mark_persistent(l_Lean_Lsp_Ipc_runWith___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

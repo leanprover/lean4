@@ -13,14 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t l_System_Platform_isOSX___closed__1;
+static uint8_t l_System_Platform_isOSX___closed__1;
 uint8_t l_System_Platform_isWindows;
 uint8_t l_System_Platform_isOSX;
 uint8_t lean_system_platform_emscripten(lean_object*);
 uint8_t lean_system_platform_osx(lean_object*);
 uint8_t l_System_Platform_isEmscripten;
-uint8_t l_System_Platform_isEmscripten___closed__1;
-uint8_t l_System_Platform_isWindows___closed__1;
+static uint8_t l_System_Platform_isEmscripten___closed__1;
+static uint8_t l_System_Platform_isWindows___closed__1;
 lean_object* l_System_Platform_getIsOSX___boxed(lean_object*);
 uint8_t lean_system_platform_windows(lean_object*);
 lean_object* l_System_Platform_getIsWindows___boxed(lean_object*);

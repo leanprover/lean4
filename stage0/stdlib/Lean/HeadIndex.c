@@ -14,19 +14,19 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Expr_toHeadIndex___boxed(lean_object*);
-lean_object* l_Lean_Expr_toHeadIndex___closed__1;
-lean_object* l_Lean_Expr_toHeadIndex___closed__2;
+static lean_object* l_Lean_Expr_toHeadIndex___closed__1;
+static lean_object* l_Lean_Expr_toHeadIndex___closed__2;
 lean_object* l_Lean_Expr_head___boxed(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_toHeadIndex___closed__4;
+static lean_object* l_Lean_Expr_toHeadIndex___closed__4;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_head(lean_object*);
 lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux_match__1(lean_object*);
 lean_object* l_Lean_HeadIndex_HeadIndex_hash___boxed(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_toHeadIndex___closed__3;
+static lean_object* l_Lean_Expr_toHeadIndex___closed__3;
 lean_object* l_Lean_Expr_head_match__1(lean_object*);
-lean_object* l_Lean_HeadIndex_instHashableHeadIndex___closed__1;
+static lean_object* l_Lean_HeadIndex_instHashableHeadIndex___closed__1;
 uint64_t l_Lean_HeadIndex_HeadIndex_hash(lean_object*);
 uint64_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Lean_Expr_headNumArgs(lean_object*);
@@ -37,7 +37,7 @@ lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_
 lean_object* l_Lean_HeadIndex_HeadIndex_hash_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedHeadIndex;
 lean_object* l_Lean_Expr_toHeadIndex(lean_object*);
-lean_object* l_Lean_instInhabitedHeadIndex___closed__1;
+static lean_object* l_Lean_instInhabitedHeadIndex___closed__1;
 lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_HeadIndex_0__Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_65__match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_HeadIndex_0__Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_65__match__1(lean_object*);
@@ -49,7 +49,7 @@ uint8_t l___private_Lean_HeadIndex_0__Lean_beqHeadIndex____x40_Lean_HeadIndex___
 lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Literal_hash(lean_object*);
 lean_object* l_Lean_HeadIndex_HeadIndex_hash_match__1(lean_object*);
-lean_object* l_Lean_instBEqHeadIndex___closed__1;
+static lean_object* l_Lean_instBEqHeadIndex___closed__1;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_head_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);

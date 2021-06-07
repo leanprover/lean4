@@ -16,9 +16,9 @@ extern "C" {
 uint8_t lean_is_marked_borrowed(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_isMarkedBorrowed___boxed(lean_object*);
-lean_object* l_Lean_markBorrowed___closed__1;
+static lean_object* l_Lean_markBorrowed___closed__1;
 lean_object* l_Lean_annotation_x3f(lean_object*, lean_object*);
-lean_object* l_Lean_markBorrowed___closed__2;
+static lean_object* l_Lean_markBorrowed___closed__2;
 lean_object* l_Lean_mkAnnotation(lean_object*, lean_object*);
 lean_object* l_Lean_markBorrowed(lean_object*);
 static lean_object* _init_l_Lean_markBorrowed___closed__1() {

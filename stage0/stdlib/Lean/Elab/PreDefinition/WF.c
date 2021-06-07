@@ -18,9 +18,9 @@ lean_object* l_Lean_Elab_WFRecursion(lean_object*);
 lean_object* l_Lean_Elab_WFRecursion___boxed(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Term_throwErrorIfErrors___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_WFRecursion___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_WFRecursion___rarg___closed__1;
+static lean_object* l_Lean_Elab_WFRecursion___rarg___closed__1;
 lean_object* l_Lean_Elab_WFRecursion___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_WFRecursion___rarg___closed__2;
+static lean_object* l_Lean_Elab_WFRecursion___rarg___closed__2;
 static lean_object* _init_l_Lean_Elab_WFRecursion___rarg___closed__1() {
 _start:
 {

@@ -19,18 +19,18 @@ lean_object* l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__1___rarg(l
 lean_object* l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_Meta_findLocalDeclWithType_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-extern lean_object* l_Std_Format_join___closed__1;
 lean_object* l_Lean_Meta_assumptionCore_match__1(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-lean_object* l_Lean_Meta_assumption___closed__1;
+static lean_object* l_Lean_Meta_assumption___closed__1;
 lean_object* l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_Meta_findLocalDeclWithType_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_assumption___closed__2;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_assumption___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_assumption___closed__3;
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Meta_findLocalDeclWithType_x3f___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_findLocalDeclWithType_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Meta_findLocalDeclWithType_x3f___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -51,7 +51,8 @@ lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Meta_findLocalDeclWithType_
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Meta_findLocalDeclWithType_x3f___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_findSomeRevMAux___at_Lean_Meta_findLocalDeclWithType_x3f___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assumptionCore_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_assumptionCore___closed__1;
+static lean_object* l_Lean_Meta_assumptionCore___closed__1;
+static lean_object* l_Lean_Meta_assumptionCore___closed__2;
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Meta_findLocalDeclWithType_x3f___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -1089,9 +1090,17 @@ return x_40;
 static lean_object* _init_l_Lean_Meta_assumptionCore___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string("assumption");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_assumptionCore___closed__2() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Parser_Tactic_assumption___closed__1;
+x_2 = l_Lean_Meta_assumptionCore___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -1100,7 +1109,7 @@ lean_object* l_Lean_Meta_assumptionCore(lean_object* x_1, lean_object* x_2, lean
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_7 = l_Lean_Meta_assumptionCore___closed__1;
+x_7 = l_Lean_Meta_assumptionCore___closed__2;
 lean_inc(x_1);
 x_8 = lean_alloc_closure((void*)(l_Lean_Meta_checkNotAssigned___boxed), 7, 2);
 lean_closure_set(x_8, 0, x_1);
@@ -1127,8 +1136,26 @@ return x_8;
 static lean_object* _init_l_Lean_Meta_assumption___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string("");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_assumption___closed__2() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Format_join___closed__1;
+x_1 = l_Lean_Meta_assumption___closed__1;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_assumption___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_assumption___closed__2;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -1157,8 +1184,8 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = lean_ctor_get(x_7, 1);
 lean_inc(x_10);
 lean_dec(x_7);
-x_11 = l_Lean_Meta_assumptionCore___closed__1;
-x_12 = l_Lean_Meta_assumption___closed__1;
+x_11 = l_Lean_Meta_assumptionCore___closed__2;
+x_12 = l_Lean_Meta_assumption___closed__3;
 x_13 = lean_box(0);
 x_14 = l_Lean_Meta_throwTacticEx___rarg(x_11, x_1, x_12, x_13, x_2, x_3, x_4, x_5, x_10);
 lean_dec(x_5);
@@ -1247,8 +1274,14 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_assumptionCore___closed__1 = _init_l_Lean_Meta_assumptionCore___closed__1();
 lean_mark_persistent(l_Lean_Meta_assumptionCore___closed__1);
+l_Lean_Meta_assumptionCore___closed__2 = _init_l_Lean_Meta_assumptionCore___closed__2();
+lean_mark_persistent(l_Lean_Meta_assumptionCore___closed__2);
 l_Lean_Meta_assumption___closed__1 = _init_l_Lean_Meta_assumption___closed__1();
 lean_mark_persistent(l_Lean_Meta_assumption___closed__1);
+l_Lean_Meta_assumption___closed__2 = _init_l_Lean_Meta_assumption___closed__2();
+lean_mark_persistent(l_Lean_Meta_assumption___closed__2);
+l_Lean_Meta_assumption___closed__3 = _init_l_Lean_Meta_assumption___closed__3();
+lean_mark_persistent(l_Lean_Meta_assumption___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

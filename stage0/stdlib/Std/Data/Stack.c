@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Array_empty___closed__1;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Std_Stack_vals___default(lean_object*);
 lean_object* l_Std_Stack_push(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -34,6 +34,7 @@ uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l_Std_Stack_peek_x21(lean_object*);
 lean_object* l_Std_Stack_isEmpty(lean_object*);
 lean_object* l_Std_Stack_modify___rarg(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Stack_vals___default___closed__1;
 lean_object* l_Std_Stack_peek_x3f___rarg(lean_object*);
 lean_object* l_Std_Stack_pop___boxed(lean_object*, lean_object*);
 lean_object* l_Std_Stack_peek_x3f___rarg___boxed(lean_object*);
@@ -42,11 +43,20 @@ lean_object* lean_array_pop(lean_object*);
 lean_object* l_Std_Stack_peek_x21___rarg(lean_object*, lean_object*);
 lean_object* l_Std_Stack_pop(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+static lean_object* _init_l_Std_Stack_vals___default___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
 lean_object* l_Std_Stack_vals___default(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Array_empty___closed__1;
+x_2 = l_Std_Stack_vals___default___closed__1;
 return x_2;
 }
 }
@@ -54,7 +64,7 @@ lean_object* l_Std_Stack_empty(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Array_empty___closed__1;
+x_2 = l_Std_Stack_vals___default___closed__1;
 return x_2;
 }
 }
@@ -236,6 +246,8 @@ _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Std_Stack_vals___default___closed__1 = _init_l_Std_Stack_vals___default___closed__1();
+lean_mark_persistent(l_Std_Stack_vals___default___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -13,28 +13,30 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_IR_CtorFieldInfo_format___closed__7;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__7;
 lean_object* l_Std_fmt___at_Lean_Position_instToFormatPosition___spec__1(lean_object*);
-extern lean_object* l_Std_Format_join___closed__1;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__10;
 lean_object* l_Lean_IR_CtorFieldInfo_format_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_IR_CtorFieldInfo_format___closed__6;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__6;
 lean_object* l_Std_fmt___at_Lean_IR_CtorFieldInfo_format___spec__1(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_14133____closed__9;
-lean_object* l_Lean_IR_CtorFieldInfo_format___closed__5;
-extern lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatArg___closed__2;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__5;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__14;
 lean_object* l_Lean_IR_CtorFieldInfo_format(lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_inductionAlt___closed__5;
-lean_object* l_Lean_IR_CtorFieldInfo_format___closed__3;
-lean_object* l_Lean_IR_CtorFieldInfo_format___closed__1;
-lean_object* l_Lean_IR_CtorFieldInfo_format___closed__8;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__3;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__1;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__8;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType(lean_object*);
-lean_object* l_Lean_IR_CtorFieldInfo_format___closed__4;
-lean_object* l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1;
-lean_object* l_Lean_IR_CtorFieldInfo_format___closed__2;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__9;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__4;
+static lean_object* l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__13;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__2;
 lean_object* l_Lean_IR_getCtorLayout___boxed(lean_object*, lean_object*);
 lean_object* lean_ir_get_ctor_layout(lean_object*, lean_object*);
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__11;
 lean_object* l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo;
 lean_object* l_Lean_IR_CtorFieldInfo_format_match__1(lean_object*);
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__12;
 lean_object* l_Lean_IR_CtorFieldInfo_format_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -112,7 +114,7 @@ static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("obj@");
+x_1 = lean_mk_string("◾");
 return x_1;
 }
 }
@@ -130,7 +132,7 @@ static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("usize@");
+x_1 = lean_mk_string("obj@");
 return x_1;
 }
 }
@@ -148,7 +150,7 @@ static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("scalar#");
+x_1 = lean_mk_string("");
 return x_1;
 }
 }
@@ -165,18 +167,70 @@ return x_2;
 static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__7() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_inductionAlt___closed__5;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string("usize@");
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_14133____closed__9;
+x_1 = l_Lean_IR_CtorFieldInfo_format___closed__7;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__9() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("scalar#");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__10() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_IR_CtorFieldInfo_format___closed__9;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__11() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("@");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__12() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_IR_CtorFieldInfo_format___closed__11;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__13() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string(":");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__14() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_IR_CtorFieldInfo_format___closed__13;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -189,7 +243,7 @@ switch (lean_obj_tag(x_1)) {
 case 0:
 {
 lean_object* x_2; 
-x_2 = l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatArg___closed__2;
+x_2 = l_Lean_IR_CtorFieldInfo_format___closed__2;
 return x_2;
 }
 case 1:
@@ -199,11 +253,11 @@ x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 lean_dec(x_1);
 x_4 = l_Std_fmt___at_Lean_Position_instToFormatPosition___spec__1(x_3);
-x_5 = l_Lean_IR_CtorFieldInfo_format___closed__2;
+x_5 = l_Lean_IR_CtorFieldInfo_format___closed__4;
 x_6 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
-x_7 = l_Std_Format_join___closed__1;
+x_7 = l_Lean_IR_CtorFieldInfo_format___closed__6;
 x_8 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_8, 0, x_6);
 lean_ctor_set(x_8, 1, x_7);
@@ -216,11 +270,11 @@ x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
 lean_dec(x_1);
 x_10 = l_Std_fmt___at_Lean_Position_instToFormatPosition___spec__1(x_9);
-x_11 = l_Lean_IR_CtorFieldInfo_format___closed__4;
+x_11 = l_Lean_IR_CtorFieldInfo_format___closed__8;
 x_12 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
 lean_ctor_set(x_12, 1, x_10);
-x_13 = l_Std_Format_join___closed__1;
+x_13 = l_Lean_IR_CtorFieldInfo_format___closed__6;
 x_14 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
@@ -237,11 +291,11 @@ x_17 = lean_ctor_get(x_1, 2);
 lean_inc(x_17);
 lean_dec(x_1);
 x_18 = l_Std_fmt___at_Lean_Position_instToFormatPosition___spec__1(x_15);
-x_19 = l_Lean_IR_CtorFieldInfo_format___closed__6;
+x_19 = l_Lean_IR_CtorFieldInfo_format___closed__10;
 x_20 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
 lean_ctor_set(x_20, 1, x_18);
-x_21 = l_Lean_IR_CtorFieldInfo_format___closed__7;
+x_21 = l_Lean_IR_CtorFieldInfo_format___closed__12;
 x_22 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);
@@ -249,7 +303,7 @@ x_23 = l_Std_fmt___at_Lean_Position_instToFormatPosition___spec__1(x_16);
 x_24 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_24, 0, x_22);
 lean_ctor_set(x_24, 1, x_23);
-x_25 = l_Lean_IR_CtorFieldInfo_format___closed__8;
+x_25 = l_Lean_IR_CtorFieldInfo_format___closed__14;
 x_26 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_26, 0, x_24);
 lean_ctor_set(x_26, 1, x_25);
@@ -257,7 +311,7 @@ x_27 = l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType(x_17);
 x_28 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);
-x_29 = l_Std_Format_join___closed__1;
+x_29 = l_Lean_IR_CtorFieldInfo_format___closed__6;
 x_30 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_30, 0, x_28);
 lean_ctor_set(x_30, 1, x_29);
@@ -325,6 +379,18 @@ l_Lean_IR_CtorFieldInfo_format___closed__7 = _init_l_Lean_IR_CtorFieldInfo_forma
 lean_mark_persistent(l_Lean_IR_CtorFieldInfo_format___closed__7);
 l_Lean_IR_CtorFieldInfo_format___closed__8 = _init_l_Lean_IR_CtorFieldInfo_format___closed__8();
 lean_mark_persistent(l_Lean_IR_CtorFieldInfo_format___closed__8);
+l_Lean_IR_CtorFieldInfo_format___closed__9 = _init_l_Lean_IR_CtorFieldInfo_format___closed__9();
+lean_mark_persistent(l_Lean_IR_CtorFieldInfo_format___closed__9);
+l_Lean_IR_CtorFieldInfo_format___closed__10 = _init_l_Lean_IR_CtorFieldInfo_format___closed__10();
+lean_mark_persistent(l_Lean_IR_CtorFieldInfo_format___closed__10);
+l_Lean_IR_CtorFieldInfo_format___closed__11 = _init_l_Lean_IR_CtorFieldInfo_format___closed__11();
+lean_mark_persistent(l_Lean_IR_CtorFieldInfo_format___closed__11);
+l_Lean_IR_CtorFieldInfo_format___closed__12 = _init_l_Lean_IR_CtorFieldInfo_format___closed__12();
+lean_mark_persistent(l_Lean_IR_CtorFieldInfo_format___closed__12);
+l_Lean_IR_CtorFieldInfo_format___closed__13 = _init_l_Lean_IR_CtorFieldInfo_format___closed__13();
+lean_mark_persistent(l_Lean_IR_CtorFieldInfo_format___closed__13);
+l_Lean_IR_CtorFieldInfo_format___closed__14 = _init_l_Lean_IR_CtorFieldInfo_format___closed__14();
+lean_mark_persistent(l_Lean_IR_CtorFieldInfo_format___closed__14);
 l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1 = _init_l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1();
 lean_mark_persistent(l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1);
 l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo = _init_l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo();

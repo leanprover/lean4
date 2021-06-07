@@ -13,15 +13,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Int_instNegInt___closed__1;
-lean_object* l_Int_instAddInt___closed__1;
+static lean_object* l_Int_instNegInt___closed__1;
+static lean_object* l_Int_instAddInt___closed__1;
 lean_object* l_Int_toNat_match__1(lean_object*);
 lean_object* l_Int_instNegInt;
 lean_object* l_Int_natMod(lean_object*, lean_object*);
 lean_object* l_Int_sub___boxed(lean_object*, lean_object*);
 uint8_t l_Int_instDecidableEqInt(lean_object*, lean_object*);
 lean_object* l_Int_negSucc___boxed(lean_object*);
-lean_object* l_Int_instMulInt___closed__1;
+static lean_object* l_Int_instMulInt___closed__1;
 lean_object* l_Int_decLt___boxed(lean_object*, lean_object*);
 lean_object* l_Int_decEq___boxed(lean_object*, lean_object*);
 lean_object* lean_int_mod(lean_object*, lean_object*);
@@ -30,14 +30,14 @@ lean_object* l_Int_mul___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Int_instDivInt;
 lean_object* l_Int_decLe___boxed(lean_object*, lean_object*);
-lean_object* l_Int_instDivInt___closed__1;
+static lean_object* l_Int_instDivInt___closed__1;
 lean_object* l_Int_div___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Int_Basic_0__Int_decNonneg___boxed(lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Int_negOfNat_match__1(lean_object*);
 lean_object* l_Int_instDecidableEqInt___boxed(lean_object*, lean_object*);
-lean_object* l_Int_instSubInt___closed__1;
+static lean_object* l_Int_instSubInt___closed__1;
 lean_object* l_Int_negOfNat_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_div_match__1(lean_object*);
 lean_object* l_Int_instHPowIntNatInt;
@@ -49,7 +49,7 @@ uint8_t lean_int_dec_nonneg(lean_object*);
 lean_object* l_Int_div_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_instLTInt;
 lean_object* l_Int_instInhabitedInt;
-lean_object* l_Int_instModInt___closed__1;
+static lean_object* l_Int_instModInt___closed__1;
 lean_object* l_Int_negOfNat___boxed(lean_object*);
 lean_object* l_Int_pow(lean_object*, lean_object*);
 lean_object* l_Int_negOfNat_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -67,7 +67,7 @@ lean_object* l_Int_instOfNatInt(lean_object*);
 lean_object* l_Int_div_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_subNatNat___boxed(lean_object*, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
-lean_object* l_Int_instInhabitedInt___closed__1;
+static lean_object* l_Int_instInhabitedInt___closed__1;
 lean_object* lean_nat_abs(lean_object*);
 lean_object* lean_int_div(lean_object*, lean_object*);
 lean_object* l_Int_ofNat___boxed(lean_object*);
@@ -76,12 +76,12 @@ lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* l_Int_natAbs___boxed(lean_object*);
 lean_object* l_Int_neg___boxed(lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
-lean_object* l_Int_instHPowIntNatInt___closed__1;
+static lean_object* l_Int_instHPowIntNatInt___closed__1;
 lean_object* l_Int_add___boxed(lean_object*, lean_object*);
 lean_object* l_Int_instMulInt;
 lean_object* l_Int_instAddInt;
 lean_object* lean_nat_to_int(lean_object*);
-lean_object* l_Int_pow___closed__1;
+static lean_object* l_Int_pow___closed__1;
 lean_object* l_Int_pow___boxed(lean_object*, lean_object*);
 lean_object* l_Int_ofNat___boxed(lean_object* x_1) {
 _start:

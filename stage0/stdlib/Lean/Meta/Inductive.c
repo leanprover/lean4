@@ -13,20 +13,23 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_compatibleCtors(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_compatibleCtors_match__1(lean_object*);
 lean_object* l_Lean_Meta_compatibleCtors_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_compatibleCtors___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__4;
+static lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__1;
 lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__2;
 lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_compatibleCtors___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_getConstInfoCtor___rarg___lambda__1___closed__2;
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallMetaTelescope(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__3;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_compatibleCtors_match__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -92,6 +95,40 @@ return x_15;
 }
 }
 }
+static lean_object* _init_l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("'");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__1;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("' is not a constructor");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__3;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -145,11 +182,11 @@ x_16 = lean_box(0);
 x_17 = l_Lean_mkConst(x_1, x_16);
 x_18 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
-x_19 = l_Lean_KernelException_toMessageData___closed__3;
+x_19 = l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__2;
 x_20 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
 lean_ctor_set(x_20, 1, x_18);
-x_21 = l_Lean_getConstInfoCtor___rarg___lambda__1___closed__2;
+x_21 = l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__4;
 x_22 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);
@@ -585,6 +622,14 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_ExprDefEq(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__1 = _init_l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__1();
+lean_mark_persistent(l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__1);
+l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__2 = _init_l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__2();
+lean_mark_persistent(l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__2);
+l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__3 = _init_l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__3();
+lean_mark_persistent(l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__3);
+l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__4 = _init_l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__4();
+lean_mark_persistent(l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__4);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

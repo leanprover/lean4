@@ -51,12 +51,12 @@ lean_object* l_Option_instFunctorOption___lambda__1(lean_object*, lean_object*, 
 lean_object* l_Option_toMonad___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_lt_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_548____at_instDecidableEqOption___spec__1(lean_object*);
-lean_object* l_Option_instFunctorOption___closed__1;
+static lean_object* l_Option_instFunctorOption___closed__1;
 lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_548__match__1(lean_object*, lean_object*);
 lean_object* l_Option_bind_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instBEqOption(lean_object*);
 lean_object* l_Option_any(lean_object*);
-lean_object* l_Option_instFunctorOption___closed__2;
+static lean_object* l_Option_instFunctorOption___closed__2;
 lean_object* l_Option_toMonad_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_instOrElseOption___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Option_isNone(lean_object*);
@@ -69,7 +69,7 @@ lean_object* l_Option_orElse_match__1___rarg(lean_object*, lean_object*, lean_ob
 uint8_t l_Option_isNone___rarg(lean_object*);
 lean_object* l_instLTOption___boxed(lean_object*, lean_object*);
 uint8_t l_Option_toBool___rarg(lean_object*);
-lean_object* l_Option_instFunctorOption___closed__3;
+static lean_object* l_Option_instFunctorOption___closed__3;
 lean_object* l_Option_instDecidableRelLt(lean_object*, lean_object*);
 lean_object* l_Option_instDecidableRelLt___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671__match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

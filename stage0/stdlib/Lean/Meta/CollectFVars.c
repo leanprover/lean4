@@ -16,14 +16,15 @@ extern "C" {
 lean_object* l_Lean_Elab_Term_removeUnused_match__2(lean_object*);
 lean_object* l_Lean_Elab_Term_removeUnused(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
+static lean_object* l_Lean_Elab_Term_removeUnused___closed__1;
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_collectUsedFVarsAtFVars___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_CollectFVars_main(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_collectUsedFVarsAtFVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_local_ctx_erase(lean_object*, lean_object*);
 size_t l_USize_sub(size_t, size_t);
-extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Term_removeUnused___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_removeUnused_match__2___rarg(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -1122,6 +1123,15 @@ return x_173;
 }
 }
 }
+static lean_object* _init_l_Lean_Elab_Term_removeUnused___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_Elab_Term_removeUnused(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -1134,7 +1144,7 @@ lean_inc(x_35);
 lean_dec(x_33);
 x_36 = lean_ctor_get(x_3, 1);
 lean_inc(x_36);
-x_37 = l_Array_empty___closed__1;
+x_37 = l_Lean_Elab_Term_removeUnused___closed__1;
 x_38 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_38, 0, x_37);
 lean_ctor_set(x_38, 1, x_2);
@@ -1325,6 +1335,8 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Term(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_Elab_Term_removeUnused___closed__1 = _init_l_Lean_Elab_Term_removeUnused___closed__1();
+lean_mark_persistent(l_Lean_Elab_Term_removeUnused___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

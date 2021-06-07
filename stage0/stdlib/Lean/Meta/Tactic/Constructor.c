@@ -13,56 +13,60 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__5;
+static lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__5;
 lean_object* l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_constructor___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__3;
-lean_object* l_Lean_Meta_constructor___lambda__2___closed__1;
+static lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__3;
+lean_object* l_Lean_mkSort(lean_object*);
+static lean_object* l_Lean_Meta_constructor___lambda__2___closed__1;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_existsIntro___closed__1;
+static lean_object* l_Lean_Meta_existsIntro___closed__2;
+static lean_object* l_Lean_Meta_existsIntro___closed__1;
 lean_object* l_Lean_Meta_existsIntro___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__1;
+static lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__1;
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__2;
+static lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__2;
 lean_object* l_Lean_Meta_existsIntro_match__1(lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
 lean_object* l_Lean_Meta_checkNotAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_levelZero;
 lean_object* l_Lean_Meta_checkApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_constructor___closed__2;
 lean_object* l_Lean_Meta_apply(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallMetaTelescopeReducingAux(lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_constructor___closed__1;
-lean_object* l_Lean_Meta_constructor___lambda__1___closed__1;
-lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__4;
-lean_object* l_Lean_Meta_constructor___lambda__1___closed__2;
+static lean_object* l_Lean_Meta_constructor___closed__1;
+static lean_object* l_Lean_Meta_constructor___lambda__1___closed__1;
+static lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__4;
+static lean_object* l_Lean_Meta_constructor___lambda__1___closed__2;
 lean_object* l_Lean_Meta_constructor___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_constructor___lambda__1___closed__3;
+static lean_object* l_Lean_Meta_constructor___lambda__2___closed__4;
+static lean_object* l_Lean_Meta_constructor___lambda__1___closed__3;
 lean_object* l_Lean_Meta_getMVarType_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_termExists___x2c_____closed__3;
-lean_object* l_Lean_Meta_constructor___lambda__2___closed__2;
+static lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__4;
+static lean_object* l_Lean_Meta_constructor___lambda__2___closed__2;
 lean_object* l_Lean_Meta_constructor___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__1;
+static lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__1;
 lean_object* l_Lean_Meta_constructor_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at_Lean_Meta_constructor___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__2;
+static lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__2;
 lean_object* l_Lean_Meta_constructor___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
 lean_object* l_Lean_Meta_existsIntro_match__2(lean_object*);
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__3;
+static lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__3;
 lean_object* l_Lean_Meta_constructor_match__2(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro_match__2___rarg(lean_object*, lean_object*);
@@ -70,10 +74,8 @@ lean_object* l_Lean_Meta_constructor_match__1___rarg(lean_object*, lean_object*,
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_Meta_constructor_match__1(lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_constructor___closed__1;
-lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__6;
-extern lean_object* l_Array_findSomeM_x3f___rarg___closed__1;
-lean_object* l_Lean_Meta_constructor___lambda__2___closed__3;
+static lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__6;
+static lean_object* l_Lean_Meta_constructor___lambda__2___closed__3;
 lean_object* l_Lean_Meta_existsIntro(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_constructor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -311,6 +313,18 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Meta_constructor___lambda__2___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = lean_box(0);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
 lean_object* l_Lean_Meta_constructor___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -377,7 +391,7 @@ lean_dec(x_23);
 x_25 = lean_ctor_get(x_24, 4);
 lean_inc(x_25);
 lean_dec(x_24);
-x_26 = l_Array_findSomeM_x3f___rarg___closed__1;
+x_26 = l_Lean_Meta_constructor___lambda__2___closed__4;
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
@@ -503,9 +517,17 @@ return x_48;
 static lean_object* _init_l_Lean_Meta_constructor___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string("constructor");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_constructor___closed__2() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Parser_Tactic_constructor___closed__1;
+x_2 = l_Lean_Meta_constructor___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -514,7 +536,7 @@ lean_object* l_Lean_Meta_constructor(lean_object* x_1, lean_object* x_2, lean_ob
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_7 = l_Lean_Meta_constructor___closed__1;
+x_7 = l_Lean_Meta_constructor___closed__2;
 lean_inc(x_1);
 x_8 = lean_alloc_closure((void*)(l_Lean_Meta_checkNotAssigned___boxed), 7, 2);
 lean_closure_set(x_8, 0, x_1);
@@ -625,19 +647,18 @@ return x_2;
 static lean_object* _init_l_Lean_Meta_existsIntro___lambda__1___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("unexpected number of subgoals");
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_levelZero;
+x_2 = l_Lean_mkSort(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_existsIntro___lambda__1___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_existsIntro___lambda__1___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string("unexpected number of subgoals");
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_existsIntro___lambda__1___closed__3() {
@@ -645,6 +666,16 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_existsIntro___lambda__1___closed__2;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_existsIntro___lambda__1___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_existsIntro___lambda__1___closed__3;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -662,7 +693,7 @@ lean_dec(x_13);
 x_15 = l_Lean_mkConst(x_14, x_2);
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = l_Lean_Expr_getAppNumArgsAux(x_3, x_16);
-x_18 = l_Lean_Expr_getAppArgs___closed__1;
+x_18 = l_Lean_Meta_existsIntro___lambda__1___closed__1;
 lean_inc(x_17);
 x_19 = lean_mk_array(x_17, x_18);
 x_20 = lean_unsigned_to_nat(1u);
@@ -750,7 +781,7 @@ lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49;
 x_46 = lean_ctor_get(x_44, 1);
 lean_inc(x_46);
 lean_dec(x_44);
-x_47 = l_Lean_Meta_existsIntro___lambda__1___closed__3;
+x_47 = l_Lean_Meta_existsIntro___lambda__1___closed__4;
 x_48 = lean_box(0);
 x_49 = l_Lean_Meta_throwTacticEx___rarg(x_6, x_5, x_47, x_48, x_8, x_9, x_10, x_11, x_46);
 lean_dec(x_11);
@@ -808,7 +839,7 @@ lean_dec(x_45);
 x_57 = lean_ctor_get(x_44, 1);
 lean_inc(x_57);
 lean_dec(x_44);
-x_58 = l_Lean_Meta_existsIntro___lambda__1___closed__3;
+x_58 = l_Lean_Meta_existsIntro___lambda__1___closed__4;
 x_59 = lean_box(0);
 x_60 = l_Lean_Meta_throwTacticEx___rarg(x_6, x_5, x_58, x_59, x_8, x_9, x_10, x_11, x_57);
 lean_dec(x_11);
@@ -1313,9 +1344,17 @@ return x_72;
 static lean_object* _init_l_Lean_Meta_existsIntro___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string("exists");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_existsIntro___closed__2() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_termExists___x2c_____closed__3;
+x_2 = l_Lean_Meta_existsIntro___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -1324,7 +1363,7 @@ lean_object* l_Lean_Meta_existsIntro(lean_object* x_1, lean_object* x_2, lean_ob
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_8 = l_Lean_Meta_existsIntro___closed__1;
+x_8 = l_Lean_Meta_existsIntro___closed__2;
 lean_inc(x_1);
 x_9 = lean_alloc_closure((void*)(l_Lean_Meta_checkNotAssigned___boxed), 7, 2);
 lean_closure_set(x_9, 0, x_1);
@@ -1392,14 +1431,20 @@ l_Lean_Meta_constructor___lambda__2___closed__2 = _init_l_Lean_Meta_constructor_
 lean_mark_persistent(l_Lean_Meta_constructor___lambda__2___closed__2);
 l_Lean_Meta_constructor___lambda__2___closed__3 = _init_l_Lean_Meta_constructor___lambda__2___closed__3();
 lean_mark_persistent(l_Lean_Meta_constructor___lambda__2___closed__3);
+l_Lean_Meta_constructor___lambda__2___closed__4 = _init_l_Lean_Meta_constructor___lambda__2___closed__4();
+lean_mark_persistent(l_Lean_Meta_constructor___lambda__2___closed__4);
 l_Lean_Meta_constructor___closed__1 = _init_l_Lean_Meta_constructor___closed__1();
 lean_mark_persistent(l_Lean_Meta_constructor___closed__1);
+l_Lean_Meta_constructor___closed__2 = _init_l_Lean_Meta_constructor___closed__2();
+lean_mark_persistent(l_Lean_Meta_constructor___closed__2);
 l_Lean_Meta_existsIntro___lambda__1___closed__1 = _init_l_Lean_Meta_existsIntro___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Meta_existsIntro___lambda__1___closed__1);
 l_Lean_Meta_existsIntro___lambda__1___closed__2 = _init_l_Lean_Meta_existsIntro___lambda__1___closed__2();
 lean_mark_persistent(l_Lean_Meta_existsIntro___lambda__1___closed__2);
 l_Lean_Meta_existsIntro___lambda__1___closed__3 = _init_l_Lean_Meta_existsIntro___lambda__1___closed__3();
 lean_mark_persistent(l_Lean_Meta_existsIntro___lambda__1___closed__3);
+l_Lean_Meta_existsIntro___lambda__1___closed__4 = _init_l_Lean_Meta_existsIntro___lambda__1___closed__4();
+lean_mark_persistent(l_Lean_Meta_existsIntro___lambda__1___closed__4);
 l_Lean_Meta_existsIntro___lambda__2___closed__1 = _init_l_Lean_Meta_existsIntro___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_Meta_existsIntro___lambda__2___closed__1);
 l_Lean_Meta_existsIntro___lambda__2___closed__2 = _init_l_Lean_Meta_existsIntro___lambda__2___closed__2();
@@ -1414,6 +1459,8 @@ l_Lean_Meta_existsIntro___lambda__2___closed__6 = _init_l_Lean_Meta_existsIntro_
 lean_mark_persistent(l_Lean_Meta_existsIntro___lambda__2___closed__6);
 l_Lean_Meta_existsIntro___closed__1 = _init_l_Lean_Meta_existsIntro___closed__1();
 lean_mark_persistent(l_Lean_Meta_existsIntro___closed__1);
+l_Lean_Meta_existsIntro___closed__2 = _init_l_Lean_Meta_existsIntro___closed__2();
+lean_mark_persistent(l_Lean_Meta_existsIntro___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -13,14 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Option_get_x21___rarg___closed__3;
+static lean_object* l_Option_get_x21___rarg___closed__3;
 lean_object* l_Option_get_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_get_x21___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_Option_get_x21___rarg___closed__2;
-lean_object* l_Option_get_x21___rarg___closed__1;
+static lean_object* l_Option_get_x21___rarg___closed__2;
+static lean_object* l_Option_get_x21___rarg___closed__1;
 lean_object* l_Option_get_x21___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Option_get_x21___rarg___closed__4;
+static lean_object* l_Option_get_x21___rarg___closed__4;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Option_get_x21_match__1(lean_object*, lean_object*);
 lean_object* l_Option_get_x21(lean_object*);

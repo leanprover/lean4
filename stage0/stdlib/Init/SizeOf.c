@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* l_instSizeOf(lean_object*);
 lean_object* l_instSizeOfNat(lean_object*);
-lean_object* l_instSizeOf___closed__1;
+static lean_object* l_instSizeOf___closed__1;
 lean_object* l_Lean_Name_sizeOf_match__1(lean_object*);
 lean_object* l_default_sizeOf___boxed(lean_object*, lean_object*);
 lean_object* l_instSizeOfNat___boxed(lean_object*);

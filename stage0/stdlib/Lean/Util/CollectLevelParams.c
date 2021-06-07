@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_CollectLevelParams_State_params___default;
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_List_replace___at_Lean_CollectLevelParams_visitExpr___spec__7(lean_object*, lean_object*, lean_object*);
@@ -20,17 +21,17 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_CollectLevelParams_visitLevel(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_collect(lean_object*, lean_object*);
 lean_object* l_List_elem___at_Lean_CollectLevelParams_visitLevel___spec__2___boxed(lean_object*, lean_object*);
-extern lean_object* l_Array_empty___closed__1;
 uint64_t l_Lean_Level_hash(lean_object*);
 lean_object* l_List_foldl___at_Lean_CollectLevelParams_visitLevel___spec__6(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-lean_object* l_Lean_CollectLevelParams_State_visitedLevel___default___closed__1;
+static lean_object* l_Lean_CollectLevelParams_State_visitedLevel___default___closed__1;
 lean_object* l_Lean_CollectLevelParams_State_collect(lean_object*, lean_object*);
 uint8_t l_Lean_Level_hasParam(lean_object*);
 lean_object* l_Lean_CollectLevelParams_State_visitedLevel___default;
 lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+static lean_object* l_Lean_CollectLevelParams_instInhabitedState___closed__2;
 lean_object* l_List_replace___at_Lean_CollectLevelParams_visitLevel___spec__7___boxed(lean_object*, lean_object*, lean_object*);
 size_t l_UInt64_toUSize(uint64_t);
 lean_object* l_List_foldl___at_Lean_CollectLevelParams_main___spec__1(lean_object*, lean_object*);
@@ -60,14 +61,14 @@ lean_object* l_Lean_CollectLevelParams_main(lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_Std_HashSetImp_moveEntries___at_Lean_CollectLevelParams_visitExpr___spec__5(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_elem___at_Lean_CollectLevelParams_visitExpr___spec__2(lean_object*, lean_object*);
-extern lean_object* l_Std_HashSet_instInhabitedHashSet___closed__1;
 lean_object* l_Std_HashSetImp_expand___at_Lean_CollectLevelParams_visitExpr___spec__4(lean_object*, lean_object*);
-lean_object* l_Lean_CollectLevelParams_instInhabitedState___closed__1;
+static lean_object* l_Lean_CollectLevelParams_instInhabitedState___closed__1;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
+static lean_object* l_Lean_CollectLevelParams_State_params___default___closed__1;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_collect_match__1(lean_object*);
 lean_object* l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(lean_object*, lean_object*);
-lean_object* l_Lean_CollectLevelParams_State_visitedExpr___default___closed__1;
+static lean_object* l_Lean_CollectLevelParams_State_visitedExpr___default___closed__1;
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitExpr___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_List_elem___at_Lean_CollectLevelParams_visitExpr___spec__2___boxed(lean_object*, lean_object*);
@@ -131,20 +132,38 @@ x_1 = l_Lean_CollectLevelParams_State_visitedExpr___default___closed__1;
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_CollectLevelParams_State_params___default___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_CollectLevelParams_State_params___default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Array_empty___closed__1;
+x_1 = l_Lean_CollectLevelParams_State_params___default___closed__1;
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_CollectLevelParams_instInhabitedState___closed__1() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(8u);
+x_2 = l_Std_mkHashSetImp___rarg(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_CollectLevelParams_instInhabitedState___closed__2() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_HashSet_instInhabitedHashSet___closed__1;
-x_2 = l_Array_empty___closed__1;
+x_1 = l_Lean_CollectLevelParams_instInhabitedState___closed__1;
+x_2 = l_Lean_CollectLevelParams_State_params___default___closed__1;
 x_3 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_1);
@@ -156,7 +175,7 @@ static lean_object* _init_l_Lean_CollectLevelParams_instInhabitedState() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_CollectLevelParams_instInhabitedState___closed__1;
+x_1 = l_Lean_CollectLevelParams_instInhabitedState___closed__2;
 return x_1;
 }
 }
@@ -2875,10 +2894,14 @@ l_Lean_CollectLevelParams_State_visitedExpr___default___closed__1 = _init_l_Lean
 lean_mark_persistent(l_Lean_CollectLevelParams_State_visitedExpr___default___closed__1);
 l_Lean_CollectLevelParams_State_visitedExpr___default = _init_l_Lean_CollectLevelParams_State_visitedExpr___default();
 lean_mark_persistent(l_Lean_CollectLevelParams_State_visitedExpr___default);
+l_Lean_CollectLevelParams_State_params___default___closed__1 = _init_l_Lean_CollectLevelParams_State_params___default___closed__1();
+lean_mark_persistent(l_Lean_CollectLevelParams_State_params___default___closed__1);
 l_Lean_CollectLevelParams_State_params___default = _init_l_Lean_CollectLevelParams_State_params___default();
 lean_mark_persistent(l_Lean_CollectLevelParams_State_params___default);
 l_Lean_CollectLevelParams_instInhabitedState___closed__1 = _init_l_Lean_CollectLevelParams_instInhabitedState___closed__1();
 lean_mark_persistent(l_Lean_CollectLevelParams_instInhabitedState___closed__1);
+l_Lean_CollectLevelParams_instInhabitedState___closed__2 = _init_l_Lean_CollectLevelParams_instInhabitedState___closed__2();
+lean_mark_persistent(l_Lean_CollectLevelParams_instInhabitedState___closed__2);
 l_Lean_CollectLevelParams_instInhabitedState = _init_l_Lean_CollectLevelParams_instInhabitedState();
 lean_mark_persistent(l_Lean_CollectLevelParams_instInhabitedState);
 return lean_io_result_mk_ok(lean_box(0));

@@ -23,7 +23,7 @@ lean_object* l_Ordering_isLE_match__1___rarg(uint8_t, lean_object*, lean_object*
 uint8_t l_UInt8_decEq(uint8_t, uint8_t);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* l_instDecidableRelLtLtOfOrd___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_instBEqOrdering___closed__1;
+static lean_object* l_instBEqOrdering___closed__1;
 lean_object* l_instOrdFin___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_instOrdFin___boxed(lean_object*);
 lean_object* l_instOrdUInt64___boxed(lean_object*, lean_object*);

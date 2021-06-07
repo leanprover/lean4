@@ -19,6 +19,7 @@ lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__5___rarg
 lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_findDecl_x3f___spec__6___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_LocalContext_mkBinding_match__1(lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_LocalContext_all___spec__3(lean_object*, lean_object*, size_t, size_t);
+lean_object* l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_LocalContext_foldl___spec__11(lean_object*);
 lean_object* l_Std_PersistentHashMap_contains___at_Lean_LocalContext_contains___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
@@ -41,7 +42,9 @@ lean_object* l_Lean_LocalContext_foldlM___at_Lean_LocalContext_foldl___spec__1__
 lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__4(lean_object*, lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_LocalContext_findDeclRev_x3f___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_local_ctx_get_unused_name(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_LocalContext_usesUserName___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_getFVarIds___spec__4(lean_object*, size_t, size_t, lean_object*);
 uint8_t lean_local_ctx_is_empty(lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
@@ -60,6 +63,7 @@ uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_any___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint64_t lean_uint64_of_nat(lean_object*);
 lean_object* l_Lean_LocalDecl_isAuxDecl___boxed(lean_object*);
 lean_object* l_Lean_LocalDecl_setType_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__9___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -69,32 +73,32 @@ uint8_t l_Std_PersistentHashMap_isEmpty___at_Lean_LocalContext_isEmpty___spec__1
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_anyM___spec__5___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_LocalContext_findFromUserName_x3f___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_LocalContext_findFromUserName_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
+static lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
+static lean_object* l_Lean_LocalContext_decls___default___closed__3;
 lean_object* l_Nat_foldRev_loop___at_Lean_LocalContext_mkBinding___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_local_ctx_mk_let_decl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_LocalContext_find_x3f___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Std_PersistentArray_anyM___at_Lean_LocalContext_all___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__14___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__2(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
-lean_object* l_Lean_LocalDecl_value___closed__3;
+lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_LocalDecl_value___closed__3;
 lean_object* l_Std_PersistentArray_findSomeM_x3f___at_Lean_LocalContext_findDecl_x3f___spec__2(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__7___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
-lean_object* l_Nat_foldRev_loop___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
+static lean_object* l_Nat_foldRev_loop___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
 lean_object* l_Std_PersistentArray_findSomeRevM_x3f___at_Lean_LocalContext_findFromUserName_x3f___spec__1___boxed(lean_object*, lean_object*);
+lean_object* l_Std_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__1___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_local_ctx_erase(lean_object*, lean_object*);
 size_t l_USize_sub(size_t, size_t);
-extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Std_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__1(lean_object*, lean_object*);
+static lean_object* l_Lean_LocalContext_decls___default___closed__2;
 lean_object* l_Lean_LocalContext_findDeclM_x3f(lean_object*);
 lean_object* l___private_Lean_LocalContext_0__Lean_LocalContext_popTailNoneAux(lean_object*);
 uint8_t l_Lean_getSanitizeNames(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_findDecl_x3f___spec__4(lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__4___rarg___lambda__1(lean_object*, uint8_t);
 lean_object* l_Std_PersistentHashMap_containsAtAux___at_Lean_LocalContext_contains___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_PersistentArray_empty___closed__1;
 lean_object* l_Lean_sanitizeName(lean_object*, lean_object*);
-extern lean_object* l_Std_PersistentHashMap_root___default___closed__2;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_get_x21(lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__4___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -121,7 +125,6 @@ lean_object* l_Lean_LocalContext_findDeclM_x3f___rarg(lean_object*, lean_object*
 lean_object* l_Std_PersistentArray_forInAux___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__2(lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__3___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedLocalContext;
 lean_object* l_Std_PersistentArray_findSomeRevM_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyMAux___at_Lean_LocalContext_allM___spec__2(lean_object*);
@@ -129,6 +132,7 @@ lean_object* lean_mk_local_decl(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__4___rarg___lambda__1(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_all___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__3;
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_foldlM___at_Lean_LocalContext_getFVarIds___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_LocalContext_getFVars___spec__1(size_t, size_t, lean_object*);
@@ -136,17 +140,16 @@ lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_findDecl_x3f___spec
 uint8_t l_Std_PersistentArray_anyMAux___at_Lean_LocalContext_all___spec__2(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_LocalContext_find_x3f___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_findSomeRevM_x3f___at_Lean_LocalContext_findDeclRev_x3f___spec__2___rarg(lean_object*, lean_object*);
-extern lean_object* l_Std_instInhabitedPersistentArray___closed__1;
 uint8_t l_Lean_LocalContext_contains(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__5(lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_LocalDecl_setUserName_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_LocalContext_mkEmpty___closed__1;
+static lean_object* l_Lean_LocalContext_mkEmpty___closed__1;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__5___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_PersistentHashMap_containsAtAux___at_Lean_LocalContext_contains___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_LocalDecl_value___closed__2;
+static lean_object* l_Lean_LocalDecl_value___closed__2;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_getFVarIds___spec__5(lean_object*, size_t, size_t, lean_object*);
 uint8_t lean_expr_has_loose_bvar(lean_object*, lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_LocalContext_findDeclRev_x3f___spec__3(lean_object*);
@@ -157,6 +160,7 @@ lean_object* l_Lean_LocalContext_setBinderInfo(lean_object*, lean_object*, uint8
 lean_object* l_Lean_LocalContext_getFVars(lean_object*);
 lean_object* lean_expr_lower_loose_bvars(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_setIndex_match__1(lean_object*);
+lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_PersistentHashMap_contains___at_Lean_LocalContext_contains___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_forM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_foldlM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -176,8 +180,8 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_mkBinding(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_anyM___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_PersistentHashMap_insertAux___rarg___closed__3;
 lean_object* l_Std_PersistentHashMap_isUnaryNode___rarg(lean_object*);
+lean_object* l_Std_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_LocalContext_mkLocalDecl___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_forM(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -205,12 +209,14 @@ uint8_t lean_local_decl_binder_info(lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 lean_object* l_Lean_LocalContext_instForInLocalContextLocalDecl(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
+static size_t l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__2;
 lean_object* l_Lean_LocalDecl_setIndex_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_findDeclM_x3f___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__14___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Std_PersistentArray_anyM___at_Lean_LocalContext_allM___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_LocalContext_any___spec__4(lean_object*, lean_object*, size_t, size_t);
 lean_object* lean_name_append_index_after(lean_object*, lean_object*);
+static size_t l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__1;
 lean_object* l_Lean_LocalContext_findDeclRev_x3f___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_setBinderInfo___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_set___rarg(lean_object*, lean_object*, lean_object*);
@@ -220,7 +226,8 @@ lean_object* lean_mk_empty_local_ctx(lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_LocalContext_foldl___spec__3(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_findDecl_x3f___spec__6(lean_object*);
 lean_object* l_Std_PersistentArray_anyM___at_Lean_LocalContext_allM___spec__1(lean_object*);
-lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___closed__1;
 uint64_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___boxed(lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_LocalContext_foldl___spec__11___rarg(lean_object*, lean_object*, lean_object*);
@@ -230,9 +237,11 @@ uint8_t l_Lean_LocalDecl_binderInfo(lean_object*);
 lean_object* l_Std_PersistentArray_forInAux___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_value___boxed(lean_object*);
 lean_object* l_Std_PersistentArray_findSomeRevM_x3f___at_Lean_LocalContext_findDeclRev_x3f___spec__2___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_Std_PersistentArray_forInAux___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__2___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_any___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_findSomeM_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_abstract_range(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_mkLocalDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_get_x21_match__1(lean_object*);
 lean_object* l_Std_PersistentArray_anyMAux___at_Lean_LocalContext_all___spec__2___boxed(lean_object*, lean_object*);
@@ -240,13 +249,13 @@ lean_object* l___private_Lean_LocalContext_0__Lean_LocalContext_popTailNoneAux_m
 lean_object* lean_local_ctx_rename_user_name(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_getFVar_x21(lean_object*, lean_object*);
 lean_object* l_Array_indexOfAux___at_Lean_LocalContext_erase___spec__3(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_LocalDecl_value___closed__4;
+static lean_object* l_Lean_LocalDecl_value___closed__4;
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__5___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_shiftLeft(size_t, size_t);
 lean_object* l_Std_PersistentHashMap_erase___at_Lean_LocalContext_erase___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__7___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_LocalContext_foldl___spec__11___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_LocalDecl_value___closed__1;
+static lean_object* l_Lean_LocalDecl_value___closed__1;
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_LocalContext_getFVarIds___spec__2(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__12___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_LocalContext_foldlM___at_Lean_LocalContext_foldl___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -274,6 +283,7 @@ lean_object* l_Lean_LocalDecl_toExpr___boxed(lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_LocalContext_findFromUserName_x3f___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalContext_all(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_findFVar_x3f___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_instInhabitedLocalContext___closed__4;
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_LocalContext_findFromUserName_x3f___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_eraseAux___at_Lean_LocalContext_erase___spec__2(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
@@ -304,17 +314,17 @@ lean_object* l_Std_PersistentArray_anyM___at_Lean_LocalContext_any___spec__1___b
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* l_Lean_LocalDecl_value_x3f(lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__4(lean_object*);
+lean_object* l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* lean_local_ctx_mk_local_decl(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_anyM___spec__3(lean_object*);
 lean_object* l_Std_PersistentArray_foldlM___at_Lean_LocalContext_getFVarIds___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forInAux___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__2___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__13___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
-lean_object* l_ReaderT_instMonadReaderT___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldRev_loop___at_Lean_LocalContext_mkLambda___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_findDecl_x3f___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_foldlM(lean_object*);
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_instInhabitedLocalDecl___closed__1;
+static uint64_t l_Lean_instInhabitedLocalDecl___closed__1;
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_anyM___spec__4___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_findDeclRev_x3f(lean_object*);
 lean_object* l_Lean_LocalDecl_index(lean_object*);
@@ -322,18 +332,18 @@ lean_object* l_Std_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalCo
 lean_object* l_Lean_LocalContext_forM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_indexOfAux___at_Lean_LocalContext_erase___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_findDecl_x3f___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_LocalDecl_setBinderInfo___closed__3;
+static lean_object* l_Lean_LocalDecl_setBinderInfo___closed__3;
 lean_object* l_Std_PersistentArray_anyMAux___at_Lean_LocalContext_allM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_foldl(lean_object*);
 lean_object* l_Lean_LocalDecl_setBinderInfo___boxed(lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t);
-lean_object* l_Lean_LocalDecl_setBinderInfo___closed__1;
+static lean_object* l_Lean_LocalDecl_setBinderInfo___closed__1;
 lean_object* l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_LocalContext_findDeclRev_x3f___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_fvarId___boxed(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_USize_decLe(size_t, size_t);
-lean_object* l_Std_PersistentArray_forInAux___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkLocalDeclEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_instInhabitedLocalDecl___closed__2;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_LocalContext_all___spec__5(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Std_PersistentArray_findSomeRevMAux___at_Lean_LocalContext_findFromUserName_x3f___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_isEmpty___boxed(lean_object*);
@@ -354,10 +364,10 @@ lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_anyM___spec__3___rarg
 uint8_t l_Std_PersistentArray_anyMAux___at_Lean_LocalContext_any___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_binderInfoEx_match__1(lean_object*);
 uint8_t l_Lean_LocalDecl_hasExprMVar(lean_object*);
-extern lean_object* l_Lean_instInhabitedExpr___closed__1;
-lean_object* l_Lean_LocalContext_get_x21___closed__2;
+static lean_object* l_Lean_LocalContext_get_x21___closed__2;
 lean_object* l_Std_PersistentArray_anyM___at_Lean_LocalContext_anyM___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t);
-lean_object* l_Lean_LocalDecl_setBinderInfo___closed__2;
+static lean_object* l_Lean_LocalDecl_setBinderInfo___closed__2;
+static lean_object* l_Lean_instInhabitedLocalContext___closed__2;
 lean_object* l_Std_PersistentArray_forM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__4___rarg___lambda__2(size_t, lean_object*, lean_object*, lean_object*, lean_object*, size_t, uint8_t);
 lean_object* l_Lean_LocalContext_addDecl(lean_object*, lean_object*);
@@ -367,30 +377,31 @@ lean_object* l_Lean_LocalDecl_setUserName(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_mkLambda(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyM___at_Lean_LocalContext_allM___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_instForInLocalContextLocalDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_instInhabitedLocalContext___closed__1;
+static lean_object* l_Lean_instInhabitedLocalContext___closed__1;
 lean_object* l_Array_eraseIdx_x27___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_setBinderInfo_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyM___at_Lean_LocalContext_anyM___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_findDeclRevM_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_LocalContext_findDeclRev_x3f___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_LocalContext_get_x21___closed__3;
+static lean_object* l_Lean_LocalContext_get_x21___closed__3;
+static lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_LocalContext_getFVarIds___spec__2___closed__1;
 lean_object* l_Lean_LocalContext_findDeclRevM_x3f(lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_anyM___spec__5___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__6___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_LocalDecl_isLet_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkForall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_foldl___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_foldRev_loop___at_Lean_LocalContext_mkBinding___spec__1___closed__2;
+static lean_object* l_Nat_foldRev_loop___at_Lean_LocalContext_mkBinding___spec__1___closed__2;
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_all___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__6(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalContext_any(lean_object*, lean_object*);
-lean_object* l_Lean_LocalContext_get_x21___closed__1;
+static lean_object* l_Lean_LocalContext_get_x21___closed__1;
 lean_object* l_Lean_mkLet(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+static lean_object* l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___closed__2;
 lean_object* l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_instMonadLCtx___rarg(lean_object*, lean_object*);
-extern size_t l_Std_PersistentHashMap_insertAux___rarg___closed__2;
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_LocalContext_mkLocalDecl___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldRevM_loop___at_Lean_LocalContext_sanitizeNames___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_foldlM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -415,6 +426,7 @@ uint8_t l_Std_PersistentArray_anyM___at_Lean_LocalContext_all___spec__1(lean_obj
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_findDeclM_x3f___at_Lean_LocalContext_findDecl_x3f___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_isSubPrefixOf___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_PersistentArray_forInAux___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__2___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_findDecl_x3f___spec__5___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Std_PersistentArray_get_x21___at___private_Lean_LocalContext_0__Lean_LocalContext_popTailNoneAux___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_setUserName(lean_object*, lean_object*, lean_object*);
@@ -430,6 +442,7 @@ lean_object* l_Array_mapMUnsafe_map___at_Lean_LocalContext_getFVars___spec__1___
 lean_object* l_Lean_LocalDecl_isLet_match__1(lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_LocalContext_findDeclRev_x3f___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_instInhabitedLocalContext___closed__5;
 lean_object* l_Std_PersistentHashMap_containsAux___at_Lean_LocalContext_contains___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_anyM___spec__4(lean_object*);
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
@@ -438,24 +451,27 @@ lean_object* l_Lean_LocalContext_anyM(lean_object*);
 lean_object* l_Lean_LocalContext_mkForall(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_binderInfoEx___boxed(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
-lean_object* l_Std_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_instInhabitedPersistentArrayNode(lean_object*);
+lean_object* l_Std_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+static size_t l_Lean_instInhabitedLocalContext___closed__3;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__8___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyM___at_Lean_LocalContext_allM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__10___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_LocalContext_contains___boxed(lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__3___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, lean_object*, size_t, uint8_t);
-lean_object* l_Array_forInUnsafe_loop___at_Array_findIdxM_x3f___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_hasValue___boxed(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__9(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_getFVarIds___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_LocalContext_findDeclRev_x3f___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__8(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__5___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__5___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 uint8_t l_Lean_LocalContext_isSubPrefixOf(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Array_findSomeM_x3f___rarg___closed__1;
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_LocalContext_findDeclRev_x3f___spec__6(lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__5(lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_LocalContext_find_x3f___spec__1___boxed(lean_object*, lean_object*);
@@ -464,26 +480,50 @@ lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFr
 lean_object* l_Lean_LocalContext_containsFVar___boxed(lean_object*, lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_LocalContext_findDeclRev_x3f___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_findDecl_x3f___spec__4___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__3(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 lean_object* l_Lean_LocalContext_sanitizeNames(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_mkForall___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_findSomeM_x3f___at_Lean_LocalContext_findDecl_x3f___spec__2___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_foldlM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_LocalContext_decls___default___closed__1;
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_anyM___spec__3___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, uint8_t);
+static lean_object* l_Lean_instInhabitedLocalDecl___closed__3;
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__3;
 lean_object* l_Lean_LocalDecl_setBinderInfo_match__1(lean_object*);
 uint8_t l_Lean_LocalDecl_isLet(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_findDecl_x3f___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-extern lean_object* l_Std_PersistentArray_getAux___rarg___closed__1;
 lean_object* l_Lean_LocalDecl_setIndex(lean_object*, lean_object*);
-static lean_object* _init_l_Lean_instInhabitedLocalDecl___closed__1() {
+static uint64_t _init_l_Lean_instInhabitedLocalDecl___closed__1() {
+_start:
+{
+lean_object* x_1; uint64_t x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_uint64_of_nat(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_instInhabitedLocalDecl___closed__2() {
+_start:
+{
+lean_object* x_1; uint64_t x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l_Lean_instInhabitedLocalDecl___closed__1;
+x_3 = lean_alloc_ctor(0, 1, 8);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint64(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_instInhabitedLocalDecl___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_box(0);
-x_3 = l_Lean_instInhabitedExpr___closed__1;
+x_3 = l_Lean_instInhabitedLocalDecl___closed__2;
 x_4 = 0;
 x_5 = lean_alloc_ctor(0, 4, 1);
 lean_ctor_set(x_5, 0, x_1);
@@ -498,7 +538,7 @@ static lean_object* _init_l_Lean_instInhabitedLocalDecl() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_instInhabitedLocalDecl___closed__1;
+x_1 = l_Lean_instInhabitedLocalDecl___closed__3;
 return x_1;
 }
 }
@@ -1586,8 +1626,26 @@ return x_3;
 static lean_object* _init_l_Lean_LocalContext_fvarIdToDecl___default___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_LocalContext_fvarIdToDecl___default___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_LocalContext_fvarIdToDecl___default___closed__3() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_PersistentHashMap_root___default___closed__2;
+x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__2;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1599,24 +1657,105 @@ static lean_object* _init_l_Lean_LocalContext_fvarIdToDecl___default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
+x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__3;
 return x_1;
+}
+}
+static lean_object* _init_l_Lean_LocalContext_decls___default___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(32u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_LocalContext_decls___default___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_LocalContext_decls___default___closed__1;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_LocalContext_decls___default___closed__3() {
+_start:
+{
+size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = 5;
+x_2 = l_Lean_LocalContext_decls___default___closed__2;
+x_3 = l_Lean_LocalContext_decls___default___closed__1;
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
+lean_ctor_set(x_5, 0, x_2);
+lean_ctor_set(x_5, 1, x_3);
+lean_ctor_set(x_5, 2, x_4);
+lean_ctor_set(x_5, 3, x_4);
+lean_ctor_set_usize(x_5, 4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_LocalContext_decls___default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_PersistentArray_empty___closed__1;
+x_1 = l_Lean_LocalContext_decls___default___closed__3;
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_instInhabitedLocalContext___closed__1() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_instInhabitedLocalContext___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_instInhabitedLocalContext___closed__1;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static size_t _init_l_Lean_instInhabitedLocalContext___closed__3() {
+_start:
+{
+lean_object* x_1; size_t x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_usize_of_nat(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_instInhabitedLocalContext___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; size_t x_4; lean_object* x_5; 
+x_1 = l_Lean_instInhabitedLocalContext___closed__2;
+x_2 = l_Lean_instInhabitedLocalContext___closed__1;
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_Lean_instInhabitedLocalContext___closed__3;
+x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
+lean_ctor_set(x_5, 0, x_1);
+lean_ctor_set(x_5, 1, x_2);
+lean_ctor_set(x_5, 2, x_3);
+lean_ctor_set(x_5, 3, x_3);
+lean_ctor_set_usize(x_5, 4, x_4);
+return x_5;
+}
+}
+static lean_object* _init_l_Lean_instInhabitedLocalContext___closed__5() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
-x_2 = l_Std_instInhabitedPersistentArray___closed__1;
+x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__3;
+x_2 = l_Lean_instInhabitedLocalContext___closed__4;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -1627,7 +1766,7 @@ static lean_object* _init_l_Lean_instInhabitedLocalContext() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_instInhabitedLocalContext___closed__1;
+x_1 = l_Lean_instInhabitedLocalContext___closed__5;
 return x_1;
 }
 }
@@ -1635,8 +1774,8 @@ static lean_object* _init_l_Lean_LocalContext_mkEmpty___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
-x_2 = l_Std_PersistentArray_empty___closed__1;
+x_1 = l_Lean_LocalContext_fvarIdToDecl___default___closed__3;
+x_2 = l_Lean_LocalContext_decls___default___closed__3;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -1849,6 +1988,34 @@ return x_29;
 }
 }
 }
+static size_t _init_l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__1() {
+_start:
+{
+size_t x_1; size_t x_2; size_t x_3; 
+x_1 = 1;
+x_2 = 5;
+x_3 = x_1 << x_2 % (sizeof(size_t) * 8);
+return x_3;
+}
+}
+static size_t _init_l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__2() {
+_start:
+{
+size_t x_1; size_t x_2; size_t x_3; 
+x_1 = 1;
+x_2 = l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__1;
+x_3 = x_2 - x_1;
+return x_3;
+}
+}
+static lean_object* _init_l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Std_PersistentHashMap_mkEmptyEntries(lean_box(0), lean_box(0));
+return x_1;
+}
+}
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -1862,7 +2029,7 @@ lean_object* x_7; size_t x_8; size_t x_9; size_t x_10; size_t x_11; lean_object*
 x_7 = lean_ctor_get(x_1, 0);
 x_8 = 1;
 x_9 = 5;
-x_10 = l_Std_PersistentHashMap_insertAux___rarg___closed__2;
+x_10 = l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__2;
 x_11 = x_2 & x_10;
 x_12 = lean_usize_to_nat(x_11);
 x_13 = lean_array_get_size(x_7);
@@ -2008,7 +2175,7 @@ lean_inc(x_48);
 lean_dec(x_1);
 x_49 = 1;
 x_50 = 5;
-x_51 = l_Std_PersistentHashMap_insertAux___rarg___closed__2;
+x_51 = l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__2;
 x_52 = x_2 & x_51;
 x_53 = lean_usize_to_nat(x_52);
 x_54 = lean_array_get_size(x_48);
@@ -2148,7 +2315,7 @@ lean_inc(x_90);
 x_91 = lean_ctor_get(x_84, 1);
 lean_inc(x_91);
 lean_dec(x_84);
-x_92 = l_Std_PersistentHashMap_insertAux___rarg___closed__3;
+x_92 = l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__3;
 x_93 = l_Std_PersistentHashMap_insertAux_traverse___at_Lean_LocalContext_mkLocalDecl___spec__3(x_3, x_90, x_91, lean_box(0), x_83, x_92);
 lean_dec(x_91);
 lean_dec(x_90);
@@ -2194,7 +2361,7 @@ lean_inc(x_104);
 x_105 = lean_ctor_get(x_98, 1);
 lean_inc(x_105);
 lean_dec(x_98);
-x_106 = l_Std_PersistentHashMap_insertAux___rarg___closed__3;
+x_106 = l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__3;
 x_107 = l_Std_PersistentHashMap_insertAux_traverse___at_Lean_LocalContext_mkLocalDecl___spec__3(x_3, x_104, x_105, lean_box(0), x_97, x_106);
 lean_dec(x_105);
 lean_dec(x_104);
@@ -2515,7 +2682,7 @@ x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec(x_1);
 x_5 = 5;
-x_6 = l_Std_PersistentHashMap_insertAux___rarg___closed__2;
+x_6 = l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__2;
 x_7 = x_2 & x_6;
 x_8 = lean_usize_to_nat(x_7);
 x_9 = lean_box(2);
@@ -2808,7 +2975,7 @@ x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec(x_1);
 x_5 = 5;
-x_6 = l_Std_PersistentHashMap_insertAux___rarg___closed__2;
+x_6 = l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__2;
 x_7 = x_2 & x_6;
 x_8 = lean_usize_to_nat(x_7);
 x_9 = lean_box(2);
@@ -3077,6 +3244,14 @@ return x_18;
 }
 }
 }
+static lean_object* _init_l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_LocalContext_getFVarIds___spec__2___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Std_instInhabitedPersistentArrayNode(lean_box(0));
+return x_1;
+}
+}
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_LocalContext_getFVarIds___spec__2(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
@@ -3086,7 +3261,7 @@ lean_object* x_5; size_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = x_2 >> x_3 % (sizeof(size_t) * 8);
 x_7 = lean_usize_to_nat(x_6);
-x_8 = l_Std_PersistentArray_getAux___rarg___closed__1;
+x_8 = l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_LocalContext_getFVarIds___spec__2___closed__1;
 x_9 = lean_array_get(x_8, x_5, x_7);
 x_10 = 1;
 x_11 = x_10 << x_3 % (sizeof(size_t) * 8);
@@ -3288,7 +3463,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = lean_ctor_get(x_1, 1);
-x_3 = l_Array_empty___closed__1;
+x_3 = l_Lean_instInhabitedLocalContext___closed__1;
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = l_Std_PersistentArray_foldlM___at_Lean_LocalContext_getFVarIds___spec__1(x_2, x_3, x_4);
 return x_5;
@@ -3468,7 +3643,7 @@ lean_inc(x_4);
 lean_dec(x_1);
 x_5 = x_2 >> x_3 % (sizeof(size_t) * 8);
 x_6 = lean_usize_to_nat(x_5);
-x_7 = l_Std_PersistentArray_getAux___rarg___closed__1;
+x_7 = l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_LocalContext_getFVarIds___spec__2___closed__1;
 x_8 = lean_array_get(x_7, x_4, x_6);
 lean_dec(x_6);
 lean_dec(x_4);
@@ -3639,7 +3814,7 @@ lean_object* x_4; size_t x_5; size_t x_6; size_t x_7; lean_object* x_8; lean_obj
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 x_5 = 5;
-x_6 = l_Std_PersistentHashMap_insertAux___rarg___closed__2;
+x_6 = l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__2;
 x_7 = x_2 & x_6;
 x_8 = lean_usize_to_nat(x_7);
 x_9 = lean_box(2);
@@ -5400,7 +5575,20 @@ x_2 = lean_alloc_closure((void*)(l_Lean_LocalContext_findDeclRevM_x3f___rarg), 4
 return x_2;
 }
 }
-lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_5, 0, x_1);
+lean_ctor_set(x_5, 1, x_2);
+x_6 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_6, 0, x_5);
+x_7 = lean_apply_2(x_3, lean_box(0), x_6);
+return x_7;
+}
+}
+lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 if (lean_obj_tag(x_5) == 0)
@@ -5440,7 +5628,7 @@ lean_dec(x_13);
 x_15 = lean_box(0);
 lean_inc(x_14);
 x_16 = lean_apply_2(x_14, lean_box(0), x_15);
-x_17 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Array_findIdxM_x3f___spec__1___rarg___lambda__1___boxed), 4, 3);
+x_17 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__1___boxed), 4, 3);
 lean_closure_set(x_17, 0, x_3);
 lean_closure_set(x_17, 1, x_12);
 lean_closure_set(x_17, 2, x_14);
@@ -5449,7 +5637,7 @@ return x_18;
 }
 }
 }
-lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__2(lean_object* x_1, size_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, size_t x_8, lean_object* x_9) {
+lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__3(lean_object* x_1, size_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, size_t x_8, lean_object* x_9) {
 _start:
 {
 if (lean_obj_tag(x_9) == 0)
@@ -5524,7 +5712,7 @@ x_17 = l_Std_PersistentArray_forInAux___at_Lean_LocalContext_instForInLocalConte
 lean_inc(x_4);
 lean_inc(x_5);
 lean_inc(x_1);
-x_18 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__1), 5, 4);
+x_18 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__2), 5, 4);
 lean_closure_set(x_18, 0, x_1);
 lean_closure_set(x_18, 1, x_16);
 lean_closure_set(x_18, 2, x_5);
@@ -5533,7 +5721,7 @@ lean_inc(x_4);
 x_19 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_17, x_18);
 x_20 = lean_box_usize(x_8);
 x_21 = lean_box_usize(x_7);
-x_22 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__2___boxed), 9, 8);
+x_22 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__3___boxed), 9, 8);
 lean_closure_set(x_22, 0, x_1);
 lean_closure_set(x_22, 1, x_20);
 lean_closure_set(x_22, 2, x_2);
@@ -5624,7 +5812,7 @@ lean_inc(x_3);
 lean_inc(x_4);
 lean_inc(x_15);
 lean_inc(x_1);
-x_16 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__1), 5, 4);
+x_16 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__2), 5, 4);
 lean_closure_set(x_16, 0, x_1);
 lean_closure_set(x_16, 1, x_15);
 lean_closure_set(x_16, 2, x_4);
@@ -5685,6 +5873,22 @@ return x_3;
 lean_object* l_Std_PersistentArray_forInAux___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__2___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_ctor_get(x_4, 1);
+lean_inc(x_5);
+lean_dec(x_4);
+x_6 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_6, 0, x_2);
+x_7 = lean_apply_2(x_5, lean_box(0), x_6);
+return x_7;
+}
+}
+lean_object* l_Std_PersistentArray_forInAux___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__2___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
@@ -5695,7 +5899,7 @@ x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec(x_3);
 lean_inc(x_1);
-x_6 = lean_alloc_closure((void*)(l_Std_PersistentArray_forInAux___rarg___lambda__3___boxed), 3, 2);
+x_6 = lean_alloc_closure((void*)(l_Std_PersistentArray_forInAux___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__2___rarg___lambda__1___boxed), 3, 2);
 lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_5);
 x_7 = lean_ctor_get(x_1, 0);
@@ -5751,7 +5955,7 @@ lean_inc(x_7);
 lean_inc(x_1);
 x_13 = l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg(x_1, x_2, x_3, x_7, x_8, x_6, x_11, x_12, x_9);
 lean_inc(x_7);
-x_14 = lean_alloc_closure((void*)(l_Std_PersistentArray_forInAux___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__2___rarg___lambda__1), 3, 2);
+x_14 = lean_alloc_closure((void*)(l_Std_PersistentArray_forInAux___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__2___rarg___lambda__2), 3, 2);
 lean_closure_set(x_14, 0, x_1);
 lean_closure_set(x_14, 1, x_7);
 x_15 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_13, x_14);
@@ -5778,7 +5982,7 @@ lean_inc(x_17);
 lean_inc(x_1);
 x_23 = l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__4___rarg(x_1, x_2, x_17, x_18, x_16, x_21, x_22, x_19);
 lean_inc(x_17);
-x_24 = lean_alloc_closure((void*)(l_Std_PersistentArray_forInAux___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__2___rarg___lambda__1), 3, 2);
+x_24 = lean_alloc_closure((void*)(l_Std_PersistentArray_forInAux___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__2___rarg___lambda__2), 3, 2);
 lean_closure_set(x_24, 0, x_1);
 lean_closure_set(x_24, 1, x_17);
 x_25 = lean_apply_4(x_17, lean_box(0), lean_box(0), x_23, x_24);
@@ -5861,7 +6065,7 @@ lean_dec(x_21);
 x_23 = lean_box(0);
 lean_inc(x_22);
 x_24 = lean_apply_2(x_22, lean_box(0), x_23);
-x_25 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Array_findIdxM_x3f___spec__1___rarg___lambda__1___boxed), 4, 3);
+x_25 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__1___boxed), 4, 3);
 lean_closure_set(x_25, 0, x_3);
 lean_closure_set(x_25, 1, x_20);
 lean_closure_set(x_25, 2, x_22);
@@ -6000,6 +6204,20 @@ return x_3;
 lean_object* l_Std_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__1___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_ctor_get(x_4, 1);
+lean_inc(x_5);
+lean_dec(x_4);
+x_6 = lean_apply_2(x_5, lean_box(0), x_2);
+return x_6;
+}
+}
+lean_object* l_Std_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__1___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
@@ -6010,7 +6228,7 @@ x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec(x_3);
 lean_inc(x_1);
-x_6 = lean_alloc_closure((void*)(l_ReaderT_instMonadReaderT___rarg___lambda__4___boxed), 3, 2);
+x_6 = lean_alloc_closure((void*)(l_Std_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__1___rarg___lambda__1___boxed), 3, 2);
 lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_5);
 x_7 = lean_ctor_get(x_1, 0);
@@ -6043,7 +6261,7 @@ return x_15;
 }
 }
 }
-lean_object* l_Std_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__1___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Std_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__1___rarg___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 if (lean_obj_tag(x_5) == 0)
@@ -6085,7 +6303,7 @@ lean_inc(x_4);
 lean_inc(x_1);
 x_17 = l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__5___rarg(x_1, x_3, x_4, x_12, x_11, x_15, x_16, x_13);
 lean_inc(x_4);
-x_18 = lean_alloc_closure((void*)(l_Std_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__1___rarg___lambda__1), 3, 2);
+x_18 = lean_alloc_closure((void*)(l_Std_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__1___rarg___lambda__2), 3, 2);
 lean_closure_set(x_18, 0, x_1);
 lean_closure_set(x_18, 1, x_4);
 x_19 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_17, x_18);
@@ -6106,7 +6324,7 @@ lean_inc(x_2);
 lean_inc(x_1);
 x_7 = l_Std_PersistentArray_forInAux___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__2___rarg(x_1, x_2, x_4, x_6, x_4);
 lean_inc(x_5);
-x_8 = lean_alloc_closure((void*)(l_Std_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__1___rarg___lambda__2), 5, 4);
+x_8 = lean_alloc_closure((void*)(l_Std_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__1___rarg___lambda__3), 5, 4);
 lean_closure_set(x_8, 0, x_1);
 lean_closure_set(x_8, 1, x_3);
 lean_closure_set(x_8, 2, x_2);
@@ -6142,7 +6360,16 @@ x_3 = lean_alloc_closure((void*)(l_Lean_LocalContext_instForInLocalContextLocalD
 return x_3;
 }
 }
-lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__1(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+return x_5;
+}
+}
+lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
 size_t x_10; size_t x_11; lean_object* x_12; 
@@ -6150,7 +6377,7 @@ x_10 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_11 = lean_unbox_usize(x_8);
 lean_dec(x_8);
-x_12 = l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__2(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_11, x_9);
+x_12 = l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg___lambda__3(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_11, x_9);
 return x_12;
 }
 }
@@ -6190,6 +6417,15 @@ x_11 = l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLoca
 return x_11;
 }
 }
+lean_object* l_Std_PersistentArray_forInAux___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__2___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_PersistentArray_forInAux___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__2___rarg___lambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
 lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__5___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -6212,6 +6448,15 @@ x_10 = lean_unbox_usize(x_7);
 lean_dec(x_7);
 x_11 = l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__5___rarg(x_1, x_2, x_3, x_4, x_5, x_9, x_10, x_8);
 return x_11;
+}
+}
+lean_object* l_Std_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__1___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__1___rarg___lambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
 }
 }
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__5___rarg(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
@@ -6458,7 +6703,7 @@ lean_object* x_6; size_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x
 x_6 = lean_ctor_get(x_2, 0);
 x_7 = x_3 >> x_4 % (sizeof(size_t) * 8);
 x_8 = lean_usize_to_nat(x_7);
-x_9 = l_Std_PersistentArray_getAux___rarg___closed__1;
+x_9 = l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_LocalContext_getFVarIds___spec__2___closed__1;
 x_10 = lean_array_get(x_9, x_6, x_8);
 x_11 = 1;
 x_12 = x_11 << x_4 % (sizeof(size_t) * 8);
@@ -7346,41 +7591,69 @@ x_2 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_LocalContext
 return x_2;
 }
 }
+lean_object* l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = lean_box(0);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
 lean_object* l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_3 = lean_ctor_get(x_2, 0);
-x_4 = lean_box(0);
-x_5 = lean_array_get_size(x_3);
-x_6 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
-x_7 = 0;
-x_8 = l_Array_findSomeM_x3f___rarg___closed__1;
-x_9 = l_Array_forInUnsafe_loop___at_Lean_LocalContext_findDecl_x3f___spec__4___rarg(x_1, x_8, x_3, x_6, x_7, x_8);
-x_10 = lean_ctor_get(x_9, 0);
-lean_inc(x_10);
-lean_dec(x_9);
-if (lean_obj_tag(x_10) == 0)
+x_4 = lean_array_get_size(x_3);
+x_5 = lean_usize_of_nat(x_4);
+lean_dec(x_4);
+x_6 = 0;
+x_7 = l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___closed__1;
+x_8 = l_Array_forInUnsafe_loop___at_Lean_LocalContext_findDecl_x3f___spec__4___rarg(x_1, x_7, x_3, x_5, x_6, x_7);
+x_9 = lean_ctor_get(x_8, 0);
+lean_inc(x_9);
+lean_dec(x_8);
+if (lean_obj_tag(x_9) == 0)
 {
-return x_4;
-}
-else
-{
-uint8_t x_11; 
-x_11 = !lean_is_exclusive(x_10);
-if (x_11 == 0)
-{
+lean_object* x_10; 
+x_10 = l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___closed__2;
 return x_10;
 }
 else
 {
+uint8_t x_11; 
+x_11 = !lean_is_exclusive(x_9);
+if (x_11 == 0)
+{
+return x_9;
+}
+else
+{
 lean_object* x_12; lean_object* x_13; 
-x_12 = lean_ctor_get(x_10, 0);
+x_12 = lean_ctor_get(x_9, 0);
 lean_inc(x_12);
-lean_dec(x_10);
+lean_dec(x_9);
 x_13 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
 return x_13;
@@ -7389,36 +7662,37 @@ return x_13;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+lean_object* x_14; lean_object* x_15; size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_14 = lean_ctor_get(x_2, 0);
-x_15 = lean_box(0);
-x_16 = lean_array_get_size(x_14);
-x_17 = lean_usize_of_nat(x_16);
-lean_dec(x_16);
-x_18 = 0;
-x_19 = l_Array_findSomeM_x3f___rarg___closed__1;
-x_20 = l_Array_forInUnsafe_loop___at_Lean_LocalContext_findDecl_x3f___spec__5___rarg(x_1, x_19, x_14, x_17, x_18, x_19);
-x_21 = lean_ctor_get(x_20, 0);
-lean_inc(x_21);
-lean_dec(x_20);
-if (lean_obj_tag(x_21) == 0)
+x_15 = lean_array_get_size(x_14);
+x_16 = lean_usize_of_nat(x_15);
+lean_dec(x_15);
+x_17 = 0;
+x_18 = l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___closed__1;
+x_19 = l_Array_forInUnsafe_loop___at_Lean_LocalContext_findDecl_x3f___spec__5___rarg(x_1, x_18, x_14, x_16, x_17, x_18);
+x_20 = lean_ctor_get(x_19, 0);
+lean_inc(x_20);
+lean_dec(x_19);
+if (lean_obj_tag(x_20) == 0)
 {
-return x_15;
-}
-else
-{
-uint8_t x_22; 
-x_22 = !lean_is_exclusive(x_21);
-if (x_22 == 0)
-{
+lean_object* x_21; 
+x_21 = l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___closed__2;
 return x_21;
 }
 else
 {
+uint8_t x_22; 
+x_22 = !lean_is_exclusive(x_20);
+if (x_22 == 0)
+{
+return x_20;
+}
+else
+{
 lean_object* x_23; lean_object* x_24; 
-x_23 = lean_ctor_get(x_21, 0);
+x_23 = lean_ctor_get(x_20, 0);
 lean_inc(x_23);
-lean_dec(x_21);
+lean_dec(x_20);
 x_24 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_24, 0, x_23);
 return x_24;
@@ -7534,36 +7808,37 @@ lean_inc(x_1);
 x_4 = l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg(x_1, x_3);
 if (lean_obj_tag(x_4) == 0)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+lean_object* x_5; lean_object* x_6; size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_5 = lean_ctor_get(x_2, 1);
-x_6 = lean_box(0);
-x_7 = lean_array_get_size(x_5);
-x_8 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
-x_9 = 0;
-x_10 = l_Array_findSomeM_x3f___rarg___closed__1;
-x_11 = l_Array_forInUnsafe_loop___at_Lean_LocalContext_findDecl_x3f___spec__6___rarg(x_1, x_10, x_5, x_8, x_9, x_10);
-x_12 = lean_ctor_get(x_11, 0);
-lean_inc(x_12);
-lean_dec(x_11);
-if (lean_obj_tag(x_12) == 0)
+x_6 = lean_array_get_size(x_5);
+x_7 = lean_usize_of_nat(x_6);
+lean_dec(x_6);
+x_8 = 0;
+x_9 = l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___closed__1;
+x_10 = l_Array_forInUnsafe_loop___at_Lean_LocalContext_findDecl_x3f___spec__6___rarg(x_1, x_9, x_5, x_7, x_8, x_9);
+x_11 = lean_ctor_get(x_10, 0);
+lean_inc(x_11);
+lean_dec(x_10);
+if (lean_obj_tag(x_11) == 0)
 {
-return x_6;
-}
-else
-{
-uint8_t x_13; 
-x_13 = !lean_is_exclusive(x_12);
-if (x_13 == 0)
-{
+lean_object* x_12; 
+x_12 = l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___closed__2;
 return x_12;
 }
 else
 {
+uint8_t x_13; 
+x_13 = !lean_is_exclusive(x_11);
+if (x_13 == 0)
+{
+return x_11;
+}
+else
+{
 lean_object* x_14; lean_object* x_15; 
-x_14 = lean_ctor_get(x_12, 0);
+x_14 = lean_ctor_get(x_11, 0);
 lean_inc(x_14);
-lean_dec(x_12);
+lean_dec(x_11);
 x_15 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_15, 0, x_14);
 return x_15;
@@ -7661,6 +7936,16 @@ lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_9;
+}
+}
+lean_object* l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___lambda__1(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 lean_object* l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___boxed(lean_object* x_1, lean_object* x_2) {
@@ -11147,7 +11432,10 @@ res = initialize_Lean_Hygiene(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedLocalDecl___closed__1 = _init_l_Lean_instInhabitedLocalDecl___closed__1();
-lean_mark_persistent(l_Lean_instInhabitedLocalDecl___closed__1);
+l_Lean_instInhabitedLocalDecl___closed__2 = _init_l_Lean_instInhabitedLocalDecl___closed__2();
+lean_mark_persistent(l_Lean_instInhabitedLocalDecl___closed__2);
+l_Lean_instInhabitedLocalDecl___closed__3 = _init_l_Lean_instInhabitedLocalDecl___closed__3();
+lean_mark_persistent(l_Lean_instInhabitedLocalDecl___closed__3);
 l_Lean_instInhabitedLocalDecl = _init_l_Lean_instInhabitedLocalDecl();
 lean_mark_persistent(l_Lean_instInhabitedLocalDecl);
 l_Lean_LocalDecl_value___closed__1 = _init_l_Lean_LocalDecl_value___closed__1();
@@ -11166,24 +11454,51 @@ l_Lean_LocalDecl_setBinderInfo___closed__3 = _init_l_Lean_LocalDecl_setBinderInf
 lean_mark_persistent(l_Lean_LocalDecl_setBinderInfo___closed__3);
 l_Lean_LocalContext_fvarIdToDecl___default___closed__1 = _init_l_Lean_LocalContext_fvarIdToDecl___default___closed__1();
 lean_mark_persistent(l_Lean_LocalContext_fvarIdToDecl___default___closed__1);
+l_Lean_LocalContext_fvarIdToDecl___default___closed__2 = _init_l_Lean_LocalContext_fvarIdToDecl___default___closed__2();
+lean_mark_persistent(l_Lean_LocalContext_fvarIdToDecl___default___closed__2);
+l_Lean_LocalContext_fvarIdToDecl___default___closed__3 = _init_l_Lean_LocalContext_fvarIdToDecl___default___closed__3();
+lean_mark_persistent(l_Lean_LocalContext_fvarIdToDecl___default___closed__3);
 l_Lean_LocalContext_fvarIdToDecl___default = _init_l_Lean_LocalContext_fvarIdToDecl___default();
 lean_mark_persistent(l_Lean_LocalContext_fvarIdToDecl___default);
+l_Lean_LocalContext_decls___default___closed__1 = _init_l_Lean_LocalContext_decls___default___closed__1();
+lean_mark_persistent(l_Lean_LocalContext_decls___default___closed__1);
+l_Lean_LocalContext_decls___default___closed__2 = _init_l_Lean_LocalContext_decls___default___closed__2();
+lean_mark_persistent(l_Lean_LocalContext_decls___default___closed__2);
+l_Lean_LocalContext_decls___default___closed__3 = _init_l_Lean_LocalContext_decls___default___closed__3();
+lean_mark_persistent(l_Lean_LocalContext_decls___default___closed__3);
 l_Lean_LocalContext_decls___default = _init_l_Lean_LocalContext_decls___default();
 lean_mark_persistent(l_Lean_LocalContext_decls___default);
 l_Lean_instInhabitedLocalContext___closed__1 = _init_l_Lean_instInhabitedLocalContext___closed__1();
 lean_mark_persistent(l_Lean_instInhabitedLocalContext___closed__1);
+l_Lean_instInhabitedLocalContext___closed__2 = _init_l_Lean_instInhabitedLocalContext___closed__2();
+lean_mark_persistent(l_Lean_instInhabitedLocalContext___closed__2);
+l_Lean_instInhabitedLocalContext___closed__3 = _init_l_Lean_instInhabitedLocalContext___closed__3();
+l_Lean_instInhabitedLocalContext___closed__4 = _init_l_Lean_instInhabitedLocalContext___closed__4();
+lean_mark_persistent(l_Lean_instInhabitedLocalContext___closed__4);
+l_Lean_instInhabitedLocalContext___closed__5 = _init_l_Lean_instInhabitedLocalContext___closed__5();
+lean_mark_persistent(l_Lean_instInhabitedLocalContext___closed__5);
 l_Lean_instInhabitedLocalContext = _init_l_Lean_instInhabitedLocalContext();
 lean_mark_persistent(l_Lean_instInhabitedLocalContext);
 l_Lean_LocalContext_mkEmpty___closed__1 = _init_l_Lean_LocalContext_mkEmpty___closed__1();
 lean_mark_persistent(l_Lean_LocalContext_mkEmpty___closed__1);
 l_Lean_LocalContext_empty = _init_l_Lean_LocalContext_empty();
 lean_mark_persistent(l_Lean_LocalContext_empty);
+l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__1 = _init_l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__1();
+l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__2 = _init_l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__2();
+l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__3 = _init_l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__3();
+lean_mark_persistent(l_Std_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2___closed__3);
 l_Lean_LocalContext_get_x21___closed__1 = _init_l_Lean_LocalContext_get_x21___closed__1();
 lean_mark_persistent(l_Lean_LocalContext_get_x21___closed__1);
 l_Lean_LocalContext_get_x21___closed__2 = _init_l_Lean_LocalContext_get_x21___closed__2();
 lean_mark_persistent(l_Lean_LocalContext_get_x21___closed__2);
 l_Lean_LocalContext_get_x21___closed__3 = _init_l_Lean_LocalContext_get_x21___closed__3();
 lean_mark_persistent(l_Lean_LocalContext_get_x21___closed__3);
+l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_LocalContext_getFVarIds___spec__2___closed__1 = _init_l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_LocalContext_getFVarIds___spec__2___closed__1();
+lean_mark_persistent(l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_LocalContext_getFVarIds___spec__2___closed__1);
+l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___closed__1 = _init_l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___closed__1();
+lean_mark_persistent(l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___closed__1);
+l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___closed__2 = _init_l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___closed__2();
+lean_mark_persistent(l_Std_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg___closed__2);
 l_Nat_foldRev_loop___at_Lean_LocalContext_mkBinding___spec__1___closed__1 = _init_l_Nat_foldRev_loop___at_Lean_LocalContext_mkBinding___spec__1___closed__1();
 lean_mark_persistent(l_Nat_foldRev_loop___at_Lean_LocalContext_mkBinding___spec__1___closed__1);
 l_Nat_foldRev_loop___at_Lean_LocalContext_mkBinding___spec__1___closed__2 = _init_l_Nat_foldRev_loop___at_Lean_LocalContext_mkBinding___spec__1___closed__2();

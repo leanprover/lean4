@@ -36,7 +36,6 @@ lean_object* l_Std_NondetT_pureUnsafe___rarg(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_instAlternativeNondetT___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__2___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_instChooseNondetT___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Monad_seqRight___default___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_ofList___rarg(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_runUnsafe(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_join_x27_match__1(lean_object*, lean_object*, lean_object*);
@@ -100,6 +99,8 @@ lean_object* l_Std_NondetT_instChoose___rarg(lean_object*, lean_object*, lean_ob
 lean_object* l_Std_NondetT_Alts_join_x27(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_run_x27_match__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_NondetT_instMonadNondetT___rarg___lambda__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_NondetT_instMonadNondetT___rarg___lambda__9___boxed(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_instMonadNondetT___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_thunk(lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__10___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -142,7 +143,7 @@ lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec
 lean_object* l_Std_NondetT_Alts_ofList_match__1(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_run_x27___rarg(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_NondetT_instMonadNondetT___rarg___lambda__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_NondetT_instMonadNondetT___rarg___lambda__9(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_joinUnsafe___rarg(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_joinUnsafe(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_appendUnsafe(lean_object*, lean_object*);
@@ -2139,11 +2140,18 @@ x_8 = l_Std_NondetT_Alts_join___rarg(x_1, x_7);
 return x_8;
 }
 }
-lean_object* l_Std_NondetT_instMonadNondetT___rarg___lambda__9(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Std_NondetT_instMonadNondetT___rarg___lambda__9(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_Std_NondetT_instMonadNondetT___rarg___lambda__10(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_alloc_closure((void*)(l_Monad_seqRight___default___rarg___lambda__1___boxed), 2, 1);
+x_6 = lean_alloc_closure((void*)(l_Std_NondetT_instMonadNondetT___rarg___lambda__9___boxed), 2, 1);
 lean_closure_set(x_6, 0, x_5);
 lean_inc(x_1);
 x_7 = l_Std_NondetT_Alts_map___at_Std_NondetT_instMonadNondetT___spec__9___rarg(x_1, lean_box(0), lean_box(0), x_6, x_4);
@@ -2151,7 +2159,7 @@ x_8 = l_Std_NondetT_Alts_join___rarg(x_1, x_7);
 return x_8;
 }
 }
-lean_object* l_Std_NondetT_instMonadNondetT___rarg___lambda__10(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Std_NondetT_instMonadNondetT___rarg___lambda__11(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; 
@@ -2184,7 +2192,7 @@ lean_inc(x_1);
 x_7 = lean_alloc_closure((void*)(l_Std_NondetT_instMonadNondetT___rarg___lambda__8), 5, 1);
 lean_closure_set(x_7, 0, x_1);
 lean_inc(x_1);
-x_8 = lean_alloc_closure((void*)(l_Std_NondetT_instMonadNondetT___rarg___lambda__9), 5, 1);
+x_8 = lean_alloc_closure((void*)(l_Std_NondetT_instMonadNondetT___rarg___lambda__10), 5, 1);
 lean_closure_set(x_8, 0, x_1);
 x_9 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_9, 0, x_4);
@@ -2192,7 +2200,7 @@ lean_ctor_set(x_9, 1, x_5);
 lean_ctor_set(x_9, 2, x_6);
 lean_ctor_set(x_9, 3, x_7);
 lean_ctor_set(x_9, 4, x_8);
-x_10 = lean_alloc_closure((void*)(l_Std_NondetT_instMonadNondetT___rarg___lambda__10), 5, 1);
+x_10 = lean_alloc_closure((void*)(l_Std_NondetT_instMonadNondetT___rarg___lambda__11), 5, 1);
 lean_closure_set(x_10, 0, x_1);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
@@ -2310,6 +2318,16 @@ lean_object* x_4;
 x_4 = l_Std_NondetT_instMonadNondetT___rarg___lambda__6(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
+}
+}
+lean_object* l_Std_NondetT_instMonadNondetT___rarg___lambda__9___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_NondetT_instMonadNondetT___rarg___lambda__9(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 lean_object* l_Std_NondetT_instAlternativeNondetT___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {

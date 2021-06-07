@@ -18,11 +18,12 @@ lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_o
 lean_object* l_Lean_Expr_replaceLevel_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
+uint64_t lean_uint64_of_nat(lean_object*);
 lean_object* l_Lean_Level_replace_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit(lean_object*, size_t, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3;
+static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3;
 lean_object* l_Lean_Expr_replaceLevel_match__1(lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_cache(size_t, lean_object*, lean_object*, lean_object*);
@@ -36,7 +37,7 @@ lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit_match__1(lean_obj
 lean_object* lean_level_mk_max_simp(lean_object*, lean_object*);
 lean_object* lean_level_mk_imax_simp(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafe(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1;
+static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1;
 lean_object* lean_expr_update_let(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 lean_object* lean_expr_update_proj(lean_object*, lean_object*);
@@ -48,14 +49,15 @@ lean_object* l_Lean_Expr_replaceLevel(lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelSucc(lean_object*);
 lean_object* lean_expr_update_sort(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM(lean_object*, size_t, lean_object*, lean_object*);
-extern lean_object* l_Lean_instInhabitedExpr___closed__1;
 lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache;
 lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2;
+static uint64_t l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2;
 lean_object* l_Lean_Level_replace_match__1(lean_object*);
+static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__5;
 lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_const(lean_object*, lean_object*);
+static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4;
 lean_object* l_Lean_Level_replace_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -1373,22 +1375,43 @@ x_3 = lean_mk_array(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2() {
+static uint64_t _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(8192u);
-x_2 = l_Lean_instInhabitedExpr___closed__1;
-x_3 = lean_mk_array(x_1, x_2);
-return x_3;
+lean_object* x_1; uint64_t x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_uint64_of_nat(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3() {
 _start:
 {
+lean_object* x_1; uint64_t x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2;
+x_3 = lean_alloc_ctor(0, 1, 8);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint64(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(8192u);
+x_2 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3;
+x_3 = lean_mk_array(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__5() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1;
-x_2 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2;
+x_2 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -1399,7 +1422,7 @@ static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3;
+x_1 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__5;
 return x_1;
 }
 }
@@ -1996,9 +2019,12 @@ l_Lean_Expr_ReplaceLevelImpl_cacheSize = _init_l_Lean_Expr_ReplaceLevelImpl_cach
 l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1 = _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1();
 lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1);
 l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2 = _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2();
-lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2);
 l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3 = _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3();
 lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3);
+l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4 = _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4();
+lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4);
+l_Lean_Expr_ReplaceLevelImpl_initCache___closed__5 = _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__5();
+lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_initCache___closed__5);
 l_Lean_Expr_ReplaceLevelImpl_initCache = _init_l_Lean_Expr_ReplaceLevelImpl_initCache();
 lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_initCache);
 return lean_io_result_mk_ok(lean_box(0));

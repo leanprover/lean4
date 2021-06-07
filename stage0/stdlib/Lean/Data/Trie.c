@@ -20,6 +20,7 @@ lean_object* l_Lean_Parser_Trie_insert_insertEmpty(lean_object*);
 lean_object* l_Lean_Parser_Trie_find_x3f(lean_object*);
 lean_object* l_Lean_Parser_Trie_insert_loop_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_Parser_Trie_insert_loop___spec__2___rarg(lean_object*, uint32_t, lean_object*);
+static lean_object* l_Std_RBNode_fold___at___private_Lean_Data_Trie_0__Lean_Parser_Trie_toStringAux___spec__1___rarg___closed__1;
 lean_object* l___private_Lean_Data_Trie_0__Lean_Parser_Trie_updtAcc_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_Parser_Trie_insert_loop___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Trie_insert_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -52,7 +53,6 @@ lean_object* l_Std_RBNode_ins___at_Lean_Parser_Trie_insert_loop___spec__6___rarg
 lean_object* l_Std_RBNode_find___at_Lean_Parser_Trie_insert_loop___spec__1___rarg(lean_object*, uint32_t);
 uint8_t l_UInt32_decLt(uint32_t, uint32_t);
 lean_object* l_Lean_Parser_Trie_matchPrefix_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;
 lean_object* l_Std_RBNode_find___at_Lean_Parser_Trie_insert_loop___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_ins___at_Lean_Parser_Trie_insert_loop___spec__6(lean_object*);
 lean_object* l_Std_RBNode_ins___at_Lean_Parser_Trie_insert_loop___spec__4___rarg(lean_object*, uint32_t, lean_object*);
@@ -78,11 +78,11 @@ uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Lean_Parser_Trie_insert___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_Parser_Trie_insert_loop___spec__5___rarg(lean_object*, uint32_t, lean_object*);
 uint8_t l_Std_RBNode_isRed___rarg(lean_object*);
-lean_object* l_Lean_Parser_Trie_instEmptyCollectionTrie___closed__1;
+static lean_object* l_Lean_Parser_Trie_instEmptyCollectionTrie___closed__1;
 lean_object* l_Std_RBNode_find___at_Lean_Parser_Trie_matchPrefix_loop___spec__1(lean_object*);
 lean_object* l_Lean_Parser_Trie_matchPrefix_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_ins___at_Lean_Parser_Trie_insert_loop___spec__7___rarg(lean_object*, uint32_t, lean_object*);
-lean_object* l_Lean_Parser_Trie_empty___closed__1;
+static lean_object* l_Lean_Parser_Trie_empty___closed__1;
 lean_object* l_Std_RBNode_find___at_Lean_Parser_Trie_insert_loop___spec__1(lean_object*);
 lean_object* l_Std_RBNode_fold___at___private_Lean_Data_Trie_0__Lean_Parser_Trie_toStringAux___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Char_quote(uint32_t);
@@ -97,6 +97,7 @@ lean_object* l_Std_RBNode_ins___at_Lean_Parser_Trie_insert_loop___spec__4(lean_o
 lean_object* l_Std_RBNode_insert___at_Lean_Parser_Trie_insert_loop___spec__5(lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_Parser_Trie_insert_loop___spec__2(lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
+lean_object* lean_nat_to_int(lean_object*);
 lean_object* l___private_Lean_Data_Trie_0__Lean_Parser_Trie_updtAcc___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Trie_find_x3f_loop___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Trie_insert(lean_object*);
@@ -11052,6 +11053,15 @@ x_3 = lean_alloc_closure((void*)(l___private_Lean_Data_Trie_0__Lean_Parser_Trie_
 return x_3;
 }
 }
+static lean_object* _init_l_Std_RBNode_fold___at___private_Lean_Data_Trie_0__Lean_Parser_Trie_toStringAux___spec__1___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(2u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 lean_object* l_Std_RBNode_fold___at___private_Lean_Data_Trie_0__Lean_Parser_Trie_toStringAux___spec__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -11081,7 +11091,7 @@ x_11 = l___private_Lean_Data_Trie_0__Lean_Parser_Trie_toStringAux___rarg(x_5);
 x_12 = lean_box(1);
 x_13 = l_Std_Format_joinSep___at_instReprProd___spec__1(x_11, x_12);
 lean_dec(x_11);
-x_14 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;
+x_14 = l_Std_RBNode_fold___at___private_Lean_Data_Trie_0__Lean_Parser_Trie_toStringAux___spec__1___rarg___closed__1;
 x_15 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
 lean_ctor_set(x_15, 1, x_13);
@@ -11167,6 +11177,8 @@ l_Lean_Parser_Trie_empty___closed__1 = _init_l_Lean_Parser_Trie_empty___closed__
 lean_mark_persistent(l_Lean_Parser_Trie_empty___closed__1);
 l_Lean_Parser_Trie_instEmptyCollectionTrie___closed__1 = _init_l_Lean_Parser_Trie_instEmptyCollectionTrie___closed__1();
 lean_mark_persistent(l_Lean_Parser_Trie_instEmptyCollectionTrie___closed__1);
+l_Std_RBNode_fold___at___private_Lean_Data_Trie_0__Lean_Parser_Trie_toStringAux___spec__1___rarg___closed__1 = _init_l_Std_RBNode_fold___at___private_Lean_Data_Trie_0__Lean_Parser_Trie_toStringAux___spec__1___rarg___closed__1();
+lean_mark_persistent(l_Std_RBNode_fold___at___private_Lean_Data_Trie_0__Lean_Parser_Trie_toStringAux___spec__1___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -24,7 +24,6 @@ lean_object* l_fixCore3___boxed(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_fix6___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_bfix2_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_fixCore5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Monad_seqRight___default___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_fix3___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_fix4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_bfix6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -62,6 +61,7 @@ lean_object* l_bfix3___rarg___boxed(lean_object*, lean_object*, lean_object*, le
 lean_object* l_bfix1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_fix2(lean_object*, lean_object*, lean_object*);
 lean_object* l_bfix3_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_fix1___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_fix4___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_fix2___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_fix5___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -81,6 +81,7 @@ lean_object* l_fix4___rarg___lambda__1(lean_object*, lean_object*, lean_object*,
 lean_object* l_fix3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_bfix4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_bfix1(lean_object*, lean_object*);
+lean_object* l_fix1___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_fixCore5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_bfix1_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_bfix6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -211,11 +212,18 @@ lean_dec(x_1);
 return x_4;
 }
 }
+lean_object* l_fix1___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
 lean_object* l_fix1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_alloc_closure((void*)(l_Monad_seqRight___default___rarg___lambda__1___boxed), 2, 1);
+x_4 = lean_alloc_closure((void*)(l_fix1___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_4, 0, x_1);
 x_5 = lean_fixpoint(x_2, x_3);
 lean_dec(x_4);
@@ -230,11 +238,21 @@ x_3 = lean_alloc_closure((void*)(l_fix1___rarg), 3, 0);
 return x_3;
 }
 }
+lean_object* l_fix1___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_fix1___rarg___lambda__1(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 lean_object* l_fix___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_alloc_closure((void*)(l_Monad_seqRight___default___rarg___lambda__1___boxed), 2, 1);
+x_4 = lean_alloc_closure((void*)(l_fix1___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_4, 0, x_1);
 x_5 = lean_fixpoint(x_2, x_3);
 lean_dec(x_4);

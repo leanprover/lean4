@@ -110,7 +110,7 @@ lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_FnBody_replaceVar___spec__4___b
 lean_object* l_Lean_IR_MapVars_mapArgs___at_Lean_IR_FnBody_replaceVar___spec__9___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_MapVars_mapArgs___at_Lean_IR_FnBody_replaceVar___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_NormalizeIds_withParams(lean_object*);
-lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__3___closed__1;
+static lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__3___closed__1;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normArgs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_FnBody_replaceVar___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_MapVars_mapArg(lean_object*, lean_object*);

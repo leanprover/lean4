@@ -14,18 +14,18 @@
 extern "C" {
 #endif
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
-lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__1;
+static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__1;
 lean_object* l_Lean_maxRecDepth;
-lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__2;
-lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__4;
+static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__2;
+static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__4;
 lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_maxRecDepth___closed__1;
+static lean_object* l_Lean_maxRecDepth___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4_(lean_object*);
 extern lean_object* l_Lean_defaultMaxRecDepth;
-lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__3;
+static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__5;
+static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__3;
 lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -123,17 +123,25 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("maximum recursion depth for many Lean procedures");
+x_1 = lean_mk_string("");
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__4() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string("maximum recursion depth for many Lean procedures");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__5() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_defaultMaxRecDepth;
-x_2 = l_Lean_instInhabitedParserDescr___closed__1;
-x_3 = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__3;
+x_2 = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__3;
+x_3 = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__4;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -146,7 +154,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__2;
-x_3 = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__4;
+x_3 = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__5;
 x_4 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____spec__1(x_2, x_3, x_1);
 return x_4;
 }
@@ -193,6 +201,8 @@ l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__3 = _init_l_Lean_init
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__3);
 l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__4 = _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__4();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__4);
+l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__5 = _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__5();
+lean_mark_persistent(l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4____closed__5);
 l_Lean_maxRecDepth___closed__1 = _init_l_Lean_maxRecDepth___closed__1();
 lean_mark_persistent(l_Lean_maxRecDepth___closed__1);
 res = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_4_(lean_io_mk_world());

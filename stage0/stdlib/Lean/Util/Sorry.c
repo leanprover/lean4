@@ -19,15 +19,15 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 uint8_t l_Lean_Expr_isSyntheticSorry(lean_object*);
+static lean_object* l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__1;
 lean_object* l_Lean_MessageData_hasSorry_match__1(lean_object*);
 lean_object* l_Lean_MessageData_hasSyntheticSorry___boxed(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_hasSyntheticSorry_visit_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_MessageData_instantiateMVars(lean_object*);
+static lean_object* l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__2;
 uint8_t l_Lean_Expr_hasSyntheticSorry(lean_object*);
-extern lean_object* l_instReprBool___closed__2;
-extern lean_object* l_Lean_instQuoteBool___closed__1;
 uint8_t l_Lean_MessageData_hasSyntheticSorry_visit(lean_object*);
 lean_object* l_Lean_Expr_hasSyntheticSorry___boxed(lean_object*);
 lean_object* l_Lean_Expr_isSyntheticSorry___boxed(lean_object*);
@@ -47,9 +47,9 @@ lean_object* l_Lean_Expr_hasSorry_match__1___rarg(lean_object*, lean_object*, le
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_hasSyntheticSorry_visit_match__1(lean_object*);
 lean_object* l_Lean_Expr_isSorry_match__1(lean_object*);
-lean_object* l_Lean_Expr_isSorry_match__1___rarg___closed__1;
+static lean_object* l_Lean_Expr_isSorry_match__1___rarg___closed__1;
 lean_object* l_Lean_Exception_hasSyntheticSorry___boxed(lean_object*);
-lean_object* l_Lean_Expr_hasSorry___closed__1;
+static lean_object* l_Lean_Expr_hasSorry___closed__1;
 uint8_t l_Lean_Expr_hasSorry(lean_object*);
 lean_object* l_Lean_Expr_hasSorry___boxed(lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_MessageData_hasSorry___spec__1(lean_object*, size_t, size_t);
@@ -269,6 +269,22 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("Bool");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("true");
+return x_1;
+}
+}
 lean_object* l_Lean_Expr_isSyntheticSorry_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -430,7 +446,7 @@ x_45 = lean_ctor_get(x_30, 1);
 x_46 = lean_ctor_get_uint64(x_30, sizeof(void*)*2);
 x_47 = lean_ctor_get(x_30, 0);
 lean_dec(x_47);
-x_48 = l_Lean_instQuoteBool___closed__1;
+x_48 = l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__1;
 x_49 = lean_string_dec_eq(x_45, x_48);
 lean_dec(x_45);
 if (x_49 == 0)
@@ -458,7 +474,7 @@ x_52 = lean_ctor_get(x_8, 1);
 lean_dec(x_52);
 x_53 = lean_ctor_get(x_8, 0);
 lean_dec(x_53);
-x_54 = l_instReprBool___closed__2;
+x_54 = l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__2;
 x_55 = lean_string_dec_eq(x_41, x_54);
 if (x_55 == 0)
 {
@@ -515,7 +531,7 @@ else
 {
 lean_object* x_65; uint8_t x_66; 
 lean_dec(x_8);
-x_65 = l_instReprBool___closed__2;
+x_65 = l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__2;
 x_66 = lean_string_dec_eq(x_41, x_65);
 if (x_66 == 0)
 {
@@ -577,7 +593,7 @@ x_77 = lean_ctor_get(x_30, 1);
 x_78 = lean_ctor_get_uint64(x_30, sizeof(void*)*2);
 lean_inc(x_77);
 lean_dec(x_30);
-x_79 = l_Lean_instQuoteBool___closed__1;
+x_79 = l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__1;
 x_80 = lean_string_dec_eq(x_77, x_79);
 lean_dec(x_77);
 if (x_80 == 0)
@@ -607,7 +623,7 @@ if (lean_is_exclusive(x_8)) {
  lean_dec_ref(x_8);
  x_83 = lean_box(0);
 }
-x_84 = l_instReprBool___closed__2;
+x_84 = l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__2;
 x_85 = lean_string_dec_eq(x_41, x_84);
 if (x_85 == 0)
 {
@@ -687,7 +703,7 @@ if (lean_is_exclusive(x_30)) {
  lean_dec_ref(x_30);
  x_102 = lean_box(0);
 }
-x_103 = l_Lean_instQuoteBool___closed__1;
+x_103 = l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__1;
 x_104 = lean_string_dec_eq(x_100, x_103);
 lean_dec(x_100);
 if (x_104 == 0)
@@ -720,7 +736,7 @@ if (lean_is_exclusive(x_8)) {
  lean_dec_ref(x_8);
  x_107 = lean_box(0);
 }
-x_108 = l_instReprBool___closed__2;
+x_108 = l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__2;
 x_109 = lean_string_dec_eq(x_98, x_108);
 if (x_109 == 0)
 {
@@ -1032,7 +1048,7 @@ if (lean_is_exclusive(x_150)) {
  lean_dec_ref(x_150);
  x_163 = lean_box(0);
 }
-x_164 = l_Lean_instQuoteBool___closed__1;
+x_164 = l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__1;
 x_165 = lean_string_dec_eq(x_161, x_164);
 lean_dec(x_161);
 if (x_165 == 0)
@@ -1070,7 +1086,7 @@ if (lean_is_exclusive(x_8)) {
  lean_dec_ref(x_8);
  x_169 = lean_box(0);
 }
-x_170 = l_instReprBool___closed__2;
+x_170 = l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__2;
 x_171 = lean_string_dec_eq(x_158, x_170);
 if (x_171 == 0)
 {
@@ -1417,7 +1433,7 @@ if (lean_is_exclusive(x_213)) {
  lean_dec_ref(x_213);
  x_226 = lean_box(0);
 }
-x_227 = l_Lean_instQuoteBool___closed__1;
+x_227 = l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__1;
 x_228 = lean_string_dec_eq(x_224, x_227);
 lean_dec(x_224);
 if (x_228 == 0)
@@ -1458,7 +1474,7 @@ if (lean_is_exclusive(x_8)) {
  lean_dec_ref(x_8);
  x_232 = lean_box(0);
 }
-x_233 = l_instReprBool___closed__2;
+x_233 = l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__2;
 x_234 = lean_string_dec_eq(x_221, x_233);
 if (x_234 == 0)
 {
@@ -1854,7 +1870,7 @@ if (lean_is_exclusive(x_282)) {
  lean_dec_ref(x_282);
  x_296 = lean_box(0);
 }
-x_297 = l_Lean_instQuoteBool___closed__1;
+x_297 = l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__1;
 x_298 = lean_string_dec_eq(x_294, x_297);
 lean_dec(x_294);
 if (x_298 == 0)
@@ -1900,7 +1916,7 @@ if (lean_is_exclusive(x_8)) {
  lean_dec_ref(x_8);
  x_303 = lean_box(0);
 }
-x_304 = l_instReprBool___closed__2;
+x_304 = l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__2;
 x_305 = lean_string_dec_eq(x_291, x_304);
 if (x_305 == 0)
 {
@@ -2354,7 +2370,7 @@ if (lean_is_exclusive(x_364)) {
  lean_dec_ref(x_364);
  x_379 = lean_box(0);
 }
-x_380 = l_Lean_instQuoteBool___closed__1;
+x_380 = l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__1;
 x_381 = lean_string_dec_eq(x_377, x_380);
 lean_dec(x_377);
 if (x_381 == 0)
@@ -2407,7 +2423,7 @@ if (lean_is_exclusive(x_8)) {
  lean_dec_ref(x_8);
  x_387 = lean_box(0);
 }
-x_388 = l_instReprBool___closed__2;
+x_388 = l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__2;
 x_389 = lean_string_dec_eq(x_374, x_388);
 if (x_389 == 0)
 {
@@ -2830,7 +2846,7 @@ if (lean_obj_tag(x_13) == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_12, 1);
-x_16 = l_Lean_instQuoteBool___closed__1;
+x_16 = l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__1;
 x_17 = lean_string_dec_eq(x_15, x_16);
 if (x_17 == 0)
 {
@@ -2841,7 +2857,7 @@ return x_18;
 else
 {
 lean_object* x_19; uint8_t x_20; 
-x_19 = l_instReprBool___closed__2;
+x_19 = l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__2;
 x_20 = lean_string_dec_eq(x_14, x_19);
 return x_20;
 }
@@ -4269,6 +4285,10 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Expr_isSorry_match__1___rarg___closed__1 = _init_l_Lean_Expr_isSorry_match__1___rarg___closed__1();
 lean_mark_persistent(l_Lean_Expr_isSorry_match__1___rarg___closed__1);
+l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__1 = _init_l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__1();
+lean_mark_persistent(l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__1);
+l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__2 = _init_l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__2();
+lean_mark_persistent(l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__2);
 l_Lean_Expr_hasSorry___closed__1 = _init_l_Lean_Expr_hasSorry___closed__1();
 lean_mark_persistent(l_Lean_Expr_hasSorry___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

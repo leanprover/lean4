@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Nat_instDivNat___closed__1;
+static lean_object* l_Nat_instDivNat___closed__1;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Nat_div___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -27,7 +27,7 @@ lean_object* l___private_Init_Data_Nat_Div_0__Nat_div_F(lean_object*, lean_objec
 lean_object* l___private_Init_Data_Nat_Div_0__Nat_mod_F___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_instDivNat;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
-lean_object* l_Nat_instModNat___closed__1;
+static lean_object* l_Nat_instModNat___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Nat_Div_0__Nat_div_F(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:

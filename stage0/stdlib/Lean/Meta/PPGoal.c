@@ -35,18 +35,16 @@ lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFr
 uint8_t l_Std_PersistentArray_anyMAux___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__32(lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__40(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Format_format_unicode___closed__1;
-lean_object* l_Lean_Meta_ppGoal_ppVars___closed__1;
+static lean_object* l_Lean_Meta_ppGoal_ppVars___closed__1;
 lean_object* l_Lean_Meta_ppGoal_pushPending_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
 lean_object* l_Lean_Meta_withPPInaccessibleNames___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__38(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_ppGoal_ppVars___closed__2;
+static lean_object* l_Lean_Meta_ppGoal_ppVars___closed__2;
 lean_object* l_Std_mkHashMap___at_Lean_Meta_ToHide_visitVisibleExpr___spec__1(lean_object*);
 uint8_t l_Std_PersistentArray_anyMAux___at_Lean_Meta_ToHide_hasVisibleDep___spec__32(lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-extern lean_object* l_termDepIfThenElse___closed__11;
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__36(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -60,6 +58,7 @@ uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__5(lea
 lean_object* l_Lean_Meta_ppGoal_ppVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__33(lean_object*, lean_object*, size_t, size_t);
 uint8_t l_Std_PersistentArray_anyMAux___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__11(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_ppGoal___lambda__1___closed__5;
 lean_object* l_Lean_Meta_pp_inaccessibleNames;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Std_PersistentArray_forMAux___at_Lean_Meta_ToHide_fixpointStep___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -67,8 +66,8 @@ lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_de
 lean_object* l_Lean_Meta_ToHide_isMarked___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_pp_auxDecls;
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__36___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_29____closed__4;
-lean_object* l_Lean_Meta_ppGoal___lambda__1___closed__3;
+static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_29____closed__4;
+static lean_object* l_Lean_Meta_ppGoal___lambda__1___closed__3;
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__42___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_getExprAssignment_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_ppGoal_ppVars_match__1(lean_object*);
@@ -109,8 +108,8 @@ lean_object* l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg(l
 lean_object* l_Lean_Option_setIfNotSet___at_Lean_Meta_withPPInaccessibleNamesImp___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasVisibleDep___spec__22(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_forM___at_Lean_Meta_ToHide_fixpointStep___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_ToHide_collect___closed__1;
-extern lean_object* l_Lean_MetavarContext_findLocalDeclDependsOn___closed__1;
+lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
+static lean_object* l_Lean_Meta_ToHide_collect___closed__1;
 size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitMain___at_Lean_Meta_ToHide_hasVisibleDep___spec__23___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -125,6 +124,7 @@ lean_object* l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasVisibleDep___sp
 uint8_t l_Std_PersistentArray_anyMAux___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__4(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_ppGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_ppGoal_pushPending___closed__4;
 lean_object* l_Lean_Meta_ToHide_moveToHiddeProp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_PersistentArray_anyMAux___at_Lean_Meta_ToHide_hasVisibleDep___spec__11(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_ToHide_visitVisibleExpr_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -133,7 +133,7 @@ lean_object* l_Std_RBNode_erase___at_Lean_Meta_ToHide_unmark___spec__1___boxed(l
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__34(lean_object*, lean_object*, size_t, size_t);
 size_t l_UInt64_toUSize(uint64_t);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__42___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_29____closed__1;
+static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_29____closed__1;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__19(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Std_AssocList_foldlM___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__5(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_ppGoal___spec__14(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -147,12 +147,12 @@ uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___sp
 lean_object* l_Std_RBNode_setBlack___rarg(lean_object*);
 uint8_t l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasVisibleDep___spec__24(lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__33___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_ppGoal_pushPending___closed__1;
+static lean_object* l_Lean_Meta_ppGoal_pushPending___closed__1;
 uint8_t l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasVisibleDep___spec__3(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__3;
-extern lean_object* l_Lean_Parser_Tactic_locationHyp___closed__3;
+static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__3;
 lean_object* l_Lean_Meta_ppGoal_pushPending___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_ppGoal___closed__3;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitMain___at_Lean_Meta_ToHide_hasVisibleDep___spec__16___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -164,7 +164,7 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_ppGoal___spec__5(lean_obje
 lean_object* l_Std_HashMapImp_moveEntries___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__7___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasVisibleDep___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_29____closed__2;
+static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_29____closed__2;
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__29___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__26(lean_object*, lean_object*, size_t, size_t);
 uint8_t l_Std_PersistentArray_anyMAux___at_Lean_Meta_ToHide_hasVisibleDep___spec__25(lean_object*, lean_object*);
@@ -172,19 +172,19 @@ lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__26___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyMAux___at_Lean_Meta_ToHide_hasVisibleDep___spec__18___boxed(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_ppGoal_pushPending___closed__2;
+static lean_object* l_Lean_Meta_ppGoal_pushPending___closed__2;
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_Meta_ToHide_collect___spec__4(lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_Meta_ppGoal___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
-lean_object* l_Lean_Meta_ppGoal___lambda__1___closed__1;
+static lean_object* l_Lean_Meta_pp_auxDecls___closed__1;
+static lean_object* l_Lean_Meta_ppGoal___lambda__1___closed__1;
 lean_object* l_Std_RBNode_appendTrees___rarg(lean_object*, lean_object*);
 uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671____at_Lean_Meta_ppGoal_ppVars___spec__1(lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__28(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__28___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_ppGoal___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;
 lean_object* l_Std_RBNode_balRight___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_RBNode_isBlack___rarg(lean_object*);
 uint8_t l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasVisibleDep___spec__31(lean_object*, lean_object*);
@@ -196,7 +196,7 @@ lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMA
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_Meta_ppGoal___spec__11(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasVisibleDep___spec__31___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__15(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_ppGoal___lambda__1___closed__2;
+static lean_object* l_Lean_Meta_ppGoal___lambda__1___closed__2;
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitMain___at_Lean_Meta_ToHide_hasVisibleDep___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -205,7 +205,9 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_ppGoal___spec__14___boxed(
 lean_object* l_Lean_Meta_ppGoal_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_ToHide_fixpointStep_match__1(lean_object*);
 uint64_t l_Lean_Expr_hash(lean_object*);
+static lean_object* l_Lean_Meta_ppGoal___lambda__1___closed__6;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__26(lean_object*, lean_object*, size_t, size_t);
+static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__6;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__27(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_Meta_ppGoal_ppVars_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__26___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -220,8 +222,8 @@ lean_object* l_Lean_Meta_withLCtx___at_Lean_Meta_ppGoal___spec__15(lean_object*)
 lean_object* l_Std_PersistentArray_forM___at_Lean_Meta_ToHide_fixpointStep___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_ppGoal_pushPending_match__1(lean_object*);
 uint8_t l_Lean_KVMap_contains(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_ppGoal___lambda__1___closed__4;
-lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__4;
+static lean_object* l_Lean_Meta_ppGoal___lambda__1___closed__4;
+static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__4;
 lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671____at_Lean_Meta_ppGoal_ppVars___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_erase___at_Lean_Meta_ToHide_unmark___spec__1(lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
@@ -258,6 +260,7 @@ uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___sp
 uint8_t l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__10(lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitMain___at_Lean_Meta_ToHide_hasVisibleDep___spec__16(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_ppGoal_ppVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_ToHide_hasVisibleDep___closed__2;
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitMain___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__37(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitMain___at_Lean_Meta_ToHide_hasVisibleDep___spec__23(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -266,12 +269,11 @@ lean_object* l_Std_PersistentArray_anyMAux___at_Lean_Meta_ToHide_hasInaccessible
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__22___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_ppGoal_match__2(lean_object*);
-extern lean_object* l_Std_HashSet_instInhabitedHashSet___closed__1;
 lean_object* l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__10___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasVisibleDep___spec__29___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_ppGoal___spec__10(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitMain___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_case___closed__3;
+static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__5;
 lean_object* l_Lean_Meta_ToHide_hasInaccessibleNameDep___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__20(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__21___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -290,12 +292,11 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_Meta_withPPInaccessibleNamesImp(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_ppGoal___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasVisibleDep___spec__38___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_getSanitizeNames___closed__2;
 lean_object* l_Lean_Meta_ppGoal_match__4(lean_object*);
-lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__1;
+static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__1;
 lean_object* l_Lean_Meta_ppGoal_pushPending(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withPPInaccessibleNamesImp___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_getSanitizeNames___closed__1;
+static lean_object* l_Lean_Meta_ppGoal_pushPending___closed__3;
 lean_object* l_Std_PersistentArray_foldlM___at_Lean_Meta_ToHide_collect___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_ToHide_fixpointStep___spec__5___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_foldlM___at_Lean_Meta_ppGoal___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -308,7 +309,7 @@ lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_de
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__29(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_ToHide_fixpointStep(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__2;
+static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__2;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__41(lean_object*, lean_object*, size_t, size_t);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__12(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Std_PersistentArray_anyMAux___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__4___boxed(lean_object*, lean_object*);
@@ -327,21 +328,21 @@ lean_object* l_Lean_Meta_ppGoal_match__1(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_ppGoal___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withPPInaccessibleNames___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_instReprIterator___closed__3;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__33(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__33___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasVisibleDep___spec__24___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_ToHide_moveToHiddeProp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_29_(lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4_(lean_object*);
-lean_object* l_Lean_Meta_ppGoal_ppVars___closed__3;
+static lean_object* l_Lean_Meta_ppGoal_ppVars___closed__3;
 lean_object* l_Std_RBNode_del___at_Lean_Meta_ToHide_unmark___spec__2(lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_Meta_ToHide_collect___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_Meta_ToHide_collect___spec__3___closed__1;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__40(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_Meta_withPPInaccessibleNames___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Std_PersistentArray_anyMAux___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__39___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasVisibleDep___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_ToHide_visitVisibleExpr___closed__1;
+static lean_object* l_Lean_Meta_ToHide_visitVisibleExpr___closed__1;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_ToHide_fixpointStep___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Option_set___at_Lean_Meta_withPPInaccessibleNamesImp___spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -351,12 +352,12 @@ lean_object* l_Lean_Meta_ppGoal___boxed(lean_object*, lean_object*, lean_object*
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withPPInaccessibleNames(lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__27(lean_object*, lean_object*, size_t, size_t);
-lean_object* l_Lean_Meta_ppGoal___closed__1;
+static lean_object* l_Lean_Meta_ppGoal___closed__1;
 lean_object* l_Lean_Meta_ToHide_fixpoint___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLCtx___at_Lean_Meta_ppGoal___spec__15___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_PersistentArray_anyMAux___at_Lean_Meta_ToHide_hasVisibleDep___spec__39(lean_object*, lean_object*);
 uint8_t l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasVisibleDep___spec__10(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_ppGoal___closed__2;
+static lean_object* l_Lean_Meta_ppGoal___closed__2;
 lean_object* l_Lean_Meta_ToHide_fixpointStep_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_contains___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__2___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
@@ -370,17 +371,20 @@ lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_de
 lean_object* lean_simp_macro_scopes(lean_object*);
 lean_object* l___private_Lean_Meta_PPGoal_0__Lean_Meta_addLine(lean_object*);
 uint8_t l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__24(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_ToHide_hasVisibleDep___closed__1;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalContextImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_getDecl(lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__21(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Std_PersistentArray_anyMAux___at_Lean_Meta_ToHide_hasVisibleDep___spec__25___boxed(lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__14(lean_object*, lean_object*, size_t, size_t);
+static lean_object* l_Lean_Meta_ppGoal_ppVars___closed__4;
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_Meta_ToHide_collect___spec__3(lean_object*, size_t, size_t, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
 uint8_t l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__3(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_ppGoal___spec__13(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__40___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_instInhabitedPersistentArrayNode(lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__28(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_Meta_ppGoal_match__3(lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitMain___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__23(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -393,11 +397,12 @@ lean_object* l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasInaccessibleNam
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__41___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__28___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitMain___at_Lean_Meta_ToHide_hasVisibleDep___spec__30(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_29____closed__3;
+static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_29____closed__3;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__7(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Std_PersistentArray_forM___at_Lean_Meta_ToHide_fixpointStep___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_ppGoal___spec__12(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyMAux___at_Lean_Meta_ToHide_hasVisibleDep___spec__39___boxed(lean_object*, lean_object*);
+lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_Option_set___at_Lean_Meta_withPPInaccessibleNamesImp___spec__2(lean_object*, lean_object*, uint8_t);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_ToHide_collect___spec__6(lean_object*, size_t, size_t, lean_object*);
@@ -418,13 +423,12 @@ lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_shouldVisit(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasVisibleDep___spec__10___boxed(lean_object*, lean_object*);
-extern lean_object* l_Std_PersistentArray_getAux___rarg___closed__1;
 lean_object* l_Lean_LocalContext_foldlM___at_Lean_Meta_ToHide_collect___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("auxDecls");
+x_1 = lean_mk_string("pp");
 return x_1;
 }
 }
@@ -432,7 +436,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_getSanitizeNames___closed__2;
+x_1 = lean_box(0);
 x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -442,17 +446,35 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("display auxiliary declarations used to compile recursive functions");
+x_1 = lean_mk_string("auxDecls");
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__4() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__2;
+x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__3;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__5() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("display auxiliary declarations used to compile recursive functions");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__6() {
+_start:
+{
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = 0;
-x_2 = l_Lean_getSanitizeNames___closed__1;
-x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__3;
+x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__1;
+x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__5;
 x_4 = lean_box(x_1);
 x_5 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_5, 0, x_4);
@@ -465,9 +487,22 @@ lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4_(lean_object* x_
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__2;
-x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__4;
+x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__4;
+x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__6;
 x_4 = l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_49____spec__1(x_2, x_3, x_1);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Meta_pp_auxDecls___closed__1() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = lean_box(0);
+x_2 = 0;
+x_3 = lean_box(x_2);
+x_4 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
@@ -483,7 +518,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_29___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_getSanitizeNames___closed__2;
+x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__2;
 x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_29____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -502,7 +537,7 @@ _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = 0;
-x_2 = l_Lean_getSanitizeNames___closed__1;
+x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__1;
 x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_29____closed__3;
 x_4 = lean_box(x_1);
 x_5 = lean_alloc_ctor(0, 3, 0);
@@ -5144,6 +5179,28 @@ return x_17;
 }
 }
 }
+static lean_object* _init_l_Lean_Meta_ToHide_hasVisibleDep___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(8u);
+x_2 = l_Std_mkHashSetImp___rarg(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_ToHide_hasVisibleDep___closed__2() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l_Lean_Meta_ToHide_hasVisibleDep___closed__1;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
 lean_object* l_Lean_Meta_ToHide_hasVisibleDep(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -5196,7 +5253,7 @@ return x_16;
 else
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-x_25 = l_Std_HashSet_instInhabitedHashSet___closed__1;
+x_25 = l_Lean_Meta_ToHide_hasVisibleDep___closed__1;
 x_26 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasVisibleDep___spec__1(x_12, x_19, x_20, x_25);
 lean_dec(x_12);
 x_27 = lean_ctor_get(x_26, 0);
@@ -5209,7 +5266,7 @@ return x_16;
 else
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; 
-x_28 = l_Std_HashSet_instInhabitedHashSet___closed__1;
+x_28 = l_Lean_Meta_ToHide_hasVisibleDep___closed__1;
 x_29 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasVisibleDep___spec__8(x_12, x_19, x_20, x_28);
 lean_dec(x_12);
 x_30 = lean_ctor_get(x_29, 0);
@@ -5254,7 +5311,7 @@ return x_39;
 else
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
-x_40 = l_Std_HashSet_instInhabitedHashSet___closed__1;
+x_40 = l_Lean_Meta_ToHide_hasVisibleDep___closed__1;
 x_41 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasVisibleDep___spec__1(x_12, x_33, x_34, x_40);
 lean_dec(x_12);
 x_42 = lean_ctor_get(x_41, 0);
@@ -5269,7 +5326,7 @@ return x_43;
 else
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
-x_44 = l_Std_HashSet_instInhabitedHashSet___closed__1;
+x_44 = l_Lean_Meta_ToHide_hasVisibleDep___closed__1;
 x_45 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasVisibleDep___spec__8(x_12, x_33, x_34, x_44);
 lean_dec(x_12);
 x_46 = lean_ctor_get(x_45, 0);
@@ -5314,14 +5371,14 @@ if (x_72 == 0)
 {
 lean_object* x_73; 
 lean_dec(x_52);
-x_73 = l_Lean_MetavarContext_findLocalDeclDependsOn___closed__1;
+x_73 = l_Lean_Meta_ToHide_hasVisibleDep___closed__2;
 x_54 = x_73;
 goto block_70;
 }
 else
 {
 lean_object* x_74; lean_object* x_75; 
-x_74 = l_Std_HashSet_instInhabitedHashSet___closed__1;
+x_74 = l_Lean_Meta_ToHide_hasVisibleDep___closed__1;
 lean_inc(x_51);
 x_75 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasVisibleDep___spec__29(x_12, x_51, x_52, x_74);
 x_54 = x_75;
@@ -5331,7 +5388,7 @@ goto block_70;
 else
 {
 lean_object* x_76; lean_object* x_77; 
-x_76 = l_Std_HashSet_instInhabitedHashSet___closed__1;
+x_76 = l_Lean_Meta_ToHide_hasVisibleDep___closed__1;
 lean_inc(x_51);
 x_77 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasVisibleDep___spec__36(x_12, x_51, x_52, x_76);
 x_54 = x_77;
@@ -10181,7 +10238,7 @@ return x_16;
 else
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-x_25 = l_Std_HashSet_instInhabitedHashSet___closed__1;
+x_25 = l_Lean_Meta_ToHide_hasVisibleDep___closed__1;
 x_26 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__1(x_12, x_19, x_20, x_25);
 lean_dec(x_12);
 x_27 = lean_ctor_get(x_26, 0);
@@ -10194,7 +10251,7 @@ return x_16;
 else
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; 
-x_28 = l_Std_HashSet_instInhabitedHashSet___closed__1;
+x_28 = l_Lean_Meta_ToHide_hasVisibleDep___closed__1;
 x_29 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__8(x_12, x_19, x_20, x_28);
 lean_dec(x_12);
 x_30 = lean_ctor_get(x_29, 0);
@@ -10239,7 +10296,7 @@ return x_39;
 else
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
-x_40 = l_Std_HashSet_instInhabitedHashSet___closed__1;
+x_40 = l_Lean_Meta_ToHide_hasVisibleDep___closed__1;
 x_41 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__1(x_12, x_33, x_34, x_40);
 lean_dec(x_12);
 x_42 = lean_ctor_get(x_41, 0);
@@ -10254,7 +10311,7 @@ return x_43;
 else
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
-x_44 = l_Std_HashSet_instInhabitedHashSet___closed__1;
+x_44 = l_Lean_Meta_ToHide_hasVisibleDep___closed__1;
 x_45 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__8(x_12, x_33, x_34, x_44);
 lean_dec(x_12);
 x_46 = lean_ctor_get(x_45, 0);
@@ -10299,14 +10356,14 @@ if (x_72 == 0)
 {
 lean_object* x_73; 
 lean_dec(x_52);
-x_73 = l_Lean_MetavarContext_findLocalDeclDependsOn___closed__1;
+x_73 = l_Lean_Meta_ToHide_hasVisibleDep___closed__2;
 x_54 = x_73;
 goto block_70;
 }
 else
 {
 lean_object* x_74; lean_object* x_75; 
-x_74 = l_Std_HashSet_instInhabitedHashSet___closed__1;
+x_74 = l_Lean_Meta_ToHide_hasVisibleDep___closed__1;
 lean_inc(x_51);
 x_75 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__29(x_12, x_51, x_52, x_74);
 x_54 = x_75;
@@ -10316,7 +10373,7 @@ goto block_70;
 else
 {
 lean_object* x_76; lean_object* x_77; 
-x_76 = l_Std_HashSet_instInhabitedHashSet___closed__1;
+x_76 = l_Lean_Meta_ToHide_hasVisibleDep___closed__1;
 lean_inc(x_51);
 x_77 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__36(x_12, x_51, x_52, x_76);
 x_54 = x_77;
@@ -13843,6 +13900,14 @@ return x_18;
 }
 }
 }
+static lean_object* _init_l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_Meta_ToHide_collect___spec__3___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Std_instInhabitedPersistentArrayNode(lean_box(0));
+return x_1;
+}
+}
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_Meta_ToHide_collect___spec__3(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
@@ -13852,7 +13917,7 @@ lean_object* x_5; size_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = x_2 >> x_3 % (sizeof(size_t) * 8);
 x_7 = lean_usize_to_nat(x_6);
-x_8 = l_Std_PersistentArray_getAux___rarg___closed__1;
+x_8 = l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_Meta_ToHide_collect___spec__3___closed__1;
 x_9 = lean_array_get(x_8, x_5, x_7);
 x_10 = 1;
 x_11 = x_10 << x_3 % (sizeof(size_t) * 8);
@@ -14538,7 +14603,7 @@ static lean_object* _init_l_Lean_Meta_ppGoal_pushPending___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" :");
+x_1 = lean_mk_string(" ");
 return x_1;
 }
 }
@@ -14547,6 +14612,24 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_ppGoal_pushPending___closed__1;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_ppGoal_pushPending___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string(" :");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_ppGoal_pushPending___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_ppGoal_pushPending___closed__3;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -14599,9 +14682,9 @@ if (x_16 == 0)
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; lean_object* x_28; lean_object* x_29; 
 x_17 = lean_ctor_get(x_15, 0);
 x_18 = l_List_reverse___rarg(x_2);
-x_19 = l_instReprIterator___closed__3;
+x_19 = l_Lean_Meta_ppGoal_pushPending___closed__2;
 x_20 = l_Std_Format_joinSep___at_Lean_Meta_ppGoal_pushPending___spec__1(x_18, x_19);
-x_21 = l_Lean_Meta_ppGoal_pushPending___closed__2;
+x_21 = l_Lean_Meta_ppGoal_pushPending___closed__4;
 x_22 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);
@@ -14634,9 +14717,9 @@ lean_inc(x_31);
 lean_inc(x_30);
 lean_dec(x_15);
 x_32 = l_List_reverse___rarg(x_2);
-x_33 = l_instReprIterator___closed__3;
+x_33 = l_Lean_Meta_ppGoal_pushPending___closed__2;
 x_34 = l_Std_Format_joinSep___at_Lean_Meta_ppGoal_pushPending___spec__1(x_32, x_33);
-x_35 = l_Lean_Meta_ppGoal_pushPending___closed__2;
+x_35 = l_Lean_Meta_ppGoal_pushPending___closed__4;
 x_36 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_36, 0, x_34);
 lean_ctor_set(x_36, 1, x_35);
@@ -14756,14 +14839,22 @@ return x_8;
 static lean_object* _init_l_Lean_Meta_ppGoal_ppVars___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string(" : ");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_ppGoal_ppVars___closed__2() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_termDepIfThenElse___closed__11;
+x_1 = l_Lean_Meta_ppGoal_ppVars___closed__1;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_ppGoal_ppVars___closed__2() {
+static lean_object* _init_l_Lean_Meta_ppGoal_ppVars___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -14771,11 +14862,11 @@ x_1 = lean_mk_string(" :=");
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_ppGoal_ppVars___closed__3() {
+static lean_object* _init_l_Lean_Meta_ppGoal_ppVars___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_ppGoal_ppVars___closed__2;
+x_1 = l_Lean_Meta_ppGoal_ppVars___closed__3;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -15188,14 +15279,14 @@ x_102 = 1;
 x_103 = l_Lean_Name_toString(x_85, x_102);
 x_104 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_104, 0, x_103);
-x_105 = l_Lean_Meta_ppGoal_ppVars___closed__1;
+x_105 = l_Lean_Meta_ppGoal_ppVars___closed__2;
 x_106 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_106, 0, x_104);
 lean_ctor_set(x_106, 1, x_105);
 x_107 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_107, 0, x_106);
 lean_ctor_set(x_107, 1, x_97);
-x_108 = l_Lean_Meta_ppGoal_ppVars___closed__3;
+x_108 = l_Lean_Meta_ppGoal_ppVars___closed__4;
 x_109 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_109, 0, x_107);
 lean_ctor_set(x_109, 1, x_108);
@@ -15239,14 +15330,14 @@ x_123 = 1;
 x_124 = l_Lean_Name_toString(x_85, x_123);
 x_125 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_125, 0, x_124);
-x_126 = l_Lean_Meta_ppGoal_ppVars___closed__1;
+x_126 = l_Lean_Meta_ppGoal_ppVars___closed__2;
 x_127 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_127, 0, x_125);
 lean_ctor_set(x_127, 1, x_126);
 x_128 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_128, 0, x_127);
 lean_ctor_set(x_128, 1, x_97);
-x_129 = l_Lean_Meta_ppGoal_ppVars___closed__3;
+x_129 = l_Lean_Meta_ppGoal_ppVars___closed__4;
 x_130 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_130, 0, x_128);
 lean_ctor_set(x_130, 1, x_129);
@@ -15474,7 +15565,7 @@ if (x_172 == 0)
 {
 lean_object* x_173; lean_object* x_174; lean_object* x_175; lean_object* x_176; lean_object* x_177; lean_object* x_178; lean_object* x_179; lean_object* x_180; 
 x_173 = lean_ctor_get(x_171, 0);
-x_174 = l_Lean_Meta_ppGoal_ppVars___closed__1;
+x_174 = l_Lean_Meta_ppGoal_ppVars___closed__2;
 x_175 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_175, 0, x_166);
 lean_ctor_set(x_175, 1, x_174);
@@ -15500,7 +15591,7 @@ x_182 = lean_ctor_get(x_171, 1);
 lean_inc(x_182);
 lean_inc(x_181);
 lean_dec(x_171);
-x_183 = l_Lean_Meta_ppGoal_ppVars___closed__1;
+x_183 = l_Lean_Meta_ppGoal_ppVars___closed__2;
 x_184 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_184, 0, x_166);
 lean_ctor_set(x_184, 1, x_183);
@@ -17137,7 +17228,7 @@ lean_object* x_14; size_t x_15; lean_object* x_16; lean_object* x_17; lean_objec
 x_14 = lean_ctor_get(x_5, 0);
 x_15 = x_6 >> x_7 % (sizeof(size_t) * 8);
 x_16 = lean_usize_to_nat(x_15);
-x_17 = l_Std_PersistentArray_getAux___rarg___closed__1;
+x_17 = l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_Meta_ToHide_collect___spec__3___closed__1;
 x_18 = lean_array_get(x_17, x_14, x_16);
 x_19 = 1;
 x_20 = x_19 << x_7 % (sizeof(size_t) * 8);
@@ -20478,18 +20569,34 @@ return x_3;
 static lean_object* _init_l_Lean_Meta_ppGoal___lambda__1___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_locationHyp___closed__3;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string("⊢");
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_ppGoal___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_case___closed__3;
+x_1 = l_Lean_Meta_ppGoal___lambda__1___closed__3;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_ppGoal___lambda__1___closed__5() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("case ");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_ppGoal___lambda__1___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_ppGoal___lambda__1___closed__5;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -20551,11 +20658,11 @@ if (x_28 == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 x_29 = lean_ctor_get(x_27, 0);
-x_30 = l_Lean_Meta_ppGoal___lambda__1___closed__3;
+x_30 = l_Lean_Meta_ppGoal___lambda__1___closed__4;
 x_31 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_31, 0, x_26);
 lean_ctor_set(x_31, 1, x_30);
-x_32 = l_instReprIterator___closed__3;
+x_32 = l_Lean_Meta_ppGoal_pushPending___closed__2;
 x_33 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_32);
@@ -20581,7 +20688,7 @@ x_38 = 1;
 x_39 = l_Lean_Name_toString(x_37, x_38);
 x_40 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_40, 0, x_39);
-x_41 = l_Lean_Meta_ppGoal___lambda__1___closed__4;
+x_41 = l_Lean_Meta_ppGoal___lambda__1___closed__6;
 x_42 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_42, 0, x_41);
 lean_ctor_set(x_42, 1, x_40);
@@ -20604,11 +20711,11 @@ x_47 = lean_ctor_get(x_27, 1);
 lean_inc(x_47);
 lean_inc(x_46);
 lean_dec(x_27);
-x_48 = l_Lean_Meta_ppGoal___lambda__1___closed__3;
+x_48 = l_Lean_Meta_ppGoal___lambda__1___closed__4;
 x_49 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_49, 0, x_26);
 lean_ctor_set(x_49, 1, x_48);
-x_50 = l_instReprIterator___closed__3;
+x_50 = l_Lean_Meta_ppGoal_pushPending___closed__2;
 x_51 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_51, 0, x_49);
 lean_ctor_set(x_51, 1, x_50);
@@ -20637,7 +20744,7 @@ x_57 = 1;
 x_58 = l_Lean_Name_toString(x_56, x_57);
 x_59 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_59, 0, x_58);
-x_60 = l_Lean_Meta_ppGoal___lambda__1___closed__4;
+x_60 = l_Lean_Meta_ppGoal___lambda__1___closed__6;
 x_61 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_61, 0, x_60);
 lean_ctor_set(x_61, 1, x_59);
@@ -20760,6 +20867,15 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Meta_ppGoal___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(2u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_Meta_ppGoal(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -20819,7 +20935,7 @@ lean_inc(x_26);
 lean_inc(x_26);
 x_27 = lean_alloc_closure((void*)(l_Lean_Meta_ToHide_collect), 6, 1);
 lean_closure_set(x_27, 0, x_26);
-x_28 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;
+x_28 = l_Lean_Meta_ppGoal___closed__3;
 x_29 = lean_box(x_19);
 lean_inc(x_24);
 x_30 = lean_alloc_closure((void*)(l_Lean_Meta_ppGoal___lambda__1___boxed), 11, 5);
@@ -20888,7 +21004,7 @@ lean_inc(x_49);
 lean_inc(x_49);
 x_50 = lean_alloc_closure((void*)(l_Lean_Meta_ToHide_collect), 6, 1);
 lean_closure_set(x_50, 0, x_49);
-x_51 = l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_1438____closed__4;
+x_51 = l_Lean_Meta_ppGoal___closed__3;
 x_52 = lean_box(x_42);
 lean_inc(x_47);
 x_53 = lean_alloc_closure((void*)(l_Lean_Meta_ppGoal___lambda__1___boxed), 11, 5);
@@ -21172,6 +21288,12 @@ l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__3 = _init_l_Lean_M
 lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__3);
 l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__4 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__4();
 lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__4);
+l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__5 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__5();
+lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__5);
+l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__6 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__6();
+lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4____closed__6);
+l_Lean_Meta_pp_auxDecls___closed__1 = _init_l_Lean_Meta_pp_auxDecls___closed__1();
+lean_mark_persistent(l_Lean_Meta_pp_auxDecls___closed__1);
 res = l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_4_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_pp_auxDecls = lean_io_result_get_value(res);
@@ -21195,20 +21317,32 @@ lean_mark_persistent(l_Lean_Meta_ToHide_State_hiddenInaccessibleProp___default);
 l_Lean_Meta_ToHide_State_hiddenInaccessible___default = _init_l_Lean_Meta_ToHide_State_hiddenInaccessible___default();
 lean_mark_persistent(l_Lean_Meta_ToHide_State_hiddenInaccessible___default);
 l_Lean_Meta_ToHide_State_modified___default = _init_l_Lean_Meta_ToHide_State_modified___default();
+l_Lean_Meta_ToHide_hasVisibleDep___closed__1 = _init_l_Lean_Meta_ToHide_hasVisibleDep___closed__1();
+lean_mark_persistent(l_Lean_Meta_ToHide_hasVisibleDep___closed__1);
+l_Lean_Meta_ToHide_hasVisibleDep___closed__2 = _init_l_Lean_Meta_ToHide_hasVisibleDep___closed__2();
+lean_mark_persistent(l_Lean_Meta_ToHide_hasVisibleDep___closed__2);
 l_Lean_Meta_ToHide_visitVisibleExpr___closed__1 = _init_l_Lean_Meta_ToHide_visitVisibleExpr___closed__1();
 lean_mark_persistent(l_Lean_Meta_ToHide_visitVisibleExpr___closed__1);
+l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_Meta_ToHide_collect___spec__3___closed__1 = _init_l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_Meta_ToHide_collect___spec__3___closed__1();
+lean_mark_persistent(l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_Meta_ToHide_collect___spec__3___closed__1);
 l_Lean_Meta_ToHide_collect___closed__1 = _init_l_Lean_Meta_ToHide_collect___closed__1();
 lean_mark_persistent(l_Lean_Meta_ToHide_collect___closed__1);
 l_Lean_Meta_ppGoal_pushPending___closed__1 = _init_l_Lean_Meta_ppGoal_pushPending___closed__1();
 lean_mark_persistent(l_Lean_Meta_ppGoal_pushPending___closed__1);
 l_Lean_Meta_ppGoal_pushPending___closed__2 = _init_l_Lean_Meta_ppGoal_pushPending___closed__2();
 lean_mark_persistent(l_Lean_Meta_ppGoal_pushPending___closed__2);
+l_Lean_Meta_ppGoal_pushPending___closed__3 = _init_l_Lean_Meta_ppGoal_pushPending___closed__3();
+lean_mark_persistent(l_Lean_Meta_ppGoal_pushPending___closed__3);
+l_Lean_Meta_ppGoal_pushPending___closed__4 = _init_l_Lean_Meta_ppGoal_pushPending___closed__4();
+lean_mark_persistent(l_Lean_Meta_ppGoal_pushPending___closed__4);
 l_Lean_Meta_ppGoal_ppVars___closed__1 = _init_l_Lean_Meta_ppGoal_ppVars___closed__1();
 lean_mark_persistent(l_Lean_Meta_ppGoal_ppVars___closed__1);
 l_Lean_Meta_ppGoal_ppVars___closed__2 = _init_l_Lean_Meta_ppGoal_ppVars___closed__2();
 lean_mark_persistent(l_Lean_Meta_ppGoal_ppVars___closed__2);
 l_Lean_Meta_ppGoal_ppVars___closed__3 = _init_l_Lean_Meta_ppGoal_ppVars___closed__3();
 lean_mark_persistent(l_Lean_Meta_ppGoal_ppVars___closed__3);
+l_Lean_Meta_ppGoal_ppVars___closed__4 = _init_l_Lean_Meta_ppGoal_ppVars___closed__4();
+lean_mark_persistent(l_Lean_Meta_ppGoal_ppVars___closed__4);
 l_Lean_Meta_ppGoal___lambda__1___closed__1 = _init_l_Lean_Meta_ppGoal___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Meta_ppGoal___lambda__1___closed__1);
 l_Lean_Meta_ppGoal___lambda__1___closed__2 = _init_l_Lean_Meta_ppGoal___lambda__1___closed__2();
@@ -21217,10 +21351,16 @@ l_Lean_Meta_ppGoal___lambda__1___closed__3 = _init_l_Lean_Meta_ppGoal___lambda__
 lean_mark_persistent(l_Lean_Meta_ppGoal___lambda__1___closed__3);
 l_Lean_Meta_ppGoal___lambda__1___closed__4 = _init_l_Lean_Meta_ppGoal___lambda__1___closed__4();
 lean_mark_persistent(l_Lean_Meta_ppGoal___lambda__1___closed__4);
+l_Lean_Meta_ppGoal___lambda__1___closed__5 = _init_l_Lean_Meta_ppGoal___lambda__1___closed__5();
+lean_mark_persistent(l_Lean_Meta_ppGoal___lambda__1___closed__5);
+l_Lean_Meta_ppGoal___lambda__1___closed__6 = _init_l_Lean_Meta_ppGoal___lambda__1___closed__6();
+lean_mark_persistent(l_Lean_Meta_ppGoal___lambda__1___closed__6);
 l_Lean_Meta_ppGoal___closed__1 = _init_l_Lean_Meta_ppGoal___closed__1();
 lean_mark_persistent(l_Lean_Meta_ppGoal___closed__1);
 l_Lean_Meta_ppGoal___closed__2 = _init_l_Lean_Meta_ppGoal___closed__2();
 lean_mark_persistent(l_Lean_Meta_ppGoal___closed__2);
+l_Lean_Meta_ppGoal___closed__3 = _init_l_Lean_Meta_ppGoal___closed__3();
+lean_mark_persistent(l_Lean_Meta_ppGoal___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

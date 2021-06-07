@@ -18,6 +18,8 @@ lean_object* l_Lean_MetavarContext_getExprAssignment_x3f(lean_object*, lean_obje
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_getDelayedAssignment_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_occursCheck___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_MetavarContext_occursCheck___closed__1;
+lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
 lean_object* l_Std_HashSetImp_insert___at___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_shouldVisit___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_occursCheck_visit(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_occursCheck_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -26,7 +28,6 @@ lean_object* l_Lean_MetavarContext_occursCheck_visitMVar___boxed(lean_object*, l
 lean_object* l_Lean_MetavarContext_occursCheck_visit_match__1(lean_object*);
 lean_object* l_Lean_MetavarContext_occursCheck_visit_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_occursCheck_match__1(lean_object*);
-extern lean_object* l_Std_HashSet_instInhabitedHashSet___closed__1;
 lean_object* l_Lean_MetavarContext_occursCheck_visitMVar_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_occursCheck_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_MetavarContext_occursCheck(lean_object*, lean_object*, lean_object*);
@@ -687,6 +688,15 @@ lean_dec(x_2);
 return x_5;
 }
 }
+static lean_object* _init_l_Lean_MetavarContext_occursCheck___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(8u);
+x_2 = l_Std_mkHashSetImp___rarg(x_1);
+return x_2;
+}
+}
 uint8_t l_Lean_MetavarContext_occursCheck(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -703,7 +713,7 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = l_Std_HashSet_instInhabitedHashSet___closed__1;
+x_6 = l_Lean_MetavarContext_occursCheck___closed__1;
 x_7 = l_Lean_MetavarContext_occursCheck_visit(x_1, x_2, x_3, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
@@ -745,6 +755,8 @@ lean_dec_ref(res);
 res = initialize_Lean_MetavarContext(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_MetavarContext_occursCheck___closed__1 = _init_l_Lean_MetavarContext_occursCheck___closed__1();
+lean_mark_persistent(l_Lean_MetavarContext_occursCheck___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

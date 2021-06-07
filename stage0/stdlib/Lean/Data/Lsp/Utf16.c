@@ -16,7 +16,7 @@ extern "C" {
 lean_object* l_String_utf16PosToCodepointPos___boxed(lean_object*, lean_object*);
 lean_object* l_String_codepointPosToUtf16PosFrom___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux_match__1(lean_object*);
-lean_object* l_String_utf16Length___closed__1;
+static lean_object* l_String_utf16Length___closed__1;
 lean_object* l_String_utf16PosToCodepointPosFrom___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux_match__1(lean_object*);
 extern lean_object* l_instInhabitedNat;

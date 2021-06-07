@@ -14,11 +14,11 @@
 extern "C" {
 #endif
 size_t l_USize_add(size_t, size_t);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Meta_SortLocalDecls_visitExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Meta_SortLocalDecls_visitLocalDecl___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SortLocalDecls_visitExpr_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -26,7 +26,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Meta_SortLocalDecls_visitExpr_match__1(lean_object*);
 lean_object* l_Lean_Meta_sortLocalDecls___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_sortLocalDecls___closed__1;
+static lean_object* l_Lean_Meta_sortLocalDecls___closed__1;
 lean_object* l_Std_RBNode_find___at_Lean_Meta_SortLocalDecls_visitExpr___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SortLocalDecls_Context_localDecls___default;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -53,6 +53,7 @@ lean_object* l_Lean_Meta_SortLocalDecls_visitLocalDecl___lambda__1(lean_object*,
 lean_object* l_Lean_Meta_SortLocalDecls_visitExpr_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_Meta_SortLocalDecls_visitExpr___spec__1___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_SortLocalDecls_State_result___default___closed__1;
 lean_object* l_Lean_Meta_instantiateMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SortLocalDecls_visitLocalDecl_match__1(lean_object*);
@@ -76,11 +77,20 @@ x_1 = l_Lean_NameSet_empty;
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Meta_SortLocalDecls_State_result___default___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_Meta_SortLocalDecls_State_result___default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Array_empty___closed__1;
+x_1 = l_Lean_Meta_SortLocalDecls_State_result___default___closed__1;
 return x_1;
 }
 }
@@ -1501,7 +1511,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_NameSet_empty;
-x_2 = l_Array_empty___closed__1;
+x_2 = l_Lean_Meta_SortLocalDecls_State_result___default___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -1822,6 +1832,8 @@ l_Lean_Meta_SortLocalDecls_Context_localDecls___default = _init_l_Lean_Meta_Sort
 lean_mark_persistent(l_Lean_Meta_SortLocalDecls_Context_localDecls___default);
 l_Lean_Meta_SortLocalDecls_State_visited___default = _init_l_Lean_Meta_SortLocalDecls_State_visited___default();
 lean_mark_persistent(l_Lean_Meta_SortLocalDecls_State_visited___default);
+l_Lean_Meta_SortLocalDecls_State_result___default___closed__1 = _init_l_Lean_Meta_SortLocalDecls_State_result___default___closed__1();
+lean_mark_persistent(l_Lean_Meta_SortLocalDecls_State_result___default___closed__1);
 l_Lean_Meta_SortLocalDecls_State_result___default = _init_l_Lean_Meta_SortLocalDecls_State_result___default();
 lean_mark_persistent(l_Lean_Meta_SortLocalDecls_State_result___default);
 l_Lean_Meta_sortLocalDecls___closed__1 = _init_l_Lean_Meta_sortLocalDecls___closed__1();

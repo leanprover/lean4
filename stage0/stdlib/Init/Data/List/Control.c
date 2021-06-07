@@ -79,7 +79,7 @@ lean_object* l_List_filterMapM_loop_match__1___rarg(lean_object*, lean_object*, 
 lean_object* l_List_filterMapM_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapM_match__1(lean_object*, lean_object*);
 lean_object* l_List_forM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_mapA___rarg___closed__1;
+static lean_object* l_List_mapA___rarg___closed__1;
 lean_object* l_List_forIn_loop_match__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterRevM(lean_object*);
 lean_object* l_List_filterM(lean_object*);

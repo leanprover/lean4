@@ -371,8 +371,8 @@ end NotificationHandling
 section MessageHandling
   def parseParams (paramType : Type) [FromJson paramType] (params : Json) : ServerM paramType :=
       match fromJson? params with
-      | some parsed => pure parsed
-      | none        => throwServerError s!"Got param with wrong structure: {params.compress}"
+      | Except.ok parsed => pure parsed
+      | Except.error inner => throwServerError s!"Got param with wrong structure: {params.compress}\n{inner}"
 
   def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
     let handle := fun α [FromJson α] [ToJson α] [FileSource α] => do

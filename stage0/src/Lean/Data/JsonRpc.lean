@@ -57,7 +57,7 @@ instance : FromJson ErrorCode := ⟨fun
   | num (-32001 : Int) => ErrorCode.unknownErrorCode
   | num (-32800 : Int) => ErrorCode.requestCancelled
   | num (-32801 : Int) => ErrorCode.contentModified
-  | _  => none⟩
+  | _  => throw "expected error code"⟩
 
 instance : ToJson ErrorCode := ⟨fun
   | ErrorCode.parseError           => (-32700 : Int)
@@ -91,7 +91,7 @@ structure Request (α : Type u) where
   deriving Inhabited, BEq
 
 instance [ToJson α] : Coe (Request α) Message :=
-  ⟨fun r => Message.request r.id r.method (toStructured? r.param)⟩
+  ⟨fun r => Message.request r.id r.method (toStructured? r.param).toOption⟩
 
 structure Notification (α : Type u) where
   method : String
@@ -99,7 +99,7 @@ structure Notification (α : Type u) where
   deriving Inhabited, BEq
 
 instance [ToJson α] : Coe (Notification α) Message :=
-  ⟨fun r => Message.notification r.method (toStructured? r.param)⟩
+  ⟨fun r => Message.notification r.method (toStructured? r.param).toOption⟩
 
 structure Response (α : Type u) where
   id     : RequestID
@@ -143,7 +143,7 @@ instance : FromJson RequestID := ⟨fun j =>
   match j with
   | str s => RequestID.str s
   | num n => RequestID.num n
-  | _     => none⟩
+  | _     => throw "a request id needs to be a number or a string"⟩
 
 instance : ToJson RequestID := ⟨fun rid =>
   match rid with
@@ -172,15 +172,15 @@ instance : ToJson Message := ⟨fun m =>
     ]⟩
 
 instance : FromJson Message where
-  fromJson? j := OptionM.run do
-    let "2.0" ← j.getObjVal? "jsonrpc" | none
+  fromJson? j := do
+    let "2.0" ← j.getObjVal? "jsonrpc" | throw "only version 2.0 of JSON RPC is supported"
     (do let id ← j.getObjValAs? RequestID "id"
         let method ← j.getObjValAs? String "method"
         let params? := j.getObjValAs? Structured "params"
-        pure (Message.request id method params?)) <|>
+        pure (Message.request id method params?.toOption)) <|>
     (do let method ← j.getObjValAs? String "method"
         let params? := j.getObjValAs? Structured "params"
-        pure (Message.notification method params?)) <|>
+        pure (Message.notification method params?.toOption)) <|>
     (do let id ← j.getObjValAs? RequestID "id"
         let result ← j.getObjVal? "result"
         pure (Message.response id result)) <|>
@@ -189,17 +189,17 @@ instance : FromJson Message where
         let code ← err.getObjValAs? ErrorCode "code"
         let message ← err.getObjValAs? String "message"
         let data? := err.getObjVal? "data"
-        pure (Message.responseError id code message data?))
+        pure (Message.responseError id code message data?.toOption))
 
 -- TODO(WN): temporary until we have deriving FromJson
 instance [FromJson α] : FromJson (Notification α) where
-  fromJson? j := OptionM.run do
+  fromJson? j := do
     let msg : Message ← fromJson? j
     if let Message.notification method params? := msg then
       let params ← params?
       let param : α ← fromJson? (toJson params)
       pure $ ⟨method, param⟩
-    else none
+    else throw "not a notfication"
 
 end Lean.JsonRpc
 
@@ -212,8 +212,8 @@ section
   def readMessage (h : FS.Stream) (nBytes : Nat) : IO Message := do
     let j ← h.readJson nBytes
     match fromJson? j with
-    | some m => pure m
-    | none   => throw $ userError s!"JSON '{j.compress}' did not have the format of a JSON-RPC message"
+    | Except.ok m => pure m
+    | Except.error inner => throw $ userError s!"JSON '{j.compress}' did not have the format of a JSON-RPC message.\n{inner}"
 
   def readRequestAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α) [FromJson α] : IO (Request α) := do
     let m ← h.readMessage nBytes
@@ -222,8 +222,8 @@ section
       if method = expectedMethod then
         let j := toJson params?
         match fromJson? j with
-        | some v => pure ⟨id, expectedMethod, v⟩
-        | none   => throw $ userError s!"Unexpected param '{j.compress}' for method '{expectedMethod}'"
+        | Except.ok v => pure ⟨id, expectedMethod, v⟩
+        | Except.error inner => throw $ userError s!"Unexpected param '{j.compress}' for method '{expectedMethod}'\n{inner}"
       else
         throw $ userError s!"Expected method '{expectedMethod}', got method '{method}'"
     | _ => throw $ userError s!"Expected JSON-RPC request, got: '{(toJson m).compress}'"
@@ -235,8 +235,8 @@ section
       if method = expectedMethod then
         let j := toJson params?
         match fromJson? j with
-        | some v => pure ⟨expectedMethod, v⟩
-        | none   => throw $ userError s!"Unexpected param '{j.compress}' for method '{expectedMethod}'"
+        | Except.ok v => pure ⟨expectedMethod, v⟩
+        | Except.error inner => throw $ userError s!"Unexpected param '{j.compress}' for method '{expectedMethod}'\n{inner}"
       else
         throw $ userError s!"Expected method '{expectedMethod}', got method '{method}'"
     | _ => throw $ userError s!"Expected JSON-RPC notification, got: '{(toJson m).compress}'"
@@ -247,8 +247,8 @@ section
   | Message.response id result =>
     if id == expectedID then
       match fromJson? result with
-      | some v => pure ⟨expectedID, v⟩
-      | none   => throw $ userError s!"Unexpected result '{result.compress}'"
+      | Except.ok v => pure ⟨expectedID, v⟩
+      | Except.error inner => throw $ userError s!"Unexpected result '{result.compress}'\n{inner}"
     else
       throw $ userError s!"Expected id {expectedID}, got id {id}"
   | _ => throw $ userError s!"Expected JSON-RPC response, got: '{(toJson m).compress}'"

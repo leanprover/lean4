@@ -64,8 +64,8 @@ partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target :
       else loop
     | Message.notification "textDocument/publishDiagnostics" (some param) =>
       match fromJson? (toJson param) with
-      | some diagnosticParam => ⟨"textDocument/publishDiagnostics", diagnosticParam⟩ :: (←loop)
-      | none                 => throw $ userError "Cannot decode publishDiagnostics parameters"
+      | Except.ok diagnosticParam => ⟨"textDocument/publishDiagnostics", diagnosticParam⟩ :: (←loop)
+      | Except.error inner => throw $ userError s!"Cannot decode publishDiagnostics parameters\n{inner}"
     | _ => loop
   loop
 

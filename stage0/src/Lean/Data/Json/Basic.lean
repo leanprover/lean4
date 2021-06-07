@@ -159,44 +159,50 @@ def isNull : Json -> Bool
   | null => true
   | _    => false
 
-def getObj? : Json → Option (RBNode String (fun _ => Json))
+def getObj? : Json → Except String (RBNode String (fun _ => Json))
   | obj kvs => kvs
-  | _       => none
+  | _       => throw "object expected"
 
-def getArr? : Json → Option (Array Json)
+def getArr? : Json → Except String (Array Json)
   | arr a => a
-  | _     => none
+  | _     => throw "array expected"
 
-def getStr? : Json → Option String
-  | str s => some s
-  | _     => none
+def getStr? : Json → Except String String
+  | str s => s
+  | _     => throw "String expected"
 
-def getNat? : Json → Option Nat
-  | (n : Nat) => some n
-  | _         => none
+def getNat? : Json → Except String Nat
+  | (n : Nat) => n
+  | _         => throw "Natural number expected"
 
-def getInt? : Json → Option Int
-  | (i : Int) => some i
-  | _         => none
+def getInt? : Json → Except String Int
+  | (i : Int) => i
+  | _         => throw "Integer expected"
 
-def getBool? : Json → Option Bool
-  | (b : Bool) => some b
-  | _          => none
+def getBool? : Json → Except String Bool
+  | (b : Bool) => b
+  | _          => throw "Bool expected"
 
-def getNum? : Json → Option JsonNumber
+def getNum? : Json → Except String JsonNumber
   | num n => n
-  | _     => none
+  | _     => throw "number expected"
 
-def getObjVal? : Json → String → Option Json
-  | obj kvs, k => kvs.find compare k
-  | _      , _ => none
+def getObjVal? : Json → String → Except String Json
+  | obj kvs, k => 
+    match kvs.find compare k with
+    | some v => v
+    | none => throw s!"property not found: {k}"
+  | _      , _ => throw "object expected"
 
-def getArrVal? : Json → Nat → Option Json
-  | arr a, i => a.get? i
-  | _    , _ => none
+def getArrVal? : Json → Nat → Except String Json
+  | arr a, i => 
+    match a.get? i with
+    | some v => v
+    | none => throw s!"index out of bounds: {i}"
+  | _    , _ => throw "array expected"
 
 def getObjValD (j : Json) (k : String) : Json :=
-  (j.getObjVal? k).getD null
+  (j.getObjVal? k).toOption.getD null
 
 def setObjVal! : Json → String → Json → Json
   | obj kvs, k, v => obj <| kvs.insert compare k v

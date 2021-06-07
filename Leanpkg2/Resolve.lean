@@ -82,10 +82,8 @@ def solveDepsCore (pkg : Package) : (maxDepth : Nat) → Solver Unit
 /--
   Resolves the dependency tree for the given package,
   downloading and/or updating missing dependencies as necessary.
-
-  Note that resulting list of dependencies *will* include the given package.
 -/
 def solveDeps (pkg : Package) : IO (List Package) := do
   let solver := solveDepsCore pkg 1024
   let (_, assg) ← solver.run (Assignment.empty.insert pkg.name ⟨pkg.dir, pkg.config⟩)
-  assg.reverse.mapM (·.2)
+  assg.reverse.tail!.mapM (·.2)

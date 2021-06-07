@@ -48,10 +48,9 @@ def execMake
     | none => []
   let leanmake := (← IO.appDir) / "leanmake"
   let leanOptsStr := " ".intercalate <| timeoutArgs ++ leanArgs
-  let leanPathStr := SearchPath.toString <| deps.map (·.buildDir)
+  let leanPathStr := SearchPath.toString <| pkg.buildDir :: deps.map (·.buildDir)
   let makeArgsStr := " ".intercalate makeArgs
-  let moreDepsStr := " ".intercalate $
-    deps.filter (·.dir.toString != pkg.dir) |>.map (·.oleanRoot.toString)
+  let moreDepsStr := " ".intercalate <| deps.map (·.oleanRoot.toString)
   let mut spawnArgs := {
     cmd := "sh"
     cwd := pkg.dir

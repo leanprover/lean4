@@ -26,8 +26,8 @@ def mkBuildConfig
 : BuildConfig := {
   leanArgs,
   module := pkg.module
-  leanPath := SearchPath.toString <| deps.map (·.buildDir)
-  moreDeps := deps.filter (·.dir != pkg.dir) |>.map (·.oleanRoot)
+  leanPath := SearchPath.toString <| pkg.buildDir :: deps.map (·.buildDir)
+  moreDeps := deps.map (·.oleanRoot)
 }
 
 structure BuildContext extends BuildConfig where
@@ -127,11 +127,10 @@ def buildPkg (pkg : Package) (deps : List Package) (makeArgs leanArgs : List Str
 def buildDeps (pkg : Package) (makeArgs leanArgs : List String := []) : IO (List Package) := do
   let deps ← solveDeps pkg
   for dep in deps do
-    unless dep.dir == pkg.dir do
-      -- build recursively
-      -- TODO: share build of common dependencies
-      let depDeps ← solveDeps dep
-      buildPkg dep depDeps makeArgs leanArgs
+    -- build recursively
+    -- TODO: share build of common dependencies
+    let depDeps ← solveDeps dep
+    buildPkg dep depDeps makeArgs leanArgs
   return deps
 
 def configure (pkg : Package) : IO Unit :=
@@ -140,8 +139,8 @@ def configure (pkg : Package) : IO Unit :=
 def printPaths (pkg : Package) (imports leanArgs : List String := []) : IO Unit := do
   let deps ← buildDeps pkg
   buildImports pkg deps imports leanArgs
-  IO.println <| SearchPath.toString <| deps.map (·.buildDir)
-  IO.println <| SearchPath.toString <| deps.map (·.sourceDir)
+  IO.println <| SearchPath.toString <| pkg.buildDir :: deps.map (·.buildDir)
+  IO.println <| SearchPath.toString <| pkg.sourceDir :: deps.map (·.sourceDir)
 
 def build (pkg : Package) (makeArgs leanArgs : List String := []) : IO Unit := do
   let deps ← buildDeps pkg (if makeArgs.contains "bin" then ["lib"] else [])

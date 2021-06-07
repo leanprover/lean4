@@ -87,7 +87,7 @@ partial def buildModule (mod : Name) : BuildM Result := do
       IO.createDirAll oleanFile.parent.get!
       IO.createDirAll cFile.parent.get!
       execCmd {
-        cmd := (← IO.appDir) / "lean" |>.withExtension FilePath.exeExtension |>.toString
+        cmd := FilePath.withExtension "lean" FilePath.exeExtension |>.toString
         args := ctx.leanArgs.toArray ++ #["-o", oleanFile.toString, "-c", cFile.toString, leanFile.toString]
         env := #[("LEAN_PATH", ctx.leanPath)]
       }

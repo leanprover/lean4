@@ -7,6 +7,15 @@ import Leanpkg2.Cli
 
 def main (args : List String) : IO UInt32 := do
   try
+    /-
+      Initializes the search path the Leanpkg2 executable
+      uses when intepreting package configuration files.
+
+      Also, in order to find the Lean stdlib (e.g., `Init`),
+      the executable needs to be either colocated with Lean or
+      have LEAN_PATH include the directory with its dynamic libraries.
+    -/
+    Lean.initSearchPath none
     let (cmd, outerArgs, innerArgs) ← Leanpkg2.splitCmdlineArgs args
     Leanpkg2.cli cmd outerArgs innerArgs
     pure 0

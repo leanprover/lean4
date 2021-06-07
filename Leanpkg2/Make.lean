@@ -46,7 +46,6 @@ def execMake
     match pkg.timeout with
     | some t => ["-T", toString t]
     | none => []
-  let leanmake := (← IO.appDir) / "leanmake"
   let leanOptsStr := " ".intercalate <| timeoutArgs ++ leanArgs
   let leanPathStr := SearchPath.toString <| pkg.buildDir :: deps.map (·.buildDir)
   let makeArgsStr := " ".intercalate makeArgs
@@ -54,6 +53,6 @@ def execMake
   let mut spawnArgs := {
     cmd := "sh"
     cwd := pkg.dir
-    args := #["-c", s!"\"{leanmake}\" PKG={pkg.module} LEAN_OPTS=\"{leanOptsStr}\" LEAN_PATH=\"{leanPathStr}\" {makeArgsStr} MORE_DEPS+=\"{moreDepsStr}\" >&2"]
+    args := #["-c", s!"leanmake PKG={pkg.module} LEAN_OPTS=\"{leanOptsStr}\" LEAN_PATH=\"{leanPathStr}\" {makeArgsStr} MORE_DEPS+=\"{moreDepsStr}\" >&2"]
   }
   execCmd spawnArgs

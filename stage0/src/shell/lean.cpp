@@ -380,26 +380,25 @@ void check_optarg(char const * option_name) {
 }
 
 int main(int argc, char ** argv) {
-#if defined(LEAN_EMSCRIPTEN)
+#ifdef LEAN_EMSCRIPTEN
+    // When running in command-line mode under Node.js, we make system directories available in the virtual filesystem.
+    // This mode is used to compile 32-bit oleans.
     EM_ASM(
-        var lean_path = process.env['LEAN_PATH'];
-        if (lean_path) {
-            ENV['LEAN_PATH'] = lean_path;
+        if ((typeof process === "undefined") || (process.release.name !== "node")) {
+            throw new Error("The Lean command-line driver can only run under Node.js. For the embeddable WASM library, see lean_wasm.cpp.");
         }
 
-        try {
-            // emscripten cannot mount all of / in the vfs,
-            // we can only mount subdirectories...
-            FS.mount(NODEFS, { root: '/home' }, '/home');
-            FS.mkdir('/root');
-            FS.mount(NODEFS, { root: '/root' }, '/root');
+        var lean_path = process.env["LEAN_PATH"];
+        if (lean_path) {
+            ENV["LEAN_PATH"] = lean_path;
+        }
 
-            FS.chdir(process.cwd());
-        } catch (e) {
-            console.log(e);
-        });
-#endif
-#if LEAN_WINDOWS
+        // We cannot mount /, see https://github.com/emscripten-core/emscripten/issues/2040
+        FS.mount(NODEFS, { root: "/home" }, "/home");
+        FS.mount(NODEFS, { root: "/tmp" }, "/tmp");
+        FS.chdir(process.cwd());
+    );
+#elif defined(LEAN_WINDOWS)
     // "best practice" according to https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-seterrormode
     SetErrorMode(SEM_FAILCRITICALERRORS);
 #endif

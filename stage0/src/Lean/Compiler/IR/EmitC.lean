@@ -93,7 +93,9 @@ def emitCInitName (n : Name) : M Unit :=
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (addExternForConsts : Bool) : M Unit := do
   let ps := decl.params
   let env ← getEnv
-  if ps.isEmpty && addExternForConsts then emit "extern "
+  if ps.isEmpty then
+    if isClosedTermName env decl.name then emit "static "
+    else if addExternForConsts then emit "extern "
   emit (toCType decl.resultType ++ " " ++ cppBaseName)
   unless ps.isEmpty do
     emit "("

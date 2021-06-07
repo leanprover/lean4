@@ -129,11 +129,7 @@ private def expandMacroFns (stx : Syntax) : List Macro → MacroM Syntax
       | ex                                => throw ex
 
 def getMacros (env : Environment) : Macro := fun stx =>
-  let k := stx.getKind
-  let table := (macroAttribute.ext.getState env).table
-  match table.find? k with
-  | some macroFns => expandMacroFns stx macroFns
-  | none          => throw Macro.Exception.unsupportedSyntax
+  expandMacroFns stx (macroAttribute.getValues env stx.getKind)
 
 class MonadMacroAdapter (m : Type → Type) where
   getCurrMacroScope                  : m MacroScope

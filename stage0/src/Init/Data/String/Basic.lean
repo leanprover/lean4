@@ -268,8 +268,8 @@ def offsetOfPos (s : String) (pos : Pos) : Nat :=
     else loop (s.next i) (f a (s.get i))
   loop i a
 
-@[inline] def foldl {α : Type u} (f : α → Char → α) (a : α) (s : String) : α :=
-  foldlAux f s s.bsize 0 a
+@[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : String) : α :=
+  foldlAux f s s.bsize 0 init
 
 @[specialize] partial def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (stopPos : Pos) (i : Pos) : α :=
   let rec loop (i : Pos) :=
@@ -277,8 +277,8 @@ def offsetOfPos (s : String) (pos : Pos) : Nat :=
     else f (s.get i) (loop (s.next i))
   loop i
 
-@[inline] def foldr {α : Type u} (f : Char → α → α) (a : α) (s : String) : α :=
-  foldrAux f a s s.bsize 0
+@[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : String) : α :=
+  foldrAux f init s s.bsize 0
 
 @[specialize] partial def anyAux (s : String) (stopPos : Pos) (p : Char → Bool) (i : Pos) : Bool :=
   let rec loop (i : Pos) :=
@@ -415,13 +415,13 @@ partial def splitOn (s : Substring) (sep : String := " ") : List Substring :=
         loop b (s.next i) 0 r
     loop s.startPos s.startPos 0 []
 
-@[inline] def foldl {α : Type u} (f : α → Char → α) (a : α) (s : Substring) : α :=
+@[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : Substring) : α :=
   match s with
-  | ⟨s, b, e⟩ => String.foldlAux f s e b a
+  | ⟨s, b, e⟩ => String.foldlAux f s e b init
 
-@[inline] def foldr {α : Type u} (f : Char → α → α) (a : α) (s : Substring) : α :=
+@[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : Substring) : α :=
   match s with
-  | ⟨s, b, e⟩ => String.foldrAux f a s e b
+  | ⟨s, b, e⟩ => String.foldrAux f init s e b
 
 @[inline] def any (s : Substring) (p : Char → Bool) : Bool :=
   match s with

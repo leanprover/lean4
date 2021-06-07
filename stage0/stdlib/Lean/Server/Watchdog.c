@@ -402,7 +402,7 @@ lean_object* l_Lean_Server_Watchdog_handleEdits___lambda__2___boxed(lean_object*
 lean_object* l_Lean_Server_Watchdog_FileWorker_readMessage(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Watchdog_FileWorker_readMessage_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_maybeTee(lean_object*, uint8_t, lean_object*, lean_object*);
-lean_object* lean_io_app_dir(lean_object*);
+lean_object* lean_io_app_path(lean_object*);
 lean_object* l_Lean_Server_Watchdog_mkLeanServerCapabilities___closed__1;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_Watchdog_tryWriteMessage___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_withExtension(lean_object*, lean_object*);
@@ -19690,7 +19690,7 @@ lean_object* l_Lean_Server_Watchdog_initAndRunWatchdog(lean_object* x_1, lean_ob
 _start:
 {
 lean_object* x_6; 
-x_6 = lean_io_app_dir(x_5);
+x_6 = lean_io_app_path(x_5);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 

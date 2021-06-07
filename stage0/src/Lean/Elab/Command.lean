@@ -273,11 +273,9 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
         match stxNew? with
         | some stxNew => withMacroExpansion stx stxNew <| elabCommand stxNew
         | _ =>
-          let table := (commandElabAttribute.ext.getState s.env).table;
-          let k := stx.getKind;
-          match table.find? k with
-          | some elabFns => elabCommandUsing s stx elabFns
-          | none         => throwError "elaboration function for '{k}' has not been implemented"
+          match commandElabAttribute.getValues s.env k with
+          | []      => throwError "elaboration function for '{k}' has not been implemented"
+          | elabFns => elabCommandUsing s stx elabFns
     | _ => throwError "unexpected command"
   let mut msgs ← (← get).messages
   -- `stx.hasMissing` should imply `initMsgs.hasErrors`, but the latter should be cheaper to check in general

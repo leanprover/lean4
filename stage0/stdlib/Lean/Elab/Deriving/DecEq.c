@@ -48,7 +48,6 @@ extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1094____close
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Meta_compatibleCtors(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__20(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1094____closed__21;
 lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___closed__6;
@@ -198,6 +197,7 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_12862____closed__8;
 extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_15488____closed__5;
 lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___closed__5;
 extern lean_object* l_Lean_Parser_Tactic_apply___closed__1;
+lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__13(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_DecEq_initFn____x40_Lean_Elab_Deriving_DecEq___hyg_2438____closed__1;
 lean_object* l_Lean_Elab_Deriving_DecEq_mkAuxFunction(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___closed__14;
@@ -6097,7 +6097,7 @@ x_31 = 0;
 x_32 = lean_usize_of_nat(x_24);
 lean_dec(x_24);
 x_33 = lean_box(0);
-x_34 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__20(x_22, x_31, x_32, x_33, x_2, x_3, x_23);
+x_34 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__13(x_22, x_31, x_32, x_33, x_2, x_3, x_23);
 lean_dec(x_2);
 lean_dec(x_22);
 if (lean_obj_tag(x_34) == 0)
@@ -6202,7 +6202,7 @@ x_58 = 0;
 x_59 = lean_usize_of_nat(x_49);
 lean_dec(x_49);
 x_60 = lean_box(0);
-x_61 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__20(x_47, x_58, x_59, x_60, x_2, x_3, x_48);
+x_61 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__13(x_47, x_58, x_59, x_60, x_2, x_3, x_48);
 lean_dec(x_2);
 lean_dec(x_47);
 if (lean_obj_tag(x_61) == 0)

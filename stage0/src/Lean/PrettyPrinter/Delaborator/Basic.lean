@@ -365,10 +365,7 @@ def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) : DelabM α := do
 partial def delabFor : Name → Delab
   | Name.anonymous => failure
   | k              => do
-    let env ← getEnv
-    (match (delabAttribute.ext.getState env).table.find? k with
-     | some delabs => delabs.firstM id >>= annotateCurPos
-     | none        => failure) <|>
+    (delabAttribute.getValues (← getEnv) k).firstM id >>= annotateCurPos <|>
       -- have `app.Option.some` fall back to `app` etc.
       delabFor k.getRoot
 

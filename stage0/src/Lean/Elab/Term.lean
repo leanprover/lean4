@@ -972,11 +972,10 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
 
 private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool) : TermElabM Expr := do
   let s ← saveState
-  let table := termElabAttribute.ext.getState (← getEnv) |>.table
   let k := stx.getKind
-  match table.find? k with
-  | some elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
-  | none         => throwError "elaboration function for '{k}' has not been implemented{indentD stx}"
+  match termElabAttribute.getValues (← getEnv) k with
+  | []      => throwError "elaboration function for '{k}' has not been implemented{indentD stx}"
+  | elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
 
 instance : MonadMacroAdapter TermElabM where
   getCurrMacroScope := getCurrMacroScope

@@ -47,7 +47,7 @@ structure AttributeEntry (γ : Type) extends OLeanEntry where
      Given `OLeanEntry.decl`, we convert it into a `γ` by using the unsafe function `evalConstCheck`. -/
   value : γ
 
-abbrev Table (γ : Type) := SMap Key (List γ)
+abbrev Table (γ : Type) := SMap Key (List (AttributeEntry γ))
 
 structure ExtensionState (γ : Type) where
   newEntries : List OLeanEntry := []
@@ -68,13 +68,13 @@ structure KeyedDeclsAttribute (γ : Type) where
 
 namespace KeyedDeclsAttribute
 
-def Table.insert {γ : Type} (table : Table γ) (k : Key) (v : γ) : Table γ :=
-  match table.find? k with
-  | some vs => SMap.insert table k (v::vs)
-  | none    => SMap.insert table k [v]
+def Table.insert {γ : Type} (table : Table γ) (v : AttributeEntry γ) : Table γ :=
+  match table.find? v.key with
+  | some vs => SMap.insert table v.key (v::vs)
+  | none    => SMap.insert table v.key [v]
 
-def addBuiltin {γ} (attr : KeyedDeclsAttribute γ) (key : Key) (val : γ) : IO Unit :=
-  attr.tableRef.modify fun m => m.insert key val
+def addBuiltin {γ} (attr : KeyedDeclsAttribute γ) (key : Key) (decl : Name) (value : γ) : IO Unit :=
+  attr.tableRef.modify fun m => m.insert { key, decl, value }
 
 /--
 def _regBuiltin$(declName) : IO Unit :=
@@ -104,7 +104,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDe
       | Except.ok f     => return { toOLeanEntry := entry, value := f }
       | Except.error ex => throw (IO.userError ex)
     addEntry     := fun s e =>
-      { table := s.table.insert e.key e.value, newEntries := e.toOLeanEntry :: s.newEntries }
+      { table := s.table.insert e, newEntries := e.toOLeanEntry :: s.newEntries }
     toOLeanEntry := (·.toOLeanEntry)
   }
   unless df.builtinName.isAnonymous do
@@ -141,9 +141,13 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDe
   }
   pure { defn := df, tableRef := tableRef, ext := ext }
 
+/-- Retrieve entries tagged with `[attr key]` or `[builtinAttr key]`. -/
+def getEntries {γ} (attr : KeyedDeclsAttribute γ) (env : Environment) (key : Name) : List (AttributeEntry γ) :=
+  (attr.ext.getState env).table.findD key []
+
 /-- Retrieve values tagged with `[attr key]` or `[builtinAttr key]`. -/
 def getValues {γ} (attr : KeyedDeclsAttribute γ) (env : Environment) (key : Name) : List γ :=
-  (attr.ext.getState env).table.findD key []
+  (getEntries attr env key).map AttributeEntry.value
 
 end KeyedDeclsAttribute
 

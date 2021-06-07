@@ -9,7 +9,7 @@ export LEANC_GMP=${GMP_LIBRARIES}
 # LEAN_OPTS: don't use native code (except for primitives) since it is from the previous stage
 # MORE_DEPS: rebuild the stdlib whenever the compiler has changed
 LEANMAKE_OPTS=\
-  LEAN="${PREV_STAGE}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"\
+  LEAN="${CMAKE_CROSSCOMPILING_EMULATOR} ${PREV_STAGE}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"\
 	OUT="${LIB}"\
 	LIB_OUT="${LIB}/lean"\
 	OLEAN_OUT="${LIB}/lean"\
@@ -17,6 +17,7 @@ LEANMAKE_OPTS=\
 	LEAN_OPTS+="${LEAN_EXTRA_MAKE_OPTS} -Dinterpreter.prefer_native=false"\
 	LEANC_OPTS+="${LEANC_OPTS}"\
 	LEAN_CXX="${CMAKE_CXX_COMPILER_LAUNCHER} ${CMAKE_CXX_COMPILER}"\
+	LEAN_AR="${CMAKE_AR}"\
 	MORE_DEPS+="${PREV_STAGE}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"\
 	CMAKE_LIKE_OUTPUT=1
 
@@ -25,4 +26,4 @@ stdlib:
 	+"${LEAN_BIN}/leanmake" lib PKG=Init $(LEANMAKE_OPTS)
 	+"${LEAN_BIN}/leanmake" lib PKG=Std $(LEANMAKE_OPTS)
 	+"${LEAN_BIN}/leanmake" lib PKG=Lean $(LEANMAKE_OPTS)
-	+"${LEAN_BIN}/leanmake" bin PKG=Leanpkg BIN_NAME=leanpkg $(LEANMAKE_OPTS) LINK_OPTS="${CMAKE_EXE_LINKER_FLAGS}"
+	+"${LEAN_BIN}/leanmake" bin PKG=Leanpkg BIN_NAME=leanpkg${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS="${CMAKE_EXE_LINKER_FLAGS}"

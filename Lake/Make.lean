@@ -10,7 +10,7 @@ open System
 
 namespace Lake
 
-def lockfile : FilePath := ".lake-lock"
+def lockfile : FilePath := buildPath / ".lake-lock"
 
 partial def withLockFile (x : IO α) : IO α := do
   acquire
@@ -19,7 +19,8 @@ partial def withLockFile (x : IO α) : IO α := do
   finally
     IO.removeFile lockfile
   where
-    acquire (firstTime := true) :=
+    acquire (firstTime := true) := do
+      IO.createDirAll lockfile.parent.get!
       try
         -- TODO: lock file should ideally contain PID
         if !Platform.isWindows then

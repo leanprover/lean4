@@ -63,11 +63,13 @@
 
 (lsp-interface
  (lean:PlainGoal (:goals) nil)
+ (lean:PlainTermGoal (:goal) nil)
  (lean:Diagnostic (:range :fullRange :message) (:code :relatedInformation :severity :source :tags)))
 
 (defconst lean4-info-buffer-name "*Lean Goal*")
 
 (defvar lean4-goals nil)
+(defvar lean4-term-goal nil)
 
 (lsp-defun lean4-diagnostic-full-end-line ((&lean:Diagnostic :full-range (&Range :end (&Position :line))))
   line)
@@ -93,6 +95,11 @@
                    (magit-insert-section (magit-section)
                      (insert (lsp--fontlock-with-mode g 'lean4-info-mode) "\n\n")))
                (insert "goals accomplished\n\n")))))
+       (when lean4-term-goal
+         (magit-insert-section (magit-section)
+           (magit-insert-heading "Expected type:")
+           (magit-insert-section-body
+             (insert (lsp--fontlock-with-mode lean4-term-goal 'lean4-info-mode) "\n"))))
        (when selected-errors
          (magit-insert-section (magit-section)
            (magit-insert-heading "Messages:")
@@ -119,12 +126,21 @@
     (lsp-request-async
      "$/lean/plainGoal"
      (lsp--text-document-position-params)
-     (-lambda ((goal &as &lean:PlainGoal? :goals))
+     (-lambda ((_ &as &lean:PlainGoal? :goals))
        (setq lean4-goals goals)
        (lean4-info-buffer-redisplay))
      :error-handler #'ignore
      :mode 'tick
      :cancel-token :plain-goal)
+    (lsp-request-async
+     "$/lean/plainTermGoal"
+     (lsp--text-document-position-params)
+     (-lambda ((_ &as &lean:PlainTermGoal? :goal))
+       (setq lean4-term-goal goal)
+       (lean4-info-buffer-redisplay))
+     :error-handler #'ignore
+     :mode 'tick
+     :cancel-token :plain-term-goal)
     ;; may lead to flickering
     ;(lean4-info-buffer-redisplay)
     ))

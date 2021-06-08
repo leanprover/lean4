@@ -19,13 +19,16 @@ On Windows (MSYS2):
 $ leanpkg build bin LINK_OPTS=-Wl,--export-all
 ```
 
-When running the built executable, you also must make sure that `LEAN_PATH` includes the build directory of Lake (for Lake's `.olean` files) and Lean's library directory for stdlib's (ex., `Init`'s) `.olean` files.
+When running the built executable, you may need to esnure that `LEAN_PATH` includes the build directory of Lake (for Lake's `.olean` files) and Lean's library directory for stdlib's (ex., `Init`'s) `.olean` files.
 
 For example:
 
 ```
-$ LEAN_PATH="<lean-home>/lib/lean:<lake-home>/build" lake build bin
+$ LEAN_PATH="<lean-home>/lib/lean:<lake-build-dir>" lake build bin
 ```
+
+Lake will intelligently setup an initial search path based on the location
+of its own executable and `lean`. It will assume that `lean` is located at `<lean-home>/bin/lean` with its `.olean` files at `<lean-home>/lib/lean` and that `lake` is at `<lake-home>/bin/lake` with its `.olean` files at `<lake-home>`. If this is correct, you will not need to augment `LEAN_PATH`.
 
 ## Creating and Building a Package
 

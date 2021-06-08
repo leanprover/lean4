@@ -4,19 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Cli
+import Lake.SearchPath
 
 def main (args : List String) : IO UInt32 := do
   try
-    /-
-      Initializes the search path the Lake executable
-      uses when intepreting package configuration files.
-
-      Also, in order to find the Lean stdlib (e.g., `Init`),
-      the executable needs to either be colocated with Lean or
-      have `LEAN_PATH` include the directory with its `.olean` files
-      (e.g., `<lean-home>/lib/lean`).
-    -/
-    Lean.initSearchPath none
+    Lake.setupLeanSearchPath
     let (cmd, outerArgs, innerArgs) ← Lake.splitCmdlineArgs args
     Lake.cli cmd outerArgs innerArgs
     pure 0

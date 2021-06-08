@@ -84,6 +84,9 @@
             (errors (-sort (-on #'< #'lean4-diagnostic-full-end-line) errors))
             ((errors-above selected-errors)
              (--split-with (< (lean4-diagnostic-full-end-line it) line) errors)))
+      (when (and (not selected-errors) errors-above)
+        (setq selected-errors errors-above)
+        (setq errors-above nil))
       (lean4-with-info-output-to-buffer
        lean4-info-buffer-name
        (when lean4-goals

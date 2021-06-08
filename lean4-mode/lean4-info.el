@@ -71,8 +71,22 @@
 (defvar lean4-goals nil)
 (defvar lean4-term-goal nil)
 
+(lsp-defun lean4-diagnostic-full-start-line ((&lean:Diagnostic :full-range (&Range :start (&Position :line))))
+  line)
 (lsp-defun lean4-diagnostic-full-end-line ((&lean:Diagnostic :full-range (&Range :end (&Position :line))))
   line)
+
+(defun lean4-mk-message-section (caption errors)
+  (when errors
+    (magit-insert-section (magit-section)
+      (magit-insert-heading caption)
+      (magit-insert-section-body
+        (dolist (e errors)
+          (-let (((&Diagnostic :message :range (&Range :start (&Position :line :character))) e))
+            (magit-insert-section (magit-section)
+              (magit-insert-heading (format "%d:%d: " (1+ (lsp-translate-line line)) (lsp-translate-column character)))
+              (magit-insert-section-body
+                (insert message "\n")))))))))
 
 (defun lean4-info-buffer-redisplay ()
   (when (lean4-info-buffer-active lean4-info-buffer-name)
@@ -80,13 +94,11 @@
             (pos (apply #'lsp-make-position (lsp--cur-position)))
             (line (lsp--cur-line))
             (errors (lsp--get-buffer-diagnostics))
-            ;(errors (-sort (-on (lambda (it) (not (lsp--position-compare it))) (lambda (it) (lsp:range-end (lsp:lean-diagnostic-full-range it)))) errors))
             (errors (-sort (-on #'< #'lean4-diagnostic-full-end-line) errors))
-            ((errors-above selected-errors)
-             (--split-with (< (lean4-diagnostic-full-end-line it) line) errors)))
-      (when (and (not selected-errors) errors-above)
-        (setq selected-errors errors-above)
-        (setq errors-above nil))
+            ((errors-above errors)
+             (--split-with (< (lean4-diagnostic-full-end-line it) line) errors))
+            ((errors-here errors-below)
+             (--split-with (<= (lean4-diagnostic-full-start-line it) line) errors)))
       (lean4-with-info-output-to-buffer
        lean4-info-buffer-name
        (when lean4-goals
@@ -103,19 +115,9 @@
            (magit-insert-heading "Expected type:")
            (magit-insert-section-body
              (insert (lsp--fontlock-with-mode lean4-term-goal 'lean4-info-mode) "\n"))))
-       (when selected-errors
-         (magit-insert-section (magit-section)
-           (magit-insert-heading "Messages:")
-           (magit-insert-section-body
-             (dolist (e selected-errors)
-               (-let (((&Diagnostic :message :range (&Range :start (&Position :line :character))) e))
-                 (magit-insert-section (magit-section)
-                   (magit-insert-heading (format "%d:%d: " (1+ (lsp-translate-line line)) (lsp-translate-column character)))
-                   (magit-insert-section-body
-                     (insert message "\n"))))))))
-       (when errors-above
-         (magit-insert-section (magit-section)
-           (insert (format "(%d more messages above...)\n" (length errors-above)))))
+       (lean4-mk-message-section "Messages here:" errors-here)
+       (lean4-mk-message-section "Messages below:" errors-below)
+       (lean4-mk-message-section "Messages above:" errors-above)
        (when lean4-highlight-inaccessible-names
          (goto-char 0)
          (while (re-search-forward "\\(\\sw+\\)✝\\([¹²³⁴-⁹⁰]*\\)" nil t)

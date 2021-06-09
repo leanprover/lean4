@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.ScopedEnvExtension
 import Lean.Util.Recognizers
+import Lean.Structure
 import Lean.Meta.DiscrTree
 import Lean.Meta.LevelDefEq
 import Lean.Meta.SynthInstance
@@ -99,8 +100,8 @@ def tryUnificationHints (t s : Expr) : MetaM Bool := do
   let hints := unificationHintExtension.getState (← getEnv)
   let candidates ← hints.discrTree.getMatch t
   for candidate in candidates do
-    if (← tryCandidate candidate) then
-      return true
+    if (← tryCandidate candidate) then return true
+  if ← trySingletonProjection then return true
   return false
 where
   isDefEqPattern p e :=
@@ -134,6 +135,21 @@ where
             | LOption.some val => unless (← isDefEq x val) do return false
             | _                => return false
         return true
+
+  trySingletonProjection : MetaM Bool :=
+    traceCtx `Meta.isDefEq.hint <| checkpointDefEq do
+      match t with
+      | Expr.proj structName idx x .. =>
+        let ctor   := getStructureCtor (← getEnv) structName
+        let fields := getStructureFields (← getEnv) structName
+        if fields.size ≠ 1 then return false
+        trace[Meta.isDefEq.hint] "trying singleton projection at {t} =?= {s}"
+        let xType ← Meta.whnf (← Meta.instantiateMVars (← Meta.inferType x))
+        let Expr.const structName' lvls .. ← pure xType.getAppFn | return false
+        if structName != structName' then return false
+        let y := mkAppN (mkConst ctor.name lvls) (xType.getAppArgs.push s)
+        if ← Meta.isExprDefEqAux x y then return true else return false
+      | _ => return false
 
 builtin_initialize
   registerTraceClass `Meta.isDefEq.hint

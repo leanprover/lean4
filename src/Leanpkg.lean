@@ -28,20 +28,20 @@ partial def withLockFile (x : IO α) : IO α := do
   try
     x
   finally
-    IO.removeFile lockFileName
+    IO.FS.removeFile lockFileName
   where
     acquire (firstTime := true) :=
       try
         -- TODO: lock file should ideally contain PID
         if !System.Platform.isWindows then
-          discard <| IO.Prim.Handle.mk lockFileName "wx"
+          discard <| IO.FS.Handle.mkPrim lockFileName "wx"
         else
           -- `x` mode doesn't seem to work on Windows even though it's listed at
           -- https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/fopen-wfopen?view=msvc-160
           -- ...? Let's use the slightly racy approach then.
           if ← lockFileName.pathExists then
             throw <| IO.Error.alreadyExists 0 ""
-          discard <| IO.Prim.Handle.mk lockFileName "w"
+          discard <| IO.FS.Handle.mk lockFileName IO.FS.Mode.write
       catch
         | IO.Error.alreadyExists _ _ => do
           if firstTime then
@@ -54,8 +54,8 @@ def getRootPart (pkg : FilePath := ".") : IO Lean.Name := do
   let entries ← pkg.readDir
   match entries.filter (FilePath.extension ·.fileName == "lean") with
   | #[rootFile] => FilePath.withExtension rootFile.fileName "" |>.toString
-  | #[]         => throw <| IO.userError s!"no '.lean' file found in {← IO.realPath "."}"
-  | _           => throw <| IO.userError s!"{← IO.realPath "."} must contain a unique '.lean' file as the package root"
+  | #[]         => throw <| IO.userError s!"no '.lean' file found in {← IO.FS.realPath "."}"
+  | _           => throw <| IO.userError s!"{← IO.FS.realPath "."} must contain a unique '.lean' file as the package root"
 
 structure Configuration :=
   leanPath    : String

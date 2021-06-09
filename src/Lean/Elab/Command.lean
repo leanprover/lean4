@@ -277,7 +277,10 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
         trace `Elab.command fun _ => stx;
         let s ← get
         match ← liftMacroM <| expandMacroImpl? s.env stx with
-        | some (decl, stxNew) => MonadRef.withElaborator decl <| withMacroExpansion stx stxNew <| elabCommand stxNew
+        | some (decl, stxNew) => MonadRef.withElaborator decl do
+          withInfoContext (mkInfo := Info.ofCommandInfo { elaborator := (← MonadRef.getElaborator), stx }) do
+            withMacroExpansion stx stxNew do
+              elabCommand stxNew
         | _ =>
           match commandElabAttribute.getEntries s.env k with
           | []      => throwError "elaboration function for '{k}' has not been implemented"

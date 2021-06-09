@@ -14,7 +14,7 @@ namespace Lean
 open System
 
 def realPathNormalized (p : FilePath) : IO FilePath := do
-  (← IO.realPath p).normalize
+  (← IO.FS.realPath p).normalize
 
 def modToFilePath (base : FilePath) (mod : Name) (ext : String) : FilePath :=
   go mod |>.withExtension ext
@@ -88,7 +88,7 @@ partial def findOLean (mod : Name) : IO FilePath := do
 /-- Infer module name of source file name. -/
 @[export lean_module_name_of_file]
 def moduleNameOfFileName (fname : FilePath) (rootDir : Option FilePath) : IO Name := do
-  let fname ← IO.realPath fname
+  let fname ← IO.FS.realPath fname
   let rootDir ← match rootDir with
     | some rootDir => pure rootDir
     | none         => IO.currentDir

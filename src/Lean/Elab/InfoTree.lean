@@ -76,8 +76,9 @@ structure TacticInfo extends ElabInfo where
   goalsAfter  : List MVarId
   deriving Inhabited
 
-structure MacroExpansionInfo extends ElabInfo where
+structure MacroExpansionInfo where
   lctx   : LocalContext -- The local context when the macro was expanded.
+  stx    : Syntax
   output : Syntax
   deriving Inhabited
 
@@ -210,7 +211,7 @@ def Info.toElabInfo? : Info → Option ElabInfo
   | ofTacticInfo i         => some i.toElabInfo
   | ofTermInfo i           => some i.toElabInfo
   | ofCommandInfo i        => some i.toElabInfo
-  | ofMacroExpansionInfo i => some i.toElabInfo
+  | ofMacroExpansionInfo i => none
   | ofFieldInfo i          => none
   | ofCompletionInfo i     => none
 
@@ -318,10 +319,9 @@ def assignInfoHoleId (mvarId : MVarId) (infoTree : InfoTree) : m Unit := do
   modifyInfoState fun s => { s with assignment := s.assignment.insert mvarId infoTree }
 end
 
-def withMacroExpansionInfo [MonadFinally m] [Monad m] [MonadInfoTree m] [MonadLCtx m] [MonadRef m] (stx output : Syntax) (x : m α) : m α :=
+def withMacroExpansionInfo [MonadFinally m] [Monad m] [MonadInfoTree m] [MonadLCtx m] (stx output : Syntax) (x : m α) : m α :=
   let mkInfo : m Info := do
     return Info.ofMacroExpansionInfo {
-      elaborator := ← MonadRef.getElaborator
       lctx   := (← getLCtx)
       stx, output
     }

@@ -1138,9 +1138,10 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     match ← liftMacroM (expandMacroImpl? env stx) with
     | some (decl, stxNew) =>
       MonadRef.withElaborator decl <|
-        withMacroExpansion stx stxNew <|
-          withRef stxNew <|
-            elabTermAux expectedType? catchExPostpone implicitLambda stxNew
+        withInfoContext' (mkInfo := mkTermInfo (expectedType? := expectedType?) stx) <|
+          withMacroExpansion stx stxNew <|
+            withRef stxNew <|
+              elabTermAux expectedType? catchExPostpone implicitLambda stxNew
     | _ =>
       let implicit? ← if implicitLambda && (← read).implicitLambda then useImplicitLambda? stx expectedType? else pure none
       match implicit? with

@@ -6,6 +6,7 @@ Authors: Wojciech Nawrocki, Marc Huisinga
 -/
 import Lean.Data.Position
 import Lean.Data.Lsp
+import Lean.Server.InfoUtils
 import Init.System.FilePath
 
 namespace IO
@@ -163,3 +164,6 @@ def takeWhile (p : α → Bool) : List α → List α
   | hd :: tl => if p hd then hd :: takeWhile p tl else []
 
 end List
+
+def String.Range.toLspRange (text : Lean.FileMap) (r : String.Range) : Lean.Lsp.Range :=
+  ⟨text.utf8PosToLspPos r.start, text.utf8PosToLspPos r.stop⟩

@@ -8,8 +8,8 @@
 #
 # Interesting options:
 # * `-U LEAN_MULTI_THREAD` can be used to optimize programs not making use of multi-threading
-# * `-print-cflags`: print C compiler flags necessary for building against the Lean runtime and abort
-# * `-print-ldlags`: print C compiler flags necessary for statically linking against the Lean library and abort
+# * `--print-cflags`: print C compiler flags necessary for building against the Lean runtime and exit
+# * `--print-ldlags`: print C compiler flags necessary for statically linking against the Lean library and exit
 # * Set the `LEANC_GMP` environment variable to a path to `libgmp.a` (or `-l:libgmp.a` on Linux) to link GMP statically.
 #   Beware of the licensing consequences since GMP is LGPL.
 
@@ -25,8 +25,8 @@ for arg in "$@"; do
     [[ $arg == "-shared" ]] && ldflags_ext=(@LEANC_SHARED_LINKER_FLAGS@) && args=("-x" "c" "$@" "-x" "none")
     # Note the `-x c` for treating all input as C code
     [[ $arg == "-c" ]] && ldflags=() && ldflags_ext=() && args=("-x" "c" "$@" "-x" "none")
-    [[ $arg == "-print-cflags" ]] && echo "${cflags[@]}" && exit
-    [[ $arg == "-print-ldflags" ]] && echo "${cflags[@]} ${ldflags_ext[@]} ${ldflags[@]}" && exit
+    [[ $arg == "--print-cflags" ]] && echo "${cflags[@]}" && exit
+    [[ $arg == "--print-ldflags" ]] && echo "${cflags[@]} ${ldflags_ext[@]} ${ldflags[@]}" && exit
 done
 
 [ -n "$LEAN_CXX" ] || LEAN_CXX=c++

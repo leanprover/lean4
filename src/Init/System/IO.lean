@@ -424,6 +424,15 @@ structure Child (cfg : StdioConfig) where
 
 @[extern "lean_io_process_child_wait"] constant Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
 
+/--
+Extract the `stdin` field from a `Child` object, allowing them to be freed independently.
+This operation is necessary for closing the child process' stdin while still holding on to a process handle,
+e.g. for `Child.wait`. A file handle is closed when all references to it are dropped, which without this
+operation includes the `Child` object.
+-/
+@[extern "lean_io_process_child_take_stdin"] constant Child.takeStdin {cfg : @& StdioConfig} : Child cfg →
+    IO (cfg.stdin.toHandleType × Child { cfg with stdin := Stdio.null })
+
 structure Output where
   exitCode : UInt32
   stdout   : String

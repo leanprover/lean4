@@ -475,7 +475,7 @@ section MainLoop
         let now ← monoMsNow
         /- We wait `editDelay`ms since last edit before applying the changes. -/
         let applyTime := now + st.editDelay
-        let pendingEdit ← fw.groupedEditsRef.modifyGet fun
+        let queuedMsgs? ← fw.groupedEditsRef.modifyGet fun
           | some ge => (some ge.queuedMsgs, some { ge with
             applyTime := applyTime
             params.textDocument := p.textDocument
@@ -488,7 +488,7 @@ section MainLoop
             /- This is overwritten just below. -/
             signalTask := Task.pure WorkerEvent.processGroupedEdits
             queuedMsgs := #[] })
-        match pendingEdit with
+        match queuedMsgs? with
         | some queuedMsgs =>
           for msg in queuedMsgs do
             match msg with

@@ -107,3 +107,9 @@ syntax "foo" term : term
 #eval run ``(fun x => y)
 #eval run ``(fun x y => x y)
 #eval run ``(fun ⟨x, y⟩ => x)
+
+#eval run do
+  match mkIdent `b with
+  | `(a) => "0"
+  | `(b) => "1"
+  | _    => "2"

@@ -54,3 +54,4 @@ StxQuot.lean:101:13-101:14: error: unknown identifier 'x' at quotation precheck;
 StxQuot.lean:107:22-107:23: error: unknown identifier 'y' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check.
 "(Term.fun\n \"fun\"\n (Term.basicFun\n  [`x._@.UnhygienicMain._hyg.1 `y._@.UnhygienicMain._hyg.1]\n  \"=>\"\n  (Term.app `x._@.UnhygienicMain._hyg.1 [`y._@.UnhygienicMain._hyg.1])))"
 "(Term.fun\n \"fun\"\n (Term.basicFun\n  [(Term.anonymousCtor \"⟨\" [`x._@.UnhygienicMain._hyg.1 \",\" `y._@.UnhygienicMain._hyg.1] \"⟩\")]\n  \"=>\"\n  `x._@.UnhygienicMain._hyg.1))"
+"1"

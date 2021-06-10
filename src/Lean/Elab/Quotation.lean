@@ -386,11 +386,19 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       let kind := quoted.getKind
       let argPats := quoted.getArgs.map fun arg => Unhygienic.run `(`($(arg)))
       pure {
-        check := shape kind argPats.size,
+        check :=
+          if quoted.isIdent then
+            other quoted
+          else
+            shape kind argPats.size,
         onMatch := fun
-          | other _ => undecided
+          | other stx' =>
+            if quoted.isIdent && quoted == stx' then
+              covered pure (exhaustive := true)
+            else
+              uncovered
           | shape k' sz =>
-            if k' == kind && sz == argPats.size then
+            if k' == kind && sz == argPats.size && kind != `ident then
               covered (fun (pats, rhs) => (argPats.toList ++ pats, rhs)) (exhaustive := true)
             else
               uncovered

@@ -121,11 +121,7 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
 partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) :=
   t.smallestInfo? fun i => do
     if i matches Info.ofFieldInfo _ || i.toElabInfo?.isSome then
-      -- show hover on first token (`i.stx` or immediate child of it) only
-      if i.stx.isIdent || i.stx.isAtom then
-        return i.contains hoverPos
-      if let some firstTk := i.stx.getArgs.find? (fun arg => arg.isAtom) then
-        return firstTk.getRange? (originalOnly := true) |>.any (·.contains hoverPos)
+      return i.contains hoverPos
     return false
 
 /-- Construct a hover popup, if any, from an info node in a context.-/

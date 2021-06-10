@@ -388,6 +388,10 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       pure {
         check :=
           if quoted.isIdent then
+            -- identifiers only match identical identifiers
+            -- NOTE: We could make this case more precise by including the matched identifier,
+            -- if any, in the `shape` constructor, but matching on literal identifiers is quite
+            -- rare.
             other quoted
           else
             shape kind argPats.size,
@@ -398,7 +402,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
             else
               uncovered
           | shape k' sz =>
-            if k' == kind && sz == argPats.size && kind != `ident then
+            if k' == kind && sz == argPats.size then
               covered (fun (pats, rhs) => (argPats.toList ++ pats, rhs)) (exhaustive := true)
             else
               uncovered

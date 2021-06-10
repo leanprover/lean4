@@ -136,20 +136,20 @@ where
             | _                => return false
         return true
 
-  trySingletonProjection : MetaM Bool :=
-    traceCtx `Meta.isDefEq.hint <| checkpointDefEq do
-      match t with
-      | Expr.proj structName idx x .. =>
-        let ctor   := getStructureCtor (← getEnv) structName
-        let fields := getStructureFields (← getEnv) structName
-        if fields.size ≠ 1 then return false
-        trace[Meta.isDefEq.hint] "trying singleton projection at {t} =?= {s}"
+  trySingletonProjection : MetaM Bool := do
+    match t with
+    | Expr.proj structName idx x .. =>
+      let fields := getStructureFields (← getEnv) structName
+      if fields.size ≠ 1 then return false
+      let ctor := getStructureCtor (← getEnv) structName
+      trace[Meta.isDefEq.hint] "trying singleton projection at {t} =?= {s}"
+      traceCtx `Meta.isDefEq.hint <| checkpointDefEq do
         let xType ← Meta.whnf (← Meta.instantiateMVars (← Meta.inferType x))
         let Expr.const structName' lvls .. ← pure xType.getAppFn | return false
         if structName != structName' then return false
         let y := mkAppN (mkConst ctor.name lvls) (xType.getAppArgs.push s)
         if ← Meta.isExprDefEqAux x y then return true else return false
-      | _ => return false
+    | _ => return false
 
 builtin_initialize
   registerTraceClass `Meta.isDefEq.hint

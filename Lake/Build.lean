@@ -35,17 +35,17 @@ structure BuildContext extends BuildConfig where
   parents       : List Name := []
   moreDepsMTime : IO.FS.SystemTime
 
-structure Result where
+structure BuildResult where
   maxMTime : IO.FS.SystemTime
   task     : Task (Except IO.Error Unit)
   deriving Inhabited
 
-structure State where
-  modTasks : NameMap Result := ∅
+structure BuildState where
+  modTasks : NameMap BuildResult := ∅
 
-abbrev BuildM := ReaderT BuildContext <| StateT State IO
+abbrev BuildM := ReaderT BuildContext <| StateT BuildState IO
 
-partial def buildModule (mod : Name) : BuildM Result := do
+partial def buildModule (mod : Name) : BuildM BuildResult := do
   let ctx ← read
   if ctx.parents.contains mod then
     -- cyclic import

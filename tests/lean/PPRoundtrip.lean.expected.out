@@ -58,10 +58,10 @@ id
     a)
   0
 typeAs Nat
-  (do 
+  do 
     let x ← pure 1
     discard (pure 2)
     let y : Nat := 3
-    pure (x + y))
+    pure (x + y)
 typeAs (Id Nat)
   (pure 1 >>= pure)

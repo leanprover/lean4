@@ -106,15 +106,20 @@ register_builtin_option pp.proofs.withType : Bool := {
   group    := "pp"
   descr    := "(pretty printer) when eliding a proof (see `pp.proofs`), show its type instead"
 }
-register_builtin_option pp.pi_motives : Bool := {
+register_builtin_option pp.motives.pi : Bool := {
   defValue := true
   group    := "pp"
   descr    := "(pretty printer) print all motives that return pi types"
 }
-register_builtin_option pp.dep_motives : Bool := {
+register_builtin_option pp.motives.nonConst : Bool := {
   defValue := false
   group    := "pp"
-  descr    := "(pretty printer) print all dependent motives"
+  descr    := "(pretty printer) print all motives that are not constant functions"
+}
+register_builtin_option pp.motives.all : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) print all motives"
 }
 -- TODO:
 /-
@@ -180,8 +185,9 @@ def getPPUnicode (o : Options) : Bool := o.get `pp.unicode true
 def getPPSafeShadowing (o : Options) : Bool := o.get `pp.safe_shadowing true
 def getPPProofs (o : Options) : Bool := o.get pp.proofs.name (getPPAll o)
 def getPPProofsWithType (o : Options) : Bool := o.get pp.proofs.withType.name true
-def getPPPiMotives (o : Options) : Bool := o.get pp.pi_motives.name pp.pi_motives.defValue
-def getPPDepMotives (o : Options) : Bool := o.get pp.dep_motives.name pp.dep_motives.defValue
+def getPPMotivesPi (o : Options) : Bool := o.get pp.motives.pi.name pp.motives.pi.defValue
+def getPPMotivesNonConst (o : Options) : Bool := o.get pp.motives.nonConst.name pp.motives.nonConst.defValue
+def getPPMotivesAll (o : Options) : Bool := o.get pp.motives.all.name pp.motives.all.defValue
 
 /-- Associate pretty printer options to a specific subterm using a synthetic position. -/
 abbrev OptionsPerPos := Std.RBMap Nat Options compare

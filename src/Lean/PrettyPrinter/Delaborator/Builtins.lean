@@ -128,25 +128,21 @@ def delabAppExplicit : Delab := do
       pure (fnStx, argStxs.push argStx))
   Syntax.mkApp fnStx argStxs
 
-inductive ImplicitArgKind : Type where
-  | provide
-  | skip
-  | name (n : Name)
-
-def returnsPi (motive : Expr) : Bool := do
-  match motive with
-  | Expr.lam name d b _ => returnsPi b
-  | Expr.forallE .. => true
-  | _ => false
-
-def isDepFun (motive : Expr) : Bool := do
-  match motive with
-  | Expr.lam name d b _ => isDepFun b
-  | _ => motive.hasLooseBVars
-
-def showMotive (motive : Expr) (opts : Options) : Bool := 
-  (getPPPiMotives opts && returnsPi motive)
-  || (getPPDepMotives opts && isDepFun motive)
+def shouldShowMotive (motive : Expr) (opts : Options) : Bool := 
+  getPPMotivesAll opts
+  || (getPPMotivesPi opts && returnsPi motive)
+  || (getPPMotivesNonConst opts && isNonConstFun motive)
+  where
+    returnsPi (motive : Expr) : Bool := do
+      match motive with
+      | Expr.lam name d b _ => returnsPi b
+      | Expr.forallE .. => true
+      | _ => false
+  
+    isNonConstFun (motive : Expr) : Bool := do
+      match motive with
+      | Expr.lam name d b _ => isNonConstFun b
+      | _ => motive.hasLooseBVars
 
 @[builtinDelab app]
 def delabAppImplicit : Delab := whenNotPPOption getPPExplicit do
@@ -159,23 +155,21 @@ def delabAppImplicit : Delab := whenNotPPOption getPPExplicit do
     (fun (fnStx, paramKinds, argStxs) => do
       let arg ← getExpr
       let opts ← getOptions
-      let argKind : ImplicitArgKind := match paramKinds with
+      let mkNamedArg (name : Name) (argStx : Syntax) : DelabM Syntax := do
+        `(Parser.Term.namedArgument| ($(← mkIdent name):ident := $argStx:term))
+      let stx ← delab
+      let argStx? : Option Syntax ← match paramKinds with
         | [ParamKind.implicit _ (some v)] => 
-          if !v.hasLooseBVars && v == arg then ImplicitArgKind.skip else ImplicitArgKind.provide
+          if !v.hasLooseBVars && v == arg then none else stx
         | ParamKind.implicit name none :: _  => do
-          if name == `motive && showMotive arg opts
-          then ImplicitArgKind.name name                        
-          else ImplicitArgKind.skip
-        | _ => ImplicitArgKind.provide
-      match argKind with
-      | ImplicitArgKind.skip => pure (fnStx, paramKinds.tailD [], argStxs)
-      | ImplicitArgKind.provide => 
-        let argStx ← delab
-        pure (fnStx, paramKinds.tailD [], argStxs.push argStx)
-      | ImplicitArgKind.name name => 
-        let argStx : Syntax ← delab
-        let argStx ← `(Parser.Term.namedArgument| ($(← mkIdent name):ident := $argStx:term))
-        pure (fnStx, paramKinds.tailD [], argStxs.push argStx))
+          if name == `motive && shouldShowMotive arg opts 
+          then mkNamedArg name stx
+          else none
+        | _ => some stx
+      let argStxs := match argStx? with
+        | none => argStxs
+        | some stx => argStxs.push stx
+      pure (fnStx, paramKinds.tailD [], argStxs))
   Syntax.mkApp fnStx argStxs
 
 @[builtinDelab app]
@@ -312,8 +306,8 @@ def delabAppMatch : Delab := whenPPOption getPPNotation do
     let stx ← do
       let (piStx, lamMotive) := st.motive.get!
       let opts ← getOptions
-      if showMotive lamMotive opts then
-        `(match $[$st.discrs:term],* : $(piStx) with $[| $pats,* => $st.rhss]*)
+      if shouldShowMotive lamMotive opts then
+        `(match $[$st.discrs:term],* : $piStx with $[| $pats,* => $st.rhss]*)
       else
         `(match $[$st.discrs:term],* with $[| $pats,* => $st.rhss]*)
     Syntax.mkApp stx st.moreArgs
@@ -647,9 +641,6 @@ partial def delabDoElems : DelabM (List Syntax) := do
       | Expr.lam _ _ body _ =>
         withBindingBodyUnusedName fun n => do
           if body.hasLooseBVars then
-            -- Note: the `$ma:term` annotation is required for elaboration to roundtrip
-            -- without indirecting through the parser. However, this annotation seems
-            -- to cause additional parentheses to be inserted in some cases.
             prependAndRec `(doElem|let $n:term ← $ma:term)
           else
             prependAndRec `(doElem|$ma:term)

@@ -1,0 +1,31 @@
+protected def Nat.add : Nat → Nat → Nat :=
+fun (x x_1 : Nat) =>
+  Nat.brecOn x_1
+    (fun (x : Nat) (f : Nat.below x) (x_2 : Nat) =>
+      (match x_2, x with 
+        | a, Nat.zero => fun (x : Nat.below Nat.zero) => a
+        | a, Nat.succ b => fun (x : Nat.below (Nat.succ b)) => Nat.succ (PProd.fst x.fst a))
+        f)
+    x
+protected def Nat.add : Nat → Nat → Nat :=
+fun (x x_1 : Nat) =>
+  Nat.brecOn (motive := fun (x : Nat) => Nat → Nat) x_1
+    (fun (x : Nat) (f : Nat.below (motive := fun (x : Nat) => Nat → Nat) x) (x_2 : Nat) =>
+      (match x_2, x : (x x : Nat) → Nat.below (motive := fun (x : Nat) => Nat → Nat) x → Nat with 
+        | a, Nat.zero => fun (x : Nat.below (motive := fun (x : Nat) => Nat → Nat) Nat.zero) => a
+        | a, Nat.succ b =>
+          fun (x : Nat.below (motive := fun (x : Nat) => Nat → Nat) (Nat.succ b)) => Nat.succ (PProd.fst x.fst a))
+        f)
+    x
+theorem ex.{u} : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≅ a :=
+fun (x x_1 : Sort u) (x_2 : x = x_1) (x_3 : x) =>
+  match x, x_1, x_2, x_3 with 
+  | α, .(α), Eq.refl α, a => HEq.refl a
+theorem ex.{u} : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≅ a :=
+fun (x x_1 : Sort u) (x_2 : x = x_1) (x_3 : x) =>
+  match x, x_1, x_2, x_3 : ∀ (x x_4 : Sort u) (x_5 : x = x_4) (x_6 : x), cast x_5 x_6 ≅ x_6 with 
+  | α, .(α), Eq.refl α, a => HEq.refl a
+def fact : Nat → Nat :=
+fun (n : Nat) => Nat.recOn n 1 fun (n acc : Nat) => (n + 1) * acc
+def fact : Nat → Nat :=
+fun (n : Nat) => Nat.recOn (motive := fun (n : Nat) => Nat) n 1 fun (n acc : Nat) => (n + 1) * acc

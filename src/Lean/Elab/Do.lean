@@ -1584,7 +1584,7 @@ mutual
             else
               return mkSeq term (← doSeqToCode doElems)
           else
-            throwError "unexpected do-element\n{doElem}:{doElem.getKind}"
+            throwError "unexpected do-element of kind {doElem.getKind}:\n{doElem}"
 end
 
 def run (doStx : Syntax) (m : Syntax) : TermElabM CodeBlock :=

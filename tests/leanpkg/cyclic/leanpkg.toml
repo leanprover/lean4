@@ -1,0 +1,4 @@
+[package]
+name = "cyclic"
+version = "0.1"
+lean_version = "leanprover/lean4:master"

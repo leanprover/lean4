@@ -148,3 +148,10 @@ add_test(NAME leanpkgtest
            (cd ../a; leanpkg build lib)
            leanpkg build bin LINK_OPTS=../a/build/lib/libA.a
            ./build/bin/B")
+
+add_test(NAME leanpkgtest_cyclic
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/cyclic"
+         COMMAND bash -c "
+           set -eu
+           export PATH=${LEAN_BIN}:$PATH
+           leanpkg build 2>&1 | grep 'import cycle'")

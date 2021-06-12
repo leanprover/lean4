@@ -40,8 +40,8 @@ partial def buildModule (mod : Name) : BuildM Result := do
   let ctx ← read
   if ctx.parents.contains mod then
     -- cyclic import
-    let cycle := ctx.parents.dropWhile (· != mod) ++ [mod]
-    let cycle := cycle.reverse.map (s!"  {·}")
+    let cycle := mod :: (ctx.parents.partition (· != mod)).1 ++ [mod]
+    let cycle := cycle.map (s!"  {·}")
     throw <| IO.userError s!"import cycle detected:\n{"\n".intercalate cycle}"
 
   if let some r := (← get).modTasks.find? mod then
@@ -54,7 +54,9 @@ partial def buildModule (mod : Name) : BuildM Result := do
   -- recursively build dependencies and calculate transitive `maxMTime`
   let (imports, _, _) ← Elab.parseImports (← IO.FS.readFile leanFile) leanFile.toString
   let localImports := imports.filter (·.module.getRoot == ctx.pkg)
-  let deps ← localImports.mapM (buildModule ·.module)
+  let deps ← localImports.mapM fun i =>
+    withReader (fun ctx => { ctx with parents := mod :: ctx.parents }) <|
+      buildModule i.module
   let depMTimes ← deps.mapM (·.maxMTime)
   let maxMTime := List.maximum? (leanMData.modified :: ctx.moreDepsMTime :: depMTimes) |>.get!
 

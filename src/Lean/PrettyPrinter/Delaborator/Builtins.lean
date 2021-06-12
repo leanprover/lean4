@@ -172,22 +172,6 @@ def delabAppImplicit : Delab := whenNotPPOption getPPExplicit do
       pure (fnStx, paramKinds.tailD [], argStxs))
   Syntax.mkApp fnStx argStxs
 
-@[builtinDelab app]
-def delabAppWithUnexpander : Delab := whenPPOption getPPNotation do
-  let Expr.const c _ _ ← pure (← getExpr).getAppFn | failure
-  let stx ← delabAppImplicit
-  match stx with
-  | `($cPP:ident $args*) => do go c stx
-  | `($cPP:ident) => do go c stx
-  | _ => pure stx
-where
-  go c stx := do
-    let f::_ ← pure <| appUnexpanderAttribute.getValues (← getEnv) c
-      | pure stx
-    let EStateM.Result.ok stx _ ← f stx |>.run ()
-      | pure stx
-    pure stx
-
 /-- State for `delabAppMatch` and helpers. -/
 structure AppMatchState where
   info      : MatcherInfo
@@ -551,6 +535,33 @@ def delabStructureInstance : Delab := whenPPOption getPPStructureInstances do
       pure <| some (← descend ty 2 delab)
     else pure <| none
   `({ $[$fields, ]* $lastField $[: $ty]? })
+
+@[builtinDelab app]
+def delabAppWithUnexpander : Delab := whenPPOption getPPNotation do
+  let Expr.const c _ _ ← pure (← getExpr).getAppFn | failure
+  let fs@(f::_) ← pure <| appUnexpanderAttribute.getValues (← getEnv) c | failure
+  /-
+  Note: the following example will take exponential time:
+  ```
+  def foo (k : Nat → Nat) (n : Nat) : Nat := k (n+1)
+
+  @[appUnexpander foo] def unexpandFooApp : Lean.PrettyPrinter.Unexpander
+    | `(foo $k $a) => `(My.foo $k $a)
+    | _ => throw ()
+
+  #check foo $ foo $ foo $ foo $ foo $ foo $ foo id -- exp-time
+  ```
+  -/
+  let stx ← delabAppImplicit
+  match stx with
+  | `($cPP:ident $args*) => do go fs stx
+  | `($cPP:ident) => do go fs stx
+  | _ => pure stx
+where
+  go fs stx := fs.firstM fun f =>
+    match f stx |>.run () with
+    | EStateM.Result.ok stx _ => pure stx
+    | _ => failure
 
 @[builtinDelab app.Prod.mk]
 def delabTuple : Delab := whenPPOption getPPNotation do

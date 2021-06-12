@@ -106,7 +106,16 @@ register_builtin_option pp.proofs.withType : Bool := {
   group    := "pp"
   descr    := "(pretty printer) when eliding a proof (see `pp.proofs`), show its type instead"
 }
-
+register_builtin_option pp.pi_motives : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) print all motives that return pi types"
+}
+register_builtin_option pp.dep_motives : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) print all dependent motives"
+}
 -- TODO:
 /-
 register_builtin_option g_pp_max_depth : Nat := {
@@ -171,6 +180,8 @@ def getPPUnicode (o : Options) : Bool := o.get `pp.unicode true
 def getPPSafeShadowing (o : Options) : Bool := o.get `pp.safe_shadowing true
 def getPPProofs (o : Options) : Bool := o.get pp.proofs.name (getPPAll o)
 def getPPProofsWithType (o : Options) : Bool := o.get pp.proofs.withType.name true
+def getPPPiMotives (o : Options) : Bool := o.get pp.pi_motives.name pp.pi_motives.defValue
+def getPPDepMotives (o : Options) : Bool := o.get pp.dep_motives.name pp.dep_motives.defValue
 
 /-- Associate pretty printer options to a specific subterm using a synthetic position. -/
 abbrev OptionsPerPos := Std.RBMap Nat Options compare

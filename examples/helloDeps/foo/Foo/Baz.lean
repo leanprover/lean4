@@ -1,3 +1,3 @@
-import B.Foo
+import Foo.Foo
 
 def baz := "baz"

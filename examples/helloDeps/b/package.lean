@@ -1,11 +1,6 @@
-import Lake.Build
+import Lake.Package
 
-open Lake System
-
-def package : PackageConfig := {
+def package : Lake.PackageConfig := {
   name := "b"
   version := "1.0"
-  dependencies := [
-    { name := "a", src := Source.path (FilePath.mk ".." / "a") }
-  ]
 }

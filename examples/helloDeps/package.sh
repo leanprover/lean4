@@ -1,2 +1,2 @@
-cd b
+cd foo
 ../../../build/bin/Lake build bin

@@ -1,1 +1,1 @@
-def name := "world"
+def a := "A"

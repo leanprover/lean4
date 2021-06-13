@@ -33,10 +33,6 @@ extern "C" void lean_initialize() {
     initialize_constructions_module();
 }
 
-void initialize() {
-    lean_initialize();
-}
-
 void finalize() {
     run_thread_finalizers();
     finalize_constructions_module();
@@ -50,8 +46,7 @@ void finalize() {
 }
 
 initializer::initializer() {
-    initialize();
-    lean::io_mark_end_initialization();
+    lean_initialize();
 }
 
 initializer::~initializer() {

@@ -48,7 +48,7 @@ def execMake
     | some t => ["-T", toString t]
     | none => []
   let leanOptsStr := " ".intercalate <| timeoutArgs ++ leanArgs
-  let leanPathStr := SearchPath.toString <| pkg.buildDir :: deps.map (·.buildDir)
+  let leanPathStr := SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)
   let makeArgsStr := " ".intercalate makeArgs
   let moreDepsStr := " ".intercalate <| deps.map (·.oleanRoot.toString)
   let mut spawnArgs := {

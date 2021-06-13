@@ -44,6 +44,9 @@ def name (self : Package) :=
 def module (self : Package) :=
   self.config.module
 
+def moduleName (self : Package) :=
+  self.config.module.toString
+
 def dependencies (self : Package) :=
   self.config.dependencies
 
@@ -54,15 +57,31 @@ def sourceDir (self : Package) :=
   self.dir
 
 def sourceRoot (self : Package) :=
-  self.sourceDir / self.config.module.toString
+  self.sourceDir / self.moduleName
 
 def buildDir (self : Package) :=
   self.dir / Lake.buildPath
 
-def buildRoot (self : Package) :=
-  self.buildDir / self.config.module.toString
+def binDir (self : Package) :=
+  self.buildDir / "bin"
+
+def binName (self : Package) :=
+  self.moduleName
+
+def binPath (self : Package) :=
+  self.binDir / FilePath.withExtension self.binName FilePath.exeExtension
+
+def libDir (self : Package) :=
+  self.buildDir / "lib"
+
+def staticLibFile (self : Package) :=
+  s!"lib{self.module}.a"
+
+def staticLibPath (self : Package) :=
+  self.libDir / self.staticLibFile
+
+def oleanDir (self : Package) :=
+  self.dir / Lake.buildPath
 
 def oleanRoot (self : Package) :=
-  self.buildRoot.withExtension "olean"
-
-end Package
+  self.oleanDir / FilePath.withExtension self.moduleName "olean"

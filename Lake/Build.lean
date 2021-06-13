@@ -27,7 +27,7 @@ def mkBuildConfig
 : BuildConfig := {
   leanArgs,
   module := pkg.module
-  leanPath := SearchPath.toString <| pkg.buildDir :: deps.map (·.buildDir)
+  leanPath := SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)
   moreDeps := deps.map (·.oleanRoot)
 }
 
@@ -149,9 +149,20 @@ def configure (pkg : Package) : IO Unit :=
 def printPaths (pkg : Package) (imports leanArgs : List String := []) : IO Unit := do
   let deps ← buildDeps pkg
   buildImports pkg deps imports leanArgs
-  IO.println <| SearchPath.toString <| pkg.buildDir :: deps.map (·.buildDir)
+  IO.println <| SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)
   IO.println <| SearchPath.toString <| pkg.sourceDir :: deps.map (·.sourceDir)
 
+private def relPathToUnixString (path : FilePath) : String :=
+  if Platform.isWindows then
+    path.toString.map fun c => if c == '\\' then '/' else c
+  else
+    path.toString
+
 def build (pkg : Package) (makeArgs leanArgs : List String := []) : IO Unit := do
-  let deps ← buildDeps pkg (if makeArgs.contains "bin" then ["lib"] else [])
-  buildPkg pkg deps makeArgs leanArgs
+  if makeArgs.contains "bin" then
+    let deps ← buildDeps pkg ["lib"]
+    let depLibs := SearchPath.toString <| deps.map (relPathToUnixString ·.staticLibPath)
+    buildPkg pkg deps (s!"LINK_OPTS=\"{depLibs}\"" :: makeArgs) leanArgs
+  else
+    let deps ← buildDeps pkg
+    buildPkg pkg deps makeArgs leanArgs

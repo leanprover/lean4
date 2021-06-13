@@ -47,23 +47,31 @@ abbrev BuildM := ReaderT BuildContext <| StateT BuildState IO
 
 partial def buildModule (mod : Name) : BuildM BuildResult := do
   let ctx ← read
+
+  -- detect cyclic imports
   if ctx.parents.contains mod then
-    -- cyclic import
-    let cycle := ctx.parents.dropWhile (· != mod) ++ [mod]
-    let cycle := cycle.reverse.map (s!"  {·}")
+    let cycle := mod :: (ctx.parents.partition (· != mod)).1 ++ [mod]
+    let cycle := cycle.map (s!"  {·}")
     throw <| IO.userError s!"import cycle detected:\n{"\n".intercalate cycle}"
 
-  if let some r := (← get).modTasks.find? mod then
-    -- already visited
-    return r
+  -- skip if already visited
+  if let some res := (← get).modTasks.find? mod then
+    return res
 
+  -- deduce lean file
   let leanFile := modToFilePath "." mod "lean"
-  let leanMData ← leanFile.metadata
 
-  -- recursively build dependencies and calculate transitive `maxMTime`
+  -- parse imports
   let (imports, _, _) ← Elab.parseImports (← IO.FS.readFile leanFile) leanFile.toString
   let localImports := imports.filter (·.module.getRoot == ctx.module)
-  let deps ← localImports.mapM (buildModule ·.module)
+
+  -- recursively build local dependencies
+  let deps ← localImports.mapM fun i =>
+    withReader (fun ctx => { ctx with parents := mod :: ctx.parents }) <|
+      buildModule i.module
+
+  -- calculate transitive `maxMTime`
+  let leanMData ← leanFile.metadata
   let depMTimes ← deps.mapM (·.maxMTime)
   let maxMTime := List.maximum? (leanMData.modified :: ctx.moreDepsMTime :: depMTimes) |>.get!
 
@@ -71,34 +79,35 @@ partial def buildModule (mod : Name) : BuildM BuildResult := do
   let oleanFile := modToFilePath buildPath mod "olean"
   try
     if (← oleanFile.metadata).modified >= maxMTime then
-      let r := { maxMTime, task := Task.pure (Except.ok ()) }
-      modify fun st => { st with modTasks := st.modTasks.insert mod r }
-      return r
+      let res := { maxMTime, task := Task.pure (Except.ok ()) }
+      modify fun st => { st with modTasks := st.modTasks.insert mod res }
+      return res
   catch
     | IO.Error.noFileOrDirectory .. => pure ()
     | e                             => throw e
 
+  -- (try to) compile the olean and c file
   let task ← IO.mapTasks (tasks := deps.map (·.task)) fun rs => do
     if let some e := rs.findSome? (fun | Except.error e => some e | Except.ok _ => none) then
-      -- propagate failure
+      -- propagate failure from dependencies
       throw e
     try
       let cFile := modToFilePath tempBuildPath mod "c"
       IO.createDirAll oleanFile.parent.get!
       IO.createDirAll cFile.parent.get!
       execCmd {
-        cmd := FilePath.withExtension "lean" FilePath.exeExtension |>.toString
+        cmd := "lean"
         args := ctx.leanArgs.toArray ++ #["-o", oleanFile.toString, "-c", cFile.toString, leanFile.toString]
         env := #[("LEAN_PATH", ctx.leanPath)]
       }
     catch e =>
-      -- print errors early
+      -- print compile errors early
       IO.eprintln e
       throw e
 
-  let r := { maxMTime, task := task }
-  modify fun st => { st with modTasks := st.modTasks.insert mod r }
-  return r
+  let res := { maxMTime, task := task }
+  modify fun st => { st with modTasks := st.modTasks.insert mod res }
+  return res
 
 def buildModules (cfg : BuildConfig) (mods : List Name) : IO Unit := do
   let moreDepsMTime := (← cfg.moreDeps.mapM (·.metadata)).map (·.modified) |>.maximum? |>.getD ⟨0, 0⟩

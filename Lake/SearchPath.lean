@@ -9,19 +9,15 @@ open System
 
 namespace Lake
 
-def getLeanPath? : IO (Option FilePath) := do
+def getLeanHome? : IO (Option FilePath) := do
   let out ← IO.Process.output {
-    cmd := "sh",
-    args := #["-c", "echo \"#eval IO.appPath >>= IO.println\" | lean --stdin"]
+    cmd := "lean",
+    args := #["--print-prefix"]
   }
   if out.exitCode == 0 then
     some <| FilePath.mk <| out.stdout.trim
   else
     none
-
-def getLeanHome? : IO (Option FilePath) := do
-  let leanPath? ← getLeanPath?
-  OptionM.run do (← (← leanPath?).parent).parent
 
 def getLakeHome? : IO (Option FilePath) := do
   (← IO.appPath).parent.bind FilePath.parent
@@ -51,4 +47,5 @@ def setupLeanSearchPath : IO Unit := do
     sp := lakeHome :: sp
   if let some leanHome ← getLeanHome? then
     sp := leanHome / "lib" / "lean" :: sp
-  Lean.searchPathRef.set (← Lean.addSearchPathFromEnv sp)
+  sp ← Lean.addSearchPathFromEnv sp
+  Lean.searchPathRef.set sp

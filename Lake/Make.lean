@@ -17,21 +17,21 @@ partial def withLockFile (x : IO α) : IO α := do
   try
     x
   finally
-    IO.removeFile lockfile
+    IO.FS.removeFile lockfile
   where
     acquire (firstTime := true) := do
-      IO.createDirAll lockfile.parent.get!
+      IO.FS.createDirAll lockfile.parent.get!
       try
         -- TODO: lock file should ideally contain PID
         if !Platform.isWindows then
-          discard <| IO.Prim.Handle.mk lockfile "wx"
+          discard <| IO.FS.Handle.mkPrim lockfile "wx"
         else
           -- `x` mode doesn't seem to work on Windows even though it's listed at
           -- https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/fopen-wfopen?view=msvc-160
           -- ...? Let's use the slightly racy approach then.
           if ← lockfile.pathExists then
             throw <| IO.Error.alreadyExists 0 ""
-          discard <| IO.Prim.Handle.mk lockfile "w"
+          discard <| IO.FS.Handle.mk lockfile IO.FS.Mode.write
       catch
         | IO.Error.alreadyExists _ _ => do
           if firstTime then

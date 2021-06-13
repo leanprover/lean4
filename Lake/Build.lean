@@ -93,8 +93,8 @@ partial def buildModule (mod : Name) : BuildM BuildResult := do
       throw e
     try
       let cFile := modToFilePath tempBuildPath mod "c"
-      IO.createDirAll oleanFile.parent.get!
-      IO.createDirAll cFile.parent.get!
+      IO.FS.createDirAll oleanFile.parent.get!
+      IO.FS.createDirAll cFile.parent.get!
       execCmd {
         cmd := "lean"
         args := ctx.leanArgs.toArray ++ #["-o", oleanFile.toString, "-c", cFile.toString, leanFile.toString]

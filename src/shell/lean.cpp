@@ -318,16 +318,6 @@ void load_plugin(std::string path) {
     // NOTE: we never unload plugins
 }
 
-class initializer {
-private:
-    lean::initializer m_init;
-public:
-    initializer() {
-    }
-    ~initializer() {
-    }
-};
-
 namespace lean {
 extern "C" object * lean_run_frontend(object * input, object * opts, object * filename, object * main_module_name, object * w);
 pair_ref<environment, object_ref> run_new_frontend(std::string const & input, options const & opts, std::string const & file_name, name const & main_module_name) {
@@ -413,7 +403,7 @@ int main(int argc, char ** argv) {
     SetErrorMode(SEM_FAILCRITICALERRORS);
 #endif
     auto init_start = std::chrono::steady_clock::now();
-    ::initializer init;
+    lean::initializer init;
     second_duration init_time = std::chrono::steady_clock::now() - init_start;
     bool run = false;
     optional<std::string> olean_fn;
@@ -545,6 +535,8 @@ int main(int argc, char ** argv) {
                 return 1;
         }
     }
+
+    lean::io_mark_end_initialization();
 
     if (print_prefix) {
         std::cout << get_io_result<string_ref>(lean_get_prefix(io_mk_world())).data() << std::endl;

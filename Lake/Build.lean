@@ -161,7 +161,7 @@ private def relPathToUnixString (path : FilePath) : String :=
 def build (pkg : Package) (makeArgs leanArgs : List String := []) : IO Unit := do
   if makeArgs.contains "bin" then
     let deps ← buildDeps pkg ["lib"]
-    let depLibs := SearchPath.toString <| deps.map (relPathToUnixString ·.staticLibPath)
+    let depLibs := " ".intercalate <| deps.map (relPathToUnixString ·.staticLibPath)
     buildPkg pkg deps (s!"LINK_OPTS=\"{depLibs}\"" :: makeArgs) leanArgs
   else
     let deps ← buildDeps pkg

@@ -19,6 +19,8 @@ On Windows (MSYS2):
 $ leanpkg build bin LINK_OPTS=-Wl,--export-all
 ```
 
+### Correcting Lake's Search Path
+
 When running the built executable, you may need to ensure that `LEAN_PATH` includes the build directory of Lake (for Lake's `.olean` files) and Lean's library directory for stdlib's (ex., `Init`'s) `.olean` files.
 
 For example:

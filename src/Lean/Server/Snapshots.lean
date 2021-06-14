@@ -14,9 +14,7 @@ of Lean.Elab.Frontend which also stores a snapshot of the world after
 each command. Importantly, we allow (re)starting compilation from any
 snapshot/position in the file for interactive editing purposes. -/
 
-namespace Lean
-namespace Server
-namespace Snapshots
+namespace Lean.Server.Snapshots
 
 open Elab
 
@@ -137,6 +135,4 @@ partial def compileCmdsAfter (contents : String) (snap : Snapshot) : IO (List Sn
     (snap :: snaps, msgLog)
   | Sum.inr msgLog => ([], msgLog)
 
-end Snapshots
-end Server
-end Lean
+end Lean.Server.Snapshots

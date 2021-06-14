@@ -8,17 +8,16 @@ import Init.System.IO
 import Std.Data.RBMap
 
 import Lean.Environment
-import Lean.PrettyPrinter
-import Lean.DeclarationRange
 
 import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
 
-import Lean.Server.Snapshots
 import Lean.Server.Utils
+import Lean.Server.Snapshots
 import Lean.Server.AsyncList
-import Lean.Server.InfoUtils
-import Lean.Server.Completion
+
+import Lean.Server.FileWorker.Utils
+import Lean.Server.FileWorker.Requests
 
 /-!
 For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.
@@ -47,56 +46,14 @@ namespace Lean.Server.FileWorker
 open Lsp
 open IO
 open Snapshots
-open Lean.Parser.Command
 open Std (RBMap RBMap.empty)
 open JsonRpc
-
-section Utils
-  private def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
-    IO.eprintln s!"[{s.beginPos}, {s.endPos}]: `{text.source.extract s.beginPos (s.endPos-1)}`"
-
-  inductive ElabTaskError where
-    | aborted
-    | eof
-    | ioError (e : IO.Error)
-
-  instance : Coe IO.Error ElabTaskError := ⟨ElabTaskError.ioError⟩
-
-  structure CancelToken where
-    ref : IO.Ref Bool
-    deriving Inhabited
-
-  namespace CancelToken
-    def new : IO CancelToken :=
-      CancelToken.mk <$> IO.mkRef false
-
-    def check [MonadExceptOf ElabTaskError m] [MonadLiftT (ST RealWorld) m] [Monad m] (tk : CancelToken) : m Unit := do
-      let c ← tk.ref.get
-      if c then
-        throw ElabTaskError.aborted
-
-    def set (tk : CancelToken) : IO Unit :=
-      tk.ref.set true
-  end CancelToken
-
-  /-- A document editable in the sense that we track the environment
-  and parser state after each command so that edits can be applied
-  without recompiling code appearing earlier in the file. -/
-  structure EditableDocument where
-    meta       : DocumentMeta
-    /- The first snapshot is that after the header. -/
-    headerSnap : Snapshot
-    /- Subsequent snapshots occur after each command. -/
-    cmdSnaps   : AsyncList ElabTaskError Snapshot
-    cancelTk   : CancelToken
-    deriving Inhabited
-end Utils
 
 /- Asynchronous snapshot elaboration. -/
 section Elab
   /-- Elaborates the next command after `parentSnap` and emits diagnostics into `hOut`. -/
   private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream)
-  : ExceptT ElabTaskError IO Snapshot := do
+      : ExceptT ElabTaskError IO Snapshot := do
     cancelTk.check
     publishProgressAtPos m parentSnap.endPos hOut
     let maybeSnap ← compileNextCmd m.text.source parentSnap
@@ -134,7 +91,7 @@ end Elab
 -- Pending requests are tracked so they can be cancelled
 abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) compare
 
-structure ServerContext where
+structure WorkerContext where
   hIn                : FS.Stream
   hOut               : FS.Stream
   hLog               : FS.Stream
@@ -142,7 +99,7 @@ structure ServerContext where
   docRef             : IO.Ref EditableDocument
   pendingRequestsRef : IO.Ref PendingRequestMap
 
-abbrev ServerM := ReaderT ServerContext IO
+abbrev WorkerM := ReaderT WorkerContext IO
 
 /- Worker initialization sequence. -/
 section Initialization
@@ -181,9 +138,9 @@ section Initialization
                                    searchPathRef.set sp
                                    let srcPath := System.SearchPath.parse leanSrcPath
                                    srcPath.mapM realPathNormalized
-      | _                       => throw <| IO.userError s!"unexpected output from `leanpkg print-paths`:\n{stdout}\nstderr:\n{stderr}"
+      | _                       => throwServerError s!"unexpected output from `leanpkg print-paths`:\n{stdout}\nstderr:\n{stderr}"
     else
-      throw <| IO.userError s!"`leanpkg print-paths` failed:\n{stdout}\nstderr:\n{stderr}"
+      throwServerError s!"`leanpkg print-paths` failed:\n{stdout}\nstderr:\n{stderr}"
 
   def compileHeader (m : DocumentMeta) (hOut : FS.Stream) : IO (Snapshot × SearchPath) := do
     let opts := {}  -- TODO
@@ -217,7 +174,7 @@ section Initialization
     return (headerSnap, srcSearchPath)
 
   def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream)
-  : IO ServerContext := do
+      : IO WorkerContext := do
     /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
       "\n", which should be enough to handle both LF and CRLF correctly.
       This is because LSP always refers to characters by (line, column),
@@ -238,12 +195,12 @@ section Initialization
 end Initialization
 
 section Updates
-  def updatePendingRequests (map : PendingRequestMap → PendingRequestMap) : ServerM Unit := do
+  def updatePendingRequests (map : PendingRequestMap → PendingRequestMap) : WorkerM Unit := do
     (←read).pendingRequestsRef.modify map
 
   /-- Given the new document and `changePos`, the UTF-8 offset of a change into the pre-change source,
       updates editable doc state. -/
-  def updateDocument (newMeta : DocumentMeta) (changePos : String.Pos) : ServerM Unit := do
+  def updateDocument (newMeta : DocumentMeta) (changePos : String.Pos) : WorkerM Unit := do
     -- The watchdog only restarts the file worker when the syntax tree of the header changes.
     -- If e.g. a newline is deleted, it will not restart this file worker, but we still
     -- need to reparse the header so that the offsets are correct.
@@ -292,7 +249,7 @@ end Updates
 /- Notifications are handled in the main thread. They may change global worker state
 such as the current file contents. -/
 section NotificationHandling
-  def handleDidChange (p : DidChangeTextDocumentParams) : ServerM Unit := do
+  def handleDidChange (p : DidChangeTextDocumentParams) : WorkerM Unit := do
     let docId := p.textDocument
     let changes := p.contentChanges
     let oldDoc ← (←read).docRef.get
@@ -305,403 +262,18 @@ section NotificationHandling
       let (newDocText, minStartOff) := foldDocumentChanges changes oldDoc.meta.text
       updateDocument ⟨docId.uri, newVersion, newDocText⟩ minStartOff
 
-  def handleCancelRequest (p : CancelParams) : ServerM Unit := do
+  def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
 end NotificationHandling
 
-/- Request handlers are given by `Task`s executed asynchronously. They may be cancelled at any time,
-so they should check the cancellation token when possible to handle this cooperatively. Any exceptions
-thrown in a handler will be reported to the client as LSP error responses. -/
-section RequestHandling
-  structure RequestError where
-    code    : ErrorCode
-    message : String
-
-  namespace RequestError
-
-  def fileChanged : RequestError :=
-    { code := ErrorCode.contentModified
-      message := "File changed." }
-
-  instance : Coe IO.Error RequestError where
-    coe e := { code := ErrorCode.internalError, message := toString e }
-
-  end RequestError
-
-  structure RequestContext where
-    srcSearchPath : SearchPath
-    docRef        : IO.Ref EditableDocument
-
-  abbrev RequestTask α := Task (Except RequestError α)
-  abbrev RequestM := ReaderT RequestContext <| ExceptT RequestError IO
-
-  namespace RequestM
-    def readDoc : RequestM EditableDocument := fun rc => rc.docRef.get
-
-    def asTask (t : RequestM α) : RequestM (RequestTask α) := fun rc => do
-      let t ← IO.asTask <| t rc
-      return t.map fun
-        | Except.error e => throwThe RequestError e
-        | Except.ok v    => v
-
-    def mapTask (t : Task α) (f : α → RequestM β) : RequestM (RequestTask β) := fun rc => do
-      let t ← (IO.mapTask · t) fun a => f a rc
-      return t.map fun
-        | Except.error e => throwThe RequestError e
-        | Except.ok v    => v
-
-    def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := fun rc => do
-      let t ← IO.bindTask t fun a => do
-        match ← f a rc with
-        | Except.error e => return Task.pure <| Except.ok <| Except.error e
-        | Except.ok t    => return t.map Except.ok
-      return t.map fun
-        | Except.error e => throwThe RequestError e
-        | Except.ok v    => v
-
-    /-- Create a task which waits for a snapshot matching `p`, handles various errors,
-    and if a matching snapshot was found executes `x` with it. If not found, the task
-    executes `notFoundX`. -/
-    def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
-      (notFoundX : RequestM β)
-      (x : Snapshot → RequestM β)
-      : RequestM (RequestTask β) := do
-      let findTask ← doc.cmdSnaps.waitFind? p
-      mapTask findTask fun
-        /- The elaboration task that we're waiting for may be aborted if the file contents change.
-        In that case, we reply with the `fileChanged` error. Thanks to this, the server doesn't
-        get bogged down in requests for an old state of the document. -/
-        | Except.error ElabTaskError.aborted =>
-          throwThe RequestError RequestError.fileChanged
-        | Except.error (ElabTaskError.ioError e) =>
-          throwThe IO.Error e
-        | Except.error ElabTaskError.eof => notFoundX
-        | Except.ok none => notFoundX
-        | Except.ok (some snap) => x snap
-  end RequestM
-
-  open RequestM
-
-  partial def handleCompletion (p : CompletionParams) :
-      RequestM (RequestTask CompletionList) := do
-    let doc ← readDoc
-    let text := doc.meta.text
-    let pos := text.lspPosToUtf8Pos p.position
-    -- dbg_trace ">> handleCompletion invoked {pos}"
-    -- NOTE: use `>=` since the cursor can be *after* the input
-    withWaitFindSnap doc (fun s => s.endPos >= pos)
-      (notFoundX := pure { items := #[], isIncomplete := true }) fun snap => do
-        for infoTree in snap.cmdState.infoState.trees do
-          -- for (ctx, info) in infoTree.getCompletionInfos do
-          --   dbg_trace "{← info.format ctx}"
-          if let some r ← Completion.find? doc.meta.text pos infoTree then
-            return r
-        return { items := #[ ], isIncomplete := true }
-
-  open Elab in
-  partial def handleHover (p : HoverParams)
-    : RequestM (RequestTask (Option Hover)) := do
-    let doc ← readDoc
-    let text := doc.meta.text
-    let mkHover (s : String) (f : String.Pos) (t : String.Pos) : Hover :=
-      { contents := { kind := MarkupKind.markdown
-                      value := s }
-        range? := some { start := text.utf8PosToLspPos f
-                         «end» := text.utf8PosToLspPos t } }
-
-    let hoverPos := text.lspPosToUtf8Pos p.position
-    withWaitFindSnap doc (fun s => s.endPos > hoverPos)
-      (notFoundX := pure none) fun snap => do
-        for t in snap.cmdState.infoState.trees do
-          if let some (ci, i) := t.hoverableInfoAt? hoverPos then
-            if let some hoverFmt ← i.fmtHover? ci then
-              return some <| mkHover (toString hoverFmt) i.pos?.get! i.tailPos?.get!
-
-        return none
-
-  open Elab in
-  partial def handleDefinition (goToType? : Bool) (p : TextDocumentPositionParams)
-    : RequestM (RequestTask (Array LocationLink)) := do
-    let rc ← read
-    let doc ← readDoc
-    let text := doc.meta.text
-    let hoverPos := text.lspPosToUtf8Pos p.position
-    withWaitFindSnap doc (fun s => s.endPos > hoverPos)
-      (notFoundX := pure #[]) fun snap => do
-        for t in snap.cmdState.infoState.trees do
-          if let some (ci, Info.ofTermInfo i) := t.hoverableInfoAt? hoverPos then
-            let mut expr := i.expr
-            if goToType? then
-              expr ← ci.runMetaM i.lctx do
-                Meta.instantiateMVars (← Meta.inferType expr)
-            if let some n := expr.constName? then
-              let mod? ← ci.runMetaM i.lctx <| findModuleOf? n
-              let modUri? ← match mod? with
-                | some modName =>
-                  let modFname? ← rc.srcSearchPath.findWithExt "lean" modName
-                  pure <| modFname?.map toFileUri
-                | none         => pure <| some doc.meta.uri
-
-              let ranges? ← ci.runMetaM i.lctx <| findDeclarationRanges? n
-              if let (some ranges, some modUri) := (ranges?, modUri?) then
-                let declRangeToLspRange (r : DeclarationRange) : Lsp.Range :=
-                  { start := ⟨r.pos.line - 1, r.charUtf16⟩
-                    «end» := ⟨r.endPos.line - 1, r.endCharUtf16⟩ }
-                let ll : LocationLink := {
-                  originSelectionRange? := some ⟨text.utf8PosToLspPos i.stx.getPos?.get!,
-                                                 text.utf8PosToLspPos i.stx.getTailPos?.get!⟩
-                  targetUri := modUri
-                  targetRange := declRangeToLspRange ranges.range
-                  targetSelectionRange := declRangeToLspRange ranges.selectionRange
-                }
-                return #[ll]
-        return #[]
-
-  open Elab in
-  partial def handlePlainGoal (p : PlainGoalParams)
-    : RequestM (RequestTask (Option PlainGoal)) := do
-    let doc ← readDoc
-    let text := doc.meta.text
-    let hoverPos := text.lspPosToUtf8Pos p.position
-    -- NOTE: use `>=` since the cursor can be *after* the input
-    withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
-      (notFoundX := return none) fun snap => do
-        for t in snap.cmdState.infoState.trees do
-          if let rs@(_ :: _) := t.goalsAt? doc.meta.text hoverPos then
-            let goals ← List.join <$> rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter } =>
-              let ci := if useAfter then { ci with mctx := ti.mctxAfter } else { ci with mctx := ti.mctxBefore }
-              let goals := if useAfter then ti.goalsAfter else ti.goalsBefore
-              ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPInaccessibleNames (Meta.ppGoal g))
-            let md :=
-              if goals.isEmpty then
-                "no goals"
-              else
-                let goals := goals.map fun goal => s!"```lean
-{goal}
-```"
-                String.intercalate "\n---\n" goals
-            return some { goals := goals.map toString |>.toArray, rendered := md }
-
-        return none
-
-  def hasRange (stx : Syntax) : Bool :=
-    stx.getPos?.isSome && stx.getTailPos?.isSome
-
-  def rangeOfSyntax! (text : FileMap) (stx : Syntax) : Range :=
-    ⟨text.utf8PosToLspPos <| stx.getPos?.get!,
-     text.utf8PosToLspPos <| stx.getTailPos?.get!⟩
-
-  open Elab in
-  partial def handlePlainTermGoal (p : PlainTermGoalParams)
-    : RequestM (RequestTask (Option PlainTermGoal)) := do
-    let doc ← readDoc
-    let text := doc.meta.text
-    let hoverPos := text.lspPosToUtf8Pos p.position
-    withWaitFindSnap doc (fun s => s.endPos > hoverPos)
-      (notFoundX := pure none) fun snap => do
-        for t in snap.cmdState.infoState.trees do
-          if let some (ci, Info.ofTermInfo i) := t.termGoalAt? hoverPos then
-            let goal ← ci.runMetaM i.lctx <| open Meta in do
-              let ty ← instantiateMVars <| i.expectedType?.getD (← inferType i.expr)
-              withPPInaccessibleNames <| Meta.ppGoal (← mkFreshExprMVar ty).mvarId!
-            let range := if hasRange i.stx then rangeOfSyntax! text i.stx else ⟨p.position, p.position⟩
-            return some { goal := toString goal, range }
-        return none
-
-  partial def handleDocumentHighlight (p : DocumentHighlightParams) :
-    RequestM (RequestTask (Array DocumentHighlight)) := do
-    let doc ← readDoc
-    let text := doc.meta.text
-    let pos := text.lspPosToUtf8Pos p.position
-    let rec highlightReturn? (doRange? : Option Range) : Syntax → Option DocumentHighlight
-      | stx@`(doElem|return%$i $e) =>
-        if stx.getPos?.get! <= pos && pos < stx.getTailPos?.get! then
-          some { range := doRange?.getD (rangeOfSyntax! text i), kind? := DocumentHighlightKind.text }
-        else
-          highlightReturn? doRange? e
-      | `(do%$i $elems) => highlightReturn? (rangeOfSyntax! text i) elems
-      | stx => stx.getArgs.findSome? (highlightReturn? doRange?)
-
-    withWaitFindSnap doc (fun s => s.endPos > pos)
-      (notFoundX := pure #[]) fun snap => do
-        if let some hi := highlightReturn? none snap.stx then
-          return #[hi]
-        return #[]
-
-  partial def handleDocumentSymbol (p : DocumentSymbolParams) :
-    RequestM (RequestTask DocumentSymbolResult) := do
-    let doc ← readDoc
-    asTask do
-      let ⟨cmdSnaps, e?⟩ ← doc.cmdSnaps.updateFinishedPrefix
-      let mut stxs := cmdSnaps.finishedPrefix.map Snapshot.stx
-      match e? with
-      | some ElabTaskError.aborted =>
-        throw RequestError.fileChanged
-      | some (ElabTaskError.ioError e) =>
-        throwThe IO.Error e
-      | _ => ()
-
-      let lastSnap := cmdSnaps.finishedPrefix.getLastD doc.headerSnap
-      stxs := stxs ++ (← parseAhead doc.meta.text.source lastSnap).toList
-      let (syms, _) := toDocumentSymbols doc.meta.text stxs
-      return { syms := syms.toArray }
-    where
-      toDocumentSymbols (text : FileMap)
-      | [] => ([], [])
-      | stx::stxs => match stx with
-        | `(namespace $id)  => sectionLikeToDocumentSymbols text stx stxs (id.getId.toString) SymbolKind.namespace id
-        | `(section $(id)?) => sectionLikeToDocumentSymbols text stx stxs ((·.getId.toString) <$> id |>.getD "<section>") SymbolKind.namespace (id.getD stx)
-        | `(end $(id)?) => ([], stx::stxs)
-        | _ =>
-          let (syms, stxs') := toDocumentSymbols text stxs
-          if stx.isOfKind ``Lean.Parser.Command.declaration && hasRange stx then
-            let (name, selection) := match stx with
-              | `($dm:declModifiers $ak:attrKind instance $[$np:namedPrio]? $[$id:ident$[.{$ls,*}]?]? $sig:declSig $val) =>
-                ((·.getId.toString) <$> id |>.getD s!"instance {sig.reprint.getD ""}", id.getD sig)
-              | _ => match stx[1][1] with
-                | `(declId|$id:ident$[.{$ls,*}]?) => (id.getId.toString, id)
-                | _                               => (stx[1][0].isIdOrAtom?.getD "<unknown>", stx[1][0])
-            if hasRange selection then
-              (DocumentSymbol.mk {
-                name := name
-                kind := SymbolKind.method
-                range := rangeOfSyntax! text stx
-                selectionRange := rangeOfSyntax! text selection
-               } :: syms, stxs')
-            else
-             (syms, stxs')
-          else
-            (syms, stxs')
-      sectionLikeToDocumentSymbols (text : FileMap) (stx : Syntax) (stxs : List Syntax) (name : String) (kind : SymbolKind) (selection : Syntax) :=
-          let (syms, stxs') := toDocumentSymbols text stxs
-          -- discard `end`
-          let (syms', stxs'') := toDocumentSymbols text (stxs'.drop 1)
-          let endStx := match stxs' with
-            | endStx::_ => endStx
-            | []        => (stx::stxs').getLast!
-          -- we can assume that commands always have at least one position (see `parseCommand`)
-          let range := rangeOfSyntax! text (mkNullNode #[stx, endStx])
-          (DocumentSymbol.mk {
-            name
-            kind
-            range
-            selectionRange := if hasRange selection then rangeOfSyntax! text selection else range
-            children? := syms.toArray
-          } :: syms', stxs'')
-
-  def noHighlightKinds : Array SyntaxNodeKind := #[
-    -- usually have special highlighting by the client
-    ``Lean.Parser.Term.sorry,
-    ``Lean.Parser.Term.type,
-    ``Lean.Parser.Term.prop,
-    -- not really keywords
-    `antiquotName,
-    ``Lean.Parser.Command.docComment]
-
-  structure SemanticTokensContext where
-    beginPos  : String.Pos
-    endPos    : String.Pos
-    text      : FileMap
-    infoState : Elab.InfoState
-
-  structure SemanticTokensState where
-    data       : Array Nat
-    lastLspPos : Lsp.Position
-
-  partial def handleSemanticTokens (beginPos endPos : String.Pos) :
-      RequestM (RequestTask SemanticTokens) := do
-    let doc ← readDoc
-    let text := doc.meta.text
-    let t ← doc.cmdSnaps.waitAll (·.beginPos < endPos)
-    mapTask t fun (snaps, _) =>
-      StateT.run' (s := { data := #[], lastLspPos := ⟨0, 0⟩ : SemanticTokensState }) do
-        for s in snaps do
-          if s.endPos <= beginPos then
-            continue
-          ReaderT.run (r := SemanticTokensContext.mk beginPos endPos text s.cmdState.infoState) <|
-            go s.stx
-        return { data := (← get).data }
-  where
-    go (stx : Syntax) := do
-      match stx with
-      | `($e.$id:ident)    => go e; addToken id SemanticTokenType.property
-      -- indistinguishable from next pattern
-      --| `(level|$id:ident) => addToken id SemanticTokenType.variable
-      | `($id:ident)       => highlightId id
-      | _ =>
-        if !noHighlightKinds.contains stx.getKind then
-          highlightKeyword stx
-          if stx.isOfKind choiceKind then
-            go stx[0]
-          else
-            stx.getArgs.forM go
-    highlightId (stx : Syntax) : ReaderT SemanticTokensContext (StateT SemanticTokensState RequestM) _ := do
-      if let (some pos, some tailPos) := (stx.getPos?, stx.getTailPos?) then
-        for t in (← read).infoState.trees do
-          for ti in t.deepestNodes (fun
-            | _, i@(Elab.Info.ofTermInfo ti), _ => match i.pos? with
-              | some ipos => if pos <= ipos && ipos < tailPos then some ti else none
-              | _         => none
-            | _, _, _ => none) do
-            match ti.expr with
-            | Expr.fvar .. => addToken ti.stx SemanticTokenType.variable
-            | _            => if ti.stx.getPos?.get! > pos then addToken ti.stx SemanticTokenType.property
-    highlightKeyword stx := do
-      if let Syntax.atom info val := stx then
-        if val.bsize > 0 && val[0].isAlpha then
-          addToken stx SemanticTokenType.keyword
-    addToken stx type := do
-      let ⟨beginPos, endPos, text, _⟩ ← read
-      if let (some pos, some tailPos) := (stx.getPos?, stx.getTailPos?) then
-        if beginPos <= pos && pos < endPos then
-          let lspPos := (← get).lastLspPos
-          let lspPos' := text.utf8PosToLspPos pos
-          let deltaLine := lspPos'.line - lspPos.line
-          let deltaStart := lspPos'.character - (if lspPos'.line == lspPos.line then lspPos.character else 0)
-          let length := (text.utf8PosToLspPos tailPos).character - lspPos'.character
-          let tokenType := type.toNat
-          let tokenModifiers := 0
-          modify fun st => {
-            data := st.data ++ #[deltaLine, deltaStart, length, tokenType, tokenModifiers]
-            lastLspPos := lspPos'
-          }
-
-  def handleSemanticTokensFull (p : SemanticTokensParams) :
-      RequestM (RequestTask SemanticTokens) := do
-    handleSemanticTokens 0 (1 <<< 16)
-
-  def handleSemanticTokensRange (p : SemanticTokensRangeParams) :
-      RequestM (RequestTask SemanticTokens) := do
-    let doc ← readDoc
-    let text := doc.meta.text
-    let beginPos := text.lspPosToUtf8Pos p.range.start
-    let endPos := text.lspPosToUtf8Pos p.range.end
-    handleSemanticTokens beginPos endPos
-
-  partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
-    : RequestM (RequestTask WaitForDiagnostics) := do
-    let rec waitLoop : RequestM EditableDocument := do
-      let doc ← readDoc
-      if p.version ≤ doc.meta.version then
-        return doc
-      else
-        IO.sleep 50
-        waitLoop
-    let t ← RequestM.asTask waitLoop
-    RequestM.bindTask t fun doc? => do
-      let doc ← doc?
-      let t₁ ← doc.cmdSnaps.waitAll
-      return t₁.map fun _ => pure WaitForDiagnostics.mk
-end RequestHandling
-
 section MessageHandling
-  def parseParams (paramType : Type) [FromJson paramType] (params : Json) : ServerM paramType :=
+  def parseParams (paramType : Type) [FromJson paramType] (params : Json) : WorkerM paramType :=
     match fromJson? params with
     | Except.ok parsed => pure parsed
     | Except.error inner => throwServerError s!"Got param with wrong structure: {params.compress}\n{inner}"
 
-  def handleNotification (method : String) (params : Json) : ServerM Unit := do
-    let handle := fun paramType [FromJson paramType] (handler : paramType → ServerM Unit) =>
+  def handleNotification (method : String) (params : Json) : WorkerM Unit := do
+    let handle := fun paramType [FromJson paramType] (handler : paramType → WorkerM Unit) =>
       parseParams paramType params >>= handler
     match method with
     | "textDocument/didChange" => handle DidChangeTextDocumentParams handleDidChange
@@ -709,20 +281,17 @@ section MessageHandling
     | _                        => throwServerError s!"Got unsupported notification method: {method}"
 
   def queueRequest (id : RequestID) (requestTask : Task (Except IO.Error Unit))
-  : ServerM Unit := do
+      : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.insert id requestTask)
 
   def handleRequest (id : RequestID) (method : String) (params : Json)
-  : ServerM Unit := do
+      : WorkerM Unit := do
+    let st ← read
     let responseOfRequestError id err : ResponseError Unit :=
       { id := id, code := err.code, message := err.message }
-    let handle paramType [FromJson paramType] respType [ToJson respType]
-        (handler : paramType → RequestM (RequestTask respType)) : ServerM Unit := do
-      let st ← read
-      let p ← parseParams paramType params
-      let rc : RequestContext := { srcSearchPath := st.srcSearchPath, docRef := st.docRef }
-      let t? ← (ExceptT.run <| handler p rc : IO _)
-      let t₁ ← match t? with
+    let rc : Requests.RequestContext := { srcSearchPath := st.srcSearchPath, docRef := st.docRef }
+    let t? ← (ExceptT.run <| Requests.handleLspRequest method params rc : IO _)
+    let t₁ ← match t? with
       | Except.error e =>
         IO.asTask do
           st.hOut.writeLspResponseError (responseOfRequestError id e)
@@ -731,30 +300,16 @@ section MessageHandling
           st.hOut.writeLspResponse ⟨id, resp⟩
         | Except.error e =>
           st.hOut.writeLspResponseError (responseOfRequestError id e)
-      queueRequest id t₁
-    match method with
-    | "textDocument/waitForDiagnostics"   => handle WaitForDiagnosticsParams WaitForDiagnostics handleWaitForDiagnostics
-    | "textDocument/completion"           => handle CompletionParams CompletionList handleCompletion
-    | "textDocument/hover"                => handle HoverParams (Option Hover) handleHover
-    | "textDocument/declaration"          => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := false)
-    | "textDocument/definition"           => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := false)
-    | "textDocument/typeDefinition"       => handle TextDocumentPositionParams (Array LocationLink) <| handleDefinition (goToType? := true)
-    | "textDocument/documentHighlight"    => handle DocumentHighlightParams DocumentHighlightResult handleDocumentHighlight
-    | "textDocument/documentSymbol"       => handle DocumentSymbolParams DocumentSymbolResult handleDocumentSymbol
-    | "textDocument/semanticTokens/full"  => handle SemanticTokensParams SemanticTokens handleSemanticTokensFull
-    | "textDocument/semanticTokens/range" => handle SemanticTokensRangeParams SemanticTokens handleSemanticTokensRange
-    | "$/lean/plainGoal"                  => handle PlainGoalParams (Option PlainGoal) handlePlainGoal
-    | "$/lean/plainTermGoal"              => handle PlainTermGoalParams (Option PlainTermGoal) handlePlainTermGoal
-    | _ => throwServerError s!"Got unsupported request: {method}"
+    queueRequest id t₁
 end MessageHandling
 
 section MainLoop
-  partial def mainLoop : ServerM Unit := do
+  partial def mainLoop : WorkerM Unit := do
     let st ← read
     let msg ← st.hIn.readLspMessage
     let pendingRequests ← st.pendingRequestsRef.get
     let filterFinishedTasks (acc : PendingRequestMap) (id : RequestID) (task : Task (Except IO.Error Unit))
-      : ServerM PendingRequestMap := do
+        : WorkerM PendingRequestMap := do
       if (←hasFinished task) then
         /- Handler tasks are constructed so that the only possible errors here
         are failures of writing a response into the stream. -/
@@ -781,7 +336,6 @@ end MainLoop
 def initAndRunWorker (i o e : FS.Stream) : IO UInt32 := do
   let i ← maybeTee "fwIn.txt" false i
   let o ← maybeTee "fwOut.txt" true o
-  -- TODO(WN): act in accordance with InitializeParams
   let _ ← i.readLspRequestAs "initialize" InitializeParams
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" DidOpenTextDocumentParams
   let doc := param.textDocument

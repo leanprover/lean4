@@ -11,8 +11,8 @@ import Std.Data.RBMap
 import Lean.Elab.Import
 
 import Lean.Data.Lsp
-import Lean.Server.FileSource
 import Lean.Server.Utils
+import Lean.Server.Requests
 
 /-!
 For general server architecture, see `README.md`. This module implements the watchdog process.
@@ -377,41 +377,24 @@ section MessageHandling
       | Except.error inner => throwServerError s!"Got param with wrong structure: {params.compress}\n{inner}"
 
   def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
-    let handle := fun α [FromJson α] [ToJson α] [FileSource α] => do
-      let parsedParams ← parseParams α params
-      let uri := fileSource parsedParams
-      let fw ← try
-        findFileWorker uri
-      catch _ =>
-        -- VS Code sometimes sends us requests just after closing a file?
-        -- This is permitted by the spec, but seems pointless, and there's not much we can do,
-        -- so we return an error instead.
-        (←read).hOut.writeLspResponseError
-          { id      := id
-            code    := ErrorCode.contentModified
-            message := s!"Cannot process request to closed file '{uri}'" }
-        return
-      let r := Request.mk id method params
-      fw.pendingRequestsRef.modify (·.insert id r)
-      tryWriteMessage uri r
-    match method with
-    | "textDocument/waitForDiagnostics"   => handle WaitForDiagnosticsParams
-    | "textDocument/completion"           => handle CompletionParams
-    | "textDocument/hover"                => handle HoverParams
-    | "textDocument/declaration"          => handle DeclarationParams
-    | "textDocument/definition"           => handle DefinitionParams
-    | "textDocument/typeDefinition"       => handle TypeDefinitionParams
-    | "textDocument/documentHighlight"    => handle DocumentHighlightParams
-    | "textDocument/documentSymbol"       => handle DocumentSymbolParams
-    | "textDocument/semanticTokens/range" => handle SemanticTokensRangeParams
-    | "textDocument/semanticTokens/full"  => handle SemanticTokensParams
-    | "$/lean/plainGoal"                  => handle PlainGoalParams
-    | "$/lean/plainTermGoal"              => handle PlainTermGoalParams
-    | _                                   =>
-      (←read).hOut.writeLspResponseError
-        { id      := id
-          code    := ErrorCode.methodNotFound
-          message := s!"Unsupported request method: {method}" }
+    match (← Requests.routeLspRequest method params) with
+      | Except.error e => 
+        (←read).hOut.writeLspResponseError <| e.toLspResponseError id
+      | Except.ok uri =>
+        let fw ← try
+          findFileWorker uri
+        catch _ =>
+          -- VS Code sometimes sends us requests just after closing a file?
+          -- This is permitted by the spec, but seems pointless, and there's not much we can do,
+          -- so we return an error instead.
+          (←read).hOut.writeLspResponseError
+            { id      := id
+              code    := ErrorCode.contentModified
+              message := s!"Cannot process request to closed file '{uri}'" }
+          return
+        let r := Request.mk id method params
+        fw.pendingRequestsRef.modify (·.insert id r)
+        tryWriteMessage uri r
 
   def handleNotification (method : String) (params : Json) : ServerM Unit := do
     let handle := (fun α [FromJson α] (handler : α → ServerM Unit) => parseParams α params >>= handler)

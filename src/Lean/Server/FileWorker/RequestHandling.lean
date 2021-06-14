@@ -9,148 +9,15 @@ import Lean.DeclarationRange
 import Lean.Data.Json
 import Lean.Data.Lsp
 
-import Lean.Server.Completion
 import Lean.Server.FileWorker.Utils
+import Lean.Server.Requests
+import Lean.Server.Completion
 
-/-!  Request handlers are implemented as asynchronously executing `Task`s. They may be cancelled at any time,
-so they should check the cancellation token when possible to handle this cooperatively. Any exceptions
-thrown in a request handler will be reported to the client as LSP error responses.
-
-We maintain a global map of request handlers. This allows user code such as plugins to register its own
-handlers, for example to support ITP functionality such as goal state visualization. -/
-
-namespace Lean.Server.FileWorker.Requests
-
-structure RequestError where
-  code    : JsonRpc.ErrorCode
-  message : String
-
-namespace RequestError
-open JsonRpc
-
-def fileChanged : RequestError :=
-  { code := ErrorCode.contentModified
-    message := "File changed." }
-
-def methodNotFound (method : String) : RequestError :=
-  { code := ErrorCode.methodNotFound
-    message := s!"No request handler found for '${method}'" }
-
-instance : Coe IO.Error RequestError where
-  coe e := { code := ErrorCode.internalError
-             message := toString e }
-
-def toLspResponseError (id : RequestID) (e : RequestError) : ResponseError Unit :=
-  { id := id
-    code := e.code
-    message := e.message }
-
-end RequestError
-
-structure RequestContext where
-  srcSearchPath : SearchPath
-  docRef        : IO.Ref EditableDocument
-
-abbrev RequestTask α := Task (Except RequestError α)
-/-- Request handlers execute in this monad. -/
-abbrev RequestM := ReaderT RequestContext <| ExceptT RequestError IO
-
-/- The global request handlers table. -/
-section HandlerTable
-/- NOTE(WN): maybe it would be neater to store
-```lean
-  paramType : Type
-  paramFromJson : FromJson paramType
-  respType : Type
-  respToJson : ToJson respType
-```
-here but this is a `Type 1`, requiring `EStateM/ST/IO` to be universe-polymorphic. -/
-private structure RequestHandler where
-  handle : Json → RequestM (RequestTask Json)
-
-builtin_initialize requestHandlers : IO.Ref (Std.PersistentHashMap String RequestHandler) ←
-  IO.mkRef {}
-
-private def parseParams (paramType : Type) [FromJson paramType] (params : Json) : RequestM paramType :=
-  match fromJson? params with
-  | Except.ok parsed => return parsed
-  | Except.error inner => throwThe RequestError {
-    code := JsonRpc.ErrorCode.parseError
-    message := s!"Cannot parse request params: {params.compress}\n{inner}"
-  }
-
-def registerLspRequestHandler (method : String)
-    paramType [FromJson paramType]
-    respType [ToJson respType]
-    (handler : paramType → RequestM (RequestTask respType)) : IO Unit := do
-  unless (← IO.initializing) do
-    throw <| IO.userError s!"Failed to register LSP request handler for '{method}': only possible during initialization"
-  if (←requestHandlers.get).contains method then
-    throw <| IO.userError s!"Failed to register LSP request handler for '{method}': already registered"
-  let handle := fun j => do
-    let params ← parseParams paramType j
-    let t ← handler params
-    t.map <| Except.map ToJson.toJson
-  requestHandlers.modify fun rhs => rhs.insert method { handle }
-
-private def lookupLspRequestHandler (method : String) : IO (Option RequestHandler) := do
-  (← requestHandlers.get).find? method
-
-def handleLspRequest (method : String) (params : Json) : RequestM (RequestTask Json) := do
-  match (← lookupLspRequestHandler method) with
-  | none => throw <| RequestError.methodNotFound method
-  | some rh => rh.handle params
-end HandlerTable
-
-open Snapshots
-
-namespace RequestM
-  def readDoc : RequestM EditableDocument := fun rc => rc.docRef.get
-
-  def asTask (t : RequestM α) : RequestM (RequestTask α) := fun rc => do
-    let t ← IO.asTask <| t rc
-    return t.map fun
-      | Except.error e => throwThe RequestError e
-      | Except.ok v    => v
-
-  def mapTask (t : Task α) (f : α → RequestM β) : RequestM (RequestTask β) := fun rc => do
-    let t ← (IO.mapTask · t) fun a => f a rc
-    return t.map fun
-      | Except.error e => throwThe RequestError e
-      | Except.ok v    => v
-
-  def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := fun rc => do
-    let t ← IO.bindTask t fun a => do
-      match ← f a rc with
-      | Except.error e => return Task.pure <| Except.ok <| Except.error e
-      | Except.ok t    => return t.map Except.ok
-    return t.map fun
-      | Except.error e => throwThe RequestError e
-      | Except.ok v    => v
-
-  /-- Create a task which waits for a snapshot matching `p`, handles various errors,
-  and if a matching snapshot was found executes `x` with it. If not found, the task
-  executes `notFoundX`. -/
-  def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
-    (notFoundX : RequestM β)
-    (x : Snapshot → RequestM β)
-    : RequestM (RequestTask β) := do
-    let findTask ← doc.cmdSnaps.waitFind? p
-    mapTask findTask fun
-      /- The elaboration task that we're waiting for may be aborted if the file contents change.
-      In that case, we reply with the `fileChanged` error. Thanks to this, the server doesn't
-      get bogged down in requests for an old state of the document. -/
-      | Except.error ElabTaskError.aborted =>
-        throwThe RequestError RequestError.fileChanged
-      | Except.error (ElabTaskError.ioError e) =>
-        throwThe IO.Error e
-      | Except.error ElabTaskError.eof => notFoundX
-      | Except.ok none => notFoundX
-      | Except.ok (some snap) => x snap
-end RequestM
-
-open RequestM
+namespace Lean.Server.FileWorker
 open Lsp
+open Requests
+open RequestM
+open Snapshots
 
 partial def handleCompletion (p : CompletionParams)
     : RequestM (RequestTask CompletionList) := do
@@ -479,4 +346,5 @@ builtin_initialize
   registerLspRequestHandler "textDocument/semanticTokens/range" SemanticTokensRangeParams  SemanticTokens          handleSemanticTokensRange
   registerLspRequestHandler "$/lean/plainGoal"                  PlainGoalParams            (Option PlainGoal)      handlePlainGoal
   registerLspRequestHandler "$/lean/plainTermGoal"              PlainTermGoalParams        (Option PlainTermGoal)  handlePlainTermGoal
-end Lean.Server.FileWorker.Requests
+
+end Lean.Server.FileWorker

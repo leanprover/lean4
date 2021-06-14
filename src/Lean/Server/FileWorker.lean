@@ -323,42 +323,68 @@ section RequestHandling
     { code := ErrorCode.contentModified
       message := "File changed." }
 
+  instance : Coe IO.Error RequestError where
+    coe e := { code := ErrorCode.internalError, message := toString e }
+
   end RequestError
 
-  -- TODO(WN): the type is too complicated
-  abbrev RequestM α := ServerM $ Task $ Except IO.Error $ Except RequestError α
+  structure RequestContext where
+    srcSearchPath : SearchPath
+    docRef        : IO.Ref EditableDocument
 
-  def mapTask (t : Task α) (f : α → ExceptT RequestError ServerM β) : RequestM β := fun st =>
-    (IO.mapTask · t) fun a => f a st
+  abbrev RequestTask α := Task (Except RequestError α)
+  abbrev RequestM := ReaderT RequestContext <| ExceptT RequestError IO
 
-  /-- Create a task which waits for a snapshot matching `p`, handles various errors,
-  and if a matching snapshot was found executes `x` with it. If not found, the task
-  executes `notFoundX`. -/
-  def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
-    (notFoundX : ExceptT RequestError ServerM β)
-    (x : Snapshot → ExceptT RequestError ServerM β)
-    : ServerM (Task (Except IO.Error (Except RequestError β))) := do
-    let findTask ← doc.cmdSnaps.waitFind? p
-    mapTask findTask fun
-      | Except.error ElabTaskError.aborted =>
-        throwThe RequestError RequestError.fileChanged
-      | Except.error (ElabTaskError.ioError e) =>
-        throwThe IO.Error e
-      | Except.error ElabTaskError.eof => notFoundX
-      | Except.ok none => notFoundX
-      | Except.ok (some snap) => x snap
+  namespace RequestM
+    def readDoc : RequestM EditableDocument := fun rc => rc.docRef.get
 
-  /- Requests that need data from a certain command should traverse the snapshots
-     by successively getting the next task, meaning that we might need to wait for elaboration.
-     When that happens, the request should send a "content changed" error to the user
-     (this way, the server doesn't get bogged down in requests for an old state of the document).
-     Requests need to manually check for whether their task has been cancelled, so that they
-     can reply with a RequestCancelled error. -/
+    def asTask (t : RequestM α) : RequestM (RequestTask α) := fun rc => do
+      let t ← IO.asTask <| t rc
+      return t.map fun
+        | Except.error e => throwThe RequestError e
+        | Except.ok v    => v
+
+    def mapTask (t : Task α) (f : α → RequestM β) : RequestM (RequestTask β) := fun rc => do
+      let t ← (IO.mapTask · t) fun a => f a rc
+      return t.map fun
+        | Except.error e => throwThe RequestError e
+        | Except.ok v    => v
+
+    def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := fun rc => do
+      let t ← IO.bindTask t fun a => do
+        match ← f a rc with
+        | Except.error e => return Task.pure <| Except.ok <| Except.error e
+        | Except.ok t    => return t.map Except.ok
+      return t.map fun
+        | Except.error e => throwThe RequestError e
+        | Except.ok v    => v
+
+    /-- Create a task which waits for a snapshot matching `p`, handles various errors,
+    and if a matching snapshot was found executes `x` with it. If not found, the task
+    executes `notFoundX`. -/
+    def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
+      (notFoundX : RequestM β)
+      (x : Snapshot → RequestM β)
+      : RequestM (RequestTask β) := do
+      let findTask ← doc.cmdSnaps.waitFind? p
+      mapTask findTask fun
+        /- The elaboration task that we're waiting for may be aborted if the file contents change.
+        In that case, we reply with the `fileChanged` error. Thanks to this, the server doesn't
+        get bogged down in requests for an old state of the document. -/
+        | Except.error ElabTaskError.aborted =>
+          throwThe RequestError RequestError.fileChanged
+        | Except.error (ElabTaskError.ioError e) =>
+          throwThe IO.Error e
+        | Except.error ElabTaskError.eof => notFoundX
+        | Except.ok none => notFoundX
+        | Except.ok (some snap) => x snap
+  end RequestM
+
+  open RequestM
 
   partial def handleCompletion (p : CompletionParams) :
-      ServerM (Task (Except IO.Error (Except RequestError CompletionList))) := do
-    let st ← read
-    let doc ← st.docRef.get
+      RequestM (RequestTask CompletionList) := do
+    let doc ← readDoc
     let text := doc.meta.text
     let pos := text.lspPosToUtf8Pos p.position
     -- dbg_trace ">> handleCompletion invoked {pos}"
@@ -374,9 +400,8 @@ section RequestHandling
 
   open Elab in
   partial def handleHover (p : HoverParams)
-    : ServerM (Task (Except IO.Error (Except RequestError (Option Hover)))) := do
-    let st ← read
-    let doc ← st.docRef.get
+    : RequestM (RequestTask (Option Hover)) := do
+    let doc ← readDoc
     let text := doc.meta.text
     let mkHover (s : String) (f : String.Pos) (t : String.Pos) : Hover :=
       { contents := { kind := MarkupKind.markdown
@@ -396,9 +421,9 @@ section RequestHandling
 
   open Elab in
   partial def handleDefinition (goToType? : Bool) (p : TextDocumentPositionParams)
-    : ServerM (Task (Except IO.Error (Except RequestError (Array LocationLink)))) := do
-    let st ← read
-    let doc ← st.docRef.get
+    : RequestM (RequestTask (Array LocationLink)) := do
+    let rc ← read
+    let doc ← readDoc
     let text := doc.meta.text
     let hoverPos := text.lspPosToUtf8Pos p.position
     withWaitFindSnap doc (fun s => s.endPos > hoverPos)
@@ -413,7 +438,7 @@ section RequestHandling
               let mod? ← ci.runMetaM i.lctx <| findModuleOf? n
               let modUri? ← match mod? with
                 | some modName =>
-                  let modFname? ← st.srcSearchPath.findWithExt "lean" modName
+                  let modFname? ← rc.srcSearchPath.findWithExt "lean" modName
                   pure <| modFname?.map toFileUri
                 | none         => pure <| some doc.meta.uri
 
@@ -434,9 +459,8 @@ section RequestHandling
 
   open Elab in
   partial def handlePlainGoal (p : PlainGoalParams)
-    : ServerM (Task (Except IO.Error (Except RequestError (Option PlainGoal)))) := do
-    let st ← read
-    let doc ← st.docRef.get
+    : RequestM (RequestTask (Option PlainGoal)) := do
+    let doc ← readDoc
     let text := doc.meta.text
     let hoverPos := text.lspPosToUtf8Pos p.position
     -- NOTE: use `>=` since the cursor can be *after* the input
@@ -469,9 +493,8 @@ section RequestHandling
 
   open Elab in
   partial def handlePlainTermGoal (p : PlainTermGoalParams)
-    : ServerM (Task (Except IO.Error (Except RequestError (Option PlainTermGoal)))) := do
-    let st ← read
-    let doc ← st.docRef.get
+    : RequestM (RequestTask (Option PlainTermGoal)) := do
+    let doc ← readDoc
     let text := doc.meta.text
     let hoverPos := text.lspPosToUtf8Pos p.position
     withWaitFindSnap doc (fun s => s.endPos > hoverPos)
@@ -486,8 +509,8 @@ section RequestHandling
         return none
 
   partial def handleDocumentHighlight (p : DocumentHighlightParams) :
-    ServerM (Task (Except IO.Error (Except RequestError (Array DocumentHighlight)))) := do
-    let doc ← (← read).docRef.get
+    RequestM (RequestTask (Array DocumentHighlight)) := do
+    let doc ← readDoc
     let text := doc.meta.text
     let pos := text.lspPosToUtf8Pos p.position
     let rec highlightReturn? (doRange? : Option Range) : Syntax → Option DocumentHighlight
@@ -506,21 +529,22 @@ section RequestHandling
         return #[]
 
   partial def handleDocumentSymbol (p : DocumentSymbolParams) :
-    ServerM (Task (Except IO.Error (Except RequestError DocumentSymbolResult))) := do
-    let st ← read
+    RequestM (RequestTask DocumentSymbolResult) := do
+    let doc ← readDoc
     asTask do
-      let doc ← st.docRef.get
       let ⟨cmdSnaps, e?⟩ ← doc.cmdSnaps.updateFinishedPrefix
       let mut stxs := cmdSnaps.finishedPrefix.map Snapshot.stx
       match e? with
       | some ElabTaskError.aborted =>
-        return Except.error RequestError.fileChanged
-      | some _ => pure () -- TODO(WN): what to do on ioError?
-      | none =>
-        let lastSnap := cmdSnaps.finishedPrefix.getLastD doc.headerSnap
-        stxs := stxs ++ (← parseAhead doc.meta.text.source lastSnap).toList
+        throw RequestError.fileChanged
+      | some (ElabTaskError.ioError e) =>
+        throwThe IO.Error e
+      | _ => ()
+
+      let lastSnap := cmdSnaps.finishedPrefix.getLastD doc.headerSnap
+      stxs := stxs ++ (← parseAhead doc.meta.text.source lastSnap).toList
       let (syms, _) := toDocumentSymbols doc.meta.text stxs
-      return Except.ok { syms := syms.toArray }
+      return { syms := syms.toArray }
     where
       toDocumentSymbols (text : FileMap)
       | [] => ([], [])
@@ -585,19 +609,18 @@ section RequestHandling
     lastLspPos : Lsp.Position
 
   partial def handleSemanticTokens (beginPos endPos : String.Pos) :
-      ServerM (Task (Except IO.Error (Except RequestError SemanticTokens))) := do
-    let st ← read
-    let doc ← st.docRef.get
+      RequestM (RequestTask SemanticTokens) := do
+    let doc ← readDoc
     let text := doc.meta.text
     let t ← doc.cmdSnaps.waitAll (·.beginPos < endPos)
-    IO.mapTask (t := t) fun (snaps, _) =>
+    mapTask t fun (snaps, _) =>
       StateT.run' (s := { data := #[], lastLspPos := ⟨0, 0⟩ : SemanticTokensState }) do
-      for s in snaps do
-        if s.endPos <= beginPos then
-          continue
-        ReaderT.run (r := SemanticTokensContext.mk beginPos endPos text s.cmdState.infoState) <|
-          go s.stx
-      return Except.ok { data := (← get).data }
+        for s in snaps do
+          if s.endPos <= beginPos then
+            continue
+          ReaderT.run (r := SemanticTokensContext.mk beginPos endPos text s.cmdState.infoState) <|
+            go s.stx
+        return { data := (← get).data }
   where
     go (stx : Syntax) := do
       match stx with
@@ -612,7 +635,7 @@ section RequestHandling
             go stx[0]
           else
             stx.getArgs.forM go
-    highlightId (stx : Syntax) : ReaderT SemanticTokensContext (StateT SemanticTokensState IO) _ := do
+    highlightId (stx : Syntax) : ReaderT SemanticTokensContext (StateT SemanticTokensState RequestM) _ := do
       if let (some pos, some tailPos) := (stx.getPos?, stx.getTailPos?) then
         for t in (← read).infoState.trees do
           for ti in t.deepestNodes (fun
@@ -644,36 +667,31 @@ section RequestHandling
           }
 
   def handleSemanticTokensFull (p : SemanticTokensParams) :
-      ServerM (Task (Except IO.Error (Except RequestError SemanticTokens))) := do
+      RequestM (RequestTask SemanticTokens) := do
     handleSemanticTokens 0 (1 <<< 16)
 
   def handleSemanticTokensRange (p : SemanticTokensRangeParams) :
-      ServerM (Task (Except IO.Error (Except RequestError SemanticTokens))) := do
-    let st ← read
-    let doc ← st.docRef.get
+      RequestM (RequestTask SemanticTokens) := do
+    let doc ← readDoc
     let text := doc.meta.text
     let beginPos := text.lspPosToUtf8Pos p.range.start
     let endPos := text.lspPosToUtf8Pos p.range.end
     handleSemanticTokens beginPos endPos
 
   partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
-    : ServerM (Task (Except IO.Error (Except RequestError WaitForDiagnostics))) := do
-    let st ← read
-    let rec waitLoop : IO EditableDocument := do
-      let doc ← st.docRef.get
+    : RequestM (RequestTask WaitForDiagnostics) := do
+    let rec waitLoop : RequestM EditableDocument := do
+      let doc ← readDoc
       if p.version ≤ doc.meta.version then
         return doc
       else
         IO.sleep 50
         waitLoop
-    let t ← IO.asTask waitLoop
-    let t ← IO.bindTask t fun
-      | Except.error e => unreachable!
-      | Except.ok doc => do
-        let t₁ ← doc.cmdSnaps.waitAll
-        return t₁.map fun _ => Except.ok WaitForDiagnostics.mk
-    return t.map fun _ => Except.ok <| Except.ok WaitForDiagnostics.mk
-
+    let t ← RequestM.asTask waitLoop
+    RequestM.bindTask t fun doc? => do
+      let doc ← doc?
+      let t₁ ← doc.cmdSnaps.waitAll
+      return t₁.map fun _ => pure WaitForDiagnostics.mk
 end RequestHandling
 
 section MessageHandling
@@ -696,18 +714,23 @@ section MessageHandling
 
   def handleRequest (id : RequestID) (method : String) (params : Json)
   : ServerM Unit := do
-    let handle := fun paramType [FromJson paramType] respType [ToJson respType]
-                      (handler : paramType → RequestM respType) => do
+    let responseOfRequestError id err : ResponseError Unit :=
+      { id := id, code := err.code, message := err.message }
+    let handle paramType [FromJson paramType] respType [ToJson respType]
+        (handler : paramType → RequestM (RequestTask respType)) : ServerM Unit := do
       let st ← read
       let p ← parseParams paramType params
-      let t ← handler p
-      let t₁ ← (IO.mapTask · t) fun
-        | Except.ok (Except.ok resp) =>
+      let rc : RequestContext := { srcSearchPath := st.srcSearchPath, docRef := st.docRef }
+      let t? ← (ExceptT.run <| handler p rc : IO _)
+      let t₁ ← match t? with
+      | Except.error e =>
+        IO.asTask do
+          st.hOut.writeLspResponseError (responseOfRequestError id e)
+      | Except.ok t => (IO.mapTask · t) fun
+        | Except.ok resp =>
           st.hOut.writeLspResponse ⟨id, resp⟩
-        | Except.ok (Except.error e) =>
-          st.hOut.writeLspResponseError { id := id, code := e.code, message := e.message }
         | Except.error e =>
-          st.hOut.writeLspResponseError { id := id, code := ErrorCode.internalError, message := toString e }
+          st.hOut.writeLspResponseError (responseOfRequestError id e)
       queueRequest id t₁
     match method with
     | "textDocument/waitForDiagnostics"   => handle WaitForDiagnosticsParams WaitForDiagnostics handleWaitForDiagnostics

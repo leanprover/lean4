@@ -17,7 +17,7 @@ import Lean.Server.Snapshots
 import Lean.Server.AsyncList
 
 import Lean.Server.FileWorker.Utils
-import Lean.Server.FileWorker.Requests
+import Lean.Server.FileWorker.RequestHandling
 
 /-!
 For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.
@@ -287,19 +287,17 @@ section MessageHandling
   def handleRequest (id : RequestID) (method : String) (params : Json)
       : WorkerM Unit := do
     let st ← read
-    let responseOfRequestError id err : ResponseError Unit :=
-      { id := id, code := err.code, message := err.message }
     let rc : Requests.RequestContext := { srcSearchPath := st.srcSearchPath, docRef := st.docRef }
     let t? ← (ExceptT.run <| Requests.handleLspRequest method params rc : IO _)
     let t₁ ← match t? with
       | Except.error e =>
         IO.asTask do
-          st.hOut.writeLspResponseError (responseOfRequestError id e)
+          st.hOut.writeLspResponseError <| e.toLspResponseError id
       | Except.ok t => (IO.mapTask · t) fun
         | Except.ok resp =>
           st.hOut.writeLspResponse ⟨id, resp⟩
         | Except.error e =>
-          st.hOut.writeLspResponseError (responseOfRequestError id e)
+          st.hOut.writeLspResponseError <| e.toLspResponseError id
     queueRequest id t₁
 end MessageHandling
 

@@ -423,6 +423,7 @@ int main(int argc, char ** argv) {
 #endif
 
     try {
+        // Remark: This currently runs under `IO.initializing = true`.
         init_search_path();
     } catch (lean::throwable & ex) {
         std::cerr << "error: " << ex.what() << std::endl;

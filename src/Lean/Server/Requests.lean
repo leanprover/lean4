@@ -33,7 +33,7 @@ def fileChanged : RequestError :=
 
 def methodNotFound (method : String) : RequestError :=
   { code := ErrorCode.methodNotFound
-    message := s!"No request handler found for '${method}'" }
+    message := s!"No request handler found for '{method}'" }
 
 instance : Coe IO.Error RequestError where
   coe e := { code := ErrorCode.internalError
@@ -160,7 +160,7 @@ def routeLspRequest (method : String) (params : Json) : IO (Except RequestError 
 
 def handleLspRequest (method : String) (params : Json) : RequestM (RequestTask Json) := do
   match (← lookupLspRequestHandler method) with
-  | none => throw <| RequestError.methodNotFound method
+  | none => throwThe IO.Error <| IO.userError s!"internal server error: request '{method}' routed through watchdog but unknown in worker; are both using the same plugins?"
   | some rh => rh.handle params
 
 end HandlerTable

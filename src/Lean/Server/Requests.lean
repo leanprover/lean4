@@ -55,52 +55,52 @@ abbrev RequestTask α := Task (Except RequestError α)
 abbrev RequestM := ReaderT RequestContext <| ExceptT RequestError IO
 
 namespace RequestM
-  open FileWorker
-  open Snapshots
+open FileWorker
+open Snapshots
 
-  def readDoc : RequestM EditableDocument := fun rc =>
-    rc.docRef.get
+def readDoc : RequestM EditableDocument := fun rc =>
+  rc.docRef.get
 
-  def asTask (t : RequestM α) : RequestM (RequestTask α) := fun rc => do
-    let t ← IO.asTask <| t rc
-    return t.map fun
-      | Except.error e => throwThe RequestError e
-      | Except.ok v    => v
+def asTask (t : RequestM α) : RequestM (RequestTask α) := fun rc => do
+  let t ← IO.asTask <| t rc
+  return t.map fun
+    | Except.error e => throwThe RequestError e
+    | Except.ok v    => v
 
-  def mapTask (t : Task α) (f : α → RequestM β) : RequestM (RequestTask β) := fun rc => do
-    let t ← (IO.mapTask · t) fun a => f a rc
-    return t.map fun
-      | Except.error e => throwThe RequestError e
-      | Except.ok v    => v
+def mapTask (t : Task α) (f : α → RequestM β) : RequestM (RequestTask β) := fun rc => do
+  let t ← (IO.mapTask · t) fun a => f a rc
+  return t.map fun
+    | Except.error e => throwThe RequestError e
+    | Except.ok v    => v
 
-  def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := fun rc => do
-    let t ← IO.bindTask t fun a => do
-      match ← f a rc with
-      | Except.error e => return Task.pure <| Except.ok <| Except.error e
-      | Except.ok t    => return t.map Except.ok
-    return t.map fun
-      | Except.error e => throwThe RequestError e
-      | Except.ok v    => v
+def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := fun rc => do
+  let t ← IO.bindTask t fun a => do
+    match ← f a rc with
+    | Except.error e => return Task.pure <| Except.ok <| Except.error e
+    | Except.ok t    => return t.map Except.ok
+  return t.map fun
+    | Except.error e => throwThe RequestError e
+    | Except.ok v    => v
 
-  /-- Create a task which waits for a snapshot matching `p`, handles various errors,
-  and if a matching snapshot was found executes `x` with it. If not found, the task
-  executes `notFoundX`. -/
-  def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
-    (notFoundX : RequestM β)
-    (x : Snapshot → RequestM β)
+/-- Create a task which waits for a snapshot matching `p`, handles various errors,
+and if a matching snapshot was found executes `x` with it. If not found, the task
+executes `notFoundX`. -/
+def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
+  (notFoundX : RequestM β)
+  (x : Snapshot → RequestM β)
     : RequestM (RequestTask β) := do
-    let findTask ← doc.cmdSnaps.waitFind? p
-    mapTask findTask fun
-      /- The elaboration task that we're waiting for may be aborted if the file contents change.
-      In that case, we reply with the `fileChanged` error. Thanks to this, the server doesn't
-      get bogged down in requests for an old state of the document. -/
-      | Except.error FileWorker.ElabTaskError.aborted =>
-        throwThe RequestError RequestError.fileChanged
-      | Except.error (FileWorker.ElabTaskError.ioError e) =>
-        throwThe IO.Error e
-      | Except.error FileWorker.ElabTaskError.eof => notFoundX
-      | Except.ok none => notFoundX
-      | Except.ok (some snap) => x snap
+  let findTask ← doc.cmdSnaps.waitFind? p
+  mapTask findTask fun
+    /- The elaboration task that we're waiting for may be aborted if the file contents change.
+    In that case, we reply with the `fileChanged` error. Thanks to this, the server doesn't
+    get bogged down in requests for an old state of the document. -/
+    | Except.error FileWorker.ElabTaskError.aborted =>
+      throwThe RequestError RequestError.fileChanged
+    | Except.error (FileWorker.ElabTaskError.ioError e) =>
+      throwThe IO.Error e
+    | Except.error FileWorker.ElabTaskError.eof => notFoundX
+    | Except.ok none => notFoundX
+    | Except.ok (some snap) => x snap
 
 end RequestM
 

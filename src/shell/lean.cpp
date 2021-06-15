@@ -529,6 +529,7 @@ int main(int argc, char ** argv) {
             case 'p':
                 check_optarg("p");
                 load_plugin(optarg);
+                forwarded_args.push_back(string_ref("--plugin=" + std::string(optarg)));
                 break;
             default:
                 std::cerr << "Unknown command line option\n";

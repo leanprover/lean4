@@ -1730,6 +1730,7 @@ class csimp_fn {
             }
             if (!inline_if_reduce_attr && is_recursive(const_name(fn))) return none_expr();
             if (uses_unsafe_inductive(c)) return none_expr();
+            lean_trace(name({"compiler", "inline"}), tout() << const_name(fn) << "\n";);
             expr new_fn = instantiate_value_lparams(*info, const_levels(fn));
             if (inline_if_reduce_attr && !inline_attr) {
                 return beta_reduce_if_not_cases(new_fn, e, is_let_val);

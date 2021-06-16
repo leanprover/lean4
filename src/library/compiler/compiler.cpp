@@ -273,6 +273,7 @@ void initialize_compiler() {
     register_bool_option(*g_extract_closed, true, "(compiler) enable/disable closed term caching");
     register_trace_class("compiler");
     register_trace_class({"compiler", "input"});
+    register_trace_class({"compiler", "inline"});
     register_trace_class({"compiler", "eta_expand"});
     register_trace_class({"compiler", "lcnf"});
     register_trace_class({"compiler", "cce"});

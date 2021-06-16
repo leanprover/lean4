@@ -179,6 +179,10 @@ structure State where
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
 
+-- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
+-- whole monad stack at every use site. May eventually be covered by `deriving`.
+instance : Monad TermElabM := { inferInstanceAs (Monad TermElabM) with }
+
 open Meta
 
 instance : Inhabited (TermElabM α) where

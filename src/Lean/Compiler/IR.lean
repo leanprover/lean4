@@ -24,31 +24,38 @@ import Lean.Compiler.IR.Sorry
 
 namespace Lean.IR
 
+register_builtin_option compiler.reuse : Bool := {
+  defValue := true
+  descr    := "heuristically insert reset/reuse instruction pairs"
+}
+
 private def compileAux (decls : Array Decl) : CompilerM Unit := do
   logDecls `init decls
   checkDecls decls
-  let decls ← elimDeadBranches decls
+  let mut decls ← elimDeadBranches decls
   logDecls `elim_dead_branches decls
-  let decls := decls.map Decl.pushProj
+  decls := decls.map Decl.pushProj
   logDecls `push_proj decls
-  let decls := decls.map Decl.insertResetReuse
-  logDecls `reset_reuse decls
-  let decls := decls.map Decl.elimDead
+  if compiler.reuse.get (← read) then
+    decls := decls.map Decl.insertResetReuse
+    logDecls `reset_reuse decls
+  decls := decls.map Decl.elimDead
   logDecls `elim_dead decls
-  let decls := decls.map Decl.simpCase
+  decls := decls.map Decl.simpCase
   logDecls `simp_case decls
-  let decls := decls.map Decl.normalizeIds
-  let decls ← inferBorrow decls
+  decls := decls.map Decl.normalizeIds
+  decls ← inferBorrow decls
   logDecls `borrow decls
-  let decls ← explicitBoxing decls
+  decls ← explicitBoxing decls
   logDecls `boxing decls
-  let decls ← explicitRC decls
+  decls ← explicitRC decls
   logDecls `rc decls
-  let decls := decls.map Decl.expandResetReuse
-  logDecls `expand_reset_reuse decls
-  let decls := decls.map Decl.pushProj
+  if compiler.reuse.get (← read) then
+    decls := decls.map Decl.expandResetReuse
+    logDecls `expand_reset_reuse decls
+  decls := decls.map Decl.pushProj
   logDecls `push_proj decls
-  let decls ← updateSorryDep decls
+  decls ← updateSorryDep decls
   logDecls `result decls
   checkDecls decls
   addDecls decls

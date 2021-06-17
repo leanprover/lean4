@@ -11,8 +11,8 @@ import Std.Data.RBMap
 import Lean.Elab.Import
 
 import Lean.Data.Lsp
-import Lean.Server.FileSource
 import Lean.Server.Utils
+import Lean.Server.Requests
 
 /-!
 For general server architecture, see `README.md`. This module implements the watchdog process.
@@ -121,6 +121,9 @@ section FileWorker
     commTask           : Task WorkerEvent
     state              : WorkerState
     -- This should not be mutated outside of namespace FileWorker, as it is used as shared mutable state
+    /-- The pending requests map contains all requests
+    that have been received from the LSP client, but were not answered yet.
+    This includes the queued messages in the grouped edits. -/
     pendingRequestsRef : IO.Ref PendingRequestMap
     groupedEditsRef    : IO.Ref (Option GroupedEdits)
 
@@ -132,13 +135,8 @@ section FileWorker
   def stdout (fw : FileWorker) : FS.Stream :=
     FS.Stream.ofHandle fw.proc.stdout
 
-  def readMessage (fw : FileWorker) : IO JsonRpc.Message := do
-    let msg ← fw.stdout.readLspMessage
-    if let Message.response id _ := msg then
-      fw.pendingRequestsRef.modify (fun pendingRequests => pendingRequests.erase id)
-    if let Message.responseError id _ _ _ := msg then
-      fw.pendingRequestsRef.modify (fun pendingRequests => pendingRequests.erase id)
-    return msg
+  def erasePendingRequest (fw : FileWorker) (id : RequestID) : IO Unit :=
+    fw.pendingRequestsRef.modify fun pendingRequests => pendingRequests.erase id
 
   def errorPendingRequests (fw : FileWorker) (hError : FS.Stream) (code : ErrorCode) (msg : String) : IO Unit := do
     let pendingRequests ← fw.pendingRequestsRef.modifyGet (fun pendingRequests => (pendingRequests, RBMap.empty))
@@ -204,7 +202,11 @@ section ServerM
     let o := (←read).hOut
     let rec loop : ServerM WorkerEvent := do
       try
-        let msg ← fw.readMessage
+        let msg ← fw.stdout.readLspMessage
+        if let Message.response id _ := msg then
+          fw.erasePendingRequest id
+        if let Message.responseError id _ _ _ := msg then
+          fw.erasePendingRequest id
         -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
         o.writeLspMessage msg
       catch err =>
@@ -362,9 +364,9 @@ section NotificationHandling
   def handleCancelRequest (p : CancelParams) : ServerM Unit := do
     let fileWorkers ← (←read).fileWorkersRef.get
     for ⟨uri, fw⟩ in fileWorkers do
-      let req? ← fw.pendingRequestsRef.modifyGet (fun pendingRequests =>
-        (pendingRequests.find? p.id, pendingRequests.erase p.id))
-      if let some req := req? then
+      -- Cancelled requests still require a response, so they can't be removed
+      -- from the pending requests map.
+      if (← fw.pendingRequestsRef.get).contains p.id then
         tryWriteMessage uri (Notification.mk "$/cancelRequest" p) (queueFailedMessage := false)
 end NotificationHandling
 
@@ -375,40 +377,24 @@ section MessageHandling
       | Except.error inner => throwServerError s!"Got param with wrong structure: {params.compress}\n{inner}"
 
   def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
-    let handle := fun α [FromJson α] [ToJson α] [FileSource α] => do
-      let parsedParams ← parseParams α params
-      let uri := fileSource parsedParams
-      let fw ← try
-        findFileWorker uri
-      catch _ =>
-        -- VS Code sometimes sends us requests just after closing a file?
-        -- This is permitted by the spec, but seems pointless, and there's not much we can do,
-        -- so we return an error instead.
-        (←read).hOut.writeLspResponseError
-          { id      := id
-            code    := ErrorCode.contentModified
-            message := s!"Cannot process request to closed file '{uri}'" }
-        return
-      let r := Request.mk id method params
-      fw.pendingRequestsRef.modify (·.insert id r)
-      tryWriteMessage uri r
-    match method with
-    | "textDocument/waitForDiagnostics"   => handle WaitForDiagnosticsParams
-    | "textDocument/completion"           => handle CompletionParams
-    | "textDocument/hover"                => handle HoverParams
-    | "textDocument/declaration"          => handle DeclarationParams
-    | "textDocument/definition"           => handle DefinitionParams
-    | "textDocument/typeDefinition"       => handle TypeDefinitionParams
-    | "textDocument/documentHighlight"    => handle DocumentHighlightParams
-    | "textDocument/documentSymbol"       => handle DocumentSymbolParams
-    | "textDocument/semanticTokens/range" => handle SemanticTokensRangeParams
-    | "textDocument/semanticTokens/full"  => handle SemanticTokensParams
-    | "$/lean/plainGoal"                  => handle PlainGoalParams
-    | _                                   =>
-      (←read).hOut.writeLspResponseError
-        { id      := id
-          code    := ErrorCode.methodNotFound
-          message := s!"Unsupported request method: {method}" }
+    match (← Requests.routeLspRequest method params) with
+      | Except.error e => 
+        (←read).hOut.writeLspResponseError <| e.toLspResponseError id
+      | Except.ok uri =>
+        let fw ← try
+          findFileWorker uri
+        catch _ =>
+          -- VS Code sometimes sends us requests just after closing a file?
+          -- This is permitted by the spec, but seems pointless, and there's not much we can do,
+          -- so we return an error instead.
+          (←read).hOut.writeLspResponseError
+            { id      := id
+              code    := ErrorCode.contentModified
+              message := s!"Cannot process request to closed file '{uri}'" }
+          return
+        let r := Request.mk id method params
+        fw.pendingRequestsRef.modify (·.insert id r)
+        tryWriteMessage uri r
 
   def handleNotification (method : String) (params : Json) : ServerM Unit := do
     let handle := (fun α [FromJson α] (handler : α → ServerM Unit) => parseParams α params >>= handler)
@@ -472,7 +458,7 @@ section MainLoop
         let now ← monoMsNow
         /- We wait `editDelay`ms since last edit before applying the changes. -/
         let applyTime := now + st.editDelay
-        let pendingEdit ← fw.groupedEditsRef.modifyGet fun
+        let queuedMsgs? ← fw.groupedEditsRef.modifyGet fun
           | some ge => (some ge.queuedMsgs, some { ge with
             applyTime := applyTime
             params.textDocument := p.textDocument
@@ -485,11 +471,12 @@ section MainLoop
             /- This is overwritten just below. -/
             signalTask := Task.pure WorkerEvent.processGroupedEdits
             queuedMsgs := #[] })
-        match pendingEdit with
+        match queuedMsgs? with
         | some queuedMsgs =>
           for msg in queuedMsgs do
             match msg with
             | JsonRpc.Message.request id _ _ =>
+              fw.erasePendingRequest id
               (← read).hOut.writeLspResponseError {
                 id := id
                 code := ErrorCode.contentModified

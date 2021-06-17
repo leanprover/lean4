@@ -153,15 +153,17 @@ structure FS.Stream where
   getLine : IO String
   putStr  : String → IO Unit
 
-namespace Prim
 open FS
 
 @[extern "lean_get_stdin"] constant getStdin  : IO FS.Stream
 @[extern "lean_get_stdout"] constant getStdout : IO FS.Stream
 @[extern "lean_get_stderr"] constant getStderr : IO FS.Stream
 
+/-- Replaces the stdin stream of the current thread and returns its previous value. -/
 @[extern "lean_get_set_stdin"] constant setStdin  : FS.Stream → IO FS.Stream
+/-- Replaces the stdout stream of the current thread and returns its previous value. -/
 @[extern "lean_get_set_stdout"] constant setStdout : FS.Stream → IO FS.Stream
+/-- Replaces the stderr stream of the current thread and returns its previous value. -/
 @[extern "lean_get_set_stderr"] constant setStderr : FS.Stream → IO FS.Stream
 
 @[specialize] partial def iterate (a : α) (f : α → IO (Sum α β)) : IO β := do
@@ -170,8 +172,11 @@ open FS
   | Sum.inl a => iterate a f
   | Sum.inr b => pure b
 
--- @[export lean_fopen_flags]
-def fopenFlags (m : FS.Mode) (b : Bool) : String :=
+namespace FS
+
+namespace Handle
+
+private def fopenFlags (m : FS.Mode) (b : Bool) : String :=
   let mode :=
     match m with
     | FS.Mode.read      => "r"
@@ -181,74 +186,72 @@ def fopenFlags (m : FS.Mode) (b : Bool) : String :=
   let bin := if b then "b" else "t"
   mode ++ bin
 
-@[extern "lean_io_prim_handle_mk"] constant Handle.mk (fn : @& FilePath) (mode : @& String) : IO Handle
-@[extern "lean_io_prim_handle_is_eof"] constant Handle.isEof (h : @& Handle) : IO Bool
-@[extern "lean_io_prim_handle_flush"] constant Handle.flush (h : @& Handle) : IO Unit
-@[extern "lean_io_prim_handle_read"] constant Handle.read  (h : @& Handle) (bytes : USize) : IO ByteArray
-@[extern "lean_io_prim_handle_write"] constant Handle.write (h : @& Handle) (buffer : @& ByteArray) : IO Unit
+@[extern "lean_io_prim_handle_mk"] constant mkPrim (fn : @& FilePath) (mode : @& String) : IO Handle
 
-@[extern "lean_io_prim_handle_get_line"] constant Handle.getLine (h : @& Handle) : IO String
-@[extern "lean_io_prim_handle_put_str"] constant Handle.putStr (h : @& Handle) (s : @& String) : IO Unit
+def mk (fn : FilePath) (Mode : Mode) (bin : Bool := true) : IO Handle :=
+  mkPrim fn (fopenFlags Mode bin)
 
-@[extern "lean_io_getenv"] constant getEnv (var : @& String) : IO (Option String)
+/--
+Returns whether the end of the file has been reached while reading a file.
+`h.isEof` returns true /after/ the first attempt at reading past the end of `h`.
+Once `h.isEof` is true, reading `h` will always return an empty array.
+-/
+@[extern "lean_io_prim_handle_is_eof"] constant isEof (h : @& Handle) : IO Bool
+@[extern "lean_io_prim_handle_flush"] constant flush (h : @& Handle) : IO Unit
+@[extern "lean_io_prim_handle_read"] constant read  (h : @& Handle) (bytes : USize) : IO ByteArray
+@[extern "lean_io_prim_handle_write"] constant write (h : @& Handle) (buffer : @& ByteArray) : IO Unit
+
+@[extern "lean_io_prim_handle_get_line"] constant getLine (h : @& Handle) : IO String
+@[extern "lean_io_prim_handle_put_str"] constant putStr (h : @& Handle) (s : @& String) : IO Unit
+
+end Handle
+
 @[extern "lean_io_realpath"] constant realPath (fname : FilePath) : IO FilePath
 @[extern "lean_io_remove_file"] constant removeFile (fname : @& FilePath) : IO Unit
+@[extern "lean_io_create_dir"] constant createDir : @& FilePath → IO Unit
+
+end FS
+
+@[extern "lean_io_getenv"] constant getEnv (var : @& String) : IO (Option String)
 @[extern "lean_io_app_path"] constant appPath : IO FilePath
 @[extern "lean_io_current_dir"] constant currentDir : IO FilePath
 
-end Prim
-
 namespace FS
-variable [Monad m] [MonadLiftT IO m]
-
-def Handle.mk (fn : FilePath) (Mode : Mode) (bin : Bool := true) : m Handle :=
-  liftM (Prim.Handle.mk fn (Prim.fopenFlags Mode bin))
 
 @[inline]
-def withFile (fn : FilePath) (mode : Mode) (f : Handle → m α) : m α :=
+def withFile (fn : FilePath) (mode : Mode) (f : Handle → IO α) : IO α :=
   Handle.mk fn mode >>= f
 
-/-- returns whether the end of the file has been reached while reading a file.
-`h.isEof` returns true /after/ the first attempt at reading past the end of `h`.
-Once `h.isEof` is true, the reading `h` raises `IO.Error.eof`.
--/
-def Handle.isEof : Handle → m Bool := liftM ∘ Prim.Handle.isEof
-def Handle.flush : Handle → m Unit := liftM ∘ Prim.Handle.flush
-def Handle.read (h : Handle) (bytes : Nat) : m ByteArray := liftM (Prim.Handle.read h (USize.ofNat bytes))
-def Handle.write (h : Handle) (s : ByteArray) : m Unit := liftM (Prim.Handle.write h s)
-
-def Handle.getLine : Handle → m String := liftM ∘ Prim.Handle.getLine
-
-def Handle.putStr (h : Handle) (s : String) : m Unit :=
-  liftM <| Prim.Handle.putStr h s
-
-def Handle.putStrLn (h : Handle) (s : String) : m Unit :=
+def Handle.putStrLn (h : Handle) (s : String) : IO Unit :=
   h.putStr (s.push '\n')
 
-partial def Handle.readBinToEnd (h : Handle) : m ByteArray := do
-  let rec loop (acc : ByteArray) : m ByteArray := do
-    if ← h.isEof then
+partial def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
+  let rec loop (acc : ByteArray) : IO ByteArray := do
+    let buf ← h.read 1024
+    if buf.isEmpty then
       return acc
     else
-      let buf ← h.read 1024
       loop (acc ++ buf)
   loop ByteArray.empty
 
-partial def Handle.readToEnd (h : Handle) : m String := do
-  let rec read (s : String) := do
+partial def Handle.readToEnd (h : Handle) : IO String := do
+  let rec loop (s : String) := do
     let line ← h.getLine
-    if line.length == 0 then pure s else read (s ++ line)
-  read ""
+    if line.isEmpty then
+      return s
+    else
+      loop (s ++ line)
+  loop ""
 
-def readBinFile (fname : FilePath) : m ByteArray := do
+def readBinFile (fname : FilePath) : IO ByteArray := do
   let h ← Handle.mk fname Mode.read true
   h.readBinToEnd
 
-def readFile (fname : FilePath) : m String := do
+def readFile (fname : FilePath) : IO String := do
   let h ← Handle.mk fname Mode.read false
   h.readToEnd
 
-partial def lines (fname : FilePath) : m (Array String) := do
+partial def lines (fname : FilePath) : IO (Array String) := do
   let h ← Handle.mk fname Mode.read false
   let rec read (lines : Array String) := do
     let line ← h.getLine
@@ -262,16 +265,16 @@ partial def lines (fname : FilePath) : m (Array String) := do
       pure <| lines.push line
   read #[]
 
-def writeBinFile (fname : FilePath) (content : ByteArray) : m Unit := do
+def writeBinFile (fname : FilePath) (content : ByteArray) : IO Unit := do
   let h ← Handle.mk fname Mode.write true
   h.write content
 
-def writeFile (fname : FilePath) (content : String) : m Unit := do
+def writeFile (fname : FilePath) (content : String) : IO Unit := do
   let h ← Handle.mk fname Mode.write false
   h.putStr content
 
-def Stream.putStrLn (strm : FS.Stream) (s : String) : m Unit :=
-  liftM (strm.putStr (s.push '\n'))
+def Stream.putStrLn (strm : FS.Stream) (s : String) : IO Unit :=
+  strm.putStr (s.push '\n')
 
 structure DirEntry where
   root     : FilePath
@@ -309,7 +312,6 @@ end IO
 
 namespace System.FilePath
 open IO
-variable [Monad m] [MonadLiftT IO m]
 
 @[extern "lean_io_read_dir"]
 constant readDir : @& FilePath → IO (Array IO.FS.DirEntry)
@@ -329,34 +331,19 @@ def pathExists (p : FilePath) : IO Bool :=
 end System.FilePath
 
 namespace IO
-section
-variable [Monad m] [MonadLiftT IO m]
 
-def getStdin : m FS.Stream := liftM Prim.getStdin
-def getStdout : m FS.Stream := liftM Prim.getStdout
-def getStderr : m FS.Stream := liftM Prim.getStderr
-
-/-- Replaces the stdin stream of the current thread and returns its previous value. -/
-def setStdin : FS.Stream → m FS.Stream := liftM ∘ Prim.setStdin
-
-/-- Replaces the stdout stream of the current thread and returns its previous value. -/
-def setStdout : FS.Stream → m FS.Stream := liftM ∘ Prim.setStdout
-
-/-- Replaces the stderr stream of the current thread and returns its previous value. -/
-def setStderr : FS.Stream → m FS.Stream := liftM ∘ Prim.setStderr
-
-def withStdin [MonadFinally m] (h : FS.Stream) (x : m α) : m α := do
+def withStdin [Monad m] [MonadFinally m] [MonadLiftT IO m] (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStdin h
   try x finally discard <| setStdin prev
 
-def withStdout [MonadFinally m] (h : FS.Stream) (x : m α) : m α := do
+def withStdout [Monad m] [MonadFinally m] [MonadLiftT IO m] (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStdout h
   try
     x
   finally
     discard <| setStdout prev
 
-def withStderr [MonadFinally m] (h : FS.Stream) (x : m α) : m α := do
+def withStderr [Monad m] [MonadFinally m] [MonadLiftT IO m] (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStderr h
   try x finally discard <| setStderr prev
 
@@ -369,7 +356,7 @@ def println [ToString α] (s : α) : IO Unit :=
 
 def eprint [ToString α] (s : α) : IO Unit := do
   let out ← getStderr
-  liftM <| out.putStr <| toString s
+  out.putStr <| toString s
 
 def eprintln [ToString α] (s : α) : IO Unit :=
   eprint <| toString s |>.push '\n'
@@ -378,24 +365,13 @@ def eprintln [ToString α] (s : α) : IO Unit :=
 private def eprintlnAux (s : String) : IO Unit :=
   eprintln s
 
-def getEnv : String → m (Option String) := liftM ∘ Prim.getEnv
-
-def realPath : FilePath → m FilePath := liftM ∘ Prim.realPath
-def removeFile : FilePath → m Unit := liftM ∘ Prim.removeFile
-def appPath : m FilePath := liftM Prim.appPath
-
-def appDir : m FilePath := do
+def appDir : IO FilePath := do
   let p ← appPath
   let some p ← pure p.parent
-    | liftM (m := IO) <| throw <| IO.userError s!"System.IO.appDir: unexpected filename '{p}'"
-  realPath p
+    | throw <| IO.userError s!"System.IO.appDir: unexpected filename '{p}'"
+  FS.realPath p
 
-def currentDir : m FilePath := liftM Prim.currentDir
-
-@[extern "lean_io_create_dir"]
-constant createDir : @& FilePath → IO Unit
-
-partial def createDirAll (p : FilePath) : IO Unit := do
+partial def FS.createDirAll (p : FilePath) : IO Unit := do
   if ← p.isDir then
     return ()
   if let some parent := p.parent then
@@ -408,8 +384,6 @@ partial def createDirAll (p : FilePath) : IO Unit := do
         pure ()  -- I guess someone else was faster
       else
         throw e
-
-end
 
 namespace Process
 inductive Stdio where
@@ -450,6 +424,15 @@ structure Child (cfg : StdioConfig) where
 
 @[extern "lean_io_process_child_wait"] constant Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
 
+/--
+Extract the `stdin` field from a `Child` object, allowing them to be freed independently.
+This operation is necessary for closing the child process' stdin while still holding on to a process handle,
+e.g. for `Child.wait`. A file handle is closed when all references to it are dropped, which without this
+operation includes the `Child` object.
+-/
+@[extern "lean_io_process_child_take_stdin"] constant Child.takeStdin {cfg : @& StdioConfig} : Child cfg →
+    IO (cfg.stdin.toHandleType × Child { cfg with stdin := Stdio.null })
+
 structure Output where
   exitCode : UInt32
   stdout   : String
@@ -468,8 +451,10 @@ def output (args : SpawnArgs) : IO Output := do
 def run (args : SpawnArgs) : IO String := do
   let out ← output args
   if out.exitCode != 0 then
-    throw <| IO.userError <| "process '" ++ args.cmd ++ "' exited with code " ++ toString out.exitCode;
+    throw <| IO.userError <| "process '" ++ args.cmd ++ "' exited with code " ++ toString out.exitCode
   pure out.stdout
+
+@[extern "lean_io_exit"] constant exit : UInt8 → IO α
 
 end Process
 
@@ -508,7 +493,7 @@ instance : MonadLift (ST IO.RealWorld) (EIO ε) := ⟨fun x s =>
   | EStateM.Result.ok a s     => EStateM.Result.ok a s
   | EStateM.Result.error ex _ => nomatch ex⟩
 
-def mkRef [Monad m] [MonadLiftT (ST IO.RealWorld) m] (a : α) : m (IO.Ref α) :=
+def mkRef (a : α) : IO (IO.Ref α) :=
   ST.mkRef a
 
 namespace FS
@@ -516,12 +501,12 @@ namespace Stream
 
 @[export lean_stream_of_handle]
 def ofHandle (h : Handle) : Stream := {
-  isEof   := Prim.Handle.isEof h,
-  flush   := Prim.Handle.flush h,
-  read    := Prim.Handle.read h,
-  write   := Prim.Handle.write h,
-  getLine := Prim.Handle.getLine h,
-  putStr  := Prim.Handle.putStr h,
+  isEof   := Handle.isEof h,
+  flush   := Handle.flush h,
+  read    := Handle.read h,
+  write   := Handle.write h,
+  getLine := Handle.getLine h,
+  putStr  := Handle.putStr h,
 }
 
 structure Buffer where
@@ -550,14 +535,14 @@ def ofBuffer (r : Ref Buffer) : Stream := {
 end Stream
 
 /-- Run action with `stdin` emptied and `stdout+stderr` captured into a `String`. -/
-def withIsolatedStreams (x : IO α) : IO (String × Except IO.Error α) := do
+def withIsolatedStreams [Monad m] [MonadFinally m] [MonadExceptOf IO.Error m] [MonadLiftT IO m] (x : m α) : m (String × Except IO.Error α) := do
   let bIn ← mkRef { : Stream.Buffer }
   let bOut ← mkRef { : Stream.Buffer }
   let r ← withStdin (Stream.ofBuffer bIn) <|
     withStdout (Stream.ofBuffer bOut) <|
       withStderr (Stream.ofBuffer bOut) <|
         observing x
-  let bOut ← bOut.get
+  let bOut ← liftM (m := IO) bOut.get
   let out := String.fromUTF8Unchecked bOut.data
   pure (out, r)
 
@@ -571,7 +556,7 @@ namespace Lean
 /-- Typeclass used for presenting the output of an `#eval` command. -/
 class Eval (α : Type u) where
   -- We default `hideUnit` to `true`, but set it to `false` in the direct call from `#eval`
-  -- so that `()` output is hidden in chained instances such as for some `m Unit`.
+  -- so that `()` output is hidden in chained instances such as for some `IO Unit`.
   -- We take `Unit → α` instead of `α` because ‵α` may contain effectful debugging primitives (e.g., `dbg_trace`)
   eval : (Unit → α) → forall (hideUnit : optParam Bool true), IO Unit
 

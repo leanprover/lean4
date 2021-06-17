@@ -52,7 +52,7 @@ private def addDeclToUnfoldOrLemma (lemmas : Meta.SimpLemmas) (e : Expr) (post :
 private def addSimpLemma (lemmas : Meta.SimpLemmas) (stx : Syntax) (post : Bool) : TermElabM Meta.SimpLemmas := do
   let (levelParams, proof) ← Term.withoutModifyingElabMetaState <| withRef stx <| Term.withoutErrToSorry do
     let e ← Term.elabTerm stx none
-    Term.synthesizeSyntheticMVarsUsingDefault
+    Term.synthesizeSyntheticMVars (mayPostpone := false) (ignoreStuckTC := true)
     let e ← instantiateMVars e
     let e := e.eta
     if e.hasMVar then

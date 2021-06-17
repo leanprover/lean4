@@ -6,8 +6,7 @@ Authors: Marc Huisinga
 -/
 import Lean.Data.Lsp
 
-namespace Lean
-namespace Lsp
+namespace Lean.Lsp
 
 class FileSource (α : Type) where
   fileSource : α → DocumentUri
@@ -73,5 +72,7 @@ instance SemanticTokensRangeParams.hasFileSource : FileSource SemanticTokensRang
 instance PlainGoalParams.hasFileSource : FileSource PlainGoalParams :=
   ⟨fun p => fileSource p.textDocument⟩
 
-end Lsp
-end Lean
+instance : FileSource PlainTermGoalParams where
+  fileSource p := fileSource p.textDocument
+
+end Lean.Lsp

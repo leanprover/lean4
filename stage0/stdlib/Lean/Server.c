@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server
-// Imports: Init Lean.Server.Utils Lean.Server.AsyncList Lean.Server.Snapshots Lean.Server.FileSource Lean.Server.Watchdog Lean.Server.FileWorker Lean.Server.Completion
+// Imports: Init Lean.Server.Watchdog Lean.Server.FileWorker
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,13 +14,8 @@
 extern "C" {
 #endif
 lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Server_Utils(lean_object*);
-lean_object* initialize_Lean_Server_AsyncList(lean_object*);
-lean_object* initialize_Lean_Server_Snapshots(lean_object*);
-lean_object* initialize_Lean_Server_FileSource(lean_object*);
 lean_object* initialize_Lean_Server_Watchdog(lean_object*);
 lean_object* initialize_Lean_Server_FileWorker(lean_object*);
-lean_object* initialize_Lean_Server_Completion(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Server(lean_object* w) {
 lean_object * res;
@@ -29,25 +24,10 @@ _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_Utils(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Server_AsyncList(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Server_Snapshots(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Server_FileSource(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Server_Watchdog(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_FileWorker(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Server_Completion(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

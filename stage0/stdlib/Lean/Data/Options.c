@@ -60,7 +60,6 @@ static lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_979____
 lean_object* l_Lean_KVMap_instToStringKVMap(lean_object*);
 static lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_979____closed__38;
 static lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_979____closed__21;
-lean_object* l_IO_mkRef___at___private_Lean_Data_Options_0__Lean_initOptionDeclsRef___spec__1(lean_object*, lean_object*);
 lean_object* l_String_splitOn(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_979____closed__14;
@@ -112,7 +111,6 @@ static lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_979____
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a_x3d_____closed__6;
-lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l___private_Init_Meta_0__Lean_quoteNameMk(lean_object*);
 lean_object* lean_get_option_decls_array(lean_object*);
@@ -187,6 +185,7 @@ lean_object* l_Lean_Option_get(lean_object*);
 static lean_object* l_Lean_setOptionFromString___closed__2;
 static lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a_x3d_____closed__1;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+lean_object* l_IO_mkRef___rarg(lean_object*, lean_object*);
 lean_object* l_String_toNat_x3f(lean_object*);
 lean_object* l_Lean_registerOption___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_979____closed__15;
@@ -317,37 +316,12 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-lean_object* l_IO_mkRef___at___private_Lean_Data_Options_0__Lean_initOptionDeclsRef___spec__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; uint8_t x_4; 
-x_3 = lean_st_mk_ref(x_1, x_2);
-x_4 = !lean_is_exclusive(x_3);
-if (x_4 == 0)
-{
-return x_3;
-}
-else
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_3, 0);
-x_6 = lean_ctor_get(x_3, 1);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_dec(x_3);
-x_7 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_7, 0, x_5);
-lean_ctor_set(x_7, 1, x_6);
-return x_7;
-}
-}
-}
 lean_object* l___private_Lean_Data_Options_0__Lean_initOptionDeclsRef(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_box(0);
-x_3 = l_IO_mkRef___at___private_Lean_Data_Options_0__Lean_initOptionDeclsRef___spec__1(x_2, x_1);
+x_3 = l_IO_mkRef___rarg(x_2, x_1);
 return x_3;
 }
 }

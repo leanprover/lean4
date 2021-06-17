@@ -167,17 +167,21 @@ private def synthesizeUsingDefault : TermElabM Bool := do
       return true
   return false
 
-/-- Report an error for each synthetic metavariable that could not be resolved. -/
-private def reportStuckSyntheticMVars : TermElabM Unit := do
+/--
+  Report an error for each synthetic metavariable that could not be resolved.
+  Remark: we set `ignoreStuckTC := true` when elaborating `simp` arguments.
+-/
+private def reportStuckSyntheticMVars (ignoreStuckTC := false) : TermElabM Unit := do
   let syntheticMVars ← modifyGet fun s => (s.syntheticMVars, { s with syntheticMVars := [] })
   for mvarSyntheticDecl in syntheticMVars do
     withRef mvarSyntheticDecl.stx do
     match mvarSyntheticDecl.kind with
     | SyntheticMVarKind.typeClass =>
-      withMVarContext mvarSyntheticDecl.mvarId do
-        let mvarDecl ← getMVarDecl mvarSyntheticDecl.mvarId
-        unless (← get).messages.hasErrors do
-          throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}"
+      unless ignoreStuckTC do
+        withMVarContext mvarSyntheticDecl.mvarId do
+          let mvarDecl ← getMVarDecl mvarSyntheticDecl.mvarId
+          unless (← get).messages.hasErrors do
+            throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}"
     | SyntheticMVarKind.coe header eNew expectedType eType e f? =>
       let mvarId := eNew.appArg!.mvarId!
       withMVarContext mvarId do
@@ -251,8 +255,12 @@ mutual
     If `mayPostpone == false`, then it applies default instances to `SyntheticMVarKind.typeClass` (if available)
     metavariables that are still unresolved, and then tries to resolve metavariables
     with `mayPostpone == false`. That is, we force them to produce error messages and/or commit to
-    a "best option". If, after that, we still haven't made progress, we report "stuck" errors. -/
-  partial def synthesizeSyntheticMVars (mayPostpone := true) : TermElabM Unit :=
+    a "best option". If, after that, we still haven't made progress, we report "stuck" errors.
+
+    Remark: we set `ignoreStuckTC := true` when elaborating `simp` arguments. Then,
+    pending TC problems become implicit parameters for the simp theorem.
+-/
+  partial def synthesizeSyntheticMVars (mayPostpone := true) (ignoreStuckTC := false) : TermElabM Unit :=
     let rec loop (u : Unit) : TermElabM Unit := do
       withRef (← getSomeSynthethicMVarsRef) <| withIncRecDepth do
         unless (← get).syntheticMVars.isEmpty do
@@ -284,7 +292,7 @@ mutual
             else if ← synthesizeSyntheticMVarsStep (postponeOnError := false) (runTactics := true) then
               loop ()
             else
-              reportStuckSyntheticMVars
+              reportStuckSyntheticMVars ignoreStuckTC
     loop ()
 end
 

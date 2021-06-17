@@ -55,11 +55,10 @@ time_task::time_task(std::string const & category, options const & opts, name de
 time_task::~time_task() {
     if (m_timeit) {
         g_current_time_task = m_parent_task;
-        auto time = m_timeit->get_elapsed();
-        report_profiling_time(m_category, time);
-        if (m_parent_task)
-            // do not report inclusive times
-            report_profiling_time(m_parent_task->m_category, -time);
+        report_profiling_time(m_category, m_timeit->get_elapsed());
+        if (m_parent_task && m_parent_task->m_timeit)
+            // report exclusive times
+            m_parent_task->m_timeit->exclude_duration(m_timeit->get_elapsed_inclusive());
     }
 }
 

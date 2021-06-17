@@ -203,6 +203,8 @@ static void display_help(std::ostream & out) {
 #endif
     std::cout << "  --plugin=file      load and initialize shared library for registering linters etc.\n";
     std::cout << "  --deps             just print dependencies of a Lean input\n";
+    std::cout << "  --print-prefix     print the installation prefix for Lean and exit\n";
+    std::cout << "  --print-libdir     print the installation directory for Lean's built-in libraries and exit\n";
     std::cout << "  --profile          display elaboration/type checking time for each definition/theorem\n";
     std::cout << "  --stats            display environment statistics\n";
     DEBUG_CODE(
@@ -210,6 +212,9 @@ static void display_help(std::ostream & out) {
         )
     std::cout << "  -D name=value      set a configuration option (see set_option command)\n";
 }
+
+static int print_prefix = 0;
+static int print_libdir = 0;
 
 static struct option g_long_options[] = {
     {"version",      no_argument,       0, 'v'},
@@ -235,6 +240,8 @@ static struct option g_long_options[] = {
     {"worker",       no_argument,       0, 'W'},
 #endif
     {"plugin",       required_argument, 0, 'p'},
+    {"print-prefix", no_argument,       &print_prefix, 1},
+    {"print-libdir", no_argument,       &print_libdir, 1},
 #ifdef LEAN_DEBUG
     {"debug",        required_argument, 0, 'B'},
 #endif
@@ -303,23 +310,13 @@ void load_plugin(std::string path) {
     init = dlsym(handle, sym.c_str());
 #endif
     if (!init) {
-        throw exception(sstream() << "error, plugin " << path << " does not seem to contain a module '" << pkg << ".Default'");
+        throw exception(sstream() << "error, plugin " << path << " does not seem to contain a module '" << pkg << "'");
     }
     auto init_fn = reinterpret_cast<object *(*)(object *)>(init);
     object *r = init_fn(io_mk_world());
     consume_io_result(r);
     // NOTE: we never unload plugins
 }
-
-class initializer {
-private:
-    lean::initializer m_init;
-public:
-    initializer() {
-    }
-    ~initializer() {
-    }
-};
 
 namespace lean {
 extern "C" object * lean_run_frontend(object * input, object * opts, object * filename, object * main_module_name, object * w);
@@ -372,6 +369,9 @@ void environment_free_regions(environment && env) {
 }
 }
 
+extern "C" object * lean_get_prefix(object * w);
+extern "C" object * lean_get_libdir(object * w);
+
 void check_optarg(char const * option_name) {
     if (!optarg) {
         std::cerr << "error: argument missing for option '-" << option_name << "'" << std::endl;
@@ -403,7 +403,7 @@ int main(int argc, char ** argv) {
     SetErrorMode(SEM_FAILCRITICALERRORS);
 #endif
     auto init_start = std::chrono::steady_clock::now();
-    ::initializer init;
+    lean::initializer init;
     second_duration init_time = std::chrono::steady_clock::now() - init_start;
     bool run = false;
     optional<std::string> olean_fn;
@@ -423,6 +423,7 @@ int main(int argc, char ** argv) {
 #endif
 
     try {
+        // Remark: This currently runs under `IO.initializing = true`.
         init_search_path();
     } catch (lean::throwable & ex) {
         std::cerr << "error: " << ex.what() << std::endl;
@@ -440,6 +441,8 @@ int main(int argc, char ** argv) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
         if (c == -1)
             break; // end of command line
+        if (c == 0)
+            continue; // long-only option
         switch (c) {
             case 'e':
                 lean_set_exit_on_panic(true);
@@ -526,12 +529,25 @@ int main(int argc, char ** argv) {
             case 'p':
                 check_optarg("p");
                 load_plugin(optarg);
+                forwarded_args.push_back(string_ref("--plugin=" + std::string(optarg)));
                 break;
             default:
                 std::cerr << "Unknown command line option\n";
                 display_help(std::cerr);
                 return 1;
         }
+    }
+
+    lean::io_mark_end_initialization();
+
+    if (print_prefix) {
+        std::cout << get_io_result<string_ref>(lean_get_prefix(io_mk_world())).data() << std::endl;
+        return 0;
+    }
+
+    if (print_libdir) {
+        std::cout << get_io_result<string_ref>(lean_get_libdir(io_mk_world())).data() << std::endl;
+        return 0;
     }
 
     if (auto max_memory = opts.get_unsigned(get_max_memory_opt_name(),

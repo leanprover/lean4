@@ -298,13 +298,11 @@ extern "C" obj_res lean_io_prim_handle_flush(b_obj_arg h, obj_arg /* w */) {
     }
 }
 
-static object * g_io_error_eof = nullptr;
-
 /* Handle.read : (@& Handle) → USize → IO ByteArray */
 extern "C" obj_res lean_io_prim_handle_read(b_obj_arg h, usize nbytes, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
     if (feof(fp)) {
-        return io_result_mk_error(g_io_error_eof);
+        return io_result_mk_ok(alloc_sarray(1, 0, 0));
     }
     obj_res res = lean_alloc_sarray(1, 0, nbytes);
     usize n = std::fread(lean_sarray_cptr(res), 1, nbytes, fp);
@@ -839,13 +837,15 @@ extern "C" obj_res lean_io_wait_any(b_obj_arg task_list, obj_arg) {
     return io_result_mk_ok(v);
 }
 
+extern "C" obj_res lean_io_exit(obj_arg obj, obj_arg /* w */) {
+    exit((size_t) obj);
+}
+
 void initialize_io() {
     g_io_error_nullptr_read = mk_io_user_error(mk_string("null reference read"));
     mark_persistent(g_io_error_nullptr_read);
     g_io_error_getline = mk_io_user_error(mk_string("getLine failed"));
     mark_persistent(g_io_error_getline);
-    g_io_error_eof = lean_mk_io_error_eof(lean_box(0));
-    mark_persistent(g_io_error_eof);
     g_io_handle_external_class = lean_register_external_class(io_handle_finalizer, io_handle_foreach);
 #if defined(LEAN_WINDOWS)
     _setmode(_fileno(stdout), _O_BINARY);

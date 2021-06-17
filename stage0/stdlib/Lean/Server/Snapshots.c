@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Lean_Server_Snapshots_reparseHeader___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_catchExceptions(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_msgLog___boxed(lean_object*);
-lean_object* l_IO_FS_withIsolatedStreams___rarg(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l___private_Lean_Server_Snapshots_0__Lean_Server_Snapshots_ioErrorFromEmpty_match__1(lean_object*, uint8_t);
 lean_object* l_List_head_x21___at_Lean_Elab_Command_instMonadOptionsCommandElabM___spec__1(lean_object*);
@@ -48,10 +47,10 @@ lean_object* l_Lean_Server_Snapshots_compileCmdsAfter_match__2___rarg(lean_objec
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__7;
 lean_object* l_Lean_Server_Snapshots_reparseHeader_match__1(lean_object*);
 lean_object* l_Lean_Server_Snapshots_reparseHeader(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_IO_FS_withIsolatedStreams___at_Lean_runEval___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_env___boxed(lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
 lean_object* l_Lean_Server_Snapshots_compileNextCmd___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_compileNextCmd___closed__6;
 static lean_object* l_Lean_Server_Snapshots_reparseHeader___closed__1;
@@ -61,7 +60,6 @@ extern lean_object* l_Lean_firstFrontendMacroScope;
 lean_object* l_Lean_FileMap_ofString(lean_object*);
 lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot;
 lean_object* l_Lean_Server_Snapshots_Snapshot_endPos___boxed(lean_object*);
-lean_object* l_IO_mkRef___at_Lean_Server_Snapshots_compileNextCmd___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_compileNextCmd_match__1(lean_object*);
 lean_object* l_Lean_Server_Snapshots_parseNextCmd(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
@@ -88,6 +86,7 @@ uint8_t l_Lean_Parser_isEOI(lean_object*);
 lean_object* l_Lean_Server_Snapshots_compileNextCmd_match__1___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_compileNextCmd___closed__2;
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__1;
+lean_object* l_IO_mkRef___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__13;
 uint32_t lean_uint32_of_nat(lean_object*);
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__9;
@@ -748,31 +747,6 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Server_Snapshots_compileNextCmd_match__1
 return x_2;
 }
 }
-lean_object* l_IO_mkRef___at_Lean_Server_Snapshots_compileNextCmd___spec__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; uint8_t x_4; 
-x_3 = lean_st_mk_ref(x_1, x_2);
-x_4 = !lean_is_exclusive(x_3);
-if (x_4 == 0)
-{
-return x_3;
-}
-else
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_3, 0);
-x_6 = lean_ctor_get(x_3, 1);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_dec(x_3);
-x_7 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_7, 0, x_5);
-lean_ctor_set(x_7, 1, x_6);
-return x_7;
-}
-}
-}
 lean_object* l_Lean_Server_Snapshots_compileNextCmd___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -957,7 +931,7 @@ lean_ctor_set(x_33, 5, x_11);
 lean_ctor_set(x_33, 6, x_12);
 lean_ctor_set(x_33, 7, x_13);
 lean_ctor_set(x_33, 8, x_14);
-x_34 = l_IO_mkRef___at_Lean_Server_Snapshots_compileNextCmd___spec__1(x_33, x_3);
+x_34 = l_IO_mkRef___rarg(x_33, x_3);
 x_35 = lean_ctor_get(x_34, 0);
 lean_inc(x_35);
 x_36 = lean_ctor_get(x_34, 1);
@@ -992,7 +966,7 @@ x_46 = l_Lean_Server_Snapshots_compileNextCmd___closed__1;
 x_47 = lean_alloc_closure((void*)(l_EIO_toIO___rarg), 3, 2);
 lean_closure_set(x_47, 0, x_46);
 lean_closure_set(x_47, 1, x_45);
-x_48 = l_IO_FS_withIsolatedStreams___rarg(x_47, x_36);
+x_48 = l_IO_FS_withIsolatedStreams___at_Lean_runEval___spec__1(x_47, x_36);
 if (lean_obj_tag(x_48) == 0)
 {
 lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; uint8_t x_55; 

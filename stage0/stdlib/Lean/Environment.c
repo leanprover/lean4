@@ -289,7 +289,6 @@ lean_object* l_Lean_importModules_match__2___rarg(lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_mkMapDeclarationExtension___spec__8___rarg(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_List_toStringAux___at_Lean_Environment_displayStats___spec__2___boxed(lean_object*, lean_object*);
 static lean_object* l_List_toStringAux___at_Lean_Environment_displayStats___spec__2___closed__1;
-lean_object* l_IO_mkRef___at_Lean_initFn____x40_Lean_Environment___hyg_1597____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerSimplePersistentEnvExtension___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Environment_0__Lean_setImportedEntries___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_namespacesExt___elambda__1(lean_object*);
@@ -469,7 +468,6 @@ lean_object* lean_environment_main_module(lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtensionDescr_toArrayFn___default(lean_object*);
 lean_object* l_Lean_Environment_evalConstCheck_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_list_to_array(lean_object*, lean_object*);
-lean_object* l_IO_mkRef___at___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_mkEnvExtensionsRef___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4___closed__2;
 lean_object* l_Array_binSearchAux___at_Lean_MapDeclarationExtension_find_x3f___spec__2(lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_imp___elambda__4(lean_object*);
@@ -616,6 +614,7 @@ lean_object* l_Lean_importModules_match__1(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Environment_0__Lean_finalizePersistentExtensions___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_Lean_namespacesExt___closed__4;
 lean_object* l_Lean_importModules_importMods_match__2(lean_object*);
+lean_object* l_IO_mkRef___rarg(lean_object*, lean_object*);
 lean_object* lean_compile_decl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ImportState_moduleData___default;
 lean_object* l_Array_qpartition_loop___at_Lean_mkMapDeclarationExtension___spec__5(lean_object*);
@@ -3276,37 +3275,12 @@ x_2 = l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___closed__2;
 return x_2;
 }
 }
-lean_object* l_IO_mkRef___at___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_mkEnvExtensionsRef___spec__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; uint8_t x_4; 
-x_3 = lean_st_mk_ref(x_1, x_2);
-x_4 = !lean_is_exclusive(x_3);
-if (x_4 == 0)
-{
-return x_3;
-}
-else
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_3, 0);
-x_6 = lean_ctor_get(x_3, 1);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_dec(x_3);
-x_7 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_7, 0, x_5);
-lean_ctor_set(x_7, 1, x_6);
-return x_7;
-}
-}
-}
 lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_mkEnvExtensionsRef(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_EnvironmentHeader_imports___default___closed__1;
-x_3 = l_IO_mkRef___at___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_mkEnvExtensionsRef___spec__1(x_2, x_1);
+x_3 = l_IO_mkRef___rarg(x_2, x_1);
 return x_3;
 }
 }
@@ -4988,37 +4962,12 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* l_IO_mkRef___at_Lean_initFn____x40_Lean_Environment___hyg_1597____spec__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; uint8_t x_4; 
-x_3 = lean_st_mk_ref(x_1, x_2);
-x_4 = !lean_is_exclusive(x_3);
-if (x_4 == 0)
-{
-return x_3;
-}
-else
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_3, 0);
-x_6 = lean_ctor_get(x_3, 1);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_dec(x_3);
-x_7 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_7, 0, x_5);
-lean_ctor_set(x_7, 1, x_6);
-return x_7;
-}
-}
-}
 lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_1597_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_EnvironmentHeader_imports___default___closed__1;
-x_3 = l_IO_mkRef___at_Lean_initFn____x40_Lean_Environment___hyg_1597____spec__1(x_2, x_1);
+x_3 = l_IO_mkRef___rarg(x_2, x_1);
 return x_3;
 }
 }

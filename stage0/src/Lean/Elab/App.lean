@@ -785,7 +785,7 @@ private partial def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) 
     funLVals.foldlM (init := acc) fun acc (f, fIdent, fields) => do
       let lvals' := toLVals fields (first := true)
       let s ← observing do
-        addTermInfo fIdent f
+        addTermInfo fIdent f expectedType?
         let e ← elabAppLVals f (lvals' ++ lvals) namedArgs args expectedType? explicit ellipsis
         if overloaded then ensureHasType expectedType? e else pure e
       return acc.push s

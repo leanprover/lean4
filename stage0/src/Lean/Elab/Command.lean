@@ -55,6 +55,10 @@ abbrev CommandElabM := CommandElabCoreM Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
 abbrev Linter := Syntax → CommandElabM Unit
 
+-- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
+-- whole monad stack at every use site. May eventually be covered by `deriving`.
+instance : Monad CommandElabM := { inferInstanceAs (Monad CommandElabM) with }
+
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State := {
   env         := env
   messages    := messages

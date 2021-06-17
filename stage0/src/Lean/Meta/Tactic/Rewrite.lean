@@ -20,7 +20,7 @@ def rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
     (symm : Bool := false) (occs : Occurrences := Occurrences.all) (mode := TransparencyMode.reducible) : MetaM RewriteResult :=
   withMVarContext mvarId do
     checkNotAssigned mvarId `rewrite
-    let heqType ← inferType heq
+    let heqType ← instantiateMVars (← inferType heq)
     let (newMVars, binderInfos, heqType) ← forallMetaTelescopeReducing heqType
     let heq := mkAppN heq newMVars
     let cont (heq heqType : Expr) : MetaM RewriteResult := do

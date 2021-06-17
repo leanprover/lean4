@@ -20,6 +20,9 @@ namespace lean {
 extern "C" object* initialize_Init(object* w);
 extern "C" object* initialize_Lean(object* w);
 
+/* Initializes the Lean runtime. Before executing any code which uses the Lean package,
+you must first call this function, and then `lean::io_mark_end_initialization`. Inbetween
+these two calls, you may also have to run additional initializers for your own modules. */
 extern "C" void lean_initialize() {
     save_stack_info();
     initialize_util_module();
@@ -31,10 +34,6 @@ extern "C" void lean_initialize() {
     initialize_library_module();
     initialize_compiler_module();
     initialize_constructions_module();
-}
-
-void initialize() {
-    lean_initialize();
 }
 
 void finalize() {
@@ -50,8 +49,10 @@ void finalize() {
 }
 
 initializer::initializer() {
-    initialize();
-    lean::io_mark_end_initialization();
+    lean_initialize();
+    /* Remark: We used to call `lean::io_mark_end_initialization` here, however this prevented
+    plugins from setting up global state such as environment extensions in their initializers.
+    See also `lean_initialize`. */
 }
 
 initializer::~initializer() {

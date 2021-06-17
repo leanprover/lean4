@@ -202,6 +202,13 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     return lean_io_result_mk_ok(r.steal());
 }
 
+extern "C" obj_res lean_io_process_child_take_stdin(b_obj_arg, obj_arg lchild, obj_arg) {
+    object_ref child(lchild);
+    object_ref child2 = mk_cnstr(0, object_ref(box(0)), cnstr_get_ref(child, 1), cnstr_get_ref(child, 2), cnstr_get_ref(child, 3));
+    object_ref r = mk_cnstr(0, cnstr_get_ref(child, 0), child2);
+    return lean_io_result_mk_ok(r.steal());
+}
+
 void initialize_process() {
     g_win_handle_external_class = lean_register_external_class(win_handle_finalizer, win_handle_foreach);
 }
@@ -329,6 +336,14 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     object_ref r = mk_cnstr(0, parent_stdin, parent_stdout, parent_stderr, sizeof(pid_t));
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
     cnstr_set_uint32(r.raw(), 3 * sizeof(object *), pid);
+    return lean_io_result_mk_ok(r.steal());
+}
+
+extern "C" obj_res lean_io_process_child_take_stdin(b_obj_arg, obj_arg lchild, obj_arg) {
+    object_ref child(lchild);
+    object_ref child2 = mk_cnstr(0, object_ref(box(0)), cnstr_get_ref(child, 1), cnstr_get_ref(child, 2), sizeof(pid_t));
+    cnstr_set_uint32(child2.raw(), 3 * sizeof(object *), cnstr_get_uint32(child.raw(), 3 * sizeof(object *)));
+    object_ref r = mk_cnstr(0, cnstr_get_ref(child, 0), child2);
     return lean_io_result_mk_ok(r.steal());
 }
 

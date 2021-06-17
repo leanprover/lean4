@@ -189,4 +189,36 @@ where
       cs.any (hasNestedTactic pos tailPos)
     | _ => false
 
+/--
+Find info nodes that should be used for the term goal feature.
+
+The main complication concerns applications
+like `f a b` where `f` is an identifier.
+In this case, the term goal at `f`
+should be the goal for the full application `f a b`.
+
+Therefore we first gather the position of
+these head function symbols such as `f`,
+and later ignore identifiers at these positions.
+-/
+partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) :=
+  let headFns : Std.HashSet String.Pos := t.foldInfo (init := {}) fun ctx i headFns => do
+    if let some pos := getHeadFnPos? i.stx then
+      headFns.insert pos
+    else
+      headFns
+  t.smallestInfo? fun i => do
+    if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
+      if pos ≤ hoverPos ∧ hoverPos < tailPos then
+        if let Info.ofTermInfo ti := i then
+          return !ti.stx.isIdent || !headFns.contains pos
+    false
+  where
+    /- Returns the position of the head function symbol, if it is an identifier. -/
+    getHeadFnPos? (s : Syntax) (foundArgs := false) : Option String.Pos :=
+      match s with
+      | `(($s)) => getHeadFnPos? s foundArgs
+      | `($f $as*) => getHeadFnPos? f (foundArgs := foundArgs || !as.isEmpty)
+      | stx => if foundArgs && stx.isIdent then stx.getPos? else none
+
 end Lean.Elab

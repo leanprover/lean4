@@ -43,6 +43,10 @@ structure Context where
 
 abbrev CoreM := ReaderT Context $ StateRefT State (EIO Exception)
 
+-- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
+-- whole monad stack at every use site. May eventually be covered by `deriving`.
+instance : Monad CoreM := { inferInstanceAs (Monad CoreM) with }
+
 instance : Inhabited (CoreM α) where
   default := fun _ _ => throw arbitrary
 

@@ -386,9 +386,21 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       let kind := quoted.getKind
       let argPats := quoted.getArgs.map fun arg => Unhygienic.run `(`($(arg)))
       pure {
-        check := shape kind argPats.size,
+        check :=
+          if quoted.isIdent then
+            -- identifiers only match identical identifiers
+            -- NOTE: We could make this case more precise by including the matched identifier,
+            -- if any, in the `shape` constructor, but matching on literal identifiers is quite
+            -- rare.
+            other quoted
+          else
+            shape kind argPats.size,
         onMatch := fun
-          | other _ => undecided
+          | other stx' =>
+            if quoted.isIdent && quoted == stx' then
+              covered pure (exhaustive := true)
+            else
+              uncovered
           | shape k' sz =>
             if k' == kind && sz == argPats.size then
               covered (fun (pats, rhs) => (argPats.toList ++ pats, rhs)) (exhaustive := true)

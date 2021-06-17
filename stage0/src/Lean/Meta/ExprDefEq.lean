@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.ProjFns
+import Lean.Structure
 import Lean.Meta.WHNF
 import Lean.Meta.InferType
 import Lean.Meta.FunInfo
@@ -1355,7 +1356,21 @@ private def isDefEqOnFailure (t s : Expr) : MetaM Bool :=
 
 private def isDefEqProj : Expr → Expr → MetaM Bool
   | Expr.proj _ i t _, Expr.proj _ j s _ => pure (i == j) <&&> Meta.isExprDefEqAux t s
+  | Expr.proj structName 0 s _, v => isDefEqSingleton structName s v
+  | v, Expr.proj structName 0 s _ => isDefEqSingleton structName s v
   | _, _ => pure false
+where
+  /- If `structName` is a structure with a single field, then reduce `s.1 =?= v` to `s =?= ⟨v⟩` -/
+  isDefEqSingleton (structName : Name) (s : Expr) (v : Expr) : MetaM Bool := do
+    let ctorVal := getStructureCtor (← getEnv) structName
+    if ctorVal.numFields != 1 then
+      return false -- It is not a structure with a single field.
+    let sType ← whnf (← inferType s)
+    let sTypeFn := sType.getAppFn
+    if !sTypeFn.isConstOf structName then
+      return false
+    let ctorApp := mkApp (mkAppN (mkConst ctorVal.name sTypeFn.constLevels!) sType.getAppArgs) v
+    Meta.isExprDefEqAux s ctorApp
 
 /-
   Given applications `t` and `s` that are in WHNF (modulo the current transparency setting),

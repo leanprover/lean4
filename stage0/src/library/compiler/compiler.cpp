@@ -187,7 +187,7 @@ environment compile(environment const & env, options const & opts, names cs) {
         if (!cinfo.is_definition() && !cinfo.is_opaque()) return env;
     }
 
-    time_task t("compilation", opts);
+    time_task t("compilation", opts, head(cs));
     scope_trace_env scope_trace(env, opts);
 
     comp_decls ds = to_comp_decls(env, cs);
@@ -273,6 +273,7 @@ void initialize_compiler() {
     register_bool_option(*g_extract_closed, true, "(compiler) enable/disable closed term caching");
     register_trace_class("compiler");
     register_trace_class({"compiler", "input"});
+    register_trace_class({"compiler", "inline"});
     register_trace_class({"compiler", "eta_expand"});
     register_trace_class({"compiler", "lcnf"});
     register_trace_class({"compiler", "cce"});

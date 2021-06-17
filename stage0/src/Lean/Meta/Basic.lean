@@ -143,6 +143,10 @@ structure Context where
 
 abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 
+-- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
+-- whole monad stack at every use site. May eventually be covered by `deriving`.
+instance : Monad MetaM := { inferInstanceAs (Monad MetaM) with }
+
 instance : Inhabited (MetaM α) where
   default := fun _ _ => arbitrary
 

@@ -9,6 +9,9 @@ import Lean.Elab.Match
 import Lean.Elab.Quotation.Util
 import Lean.Parser.Do
 
+-- HACK: avoid code explosion until heuristics are improved
+set_option compiler.reuse false
+
 namespace Lean.Elab.Term
 open Lean.Parser.Term
 open Meta

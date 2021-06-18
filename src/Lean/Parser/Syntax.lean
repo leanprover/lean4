@@ -83,7 +83,7 @@ def macroTailDefault  : Parser := atomic (" : " >> ident) >> darrow >> macroRhs 
 def macroTail := leading_parser macroTailTactic <|> macroTailCommand <|> macroTailDefault
 @[builtinCommandParser] def «macro»       := leading_parser suppressInsideQuot (optional docComment >> Term.attrKind >> "macro " >> optPrecedence >> optNamedName >> optNamedPrio >> macroHead >> many macroArg >> macroTail)
 
-@[builtinCommandParser] def «elab_rules» := leading_parser suppressInsideQuot (optional docComment >> "elab_rules" >> optKind >> optional (" : " >> ident) >> Term.matchAlts)
+@[builtinCommandParser] def «elab_rules» := leading_parser suppressInsideQuot (optional docComment >> Term.attrKind >> "elab_rules" >> optKind >> optional (" : " >> ident)  >> optional (" <= " >> ident) >> Term.matchAlts)
 def elabHead := macroHead
 def elabArg  := macroArg
 def elabTail := leading_parser atomic (" : " >> ident >> optional (" <= " >> ident)) >> darrow >> termParser

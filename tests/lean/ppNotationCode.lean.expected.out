@@ -1,7 +1,7 @@
 [Elab.definition.body] «term_+++_» : Lean.TrailingParserDescr :=
 Lean.ParserDescr.trailingNode `«term_+++_» 1022 1
   (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol "+++") (Lean.ParserDescr.cat `term 1))
-[Elab.definition.body] myMacro._@.ppNotationCode._hyg.20 : Lean.Macro :=
+[Elab.definition.body] myMacro._@.ppNotationCode._hyg.21 : Lean.Macro :=
 fun (x : Lean.Syntax) =>
   let discr : Lean.Syntax := x;
   if Lean.Syntax.isOfKind discr `«term_+++_» = true then

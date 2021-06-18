@@ -210,25 +210,26 @@ private def addTraceAsMessages : CommandElabM Unit := do
     traceState.traces := {}
   }
 
-private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttribute.AttributeEntry CommandElab) → CommandElabM Unit
-  | []                => throwError "unexpected syntax{indentD stx}"
-  | (elabFn::elabFns) =>
-    catchInternalId unsupportedSyntaxExceptionId
-      (do
-        MonadRef.withElaborator elabFn.decl <| withInfoTreeContext (mkInfoTree := mkInfoTree) <| elabFn.value stx
-        addTraceAsMessages)
-      (fun _ => do set s; addTraceAsMessages; elabCommandUsing s stx elabFns)
-where mkInfoTree trees := do
+private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : Std.PersistentArray InfoTree) : CommandElabM InfoTree := do
   let ctx ← read
   let s ← get
   let scope := s.scopes.head!
-  let tree := InfoTree.node (Info.ofCommandInfo { elaborator := (← MonadRef.getElaborator), stx }) trees
+  let tree := InfoTree.node (Info.ofCommandInfo { elaborator, stx }) trees
   let tree := InfoTree.context {
     env := s.env, fileMap := ctx.fileMap, mctx := {}, currNamespace := scope.currNamespace, openDecls := scope.openDecls, options := scope.opts
   } tree
   if checkTraceOption (← getOptions) `Elab.info then
     logTrace `Elab.info m!"{← tree.format}"
   return tree
+
+private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttribute.AttributeEntry CommandElab) → CommandElabM Unit
+  | []                => throwError "unexpected syntax{indentD stx}"
+  | (elabFn::elabFns) =>
+    catchInternalId unsupportedSyntaxExceptionId
+      (do
+        MonadRef.withElaborator elabFn.decl <| withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.decl stx) <| elabFn.value stx
+        addTraceAsMessages)
+      (fun _ => do set s; addTraceAsMessages; elabCommandUsing s stx elabFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : CommandElabM α) : CommandElabM α :=
@@ -277,10 +278,11 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
         trace `Elab.command fun _ => stx;
         let s ← get
         match ← liftMacroM <| expandMacroImpl? s.env stx with
-        | some (decl, stxNew) => MonadRef.withElaborator decl do
-          withInfoContext (mkInfo := Info.ofCommandInfo { elaborator := (← MonadRef.getElaborator), stx }) do
-            withMacroExpansion stx stxNew do
-              elabCommand stxNew
+        | some (decl, stxNew) =>
+          MonadRef.withElaborator decl do
+            withInfoTreeContext (mkInfoTree := mkInfoTree decl stx) do
+                withMacroExpansion stx stxNew do
+                  elabCommand stxNew
         | _ =>
           match commandElabAttribute.getEntries s.env k with
           | []      => throwError "elaboration function for '{k}' has not been implemented"

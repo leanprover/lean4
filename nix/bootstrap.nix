@@ -1,11 +1,11 @@
 { debug ? false, stage0debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir,
+  stdenv, lib, cmake, gmp, llvm, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir,
   ... } @ args:
 rec {
   inherit stdenv;
   buildCMake = args: stdenv.mkDerivation ({
     nativeBuildInputs = [ cmake ];
-    buildInputs = [ gmp ];
+    buildInputs = [ gmp llvm ];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
     dontStrip = (args.debug or debug);
@@ -24,6 +24,7 @@ rec {
       touch empty.cpp
       sed -i 's/find_package.*//;s/add_subdirectory.*//;s/set(LEAN_OBJS.*/set(LEAN_OBJS empty.cpp)/' CMakeLists.txt
     '';
+    extraCMakeFlags = [ "-DLLVM=OFF" ];
     dontBuild = true;
     installPhase = ''
       mkdir $out
@@ -78,7 +79,11 @@ rec {
     in (all: all // all.lean) rec {
       Init = build { name = "Init"; deps = []; };
       Std  = build { name = "Std";  deps = [ Init ]; };
-      Lean = build { name = "Lean"; deps = [ Init Std ]; linkFlags = ["${stdlibLinkFlags} -rdynamic ${leancpp}/lib/lean.cpp.o"]; };
+      Lean = build {
+        name = "Lean";
+        deps = [ Init Std ];
+        linkFlags = ["${stdlibLinkFlags} -rdynamic -L${lib.makeLibraryPath [llvm]} -lLLVM ${leancpp}/lib/lean.cpp.o"];
+      };
       Leanpkg = build { name = "Leanpkg"; deps = [ Init Std Lean ]; linkFlags = ["${stdlibLinkFlags} -rdynamic"]; };
       inherit (Lean) emacs-dev emacs-package vscode-dev vscode-package;
       mods = Init.mods // Std.mods // Lean.mods;

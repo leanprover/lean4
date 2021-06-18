@@ -1,6 +1,6 @@
 let
   flakePkgs = (import ./default.nix).packages.${builtins.currentSystem};
-in { pkgs ? flakePkgs.nixpkgs, llvmPackages ? null }:
+in { pkgs ? flakePkgs.nixpkgs, llvmPackages ? null, static ? false }:
 # use `shell` as default
 (attribs: attribs.shell // attribs) rec {
   inherit (flakePkgs) temci;
@@ -9,7 +9,16 @@ in { pkgs ? flakePkgs.nixpkgs, llvmPackages ? null }:
                                           then flakePkgs.llvmPackages
                                           else pkgs.${"llvmPackages_${llvmPackages}"}).clang;
   } rec {
-    buildInputs = with pkgs; [ cmake (gmp.override { withStatic = true; }) ccache temci ];
+    buildInputs = with pkgs; [
+      cmake
+      (gmp.override { withStatic = static; })
+      llvm
+      ccache
+      temci
+      # LLVM dependencies
+      (if static then zlib.static else zlib)
+      (ncurses.override { enableStatic = static; })
+    ];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
     # more convenient `ctest` output

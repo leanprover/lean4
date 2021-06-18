@@ -27,7 +27,7 @@ jobs:
             os: ubuntu-latest
             release: true
             CMAKE_OPTIONS: -DSTATIC=ON
-            shell: nix-shell --arg pkgs "import (fetchTarball \"channel:nixos-19.03\") {{}}" --argstr llvmPackages latest --run "bash -euxo pipefail {0}"
+            shell: nix-shell --arg static true --arg pkgs "import (fetchTarball \"channel:nixos-19.03\") {{}}" --argstr llvmPackages latest --run "bash -euxo pipefail {0}"
           - name: Linux
             os: ubuntu-latest
             check-stage3: true
@@ -43,6 +43,7 @@ jobs:
             os: macos-latest
             release: true
             CMAKE_OPTIONS: -DSTATIC=ON
+            shell: nix-shell --arg static true --run "bash -euxo pipefail {0}"
           - name: Windows
             os: windows-latest
             release: true
@@ -71,8 +72,9 @@ jobs:
         if: matrix.os != 'windows-latest'
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
+        # `polly` seems to be necessary for the LLVM cmake config to work, probably a packaging bug
         with:
-          install: make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache git diffutils
+          install: make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-polly mingw-w64-x86_64-ccache git diffutils
         if: matrix.os == 'windows-latest'
       - name: Cache
         uses: actions/cache@v2
@@ -113,6 +115,7 @@ jobs:
         run: |
           for f in lean leanpkg; do
             patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 --remove-rpath build/stage1/bin/$f
+            ldd build/stage1/bin/$f
           done
         if: matrix.name == 'Linux release'
       - name: Patch
@@ -121,6 +124,7 @@ jobs:
             for lib in $(otool -L build/stage1/bin/$f | tail -n +2 | cut -d' ' -f1); do
               install_name_tool -change "$lib" "/usr/lib/$(basename $lib | sed 's/libc++\.1\.0/libc++.1/')" build/stage1/bin/$f
             done
+            otool -L build/stage1/bin/$f
           done
         if: matrix.name == 'macOS'
       - name: Pack

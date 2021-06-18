@@ -32,6 +32,7 @@ let
   lean = callPackage (import ./bootstrap.nix) (args // {
     stdenv = overrideCC llvmPackages.stdenv cc;
     inherit buildLeanPackage;
+    inherit (llvmPackages) llvm;
   });
   makeOverridableLeanPackage = f:
     let newF = origArgs: f origArgs // {

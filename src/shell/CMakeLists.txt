@@ -1,8 +1,32 @@
 add_library(shell OBJECT lean.cpp)
 
+if(LLVM)
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set(LLVM_SYSTEM_LIBS "-lz -ltinfo")
+  elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
+    # macOS doesn't have -Bstatic, so let cmake search for the libraries
+    find_library(LIBZ NAMES z REQUIRED)
+    find_library(NCURSES NAMES ncurses REQUIRED)
+    set(LLVM_SYSTEM_LIBS "${LIBZ} ${NCURSES}")
+  else()
+    set(LLVM_SYSTEM_LIBS "-lz")
+  endif()
+  if(${STATIC} AND NOT ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin"))
+    set(LEAN_EXE_LINKER_FLAGS "`${LLVM_TOOLS_BINARY_DIR}/llvm-config --link-static --ldflags --libs nativecodegen` -Wl,-Bstatic ${LLVM_SYSTEM_LIBS} -Wl,-Bdynamic")
+  else()
+    set(LEAN_EXE_LINKER_FLAGS "`${LLVM_TOOLS_BINARY_DIR}/llvm-config --ldflags --libs nativecodegen` ${LLVM_SYSTEM_LIBS}")
+  endif()
+  if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set(LEAN_EXE_LINKER_FLAGS "${LEAN_EXE_LINKER_FLAGS} -lole32 -luuid")
+  endif()
+else()
+  set(LEAN_EXE_LINKER_FLAGS "")
+endif()
+
 string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}
-  COMMAND sh -c "LEANC_GMP=${GMP_LIBRARIES} LEAN_CXX='${CMAKE_CXX_COMPILER_LAUNCHER} ${CMAKE_CXX_COMPILER}' ${CMAKE_BINARY_DIR}/bin/leanc ${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}  $<TARGET_OBJECTS:shell> -o ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"
+  COMMAND sh -c "LEANC_GMP=${GMP_LIBRARIES} LEAN_CXX='${CMAKE_CXX_COMPILER_LAUNCHER} ${CMAKE_CXX_COMPILER}' ${CMAKE_BINARY_DIR}/bin/leanc $<TARGET_OBJECTS:shell> ${CMAKE_EXE_LINKER_FLAGS} ${LEAN_EXE_LINKER_FLAGS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}} -o ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"
+  VERBATIM
   DEPENDS Init Std Lean leancpp shell)
 
 add_custom_target(lean ALL

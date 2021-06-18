@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Elab.Command
 import Lean.Parser.Syntax
+import Lean.Elab.Util
 
 namespace Lean.Elab.Term
 /-
@@ -279,6 +280,11 @@ private partial def isAtomLikeSyntax (stx : Syntax) : Bool :=
   else
     kind == `Lean.Parser.Syntax.atom
 
+def resolveSyntaxKind (k : Name) : CommandElabM Name := do
+  checkSyntaxNodeKindAtNamespaces k (← getCurrNamespace)
+  <|>
+  throwError "invalid syntax node kind '{k}'"
+
 @[builtinCommandElab «syntax»] def elabSyntax : CommandElab := fun stx => do
   let `($[$doc?:docComment]? $attrKind:attrKind syntax $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $[$ps:stx]* : $catStx) ← pure stx
     | throwUnsupportedSyntax
@@ -382,7 +388,7 @@ def expandNoKindMacroRulesAux (alts : Array Syntax) (cmdName : String) (mkCmd : 
   | `($[$doc?:docComment]? $attrKind:attrKind macro_rules (kind := $kind) | $x:ident => $rhs) =>
     `($[$doc?:docComment]? @[$attrKind:attrKind macro $kind] def myMacro : Macro := fun $x:ident => $rhs)
   | `($[$doc?:docComment]? $attrKind:attrKind macro_rules (kind := $kind) $alts:matchAlt*) =>
-    do elabMacroRulesAux doc? attrKind ((← getCurrNamespace) ++ kind.getId) alts
+    do elabMacroRulesAux doc? attrKind (← resolveSyntaxKind kind.getId) alts
   | _  => throwUnsupportedSyntax
 
 @[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro := fun stx =>
@@ -630,7 +636,7 @@ def elabElabRulesAux (doc? : Option Syntax) (attrKind : Syntax) (k : SyntaxNodeK
     expandNoKindMacroRulesAux alts "elab_rules" fun kind? alts =>
       `($[$doc?:docComment]? $attrKind:attrKind elab_rules $[(kind := $(mkIdent <$> kind?))]? $[: $cat?]? $[<= $expty?]? $alts:matchAlt*)
   | `($[$doc?:docComment]? $attrKind:attrKind elab_rules (kind := $kind) $[: $cat?]? $[<= $expty?]? $alts:matchAlt*) =>
-    do elabElabRulesAux doc? attrKind ((← getCurrNamespace) ++ kind.getId) cat? expty? alts
+    do elabElabRulesAux doc? attrKind (← resolveSyntaxKind kind.getId) cat? expty? alts
   | _  => throwUnsupportedSyntax
 
 @[builtinMacro Lean.Parser.Command.elab]

@@ -66,23 +66,22 @@ def addMacroStack {m} [Monad m] [MonadOptions m] (msgData : MessageData) (macroS
         msgData ++ Format.line ++ "while expanding" ++ indentD elem.before)
       msgData
 
-def checkSyntaxNodeKind (k : Name) : AttrM Name := do
+def checkSyntaxNodeKind [Monad m] [MonadEnv m] [MonadError m] (k : Name) : m Name := do
   if Parser.isValidSyntaxNodeKind (← getEnv) k then pure k
   else throwError "failed"
 
-def checkSyntaxNodeKindAtNamespacesAux (k : Name) : Name → AttrM Name
-  | n@(Name.str p _ _) => checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespacesAux k p
+def checkSyntaxNodeKindAtNamespaces [Monad m] [MonadEnv m] [MonadError m] (k : Name) : Name → m Name
+  | n@(Name.str p _ _) => checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespaces k p
+  | Name.anonymous     => checkSyntaxNodeKind k
   | _ => throwError "failed"
 
-def checkSyntaxNodeKindAtNamespaces (k : Name) : AttrM Name := do
+def checkSyntaxNodeKindAtCurrentNamespaces (k : Name) : AttrM Name := do
   let ctx ← read
-  checkSyntaxNodeKindAtNamespacesAux k ctx.currNamespace
+  checkSyntaxNodeKindAtNamespaces k ctx.currNamespace
 
 def syntaxNodeKindOfAttrParam (defaultParserNamespace : Name) (stx : Syntax) : AttrM SyntaxNodeKind := do
   let k ← Attribute.Builtin.getId stx
-  checkSyntaxNodeKind k
-  <|>
-  checkSyntaxNodeKindAtNamespaces k
+  checkSyntaxNodeKindAtCurrentNamespaces k
   <|>
   checkSyntaxNodeKind (defaultParserNamespace ++ k)
   <|>

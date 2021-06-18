@@ -1,15 +1,75 @@
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 1, "character": 8}}
+ "position": {"line": 3, "character": 8}}
 {"range":
- {"start": {"line": 1, "character": 8}, "end": {"line": 1, "character": 18}},
+ {"start": {"line": 3, "character": 8}, "end": {"line": 3, "character": 18}},
  "contents": {"value": "```lean\nTrue.intro : True\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 5, "character": 8}}
+ "position": {"line": 7, "character": 8}}
 {"range":
- {"start": {"line": 5, "character": 8}, "end": {"line": 5, "character": 18}},
+ {"start": {"line": 7, "character": 8}, "end": {"line": 7, "character": 18}},
  "contents": {"value": "```lean\nTrue.intro : True\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 10, "character": 4}}
+ "position": {"line": 12, "character": 4}}
 {"range":
- {"start": {"line": 10, "character": 4}, "end": {"line": 10, "character": 12}},
+ {"start": {"line": 12, "character": 4}, "end": {"line": 12, "character": 12}},
  "contents": {"value": "```lean\nNat.zero : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 21, "character": 2}}
+{"range":
+ {"start": {"line": 21, "character": 2}, "end": {"line": 21, "character": 23}},
+ "contents": {"value": "My tactic ", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 21, "character": 8}}
+{"range":
+ {"start": {"line": 21, "character": 2}, "end": {"line": 21, "character": 23}},
+ "contents": {"value": "My tactic ", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 21, "character": 13}}
+{"range":
+ {"start": {"line": 21, "character": 13}, "end": {"line": 21, "character": 23}},
+ "contents": {"value": "```lean\nTrue.intro : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 31, "character": 2}}
+{"range":
+ {"start": {"line": 31, "character": 2}, "end": {"line": 31, "character": 23}},
+ "contents": {"value": "My way better tactic ", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 39, "character": 2}}
+{"range":
+ {"start": {"line": 39, "character": 2}, "end": {"line": 39, "character": 23}},
+ "contents": {"value": "My ultimate tactic ", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 46, "character": 7}}
+{"range":
+ {"start": {"line": 46, "character": 7}, "end": {"line": 46, "character": 15}},
+ "contents":
+ {"value": "```lean\n1 : Nat\n```\n***\nMy notation ", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 53, "character": 7}}
+{"range":
+ {"start": {"line": 53, "character": 7}, "end": {"line": 53, "character": 15}},
+ "contents":
+ {"value": "```lean\n2 * 1 : Nat\n```\n***\nMy way better notation ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 63, "character": 7}}
+{"range":
+ {"start": {"line": 63, "character": 7}, "end": {"line": 63, "character": 16}},
+ "contents":
+ {"value": "```lean\n1 * 1 : Nat\n```\n***\nMy ultimate notation ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 70, "character": 2}}
+{"range":
+ {"start": {"line": 70, "character": 0}, "end": {"line": 70, "character": 7}},
+ "contents": {"value": "My command ", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 77, "character": 2}}
+{"range":
+ {"start": {"line": 77, "character": 0}, "end": {"line": 77, "character": 7}},
+ "contents": {"value": "My way better command ", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 85, "character": 2}}
+{"range":
+ {"start": {"line": 85, "character": 0}, "end": {"line": 85, "character": 8}},
+ "contents": {"value": "My ultimate command ", "kind": "markdown"}}

@@ -34,13 +34,6 @@ def expandOptNamedPrio (stx : Syntax) : MacroM Nat :=
     | `(Parser.Command.namedPrio| (priority := $prio)) => evalPrio prio
     | _ => Macro.throwUnsupported
 
-def expandOptNamedName (stx : Syntax) : MacroM (Option Name) := do
-  if stx.isNone then
-    return none
-  else match stx[0] with
-    | `(Parser.Command.namedName| (name := $name)) => return name.getId
-    | _ => Macro.throwUnsupported
-
 structure MacroStackElem where
   before : Syntax
   after : Syntax

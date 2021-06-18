@@ -68,25 +68,26 @@ def optKind : Parser := optional ("(" >> nonReservedSymbol "kind" >> ":=" >> ide
 
 def notationItem := ppSpace >> withAntiquot (mkAntiquot "notationItem" `Lean.Parser.Command.notationItem) (strLit <|> identPrec)
 @[builtinCommandParser] def «notation»    := leading_parser Term.attrKind >> "notation" >> optPrecedence >> optNamedName >> optNamedPrio >> many notationItem >> darrow >> termParser
-@[builtinCommandParser] def «macro_rules» := suppressInsideQuot (leading_parser Term.attrKind >> "macro_rules" >>  optKind >> Term.matchAlts)
-@[builtinCommandParser] def «syntax»      := leading_parser Term.attrKind >> "syntax " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 syntaxParser >> " : " >> ident
+@[builtinCommandParser] def «macro_rules» := suppressInsideQuot (leading_parser optional docComment >> Term.attrKind >> "macro_rules" >>  optKind >> Term.matchAlts)
+@[builtinCommandParser] def «syntax»      := leading_parser optional docComment >> Term.attrKind >> "syntax " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 syntaxParser >> " : " >> ident
 @[builtinCommandParser] def syntaxAbbrev  := leading_parser "syntax " >> ident >> " := " >> many1 syntaxParser
 @[builtinCommandParser] def syntaxCat     := leading_parser "declare_syntax_cat " >> ident
 def macroArgSimple := leading_parser ident >> checkNoWsBefore "no space before ':'" >> ":" >> syntaxParser maxPrec
 def macroArgSymbol := leading_parser strLit >> optional (atomic <| checkNoWsBefore >> "%" >> checkNoWsBefore >> ident)
-def macroArg  := macroArgSymbol <|> atomic macroArgSimple
+def macroArg  := leading_parser macroArgSymbol <|> atomic macroArgSimple
 def macroHead := macroArg
-def macroTailTactic   : Parser := atomic (" : " >> identEq "tactic") >> darrow >> ("`(" >> incQuotDepth Tactic.seq1 >> ")" <|> termParser)
-def macroTailCommand  : Parser := atomic (" : " >> identEq "command") >> darrow >> ("`(" >> incQuotDepth (many1Unbox commandParser) >> ")" <|> termParser)
-def macroTailDefault  : Parser := atomic (" : " >> ident) >> darrow >> (("`(" >> incQuotDepth (categoryParserOfStack 2) >> ")") <|> termParser)
-def macroTail := macroTailTactic <|> macroTailCommand <|> macroTailDefault
-@[builtinCommandParser] def «macro»       := leading_parser suppressInsideQuot (Term.attrKind >> "macro " >> optPrecedence >> optNamedName >> optNamedPrio >> macroHead >> many macroArg >> macroTail)
+def macroRhs (quotP : Parser) : Parser := leading_parser "`(" >> incQuotDepth quotP >> ")" <|> termParser
+def macroTailTactic   : Parser := atomic (" : " >> identEq "tactic") >> darrow >> macroRhs Tactic.seq1
+def macroTailCommand  : Parser := atomic (" : " >> identEq "command") >> darrow >> macroRhs (many1Unbox commandParser)
+def macroTailDefault  : Parser := atomic (" : " >> ident) >> darrow >> macroRhs (categoryParserOfStack 2)
+def macroTail := leading_parser macroTailTactic <|> macroTailCommand <|> macroTailDefault
+@[builtinCommandParser] def «macro»       := leading_parser suppressInsideQuot (optional docComment >> Term.attrKind >> "macro " >> optPrecedence >> optNamedName >> optNamedPrio >> macroHead >> many macroArg >> macroTail)
 
-@[builtinCommandParser] def «elab_rules» := leading_parser suppressInsideQuot ("elab_rules" >> optKind >> optional (" : " >> ident) >> Term.matchAlts)
+@[builtinCommandParser] def «elab_rules» := leading_parser suppressInsideQuot (optional docComment >> "elab_rules" >> optKind >> optional (" : " >> ident) >> Term.matchAlts)
 def elabHead := macroHead
 def elabArg  := macroArg
-def elabTail := atomic (" : " >> ident >> optional (" <= " >> ident)) >> darrow >> termParser
-@[builtinCommandParser] def «elab»       := leading_parser suppressInsideQuot (Term.attrKind >> "elab " >> optPrecedence >> optNamedName >> optNamedPrio >> elabHead >> many elabArg >> elabTail)
+def elabTail := leading_parser atomic (" : " >> ident >> optional (" <= " >> ident)) >> darrow >> termParser
+@[builtinCommandParser] def «elab»       := leading_parser suppressInsideQuot (optional docComment >> Term.attrKind >> "elab " >> optPrecedence >> optNamedName >> optNamedPrio >> elabHead >> many elabArg >> elabTail)
 
 end Command
 

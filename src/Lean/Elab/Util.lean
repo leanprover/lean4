@@ -139,7 +139,7 @@ def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEn
   let methods := Macro.mkMethods {
     -- TODO: record recursive expansions in info tree?
     expandMacro?     := fun stx => do
-      match ← expandMacroImpl? env stx with
+      match (← expandMacroImpl? env stx) with
       | some (_, stx) => some stx
       | none          => none
     hasDecl          := fun declName => return env.contains declName

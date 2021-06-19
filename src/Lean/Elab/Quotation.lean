@@ -433,7 +433,7 @@ private def deduplicate (floatedLetDecls : Array Syntax) : Alt → TermElabM (Ar
       -- looks simple enough/created by this function, skip
       return (floatedLetDecls, (pats, rhs))
     withFreshMacroScope do
-      match ← getPatternsVars pats.toArray with
+      match (← getPatternsVars pats.toArray) with
       | #[] =>
         -- no antiquotations => introduce Unit parameter to preserve evaluation order
         let rhs' ← `(rhs Unit.unit)

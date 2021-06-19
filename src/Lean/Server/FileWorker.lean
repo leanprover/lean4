@@ -146,7 +146,7 @@ section Initialization
     let opts := {}  -- TODO
     let inputCtx := Parser.mkInputContext m.text.source "<input>"
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
-    let leanpkgPath ← match ← IO.getEnv "LEAN_SYSROOT" with
+    let leanpkgPath ← match (← IO.getEnv "LEAN_SYSROOT") with
       | some path => pure <| System.FilePath.mk path / "bin" / "leanpkg"
       | _         => pure <| (← appDir) / "leanpkg"
     let leanpkgPath := leanpkgPath.withExtension System.FilePath.exeExtension

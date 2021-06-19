@@ -54,7 +54,7 @@ partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target :
 : IpcM (List (Notification PublishDiagnosticsParams)) := do
   writeRequest ⟨waitForDiagnosticsId, "textDocument/waitForDiagnostics", WaitForDiagnosticsParams.mk target version⟩
   let rec loop : IpcM (List (Notification PublishDiagnosticsParams)) := do
-    match ←readMessage with
+    match (←readMessage) with
     | Message.response id _ =>
       if id == waitForDiagnosticsId then []
       else loop

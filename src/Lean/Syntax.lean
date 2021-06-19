@@ -185,7 +185,7 @@ def topDown (stx : Syntax) (firstChoiceOnly := false) : TopDown := ⟨firstChoic
 partial instance : ForIn m TopDown Syntax where
   forIn := fun ⟨firstChoiceOnly, stx⟩ init f => do
     let rec @[specialize] loop stx b [Inhabited (typeOf% b)] := do
-      match ← f stx b with
+      match (← f stx b) with
       | ForInStep.yield b' =>
         let mut b := b'
         if let Syntax.node k args := stx then
@@ -193,12 +193,12 @@ partial instance : ForIn m TopDown Syntax where
             return ← loop args[0] b
           else
             for arg in args do
-              match ← loop arg b with
+              match (← loop arg b) with
               | ForInStep.yield b' => b := b'
               | ForInStep.done b'  => return ForInStep.done b'
         return ForInStep.yield b
       | ForInStep.done b => return ForInStep.done b
-    match ← @loop stx init ⟨init⟩ with
+    match (← @loop stx init ⟨init⟩) with
     | ForInStep.yield b => return b
     | ForInStep.done b  => return b
 

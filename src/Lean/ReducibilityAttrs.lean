@@ -39,7 +39,7 @@ def setReducibleAttribute {m} [Monad m] [MonadEnv m] (declName : Name) : m Unit 
   setReducibilityStatus declName ReducibilityStatus.reducible
 
 def isReducible {m} [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
-  match ← getReducibilityStatus declName with
+  match (← getReducibilityStatus declName) with
   | ReducibilityStatus.reducible => true
   | _ => false
 

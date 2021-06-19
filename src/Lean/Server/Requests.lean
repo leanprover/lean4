@@ -75,7 +75,7 @@ def mapTask (t : Task α) (f : α → RequestM β) : RequestM (RequestTask β) :
 
 def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := fun rc => do
   let t ← IO.bindTask t fun a => do
-    match ← f a rc with
+    match (← f a rc) with
     | Except.error e => return Task.pure <| Except.ok <| Except.error e
     | Except.ok t    => return t.map Except.ok
   return t.map fun

@@ -23,7 +23,7 @@ universes u v
       pure b
     else match i with
      | 0   => pure b
-     | i+1 => match ← f j b with
+     | i+1 => match (← f j b) with
         | ForInStep.done b  => pure b
         | ForInStep.yield b => loop i (j + range.step) b
   loop range.stop range.start init

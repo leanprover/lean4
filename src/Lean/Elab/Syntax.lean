@@ -365,7 +365,10 @@ def inferMacroRulesAltKind : Syntax → CommandElabM SyntaxNodeKind
     pure quoted.getKind
   | _ => throwUnsupportedSyntax
 
-def expandNoKindMacroRulesAux (alts : Array Syntax) (cmdName : String) (mkCmd : Option Name → Array Syntax → CommandElabM Syntax) : CommandElabM Syntax := do
+/--
+Infer syntax kind `k` from first pattern, put alternatives of same kind into new `macro/elab_rules (kind := k)` via `mkCmd (some k)`,
+leave remaining alternatives (via `mkCmd none`) to be recursively expanded. -/
+private def expandNoKindMacroRulesAux (alts : Array Syntax) (cmdName : String) (mkCmd : Option Name → Array Syntax → CommandElabM Syntax) : CommandElabM Syntax := do
   let mut k ← inferMacroRulesAltKind alts[0]
   if k.isStr && k.getString! == "antiquot" then
     k := k.getPrefix
@@ -606,7 +609,7 @@ def elabElabRulesAux (doc? : Option Syntax) (attrKind : Syntax) (k : SyntaxNodeK
   let catName ← match cat?, expty? with
     | some cat, _ => cat.getId
     | _, some _   => `term
-    -- TODO
+    -- TODO: infer category from quotation kind, possibly even kind of quoted syntax?
     | _, _        => throwError "invalid elab_rules command, specify category using `elab_rules : <cat> ...`"
   if let some expId := expty? then
     if catName == `term then

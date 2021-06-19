@@ -146,8 +146,10 @@ where
       let tp ← Meta.inferType ti.expr
       let eFmt ← Meta.ppExpr ti.expr
       let tpFmt ← Meta.ppExpr tp
+      -- try not to show too scary internals
+      let fmt := if isAtomicFormat eFmt then f!"{eFmt} : {tpFmt}" else tpFmt
       return some f!"```lean
-{eFmt} : {tpFmt}
+{fmt}
 ```"
     | Info.ofFieldInfo fi =>
       let tp ← Meta.inferType fi.val
@@ -163,6 +165,11 @@ where
     if let some ei := i.toElabInfo? then
       return ← findDocString? ei.elaborator <||> findDocString? ei.stx.getKind
     return none
+  isAtomicFormat : Format → Bool
+    | Std.Format.text _    => true
+    | Std.Format.group f _ => isAtomicFormat f
+    | Std.Format.nest _ f  => isAtomicFormat f
+    | _                    => false
 
 structure GoalsAtResult where
   ctxInfo    : ContextInfo

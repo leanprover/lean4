@@ -49,15 +49,14 @@
 {"range":
  {"start": {"line": 53, "character": 7}, "end": {"line": 53, "character": 15}},
  "contents":
- {"value": "```lean\n2 * 1 : Nat\n```\n***\nMy way better notation ",
+ {"value": "```lean\nNat\n```\n***\nMy way better notation ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 63, "character": 7}}
 {"range":
  {"start": {"line": 63, "character": 7}, "end": {"line": 63, "character": 16}},
  "contents":
- {"value": "```lean\n1 * 1 : Nat\n```\n***\nMy ultimate notation ",
-  "kind": "markdown"}}
+ {"value": "```lean\nNat\n```\n***\nMy ultimate notation ", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 70, "character": 2}}
 {"range":

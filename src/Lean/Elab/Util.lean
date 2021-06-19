@@ -111,6 +111,10 @@ constant mkMacroAttribute : IO (KeyedDeclsAttribute Macro)
 
 builtin_initialize macroAttribute : KeyedDeclsAttribute Macro ← mkMacroAttribute
 
+/--
+Try to expand macro at syntax tree root and return macro declaration name and new syntax if successful.
+Return none if all macros threw `Macro.Exception.unsupportedSyntax`.
+-/
 def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Syntax)) := fun stx => do
   for e in macroAttribute.getEntries env stx.getKind do
     try

@@ -277,7 +277,7 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
       else do
         trace `Elab.command fun _ => stx;
         let s ← get
-        match ← liftMacroM <| expandMacroImpl? s.env stx with
+        match (← liftMacroM <| expandMacroImpl? s.env stx) with
         | some (decl, stxNew) =>
           MonadRef.withElaborator decl do
             withInfoTreeContext (mkInfoTree := mkInfoTree decl stx) do

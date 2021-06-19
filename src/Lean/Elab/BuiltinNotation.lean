@@ -226,7 +226,7 @@ where
 @[builtinMacro Lean.Parser.Term.paren] def expandParen : Macro
   | `(())           => `(Unit.unit)
   | `(($e : $type)) => do
-    match ← expandCDot? e with
+    match (← expandCDot? e) with
     | some e => `(($e : $type))
     | none   => Macro.throwUnsupported
   | `(($e))         => return (← expandCDot? e).getD e

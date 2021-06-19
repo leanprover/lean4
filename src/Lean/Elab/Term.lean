@@ -1135,7 +1135,7 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     checkMaxHeartbeats "elaborator"
     withNestedTraces do
     let env ← getEnv
-    match ← liftMacroM (expandMacroImpl? env stx) with
+    match (← liftMacroM (expandMacroImpl? env stx)) with
     | some (decl, stxNew) =>
       MonadRef.withElaborator decl <|
         withInfoContext' (mkInfo := mkTermInfo (expectedType? := expectedType?) stx) <|

@@ -16,7 +16,7 @@ def synthesizeArgs (lemmaName : Name) (xs : Array Expr) (bis : Array BinderInfo)
         return false
     else if (← instantiateMVars x).isMVar then
       if (← isProp type) then
-        match ← discharge? type with
+        match (← discharge? type) with
         | some proof =>
           unless (← isDefEq x proof) do
             trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to assign proof{indentExpr type}"
@@ -30,7 +30,7 @@ def synthesizeArgs (lemmaName : Name) (xs : Array Expr) (bis : Array BinderInfo)
   return true
 where
   synthesizeInstance (x type : Expr) : SimpM Bool := do
-    match ← trySynthInstance type with
+    match (← trySynthInstance type) with
     | LOption.some val =>
       if (← isDefEq x val) then
         return true

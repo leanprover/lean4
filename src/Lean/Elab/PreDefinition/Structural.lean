@@ -159,13 +159,13 @@ private partial def findRecArg {α} (numFixed : Nat) (xs : Array Expr) (k : RecA
             let numFixed    := if indexMinPos < numFixed then indexMinPos else numFixed
             let fixedParams := xs.extract 0 numFixed
             let ys          := xs.extract numFixed xs.size
-            match ← hasBadIndexDep? ys indIndices with
+            match (← hasBadIndexDep? ys indIndices) with
             | some (index, y) =>
               orelse'
                 (throwError "argument #{i+1} was not used because its type is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}")
                 (loop (i+1))
             | none =>
-              match ← hasBadParamDep? ys indParams with
+              match (← hasBadParamDep? ys indParams) with
               | some (indParam, y) =>
                 orelse'
                   (throwError "argument #{i+1} was not used because its type is an inductive datatype{indentExpr xType}\nand parameter{indentExpr indParam}\ndepends on{indentExpr y}")
@@ -390,7 +390,7 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
               throwError "could not solve using backwards chaining {MessageData.ofGoal main.mvarId!}"
           else
             return mkAppN (← loop f) (← args.mapM loop)
-      match ←matchMatcherApp? e with
+      match (←matchMatcherApp? e) with
       | some matcherApp =>
         if !recArgHasLooseBVarsAt recFnName recArgInfo e then
           processApp e

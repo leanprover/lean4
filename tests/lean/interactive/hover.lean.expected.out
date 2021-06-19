@@ -73,3 +73,6 @@
 {"range":
  {"start": {"line": 85, "character": 0}, "end": {"line": 85, "character": 8}},
  "contents": {"value": "My ultimate command ", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 89, "character": 10}}
+null

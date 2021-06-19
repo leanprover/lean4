@@ -85,3 +85,7 @@ elab_rules : command
 
 mycmd' 1
 --^ textDocument/hover
+
+
+#check ({ a := })  -- should not show `sorry`
+        --^ textDocument/hover

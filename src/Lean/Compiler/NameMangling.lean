@@ -33,8 +33,10 @@ private def mangleAux : Nat → String.Iterator → String → String
       mangleAux i it.next r
     else
       let n := c.toNat
-      let r := r ++ "_u32"
-      let r := Nat.toDigits 16 n |>.foldl (fun r c => r.push c) r
+      let r := r ++ "_U"
+      let ds := Nat.toDigits 16 n
+      let r := Nat.repeat (·.push '0') (8 - ds.length) r
+      let r := ds.foldl (fun r c => r.push c) r
       mangleAux i it.next r
 
 def mangle (s : String) : String :=

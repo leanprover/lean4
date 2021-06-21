@@ -36,7 +36,6 @@ structure Context where
   currRecDepth   : Nat := 0
   maxRecDepth    : Nat := 1000
   ref            : Syntax := Syntax.missing
-  elaborator     : Name := Name.anonymous
   currNamespace  : Name := Name.anonymous
   openDecls      : List OpenDecl := []
   initHeartbeats : Nat := 0
@@ -54,8 +53,6 @@ instance : Inhabited (CoreM α) where
 instance : MonadRef CoreM where
   getRef := return (← read).ref
   withRef ref x := withReader (fun ctx => { ctx with ref := ref }) x
-  getElaborator := return (← read).elaborator
-  withElaborator e := withReader ({ · with elaborator := e })
 
 instance : MonadEnv CoreM where
   getEnv := return (← get).env

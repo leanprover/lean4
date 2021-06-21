@@ -392,7 +392,7 @@ def liftLevelM (x : LevelElabM α) : TermElabM α := do
   let ctx ← read
   let mctx ← getMCtx
   let ngen ← getNGen
-  let lvlCtx : Level.Context := { options := (← getOptions), ref := (← getRef), elaborator := (← MonadRef.getElaborator), autoBoundImplicit := ctx.autoBoundImplicit }
+  let lvlCtx : Level.Context := { options := (← getOptions), ref := (← getRef), autoBoundImplicit := ctx.autoBoundImplicit }
   match (x lvlCtx).run { ngen := ngen, mctx := mctx, levelNames := (← getLevelNames) } with
   | EStateM.Result.ok a newS  => setMCtx newS.mctx; setNGen newS.ngen; setLevelNames newS.levelNames; pure a
   | EStateM.Result.error ex _ => throw ex
@@ -935,7 +935,7 @@ private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : Term
 def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDecl) :=
   return (← get).syntheticMVars.find? fun d => d.mvarId == mvarId
 
-def mkTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) : TermElabM (Sum Info MVarId) := do
+def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) : TermElabM (Sum Info MVarId) := do
   let isHole? : TermElabM (Option MVarId) := do
     match e with
     | Expr.mvar mvarId _ =>
@@ -945,11 +945,11 @@ def mkTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) :
       | _                                                   => return none
     | _ => pure none
   match (← isHole?) with
-  | none        => return Sum.inl <| Info.ofTermInfo { elaborator := (← MonadRef.getElaborator), lctx := (← getLCtx), expr := e, stx, expectedType? }
+  | none        => return Sum.inl <| Info.ofTermInfo { elaborator, lctx := (← getLCtx), expr := e, stx, expectedType? }
   | some mvarId => return Sum.inr mvarId
 
-def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) : TermElabM Unit := do
-  withInfoContext' (pure ()) (fun _ => mkTermInfo stx e expectedType?) |> discard
+def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (elaborator := Name.anonymous) : TermElabM Unit := do
+  withInfoContext' (pure ()) (fun _ => mkTermInfo elaborator stx e expectedType?) |> discard
 
 /-
   Helper function for `elabTerm` is tries the registered elaboration functions for `stxNode` kind until it finds one that supports the syntax or
@@ -960,7 +960,7 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
   | (elabFn::elabFns) =>
     try
       -- record elaborator in info tree, but only when not backtracking to other elaborators (outer `try`)
-      MonadRef.withElaborator elabFn.decl <| withInfoContext' (mkInfo := mkTermInfo (expectedType? := expectedType?) stx)
+      withInfoContext' (mkInfo := mkTermInfo elabFn.decl (expectedType? := expectedType?) stx)
         (try
           elabFn.value stx expectedType?
         catch ex => match ex with
@@ -1137,11 +1137,10 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     let env ← getEnv
     match (← liftMacroM (expandMacroImpl? env stx)) with
     | some (decl, stxNew) =>
-      MonadRef.withElaborator decl <|
-        withInfoContext' (mkInfo := mkTermInfo (expectedType? := expectedType?) stx) <|
-          withMacroExpansion stx stxNew <|
-            withRef stxNew <|
-              elabTermAux expectedType? catchExPostpone implicitLambda stxNew
+      withInfoContext' (mkInfo := mkTermInfo decl (expectedType? := expectedType?) stx) <|
+        withMacroExpansion stx stxNew <|
+          withRef stxNew <|
+            elabTermAux expectedType? catchExPostpone implicitLambda stxNew
     | _ =>
       let implicit? ← if implicitLambda && (← read).implicitLambda then useImplicitLambda? stx expectedType? else pure none
       match implicit? with
@@ -1150,7 +1149,7 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
 
 /-- Store in the `InfoTree` that `e` is a "dot"-completion target. -/
 def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr) (field? : Option Syntax := none) : TermElabM Unit := do
-  addCompletionInfo <| CompletionInfo.dot { expr := e, stx, lctx := (← getLCtx), elaborator := (← MonadRef.getElaborator), expectedType? } (field? := field?) (expectedType? := expectedType?)
+  addCompletionInfo <| CompletionInfo.dot { expr := e, stx, lctx := (← getLCtx), elaborator := Name.anonymous, expectedType? } (field? := field?) (expectedType? := expectedType?)
 
 /--
   Main function for elaborating terms.

@@ -49,7 +49,6 @@ structure Context where
   macroStack     : MacroStack := []
   currMacroScope : MacroScope := firstFrontendMacroScope
   ref            : Syntax := Syntax.missing
-  elaborator     : Name := Name.anonymous
 
 abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
 abbrev CommandElabM := CommandElabCoreM Exception
@@ -93,10 +92,8 @@ instance : AddMessageContext CommandElabM where
   addMessageContext := addMessageContextPartial
 
 instance : MonadRef CommandElabM where
-  getRef           := Command.getRef
-  withRef ref x    := withReader (fun ctx => { ctx with ref := ref }) x
-  getElaborator    := return (← read).elaborator
-  withElaborator e := withReader ({ · with elaborator := e })
+  getRef := Command.getRef
+  withRef ref x := withReader (fun ctx => { ctx with ref := ref }) x
 
 instance : MonadTrace CommandElabM where
   getTraceState := return (← get).traceState
@@ -226,7 +223,7 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttrib
   | (elabFn::elabFns) =>
     catchInternalId unsupportedSyntaxExceptionId
       (do
-        MonadRef.withElaborator elabFn.decl <| withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.decl stx) <| elabFn.value stx
+        withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.decl stx) <| elabFn.value stx
         addTraceAsMessages)
       (fun _ => do set s; addTraceAsMessages; elabCommandUsing s stx elabFns)
 
@@ -278,10 +275,9 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
         let s ← get
         match (← liftMacroM <| expandMacroImpl? s.env stx) with
         | some (decl, stxNew) =>
-          MonadRef.withElaborator decl do
-            withInfoTreeContext (mkInfoTree := mkInfoTree decl stx) do
-                withMacroExpansion stx stxNew do
-                  elabCommand stxNew
+          withInfoTreeContext (mkInfoTree := mkInfoTree decl stx) do
+              withMacroExpansion stx stxNew do
+                elabCommand stxNew
         | _ =>
           match commandElabAttribute.getEntries s.env k with
           | []      => throwError "elaboration function for '{k}' has not been implemented"

@@ -156,7 +156,10 @@ where fmtPos pos info :=
     | _                       => f!"{pos}†"
 
 private def formatElabInfo (ctx : ContextInfo) (info : ElabInfo) : Format :=
-  f!"{formatStxRange ctx info.stx} @ {info.elaborator}"
+  if info.elaborator.isAnonymous then
+    formatStxRange ctx info.stx
+  else
+    f!"{formatStxRange ctx info.stx} @ {info.elaborator}"
 
 def TermInfo.runMetaM (info : TermInfo) (ctx : ContextInfo) (x : MetaM α) : IO α :=
   ctx.runMetaM info.lctx x
@@ -273,14 +276,15 @@ def addCompletionInfo (info : CompletionInfo) : m Unit := do
 def resolveGlobalConstNoOverloadWithInfo [MonadResolveName m] [MonadEnv m] [MonadError m] (stx : Syntax) (id := stx.getId) (expectedType? : Option Expr := none) : m Name := do
   let n ← resolveGlobalConstNoOverload id
   if (← getInfoState).enabled then
-    pushInfoLeaf <| Info.ofTermInfo { elaborator := (← MonadRef.getElaborator), lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx, expectedType? }
+    -- we do not store a specific elaborator since identifiers are special-cased by the server anyway
+    pushInfoLeaf <| Info.ofTermInfo { elaborator := Name.anonymous, lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx, expectedType? }
   return n
 
 def resolveGlobalConstWithInfos [MonadResolveName m] [MonadEnv m] [MonadError m] (stx : Syntax) (id := stx.getId) (expectedType? : Option Expr := none) : m (List Name) := do
   let ns ← resolveGlobalConst id
   if (← getInfoState).enabled then
     for n in ns do
-      pushInfoLeaf <| Info.ofTermInfo { elaborator := (← MonadRef.getElaborator), lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx, expectedType? }
+      pushInfoLeaf <| Info.ofTermInfo { elaborator := Name.anonymous, lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx, expectedType? }
   return ns
 
 @[inline] def withInfoContext' [MonadFinally m] (x : m α) (mkInfo : α → m (Sum Info MVarId)) : m α := do

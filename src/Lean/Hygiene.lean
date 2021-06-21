@@ -32,8 +32,6 @@ namespace Unhygienic
 instance : MonadQuotation Unhygienic where
   getRef              := do (← read).ref
   withRef             := fun ref => withReader ({ · with ref := ref })
-  getElaborator       := pure Name.anonymous
-  withElaborator      := fun _ => id
   getCurrMacroScope   := do (← read).scope
   getMainModule       := pure `UnhygienicMain
   withFreshMacroScope := fun x => do

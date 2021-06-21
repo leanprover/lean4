@@ -194,9 +194,13 @@ def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α
       mkForallFVars xs e
   | _ => throwUnsupportedSyntax
 
-@[builtinTermElab arrow] def elabArrow : TermElab :=
-  adaptExpander fun stx => match stx with
-  | `($dom:term -> $rng) => `(forall (a : $dom), $rng)
+@[builtinTermElab arrow] def elabArrow : TermElab := fun stx _ =>
+  match stx with
+  | `($dom:term -> $rng) => do
+    -- elaborate independently from each other
+    let dom ← elabType dom
+    let rng ← elabType rng
+    mkForall (← MonadQuotation.addMacroScope `a) BinderInfo.default dom rng
   | _                    => throwUnsupportedSyntax
 
 @[builtinTermElab depArrow] def elabDepArrow : TermElab := fun stx _ =>

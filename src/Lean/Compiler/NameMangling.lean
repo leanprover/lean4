@@ -4,9 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 import Lean.Data.Name
-namespace Lean
 
-private def String.mangleAux : Nat → String.Iterator → String → String
+namespace String
+
+private def mangleAux : Nat → String.Iterator → String → String
   | 0,   it, r => r
   | i+1, it, r =>
     let c := it.curr
@@ -14,25 +15,34 @@ private def String.mangleAux : Nat → String.Iterator → String → String
       mangleAux i it.next (r.push c)
     else if c = '_' then
       mangleAux i it.next (r ++ "__")
-    else if c.toNat < 255 then
+    else if c.toNat < 0x100 then
       let n := c.toNat
       let r := r ++ "_x"
-      let r := r.push $ Nat.digitChar (n / 16)
-      let r := r.push $ Nat.digitChar (n % 16)
+      let r := r.push $ Nat.digitChar (n / 0x10)
+      let r := r.push $ Nat.digitChar (n % 0x10)
+      mangleAux i it.next r
+    else if c.toNat < 0x10000 then
+      let n := c.toNat
+      let r := r ++ "_u"
+      let r := r.push $ Nat.digitChar (n / 0x1000)
+      let n := n % 0x1000
+      let r := r.push $ Nat.digitChar (n / 0x100)
+      let n := n % 0x100
+      let r := r.push $ Nat.digitChar (n / 0x10)
+      let r := r.push $ Nat.digitChar (n % 0x10)
       mangleAux i it.next r
     else
       let n := c.toNat
-      let r := r ++ "_u"
-      let r := r.push $ Nat.digitChar (n / 4096)
-      let n := n % 4096
-      let r := r.push $ Nat.digitChar (n / 256)
-      let n := n % 256
-      let r := r.push $ Nat.digitChar (n / 16)
-      let r := r.push $ Nat.digitChar (n % 16)
+      let r := r ++ "_u32"
+      let r := Nat.toDigits 16 n |>.foldl (fun r c => r.push c) r
       mangleAux i it.next r
 
-def String.mangle (s : String) : String :=
-  String.mangleAux s.length s.mkIterator ""
+def mangle (s : String) : String :=
+  mangleAux s.length s.mkIterator ""
+
+end String
+
+namespace Lean
 
 private def Name.mangleAux : Name → String
   | Name.anonymous => ""

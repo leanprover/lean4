@@ -935,7 +935,7 @@ private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : Term
 def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDecl) :=
   return (← get).syntheticMVars.find? fun d => d.mvarId == mvarId
 
-def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) : TermElabM (Sum Info MVarId) := do
+def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) : TermElabM (Sum Info MVarId) := do
   let isHole? : TermElabM (Option MVarId) := do
     match e with
     | Expr.mvar mvarId _ =>
@@ -945,11 +945,11 @@ def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Op
       | _                                                   => return none
     | _ => pure none
   match (← isHole?) with
-  | none        => return Sum.inl <| Info.ofTermInfo { elaborator, lctx := (← getLCtx), expr := e, stx, expectedType? }
+  | none        => return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType? }
   | some mvarId => return Sum.inr mvarId
 
-def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (elaborator := Name.anonymous) : TermElabM Unit := do
-  withInfoContext' (pure ()) (fun _ => mkTermInfo elaborator stx e expectedType?) |> discard
+def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (elaborator := Name.anonymous) : TermElabM Unit := do
+  withInfoContext' (pure ()) (fun _ => mkTermInfo elaborator stx e expectedType? lctx?) |> discard
 
 /-
   Helper function for `elabTerm` is tries the registered elaboration functions for `stxNode` kind until it finds one that supports the syntax or

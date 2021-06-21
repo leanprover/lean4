@@ -36,7 +36,9 @@ def Term.reportUnsolvedGoals (goals : List MVarId) : TermElabM Unit :=
 namespace Tactic
 
 structure Context where
-  main : MVarId
+  main       : MVarId
+  -- declaration name of the executing elaborator, used by `mkTacticInfo` to persist it in the info tree
+  elaborator : Name
 
 structure State where
   goals : List MVarId
@@ -90,7 +92,7 @@ def run (mvarId : MVarId) (x : TacticM Unit) : TermElabM (List MVarId) :=
        else
          throw ex
    try
-     aux.runCore' { main := mvarId } { goals := [mvarId] }
+     aux.runCore' { main := mvarId, elaborator := Name.anonymous } { goals := [mvarId] }
    finally
      modify fun s => { s with syntheticMVars := savedSyntheticMVars }
 
@@ -111,7 +113,7 @@ unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=
 
 def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx : Syntax) : TacticM Info :=
   return Info.ofTacticInfo {
-    elaborator    := (← MonadRef.getElaborator)
+    elaborator    := (← read).elaborator
     mctxBefore    := mctxBefore
     goalsBefore   := goalsBefore
     stx           := stx
@@ -139,7 +141,7 @@ private def evalTacticUsing (s : SavedState) (stx : Syntax) (tactics : List (Key
     | []              => throwErrorAt stx "unexpected syntax {indentD stx}"
     | evalFn::evalFns => do
       try
-        MonadRef.withElaborator evalFn.decl <| withTacticInfoContext stx <| evalFn.value stx
+        withReader ({ · with elaborator := evalFn.decl }) <| withTacticInfoContext stx <| evalFn.value stx
       catch
       | ex@(Exception.error _ _) =>
         match evalFns with
@@ -160,7 +162,7 @@ mutual
       | m::ms => do
         let scp ← getCurrMacroScope
         try
-          MonadRef.withElaborator m.decl do
+          withReader ({ · with elaborator := m.decl }) do
             withTacticInfoContext stx do
               let stx' ← adaptMacro m.value stx
               evalTactic stx'

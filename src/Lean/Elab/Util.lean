@@ -153,7 +153,6 @@ def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEn
   }
   match x { methods        := methods
             ref            := ← getRef
-            elaborator     := ← MonadRef.getElaborator
             currMacroScope := ← MonadMacroAdapter.getCurrMacroScope
             mainModule     := env.mainModule
             currRecDepth   := ← MonadRecDepth.getRecDepth

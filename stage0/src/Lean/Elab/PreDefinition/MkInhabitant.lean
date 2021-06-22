@@ -22,7 +22,7 @@ private def mkFnInhabitant? (xs : Array Expr) (type : Expr) : MetaM (Option Expr
     | i+1, type => do
       let x := xs[i]
       let type ← mkForallFVars #[x] type;
-      match ← mkInhabitant? type with
+      match (← mkInhabitant? type) with
       | none     => loop i type
       | some val => pure $ some (← mkLambdaFVars xs[0:i] val)
   loop xs.size type
@@ -30,13 +30,13 @@ private def mkFnInhabitant? (xs : Array Expr) (type : Expr) : MetaM (Option Expr
 /- TODO: add a global IO.Ref to let users customize/extend this procedure -/
 
 def mkInhabitantFor (declName : Name) (xs : Array Expr) (type : Expr) : MetaM Expr := do
-  match ← mkInhabitant? type with
+  match (← mkInhabitant? type) with
   | some val => mkLambdaFVars xs val
   | none     =>
-  match ← findAssumption? xs type with
+  match (← findAssumption? xs type) with
   | some x => mkLambdaFVars xs x
   | none   =>
-  match ← mkFnInhabitant? xs type with
+  match (← mkFnInhabitant? xs type) with
   | some val => pure val
   | none => throwError "failed to compile partial definition '{declName}', failed to show that type is inhabited"
 

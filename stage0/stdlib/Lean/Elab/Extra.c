@@ -71,7 +71,6 @@ lean_object* l_Lean_Elab_Term_elabForIn_match__1(lean_object*);
 static lean_object* l_Lean_Elab_Term_elabForIn___closed__12;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_elabBinRel___lambda__3___closed__2;
-lean_object* l_Lean_Elab_withMacroExpansionInfo___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabBinOp_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabBinRel___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_elabForIn_getMonad___closed__6;
@@ -108,6 +107,7 @@ extern lean_object* l_Lean_Elab_Term_termElabAttribute;
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabBinRel___closed__11;
 lean_object* l_Lean_Elab_Term_elabForIn_throwFailure___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_elabForIn___closed__4;
+lean_object* l_Lean_Elab_withMacroExpansionInfo___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_elabForIn_throwFailure___closed__1;
 lean_object* l_Lean_Elab_Term_elabBinOp_match__2(lean_object*);
 static lean_object* l_Lean_Elab_Term_elabForIn___closed__8;
@@ -2938,7 +2938,7 @@ x_35 = lean_alloc_closure((void*)(l_Lean_Elab_Term_elabBinOp___lambda__1), 10, 3
 lean_closure_set(x_35, 0, x_1);
 lean_closure_set(x_35, 1, x_33);
 lean_closure_set(x_35, 2, x_34);
-x_36 = l_Lean_Elab_withMacroExpansionInfo___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__2(x_1, x_33, x_35, x_3, x_4, x_5, x_6, x_7, x_8, x_24);
+x_36 = l_Lean_Elab_withMacroExpansionInfo___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__7(x_1, x_33, x_35, x_3, x_4, x_5, x_6, x_7, x_8, x_24);
 return x_36;
 }
 else

@@ -63,35 +63,45 @@ partial def handleDefinition (goToType? : Bool) (p : TextDocumentPositionParams)
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
+
+  let locationLinksFromDecl i n := do
+    let mod? ← findModuleOf? n
+    let modUri? ← match mod? with
+      | some modName =>
+        let modFname? ← rc.srcSearchPath.findWithExt "lean" modName
+        pure <| modFname?.map toFileUri
+      | none         => pure <| some doc.meta.uri
+
+    let ranges? ← findDeclarationRanges? n
+    if let (some ranges, some modUri) := (ranges?, modUri?) then
+      let declRangeToLspRange (r : DeclarationRange) : Lsp.Range :=
+        { start := ⟨r.pos.line - 1, r.charUtf16⟩
+          «end» := ⟨r.endPos.line - 1, r.endCharUtf16⟩ }
+      let ll : LocationLink := {
+        originSelectionRange? := (·.toLspRange text) <$> i.range?
+        targetUri := modUri
+        targetRange := declRangeToLspRange ranges.range
+        targetSelectionRange := declRangeToLspRange ranges.selectionRange
+      }
+      return #[ll]
+    return #[]
+
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure #[]) fun snap => do
       for t in snap.cmdState.infoState.trees do
-        if let some (ci, Info.ofTermInfo i) := t.hoverableInfoAt? hoverPos then
-          let mut expr := i.expr
-          if goToType? then
-            expr ← ci.runMetaM i.lctx do
-              Meta.instantiateMVars (← Meta.inferType expr)
-          if let some n := expr.constName? then
-            let mod? ← ci.runMetaM i.lctx <| findModuleOf? n
-            let modUri? ← match mod? with
-              | some modName =>
-                let modFname? ← rc.srcSearchPath.findWithExt "lean" modName
-                pure <| modFname?.map toFileUri
-              | none         => pure <| some doc.meta.uri
-
-            let ranges? ← ci.runMetaM i.lctx <| findDeclarationRanges? n
-            if let (some ranges, some modUri) := (ranges?, modUri?) then
-              let declRangeToLspRange (r : DeclarationRange) : Lsp.Range :=
-                { start := ⟨r.pos.line - 1, r.charUtf16⟩
-                  «end» := ⟨r.endPos.line - 1, r.endCharUtf16⟩ }
-              let ll : LocationLink := {
-                originSelectionRange? := some ⟨text.utf8PosToLspPos i.stx.getPos?.get!,
-                                                text.utf8PosToLspPos i.stx.getTailPos?.get!⟩
-                targetUri := modUri
-                targetRange := declRangeToLspRange ranges.range
-                targetSelectionRange := declRangeToLspRange ranges.selectionRange
-              }
-              return #[ll]
+        if let some (ci, i) := t.hoverableInfoAt? hoverPos then
+          if let Info.ofTermInfo ti := i then
+            let mut expr := ti.expr
+            if goToType? then
+              expr ← ci.runMetaM i.lctx do
+                Meta.instantiateMVars (← Meta.inferType expr)
+            if let some n := expr.constName? then
+              return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
+          if let some ei := i.toElabInfo? then
+            if ci.env.contains ei.elaborator then
+              return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
+            if ci.env.contains ei.stx.getKind then
+              return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.stx.getKind
       return #[]
 
 open Elab in
@@ -121,13 +131,6 @@ partial def handlePlainGoal (p : PlainGoalParams)
 
       return none
 
-def hasRange (stx : Syntax) : Bool :=
-  stx.getPos?.isSome && stx.getTailPos?.isSome
-
-def rangeOfSyntax! (text : FileMap) (stx : Syntax) : Range :=
-  ⟨text.utf8PosToLspPos <| stx.getPos?.get!,
-    text.utf8PosToLspPos <| stx.getTailPos?.get!⟩
-
 open Elab in
 partial def handlePlainTermGoal (p : PlainTermGoalParams)
     : RequestM (RequestTask (Option PlainTermGoal)) := do
@@ -137,11 +140,11 @@ partial def handlePlainTermGoal (p : PlainTermGoalParams)
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure none) fun snap => do
       for t in snap.cmdState.infoState.trees do
-        if let some (ci, Info.ofTermInfo i) := t.termGoalAt? hoverPos then
+        if let some (ci, i@(Info.ofTermInfo ti)) := t.termGoalAt? hoverPos then
           let goal ← ci.runMetaM i.lctx <| open Meta in do
-            let ty ← instantiateMVars <| i.expectedType?.getD (← inferType i.expr)
+            let ty ← instantiateMVars <| ti.expectedType?.getD (← inferType ti.expr)
             withPPInaccessibleNames <| Meta.ppGoal (← mkFreshExprMVar ty).mvarId!
-          let range := if hasRange i.stx then rangeOfSyntax! text i.stx else ⟨p.position, p.position⟩
+          let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
           return some { goal := toString goal, range }
       return none
 
@@ -151,12 +154,12 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
   let rec highlightReturn? (doRange? : Option Range) : Syntax → Option DocumentHighlight
-    | stx@`(doElem|return%$i $e) =>
-      if stx.getPos?.get! <= pos && pos < stx.getTailPos?.get! then
-        some { range := doRange?.getD (rangeOfSyntax! text i), kind? := DocumentHighlightKind.text }
-      else
-        highlightReturn? doRange? e
-    | `(do%$i $elems) => highlightReturn? (rangeOfSyntax! text i) elems
+    | stx@`(doElem|return%$i $e) => do
+      if let some range := i.getRange? then
+        if range.contains pos then
+          return some { range := doRange?.getD (range.toLspRange text), kind? := DocumentHighlightKind.text }
+      highlightReturn? doRange? e
+    | `(do%$i $elems) => highlightReturn? (i.getRange?.get!.toLspRange text) elems
     | stx => stx.getArgs.findSome? (highlightReturn? doRange?)
 
   withWaitFindSnap doc (fun s => s.endPos > pos)
@@ -191,26 +194,25 @@ partial def handleDocumentSymbol (p : DocumentSymbolParams)
       | `(namespace $id)  => sectionLikeToDocumentSymbols text stx stxs (id.getId.toString) SymbolKind.namespace id
       | `(section $(id)?) => sectionLikeToDocumentSymbols text stx stxs ((·.getId.toString) <$> id |>.getD "<section>") SymbolKind.namespace (id.getD stx)
       | `(end $(id)?) => ([], stx::stxs)
-      | _ =>
+      | _ => do
         let (syms, stxs') := toDocumentSymbols text stxs
-        if stx.isOfKind ``Lean.Parser.Command.declaration && hasRange stx then
+        unless stx.isOfKind ``Lean.Parser.Command.declaration do
+          return (syms, stxs')
+        if let some stxRange := stx.getRange? then
           let (name, selection) := match stx with
             | `($dm:declModifiers $ak:attrKind instance $[$np:namedPrio]? $[$id:ident$[.{$ls,*}]?]? $sig:declSig $val) =>
               ((·.getId.toString) <$> id |>.getD s!"instance {sig.reprint.getD ""}", id.getD sig)
             | _ => match stx[1][1] with
               | `(declId|$id:ident$[.{$ls,*}]?) => (id.getId.toString, id)
               | _                               => (stx[1][0].isIdOrAtom?.getD "<unknown>", stx[1][0])
-          if hasRange selection then
-            (DocumentSymbol.mk {
+          if let some selRange := selection.getRange? then
+            return (DocumentSymbol.mk {
               name := name
               kind := SymbolKind.method
-              range := rangeOfSyntax! text stx
-              selectionRange := rangeOfSyntax! text selection
+              range := stxRange.toLspRange text
+              selectionRange := selRange.toLspRange text
               } :: syms, stxs')
-          else
-            (syms, stxs')
-        else
-          (syms, stxs')
+        return (syms, stxs')
     sectionLikeToDocumentSymbols (text : FileMap) (stx : Syntax) (stxs : List Syntax) (name : String) (kind : SymbolKind) (selection : Syntax) :=
         let (syms, stxs') := toDocumentSymbols text stxs
         -- discard `end`
@@ -219,12 +221,12 @@ partial def handleDocumentSymbol (p : DocumentSymbolParams)
           | endStx::_ => endStx
           | []        => (stx::stxs').getLast!
         -- we can assume that commands always have at least one position (see `parseCommand`)
-        let range := rangeOfSyntax! text (mkNullNode #[stx, endStx])
+        let range := (mkNullNode #[stx, endStx]).getRange?.get!.toLspRange text
         (DocumentSymbol.mk {
           name
           kind
           range
-          selectionRange := if hasRange selection then rangeOfSyntax! text selection else range
+          selectionRange := selection.getRange? |>.map (·.toLspRange text) |>.getD range
           children? := syms.toArray
         } :: syms', stxs'')
 end
@@ -276,16 +278,16 @@ where
         else
           stx.getArgs.forM go
   highlightId (stx : Syntax) : ReaderT SemanticTokensContext (StateT SemanticTokensState RequestM) _ := do
-    if let (some pos, some tailPos) := (stx.getPos?, stx.getTailPos?) then
+    if let some range := stx.getRange? then
       for t in (← read).infoState.trees do
         for ti in t.deepestNodes (fun
           | _, i@(Elab.Info.ofTermInfo ti), _ => match i.pos? with
-            | some ipos => if pos <= ipos && ipos < tailPos then some ti else none
+            | some ipos => if range.contains ipos then some ti else none
             | _         => none
           | _, _, _ => none) do
           match ti.expr with
           | Expr.fvar .. => addToken ti.stx SemanticTokenType.variable
-          | _            => if ti.stx.getPos?.get! > pos then addToken ti.stx SemanticTokenType.property
+          | _            => if ti.stx.getPos?.get! > range.start then addToken ti.stx SemanticTokenType.property
   highlightKeyword stx := do
     if let Syntax.atom info val := stx then
       if val.bsize > 0 && val[0].isAlpha then

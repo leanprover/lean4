@@ -741,7 +741,7 @@ private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : Excep
             restoreState s
             match (← liftM <| commitIfNoErrors? <| withoutErrToSorry do elabTermAndSynthesize patternStx (← eraseIndices d)) with
             | some pattern =>
-              match ← findDiscrRefinementPath pattern d |>.run with
+              match (← findDiscrRefinementPath pattern d |>.run) with
               | some path =>
                 trace[Meta.debug] "refinement path: {path}"
                 restoreState s
@@ -987,7 +987,7 @@ where
       : TermElabM (Array Expr × Expr × Array (AltLHS × Expr) × Bool) := do
     let s ← saveState
     let (discrs', matchType', altViews', refined) ← generalize discrs matchType altViews generalizing?
-    match ← altViews'.mapM (fun altView => elabMatchAltView altView matchType') |>.run with
+    match (← altViews'.mapM (fun altView => elabMatchAltView altView matchType') |>.run) with
     | Except.ok alts => return (discrs', matchType', alts, first?.isSome || refined)
     | Except.error { patternIdx := patternIdx, pathToIndex := pathToIndex, ex := ex } =>
       trace[Meta.debug] "pathToIndex: {toString pathToIndex}"
@@ -1332,7 +1332,7 @@ builtin_initialize
 @[builtinTermElab «nomatch»] def elabNoMatch : TermElab := fun stx expectedType? => do
   match stx with
   | `(nomatch $discrExpr) =>
-    match ← isLocalIdent? discrExpr with
+    match (← isLocalIdent? discrExpr) with
     | some _ =>
       let expectedType ← waitExpectedType expectedType?
       let discr := Syntax.node ``Lean.Parser.Term.matchDiscr #[mkNullNode, discrExpr]

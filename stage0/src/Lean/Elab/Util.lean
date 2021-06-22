@@ -34,13 +34,6 @@ def expandOptNamedPrio (stx : Syntax) : MacroM Nat :=
     | `(Parser.Command.namedPrio| (priority := $prio)) => evalPrio prio
     | _ => Macro.throwUnsupported
 
-def expandOptNamedName (stx : Syntax) : MacroM (Option Name) := do
-  if stx.isNone then
-    return none
-  else match stx[0] with
-    | `(Parser.Command.namedName| (name := $name)) => return name.getId
-    | _ => Macro.throwUnsupported
-
 structure MacroStackElem where
   before : Syntax
   after : Syntax
@@ -73,23 +66,22 @@ def addMacroStack {m} [Monad m] [MonadOptions m] (msgData : MessageData) (macroS
         msgData ++ Format.line ++ "while expanding" ++ indentD elem.before)
       msgData
 
-def checkSyntaxNodeKind (k : Name) : AttrM Name := do
+def checkSyntaxNodeKind [Monad m] [MonadEnv m] [MonadError m] (k : Name) : m Name := do
   if Parser.isValidSyntaxNodeKind (← getEnv) k then pure k
   else throwError "failed"
 
-def checkSyntaxNodeKindAtNamespacesAux (k : Name) : Name → AttrM Name
-  | n@(Name.str p _ _) => checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespacesAux k p
+def checkSyntaxNodeKindAtNamespaces [Monad m] [MonadEnv m] [MonadError m] (k : Name) : Name → m Name
+  | n@(Name.str p _ _) => checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespaces k p
+  | Name.anonymous     => checkSyntaxNodeKind k
   | _ => throwError "failed"
 
-def checkSyntaxNodeKindAtNamespaces (k : Name) : AttrM Name := do
+def checkSyntaxNodeKindAtCurrentNamespaces (k : Name) : AttrM Name := do
   let ctx ← read
-  checkSyntaxNodeKindAtNamespacesAux k ctx.currNamespace
+  checkSyntaxNodeKindAtNamespaces k ctx.currNamespace
 
 def syntaxNodeKindOfAttrParam (defaultParserNamespace : Name) (stx : Syntax) : AttrM SyntaxNodeKind := do
   let k ← Attribute.Builtin.getId stx
-  checkSyntaxNodeKind k
-  <|>
-  checkSyntaxNodeKindAtNamespaces k
+  checkSyntaxNodeKindAtCurrentNamespaces k
   <|>
   checkSyntaxNodeKind (defaultParserNamespace ++ k)
   <|>
@@ -119,17 +111,19 @@ constant mkMacroAttribute : IO (KeyedDeclsAttribute Macro)
 
 builtin_initialize macroAttribute : KeyedDeclsAttribute Macro ← mkMacroAttribute
 
-private def expandMacroFns (stx : Syntax) : List Macro → MacroM Syntax
-  | []    => throw Macro.Exception.unsupportedSyntax
-  | m::ms => do
+/--
+Try to expand macro at syntax tree root and return macro declaration name and new syntax if successful.
+Return none if all macros threw `Macro.Exception.unsupportedSyntax`.
+-/
+def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Syntax)) := fun stx => do
+  for e in macroAttribute.getEntries env stx.getKind do
     try
-      m stx
+      let stx' ← e.value stx
+      return (e.decl, stx')
     catch
-      | Macro.Exception.unsupportedSyntax => expandMacroFns stx ms
+      | Macro.Exception.unsupportedSyntax => pure ()
       | ex                                => throw ex
-
-def getMacros (env : Environment) : Macro := fun stx =>
-  expandMacroFns stx (macroAttribute.getValues env stx.getKind)
+  return none
 
 class MonadMacroAdapter (m : Type → Type) where
   getCurrMacroScope                  : m MacroScope
@@ -142,20 +136,16 @@ instance (m n) [MonadLift m n] [MonadMacroAdapter m] : MonadMacroAdapter n := {
   setNextMacroScope := fun s => liftM (MonadMacroAdapter.setNextMacroScope s : m _)
 }
 
-private def expandMacro? (env : Environment) (stx : Syntax) : MacroM (Option Syntax) := do
-  try
-    let newStx ← getMacros env stx
-    pure (some newStx)
-  catch
-    | Macro.Exception.unsupportedSyntax => pure none
-    | ex                                => throw ex
-
-@[inline] def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (x : MacroM α) : m α := do
+def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (x : MacroM α) : m α := do
   let env  ← getEnv
   let currNamespace ← getCurrNamespace
   let openDecls ← getOpenDecls
   let methods := Macro.mkMethods {
-    expandMacro?     := expandMacro? env
+    -- TODO: record recursive expansions in info tree?
+    expandMacro?     := fun stx => do
+      match (← expandMacroImpl? env stx) with
+      | some (_, stx) => some stx
+      | none          => none
     hasDecl          := fun declName => return env.contains declName
     getCurrNamespace := return currNamespace
     resolveNamespace? := fun n => return ResolveName.resolveNamespace? env currNamespace openDecls n

@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.ResolveName
 import Lean.Util.Sorry
@@ -390,10 +390,9 @@ open Level (LevelElabM)
 
 def liftLevelM (x : LevelElabM α) : TermElabM α := do
   let ctx ← read
-  let ref ← getRef
   let mctx ← getMCtx
   let ngen ← getNGen
-  let lvlCtx : Level.Context := { options := (← getOptions), ref := ref, autoBoundImplicit := ctx.autoBoundImplicit }
+  let lvlCtx : Level.Context := { options := (← getOptions), ref := (← getRef), autoBoundImplicit := ctx.autoBoundImplicit }
   match (x lvlCtx).run { ngen := ngen, mctx := mctx, levelNames := (← getLevelNames) } with
   | EStateM.Result.ok a newS  => setMCtx newS.mctx; setNGen newS.ngen; setLevelNames newS.levelNames; pure a
   | EStateM.Result.error ex _ => throw ex
@@ -933,51 +932,80 @@ private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : Term
   registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed (← saveContext))
   pure mvar
 
+def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDecl) :=
+  return (← get).syntheticMVars.find? fun d => d.mvarId == mvarId
+
+def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) : TermElabM (Sum Info MVarId) := do
+  let isHole? : TermElabM (Option MVarId) := do
+    match e with
+    | Expr.mvar mvarId _ =>
+      match (← getSyntheticMVarDecl? mvarId) with
+      | some { kind := SyntheticMVarKind.tactic .., .. }    => return mvarId
+      | some { kind := SyntheticMVarKind.postponed .., .. } => return mvarId
+      | _                                                   => return none
+    | _ => pure none
+  match (← isHole?) with
+  | none        => return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType? }
+  | some mvarId => return Sum.inr mvarId
+
+def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (elaborator := Name.anonymous) : TermElabM Unit := do
+  withInfoContext' (pure ()) (fun _ => mkTermInfo elaborator stx e expectedType? lctx?) |> discard
+
 /-
   Helper function for `elabTerm` is tries the registered elaboration functions for `stxNode` kind until it finds one that supports the syntax or
   an error is found. -/
 private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool)
-    : List TermElab → TermElabM Expr
+    : List (KeyedDeclsAttribute.AttributeEntry TermElab) → TermElabM Expr
   | []                => do throwError "unexpected syntax{indentD stx}"
-  | (elabFn::elabFns) => do
+  | (elabFn::elabFns) =>
     try
-      elabFn stx expectedType?
+      -- record elaborator in info tree, but only when not backtracking to other elaborators (outer `try`)
+      withInfoContext' (mkInfo := mkTermInfo elabFn.decl (expectedType? := expectedType?) stx)
+        (try
+          elabFn.value stx expectedType?
+        catch ex => match ex with
+          | Exception.error ref msg =>
+            if (← read).errToSorry then
+              exceptionToSorry ex expectedType?
+            else
+              throw ex
+          | Exception.internal id _ =>
+            if (← read).errToSorry && id == abortTermExceptionId then
+              exceptionToSorry ex expectedType?
+            else if id == unsupportedSyntaxExceptionId then
+              throw ex  -- to outer try
+            else if catchExPostpone && id == postponeExceptionId then
+              /- If `elab` threw `Exception.postpone`, we reset any state modifications.
+                For example, we want to make sure pending synthetic metavariables created by `elab` before
+                it threw `Exception.postpone` are discarded.
+                Note that we are also discarding the messages created by `elab`.
+
+                For example, consider the expression.
+                `((f.x a1).x a2).x a3`
+                Now, suppose the elaboration of `f.x a1` produces an `Exception.postpone`.
+                Then, a new metavariable `?m` is created. Then, `?m.x a2` also throws `Exception.postpone`
+                because the type of `?m` is not yet known. Then another, metavariable `?n` is created, and
+                finally `?n.x a3` also throws `Exception.postpone`. If we did not restore the state, we would
+                keep "dead" metavariables `?m` and `?n` on the pending synthetic metavariable list. This is
+                wasteful because when we resume the elaboration of `((f.x a1).x a2).x a3`, we start it from scratch
+                and new metavariables are created for the nested functions. -/
+              s.restore
+              postponeElabTerm stx expectedType?
+            else
+              throw ex)
     catch ex => match ex with
-      | Exception.error ref msg =>
-        if (← read).errToSorry then
-          exceptionToSorry ex expectedType?
+      | Exception.internal id _ =>
+        if id == unsupportedSyntaxExceptionId then
+          s.restore  -- also removes the info tree created above
+          elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
         else
           throw ex
-      | Exception.internal id _ =>
-        if (← read).errToSorry && id == abortTermExceptionId then
-          exceptionToSorry ex expectedType?
-        else if id == unsupportedSyntaxExceptionId then
-          s.restore
-          elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
-        else if catchExPostpone && id == postponeExceptionId then
-          /- If `elab` threw `Exception.postpone`, we reset any state modifications.
-             For example, we want to make sure pending synthetic metavariables created by `elab` before
-             it threw `Exception.postpone` are discarded.
-             Note that we are also discarding the messages created by `elab`.
-
-             For example, consider the expression.
-             `((f.x a1).x a2).x a3`
-             Now, suppose the elaboration of `f.x a1` produces an `Exception.postpone`.
-             Then, a new metavariable `?m` is created. Then, `?m.x a2` also throws `Exception.postpone`
-             because the type of `?m` is not yet known. Then another, metavariable `?n` is created, and
-            finally `?n.x a3` also throws `Exception.postpone`. If we did not restore the state, we would
-            keep "dead" metavariables `?m` and `?n` on the pending synthetic metavariable list. This is
-            wasteful because when we resume the elaboration of `((f.x a1).x a2).x a3`, we start it from scratch
-            and new metavariables are created for the nested functions. -/
-            s.restore
-            postponeElabTerm stx expectedType?
-          else
-            throw ex
+      | _ => throw ex
 
 private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool) : TermElabM Expr := do
   let s ← saveState
   let k := stx.getKind
-  match termElabAttribute.getValues (← getEnv) k with
+  match termElabAttribute.getEntries (← getEnv) k with
   | []      => throwError "elaboration function for '{k}' has not been implemented{indentD stx}"
   | elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
 
@@ -1107,40 +1135,21 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     checkMaxHeartbeats "elaborator"
     withNestedTraces do
     let env ← getEnv
-    let stxNew? ← catchInternalId unsupportedSyntaxExceptionId
-      (do let newStx ← adaptMacro (getMacros env) stx; pure (some newStx))
-      (fun _ => pure none)
-    match stxNew? with
-    | some stxNew => withMacroExpansion stx stxNew <| withRef stxNew <| elabTermAux expectedType? catchExPostpone implicitLambda stxNew
+    match (← liftMacroM (expandMacroImpl? env stx)) with
+    | some (decl, stxNew) =>
+      withInfoContext' (mkInfo := mkTermInfo decl (expectedType? := expectedType?) stx) <|
+        withMacroExpansion stx stxNew <|
+          withRef stxNew <|
+            elabTermAux expectedType? catchExPostpone implicitLambda stxNew
     | _ =>
       let implicit? ← if implicitLambda && (← read).implicitLambda then useImplicitLambda? stx expectedType? else pure none
       match implicit? with
       | some expectedType => elabImplicitLambda stx catchExPostpone expectedType
       | none              => elabUsingElabFns stx expectedType? catchExPostpone
 
-def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) : TermElabM Unit := do
-  if (← getInfoState).enabled then
-    pushInfoLeaf <| Info.ofTermInfo { lctx := (← getLCtx), expr := e, stx, expectedType? }
-
-def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDecl) :=
-  return (← get).syntheticMVars.find? fun d => d.mvarId == mvarId
-
-def mkTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) : TermElabM (Sum Info MVarId) := do
-  let isHole? : TermElabM (Option MVarId) := do
-    match e with
-    | Expr.mvar mvarId _ =>
-      match (← getSyntheticMVarDecl? mvarId) with
-      | some { kind := SyntheticMVarKind.tactic .., .. }    => return mvarId
-      | some { kind := SyntheticMVarKind.postponed .., .. } => return mvarId
-      | _                                                   => return none
-    | _ => pure none
-  match (← isHole?) with
-  | none        => return Sum.inl <| Info.ofTermInfo { lctx := (← getLCtx), expr := e, stx, expectedType? }
-  | some mvarId => return Sum.inr mvarId
-
 /-- Store in the `InfoTree` that `e` is a "dot"-completion target. -/
 def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr) (field? : Option Syntax := none) : TermElabM Unit := do
-  addCompletionInfo <| CompletionInfo.dot { expr := e, stx, lctx := (← getLCtx), expectedType? } (field? := field?) (expectedType? := expectedType?)
+  addCompletionInfo <| CompletionInfo.dot { expr := e, stx, lctx := (← getLCtx), elaborator := Name.anonymous, expectedType? } (field? := field?) (expectedType? := expectedType?)
 
 /--
   Main function for elaborating terms.
@@ -1160,7 +1169,7 @@ def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr)
   We use this flag to implement, for example, the `@` modifier. If `Context.implicitLambda == false`, then this parameter has no effect.
   -/
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) : TermElabM Expr :=
-  withInfoContext' (withRef stx <| elabTermAux expectedType? catchExPostpone implicitLambda stx) (mkTermInfo stx (expectedType? := expectedType?))
+  withRef stx <| elabTermAux expectedType? catchExPostpone implicitLambda stx
 
 def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
   let e ← elabTerm stx expectedType? catchExPostpone implicitLambda

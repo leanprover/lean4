@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Utils
-// Imports: Init Lean.Data.Position Lean.Data.Lsp Init.System.FilePath
+// Imports: Init Lean.Data.Position Lean.Data.Lsp Lean.Server.InfoUtils Init.System.FilePath
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -28,6 +28,7 @@ lean_object* l_Lean_Server_publishProgressAtPos___boxed(lean_object*, lean_objec
 lean_object* l_Lean_Server_publishProgress(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_foldDocumentChanges_match__1(lean_object*);
 extern uint8_t l_System_FilePath_isCaseInsensitive;
+lean_object* l_String_Range_toLspRange___boxed(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_IO_FS_Stream_withPrefix___elambda__4(lean_object*, size_t, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_publishMessages___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -69,6 +70,7 @@ lean_object* l_Lean_Server_maybeTee___boxed(lean_object*, lean_object*, lean_obj
 static lean_object* l_Lean_Server_maybeTee___closed__1;
 lean_object* l_Lean_Server_foldDocumentChanges_match__2(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_publishMessages___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_String_Range_toLspRange(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_toFileUri___closed__2;
 static lean_object* l_Lean_Server_publishProgressAtPos___closed__1;
 lean_object* l_IO_FS_Stream_chainLeft(lean_object*, lean_object*, uint8_t);
@@ -1825,7 +1827,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Server_foldDocumentChanges___closed__2;
 x_2 = l_Lean_Server_foldDocumentChanges___closed__3;
-x_3 = lean_unsigned_to_nat(110u);
+x_3 = lean_unsigned_to_nat(111u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_Lean_Server_foldDocumentChanges___closed__4;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -3087,9 +3089,34 @@ x_2 = lean_alloc_closure((void*)(l_List_takeWhile___rarg), 2, 0);
 return x_2;
 }
 }
+lean_object* l_String_Range_toLspRange(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_3 = lean_ctor_get(x_2, 0);
+x_4 = l_Lean_FileMap_utf8PosToLspPos(x_1, x_3);
+x_5 = lean_ctor_get(x_2, 1);
+x_6 = l_Lean_FileMap_utf8PosToLspPos(x_1, x_5);
+x_7 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_7, 0, x_4);
+lean_ctor_set(x_7, 1, x_6);
+return x_7;
+}
+}
+lean_object* l_String_Range_toLspRange___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_String_Range_toLspRange(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Data_Position(lean_object*);
 lean_object* initialize_Lean_Data_Lsp(lean_object*);
+lean_object* initialize_Lean_Server_InfoUtils(lean_object*);
 lean_object* initialize_Init_System_FilePath(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Server_Utils(lean_object* w) {
@@ -3103,6 +3130,9 @@ res = initialize_Lean_Data_Position(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Lsp(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Server_InfoUtils(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_System_FilePath(lean_io_mk_world());

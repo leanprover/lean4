@@ -192,10 +192,6 @@ if(LLVM)
   include_directories(${LLVM_INCLUDE_DIRS})
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_LLVM")
   set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -D LEAN_LLVM")
-
-  # Find the libraries that correspond to the LLVM components
-  #   that we wish to use and define llvm_libs
-  llvm_map_components_to_libnames(llvm_libs nativecodegen)
 else()
   #message(WARNING "Disabling LLVM support.  JIT compilation will not be available")
 endif()
@@ -471,9 +467,6 @@ if(PREV_STAGE)
 endif()
 
 target_link_libraries(leancpp INTERFACE ${EXTRA_LIBS})
-if(LLVM)
-  target_link_libraries(leancpp INTERFACE ${llvm_libs})
-endif()
 
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc" @ONLY)
 install(FILES "${CMAKE_BINARY_DIR}/bin/leanc"

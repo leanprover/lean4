@@ -53,7 +53,7 @@ protected def max : RBNode α β → Option (Sigma (fun k => β k))
         match (← f k v b) with
         | r@(ForInStep.done _) => return r
         | ForInStep.yield b    => visit r b
-  match ← visit as init with
+  match (← visit as init) with
   | ForInStep.done b  => pure b
   | ForInStep.yield b => pure b
 

@@ -222,7 +222,6 @@ extern lean_object* l_Lean_instInhabitedName;
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_registerBuiltinDerivingHandler(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___closed__5;
-lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__13(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___closed__28;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___closed__30;
 static lean_object* l_Lean_Elab_Deriving_DecEq_initFn____x40_Lean_Elab_Deriving_DecEq___hyg_2438____closed__1;
@@ -230,6 +229,7 @@ lean_object* l_Lean_Elab_Deriving_DecEq_mkAuxFunction(lean_object*, lean_object*
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_DecEq_mkMatch_mkAlts___spec__6___lambda__1___closed__1;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___closed__14;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___closed__93;
+lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__12(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkAuxFunction___closed__17;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___closed__33;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___closed__18;
@@ -7364,7 +7364,7 @@ x_31 = 0;
 x_32 = lean_usize_of_nat(x_24);
 lean_dec(x_24);
 x_33 = lean_box(0);
-x_34 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__13(x_22, x_31, x_32, x_33, x_2, x_3, x_23);
+x_34 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__12(x_22, x_31, x_32, x_33, x_2, x_3, x_23);
 lean_dec(x_2);
 lean_dec(x_22);
 if (lean_obj_tag(x_34) == 0)
@@ -7469,7 +7469,7 @@ x_58 = 0;
 x_59 = lean_usize_of_nat(x_49);
 lean_dec(x_49);
 x_60 = lean_box(0);
-x_61 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__13(x_47, x_58, x_59, x_60, x_2, x_3, x_48);
+x_61 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__12(x_47, x_58, x_59, x_60, x_2, x_3, x_48);
 lean_dec(x_2);
 lean_dec(x_47);
 if (lean_obj_tag(x_61) == 0)

@@ -207,11 +207,26 @@ private def addTraceAsMessages : CommandElabM Unit := do
     traceState.traces := {}
   }
 
-private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → CommandElabM Unit
+private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : Std.PersistentArray InfoTree) : CommandElabM InfoTree := do
+  let ctx ← read
+  let s ← get
+  let scope := s.scopes.head!
+  let tree := InfoTree.node (Info.ofCommandInfo { elaborator, stx }) trees
+  let tree := InfoTree.context {
+    env := s.env, fileMap := ctx.fileMap, mctx := {}, currNamespace := scope.currNamespace, openDecls := scope.openDecls, options := scope.opts
+  } tree
+  if checkTraceOption (← getOptions) `Elab.info then
+    let fmt ← tree.format
+    trace[Elab.info] fmt
+  return tree
+
+private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttribute.AttributeEntry CommandElab) → CommandElabM Unit
   | []                => throwError "unexpected syntax{indentD stx}"
   | (elabFn::elabFns) =>
     catchInternalId unsupportedSyntaxExceptionId
-      (do elabFn stx; addTraceAsMessages)
+      (do
+        withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.decl stx) <| elabFn.value stx
+        addTraceAsMessages)
       (fun _ => do set s; addTraceAsMessages; elabCommandUsing s stx elabFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
@@ -248,19 +263,8 @@ register_builtin_option showPartialSyntaxErrors : Bool := {
 builtin_initialize registerTraceClass `Elab.command
 
 partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
-  let mkInfoTree trees := do
-    let ctx ← read
-    let s ← get
-    let scope := s.scopes.head!
-    let tree := InfoTree.node (Info.ofCommandInfo { stx := stx }) trees
-    let tree := InfoTree.context {
-      env := s.env, fileMap := ctx.fileMap, mctx := {}, currNamespace := scope.currNamespace, openDecls := scope.openDecls, options := scope.opts
-    } tree
-    if checkTraceOption (← getOptions) `Elab.info then
-      logTrace `Elab.info m!"{← tree.format}"
-    return tree
   let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
-  withLogging <| withRef stx <| withInfoTreeContext (mkInfoTree := mkInfoTree) <| withIncRecDepth <| withFreshMacroScope do
+  withLogging <| withRef stx <| withIncRecDepth <| withFreshMacroScope do
     runLinters stx
     match stx with
     | Syntax.node k args =>
@@ -271,13 +275,13 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
       else do
         trace `Elab.command fun _ => stx;
         let s ← get
-        let stxNew? ← catchInternalId unsupportedSyntaxExceptionId
-          (do let newStx ← adaptMacro (getMacros s.env) stx; pure (some newStx))
-          (fun ex => pure none)
-        match stxNew? with
-        | some stxNew => withMacroExpansion stx stxNew <| elabCommand stxNew
+        match (← liftMacroM <| expandMacroImpl? s.env stx) with
+        | some (decl, stxNew) =>
+          withInfoTreeContext (mkInfoTree := mkInfoTree decl stx) do
+              withMacroExpansion stx stxNew do
+                elabCommand stxNew
         | _ =>
-          match commandElabAttribute.getValues s.env k with
+          match commandElabAttribute.getEntries s.env k with
           | []      => throwError "elaboration function for '{k}' has not been implemented"
           | elabFns => elabCommandUsing s stx elabFns
     | _ => throwError "unexpected command"

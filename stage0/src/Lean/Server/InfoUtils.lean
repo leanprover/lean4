@@ -8,6 +8,19 @@ import Lean.DocString
 import Lean.Elab.InfoTree
 import Lean.Util.Sorry
 
+protected structure String.Range where
+  start : String.Pos
+  stop  : String.Pos
+  deriving Inhabited, Repr
+
+def String.Range.contains (r : String.Range) (pos : String.Pos) : Bool :=
+  r.start <= pos && pos < r.stop
+
+def Lean.Syntax.getRange? (stx : Syntax) (originalOnly := false) : Option String.Range :=
+  match stx.getPos? originalOnly, stx.getTailPos? originalOnly with
+  | some start, some stop => some { start, stop }
+  | _,          _         => none
+
 namespace Lean.Elab
 
 /--
@@ -57,15 +70,26 @@ def Info.stx : Info → Syntax
   | ofTacticInfo i         => i.stx
   | ofTermInfo i           => i.stx
   | ofCommandInfo i        => i.stx
-  | ofMacroExpansionInfo i => i.before
+  | ofMacroExpansionInfo i => i.stx
   | ofFieldInfo i          => i.stx
   | ofCompletionInfo i     => i.stx
+
+def Info.lctx : Info → LocalContext
+  | Info.ofTermInfo i  => i.lctx
+  | Info.ofFieldInfo i => i.lctx
+  | _                  => LocalContext.empty
 
 def Info.pos? (i : Info) : Option String.Pos :=
   i.stx.getPos? (originalOnly := true)
 
 def Info.tailPos? (i : Info) : Option String.Pos :=
   i.stx.getTailPos? (originalOnly := true)
+
+def Info.range? (i : Info) : Option String.Range :=
+  i.stx.getRange? (originalOnly := true)
+
+def Info.contains (i : Info) (pos : String.Pos) : Bool :=
+  i.range?.any (·.contains pos)
 
 def Info.size? (i : Info) : Option Nat := OptionM.run do
   let pos ← i.pos?
@@ -95,57 +119,57 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
 
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
 partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) :=
-  t.smallestInfo? fun i =>
-    if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
-      if pos ≤ hoverPos ∧ hoverPos < tailPos then
-        match i with
-        | Info.ofTermInfo ti =>
-          !ti.expr.isSyntheticSorry &&
-          -- TODO: see if we can get rid of this
-          #[identKind,
-            strLitKind,
-            charLitKind,
-            numLitKind,
-            scientificLitKind,
-            nameLitKind,
-            fieldIdxKind,
-            interpolatedStrLitKind,
-            interpolatedStrKind
-          ].contains i.stx.getKind
-        | Info.ofFieldInfo _ => true
-        | _ => false
-      else false
-    else false
+  t.smallestInfo? fun i => do
+    if let Info.ofTermInfo ti := i then
+      if ti.expr.isSyntheticSorry then
+        return false
+    if i matches Info.ofFieldInfo _ || i.toElabInfo?.isSome then
+      return i.contains hoverPos
+    return false
 
 /-- Construct a hover popup, if any, from an info node in a context.-/
 def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option Format) := do
-  let lctx ← match i with
-    | Info.ofTermInfo i  => i.lctx
-    | Info.ofFieldInfo i => i.lctx
-    | _                  => return none
-
-  ci.runMetaM lctx do
+  ci.runMetaM i.lctx do
+    let mut fmts := #[]
+    if let some f ← fmtTerm? then
+      fmts := fmts.push f
+    if let some f ← fmtDoc? then
+      fmts := fmts.push f
+    if fmts.isEmpty then
+      none
+    else
+      f!"\n***\n".joinSep fmts.toList
+where
+  fmtTerm? := do
     match i with
     | Info.ofTermInfo ti =>
       let tp ← Meta.inferType ti.expr
       let eFmt ← Meta.ppExpr ti.expr
       let tpFmt ← Meta.ppExpr tp
-      let hoverFmt := f!"```lean
-{eFmt} : {tpFmt}
+      -- try not to show too scary internals
+      let fmt := if isAtomicFormat eFmt then f!"{eFmt} : {tpFmt}" else tpFmt
+      return some f!"```lean
+{fmt}
 ```"
-      if let some n := ti.expr.constName? then
-        if let some doc ← findDocString? n then
-          return f!"{hoverFmt}\n***\n{doc}"
-      return hoverFmt
-
     | Info.ofFieldInfo fi =>
       let tp ← Meta.inferType fi.val
       let tpFmt ← Meta.ppExpr tp
-      return f!"```lean
+      return some f!"```lean
 {fi.name} : {tpFmt}
 ```"
-
     | _ => return none
+  fmtDoc? := do
+    if let Info.ofTermInfo ti := i then
+      if let some n := ti.expr.constName? then
+        return ← findDocString? n
+    if let some ei := i.toElabInfo? then
+      return ← findDocString? ei.elaborator <||> findDocString? ei.stx.getKind
+    return none
+  isAtomicFormat : Format → Bool
+    | Std.Format.text _    => true
+    | Std.Format.group f _ => isAtomicFormat f
+    | Std.Format.nest _ f  => isAtomicFormat f
+    | _                    => false
 
 structure GoalsAtResult where
   ctxInfo    : ContextInfo
@@ -208,10 +232,9 @@ partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos) : Option
     else
       headFns
   t.smallestInfo? fun i => do
-    if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
-      if pos ≤ hoverPos ∧ hoverPos < tailPos then
-        if let Info.ofTermInfo ti := i then
-          return !ti.stx.isIdent || !headFns.contains pos
+    if i.contains hoverPos then
+      if let Info.ofTermInfo ti := i then
+        return !ti.stx.isIdent || !headFns.contains i.pos?.get!
     false
   where
     /- Returns the position of the head function symbol, if it is an identifier. -/

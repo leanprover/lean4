@@ -27,7 +27,7 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
   let ctx ← read
   let s ← get
   let cmdCtx : Command.Context := { cmdPos := s.cmdPos, fileName := ctx.inputCtx.fileName, fileMap := ctx.inputCtx.fileMap }
-  match ← liftM <| EIO.toIO' <| (x cmdCtx).run s.commandState with
+  match (← liftM <| EIO.toIO' <| (x cmdCtx).run s.commandState) with
   | Except.error e      => throw <| IO.Error.userError s!"unexpected internal error: {← e.toMessageData.toString}"
   | Except.ok (a, sNew) => setCommandState sNew; return a
 

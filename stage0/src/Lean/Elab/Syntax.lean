@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Elab.Command
 import Lean.Parser.Syntax
+import Lean.Elab.Util
 
 namespace Lean.Elab.Term
 /-
@@ -279,8 +280,13 @@ private partial def isAtomLikeSyntax (stx : Syntax) : Bool :=
   else
     kind == `Lean.Parser.Syntax.atom
 
+def resolveSyntaxKind (k : Name) : CommandElabM Name := do
+  checkSyntaxNodeKindAtNamespaces k (← getCurrNamespace)
+  <|>
+  throwError "invalid syntax node kind '{k}'"
+
 @[builtinCommandElab «syntax»] def elabSyntax : CommandElab := fun stx => do
-  let `($attrKind:attrKind syntax $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $[$ps:stx]* : $catStx) ← pure stx
+  let `($[$doc?:docComment]? $attrKind:attrKind syntax $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $[$ps:stx]* : $catStx) ← pure stx
     | throwUnsupportedSyntax
   let cat := catStx.getId.eraseMacroScopes
   unless (Parser.isParserCategory (← getEnv) cat) do
@@ -301,10 +307,10 @@ private partial def isAtomLikeSyntax (stx : Syntax) : Bool :=
   let declName := mkIdentFrom stx name
   let d ←
     if let some lhsPrec := lhsPrec? then
-      `(@[$attrKind:attrKind $catParserId:ident $(quote prio):numLit] def $declName : Lean.TrailingParserDescr :=
+      `($[$doc?:docComment]? @[$attrKind:attrKind $catParserId:ident $(quote prio):numLit] def $declName : Lean.TrailingParserDescr :=
         ParserDescr.trailingNode $(quote stxNodeKind) $(quote prec) $(quote lhsPrec) $val)
     else
-      `(@[$attrKind:attrKind $catParserId:ident $(quote prio):numLit] def $declName : Lean.ParserDescr :=
+      `($[$doc?:docComment]? @[$attrKind:attrKind $catParserId:ident $(quote prio):numLit] def $declName : Lean.ParserDescr :=
         ParserDescr.node $(quote stxNodeKind) $(quote prec) $val)
   trace `Elab fun _ => d
   withMacroExpansion stx d <| elabCommand d
@@ -327,7 +333,7 @@ private def checkRuleKind (given expected : SyntaxNodeKind) : Bool :=
   Remark: `k` is the user provided kind with the current namespace included.
   Recall that syntax node kinds contain the current namespace.
 -/
-def elabMacroRulesAux (attrKind : Syntax) (k : SyntaxNodeKind) (alts : Array Syntax) : CommandElabM Syntax := do
+def elabMacroRulesAux (doc? : Option Syntax) (attrKind : Syntax) (k : SyntaxNodeKind) (alts : Array Syntax) : CommandElabM Syntax := do
   let alts ← alts.mapM fun alt => match alt with
     | `(matchAltExpr| | $pats,* => $rhs) => do
       let pat := pats.elemsAndSeps[0]
@@ -347,7 +353,7 @@ def elabMacroRulesAux (attrKind : Syntax) (k : SyntaxNodeKind) (alts : Array Syn
       else
         throwErrorAt alt "invalid macro_rules alternative, unexpected syntax node kind '{k'}'"
     | _ => throwUnsupportedSyntax
-  `(@[$attrKind:attrKind macro $(Lean.mkIdent k)] def myMacro : Macro :=
+  `($[$doc?:docComment]? @[$attrKind:attrKind macro $(Lean.mkIdent k)] def myMacro : Macro :=
      fun $alts:matchAlt* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
 
 def inferMacroRulesAltKind : Syntax → CommandElabM SyntaxNodeKind
@@ -359,30 +365,33 @@ def inferMacroRulesAltKind : Syntax → CommandElabM SyntaxNodeKind
     pure quoted.getKind
   | _ => throwUnsupportedSyntax
 
-def elabNoKindMacroRulesAux (attrKind : Syntax) (alts : Array Syntax) : CommandElabM Syntax := do
+/--
+Infer syntax kind `k` from first pattern, put alternatives of same kind into new `macro/elab_rules (kind := k)` via `mkCmd (some k)`,
+leave remaining alternatives (via `mkCmd none`) to be recursively expanded. -/
+private def expandNoKindMacroRulesAux (alts : Array Syntax) (cmdName : String) (mkCmd : Option Name → Array Syntax → CommandElabM Syntax) : CommandElabM Syntax := do
   let mut k ← inferMacroRulesAltKind alts[0]
   if k.isStr && k.getString! == "antiquot" then
     k := k.getPrefix
   if k == choiceKind then
     throwErrorAt alts[0]
-      "invalid macro_rules alternative, multiple interpretations for pattern (solution: specify node kind using `macro_rules [<kind>] ...`)"
+      "invalid {cmdName} alternative, multiple interpretations for pattern (solution: specify node kind using `{cmdName} (kind := ...) ...`)"
   else
     let altsK    ← alts.filterM fun alt => return checkRuleKind (← inferMacroRulesAltKind alt) k
     let altsNotK ← alts.filterM fun alt => return !checkRuleKind (← inferMacroRulesAltKind alt) k
-    let defCmd   ← elabMacroRulesAux attrKind k altsK
     if altsNotK.isEmpty then
-      pure defCmd
+      mkCmd k altsK
     else
-      `($defCmd:command $attrKind:attrKind macro_rules $altsNotK:matchAlt*)
+      mkNullNode #[← mkCmd k altsK, ← mkCmd none altsNotK]
 
 @[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
   adaptExpander fun stx => match stx with
-  | `($attrKind:attrKind macro_rules $alts:matchAlt*) =>
-    elabNoKindMacroRulesAux attrKind alts
-  | `($attrKind:attrKind macro_rules (kind := $kind) | $x:ident => $rhs) =>
-    `(@[$attrKind:attrKind macro $kind] def myMacro : Macro := fun $x:ident => $rhs)
-  | `($attrKind:attrKind macro_rules (kind := $kind) $alts:matchAlt*) =>
-    do elabMacroRulesAux attrKind ((← getCurrNamespace) ++ kind.getId) alts
+  | `($[$doc?:docComment]? $attrKind:attrKind macro_rules $alts:matchAlt*) =>
+    expandNoKindMacroRulesAux alts "macro_rules" fun kind? alts =>
+      `($[$doc?:docComment]? $attrKind:attrKind macro_rules $[(kind := $(mkIdent <$> kind?))]? $alts:matchAlt*)
+  | `($[$doc?:docComment]? $attrKind:attrKind macro_rules (kind := $kind) | $x:ident => $rhs) =>
+    `($[$doc?:docComment]? @[$attrKind:attrKind macro $kind] def myMacro : Macro := fun $x:ident => $rhs)
+  | `($[$doc?:docComment]? $attrKind:attrKind macro_rules (kind := $kind) $alts:matchAlt*) =>
+    do elabMacroRulesAux doc? attrKind (← resolveSyntaxKind kind.getId) alts
   | _  => throwUnsupportedSyntax
 
 @[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro := fun stx =>
@@ -535,42 +544,38 @@ def expandMacroArgIntoPattern (stx : Syntax) : MacroM Syntax := do
   where mkSplicePat kind id suffix :=
     mkNullNode #[mkAntiquotSuffixSpliceNode kind (mkAntiquotNode id) suffix]
 
-
-/- «macro» := leading_parser suppressInsideQuot (Term.attrKind >> "macro " >> optPrecedence >> optNamedName >> optNamedPrio >> macroHead >> many macroArg >> macroTail) -/
-@[builtinMacro Lean.Parser.Command.macro] def expandMacro : Macro := fun stx => do
-  let attrKind := stx[0]
-  let prec := stx[2].getOptional?
-  let name? ← expandOptNamedName stx[3]
-  let prio  ← expandOptNamedPrio stx[4]
-  let head := stx[5]
-  let args := stx[6].getArgs
-  let cat  := stx[8]
-  -- build parser
-  let stxPart  ← expandMacroArgIntoSyntaxItem head
-  let stxParts ← args.mapM expandMacroArgIntoSyntaxItem
-  let stxParts := #[stxPart] ++ stxParts
-  -- name
-  let name ← match name? with
-    | some name => pure name
-    | none => mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
-  -- build macro rules
-  let patHead ← expandMacroArgIntoPattern head
-  let patArgs ← args.mapM expandMacroArgIntoPattern
-  /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
-     So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
-  let pat := Syntax.node ((← Macro.getCurrNamespace) ++ name) (#[patHead] ++ patArgs)
-  if stx.getArgs.size == 11 then
-    -- `stx` is of the form `macro $head $args* : $cat => term`
-    let rhs := stx[10]
-    let stxCmd ← `(Parser.Command.syntax| $attrKind:attrKind syntax $(prec)? (name := $(mkIdentFrom stx name):ident) (priority := $(quote prio):numLit) $[$stxParts]* : $cat)
-    let macroRulesCmd ← `(macro_rules | `($pat) => $rhs)
+@[builtinMacro Lean.Parser.Command.macro] def expandMacro : Macro
+  | `($[$doc?:docComment]? $attrKind:attrKind
+      macro$[:$prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $head:macroArg $args:macroArg* :
+        $cat => $rhs) => do
+    let prio  ← evalOptPrio prio?
+    -- build parser
+    let stxPart  ← expandMacroArgIntoSyntaxItem head
+    let stxParts ← args.mapM expandMacroArgIntoSyntaxItem
+    let stxParts := #[stxPart] ++ stxParts
+    -- name
+    let name ← match name? with
+      | some name => pure name.getId
+      | none => mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
+    -- build macro rules
+    let patHead ← expandMacroArgIntoPattern head
+    let patArgs ← args.mapM expandMacroArgIntoPattern
+    /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
+      So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
+    let pat := Syntax.node ((← Macro.getCurrNamespace) ++ name) (#[patHead] ++ patArgs)
+    let stxCmd ← `($[$doc?:docComment]? $attrKind:attrKind
+      syntax$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio)) $[$stxParts]* : $cat)
+    let macroRulesCmd ←
+      if rhs.getArgs.size == 1 then
+        -- `rhs` is a `term`
+        let rhs := rhs[0]
+        `($[$doc?:docComment]? macro_rules | `($pat) => $rhs)
+      else
+        -- `rhs` is of the form `` `( $body ) ``
+        let rhsBody := rhs[1]
+        `($[$doc?:docComment]? macro_rules | `($pat) => `($rhsBody))
     return mkNullNode #[stxCmd, macroRulesCmd]
-  else
-    -- `stx` is of the form `macro $head $args* : $cat => `( $body )`
-    let rhsBody := stx[11]
-    let stxCmd ← `(Parser.Command.syntax| $attrKind:attrKind syntax $(prec)? (name := $(mkIdentFrom stx name):ident) (priority := $(quote prio):numLit) $[$stxParts]* : $cat)
-    let macroRulesCmd ← `(macro_rules | `($pat) => `($rhsBody))
-    return mkNullNode #[stxCmd, macroRulesCmd]
+  | _ => Macro.throwUnsupported
 
 builtin_initialize
   registerTraceClass `Elab.syntax
@@ -581,69 +586,83 @@ builtin_initialize
     | throwError "expected type must be known"
   x expectedType
 
-/-
-def elabTail := try (" : " >> ident) >> darrow >> termParser
-def «elab» := leading_parser suppressInsideQuot (Term.attrKind >> "elab " >> optPrecedence >> optNamedName >> optNamedPrio >> elabHead >> many elabArg >> elabTail)
--/
-def expandElab (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
-  let ref := stx
-  let attrKind := stx[0]
-  let prec     := stx[2].getOptional?
-  let name?   ← liftMacroM <| expandOptNamedName stx[3]
-  let prio    ← liftMacroM <| expandOptNamedPrio stx[4]
-  let head    := stx[5]
-  let args    := stx[6].getArgs
-  let cat     := stx[8]
-  let expectedTypeSpec := stx[9]
-  let rhs     := stx[11]
-  let catName := cat.getId
-  -- build parser
-  let stxPart  ← liftMacroM <| expandMacroArgIntoSyntaxItem head
-  let stxParts ← liftMacroM <| args.mapM expandMacroArgIntoSyntaxItem
-  let stxParts := #[stxPart] ++ stxParts
-  -- name
-  let name ← match name? with
-    | some name => pure name
-    | none => liftMacroM <| mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
-  -- build pattern for syntax `match`
-  let patHead ← liftMacroM <| expandMacroArgIntoPattern head
-  let patArgs ← liftMacroM <| args.mapM expandMacroArgIntoPattern
-  let pat := Syntax.node (currNamespace ++ name) (#[patHead] ++ patArgs)
-  let stxCmd ← `(Parser.Command.syntax|
-    $attrKind:attrKind syntax $(prec)? (name := $(mkIdentFrom stx name):ident) (priority := $(quote prio):numLit) $[$stxParts]* : $cat)
-  let elabCmd ←
-    if expectedTypeSpec.hasArgs then
-      if catName == `term then
-        let expId := expectedTypeSpec[1]
-        `(@[termElab $(mkIdentFrom stx name):ident] def elabFn : Lean.Elab.Term.TermElab :=
-          fun stx expectedType? => match stx with
-            | `($pat) => Lean.Elab.Command.withExpectedType expectedType? fun $expId => $rhs
-            | _ => throwUnsupportedSyntax)
+def elabElabRulesAux (doc? : Option Syntax) (attrKind : Syntax) (k : SyntaxNodeKind) (cat? expty? : Option Syntax) (alts : Array Syntax) : CommandElabM Syntax := do
+  let alts ← alts.mapM fun alt => match alt with
+    | `(matchAltExpr| | $pats,* => $rhs) => do
+      let pat := pats.elemsAndSeps[0]
+      if !pat.isQuot then
+        throwUnsupportedSyntax
+      let quoted := getQuotContent pat
+      let k' := quoted.getKind
+      if checkRuleKind k' k then
+        pure alt
+      else if k' == choiceKind then
+         match quoted.getArgs.find? fun quotAlt => checkRuleKind quotAlt.getKind k with
+         | none        => throwErrorAt alt "invalid elab_rules alternative, expected syntax node kind '{k}'"
+         | some quoted =>
+           let pat := pat.setArg 1 quoted
+           let pats := pats.elemsAndSeps.set! 0 pat
+           `(matchAltExpr| | $pats,* => $rhs)
       else
-        throwErrorAt expectedTypeSpec "syntax category '{catName}' does not support expected type specification"
-    else if catName == `term then
-      `(@[termElab $(mkIdentFrom stx name):ident] def elabFn : Lean.Elab.Term.TermElab :=
-        fun stx _ => match stx with
-          | `($pat) => $rhs
-          | _ => throwUnsupportedSyntax)
-    else if catName == `command then
-      `(@[commandElab $(mkIdentFrom stx name):ident] def elabFn : Lean.Elab.Command.CommandElab :=
-        fun
-          | `($pat) => $rhs
-          | _ => throwUnsupportedSyntax)
-    else if catName == `tactic then
-      `(@[tactic $(mkIdentFrom stx name):ident] def elabFn : Lean.Elab.Tactic.Tactic :=
-        fun
-          | `(tactic|$pat) => $rhs
-          | _ => throwUnsupportedSyntax)
+        throwErrorAt alt "invalid elab_rules alternative, unexpected syntax node kind '{k'}'"
+    | _ => throwUnsupportedSyntax
+  let catName ← match cat?, expty? with
+    | some cat, _ => cat.getId
+    | _, some _   => `term
+    -- TODO: infer category from quotation kind, possibly even kind of quoted syntax?
+    | _, _        => throwError "invalid elab_rules command, specify category using `elab_rules : <cat> ...`"
+  if let some expId := expty? then
+    if catName == `term then
+      `($[$doc?:docComment]? @[termElab $(← mkIdentFromRef k):ident] def elabFn : Lean.Elab.Term.TermElab :=
+        fun stx expectedType? => Lean.Elab.Command.withExpectedType expectedType? fun $expId => match stx with
+          $alts:matchAlt* | _ => throwUnsupportedSyntax)
     else
-      -- We considered making the command extensible and support new user-defined categories. We think it is unnecessary.
-      -- If users want this feature, they add their own `elab` macro that uses this one as a fallback.
-      throwError "unsupported syntax category '{catName}'"
-  return mkNullNode #[stxCmd, elabCmd]
+      throwErrorAt expId "syntax category '{catName}' does not support expected type specification"
+  else if catName == `term then
+    `($[$doc?:docComment]? @[termElab $(← mkIdentFromRef k):ident] def elabFn : Lean.Elab.Term.TermElab :=
+      fun stx _ => match stx with
+        $alts:matchAlt* | _ => throwUnsupportedSyntax)
+  else if catName == `command then
+    `($[$doc?:docComment]? @[commandElab $(← mkIdentFromRef k):ident] def elabFn : Lean.Elab.Command.CommandElab :=
+      fun $alts:matchAlt* | _ => throwUnsupportedSyntax)
+  else if catName == `tactic then
+    `($[$doc?:docComment]? @[tactic $(← mkIdentFromRef k):ident] def elabFn : Lean.Elab.Tactic.Tactic :=
+      fun $alts:matchAlt* | _ => throwUnsupportedSyntax)
+  else
+    -- We considered making the command extensible and support new user-defined categories. We think it is unnecessary.
+    -- If users want this feature, they add their own `elab_rules` macro that uses this one as a fallback.
+    throwError "unsupported syntax category '{catName}'"
 
-@[builtinCommandElab «elab»] def elabElab : CommandElab :=
-  adaptExpander fun stx => do
-    expandElab (← getCurrNamespace) stx
+@[builtinCommandElab «elab_rules»] def elabElabRules : CommandElab :=
+  adaptExpander fun stx => match stx with
+  | `($[$doc?:docComment]? $attrKind:attrKind elab_rules $[: $cat?]? $[<= $expty?]? $alts:matchAlt*) =>
+    expandNoKindMacroRulesAux alts "elab_rules" fun kind? alts =>
+      `($[$doc?:docComment]? $attrKind:attrKind elab_rules $[(kind := $(mkIdent <$> kind?))]? $[: $cat?]? $[<= $expty?]? $alts:matchAlt*)
+  | `($[$doc?:docComment]? $attrKind:attrKind elab_rules (kind := $kind) $[: $cat?]? $[<= $expty?]? $alts:matchAlt*) =>
+    do elabElabRulesAux doc? attrKind (← resolveSyntaxKind kind.getId) cat? expty? alts
+  | _  => throwUnsupportedSyntax
+
+@[builtinMacro Lean.Parser.Command.elab]
+def expandElab : Macro
+  | `($[$doc?:docComment]? $attrKind:attrKind
+    elab$[:$prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $head:macroArg $args:macroArg* :
+      $cat $[<= $expectedType?]? => $rhs) => do
+    let prio    ← evalOptPrio prio?
+    let catName := cat.getId
+    -- build parser
+    let stxPart  ← expandMacroArgIntoSyntaxItem head
+    let stxParts ← args.mapM expandMacroArgIntoSyntaxItem
+    let stxParts := #[stxPart] ++ stxParts
+    -- name
+    let name ← match name? with
+      | some name => pure name.getId
+      | none => mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
+    -- build pattern for syntax `match`
+    let patHead ← expandMacroArgIntoPattern head
+    let patArgs ← args.mapM expandMacroArgIntoPattern
+    let pat := Syntax.node ((← Macro.getCurrNamespace) ++ name) (#[patHead] ++ patArgs)
+    `($[$doc?:docComment]? $attrKind:attrKind syntax$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio)) $[$stxParts]* : $cat
+      $[$doc?:docComment]? elab_rules : $cat $[<= $expectedType?]? | `($pat) => $rhs)
+  | _ => Macro.throwUnsupported
 
 end Lean.Elab.Command

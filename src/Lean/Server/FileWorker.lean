@@ -331,7 +331,7 @@ section MainLoop
     | _ => throwServerError "Got invalid JSON-RPC message"
 end MainLoop
 
-def initAndRunWorker (i o e : FS.Stream) : IO UInt32 := do
+def initAndRunWorker (i o e : FS.Stream) : IO UInt8 := do
   let i ← maybeTee "fwIn.txt" false i
   let o ← maybeTee "fwOut.txt" true o
   let _ ← i.readLspRequestAs "initialize" InitializeParams
@@ -355,7 +355,9 @@ def workerMain : IO UInt32 := do
   let o ← IO.getStdout
   let e ← IO.getStderr
   try
-    initAndRunWorker i o e
+    -- Explicitly call exit to terminate tasks that are still running.
+    -- Otherwise a task using 100% CPU can keep the worker running forever.
+    IO.Process.exit <|<- initAndRunWorker i o e
   catch err =>
     e.putStrLn s!"worker initialization error: {err}"
     return (1 : UInt32)

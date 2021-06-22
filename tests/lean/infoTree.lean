@@ -34,4 +34,5 @@ def f5 (x : Nat) : B := {
   pair := ({ val := id }, { val := id })
 }
 
-#print id
+open Nat in
+#print xor

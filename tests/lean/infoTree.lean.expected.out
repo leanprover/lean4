@@ -316,7 +316,11 @@
               id : {α : Type} → α → α @ ⟨34, 35⟩-⟨34, 37⟩
             val : Nat → Nat := id @ ⟨34, 28⟩-⟨34, 31⟩
     pair : A × A := ({ val := id }, { val := id }) @ ⟨34, 2⟩-⟨34, 6⟩
-def id.{u} : {α : Sort u} → α → α :=
-fun {α : Sort u} (a : α) => a
-[Elab.info] command @ ⟨37, 0⟩-⟨37, 9⟩ @ Lean.Elab.Command.elabPrint
-  id : {α : Sort u} → α → α @ ⟨37, 7⟩-⟨37, 9⟩
+def Nat.xor : Nat → Nat → Nat :=
+bitwise bne
+[Elab.info] command @ ⟨37, 0⟩-⟨38, 10⟩ @ Lean.Elab.Command.expandInCmd
+  command @ ⟨37, 0⟩†-⟨38, 10⟩† @ Lean.Elab.Command.elabSection
+  command @ ⟨37, 0⟩-⟨37, 8⟩ @ Lean.Elab.Command.elabOpen
+  command @ ⟨38, 0⟩-⟨38, 10⟩ @ Lean.Elab.Command.elabPrint
+    xor : Nat → Nat → Nat @ ⟨38, 7⟩-⟨38, 10⟩
+  command @ ⟨37, 0⟩†-⟨38, 10⟩† @ Lean.Elab.Command.elabEnd

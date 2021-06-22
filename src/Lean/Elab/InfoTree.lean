@@ -257,7 +257,7 @@ variable [Monad m] [MonadInfoTree m]
 @[inline] private def modifyInfoTrees (f : PersistentArray InfoTree → PersistentArray InfoTree) : m Unit :=
   modifyInfoState fun s => { s with trees := f s.trees }
 
-private def getResetInfoTrees : m (PersistentArray InfoTree) := do
+def getResetInfoTrees : m (PersistentArray InfoTree) := do
   let trees := (← getInfoState).trees
   modifyInfoTrees fun _ => {}
   return trees

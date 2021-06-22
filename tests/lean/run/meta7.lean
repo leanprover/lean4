@@ -10,7 +10,7 @@ partial def fact : Nat → Nat
 set_option trace.Meta.debug true
 set_option trace.Meta.check false
 
-def print (msg : MessageData) : MetaM Unit :=
+def print (msg : MessageData) : MetaM Unit := do
 trace[Meta.debug] msg
 
 def checkM (x : MetaM Bool) : MetaM Unit :=

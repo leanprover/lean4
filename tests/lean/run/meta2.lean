@@ -7,7 +7,7 @@ open Lean.Meta
 -- set_option trace.Meta.isDefEq.delta false
 set_option trace.Meta.debug true
 
-def print (msg : MessageData) : MetaM Unit :=
+def print (msg : MessageData) : MetaM Unit := do
 trace[Meta.debug] msg
 
 def checkM (x : MetaM Bool) : MetaM Unit :=

@@ -542,7 +542,7 @@ private def expandNatValuePattern (p : Problem) : Problem := do
     | _                                                     => alt
   { p with alts := alts }
 
-private def traceStep (msg : String) : StateRefT State MetaM Unit :=
+private def traceStep (msg : String) : StateRefT State MetaM Unit := do
   trace[Meta.Match.match] "{msg} step"
 
 private def traceState (p : Problem) : MetaM Unit :=

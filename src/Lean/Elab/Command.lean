@@ -215,9 +215,7 @@ private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : Std.Persisten
   let tree := InfoTree.context {
     env := s.env, fileMap := ctx.fileMap, mctx := {}, currNamespace := scope.currNamespace, openDecls := scope.openDecls, options := scope.opts
   } tree
-  if checkTraceOption (← getOptions) `Elab.info then
-    let fmt ← tree.format
-    trace[Elab.info] fmt
+  trace[Elab.info] ← tree.format
   return tree
 
 private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttribute.AttributeEntry CommandElab) → CommandElabM Unit

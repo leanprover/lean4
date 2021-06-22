@@ -355,7 +355,12 @@ def workerMain : IO UInt32 := do
   let o ← IO.getStdout
   let e ← IO.getStderr
   try
-    initAndRunWorker i o e
+    let exitCode ← initAndRunWorker i o e
+    -- HACK: all `Task`s are currently "foreground", i.e. we join on them on main thread exit, but we definitely don't
+    -- want to do that in the case of the worker processes, which can produce non-terminating tasks evaluating user code
+    o.flush
+    e.flush
+    IO.Process.exit exitCode.toUInt8
   catch err =>
     e.putStrLn s!"worker initialization error: {err}"
     return (1 : UInt32)

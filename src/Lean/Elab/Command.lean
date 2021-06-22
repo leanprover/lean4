@@ -339,21 +339,17 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
   let scope := s.scopes.head!
   -- We execute `x` with an empty message log. Thus, `x` cannot modify/view messages produced by previous commands.
   -- This is useful for implementing `runTermElabM` where we use `Term.resetMessageLog`
+  let x : TermElabM _  := withSaveInfoContext x
   let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) (mkTermState scope s)
   let x : CoreM _      := x.run mkMetaContext {}
   let x : EIO _ _      := x.run (mkCoreContext ctx s heartbeats) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope }
   let (((ea, termS), metaS), coreS) ← liftEIO x
-  let infoTrees        := termS.infoState.trees.map fun tree =>
-    let tree := tree.substitute termS.infoState.assignment
-    InfoTree.context {
-      env := coreS.env, fileMap := ctx.fileMap, mctx := metaS.mctx, currNamespace := scope.currNamespace, openDecls := scope.openDecls, options := scope.opts
-    } tree
   modify fun s => { s with
     env             := coreS.env
     messages        := addTraceAsMessagesCore ctx (s.messages ++ termS.messages) coreS.traceState
     nextMacroScope  := coreS.nextMacroScope
     ngen            := coreS.ngen
-    infoState.trees := s.infoState.trees.append infoTrees
+    infoState.trees := s.infoState.trees.append termS.infoState.trees
   }
   match ea with
   | Except.ok a     => pure a

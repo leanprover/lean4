@@ -9,11 +9,6 @@ import Lean.Elab.Exception
 
 namespace Lean.Elab
 
-class MonadFileMap (m : Type → Type) where
-  getFileMap  : m FileMap
-
-export MonadFileMap (getFileMap)
-
 class MonadLog (m : Type → Type) extends MonadFileMap m where
   getRef       : m Syntax
   getFileName  : m String

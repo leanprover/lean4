@@ -89,3 +89,8 @@ mycmd' 1
 
 #check ({ a := })  -- should not show `sorry`
         --^ textDocument/hover
+
+example : True := by
+  simp [id True.intro]
+      --^ textDocument/hover
+        --^ textDocument/hover

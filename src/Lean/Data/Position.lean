@@ -29,6 +29,11 @@ structure FileMap where
   lines     : Array Nat
   deriving Inhabited
 
+class MonadFileMap (m : Type → Type) where
+  getFileMap : m FileMap
+
+export MonadFileMap (getFileMap)
+
 namespace FileMap
 
 partial def ofString (s : String) : FileMap :=

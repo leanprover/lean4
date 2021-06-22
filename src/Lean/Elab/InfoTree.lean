@@ -315,6 +315,20 @@ def resolveGlobalConstWithInfos [MonadResolveName m] [MonadEnv m] [MonadError m]
 @[inline] def withInfoContext [MonadFinally m] (x : m α) (mkInfo : m Info) : m α := do
   withInfoTreeContext x (fun trees => do return InfoTree.node (← mkInfo) trees)
 
+@[inline] def withSaveInfoContext [MonadFinally m] [MonadEnv m] [MonadOptions m] [MonadMCtx m] [MonadResolveName m] [MonadFileMap m] (x : m α) : m α := do
+  if (← getInfoState).enabled then
+    let treesSaved ← getResetInfoTrees
+    Prod.fst <$> MonadFinally.tryFinally' x fun _ => do
+      let st    ← getInfoState
+      let trees ← st.trees.mapM fun tree => do
+        let tree := tree.substitute st.assignment
+        InfoTree.context {
+          env := (← getEnv), fileMap := (← getFileMap), mctx := (← getMCtx), currNamespace := (← getCurrNamespace), openDecls := (← getOpenDecls), options := (← getOptions)
+        } tree
+      modifyInfoTrees fun _ => treesSaved ++ trees
+  else
+    x
+
 def getInfoHoleIdAssignment? (mvarId : MVarId) : m (Option InfoTree) :=
   return (← getInfoState).assignment[mvarId]
 

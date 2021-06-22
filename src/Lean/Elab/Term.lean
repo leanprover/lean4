@@ -264,20 +264,6 @@ def commitIfDidNotPostpone (x : TermElabM α) : TermElabM α := do
   let r ← observing x
   applyResult r
 
-/--
-  Execute `x` but discard changes performed at `Term.State` and `Meta.State`.
-  Recall that the environment is at `Core.State`. Thus, any updates to it will
-  be preserved. This method is useful for performing computations where all
-  metavariable must be resolved or discarded. -/
-def withoutModifyingElabMetaState (x : TermElabM α) : TermElabM α := do
-  let s ← get
-  let sMeta ← getThe Meta.State
-  try
-    x
-  finally
-    set s
-    set sMeta
-
 def getLevelNames : TermElabM (List Name) :=
   return (← get).levelNames
 
@@ -318,6 +304,22 @@ instance : MonadQuotation TermElabM where
 instance : MonadInfoTree TermElabM where
   getInfoState      := return (← get).infoState
   modifyInfoState f := modify fun s => { s with infoState := f s.infoState }
+
+/--
+  Execute `x` but discard changes performed at `Term.State` and `Meta.State`.
+  Recall that the environment is at `Core.State`. Thus, any updates to it will
+  be preserved. This method is useful for performing computations where all
+  metavariable must be resolved or discarded.
+  The info trees are not discarded, however, and wrapped in `InfoTree.Context`
+  to store their metavariable context. -/
+def withoutModifyingElabMetaStateWithInfo (x : TermElabM α) : TermElabM α := do
+  let s ← get
+  let sMeta ← getThe Meta.State
+  try
+     withSaveInfoContext x
+  finally
+    modify ({ s with infoState := ·.infoState })
+    set sMeta
 
 unsafe def mkTermElabAttributeUnsafe : IO (KeyedDeclsAttribute TermElab) :=
   mkElabAttribute TermElab `Lean.Elab.Term.termElabAttribute `builtinTermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term"

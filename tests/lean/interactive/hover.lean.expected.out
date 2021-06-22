@@ -75,3 +75,14 @@
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 89, "character": 10}}
 null
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 93, "character": 8}}
+{"range":
+ {"start": {"line": 93, "character": 8}, "end": {"line": 93, "character": 10}},
+ "contents":
+ {"value": "```lean\nid : ∀ {α : Prop}, α → α\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 93, "character": 10}}
+{"range":
+ {"start": {"line": 93, "character": 8}, "end": {"line": 93, "character": 21}},
+ "contents": {"value": "```lean\nTrue\n```", "kind": "markdown"}}

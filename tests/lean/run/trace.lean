@@ -38,6 +38,8 @@ do traceCtx `module $ do {
    -- Messages are computed lazily. The following message will only be computed
    -- if `trace.slow is active.
    trace[slow] (m!"slow message: " ++ toString (slow b))
+   -- This is true even if it is a monad computation:
+   trace[slow] (m!"slow message: " ++ (← toString (slow b)))
 
 def run (x : M Unit) : M Unit :=
 withReader

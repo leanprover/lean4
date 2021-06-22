@@ -215,7 +215,7 @@ partial def reprint (stx : Syntax) : Option String :=
           -- given that choice nodes are quite rare and small
           let s0 ← reprint args[0]
           for arg in args[1:] do
-            let s' ← reprint stx
+            let s' ← reprint arg
             guard (s0 == s')
       | _ => pure ()
     return s

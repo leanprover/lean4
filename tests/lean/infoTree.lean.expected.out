@@ -3,7 +3,7 @@
     [.] `Nat : some Sort.{?_uniq.535} @ ⟨13, 11⟩-⟨13, 14⟩
     Nat : Type @ ⟨13, 11⟩-⟨13, 14⟩
   x : Nat @ ⟨13, 7⟩-⟨13, 8⟩
-  Nat × Nat : Type @ ⟨13, 18⟩-⟨13, 27⟩ @ myMacro._@.Init.Notation._hyg.2214
+  Nat × Nat : Type @ ⟨13, 18⟩-⟨13, 27⟩ @ myMacro._@.Init.Notation._hyg.2237
     Macro expansion
     Nat × Nat
     ===>
@@ -51,13 +51,13 @@
         [.] `Bool : some Sort.{?_uniq.573} @ ⟨17, 27⟩-⟨17, 31⟩
         Bool : Type @ ⟨17, 27⟩-⟨17, 31⟩
       b : Bool @ ⟨17, 23⟩-⟨17, 24⟩
-      x + 0 = x : Prop @ ⟨17, 35⟩-⟨17, 44⟩ @ myMacro._@.Init.Notation._hyg.8974
+      x + 0 = x : Prop @ ⟨17, 35⟩-⟨17, 44⟩ @ myMacro._@.Init.Notation._hyg.9038
         Macro expansion
         x + 0 = x
         ===>
         binrel% Eq✝ (x + 0)x
           x + 0 = x : Prop @ ⟨17, 35⟩†-⟨17, 44⟩ @ Lean.Elab.Term.elabBinRel
-            x + 0 : Nat @ ⟨17, 35⟩-⟨17, 40⟩ @ myMacro._@.Init.Notation._hyg.5474
+            x + 0 : Nat @ ⟨17, 35⟩-⟨17, 40⟩ @ myMacro._@.Init.Notation._hyg.5514
               Macro expansion
               x + 0
               ===>
@@ -170,7 +170,7 @@
             Prod.mk✝ (x + y) (x - y)
               (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩†-⟨23, 31⟩ @ Lean.Elab.Term.elabApp
                 Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 18⟩†-⟨23, 25⟩†
-                x + y : Nat @ ⟨23, 19⟩-⟨23, 24⟩ @ myMacro._@.Init.Notation._hyg.5474
+                x + y : Nat @ ⟨23, 19⟩-⟨23, 24⟩ @ myMacro._@.Init.Notation._hyg.5514
                   Macro expansion
                   x + y
                   ===>
@@ -180,7 +180,7 @@
                         x : Nat @ ⟨23, 19⟩-⟨23, 20⟩
                       y : Nat @ ⟨23, 23⟩-⟨23, 24⟩ @ Lean.Elab.Term.elabIdent
                         y : Nat @ ⟨23, 23⟩-⟨23, 24⟩
-                x - y : Nat @ ⟨23, 26⟩-⟨23, 31⟩ @ myMacro._@.Init.Notation._hyg.5569
+                x - y : Nat @ ⟨23, 26⟩-⟨23, 31⟩ @ myMacro._@.Init.Notation._hyg.5610
                   Macro expansion
                   x - y
                   ===>
@@ -209,7 +209,7 @@
             let z1 : Nat := z + w;
             z + z1 : Nat @ ⟨24, 4⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabLetDecl
               Nat : Type @ ⟨24, 8⟩-⟨24, 10⟩ @ Lean.Elab.Term.elabHole
-              z + w : Nat @ ⟨24, 14⟩-⟨24, 19⟩ @ myMacro._@.Init.Notation._hyg.5474
+              z + w : Nat @ ⟨24, 14⟩-⟨24, 19⟩ @ myMacro._@.Init.Notation._hyg.5514
                 Macro expansion
                 z + w
                 ===>
@@ -220,7 +220,7 @@
                     w : Nat @ ⟨24, 18⟩-⟨24, 19⟩ @ Lean.Elab.Term.elabIdent
                       w : Nat @ ⟨24, 18⟩-⟨24, 19⟩
               z1 : Nat @ ⟨24, 8⟩-⟨24, 10⟩
-              z + z1 : Nat @ ⟨25, 4⟩-⟨25, 10⟩ @ myMacro._@.Init.Notation._hyg.5474
+              z + z1 : Nat @ ⟨25, 4⟩-⟨25, 10⟩ @ myMacro._@.Init.Notation._hyg.5514
                 Macro expansion
                 z + z1
                 ===>
@@ -231,7 +231,7 @@
                     z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabIdent
                       z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩
 [Elab.info] command @ ⟨27, 0⟩-⟨28, 17⟩ @ Lean.Elab.Command.elabDeclaration
-  Nat × Array (Array Nat) : Type @ ⟨27, 12⟩-⟨27, 35⟩ @ myMacro._@.Init.Notation._hyg.2214
+  Nat × Array (Array Nat) : Type @ ⟨27, 12⟩-⟨27, 35⟩ @ myMacro._@.Init.Notation._hyg.2237
     Macro expansion
     Nat × Array (Array Nat)
     ===>

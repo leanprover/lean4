@@ -212,20 +212,16 @@ private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : Std.Persisten
   let s ← get
   let scope := s.scopes.head!
   let tree := InfoTree.node (Info.ofCommandInfo { elaborator, stx }) trees
-  let tree := InfoTree.context {
+  return InfoTree.context {
     env := s.env, fileMap := ctx.fileMap, mctx := {}, currNamespace := scope.currNamespace, openDecls := scope.openDecls, options := scope.opts
   } tree
-  trace[Elab.info] ← tree.format
-  return tree
 
 private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttribute.AttributeEntry CommandElab) → CommandElabM Unit
   | []                => throwError "unexpected syntax{indentD stx}"
   | (elabFn::elabFns) =>
     catchInternalId unsupportedSyntaxExceptionId
-      (do
-        withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.decl stx) <| elabFn.value stx
-        addTraceAsMessages)
-      (fun _ => do set s; addTraceAsMessages; elabCommandUsing s stx elabFns)
+      (withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.decl stx) <| elabFn.value stx)
+      (fun _ => do set s; elabCommandUsing s stx elabFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
 def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : CommandElabM α) : CommandElabM α :=
@@ -261,9 +257,7 @@ def withLogging (x : CommandElabM Unit) : CommandElabM Unit := do
 builtin_initialize registerTraceClass `Elab.command
 
 partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
-  let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
   withLogging <| withRef stx <| withIncRecDepth <| withFreshMacroScope do
-    runLinters stx
     match stx with
     | Syntax.node k args =>
       if k == nullKind then
@@ -283,13 +277,36 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
           | []      => throwError "elaboration function for '{k}' has not been implemented"
           | elabFns => elabCommandUsing s stx elabFns
     | _ => throwError "unexpected command"
+
+/--
+`elabCommand` wrapper that should be used for the initial invocation, not for recursive calls after
+macro expansion etc.
+-/
+def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do
+  let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
+  let initInfoTrees ← getResetInfoTrees
+  withLogging do
+    runLinters stx
+  -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
+  -- recovery more coarse. In particular, If `c` in `set_option ... in $c` fails, the remaining
+  -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
+  elabCommand stx
+
+  -- note the order: first process current messages & info trees, then add back old messages & trees,
+  -- then convert new traces to messages
   let mut msgs ← (← get).messages
   -- `stx.hasMissing` should imply `initMsgs.hasErrors`, but the latter should be cheaper to check in general
   if !showPartialSyntaxErrors.get (← getOptions) && initMsgs.hasErrors && stx.hasMissing then
     -- discard elaboration errors, except for a few important and unlikely misleading ones, on parse error
     msgs := ⟨msgs.msgs.filter fun msg =>
       msg.data.hasTag `Elab.synthPlaceholder || msg.data.hasTag `Tactic.unsolvedGoals⟩
-  modify ({ · with messages := initMsgs ++ msgs })
+  for tree in (← getInfoTrees) do
+    trace[Elab.info] (← tree.format)
+  modify fun st => { st with
+    messages := initMsgs ++ msgs
+    infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }
+  }
+  addTraceAsMessages
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
 def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab := fun stx => do

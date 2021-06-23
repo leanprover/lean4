@@ -201,9 +201,7 @@ macro_rules
     else
       `(%[ $elems,* | List.nil ])
 
--- TODO: should be `infix:50 " matches " => fun e p => match e with | p => true | _ => false`
-macro:50 e:term:51 " matches " p:term:51 : term =>
-  `(match $e:term with | $p:term => true | _ => false)
+notation:50 e:51 " matches " p:51 => match e with | p => true | _ => false
 
 namespace Parser.Tactic
 syntax (name := intro) "intro " notFollowedBy("|") (colGt term:max)* : tactic

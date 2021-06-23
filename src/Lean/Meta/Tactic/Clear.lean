@@ -21,7 +21,7 @@ def clear (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId :=
           throwTacticEx `clear mvarId m!"variable '{localDecl.toExpr}' depends on '{mkFVar fvarId}'"
     let mvarDecl ← getMVarDecl mvarId
     if mctx.exprDependsOn mvarDecl.type fvarId then
-      throwTacticEx `clear mvarId m!"taget depends on '{mkFVar fvarId}'"
+      throwTacticEx `clear mvarId m!"target depends on '{mkFVar fvarId}'"
     let lctx := lctx.erase fvarId
     let localInsts ← getLocalInstances
     let localInsts := match localInsts.findIdx? $ fun localInst => localInst.fvar.fvarId! == fvarId with

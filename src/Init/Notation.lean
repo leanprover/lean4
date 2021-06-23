@@ -204,42 +204,114 @@ macro_rules
 notation:50 e:51 " matches " p:51 => match e with | p => true | _ => false
 
 namespace Parser.Tactic
+/--
+Introduce one or more hypotheses, optionally naming and/or pattern-matching them.
+For each hypothesis to be introduced, the remaining main goal's target type must be a `let` or function type.
+* `intro` by itself introduces one anonymous hypothesis, which can be accessed by e.g. `assumption`.
+* `intro x y` introduces two hypotheses and names them. Individual hypotheses can be anonymized via `_`,
+  or matched against a pattern:
+  ```lean
+  -- ... ⊢ α × β → ...
+  intro (a, b)
+  -- ..., a : α, b : β ⊢ ...
+  ```
+* Alternatively, `intro` can be combined with pattern matching much like `fun`:
+  ```lean
+  intro
+  | n + 1, 0 => tac
+  | ...
+  ```
+-/
 syntax (name := intro) "intro " notFollowedBy("|") (colGt term:max)* : tactic
+/-- `intros x...` behaves like `intro x...`, but then keeps introducing (anonymous) hypotheses until goal is not of a function type. -/
 syntax (name := intros) "intros " (colGt (ident <|> "_"))* : tactic
+/--
+`rename t => x` renames the most recent hypothesis whose type matches `t` (which may contain placeholders) to `x`,
+or fails if no such hyptothesis could be found. -/
 syntax (name := rename) "rename " term " => " ident : tactic
+/-- `revert x...` is the inverse of `intro x...`: it moves the given hypotheses into the main goal's target type. -/
 syntax (name := revert) "revert " (colGt ident)+ : tactic
+/-- `clear x...` removes the given hypotheses, or fails if there are remaining references to a hypothesis. -/
 syntax (name := clear) "clear " (colGt ident)+ : tactic
+/--
+`subst x...` substitutes each `x` with `e` in the goal if there is a hypothesis of type `x = e` or `e = x`.
+If `x` is itself a hypothesis of type `y = e` or `e = y`, `y` is substituted instead. -/
 syntax (name := subst) "subst " (colGt ident)+ : tactic
+/--
+`assumption` tries to solve the main goal using a hypothesis of compatible type, or else fails.
+Note also the `‹t›` term notation, which is a shorthand for `show t by assumption`. -/
 syntax (name := assumption) "assumption" : tactic
+/--
+`contradiction` closes the main goal if its hypotheses are "trivially contradictory".
+```lean
+example (h : False) : p := by contradiction  -- inductive type/family with no applicable constructors
+example (h : none = some true) : p := by contradiction  -- injectivity of constructors
+example (h : 2 + 2 = 3) : p := by contradiction  -- decidable false proposition
+example (h : p) (h' : ¬ p) : q := by contradiction
+example (x : Nat) (h : x ≠ x) : p := by contradiction
+```
+-/
 syntax (name := contradiction) "contradiction" : tactic
+/--
+`apply e` tries to match the current goal against the conclusion of `e`'s type.
+If it succeeds, then the tactic returns as many subgoals as the number of premises that
+have not been fixed by type inference or type class resolution.
+Non-dependent premises are added before dependent ones.
+
+The `apply` tactic uses higher-order pattern matching, type class resolution, and first-order unification with dependent types.
+-/
 syntax (name := apply) "apply " term : tactic
+/--
+`exact e` closes the main goal if its target type matches that of `e`.
+-/
 syntax (name := exact) "exact " term : tactic
+/--
+`refine e` behaves like `exact e`, except that named (`?x`) or unnamed (`?_`) holes in `e` that are not solved
+by unification with the main goal's target type are converted into new goals, using the hole's name, if any, as the goal case name.
+-/
 syntax (name := refine) "refine " term : tactic
+/-- `refine' e` behaves like `refine e`, except that unsolved placeholders (`_`) and implicit parameters are also converted into new goals. -/
 syntax (name := refine') "refine' " term : tactic
+/-- If the main goal's target type is an inductive type, `constructor` solves it with the first matching constructor, or else fails. -/
 syntax (name := constructor) "constructor" : tactic
+/--
+`case tag => tac` focuses on the goal with case name `tag` and solves it using `tac`, or else fails.
+`case tag x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with inaccessible names to the given names. -/
 syntax (name := case) "case " ident (ident <|> "_")* " => " tacticSeq : tactic
+/-- `allGoals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
 syntax (name := allGoals) "allGoals " tacticSeq : tactic
+/--
+`focus tac` focuses on the main goal, suppressing all other goals, and runs `tac` on it.
+Usually `· tac`, which enforces that the goal is closed by `tac`, should be preferred. -/
 syntax (name := focus) "focus " tacticSeq : tactic
+/-- `skip` does nothing. -/
 syntax (name := skip) "skip" : tactic
+/-- `done` succeeds iff there are no remaining goals. -/
 syntax (name := done) "done" : tactic
 syntax (name := traceState) "traceState" : tactic
 syntax (name := failIfSuccess) "failIfSuccess " tacticSeq : tactic
+/--
+`generalize [h :] e = x` replaces all occurrences of the term `e` in the main goal with a fresh hypothesis `x`.
+If `h` is given, `h : e = x` is introduced as well. -/
 syntax (name := generalize) "generalize " atomic(ident " : ")? term:51 " = " ident : tactic
 syntax (name := paren) "(" tacticSeq ")" : tactic
 syntax (name := withReducible) "withReducible " tacticSeq : tactic
 syntax (name := withReducibleAndInstances) "withReducibleAndInstances " tacticSeq : tactic
+/-- `first | tac | ...` runs each `tac` until one succeeds, or else fails. -/
 syntax (name := first) "first " withPosition((group(colGe "|" tacticSeq))+) : tactic
 syntax (name := rotateLeft) "rotateLeft" (num)? : tactic
 syntax (name := rotateRight) "rotateRight" (num)? : tactic
+/-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
 macro "try " t:tacticSeq : tactic => `(first | $t | skip)
+/-- `tac <;> tac'` runs `tac` on the main goal and `tac'` on each produced goal, concatenating all goals produced by `tac'`. -/
 macro:1 x:tactic " <;> " y:tactic:0 : tactic => `(tactic| focus ($x:tactic; allGoals $y:tactic))
 
-syntax ("·" <|> ".") tacticSeq : tactic
-macro_rules
-  | `(tactic| ·%$dot $ts:tacticSeq) => `(tactic| {%$dot ($ts:tacticSeq) })
+/-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
+macro dot:("·" <|> ".") ts:tacticSeq : tactic => `(tactic| {%$dot ($ts:tacticSeq) })
 
-
+/-- `rfl` is a shorthand for `exact rfl`. -/
 macro "rfl" : tactic => `(exact rfl)
+/-- `admit` is a shorthand for `exact sorry`. -/
 macro "admit" : tactic => `(exact sorry)
 macro "inferInstance" : tactic => `(exact inferInstance)
 

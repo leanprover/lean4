@@ -96,7 +96,8 @@ rec {
           ln -sf ${leancpp}/lib/lean/libleancpp.* ${Leanpkg.modRoot}/* ${Lean.staticLib}/* ${Lean.modRoot}/* ${Std.staticLib}/* ${Std.modRoot}/* ${Init.staticLib}/* ${Init.modRoot}/* $out/lib/lean/
           # put everything in a single final derivation so `IO.appDir` references work
           cp ${lean}/bin/lean ${leanpkg}/bin/leanpkg $out/bin
-          for i in ${lean-bin-tools-unwrapped} ${leanc}; do
+          # NOTE: first `bin/leanc` wins in case of `lndir`
+          for i in ${leanc} ${lean-bin-tools-unwrapped}; do
             ${lndir}/bin/lndir -silent $i $out
           done
         '';

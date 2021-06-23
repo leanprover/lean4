@@ -227,7 +227,7 @@ syntax (name := intro) "intro " notFollowedBy("|") (colGt term:max)* : tactic
 syntax (name := intros) "intros " (colGt (ident <|> "_"))* : tactic
 /--
 `rename t => x` renames the most recent hypothesis whose type matches `t` (which may contain placeholders) to `x`,
-or fails if no such hyptothesis could be found. -/
+or fails if no such hypothesis could be found. -/
 syntax (name := rename) "rename " term " => " ident : tactic
 /-- `revert x...` is the inverse of `intro x...`: it moves the given hypotheses into the main goal's target type. -/
 syntax (name := revert) "revert " (colGt ident)+ : tactic

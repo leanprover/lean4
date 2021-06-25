@@ -5,104 +5,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Marc Huisinga
 -/
 import Lean.Data.Json.Basic
+import Lean.Data.Parsec
 
 namespace Lean
 
 open Std (RBNode RBNode.singleton RBNode.leaf)
 
-inductive Quickparse.Result (α : Type) where
-  | success (pos : String.Iterator) (res : α)    : Result α
-  | error (pos : String.Iterator) (err : String) : Result α
-
-def Quickparse (α : Type) : Type := String.Iterator → Lean.Quickparse.Result α
-
-instance (α : Type) : Inhabited (Quickparse α) :=
-  ⟨fun it => Quickparse.Result.error it ""⟩
-
-namespace Quickparse
-
-open Result
-
-partial def skipWs (it : String.Iterator) : String.Iterator :=
-  if it.hasNext then
-    let c := it.curr
-    if c = '\u0009' ∨ c = '\u000a' ∨ c = '\u000d' ∨ c = '\u0020' then
-      skipWs it.next
-    else
-      it
-  else
-   it
-
-@[inline]
-protected def pure (a : α) : Quickparse α := fun it =>
-  success it a
-
-@[inline]
-protected def bind {α β : Type} (f : Quickparse α) (g : α → Quickparse β) : Quickparse β := fun it =>
-  match f it with
-  | success rem a => g a rem
-  | error pos msg => error pos msg
-
-@[inline]
-def fail (msg : String) : Quickparse α := fun it =>
-  error it msg
-
-@[inline]
-instance : Monad Quickparse :=
-  { pure := @Quickparse.pure, bind := @Quickparse.bind }
-
-def unexpectedEndOfInput := "unexpected end of input"
-
-@[inline]
-def peek? : Quickparse (Option Char) := fun it =>
-  if it.hasNext then
-    success it it.curr
-  else
-    success it none
-
-@[inline]
-def peek! : Quickparse Char := do
-  let some c ← peek? | fail unexpectedEndOfInput
-  c
-
-@[inline]
-def skip : Quickparse Unit := fun it =>
-  success it.next ()
-
-@[inline]
-def next : Quickparse Char := do
-  let c ← peek!
-  skip
-  c
-
-def expect (s : String) : Quickparse Unit := fun it =>
-  if it.extract (it.forward s.length) = s then
-    success (it.forward s.length) ()
-  else
-    error it s!"expected: {s}"
-
-@[inline]
-def ws : Quickparse Unit := fun it =>
-  success (skipWs it) ()
-
-def expectedEndOfInput := "expected end of input"
-
-@[inline]
-def eoi : Quickparse Unit := fun it =>
-  if it.hasNext then
-    error it expectedEndOfInput
-  else
-    success it ()
-
-end Quickparse
-
 namespace Json.Parser
 
-open Quickparse
+open Lean.Parsec
 
 @[inline]
-def hexChar : Quickparse Nat := do
-  let c ← next
+def hexChar : Parsec Nat := do
+  let c ← anyChar
   if '0' ≤ c ∧ c ≤ '9' then
     pure $ c.val.toNat - '0'.val.toNat
   else if 'a' ≤ c ∧ c ≤ 'f' then
@@ -112,8 +27,8 @@ def hexChar : Quickparse Nat := do
   else
     fail "invalid hex character"
 
-def escapedChar : Quickparse Char := do
-  let c ← next
+def escapedChar : Parsec Char := do
+  let c ← anyChar
   match c with
   | '\\' => '\\'
   | '"'  => '"'
@@ -128,13 +43,13 @@ def escapedChar : Quickparse Char := do
     Char.ofNat $ 4096*u1 + 256*u2 + 16*u3 + u4
   | _ => fail "illegal \\u escape"
 
-partial def strCore (acc : String) : Quickparse String := do
+partial def strCore (acc : String) : Parsec String := do
   let c ← peek!
   if c = '"' then -- "
     skip
     acc
   else
-    let c ← next
+    let c ← anyChar
     let ec ←
       if c = '\\' then
         escapedChar
@@ -147,9 +62,9 @@ partial def strCore (acc : String) : Quickparse String := do
         fail "unexpected character in string"
     strCore (acc.push ec)
 
-def str : Quickparse String := strCore ""
+def str : Parsec String := strCore ""
 
-partial def natCore (acc digits : Nat) : Quickparse (Nat × Nat) := do
+partial def natCore (acc digits : Nat) : Parsec (Nat × Nat) := do
   let some c ← peek? | (acc, digits)
   if '0' ≤ c ∧ c ≤ '9' then
     skip
@@ -159,7 +74,7 @@ partial def natCore (acc digits : Nat) : Quickparse (Nat × Nat) := do
     (acc, digits)
 
 @[inline]
-def lookahead (p : Char → Prop) (desc : String) [DecidablePred p] : Quickparse Unit := do
+def lookahead (p : Char → Prop) (desc : String) [DecidablePred p] : Parsec Unit := do
   let c ← peek!
   if p c then
     ()
@@ -167,22 +82,22 @@ def lookahead (p : Char → Prop) (desc : String) [DecidablePred p] : Quickparse
     fail $ "expected " ++ desc
 
 @[inline]
-def natNonZero : Quickparse Nat := do
+def natNonZero : Parsec Nat := do
   lookahead (fun c => '1' ≤ c ∧ c ≤ '9') "1-9"
   let (n, _) ← natCore 0 0
   n
 
 @[inline]
-def natNumDigits : Quickparse (Nat × Nat) := do
+def natNumDigits : Parsec (Nat × Nat) := do
   lookahead (fun c => '0' ≤ c ∧ c ≤ '9') "digit"
   natCore 0 0
 
 @[inline]
-def natMaybeZero : Quickparse Nat := do
+def natMaybeZero : Parsec Nat := do
   let (n, _) ← natNumDigits
   n
 
-def num : Quickparse JsonNumber := do
+def num : Parsec JsonNumber := do
   let c ← peek!
   let sign : Int ←
     if c = '-' then
@@ -224,10 +139,10 @@ def num : Quickparse JsonNumber := do
   else
     res
 
-partial def arrayCore (anyCore : Unit → Quickparse Json) (acc : Array Json) : Quickparse (Array Json) := do
+partial def arrayCore (anyCore : Unit → Parsec Json) (acc : Array Json) : Parsec (Array Json) := do
   let hd ← anyCore ()
   let acc' := acc.push hd
-  let c ← next
+  let c ← anyChar
   if c = ']' then
     ws
     acc'
@@ -237,12 +152,12 @@ partial def arrayCore (anyCore : Unit → Quickparse Json) (acc : Array Json) : 
   else
     fail "unexpected character in array"
 
-partial def objectCore (anyCore : Unit → Quickparse Json) : Quickparse (RBNode String (fun _ => Json)) := do
+partial def objectCore (anyCore : Unit → Parsec Json) : Parsec (RBNode String (fun _ => Json)) := do
   lookahead (fun c => c = '"') "\""; skip; -- "
   let k ← strCore ""; ws
   lookahead (fun c => c = ':') ":"; skip; ws
   let v ← anyCore ()
-  let c ← next
+  let c ← anyChar
   if c = '}' then
     ws
     RBNode.singleton k v
@@ -255,7 +170,7 @@ partial def objectCore (anyCore : Unit → Quickparse Json) : Quickparse (RBNode
 
 -- takes a unit parameter so that
 -- we can use the equation compiler and recursion
-partial def anyCore (u : Unit) : Quickparse Json := do
+partial def anyCore (u : Unit) : Parsec Json := do
   let c ← peek!
   if c = '[' then
     skip; ws
@@ -281,13 +196,13 @@ partial def anyCore (u : Unit) : Quickparse Json := do
     ws
     Json.str s
   else if c = 'f' then
-    expect "false"; ws
+    skipString "false"; ws
     Json.bool false
   else if c = 't' then
-    expect "true"; ws
+    skipString "true"; ws
     Json.bool true
   else if c = 'n' then
-    expect "null"; ws
+    skipString "null"; ws
     Json.null
   else if c = '-' ∨ ('0' ≤ c ∧ c ≤ '9') then
     let n ← num
@@ -297,10 +212,10 @@ partial def anyCore (u : Unit) : Quickparse Json := do
     fail "unexpected input"
 
 
-def any : Quickparse Json := do
+def any : Parsec Json := do
   ws
   let res ← anyCore ()
-  eoi
+  eof
   res
 
 end Json.Parser
@@ -309,8 +224,8 @@ namespace Json
 
 def parse (s : String) : Except String Lean.Json :=
   match Json.Parser.any s.mkIterator with
-  | Quickparse.Result.success _ res => Except.ok res
-  | Quickparse.Result.error it err  => Except.error s!"offset {it.i.repr}: {err}"
+  | Parsec.ParseResult.success _ res => Except.ok res
+  | Parsec.ParseResult.error it err  => Except.error s!"offset {it.i.repr}: {err}"
 
 end Json
 

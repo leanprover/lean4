@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
 import Lean.Data.Format
+import Lean.Data.Parsec
 import Lean.Data.Json
+import Lean.Data.Xml
 import Lean.Data.JsonRpc
 import Lean.Data.KVMap
 import Lean.Data.LBool

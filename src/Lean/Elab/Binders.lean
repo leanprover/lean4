@@ -183,7 +183,7 @@ def elabBinders {α} (binders : Array Syntax) (k : Array Expr → TermElabM α) 
     else
       elabBindersAux binders k
 
-@[inline] def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
+def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
   elabBinders #[binder] fun fvars => x fvars[0]
 
 @[builtinTermElab «forall»] def elabForall : TermElab := fun stx _ =>

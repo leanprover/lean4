@@ -580,7 +580,7 @@ def expandMacroArgIntoPattern (stx : Syntax) : MacroM Syntax := do
 builtin_initialize
   registerTraceClass `Elab.syntax
 
-@[inline] def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr) : TermElabM Expr := do
+def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr) : TermElabM Expr := do
   Term.tryPostponeIfNoneOrMVar expectedType?
   let some expectedType ← pure expectedType?
     | throwError "expected type must be known"

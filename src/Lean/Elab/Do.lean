@@ -231,7 +231,7 @@ partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
   loop codeBlock.code
 
 /- Return true if the give code contains an exit point that satisfies `p` -/
-@[inline] partial def hasExitPointPred (c : Code) (p : Code → Bool) : Bool :=
+partial def hasExitPointPred (c : Code) (p : Code → Bool) : Bool :=
   let rec loop : Code → Bool
     | Code.decl _ _ k           => loop k
     | Code.reassign _ _ k       => loop k
@@ -1142,7 +1142,7 @@ structure Context where
 
 abbrev M := ReaderT Context TermElabM
 
-@[inline] def withNewMutableVars {α} (newVars : Array Name) (mutable : Bool) (x : M α) : M α :=
+def withNewMutableVars {α} (newVars : Array Name) (mutable : Bool) (x : M α) : M α :=
   withReader (fun ctx => if mutable then { ctx with mutableVars := insertVars ctx.mutableVars newVars } else ctx) x
 
 def checkReassignable (xs : Array Name) : M Unit := do
@@ -1161,7 +1161,7 @@ def checkNotShadowingMutable (xs : Array Name) : M Unit := do
     if ctx.mutableVars.contains x then
       throwInvalidShadowing x
 
-@[inline] def withFor {α} (x : M α) : M α :=
+def withFor {α} (x : M α) : M α :=
   withReader (fun ctx => { ctx with insideFor := true }) x
 
 structure ToForInTermResult where

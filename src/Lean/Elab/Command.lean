@@ -177,7 +177,7 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
 protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
 protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
 
-@[inline] protected def withFreshMacroScope {α} (x : CommandElabM α) : CommandElabM α := do
+protected def withFreshMacroScope {α} (x : CommandElabM α) : CommandElabM α := do
   let fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }))
   withReader (fun ctx => { ctx with currMacroScope := fresh }) x
 
@@ -228,7 +228,7 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttrib
       (fun _ => do set s; addTraceAsMessages; elabCommandUsing s stx elabFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
-@[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : CommandElabM α) : CommandElabM α :=
+def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : CommandElabM α) : CommandElabM α :=
   withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 instance : MonadMacroAdapter CommandElabM where
@@ -246,7 +246,7 @@ register_builtin_option showPartialSyntaxErrors : Bool := {
   descr    := "show elaboration errors from partial syntax trees (i.e. after parser recovery)"
 }
 
-@[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit := do
+def withLogging (x : CommandElabM Unit) : CommandElabM Unit := do
   try
     x
   catch ex => match ex with
@@ -449,7 +449,7 @@ private def popScopes (numScopes : Nat) : CommandElabM Unit :=
       addCompletionInfo <| CompletionInfo.endSection stx (scopes.map fun scope => scope.header)
       throwError "invalid 'end', name mismatch"
 
-@[inline] def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
+def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
   addNamespace ns
   let a ← elabFn
   modify fun s => { s with scopes := s.scopes.drop ns.getNumParts }

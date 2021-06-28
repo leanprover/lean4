@@ -230,7 +230,7 @@ def getMessageLog : TermElabM MessageLog :=
   We use `observing` to implement overloaded notation and decls.
   We want to save `Info` nodes for the chosen alternative.
 -/
-@[inline] def observing (x : TermElabM α) : TermElabM (TermElabResult α) := do
+def observing (x : TermElabM α) : TermElabM (TermElabResult α) := do
   let s ← saveState
   try
     let e ← x
@@ -250,7 +250,7 @@ def getMessageLog : TermElabM MessageLog :=
 /--
   Apply the result/exception and state captured with `observing`.
   We use this method to implement overloaded notation and symbols. -/
-@[inline] def applyResult (result : TermElabResult α) : TermElabM α :=
+def applyResult (result : TermElabResult α) : TermElabM α :=
   match result with
   | EStateM.Result.ok a r     => do r.restore (restoreInfo := true); pure a
   | EStateM.Result.error ex r => do r.restore (restoreInfo := true); throw ex
@@ -292,7 +292,7 @@ instance : MonadLog TermElabM where
 protected def getCurrMacroScope : TermElabM MacroScope := do pure (← read).currMacroScope
 protected def getMainModule     : TermElabM Name := do pure (← getEnv).mainModule
 
-@[inline] protected def withFreshMacroScope (x : TermElabM α) : TermElabM α := do
+protected def withFreshMacroScope (x : TermElabM α) : TermElabM α := do
   let fresh ← modifyGetThe Core.State (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }))
   withReader (fun ctx => { ctx with currMacroScope := fresh }) x
 
@@ -382,8 +382,8 @@ def throwErrorIfErrors : TermElabM Unit := do
   if (← get).messages.hasErrors then
     throwError "Error(s)"
 
-@[inline] def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=
-withRef Syntax.missing $ trace cls msg
+def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=
+  withRef Syntax.missing $ trace cls msg
 
 def ppGoal (mvarId : MVarId) : TermElabM Format :=
   Meta.ppGoal mvarId
@@ -403,7 +403,7 @@ def elabLevel (stx : Syntax) : TermElabM Level :=
   liftLevelM $ Level.elabLevel stx
 
 /- Elaborate `x` with `stx` on the macro stack -/
-@[inline] def withMacroExpansion (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
+def withMacroExpansion (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
   withMacroExpansionInfo beforeStx afterStx do
     withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
@@ -499,7 +499,7 @@ def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
 /-
   Execute `x` without allowing it to postpone elaboration tasks.
   That is, `tryPostpone` is a noop. -/
-@[inline] def withoutPostponing (x : TermElabM α) : TermElabM α :=
+def withoutPostponing (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with mayPostpone := false }) x
 
 /-- Creates syntax for `(` <ident> `:` <type> `)` -/
@@ -587,7 +587,7 @@ def throwTypeMismatchError (header? : Option String) (expectedType : Expr) (eTyp
   | none   => throwError "{← mkTypeMismatchError header? e eType expectedType}{extraMsg}"
   | some f => Meta.throwAppTypeMismatch f e extraMsg
 
-@[inline] def withoutMacroStackAtErr (x : TermElabM α) : TermElabM α :=
+def withoutMacroStackAtErr (x : TermElabM α) : TermElabM α :=
   withTheReader Core.Context (fun (ctx : Core.Context) => { ctx with options := pp.macroStack.set ctx.options false }) x
 
 /- Try to synthesize metavariable using type class resolution.
@@ -1424,7 +1424,7 @@ private def mkSomeContext : Context := {
   fileMap       := arbitrary
 }
 
-@[inline] def TermElabM.run (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM (α × State) :=
+def TermElabM.run (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM (α × State) :=
   withConfig setElabConfig (x ctx |>.run s)
 
 @[inline] def TermElabM.run' (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM α :=

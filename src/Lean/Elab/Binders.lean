@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Elab.Quotation.Precheck
 import Lean.Elab.Term
+import Lean.Elab.BindersUtil
 import Lean.Parser.Term
 
 namespace Lean.Elab.Term
@@ -100,19 +101,6 @@ private def getBinderIds (ids : Syntax) : TermElabM (Array Syntax) :=
       return id
     else
       throwErrorAt id "identifier or `_` expected"
-
-/-
-  Recall that
-  ```
-  def typeSpec := leading_parser " : " >> termParser
-  def optType : Parser := optional typeSpec
-  ```
--/
-def expandOptType (ref : Syntax) (optType : Syntax) : Syntax :=
-  if optType.isNone then
-    mkHole ref
-  else
-    optType[0][1]
 
 private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) := do
   let k := stx.getKind

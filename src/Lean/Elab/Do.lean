@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.Term
-import Lean.Elab.Binders
+import Lean.Elab.BindersUtil
 import Lean.Elab.PatternVar
 import Lean.Elab.Quotation.Util
 import Lean.Parser.Do

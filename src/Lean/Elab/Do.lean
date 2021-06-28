@@ -232,7 +232,7 @@ partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
 
 /- Return true if the give code contains an exit point that satisfies `p` -/
 @[inline] partial def hasExitPointPred (c : Code) (p : Code → Bool) : Bool :=
-  let rec @[specialize] loop : Code → Bool
+  let rec loop : Code → Bool
     | Code.decl _ _ k           => loop k
     | Code.reassign _ _ k       => loop k
     | Code.joinpoint _ _ b k    => loop b || loop k

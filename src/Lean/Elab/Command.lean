@@ -455,7 +455,7 @@ private def popScopes (numScopes : Nat) : CommandElabM Unit :=
   modify fun s => { s with scopes := s.scopes.drop ns.getNumParts }
   pure a
 
-@[specialize] def modifyScope (f : Scope → Scope) : CommandElabM Unit :=
+def modifyScope (f : Scope → Scope) : CommandElabM Unit :=
   modify fun s => { s with
     scopes := match s.scopes with
       | h::t => f h :: t

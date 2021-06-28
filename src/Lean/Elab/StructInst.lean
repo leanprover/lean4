@@ -422,7 +422,7 @@ private def mkSubstructSource (structName : Name) (fieldNames : Array Name) (fie
     return Source.explicit stx (mkProj structName idx src)
   | s => return s
 
-@[specialize] private def groupFields (expandStruct : Struct → TermElabM Struct) (s : Struct) : TermElabM Struct := do
+private def groupFields (expandStruct : Struct → TermElabM Struct) (s : Struct) : TermElabM Struct := do
   let env ← getEnv
   let fieldNames := getStructureFields env s.structName
   withRef s.ref do
@@ -455,7 +455,7 @@ def findField? (fields : Fields) (fieldName : Name) : Option (Field Struct) :=
     | [FieldLHS.fieldName _ n] => n == fieldName
     | _                        => false
 
-@[specialize] private def addMissingFields (expandStruct : Struct → TermElabM Struct) (s : Struct) : TermElabM Struct := do
+private def addMissingFields (expandStruct : Struct → TermElabM Struct) (s : Struct) : TermElabM Struct := do
   let env ← getEnv
   let fieldNames := getStructureFields env s.structName
   let ref := s.ref

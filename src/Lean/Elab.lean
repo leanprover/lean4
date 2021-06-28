@@ -30,3 +30,4 @@ import Lean.Elab.DeclarationRange
 import Lean.Elab.Extra
 import Lean.Elab.GenInjective
 import Lean.Elab.BuiltinTerm
+import Lean.Elab.Arg

@@ -8,6 +8,7 @@ import Lean.Parser.Term
 import Lean.Elab.Term
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
+import Lean.Elab.Arg
 
 namespace Lean.Elab.Term
 open Meta
@@ -18,24 +19,9 @@ builtin_initialize elabWithoutExpectedTypeAttr : TagAttribute ←
 def hasElabWithoutExpectedType (env : Environment) (declName : Name) : Bool :=
   elabWithoutExpectedTypeAttr.hasTag env declName
 
-/--
-  Auxiliary inductive datatype for combining unelaborated syntax
-  and already elaborated expressions. It is used to elaborate applications. -/
-inductive Arg where
-  | stx  (val : Syntax)
-  | expr (val : Expr)
-  deriving Inhabited
-
 instance : ToString Arg := ⟨fun
   | Arg.stx  val => toString val
   | Arg.expr val => toString val⟩
-
-/-- Named arguments created using the notation `(x := val)` -/
-structure NamedArg where
-  ref  : Syntax := Syntax.missing
-  name : Name
-  val  : Arg
-  deriving Inhabited
 
 instance : ToString NamedArg where
   toString s := "(" ++ toString s.name ++ " := " ++ toString s.val ++ ")"
@@ -44,14 +30,6 @@ def throwInvalidNamedArg {α} (namedArg : NamedArg) (fn? : Option Name) : TermEl
   withRef namedArg.ref <| match fn? with
     | some fn => throwError "invalid argument name '{namedArg.name}' for function '{fn}'"
     | none    => throwError "invalid argument name '{namedArg.name}' for function"
-
-/--
-  Add a new named argument to `namedArgs`, and throw an error if it already contains a named argument
-  with the same name. -/
-def addNamedArg (namedArgs : Array NamedArg) (namedArg : NamedArg) : TermElabM (Array NamedArg) := do
-  if namedArgs.any (namedArg.name == ·.name) then
-    throwError "argument '{namedArg.name}' was already set"
-  return namedArgs.push namedArg
 
 private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermElabM Expr := do
   let argType ← inferType arg
@@ -899,31 +877,6 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
       throwErrorAt f "ambiguous, possible interpretations {toMessageList msgs}"
     else
       withRef f <| mergeFailures candidates
-
-partial def expandArgs (args : Array Syntax) (pattern := false) : TermElabM (Array NamedArg × Array Arg × Bool) := do
-  let (args, ellipsis) :=
-    if args.isEmpty then
-      (args, false)
-    else if args.back.isOfKind ``Lean.Parser.Term.ellipsis then
-      (args.pop, true)
-    else
-      (args, false)
-  let (namedArgs, args) ← args.foldlM (init := (#[], #[])) fun (namedArgs, args) stx => do
-    if stx.getKind == ``Lean.Parser.Term.namedArgument then
-      -- trailing_tparser try ("(" >> ident >> " := ") >> termParser >> ")"
-      let name := stx[1].getId.eraseMacroScopes
-      let val  := stx[3]
-      let namedArgs ← addNamedArg namedArgs { ref := stx, name := name, val := Arg.stx val }
-      return (namedArgs, args)
-    else if stx.getKind == ``Lean.Parser.Term.ellipsis then
-      throwErrorAt stx "unexpected '..'"
-    else
-      return (namedArgs, args.push $ Arg.stx stx)
-  return (namedArgs, args, ellipsis)
-
-def expandApp (stx : Syntax) (pattern := false) : TermElabM (Syntax × Array NamedArg × Array Arg × Bool) := do
-  let (namedArgs, args, ellipsis) ← expandArgs stx[1].getArgs
-  return (stx[0], namedArgs, args, ellipsis)
 
 @[builtinTermElab app] def elabApp : TermElab := fun stx expectedType? =>
   withoutPostponingUniverseConstraints do

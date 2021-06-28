@@ -9,7 +9,7 @@ import Lean.Meta.Match.Match
 import Lean.Meta.SortLocalDecls
 import Lean.Meta.GeneralizeVars
 import Lean.Elab.SyntheticMVars
-import Lean.Elab.App
+import Lean.Elab.Arg
 import Lean.Parser.Term
 
 namespace Lean.Elab.Term

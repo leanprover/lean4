@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Elab.Term
 import Lean.Elab.Binders
-import Lean.Elab.Match
+import Lean.Elab.PatternVar
 import Lean.Elab.Quotation.Util
 import Lean.Parser.Do
 

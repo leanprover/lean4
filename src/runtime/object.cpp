@@ -42,14 +42,21 @@ extern "C" void lean_internal_panic_rc_overflow() {
 }
 
 bool g_exit_on_panic = false;
+bool g_panic_messages = true;
 
 extern "C" void lean_set_exit_on_panic(bool flag) {
     g_exit_on_panic = flag;
 }
 
+extern "C" void lean_set_panic_messages(bool flag) {
+    g_panic_messages = flag;
+}
+
 extern "C" object * lean_panic_fn(object * default_val, object * msg) {
     // TODO(Leo, Kha): add thread local buffer for interpreter.
-    std::cerr << lean_string_cstr(msg) << "\n";
+    if (g_panic_messages) {
+        std::cerr << lean_string_cstr(msg) << "\n";
+    }
     if (g_exit_on_panic) {
         std::exit(1);
     }

@@ -293,6 +293,9 @@ static inline lean_object * lean_box(size_t n) { return (lean_object*)(((size_t)
 static inline size_t lean_unbox(lean_object * o) { return (size_t)(o) >> 1; }
 
 void lean_set_exit_on_panic(bool flag);
+/* Enable/disable panic messages */
+void lean_set_panic_messages(bool flag);
+
 lean_object * lean_panic_fn(lean_object * default_val, lean_object * msg);
 
 __attribute__((noreturn)) void lean_internal_panic(char const * msg);

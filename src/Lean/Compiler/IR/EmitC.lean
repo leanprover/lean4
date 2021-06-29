@@ -158,7 +158,11 @@ def emitMainFn : M Unit := do
     else
       emitLn "lean_initialize_runtime_module();"
     let modName ← getModName
+    /- We disable panic messages because they do not mesh well with extracted closed terms.
+       See issue #534. We can remove this workaround after we implement issue #467. -/
+    emitLn "lean_set_panic_messages(false);"
     emitLn ("res = " ++ mkModuleInitializationFunctionName modName ++ "(lean_io_mk_world());")
+    emitLn "lean_set_panic_messages(true);"
     emitLns ["lean_io_mark_end_initialization();",
              "if (lean_io_result_is_ok(res)) {",
              "lean_dec_ref(res);",

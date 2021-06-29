@@ -17,6 +17,7 @@ lean_object* l_Lean_IR_CtorInfo_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_getValue___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_body___boxed(lean_object*);
 size_t l_USize_add(size_t, size_t);
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_631____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Decl_updateBody_x21___closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_IR_reshapeAux(lean_object*, lean_object*, lean_object*);
@@ -119,7 +120,6 @@ lean_object* l_Std_RBNode_find___at_Lean_IR_LocalContext_isJP___spec__1(lean_obj
 lean_object* l_Std_RBNode_del___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__2(lean_object*, lean_object*);
 uint8_t l_Lean_IR_args_alphaEqv(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671____at_Lean_IR_IRType_beq___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_reshapeAux___closed__4;
 uint8_t l_Lean_IR_VarId_alphaEqv(lean_object*, lean_object*, lean_object*);
 lean_object* lean_ir_mk_fapp_expr(lean_object*, lean_object*);
@@ -166,6 +166,7 @@ lean_object* l_Lean_IR_LocalContext_getValue(lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_addParam(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_body_match__1(lean_object*);
 lean_object* l_Nat_repr(lean_object*);
+lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_631____at_Lean_IR_IRType_beq___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_IRType_isObj___boxed(lean_object*);
 lean_object* l_Lean_IR_AltCore_body_match__1(lean_object*);
 uint8_t l_Lean_IR_IRType_beq(lean_object*, lean_object*);
@@ -257,7 +258,6 @@ lean_object* l_Lean_IR_IRType_isUnion_match__1___rarg(lean_object*, lean_object*
 lean_object* l_Lean_IR_LocalContext_isJP___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_mkIf___closed__2;
 static lean_object* l_Lean_IR_mkIf___closed__1;
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_mkIndexSet(lean_object*);
 lean_object* l_Lean_IR_reshape(lean_object*, lean_object*);
 lean_object* l_Lean_IR_instAlphaEqvVarId;
@@ -866,7 +866,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_IR_IRType_beq_match__1___rarg), 14, 0);
 return x_2;
 }
 }
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671____at_Lean_IR_IRType_beq___spec__1(lean_object* x_1, lean_object* x_2) {
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_631____at_Lean_IR_IRType_beq___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1135,7 +1135,7 @@ x_21 = lean_ctor_get(x_1, 0);
 x_22 = lean_ctor_get(x_1, 1);
 x_23 = lean_ctor_get(x_2, 0);
 x_24 = lean_ctor_get(x_2, 1);
-x_25 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671____at_Lean_IR_IRType_beq___spec__1(x_21, x_23);
+x_25 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_631____at_Lean_IR_IRType_beq___spec__1(x_21, x_23);
 if (x_25 == 0)
 {
 uint8_t x_26; 
@@ -1221,11 +1221,11 @@ return x_46;
 }
 }
 }
-lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671____at_Lean_IR_IRType_beq___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_631____at_Lean_IR_IRType_beq___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_671____at_Lean_IR_IRType_beq___spec__1(x_1, x_2);
+x_3 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_631____at_Lean_IR_IRType_beq___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);

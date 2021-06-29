@@ -48,7 +48,6 @@ static lean_object* l_Lean_Elab_Level_elabLevel___closed__19;
 lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___lambda__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_231____spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__22;
 lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -61,6 +60,7 @@ extern lean_object* l_Lean_numLitKind;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_mkFreshLevelMVar(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM___closed__1;
+lean_object* l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_225____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_maxUniverseOffset;
 static lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_213____closed__2;
 static lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_213____closed__1;
@@ -845,7 +845,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = l_Lean_Elab_Level_maxUniverseOffset;
-x_6 = l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_231____spec__1(x_4, x_5);
+x_6 = l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_225____spec__1(x_4, x_5);
 x_7 = lean_nat_dec_le(x_1, x_6);
 if (x_7 == 0)
 {
@@ -1006,7 +1006,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = l_Lean_Elab_Level_maxUniverseOffset;
-x_6 = l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_231____spec__1(x_4, x_5);
+x_6 = l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_225____spec__1(x_4, x_5);
 x_7 = lean_nat_dec_le(x_1, x_6);
 if (x_7 == 0)
 {

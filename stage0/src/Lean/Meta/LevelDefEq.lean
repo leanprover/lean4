@@ -104,6 +104,7 @@ mutual
         return LBool.true
       else
         return LBool.undef
+    | _, Level.mvar .. => LBool.undef -- Let `solve v u` to handle this case
     | Level.zero _, Level.max v₁ v₂ _ =>
       Bool.toLBool <$> (isLevelDefEqAux levelZero v₁ <&&> isLevelDefEqAux levelZero v₂)
     | Level.zero _, Level.imax _ v₂ _ =>

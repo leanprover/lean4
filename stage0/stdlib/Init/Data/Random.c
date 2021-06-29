@@ -83,10 +83,10 @@ lean_object* lean_string_length(lean_object*);
 lean_object* l_stdSplit(lean_object*);
 static lean_object* l_stdNext___closed__7;
 lean_object* lean_int_add(lean_object*, lean_object*);
+static lean_object* l_initFn____x40_Init_Data_Random___hyg_631____closed__1;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
-static lean_object* l_initFn____x40_Init_Data_Random___hyg_630____closed__1;
 lean_object* l_IO_mkRef___rarg(lean_object*, lean_object*);
-lean_object* l_initFn____x40_Init_Data_Random___hyg_630_(lean_object*);
+lean_object* l_initFn____x40_Init_Data_Random___hyg_631_(lean_object*);
 lean_object* l_instReprStdGen(lean_object*, lean_object*);
 lean_object* l_instInhabitedStdGen;
 lean_object* l_IO_rand_match__1(lean_object*);
@@ -1449,7 +1449,7 @@ x_2 = lean_alloc_closure((void*)(l_randBool___rarg), 2, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_initFn____x40_Init_Data_Random___hyg_630____closed__1() {
+static lean_object* _init_l_initFn____x40_Init_Data_Random___hyg_631____closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1458,11 +1458,11 @@ x_2 = l_mkStdGen(x_1);
 return x_2;
 }
 }
-lean_object* l_initFn____x40_Init_Data_Random___hyg_630_(lean_object* x_1) {
+lean_object* l_initFn____x40_Init_Data_Random___hyg_631_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_initFn____x40_Init_Data_Random___hyg_630____closed__1;
+x_2 = l_initFn____x40_Init_Data_Random___hyg_631____closed__1;
 x_3 = l_IO_mkRef___rarg(x_2, x_1);
 return x_3;
 }
@@ -1979,9 +1979,9 @@ l_instRandomGenStdGen___closed__4 = _init_l_instRandomGenStdGen___closed__4();
 lean_mark_persistent(l_instRandomGenStdGen___closed__4);
 l_instRandomGenStdGen = _init_l_instRandomGenStdGen();
 lean_mark_persistent(l_instRandomGenStdGen);
-l_initFn____x40_Init_Data_Random___hyg_630____closed__1 = _init_l_initFn____x40_Init_Data_Random___hyg_630____closed__1();
-lean_mark_persistent(l_initFn____x40_Init_Data_Random___hyg_630____closed__1);
-res = l_initFn____x40_Init_Data_Random___hyg_630_(lean_io_mk_world());
+l_initFn____x40_Init_Data_Random___hyg_631____closed__1 = _init_l_initFn____x40_Init_Data_Random___hyg_631____closed__1();
+lean_mark_persistent(l_initFn____x40_Init_Data_Random___hyg_631____closed__1);
+res = l_initFn____x40_Init_Data_Random___hyg_631_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_IO_stdGenRef = lean_io_result_get_value(res);
 lean_mark_persistent(l_IO_stdGenRef);

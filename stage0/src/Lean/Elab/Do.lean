@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.Term
-import Lean.Elab.Binders
-import Lean.Elab.Match
+import Lean.Elab.BindersUtil
+import Lean.Elab.PatternVar
 import Lean.Elab.Quotation.Util
 import Lean.Parser.Do
 
@@ -231,8 +231,8 @@ partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
   loop codeBlock.code
 
 /- Return true if the give code contains an exit point that satisfies `p` -/
-@[inline] partial def hasExitPointPred (c : Code) (p : Code → Bool) : Bool :=
-  let rec @[specialize] loop : Code → Bool
+partial def hasExitPointPred (c : Code) (p : Code → Bool) : Bool :=
+  let rec loop : Code → Bool
     | Code.decl _ _ k           => loop k
     | Code.reassign _ _ k       => loop k
     | Code.joinpoint _ _ b k    => loop b || loop k
@@ -1142,7 +1142,7 @@ structure Context where
 
 abbrev M := ReaderT Context TermElabM
 
-@[inline] def withNewMutableVars {α} (newVars : Array Name) (mutable : Bool) (x : M α) : M α :=
+def withNewMutableVars {α} (newVars : Array Name) (mutable : Bool) (x : M α) : M α :=
   withReader (fun ctx => if mutable then { ctx with mutableVars := insertVars ctx.mutableVars newVars } else ctx) x
 
 def checkReassignable (xs : Array Name) : M Unit := do
@@ -1161,7 +1161,7 @@ def checkNotShadowingMutable (xs : Array Name) : M Unit := do
     if ctx.mutableVars.contains x then
       throwInvalidShadowing x
 
-@[inline] def withFor {α} (x : M α) : M α :=
+def withFor {α} (x : M α) : M α :=
   withReader (fun ctx => { ctx with insideFor := true }) x
 
 structure ToForInTermResult where

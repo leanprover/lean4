@@ -104,7 +104,7 @@ def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot Mess
     let (output, _) ← IO.FS.withIsolatedStreams do
       EIO.toIO ioErrorFromEmpty do
         Elab.Command.catchExceptions
-          (Elab.Command.elabCommand cmdStx)
+          (Elab.Command.elabCommandTopLevel cmdStx)
           cmdCtx cmdStateRef
     let mut postCmdState ← cmdStateRef.get
     if !output.isEmpty then

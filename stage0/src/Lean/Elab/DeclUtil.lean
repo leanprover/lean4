@@ -28,7 +28,7 @@ def forallTelescopeCompatibleAux {α} (k : Array Expr → Expr → Expr → Meta
 
 /-- Given two forall-expressions `type₁` and `type₂`, ensure the first `numParams` parameters are compatible, and
     then execute `k` with the parameters and remaining types. -/
-@[inline] def forallTelescopeCompatible {α m} [Monad m] [MonadControlT MetaM m] (type₁ type₂ : Expr) (numParams : Nat) (k : Array Expr → Expr → Expr → m α) : m α :=
+def forallTelescopeCompatible {α m} [Monad m] [MonadControlT MetaM m] (type₁ type₂ : Expr) (numParams : Nat) (k : Array Expr → Expr → Expr → m α) : m α :=
   controlAt MetaM fun runInBase =>
     forallTelescopeCompatibleAux (fun xs type₁ type₂ => runInBase $ k xs type₁ type₂) numParams type₁ type₂ #[]
 

@@ -230,7 +230,7 @@ def getMessageLog : TermElabM MessageLog :=
   We use `observing` to implement overloaded notation and decls.
   We want to save `Info` nodes for the chosen alternative.
 -/
-@[inline] def observing (x : TermElabM α) : TermElabM (TermElabResult α) := do
+def observing (x : TermElabM α) : TermElabM (TermElabResult α) := do
   let s ← saveState
   try
     let e ← x
@@ -250,7 +250,7 @@ def getMessageLog : TermElabM MessageLog :=
 /--
   Apply the result/exception and state captured with `observing`.
   We use this method to implement overloaded notation and symbols. -/
-@[inline] def applyResult (result : TermElabResult α) : TermElabM α :=
+def applyResult (result : TermElabResult α) : TermElabM α :=
   match result with
   | EStateM.Result.ok a r     => do r.restore (restoreInfo := true); pure a
   | EStateM.Result.error ex r => do r.restore (restoreInfo := true); throw ex
@@ -263,20 +263,6 @@ def commitIfDidNotPostpone (x : TermElabM α) : TermElabM α := do
   -- We just reuse the implementation of `observing` and `applyResult`.
   let r ← observing x
   applyResult r
-
-/--
-  Execute `x` but discard changes performed at `Term.State` and `Meta.State`.
-  Recall that the environment is at `Core.State`. Thus, any updates to it will
-  be preserved. This method is useful for performing computations where all
-  metavariable must be resolved or discarded. -/
-def withoutModifyingElabMetaState (x : TermElabM α) : TermElabM α := do
-  let s ← get
-  let sMeta ← getThe Meta.State
-  try
-    x
-  finally
-    set s
-    set sMeta
 
 def getLevelNames : TermElabM (List Name) :=
   return (← get).levelNames
@@ -306,7 +292,7 @@ instance : MonadLog TermElabM where
 protected def getCurrMacroScope : TermElabM MacroScope := do pure (← read).currMacroScope
 protected def getMainModule     : TermElabM Name := do pure (← getEnv).mainModule
 
-@[inline] protected def withFreshMacroScope (x : TermElabM α) : TermElabM α := do
+protected def withFreshMacroScope (x : TermElabM α) : TermElabM α := do
   let fresh ← modifyGetThe Core.State (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }))
   withReader (fun ctx => { ctx with currMacroScope := fresh }) x
 
@@ -318,6 +304,22 @@ instance : MonadQuotation TermElabM where
 instance : MonadInfoTree TermElabM where
   getInfoState      := return (← get).infoState
   modifyInfoState f := modify fun s => { s with infoState := f s.infoState }
+
+/--
+  Execute `x` but discard changes performed at `Term.State` and `Meta.State`.
+  Recall that the environment is at `Core.State`. Thus, any updates to it will
+  be preserved. This method is useful for performing computations where all
+  metavariable must be resolved or discarded.
+  The info trees are not discarded, however, and wrapped in `InfoTree.Context`
+  to store their metavariable context. -/
+def withoutModifyingElabMetaStateWithInfo (x : TermElabM α) : TermElabM α := do
+  let s ← get
+  let sMeta ← getThe Meta.State
+  try
+     withSaveInfoContext x
+  finally
+    modify ({ s with infoState := ·.infoState })
+    set sMeta
 
 unsafe def mkTermElabAttributeUnsafe : IO (KeyedDeclsAttribute TermElab) :=
   mkElabAttribute TermElab `Lean.Elab.Term.termElabAttribute `builtinTermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term"
@@ -380,8 +382,8 @@ def throwErrorIfErrors : TermElabM Unit := do
   if (← get).messages.hasErrors then
     throwError "Error(s)"
 
-@[inline] def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=
-withRef Syntax.missing $ trace cls msg
+def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=
+  withRef Syntax.missing $ trace cls msg
 
 def ppGoal (mvarId : MVarId) : TermElabM Format :=
   Meta.ppGoal mvarId
@@ -401,7 +403,7 @@ def elabLevel (stx : Syntax) : TermElabM Level :=
   liftLevelM $ Level.elabLevel stx
 
 /- Elaborate `x` with `stx` on the macro stack -/
-@[inline] def withMacroExpansion (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
+def withMacroExpansion (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
   withMacroExpansionInfo beforeStx afterStx do
     withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
@@ -497,7 +499,7 @@ def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
 /-
   Execute `x` without allowing it to postpone elaboration tasks.
   That is, `tryPostpone` is a noop. -/
-@[inline] def withoutPostponing (x : TermElabM α) : TermElabM α :=
+def withoutPostponing (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with mayPostpone := false }) x
 
 /-- Creates syntax for `(` <ident> `:` <type> `)` -/
@@ -585,7 +587,7 @@ def throwTypeMismatchError (header? : Option String) (expectedType : Expr) (eTyp
   | none   => throwError "{← mkTypeMismatchError header? e eType expectedType}{extraMsg}"
   | some f => Meta.throwAppTypeMismatch f e extraMsg
 
-@[inline] def withoutMacroStackAtErr (x : TermElabM α) : TermElabM α :=
+def withoutMacroStackAtErr (x : TermElabM α) : TermElabM α :=
   withTheReader Core.Context (fun (ctx : Core.Context) => { ctx with options := pp.macroStack.set ctx.options false }) x
 
 /- Try to synthesize metavariable using type class resolution.
@@ -911,7 +913,7 @@ def tryPostponeIfHasMVars (expectedType? : Option Expr) (msg : String) : TermEla
     throwError "{msg}, expected type contains metavariables{indentExpr expectedType}"
   pure expectedType
 
-private def saveContext : TermElabM SavedContext :=
+def saveContext : TermElabM SavedContext :=
   return {
     macroStack := (← read).macroStack
     declName?  := (← read).declName?
@@ -1300,113 +1302,6 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
   trace[Elab.letrec] "mvarId root: {mkMVar mvarId}"
   return (← get).letRecsToLift.any (·.mvarId == mvarId)
 
-/- =======================================
-       Builtin elaboration functions
-   ======================================= -/
-
-@[builtinTermElab «prop»] def elabProp : TermElab := fun _ _ =>
-  return mkSort levelZero
-
-private def elabOptLevel (stx : Syntax) : TermElabM Level :=
-  if stx.isNone then
-    pure levelZero
-  else
-    elabLevel stx[0]
-
-@[builtinTermElab «sort»] def elabSort : TermElab := fun stx _ =>
-  return mkSort (← elabOptLevel stx[1])
-
-@[builtinTermElab «type»] def elabTypeStx : TermElab := fun stx _ =>
-  return mkSort (mkLevelSucc (← elabOptLevel stx[1]))
-
-/-
- the method `resolveName` adds a completion point for it using the given
-    expected type. Thus, we propagate the expected type if `stx[0]` is an identifier.
-    It doesn't "hurt" if the identifier can be resolved because the expected type is not used in this case.
-    Recall that if the name resolution fails a synthetic sorry is returned.-/
-
-@[builtinTermElab «pipeCompletion»] def elabPipeCompletion : TermElab := fun stx expectedType? => do
-  let e ← elabTerm stx[0] none
-  unless e.isSorry do
-    addDotCompletionInfo stx e expectedType?
-  throwErrorAt stx[1] "invalid field notation, identifier or numeral expected"
-
-@[builtinTermElab «completion»] def elabCompletion : TermElab := fun stx expectedType? => do
-  /- `ident.` is ambiguous in Lean, we may try to be completing a declaration name or access a "field". -/
-  if stx[0].isIdent then
-    /- If we can elaborate the identifier successfully, we assume it a dot-completion. Otherwise, we treat it as
-       identifier completion with a dangling `.`.
-       Recall that the server falls back to identifier completion when dot-completion fails. -/
-    let s ← saveState
-    try
-      let e ← elabTerm stx[0] none
-      addDotCompletionInfo stx e expectedType?
-    catch _ =>
-      s.restore
-      addCompletionInfo <| CompletionInfo.id stx stx[0].getId (danglingDot := true) (← getLCtx) expectedType?
-    throwErrorAt stx[1] "invalid field notation, identifier or numeral expected"
-  else
-    elabPipeCompletion stx expectedType?
-
-@[builtinTermElab «hole»] def elabHole : TermElab := fun stx expectedType? => do
-  let mvar ← mkFreshExprMVar expectedType?
-  registerMVarErrorHoleInfo mvar.mvarId! stx
-  pure mvar
-
-@[builtinTermElab «syntheticHole»] def elabSyntheticHole : TermElab := fun stx expectedType? => do
-  let arg  := stx[1]
-  let userName := if arg.isIdent then arg.getId else Name.anonymous
-  let mkNewHole : Unit → TermElabM Expr := fun _ => do
-    let mvar ← mkFreshExprMVar expectedType? MetavarKind.syntheticOpaque userName
-    registerMVarErrorHoleInfo mvar.mvarId! stx
-    pure mvar
-  if userName.isAnonymous then
-    mkNewHole ()
-  else
-    let mctx ← getMCtx
-    match mctx.findUserName? userName with
-    | none => mkNewHole ()
-    | some mvarId =>
-      let mvar := mkMVar mvarId
-      let mvarDecl ← getMVarDecl mvarId
-      let lctx ← getLCtx
-      if mvarDecl.lctx.isSubPrefixOf lctx then
-        pure mvar
-      else match mctx.getExprAssignment? mvarId with
-      | some val =>
-        let val ← instantiateMVars val
-        if mctx.isWellFormed lctx val then
-          pure val
-        else
-          withLCtx mvarDecl.lctx mvarDecl.localInstances do
-            throwError "synthetic hole has already been defined and assigned to value incompatible with the current context{indentExpr val}"
-      | none =>
-        if mctx.isDelayedAssigned mvarId then
-          -- We can try to improve this case if needed.
-          throwError "synthetic hole has already beend defined and delayed assigned with an incompatible local context"
-        else if lctx.isSubPrefixOf mvarDecl.lctx then
-          let mvarNew ← mkNewHole ()
-          modifyMCtx fun mctx => mctx.assignExpr mvarId mvarNew
-          pure mvarNew
-        else
-          throwError "synthetic hole has already been defined with an incompatible local context"
-
-private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr := do
-  let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
-  let mvarId := mvar.mvarId!
-  let ref ← getRef
-  let declName? ← getDeclName?
-  registerSyntheticMVar ref mvarId <| SyntheticMVarKind.tactic tacticCode (← saveContext)
-  return mvar
-
-@[builtinTermElab byTactic] def elabByTactic : TermElab := fun stx expectedType? =>
-  match expectedType? with
-  | some expectedType => mkTacticMVar expectedType stx
-  | none => throwError ("invalid 'by' tactic, expected type has not been provided")
-
-@[builtinTermElab noImplicitLambda] def elabNoImplicitLambda : TermElab := fun stx expectedType? =>
-  elabTerm stx[1] (mkNoImplicitLambdaAnnotation <$> expectedType?)
-
 def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
   let lctx ← getLCtx
   let view := extractMacroScopes n
@@ -1524,104 +1419,18 @@ def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (
     | _   => throwError "ambiguous {kind}, use fully qualified name, possible interpretations {fs}"
   | _ => throwError "identifier expected"
 
-@[builtinTermElab cdot] def elabBadCDot : TermElab := fun stx _ =>
-  throwError "invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)"
-
-@[builtinTermElab strLit] def elabStrLit : TermElab := fun stx _ => do
-  match stx.isStrLit? with
-  | some val => pure $ mkStrLit val
-  | none     => throwIllFormedSyntax
-
-private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr := do
-  let typeMVar ← mkFreshTypeMVar MetavarKind.synthetic
-  match expectedType? with
-  | some expectedType => discard <| isDefEq expectedType typeMVar
-  | _                 => pure ()
-  return typeMVar
-
-@[builtinTermElab numLit] def elabNumLit : TermElab := fun stx expectedType? => do
-  let val ← match stx.isNatLit? with
-    | some val => pure val
-    | none     => throwIllFormedSyntax
-  let typeMVar ← mkFreshTypeMVarFor expectedType?
-  let u ← getDecLevel typeMVar
-  let mvar ← mkInstMVar (mkApp2 (Lean.mkConst ``OfNat [u]) typeMVar (mkNatLit val))
-  let r := mkApp3 (Lean.mkConst ``OfNat.ofNat [u]) typeMVar (mkNatLit val) mvar
-  registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
-  return r
-
-@[builtinTermElab rawNatLit] def elabRawNatLit : TermElab :=  fun stx expectedType? => do
-  match stx[1].isNatLit? with
-  | some val => return mkNatLit val
-  | none     => throwIllFormedSyntax
-
-@[builtinTermElab scientificLit]
-def elabScientificLit : TermElab := fun stx expectedType? => do
-  match stx.isScientificLit? with
-  | none        => throwIllFormedSyntax
-  | some (m, sign, e) =>
-    let typeMVar ← mkFreshTypeMVarFor expectedType?
-    let u ← getDecLevel typeMVar
-    let mvar ← mkInstMVar (mkApp (Lean.mkConst ``OfScientific [u]) typeMVar)
-    return mkApp5 (Lean.mkConst ``OfScientific.ofScientific [u]) typeMVar mvar (mkNatLit m) (toExpr sign) (mkNatLit e)
-
-@[builtinTermElab charLit] def elabCharLit : TermElab := fun stx _ => do
-  match stx.isCharLit? with
-  | some val => return mkApp (Lean.mkConst ``Char.ofNat) (mkNatLit val.toNat)
-  | none     => throwIllFormedSyntax
-
-@[builtinTermElab quotedName] def elabQuotedName : TermElab := fun stx _ =>
-  match stx[0].isNameLit? with
-  | some val => pure $ toExpr val
-  | none     => throwIllFormedSyntax
-
-@[builtinTermElab doubleQuotedName] def elabDoubleQuotedName : TermElab := fun stx _ => do
-  match stx[1].isNameLit? with
-  | some val => toExpr (← resolveGlobalConstNoOverloadWithInfo stx[1] val)
-  | none     => throwIllFormedSyntax
-
-@[builtinTermElab typeOf] def elabTypeOf : TermElab := fun stx _ => do
-  inferType (← elabTerm stx[1] none)
-
-@[builtinTermElab ensureTypeOf] def elabEnsureTypeOf : TermElab := fun stx expectedType? =>
-  match stx[2].isStrLit? with
-  | none     => throwIllFormedSyntax
-  | some msg => do
-    let refTerm ← elabTerm stx[1] none
-    let refTermType ← inferType refTerm
-    elabTermEnsuringType stx[3] refTermType (errorMsgHeader? := msg)
-
-@[builtinTermElab ensureExpectedType] def elabEnsureExpectedType : TermElab := fun stx expectedType? =>
-  match stx[1].isStrLit? with
-  | none     => throwIllFormedSyntax
-  | some msg => elabTermEnsuringType stx[2] expectedType? (errorMsgHeader? := msg)
-
-@[builtinTermElab «open»] def elabOpen : TermElab := fun stx expectedType? => do
-  try
-    pushScope
-    let openDecls ← elabOpenDecl stx[1]
-    withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
-      elabTerm stx[3] expectedType?
-  finally
-    popScope
-
-@[builtinTermElab «set_option»] def elabSetOption : TermElab := fun stx expectedType? => do
-  let options ← Elab.elabSetOption stx[1] stx[2]
-  withTheReader Core.Context (fun ctx => { ctx with maxRecDepth := maxRecDepth.get options, options := options }) do
-    elabTerm stx[4] expectedType?
-
 private def mkSomeContext : Context := {
   fileName      := "<TermElabM>"
   fileMap       := arbitrary
 }
 
-@[inline] def TermElabM.run (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM (α × State) :=
+def TermElabM.run (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM (α × State) :=
   withConfig setElabConfig (x ctx |>.run s)
 
 @[inline] def TermElabM.run' (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM α :=
   (·.1) <$> x.run ctx s
 
-@[inline] def TermElabM.toIO (x : TermElabM α)
+def TermElabM.toIO (x : TermElabM α)
     (ctxCore : Core.Context) (sCore : Core.State)
     (ctxMeta : Meta.Context) (sMeta : Meta.State)
     (ctx : Context) (s : State) : IO (α × Core.State × Meta.State × State) := do
@@ -1669,7 +1478,7 @@ private def throwStuckAtUniverseCnstr : TermElabM Unit := do
     logErrorAt uniqueEntries[i].ref (← mkLevelStuckErrorMessage uniqueEntries[i])
   throwErrorAt uniqueEntries[0].ref (← mkLevelStuckErrorMessage uniqueEntries[0])
 
-@[specialize] def withoutPostponingUniverseConstraints (x : TermElabM α) : TermElabM α := do
+def withoutPostponingUniverseConstraints (x : TermElabM α) : TermElabM α := do
   let postponed ← getResetPostponed
   try
     let a ← x

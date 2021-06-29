@@ -177,7 +177,7 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
 protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
 protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
 
-@[inline] protected def withFreshMacroScope {α} (x : CommandElabM α) : CommandElabM α := do
+protected def withFreshMacroScope {α} (x : CommandElabM α) : CommandElabM α := do
   let fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }))
   withReader (fun ctx => { ctx with currMacroScope := fresh }) x
 
@@ -212,25 +212,19 @@ private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : Std.Persisten
   let s ← get
   let scope := s.scopes.head!
   let tree := InfoTree.node (Info.ofCommandInfo { elaborator, stx }) trees
-  let tree := InfoTree.context {
+  return InfoTree.context {
     env := s.env, fileMap := ctx.fileMap, mctx := {}, currNamespace := scope.currNamespace, openDecls := scope.openDecls, options := scope.opts
   } tree
-  if checkTraceOption (← getOptions) `Elab.info then
-    let fmt ← tree.format
-    trace[Elab.info] fmt
-  return tree
 
 private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttribute.AttributeEntry CommandElab) → CommandElabM Unit
   | []                => throwError "unexpected syntax{indentD stx}"
   | (elabFn::elabFns) =>
     catchInternalId unsupportedSyntaxExceptionId
-      (do
-        withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.decl stx) <| elabFn.value stx
-        addTraceAsMessages)
-      (fun _ => do set s; addTraceAsMessages; elabCommandUsing s stx elabFns)
+      (withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.decl stx) <| elabFn.value stx)
+      (fun _ => do set s; elabCommandUsing s stx elabFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
-@[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : CommandElabM α) : CommandElabM α :=
+def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : CommandElabM α) : CommandElabM α :=
   withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 instance : MonadMacroAdapter CommandElabM where
@@ -248,7 +242,7 @@ register_builtin_option showPartialSyntaxErrors : Bool := {
   descr    := "show elaboration errors from partial syntax trees (i.e. after parser recovery)"
 }
 
-@[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit := do
+def withLogging (x : CommandElabM Unit) : CommandElabM Unit := do
   try
     x
   catch ex => match ex with
@@ -263,9 +257,7 @@ register_builtin_option showPartialSyntaxErrors : Bool := {
 builtin_initialize registerTraceClass `Elab.command
 
 partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
-  let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
   withLogging <| withRef stx <| withIncRecDepth <| withFreshMacroScope do
-    runLinters stx
     match stx with
     | Syntax.node k args =>
       if k == nullKind then
@@ -285,13 +277,36 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
           | []      => throwError "elaboration function for '{k}' has not been implemented"
           | elabFns => elabCommandUsing s stx elabFns
     | _ => throwError "unexpected command"
+
+/--
+`elabCommand` wrapper that should be used for the initial invocation, not for recursive calls after
+macro expansion etc.
+-/
+def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do
+  let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
+  let initInfoTrees ← getResetInfoTrees
+  withLogging do
+    runLinters stx
+  -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
+  -- recovery more coarse. In particular, If `c` in `set_option ... in $c` fails, the remaining
+  -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
+  elabCommand stx
+
+  -- note the order: first process current messages & info trees, then add back old messages & trees,
+  -- then convert new traces to messages
   let mut msgs ← (← get).messages
   -- `stx.hasMissing` should imply `initMsgs.hasErrors`, but the latter should be cheaper to check in general
   if !showPartialSyntaxErrors.get (← getOptions) && initMsgs.hasErrors && stx.hasMissing then
     -- discard elaboration errors, except for a few important and unlikely misleading ones, on parse error
     msgs := ⟨msgs.msgs.filter fun msg =>
       msg.data.hasTag `Elab.synthPlaceholder || msg.data.hasTag `Tactic.unsolvedGoals⟩
-  modify ({ · with messages := initMsgs ++ msgs })
+  for tree in (← getInfoTrees) do
+    trace[Elab.info] (← tree.format)
+  modify fun st => { st with
+    messages := initMsgs ++ msgs
+    infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }
+  }
+  addTraceAsMessages
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
 def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab := fun stx => do
@@ -341,21 +356,17 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
   let scope := s.scopes.head!
   -- We execute `x` with an empty message log. Thus, `x` cannot modify/view messages produced by previous commands.
   -- This is useful for implementing `runTermElabM` where we use `Term.resetMessageLog`
+  let x : TermElabM _  := withSaveInfoContext x
   let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) (mkTermState scope s)
   let x : CoreM _      := x.run mkMetaContext {}
   let x : EIO _ _      := x.run (mkCoreContext ctx s heartbeats) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope }
   let (((ea, termS), metaS), coreS) ← liftEIO x
-  let infoTrees        := termS.infoState.trees.map fun tree =>
-    let tree := tree.substitute termS.infoState.assignment
-    InfoTree.context {
-      env := coreS.env, fileMap := ctx.fileMap, mctx := metaS.mctx, currNamespace := scope.currNamespace, openDecls := scope.openDecls, options := scope.opts
-    } tree
   modify fun s => { s with
     env             := coreS.env
     messages        := addTraceAsMessagesCore ctx (s.messages ++ termS.messages) coreS.traceState
     nextMacroScope  := coreS.nextMacroScope
     ngen            := coreS.ngen
-    infoState.trees := s.infoState.trees.append infoTrees
+    infoState.trees := s.infoState.trees.append termS.infoState.trees
   }
   match ea with
   | Except.ok a     => pure a
@@ -455,13 +466,13 @@ private def popScopes (numScopes : Nat) : CommandElabM Unit :=
       addCompletionInfo <| CompletionInfo.endSection stx (scopes.map fun scope => scope.header)
       throwError "invalid 'end', name mismatch"
 
-@[inline] def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
+def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
   addNamespace ns
   let a ← elabFn
   modify fun s => { s with scopes := s.scopes.drop ns.getNumParts }
   pure a
 
-@[specialize] def modifyScope (f : Scope → Scope) : CommandElabM Unit :=
+def modifyScope (f : Scope → Scope) : CommandElabM Unit :=
   modify fun s => { s with
     scopes := match s.scopes with
       | h::t => f h :: t

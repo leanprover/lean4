@@ -29,3 +29,11 @@ import Lean.Elab.Deriving
 import Lean.Elab.DeclarationRange
 import Lean.Elab.Extra
 import Lean.Elab.GenInjective
+import Lean.Elab.BuiltinTerm
+import Lean.Elab.Arg
+import Lean.Elab.PatternVar
+import Lean.Elab.ElabRules
+import Lean.Elab.Macro
+import Lean.Elab.Notation
+import Lean.Elab.Mixfix
+import Lean.Elab.MacroRules

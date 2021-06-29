@@ -1509,7 +1509,7 @@ static lean_object* _init_l_Lean_Meta_clear___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("taget depends on '");
+x_1 = lean_mk_string("target depends on '");
 return x_1;
 }
 }

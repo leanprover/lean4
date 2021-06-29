@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Elab.Quotation.Precheck
 import Lean.Elab.Term
+import Lean.Elab.BindersUtil
 import Lean.Parser.Term
 
 namespace Lean.Elab.Term
@@ -101,19 +102,6 @@ private def getBinderIds (ids : Syntax) : TermElabM (Array Syntax) :=
     else
       throwErrorAt id "identifier or `_` expected"
 
-/-
-  Recall that
-  ```
-  def typeSpec := leading_parser " : " >> termParser
-  def optType : Parser := optional typeSpec
-  ```
--/
-def expandOptType (ref : Syntax) (optType : Syntax) : Syntax :=
-  if optType.isNone then
-    mkHole ref
-  else
-    optType[0][1]
-
 private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) := do
   let k := stx.getKind
   if k == `Lean.Parser.Term.simpleBinder then
@@ -195,7 +183,7 @@ def elabBinders {α} (binders : Array Syntax) (k : Array Expr → TermElabM α) 
     else
       elabBindersAux binders k
 
-@[inline] def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
+def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
   elabBinders #[binder] fun fvars => x fvars[0]
 
 @[builtinTermElab «forall»] def elabForall : TermElab := fun stx _ =>
@@ -206,9 +194,13 @@ def elabBinders {α} (binders : Array Syntax) (k : Array Expr → TermElabM α) 
       mkForallFVars xs e
   | _ => throwUnsupportedSyntax
 
-@[builtinTermElab arrow] def elabArrow : TermElab :=
-  adaptExpander fun stx => match stx with
-  | `($dom:term -> $rng) => `(forall (a : $dom), $rng)
+@[builtinTermElab arrow] def elabArrow : TermElab := fun stx _ =>
+  match stx with
+  | `($dom:term -> $rng) => do
+    -- elaborate independently from each other
+    let dom ← elabType dom
+    let rng ← elabType rng
+    mkForall (← MonadQuotation.addMacroScope `a) BinderInfo.default dom rng
   | _                    => throwUnsupportedSyntax
 
 @[builtinTermElab depArrow] def elabDepArrow : TermElab := fun stx _ =>

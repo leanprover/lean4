@@ -131,8 +131,10 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) : O
 def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option Format) := do
   ci.runMetaM i.lctx do
     let mut fmts := #[]
-    if let some f ← fmtTerm? then
-      fmts := fmts.push f
+    try
+      if let some f ← fmtTerm? then
+        fmts := fmts.push f
+    catch _ => pure ()
     if let some f ← fmtDoc? then
       fmts := fmts.push f
     if fmts.isEmpty then

@@ -135,15 +135,12 @@ end
 def registerTraceClass (traceClassName : Name) : IO Unit :=
   registerOption (`trace ++ traceClassName) { group := "trace", defValue := false, descr := "enable/disable tracing for the given module and submodules" }
 
-syntax "trace[" ident "]" (interpolatedStr(term) <|> term) : term
-
-macro_rules
-  | `(trace[$id] $s) =>
-    if s.getKind == interpolatedStrKind then
-      `(Lean.trace $(quote id.getId) fun _ => m! $s)
-    else
-      `(Lean.trace $(quote id.getId) fun _ => ($s : MessageData))
-
+macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
+  let msg ← if s.getKind == interpolatedStrKind then `(m! $s) else `(($s : MessageData))
+  `(doElem| do
+    let cls := $(quote id.getId)
+    if (← Lean.isTracingEnabledFor cls) then
+      Lean.addTrace cls $msg)
 
 private def withNestedTracesFinalizer [Monad m] [MonadTrace m] (ref : Syntax) (currTraces : PersistentArray TraceElem) : m Unit := do
   modifyTraces fun traces =>

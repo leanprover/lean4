@@ -257,7 +257,7 @@ variable [Monad m] [MonadInfoTree m]
 @[inline] private def modifyInfoTrees (f : PersistentArray InfoTree → PersistentArray InfoTree) : m Unit :=
   modifyInfoState fun s => { s with trees := f s.trees }
 
-private def getResetInfoTrees : m (PersistentArray InfoTree) := do
+def getResetInfoTrees : m (PersistentArray InfoTree) := do
   let trees := (← getInfoState).trees
   modifyInfoTrees fun _ => {}
   return trees
@@ -287,7 +287,7 @@ def resolveGlobalConstWithInfos [MonadResolveName m] [MonadEnv m] [MonadError m]
       pushInfoLeaf <| Info.ofTermInfo { elaborator := Name.anonymous, lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx, expectedType? }
   return ns
 
-@[inline] def withInfoContext' [MonadFinally m] (x : m α) (mkInfo : α → m (Sum Info MVarId)) : m α := do
+def withInfoContext' [MonadFinally m] (x : m α) (mkInfo : α → m (Sum Info MVarId)) : m α := do
   if (← getInfoState).enabled then
     let treesSaved ← getResetInfoTrees
     Prod.fst <$> MonadFinally.tryFinally' x fun a? => do
@@ -302,7 +302,7 @@ def resolveGlobalConstWithInfos [MonadResolveName m] [MonadEnv m] [MonadError m]
   else
     x
 
-@[inline] def withInfoTreeContext [MonadFinally m] (x : m α) (mkInfoTree : PersistentArray InfoTree → m InfoTree) : m α := do
+def withInfoTreeContext [MonadFinally m] (x : m α) (mkInfoTree : PersistentArray InfoTree → m InfoTree) : m α := do
   if (← getInfoState).enabled then
     let treesSaved ← getResetInfoTrees
     Prod.fst <$> MonadFinally.tryFinally' x fun _ => do
@@ -314,6 +314,20 @@ def resolveGlobalConstWithInfos [MonadResolveName m] [MonadEnv m] [MonadError m]
 
 @[inline] def withInfoContext [MonadFinally m] (x : m α) (mkInfo : m Info) : m α := do
   withInfoTreeContext x (fun trees => do return InfoTree.node (← mkInfo) trees)
+
+def withSaveInfoContext [MonadFinally m] [MonadEnv m] [MonadOptions m] [MonadMCtx m] [MonadResolveName m] [MonadFileMap m] (x : m α) : m α := do
+  if (← getInfoState).enabled then
+    let treesSaved ← getResetInfoTrees
+    Prod.fst <$> MonadFinally.tryFinally' x fun _ => do
+      let st    ← getInfoState
+      let trees ← st.trees.mapM fun tree => do
+        let tree := tree.substitute st.assignment
+        InfoTree.context {
+          env := (← getEnv), fileMap := (← getFileMap), mctx := (← getMCtx), currNamespace := (← getCurrNamespace), openDecls := (← getOpenDecls), options := (← getOptions)
+        } tree
+      modifyInfoTrees fun _ => treesSaved ++ trees
+  else
+    x
 
 def getInfoHoleIdAssignment? (mvarId : MVarId) : m (Option InfoTree) :=
   return (← getInfoState).assignment[mvarId]

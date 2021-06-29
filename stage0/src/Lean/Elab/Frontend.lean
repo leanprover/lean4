@@ -36,7 +36,7 @@ def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit := do
     let infoTreeEnabled := (← getInfoState).enabled
     if checkTraceOption (← getOptions) `Elab.info then
       enableInfoTree
-    Command.elabCommand stx
+    Command.elabCommandTopLevel stx
     enableInfoTree infoTreeEnabled
 
 def updateCmdPos : FrontendM Unit := do

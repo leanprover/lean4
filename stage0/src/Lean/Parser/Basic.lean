@@ -1158,7 +1158,7 @@ def checkTailNoWs (prev : Syntax) : Bool :=
     been so by some unrelated code).
 
     For example, the universe `max` Function is parsed using this combinator so that
-    it can still be used as an identifier outside of universes (but registering it
+    it can still be used as an identifier outside of universe (but registering it
     as a token in a Term Syntax would not break the universe Parser). -/
 def nonReservedSymbolFnAux (sym : String) (errorMsg : String) : ParserFn := fun c s =>
   let initStackSz := s.stackSize

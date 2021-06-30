@@ -6,7 +6,7 @@ Author: Leonardo de Moura, Sebastian Ullrich
 prelude
 import Init.Core
 
-universes u v w
+universe u v w
 
 @[reducible] def Functor.mapRev {f : Type u → Type v} [Functor f] {α β : Type u} : f α → (α → β) → f β :=
   fun a f => f <$> a

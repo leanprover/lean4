@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Array.Basic
 
-universes u v w
+universe u v w
 
 structure Subarray (α : Type u)  where
   as : Array α

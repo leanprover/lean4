@@ -122,13 +122,84 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   let openDecls ← elabOpenDecl n[1]
   modifyScope fun scope => { scope with openDecls := openDecls }
 
+private def typelessBinder? : Syntax → Option (Array Name × Bool)
+  | `(bracketedBinder|($ids*)) => some <| (ids.map Syntax.getId, true)
+  | `(bracketedBinder|{$ids*}) => some <| (ids.map Syntax.getId, false)
+  | _                          => none
+
+-- This function is used to implement the `variable` command that updates binder annotations.
+private def matchBinderNames (ids : Array Syntax) (binderNames : Array Name) : CommandElabM Bool :=
+  let ids := ids.map Syntax.getId
+  /-
+    TODO: allow users to update the annotation of some of the ids.
+    The current application supports the common case
+    ```
+    variable (α : Type)
+    ...
+    variable {α : Type}
+    ```
+  -/
+  if ids == binderNames then
+    return true
+  else if binderNames.any ids.contains then
+    /- We currently do not split binder blocks. -/
+    throwError "failed to update variable binder annotation" -- TODO: improve error message
+  else
+    return false
+
+/--
+  Auxiliary method for processing binder annotation update commands: `variable (α)` and `variable {α}`.
+  The argument `binder` is the binder of the `variable` command.
+  The method retuns `true` if the binder annotation was updated.
+  Remark: we currently do not suppor updates of the form
+  ```
+  variable (α β : Type)
+  ...
+  variable {α} -- trying to update part of the binder block defined above.
+  ```
+-/
+private def replaceBinderAnnotation (binder : Syntax) : CommandElabM Bool := do
+  if let some (binderNames, explicit) := typelessBinder? binder then
+    let varDecls := (← getScope).varDecls
+    let mut varDeclsNew := #[]
+    let mut found := false
+    for varDecl in varDecls do
+      if let some (ids, ty?, annot?) :=
+        match varDecl with
+        | `(bracketedBinder|($ids* $[: $ty?]? $(annot?)?)) => some (ids, ty?, annot?)
+        | `(bracketedBinder|{$ids* $[: $ty?]?})            => some (ids, ty?, none)
+        | `(bracketedBinder|[$id : $ty])                   => some (#[id], some ty, none)
+        | _                                                => none
+      then
+        if (← matchBinderNames ids binderNames) then
+          if annot?.isSome then
+            throwError "cannot update binder annotation of variables with default values/tactics"
+          if explicit then
+            varDeclsNew := varDeclsNew.push (← `(bracketedBinder| ($ids* $[: $ty?]?)))
+          else
+            varDeclsNew := varDeclsNew.push (← `(bracketedBinder| {$ids* $[: $ty?]?}))
+          found := true
+        else
+          varDeclsNew := varDeclsNew.push varDecl
+      else
+        varDeclsNew := varDeclsNew.push varDecl
+    if found then
+      modifyScope fun scope => { scope with varDecls := varDeclsNew }
+      return true
+    else
+      return false
+  else
+    return false
+
 @[builtinCommandElab «variable»] def elabVariable : CommandElab
   | `(variable $binders*) => do
     -- Try to elaborate `binders` for sanity checking
     runTermElabM none fun _ => Term.withAutoBoundImplicit <|
       Term.elabBinders binders fun _ => pure ()
-    let varUIds ← binders.concatMap getBracketedBinderIds |>.mapM (withFreshMacroScope ∘ MonadQuotation.addMacroScope)
-    modifyScope fun scope => { scope with varDecls := scope.varDecls ++ binders, varUIds := scope.varUIds ++ varUIds }
+    for binder in binders do
+      unless (← replaceBinderAnnotation binder) do
+        let varUIds ← getBracketedBinderIds binder |>.mapM (withFreshMacroScope ∘ MonadQuotation.addMacroScope)
+        modifyScope fun scope => { scope with varDecls := scope.varDecls.push binder, varUIds := scope.varUIds ++ varUIds }
   | _ => throwUnsupportedSyntax
 
 open Meta

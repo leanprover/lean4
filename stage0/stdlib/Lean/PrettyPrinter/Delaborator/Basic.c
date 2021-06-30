@@ -562,7 +562,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) display coercions, implicit parameters, proof terms, fully qualified names, universes, ");
+x_1 = lean_mk_string("(pretty printer) display coercions, implicit parameters, proof terms, fully qualified names, universe, ");
 return x_1;
 }
 }
@@ -746,7 +746,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) display universes");
+x_1 = lean_mk_string("(pretty printer) display universe");
 return x_1;
 }
 }

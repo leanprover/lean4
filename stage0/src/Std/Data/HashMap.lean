@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 import Std.Data.AssocList
 namespace Std
-universes u v w
+universe u v w
 
 def HashMapBucket (α : Type u) (β : Type v) :=
   { b : Array (AssocList α β) // b.size > 0 }

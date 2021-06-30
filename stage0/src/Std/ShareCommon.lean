@@ -8,7 +8,7 @@ import Std.Data.HashMap
 import Std.Data.PersistentHashMap
 import Std.Data.PersistentHashSet
 namespace Std
-universes u v
+universe u v
 
 namespace ShareCommon
 /-

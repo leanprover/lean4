@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Core
 
-universes u v w w'
+universe u v w w'
 
 class Coe (α : Sort u) (β : Sort v) where
   coe : α → β

@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.System.IO
 import Init.Data.Int
-universes u
+universe u
 
 /-
 Basic random number generator support based on the one

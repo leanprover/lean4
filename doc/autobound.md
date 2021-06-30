@@ -5,7 +5,7 @@ However, functions such as `compose` are still quite verbose to define. Note tha
 polymorphic `compose` is even more verbose than the one previously defined.
 
 ```lean
-universes u v w
+universe u v w
 def compose {α : Type u} {β : Type v} {γ : Type w}
             (g : β → γ) (f : α → β) (x : α) : γ :=
   g (f x)

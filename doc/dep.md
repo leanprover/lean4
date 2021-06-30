@@ -44,7 +44,7 @@ dependent Cartesian product types ``(a : α) × β a`` generalize the Cartesian 
 called *sigma* types, and you can also write them as `Σ a : α, β a`. You can use `⟨a, b⟩` or `Sigma.mk a b` to create a dependent pair.
 
 ```lean
-universes u v
+universe u v
 
 def f (α : Type u) (β : α → Type v) (a : α) (b : β a) : (a : α) × β a :=
   ⟨a, b⟩

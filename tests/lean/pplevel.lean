@@ -1,6 +1,6 @@
 universe u v w
 
-set_option pp.universe true
+set_option pp.universes true
 #check Type (max u v w)
 #check Type u
 #check @id.{max u v w}

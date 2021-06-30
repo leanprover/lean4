@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 namespace Std
-universes u v w
+universe u v w
 
 def HashSetBucket (α : Type u) :=
   { b : Array (List α) // b.size > 0 }

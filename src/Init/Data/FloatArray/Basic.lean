@@ -7,7 +7,7 @@ prelude
 import Init.Data.Array.Basic
 import Init.Data.Float
 import Init.Data.Option.Basic
-universes u
+universe u
 
 structure FloatArray where
   data : Array Float

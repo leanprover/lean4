@@ -7,7 +7,7 @@ prelude
 import Init.Data.Option.Basic
 import Init.Util
 
-universes u
+universe u
 
 namespace Option
 

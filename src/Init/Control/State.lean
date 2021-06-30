@@ -9,7 +9,7 @@ prelude
 import Init.Control.Basic
 import Init.Control.Id
 import Init.Control.Except
-universes u v w
+universe u v w
 
 def StateT (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
   σ → m (α × σ)

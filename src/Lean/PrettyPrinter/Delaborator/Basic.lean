@@ -36,7 +36,7 @@ namespace Lean
 register_builtin_option pp.all : Bool := {
   defValue := false
   group    := "pp"
-  descr    := "(pretty printer) display coercions, implicit parameters, proof terms, fully qualified names, universes, " ++
+  descr    := "(pretty printer) display coercions, implicit parameters, proof terms, fully qualified names, universe, " ++
               "and disable beta reduction and notations during pretty printing"
 }
 register_builtin_option pp.notation : Bool := {
@@ -52,7 +52,7 @@ register_builtin_option pp.coercions : Bool := {
 register_builtin_option pp.universes : Bool := {
   defValue := false
   group    := "pp"
-  descr    := "(pretty printer) display universes"
+  descr    := "(pretty printer) display universe"
 }
 register_builtin_option pp.full_names : Bool := {
   defValue := false

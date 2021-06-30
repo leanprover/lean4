@@ -511,7 +511,7 @@ def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
   The new parameter names are of the form `u_i` where `i >= nextParamIdx`.
   The method returns the updated expression and new `nextParamIdx`.
 
-  Remark: we make sure the generated parameter names do not clash with the universes at `ctx.levelNames`. -/
+  Remark: we make sure the generated parameter names do not clash with the universe at `ctx.levelNames`. -/
 def levelMVarToParam (e : Expr) (nextParamIdx : Nat := 1) : TermElabM (Expr × Nat) := do
   let mctx ← getMCtx
   let levelNames ← getLevelNames

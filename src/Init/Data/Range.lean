@@ -15,7 +15,7 @@ structure Range where
   step  : Nat := 1
 
 namespace Range
-universes u v
+universe u v
 
 @[inline] protected def forIn {β : Type u} {m : Type u → Type v} [Monad m] (range : Range) (init : β) (f : Nat → β → m (ForInStep β)) : m β :=
   let rec @[specialize] loop (i : Nat) (j : Nat) (b : β) : m β := do

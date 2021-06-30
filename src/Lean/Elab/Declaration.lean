@@ -185,7 +185,7 @@ private def isMutualPreambleCommand (stx : Syntax) : Bool :=
   k == `Lean.Parser.Command.variable ||
   k == `Lean.Parser.Command.variables ||
   k == `Lean.Parser.Command.universe ||
-  k == `Lean.Parser.Command.universes ||
+  k == `Lean.Parser.Command.universe ||
   k == `Lean.Parser.Command.check ||
   k == `Lean.Parser.Command.set_option ||
   k == `Lean.Parser.Command.open

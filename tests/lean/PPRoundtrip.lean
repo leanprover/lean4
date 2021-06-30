@@ -48,7 +48,7 @@ section
   #eval checkM `(id Nat)
 end
 section
-  set_option pp.universe true
+  set_option pp.universes true
   #eval checkM `(List Nat)
   #eval checkM `(id Nat)
   #eval checkM `(Sum Nat Nat)

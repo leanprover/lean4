@@ -7,7 +7,7 @@ prelude
 import Init.Data.List.Basic
 import Init.Data.Char.Basic
 import Init.Data.Option.Basic
-universes u
+universe u
 
 def List.asString (s : List Char) : String :=
   ⟨s⟩

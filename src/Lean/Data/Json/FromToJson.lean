@@ -8,7 +8,7 @@ import Lean.Data.Json.Basic
 
 namespace Lean
 
-universes u
+universe u
 
 class FromJson (α : Type u) where
   fromJson? : Json → Except String α

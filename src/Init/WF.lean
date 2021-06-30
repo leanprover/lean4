@@ -7,7 +7,7 @@ prelude
 import Init.SizeOf
 import Init.Data.Nat.Basic
 
-universes u v
+universe u v
 
 set_option codegen false
 

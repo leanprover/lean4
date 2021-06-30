@@ -7,7 +7,7 @@ Simple queue implemented using two lists.
 Note: this is only a temporary placeholder.
 -/
 namespace Std
-universes u v w
+universe u v w
 
 structure Queue (α : Type u) where
   eList : List α := []

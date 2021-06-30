@@ -7,7 +7,7 @@ prelude
 import Init.Data.List.Basic
 import Init.Util
 
-universes u
+universe u
 
 namespace List
 /- The following functions can't be defined at `Init.Data.List.Basic`, because they depend on `Init.Util`,

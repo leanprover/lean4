@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 namespace Std
-universes u v w w'
+universe u v w w'
 
 namespace PersistentHashMap
 

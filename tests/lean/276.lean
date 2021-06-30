@@ -1,4 +1,4 @@
-universes u v
+universe u v
 
 -- `Type u` version can be defined without this option, but I get the same error
 set_option bootstrap.inductiveCheckResultingUniverse false in

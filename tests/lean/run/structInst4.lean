@@ -1,4 +1,4 @@
-universes u
+universe u
 
 def a : Array ((Nat × Nat) × Bool) := #[]
 def b : Array Nat := #[]

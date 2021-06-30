@@ -1,4 +1,4 @@
-universes u
+universe u
 
 def f1 (n m : Nat) (x : Fin n) (h : n = m) : Fin m :=
 h ▸ x

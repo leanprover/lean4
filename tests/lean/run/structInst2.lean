@@ -1,7 +1,7 @@
 import Init.Control.Option
 
 
-universes u v
+universe u v
 
 def OptionT2 (m : Type u → Type v) (α : Type u) : Type v :=
 m (Option α)

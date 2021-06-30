@@ -93,9 +93,6 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   elabChoiceAux stx.getArgs 0
 
 @[builtinCommandElab «universe»] def elabUniverse : CommandElab := fun n => do
-  addUnivLevel n[1]
-
-@[builtinCommandElab «universes»] def elabUniverses : CommandElab := fun n => do
   n[1].forArgsM addUnivLevel
 
 @[builtinCommandElab «init_quot»] def elabInitQuot : CommandElab := fun stx => do

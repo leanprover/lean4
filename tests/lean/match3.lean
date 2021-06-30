@@ -8,7 +8,7 @@ match x with
 #eval f 0
 #eval f 30
 
-universes u
+universe u
 
 theorem ex1 {α : Sort u} {a b : α} (h : a ≅ b) : a = b :=
 match α, a, b, h with
@@ -57,7 +57,7 @@ theorem ex8 {a1 a2 : {x // p x}} (h : a1.val = a2.val) : a1 = a2 :=
 match a1, a2, h with
 | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
-universes v
+universe v
 variable {β : α → Type v}
 
 theorem ex9 {p₁ p₂ : Sigma (fun a => β a)} (h₁ : p₁.1 = p₂.1) (h : p₁.2 ≅ p₂.2) : p₁ = p₂ :=

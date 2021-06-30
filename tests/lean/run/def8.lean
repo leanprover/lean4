@@ -7,7 +7,7 @@ def g : List Nat → List Nat → Nat
 | x::xs,      y::ys => g xs ys + y
 | x::xs,      []    => g xs []
 
-universes u v
+universe u v
 
 inductive Imf {α : Type u} {β : Type v} (f : α → β) : β → Type (max u v)
 | mk : (a : α) → Imf f (f a)

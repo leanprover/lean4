@@ -14,7 +14,7 @@ inductive T2 : Type -- Error resulting universe mismatch
 end
 
 -- Test3
-universes u v
+universe u v
 mutual
 
 inductive T1 (x : Nat) : Type u

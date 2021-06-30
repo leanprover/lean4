@@ -1,4 +1,4 @@
-universes u v
+universe u v
 
 theorem eqLitOfSize0 {α : Type u} (a : Array α) (hsz : a.size = 0) : a = #[] :=
 a.toArrayLitEq 0 hsz

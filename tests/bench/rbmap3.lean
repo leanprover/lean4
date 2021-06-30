@@ -1,7 +1,7 @@
 prelude
 import init.core init.system.io init.data.ordering
 
-universes u v w
+universe u v w
 
 inductive Rbcolor
 | red | black

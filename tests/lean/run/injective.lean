@@ -1,4 +1,4 @@
-universes u v
+universe u v
 
 structure InjectiveFunction (α : Type u) (β : Type v) where
   fn  : α → β

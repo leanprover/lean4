@@ -4,7 +4,7 @@ open Lean
 open Lean.Meta
 open Lean.Elab.Tactic
 
-universes u
+universe u
 axiom elimEx (motive : Nat → Nat → Sort u) (x y : Nat)
   (diag  : (a : Nat) → motive a a)
   (upper : (delta a : Nat) → motive a (a + delta.succ))

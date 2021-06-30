@@ -1,6 +1,6 @@
 
 
-universes u v w
+universe u v w
 
 instance boolToNat : Coe Bool Nat :=
 { coe := fun b => cond b 1 0 }

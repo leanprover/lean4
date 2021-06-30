@@ -1,4 +1,4 @@
-universes u v
+universe u v
 
 class Bind2 (m : Type u → Type v) where
   bind : ∀ {α β : Type u}, m α → (α → m β) → m β

@@ -11,7 +11,7 @@ inductive L2.{u} (α : Type u)
 
 #check @L2.cons
 
-universes u v
+universe u v
 variable (α : Type u)
 
 inductive A (β : Type v)

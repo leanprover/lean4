@@ -623,7 +623,7 @@ do
 
 #eval tst40
 
-universes u
+universe u
 structure A (α : Type u) :=
 (x y : α)
 

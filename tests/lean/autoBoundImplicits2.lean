@@ -30,7 +30,7 @@ set_option autoBoundImplicitLocal false in
 def g2 {α : Type u /- Error -/} (a : α) : α :=
   a
 
-def g3 {α : Type β /- Error greek letters are not valid auto names for universes -/} (a : α) : α :=
+def g3 {α : Type β /- Error greek letters are not valid auto names for universe -/} (a : α) : α :=
   a
 
 def g4 {α : Type v} (a : α) : α :=

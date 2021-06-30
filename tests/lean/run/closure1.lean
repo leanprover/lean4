@@ -3,7 +3,7 @@ import Lean
 open Lean
 open Lean.Meta
 
-universes u
+universe u
 
 inductive Vec (α : Type u) : Nat → Type u
 | nil      : Vec α 0

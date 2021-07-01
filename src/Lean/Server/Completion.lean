@@ -242,13 +242,23 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? :
             if (← isDotCompletionMethod typeName c) then
               addCompletionItem c.name.getString! c.type expectedType?
 
-private def optionCompletion (ctx : ContextInfo) : IO (Option CompletionList) := do
+private def optionCompletion (ctx : ContextInfo) (stx : Syntax) : IO (Option CompletionList) :=
   ctx.runMetaM {} do
-    let decls ← getOptionDecls
-    let opts ← getOptions
-    let items : Array CompletionItem := decls.fold (init := #[]) fun items name decl =>
-      items.push { label := name.toString, detail? := s!"({opts.get name decl.defValue}), {decl.descr}", documentation? := none }
-    return some { items := sortCompletionItems items, isIncomplete := true }
+      let partialName := stx[1].getId
+      -- HACK(WN): unfold the type so ForIn works
+      let (decls : Std.RBMap _ _ _) ← getOptionDecls
+      let opts ← getOptions
+      let mut items := #[]
+      for ⟨name, decl⟩ in (decls : Std.RBMap _ _ _) do
+        if partialName.isPrefixOf name ||
+          (match partialName, name with
+            | Name.str p₁ s₁ _, Name.str p₂ s₂ _ => p₁ == p₂ && s₁.isPrefixOf s₂
+            | _, _ => false) then
+          items := items.push
+            { label := name.toString
+              detail? := s!"({opts.get name decl.defValue}), {decl.descr}"
+              documentation? := none }
+      return some { items := sortCompletionItems items, isIncomplete := true }
 
 private def tacticCompletion (ctx : ContextInfo) : IO (Option CompletionList) :=
   -- Just return the list of tactics for now.
@@ -266,7 +276,7 @@ partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTr
     match info with
     | CompletionInfo.dot info (expectedType? := expectedType?) .. => dotCompletion ctx info expectedType?
     | CompletionInfo.id stx id danglingDot lctx expectedType? => idCompletion ctx lctx id danglingDot expectedType?
-    | CompletionInfo.option .. => optionCompletion ctx
+    | CompletionInfo.option stx => optionCompletion ctx stx
     | CompletionInfo.tactic .. => tacticCompletion ctx
     | _ => return none
   | _ =>

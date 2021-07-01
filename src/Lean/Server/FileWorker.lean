@@ -287,7 +287,10 @@ section MessageHandling
   def handleRequest (id : RequestID) (method : String) (params : Json)
       : WorkerM Unit := do
     let st ← read
-    let rc : Requests.RequestContext := { srcSearchPath := st.srcSearchPath, docRef := st.docRef }
+    let rc : Requests.RequestContext :=
+      { srcSearchPath := st.srcSearchPath
+        docRef := st.docRef
+        hLog := st.hLog }
     let t? ← (ExceptT.run <| Requests.handleLspRequest method params rc : IO _)
     let t₁ ← match t? with
       | Except.error e =>

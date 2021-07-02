@@ -1,9 +1,8 @@
-import Lean -- needed for go-to elab/syntax
+import Lean.Elab
 
 structure Bar where
 
 structure Foo where
-       --v textDocument/definition
   foo₁ : Nat
   foo₂ : Nat
   bar  : Bar
@@ -17,13 +16,12 @@ def mkFoo₁ : Foo := {
   bar := ⟨⟩
 }
 
---v textDocument/definition
 inductive HandWrittenStruct where
   | mk (n : Nat)
 
---v textDocument/declaration
 def HandWrittenStruct.n := fun | mk n => n
 
+          --v textDocument/definition
 def hws : HandWrittenStruct := {
 --v textDocument/definition
   n := 3
@@ -32,3 +30,12 @@ def hws : HandWrittenStruct := {
             --v textDocument/declaration
 def mkFoo₂ := mkFoo₁
 
+syntax (name := elabTest) "test" : term
+
+@[termElab elabTest] def elabElabTest : Lean.Elab.Term.TermElab := fun _ _ => do
+  let stx ← `(2)
+  Lean.Elab.Term.elabTerm stx none
+
+     --v textDocument/declaration
+#check test
+     --^ textDocument/definition

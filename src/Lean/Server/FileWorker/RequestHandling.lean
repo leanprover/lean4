@@ -56,8 +56,9 @@ partial def handleHover (p : HoverParams)
 
       return none
 
-inductive GoToKind | declaration | definition | type
-deriving DecidableEq
+inductive GoToKind
+  | declaration | definition | type
+  deriving DecidableEq
 
 open Elab GoToKind in
 partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
@@ -101,7 +102,12 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
             if let some n := expr.constName? then
               return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
           if let Info.ofFieldInfo fi := i then
-            if kind ≠ type then
+            if kind = type then
+              let expr ← ci.runMetaM i.lctx do
+                Meta.instantiateMVars (← Meta.inferType fi.val)
+              if let some n := expr.constName? then
+                return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
+            else
               return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName
           -- If other go-tos fail, we try to show the elaborator or parser
           if let some ei := i.toElabInfo? then

@@ -249,7 +249,7 @@ private def optionCompletion (ctx : ContextInfo) (stx : Syntax) : IO (Option Com
       let (decls : Std.RBMap _ _ _) ← getOptionDecls
       let opts ← getOptions
       let mut items := #[]
-      for ⟨name, decl⟩ in (decls : Std.RBMap _ _ _) do
+      for ⟨name, decl⟩ in decls do
         if partialName.isPrefixOf name ||
           (match partialName, name with
             | Name.str p₁ s₁ _, Name.str p₂ s₂ _ => p₁ == p₂ && s₁.isPrefixOf s₂

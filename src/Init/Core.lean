@@ -944,15 +944,15 @@ instance {α : Sort u} {s : Setoid α} [d : ∀ (a b : α), Decidable (a ≈ b)]
 namespace Function
 variable {α : Sort u} {β : α → Sort v}
 
-def Equiv (f₁ f₂ : ∀ (x : α), β x) : Prop := ∀ x, f₁ x = f₂ x
+protected def Equiv (f₁ f₂ : ∀ (x : α), β x) : Prop := ∀ x, f₁ x = f₂ x
 
-protected theorem Equiv.refl (f : ∀ (x : α), β x) : Equiv f f :=
+protected theorem Equiv.refl (f : ∀ (x : α), β x) : Function.Equiv f f :=
   fun x => rfl
 
-protected theorem Equiv.symm {f₁ f₂ : ∀ (x : α), β x} : Equiv f₁ f₂ → Equiv f₂ f₁ :=
+protected theorem Equiv.symm {f₁ f₂ : ∀ (x : α), β x} : Function.Equiv f₁ f₂ → Function.Equiv f₂ f₁ :=
   fun h x => Eq.symm (h x)
 
-protected theorem Equiv.trans {f₁ f₂ f₃ : ∀ (x : α), β x} : Equiv f₁ f₂ → Equiv f₂ f₃ → Equiv f₁ f₃ :=
+protected theorem Equiv.trans {f₁ f₂ f₃ : ∀ (x : α), β x} : Function.Equiv f₁ f₂ → Function.Equiv f₂ f₃ → Function.Equiv f₁ f₃ :=
   fun h₁ h₂ x => Eq.trans (h₁ x) (h₂ x)
 
 protected theorem Equiv.isEquivalence (α : Sort u) (β : α → Sort v) : Equivalence (@Function.Equiv α β) := {

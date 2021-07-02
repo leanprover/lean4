@@ -109,9 +109,10 @@ def rewriteCtorEq? (e : Expr) : MetaM (Option Result) := withReducibleAndInstanc
     | _, _ => return none
 
 @[inline] def tryRewriteCtorEq (e : Expr) (x : SimpM Step) : SimpM Step := do
-  match (← rewriteCtorEq? e) with
-  | some r => return Step.done r
-  | none => x
+  if (← read).config.ctorEq then
+    if let some r ← rewriteCtorEq? e then
+      return Step.done r
+  x
 
 def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndInstances do
   if e.hasFVar || e.hasMVar || e.isConstOf ``True || e.isConstOf ``False then

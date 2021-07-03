@@ -25,9 +25,9 @@ endif()
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}
-  COMMAND sh -c "LEANC_GMP=${GMP_LIBRARIES} LEAN_CXX='${CMAKE_CXX_COMPILER_LAUNCHER} ${CMAKE_CXX_COMPILER}' ${CMAKE_BINARY_DIR}/bin/leanc $<TARGET_OBJECTS:shell> ${CMAKE_EXE_LINKER_FLAGS} ${LEAN_EXE_LINKER_FLAGS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}} -o ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"
+  COMMAND sh -c "LEANC_GMP=${GMP_LIBRARIES} LEAN_CXX='${CMAKE_CXX_COMPILER_LAUNCHER} ${CMAKE_CXX_COMPILER}' ${CMAKE_BINARY_DIR}/bin/leanc $<TARGET_OBJECTS:shell> -lleanshared ${CMAKE_EXE_LINKER_FLAGS} ${LEAN_EXE_LINKER_FLAGS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}} -o ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"
   VERBATIM
-  DEPENDS Init Std Lean leancpp shell $<IF:$<BOOL:${LLVM}>,runtime_bc,>)
+  DEPENDS leanshared shell $<IF:$<BOOL:${LLVM}>,runtime_bc,>)
 
 add_custom_target(lean ALL
   DEPENDS ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX})
@@ -35,14 +35,6 @@ add_custom_target(lean ALL
 install(FILES ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}
   DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-
-# broken, will likely fix in the future by linking against shared libraries instead
-## create import library on Windows to link plugins against
-#set_target_properties(lean PROPERTIES ENABLE_EXPORTS ON)
-#if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-#  # https://github.com/msys2/MINGW-packages/issues/5952
-#  target_link_options(lean PRIVATE "-Wl,--out-implib,${CMAKE_BINARY_DIR}/bin/lean.exe.a")
-#endif()
 
 # use executable of current stage for tests
 string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")

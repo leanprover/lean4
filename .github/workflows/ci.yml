@@ -115,14 +115,14 @@ jobs:
       - name: Patch
         run: |
           for f in lean leanpkg; do
-            patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 --remove-rpath build/stage1/bin/$f
+            patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 --set-rpath '${ORIGIN}/../lib/lean' build/stage1/bin/$f
           done
         if: matrix.name == 'Linux release'
       - name: Patch
         run: |
           for f in lean leanpkg; do
             for lib in $(otool -L build/stage1/bin/$f | tail -n +2 | cut -d' ' -f1); do
-              install_name_tool -change "$lib" "/usr/lib/$(basename $lib | sed 's/libc++\.1\.0/libc++.1/')" build/stage1/bin/$f
+              [[ $lib ~= *lean* ]] || install_name_tool -change "$lib" "/usr/lib/$(basename $lib | sed 's/libc++\.1\.0/libc++.1/')" build/stage1/bin/$f
             done
           done
         if: matrix.name == 'macOS'

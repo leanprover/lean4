@@ -139,7 +139,13 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(EXTRA_UTIL_LIBS ${EXTRA_UTIL_LIBS} -lpsapi)
   endif()
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_WINDOWS -D LEAN_WIN_STACK_SIZE=${LEAN_WIN_STACK_SIZE}")
+  # DLLs must go next to executables on Windows
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+else()
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean")
 endif()
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean")
 
 # OSX default thread stack size is very small. Moreover, in Debug mode, each new stack frame consumes a lot of extra memory.
 if ((${MULTI_THREAD} MATCHES "ON") AND (${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
@@ -190,7 +196,7 @@ endif()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
 # Initialize CXXFLAGS.
-set(CMAKE_CXX_FLAGS                "${LEAN_EXTRA_CXX_FLAGS} -DLEAN_BUILD_TYPE=\"${CMAKE_BUILD_TYPE}\"")
+set(CMAKE_CXX_FLAGS                "${LEAN_EXTRA_CXX_FLAGS} -fPIC -DLEAN_BUILD_TYPE=\"${CMAKE_BUILD_TYPE}\"")
 set(CMAKE_CXX_FLAGS_DEBUG          "-DLEAN_DEBUG -DLEAN_TRACE")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-DNDEBUG")
@@ -302,11 +308,8 @@ endif()
 
 # export all symbols for the interpreter
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS} -Wl,--export-all")
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-all")
   set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -Wl,--export-all")
 else()
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS} -rdynamic")
   set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -ldl")
   set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -ldl")
 endif()
@@ -317,12 +320,15 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -lbcrypt")
 endif()
 
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,'-rpath=\${ORIGIN}/../lib/lean'")
+
+
 # Allow `lean` symbols in plugins without linking directly against it. If we linked against the
 # executable or `leanshared`, plugins would try to look them up at load time (even though they
 # are already loaded) and probably fail unless we set up LD_LIBRARY_PATH.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  # import library created by the `lean` target
-  set(LEANC_SHARED_LINKER_FLAGS "$bindir/lean.exe.a")
+  # import library created by the `leanshared` target
+  set(LEANC_SHARED_LINKER_FLAGS "$bindir/leanshared.dll.a")
 elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
   set(LEANC_SHARED_LINKER_FLAGS "-Wl,-undefined,dynamic_lookup")
 endif()
@@ -407,10 +413,8 @@ else()
 
   add_library(leancpp STATIC ${LEAN_OBJS})
   set_target_properties(leancpp PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean"
     OUTPUT_NAME leancpp)
 endif()
-install(FILES ${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a DESTINATION lib/lean)
 
 # MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
 string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
@@ -424,6 +428,12 @@ if(PREV_STAGE)
   string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
   # These are used in lean.mk and passed through by stdlib.make
   set(LEANC_OPTS "${LEANC_OPTS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
+
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(LEANSHARED_LINKER_FLAGS "-Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libInit.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libStd.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLean.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
+  else()
+    set(LEANSHARED_LINKER_FLAGS "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp -Wl,--no-whole-archive")
+  endif()
 
   configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
   add_custom_target(make_stdlib ALL
@@ -450,13 +460,21 @@ if(PREV_STAGE)
     IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libLean.a)
   add_dependencies(Lean make_stdlib)
 
+  add_library(leanshared SHARED IMPORTED)
+  set_target_properties(leanshared PROPERTIES
+    IMPORTED_LOCATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX})
+  add_dependencies(leanshared make_stdlib)
+
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    install(FILES ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX} DESTINATION bin)
+    install(FILES ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}.a DESTINATION bin)
+  endif()
+
   add_custom_target(update-stage0
     COMMAND cmake -E env CSRCS=${CMAKE_BINARY_DIR}/lib/temp bash script/update-stage0
     DEPENDS make_stdlib
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/..")
 endif()
-
-target_link_libraries(leancpp INTERFACE ${EXTRA_LIBS})
 
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc" @ONLY)
 install(FILES "${CMAKE_BINARY_DIR}/bin/leanc"
@@ -469,19 +487,6 @@ install(FILES ${LEAN_SOURCE_DIR}/bin/leanmake
 install(FILES "${CMAKE_BINARY_DIR}/bin/leanpkg${CMAKE_EXECUTABLE_SUFFIX}"
   DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-
-# shared library deactivated until we figure out the leancpp/Init story
-# # The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).
-# # For some strange reason, it contains a copy of pthread_equal.
-# # Remark: this problem does not happen when we generate the DLL using msys2 on Windows.
-# if (NOT("${CROSS_COMPILE}" MATCHES "ON"))
-#   if ("${STATIC}" MATCHES "OFF")
-#     add_library(leanshared SHARED shared/init.cpp)
-#     # see `target_link_libraries(lean ...)`
-#     target_link_libraries(leanshared leancpp Init leancpp Init)
-#     install(TARGETS leanshared DESTINATION lib)
-#   endif()
-# endif()
 
 add_subdirectory(shell)
 

@@ -15,15 +15,29 @@ LEANMAKE_OPTS=\
 	OLEAN_OUT="${LIB}/lean"\
 	BIN_OUT="${CMAKE_BINARY_DIR}/bin"\
 	LEAN_OPTS+="${LEAN_EXTRA_MAKE_OPTS}"\
-	LEANC_OPTS+="${LEANC_OPTS}"\
+	LEANC_OPTS+="${LEANC_OPTS} -fPIC"\
 	LEAN_CXX="${CMAKE_CXX_COMPILER_LAUNCHER} ${CMAKE_CXX_COMPILER}"\
 	LEAN_AR="${CMAKE_AR}"\
 	MORE_DEPS+="${PREV_STAGE}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"\
 	CMAKE_LIKE_OUTPUT=1
 
-stdlib:
+.PHONY: all Init Std Lean leanshared Leanpkg
+
+all: Init Std Lean leanshared Leanpkg
+
+Init:
 # Use `+` to use the Make jobserver with `leanmake` for parallelized builds
 	+"${LEAN_BIN}/leanmake" lib PKG=Init $(LEANMAKE_OPTS)
+
+Std: Init
 	+"${LEAN_BIN}/leanmake" lib PKG=Std $(LEANMAKE_OPTS)
+
+Lean: Init Std
 	+"${LEAN_BIN}/leanmake" lib PKG=Lean $(LEANMAKE_OPTS)
-	+"${LEAN_BIN}/leanmake" bin PKG=Leanpkg BIN_NAME=leanpkg${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS="${CMAKE_EXE_LINKER_FLAGS}"
+
+leanshared: Init Std Lean
+	@mkdir -p "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" || true
+	"${LEAN_BIN}/leanc" -shared -o "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}" ${LEANSHARED_LINKER_FLAGS}
+
+Leanpkg: Init Std Lean leanshared
+	+"${LEAN_BIN}/leanmake" bin PKG=Leanpkg BIN_NAME=leanpkg${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS="-lleanshared ${CMAKE_EXE_LINKER_FLAGS}"

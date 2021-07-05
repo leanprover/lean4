@@ -1,68 +1,10 @@
 {"textDocument": {"uri": "file://completionOption.lean"},
- "position": {"line": 0, "character": 13}}
+ "position": {"line": 0, "character": 20}}
 {"items":
- [{"label": "pp.all",
-   "detail":
-   "(false), (pretty printer) display coercions, implicit parameters, proof terms, fully qualified names, universe, and disable beta reduction and notations during pretty printing"},
-  {"label": "pp.auxDecls",
-   "detail":
-   "(false), display auxiliary declarations used to compile recursive functions"},
-  {"label": "pp.binder_types",
-   "detail":
-   "(false), (pretty printer) display types of lambda and Pi parameters"},
-  {"label": "pp.coercions",
-   "detail": "(true), (pretty printer) hide coercion applications"},
-  {"label": "pp.explicit",
-   "detail": "(false), (pretty printer) display implicit arguments"},
-  {"label": "pp.full_names",
-   "detail": "(false), (pretty printer) display fully qualified names"},
-  {"label": "pp.inaccessibleNames",
-   "detail": "(false), display inaccessible declarations in the local context"},
-  {"label": "pp.macroStack",
-   "detail": "(false), dispaly macro expansion stack"},
-  {"label": "pp.motives.all",
-   "detail": "(false), (pretty printer) print all motives"},
-  {"label": "pp.motives.nonConst",
-   "detail":
-   "(false), (pretty printer) print all motives that are not constant functions"},
-  {"label": "pp.motives.pi",
-   "detail": "(true), (pretty printer) print all motives that return pi types"},
-  {"label": "pp.notation",
-   "detail":
-   "(true), (pretty printer) disable/enable notation (infix, mixfix, postfix operators and unicode characters)"},
-  {"label": "pp.private_names",
-   "detail":
-   "(false), (pretty printer) display internal names assigned to private declarations"},
-  {"label": "pp.proofs",
+ [{"label": "pp.proofs",
    "detail":
    "(false), (pretty printer) if set to false, replace proofs appearing as an argument to a function with a placeholder"},
   {"label": "pp.proofs.withType",
    "detail":
-   "(true), (pretty printer) when eliding a proof (see `pp.proofs`), show its type instead"},
-  {"label": "pp.raw",
-   "detail": "(false), (pretty printer) print raw expression/syntax tree"},
-  {"label": "pp.raw.maxDepth",
-   "detail": "(32), (pretty printer) maximum `Syntax` depth for raw printer"},
-  {"label": "pp.raw.showInfo",
-   "detail":
-   "(false), (pretty printer) print `SourceInfo` metadata with raw printer"},
-  {"label": "pp.rawOnError",
-   "detail":
-   "(false), (pretty printer) fallback to 'raw' printer when pretty printer fails"},
-  {"label": "pp.safe_shadowing",
-   "detail":
-   "(true), (pretty printer) allow variable shadowing if there is no collision"},
-  {"label": "pp.sanitizeNames",
-   "detail":
-   "(true), add suffix '_{<idx>}' to shadowed/inaccessible variables when pretty printing"},
-  {"label": "pp.structure_instance_type",
-   "detail": "(false), (pretty printer) display type of structure instances"},
-  {"label": "pp.structure_instances",
-   "detail":
-   "(true), (pretty printer) display structure instances using the '{ fieldName := fieldValue, ... }' notation or '⟨fieldValue, ... ⟩' if structure is tagged with [pp_using_anonymous_constructor] attribute"},
-  {"label": "pp.structure_projections",
-   "detail":
-   "(true), (pretty printer) display structure projections using field notation"},
-  {"label": "pp.universes",
-   "detail": "(false), (pretty printer) display universe"}],
+   "(true), (pretty printer) when eliding a proof (see `pp.proofs`), show its type instead"}],
  "isIncomplete": true}

@@ -1,2 +1,2 @@
-set_option pp
-           --^ textDocument/completion
+set_option pp.proofs
+                  --^ textDocument/completion

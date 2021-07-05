@@ -15,7 +15,8 @@ compile_commands.json
 tasks.json
 settings.json
 .gdb_history
-.vscode
+.vscode/*
+!.vscode/settings.json
 *.produced.out
 CMakeSettings.json
 CppProperties.json

@@ -921,7 +921,6 @@ structure Config where
   eta               : Bool := true
   iota              : Bool := true
   proj              : Bool := true
-  ctorEq            : Bool := true
   decide            : Bool := true
   deriving Inhabited, BEq, Repr
 

@@ -1,34 +1,79 @@
-The [Pygments](https://pygments.org/) syntax highlighting library has official support for Lean (however, Lean 4 keywords have not been added yet), which can be used in LaTeX via the [`minted`](https://ctan.org/pkg/minted) package.
+You can copy highlighted code [straight from VS Code](https://code.visualstudio.com/updates/v1_10#_copy-with-syntax-highlighting) to any rich text editor supporting HTML input. For highlighting code in LaTeX, there are two options:
+* [listings](https://ctan.org/pkg/listings), which is a common package and simple to set up, but you may run into some restrictions of it and LaTeX around Unicode
+* [`minted`](https://ctan.org/pkg/minted), a LaTeX package wrapping the [Pygments](https://pygments.org/) syntax highlighting library. It needs a few more steps to set up, but provides unrestricted support for Unicode when combined with XeLaTeX or LuaLaTex.
 
-# Example
+## Example with `listings`
 
-Save the following sample LaTeX file as `test.tex`:
+Save [`lstlean.tex`](https://raw.githubusercontent.com/leanprover/lean4/master/doc/latex/lstlean.tex) into the same directory, or anywhere in your `TEXINPUTS` path, as the following test file:
+```latex
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+
+\usepackage{color}
+\definecolor{keywordcolor}{rgb}{0.7, 0.1, 0.1}   % red
+\definecolor{tacticcolor}{rgb}{0.0, 0.1, 0.6}    % blue
+\definecolor{commentcolor}{rgb}{0.4, 0.4, 0.4}   % grey
+\definecolor{symbolcolor}{rgb}{0.0, 0.1, 0.6}    % blue
+\definecolor{sortcolor}{rgb}{0.1, 0.5, 0.1}      % green
+\definecolor{attributecolor}{rgb}{0.7, 0.1, 0.1} % red
+
+\def\lstlanguagefiles{lstlean.tex}
+% set default language
+\lstset{language=lean}
+
+\begin{document}
+\begin{lstlisting}
+theorem funext {f₁ f₂ : ∀ (x : α), β x} (h : ∀ x, f₁ x = f₂ x) : f₁ = f₂ := by
+  show extfunApp (Quotient.mk f₁) = extfunApp (Quotient.mk f₂)
+  apply congrArg
+  apply Quotient.sound
+  exact h
+\end{lstlisting}
+\end{document}
+```
+Compile the file via
+```bash
+$ pdflatex test.tex
+```
+
+* for older LaTeX versions, you might need to use `[utf8x]` instead of `[utf8]` with `inputenc`
+
+## Example with `minted`
+
+First [install Pygments](https://pygments.org/download/). Then save [`lean4.py`](https://raw.githubusercontent.com/leanprover/lean4/master/doc/latex/lean4.py), which contains an version of the Lean highlighter updated for Lean 4, and the following sample LaTeX file `test.tex` into the same directory:
 
 ```latex
 \documentclass{article}
-\usepackage{minted}
 \usepackage{fontspec}
-\setmainfont{FreeSerif}
+% switch to a monospace font supporting more Unicode characters
 \setmonofont{FreeMono}
-\usepackage{fullpage}
+\usepackage{minted}
+% instruct minted to use our local theorem.py
+\newmintinline[lean]{lean4.py:Lean4Lexer -x}{bgcolor=white}
+\newminted[leancode]{lean4.py:Lean4Lexer -x}{fontsize=\footnotesize}
+
 \begin{document}
+% some example options
 \begin{minted}[mathescape,
                linenos,
                numbersep=5pt,
                frame=lines,
                framesep=2mm]{Lean}
-theorem mul_cancel_left_or {a b c : ℤ} (H : a * b = a * c) : a = 0 ∨ b = c :=
-have H2 : a * (b - c) = 0, by simp,
-have H3 : a = 0 ∨ b - c = 0, from mul_eq_zero H2,
-or.imp_or_right H3 (assume H4 : b - c = 0, sub_eq_zero H4)
+theorem funext {f₁ f₂ : ∀ (x : α), β x} (h : ∀ x, f₁ x = f₂ x) : f₁ = f₂ := by
+  show extfunApp (Quotient.mk f₁) = extfunApp (Quotient.mk f₂)
+  apply congrArg
+  apply Quotient.sound
+  exact h
 \end{minted}
 \end{document}
 ```
 
-You can compile `test.tex` by executing the following command:
+You can then compile `test.tex` by executing the following command:
 
 ```bash
-xelatex --shell-escape test
+xelatex --shell-escape test.tex
 ```
 
 Some remarks:

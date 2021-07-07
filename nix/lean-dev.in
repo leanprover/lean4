@@ -15,7 +15,7 @@ done
 target="$root#lean-package"
 for arg in "$@"; do
     case $arg in
-        --server | --worker)
+        --server | --worker | -v | --version)
             target="$root#lean"
             ;;
     esac

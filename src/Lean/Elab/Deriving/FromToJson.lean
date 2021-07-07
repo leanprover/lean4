@@ -76,7 +76,7 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         let alts ← mkAlts indVal fun ctor args userNames =>
           match args, userNames with
           | #[], _ => `(toJson $(quote ctor.name.getString!))
-          | #[x], _ => `(mkObj [($(quote ctor.name.getString!), toJson $x)])
+          | #[x], none => `(mkObj [($(quote ctor.name.getString!), toJson $x)])
           | xs, none => do
             let xs ← xs.mapM fun x => `(toJson $x)
             `(mkObj [($(quote ctor.name.getString!), toJson #[$[$xs:term],*])])
@@ -142,7 +142,7 @@ def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         let header ← mkHeader ctx ``FromJson 0 ctx.typeInfos[0]
         let discrs ← mkDiscrs header indVal
         let alts ← mkAlts indVal 
-        let matchCmd ← alts.foldrM (fun xs x => `($xs <|> $x)) (←`(Except.error "none of the alternatives matched"))
+        let matchCmd ← alts.foldrM (fun xs x => `($xs <|> $x)) (←`(Except.error "no inductive constructor matched"))
         let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]):ident $header.binders:explicitBinder* (json : Json)
           : Except String $(← mkInductiveApp ctx.typeInfos[0] header.argNames) :=
             $matchCmd )

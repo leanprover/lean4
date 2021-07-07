@@ -64,6 +64,7 @@ inductive E
 | WAlt (a b : Nat)
 | X : Nat → Nat → E
 | Y : Nat → E
+| YAlt (a : Nat)
 | Z
 deriving ToJson, FromJson, Repr, BEq
 
@@ -78,6 +79,9 @@ deriving ToJson, FromJson, Repr, BEq
 
 #eval checkToJson (E.Y 4) (json { Y : 4 })
 #eval checkRoundTrip (E.Y 4)
+
+#eval checkToJson (E.YAlt 5) (json { YAlt : { a : 5 } })
+#eval checkRoundTrip (E.YAlt 5)
 
 #eval checkToJson E.Z (json "Z")
 #eval checkRoundTrip E.Z

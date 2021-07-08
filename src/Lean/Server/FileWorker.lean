@@ -70,7 +70,8 @@ section Elab
         the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
         because we cannot guarantee that no further diagnostics are emitted after clearing
         them. -/
-      publishMessages m snap.msgLog hOut
+      if snap.msgLog.msgs.size > parentSnap.msgLog.msgs.size then
+        publishMessages m snap.msgLog hOut
       snap
     | Sum.inr msgLog =>
       publishMessages m msgLog hOut

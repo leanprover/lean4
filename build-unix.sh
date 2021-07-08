@@ -1,1 +1,1 @@
-leanpkg build bin LINK_OPTS=-rdynamic
+leanpkg build bin LINK_OPTS=-rdynamic "$@"

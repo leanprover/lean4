@@ -30,7 +30,6 @@ def materialize (pkgDir : FilePath) (dep : Dependency) : IO FilePath :=
   match dep.src with
   | Source.path dir => do
     let depdir := pkgDir / dir
-    IO.eprintln s!"{dep.name}: using local path {depdir}"
     depdir
   | Source.git url rev branch => do
     let depdir := pkgDir / depsPath / dep.name

@@ -68,16 +68,18 @@ def getRootPkg : IO Package := do
       leanVersionString ++ ", but package requires " ++ cfg.leanVersion ++ "\n"
   return ⟨".", cfg⟩
 
-def cli : (cmd : String) → (lakeArgs leanArgs : List String) → IO Unit
-| "init",         [name],         []        => init name
-| "configure",    [],             []        => do configure (← getRootPkg)
-| "print-paths",  imports,        leanArgs  => do printPaths (← getRootPkg) imports leanArgs
-| "build",        makeArgs,       leanArgs  => do build (← getRootPkg) makeArgs leanArgs
-| "help",         ["init"],       []        => IO.println helpInit
-| "help",         ["configure"],  []        => IO.println helpConfigure
-| "help",         ["build"],      []        => IO.println helpBuild
-| "help",         _,              []        => IO.println usage
-| _,              _,              _         => throw <| IO.userError usage
+def cli : (cmd : String) → (lakeArgs pkgArgs : List String) → IO Unit
+| "init",         [name],         []  => init name
+| "configure",    [],             []  => do configure (← getRootPkg)
+| "print-paths",  imports,        []  => do printPaths (← getRootPkg) imports
+| "build",        [],             []  => do build (← getRootPkg)
+| "build-bin",    [],             []  => do discard <| buildBin (← getRootPkg) 
+| "build-lib",    [],             []  => do discard <| buildStaticLib (← getRootPkg)
+| "help",         ["init"],       []  => IO.println helpInit
+| "help",         ["configure"],  []  => IO.println helpConfigure
+| "help",         ["build"],      []  => IO.println helpBuild
+| "help",         _,              []  => IO.println usage
+| _,              _,              _   => throw <| IO.userError usage
 
 private def splitCmdlineArgsCore : List String → List String × List String
 | [] => ([], [])

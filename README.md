@@ -58,10 +58,10 @@ def package : Lake.PackageConfig := {
 }
 ```
 
-We can use the command `lake build bin` to build the module (and its dependencies, if it has them) and a native executable. The latter of which will be written to `build/bin`.
+We can use the command `lake build-bin` to build the package (and its dependencies, if it has them) into a native executable. The result will be placed in to `build/bin`.
 
 ```
-$ lake build bin
+$ lake build-bin
 ...
 $ ./build/bin/Hello
 Hello, world!

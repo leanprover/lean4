@@ -1,2 +1,3 @@
 cd foo
-../../../build/bin/Lake build bin
+echo "in directory 'foo'"
+../../../build/bin/Lake build-bin

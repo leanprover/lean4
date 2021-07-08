@@ -7,162 +7,217 @@ import Lean.Data.Name
 import Lean.Elab.Import
 import Lake.Resolve
 import Lake.Package
-import Lake.Make
-import Lake.Proc
+import Lake.Compile
 
-open Lean System
+open System
+open Lean hiding SearchPath
 
 namespace Lake
 
-structure BuildConfig where
-  module   : Name
-  leanArgs : List String
-  leanPath : String
-  -- things that should also trigger rebuilds
-  -- ex. olean roots of dependencies
-  moreDeps : List FilePath
+-- # Basic Build Infos
 
-def mkBuildConfig
-(pkg : Package) (deps : List Package) (leanArgs : List String)
-: BuildConfig := {
-  leanArgs,
-  module := pkg.module
-  leanPath := SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)
-  moreDeps := deps.map (·.oleanRoot)
-}
-
-structure BuildContext extends BuildConfig where
-  parents       : List Name := []
-  moreDepsMTime : IO.FS.SystemTime
-
-structure BuildResult where
-  maxMTime : IO.FS.SystemTime
-  task     : Task (Except IO.Error Unit)
+structure BuildInfo (α : Type) where
+  artifact  : α
+  maxMTime  : IO.FS.SystemTime
+  task : Task (Except IO.Error PUnit)
   deriving Inhabited
 
-structure BuildState where
-  modTasks : NameMap BuildResult := ∅
+abbrev ModuleBuildInfo := BuildInfo (FilePath × FilePath)
 
-abbrev BuildM := ReaderT BuildContext <| StateT BuildState IO
+namespace ModuleBuildInfo
+def oleanFile (self : ModuleBuildInfo) := self.artifact.1
+def cFile (self : ModuleBuildInfo) := self.artifact.2
+end ModuleBuildInfo
 
-partial def buildModule (mod : Name) : BuildM BuildResult := do
-  let ctx ← read
-
-  -- detect cyclic imports
-  if ctx.parents.contains mod then
-    let cycle := mod :: (ctx.parents.partition (· != mod)).1 ++ [mod]
-    let cycle := cycle.map (s!"  {·}")
-    throw <| IO.userError s!"import cycle detected:\n{"\n".intercalate cycle}"
-
-  -- skip if already visited
-  if let some res := (← get).modTasks.find? mod then
-    return res
-
-  -- deduce lean file
-  let leanFile := modToFilePath "." mod "lean"
-
-  -- parse imports
-  let (imports, _, _) ← Elab.parseImports (← IO.FS.readFile leanFile) leanFile.toString
-  let localImports := imports.filter (·.module.getRoot == ctx.module)
-
-  -- recursively build local dependencies
-  let deps ← localImports.mapM fun i =>
-    withReader (fun ctx => { ctx with parents := mod :: ctx.parents }) <|
-      buildModule i.module
-
-  -- calculate transitive `maxMTime`
-  let leanMData ← leanFile.metadata
-  let depMTimes ← deps.mapM (·.maxMTime)
-  let maxMTime := List.maximum? (leanMData.modified :: ctx.moreDepsMTime :: depMTimes) |>.get!
-
-  -- check whether we have an up-to-date .olean
-  let oleanFile := modToFilePath buildPath mod "olean"
+def buildOleanAndC  (leanFile oleanFile cFile : FilePath) 
+(depInfos : List ModuleBuildInfo) (maxMTime : IO.FS.SystemTime) 
+(leanPath : String := "") (rootDir : FilePath := ".") (leanArgs : Array String := #[])
+: IO ModuleBuildInfo := do
+  let artifact := (oleanFile, cFile)
+  -- check whether we have an up-to-date .olean and .c
   try
-    if (← oleanFile.metadata).modified >= maxMTime then
-      let res := { maxMTime, task := Task.pure (Except.ok ()) }
-      modify fun st => { st with modTasks := st.modTasks.insert mod res }
-      return res
+    let cMTime := (← cFile.metadata).modified
+    let oleanMTime := (← oleanFile.metadata).modified
+    if cMTime >= maxMTime && oleanMTime >= maxMTime then
+      let task := Task.pure (Except.ok ())
+      return { artifact, maxMTime, task }
   catch
     | IO.Error.noFileOrDirectory .. => pure ()
     | e                             => throw e
-
   -- (try to) compile the olean and c file
-  let task ← IO.mapTasks (tasks := deps.map (·.task)) fun rs => do
-    if let some e := rs.findSome? (fun | Except.error e => some e | Except.ok _ => none) then
-      -- propagate failure from dependencies
-      throw e
+  let task ← IO.mapTasks (tasks := depInfos.map (·.task)) fun rs => do
+    rs.forM IO.ofExcept  -- propagate first failure from dependencies
     try
-      let cFile := modToFilePath tempBuildPath mod "c"
-      IO.FS.createDirAll oleanFile.parent.get!
-      IO.FS.createDirAll cFile.parent.get!
-      execCmd {
-        cmd := "lean"
-        args := ctx.leanArgs.toArray ++ #["-o", oleanFile.toString, "-c", cFile.toString, leanFile.toString]
-        env := #[("LEAN_PATH", ctx.leanPath)]
-      }
+      compileOleanAndC leanFile oleanFile cFile leanPath rootDir leanArgs
     catch e =>
       -- print compile errors early
       IO.eprintln e
       throw e
+  return { artifact, maxMTime, task }
 
-  let res := { maxMTime, task := task }
-  modify fun st => { st with modTasks := st.modTasks.insert mod res }
-  return res
+def buildO (oFile : FilePath) 
+(cInfo : BuildInfo FilePath) (leancArgs : Array String := #[]) 
+: IO (BuildInfo FilePath) := do
+  -- skip if we have an up-to-date .o
+  try 
+    let cMTime := cInfo.maxMTime
+    if (← oFile.metadata).modified >= cMTime then 
+      return {artifact := oFile, maxMTime := cMTime, task := Task.pure (Except.ok ()) }
+  catch
+    | IO.Error.noFileOrDirectory .. => pure ()
+    | e => throw e
+  -- compile it otherwise
+  let task ← IO.mapTask (t := cInfo.task) fun x => do
+    IO.ofExcept x  -- propagate failure from building .c
+    try
+      compileO oFile cInfo.artifact leancArgs
+    catch e =>
+      -- print compile errors early
+      IO.eprintln e
+      throw e
+  return {artifact := oFile, maxMTime := cInfo.maxMTime, task }
 
-def buildModules (cfg : BuildConfig) (mods : List Name) : IO Unit := do
-  let moreDepsMTime := (← cfg.moreDeps.mapM (·.metadata)).map (·.modified) |>.maximum? |>.getD ⟨0, 0⟩
-  let rs ← mods.mapM buildModule |>.run { toBuildConfig := cfg, moreDepsMTime } |>.run' {}
-  for r in rs do
-    if let Except.error _ ← IO.wait r.task then
-      -- actual error has already been printed above
-      throw <| IO.userError "Build failed."
+-- # Build Modules
 
-def buildImports (pkg : Package) (deps : List Package) (imports leanArgs : List String := []) : IO Unit := do
-  let imports := imports.map (·.toName)
-  let localImports := imports.filter (·.getRoot == pkg.module)
-  if localImports != [] then
-    if ← FilePath.pathExists "Makefile" then
-      let oleans := localImports.map fun i =>
-        Lean.modToFilePath buildPath i "olean" |>.toString
-      execMake pkg deps oleans leanArgs
-    else
-      buildModules (mkBuildConfig pkg deps leanArgs) localImports
+structure BuildContext where
+  package       : Package
+  leanPath      : String
+  -- things that should also trigger rebuilds
+  -- ex. olean roots of dependencies
+  moreDeps      : List FilePath
+  buildParents  : List Name := []
+  moreDepsMTime : IO.FS.SystemTime
 
-def buildPkg (pkg : Package) (deps : List Package) (makeArgs leanArgs : List String := []) : IO Unit := do
-  if makeArgs != [] || (← FilePath.pathExists "Makefile") then
-    execMake pkg deps makeArgs leanArgs
-  else
-    buildModules (mkBuildConfig pkg deps leanArgs) [pkg.module]
+structure BuildState where
+  buildInfos : NameMap ModuleBuildInfo := ∅
 
-def buildDeps (pkg : Package) (makeArgs leanArgs : List String := []) : IO (List Package) := do
+abbrev BuildM := ReaderT BuildContext <| StateT BuildState IO
+
+partial def buildModule (mod : Name) : BuildM ModuleBuildInfo := do
+  let ctx ← read
+  let pkg := ctx.package
+
+  -- detect cyclic imports
+  if ctx.buildParents.contains mod then
+    let cycle := mod :: (ctx.buildParents.partition (· != mod)).1 ++ [mod]
+    let cycle := cycle.map (s!"  {·}")
+    throw <| IO.userError s!"import cycle detected:\n{"\n".intercalate cycle}"
+
+  -- return previous result if already visited
+  if let some info := (← get).buildInfos.find? mod then
+    return info
+
+  -- deduce lean file
+  let leanFile := ctx.package.modToSource mod
+
+  -- parse imports
+  let (imports, _, _) ← Elab.parseImports (← IO.FS.readFile leanFile) leanFile.toString
+  let directLocalImports := imports.map (·.module) |>.filter (·.getRoot == pkg.module)
+
+  -- recursively build local dependencies
+  let depInfos ← directLocalImports.mapM fun i =>
+    withReader (fun ctx => { ctx with buildParents := mod :: ctx.buildParents }) <|
+      buildModule i
+
+  -- calculate transitive `maxMTime`
+  let leanMData ← leanFile.metadata
+  let depMTimes ← depInfos.mapM (·.maxMTime)
+  let maxMTime := List.maximum? (leanMData.modified :: ctx.moreDepsMTime :: depMTimes) |>.get!
+
+  -- do build
+  let cFile := pkg.modToC mod
+  let oleanFile := pkg.modToOlean mod
+  let info ← buildOleanAndC leanFile oleanFile cFile 
+    depInfos maxMTime ctx.leanPath pkg.dir pkg.leanArgs
+  modify fun st => { st with buildInfos := st.buildInfos.insert mod info }
+  return info
+
+def mkBuildContext (pkg : Package) (deps : List Package) : IO BuildContext := do
+  let moreDeps := deps.map (·.oleanRoot)
+  let moreDepsMTime := (← moreDeps.mapM (·.metadata)).map (·.modified) |>.maximum? |>.getD ⟨0, 0⟩
+  let leanPath := SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)
+  return { package := pkg, leanPath, moreDeps, moreDepsMTime }
+
+def buildPackageModulesCore 
+(pkg : Package) (deps : List Package) : IO (ModuleBuildInfo × BuildState) := do
+  let crx ← mkBuildContext pkg deps
+  buildModule pkg.module |>.run crx |>.run {}
+
+def buildPackageModuleDAG 
+(pkg : Package) (deps : List Package) : IO (NameMap ModuleBuildInfo) := do
+  (← buildPackageModulesCore pkg deps).2.buildInfos
+
+-- # Configure/Build Packages
+
+def buildPackageModules 
+(pkg : Package) (deps : List Package) : IO PUnit := do
+  let (info, _) ← buildPackageModulesCore pkg deps
+  if let Except.error _ ← IO.wait info.task then
+    -- actual error has already been printed above
+    throw <| IO.userError "Build failed."
+
+def buildDeps (pkg : Package) : IO (List Package) := do
   let deps ← solveDeps pkg
   for dep in deps do
     -- build recursively
     -- TODO: share build of common dependencies
     let depDeps ← solveDeps dep
-    buildPkg dep depDeps makeArgs leanArgs
+    buildPackageModules pkg deps
   return deps
 
-def configure (pkg : Package) : IO Unit :=
+def configure (pkg : Package) : IO Unit := do
   discard <| buildDeps pkg
 
-def printPaths (pkg : Package) (imports leanArgs : List String := []) : IO Unit := do
+def build (pkg : Package) : IO Unit := do
   let deps ← buildDeps pkg
-  buildImports pkg deps imports leanArgs
+  buildPackageModules pkg deps
+
+-- # Build Package Lib/Bin
+
+def buildPackageOFiles (pkg : Package) (buildMap : NameMap ModuleBuildInfo)
+: IO (List FilePath) := do 
+  let oInfos ← buildMap.toList.mapM fun (mod, info) => 
+    let oFile := pkg.modToO mod
+    buildO oFile {info with artifact := info.cFile} pkg.leancArgs
+  oInfos.mapM fun info => do
+    IO.ofExcept (← IO.wait info.task)
+    info.artifact
+
+def buildStaticLib (pkg : Package) : IO FilePath := do
+  let deps ← buildDeps pkg
+  let buildMap ← buildPackageModuleDAG pkg deps
+  let oFiles ← buildPackageOFiles pkg buildMap
+  compileLib pkg.staticLibFile oFiles.toArray
+  pkg.staticLibFile
+
+def buildBin (pkg : Package) : IO FilePath := do
+  let deps ← solveDeps pkg
+  let depLibs ← deps.mapM buildStaticLib
+  let buildMap ← buildPackageModuleDAG pkg deps
+  let oFiles ← buildPackageOFiles pkg buildMap
+  compileBin pkg.binFile (oFiles ++ depLibs).toArray pkg.linkArgs
+  pkg.binFile
+
+-- # Print Paths
+
+def buildModulesInPackage (pkg : Package) (deps : List Package) (mods : List Name) : IO Unit := do
+  let ctx ← mkBuildContext pkg deps
+  let rs ← mods.mapM buildModule |>.run ctx |>.run' {}
+  for r in rs do
+    if let Except.error _ ← IO.wait r.task then
+      -- actual error has already been printed above
+      throw <| IO.userError "Build failed."
+
+def buildImports 
+(pkg : Package) (deps : List Package) (imports : List String := []) 
+: IO Unit := do
+  let imports := imports.map (·.toName)
+  let localImports := imports.filter (·.getRoot == pkg.module)
+  buildModulesInPackage pkg deps localImports
+
+def printPaths (pkg : Package) (imports : List String := []) : IO Unit := do
+  let deps ← buildDeps pkg
+  buildImports pkg deps imports
   IO.println <| SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)
   IO.println <| SearchPath.toString <| pkg.sourceDir :: deps.map (·.sourceDir)
 
-private def relPathToUnixString (path : FilePath) : String :=
-  if Platform.isWindows then
-    path.toString.map fun c => if c == '\\' then '/' else c
-  else
-    path.toString
-
-def build (pkg : Package) (makeArgs leanArgs : List String := []) : IO Unit := do
-  if makeArgs.contains "bin" then
-    let deps ← buildDeps pkg ["lib"]
-    let depLibs := " ".intercalate <| deps.map (relPathToUnixString ·.staticLibPath)
-    buildPkg pkg deps (s!"LINK_OPTS=\"{depLibs}\"" :: makeArgs) leanArgs
-  else
-    let deps ← buildDeps pkg
-    buildPkg pkg deps makeArgs leanArgs

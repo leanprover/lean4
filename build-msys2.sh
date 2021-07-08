@@ -1,1 +1,1 @@
-leanpkg build bin LINK_OPTS=-Wl,--export-all
+leanpkg build bin LINK_OPTS=-Wl,--export-all "$@"

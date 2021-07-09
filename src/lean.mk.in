@@ -29,7 +29,7 @@ DEPS = $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.depend))
 export LEAN_PATH += @LEAN_PATH_SEPARATOR@$(OLEAN_OUT)
 OBJS = $(addprefix $(OLEAN_OUT)/, $(SRCS:.lean=.olean))
 
-SHELL = /usr/bin/env bash -eo pipefail
+SHELL = /usr/bin/env bash -euo pipefail
 
 .PHONY: all bin lib depends clean
 

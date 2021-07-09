@@ -196,7 +196,7 @@ endif()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
 # Initialize CXXFLAGS.
-set(CMAKE_CXX_FLAGS                "${LEAN_EXTRA_CXX_FLAGS} -fPIC -ftls-model=initial-exec -DLEAN_BUILD_TYPE=\"${CMAKE_BUILD_TYPE}\"")
+set(CMAKE_CXX_FLAGS                "${LEAN_EXTRA_CXX_FLAGS} -DLEAN_BUILD_TYPE=\"${CMAKE_BUILD_TYPE}\"")
 set(CMAKE_CXX_FLAGS_DEBUG          "-DLEAN_DEBUG -DLEAN_TRACE")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-DNDEBUG")
@@ -299,11 +299,13 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean -lnodefs.js")
 else()
   # `-pie` defaulting is not consistent on Linux distributions, so let's default to off
-  set(LEANC_STATIC_LINKER_FLAGS "-no-pie -Wl,--start-group -lleancpp -lInit -lStd -lLean -Wl,--end-group")
+  set(LEANC_STATIC_LINKER_FLAGS "-Wl,--start-group -lleancpp -lInit -lStd -lLean -Wl,--end-group")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -fPIC -fno-semantic-interposition -Wl,-Bsymbolic-functions")
+  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -fPIC -Wl,-Bsymbolic-functions")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -fno-semantic-interposition -ftls-model=initial-exec")
+  set(LEANC_EXTRA_FLAGS "-fPIC -fno-semantic-interposition")
 endif()
 
 # export all symbols for the interpreter

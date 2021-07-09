@@ -326,7 +326,7 @@ else()
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -fPIC -Wl,-Bsymbolic")
+  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -fPIC -fno-semantic-interposition -Wl,-Bsymbolic-functions")
 endif()
 
 # export all symbols for the interpreter

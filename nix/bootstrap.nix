@@ -84,7 +84,7 @@ rec {
       mods = Init.mods // Std.mods // Lean.mods;
       stdlibLinkFlags = "-L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean";
       leanc = writeShellScriptBin "leanc" ''
-        ${lean-bin-tools-unwrapped}/bin/leanc ${stdlibLinkFlags} "$@"
+        LEAN_CXX=${stdenv.cc}/bin/c++ ${lean-bin-tools-unwrapped}/bin/leanc ${stdlibLinkFlags} "$@"
       '';
       lean = Lean.executable;
       leanpkg = Leanpkg.executable;

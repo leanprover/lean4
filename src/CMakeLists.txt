@@ -320,8 +320,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -lbcrypt")
 endif()
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,'-rpath=\${ORIGIN}/../lib/lean'")
-
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=\\\$ORIGIN/../lib/lean")
 
 # Allow `lean` symbols in plugins without linking directly against it. If we linked against the
 # executable or `leanshared`, plugins would try to look them up at load time (even though they
@@ -435,6 +434,8 @@ if(PREV_STAGE)
     set(LEANSHARED_LINKER_FLAGS "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp -Wl,--no-whole-archive")
   endif()
 
+  # Escape for `make`. Yes, twice.
+  string(REPLACE "$" "$$$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
   configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
   add_custom_target(make_stdlib ALL
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}

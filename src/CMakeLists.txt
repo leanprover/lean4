@@ -183,9 +183,9 @@ if(AUTO_THREAD_FINALIZATION AND NOT MSVC)
 endif()
 
 if(LLVM)
-  find_package(LLVM REQUIRED CONFIG)
-  message(STATUS "Found CLANG ${CLANG_PACKAGE_VERSION}")
-  message(STATUS "Using ClangConfig.cmake in: ${CLANG_DIR}")
+  if(NOT (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_ID STREQUAL "Clang"))
+    message(FATAL_ERROR "LLVM=ON must be used with clang. Set `CMAKE_CXX_COMPILER` and `CMAKE_C_COMPILER` accordingly.")
+  endif()
   message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
   message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 

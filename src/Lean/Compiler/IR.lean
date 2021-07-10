@@ -84,4 +84,7 @@ def addBoxedVersion (env : Environment) (decl : Decl) : Except String Environmen
   | EStateM.Result.ok     _  s => Except.ok s.env
   | EStateM.Result.error msg s => Except.error msg
 
+@[extern "lean_ir_emit_llvm"]
+constant emitLLVM : @& Environment → @& Name → IO String
+
 end Lean.IR

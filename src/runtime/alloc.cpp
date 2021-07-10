@@ -370,6 +370,7 @@ static void finalize_heap(void * _h) {
     g_heap_manager->push_orphan(h);
 }
 
+LEAN_NOINLINE
 static void init_heap(bool main) {
     lean_assert(g_heap == nullptr);
     g_heap = new heap();
@@ -448,6 +449,17 @@ void * alloc(size_t sz) {
     return lean_alloc_small(sz, slot_idx);
 }
 
+LEAN_NOINLINE
+static void dealloc_small_core_cold(void * o) {
+    set_next_obj(o, g_heap->m_to_export_list);
+    g_heap->m_to_export_list = o;
+    g_heap->m_to_export_list_size++;
+    if (g_heap->m_to_export_list_size > LEAN_MAX_TO_EXPORT_OBJS) {
+        LEAN_RUNTIME_STAT_CODE(g_num_exports++);
+        g_heap->export_objs();
+    }
+}
+
 static inline void dealloc_small_core(void * o) {
     LEAN_RUNTIME_STAT_CODE(g_num_small_dealloc++);
     if (LEAN_UNLIKELY(g_heap == nullptr)) {
@@ -458,13 +470,7 @@ static inline void dealloc_small_core(void * o) {
     if (LEAN_LIKELY(p->get_heap() == g_heap)) {
         p->push_free_obj(o);
     } else {
-        set_next_obj(o, g_heap->m_to_export_list);
-        g_heap->m_to_export_list = o;
-        g_heap->m_to_export_list_size++;
-        if (g_heap->m_to_export_list_size > LEAN_MAX_TO_EXPORT_OBJS) {
-            LEAN_RUNTIME_STAT_CODE(g_num_exports++);
-            g_heap->export_objs();
-        }
+        dealloc_small_core_cold(o);
     }
 }
 

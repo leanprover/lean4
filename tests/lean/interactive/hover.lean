@@ -94,3 +94,10 @@ example : True := by
   simp [id True.intro]
       --^ textDocument/hover
         --^ textDocument/hover
+
+
+example : Id Nat := do
+  let mut n := 1
+  n := 2
+--^ textDocument/hover
+  n

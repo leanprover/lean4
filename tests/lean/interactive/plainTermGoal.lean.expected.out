@@ -47,7 +47,7 @@
  "position": {"line": 23, "character": 6}}
 {"range":
  {"start": {"line": 23, "character": 6}, "end": {"line": 23, "character": 7}},
- "goal": "⊢ Type"}
+ "goal": "n : Nat\n⊢ Nat"}
 {"textDocument": {"uri": "file://plainTermGoal.lean"},
  "position": {"line": 29, "character": 6}}
 {"range":

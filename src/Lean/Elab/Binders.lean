@@ -107,19 +107,19 @@ private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) := do
   if k == `Lean.Parser.Term.simpleBinder then
     -- binderIdent+ >> optType
     let ids ← getBinderIds stx[0]
-    let type := expandOptType stx stx[1]
+    let type := expandOptType (mkNullNode ids) stx[1]
     ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.default }
   else if k == `Lean.Parser.Term.explicitBinder then
     -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
     let ids ← getBinderIds stx[1]
-    let type        := expandBinderType stx stx[2]
+    let type        := expandBinderType (mkNullNode ids) stx[2]
     let optModifier := stx[3]
     let type ← expandBinderModifier type optModifier
     ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.default }
   else if k == `Lean.Parser.Term.implicitBinder then
     -- `{` binderIdent+ binderType `}`
     let ids ← getBinderIds stx[1]
-    let type := expandBinderType stx stx[2]
+    let type := expandBinderType (mkNullNode ids) stx[2]
     ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.implicit }
   else if k == `Lean.Parser.Term.instBinder then
     -- `[` optIdent type `]`
@@ -580,7 +580,7 @@ def mkLetIdDeclView (letIdDecl : Syntax) : LetIdDeclView :=
   let id      := letIdDecl[0]
   let binders := letIdDecl[1].getArgs
   let optType := letIdDecl[2]
-  let type    := expandOptType letIdDecl optType
+  let type    := expandOptType id optType
   let value   := letIdDecl[4]
   { id := id, binders := binders, type := type, value := value }
 
@@ -601,7 +601,7 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
     -- node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushNone >> optType >> " := ") >> termParser
     let pat     := letDecl[0]
     let optType := letDecl[2]
-    let type    := expandOptType stx optType
+    let type    := expandOptType pat optType
     let val     := letDecl[4]
     let stxNew ← `(let x : $type := $val; match x with | $pat => $body)
     let stxNew := match useLetExpr, elabBodyFirst with

@@ -17,7 +17,7 @@ namespace Lake
 
 -- # Build Targets
 
-abbrev FileTarget := BuildTarget FilePath
+abbrev FileTarget := MTimeBuildTarget FilePath
 
 namespace FileTarget
 
@@ -34,7 +34,7 @@ structure LeanArtifact where
   cFile : FilePath
   deriving Inhabited
 
-abbrev LeanTarget := BuildTarget LeanArtifact
+abbrev LeanTarget := MTimeBuildTarget LeanArtifact
 
 namespace LeanTarget
 
@@ -61,7 +61,7 @@ def catchErrors (action : IO PUnit) : IO PUnit := do
     throw e
 
 def buildOleanAndC (leanFile oleanFile cFile : FilePath)
-(importTargets : List LeanTarget) (depsTarget : BuildTarget PUnit)
+(importTargets : List LeanTarget) (depsTarget : MTimeBuildTarget PUnit)
 (leanPath : String := "") (rootDir : FilePath := ".") (leanArgs : Array String := #[])
 : IO LeanTarget := do
   -- calculate transitive `maxMTime`
@@ -100,7 +100,7 @@ def buildO (oFile : FilePath)
     compileO oFile cTarget.artifact leancArgs
   return FileTarget.mk oFile cMTime buildTask
 
-abbrev PackageTarget :=  BuildTarget (Package × NameMap LeanTarget)
+abbrev PackageTarget :=  MTimeBuildTarget (Package × NameMap LeanTarget)
 
 namespace PackageTarget
 
@@ -118,7 +118,7 @@ structure LeanTargetContext where
   buildParents : List Name := []
   -- target for external dependencies
   -- ex. olean roots of dependencies
-  depsTarget   : BuildTarget PUnit
+  depsTarget   : MTimeBuildTarget PUnit
 
 abbrev LeanTargetM :=
    ReaderT LeanTargetContext <| StateT (NameMap LeanTarget) IO
@@ -158,7 +158,7 @@ partial def buildModule (mod : Name) : LeanTargetM LeanTarget := do
   return target
 
 def mkLeanTargetContext
-(pkg : Package) (oleanDirs : List FilePath) (depsTarget : BuildTarget PUnit)
+(pkg : Package) (oleanDirs : List FilePath) (depsTarget : MTimeBuildTarget PUnit)
 : LeanTargetContext := {
   package:= pkg
   leanPath := SearchPath.toString <| pkg.oleanDir :: oleanDirs
@@ -170,7 +170,7 @@ def mkLeanTargetContext
 def Package.buildTargetWithDepTargets
 (depTargets : List PackageTarget) (self : Package)
 : IO PackageTarget := do
-  let depsTarget ← BuildTarget.all depTargets
+  let depsTarget ← MTimeBuildTarget.all depTargets
   let depOLeanDirs := depTargets.map (·.package.oleanDir)
   let ctx := mkLeanTargetContext self depOLeanDirs depsTarget
   let (target, targetMap) ← buildModule self.module |>.run ctx |>.run {}
@@ -292,7 +292,7 @@ def buildImports
 : IO Unit := do
   -- compute context
   let oleanDirs := deps.map (·.oleanDir)
-  let depsTarget ← BuildTarget.all (← deps.mapM (·.buildTarget))
+  let depsTarget ← MTimeBuildTarget.all (← deps.mapM (·.buildTarget))
   let ctx ← mkLeanTargetContext pkg oleanDirs depsTarget
   -- build imports
   let imports := imports.map (·.toName)

@@ -6,10 +6,8 @@ Author: Dany Fabian
 */
 
 #include "library/compiler/llvm.h"
-#include "lean/io.h"
-#include "library/compiler/ir.h"
 #include "library/compiler/ir_decode_helpers.h"
-#include "util/name.h"
+#include "lean/io.h"
 #include "llvm/Bitcode/BitcodeReader.h"
 #include "llvm/IR/Verifier.h"
 
@@ -21,48 +19,61 @@ object_ref list_to_array(object_ref list) {
 
 namespace ir {
 
-extern "C" obj_res lean_ir_emit_llvm(b_obj_arg raw_env, b_obj_arg raw_mod_name, obj_arg) {
-    environment constenv = environment(raw_env, true);
-    name const mod_name  = name(raw_mod_name, true);
-    const llvm::StringRef runtimeBitCode(reinterpret_cast<const char *>(&gLeanRuntimeBitCodeData), gLeanRuntimeBitCodeSize);
-    const llvm::MemoryBufferRef bufferRef(runtimeBitCode, "");
-    llvm::LLVMContext ctx{};
-
-    auto maybeModule = llvm::getLazyBitcodeModule(bufferRef, ctx);
-    if (auto err = maybeModule.takeError()) {
-        return io_result_mk_error("nuu");
+extern "C" obj_res lean_ir_emit_llvm(b_obj_arg env, b_obj_arg mod_name, obj_arg) {
+    try {
+        LeanIREmitter emitter(environment(env, true), name(mod_name, true));
+        return io_result_mk_ok(emitter.emit().steal());
     }
-    else {
-        const auto module = std::move(maybeModule.get());
-        llvm::Module newMod("myMod", ctx);
-        newMod.setDataLayout(module->getDataLayout());
-        newMod.setTargetTriple(module->getTargetTriple());
-        auto types = newMod.getIdentifiedStructTypes();
+    catch (char const* msg) {
+        return io_result_mk_error(msg);
+    }
+}
 
-        auto lean_obj = module->getTypeByName("struct.lean_object");
-        llvm::PointerType *lean_obj_ptr = llvm::PointerType::get(lean_obj, 0);
-        newMod.getOrInsertFunction("lean_dec", llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {lean_obj_ptr}, false));
+LeanIREmitter::LeanIREmitter(environment&& env, name&& mod_name) : env{env}, mod_name{mod_name} {
+    const MemoryBufferRef bufferRef(StringRef(reinterpret_cast<char const*>(&gLeanRuntimeBitCodeData), gLeanRuntimeBitCodeSize), "");
+    Expected<std::unique_ptr<Module>> maybeRuntime = getLazyBitcodeModule(bufferRef, *this);
+    if (Error err = maybeRuntime.takeError()) {
+        throw "could not parse the lean runtime";
+    }
 
-        std::string resStr{};
-        llvm::raw_string_ostream outstr(resStr);
-        newMod.print(outstr, nullptr);
+    runtime = std::move(maybeRuntime.get());
+    builder = std::make_unique<IRBuilder<>>(*this);
+}
+
+string_ref LeanIREmitter::emit() {
+    module = std::make_unique<Module>(mod_name.to_string(), *this);
+    module->setDataLayout(runtime->getDataLayout());
+    module->setTargetTriple(runtime->getTargetTriple());
+
+    std::string resStr{};
+    {
+        raw_string_ostream outstr(resStr);
         outstr << "\n";
-        outstr << mod_name.get_string().to_std_string() << "\n";
 
-        object_ref decls = list_to_array(object_ref(lean_ir_get_decls(raw_env)));
-        usize nDecls = array_size(decls.raw());
-        outstr << nDecls << "\n";
-        for (usize i = 0; i < nDecls; ++i) {
-            decl decl = object_ref(array_get(decls.raw(), i), true);
-            fun_id declName = decl_fun_id(decl);
-            outstr << declName.to_string() << "\n";
+        list_ref<decl> decls = list_ref<decl>(lean_ir_get_decls(env.raw()));
+        for (decl decl : decls) {
+            emitFunction(decl);
         }
 
-        llvm::verifyModule(newMod, &outstr);
-
-        outstr.flush();
-        return lean_io_result_mk_ok(mk_string(resStr));
+        module->print(outstr, nullptr);
+        verifyModule(*module, &outstr);
     }
+
+    return string_ref(resStr);
+}
+
+string_ref name_mangle(name name) {
+    return string_ref(lean_name_mangle(name.to_obj_arg(), string_ref("l_").to_obj_arg()));
+}
+
+void LeanIREmitter::emitFunction(decl function) {
+    fun_id declName = decl_fun_id(function);
+
+    FunctionCallee func = module->getOrInsertFunction(name_mangle(declName).to_std_string(), Type::getInt32Ty(*this));
+    Function *callee = static_cast<Function *>(func.getCallee()); 
+    BasicBlock *entry = BasicBlock::Create(*this, "entry", callee);
+    builder->SetInsertPoint(entry);
+    builder->CreateRet(ConstantInt::get(Type::getInt32Ty(*this), 42));
 }
 
 } // namespace ir

@@ -17,91 +17,117 @@ namespace Lake
 
 -- # Build Targets
 
-abbrev FileBuildTarget := BuildTarget FilePath
+abbrev FileTarget := BuildTarget FilePath
+
+namespace FileTarget
+
+def mk (file : FilePath) (maxMTime : IO.FS.SystemTime) (task : BuildTask) :=
+  BuildTarget.mk file maxMTime task
+
+def pure (file : FilePath) (maxMTime : IO.FS.SystemTime) :=
+  BuildTarget.pure file maxMTime
+
+end FileTarget
 
 structure LeanArtifact where
   oleanFile : FilePath
   cFile : FilePath
   deriving Inhabited
 
-abbrev LeanBuildTarget := BuildTarget LeanArtifact
+abbrev LeanTarget := BuildTarget LeanArtifact
 
-namespace LeanBuildTarget
+namespace LeanTarget
 
-def oleanFile (self : LeanBuildTarget) := self.artifact.oleanFile
-def oleanTarget (self : LeanBuildTarget) : FileBuildTarget :=
+def mk (olean c : FilePath) (maxMTime : IO.FS.SystemTime) (task : BuildTask) : LeanTarget :=
+  BuildTarget.mk ⟨olean, c⟩ maxMTime task
+
+def pure (olean c : FilePath) (maxMTime : IO.FS.SystemTime) : LeanTarget :=
+  BuildTarget.pure ⟨olean, c⟩ maxMTime
+
+def oleanFile (self : LeanTarget) := self.artifact.oleanFile
+def oleanTarget (self : LeanTarget) : FileTarget :=
   {self with artifact := self.oleanFile}
 
-def cFile (self : LeanBuildTarget) := self.artifact.cFile
-def cTarget (self : LeanBuildTarget) : FileBuildTarget :=
+def cFile (self : LeanTarget) := self.artifact.cFile
+def cTarget (self : LeanTarget) : FileTarget :=
   {self with artifact := self.cFile}
 
-end LeanBuildTarget
+end LeanTarget
 
 def buildOleanAndC (leanFile oleanFile cFile : FilePath) 
-(depTargets : List LeanBuildTarget) (moreDepsMTime : IO.FS.SystemTime) 
+(importTargets : List LeanTarget) (depsTarget : BuildTarget PUnit) 
 (leanPath : String := "") (rootDir : FilePath := ".") (leanArgs : Array String := #[])
-: IO LeanBuildTarget := do
-  let artifact := ⟨oleanFile, cFile⟩
+: IO LeanTarget := do
   -- calculate transitive `maxMTime`
   let leanMData ← leanFile.metadata
-  let depMTimes ← depTargets.mapM (·.maxMTime)
-  let maxMTime := List.maximum? (leanMData.modified :: moreDepsMTime :: depMTimes) |>.get!
+  let impMTimes ← importTargets.mapM (·.maxMTime)
+  let maxMTime := List.maximum? 
+    (leanMData.modified :: depsTarget.maxMTime :: impMTimes) |>.get!
   -- construct a nop target if we have an up-to-date .olean and .c
   try
     let cMTime := (← cFile.metadata).modified
     let oleanMTime := (← oleanFile.metadata).modified
     if cMTime >= maxMTime && oleanMTime >= maxMTime then
-      return BuildTarget.pure artifact maxMTime
+      return LeanTarget.pure oleanFile cFile maxMTime
   catch
     | IO.Error.noFileOrDirectory .. => pure ()
     | e                             => throw e
   -- construct a proper target otherwise
-  let buildTask ← BuildTask.afterTargets depTargets do
+  let targets := depsTarget.withArtifact arbitrary :: importTargets
+  let buildTask ← BuildTask.afterTargets targets do
     try
       compileOleanAndC leanFile oleanFile cFile leanPath rootDir leanArgs
     catch e =>
       -- print compile errors early
       IO.eprintln e
       throw e
-  return { artifact, maxMTime, buildTask }
+  return LeanTarget.mk oleanFile cFile maxMTime buildTask
 
 def buildO (oFile : FilePath) 
-(cTarget : FileBuildTarget) (leancArgs : Array String := #[]) 
-: IO FileBuildTarget := do
+(cTarget : FileTarget) (leancArgs : Array String := #[]) 
+: IO FileTarget := do
   -- construct a nop target if we have an up-to-date .o
   let cMTime := cTarget.maxMTime
   try 
     if (← oFile.metadata).modified >= cMTime then 
-      return BuildTarget.pure oFile cMTime
+      return FileTarget.pure oFile cMTime
   catch
     | IO.Error.noFileOrDirectory .. => pure ()
     | e => throw e
   -- construct a proper target otherwise
-  let buildTask ← cTarget.afterBuild do
+  let buildTask ← BuildTask.afterTarget cTarget do
     try
       compileO oFile cTarget.artifact leancArgs
     catch e =>
       -- print compile errors early
       IO.eprintln e
       throw e
-  return {artifact := oFile, maxMTime := cMTime, buildTask}
+  return FileTarget.mk oFile cMTime buildTask
+
+abbrev PackageTarget :=  BuildTarget (Package × NameMap LeanTarget)
+
+namespace PackageTarget
+
+def package (self : PackageTarget) := self.artifact.1
+def moduleTargets (self : PackageTarget) : NameMap LeanTarget :=
+  self.artifact.2
+
+end PackageTarget
 
 -- # Build Modules
 
-structure ModuleTargetContext where
-  package       : Package
-  leanPath      : String
-  buildParents  : List Name := []
-  -- things that should also trigger rebuilds
+structure LeanTargetContext where
+  package      : Package
+  leanPath     : String
+  buildParents : List Name := []
+  -- target for external dependencies
   -- ex. olean roots of dependencies
-  moreDeps      : List FilePath
-  moreDepsMTime : IO.FS.SystemTime
+  depsTarget   : BuildTarget PUnit
 
-abbrev ModuleTargetM :=
-   ReaderT ModuleTargetContext <| StateT (NameMap LeanBuildTarget) IO
+abbrev LeanTargetM :=
+   ReaderT LeanTargetContext <| StateT (NameMap LeanTarget) IO
 
-partial def buildTargetsForModule (mod : Name) : ModuleTargetM LeanBuildTarget := do
+partial def buildModule (mod : Name) : LeanTargetM LeanTarget := do
   let ctx ← read
   let pkg := ctx.package
 
@@ -123,106 +149,177 @@ partial def buildTargetsForModule (mod : Name) : ModuleTargetM LeanBuildTarget :
   let directLocalImports := imports.map (·.module) |>.filter (·.getRoot == pkg.module)
 
   -- recursively build local dependencies
-  let depTargets ← directLocalImports.mapM fun i =>
+  let importTargets ← directLocalImports.mapM fun i =>
     withReader (fun ctx => { ctx with buildParents := mod :: ctx.buildParents }) <|
-      buildTargetsForModule i
+      buildModule i
 
   -- do build
   let cFile := pkg.modToC mod
   let oleanFile := pkg.modToOlean mod
   let target ← buildOleanAndC leanFile oleanFile cFile 
-    depTargets ctx.moreDepsMTime ctx.leanPath pkg.dir pkg.leanArgs
+    importTargets ctx.depsTarget ctx.leanPath pkg.dir pkg.leanArgs
   modify (·.insert mod target)
   return target
 
-def mkModuleTargetContext 
-(pkg : Package) (deps : List Package) : IO ModuleTargetContext := do
-  let moreDeps := deps.map (·.oleanRoot)
-  let moreDepsMTime := (← moreDeps.mapM (·.metadata)).map (·.modified) |>.maximum? |>.getD ⟨0, 0⟩
-  let leanPath := SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)
-  return { package := pkg, leanPath, moreDeps, moreDepsMTime }
-
-def buildPackageModuleTargetMap 
-(pkg : Package) (deps : List Package) : IO (NameMap LeanBuildTarget) := do
-  let crx ← mkModuleTargetContext pkg deps
-  let (_, targetMap) ← buildTargetsForModule pkg.module |>.run crx |>.run {}
-  return targetMap
-
-def buildPackageModules 
-(pkg : Package) (deps : List Package) : IO PUnit := do
-  let crx ← mkModuleTargetContext pkg deps
-  let target ← buildTargetsForModule pkg.module |>.run crx |>.run' {}
-  try target.materialize catch _ =>
-    -- actual error has already been printed within buildTask
-    throw <| IO.userError "Build failed."
-
-def buildModulesInPackage 
-(pkg : Package) (deps : List Package) (mods : List Name) : IO Unit := do
-  let ctx ← mkModuleTargetContext pkg deps
-  let targets ← mods.mapM buildTargetsForModule |>.run ctx |>.run' {}
-  let tasks ← targets.mapM (·.buildTask)
-  for task in tasks do
-    try task.await catch e =>
-      -- actual error has already been printed within buildTask
-      throw <| IO.userError "Build failed."
+def mkLeanTargetContext 
+(pkg : Package) (oleanDirs : List FilePath) (depsTarget : BuildTarget PUnit) 
+: LeanTargetContext := {
+  package:= pkg
+  leanPath := SearchPath.toString <| pkg.oleanDir :: oleanDirs
+  depsTarget
+}
 
 -- # Configure/Build Packages
 
-def buildDeps (pkg : Package) : IO (List Package) := do
-  let deps ← solveDeps pkg
-  for dep in deps do
-    -- build recursively
-    -- TODO: share build of common dependencies
-    let depDeps ← solveDeps dep
-    buildPackageModules pkg deps
+def Package.buildTargetWithDepTargets
+(depTargets : List PackageTarget) (self : Package)
+: IO PackageTarget := do
+  let depsTarget ← BuildTarget.all depTargets
+  let depOLeanDirs := depTargets.map (·.package.oleanDir)
+  let ctx := mkLeanTargetContext self depOLeanDirs depsTarget
+  let (target, targetMap) ← buildModule self.module |>.run ctx |>.run {}
+  return {target with artifact := ⟨self, targetMap⟩}
+
+partial def Package.buildTarget (self : Package) : IO PackageTarget := do
+  let deps ← solveDeps self
+  -- build dependencies recursively
+  -- TODO: share build of common dependencies
+  let depTargets ← deps.mapM (·.buildTarget)
+  self.buildTargetWithDepTargets depTargets
+
+def Package.buildDepTargets (self : Package) : IO (List PackageTarget) := do
+  let deps ← solveDeps self
+  deps.mapM (·.buildTarget)
+
+def Package.buildDeps (self : Package) : IO (List Package) := do
+  let deps ← solveDeps self
+  let targets ← deps.mapM (·.buildTarget)
+  try targets.forM (·.materialize) catch e =>
+    -- actual error has already been printed within the task
+    throw <| IO.userError "Build failed."
   return deps
 
-def configure (pkg : Package) : IO Unit := do
-  discard <| buildDeps pkg
+def configure (pkg : Package) : IO Unit :=
+  discard pkg.buildDeps
 
-def build (pkg : Package) : IO Unit := do
-  let deps ← buildDeps pkg
-  buildPackageModules pkg deps
+def Package.build (self : Package) : IO PUnit := do
+  let target ← self.buildTarget
+  try target.materialize catch _ =>
+    -- actual error has already been printed within the task
+    throw <| IO.userError "Build failed."
 
--- # Build Package Lib/Bin
+def build (pkg : Package) : IO PUnit :=
+  pkg.build
 
-def buildPackageOFiles 
-(pkg : Package) (targetMap : NameMap LeanBuildTarget)
-: IO (List FilePath) := do 
-  let oTasks ← targetMap.toList.mapM fun (mod, target) => do
-    let oFile := pkg.modToO mod
-    let target ← buildO oFile target.cTarget pkg.leancArgs
-    (oFile, ← target.buildTask)
-  oTasks.mapM fun (oFile, task) => do
-    task.await
-    oFile
+-- # Build Package Lib
 
-def buildStaticLib (pkg : Package) : IO FilePath := do
-  let deps ← buildDeps pkg
-  let targetMap ← buildPackageModuleTargetMap pkg deps
-  let oFiles ← buildPackageOFiles pkg targetMap
-  compileLib pkg.staticLibFile oFiles.toArray
-  pkg.staticLibFile
+def PackageTarget.buildOFileTargets 
+(self : PackageTarget) : IO (List FileTarget) := do 
+  self.moduleTargets.toList.mapM fun (mod, target) => do
+    let oFile := self.package.modToO mod
+    buildO oFile target.cTarget self.package.leancArgs
 
-def buildBin (pkg : Package) : IO FilePath := do
-  let deps ← solveDeps pkg
-  let depLibs ← deps.mapM buildStaticLib
-  let targetMap ← buildPackageModuleTargetMap pkg deps
-  let oFiles ← buildPackageOFiles pkg targetMap
-  compileBin pkg.binFile (oFiles ++ depLibs).toArray pkg.linkArgs
-  pkg.binFile
+def PackageTarget.buildStaticLibTarget 
+(self : PackageTarget) : IO FileTarget := do
+  let libFile := self.package.staticLibFile
+  -- construct a nop target if we have an up-to-date lib
+  let pkgMTime := self.maxMTime
+  try 
+    if (← libFile.metadata).modified >= pkgMTime then 
+      return FileTarget.pure libFile pkgMTime
+  catch
+    | IO.Error.noFileOrDirectory .. => pure ()
+    | e => throw e
+  -- construct a proper target otherwise
+  let oFileTargets ← self.buildOFileTargets
+  let oFiles := oFileTargets.map (·.artifact) |>.toArray
+  let buildTask ← BuildTask.afterTargets oFileTargets do
+    try
+      compileStaticLib libFile oFiles
+    catch e =>
+      -- print compile errors early
+      IO.eprintln e
+      throw e
+  return FileTarget.mk libFile pkgMTime buildTask
+
+def Package.buildStaticLibTarget (self : Package) : IO FileTarget := do
+  let target ← self.buildTarget
+  target.buildStaticLibTarget
+
+def Package.buildStaticLib (self : Package) : IO FilePath := do
+  let target ← self.buildStaticLibTarget
+  try target.materialize catch _ =>
+    -- actual error has already been printed within the task
+    throw <| IO.userError "Build failed."
+  return target.artifact
+
+def buildLib (pkg : Package) : IO PUnit :=
+  discard pkg.buildStaticLib
+
+-- # Build Package Bin
+
+def PackageTarget.buildBinTarget 
+ (depTargets : List PackageTarget) (self : PackageTarget)
+: IO FileTarget := do
+  let binFile := self.package.binFile
+  -- construct a nop target if we have an up-to-date bin
+  let pkgMTime := self.maxMTime
+  try 
+    if (← binFile.metadata).modified >= pkgMTime then 
+      return FileTarget.pure binFile pkgMTime
+  catch
+    | IO.Error.noFileOrDirectory .. => pure ()
+    | e => throw e
+  -- construct a proper target otherwise
+  let oFileTargets ← self.buildOFileTargets
+  let oFiles := oFileTargets.map (·.artifact) |>.toArray
+  let libTargets ← depTargets.mapM (·.buildStaticLibTarget)
+  let libFiles := libTargets.map (·.artifact) |>.toArray
+  let buildTask ← BuildTask.afterTargets oFileTargets do
+    try
+      compileBin binFile (oFiles ++ libFiles) self.package.linkArgs
+    catch e =>
+      -- print compile errors early
+      IO.eprintln e
+      throw e
+  return FileTarget.mk binFile pkgMTime buildTask
+
+def Package.buildBinTarget (self : Package) : IO FileTarget := do
+  let depTargets ← self.buildDepTargets
+  let pkgTarget ← self.buildTargetWithDepTargets depTargets
+  pkgTarget.buildBinTarget depTargets
+
+def Package.buildBin (self : Package) : IO FilePath := do
+  let target ← self.buildBinTarget
+  try target.materialize catch _ =>
+    -- actual error has already been printed within the task
+    throw <| IO.userError "Build failed."
+  return target.artifact
+
+def buildBin (pkg : Package) : IO PUnit :=
+  discard pkg.buildBin
 
 -- # Print Paths
 
 def buildImports 
 (pkg : Package) (deps : List Package) (imports : List String := []) 
 : IO Unit := do
+  -- compute context
+  let oleanDirs := deps.map (·.oleanDir)
+  let depsTarget ← BuildTarget.all (← deps.mapM (·.buildTarget))
+  let ctx ← mkLeanTargetContext pkg oleanDirs depsTarget
+  -- build imports
   let imports := imports.map (·.toName)
   let localImports := imports.filter (·.getRoot == pkg.module)
-  buildModulesInPackage pkg deps localImports
+  let targets ← imports.mapM buildModule |>.run ctx |>.run' {}
+  let tasks ← targets.mapM (·.buildTask)
+  for task in tasks do
+    try task.await catch e =>
+      -- actual error has already been printed within buildTask
+      throw <| IO.userError "Build failed."
 
 def printPaths (pkg : Package) (imports : List String := []) : IO Unit := do
-  let deps ← buildDeps pkg
+  let deps ← solveDeps pkg
   buildImports pkg deps imports
   IO.println <| SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)
   IO.println <| SearchPath.toString <| pkg.sourceDir :: deps.map (·.sourceDir)

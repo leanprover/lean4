@@ -33,15 +33,15 @@ def compileO
   }
 
 def compileBin
-(binFile : FilePath) (oFiles : Array FilePath) (linkArgs : Array String := #[])
+(binFile : FilePath) (linkFiles : Array FilePath) (linkArgs : Array String := #[])
 : IO Unit := do
   if let some dir := binFile.parent then IO.FS.createDirAll dir
   execCmd {
     cmd := "leanc"
-    args := #["-o", binFile.toString] ++ oFiles.map toString ++ linkArgs
+    args := #["-o", binFile.toString] ++ linkFiles.map toString ++ linkArgs
   }
 
-def compileLib
+def compileStaticLib
 (libFile : FilePath) (oFiles : Array FilePath)
 : IO Unit := do
   if let some dir := libFile.parent then IO.FS.createDirAll dir

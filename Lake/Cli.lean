@@ -103,8 +103,8 @@ def cli : (cmd : String) → (lakeArgs pkgArgs : List String) → IO Unit
 | "configure",    [],             []  => do configure (← getRootPkg)
 | "print-paths",  imports,        []  => do printPaths (← getRootPkg) imports
 | "build",        [],             []  => do build (← getRootPkg)
-| "build-lib",    [],             []  => do discard <| buildStaticLib (← getRootPkg)
-| "build-bin",    [],             []  => do discard <| buildBin (← getRootPkg) 
+| "build-lib",    [],             []  => do buildLib (← getRootPkg)
+| "build-bin",    [],             []  => do buildBin (← getRootPkg) 
 | "help",         ["init"],       []  => IO.println helpInit
 | "help",         ["configure"],  []  => IO.println helpConfigure
 | "help",         ["build"],      []  => IO.println helpBuild

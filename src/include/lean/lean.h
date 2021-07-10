@@ -40,12 +40,10 @@ extern "C" {
 #define LEAN_UNLIKELY(x) (__builtin_expect((x), 0))
 #define LEAN_LIKELY(x) (__builtin_expect((x), 1))
 #define LEAN_ALWAYS_INLINE __attribute__((always_inline))
-#define LEAN_NOINLINE __attribute__((noinline))
 #else
 #define LEAN_UNLIKELY(x) (x)
 #define LEAN_LIKELY(x) (x)
 #define LEAN_ALWAYS_INLINE
-#define LEAN_NOINLINE
 #endif
 
 #ifdef LEAN_RUNTIME_STATS

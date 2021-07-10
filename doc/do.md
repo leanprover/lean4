@@ -330,7 +330,7 @@ def sumOddUpTo (xs : List Nat) (threshold : Nat) : IO Nat := do
     IO.println s!"x: {x}"
     s := s + x
     if s > threshold then
-      break -- it behave like the `continue` statement in imperative languages
+      break -- it behaves like the `break` statement in imperative languages
   IO.println s!"result: {s}"
   return s
 

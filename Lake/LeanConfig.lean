@@ -29,7 +29,8 @@ unsafe def fromLeanFileUnsafe
         env.evalConstCheck PackageConfig Options.empty ``PackageConfig `package
       match configE with
       | Except.ok config => Package.mk root config
-      | Except.error error => throw <| IO.userError error
+      | Except.error error => throw <| IO.userError <|
+        s!"unexpected type at 'package', `Lake.Packager` or `Lake.PackageConfig` expected"
   else
     throw <| IO.userError <| s!"package configuration (at {path}) has errors"
 

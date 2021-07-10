@@ -164,7 +164,6 @@ where
           let localDecl ← getLocalDecl x.fvarId!
           if !localDecl.userName.hasMacroScopes then
             userNames := userNames.push localDecl.userName
-          let xTy ← inferType x
           let a := mkIdent (← mkFreshUserName `a)
           identNames := identNames.push a
         let jsonAccess ← identNames.mapIdxM (fun idx _ => `(jsons[$(quote idx.val)]))

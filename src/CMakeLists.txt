@@ -69,6 +69,7 @@ option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current ver
 
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
 set(MINGW_LOCAL_DIR       "C:/msys64/mingw64/bin"      CACHE STRING "where to find MSYS2 required DLLs and binaries")
+set(CMAKE_EXPORT_COMPILE_COMMANDS                 ON) # genereate compile_commands.json for clangd
 
 if ("${FAKE_FREE}" MATCHES "ON")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_FAKE_FREE")

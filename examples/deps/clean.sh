@@ -1,3 +1,3 @@
-rm -r a/build
-rm -r b/build
-rm -r foo/build
+rm -rf a/build
+rm -rf b/build
+rm -rf foo/build

@@ -10,6 +10,12 @@ Author: Leonardo de Moura
 #include <lean/alloc.h>
 #include <lean/lean.h>
 
+#if defined(__GNUC__) || defined(__clang__)
+#define LEAN_NOINLINE __attribute__((noinline))
+#else
+#define LEAN_NOINLINE
+#endif
+
 #define LEAN_PAGE_SIZE             8192        // 8 Kb
 #define LEAN_SEGMENT_SIZE          8*1024*1024 // 8 Mb
 #define LEAN_NUM_SLOTS             (LEAN_MAX_SMALL_OBJECT_SIZE / LEAN_OBJECT_SIZE_DELTA)
@@ -397,24 +403,33 @@ void init_thread_heap() {
     init_heap(false);
 }
 
+LEAN_NOINLINE
+void * lean_alloc_small_cold(unsigned sz, unsigned slot_idx, page * p) {
+    if (g_heap->m_page_free_list[slot_idx] == nullptr) {
+        g_heap->import_objs();
+        lean_assert(g_heap->m_curr_page[slot_idx] == p);
+        /* g_heap->import_objs() may add objects to p->m_header.m_free_list */
+        if (p->m_header.m_free_list == nullptr)
+            p = alloc_page(g_heap, sz);
+    } else {
+        p = page_list_pop(g_heap->m_page_free_list[slot_idx]);
+        p->m_header.m_in_page_free_list = false;
+        page_list_insert(g_heap->m_curr_page[slot_idx], p);
+    }
+    void * r = p->m_header.m_free_list;
+    lean_assert(r);
+    p->m_header.m_free_list = get_next_obj(r);
+    p->m_header.m_num_free--;
+    lean_assert(get_page_of(r) == p);
+    return r;
+}
+
 extern "C" void * lean_alloc_small(unsigned sz, unsigned slot_idx) {
     page * p = g_heap->m_curr_page[slot_idx];
     g_heap->m_heartbeat++;
     void * r = p->m_header.m_free_list;
     if (LEAN_UNLIKELY(r == nullptr)) {
-        if (g_heap->m_page_free_list[slot_idx] == nullptr) {
-            g_heap->import_objs();
-            lean_assert(g_heap->m_curr_page[slot_idx] == p);
-            /* g_heap->import_objs() may add objects to p->m_header.m_free_list */
-            if (p->m_header.m_free_list == nullptr)
-                p = alloc_page(g_heap, sz);
-        } else {
-            p = page_list_pop(g_heap->m_page_free_list[slot_idx]);
-            p->m_header.m_in_page_free_list = false;
-            page_list_insert(g_heap->m_curr_page[slot_idx], p);
-        }
-        r = p->m_header.m_free_list;
-        lean_assert(r);
+        return lean_alloc_small_cold(sz, slot_idx, p);
     }
     p->m_header.m_free_list = get_next_obj(r);
     p->m_header.m_num_free--;

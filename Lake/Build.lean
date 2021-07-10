@@ -54,14 +54,20 @@ def cTarget (self : LeanTarget) : FileTarget :=
 
 end LeanTarget
 
-def buildOleanAndC (leanFile oleanFile cFile : FilePath) 
-(importTargets : List LeanTarget) (depsTarget : BuildTarget PUnit) 
+def catchErrors (action : IO PUnit) : IO PUnit := do
+  try action catch e =>
+    -- print compile errors early
+    IO.eprintln e
+    throw e
+
+def buildOleanAndC (leanFile oleanFile cFile : FilePath)
+(importTargets : List LeanTarget) (depsTarget : BuildTarget PUnit)
 (leanPath : String := "") (rootDir : FilePath := ".") (leanArgs : Array String := #[])
 : IO LeanTarget := do
   -- calculate transitive `maxMTime`
   let leanMData ← leanFile.metadata
   let impMTimes ← importTargets.mapM (·.maxMTime)
-  let maxMTime := List.maximum? 
+  let maxMTime := List.maximum?
     (leanMData.modified :: depsTarget.maxMTime :: impMTimes) |>.get!
   -- construct a nop target if we have an up-to-date .olean and .c
   try
@@ -74,34 +80,24 @@ def buildOleanAndC (leanFile oleanFile cFile : FilePath)
     | e                             => throw e
   -- construct a proper target otherwise
   let targets := depsTarget.withArtifact arbitrary :: importTargets
-  let buildTask ← BuildTask.afterTargets targets do
-    try
-      compileOleanAndC leanFile oleanFile cFile leanPath rootDir leanArgs
-    catch e =>
-      -- print compile errors early
-      IO.eprintln e
-      throw e
+  let buildTask ← BuildTask.afterTargets targets <| catchErrors <|
+    compileOleanAndC leanFile oleanFile cFile leanPath rootDir leanArgs
   return LeanTarget.mk oleanFile cFile maxMTime buildTask
 
-def buildO (oFile : FilePath) 
-(cTarget : FileTarget) (leancArgs : Array String := #[]) 
+def buildO (oFile : FilePath)
+(cTarget : FileTarget) (leancArgs : Array String := #[])
 : IO FileTarget := do
   -- construct a nop target if we have an up-to-date .o
   let cMTime := cTarget.maxMTime
-  try 
-    if (← oFile.metadata).modified >= cMTime then 
+  try
+    if (← oFile.metadata).modified >= cMTime then
       return FileTarget.pure oFile cMTime
   catch
     | IO.Error.noFileOrDirectory .. => pure ()
     | e => throw e
   -- construct a proper target otherwise
-  let buildTask ← BuildTask.afterTarget cTarget do
-    try
-      compileO oFile cTarget.artifact leancArgs
-    catch e =>
-      -- print compile errors early
-      IO.eprintln e
-      throw e
+  let buildTask ← BuildTask.afterTarget cTarget <| catchErrors <|
+    compileO oFile cTarget.artifact leancArgs
   return FileTarget.mk oFile cMTime buildTask
 
 abbrev PackageTarget :=  BuildTarget (Package × NameMap LeanTarget)
@@ -156,13 +152,13 @@ partial def buildModule (mod : Name) : LeanTargetM LeanTarget := do
   -- do build
   let cFile := pkg.modToC mod
   let oleanFile := pkg.modToOlean mod
-  let target ← buildOleanAndC leanFile oleanFile cFile 
+  let target ← buildOleanAndC leanFile oleanFile cFile
     importTargets ctx.depsTarget ctx.leanPath pkg.dir pkg.leanArgs
   modify (·.insert mod target)
   return target
 
-def mkLeanTargetContext 
-(pkg : Package) (oleanDirs : List FilePath) (depsTarget : BuildTarget PUnit) 
+def mkLeanTargetContext
+(pkg : Package) (oleanDirs : List FilePath) (depsTarget : BuildTarget PUnit)
 : LeanTargetContext := {
   package:= pkg
   leanPath := SearchPath.toString <| pkg.oleanDir :: oleanDirs
@@ -213,19 +209,19 @@ def build (pkg : Package) : IO PUnit :=
 
 -- # Build Package Lib
 
-def PackageTarget.buildOFileTargets 
-(self : PackageTarget) : IO (List FileTarget) := do 
+def PackageTarget.buildOFileTargets
+(self : PackageTarget) : IO (List FileTarget) := do
   self.moduleTargets.toList.mapM fun (mod, target) => do
     let oFile := self.package.modToO mod
     buildO oFile target.cTarget self.package.leancArgs
 
-def PackageTarget.buildStaticLibTarget 
+def PackageTarget.buildStaticLibTarget
 (self : PackageTarget) : IO FileTarget := do
   let libFile := self.package.staticLibFile
   -- construct a nop target if we have an up-to-date lib
   let pkgMTime := self.maxMTime
-  try 
-    if (← libFile.metadata).modified >= pkgMTime then 
+  try
+    if (← libFile.metadata).modified >= pkgMTime then
       return FileTarget.pure libFile pkgMTime
   catch
     | IO.Error.noFileOrDirectory .. => pure ()
@@ -233,13 +229,8 @@ def PackageTarget.buildStaticLibTarget
   -- construct a proper target otherwise
   let oFileTargets ← self.buildOFileTargets
   let oFiles := oFileTargets.map (·.artifact) |>.toArray
-  let buildTask ← BuildTask.afterTargets oFileTargets do
-    try
-      compileStaticLib libFile oFiles
-    catch e =>
-      -- print compile errors early
-      IO.eprintln e
-      throw e
+  let buildTask ← BuildTask.afterTargets oFileTargets <| catchErrors <|
+    compileStaticLib libFile oFiles
   return FileTarget.mk libFile pkgMTime buildTask
 
 def Package.buildStaticLibTarget (self : Package) : IO FileTarget := do
@@ -258,14 +249,14 @@ def buildLib (pkg : Package) : IO PUnit :=
 
 -- # Build Package Bin
 
-def PackageTarget.buildBinTarget 
+def PackageTarget.buildBinTarget
  (depTargets : List PackageTarget) (self : PackageTarget)
 : IO FileTarget := do
   let binFile := self.package.binFile
   -- construct a nop target if we have an up-to-date bin
   let pkgMTime := self.maxMTime
-  try 
-    if (← binFile.metadata).modified >= pkgMTime then 
+  try
+    if (← binFile.metadata).modified >= pkgMTime then
       return FileTarget.pure binFile pkgMTime
   catch
     | IO.Error.noFileOrDirectory .. => pure ()
@@ -275,13 +266,8 @@ def PackageTarget.buildBinTarget
   let oFiles := oFileTargets.map (·.artifact) |>.toArray
   let libTargets ← depTargets.mapM (·.buildStaticLibTarget)
   let libFiles := libTargets.map (·.artifact) |>.toArray
-  let buildTask ← BuildTask.afterTargets oFileTargets do
-    try
-      compileBin binFile (oFiles ++ libFiles) self.package.linkArgs
-    catch e =>
-      -- print compile errors early
-      IO.eprintln e
-      throw e
+  let buildTask ← BuildTask.afterTargets oFileTargets <| catchErrors <|
+    compileBin binFile (oFiles ++ libFiles) self.package.linkArgs
   return FileTarget.mk binFile pkgMTime buildTask
 
 def Package.buildBinTarget (self : Package) : IO FileTarget := do
@@ -301,8 +287,8 @@ def buildBin (pkg : Package) : IO PUnit :=
 
 -- # Print Paths
 
-def buildImports 
-(pkg : Package) (deps : List Package) (imports : List String := []) 
+def buildImports
+(pkg : Package) (deps : List Package) (imports : List String := [])
 : IO Unit := do
   -- compute context
   let oleanDirs := deps.map (·.oleanDir)
@@ -323,4 +309,3 @@ def printPaths (pkg : Package) (imports : List String := []) : IO Unit := do
   buildImports pkg deps imports
   IO.println <| SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)
   IO.println <| SearchPath.toString <| pkg.sourceDir :: deps.map (·.sourceDir)
-

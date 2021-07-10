@@ -24,7 +24,7 @@ def getLakeHome? : IO (Option FilePath) := do
 
 /--
   Initializes the search path the Lake executable
-  uses when intepreting package configuration files.
+  uses when interpreting package configuration files.
 
   In order to use the Lean stdlib (e.g., `Init`),
   the executable needs the search path to include the directory

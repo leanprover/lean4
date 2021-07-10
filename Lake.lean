@@ -13,5 +13,5 @@ def main (args : List String) : IO UInt32 := do
     Lake.cli cmd outerArgs innerArgs
     pure 0
   catch e =>
-    IO.eprintln e  -- avoid "uncaught exception: ..."
+    IO.eprintln e -- avoid "uncaught exception: ..."
     pure 1

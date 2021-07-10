@@ -68,8 +68,8 @@ def solveDepsCore (pkg : Package) : (maxDepth : Nat) → Solver Unit
     let newDeps ← pkg.dependencies.filterM (notYetAssigned ·.name)
     for dep in newDeps do
       let dir ← materialize pkg.dir dep
-      let cfg ← PackageConfig.fromLeanFile <| dir / leanPkgFile
-      modify (·.insert dep.name ⟨dir, cfg⟩)
+      let pkg ← Package.fromDir dir dep.args
+      modify (·.insert dep.name pkg)
     for dep in newDeps do
       let depPkg ← resolvedPackage dep.name
       unless depPkg.name = dep.name do

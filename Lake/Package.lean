@@ -21,7 +21,8 @@ inductive Source where
 
 structure Dependency where
   name : String
-  src : Source
+  src  : Source
+  args : List String := []
 
 structure PackageConfig where
   name : String
@@ -30,7 +31,6 @@ structure PackageConfig where
   leanArgs : Array String := #[]
   leancArgs : Array String := #[]
   linkArgs : Array String := #[]
-  timeout : Option Nat := none
   module : Name := name.capitalize
   dependencies : List Dependency := []
   deriving Inhabited
@@ -40,88 +40,93 @@ structure Package where
   config : PackageConfig
   deriving Inhabited
 
+def Packager := FilePath → List String → IO PackageConfig
+
 namespace Package
 
-def name (self : Package) :=
+def name (self : Package) : String :=
   self.config.name
 
-def module (self : Package) :=
+def version (self : Package) : String :=
+  self.config.version
+
+def leanVersion (self : Package) : String :=
+  self.config.leanVersion
+
+def module (self : Package) : Name :=
   self.config.module
 
-def moduleName (self : Package) :=
+def moduleName (self : Package) : String :=
   self.config.module.toString
 
-def dependencies (self : Package) :=
+def dependencies (self : Package) : List Dependency :=
   self.config.dependencies
 
-def leanArgs (self : Package) :=
+def leanArgs (self : Package) : Array String :=
   self.config.leanArgs
 
-def leancArgs (self : Package) :=
+def leancArgs (self : Package) : Array String :=
   self.config.leancArgs
 
-def linkArgs (self : Package) :=
+def linkArgs (self : Package) : Array String :=
   self.config.linkArgs
 
-def timeout (self : Package) :=
-  self.config.timeout
-
-def sourceDir (self : Package) :=
+def sourceDir (self : Package) : FilePath :=
   self.dir
 
-def sourceRoot (self : Package) :=
+def sourceRoot (self : Package) : FilePath :=
   self.sourceDir / self.moduleName
 
-def modToSource (mod : Name) (self : Package) :=
+def modToSource (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.sourceDir mod "lean"
 
-def buildDir (self : Package) :=
+def buildDir (self : Package) : FilePath :=
   self.dir / Lake.buildPath
 
-def oleanDir (self : Package) :=
+def oleanDir (self : Package) : FilePath :=
   self.buildDir
 
-def oleanRoot (self : Package) :=
+def oleanRoot (self : Package) : FilePath :=
   self.oleanDir / FilePath.withExtension self.moduleName "olean"
 
-def modToOlean (mod : Name) (self : Package) :=
+def modToOlean (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.oleanDir mod "olean"
 
-def tempBuildDir (self : Package) :=
+def tempBuildDir (self : Package) : FilePath :=
   self.dir / tempBuildPath
 
-def cDir (self : Package) :=
+def cDir (self : Package) : FilePath :=
   self.tempBuildDir
 
-def modToC (mod : Name) (self : Package) :=
+def modToC (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.cDir mod "c"
 
-def oDir (self : Package) :=
+def oDir (self : Package) : FilePath :=
   self.tempBuildDir
 
-def modToO (mod : Name) (self : Package) :=
+def modToO (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.oDir mod "o"
 
-def binDir (self : Package) :=
+def binDir (self : Package) : FilePath :=
   self.buildDir / "bin"
 
-def binName (self : Package) :=
+def binName (self : Package) : FilePath :=
   self.moduleName
 
 def binFileName (self : Package) : FilePath :=
   FilePath.withExtension self.binName FilePath.exeExtension
 
-def binFile (self : Package) :=
+def binFile (self : Package) : FilePath :=
   self.binDir / self.binFileName
 
-def libDir (self : Package) :=
+def libDir (self : Package) : FilePath :=
   self.buildDir / "lib"
 
-def staticLibName (self : Package) :=
+def staticLibName (self : Package) : FilePath :=
   self.moduleName
 
-def staticLibFileName (self : Package) :=
+def staticLibFileName (self : Package) : FilePath :=
   s!"lib{self.module}.a"
 
-def staticLibFile (self : Package) :=
+def staticLibFile (self : Package) : FilePath :=
   self.libDir / self.staticLibFileName

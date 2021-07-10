@@ -64,28 +64,53 @@ def afterTargets (targets : List (BuildTarget t a)) (action : IO PUnit) : IO Bui
 
 end BuildTask
 
-abbrev MTimeBuildTarget := BuildTarget IO.FS.SystemTime
-instance : OfNat IO.FS.SystemTime (nat_lit 0) := ⟨⟨0,0⟩⟩
+-- # MTime Build Targets
+
+section
+open IO.FS (SystemTime)
+
+def MTime := SystemTime
+
+instance : Inhabited MTime := ⟨⟨0,0⟩⟩
+instance : OfNat MTime (nat_lit 0) := ⟨⟨0,0⟩⟩
+instance : BEq MTime := inferInstanceAs (BEq SystemTime)
+instance : Repr MTime := inferInstanceAs (Repr SystemTime)
+instance : Ord MTime := inferInstanceAs (Ord SystemTime)
+instance : LT MTime := ltOfOrd
+instance : LE MTime := leOfOrd
+end
+
+def MTime.listMax (mtimes : List MTime) := mtimes.maximum?.getD 0
+
+class GetMTime (α) where
+  getMTime : α → IO MTime
+
+export GetMTime (getMTime)
+
+instance : GetMTime System.FilePath where
+  getMTime file := do (← file.metadata).modified
+
+abbrev MTimeBuildTarget := BuildTarget MTime
 
 namespace MTimeBuildTarget
 
-def maxMTime (self : MTimeBuildTarget a) :=
+def mtime (self : MTimeBuildTarget a) :=
   self.trace
 
-def mk (artifact : a) (maxMTime :  IO.FS.SystemTime := 0) (buildTask : BuildTask) : MTimeBuildTarget a :=
-  {artifact, trace := maxMTime, buildTask}
+def mk (artifact : a) (mtime : MTime := 0) (buildTask : BuildTask) : MTimeBuildTarget a :=
+  {artifact, trace := mtime, buildTask}
 
-def pure (artifact : a) (maxMTime :  IO.FS.SystemTime := 0) : MTimeBuildTarget a :=
-  {artifact, trace := maxMTime, buildTask := BuildTask.nop}
+def pure (artifact : a) (mtime : MTime := 0) : MTimeBuildTarget a :=
+  {artifact, trace := mtime, buildTask := BuildTask.nop}
 
 def all (targets : List (MTimeBuildTarget a)) : IO (MTimeBuildTarget PUnit) := do
-  let depsMTime := targets.map (·.maxMTime) |>.maximum? |>.getD 0
+  let depsMTime := MTime.listMax <| targets.map (·.mtime)
   let task ← BuildTask.all <| targets.map (·.buildTask)
   return MTimeBuildTarget.mk () depsMTime task
 
 def collectAll (targets : List (MTimeBuildTarget a)) : IO (MTimeBuildTarget (List a)) := do
   let artifacts := targets.map (·.artifact)
-  let depsMTime := targets.map (·.maxMTime) |>.maximum? |>.getD ⟨0, 0⟩
+  let depsMTime := MTime.listMax <|  targets.map (·.mtime)
   let task ← BuildTask.all <| targets.map (·.buildTask)
   return MTimeBuildTarget.mk artifacts depsMTime task
 

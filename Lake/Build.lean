@@ -116,43 +116,54 @@ def fetchOFileTarget (oFile : FilePath)
 
 -- # Topological Builder
 
+open Std
+
 /-- A recursive object fetcher. -/
 def RecFetch.{u,v,w} (k : Type u) (o : Type v) (m : Type v → Type w) :=
   k → (k → m o) → m o
 
-/-- Monad transformer for an RBMap-based topological builder. -/
+/-- A exception plus state monad transformer (i.e., `StateT` + `ExceptT`). -/
+abbrev EStateT (ε σ m) :=
+  StateT σ <| ExceptT ε m
+
+def EStateT.run (state : σ) (self : EStateT ε σ m α) : m (Except ε (α × σ)) :=
+  StateT.run self state |>.run
+
+def EStateT.run' [Monad m] (state : σ) (self : EStateT ε σ m α) : m (Except ε α) :=
+  StateT.run' self state |>.run
+
+/--
+  Monad transformer for an RBMap-based topological walk.
+  If a cycle is detected, the list keys traversed is thrown.
+-/
 abbrev RBTopT.{u,v} (k : Type u) (o : Type u) (cmp) (m : Type u → Type v) :=
-  StateT (Std.RBMap k o cmp) <| ExceptT (List k) m
+  EStateT (List k) (RBMap k o cmp) m
 
-/-- An RBMap-based topological fetch. -/
-def RBTopFetch.{u,v} (k : Type u) (o : Type u) (cmp) (m : Type u → Type v) :=
-  RecFetch k o (RBTopT (cmp := cmp) k o m)
-
-/-- Recursively builds a RBMao of key-object pairs topologically. -/
+/-- Auxiliary function for `buildRBTop`. -/
 partial def buildRBTopCore
 {k o} {cmp} {m : Type u → Type u} [BEq k] [Inhabited o] [Monad m]
-(parents : List k) (key : k) (fetch : RecFetch k o (RBTopT (cmp := cmp) k o m))
-: RBTopT (cmp := cmp) k o m o := do
+(parents : List k) (fetch : RecFetch k o (RBTopT k o cmp m))
+(key : k) : RBTopT k o cmp m o := do
   -- detect cyclic builds
   if parents.contains key then
     throw <| key :: (parents.partition (· != key)).1 ++ [key]
-
   -- return previous output if already built
   if let some output := (← get).find? key then
     return output
-
   -- build the key recursively
-  let output ← fetch key fun depKey =>
-    buildRBTopCore (key :: parents) depKey fetch
-
-  -- save output (to prevent repeated builds of the same key)
+  let output ← fetch key (buildRBTopCore (key :: parents) fetch)
+  -- save the output (to prevent repeated builds of the same key)
   modify (·.insert key output)
   return output
 
-def buildRBTop
-{k o} {cmp} {m : Type u → Type u} [BEq k] [Inhabited o] [Monad m]
-(key : k) (fetch : RecFetch k o (RBTopT (cmp := cmp) k o m)) :=
-  buildRBTopCore [] key fetch
+/--
+  Recursively constructs an `RBMao` of key-object pairs by
+  fetching objects topologically (i.e., via a deep-first search with
+  memoization). Called a suspending scheduler in "Build systems à la carte".
+-/
+def buildRBTop {k o} {cmp} {m} [BEq k] [Inhabited o] [Monad m]
+(fetch :  RecFetch k o (RBTopT k o cmp m)) (key : k) : RBTopT k o cmp m o :=
+  buildRBTopCore [] fetch key
 
 -- # Build Modules
 
@@ -161,17 +172,17 @@ def parseDirectLocalImports (root : Name) (leanFile : FilePath) : IO (List Name)
   let (imports, _, _) ← Elab.parseImports contents leanFile.toString
   imports.map (·.module) |>.filter (·.getRoot == root)
 
-abbrev RecFetchLeanTarget (m) :=
-  RecFetch Name LeanTarget m
-
 /-
-  `depsTarget` is used for external dependencies
-  the module builder must wait to finish building before it can start
-  ex. olean roots of dependencies
+  Produces a recursive module target fetcher that
+  builds the target module after waiting for `depsTarget` and
+  its direct local imports (relative to `pkg`) to build.
+
+  The module is built with the configuration from `pkg` and
+  a `LEAN_PATH` that includes `oleanDirs`.
 -/
-def RecFetchLeanTarget.mk
+def fetchAfterDirectLocalImports
 (pkg : Package) (oleanDirs : List FilePath) (depsTarget : MTimeBuildTarget PUnit)
-{m} [Monad m] [MonadLiftT IO m] : RecFetchLeanTarget m :=
+{m} [Monad m] [MonadLiftT IO m] : RecFetch Name LeanTarget m :=
   let leanPath := SearchPath.toString <| pkg.oleanDir :: oleanDirs
   fun mod fetch => do
     let leanFile := pkg.modToSource mod
@@ -181,29 +192,38 @@ def RecFetchLeanTarget.mk
       importTargets depsTarget leanPath pkg.dir pkg.leanArgs
 
 /-
-  Equivalent to `RBTopT (cmp := Name.quickCmp) Name LeanTarget IO`
-  Phrased this way to uses `NameMap`
+  Equivalent to `RBTopT (cmp := Name.quickCmp) Name LeanTarget IO`.
+  Phrased this way to use `NameMap`.
 -/
 abbrev LeanTargetM :=
-  StateT (NameMap LeanTarget) <| ExceptT (List Name) IO
+  EStateT (List Name) (NameMap LeanTarget) IO
+
+abbrev LeanTargetFetch :=
+  RecFetch Name LeanTarget LeanTargetM
 
 abbrev RecLeanTargetM :=
-  ReaderT (RecFetchLeanTarget LeanTargetM) LeanTargetM
+  ReaderT (RecFetch Name LeanTarget LeanTargetM) LeanTargetM
 
-def buildModule (mod : Name) : RecLeanTargetM LeanTarget :=
-  fun fetch => buildRBTop mod fetch
-
-def RecLeanTargetM.run
-(pkg : Package) (oleanDirs : List FilePath)
-(depsTarget : MTimeBuildTarget PUnit) (self : RecLeanTargetM α)
-: IO (α × NameMap LeanTarget) := do
-  let fetch := RecFetchLeanTarget.mk pkg oleanDirs depsTarget
-  let res ← ReaderT.run self fetch |>.run {} |>.run
-  match res with
-  | Except.ok res => res
+def throwOnCycle (mx : IO (Except (List Name) α)) : IO α  :=
+  mx >>= fun
+  | Except.ok a => a
   | Except.error cycle =>
     let cycle := cycle.map (s!"  {·}")
     throw <| IO.userError s!"import cycle detected:\n{"\n".intercalate cycle}"
+
+def Package.buildModuleTargetDAG
+(oleanDirs : List FilePath) (depsTarget : MTimeBuildTarget PUnit)
+(self : Package) : IO (LeanTarget × NameMap LeanTarget) := do
+  let fetch := fetchAfterDirectLocalImports self oleanDirs depsTarget
+  throwOnCycle <| buildRBTop fetch self.module |>.run {}
+
+def Package.buildModuleTargets
+(mods : List Name) (oleanDirs : List FilePath)
+(depsTarget : MTimeBuildTarget PUnit) (self : Package)
+: IO (List LeanTarget) := do
+  let fetch : LeanTargetFetch :=
+    fetchAfterDirectLocalImports self oleanDirs depsTarget
+  throwOnCycle <| mods.mapM (buildRBTop fetch) |>.run' {}
 
 -- # Configure/Build Packages
 
@@ -212,8 +232,7 @@ def Package.buildTargetWithDepTargets
 : IO PackageTarget := do
   let depsTarget ← MTimeBuildTarget.all depTargets
   let depOLeanDirs := depTargets.map (·.package.oleanDir)
-  let (target, targetMap) ← buildModule self.module
-    |>.run self depOLeanDirs depsTarget
+  let (target, targetMap) ← self.buildModuleTargetDAG depOLeanDirs depsTarget
   return {target with artifact := ⟨self, targetMap⟩}
 
 partial def Package.buildTarget (self : Package) : IO PackageTarget := do
@@ -254,18 +273,15 @@ def Package.buildModuleTargetsWithDeps
 : IO (List LeanTarget) := do
   let oleanDirs := deps.map (·.oleanDir)
   let depsTarget ← MTimeBuildTarget.all (← deps.mapM (·.buildTarget))
-  let (targets, _) ← mods.mapM buildModule |>.run self oleanDirs depsTarget
-  targets
+  self.buildModuleTargets mods oleanDirs depsTarget
 
 def Package.buildModulesWithDeps
 (deps : List Package) (mods : List Name)  (self : Package)
 : IO PUnit := do
   let targets ← self.buildModuleTargetsWithDeps deps mods
-  let tasks ← targets.mapM (·.buildTask)
-  for task in tasks do
-    try task.await catch e =>
-      -- actual error has already been printed within target
-      throw <| IO.userError "Build failed."
+  try targets.forM (·.materialize) catch e =>
+    -- actual error has already been printed within target
+    throw <| IO.userError "Build failed."
 
 def printPaths (pkg : Package) (imports : List String := []) : IO Unit := do
   let deps ← solveDeps pkg

@@ -142,8 +142,8 @@ partial def buildRBTopCore
     return output
 
   -- build the key recursively
-  let output ← fetch key fun k =>
-    buildRBTopCore (key :: parents) k fetch
+  let output ← fetch key fun depKey =>
+    buildRBTopCore (key :: parents) depKey fetch
 
   -- save output (to prevent repeated builds of the same key)
   modify (·.insert key output)
@@ -171,7 +171,7 @@ abbrev RecFetchLeanTarget (m) :=
 -/
 def RecFetchLeanTarget.mk
 (pkg : Package) (oleanDirs : List FilePath) (depsTarget : MTimeBuildTarget PUnit)
-{m} [Monad m] [MonadLiftT IO m] : RecFetch Name LeanTarget m :=
+{m} [Monad m] [MonadLiftT IO m] : RecFetchLeanTarget m :=
   let leanPath := SearchPath.toString <| pkg.oleanDir :: oleanDirs
   fun mod fetch => do
     let leanFile := pkg.modToSource mod

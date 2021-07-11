@@ -114,60 +114,96 @@ def fetchOFileTarget (oFile : FilePath)
   -- construct a nop target if we have an up-to-date .o
   skipIfNewer oFile cTarget.mtime <| buildO oFile cTarget leancArgs
 
+-- # Topological Builder
+
+/-- A recursive object fetcher. -/
+def RecFetch.{u,v,w} (k : Type u) (o : Type v) (m : Type v → Type w) :=
+  k → (k → m o) → m o
+
+/-- Monad transformer for an RBMap-based topological builder. -/
+abbrev RBTopT.{u,v} (k : Type u) (o : Type u) (cmp) (m : Type u → Type v) :=
+  StateT (Std.RBMap k o cmp) <| ExceptT (List k) m
+
+/-- An RBMap-based topological fetch. -/
+def RBTopFetch.{u,v} (k : Type u) (o : Type u) (cmp) (m : Type u → Type v) :=
+  RecFetch k o (RBTopT (cmp := cmp) k o m)
+
+/-- Recursively builds a RBMao of key-object pairs topologically. -/
+partial def buildRBTopCore
+{k o} {cmp} {m : Type u → Type u} [BEq k] [Inhabited o] [Monad m]
+(parents : List k) (key : k) (fetch : RecFetch k o (RBTopT (cmp := cmp) k o m))
+: RBTopT (cmp := cmp) k o m o := do
+  -- detect cyclic builds
+  if parents.contains key then
+    throw <| key :: (parents.partition (· != key)).1 ++ [key]
+
+  -- return previous output if already built
+  if let some output := (← get).find? key then
+    return output
+
+  -- build the key recursively
+  let output ← fetch key fun k =>
+    buildRBTopCore (key :: parents) k fetch
+
+  -- save output (to prevent repeated builds of the same key)
+  modify (·.insert key output)
+  return output
+
+def buildRBTop
+{k o} {cmp} {m : Type u → Type u} [BEq k] [Inhabited o] [Monad m]
+(key : k) (fetch : RecFetch k o (RBTopT (cmp := cmp) k o m)) :=
+  buildRBTopCore [] key fetch
+
 -- # Build Modules
 
-structure LeanTargetContext where
-  package      : Package
-  leanPath     : String
-  buildParents : List Name := []
-  -- target for external dependencies
-  -- ex. olean roots of dependencies
-  depsTarget   : MTimeBuildTarget PUnit
+def parseDirectLocalImports (root : Name) (leanFile : FilePath) : IO (List Name) := do
+  let contents ← IO.FS.readFile leanFile
+  let (imports, _, _) ← Elab.parseImports contents leanFile.toString
+  imports.map (·.module) |>.filter (·.getRoot == root)
 
+abbrev RecFetchLeanTarget (m) :=
+  RecFetch Name LeanTarget m
+
+/-
+  `depsTarget` is used for external dependencies
+  the module builder must wait to finish building before it can start
+  ex. olean roots of dependencies
+-/
+def RecFetchLeanTarget.mk
+(pkg : Package) (oleanDirs : List FilePath) (depsTarget : MTimeBuildTarget PUnit)
+{m} [Monad m] [MonadLiftT IO m] : RecFetch Name LeanTarget m :=
+  let leanPath := SearchPath.toString <| pkg.oleanDir :: oleanDirs
+  fun mod fetch => do
+    let leanFile := pkg.modToSource mod
+    let imports ← parseDirectLocalImports pkg.module leanFile
+    let importTargets ← imports.mapM fetch
+    fetchLeanTarget leanFile (pkg.modToOlean mod) (pkg.modToC mod)
+      importTargets depsTarget leanPath pkg.dir pkg.leanArgs
+
+/-
+  Equivalent to `RBTopT (cmp := Name.quickCmp) Name LeanTarget IO`
+  Phrased this way to uses `NameMap`
+-/
 abbrev LeanTargetM :=
-   ReaderT LeanTargetContext <| StateT (NameMap LeanTarget) IO
+  StateT (NameMap LeanTarget) <| ExceptT (List Name) IO
 
-partial def buildModule (mod : Name) : LeanTargetM LeanTarget := do
-  let ctx ← read
-  let pkg := ctx.package
+abbrev RecLeanTargetM :=
+  ReaderT (RecFetchLeanTarget LeanTargetM) LeanTargetM
 
-  -- detect cyclic imports
-  if ctx.buildParents.contains mod then
-    let cycle := mod :: (ctx.buildParents.partition (· != mod)).1 ++ [mod]
+def buildModule (mod : Name) : RecLeanTargetM LeanTarget :=
+  fun fetch => buildRBTop mod fetch
+
+def RecLeanTargetM.run
+(pkg : Package) (oleanDirs : List FilePath)
+(depsTarget : MTimeBuildTarget PUnit) (self : RecLeanTargetM α)
+: IO (α × NameMap LeanTarget) := do
+  let fetch := RecFetchLeanTarget.mk pkg oleanDirs depsTarget
+  let res ← ReaderT.run self fetch |>.run {} |>.run
+  match res with
+  | Except.ok res => res
+  | Except.error cycle =>
     let cycle := cycle.map (s!"  {·}")
     throw <| IO.userError s!"import cycle detected:\n{"\n".intercalate cycle}"
-
-  -- return previous result if already visited
-  if let some target := (← get).find? mod then
-    return target
-
-  -- deduce lean file
-  let leanFile := pkg.modToSource mod
-
-  -- parse imports
-  let (imports, _, _) ← Elab.parseImports (← IO.FS.readFile leanFile) leanFile.toString
-  let directLocalImports := imports.map (·.module) |>.filter (·.getRoot == pkg.module)
-
-  -- recursively build local dependencies
-  let importTargets ← directLocalImports.mapM fun i =>
-    withReader (fun ctx => { ctx with buildParents := mod :: ctx.buildParents }) <|
-      buildModule i
-
-  -- do build
-  let cFile := pkg.modToC mod
-  let oleanFile := pkg.modToOlean mod
-  let target ← fetchLeanTarget leanFile oleanFile cFile
-    importTargets ctx.depsTarget ctx.leanPath pkg.dir pkg.leanArgs
-  modify (·.insert mod target)
-  return target
-
-def mkLeanTargetContext
-(pkg : Package) (oleanDirs : List FilePath) (depsTarget : MTimeBuildTarget PUnit)
-: LeanTargetContext := {
-  package:= pkg
-  leanPath := SearchPath.toString <| pkg.oleanDir :: oleanDirs
-  depsTarget
-}
 
 -- # Configure/Build Packages
 
@@ -176,8 +212,8 @@ def Package.buildTargetWithDepTargets
 : IO PackageTarget := do
   let depsTarget ← MTimeBuildTarget.all depTargets
   let depOLeanDirs := depTargets.map (·.package.oleanDir)
-  let ctx := mkLeanTargetContext self depOLeanDirs depsTarget
-  let (target, targetMap) ← buildModule self.module |>.run ctx |>.run {}
+  let (target, targetMap) ← buildModule self.module
+    |>.run self depOLeanDirs depsTarget
   return {target with artifact := ⟨self, targetMap⟩}
 
 partial def Package.buildTarget (self : Package) : IO PackageTarget := do
@@ -210,6 +246,35 @@ def Package.build (self : Package) : IO PUnit := do
 
 def build (pkg : Package) : IO PUnit :=
   pkg.build
+
+-- # Print Paths
+
+def Package.buildModuleTargetsWithDeps
+(deps : List Package) (mods : List Name)  (self : Package)
+: IO (List LeanTarget) := do
+  let oleanDirs := deps.map (·.oleanDir)
+  let depsTarget ← MTimeBuildTarget.all (← deps.mapM (·.buildTarget))
+  let (targets, _) ← mods.mapM buildModule |>.run self oleanDirs depsTarget
+  targets
+
+def Package.buildModulesWithDeps
+(deps : List Package) (mods : List Name)  (self : Package)
+: IO PUnit := do
+  let targets ← self.buildModuleTargetsWithDeps deps mods
+  let tasks ← targets.mapM (·.buildTask)
+  for task in tasks do
+    try task.await catch e =>
+      -- actual error has already been printed within target
+      throw <| IO.userError "Build failed."
+
+def printPaths (pkg : Package) (imports : List String := []) : IO Unit := do
+  let deps ← solveDeps pkg
+  unless imports.isEmpty do
+    let imports := imports.map (·.toName)
+    let localImports := imports.filter (·.getRoot == pkg.module)
+    pkg.buildModulesWithDeps deps localImports
+  IO.println <| SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)
+  IO.println <| SearchPath.toString <| pkg.sourceDir :: deps.map (·.sourceDir)
 
 -- # Build Package Lib
 
@@ -278,28 +343,3 @@ def Package.fetchBin (self : Package) : IO FilePath := do
 
 def buildBin (pkg : Package) : IO PUnit :=
   discard pkg.fetchBin
-
--- # Print Paths
-
-def buildImports
-(pkg : Package) (deps : List Package) (imports : List String := [])
-: IO Unit := do
-  -- compute context
-  let oleanDirs := deps.map (·.oleanDir)
-  let depsTarget ← MTimeBuildTarget.all (← deps.mapM (·.buildTarget))
-  let ctx ← mkLeanTargetContext pkg oleanDirs depsTarget
-  -- build imports
-  let imports := imports.map (·.toName)
-  let localImports := imports.filter (·.getRoot == pkg.module)
-  let targets ← imports.mapM buildModule |>.run ctx |>.run' {}
-  let tasks ← targets.mapM (·.buildTask)
-  for task in tasks do
-    try task.await catch e =>
-      -- actual error has already been printed within buildTask
-      throw <| IO.userError "Build failed."
-
-def printPaths (pkg : Package) (imports : List String := []) : IO Unit := do
-  let deps ← solveDeps pkg
-  buildImports pkg deps imports
-  IO.println <| SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)
-  IO.println <| SearchPath.toString <| pkg.sourceDir :: deps.map (·.sourceDir)

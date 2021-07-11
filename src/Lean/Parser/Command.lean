@@ -11,8 +11,8 @@ namespace Parser
 
 /--
   Syntax quotation for terms and (lists of) commands. We prefer terms, so ambiguous quotations like
-  `($x $y) will be parsed as an application, not two commands. Use `($x:command $y:command) instead.
-  Multiple command will be put in a `null node, but a single command will not (so that you can directly
+  `` `($x $y) `` will be parsed as an application, not two commands. Use `` `($x:command $y:command) `` instead.
+  Multiple command will be put in a `` `null `` node, but a single command will not (so that you can directly
   match against a quotation in a command kind's elaborator). -/
 -- TODO: use two separate quotation parsers with parser priorities instead
 @[builtinTermParser] def Term.quot := leading_parser "`(" >> incQuotDepth (termParser <|> many1Unbox commandParser) >> ")"

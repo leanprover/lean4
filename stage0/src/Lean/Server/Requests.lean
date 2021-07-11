@@ -49,6 +49,7 @@ end RequestError
 structure RequestContext where
   srcSearchPath : SearchPath
   docRef        : IO.Ref FileWorker.EditableDocument
+  hLog          : IO.FS.Stream
 
 abbrev RequestTask α := Task (Except RequestError α)
 /-- Workers execute request handlers in this monad. -/

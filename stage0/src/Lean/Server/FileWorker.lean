@@ -70,7 +70,8 @@ section Elab
         the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
         because we cannot guarantee that no further diagnostics are emitted after clearing
         them. -/
-      publishMessages m snap.msgLog hOut
+      if snap.msgLog.msgs.size > parentSnap.msgLog.msgs.size then
+        publishMessages m snap.msgLog hOut
       snap
     | Sum.inr msgLog =>
       publishMessages m msgLog hOut
@@ -287,7 +288,10 @@ section MessageHandling
   def handleRequest (id : RequestID) (method : String) (params : Json)
       : WorkerM Unit := do
     let st ← read
-    let rc : Requests.RequestContext := { srcSearchPath := st.srcSearchPath, docRef := st.docRef }
+    let rc : Requests.RequestContext :=
+      { srcSearchPath := st.srcSearchPath
+        docRef := st.docRef
+        hLog := st.hLog }
     let t? ← (ExceptT.run <| Requests.handleLspRequest method params rc : IO _)
     let t₁ ← match t? with
       | Except.error e =>

@@ -12,8 +12,8 @@ namespace Lean.Server.FileWorker
 open Snapshots
 open IO
 
-private def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
-  IO.eprintln s!"[{s.beginPos}, {s.endPos}]: `{text.source.extract s.beginPos (s.endPos-1)}`"
+def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
+  IO.eprintln s!"[{s.beginPos}, {s.endPos}]: ```\n{text.source.extract s.beginPos (s.endPos-1)}\n```"
 
 inductive ElabTaskError where
   | aborted

@@ -157,13 +157,15 @@ where
       let tp ← Meta.inferType fi.val
       let tpFmt ← Meta.ppExpr tp
       return some f!"```lean
-{fi.name} : {tpFmt}
+{fi.fieldName} : {tpFmt}
 ```"
     | _ => return none
   fmtDoc? := do
     if let Info.ofTermInfo ti := i then
       if let some n := ti.expr.constName? then
         return ← findDocString? n
+    if let Info.ofFieldInfo fi := i then
+      return ← findDocString? fi.projName
     if let some ei := i.toElabInfo? then
       return ← findDocString? ei.elaborator <||> findDocString? ei.stx.getKind
     return none

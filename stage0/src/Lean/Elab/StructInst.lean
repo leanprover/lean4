@@ -558,9 +558,10 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
     | [FieldLHS.fieldName ref fieldName] => do
       let type ← whnfForall type
       match type with
-      | Expr.forallE _ d b c =>
+      | Expr.forallE _ d b _ =>
         let cont (val : Expr) (field : Field Struct) : TermElabM (Expr × Expr × Fields) := do
-          pushInfoTree <| InfoTree.node (children := {}) <| Info.ofFieldInfo { lctx := (← getLCtx), val := val, name := fieldName, stx := ref }
+          pushInfoTree <| InfoTree.node (children := {}) <| Info.ofFieldInfo {
+            projName := s.structName.append fieldName, fieldName, lctx := (← getLCtx), val, stx := ref }
           let e     := mkApp e val
           let type  := b.instantiate1 val
           let field := { field with expr? := some val }

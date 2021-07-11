@@ -60,10 +60,13 @@ def CompletionInfo.stx : CompletionInfo → Syntax
   | tactic stx .. => stx
 
 structure FieldInfo where
-  name : Name
-  lctx : LocalContext
-  val  : Expr
-  stx  : Syntax
+  /-- Name of the projection. -/
+  projName  : Name
+  /-- Name of the field as written. -/
+  fieldName : Name
+  lctx      : LocalContext
+  val       : Expr
+  stx       : Syntax
   deriving Inhabited
 
 /- We store the list of goals before and after the execution of a tactic.
@@ -182,7 +185,7 @@ def CommandInfo.format (ctx : ContextInfo) (info : CommandInfo) : IO Format := d
 
 def FieldInfo.format (ctx : ContextInfo) (info : FieldInfo) : IO Format := do
   ctx.runMetaM info.lctx do
-    return f!"{info.name} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {formatStxRange ctx info.stx}"
+    return f!"{info.fieldName} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {formatStxRange ctx info.stx}"
 
 def ContextInfo.ppGoals (ctx : ContextInfo) (goals : List MVarId) : IO Format :=
   if goals.isEmpty then

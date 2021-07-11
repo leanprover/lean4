@@ -12,9 +12,9 @@ if(LLVM)
     set(LLVM_SYSTEM_LIBS "-lz")
   endif()
   if(${STATIC} AND NOT ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin"))
-    set(LEAN_EXE_LINKER_FLAGS "`${LLVM_TOOLS_BINARY_DIR}/llvm-config --link-static --ldflags --libs nativecodegen` -Wl,-Bstatic ${LLVM_SYSTEM_LIBS} -Wl,-Bdynamic")
+    set(LEAN_EXE_LINKER_FLAGS "`llvm-config --link-static --ldflags --libs nativecodegen` -Wl,-Bstatic ${LLVM_SYSTEM_LIBS} -Wl,-Bdynamic")
   else()
-    set(LEAN_EXE_LINKER_FLAGS "`${LLVM_TOOLS_BINARY_DIR}/llvm-config --ldflags --libs nativecodegen` ${LLVM_SYSTEM_LIBS}")
+    set(LEAN_EXE_LINKER_FLAGS "`llvm-config --ldflags --libs nativecodegen` ${LLVM_SYSTEM_LIBS}")
   endif()
   if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(LEAN_EXE_LINKER_FLAGS "${LEAN_EXE_LINKER_FLAGS} -lole32 -luuid")
@@ -27,7 +27,7 @@ string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}
   COMMAND sh -c "LEANC_GMP=${GMP_LIBRARIES} LEAN_CXX='${CMAKE_CXX_COMPILER_LAUNCHER} ${CMAKE_CXX_COMPILER}' ${CMAKE_BINARY_DIR}/bin/leanc $<TARGET_OBJECTS:shell> ${CMAKE_EXE_LINKER_FLAGS} ${LEAN_EXE_LINKER_FLAGS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}} -o ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"
   VERBATIM
-  DEPENDS Init Std Lean leancpp shell)
+  DEPENDS Init Std Lean leancpp shell $<IF:$<BOOL:${LLVM}>,runtime_bc,>)
 
 add_custom_target(lean ALL
   DEPENDS ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX})

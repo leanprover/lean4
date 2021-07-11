@@ -99,6 +99,10 @@ def UInt16.lor (a b : UInt16) : UInt16 := ⟨Fin.lor a.val b.val⟩
 def UInt16.xor (a b : UInt16) : UInt16 := ⟨Fin.xor a.val b.val⟩
 @[extern c inline "#1 << #2 % 16"]
 def UInt16.shiftLeft (a b : UInt16) : UInt16 := ⟨a.val <<< (modn b 16).val⟩
+@[extern c inline "((uint8_t)#1)"]
+def UInt16.toUInt8 (a : UInt16) : UInt8 := a.toNat.toUInt8
+@[extern c inline "((uint16_t)#1)"]
+def UInt8.toUInt16 (a : UInt8) : UInt16 := a.toNat.toUInt16
 @[extern c inline "#1 >> #2 % 16"]
 def UInt16.shiftRight (a b : UInt16) : UInt16 := ⟨a.val >>> (modn b 16).val⟩
 def UInt16.lt (a b : UInt16) : Prop := a.val < b.val
@@ -173,6 +177,8 @@ def UInt32.toUInt8 (a : UInt32) : UInt8 := a.toNat.toUInt8
 def UInt32.toUInt16 (a : UInt32) : UInt16 := a.toNat.toUInt16
 @[extern c inline "((uint32_t)#1)"]
 def UInt8.toUInt32 (a : UInt8) : UInt32 := a.toNat.toUInt32
+@[extern c inline "((uint32_t)#1)"]
+def UInt16.toUInt32 (a : UInt16) : UInt32 := a.toNat.toUInt32
 
 instance : OfNat UInt32 n   := ⟨UInt32.ofNat n⟩
 instance : Add UInt32       := ⟨UInt32.add⟩
@@ -227,6 +233,10 @@ def UInt64.toUInt8 (a : UInt64) : UInt8 := a.toNat.toUInt8
 def UInt64.toUInt16 (a : UInt64) : UInt16 := a.toNat.toUInt16
 @[extern c inline "((uint32_t)#1)"]
 def UInt64.toUInt32 (a : UInt64) : UInt32 := a.toNat.toUInt32
+@[extern c inline "((uint64_t)#1)"]
+def UInt8.toUInt64 (a : UInt8) : UInt64 := a.toNat.toUInt64
+@[extern c inline "((uint64_t)#1)"]
+def UInt16.toUInt64 (a : UInt16) : UInt64 := a.toNat.toUInt64
 @[extern c inline "((uint64_t)#1)"]
 def UInt32.toUInt64 (a : UInt32) : UInt64 := a.toNat.toUInt64
 

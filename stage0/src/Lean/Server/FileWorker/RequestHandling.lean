@@ -56,15 +56,19 @@ partial def handleHover (p : HoverParams)
 
       return none
 
-open Elab in
-partial def handleDefinition (goToType? : Bool) (p : TextDocumentPositionParams)
+inductive GoToKind
+  | declaration | definition | type
+  deriving DecidableEq
+
+open Elab GoToKind in
+partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
     : RequestM (RequestTask (Array LocationLink)) := do
   let rc ← read
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
 
-  let locationLinksFromDecl i n := do
+  let locationLinksFromDecl (i : Elab.Info) (n : Name) := do
     let mod? ← findModuleOf? n
     let modUri? ← match mod? with
       | some modName =>
@@ -92,16 +96,25 @@ partial def handleDefinition (goToType? : Bool) (p : TextDocumentPositionParams)
         if let some (ci, i) := t.hoverableInfoAt? hoverPos then
           if let Info.ofTermInfo ti := i then
             let mut expr := ti.expr
-            if goToType? then
+            if kind = type then
               expr ← ci.runMetaM i.lctx do
                 Meta.instantiateMVars (← Meta.inferType expr)
             if let some n := expr.constName? then
               return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
+          if let Info.ofFieldInfo fi := i then
+            if kind = type then
+              let expr ← ci.runMetaM i.lctx do
+                Meta.instantiateMVars (← Meta.inferType fi.val)
+              if let some n := expr.constName? then
+                return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
+            else
+              return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName
+          -- If other go-tos fail, we try to show the elaborator or parser
           if let some ei := i.toElabInfo? then
-            if ci.env.contains ei.elaborator then
-              return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
-            if ci.env.contains ei.stx.getKind then
+            if kind = declaration ∧ ci.env.contains ei.stx.getKind then
               return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.stx.getKind
+            if kind = definition ∧ ci.env.contains ei.elaborator then
+              return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
       return #[]
 
 open Elab in
@@ -339,9 +352,9 @@ builtin_initialize
   registerLspRequestHandler "textDocument/waitForDiagnostics"   WaitForDiagnosticsParams   WaitForDiagnostics      handleWaitForDiagnostics
   registerLspRequestHandler "textDocument/completion"           CompletionParams           CompletionList          handleCompletion
   registerLspRequestHandler "textDocument/hover"                HoverParams                (Option Hover)          handleHover
-  registerLspRequestHandler "textDocument/declaration"          TextDocumentPositionParams (Array LocationLink)    (handleDefinition (goToType? := false))
-  registerLspRequestHandler "textDocument/definition"           TextDocumentPositionParams (Array LocationLink)    (handleDefinition (goToType? := false))
-  registerLspRequestHandler "textDocument/typeDefinition"       TextDocumentPositionParams (Array LocationLink)    (handleDefinition (goToType? := true))
+  registerLspRequestHandler "textDocument/declaration"          TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.declaration)
+  registerLspRequestHandler "textDocument/definition"           TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.definition)
+  registerLspRequestHandler "textDocument/typeDefinition"       TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.type)
   registerLspRequestHandler "textDocument/documentHighlight"    DocumentHighlightParams    DocumentHighlightResult handleDocumentHighlight
   registerLspRequestHandler "textDocument/documentSymbol"       DocumentSymbolParams       DocumentSymbolResult    handleDocumentSymbol
   registerLspRequestHandler "textDocument/semanticTokens/full"  SemanticTokensParams       SemanticTokens          handleSemanticTokensFull

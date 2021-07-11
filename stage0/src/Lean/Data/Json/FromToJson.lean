@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Marc Huisinga
 -/
 import Lean.Data.Json.Basic
+import Lean.Data.Json.Printer
 
 namespace Lean
 
@@ -74,6 +75,39 @@ def getObjValAs? (j : Json) (α : Type u) [FromJson α] (k : String) : Except St
 def opt [ToJson α] (k : String) : Option α → List (String × Json)
   | none   => []
   | some o => [⟨k, toJson o⟩]
+
+/-- Parses a JSON-encoded `structure` or `inductive` constructor. Used mostly by `deriving FromJson`. -/
+def parseTagged
+    (json : Json)
+    (tag : String)
+    (nFields : Nat)
+    (fieldNames? : Option (Array Name)) : Except String (Array Json) :=
+  if nFields == 0 then
+    match getStr? json with
+    | Except.ok s => if s == tag then Except.ok #[] else throw s!"incorrect tag: {s} ≟ {tag}"
+    | Except.error err => Except.error err
+  else
+    match getObjVal? json tag with
+    | Except.ok payload =>
+      match fieldNames? with
+      | some fieldNames =>
+        do
+          let mut fields := #[]
+          for fieldName in fieldNames do
+            fields := fields.push (←getObjVal? payload fieldName.getString!)
+          Except.ok fields
+      | none =>
+        if nFields == 1 then
+          Except.ok #[payload]
+        else
+          match getArr? payload with
+          | Except.ok fields =>
+            if fields.size == nFields then
+              Except.ok fields
+            else
+              Except.error s!"incorrect number of fields: {fields.size} ≟ {nFields}"
+          | Except.error err => Except.error err
+    | Except.error err => Except.error err
 
 end Json
 end Lean

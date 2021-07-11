@@ -55,6 +55,30 @@ instance [ToJson α] : ToJson (Option α) :=
     | none   => Json.null
     | some a => toJson a⟩
 
+instance : FromJson Name where
+  fromJson? j := do
+    let s ← j.getStr?
+    let some n ← Syntax.decodeNameLit s
+      | throw s!"expected a `Name`, got '{j}'"
+    return n
+
+instance : ToJson Name where
+  toJson n := toString (repr n)
+
+/- Note that `USize`s are stored as strings because JavaScript
+cannot represent 64-bit numbers. -/
+instance : FromJson USize where
+  fromJson? j := do
+    let s ← j.getStr?
+    let some v ← Syntax.decodeNatLitVal? s -- TODO maybe this should be in Std
+      | throw s!"expected a string-encoded `USize`, got '{j}'"
+    if v ≥ USize.size then
+      throw "value '{j}' is too large for `USize`"
+    return USize.ofNat v
+
+instance : ToJson USize where
+  toJson v := toString (repr v)
+
 namespace Json
 
 instance : FromJson Structured := ⟨fun

@@ -19,38 +19,6 @@ def mkJsonField (n : Name) : Bool × Syntax :=
   let s₁ := s.dropRightWhile (· == '?')
   (s != s₁, Syntax.mkStrLit s₁)
 
-private def parseTagged 
-    (json : Json) 
-    (tag : String) 
-    (nFields : Nat) 
-    (fieldNames? : Option (Array Name)) : Except String (Array Json) :=
-  if nFields == 0 then
-    match getStr? json with
-    | Except.ok s => if s == tag then Except.ok #[] else throw s!"incorrect tag: {s} ≟ {tag}"
-    | Except.error err => Except.error err
-  else
-    match getObjVal? json tag with
-    | Except.ok payload => 
-      match fieldNames? with
-      | some fieldNames => 
-        do
-          let mut fields := #[]
-          for fieldName in fieldNames do
-            fields := fields.push (←getObjVal? payload fieldName.getString!)
-          Except.ok fields
-      | none => 
-        if nFields == 1 then 
-          Except.ok #[payload]
-        else
-          match getArr? payload with
-          | Except.ok fields => 
-            if fields.size == nFields then 
-              Except.ok fields 
-            else 
-              Except.error "incorrect number of fields: {fields.size} ≟ {nFields}"
-          | Except.error err => Except.error err
-    | Except.error err => Except.error err
-
 def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if declNames.size == 1 then
     if (← isStructure (← getEnv) declNames[0]) then
@@ -91,10 +59,10 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   else
     return false
 where
-  mkAlts 
-    (indVal : InductiveVal) 
+  mkAlts
+    (indVal : InductiveVal)
     (rhs : ConstructorVal → Array Syntax → (Option $ Array Name) → TermElabM Syntax) : TermElabM (Array Syntax) := do
-  indVal.ctors.toArray.mapM fun ctor => do 
+  indVal.ctors.toArray.mapM fun ctor => do
     let ctorInfo ← getConstInfoCtor ctor
     forallTelescopeReducing ctorInfo.type fun xs type => do
       let mut patterns := #[]
@@ -135,13 +103,13 @@ def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         return #[cmd] ++ (← mkInstanceCmds ctx ``FromJson declNames)
       cmds.forM elabCommand
       return true
-    else 
+    else
       let indVal ← getConstInfoInduct declNames[0]
       let cmds ← liftTermElabM none <| do
         let ctx ← mkContext "fromJson" declNames[0]
         let header ← mkHeader ctx ``FromJson 0 ctx.typeInfos[0]
         let discrs ← mkDiscrs header indVal
-        let alts ← mkAlts indVal 
+        let alts ← mkAlts indVal
         let matchCmd ← alts.foldrM (fun xs x => `($xs <|> $x)) (←`(Except.error "no inductive constructor matched"))
         let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]):ident $header.binders:explicitBinder* (json : Json)
           : Except String $(← mkInductiveApp ctx.typeInfos[0] header.argNames) :=
@@ -153,7 +121,7 @@ def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
     return false
 where
   mkAlts (indVal : InductiveVal) : TermElabM (Array Syntax) := do
-  let alts ← 
+  let alts ←
     indVal.ctors.toArray.mapM fun ctor => do
       let ctorInfo ← getConstInfoCtor ctor
       forallTelescopeReducing ctorInfo.type fun xs type => do
@@ -168,12 +136,12 @@ where
           let a := mkIdent (← mkFreshUserName `a)
           identNames := identNames.push a
         let jsonAccess ← identNames.mapIdxM (fun idx _ => `(jsons[$(quote idx.val)]))
-        let userNamesOpt ← 
-          if identNames.size == userNames.size then 
+        let userNamesOpt ←
+          if identNames.size == userNames.size then
             `(some #[$[$(userNames.map quote):ident],*])
           else `(none)
-        let stx ← 
-          `((parseTagged json $(quote ctor.getString!) $(quote ctorInfo.numFields) $(quote userNamesOpt)).bind 
+        let stx ←
+          `((Json.parseTagged json $(quote ctor.getString!) $(quote ctorInfo.numFields) $(quote userNamesOpt)).bind
             (fun jsons => do
             $[let $identNames:ident ← fromJson? $jsonAccess]*
             return $(mkIdent ctor):ident $identNames*))
@@ -181,7 +149,7 @@ where
   -- the smaller cases, especially the ones without fields are likely faster
   let alts := alts.qsort (fun (_, x) (_, y) => x < y)
   alts.map Prod.fst
-  
+
 builtin_initialize
   registerBuiltinDerivingHandler ``ToJson mkToJsonInstanceHandler
   registerBuiltinDerivingHandler ``FromJson mkFromJsonInstanceHandler

@@ -315,14 +315,12 @@ def buildLib (pkg : Package) : IO PUnit :=
 def PackageTarget.buildBin
 (depTargets : List PackageTarget) (self : PackageTarget)
 : IO BuildTask := do
-  let binFile := self.package.binFile
   let oFileTargets ← self.fetchOFileTargets
   let oFiles := oFileTargets.map (·.artifact) |>.toArray
   let libTargets ← depTargets.mapM (·.fetchStaticLibTarget)
   let libFiles := libTargets.map (·.artifact) |>.toArray
-  let buildTask ← BuildTask.afterTargets oFileTargets <| catchErrors <|
-    compileBin binFile (oFiles ++ libFiles) self.package.linkArgs
-  return buildTask
+  BuildTask.afterTargets (oFileTargets ++ libTargets) <| catchErrors <|
+    compileBin self.package.binFile (oFiles ++ libFiles) self.package.linkArgs
 
 def PackageTarget.fetchBinTarget
 (depTargets : List PackageTarget) (self : PackageTarget) : IO FileTarget :=

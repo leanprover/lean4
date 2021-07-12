@@ -19,6 +19,12 @@ def await (self : BuildTask) : IO PUnit := do
 def all (tasks : List BuildTask) : IO BuildTask :=
   IO.asTask (tasks.forM (·.await))
 
+def afterTask (task : BuildTask) (action : IO PUnit)  : IO BuildTask :=
+  IO.mapTask (fun x => IO.ofExcept x *> action) task
+
+def afterTasks (tasks : List BuildTask) (action : IO PUnit) : IO BuildTask :=
+  IO.mapTasks (fun xs => xs.forM IO.ofExcept *> action) <| tasks
+
 end BuildTask
 
 instance : Inhabited BuildTask := ⟨BuildTask.nop⟩
@@ -57,10 +63,10 @@ end BuildTarget
 namespace BuildTask
 
 def afterTarget (target : BuildTarget t a) (action : IO PUnit)  : IO BuildTask :=
-  IO.mapTask (fun x => IO.ofExcept x *> action) target.buildTask
+  afterTask target.buildTask action
 
-def afterTargets (targets : List (BuildTarget t a)) (action : IO PUnit) : IO BuildTask := do
-  IO.mapTasks (fun xs => xs.forM IO.ofExcept *> action) <| targets.map (·.buildTask)
+def afterTargets (targets : List (BuildTarget t a)) (action : IO PUnit) : IO BuildTask :=
+  afterTasks (targets.map (·.buildTask)) action
 
 end BuildTask
 

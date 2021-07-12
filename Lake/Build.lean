@@ -78,8 +78,9 @@ def catchErrors (action : IO PUnit) : IO PUnit := do
     throw e
 
 def skipIfNewer [GetMTime a]
-(artifact : a) (depMTime : MTime) (build : IO BuildTask)
-: IO (MTimeBuildTarget a) := do
+(artifact : a) (depMTime : MTime)
+{m} [Monad m] [MonadLiftT IO m] [MonadExceptOf IO.Error m]
+(build : m BuildTask) : m (MTimeBuildTarget a) := do
   -- construct a nop target if we have an up-to-date file
   try
     if (← getMTime artifact) >= depMTime then
@@ -89,20 +90,6 @@ def skipIfNewer [GetMTime a]
     | e => throw e
   -- otherwise construct a proper target
   return MTimeBuildTarget.mk artifact depMTime (← build)
-
-def fetchLeanTarget (leanFile oleanFile cFile : FilePath)
-(importTargets : List LeanTarget) (depsTarget : MTimeBuildTarget PUnit)
-(leanPath : String := "") (rootDir : FilePath := ".") (leanArgs : Array String := #[])
-: IO LeanTarget := do
-  -- calculate max dependency `MTime`
-  let leanMTime ← getMTime leanFile
-  let importMTimes := importTargets.map (·.mtime)
-  let depMTime := MTime.listMax <| leanMTime :: depsTarget.mtime :: importMTimes
-  -- construct a nop target if we have an up-to-date .olean and .c
-  let depTargets := depsTarget.withArtifact arbitrary :: importTargets
-  skipIfNewer ⟨oleanFile, cFile⟩ depMTime <|
-    BuildTask.afterTargets depTargets <| catchErrors <|
-      compileOleanAndC leanFile oleanFile cFile leanPath rootDir leanArgs
 
 def buildO (oFile : FilePath)
 (cTarget : FileTarget) (leancArgs : Array String := #[]) : IO BuildTask :=
@@ -182,14 +169,24 @@ def parseDirectLocalImports (root : Name) (leanFile : FilePath) : IO (List Name)
 -/
 def fetchAfterDirectLocalImports
 (pkg : Package) (oleanDirs : List FilePath) (depsTarget : MTimeBuildTarget PUnit)
-{m} [Monad m] [MonadLiftT IO m] : RecFetch Name LeanTarget m :=
+{m} [Monad m] [MonadLiftT IO m] [MonadExceptOf IO.Error m] : RecFetch Name LeanTarget m :=
   let leanPath := SearchPath.toString <| pkg.oleanDir :: oleanDirs
   fun mod fetch => do
     let leanFile := pkg.modToSource mod
     let imports ← parseDirectLocalImports pkg.module leanFile
-    let importTargets ← imports.mapM fetch
-    fetchLeanTarget leanFile (pkg.modToOlean mod) (pkg.modToC mod)
-      importTargets depsTarget leanPath pkg.dir pkg.leanArgs
+    -- calculate max dependency `MTime`
+    let leanMTime ← getMTime leanFile
+    let importMTimes ← imports.mapM fun i => getMTime <| pkg.modToSource i
+    let depMTime := MTime.listMax <| leanMTime :: depsTarget.mtime :: importMTimes
+    -- construct target
+    let cFile := pkg.modToC mod
+    let oleanFile := pkg.modToOlean mod
+    -- we fetch the import targets even if a rebuild is not required
+    -- because other build processes (ex. `.o`) rely on the map being complete
+    let importTasks ← imports.mapM fun i => fetch i >>= (·.buildTask)
+    skipIfNewer ⟨oleanFile, cFile⟩ depMTime <|
+      BuildTask.afterTasks (depsTarget.buildTask :: importTasks) <| catchErrors <|
+        compileOleanAndC leanFile oleanFile cFile leanPath pkg.dir pkg.leanArgs
 
 /-
   Equivalent to `RBTopT (cmp := Name.quickCmp) Name LeanTarget IO`.

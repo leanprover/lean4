@@ -12,67 +12,70 @@ class FileSource (α : Type) where
   fileSource : α → DocumentUri
 export FileSource (fileSource)
 
-instance Location.hasFileSource : FileSource Location :=
+instance : FileSource Location :=
   ⟨fun l => l.uri⟩
 
-instance TextDocumentIdentifier.hasFileSource : FileSource TextDocumentIdentifier :=
+instance : FileSource TextDocumentIdentifier :=
   ⟨fun i => i.uri⟩
 
-instance VersionedTextDocumentIdentifier.hasFileSource : FileSource VersionedTextDocumentIdentifier :=
+instance : FileSource VersionedTextDocumentIdentifier :=
   ⟨fun i => i.uri⟩
 
-instance TextDocumentEdit.hasFileSource : FileSource TextDocumentEdit :=
+instance : FileSource TextDocumentEdit :=
   ⟨fun e => fileSource e.textDocument⟩
 
-instance TextDocumentItem.hasFileSource : FileSource TextDocumentItem :=
+instance : FileSource TextDocumentItem :=
   ⟨fun i => i.uri⟩
 
-instance TextDocumentPositionParams.hasFileSource : FileSource TextDocumentPositionParams :=
+instance : FileSource TextDocumentPositionParams :=
   ⟨fun p => fileSource p.textDocument⟩
 
-instance DidOpenTextDocumentParams.hasFileSource : FileSource DidOpenTextDocumentParams :=
+instance : FileSource DidOpenTextDocumentParams :=
   ⟨fun p => fileSource p.textDocument⟩
 
-instance DidChangeTextDocumentParams.hasFileSource : FileSource DidChangeTextDocumentParams :=
+instance : FileSource DidChangeTextDocumentParams :=
   ⟨fun p => fileSource p.textDocument⟩
 
-instance DidCloseTextDocumentParams.hasFileSource : FileSource DidCloseTextDocumentParams :=
+instance : FileSource DidCloseTextDocumentParams :=
   ⟨fun p => fileSource p.textDocument⟩
 
-instance CompletionParams.hasFileSource : FileSource CompletionParams :=
+instance : FileSource CompletionParams :=
   ⟨fun h => fileSource h.toTextDocumentPositionParams⟩
 
-instance HoverParams.hasFileSource : FileSource HoverParams :=
+instance : FileSource HoverParams :=
   ⟨fun h => fileSource h.toTextDocumentPositionParams⟩
 
-instance DeclarationParams.hasFileSource : FileSource DeclarationParams :=
+instance : FileSource DeclarationParams :=
   ⟨fun h => fileSource h.toTextDocumentPositionParams⟩
 
-instance DefinitionParams.hasFileSource : FileSource DefinitionParams :=
+instance : FileSource DefinitionParams :=
   ⟨fun h => fileSource h.toTextDocumentPositionParams⟩
 
-instance TypeDefinitionParams.hasFileSource : FileSource TypeDefinitionParams :=
+instance : FileSource TypeDefinitionParams :=
   ⟨fun h => fileSource h.toTextDocumentPositionParams⟩
 
-instance WaitForDiagnosticsParams.hasFileSource : FileSource WaitForDiagnosticsParams :=
+instance : FileSource WaitForDiagnosticsParams :=
   ⟨fun p => p.uri⟩
 
-instance DocumentHighlightParams.hasFileSource : FileSource DocumentHighlightParams :=
+instance : FileSource DocumentHighlightParams :=
   ⟨fun h => fileSource h.toTextDocumentPositionParams⟩
 
-instance DocumentSymbolParams.hasFileSource : FileSource DocumentSymbolParams :=
+instance : FileSource DocumentSymbolParams :=
   ⟨fun p => fileSource p.textDocument⟩
 
-instance SemanticTokensParams.hasFileSource : FileSource SemanticTokensParams :=
+instance : FileSource SemanticTokensParams :=
   ⟨fun p => fileSource p.textDocument⟩
 
-instance SemanticTokensRangeParams.hasFileSource : FileSource SemanticTokensRangeParams :=
+instance : FileSource SemanticTokensRangeParams :=
   ⟨fun p => fileSource p.textDocument⟩
 
-instance PlainGoalParams.hasFileSource : FileSource PlainGoalParams :=
+instance : FileSource PlainGoalParams :=
   ⟨fun p => fileSource p.textDocument⟩
 
 instance : FileSource PlainTermGoalParams where
+  fileSource p := fileSource p.textDocument
+
+instance : FileSource RpcCallParams where
   fileSource p := fileSource p.textDocument
 
 end Lean.Lsp

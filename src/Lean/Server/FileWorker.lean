@@ -97,8 +97,9 @@ structure WorkerContext where
   hOut               : FS.Stream
   hLog               : FS.Stream
   srcSearchPath      : SearchPath
-  docRef             : IO.Ref EditableDocument
+  docRef             : IO.Ref EditableDocument -- TODO WorkerM := StateT
   pendingRequestsRef : IO.Ref PendingRequestMap
+  rpcSeshRef         : IO.Ref (Option RpcSession)
 
 abbrev WorkerM := ReaderT WorkerContext IO
 
@@ -192,6 +193,7 @@ section Initialization
       srcSearchPath      := srcSearchPath
       docRef             := ←IO.mkRef doc
       pendingRequestsRef := ←IO.mkRef RBMap.empty
+      rpcSeshRef         := ←IO.mkRef none
     }
 end Initialization
 
@@ -289,7 +291,8 @@ section MessageHandling
       : WorkerM Unit := do
     let st ← read
     let rc : Requests.RequestContext :=
-      { srcSearchPath := st.srcSearchPath
+      { rpcSesh := ← st.rpcSeshRef.get
+        srcSearchPath := st.srcSearchPath
         docRef := st.docRef
         hLog := st.hLog }
     let t? ← (ExceptT.run <| Requests.handleLspRequest method params rc : IO _)

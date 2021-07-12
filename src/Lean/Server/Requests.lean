@@ -47,6 +47,7 @@ def toLspResponseError (id : RequestID) (e : RequestError) : ResponseError Unit 
 end RequestError
 
 structure RequestContext where
+  rpcSesh       : Option FileWorker.RpcSession
   srcSearchPath : SearchPath
   docRef        : IO.Ref FileWorker.EditableDocument
   hLog          : IO.FS.Stream

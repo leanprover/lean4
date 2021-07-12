@@ -10,6 +10,7 @@ import Lean.Data.Json
 import Lean.Data.Lsp
 
 import Lean.Server.FileWorker.Utils
+import Lean.Server.FileWorker.Rpc
 import Lean.Server.Requests
 import Lean.Server.Completion
 
@@ -369,6 +370,37 @@ partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
     let t₁ ← doc.cmdSnaps.waitAll
     return t₁.map fun _ => pure WaitForDiagnostics.mk
 
+def handleRpcCall (p : RpcCallParams) : RequestM (RequestTask RpcCallResult) := do
+  let rc ← read
+  let some rpcSesh ← rc.rpcSesh
+    | throwThe RequestError { code := JsonRpc.ErrorCode.unknownErrorCode -- TODO
+                              message := s!"RPC session not initialized" }
+  if p.sessionId ≠ rpcSesh.sessionId then
+    throwThe RequestError { code := JsonRpc.ErrorCode.unknownErrorCode -- TODO
+                            message := s!"Outdated RPC session" }
+  let some proc ← (← Rpc.rpcProcedures.get).find? p.method
+    | throwThe RequestError { code := JsonRpc.ErrorCode.methodNotFound
+                              message := s!"No RPC method '{p.method}' bound" }
+
+  let aliveRefs ← rpcSesh.aliveRefs.get
+  let args ← p.args.mapM fun
+    | RpcValue.json j => pure <| Rpc.RpcInput.json j
+    | RpcValue.ref p =>
+      match aliveRefs.find? p with
+        | none => throwThe RequestError { code := JsonRpc.ErrorCode.invalidParams
+                                          message := s!"reference '{p}' is not valid" }
+        | some r => pure <| Rpc.RpcInput.ref r
+  let ret ← proc.wrapper args p.retKind
+
+  let ret' ← match ret with
+    | Rpc.RpcInput.json j => pure <| RpcValue.json j
+    | Rpc.RpcInput.ref r =>
+      let uid := r.ptr -- TODO
+      rpcSesh.aliveRefs.modify fun refs => refs.insert uid r
+      pure <| RpcValue.ref uid
+
+  RequestM.asTask (return ⟨ ret' ⟩) -- TODO Task
+
 builtin_initialize
   registerLspRequestHandler "textDocument/waitForDiagnostics"   WaitForDiagnosticsParams   WaitForDiagnostics      handleWaitForDiagnostics
   registerLspRequestHandler "textDocument/completion"           CompletionParams           CompletionList          handleCompletion
@@ -382,5 +414,6 @@ builtin_initialize
   registerLspRequestHandler "textDocument/semanticTokens/range" SemanticTokensRangeParams  SemanticTokens          handleSemanticTokensRange
   registerLspRequestHandler "$/lean/plainGoal"                  PlainGoalParams            (Option PlainGoal)      handlePlainGoal
   registerLspRequestHandler "$/lean/plainTermGoal"              PlainTermGoalParams        (Option PlainTermGoal)  handlePlainTermGoal
+  registerLspRequestHandler "$/lean/rpc/call"                   RpcCallParams              RpcCallResult           handleRpcCall
 
 end Lean.Server.FileWorker

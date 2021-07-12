@@ -7,6 +7,12 @@ import Lean.Data.Lsp.Extra
 The single use case for these is to allow the infoview UI to refer to and manipulate heavy-weight
 objects residing on the server. It would be inefficient to serialize these into JSON and send over.
 For example, the client can format an `Expr` without transporting the whole `Environment`.
+
+All RPC requests are relative to an open file and an RPC session for that file. It must first
+be initialized as follows:
+
+- (client -> server notification) `$/lean/rpc/initialize { uri: 'file/of/interest.lean' }`
+- (server -> client notification) `$/lean/rpc/initialized { uri: 'file/of/interest.lean', sessionId: '1234' }`
 -/
 
 namespace Lean.Server.Rpc

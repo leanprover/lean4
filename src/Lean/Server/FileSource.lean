@@ -75,6 +75,9 @@ instance : FileSource PlainGoalParams :=
 instance : FileSource PlainTermGoalParams where
   fileSource p := fileSource p.textDocument
 
+instance : FileSource RpcInitializeParams where
+  fileSource p := p.uri
+
 instance : FileSource RpcCallParams where
   fileSource p := fileSource p.textDocument
 

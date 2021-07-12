@@ -368,6 +368,9 @@ section NotificationHandling
       -- from the pending requests map.
       if (← fw.pendingRequestsRef.get).contains p.id then
         tryWriteMessage uri (Notification.mk "$/cancelRequest" p) (queueFailedMessage := false)
+
+  def forwardNotification {α : Type} [ToJson α] [FileSource α] (method : String) (params : α) : ServerM Unit :=
+    tryWriteMessage (fileSource params) (Notification.mk method params) (queueFailedMessage := true)
 end NotificationHandling
 
 section MessageHandling
@@ -403,6 +406,7 @@ section MessageHandling
     /- NOTE: textDocument/didChange is handled in the main loop. -/
     | "textDocument/didClose"  => handle DidCloseTextDocumentParams handleDidClose
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
+    | "$/lean/rpc/initialize"  => handle RpcInitializeParams (forwardNotification method)
     | _                        =>
       if !"$/".isPrefixOf method then  -- implementation-dependent notifications can be safely ignored
         (←read).hLog.putStrLn s!"Got unsupported notification: {method}"

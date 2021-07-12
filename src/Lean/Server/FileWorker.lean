@@ -267,6 +267,19 @@ section NotificationHandling
 
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
+
+  def handleRpcInitialize (p : RpcInitializeParams) : WorkerM Unit := do
+    let st ← read
+    let doc ← st.docRef.get
+    let newId ← USize.ofNat <$> IO.monoMsNow -- TODO may crash if called twice within the same millisecond?
+    let newAliveRefs ← IO.mkRef Std.PersistentHashMap.empty
+    -- Just setting this should `dec` the previous session. Any associated references should
+    -- become collectable once all in-use references to the old session go out of scope.
+    st.rpcSeshRef.set <| some { sessionId := newId, aliveRefs := newAliveRefs }
+    st.hOut.writeLspNotification
+      <| { method := "$/lean/rpc/initialized"
+           param := { uri := doc.meta.uri
+                      sessionId := newId : RpcInitialized } }
 end NotificationHandling
 
 section MessageHandling
@@ -281,6 +294,7 @@ section MessageHandling
     match method with
     | "textDocument/didChange" => handle DidChangeTextDocumentParams handleDidChange
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
+    | "$/lean/rpc/initialize"  => handle RpcInitializeParams handleRpcInitialize
     | _                        => throwServerError s!"Got unsupported notification method: {method}"
 
   def queueRequest (id : RequestID) (requestTask : Task (Except IO.Error Unit))

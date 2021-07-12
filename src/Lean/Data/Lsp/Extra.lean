@@ -17,7 +17,7 @@ The following additional requests and notifications are supported:
   recently processed one, the server will delay the response until it does receive the specified version.
   Exists for synchronization purposes, e.g. during testing or when external tools might want to use our LSP server.
 
-- `$/lean/fileProgress`: Notification that contains the ranges of the document that are still being processed
+- `$/lean/fileProgress`: Server->client notification that contains the ranges of the document that are still being processed
   by the server.
 
 - `$/lean/plainGoal`/`$/lean/plainTermGoal`: Returns the goal(s) at the specified position, pretty-printed as a string.
@@ -76,6 +76,16 @@ inductive RpcValue where
 
 inductive RpcValueKind where
   | json | ref
+  deriving FromJson, ToJson
+
+/-- Initialize an RPC session at the given file's worker. -/
+structure RpcInitializeParams where
+  uri : DocumentUri
+  deriving FromJson, ToJson
+
+structure RpcInitialized where
+  uri : DocumentUri
+  sessionId : USize
   deriving FromJson, ToJson
 
 /-- A request for Lean to execute a function previously bound for RPC.

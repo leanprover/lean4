@@ -20,7 +20,9 @@ The following additional requests and notifications are supported:
 - `$/lean/fileProgress`: Notification that contains the ranges of the document that are still being processed
   by the server.
 
-- `$/lean/plainGoal`: Returns the goal(s) at the specified position, pretty-printed as a string.
+- `$/lean/plainGoal`/`$/lean/plainTermGoal`: Returns the goal(s) at the specified position, pretty-printed as a string.
+
+- `$/lean/rpc/...`: See `Lean.Server.FileWorker.Rpc`.
 -/
 
 namespace Lean.Lsp
@@ -30,7 +32,7 @@ open Json
 structure WaitForDiagnosticsParams where
   uri     : DocumentUri
   version : Nat
-  deriving ToJson, FromJson
+  deriving FromJson, ToJson
 
 structure WaitForDiagnostics
 
@@ -63,6 +65,34 @@ structure PlainTermGoalParams extends TextDocumentPositionParams
 structure PlainTermGoal where
   goal : String
   range : Range
+  deriving FromJson, ToJson
+
+/-- An object which RPC clients can refer to without marshalling. -/
+abbrev RpcRef := USize
+inductive RpcValue where
+  | json : Json → RpcValue
+  | ref : RpcRef → RpcValue
+  deriving FromJson, ToJson, Inhabited
+
+inductive RpcValueKind where
+  | json | ref
+  deriving FromJson, ToJson
+
+/-- A request for Lean to execute a function previously bound for RPC.
+
+Extending TDPP is weird. But in Lean, symbols exist in the context of a position
+within a source file. So we need this to call user code in the env at that position. -/
+structure RpcCallParams extends TextDocumentPositionParams where
+  sessionId : USize
+  /-- Function to invoke. Must be fully qualified. -/
+  method : Name
+  args : Array RpcValue
+  /-- How the return value should be sent. -/
+  retKind : RpcValueKind
+  deriving FromJson, ToJson
+
+structure RpcCallResult where
+  value : RpcValue
   deriving FromJson, ToJson
 
 end Lean.Lsp

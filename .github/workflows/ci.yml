@@ -37,8 +37,8 @@ jobs:
             CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Debug
           - name: Linux fsanitize
             os: ubuntu-latest
-            # turn off custom allocator to make LSAN do its magic
-            CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined -DSMALL_ALLOCATOR=OFF
+            # turn off custom allocator & symbolic functions to make LSAN do its magic
+            CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined -DSMALL_ALLOCATOR=OFF -DSYMBOLIC_FUNCTIONS=OFF
           - name: macOS
             os: macos-latest
             release: true
@@ -112,14 +112,15 @@ jobs:
       - name: Patch
         run: |
           for f in lean leanpkg; do
-            patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 --remove-rpath build/stage1/bin/$f
+            patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 --set-rpath '${ORIGIN}/../lib/lean' build/stage1/bin/$f
           done
         if: matrix.name == 'Linux release'
       - name: Patch
         run: |
           for f in lean leanpkg; do
+            otool -L build/stage1/bin/$f
             for lib in $(otool -L build/stage1/bin/$f | tail -n +2 | cut -d' ' -f1); do
-              install_name_tool -change "$lib" "/usr/lib/$(basename $lib | sed 's/libc++\.1\.0/libc++.1/')" build/stage1/bin/$f
+              [[ "$lib" ~= *lean* ]] || install_name_tool -change "$lib" "/usr/lib/$(basename $lib | sed 's/libc++\.1\.0/libc++.1/')" build/stage1/bin/$f
             done
           done
         if: matrix.name == 'macOS'

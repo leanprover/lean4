@@ -75,6 +75,10 @@ def contains (env : Environment) (n : Name) : Bool :=
 def imports (env : Environment) : Array Import :=
   env.header.imports
 
+@[export lean_environment_import_names]
+def importNames (env : Environment) : Array Name :=
+  env.imports.map (·.module)
+
 def allImportedModuleNames (env : Environment) : Array Name :=
   env.header.moduleNames
 

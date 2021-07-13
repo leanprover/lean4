@@ -10,6 +10,7 @@ Author: Dany Fabian
 #include "util/incbin.h"
 #include "util/object_ref.h"
 #include "util/string_ref.h"
+#include "util/array_ref.h"
 #include "kernel/environment.h"
 #include "library/compiler/ir.h"
 #include <llvm/IR/LLVMContext.h>
@@ -27,7 +28,11 @@ INCBIN(LeanRuntimeBitCode, "library/compiler/libleanruntime.bc");
 extern "C" obj_res lean_ir_get_decls(b_obj_arg env);
 extern "C" obj_res lean_ir_emit_llvm(b_obj_arg env, b_obj_arg mod_name, obj_arg world);
 extern "C" obj_res lean_name_mangle(obj_arg name, obj_arg prefix);
+extern "C" obj_res lean_mk_module_initialization_function_name(obj_arg name);
+extern "C" obj_res lean_environment_import_names(obj_arg name);
 string_ref name_mangle(name name);
+string_ref mk_module_initialization_function_name(name name);
+array_ref<name> environment_import_names(environment env);
 
 class LeanIREmitter : public LLVMContext {
     const environment env;
@@ -40,6 +45,10 @@ class LeanIREmitter : public LLVMContext {
         string_ref emit();
     private:
         void emitFunction(decl function);
+        void emitModuleInitializer();
+        std::tuple<CallInst *, BasicBlock *>emitImportInitializer(name importName, BasicBlock *error, BasicBlock *next);
+        BasicBlock *createReturnIOSuccess();
+        FunctionCallee getRuntimeFunction(std::string name);
 };
 
 }

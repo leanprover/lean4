@@ -46,6 +46,12 @@ def toLspResponseError (id : RequestID) (e : RequestError) : ResponseError Unit 
 
 end RequestError
 
+def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
+    : Except RequestError paramType :=
+  fromJson? params |>.mapError fun inner =>
+    { code := JsonRpc.ErrorCode.parseError
+      message := s!"Cannot parse request params: {params.compress}\n{inner}" }
+
 structure RequestContext where
   rpcSesh?      : Option FileWorker.RpcSession
   srcSearchPath : SearchPath
@@ -120,11 +126,6 @@ private structure RequestHandler where
 builtin_initialize requestHandlers : IO.Ref (Std.PersistentHashMap String RequestHandler) ←
   IO.mkRef {}
 
-private def parseParams (paramType : Type) [FromJson paramType] (params : Json) : Except RequestError paramType :=
-  fromJson? params |>.mapError fun inner =>
-    { code := JsonRpc.ErrorCode.parseError
-      message := s!"Cannot parse request params: {params.compress}\n{inner}" }
-
 /-- NB: This method may only be called in `initialize`/`builtin_initialize` blocks.
 
 A registration consists of:
@@ -146,10 +147,9 @@ def registerLspRequestHandler (method : String)
   if (←requestHandlers.get).contains method then
     throw <| IO.userError s!"Failed to register LSP request handler for '{method}': already registered"
   let fileSource := fun j =>
-    parseParams paramType j |>.map fun p =>
-      Lsp.fileSource p
+    parseRequestParams paramType j |>.map Lsp.fileSource 
   let handle := fun j => do
-    let params ← parseParams paramType j
+    let params ← parseRequestParams paramType j
     let t ← handler params
     t.map <| Except.map ToJson.toJson
 

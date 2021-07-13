@@ -192,13 +192,11 @@ def intercalate (s : String) (ss : List String) : String :=
 structure Iterator where
   s : String
   i : Pos
+  deriving DecidableEq
 
 def mkIterator (s : String) : Iterator :=
   ⟨s, 0⟩
   
-instance : DecidableEq Iterator := fun ⟨s₁, i₁⟩ ⟨s₂, i₂⟩ => 
-  if h₁ : i₁ = i₂ ∧ s₁ = s₂ then isTrue (by simp_all) else isFalse (λ h₂ => by simp_all)
-
 namespace Iterator
 def toString : Iterator → String
   | ⟨s, _⟩ => s

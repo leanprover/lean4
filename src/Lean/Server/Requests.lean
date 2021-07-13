@@ -18,7 +18,7 @@ visualization.
 
 For details of how to register one, see `registerLspRequestHandler`. -/
 
-namespace Lean.Server.Requests
+namespace Lean.Server
 
 structure RequestError where
   code    : JsonRpc.ErrorCode
@@ -47,7 +47,7 @@ def toLspResponseError (id : RequestID) (e : RequestError) : ResponseError Unit 
 end RequestError
 
 structure RequestContext where
-  rpcSesh       : Option FileWorker.RpcSession
+  rpcSesh?      : Option FileWorker.RpcSession
   srcSearchPath : SearchPath
   docRef        : IO.Ref FileWorker.EditableDocument
   hLog          : IO.FS.Stream
@@ -55,6 +55,9 @@ structure RequestContext where
 abbrev RequestTask α := Task (Except RequestError α)
 /-- Workers execute request handlers in this monad. -/
 abbrev RequestM := ReaderT RequestContext <| ExceptT RequestError IO
+
+instance : Inhabited (RequestM α) :=
+  ⟨throwThe IO.Error "executing Inhabited instance?!"⟩
 
 namespace RequestM
 open FileWorker
@@ -166,4 +169,4 @@ def handleLspRequest (method : String) (params : Json) : RequestM (RequestTask J
   | some rh => rh.handle params
 
 end HandlerTable
-end Lean.Server.Requests
+end Lean.Server

@@ -375,12 +375,12 @@ end NotificationHandling
 
 section MessageHandling
   def parseParams (paramType : Type) [FromJson paramType] (params : Json) : ServerM paramType :=
-      match fromJson? params with
+    match fromJson? params with
       | Except.ok parsed => pure parsed
       | Except.error inner => throwServerError s!"Got param with wrong structure: {params.compress}\n{inner}"
 
   def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
-    match (← Requests.routeLspRequest method params) with
+    match (← routeLspRequest method params) with
       | Except.error e => 
         (←read).hOut.writeLspResponseError <| e.toLspResponseError id
       | Except.ok uri =>

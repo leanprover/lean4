@@ -305,7 +305,7 @@ endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -fPIC")
-  if(NOT SANITIZED)
+  if(BSYMBOLIC_FUNCTIONS)
     set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -Wl,-Bsymbolic-functions")
   endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -ftls-model=initial-exec")

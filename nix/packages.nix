@@ -9,7 +9,7 @@ let
     # macOS doesn't like the lld override, but I guess it already uses that anyway
     cc = if system == "x86_64-darwin" then llvmPackages.clang else llvmPackages.clang.override {
       # linker go brrr
-      bintools = llvmPackages.lldClang.bintools;
+      bintools = llvmPackages.bintools;
     };
     extraConfig = ''
       export CCACHE_DIR=/nix/var/cache/ccache

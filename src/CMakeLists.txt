@@ -60,6 +60,7 @@ option(FAKE_FREE           "Disable actually freeing runtime objects, useful for
 option(SMALL_ALLOCATOR     "SMALL_ALLOCATOR" ON)
 option(LAZY_RC             "LAZY_RC" OFF)
 option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
+option(BSYMBOLIC_FUNCTIONS "Link with -Bsymbolic-functions to reduce call overhead in shared libraries (Linux)" ON)
 
 # development-specific options
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
@@ -303,7 +304,10 @@ else()
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -fPIC -Wl,-Bsymbolic-functions")
+  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -fPIC")
+  if(NOT SANITIZED)
+    set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -Wl,-Bsymbolic-functions")
+  endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -ftls-model=initial-exec")
   set(LEANC_EXTRA_FLAGS "-fPIC")
 endif()

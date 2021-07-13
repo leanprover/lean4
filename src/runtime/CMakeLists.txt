@@ -7,6 +7,7 @@ add_library(runtime OBJECT ${RUNTIME_OBJS})
 add_library(leanruntime ${RUNTIME_OBJS})
 if(LLVM)
   string(REPLACE ";" " " RUNTIME_OBJS_STR "${RUNTIME_OBJS};lean_inlines.c")
+  string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
   add_custom_command(
     OUTPUT libleanruntime.bc
     DEPENDS ${RUNTIME_OBJS} lean_inlines.c

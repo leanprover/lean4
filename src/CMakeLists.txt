@@ -333,8 +333,7 @@ endif()
 # executable or `leanshared`, plugins would try to look them up at load time (even though they
 # are already loaded) and probably fail unless we set up LD_LIBRARY_PATH.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  # import library created by the `leanshared` target
-  set(LEANC_SHARED_LINKER_FLAGS "$bindir/leanshared.dll.a")
+  set(LEANC_SHARED_LINKER_FLAGS "-L$bindir")
 elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
   set(LEANC_SHARED_LINKER_FLAGS "-Wl,-undefined,dynamic_lookup")
 endif()

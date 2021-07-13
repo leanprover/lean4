@@ -333,7 +333,8 @@ endif()
 # executable or `leanshared`, plugins would try to look them up at load time (even though they
 # are already loaded) and probably fail unless we set up LD_LIBRARY_PATH.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  set(LEANC_SHARED_LINKER_FLAGS "-L$bindir")
+  # import library created by the `leanshared` target
+  set(LEANC_SHARED_LINKER_FLAGS "$bindir/libleanshared.dll.a")
 elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
   set(LEANC_SHARED_LINKER_FLAGS "-Wl,-undefined,dynamic_lookup")
 endif()
@@ -438,6 +439,9 @@ if(PREV_STAGE)
     set(LEANSHARED_LINKER_FLAGS "-Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libInit.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libStd.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLean.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
   else()
     set(LEANSHARED_LINKER_FLAGS "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp -Wl,--no-whole-archive")
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+      set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} --out-implib ${CMAKE_BINARY_DIR}/bin/libleanshared.dll.a")
+    endif()
   endif()
 
   # Escape for `make`. Yes, twice.

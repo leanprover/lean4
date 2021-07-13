@@ -304,8 +304,8 @@ endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -fPIC -Wl,-Bsymbolic-functions")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -fno-semantic-interposition -ftls-model=initial-exec")
-  set(LEANC_EXTRA_FLAGS "-fPIC -fno-semantic-interposition")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -ftls-model=initial-exec")
+  set(LEANC_EXTRA_FLAGS "-fPIC")
 endif()
 
 # export all symbols for the interpreter

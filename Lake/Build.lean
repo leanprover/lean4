@@ -174,16 +174,17 @@ def fetchAfterDirectLocalImports
   fun mod fetch => do
     let leanFile := pkg.modToSource mod
     let imports ← parseDirectLocalImports pkg.module leanFile
+    -- we fetch the import targets even if a rebuild is not required
+    -- because other build processes (ex. `.o`) rely on the map being complete
+    let importTargets ← imports.mapM fetch
     -- calculate max dependency `MTime`
     let leanMTime ← getMTime leanFile
-    let importMTimes ← imports.mapM fun i => getMTime <| pkg.modToSource i
+    let importMTimes ← importTargets.map (·.mtime)
     let depMTime := MTime.listMax <| leanMTime :: depsTarget.mtime :: importMTimes
     -- construct target
     let cFile := pkg.modToC mod
     let oleanFile := pkg.modToOlean mod
-    -- we fetch the import targets even if a rebuild is not required
-    -- because other build processes (ex. `.o`) rely on the map being complete
-    let importTasks ← imports.mapM fun i => fetch i >>= (·.buildTask)
+    let importTasks := importTargets.map (·.buildTask)
     skipIfNewer ⟨oleanFile, cFile⟩ depMTime <|
       BuildTask.afterTasks (depsTarget.buildTask :: importTasks) <| catchErrors <|
         compileOleanAndC leanFile oleanFile cFile leanPath pkg.dir pkg.leanArgs

@@ -69,14 +69,6 @@ structure PlainTermGoal where
 
 /-- An object which RPC clients can refer to without marshalling. -/
 abbrev RpcRef := USize
-inductive RpcValue where
-  | json : Json → RpcValue
-  | ref : RpcRef → RpcValue
-  deriving FromJson, ToJson, Inhabited
-
-inductive RpcValueKind where
-  | json | ref
-  deriving FromJson, ToJson
 
 /-- Initialize an RPC session at the given file's worker. -/
 structure RpcInitializeParams where

@@ -8,44 +8,43 @@ import Lake.Proc
 namespace Lake
 open System
 
-def compileOleanAndC
-(leanFile oleanFile cFile : FilePath) 
+def createParentDirs (path : FilePath) : IO Unit :=
+  if let some dir := path.parent then IO.FS.createDirAll dir else pure ()
+
+def compileOleanAndC (leanFile oleanFile cFile : FilePath)
 (leanPath : String := "") (rootDir : FilePath := ".") (leanArgs : Array String := #[])
 : IO Unit := do
-  if let some dir := cFile.parent then IO.FS.createDirAll dir
-  if let some dir := oleanFile.parent then IO.FS.createDirAll dir
+  createParentDirs cFile
+  createParentDirs oleanFile
   execCmd {
     cmd := "lean"
     args := leanArgs ++ #[
-      "-R", rootDir.toString, "-o", oleanFile.toString, "-c",  
+      "-R", rootDir.toString, "-o", oleanFile.toString, "-c",
       cFile.toString, leanFile.toString
     ]
     env := #[("LEAN_PATH", leanPath)]
   }
 
-def compileO
-(oFile cFile : FilePath) (leancArgs : Array String := #[])
-: IO Unit := do
-  if let some dir := oFile.parent then IO.FS.createDirAll dir
+def compileO (oFile cFile : FilePath)
+(leancArgs : Array String := #[]) : IO Unit := do
+  createParentDirs oFile
   execCmd {
     cmd := "leanc"
     args := #["-c", "-o", oFile.toString, cFile.toString] ++ leancArgs
   }
 
-def compileBin
-(binFile : FilePath) (linkFiles : Array FilePath) (linkArgs : Array String := #[])
-: IO Unit := do
-  if let some dir := binFile.parent then IO.FS.createDirAll dir
-  execCmd {
-    cmd := "leanc"
-    args := #["-o", binFile.toString] ++ linkFiles.map toString ++ linkArgs
-  }
-
 def compileStaticLib
-(libFile : FilePath) (oFiles : Array FilePath)
-: IO Unit := do
-  if let some dir := libFile.parent then IO.FS.createDirAll dir
+(libFile : FilePath) (oFiles : Array FilePath) : IO Unit := do
+  createParentDirs libFile
   execCmd {
     cmd := "ar"
     args := #["rcs", libFile.toString] ++ oFiles.map toString
+  }
+
+def compileBin (binFile : FilePath)
+(linkFiles : Array FilePath) (linkArgs : Array String := #[]) : IO Unit := do
+  createParentDirs binFile
+  execCmd {
+    cmd := "leanc"
+    args := #["-o", binFile.toString] ++ linkFiles.map toString ++ linkArgs
   }

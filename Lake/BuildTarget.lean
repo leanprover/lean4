@@ -29,6 +29,7 @@ end BuildTask
 
 instance : Inhabited BuildTask := ⟨BuildTask.nop⟩
 
+
 structure BuildTarget (t : Type) (a : Type) where
   artifact    : a
   trace       : t

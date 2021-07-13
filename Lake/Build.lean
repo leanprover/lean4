@@ -69,6 +69,25 @@ def moduleTargets (self : PackageTarget) : NameMap LeanTarget :=
 
 end PackageTarget
 
+-- # MTime Checking
+
+/-- Check if the artifact's `MTIme` is at least `depMTime`. -/
+def checkIfNewer [GetMTime a] (artifact : a) (depMTime : MTime) : IO Bool := do
+  try (← getMTime artifact) >= depMTime catch _ => false
+
+/--
+  Construct a no-op target if the given artifact is up-to-date.
+  Otherwise, construct a target with the given build task.
+-/
+def skipIfNewer [GetMTime a]
+(artifact : a) (depMTime : MTime)
+{m} [Monad m] [MonadLiftT IO m] [MonadExceptOf IO.Error m]
+(build : m BuildTask) : m (MTimeBuildTarget a) := do
+  if (← checkIfNewer artifact depMTime) then
+    MTimeBuildTarget.pure artifact depMTime
+  else
+    MTimeBuildTarget.mk artifact depMTime (← build)
+
 -- # Build Components
 
 def catchErrors (action : IO PUnit) : IO PUnit := do
@@ -77,20 +96,6 @@ def catchErrors (action : IO PUnit) : IO PUnit := do
     IO.eprintln e
     throw e
 
-def skipIfNewer [GetMTime a]
-(artifact : a) (depMTime : MTime)
-{m} [Monad m] [MonadLiftT IO m] [MonadExceptOf IO.Error m]
-(build : m BuildTask) : m (MTimeBuildTarget a) := do
-  -- construct a nop target if we have an up-to-date file
-  try
-    if (← getMTime artifact) >= depMTime then
-      return MTimeBuildTarget.pure artifact depMTime
-  catch
-    | IO.Error.noFileOrDirectory .. => pure ()
-    | e => throw e
-  -- otherwise construct a proper target
-  return MTimeBuildTarget.mk artifact depMTime (← build)
-
 def buildO (oFile : FilePath)
 (cTarget : FileTarget) (leancArgs : Array String := #[]) : IO BuildTask :=
   BuildTask.afterTarget cTarget <| catchErrors <|
@@ -98,7 +103,6 @@ def buildO (oFile : FilePath)
 
 def fetchOFileTarget (oFile : FilePath)
 (cTarget : FileTarget) (leancArgs : Array String := #[]) : IO FileTarget :=
-  -- construct a nop target if we have an up-to-date .o
   skipIfNewer oFile cTarget.mtime <| buildO oFile cTarget leancArgs
 
 -- # Topological Builder
@@ -307,7 +311,6 @@ def PackageTarget.buildStaticLib
 
 def PackageTarget.fetchStaticLibTarget
 (self : PackageTarget) : IO FileTarget := do
-  -- construct a nop target if we have an up-to-date lib
   skipIfNewer self.package.staticLibFile self.mtime self.buildStaticLib
 
 def Package.fetchStaticLibTarget (self : Package) : IO FileTarget := do
@@ -338,7 +341,6 @@ def PackageTarget.buildBin
 
 def PackageTarget.fetchBinTarget
 (depTargets : List PackageTarget) (self : PackageTarget) : IO FileTarget :=
-  -- construct a nop target if we have an up-to-date bin
   skipIfNewer self.package.binFile self.mtime <| self.buildBin depTargets
 
 def Package.fetchBinTarget (self : Package) : IO FileTarget := do

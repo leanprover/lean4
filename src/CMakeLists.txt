@@ -310,6 +310,9 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -ftls-model=initial-exec")
   set(LEANC_EXTRA_FLAGS "-fPIC")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=\\\$ORIGIN/../lib/lean")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,@executable_path/../lib/lean")
 endif()
 
 # export all symbols for the interpreter
@@ -325,8 +328,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -lbcrypt")
   set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -lbcrypt")
 endif()
-
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=\\\$ORIGIN/../lib/lean")
 
 # Allow `lean` symbols in plugins without linking directly against it. If we linked against the
 # executable or `leanshared`, plugins would try to look them up at load time (even though they

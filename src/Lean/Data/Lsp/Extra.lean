@@ -94,15 +94,9 @@ Extending TDPP is weird. But in Lean, symbols exist in the context of a position
 within a source file. So we need this to call user code in the env at that position. -/
 structure RpcCallParams extends TextDocumentPositionParams where
   sessionId : USize
-  /-- Function to invoke. Must be fully qualified. -/
+  /-- Procedure to invoke. Must be fully qualified. -/
   method : Name
-  args : Array RpcValue
-  /-- How the return value should be sent. -/
-  retKind : RpcValueKind
-  deriving FromJson, ToJson
-
-structure RpcCallResult where
-  value : RpcValue
+  params : Json
   deriving FromJson, ToJson
 
 end Lean.Lsp

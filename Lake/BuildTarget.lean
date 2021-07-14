@@ -3,42 +3,10 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.BuildTask
+import Lake.BuildTrace
 
 namespace Lake
-
--- # Build Task
-
-def BuildTask := Task (Except IO.Error PUnit)
-
-namespace BuildTask
-
-def nop : BuildTask :=
-  Task.pure (Except.ok ())
-
-def spawn (action : IO PUnit) (prio := Task.Priority.dedicated) : IO BuildTask :=
-  IO.asTask action prio
-
-def await (self : BuildTask) : IO PUnit := do
-  IO.ofExcept (← IO.wait self)
-
-def all (tasks : List BuildTask) : IO BuildTask :=
-  IO.asTask (tasks.forM (·.await))
-
-end BuildTask
-
-instance : Inhabited BuildTask := ⟨BuildTask.nop⟩
-
-def afterTask (task : BuildTask) (action : IO PUnit)  : IO BuildTask :=
-  IO.mapTask (fun x => IO.ofExcept x *> action) task
-
-def afterTaskList (tasks : List BuildTask) (action : IO PUnit) : IO BuildTask :=
-  IO.mapTasks (fun xs => xs.forM IO.ofExcept *> action) <| tasks
-
-instance : HAndThen BuildTask (IO PUnit) (IO BuildTask) :=
-  ⟨afterTask⟩
-
-instance : HAndThen (List BuildTask) (IO PUnit) (IO BuildTask) :=
-  ⟨afterTaskList⟩
 
 -- # Build Target
 
@@ -73,11 +41,11 @@ def materialize (self : BuildTarget t α) : IO PUnit :=
 
 end BuildTarget
 
-def afterTarget (target : BuildTarget t a) (action : IO PUnit)  : IO BuildTask :=
-  afterTask target.buildTask action
+def afterTarget (target : BuildTarget t a) (act : IO PUnit)  : IO BuildTask :=
+  afterTask target.buildTask act
 
-def afterTargetList (targets : List (BuildTarget t a)) (action : IO PUnit) : IO BuildTask :=
-  afterTaskList (targets.map (·.buildTask)) action
+def afterTargetList (targets : List (BuildTarget t a)) (act : IO PUnit) : IO BuildTask :=
+  afterTaskList (targets.map (·.buildTask)) act
 
 instance : HAndThen (BuildTarget t a) (IO PUnit) (IO BuildTask) :=
   ⟨afterTarget⟩
@@ -85,45 +53,7 @@ instance : HAndThen (BuildTarget t a) (IO PUnit) (IO BuildTask) :=
 instance : HAndThen (List (BuildTarget t a)) (IO PUnit) (IO BuildTask) :=
   ⟨afterTargetList⟩
 
--- # Hash Traces
-
-section
-def Hash := UInt64
-
-instance : OfNat Hash n := inferInstanceAs (OfNat UInt64 n)
-instance : Inhabited Hash := inferInstanceAs (Inhabited UInt64)
-instance : BEq Hash := inferInstanceAs (BEq UInt64)
-end
-
-def Hash.ofNat (n : Nat) := UInt64.ofNat n
-def Hash.foldList (init : Hash) (hashes : List Hash) :=
-  List.foldl mixHash init hashes
-
--- # MTime Traces
-
-section
-open IO.FS (SystemTime)
-
-def MTime := SystemTime
-
-instance : Inhabited MTime := ⟨⟨0,0⟩⟩
-instance : OfNat MTime (nat_lit 0) := ⟨⟨0,0⟩⟩
-instance : BEq MTime := inferInstanceAs (BEq SystemTime)
-instance : Repr MTime := inferInstanceAs (Repr SystemTime)
-instance : Ord MTime := inferInstanceAs (Ord SystemTime)
-instance : LT MTime := ltOfOrd
-instance : LE MTime := leOfOrd
-end
-
-def MTime.listMax (mtimes : List MTime) := mtimes.maximum?.getD 0
-
-class GetMTime (α) where
-  getMTime : α → IO MTime
-
-export GetMTime (getMTime)
-
-instance : GetMTime System.FilePath where
-  getMTime file := do (← file.metadata).modified
+-- # MTIme Build Target
 
 abbrev MTimeBuildTarget := BuildTarget MTime
 

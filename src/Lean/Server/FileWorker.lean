@@ -97,11 +97,14 @@ structure WorkerContext where
   hOut               : FS.Stream
   hLog               : FS.Stream
   srcSearchPath      : SearchPath
-  docRef             : IO.Ref EditableDocument -- TODO WorkerM := StateT
-  pendingRequestsRef : IO.Ref PendingRequestMap
-  rpcSeshRef         : IO.Ref (Option RpcSession)
 
-abbrev WorkerM := ReaderT WorkerContext IO
+structure WorkerState where
+  doc             : EditableDocument
+  pendingRequests : PendingRequestMap
+  rpcSesh         : Option RpcSession
+
+-- NOTE(WN): StateT or StateRefT?
+abbrev WorkerM := ReaderT WorkerContext <| StateT WorkerState IO
 
 /- Worker initialization sequence. -/
 section Initialization
@@ -176,7 +179,7 @@ section Initialization
     return (headerSnap, srcSearchPath)
 
   def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream)
-      : IO WorkerContext := do
+      : IO (WorkerContext × WorkerState) := do
     /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
       "\n", which should be enough to handle both LF and CRLF correctly.
       This is because LSP always refers to characters by (line, column),
@@ -186,20 +189,22 @@ section Initialization
     let cancelTk ← CancelToken.new
     let cmdSnaps ← unfoldCmdSnaps meta headerSnap cancelTk o (initial := true)
     let doc : EditableDocument := ⟨meta, headerSnap, cmdSnaps, cancelTk⟩
-    return {
+    return ({
       hIn                := i
       hOut               := o
       hLog               := e
       srcSearchPath      := srcSearchPath
-      docRef             := ←IO.mkRef doc
-      pendingRequestsRef := ←IO.mkRef RBMap.empty
-      rpcSeshRef         := ←IO.mkRef none
-    }
+    },
+    {
+      doc             := doc
+      pendingRequests := RBMap.empty
+      rpcSesh         := none
+    })
 end Initialization
 
 section Updates
   def updatePendingRequests (map : PendingRequestMap → PendingRequestMap) : WorkerM Unit := do
-    (←read).pendingRequestsRef.modify map
+    modify fun st => { st with pendingRequests := map st.pendingRequests }
 
   /-- Given the new document and `changePos`, the UTF-8 offset of a change into the pre-change source,
       updates editable doc state. -/
@@ -207,8 +212,8 @@ section Updates
     -- The watchdog only restarts the file worker when the syntax tree of the header changes.
     -- If e.g. a newline is deleted, it will not restart this file worker, but we still
     -- need to reparse the header so that the offsets are correct.
-    let st ← read
-    let oldDoc ← st.docRef.get
+    let ctx ← read
+    let oldDoc := (←get).doc
     let newHeaderSnap ← reparseHeader newMeta.text.source oldDoc.headerSnap
     if newHeaderSnap.stx != oldDoc.headerSnap.stx then
       throwServerError "Internal server error: header changed but worker wasn't restarted."
@@ -226,8 +231,8 @@ section Updates
       let mut validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos)
       if validSnaps.length = 0 then
         let cancelTk ← CancelToken.new
-        let newCmdSnaps ← unfoldCmdSnaps newMeta newHeaderSnap cancelTk st.hOut (initial := true)
-        st.docRef.set ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩
+        let newCmdSnaps ← unfoldCmdSnaps newMeta newHeaderSnap cancelTk ctx.hOut (initial := true)
+        modify fun st => { st with doc := ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩ }
       else
         /- When at least one valid non-header snap exists, it may happen that a change does not fall
            within the syntactic range of that last snap but still modifies it by appending tokens.
@@ -244,9 +249,9 @@ section Updates
           validSnaps ← validSnaps.dropLast
           lastSnap ← preLastSnap
         let cancelTk ← CancelToken.new
-        let newSnaps ← unfoldCmdSnaps newMeta lastSnap cancelTk st.hOut (initial := false)
+        let newSnaps ← unfoldCmdSnaps newMeta lastSnap cancelTk ctx.hOut (initial := false)
         let newCmdSnaps := AsyncList.ofList validSnaps ++ newSnaps
-        st.docRef.set ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩
+        modify fun st => { st with doc := ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩ }
 end Updates
 
 /- Notifications are handled in the main thread. They may change global worker state
@@ -255,7 +260,7 @@ section NotificationHandling
   def handleDidChange (p : DidChangeTextDocumentParams) : WorkerM Unit := do
     let docId := p.textDocument
     let changes := p.contentChanges
-    let oldDoc ← (←read).docRef.get
+    let oldDoc := (←get).doc
     let some newVersion ← pure docId.version?
       | throwServerError "Expected version number"
     if newVersion ≤ oldDoc.meta.version then
@@ -269,14 +274,14 @@ section NotificationHandling
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
 
   def handleRpcInitialize (p : RpcInitializeParams) : WorkerM Unit := do
-    let st ← read
-    let doc ← st.docRef.get
+    let ctx ← read
+    let doc := (←get).doc
     let newId ← USize.ofNat <$> IO.monoMsNow -- TODO may crash if called twice within the same millisecond?
     let newAliveRefs ← IO.mkRef Std.PersistentHashMap.empty
     -- Just setting this should `dec` the previous session. Any associated references should
     -- become collectable once all in-use references to the old session go out of scope.
-    st.rpcSeshRef.set <| some { sessionId := newId, aliveRefs := newAliveRefs }
-    st.hOut.writeLspNotification
+    modify fun st => { st with rpcSesh := some { sessionId := newId, aliveRefs := newAliveRefs } }
+    ctx.hOut.writeLspNotification
       <| { method := "$/lean/rpc/initialized"
            param := { uri := doc.meta.uri
                       sessionId := newId : RpcInitialized } }
@@ -303,30 +308,31 @@ section MessageHandling
 
   def handleRequest (id : RequestID) (method : String) (params : Json)
       : WorkerM Unit := do
-    let st ← read
+    let ctx ← read
+    let st ← get
     let rc : RequestContext :=
-      { rpcSesh? := ← st.rpcSeshRef.get
-        srcSearchPath := st.srcSearchPath
-        docRef := st.docRef
-        hLog := st.hLog }
+      { rpcSesh? := st.rpcSesh
+        srcSearchPath := ctx.srcSearchPath
+        doc := st.doc
+        hLog := ctx.hLog }
     let t? ← (ExceptT.run <| handleLspRequest method params rc : IO _)
     let t₁ ← match t? with
       | Except.error e =>
         IO.asTask do
-          st.hOut.writeLspResponseError <| e.toLspResponseError id
+          ctx.hOut.writeLspResponseError <| e.toLspResponseError id
       | Except.ok t => (IO.mapTask · t) fun
         | Except.ok resp =>
-          st.hOut.writeLspResponse ⟨id, resp⟩
+          ctx.hOut.writeLspResponse ⟨id, resp⟩
         | Except.error e =>
-          st.hOut.writeLspResponseError <| e.toLspResponseError id
+          ctx.hOut.writeLspResponseError <| e.toLspResponseError id
     queueRequest id t₁
 end MessageHandling
 
 section MainLoop
   partial def mainLoop : WorkerM Unit := do
-    let st ← read
-    let msg ← st.hIn.readLspMessage
-    let pendingRequests ← st.pendingRequestsRef.get
+    let ctx ← read
+    let msg ← ctx.hIn.readLspMessage
+    let pendingRequests := (←get).pendingRequests
     let filterFinishedTasks (acc : PendingRequestMap) (id : RequestID) (task : Task (Except IO.Error Unit))
         : WorkerM PendingRequestMap := do
       if (←hasFinished task) then
@@ -337,13 +343,13 @@ section MainLoop
         acc.erase id
       else acc
     let pendingRequests ← pendingRequests.foldM filterFinishedTasks pendingRequests
-    st.pendingRequestsRef.set pendingRequests
+    modify fun st => { st with pendingRequests := pendingRequests }
     match msg with
     | Message.request id method (some params) =>
       handleRequest id method (toJson params)
       mainLoop
     | Message.notification "exit" none =>
-      let doc ← st.docRef.get
+      let doc ← (←get).doc
       doc.cancelTk.set
       return ()
     | Message.notification method (some params) =>
@@ -362,13 +368,13 @@ def initAndRunWorker (i o e : FS.Stream) : IO UInt32 := do
   let e ← e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   try
-    let ctx ← initializeWorker meta i o e
-    ReaderT.run (r := ctx) mainLoop
-    return 0
+    let (ctx, st) ← initializeWorker meta i o e
+    let _ ← StateT.run (s := st) <| ReaderT.run (r := ctx) mainLoop
+    return (0 : UInt32)
   catch e =>
     IO.eprintln e
     publishDiagnostics meta #[{ range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩, severity? := DiagnosticSeverity.error, message := e.toString }] o
-    return 1
+    return (1 : UInt32)
 
 @[export lean_server_worker_main]
 def workerMain : IO UInt32 := do

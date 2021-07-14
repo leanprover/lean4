@@ -55,7 +55,7 @@ def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
 structure RequestContext where
   rpcSesh?      : Option FileWorker.RpcSession
   srcSearchPath : SearchPath
-  docRef        : IO.Ref FileWorker.EditableDocument
+  doc           : FileWorker.EditableDocument
   hLog          : IO.FS.Stream
 
 abbrev RequestTask α := Task (Except RequestError α)
@@ -70,7 +70,7 @@ open FileWorker
 open Snapshots
 
 def readDoc : RequestM EditableDocument := fun rc =>
-  rc.docRef.get
+  rc.doc
 
 def asTask (t : RequestM α) : RequestM (RequestTask α) := fun rc => do
   let t ← IO.asTask <| t rc

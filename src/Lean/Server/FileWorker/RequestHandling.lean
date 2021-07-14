@@ -10,12 +10,12 @@ import Lean.Data.Json
 import Lean.Data.Lsp
 
 import Lean.Server.FileWorker.Utils
+import Lean.Server.FileWorker.Rpc
 import Lean.Server.Requests
 import Lean.Server.Completion
 
 namespace Lean.Server.FileWorker
 open Lsp
-open Requests
 open RequestM
 open Snapshots
 

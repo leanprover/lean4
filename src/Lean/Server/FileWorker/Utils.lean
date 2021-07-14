@@ -53,4 +53,12 @@ structure EditableDocument where
   cancelTk   : CancelToken
   deriving Inhabited
 
+structure RpcSession where
+  sessionId : USize
+  /-- Objects that are being kept alive for the RPC client, mapped to by their RPC reference.
+  Note that we may currently have multiple references to the same object. It is only disposed
+  of once all of those are gone. This simplifies the client a bit as it can drop every reference
+  received separately. -/
+  aliveRefs : IO.Ref (Std.PersistentHashMap USize UntypedRef)
+
 end Lean.Server.FileWorker

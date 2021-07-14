@@ -673,7 +673,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
   | f, []          => elabAppArgs f namedArgs args expectedType? explicit ellipsis
   | f, lval::lvals => do
     if let LVal.fieldName (ref := fieldStx) (targetStx := targetStx) .. := lval then
-      addDotCompletionInfo  targetStx f expectedType? fieldStx
+      addDotCompletionInfo targetStx f expectedType? fieldStx
     let (f, lvalRes) ← resolveLVal f lval
     match lvalRes with
     | LValResolution.projIdx structName idx =>
@@ -785,9 +785,15 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
       f.getArgs.foldlM (fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit ellipsis true acc) acc
   else
     let elabFieldName (e field : Syntax) := do
-      let newLVals := field.getId.eraseMacroScopes.components.map fun n =>
-        -- We use `none` here since `field` can't be part of a composite name
-        LVal.fieldName field (toString n) none e
+      let newLVals := 
+        -- We use `none` in `suffix?` since `field` can't be part of a composite name
+        if field.getId.hasMacroScopes then
+          -- We assume that names with macro scopes have no meaningful syntax associated
+          field.getId.eraseMacroScopes.components.map fun n =>
+            LVal.fieldName Syntax.missing (toString n) none e
+        else
+          field.identComponents.map fun comp =>
+            LVal.fieldName comp (toString comp.getId) none e
       elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     let elabFieldIdx (e idxStx : Syntax) := do
       let idx := idxStx.isFieldIdx?.get!

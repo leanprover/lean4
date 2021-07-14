@@ -172,6 +172,24 @@ partial def getTailWithPos : Syntax → Option Syntax
   | node _ args         => args.findSomeRev? getTailWithPos
   | _                   => none
 
+open SourceInfo in
+/-- Splits an `ident` into its dot-separated components while preserving source info.
+For example, `` `foo.bla.boo `` ↦ `` [`foo, `bla, `boo] ``. -/
+def identComponents : Syntax → List Syntax
+  | ident info rawStr val _ =>
+    rawStr.splitOn "." |>.map fun ss =>
+      let off := ss.startPos - rawStr.startPos
+      let info := match info with
+        | original lead pos trail _ =>
+          let lead := if off == 0 then lead else "".toSubstring
+          let trail := if ss.stopPos == rawStr.stopPos then trail else "".toSubstring
+          original lead (pos + off) trail (pos + off + ss.bsize)
+        | synthetic pos _ =>
+          synthetic (pos + off) (pos + off + ss.bsize)
+        | SourceInfo.none => SourceInfo.none
+      ident info ss (Name.mkSimple ss.toString) []
+  | _ => unreachable!
+
 structure TopDown where
   firstChoiceOnly : Bool
   stx : Syntax

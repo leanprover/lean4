@@ -71,7 +71,21 @@ def afterTargets (targets : List (BuildTarget t a)) (action : IO PUnit) : IO Bui
 
 end BuildTask
 
--- # MTime Build Targets
+-- # Hash Traces
+
+section
+def Hash := UInt64
+
+instance : OfNat Hash n := inferInstanceAs (OfNat UInt64 n)
+instance : Inhabited Hash := inferInstanceAs (Inhabited UInt64)
+instance : BEq Hash := inferInstanceAs (BEq UInt64)
+end
+
+def Hash.ofNat (n : Nat) := UInt64.ofNat n
+def Hash.foldList (init : Hash) (hashes : List Hash) :=
+  List.foldl mixHash init hashes
+
+-- # MTime Traces
 
 section
 open IO.FS (SystemTime)

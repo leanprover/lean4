@@ -34,46 +34,80 @@ structure LeanArtifact where
   cFile : FilePath
   deriving Inhabited
 
+structure LeanTrace where
+  hash : Hash
+  mtime : MTime
+  deriving Inhabited
+
 protected def LeanArtifact.getMTime (self : LeanArtifact) : IO MTime := do
   return max (← getMTime self.oleanFile) (← getMTime self.cFile)
 
 instance : GetMTime LeanArtifact := ⟨LeanArtifact.getMTime⟩
 
-abbrev LeanTarget := MTimeBuildTarget LeanArtifact
+abbrev LeanTarget a := BuildTarget LeanTrace a
 
 namespace LeanTarget
 
-def mk (olean c : FilePath) (maxMTime : IO.FS.SystemTime) (task : BuildTask) : LeanTarget :=
-  BuildTarget.mk ⟨olean, c⟩ maxMTime task
+def hash (self : LeanTarget a) := self.trace.hash
+def mtime (self : LeanTarget a) := self.trace.mtime
 
-def pure (olean c : FilePath) (maxMTime : IO.FS.SystemTime) : LeanTarget :=
-  BuildTarget.pure ⟨olean, c⟩ maxMTime
-
-def oleanFile (self : LeanTarget) := self.artifact.oleanFile
-def oleanTarget (self : LeanTarget) : FileTarget :=
-  {self with artifact := self.oleanFile}
-
-def cFile (self : LeanTarget) := self.artifact.cFile
-def cTarget (self : LeanTarget) : FileTarget :=
-  {self with artifact := self.cFile}
+def all (targets : List (LeanTarget a)) : IO (LeanTarget PUnit) := do
+  let hash := Hash.foldList 0 <| targets.map (·.hash)
+  let mtime := MTime.listMax <| targets.map (·.mtime)
+  let task ← BuildTask.all <| targets.map (·.buildTask)
+  return BuildTarget.mk () ⟨hash, mtime⟩ task
 
 end LeanTarget
 
-abbrev PackageTarget :=  MTimeBuildTarget (Package × NameMap LeanTarget)
+abbrev ModuleTarget := LeanTarget LeanArtifact
+
+namespace ModuleTarget
+
+def mk (olean c : FilePath) (hash : Hash) (mtime : IO.FS.SystemTime) (task : BuildTask) : ModuleTarget :=
+  BuildTarget.mk ⟨olean, c⟩ ⟨hash, mtime⟩ task
+
+def pure (olean c : FilePath) (hash : Hash) (mtime : IO.FS.SystemTime) : ModuleTarget :=
+  BuildTarget.pure ⟨olean, c⟩ ⟨hash, mtime⟩
+
+def oleanFile (self : ModuleTarget) := self.artifact.oleanFile
+def oleanTarget (self : ModuleTarget) : FileTarget :=
+  {self with artifact := self.oleanFile, trace := self.mtime}
+
+def cFile (self : ModuleTarget) := self.artifact.cFile
+def cTarget (self : ModuleTarget) : FileTarget :=
+  {self with artifact := self.cFile, trace := self.mtime}
+
+end ModuleTarget
+
+abbrev PackageTarget :=  LeanTarget (Package × NameMap ModuleTarget)
 
 namespace PackageTarget
 
 def package (self : PackageTarget) := self.artifact.1
-def moduleTargets (self : PackageTarget) : NameMap LeanTarget :=
+def moduleTargets (self : PackageTarget) : NameMap ModuleTarget :=
   self.artifact.2
 
 end PackageTarget
 
--- # MTime Checking
+-- # Trace Checking
+
+/-- Check if `hash` matches that in the file give file. -/
+def checkIfSameHash (hash : Hash) (file : FilePath) : IO Bool :=
+  try
+    let contents ← IO.FS.readFile file
+    match contents.toNat? with
+    | some h => Hash.ofNat h == hash
+    | none => false
+  catch _ =>
+    false
 
 /-- Check if the artifact's `MTIme` is at least `depMTime`. -/
 def checkIfNewer [GetMTime a] (artifact : a) (depMTime : MTime) : IO Bool := do
   try (← getMTime artifact) >= depMTime catch _ => false
+
+/-- Construct a no-op build task if the given condition holds, otherwise perform `build`. -/
+def skipIf [Pure m] (cond : Bool) (build : m BuildTask) : m BuildTask := do
+  if cond then pure BuildTask.nop else build
 
 /--
   Construct a no-op target if the given artifact is up-to-date.
@@ -83,10 +117,8 @@ def skipIfNewer [GetMTime a]
 (artifact : a) (depMTime : MTime)
 {m} [Monad m] [MonadLiftT IO m] [MonadExceptOf IO.Error m]
 (build : m BuildTask) : m (MTimeBuildTarget a) := do
-  if (← checkIfNewer artifact depMTime) then
-    MTimeBuildTarget.pure artifact depMTime
-  else
-    MTimeBuildTarget.mk artifact depMTime (← build)
+  MTimeBuildTarget.mk artifact depMTime <| ←
+    skipIf (← checkIfNewer artifact depMTime) build
 
 -- # Build Components
 
@@ -158,11 +190,6 @@ def buildRBTop {k o} {cmp} {m} [BEq k] [Inhabited o] [Monad m]
 
 -- # Build Modules
 
-def parseDirectLocalImports (root : Name) (leanFile : FilePath) : IO (List Name) := do
-  let contents ← IO.FS.readFile leanFile
-  let (imports, _, _) ← Elab.parseImports contents leanFile.toString
-  imports.map (·.module) |>.filter (·.getRoot == root)
-
 /-
   Produces a recursive module target fetcher that
   builds the target module after waiting for `depsTarget` and
@@ -172,39 +199,49 @@ def parseDirectLocalImports (root : Name) (leanFile : FilePath) : IO (List Name)
   a `LEAN_PATH` that includes `oleanDirs`.
 -/
 def fetchAfterDirectLocalImports
-(pkg : Package) (oleanDirs : List FilePath) (depsTarget : MTimeBuildTarget PUnit)
-{m} [Monad m] [MonadLiftT IO m] [MonadExceptOf IO.Error m] : RecFetch Name LeanTarget m :=
+(pkg : Package) (oleanDirs : List FilePath) (depsTarget : LeanTarget PUnit)
+{m} [Monad m] [MonadLiftT IO m] [MonadExceptOf IO.Error m] : RecFetch Name ModuleTarget m :=
   let leanPath := SearchPath.toString <| pkg.oleanDir :: oleanDirs
   fun mod fetch => do
     let leanFile := pkg.modToSource mod
-    let imports ← parseDirectLocalImports pkg.module leanFile
+    let contents ← IO.FS.readFile leanFile
+    -- parse direct local imports
+    let (imports, _, _) ← Elab.parseImports contents leanFile.toString
+    let imports := imports.map (·.module) |>.filter (·.getRoot == pkg.module)
     -- we fetch the import targets even if a rebuild is not required
     -- because other build processes (ex. `.o`) rely on the map being complete
     let importTargets ← imports.mapM fetch
-    -- calculate max dependency `MTime`
+    -- calculate trace
+    let leanHash := hash contents
     let leanMTime ← getMTime leanFile
+    let importHashes ← importTargets.map (·.hash)
     let importMTimes ← importTargets.map (·.mtime)
-    let depMTime := MTime.listMax <| leanMTime :: depsTarget.mtime :: importMTimes
+    let fullHash := Hash.foldList leanHash (depsTarget.hash :: importHashes)
+    let maxMTime := MTime.listMax (leanMTime :: depsTarget.mtime :: importMTimes)
+    let hashFile := pkg.modToHashFile mod
+    let sameHash ← checkIfSameHash fullHash hashFile
+    let mtime := ite sameHash 0 maxMTime
     -- construct target
     let cFile := pkg.modToC mod
     let oleanFile := pkg.modToOlean mod
     let importTasks := importTargets.map (·.buildTask)
-    skipIfNewer ⟨oleanFile, cFile⟩ depMTime <|
-      BuildTask.afterTasks (depsTarget.buildTask :: importTasks) <| catchErrors <|
+    BuildTarget.mk ⟨oleanFile, cFile⟩ ⟨fullHash, mtime⟩ <| ← skipIf sameHash <|
+      BuildTask.afterTasks (depsTarget.buildTask :: importTasks) <| catchErrors do
         compileOleanAndC leanFile oleanFile cFile leanPath pkg.dir pkg.leanArgs
+        IO.FS.writeFile hashFile (toString fullHash)
 
 /-
-  Equivalent to `RBTopT (cmp := Name.quickCmp) Name LeanTarget IO`.
+  Equivalent to `RBTopT (cmp := Name.quickCmp) Name ModuleTarget IO`.
   Phrased this way to use `NameMap`.
 -/
 abbrev LeanTargetM :=
-  EStateT (List Name) (NameMap LeanTarget) IO
+  EStateT (List Name) (NameMap ModuleTarget) IO
 
 abbrev LeanTargetFetch :=
-  RecFetch Name LeanTarget LeanTargetM
+  RecFetch Name ModuleTarget LeanTargetM
 
 abbrev RecLeanTargetM :=
-  ReaderT (RecFetch Name LeanTarget LeanTargetM) LeanTargetM
+  ReaderT (RecFetch Name ModuleTarget LeanTargetM) LeanTargetM
 
 def throwOnCycle (mx : IO (Except (List Name) α)) : IO α  :=
   mx >>= fun
@@ -214,15 +251,15 @@ def throwOnCycle (mx : IO (Except (List Name) α)) : IO α  :=
     throw <| IO.userError s!"import cycle detected:\n{"\n".intercalate cycle}"
 
 def Package.buildModuleTargetDAG
-(oleanDirs : List FilePath) (depsTarget : MTimeBuildTarget PUnit)
-(self : Package) : IO (LeanTarget × NameMap LeanTarget) := do
+(oleanDirs : List FilePath) (depsTarget : LeanTarget PUnit)
+(self : Package) : IO (ModuleTarget × NameMap ModuleTarget) := do
   let fetch := fetchAfterDirectLocalImports self oleanDirs depsTarget
   throwOnCycle <| buildRBTop fetch self.module |>.run {}
 
 def Package.buildModuleTargets
 (mods : List Name) (oleanDirs : List FilePath)
-(depsTarget : MTimeBuildTarget PUnit) (self : Package)
-: IO (List LeanTarget) := do
+(depsTarget : LeanTarget PUnit) (self : Package)
+: IO (List ModuleTarget) := do
   let fetch : LeanTargetFetch :=
     fetchAfterDirectLocalImports self oleanDirs depsTarget
   throwOnCycle <| mods.mapM (buildRBTop fetch) |>.run' {}
@@ -232,7 +269,7 @@ def Package.buildModuleTargets
 def Package.buildTargetWithDepTargets
 (depTargets : List PackageTarget) (self : Package)
 : IO PackageTarget := do
-  let depsTarget ← MTimeBuildTarget.all depTargets
+  let depsTarget ← LeanTarget.all depTargets
   let depOLeanDirs := depTargets.map (·.package.oleanDir)
   let (target, targetMap) ← self.buildModuleTargetDAG depOLeanDirs depsTarget
   return {target with artifact := ⟨self, targetMap⟩}
@@ -272,9 +309,9 @@ def build (pkg : Package) : IO PUnit :=
 
 def Package.buildModuleTargetsWithDeps
 (deps : List Package) (mods : List Name)  (self : Package)
-: IO (List LeanTarget) := do
+: IO (List ModuleTarget) := do
   let oleanDirs := deps.map (·.oleanDir)
-  let depsTarget ← MTimeBuildTarget.all (← deps.mapM (·.buildTarget))
+  let depsTarget ← LeanTarget.all (← deps.mapM (·.buildTarget))
   self.buildModuleTargets mods oleanDirs depsTarget
 
 def Package.buildModulesWithDeps

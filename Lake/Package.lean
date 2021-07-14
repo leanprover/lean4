@@ -89,6 +89,9 @@ def oleanDir (self : Package) : FilePath :=
 def oleanRoot (self : Package) : FilePath :=
   self.oleanDir / FilePath.withExtension self.moduleName "olean"
 
+def modToHashFile (mod : Name) (self : Package) : FilePath :=
+  Lean.modToFilePath self.oleanDir mod "hash"
+
 def modToOlean (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.oleanDir mod "olean"
 

@@ -3,7 +3,6 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
-import Lake.Proc
 import Lake.LeanVersion
 
 open System
@@ -17,23 +16,38 @@ def defaultRevision : Option String → String
   | none => upstreamBranch
   | some branch => branch
 
+def execGit (args : Array String) (repo : Option FilePath := none) : IO PUnit := do
+  let child ← IO.Process.spawn {
+    cmd := "git", args, cwd := repo,
+    stdout := IO.Process.Stdio.null, stderr := IO.Process.Stdio.null
+  }
+  let exitCode ← child.wait
+  if exitCode != 0 then
+    throw <| IO.userError <| "git exited with code " ++ toString exitCode
+
+def captureGit (args : Array String) (repo : Option FilePath := none) : IO String := do
+  let out ← IO.Process.output {cmd := "git", args, cwd := repo}
+  if out.exitCode != 0 then
+    throw <| IO.userError <| "git exited with code " ++ toString out.exitCode
+  return out.stdout
+
 def clone (url : String) (dir : FilePath) :=
-  execCmd {cmd := "git", args := #["clone", url, dir.toString]}
+  execGit #["clone", url, dir.toString]
 
 def quietInit (repo : Option FilePath := none) :=
-  execCmd {cmd := "git", args := #["init", "-q"]}
+  execGit #["init", "-q"] repo
 
 def fetch (repo : Option FilePath := none) :=
-  execCmd {cmd := "git", args := #["fetch"], cwd := repo}
+  execGit #["fetch"] repo
 
 def checkoutBranch (branch : String) (repo : Option FilePath := none) :=
-  execCmd {cmd := "git", args := #["checkout", "-B", branch]}
+  execGit #["checkout", "-B", branch] repo
 
 def checkoutDetach (hash : String) (repo : Option FilePath := none)  :=
-  execCmd {cmd := "git", args := #["checkout", "--detach", hash], cwd := repo}
+  execGit #["checkout", "--detach", hash] repo
 
 def parseRevision (rev : String) (repo : Option FilePath := none) : IO String := do
-  let rev ← IO.Process.run {cmd := "git", args := #["rev-parse", "-q", "--verify", rev], cwd := repo}
+  let rev ← captureGit #["rev-parse", "-q", "--verify", rev] repo
   rev.trim -- remove newline at end
 
 def headRevision (repo : Option FilePath := none) : IO String :=
@@ -44,7 +58,7 @@ def parseOriginRevision (rev : String) (repo : Option FilePath := none) : IO Str
     <|> throw (IO.userError s!"cannot find revision {rev} in repository {repo}")
 
 def latestOriginRevision (branch : Option String) (repo : Option FilePath := none) : IO String := do
-  discard <| IO.Process.run {cmd := "git", args := #["fetch"], cwd := repo}
+  execGit #["fetch"] repo
   parseOriginRevision (defaultRevision branch) repo
 
 def revisionExists (rev : String) (repo : Option FilePath := none) : IO Bool := do

@@ -21,10 +21,10 @@ abbrev FileTarget := MTimeBuildTarget FilePath
 
 namespace FileTarget
 
-def mk (file : FilePath) (maxMTime : IO.FS.SystemTime) (task : BuildTask) :=
+def mk (file : FilePath) (maxMTime : MTime) (task : BuildTask) :=
   BuildTarget.mk file maxMTime task
 
-def pure (file : FilePath) (maxMTime : IO.FS.SystemTime) :=
+def pure (file : FilePath) (maxMTime : MTime) :=
   BuildTarget.pure file maxMTime
 
 end FileTarget
@@ -122,16 +122,9 @@ def skipIfNewer [GetMTime a]
 
 -- # Build Components
 
-def catchErrors (action : IO PUnit) : IO PUnit := do
-  try action catch e =>
-    -- print compile errors early
-    IO.eprintln e
-    throw e
-
 def buildO (oFile : FilePath)
-(cTarget : FileTarget) (leancArgs : Array String := #[]) : IO BuildTask :=
-  BuildTask.afterTarget cTarget <| catchErrors <|
-    compileO oFile cTarget.artifact leancArgs
+(cTarget : BuildTarget t FilePath) (leancArgs : Array String := #[]) : IO BuildTask :=
+  afterTarget cTarget <| compileO oFile cTarget.artifact leancArgs
 
 def fetchOFileTarget (oFile : FilePath)
 (cTarget : FileTarget) (leancArgs : Array String := #[]) : IO FileTarget :=
@@ -225,8 +218,8 @@ def fetchAfterDirectLocalImports
     let cFile := pkg.modToC mod
     let oleanFile := pkg.modToOlean mod
     let importTasks := importTargets.map (·.buildTask)
-    BuildTarget.mk ⟨oleanFile, cFile⟩ ⟨fullHash, mtime⟩ <| ← skipIf sameHash <|
-      BuildTask.afterTasks (depsTarget.buildTask :: importTasks) <| catchErrors do
+    BuildTarget.mk ⟨oleanFile, cFile⟩ ⟨fullHash, mtime⟩ <| ←
+      skipIf sameHash <| afterTaskList (depsTarget.buildTask :: importTasks) do
         compileOleanAndC leanFile oleanFile cFile leanPath pkg.dir pkg.leanArgs
         IO.FS.writeFile hashFile (toString fullHash)
 
@@ -234,14 +227,11 @@ def fetchAfterDirectLocalImports
   Equivalent to `RBTopT (cmp := Name.quickCmp) Name ModuleTarget IO`.
   Phrased this way to use `NameMap`.
 -/
-abbrev LeanTargetM :=
+abbrev ModuleTargetM :=
   EStateT (List Name) (NameMap ModuleTarget) IO
 
-abbrev LeanTargetFetch :=
-  RecFetch Name ModuleTarget LeanTargetM
-
-abbrev RecLeanTargetM :=
-  ReaderT (RecFetch Name ModuleTarget LeanTargetM) LeanTargetM
+abbrev ModuleTargetFetch :=
+  RecFetch Name ModuleTarget ModuleTargetM
 
 def throwOnCycle (mx : IO (Except (List Name) α)) : IO α  :=
   mx >>= fun
@@ -260,7 +250,7 @@ def Package.buildModuleTargets
 (mods : List Name) (oleanDirs : List FilePath)
 (depsTarget : LeanTarget PUnit) (self : Package)
 : IO (List ModuleTarget) := do
-  let fetch : LeanTargetFetch :=
+  let fetch : ModuleTargetFetch :=
     fetchAfterDirectLocalImports self oleanDirs depsTarget
   throwOnCycle <| mods.mapM (buildRBTop fetch) |>.run' {}
 
@@ -337,22 +327,19 @@ def PackageTarget.fetchOFileTargets
 (self : PackageTarget) : IO (List FileTarget) := do
   self.moduleTargets.toList.mapM fun (mod, target) => do
     let oFile := self.package.modToO mod
-    fetchOFileTarget oFile target.cTarget self.package.leancArgs
+    fetchOFileTarget (oFile) target.cTarget self.package.leancArgs
 
 def PackageTarget.buildStaticLib
 (self : PackageTarget) : IO BuildTask := do
   let oFileTargets ← self.fetchOFileTargets
   let oFiles := oFileTargets.map (·.artifact) |>.toArray
-  BuildTask.afterTargets oFileTargets <| catchErrors <|
-    compileStaticLib self.package.staticLibFile oFiles
+  oFileTargets >> compileStaticLib self.package.staticLibFile oFiles
 
-def PackageTarget.fetchStaticLibTarget
-(self : PackageTarget) : IO FileTarget := do
+def PackageTarget.fetchStaticLibTarget (self : PackageTarget) : IO FileTarget := do
   skipIfNewer self.package.staticLibFile self.mtime self.buildStaticLib
 
 def Package.fetchStaticLibTarget (self : Package) : IO FileTarget := do
-  let target ← self.buildTarget
-  target.fetchStaticLibTarget
+  (← self.buildTarget).fetchStaticLibTarget
 
 def Package.fetchStaticLib (self : Package) : IO FilePath := do
   let target ← self.fetchStaticLibTarget
@@ -370,11 +357,10 @@ def PackageTarget.buildBin
 (depTargets : List PackageTarget) (self : PackageTarget)
 : IO BuildTask := do
   let oFileTargets ← self.fetchOFileTargets
-  let oFiles := oFileTargets.map (·.artifact) |>.toArray
   let libTargets ← depTargets.mapM (·.fetchStaticLibTarget)
-  let libFiles := libTargets.map (·.artifact) |>.toArray
-  BuildTask.afterTargets (oFileTargets ++ libTargets) <| catchErrors <|
-    compileBin self.package.binFile (oFiles ++ libFiles) self.package.linkArgs
+  let linkTargets := oFileTargets ++ libTargets
+  let linkFiles := linkTargets.map (·.artifact) |>.toArray
+  linkTargets >> compileBin self.package.binFile linkFiles self.package.linkArgs
 
 def PackageTarget.fetchBinTarget
 (depTargets : List PackageTarget) (self : PackageTarget) : IO FileTarget :=

@@ -6,6 +6,8 @@ Authors: Mac Malone
 
 namespace Lake
 
+-- # Build Task
+
 def BuildTask := Task (Except IO.Error PUnit)
 
 namespace BuildTask
@@ -13,22 +15,32 @@ namespace BuildTask
 def nop : BuildTask :=
   Task.pure (Except.ok ())
 
+def spawn (action : IO PUnit) (prio := Task.Priority.dedicated) : IO BuildTask :=
+  IO.asTask action prio
+
 def await (self : BuildTask) : IO PUnit := do
   IO.ofExcept (← IO.wait self)
 
 def all (tasks : List BuildTask) : IO BuildTask :=
   IO.asTask (tasks.forM (·.await))
 
-def afterTask (task : BuildTask) (action : IO PUnit)  : IO BuildTask :=
-  IO.mapTask (fun x => IO.ofExcept x *> action) task
-
-def afterTasks (tasks : List BuildTask) (action : IO PUnit) : IO BuildTask :=
-  IO.mapTasks (fun xs => xs.forM IO.ofExcept *> action) <| tasks
-
 end BuildTask
 
 instance : Inhabited BuildTask := ⟨BuildTask.nop⟩
 
+def afterTask (task : BuildTask) (action : IO PUnit)  : IO BuildTask :=
+  IO.mapTask (fun x => IO.ofExcept x *> action) task
+
+def afterTaskList (tasks : List BuildTask) (action : IO PUnit) : IO BuildTask :=
+  IO.mapTasks (fun xs => xs.forM IO.ofExcept *> action) <| tasks
+
+instance : HAndThen BuildTask (IO PUnit) (IO BuildTask) :=
+  ⟨afterTask⟩
+
+instance : HAndThen (List BuildTask) (IO PUnit) (IO BuildTask) :=
+  ⟨afterTaskList⟩
+
+-- # Build Target
 
 structure BuildTarget (t : Type) (a : Type) where
   artifact    : a
@@ -61,15 +73,17 @@ def materialize (self : BuildTarget t α) : IO PUnit :=
 
 end BuildTarget
 
-namespace BuildTask
-
 def afterTarget (target : BuildTarget t a) (action : IO PUnit)  : IO BuildTask :=
   afterTask target.buildTask action
 
-def afterTargets (targets : List (BuildTarget t a)) (action : IO PUnit) : IO BuildTask :=
-  afterTasks (targets.map (·.buildTask)) action
+def afterTargetList (targets : List (BuildTarget t a)) (action : IO PUnit) : IO BuildTask :=
+  afterTaskList (targets.map (·.buildTask)) action
 
-end BuildTask
+instance : HAndThen (BuildTarget t a) (IO PUnit) (IO BuildTask) :=
+  ⟨afterTarget⟩
+
+instance : HAndThen (List (BuildTarget t a)) (IO PUnit) (IO BuildTask) :=
+  ⟨afterTargetList⟩
 
 -- # Hash Traces
 

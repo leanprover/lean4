@@ -396,25 +396,23 @@ partial def splitOn (s : Substring) (sep : String := " ") : List Substring :=
   if sep == "" then
     [s]
   else
-    let stopPos := s.stopPos
-    let str     := s.str
     let rec loop (b i j : String.Pos) (r : List Substring) : List Substring :=
-      if i == stopPos then
+      if i == s.bsize then
         let r := if sep.atEnd j then
-          "".toSubstring::{ str := str, startPos := b, stopPos := i-j } :: r
+          "".toSubstring :: s.extract b (i-j) :: r
         else
-          { str := str, startPos := b, stopPos := i } :: r
+          s.extract b i :: r
         r.reverse
       else if s.get i == sep.get j then
         let i := s.next i
         let j := sep.next j
         if sep.atEnd j then
-          loop i i 0 ({ str := str, startPos := b, stopPos := i-j } :: r)
+          loop i i 0 (s.extract b (i-j) :: r)
         else
           loop b i j r
       else
         loop b (s.next i) 0 r
-    loop s.startPos s.startPos 0 []
+    loop 0 0 0 []
 
 @[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : Substring) : α :=
   match s with

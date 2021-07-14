@@ -28,20 +28,22 @@
 {"textDocument": {"uri": "file://hoverDot.lean"},
  "position": {"line": 18, "character": 13}}
 {"range":
- {"start": {"line": 18, "character": 13}, "end": {"line": 18, "character": 20}},
+ {"start": {"line": 18, "character": 13}, "end": {"line": 18, "character": 15}},
  "contents": {"value": "```lean\nf₂ : Foo → Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hoverDot.lean"},
  "position": {"line": 18, "character": 16}}
 {"range":
- {"start": {"line": 18, "character": 13}, "end": {"line": 18, "character": 20}},
- "contents": {"value": "```lean\nf₂ : Foo → Nat\n```", "kind": "markdown"}}
+ {"start": {"line": 18, "character": 16}, "end": {"line": 18, "character": 20}},
+ "contents":
+ {"value": "```lean\nNat.succ : Nat → Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hoverDot.lean"},
  "position": {"line": 21, "character": 14}}
 {"range":
- {"start": {"line": 21, "character": 14}, "end": {"line": 21, "character": 21}},
+ {"start": {"line": 21, "character": 14}, "end": {"line": 21, "character": 16}},
  "contents": {"value": "```lean\nf₂ : Foo → Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hoverDot.lean"},
  "position": {"line": 21, "character": 17}}
 {"range":
- {"start": {"line": 21, "character": 14}, "end": {"line": 21, "character": 21}},
- "contents": {"value": "```lean\nf₂ : Foo → Nat\n```", "kind": "markdown"}}
+ {"start": {"line": 21, "character": 17}, "end": {"line": 21, "character": 21}},
+ "contents":
+ {"value": "```lean\nNat.succ : Nat → Nat\n```", "kind": "markdown"}}

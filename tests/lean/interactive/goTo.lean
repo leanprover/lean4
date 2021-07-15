@@ -49,5 +49,6 @@ example : Nat :=
   let a := 1
 --v textDocument/definition
   a + b
+    --^ textDocument/definition
 where
   b := 2

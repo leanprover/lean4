@@ -115,6 +115,8 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
 @[builtinTermElab «letrec»] def elabLetRec : TermElab := fun stx expectedType? => do
   let view ← mkLetRecDeclView stx
   withAuxLocalDecls view.decls fun fvars => do
+    for decl in view.decls, fvar in fvars do
+      addTermInfo (isBinder := true) decl.ref[0] fvar
     let values ← elabLetRecDeclValues view
     let body ← elabTermEnsuringType view.body expectedType?
     registerLetRecsToLift view.decls fvars values

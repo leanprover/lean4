@@ -137,7 +137,7 @@ unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryPa
     name := `categoryParenthesizer,
     descr := "Register a parenthesizer for a syntax category.
 
-  [parenthesizer cat] registers a declaration of type `Lean.PrettyPrinter.CategoryParenthesizer` for the category `cat`,
+  [categoryParenthesizer cat] registers a declaration of type `Lean.PrettyPrinter.CategoryParenthesizer` for the category `cat`,
   which is used when parenthesizing calls of `categoryParser cat prec`. Implementations should call `maybeParenthesize`
   with the precedence and `cat`. If no category parenthesizer is registered, the category will never be parenthesized,
   but still be traversed for parenthesizing nested categories.",
@@ -146,7 +146,7 @@ unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryPa
       let env ← getEnv
       let id ← Attribute.Builtin.getId stx
       if Parser.isParserCategory env id then pure id
-      else throwError "invalid [parenthesizer] argument, unknown parser category '{toString id}'"
+      else throwError "invalid [categoryParenthesizer] argument, unknown parser category '{toString id}'"
   } `Lean.PrettyPrinter.categoryParenthesizerAttribute
 @[builtinInit mkCategoryParenthesizerAttribute] constant categoryParenthesizerAttribute : KeyedDeclsAttribute CategoryParenthesizer
 

@@ -208,11 +208,15 @@ def throwOnCycle (mx : IO (Except (List Name) α)) : IO α  :=
     let cycle := cycle.map (s!"  {·}")
     throw <| IO.userError s!"import cycle detected:\n{"\n".intercalate cycle}"
 
-def Package.buildModuleTargetDAG
-(oleanDirs : List FilePath) (depsTarget : LeanTarget PUnit)
+def Package.buildModuleTargetDAGFor
+(mod : Name)  (oleanDirs : List FilePath) (depsTarget : LeanTarget PUnit)
 (self : Package) : IO (ModuleTarget × NameMap ModuleTarget) := do
   let fetch := fetchAfterDirectLocalImports self oleanDirs depsTarget
-  throwOnCycle <| buildRBTop fetch self.moduleRoot |>.run {}
+  throwOnCycle <| buildRBTop fetch mod |>.run {}
+
+def Package.buildModuleTargetDAG
+(oleanDirs : List FilePath) (depsTarget : LeanTarget PUnit) (self : Package) :=
+  self.buildModuleTargetDAGFor self.moduleRoot oleanDirs depsTarget
 
 def Package.buildModuleTargets
 (mods : List Name) (oleanDirs : List FilePath)
@@ -224,14 +228,18 @@ def Package.buildModuleTargets
 
 -- # Configure/Build Packages
 
-def Package.buildTargetWithDepTargets
-(depTargets : List PackageTarget) (self : Package)
+def Package.buildTargetWithDepTargetsFor
+(mod : Name) (depTargets : List PackageTarget) (self : Package)
 : IO PackageTarget := do
   let depsTarget ← LeanTarget.all <|
     self.moreDepsTarget.withArtifact arbitrary :: depTargets
   let oLeanDirs := depTargets.map (·.package.oleanDir)
-  let (target, targetMap) ← self.buildModuleTargetDAG oLeanDirs depsTarget
+  let (target, targetMap) ← self.buildModuleTargetDAGFor mod oLeanDirs depsTarget
   return {target with artifact := ⟨self, targetMap⟩}
+
+def Package.buildTargetWithDepTargets
+(depTargets : List PackageTarget) (self : Package) : IO PackageTarget :=
+  self.buildTargetWithDepTargetsFor self.moduleRoot depTargets
 
 partial def Package.buildTarget (self : Package) : IO PackageTarget := do
   let deps ← solveDeps self

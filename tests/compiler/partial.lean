@@ -1,6 +1,6 @@
 
 set_option pp.explicit true
-set_option pp.binder_types false
+set_option pp.binderTypes false
 -- set_option trace.compiler.boxed true
 
 partial def contains : String → Char → Nat → Bool

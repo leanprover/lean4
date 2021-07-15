@@ -8,4 +8,4 @@ def f (xs ys : List α) : Nat :=
   (h1 : Unit → motive [] [])
   (h2 : (x : List α) → motive x [])
   (h3 : (x x_1 : List α) → motive x x_1)
-  => f.match_1 motive [] [] h1 h2 h3
+  => f.match_1 (motive := motive) [] [] h1 h2 h3

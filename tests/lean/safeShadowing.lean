@@ -13,7 +13,7 @@ variable {α : Type}
 
 #print f
 
-set_option pp.safe_shadowing false
+set_option pp.safeShadowing false
 
 #check fun {α} (a : α) => a
 

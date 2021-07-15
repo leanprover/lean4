@@ -6,6 +6,7 @@ open Lean.Elab.Term
 open Lean.Elab.Command
 open Std.Format open Std
 open Lean.PrettyPrinter
+open Lean.PrettyPrinter.Delaborator
 
 open Lean.Meta
 
@@ -77,7 +78,7 @@ end
 #eval checkM `({α : Type} → [ToString α] → α)
 #eval checkM `(∀ x : Nat, x = x)
 #eval checkM `(∀ {x : Nat} [ToString Nat], x = x)
-set_option pp.binder_types false in
+set_option pp.binderTypes false in
 #eval checkM `(∀ x : Nat, x = x)
 
 -- TODO: hide `ofNat`
@@ -86,7 +87,7 @@ set_option pp.binder_types false in
 #eval checkM `(42)
 #eval checkM `("hi")
 
-set_option pp.structure_instance_type true in
+set_option pp.structureInstanceTypes true in
 #eval checkM `({ type := Nat, val := 0 : PointedType })
 #eval checkM `((1,2,3))
 #eval checkM `((1,2).fst)

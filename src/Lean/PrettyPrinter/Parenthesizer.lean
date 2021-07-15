@@ -208,7 +208,7 @@ def maybeParenthesize (cat : Name) (canJuxtapose : Bool) (mkParen : Syntax → S
   x
   let { minPrec := some minPrec, trailPrec := trailPrec, trailCat := trailCat, .. } ← get
     | trace[PrettyPrinter.parenthesize] "visited a syntax tree without precedences?!{line ++ fmt stx}"
-  trace[PrettyPrinter.parenthesize] ("...precedences are {prec} >? {minPrec}" ++ if canJuxtapose then m!", {(trailPrec, trailCat)} <=? {(st.contPrec, st.contCat)}" else "")
+  trace[PrettyPrinter.parenthesize] (m!"...precedences are {prec} >? {minPrec}" ++ if canJuxtapose then m!", {(trailPrec, trailCat)} <=? {(st.contPrec, st.contCat)}" else "")
   -- Should we parenthesize?
   if (prec > minPrec || canJuxtapose && match trailPrec, st.contPrec with | some trailPrec, some contPrec => trailCat == st.contCat && trailPrec <= contPrec | _, _ => false) then
       -- The recursive `visit` call, by the invariant, has moved to the preceding node. In order to parenthesize

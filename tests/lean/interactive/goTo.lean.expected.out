@@ -77,3 +77,13 @@
   "originSelectionRange":
   {"start": {"line": 39, "character": 7},
    "end": {"line": 39, "character": 11}}}]
+{"textDocument": {"uri": "file://goTo.lean"},
+ "position": {"line": 44, "character": 28}}
+[{"targetUri": "file://goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 42, "character": 4}, "end": {"line": 42, "character": 7}},
+  "targetRange":
+  {"start": {"line": 42, "character": 0}, "end": {"line": 42, "character": 23}},
+  "originSelectionRange":
+  {"start": {"line": 44, "character": 28},
+   "end": {"line": 44, "character": 29}}}]

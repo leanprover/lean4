@@ -98,14 +98,14 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
             let mut expr := ti.expr
             if kind = type then
               expr ← ci.runMetaM i.lctx do
-                Meta.instantiateMVars (← Meta.inferType expr)
+                Expr.getAppFn (← Meta.instantiateMVars (← Meta.inferType expr))
             if let some n := expr.constName? then
               return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
           if let Info.ofFieldInfo fi := i then
             if kind = type then
               let expr ← ci.runMetaM i.lctx do
                 Meta.instantiateMVars (← Meta.inferType fi.val)
-              if let some n := expr.constName? then
+              if let some n := expr.getAppFn.constName? then
                 return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
             else
               return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName

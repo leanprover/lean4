@@ -145,6 +145,7 @@ partial def handlePlainGoal (p : PlainGoalParams)
       return none
 
 open Elab in
+open Meta in
 partial def handlePlainTermGoal (p : PlainTermGoalParams)
     : RequestM (RequestTask (Option PlainTermGoal)) := do
   let doc ← readDoc
@@ -154,8 +155,11 @@ partial def handlePlainTermGoal (p : PlainTermGoalParams)
     (notFoundX := pure none) fun snap => do
       for t in snap.cmdState.infoState.trees do
         if let some (ci, i@(Info.ofTermInfo ti)) := t.termGoalAt? hoverPos then
-          let goal ← ci.runMetaM i.lctx <| open Meta in do
-            let ty ← instantiateMVars <| ti.expectedType?.getD (← inferType ti.expr)
+          let ty ← ci.runMetaM i.lctx do
+            instantiateMVars <| ti.expectedType?.getD (← inferType ti.expr)
+          -- for binders, hide the last hypothesis (the binder itself)
+          let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
+          let goal ← ci.runMetaM lctx' do
             withPPInaccessibleNames <| Meta.ppGoal (← mkFreshExprMVar ty).mvarId!
           let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
           return some { goal := toString goal, range }

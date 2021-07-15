@@ -44,3 +44,10 @@ def Baz (α : Type) := α
 
 #check fun (b : Baz Nat) => b
                           --^ textDocument/typeDefinition
+
+example : Nat :=
+  let a := 1
+--v textDocument/definition
+  a + b
+where
+  b := 2

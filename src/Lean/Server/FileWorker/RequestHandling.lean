@@ -90,6 +90,21 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
       return #[ll]
     return #[]
 
+  let locationLinksFromBinder (t : InfoTree) (i : Elab.Info) (id : FVarId) := do
+    if let some i' := t.findInfo? fun
+        | Info.ofTermInfo { isBinder := true, expr := Expr.fvar id' .., .. } => id' == id
+        | _ => false then
+      if let some r := i'.range? then
+        let r := r.toLspRange text
+        let ll : LocationLink := {
+          originSelectionRange? := (·.toLspRange text) <$> i.range?
+          targetUri := p.textDocument.uri
+          targetRange := r
+          targetSelectionRange := r
+        }
+        return #[ll]
+    return #[]
+
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure #[]) fun snap => do
       for t in snap.cmdState.infoState.trees do
@@ -99,8 +114,10 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
             if kind = type then
               expr ← ci.runMetaM i.lctx do
                 Expr.getAppFn (← Meta.instantiateMVars (← Meta.inferType expr))
-            if let some n := expr.constName? then
-              return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
+            match expr with
+            | Expr.const n .. => return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
+            | Expr.fvar id .. => return ← ci.runMetaM i.lctx <| locationLinksFromBinder t i id
+            | _ => pure ()
           if let Info.ofFieldInfo fi := i then
             if kind = type then
               let expr ← ci.runMetaM i.lctx do

@@ -41,3 +41,10 @@ export GetMTime (getMTime)
 
 instance : GetMTime System.FilePath where
   getMTime file := do (← file.metadata).modified
+
+-- # Combined Trace
+
+structure LeanTrace where
+  hash : Hash
+  mtime : MTime
+  deriving Inhabited

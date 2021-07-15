@@ -17,49 +17,17 @@ namespace Lake
 
 -- # Build Targets
 
-abbrev FileTarget := MTimeBuildTarget FilePath
-
-namespace FileTarget
-
-def mk (file : FilePath) (maxMTime : MTime) (task : BuildTask) :=
-  BuildTarget.mk file maxMTime task
-
-def pure (file : FilePath) (maxMTime : MTime) :=
-  BuildTarget.pure file maxMTime
-
-end FileTarget
-
-structure LeanArtifact where
+structure ModuleArtifact where
   oleanFile : FilePath
   cFile : FilePath
   deriving Inhabited
 
-structure LeanTrace where
-  hash : Hash
-  mtime : MTime
-  deriving Inhabited
-
-protected def LeanArtifact.getMTime (self : LeanArtifact) : IO MTime := do
+protected def ModuleArtifact.getMTime (self : ModuleArtifact) : IO MTime := do
   return max (← getMTime self.oleanFile) (← getMTime self.cFile)
 
-instance : GetMTime LeanArtifact := ⟨LeanArtifact.getMTime⟩
+instance : GetMTime ModuleArtifact := ⟨ModuleArtifact.getMTime⟩
 
-abbrev LeanTarget a := BuildTarget LeanTrace a
-
-namespace LeanTarget
-
-def hash (self : LeanTarget a) := self.trace.hash
-def mtime (self : LeanTarget a) := self.trace.mtime
-
-def all (targets : List (LeanTarget a)) : IO (LeanTarget PUnit) := do
-  let hash := Hash.foldList 0 <| targets.map (·.hash)
-  let mtime := MTime.listMax <| targets.map (·.mtime)
-  let task ← BuildTask.all <| targets.map (·.buildTask)
-  return BuildTarget.mk () ⟨hash, mtime⟩ task
-
-end LeanTarget
-
-abbrev ModuleTarget := LeanTarget LeanArtifact
+abbrev ModuleTarget := LeanTarget ModuleArtifact
 
 namespace ModuleTarget
 
@@ -196,11 +164,11 @@ def fetchAfterDirectLocalImports
 {m} [Monad m] [MonadLiftT IO m] [MonadExceptOf IO.Error m] : RecFetch Name ModuleTarget m :=
   let leanPath := SearchPath.toString <| pkg.oleanDir :: oleanDirs
   fun mod fetch => do
-    let leanFile := pkg.modToSource mod
+    let leanFile := pkg.modToSrc mod
     let contents ← IO.FS.readFile leanFile
     -- parse direct local imports
     let (imports, _, _) ← Elab.parseImports contents leanFile.toString
-    let imports := imports.map (·.module) |>.filter (·.getRoot == pkg.module)
+    let imports := imports.map (·.module) |>.filter (·.getRoot == pkg.moduleRoot)
     -- we fetch the import targets even if a rebuild is not required
     -- because other build processes (ex. `.o`) rely on the map being complete
     let importTargets ← imports.mapM fetch
@@ -244,7 +212,7 @@ def Package.buildModuleTargetDAG
 (oleanDirs : List FilePath) (depsTarget : LeanTarget PUnit)
 (self : Package) : IO (ModuleTarget × NameMap ModuleTarget) := do
   let fetch := fetchAfterDirectLocalImports self oleanDirs depsTarget
-  throwOnCycle <| buildRBTop fetch self.module |>.run {}
+  throwOnCycle <| buildRBTop fetch self.moduleRoot |>.run {}
 
 def Package.buildModuleTargets
 (mods : List Name) (oleanDirs : List FilePath)
@@ -259,9 +227,10 @@ def Package.buildModuleTargets
 def Package.buildTargetWithDepTargets
 (depTargets : List PackageTarget) (self : Package)
 : IO PackageTarget := do
-  let depsTarget ← LeanTarget.all depTargets
-  let depOLeanDirs := depTargets.map (·.package.oleanDir)
-  let (target, targetMap) ← self.buildModuleTargetDAG depOLeanDirs depsTarget
+  let depsTarget ← LeanTarget.all <|
+    self.moreDepsTarget.withArtifact arbitrary :: depTargets
+  let oLeanDirs := depTargets.map (·.package.oleanDir)
+  let (target, targetMap) ← self.buildModuleTargetDAG oLeanDirs depsTarget
   return {target with artifact := ⟨self, targetMap⟩}
 
 partial def Package.buildTarget (self : Package) : IO PackageTarget := do
@@ -301,7 +270,8 @@ def Package.buildModuleTargetsWithDeps
 (deps : List Package) (mods : List Name)  (self : Package)
 : IO (List ModuleTarget) := do
   let oleanDirs := deps.map (·.oleanDir)
-  let depsTarget ← LeanTarget.all (← deps.mapM (·.buildTarget))
+  let depsTarget ← LeanTarget.all <|
+    self.moreDepsTarget.withArtifact arbitrary :: (← deps.mapM (·.buildTarget))
   self.buildModuleTargets mods oleanDirs depsTarget
 
 def Package.buildModulesWithDeps
@@ -316,10 +286,10 @@ def printPaths (pkg : Package) (imports : List String := []) : IO Unit := do
   let deps ← solveDeps pkg
   unless imports.isEmpty do
     let imports := imports.map (·.toName)
-    let localImports := imports.filter (·.getRoot == pkg.module)
+    let localImports := imports.filter (·.getRoot == pkg.moduleRoot)
     pkg.buildModulesWithDeps deps localImports
   IO.println <| SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)
-  IO.println <| SearchPath.toString <| pkg.sourceDir :: deps.map (·.sourceDir)
+  IO.println <| SearchPath.toString <| pkg.srcDir :: deps.map (·.srcDir)
 
 -- # Build Package Lib
 

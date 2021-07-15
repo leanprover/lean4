@@ -6,14 +6,19 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 import Lean.Data.Name
 import Lean.Elab.Import
 import Lake.LeanVersion
+import Lake.BuildTarget
 
 open Lean System
 
 namespace Lake
 
-def buildPath : FilePath := "build"
-def tempBuildPath := buildPath / "temp"
-def depsPath := buildPath / "deps"
+def defaultSrcDir : FilePath := "."
+def defaultBuildDir : FilePath := "build"
+def defaultBinDir := defaultBuildDir / "bin"
+def defaultLibDir := defaultBuildDir / "lib"
+def defaultOleanDir := defaultBuildDir / "lib"
+def defaultIrDir := defaultBuildDir / "ir"
+def defaultDepsDir : FilePath := "lean_packages"
 
 inductive Source where
   | path (dir : FilePath) : Source
@@ -27,12 +32,21 @@ structure Dependency where
 structure PackageConfig where
   name : String
   version : String
+  moduleRoot : Name := name.capitalize
   leanVersion : String := leanVersionString
   leanArgs : Array String := #[]
   leancArgs : Array String := #[]
   linkArgs : Array String := #[]
-  module : Name := name.capitalize
+  srcDir : FilePath := defaultSrcDir
+  oleanDir : FilePath := defaultOleanDir
+  irDir : FilePath := defaultIrDir
+  binDir : FilePath := defaultBinDir
+  binName : String := name
+  libDir : FilePath := defaultLibDir
+  libName : String := name.capitalize
+  depsDir : FilePath := defaultDepsDir
   dependencies : List Dependency := []
+  moreDepsTarget : BuildTarget LeanTrace PUnit := BuildTarget.nil
   deriving Inhabited
 
 structure Package where
@@ -53,14 +67,17 @@ def version (self : Package) : String :=
 def leanVersion (self : Package) : String :=
   self.config.leanVersion
 
-def module (self : Package) : Name :=
-  self.config.module
+def moduleRoot (self : Package) : Name :=
+  self.config.moduleRoot
 
-def moduleName (self : Package) : String :=
-  self.config.module.toString
+def moduleRootName (self : Package) : String :=
+  self.config.moduleRoot.toString
 
 def dependencies (self : Package) : List Dependency :=
   self.config.dependencies
+
+def moreDepsTarget (self : Package) : BuildTarget LeanTrace PUnit :=
+  self.config.moreDepsTarget
 
 def leanArgs (self : Package) : Array String :=
   self.config.leanArgs
@@ -71,23 +88,23 @@ def leancArgs (self : Package) : Array String :=
 def linkArgs (self : Package) : Array String :=
   self.config.linkArgs
 
-def sourceDir (self : Package) : FilePath :=
-  self.dir
+def depsDir (self : Package) : FilePath :=
+  self.dir / self.config.depsDir
 
-def sourceRoot (self : Package) : FilePath :=
-  self.sourceDir / self.moduleName
+def srcDir (self : Package) : FilePath :=
+  self.dir / self.config.srcDir
 
-def modToSource (mod : Name) (self : Package) : FilePath :=
-  Lean.modToFilePath self.sourceDir mod "lean"
+def srcRoot (self : Package) : FilePath :=
+  self.srcDir / FilePath.withExtension self.moduleRootName "lean"
 
-def buildDir (self : Package) : FilePath :=
-  self.dir / Lake.buildPath
+def modToSrc (mod : Name) (self : Package) : FilePath :=
+  Lean.modToFilePath self.srcDir mod "lean"
 
 def oleanDir (self : Package) : FilePath :=
-  self.buildDir
+  self.dir / self.config.oleanDir
 
 def oleanRoot (self : Package) : FilePath :=
-  self.oleanDir / FilePath.withExtension self.moduleName "olean"
+  self.oleanDir / FilePath.withExtension self.moduleRootName "olean"
 
 def modToHashFile (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.oleanDir mod "hash"
@@ -95,26 +112,26 @@ def modToHashFile (mod : Name) (self : Package) : FilePath :=
 def modToOlean (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.oleanDir mod "olean"
 
-def tempBuildDir (self : Package) : FilePath :=
-  self.dir / tempBuildPath
+def irDir (self : Package) : FilePath :=
+  self.dir / self.config.irDir
 
 def cDir (self : Package) : FilePath :=
-  self.tempBuildDir
+  self.irDir
 
 def modToC (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.cDir mod "c"
 
 def oDir (self : Package) : FilePath :=
-  self.tempBuildDir
+  self.irDir
 
 def modToO (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.oDir mod "o"
 
 def binDir (self : Package) : FilePath :=
-  self.buildDir / "bin"
+  self.dir / self.config.binDir
 
 def binName (self : Package) : FilePath :=
-  self.moduleName
+  self.config.binName
 
 def binFileName (self : Package) : FilePath :=
   FilePath.withExtension self.binName FilePath.exeExtension
@@ -123,13 +140,13 @@ def binFile (self : Package) : FilePath :=
   self.binDir / self.binFileName
 
 def libDir (self : Package) : FilePath :=
-  self.buildDir / "lib"
+  self.dir / self.config.libDir
 
 def staticLibName (self : Package) : FilePath :=
-  self.moduleName
+  self.config.libName
 
 def staticLibFileName (self : Package) : FilePath :=
-  s!"lib{self.module}.a"
+  s!"lib{self.moduleRoot}.a"
 
 def staticLibFile (self : Package) : FilePath :=
   self.libDir / self.staticLibFileName

@@ -26,15 +26,15 @@ def materializeGit
     let hash ← parseOriginRevision rev dir
     checkoutDetach hash dir
 
-def materialize (pkgDir : FilePath) (dep : Dependency) : IO FilePath :=
+def materialize (pkg : Package) (dep : Dependency) : IO FilePath :=
   match dep.src with
   | Source.path dir => do
-    let depdir := pkgDir / dir
-    depdir
+    let depDir := pkg.dir / dir
+    depDir
   | Source.git url rev branch => do
-    let depdir := pkgDir / depsPath / dep.name
-    materializeGit dep.name depdir url rev branch
-    depdir
+    let depDir := pkg.depsDir / dep.name
+    materializeGit dep.name depDir url rev branch
+    depDir
 
 def Assignment := List (String × Package)
 
@@ -67,7 +67,7 @@ def solveDepsCore (pkg : Package) : (maxDepth : Nat) → Solver Unit
   | maxDepth + 1 => do
     let newDeps ← pkg.dependencies.filterM (notYetAssigned ·.name)
     for dep in newDeps do
-      let dir ← materialize pkg.dir dep
+      let dir ← materialize pkg dep
       let pkg ← Package.fromDir dir dep.args
       modify (·.insert dep.name pkg)
     for dep in newDeps do

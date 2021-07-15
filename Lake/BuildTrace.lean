@@ -48,3 +48,13 @@ structure LeanTrace where
   hash : Hash
   mtime : MTime
   deriving Inhabited
+
+namespace LeanTrace
+
+def fromHash (hash : Hash) : LeanTrace :=
+  LeanTrace.mk hash 0
+
+def fromMTime (mtime : MTime) : LeanTrace :=
+  LeanTrace.mk 0 mtime
+
+end LeanTrace

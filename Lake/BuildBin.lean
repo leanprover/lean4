@@ -1,0 +1,79 @@
+/-
+Copyright (c) 2021 Mac Malone. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Mac Malone
+-/
+import Lake.Build
+
+open System
+namespace Lake
+
+-- # Build `.o` Files
+
+def buildO (oFile : FilePath)
+(cTarget : BuildTarget t FilePath) (leancArgs : Array String := #[]) : IO BuildTask :=
+  afterTarget cTarget <| compileO oFile cTarget.artifact leancArgs
+
+def fetchOFileTarget (oFile : FilePath)
+(cTarget : FileTarget) (leancArgs : Array String := #[]) : IO FileTarget :=
+  skipIfNewer oFile cTarget.mtime <| buildO oFile cTarget leancArgs
+
+-- # Build Package Lib
+
+def PackageTarget.fetchOFileTargets
+(self : PackageTarget) : IO (List FileTarget) := do
+  self.moduleTargets.toList.mapM fun (mod, target) => do
+    let oFile := self.package.modToO mod
+    fetchOFileTarget (oFile) target.cTarget self.package.leancArgs
+
+def PackageTarget.buildStaticLib
+(self : PackageTarget) : IO BuildTask := do
+  let oFileTargets ← self.fetchOFileTargets
+  let oFiles := oFileTargets.map (·.artifact) |>.toArray
+  oFileTargets >> compileStaticLib self.package.staticLibFile oFiles
+
+def PackageTarget.fetchStaticLibTarget (self : PackageTarget) : IO FileTarget := do
+  skipIfNewer self.package.staticLibFile self.mtime self.buildStaticLib
+
+def Package.fetchStaticLibTarget (self : Package) : IO FileTarget := do
+  (← self.buildTarget).fetchStaticLibTarget
+
+def Package.fetchStaticLib (self : Package) : IO FilePath := do
+  let target ← self.fetchStaticLibTarget
+  try target.materialize catch _ =>
+    -- actual error has already been printed within the task
+    throw <| IO.userError "Build failed."
+  return target.artifact
+
+def buildLib (pkg : Package) : IO PUnit :=
+  discard pkg.fetchStaticLib
+
+-- # Build Package Bin
+
+def PackageTarget.buildBin
+(depTargets : List PackageTarget) (self : PackageTarget)
+: IO BuildTask := do
+  let oFileTargets ← self.fetchOFileTargets
+  let libTargets ← depTargets.mapM (·.fetchStaticLibTarget)
+  let linkTargets := oFileTargets ++ libTargets
+  let linkFiles := linkTargets.map (·.artifact) |>.toArray
+  linkTargets >> compileBin self.package.binFile linkFiles self.package.linkArgs
+
+def PackageTarget.fetchBinTarget
+(depTargets : List PackageTarget) (self : PackageTarget) : IO FileTarget :=
+  skipIfNewer self.package.binFile self.mtime <| self.buildBin depTargets
+
+def Package.fetchBinTarget (self : Package) : IO FileTarget := do
+  let depTargets ← self.buildDepTargets
+  let pkgTarget ← self.buildTargetWithDepTargets depTargets
+  pkgTarget.fetchBinTarget depTargets
+
+def Package.fetchBin (self : Package) : IO FilePath := do
+  let target ← self.fetchBinTarget
+  try target.materialize catch _ =>
+    -- actual error has already been printed within the task
+    throw <| IO.userError "Build failed."
+  return target.artifact
+
+def buildBin (pkg : Package) : IO PUnit :=
+  discard pkg.fetchBin

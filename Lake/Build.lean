@@ -6,6 +6,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 import Lean.Data.Name
 import Lean.Elab.Import
 import Lake.BuildTarget
+import Lake.BuildTop
 import Lake.Resolve
 import Lake.Package
 import Lake.Compile
@@ -87,67 +88,6 @@ def skipIfNewer [GetMTime a]
 (build : m BuildTask) : m (MTimeBuildTarget a) := do
   MTimeBuildTarget.mk artifact depMTime <| ←
     skipIf (← checkIfNewer artifact depMTime) build
-
--- # Build Components
-
-def buildO (oFile : FilePath)
-(cTarget : BuildTarget t FilePath) (leancArgs : Array String := #[]) : IO BuildTask :=
-  afterTarget cTarget <| compileO oFile cTarget.artifact leancArgs
-
-def fetchOFileTarget (oFile : FilePath)
-(cTarget : FileTarget) (leancArgs : Array String := #[]) : IO FileTarget :=
-  skipIfNewer oFile cTarget.mtime <| buildO oFile cTarget leancArgs
-
--- # Topological Builder
-
-open Std
-
-/-- A recursive object fetcher. -/
-def RecFetch.{u,v,w} (k : Type u) (o : Type v) (m : Type v → Type w) :=
-  k → (k → m o) → m o
-
-/-- A exception plus state monad transformer (i.e., `StateT` + `ExceptT`). -/
-abbrev EStateT (ε σ m) :=
-  StateT σ <| ExceptT ε m
-
-def EStateT.run (state : σ) (self : EStateT ε σ m α) : m (Except ε (α × σ)) :=
-  StateT.run self state |>.run
-
-def EStateT.run' [Monad m] (state : σ) (self : EStateT ε σ m α) : m (Except ε α) :=
-  StateT.run' self state |>.run
-
-/--
-  Monad transformer for an RBMap-based topological walk.
-  If a cycle is detected, the list keys traversed is thrown.
--/
-abbrev RBTopT.{u,v} (k : Type u) (o : Type u) (cmp) (m : Type u → Type v) :=
-  EStateT (List k) (RBMap k o cmp) m
-
-/-- Auxiliary function for `buildRBTop`. -/
-partial def buildRBTopCore
-{k o} {cmp} {m : Type u → Type u} [BEq k] [Inhabited o] [Monad m]
-(parents : List k) (fetch : RecFetch k o (RBTopT k o cmp m))
-(key : k) : RBTopT k o cmp m o := do
-  -- detect cyclic builds
-  if parents.contains key then
-    throw <| key :: (parents.partition (· != key)).1 ++ [key]
-  -- return previous output if already built
-  if let some output := (← get).find? key then
-    return output
-  -- build the key recursively
-  let output ← fetch key (buildRBTopCore (key :: parents) fetch)
-  -- save the output (to prevent repeated builds of the same key)
-  modify (·.insert key output)
-  return output
-
-/--
-  Recursively constructs an `RBMao` of key-object pairs by
-  fetching objects topologically (i.e., via a deep-first search with
-  memoization). Called a suspending scheduler in "Build systems à la carte".
--/
-def buildRBTop {k o} {cmp} {m} [BEq k] [Inhabited o] [Monad m]
-(fetch :  RecFetch k o (RBTopT k o cmp m)) (key : k) : RBTopT k o cmp m o :=
-  buildRBTopCore [] fetch key
 
 -- # Build Modules
 
@@ -298,63 +238,3 @@ def printPaths (pkg : Package) (imports : List String := []) : IO Unit := do
     pkg.buildModulesWithDeps deps localImports
   IO.println <| SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)
   IO.println <| SearchPath.toString <| pkg.srcDir :: deps.map (·.srcDir)
-
--- # Build Package Lib
-
-def PackageTarget.fetchOFileTargets
-(self : PackageTarget) : IO (List FileTarget) := do
-  self.moduleTargets.toList.mapM fun (mod, target) => do
-    let oFile := self.package.modToO mod
-    fetchOFileTarget (oFile) target.cTarget self.package.leancArgs
-
-def PackageTarget.buildStaticLib
-(self : PackageTarget) : IO BuildTask := do
-  let oFileTargets ← self.fetchOFileTargets
-  let oFiles := oFileTargets.map (·.artifact) |>.toArray
-  oFileTargets >> compileStaticLib self.package.staticLibFile oFiles
-
-def PackageTarget.fetchStaticLibTarget (self : PackageTarget) : IO FileTarget := do
-  skipIfNewer self.package.staticLibFile self.mtime self.buildStaticLib
-
-def Package.fetchStaticLibTarget (self : Package) : IO FileTarget := do
-  (← self.buildTarget).fetchStaticLibTarget
-
-def Package.fetchStaticLib (self : Package) : IO FilePath := do
-  let target ← self.fetchStaticLibTarget
-  try target.materialize catch _ =>
-    -- actual error has already been printed within the task
-    throw <| IO.userError "Build failed."
-  return target.artifact
-
-def buildLib (pkg : Package) : IO PUnit :=
-  discard pkg.fetchStaticLib
-
--- # Build Package Bin
-
-def PackageTarget.buildBin
-(depTargets : List PackageTarget) (self : PackageTarget)
-: IO BuildTask := do
-  let oFileTargets ← self.fetchOFileTargets
-  let libTargets ← depTargets.mapM (·.fetchStaticLibTarget)
-  let linkTargets := oFileTargets ++ libTargets
-  let linkFiles := linkTargets.map (·.artifact) |>.toArray
-  linkTargets >> compileBin self.package.binFile linkFiles self.package.linkArgs
-
-def PackageTarget.fetchBinTarget
-(depTargets : List PackageTarget) (self : PackageTarget) : IO FileTarget :=
-  skipIfNewer self.package.binFile self.mtime <| self.buildBin depTargets
-
-def Package.fetchBinTarget (self : Package) : IO FileTarget := do
-  let depTargets ← self.buildDepTargets
-  let pkgTarget ← self.buildTargetWithDepTargets depTargets
-  pkgTarget.fetchBinTarget depTargets
-
-def Package.fetchBin (self : Package) : IO FilePath := do
-  let target ← self.fetchBinTarget
-  try target.materialize catch _ =>
-    -- actual error has already been printed within the task
-    throw <| IO.userError "Build failed."
-  return target.artifact
-
-def buildBin (pkg : Package) : IO PUnit :=
-  discard pkg.fetchBin

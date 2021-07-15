@@ -5,6 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Init
 import Lake.Build
+import Lake.BuildBin
 import Lake.Help
 import Lake.LeanConfig
 

@@ -47,7 +47,7 @@
  "position": {"line": 23, "character": 6}}
 {"range":
  {"start": {"line": 23, "character": 6}, "end": {"line": 23, "character": 7}},
- "goal": "n : Nat\n⊢ Nat"}
+ "goal": "⊢ Nat"}
 {"textDocument": {"uri": "file://plainTermGoal.lean"},
  "position": {"line": 29, "character": 6}}
 {"range":
@@ -58,3 +58,8 @@
 {"range":
  {"start": {"line": 31, "character": 8}, "end": {"line": 31, "character": 24}},
  "goal": "n : Nat\n⊢ n < n + 1"}
+{"textDocument": {"uri": "file://plainTermGoal.lean"},
+ "position": {"line": 34, "character": 14}}
+{"range":
+ {"start": {"line": 34, "character": 14}, "end": {"line": 34, "character": 15}},
+ "goal": "n : Nat\n⊢ Nat"}

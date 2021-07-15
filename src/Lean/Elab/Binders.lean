@@ -133,7 +133,7 @@ private def registerFailedToInferBinderTypeInfo (type : Expr) (ref : Syntax) : T
   registerCustomErrorIfMVar type ref "failed to infer binder type"
 
 private def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit := do
-  addTermInfo (lctx? := some (← getLCtx)) stx fvar
+  addTermInfo (isBinder := true) stx fvar
 
 private def ensureAtomicBinderName (binderView : BinderView) : TermElabM Unit :=
   let n := binderView.id.getId.eraseMacroScopes
@@ -329,7 +329,7 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat
         We do not believe this is an useful feature, and it would complicate the logic here.
       -/
       let lctx  := s.lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi
-      addTermInfo (lctx? := some lctx) binderView.id fvar
+      addTermInfo (lctx? := some lctx) (isBinder := true) binderView.id fvar
       let s ← withRef binderView.id <| propagateExpectedType fvar type s
       let s := { s with lctx := lctx }
       match (← isClass? type) with

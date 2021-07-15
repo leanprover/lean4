@@ -37,6 +37,7 @@ structure TermInfo extends ElabInfo where
   lctx : LocalContext -- The local context when the term was elaborated.
   expectedType? : Option Expr
   expr : Expr
+  isBinder : Bool := false
   deriving Inhabited
 
 structure CommandInfo extends ElabInfo where

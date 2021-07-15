@@ -31,3 +31,6 @@ example : ∀ n, n < 1 + n := by
     --^ $/lean/plainTermGoal
   exact Nat.ltSuccSelf _
       --^ $/lean/plainTermGoal
+
+#check fun (n m : Nat) => m
+            --^ $/lean/plainTermGoal

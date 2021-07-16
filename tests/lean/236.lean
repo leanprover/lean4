@@ -7,5 +7,7 @@ structure Foo where
 set_option pp.all true
 #check { x := 10, b := true : Foo }
 
-set_option pp.structure_instances true
+set_option pp.universes false
+set_option pp.explicit false
+set_option pp.structureInstances true
 #check { x := 10, b := true : Foo }

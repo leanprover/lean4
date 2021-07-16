@@ -22,5 +22,4 @@ def foo (k : Nat → Nat) (n : Nat) : Nat := k (n+1)
   | `(foo $k $a) => `(My.foo $k $a)
   | _ => throw ()
 
--- The following would take exponential time without the `delabCache`.
-#check foo $ foo $ foo $ foo $ foo $ foo $ id
+#check foo $ foo $ foo $ foo $ foo $ foo $ foo $ foo $ foo $ foo $ foo $ foo $ foo $ foo $ foo $ foo $ foo $ foo $ foo $ foo $ foo $ id

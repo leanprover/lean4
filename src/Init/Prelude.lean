@@ -1841,7 +1841,7 @@ def mkAtom (val : String) : Syntax :=
   Syntax.atom SourceInfo.none val
 
 def mkAtomFrom (src : Syntax) (val : String) : Syntax :=
-  Syntax.atom src.getHeadInfo val
+  Syntax.atom (SourceInfo.fromRef src) val
 
 /- Parser descriptions -/
 

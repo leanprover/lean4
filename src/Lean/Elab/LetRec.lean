@@ -36,15 +36,16 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
     if decl.isOfKind `Lean.Parser.Term.letPatDecl then
       throwErrorAt decl "patterns are not allowed in 'let rec' expressions"
     else if decl.isOfKind `Lean.Parser.Term.letIdDecl || decl.isOfKind `Lean.Parser.Term.letEqnsDecl then
-      let shortDeclName := decl[0].getId
+      let declId := decl[0]
+      let shortDeclName := declId.getId
       let currDeclName? ← getDeclName?
       let declName := currDeclName?.getD Name.anonymous ++ shortDeclName
       checkNotAlreadyDeclared declName
       applyAttributesAt declName attrs AttributeApplicationTime.beforeElaboration
       addDocString' declName docStr?
-      addAuxDeclarationRanges declName decl decl[0]
+      addAuxDeclarationRanges declName decl declId
       let binders := decl[1].getArgs
-      let typeStx := expandOptType decl decl[2]
+      let typeStx := expandOptType declId decl[2]
       let (type, numParams) ← elabBinders binders fun xs => do
           let type ← elabType typeStx
           registerCustomErrorIfMVar type typeStx "failed to infer 'let rec' declaration type"
@@ -114,6 +115,8 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
 @[builtinTermElab «letrec»] def elabLetRec : TermElab := fun stx expectedType? => do
   let view ← mkLetRecDeclView stx
   withAuxLocalDecls view.decls fun fvars => do
+    for decl in view.decls, fvar in fvars do
+      addTermInfo (isBinder := true) decl.ref[0] fvar
     let values ← elabLetRecDeclValues view
     let body ← elabTermEnsuringType view.body expectedType?
     registerLetRecsToLift view.decls fvars values

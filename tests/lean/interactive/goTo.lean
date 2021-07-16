@@ -39,3 +39,16 @@ syntax (name := elabTest) "test" : term
      --v textDocument/declaration
 #check test
      --^ textDocument/definition
+
+def Baz (α : Type) := α
+
+#check fun (b : Baz Nat) => b
+                          --^ textDocument/typeDefinition
+
+example : Nat :=
+  let a := 1
+--v textDocument/definition
+  a + b
+    --^ textDocument/definition
+where
+  b := 2

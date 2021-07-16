@@ -107,19 +107,19 @@ private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) := do
   if k == `Lean.Parser.Term.simpleBinder then
     -- binderIdent+ >> optType
     let ids ← getBinderIds stx[0]
-    let type := expandOptType stx stx[1]
+    let type := expandOptType (mkNullNode ids) stx[1]
     ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.default }
   else if k == `Lean.Parser.Term.explicitBinder then
     -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
     let ids ← getBinderIds stx[1]
-    let type        := expandBinderType stx stx[2]
+    let type        := expandBinderType (mkNullNode ids) stx[2]
     let optModifier := stx[3]
     let type ← expandBinderModifier type optModifier
     ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.default }
   else if k == `Lean.Parser.Term.implicitBinder then
     -- `{` binderIdent+ binderType `}`
     let ids ← getBinderIds stx[1]
-    let type := expandBinderType stx stx[2]
+    let type := expandBinderType (mkNullNode ids) stx[2]
     ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.implicit }
   else if k == `Lean.Parser.Term.instBinder then
     -- `[` optIdent type `]`
@@ -133,7 +133,7 @@ private def registerFailedToInferBinderTypeInfo (type : Expr) (ref : Syntax) : T
   registerCustomErrorIfMVar type ref "failed to infer binder type"
 
 private def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit := do
-  addTermInfo (lctx? := some (← getLCtx)) stx fvar
+  addTermInfo (isBinder := true) stx fvar
 
 private def ensureAtomicBinderName (binderView : BinderView) : TermElabM Unit :=
   let n := binderView.id.getId.eraseMacroScopes
@@ -329,7 +329,7 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat
         We do not believe this is an useful feature, and it would complicate the logic here.
       -/
       let lctx  := s.lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi
-      addTermInfo (lctx? := some lctx) binderView.id fvar
+      addTermInfo (lctx? := some lctx) (isBinder := true) binderView.id fvar
       let s ← withRef binderView.id <| propagateExpectedType fvar type s
       let s := { s with lctx := lctx }
       match (← isClass? type) with
@@ -580,7 +580,7 @@ def mkLetIdDeclView (letIdDecl : Syntax) : LetIdDeclView :=
   let id      := letIdDecl[0]
   let binders := letIdDecl[1].getArgs
   let optType := letIdDecl[2]
-  let type    := expandOptType letIdDecl optType
+  let type    := expandOptType id optType
   let value   := letIdDecl[4]
   { id := id, binders := binders, type := type, value := value }
 
@@ -601,7 +601,7 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
     -- node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushNone >> optType >> " := ") >> termParser
     let pat     := letDecl[0]
     let optType := letDecl[2]
-    let type    := expandOptType stx optType
+    let type    := expandOptType pat optType
     let val     := letDecl[4]
     let stxNew ← `(let x : $type := $val; match x with | $pat => $body)
     let stxNew := match useLetExpr, elabBodyFirst with

@@ -18,7 +18,7 @@
           Nat : Type @ ⟨13, 24⟩-⟨13, 27⟩
   let y : Nat × Nat := (x, x);
   id y : Nat × Nat @ ⟨14, 2⟩-⟨15, 6⟩ @ Lean.Elab.Term.elabLetDecl
-    Nat × Nat : Type @ ⟨14, 6⟩-⟨14, 7⟩ @ Lean.Elab.Term.elabHole
+    Nat × Nat : Type @ ⟨14, 6⟩†-⟨14, 7⟩† @ Lean.Elab.Term.elabHole
     (x, x) : Nat × Nat @ ⟨14, 11⟩-⟨14, 17⟩ @ Lean.Elab.Term.elabAnonymousCtor
       Macro expansion
       ⟨x, x⟩
@@ -78,11 +78,11 @@
     ofEqTrue
       (Eq.trans (congrFun (congrArg Eq (Nat.add_zero x)) x)
         (eqSelf x)) : ∀ (x y : Nat), Bool → x + 0 = x @ ⟨18, 2⟩-⟨19, 8⟩ @ Lean.Elab.Term.elabFun
-    Nat : Type @ ⟨18, 6⟩-⟨18, 7⟩ @ Lean.Elab.Term.elabHole
+    Nat : Type @ ⟨18, 6⟩†-⟨18, 7⟩† @ Lean.Elab.Term.elabHole
     x : Nat @ ⟨18, 6⟩-⟨18, 7⟩
-    Nat : Type @ ⟨18, 8⟩-⟨18, 9⟩ @ Lean.Elab.Term.elabHole
+    Nat : Type @ ⟨18, 8⟩†-⟨18, 9⟩† @ Lean.Elab.Term.elabHole
     y : Nat @ ⟨18, 8⟩-⟨18, 9⟩
-    Bool : Type @ ⟨18, 10⟩-⟨18, 11⟩ @ Lean.Elab.Term.elabHole
+    Bool : Type @ ⟨18, 10⟩†-⟨18, 11⟩† @ Lean.Elab.Term.elabHole
     b : Bool @ ⟨18, 10⟩-⟨18, 11⟩
     Tactic @ ⟨18, 15⟩-⟨19, 8⟩
     (Term.byTactic "by" (Tactic.tacticSeq (Tactic.tacticSeq1Indented [(group (Tactic.simp "simp" [] [] [] []) [])])))
@@ -136,11 +136,11 @@
     | (z, w) =>
       let z1 : Nat := z + w;
       z + z1 : Nat → Nat → Bool → Nat @ ⟨22, 2⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabFun
-    Nat : Type @ ⟨22, 6⟩-⟨22, 7⟩ @ Lean.Elab.Term.elabHole
+    Nat : Type @ ⟨22, 6⟩†-⟨22, 7⟩† @ Lean.Elab.Term.elabHole
     x : Nat @ ⟨22, 6⟩-⟨22, 7⟩
-    Nat : Type @ ⟨22, 8⟩-⟨22, 9⟩ @ Lean.Elab.Term.elabHole
+    Nat : Type @ ⟨22, 8⟩†-⟨22, 9⟩† @ Lean.Elab.Term.elabHole
     y : Nat @ ⟨22, 8⟩-⟨22, 9⟩
-    Bool : Type @ ⟨22, 10⟩-⟨22, 11⟩ @ Lean.Elab.Term.elabHole
+    Bool : Type @ ⟨22, 10⟩†-⟨22, 11⟩† @ Lean.Elab.Term.elabHole
     b : Bool @ ⟨22, 10⟩-⟨22, 11⟩
     let x : Nat × Nat := (x + y, x - y);
     match x with 
@@ -162,7 +162,7 @@
         | (z, w) =>
           let z1 : Nat := z + w;
           z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.elabLetDecl
-          Nat × Nat : Type @ ⟨23, 4⟩-⟨23, 7⟩ @ Lean.Elab.Term.elabHole
+          Nat × Nat : Type @ ⟨23, 8⟩†-⟨23, 14⟩† @ Lean.Elab.Term.elabHole
           (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩-⟨23, 32⟩ @ Lean.Elab.Term.expandParen
             Macro expansion
             (x + y, x - y)
@@ -208,7 +208,7 @@
                 w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
             let z1 : Nat := z + w;
             z + z1 : Nat @ ⟨24, 4⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabLetDecl
-              Nat : Type @ ⟨24, 8⟩-⟨24, 10⟩ @ Lean.Elab.Term.elabHole
+              Nat : Type @ ⟨24, 8⟩†-⟨24, 10⟩† @ Lean.Elab.Term.elabHole
               z + w : Nat @ ⟨24, 14⟩-⟨24, 19⟩ @ myMacro._@.Init.Notation._hyg.5514
                 Macro expansion
                 z + w

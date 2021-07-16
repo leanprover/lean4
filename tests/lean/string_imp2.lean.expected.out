@@ -40,3 +40,5 @@ false
 "αβγδ".toSubstring
 "abcd".toSubstring
 "abcd".toSubstring
+["abc".toSubstring, "αβγ".toSubstring, "123".toSubstring, "".toSubstring]
+["abc".toSubstring, "αβγ".toSubstring, "123".toSubstring, "".toSubstring]

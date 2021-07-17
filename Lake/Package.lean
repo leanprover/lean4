@@ -101,23 +101,23 @@ def depsDir (self : Package) : FilePath :=
 def srcDir (self : Package) : FilePath :=
   self.dir / self.config.srcDir
 
-def srcRoot (self : Package) : FilePath :=
-  self.srcDir / FilePath.withExtension self.moduleRootName "lean"
-
 def modToSrc (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.srcDir mod "lean"
+
+def srcRoot (self : Package) : FilePath :=
+  self.modToSrc self.moduleRoot
 
 def oleanDir (self : Package) : FilePath :=
   self.dir / self.config.oleanDir
 
+def modToOlean (mod : Name) (self : Package) : FilePath :=
+  Lean.modToFilePath self.oleanDir mod "olean"
+
 def oleanRoot (self : Package) : FilePath :=
-  self.oleanDir / FilePath.withExtension self.moduleRootName "olean"
+  self.modToOlean self.moduleRoot
 
 def modToHashFile (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.oleanDir mod "hash"
-
-def modToOlean (mod : Name) (self : Package) : FilePath :=
-  Lean.modToFilePath self.oleanDir mod "olean"
 
 def irDir (self : Package) : FilePath :=
   self.dir / self.config.irDir

@@ -5,10 +5,11 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lean.Data.Name
 import Lean.Elab.Import
+import Std.Data.HashMap
 import Lake.LeanVersion
 import Lake.BuildTarget
 
-open Lean System
+open Lean Std System
 
 namespace Lake
 
@@ -29,6 +30,8 @@ structure Dependency where
   src  : Source
   args : List String := []
 
+abbrev Script := List String → IO PUnit
+
 structure PackageConfig where
   name : String
   version : String
@@ -47,6 +50,7 @@ structure PackageConfig where
   depsDir : FilePath := defaultDepsDir
   dependencies : List Dependency := []
   moreDepsTarget : BuildTarget LeanTrace PUnit := BuildTarget.nil
+  scripts : HashMap String Script := HashMap.empty
   deriving Inhabited
 
 structure Package where
@@ -66,6 +70,9 @@ def version (self : Package) : String :=
 
 def leanVersion (self : Package) : String :=
   self.config.leanVersion
+
+def scripts (self : Package) : HashMap String Script :=
+  self.config.scripts
 
 def moduleRoot (self : Package) : Name :=
   self.config.moduleRoot

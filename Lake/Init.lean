@@ -27,16 +27,24 @@ def package : Lake.PackageConfig := \{
 }
 "
 
-open Git in
-def init (pkgName : String) : IO Unit := do
-  IO.FS.writeFile leanPkgFile (leanPkgFileContents pkgName)
-  IO.FS.writeFile ⟨s!"{pkgName.capitalize}.lean"⟩ mainFileContents
-  let h ← IO.FS.Handle.mk ⟨".gitignore"⟩ IO.FS.Mode.append (bin := false)
+open Git System
+
+def initPkg (dir : FilePath) (pkgName : String) : IO PUnit := do
+  IO.FS.writeFile (dir / leanPkgFile) (leanPkgFileContents pkgName)
+  IO.FS.writeFile (dir / s!"{pkgName.capitalize}.lean") mainFileContents
+  let h ← IO.FS.Handle.mk (dir / ".gitignore") IO.FS.Mode.append (bin := false)
   h.putStr initGitignoreContents
-  unless ← System.FilePath.isDir ⟨".git"⟩ do
-    (do
+  unless ← FilePath.isDir (dir /".git") do
+    try
       quietInit
       unless upstreamBranch = "master" do
         checkoutBranch upstreamBranch
-    ) <|>
+    catch _ =>
       IO.eprintln "WARNING: failed to initialize git repository"
+
+def init (pkgName : String) : IO PUnit :=
+  initPkg "." pkgName
+
+def new (pkgName : String) : IO PUnit := do
+  IO.FS.createDir pkgName
+  initPkg pkgName pkgName

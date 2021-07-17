@@ -10,6 +10,7 @@ import Lake.Help
 import Lake.LeanConfig
 
 namespace Lake
+
 def getCwdPkg (args : List String) : IO Package := do
   let pkg ← Package.fromDir "." args
   if pkg.leanVersion ≠ leanVersionString then
@@ -17,8 +18,16 @@ def getCwdPkg (args : List String) : IO Package := do
       leanVersionString ++ ", but package requires " ++ pkg.leanVersion ++ "\n"
   return pkg
 
+def Package.run (script : String) (args : List String) (self : Package) : IO PUnit :=
+  if let some script := self.scripts.find? script then
+    script args
+  else
+    self.scripts.forM fun name _ => IO.println name
+
 def cli : (cmd : String) → (lakeArgs pkgArgs : List String) → IO Unit
+| "new",          [name],   []      => new name
 | "init",         [name],   []      => init name
+| "run",          [script], args    => do (← getCwdPkg []).run script args
 | "configure",    [],       pkgArgs => do configure (← getCwdPkg pkgArgs)
 | "print-paths",  imports,  pkgArgs => do printPaths (← getCwdPkg pkgArgs) imports
 | "build",        [],       pkgArgs => do build (← getCwdPkg pkgArgs)

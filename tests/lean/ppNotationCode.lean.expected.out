@@ -1,6 +1,6 @@
 [Elab.definition.body] «term_+++_» : Lean.TrailingParserDescr :=
-Lean.ParserDescr.trailingNode `«term_+++_» 1022 1
-  (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol "+++") (Lean.ParserDescr.cat `term 1))
+Lean.ParserDescr.trailingNode `«term_+++_» 45 46
+  (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol "+++") (Lean.ParserDescr.cat `term 46))
 [Elab.definition.body] myMacro._@.ppNotationCode._hyg.21 : Lean.Macro :=
 fun (x : Lean.Syntax) =>
   let discr : Lean.Syntax := x;

@@ -496,19 +496,17 @@ instance : MonadLift (ST IO.RealWorld) (EIO ε) := ⟨fun x s =>
 def mkRef (a : α) : IO (IO.Ref α) :=
   ST.mkRef a
 
-/-- An opaque type for use in pointers to Lean objects. -/
-private constant Object : Type u
-
 /-- Keeps an object alive by ensuring that its RC >= 1. Unlike holding typed `Ref`s,
 this structure is homogeneous. The ref can safely be shared between threads. -/
-structure UntypedRef where 
-  ref : IO.Ref Object
+structure UntypedRef where
+  ref : IO.Ref NonScalar
   ptr : USize
 
 namespace UntypedRef
 
-/-- Creation is unsafe because it must be ensured that the `ref` field is never used to access
-the value as a type other than `α`. -/
+/-- Creation is unsafe because it must be ensured that:
+- the `ref` field is never used to access the value as a type other than `α`
+- the type `α` is not a scalar -/
 unsafe def mkRefUnsafe {α : Type u} (a : α) : IO UntypedRef := do
   let ref ← IO.mkRef (unsafeCast a)
   let ptr := ptrAddrUnsafe a

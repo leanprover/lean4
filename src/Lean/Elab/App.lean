@@ -785,15 +785,9 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
       f.getArgs.foldlM (fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit ellipsis true acc) acc
   else
     let elabFieldName (e field : Syntax) := do
-      let newLVals := 
+      let newLVals := field.identComponents.map fun comp =>
         -- We use `none` in `suffix?` since `field` can't be part of a composite name
-        if field.getId.hasMacroScopes then
-          -- We assume that names with macro scopes have no meaningful syntax associated
-          field.getId.eraseMacroScopes.components.map fun n =>
-            LVal.fieldName Syntax.missing (toString n) none e
-        else
-          field.identComponents.map fun comp =>
-            LVal.fieldName comp (toString comp.getId) none e
+        LVal.fieldName comp (toString comp.getId) none e
       elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     let elabFieldIdx (e idxStx : Syntax) := do
       let idx := idxStx.isFieldIdx?.get!

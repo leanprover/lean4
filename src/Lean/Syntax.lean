@@ -173,22 +173,48 @@ partial def getTailWithPos : Syntax → Option Syntax
   | _                   => none
 
 open SourceInfo in
-/-- Splits an `ident` into its dot-separated components while preserving source info.
-For example, `` `foo.bla.boo `` ↦ `` [`foo, `bla, `boo] ``. -/
-def identComponents : Syntax → List Syntax
-  | ident info rawStr val _ =>
-    rawStr.splitOn "." |>.map fun ss =>
+/-- Split an `ident` into its dot-separated components while preserving source info.
+Macro scopes are first erased.  For example, `` `foo.bla.boo._@._hyg.4 `` ↦ `` [`foo, `bla, `boo] ``.
+If `nFields` is set, we take that many fields from the end and keep the remaining components
+as one name. For example, `` `foo.bla.boo `` with `(nFields := 1)` ↦ `` [`foo.bla, `boo] ``. -/
+def identComponents (stx : Syntax) (nFields? : Option Nat := none) : List Syntax :=
+  match stx with
+  | ident (SourceInfo.original lead pos trail _) rawStr val _ =>
+    let val := val.eraseMacroScopes
+    -- With original info, we assume that `rawStr` represents `val`.
+    let nameComps := nameComps val nFields?
+    let rawComps := rawStr.splitOn "."
+    let rawComps :=
+      if let some nFields := nFields? then
+        let nPrefix := rawComps.length - nFields
+        let prefixSz := rawComps.take nPrefix |>.foldl (init := 0) fun acc (ss : Substring) => acc + ss.bsize + 1
+        let prefixSz := prefixSz - 1 -- The last component has no dot
+        rawStr.extract 0 prefixSz :: rawComps.drop nPrefix
+      else
+        rawComps
+    assert! nameComps.length == rawComps.length
+    nameComps.zip rawComps |>.map fun (id, ss) =>
       let off := ss.startPos - rawStr.startPos
-      let info := match info with
-        | original lead pos trail _ =>
-          let lead := if off == 0 then lead else "".toSubstring
-          let trail := if ss.stopPos == rawStr.stopPos then trail else "".toSubstring
-          original lead (pos + off) trail (pos + off + ss.bsize)
-        | synthetic pos _ =>
-          synthetic (pos + off) (pos + off + ss.bsize)
-        | SourceInfo.none => SourceInfo.none
-      ident info ss (Name.mkSimple ss.toString) []
+      let lead := if off == 0 then lead else "".toSubstring
+      let trail := if ss.stopPos == rawStr.stopPos then trail else "".toSubstring
+      let info := original lead (pos + off) trail (pos + off + ss.bsize)
+      ident info ss id []
+  | ident si _ val _ =>
+    let val := val.eraseMacroScopes
+    /- With non-original info:
+     - `rawStr` can take all kinds of forms so we only use `val`.
+     - there is no source extent to offset, so we pass it as-is. -/
+    nameComps val nFields? |>.map fun n => ident si n.toString.toSubstring n []
   | _ => unreachable!
+  where
+    nameComps (n : Name) (nFields? : Option Nat) : List Name :=
+      if let some nFields := nFields? then
+        let nameComps := n.components
+        let nPrefix := nameComps.length - nFields
+        let namePrefix := nameComps.take nPrefix |>.foldl (init := Name.anonymous) fun acc n => acc ++ n
+        namePrefix :: nameComps.drop nPrefix
+      else
+        n.components
 
 structure TopDown where
   firstChoiceOnly : Bool

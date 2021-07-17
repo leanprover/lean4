@@ -55,10 +55,12 @@ structure EditableDocument where
 
 structure RpcSession where
   sessionId : USize
-  /-- Objects that are being kept alive for the RPC client, mapped to by their RPC reference.
+  /-- Objects that are being kept alive for the RPC client, together with their type names,
+  mapped to by their RPC reference.
+
   Note that we may currently have multiple references to the same object. It is only disposed
   of once all of those are gone. This simplifies the client a bit as it can drop every reference
   received separately. -/
-  aliveRefs : IO.Ref (Std.PersistentHashMap USize UntypedRef)
+  aliveRefs : IO.Ref (Std.PersistentHashMap USize (Name × UntypedRef))
 
 end Lean.Server.FileWorker

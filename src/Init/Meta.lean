@@ -763,10 +763,6 @@ macro_rules
 
 macro "eval_prec " p:prec:max : term => return quote (← evalPrec p)
 
-def evalOptPrec : Option Syntax → MacroM Nat
-  | some prec => evalPrec prec
-  | none      => return 0
-
 /- Evaluator for `prio` DSL -/
 def evalPrio (stx : Syntax) : MacroM Nat :=
   Macro.withIncRecDepth stx do

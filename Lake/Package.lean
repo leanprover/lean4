@@ -153,7 +153,7 @@ def staticLibName (self : Package) : FilePath :=
   self.config.libName
 
 def staticLibFileName (self : Package) : FilePath :=
-  s!"lib{self.moduleRoot}.a"
+  s!"lib{self.staticLibName}.a"
 
 def staticLibFile (self : Package) : FilePath :=
   self.libDir / self.staticLibFileName

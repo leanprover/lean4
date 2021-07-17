@@ -46,7 +46,7 @@ structure PackageConfig where
   binDir : FilePath := defaultBinDir
   binName : String := name
   libDir : FilePath := defaultLibDir
-  libName : String := name.capitalize
+  libName : String := moduleRoot.toString (escape := false)
   depsDir : FilePath := defaultDepsDir
   dependencies : List Dependency := []
   moreDepsTarget : BuildTarget LeanTrace PUnit := BuildTarget.nil
@@ -78,7 +78,7 @@ def moduleRoot (self : Package) : Name :=
   self.config.moduleRoot
 
 def moduleRootName (self : Package) : String :=
-  self.config.moduleRoot.toString
+  self.config.moduleRoot.toString (escape := false)
 
 def dependencies (self : Package) : List Dependency :=
   self.config.dependencies

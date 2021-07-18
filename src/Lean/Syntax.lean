@@ -183,7 +183,7 @@ def identComponents (stx : Syntax) (nFields? : Option Nat := none) : List Syntax
     let val := val.eraseMacroScopes
     -- With original info, we assume that `rawStr` represents `val`.
     let nameComps := nameComps val nFields?
-    let rawComps := rawStr.splitOn "."
+    let rawComps := splitNameLit rawStr
     let rawComps :=
       if let some nFields := nFields? then
         let nPrefix := rawComps.length - nFields

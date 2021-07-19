@@ -61,6 +61,6 @@ structure RpcSession where
   Note that we may currently have multiple references to the same object. It is only disposed
   of once all of those are gone. This simplifies the client a bit as it can drop every reference
   received separately. -/
-  aliveRefs : IO.Ref (Std.PersistentHashMap USize (Name × UntypedRef))
+  aliveRefs : IO.Ref (Std.PersistentHashMap Lsp.RpcRef (Name × UntypedRef))
 
 end Lean.Server.FileWorker

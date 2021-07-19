@@ -67,7 +67,7 @@ protected unsafe def encodeUnsafe (typeName : Name) (r : WithRpcRef α) : Reques
     | throwThe IO.Error "internal server error: forgot to validate RPC session"
 
   let ref ← IO.UntypedRef.mkRefUnsafe r.val
-  let uid := ref.ptr -- TODO random uuid?
+  let uid := ⟨ref.ptr⟩ -- TODO random uuid?
   rpcSesh.aliveRefs.modify fun refs => refs.insert uid (typeName, ref)
   return uid
 
@@ -133,8 +133,21 @@ private def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) 
                               message := s!"No RPC method '{p.method}' bound" }
   proc.wrapper p.sessionId p.params
 
+private def handleRpcDec (p : Lsp.RpcDecParams) : RequestM (RequestTask Json) := do
+  let rc ← read
+  let some rpcSesh ← rc.rpcSesh?
+    | throwThe RequestError { code := JsonRpc.ErrorCode.rpcNotInitialized
+                              message := s!"RPC session not initialized" }
+  if p.sessionId ≠ rpcSesh.sessionId then
+    throwThe RequestError { code := JsonRpc.ErrorCode.rpcNotInitialized
+                            message := s!"Outdated RPC session" }
+  rpcSesh.aliveRefs.modify fun refs => refs.erase p.ref 
+  RequestM.asTask do
+    return Json.null
+
 builtin_initialize
   registerLspRequestHandler "$/lean/rpc/call" Lsp.RpcCallParams Json handleRpcCall
+  registerLspRequestHandler "$/lean/rpc/dec"  Lsp.RpcDecParams  Json handleRpcDec
 
 def registerRpcCallHandler (method : Name)
     paramType 

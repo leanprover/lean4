@@ -68,7 +68,14 @@ structure PlainTermGoal where
   deriving FromJson, ToJson
 
 /-- An object which RPC clients can refer to without marshalling. -/
-abbrev RpcRef := USize
+structure RpcRef where
+  /- NOTE(WN): It is important for this to be a single-field structure
+  in order to deserialize as an `Object` on the JS side. -/
+  p : USize
+  deriving BEq, Hashable, FromJson, ToJson
+
+instance : ToString RpcRef where
+  toString r := toString r.p
 
 /-- Initialize an RPC session at the given file's worker. -/
 structure RpcInitializeParams where
@@ -89,6 +96,14 @@ structure RpcCallParams extends TextDocumentPositionParams where
   /-- Procedure to invoke. Must be fully qualified. -/
   method : Name
   params : Json
+  deriving FromJson, ToJson
+
+/-- A request to decrement the RC on a remote reference. Should be invoked by the client
+when it no longer needs such a reference. -/
+structure RpcDecParams where
+  uri : DocumentUri
+  sessionId : USize
+  ref : RpcRef
   deriving FromJson, ToJson
 
 end Lean.Lsp

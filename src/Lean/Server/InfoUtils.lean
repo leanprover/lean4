@@ -7,6 +7,7 @@ Authors: Wojciech Nawrocki
 import Lean.DocString
 import Lean.Elab.InfoTree
 import Lean.Util.Sorry
+import Lean.PrettyPrinter
 
 protected structure String.Range where
   start : String.Pos
@@ -75,9 +76,10 @@ def Info.stx : Info → Syntax
   | ofCompletionInfo i     => i.stx
 
 def Info.lctx : Info → LocalContext
-  | Info.ofTermInfo i  => i.lctx
-  | Info.ofFieldInfo i => i.lctx
-  | _                  => LocalContext.empty
+  | Info.ofTermInfo i           => i.lctx
+  | Info.ofFieldInfo i          => i.lctx
+  | Info.ofMacroExpansionInfo i => i.lctx
+  | _                           => LocalContext.empty
 
 def Info.pos? (i : Info) : Option String.Pos :=
   i.stx.getPos? (originalOnly := true)
@@ -98,7 +100,7 @@ def Info.size? (i : Info) : Option Nat := OptionM.run do
 
 -- `Info` without position information are considered to have "infinite" size
 def Info.isSmaller (i₁ i₂ : Info) : Bool :=
-  match i₁.size?, i₂.pos? with
+  match i₁.size?, i₂.size? with
   | some sz₁, some sz₂ => sz₁ < sz₂
   | some _, none => true
   | _, _ => false
@@ -110,15 +112,10 @@ def Info.occursBefore? (i : Info) (hoverPos : String.Pos) : Option Nat := Option
 
 def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextInfo × Info) :=
   let ts := t.deepestNodes fun ctx i _ => if p i then some (ctx, i) else none
-
-  let infos := ts.map fun (ci, i) =>
-    let diff := i.tailPos?.get! - i.pos?.get!
-    (diff, ci, i)
-
-  infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
+  ts.toArray.getMax? (fun a b => Info.isSmaller b.2 a.2)
 
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
-partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) :=
+def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) :=
   t.smallestInfo? fun i => do
     if let Info.ofTermInfo ti := i then
       if ti.expr.isSyntheticSorry then
@@ -127,8 +124,15 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) : O
       return i.contains hoverPos
     return false
 
-/-- Construct a hover popup, if any, from an info node in a context.-/
-def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option Format) := do
+/-- Find a relevant macro expansion, if any, at position `hoverPos`. -/
+def InfoTree.macroExpansionAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) :=
+  t.smallestInfo? fun i => do
+    if let Info.ofMacroExpansionInfo _ := i then
+      return i.contains hoverPos
+    return false
+
+/-- Construct a hover popup, if any, from an info node in a context and optionally a macro expansion. -/
+def Info.fmtHover? (ci : ContextInfo) (i : Info) (macroExpansion? : Option (ContextInfo × Info)) : IO (Option Format) := do
   ci.runMetaM i.lctx do
     let mut fmts := #[]
     try
@@ -136,6 +140,8 @@ def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option Format) := do
         fmts := fmts.push f
     catch _ => pure ()
     if let some f ← fmtDoc? then
+      fmts := fmts.push f
+    if let some f ← fmtMacro? then
       fmts := fmts.push f
     if fmts.isEmpty then
       none
@@ -168,6 +174,19 @@ where
       return ← findDocString? fi.projName
     if let some ei := i.toElabInfo? then
       return ← findDocString? ei.elaborator <||> findDocString? ei.stx.getKind
+    return none
+  fmtMacro? := do
+    if let some (ci, ofMacroExpansionInfo mei) := macroExpansion? then
+      let pre ← ci.ppSyntax mei.lctx mei.stx
+      let post ← ci.ppSyntax mei.lctx mei.output
+      return some f!"Macro expansion\n
+```lean
+{pre}
+```
+\n==>\n
+```lean
+{post}
+```"
     return none
   isAtomicFormat : Format → Bool
     | Std.Format.text _    => true

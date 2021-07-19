@@ -43,13 +43,16 @@
 {"range":
  {"start": {"line": 46, "character": 7}, "end": {"line": 46, "character": 15}},
  "contents":
- {"value": "```lean\n1 : Nat\n```\n***\nMy notation ", "kind": "markdown"}}
+ {"value":
+  "```lean\n1 : Nat\n```\n***\nMy notation \n***\nMacro expansion\n\n```lean\nmynota\n  1\n    --^ textDocument/hover\n```\n\n==>\n\n```lean\n1\n  --^ textDocument/hover\n```",
+  "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 53, "character": 7}}
 {"range":
  {"start": {"line": 53, "character": 7}, "end": {"line": 53, "character": 15}},
  "contents":
- {"value": "```lean\nNat\n```\n***\nMy way better notation ",
+ {"value":
+  "```lean\nNat\n```\n***\nMy way better notation \n***\nMacro expansion\n\n```lean\nmynota\n  1\n    --^ textDocument/hover\n    \n    -- macro_rules take precedence over elab_rules for term/command, so use new syntax\n```\n\n==>\n\n```lean\n2 *\n  1\n    --^ textDocument/hover\n    \n    -- macro_rules take precedence over elab_rules for term/command, so use new syntax\n```",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 63, "character": 7}}

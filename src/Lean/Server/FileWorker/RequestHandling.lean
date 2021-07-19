@@ -51,7 +51,11 @@ partial def handleHover (p : HoverParams)
     (notFoundX := pure none) fun snap => do
       for t in snap.cmdState.infoState.trees do
         if let some (ci, i) := t.hoverableInfoAt? hoverPos then
-          if let some hoverFmt ← i.fmtHover? ci then
+          /- Find the macro expansion if there is one, but only display if it's contained
+          within the main info. This way we don't show expansions of enclosing terms. -/
+          let macroExpansion? := t.macroExpansionAt? hoverPos
+            |>.filter fun me => me.2.size?.get! ≤ i.size?.get!
+          if let some hoverFmt ← i.fmtHover? ci macroExpansion? then
             return some <| mkHover (toString hoverFmt) i.pos?.get! i.tailPos?.get!
 
       return none

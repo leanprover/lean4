@@ -81,4 +81,7 @@ instance : FileSource RpcInitializeParams where
 instance : FileSource RpcCallParams where
   fileSource p := fileSource p.textDocument
 
+instance : FileSource RpcDecParams where
+  fileSource p := p.uri
+
 end Lean.Lsp

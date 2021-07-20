@@ -397,7 +397,7 @@ static inline void lean_inc_ref(lean_object * o) {
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_rc += n;
-    } else if (lean_is_mt(o)) {
+    } else {
         lean_inc_ref_n_cold(o, n);
     }
 }

@@ -82,16 +82,26 @@ static inline bool lean_is_big_object_tag(uint8_t tag) {
 
 LEAN_CASSERT(sizeof(size_t) == sizeof(void*));
 
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER) || defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
-/* Compressed headers are only supported in 64-bit machines */
-LEAN_CASSERT(sizeof(void*) == 8);
-#endif
+/*
+Lean object header.
 
-/* Lean object header */
+The reference counter `m_rc` field also encodes whether the object is single threaded (> 0), multi threaded (< 0), or
+reference counting is not needed (== 0). We don't use reference counting for objects stored in compact regions, or
+marked as persistent.
+
+For "small" objects stored in compact regions, the field `m_cs_sz` contains the object size. For "small" objects not
+stored in compact regions, we use the page information to retrieve its size.
+
+During deallocation and 64-bit machines, the fields `m_rc` and `m_cs_sz` store the next object in the deletion TODO list.
+These two fields together have 48-bits, and this is enough for modern computers.
+In 32-bit machines, the field `m_rc` is sufficient.
+
+The field `m_other` is used to store the number of fields in a constructor object and the element size in a scalar array.
+*/
 typedef struct {
-    int      m_rc;        /* > 0 - single thread object, < 0 - multi threaded object, == 0 - persistent object. */
-    unsigned m_cs_sz:16;  /* for small objects stored in compact regions, this field contains the object size. It is 0, otherwise */
-    unsigned m_other:8;   /* number of fields for constructors, element size for scalar arrays */
+    int      m_rc;
+    unsigned m_cs_sz:16;
+    unsigned m_other:8;
     unsigned m_tag:8;
 } lean_object;
 

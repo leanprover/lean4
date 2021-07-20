@@ -415,9 +415,6 @@ else()
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:compiler>)
   add_subdirectory(initialize)
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:initialize>)
-  if(${STAGE} EQUAL 0)
-    add_subdirectory(../stdlib stdlib)
-  endif()
 
   add_library(leancpp STATIC ${LEAN_OBJS})
   set_target_properties(leancpp PROPERTIES
@@ -427,66 +424,66 @@ endif()
 # MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
 string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
 
-# make stdlib using previous stage
-if(PREV_STAGE)
-  # ...and Make doesn't like absolute Windows paths either
-  # (also looks nicer in the build log)
-  file(RELATIVE_PATH LIB ${LEAN_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
+# ...and Make doesn't like absolute Windows paths either
+# (also looks nicer in the build log)
+file(RELATIVE_PATH LIB ${LEAN_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
 
-  string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
-  # These are used in lean.mk and passed through by stdlib.make
-  set(LEANC_OPTS "${LEANC_OPTS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
+string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
+# These are used in lean.mk and passed through by stdlib.make
+set(LEANC_OPTS "${LEANC_OPTS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
 
-  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(LEANSHARED_LINKER_FLAGS "-Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libInit.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libStd.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLean.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
-  else()
-    set(LEANSHARED_LINKER_FLAGS "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp -Wl,--no-whole-archive")
-    if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-      set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,--out-implib,${CMAKE_BINARY_DIR}/bin/libleanshared.dll.a")
-    endif()
-  endif()
-
-  # Escape for `make`. Yes, twice.
-  string(REPLACE "$" "$$$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
-  configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
-  add_custom_target(make_stdlib ALL
-    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-    # needed for linking `leanpkg`
-    DEPENDS leancpp
-    # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
-    # for a parallelized nested build, but CMake doesn't let us do that.
-    # We use `lean` from the previous stage, but `leanc`, headers, etc. from the current stage
-    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make)
-
-  add_library(Init STATIC IMPORTED)
-  set_target_properties(Init PROPERTIES
-    IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libInit.a)
-  add_dependencies(Init make_stdlib)
-
-  add_library(Std STATIC IMPORTED)
-  set_target_properties(Std PROPERTIES
-    IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libStd.a)
-  add_dependencies(Std make_stdlib)
-
-  add_library(Lean STATIC IMPORTED)
-  set_target_properties(Lean PROPERTIES
-    IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libLean.a)
-  add_dependencies(Lean make_stdlib)
-
-  add_library(leanshared SHARED IMPORTED)
-  set_target_properties(leanshared PROPERTIES
-    IMPORTED_LOCATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX})
-  add_dependencies(leanshared make_stdlib)
-
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(LEANSHARED_LINKER_FLAGS "-Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libInit.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libStd.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLean.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
+else()
+  set(LEANSHARED_LINKER_FLAGS "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp -Wl,--no-whole-archive")
   if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    install(FILES ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX} DESTINATION bin)
-    install(FILES ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}.a DESTINATION bin)
+    set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,--out-implib,${CMAKE_BINARY_DIR}/bin/libleanshared.dll.a")
   endif()
+endif()
 
+# Escape for `make`. Yes, twice.
+string(REPLACE "$" "$$$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
+configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
+add_custom_target(make_stdlib ALL
+  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+  # needed for linking `leanpkg`
+  DEPENDS leancpp
+  # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
+  # for a parallelized nested build, but CMake doesn't let us do that.
+  # We use `lean` from the previous stage, but `leanc`, headers, etc. from the current stage
+  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanshared $<IF:$<EQUAL:${STAGE},0>,MORE_LEANMAKE_OPTS=C_ONLY=1\ C_OUT=../stdlib/,Leanpkg>
+  VERBATIM)
+
+add_library(Init STATIC IMPORTED)
+set_target_properties(Init PROPERTIES
+  IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libInit.a)
+add_dependencies(Init make_stdlib)
+
+add_library(Std STATIC IMPORTED)
+set_target_properties(Std PROPERTIES
+  IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libStd.a)
+add_dependencies(Std make_stdlib)
+
+add_library(Lean STATIC IMPORTED)
+set_target_properties(Lean PROPERTIES
+  IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libLean.a)
+add_dependencies(Lean make_stdlib)
+
+add_library(leanshared SHARED IMPORTED)
+set_target_properties(leanshared PROPERTIES
+  IMPORTED_LOCATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX})
+add_dependencies(leanshared make_stdlib)
+
+if(PREV_STAGE)
   add_custom_target(update-stage0
     COMMAND cmake -E env CSRCS=${CMAKE_BINARY_DIR}/lib/temp bash script/update-stage0
     DEPENDS make_stdlib
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/..")
+endif()
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  install(FILES ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX} DESTINATION bin)
+  install(FILES ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}.a DESTINATION bin)
 endif()
 
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc" @ONLY)

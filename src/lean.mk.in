@@ -16,6 +16,7 @@ LEAN_AR = ar
 OUT = build
 OLEAN_OUT = $(OUT)
 TEMP_OUT = $(OUT)/temp
+C_OUT = $(TEMP_OUT)
 BIN_OUT = $(OUT)/bin
 LIB_OUT = $(OUT)/lib
 BIN_NAME = $(PKG)
@@ -61,10 +62,12 @@ endif
 # create the .c file atomically
 	mv "$(TEMP_OUT)/$*.c.tmp" "$(TEMP_OUT)/$*.c"
 
+ifndef C_ONLY
 $(TEMP_OUT)/%.c: $(OLEAN_OUT)/%.olean
 	@
+endif
 
-$(TEMP_OUT)/%.o: $(TEMP_OUT)/%.c
+$(TEMP_OUT)/%.o: $(C_OUT)/%.c
 ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Building $<"
 endif
@@ -94,4 +97,6 @@ clean:
 
 .PRECIOUS: $(TEMP_OUT)/%.c
 
+ifndef C_ONLY
 include $(DEPS)
+endif

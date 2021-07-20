@@ -81,10 +81,15 @@ extern "C" void lean_inc_ref_n_cold(lean_object * o, unsigned n) {
     atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
 }
 
-extern "C" bool lean_dec_ref_core_cold(lean_object * o) {
-    if (o->m_rc == 1) return true;
-    if (o->m_rc == 0) return false;
-    return atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, memory_order_acq_rel) == -1;
+static inline bool lean_dec_ref_core(lean_object * o) {
+    if (LEAN_LIKELY(o->m_rc >= 1)) {
+        o->m_rc--;
+        return o->m_rc == 0;
+    } else if (o->m_rc == 0) {
+        return false;
+    } else {
+        return atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, memory_order_acq_rel) == -1;
+    }
 }
 
 extern "C" size_t lean_object_byte_size(lean_object * o) {
@@ -247,7 +252,7 @@ static void lean_del_core(object * o, object * & todo) {
     }
 }
 
-extern "C" void lean_del(object * o) {
+static inline void lean_del(object * o) {
 #ifdef LEAN_LAZY_RC
     push_back(g_to_free, o);
 #else
@@ -260,6 +265,13 @@ extern "C" void lean_del(object * o) {
     }
 #endif
 }
+
+extern "C" void lean_dec_ref_cold(lean_object * o) {
+  if (o->m_rc == 1) lean_del(o);
+  else if (o->m_rc == 0) return;
+  else if (atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, memory_order_acq_rel) == -1) lean_del(o);
+}
+
 
 // =======================================
 // Closures

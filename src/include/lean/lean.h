@@ -402,21 +402,15 @@ static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     }
 }
 
-bool lean_dec_ref_core_cold(lean_object * o);
+void lean_dec_ref_cold(lean_object * o);
 
-static inline bool lean_dec_ref_core(lean_object * o) {
+static inline void lean_dec_ref(lean_object * o) {
     if (LEAN_LIKELY(o->m_rc > 1)) {
         o->m_rc--;
-        return false;
     } else {
-        return lean_dec_ref_core_cold(o);
+        lean_dec_ref_cold(o);
     }
 }
-
-/* Generic Lean object delete operation. */
-void lean_del(lean_object * o);
-
-static inline void lean_dec_ref(lean_object * o) { if (lean_dec_ref_core(o)) lean_del(o); }
 static inline void lean_inc(lean_object * o) { if (!lean_is_scalar(o)) lean_inc_ref(o); }
 static inline void lean_inc_n(lean_object * o, size_t n) { if (!lean_is_scalar(o)) lean_inc_ref_n(o, n); }
 static inline void lean_dec(lean_object * o) { if (!lean_is_scalar(o)) lean_dec_ref(o); }

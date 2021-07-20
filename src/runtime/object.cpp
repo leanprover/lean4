@@ -70,20 +70,14 @@ extern "C" object * lean_sorry(uint8) {
 }
 
 extern "C" void lean_inc_ref_cold(lean_object * o) {
-    if (o->m_rc == 0)
-        return;
     atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), 1, memory_order_relaxed);
 }
 
 extern "C" void lean_inc_ref_n_cold(lean_object * o, unsigned n) {
-    if (o->m_rc == 0)
-        return;
     atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
 }
 
 extern "C" bool lean_dec_ref_core_cold(lean_object * o) {
-    if (o->m_rc == 1) return true;
-    if (o->m_rc == 0) return false;
     return atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, memory_order_acq_rel) == -1;
 }
 

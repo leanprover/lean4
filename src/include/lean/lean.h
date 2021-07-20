@@ -389,7 +389,7 @@ void lean_inc_ref_n_cold(lean_object * o, unsigned n);
 static inline void lean_inc_ref(lean_object * o) {
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_rc++;
-    } else {
+    } else if (o->m_rc != 0) {
         lean_inc_ref_cold(o);
     }
 }
@@ -397,7 +397,7 @@ static inline void lean_inc_ref(lean_object * o) {
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_rc += n;
-    } else {
+    } else if (o->m_rc != 0) {
         lean_inc_ref_n_cold(o, n);
     }
 }
@@ -407,7 +407,7 @@ void lean_dec_ref_cold(lean_object * o);
 static inline void lean_dec_ref(lean_object * o) {
     if (LEAN_LIKELY(o->m_rc > 1)) {
         o->m_rc--;
-    } else {
+    } else if (o->m_rc != 0) {
         lean_dec_ref_cold(o);
     }
 }

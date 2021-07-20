@@ -123,7 +123,7 @@ jobs:
           for f in lean leanpkg; do
             otool -L build/stage1/bin/$f
             for lib in $(otool -L build/stage1/bin/$f | tail -n +2 | cut -d' ' -f1); do
-              [[ "$lib" ~= *lean* ]] || install_name_tool -change "$lib" "/usr/lib/$(basename $lib | sed 's/libc++\.1\.0/libc++.1/')" build/stage1/bin/$f
+              [[ "$lib" == *lean* ]] || install_name_tool -change "$lib" "/usr/lib/$(basename $lib | sed 's/libc++\.1\.0/libc++.1/')" build/stage1/bin/$f
             done
           done
         if: matrix.name == 'macOS'

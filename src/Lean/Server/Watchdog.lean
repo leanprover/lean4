@@ -381,7 +381,7 @@ section MessageHandling
 
   def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
     match (← routeLspRequest method params) with
-      | Except.error e => 
+      | Except.error e =>
         (←read).hOut.writeLspResponseError <| e.toLspResponseError id
       | Except.ok uri =>
         let fw ← try

@@ -70,11 +70,11 @@ extern "C" object * lean_sorry(uint8) {
 }
 
 extern "C" void lean_inc_ref_cold(lean_object * o) {
-    atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), 1, memory_order_relaxed);
+    std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_relaxed);
 }
 
 extern "C" void lean_inc_ref_n_cold(lean_object * o, unsigned n) {
-    atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
+    std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
 }
 
 extern "C" size_t lean_object_byte_size(lean_object * o) {
@@ -162,7 +162,7 @@ static inline void dec(lean_object * o, lean_object* & todo) {
         push_back(todo, o);
     } else if (o->m_rc == 0) {
         return;
-    } else if (atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, memory_order_acq_rel) == -1) {
+    } else if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) == -1) {
         push_back(todo, o);
     }
 }
@@ -247,7 +247,7 @@ static void lean_del_core(object * o, object * & todo) {
 }
 
 extern "C" void lean_dec_ref_cold(lean_object * o) {
-    if (o->m_rc == 1 || atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, memory_order_acq_rel) == -1) {
+    if (o->m_rc == 1 || std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) == -1) {
 #ifdef LEAN_LAZY_RC
         push_back(g_to_free, o);
 #else

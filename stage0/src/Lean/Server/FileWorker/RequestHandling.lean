@@ -90,6 +90,21 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
       return #[ll]
     return #[]
 
+  let locationLinksFromBinder (t : InfoTree) (i : Elab.Info) (id : FVarId) := do
+    if let some i' := t.findInfo? fun
+        | Info.ofTermInfo { isBinder := true, expr := Expr.fvar id' .., .. } => id' == id
+        | _ => false then
+      if let some r := i'.range? then
+        let r := r.toLspRange text
+        let ll : LocationLink := {
+          originSelectionRange? := (·.toLspRange text) <$> i.range?
+          targetUri := p.textDocument.uri
+          targetRange := r
+          targetSelectionRange := r
+        }
+        return #[ll]
+    return #[]
+
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure #[]) fun snap => do
       for t in snap.cmdState.infoState.trees do
@@ -98,14 +113,16 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
             let mut expr := ti.expr
             if kind = type then
               expr ← ci.runMetaM i.lctx do
-                Meta.instantiateMVars (← Meta.inferType expr)
-            if let some n := expr.constName? then
-              return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
+                Expr.getAppFn (← Meta.instantiateMVars (← Meta.inferType expr))
+            match expr with
+            | Expr.const n .. => return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
+            | Expr.fvar id .. => return ← ci.runMetaM i.lctx <| locationLinksFromBinder t i id
+            | _ => pure ()
           if let Info.ofFieldInfo fi := i then
             if kind = type then
               let expr ← ci.runMetaM i.lctx do
                 Meta.instantiateMVars (← Meta.inferType fi.val)
-              if let some n := expr.constName? then
+              if let some n := expr.getAppFn.constName? then
                 return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
             else
               return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName
@@ -145,6 +162,7 @@ partial def handlePlainGoal (p : PlainGoalParams)
       return none
 
 open Elab in
+open Meta in
 partial def handlePlainTermGoal (p : PlainTermGoalParams)
     : RequestM (RequestTask (Option PlainTermGoal)) := do
   let doc ← readDoc
@@ -154,8 +172,11 @@ partial def handlePlainTermGoal (p : PlainTermGoalParams)
     (notFoundX := pure none) fun snap => do
       for t in snap.cmdState.infoState.trees do
         if let some (ci, i@(Info.ofTermInfo ti)) := t.termGoalAt? hoverPos then
-          let goal ← ci.runMetaM i.lctx <| open Meta in do
-            let ty ← instantiateMVars <| ti.expectedType?.getD (← inferType ti.expr)
+          let ty ← ci.runMetaM i.lctx do
+            instantiateMVars <| ti.expectedType?.getD (← inferType ti.expr)
+          -- for binders, hide the last hypothesis (the binder itself)
+          let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
+          let goal ← ci.runMetaM lctx' do
             withPPInaccessibleNames <| Meta.ppGoal (← mkFreshExprMVar ty).mvarId!
           let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
           return some { goal := toString goal, range }

@@ -192,10 +192,11 @@ def intercalate (s : String) (ss : List String) : String :=
 structure Iterator where
   s : String
   i : Pos
+  deriving DecidableEq
 
 def mkIterator (s : String) : Iterator :=
   ⟨s, 0⟩
-
+  
 namespace Iterator
 def toString : Iterator → String
   | ⟨s, _⟩ => s
@@ -344,23 +345,23 @@ namespace Substring
 
 /-- Given an offset of a codepoint into the substring,
 return the offset there of the next codepoint. -/
-@[inline] private def next : Substring → String.Pos → String.Pos
+@[inline] def next : Substring → String.Pos → String.Pos
   | ⟨s, b, e⟩, p =>
     let absP := b+p
     if absP = e then p else s.next absP - b
 
 /-- Given an offset of a codepoint into the substring,
 return the offset there of the previous codepoint. -/
-@[inline] private def prev : Substring → String.Pos → String.Pos
+@[inline] def prev : Substring → String.Pos → String.Pos
   | ⟨s, b, _⟩, p =>
     let absP := b+p
     if absP = b then p else s.prev absP - b
 
-private def nextn : Substring → Nat → String.Pos → String.Pos
+def nextn : Substring → Nat → String.Pos → String.Pos
   | ss, 0,   p => p
   | ss, i+1, p => ss.nextn i (ss.next p)
 
-private def prevn : Substring → String.Pos → Nat → String.Pos
+def prevn : Substring → String.Pos → Nat → String.Pos
   | ss, 0,   p => p
   | ss, i+1, p => ss.prevn i (ss.prev p)
 
@@ -389,31 +390,29 @@ or `s.bsize` if `c` doesn't occur. -/
   | ⟨s, b, e⟩, p => b + p == e
 
 @[inline] def extract : Substring → String.Pos → String.Pos → Substring
-  | ⟨s, b, _⟩, b', e' => if b' ≥ e' then ⟨"", 0, 1⟩ else ⟨s, b+b', b+e'⟩
+  | ⟨s, b, e⟩, b', e' => if b' ≥ e' then ⟨"", 0, 0⟩ else ⟨s, e.min (b+b'), e.min (b+e')⟩
 
 partial def splitOn (s : Substring) (sep : String := " ") : List Substring :=
   if sep == "" then
     [s]
   else
-    let stopPos := s.stopPos
-    let str     := s.str
     let rec loop (b i j : String.Pos) (r : List Substring) : List Substring :=
-      if i == stopPos then
+      if i == s.bsize then
         let r := if sep.atEnd j then
-          "".toSubstring::{ str := str, startPos := b, stopPos := i-j } :: r
+          "".toSubstring :: s.extract b (i-j) :: r
         else
-          { str := str, startPos := b, stopPos := i } :: r
+          s.extract b i :: r
         r.reverse
       else if s.get i == sep.get j then
         let i := s.next i
         let j := sep.next j
         if sep.atEnd j then
-          loop i i 0 ({ str := str, startPos := b, stopPos := i-j } :: r)
+          loop i i 0 (s.extract b (i-j) :: r)
         else
           loop b i j r
       else
         loop b (s.next i) 0 r
-    loop s.startPos s.startPos 0 []
+    loop 0 0 0 []
 
 @[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : Substring) : α :=
   match s with

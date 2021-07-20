@@ -23200,7 +23200,7 @@ lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean
 x_43 = lean_unsigned_to_nat(0u);
 x_44 = l_Lean_Syntax_getArg(x_37, x_43);
 x_45 = l_Lean_Syntax_getArg(x_37, x_17);
-x_46 = l_Lean_Elab_Term_expandOptType(x_37, x_45);
+x_46 = l_Lean_Elab_Term_expandOptType(x_44, x_45);
 lean_dec(x_45);
 x_47 = lean_unsigned_to_nat(3u);
 x_48 = l_Lean_Syntax_getArg(x_37, x_47);

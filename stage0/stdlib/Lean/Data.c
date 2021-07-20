@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data
-// Imports: Init Lean.Data.Format Lean.Data.Json Lean.Data.JsonRpc Lean.Data.KVMap Lean.Data.LBool Lean.Data.LOption Lean.Data.Lsp Lean.Data.Name Lean.Data.Occurrences Lean.Data.OpenDecl Lean.Data.Options Lean.Data.Position Lean.Data.SMap Lean.Data.Trie Lean.Data.PrefixTree Lean.Data.NameTrie
+// Imports: Init Lean.Data.Format Lean.Data.Parsec Lean.Data.Json Lean.Data.Xml Lean.Data.JsonRpc Lean.Data.KVMap Lean.Data.LBool Lean.Data.LOption Lean.Data.Lsp Lean.Data.Name Lean.Data.Occurrences Lean.Data.OpenDecl Lean.Data.Options Lean.Data.Position Lean.Data.SMap Lean.Data.Trie Lean.Data.PrefixTree Lean.Data.NameTrie
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,7 +15,9 @@ extern "C" {
 #endif
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Data_Format(lean_object*);
+lean_object* initialize_Lean_Data_Parsec(lean_object*);
 lean_object* initialize_Lean_Data_Json(lean_object*);
+lean_object* initialize_Lean_Data_Xml(lean_object*);
 lean_object* initialize_Lean_Data_JsonRpc(lean_object*);
 lean_object* initialize_Lean_Data_KVMap(lean_object*);
 lean_object* initialize_Lean_Data_LBool(lean_object*);
@@ -41,7 +43,13 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Format(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Lean_Data_Parsec(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Data_Json(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_Xml(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_JsonRpc(lean_io_mk_world());

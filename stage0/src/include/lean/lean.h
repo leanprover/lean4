@@ -89,46 +89,16 @@ LEAN_CASSERT(sizeof(void*) == 8);
 
 /* Lean object header */
 typedef struct {
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER)
-    /* (high) 8-bits  : tag
-              8-bits  : num fields for constructors, element size for scalar arrays
-              1-bit   : single-threaded
-              1-bit   : multi-threaded
-              1-bit   : persistent
-       (low)  45-bits : RC */
-    size_t          m_header;
-#define LEAN_RC_NBITS 45
-#define LEAN_PERSISTENT_BIT 45
-#define LEAN_MT_BIT 46
-#define LEAN_ST_BIT 47
-#elif defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
-    /* (high) 8-bits  : tag
-              8-bits  : num fields for constructors, element size for scalar arrays
-              8-bits  : memory kind
-              8-bits  : <unused>
-       (low)  32-bits : RC */
-    size_t          m_header;
-#define LEAN_RC_NBITS 32
-#define LEAN_ST_MEM_KIND 0
-#define LEAN_MT_MEM_KIND 1
-#define LEAN_PERSISTENT_MEM_KIND 2
-#define LEAN_OTHER_MEM_KIND 3
-#else
-    size_t          m_rc;
-    uint8_t         m_tag;
-    uint8_t         m_mem_kind;
-    uint16_t        m_other;  /* num fields for constructors, element size for scalar arrays, etc. */
-#define LEAN_ST_MEM_KIND 0
-#define LEAN_MT_MEM_KIND 1
-#define LEAN_PERSISTENT_MEM_KIND 2
-#define LEAN_OTHER_MEM_KIND 3
-#endif
+    int      m_rc;        /* > 0 - single thread object, < 0 - multi threaded object, == 0 - persistent object. */
+    unsigned m_cs_sz:16;  /* for small objects stored in compact regions, this field contains the object size. It is 0, otherwise */
+    unsigned m_other:8;   /* number of fields for constructors, element size for scalar arrays */
+    unsigned m_tag:8;
 } lean_object;
 
 /*
 In our runtime, a Lean function consume the reference counter (RC) of its argument or not.
 We say this behavior is part of the "calling convention" for the function. We say an argument uses:
-
+x
 1- "standard" calling convention if it consumes/decrements the RC.
    In this calling convention each argument should be viewed as a resource that is consumed by the function.
    This is roughly equivalent to `S && a` in C++, where `S` is a smart pointer, and `a` is the argument.
@@ -378,19 +348,11 @@ lean_object * lean_alloc_object(size_t sz);
 void lean_free_object(lean_object * o);
 
 static inline uint8_t lean_ptr_tag(lean_object * o) {
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER) || defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
-    return LEAN_BYTE(o->m_header, 7);
-#else
     return o->m_tag;
-#endif
 }
 
 static inline unsigned lean_ptr_other(lean_object * o) {
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER) || defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
-    return LEAN_BYTE(o->m_header, 6);
-#else
     return o->m_other;
-#endif
 }
 
 /* The object size may be slightly bigger for constructor objects.
@@ -401,145 +363,54 @@ static inline unsigned lean_ptr_other(lean_object * o) {
 size_t lean_object_byte_size(lean_object * o);
 
 static inline bool lean_is_mt(lean_object * o) {
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER)
-    return ((o->m_header >> LEAN_MT_BIT) & 1) != 0;
-#elif defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
-    return LEAN_BYTE(o->m_header, 5) == LEAN_MT_MEM_KIND;
-#else
-    return o->m_mem_kind == LEAN_MT_MEM_KIND;
-#endif
+    return o->m_rc < 0;
 }
 
 static inline bool lean_is_st(lean_object * o) {
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER)
-    return ((o->m_header >> LEAN_ST_BIT) & 1) != 0;
-#elif defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
-    return LEAN_BYTE(o->m_header, 5) == LEAN_ST_MEM_KIND;
-#else
-    return o->m_mem_kind == LEAN_ST_MEM_KIND;
-#endif
+    return o->m_rc > 0;
 }
 
+/* We never update the reference counter of objects stored in compact regions and allocated at initialization time. */
 static inline bool lean_is_persistent(lean_object * o) {
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER)
-    return ((o->m_header >> LEAN_PERSISTENT_BIT) & 1) != 0;
-#elif defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
-    return LEAN_BYTE(o->m_header, 5) == LEAN_PERSISTENT_MEM_KIND;
-#else
-    return o->m_mem_kind == LEAN_PERSISTENT_MEM_KIND;
-#endif
+    return o->m_rc == 0;
 }
 
 static inline bool lean_has_rc(lean_object * o) {
-    return lean_is_st(o) || lean_is_mt(o);
+    return o->m_rc != 0;
 }
 
-static inline _Atomic(size_t) * lean_get_rc_mt_addr(lean_object* o) {
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER) || defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
-    return (_Atomic(size_t)*)(&(o->m_header));
-#else
-    return (_Atomic(size_t)*)(&(o->m_rc));
-#endif
+static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
+    return (_Atomic(int)*)(&(o->m_rc));
 }
+
+void lean_inc_ref_cold(lean_object * o);
+void lean_inc_ref_n_cold(lean_object * o, unsigned n);
 
 static inline void lean_inc_ref(lean_object * o) {
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER)
-    if (LEAN_LIKELY(lean_is_st(o))) {
-        o->m_header++;
-    } else if (lean_is_mt(o)) {
-        LEAN_USING_STD;
-        atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), (size_t)1, memory_order_relaxed);
-    }
-#elif defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
-    if (LEAN_LIKELY(lean_is_st(o))) {
-        o->m_header++;
-        #ifdef LEAN_CHECK_RC_OVERFLOW
-        if (LEAN_UNLIKELY(((uint32_t)o->m_header) == 0)) {
-            lean_internal_panic_rc_overflow();
-        }
-        #endif
-    } else if (lean_is_mt(o)) {
-        LEAN_USING_STD;
-        #ifdef LEAN_CHECK_RC_OVERFLOW
-        uint32_t old_rc = (uint32_t)
-        #endif
-        atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), (size_t)1, memory_order_relaxed);
-        #ifdef LEAN_CHECK_RC_OVERFLOW
-        if (LEAN_UNLIKELY(old_rc + 1 == 0)) {
-            lean_internal_panic_rc_overflow();
-        }
-        #endif
-    }
-#else
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_rc++;
-    } else if (lean_is_mt(o)) {
-        LEAN_USING_STD;
-        atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), (size_t)1, memory_order_relaxed);
+    } else {
+        lean_inc_ref_cold(o);
     }
-#endif
 }
 
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER)
-    if (LEAN_LIKELY(lean_is_st(o))) {
-        o->m_header += n;
-    } else if (lean_is_mt(o)) {
-        LEAN_USING_STD;
-        atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
-    }
-#elif defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
-    if (LEAN_LIKELY(lean_is_st(o))) {
-        o->m_header += n;
-        #ifdef LEAN_CHECK_RC_OVERFLOW
-        if (LEAN_UNLIKELY(((uint32_t)o->m_header) < n)) {
-            lean_internal_panic_rc_overflow();
-        }
-        #endif
-    } else if (lean_is_mt(o)) {
-        LEAN_USING_STD;
-        #ifdef LEAN_CHECK_RC_OVERFLOW
-        uint32_t old_rc = (uint32_t)
-        #endif
-        atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
-        #ifdef LEAN_CHECK_RC_OVERFLOW
-        if (LEAN_UNLIKELY(old_rc + n < n)) {
-            lean_internal_panic_rc_overflow();
-        }
-        #endif
-    }
-#else
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_rc += n;
     } else if (lean_is_mt(o)) {
-        LEAN_USING_STD;
-        atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
+        lean_inc_ref_n_cold(o, n);
     }
-#endif
 }
 
+bool lean_dec_ref_core_cold(lean_object * o);
+
 static inline bool lean_dec_ref_core(lean_object * o) {
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER) || defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
-    if (LEAN_LIKELY(lean_is_st(o))) {
-        o->m_header--;
-        return ((o->m_header) & ((1ull << LEAN_RC_NBITS) - 1)) == 0;
-    } else if (lean_is_mt(o)) {
-        LEAN_USING_STD;
-        return (atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), (size_t)1, memory_order_acq_rel) & ((1ull << LEAN_RC_NBITS) - 1)) == 1;
-    } else {
-        return false;
-    }
-#else
-    if (LEAN_LIKELY(lean_is_st(o))) {
+    if (LEAN_LIKELY(o->m_rc > 1)) {
         o->m_rc--;
-        return o->m_rc == 0;
-    } else if (lean_is_mt(o)) {
-        LEAN_USING_STD;
-        return atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), (size_t)1, memory_order_acq_rel) == 1;
-    } else {
         return false;
+    } else {
+        return lean_dec_ref_core_cold(o);
     }
-#endif
 }
 
 /* Generic Lean object delete operation. */
@@ -579,97 +450,41 @@ static inline lean_ref_object * lean_to_ref(lean_object * o) { assert(lean_is_re
 static inline lean_external_object * lean_to_external(lean_object * o) { assert(lean_is_external(o)); return (lean_external_object*)(o); }
 
 static inline bool lean_is_exclusive(lean_object * o) {
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER) || defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
-    if (LEAN_LIKELY(lean_is_st(o))) {
-        return ((o->m_header) & ((1ull << LEAN_RC_NBITS) - 1)) == 1;
-    } else {
-        // In theory, an MT object with RC 1 can also be used for destructive updates as long as
-        // the single reference is reachable only from a single thread (which is the case when
-        // it is on the stack/passed to a primitive, in contrast to stored in another object).
-        // However, we would need to add an additional check to this function (which is inlined)
-        // and also reset the mem kind of `o` to ST, and the object will be iterated over anyway
-        // when we put it back in an MT context. So we focus on the more common ST case instead.
-        return false;
-    }
-#else
     if (LEAN_LIKELY(lean_is_st(o))) {
         return o->m_rc == 1;
     } else {
         return false;
     }
-#endif
 }
 
 static inline bool lean_is_shared(lean_object * o) {
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER) || defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
-    if (LEAN_LIKELY(lean_is_st(o))) {
-        return ((o->m_header) & ((1ull << LEAN_RC_NBITS) - 1)) > 1;
-    } else {
-        return false;
-    }
-#else
     if (LEAN_LIKELY(lean_is_st(o))) {
         return o->m_rc > 1;
     } else {
         return false;
     }
-#endif
-}
-
-static inline bool lean_nonzero_rc(lean_object * o) {
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER) || defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
-    if (LEAN_LIKELY(lean_is_st(o))) {
-        return ((o->m_header) & ((1ull << LEAN_RC_NBITS) - 1)) > 0;
-    } else if (lean_is_mt(o)) {
-        LEAN_USING_STD;
-        return (atomic_load_explicit(lean_get_rc_mt_addr(o), memory_order_acquire) & ((1ull << LEAN_RC_NBITS) - 1)) > 0;
-    } else {
-        return false;
-    }
-#else
-    if (LEAN_LIKELY(lean_is_st(o))) {
-        return o->m_rc > 0;
-    } else if (lean_is_mt(o)) {
-        LEAN_USING_STD;
-        return atomic_load_explicit(lean_get_rc_mt_addr(o), memory_order_acquire) > 0;
-    } else {
-        return false;
-    }
-#endif
 }
 
 void lean_mark_mt(lean_object * o);
 void lean_mark_persistent(lean_object * o);
 
 static inline void lean_set_st_header(lean_object * o, unsigned tag, unsigned other) {
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER)
-    o->m_header   = ((size_t)(tag) << 56) | ((size_t)(other) << 48) | (1ull << LEAN_ST_BIT) | 1;
-#elif defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
-    o->m_header   = ((size_t)(tag) << 56) | ((size_t)(other) << 48) | ((size_t)LEAN_ST_MEM_KIND << 40) | 1;
-#else
     o->m_rc       = 1;
     o->m_tag      = tag;
-    o->m_mem_kind = LEAN_ST_MEM_KIND;
     o->m_other    = other;
-#endif
+    o->m_cs_sz    = 0;
 }
 
 /* Remark: we don't need a reference counter for objects that are not stored in the heap.
    Thus, we use the area to store the object size for small objects. */
 static inline void lean_set_non_heap_header(lean_object * o, size_t sz, unsigned tag, unsigned other) {
     assert(sz > 0);
-    assert(sz < (1ull << 45));
+    assert(sz < (1ull << 16));
     assert(sz == 1 || !lean_is_big_object_tag(tag));
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER)
-    o->m_header   = ((size_t)(tag) << 56) | ((size_t)(other) << 48) | sz;
-#elif defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
-    o->m_header   = ((size_t)(tag) << 56) | ((size_t)(other) << 48) | ((size_t)LEAN_OTHER_MEM_KIND << 40) | sz;
-#else
-    o->m_rc       = sz;
+    o->m_rc       = 0;
     o->m_tag      = tag;
-    o->m_mem_kind = LEAN_OTHER_MEM_KIND;
     o->m_other    = other;
-#endif
+    o->m_cs_sz    = sz;
 }
 
 /* `lean_set_non_heap_header` for (potentially) big objects such as arrays and strings. */
@@ -713,11 +528,7 @@ static inline void lean_ctor_set(b_lean_obj_arg o, unsigned i, lean_obj_arg v) {
 
 static inline void lean_ctor_set_tag(b_lean_obj_arg o, uint8_t new_tag) {
     assert(new_tag <= LeanMaxCtorTag);
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER) || defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
-    LEAN_BYTE(o->m_header, 7) = new_tag;
-#else
     o->m_tag = new_tag;
-#endif
 }
 
 static inline void lean_ctor_release(b_lean_obj_arg o, unsigned i) {

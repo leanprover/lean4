@@ -949,7 +949,7 @@ def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := withRef decl <| withFr
     let ref := arg
     if arg.getKind == `Lean.Parser.Term.doIdDecl then
       let id     := arg[0]
-      let type   := expandOptType ref arg[1]
+      let type   := expandOptType id arg[1]
       let doElem := arg[3]
       -- `doElem` must be a `doExpr action`. See `doLetArrowToCode`
       match isDoExpr? doElem with

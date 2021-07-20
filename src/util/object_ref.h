@@ -18,7 +18,7 @@ protected:
     object * m_obj;
 public:
     object_ref():m_obj(box(0)) {}
-    explicit object_ref(obj_arg o):m_obj(o) { lean_assert(is_scalar(o) || !is_heap_obj(o) || lean_nonzero_rc(o)); }
+    explicit object_ref(obj_arg o):m_obj(o) {}
     object_ref(b_obj_arg o, bool):m_obj(o) { inc(o); }
     object_ref(object_ref const & s):m_obj(s.m_obj) { inc(m_obj); }
     object_ref(object_ref && s):m_obj(s.m_obj) { s.m_obj = box(0); }

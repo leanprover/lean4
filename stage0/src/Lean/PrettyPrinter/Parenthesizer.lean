@@ -137,7 +137,7 @@ unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryPa
     name := `categoryParenthesizer,
     descr := "Register a parenthesizer for a syntax category.
 
-  [parenthesizer cat] registers a declaration of type `Lean.PrettyPrinter.CategoryParenthesizer` for the category `cat`,
+  [categoryParenthesizer cat] registers a declaration of type `Lean.PrettyPrinter.CategoryParenthesizer` for the category `cat`,
   which is used when parenthesizing calls of `categoryParser cat prec`. Implementations should call `maybeParenthesize`
   with the precedence and `cat`. If no category parenthesizer is registered, the category will never be parenthesized,
   but still be traversed for parenthesizing nested categories.",
@@ -146,7 +146,7 @@ unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryPa
       let env ← getEnv
       let id ← Attribute.Builtin.getId stx
       if Parser.isParserCategory env id then pure id
-      else throwError "invalid [parenthesizer] argument, unknown parser category '{toString id}'"
+      else throwError "invalid [categoryParenthesizer] argument, unknown parser category '{toString id}'"
   } `Lean.PrettyPrinter.categoryParenthesizerAttribute
 @[builtinInit mkCategoryParenthesizerAttribute] constant categoryParenthesizerAttribute : KeyedDeclsAttribute CategoryParenthesizer
 
@@ -208,7 +208,7 @@ def maybeParenthesize (cat : Name) (canJuxtapose : Bool) (mkParen : Syntax → S
   x
   let { minPrec := some minPrec, trailPrec := trailPrec, trailCat := trailCat, .. } ← get
     | trace[PrettyPrinter.parenthesize] "visited a syntax tree without precedences?!{line ++ fmt stx}"
-  trace[PrettyPrinter.parenthesize] ("...precedences are {prec} >? {minPrec}" ++ if canJuxtapose then m!", {(trailPrec, trailCat)} <=? {(st.contPrec, st.contCat)}" else "")
+  trace[PrettyPrinter.parenthesize] (m!"...precedences are {prec} >? {minPrec}" ++ if canJuxtapose then m!", {(trailPrec, trailCat)} <=? {(st.contPrec, st.contCat)}" else "")
   -- Should we parenthesize?
   if (prec > minPrec || canJuxtapose && match trailPrec, st.contPrec with | some trailPrec, some contPrec => trailCat == st.contCat && trailPrec <= contPrec | _, _ => false) then
       -- The recursive `visit` call, by the invariant, has moved to the preceding node. In order to parenthesize

@@ -615,31 +615,41 @@ def isCharLit? (stx : Syntax) : Option Char :=
   | some val => decodeCharLit val
   | _        => none
 
-private partial def decodeNameLitAux (s : String) (i : Nat) (r : Name) : Option Name :=
-  OptionM.run do
-    let continue? (i : Nat) (r : Name) : OptionM Name :=
-      if s.get i == '.' then
-         decodeNameLitAux s (s.next i) r
-      else if s.atEnd i then
-         pure r
-      else
-         none
-    let curr := s.get i
-    if isIdBeginEscape curr then
-      let startPart := s.next i
-      let stopPart  := s.nextUntil isIdEndEscape startPart
-      if !isIdEndEscape (s.get stopPart) then none
-      else continue? (s.next stopPart) (Name.mkStr r (s.extract startPart stopPart))
-    else if isIdFirst curr then
-      let startPart := i
-      let stopPart  := s.nextWhile isIdRest startPart
-      continue? stopPart (Name.mkStr r (s.extract startPart stopPart))
+private partial def splitNameLitAux (ss : Substring) (acc : List Substring) : List Substring :=
+  let splitRest (ss : Substring) (acc : List Substring) : List Substring :=
+    if ss.front == '.' then
+      splitNameLitAux (ss.drop 1) acc
+    else if ss.isEmpty then
+      acc
     else
-      none
+      []
+  if ss.isEmpty then []
+  else
+    let curr := ss.front
+    if isIdBeginEscape curr then
+      let escapedPart := ss.takeWhile (!isIdEndEscape ·)
+      let escapedPart := { escapedPart with stopPos := ss.stopPos.min (escapedPart.str.next escapedPart.stopPos) }
+      if !isIdEndEscape (escapedPart.get <| escapedPart.prev escapedPart.bsize) then []
+      else splitRest (ss.extract escapedPart.bsize ss.bsize) (escapedPart :: acc)
+    else if isIdFirst curr then
+      let idPart := ss.takeWhile isIdRest
+      splitRest (ss.extract idPart.bsize ss.bsize) (idPart :: acc)
+    else
+      []
+
+/-- Split a name literal (without the backtick) into its dot-separated components. For example,
+`foo.bla.«bo.o»` ↦ `["foo", "bla", "«bo.o»"]`. If the literal cannot be parsed, return `[]`. -/
+def splitNameLit (ss : Substring) : List Substring :=
+  splitNameLitAux ss [] |>.reverse
 
 def decodeNameLit (s : String) : Option Name :=
   if s.get 0 == '`' then
-    decodeNameLitAux s 1 Name.anonymous
+    match splitNameLitAux (s.toSubstring.drop 1) [] with
+    | [] => none
+    | comps => some <| comps.foldr (init := Name.anonymous)
+      fun comp n =>
+        let comp := if isIdBeginEscape comp.front then comp.drop 1 |>.dropRight 1 else comp
+        Name.mkStr n comp.toString
   else
     none
 
@@ -752,10 +762,6 @@ macro_rules
   | `(prec| $a - $b) => do `(prec| $(quote <| (← evalPrec a) - (← evalPrec b)):numLit)
 
 macro "eval_prec " p:prec:max : term => return quote (← evalPrec p)
-
-def evalOptPrec : Option Syntax → MacroM Nat
-  | some prec => evalPrec prec
-  | none      => return 0
 
 /- Evaluator for `prio` DSL -/
 def evalPrio (stx : Syntax) : MacroM Nat :=

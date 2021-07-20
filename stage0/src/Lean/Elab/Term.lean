@@ -937,7 +937,7 @@ private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : Term
 def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDecl) :=
   return (← get).syntheticMVars.find? fun d => d.mvarId == mvarId
 
-def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) : TermElabM (Sum Info MVarId) := do
+def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (isBinder := false) : TermElabM (Sum Info MVarId) := do
   let isHole? : TermElabM (Option MVarId) := do
     match e with
     | Expr.mvar mvarId _ =>
@@ -947,11 +947,11 @@ def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Op
       | _                                                   => return none
     | _ => pure none
   match (← isHole?) with
-  | none        => return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType? }
+  | none        => return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder }
   | some mvarId => return Sum.inr mvarId
 
-def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (elaborator := Name.anonymous) : TermElabM Unit := do
-  withInfoContext' (pure ()) (fun _ => mkTermInfo elaborator stx e expectedType? lctx?) |> discard
+def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (elaborator := Name.anonymous) (isBinder := false) : TermElabM Unit := do
+  withInfoContext' (pure ()) (fun _ => mkTermInfo elaborator stx e expectedType? lctx? isBinder) |> discard
 
 /-
   Helper function for `elabTerm` is tries the registered elaboration functions for `stxNode` kind until it finds one that supports the syntax or
@@ -1379,29 +1379,8 @@ def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? :
   | Syntax.ident info rawStr n preresolved =>
     let r ← resolveName ident n preresolved explicitLevels expectedType?
     r.mapM fun (c, fields) => do
-      let (cSstr, fields) := fields.foldr (init := (rawStr, [])) fun field (restSstr, fs) =>
-        let fieldSstr := restSstr.takeRightWhile (· ≠ '.')
-        ({ restSstr with stopPos := restSstr.stopPos - (fieldSstr.bsize + 1) }, (field, fieldSstr) :: fs)
-      let mkIdentFromPos pos rawVal val :=
-        let info := match info with
-        | SourceInfo.original .. => SourceInfo.original "".toSubstring pos "".toSubstring (pos + rawVal.bsize)
-        | _                      => SourceInfo.synthetic pos (pos + rawVal.bsize)
-        Syntax.ident info rawVal val []
-      let id := match c with
-        | Expr.const id _ _ => id
-        | Expr.fvar id _    => id
-        | _                 => unreachable!
-      let id := mkIdentFromPos (ident.getPos?.getD 0) cSstr id
-      match info.getPos? with
-      | none =>
-        return (c, id, fields.map fun (field, _) => mkIdentFrom ident (Name.mkSimple field))
-      | some pos =>
-        let mut pos := pos + cSstr.bsize + 1
-        let mut newFields := #[]
-        for (field, fieldSstr) in fields do
-          newFields := newFields.push <| mkIdentFromPos pos fieldSstr (Name.mkSimple field)
-          pos := pos + fieldSstr.bsize + 1
-        return (c, id, newFields.toList)
+      let ids := ident.identComponents (nFields? := fields.length)
+      return (c, ids.head!, ids.tail!)
   | _ => throwError "identifier expected"
 
 def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (Option Expr) :=

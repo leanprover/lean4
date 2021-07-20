@@ -20,9 +20,9 @@ macro_rules
 -- Auxiliary parsers and functions for declaring notation with binders
 
 syntax binderIdent                := ident <|> "_"
-syntax unbracktedExplicitBinders  := binderIdent+ (" : " term)?
+syntax unbracketedExplicitBinders := binderIdent+ (" : " term)?
 syntax bracketedExplicitBinders   := "(" binderIdent+ " : " term ")"
-syntax explicitBinders            := bracketedExplicitBinders+ <|> unbracktedExplicitBinders
+syntax explicitBinders            := bracketedExplicitBinders+ <|> unbracketedExplicitBinders
 
 def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) (type? : Option Syntax) (body : Syntax) : MacroM Syntax :=
   let rec loop (i : Nat) (acc : Syntax) := do
@@ -51,7 +51,7 @@ def expandBrackedBindersAux (combinator : Syntax) (binders : Array Syntax) (body
 def expandExplicitBinders (combinatorDeclName : Name) (explicitBinders : Syntax) (body : Syntax) : MacroM Syntax := do
   let combinator := mkIdentFrom (← getRef) combinatorDeclName
   let explicitBinders := explicitBinders[0]
-  if explicitBinders.getKind == `Lean.unbracktedExplicitBinders then
+  if explicitBinders.getKind == `Lean.unbracketedExplicitBinders then
     let idents   := explicitBinders[0].getArgs
     let type? := if explicitBinders[1].isNone then none else some explicitBinders[1][1]
     expandExplicitBindersAux combinator idents type? body

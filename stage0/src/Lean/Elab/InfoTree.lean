@@ -37,6 +37,7 @@ structure TermInfo extends ElabInfo where
   lctx : LocalContext -- The local context when the term was elaborated.
   expectedType? : Option Expr
   expr : Expr
+  isBinder : Bool := false
   deriving Inhabited
 
 structure CommandInfo extends ElabInfo where
@@ -101,12 +102,12 @@ inductive InfoTree where
   | hole (mvarId : MVarId) -- The elaborator creates holes (aka metavariables) for tactics and postponed terms
   deriving Inhabited
 
-partial def InfoTree.findInfo? (p : Info → Bool) (t : InfoTree) : Option InfoTree :=
+partial def InfoTree.findInfo? (p : Info → Bool) (t : InfoTree) : Option Info :=
   match t with
   | context _ t => findInfo? p t
   | node i ts   =>
     if p i then
-      some t
+      some i
     else
       ts.findSome? (findInfo? p)
   | _ => none

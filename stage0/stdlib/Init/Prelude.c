@@ -10060,7 +10060,7 @@ lean_object* l_Lean_mkAtomFrom(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_Lean_Syntax_getHeadInfo(x_1);
+x_3 = l_Lean_SourceInfo_fromRef(x_1);
 x_4 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);

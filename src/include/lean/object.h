@@ -50,7 +50,6 @@ inline bool is_shared(object * o) { return lean_is_shared(o); }
 inline bool is_exclusive(object * o) { return lean_is_exclusive(o); }
 inline void inc_ref(object * o) { lean_inc_ref(o); }
 inline void inc_ref(object * o, size_t n) { lean_inc_ref_n(o, n); }
-inline bool dec_ref_core(object * o) { return lean_dec_ref_core(o); }
 inline void dec_ref(object * o) { lean_dec_ref(o); }
 inline void inc(object * o) { lean_inc(o); }
 inline void inc(object * o, size_t n) { lean_inc_n(o, n); }

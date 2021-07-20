@@ -70,21 +70,11 @@ extern "C" object * lean_sorry(uint8) {
 }
 
 extern "C" void lean_inc_ref_cold(lean_object * o) {
-    if (o->m_rc == 0)
-        return;
     atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), 1, memory_order_relaxed);
 }
 
 extern "C" void lean_inc_ref_n_cold(lean_object * o, unsigned n) {
-    if (o->m_rc == 0)
-        return;
     atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
-}
-
-extern "C" bool lean_dec_ref_core_cold(lean_object * o) {
-    if (o->m_rc == 1) return true;
-    if (o->m_rc == 0) return false;
-    return atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, memory_order_acq_rel) == -1;
 }
 
 extern "C" size_t lean_object_byte_size(lean_object * o) {
@@ -164,8 +154,17 @@ static inline lean_object * pop_back(lean_object * & todo) {
 }
 
 static inline void dec(lean_object * o, lean_object* & todo) {
-    if (!lean_is_scalar(o) && lean_dec_ref_core(o))
+    if (lean_is_scalar(o))
+        return;
+    if (LEAN_LIKELY(o->m_rc > 1)) {
+        o->m_rc--;
+    } else if (o->m_rc == 1) {
         push_back(todo, o);
+    } else if (o->m_rc == 0) {
+        return;
+    } else if (atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, memory_order_acq_rel) == -1) {
+        push_back(todo, o);
+    }
 }
 
 #ifdef LEAN_LAZY_RC
@@ -247,19 +246,22 @@ static void lean_del_core(object * o, object * & todo) {
     }
 }
 
-extern "C" void lean_del(object * o) {
+extern "C" void lean_dec_ref_cold(lean_object * o) {
+    if (o->m_rc == 1 || atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, memory_order_acq_rel) == -1) {
 #ifdef LEAN_LAZY_RC
-    push_back(g_to_free, o);
+        push_back(g_to_free, o);
 #else
-    object * todo = nullptr;
-    while (true) {
-        lean_del_core(o, todo);
-        if (todo == nullptr)
-            return;
-        o = pop_back(todo);
-    }
+        object * todo = nullptr;
+        while (true) {
+            lean_del_core(o, todo);
+            if (todo == nullptr)
+                return;
+            o = pop_back(todo);
+        }
 #endif
+    }
 }
+
 
 // =======================================
 // Closures

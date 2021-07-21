@@ -37,7 +37,7 @@ Lean: Init Std
 leanshared: Init Std Lean
 	@mkdir -p "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" || true
 # can't use leanc here since it would try to link against leanshared
-	${CMAKE_CXX_COMPILER_LAUNCHER} ${CMAKE_CXX_COMPILER} -shared -o "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}" ${LEANSHARED_LINKER_FLAGS} ${LEANC_GMP} -L${LIB}/lean
+	${CMAKE_CXX_COMPILER_LAUNCHER} ${CMAKE_CXX_COMPILER} -shared -o "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}" ${LEANSHARED_LINKER_FLAGS} ${GMP_LIBRARIES} ${LEANC_EXTRA_FLAGS} -L${LIB}/lean
 
 Leanpkg: Init Std Lean leanshared
 	+"${LEAN_BIN}/leanmake" bin PKG=Leanpkg BIN_NAME=leanpkg${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS='-lleanshared ${CMAKE_EXE_LINKER_FLAGS_MAKE}'

@@ -1344,29 +1344,50 @@ instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (ReaderT ρ m) where
 end
 
 section
-variable {ρ : Type u} {m : Type u → Type v} [Monad m] {α β : Type u}
+variable {ρ : Type u} {m : Type u → Type v} {α β : Type u}
 
-@[inline] protected def read : ReaderT ρ m ρ :=
+@[inline] protected def read [Pure m] : ReaderT ρ m ρ :=
   pure
 
-@[inline] protected def pure (a : α) : ReaderT ρ m α :=
-  fun r => pure a
-
-@[inline] protected def bind (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) : ReaderT ρ m β :=
-  fun r => bind (x r) fun a => f a r
-
-@[inline] protected def map (f : α → β) (x : ReaderT ρ m α) : ReaderT ρ m β :=
+@[inline] protected def map [Functor m] (f : α → β) (x : ReaderT ρ m α) : ReaderT ρ m β :=
   fun r => Functor.map f (x r)
 
-instance : Monad (ReaderT ρ m) where
-  pure := ReaderT.pure
-  bind := ReaderT.bind
-  map  := ReaderT.map
+instance [Functor m] : Functor (ReaderT ρ m) where 
+  map := ReaderT.map
 
-instance (ρ m) [Monad m] : MonadFunctor m (ReaderT ρ m) where
+@[inline] protected def pure [Pure m] (a : α) : ReaderT ρ m α :=
+  fun r => pure a
+
+instance [Pure m] : Pure (ReaderT ρ m) := ⟨ReaderT.pure⟩
+
+@[inline] protected def seq [Seq m] (f : ReaderT ρ m (α → β)) (x : ReaderT ρ m α) : ReaderT ρ m β :=
+  fun r => Seq.seq (f r) (x r)
+
+instance [Seq m] : Seq (ReaderT ρ m) := ⟨ReaderT.seq⟩
+
+@[inline] protected def seqLeft [SeqLeft m] (xa : ReaderT ρ m α) (xb : ReaderT ρ m β) : ReaderT ρ m α :=
+  fun r => SeqLeft.seqLeft (xa r) (xb r)
+
+instance [SeqLeft m] : SeqLeft (ReaderT ρ m) := ⟨ReaderT.seqLeft⟩
+
+@[inline] protected def seqRight [SeqRight m] (xa : ReaderT ρ m α) (xb : ReaderT ρ m β) : ReaderT ρ m β :=
+  fun r => SeqRight.seqRight (xa r) (xb r)
+
+instance [SeqRight m] : SeqRight (ReaderT ρ m) := ⟨ReaderT.seqRight⟩
+
+instance [Applicative m] : Applicative (ReaderT ρ m) := {}
+
+@[inline] protected def bind [Bind m] (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) : ReaderT ρ m β :=
+  fun r => bind (x r) fun a => f a r
+
+instance [Bind m] : Bind (ReaderT ρ m) := ⟨ReaderT.bind⟩ 
+
+instance [Monad m] : Monad (ReaderT ρ m) := {}
+
+instance (ρ m) : MonadFunctor m (ReaderT ρ m) where
   monadMap f x := fun ctx => f (x ctx)
 
-@[inline] protected def adapt {ρ' : Type u} [Monad m] {α : Type u} (f : ρ' → ρ) : ReaderT ρ m α → ReaderT ρ' m α :=
+@[inline] protected def adapt {ρ' : Type u} {α : Type u} (f : ρ' → ρ) : ReaderT ρ m α → ReaderT ρ' m α :=
   fun x r => x (f r)
 
 end
@@ -1400,7 +1421,7 @@ instance (ρ : Type u) (m : Type u → Type v) [MonadReaderOf ρ m] : MonadReade
 instance {ρ : Type u} {m : Type u → Type v} {n : Type u → Type w} [MonadLift m n] [MonadReaderOf ρ m] : MonadReaderOf ρ n where
   read := liftM (m := m) read
 
-instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadReaderOf ρ (ReaderT ρ m) where
+instance {ρ : Type u} {m : Type u → Type v} [Pure m] : MonadReaderOf ρ (ReaderT ρ m) where
   read := ReaderT.read
 
 class MonadWithReaderOf (ρ : Type u) (m : Type u → Type v) where

@@ -25,6 +25,11 @@ variable {ε : Type u}
   intro e
   simp [Except.map]; cases e <;> rfl
 
+theorem map_comp (g : α → β) (h : β → γ) : Except.map (ε := ε) (h ∘ g) = (Except.map h ∘ Except.map g) := by
+  apply funext
+  intro e
+  simp [Except.map]; cases e <;> rfl
+
 @[inline] protected def mapError (f : ε → ε') : Except ε α → Except ε' α
   | Except.error err => Except.error <| f err
   | Except.ok v      => Except.ok v
@@ -62,42 +67,43 @@ def ExceptT (ε : Type u) (m : Type u → Type v) (α : Type u) : Type v :=
 
 namespace ExceptT
 
-variable {ε : Type u} {m : Type u → Type v} [Monad m]
+variable {ε : Type u} {m : Type u → Type v}
 
-@[inline] protected def pure {α : Type u} (a : α) : ExceptT ε m α :=
+@[inline] protected def map [Functor m] {α β : Type u} (f : α → β) (x : ExceptT ε m α) : ExceptT ε m β :=
+  ExceptT.mk <| Except.map f <$> x.run 
+
+instance [Functor m] : Functor (ExceptT ε m) where
+  map := ExceptT.map
+
+@[inline] protected def pure [Pure m] {α : Type u} (a : α) : ExceptT ε m α :=
   ExceptT.mk <| pure (Except.ok a)
 
-@[inline] protected def bindCont {α β : Type u} (f : α → ExceptT ε m β) : Except ε α → m (Except ε β)
+instance [Pure m] : Pure (ExceptT ε m) := ⟨ExceptT.pure⟩
+
+@[inline] protected def bindCont [Pure m] {α β : Type u} (f : α → ExceptT ε m β) : Except ε α → m (Except ε β)
   | Except.ok a    => f a
   | Except.error e => pure (Except.error e)
 
-@[inline] protected def bind {α β : Type u} (ma : ExceptT ε m α) (f : α → ExceptT ε m β) : ExceptT ε m β :=
+@[inline] protected def bind [Monad m] {α β : Type u} (ma : ExceptT ε m α) (f : α → ExceptT ε m β) : ExceptT ε m β :=
   ExceptT.mk <| ma >>= ExceptT.bindCont f
 
-@[inline] protected def map {α β : Type u} (f : α → β) (x : ExceptT ε m α) : ExceptT ε m β :=
-  ExceptT.mk <| x >>= fun a => match a with
-    | (Except.ok a)    => pure <| Except.ok (f a)
-    | (Except.error e) => pure <| Except.error e
+instance [Monad m] : Monad (ExceptT ε m) where
+  bind := ExceptT.bind
 
-@[inline] protected def lift {α : Type u} (t : m α) : ExceptT ε m α :=
+@[inline] protected def lift [Functor m] {α : Type u} (t : m α) : ExceptT ε m α :=
   ExceptT.mk <| Except.ok <$> t
 
-instance : MonadLift (Except ε) (ExceptT ε m) := ⟨fun e => ExceptT.mk <| pure e⟩
-instance : MonadLift m (ExceptT ε m) := ⟨ExceptT.lift⟩
+instance [Pure m] : MonadLift (Except ε) (ExceptT ε m) := ⟨fun e => ExceptT.mk <| pure e⟩
+instance [Functor m] : MonadLift m (ExceptT ε m) := ⟨ExceptT.lift⟩
 
-@[inline] protected def tryCatch {α : Type u} (ma : ExceptT ε m α) (handle : ε → ExceptT ε m α) : ExceptT ε m α :=
+@[inline] protected def tryCatch [Monad m] {α : Type u} (ma : ExceptT ε m α) (handle : ε → ExceptT ε m α) : ExceptT ε m α :=
   ExceptT.mk <| ma >>= fun res => match res with
    | Except.ok a    => pure (Except.ok a)
-   | Except.error e => (handle e)
+   | Except.error e => handle e
 
 instance : MonadFunctor m (ExceptT ε m) := ⟨fun f x => f x⟩
 
-instance : Monad (ExceptT ε m) where
-  pure := ExceptT.pure
-  bind := ExceptT.bind
-  map  := ExceptT.map
-
-@[inline] protected def adapt {ε' α : Type u} (f : ε → ε') : ExceptT ε m α → ExceptT ε' m α := fun x =>
+@[inline] protected def adapt [Functor m] {ε' α : Type u} (f : ε → ε') : ExceptT ε m α → ExceptT ε' m α := fun x =>
   ExceptT.mk <| Except.mapError f <$> x
 
 end ExceptT

@@ -32,22 +32,25 @@ instance {σ α} [Subsingleton σ] [Subsingleton α] : Subsingleton (StateM σ �
 
 namespace StateT
 section
-variable {σ : Type u} {m : Type u → Type v}
-variable [Monad m] {α β : Type u}
+variable {σ : Type u} {m : Type u → Type v} {α β : Type u}
 
-@[inline] protected def pure (a : α) : StateT σ m α :=
+@[inline] protected def map [Functor m] (f : α → β) (x : StateT σ m α) : StateT σ m β :=
+  fun s => x s <&> fun (a, s) => (f a, s)
+
+instance [Functor m] : Functor (StateT σ m) where
+  map := StateT.map
+
+@[inline] protected def pure [Pure m] (a : α) : StateT σ m α :=
   fun s => pure (a, s)
 
-@[inline] protected def bind (x : StateT σ m α) (f : α → StateT σ m β) : StateT σ m β :=
+instance [Pure m] : Pure (StateT σ m) := ⟨StateT.pure⟩
+
+@[inline] protected def bind [Bind m] (x : StateT σ m α) (f : α → StateT σ m β) : StateT σ m β :=
   fun s => do let (a, s) ← x s; f a s
 
-@[inline] protected def map (f : α → β) (x : StateT σ m α) : StateT σ m β :=
-  fun s => do let (a, s) ← x s; pure (f a, s)
+instance [Bind m] : Bind (StateT σ m) := ⟨StateT.bind⟩
 
-instance : Monad (StateT σ m) where
-  pure := StateT.pure
-  bind := StateT.bind
-  map  := StateT.map
+instance [Monad m] : Monad (StateT σ m) := {}
 
 @[inline] protected def orElse [Alternative m] {α : Type u} (x₁ x₂ : StateT σ m α) : StateT σ m α :=
   fun s => x₁ s <|> x₂ s
@@ -55,27 +58,27 @@ instance : Monad (StateT σ m) where
 @[inline] protected def failure [Alternative m] {α : Type u} : StateT σ m α :=
   fun s => failure
 
-instance [Alternative m] : Alternative (StateT σ m) where
+instance [Monad m] [Alternative m] : Alternative (StateT σ m) where
   failure := StateT.failure
   orElse  := StateT.orElse
 
-@[inline] protected def get : StateT σ m σ :=
+@[inline] protected def get [Pure m] : StateT σ m σ :=
   fun s => pure (s, s)
 
-@[inline] protected def set : σ → StateT σ m PUnit :=
+@[inline] protected def set [Pure m] : σ → StateT σ m PUnit :=
   fun s' s => pure (⟨⟩, s')
 
-@[inline] protected def modifyGet (f : σ → α × σ) : StateT σ m α :=
+@[inline] protected def modifyGet [Pure m] (f : σ → α × σ) : StateT σ m α :=
   fun s => pure (f s)
 
-@[inline] protected def lift {α : Type u} (t : m α) : StateT σ m α :=
-  fun s => do let a ← t; pure (a, s)
+@[inline] protected def lift [Functor m] {α : Type u} (t : m α) : StateT σ m α :=
+  fun s => t <&> fun a => (a, s)
 
-instance : MonadLift m (StateT σ m) := ⟨StateT.lift⟩
+instance [Functor m] : MonadLift m (StateT σ m) := ⟨StateT.lift⟩
 
-instance (σ m) [Monad m] : MonadFunctor m (StateT σ m) := ⟨fun f x s => f (x s)⟩
+instance (σ m) : MonadFunctor m (StateT σ m) := ⟨fun f x s => f (x s)⟩
 
-instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (StateT σ m) := {
+instance (ε) [MonadExceptOf ε m] [Functor m] : MonadExceptOf ε (StateT σ m) := {
   throw    := StateT.lift ∘ throwThe ε
   tryCatch := fun x c s => tryCatchThe ε (x s) (fun e => c e s)
 }
@@ -86,7 +89,7 @@ end StateT
 section
 variable {σ : Type u} {m : Type u → Type v}
 
-instance [Monad m] : MonadStateOf σ (StateT σ m) where
+instance [Pure m] : MonadStateOf σ (StateT σ m) where
   get       := StateT.get
   set       := StateT.set
   modifyGet := StateT.modifyGet

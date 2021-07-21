@@ -19,47 +19,55 @@ def OptionT (m : Type u → Type v) (α : Type u) : Type v :=
   x
 
 namespace OptionT
-variable {m : Type u → Type v} [Monad m] {α β : Type u}
+variable {m : Type u → Type v} {α β : Type u}
 
 protected def mk (x : m (Option α)) : OptionT m α :=
   x
 
-@[inline] protected def bind (x : OptionT m α) (f : α → OptionT m β) : OptionT m β := OptionT.mk do
+@[inline] protected def map [Functor m] (f : α → β) (x : OptionT m α) : OptionT m β :=
+  OptionT.mk <| Option.map f <$> x.run 
+
+instance [Functor m] : Functor (OptionT m) where 
+  map := OptionT.map
+
+@[inline] protected def pure [Pure m] (a : α) : OptionT m α := OptionT.mk do
+  pure (some a)
+
+instance [Pure m] : Pure (OptionT m) := ⟨OptionT.pure⟩
+
+@[inline] protected def bind [Monad m] (x : OptionT m α) (f : α → OptionT m β) : OptionT m β := OptionT.mk do
   match (← x) with
   | some a => f a
   | none   => pure none
 
-@[inline] protected def pure (a : α) : OptionT m α := OptionT.mk do
-  pure (some a)
-
-instance : Monad (OptionT m) where
+instance [Monad m] : Monad (OptionT m) where
   pure := OptionT.pure
   bind := OptionT.bind
 
-@[inline] protected def orElse (x : OptionT m α) (y : OptionT m α) : OptionT m α := OptionT.mk do
+@[inline] protected def orElse [Monad m] (x : OptionT m α) (y : OptionT m α) : OptionT m α := OptionT.mk do
   match (← x) with
   | some a => pure (some a)
   | _      => y
 
-@[inline] protected def fail : OptionT m α := OptionT.mk do
+@[inline] protected def fail [Pure m] : OptionT m α := OptionT.mk do
   pure none
 
-instance : Alternative (OptionT m) where
+instance [Monad m] : Alternative (OptionT m) where
   failure := OptionT.fail
   orElse  := OptionT.orElse
 
-@[inline] protected def lift (x : m α) : OptionT m α := OptionT.mk do
-  return some (← x)
+@[inline] protected def lift [Functor m] (x : m α) : OptionT m α := 
+  OptionT.mk <| some <$> x
 
-instance : MonadLift m (OptionT m) := ⟨OptionT.lift⟩
+instance [Functor m] : MonadLift m (OptionT m) := ⟨OptionT.lift⟩
 
 instance : MonadFunctor m (OptionT m) := ⟨fun f x => f x⟩
 
-@[inline] protected def tryCatch (x : OptionT m α) (handle : Unit → OptionT m α) : OptionT m α := OptionT.mk do
+@[inline] protected def tryCatch [Monad m] (x : OptionT m α) (handle : Unit → OptionT m α) : OptionT m α := OptionT.mk do
   let some a ← x | handle ()
   pure a
 
-instance : MonadExceptOf Unit (OptionT m) where
+instance [Monad m] : MonadExceptOf Unit (OptionT m) where
   throw    := fun _ => OptionT.fail
   tryCatch := OptionT.tryCatch
 

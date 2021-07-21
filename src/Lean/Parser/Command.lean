@@ -45,7 +45,7 @@ def «axiom»          := leading_parser "axiom " >> declId >> declSig
 def «example»        := leading_parser "example " >> declSig >> declVal
 def inferMod         := leading_parser atomic (symbol "{" >> "}")
 def ctor             := leading_parser "\n| " >> declModifiers true >> ident >> optional inferMod >> optDeclSig
-def derivingClasses  := sepBy1 (ident >> optional (" with " >> Term.structInst)) ", "
+def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> Term.structInst))) ", "
 def optDeriving      := leading_parser optional (atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def «inductive»      := leading_parser "inductive " >> declId >> optDeclSig >> optional (symbol ":=" <|> "where") >> many ctor >> optDeriving
 def classInductive   := leading_parser atomic (group (symbol "class " >> "inductive ")) >> declId >> optDeclSig >> optional (symbol ":=" <|> "where") >> many ctor >> optDeriving

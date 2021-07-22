@@ -254,7 +254,7 @@ elseif (MULTI_THREAD)
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MT ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 endif ()
 
-if ("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
+if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
   include_directories(${GMP_INSTALL_PREFIX}/include)
   set(GMP_LIBRARIES "${GMP_INSTALL_PREFIX}/lib/libgmp.a")
 else()
@@ -291,6 +291,9 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean -lnodefs.js")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  # `-pie` defaulting is not consistent on Linux distributions, so let's default to off
+  set(LEANC_STATIC_LINKER_FLAGS "-no-pie -Wl,--start-group -lleancpp -lInit -lStd -lLean -Wl,--end-group -lbcrypt")
 else()
   # `-pie` defaulting is not consistent on Linux distributions, so let's default to off
   set(LEANC_STATIC_LINKER_FLAGS "-no-pie -Wl,--start-group -lleancpp -lInit -lStd -lLean -Wl,--end-group")

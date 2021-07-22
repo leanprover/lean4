@@ -7,6 +7,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #if defined(LEAN_WINDOWS)
 #include <windows.h>
 #include <io.h>
+#include <ntdef.h>
 #include <bcrypt.h>
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
@@ -405,14 +406,14 @@ extern "C" obj_res lean_io_get_random_bytes (size_t nbytes, obj_arg /* w */) {
     while (remain > 0) {
 #if defined(LEAN_WINDOWS)
         // Prevent ULONG (32-bit) overflow
-        size_t read_sz = std::min(remain, std::numeric_limits<uint32_t>::max());
+        size_t read_sz = std::min(remain, static_cast<size_t>(std::numeric_limits<uint32_t>::max()));
         NTSTATUS status = BCryptGenRandom(
             NULL,
             lean_sarray_cptr(res),
             static_cast<ULONG>(read_sz),
             BCRYPT_USE_SYSTEM_PREFERRED_RNG
         );
-        if (status != STATUS_SUCCESS) {
+        if (!NT_SUCCESS(status)) {
             dec_ref(res);
             return io_result_mk_error("BCryptGenRandom failed");
         }

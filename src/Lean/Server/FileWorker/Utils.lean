@@ -54,7 +54,7 @@ structure EditableDocument where
   deriving Inhabited
 
 structure RpcSession where
-  sessionId : USize
+  sessionId : UInt64
   /-- Objects that are being kept alive for the RPC client, together with their type names,
   mapped to by their RPC reference.
 

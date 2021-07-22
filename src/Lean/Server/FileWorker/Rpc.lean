@@ -30,7 +30,7 @@ private def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) 
                               message := s!"No RPC method '{p.method}' bound" }
   proc.wrapper p.sessionId p.params
 
-private def handleRpcDec (p : Lsp.RpcDecParams) : RequestM (RequestTask Json) := do
+private def handleRpcRelease (p : Lsp.RpcReleaseParams) : RequestM (RequestTask Json) := do
   let rc ← read
   let some rpcSesh ← rc.rpcSesh?
     | throwThe RequestError { code := JsonRpc.ErrorCode.rpcNotInitialized
@@ -43,8 +43,8 @@ private def handleRpcDec (p : Lsp.RpcDecParams) : RequestM (RequestTask Json) :=
     return Json.null
 
 builtin_initialize
-  registerLspRequestHandler "$/lean/rpc/call" Lsp.RpcCallParams Json handleRpcCall
-  registerLspRequestHandler "$/lean/rpc/dec"  Lsp.RpcDecParams  Json handleRpcDec
+  registerLspRequestHandler "$/lean/rpc/call"    Lsp.RpcCallParams    Json handleRpcCall
+  registerLspRequestHandler "$/lean/rpc/release" Lsp.RpcReleaseParams Json handleRpcRelease
 
 def registerRpcCallHandler (method : Name)
     paramType

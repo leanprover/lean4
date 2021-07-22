@@ -18,7 +18,7 @@ be initialized as follows:
 namespace Lean.Server
 
 private structure RpcProcedure where
-  wrapper : (sessionId : USize) → Json → RequestM (RequestTask Json)
+  wrapper : (sessionId : UInt64) → Json → RequestM (RequestTask Json)
 
 builtin_initialize rpcProcedures : IO.Ref (Std.PersistentHashMap Name RpcProcedure) ←
   IO.mkRef {}

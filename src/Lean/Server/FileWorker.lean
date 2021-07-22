@@ -275,10 +275,12 @@ section NotificationHandling
   def handleRpcInitialize (p : RpcInitializeParams) : WorkerM Unit := do
     let ctx ← read
     let doc := (←get).doc
-    let newId ← USize.ofNat <$> IO.monoMsNow -- TODO may crash if called twice within the same millisecond?
+    /- We generate a random ID to ensure that session IDs do not repeat across re-initializations
+    and worker restarts. Otherwise, the client may attempt to use outdated references. -/
+    let newId ← ByteArray.toUInt64LE! <$> IO.getRandomBytes 8
     let newAliveRefs ← IO.mkRef Std.PersistentHashMap.empty
-    -- Just setting this should `dec` the previous session. Any associated references should
-    -- become collectable once all in-use references to the old session go out of scope.
+    /- Just setting this should `dec` the previous session. Any associated references
+    will then no longer be kept alive for the client. -/
     modify fun st => { st with rpcSesh := some { sessionId := newId, aliveRefs := newAliveRefs } }
     ctx.hOut.writeLspNotification
       <| { method := "$/lean/rpc/initialized"

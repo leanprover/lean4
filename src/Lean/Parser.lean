@@ -14,29 +14,35 @@ import Lean.Parser.Do
 
 namespace Lean
 namespace Parser
+open Lean.PrettyPrinter
+open Lean.PrettyPrinter.Parenthesizer
+open Lean.PrettyPrinter.Formatter
 
 builtin_initialize
-  registerAlias "ws" checkWsBefore
-  registerAlias "noWs" checkNoWsBefore
-  registerAlias "linebreak" checkLinebreakBefore
-  registerAlias "num" numLit
-  registerAlias "str" strLit
-  registerAlias "char" charLit
-  registerAlias "name" nameLit
-  registerAlias "ident" ident
-  registerAlias "colGt" checkColGt
-  registerAlias "colGe" checkColGe
-  registerAlias "lookahead" lookahead
-  registerAlias "atomic" atomic
-  registerAlias "many" many
-  registerAlias "many1" many1
+  register_parser_alias "ws" checkWsBefore
+  register_parser_alias "noWs" checkNoWsBefore
+  register_parser_alias "linebreak" checkLinebreakBefore
+  register_parser_alias "num" numLit
+  register_parser_alias "str" strLit
+  register_parser_alias "char" charLit
+  register_parser_alias "name" nameLit
+  register_parser_alias "ident" ident
+  register_parser_alias "colGt" checkColGt
+  register_parser_alias "colGe" checkColGe
+  register_parser_alias "lookahead" lookahead
+  register_parser_alias "atomic" atomic
+  register_parser_alias "many" many
+  register_parser_alias "many1" many1
+  register_parser_alias "optional" optional
+  register_parser_alias "withPosition" withPosition
+  register_parser_alias "interpolatedStr" interpolatedStr
+  register_parser_alias "orelse" orelse
+  register_parser_alias "andthen" andthen
+  register_parser_alias "incQuotDepth" incQuotDepth
+
   registerAlias "notFollowedBy" (notFollowedBy · "element")
-  registerAlias "optional" optional
-  registerAlias "withPosition" withPosition
-  registerAlias "interpolatedStr" interpolatedStr
-  registerAlias "orelse" orelse
-  registerAlias "andthen" andthen
-  registerAlias "incQuotDepth" incQuotDepth
+  Parenthesizer.registerAlias "notFollowedBy" notFollowedBy.parenthesizer
+  Formatter.registerAlias "notFollowedBy" notFollowedBy.formatter
 
 end Parser
 

@@ -6,7 +6,7 @@ syntax (name := roundtrip) "#roundtrip " ident : command
 
 @[commandElab roundtrip] def elabRoundtrip : CommandElab
 | `(#roundtrip%$tk $name:ident) => withoutModifyingEnv do
-  let [name] ← resolveGlobalConst name.getId | throwError "cannot resolve name"
+  let [name] ← resolveGlobalConst name | throwError "cannot resolve name"
   let some cInfo ← (← getEnv).find? name | throwError "no such decl: {name}"
   let ns := cInfo.name.getRoot
   let cmdStx  ← liftTermElabM none do

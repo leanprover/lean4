@@ -31,7 +31,7 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) : IO
     descr := "initialization procedure for global references",
     getParam := fun declName stx => do
       let decl ← getConstInfo declName
-      match (← Attribute.Builtin.getId? stx) with
+      match (← Attribute.Builtin.getIdent? stx) with
       | some initFnName =>
         let initFnName ← resolveGlobalConstNoOverload initFnName
         let initDecl ← getConstInfo initFnName

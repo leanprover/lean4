@@ -93,18 +93,17 @@ end Elab
 abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) compare
 
 structure WorkerContext where
-  hIn                : FS.Stream
-  hOut               : FS.Stream
-  hLog               : FS.Stream
-  srcSearchPath      : SearchPath
+  hIn           : FS.Stream
+  hOut          : FS.Stream
+  hLog          : FS.Stream
+  srcSearchPath : SearchPath
 
 structure WorkerState where
   doc             : EditableDocument
   pendingRequests : PendingRequestMap
   rpcSesh         : Option RpcSession
 
--- NOTE(WN): StateT or StateRefT?
-abbrev WorkerM := ReaderT WorkerContext <| StateT WorkerState IO
+abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
 /- Worker initialization sequence. -/
 section Initialization
@@ -369,7 +368,7 @@ def initAndRunWorker (i o e : FS.Stream) : IO UInt32 := do
   let _ ← IO.setStderr e
   try
     let (ctx, st) ← initializeWorker meta i o e
-    let _ ← StateT.run (s := st) <| ReaderT.run (r := ctx) mainLoop
+    let _ ← StateRefT'.run (s := st) <| ReaderT.run (r := ctx) mainLoop
     return (0 : UInt32)
   catch e =>
     IO.eprintln e

@@ -87,10 +87,10 @@ structure RpcInitialized where
   sessionId : USize
   deriving FromJson, ToJson
 
-/-- A request for Lean to execute a function previously bound for RPC.
+/-- A client request to execute a procedure previously bound for RPC.
 
 Extending TDPP is weird. But in Lean, symbols exist in the context of a position
-within a source file. So we need this to call user code in the env at that position. -/
+within a source file. So we need this to refer to code in the env at that position. -/
 structure RpcCallParams extends TextDocumentPositionParams where
   sessionId : USize
   /-- Procedure to invoke. Must be fully qualified. -/
@@ -98,9 +98,10 @@ structure RpcCallParams extends TextDocumentPositionParams where
   params : Json
   deriving FromJson, ToJson
 
-/-- A request to decrement the RC on a remote reference. Should be invoked by the client
-when it no longer needs such a reference. -/
-structure RpcDecParams where
+/-- A client request to release a remote reference. Should be invoked by the client
+when it no longer needs an `RpcRef` it has previously received from the server.
+Not doing so is safe but will leak memory. -/
+structure RpcReleaseParams where
   uri : DocumentUri
   sessionId : USize
   ref : RpcRef

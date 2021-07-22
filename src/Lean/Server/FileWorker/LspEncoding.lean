@@ -136,18 +136,14 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
   let cmds : Syntax ← liftTermElabM none do
     -- Return the `β`, if any, in `LspEncoding tp β`.
     let hasLspEncoding? (tp : Expr) : TermElabM (Option Expr) := do
+      let β ← mkFreshExprMVar (mkSort levelOne)
       let clTp ←
         try
-          let β ← mkFreshExprMVar (mkSort levelOne)
           mkAppM ``LspEncoding #[tp, β]
         catch ex =>
-          throwError "failed to construct 'LspEncoding {tp} ?_':\n{ex.toMessageData}"
+          throwError "failed to construct 'LspEncoding {tp} {β}':\n{ex.toMessageData}"
       match (← trySynthInstance clTp) with
-      | LOption.some e =>
-        let eT ← inferType e
-        if !eT.isAppOfArity ``LspEncoding 2 then
-          throwError "expected 'LspEncoding {tp} ?_', got '{eT}'"
-        some eT.appArg!
+      | LOption.some _ => instantiateMVars β
       | _ => none
 
     forallTelescopeReducing ctorVal.type fun xs _ => do
@@ -170,7 +166,6 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
       let fieldIds := fields.map mkIdent
       let fieldEncTIds := fieldEncTs.map mkIdent
 
-      -- HACK(WN): the syntax this produces looks royally messed up but elaborates fine
       let fieldInsts (func : Name) := do fieldIds.mapM fun fid =>
         `(Parser.Term.structInstField| $fid:ident := ← $(mkIdent func):ident a.$fid:ident)
       let encFields ← fieldInsts ``lspEncode
@@ -232,7 +227,7 @@ private unsafe def dispatchDeriveInstanceUnsafe (declNames : Array Name) (args? 
 private constant dispatchDeriveInstance (declNames : Array Name) (args? : Option Syntax) : CommandElabM Bool
 
 builtin_initialize
-  Elab.registerBuiltinDerivingHandler' ``LspEncoding dispatchDeriveInstance
+  Elab.registerBuiltinDerivingHandlerWithArgs ``LspEncoding dispatchDeriveInstance
 
 end LspEncoding
 

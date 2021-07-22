@@ -13,7 +13,7 @@ def DerivingHandlerNoArgs := (typeNames : Array Name) → CommandElabM Bool
 
 builtin_initialize derivingHandlersRef : IO.Ref (NameMap DerivingHandler) ← IO.mkRef {}
 
-def registerBuiltinDerivingHandler' (className : Name) (handler : DerivingHandler) : IO Unit := do
+def registerBuiltinDerivingHandlerWithArgs (className : Name) (handler : DerivingHandler) : IO Unit := do
   let initializing ← IO.initializing
   unless initializing do
     throw (IO.userError "failed to register deriving handler, it can only be registered during initialization")
@@ -22,7 +22,7 @@ def registerBuiltinDerivingHandler' (className : Name) (handler : DerivingHandle
   derivingHandlersRef.modify fun m => m.insert className handler
 
 def registerBuiltinDerivingHandler (className : Name) (handler : DerivingHandlerNoArgs) : IO Unit := do
-  registerBuiltinDerivingHandler' className fun typeNames _ => handler typeNames
+  registerBuiltinDerivingHandlerWithArgs className fun typeNames _ => handler typeNames
 
 def defaultHandler (className : Name) (typeNames : Array Name) : CommandElabM Unit := do
   throwError "default handlers have not been implemented yet, class: '{className}' types: {typeNames}"
@@ -50,8 +50,6 @@ structure DerivingClassView where
   className : Name
   args? : Option Syntax
 
-/- def derivingClasses  := sepBy1 (ident >> optional (" with " >> Term.structInst)) ", "
-leading_parser optional ("deriving " >> derivingClasses) -/
 def getOptDerivingClasses [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadInfoTree m] (optDeriving : Syntax) : m (Array DerivingClassView) := do
   match optDeriving with
   | `(Parser.Command.optDeriving| deriving $[$classes $[with $argss?]?],*) =>

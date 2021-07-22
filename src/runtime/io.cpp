@@ -386,26 +386,6 @@ extern "C" obj_res lean_io_mono_ms_now(obj_arg /* w */) {
     return io_result_mk_ok(usize_to_nat(tm.count()));
 }
 
-/* Handle.read : (@& Handle) → USize → IO ByteArray */
-// extern "C" obj_res lean_io_prim_handle_read(b_obj_arg h, usize nbytes, obj_arg /* w */) {
-//     FILE * fp = io_get_handle(h);
-//     if (feof(fp)) {
-//         return io_result_mk_ok(alloc_sarray(1, 0, 0));
-//     }
-//     obj_res res = lean_alloc_sarray(1, 0, nbytes);
-//     usize n = std::fread(lean_sarray_cptr(res), 1, nbytes, fp);
-//     if (n > 0) {
-//         lean_sarray_set_size(res, n);
-//         return io_result_mk_ok(res);
-//     } else if (feof(fp)) {
-//         dec_ref(res);
-//         return io_result_mk_ok(alloc_sarray(1, 0, 0));
-//     } else {
-//         dec_ref(res);
-//         return io_result_mk_error(decode_io_error(errno, nullptr));
-//     }
-// }
-
 /* getRandomBytes (nBytes : USize) : IO ByteArray */
 extern "C" obj_res lean_io_get_random_bytes (size_t nbytes, obj_arg /* w */) {
     // Adapted from https://github.com/rust-random/getrandom/blob/30308ae845b0bf3839e5a92120559eaf56048c28/src/

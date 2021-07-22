@@ -278,10 +278,13 @@ section NotificationHandling
     /- We generate a random ID to ensure that session IDs do not repeat across re-initializations
     and worker restarts. Otherwise, the client may attempt to use outdated references. -/
     let newId ← ByteArray.toUInt64LE! <$> IO.getRandomBytes 8
-    let newAliveRefs ← IO.mkRef Std.PersistentHashMap.empty
+    let newRpcState ← IO.mkRef {
+      aliveRefs := Std.PersistentHashMap.empty
+      nextRef := 0
+    }
     /- Just setting this should `dec` the previous session. Any associated references
     will then no longer be kept alive for the client. -/
-    modify fun st => { st with rpcSesh := some { sessionId := newId, aliveRefs := newAliveRefs } }
+    modify fun st => { st with rpcSesh := some { sessionId := newId, state := newRpcState } }
     ctx.hOut.writeLspNotification
       <| { method := "$/lean/rpc/initialized"
            param := { uri := doc.meta.uri

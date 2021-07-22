@@ -89,6 +89,10 @@ def lazyPure (fn : Unit → α) : IO α :=
 /-- Monotonically increasing time since an unspecified past point in milliseconds. No relation to wall clock time. -/
 @[extern "lean_io_mono_ms_now"] constant monoMsNow : IO Nat
 
+/-- Read bytes from a system entropy source. Not guaranteed to be cryptographically secure.
+If `nBytes = 0`, return immediately with an empty buffer. -/
+@[extern "lean_io_get_random_bytes"] constant getRandomBytes (nBytes : USize) : IO ByteArray
+
 def sleep (ms : UInt32) : IO Unit :=
   -- TODO: add a proper primitive for IO.sleep
   fun s => dbgSleep ms fun _ => EStateM.Result.ok () s

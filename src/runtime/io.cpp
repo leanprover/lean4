@@ -7,6 +7,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #if defined(LEAN_WINDOWS)
 #include <windows.h>
 #include <io.h>
+#include <bcrypt.h>
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
 #include <unistd.h>
@@ -17,6 +18,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 // Linux include files
 #include <unistd.h> // NOLINT
 #include <sys/mman.h>
+#include <sys/random.h>
 #endif
 #ifndef LEAN_WINDOWS
 #include <csignal>
@@ -318,7 +320,7 @@ extern "C" obj_res lean_io_prim_handle_read(b_obj_arg h, usize nbytes, obj_arg /
     }
 }
 
-/* Handle.write : (@& Handle) → (@& ByteArray) → IO unit */
+/* Handle.write : (@& Handle) → (@& ByteArray) → IO Unit */
 extern "C" obj_res lean_io_prim_handle_write(b_obj_arg h, b_obj_arg buf, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
     usize n = lean_sarray_size(buf);
@@ -382,6 +384,84 @@ extern "C" obj_res lean_io_mono_ms_now(obj_arg /* w */) {
     auto now = std::chrono::steady_clock::now();
     auto tm = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
     return io_result_mk_ok(usize_to_nat(tm.count()));
+}
+
+/* Handle.read : (@& Handle) → USize → IO ByteArray */
+// extern "C" obj_res lean_io_prim_handle_read(b_obj_arg h, usize nbytes, obj_arg /* w */) {
+//     FILE * fp = io_get_handle(h);
+//     if (feof(fp)) {
+//         return io_result_mk_ok(alloc_sarray(1, 0, 0));
+//     }
+//     obj_res res = lean_alloc_sarray(1, 0, nbytes);
+//     usize n = std::fread(lean_sarray_cptr(res), 1, nbytes, fp);
+//     if (n > 0) {
+//         lean_sarray_set_size(res, n);
+//         return io_result_mk_ok(res);
+//     } else if (feof(fp)) {
+//         dec_ref(res);
+//         return io_result_mk_ok(alloc_sarray(1, 0, 0));
+//     } else {
+//         dec_ref(res);
+//         return io_result_mk_error(decode_io_error(errno, nullptr));
+//     }
+// }
+
+/* getRandomBytes (nBytes : USize) : IO ByteArray */
+extern "C" obj_res lean_io_get_random_bytes (size_t nbytes, obj_arg /* w */) {
+    // Adapted from https://github.com/rust-random/getrandom/blob/30308ae845b0bf3839e5a92120559eaf56048c28/src/
+
+    if (nbytes == 0) return io_result_mk_ok(lean_alloc_sarray(1, 0, 0));
+
+#if !defined(LEAN_WINDOWS)
+    int fd_urandom = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
+    if (fd_urandom < 0) {
+        return io_result_mk_error(decode_io_error(errno, lean_mk_string("/dev/urandom")));
+    }
+#endif
+
+    obj_res res = lean_alloc_sarray(1, 0, nbytes);
+    size_t remain = nbytes;
+
+    while (remain > 0) {
+#if defined(LEAN_WINDOWS)
+        // Prevent ULONG (32-bit) overflow
+        size_t read_sz = std::min(remain, std::numeric_limits<uint32_t>::max());
+        NTSTATUS status = BCryptGenRandom(
+            NULL,
+            lean_sarray_cptr(res),
+            static_cast<ULONG>(read_sz),
+            BCRYPT_USE_SYSTEM_PREFERRED_RNG
+        );
+        if (status != STATUS_SUCCESS) {
+            dec_ref(res);
+            return io_result_mk_error("BCryptGenRandom failed");
+        }
+        remain -= read_sz;
+#else
+    #if defined(LEAN_EMSCRIPTEN)
+        // `Crypto.getRandomValues` documents `dest` should be at most 65536 bytes.
+        size_t read_sz = std::min(remain, 65536);
+    #else
+        size_t read_sz = remain;
+    #endif
+        ssize_t nread = read(fd_urandom, lean_sarray_cptr(res), read_sz);
+        if (nread < 0) {
+            if (errno != EINTR) {
+                close(fd_urandom);
+                dec_ref(res);
+                return io_result_mk_error(decode_io_error(errno, nullptr));
+            }
+        } else {
+            remain -= nread;
+        }
+#endif
+    }
+
+#if !defined(LEAN_WINDOWS)
+    close(fd_urandom);
+#endif
+    lean_sarray_set_size(res, nbytes);
+    return io_result_mk_ok(res);
 }
 
 /* timeit {α : Type} (msg : @& String) (fn : IO α) : IO α */

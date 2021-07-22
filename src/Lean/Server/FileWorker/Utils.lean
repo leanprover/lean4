@@ -53,14 +53,33 @@ structure EditableDocument where
   cancelTk   : CancelToken
   deriving Inhabited
 
-structure RpcSession where
-  sessionId : UInt64
+structure RpcSessionState where
   /-- Objects that are being kept alive for the RPC client, together with their type names,
   mapped to by their RPC reference.
 
   Note that we may currently have multiple references to the same object. It is only disposed
   of once all of those are gone. This simplifies the client a bit as it can drop every reference
   received separately. -/
-  aliveRefs : IO.Ref (Std.PersistentHashMap Lsp.RpcRef (Name × UntypedRef))
+  aliveRefs : Std.PersistentHashMap Lsp.RpcRef (Name × NonScalar)
+  /-- Value to use for the next `RpcRef`. It is monotonically increasing to avoid any possible
+  bugs resulting from its reuse. -/
+  nextRef   : USize
+
+namespace RpcSessionState
+
+def store (typeName : Name) (obj : NonScalar) (st : RpcSessionState) : Lsp.RpcRef × RpcSessionState :=
+  let ref := ⟨st.nextRef⟩
+  let st' := { st with aliveRefs := st.aliveRefs.insert ref (typeName, obj)
+                       nextRef := st.nextRef + 1 }
+  (ref, st')
+
+def release (ref : Lsp.RpcRef) (st : RpcSessionState) : RpcSessionState :=
+  { st with aliveRefs := st.aliveRefs.erase ref }
+
+end RpcSessionState
+
+structure RpcSession where
+  sessionId : UInt64
+  state     : IO.Ref RpcSessionState
 
 end Lean.Server.FileWorker

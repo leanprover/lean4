@@ -56,30 +56,32 @@ structure WithRpcRef (α : Type u) where
 
 namespace WithRpcRef
 
+/-- This is unsafe because we must ensure that:
+- the stored `NonScalar` is never used to access the value as a type other than `α`
+- the type `α` is not a scalar
+-/
 protected unsafe def encodeUnsafe (typeName : Name) (r : WithRpcRef α) : RequestM Lsp.RpcRef := do
   let rc ← read
   let some rpcSesh ← rc.rpcSesh?
     | throwThe IO.Error "internal server error: forgot to validate RPC session"
 
-  let ref ← IO.UntypedRef.mkRefUnsafe r.val
-  let uid := ⟨ref.ptr⟩ -- TODO random uuid?
-  rpcSesh.aliveRefs.modify fun refs => refs.insert uid (typeName, ref)
-  return uid
+  let obj : NonScalar := unsafeCast r.val
+  rpcSesh.state.modifyGet fun st => st.store typeName obj
 
 protected unsafe def decodeUnsafeAs (α) (typeName : Name) (r : Lsp.RpcRef) : RequestM (WithRpcRef α) := do
   let rc ← read
   let some rpcSesh ← rc.rpcSesh?
     | throwThe IO.Error "internal server error: forgot to validate RPC session"
 
-  match (← rpcSesh.aliveRefs.get).find? r with
+  match (← rpcSesh.state.get).aliveRefs.find? r with
     | none => throwThe RequestError { code := JsonRpc.ErrorCode.invalidParams
                                       message := s!"RPC reference '{r}' is not valid" }
-    | some (nm, ref) =>
+    | some (nm, obj) =>
       if nm != typeName then
         throwThe RequestError { code := JsonRpc.ErrorCode.invalidParams
                                 message := s!"RPC call type mismatch in reference '{r}'\n" ++
                                             "expected '{typeName}', got '{nm}'" }
-      WithRpcRef.mk <$> ref.getAsUnsafe α
+      WithRpcRef.mk <$> unsafeCast obj
 
 end WithRpcRef
 
@@ -115,9 +117,6 @@ private def deriveWithRefInstance (typeNm : Name) : CommandElabM Bool := do
   )
   elabCommand cmds
   return true
-
--- TODO remove
-elab "mkWithRefInstance" typeId:ident : command => do let _ ← deriveWithRefInstance typeId.getId
 
 /-- Creates an `LspPacket` structure for `α` with all fields of `α` replaced by their `LspEncoding`
 and uses that to instantiate `LspEncoding α LspPacket`. -/

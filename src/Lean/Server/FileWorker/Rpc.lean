@@ -38,7 +38,7 @@ private def handleRpcRelease (p : Lsp.RpcReleaseParams) : RequestM (RequestTask 
   if p.sessionId ≠ rpcSesh.sessionId then
     throwThe RequestError { code := JsonRpc.ErrorCode.rpcNotInitialized
                             message := s!"Outdated RPC session" }
-  rpcSesh.aliveRefs.modify fun refs => refs.erase p.ref
+  rpcSesh.state.modify fun st => st.release p.ref
   RequestM.asTask do
     return Json.null
 

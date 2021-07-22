@@ -2,10 +2,19 @@ import Lean.Server.FileWorker.LspEncoding
 
 open Lean Server
 
-structure Foo where
+structure FooRef where
   a : Array Nat
   deriving LspEncoding with { withRef := true }
 
+structure FooJson where
+  s : String
+  deriving FromJson, ToJson
+
 structure Bar where
-  fooRef : WithRpcRef Foo
+  fooRef : WithRpcRef FooRef
+  fooJson : FooJson
+  deriving LspEncoding
+
+structure BarTrans where
+  bar : Bar
   deriving LspEncoding

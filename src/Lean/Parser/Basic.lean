@@ -724,7 +724,6 @@ def takeWhileFn (p : Char → Bool) : ParserFn :=
 @[inline] def takeWhile1Fn (p : Char → Bool) (errorMsg : String) : ParserFn :=
   andthenFn (satisfyFn p errorMsg) (takeWhileFn p)
 
-variable (startPos : String.Pos) in
 partial def finishCommentBlock (nesting : Nat) : ParserFn := fun c s =>
   let input := c.input
   let i     := s.pos
@@ -749,7 +748,7 @@ partial def finishCommentBlock (nesting : Nat) : ParserFn := fun c s =>
         else finishCommentBlock nesting c (s.setPos i)
     else finishCommentBlock nesting c (s.setPos i)
 where
-  eoi s := s.mkUnexpectedErrorAt "unterminated comment" startPos
+  eoi s := s.mkUnexpectedError "unterminated comment"
 
 /- Consume whitespace and comments -/
 partial def whitespace : ParserFn := fun c s =>
@@ -774,7 +773,7 @@ partial def whitespace : ParserFn := fun c s =>
         let i    := input.next i
         let curr := input.get i
         if curr == '-' then s -- "/--" doc comment is an actual token
-        else andthenFn (finishCommentBlock startPos 1) whitespace c (s.next input i)
+        else andthenFn (finishCommentBlock 1) whitespace c (s.next input i)
       else s
     else s
 

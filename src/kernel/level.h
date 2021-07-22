@@ -52,8 +52,6 @@ public:
     level & operator=(level && other) { object_ref::operator=(other); return *this; }
 
     friend bool is_eqp(level const & l1, level const & l2) { return l1.raw() == l2.raw(); }
-    void serialize(serializer & s) const { s.write_object(raw()); }
-    static level deserialize(deserializer & d) { return level(d.read_object(), true); }
 
     bool is_zero() const { return kind() == level_kind::Zero; }
     bool is_succ() const { return kind() == level_kind::Succ; }
@@ -82,12 +80,6 @@ inline bool operator!=(level const & l1, level const & l2) { return !operator==(
 
 struct level_hash { unsigned operator()(level const & n) const { return n.hash(); } };
 struct level_eq { bool operator()(level const & n1, level const & n2) const { return n1 == n2; } };
-
-inline serializer & operator<<(serializer & s, level const & l) { l.serialize(s); return s; }
-inline serializer & operator<<(serializer & s, levels const & ls) { ls.serialize(s); return s; }
-inline level read_level(deserializer & d) { return level::deserialize(d); }
-inline levels read_levels(deserializer & d) { return read_list_ref<level>(d); }
-inline deserializer & operator>>(deserializer & d, level & l) { l = read_level(d); return d; }
 
 inline optional<level> none_level() { return optional<level>(); }
 inline optional<level> some_level(level const & e) { return optional<level>(e); }

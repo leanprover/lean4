@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "util/timeit.h"
 #include <lean/stackinfo.h>
 #include <lean/thread.h>
-#include <lean/serializer.h>
 #include <lean/sstream.h>
 #include "util/object_ref.h"
 #include "util/array_ref.h"
@@ -92,26 +91,6 @@ void tst4() {
     lean_assert(string_eq(r3, "hello world"));
     lean_assert(string_eq(r4, "hello world"));
     USED(r3); USED(r4);
-}
-
-void tst5() {
-    object_ref t(mk_thunk(alloc_closure(r, 0)));
-    std::ostringstream out;
-    serializer s(out);
-    object_ref o(mk_string("bla bla"));
-    s.write_object(o.raw());
-    s.write_object(t.raw());
-    s.write_object(t.raw());
-    std::istringstream in(out.str());
-    deserializer d(in);
-    d.read_object();
-    object * r1 = d.read_object();
-    object * r2 = d.read_object();
-    lean_assert(r1 == r2);
-    lean_assert(is_thunk(r1));
-    object * str = thunk_get(r1);
-    lean_assert(strcmp(string_cstr(str), "hello world") == 0);
-    USED(r2); USED(str);
 }
 
 unsigned g_counter = 0;

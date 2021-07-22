@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include "util/test.h"
-#include <lean/serializer.h>
 #include <lean/sstream.h>
 #include <lean/compact.h>
 #include "util/object_ref.h"

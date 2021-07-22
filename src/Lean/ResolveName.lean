@@ -199,17 +199,35 @@ def resolveNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] 
   | some ns => return ns
   | none    => throwError s!"unknown namespace '{id}'"
 
-/- Similar to `resolveGlobalName`, but discard any candidate whose `fieldList` is not empty. -/
-def resolveGlobalConst [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (n : Name) : m (List Name) := do
+/--
+Similar to `resolveGlobalName`, but discard any candidate whose `fieldList` is not empty.
+For identifiers taken from syntax, use `resolveGlobalConst` instead, which respects preresolved names. -/
+def resolveGlobalConstCore [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (n : Name) : m (List Name) := do
   let cs ← resolveGlobalName n
   let cs := cs.filter fun (_, fieldList) => fieldList.isEmpty
   if cs.isEmpty then throwUnknownConstant n
   return cs.map (·.1)
 
-def resolveGlobalConstNoOverload [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (n : Name) : m Name := do
-  let cs ← resolveGlobalConst n
+/-- For identifiers taken from syntax, use `resolveGlobalConstNoOverload` instead, which respects preresolved names. -/
+def resolveGlobalConstNoOverloadCore [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (n : Name) : m Name := do
+  let cs ← resolveGlobalConstCore n
   match cs with
   | [c] => pure c
   | _   => throwError s!"ambiguous identifier '{mkConst n}', possible interpretations: {cs.map mkConst}"
+
+def resolveGlobalConst [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] : Syntax → m (List Name)
+  | Syntax.ident _ _ n pre => do
+    let pre := pre.filterMap fun (n, fields) => if fields.isEmpty then some n else none
+    if pre.isEmpty then
+      resolveGlobalConstCore n
+    else
+      return pre
+  | stx => throwErrorAt stx s!"expected identifier"
+
+def resolveGlobalConstNoOverload [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Syntax) : m Name := do
+  let cs ← resolveGlobalConst id
+  match cs with
+  | [c] => pure c
+  | _   => throwError s!"ambiguous identifier '{id}', possible interpretations: {cs.map mkConst}"
 
 end Lean

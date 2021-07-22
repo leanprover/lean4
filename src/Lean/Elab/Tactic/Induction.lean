@@ -344,7 +344,7 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
     pure (elimName, ← getElimInfo elimName)
   else
     let elimId := optElimId[1]
-    let elimName ← withRef elimId do resolveGlobalConstNoOverloadWithInfo elimId elimId.getId.eraseMacroScopes
+    let elimName ← withRef elimId do resolveGlobalConstNoOverloadWithInfo elimId
     pure (elimName, ← withRef elimId do getElimInfo elimName)
 
 @[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx => focus do

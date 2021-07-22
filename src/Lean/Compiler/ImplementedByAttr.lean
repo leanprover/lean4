@@ -13,7 +13,7 @@ builtin_initialize implementedByAttr : ParametricAttribute Name ← registerPara
   descr := "name of the Lean (probably unsafe) function that implements opaque constant"
   getParam := fun declName stx => do
     let decl ← getConstInfo declName
-    let fnName ← Attribute.Builtin.getId stx
+    let fnName ← Attribute.Builtin.getIdent stx
     let fnName ← resolveGlobalConstNoOverload fnName
     let fnDecl ← getConstInfo fnName
     unless decl.type == fnDecl.type do

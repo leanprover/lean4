@@ -72,26 +72,29 @@ def Attribute.Builtin.ensureNoArgs (stx : Syntax) : AttrM Unit := do
     | Syntax.missing => return () -- In the elaborator, we use `Syntax.missing` when creating attribute views for simple attributes such as `class and `inline
     | _              => throwErrorAt stx "unexpected attribute argument"
 
-def Attribute.Builtin.getId (stx : Syntax) : AttrM Name := do
-  if stx.getKind == `Lean.Parser.Attr.simple && !stx[1].isNone then
-    if stx[1][0].isIdent then
-      return stx[1][0].getId
+def Attribute.Builtin.getIdent? (stx : Syntax) : AttrM (Option Syntax) := do
+  if stx.getKind == `Lean.Parser.Attr.simple then
+    if !stx[1].isNone && stx[1][0].isIdent then
+      return stx[1][0]
     else
-      throwErrorAt stx "unexpected attribute argument, identifier expected"
+      return none
   /- We handle `macro` here because it is handled by the generic `KeyedDeclsAttribute -/
   else if stx.getKind == `Lean.Parser.Attr.«macro» || stx.getKind == `Lean.Parser.Attr.«export» then
-    return stx[1].getId
-  else
-    throwErrorAt stx "unexpected attribute argument, identifier expected"
-
-def Attribute.Builtin.getId? (stx : Syntax) : AttrM (Option Name) := do
-  if stx.getKind == `Lean.Parser.Attr.simple then
-    if stx[1].isNone then
-      return none
-    else
-      return stx[1][0].getId
+    return stx[1]
   else
     throwErrorAt stx "unexpected attribute argument"
+
+def Attribute.Builtin.getIdent (stx : Syntax) : AttrM Syntax := do
+  match (← getIdent? stx) with
+  | some id => return id
+  | none    => throwErrorAt stx "unexpected attribute argument, identifier expected"
+
+def Attribute.Builtin.getId? (stx : Syntax) : AttrM (Option Name) := do
+  let ident? ← getIdent? stx
+  return Syntax.getId <$> ident?
+
+def Attribute.Builtin.getId (stx : Syntax) : AttrM Name := do
+  return (← getIdent stx).getId
 
 def getAttrParamOptPrio (optPrioStx : Syntax) : AttrM Nat :=
   if optPrioStx.isNone then

@@ -1,0 +1,3 @@
+(+) : Nat → Nat → Nat
+HAdd.hAdd 2 : Nat → Nat
+2 + 3 : Nat

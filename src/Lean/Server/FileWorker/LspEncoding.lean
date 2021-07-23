@@ -1,3 +1,9 @@
+/-
+Copyright (c) 2021 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Authors: Wojciech Nawrocki
+-/
 import Lean.Elab.Command
 import Lean.Elab.Term
 import Lean.Elab.Deriving.Basic
@@ -65,7 +71,7 @@ protected unsafe def encodeUnsafe (typeName : Name) (r : WithRpcRef α) : Reques
   let some rpcSesh ← rc.rpcSesh?
     | throwThe IO.Error "internal server error: forgot to validate RPC session"
 
-  let obj : NonScalar := unsafeCast r.val
+  let obj := @unsafeCast α NonScalar r.val
   rpcSesh.state.modifyGet fun st => st.store typeName obj
 
 protected unsafe def decodeUnsafeAs (α) (typeName : Name) (r : Lsp.RpcRef) : RequestM (WithRpcRef α) := do
@@ -81,7 +87,7 @@ protected unsafe def decodeUnsafeAs (α) (typeName : Name) (r : Lsp.RpcRef) : Re
         throwThe RequestError { code := JsonRpc.ErrorCode.invalidParams
                                 message := s!"RPC call type mismatch in reference '{r}'\n" ++
                                             "expected '{typeName}', got '{nm}'" }
-      WithRpcRef.mk <$> unsafeCast obj
+      WithRpcRef.mk <| @unsafeCast NonScalar α obj
 
 end WithRpcRef
 

@@ -1,5 +1,12 @@
+/-
+Copyright (c) 2021 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Authors: Wojciech Nawrocki
+-/
 import Lean.Elab.Command
 import Lean.Elab.Term
+import Lean.PrettyPrinter
 import Lean.Elab.Deriving.Basic
 import Lean.Server.Requests
 
@@ -65,7 +72,7 @@ protected unsafe def encodeUnsafe (typeName : Name) (r : WithRpcRef α) : Reques
   let some rpcSesh ← rc.rpcSesh?
     | throwThe IO.Error "internal server error: forgot to validate RPC session"
 
-  let obj : NonScalar := unsafeCast r.val
+  let obj := @unsafeCast α NonScalar r.val
   rpcSesh.state.modifyGet fun st => st.store typeName obj
 
 protected unsafe def decodeUnsafeAs (α) (typeName : Name) (r : Lsp.RpcRef) : RequestM (WithRpcRef α) := do
@@ -81,7 +88,7 @@ protected unsafe def decodeUnsafeAs (α) (typeName : Name) (r : Lsp.RpcRef) : Re
         throwThe RequestError { code := JsonRpc.ErrorCode.invalidParams
                                 message := s!"RPC call type mismatch in reference '{r}'\n" ++
                                             "expected '{typeName}', got '{nm}'" }
-      WithRpcRef.mk <$> unsafeCast obj
+      WithRpcRef.mk <| @unsafeCast NonScalar α obj
 
 end WithRpcRef
 
@@ -155,15 +162,12 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
         let fieldT ← inferType x
         let some fieldEncT ← hasLspEncoding? fieldT
           | throwError "cannot synthesize 'LspEncoding {fieldT} ?_'"
-        -- TODO(WN): delab instead of using const name
-        let some fieldEncTName ← fieldEncT.constName?
-          | throwError "type '{fieldEncT}' is not constant"
-        fieldEncTs := fieldEncTs.push fieldEncTName
+        let fieldEncTStx ← PrettyPrinter.delab (← getCurrNamespace) (← getOpenDecls) fieldEncT
+        fieldEncTs := fieldEncTs.push fieldEncTStx
 
       let typeId := mkIdent typeName
 
       let fieldIds := fields.map mkIdent
-      let fieldEncTIds := fieldEncTs.map mkIdent
 
       let fieldInsts (func : Name) := do fieldIds.mapM fun fid =>
         `(Parser.Term.structInstField| $fid:ident := ← $(mkIdent func):ident a.$fid:ident)
@@ -172,11 +176,11 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
       `(
         namespace $typeId:ident
 
-        private structure LspPacket where
-          $[($fieldIds : $fieldEncTIds)]*
+        protected structure LspEncodingPacket where
+          $[($fieldIds : $fieldEncTs)]*
           deriving $(mkIdent ``Lean.FromJson), $(mkIdent ``Lean.ToJson)
 
-        instance : LspEncoding $typeId:ident LspPacket where
+        instance : LspEncoding $typeId:ident LspEncodingPacket where
           lspEncode a := do
             return {
               $[$encFields]*

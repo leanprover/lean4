@@ -18,3 +18,7 @@ structure Bar where
 structure BarTrans where
   bar : Bar
   deriving LspEncoding
+
+structure Baz where
+  arr : Array String -- non-constant field
+  deriving LspEncoding

@@ -12,6 +12,10 @@ Author: Leonardo de Moura
 #include <lean/lean.h>
 #include <lean/compact.h>
 
+#ifndef LEAN_WINDOWS
+#include <sys/mman.h>
+#endif
+
 #define LEAN_COMPACTOR_INIT_SZ 1024*1024
 #define LEAN_MAX_SHARING_TABLE_INITIAL_SIZE 1024*1024
 
@@ -356,8 +360,9 @@ void object_compactor::operator()(object * o) {
     insert_terminator(o);
 }
 
-compacted_region::compacted_region(size_t sz, void * data, void * base_addr):
+compacted_region::compacted_region(size_t sz, void * data, void * base_addr, void * mmap_addr):
     m_base_addr(base_addr),
+    m_mmap_addr(mmap_addr),
     m_begin(data),
     m_next(data),
     m_end(static_cast<char*>(data)+sz) {
@@ -371,7 +376,13 @@ compacted_region::compacted_region(object_compactor const & c):
 }
 
 compacted_region::~compacted_region() {
-    free(m_begin);
+    if (m_mmap_addr) {
+#ifndef LEAN_WINDOWS
+        munmap(m_mmap_addr, reinterpret_cast<size_t>(m_end) - reinterpret_cast<size_t>(m_mmap_addr));
+#endif
+    } else {
+        free(m_begin);
+    }
 }
 
 inline object * compacted_region::fix_object_ptr(object * o) {
@@ -451,6 +462,7 @@ object * compacted_region::read() {
             }
         }
     }
+    lean_assert(!m_mmap_addr);
 
     while (true) {
         lean_assert(static_cast<char*>(m_next) + sizeof(object) <= m_end);

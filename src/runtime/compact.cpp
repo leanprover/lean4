@@ -62,8 +62,9 @@ struct terminator_object {
     lean_object * m_value;
 };
 
-object_compactor::object_compactor():
+object_compactor::object_compactor(void * base_addr):
     m_max_sharing_table(new max_sharing_table(this)),
+    m_base_addr(base_addr),
     m_begin(malloc(LEAN_COMPACTOR_INIT_SZ)),
     m_end(m_begin),
     m_capacity(static_cast<char*>(m_begin) + LEAN_COMPACTOR_INIT_SZ) {
@@ -102,7 +103,7 @@ void * object_compactor::alloc(size_t sz) {
 
 void object_compactor::save(object * o, object * new_o) {
     lean_assert(m_begin <= new_o && new_o < m_end);
-    m_obj_table.insert(std::make_pair(o, reinterpret_cast<object_offset>(reinterpret_cast<char*>(new_o) - reinterpret_cast<char*>(m_begin))));
+    m_obj_table.insert(std::make_pair(o, reinterpret_cast<object_offset>(reinterpret_cast<char*>(new_o) - reinterpret_cast<char*>(m_begin) + reinterpret_cast<size_t>(m_base_addr))));
 }
 
 void object_compactor::save_max_sharing(object * o, object * new_o, size_t new_o_sz) {
@@ -278,7 +279,7 @@ void object_compactor::insert_mpz(object * o) {
     // we assume the limb array is the only indirection in an `__mpz_struct` and everything else can be bitcopied
     void * data = reinterpret_cast<char*>(new_o) + sizeof(mpz_object);
     memcpy(data, m._mp_d, data_sz);
-    m._mp_d = reinterpret_cast<mp_limb_t *>(reinterpret_cast<char *>(data) - reinterpret_cast<char *>(m_begin));
+    m._mp_d = reinterpret_cast<mp_limb_t *>(reinterpret_cast<char *>(data) - reinterpret_cast<char *>(m_begin) + reinterpret_cast<ptrdiff_t>(m_base_addr));
     m._mp_alloc = nlimbs;
     save(o, (lean_object*)new_o);
 }
@@ -355,7 +356,8 @@ void object_compactor::operator()(object * o) {
     insert_terminator(o);
 }
 
-compacted_region::compacted_region(size_t sz, void * data):
+compacted_region::compacted_region(size_t sz, void * data, void * base_addr):
+    m_base_addr(base_addr),
     m_begin(data),
     m_next(data),
     m_end(static_cast<char*>(data)+sz) {
@@ -374,7 +376,7 @@ compacted_region::~compacted_region() {
 
 inline object * compacted_region::fix_object_ptr(object * o) {
     if (lean_is_scalar(o)) return o;
-    return reinterpret_cast<object*>(static_cast<char*>(m_begin) + reinterpret_cast<size_t>(o));
+    return reinterpret_cast<object*>(static_cast<char*>(m_begin) + (reinterpret_cast<size_t>(o) - reinterpret_cast<size_t>(m_base_addr)));
 }
 
 inline void compacted_region::move(size_t d) {
@@ -426,13 +428,30 @@ inline void compacted_region::fix_task(object * o) {
 
 void compacted_region::fix_mpz(object * o) {
     __mpz_struct & m = to_mpz(o)->m_value.m_val[0];
-    m._mp_d = reinterpret_cast<mp_limb_t *>(static_cast<char *>(m_begin) + reinterpret_cast<size_t>(m._mp_d));
+    m._mp_d = reinterpret_cast<mp_limb_t *>(static_cast<char *>(m_begin) + reinterpret_cast<size_t>(m._mp_d) - reinterpret_cast<size_t>(m_base_addr));
     move(sizeof(mpz_object) + sizeof(mp_limb_t) * mpz_size(to_mpz(o)->m_value.m_val));
 }
 
 object * compacted_region::read() {
     if (m_next == m_end)
         return nullptr; /* all objects have been read */
+
+    if (m_begin == m_base_addr) {
+        // no relocations needed
+        while (true) {
+            lean_assert(static_cast<char*>(m_next) + sizeof(object) <= m_end);
+            object * curr = reinterpret_cast<object*>(m_next);
+            uint8 tag = lean_ptr_tag(curr);
+            if (tag == LeanReserved) {
+                object * r = reinterpret_cast<terminator_object*>(m_next)->m_value;
+                move(sizeof(terminator_object));
+                return r;
+            } else {
+                move(lean_object_byte_size(curr));
+            }
+        }
+    }
+
     while (true) {
         lean_assert(static_cast<char*>(m_next) + sizeof(object) <= m_end);
         object * curr = reinterpret_cast<object*>(m_next);

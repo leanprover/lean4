@@ -368,17 +368,20 @@ section NotificationHandling
       -- from the pending requests map.
       if (← fw.pendingRequestsRef.get).contains p.id then
         tryWriteMessage uri (Notification.mk "$/cancelRequest" p) (queueFailedMessage := false)
+
+  def forwardNotification {α : Type} [ToJson α] [FileSource α] (method : String) (params : α) : ServerM Unit :=
+    tryWriteMessage (fileSource params) (Notification.mk method params) (queueFailedMessage := true)
 end NotificationHandling
 
 section MessageHandling
   def parseParams (paramType : Type) [FromJson paramType] (params : Json) : ServerM paramType :=
-      match fromJson? params with
+    match fromJson? params with
       | Except.ok parsed => pure parsed
       | Except.error inner => throwServerError s!"Got param with wrong structure: {params.compress}\n{inner}"
 
   def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
-    match (← Requests.routeLspRequest method params) with
-      | Except.error e => 
+    match (← routeLspRequest method params) with
+      | Except.error e =>
         (←read).hOut.writeLspResponseError <| e.toLspResponseError id
       | Except.ok uri =>
         let fw ← try
@@ -403,6 +406,7 @@ section MessageHandling
     /- NOTE: textDocument/didChange is handled in the main loop. -/
     | "textDocument/didClose"  => handle DidCloseTextDocumentParams handleDidClose
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
+    | "$/lean/rpc/initialize"  => handle RpcInitializeParams (forwardNotification method)
     | _                        =>
       if !"$/".isPrefixOf method then  -- implementation-dependent notifications can be safely ignored
         (←read).hLog.putStrLn s!"Got unsupported notification: {method}"

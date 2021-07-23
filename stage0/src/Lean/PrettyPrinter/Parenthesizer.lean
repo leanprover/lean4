@@ -517,20 +517,6 @@ instance : Coe Parenthesizer ParenthesizerAliasValue := { coe := AliasValue.cons
 instance : Coe (Parenthesizer → Parenthesizer) ParenthesizerAliasValue := { coe := AliasValue.unary }
 instance : Coe (Parenthesizer → Parenthesizer → Parenthesizer) ParenthesizerAliasValue := { coe := AliasValue.binary }
 
-builtin_initialize
-  registerAlias "ws" checkWsBefore.parenthesizer
-  registerAlias "noWs" checkNoWsBefore.parenthesizer
-  registerAlias "linebreak" checkLinebreakBefore.parenthesizer
-  registerAlias "colGt" checkColGt.parenthesizer
-  registerAlias "colGe" checkColGe.parenthesizer
-  registerAlias "lookahead" lookahead.parenthesizer
-  registerAlias "atomic" atomic.parenthesizer
-  registerAlias "notFollowedBy" notFollowedBy.parenthesizer
-  registerAlias "withPosition" withPosition.parenthesizer
-  registerAlias "interpolatedStr" interpolatedStr.parenthesizer
-  registerAlias "orelse" orelse.parenthesizer
-  registerAlias "andthen" andthen.parenthesizer
-
 end Parenthesizer
 open Parenthesizer
 

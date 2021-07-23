@@ -28,9 +28,6 @@ public:
     explicit operator bool() const { return !is_scalar(raw()); }
     optional<T> get() const { return *this ? some(static_cast<T const &>(cnstr_get_ref(*this, 0))) : optional<T>(); }
 
-    void serialize(serializer & s) const { s.write_object(raw()); }
-    static option_ref deserialize(deserializer & d) { return option_ref(d.read_object()); }
-
     /** \brief Structural equality. */
     friend bool operator==(option_ref const & o1, option_ref const & o2) {
         return o1.get() == o2.get();
@@ -58,8 +55,4 @@ public:
     }
      */
 };
-
-template<typename T> serializer & operator<<(serializer & s, option_ref<T> const & l) { l.serialize(s); return s; }
-template<typename T> option_ref<T> read_option_ref(deserializer & d) { return option_ref<T>::deserialize(d); }
-
 }

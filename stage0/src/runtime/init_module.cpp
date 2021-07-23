@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include <lean/alloc.h>
 #include <lean/debug.h>
-#include <lean/serializer.h>
 #include <lean/thread.h>
 #include <lean/object.h>
 #include <lean/io.h>
@@ -19,7 +18,6 @@ extern "C" void lean_initialize_runtime_module() {
     initialize_debug();
     initialize_object();
     initialize_io();
-    initialize_serializer();
     initialize_thread();
     initialize_process();
     initialize_stack_overflow();
@@ -31,7 +29,6 @@ void finalize_runtime_module() {
     finalize_stack_overflow();
     finalize_process();
     finalize_thread();
-    finalize_serializer();
     finalize_io();
     finalize_object();
     finalize_debug();

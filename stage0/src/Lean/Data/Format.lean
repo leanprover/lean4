@@ -40,7 +40,8 @@ open Std
 
 export Std
   (Format ToFormat fmt Format.nest Format.nil Format.joinSep Format.line
-   Format.sbracket Format.bracket Format.group Format.pretty Format.fill Format.paren Format.join)
+   Format.sbracket Format.bracket Format.group Format.tag Format.pretty
+   Format.fill Format.paren Format.join)
 export Std.ToFormat (format)
 
 instance : ToFormat Name where

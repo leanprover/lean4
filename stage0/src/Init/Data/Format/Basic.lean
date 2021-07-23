@@ -24,6 +24,8 @@ inductive Format where
   | nest (indent : Int) : Format → Format
   | append              : Format → Format → Format
   | group               : Format → (behavior : FlattenBehavior := FlattenBehavior.allOrNone) → Format
+  /- Used for associating auxiliary information (e.g. `Expr`s) with `Format` objects. -/
+  | tag                 : Nat → Format → Format
   deriving Inhabited
 
 namespace Format
@@ -71,6 +73,7 @@ private def spaceUptoLine : Format → Bool → Nat → SpaceResult
   | append f₁ f₂, flatten, w => merge w (spaceUptoLine f₁ flatten w) (spaceUptoLine f₂ flatten)
   | nest _ f,     flatten, w => spaceUptoLine f flatten w
   | group f _,    _,       w => spaceUptoLine f true w
+  | tag _ f,      flatten, w => spaceUptoLine f flatten w
 
 private structure WorkItem where
   f : Format
@@ -112,6 +115,7 @@ private partial def be (w : Nat) : List WorkGroup → StateM State Unit
     let gs' (is' : List WorkItem) := { g with items := is' }::gs;
     match i.f with
     | nil => be w (gs' is)
+    | tag _ f => be w (gs' ({ i with f }::is))
     | append f₁ f₂ => be w (gs' ({ i with f := f₁ }::{ i with f := f₂ }::is))
     | nest n f => be w (gs' ({ i with f := f, indent := i.indent + n }::is))
     | text s =>
@@ -143,7 +147,7 @@ private partial def be (w : Nat) : List WorkGroup → StateM State Unit
         -- if preceding fill item fit in a single line, try to fit next one too
         if g.flatten then
           let gs'@(g'::_) ← pushGroup FlattenBehavior.fill is gs (w - " ".length)
-            | panic "unreunreachable"
+            | panic "unreachable"
           if g'.flatten then
             pushOutput " ";
             be w gs'  -- TODO: use `return`

@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include <string>
 #include <lean/object.h>
 #include <lean/optional.h>
-#include <lean/serializer.h>
 
 namespace lean {
 /* Smart point for Lean objects. It is useful for writing C++ code that manipulates Lean objects.  */

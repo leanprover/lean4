@@ -52,13 +52,14 @@ def mkSimpleDelab (attrKind : Syntax) (vars : Array Syntax) (pat qrhs : Syntax) 
     guard <| args.all (Syntax.isIdent ∘ getAntiquotTerm)
     guard <| args.allDiff
     -- replace head constant with (unused) antiquotation so we're not dependent on the exact pretty printing of the head
-    let qrhs ← `($(mkAntiquotNode (← `(_))) $args*)
     `(@[$attrKind:attrKind appUnexpander $(mkIdent c):ident] def unexpand : Lean.PrettyPrinter.Unexpander := fun
-       | `($qrhs) => `($pat)
-       | _        => throw ())
+       | `($$(_):ident $args*) => `($pat)
+       | _                     => throw ())
   | `($c:ident)        =>
     let [(c, [])] ← Macro.resolveGlobalName c.getId | failure
-    `(@[$attrKind:attrKind appUnexpander $(mkIdent c):ident] def unexpand : Lean.PrettyPrinter.Unexpander := fun _ => `($pat))
+    `(@[$attrKind:attrKind appUnexpander $(mkIdent c):ident] def unexpand : Lean.PrettyPrinter.Unexpander
+       | `($$(_):ident) => `($pat)
+       | _              => throw ())
   | _                  => failure
 
 private def isLocalAttrKind (attrKind : Syntax) : Bool :=

@@ -173,6 +173,7 @@ where
     | Std.Format.text _    => true
     | Std.Format.group f _ => isAtomicFormat f
     | Std.Format.nest _ f  => isAtomicFormat f
+    | Std.Format.tag _ f   => isAtomicFormat f
     | _                    => false
 
 structure GoalsAtResult where

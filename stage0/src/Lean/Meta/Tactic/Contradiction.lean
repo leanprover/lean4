@@ -62,7 +62,7 @@ def contradictionCore (mvarId : MVarId) (useDecide : Bool) (searchDepth : Nat) :
             assignExprMVar mvarId (← mkNoConfusion (← getMVarType mvarId) localDecl.toExpr)
             return true
         -- (h : p) s.t. `decide p` evaluates to `false`
-        if useDecide && !localDecl.type.hasFVar && !localDecl.type.hasFVar then
+        if useDecide && !localDecl.type.hasFVar && !localDecl.type.hasMVar then
           try
             let d ← mkDecide localDecl.type
             let r ← withDefault <| whnf d
@@ -74,7 +74,7 @@ def contradictionCore (mvarId : MVarId) (useDecide : Bool) (searchDepth : Nat) :
             pure ()
     return false
 
-def contradiction (mvarId : MVarId ) (useDecide : Bool := true) (searchDepth : Nat := 2): MetaM Unit :=
+def contradiction (mvarId : MVarId) (useDecide : Bool := true) (searchDepth : Nat := 2) : MetaM Unit :=
   unless (← contradictionCore mvarId useDecide searchDepth) do
     throwTacticEx `contradiction mvarId ""
 

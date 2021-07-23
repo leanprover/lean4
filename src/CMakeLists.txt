@@ -291,9 +291,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean -lnodefs.js")
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  # `-pie` defaulting is not consistent on Linux distributions, so let's default to off
-  set(LEANC_STATIC_LINKER_FLAGS "-no-pie -Wl,--start-group -lleancpp -lInit -lStd -lLean -Wl,--end-group -lbcrypt")
 else()
   # `-pie` defaulting is not consistent on Linux distributions, so let's default to off
   set(LEANC_STATIC_LINKER_FLAGS "-no-pie -Wl,--start-group -lleancpp -lInit -lStd -lLean -Wl,--end-group")
@@ -312,6 +309,12 @@ else()
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS} -rdynamic")
   set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -ldl")
   set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -ldl")
+endif()
+
+# On Windows, add bcrypt for random number generation
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -lbcrypt")
+  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -lbcrypt")
 endif()
 
 # Allow `lean` symbols in plugins without linking directly against it. If we linked against the

@@ -825,7 +825,7 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
         } else if (c > 0) {
             s_n = whnf_core(*unfold_definition(s_n));
         } else {
-            if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s) && d_t->get_hints().is_abbrev()) {
+            if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s) && !d_t->get_hints().is_abbrev()) {
                 // Optimization:
                 // We try to check if their arguments are definitionally equal.
                 // If they are, then t_n and s_n must be definitionally equal, and we can

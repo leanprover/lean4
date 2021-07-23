@@ -365,9 +365,9 @@ def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zeta : Bool := f
   return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
 
 /-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/
-def mkAuxDefinitionFor (name : Name) (value : Expr) : MetaM Expr := do
+def mkAuxDefinitionFor (name : Name) (value : Expr) (zeta : Bool := false) : MetaM Expr := do
   let type ← inferType value
   let type := type.headBeta
-  mkAuxDefinition name type value
+  mkAuxDefinition name type value (zeta := zeta)
 
 end Lean.Meta

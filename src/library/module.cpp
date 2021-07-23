@@ -27,6 +27,12 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "library/time_task.h"
 #include "library/util.h"
 
+#ifndef LEAN_WINDOWS
+#include <sys/mman.h>
+#include <unistd.h>
+#include <fcntl.h>
+#endif
+
 #if defined(__has_feature)
 #if __has_feature(address_sanitizer)
 #include <sanitizer/lsan_interface.h>
@@ -95,17 +101,39 @@ extern "C" object * lean_read_module_data(object * fname, object *) {
             return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
         }
         delete[] header;
-        void * base_addr;
+        char * base_addr;
         in.read(reinterpret_cast<char *>(&base_addr), sizeof(base_addr));
         header_size += sizeof(base_addr);
-        // use `malloc` here as expected by `compacted_region`
-        char * buffer = static_cast<char *>(malloc(size - header_size));
-        in.read(buffer, size - header_size);
-        if (!in) {
-            return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "'").str());
+        char * buffer = nullptr;
+        bool is_mmap = false;
+#ifndef LEAN_WINDOWS
+        int fd = open(olean_fn.c_str(), O_RDONLY);
+        if (fd == -1) {
+            return io_result_mk_error((sstream() << "failed to open '" << olean_fn << "': " << strerror(errno)).str());
+        }
+        buffer = static_cast<char *>(mmap(base_addr, size, PROT_READ, MAP_PRIVATE, fd, 0));
+        close(fd);
+        if (buffer == base_addr) {
+            buffer += header_size;
+            is_mmap = true;
+        } else {
+            if (munmap(buffer, size)) {
+                return io_result_mk_error((sstream() << "munmap() failed: " << strerror(errno)).str());
+            }
+            buffer = nullptr;
+        }
+#endif
+        if (!buffer) {
+            // use `malloc` here as expected by `compacted_region`
+            buffer = static_cast<char *>(malloc(size - header_size));
+            in.read(buffer, size - header_size);
+            if (!in) {
+                return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "'").str());
+            }
         }
         in.close();
-        compacted_region * region = new compacted_region(size - header_size, buffer, base_addr);
+
+        compacted_region * region = new compacted_region(size - header_size, buffer, base_addr + header_size, is_mmap ? base_addr : 0);
 #if defined(__has_feature)
 #if __has_feature(address_sanitizer)
         // do not report as leak

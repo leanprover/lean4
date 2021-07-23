@@ -501,9 +501,9 @@ structure ModuleData where
 instance : Inhabited ModuleData :=
   ⟨{imports := arbitrary, constants := arbitrary, entries := arbitrary }⟩
 
-@[extern 3 "lean_save_module_data"]
-constant saveModuleData (fname : @& System.FilePath) (m : ModuleData) : IO Unit
-@[extern 2 "lean_read_module_data"]
+@[extern "lean_save_module_data"]
+constant saveModuleData (fname : @& System.FilePath) (mod : @& Name) (data : @& ModuleData) : IO Unit
+@[extern "lean_read_module_data"]
 constant readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion)
 
 /--
@@ -545,7 +545,7 @@ def mkModuleData (env : Environment) : IO ModuleData := do
 
 @[export lean_write_module]
 def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
-  let modData ← mkModuleData env; saveModuleData fname modData
+  saveModuleData fname env.mainModule (← mkModuleData env)
 
 private partial def getEntriesFor (mod : ModuleData) (extId : Name) (i : Nat) : Array EnvExtensionEntry :=
   if i < mod.entries.size then

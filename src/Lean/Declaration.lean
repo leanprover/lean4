@@ -55,6 +55,10 @@ def lt : ReducibilityHints → ReducibilityHints → Bool
   | regular _,  opaque     => true
   | _,          _          => false
 
+def isAbbrev : ReducibilityHints → Bool
+  | «abbrev» => true
+  | _        => false
+
 end ReducibilityHints
 
 /-- Base structure for `AxiomVal`, `DefinitionVal`, `TheoremVal`, `InductiveVal`, `ConstructorVal`, `RecursorVal` and `QuotVal`. -/

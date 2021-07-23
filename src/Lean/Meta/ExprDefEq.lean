@@ -985,9 +985,23 @@ private def isDefEqLeftRight (fn : Name) (t s : Expr) : MetaM LBool := do
 /-- Try to solve `f a₁ ... aₙ =?= f b₁ ... bₙ` by solving `a₁ =?= b₁, ..., aₙ =?= bₙ`.
 
     Auxiliary method for isDefEqDelta -/
-private def tryHeuristic (t s : Expr) : MetaM Bool :=
+private def tryHeuristic (t s : Expr) : MetaM Bool := do
+  let mut t := t
+  let mut s := s
   let tFn := t.getAppFn
   let sFn := s.getAppFn
+  let info ← getConstInfo tFn.constName!
+  /- We do not use the heuristic when `f` is an abbreviation (e.g., a user-facing projection).
+     We check whether terms contain metavariables to make sure we can solve constraints such
+     as `S.proj ?x =?= S.proj t` without performing delta-reduction.
+     That is, we are assuming the heuristic implemented by this method is seldom effective
+     when `t` and `s` do not have metavariables, are not structurally equal, and `f` is an abbreviation.
+     On the other hand, by unfolding `f`, we often produce smaller terms. -/
+  if info.hints.isAbbrev then
+    t ← instantiateMVars t
+    s ← instantiateMVars s
+    unless t.hasExprMVar || s.hasExprMVar do
+      return false
   traceCtx `Meta.isDefEq.delta do
     /-
       We process arguments before universe levels to reduce a source of brittleness in the TC procedure.

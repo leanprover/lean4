@@ -37,18 +37,34 @@ namespace lean {
 // manually padded to multiple of word size, see `initialize_module`
 static char const * g_olean_header   = "oleanfile!!!!!!!";
 
-extern "C" object * lean_save_module_data(object * fname, object * mdata, object *) {
+extern "C" object * lean_save_module_data(b_obj_arg fname, b_obj_arg mod, b_obj_arg mdata, object *) {
     std::string olean_fn(string_cstr(fname));
-    object_ref mdata_ref(mdata);
     try {
         exclusive_file_lock output_lock(olean_fn);
         std::ofstream out(olean_fn, std::ios_base::binary);
         if (out.fail()) {
             return io_result_mk_error((sstream() << "failed to create file '" << olean_fn << "'").str());
         }
-        object_compactor compactor;
-        compactor(mdata_ref.raw());
+
+        // Derive a base address that is uniformly distributed by deterministic, and should most likely
+        // work for `mmap` on all interesting platforms
+        // NOTE: an overlapping/non-compatible base address does not prevent the module from being imported,
+        // merely from using `mmap` for that
+
+        // Let's start with a hash of the module name. Note that while our string hash is a dubious 32-bit
+        // algorithm, the mixing of multiple `Name` parts seems to result in a nicely distributed 64-bit
+        // output
+        size_t base_addr = name(mod, true).hash();
+        // x86-64 user space is currently limited to the lower 47 bits
+        // https://en.wikipedia.org/wiki/X86-64#Virtual_address_space_details
+        base_addr = base_addr & ((1LL<<47) - 1);
+        // `mmap` addresses must be page-aligned. The default (non-huge) page size on x86-64 is 4KB.
+        base_addr = base_addr & ~((1LL<<12) - 1);
+
+        object_compactor compactor(reinterpret_cast<void *>(base_addr + strlen(g_olean_header) + sizeof(base_addr)));
+        compactor(mdata);
         out.write(g_olean_header, strlen(g_olean_header));
+        out.write(reinterpret_cast<char *>(&base_addr), sizeof(base_addr));
         out.write(static_cast<char const *>(compactor.data()), compactor.size());
         out.close();
         return io_result_mk_ok(box(0));
@@ -79,6 +95,9 @@ extern "C" object * lean_read_module_data(object * fname, object *) {
             return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
         }
         delete[] header;
+        void * base_addr;
+        in.read(reinterpret_cast<char *>(&base_addr), sizeof(base_addr));
+        header_size += sizeof(base_addr);
         // use `malloc` here as expected by `compacted_region`
         char * buffer = static_cast<char *>(malloc(size - header_size));
         in.read(buffer, size - header_size);
@@ -86,7 +105,7 @@ extern "C" object * lean_read_module_data(object * fname, object *) {
             return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "'").str());
         }
         in.close();
-        compacted_region * region = new compacted_region(size - header_size, buffer);
+        compacted_region * region = new compacted_region(size - header_size, buffer, base_addr);
 #if defined(__has_feature)
 #if __has_feature(address_sanitizer)
         // do not report as leak

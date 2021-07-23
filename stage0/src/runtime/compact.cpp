@@ -268,17 +268,19 @@ bool object_compactor::insert_task(object * o) {
 }
 
 void object_compactor::insert_mpz(object * o) {
-    std::string s       = mpz_value(o).to_string();
-    /* Remark: in the compacted_region object, we use the space after the mpz_object
-       to store the next mpz_object in the region AFTER we convert the string back
-       into an mpz number. So, we use std::max to make sure we have enough space for both. */
-    size_t extra_space  = std::max(s.size() + 1, sizeof(mpz_object*));
-    size_t sz      = sizeof(mpz_object) + extra_space;
-    object * new_o = (lean_object*)alloc(sz);
+    size_t nlimbs = mpz_size(to_mpz(o)->m_value.m_val);
+    size_t data_sz = sizeof(mp_limb_t) * nlimbs;
+    size_t sz = sizeof(mpz_object) + data_sz;
+    mpz_object * new_o = (mpz_object *)alloc(sz);
     lean_set_non_heap_header((lean_object*)new_o, sz, LeanMPZ, 0);
+    memcpy(new_o, to_mpz(o), sizeof(mpz_object));
+    __mpz_struct & m = new_o->m_value.m_val[0];
+    // we assume the limb array is the only indirection in an `__mpz_struct` and everything else can be bitcopied
+    void * data = reinterpret_cast<char*>(new_o) + sizeof(mpz_object);
+    memcpy(data, m._mp_d, data_sz);
+    m._mp_d = reinterpret_cast<mp_limb_t *>(reinterpret_cast<char *>(data) - reinterpret_cast<char *>(m_begin));
+    m._mp_alloc = nlimbs;
     save(o, (lean_object*)new_o);
-    void * data    = reinterpret_cast<char*>(new_o) + sizeof(mpz_object);
-    memcpy(data, s.c_str(), s.size() + 1);
 }
 
 #ifdef LEAN_TAG_COUNTERS
@@ -356,23 +358,17 @@ void object_compactor::operator()(object * o) {
 compacted_region::compacted_region(size_t sz, void * data):
     m_begin(data),
     m_next(data),
-    m_end(static_cast<char*>(data)+sz),
-    m_nested_mpzs(nullptr) {
+    m_end(static_cast<char*>(data)+sz) {
 }
 
 compacted_region::compacted_region(object_compactor const & c):
     m_begin(malloc(c.size())),
     m_next(m_begin),
-    m_end(static_cast<char*>(m_begin) + c.size()),
-    m_nested_mpzs(nullptr) {
+    m_end(static_cast<char*>(m_begin) + c.size()) {
     memcpy(m_begin, c.data(), c.size());
 }
 
 compacted_region::~compacted_region() {
-    while (m_nested_mpzs) {
-        m_nested_mpzs->m_value.~mpz();
-        m_nested_mpzs = *reinterpret_cast<mpz_object**>(reinterpret_cast<char*>(m_nested_mpzs) + sizeof(mpz_object));
-    }
     free(m_begin);
 }
 
@@ -429,26 +425,9 @@ inline void compacted_region::fix_task(object * o) {
 }
 
 void compacted_region::fix_mpz(object * o) {
-    move(sizeof(mpz_object));
-    /* convert string after mpz_object into a mpz value */
-    std::string s;
-    size_t sz = 0;
-    char * it = static_cast<char*>(m_next);
-    while (*it) {
-        s.push_back(*it);
-        it++;
-        sz++;
-    }
-    /* use string to initialize memory */
-    new (&(((mpz_object*)o)->m_value)) mpz(s.c_str()); // NOLINT
-    /* update m_nested_mpzs list */
-    *reinterpret_cast<mpz_object**>(m_next) = m_nested_mpzs;
-    m_nested_mpzs = (mpz_object*)o;
-    /* consume region after mpz_object */
-    sz++; // string delimiter
-    if (sz < sizeof(mpz_object*))
-        sz = sizeof(mpz_object*);
-    move(sz);
+    __mpz_struct & m = to_mpz(o)->m_value.m_val[0];
+    m._mp_d = reinterpret_cast<mp_limb_t *>(static_cast<char *>(m_begin) + reinterpret_cast<size_t>(m._mp_d));
+    move(sizeof(mpz_object) + sizeof(mp_limb_t) * mpz_size(to_mpz(o)->m_value.m_val));
 }
 
 object * compacted_region::read() {

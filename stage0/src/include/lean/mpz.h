@@ -20,7 +20,8 @@ class mpq;
 /** \brief Wrapper for GMP integers */
 class mpz {
     friend class mpq;
-    friend class mpfp;
+    friend class object_compactor;
+    friend class compacted_region;
     mpz_t m_val;
     mpz(__mpz_struct const * v) { mpz_init_set(m_val, v); }
 public:

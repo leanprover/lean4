@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include <lean/serializer.h>
 #include "util/object_ref.h"
 
 namespace lean {
@@ -23,9 +22,6 @@ public:
 
     T1 const & fst() const { return static_cast<T1 const &>(cnstr_get_ref(*this, 0)); }
     T2 const & snd() const { return static_cast<T2 const &>(cnstr_get_ref(*this, 1)); }
-
-    void serialize(serializer & s) const { s.write_object(raw()); }
-    static pair_ref deserialize(deserializer & d) { return pair_ref(d.read_object(), true); }
 };
 
 template<typename T1, typename T2> bool operator==(pair_ref<T1, T2> const & a, pair_ref<T1, T2> const & b) {
@@ -40,7 +36,4 @@ template<typename T1, typename T2> bool operator<(pair_ref<T1, T2> const & a, pa
     if (a.fst() != b.fst()) return a.fst() < b.fst();
     else return a.snd() < b.snd();
 }
-
-template<typename T1, typename T2> serializer & operator<<(serializer & s, pair_ref<T1, T2> const & p) { p.serialize(s); return s; }
-template<typename T1, typename T2> pair_ref<T1, T2> read_pair_ref(deserializer & d) { return pair_ref<T1, T2>::deserialize(d); }
 }

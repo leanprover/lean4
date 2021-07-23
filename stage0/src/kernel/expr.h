@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include <string>
 #include <lean/optional.h>
 #include <lean/thread.h>
-#include <lean/serializer.h>
 #include <lean/hash.h>
 #include "util/name.h"
 #include "util/nat.h"
@@ -63,13 +62,8 @@ public:
     bool is_zero() const { return kind() == literal_kind::Nat && get_nat().is_zero(); }
     friend bool operator==(literal const & a, literal const & b);
     friend bool operator<(literal const & a, literal const & b);
-    void serialize(serializer & s) const { s.write_object(raw()); }
-    static literal deserialize(deserializer & d) { return literal(d.read_object(), true); }
 };
 inline bool operator!=(literal const & a, literal const & b) { return !(a == b); }
-inline serializer & operator<<(serializer & s, literal const & l) { l.serialize(s); return s; }
-inline literal read_literal(deserializer & d) { return literal::deserialize(d); }
-inline deserializer & operator>>(deserializer & d, literal & l) { l = read_literal(d); return d; }
 
 /* =======================================
    Expressions
@@ -117,18 +111,10 @@ public:
     expr & operator=(expr && other) { object_ref::operator=(other); return *this; }
 
     friend bool is_eqp(expr const & e1, expr const & e2) { return e1.raw() == e2.raw(); }
-    void serialize(serializer & s) const { s.write_object(raw()); }
-    static expr deserialize(deserializer & d) { return expr(d.read_object(), true); }
 };
 
 typedef list_ref<expr> exprs;
 typedef pair<expr, expr> expr_pair;
-
-inline serializer & operator<<(serializer & s, expr const & e) { e.serialize(s); return s; }
-inline serializer & operator<<(serializer & s, exprs const & es) { es.serialize(s); return s; }
-inline expr read_expr(deserializer & d) { return expr::deserialize(d); }
-inline exprs read_exprs(deserializer & d) { return read_list_ref<expr>(d); }
-inline deserializer & operator>>(deserializer & d, expr & e) { e = read_expr(d); return d; }
 
 inline optional<expr> none_expr() { return optional<expr>(); }
 inline optional<expr> some_expr(expr const & e) { return optional<expr>(e); }

@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <lean/mpz.h>
-#include <lean/serializer.h>
 
 namespace lean {
 /**
@@ -218,8 +217,4 @@ public:
         friend std::ostream & operator<<(std::ostream & out, decimal const & d) { display_decimal(out, d.m_val, d.m_prec); return out; }
     };
 };
-
-serializer & operator<<(serializer & s, mpq const & n);
-mpq read_mpq(deserializer & d);
-inline deserializer & operator>>(deserializer & d, mpq & n) { n = read_mpq(d); return d; }
 }

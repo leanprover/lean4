@@ -12,6 +12,7 @@ Author: Jared Roesch
 #include <system_error>
 
 #if defined(LEAN_WINDOWS)
+#include <unordered_map>
 #include <windows.h>
 #include <fcntl.h>
 #include <io.h>

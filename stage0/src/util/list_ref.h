@@ -47,8 +47,6 @@ public:
     friend list_ref cons(T const & h, list_ref<T> const & t) { return list_ref(h, t); }
 
     friend bool is_eqp(list_ref const & l1, list_ref const & l2) { return l1.raw() == l2.raw(); }
-    void serialize(serializer & s) const { s.write_object(raw()); }
-    static list_ref deserialize(deserializer & d) { return list_ref(d.read_object(), true); }
 
     /** \brief Structural equality. */
     friend bool operator==(list_ref const & l1, list_ref const & l2) {
@@ -130,9 +128,6 @@ template<typename T> size_t length(list_ref<T> const & l) {
     }
     return r;
 }
-
-template<typename T> serializer & operator<<(serializer & s, list_ref<T> const & l) { l.serialize(s); return s; }
-template<typename T> list_ref<T> read_list_ref(deserializer & d) { return list_ref<T>::deserialize(d); }
 
 template<typename T> optional<T> head_opt(list_ref<T> const & l) { return is_nil(l) ? optional<T>() : some(head(l)); }
 

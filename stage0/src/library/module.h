@@ -9,7 +9,6 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include <iostream>
 #include <utility>
 #include <vector>
-#include <lean/serializer.h>
 #include <lean/optional.h>
 #include "kernel/environment.h"
 

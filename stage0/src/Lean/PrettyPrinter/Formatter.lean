@@ -456,20 +456,6 @@ instance : Coe Formatter FormatterAliasValue := { coe := AliasValue.const }
 instance : Coe (Formatter → Formatter) FormatterAliasValue := { coe := AliasValue.unary }
 instance : Coe (Formatter → Formatter → Formatter) FormatterAliasValue := { coe := AliasValue.binary }
 
-builtin_initialize
-  registerAlias "ws" checkWsBefore.formatter
-  registerAlias "noWs" checkNoWsBefore.formatter
-  registerAlias "linebreak" checkLinebreakBefore.formatter
-  registerAlias "colGt" checkColGt.formatter
-  registerAlias "colGe" checkColGe.formatter
-  registerAlias "lookahead" lookahead.formatter
-  registerAlias "atomic" atomic.formatter
-  registerAlias "notFollowedBy" notFollowedBy.formatter
-  registerAlias "withPosition" withPosition.formatter
-  registerAlias "interpolatedStr" interpolatedStr.formatter
-  registerAlias "orelse" orelse.formatter
-  registerAlias "andthen" andthen.formatter
-
 end Formatter
 open Formatter
 

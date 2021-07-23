@@ -55,7 +55,6 @@ class compacted_region {
     void *            m_begin;
     void *            m_next;
     void *            m_end;
-    mpz_object *      m_nested_mpzs;
     void move(size_t d);
     void move(object * o);
     object * fix_object_ptr(object * o);

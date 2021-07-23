@@ -264,9 +264,6 @@ else()
   set(COPY_LIBS ${COPY_LIBS} ${GMP_LIBRARIES})
   # dlopen
   set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
-  if("${CMAKE_SYSTEM_NAME}" MATCHES "Windows")
-    set(EXTRA_LIBS ${EXTRA_LIBS} "bcrypt")
-  endif()
 endif()
 
 # ccache

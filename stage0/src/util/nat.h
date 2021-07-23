@@ -62,8 +62,6 @@ public:
     friend nat operator*(nat const & a, nat const & b)   { return nat(nat_mul(a.raw(), b.raw())); }
     friend nat operator/(nat const & a, nat const & b)   { return nat(nat_div(a.raw(), b.raw())); }
     friend nat operator%(nat const & a, nat const & b)   { return nat(nat_mod(a.raw(), b.raw())); }
-    void serialize(serializer & s) const { s.write_object(raw()); }
-    static nat deserialize(deserializer & d) { return nat(d.read_object(), true); }
 };
 
 inline optional<nat> to_optional_nat(obj_arg o) {
@@ -73,8 +71,5 @@ inline optional<nat> to_optional_nat(obj_arg o) {
     return r;
 }
 
-inline serializer & operator<<(serializer & s, nat const & n) { n.serialize(s); return s; }
-inline nat read_nat(deserializer & d) { return nat::deserialize(d); }
-inline deserializer & operator>>(deserializer & d, nat & n) { n = read_nat(d); return d; }
 inline std::ostream & operator<<(std::ostream & out, nat const & n) { out << n.to_mpz(); return out; }
 };

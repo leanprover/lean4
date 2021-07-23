@@ -18,7 +18,7 @@ visualization.
 
 For details of how to register one, see `registerLspRequestHandler`. -/
 
-namespace Lean.Server.Requests
+namespace Lean.Server
 
 structure RequestError where
   code    : JsonRpc.ErrorCode
@@ -46,21 +46,31 @@ def toLspResponseError (id : RequestID) (e : RequestError) : ResponseError Unit 
 
 end RequestError
 
+def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
+    : Except RequestError paramType :=
+  fromJson? params |>.mapError fun inner =>
+    { code := JsonRpc.ErrorCode.parseError
+      message := s!"Cannot parse request params: {params.compress}\n{inner}" }
+
 structure RequestContext where
+  rpcSesh?      : Option FileWorker.RpcSession
   srcSearchPath : SearchPath
-  docRef        : IO.Ref FileWorker.EditableDocument
+  doc           : FileWorker.EditableDocument
   hLog          : IO.FS.Stream
 
 abbrev RequestTask α := Task (Except RequestError α)
 /-- Workers execute request handlers in this monad. -/
 abbrev RequestM := ReaderT RequestContext <| ExceptT RequestError IO
 
+instance : Inhabited (RequestM α) :=
+  ⟨throwThe IO.Error "executing Inhabited instance?!"⟩
+
 namespace RequestM
 open FileWorker
 open Snapshots
 
 def readDoc : RequestM EditableDocument := fun rc =>
-  rc.docRef.get
+  rc.doc
 
 def asTask (t : RequestM α) : RequestM (RequestTask α) := fun rc => do
   let t ← IO.asTask <| t rc
@@ -116,11 +126,6 @@ private structure RequestHandler where
 builtin_initialize requestHandlers : IO.Ref (Std.PersistentHashMap String RequestHandler) ←
   IO.mkRef {}
 
-private def parseParams (paramType : Type) [FromJson paramType] (params : Json) : Except RequestError paramType :=
-  fromJson? params |>.mapError fun inner =>
-    { code := JsonRpc.ErrorCode.parseError
-      message := s!"Cannot parse request params: {params.compress}\n{inner}" }
-
 /-- NB: This method may only be called in `initialize`/`builtin_initialize` blocks.
 
 A registration consists of:
@@ -142,10 +147,9 @@ def registerLspRequestHandler (method : String)
   if (←requestHandlers.get).contains method then
     throw <| IO.userError s!"Failed to register LSP request handler for '{method}': already registered"
   let fileSource := fun j =>
-    parseParams paramType j |>.map fun p =>
-      Lsp.fileSource p
+    parseRequestParams paramType j |>.map Lsp.fileSource 
   let handle := fun j => do
-    let params ← parseParams paramType j
+    let params ← parseRequestParams paramType j
     let t ← handler params
     t.map <| Except.map ToJson.toJson
 
@@ -165,4 +169,4 @@ def handleLspRequest (method : String) (params : Json) : RequestM (RequestTask J
   | some rh => rh.handle params
 
 end HandlerTable
-end Lean.Server.Requests
+end Lean.Server

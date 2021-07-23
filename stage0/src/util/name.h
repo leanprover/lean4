@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <utility>
 #include <lean/optional.h>
-#include <lean/serializer.h>
 #include "util/buffer.h"
 #include "util/pair.h"
 #include "util/nat.h"
@@ -61,7 +60,6 @@ public:
     static int cmp_core(object * o1, object * o2);
     size_t size_core(bool unicode) const;
 private:
-    friend name read_name(deserializer & d);
     explicit name(object_ref && r):object_ref(r) {}
 public:
     name():object_ref(box(static_cast<unsigned>(name_kind::ANONYMOUS))) {}
@@ -197,7 +195,6 @@ public:
             return cmp(a, b);
         }
     }
-    void serialize(serializer & s) const { s.write_object(raw()); }
 };
 
 name string_to_name(std::string const & str);
@@ -238,16 +235,10 @@ struct name_pair_quick_cmp {
 
 typedef std::function<bool(name const &)> name_predicate; // NOLINT
 
-inline serializer & operator<<(serializer & s, name const & n) { n.serialize(s); return s; }
-inline name read_name(deserializer & d) { return name(d.read_object(), true); }
-inline deserializer & operator>>(deserializer & d, name & n) { n = read_name(d); return d; }
-
 /** \brief Return true if it is a lean internal name, i.e., the name starts with a `_` */
 bool is_internal_name(name const & n);
 
 typedef list_ref<name> names;
-inline serializer & operator<<(serializer & s, names const & ns) { ns.serialize(s); return s; }
-inline names read_names(deserializer & d) { return read_list_ref<name>(d); }
 
 void initialize_name();
 void finalize_name();

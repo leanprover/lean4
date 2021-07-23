@@ -55,6 +55,47 @@ instance [ToJson α] : ToJson (Option α) :=
     | none   => Json.null
     | some a => toJson a⟩
 
+instance : FromJson Name where
+  fromJson? j := do
+    let s ← j.getStr?
+    let some n ← Syntax.decodeNameLit s
+      | throw s!"expected a `Name`, got '{j}'"
+    return n
+
+instance : ToJson Name where
+  toJson n := toString (repr n)
+
+/- Note that `USize`s and `UInt64`s are stored as strings because JavaScript
+cannot represent 64-bit numbers. -/
+def bignumFromJson? (j : Json) : Except String Nat := do
+  let s ← j.getStr?
+  let some v ← Syntax.decodeNatLitVal? s -- TODO maybe this should be in Std
+    | throw s!"expected a string-encoded number, got '{j}'"
+  return v
+  
+def bignumToJson (n : Nat) : Json :=
+  toString n
+
+instance : FromJson USize where
+  fromJson? j := do
+    let n ← bignumFromJson? j
+    if n ≥ USize.size then
+      throw "value '{j}' is too large for `USize`"
+    return USize.ofNat n
+
+instance : ToJson USize where
+  toJson v := bignumToJson (USize.toNat v)
+
+instance : FromJson UInt64 where
+  fromJson? j := do
+    let n ← bignumFromJson? j
+    if n ≥ UInt64.size then
+      throw "value '{j}' is too large for `UInt64`"
+    return UInt64.ofNat n
+
+instance : ToJson UInt64 where
+  toJson v := bignumToJson (UInt64.toNat v)
+
 namespace Json
 
 instance : FromJson Structured := ⟨fun

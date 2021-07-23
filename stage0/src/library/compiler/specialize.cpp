@@ -97,8 +97,6 @@ public:
     spec_info & operator=(spec_info && other) { object_ref::operator=(other); return *this; }
     names const & get_mutual_decls() const { return static_cast<names const &>(cnstr_get_ref(*this, 0)); }
     spec_arg_kinds const & get_arg_kinds() const { return static_cast<spec_arg_kinds const &>(cnstr_get_ref(*this, 1)); }
-    void serialize(serializer & s) const { s.write_object(raw()); }
-    static spec_info deserialize(deserializer & d) { return spec_info(d.read_object(), true); }
 };
 
 extern "C" object* lean_add_specialization_info(object* env, object* fn, object* info);

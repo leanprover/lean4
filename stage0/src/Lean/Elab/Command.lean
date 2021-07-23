@@ -126,9 +126,9 @@ def liftCoreM {α} (x : CoreM α) : CommandElabM α := do
   let heartbeats ← IO.getNumHeartbeats (ε := Exception)
   let Eα := Except Exception α
   let x : CoreM Eα := try let a ← x; pure <| Except.ok a catch ex => pure <| Except.error ex
-  let x : EIO Exception (Eα × Core.State) := (ReaderT.run x (mkCoreContext ctx s heartbeats)).run { env := s.env, ngen := s.ngen }
+  let x : EIO Exception (Eα × Core.State) := (ReaderT.run x (mkCoreContext ctx s heartbeats)).run { env := s.env, ngen := s.ngen, traceState := s.traceState }
   let (ea, coreS) ← liftM x
-  modify fun s => { s with env := coreS.env, ngen := coreS.ngen }
+  modify fun s => { s with env := coreS.env, ngen := coreS.ngen, traceState := coreS.traceState }
   match ea with
   | Except.ok a    => pure a
   | Except.error e => throw e

@@ -104,17 +104,6 @@ void display_decimal(std::ostream & out, mpq const & a, unsigned prec) {
     }
     out << "?";
 }
-
-serializer & operator<<(serializer & s, mpq const & n) {
-    std::ostringstream out;
-    out << n;
-    s << out.str();
-    return s;
-}
-
-mpq read_mpq(deserializer & d) {
-    return mpq(d.read_string().c_str());
-}
 }
 
 void print(lean::mpq const & v) { std::cout << v << std::endl; }

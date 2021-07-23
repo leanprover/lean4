@@ -4149,7 +4149,7 @@ lean_dec(x_33);
 x_36 = lean_unsigned_to_nat(5u);
 x_37 = l_Lean_Syntax_getArg(x_2, x_36);
 x_38 = l_Lean_Elab_getOptDerivingClasses___at_Lean_Elab_Command_elabStructure___spec__2(x_37, x_3, x_4, x_35);
-lean_dec(x_37);
+lean_dec(x_4);
 if (lean_obj_tag(x_38) == 0)
 {
 uint8_t x_39; 

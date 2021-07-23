@@ -45,7 +45,8 @@ def «axiom»          := leading_parser "axiom " >> declId >> declSig
 def «example»        := leading_parser "example " >> declSig >> declVal
 def inferMod         := leading_parser atomic (symbol "{" >> "}")
 def ctor             := leading_parser "\n| " >> declModifiers true >> ident >> optional inferMod >> optDeclSig
-def optDeriving      := leading_parser optional (atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
+def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> Term.structInst))) ", "
+def optDeriving      := leading_parser optional (atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def «inductive»      := leading_parser "inductive " >> declId >> optDeclSig >> optional (symbol ":=" <|> "where") >> many ctor >> optDeriving
 def classInductive   := leading_parser atomic (group (symbol "class " >> "inductive ")) >> declId >> optDeclSig >> optional (symbol ":=" <|> "where") >> many ctor >> optDeriving
 def structExplicitBinder := leading_parser atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
@@ -63,7 +64,7 @@ def «structure»          := leading_parser
     >> optDeriving
 @[builtinCommandParser] def declaration := leading_parser
 declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> classInductive <|> «structure»)
-@[builtinCommandParser] def «deriving»     := leading_parser "deriving " >> "instance " >> sepBy1 ident ", " >> " for " >> sepBy1 ident ", "
+@[builtinCommandParser] def «deriving»     := leading_parser "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 ident ", "
 @[builtinCommandParser] def «section»      := leading_parser "section " >> optional ident
 @[builtinCommandParser] def «namespace»    := leading_parser "namespace " >> ident
 @[builtinCommandParser] def «end»          := leading_parser "end " >> optional ident

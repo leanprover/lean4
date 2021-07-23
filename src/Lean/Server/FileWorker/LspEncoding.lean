@@ -6,6 +6,7 @@ Authors: Wojciech Nawrocki
 -/
 import Lean.Elab.Command
 import Lean.Elab.Term
+import Lean.PrettyPrinter
 import Lean.Elab.Deriving.Basic
 import Lean.Server.Requests
 
@@ -161,15 +162,12 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
         let fieldT ← inferType x
         let some fieldEncT ← hasLspEncoding? fieldT
           | throwError "cannot synthesize 'LspEncoding {fieldT} ?_'"
-        -- TODO(WN): delab instead of using const name
-        let some fieldEncTName ← fieldEncT.constName?
-          | throwError "type '{fieldEncT}' is not constant"
-        fieldEncTs := fieldEncTs.push fieldEncTName
+        let fieldEncTStx ← PrettyPrinter.delab (← getCurrNamespace) (← getOpenDecls) fieldEncT
+        fieldEncTs := fieldEncTs.push fieldEncTStx
 
       let typeId := mkIdent typeName
 
       let fieldIds := fields.map mkIdent
-      let fieldEncTIds := fieldEncTs.map mkIdent
 
       let fieldInsts (func : Name) := do fieldIds.mapM fun fid =>
         `(Parser.Term.structInstField| $fid:ident := ← $(mkIdent func):ident a.$fid:ident)
@@ -178,11 +176,11 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
       `(
         namespace $typeId:ident
 
-        private structure LspPacket where
-          $[($fieldIds : $fieldEncTIds)]*
+        protected structure LspEncodingPacket where
+          $[($fieldIds : $fieldEncTs)]*
           deriving $(mkIdent ``Lean.FromJson), $(mkIdent ``Lean.ToJson)
 
-        instance : LspEncoding $typeId:ident LspPacket where
+        instance : LspEncoding $typeId:ident LspEncodingPacket where
           lspEncode a := do
             return {
               $[$encFields]*

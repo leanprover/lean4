@@ -10,7 +10,9 @@ open Lean System
 
 namespace Lake
 
-def leanPkgFile : FilePath := "package.lean"
+def pkgModName : Name := `package
+def pkgDefName : Name := `package
+def pkgFileName : FilePath := "package.lean"
 
 namespace Package
 
@@ -18,15 +20,15 @@ unsafe def fromLeanFileUnsafe
 (path : FilePath) (root : FilePath) (args : List String := [])
 : IO Package := do
   let input ← IO.FS.readFile path
-  let (env, ok) ← Elab.runFrontend input Options.empty path.toString `package
+  let (env, ok) ← Elab.runFrontend input Options.empty path.toString pkgModName
   if ok then
     let packagerE := Id.run <| ExceptT.run <|
-        env.evalConstCheck Packager Options.empty ``Packager `package
+        env.evalConstCheck Packager Options.empty ``Packager pkgDefName
     match packagerE with
     | Except.ok packager => Package.mk root (← packager root args)
     | Except.error error =>
       let configE := Id.run <| ExceptT.run <|
-        env.evalConstCheck PackageConfig Options.empty ``PackageConfig `package
+        env.evalConstCheck PackageConfig Options.empty ``PackageConfig pkgDefName
       match configE with
       | Except.ok config => Package.mk root config
       | Except.error error => throw <| IO.userError <|
@@ -36,7 +38,7 @@ unsafe def fromLeanFileUnsafe
 
 unsafe def fromDirUnsafe
 (path : FilePath) (args : List String := []) : IO Package :=
-  fromLeanFileUnsafe (path / leanPkgFile) path args
+  fromLeanFileUnsafe (path / pkgFileName) path args
 
 @[implementedBy fromDirUnsafe]
 constant fromDir (path : FilePath) (args : List String := []) : IO Package

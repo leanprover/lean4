@@ -12,12 +12,15 @@ def initGitignoreContents :=
 "/build
 "
 
+def mainFileName (pkgName : String) : System.FilePath :=
+  s!"{pkgName.capitalize}.lean"
+
 def mainFileContents :=
 "def main : IO Unit :=
   IO.println \"Hello, world!\"
 "
 
-def leanPkgFileContents (pkgName : String) :=
+def pkgFileContents (pkgName : String) :=
 s!"import Lake.Package
 
 def package : Lake.PackageConfig := \{
@@ -30,8 +33,8 @@ def package : Lake.PackageConfig := \{
 open Git System
 
 def initPkg (dir : FilePath) (pkgName : String) : IO PUnit := do
-  IO.FS.writeFile (dir / leanPkgFile) (leanPkgFileContents pkgName)
-  IO.FS.writeFile (dir / s!"{pkgName.capitalize}.lean") mainFileContents
+  IO.FS.writeFile (dir / pkgFileName) (pkgFileContents pkgName)
+  IO.FS.writeFile (dir / mainFileName pkgName) mainFileContents
   let h ← IO.FS.Handle.mk (dir / ".gitignore") IO.FS.Mode.append (bin := false)
   h.putStr initGitignoreContents
   unless ← FilePath.isDir (dir /".git") do

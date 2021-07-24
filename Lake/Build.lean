@@ -172,7 +172,7 @@ def Package.buildTargetWithDepTargetsFor
 (mod : Name) (depTargets : List PackageTarget) (self : Package)
 : IO PackageTarget := do
   let depsTarget ← LeanTarget.all <|
-    self.moreDepsTarget.withArtifact arbitrary :: depTargets
+    (← self.buildMoreDepsTarget).withArtifact arbitrary :: depTargets
   let oLeanDirs := depTargets.map (·.package.oleanDir)
   let (target, targetMap) ← self.buildModuleTargetDAGFor mod oLeanDirs depsTarget
   return {target with artifact := ⟨self, targetMap⟩}
@@ -219,7 +219,7 @@ def Package.buildModuleTargetsWithDeps
 : IO (List ModuleTarget) := do
   let oleanDirs := deps.map (·.oleanDir)
   let depsTarget ← LeanTarget.all <|
-    self.moreDepsTarget.withArtifact arbitrary :: (← deps.mapM (·.buildTarget))
+    (← self.buildMoreDepsTarget).withArtifact arbitrary :: (← deps.mapM (·.buildTarget))
   self.buildModuleTargets mods oleanDirs depsTarget
 
 def Package.buildModulesWithDeps

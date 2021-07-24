@@ -27,7 +27,7 @@ open Json in macro_rules
     `(Json.arr #[$fields,*])
 
 def checkToJson [ToJson α] (obj : α) (rhs : Json) : MetaM Unit :=
-  let lhs := (obj |> toJson).pretty 
+  let lhs := (obj |> toJson).pretty
   if lhs == rhs.pretty then
     ()
   else
@@ -50,16 +50,16 @@ structure Foo where
 deriving ToJson, FromJson, Repr, BEq
 
 #eval checkToJson { x := 1, y := "bla" : Foo} (json { y : "bla", x : 1 })
-#eval checkRoundTrip { x := 1, y := "bla" : Foo } 
+#eval checkRoundTrip { x := 1, y := "bla" : Foo }
 
--- set_option trace.Elab.command true 
+-- set_option trace.Elab.command true
 structure WInfo where
   a : Nat
   b : Nat
 deriving ToJson, FromJson, Repr, BEq
 
--- set_option trace.Elab.command true 
-inductive E 
+-- set_option trace.Elab.command true
+inductive E
 | W : WInfo → E
 | WAlt (a b : Nat)
 | X : Nat → Nat → E
@@ -85,3 +85,12 @@ deriving ToJson, FromJson, Repr, BEq
 
 #eval checkToJson E.Z (json "Z")
 #eval checkRoundTrip E.Z
+
+inductive ERec
+| mk : Nat → ERec
+| W : ERec → ERec
+deriving ToJson, FromJson, Repr, BEq
+
+#eval checkToJson (ERec.W (ERec.mk 6)) (json { W : { mk : 6 }})
+#eval checkRoundTrip (ERec.mk 7)
+#eval checkRoundTrip (ERec.W (ERec.mk 8))

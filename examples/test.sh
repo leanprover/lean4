@@ -12,3 +12,8 @@ echo 'testing deps'
 cd deps
 ./test.sh
 cd ..
+
+echo 'testing ext'
+cd ext
+./test.sh
+cd ..

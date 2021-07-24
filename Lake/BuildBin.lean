@@ -11,17 +11,17 @@ namespace Lake
 -- # Build `.o` Files
 
 def buildLeanO (oFile : FilePath)
-(cTarget : BuildTarget t FilePath) (leancArgs : Array String := #[]) : IO BuildTask :=
+(cTarget : ActiveBuildTarget t FilePath) (leancArgs : Array String := #[]) : IO BuildTask :=
   afterTarget cTarget <| compileLeanO oFile cTarget.artifact leancArgs
 
 def fetchLeanOFileTarget (oFile : FilePath)
-(cTarget : FileTarget) (leancArgs : Array String := #[]) : IO FileTarget :=
+(cTarget : ActiveFileTarget) (leancArgs : Array String := #[]) : IO ActiveFileTarget :=
   skipIfNewer oFile cTarget.mtime <| buildLeanO oFile cTarget leancArgs
 
 -- # Build Package Lib
 
 def PackageTarget.fetchOFileTargets
-(self : PackageTarget) : IO (List FileTarget) := do
+(self : PackageTarget) : IO (List ActiveFileTarget) := do
   self.moduleTargets.toList.mapM fun (mod, target) => do
     let oFile := self.package.modToO mod
     fetchLeanOFileTarget (oFile) target.cTarget self.package.leancArgs
@@ -32,10 +32,10 @@ def PackageTarget.buildStaticLib
   let oFiles := oFileTargets.map (·.artifact) |>.toArray
   oFileTargets >> compileStaticLib self.package.staticLibFile oFiles
 
-def PackageTarget.fetchStaticLibTarget (self : PackageTarget) : IO FileTarget := do
+def PackageTarget.fetchStaticLibTarget (self : PackageTarget) : IO ActiveFileTarget := do
   skipIfNewer self.package.staticLibFile self.mtime self.buildStaticLib
 
-def Package.fetchStaticLibTarget (self : Package) : IO FileTarget := do
+def Package.fetchStaticLibTarget (self : Package) : IO ActiveFileTarget := do
   (← self.buildTarget).fetchStaticLibTarget
 
 def Package.fetchStaticLib (self : Package) : IO FilePath := do
@@ -60,10 +60,10 @@ def PackageTarget.buildBin
   linkTargets >> compileLeanBin self.package.binFile linkFiles self.package.linkArgs
 
 def PackageTarget.fetchBinTarget
-(depTargets : List PackageTarget) (self : PackageTarget) : IO FileTarget :=
+(depTargets : List PackageTarget) (self : PackageTarget) : IO ActiveFileTarget :=
   skipIfNewer self.package.binFile self.mtime <| self.buildBin depTargets
 
-def Package.fetchBinTarget (self : Package) : IO FileTarget := do
+def Package.fetchBinTarget (self : Package) : IO ActiveFileTarget := do
   let depTargets ← self.buildDepTargets
   let pkgTarget ← self.buildTargetWithDepTargets depTargets
   pkgTarget.fetchBinTarget depTargets

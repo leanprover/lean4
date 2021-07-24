@@ -33,17 +33,17 @@ abbrev ModuleTarget := LeanTarget ModuleArtifact
 namespace ModuleTarget
 
 def mk (olean c : FilePath) (hash : Hash) (mtime : IO.FS.SystemTime) (task : BuildTask) : ModuleTarget :=
-  BuildTarget.mk ⟨olean, c⟩ ⟨hash, mtime⟩ task
+  ActiveBuildTarget.mk ⟨olean, c⟩ ⟨hash, mtime⟩ task
 
 def pure (olean c : FilePath) (hash : Hash) (mtime : IO.FS.SystemTime) : ModuleTarget :=
-  BuildTarget.pure ⟨olean, c⟩ ⟨hash, mtime⟩
+  ActiveBuildTarget.pure ⟨olean, c⟩ ⟨hash, mtime⟩
 
 def oleanFile (self : ModuleTarget) := self.artifact.oleanFile
-def oleanTarget (self : ModuleTarget) : FileTarget :=
+def oleanTarget (self : ModuleTarget) : ActiveFileTarget :=
   {self with artifact := self.oleanFile, trace := self.mtime}
 
 def cFile (self : ModuleTarget) := self.artifact.cFile
-def cTarget (self : ModuleTarget) : FileTarget :=
+def cTarget (self : ModuleTarget) : ActiveFileTarget :=
   {self with artifact := self.cFile, trace := self.mtime}
 
 end ModuleTarget
@@ -85,8 +85,8 @@ def skipIf [Pure m] (cond : Bool) (build : m BuildTask) : m BuildTask := do
 def skipIfNewer [GetMTime a]
 (artifact : a) (depMTime : MTime)
 {m} [Monad m] [MonadLiftT IO m] [MonadExceptOf IO.Error m]
-(build : m BuildTask) : m (MTimeBuildTarget a) := do
-  MTimeBuildTarget.mk artifact depMTime <| ←
+(build : m BuildTask) : m (ActiveBuildTarget MTime a) := do
+  ActiveBuildTarget.mk artifact depMTime <| ←
     skipIf (← checkIfNewer artifact depMTime) build
 
 -- # Build Modules
@@ -126,7 +126,7 @@ def fetchAfterDirectLocalImports
     let cFile := pkg.modToC mod
     let oleanFile := pkg.modToOlean mod
     let importTasks := importTargets.map (·.buildTask)
-    BuildTarget.mk ⟨oleanFile, cFile⟩ ⟨fullHash, mtime⟩ <| ←
+    ActiveBuildTarget.mk ⟨oleanFile, cFile⟩ ⟨fullHash, mtime⟩ <| ←
       skipIf sameHash <| afterTaskList (depsTarget.buildTask :: importTasks) do
         compileOleanAndC leanFile oleanFile cFile leanPath pkg.dir pkg.leanArgs
         IO.FS.writeFile hashFile (toString fullHash)

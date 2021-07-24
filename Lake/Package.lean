@@ -49,7 +49,7 @@ structure PackageConfig where
   libName : String := moduleRoot.toString (escape := false)
   depsDir : FilePath := defaultDepsDir
   dependencies : List Dependency := []
-  buildMoreDepsTarget : IO (BuildTarget LeanTrace PUnit) := BuildTarget.nil
+  buildMoreDepsTarget : IO (ActiveBuildTarget LeanTrace PUnit) := ActiveBuildTarget.nil
   scripts : HashMap String Script := HashMap.empty
   deriving Inhabited
 
@@ -83,7 +83,7 @@ def moduleRootName (self : Package) : String :=
 def dependencies (self : Package) : List Dependency :=
   self.config.dependencies
 
-def buildMoreDepsTarget (self : Package) : IO (BuildTarget LeanTrace PUnit) :=
+def buildMoreDepsTarget (self : Package) : IO (ActiveBuildTarget LeanTrace PUnit) :=
   self.config.buildMoreDepsTarget
 
 def leanArgs (self : Package) : Array String :=

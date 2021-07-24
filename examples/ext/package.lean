@@ -9,11 +9,11 @@ def buildDir := defaultBuildDir
 def addO := buildDir / extDir / "add.o"
 def extLib := buildDir / extDir / "libext.a"
 
-def fetchAddOTarget : IO FileTarget := do
+def fetchAddOTarget : IO ActiveFileTarget := do
   skipIfNewer addO (← getMTime addSrc) <|
     BuildTask.spawn <| compileO addO addSrc (cmd := "c++")
 
-def fetchExtLibTarget : IO FileTarget := do
+def fetchExtLibTarget : IO ActiveFileTarget := do
   let oTarget ← fetchAddOTarget
   skipIfNewer extLib oTarget.mtime <|
     oTarget >> compileStaticLib extLib #[addO]

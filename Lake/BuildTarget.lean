@@ -8,104 +8,79 @@ import Lake.BuildTrace
 
 namespace Lake
 
--- # Build Target
+-- # Active Build Target
 
-structure BuildTarget (t : Type) (a : Type) where
+structure ActiveBuildTarget (t : Type) (a : Type) where
   artifact    : a
   trace       : t
   buildTask   : BuildTask
 
 -- manually derive `Inhabited` instance because automatic deriving fails
-instance [Inhabited t] [Inhabited a] : Inhabited (BuildTarget t a) :=
+instance [Inhabited t] [Inhabited a] : Inhabited (ActiveBuildTarget t a) :=
   ⟨Inhabited.default, Inhabited.default, BuildTask.nop⟩
 
-namespace BuildTarget
+namespace ActiveBuildTarget
 
-def nil [Inhabited t] : BuildTarget t PUnit :=
+def nil [Inhabited t] : ActiveBuildTarget t PUnit :=
   ⟨(), Inhabited.default, BuildTask.nop⟩
 
-def pure (artifact : a) (trace : t) : BuildTarget t a :=
-  {artifact, trace, buildTask := BuildTask.nop}
+def pure (artifact : a) (trace : t) : ActiveBuildTarget t a :=
+  ⟨artifact, trace, BuildTask.nop⟩
 
-def opaque (trace : t) (task : BuildTask) : BuildTarget t PUnit :=
+def opaque (trace : t) (task : BuildTask) : ActiveBuildTarget t PUnit :=
   ⟨(), trace, task⟩
 
-def withTrace (trace : t) (self : BuildTarget r a) : BuildTarget t a :=
+def withTrace (trace : t) (self : ActiveBuildTarget r a) : ActiveBuildTarget t a :=
   {self with trace := trace}
 
-def discardTrace (self : BuildTarget t a) : BuildTarget PUnit a :=
+def discardTrace (self : ActiveBuildTarget t a) : ActiveBuildTarget PUnit a :=
   self.withTrace ()
 
-def withArtifact (artifact : a) (self : BuildTarget t b) : BuildTarget t a :=
-  {self with artifact := artifact}
-
-def discardArtifact (self : BuildTarget t α) : BuildTarget t PUnit :=
-  self.withArtifact ()
-
-def materialize (self : BuildTarget t α) : IO PUnit :=
-  self.buildTask.await
-
-end BuildTarget
-
-def afterTarget (target : BuildTarget t a) (act : IO PUnit)  : IO BuildTask :=
-  afterTask target.buildTask act
-
-def afterTargetList (targets : List (BuildTarget t a)) (act : IO PUnit) : IO BuildTask :=
-  afterTaskList (targets.map (·.buildTask)) act
-
-instance : HAndThen (BuildTarget t a) (IO PUnit) (IO BuildTask) :=
-  ⟨afterTarget⟩
-
-instance : HAndThen (List (BuildTarget t a)) (IO PUnit) (IO BuildTask) :=
-  ⟨afterTargetList⟩
-
--- # MTIme Build Target
-
-abbrev MTimeBuildTarget := BuildTarget MTime
-
-namespace MTimeBuildTarget
-
-def mtime (self : MTimeBuildTarget a) :=
+def mtime (self : ActiveBuildTarget MTime a) : MTime :=
   self.trace
 
-def mk (artifact : a) (mtime : MTime := 0) (buildTask : BuildTask) : MTimeBuildTarget a :=
-  {artifact, trace := mtime, buildTask}
+def withArtifact (artifact : a) (self : ActiveBuildTarget t b) : ActiveBuildTarget t a :=
+  {self with artifact := artifact}
 
-def pure (artifact : a) (mtime : MTime := 0) : MTimeBuildTarget a :=
-  {artifact, trace := mtime, buildTask := BuildTask.nop}
+def discardArtifact (self : ActiveBuildTarget t α) : ActiveBuildTarget t PUnit :=
+  self.withArtifact ()
 
-def all (targets : List (MTimeBuildTarget a)) : IO (MTimeBuildTarget PUnit) := do
-  let depsMTime := MTime.listMax <| targets.map (·.mtime)
-  let task ← BuildTask.all <| targets.map (·.buildTask)
-  return MTimeBuildTarget.mk () depsMTime task
+def materialize (self : ActiveBuildTarget t α) : IO PUnit :=
+  self.buildTask.await
 
-def collectAll (targets : List (MTimeBuildTarget a)) : IO (MTimeBuildTarget (List a)) := do
-  let artifacts := targets.map (·.artifact)
-  let depsMTime := MTime.listMax <|  targets.map (·.mtime)
-  let task ← BuildTask.all <| targets.map (·.buildTask)
-  return MTimeBuildTarget.mk artifacts depsMTime task
+end ActiveBuildTarget
 
-end MTimeBuildTarget
+def afterTarget (target : ActiveBuildTarget t a) (act : IO PUnit)  : IO BuildTask :=
+  afterTask target.buildTask act
+
+def afterTargetList (targets : List (ActiveBuildTarget t a)) (act : IO PUnit) : IO BuildTask :=
+  afterTaskList (targets.map (·.buildTask)) act
+
+instance : HAndThen (ActiveBuildTarget t a) (IO PUnit) (IO BuildTask) :=
+  ⟨afterTarget⟩
+
+instance : HAndThen (List (ActiveBuildTarget t a)) (IO PUnit) (IO BuildTask) :=
+  ⟨afterTargetList⟩
 
 -- # File Target
 
 open System
 
-abbrev FileTarget := MTimeBuildTarget FilePath
+abbrev ActiveFileTarget := ActiveBuildTarget MTime FilePath
 
-namespace FileTarget
+namespace ActiveFileTarget
 
-def mk (file : FilePath) (maxMTime : MTime) (task : BuildTask) :=
-  BuildTarget.mk file maxMTime task
+def mk (file : FilePath) (depMTime : MTime) (task : BuildTask) :=
+  ActiveBuildTarget.mk file depMTime task
 
-def pure (file : FilePath) (maxMTime : MTime) :=
-  BuildTarget.pure file maxMTime
+def pure (file : FilePath) (depMTime : MTime) :=
+  ActiveBuildTarget.pure file depMTime
 
-end FileTarget
+end ActiveFileTarget
 
 -- # Lean Target
 
-abbrev LeanTarget a := BuildTarget LeanTrace a
+abbrev LeanTarget a := ActiveBuildTarget LeanTrace a
 
 namespace LeanTarget
 
@@ -116,9 +91,9 @@ def all (targets : List (LeanTarget a)) : IO (LeanTarget PUnit) := do
   let hash := Hash.foldList 0 <| targets.map (·.hash)
   let mtime := MTime.listMax <| targets.map (·.mtime)
   let task ← BuildTask.all <| targets.map (·.buildTask)
-  return BuildTarget.mk () ⟨hash, mtime⟩ task
+  return ActiveBuildTarget.mk () ⟨hash, mtime⟩ task
 
-def fromMTimeTarget (target : MTimeBuildTarget a) : LeanTarget a :=
-  {target with trace := LeanTrace.fromMTime target.mtime}
+def fromMTimeTarget (target : ActiveBuildTarget MTime a) : LeanTarget a :=
+  {target with trace := LeanTrace.fromMTime target.trace}
 
 end LeanTarget

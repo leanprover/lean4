@@ -10,13 +10,13 @@ namespace Lake
 
 -- # Build `.o` Files
 
-def buildO (oFile : FilePath)
+def buildLeanO (oFile : FilePath)
 (cTarget : BuildTarget t FilePath) (leancArgs : Array String := #[]) : IO BuildTask :=
-  afterTarget cTarget <| compileO oFile cTarget.artifact leancArgs
+  afterTarget cTarget <| compileLeanO oFile cTarget.artifact leancArgs
 
-def fetchOFileTarget (oFile : FilePath)
+def fetchLeanOFileTarget (oFile : FilePath)
 (cTarget : FileTarget) (leancArgs : Array String := #[]) : IO FileTarget :=
-  skipIfNewer oFile cTarget.mtime <| buildO oFile cTarget leancArgs
+  skipIfNewer oFile cTarget.mtime <| buildLeanO oFile cTarget leancArgs
 
 -- # Build Package Lib
 
@@ -24,7 +24,7 @@ def PackageTarget.fetchOFileTargets
 (self : PackageTarget) : IO (List FileTarget) := do
   self.moduleTargets.toList.mapM fun (mod, target) => do
     let oFile := self.package.modToO mod
-    fetchOFileTarget (oFile) target.cTarget self.package.leancArgs
+    fetchLeanOFileTarget (oFile) target.cTarget self.package.leancArgs
 
 def PackageTarget.buildStaticLib
 (self : PackageTarget) : IO BuildTask := do
@@ -57,7 +57,7 @@ def PackageTarget.buildBin
   let libTargets ← depTargets.mapM (·.fetchStaticLibTarget)
   let linkTargets := oFileTargets ++ libTargets
   let linkFiles := linkTargets.map (·.artifact) |>.toArray
-  linkTargets >> compileBin self.package.binFile linkFiles self.package.linkArgs
+  linkTargets >> compileLeanBin self.package.binFile linkFiles self.package.linkArgs
 
 def PackageTarget.fetchBinTarget
 (depTargets : List PackageTarget) (self : PackageTarget) : IO FileTarget :=

@@ -38,12 +38,15 @@ def compileOleanAndC (leanFile oleanFile cFile : FilePath)
   }
 
 def compileO (oFile cFile : FilePath)
-(leancArgs : Array String := #[]) : IO PUnit := do
+(moreArgs : Array String := #[]) (cmd := "cc") : IO PUnit := do
   createParentDirs oFile
   proc {
-    cmd := "leanc"
-    args := #["-c", "-o", oFile.toString, cFile.toString] ++ leancArgs
+    cmd
+    args := #["-c", "-o", oFile.toString, cFile.toString] ++ moreArgs
   }
+
+def compileLeanO (oFile cFile : FilePath) (leancArgs : Array String := #[]) : IO PUnit :=
+  compileO oFile cFile leancArgs "leanc"
 
 def compileStaticLib
 (libFile : FilePath) (oFiles : Array FilePath) : IO PUnit := do
@@ -54,9 +57,13 @@ def compileStaticLib
   }
 
 def compileBin (binFile : FilePath)
-(linkFiles : Array FilePath) (linkArgs : Array String := #[]) : IO PUnit := do
+(linkFiles : Array FilePath) (linkArgs : Array String := #[]) (cmd := "cc") : IO PUnit := do
   createParentDirs binFile
   proc {
-    cmd := "leanc"
+    cmd
     args := #["-o", binFile.toString] ++ linkFiles.map toString ++ linkArgs
   }
+
+def compileLeanBin (binFile : FilePath)
+(linkFiles : Array FilePath) (linkArgs : Array String := #[]) : IO PUnit :=
+  compileBin binFile linkFiles linkArgs "leanc"

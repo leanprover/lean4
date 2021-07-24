@@ -118,4 +118,7 @@ def all (targets : List (LeanTarget a)) : IO (LeanTarget PUnit) := do
   let task ← BuildTask.all <| targets.map (·.buildTask)
   return BuildTarget.mk () ⟨hash, mtime⟩ task
 
+def fromMTimeTarget (target : MTimeBuildTarget a) : LeanTarget a :=
+  {target with trace := LeanTrace.fromMTime target.mtime}
+
 end LeanTarget

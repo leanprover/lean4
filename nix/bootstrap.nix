@@ -1,6 +1,7 @@
 { debug ? false, stage0debug ? false, extraCMakeFlags ? [],
   stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir,
   ... } @ args:
+with builtins;
 rec {
   inherit stdenv;
   buildCMake = args: stdenv.mkDerivation ({
@@ -130,6 +131,14 @@ rec {
         ${update-stage0}/bin/update-stage0
         git commit -m "chore: update stage0"
       '';
+      benchmarks =
+        let
+          entries = attrNames (readDir ../tests/bench);
+          leanFiles = map (n: elemAt n 0) (filter (n: n != null) (map (match "(.*)\.lean") entries));
+        in lib.genAttrs leanFiles (n: (buildLeanPackage {
+          name = n;
+          src = filterSource (e: _: baseNameOf e == "${n}.lean") ../tests/bench;
+        }).executable);
     };
   stage1 = stage { stage = 1; prevStage = stage0; self = stage1; };
   stage2 = stage { stage = 2; prevStage = stage1; self = stage2; };

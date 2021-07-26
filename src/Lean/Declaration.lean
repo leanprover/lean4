@@ -59,6 +59,10 @@ def isAbbrev : ReducibilityHints → Bool
   | «abbrev» => true
   | _        => false
 
+def isRegular : ReducibilityHints → Bool
+  | regular .. => true
+  | _          => false
+
 end ReducibilityHints
 
 /-- Base structure for `AxiomVal`, `DefinitionVal`, `TheoremVal`, `InductiveVal`, `ConstructorVal`, `RecursorVal` and `QuotVal`. -/

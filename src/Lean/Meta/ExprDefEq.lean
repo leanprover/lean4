@@ -991,13 +991,14 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
   let tFn := t.getAppFn
   let sFn := s.getAppFn
   let info ← getConstInfo tFn.constName!
-  /- We do not use the heuristic when `f` is an abbreviation (e.g., a user-facing projection).
+  /- We only use the heuristic when `f` is a regular definition. That is, it is marked an abbreviation
+     (e.g., a user-facing projection) or as opaque (e.g., proof).
      We check whether terms contain metavariables to make sure we can solve constraints such
      as `S.proj ?x =?= S.proj t` without performing delta-reduction.
      That is, we are assuming the heuristic implemented by this method is seldom effective
      when `t` and `s` do not have metavariables, are not structurally equal, and `f` is an abbreviation.
      On the other hand, by unfolding `f`, we often produce smaller terms. -/
-  if info.hints.isAbbrev then
+  unless info.hints.isRegular do
     t ← instantiateMVars t
     s ← instantiateMVars s
     unless t.hasExprMVar || s.hasExprMVar do

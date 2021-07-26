@@ -272,7 +272,7 @@ section NotificationHandling
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
 
-  def handleRpcInitialize (p : RpcInitializeParams) : WorkerM Unit := do
+  def handleRpcConnect (p : RpcConnectParams) : WorkerM Unit := do
     let ctx ← read
     let doc := (←get).doc
     /- We generate a random ID to ensure that session IDs do not repeat across re-initializations
@@ -286,9 +286,9 @@ section NotificationHandling
     will then no longer be kept alive for the client. -/
     modify fun st => { st with rpcSesh := some { sessionId := newId, state := newRpcState } }
     ctx.hOut.writeLspNotification
-      <| { method := "$/lean/rpc/initialized"
+      <| { method := "$/lean/rpc/connected"
            param := { uri := doc.meta.uri
-                      sessionId := newId : RpcInitialized } }
+                      sessionId := newId : RpcConnected } }
 end NotificationHandling
 
 section MessageHandling
@@ -303,7 +303,7 @@ section MessageHandling
     match method with
     | "textDocument/didChange" => handle DidChangeTextDocumentParams handleDidChange
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
-    | "$/lean/rpc/initialize"  => handle RpcInitializeParams handleRpcInitialize
+    | "$/lean/rpc/connect"     => handle RpcConnectParams handleRpcConnect
     | _                        => throwServerError s!"Got unsupported notification method: {method}"
 
   def queueRequest (id : RequestID) (requestTask : Task (Except IO.Error Unit))

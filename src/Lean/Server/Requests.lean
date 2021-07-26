@@ -12,6 +12,8 @@ import Lean.Data.Lsp
 import Lean.Server.FileSource
 import Lean.Server.FileWorker.Utils
 
+import Lean.Server.Rpc.Basic
+
 /-! We maintain a global map of LSP request handlers. This allows user code such as plugins
 to register its own handlers, for example to support ITP functionality such as goal state
 visualization.
@@ -64,6 +66,17 @@ abbrev RequestM := ReaderT RequestContext <| ExceptT RequestError IO
 
 instance : Inhabited (RequestM α) :=
   ⟨throwThe IO.Error "executing Inhabited instance?!"⟩
+
+instance : MonadRpcSession RequestM where
+  rpcSessionId := do
+    (←read).rpcSesh.sessionId
+  rpcStoreRef typeName obj := do
+    (←read).rpcSesh.state.modifyGet fun st => st.store typeName obj
+  rpcGetRef r := do
+    let rs ← (←read).rpcSesh.state.get
+    rs.aliveRefs.find? r
+  rpcReleaseRef r := do
+    (←read).rpcSesh.state.modifyGet fun st => st.release r
 
 namespace RequestM
 open FileWorker

@@ -6,16 +6,8 @@ Authors: Wojciech Nawrocki
 -/
 import Lean.Data.Lsp.Extra
 import Lean.Server.Requests
-import Lean.Server.FileWorker.LspEncoding
 
-/-! Allows LSP clients to make Remote Procedure Calls to the server.
-
-The single use case for these is to allow the infoview UI to refer to and manipulate heavy-weight
-objects residing on the server. It would be inefficient to serialize these into JSON and send over.
-For example, the client can format an `Expr` without transporting the whole `Environment`.
-
-All RPC requests are relative to an open file and an RPC session for that file. The client must
-first connect to the session using `$/lean/rpc/connect`. -/
+import Lean.Server.Rpc.Basic
 
 namespace Lean.Server
 
@@ -33,13 +25,13 @@ private def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) 
   proc.wrapper p.sessionId p.params
 
 builtin_initialize
-  registerLspRequestHandler "$/lean/rpc/call"    Lsp.RpcCallParams    Json handleRpcCall
+  registerLspRequestHandler "$/lean/rpc/call" Lsp.RpcCallParams Json handleRpcCall
 
 def registerRpcCallHandler (method : Name)
     paramType
     respType
-    {paramLspType} [LspEncoding paramType paramLspType] [FromJson paramLspType]
-    {respLspType} [LspEncoding respType respLspType] [ToJson respLspType]
+    {paramLspType} [RpcEncoding paramType paramLspType] [FromJson paramLspType]
+    {respLspType} [RpcEncoding respType respLspType] [ToJson respLspType]
     (handler : paramType → RequestM (RequestTask respType)) : IO Unit := do
   if !(← IO.initializing) then
     throw <| IO.userError s!"Failed to register RPC call handler for '{method}': only possible during initialization"
@@ -54,7 +46,10 @@ def registerRpcCallHandler (method : Name)
       if seshId ≠ rc.rpcSesh.sessionId then
         throwThe RequestError { code := JsonRpc.ErrorCode.rpcNeedsReconnect
                                 message := s!"Outdated RPC session" }
-      @lspDecode paramType paramLspType _ paramsLsp
+      match (← @rpcDecode paramType paramLspType _ RequestM _ _ paramsLsp) with
+      | Except.ok v => return v
+      | Except.error e => throwThe RequestError { code := JsonRpc.ErrorCode.invalidParams
+                                                  message := e }
 
     let t ← RequestM.bindTask t fun
       | Except.error e => throw e
@@ -63,7 +58,7 @@ def registerRpcCallHandler (method : Name)
     RequestM.mapTask t fun
       | Except.error e => throw e
       | Except.ok ret => do
-        let retLsp ← @lspEncode respType respLspType _ ret
+        let retLsp ← @rpcEncode respType respLspType _ RequestM _ _ ret
         return toJson retLsp
 
   rpcProcedures.modify fun ps => ps.insert method ⟨wrapper⟩

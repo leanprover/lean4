@@ -1,10 +1,10 @@
-import Lean.Server.FileWorker.LspEncoding
+import Lean.Server.Rpc.Basic
 
 open Lean Server
 
 structure FooRef where
   a : Array Nat
-  deriving LspEncoding with { withRef := true }
+  deriving RpcEncoding with { withRef := true }
 
 structure FooJson where
   s : String
@@ -13,12 +13,12 @@ structure FooJson where
 structure Bar where
   fooRef : WithRpcRef FooRef
   fooJson : FooJson
-  deriving LspEncoding
+  deriving RpcEncoding
 
 structure BarTrans where
   bar : Bar
-  deriving LspEncoding
+  deriving RpcEncoding
 
 structure Baz where
   arr : Array String -- non-constant field
-  deriving LspEncoding
+  deriving RpcEncoding

@@ -76,6 +76,9 @@ instance [RpcEncoding α α'] [RpcEncoding β β']  : RpcEncoding (α × β) (α
     let b ← rpcDecode b'
     return (a, b)
 
+structure RpcEncoding.DerivingParams where
+  withRef : Bool := false
+
 /-- Marks fields to encode as opaque references in LSP packets. -/
 structure WithRpcRef (α : Type u) where
   val : α

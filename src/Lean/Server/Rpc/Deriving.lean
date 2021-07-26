@@ -13,9 +13,6 @@ import Lean.Server.Rpc.Basic
 
 namespace Lean.Server.RpcEncoding
 
-structure DerivingParams where
-  withRef : Bool := false
-
 open Meta Elab Command Term
 
 private def deriveWithRefInstance (typeNm : Name) : CommandElabM Bool := do
@@ -24,22 +21,24 @@ private def deriveWithRefInstance (typeNm : Name) : CommandElabM Bool := do
   let typeId := mkIdent typeNm
   let cmds ← `(
     namespace $typeId:ident
-    variable {m : Type → Type} [Monad m] [MonadRpcSession m]
-    private unsafe def encodeUnsafe (r : WithRpcRef $typeId:ident) : m Lsp.RpcRef :=
+    variable {m : Type → Type}
+    private unsafe def encodeUnsafe [Monad m] [MonadRpcSession m] (r : WithRpcRef $typeId:ident) : m Lsp.RpcRef :=
       WithRpcRef.encodeUnsafe $(quote typeNm) r
 
     @[implementedBy encodeUnsafe]
-    private constant encode (r : WithRpcRef $typeId:ident) : m Lsp.RpcRef
+    private constant encode [Monad m] [MonadRpcSession m] (r : WithRpcRef $typeId:ident) : m Lsp.RpcRef :=
+      pure ⟨0⟩
 
-    private unsafe def decodeUnsafe (r : Lsp.RpcRef) : m (WithRpcRef $typeId:ident) :=
+    private unsafe def decodeUnsafe [Monad m] [MonadRpcSession m] (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef $typeId:ident) :=
       WithRpcRef.decodeUnsafeAs $typeId:ident $(quote typeNm) r
 
     @[implementedBy decodeUnsafe]
-    private constant decode (r : Lsp.RpcRef) : m (WithRpcRef $typeId:ident)
+    private constant decode [Monad m] [MonadRpcSession m] (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef $typeId:ident) :=
+      throw "unreachable"
 
     instance : RpcEncoding (WithRpcRef $typeId:ident) Lsp.RpcRef where
-      lspEncode a := encode a
-      lspDecode a := decode a
+      rpcEncode a := encode a
+      rpcDecode a := decode a
     end $typeId:ident
   )
   elabCommand cmds
@@ -101,11 +100,11 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
           deriving $(mkIdent ``Lean.FromJson), $(mkIdent ``Lean.ToJson)
 
         instance : RpcEncoding $typeId:ident RpcEncodingPacket where
-          lspEncode a := do
+          rpcEncode a := do
             return {
               $[$encFields]*
             }
-          lspDecode a := do
+          rpcDecode a := do
             return {
               $[$decFields]*
             }

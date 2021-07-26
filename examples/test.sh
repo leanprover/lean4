@@ -1,3 +1,8 @@
+echo 'testing init'
+cd init
+./test.sh
+cd ..
+
 echo 'testing hello'
 cd hello
 ./test.sh

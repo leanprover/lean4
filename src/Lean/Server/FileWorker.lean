@@ -164,7 +164,7 @@ section Initialization
         srcSearchPath := srcSearchPath ++ pkgSearchPath
       Elab.processHeader headerStx opts msgLog inputCtx
     catch e =>  -- should be from `leanpkg print-paths`
-      let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
+      let msgs := MessageLog.empty.add { fileName := "<ignored>", rawPos := 0, pos := ⟨0, 0⟩, data := e.toString }
       pure (← mkEmptyEnvironment, msgs)
     publishMessages m msgLog hOut
     let cmdState := Elab.Command.mkState headerEnv msgLog opts

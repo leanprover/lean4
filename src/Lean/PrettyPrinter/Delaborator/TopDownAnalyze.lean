@@ -1,0 +1,370 @@
+/-
+Copyright (c) 2021 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Daniel Selsam
+-/
+
+/-!
+The top-down analyzer is an optional preprocessor to the delaborator that aims
+to determine the minimal annotations necessary to ensure that the delaborated
+expression can be re-elaborated correctly. Currently, the top-down analyzer
+is neither sound nor complete: there may be edge-cases in which the expression
+can still not be re-elaborated correctly, and it may also add many annotations
+that are not strictly necessary.
+-/
+
+import Lean.Meta
+import Lean.Util.CollectLevelParams
+import Lean.Util.ReplaceLevel
+import Lean.PrettyPrinter.Delaborator.SubExpr
+import Std.Data.RBMap
+
+namespace Lean
+
+open Lean.Meta
+open Std (RBMap)
+
+register_builtin_option pp.analyze : Bool := {
+  defValue := false
+  group    := "pp.analyze"
+  descr    := "(pretty printer analyzer) determine annotations sufficient to ensure round-tripping"
+}
+
+register_builtin_option pp.analyze.checkInstances : Bool := {
+  defValue := true
+  group    := "pp.analyze"
+  descr    := "(pretty printer analyzer) confirm that instances can be re-synthesized"
+}
+
+register_builtin_option pp.analyze.typeAscriptions : Bool := {
+  defValue := true
+  group    := "pp.analyze"
+  descr    := "(pretty printer analyzer) add type ascriptions when deemed necessary"
+}
+
+register_builtin_option pp.analyze.trustSubst : Bool := {
+  defValue := false
+  group    := "pp.analyze"
+  descr    := "(pretty printer analyzer) always 'pretend' applications that can delab to ▸ are 'regular'"
+}
+
+register_builtin_option pp.analyze.trustOfNat : Bool := {
+  defValue := true
+  group    := "pp.analyze"
+  descr    := "(pretty printer analyzer) always 'pretend' `OfNat.ofNat` applications can elab bottom-up"
+}
+
+register_builtin_option pp.analyze.trustSimpleHOFuns : Bool := {
+  defValue := false
+  group    := "pp.analyze"
+  descr    := "(pretty printer analyzer) omit constant higher-order functions returning non-Pi types"
+}
+
+register_builtin_option pp.analyze.trustKnownType2TypeHOFuns : Bool := {
+  defValue := true
+  group    := "pp.analyze"
+  descr    := "(pretty printer analyzer) omit higher-order functions whose values seem to be knownType2Type"
+}
+
+def getPPAnalyze                   (o : Options) : Bool := o.get pp.analyze.name pp.analyze.defValue
+def getPPAnalyzeCheckInstances     (o : Options) : Bool := o.get pp.analyze.checkInstances.name pp.analyze.checkInstances.defValue
+def getPPAnalyzeTypeAscriptions    (o : Options) : Bool := o.get pp.analyze.typeAscriptions.name pp.analyze.typeAscriptions.defValue
+def getPPAnalyzeTrustSubst         (o : Options) : Bool := o.get pp.analyze.trustSubst.name pp.analyze.trustSubst.defValue
+def getPPAnalyzeTrustOfNat         (o : Options) : Bool := o.get pp.analyze.trustOfNat.name pp.analyze.trustOfNat.defValue
+def getPPAnalyzeTrustSimpleHOFuns  (o : Options) : Bool := o.get pp.analyze.trustSimpleHOFuns.name pp.analyze.trustSimpleHOFuns.defValue
+def getPPAnalyzeTrustKnownType2TypeHOFuns   (o : Options) : Bool := o.get pp.analyze.trustKnownType2TypeHOFuns.name pp.analyze.trustKnownType2TypeHOFuns.defValue
+
+def getPPAnalysisSkip            (o : Options) : Bool := o.get `pp.analysis.skip false
+def getPPAnalysisHole            (o : Options) : Bool := o.get `pp.analysis.hole false
+def getPPAnalysisNamedArg        (o : Options) : Bool := o.get `pp.analysis.namedArg false
+def getPPAnalysisLetVarType      (o : Options) : Bool := o.get `pp.analysis.letVarType true
+def getPPAnalysisNeedsType       (o : Options) : Bool := o.get `pp.analysis.needsType false
+
+namespace PrettyPrinter.Delaborator
+
+-- TODO: elsewhere
+deriving instance Repr for BinderInfo
+
+def returnsPi (motive : Expr) : MetaM Bool := do
+  lambdaTelescope motive fun xs b => b.isForall
+
+def isNonConstFun (motive : Expr) : MetaM Bool := do
+  match motive with
+  | Expr.lam name d b _ => isNonConstFun b
+  | _ => motive.hasLooseBVars
+
+def isSimpleHOFun (motive : Expr) : MetaM Bool := do
+  not (← returnsPi motive) && not (← isNonConstFun motive)
+
+def isType2Type (motive : Expr) : MetaM Bool := do
+  match ← inferType motive with
+  | Expr.forallE _ (Expr.sort ..) (Expr.sort ..) .. =>
+    -- TODO: change the name
+    -- we really want something "monad-like", so no lambda
+    motive.isApp || motive.isConst || motive.isFVar
+  | _ => false
+
+namespace TopDownAnalyze
+
+def replaceLPsWithVars (e : Expr) : MetaM Expr := do
+  let lps := collectLevelParams {} e |>.params
+  let mut replaceMap : Std.HashMap Name Level := {}
+  for lp in lps do replaceMap := replaceMap.insert lp (← mkFreshLevelMVar)
+  return e.replaceLevel fun
+    | Level.param n .. => replaceMap.find! n
+    | l => if !l.hasParam then some l else none
+
+def tryUnify (t s : Expr) : MetaM Unit := do
+  try
+    let r ← Meta.isExprDefEqAux t s
+    if !r then
+      trace[pp.analyze.tryUnify] "nonDefEq\n\n{fmt t}\n\n=?=\n\n{fmt s}\n"
+    pure ()
+  catch ex =>
+    trace[pp.analyze.tryUnify] "{← ex.toMessageData.toString}\n\n{fmt t}\n\n=?=\n\n{fmt s}\n"
+    pure ()
+
+structure BottomUpKind where
+  needsType  : Bool
+  needsLevel : Bool
+  deriving Inhabited, Repr, BEq
+
+def BottomUpKind.safe   : BottomUpKind := ⟨false, false⟩
+def BottomUpKind.unsafe : BottomUpKind := ⟨true, true⟩
+
+def BottomUpKind.isSafe   : BottomUpKind → Bool := (· == BottomUpKind.safe)
+def BottomUpKind.isUnsafe : BottomUpKind → Bool := (· == BottomUpKind.unsafe)
+
+partial def inspectOutParams (arg mvar : Expr) : MetaM Unit := do
+  let argType  ← inferType arg -- HAdd α α α
+  let mvarType ← inferType mvar
+  let fType ← inferType argType.getAppFn -- Type → Type → outParam Type
+  let mType ← inferType mvarType.getAppFn
+  inspectAux fType mType 0 argType.getAppArgs mvarType.getAppArgs
+where
+  inspectAux (fType mType : Expr) (i : Nat) (args mvars : Array Expr) := do
+    let fType ← whnf fType
+    let mType ← whnf mType
+    if not (i < args.size) then return ()
+    match fType, mType with
+    | Expr.forallE _ fd fb _, Expr.forallE _ md mb _ => do
+      -- TODO: do I need to check (← okBottomUp? args[i] mvars[i] fuel).isSafe here?
+      -- if so, I'll need to take a callback
+      if isOutParam fd then
+        tryUnify (args[i]) (mvars[i])
+      inspectAux (fb.instantiate1 args[i]) (mb.instantiate1 mvars[i]) (i+1) args mvars
+    | _, _ => return ()
+
+partial def okBottomUp? (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 10) : MetaM BottomUpKind := do
+  -- Here we check if `e` can be safely elaborated without its expected type.
+  -- These are incomplete (and possibly unsound) heuristics.
+  match fuel with
+  | 0 => BottomUpKind.unsafe
+  | fuel + 1 =>
+    if e.isFVar then return BottomUpKind.safe
+    if getPPAnalyzeTrustOfNat (← getOptions) && e.isAppOfArity `OfNat.ofNat 3 then return BottomUpKind.safe
+    if e.isApp || e.isConst then
+      match e.getAppFn with
+      | Expr.const .. =>
+        let args := e.getAppArgs
+        let fType ← replaceLPsWithVars (← inferType e.getAppFn)
+        let ⟨mvars, bInfos, resultType⟩ ← forallMetaBoundedTelescope fType e.getAppArgs.size (instsSynthetic := false)
+        for i in [:mvars.size] do
+          if bInfos[i] == BinderInfo.instImplicit then
+            inspectOutParams args[i] mvars[i]
+          else if bInfos[i] == BinderInfo.default then
+            match ← okBottomUp? args[i] mvars[i] fuel with
+            | ⟨false, false⟩ => tryUnify args[i] mvars[i]
+            | _              => pure ()
+        if mvar?.isSome then tryUnify resultType (← inferType mvar?.get!)
+        let resultType ← instantiateMVars resultType
+        pure ⟨resultType.hasExprMVar, resultType.hasLevelMVar⟩
+      | _ => BottomUpKind.unsafe
+    else BottomUpKind.unsafe
+
+def isHigherOrder (type : Expr) : MetaM Bool := do
+  withTransparency TransparencyMode.all do forallTelescopeReducing type fun xs b => xs.size > 0 && b.isSort
+
+def isFunLike (e : Expr) : MetaM Bool := do
+  withTransparency TransparencyMode.all do forallTelescopeReducing (← inferType e) fun xs b => xs.size > 0
+
+def isSubstLike (e : Expr) : Bool :=
+  e.isAppOfArity `Eq.ndrec 6
+
+open SubExpr
+
+structure Context where
+  knowsType  : Bool
+  knowsLevel : Bool -- only constants look at this
+  inBottomUp : Bool := false
+  deriving Inhabited, Repr
+
+structure State where
+  annotations : RBMap Pos Options compare := {}
+
+abbrev AnalyzeM := ReaderT Context (ReaderT SubExpr (StateRefT State MetaM))
+
+def withKnowing (knowsType knowsLevel : Bool) (x : AnalyzeM α) : AnalyzeM α := do
+  withReader (fun ctx => { ctx with knowsType := knowsType, knowsLevel := knowsLevel }) x
+
+builtin_initialize analyzeFailureId : InternalExceptionId ← registerInternalExceptionId `analyzeFailure
+
+def checkKnowsType : AnalyzeM Unit := do
+  if not (← read).knowsType then
+    throw $ Exception.internal analyzeFailureId
+
+def annotateBool (n : Name) (b : Bool) : AnalyzeM Unit := do
+  let pos ← getPos
+  let opts := (← get).annotations.findD pos {} |>.setBool n b
+  trace[pp.analyze.annotate] "{pos} {n} {b}"
+  modify fun s => { s with annotations := s.annotations.insert pos opts }
+
+def annotateName (n : Name) (v : Name) : AnalyzeM Unit := do
+  let pos ← getPos
+  let opts := (← get).annotations.findD pos {} |>.setName n v
+  modify fun s => { s with annotations := s.annotations.insert pos opts }
+
+partial def analyze : AnalyzeM Unit := do
+  checkMaxHeartbeats "Delaborator.topDownAnalyze"
+  trace[pp.analyze] "{(← read).knowsType}.{(← read).knowsLevel} {← getExpr}"
+  match (← getExpr) with
+  | Expr.app ..     => analyzeApp
+  | Expr.forallE .. => analyzePi
+  | Expr.lam ..     => analyzeLam
+  | Expr.const ..   => analyzeConst
+  | Expr.sort ..    => analyzeSort
+  | Expr.proj ..    => analyzeProj
+  | Expr.fvar ..    => analyzeFVar
+  | Expr.mdata ..   => analyzeMData
+  | Expr.letE ..    => analyzeLet
+  | Expr.lit ..     => pure ()
+  | Expr.mvar ..    => pure ()
+  | Expr.bvar ..    => unreachable!
+where
+  analyzeApp := do
+    withKnowing true true $ analyzeAppStaged (← getExpr).getAppFn (← getExpr).getAppArgs
+    if !(← read).knowsType && !(← okBottomUp? (← getExpr)).isSafe then
+      annotateBool `pp.analysis.needsType true
+      withAppType $ withKnowing true false $ analyze
+
+  analyzeAppStaged (f : Expr) (args : Array Expr) : AnalyzeM Unit := do
+    let fType ← replaceLPsWithVars (← inferType f)
+    let ⟨mvars, bInfos, resultType⟩ ← forallMetaBoundedTelescope fType args.size (instsSynthetic := false)
+    let rest := args.extract mvars.size args.size
+    let args := args.shrink mvars.size
+
+    -- Unify with the expected type
+    tryUnify (← inferType (mkAppN f args)) resultType
+
+    -- Collect explicit arguments that can be elaborated without expected type
+    -- TODO: try before *and* after HO?
+    let mut bottomUps := mkArray args.size false
+    for i in [:args.size] do
+      if bInfos[i] == BinderInfo.default then
+        if (← valUnknown mvars[i]) && (← okBottomUp? args[i] mvars[i]).isSafe then
+          tryUnify args[i] mvars[i]
+          bottomUps := bottomUps.set! i true
+      else if bInfos[i] == BinderInfo.instImplicit then
+        inspectOutParams args[i] mvars[i]
+
+    -- Collect implicit higher-order arguments
+    let mut higherOrders := mkArray args.size false
+    for i in [:args.size] do
+      -- TODO: determine more conditions under which we can safely omit higher-order arguments
+      if not (← bInfos[i] == BinderInfo.implicit) then continue
+      if not (← isHigherOrder (← inferType args[i])) then continue
+
+      if getPPAnalyzeTrustSimpleHOFuns (← getOptions) && (← isSimpleHOFun args[i]) then continue
+
+      tryUnify args[i] mvars[i]
+
+      -- TODO: the following check seems to bring scores down significantly, but I am not sure why yet
+      -- Guess: the elaborator may not always proceed in the same order that we do
+      if getPPAnalyzeTrustKnownType2TypeHOFuns (← getOptions) && not (← valUnknown args[i]) && (← isType2Type (args[i])) then continue
+      higherOrders := higherOrders.set! i true
+
+    -- Now, if this is the first staging, analyze the n-ary function without expected type
+    if !f.isApp then withKnowing false !(← instantiateMVars fType).hasLevelMVar $ withNaryFn analyze
+
+    let disableNamedImplicits : Bool := getPPAnalyzeTrustSubst (← getOptions) && isSubstLike (← getExpr)
+
+    for i in [:args.size] do
+      let arg := args[i]
+      let argType ← inferType arg
+
+      withNaryArg (f.getAppNumArgs + i) do
+        withReader (fun ctx => { ctx with inBottomUp := ctx.inBottomUp || bottomUps[i] }) do
+          match bInfos[i] with
+          | BinderInfo.default =>
+            if !(← valUnknown mvars[i]) && !(← read).inBottomUp && !(← isFunLike arg) then annotateBool `pp.analysis.hole true
+          | BinderInfo.implicit =>
+            if (← valUnknown mvars[i] <||> higherOrders[i]) && !disableNamedImplicits then annotateBool `pp.analysis.namedArg true
+            else annotateBool `pp.analysis.skip true
+          | BinderInfo.instImplicit =>
+            -- Note: apparently checking valUnknown here is not sound, because the elaborator
+            -- will not happily assign instImplicits that it cannot synthesize
+            if getPPAnalyzeCheckInstances (← getOptions) then
+              let instResult ← try trySynthInstance argType catch _ => LOption.undef
+              match instResult with
+              | LOption.some inst =>
+                if ← isDefEq inst arg then annotateBool `pp.analysis.skip true
+                else annotateBool `pp.analysis.namedArg true
+              | _                 => annotateBool `pp.analysis.namedArg true
+          | BinderInfo.auxDecl        => pure ()
+          | BinderInfo.strictImplicit => unreachable!
+          withKnowing (not (← typeUnknown mvars[i])) true analyze
+          tryUnify mvars[i] args[i]
+
+      if not rest.isEmpty then analyzeAppStaged (mkAppN f args) rest
+
+  analyzeConst : AnalyzeM Unit := do
+    -- TODO: currently, the analyzer never uses @,
+    -- even though named arguments do not work for inaccessible names
+    let Expr.const n ls .. ← getExpr | unreachable!
+    annotateBool `pp.universes (!(← read).knowsLevel && !ls.isEmpty)
+
+  analyzePi : AnalyzeM Unit := do
+    annotateBool `pp.binderTypes true
+    withBindingDomain $ withKnowing true false analyze
+    withBindingBody Name.anonymous analyze
+
+  analyzeLam : AnalyzeM Unit := do
+    annotateBool `pp.binderTypes !(← read).knowsType
+    withBindingDomain $ withKnowing true false analyze
+    withBindingBody Name.anonymous analyze
+
+  analyzeLet : AnalyzeM Unit := do
+    let Expr.letE n t v body .. ← getExpr | unreachable!
+    let needsType := (← okBottomUp? v).needsType
+    annotateBool `pp.analysis.letVarType needsType
+    withLetValue $ withKnowing true true analyze
+    withLetVarType $ withKnowing true false analyze
+    withLetBody analyze
+
+  analyzeSort  : AnalyzeM Unit := pure ()
+  analyzeProj  : AnalyzeM Unit := withProj analyze
+  analyzeFVar  : AnalyzeM Unit := pure ()
+  analyzeMData : AnalyzeM Unit := withMDataExpr analyze
+
+  valUnknown (e : Expr) : AnalyzeM Bool := do
+    (← instantiateMVars e).hasMVar
+
+  typeUnknown (e : Expr) : AnalyzeM Bool := do
+    (← instantiateMVars (← inferType e)).hasMVar
+
+end TopDownAnalyze
+
+open TopDownAnalyze SubExpr
+
+def topDownAnalyze (e : Expr) : MetaM OptionsPerPos := do
+  traceCtx `pp.analyze do
+    withReader (fun ctx => { ctx with config := Lean.Elab.Term.setElabConfig ctx.config }) do
+      let ϕ : AnalyzeM OptionsPerPos := do analyze; (← get).annotations
+      ϕ { knowsType := true, knowsLevel := true } (mkRoot e) |>.run' {}
+
+builtin_initialize
+  registerTraceClass `pp.analyze
+  registerTraceClass `pp.analyze.annotate
+  registerTraceClass `pp.analyze.tryUnify
+
+end Lean.PrettyPrinter.Delaborator

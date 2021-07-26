@@ -33,9 +33,9 @@ structure ModuleParserState where
   recovering : Bool       := false
   deriving Inhabited
 
-private def mkErrorMessage (c : ParserContext) (pos : String.Pos) (errorMsg : String) : Message :=
-  let pos := c.fileMap.toPosition pos
-  { fileName := c.fileName, pos := pos, data := errorMsg }
+private def mkErrorMessage (c : ParserContext) (rawPos : String.Pos) (errorMsg : String) : Message :=
+  let pos := c.fileMap.toPosition rawPos
+  { fileName := c.fileName, rawPos := rawPos, pos := pos, data := errorMsg }
 
 def parseHeader (inputCtx : InputContext) : IO (Syntax × ModuleParserState × MessageLog) := do
   let dummyEnv ← mkEmptyEnvironment

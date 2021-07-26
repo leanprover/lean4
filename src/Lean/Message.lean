@@ -169,6 +169,7 @@ end MessageData
 
 structure Message where
   fileName : String
+  rawPos   : Nat
   pos      : Position
   endPos   : Option Position := none
   severity : MessageSeverity := MessageSeverity.error

@@ -34,7 +34,7 @@
     "range":
     {"start": {"line": 16, "character": 0},
      "end": {"line": 16, "character": 6}},
-    "message": "def α : Unit :=\nUnit.unit",
+    "message": "def α : Unit :=\n()",
     "code": null}]},
  "method": "textDocument/publishDiagnostics",
  "jsonrpc": "2.0"}

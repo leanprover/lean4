@@ -30,6 +30,8 @@ import Lean.ProjFns
 import Lean.Syntax
 import Lean.Meta.Match
 import Lean.Elab.Term
+import Lean.PrettyPrinter.Delaborator.SubExpr
+import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
 
 namespace Lean
 
@@ -54,29 +56,29 @@ register_builtin_option pp.universes : Bool := {
   group    := "pp"
   descr    := "(pretty printer) display universe"
 }
-register_builtin_option pp.full_names : Bool := {
+register_builtin_option pp.fullNames : Bool := {
   defValue := false
   group    := "pp"
   descr    := "(pretty printer) display fully qualified names"
 }
-register_builtin_option pp.private_names : Bool := {
+register_builtin_option pp.privateNames : Bool := {
   defValue := false
   group    := "pp"
   descr    := "(pretty printer) display internal names assigned to private declarations"
 }
-register_builtin_option pp.binder_types : Bool := {
-  defValue := false
+register_builtin_option pp.binderTypes : Bool := {
+  defValue := true
   group    := "pp"
   descr    := "(pretty printer) display types of lambda and Pi parameters"
 }
-register_builtin_option pp.structure_instances : Bool := {
+register_builtin_option pp.structureInstances : Bool := {
   defValue := true
   group    := "pp"
   -- TODO: implement second part
   descr    := "(pretty printer) display structure instances using the '{ fieldName := fieldValue, ... }' notation " ++
               "or '⟨fieldValue, ... ⟩' if structure is tagged with [pp_using_anonymous_constructor] attribute"
 }
-register_builtin_option pp.structure_projections : Bool := {
+register_builtin_option pp.structureProjections : Bool := {
   defValue := true
   group    := "pp"
   descr    := "(pretty printer) display structure projections using field notation"
@@ -86,12 +88,12 @@ register_builtin_option pp.explicit : Bool := {
   group    := "pp"
   descr    := "(pretty printer) display implicit arguments"
 }
-register_builtin_option pp.structure_instance_type : Bool := {
+register_builtin_option pp.structureInstanceTypes : Bool := {
   defValue := false
   group    := "pp"
   descr    := "(pretty printer) display type of structure instances"
 }
-register_builtin_option pp.safe_shadowing  : Bool := {
+register_builtin_option pp.safeShadowing  : Bool := {
   defValue := true
   group    := "pp"
   descr    := "(pretty printer) allow variable shadowing if there is no collision"
@@ -170,37 +172,29 @@ register_builtin_option g_pp_compact_let : Bool := {
 }
 -/
 
-def getPPAll (o : Options) : Bool := o.get `pp.all false
-def getPPBinderTypes (o : Options) : Bool := o.get `pp.binder_types true
-def getPPCoercions (o : Options) : Bool := o.get `pp.coercions (!getPPAll o)
-def getPPExplicit (o : Options) : Bool := o.get `pp.explicit (getPPAll o)
-def getPPNotation (o : Options) : Bool := o.get `pp.notation (!getPPAll o)
-def getPPStructureProjections (o : Options) : Bool := o.get `pp.structure_projections (!getPPAll o)
-def getPPStructureInstances (o : Options) : Bool := o.get `pp.structure_instances (!getPPAll o)
-def getPPStructureInstanceType (o : Options) : Bool := o.get `pp.structure_instance_type (getPPAll o)
-def getPPUniverses (o : Options) : Bool := o.get `pp.universes (getPPAll o)
-def getPPFullNames (o : Options) : Bool := o.get `pp.full_names (getPPAll o)
-def getPPPrivateNames (o : Options) : Bool := o.get `pp.private_names (getPPAll o)
-def getPPUnicode (o : Options) : Bool := o.get `pp.unicode true
-def getPPSafeShadowing (o : Options) : Bool := o.get `pp.safe_shadowing true
-def getPPProofs (o : Options) : Bool := o.get pp.proofs.name (getPPAll o)
-def getPPProofsWithType (o : Options) : Bool := o.get pp.proofs.withType.name true
+def getPPAll (o : Options) : Bool := o.get pp.all.name false
+def getPPBinderTypes (o : Options) : Bool := o.get pp.binderTypes.name pp.binderTypes.defValue
+def getPPCoercions (o : Options) : Bool := o.get pp.coercions.name (!getPPAll o)
+def getPPExplicit (o : Options) : Bool := o.get pp.explicit.name (getPPAll o)
+def getPPNotation (o : Options) : Bool := o.get pp.notation.name (!getPPAll o)
+def getPPStructureProjections (o : Options) : Bool := o.get pp.structureProjections.name (!getPPAll o)
+def getPPStructureInstances (o : Options) : Bool := o.get pp.structureInstances.name (!getPPAll o)
+def getPPStructureInstanceType (o : Options) : Bool := o.get pp.structureInstanceTypes.name (getPPAll o || getPPAnalyze o)
+def getPPUniverses (o : Options) : Bool := o.get pp.universes.name (getPPAll o)
+def getPPFullNames (o : Options) : Bool := o.get pp.fullNames.name (getPPAll o)
+def getPPPrivateNames (o : Options) : Bool := o.get pp.privateNames.name (getPPAll o)
+def getPPSafeShadowing (o : Options) : Bool := o.get pp.safeShadowing.name pp.safeShadowing.defValue
+def getPPProofs (o : Options) : Bool := o.get pp.proofs.name (getPPAll o || getPPAnalyze o)
+def getPPProofsWithType (o : Options) : Bool := o.get pp.proofs.withType.name pp.proofs.withType.defValue
 def getPPMotivesPi (o : Options) : Bool := o.get pp.motives.pi.name pp.motives.pi.defValue
 def getPPMotivesNonConst (o : Options) : Bool := o.get pp.motives.nonConst.name pp.motives.nonConst.defValue
 def getPPMotivesAll (o : Options) : Bool := o.get pp.motives.all.name pp.motives.all.defValue
 
-/-- Associate pretty printer options to a specific subterm using a synthetic position. -/
-abbrev OptionsPerPos := Std.RBMap Nat Options compare
-
 namespace PrettyPrinter
 namespace Delaborator
-open Lean.Meta
+open Lean.Meta SubExpr
 
 structure Context where
-  -- In contrast to other systems like the elaborator, we do not pass the current term explicitly as a
-  -- parameter, but store it in the monad so that we can keep it in sync with `pos`.
-  expr           : Expr
-  pos            : Nat := 1
   defaultOptions : Options
   optionsPerPos  : OptionsPerPos
   currNamespace  : Name
@@ -211,7 +205,7 @@ structure Context where
 -- the delaborator was able to produce a Syntax object.
 builtin_initialize delabFailureId : InternalExceptionId ← registerInternalExceptionId `delabFailure
 
-abbrev DelabM := ReaderT Context MetaM
+abbrev DelabM := ReaderT Context (ReaderT SubExpr MetaM)
 abbrev Delab := DelabM Syntax
 
 instance {α} : Inhabited (DelabM α) where
@@ -251,10 +245,6 @@ unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
   } `Lean.PrettyPrinter.Delaborator.delabAttribute
 @[builtinInit mkDelabAttribute] constant delabAttribute : KeyedDeclsAttribute Delab
 
-def getExpr : DelabM Expr := do
-  let ctx ← read
-  pure ctx.expr
-
 def getExprKind : DelabM Name := do
   let e ← getExpr
   pure $ match e with
@@ -277,14 +267,17 @@ def getExprKind : DelabM Name := do
     | _   => `mdata
   | Expr.proj _ _ _ _    => `proj
 
-/-- Evaluate option accessor, using subterm-specific options if set. -/
-def getPPOption (opt : Options → Bool) : DelabM Bool := do
+def getOptionsAtCurrPos : DelabM Options := do
   let ctx ← read
   let mut opts := ctx.defaultOptions
-  if let some opts' ← ctx.optionsPerPos.find? ctx.pos then
+  if let some opts' ← ctx.optionsPerPos.find? (← getPos) then
     for (k, v) in opts' do
       opts := opts.insert k v
-  return opt opts
+  opts
+
+/-- Evaluate option accessor, using subterm-specific options if set. -/
+def getPPOption (opt : Options → Bool) : DelabM Bool := do
+  return opt (← getOptionsAtCurrPos)
 
 def whenPPOption (opt : Options → Bool) (d : Delab) : Delab := do
   let b ← getPPOption opt
@@ -293,50 +286,6 @@ def whenPPOption (opt : Options → Bool) (d : Delab) : Delab := do
 def whenNotPPOption (opt : Options → Bool) (d : Delab) : Delab := do
   let b ← getPPOption opt
   if b then failure else d
-
-/--
-Descend into `child`, the `childIdx`-th subterm of the current term, and update position.
-
-Because `childIdx < 3` in the case of `Expr`, we can injectively map a path
-`childIdxs` to a natural number by computing the value of the 3-ary representation
-`1 :: childIdxs`, since n-ary representations without leading zeros are unique.
-Note that `pos` is initialized to `1` (case `childIdxs == []`).
--/
-def descend {α} (child : Expr) (childIdx : Nat) (d : DelabM α) : DelabM α :=
-  withReader (fun cfg => { cfg with expr := child, pos := cfg.pos * 3 + childIdx }) d
-
-def withAppFn {α} (d : DelabM α) : DelabM α := do
-  let Expr.app fn _ _ ← getExpr | unreachable!
-  descend fn 0 d
-
-def withAppArg {α} (d : DelabM α) : DelabM α := do
-  let Expr.app _ arg _ ← getExpr | unreachable!
-  descend arg 1 d
-
-partial def withAppFnArgs {α} : DelabM α → (α → DelabM α) → DelabM α
-  | fnD, argD => do
-    let Expr.app fn arg _ ← getExpr | fnD
-    let a ← withAppFn (withAppFnArgs fnD argD)
-    withAppArg (argD a)
-
-def withBindingDomain {α} (d : DelabM α) : DelabM α := do
-  let e ← getExpr
-  descend e.bindingDomain! 0 d
-
-def withBindingBody {α} (n : Name) (d : DelabM α) : DelabM α := do
-  let e ← getExpr
-  withLocalDecl n e.binderInfo e.bindingDomain! fun fvar =>
-    let b := e.bindingBody!.instantiate1 fvar
-    descend b 1 d
-
-def withProj {α} (d : DelabM α) : DelabM α := do
-  let Expr.proj _ _ e _ ← getExpr | unreachable!
-  descend e 0 d
-
-def withMDataExpr {α} (d : DelabM α) : DelabM α := do
-  let Expr.mdata _ e _ ← getExpr | unreachable!
-  -- do not change position so that options on an mdata are automatically forwarded to the child
-  withReader ({ · with expr := e }) d
 
 partial def annotatePos (pos : Nat) : Syntax → Syntax
   | stx@(Syntax.ident _ _ _ _)                   => stx.setInfo (SourceInfo.synthetic pos pos)
@@ -348,8 +297,7 @@ partial def annotatePos (pos : Nat) : Syntax → Syntax
     | none     => stx
 
 def annotateCurPos (stx : Syntax) : Delab := do
-  let ctx ← read
-  pure $ annotatePos ctx.pos stx
+  annotatePos (← getPos) stx
 
 def getUnusedName (suggestion : Name) (body : Expr) : DelabM Name := do
   -- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
@@ -387,6 +335,7 @@ partial def delabFor : Name → Delab
       delabFor k.getRoot
 
 partial def delab : Delab := do
+  checkMaxHeartbeats "delab"
   unless (← getPPOption getPPProofs) do
     let e ← getExpr
     -- no need to hide atomic proofs
@@ -400,7 +349,11 @@ partial def delab : Delab := do
             return ← ``(_)
       catch _ => pure ()
   let k ← getExprKind
-  delabFor k <|> (liftM $ show MetaM Syntax from throwError "don't know how to delaborate '{k}'")
+  let stx ← delabFor k <|> (liftM $ show MetaM Syntax from throwError "don't know how to delaborate '{k}'")
+  if ← getPPOption getPPAnalyzeTypeAscriptions <&&> getPPOption getPPAnalysisNeedsType <&&> (pure (← getExpr).isApp) then
+    let typeStx ← withAppType delab
+    `(show $typeStx:term from $stx:term) >>= annotateCurPos
+  else stx
 
 unsafe def mkAppUnexpanderAttribute : IO (KeyedDeclsAttribute Unexpander) :=
   KeyedDeclsAttribute.init {
@@ -416,6 +369,8 @@ to true or `pp.notation` is set to false, it will not be called at all.",
 
 end Delaborator
 
+open Delaborator (OptionsPerPos topDownAnalyze)
+
 /-- "Delaborate" the given term into surface-level syntax using the default and given subterm-specific options. -/
 def delab (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Syntax := do
   trace[PrettyPrinter.delab.input] "{Std.format e}"
@@ -427,8 +382,12 @@ def delab (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (options
       if ← Meta.isProp ty then
         opts := pp.proofs.set opts true
     catch _ => pure ()
+  let optionsPerPos ←
+    if getPPAnalyze opts && optionsPerPos.isEmpty then
+      topDownAnalyze e
+    else optionsPerPos
   catchInternalId Delaborator.delabFailureId
-    (Delaborator.delab.run { expr := e, defaultOptions := opts, optionsPerPos := optionsPerPos, currNamespace := currNamespace, openDecls := openDecls })
+    (Delaborator.delab.run { defaultOptions := opts, optionsPerPos := optionsPerPos, currNamespace := currNamespace, openDecls := openDecls } (Delaborator.SubExpr.mkRoot e))
     (fun _ => unreachable!)
 
 builtin_initialize registerTraceClass `PrettyPrinter.delab

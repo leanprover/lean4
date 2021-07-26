@@ -3,7 +3,7 @@ def mkBigPairs : Nat → Array (Nat × Nat) → Array (Nat × Nat)
 | (n+1) ps := mkBigPairs n (ps.push (n, n))
 
 set_option pp.implicit true
-set_option pp.binder_types false
+set_option pp.binderTypes false
 -- set_option trace.compiler.specialize true
 -- set_option trace.compiler.boxed true
 

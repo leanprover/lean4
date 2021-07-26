@@ -36,15 +36,15 @@ fun (x : Lean.Syntax) =>
         let lhs : Lean.Syntax := discr;
         do 
           let info ← Lean.MonadRef.mkInfoFromRefPos 
-          Lean.getCurrMacroScope 
-          Lean.getMainModule 
+          let _ ← Lean.getCurrMacroScope 
+          let _ ← Lean.getMainModule 
           pure (Lean.Syntax.node `«term_+++_» #[lhs, Lean.Syntax.atom info "+++", rhs])
       else
         let discr : Lean.Syntax := Lean.Syntax.getArg discr 1;
-        throw Unit.unit)
+        throw ())
       (let discr_2 : Lean.Syntax := Lean.Syntax.getArg discr 0;
       let discr : Lean.Syntax := Lean.Syntax.getArg discr 1;
-      throw Unit.unit)
+      throw ())
   else
     let discr : Lean.Syntax := x;
-    throw Unit.unit
+    throw ()

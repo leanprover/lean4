@@ -69,18 +69,12 @@ namespace WithRpcRef
 -/
 protected unsafe def encodeUnsafe (typeName : Name) (r : WithRpcRef α) : RequestM Lsp.RpcRef := do
   let rc ← read
-  let some rpcSesh ← rc.rpcSesh?
-    | throwThe IO.Error "internal server error: forgot to validate RPC session"
-
   let obj := @unsafeCast α NonScalar r.val
-  rpcSesh.state.modifyGet fun st => st.store typeName obj
+  rc.rpcSesh.state.modifyGet fun st => st.store typeName obj
 
 protected unsafe def decodeUnsafeAs (α) (typeName : Name) (r : Lsp.RpcRef) : RequestM (WithRpcRef α) := do
   let rc ← read
-  let some rpcSesh ← rc.rpcSesh?
-    | throwThe IO.Error "internal server error: forgot to validate RPC session"
-
-  match (← rpcSesh.state.get).aliveRefs.find? r with
+  match (← rc.rpcSesh.state.get).aliveRefs.find? r with
     | none => throwThe RequestError { code := JsonRpc.ErrorCode.invalidParams
                                       message := s!"RPC reference '{r}' is not valid" }
     | some (nm, obj) =>

@@ -51,10 +51,7 @@ def registerRpcCallHandler (method : Name)
 
     let t ← RequestM.asTask do
       let paramsLsp ← parseRequestParams paramLspType j
-      let some rpcSesh ← rc.rpcSesh?
-        | throwThe RequestError { code := JsonRpc.ErrorCode.rpcNeedsReconnect
-                                  message := s!"RPC session not initialized" }
-      if seshId ≠ rpcSesh.sessionId then
+      if seshId ≠ rc.rpcSesh.sessionId then
         throwThe RequestError { code := JsonRpc.ErrorCode.rpcNeedsReconnect
                                 message := s!"Outdated RPC session" }
       @lspDecode paramType paramLspType _ paramsLsp

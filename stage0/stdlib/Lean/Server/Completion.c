@@ -202,6 +202,7 @@ lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obje
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__35(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM_match__1(lean_object*);
 lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_SimplePersistentEnvExtension_getState___at_Lean_getAliasState___spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAtomic(lean_object*);
 lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_normPrivateName___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Completion_find_x3f_choose(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -251,7 +252,6 @@ static lean_object* l_List_forIn_loop___at___private_Lean_Server_Completion_0__L
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_isTypeApplicable_match__4(lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux_traverse___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__8___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_forM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux_traverse___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__26(lean_object*);
 lean_object* l_Lean_Elab_InfoTree_foldInfo___rarg(lean_object*, lean_object*, lean_object*);
@@ -10254,7 +10254,7 @@ x_38 = lean_ctor_get(x_30, 1);
 lean_inc(x_38);
 lean_dec(x_30);
 x_39 = l_Lean_aliasExtension;
-x_40 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_39, x_15);
+x_40 = l_Lean_SimplePersistentEnvExtension_getState___at_Lean_getAliasState___spec__1(x_39, x_15);
 lean_dec(x_15);
 x_41 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___lambda__5___boxed), 10, 2);
 lean_closure_set(x_41, 0, x_1);

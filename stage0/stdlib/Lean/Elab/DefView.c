@@ -133,7 +133,6 @@ static lean_object* l___private_Lean_Elab_DefView_0__Lean_Elab_Command_MkInstanc
 lean_object* l_Std_RBNode_insert___at___private_Lean_Elab_DefView_0__Lean_Elab_Command_MkInstanceName_kindReplacements___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__8___rarg(lean_object*);
 lean_object* l_Std_RBMap_ofList___at___private_Lean_Elab_DefView_0__Lean_Elab_Command_MkInstanceName_kindReplacements___spec__1(lean_object*);
-lean_object* l_Std_RBNode_find___at_Lean_findDocString_x3f___spec__2(lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_Elab_Command_MkInstanceName_collect_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -174,6 +173,7 @@ lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_mkDefViewOfInstance__
 lean_object* l_Lean_Elab_Command_mkDefViewOfConstant___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_MkInstanceName_collect___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ResolveName_resolveGlobalName(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_RBNode_find___at_Lean_findDocString_x3f___spec__5(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_DefView___hyg_1252____closed__4;
 static lean_object* l_Lean_Elab_Command_mkDefViewOfInstance___closed__6;
 lean_object* l_Lean_Elab_DefKind_isDefOrAbbrevOrOpaque_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4035,7 +4035,7 @@ x_11 = lean_ctor_get(x_8, 1);
 lean_inc(x_11);
 lean_dec(x_8);
 x_12 = l___private_Lean_Elab_DefView_0__Lean_Elab_Command_MkInstanceName_kindReplacements;
-x_13 = l_Std_RBNode_find___at_Lean_findDocString_x3f___spec__2(x_12, x_6);
+x_13 = l_Std_RBNode_find___at_Lean_findDocString_x3f___spec__5(x_12, x_6);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; 

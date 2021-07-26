@@ -774,13 +774,13 @@ bool type_checker::is_def_eq_app(expr const & t, expr const & s) {
 
 /** \brief Return true if \c t and \c s are definitionally equal due to proof irrelevant.
     Return false otherwise. */
-bool type_checker::is_def_eq_proof_irrel(expr const & t, expr const & s) {
+lbool type_checker::is_def_eq_proof_irrel(expr const & t, expr const & s) {
     // Proof irrelevance support for Prop (aka Type.{0})
     expr t_type = infer_type(t);
     if (!is_prop(t_type))
-        return false;
+        return l_undef;
     expr s_type = infer_type(s);
-    return is_def_eq(t_type, s_type);
+    return to_lbool(is_def_eq(t_type, s_type));
 }
 
 bool type_checker::failed_before(expr const & t, expr const & s) const {
@@ -825,7 +825,7 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
         } else if (c > 0) {
             s_n = whnf_core(*unfold_definition(s_n));
         } else {
-            if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
+            if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s) && d_t->get_hints().is_regular()) {
                 // Optimization:
                 // We try to check if their arguments are definitionally equal.
                 // If they are, then t_n and s_n must be definitionally equal, and we can
@@ -938,8 +938,8 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
         if (r != l_undef) return r == l_true;
     }
 
-    if (is_def_eq_proof_irrel(t_n, s_n))
-        return true;
+    r = is_def_eq_proof_irrel(t_n, s_n);
+    if (r != l_undef) return r == l_true;
 
     r = lazy_delta_reduction(t_n, s_n);
     if (r != l_undef) return r == l_true;

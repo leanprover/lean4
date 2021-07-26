@@ -43,6 +43,7 @@ static lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg_
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor_match__1(lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_registerInitAttrUnsafe___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_SimplePersistentEnvExtension_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -56,20 +57,26 @@ static lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__
 lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___closed__1;
 static lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__3___closed__2;
+lean_object* l_Lean_PersistentEnvExtension_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__4___lambda__4(lean_object*);
+extern lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ofExcept___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__3___closed__2;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_EStateM_bind___rarg(lean_object*, lean_object*, lean_object*);
 static uint32_t l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__3___closed__1;
 lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__3___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_SimplePersistentEnvExtension_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__4(lean_object*, lean_object*);
+static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__4;
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_setDeclFor(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___closed__10;
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__3___closed__3;
 static lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___closed__2;
 lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentEnvExtension_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__5___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
@@ -92,6 +99,7 @@ extern lean_object* l_Lean_persistentEnvExtensionsRef;
 static lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__5___lambda__2___closed__1;
 lean_object* l_Std_RBNode_find___at___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
+lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__5___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___closed__3;
@@ -99,7 +107,6 @@ static lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_Parser
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__4___lambda__3(lean_object*, lean_object*);
-lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_ofExcept___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__3(lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___lambda__1(lean_object*);
 lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__4___boxed(lean_object*, lean_object*);
@@ -108,11 +115,19 @@ static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___clo
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__5(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___closed__3;
+lean_object* lean_panic_fn(lean_object*, lean_object*);
+static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__5;
 static lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__5___closed__1;
+lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3(lean_object*, lean_object*);
+static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__3;
 lean_object* l_Lean_throwError___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__1;
+lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___boxed(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_instInhabitedPersistentEnvExtensionState___rarg(lean_object*);
 lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__6(lean_object*);
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___closed__1;
+static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__2;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__6(lean_object*, lean_object*, size_t, size_t);
 static lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__5___closed__2;
 lean_object* l_Lean_evalConst___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1436,15 +1451,144 @@ lean_dec(x_1);
 return x_5;
 }
 }
+static lean_object* _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = lean_box(0);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__1;
+x_2 = l_Lean_instInhabitedPersistentEnvExtensionState___rarg(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("Lean.Environment");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("Lean.EnvExtensionInterfaceUnsafe.getState");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_1 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__3;
+x_2 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__4;
+x_3 = lean_unsigned_to_nat(224u);
+x_4 = lean_unsigned_to_nat(4u);
+x_5 = l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+return x_6;
+}
+}
+lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_2, 2);
+x_5 = lean_array_get_size(x_4);
+x_6 = lean_nat_dec_lt(x_3, x_5);
+lean_dec(x_5);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__2;
+x_8 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__5;
+x_9 = lean_panic_fn(x_7, x_8);
+return x_9;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; 
+x_10 = lean_array_fget(x_4, x_3);
+x_11 = x_10;
+return x_11;
+}
+}
+}
+lean_object* l_Lean_PersistentEnvExtension_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__2(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3(x_3, x_2);
+x_5 = lean_ctor_get(x_4, 1);
+lean_inc(x_5);
+lean_dec(x_4);
+return x_5;
+}
+}
+lean_object* l_Lean_SimplePersistentEnvExtension_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_Lean_PersistentEnvExtension_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__2(x_1, x_2);
+x_4 = lean_ctor_get(x_3, 1);
+lean_inc(x_4);
+lean_dec(x_3);
+return x_4;
+}
+}
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_1, 1);
-x_5 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_4, x_2);
+x_5 = l_Lean_SimplePersistentEnvExtension_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__1(x_4, x_2);
 x_6 = l_Std_RBNode_find___at___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux___spec__2(x_5, x_3);
 lean_dec(x_5);
 return x_6;
+}
+}
+lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+lean_object* l_Lean_PersistentEnvExtension_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_PersistentEnvExtension_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__2(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+lean_object* l_Lean_SimplePersistentEnvExtension_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_SimplePersistentEnvExtension_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__1(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1909,6 +2053,16 @@ l_Lean_ParserCompiler_registerCombinatorAttribute___closed__3 = _init_l_Lean_Par
 lean_mark_persistent(l_Lean_ParserCompiler_registerCombinatorAttribute___closed__3);
 l_Lean_ParserCompiler_registerCombinatorAttribute___closed__4 = _init_l_Lean_ParserCompiler_registerCombinatorAttribute___closed__4();
 lean_mark_persistent(l_Lean_ParserCompiler_registerCombinatorAttribute___closed__4);
+l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__1 = _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__1();
+lean_mark_persistent(l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__1);
+l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__2 = _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__2();
+lean_mark_persistent(l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__2);
+l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__3 = _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__3();
+lean_mark_persistent(l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__3);
+l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__4 = _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__4();
+lean_mark_persistent(l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__4);
+l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__5 = _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__5();
+lean_mark_persistent(l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__3___closed__5);
 l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___closed__1 = _init_l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___closed__1();
 lean_mark_persistent(l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___closed__1);
 l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___closed__2 = _init_l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___closed__2();

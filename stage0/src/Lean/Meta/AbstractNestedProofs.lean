@@ -28,7 +28,10 @@ private def mkAuxLemma (e : Expr) : M Expr := do
   let s ← get
   let lemmaName ← mkAuxName (ctx.baseName ++ `proof) s.nextIdx
   modify fun s => { s with nextIdx := s.nextIdx + 1 }
-  mkAuxDefinitionFor lemmaName e
+  /- We turn on zeta-expansion to make sure we don't need to perform an expensive `check` step to
+     identify which let-decls can be abstracted. If we design a more efficient test, we can avoid the eager zeta expasion step.
+     It a benchmark created by @selsam, The extra `check` step was a bottleneck. -/
+  mkAuxDefinitionFor lemmaName e (zeta := true)
 
 partial def visit (e : Expr) : M Expr := do
   if e.isAtomic then

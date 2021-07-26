@@ -31,6 +31,7 @@ static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__2;
 lean_object* l_List_forIn_loop___at_Lean_Elab_resolveGlobalConstWithInfos___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 lean_object* l_Lean_resolveGlobalConst___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_fmt___at_Lean_ppExpr___spec__4(lean_object*);
 lean_object* l_Lean_Elab_withMacroExpansionInfo___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_fmt___at_Lean_Elab_CompletionInfo_format___spec__1___closed__2;
 lean_object* l_Lean_Elab_pushInfoTree___rarg___lambda__1(lean_object*, lean_object*);
@@ -99,7 +100,6 @@ lean_object* l_Std_PersistentArray_getAux___at_Lean_Elab_withInfoHole___spec__2_
 lean_object* l_Lean_Elab_withInfoContext_x27___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_InfoTree_substitute(lean_object*, lean_object*);
 static lean_object* l_Std_PersistentArray_findSomeMAux___at_Lean_Elab_InfoTree_findInfo_x3f___spec__2___closed__1;
-lean_object* l_Std_fmt___at_Lean_ppExpr___spec__3(lean_object*);
 static lean_object* l_Lean_Elab_MacroExpansionInfo_format___closed__3;
 lean_object* l_Lean_Elab_withInfoHole___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_ContextInfo_mctx___default___closed__1;
@@ -3699,7 +3699,7 @@ else
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = l_Std_fmt___at_Lean_ppExpr___spec__3(x_3);
+x_4 = l_Std_fmt___at_Lean_ppExpr___spec__4(x_3);
 x_5 = l_Std_fmt___at_Lean_Elab_CompletionInfo_format___spec__1___closed__4;
 x_6 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_6, 0, x_5);

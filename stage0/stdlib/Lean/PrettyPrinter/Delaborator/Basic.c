@@ -52,6 +52,7 @@ static lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___
 static lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_182____closed__2;
 lean_object* l_Lean_Expr_bindingDomain_x21(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_385____closed__4;
+lean_object* l_Std_fmt___at_Lean_ppExpr___spec__4(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabAttribute___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_getPPCoercions(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_410____closed__3;
@@ -105,7 +106,6 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_182____closed__4;
 static lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_4____closed__8;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_withAppFn___rarg___closed__1;
-lean_object* l_Std_fmt___at_Lean_ppExpr___spec__3(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_285____closed__2;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_instMonadQuotationDelabM___closed__12;
 uint8_t l_Lean_getPPStructureProjections(lean_object*);
@@ -12063,7 +12063,7 @@ return x_14;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_15 = l_Std_fmt___at_Lean_ppExpr___spec__3(x_3);
+x_15 = l_Std_fmt___at_Lean_ppExpr___spec__4(x_3);
 x_16 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_16, 0, x_15);
 x_17 = l_Lean_PrettyPrinter_delab___closed__5;

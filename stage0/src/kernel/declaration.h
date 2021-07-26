@@ -42,6 +42,7 @@ public:
     static reducibility_hints mk_regular(unsigned h);
     reducibility_hints_kind kind() const { return static_cast<reducibility_hints_kind>(obj_tag(raw())); }
     bool is_regular() const { return kind() == reducibility_hints_kind::Regular; }
+    bool is_abbrev() const { return kind() == reducibility_hints_kind::Abbreviation; }
     unsigned get_height() const;
 };
 

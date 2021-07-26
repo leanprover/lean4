@@ -24,6 +24,7 @@ lean_object* l_Lean_MetavarContext_instantiateMVars(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l_Lean_ppExpr___closed__3;
 lean_object* lean_io_error_to_string(lean_object*);
+lean_object* l_Std_fmt___at_Lean_ppExpr___spec__4(lean_object*);
 lean_object* l_Lean_PPContext_opts___default;
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_ppTerm___closed__3;
@@ -32,6 +33,7 @@ lean_object* l_Lean_PPContext_openDecls___default;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedPPFns___closed__2;
 lean_object* l_Lean_pp_raw_showInfo;
+lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Std_fmt___at_Lean_ppExpr___spec__3(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_4____closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_4____closed__4;
@@ -46,19 +48,24 @@ static uint32_t l_Lean_instInhabitedPPFns___lambda__1___closed__1;
 lean_object* l_Lean_pp_raw;
 static lean_object* l_Lean_PPContext_mctx___default___closed__1;
 uint8_t l_Lean_Option_get___at_Lean_ppTerm___spec__1(lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 static lean_object* l_Lean_ppTerm___closed__1;
 lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_25____spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ppGoal(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PPContext_mctx___default___closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_4____closed__6;
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_225____closed__2;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_ppExt___closed__1;
+lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_PPContext_mctx___default___closed__4;
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_225____closed__1;
+static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___closed__2;
+static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___closed__1;
 lean_object* l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_225____spec__1(lean_object*, lean_object*);
+lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_225____closed__4;
 lean_object* l_Lean_pp_raw_maxDepth;
-lean_object* l_Std_fmt___at_Lean_ppExpr___spec__3___boxed(lean_object*);
 lean_object* l_Lean_pp_rawOnError;
 static lean_object* l_Lean_ppExt___closed__2;
 lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_49____spec__1(lean_object*, lean_object*, lean_object*);
@@ -71,9 +78,11 @@ static lean_object* l_Lean_PPContext_mctx___default___closed__3;
 static lean_object* l_Lean_instInhabitedPPFns___closed__1;
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_225____lambda__3___closed__1;
 lean_object* lean_expr_dbg_to_string(lean_object*);
+lean_object* l_Std_fmt___at_Lean_ppExpr___spec__4___boxed(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_225____lambda__3___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PPContext_lctx___default___closed__2;
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_273____lambda__1(lean_object*);
+lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ppExpr(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_54____closed__4;
 lean_object* l_Lean_PPContext_currNamespace___default;
@@ -96,8 +105,8 @@ static lean_object* l_Lean_ppTerm___closed__2;
 static lean_object* l_Lean_instInhabitedPPFns___lambda__1___closed__3;
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_79____closed__3;
 static lean_object* l_Lean_PPContext_lctx___default___closed__3;
-lean_object* l_Std_fmt___at_Lean_ppExpr___spec__2(lean_object*);
 static lean_object* l_Lean_ppExpr___closed__6;
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_54____closed__3;
 static lean_object* l_Lean_ppExpr___closed__2;
 lean_object* l_Lean_ppTerm(lean_object*, lean_object*, lean_object*);
@@ -110,9 +119,10 @@ lean_object* l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_225
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_29____closed__4;
 lean_object* l_IO_mkRef___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_29____closed__3;
+lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___closed__3;
 uint32_t lean_uint32_of_nat(lean_object*);
 static lean_object* l_Lean_ppExpr___closed__7;
-lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_ppExpr___closed__4;
 static lean_object* l_Lean_ppExpr___closed__1;
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_29____closed__1;
@@ -121,6 +131,7 @@ static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_29____closed__2;
 lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedPPFns___lambda__1___closed__2;
 lean_object* l_Lean_instInhabitedPPFns___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_initFn____x40_Lean_Util_PPExt___hyg_4____closed__1() {
 _start:
 {
@@ -860,7 +871,62 @@ return x_9;
 }
 }
 }
-lean_object* l_Std_fmt___at_Lean_ppExpr___spec__2(lean_object* x_1) {
+static lean_object* _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("Lean.Environment");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("Lean.EnvExtensionInterfaceUnsafe.getState");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_1 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___closed__1;
+x_2 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___closed__2;
+x_3 = lean_unsigned_to_nat(224u);
+x_4 = lean_unsigned_to_nat(4u);
+x_5 = l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+return x_6;
+}
+}
+lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_2, 2);
+x_5 = lean_array_get_size(x_4);
+x_6 = lean_nat_dec_lt(x_3, x_5);
+lean_dec(x_5);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = l_Lean_instInhabitedPPFns;
+x_8 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___closed__3;
+x_9 = lean_panic_fn(x_7, x_8);
+return x_9;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; 
+x_10 = lean_array_fget(x_4, x_3);
+x_11 = x_10;
+return x_11;
+}
+}
+}
+lean_object* l_Std_fmt___at_Lean_ppExpr___spec__3(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -870,7 +936,7 @@ lean_ctor_set(x_3, 0, x_2);
 return x_3;
 }
 }
-lean_object* l_Std_fmt___at_Lean_ppExpr___spec__3(lean_object* x_1) {
+lean_object* l_Std_fmt___at_Lean_ppExpr___spec__4(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -964,7 +1030,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = lean_ctor_get(x_1, 0);
 lean_inc(x_10);
 x_11 = l_Lean_ppExt;
-x_12 = l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(x_11, x_10);
+x_12 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2(x_11, x_10);
 lean_dec(x_10);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
@@ -1001,7 +1067,7 @@ return x_14;
 else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
-x_20 = l_Std_fmt___at_Lean_ppExpr___spec__2(x_16);
+x_20 = l_Std_fmt___at_Lean_ppExpr___spec__3(x_16);
 x_21 = l_Lean_ppExpr___closed__4;
 x_22 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
@@ -1018,7 +1084,7 @@ x_27 = l_Lean_ppExpr___closed__7;
 x_28 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);
-x_29 = l_Std_fmt___at_Lean_ppExpr___spec__3(x_6);
+x_29 = l_Std_fmt___at_Lean_ppExpr___spec__4(x_6);
 lean_dec(x_6);
 x_30 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_30, 0, x_28);
@@ -1056,7 +1122,7 @@ return x_37;
 else
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
-x_38 = l_Std_fmt___at_Lean_ppExpr___spec__2(x_32);
+x_38 = l_Std_fmt___at_Lean_ppExpr___spec__3(x_32);
 x_39 = l_Lean_ppExpr___closed__4;
 x_40 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_40, 0, x_39);
@@ -1073,7 +1139,7 @@ x_45 = l_Lean_ppExpr___closed__7;
 x_46 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_46, 0, x_44);
 lean_ctor_set(x_46, 1, x_45);
-x_47 = l_Std_fmt___at_Lean_ppExpr___spec__3(x_6);
+x_47 = l_Std_fmt___at_Lean_ppExpr___spec__4(x_6);
 lean_dec(x_6);
 x_48 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_48, 0, x_46);
@@ -1116,11 +1182,21 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* l_Std_fmt___at_Lean_ppExpr___spec__3___boxed(lean_object* x_1) {
+lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+lean_object* l_Std_fmt___at_Lean_ppExpr___spec__4___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_fmt___at_Lean_ppExpr___spec__3(x_1);
+x_2 = l_Std_fmt___at_Lean_ppExpr___spec__4(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -1211,7 +1287,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 x_8 = l_Lean_ppExt;
-x_9 = l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(x_8, x_7);
+x_9 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2(x_8, x_7);
 lean_dec(x_7);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
@@ -1248,7 +1324,7 @@ return x_11;
 else
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; uint8_t x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
-x_17 = l_Std_fmt___at_Lean_ppExpr___spec__2(x_13);
+x_17 = l_Std_fmt___at_Lean_ppExpr___spec__3(x_13);
 x_18 = l_Lean_ppTerm___closed__4;
 x_19 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
@@ -1311,7 +1387,7 @@ return x_40;
 else
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; uint8_t x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; 
-x_41 = l_Std_fmt___at_Lean_ppExpr___spec__2(x_35);
+x_41 = l_Std_fmt___at_Lean_ppExpr___spec__3(x_35);
 x_42 = l_Lean_ppTerm___closed__4;
 x_43 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_43, 0, x_42);
@@ -1391,7 +1467,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 x_5 = l_Lean_ppExt;
-x_6 = l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(x_5, x_4);
+x_6 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2(x_5, x_4);
 lean_dec(x_4);
 x_7 = lean_ctor_get(x_6, 2);
 lean_inc(x_7);
@@ -1550,6 +1626,12 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_ppExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_ppExt);
 lean_dec_ref(res);
+l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___closed__1 = _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___closed__1();
+lean_mark_persistent(l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___closed__1);
+l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___closed__2 = _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___closed__2();
+lean_mark_persistent(l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___closed__2);
+l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___closed__3 = _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___closed__3();
+lean_mark_persistent(l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ppExpr___spec__2___closed__3);
 l_Lean_ppExpr___closed__1 = _init_l_Lean_ppExpr___closed__1();
 lean_mark_persistent(l_Lean_ppExpr___closed__1);
 l_Lean_ppExpr___closed__2 = _init_l_Lean_ppExpr___closed__2();

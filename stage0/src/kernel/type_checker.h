@@ -81,7 +81,7 @@ private:
     lbool try_string_lit_expansion_core(expr const & t, expr const & s);
     lbool try_string_lit_expansion(expr const & t, expr const & s);
     bool is_def_eq_app(expr const & t, expr const & s);
-    bool is_def_eq_proof_irrel(expr const & t, expr const & s);
+    lbool is_def_eq_proof_irrel(expr const & t, expr const & s);
     bool failed_before(expr const & t, expr const & s) const;
     void cache_failure(expr const & t, expr const & s);
     reduction_status lazy_delta_reduction_step(expr & t_n, expr & s_n);

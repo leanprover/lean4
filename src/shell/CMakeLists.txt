@@ -179,3 +179,11 @@ add_test(NAME leanpkgtest_cyclic
            set -eu
            export PATH=${LEAN_BIN}:$PATH
            leanpkg build 2>&1 | grep 'import cycle'")
+
+add_test(NAME leanpkgtest_user_ext
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/user_ext"
+         COMMAND bash -c "
+           set -eu
+           export PATH=${LEAN_BIN}:$PATH
+           find . -name '*.olean' -delete
+           leanpkg build | grep 'world, hello, test'")

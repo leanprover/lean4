@@ -93,6 +93,18 @@ macro "Σ'" xs:explicitBinders ", " b:term : term => expandExplicitBinders `PSig
 macro:35 xs:bracketedExplicitBinders " × " b:term:35  : term => expandBrackedBinders `Sigma xs b
 macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBinders `PSigma xs b
 
+@[appUnexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
+  | `(Unit.unit) => `(())
+  | _            => throw ()
+
+@[appUnexpander Eq.ndrec] def unexpandEqNDRec : Lean.PrettyPrinter.Unexpander
+  | `(Eq.ndrec $m $h) => `($h ▸ $m)
+  | _                 => throw ()
+
+@[appUnexpander Eq.rec] def unexpandEqRec : Lean.PrettyPrinter.Unexpander
+  | `(Eq.rec $m $h) => `($h ▸ $m)
+  | _               => throw ()
+
 @[appUnexpander Exists] def unexpandExists : Lean.PrettyPrinter.Unexpander
   | `(Exists fun $x:ident => ∃ $xs:binderIdent*, $b) => `(∃ $x:ident $xs:binderIdent*, $b)
   | `(Exists fun $x:ident => $b)                     => `(∃ $x:ident, $b)
@@ -139,7 +151,7 @@ macro_rules
   attribute [instance] C.mk
   ```
 -/
-syntax declModifiers "class " "abbrev " declId bracketedBinder* (":" term)? 
+syntax declModifiers "class " "abbrev " declId bracketedBinder* (":" term)?
   ":=" withPosition(group(colGe term ","?)*) : command
 
 macro_rules

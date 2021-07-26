@@ -49,7 +49,7 @@
     "range":
     {"start": {"line": 24, "character": 0},
      "end": {"line": 24, "character": 6}},
-    "message": "def MyNs.u : Unit :=\nUnit.unit",
+    "message": "def MyNs.u : Unit :=\n()",
     "fullRange":
     {"start": {"line": 24, "character": 0},
      "end": {"line": 24, "character": 6}}}]},

@@ -295,7 +295,7 @@ def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
     -- TODO(WN): should only print on log-level debug, if we had log-levels
     IO.eprintln s!"Trying to release ref '{p.ref}' from outdated RPC session '{p.sessionId}'."
   else
-    st.rpcSesh.state.modify fun st => st.release p.ref
+    discard <| st.rpcSesh.state.modifyGet fun st => st.release p.ref
 
 end NotificationHandling
 
@@ -395,6 +395,8 @@ def workerMain : IO UInt32 := do
   let o ← IO.getStdout
   let e ← IO.getStderr
   try
+    let seed ← (UInt64.toNat ∘ ByteArray.toUInt64LE!) <$> IO.getRandomBytes 8
+    IO.setRandSeed seed
     let exitCode ← initAndRunWorker i o e
     -- HACK: all `Task`s are currently "foreground", i.e. we join on them on main thread exit, but we definitely don't
     -- want to do that in the case of the worker processes, which can produce non-terminating tasks evaluating user code

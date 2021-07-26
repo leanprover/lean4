@@ -75,8 +75,9 @@ def store (st : RpcSessionState) (typeName : Name) (obj : NonScalar) : Lsp.RpcRe
                        nextRef := st.nextRef + 1 }
   (ref, st')
 
-def release (st : RpcSessionState) (ref : Lsp.RpcRef) : RpcSessionState :=
-  { st with aliveRefs := st.aliveRefs.erase ref }
+def release (st : RpcSessionState) (ref : Lsp.RpcRef) : Bool × RpcSessionState :=
+  let st' := { st with aliveRefs := st.aliveRefs.erase ref }
+  (st.aliveRefs.contains ref, st')
 
 end RpcSessionState
 

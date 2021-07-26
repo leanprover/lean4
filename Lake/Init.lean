@@ -39,9 +39,9 @@ def initPkg (dir : FilePath) (pkgName : String) : IO PUnit := do
   h.putStr initGitignoreContents
   unless ← FilePath.isDir (dir /".git") do
     try
-      quietInit
+      quietInit dir
       unless upstreamBranch = "master" do
-        checkoutBranch upstreamBranch
+        checkoutBranch upstreamBranch dir
     catch _ =>
       IO.eprintln "WARNING: failed to initialize git repository"
 

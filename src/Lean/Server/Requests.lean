@@ -53,7 +53,7 @@ def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
       message := s!"Cannot parse request params: {params.compress}\n{inner}" }
 
 structure RequestContext where
-  rpcSesh?      : Option FileWorker.RpcSession
+  rpcSesh       : FileWorker.RpcSession
   srcSearchPath : SearchPath
   doc           : FileWorker.EditableDocument
   hLog          : IO.FS.Stream
@@ -147,7 +147,7 @@ def registerLspRequestHandler (method : String)
   if (←requestHandlers.get).contains method then
     throw <| IO.userError s!"Failed to register LSP request handler for '{method}': already registered"
   let fileSource := fun j =>
-    parseRequestParams paramType j |>.map Lsp.fileSource 
+    parseRequestParams paramType j |>.map Lsp.fileSource
   let handle := fun j => do
     let params ← parseRequestParams paramType j
     let t ← handler params

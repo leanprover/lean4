@@ -289,6 +289,17 @@ section NotificationHandling
       <| { method := "$/lean/rpc/connected"
            param := { uri := doc.meta.uri
                       sessionId := newId : RpcConnected } }
+
+def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
+  let st ← get
+  let some rpcSesh ← st.rpcSesh
+    | throwServerError "TODO"
+  if p.sessionId ≠ rpcSesh.sessionId then
+    -- TODO(WN): should only print on log-level debug, if we had log-levels
+    IO.eprintln s!"Trying to release ref '{p.ref}' from outdated RPC session '{p.sessionId}'."
+  else
+    rpcSesh.state.modify fun st => st.release p.ref
+
 end NotificationHandling
 
 section MessageHandling
@@ -304,6 +315,7 @@ section MessageHandling
     | "textDocument/didChange" => handle DidChangeTextDocumentParams handleDidChange
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
     | "$/lean/rpc/connect"     => handle RpcConnectParams handleRpcConnect
+    | "$/lean/rpc/release"     => handle RpcReleaseParams handleRpcRelease
     | _                        => throwServerError s!"Got unsupported notification method: {method}"
 
   def queueRequest (id : RequestID) (requestTask : Task (Except IO.Error Unit))

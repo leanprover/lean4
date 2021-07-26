@@ -14,12 +14,8 @@ The single use case for these is to allow the infoview UI to refer to and manipu
 objects residing on the server. It would be inefficient to serialize these into JSON and send over.
 For example, the client can format an `Expr` without transporting the whole `Environment`.
 
-All RPC requests are relative to an open file and an RPC session for that file. It must first
-be initialized as follows:
-
-- (client -> server notification) `$/lean/rpc/initialize { uri: 'file/of/interest.lean' }`
-- (server -> client notification) `$/lean/rpc/initialized { uri: 'file/of/interest.lean', sessionId: '1234' }`
--/
+All RPC requests are relative to an open file and an RPC session for that file. The client must
+first connect to the session using `$/lean/rpc/connect`. -/
 
 namespace Lean.Server
 
@@ -36,21 +32,8 @@ private def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) 
                               message := s!"No RPC method '{p.method}' bound" }
   proc.wrapper p.sessionId p.params
 
-private def handleRpcRelease (p : Lsp.RpcReleaseParams) : RequestM (RequestTask Json) := do
-  let rc ← read
-  let some rpcSesh ← rc.rpcSesh?
-    | throwThe RequestError { code := JsonRpc.ErrorCode.rpcNotInitialized
-                              message := s!"RPC session not initialized" }
-  if p.sessionId ≠ rpcSesh.sessionId then
-    throwThe RequestError { code := JsonRpc.ErrorCode.rpcNotInitialized
-                            message := s!"Outdated RPC session" }
-  rpcSesh.state.modify fun st => st.release p.ref
-  RequestM.asTask do
-    return Json.null
-
 builtin_initialize
   registerLspRequestHandler "$/lean/rpc/call"    Lsp.RpcCallParams    Json handleRpcCall
-  registerLspRequestHandler "$/lean/rpc/release" Lsp.RpcReleaseParams Json handleRpcRelease
 
 def registerRpcCallHandler (method : Name)
     paramType
@@ -69,10 +52,10 @@ def registerRpcCallHandler (method : Name)
     let t ← RequestM.asTask do
       let paramsLsp ← parseRequestParams paramLspType j
       let some rpcSesh ← rc.rpcSesh?
-        | throwThe RequestError { code := JsonRpc.ErrorCode.rpcNotInitialized
+        | throwThe RequestError { code := JsonRpc.ErrorCode.rpcNeedsReconnect
                                   message := s!"RPC session not initialized" }
       if seshId ≠ rpcSesh.sessionId then
-        throwThe RequestError { code := JsonRpc.ErrorCode.rpcNotInitialized
+        throwThe RequestError { code := JsonRpc.ErrorCode.rpcNeedsReconnect
                                 message := s!"Outdated RPC session" }
       @lspDecode paramType paramLspType _ paramsLsp
 

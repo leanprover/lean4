@@ -52,6 +52,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 namespace lean {
 
 extern "C" lean_object* lean_mk_io_error_already_exists(uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_already_exists_file(lean_object*, uint32_t, lean_object*);
 extern "C" lean_object* lean_mk_io_error_eof(lean_object*);
 extern "C" lean_object* lean_mk_io_error_hardware_fault(uint32_t, lean_object*);
 extern "C" lean_object* lean_mk_io_error_illegal_operation(uint32_t, lean_object*);
@@ -230,8 +231,12 @@ obj_res decode_io_error(int errnum, b_obj_arg fname) {
             return lean_mk_io_error_no_such_thing_file(fname, errnum, details);
         }
     case EEXIST: case EINPROGRESS: case EISCONN:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_already_exists(errnum, details);
+        if (fname == nullptr) {
+            return lean_mk_io_error_already_exists(errnum, details);
+        } else {
+            inc_ref(fname);
+            return lean_mk_io_error_already_exists_file(fname, errnum, details);
+        }
     case EIO:
         lean_assert(fname == nullptr);
         return lean_mk_io_error_hardware_fault(errnum, details);

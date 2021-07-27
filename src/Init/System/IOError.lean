@@ -15,7 +15,7 @@ Imitate the structure of IOErrorType in Haskell:
 https://hackage.haskell.org/package/base-4.12.0.0/docs/System-IO-Error.html#t:IOErrorType
 -/
 inductive IO.Error where
-  | alreadyExists (osCode : UInt32) (details : String) -- EEXIST, EINPROGRESS, EISCONN
+  | alreadyExists (filename : Option String) (osCode : UInt32) (details : String) -- EEXIST, EINPROGRESS, EISCONN
   | otherError (osCode : UInt32) (details : String)    -- EFAULT, default
   | resourceBusy (osCode : UInt32) (details : String)
       -- EADDRINUSE, EBUSY, EDEADLK, ETXTBSY
@@ -61,6 +61,10 @@ instance : Coe String IO.Error := ⟨IO.userError⟩
 
 namespace IO.Error
 
+@[export lean_mk_io_error_already_exists_file]
+def mkAlreadyExistsFile : String → UInt32 → String → IO.Error :=
+  alreadyExists ∘ some
+
 @[export lean_mk_io_error_eof]
 def mkEofError : Unit → IO.Error := fun _ =>
   unexpectedEof
@@ -103,7 +107,7 @@ def mkResourceExhausted : UInt32 → String → IO.Error :=
 
 @[export lean_mk_io_error_already_exists]
 def mkAlreadyExists : UInt32 → String → IO.Error :=
-  alreadyExists
+  alreadyExists none
 
 @[export lean_mk_io_error_inappropriate_type]
 def mkInappropriateType : UInt32 → String → IO.Error :=
@@ -178,7 +182,8 @@ def toString : IO.Error → String
   | permissionDenied none code details       => otherErrorToString details code none
   | resourceExhausted (some fn) code details => fopenErrorToString "resource exhausted" fn code details
   | resourceExhausted none code details      => otherErrorToString "resource exhausted" code details
-  | alreadyExists code details               => otherErrorToString "already exists" code details
+  | alreadyExists none code details          => otherErrorToString "already exists" code details
+  | alreadyExists (some fn) code details     => fopenErrorToString "already exists" fn code details
   | otherError code details                  => otherErrorToString details code none
   | resourceBusy code details                => otherErrorToString "resource busy" code details
   | resourceVanished code details            => otherErrorToString "resource vanished" code details

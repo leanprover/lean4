@@ -49,10 +49,10 @@ def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> Term.struc
 def optDeriving      := leading_parser optional (atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def «inductive»      := leading_parser "inductive " >> declId >> optDeclSig >> optional (symbol ":=" <|> "where") >> many ctor >> optDeriving
 def classInductive   := leading_parser atomic (group (symbol "class " >> "inductive ")) >> declId >> optDeclSig >> optional (symbol ":=" <|> "where") >> many ctor >> optDeriving
-def structExplicitBinder := leading_parser atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
+def structExplicitBinder := leading_parser atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault) >> ")"
 def structImplicitBinder := leading_parser atomic (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
 def structInstBinder     := leading_parser atomic (declModifiers true >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
-def structSimpleBinder   := leading_parser atomic (declModifiers true >> ident) >> optional inferMod >> optDeclSig >> optional Term.binderDefault
+def structSimpleBinder   := leading_parser atomic (declModifiers true >> ident) >> optional inferMod >> optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault)
 def structFields         := leading_parser manyIndent (ppLine >> checkColGe >>(structExplicitBinder <|> structImplicitBinder <|> structInstBinder <|> structSimpleBinder))
 def structCtor           := leading_parser atomic (declModifiers true >> ident >> optional inferMod >> " :: ")
 def structureTk          := leading_parser "structure "

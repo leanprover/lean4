@@ -55,17 +55,6 @@ struct object_compactor::max_sharing_table {
     }
 };
 
-/*
-  Special object that terminates the data block constructing the object graph rooted in `m_value`.
-  We use this object to ensure `m_value` is correctly aligned. In the past, we would allocate
-  a chunk of memory `p` of size `sizeof(object) + sizeof(object*)`, and then write at `p + sizeof(object)`.
-  This is incorrect because `sizeof(object)` is not a multiple of the word size.
-*/
-struct terminator_object {
-    lean_object   m_header;
-    lean_object * m_value;
-};
-
 object_compactor::object_compactor(void * base_addr):
     m_max_sharing_table(new max_sharing_table(this)),
     m_base_addr(base_addr),
@@ -134,13 +123,6 @@ object_offset object_compactor::to_offset(object * o) {
             return it->second;
         }
     }
-}
-
-void object_compactor::insert_terminator(object * o) {
-    size_t sz = sizeof(terminator_object);
-    terminator_object * t = (terminator_object*) alloc(sz);
-    lean_set_non_heap_header((lean_object*)t, sz, LeanReserved, 0);
-    t->m_value = to_offset(o);
 }
 
 object * object_compactor::copy_object(object * o) {
@@ -327,6 +309,8 @@ tag_counter_manager g_tag_counter_manager;
 
 void object_compactor::operator()(object * o) {
     lean_assert(m_todo.empty());
+    // allocate for root address, see end of function
+    alloc(sizeof(object_offset));
     if (!lean_is_scalar(o)) {
         m_todo.push_back(o);
         while (!m_todo.empty()) {
@@ -357,7 +341,7 @@ void object_compactor::operator()(object * o) {
         }
         m_tmp.clear();
     }
-    insert_terminator(o);
+    *static_cast<object_offset *>(m_begin) = to_offset(o);
 }
 
 compacted_region::compacted_region(size_t sz, void * data, void * base_addr, void * mmap_addr):
@@ -447,25 +431,16 @@ object * compacted_region::read() {
     if (m_next == m_end)
         return nullptr; /* all objects have been read */
 
+    object * root = fix_object_ptr(*static_cast<object_offset *>(m_next));
+    move(sizeof(object_offset));
     if (m_begin == m_base_addr) {
         // no relocations needed
-        while (true) {
-            lean_assert(static_cast<char*>(m_next) + sizeof(object) <= m_end);
-            object * curr = reinterpret_cast<object*>(m_next);
-            uint8 tag = lean_ptr_tag(curr);
-            if (tag == LeanReserved) {
-                object * r = reinterpret_cast<terminator_object*>(m_next)->m_value;
-                move(sizeof(terminator_object));
-                return r;
-            } else {
-                move(lean_object_byte_size(curr));
-            }
-        }
+        m_end = m_next;
+        return root;
     }
     lean_assert(!m_mmap_addr);
 
-    while (true) {
-        lean_assert(static_cast<char*>(m_next) + sizeof(object) <= m_end);
+    while (m_next < m_end) {
         object * curr = reinterpret_cast<object*>(m_next);
         uint8 tag = lean_ptr_tag(curr);
         if (tag <= LeanMaxCtorTag) {
@@ -481,15 +456,11 @@ object * compacted_region::read() {
             case LeanRef:             fix_ref(curr); break;
             case LeanTask:            fix_task(curr); break;
             case LeanExternal:        lean_unreachable();
-            case LeanReserved: {
-                object * r = reinterpret_cast<terminator_object*>(m_next)->m_value;
-                move(sizeof(terminator_object));
-                return fix_object_ptr(r);
-            }
             default:                  lean_unreachable();
             }
         }
     }
+    return root;
 }
 
 extern "C" obj_res lean_compacted_region_free(usize region, object *) {

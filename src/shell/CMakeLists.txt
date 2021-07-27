@@ -187,3 +187,11 @@ add_test(NAME leanpkgtest_user_ext
            export PATH=${LEAN_BIN}:$PATH
            find . -name '*.olean' -delete
            leanpkg build | grep 'world, hello, test'")
+
+add_test(NAME leanpkgtest_user_attr
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/user_attr"
+         COMMAND bash -c "
+           set -eu
+           export PATH=${LEAN_BIN}:$PATH
+           find . -name '*.olean' -delete
+           leanpkg build")

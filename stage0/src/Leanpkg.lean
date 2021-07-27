@@ -40,10 +40,10 @@ partial def withLockFile (x : IO α) : IO α := do
           -- https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/fopen-wfopen?view=msvc-160
           -- ...? Let's use the slightly racy approach then.
           if ← lockFileName.pathExists then
-            throw <| IO.Error.alreadyExists 0 ""
+            throw <| IO.Error.alreadyExists none 0 ""
           discard <| IO.FS.Handle.mk lockFileName IO.FS.Mode.write
       catch
-        | IO.Error.alreadyExists _ _ => do
+        | IO.Error.alreadyExists .. => do
           if firstTime then
             IO.eprintln s!"Waiting for prior leanpkg invocation to finish... (remove '{lockFileName}' if stuck)"
           IO.sleep (ms := 300)

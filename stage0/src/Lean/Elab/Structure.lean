@@ -104,7 +104,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
   let useDefault := do
     let declName := structDeclName ++ defaultCtorName
     addAuxDeclarationRanges declName structStx[2] structStx[2]
-    pure { ref := structStx, modifiers := {}, inferMod := false, name := defaultCtorName, declName := declName }
+    pure { ref := structStx, modifiers := {}, inferMod := false, name := defaultCtorName, declName }
   if structStx[5].isNone then
     useDefault
   else
@@ -126,7 +126,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
       let declName ← applyVisibility ctorModifiers.visibility declName
       addDocString' declName ctorModifiers.docString?
       addAuxDeclarationRanges declName ctor[1] ctor[1]
-      pure { ref := ctor, name := name, modifiers := ctorModifiers, inferMod := inferMod, declName := declName }
+      pure { ref := ctor, name, modifiers := ctorModifiers, inferMod, declName }
 
 def checkValidFieldModifier (modifiers : Modifiers) : TermElabM Unit := do
   if modifiers.isNoncomputable then
@@ -192,15 +192,15 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
       let declName ← applyVisibility fieldModifiers.visibility declName
       addDocString' declName fieldModifiers.docString?
       return views.push {
-        ref        := ident,
-        modifiers  := fieldModifiers,
-        binderInfo := binfo,
-        inferMod   := inferMod,
-        declName   := declName,
-        name       := name,
-        binders    := binders,
-        type?      := type?,
-        value?     := value?
+        ref        := ident
+        modifiers  := fieldModifiers
+        binderInfo := binfo
+        inferMod
+        declName
+        name
+        binders
+        type?
+        value?
       }
 
 private def validStructType (type : Expr) : Bool :=
@@ -235,7 +235,7 @@ private partial def processSubfields (structDeclName : Name) (parentFVar : Expr)
         /- The following `declName` is only used for creating the `_default` auxiliary declaration name when
            its default value is overwritten in the structure. -/
         let declName := structDeclName ++ subfieldName
-        let infos := infos.push { name := subfieldName, declName := declName, fvar := subfieldFVar, kind := StructFieldKind.fromParent }
+        let infos := infos.push { name := subfieldName, declName, fvar := subfieldFVar, kind := StructFieldKind.fromParent }
         loop (i+1) infos
     else
       k infos
@@ -353,7 +353,7 @@ private def removeUnused (scopeVars : Array Expr) (params : Array Expr) (fieldIn
 private def withUsed {α} (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) (k : Array Expr → TermElabM α)
     : TermElabM α := do
   let (lctx, localInsts, vars) ← removeUnused scopeVars params fieldInfos
-  withLCtx lctx localInsts $ k vars
+  withLCtx lctx localInsts <| k vars
 
 private def levelMVarToParamFVar (fvar : Expr) : StateRefT Nat TermElabM Unit := do
   let type ← inferType fvar
@@ -399,7 +399,7 @@ private def updateResultingUniverse (fieldInfos : Array StructFieldInfo) (type :
 private def collectLevelParamsInFVar (s : CollectLevelParams.State) (fvar : Expr) : TermElabM CollectLevelParams.State := do
   let type ← inferType fvar
   let type ← instantiateMVars type
-  pure $ collectLevelParams s type
+  return collectLevelParams s type
 
 private def collectLevelParamsInFVars (fvars : Array Expr) (s : CollectLevelParams.State) : TermElabM CollectLevelParams.State :=
   fvars.foldlM collectLevelParamsInFVar s
@@ -409,8 +409,8 @@ private def collectLevelParamsInStructure (structType : Expr) (scopeVars : Array
   let s := collectLevelParams {} structType
   let s ← collectLevelParamsInFVars scopeVars s
   let s ← collectLevelParamsInFVars params s
-  let s ← fieldInfos.foldlM (fun (s : CollectLevelParams.State) info => collectLevelParamsInFVar s info.fvar) s
-  pure s.params
+  let s ← fieldInfos.foldlM (init := s) fun s info => collectLevelParamsInFVar s info.fvar
+  return s.params
 
 private def addCtorFields (fieldInfos : Array StructFieldInfo) : Nat → Expr → TermElabM Expr
   | 0,   type => pure type
@@ -424,7 +424,7 @@ private def addCtorFields (fieldInfos : Array StructFieldInfo) : Nat → Expr �
       let val := decl.value
       addCtorFields fieldInfos i (type.instantiate1 val)
     | StructFieldKind.subobject =>
-      let n := mkInternalSubobjectFieldName $ decl.userName
+      let n := mkInternalSubobjectFieldName decl.userName
       addCtorFields fieldInfos i (mkForall n decl.binderInfo decl.type type)
     | StructFieldKind.newField =>
       addCtorFields fieldInfos i (mkForall decl.userName decl.binderInfo decl.type type)
@@ -436,7 +436,7 @@ private def mkCtor (view : StructView) (levelParams : List Name) (params : Array
   let type ← mkForallFVars params type
   let type ← instantiateMVars type
   let type := type.inferImplicit params.size !view.ctor.inferMod
-  pure { name := view.ctor.declName, type := type }
+  pure { name := view.ctor.declName, type }
 
 @[extern "lean_mk_projections"]
 private constant mkProjections (env : Environment) (structName : Name) (projs : List ProjectionInfo) (isClass : Bool) : Except KernelException Environment
@@ -482,7 +482,7 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
     Term.synthesizeSyntheticMVarsNoPostponing
     let u ← getResultUniverse type
     let inferLevel ← shouldInferResultUniverse u
-    withUsed view.scopeVars view.params fieldInfos $ fun scopeVars => do
+    withUsed view.scopeVars view.params fieldInfos fun scopeVars => do
       let numParams := scopeVars.size + numExplicitParams
       let fieldInfos ← levelMVarToParam scopeVars view.params fieldInfos
       let type ← withRef view.ref do
@@ -567,18 +567,18 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
             let params ← Term.addAutoBoundImplicits params
             let allUserLevelNames ← Term.getLevelNames
             elabStructureView {
-              ref               := stx
-              modifiers         := modifiers
-              scopeLevelNames   := scopeLevelNames
-              allUserLevelNames := allUserLevelNames
-              declName          := declName
-              isClass           := isClass
-              scopeVars         := scopeVars
-              params            := params
-              parents           := parents
-              type              := type
-              ctor              := ctor
-              fields            := fields
+              ref := stx
+              modifiers
+              scopeLevelNames
+              allUserLevelNames
+              declName
+              isClass
+              scopeVars
+              params
+              parents
+              type
+              ctor
+              fields
             }
             unless isClass do
               mkSizeOfInstances declName

@@ -4036,13 +4036,15 @@ return x_1;
 static lean_object* _init_l_Lean_Meta_congrExtension___lambda__1___closed__3() {
 _start:
 {
-uint32_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_congrExtension___lambda__1___closed__1;
-x_2 = l_Lean_Meta_congrExtension___lambda__1___closed__2;
-x_3 = lean_alloc_ctor(0, 1, 4);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_1);
-return x_3;
+lean_object* x_1; uint32_t x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_congrExtension___lambda__1___closed__1;
+x_3 = l_Lean_Meta_congrExtension___lambda__1___closed__2;
+x_4 = lean_alloc_ctor(0, 2, 4);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_3);
+lean_ctor_set_uint32(x_4, sizeof(void*)*2, x_2);
+return x_4;
 }
 }
 lean_object* l_Lean_Meta_congrExtension___lambda__1(lean_object* x_1) {

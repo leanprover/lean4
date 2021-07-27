@@ -120,7 +120,7 @@ do print "----- tst6 -----";
      let s := mkAppN add #[x, mkNatLit 6];
      checkM $ isExprDefEq t s;
      let v ← getAssignment m;
-     checkM $ pure $ v == mkAppN add #[x, mkNatLit 2];
+     checkM $ pure $ v == (← mkAdd x (mkNatLit 2))
      print v;
      let m ← mkFreshExprMVar nat;
      let t := mkAppN add #[m, mkNatLit 4];

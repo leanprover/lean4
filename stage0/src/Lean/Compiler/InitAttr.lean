@@ -49,8 +49,9 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) : IO
         for modEntries in entries do
           for (decl, initDecl) in modEntries do
             if initDecl.isAnonymous then
-              _ ← IO.ofExcept $ ctx.env.evalConst (IO Unit) ctx.opts decl
-            else runInit ctx.env ctx.opts decl initDecl
+              discard <| IO.ofExcept $ ctx.env.evalConst (IO Unit) ctx.opts decl
+            else
+              runInit ctx.env ctx.opts decl initDecl
   }
 
 @[implementedBy registerInitAttrUnsafe]

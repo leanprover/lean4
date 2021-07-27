@@ -570,6 +570,17 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) (st
       env ← extDescr.toEnvExtension.modifyState env fun s => { s with importedEntries := s.importedEntries.push entries }
   return env
 
+/-
+  "Forward declaration" needed for updating the attribute table with user-defined attributes.
+  User-defined attributes are declared using the `initialize` command. The `initialize` command is just syntax sugar for the `init` attribute.
+  The `init` attribute is initialized after the `attributeExtension` is initialized. We cannot change the order since the `init` attribute is an attribute,
+  and requires this extension.
+  The `attributeExtension` initializer uses `attributeMapRef` to initialize the attribute mapping.
+  When we a new user-defined attribute declaration is imported, `attributeMapRef` is updated.
+  Later, we set this method with code that adds the user-defined attributes that were imported after we initialized `attributeExtension`.
+-/
+builtin_initialize updateEnvAttributesRef : IO.Ref (Environment → IO Environment) ← IO.mkRef (fun env => pure env)
+
 private partial def finalizePersistentExtensions (env : Environment) (mods : Array ModuleData) (opts : Options) : IO Environment := do
   loop 0 env
 where
@@ -588,6 +599,8 @@ where
         -- a user-defined persistent extension is imported.
         -- Thus, we invoke `setImportedEntries` to update the array `importedEntries` with the entries for the new extensions.
         env ← setImportedEntries env mods prevSize
+        -- See comment at `updateEnvAttributesRef`
+        env ← (← updateEnvAttributesRef.get) env
       loop (i + 1) env
     else
       return env

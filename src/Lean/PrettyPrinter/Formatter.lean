@@ -324,6 +324,8 @@ def symbolNoAntiquot.formatter (sym : String) : Formatter := do
 
 @[combinatorFormatter Lean.Parser.nonReservedSymbolNoAntiquot] def nonReservedSymbolNoAntiquot.formatter := symbolNoAntiquot.formatter
 
+@[combinatorFormatter Lean.Parser.rawCh] def rawCh.formatter (ch : Char) := symbolNoAntiquot.formatter ch.toString
+
 @[combinatorFormatter Lean.Parser.unicodeSymbolNoAntiquot]
 def unicodeSymbolNoAntiquot.formatter (sym asciiSym : String) : Formatter := do
   let Syntax.atom info val ← getCur

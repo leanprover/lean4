@@ -98,7 +98,7 @@ public:
     name & operator=(name const & other) { object_ref::operator=(other); return *this; }
     name & operator=(name && other) { object_ref::operator=(other); return *this; }
     static uint64_t hash(b_obj_arg n);
-    unsigned hash() const { return hash(raw()); }
+    uint64_t hash() const { return hash(raw()); }
     /** \brief Return true iff \c n1 is a prefix of \c n2. */
     friend bool is_prefix_of(name const & n1, name const & n2);
     friend bool operator==(name const & a, name const & b) { return name::eq(a.raw(), b.raw()); }

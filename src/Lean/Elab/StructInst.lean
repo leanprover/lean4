@@ -557,6 +557,7 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
     match field.lhs with
     | [FieldLHS.fieldName ref fieldName] => do
       let type ← whnfForall type
+      trace[Elab.struct] "elabStruct {field}, {type}"
       match type with
       | Expr.forallE _ d b _ =>
         let cont (val : Expr) (field : Field Struct) : TermElabM (Expr × Expr × Fields) := do
@@ -573,7 +574,17 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
           match (← trySynthStructInstance? s d) with
           | some val => cont val { field with val := FieldVal.term (mkHole field.ref) }
           | none     => do let (val, sNew) ← elabStruct s (some d); let val ← ensureHasType d val; cont val { field with val := FieldVal.nested sNew }
-        | FieldVal.default  => do let val ← withRef field.ref <| mkFreshExprMVar (some d); cont (markDefaultMissing val) field
+        | FieldVal.default  => do
+          match d.getAutoParamTactic? with
+          | some (Expr.const tacticDecl ..) =>
+            match evalSyntaxConstant env (← getOptions) tacticDecl with
+            | Except.error err       => throwError err
+            | Except.ok tacticSyntax =>
+              let stx ← `(by $tacticSyntax)
+              cont (← elabTermEnsuringType stx (d.getArg! 0)) field
+          | _ =>
+            let val ← withRef field.ref <| mkFreshExprMVar (some d)
+            cont (markDefaultMissing val) field
       | _ => withRef field.ref <| throwFailedToElabField fieldName s.structName m!"unexpected constructor type{indentExpr type}"
     | _ => throwErrorAt field.ref "unexpected unexpanded structure field"
   pure (e, s.setFields fields.reverse)

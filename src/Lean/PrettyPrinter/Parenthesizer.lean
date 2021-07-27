@@ -414,6 +414,7 @@ def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec _ : Nat) (p : Parenthe
     -- parser is calling us.
     categoryParser.parenthesizer ctx.cat 0
 
+@[combinatorParenthesizer Lean.Parser.rawCh] def rawCh.parenthesizer (ch : Char) := visitToken
 
 @[combinatorParenthesizer Lean.Parser.symbolNoAntiquot] def symbolNoAntiquot.parenthesizer (sym : String) := visitToken
 @[combinatorParenthesizer Lean.Parser.unicodeSymbolNoAntiquot] def unicodeSymbolNoAntiquot.parenthesizer (sym asciiSym : String) := visitToken

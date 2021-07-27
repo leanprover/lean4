@@ -163,9 +163,7 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   | none     => throwIllFormedSyntax
 
 @[builtinTermElab doubleQuotedName] def elabDoubleQuotedName : TermElab := fun stx _ => do
-  match stx[1].isNameLit? with
-  | some val => toExpr (← resolveGlobalConstNoOverloadCore val)  -- TODO: restore info
-  | none     => throwIllFormedSyntax
+  toExpr (← resolveGlobalConstNoOverloadWithInfo stx[2])
 
 @[builtinTermElab typeOf] def elabTypeOf : TermElab := fun stx _ => do
   inferType (← elabTerm stx[1] none)

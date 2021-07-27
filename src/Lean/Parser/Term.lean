@@ -151,7 +151,9 @@ def optExprPrecedence := optional (atomic ":" >> termParser maxPrec)
 
 @[builtinTermParser] def borrowed   := leading_parser "@&" >> termParser leadPrec
 @[builtinTermParser] def quotedName := leading_parser nameLit
-@[builtinTermParser] def doubleQuotedName := leading_parser "`" >> checkNoWsBefore >> nameLit
+-- use `rawCh` because ``"`" >> ident`` overlaps with `nameLit`, with the latter being preferred by the tokenizer
+-- note that we cannot use ```"``"``` as a new token either because it would break `precheckedQuot`
+@[builtinTermParser] def doubleQuotedName := leading_parser "`" >> checkNoWsBefore >> rawCh '`' (trailingWs := false) >> ident
 
 def simpleBinderWithoutType := nodeWithAntiquot "simpleBinder" `Lean.Parser.Term.simpleBinder (anonymous := true)
   (many1 binderIdent >> pushNone)

@@ -683,9 +683,10 @@ def mkDefaultValue? (struct : Struct) (cinfo : ConstantInfo) : TermElabM (Option
 
 /-- If `e` is a projection function of one of the given structures, then reduce it -/
 def reduceProjOf? (structNames : Array Name) (e : Expr) : MetaM (Option Expr) := do
-  if !e.isApp then pure none
+  if !e.isApp then
+    pure none
   else match e.getAppFn with
-    | Expr.const name _ _ => do
+    | Expr.const name .. => do
       let env ← getEnv
       match env.getProjectionStructureName? name with
       | some structName =>
@@ -697,15 +698,17 @@ def reduceProjOf? (structNames : Array Name) (e : Expr) : MetaM (Option Expr) :=
     | _ => pure none
 
 /-- Reduce default value. It performs beta reduction and projections of the given structures. -/
-partial def reduce (structNames : Array Name) : Expr → MetaM Expr
-  | e@(Expr.lam _ _ _ _)     => lambdaLetTelescope e fun xs b => do mkLambdaFVars xs (← reduce structNames b)
-  | e@(Expr.forallE _ _ _ _) => forallTelescope e fun xs b => do mkForallFVars xs (← reduce structNames b)
-  | e@(Expr.letE _ _ _ _ _)  => lambdaLetTelescope e fun xs b => do mkLetFVars xs (← reduce structNames b)
-  | e@(Expr.proj _ i b _)    => do
+partial def reduce (structNames : Array Name) (e : Expr) : MetaM Expr := do
+  -- trace[Elab.struct] "reduce {e}"
+  match e with
+  | Expr.lam ..       => lambdaLetTelescope e fun xs b => do mkLambdaFVars xs (← reduce structNames b)
+  | Expr.forallE ..   => forallTelescope e fun xs b => do mkForallFVars xs (← reduce structNames b)
+  | Expr.letE ..      => lambdaLetTelescope e fun xs b => do mkLetFVars xs (← reduce structNames b)
+  | Expr.proj _ i b _ => do
     match (← Meta.project? b i) with
     | some r => reduce structNames r
     | none   => return e.updateProj! (← reduce structNames b)
-  | e@(Expr.app f _ _) => do
+  | Expr.app f .. => do
     match (← reduceProjOf? structNames e) with
     | some r => reduce structNames r
     | none   =>
@@ -717,15 +720,15 @@ partial def reduce (structNames : Array Name) : Expr → MetaM Expr
       else
         let args ← e.getAppArgs.mapM (reduce structNames)
         return (mkAppN f' args)
-  | e@(Expr.mdata _ b _) => do
+  | Expr.mdata _ b _ => do
     let b ← reduce structNames b
     if (defaultMissing? e).isSome && !b.isMVar then
       return b
     else
       return e.updateMData! b
-  | e@(Expr.mvar mvarId _) => do
+  | Expr.mvar mvarId _ => do
     match (← getExprMVarAssignment? mvarId) with
-    | some val => if val.isMVar then reduce structNames val else pure val
+    | some val => if val.isMVar then pure val else reduce structNames val
     | none     => return e
   | e => return e
 
@@ -765,7 +768,8 @@ partial def step (struct : Struct) : M Unit :=
         | FieldVal.nested struct => step struct
         | _ => match field.expr? with
           | none      => unreachable!
-          | some expr => match defaultMissing? expr with
+          | some expr =>
+            match defaultMissing? expr with
             | some (Expr.mvar mvarId _) =>
               unless (← isExprMVarAssigned mvarId) do
                 let ctx ← read
@@ -777,6 +781,7 @@ partial def propagateLoop (hierarchyDepth : Nat) (d : Nat) (struct : Struct) : M
   match findDefaultMissing? (← getMCtx) struct with
   | none       => pure () -- Done
   | some field =>
+    trace[Elab.struct] "propagate [{d}] [field := {field}]: {struct}"
     if d > hierarchyDepth then
       throwErrorAt field.ref "field '{getFieldName field}' is missing"
     else withReader (fun ctx => { ctx with maxDistance := d }) do

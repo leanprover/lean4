@@ -185,8 +185,11 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
           | some type =>
             let tac := binderTactic[2]
             let name ← Term.declareTacticSyntax tac
+            -- The tactic should be for binders+type.
+            -- It is safe to reset the binders to a "null" node since there is no value to be elaborated
+            let type ← `(forall $(binders.getArgs):bracketedBinder*, $type)
             let type ← `(autoParam $type $(mkIdentFrom tac name))
-            pure (binders, some type)
+            pure (mkNullNode, some type)
       else
         let (binders, type) := expandDeclSig fieldBinder[4]
         pure (binders, some type)

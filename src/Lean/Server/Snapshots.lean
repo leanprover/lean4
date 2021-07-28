@@ -113,7 +113,6 @@ def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot Mess
         messages := postCmdState.messages.add {
           fileName := inputCtx.fileName
           severity := MessageSeverity.information
-          rawPos   := snap.endPos
           pos      := inputCtx.fileMap.toPosition snap.endPos
           data     := output
         }

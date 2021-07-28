@@ -826,13 +826,13 @@ def getParamNames (declName : Name) : MetaM (Array Name) := do
 
 -- `kind` specifies the metavariable kind for metavariables not corresponding to instance implicit `[ ... ]` arguments.
 private partial def forallMetaTelescopeReducingAux
-    (e : Expr) (reducing : Bool) (maxMVars? : Option Nat) (kind : MetavarKind) (instsSynthetic : Bool) : MetaM (Array Expr × Array BinderInfo × Expr) :=
+    (e : Expr) (reducing : Bool) (maxMVars? : Option Nat) (kind : MetavarKind) : MetaM (Array Expr × Array BinderInfo × Expr) :=
   let rec process (mvars : Array Expr) (bis : Array BinderInfo) (j : Nat) (type : Expr) : MetaM (Array Expr × Array BinderInfo × Expr) := do
     match type with
     | Expr.forallE n d b c =>
       let cont : Unit → MetaM (Array Expr × Array BinderInfo × Expr) := fun _ => do
         let d  := d.instantiateRevRange j mvars.size mvars
-        let k  := if c.binderInfo.isInstImplicit && instsSynthetic then MetavarKind.synthetic else kind
+        let k  := if c.binderInfo.isInstImplicit then  MetavarKind.synthetic else kind
         let mvar ← mkFreshExprMVar d k n
         let mvars := mvars.push mvar
         let bis   := bis.push c.binderInfo
@@ -859,16 +859,15 @@ private partial def forallMetaTelescopeReducingAux
 
 /-- Similar to `forallTelescope`, but creates metavariables instead of free variables. -/
 def forallMetaTelescope (e : Expr) (kind := MetavarKind.natural) : MetaM (Array Expr × Array BinderInfo × Expr) :=
-  forallMetaTelescopeReducingAux e (reducing := false) (maxMVars? := none) (instsSynthetic := true) kind
+  forallMetaTelescopeReducingAux e (reducing := false) (maxMVars? := none) kind
 
 /-- Similar to `forallTelescopeReducing`, but creates metavariables instead of free variables. -/
 def forallMetaTelescopeReducing (e : Expr) (maxMVars? : Option Nat := none) (kind := MetavarKind.natural) : MetaM (Array Expr × Array BinderInfo × Expr) :=
-  forallMetaTelescopeReducingAux e (reducing := true) maxMVars? kind (instsSynthetic := true)
+  forallMetaTelescopeReducingAux e (reducing := true) maxMVars? kind
 
-/-- Similar to `forallMetaTelescopeReducing`, stops constructing the telescope when
-  it reaches size `maxMVars`. -/
-def forallMetaBoundedTelescope (e : Expr) (maxMVars : Nat) (kind : MetavarKind := MetavarKind.natural) (instsSynthetic : Bool := true) : MetaM (Array Expr × Array BinderInfo × Expr) :=
-  forallMetaTelescopeReducingAux e (reducing := true) (maxMVars? := some maxMVars) (kind := kind) (instsSynthetic := instsSynthetic)
+/-- Similar to `forallMetaTelescopeReducing`, stops constructing the telescope when it reaches size `maxMVars`. -/
+def forallMetaBoundedTelescope (e : Expr) (maxMVars : Nat) (kind : MetavarKind := MetavarKind.natural) : MetaM (Array Expr × Array BinderInfo × Expr) :=
+  forallMetaTelescopeReducingAux e (reducing := true) (maxMVars? := some maxMVars) (kind := kind)
 
 /-- Similar to `forallMetaTelescopeReducingAux` but for lambda expressions. -/
 partial def lambdaMetaTelescope (e : Expr) (maxMVars? : Option Nat := none) : MetaM (Array Expr × Array BinderInfo × Expr) :=

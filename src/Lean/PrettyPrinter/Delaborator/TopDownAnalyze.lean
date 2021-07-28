@@ -114,9 +114,16 @@ def replaceLPsWithVars (e : Expr) : MetaM Expr := do
     | Level.param n .. => replaceMap.find! n
     | l => if !l.hasParam then some l else none
 
+def isDefEq (t s : Expr) : MetaM Bool := do
+  withTheReader Meta.Context (fun ctx => { ctx with config := { ctx.config with assignSyntheticOpaque := true }}) $
+    Meta.isDefEq t s
+
+def checkpointDefEq (t s : Expr) : MetaM Bool := do
+  Meta.checkpointDefEq (isDefEq t s) (mayPostpone := false)
+
 def tryUnify (t s : Expr) : MetaM Unit := do
   try
-    let r ← Meta.isExprDefEqAux t s
+    let r ← isDefEq t s
     if !r then
       trace[pp.analyze.tryUnify] "nonDefEq\n\n{fmt t}\n\n=?=\n\n{fmt s}\n"
     pure ()
@@ -168,7 +175,7 @@ partial def okBottomUp? (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
       | Expr.const .. =>
         let args := e.getAppArgs
         let fType ← replaceLPsWithVars (← inferType e.getAppFn)
-        let ⟨mvars, bInfos, resultType⟩ ← forallMetaBoundedTelescope fType e.getAppArgs.size (instsSynthetic := false)
+        let ⟨mvars, bInfos, resultType⟩ ← forallMetaBoundedTelescope fType e.getAppArgs.size
         for i in [:mvars.size] do
           if bInfos[i] == BinderInfo.instImplicit then
             inspectOutParams args[i] mvars[i]
@@ -249,7 +256,7 @@ where
 
   analyzeAppStaged (f : Expr) (args : Array Expr) : AnalyzeM Unit := do
     let fType ← replaceLPsWithVars (← inferType f)
-    let ⟨mvars, bInfos, resultType⟩ ← forallMetaBoundedTelescope fType args.size (instsSynthetic := false)
+    let ⟨mvars, bInfos, resultType⟩ ← forallMetaBoundedTelescope fType args.size
     let rest := args.extract mvars.size args.size
     let args := args.shrink mvars.size
 

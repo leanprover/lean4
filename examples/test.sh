@@ -23,7 +23,15 @@ cd git
 ./test.sh
 cd ..
 
-echo 'testing ext'
-cd ext
+echo 'testing ffi'
+cd ffi
 ./test.sh
+cd ..
+
+echo "testing bootstrap"
+cd bootstrap
+./test.sh
+cd ..
+cd hello
+./bootstrap-test.sh
 cd ..

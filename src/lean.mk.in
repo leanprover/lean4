@@ -57,11 +57,10 @@ ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Building $<"
 endif
 	@mkdir -p $(OLEAN_OUT)/$(*D)
-	$(LEAN) $(LEAN_OPTS) -o "$@" --c="$(TEMP_OUT)/$*.c.tmp" $<
-# create the .c file atomically
+	$(LEAN) $(LEAN_OPTS) -o "$@.tmp" --c="$(TEMP_OUT)/$*.c.tmp" $<
+# create output files atomically
+	mv "$@.tmp" "$@"
 	mv "$(TEMP_OUT)/$*.c.tmp" "$(TEMP_OUT)/$*.c"
-# make sure the .olean file is newer than the .depend file to prevent infinite make cycles
-	@touch $@
 
 $(TEMP_OUT)/%.c: $(OLEAN_OUT)/%.olean
 	@

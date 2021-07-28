@@ -463,6 +463,10 @@ object * compacted_region::read() {
     return root;
 }
 
+extern "C" uint8 lean_compacted_region_is_memory_mapped(usize region) {
+    return reinterpret_cast<compacted_region *>(region)->is_memory_mapped();
+}
+
 extern "C" obj_res lean_compacted_region_free(usize region, object *) {
     delete reinterpret_cast<compacted_region *>(region);
     return lean_io_result_mk_ok(lean_box(0));

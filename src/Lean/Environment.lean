@@ -37,8 +37,11 @@ instance : ToString Import := ⟨fun imp => toString imp.module ++ if imp.runtim
   files are compacted regions. -/
 def CompactedRegion := USize
 
+@[extern "lean_compacted_region_is_memory_mapped"]
+constant CompactedRegion.isMemoryMapped : CompactedRegion → Bool
+
 /-- Free a compacted region and its contents. No live references to the contents may exist at the time of invocation. -/
-@[extern 2 "lean_compacted_region_free"]
+@[extern "lean_compacted_region_free"]
 unsafe constant CompactedRegion.free : CompactedRegion → IO Unit
 
 /- Environment fields that are not used often. -/
@@ -701,9 +704,9 @@ def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
 @[export lean_display_stats]
 def displayStats (env : Environment) : IO Unit := do
   let pExtDescrs ← persistentEnvExtensionsRef.get
-  let numModules := ((pExtDescrs.get! 0).toEnvExtension.getState env).importedEntries.size;
   IO.println ("direct imports:                        " ++ toString env.header.imports);
-  IO.println ("number of imported modules:            " ++ toString numModules);
+  IO.println ("number of imported modules:            " ++ toString env.header.regions.size);
+  IO.println ("number of memory-mapped modules:       " ++ toString (env.header.regions.filter (·.isMemoryMapped) |>.size));
   IO.println ("number of consts:                      " ++ toString env.constants.size);
   IO.println ("number of imported consts:             " ++ toString env.constants.stageSizes.1);
   IO.println ("number of local consts:                " ++ toString env.constants.stageSizes.2);

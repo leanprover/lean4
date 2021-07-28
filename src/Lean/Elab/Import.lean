@@ -23,7 +23,7 @@ def processHeader (header : Syntax) (opts : Options) (messages : MessageLog) (in
     let env ← mkEmptyEnvironment
     let spos := header.getPos?.getD 0
     let pos  := inputCtx.fileMap.toPosition spos
-    pure (env, messages.add { fileName := inputCtx.fileName, data := toString e, rawPos := spos, pos := pos })
+    pure (env, messages.add { fileName := inputCtx.fileName, data := toString e, pos := pos })
 
 def parseImports (input : String) (fileName : Option String := none) : IO (List Import × Position × MessageLog) := do
   let fileName := fileName.getD "<input>"

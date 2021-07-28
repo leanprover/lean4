@@ -59,8 +59,8 @@ def isAbortTacticException (ex : Exception) : Bool :=
 def isAbortExceptionId (id : InternalExceptionId) : Bool :=
   id == abortCommandExceptionId || id == abortTermExceptionId || id == abortTacticExceptionId
 
-def mkMessageCore (fileName : String) (fileMap : FileMap) (msgData : MessageData) (severity : MessageSeverity) (rawPos : String.Pos) : Message :=
-  let pos := fileMap.toPosition rawPos
-  { fileName := fileName, rawPos := rawPos, pos := pos, data := msgData, severity := severity }
+def mkMessageCore (fileName : String) (fileMap : FileMap) (msgData : MessageData) (severity : MessageSeverity) (pos : String.Pos) : Message :=
+  let pos := fileMap.toPosition pos
+  { fileName := fileName, pos := pos, data := msgData, severity := severity }
 
 end Lean.Elab

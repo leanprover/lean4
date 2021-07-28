@@ -218,19 +218,27 @@ def fooReadGetModify : ReaderT Unit (StateT Unit IO) Unit := do
 #testDelabN Lean.Xml.parse
 #testDelabN Add.noConfusionType
 #testDelabN List.filterMapM.loop
-
+#testDelabN instMonadReaderOf
 #testDelabN instInhabitedPUnit
 #testDelabN Lean.Syntax.getOptionalIdent?
 #testDelabN Lean.Meta.ppExpr
 #testDelabN Eq.mprProp
 
 -- TODO: this test is broken because of the inability to solve structural max constraints
+-- (See https://github.com/leanprover/lean4/issues/590)
 -- #testDelabN Lean.PrefixTree.empty
+-- #testDelabN Std.PersistentHashMap.getCollisionNodeSize.match_1
+-- #testDelabN Std.HashMap.size.match_1
 
--- TODO: this is broken because it is printing inaccessible names
+-- TODO: this is broken because it is currently inaccessible names
 -- #testDelabN Std.ShareCommon.ObjectMap.find?
+-- #testDelabN Std.ShareCommon.ObjectMap.insert
 
--- TODO: these all fail currently for undiagnosed reasons
---#testDelabN MonadLift.noConfusion
---#testDelabN instMonadReaderOf
---#testDelabN MonadLift.noConfusionType
+-- TODO: these all fail currently because of implicit lambdas
+-- #testDelabN MonadLift.noConfusion
+-- #testDelabN MonadLift.noConfusionType
+-- #testDelabN MonadExcept.noConfusion
+-- #testDelabN MonadFinally.noConfusion
+
+-- TODO: these fail because we are not disable named patterns when not using `match` syntax
+-- #testDelabN Lean.Elab.InfoTree.goalsAt?.match_1

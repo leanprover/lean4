@@ -28,6 +28,7 @@ inductive Source where
 structure Dependency where
   name : String
   src  : Source
+  dir  : FilePath := "."
   args : List String := []
 
 abbrev Script := List String → IO PUnit

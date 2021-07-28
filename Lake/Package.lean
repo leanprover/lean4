@@ -14,10 +14,10 @@ open Lean Std System
 namespace Lake
 
 def defaultBuildDir : FilePath := "build"
-def defaultBinDir := defaultBuildDir / "bin"
-def defaultLibDir := defaultBuildDir / "lib"
-def defaultOleanDir := defaultBuildDir / "lib"
-def defaultIrDir := defaultBuildDir / "ir"
+def defaultBinDir : FilePath := "bin"
+def defaultLibDir : FilePath := "lib"
+def defaultOleanDir : FilePath := "lib"
+def defaultIrDir : FilePath := "ir"
 def defaultDepsDir : FilePath := "lean_packages"
 
 inductive Source where
@@ -42,6 +42,7 @@ structure PackageConfig where
   linkArgs : Array String := #[]
   rootDir : FilePath := "."
   srcDir : FilePath := rootDir
+  buildDir : FilePath := defaultBuildDir
   oleanDir : FilePath := defaultOleanDir
   irDir : FilePath := defaultIrDir
   binDir : FilePath := defaultBinDir
@@ -111,8 +112,11 @@ def modToSrc (mod : Name) (self : Package) : FilePath :=
 def srcRoot (self : Package) : FilePath :=
   self.modToSrc self.moduleRoot
 
+def buildDir (self : Package) : FilePath :=
+  self.dir / self.config.buildDir
+
 def oleanDir (self : Package) : FilePath :=
-  self.dir / self.config.oleanDir
+  self.buildDir / self.config.oleanDir
 
 def modToOlean (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.oleanDir mod "olean"
@@ -124,7 +128,7 @@ def modToHashFile (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.oleanDir mod "hash"
 
 def irDir (self : Package) : FilePath :=
-  self.dir / self.config.irDir
+  self.buildDir / self.config.irDir
 
 def cDir (self : Package) : FilePath :=
   self.irDir
@@ -139,7 +143,7 @@ def modToO (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.oDir mod "o"
 
 def binDir (self : Package) : FilePath :=
-  self.dir / self.config.binDir
+  self.buildDir / self.config.binDir
 
 def binName (self : Package) : FilePath :=
   self.config.binName
@@ -151,7 +155,7 @@ def binFile (self : Package) : FilePath :=
   self.binDir / self.binFileName
 
 def libDir (self : Package) : FilePath :=
-  self.dir / self.config.libDir
+  self.buildDir / self.config.libDir
 
 def staticLibName (self : Package) : FilePath :=
   self.config.libName

@@ -6,7 +6,7 @@ def package : PackageConfig := {
   name := "lake"
   version := "2.0-pre-bootstrap"
   rootDir := FilePath.mk ".." / ".."
-  oleanDir := defaultBuildDir
+  oleanDir := "."
   leancArgs := #["-O3", "-DNDEBUG"]
   linkArgs :=
     if Platform.isWindows then

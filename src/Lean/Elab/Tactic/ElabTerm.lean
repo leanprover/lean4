@@ -47,15 +47,21 @@ private def logUnassignedAndAbort (mvarIds : Array MVarId) : TacticM Unit := do
    if (← Term.logUnassignedUsingErrorInfos mvarIds) then
      throwAbortTactic
 
+private def filterOldMVars (mvarIds : Array MVarId) (mvarCounterSaved : Nat) : MetaM (Array MVarId) := do
+  let mctx ← getMCtx
+  return mvarIds.filter fun mvarId => (mctx.getDecl mvarId |>.index) >= mvarCounterSaved
+
 @[builtinTactic «exact»] def evalExact : Tactic := fun stx =>
   match stx with
   | `(tactic| exact $e) => closeMainGoalUsing (checkUnassigned := false) fun type => do
+    let mvarCounterSaved := (← getMCtx).mvarCounter
     let r ← elabTermEnsuringType e type
-    logUnassignedAndAbort (← getMVars r)
+    logUnassignedAndAbort (← filterOldMVars (← getMVars r) mvarCounterSaved)
     return r
   | _ => throwUnsupportedSyntax
 
 def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) := do
+  let mvarCounterSaved := (← getMCtx).mvarCounter
   let val ← elabTermEnsuringType stx expectedType?
   let newMVarIds ← getMVarsNoDelayed val
   /- ignore let-rec auxiliary variables, they are synthesized automatically later -/
@@ -66,6 +72,7 @@ def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : 
     else
       let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← getMVarDecl mvarId).kind.isNatural
       let syntheticMVarIds ← newMVarIds.filterM fun mvarId => return !(← getMVarDecl mvarId).kind.isNatural
+      let naturalMVarIds ← filterOldMVars naturalMVarIds mvarCounterSaved
       logUnassignedAndAbort naturalMVarIds
       pure syntheticMVarIds.toList
   tagUntaggedGoals (← getMainTag) tagSuffix newMVarIds

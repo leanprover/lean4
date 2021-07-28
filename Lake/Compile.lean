@@ -21,7 +21,9 @@ def proc (args : IO.Process.SpawnArgs) : IO PUnit := do
   let child ← IO.Process.spawn args
   let exitCode ← child.wait
   if exitCode != 0 then
-    IO.eprintln s!"external command exited with status {exitCode}"
+    let msg := s!"external command exited with status {exitCode}"
+    IO.eprintln msg -- print errors early
+    throw <| IO.userError msg
 
 def compileOleanAndC (leanFile oleanFile cFile : FilePath)
 (leanPath : String := "") (rootDir : FilePath := ".") (leanArgs : Array String := #[])

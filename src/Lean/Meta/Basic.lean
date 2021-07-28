@@ -58,6 +58,13 @@ structure Config where
   unificationHints   : Bool := true
   /- Enables proof irrelevance at `isDefEq` -/
   proofIrrelevance   : Bool := true
+  /- By default synthetic opaque metavariables are not assigned by `isDefEq`. Motivation: we want to make
+     sure typing constraints resolved during elaboration should not "fill" holes that are supposed to be filled using tactics.
+     However, this restriction is too restrictive for tactics such as `exact t`. When elaborating `t`, we dot not fill
+     named holes when solving typing constraints or TC resolution. But, we ignore the restriction when we try to unify
+     the type of `t` with the goal target type. We claim this is not a hack and is defensible behavior because
+     this last unification step is not really part of the term elaboration. -/
+  assignSyntheticOpaque : Bool := false
 
 structure ParamInfo where
   implicit     : Bool      := false
@@ -358,10 +365,8 @@ def isReadOnlyExprMVar (mvarId : MVarId) : MetaM Bool := do
 def isReadOnlyOrSyntheticOpaqueExprMVar (mvarId : MVarId) : MetaM Bool := do
   let mvarDecl ← getMVarDecl mvarId
   match mvarDecl.kind with
-  | MetavarKind.syntheticOpaque => pure true
-  | _ =>
-    let mctx ← getMCtx
-    return mvarDecl.depth != mctx.depth
+  | MetavarKind.syntheticOpaque => return !(← getConfig).assignSyntheticOpaque
+  | _ => return mvarDecl.depth != (← getMCtx).depth
 
 def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool := do
   let mctx ← getMCtx
@@ -484,6 +489,10 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
       let mode    := if oldMode.lt mode then mode else oldMode
       { config with transparency := mode })
     x
+
+/-- Execute `x` allowing `isDefEq` to assign synthetic opaque metavariables. -/
+@[inline] def withAssignableSyntheticOpaque (x : n α) : n α :=
+  withConfig (fun config => { config with assignSyntheticOpaque := true }) x
 
 /-- Save cache, execute `x`, restore cache -/
 @[inline] private def savingCacheImpl (x : MetaM α) : MetaM α := do

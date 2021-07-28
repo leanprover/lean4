@@ -100,8 +100,6 @@ class T1 (α : Type u) where
   addc8 : ∀ (x y : α), @Add.add α (@L1.toAdd _ (@L2.toL1 _ (@L3.toL2 _ (@L4.toL3 _ (@L5.toL4 _ (@L6.toL5 _ (@L7.toL6 _ ⟨add, addc1, addc2, addc3, addc4, addc5, addc6, addc7⟩))))))) x y = @Add.add α (@L1.toAdd _ (@L2.toL1 _ (@L3.toL2 _ (@L4.toL3 _ (@L5.toL4 _ (@L6.toL5 _ (@L7.toL6 _ ⟨add, addc1, addc2, addc3, addc4, addc5, addc6, addc7⟩))))))) y x
   addc9 : ∀ (x y : α), @Add.add α (@L1.toAdd _ (@L2.toL1 _ (@L3.toL2 _ (@L4.toL3 _ (@L5.toL4 _ (@L6.toL5 _ (@L7.toL6 _ (@L8.toL7 _ ⟨add, addc1, addc2, addc3, addc4, addc5, addc6, addc7, addc8⟩)))))))) x y = @Add.add α (@L1.toAdd _ (@L2.toL1 _ (@L3.toL2 _ (@L4.toL3 _ (@L5.toL4 _ (@L6.toL5 _ (@L7.toL6 _ (@L8.toL7 _ ⟨add, addc1, addc2, addc3, addc4, addc5, addc6, addc7, addc8⟩)))))))) y x
 
-set_option maxHeartbeats 10000000
-
 -- slow
 instance T1.toL9 [inst : T1 α] : L9 α := { inst with }
 

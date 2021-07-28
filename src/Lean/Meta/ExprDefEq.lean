@@ -999,8 +999,6 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
      when `t` and `s` do not have metavariables, are not structurally equal, and `f` is an abbreviation.
      On the other hand, by unfolding `f`, we often produce smaller terms. -/
   unless info.hints.isRegular do
-    t ← instantiateMVars t
-    s ← instantiateMVars s
     unless t.hasExprMVar || s.hasExprMVar do
       return false
   traceCtx `Meta.isDefEq.delta do
@@ -1405,6 +1403,43 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   else
     isDefEqOnFailure t s
 
+private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
+  if (← (isDefEqEta t s <||> isDefEqEta s t)) then pure true else
+  if (← isDefEqProj t s) then pure true else
+  whenUndefDo (isDefEqNative t s) do
+  whenUndefDo (isDefEqNat t s) do
+  whenUndefDo (isDefEqOffset t s) do
+  whenUndefDo (isDefEqDelta t s) do
+  if t.isConst && s.isConst then
+    if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else pure false
+  else if t.isApp && s.isApp then
+    isDefEqApp t s
+  else
+    whenUndefDo (isDefEqStringLit t s) do
+    isDefEqOnFailure t s
+
+-- We only check DefEq cache for default and all transparency modes
+private def skipDefEqCache : MetaM Bool := do
+  match (← getConfig).transparency with
+  | TransparencyMode.default => return false
+  | TransparencyMode.all     => return false
+  | _                        => return true
+
+private def mkCacheKey (t : Expr) (s : Expr) : Expr × Expr :=
+  if Expr.quickLt t s then (t, s) else (s, t)
+
+private def isCached (key : Expr × Expr) : MetaM Bool := do
+  match (← getConfig).transparency with
+  | TransparencyMode.default => return (← get).cache.defEqDefault.contains key
+  | TransparencyMode.all     => return (← get).cache.defEqAll.contains key
+  | _                        => return false
+
+private def cacheResult (key : Expr × Expr) : MetaM Unit := do
+  match (← getConfig).transparency with
+  | TransparencyMode.default => modify fun s => { s with cache.defEqDefault := s.cache.defEqDefault.insert key () }
+  | TransparencyMode.all     => modify fun s => { s with cache.defEqAll := s.cache.defEqAll.insert key () }
+  | _                        => pure ()
+
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := do
   trace[Meta.isDefEq.step] "{t} =?= {s}"
   checkMaxHeartbeats "isDefEq"
@@ -1415,20 +1450,31 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := do
   let s' ← whnfCore s
   if t != t' || s != s' then
     isExprDefEqAuxImpl t' s'
-  else do
-    if (← (isDefEqEta t s <||> isDefEqEta s t)) then pure true else
-    if (← isDefEqProj t s) then pure true else
-    whenUndefDo (isDefEqNative t s) do
-    whenUndefDo (isDefEqNat t s) do
-    whenUndefDo (isDefEqOffset t s) do
-    whenUndefDo (isDefEqDelta t s) do
-    if t.isConst && s.isConst then
-      if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else pure false
-    else if t.isApp && s.isApp then
-      isDefEqApp t s
+  else if (← skipDefEqCache) then
+    isExprDefEqExpensive t s
+  else
+    /-
+      TODO: check whether the following `instantiateMVar`s are expensive or not in practice.
+      Lean 3 does not use them, and may miss caching opportunities since it is not safe to cache when `t` and `s` may contain mvars.
+      The unit test `tryHeuristicPerfIssue2.lean` cannot be solved without these two `instantiateMVar`s.
+      If it becomes a problem, we may use store a flag in the context indicating whether we have already used `instantiateMVar` in
+      outer invocations or not. It is not perfect (we may assign mvars in nested calls), but it should work well enough in practice,
+      and prevent repeated traversals in nested calls.
+    -/
+    let t ← instantiateMVars t
+    let s ← instantiateMVars s
+    if t.hasMVar || s.hasMVar then
+      -- It is not safe to use DefEq cache if terms contain metavariables
+      isExprDefEqExpensive t s
     else
-      whenUndefDo (isDefEqStringLit t s) do
-      isDefEqOnFailure t s
+      let k := mkCacheKey t s
+      if (← isCached k) then
+        return true
+      else if (← isExprDefEqExpensive t s) then
+        cacheResult k
+        return true
+      else
+        return false
 
 builtin_initialize
   isExprDefEqAuxRef.set isExprDefEqAuxImpl

@@ -98,12 +98,19 @@ abbrev SynthInstanceCache := PersistentHashMap Expr (Option Expr)
 abbrev InferTypeCache := PersistentExprStructMap Expr
 abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo
 abbrev WhnfCache      := PersistentExprStructMap Expr
+
+/- A set of pairs. TODO: consider more efficient representations (e.g., a proper set) and caching policies (e.g., imperfect cache).
+   We should also investigate the impact on memory consumption. -/
+abbrev DefEqCache := PersistentHashMap (Expr × Expr) Unit
+
 structure Cache where
   inferType     : InferTypeCache := {}
   funInfo       : FunInfoCache   := {}
   synthInstance : SynthInstanceCache := {}
   whnfDefault   : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
   whnfAll       : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
+  defEqDefault  : DefEqCache := {}
+  defEqAll      : DefEqCache := {}
   deriving Inhabited
 
 /--
@@ -218,7 +225,7 @@ variable [MonadControlT MetaM n] [Monad n]
   modify fun ⟨mctx, cache, zetaFVarIds, postponed⟩ => ⟨mctx, f cache, zetaFVarIds, postponed⟩
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4⟩ => ⟨f ic, c1, c2, c3, c4⟩
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
 
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances

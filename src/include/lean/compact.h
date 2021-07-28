@@ -87,5 +87,6 @@ public:
     compacted_region operator=(compacted_region const &) = delete;
     compacted_region operator=(compacted_region &&) = delete;
     object * read();
+    bool is_memory_mapped() const { return m_mmap_addr; }
 };
 }

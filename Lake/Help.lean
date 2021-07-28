@@ -20,6 +20,7 @@ configure        download and build dependencies
 build            configure and build *.olean files
 build-lib        configure and build a static library
 build-bin        configure and build a native binary executable
+clean            remove build outputs
 
 See `lake help <command>` for more information on a specific command."
 
@@ -110,6 +111,15 @@ Additional  arguments can be passed to `lean`, the  `leanc` compiler, or the
 the package's configuration. Arguments to the  `Packager` itself can be
 specified with `args`."
 
+def helpClean :=
+"Remove build outputs
+
+Usage:
+  lake clean [-- <args>...]
+
+Deletes the build directory of the package.
+Arguments to the  `Packager` itself can be specified with `args`."
+
 def help : (cmd : String) → String
 | "new"       => helpNew
 | "init"      => helpInit
@@ -118,4 +128,5 @@ def help : (cmd : String) → String
 | "build"     => helpBuild
 | "build-lib" => helpBuildLib
 | "build-bin" => helpBuildBin
+| "clean"     => helpClean
 | _           => usage

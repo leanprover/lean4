@@ -24,6 +24,13 @@ def Package.run (script : String) (args : List String) (self : Package) : IO PUn
   else
     self.scripts.forM fun name _ => IO.println name
 
+-- Hack since Lean provides no methods to remove directories
+def removeDirAll (path : System.FilePath) : IO PUnit := do
+  Lake.proc {cmd := "rm", args := #["-rf", path.toString]}
+
+def Package.clean (self : Package) : IO PUnit :=
+  removeDirAll self.buildDir
+
 def cli : (cmd : String) → (lakeArgs pkgArgs : List String) → IO Unit
 | "new",          [name],   []      => new name
 | "init",         [name],   []      => init name
@@ -33,6 +40,7 @@ def cli : (cmd : String) → (lakeArgs pkgArgs : List String) → IO Unit
 | "build",        [],       pkgArgs => do build (← getCwdPkg pkgArgs)
 | "build-lib",    [],       pkgArgs => do buildLib (← getCwdPkg pkgArgs)
 | "build-bin",    [],       pkgArgs => do buildBin (← getCwdPkg pkgArgs)
+| "clean",        [],       pkgArgs => do (← getCwdPkg pkgArgs).clean
 | "help",         [cmd],    _       => IO.println <| help cmd
 | _,              _,        _       => throw <| IO.userError usage
 

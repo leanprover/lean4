@@ -256,11 +256,8 @@ structure MetavarDecl where
   localInstances : LocalInstances
   kind           : MetavarKind
   numScopeArgs   : Nat := 0 -- See comment at `CheckAssignment` `Meta/ExprDefEq.lean`
+  index          : Nat      -- We use this field to track how old a metavariable is. It is set using a counter at `MetavarContext`
   deriving Inhabited
-
-@[export lean_mk_metavar_decl]
-def mkMetavarDeclEx (userName : Name) (lctx : LocalContext) (type : Expr) (depth : Nat) (localInstances : LocalInstances) (kind : MetavarKind) : MetavarDecl :=
-  { userName := userName, lctx := lctx, type := type, depth := depth, localInstances := localInstances, kind := kind }
 
 /--
   A delayed assignment for a metavariable `?m`. It represents an assignment of the form
@@ -278,6 +275,7 @@ open Std (HashMap PersistentHashMap)
 
 structure MetavarContext where
   depth       : Nat := 0
+  mvarCounter : Nat := 0 -- Counter for setting the field `index` at `MetavarDecl`
   lDepth      : PersistentHashMap MVarId Nat := {}
   decls       : PersistentHashMap MVarId MetavarDecl := {}
   lAssignment : PersistentHashMap MVarId Level := {}
@@ -313,14 +311,16 @@ def addExprMVarDecl (mctx : MetavarContext)
     (kind : MetavarKind := MetavarKind.natural)
     (numScopeArgs : Nat := 0) : MetavarContext :=
   { mctx with
-    decls := mctx.decls.insert mvarId {
-      userName       := userName,
-      lctx           := lctx,
-      localInstances := localInstances,
-      type           := type,
-      depth          := mctx.depth,
-      kind           := kind,
-      numScopeArgs   := numScopeArgs } }
+    mvarCounter := mctx.mvarCounter + 1
+    decls       := mctx.decls.insert mvarId {
+      depth := mctx.depth
+      index := mctx.mvarCounter
+      userName
+      lctx
+      localInstances
+      type
+      kind
+      numScopeArgs } }
 
 def addExprMVarDeclExp (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) (lctx : LocalContext) (localInstances : LocalInstances)
     (type : Expr) (kind : MetavarKind) : MetavarContext :=

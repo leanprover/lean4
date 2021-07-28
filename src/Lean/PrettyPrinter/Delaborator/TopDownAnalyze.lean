@@ -54,31 +54,24 @@ register_builtin_option pp.analyze.trustOfNat : Bool := {
   descr    := "(pretty printer analyzer) always 'pretend' `OfNat.ofNat` applications can elab bottom-up"
 }
 
-register_builtin_option pp.analyze.trustSimpleHOFuns : Bool := {
-  defValue := false
-  group    := "pp.analyze"
-  descr    := "(pretty printer analyzer) omit constant higher-order functions returning non-Pi types"
-}
-
-register_builtin_option pp.analyze.trustKnownType2TypeHOFuns : Bool := {
+register_builtin_option pp.analyze.trustKnownFOType2TypeHOFuns : Bool := {
   defValue := true
   group    := "pp.analyze"
   descr    := "(pretty printer analyzer) omit higher-order functions whose values seem to be knownType2Type"
 }
 
-def getPPAnalyze                   (o : Options) : Bool := o.get pp.analyze.name pp.analyze.defValue
-def getPPAnalyzeCheckInstances     (o : Options) : Bool := o.get pp.analyze.checkInstances.name pp.analyze.checkInstances.defValue
-def getPPAnalyzeTypeAscriptions    (o : Options) : Bool := o.get pp.analyze.typeAscriptions.name pp.analyze.typeAscriptions.defValue
-def getPPAnalyzeTrustSubst         (o : Options) : Bool := o.get pp.analyze.trustSubst.name pp.analyze.trustSubst.defValue
-def getPPAnalyzeTrustOfNat         (o : Options) : Bool := o.get pp.analyze.trustOfNat.name pp.analyze.trustOfNat.defValue
-def getPPAnalyzeTrustSimpleHOFuns  (o : Options) : Bool := o.get pp.analyze.trustSimpleHOFuns.name pp.analyze.trustSimpleHOFuns.defValue
-def getPPAnalyzeTrustKnownType2TypeHOFuns   (o : Options) : Bool := o.get pp.analyze.trustKnownType2TypeHOFuns.name pp.analyze.trustKnownType2TypeHOFuns.defValue
+def getPPAnalyze                            (o : Options) : Bool := o.get pp.analyze.name pp.analyze.defValue
+def getPPAnalyzeCheckInstances              (o : Options) : Bool := o.get pp.analyze.checkInstances.name pp.analyze.checkInstances.defValue
+def getPPAnalyzeTypeAscriptions             (o : Options) : Bool := o.get pp.analyze.typeAscriptions.name pp.analyze.typeAscriptions.defValue
+def getPPAnalyzeTrustSubst                  (o : Options) : Bool := o.get pp.analyze.trustSubst.name pp.analyze.trustSubst.defValue
+def getPPAnalyzeTrustOfNat                  (o : Options) : Bool := o.get pp.analyze.trustOfNat.name pp.analyze.trustOfNat.defValue
+def getPPAnalyzeTrustKnownFOType2TypeHOFuns (o : Options) : Bool := o.get pp.analyze.trustKnownFOType2TypeHOFuns.name pp.analyze.trustKnownFOType2TypeHOFuns.defValue
 
-def getPPAnalysisSkip            (o : Options) : Bool := o.get `pp.analysis.skip false
-def getPPAnalysisHole            (o : Options) : Bool := o.get `pp.analysis.hole false
-def getPPAnalysisNamedArg        (o : Options) : Bool := o.get `pp.analysis.namedArg false
-def getPPAnalysisLetVarType      (o : Options) : Bool := o.get `pp.analysis.letVarType true
-def getPPAnalysisNeedsType       (o : Options) : Bool := o.get `pp.analysis.needsType false
+def getPPAnalysisSkip        (o : Options) : Bool := o.get `pp.analysis.skip false
+def getPPAnalysisHole        (o : Options) : Bool := o.get `pp.analysis.hole false
+def getPPAnalysisNamedArg    (o : Options) : Bool := o.get `pp.analysis.namedArg false
+def getPPAnalysisLetVarType  (o : Options) : Bool := o.get `pp.analysis.letVarType true
+def getPPAnalysisNeedsType   (o : Options) : Bool := o.get `pp.analysis.needsType false
 
 namespace PrettyPrinter.Delaborator
 
@@ -98,11 +91,12 @@ def isSimpleHOFun (motive : Expr) : MetaM Bool := do
 
 def isType2Type (motive : Expr) : MetaM Bool := do
   match ← inferType motive with
-  | Expr.forallE _ (Expr.sort ..) (Expr.sort ..) .. =>
-    -- TODO: change the name
-    -- we really want something "monad-like", so no lambda
-    motive.isApp || motive.isConst || motive.isFVar
+  | Expr.forallE _ (Expr.sort ..) (Expr.sort ..) .. => true
   | _ => false
+
+def isFOLike (motive : Expr) : MetaM Bool := do
+  let f := motive.getAppFn
+  f.isFVar || f.isConst
 
 namespace TopDownAnalyze
 
@@ -114,16 +108,18 @@ def replaceLPsWithVars (e : Expr) : MetaM Expr := do
     | Level.param n .. => replaceMap.find! n
     | l => if !l.hasParam then some l else none
 
-def isDefEq (t s : Expr) : MetaM Bool := do
-  withTheReader Meta.Context (fun ctx => { ctx with config := { ctx.config with assignSyntheticOpaque := true }}) $
+def isDefEqAssigning (t s : Expr) : MetaM Bool := do
+  withReader (fun ctx => { ctx with config := { ctx.config with assignSyntheticOpaque := true }}) $
     Meta.isDefEq t s
 
 def checkpointDefEq (t s : Expr) : MetaM Bool := do
-  Meta.checkpointDefEq (isDefEq t s) (mayPostpone := false)
+  Meta.checkpointDefEq (mayPostpone := false) do
+    withTransparency TransparencyMode.instances do
+      isDefEqAssigning t s
 
 def tryUnify (t s : Expr) : MetaM Unit := do
   try
-    let r ← isDefEq t s
+    let r ← isDefEqAssigning t s
     if !r then
       trace[pp.analyze.tryUnify] "nonDefEq\n\n{fmt t}\n\n=?=\n\n{fmt s}\n"
     pure ()
@@ -277,17 +273,13 @@ where
     -- Collect implicit higher-order arguments
     let mut higherOrders := mkArray args.size false
     for i in [:args.size] do
-      -- TODO: determine more conditions under which we can safely omit higher-order arguments
       if not (← bInfos[i] == BinderInfo.implicit) then continue
       if not (← isHigherOrder (← inferType args[i])) then continue
 
-      if getPPAnalyzeTrustSimpleHOFuns (← getOptions) && (← isSimpleHOFun args[i]) then continue
+      if getPPAnalyzeTrustKnownFOType2TypeHOFuns (← getOptions) && not (← valUnknown mvars[i])
+        && (← isType2Type (args[i])) && (← isFOLike (args[i])) then continue
 
       tryUnify args[i] mvars[i]
-
-      -- TODO: the following check seems to bring scores down significantly, but I am not sure why yet
-      -- Guess: the elaborator may not always proceed in the same order that we do
-      if getPPAnalyzeTrustKnownType2TypeHOFuns (← getOptions) && not (← valUnknown args[i]) && (← isType2Type (args[i])) then continue
       higherOrders := higherOrders.set! i true
 
     -- Now, if this is the first staging, analyze the n-ary function without expected type
@@ -314,7 +306,7 @@ where
               let instResult ← try trySynthInstance argType catch _ => LOption.undef
               match instResult with
               | LOption.some inst =>
-                if ← isDefEq inst arg then annotateBool `pp.analysis.skip true
+                if ← checkpointDefEq inst arg then annotateBool `pp.analysis.skip true
                 else annotateBool `pp.analysis.namedArg true
               | _                 => annotateBool `pp.analysis.namedArg true
           | BinderInfo.auxDecl        => pure ()

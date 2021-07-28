@@ -14,15 +14,18 @@ open Lean.Meta
 open Lean.Parser.Term
 open SubExpr
 
+def maybeAddExplicit (ident : Syntax) : DelabM Syntax := do
+  if ← getPPOption getPPAnalysisNeedsExplicit then `(@$ident:ident) else ident
+
 @[builtinDelab fvar]
 def delabFVar : Delab := do
 let Expr.fvar id _ ← getExpr | unreachable!
 try
   let l ← getLocalDecl id
-  pure $ mkIdent l.userName
+  maybeAddExplicit (mkIdent l.userName)
 catch _ =>
   -- loose free variable, use internal name
-  pure $ mkIdent id
+  maybeAddExplicit $ mkIdent id
 
 -- loose bound variable, use pseudo syntax
 @[builtinDelab bvar]
@@ -113,17 +116,21 @@ def delabConst : Delab := do
     c := (privateToUserName? c).getD c
 
   let ppUnivs ← getPPOption getPPUniverses
-  if ls.isEmpty || !ppUnivs then
-    if (← getLCtx).usesUserName c then
-      -- `c` is also a local declaration
-      if c == c₀ && !(← read).inPattern then
-        -- `c` is the fully qualified named. So, we append the `_root_` prefix
-        c := `_root_ ++ c
-      else
-        c := c₀
-    return mkIdent c
-  else
-    `($(mkIdent c).{$[$(ls.toArray.map quote)],*})
+
+  let stx ←
+    if ls.isEmpty || !ppUnivs then
+      if (← getLCtx).usesUserName c then
+        -- `c` is also a local declaration
+        if c == c₀ && !(← read).inPattern then
+          -- `c` is the fully qualified named. So, we append the `_root_` prefix
+          c := `_root_ ++ c
+        else
+          c := c₀
+      return mkIdent c
+    else
+      `($(mkIdent c).{$[$(ls.toArray.map quote)],*})
+
+    maybeAddExplicit stx
 
 inductive ParamKind where
   | explicit

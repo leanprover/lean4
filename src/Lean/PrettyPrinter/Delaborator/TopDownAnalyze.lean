@@ -67,11 +67,12 @@ def getPPAnalyzeTrustSubst                  (o : Options) : Bool := o.get pp.ana
 def getPPAnalyzeTrustOfNat                  (o : Options) : Bool := o.get pp.analyze.trustOfNat.name pp.analyze.trustOfNat.defValue
 def getPPAnalyzeTrustKnownFOType2TypeHOFuns (o : Options) : Bool := o.get pp.analyze.trustKnownFOType2TypeHOFuns.name pp.analyze.trustKnownFOType2TypeHOFuns.defValue
 
-def getPPAnalysisSkip        (o : Options) : Bool := o.get `pp.analysis.skip false
-def getPPAnalysisHole        (o : Options) : Bool := o.get `pp.analysis.hole false
-def getPPAnalysisNamedArg    (o : Options) : Bool := o.get `pp.analysis.namedArg false
-def getPPAnalysisLetVarType  (o : Options) : Bool := o.get `pp.analysis.letVarType true
-def getPPAnalysisNeedsType   (o : Options) : Bool := o.get `pp.analysis.needsType false
+def getPPAnalysisSkip          (o : Options) : Bool := o.get `pp.analysis.skip false
+def getPPAnalysisHole          (o : Options) : Bool := o.get `pp.analysis.hole false
+def getPPAnalysisNamedArg      (o : Options) : Bool := o.get `pp.analysis.namedArg false
+def getPPAnalysisLetVarType    (o : Options) : Bool := o.get `pp.analysis.letVarType true
+def getPPAnalysisNeedsType     (o : Options) : Bool := o.get `pp.analysis.needsType false
+def getPPAnalysisNeedsExplicit (o : Options) : Bool := o.get `pp.analysis.needsExplicit false
 
 namespace PrettyPrinter.Delaborator
 
@@ -197,9 +198,10 @@ def isSubstLike (e : Expr) : Bool :=
 open SubExpr
 
 structure Context where
-  knowsType  : Bool
-  knowsLevel : Bool -- only constants look at this
-  inBottomUp : Bool := false
+  knowsType   : Bool
+  knowsLevel  : Bool -- only constants look at this
+  inBottomUp  : Bool := false
+  parentIsApp : Bool := false
   deriving Inhabited, Repr
 
 structure State where
@@ -227,22 +229,23 @@ def annotateName (n : Name) (v : Name) : AnalyzeM Unit := do
   let opts := (← get).annotations.findD pos {} |>.setName n v
   modify fun s => { s with annotations := s.annotations.insert pos opts }
 
-partial def analyze : AnalyzeM Unit := do
+partial def analyze (parentIsApp : Bool := false) : AnalyzeM Unit := do
   checkMaxHeartbeats "Delaborator.topDownAnalyze"
   trace[pp.analyze] "{(← read).knowsType}.{(← read).knowsLevel} {← getExpr}"
-  match (← getExpr) with
-  | Expr.app ..     => analyzeApp
-  | Expr.forallE .. => analyzePi
-  | Expr.lam ..     => analyzeLam
-  | Expr.const ..   => analyzeConst
-  | Expr.sort ..    => analyzeSort
-  | Expr.proj ..    => analyzeProj
-  | Expr.fvar ..    => analyzeFVar
-  | Expr.mdata ..   => analyzeMData
-  | Expr.letE ..    => analyzeLet
-  | Expr.lit ..     => pure ()
-  | Expr.mvar ..    => pure ()
-  | Expr.bvar ..    => unreachable!
+  withReader (fun ctx => { ctx with parentIsApp := parentIsApp }) do
+    match (← getExpr) with
+    | Expr.app ..     => analyzeApp
+    | Expr.forallE .. => analyzePi
+    | Expr.lam ..     => analyzeLam
+    | Expr.const ..   => analyzeConst
+    | Expr.sort ..    => analyzeSort
+    | Expr.proj ..    => analyzeProj
+    | Expr.fvar ..    => analyzeFVar
+    | Expr.mdata ..   => analyzeMData
+    | Expr.letE ..    => analyzeLet
+    | Expr.lit ..     => pure ()
+    | Expr.mvar ..    => pure ()
+    | Expr.bvar ..    => unreachable!
 where
   analyzeApp := do
     withKnowing true true $ analyzeAppStaged (← getExpr).getAppFn (← getExpr).getAppArgs
@@ -283,7 +286,7 @@ where
       higherOrders := higherOrders.set! i true
 
     -- Now, if this is the first staging, analyze the n-ary function without expected type
-    if !f.isApp then withKnowing false !(← instantiateMVars fType).hasLevelMVar $ withNaryFn analyze
+    if !f.isApp then withKnowing false !(← instantiateMVars fType).hasLevelMVar $ withNaryFn (analyze (parentIsApp := true))
 
     let disableNamedImplicits : Bool := getPPAnalyzeTrustSubst (← getOptions) && isSubstLike (← getExpr)
 
@@ -316,11 +319,19 @@ where
 
       if not rest.isEmpty then analyzeAppStaged (mkAppN f args) rest
 
+  maybeAddExplicit : AnalyzeM Unit := do
+    -- See `MonadLift.noConfusion for an example where this is necessary.
+    if !(← read).parentIsApp then
+      let type ← inferType (← getExpr)
+      if type.isForall && type.bindingInfo! == BinderInfo.implicit then
+        annotateBool `pp.analysis.needsExplicit true
+
   analyzeConst : AnalyzeM Unit := do
-    -- TODO: currently, the analyzer never uses @,
+    -- TODO: currently, the analyzer never uses @ for applications,
     -- even though named arguments do not work for inaccessible names
     let Expr.const n ls .. ← getExpr | unreachable!
     annotateBool `pp.universes (!(← read).knowsLevel && !ls.isEmpty)
+    maybeAddExplicit
 
   analyzePi : AnalyzeM Unit := do
     annotateBool `pp.binderTypes true
@@ -342,7 +353,7 @@ where
 
   analyzeSort  : AnalyzeM Unit := pure ()
   analyzeProj  : AnalyzeM Unit := withProj analyze
-  analyzeFVar  : AnalyzeM Unit := pure ()
+  analyzeFVar  : AnalyzeM Unit := maybeAddExplicit
   analyzeMData : AnalyzeM Unit := withMDataExpr analyze
 
   valUnknown (e : Expr) : AnalyzeM Bool := do

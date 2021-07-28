@@ -671,6 +671,7 @@ where
 
 @[builtinDelab app.namedPattern]
 def delabNamedPattern : Delab := do
+  guard (← read).inPattern
   guard $ (← getExpr).getAppNumArgs == 3
   let x ← withAppFn $ withAppArg delab
   let p ← withAppArg delab

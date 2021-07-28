@@ -4,16 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Git
+import Lake.Package
 import Lake.LeanConfig
 
 namespace Lake
 
-def initGitignoreContents :=
-"/build
-"
+def gitignoreContents :=
+s!"/{defaultBuildDir}\n/{defaultDepsDir}\n"
 
 def mainFileName (pkgName : String) : System.FilePath :=
-  s!"{pkgName.capitalize}.lean"
+s!"{pkgName.capitalize}.lean"
 
 def mainFileContents :=
 "def main : IO Unit :=
@@ -36,7 +36,7 @@ def initPkg (dir : FilePath) (pkgName : String) : IO PUnit := do
   IO.FS.writeFile (dir / pkgFileName) (pkgFileContents pkgName)
   IO.FS.writeFile (dir / mainFileName pkgName) mainFileContents
   let h ← IO.FS.Handle.mk (dir / ".gitignore") IO.FS.Mode.append (bin := false)
-  h.putStr initGitignoreContents
+  h.putStr gitignoreContents
   unless ← FilePath.isDir (dir /".git") do
     try
       quietInit dir

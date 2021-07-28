@@ -18,6 +18,11 @@ cd deps
 ./test.sh
 cd ..
 
+echo 'testing git'
+cd git
+./test.sh
+cd ..
+
 echo 'testing ext'
 cd ext
 ./test.sh

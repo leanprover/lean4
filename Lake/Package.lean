@@ -13,7 +13,6 @@ open Lean Std System
 
 namespace Lake
 
-def defaultSrcDir : FilePath := "."
 def defaultBuildDir : FilePath := "build"
 def defaultBinDir := defaultBuildDir / "bin"
 def defaultLibDir := defaultBuildDir / "lib"
@@ -41,7 +40,8 @@ structure PackageConfig where
   leanArgs : Array String := #[]
   leancArgs : Array String := #[]
   linkArgs : Array String := #[]
-  srcDir : FilePath := defaultSrcDir
+  rootDir : FilePath := "."
+  srcDir : FilePath := rootDir
   oleanDir : FilePath := defaultOleanDir
   irDir : FilePath := defaultIrDir
   binDir : FilePath := defaultBinDir
@@ -98,6 +98,9 @@ def linkArgs (self : Package) : Array String :=
 
 def depsDir (self : Package) : FilePath :=
   self.dir / self.config.depsDir
+
+def rootDir (self : Package) : FilePath :=
+  self.dir / self.config.rootDir
 
 def srcDir (self : Package) : FilePath :=
   self.dir / self.config.srcDir

@@ -7,6 +7,7 @@ def package : PackageConfig := {
   version := "2.0-pre-bootstrap"
   rootDir := FilePath.mk ".." / ".."
   oleanDir := defaultBuildDir
+  leancArgs := #["-O3", "-DNDEBUG"]
   linkArgs :=
     if Platform.isWindows then
       #["-Wl,--export-all"]

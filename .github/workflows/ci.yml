@@ -108,6 +108,9 @@ jobs:
           fi
           cmake .. ${{ matrix.CMAKE_OPTIONS }} $OPTIONS
           make -j4
+      - name: Lean stats
+        run: |
+          build/stage1/bin/lean --stats src/Lean.lean
       # de-Nix-ify binaries
       - name: Patch
         run: |

@@ -8,10 +8,10 @@ Authors: Daniel Selsam
 This file defines utilities for `MetaM` computations to traverse subexpressions
 of an expression in sync with the `Nat` "position" values that refers to them.
 We use a simple encoding scheme: every `Expr` constructor has at most 3 direct
-expression children. We can injectively map a path of `childIdxs` to a natural
-number by computing the value of the 3-ary representation `1 :: childIdxs`,
-since n-ary representations without leading zeros are unique.
-Note that `pos` is initialized to `1` (case `childIdxs == []`).
+expression children. Considering an expressions type as well, we can injectively
+map a path of `childIdxs` to a natural number by computing the value of the 4-ary
+representation `1 :: childIdxs`, since n-ary representations without leading zeros
+are unique. Note that `pos` is initialized to `1` (case `childIdxs == []`).
 -/
 import Lean.Meta.Basic
 import Std.Data.RBMap
@@ -34,7 +34,7 @@ variable [MonadReaderOf SubExpr m] [MonadWithReaderOf SubExpr m]
 variable [MonadLiftT MetaM m] [MonadControlT MetaM m]
 variable [MonadLiftT IO m]
 
-abbrev maxChildren : Pos := 3
+abbrev maxChildren : Pos := 4
 
 def mkRoot (e : Expr) : SubExpr := ⟨e, 1⟩
 
@@ -47,12 +47,8 @@ def descend (child : Expr) (childIdx : Pos) (x : m α) : m α :=
 def withAppFn   (x : m α) : m α := do descend (← getExpr).appFn!  0 x
 def withAppArg  (x : m α) : m α := do descend (← getExpr).appArg! 1 x
 
-def withAppType (x : m α) : m α := do
-  descend (← Meta.inferType (← getExpr)) 2 x -- phantom positions for types
-
-def withFVarType (x : m α) : m α := do
-  let e@(Expr.fvar ..) ← getExpr | unreachable!
-  descend (← Meta.inferType e) 0 x -- phantom positions for types
+def withType (x : m α) : m α := do
+  descend (← Meta.inferType (← getExpr)) (maxChildren - 1) x -- phantom positions for types
 
 partial def withAppFnArgs (xf : m α) (xa : α → m α) : m α := do
   if (← getExpr).isApp then

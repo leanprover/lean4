@@ -301,7 +301,7 @@ where
     withKnowing true true $ analyzeAppStaged (← getExpr).getAppFn (← getExpr).getAppArgs
     if needsType then
       annotateBool `pp.analysis.needsType
-      withAppType $ withKnowing true false $ analyze
+      withType $ withKnowing true false $ analyze
 
   analyzeAppStaged (f : Expr) (args : Array Expr) : AnalyzeM Unit := do
     let fType ← replaceLPsWithVars (← inferType f)

@@ -172,6 +172,7 @@ where
 partial def okBottomUp? (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 10) : MetaM BottomUpKind := do
   -- Here we check if `e` can be safely elaborated without its expected type.
   -- These are incomplete (and possibly unsound) heuristics.
+  -- TODO: do I need to snapshot the state before calling this?
   match fuel with
   | 0 => BottomUpKind.unsafe
   | fuel + 1 =>
@@ -274,8 +275,9 @@ partial def analyze (parentIsApp : Bool := false) : AnalyzeM Unit := do
     | Expr.bvar ..    => unreachable!
 where
   analyzeApp := do
+    let needsType := !(← read).knowsType && !(← okBottomUp? (← getExpr)).isSafe
     withKnowing true true $ analyzeAppStaged (← getExpr).getAppFn (← getExpr).getAppArgs
-    if !(← read).knowsType && !(← okBottomUp? (← getExpr)).isSafe then
+    if needsType then
       annotateBool `pp.analysis.needsType
       withAppType $ withKnowing true false $ analyze
 

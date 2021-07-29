@@ -352,7 +352,7 @@ partial def delab : Delab := do
   let stx ← delabFor k <|> (liftM $ show MetaM Syntax from throwError "don't know how to delaborate '{k}'")
   if ← getPPOption getPPAnalyzeTypeAscriptions <&&> getPPOption getPPAnalysisNeedsType <&&> (pure (← getExpr).isApp) then
     let typeStx ← withAppType delab
-    `(show $typeStx:term from $stx:term) >>= annotateCurPos
+    `(($stx:term : $typeStx:term)) >>= annotateCurPos
   else stx
 
 unsafe def mkAppUnexpanderAttribute : IO (KeyedDeclsAttribute Unexpander) :=

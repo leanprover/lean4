@@ -217,6 +217,14 @@ def fooReadGetModify : ReaderT Unit (StateT Unit IO) Unit := do
      let _ ← get
      modify fun s => s
 
+set_option pp.analyze.typeAscriptions true in
+#testDelab (fun (x : Unit) => @id (ReaderT Bool IO Bool) (do read : ReaderT Bool IO Bool)) ()
+  expecting (fun (x : Unit) => (id read : ReaderT Bool IO Bool)) ()
+
+set_option pp.analyze.typeAscriptions false in
+#testDelab (fun (x : Unit) => @id (ReaderT Bool IO Bool) (do read : ReaderT Bool IO Bool)) ()
+  expecting (fun (x : Unit) => id read) ()
+
 #testDelabN Nat.brecOn
 #testDelabN Nat.below
 #testDelabN Nat.mod_lt

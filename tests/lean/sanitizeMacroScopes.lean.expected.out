@@ -1,4 +1,4 @@
-fun (x : ?m) (x_1 : ?m x) => x : (x : ?m) → ?m x → ?m
+fun x x_1 => x : (x : ?m) → ?m x → ?m
 [Elab.step] expected type: <not-available>, term
 fun x => m x
 [Elab.step] expected type: Sort ?u, term

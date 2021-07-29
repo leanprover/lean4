@@ -1,8 +1,8 @@
 283.lean:1:22-1:25: error: application type mismatch
-  f (f ?m)
+  f (f (t := ?m) ?m : ?m)
 argument
-  f ?m
+  f (t := ?m) ?m
 has type
   ?m : Sort ?u
 but is expected to have type
-  optParam (Sort ?u) t : Type ?u
+  optParam _ t : Type ?u

@@ -16,7 +16,7 @@
         Nat : Type @ ⟨13, 24⟩-⟨13, 27⟩ @ Lean.Elab.Term.elabIdent
           [.] `Nat : some Type.{?_uniq.538} @ ⟨13, 24⟩-⟨13, 27⟩
           Nat : Type @ ⟨13, 24⟩-⟨13, 27⟩
-  let y : Nat × Nat := (x, x);
+  let y := (x, x);
   id y : Nat × Nat @ ⟨14, 2⟩-⟨15, 6⟩ @ Lean.Elab.Term.elabLetDecl
     Nat × Nat : Type @ ⟨14, 6⟩†-⟨14, 7⟩† @ Lean.Elab.Term.elabHole
     (x, x) : Nat × Nat @ ⟨14, 11⟩-⟨14, 17⟩ @ Lean.Elab.Term.elabAnonymousCtor
@@ -74,9 +74,9 @@
                       0 : Nat @ ⟨17, 39⟩-⟨17, 40⟩ @ Lean.Elab.Term.elabNumLit
             x : Nat @ ⟨17, 43⟩-⟨17, 44⟩ @ Lean.Elab.Term.elabIdent
               x : Nat @ ⟨17, 43⟩-⟨17, 44⟩
-  fun (x y : Nat) (b : Bool) =>
+  fun x y b =>
     ofEqTrue
-      (Eq.trans (congrFun (congrArg Eq (Nat.add_zero x)) x)
+      (Eq.trans (congrFun (β := fun a => Prop) (f := Eq (x + 0)) (g := Eq x) (congrArg Eq (Nat.add_zero x)) x)
         (eqSelf x)) : ∀ (x y : Nat), Bool → x + 0 = x @ ⟨18, 2⟩-⟨19, 8⟩ @ Lean.Elab.Term.elabFun
     Nat : Type @ ⟨18, 6⟩†-⟨18, 7⟩† @ Lean.Elab.Term.elabHole
     x : Nat @ ⟨18, 6⟩-⟨18, 7⟩
@@ -130,11 +130,11 @@
       Nat : Type @ ⟨21, 36⟩-⟨21, 39⟩ @ Lean.Elab.Term.elabIdent
         [.] `Nat : some Sort.{?_uniq.872} @ ⟨21, 36⟩-⟨21, 39⟩
         Nat : Type @ ⟨21, 36⟩-⟨21, 39⟩
-  fun (x y : Nat) (b : Bool) =>
-    let x : Nat × Nat := (x + y, x - y);
+  fun x y b =>
+    let x := (x + y, x - y);
     match x with 
     | (z, w) =>
-      let z1 : Nat := z + w;
+      let z1 := z + w;
       z + z1 : Nat → Nat → Bool → Nat @ ⟨22, 2⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabFun
     Nat : Type @ ⟨22, 6⟩†-⟨22, 7⟩† @ Lean.Elab.Term.elabHole
     x : Nat @ ⟨22, 6⟩-⟨22, 7⟩
@@ -142,10 +142,10 @@
     y : Nat @ ⟨22, 8⟩-⟨22, 9⟩
     Bool : Type @ ⟨22, 10⟩†-⟨22, 11⟩† @ Lean.Elab.Term.elabHole
     b : Bool @ ⟨22, 10⟩-⟨22, 11⟩
-    let x : Nat × Nat := (x + y, x - y);
+    let x := (x + y, x - y);
     match x with 
     | (z, w) =>
-      let z1 : Nat := z + w;
+      let z1 := z + w;
       z + z1 : Nat @ ⟨23, 4⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabLetDecl
       Macro expansion
       let (z, w) := (x + y, x - y)
@@ -157,10 +157,10 @@
       | (z, w) =>
         let z1 := z + w 
         z + z1
-        let x : Nat × Nat := (x + y, x - y);
+        let x := (x + y, x - y);
         match x with 
         | (z, w) =>
-          let z1 : Nat := z + w;
+          let z1 := z + w;
           z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.elabLetDecl
           Nat × Nat : Type @ ⟨23, 8⟩†-⟨23, 14⟩† @ Lean.Elab.Term.elabHole
           (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩-⟨23, 32⟩ @ Lean.Elab.Term.expandParen
@@ -193,7 +193,7 @@
           x✝ : Nat × Nat @ ⟨23, 4⟩†-⟨25, 10⟩†
           match x✝ with 
           | (z, w) =>
-            let z1 : Nat := z + w;
+            let z1 := z + w;
             z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.elabMatch
             Prod.mk : {α : Type ?u} → {β : Type ?u} → α → β → α × β @ ⟨23, 4⟩†-⟨25, 10⟩†
             [.] `z : none @ ⟨23, 9⟩-⟨23, 10⟩
@@ -206,7 +206,7 @@
                 z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
               w : Nat @ ⟨23, 12⟩-⟨23, 13⟩ @ Lean.Elab.Term.elabIdent
                 w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
-            let z1 : Nat := z + w;
+            let z1 := z + w;
             z + z1 : Nat @ ⟨24, 4⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabLetDecl
               Nat : Type @ ⟨24, 8⟩†-⟨24, 10⟩† @ Lean.Elab.Term.elabHole
               z + w : Nat @ ⟨24, 14⟩-⟨24, 19⟩ @ myMacro._@.Init.Notation._hyg.5829
@@ -297,25 +297,26 @@
   B : Type @ ⟨33, 19⟩-⟨33, 20⟩ @ Lean.Elab.Term.elabIdent
     [.] `B : some Sort.{?_uniq.1896} @ ⟨33, 19⟩-⟨33, 20⟩
     B : Type @ ⟨33, 19⟩-⟨33, 20⟩
-  { pair := ({ val := id }, { val := id }) } : B @ ⟨33, 24⟩-⟨35, 1⟩ @ Lean.Elab.Term.StructInst.elabStructInst
-    ({ val := id }, { val := id }) : A × A @ ⟨34, 10⟩-⟨34, 40⟩ @ Lean.Elab.Term.expandParen
+  { pair := ({ val := id : A }, { val := id : A }) :
+    B } : B @ ⟨33, 24⟩-⟨35, 1⟩ @ Lean.Elab.Term.StructInst.elabStructInst
+    ({ val := id : A }, { val := id : A }) : A × A @ ⟨34, 10⟩-⟨34, 40⟩ @ Lean.Elab.Term.expandParen
       Macro expansion
       ({ val := id }, { val := id })
       ===>
       Prod.mk✝ { val := id } { val := id }
-        ({ val := id }, { val := id }) : A × A @ ⟨34, 10⟩†-⟨34, 39⟩ @ Lean.Elab.Term.elabApp
+        ({ val := id : A }, { val := id : A }) : A × A @ ⟨34, 10⟩†-⟨34, 39⟩ @ Lean.Elab.Term.elabApp
           Prod.mk : {α β : Type} → α → β → α × β @ ⟨34, 10⟩†-⟨34, 40⟩†
-          { val := id } : A @ ⟨34, 11⟩-⟨34, 24⟩ @ Lean.Elab.Term.StructInst.elabStructInst
+          { val := id : A } : A @ ⟨34, 11⟩-⟨34, 24⟩ @ Lean.Elab.Term.StructInst.elabStructInst
             id : Nat → Nat @ ⟨34, 20⟩-⟨34, 22⟩ @ Lean.Elab.Term.elabIdent
               [.] `id : some Nat -> Nat @ ⟨34, 20⟩-⟨34, 22⟩
               id : {α : Type} → α → α @ ⟨34, 20⟩-⟨34, 22⟩
             val : Nat → Nat := id @ ⟨34, 13⟩-⟨34, 16⟩
-          { val := id } : A @ ⟨34, 26⟩-⟨34, 39⟩ @ Lean.Elab.Term.StructInst.elabStructInst
+          { val := id : A } : A @ ⟨34, 26⟩-⟨34, 39⟩ @ Lean.Elab.Term.StructInst.elabStructInst
             id : Nat → Nat @ ⟨34, 35⟩-⟨34, 37⟩ @ Lean.Elab.Term.elabIdent
               [.] `id : some Nat -> Nat @ ⟨34, 35⟩-⟨34, 37⟩
               id : {α : Type} → α → α @ ⟨34, 35⟩-⟨34, 37⟩
             val : Nat → Nat := id @ ⟨34, 28⟩-⟨34, 31⟩
-    pair : A × A := ({ val := id }, { val := id }) @ ⟨34, 2⟩-⟨34, 6⟩
+    pair : A × A := ({ val := id : A }, { val := id : A }) @ ⟨34, 2⟩-⟨34, 6⟩
 def Nat.xor : Nat → Nat → Nat :=
 bitwise bne
 [Elab.info] command @ ⟨37, 0⟩-⟨38, 10⟩ @ Lean.Elab.Command.expandInCmd

@@ -1,5 +1,5 @@
 423.lean:3:35-3:40: error: application type mismatch
-  HAdd.hAdd a
+  HAdd.hAdd (α := Nat) a
 argument
   a
 has type
@@ -23,7 +23,7 @@ has type
 but is expected to have type
   Type ?u : Type (?u + 1)
 423.lean:5:55-5:60: error: application type mismatch
-  HAdd.hAdd a
+  HAdd.hAdd (α := Nat) a
 argument
   a
 has type

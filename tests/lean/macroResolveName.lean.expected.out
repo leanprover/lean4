@@ -1,2 +1,4 @@
 some `Lean.Macro : Option Name
-[(`Nat.succ, [])] : List (Lean.Name × List ?m)
+List.cons (α := Lean.Name × List ?m)
+  (Prod.mk (β := List ?m) `Nat.succ (List.nil (α := ?m) : List ?m) : Lean.Name × List ?m)
+  (List.nil (α := Lean.Name × List ?m) : List (Lean.Name × List ?m)) : List (Lean.Name × List ?m)

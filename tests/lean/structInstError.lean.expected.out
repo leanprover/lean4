@@ -1,2 +1,2 @@
 structInstError.lean:5:7-5:29: error: invalid {...} notation, expected type is not known
-{ x := 10, b := true } : Foo
+{ x := 10, b := true : Foo } : Foo

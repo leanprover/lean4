@@ -228,13 +228,12 @@ def fooReadGetModify : ReaderT Unit (StateT Unit IO) Unit := do
 #testDelabN MonadExcept.noConfusion
 #testDelabN MonadFinally.noConfusion
 #testDelabN Lean.Elab.InfoTree.goalsAt?.match_1
+#testDelabN Std.ShareCommon.ObjectMap.find?
+#testDelabN Std.ShareCommon.ObjectMap.insert
 
--- TODO: this test is broken because of the inability to solve structural max constraints
+-- TODO: these tests are broken because of the inability to solve structural max constraints
 -- (See https://github.com/leanprover/lean4/issues/590)
+-- Depending on how that issue is resolved, `topDownAnalyze` may need to change to support these.
 -- #testDelabN Lean.PrefixTree.empty
 -- #testDelabN Std.PersistentHashMap.getCollisionNodeSize.match_1
 -- #testDelabN Std.HashMap.size.match_1
-
--- TODO: this is broken because it is currently inaccessible names
--- #testDelabN Std.ShareCommon.ObjectMap.find?
--- #testDelabN Std.ShareCommon.ObjectMap.insert

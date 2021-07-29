@@ -1,6 +1,6 @@
 { lean, lean-leanDeps ? lean, lean-final ? lean, leanc,
   stdenv, lib, coreutils, gnused, writeShellScriptBin, bash, lean-emacs, lean-vscode, nix, substituteAll, symlinkJoin, linkFarmFromDrvs,
-  ... }:
+  runCommand, ... }:
 let lean-final' = lean-final; in
 { name, src,  fullSrc ? src, 
   # Lean dependencies. Each entry should be an output of buildLeanPackage.
@@ -15,7 +15,7 @@ with builtins; let
   # "Init.Core" ~> "Init/Core"
   modToPath = mod: replaceStrings ["."] ["/"] mod;
   modToLean = mod: modToPath mod + ".lean";
-  mkDerivation = args@{ buildCommand, ... }: derivation (args // {
+  mkBareDerivation = args@{ buildCommand, ... }: derivation (args // {
     inherit stdenv;
     inherit (stdenv) system;
     buildInputs = (args.buildInputs or []) ++ [ coreutils ];
@@ -28,12 +28,12 @@ with builtins; let
       ${buildCommand}
     '' ];
   });
-  runCommand = name: args: buildCommand: mkDerivation (args // { inherit name buildCommand; });
-  runCommandLocal = name: args: buildCommand: runCommand name (args // {
+  runBareCommand = name: args: buildCommand: mkBareDerivation (args // { inherit name buildCommand; });
+  runBareCommandLocal = name: args: buildCommand: runBareCommand name (args // {
     preferLocalBuild = true;
     allowSubstitutes = false;
   }) buildCommand;
-  depRoot = name: deps: mkDerivation {
+  depRoot = name: deps: mkBareDerivation {
     name = "${name}-depRoot";
     inherit deps;
     depRoots = map (drv: drv.LEAN_PATH) deps;
@@ -59,7 +59,7 @@ with builtins; let
     lib.unique (lib.flatten (staticLibDeps ++ (map (dep: [dep.staticLib] ++ dep.staticLibDeps or []) (attrValues allExternalDeps))));
   leanPluginFlags = lib.concatStringsSep " " (map (dep: "--plugin=${dep}/${dep.name}") pluginDeps);
 
-  fakeDepRoot = runCommandLocal "${name}-dep-root" {} ''
+  fakeDepRoot = runBareCommandLocal "${name}-dep-root" {} ''
     mkdir $out
     cd $out
     mkdir ${lib.concatStringsSep " " ([name] ++ attrNames allExternalDeps)}
@@ -69,7 +69,7 @@ with builtins; let
     ${lean-leanDeps}/bin/lean --deps --stdin | ${gnused}/bin/sed "s!$LEAN_PATH/!!;s!/!.!g;s!.olean!!"
   '';
   # build a file containing the module names of all immediate dependencies of `mod`
-  leanDeps = mod: mkDerivation {
+  leanDeps = mod: mkBareDerivation {
     name ="${mod}-deps";
     src = src + ("/" + modToLean mod);
     buildInputs = [ print-lean-deps ];
@@ -80,7 +80,7 @@ with builtins; let
     allowSubstitutes = false;
   };
   # build module (.olean and .c) given derivations of all (transitive) dependencies
-  buildMod = mod: deps: mkDerivation rec {
+  buildMod = mod: deps: mkBareDerivation rec {
     name = "${mod}";
     LEAN_PATH = depRoot mod deps;
     relpath = modToPath mod;
@@ -100,7 +100,7 @@ with builtins; let
   } // {
     inherit deps;
   };
-  compileMod = mod: drv: mkDerivation {
+  compileMod = mod: drv: mkBareDerivation {
     name = "${mod}-cc";
     buildInputs = [ leanc stdenv.cc ];
     hardeningDisable = [ "all" ];

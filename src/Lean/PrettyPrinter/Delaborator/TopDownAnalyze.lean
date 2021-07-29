@@ -31,7 +31,11 @@ register_builtin_option pp.analyze : Bool := {
 }
 
 register_builtin_option pp.analyze.checkInstances : Bool := {
-  defValue := true
+  -- TODO: It would be great to make this default to `true`, but currently, `MessageData` does not
+  -- include the `LocalInstances`, so this will be very over-aggressive in inserting instances
+  -- that would otherwise be easy to synthesize. We may consider threading the instances in the future,
+  -- or at least tracking a bool for whether the instances have been lost.
+  defValue := false
   group    := "pp.analyze"
   descr    := "(pretty printer analyzer) confirm that instances can be re-synthesized"
 }

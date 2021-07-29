@@ -276,7 +276,6 @@ where
     tryUnify (← inferType (mkAppN f args)) resultType
 
     -- Collect explicit arguments that can be elaborated without expected type
-    -- TODO: try before *and* after HO?
     let mut bottomUps := mkArray args.size false
     for i in [:args.size] do
       if bInfos[i] == BinderInfo.default then
@@ -346,8 +345,6 @@ where
         annotateBool `pp.analysis.needsExplicit true
 
   analyzeConst : AnalyzeM Unit := do
-    -- TODO: currently, the analyzer never uses @ for applications,
-    -- even though named arguments do not work for inaccessible names
     let Expr.const n ls .. ← getExpr | unreachable!
     annotateBool `pp.universes (!(← read).knowsLevel && !ls.isEmpty)
     maybeAddExplicit

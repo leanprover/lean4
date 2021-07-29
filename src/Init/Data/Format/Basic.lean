@@ -103,7 +103,8 @@ private def pushGroup (flb : FlattenBehavior) (items : List WorkItem) (gs : List
   return { g with flatten := !r.foundFlattenedHardLine && r'.space <= w-k }::gs
 
 private def pushOutput (s : String) : StateM State Unit :=
-  modify fun st => { st with out := st.out ++ s, column := st.column + s.length }
+  -- We avoid a structure instance update, and write this function using pattern matching because of issue #361
+  modify fun ⟨out, col⟩ => ⟨out ++ s, col + s.length⟩
 
 private def pushNewline (indent : Nat) : StateM State Unit :=
   modify fun st => { st with out := st.out ++ "\n".pushn ' ' indent, column := indent }

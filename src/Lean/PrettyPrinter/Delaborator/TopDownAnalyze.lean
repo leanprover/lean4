@@ -144,11 +144,10 @@ def checkpointDefEq (t s : Expr) : MetaM Bool := do
 def tryUnify (t s : Expr) : MetaM Unit := do
   try
     let r ← isDefEqAssigning t s
-    if !r then
-      trace[pp.analyze.tryUnify] "nonDefEq\n\n{fmt t}\n\n=?=\n\n{fmt s}\n"
+    if !r then trace[pp.analyze.tryUnify] "warning: isDefEq returned false"
     pure ()
   catch ex =>
-    trace[pp.analyze.tryUnify] "{← ex.toMessageData.toString}\n\n{fmt t}\n\n=?=\n\n{fmt s}\n"
+    trace[pp.analyze.tryUnify] "warning: isDefEq threw"
     pure ()
 
 structure BottomUpKind where
@@ -263,6 +262,7 @@ def annotateBool (n : Name) : AnalyzeM Unit := do
 
 def annotateNamedArg (n : Name) (appPos : Pos) : AnalyzeM Bool := do
   if nameNotRoundtrippable n then
+    trace[pp.analyze.annotate.badName] "{appPos} {n}"
     annotateBoolAt `pp.explicit appPos
     return false
   else
@@ -271,7 +271,7 @@ def annotateNamedArg (n : Name) (appPos : Pos) : AnalyzeM Bool := do
 
 partial def analyze (parentIsApp : Bool := false) : AnalyzeM Unit := do
   checkMaxHeartbeats "Delaborator.topDownAnalyze"
-  trace[pp.analyze] "{(← read).knowsType}.{(← read).knowsLevel} {← getExpr}"
+  trace[pp.analyze] "{(← read).knowsType}.{(← read).knowsLevel}"
   withReader (fun ctx => { ctx with parentIsApp := parentIsApp }) do
     match (← getExpr) with
     | Expr.app ..     => analyzeApp
@@ -420,7 +420,7 @@ def topDownAnalyze (e : Expr) : MetaM OptionsPerPos := do
       let ϕ : AnalyzeM OptionsPerPos := do analyze; (← get).annotations
       try ϕ { knowsType := true, knowsLevel := true } (mkRoot e) |>.run' {}
       catch ex =>
-        trace[pp.analyze.error] "{← ex.toMessageData.toString}"
+        trace[pp.analyze.error] "failed"
         pure {}
 
 builtin_initialize

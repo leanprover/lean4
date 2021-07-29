@@ -318,7 +318,7 @@ partial def analyze (parentIsApp : Bool := false) : AnalyzeM Unit := do
     | Expr.letE ..    => analyzeLet
     | Expr.lit ..     => pure ()
     | Expr.mvar ..    => pure ()
-    | Expr.bvar ..    => unreachable!
+    | Expr.bvar ..    => pure ()
 where
   analyzeApp := do
     let needsType := !(← read).knowsType && !(← okBottomUp? (← getExpr)).isSafe

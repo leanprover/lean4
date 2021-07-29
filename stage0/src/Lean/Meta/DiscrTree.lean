@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.Basic
 import Lean.Meta.FunInfo
 import Lean.Meta.InferType
+import Lean.Meta.WHNF
 
 namespace Lean.Meta.DiscrTree
 /-
@@ -160,12 +161,6 @@ private partial def pushArgsAux (infos : Array ParamInfo) : Nat → Expr → Arr
       pushArgsAux infos (i-1) f (todo.push a)
   | _, _, todo => return todo
 
-private partial def whnfEta (e : Expr) : MetaM Expr := do
-  let e ← whnf e
-  match e.etaExpandedStrict? with
-  | some e => whnfEta e
-  | none   => return e
-
 /--
   Return true if `e` is one of the following
   - A nat literal (numeral)
@@ -226,13 +221,53 @@ def mkNoindexAnnotation (e : Expr) : Expr :=
 def hasNoindexAnnotation (e : Expr) : Bool :=
   annotation? `noindex e |>.isSome
 
+private partial def whnfEta (e : Expr) : MetaM Expr := do
+  let e ← whnf e
+  match e.etaExpandedStrict? with
+  | some e => whnfEta e
+  | none   => return e
+
+/--
+  Return `true` if `fn` is a "bad" key. That is, `pushArgs` would add `Key.other` or `Key.star`.
+  We use this function when processing "root terms, and will avoid unfolding terms.
+  Note that without this trick the pattern `List.map f ∘ List.map g` would be mapped into the key `Key.other`
+  since the function composition `∘` would be unfolded and we would get `fun x => List.map g (List.map f x)`
+-/
+private def isBadKey (fn : Expr) : Bool :=
+  match fn with
+  | Expr.lit ..   => false
+  | Expr.const .. => false
+  | Expr.fvar ..  => false
+  | Expr.forallE _ d b _ => b.hasLooseBVars
+  | _ => true
+
+/--
+  Reduce `e` until we get an irreducible term (modulo current reducibility setting) or the resulting term
+  is a bad key (see comment at `isBadKey`).
+  We use this method instead of `whnfEta` for root terms at `pushArgs`. -/
+private partial def whnfUntilBadKey (e : Expr) : MetaM Expr := do
+  let e ← step e
+  match e.etaExpandedStrict? with
+  | some e => whnfUntilBadKey e
+  | none   => return e
+where
+  step (e : Expr) := do
+    let e ← whnfCore e
+    match (← unfoldDefinition? e) with
+    | some e' => if isBadKey e' then return e else step e'
+    | none    => return e
+
+/-- whnf for the discrimination tree module -/
+private def whnfDT (e : Expr) (root : Bool) : MetaM Expr :=
+  if root then whnfUntilBadKey e else whnfEta e
+
 /- Remark: we use `shouldAddAsStar` only for nested terms, and `root == false` for nested terms -/
 
 private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) := do
   if hasNoindexAnnotation e then
     return (Key.star, todo)
   else
-    let e ← whnfEta e
+    let e ← whnfDT e root
     let fn := e.getAppFn
     let push (k : Key) (nargs : Nat) : MetaM (Key × Array Expr) := do
       let info ← getFunInfoNArgs fn nargs
@@ -322,8 +357,8 @@ def insert [BEq α] (d : DiscrTree α) (e : Expr) (v : α) : MetaM (DiscrTree α
   let keys ← mkPath e
   return d.insertCore keys v
 
-private def getKeyArgs (e : Expr) (isMatch : Bool) : MetaM (Key × Array Expr) := do
-  let e ← whnfEta e
+private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Expr) := do
+  let e ← whnfDT e root
   match e.getAppFn with
   | Expr.lit v _       => return (Key.lit v, #[])
   | Expr.const c _ _   =>
@@ -365,11 +400,11 @@ private def getKeyArgs (e : Expr) (isMatch : Bool) : MetaM (Key × Array Expr) :
   | _ =>
     return (Key.other, #[])
 
-private abbrev getMatchKeyArgs (e : Expr) : MetaM (Key × Array Expr) :=
-  getKeyArgs e (isMatch := true)
+private abbrev getMatchKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Expr) :=
+  getKeyArgs e (isMatch := true) (root := root)
 
-private abbrev getUnifyKeyArgs (e : Expr) : MetaM (Key × Array Expr) :=
-  getKeyArgs e (isMatch := false)
+private abbrev getUnifyKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Expr) :=
+  getKeyArgs e (isMatch := false) (root := root)
 
 private def getStarResult (d : DiscrTree α) : Array α :=
   let result : Array α := Array.mkEmpty initCapacity
@@ -383,7 +418,7 @@ private abbrev findKey (cs : Array (Key × Trie α)) (k : Key) : Option (Key × 
 partial def getMatch (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   withReducible do
     let result := getStarResult d
-    let (k, args) ← getMatchKeyArgs e
+    let (k, args) ← getMatchKeyArgs e (root := true)
     match k with
     | Key.star => return result
     | _        =>
@@ -402,7 +437,7 @@ where
         let e     := todo.back
         let todo  := todo.pop
         let first := cs[0] /- Recall that `Key.star` is the minimal key -/
-        let (k, args) ← getMatchKeyArgs e
+        let (k, args) ← getMatchKeyArgs e (root := false)
         /- We must always visit `Key.star` edges since they are wildcards.
            Thus, `todo` is not used linearly when there is `Key.star` edge
            and there is an edge for `k` and `k != Key.star`. -/
@@ -427,7 +462,7 @@ where
 
 partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   withReducible do
-    let (k, args) ← getUnifyKeyArgs e
+    let (k, args) ← getUnifyKeyArgs e (root := true)
     match k with
     | Key.star => d.root.foldlM (init := #[]) fun result k c => process k.arity #[] c result
     | _ =>
@@ -451,7 +486,7 @@ where
       else
         let e     := todo.back
         let todo  := todo.pop
-        let (k, args) ← getUnifyKeyArgs e
+        let (k, args) ← getUnifyKeyArgs e (root := false)
         let visitStar (result : Array α) : MetaM (Array α) :=
           let first := cs[0]
           if first.1 == Key.star then

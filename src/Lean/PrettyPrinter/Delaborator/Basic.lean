@@ -71,6 +71,11 @@ register_builtin_option pp.binderTypes : Bool := {
   group    := "pp"
   descr    := "(pretty printer) display types of lambda and Pi parameters"
 }
+register_builtin_option pp.instantiateMVars : Bool := {
+  defValue := false -- TODO: default to true?
+  group    := "pp"
+  descr    := "(pretty printer) instantiate mvars before delaborating"
+}
 register_builtin_option pp.structureInstances : Bool := {
   defValue := true
   group    := "pp"
@@ -183,6 +188,7 @@ def getPPStructureInstanceType (o : Options) : Bool := o.get pp.structureInstanc
 def getPPUniverses (o : Options) : Bool := o.get pp.universes.name (getPPAll o)
 def getPPFullNames (o : Options) : Bool := o.get pp.fullNames.name (getPPAll o)
 def getPPPrivateNames (o : Options) : Bool := o.get pp.privateNames.name (getPPAll o)
+def getPPInstantiateMVars (o : Options) : Bool := o.get pp.instantiateMVars.name pp.instantiateMVars.defValue
 def getPPSafeShadowing (o : Options) : Bool := o.get pp.safeShadowing.name pp.safeShadowing.defValue
 def getPPProofs (o : Options) : Bool := o.get pp.proofs.name (getPPAll o || getPPAnalyze o)
 def getPPProofsWithType (o : Options) : Bool := o.get pp.proofs.withType.name pp.proofs.withType.defValue
@@ -382,6 +388,7 @@ def delab (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (options
       if ← Meta.isProp ty then
         opts := pp.proofs.set opts true
     catch _ => pure ()
+  let e ← if getPPInstantiateMVars opts then ← Meta.instantiateMVars e else e
   let optionsPerPos ←
     if getPPAnalyze opts && optionsPerPos.isEmpty then
       topDownAnalyze e

@@ -11,7 +11,7 @@ namespace Lean
 inductive Literal where
   | natVal (val : Nat)
   | strVal (val : String)
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Repr
 
 protected def Literal.hash : Literal → UInt64
   | Literal.natVal v => hash v

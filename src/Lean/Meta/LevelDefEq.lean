@@ -239,8 +239,10 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
   `checkpointDefEq x` executes `x` and process all postponed universe level constraints produced by `x`.
   We keep the modifications only if `processPostponed` return true and `x` returned `true`.
 
-  Remark: postponed universe level constraints must be solved before returning. Otherwise,
-  we don't know whether `x` really succeeded. -/
+  If `mayPostpone == false`, all new postponed universe level constraints must be solved before returning.
+  We currently try to postpone universe constraints as much as possible, even when by postponing them we
+  are not sure whether `x` really succeeded or not.
+-/
 @[specialize] def checkpointDefEq (x : MetaM Bool) (mayPostpone : Bool := true) : MetaM Bool := do
   let s ← saveState
   let postponed ← getResetPostponed

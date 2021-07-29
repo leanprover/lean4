@@ -216,7 +216,7 @@ def isFunLike (e : Expr) : MetaM Bool := do
   withTransparency TransparencyMode.all do forallTelescopeReducing (← inferType e) fun xs b => xs.size > 0
 
 def isSubstLike (e : Expr) : Bool :=
-  e.isAppOfArity `Eq.ndrec 6
+  e.isAppOfArity `Eq.ndrec 6 || e.isAppOfArity `Eq.rec 6
 
 def nameNotRoundtrippable (n : Name) : Bool :=
   n.hasMacroScopes || isPrivateName n || containsNum n

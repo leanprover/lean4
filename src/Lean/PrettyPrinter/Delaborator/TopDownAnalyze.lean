@@ -189,7 +189,7 @@ partial def okBottomUp? (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
   match fuel with
   | 0 => BottomUpKind.unsafe
   | fuel + 1 =>
-    if e.isFVar then return BottomUpKind.safe
+    if e.isFVar || e.isNatLit || e.isStringLit then return BottomUpKind.safe
     if getPPAnalyzeTrustOfNat (← getOptions) && e.isAppOfArity `OfNat.ofNat 3 then return BottomUpKind.safe
     if e.isApp || e.isConst then
       match e.getAppFn with

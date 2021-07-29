@@ -190,24 +190,21 @@ partial def okBottomUp? (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
   | fuel + 1 =>
     if e.isFVar || e.isNatLit || e.isStringLit then return BottomUpKind.safe
     if getPPAnalyzeTrustOfNat (← getOptions) && e.isAppOfArity `OfNat.ofNat 3 then return BottomUpKind.safe
-    if e.isApp || e.isConst then
-      match e.getAppFn with
-      | Expr.const .. =>
-        let args := e.getAppArgs
-        let fType ← replaceLPsWithVars (← inferType e.getAppFn)
-        let ⟨mvars, bInfos, resultType⟩ ← forallMetaBoundedTelescope fType e.getAppArgs.size
-        for i in [:mvars.size] do
-          if bInfos[i] == BinderInfo.instImplicit then
-            inspectOutParams args[i] mvars[i]
-          else if bInfos[i] == BinderInfo.default then
-            match ← okBottomUp? args[i] mvars[i] fuel with
-            | ⟨false, false⟩ => tryUnify args[i] mvars[i]
-            | _              => pure ()
-        if mvar?.isSome then tryUnify resultType (← inferType mvar?.get!)
-        let resultType ← instantiateMVars resultType
-        pure ⟨resultType.hasExprMVar, resultType.hasLevelMVar⟩
-      | _ => BottomUpKind.unsafe
-    else BottomUpKind.unsafe
+    let f := e.getAppFn
+    if !f.isConst && !f.isFVar then return BottomUpKind.unsafe
+    let args := e.getAppArgs
+    let fType ← replaceLPsWithVars (← inferType e.getAppFn)
+    let ⟨mvars, bInfos, resultType⟩ ← forallMetaBoundedTelescope fType e.getAppArgs.size
+    for i in [:mvars.size] do
+      if bInfos[i] == BinderInfo.instImplicit then
+        inspectOutParams args[i] mvars[i]
+      else if bInfos[i] == BinderInfo.default then
+        match ← okBottomUp? args[i] mvars[i] fuel with
+        | ⟨false, false⟩ => tryUnify args[i] mvars[i]
+        | _              => pure ()
+    if mvar?.isSome then tryUnify resultType (← inferType mvar?.get!)
+    let resultType ← instantiateMVars resultType
+    pure ⟨resultType.hasExprMVar, resultType.hasLevelMVar⟩
 
 def isHigherOrder (type : Expr) : MetaM Bool := do
   withTransparency TransparencyMode.all do forallTelescopeReducing type fun xs b => xs.size > 0 && b.isSort
@@ -270,6 +267,7 @@ def annotateNamedArg (n : Name) (appPos : Pos) : AnalyzeM Bool := do
     return true
 
 partial def analyze (parentIsApp : Bool := false) : AnalyzeM Unit := do
+  println! "[analyze] {fmt (← getExpr)}"
   checkMaxHeartbeats "Delaborator.topDownAnalyze"
   trace[pp.analyze] "{(← read).knowsType}.{(← read).knowsLevel}"
   withReader (fun ctx => { ctx with parentIsApp := parentIsApp }) do

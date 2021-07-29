@@ -12,6 +12,7 @@ import Lean.Elab.DeclModifiers
 import Lean.Elab.DeclUtil
 import Lean.Elab.Inductive
 import Lean.Elab.DeclarationRange
+import Lean.Elab.Binders
 
 namespace Lean.Elab.Command
 
@@ -142,10 +143,10 @@ def checkValidFieldModifier (modifiers : Modifiers) : TermElabM Unit := do
 
 /-
 ```
-def structExplicitBinder := leading_parser atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
+def structExplicitBinder := leading_parser atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault) >> ")"
 def structImplicitBinder := leading_parser atomic (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
 def structInstBinder     := leading_parser atomic (declModifiers true >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
-def structSimpleBinder   := leading_parser atomic (declModifiers true >> ident) >> optional inferMod >> optDeclSig >> optional Term.binderDefault
+def structSimpleBinder   := leading_parser atomic (declModifiers true >> ident) >> optional inferMod >> optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault)
 def structFields         := leading_parser many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
 ```
 -/
@@ -169,20 +170,42 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
     if fieldModifiers.isProtected && structModifiers.isPrivate then
       throwError "invalid 'protected' field in a 'private' structure"
     let inferMod         := !fieldBinder[3].isNone
-    let (binders, type?) :=
+    let (binders, type?) ←
       if binfo == BinderInfo.default then
-        expandOptDeclSig fieldBinder[4]
+        let (binders, type?) := expandOptDeclSig fieldBinder[4]
+        let optBinderTacticDefault := fieldBinder[5]
+        if optBinderTacticDefault.isNone then
+          pure (binders, type?)
+        else if optBinderTacticDefault[0].getKind != ``Parser.Term.binderTactic then
+          pure (binders, type?)
+        else
+          let binderTactic := optBinderTacticDefault[0]
+          match type? with
+          | none => throwErrorAt binderTactic "invalid field declaration, type must be provided when auto-param (tactic) is used"
+          | some type =>
+            let tac := binderTactic[2]
+            let name ← Term.declareTacticSyntax tac
+            -- The tactic should be for binders+type.
+            -- It is safe to reset the binders to a "null" node since there is no value to be elaborated
+            let type ← `(forall $(binders.getArgs):bracketedBinder*, $type)
+            let type ← `(autoParam $type $(mkIdentFrom tac name))
+            pure (mkNullNode, some type)
       else
         let (binders, type) := expandDeclSig fieldBinder[4]
-        (binders, some type)
-    let value? :=
-      if binfo != BinderInfo.default then none
+        pure (binders, some type)
+    let value? ←
+      if binfo != BinderInfo.default then
+        pure none
       else
-        let optBinderDefault := fieldBinder[5]
-        if optBinderDefault.isNone then none
+        let optBinderTacticDefault := fieldBinder[5]
+        -- trace[Elab.struct] ">>> {optBinderTacticDefault}"
+        if optBinderTacticDefault.isNone then
+          pure none
+        else if optBinderTacticDefault[0].getKind == ``Parser.Term.binderTactic then
+          pure none
         else
           -- binderDefault := leading_parser " := " >> termParser
-          some optBinderDefault[0][1]
+          pure (some optBinderTacticDefault[0][1])
     let idents := fieldBinder[2].getArgs
     idents.foldlM (init := views) fun (views : Array StructFieldView) ident => withRef ident do
       let name     := ident.getId

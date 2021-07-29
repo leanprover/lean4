@@ -18,7 +18,7 @@ inductive Key where
   | star  : Key
   | other : Key
   | arrow : Key
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Repr
 
 protected def Key.hash : Key → UInt64
   | Key.const n a => mixHash 5237 $ mixHash (hash n) (hash a)

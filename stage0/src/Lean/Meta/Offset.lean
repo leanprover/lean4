@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Data.LBool
 import Lean.Meta.InferType
+import Lean.Meta.AppBuilder
 
 namespace Lean.Meta
 
@@ -132,7 +133,7 @@ private def mkOffset (e : Expr) (offset : Nat) : MetaM Expr := do
   else if (← isNatZero e) then
     return mkNatLit offset
   else
-    return mkAppB (mkConst ``Nat.add) e (mkNatLit offset)
+    mkAdd e (mkNatLit offset)
 
 def isDefEqOffset (s t : Expr) : MetaM LBool := do
   let ifNatExpr (x : MetaM LBool) : MetaM LBool := do

@@ -360,7 +360,7 @@ where
               match instResult with
               | LOption.some inst =>
                 if ← checkpointDefEq inst arg then annotateBool `pp.analysis.skip
-                else annotateBool `pp.analysis.namedArg
+                else discard <| annotateNamedArg (← mvarName mvars[i]) appPos
               | _                 => discard <| annotateNamedArg (← mvarName mvars[i]) appPos
           | BinderInfo.auxDecl        => pure ()
           | BinderInfo.strictImplicit => unreachable!

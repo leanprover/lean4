@@ -158,7 +158,8 @@ def delabAppExplicit : Delab := whenPPOption getPPExplicit do
       let fn ← getExpr
       let stx ← if fn.isConst then delabConst else delab
       let paramKinds ← liftM <| getParamKinds fn <|> pure #[]
-      let stx ← if paramKinds.any (fun | ParamKind.explicit => false | _ => true) then `(@$stx) else pure stx
+      let needsExplicit := paramKinds.any (fun | ParamKind.explicit => false | _ => true) && stx.getKind != `Lean.Parser.Term.explicit
+      let stx ← if needsExplicit then `(@$stx) else pure stx
       pure (stx, #[]))
     (fun ⟨fnStx, argStxs⟩ => do
       let argStx ← delab

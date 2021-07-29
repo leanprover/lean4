@@ -25,7 +25,7 @@ open Lean.Meta
 open Std (RBMap)
 
 register_builtin_option pp.analyze : Bool := {
-  defValue := false
+  defValue := true
   group    := "pp.analyze"
   descr    := "(pretty printer analyzer) determine annotations sufficient to ensure round-tripping"
 }
@@ -70,7 +70,7 @@ def getPPAnalyzeTrustKnownFOType2TypeHOFuns (o : Options) : Bool := o.get pp.ana
 def getPPAnalysisSkip          (o : Options) : Bool := o.get `pp.analysis.skip false
 def getPPAnalysisHole          (o : Options) : Bool := o.get `pp.analysis.hole false
 def getPPAnalysisNamedArg      (o : Options) : Bool := o.get `pp.analysis.namedArg false
-def getPPAnalysisLetVarType    (o : Options) : Bool := o.get `pp.analysis.letVarType true
+def getPPAnalysisLetVarType    (o : Options) : Bool := o.get `pp.analysis.letVarType false
 def getPPAnalysisNeedsType     (o : Options) : Bool := o.get `pp.analysis.needsType false
 def getPPAnalysisNeedsExplicit (o : Options) : Bool := o.get `pp.analysis.needsExplicit false
 
@@ -226,20 +226,20 @@ def checkKnowsType : AnalyzeM Unit := do
   if not (← read).knowsType then
     throw $ Exception.internal analyzeFailureId
 
-def annotateBoolAt (n : Name) (b : Bool) (pos : Pos) : AnalyzeM Unit := do
-  let opts := (← get).annotations.findD pos {} |>.setBool n b
-  trace[pp.analyze.annotate] "{pos} {n} {b}"
+def annotateBoolAt (n : Name) (pos : Pos) : AnalyzeM Unit := do
+  let opts := (← get).annotations.findD pos {} |>.setBool n true
+  trace[pp.analyze.annotate] "{pos} {n}"
   modify fun s => { s with annotations := s.annotations.insert pos opts }
 
-def annotateBool (n : Name) (b : Bool) : AnalyzeM Unit := do
-  annotateBoolAt n b (← getPos)
+def annotateBool (n : Name) : AnalyzeM Unit := do
+  annotateBoolAt n (← getPos)
 
 def annotateNamedArg (n : Name) (appPos : Pos) : AnalyzeM Bool := do
   if nameNotRoundtrippable n then
-    annotateBoolAt `pp.explicit true appPos
+    annotateBoolAt `pp.explicit appPos
     return false
   else
-    annotateBool `pp.analysis.namedArg true
+    annotateBool `pp.analysis.namedArg
     return true
 
 partial def analyze (parentIsApp : Bool := false) : AnalyzeM Unit := do
@@ -263,7 +263,7 @@ where
   analyzeApp := do
     withKnowing true true $ analyzeAppStaged (← getExpr).getAppFn (← getExpr).getAppArgs
     if !(← read).knowsType && !(← okBottomUp? (← getExpr)).isSafe then
-      annotateBool `pp.analysis.needsType true
+      annotateBool `pp.analysis.needsType
       withAppType $ withKnowing true false $ analyze
 
   analyzeAppStaged (f : Expr) (args : Array Expr) : AnalyzeM Unit := do
@@ -312,13 +312,13 @@ where
           match bInfos[i] with
           | BinderInfo.default =>
             if !(← valUnknown mvars[i]) && !(← read).inBottomUp && !(← isFunLike arg) then
-              annotateBool `pp.analysis.hole true
+              annotateBool `pp.analysis.hole
 
           | BinderInfo.implicit =>
             if (← valUnknown mvars[i] <||> higherOrders[i]) && !disableNamedImplicits then
               discard <| annotateNamedArg (← mvarName mvars[i]) appPos
             else
-              annotateBool `pp.analysis.skip true
+              annotateBool `pp.analysis.skip
 
           | BinderInfo.instImplicit =>
             -- Note: apparently checking valUnknown here is not sound, because the elaborator
@@ -327,8 +327,8 @@ where
               let instResult ← try trySynthInstance argType catch _ => LOption.undef
               match instResult with
               | LOption.some inst =>
-                if ← checkpointDefEq inst arg then annotateBool `pp.analysis.skip true
-                else annotateBool `pp.analysis.namedArg true
+                if ← checkpointDefEq inst arg then annotateBool `pp.analysis.skip
+                else annotateBool `pp.analysis.namedArg
               | _                 => discard <| annotateNamedArg (← mvarName mvars[i]) appPos
           | BinderInfo.auxDecl        => pure ()
           | BinderInfo.strictImplicit => unreachable!
@@ -342,27 +342,27 @@ where
     if !(← read).parentIsApp then
       let type ← inferType (← getExpr)
       if type.isForall && type.bindingInfo! == BinderInfo.implicit then
-        annotateBool `pp.analysis.needsExplicit true
+        annotateBool `pp.analysis.needsExplicit
 
   analyzeConst : AnalyzeM Unit := do
     let Expr.const n ls .. ← getExpr | unreachable!
-    annotateBool `pp.universes (!(← read).knowsLevel && !ls.isEmpty)
+    if !(← read).knowsLevel && !ls.isEmpty then annotateBool `pp.universes
     maybeAddExplicit
 
   analyzePi : AnalyzeM Unit := do
-    annotateBool `pp.binderTypes true
+    annotateBool `pp.binderTypes
     withBindingDomain $ withKnowing true false analyze
     withBindingBody Name.anonymous analyze
 
   analyzeLam : AnalyzeM Unit := do
-    annotateBool `pp.binderTypes !(← read).knowsType
+    if !(← read).knowsType then annotateBool `pp.binderTypes
     withBindingDomain $ withKnowing true false analyze
     withBindingBody Name.anonymous analyze
 
   analyzeLet : AnalyzeM Unit := do
     let Expr.letE n t v body .. ← getExpr | unreachable!
     let needsType := (← okBottomUp? v).needsType
-    annotateBool `pp.analysis.letVarType needsType
+    if needsType then annotateBool `pp.analysis.letVarType
     withLetValue $ withKnowing true true analyze
     withLetVarType $ withKnowing true false analyze
     withLetBody analyze

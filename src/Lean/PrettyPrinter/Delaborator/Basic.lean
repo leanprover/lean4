@@ -67,7 +67,7 @@ register_builtin_option pp.privateNames : Bool := {
   descr    := "(pretty printer) display internal names assigned to private declarations"
 }
 register_builtin_option pp.binderTypes : Bool := {
-  defValue := true
+  defValue := false
   group    := "pp"
   descr    := "(pretty printer) display types of lambda and Pi parameters"
 }

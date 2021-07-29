@@ -185,6 +185,14 @@ set_option pp.analyze.trustSubst true in
 #testDelab (fun (x y z : Nat) (hxy : x = y) (hyz : x = z) => hxy ▸ hyz : ∀ (x y z : Nat), x = y → x = z → y = z)
   expecting fun x y z hxy hyz => hxy ▸ hyz
 
+set_option pp.analyze.trustId true in
+#testDelab Sigma.mk (β := fun α => α) Bool true
+  expecting { fst := Bool, snd := true : Sigma fun α => α }
+
+set_option pp.analyze.trustId false in
+#testDelab Sigma.mk (β := fun α => α) Bool true
+  expecting Sigma.mk (β := fun α => α) Bool true
+
 #testDelab let xs := #[true]; xs
   expecting let xs := #[true]; xs
 

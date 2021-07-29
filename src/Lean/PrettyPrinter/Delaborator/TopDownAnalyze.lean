@@ -54,6 +54,12 @@ register_builtin_option pp.analyze.trustOfNat : Bool := {
   descr    := "(pretty printer analyzer) always 'pretend' `OfNat.ofNat` applications can elab bottom-up"
 }
 
+register_builtin_option pp.analyze.trustId : Bool := {
+  defValue := true
+  group    := "pp.analyze"
+  descr    := "(pretty printer analyzer) always assume an implicit `fun x => x` can be inferred"
+}
+
 register_builtin_option pp.analyze.trustKnownFOType2TypeHOFuns : Bool := {
   defValue := true
   group    := "pp.analyze"
@@ -65,6 +71,7 @@ def getPPAnalyzeCheckInstances              (o : Options) : Bool := o.get pp.ana
 def getPPAnalyzeTypeAscriptions             (o : Options) : Bool := o.get pp.analyze.typeAscriptions.name pp.analyze.typeAscriptions.defValue
 def getPPAnalyzeTrustSubst                  (o : Options) : Bool := o.get pp.analyze.trustSubst.name pp.analyze.trustSubst.defValue
 def getPPAnalyzeTrustOfNat                  (o : Options) : Bool := o.get pp.analyze.trustOfNat.name pp.analyze.trustOfNat.defValue
+def getPPAnalyzeTrustId                     (o : Options) : Bool := o.get pp.analyze.trustId.name pp.analyze.trustId.defValue
 def getPPAnalyzeTrustKnownFOType2TypeHOFuns (o : Options) : Bool := o.get pp.analyze.trustKnownFOType2TypeHOFuns.name pp.analyze.trustKnownFOType2TypeHOFuns.defValue
 
 def getPPAnalysisSkip          (o : Options) : Bool := o.get `pp.analysis.skip false
@@ -95,6 +102,12 @@ def isType2Type (motive : Expr) : MetaM Bool := do
 def isFOLike (motive : Expr) : MetaM Bool := do
   let f := motive.getAppFn
   f.isFVar || f.isConst
+
+def isIdLike (arg : Expr) : Bool := do
+  -- TODO: allow `id` constant as well?
+  match arg with
+  | Expr.lam _ _ (Expr.bvar ..) .. => true
+  | _ => false
 
 namespace TopDownAnalyze
 
@@ -290,6 +303,7 @@ where
     for i in [:args.size] do
       if not (← bInfos[i] == BinderInfo.implicit) then continue
       if not (← isHigherOrder (← inferType args[i])) then continue
+      if getPPAnalyzeTrustId (← getOptions) && isIdLike args[i] then continue
 
       if getPPAnalyzeTrustKnownFOType2TypeHOFuns (← getOptions) && not (← valUnknown mvars[i])
         && (← isType2Type (args[i])) && (← isFOLike (args[i])) then continue

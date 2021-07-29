@@ -610,48 +610,9 @@ def delabProjectionApp : Delab := whenPPOption getPPStructureProjections $ do
   let appStx ← withAppArg delab
   `($(appStx).$(mkIdent f):ident)
 
-
-@[builtinDelab app.Prod.mk]
-def delabTuple : Delab := whenPPOption getPPNotation do
-  let e ← getExpr
-  guard $ e.getAppNumArgs == 4
-  let a ← withAppFn $ withAppArg delab
-  let b ← withAppArg delab
-  match b with
-  | `(($b, $bs,*)) => `(($a, $b, $bs,*))
-  | _              => `(($a, $b))
-
-@[builtinDelab app.List.nil]
-def delabNil : Delab := whenPPOption getPPNotation do
-  guard $ (← getExpr).getAppNumArgs == 1
-  `([])
-
-@[builtinDelab app.List.cons]
-def delabConsList : Delab := whenPPOption getPPNotation do
-  guard $ (← getExpr).getAppNumArgs == 3
-  let x ← withAppFn (withAppArg delab)
-  match (← withAppArg delab) with
-  | `([])      => `([$x])
-  | `([$xs,*]) => `([$x, $xs,*])
-  | _          => failure
-
-@[builtinDelab app.List.toArray]
-def delabListToArray : Delab := whenPPOption getPPNotation do
-  guard $ (← getExpr).getAppNumArgs == 2
-  match (← withAppArg delab) with
-  | `([$xs,*]) => `(#[$xs,*])
-  | _         => failure
-
-@[builtinDelab app.ite]
-def delabIte : Delab := whenPPOption getPPNotation do
-  guard $ (← getExpr).getAppNumArgs == 5
-  let c ← withAppFn $ withAppFn $ withAppFn $ withAppArg delab
-  let t ← withAppFn $ withAppArg delab
-  let e ← withAppArg delab
-  `(if $c then $t else $e)
-
 @[builtinDelab app.dite]
 def delabDIte : Delab := whenPPOption getPPNotation do
+  -- Note: we keep this as a delaborator for now because it actually accesses the expression.
   guard $ (← getExpr).getAppNumArgs == 5
   let c ← withAppFn $ withAppFn $ withAppFn $ withAppArg delab
   let (t, h) ← withAppFn $ withAppArg $ delabBranch none
@@ -668,6 +629,7 @@ where
 
 @[builtinDelab app.namedPattern]
 def delabNamedPattern : Delab := do
+  -- Note: we keep this as a delaborator because it accesses the DelabM context
   guard (← read).inPattern
   guard $ (← getExpr).getAppNumArgs == 3
   let x ← withAppFn $ withAppArg delab
@@ -713,11 +675,6 @@ def delabDo : Delab := whenPPOption getPPNotation do
   let elems ← delabDoElems
   let items ← elems.toArray.mapM (`(doSeqItem|$(·):doElem))
   `(do $items:doSeqItem*)
-
-@[builtinDelab app.sorryAx]
-def delabSorryAx : Delab := whenPPOption getPPNotation do
-  guard <| (← getExpr).isAppOfArity ``sorryAx 2
-  `(sorry)
 
 def reifyName : Expr → DelabM Name
   | Expr.const ``Lean.Name.anonymous .. => Name.anonymous

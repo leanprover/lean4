@@ -97,6 +97,33 @@ macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBi
   | `(Unit.unit) => `(())
   | _            => throw ()
 
+@[appUnexpander List.nil] def unexpandListNil : Lean.PrettyPrinter.Unexpander
+  | `(List.nil) => `([])
+  | _           => throw ()
+
+@[appUnexpander List.cons] def unexpandListCons : Lean.PrettyPrinter.Unexpander
+  | `(List.cons $x [])      => `([$x])
+  | `(List.cons $x [$xs,*]) => `([$x, $xs,*])
+  | _                       => throw ()
+
+@[appUnexpander List.toArray] def unexpandListToArray : Lean.PrettyPrinter.Unexpander
+  | `(List.toArray [$xs,*]) => `(#[$xs,*])
+  | _                       => throw ()
+
+@[appUnexpander Prod.mk] def unexpandProdMk : Lean.PrettyPrinter.Unexpander
+  | `(Prod.mk $x `(($y, $ys,*))) => `(($x, $y, $ys,*))
+  | `(Prod.mk $x $y)             => `(($x, $y))
+  | _                            => throw ()
+
+@[appUnexpander ite] def unexpandIte : Lean.PrettyPrinter.Unexpander
+  | `(ite $c $t $e) => `(if $c then $t else $e)
+  | _               => throw ()
+
+@[appUnexpander sorryAx] def unexpandSorryAx : Lean.PrettyPrinter.Unexpander
+  | `(sorryAx _)    => `(sorry)
+  | `(sorryAx _ $b) => `(sorry)
+  | _               => throw ()
+
 @[appUnexpander Eq.ndrec] def unexpandEqNDRec : Lean.PrettyPrinter.Unexpander
   | `(Eq.ndrec $m $h) => `($h ▸ $m)
   | _                 => throw ()

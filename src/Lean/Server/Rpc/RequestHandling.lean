@@ -49,7 +49,7 @@ def registerRpcCallHandler (method : Name)
       match (← @rpcDecode paramType paramLspType _ RequestM _ _ paramsLsp) with
       | Except.ok v => return v
       | Except.error e => throwThe RequestError { code := JsonRpc.ErrorCode.invalidParams
-                                                  message := e }
+                                                  message := s!"{e} in RPC call '{method}({j})'" }
 
     let t ← RequestM.bindTask t fun
       | Except.error e => throw e

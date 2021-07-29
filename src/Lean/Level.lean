@@ -399,12 +399,12 @@ mutual
     | r::rs => Format.line ++ format r false ++ formatLst rs
 
   partial def Result.format : Result → Bool → Format
-    | Result.leaf n,         _ => fmt n
+    | Result.leaf n,         _ => Std.format n
     | Result.num k,          _ => toString k
     | Result.offset f 0,     r => format f r
     | Result.offset f (k+1), r =>
       let f' := format f false;
-      parenIfFalse (f' ++ "+" ++ fmt (k+1)) r
+      parenIfFalse (f' ++ "+" ++ Std.format (k+1)) r
     | Result.maxNode fs,    r => parenIfFalse (Format.group $ "max"  ++ formatLst fs) r
     | Result.imaxNode fs,   r => parenIfFalse (Format.group $ "imax" ++ formatLst fs) r
 end

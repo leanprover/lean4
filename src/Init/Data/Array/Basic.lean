@@ -463,7 +463,7 @@ instance {α : Type u} [Repr α] : Repr (Array α) where
     if a.size == 0 then
       "#[]"
     else
-      Std.Format.bracketFill "#[" (@Std.Format.joinSep _ ⟨repr⟩ (toList a) ("," ++ Std.Format.line)) "]"
+      Std.Format.bracketFill "#[" (@Std.Format.joinSep _ (τ := Empty) ⟨repr⟩ (toList a) ("," ++ Std.Format.line)) "]"
 
 instance [ToString α] : ToString (Array α) where
   toString a := "#" ++ toString a.toList

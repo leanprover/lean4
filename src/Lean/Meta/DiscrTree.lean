@@ -71,11 +71,11 @@ instance (a b : Key) : Decidable (a < b) := inferInstanceAs (Decidable (Key.lt a
 def Key.format : Key → Format
   | Key.star                   => "*"
   | Key.other                  => "◾"
-  | Key.lit (Literal.natVal v) => fmt v
+  | Key.lit (Literal.natVal v) => Std.format v
   | Key.lit (Literal.strVal v) => repr v
-  | Key.const k _              => fmt k
-  | Key.proj s i               => fmt s ++ "." ++ fmt i
-  | Key.fvar k _               => fmt k
+  | Key.const k _              => Std.format k
+  | Key.proj s i               => Std.format s ++ "." ++ Std.format i
+  | Key.fvar k _               => Std.format k
   | Key.arrow                  => "→"
 
 instance : ToFormat Key := ⟨Key.format⟩
@@ -93,15 +93,15 @@ def empty : DiscrTree α := { root := {} }
 
 partial def Trie.format [ToFormat α] : Trie α → Format
   | Trie.node vs cs => Format.group $ Format.paren $
-    "node" ++ (if vs.isEmpty then Format.nil else " " ++ fmt vs)
-    ++ Format.join (cs.toList.map $ fun ⟨k, c⟩ => Format.line ++ Format.paren (fmt k ++ " => " ++ format c))
+    "node" ++ (if vs.isEmpty then Format.nil else " " ++ Std.format vs)
+    ++ Format.join (cs.toList.map $ fun ⟨k, c⟩ => Format.line ++ Format.paren (Std.format k ++ " => " ++ format c))
 
 instance [ToFormat α] : ToFormat (Trie α) := ⟨Trie.format⟩
 
 partial def format [ToFormat α] (d : DiscrTree α) : Format :=
   let (_, r) := d.root.foldl
     (fun (p : Bool × Format) k c =>
-      (false, p.2 ++ (if p.1 then Format.nil else Format.line) ++ Format.paren (fmt k ++ " => " ++ fmt c)))
+      (false, p.2 ++ (if p.1 then Format.nil else Format.line) ++ Format.paren (Std.format k ++ " => " ++ Std.format c)))
     (true, Format.nil)
   Format.group r
 

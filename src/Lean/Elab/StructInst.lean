@@ -191,8 +191,8 @@ inductive FieldLHS where
 
 instance : ToFormat FieldLHS := ⟨fun lhs =>
   match lhs with
-  | FieldLHS.fieldName _ n  => fmt n
-  | FieldLHS.fieldIndex _ i => fmt i
+  | FieldLHS.fieldName _ n  => format n
+  | FieldLHS.fieldIndex _ i => format i
   | FieldLHS.modifyOp _ i   => "[" ++ i.prettyPrint ++ "]"⟩
 
 inductive FieldVal (σ : Type) where

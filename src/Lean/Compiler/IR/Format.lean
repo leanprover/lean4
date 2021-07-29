@@ -63,8 +63,8 @@ private partial def formatIRType : IRType → Format
   | IRType.irrelevant   => "◾"
   | IRType.object       => "obj"
   | IRType.tobject      => "tobj"
-  | IRType.struct _ tys => "struct " ++ Format.bracket "{" (@Format.joinSep _ ⟨formatIRType⟩ tys.toList ", ") "}"
-  | IRType.union _ tys  => "union " ++ Format.bracket "{" (@Format.joinSep _ ⟨formatIRType⟩ tys.toList ", ") "}"
+  | IRType.struct _ tys => "struct " ++ Format.bracket "{" (@Format.joinSep _ (τ := Empty) ⟨formatIRType⟩ tys.toList ", ") "}"
+  | IRType.union _ tys  => "union " ++ Format.bracket "{" (@Format.joinSep _ (τ := Empty) ⟨formatIRType⟩ tys.toList ", ") "}"
 
 instance : ToFormat IRType := ⟨formatIRType⟩
 instance : ToString IRType := ⟨toString ∘ format⟩

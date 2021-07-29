@@ -227,12 +227,12 @@ instance : Repr USize where
 instance [Repr α] : Repr (List α) where
   reprPrec
     | [], _ => "[]"
-    | as, _ => Format.bracket "[" (@Format.joinSep _ ⟨repr⟩ as ("," ++ Format.line)) "]"
+    | as, _ => Format.bracket "[" (@Format.joinSep _ (τ := Empty) ⟨repr⟩ as ("," ++ Format.line)) "]"
 
 instance [Repr α] [ReprAtom α] : Repr (List α) where
   reprPrec
     | [], _ => "[]"
-    | as, _ => Format.bracketFill "[" (@Format.joinSep _ ⟨repr⟩ as ("," ++ Format.line)) "]"
+    | as, _ => Format.bracketFill "[" (@Format.joinSep _ (τ := Empty) ⟨repr⟩ as ("," ++ Format.line)) "]"
 
 instance : ReprAtom Bool   := ⟨⟩
 instance : ReprAtom Nat    := ⟨⟩

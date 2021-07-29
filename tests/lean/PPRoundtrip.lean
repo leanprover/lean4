@@ -23,7 +23,7 @@ match Parser.runParserCategory env `term s "<input>" with
 | Except.ok stx'' => do
   let e' ← elabTermAndSynthesize stx'' none <* throwErrorIfErrors
   unless (← isDefEq e e') do
-    throwErrorAt stx (m!"failed to round-trip" ++ line ++ fmt e ++ line ++ fmt e')
+    throwErrorAt stx (m!"failed to round-trip" ++ line ++ format e ++ line ++ format e')
 
 -- set_option trace.PrettyPrinter.parenthesize true
 set_option format.width 20

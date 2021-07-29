@@ -66,7 +66,7 @@ instance : ToFormat Modifiers := ⟨fun m =>
     ++ (if m.isNoncomputable then [f!"noncomputable"] else [])
     ++ (if m.isPartial then [f!"partial"] else [])
     ++ (if m.isUnsafe then [f!"unsafe"] else [])
-    ++ m.attrs.toList.map (fun attr => fmt attr)
+    ++ m.attrs.toList.map (fun attr => format attr)
   Format.bracket "{" (Format.joinSep components ("," ++ Format.line)) "}"⟩
 
 instance : ToString Modifiers := ⟨toString ∘ format⟩

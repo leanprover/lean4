@@ -38,12 +38,12 @@ def SimpLemma.getName (s : SimpLemma) : Name :=
 instance : ToFormat SimpLemma where
   format s :=
     let perm := if s.perm then ":perm" else ""
-    let name := fmt s.getName
+    let name := format s.getName
     let prio := f!":{s.priority}"
     name ++ prio ++ perm
 
 instance : ToMessageData SimpLemma where
-  toMessageData s := fmt s
+  toMessageData s := format s
 
 instance : BEq SimpLemma where
   beq e₁ e₂ := e₁.proof == e₂.proof

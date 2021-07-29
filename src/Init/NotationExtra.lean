@@ -111,9 +111,9 @@ macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBi
   | _                       => throw ()
 
 @[appUnexpander Prod.mk] def unexpandProdMk : Lean.PrettyPrinter.Unexpander
-  | `(Prod.mk $x `(($y, $ys,*))) => `(($x, $y, $ys,*))
-  | `(Prod.mk $x $y)             => `(($x, $y))
-  | _                            => throw ()
+  | `(Prod.mk $x ($y, $ys,*)) => `(($x, $y, $ys,*))
+  | `(Prod.mk $x $y)          => `(($x, $y))
+  | _                         => throw ()
 
 @[appUnexpander ite] def unexpandIte : Lean.PrettyPrinter.Unexpander
   | `(ite $c $t $e) => `(if $c then $t else $e)

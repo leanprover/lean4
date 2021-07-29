@@ -400,11 +400,15 @@ def topDownAnalyze (e : Expr) : MetaM OptionsPerPos := do
   traceCtx `pp.analyze do
     withReader (fun ctx => { ctx with config := Lean.Elab.Term.setElabConfig ctx.config }) do
       let ϕ : AnalyzeM OptionsPerPos := do analyze; (← get).annotations
-      ϕ { knowsType := true, knowsLevel := true } (mkRoot e) |>.run' {}
+      try ϕ { knowsType := true, knowsLevel := true } (mkRoot e) |>.run' {}
+      catch ex =>
+        trace[pp.analyze.error] "{← ex.toMessageData.toString}"
+        pure {}
 
 builtin_initialize
   registerTraceClass `pp.analyze
   registerTraceClass `pp.analyze.annotate
   registerTraceClass `pp.analyze.tryUnify
+  registerTraceClass `pp.analyze.error
 
 end Lean.PrettyPrinter.Delaborator

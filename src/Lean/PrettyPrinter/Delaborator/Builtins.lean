@@ -464,17 +464,19 @@ def delabLam : Delab :=
     let usedDownstream ← curNames.any (fun n => hasIdent n.getId stxBody)
 
     -- leave lambda implicit if possible
-    -- TODO: for now we just always block implicit lambdas. Once other things work, we can revisit.
+    -- TODO: for now we just always block implicit lambdas when delaborating. We can revisit.
     -- Note: the current issue is that it requires state, i.e. if *any* previous binder was implicit,
     -- it doesn't seem like we can leave a subsequent binder implicit.
-    let blockImplicitLambda := true ||
-      expl ||
+    let blockImplicitLambda := true
+    /-
+    let blockImplicitLambda := expl ||
       e.binderInfo == BinderInfo.default ||
       -- Note: the following restriction fixes many issues with roundtripping,
       -- but this condition may still not be perfectly in sync with the elaborator.
       e.binderInfo == BinderInfo.instImplicit ||
       Elab.Term.blockImplicitLambda stxBody ||
       usedDownstream
+    -/
 
     if !blockImplicitLambda then
       pure stxBody

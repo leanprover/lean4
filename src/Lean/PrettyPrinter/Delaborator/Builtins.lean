@@ -212,7 +212,7 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
     fields := fields.push field
   let lastField := fields.back
   fields := fields.pop
-  let tyStx ← withAppType do
+  let tyStx ← withType do
     if (← getPPOption getPPStructureInstanceType) then delab >>= pure ∘ some else pure none
   `({ $[$fields, ]* $lastField $[: $tyStx]? })
 

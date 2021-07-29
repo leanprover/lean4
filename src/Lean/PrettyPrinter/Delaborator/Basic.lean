@@ -349,15 +349,16 @@ partial def delab : Delab := do
       try
         let ty ← Meta.inferType (← getExpr)
         if ← Meta.isProp ty then
+          let stx ← withType delab
           if ← getPPOption getPPProofsWithType then
-            return ← ``((_ : $(← descend ty 0 delab)))
+            return ←  ``((_ : $stx))
           else
             return ← ``(_)
       catch _ => pure ()
   let k ← getExprKind
   let stx ← delabFor k <|> (liftM $ show MetaM Syntax from throwError "don't know how to delaborate '{k}'")
-  if ← getPPOption getPPAnalyzeTypeAscriptions <&&> getPPOption getPPAnalysisNeedsType <&&> (pure (← getExpr).isApp) then
-    let typeStx ← withAppType delab
+  if ← getPPOption getPPAnalyzeTypeAscriptions <&&> getPPOption getPPAnalysisNeedsType then
+    let typeStx ← withType delab
     `(($stx:term : $typeStx:term)) >>= annotateCurPos
   else stx
 

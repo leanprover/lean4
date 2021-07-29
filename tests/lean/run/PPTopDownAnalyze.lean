@@ -185,6 +185,9 @@ set_option pp.analyze.trustSubst true in
 #testDelab (fun (x y z : Nat) (hxy : x = y) (hyz : x = z) => hxy ▸ hyz : ∀ (x y z : Nat), x = y → x = z → y = z)
   expecting fun x y z hxy hyz => hxy ▸ hyz
 
+#testDelab let xs := #[true]; xs
+  expecting let xs := #[true]; xs
+
 def fooReadGetModify : ReaderT Unit (StateT Unit IO) Unit := do
   let _ ← read
   let _ ← get

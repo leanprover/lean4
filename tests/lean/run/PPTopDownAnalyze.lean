@@ -232,6 +232,9 @@ set_option pp.analyze.trustCoe false in
 set_option pp.analyze.trustCoe true in
 #testDelab coeFun true false expecting true false
 
+#testDelab fun (xs : List Nat) => xs ≠ xs
+  expecting fun xs => xs ≠ xs
+
 #testDelabN Nat.brecOn
 #testDelabN Nat.below
 #testDelabN Nat.mod_lt

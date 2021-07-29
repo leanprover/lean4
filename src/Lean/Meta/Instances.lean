@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.ScopedEnvExtension
+import Lean.Meta.GlobalInstances
 import Lean.Meta.DiscrTree
 
 namespace Lean.Meta
@@ -25,16 +26,10 @@ instance : ToFormat InstanceEntry where
 
 structure Instances where
   discrTree       : DiscrTree InstanceEntry := DiscrTree.empty
-  globalInstances : NameSet := {}
   deriving Inhabited
 
-def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances := {
-  d with
-    discrTree := d.discrTree.insertCore e.keys e
-    globalInstances := match e.globalName? with
-      | some n => d.globalInstances.insert n
-      | none   => d.globalInstances
-}
+def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
+  { d with discrTree := d.discrTree.insertCore e.keys e }
 
 builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry Instances ←
   registerSimpleScopedEnvExtension {
@@ -52,6 +47,7 @@ private def mkInstanceKey (e : Expr) : MetaM (Array DiscrTree.Key) := do
 def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let c ← mkConstWithLevelParams declName
   let keys ← mkInstanceKey c
+  addGlobalInstance declName attrKind
   instanceExtension.add { keys := keys, val := c, priority := prio, globalName? := declName } attrKind
 
 builtin_initialize
@@ -62,10 +58,6 @@ builtin_initialize
       let prio ← getAttrParamOptPrio stx[1]
       discard <| addInstance declName attrKind prio |>.run {} {}
   }
-
-@[export lean_is_instance]
-def isGlobalInstance (env : Environment) (declName : Name) : Bool :=
-  Meta.instanceExtension.getState env |>.globalInstances.contains declName
 
 def getGlobalInstancesIndex : MetaM (DiscrTree InstanceEntry) :=
   return Meta.instanceExtension.getState (← getEnv) |>.discrTree

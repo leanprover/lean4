@@ -195,6 +195,17 @@ def isFunLike (e : Expr) : MetaM Bool := do
 def isSubstLike (e : Expr) : Bool :=
   e.isAppOfArity `Eq.ndrec 6
 
+def nameNotRoundtrippable (n : Name) : Bool :=
+  n.hasMacroScopes || isPrivateName n || containsNum n
+where
+  containsNum
+    | Name.str p .. => containsNum p
+    | Name.num ..   => true
+    | Name.anonymous => false
+
+def mvarName (mvar : Expr) : MetaM Name := do
+  (← getMVarDecl mvar.mvarId!).userName
+
 open SubExpr
 
 structure Context where
@@ -218,16 +229,21 @@ def checkKnowsType : AnalyzeM Unit := do
   if not (← read).knowsType then
     throw $ Exception.internal analyzeFailureId
 
-def annotateBool (n : Name) (b : Bool) : AnalyzeM Unit := do
-  let pos ← getPos
+def annotateBoolAt (n : Name) (b : Bool) (pos : Pos) : AnalyzeM Unit := do
   let opts := (← get).annotations.findD pos {} |>.setBool n b
   trace[pp.analyze.annotate] "{pos} {n} {b}"
   modify fun s => { s with annotations := s.annotations.insert pos opts }
 
-def annotateName (n : Name) (v : Name) : AnalyzeM Unit := do
-  let pos ← getPos
-  let opts := (← get).annotations.findD pos {} |>.setName n v
-  modify fun s => { s with annotations := s.annotations.insert pos opts }
+def annotateBool (n : Name) (b : Bool) : AnalyzeM Unit := do
+  annotateBoolAt n b (← getPos)
+
+def annotateNamedArg (n : Name) (appPos : Pos) : AnalyzeM Bool := do
+  if nameNotRoundtrippable n then
+    annotateBoolAt `pp.explicit true appPos
+    return false
+  else
+    annotateBool `pp.analysis.namedArg true
+    return true
 
 partial def analyze (parentIsApp : Bool := false) : AnalyzeM Unit := do
   checkMaxHeartbeats "Delaborator.topDownAnalyze"
@@ -289,6 +305,7 @@ where
     if !f.isApp then withKnowing false !(← instantiateMVars fType).hasLevelMVar $ withNaryFn (analyze (parentIsApp := true))
 
     let disableNamedImplicits : Bool := getPPAnalyzeTrustSubst (← getOptions) && isSubstLike (← getExpr)
+    let appPos ← getPos
 
     for i in [:args.size] do
       let arg := args[i]
@@ -298,10 +315,15 @@ where
         withReader (fun ctx => { ctx with inBottomUp := ctx.inBottomUp || bottomUps[i] }) do
           match bInfos[i] with
           | BinderInfo.default =>
-            if !(← valUnknown mvars[i]) && !(← read).inBottomUp && !(← isFunLike arg) then annotateBool `pp.analysis.hole true
+            if !(← valUnknown mvars[i]) && !(← read).inBottomUp && !(← isFunLike arg) then
+              annotateBool `pp.analysis.hole true
+
           | BinderInfo.implicit =>
-            if (← valUnknown mvars[i] <||> higherOrders[i]) && !disableNamedImplicits then annotateBool `pp.analysis.namedArg true
-            else annotateBool `pp.analysis.skip true
+            if (← valUnknown mvars[i] <||> higherOrders[i]) && !disableNamedImplicits then
+              discard <| annotateNamedArg (← mvarName mvars[i]) appPos
+            else
+              annotateBool `pp.analysis.skip true
+
           | BinderInfo.instImplicit =>
             -- Note: apparently checking valUnknown here is not sound, because the elaborator
             -- will not happily assign instImplicits that it cannot synthesize
@@ -311,7 +333,7 @@ where
               | LOption.some inst =>
                 if ← checkpointDefEq inst arg then annotateBool `pp.analysis.skip true
                 else annotateBool `pp.analysis.namedArg true
-              | _                 => annotateBool `pp.analysis.namedArg true
+              | _                 => discard <| annotateNamedArg (← mvarName mvars[i]) appPos
           | BinderInfo.auxDecl        => pure ()
           | BinderInfo.strictImplicit => unreachable!
           withKnowing (not (← typeUnknown mvars[i])) true analyze

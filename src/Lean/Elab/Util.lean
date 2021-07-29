@@ -17,7 +17,7 @@ def Syntax.prettyPrint (stx : Syntax) : Format :=
   | none     => format stx
 
 def MacroScopesView.format (view : MacroScopesView) (mainModule : Name) : Format :=
-  fmt $
+  Std.format $
     if view.scopes.isEmpty then
       view.name
     else if view.mainModule == mainModule then

@@ -92,8 +92,8 @@ def nil : MessageData :=
   ofFormat Format.nil
 
 def isNil : MessageData → Bool
-  | ofFormat Format.nil => true
-  | _                   => false
+  | ofFormat (Format.nil _) => true
+  | _                       => false
 
 def isNest : MessageData → Bool
   | nest _ _ => true
@@ -106,8 +106,8 @@ def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext :=
 
 partial def formatAux : NamingContext → Option MessageDataContext → MessageData → IO Format
   | _,    _,         ofFormat fmt             => pure fmt
-  | _,    _,         ofLevel u                => pure $ fmt u
-  | _,    _,         ofName n                 => pure $ fmt n
+  | _,    _,         ofLevel u                => pure $ format u
+  | _,    _,         ofName n                 => pure $ format n
   | nCtx, some ctx,  ofSyntax s               => ppTerm (mkPPContext nCtx ctx) s  -- HACK: might not be a term
   | _,    none,      ofSyntax s               => pure $ s.formatStx
   | _,    none,      ofExpr e                 => pure $ format (toString e)
@@ -267,10 +267,10 @@ export ToMessageData (toMessageData)
 
 def stringToMessageData (str : String) : MessageData :=
   let lines := str.split (· == '\n')
-  let lines := lines.map (MessageData.ofFormat ∘ fmt)
+  let lines := lines.map (MessageData.ofFormat ∘ format)
   MessageData.joinSep lines (MessageData.ofFormat Format.line)
 
-instance {α} [ToFormat α] : ToMessageData α := ⟨MessageData.ofFormat ∘ fmt⟩
+instance {α} [ToFormat α] : ToMessageData α := ⟨MessageData.ofFormat ∘ format⟩
 instance : ToMessageData Expr          := ⟨MessageData.ofExpr⟩
 instance : ToMessageData Level         := ⟨MessageData.ofLevel⟩
 instance : ToMessageData Name          := ⟨MessageData.ofName⟩

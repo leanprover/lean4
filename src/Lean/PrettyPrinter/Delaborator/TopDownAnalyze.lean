@@ -76,9 +76,6 @@ def getPPAnalysisNeedsExplicit (o : Options) : Bool := o.get `pp.analysis.needsE
 
 namespace PrettyPrinter.Delaborator
 
--- TODO: elsewhere
-deriving instance Repr for BinderInfo
-
 def returnsPi (motive : Expr) : MetaM Bool := do
   lambdaTelescope motive fun xs b => b.isForall
 

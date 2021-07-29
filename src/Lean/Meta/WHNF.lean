@@ -200,7 +200,7 @@ end
    =========================== -/
 
 /-- Auxiliary combinator for handling easy WHNF cases. It takes a function for handling the "hard" cases as an argument -/
-@[specialize] private partial def whnfEasyCases (e : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
+@[specialize] partial def whnfEasyCases (e : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
   match e with
   | Expr.forallE ..    => return e
   | Expr.lam ..        => return e

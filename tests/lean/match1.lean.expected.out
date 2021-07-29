@@ -21,31 +21,34 @@ constructor expected
 [false, true, true]
 match1.lean:136:7-136:22: error: invalid match-expression, type of pattern variable 'a' contains metavariables
   ?m
-fun (x : ?m × ?m) => ?m x : ?m × ?m → ?m
-fun (x : Nat × Nat) =>
+fun x => ?m x : Prod.{u_1, u_2} ?m ?m → ?m
+fun x =>
   match x with 
   | (a, b) => a + b : Nat × Nat → Nat
-fun (x : Bool × Bool) =>
+fun x =>
   match x with 
   | (a, b) => a && b : Bool × Bool → Bool
-fun (x : Nat × Nat) =>
+fun x =>
   match x with 
   | (a, b) => a + b : Nat × Nat → Nat
-fun (x x_1 : Option Nat) =>
+fun x x_1 =>
   match x, x_1 with 
   | some a, some b => some (a + b)
   | x, x_2 => none : Option Nat → Option Nat → Option Nat
-fun (x : Nat) =>
+fun x =>
   (match x : Nat → Nat → Nat with 
     | 0 => id
     | Nat.succ x => id)
     x : Nat → Nat
-fun (x : Array Nat) =>
+fun x =>
   match x with 
   | #[1, 2] => 2
   | #[] => 0
   | #[3, 4, 5] => 3
   | x => 4 : Array Nat → Nat
-g.match_1 : (motive : List ?m → Sort u_2) →
-  (x : List ?m) → ((a : ?m) → motive [a]) → ((x : List ?m) → motive x) → motive x
-fun (e : Empty) => nomatch e : Empty → False
+g.match_1 (α :=
+  ?m) : (motive : List ?m → Sort u_2) →
+  (x : List ?m) →
+    ((a : ?m) → motive (List.cons (α := ?m) a (List.nil (α := ?m) : List ?m) : List ?m)) →
+      ((x : List ?m) → motive x) → motive x
+fun e => nomatch e : Empty → False

@@ -11,21 +11,19 @@ List Nat
 List.{0} Nat
 id.{2} Nat
 Sum.{0, 0} Nat Nat
-id (@id Type Nat)
-fun (a : Nat) => a
-fun (a b : Nat) => a
-fun (a : Nat)
-  (b : Bool) => a
-fun {a b : Nat} => a
+id (id Nat)
+fun a => a
+fun a b => a
+fun a b => a
+fun {a b} => a
 typeAs
   ({α : Type} →
     α → α)
-  fun {α : Type}
-    (a : α) => a
-fun {α : Type}
+  fun {α} a => a
+fun {α}
   [inst :
     ToString α]
-  (a : α) =>
+  a =>
   @toString α inst a
 (α : Type) → α
 (α β : Type) → α
@@ -41,7 +39,7 @@ Type → Type → Type
   [inst :
     ToString Nat],
   x = x
-∀ x, x = x
+∀ (x : Nat), x = x
 0
 1
 42
@@ -53,10 +51,7 @@ Type → Type → Type
 (1, 2).fst
 decide (1 < 2) ||
   true
-id
-  (fun (a : Nat) =>
-    a)
-  0
+id (fun a => a) 0
 typeAs Nat
   do 
     let x ← pure 1

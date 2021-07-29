@@ -1,7 +1,7 @@
 [1, 2]
 6
-parserPrio.lean:26:7-26:10: error: ambiguous, possible interpretations 
-  2 * 1
+parserPrio.lean:28:7-28:10: error: ambiguous, possible interpretations 
+  HMul.hMul (α := ?m) (β := ?m) (γ := ?m) 2 1
   
-  [1]
+  List.cons (α := ?m) 1 (List.nil (α := ?m) : List ?m)
 [1, 2, 3]

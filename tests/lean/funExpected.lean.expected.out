@@ -1,4 +1,4 @@
 funExpected.lean:4:2-4:29: error: function expected at
-  List.map (fun (x : Nat) => x + 1) xs
+  List.map (β := ?m) (fun (x : Nat) => (HAdd.hAdd (β := ?m x) (γ := ?m) x 1 : ?m)) xs
 term has type
   List ?m

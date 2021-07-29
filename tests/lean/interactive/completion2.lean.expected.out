@@ -1,31 +1,53 @@
 {"textDocument": {"uri": "file://completion2.lean"},
  "position": {"line": 19, "character": 10}}
 {"items":
- [{"label": "ex2", "detail": "?a ≤ ?b → ?a + 2 ≤ ?b + 2"},
-  {"label": "ex3", "detail": "?a ≤ ?b → ?c ≤ ?d → ?a + ?c ≤ ?b + ?d"},
-  {"label": "ax1", "detail": "?a ≤ ?b → ?a - ?a ≤ ?b - ?b"},
-  {"label": "ex1", "detail": "?a ≤ ?b → ?a + ?a ≤ ?b + ?b"}],
+ [{"label": "ex2", "detail": "LE.le (α := Nat) ?a ?b → ?a + 2 ≤ ?b + 2"},
+  {"label": "ex3",
+   "detail":
+   "LE.le (α := Nat) ?a ?b → LE.le (α := Nat) ?c ?d → HAdd.hAdd (α := Nat) ?a ?c ≤ HAdd.hAdd (α := Nat) ?b ?d"},
+  {"label": "ax1",
+   "detail":
+   "LE.le (α := Nat) ?a ?b → HSub.hSub (α := Nat) ?a ?a ≤ HSub.hSub (α := Nat) ?b ?b"},
+  {"label": "ex1",
+   "detail":
+   "LE.le (α := Nat) ?a ?b → HAdd.hAdd (α := Nat) ?a ?a ≤ HAdd.hAdd (α := Nat) ?b ?b"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completion2.lean"},
  "position": {"line": 25, "character": 6}}
 {"items":
- [{"label": "ex2", "detail": "?a ≤ ?b → ?a + 2 ≤ ?b + 2"},
-  {"label": "ex3", "detail": "?a ≤ ?b → ?c ≤ ?d → ?a + ?c ≤ ?b + ?d"},
-  {"label": "ax1", "detail": "?a ≤ ?b → ?a - ?a ≤ ?b - ?b"},
-  {"label": "ex1", "detail": "?a ≤ ?b → ?a + ?a ≤ ?b + ?b"}],
+ [{"label": "ex2", "detail": "LE.le (α := Nat) ?a ?b → ?a + 2 ≤ ?b + 2"},
+  {"label": "ex3",
+   "detail":
+   "LE.le (α := Nat) ?a ?b → LE.le (α := Nat) ?c ?d → HAdd.hAdd (α := Nat) ?a ?c ≤ HAdd.hAdd (α := Nat) ?b ?d"},
+  {"label": "ax1",
+   "detail":
+   "LE.le (α := Nat) ?a ?b → HSub.hSub (α := Nat) ?a ?a ≤ HSub.hSub (α := Nat) ?b ?b"},
+  {"label": "ex1",
+   "detail":
+   "LE.le (α := Nat) ?a ?b → HAdd.hAdd (α := Nat) ?a ?a ≤ HAdd.hAdd (α := Nat) ?b ?b"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completion2.lean"},
  "position": {"line": 30, "character": 21}}
 {"items":
- [{"label": "ex2", "detail": "?a ≤ ?b → ?a + 2 ≤ ?b + 2"},
-  {"label": "ex3", "detail": "?a ≤ ?b → ?c ≤ ?d → ?a + ?c ≤ ?b + ?d"},
-  {"label": "ax1", "detail": "?a ≤ ?b → ?a - ?a ≤ ?b - ?b"},
-  {"label": "ex1", "detail": "?a ≤ ?b → ?a + ?a ≤ ?b + ?b"}],
+ [{"label": "ex2", "detail": "LE.le (α := Nat) ?a ?b → ?a + 2 ≤ ?b + 2"},
+  {"label": "ex3",
+   "detail":
+   "LE.le (α := Nat) ?a ?b → LE.le (α := Nat) ?c ?d → HAdd.hAdd (α := Nat) ?a ?c ≤ HAdd.hAdd (α := Nat) ?b ?d"},
+  {"label": "ax1",
+   "detail":
+   "LE.le (α := Nat) ?a ?b → HSub.hSub (α := Nat) ?a ?a ≤ HSub.hSub (α := Nat) ?b ?b"},
+  {"label": "ex1",
+   "detail":
+   "LE.le (α := Nat) ?a ?b → HAdd.hAdd (α := Nat) ?a ?a ≤ HAdd.hAdd (α := Nat) ?b ?b"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completion2.lean"},
  "position": {"line": 37, "character": 22}}
 {"items":
- [{"label": "ex2", "detail": "?a ≤ ?b → ?a + 2 ≤ ?b + 2"},
-  {"label": "ex3", "detail": "?a ≤ ?b → ?c ≤ ?d → ?a + ?c ≤ ?b + ?d"},
-  {"label": "ex1", "detail": "?a ≤ ?b → ?a + ?a ≤ ?b + ?b"}],
+ [{"label": "ex2", "detail": "LE.le (α := Nat) ?a ?b → ?a + 2 ≤ ?b + 2"},
+  {"label": "ex3",
+   "detail":
+   "LE.le (α := Nat) ?a ?b → LE.le (α := Nat) ?c ?d → HAdd.hAdd (α := Nat) ?a ?c ≤ HAdd.hAdd (α := Nat) ?b ?d"},
+  {"label": "ex1",
+   "detail":
+   "LE.le (α := Nat) ?a ?b → HAdd.hAdd (α := Nat) ?a ?a ≤ HAdd.hAdd (α := Nat) ?b ?b"}],
  "isIncomplete": true}

@@ -8,10 +8,10 @@ but is expected to have type
   Bool : Type
 g ?x ?x : Nat
 20
-foo (fun (x : Nat) => ?m x) ?hole : Nat
-bla ?hole fun (x : Nat) => ?hole : Nat
+foo (fun x => ?m x) ?hole : Nat
+bla ?hole fun x => ?hole : Nat
 namedHoles.lean:35:38-35:43: error: synthetic hole has already been defined with an incompatible local context
-boo (fun (x : Nat) => ?m x) fun (y : Bool) => sorry : Nat
+boo (fun x => ?m x) fun y => sorry : Nat
 11
 12
 namedHoles.lean:58:26-58:31: error: synthetic hole has already been defined and assigned to value incompatible with the current context

@@ -54,6 +54,12 @@ register_builtin_option pp.analyze.trustOfNat : Bool := {
   descr    := "(pretty printer analyzer) always 'pretend' `OfNat.ofNat` applications can elab bottom-up"
 }
 
+register_builtin_option pp.analyze.trustOfScientific : Bool := {
+  defValue := true
+  group    := "pp.analyze"
+  descr    := "(pretty printer analyzer) always 'pretend' `OfScientific.ofScientific` applications can elab bottom-up"
+}
+
 register_builtin_option pp.analyze.trustCoe : Bool := {
   defValue := false
   group    := "pp.analyze"
@@ -77,6 +83,7 @@ def getPPAnalyzeCheckInstances              (o : Options) : Bool := o.get pp.ana
 def getPPAnalyzeTypeAscriptions             (o : Options) : Bool := o.get pp.analyze.typeAscriptions.name pp.analyze.typeAscriptions.defValue
 def getPPAnalyzeTrustSubst                  (o : Options) : Bool := o.get pp.analyze.trustSubst.name pp.analyze.trustSubst.defValue
 def getPPAnalyzeTrustOfNat                  (o : Options) : Bool := o.get pp.analyze.trustOfNat.name pp.analyze.trustOfNat.defValue
+def getPPAnalyzeTrustOfScientific           (o : Options) : Bool := o.get pp.analyze.trustOfScientific.name pp.analyze.trustOfScientific.defValue
 def getPPAnalyzeTrustId                     (o : Options) : Bool := o.get pp.analyze.trustId.name pp.analyze.trustId.defValue
 def getPPAnalyzeTrustCoe                    (o : Options) : Bool := o.get pp.analyze.trustCoe.name pp.analyze.trustCoe.defValue
 def getPPAnalyzeTrustKnownFOType2TypeHOFuns (o : Options) : Bool := o.get pp.analyze.trustKnownFOType2TypeHOFuns.name pp.analyze.trustKnownFOType2TypeHOFuns.defValue
@@ -190,6 +197,7 @@ partial def okBottomUp? (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
   | fuel + 1 =>
     if e.isFVar || e.isNatLit || e.isStringLit then return BottomUpKind.safe
     if getPPAnalyzeTrustOfNat (← getOptions) && e.isAppOfArity `OfNat.ofNat 3 then return BottomUpKind.safe
+    if getPPAnalyzeTrustOfScientific (← getOptions) && e.isAppOfArity `OfScientific.ofScientific 5 then return BottomUpKind.safe
     let f := e.getAppFn
     if !f.isConst && !f.isFVar then return BottomUpKind.unsafe
     let args := e.getAppArgs
@@ -267,7 +275,6 @@ def annotateNamedArg (n : Name) (appPos : Pos) : AnalyzeM Bool := do
     return true
 
 partial def analyze (parentIsApp : Bool := false) : AnalyzeM Unit := do
-  println! "[analyze] {fmt (← getExpr)}"
   checkMaxHeartbeats "Delaborator.topDownAnalyze"
   trace[pp.analyze] "{(← read).knowsType}.{(← read).knowsLevel}"
   withReader (fun ctx => { ctx with parentIsApp := parentIsApp }) do

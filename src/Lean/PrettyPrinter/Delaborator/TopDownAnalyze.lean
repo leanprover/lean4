@@ -135,6 +135,29 @@ def isCoe (e : Expr) : Bool :=
 
 namespace TopDownAnalyze
 
+private def valUnknown (e : Expr) : MetaM Bool := do
+  (← instantiateMVars e).hasMVar
+
+private def typeUnknown (e : Expr) : MetaM Bool := do
+  (← instantiateMVars (← inferType e)).hasMVar
+
+
+def isHBinOp (e : Expr) : Bool := do
+  -- TODO: instead of tracking these explicitly,
+  -- consider a more general solution that checks for defaultInstances
+  if e.getAppNumArgs != 6 then return false
+  let f := e.getAppFn
+  if !f.isConst then return false
+
+  -- Note: we leave out `HPow.hPow because we expect its homogeneous
+  -- version will change soon
+  let ops := #[
+    `HOr.hOr, `HXor.hXor, `HAnd.hAnd,
+    `HAppend.hAppend, `HOrElse.hOrElse, `HAndThen.hAndThen,
+    `HAdd.hAdd, `HSub.hSub, `HMul.hMul, `HDiv.hDiv, `HMod.hMod,
+    `HShiftLeft.hShiftLeft, `HShiftRight]
+  ops.any fun op => op == f.constName!
+
 def replaceLPsWithVars (e : Expr) : MetaM Expr := do
   let lps := collectLevelParams {} e |>.params
   let mut replaceMap : Std.HashMap Name Level := {}
@@ -214,6 +237,7 @@ partial def okBottomUp? (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
         match ← okBottomUp? args[i] mvars[i] fuel with
         | ⟨false, false⟩ => tryUnify args[i] mvars[i]
         | _              => pure ()
+    if ← (isHBinOp e <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then tryUnify mvars[0] mvars[1]
     if mvar?.isSome then tryUnify resultType (← inferType mvar?.get!)
     let resultType ← instantiateMVars resultType
     pure ⟨resultType.hasExprMVar, resultType.hasLevelMVar⟩
@@ -348,6 +372,8 @@ where
       tryUnify args[i] mvars[i]
       higherOrders := higherOrders.set! i true
 
+    if ← (isHBinOp (← getExpr) <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then tryUnify mvars[0] mvars[1]
+
     let forceRegularApp : Bool :=
       (getPPAnalyzeTrustSubst (← getOptions) && isSubstLike (← getExpr))
       || (getPPAnalyzeTrustCoe (← getOptions) && isCoe (← getExpr))
@@ -425,12 +451,6 @@ where
   analyzeProj  : AnalyzeM Unit := withProj analyze
   analyzeFVar  : AnalyzeM Unit := maybeAddExplicit
   analyzeMData : AnalyzeM Unit := withMDataExpr analyze
-
-  valUnknown (e : Expr) : AnalyzeM Bool := do
-    (← instantiateMVars e).hasMVar
-
-  typeUnknown (e : Expr) : AnalyzeM Bool := do
-    (← instantiateMVars (← inferType e)).hasMVar
 
 end TopDownAnalyze
 

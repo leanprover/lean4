@@ -433,13 +433,19 @@ end TopDownAnalyze
 open TopDownAnalyze SubExpr
 
 def topDownAnalyze (e : Expr) : MetaM OptionsPerPos := do
+  let s₀ ← get
+  let uResult := (← getMCtx).levelMVarToParam e (alreadyUsedPred := fun _ => false) (paramNamePrefix := `_pp_analyze)
+  setMCtx uResult.mctx
+  let e := uResult.expr
   traceCtx `pp.analyze do
     withReader (fun ctx => { ctx with config := Lean.Elab.Term.setElabConfig ctx.config }) do
       let ϕ : AnalyzeM OptionsPerPos := do analyze; (← get).annotations
-      try ϕ { knowsType := true, knowsLevel := true } (mkRoot e) |>.run' {}
+      try
+        ϕ { knowsType := true, knowsLevel := true } (mkRoot e) |>.run' {}
       catch ex =>
         trace[pp.analyze.error] "failed"
         pure {}
+      finally set s₀
 
 builtin_initialize
   registerTraceClass `pp.analyze

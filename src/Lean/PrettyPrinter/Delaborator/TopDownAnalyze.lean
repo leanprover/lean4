@@ -54,6 +54,12 @@ register_builtin_option pp.analyze.trustOfNat : Bool := {
   descr    := "(pretty printer analyzer) always 'pretend' `OfNat.ofNat` applications can elab bottom-up"
 }
 
+register_builtin_option pp.analyze.trustCoe : Bool := {
+  defValue := false
+  group    := "pp.analyze"
+  descr    := "(pretty printer analyzer) always assume a coercion can be correctly inserted"
+}
+
 register_builtin_option pp.analyze.trustId : Bool := {
   defValue := true
   group    := "pp.analyze"
@@ -72,6 +78,7 @@ def getPPAnalyzeTypeAscriptions             (o : Options) : Bool := o.get pp.ana
 def getPPAnalyzeTrustSubst                  (o : Options) : Bool := o.get pp.analyze.trustSubst.name pp.analyze.trustSubst.defValue
 def getPPAnalyzeTrustOfNat                  (o : Options) : Bool := o.get pp.analyze.trustOfNat.name pp.analyze.trustOfNat.defValue
 def getPPAnalyzeTrustId                     (o : Options) : Bool := o.get pp.analyze.trustId.name pp.analyze.trustId.defValue
+def getPPAnalyzeTrustCoe                    (o : Options) : Bool := o.get pp.analyze.trustCoe.name pp.analyze.trustCoe.defValue
 def getPPAnalyzeTrustKnownFOType2TypeHOFuns (o : Options) : Bool := o.get pp.analyze.trustKnownFOType2TypeHOFuns.name pp.analyze.trustKnownFOType2TypeHOFuns.defValue
 
 def getPPAnalysisSkip          (o : Options) : Bool := o.get `pp.analysis.skip false
@@ -206,6 +213,10 @@ def isFunLike (e : Expr) : MetaM Bool := do
 def isSubstLike (e : Expr) : Bool :=
   e.isAppOfArity `Eq.ndrec 6
 
+def isCoeLike (e : Expr) : Bool :=
+  -- TODO: `coeSort? Builtins doesn't seem to render them anyway
+  e.isAppOfArity `coe 4 || e.isAppOfArity `coeFun 4
+
 def nameNotRoundtrippable (n : Name) : Bool :=
   n.hasMacroScopes || isPrivateName n || containsNum n
 where
@@ -313,10 +324,13 @@ where
       tryUnify args[i] mvars[i]
       higherOrders := higherOrders.set! i true
 
-    -- Now, if this is the first staging, analyze the n-ary function without expected type
-    if !f.isApp then withKnowing false !(← instantiateMVars fType).hasLevelMVar $ withNaryFn (analyze (parentIsApp := true))
+    let forceRegularApp : Bool :=
+      (getPPAnalyzeTrustSubst (← getOptions) && isSubstLike (← getExpr))
+      || (getPPAnalyzeTrustCoe (← getOptions) && isCoeLike (← getExpr))
 
-    let disableNamedImplicits : Bool := getPPAnalyzeTrustSubst (← getOptions) && isSubstLike (← getExpr)
+    -- Now, if this is the first staging, analyze the n-ary function without expected type
+    if !f.isApp then withKnowing false (forceRegularApp || !(← instantiateMVars fType).hasLevelMVar) $ withNaryFn (analyze (parentIsApp := true))
+
     let appPos ← getPos
 
     for i in [:args.size] do
@@ -331,7 +345,7 @@ where
               annotateBool `pp.analysis.hole
 
           | BinderInfo.implicit =>
-            if (← valUnknown mvars[i] <||> higherOrders[i]) && !disableNamedImplicits then
+            if (← valUnknown mvars[i] <||> higherOrders[i]) && !forceRegularApp then
               discard <| annotateNamedArg (← mvarName mvars[i]) appPos
             else
               annotateBool `pp.analysis.skip

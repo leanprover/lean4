@@ -116,6 +116,12 @@ def isIdLike (arg : Expr) : Bool := do
   | Expr.lam _ _ (Expr.bvar ..) .. => true
   | _ => false
 
+def isCoe (e : Expr) : Bool :=
+  -- TODO: `coeSort? Builtins doesn't seem to render them anyway
+  e.isAppOfArity `coe 4
+  || (e.isAppOf `coeFun && e.getAppNumArgs >= 4)
+  || e.isAppOfArity `coeSort 4
+
 namespace TopDownAnalyze
 
 def replaceLPsWithVars (e : Expr) : MetaM Expr := do
@@ -212,10 +218,6 @@ def isFunLike (e : Expr) : MetaM Bool := do
 
 def isSubstLike (e : Expr) : Bool :=
   e.isAppOfArity `Eq.ndrec 6
-
-def isCoeLike (e : Expr) : Bool :=
-  -- TODO: `coeSort? Builtins doesn't seem to render them anyway
-  e.isAppOfArity `coe 4 || e.isAppOfArity `coeFun 4
 
 def nameNotRoundtrippable (n : Name) : Bool :=
   n.hasMacroScopes || isPrivateName n || containsNum n
@@ -326,7 +328,7 @@ where
 
     let forceRegularApp : Bool :=
       (getPPAnalyzeTrustSubst (← getOptions) && isSubstLike (← getExpr))
-      || (getPPAnalyzeTrustCoe (← getOptions) && isCoeLike (← getExpr))
+      || (getPPAnalyzeTrustCoe (← getOptions) && isCoe (← getExpr))
 
     -- Now, if this is the first staging, analyze the n-ary function without expected type
     if !f.isApp then withKnowing false (forceRegularApp || !(← instantiateMVars fType).hasLevelMVar) $ withNaryFn (analyze (parentIsApp := true))

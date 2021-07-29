@@ -225,6 +225,13 @@ set_option pp.analyze.typeAscriptions false in
 #testDelab (fun (x : Unit) => @id (ReaderT Bool IO Bool) (do read : ReaderT Bool IO Bool)) ()
   expecting (fun (x : Unit) => id read) ()
 
+instance : CoeFun Bool (fun b => Bool → Bool) := { coe := fun b x => b && x }
+set_option pp.analyze.trustCoe false in
+#testDelab coeFun true false expecting coeFun (γ := fun b => Bool → Bool) true false
+
+set_option pp.analyze.trustCoe true in
+#testDelab coeFun true false expecting true false
+
 #testDelabN Nat.brecOn
 #testDelabN Nat.below
 #testDelabN Nat.mod_lt

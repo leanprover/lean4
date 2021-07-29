@@ -189,16 +189,12 @@ def unexpandRegularApp (stx : Syntax) : Delab := do
 -- abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β
 -- abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a
 def unexpandCoe (stx : Syntax) : Delab := whenPPOption getPPCoercions do
-  if not (← isCoe) then failure
+  if not (← isCoe (← getExpr)) then failure
   let e ← getExpr
   match stx with
   | `($fn $arg)   => arg
   | `($fn $args*) => `($(args.get! 0) $(args.eraseIdx 0)*)
   | _             => failure
-where
-  isCoe : DelabM Bool := do
-    let e ← getExpr
-    e.isAppOfArity `coe 4 || e.isAppOfArity `coeFun 4
 
 def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStructureInstances do
   let env ← getEnv

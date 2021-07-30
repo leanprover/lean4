@@ -82,6 +82,12 @@ register_builtin_option pp.analyze.trustKnownFOType2TypeHOFuns : Bool := {
   descr    := "(pretty printer analyzer) omit higher-order functions whose values seem to be knownType2Type"
 }
 
+register_builtin_option pp.analyze.omitMax : Bool := {
+  defValue := true
+  group    := "pp.analyze"
+  descr    := "(pretty printer analyzer) omit universe `max` annotations (these constraints can actually hurt)"
+}
+
 def getPPAnalyze                            (o : Options) : Bool := o.get pp.analyze.name pp.analyze.defValue
 def getPPAnalyzeCheckInstances              (o : Options) : Bool := o.get pp.analyze.checkInstances.name pp.analyze.checkInstances.defValue
 def getPPAnalyzeTypeAscriptions             (o : Options) : Bool := o.get pp.analyze.typeAscriptions.name pp.analyze.typeAscriptions.defValue
@@ -91,6 +97,7 @@ def getPPAnalyzeTrustOfScientific           (o : Options) : Bool := o.get pp.ana
 def getPPAnalyzeTrustId                     (o : Options) : Bool := o.get pp.analyze.trustId.name pp.analyze.trustId.defValue
 def getPPAnalyzeTrustCoe                    (o : Options) : Bool := o.get pp.analyze.trustCoe.name pp.analyze.trustCoe.defValue
 def getPPAnalyzeTrustKnownFOType2TypeHOFuns (o : Options) : Bool := o.get pp.analyze.trustKnownFOType2TypeHOFuns.name pp.analyze.trustKnownFOType2TypeHOFuns.defValue
+def getPPAnalyzeOmitMax                     (o : Options) : Bool := o.get pp.analyze.omitMax.name pp.analyze.omitMax.defValue
 
 def getPPAnalysisSkip          (o : Options) : Bool := o.get `pp.analysis.skip false
 def getPPAnalysisHole          (o : Options) : Bool := o.get `pp.analysis.hole false
@@ -262,6 +269,12 @@ where
 def mvarName (mvar : Expr) : MetaM Name := do
   (← getMVarDecl mvar.mvarId!).userName
 
+def containsBadMax : Level → Bool
+  | Level.succ u ..   => containsBadMax u
+  | Level.max u v ..  => (u.hasParam && v.hasParam) || containsBadMax u || containsBadMax v
+  | Level.imax u v .. => containsBadMax u || containsBadMax v
+  | _                 => false
+
 open SubExpr
 
 structure Context where
@@ -374,6 +387,8 @@ where
 
     if ← (isHBinOp (← getExpr) <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then tryUnify mvars[0] mvars[1]
 
+    discard <| processPostponed (mayPostpone := true)
+
     let forceRegularApp : Bool :=
       (getPPAnalyzeTrustSubst (← getOptions) && isSubstLike (← getExpr))
       || (getPPAnalyzeTrustCoe (← getOptions) && isCoe (← getExpr))
@@ -426,8 +441,10 @@ where
 
   analyzeConst : AnalyzeM Unit := do
     let Expr.const n ls .. ← getExpr | unreachable!
-    if !(← read).knowsLevel && !ls.isEmpty then annotateBool `pp.universes
-    maybeAddExplicit
+    if !(← read).knowsLevel && !ls.isEmpty then
+      -- TODO: this is a very crude heuristic, motivated by https://github.com/leanprover/lean4/issues/590
+      unless getPPAnalyzeOmitMax (← getOptions) && ls.any containsBadMax do
+      annotateBool `pp.universes
 
   analyzePi : AnalyzeM Unit := do
     annotateBool `pp.binderTypes

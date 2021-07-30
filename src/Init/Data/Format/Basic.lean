@@ -17,7 +17,7 @@ inductive Format.FlattenBehavior where
 
 open Format
 
-inductive Format (τ := Empty) where
+inductive Format (τ := Nat) where
   | nil {}              : Format τ
   | line {}             : Format τ
   | text                : String → Format τ
@@ -194,12 +194,34 @@ def pretty (f : Format τ) (w : Nat := defWidth) : String :=
 protected def prettyEx (f : Format) (w : Nat := defWidth) : String :=
   pretty f w
 
+def map (f : α → β) (fmt : Format α) : Format β :=
+  go fmt
+  where go : Format α → Format β
+    | nil _        => nil _
+    | line _       => line _
+    | text s       => text s
+    | nest i a     => nest i (go a)
+    | append a₁ a₂ => append (go a₁) (go a₂)
+    | group a b    => group (go a) b
+    | tag t a      => tag (f t) (go a)
+
+def mapM [Monad m] (f : α → m β) (fmt : Format α) : m (Format β) :=
+  go fmt
+  where go : Format α → m (Format β)
+    | nil _        => nil _
+    | line _       => line _
+    | text s       => text s
+    | nest i a     => do nest i (← go a)
+    | append a₁ a₂ => do append (← go a₁) (← go a₂)
+    | group a b    => do group (← go a) b
+    | tag t a      => do tag (← f t) (← go a)
+
 end Format
 
-class ToFormat (α : Type u) (τ : Type := Empty) where
+class ToFormat (α : Type u) (τ : Type := Nat) where
   format : α → Format τ
 
-def format {α : Type u} (a : α) (τ : Type := Empty) [ToFormat α τ] : Format τ :=
+def format {α : Type u} (a : α) (τ : Type := Nat) [ToFormat α τ] : Format τ :=
   ToFormat.format a
 
 -- note: must take precendence over the above instance to avoid premature formatting

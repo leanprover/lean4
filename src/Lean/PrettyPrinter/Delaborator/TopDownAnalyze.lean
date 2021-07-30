@@ -445,6 +445,7 @@ where
       -- TODO: this is a very crude heuristic, motivated by https://github.com/leanprover/lean4/issues/590
       unless getPPAnalyzeOmitMax (← getOptions) && ls.any containsBadMax do
       annotateBool `pp.universes
+    maybeAddExplicit
 
   analyzePi : AnalyzeM Unit := do
     annotateBool `pp.binderTypes
@@ -458,10 +459,14 @@ where
 
   analyzeLet : AnalyzeM Unit := do
     let Expr.letE n t v body .. ← getExpr | unreachable!
-    let needsType := (← okBottomUp? v).needsType
-    if needsType then annotateBool `pp.analysis.letVarType
-    withLetValue $ withKnowing true true analyze
-    withLetVarType $ withKnowing true false analyze
+    if (← okBottomUp? v).needsType then
+      annotateBool `pp.analysis.letVarType
+      withLetVarType $ withKnowing true false analyze
+      withLetValue $ withKnowing true true analyze
+    else
+      withReader (fun ctx => { ctx with inBottomUp := true }) do
+        withLetValue $ withKnowing true true analyze
+
     withLetBody analyze
 
   analyzeSort  : AnalyzeM Unit := pure ()

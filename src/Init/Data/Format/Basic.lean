@@ -195,7 +195,7 @@ protected def prettyEx (f : Format) (w : Nat := defWidth) : String :=
   pretty f w
 
 def map (f : α → β) (fmt : Format α) : Format β :=
-  go fmt
+    go fmt
   where go : Format α → Format β
     | nil _        => nil _
     | line _       => line _
@@ -206,7 +206,7 @@ def map (f : α → β) (fmt : Format α) : Format β :=
     | tag t a      => tag (f t) (go a)
 
 def mapM [Monad m] (f : α → m β) (fmt : Format α) : m (Format β) :=
-  go fmt
+    go fmt
   where go : Format α → m (Format β)
     | nil _        => nil _
     | line _       => line _

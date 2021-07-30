@@ -9,7 +9,10 @@ fun a =>
       (@BEq.beq.{0} Nat (@instBEq.{0} Nat fun a b => instDecidableEqNat a b) a
         (@OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)))
       Bool.true)
-    (instDecidableEqBool _ _)
+    (instDecidableEqBool
+      (@BEq.beq.{0} Nat (@instBEq.{0} Nat fun a b => instDecidableEqNat a b) a
+        (@OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)))
+      Bool.true)
     (@Eq.{1} Bool
       (@bne.{0} Nat (@instBEq.{0} Nat fun a b => instDecidableEqNat a b) a (@OfNat.ofNat.{0} Nat 1 (instOfNatNat 1)))
       Bool.true)

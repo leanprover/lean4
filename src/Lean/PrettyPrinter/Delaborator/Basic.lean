@@ -391,7 +391,7 @@ def delab (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (options
     catch _ => pure ()
   let e ← if getPPInstantiateMVars opts then ← Meta.instantiateMVars e else e
   let optionsPerPos ←
-    if getPPAnalyze opts && optionsPerPos.isEmpty then
+    if !getPPAll opts && getPPAnalyze opts && optionsPerPos.isEmpty then
       topDownAnalyze e
     else optionsPerPos
   catchInternalId Delaborator.delabFailureId

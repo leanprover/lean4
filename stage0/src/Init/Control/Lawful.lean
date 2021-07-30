@@ -88,7 +88,8 @@ theorem seq_eq_bind {α β : Type u} [Monad m] [LawfulMonad m] (mf : m (α → �
   rw [bind_map]
 
 theorem seqRight_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x *> y = x >>= fun _ => y := by
-  rw [seqRight_eq]; simp [map_eq_pure_bind, seq_eq_bind_map]
+  rw [seqRight_eq]
+  simp [map_eq_pure_bind, seq_eq_bind_map, const]
 
 theorem seqLeft_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x <* y = x >>= fun a => y >>= fun _ => pure a := by
   rw [seqLeft_eq]; simp [map_eq_pure_bind, seq_eq_bind_map]
@@ -289,7 +290,7 @@ theorem ext {x y : StateT σ m α} (h : ∀ s, x.run s = y.run s) : x = y :=
 
 theorem seqRight_eq [Monad m] [LawfulMonad m] (x : StateT σ m α) (y : StateT σ m β) : x *> y = const α id <$> x <*> y := by
   apply ext; intro s
-  simp [map_eq_pure_bind]
+  simp [map_eq_pure_bind, const]
   apply bind_congr; intro p; cases p
   simp [Prod.ext]
 

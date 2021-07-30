@@ -50,17 +50,19 @@ namespace Lean.Meta.DiscrTree
 -/
 
 def Key.ctorIdx : Key → Nat
-  | Key.star      => 0
-  | Key.other     => 1
-  | Key.lit _     => 2
-  | Key.fvar _ _  => 3
-  | Key.const _ _ => 4
-  | Key.arrow     => 5
+  | Key.star     => 0
+  | Key.other    => 1
+  | Key.lit ..   => 2
+  | Key.fvar ..  => 3
+  | Key.const .. => 4
+  | Key.arrow    => 5
+  | Key.proj ..  => 6
 
 def Key.lt : Key → Key → Bool
   | Key.lit v₁,      Key.lit v₂      => v₁ < v₂
   | Key.fvar n₁ a₁,  Key.fvar n₂ a₂  => Name.quickLt n₁ n₂ || (n₁ == n₂ && a₁ < a₂)
   | Key.const n₁ a₁, Key.const n₂ a₂ => Name.quickLt n₁ n₂ || (n₁ == n₂ && a₁ < a₂)
+  | Key.proj s₁ i₁,  Key.proj s₂ i₂  => Name.quickLt s₁ s₂ || (s₁ == s₂ && i₁ < i₂)
   | k₁,              k₂              => k₁.ctorIdx < k₂.ctorIdx
 
 instance : LT Key := ⟨fun a b => Key.lt a b⟩
@@ -72,6 +74,7 @@ def Key.format : Key → Format
   | Key.lit (Literal.natVal v) => fmt v
   | Key.lit (Literal.strVal v) => repr v
   | Key.const k _              => fmt k
+  | Key.proj s i               => fmt s ++ "." ++ fmt i
   | Key.fvar k _               => fmt k
   | Key.arrow                  => "→"
 
@@ -81,6 +84,7 @@ def Key.arity : Key → Nat
   | Key.const _ a => a
   | Key.fvar _ a  => a
   | Key.arrow     => 2
+  | Key.proj ..   => 1
   | _             => 0
 
 instance : Inhabited (Trie α) := ⟨Trie.node #[] #[]⟩
@@ -238,6 +242,7 @@ private def isBadKey (fn : Expr) : Bool :=
   | Expr.lit ..   => false
   | Expr.const .. => false
   | Expr.fvar ..  => false
+  | Expr.proj ..  => false
   | Expr.forallE _ d b _ => b.hasLooseBVars
   | _ => true
 
@@ -281,6 +286,8 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key �
           return (Key.star, todo)
       let nargs := e.getAppNumArgs
       push (Key.const c nargs) nargs
+    | Expr.proj s i a .. =>
+      return (Key.proj s i, todo.push a)
     | Expr.fvar fvarId _ =>
       let nargs := e.getAppNumArgs
       push (Key.fvar fvarId nargs) nargs
@@ -392,6 +399,8 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
         return (Key.other, #[])
       else
         return (Key.star, #[])
+  | Expr.proj s i a .. =>
+    return (Key.proj s i, #[a])
   | Expr.forallE _ d b _ =>
     if b.hasLooseBVars then
       return (Key.other, #[])

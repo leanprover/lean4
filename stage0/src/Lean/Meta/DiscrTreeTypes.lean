@@ -18,6 +18,7 @@ inductive Key where
   | star  : Key
   | other : Key
   | arrow : Key
+  | proj  : Name → Nat → Key
   deriving Inhabited, BEq, Repr
 
 protected def Key.hash : Key → UInt64
@@ -27,6 +28,7 @@ protected def Key.hash : Key → UInt64
   | Key.star      => 7883
   | Key.other     => 2411
   | Key.arrow     => 17
+  | Key.proj s i  => mixHash 11 $ mixHash (hash s) (hash i)
 
 instance : Hashable Key := ⟨Key.hash⟩
 

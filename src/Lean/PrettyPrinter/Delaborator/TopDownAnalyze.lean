@@ -407,7 +407,8 @@ where
           match bInfos[i] with
           | BinderInfo.default =>
             if !(← valUnknown mvars[i]) && !(← read).inBottomUp && !(← isFunLike arg) then
-              annotateBool `pp.analysis.hole
+              if ← checkpointDefEq mvars[i] arg then
+                annotateBool `pp.analysis.hole
 
           | BinderInfo.implicit =>
             if (← valUnknown mvars[i] <||> higherOrders[i]) && !forceRegularApp then

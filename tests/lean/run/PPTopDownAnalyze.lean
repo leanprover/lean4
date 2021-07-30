@@ -51,7 +51,7 @@ syntax (name := testDelabTDN) "#testDelabN " ident : command
 @[commandElab testDelabTDN] def elabTestDelabTDN : CommandElab
   | `(#testDelabN $name:ident) => liftTermElabM `delabTD do
     let name := name.getId
-    let [name] ← resolveGlobalConst name | throwError "cannot resolve name"
+    let [name] ← resolveGlobalConst (mkIdent name) | throwError "cannot resolve name"
     let some cInfo ← (← getEnv).find? name | throwError "no decl for name"
     let some value ← pure cInfo.value? | throwError "decl has no value"
     modify fun s => { s with levelNames := cInfo.levelParams }

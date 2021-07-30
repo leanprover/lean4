@@ -206,7 +206,7 @@ def format {α : Type u} (a : α) (τ : Type := Empty) [ToFormat α τ] : Format
 instance : ToFormat (Format τ) τ where
   format f := f
 
-instance : ToFormat String where
+instance : ToFormat String τ where
   format s := Format.text s
 
 def Format.joinSep {α : Type u} {τ : Type} [ToFormat α τ] : List α → Format τ → Format τ

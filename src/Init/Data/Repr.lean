@@ -225,14 +225,18 @@ instance : Repr USize where
   reprPrec n _ := repr n.toNat
 
 instance [Repr α] : Repr (List α) where
-  reprPrec
+  reprPrec a n :=
+    let _ : ToFormat α := ⟨repr⟩
+    match a, n with
     | [], _ => "[]"
-    | as, _ => Format.bracket "[" (@Format.joinSep _ (τ := Empty) ⟨repr⟩ as ("," ++ Format.line)) "]"
+    | as, _ => Format.bracket "[" (Format.joinSep as ("," ++ Format.line)) "]"
 
 instance [Repr α] [ReprAtom α] : Repr (List α) where
-  reprPrec
+  reprPrec a n :=
+    let _ : ToFormat α := ⟨repr⟩
+    match a, n with
     | [], _ => "[]"
-    | as, _ => Format.bracketFill "[" (@Format.joinSep _ (τ := Empty) ⟨repr⟩ as ("," ++ Format.line)) "]"
+    | as, _ => Format.bracketFill "[" (Format.joinSep as ("," ++ Format.line)) "]"
 
 instance : ReprAtom Bool   := ⟨⟩
 instance : ReprAtom Nat    := ⟨⟩

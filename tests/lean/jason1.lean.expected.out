@@ -3,41 +3,23 @@ jason1.lean:48:41-48:130: error: don't know how to synthesize implicit argument
     (getCtx
       (TAlgebra
         (@TySyntaxLayer.nat G T EG getCtx
-          (?m G T Tm EG ET ETm (@EGrfl) getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝))))
+          (?m G T Tm EG ET ETm EGrfl getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝))))
     (TAlgebra
       (@TySyntaxLayer.nat G T EG getCtx
-        (?m G T Tm EG ET ETm (@EGrfl) getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝)))
+        (?m G T Tm EG ET ETm EGrfl getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝)))
     (TAlgebra
       (@TySyntaxLayer.nat G T EG getCtx
-        (?m G T Tm EG ET ETm (@EGrfl) getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝)))
+        (?m G T Tm EG ET ETm EGrfl getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝)))
     (@EGrfl
       (getCtx
         (TAlgebra
           (@TySyntaxLayer.nat G T EG getCtx
-            (?m G T Tm EG ET ETm (@EGrfl) getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝)))) :
-    EG
-      (getCtx
-        (TAlgebra
-          (@TySyntaxLayer.nat G T EG getCtx
-            (?m G T Tm EG ET ETm (@EGrfl) getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝))))
-      (getCtx
-        (TAlgebra
-          (@TySyntaxLayer.nat G T EG getCtx
-            (?m G T Tm EG ET ETm (@EGrfl) getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝)))))
+            (?m G T Tm EG ET ETm EGrfl getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝)))))
     (@EGrfl
       (getCtx
         (TAlgebra
           (@TySyntaxLayer.nat G T EG getCtx
-            (?m G T Tm EG ET ETm (@EGrfl) getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝)))) :
-    EG
-      (getCtx
-        (TAlgebra
-          (@TySyntaxLayer.nat G T EG getCtx
-            (?m G T Tm EG ET ETm (@EGrfl) getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝))))
-      (getCtx
-        (TAlgebra
-          (@TySyntaxLayer.nat G T EG getCtx
-            (?m G T Tm EG ET ETm (@EGrfl) getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝)))))
+            (?m G T Tm EG ET ETm EGrfl getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝)))))
 context:
 G T Tm : Type
 EG : G → G → Type
@@ -56,7 +38,7 @@ jason1.lean:48:125-48:130: error: don't know how to synthesize implicit argument
     (getCtx
       (TAlgebra
         (@TySyntaxLayer.nat G T EG getCtx
-          (?m G T Tm EG ET ETm (@EGrfl) getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝))))
+          (?m G T Tm EG ET ETm EGrfl getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝))))
 context:
 G T Tm : Type
 EG : G → G → Type
@@ -75,7 +57,7 @@ jason1.lean:48:119-48:124: error: don't know how to synthesize implicit argument
     (getCtx
       (TAlgebra
         (@TySyntaxLayer.nat G T EG getCtx
-          (?m G T Tm EG ET ETm (@EGrfl) getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝))))
+          (?m G T Tm EG ET ETm EGrfl getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝))))
 context:
 G T Tm : Type
 EG : G → G → Type
@@ -90,7 +72,7 @@ x✝¹ : TmSyntaxLayer G T Tm EG ET getCtx getTy TAlgebra
 x✝ : G
 ⊢ G
 jason1.lean:48:100-48:117: error: don't know how to synthesize implicit argument
-  @TySyntaxLayer.nat G T EG getCtx (?m _ T Tm EG ET ETm (@EGrfl) getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝)
+  @TySyntaxLayer.nat G T EG getCtx (?m G T Tm EG ET ETm EGrfl getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝)
 context:
 G T Tm : Type
 EG : G → G → Type
@@ -105,7 +87,7 @@ x✝¹ : TmSyntaxLayer G T Tm EG ET getCtx getTy TAlgebra
 x✝ : G
 ⊢ G
 jason1.lean:48:71-48:88: error: don't know how to synthesize implicit argument
-  @TySyntaxLayer.nat G T EG getCtx (?m _ T Tm EG ET ETm (@EGrfl) getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝)
+  @TySyntaxLayer.nat G T EG getCtx (?m G T Tm EG ET ETm EGrfl getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝)
 context:
 G T Tm : Type
 EG : G → G → Type
@@ -120,7 +102,7 @@ x✝¹ : TmSyntaxLayer G T Tm EG ET getCtx getTy TAlgebra
 x✝ : G
 ⊢ G
 jason1.lean:47:40-47:57: error: don't know how to synthesize implicit argument
-  @TySyntaxLayer.nat G T EG getCtx (?m _ T Tm EG ET ETm (@EGrfl) getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝)
+  @TySyntaxLayer.nat G T EG getCtx (?m G T Tm EG ET ETm EGrfl getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝)
 context:
 G T Tm : Type
 EG : G → G → Type
@@ -135,7 +117,7 @@ x✝¹ : TmSyntaxLayer G T Tm EG ET getCtx getTy TAlgebra
 x✝ : G
 ⊢ G
 jason1.lean:46:40-46:57: error: don't know how to synthesize implicit argument
-  @TySyntaxLayer.top G T EG getCtx (?m _ T Tm EG ET ETm (@EGrfl) getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝)
+  @TySyntaxLayer.top G T EG getCtx (?m G T Tm EG ET ETm EGrfl getCtx getTy GAlgebra TAlgebra getTyStep x✝¹ x✝)
 context:
 G T Tm : Type
 EG : G → G → Type

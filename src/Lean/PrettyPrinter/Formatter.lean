@@ -142,6 +142,11 @@ def group (x : Formatter) : Formatter := do
   concat x
   modify fun st => { st with stack := st.stack.pop.push (Format.fill st.stack.back) }
 
+/-- Tags the top of the stack with `stx`'s position, if it has one. -/
+def tagTop (stx : Syntax) : Formatter := do
+  if let some p := stx.getPos? then
+    modify fun st => { st with stack := st.stack.pop.push (Format.tag p st.stack.back) }
+
 @[combinatorFormatter Lean.Parser.orelse] def orelse.formatter (p1 p2 : Formatter) : Formatter :=
   -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
   -- them in turn. Uses the syntax traverser non-linearly!
@@ -164,7 +169,9 @@ unsafe def formatterForKindUnsafe (k : SyntaxNodeKind) : Formatter := do
     goLeft
   else
     let f ← runForNodeKind formatterAttribute k interpretParserDescr'
-    f
+    let stx ← getCur
+    concat f
+    tagTop stx
 
 @[implementedBy formatterForKindUnsafe]
 constant formatterForKind (k : SyntaxNodeKind) : Formatter

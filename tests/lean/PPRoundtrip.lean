@@ -59,6 +59,9 @@ end
 -- specify the expected type of `a` in a way that is not erased by the delaborator
 def typeAs.{u} (α : Type u) (a : α) := ()
 
+set_option pp.analyze.knowsType false in
+#eval checkM `(fun (a : Nat) => a)
+
 #eval checkM `(fun (a : Nat) => a)
 #eval checkM `(fun (a b : Nat) => a)
 #eval checkM `(fun (a : Nat) (b : Bool) => a)

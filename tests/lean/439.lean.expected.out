@@ -2,11 +2,11 @@ fn : {p : P} → Bar.fn p
 439.lean:20:7-20:12: error: function expected at
   Fn.imp.{imax u ?u} fn ?m
 term has type
-  Bar.fn.{u, ?u} (P := P) ?m
+  Bar.fn ?m
 439.lean:31:7-31:11: error: function expected at
   Fn.imp.{imax u ?u} fn ?m
 term has type
-  Bar.fn.{u, ?u} (P := P) ?m
+  Bar.fn ?m
 Fn.imp.{imax u u_1} fn : Bar.fn p
 Fn.imp.{imax u u_1} fn' Bp : Bar.fn p
 439.lean:41:7-41:12: error: application type mismatch
@@ -16,4 +16,4 @@ argument
 has type
   P : Sort u
 but is expected to have type
-  Bar.fn.{u, ?u} (P := P) ?m : Sort ?u
+  Bar.fn ?m : Sort ?u

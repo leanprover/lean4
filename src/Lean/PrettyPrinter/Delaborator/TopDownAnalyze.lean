@@ -225,7 +225,7 @@ partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
   match fuel with
   | 0 => false
   | fuel + 1 =>
-    if e.isFVar || e.isNatLit || e.isStringLit then return true
+    if e.isFVar || e.isMVar || e.isNatLit || e.isStringLit then return true
     if getPPAnalyzeTrustOfNat (← getOptions) && e.isAppOfArity `OfNat.ofNat 3 then return true
     if getPPAnalyzeTrustOfScientific (← getOptions) && e.isAppOfArity `OfScientific.ofScientific 5 then return true
     let f := e.getAppFn

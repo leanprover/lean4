@@ -12,6 +12,7 @@ List.{0} Nat
 id.{2} Nat
 Sum.{0, 0} Nat Nat
 id (@id Type Nat)
+fun (a : Nat) => a
 fun a => a
 fun a b => a
 fun a b => a

@@ -676,10 +676,10 @@ unsafe def withImportModules {α : Type} (imports : List Import) (opts : Options
   let env ← importModules imports opts trustLevel
   try x env finally env.freeRegions
 
-builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSet ←
+builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSSet ←
   registerSimplePersistentEnvExtension {
     name            := `namespaces,
-    addImportedFn   := fun as => mkStateFromImportedEntries (fun s n => dbg_trace "{n}"; NameSet.insert s n) {} as,
+    addImportedFn   := fun as => mkStateFromImportedEntries NameSSet.insert NameSSet.empty as |>.switch,
     addEntryFn      := fun s n => s.insert n
   }
 
@@ -691,7 +691,7 @@ def registerNamespace (env : Environment) (n : Name) : Environment :=
 def isNamespace (env : Environment) (n : Name) : Bool :=
   (namespacesExt.getState env).contains n
 
-def getNamespaceSet (env : Environment) : NameSet :=
+def getNamespaceSet (env : Environment) : NameSSet :=
   namespacesExt.getState env
 
 private def isNamespaceName : Name → Bool

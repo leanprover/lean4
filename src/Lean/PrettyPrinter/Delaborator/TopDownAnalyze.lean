@@ -16,6 +16,7 @@ that are not strictly necessary.
 import Lean.Meta
 import Lean.Util.CollectLevelParams
 import Lean.Util.ReplaceLevel
+import Lean.PrettyPrinter.Delaborator.Options
 import Lean.PrettyPrinter.Delaborator.SubExpr
 import Std.Data.RBMap
 
@@ -312,20 +313,28 @@ def annotateNamedArg (n : Name) (appPos : Pos) : AnalyzeM Bool := do
 partial def analyze (parentIsApp : Bool := false) : AnalyzeM Unit := do
   checkMaxHeartbeats "Delaborator.topDownAnalyze"
   trace[pp.analyze] "{(← read).knowsType}.{(← read).knowsLevel}"
-  withReader (fun ctx => { ctx with parentIsApp := parentIsApp }) do
-    match (← getExpr) with
-    | Expr.app ..     => analyzeApp
-    | Expr.forallE .. => analyzePi
-    | Expr.lam ..     => analyzeLam
-    | Expr.const ..   => analyzeConst
-    | Expr.sort ..    => analyzeSort
-    | Expr.proj ..    => analyzeProj
-    | Expr.fvar ..    => analyzeFVar
-    | Expr.mdata ..   => analyzeMData
-    | Expr.letE ..    => analyzeLet
-    | Expr.lit ..     => pure ()
-    | Expr.mvar ..    => pure ()
-    | Expr.bvar ..    => pure ()
+  let e ← getExpr
+  let opts ← getOptions
+
+  if ← !e.isAtomic <&&> !(getPPProofs opts) <&&> (try Meta.isProof e catch ex => false) then
+    if getPPProofsWithType opts then
+      withType $ withKnowing true true $ analyze
+    else pure ()
+  else
+    withReader (fun ctx => { ctx with parentIsApp := parentIsApp }) do
+      match (← getExpr) with
+      | Expr.app ..     => analyzeApp
+      | Expr.forallE .. => analyzePi
+      | Expr.lam ..     => analyzeLam
+      | Expr.const ..   => analyzeConst
+      | Expr.sort ..    => analyzeSort
+      | Expr.proj ..    => analyzeProj
+      | Expr.fvar ..    => analyzeFVar
+      | Expr.mdata ..   => analyzeMData
+      | Expr.letE ..    => analyzeLet
+      | Expr.lit ..     => pure ()
+      | Expr.mvar ..    => pure ()
+      | Expr.bvar ..    => pure ()
 where
   analyzeApp := do
     let couldBottomUp ← canBottomUp (← getExpr)

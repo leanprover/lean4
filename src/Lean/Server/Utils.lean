@@ -155,15 +155,5 @@ def publishProgressDone (m : DocumentMeta) (hOut : FS.Stream) : IO Unit :=
 
 end Lean.Server
 
-namespace List
-
-universe u
-
-def takeWhile (p : α → Bool) : List α → List α
-  | []       => []
-  | hd :: tl => if p hd then hd :: takeWhile p tl else []
-
-end List
-
 def String.Range.toLspRange (text : Lean.FileMap) (r : String.Range) : Lean.Lsp.Range :=
   ⟨text.utf8PosToLspPos r.start, text.utf8PosToLspPos r.stop⟩

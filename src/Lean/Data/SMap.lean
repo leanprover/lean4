@@ -38,7 +38,14 @@ variable {α : Type u} {β : Type v} [BEq α] [Hashable α]
 instance : Inhabited (SMap α β) := ⟨{}⟩
 def empty : SMap α β := {}
 
+@[inline] def fromHashMap (m : HashMap α β) (stage₁ := true) : SMap α β :=
+  { map₁ := m, stage₁ := stage₁ }
+
 @[specialize] def insert : SMap α β → α → β → SMap α β
+  | ⟨true, m₁, m₂⟩, k, v  => ⟨true, m₁.insert k v, m₂⟩
+  | ⟨false, m₁, m₂⟩, k, v => ⟨false, m₁, m₂.insert k v⟩
+
+@[specialize] def insert' : SMap α β → α → β → SMap α β
   | ⟨true, m₁, m₂⟩, k, v  => ⟨true, m₁.insert k v, m₂⟩
   | ⟨false, m₁, m₂⟩, k, v => ⟨false, m₁, m₂.insert k v⟩
 

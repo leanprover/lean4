@@ -89,20 +89,20 @@ def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapI
   { size    := size,
     buckets := moveEntries 0 buckets.val new_buckets }
 
-def insert [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) (b : β) : HashMapImp α β :=
+@[inline] def insert [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) (b : β) : HashMapImp α β × Bool :=
   match m with
   | ⟨size, buckets⟩ =>
     let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
     let bkt    := buckets.val.uget i h
     if bkt.contains a then
-      ⟨size, buckets.update i (bkt.replace a b) h⟩
+      (⟨size, buckets.update i (bkt.replace a b) h⟩, true)
     else
       let size'    := size + 1
       let buckets' := buckets.update i (AssocList.cons a b bkt) h
       if size' ≤ buckets.val.size then
-        { size := size', buckets := buckets' }
+        ({ size := size', buckets := buckets' }, false)
       else
-        expand size' buckets'
+        (expand size' buckets', false)
 
 def erase [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : HashMapImp α β :=
   match m with
@@ -114,7 +114,7 @@ def erase [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : HashMapImp α
 
 inductive WellFormed [BEq α] [Hashable α] : HashMapImp α β → Prop where
   | mkWff     : ∀ n,                    WellFormed (mkHashMapImp n)
-  | insertWff : ∀ m a b, WellFormed m → WellFormed (insert m a b)
+  | insertWff : ∀ m a b, WellFormed m → WellFormed (insert m a b |>.1)
   | eraseWff  : ∀ m a,   WellFormed m → WellFormed (erase m a)
 
 end HashMapImp
@@ -135,9 +135,18 @@ instance : Inhabited (HashMap α β) where
 
 instance : EmptyCollection (HashMap α β) := ⟨mkHashMap⟩
 
-@[inline] def insert (m : HashMap α β) (a : α) (b : β) : HashMap α β :=
+def insert (m : HashMap α β) (a : α) (b : β) : HashMap α β :=
   match m with
-  | ⟨ m, hw ⟩ => ⟨ m.insert a b, WellFormed.insertWff m a b hw ⟩
+  | ⟨ m, hw ⟩ =>
+    match h:m.insert a b with
+    | (m', _) => ⟨ m', by have aux := WellFormed.insertWff m a b hw; rw [h] at aux; assumption ⟩
+
+/-- Similar to `insert`, but also returns a Boolean flad indicating whether an existing entry has been replaced with `a -> b`. -/
+def insert' (m : HashMap α β) (a : α) (b : β) : HashMap α β × Bool :=
+  match m with
+  | ⟨ m, hw ⟩ =>
+    match h:m.insert a b with
+    | (m', replaced) => (⟨ m', by have aux := WellFormed.insertWff m a b hw; rw [h] at aux; assumption ⟩, replaced)
 
 @[inline] def erase (m : HashMap α β) (a : α) : HashMap α β :=
   match m with

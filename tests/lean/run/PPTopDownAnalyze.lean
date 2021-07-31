@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Selsam
 -/
 import Lean
+import Std
 
 open Lean Lean.Meta Lean.Elab Lean.Elab.Term Lean.Elab.Command
 open Lean.PrettyPrinter
@@ -272,6 +273,10 @@ set_option pp.proofs.withType false in
     let ctxCore ← readThe Core.Context
     pure ctxCore.currNamespace
 
+open Std (Stack) in
+#testDelab fun {α : Type} (xs : Array α) => Eq.ndrec (motive := fun _ => (Stack.mk xs = Stack.mk xs)) (Eq.refl (Stack.mk xs)) (rfl : xs = xs)
+  expecting fun {α} xs => Eq.ndrec (motive := fun x => { vals := xs : Stack α } = { vals := xs }) (Eq.refl _) rfl
+
 #testDelabN Nat.brecOn
 #testDelabN Nat.below
 #testDelabN Nat.mod_lt
@@ -296,6 +301,8 @@ set_option pp.proofs.withType false in
 #testDelabN Lean.Elab.InfoTree.goalsAt?.match_1
 #testDelabN Std.ShareCommon.ObjectMap.find?
 #testDelabN Std.ShareCommon.ObjectMap.insert
+#testDelabN Std.Stack.mk.injEq
+
 
 -- TODO: these tests are broken because of the inability to solve structural max constraints
 -- (See https://github.com/leanprover/lean4/issues/590)

@@ -251,7 +251,7 @@ def delabAppImplicit : Delab := do
         | some stx => argStxs.push stx
       pure (fnStx, paramKinds.tailD [], argStxs))
   let stx := Syntax.mkApp fnStx argStxs
-  if ← isRegularApp then
+  if ← isRegularApp <&&> getPPOption getPPNotation then
     unexpandRegularApp stx
     <|> unexpandStructureInstance stx
     <|> unexpandCoe stx

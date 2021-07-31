@@ -88,6 +88,12 @@ register_builtin_option pp.analyze.omitMax : Bool := {
   descr    := "(pretty printer analyzer) omit universe `max` annotations (these constraints can actually hurt)"
 }
 
+register_builtin_option pp.analyze.knowsType : Bool := {
+  defValue := true
+  group    := "pp.analyze"
+  descr    := "(pretty printer analyzer) assume the type of the original expression is known"
+}
+
 def getPPAnalyze                            (o : Options) : Bool := o.get pp.analyze.name pp.analyze.defValue
 def getPPAnalyzeCheckInstances              (o : Options) : Bool := o.get pp.analyze.checkInstances.name pp.analyze.checkInstances.defValue
 def getPPAnalyzeTypeAscriptions             (o : Options) : Bool := o.get pp.analyze.typeAscriptions.name pp.analyze.typeAscriptions.defValue
@@ -98,6 +104,7 @@ def getPPAnalyzeTrustId                     (o : Options) : Bool := o.get pp.ana
 def getPPAnalyzeTrustCoe                    (o : Options) : Bool := o.get pp.analyze.trustCoe.name pp.analyze.trustCoe.defValue
 def getPPAnalyzeTrustKnownFOType2TypeHOFuns (o : Options) : Bool := o.get pp.analyze.trustKnownFOType2TypeHOFuns.name pp.analyze.trustKnownFOType2TypeHOFuns.defValue
 def getPPAnalyzeOmitMax                     (o : Options) : Bool := o.get pp.analyze.omitMax.name pp.analyze.omitMax.defValue
+def getPPAnalyzeKnowsType                   (o : Options) : Bool := o.get pp.analyze.knowsType.name pp.analyze.knowsType.defValue
 
 def getPPAnalysisSkip          (o : Options) : Bool := o.get `pp.analysis.skip false
 def getPPAnalysisHole          (o : Options) : Bool := o.get `pp.analysis.hole false
@@ -488,7 +495,8 @@ def topDownAnalyze (e : Expr) : MetaM OptionsPerPos := do
     withReader (fun ctx => { ctx with config := Lean.Elab.Term.setElabConfig ctx.config }) do
       let ϕ : AnalyzeM OptionsPerPos := do analyze; (← get).annotations
       try
-        ϕ { knowsType := true, knowsLevel := true } (mkRoot e) |>.run' {}
+        let knowsType := getPPAnalyzeKnowsType (← getOptions)
+        ϕ { knowsType := knowsType, knowsLevel := knowsType } (mkRoot e) |>.run' {}
       catch ex =>
         trace[pp.analyze.error] "failed"
         pure {}

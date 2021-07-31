@@ -365,15 +365,24 @@ where
     -- Unify with the expected type
     tryUnify (← inferType (mkAppN f args)) resultType
 
-    let mut bottomUps := mkArray args.size false
-
+    let mut bottomUps      := mkArray args.size false
     -- Collect explicit arguments that can be elaborated without expected type, with *no* top-down info
     -- Note: we perform this before the next pass because we prefer simple bottom-ups to unify first before
     -- more complex ones.
     for target in [fun _ => none, fun i => some mvars[i]] do
       for i in [:args.size] do
         if bInfos[i] == BinderInfo.default then
+          -- allow bottom-up (and forbid `_`) as long as the value is unknown
+          -- TODO: why not only if the type is unknown?
           if ← valUnknown mvars[i] <&&> canBottomUp args[i] (target i) then
+            if ← typeUnknown mvars[i] then
+              match args[i].isConstructorApp? (← getEnv) with
+              | none   => pure ()
+              | some s =>
+                if isStructure (← getEnv) s.induct then
+                  withNaryArg (f.getAppNumArgs + i) $ withType do
+                    annotateBool `pp.structureInstanceTypes
+                    withKnowing true false $ analyze
             tryUnify args[i] mvars[i]
             bottomUps := bottomUps.set! i true
 

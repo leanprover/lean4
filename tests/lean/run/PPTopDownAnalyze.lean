@@ -245,6 +245,12 @@ structure S2 where x : Unit
 #testDelab (fun (u : Unit) => { x := () : S2 }) ()
   expecting (fun (u : Unit) => { x := () : S2 }) ()
 
+#testDelab Eq.refl True
+  expecting Eq.refl _
+
+#testDelab (fun (u : Unit) => Eq.refl True) ()
+  expecting  (fun (u : Unit) => Eq.refl True) ()
+
 #testDelabN Nat.brecOn
 #testDelabN Nat.below
 #testDelabN Nat.mod_lt

@@ -321,10 +321,12 @@ partial def analyze (parentIsApp : Bool := false) : AnalyzeM Unit := do
     | Expr.bvar ..    => pure ()
 where
   analyzeApp := do
-    withKnowing true true $ analyzeAppStaged (← getExpr).getAppFn (← getExpr).getAppArgs
+    let couldBottomUp ← canBottomUp (← getExpr)
+    withReader (fun ctx => { ctx with inBottomUp := ctx.inBottomUp || (!ctx.knowsType && couldBottomUp) }) do
+      withKnowing true true $ analyzeAppStaged (← getExpr).getAppFn (← getExpr).getAppArgs
 
     if !(← read).knowsType then
-      if !(← canBottomUp (← getExpr)) then
+      if !couldBottomUp then
         annotateBool `pp.analysis.needsType
         withType $ withKnowing true false $ analyze
       else

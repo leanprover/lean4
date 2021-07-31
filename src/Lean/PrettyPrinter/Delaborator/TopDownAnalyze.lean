@@ -370,18 +370,12 @@ where
     -- Collect explicit arguments that can be elaborated without expected type, with *no* top-down info
     -- Note: we perform this before the next pass because we prefer simple bottom-ups to unify first before
     -- more complex ones.
-    for i in [:args.size] do
-      if bInfos[i] == BinderInfo.default then
-        if ← valUnknown mvars[i] <&&> canBottomUp args[i] then
-          tryUnify args[i] mvars[i]
-          bottomUps := bottomUps.set! i true
-
-    -- Now, collect explicit arguments that can be elaborated with *incomplete* top-down info
-    for i in [:args.size] do
-      if !bottomUps[i] && bInfos[i] == BinderInfo.default then
-        if ← valUnknown mvars[i] <&&> canBottomUp args[i] mvars[i] then
-          tryUnify args[i] mvars[i]
-          bottomUps := bottomUps.set! i true
+    for target in [fun _ => none, fun i => some mvars[i]] do
+      for i in [:args.size] do
+        if bInfos[i] == BinderInfo.default then
+          if ← valUnknown mvars[i] <&&> canBottomUp args[i] (target i) then
+            tryUnify args[i] mvars[i]
+            bottomUps := bottomUps.set! i true
 
     -- Next, look at out params
     for i in [:args.size] do

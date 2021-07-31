@@ -1,5 +1,5 @@
 243.lean:2:3-2:14: error: application type mismatch
-  { fst := Bool, snd := true : Sigma fun α => α }
+  { fst := Bool, snd := true }
 argument
   true
 has type
@@ -7,7 +7,7 @@ has type
 but is expected to have type
   Bool : Type
 243.lean:13:3-13:8: error: application type mismatch
-  { fst := A, snd := A.a : Sigma fun α => α }
+  { fst := A, snd := A.a }
 argument
   A.a
 has type

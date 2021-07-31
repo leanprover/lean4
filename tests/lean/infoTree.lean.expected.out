@@ -297,26 +297,25 @@
   B : Type @ ⟨33, 19⟩-⟨33, 20⟩ @ Lean.Elab.Term.elabIdent
     [.] `B : some Sort.{?_uniq.1896} @ ⟨33, 19⟩-⟨33, 20⟩
     B : Type @ ⟨33, 19⟩-⟨33, 20⟩
-  { pair := ({ val := id : A }, { val := id : A }) :
-    B } : B @ ⟨33, 24⟩-⟨35, 1⟩ @ Lean.Elab.Term.StructInst.elabStructInst
-    ({ val := id : A }, { val := id : A }) : A × A @ ⟨34, 10⟩-⟨34, 40⟩ @ Lean.Elab.Term.expandParen
+  { pair := ({ val := id }, { val := id }) } : B @ ⟨33, 24⟩-⟨35, 1⟩ @ Lean.Elab.Term.StructInst.elabStructInst
+    ({ val := id }, { val := id }) : A × A @ ⟨34, 10⟩-⟨34, 40⟩ @ Lean.Elab.Term.expandParen
       Macro expansion
       ({ val := id }, { val := id })
       ===>
       Prod.mk✝ { val := id } { val := id }
-        ({ val := id : A }, { val := id : A }) : A × A @ ⟨34, 10⟩†-⟨34, 39⟩ @ Lean.Elab.Term.elabApp
+        ({ val := id }, { val := id }) : A × A @ ⟨34, 10⟩†-⟨34, 39⟩ @ Lean.Elab.Term.elabApp
           Prod.mk : {α β : Type} → α → β → α × β @ ⟨34, 10⟩†-⟨34, 40⟩†
-          { val := id : A } : A @ ⟨34, 11⟩-⟨34, 24⟩ @ Lean.Elab.Term.StructInst.elabStructInst
+          { val := id } : A @ ⟨34, 11⟩-⟨34, 24⟩ @ Lean.Elab.Term.StructInst.elabStructInst
             id : Nat → Nat @ ⟨34, 20⟩-⟨34, 22⟩ @ Lean.Elab.Term.elabIdent
               [.] `id : some Nat -> Nat @ ⟨34, 20⟩-⟨34, 22⟩
               id : {α : Type} → α → α @ ⟨34, 20⟩-⟨34, 22⟩
             val : Nat → Nat := id @ ⟨34, 13⟩-⟨34, 16⟩
-          { val := id : A } : A @ ⟨34, 26⟩-⟨34, 39⟩ @ Lean.Elab.Term.StructInst.elabStructInst
+          { val := id } : A @ ⟨34, 26⟩-⟨34, 39⟩ @ Lean.Elab.Term.StructInst.elabStructInst
             id : Nat → Nat @ ⟨34, 35⟩-⟨34, 37⟩ @ Lean.Elab.Term.elabIdent
               [.] `id : some Nat -> Nat @ ⟨34, 35⟩-⟨34, 37⟩
               id : {α : Type} → α → α @ ⟨34, 35⟩-⟨34, 37⟩
             val : Nat → Nat := id @ ⟨34, 28⟩-⟨34, 31⟩
-    pair : A × A := ({ val := id : A }, { val := id : A }) @ ⟨34, 2⟩-⟨34, 6⟩
+    pair : A × A := ({ val := id }, { val := id }) @ ⟨34, 2⟩-⟨34, 6⟩
 def Nat.xor : Nat → Nat → Nat :=
 bitwise bne
 [Elab.info] command @ ⟨37, 0⟩-⟨38, 10⟩ @ Lean.Elab.Command.expandInCmd

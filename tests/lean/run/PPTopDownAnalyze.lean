@@ -109,7 +109,7 @@ def fPolyInst {α : Type u} [Add α] : α → α → α := Add.add
 def fPolyNotInst {α : Type u} (inst : Add α) : α → α → α := Add.add
 
 #testDelab @fPolyNotInst Nat ⟨Nat.add⟩
-  expecting fPolyNotInst { add := Nat.add : Add Nat }
+  expecting fPolyNotInst { add := Nat.add }
 
 #testDelab (fun (x : Nat) => x) Nat.zero
   expecting (fun (x : Nat) => x) Nat.zero
@@ -131,17 +131,17 @@ instance : Foo Bool := ⟨true⟩
   expecting Foo.foo
 
 #testDelab @Foo.foo Bool ⟨false⟩
-  expecting Foo.foo (self := { foo := false : Foo Bool })
+  expecting Foo.foo (self := { foo := false })
 
 axiom wild {α : Type u} {f : α → Type v} {x : α} [_inst_1 : Foo (f x)] : Nat
 
 abbrev nat2bool : Nat → Type := fun _ => Bool
 
 #testDelab @wild Nat nat2bool Nat.zero ⟨false⟩
-  expecting wild (f := nat2bool) (x := Nat.zero) (_inst_1 := { foo := false : Foo (nat2bool Nat.zero) })
+  expecting wild (f := nat2bool) (x := Nat.zero) (_inst_1 := { foo := false })
 
 #testDelab @wild Nat (fun (n : Nat) => Bool) Nat.zero ⟨false⟩
-  expecting wild (f := fun n => Bool) (x := Nat.zero) (_inst_1 := { foo := false : Foo Bool })
+  expecting wild (f := fun n => Bool) (x := Nat.zero) (_inst_1 := { foo := false })
 
 #testDelab (fun {α : Type u} (x : α) => x : ∀ {α : Type u}, α → α)
   expecting fun {α} x => x
@@ -188,7 +188,7 @@ set_option pp.analyze.trustSubst true in
 
 set_option pp.analyze.trustId true in
 #testDelab Sigma.mk (β := fun α => α) Bool true
-  expecting { fst := Bool, snd := true : Sigma fun α => α }
+  expecting { fst := Bool, snd := true }
 
 set_option pp.analyze.trustId false in
 #testDelab Sigma.mk (β := fun α => α) Bool true
@@ -235,6 +235,15 @@ set_option pp.analyze.trustCoe true in
 
 #testDelab fun (xs : List Nat) => xs ≠ xs
   expecting fun xs => xs ≠ xs
+
+structure S1 where x : Unit
+structure S2 where x : Unit
+
+#testDelab { x := () : S1 }
+  expecting { x := () }
+
+#testDelab (fun (u : Unit) => { x := () : S2 }) ()
+  expecting (fun (u : Unit) => { x := () : S2 }) ()
 
 #testDelabN Nat.brecOn
 #testDelabN Nat.below

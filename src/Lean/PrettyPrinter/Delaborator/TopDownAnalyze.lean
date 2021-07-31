@@ -191,17 +191,6 @@ def tryUnify (t s : Expr) : MetaM Unit := do
     trace[pp.analyze.tryUnify] "warning: isDefEq threw"
     pure ()
 
-structure BottomUpKind where
-  needsType  : Bool
-  needsLevel : Bool
-  deriving Inhabited, Repr, BEq
-
-def BottomUpKind.safe   : BottomUpKind := ⟨false, false⟩
-def BottomUpKind.unsafe : BottomUpKind := ⟨true, true⟩
-
-def BottomUpKind.isSafe   : BottomUpKind → Bool := (· == BottomUpKind.safe)
-def BottomUpKind.isUnsafe : BottomUpKind → Bool := (· == BottomUpKind.unsafe)
-
 partial def inspectOutParams (arg mvar : Expr) : MetaM Unit := do
   let argType  ← inferType arg -- HAdd α α α
   let mvarType ← inferType mvar
@@ -222,18 +211,18 @@ where
       inspectAux (fb.instantiate1 args[i]) (mb.instantiate1 mvars[i]) (i+1) args mvars
     | _, _ => return ()
 
-partial def okBottomUp? (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 10) : MetaM BottomUpKind := do
+partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 10) : MetaM Bool := do
   -- Here we check if `e` can be safely elaborated without its expected type.
   -- These are incomplete (and possibly unsound) heuristics.
   -- TODO: do I need to snapshot the state before calling this?
   match fuel with
-  | 0 => BottomUpKind.unsafe
+  | 0 => false
   | fuel + 1 =>
-    if e.isFVar || e.isNatLit || e.isStringLit then return BottomUpKind.safe
-    if getPPAnalyzeTrustOfNat (← getOptions) && e.isAppOfArity `OfNat.ofNat 3 then return BottomUpKind.safe
-    if getPPAnalyzeTrustOfScientific (← getOptions) && e.isAppOfArity `OfScientific.ofScientific 5 then return BottomUpKind.safe
+    if e.isFVar || e.isNatLit || e.isStringLit then return true
+    if getPPAnalyzeTrustOfNat (← getOptions) && e.isAppOfArity `OfNat.ofNat 3 then return true
+    if getPPAnalyzeTrustOfScientific (← getOptions) && e.isAppOfArity `OfScientific.ofScientific 5 then return true
     let f := e.getAppFn
-    if !f.isConst && !f.isFVar then return BottomUpKind.unsafe
+    if !f.isConst && !f.isFVar then return false
     let args := e.getAppArgs
     let fType ← replaceLPsWithVars (← inferType e.getAppFn)
     let ⟨mvars, bInfos, resultType⟩ ← forallMetaBoundedTelescope fType e.getAppArgs.size
@@ -241,13 +230,11 @@ partial def okBottomUp? (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
       if bInfos[i] == BinderInfo.instImplicit then
         inspectOutParams args[i] mvars[i]
       else if bInfos[i] == BinderInfo.default then
-        match ← okBottomUp? args[i] mvars[i] fuel with
-        | ⟨false, false⟩ => tryUnify args[i] mvars[i]
-        | _              => pure ()
+        if ← canBottomUp args[i] mvars[i] fuel then tryUnify args[i] mvars[i]
     if ← (isHBinOp e <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then tryUnify mvars[0] mvars[1]
     if mvar?.isSome then tryUnify resultType (← inferType mvar?.get!)
     let resultType ← instantiateMVars resultType
-    pure ⟨resultType.hasExprMVar, resultType.hasLevelMVar⟩
+    return !resultType.hasMVar
 
 def isHigherOrder (type : Expr) : MetaM Bool := do
   withTransparency TransparencyMode.all do forallTelescopeReducing type fun xs b => xs.size > 0 && b.isSort
@@ -334,11 +321,22 @@ partial def analyze (parentIsApp : Bool := false) : AnalyzeM Unit := do
     | Expr.bvar ..    => pure ()
 where
   analyzeApp := do
-    let needsType := !(← read).knowsType && !(← okBottomUp? (← getExpr)).isSafe
     withKnowing true true $ analyzeAppStaged (← getExpr).getAppFn (← getExpr).getAppArgs
-    if needsType then
-      annotateBool `pp.analysis.needsType
-      withType $ withKnowing true false $ analyze
+
+    if !(← read).knowsType then
+      if !(← canBottomUp (← getExpr)) then
+        annotateBool `pp.analysis.needsType
+        withType $ withKnowing true false $ analyze
+      else
+        -- structure instances will "seem" bottomUp-okay but may not be when
+        -- pretty-printed as its fields.
+        match (← getExpr).isConstructorApp? (← getEnv) with
+        | none   => pure ()
+        | some s =>
+          if isStructure (← getEnv) s.induct then
+            withType do
+              annotateBool `pp.structureInstanceTypes
+              withKnowing true false $ analyze
 
   analyzeAppStaged (f : Expr) (args : Array Expr) : AnalyzeM Unit := do
     let fType ← replaceLPsWithVars (← inferType f)
@@ -356,14 +354,14 @@ where
     -- more complex ones.
     for i in [:args.size] do
       if bInfos[i] == BinderInfo.default then
-        if (← valUnknown mvars[i]) && (← okBottomUp? args[i]).isSafe then
+        if ← valUnknown mvars[i] <&&> canBottomUp args[i] then
           tryUnify args[i] mvars[i]
           bottomUps := bottomUps.set! i true
 
     -- Now, collect explicit arguments that can be elaborated with *incomplete* top-down info
     for i in [:args.size] do
       if !bottomUps[i] && bInfos[i] == BinderInfo.default then
-        if (← valUnknown mvars[i]) && (← okBottomUp? args[i] mvars[i]).isSafe then
+        if ← valUnknown mvars[i] <&&> canBottomUp args[i] mvars[i] then
           tryUnify args[i] mvars[i]
           bottomUps := bottomUps.set! i true
 
@@ -460,7 +458,7 @@ where
 
   analyzeLet : AnalyzeM Unit := do
     let Expr.letE n t v body .. ← getExpr | unreachable!
-    if (← okBottomUp? v).needsType then
+    if !(← canBottomUp v) then
       annotateBool `pp.analysis.letVarType
       withLetVarType $ withKnowing true false analyze
       withLetValue $ withKnowing true true analyze

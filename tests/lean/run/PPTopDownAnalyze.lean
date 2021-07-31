@@ -264,6 +264,14 @@ set_option pp.proofs.withType false in
 #testDelab @NeedsAnalysis.mk Unit
   expecting _
 
+#testDelab ∀ (α : Type u) (vals vals_1 : List α), { data := vals : Array α } = { data := vals_1 : Array α }
+  expecting ∀ (α : Type u) (vals vals_1 : List α), { data := vals : Array α } = { data := vals_1 }
+
+#testDelab (do let ctxCore ← readThe Core.Context; ctxCore.currNamespace : MetaM Name)
+  expecting do
+    let ctxCore ← readThe Core.Context
+    pure ctxCore.currNamespace
+
 #testDelabN Nat.brecOn
 #testDelabN Nat.below
 #testDelabN Nat.mod_lt

@@ -67,6 +67,7 @@ universe u v
 
 set_option pp.analyze true
 set_option pp.analyze.checkInstances true
+set_option pp.proofs true
 
 #testDelab @Nat.brecOn (fun x => Nat) 0 (fun x ih => x)
   expecting Nat.brecOn (motive := fun x => Nat) 0 fun x ih => x

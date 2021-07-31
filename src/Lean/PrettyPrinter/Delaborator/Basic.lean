@@ -190,7 +190,7 @@ def getPPFullNames (o : Options) : Bool := o.get pp.fullNames.name (getPPAll o)
 def getPPPrivateNames (o : Options) : Bool := o.get pp.privateNames.name (getPPAll o)
 def getPPInstantiateMVars (o : Options) : Bool := o.get pp.instantiateMVars.name pp.instantiateMVars.defValue
 def getPPSafeShadowing (o : Options) : Bool := o.get pp.safeShadowing.name pp.safeShadowing.defValue
-def getPPProofs (o : Options) : Bool := o.get pp.proofs.name (getPPAll o || getPPAnalyze o)
+def getPPProofs (o : Options) : Bool := o.get pp.proofs.name (getPPAll o)
 def getPPProofsWithType (o : Options) : Bool := o.get pp.proofs.withType.name pp.proofs.withType.defValue
 def getPPMotivesPi (o : Options) : Bool := o.get pp.motives.pi.name pp.motives.pi.defValue
 def getPPMotivesNonConst (o : Options) : Bool := o.get pp.motives.nonConst.name pp.motives.nonConst.defValue
@@ -349,6 +349,7 @@ partial def delab : Delab := do
       try
         let ty ← Meta.inferType (← getExpr)
         if ← Meta.isProp ty then
+          -- TODO: make sure the type is analyzed before this delab
           let stx ← withType delab
           if ← getPPOption getPPProofsWithType then
             return ←  ``((_ : $stx))

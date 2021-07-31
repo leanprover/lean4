@@ -35,7 +35,6 @@ lean_object* l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(lean_object*,
 static lean_object* l_Lean_Meta_Match_Extension_extension___closed__7;
 size_t l_USize_sub(size_t, size_t);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Match_MatcherInfo___hyg_146____spec__5___lambda__2(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_HashMapImp_insert___at_Lean_Meta_Match_Extension_State_addEntry___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Match_MatcherInfo___hyg_146____spec__4___lambda__4(lean_object*);
 static lean_object* l_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Match_MatcherInfo___hyg_146____closed__5;
@@ -140,6 +139,7 @@ lean_object* l_Lean_Meta_matchMatcherApp_x3f(lean_object*, lean_object*, lean_ob
 static lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Match_MatcherInfo___hyg_146____spec__4___closed__1;
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Match_MatcherInfo___hyg_146____spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_HashMap_insert___at_Lean_Meta_Match_Extension_State_addEntry___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* lean_list_to_array(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Match_MatcherInfo___hyg_146_(lean_object*);
 lean_object* l_Lean_Meta_Match_Extension_extension___elambda__3(lean_object*, lean_object*);
@@ -1145,7 +1145,7 @@ return x_17;
 }
 }
 }
-lean_object* l_Std_HashMapImp_insert___at_Lean_Meta_Match_Extension_State_addEntry___spec__6(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashMap_insert___at_Lean_Meta_Match_Extension_State_addEntry___spec__6(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -1298,7 +1298,7 @@ if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_15 = lean_ctor_get(x_1, 0);
-x_16 = l_Std_HashMapImp_insert___at_Lean_Meta_Match_Extension_State_addEntry___spec__6(x_15, x_2, x_3);
+x_16 = l_Std_HashMap_insert___at_Lean_Meta_Match_Extension_State_addEntry___spec__6(x_15, x_2, x_3);
 x_17 = 1;
 lean_ctor_set(x_1, 0, x_16);
 lean_ctor_set_uint8(x_1, sizeof(void*)*2, x_17);
@@ -1312,7 +1312,7 @@ x_19 = lean_ctor_get(x_1, 1);
 lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_1);
-x_20 = l_Std_HashMapImp_insert___at_Lean_Meta_Match_Extension_State_addEntry___spec__6(x_18, x_2, x_3);
+x_20 = l_Std_HashMap_insert___at_Lean_Meta_Match_Extension_State_addEntry___spec__6(x_18, x_2, x_3);
 x_21 = 1;
 x_22 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_22, 0, x_20);

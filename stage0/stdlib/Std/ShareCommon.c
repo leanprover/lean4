@@ -54,7 +54,6 @@ static size_t l_Std_PersistentHashMap_findAux___at_Std_ShareCommon_ObjectPersist
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Std_PShareCommonT_monadShareCommon___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_contains___at_Std_ShareCommon_ObjectMap_insert___spec__2___boxed(lean_object*, lean_object*);
-lean_object* l_Std_HashMapImp_insert___at_Std_ShareCommon_ObjectMap_insert___spec__1(lean_object*, lean_object*, lean_object*);
 uint64_t l_Std_ShareCommon_Object_ptrHash(lean_object*);
 size_t l_UInt64_toUSize(uint64_t);
 lean_object* l_Std_HashMapImp_moveEntries___at_Std_ShareCommon_ObjectMap_insert___spec__4(lean_object*, lean_object*, lean_object*);
@@ -74,6 +73,7 @@ lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Std_ShareCommon_Obj
 lean_object* lean_object_set_insert(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Std_ShareCommon_ObjectMap_find_x3f___spec__1(lean_object*, lean_object*);
 uint8_t l_List_elem___at_Std_ShareCommon_ObjectSet_insert___spec__2(lean_object*, lean_object*);
+lean_object* l_Std_HashMap_insert___at_Std_ShareCommon_ObjectMap_insert___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_elem___at_Std_ShareCommon_ObjectSet_insert___spec__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_ShareCommonT_run___rarg___closed__1;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -545,7 +545,7 @@ return x_17;
 }
 }
 }
-lean_object* l_Std_HashMapImp_insert___at_Std_ShareCommon_ObjectMap_insert___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashMap_insert___at_Std_ShareCommon_ObjectMap_insert___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -660,7 +660,7 @@ lean_object* lean_object_map_insert(lean_object* x_1, lean_object* x_2, lean_obj
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_HashMapImp_insert___at_Std_ShareCommon_ObjectMap_insert___spec__1(x_1, x_2, x_3);
+x_4 = l_Std_HashMap_insert___at_Std_ShareCommon_ObjectMap_insert___spec__1(x_1, x_2, x_3);
 return x_4;
 }
 }

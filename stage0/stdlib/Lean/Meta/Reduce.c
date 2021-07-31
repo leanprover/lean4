@@ -13,12 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Std_HashMap_insert___at_Lean_Meta_reduce_visit___spec__9(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAuxAux___rarg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_pure___at_Lean_Meta_reduce_visit___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescope___at_Lean_Meta_reduce_visit___spec__7(lean_object*);
 lean_object* l_Lean_mkSort(lean_object*);
 lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_HashMapImp_insert___at_Lean_Meta_reduce_visit___spec__9(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_reduce_visit___spec__5___closed__2;
 lean_object* lean_array_uget(lean_object*, size_t);
 uint64_t lean_uint64_of_nat(lean_object*);
@@ -1139,7 +1139,7 @@ return x_17;
 }
 }
 }
-lean_object* l_Std_HashMapImp_insert___at_Lean_Meta_reduce_visit___spec__9(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashMap_insert___at_Lean_Meta_reduce_visit___spec__9(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -1779,7 +1779,7 @@ x_34 = lean_ctor_get(x_32, 1);
 lean_inc(x_34);
 lean_dec(x_32);
 lean_inc(x_28);
-x_35 = l_Std_HashMapImp_insert___at_Lean_Meta_reduce_visit___spec__9(x_33, x_4, x_28);
+x_35 = l_Std_HashMap_insert___at_Lean_Meta_reduce_visit___spec__9(x_33, x_4, x_28);
 x_36 = lean_st_ref_set(x_5, x_35, x_34);
 lean_dec(x_5);
 x_37 = !lean_is_exclusive(x_36);
@@ -1902,7 +1902,7 @@ x_65 = lean_ctor_get(x_63, 1);
 lean_inc(x_65);
 lean_dec(x_63);
 lean_inc(x_59);
-x_66 = l_Std_HashMapImp_insert___at_Lean_Meta_reduce_visit___spec__9(x_64, x_4, x_59);
+x_66 = l_Std_HashMap_insert___at_Lean_Meta_reduce_visit___spec__9(x_64, x_4, x_59);
 x_67 = lean_st_ref_set(x_5, x_66, x_65);
 lean_dec(x_5);
 x_68 = lean_ctor_get(x_67, 1);

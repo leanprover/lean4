@@ -147,9 +147,7 @@ private def quotedNameToPattern (stx : Syntax) : TermElabM Syntax :=
   | none     => throwIllFormedSyntax
 
 private def doubleQuotedNameToPattern (stx : Syntax) : TermElabM Syntax := do
-  match stx[1].isNameLit? with
-  | some val => nameToPattern (← resolveGlobalConstNoOverloadWithInfo stx[1] val)
-  | none     => throwIllFormedSyntax
+  nameToPattern (← resolveGlobalConstNoOverloadWithInfo stx[2])
 
 partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroScope do
   let k := stx.getKind

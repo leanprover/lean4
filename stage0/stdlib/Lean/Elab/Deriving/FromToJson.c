@@ -69,7 +69,6 @@ static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mk
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHandler_mkAlts___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandler_mkAlts___boxed__const__1;
 lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHandler___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_getConstInfo___at_Lean_Elab_elabDeriving___spec__13(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHandler_mkAlts_match__2___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandler___lambda__1___boxed__const__1;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHandler_mkAlts___spec__6___lambda__1___closed__22;
@@ -281,6 +280,7 @@ static lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandler___la
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHandler___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandler_mkAlts___spec__4___lambda__1___closed__1;
 static lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandler___lambda__3___closed__4;
+lean_object* l_Lean_getConstInfo___at_Lean_Elab_elabDeriving___spec__15(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoCtor___at_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandler_mkAlts___spec__1___closed__2;
 static lean_object* l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHandler___lambda__3___closed__9;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHandler_mkAlts___spec__6(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2053,7 +2053,7 @@ _start:
 lean_object* x_5; 
 lean_inc(x_2);
 lean_inc(x_1);
-x_5 = l_Lean_getConstInfo___at_Lean_Elab_elabDeriving___spec__13(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_getConstInfo___at_Lean_Elab_elabDeriving___spec__15(x_1, x_2, x_3, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; 

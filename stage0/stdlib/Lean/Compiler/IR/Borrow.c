@@ -17,6 +17,7 @@ lean_object* l_Lean_IR_Borrow_updateParamMap___boxed__const__1;
 static lean_object* l_Lean_IR_Borrow_ParamMap_fmt___closed__1;
 lean_object* l_Std_AssocList_replace___at_Lean_IR_Borrow_OwnedSet_insert___spec__6(lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
+lean_object* l_Std_HashMap_insert___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Borrow_ParamMap_fmt___closed__2;
 uint8_t l_Lean_IR_Borrow_OwnedSet_beq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_ownArg_match__1(lean_object*);
@@ -48,7 +49,6 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_InitParamMap_visitDecls(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_OwnedSet_contains___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_findCore___at_Lean_IR_UniqueIds_checkId___spec__1(lean_object*, lean_object*);
-lean_object* l_Std_HashMapImp_insert___at_Lean_IR_Borrow_OwnedSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_getParamInfo_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___at_Lean_IR_Borrow_OwnedSet_insert___spec__5(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -72,6 +72,7 @@ uint8_t l_USize_decLt(size_t, size_t);
 uint8_t l_Lean_IR_IRType_isObj(lean_object*);
 lean_object* l_Lean_IR_Borrow_InitParamMap_visitDecls_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Std_HashMap_insert___at_Lean_IR_Borrow_OwnedSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Borrow_ApplyParamMap_visitFnBody___closed__3;
 lean_object* l_Lean_IR_Borrow_InitParamMap_visitFnBody_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_Borrow_InitParamMap_visitDecls___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -123,7 +124,6 @@ lean_object* l_Std_AssocList_replace___at_Lean_IR_Borrow_InitParamMap_visitFnBod
 lean_object* l_Lean_IR_Borrow_ParamMap_fmt(lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_Borrow_ApplyParamMap_visitDecls___spec__1___closed__1;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_Borrow_ApplyParamMap_visitDecls___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_HashMapImp_insert___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*);
 extern lean_object* l_Lean_IR_instInhabitedFnBody;
 lean_object* l_Lean_IR_Borrow_ownArg_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -601,7 +601,7 @@ return x_17;
 }
 }
 }
-lean_object* l_Std_HashMapImp_insert___at_Lean_IR_Borrow_OwnedSet_insert___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashMap_insert___at_Lean_IR_Borrow_OwnedSet_insert___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -715,7 +715,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_box(0);
-x_4 = l_Std_HashMapImp_insert___at_Lean_IR_Borrow_OwnedSet_insert___spec__1(x_1, x_2, x_3);
+x_4 = l_Std_HashMap_insert___at_Lean_IR_Borrow_OwnedSet_insert___spec__1(x_1, x_2, x_3);
 return x_4;
 }
 }
@@ -1740,7 +1740,7 @@ return x_17;
 }
 }
 }
-lean_object* l_Std_HashMapImp_insert___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashMap_insert___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -1907,7 +1907,7 @@ x_8 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_8, 0, x_1);
 lean_ctor_set(x_8, 1, x_4);
 x_9 = l_Lean_IR_Borrow_InitParamMap_initBorrow(x_5);
-x_10 = l_Std_HashMapImp_insert___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__1(x_3, x_8, x_9);
+x_10 = l_Std_HashMap_insert___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__1(x_3, x_8, x_9);
 lean_inc(x_1);
 x_11 = l_Lean_IR_Borrow_InitParamMap_visitFnBody(x_1, x_6, x_10);
 x_12 = lean_ctor_get(x_11, 1);
@@ -2082,7 +2082,7 @@ lean_inc(x_9);
 x_13 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_13, 0, x_9);
 x_14 = l_Lean_IR_Borrow_InitParamMap_initBorrowIfNotExported(x_12, x_10);
-x_15 = l_Std_HashMapImp_insert___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__1(x_6, x_13, x_14);
+x_15 = l_Std_HashMap_insert___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__1(x_6, x_13, x_14);
 x_16 = l_Lean_IR_Borrow_InitParamMap_visitFnBody(x_9, x_11, x_15);
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc(x_17);
@@ -3007,7 +3007,7 @@ lean_dec(x_11);
 x_12 = lean_ctor_get(x_6, 0);
 lean_dec(x_12);
 x_13 = lean_box(0);
-x_14 = l_Std_HashMapImp_insert___at_Lean_IR_Borrow_OwnedSet_insert___spec__1(x_7, x_4, x_13);
+x_14 = l_Std_HashMap_insert___at_Lean_IR_Borrow_OwnedSet_insert___spec__1(x_7, x_4, x_13);
 x_15 = 1;
 lean_ctor_set(x_6, 0, x_14);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2, x_15);
@@ -3021,7 +3021,7 @@ else
 lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; 
 lean_dec(x_6);
 x_17 = lean_box(0);
-x_18 = l_Std_HashMapImp_insert___at_Lean_IR_Borrow_OwnedSet_insert___spec__1(x_7, x_4, x_17);
+x_18 = l_Std_HashMap_insert___at_Lean_IR_Borrow_OwnedSet_insert___spec__1(x_7, x_4, x_17);
 x_19 = 1;
 x_20 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_20, 0, x_18);
@@ -3074,7 +3074,7 @@ if (lean_is_exclusive(x_24)) {
  x_30 = lean_box(0);
 }
 x_31 = lean_box(0);
-x_32 = l_Std_HashMapImp_insert___at_Lean_IR_Borrow_OwnedSet_insert___spec__1(x_26, x_28, x_31);
+x_32 = l_Std_HashMap_insert___at_Lean_IR_Borrow_OwnedSet_insert___spec__1(x_26, x_28, x_31);
 x_33 = 1;
 if (lean_is_scalar(x_30)) {
  x_34 = lean_alloc_ctor(0, 2, 1);
@@ -3517,7 +3517,7 @@ if (x_22 == 0)
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_23 = lean_ctor_get(x_19, 0);
 x_24 = lean_ctor_get(x_21, 1);
-x_25 = l_Std_HashMapImp_insert___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__1(x_24, x_1, x_23);
+x_25 = l_Std_HashMap_insert___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__1(x_24, x_1, x_23);
 lean_ctor_set(x_21, 1, x_25);
 x_26 = lean_box(0);
 lean_ctor_set(x_19, 0, x_26);
@@ -3533,7 +3533,7 @@ x_30 = lean_ctor_get(x_21, 1);
 lean_inc(x_30);
 lean_inc(x_28);
 lean_dec(x_21);
-x_31 = l_Std_HashMapImp_insert___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__1(x_30, x_1, x_27);
+x_31 = l_Std_HashMap_insert___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__1(x_30, x_1, x_27);
 x_32 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_32, 0, x_28);
 lean_ctor_set(x_32, 1, x_31);
@@ -3565,7 +3565,7 @@ if (lean_is_exclusive(x_34)) {
  lean_dec_ref(x_34);
  x_39 = lean_box(0);
 }
-x_40 = l_Std_HashMapImp_insert___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__1(x_38, x_1, x_35);
+x_40 = l_Std_HashMap_insert___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__1(x_38, x_1, x_35);
 if (lean_is_scalar(x_39)) {
  x_41 = lean_alloc_ctor(0, 2, 1);
 } else {
@@ -3646,7 +3646,7 @@ if (lean_is_exclusive(x_58)) {
  lean_dec_ref(x_58);
  x_64 = lean_box(0);
 }
-x_65 = l_Std_HashMapImp_insert___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__1(x_63, x_1, x_59);
+x_65 = l_Std_HashMap_insert___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__1(x_63, x_1, x_59);
 if (lean_is_scalar(x_64)) {
  x_66 = lean_alloc_ctor(0, 2, 1);
 } else {

@@ -277,18 +277,18 @@ def pushInfoLeaf (t : Info) : m Unit := do
 def addCompletionInfo (info : CompletionInfo) : m Unit := do
   pushInfoLeaf <| Info.ofCompletionInfo info
 
-def resolveGlobalConstNoOverloadWithInfo [MonadResolveName m] [MonadEnv m] [MonadError m] (stx : Syntax) (id := stx.getId) (expectedType? : Option Expr := none) : m Name := do
+def resolveGlobalConstNoOverloadWithInfo [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Syntax) (expectedType? : Option Expr := none) : m Name := do
   let n ← resolveGlobalConstNoOverload id
   if (← getInfoState).enabled then
     -- we do not store a specific elaborator since identifiers are special-cased by the server anyway
-    pushInfoLeaf <| Info.ofTermInfo { elaborator := Name.anonymous, lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx, expectedType? }
+    pushInfoLeaf <| Info.ofTermInfo { elaborator := Name.anonymous, lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx := id, expectedType? }
   return n
 
-def resolveGlobalConstWithInfos [MonadResolveName m] [MonadEnv m] [MonadError m] (stx : Syntax) (id := stx.getId) (expectedType? : Option Expr := none) : m (List Name) := do
+def resolveGlobalConstWithInfos [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Syntax) (expectedType? : Option Expr := none) : m (List Name) := do
   let ns ← resolveGlobalConst id
   if (← getInfoState).enabled then
     for n in ns do
-      pushInfoLeaf <| Info.ofTermInfo { elaborator := Name.anonymous, lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx, expectedType? }
+      pushInfoLeaf <| Info.ofTermInfo { elaborator := Name.anonymous, lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx := id, expectedType? }
   return ns
 
 def withInfoContext' [MonadFinally m] (x : m α) (mkInfo : α → m (Sum Info MVarId)) : m α := do

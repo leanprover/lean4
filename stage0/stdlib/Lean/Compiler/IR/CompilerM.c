@@ -146,6 +146,7 @@ lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obje
 static lean_object* l_Lean_IR_getDecl___closed__2;
 static lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_384____spec__10___closed__1;
 static lean_object* l_Lean_IR_declMapExt___closed__5;
+lean_object* l_Std_HashMap_insert___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_mkEntryArray___spec__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_getDecl___closed__1;
 size_t l_USize_shiftLeft(size_t, size_t);
 lean_object* l_Lean_IR_declMapExt___elambda__2(lean_object*);
@@ -216,7 +217,6 @@ lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_isLogEnabledFor__
 lean_object* l_Lean_IR_logMessage___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___at_Lean_IR_findEnvDecl___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_384____lambda__2(lean_object*);
-lean_object* l_Std_HashMapImp_insert___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_mkEntryArray___spec__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_tracePrefixOptionName___closed__4;
 static lean_object* l_Lean_IR_declMapExt___closed__6;
 lean_object* l_Lean_IR_findDecl___boxed(lean_object*, lean_object*, lean_object*);
@@ -1305,7 +1305,7 @@ return x_17;
 }
 }
 }
-lean_object* l_Std_HashMapImp_insert___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_mkEntryArray___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashMap_insert___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_mkEntryArray___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -1430,7 +1430,7 @@ x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
 lean_dec(x_2);
 x_5 = l_Lean_IR_Decl_name(x_3);
-x_6 = l_Std_HashMapImp_insert___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_mkEntryArray___spec__2(x_1, x_5, x_3);
+x_6 = l_Std_HashMap_insert___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_mkEntryArray___spec__2(x_1, x_5, x_3);
 x_1 = x_6;
 x_2 = x_4;
 goto _start;
@@ -2166,7 +2166,7 @@ if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_15 = lean_ctor_get(x_1, 0);
-x_16 = l_Std_HashMapImp_insert___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_mkEntryArray___spec__2(x_15, x_2, x_3);
+x_16 = l_Std_HashMap_insert___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_mkEntryArray___spec__2(x_15, x_2, x_3);
 x_17 = 1;
 lean_ctor_set(x_1, 0, x_16);
 lean_ctor_set_uint8(x_1, sizeof(void*)*2, x_17);
@@ -2180,7 +2180,7 @@ x_19 = lean_ctor_get(x_1, 1);
 lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_1);
-x_20 = l_Std_HashMapImp_insert___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_mkEntryArray___spec__2(x_18, x_2, x_3);
+x_20 = l_Std_HashMap_insert___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_mkEntryArray___spec__2(x_18, x_2, x_3);
 x_21 = 1;
 x_22 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_22, 0, x_20);

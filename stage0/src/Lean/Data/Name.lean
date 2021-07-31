@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 import Std.Data.HashSet
 import Std.Data.RBMap
 import Std.Data.RBTree
+import Lean.Data.SSet
 namespace Lean
 
 instance : Coe String Name := ⟨Name.mkSimple⟩
@@ -160,13 +161,23 @@ def NameSet := RBTree Name Name.quickCmp
 namespace NameSet
 def empty : NameSet := mkRBTree Name Name.quickCmp
 instance : EmptyCollection NameSet := ⟨empty⟩
-instance : Inhabited NameSet := ⟨{}⟩
+instance : Inhabited NameSet := ⟨empty⟩
 def insert (s : NameSet) (n : Name) : NameSet := Std.RBTree.insert s n
 def contains (s : NameSet) (n : Name) : Bool := Std.RBMap.contains s n
 instance : ForIn m NameSet Name :=
   inferInstanceAs (ForIn _ (Std.RBTree ..) ..)
 
 end NameSet
+
+def NameSSet := SSet Name
+
+namespace NameSSet
+abbrev empty : NameSSet := SSet.empty
+instance : EmptyCollection NameSSet := ⟨empty⟩
+instance : Inhabited NameSSet := ⟨empty⟩
+abbrev insert (s : NameSSet) (n : Name) : NameSSet := SSet.insert s n
+abbrev contains (s : NameSSet) (n : Name) : Bool := SSet.contains s n
+end NameSSet
 
 def NameHashSet := Std.HashSet Name
 

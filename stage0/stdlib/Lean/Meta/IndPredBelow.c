@@ -322,6 +322,7 @@ static lean_object* l_Lean_Meta_IndPredBelow_proveBrecOn_closeGoal___rarg___clos
 lean_object* l_Lean_LocalDecl_toExpr(lean_object*);
 lean_object* l_Lean_Meta_IndPredBelow_mkBelowMatcher_match__1(lean_object*);
 lean_object* l_Lean_Meta_introNCore(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_HashMap_insert___at_Lean_MetavarContext_instantiateExprMVars___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_IndPredBelow_mkBelowMatcher_toInaccessible_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecls___at_Lean_Meta_IndPredBelow_mkCtorType_addMotives___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_IndPredBelow_mkBelowMatcher_convertToBelow___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -394,7 +395,6 @@ static lean_object* l_Lean_Meta_IndPredBelow_proveBrecOn_applyIH___closed__1;
 static lean_object* l_Lean_Meta_IndPredBelow_mkBelow___closed__4;
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_withLocalDecls_loop___at_Lean_Meta_IndPredBelow_mkCtorType_addMotives___spec__3___closed__4;
-lean_object* l_Std_HashMapImp_insert___at_Lean_MetavarContext_instantiateExprMVars___spec__3(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Match_instInhabitedPattern;
 lean_object* l_Lean_Meta_IndPredBelow_mkBelowMatcher_addBelowPattern___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_transform_visit_visitLambda___at_Lean_Meta_IndPredBelow_mkCtorType_checkCount___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4925,7 +4925,7 @@ lean_object* l_Lean_Meta_transform_visit___at_Lean_Meta_IndPredBelow_mkCtorType_
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = l_Std_HashMapImp_insert___at_Lean_MetavarContext_instantiateExprMVars___spec__3(x_3, x_1, x_2);
+x_4 = l_Std_HashMap_insert___at_Lean_MetavarContext_instantiateExprMVars___spec__3(x_3, x_1, x_2);
 x_5 = lean_box(0);
 x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_5);

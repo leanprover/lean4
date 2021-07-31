@@ -109,9 +109,9 @@ where
   /- Resolve the given parser name and return a list of candidates.
      Each candidate is a pair `(resolvedParserName, isDescr)`.
      `isDescr == true` if the type of `resolvedParserName` is a `ParserDescr`. -/
-  resolveParserName (parserName : Name) : ToParserDescrM (List (Name × Bool)) := do
+  resolveParserName (parserName : Syntax) : ToParserDescrM (List (Name × Bool)) := do
     try
-      let candidates ← resolveGlobalConstWithInfos (← getRef) parserName
+      let candidates ← resolveGlobalConstWithInfos parserName
       /- Convert `candidates` in a list of pairs `(c, isDescr)`, where `c` is the parser name,
          and `isDescr` is true iff `c` has type `Lean.ParserDescr` or `Lean.TrailingParser` -/
       let env ← getEnv
@@ -140,12 +140,12 @@ where
     `(ParserDescr.cat $(quote catName) $(quote prec))
 
   processNullaryOrCat (stx : Syntax) := do
-    let id := stx[0].getId.eraseMacroScopes
-    match (← withRef stx[0] <| resolveParserName id) with
+    match (← resolveParserName stx[0]) with
     | [(c, true)]      => ensureNoPrec stx; return mkIdentFrom stx c
     | [(c, false)]     => ensureNoPrec stx; `(ParserDescr.parser $(quote c))
     | cs@(_ :: _ :: _) => throwError "ambiguous parser declaration {cs.map (·.1)}"
     | [] =>
+      let id := stx[0].getId.eraseMacroScopes
       if Parser.isParserCategory (← getEnv) id then
         processParserCategory stx
       else if (← Parser.isParserAlias id) then

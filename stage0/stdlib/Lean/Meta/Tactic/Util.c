@@ -158,6 +158,7 @@ lean_object* l_Std_PersistentArray_forInAux___at_Lean_Meta_getNondepPropHyps___s
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getNondepPropHyps_match__1(lean_object*);
+lean_object* l_Std_HashMap_insert___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_mkFreshExprMVarImpl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_saturate_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -167,7 +168,6 @@ lean_object* l_Lean_throwError___at_Lean_Meta_throwTacticEx___spec__1(lean_objec
 lean_object* l_Std_PersistentArray_forIn___at_Lean_Meta_getNondepPropHyps___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forIn___at_Lean_Meta_getNondepPropHyps___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_saturate_match__1(lean_object*);
-lean_object* l_Std_HashMapImp_insert___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_exactlyOne___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_throwTacticEx___rarg___closed__6;
@@ -1515,7 +1515,7 @@ x_23 = lean_ctor_get(x_21, 1);
 lean_inc(x_23);
 lean_dec(x_21);
 lean_inc(x_17);
-x_24 = l_Std_HashMapImp_insert___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__3(x_22, x_1, x_17);
+x_24 = l_Std_HashMap_insert___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__3(x_22, x_1, x_17);
 x_25 = lean_st_ref_set(x_2, x_24, x_23);
 x_26 = !lean_is_exclusive(x_25);
 if (x_26 == 0)

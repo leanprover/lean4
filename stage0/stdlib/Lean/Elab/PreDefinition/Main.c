@@ -129,6 +129,7 @@ uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_Meta_mapErrorImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs(lean_object*);
+lean_object* l_Std_HashMap_insert___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__11(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_expand___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__13(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Elab_addAndCompilePartialRec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -136,7 +137,6 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___
 lean_object* l_Lean_setEnv___at_Lean_Meta_setInlineAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at___private_Lean_Elab_Term_0__Lean_Elab_Term_postponeElabTerm___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_addPreDefinitions___spec__5___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_HashMapImp_insert___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__11(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__6___boxed(lean_object*, lean_object*);
 uint8_t l_Std_AssocList_contains___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__12(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addPreDefinitions(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1476,7 +1476,7 @@ return x_17;
 }
 }
 }
-lean_object* l_Std_HashMapImp_insert___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__11(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashMap_insert___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__11(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -1610,7 +1610,7 @@ x_12 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_10);
 lean_ctor_set_uint8(x_12, sizeof(void*)*2, x_11);
-x_13 = l_Std_HashMapImp_insert___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__11(x_6, x_1, x_12);
+x_13 = l_Std_HashMap_insert___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__11(x_6, x_1, x_12);
 lean_ctor_set(x_2, 2, x_13);
 lean_ctor_set(x_2, 1, x_9);
 lean_ctor_set(x_2, 0, x_7);
@@ -1646,7 +1646,7 @@ x_25 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_23);
 lean_ctor_set_uint8(x_25, sizeof(void*)*2, x_24);
-x_26 = l_Std_HashMapImp_insert___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__11(x_18, x_1, x_25);
+x_26 = l_Std_HashMap_insert___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__11(x_18, x_1, x_25);
 x_27 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_27, 0, x_20);
 lean_ctor_set(x_27, 1, x_22);
@@ -1688,7 +1688,7 @@ x_9 = lean_ctor_get(x_6, 0);
 lean_inc(x_9);
 lean_dec(x_6);
 x_10 = lean_apply_1(x_2, x_9);
-x_11 = l_Std_HashMapImp_insert___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__11(x_5, x_1, x_10);
+x_11 = l_Std_HashMap_insert___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__11(x_5, x_1, x_10);
 lean_ctor_set(x_3, 2, x_11);
 x_12 = lean_box(0);
 x_13 = lean_alloc_ctor(0, 2, 0);
@@ -1733,7 +1733,7 @@ x_22 = lean_ctor_get(x_18, 0);
 lean_inc(x_22);
 lean_dec(x_18);
 x_23 = lean_apply_1(x_2, x_22);
-x_24 = l_Std_HashMapImp_insert___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__11(x_16, x_1, x_23);
+x_24 = l_Std_HashMap_insert___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__11(x_16, x_1, x_23);
 x_25 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_25, 0, x_14);
 lean_ctor_set(x_25, 1, x_15);

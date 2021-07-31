@@ -27,6 +27,7 @@ lean_object* l_Lean_ForEachExpr_visit___at_Lean_Expr_forEach___spec__1___rarg___
 lean_object* l_Lean_ForEachExpr_visit___at_Lean_Expr_forEach___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_moveEntries___at_Lean_Expr_forEach___spec__7(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ForEachExpr_visit___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_HashMap_insert___at_Lean_Expr_forEach___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ForEachExpr_visit___at_Lean_Expr_forEach___spec__1___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Expr_forEach(lean_object*, lean_object*);
@@ -39,6 +40,7 @@ lean_object* l_Lean_Expr_forEach_x27___rarg___lambda__4(lean_object*, lean_objec
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forEach_x27___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_UInt64_toUSize(uint64_t);
+lean_object* l_Std_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forEach___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -61,7 +63,6 @@ lean_object* l_Std_AssocList_foldlM___at_Lean_Expr_forEach___spec__8(lean_object
 lean_object* l_Lean_ForEachExpr_visit(lean_object*, lean_object*);
 lean_object* l_Lean_ForEachExpr_visit___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_forEach_x27___rarg___closed__2;
-lean_object* l_Std_HashMapImp_insert___at_Lean_Expr_forEach___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_contains___at_Lean_Expr_forEach___spec__5___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_ForEachExpr_visit___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_forEach_x27___rarg___closed__1;
@@ -83,7 +84,6 @@ lean_object* l_Lean_ForEachExpr_visit___at_Lean_Expr_forEach___spec__1___rarg(le
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Expr_forEach___spec__2___boxed(lean_object*, lean_object*);
 uint8_t l_Std_AssocList_contains___at_Lean_Expr_forEach___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_ForEachExpr_visit___rarg___lambda__5(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_HashMapImp_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ForEachExpr_visit___at_Lean_Expr_forEach___spec__1___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ForEachExpr_visit___at_Lean_Expr_forEach___spec__1___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMap___at_Lean_Expr_forEach_x27___spec__1(lean_object*);
@@ -464,7 +464,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = l_Lean_Expr_instBEqExpr;
 x_5 = l_Lean_Expr_instHashableExpr;
-x_6 = l_Std_HashMapImp_insert___rarg(x_4, x_5, x_3, x_1, x_2);
+x_6 = l_Std_HashMap_insert___rarg(x_4, x_5, x_3, x_1, x_2);
 x_7 = lean_box(0);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -1035,7 +1035,7 @@ return x_17;
 }
 }
 }
-lean_object* l_Std_HashMapImp_insert___at_Lean_Expr_forEach___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashMap_insert___at_Lean_Expr_forEach___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -1377,7 +1377,7 @@ lean_object* l_Lean_ForEachExpr_visit___at_Lean_Expr_forEach___spec__1___rarg___
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = l_Std_HashMapImp_insert___at_Lean_Expr_forEach___spec__4(x_3, x_1, x_2);
+x_4 = l_Std_HashMap_insert___at_Lean_Expr_forEach___spec__4(x_3, x_1, x_2);
 x_5 = lean_box(0);
 x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_5);

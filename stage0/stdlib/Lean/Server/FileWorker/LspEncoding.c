@@ -99,7 +99,6 @@ static lean_object* l___private_Lean_Server_FileWorker_LspEncoding_0__Lean_Serve
 static lean_object* l___private_Lean_Server_FileWorker_LspEncoding_0__Lean_Server_LspEncoding_deriveWithRefInstance___closed__109;
 static lean_object* l___private_Lean_Server_FileWorker_LspEncoding_0__Lean_Server_LspEncoding_deriveWithRefInstance___closed__19;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-lean_object* l_Lean_getConstInfo___at_Lean_Elab_elabDeriving___spec__13(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_WithRpcRef_encodeUnsafe___rarg___closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_LspEncoding_0__Lean_Server_LspEncoding_deriveWithRefInstance___closed__39;
@@ -331,6 +330,7 @@ static lean_object* l___private_Lean_Server_FileWorker_LspEncoding_0__Lean_Serve
 static lean_object* l___private_Lean_Server_FileWorker_LspEncoding_0__Lean_Server_LspEncoding_deriveInstance___lambda__1___closed__57;
 static lean_object* l___private_Lean_Server_FileWorker_LspEncoding_0__Lean_Server_LspEncoding_deriveWithRefInstance___closed__184;
 static lean_object* l___private_Lean_Server_FileWorker_LspEncoding_0__Lean_Server_LspEncoding_deriveInstance___lambda__1___closed__17;
+lean_object* l_Lean_getConstInfo___at_Lean_Elab_elabDeriving___spec__15(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_LspEncoding_0__Lean_Server_LspEncoding_deriveWithRefInstance___closed__15;
 static lean_object* l___private_Lean_Server_FileWorker_LspEncoding_0__Lean_Server_LspEncoding_deriveWithRefInstance___closed__18;
 lean_object* l___private_Lean_Server_FileWorker_LspEncoding_0__Lean_Server_LspEncoding_dispatchDeriveInstanceUnsafe___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6262,7 +6262,7 @@ _start:
 lean_object* x_5; 
 lean_inc(x_2);
 lean_inc(x_1);
-x_5 = l_Lean_getConstInfo___at_Lean_Elab_elabDeriving___spec__13(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_getConstInfo___at_Lean_Elab_elabDeriving___spec__15(x_1, x_2, x_3, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; 
@@ -6483,7 +6483,7 @@ _start:
 lean_object* x_5; 
 lean_inc(x_2);
 lean_inc(x_1);
-x_5 = l_Lean_getConstInfo___at_Lean_Elab_elabDeriving___spec__13(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_getConstInfo___at_Lean_Elab_elabDeriving___spec__15(x_1, x_2, x_3, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; 

@@ -78,7 +78,6 @@ lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldM_loop___at_Lean_IR_ExpandResetReuse_releaseUnreadFields___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
 uint8_t l_Lean_IR_FnBody_isTerminal(lean_object*);
-lean_object* l_Std_HashMapImp_insert___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_ExpandResetReuse_mkSlowPath___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_isSelfUSet_match__1(lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_reuseToCtor_match__2(lean_object*);
@@ -144,6 +143,7 @@ lean_object* l_Lean_IR_ExpandResetReuse_expand(lean_object*, lean_object*, lean_
 static lean_object* l_Lean_IR_ExpandResetReuse_searchAndExpand___closed__1;
 lean_object* l_Lean_IR_Decl_normalizeIds(lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_IR_ExpandResetReuse_isSelfSet___spec__1(lean_object*, lean_object*);
+lean_object* l_Std_HashMap_insert___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_removeSelfSet_match__1(lean_object*);
 lean_object* l_Std_AssocList_foldlM___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_reuseToCtor_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -436,7 +436,7 @@ return x_17;
 }
 }
 }
-lean_object* l_Std_HashMapImp_insert___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashMap_insert___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -552,19 +552,19 @@ switch (lean_obj_tag(x_2)) {
 case 3:
 {
 lean_object* x_4; 
-x_4 = l_Std_HashMapImp_insert___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__1(x_3, x_1, x_2);
+x_4 = l_Std_HashMap_insert___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__1(x_3, x_1, x_2);
 return x_4;
 }
 case 4:
 {
 lean_object* x_5; 
-x_5 = l_Std_HashMapImp_insert___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__1(x_3, x_1, x_2);
+x_5 = l_Std_HashMap_insert___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__1(x_3, x_1, x_2);
 return x_5;
 }
 case 5:
 {
 lean_object* x_6; 
-x_6 = l_Std_HashMapImp_insert___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__1(x_3, x_1, x_2);
+x_6 = l_Std_HashMap_insert___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__1(x_3, x_1, x_2);
 return x_6;
 }
 default: 
@@ -708,19 +708,19 @@ switch (lean_obj_tag(x_4)) {
 case 3:
 {
 lean_object* x_7; 
-x_7 = l_Std_HashMapImp_insert___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__1(x_6, x_3, x_4);
+x_7 = l_Std_HashMap_insert___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__1(x_6, x_3, x_4);
 return x_7;
 }
 case 4:
 {
 lean_object* x_8; 
-x_8 = l_Std_HashMapImp_insert___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__1(x_6, x_3, x_4);
+x_8 = l_Std_HashMap_insert___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__1(x_6, x_3, x_4);
 return x_8;
 }
 case 5:
 {
 lean_object* x_9; 
-x_9 = l_Std_HashMapImp_insert___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__1(x_6, x_3, x_4);
+x_9 = l_Std_HashMap_insert___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__1(x_6, x_3, x_4);
 return x_9;
 }
 default: 

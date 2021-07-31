@@ -616,17 +616,22 @@ partial def importModules (imports : List Import) (opts : Options) (trustLevel :
   try
     importingRef.set true
     let (_, s) ← importMods imports |>.run {}
+    let mut numConsts := 0
+    for mod in s.moduleData do
+      numConsts := numConsts + mod.constants.size
     -- (moduleNames, mods, regions)
     let mut modIdx : Nat := 0
-    let mut const2ModIdx : HashMap Name ModuleIdx := {}
-    let mut constants : ConstMap := SMap.empty
+    let mut const2ModIdx : HashMap Name ModuleIdx := Std.mkHashMap (nbuckets := numConsts)
+    let mut constantMap : HashMap Name ConstantInfo := Std.mkHashMap (nbuckets := numConsts)
     for mod in s.moduleData do
       for cinfo in mod.constants do
         const2ModIdx := const2ModIdx.insert cinfo.name modIdx
-        if constants.contains cinfo.name then throw (IO.userError s!"import failed, environment already contains '{cinfo.name}'")
-        constants := constants.insert cinfo.name cinfo
-      modIdx := modIdx + 1
-    constants   := constants.switch
+        match constantMap.insert' cinfo.name cinfo with
+        | (constantMap', replaced) =>
+          constantMap := constantMap'
+          if replaced then throw (IO.userError s!"import failed, environment already contains '{cinfo.name}'")
+       modIdx := modIdx + 1
+    let constants : ConstMap := SMap.fromHashMap constantMap false
     let exts ← mkInitialExtensionStates
     let env : Environment := {
       const2ModIdx := const2ModIdx,
@@ -671,10 +676,10 @@ unsafe def withImportModules {α : Type} (imports : List Import) (opts : Options
   let env ← importModules imports opts trustLevel
   try x env finally env.freeRegions
 
-builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSet ←
+builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSSet ←
   registerSimplePersistentEnvExtension {
     name            := `namespaces,
-    addImportedFn   := fun as => mkStateFromImportedEntries NameSet.insert {} as,
+    addImportedFn   := fun as => mkStateFromImportedEntries NameSSet.insert NameSSet.empty as |>.switch,
     addEntryFn      := fun s n => s.insert n
   }
 
@@ -686,7 +691,7 @@ def registerNamespace (env : Environment) (n : Name) : Environment :=
 def isNamespace (env : Environment) (n : Name) : Bool :=
   (namespacesExt.getState env).contains n
 
-def getNamespaceSet (env : Environment) : NameSet :=
+def getNamespaceSet (env : Environment) : NameSSet :=
   namespacesExt.getState env
 
 private def isNamespaceName : Name → Bool

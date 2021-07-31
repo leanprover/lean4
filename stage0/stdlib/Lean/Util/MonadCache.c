@@ -47,6 +47,7 @@ lean_object* l_Lean_MonadCacheT_instMonadFinallyMonadCacheT___boxed(lean_object*
 lean_object* l_modify___at_Lean_MonadCacheT_instMonadHashMapCacheAdapterMonadCacheT___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instMonadCacheReaderT___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instMonadCacheReaderT___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_instMonadExceptOfStateRefT_x27___rarg(lean_object*);
 lean_object* l_StateT_monadControl___rarg(lean_object*);
 lean_object* l_Lean_MonadHashMapCacheAdapter_cache___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -122,7 +123,6 @@ lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
 lean_object* l_Lean_MonadStateCacheT_instMonadHashMapCacheAdapterMonadStateCacheT___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadStateCacheT_instMonadRefMonadStateCacheT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadStateCacheT_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_HashMapImp_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_modify___at_Lean_MonadCacheT_instMonadHashMapCacheAdapterMonadCacheT___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadCacheT_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadCacheT_instMonadRefMonadCacheT___rarg(lean_object*, lean_object*);
@@ -473,7 +473,7 @@ lean_object* l_Lean_MonadHashMapCacheAdapter_cache___rarg___lambda__1(lean_objec
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Std_HashMapImp_insert___rarg(x_1, x_2, x_5, x_3, x_4);
+x_6 = l_Std_HashMap_insert___rarg(x_1, x_2, x_5, x_3, x_4);
 return x_6;
 }
 }

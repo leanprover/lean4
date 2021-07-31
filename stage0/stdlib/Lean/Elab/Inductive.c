@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_checkParamsAndResultType_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_HashMap_insert___at_Lean_Meta_reduce_visit___spec__9(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_checkParamsAndResultType___lambda__1___closed__4;
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabCtors(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabHeaderAux___lambda__2___closed__1;
@@ -49,7 +50,6 @@ lean_object* l_Lean_throwError___at_Lean_Meta_whnf___spec__1(lean_object*, lean_
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_levelMVarToParamAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabCtors_checkParamOccs___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_checkValidCtorModifier___rarg___closed__2;
-lean_object* l_Std_HashMapImp_insert___at_Lean_Meta_reduce_visit___spec__9(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_liftTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabCtors_checkParamOccs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkCasesOn___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_mkAuxConstructions___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -302,6 +302,7 @@ extern lean_object* l_Lean_instInhabitedExpr;
 static lean_object* l_Lean_Elab_Command_checkValidCtorModifier___rarg___lambda__1___closed__2;
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_withInductiveLocalDecls___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyInferMod(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_HashMap_insert___at_Lean_ClassState_addEntry___spec__6(lean_object*, lean_object*, uint8_t);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_mkCtor2InferMod___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_shouldInferResultUniverse___closed__2;
@@ -553,7 +554,6 @@ lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 static lean_object* l_List_map___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyInferMod___spec__1___closed__3;
 lean_object* l_Lean_Elab_Command_tmpIndParam;
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_updateResultingUniverse___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_HashMapImp_insert___at_Lean_ClassState_addEntry___spec__6(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Elab_Command_instInhabitedCtorView___closed__1;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabCtors_elabCtorType___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10896,7 +10896,7 @@ lean_inc(x_18);
 lean_dec(x_15);
 lean_inc(x_3);
 x_19 = l_Lean_mkConst(x_18, x_3);
-x_20 = l_Std_HashMapImp_insert___at_Lean_Meta_reduce_visit___spec__9(x_7, x_17, x_19);
+x_20 = l_Std_HashMap_insert___at_Lean_Meta_reduce_visit___spec__9(x_7, x_17, x_19);
 x_21 = lean_ctor_get(x_4, 2);
 x_22 = lean_nat_add(x_6, x_21);
 lean_dec(x_6);
@@ -12640,7 +12640,7 @@ x_7 = lean_ctor_get(x_6, 2);
 lean_inc(x_7);
 x_8 = lean_ctor_get_uint8(x_6, sizeof(void*)*5);
 lean_dec(x_6);
-x_9 = l_Std_HashMapImp_insert___at_Lean_ClassState_addEntry___spec__6(x_4, x_7, x_8);
+x_9 = l_Std_HashMap_insert___at_Lean_ClassState_addEntry___spec__6(x_4, x_7, x_8);
 x_10 = 1;
 x_11 = x_3 + x_10;
 x_3 = x_11;
@@ -12757,7 +12757,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_map___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyInferMod___spec__1___closed__1;
 x_2 = l_List_map___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyInferMod___spec__1___closed__2;
-x_3 = lean_unsigned_to_nat(160u);
+x_3 = lean_unsigned_to_nat(169u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_List_map___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyInferMod___spec__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

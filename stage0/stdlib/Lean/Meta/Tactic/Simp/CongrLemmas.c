@@ -114,6 +114,7 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec_
 static lean_object* l___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemma____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_50____closed__17;
 static lean_object* l_Lean_Meta_mkCongrLemma___closed__4;
 static lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_getCongrLemmas___spec__1___closed__2;
+lean_object* l_Std_HashMap_insert___at_Lean_Meta_addCongrLemmaEntry___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConstWithLevelParams___at_Lean_Meta_mkCongrLemma___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemmas____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_156____closed__8;
@@ -355,7 +356,6 @@ lean_object* l_Lean_Meta_addCongrLemmaEntry_insert(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_congrExtension___closed__7;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_mkCongrLemma___spec__9___closed__2;
-lean_object* l_Std_HashMapImp_insert___at_Lean_Meta_addCongrLemmaEntry___spec__6(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 lean_object* l_Lean_instInhabitedPersistentEnvExtensionState___rarg(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemmas____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_156____spec__10(lean_object*);
@@ -3683,7 +3683,7 @@ return x_17;
 }
 }
 }
-lean_object* l_Std_HashMapImp_insert___at_Lean_Meta_addCongrLemmaEntry___spec__6(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashMap_insert___at_Lean_Meta_addCongrLemmaEntry___spec__6(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -3836,7 +3836,7 @@ if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_15 = lean_ctor_get(x_1, 0);
-x_16 = l_Std_HashMapImp_insert___at_Lean_Meta_addCongrLemmaEntry___spec__6(x_15, x_2, x_3);
+x_16 = l_Std_HashMap_insert___at_Lean_Meta_addCongrLemmaEntry___spec__6(x_15, x_2, x_3);
 x_17 = 1;
 lean_ctor_set(x_1, 0, x_16);
 lean_ctor_set_uint8(x_1, sizeof(void*)*2, x_17);
@@ -3850,7 +3850,7 @@ x_19 = lean_ctor_get(x_1, 1);
 lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_1);
-x_20 = l_Std_HashMapImp_insert___at_Lean_Meta_addCongrLemmaEntry___spec__6(x_18, x_2, x_3);
+x_20 = l_Std_HashMap_insert___at_Lean_Meta_addCongrLemmaEntry___spec__6(x_18, x_2, x_3);
 x_21 = 1;
 x_22 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_22, 0, x_20);

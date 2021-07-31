@@ -132,7 +132,6 @@ lean_object* l_Lean_Elab_Term_Do_ToTerm_mkNestedKind___boxed(lean_object*, lean_
 lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_hasLiftMethod_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_getDoIdDeclVar___boxed(lean_object*);
 static lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_mkUnit___closed__3;
-lean_object* l_Array_foldlMUnsafe_fold___at_Lean_initFn____x40_Lean_Environment___hyg_4020____spec__2(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Term_Do_ToCodeBlock_doSeqToCode___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Do_convertTerminalActionIntoJmp_loop___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -451,6 +450,7 @@ static lean_object* l_Lean_Elab_Term_Do_pullExitPointsAux___lambda__1___closed__
 lean_object* l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_sequenceMap___at___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_expandDoIf_x3f___spec__1(lean_object*, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_Do_insertVars___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_mkMonadAlias(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_continueToTerm___closed__24;
 static lean_object* l_Lean_Elab_Term_Do_CodeBlocl_toMessageData_loop___closed__8;
@@ -1348,6 +1348,7 @@ lean_object* l_Lean_throwError___at_Lean_Elab_Term_synthesizeInst___spec__1(lean
 static lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doTryToCode___lambda__2___closed__3;
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_continueToTerm___closed__1;
 lean_object* l_Lean_Elab_Term_Do_getDoLetVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_Do_insertVars___spec__1(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_reassignToTerm___closed__7;
 lean_object* l_Lean_throwError___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_breakToTerm___closed__12;
@@ -7001,6 +7002,29 @@ lean_dec(x_3);
 return x_11;
 }
 }
+lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_Do_insertVars___spec__1(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; 
+x_5 = x_2 == x_3;
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
+x_6 = lean_array_uget(x_1, x_2);
+x_7 = lean_box(0);
+x_8 = l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_4, x_6, x_7);
+x_9 = 1;
+x_10 = x_2 + x_9;
+x_2 = x_10;
+x_4 = x_8;
+goto _start;
+}
+else
+{
+return x_4;
+}
+}
+}
 lean_object* l_Lean_Elab_Term_Do_insertVars(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -7028,10 +7052,23 @@ size_t x_7; size_t x_8; lean_object* x_9;
 x_7 = 0;
 x_8 = lean_usize_of_nat(x_3);
 lean_dec(x_3);
-x_9 = l_Array_foldlMUnsafe_fold___at_Lean_initFn____x40_Lean_Environment___hyg_4020____spec__2(x_2, x_7, x_8, x_1);
+x_9 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_Do_insertVars___spec__1(x_2, x_7, x_8, x_1);
 return x_9;
 }
 }
+}
+}
+lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_Do_insertVars___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+size_t x_5; size_t x_6; lean_object* x_7; 
+x_5 = lean_unbox_usize(x_2);
+lean_dec(x_2);
+x_6 = lean_unbox_usize(x_3);
+lean_dec(x_3);
+x_7 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_Do_insertVars___spec__1(x_1, x_5, x_6, x_4);
+lean_dec(x_1);
+return x_7;
 }
 }
 lean_object* l_Lean_Elab_Term_Do_insertVars___boxed(lean_object* x_1, lean_object* x_2) {

@@ -679,7 +679,7 @@ unsafe def withImportModules {α : Type} (imports : List Import) (opts : Options
 builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSet ←
   registerSimplePersistentEnvExtension {
     name            := `namespaces,
-    addImportedFn   := fun as => mkStateFromImportedEntries NameSet.insert {} as,
+    addImportedFn   := fun as => mkStateFromImportedEntries (fun s n => dbg_trace "{n}"; NameSet.insert s n) {} as,
     addEntryFn      := fun s n => s.insert n
   }
 

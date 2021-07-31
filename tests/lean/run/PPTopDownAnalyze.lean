@@ -252,6 +252,18 @@ structure S2 where x : Unit
 #testDelab (fun (u : Unit) => Eq.refl True) ()
   expecting  (fun (u : Unit) => Eq.refl True) ()
 
+inductive NeedsAnalysis {α : Type} : Prop
+  | mk : NeedsAnalysis
+
+set_option pp.proofs false in
+#testDelab @NeedsAnalysis.mk Unit
+  expecting (_ : NeedsAnalysis (α := Unit))
+
+set_option pp.proofs false in
+set_option pp.proofs.withType false in
+#testDelab @NeedsAnalysis.mk Unit
+  expecting _
+
 #testDelabN Nat.brecOn
 #testDelabN Nat.below
 #testDelabN Nat.mod_lt

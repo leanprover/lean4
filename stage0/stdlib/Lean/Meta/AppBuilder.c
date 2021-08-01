@@ -5234,6 +5234,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
+lean_inc(x_13);
 x_15 = l_Lean_Meta_hasAssignableMVar(x_13, x_5, x_6, x_7, x_8, x_14);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);

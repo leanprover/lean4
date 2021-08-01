@@ -17,7 +17,7 @@ protected def lt : Position → Position → Bool
   | ⟨l₁, c₁⟩, ⟨l₂, c₂⟩ => (l₁, c₁) < (l₂, c₂)
 
 instance : ToFormat Position :=
-  ⟨fun ⟨l, c⟩ => "⟨" ++ fmt l ++ ", " ++ fmt c ++ "⟩"⟩
+  ⟨fun ⟨l, c⟩ => "⟨" ++ format l ++ ", " ++ format c ++ "⟩"⟩
 
 instance : ToString Position :=
   ⟨fun ⟨l, c⟩ => "⟨" ++ toString l ++ ", " ++ toString c ++ "⟩"⟩

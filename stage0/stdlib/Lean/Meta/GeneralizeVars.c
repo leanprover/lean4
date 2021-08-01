@@ -1475,13 +1475,13 @@ x_10 = lean_ctor_get(x_1, 0);
 x_11 = lean_ctor_get(x_3, 0);
 lean_inc(x_11);
 lean_dec(x_3);
+lean_inc(x_11);
 lean_inc(x_2);
 x_12 = l_Lean_MetavarContext_getExprAssignment_x3f(x_2, x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; 
 x_13 = l_Lean_MetavarContext_getDecl(x_2, x_11);
-lean_dec(x_11);
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
 lean_dec(x_13);
@@ -2127,13 +2127,13 @@ x_10 = lean_ctor_get(x_1, 0);
 x_11 = lean_ctor_get(x_3, 0);
 lean_inc(x_11);
 lean_dec(x_3);
+lean_inc(x_11);
 lean_inc(x_2);
 x_12 = l_Lean_MetavarContext_getExprAssignment_x3f(x_2, x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; 
 x_13 = l_Lean_MetavarContext_getDecl(x_2, x_11);
-lean_dec(x_11);
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
 lean_dec(x_13);
@@ -2779,13 +2779,13 @@ x_10 = lean_ctor_get(x_1, 0);
 x_11 = lean_ctor_get(x_3, 0);
 lean_inc(x_11);
 lean_dec(x_3);
+lean_inc(x_11);
 lean_inc(x_2);
 x_12 = l_Lean_MetavarContext_getExprAssignment_x3f(x_2, x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; 
 x_13 = l_Lean_MetavarContext_getDecl(x_2, x_11);
-lean_dec(x_11);
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
 lean_dec(x_13);
@@ -3431,13 +3431,13 @@ x_10 = lean_ctor_get(x_1, 0);
 x_11 = lean_ctor_get(x_3, 0);
 lean_inc(x_11);
 lean_dec(x_3);
+lean_inc(x_11);
 lean_inc(x_2);
 x_12 = l_Lean_MetavarContext_getExprAssignment_x3f(x_2, x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; 
 x_13 = l_Lean_MetavarContext_getDecl(x_2, x_11);
-lean_dec(x_11);
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
 lean_dec(x_13);
@@ -4083,13 +4083,13 @@ x_10 = lean_ctor_get(x_1, 0);
 x_11 = lean_ctor_get(x_3, 0);
 lean_inc(x_11);
 lean_dec(x_3);
+lean_inc(x_11);
 lean_inc(x_2);
 x_12 = l_Lean_MetavarContext_getExprAssignment_x3f(x_2, x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; 
 x_13 = l_Lean_MetavarContext_getDecl(x_2, x_11);
-lean_dec(x_11);
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
 lean_dec(x_13);
@@ -4735,13 +4735,13 @@ x_10 = lean_ctor_get(x_1, 0);
 x_11 = lean_ctor_get(x_3, 0);
 lean_inc(x_11);
 lean_dec(x_3);
+lean_inc(x_11);
 lean_inc(x_2);
 x_12 = l_Lean_MetavarContext_getExprAssignment_x3f(x_2, x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; 
 x_13 = l_Lean_MetavarContext_getDecl(x_2, x_11);
-lean_dec(x_11);
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
 lean_dec(x_13);

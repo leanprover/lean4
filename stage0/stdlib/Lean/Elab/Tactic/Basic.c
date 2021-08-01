@@ -6667,7 +6667,6 @@ lean_inc(x_1);
 x_19 = l_Lean_Syntax_getKind(x_1);
 x_20 = l_Lean_Elab_Tactic_tacticElabAttribute;
 x_21 = l_Lean_KeyedDeclsAttribute_getEntries___rarg(x_20, x_18, x_19);
-lean_dec(x_19);
 lean_dec(x_18);
 if (lean_obj_tag(x_21) == 0)
 {
@@ -7251,7 +7250,6 @@ lean_inc(x_1);
 x_15 = l_Lean_Syntax_getKind(x_1);
 x_16 = l_Lean_Elab_macroAttribute;
 x_17 = l_Lean_KeyedDeclsAttribute_getEntries___rarg(x_16, x_14, x_15);
-lean_dec(x_15);
 lean_dec(x_14);
 x_18 = l_Lean_Elab_Tactic_expandTacticMacroFns_loop(x_1, x_17, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_13);
 return x_18;
@@ -12501,7 +12499,10 @@ else
 {
 lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 x_14 = lean_ctor_get(x_2, 0);
+lean_inc(x_14);
 x_15 = lean_ctor_get(x_2, 1);
+lean_inc(x_15);
+lean_dec(x_2);
 lean_inc(x_1);
 x_16 = l_Lean_MetavarContext_isAnonymousMVar(x_1, x_14);
 if (x_16 == 0)
@@ -12567,6 +12568,7 @@ if (x_8 == 0)
 lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_9 = lean_ctor_get(x_5, 0);
 x_10 = lean_ctor_get(x_5, 1);
+lean_inc(x_6);
 lean_inc(x_9);
 x_11 = l_Lean_MetavarContext_isAnonymousMVar(x_9, x_6);
 if (x_11 == 0)
@@ -12653,6 +12655,7 @@ x_31 = lean_ctor_get(x_5, 1);
 lean_inc(x_31);
 lean_inc(x_30);
 lean_dec(x_5);
+lean_inc(x_6);
 lean_inc(x_30);
 x_32 = l_Lean_MetavarContext_isAnonymousMVar(x_30, x_6);
 if (x_32 == 0)
@@ -12756,6 +12759,7 @@ x_18 = lean_ctor_get(x_16, 0);
 lean_inc(x_18);
 lean_dec(x_16);
 x_19 = lean_unsigned_to_nat(0u);
+lean_inc(x_3);
 x_20 = l_List_forIn_loop___at_Lean_Elab_Tactic_tagUntaggedGoals___spec__1(x_18, x_3, x_19, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_17);
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc(x_21);
@@ -12873,7 +12877,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 return x_13;
 }
 }

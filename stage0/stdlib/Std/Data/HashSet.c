@@ -23,6 +23,7 @@ lean_object* l_Std_HashSetImp_moveEntries(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_foldM___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
+static lean_object* l_Std_HashSet_empty___closed__1;
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_foldM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -113,7 +114,6 @@ lean_object* l_Std_HashSetImp_contains(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSetImp_foldM___spec__1___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 lean_object* l_Std_HashSetImp_insert(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_foldM___spec__1___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
-static lean_object* l_Std_HashSet_instInhabitedHashSet___closed__1;
 uint8_t l_Std_HashSet_isEmpty___rarg(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_toList___spec__2___rarg(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_List_find_x3f___rarg(lean_object*, lean_object*);
@@ -1356,7 +1356,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_Std_HashSet_instInhabitedHashSet___closed__1() {
+static lean_object* _init_l_Std_HashSet_empty___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1365,11 +1365,29 @@ x_2 = l_Std_mkHashSetImp___rarg(x_1);
 return x_2;
 }
 }
+lean_object* l_Std_HashSet_empty(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_HashSet_empty___closed__1;
+return x_4;
+}
+}
+lean_object* l_Std_HashSet_empty___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_HashSet_empty(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
 lean_object* l_Std_HashSet_instInhabitedHashSet(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_HashSet_instInhabitedHashSet___closed__1;
+x_4 = l_Std_HashSet_empty___closed__1;
 return x_4;
 }
 }
@@ -1387,7 +1405,7 @@ lean_object* l_Std_HashSet_instEmptyCollectionHashSet(lean_object* x_1, lean_obj
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_HashSet_instInhabitedHashSet___closed__1;
+x_4 = l_Std_HashSet_empty___closed__1;
 return x_4;
 }
 }
@@ -1912,24 +1930,6 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* l_Std_HashSet_empty(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_HashSet_instInhabitedHashSet___closed__1;
-return x_4;
-}
-}
-lean_object* l_Std_HashSet_empty___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_HashSet_empty(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
 lean_object* l_List_foldlM___at_Std_HashSet_toList___spec__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2278,8 +2278,8 @@ l_Std_mkHashSetImp___rarg___closed__1 = _init_l_Std_mkHashSetImp___rarg___closed
 lean_mark_persistent(l_Std_mkHashSetImp___rarg___closed__1);
 l_Std_mkHashSetImp___rarg___closed__2 = _init_l_Std_mkHashSetImp___rarg___closed__2();
 lean_mark_persistent(l_Std_mkHashSetImp___rarg___closed__2);
-l_Std_HashSet_instInhabitedHashSet___closed__1 = _init_l_Std_HashSet_instInhabitedHashSet___closed__1();
-lean_mark_persistent(l_Std_HashSet_instInhabitedHashSet___closed__1);
+l_Std_HashSet_empty___closed__1 = _init_l_Std_HashSet_empty___closed__1();
+lean_mark_persistent(l_Std_HashSet_empty___closed__1);
 l_Std_HashSet_toArray___rarg___closed__1 = _init_l_Std_HashSet_toArray___rarg___closed__1();
 lean_mark_persistent(l_Std_HashSet_toArray___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

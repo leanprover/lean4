@@ -241,7 +241,7 @@ mutual
        -- We use `traceM` because we want to make sure the metavar local context is used to trace the message
        traceM `Elab.postpone (withMVarContext mvarDecl.mvarId do addMessageContext m!"resuming {mkMVar mvarDecl.mvarId}")
        let succeeded ← synthesizeSyntheticMVar mvarDecl postponeOnError runTactics
-       trace[Elab.postpone] if succeeded then fmt "succeeded" else fmt "not ready yet"
+       trace[Elab.postpone] if succeeded then format "succeeded" else format "not ready yet"
        pure !succeeded
     -- Merge new synthetic metavariables with `remainingSyntheticMVars`, i.e., metavariables that still couldn't be synthesized
     modify fun s => { s with syntheticMVars := s.syntheticMVars ++ remainingSyntheticMVars }

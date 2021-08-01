@@ -1789,6 +1789,7 @@ lean_inc(x_29);
 lean_dec(x_18);
 lean_inc(x_29);
 x_30 = l_Lean_mkMVar(x_29);
+lean_inc(x_29);
 x_31 = l_Lean_Elab_Term_getMVarDecl(x_29, x_3, x_4, x_5, x_6, x_7, x_8, x_16);
 x_32 = !lean_is_exclusive(x_31);
 if (x_32 == 0)
@@ -1809,6 +1810,7 @@ if (x_38 == 0)
 lean_object* x_39; 
 lean_free_object(x_31);
 lean_dec(x_30);
+lean_inc(x_29);
 lean_inc(x_17);
 x_39 = l_Lean_MetavarContext_getExprAssignment_x3f(x_17, x_29);
 if (lean_obj_tag(x_39) == 0)
@@ -2141,6 +2143,7 @@ if (x_111 == 0)
 {
 lean_object* x_112; 
 lean_dec(x_30);
+lean_inc(x_29);
 lean_inc(x_17);
 x_112 = l_Lean_MetavarContext_getExprAssignment_x3f(x_17, x_29);
 if (lean_obj_tag(x_112) == 0)

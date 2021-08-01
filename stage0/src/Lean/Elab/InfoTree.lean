@@ -253,7 +253,7 @@ partial def InfoTree.format (tree : InfoTree) (ctx? : Option ContextInfo := none
         return fmt
       else
         let ctx? := i.updateContext? ctx?
-        return f!"{fmt}{Std.Format.nestD <| Std.Format.prefixJoin "\n" (← cs.toList.mapM fun c => format c ctx?)}"
+        return f!"{fmt}{Std.Format.nestD <| Std.Format.prefixJoin (Std.format "\n") (← cs.toList.mapM fun c => format c ctx?)}"
 
 section
 variable [Monad m] [MonadInfoTree m]

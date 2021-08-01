@@ -20,8 +20,10 @@ static lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____clos
 static lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__5;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__3;
+static lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__15;
 static lean_object* l_Std_termF_x21_____closed__7;
 static lean_object* l_Std_termF_x21_____closed__16;
+static lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__16;
 static lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__7;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Std_termF_x21__;
@@ -41,6 +43,7 @@ static lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____clos
 static lean_object* l_Std_termF_x21_____closed__4;
 static lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__9;
 static lean_object* l_Std_termF_x21_____closed__9;
+static lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__17;
 static lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__4;
 static lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__1;
 static lean_object* l_Std_termF_x21_____closed__13;
@@ -299,7 +302,7 @@ static lean_object* _init_l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fmt");
+x_1 = lean_mk_string("Std.format");
 return x_1;
 }
 }
@@ -329,11 +332,9 @@ return x_4;
 static lean_object* _init_l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__11() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__8;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
+lean_object* x_1; 
+x_1 = lean_mk_string("format");
+return x_1;
 }
 }
 static lean_object* _init_l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__12() {
@@ -341,7 +342,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_termF_x21_____closed__2;
-x_2 = l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__8;
+x_2 = l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__11;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -349,21 +350,49 @@ return x_3;
 static lean_object* _init_l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__13() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__12;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
+lean_object* x_1; 
+x_1 = lean_mk_string("ToFormat");
+return x_1;
 }
 }
 static lean_object* _init_l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Std_termF_x21_____closed__2;
 x_2 = l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__13;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__15() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__14;
+x_2 = l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__11;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__16() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__15;
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__17() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__16;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -421,10 +450,10 @@ lean_inc(x_21);
 x_22 = lean_ctor_get(x_20, 1);
 lean_inc(x_22);
 lean_dec(x_20);
-x_23 = l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__11;
+x_23 = l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__12;
 x_24 = l_Lean_addMacroScope(x_14, x_23, x_13);
 x_25 = l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__10;
-x_26 = l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__14;
+x_26 = l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__17;
 x_27 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_27, 0, x_21);
 lean_ctor_set(x_27, 1, x_25);
@@ -511,6 +540,12 @@ l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__13 = _init_l_Std
 lean_mark_persistent(l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__13);
 l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__14 = _init_l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__14();
 lean_mark_persistent(l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__14);
+l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__15 = _init_l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__15();
+lean_mark_persistent(l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__15);
+l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__16 = _init_l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__16();
+lean_mark_persistent(l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__16);
+l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__17 = _init_l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__17();
+lean_mark_persistent(l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__17);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

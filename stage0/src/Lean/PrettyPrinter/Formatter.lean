@@ -142,6 +142,11 @@ def group (x : Formatter) : Formatter := do
   concat x
   modify fun st => { st with stack := st.stack.pop.push (Format.fill st.stack.back) }
 
+/-- Tags the top of the stack with `stx`'s position, if it has one. -/
+def tagTop (stx : Syntax) : Formatter := do
+  if let some p := stx.getPos? then
+    modify fun st => { st with stack := st.stack.pop.push (Format.tag p st.stack.back) }
+
 @[combinatorFormatter Lean.Parser.orelse] def orelse.formatter (p1 p2 : Formatter) : Formatter :=
   -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
   -- them in turn. Uses the syntax traverser non-linearly!
@@ -164,7 +169,9 @@ unsafe def formatterForKindUnsafe (k : SyntaxNodeKind) : Formatter := do
     goLeft
   else
     let f ← runForNodeKind formatterAttribute k interpretParserDescr'
-    f
+    let stx ← getCur
+    concat f
+    tagTop stx
 
 @[implementedBy formatterForKindUnsafe]
 constant formatterForKind (k : SyntaxNodeKind) : Formatter
@@ -192,7 +199,7 @@ def tokenWithAntiquot.formatter (p : Formatter) : Formatter := do
 @[combinatorFormatter Lean.Parser.categoryParser]
 def categoryParser.formatter (cat : Name) : Formatter := group $ indent do
   let stx ← getCur
-  trace[PrettyPrinter.format] "formatting {indentD (fmt stx)}"
+  trace[PrettyPrinter.format] "formatting {indentD (format stx)}"
   if stx.getKind == `choice then
     visitArgs do
       -- format only last choice
@@ -319,7 +326,7 @@ def symbolNoAntiquot.formatter (sym : String) : Formatter := do
     pushToken info sym
     goLeft
   else do
-    trace[PrettyPrinter.format.backtrack] "unexpected syntax '{fmt stx}', expected symbol '{sym}'"
+    trace[PrettyPrinter.format.backtrack] "unexpected syntax '{format stx}', expected symbol '{sym}'"
     throwBacktrack
 
 @[combinatorFormatter Lean.Parser.nonReservedSymbolNoAntiquot] def nonReservedSymbolNoAntiquot.formatter := symbolNoAntiquot.formatter
@@ -462,7 +469,7 @@ end Formatter
 open Formatter
 
 def format (formatter : Formatter) (stx : Syntax) : CoreM Format := do
-  trace[PrettyPrinter.format.input] "{fmt stx}"
+  trace[PrettyPrinter.format.input] "{Std.format stx}"
   let options ← getOptions
   let table ← Parser.builtinTokenTable.get
   catchInternalId backtrackExceptionId

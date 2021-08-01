@@ -42,7 +42,7 @@ inductive ErrorCode where
   | contentModified
   | requestCancelled
   -- Lean-specific codes below.
-  | rpcNotInitialized
+  | rpcNeedsReconnect
   deriving Inhabited, BEq
 
 instance : FromJson ErrorCode := ⟨fun
@@ -55,7 +55,7 @@ instance : FromJson ErrorCode := ⟨fun
   | num (-32001 : Int) => ErrorCode.unknownErrorCode
   | num (-32801 : Int) => ErrorCode.contentModified
   | num (-32800 : Int) => ErrorCode.requestCancelled
-  | num (-32900 : Int) => ErrorCode.rpcNotInitialized
+  | num (-32900 : Int) => ErrorCode.rpcNeedsReconnect
   | _  => throw "expected error code"⟩
 
 instance : ToJson ErrorCode := ⟨fun
@@ -68,7 +68,7 @@ instance : ToJson ErrorCode := ⟨fun
   | ErrorCode.unknownErrorCode     => (-32001 : Int)
   | ErrorCode.contentModified      => (-32801 : Int)
   | ErrorCode.requestCancelled     => (-32800 : Int)
-  | ErrorCode.rpcNotInitialized    => (-32900 : Int)⟩
+  | ErrorCode.rpcNeedsReconnect    => (-32900 : Int)⟩
 
 /- Uses separate constructors for notifications and errors because client and server
 behavior is expected to be wildly different for both. -/

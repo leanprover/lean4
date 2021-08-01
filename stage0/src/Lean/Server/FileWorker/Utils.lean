@@ -20,7 +20,8 @@ inductive ElabTaskError where
   | eof
   | ioError (e : IO.Error)
 
-instance : Coe IO.Error ElabTaskError := ⟨ElabTaskError.ioError⟩
+instance : Coe IO.Error ElabTaskError :=
+  ⟨ElabTaskError.ioError⟩
 
 structure CancelToken where
   ref : IO.Ref Bool
@@ -53,6 +54,7 @@ structure EditableDocument where
   cancelTk   : CancelToken
   deriving Inhabited
 
+/-- Concurrently modifiable part of an RPC session. -/
 structure RpcSessionState where
   /-- Objects that are being kept alive for the RPC client, together with their type names,
   mapped to by their RPC reference.
@@ -67,19 +69,40 @@ structure RpcSessionState where
 
 namespace RpcSessionState
 
-def store (typeName : Name) (obj : NonScalar) (st : RpcSessionState) : Lsp.RpcRef × RpcSessionState :=
+def store (st : RpcSessionState) (typeName : Name) (obj : NonScalar) : Lsp.RpcRef × RpcSessionState :=
   let ref := ⟨st.nextRef⟩
   let st' := { st with aliveRefs := st.aliveRefs.insert ref (typeName, obj)
                        nextRef := st.nextRef + 1 }
   (ref, st')
 
-def release (ref : Lsp.RpcRef) (st : RpcSessionState) : RpcSessionState :=
-  { st with aliveRefs := st.aliveRefs.erase ref }
+def release (st : RpcSessionState) (ref : Lsp.RpcRef) : Bool × RpcSessionState :=
+  let released := st.aliveRefs.contains ref
+  (released, { st with aliveRefs := st.aliveRefs.erase ref })
 
 end RpcSessionState
 
 structure RpcSession where
-  sessionId : UInt64
-  state     : IO.Ref RpcSessionState
+  sessionId       : UInt64
+  clientConnected : Bool
+  -- A single `Ref` ensures atomic transactions.
+  state           : IO.Ref RpcSessionState
+
+namespace RpcSession
+
+def new (clientConnected := false) : IO RpcSession := do
+  /- We generate a random ID to ensure that session IDs do not repeat across re-initializations
+  and worker restarts. Otherwise, the client may attempt to use outdated references. -/
+  let newId ← ByteArray.toUInt64LE! <$> IO.getRandomBytes 8
+  let newState ← IO.mkRef {
+    aliveRefs := Std.PersistentHashMap.empty
+    nextRef := 0
+  }
+  return {
+    sessionId := newId
+    clientConnected
+    state := newState
+  }
+
+end RpcSession
 
 end Lean.Server.FileWorker

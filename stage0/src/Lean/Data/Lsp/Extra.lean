@@ -2,33 +2,25 @@
 Copyright (c) 2020 Marc Huisinga. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Authors: Marc Huisinga
+Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Lean.Data.Json
 import Lean.Data.JsonRpc
 import Lean.Data.Lsp.Basic
 
-/-!
-This file contains Lean-specific extensions to LSP.
-The following additional requests and notifications are supported:
-
-- `textDocument/waitForDiagnostics`: Yields a response when all the diagnostics for a version of the document
-  greater or equal to the specified one have been emitted. If the request specifies a version above the most
-  recently processed one, the server will delay the response until it does receive the specified version.
-  Exists for synchronization purposes, e.g. during testing or when external tools might want to use our LSP server.
-
-- `$/lean/fileProgress`: Server->client notification that contains the ranges of the document that are still being processed
-  by the server.
-
-- `$/lean/plainGoal`/`$/lean/plainTermGoal`: Returns the goal(s) at the specified position, pretty-printed as a string.
-
-- `$/lean/rpc/...`: See `Lean.Server.FileWorker.Rpc`.
--/
+/-! This file contains Lean-specific extensions to LSP. See the structures below for which
+additional requests and notifications are supported. -/
 
 namespace Lean.Lsp
-
 open Json
 
+/-- `textDocument/waitForDiagnostics` client->server request.
+
+Yields a response when all the diagnostics for a version of the document greater or equal to the
+specified one have been emitted. If the request specifies a version above the most recently
+processed one, the server will delay the response until it does receive the specified version.
+Exists for synchronization purposes, e.g. during testing or when external tools might want to use
+our LSP server. -/
 structure WaitForDiagnosticsParams where
   uri     : DocumentUri
   version : Nat
@@ -46,11 +38,17 @@ structure LeanFileProgressProcessingInfo where
   range : Range
   deriving FromJson, ToJson
 
+/-- `$/lean/fileProgress` client<-server notification.
+
+Contains the ranges of the document that are currently being processed by the server. -/
 structure LeanFileProgressParams where
   textDocument : VersionedTextDocumentIdentifier
   processing : Array LeanFileProgressProcessingInfo
   deriving FromJson, ToJson
 
+/-- `$/lean/plainGoal` client->server request.
+
+Returns the goal(s) at the specified position, pretty-printed as a string. -/
 structure PlainGoalParams extends TextDocumentPositionParams
   deriving FromJson, ToJson
 
@@ -59,6 +57,9 @@ structure PlainGoal where
   goals : Array String
   deriving FromJson, ToJson
 
+/-- `$/lean/plainTermGoal` client->server request.
+
+Returns the expected type at the specified position, pretty-printed as a string. -/
 structure PlainTermGoalParams extends TextDocumentPositionParams
   deriving FromJson, ToJson
 
@@ -77,20 +78,31 @@ structure RpcRef where
 instance : ToString RpcRef where
   toString r := toString r.p
 
-/-- Initialize an RPC session at the given file's worker. -/
-structure RpcInitializeParams where
+/-- `$/lean/rpc/connect` client->server notification.
+
+A notification to connect to the RPC session at the given file's worker. Should be sent:
+- exactly once whenever RPC is first needed (e.g. on client startup)
+- if an `RpcNeedsReconnect` error is received in an RPC request -/
+structure RpcConnectParams where
   uri : DocumentUri
   deriving FromJson, ToJson
 
-structure RpcInitialized where
+/-- `$/lean/rpc/connected` client<-server notification.
+
+Indicates that an RPC connection had been made. On receiving this, the client should discard any
+references it may still be holding from previous RPC sessions. -/
+structure RpcConnected where
   uri : DocumentUri
   sessionId : UInt64
   deriving FromJson, ToJson
 
-/-- A client request to execute a procedure previously bound for RPC.
+/-- `$/lean/rpc/call` client->server request.
 
-Extending TDPP is weird. But in Lean, symbols exist in the context of a position
-within a source file. So we need this to refer to code in the env at that position. -/
+A request to execute a procedure bound for RPC. If an incorrect session ID is present, the server
+errors with `RpcNeedsReconnect`.
+
+Extending TDPP is weird. But in Lean, symbols exist in the context of a position within a source
+file. So we need this to refer to code in the environment at that position. -/
 structure RpcCallParams extends TextDocumentPositionParams where
   sessionId : UInt64
   /-- Procedure to invoke. Must be fully qualified. -/
@@ -98,9 +110,10 @@ structure RpcCallParams extends TextDocumentPositionParams where
   params : Json
   deriving FromJson, ToJson
 
-/-- A client request to release a remote reference. Should be invoked by the client
-when it no longer needs an `RpcRef` it has previously received from the server.
-Not doing so is safe but will leak memory. -/
+/-- `$/lean/rpc/release` client->server notification.
+
+A notification to release a remote reference. Should be sent by the client when it no longer needs
+an `RpcRef` it has previously received from the server. Not doing so is safe but will leak memory. -/
 structure RpcReleaseParams where
   uri : DocumentUri
   sessionId : UInt64

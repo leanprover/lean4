@@ -37,6 +37,7 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_isCoeDecl___closed__25;
+extern lean_object* l_Lean_ExprStructEq_instHashableExprStructEq;
 extern lean_object* l_Lean_maxRecDepthErrorMessage;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_expandCoe___spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -59,9 +60,11 @@ uint8_t l_USize_decLt(size_t, size_t);
 static lean_object* l_Lean_Meta_transform_visit___at_Lean_Meta_expandCoe___spec__2___lambda__1___closed__1;
 static lean_object* l_Lean_Meta_transform___at_Lean_Meta_expandCoe___spec__1___closed__2;
 extern lean_object* l_Lean_levelZero;
+extern lean_object* l_Lean_ExprStructEq_instBEqExprStructEq;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_expandCoe___spec__7___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
+lean_object* l_Std_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_expandCoe___spec__8___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_isCoeDecl___closed__31;
 lean_object* l_StateRefT_x27_lift___rarg___boxed(lean_object*, lean_object*);
@@ -98,7 +101,6 @@ uint8_t l_Lean_Expr_isConst(lean_object*);
 static lean_object* l_Lean_Meta_isCoeDecl___closed__20;
 static lean_object* l_Lean_Meta_isCoeDecl___closed__10;
 static lean_object* l_Lean_Meta_isCoeDecl___closed__32;
-lean_object* l_Std_HashMap_insert___at_Lean_MetavarContext_instantiateExprMVars___spec__3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_isCoeDecl___closed__35;
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 size_t lean_usize_of_nat(lean_object*);
@@ -2781,13 +2783,15 @@ return x_80;
 lean_object* l_Lean_Meta_transform_visit___at_Lean_Meta_expandCoe___spec__2___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = l_Std_HashMap_insert___at_Lean_MetavarContext_instantiateExprMVars___spec__3(x_3, x_1, x_2);
-x_5 = lean_box(0);
-x_6 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_6, 0, x_5);
-lean_ctor_set(x_6, 1, x_4);
-return x_6;
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_4 = l_Lean_ExprStructEq_instBEqExprStructEq;
+x_5 = l_Lean_ExprStructEq_instHashableExprStructEq;
+x_6 = l_Std_HashMap_insert___rarg(x_4, x_5, x_3, x_1, x_2);
+x_7 = lean_box(0);
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_7);
+lean_ctor_set(x_8, 1, x_6);
+return x_8;
 }
 }
 lean_object* l_Lean_Meta_transform_visit___at_Lean_Meta_expandCoe___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {

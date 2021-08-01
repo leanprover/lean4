@@ -15,19 +15,19 @@ abbrev PHashSet (α : Type u) [BEq α] [Hashable α] := PersistentHashSet α
 
 namespace PersistentHashSet
 
-variable {α : Type u} [BEq α] [Hashable α]
+@[inline] def empty [BEq α] [Hashable α] : PersistentHashSet α :=
+  { set := PersistentHashMap.empty }
+
+instance [BEq α] [Hashable α] : Inhabited (PersistentHashSet α) where
+  default := empty
+
+instance [BEq α] [Hashable α] : EmptyCollection (PersistentHashSet α) :=
+  ⟨empty⟩
+
+variable {_ : BEq α} {_ : Hashable α}
 
 @[inline] def isEmpty (s : PersistentHashSet α) : Bool :=
   s.set.isEmpty
-
-@[inline] def empty : PersistentHashSet α :=
-  { set := PersistentHashMap.empty }
-
-instance : Inhabited (PersistentHashSet α) where
-  default := empty
-
-instance : EmptyCollection (PersistentHashSet α) :=
-  ⟨empty⟩
 
 @[inline] def insert (s : PersistentHashSet α) (a : α) : PersistentHashSet α :=
   { set := s.set.insert a () }

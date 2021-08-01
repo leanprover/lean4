@@ -9188,7 +9188,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_9;
 }
 }
@@ -10918,7 +10917,6 @@ lean_object* x_9;
 x_9 = l_Lean_Elab_Term_ppGoal(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_9;
 }
 }
@@ -15807,6 +15805,7 @@ lean_object* l_Lean_Elab_Term_synthesizeInstMVarCore(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_inc(x_1);
 x_10 = l_Lean_Elab_Term_getMVarDecl(x_1, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
@@ -28134,6 +28133,7 @@ x_18 = lean_ctor_get(x_16, 0);
 lean_inc(x_18);
 lean_dec(x_16);
 x_19 = l_Lean_Elab_Term_termElabAttribute;
+lean_inc(x_14);
 x_20 = l_Lean_KeyedDeclsAttribute_getEntries___rarg(x_19, x_18, x_14);
 lean_dec(x_18);
 if (lean_obj_tag(x_20) == 0)

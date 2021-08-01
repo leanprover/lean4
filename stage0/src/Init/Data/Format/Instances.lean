@@ -21,16 +21,14 @@ instance [ToFormat α] : ToFormat (List α) where
   format := List.format
 
 instance [ToFormat α] : ToFormat (Array α) where
-  format a := "#" ++ fmt a.toList
+  format a := "#" ++ format a.toList
 
 def Option.format {α : Type u} [ToFormat α] : Option α → Format
   | none   => "none"
-  | some a => "some " ++ fmt a
+  | some a => "some " ++ Std.format a
 
-instance {α : Type u} [ToFormat α] : ToFormat (Option α) where
-  format
-    | none   => "none"
-    | some a => "some " ++ fmt a
+instance {α : Type u} [ToFormat α] : ToFormat (Option α) :=
+  ⟨Option.format⟩
 
 instance {α : Type u} {β : Type v} [ToFormat α] [ToFormat β] : ToFormat (Prod α β) where
   format := fun (a, b) => Format.paren <| format a ++ "," ++ Format.line ++ format b

@@ -1830,6 +1830,24 @@ lean_dec(x_3);
 return x_5;
 }
 }
+lean_object* l_Std_HashMap_empty(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_HashMap_instInhabitedHashMap___closed__1;
+return x_5;
+}
+}
+lean_object* l_Std_HashMap_empty___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_HashMap_empty(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+return x_5;
+}
+}
 lean_object* l_Std_HashMap_insert_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2394,7 +2412,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_HashMap_find_x21___rarg___closed__1;
 x_2 = l_Std_HashMap_find_x21___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(169u);
+x_3 = lean_unsigned_to_nat(172u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Std_HashMap_find_x21___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -3052,24 +3070,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_HashMap_isEmpty(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-return x_5;
-}
-}
-lean_object* l_Std_HashMap_empty(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_HashMap_instInhabitedHashMap___closed__1;
-return x_5;
-}
-}
-lean_object* l_Std_HashMap_empty___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_HashMap_empty(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
 return x_5;

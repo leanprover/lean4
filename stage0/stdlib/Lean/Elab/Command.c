@@ -11599,6 +11599,7 @@ x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_dec(x_13);
 x_16 = l_Lean_Elab_Command_commandElabAttribute;
+lean_inc(x_2);
 x_17 = l_Lean_KeyedDeclsAttribute_getEntries___rarg(x_16, x_11, x_2);
 lean_dec(x_11);
 if (lean_obj_tag(x_17) == 0)

@@ -2555,7 +2555,6 @@ lean_inc(x_1);
 x_14 = l_Lean_Syntax_getKind(x_1);
 x_15 = l_Lean_Elab_Term_Quotation_precheckAttribute;
 x_16 = l_Lean_KeyedDeclsAttribute_getValues___rarg(x_15, x_13, x_14);
-lean_dec(x_14);
 lean_dec(x_13);
 if (lean_obj_tag(x_16) == 0)
 {

@@ -8753,6 +8753,7 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_1, 1);
 lean_inc(x_9);
 lean_dec(x_1);
+lean_inc(x_8);
 x_10 = l_Lean_Meta_getMatcherInfo_x3f(x_8, x_3, x_4, x_5, x_6, x_7);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
@@ -24326,7 +24327,6 @@ lean_inc(x_13);
 lean_dec(x_11);
 x_14 = l_Lean_PrettyPrinter_Delaborator_appUnexpanderAttribute;
 x_15 = l_Lean_KeyedDeclsAttribute_getValues___rarg(x_14, x_13, x_9);
-lean_dec(x_9);
 lean_dec(x_13);
 if (lean_obj_tag(x_15) == 0)
 {

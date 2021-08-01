@@ -165,7 +165,7 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
           | _, none      => pure fmt
           | _, some type => do
             let typeFmt ← ppExpr type
-            pure $ fmt ++ (Format.joinSep ids.reverse " " ++ " :" ++ Format.nest indent (Format.line ++ typeFmt)).group
+            pure $ fmt ++ (Format.joinSep ids.reverse (format " ") ++ " :" ++ Format.nest indent (Format.line ++ typeFmt)).group
       let rec ppVars (varNames : List Name) (prevType? : Option Expr) (fmt : Format) (localDecl : LocalDecl) : MetaM (List Name × Option Expr × Format) := do
         if hiddenProp.contains localDecl.fvarId then
           let fmt ← pushPending varNames prevType? fmt

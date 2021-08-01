@@ -149,6 +149,7 @@ lean_object* l_List_enumFrom_match__1___rarg(lean_object*, lean_object*, lean_ob
 lean_object* l_List_erase_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_lookup(lean_object*, lean_object*);
 lean_object* l_List_beq_match__1(lean_object*, lean_object*);
+lean_object* l_List_takeWhile___rarg(lean_object*, lean_object*);
 lean_object* l_List_eraseDupsAux(lean_object*);
 lean_object* l_min___at_List_minimum_x3f___spec__1(lean_object*, lean_object*);
 lean_object* l_List_unzip_match__1___rarg(lean_object*, lean_object*);
@@ -252,6 +253,7 @@ static lean_object* l_List_zip___rarg___closed__1;
 lean_object* l_List_intersperse(lean_object*);
 uint8_t l_List_contains___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_replicate_loop___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_takeWhile(lean_object*);
 lean_object* l_List_instLEList___boxed(lean_object*, lean_object*);
 lean_object* l_List_hasDecidableLt_match__4___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_List_eraseDups___rarg(lean_object*, lean_object*);
@@ -3101,6 +3103,91 @@ lean_object* x_3;
 x_3 = l_List_take___rarg(x_1, x_2);
 lean_dec(x_1);
 return x_3;
+}
+}
+lean_object* l_List_takeWhile___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_3; 
+lean_dec(x_1);
+x_3 = lean_box(0);
+return x_3;
+}
+else
+{
+uint8_t x_4; 
+x_4 = !lean_is_exclusive(x_2);
+if (x_4 == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+x_5 = lean_ctor_get(x_2, 0);
+x_6 = lean_ctor_get(x_2, 1);
+lean_inc(x_1);
+lean_inc(x_5);
+x_7 = lean_apply_1(x_1, x_5);
+x_8 = lean_unbox(x_7);
+lean_dec(x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; 
+lean_free_object(x_2);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_1);
+x_9 = lean_box(0);
+return x_9;
+}
+else
+{
+lean_object* x_10; 
+x_10 = l_List_takeWhile___rarg(x_1, x_6);
+lean_ctor_set(x_2, 1, x_10);
+return x_2;
+}
+}
+else
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+x_11 = lean_ctor_get(x_2, 0);
+x_12 = lean_ctor_get(x_2, 1);
+lean_inc(x_12);
+lean_inc(x_11);
+lean_dec(x_2);
+lean_inc(x_1);
+lean_inc(x_11);
+x_13 = lean_apply_1(x_1, x_11);
+x_14 = lean_unbox(x_13);
+lean_dec(x_13);
+if (x_14 == 0)
+{
+lean_object* x_15; 
+lean_dec(x_12);
+lean_dec(x_11);
+lean_dec(x_1);
+x_15 = lean_box(0);
+return x_15;
+}
+else
+{
+lean_object* x_16; lean_object* x_17; 
+x_16 = l_List_takeWhile___rarg(x_1, x_12);
+x_17 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_17, 0, x_11);
+lean_ctor_set(x_17, 1, x_16);
+return x_17;
+}
+}
+}
+}
+}
+lean_object* l_List_takeWhile(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_takeWhile___rarg), 2, 0);
+return x_2;
 }
 }
 lean_object* l_List_foldr___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

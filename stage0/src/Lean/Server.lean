@@ -6,3 +6,4 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Lean.Server.Watchdog
 import Lean.Server.FileWorker
+import Lean.Server.Rpc

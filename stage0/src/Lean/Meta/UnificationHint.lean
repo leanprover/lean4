@@ -21,7 +21,7 @@ structure UnificationHints where
   deriving Inhabited
 
 instance : ToFormat UnificationHints where
-  format h := fmt h.discrTree
+  format h := format h.discrTree
 
 def UnificationHints.add (hints : UnificationHints) (e : UnificationHintEntry) : UnificationHints :=
   { hints with discrTree := hints.discrTree.insertCore e.keys e.val }

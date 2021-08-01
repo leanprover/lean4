@@ -495,6 +495,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 2);
+lean_inc(x_1);
 x_6 = l_Lean_IR_findEnvDecl_x27(x_4, x_1, x_5);
 if (lean_obj_tag(x_6) == 0)
 {

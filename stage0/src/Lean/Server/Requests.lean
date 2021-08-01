@@ -12,6 +12,8 @@ import Lean.Data.Lsp
 import Lean.Server.FileSource
 import Lean.Server.FileWorker.Utils
 
+import Lean.Server.Rpc.Basic
+
 /-! We maintain a global map of LSP request handlers. This allows user code such as plugins
 to register its own handlers, for example to support ITP functionality such as goal state
 visualization.
@@ -53,7 +55,7 @@ def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
       message := s!"Cannot parse request params: {params.compress}\n{inner}" }
 
 structure RequestContext where
-  rpcSesh?      : Option FileWorker.RpcSession
+  rpcSesh       : FileWorker.RpcSession
   srcSearchPath : SearchPath
   doc           : FileWorker.EditableDocument
   hLog          : IO.FS.Stream
@@ -64,6 +66,17 @@ abbrev RequestM := ReaderT RequestContext <| ExceptT RequestError IO
 
 instance : Inhabited (RequestM α) :=
   ⟨throwThe IO.Error "executing Inhabited instance?!"⟩
+
+instance : MonadRpcSession RequestM where
+  rpcSessionId := do
+    (←read).rpcSesh.sessionId
+  rpcStoreRef typeName obj := do
+    (←read).rpcSesh.state.modifyGet fun st => st.store typeName obj
+  rpcGetRef r := do
+    let rs ← (←read).rpcSesh.state.get
+    rs.aliveRefs.find? r
+  rpcReleaseRef r := do
+    (←read).rpcSesh.state.modifyGet fun st => st.release r
 
 namespace RequestM
 open FileWorker
@@ -147,7 +160,7 @@ def registerLspRequestHandler (method : String)
   if (←requestHandlers.get).contains method then
     throw <| IO.userError s!"Failed to register LSP request handler for '{method}': already registered"
   let fileSource := fun j =>
-    parseRequestParams paramType j |>.map Lsp.fileSource 
+    parseRequestParams paramType j |>.map Lsp.fileSource
   let handle := fun j => do
     let params ← parseRequestParams paramType j
     let t ← handler params

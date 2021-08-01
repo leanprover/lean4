@@ -41,7 +41,7 @@ partial def formatStxAux (maxDepth : Option Nat) (showInfo : Bool) : Nat → Syn
 def formatStx (stx : Syntax) (maxDepth : Option Nat := none) (showInfo := false) : Format :=
   formatStxAux maxDepth showInfo 0 stx
 
-instance : ToFormat (Syntax)   := ⟨formatStx⟩
-instance : ToString (Syntax) := ⟨toString ∘ format⟩
+instance : ToFormat (Syntax) := ⟨formatStx⟩
+instance : ToString (Syntax) := ⟨@toString Format _ ∘ format⟩
 
 end Lean.Syntax

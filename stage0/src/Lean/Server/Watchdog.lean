@@ -406,7 +406,8 @@ section MessageHandling
     /- NOTE: textDocument/didChange is handled in the main loop. -/
     | "textDocument/didClose"  => handle DidCloseTextDocumentParams handleDidClose
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
-    | "$/lean/rpc/initialize"  => handle RpcInitializeParams (forwardNotification method)
+    | "$/lean/rpc/connect"     => handle RpcConnectParams (forwardNotification method)
+    | "$/lean/rpc/release"     => handle RpcReleaseParams (forwardNotification method)
     | _                        =>
       if !"$/".isPrefixOf method then  -- implementation-dependent notifications can be safely ignored
         (←read).hLog.putStrLn s!"Got unsupported notification: {method}"

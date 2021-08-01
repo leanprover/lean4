@@ -21,7 +21,7 @@ instance : BEq InstanceEntry where
 
 instance : ToFormat InstanceEntry where
   format e := match e.globalName? with
-    | some n => fmt n
+    | some n => format n
     | _      => "<local>"
 
 structure Instances where

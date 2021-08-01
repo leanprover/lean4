@@ -203,6 +203,12 @@ def take : Nat → List α → List α
   | n+1, []    => []
   | n+1, a::as => a :: take n as
 
+def takeWhile (p : α → Bool) : List α → List α
+  | []       => []
+  | hd :: tl => match p hd with
+   | true  => hd :: takeWhile p tl
+   | false => []
+
 @[specialize] def foldr (f : α → β → β) (init : β) : List α → β
   | []     => init
   | a :: l => f a (foldr f init l)

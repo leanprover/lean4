@@ -96,7 +96,6 @@ static lean_object* l_Std_Format_sbracket___closed__3;
 lean_object* l_Int_toNat(lean_object*);
 uint8_t l_Std_Format_defUnicode;
 lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_x27_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_fmt___rarg(lean_object*, lean_object*);
 lean_object* lean_format_group(lean_object*);
 uint8_t l_Std_Format_instInhabitedFlattenBehavior;
 lean_object* l_Std_Format_fill(lean_object*);
@@ -121,7 +120,6 @@ lean_object* l_StateT_instMonadStateT___rarg(lean_object*);
 lean_object* l_Std_instInhabitedFormat;
 lean_object* l_Std_Format_isNil_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_pushOutput___boxed(lean_object*, lean_object*);
-lean_object* l_Std_fmt(lean_object*);
 lean_object* l_Std_Format_pretty_match__1___rarg(lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 static lean_object* l_Std_Format_sbracket___closed__2;
@@ -4202,22 +4200,6 @@ x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 lean_dec(x_13);
 return x_14;
-}
-}
-lean_object* l_Std_fmt___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_apply_1(x_1, x_2);
-return x_3;
-}
-}
-lean_object* l_Std_fmt(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_fmt___rarg), 2, 0);
-return x_2;
 }
 }
 lean_object* l_Std_instToFormatFormat(lean_object* x_1) {

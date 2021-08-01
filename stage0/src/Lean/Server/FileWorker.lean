@@ -101,7 +101,7 @@ structure WorkerContext where
 structure WorkerState where
   doc             : EditableDocument
   pendingRequests : PendingRequestMap
-  rpcSesh         : Option RpcSession
+  rpcSesh         : RpcSession
 
 abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
@@ -197,7 +197,7 @@ section Initialization
     {
       doc             := doc
       pendingRequests := RBMap.empty
-      rpcSesh         := none
+      rpcSesh         := ← RpcSession.new false
     })
 end Initialization
 
@@ -272,23 +272,31 @@ section NotificationHandling
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
 
-  def handleRpcInitialize (p : RpcInitializeParams) : WorkerM Unit := do
-    let ctx ← read
-    let doc := (←get).doc
-    /- We generate a random ID to ensure that session IDs do not repeat across re-initializations
-    and worker restarts. Otherwise, the client may attempt to use outdated references. -/
-    let newId ← ByteArray.toUInt64LE! <$> IO.getRandomBytes 8
-    let newRpcState ← IO.mkRef {
-      aliveRefs := Std.PersistentHashMap.empty
-      nextRef := 0
-    }
-    /- Just setting this should `dec` the previous session. Any associated references
-    will then no longer be kept alive for the client. -/
-    modify fun st => { st with rpcSesh := some { sessionId := newId, state := newRpcState } }
-    ctx.hOut.writeLspNotification
-      <| { method := "$/lean/rpc/initialized"
+  def handleRpcConnect (p : RpcConnectParams) : WorkerM Unit := do
+    let st ← get
+    let doc := st.doc
+    let rpcSesh' ←
+      if !st.rpcSesh.clientConnected then
+        -- First client connection.
+        pure { st.rpcSesh with clientConnected := true }
+      else
+        /- Client has restarted. Just setting the state should `dec` the previous session.
+        Any associated references will then no longer be kept alive for the client. -/
+        RpcSession.new true
+    set { st with rpcSesh := rpcSesh' }
+    (←read).hOut.writeLspNotification
+      <| { method := "$/lean/rpc/connected"
            param := { uri := doc.meta.uri
-                      sessionId := newId : RpcInitialized } }
+                      sessionId := rpcSesh'.sessionId : RpcConnected } }
+
+def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
+  let st ← get
+  if p.sessionId ≠ st.rpcSesh.sessionId then
+    -- TODO(WN): should only print on log-level debug, if we had log-levels
+    IO.eprintln s!"Trying to release ref '{p.ref}' from outdated RPC session '{p.sessionId}'."
+  else
+    discard <| st.rpcSesh.state.modifyGet fun st => st.release p.ref
+
 end NotificationHandling
 
 section MessageHandling
@@ -303,7 +311,8 @@ section MessageHandling
     match method with
     | "textDocument/didChange" => handle DidChangeTextDocumentParams handleDidChange
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
-    | "$/lean/rpc/initialize"  => handle RpcInitializeParams handleRpcInitialize
+    | "$/lean/rpc/connect"     => handle RpcConnectParams handleRpcConnect
+    | "$/lean/rpc/release"     => handle RpcReleaseParams handleRpcRelease
     | _                        => throwServerError s!"Got unsupported notification method: {method}"
 
   def queueRequest (id : RequestID) (requestTask : Task (Except IO.Error Unit))
@@ -315,7 +324,7 @@ section MessageHandling
     let ctx ← read
     let st ← get
     let rc : RequestContext :=
-      { rpcSesh? := st.rpcSesh
+      { rpcSesh := st.rpcSesh
         srcSearchPath := ctx.srcSearchPath
         doc := st.doc
         hLog := ctx.hLog }
@@ -386,6 +395,8 @@ def workerMain : IO UInt32 := do
   let o ← IO.getStdout
   let e ← IO.getStderr
   try
+    let seed ← (UInt64.toNat ∘ ByteArray.toUInt64LE!) <$> IO.getRandomBytes 8
+    IO.setRandSeed seed
     let exitCode ← initAndRunWorker i o e
     -- HACK: all `Task`s are currently "foreground", i.e. we join on them on main thread exit, but we definitely don't
     -- want to do that in the case of the worker processes, which can produce non-terminating tasks evaluating user code

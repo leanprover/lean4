@@ -43,6 +43,7 @@ uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_noContext___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_340____lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_ppGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_340____closed__2;
 lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_withoutContext___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_PPContext_runMetaM___rarg___closed__9;
@@ -112,7 +113,6 @@ lean_object* l_Lean_Parser_Module_module_parenthesizer(lean_object*, lean_object
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_340____lambda__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHashableProd___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_ppGoal___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_withoutContext___at_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_340____spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_registerParserCompiler___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_instBEqExpr;
@@ -1907,7 +1907,7 @@ lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_340____
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_alloc_closure((void*)(l_Lean_Meta_ppGoal___boxed), 6, 1);
+x_4 = lean_alloc_closure((void*)(l_Lean_Meta_ppGoal), 6, 1);
 lean_closure_set(x_4, 0, x_2);
 x_5 = lean_alloc_closure((void*)(l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_withoutContext___at_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_340____spec__1), 6, 1);
 lean_closure_set(x_5, 0, x_4);

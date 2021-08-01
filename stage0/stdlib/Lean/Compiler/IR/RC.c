@@ -380,7 +380,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_IR_ExplicitRC_getDecl(x_1, x_2);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -6175,7 +6174,6 @@ lean_inc(x_43);
 x_44 = lean_ctor_get(x_4, 1);
 lean_inc(x_44);
 x_45 = l_Lean_IR_ExplicitRC_getDecl(x_1, x_43);
-lean_dec(x_43);
 x_46 = l_Lean_IR_Decl_params(x_45);
 lean_dec(x_45);
 x_47 = l___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_addDecAfterFullApp(x_1, x_44, x_46, x_5, x_6);

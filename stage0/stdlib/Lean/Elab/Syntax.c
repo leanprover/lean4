@@ -12312,6 +12312,7 @@ lean_dec(x_10);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec(x_11);
+lean_inc(x_2);
 x_14 = l_Lean_Parser_leadingIdentBehavior(x_13, x_2);
 lean_dec(x_13);
 x_15 = 1;

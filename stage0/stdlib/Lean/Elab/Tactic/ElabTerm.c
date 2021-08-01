@@ -1303,6 +1303,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; size_t x_12; size_t x_13; 
 x_8 = lean_array_uget(x_3, x_4);
+lean_inc(x_8);
 lean_inc(x_2);
 x_9 = l_Lean_MetavarContext_getDecl(x_2, x_8);
 x_10 = lean_ctor_get(x_9, 6);

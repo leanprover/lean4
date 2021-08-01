@@ -53,8 +53,8 @@ partial def merge : Value → Value → Value
 protected partial def format : Value → Format
   | top => "top"
   | bot => "bot"
-  | choice vs => fmt "@" ++ @List.format _ ⟨Value.format⟩ vs
-  | ctor i vs => fmt "#" ++ if vs.isEmpty then fmt i.name else Format.paren (fmt i.name ++ @formatArray _ ⟨Value.format⟩ vs)
+  | choice vs => format "@" ++ @List.format _ ⟨Value.format⟩ vs
+  | ctor i vs => format "#" ++ if vs.isEmpty then format i.name else Format.paren (format i.name ++ @formatArray _ ⟨Value.format⟩ vs)
 
 instance : ToFormat Value := ⟨Value.format⟩
 instance : ToString Value := ⟨Format.pretty ∘ Value.format⟩

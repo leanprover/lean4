@@ -41,7 +41,7 @@ protected def groupEx : Format → Format :=
   group
 
 instance : Append Format     := ⟨Format.append⟩
-instance : Coe String Format    := ⟨text⟩
+instance : Coe String Format := ⟨text⟩
 
 def join (xs : List Format) : Format :=
   xs.foldl (·++·) ""
@@ -197,8 +197,6 @@ class ToFormat (α : Type u) where
 
 export ToFormat (format)
 
-def fmt {α : Type u} [ToFormat α] : α → Format := format
-
 -- note: must take precendence over the above instance to avoid premature formatting
 instance : ToFormat Format where
   format f := f
@@ -207,7 +205,7 @@ instance : ToFormat String where
   format s := Format.text s
 
 def Format.joinSep {α : Type u} [ToFormat α] : List α → Format → Format
-  | [],    sep  => nil
+  | [],    sep => nil
   | [a],   sep => format a
   | a::as, sep => format a ++ sep ++ joinSep as sep
 

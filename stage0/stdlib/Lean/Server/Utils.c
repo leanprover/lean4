@@ -36,7 +36,6 @@ lean_object* l_System_mkFilePath(lean_object*);
 lean_object* l_Std_PersistentArray_mapM___at_Lean_Server_publishMessages___spec__1___boxed__const__1;
 lean_object* l_IO_FS_Stream_chainLeft___elambda__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_toFileUri___closed__1;
-lean_object* l_List_takeWhile_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_chainRight___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_publishProgressDone(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_chainLeft___elambda__6(lean_object*, lean_object*);
@@ -76,7 +75,6 @@ static lean_object* l_Lean_Server_publishProgressAtPos___closed__1;
 lean_object* l_IO_FS_Stream_chainLeft(lean_object*, lean_object*, uint8_t);
 lean_object* l_IO_FS_Stream_chainRight___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_chainLeft___elambda__2(lean_object*, lean_object*);
-lean_object* l_List_takeWhile_match__1(lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_writeLspMessage(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_chainLeft___elambda__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_normalize(lean_object*, uint8_t);
@@ -92,7 +90,6 @@ lean_object* l_Lean_Server_maybeTee_match__1___rarg(lean_object*, lean_object*, 
 lean_object* l_IO_FS_Stream_chainLeft___elambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_publishProgress___closed__1;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_takeWhile___rarg(lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1112_(lean_object*);
 lean_object* l_Lean_FileMap_ofString(lean_object*);
@@ -151,7 +148,6 @@ lean_object* l_IO_FS_Stream_chainRight___elambda__5(lean_object*, lean_object*, 
 lean_object* l_IO_FS_Stream_withPrefix___elambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_chainRight___elambda__2(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
-lean_object* l_List_takeWhile(lean_object*);
 lean_object* l_IO_FS_Stream_chainLeft___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_IO_FS_Stream_chainRight___elambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2969,124 +2965,6 @@ lean_object* x_4;
 x_4 = l_Lean_Server_publishProgressDone(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
-}
-}
-lean_object* l_List_takeWhile_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_2);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 1);
-lean_inc(x_7);
-lean_dec(x_1);
-x_8 = lean_apply_2(x_3, x_6, x_7);
-return x_8;
-}
-}
-}
-lean_object* l_List_takeWhile_match__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_List_takeWhile_match__1___rarg), 3, 0);
-return x_3;
-}
-}
-lean_object* l_List_takeWhile___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_3; 
-lean_dec(x_1);
-x_3 = lean_box(0);
-return x_3;
-}
-else
-{
-uint8_t x_4; 
-x_4 = !lean_is_exclusive(x_2);
-if (x_4 == 0)
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_5 = lean_ctor_get(x_2, 0);
-x_6 = lean_ctor_get(x_2, 1);
-lean_inc(x_1);
-lean_inc(x_5);
-x_7 = lean_apply_1(x_1, x_5);
-x_8 = lean_unbox(x_7);
-lean_dec(x_7);
-if (x_8 == 0)
-{
-lean_object* x_9; 
-lean_free_object(x_2);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_1);
-x_9 = lean_box(0);
-return x_9;
-}
-else
-{
-lean_object* x_10; 
-x_10 = l_List_takeWhile___rarg(x_1, x_6);
-lean_ctor_set(x_2, 1, x_10);
-return x_2;
-}
-}
-else
-{
-lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-x_11 = lean_ctor_get(x_2, 0);
-x_12 = lean_ctor_get(x_2, 1);
-lean_inc(x_12);
-lean_inc(x_11);
-lean_dec(x_2);
-lean_inc(x_1);
-lean_inc(x_11);
-x_13 = lean_apply_1(x_1, x_11);
-x_14 = lean_unbox(x_13);
-lean_dec(x_13);
-if (x_14 == 0)
-{
-lean_object* x_15; 
-lean_dec(x_12);
-lean_dec(x_11);
-lean_dec(x_1);
-x_15 = lean_box(0);
-return x_15;
-}
-else
-{
-lean_object* x_16; lean_object* x_17; 
-x_16 = l_List_takeWhile___rarg(x_1, x_12);
-x_17 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_17, 0, x_11);
-lean_ctor_set(x_17, 1, x_16);
-return x_17;
-}
-}
-}
-}
-}
-lean_object* l_List_takeWhile(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_takeWhile___rarg), 2, 0);
-return x_2;
 }
 }
 lean_object* l_String_Range_toLspRange(lean_object* x_1, lean_object* x_2) {

@@ -128,12 +128,15 @@ def mkHashMap {α : Type u} {β : Type v} [BEq α] [Hashable α] (nbuckets := 8)
   ⟨ mkHashMapImp nbuckets, WellFormed.mkWff nbuckets ⟩
 
 namespace HashMap
-variable {α : Type u} {β : Type v} [BEq α] [Hashable α]
-
-instance : Inhabited (HashMap α β) where
+instance [BEq α] [Hashable α] : Inhabited (HashMap α β) where
   default := mkHashMap
 
-instance : EmptyCollection (HashMap α β) := ⟨mkHashMap⟩
+instance [BEq α] [Hashable α] : EmptyCollection (HashMap α β) := ⟨mkHashMap⟩
+
+@[inline] def empty [BEq α] [Hashable α] : HashMap α β :=
+  mkHashMap
+
+variable {α : Type u} {β : Type v} {_ : BEq α} {_ : Hashable α}
 
 def insert (m : HashMap α β) (a : α) (b : β) : HashMap α β :=
   match m with
@@ -193,9 +196,6 @@ def insert' (m : HashMap α β) (a : α) (b : β) : HashMap α β × Bool :=
 
 @[inline] def isEmpty (m : HashMap α β) : Bool :=
   m.size = 0
-
-@[inline] def empty : HashMap α β :=
-  mkHashMap
 
 def toList (m : HashMap α β) : List (α × β) :=
   m.fold (init := []) fun r k v => (k, v)::r

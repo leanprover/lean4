@@ -114,12 +114,15 @@ def mkHashSet {α : Type u} [BEq α] [Hashable α] (nbuckets := 8) : HashSet α 
   ⟨ mkHashSetImp nbuckets, WellFormed.mkWff nbuckets ⟩
 
 namespace HashSet
-variable {α : Type u} [BEq α] [Hashable α]
+@[inline] def empty [BEq α] [Hashable α] : HashSet α :=
+  mkHashSet
 
-instance : Inhabited (HashSet α) where
+instance [BEq α] [Hashable α] : Inhabited (HashSet α) where
   default := mkHashSet
 
-instance : EmptyCollection (HashSet α) := ⟨mkHashSet⟩
+instance [BEq α] [Hashable α] : EmptyCollection (HashSet α) := ⟨mkHashSet⟩
+
+variable {α : Type u} {_ : BEq α} {_ : Hashable α}
 
 @[inline] def insert (m : HashSet α) (a : α) : HashSet α :=
   match m with
@@ -151,9 +154,6 @@ instance : EmptyCollection (HashSet α) := ⟨mkHashSet⟩
 
 @[inline] def isEmpty (m : HashSet α) : Bool :=
   m.size = 0
-
-@[inline] def empty : HashSet α :=
-  mkHashSet
 
 def toList (m : HashSet α) : List α :=
   m.fold (init := []) fun r a => a::r

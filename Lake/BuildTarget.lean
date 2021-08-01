@@ -88,21 +88,21 @@ def nil [Inhabited t] : ActiveBuildTarget t PUnit :=
 def materialize (self : ActiveBuildTarget t α) : IO PUnit :=
   self.task.await
 
-end ActiveBuildTarget
+-- ### Combinators
 
--- ## Combinators
-
-def afterTarget (target : ActiveBuildTarget t a) (act : IO PUnit)  : IO BuildTask :=
+def after (target : ActiveBuildTarget t a) (act : IO PUnit)  : IO BuildTask :=
   afterTask target.task act
 
-def afterTargetList (targets : List (ActiveBuildTarget t a)) (act : IO PUnit) : IO BuildTask :=
+def afterList (targets : List (ActiveBuildTarget t a)) (act : IO PUnit) : IO BuildTask :=
   afterTaskList (targets.map (·.task)) act
 
 instance : HAndThen (ActiveBuildTarget t a) (IO PUnit) (IO BuildTask) :=
-  ⟨afterTarget⟩
+  ⟨ActiveBuildTarget.after⟩
 
 instance : HAndThen (List (ActiveBuildTarget t a)) (IO PUnit) (IO BuildTask) :=
-  ⟨afterTargetList⟩
+  ⟨ActiveBuildTarget.afterList⟩
+
+end ActiveBuildTarget
 
 --------------------------------------------------------------------------------
 -- # File Targets

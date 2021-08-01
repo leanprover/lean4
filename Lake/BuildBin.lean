@@ -12,7 +12,7 @@ namespace Lake
 
 def buildLeanO (oFile : FilePath)
 (cTarget : ActiveBuildTarget t FilePath) (leancArgs : Array String := #[]) : IO BuildTask :=
-  afterTarget cTarget <| compileLeanO oFile cTarget.artifact leancArgs
+  cTarget >> compileLeanO oFile cTarget.artifact leancArgs
 
 def fetchLeanOFileTarget (oFile : FilePath)
 (cTarget : ActiveFileTarget) (leancArgs : Array String := #[]) : IO ActiveFileTarget :=

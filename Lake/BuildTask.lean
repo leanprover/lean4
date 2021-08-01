@@ -44,7 +44,7 @@ def afterTask (task : BuildTask) (act : IO PUnit)  : IO BuildTask :=
   IO.mapTask (fun x => IO.ofExcept x *> act) task
 
 def afterTaskList (tasks : List BuildTask) (act : IO PUnit) : IO BuildTask :=
-  IO.mapTasks (fun xs => xs.forM IO.ofExcept *> act) <| tasks
+  IO.mapTasks (fun xs => xs.forM IO.ofExcept *> act) tasks
 
 instance : HAndThen BuildTask (IO PUnit) (IO BuildTask) :=
   ⟨afterTask⟩

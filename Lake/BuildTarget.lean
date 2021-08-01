@@ -8,47 +8,89 @@ import Lake.BuildTrace
 
 namespace Lake
 
--- # Active Build Target
+--------------------------------------------------------------------------------
+-- # Target
+--------------------------------------------------------------------------------
 
-structure ActiveBuildTarget (t : Type) (a : Type) where
+structure Target (t : Type) (m : Type) (a : Type) where
   artifact  : a
   trace     : t
-  task      : BuildTask
+  task      : m
+  deriving Inhabited
 
--- manually derive `Inhabited` instance because automatic deriving fails
-instance [Inhabited t] [Inhabited a] : Inhabited (ActiveBuildTarget t a) :=
-  ⟨Inhabited.default, Inhabited.default, BuildTask.nop⟩
+namespace Target
+
+def withTrace (trace : t) (self : Target r m a) : Target t m a :=
+  {self with trace := trace}
+
+def discardTrace (self : Target t m a) : Target PUnit m a :=
+  self.withTrace ()
+
+def withArtifact (artifact : a) (self : Target t m b) : Target t m a :=
+  {self with artifact := artifact}
+
+def discardArtifact (self : Target t m α) : Target t m PUnit :=
+  self.withArtifact ()
+
+def mtime (self : Target MTime m a) : MTime :=
+  self.trace
+
+end Target
+
+--------------------------------------------------------------------------------
+-- # Build Targets
+--------------------------------------------------------------------------------
+
+-- ## Build Target
+
+abbrev BuildTarget (t : Type) (a : Type) := Target t (IO BuildTask) a
+
+namespace BuildTarget
+
+def mk (artifact : a) (trace : t) (task : IO BuildTask) : BuildTarget t a :=
+  ⟨artifact, trace, task⟩
+
+def opaque (trace : t) (task : IO BuildTask) : BuildTarget t PUnit :=
+  ⟨(), trace, task⟩
+
+def pure (artifact : a) (trace : t) : BuildTarget t a :=
+  ⟨artifact, trace, BuildTask.nop⟩
+
+def nil [Inhabited t] : BuildTarget t PUnit :=
+  pure () Inhabited.default
+
+def spawn (self : BuildTarget t α) : IO BuildTask :=
+  self.task
+
+def materialize (self : BuildTarget t α) : IO PUnit := do
+  (← self.task).await
+
+end BuildTarget
+
+-- ## Active Build Target
+
+abbrev ActiveBuildTarget (t : Type) (a : Type) := Target t BuildTask a
 
 namespace ActiveBuildTarget
 
-def nil [Inhabited t] : ActiveBuildTarget t PUnit :=
-  ⟨(), Inhabited.default, BuildTask.nop⟩
-
-def pure (artifact : a) (trace : t) : ActiveBuildTarget t a :=
-  ⟨artifact, trace, BuildTask.nop⟩
+def mk (artifact : a) (trace : t) (task : BuildTask) : ActiveBuildTarget t a :=
+  ⟨artifact, trace, task⟩
 
 def opaque (trace : t) (task : BuildTask) : ActiveBuildTarget t PUnit :=
   ⟨(), trace, task⟩
 
-def withTrace (trace : t) (self : ActiveBuildTarget r a) : ActiveBuildTarget t a :=
-  {self with trace := trace}
+def pure (artifact : a) (trace : t) : ActiveBuildTarget t a :=
+  ⟨artifact, trace, BuildTask.nop⟩
 
-def discardTrace (self : ActiveBuildTarget t a) : ActiveBuildTarget PUnit a :=
-  self.withTrace ()
-
-def mtime (self : ActiveBuildTarget MTime a) : MTime :=
-  self.trace
-
-def withArtifact (artifact : a) (self : ActiveBuildTarget t b) : ActiveBuildTarget t a :=
-  {self with artifact := artifact}
-
-def discardArtifact (self : ActiveBuildTarget t α) : ActiveBuildTarget t PUnit :=
-  self.withArtifact ()
+def nil [Inhabited t] : ActiveBuildTarget t PUnit :=
+  pure () Inhabited.default
 
 def materialize (self : ActiveBuildTarget t α) : IO PUnit :=
   self.task.await
 
 end ActiveBuildTarget
+
+-- ## Combinators
 
 def afterTarget (target : ActiveBuildTarget t a) (act : IO PUnit)  : IO BuildTask :=
   afterTask target.task act
@@ -62,23 +104,46 @@ instance : HAndThen (ActiveBuildTarget t a) (IO PUnit) (IO BuildTask) :=
 instance : HAndThen (List (ActiveBuildTarget t a)) (IO PUnit) (IO BuildTask) :=
   ⟨afterTargetList⟩
 
--- # File Target
+--------------------------------------------------------------------------------
+-- # File Targets
+--------------------------------------------------------------------------------
 
+section
 open System
+
+-- ## File Target
+
+abbrev FileTarget := BuildTarget MTime FilePath
+
+namespace FileTarget
+
+def mk (file : FilePath) (depMTime : MTime) (task : IO BuildTask) : FileTarget :=
+  ⟨file, depMTime, task⟩
+
+def pure (file : FilePath) (depMTime : MTime) : FileTarget :=
+  BuildTarget.pure file depMTime
+
+end FileTarget
+
+-- ## Active File Target
 
 abbrev ActiveFileTarget := ActiveBuildTarget MTime FilePath
 
 namespace ActiveFileTarget
 
-def mk (file : FilePath) (depMTime : MTime) (task : BuildTask) :=
+def mk (file : FilePath) (depMTime : MTime) (task : BuildTask) : ActiveFileTarget :=
   ActiveBuildTarget.mk file depMTime task
 
-def pure (file : FilePath) (depMTime : MTime) :=
+def pure (file : FilePath) (depMTime : MTime) : ActiveFileTarget :=
   ActiveBuildTarget.pure file depMTime
 
 end ActiveFileTarget
 
+end
+
+--------------------------------------------------------------------------------
 -- # Lean Target
+--------------------------------------------------------------------------------
 
 abbrev LeanTarget a := ActiveBuildTarget LeanTrace a
 

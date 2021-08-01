@@ -6,6 +6,11 @@ Authors: Mac Malone
 
 namespace Lake
 
+instance : Monad Task where
+  map := Task.map
+  pure := Task.pure
+  bind := Task.bind
+
 abbrev ETask ε α := ExceptT ε Task α
 
 abbrev IOTask α := ETask IO.Error α

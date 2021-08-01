@@ -12,11 +12,13 @@ namespace Lake
 -- # Target
 --------------------------------------------------------------------------------
 
-structure Target (t : Type) (m : Type) (a : Type) where
+structure Target.{u,v} (t : Type u) (m : Type u → Type v) (a : Type u) where
   artifact  : a
   trace     : t
-  task      : m
-  deriving Inhabited
+  task      : m PUnit
+
+instance [Inhabited t] [Inhabited a] [Pure m] : Inhabited (Target t m a) :=
+  ⟨Inhabited.default, Inhabited.default, pure ()⟩
 
 namespace Target
 
@@ -43,7 +45,8 @@ end Target
 
 -- ## Active Build Target
 
-abbrev ActiveBuildTarget (t : Type) (a : Type) := Target t BuildTask a
+abbrev ActiveBuildTarget (t : Type) (a : Type) :=
+  Target t IOTask a
 
 namespace ActiveBuildTarget
 
@@ -80,7 +83,8 @@ end ActiveBuildTarget
 
 -- ## Build Target
 
-abbrev BuildTarget (t : Type) (a : Type) := Target t (IO BuildTask) a
+abbrev BuildTarget (t : Type) (a : Type) :=
+  Target t (IO ∘ IOTask) a
 
 namespace BuildTarget
 

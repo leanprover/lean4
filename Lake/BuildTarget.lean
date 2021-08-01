@@ -11,9 +11,9 @@ namespace Lake
 -- # Active Build Target
 
 structure ActiveBuildTarget (t : Type) (a : Type) where
-  artifact    : a
-  trace       : t
-  buildTask   : BuildTask
+  artifact  : a
+  trace     : t
+  task      : BuildTask
 
 -- manually derive `Inhabited` instance because automatic deriving fails
 instance [Inhabited t] [Inhabited a] : Inhabited (ActiveBuildTarget t a) :=
@@ -46,15 +46,15 @@ def discardArtifact (self : ActiveBuildTarget t α) : ActiveBuildTarget t PUnit 
   self.withArtifact ()
 
 def materialize (self : ActiveBuildTarget t α) : IO PUnit :=
-  self.buildTask.await
+  self.task.await
 
 end ActiveBuildTarget
 
 def afterTarget (target : ActiveBuildTarget t a) (act : IO PUnit)  : IO BuildTask :=
-  afterTask target.buildTask act
+  afterTask target.task act
 
 def afterTargetList (targets : List (ActiveBuildTarget t a)) (act : IO PUnit) : IO BuildTask :=
-  afterTaskList (targets.map (·.buildTask)) act
+  afterTaskList (targets.map (·.task)) act
 
 instance : HAndThen (ActiveBuildTarget t a) (IO PUnit) (IO BuildTask) :=
   ⟨afterTarget⟩
@@ -90,7 +90,7 @@ def mtime (self : LeanTarget a) := self.trace.mtime
 def all (targets : List (LeanTarget a)) : IO (LeanTarget PUnit) := do
   let hash := Hash.foldList 0 <| targets.map (·.hash)
   let mtime := MTime.listMax <| targets.map (·.mtime)
-  let task ← BuildTask.all <| targets.map (·.buildTask)
+  let task ← BuildTask.all <| targets.map (·.task)
   return ActiveBuildTarget.mk () ⟨hash, mtime⟩ task
 
 def fromMTimeTarget (target : ActiveBuildTarget MTime a) : LeanTarget a :=

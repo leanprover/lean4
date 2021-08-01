@@ -125,9 +125,9 @@ def fetchAfterDirectLocalImports
     -- construct target
     let cFile := pkg.modToC mod
     let oleanFile := pkg.modToOlean mod
-    let importTasks := importTargets.map (·.buildTask)
+    let importTasks := importTargets.map (·.task)
     ActiveBuildTarget.mk ⟨oleanFile, cFile⟩ ⟨fullHash, mtime⟩ <| ←
-      skipIf sameHash <| afterTaskList (depsTarget.buildTask :: importTasks) do
+      skipIf sameHash <| afterTaskList (depsTarget.task :: importTasks) do
         compileOleanAndC leanFile oleanFile cFile leanPath pkg.rootDir pkg.leanArgs
         IO.FS.writeFile hashFile (toString fullHash)
 

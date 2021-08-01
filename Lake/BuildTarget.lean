@@ -45,7 +45,7 @@ end Target
 
 -- ## Active Build Target
 
-abbrev ActiveBuildTarget (t : Type) (a : Type) :=
+abbrev ActiveBuildTarget t a :=
   Target t IOTask a
 
 namespace ActiveBuildTarget
@@ -83,7 +83,7 @@ end ActiveBuildTarget
 
 -- ## Build Target
 
-abbrev BuildTarget (t : Type) (a : Type) :=
+abbrev BuildTarget t a :=
   Target t (IO ∘ IOTask) a
 
 namespace BuildTarget
@@ -117,7 +117,8 @@ open System
 
 -- ## File Target
 
-abbrev FileTarget := BuildTarget MTime FilePath
+abbrev FileTarget :=
+  BuildTarget MTime FilePath
 
 namespace FileTarget
 
@@ -131,7 +132,8 @@ end FileTarget
 
 -- ## Active File Target
 
-abbrev ActiveFileTarget := ActiveBuildTarget MTime FilePath
+abbrev ActiveFileTarget :=
+  ActiveBuildTarget MTime FilePath
 
 namespace ActiveFileTarget
 
@@ -142,14 +144,14 @@ def pure (file : FilePath) (depMTime : MTime) : ActiveFileTarget :=
   ActiveBuildTarget.pure file depMTime
 
 end ActiveFileTarget
-
 end
 
 --------------------------------------------------------------------------------
 -- # Lean Target
 --------------------------------------------------------------------------------
 
-abbrev LeanTarget a := ActiveBuildTarget LeanTrace a
+abbrev LeanTarget a :=
+  ActiveBuildTarget LeanTrace a
 
 namespace LeanTarget
 

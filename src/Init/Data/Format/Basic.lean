@@ -17,20 +17,19 @@ inductive Format.FlattenBehavior where
 
 open Format
 
-inductive Format (τ := Nat) where
-  | nil {}              : Format τ
-  | line {}             : Format τ
-  | text                : String → Format τ
-  | nest (indent : Int) : Format τ → Format τ
-  | append              : Format τ → Format τ → Format τ
-  | group               : Format τ → (behavior : FlattenBehavior := FlattenBehavior.allOrNone) → Format τ
+inductive Format where
+  | nil                 : Format
+  | line                : Format
+  | text                : String → Format
+  | nest (indent : Int) : Format → Format
+  | append              : Format → Format → Format
+  | group               : Format → (behavior : FlattenBehavior := FlattenBehavior.allOrNone) → Format
   /- Used for associating auxiliary information (e.g. `Expr`s) with `Format` objects. -/
-  | tag                  : τ → Format τ → Format τ
+  | tag                 : Nat → Format → Format
   deriving Inhabited
 
 namespace Format
-
-def fill (f : Format τ) : Format τ :=
+def fill (f : Format) : Format :=
   group f (behavior := FlattenBehavior.fill)
 
 @[export lean_format_append]
@@ -41,15 +40,15 @@ protected def appendEx (a b : Format) : Format :=
 protected def groupEx : Format → Format :=
   group
 
-instance : Append (Format τ)     := ⟨Format.append⟩
-instance : Coe String (Format τ) := ⟨Format.text⟩
+instance : Append Format     := ⟨Format.append⟩
+instance : Coe String Format := ⟨text⟩
 
-def join (xs : List (Format τ)) : Format τ :=
+def join (xs : List Format) : Format :=
   xs.foldl (·++·) ""
 
-def isNil : Format τ → Bool
-  | nil _ => true
-  | _     => false
+def isNil : Format → Bool
+  | nil => true
+  | _   => false
 
 private structure SpaceResult where
   foundLine              : Bool := false
@@ -64,9 +63,9 @@ private structure SpaceResult where
     let r₂ := r₂ (w - r₁.space);
     { r₂ with space := r₁.space + r₂.space }
 
-private def spaceUptoLine : Format τ → Bool → Nat → SpaceResult
-  | nil _,        flatten, w => {}
-  | line _,       flatten, w => if flatten then { space := 1 } else { foundLine := true }
+private def spaceUptoLine : Format → Bool → Nat → SpaceResult
+  | nil,          flatten, w => {}
+  | line,         flatten, w => if flatten then { space := 1 } else { foundLine := true }
   | text s,       flatten, w =>
     let p := s.posOf '\n';
     let off := s.offsetOfPos p;
@@ -76,16 +75,16 @@ private def spaceUptoLine : Format τ → Bool → Nat → SpaceResult
   | group f _,    _,       w => spaceUptoLine f true w
   | tag _ f,      flatten, w => spaceUptoLine f flatten w
 
-private structure WorkItem (τ) where
-  f : Format τ
+private structure WorkItem where
+  f : Format
   indent : Int
 
-private structure WorkGroup (τ) where
+private structure WorkGroup where
   flatten : Bool
   flb     : FlattenBehavior
-  items   : List (WorkItem τ)
+  items   : List WorkItem
 
-private partial def spaceUptoLine' : List (WorkGroup τ) → Nat → SpaceResult
+private partial def spaceUptoLine' : List WorkGroup → Nat → SpaceResult
   |   [],                         w => {}
   |   { items := [],    .. }::gs, w => spaceUptoLine' gs w
   | g@{ items := i::is, .. }::gs, w => merge w (spaceUptoLine i.f g.flatten w) (spaceUptoLine' ({ g with items := is }::gs))
@@ -94,10 +93,10 @@ private structure State where
   out    : String := ""
   column : Nat    := 0
 
-private def pushGroup (flb : FlattenBehavior) (items : List (WorkItem τ)) (gs : List (WorkGroup τ)) (w : Nat) : StateM State (List (WorkGroup τ)) := do
+private def pushGroup (flb : FlattenBehavior) (items : List WorkItem) (gs : List WorkGroup) (w : Nat) : StateM State (List WorkGroup) := do
   let k  := (← get).column
   -- Flatten group if it + the remainder (gs) fits in the remaining space. For `fill`, measure only up to the next (ungrouped) line break.
-  let g  := { flatten := flb == FlattenBehavior.allOrNone, flb := flb, items := items : WorkGroup τ }
+  let g  := { flatten := flb == FlattenBehavior.allOrNone, flb := flb, items := items : WorkGroup }
   let r  := spaceUptoLine' [g] (w-k)
   let r' := merge (w-k) r (spaceUptoLine' gs);
   -- Prevent flattening if any item contains a hard line break, except within `fill` if it is ungrouped (=> unflattened)
@@ -110,13 +109,13 @@ private def pushOutput (s : String) : StateM State Unit :=
 private def pushNewline (indent : Nat) : StateM State Unit :=
   modify fun st => { st with out := st.out ++ "\n".pushn ' ' indent, column := indent }
 
-private partial def be (w : Nat) : List (WorkGroup τ) → StateM State Unit
+private partial def be (w : Nat) : List WorkGroup → StateM State Unit
   | []                           => pure ()
   |   { items := [],    .. }::gs => be w gs
   | g@{ items := i::is, .. }::gs => do
-    let gs' (is' : List (WorkItem τ)) := { g with items := is' }::gs;
+    let gs' (is' : List WorkItem) := { g with items := is' }::gs;
     match i.f with
-    | nil _ => be w (gs' is)
+    | nil => be w (gs' is)
     | tag _ f => be w (gs' ({ i with f }::is))
     | append f₁ f₂ => be w (gs' ({ i with f := f₁ }::{ i with f := f₂ }::is))
     | nest n f => be w (gs' ({ i with f := f, indent := i.indent + n }::is))
@@ -131,7 +130,7 @@ private partial def be (w : Nat) : List (WorkGroup τ) → StateM State Unit
         let is := { i with f := s.extract (s.next p) s.bsize }::is
         -- after a hard line break, re-evaluate whether to flatten the remaining group
         pushGroup g.flb is gs w >>= be w
-    | line _ =>
+    | line =>
       match g.flb with
       | FlattenBehavior.allOrNone =>
         if g.flatten then
@@ -164,84 +163,58 @@ private partial def be (w : Nat) : List (WorkGroup τ) → StateM State Unit
       else
         pushGroup flb [{ i with f := f }] (gs' is) w >>= be w
 
-@[inline] def bracket (l : String) (f : Format τ) (r : String) : Format τ :=
+@[inline] def bracket (l : String) (f : Format) (r : String) : Format :=
   group (nest l.length $ l ++ f ++ r)
 
-@[inline] def paren (f : Format τ) : Format τ :=
+@[inline] def paren (f : Format) : Format :=
   bracket "(" f ")"
 
-@[inline] def sbracket (f : Format τ) : Format τ :=
+@[inline] def sbracket (f : Format) : Format :=
   bracket "[" f "]"
 
-@[inline] def bracketFill (l : String) (f : Format τ) (r : String) : Format τ :=
+@[inline] def bracketFill (l : String) (f : Format) (r : String) : Format :=
   fill (nest l.length $ l ++ f ++ r)
 
 def defIndent  := 2
 def defUnicode := true
 def defWidth   := 120
 
-def nestD (f : Format τ) : Format τ :=
+def nestD (f : Format) : Format :=
   nest defIndent f
 
-def indentD (f : Format τ) : Format τ :=
-  nestD (Format.line τ ++ f)
+def indentD (f : Format) : Format :=
+  nestD (Format.line ++ f)
 
-def pretty (f : Format τ) (w : Nat := defWidth) : String :=
+@[export lean_format_pretty]
+def pretty (f : Format) (w : Nat := defWidth) : String :=
   let (_, st) := be w [{ flb := FlattenBehavior.allOrNone, flatten := false, items := [{ f := f, indent := 0 }] }] {};
   st.out
 
-@[export lean_format_pretty]
-protected def prettyEx (f : Format) (w : Nat := defWidth) : String :=
-  pretty f w
-
-def map (f : α → β) (fmt : Format α) : Format β :=
-    go fmt
-  where go : Format α → Format β
-    | nil _        => nil _
-    | line _       => line _
-    | text s       => text s
-    | nest i a     => nest i (go a)
-    | append a₁ a₂ => append (go a₁) (go a₂)
-    | group a b    => group (go a) b
-    | tag t a      => tag (f t) (go a)
-
-def mapM [Monad m] (f : α → m β) (fmt : Format α) : m (Format β) :=
-    go fmt
-  where go : Format α → m (Format β)
-    | nil _        => nil _
-    | line _       => line _
-    | text s       => text s
-    | nest i a     => do nest i (← go a)
-    | append a₁ a₂ => do append (← go a₁) (← go a₂)
-    | group a b    => do group (← go a) b
-    | tag t a      => do tag (← f t) (← go a)
-
 end Format
 
-class ToFormat (α : Type u) (τ : Type := Nat) where
-  format : α → Format τ
+class ToFormat (α : Type u) where
+  format : α → Format
 
-def format {α : Type u} (a : α) (τ : Type := Nat) [ToFormat α τ] : Format τ :=
-  ToFormat.format a
+export ToFormat (format)
 
 -- note: must take precendence over the above instance to avoid premature formatting
-instance : ToFormat (Format τ) τ where
+instance : ToFormat Format where
   format f := f
 
-instance : ToFormat String τ where
+instance : ToFormat String where
   format s := Format.text s
 
-def Format.joinSep {α : Type u} {τ : Type} [ToFormat α τ] : List α → Format τ → Format τ
-  | [],    sep => nil τ
-  | [a],   sep => format a τ
-  | a::as, sep => format a τ ++ sep ++ joinSep as sep
+def Format.joinSep {α : Type u} [ToFormat α] : List α → Format → Format
+  | [],    sep => nil
+  | [a],   sep => format a
+  | a::as, sep => format a ++ sep ++ joinSep as sep
 
-def Format.prefixJoin {α : Type u} {τ : Type} [ToFormat α τ] (pre : Format τ) : List α → Format τ
-  | []    => nil τ
-  | a::as => pre ++ format a τ ++ prefixJoin pre as
+def Format.prefixJoin {α : Type u} [ToFormat α] (pre : Format) : List α → Format
+  | []    => nil
+  | a::as => pre ++ format a ++ prefixJoin pre as
 
-def Format.joinSuffix {α : Type u} {τ : Type} [ToFormat α τ] : List α → Format τ → Format τ
-  | [],    suffix => nil τ
-  | a::as, suffix => format a τ ++ suffix ++ joinSuffix as suffix
+def Format.joinSuffix {α : Type u} [ToFormat α] : List α → Format → Format
+  | [],    suffix => nil
+  | a::as, suffix => format a ++ suffix ++ joinSuffix as suffix
 
 end Std

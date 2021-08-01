@@ -10,7 +10,7 @@ open Lean Lean.Meta Lean.Elab Lean.Elab.Term Lean.Elab.Command
 open Lean.PrettyPrinter
 
 def checkDelab (e : Expr) (tgt? : Option Syntax) (name? : Option Name := none) : TermElabM Unit := do
-  if e.hasMVar then throwError "[checkDelab] term has mvars, {e}"
+  if e.hasMVar then throwError "[checkDelab] original term has mvars, {e}"
   let stx ← delab (← getCurrNamespace) (← getOpenDecls) e
   match tgt? with
   | some tgt =>
@@ -31,10 +31,10 @@ def checkDelab (e : Expr) (tgt? : Option Syntax) (name? : Option Name := none) :
   withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `pp.all true }) do
     if not (← isDefEq e e') then
       println! "[checkDelab] {← inferType e} {← inferType e'}"
-      throwError "[checkDelab] roundtrip not structurally equal\n\nOriginal: {e}\n\nSyntax: {stx}\n\nNew: {e'}"
+      throwError "[checkDelab] roundtrip not structurally equal\n\nOriginal: {fmt e}\n\nSyntax: {stx}\n\nNew: {fmt e'}"
 
   let e' ← instantiateMVars e'
-  if e'.hasMVar then throwError "[checkDelab] elaborated term still has mvars\n\nSyntax: {stx}\n\nExpression: {e'}"
+  if e'.hasMVar then throwError "[checkDelab] elaborated term still has mvars\n\nSyntax: {stx}\n\nExpression: {fmt e'}"
 
 
 syntax (name := testDelabTD) "#testDelab " term " expecting " term : command
@@ -190,11 +190,11 @@ set_option pp.analyze.trustSubst true in
 
 set_option pp.analyze.trustId true in
 #testDelab Sigma.mk (β := fun α => α) Bool true
-  expecting { fst := Bool, snd := true }
+  expecting { fst := _, snd := true }
 
 set_option pp.analyze.trustId false in
 #testDelab Sigma.mk (β := fun α => α) Bool true
-  expecting Sigma.mk (β := fun α => α) Bool true
+  expecting Sigma.mk (β := fun α => α) _ true
 
 #testDelab let xs := #[true]; xs
   expecting let xs := #[true]; xs
@@ -273,9 +273,15 @@ set_option pp.proofs.withType false in
     let ctxCore ← readThe Core.Context
     pure ctxCore.currNamespace
 
-open Std (Stack) in
-#testDelab fun {α : Type} (xs : Array α) => Eq.ndrec (motive := fun _ => (Stack.mk xs = Stack.mk xs)) (Eq.refl (Stack.mk xs)) (rfl : xs = xs)
-  expecting fun {α} xs => Eq.ndrec (motive := fun x => { vals := xs : Stack α } = { vals := xs }) (Eq.refl _) rfl
+def stackMkInjEqSnippet :=
+  fun {α : Type} (xs : Array α) => Eq.ndrec (motive := fun _ => (Std.Stack.mk xs = Std.Stack.mk xs)) (Eq.refl (Std.Stack.mk xs)) (rfl : xs = xs)
+
+#testDelabN stackMkInjEqSnippet
+
+def typeAs (α : Type u) (a : α) := ()
+
+def natIdNat := typeAs Nat (do let x ← pure 1; return x + x)
+#testDelabN natIdNat
 
 #testDelabN Nat.brecOn
 #testDelabN Nat.below
@@ -302,11 +308,6 @@ open Std (Stack) in
 #testDelabN Std.ShareCommon.ObjectMap.find?
 #testDelabN Std.ShareCommon.ObjectMap.insert
 #testDelabN Std.Stack.mk.injEq
-
-
--- TODO: these tests are broken because of the inability to solve structural max constraints
--- (See https://github.com/leanprover/lean4/issues/590)
--- Depending on how that issue is resolved, `topDownAnalyze` may need to change to support these.
--- #testDelabN Lean.PrefixTree.empty
--- #testDelabN Std.PersistentHashMap.getCollisionNodeSize.match_1
--- #testDelabN Std.HashMap.size.match_1
+#testDelabN Lean.PrefixTree.empty
+#testDelabN Std.PersistentHashMap.getCollisionNodeSize.match_1
+#testDelabN Std.HashMap.size.match_1

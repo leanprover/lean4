@@ -148,6 +148,11 @@ def isCoe (e : Expr) : Bool :=
   || (e.isAppOf `coeFun && e.getAppNumArgs >= 4)
   || e.isAppOfArity `coeSort 4
 
+def isStructureInstance (e : Expr) : MetaM Bool := do
+  match e.isConstructorApp? (← getEnv) with
+  | some s => isStructure (← getEnv) s.induct
+  | none   => false
+
 namespace TopDownAnalyze
 
 private def valUnknown (e : Expr) : MetaM Bool := do
@@ -229,6 +234,7 @@ partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
     if e.isFVar || e.isMVar || e.isNatLit || e.isStringLit then return true
     if getPPAnalyzeTrustOfNat (← getOptions) && e.isAppOfArity `OfNat.ofNat 3 then return true
     if getPPAnalyzeTrustOfScientific (← getOptions) && e.isAppOfArity `OfScientific.ofScientific 5 then return true
+
     let f := e.getAppFn
     if !f.isConst && !f.isFVar then return false
     let args := e.getAppArgs
@@ -337,24 +343,19 @@ partial def analyze (parentIsApp : Bool := false) : AnalyzeM Unit := do
       | Expr.bvar ..    => pure ()
 where
   analyzeApp := do
-    let couldBottomUp ← canBottomUp (← getExpr)
-    withReader (fun ctx => { ctx with inBottomUp := ctx.inBottomUp || (!ctx.knowsType && couldBottomUp) }) do
-      withKnowing true true $ analyzeAppStaged (← getExpr).getAppFn (← getExpr).getAppArgs
+    let mut willKnowType := (← read).knowsType
+    if !(← read).knowsType && !(← canBottomUp (← getExpr)) then
+      annotateBool `pp.analysis.needsType
+      withType $ withKnowing true false $ analyze
+      willKnowType := true
 
-    if !(← read).knowsType then
-      if !couldBottomUp then
-        annotateBool `pp.analysis.needsType
-        withType $ withKnowing true false $ analyze
-      else
-        -- structure instances will "seem" bottomUp-okay but may not be when
-        -- pretty-printed as its fields.
-        match (← getExpr).isConstructorApp? (← getEnv) with
-        | none   => pure ()
-        | some s =>
-          if isStructure (← getEnv) s.induct then
-            withType do
-              annotateBool `pp.structureInstanceTypes
-              withKnowing true false $ analyze
+    else if ← (!(← read).knowsType <||> (← read).inBottomUp) <&&> isStructureInstance (← getExpr) then
+      withType do
+        annotateBool `pp.structureInstanceTypes
+        withKnowing true false $ analyze
+      willKnowType := true
+
+    withKnowing willKnowType true $ analyzeAppStaged (← getExpr).getAppFn (← getExpr).getAppArgs
 
   analyzeAppStaged (f : Expr) (args : Array Expr) : AnalyzeM Unit := do
     let fType ← replaceLPsWithVars (← inferType f)
@@ -363,28 +364,21 @@ where
     let args := args.shrink mvars.size
 
     -- Unify with the expected type
-    tryUnify (← inferType (mkAppN f args)) resultType
+    if (← read).knowsType then tryUnify (← inferType (mkAppN f args)) resultType
 
-    let mut bottomUps      := mkArray args.size false
+    let mut bottomUps := mkArray args.size false
+
     -- Collect explicit arguments that can be elaborated without expected type, with *no* top-down info
     -- Note: we perform this before the next pass because we prefer simple bottom-ups to unify first before
-    -- more complex ones.
-    for target in [fun _ => none, fun i => some mvars[i]] do
-      for i in [:args.size] do
-        if bInfos[i] == BinderInfo.default then
-          -- allow bottom-up (and forbid `_`) as long as the value is unknown
-          -- TODO: why not only if the type is unknown?
-          if ← valUnknown mvars[i] <&&> canBottomUp args[i] (target i) then
-            if ← typeUnknown mvars[i] then
-              match args[i].isConstructorApp? (← getEnv) with
-              | none   => pure ()
-              | some s =>
-                if isStructure (← getEnv) s.induct then
-                  withNaryArg (f.getAppNumArgs + i) $ withType do
-                    annotateBool `pp.structureInstanceTypes
-                    withKnowing true false $ analyze
-            tryUnify args[i] mvars[i]
-            bottomUps := bottomUps.set! i true
+    -- more complex ones. Note: we prefer bottom-ups whose types are unknown, because they often determine
+    -- earlier arguments (e.g. `{ fst := _, snd := true }`)
+    for check in [fun i => typeUnknown mvars[i]] do
+      for target in [fun _ => none, fun i => some mvars[i]] do
+        for i in [:args.size] do
+          if bInfos[i] == BinderInfo.default then
+            if ← check i <&&> canBottomUp args[i] (target i) then
+              tryUnify args[i] mvars[i]
+              bottomUps := bottomUps.set! i true
 
     -- Next, look at out params
     for i in [:args.size] do

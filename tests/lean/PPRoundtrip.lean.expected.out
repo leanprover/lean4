@@ -45,7 +45,7 @@ Type → Type → Type
 1
 42
 "hi"
-{ type := Nat,
+{ type := _,
   val := 0 :
   PointedType }
 (1, 2, 3)
@@ -54,10 +54,11 @@ decide (1 < 2) ||
   true
 id (fun a => a) 0
 typeAs Nat
-  do 
+  (do 
     let x ← pure 1
     discard (pure 2)
     let y : Nat := 3
-    pure (x + y)
+    pure (x + y) :
+  Id Nat)
 typeAs (Id Nat)
   (pure 1 >>= pure)

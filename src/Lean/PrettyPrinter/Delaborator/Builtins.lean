@@ -251,10 +251,10 @@ def delabAppImplicit : Delab := do
         | some stx => argStxs.push stx
       pure (fnStx, paramKinds.tailD [], argStxs))
   let stx := Syntax.mkApp fnStx argStxs
-  if ← isRegularApp <&&> getPPOption getPPNotation then
-    unexpandRegularApp stx
-    <|> unexpandStructureInstance stx
-    <|> unexpandCoe stx
+  if ← isRegularApp then
+    (guard (← getPPOption getPPNotation) *> unexpandRegularApp stx)
+    <|> (guard (← getPPOption getPPStructureInstances) *> unexpandStructureInstance stx)
+    <|> (guard (← getPPOption getPPNotation) *> unexpandCoe stx)
     <|> pure stx
   else pure stx
 
@@ -539,7 +539,7 @@ def delabLetE : Delab := do
   let stxB ← withLetDecl n t v fun fvar =>
     let b := b.instantiate1 fvar
     descend b 2 delab
-  if ← getPPOption getPPAnalysisLetVarType then
+  if ← getPPOption getPPLetVarTypes <||> getPPOption getPPAnalysisLetVarType then
     let stxT ← descend t 0 delab
     `(let $(mkIdent n) : $stxT := $stxV; $stxB)
   else `(let $(mkIdent n) := $stxV; $stxB)

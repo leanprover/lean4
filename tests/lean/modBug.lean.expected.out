@@ -1,5 +1,5 @@
 modBug.lean:1:32-1:62: error: application type mismatch
-  Nat.zeroNeOne (Nat.mod_zero 1)
+  Nat.zeroNeOne (Nat.mod_zero _)
 argument
   Nat.mod_zero _
 has type

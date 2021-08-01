@@ -1,5 +1,5 @@
 mulcommErrorMessage.lean:8:13-13:25: error: type mismatch
-  fun a b => ?m _ _
+  fun a b => ?m a b
 has type
   (a : ?m) → (b : ?m a) → ?m a b : Sort (imax ?u ?u ?u)
 but is expected to have type

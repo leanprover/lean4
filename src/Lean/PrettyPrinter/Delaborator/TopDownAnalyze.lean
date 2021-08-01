@@ -192,8 +192,7 @@ def isDefEqAssigning (t s : Expr) : MetaM Bool := do
 
 def checkpointDefEq (t s : Expr) : MetaM Bool := do
   Meta.checkpointDefEq (mayPostpone := false) do
-    withTransparency TransparencyMode.instances do
-      isDefEqAssigning t s
+    isDefEqAssigning t s
 
 def tryUnify (t s : Expr) : MetaM Unit := do
   try

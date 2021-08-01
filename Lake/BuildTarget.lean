@@ -41,32 +41,6 @@ end Target
 -- # Build Targets
 --------------------------------------------------------------------------------
 
--- ## Build Target
-
-abbrev BuildTarget (t : Type) (a : Type) := Target t (IO BuildTask) a
-
-namespace BuildTarget
-
-def mk (artifact : a) (trace : t) (task : IO BuildTask) : BuildTarget t a :=
-  ⟨artifact, trace, task⟩
-
-def opaque (trace : t) (task : IO BuildTask) : BuildTarget t PUnit :=
-  ⟨(), trace, task⟩
-
-def pure (artifact : a) (trace : t) : BuildTarget t a :=
-  ⟨artifact, trace, BuildTask.nop⟩
-
-def nil [Inhabited t] : BuildTarget t PUnit :=
-  pure () Inhabited.default
-
-def spawn (self : BuildTarget t α) : IO BuildTask :=
-  self.task
-
-def materialize (self : BuildTarget t α) : IO PUnit := do
-  (← self.task).await
-
-end BuildTarget
-
 -- ## Active Build Target
 
 abbrev ActiveBuildTarget (t : Type) (a : Type) := Target t BuildTask a
@@ -103,6 +77,32 @@ instance : HAndThen (List (ActiveBuildTarget t a)) (IO PUnit) (IO BuildTask) :=
   ⟨ActiveBuildTarget.afterList⟩
 
 end ActiveBuildTarget
+
+-- ## Build Target
+
+abbrev BuildTarget (t : Type) (a : Type) := Target t (IO BuildTask) a
+
+namespace BuildTarget
+
+def mk (artifact : a) (trace : t) (task : IO BuildTask) : BuildTarget t a :=
+  ⟨artifact, trace, task⟩
+
+def opaque (trace : t) (task : IO BuildTask) : BuildTarget t PUnit :=
+  ⟨(), trace, task⟩
+
+def pure (artifact : a) (trace : t) : BuildTarget t a :=
+  ⟨artifact, trace, BuildTask.nop⟩
+
+def nil [Inhabited t] : BuildTarget t PUnit :=
+  pure () Inhabited.default
+
+def spawn (self : BuildTarget t a) : IO (ActiveBuildTarget t a) := do
+  return {self with task := (← self.task)}
+
+def materialize (self : BuildTarget t a) : IO PUnit := do
+  (← self.task).await
+
+end BuildTarget
 
 --------------------------------------------------------------------------------
 -- # File Targets

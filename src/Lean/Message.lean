@@ -92,8 +92,8 @@ def nil : MessageData :=
   ofFormat Format.nil
 
 def isNil : MessageData → Bool
-  | ofFormat (Format.nil _) => true
-  | _                       => false
+  | ofFormat Format.nil => true
+  | _                   => false
 
 def isNest : MessageData → Bool
   | nest _ _ => true

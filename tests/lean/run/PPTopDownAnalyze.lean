@@ -31,10 +31,10 @@ def checkDelab (e : Expr) (tgt? : Option Syntax) (name? : Option Name := none) :
   withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `pp.all true }) do
     if not (← isDefEq e e') then
       println! "[checkDelab] {← inferType e} {← inferType e'}"
-      throwError "[checkDelab] roundtrip not structurally equal\n\nOriginal: {fmt e}\n\nSyntax: {stx}\n\nNew: {fmt e'}"
+      throwError "[checkDelab] roundtrip not structurally equal\n\nOriginal: {e}\n\nSyntax: {stx}\n\nNew: {e'}"
 
   let e' ← instantiateMVars e'
-  if e'.hasMVar then throwError "[checkDelab] elaborated term still has mvars\n\nSyntax: {stx}\n\nExpression: {fmt e'}"
+  if e'.hasMVar then throwError "[checkDelab] elaborated term still has mvars\n\nSyntax: {stx}\n\nExpression: {e'}"
 
 
 syntax (name := testDelabTD) "#testDelab " term " expecting " term : command

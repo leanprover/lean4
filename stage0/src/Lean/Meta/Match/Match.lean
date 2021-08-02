@@ -538,7 +538,7 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
 private def expandNatValuePattern (p : Problem) : Problem := do
   let alts := p.alts.map fun alt => match alt.patterns with
     | Pattern.val (Expr.lit (Literal.natVal 0) _) :: ps     => { alt with patterns := Pattern.ctor `Nat.zero [] [] [] :: ps }
-    | Pattern.val (Expr.lit (Literal.natVal (n+1)) _) :: ps => { alt with patterns := Pattern.ctor `Nat.succ [] [] [Pattern.val (mkNatLit n)] :: ps }
+    | Pattern.val (Expr.lit (Literal.natVal (n+1)) _) :: ps => { alt with patterns := Pattern.ctor `Nat.succ [] [] [Pattern.val (mkRawNatLit n)] :: ps }
     | _                                                     => alt
   { p with alts := alts }
 
@@ -808,21 +808,21 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
   let matcherName := matcherApp.matcherName
   let some matcherInfo ← getMatcherInfo? matcherName | throwError "not a matcher: {matcherName}"
   let matcherConst ← getConstInfo matcherName
-  let matcherType ← instantiateForall matcherConst.type $ matcherApp.params ++ #[matcherApp.motive] 
+  let matcherType ← instantiateForall matcherConst.type $ matcherApp.params ++ #[matcherApp.motive]
   let matchType ← do
-    let u := 
-      if let some idx := matcherInfo.uElimPos? 
+    let u :=
+      if let some idx := matcherInfo.uElimPos?
       then mkLevelParam matcherConst.levelParams.toArray[idx]
       else levelZero
-    
+
     forallBoundedTelescope matcherType (some matcherInfo.numDiscrs) fun discrs t => do
     mkForallFVars discrs (mkConst ``PUnit [u])
 
-  let matcherType ← instantiateForall matcherType matcherApp.discrs 
-  let lhss := Array.toList $ ←forallBoundedTelescope matcherType (some matcherApp.alts.size) fun alts _ => 
+  let matcherType ← instantiateForall matcherType matcherApp.discrs
+  let lhss := Array.toList $ ←forallBoundedTelescope matcherType (some matcherApp.alts.size) fun alts _ =>
     alts.mapM fun alt => do
     let ty ← inferType alt
-    forallTelescope ty fun xs body => do 
+    forallTelescope ty fun xs body => do
     let xs ← xs.filterM fun x => dependsOn body x.fvarId!
     body.withApp fun f args => do
     let ctx ← getLCtx
@@ -836,7 +836,7 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
   return { matcherName, matchType, numDiscrs := matcherApp.discrs.size, lhss }
 
 
-def withMkMatcherInput 
+def withMkMatcherInput
     (matcherName : Name)
     (k : MkMatcherInput → MetaM α) : MetaM α := do
   let some matcherInfo ← getMatcherInfo? matcherName | throwError "not a matcher: {matcherName}"

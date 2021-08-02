@@ -482,8 +482,8 @@ def isMonad? (m : Expr) : MetaM (Option Expr) :=
 /-- Return `(n : type)`, a numeric literal of type `type`. The method fails if we don't have an instance `OfNat type n` -/
 def mkNumeral (type : Expr) (n : Nat) : MetaM Expr := do
   let u ← getDecLevel type
-  let inst ← synthInstance (mkApp2 (mkConst ``OfNat [u]) type (mkNatLit n))
-  return mkApp3 (mkConst ``OfNat.ofNat [u]) type (mkNatLit n) inst
+  let inst ← synthInstance (mkApp2 (mkConst ``OfNat [u]) type (mkRawNatLit n))
+  return mkApp3 (mkConst ``OfNat.ofNat [u]) type (mkRawNatLit n) inst
 
 /--
   Return `a op b`, where `op` has name `opName` and is implemented using the typeclass `className`.

@@ -176,6 +176,7 @@ lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppMFinal(lean_obje
 static lean_object* l_Lean_Meta_mkProjection___closed__5;
 lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__6___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkHEqTrans_match__1(lean_object*);
+lean_object* l_Lean_mkRawNatLit(lean_object*);
 static lean_object* l_Lean_Meta_mkNoConfusion___closed__3;
 static lean_object* l_Lean_Meta_mkImpCongrCtx___closed__2;
 lean_object* l_Lean_Meta_mkEqSymm(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -378,7 +379,6 @@ lean_object* l_Lean_Meta_whnfD(lean_object*, lean_object*, lean_object*, lean_ob
 static lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_throwAppBuilderException___rarg___closed__4;
 lean_object* l_Lean_Meta_mkFreshLevelMVar___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkAppM___closed__3;
-lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* l_Lean_Meta_mkHEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkEq___closed__1;
 static lean_object* l_Lean_Meta_mkEqOfHEq___closed__5;
@@ -12891,7 +12891,7 @@ lean_ctor_set(x_12, 1, x_11);
 x_13 = l_Lean_Meta_mkNumeral___closed__2;
 lean_inc(x_12);
 x_14 = l_Lean_mkConst(x_13, x_12);
-x_15 = l_Lean_mkNatLit(x_2);
+x_15 = l_Lean_mkRawNatLit(x_2);
 lean_inc(x_15);
 lean_inc(x_1);
 x_16 = l_Lean_mkAppB(x_14, x_1, x_15);

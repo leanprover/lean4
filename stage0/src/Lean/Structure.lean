@@ -15,6 +15,42 @@ import Lean.ProjFns
 
 namespace Lean
 
+structure StructureFieldInfo where
+  fieldName : Name
+  projFn    : Name
+  subobject : Bool
+  deriving Inhabited
+
+private structure StructureEntry where
+  structName : Name
+  fieldNames : Array Name -- sorted by field position in the structure
+  fieldInfo  : Array StructureFieldInfo -- sorted by `fieldName`
+  deriving Inhabited
+
+/-- Auxiliary state for structures defined in the current module. -/
+private structure StructureState where
+  map : Std.PersistentHashMap Name StructureEntry := {}
+  deriving Inhabited
+
+builtin_initialize structureExt : SimplePersistentEnvExtension StructureEntry StructureState ← registerSimplePersistentEnvExtension {
+  name          := `structExt
+  addImportedFn := fun _ => {}
+  addEntryFn    := fun s e => { s with map := s.map.insert e.structName e }
+  toArrayFn     := fun es => es.toArray.qsort fun e₁ e₂ => Name.quickLt e₁.structName e₂.structName
+}
+
+structure StructureDescr where
+  structName : Name
+  fields     : Array StructureFieldInfo -- Should use the order the field appear in the constructor.
+  deriving Inhabited
+
+def registerStructure (env : Environment) (e : StructureDescr) : Environment :=
+  structureExt.addEntry env {
+    structName := e.structName
+    fieldNames := e.fields.map fun e => e.fieldName
+    fieldInfo  := e.fields.qsort fun e₁ e₂ => Name.quickLt e₁.fieldName e₂.fieldName
+  }
+
 /--
   Return true iff `constName` is the a non-recursive inductive
   datatype that has only one constructor. -/
@@ -52,6 +88,8 @@ private def getStructureFieldsAux (numParams : Nat) : Nat → Expr → Array Nam
   | _, _, fieldNames => fieldNames
 
 -- TODO: fix. See comment in the beginning of the file
+
+/-- Get direct field names for the given structure. -/
 def getStructureFields (env : Environment) (structName : Name) : Array Name :=
   let ctor := getStructureCtor env structName;
   getStructureFieldsAux ctor.numParams 0 ctor.type #[]

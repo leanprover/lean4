@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Command
-// Imports: Init Lean.Parser.Command Lean.ResolveName Lean.Meta.Reduce Lean.Elab.Log Lean.Elab.Term Lean.Elab.Binders Lean.Elab.SyntheticMVars Lean.Elab.DeclModifiers Lean.Elab.InfoTree Lean.Elab.Open Lean.Elab.SetOption
+// Imports: Init Lean.Parser.Command Lean.ResolveName Lean.Meta.Reduce Lean.Elab.Log Lean.Elab.Term Lean.Elab.Binders Lean.Elab.SyntheticMVars Lean.Elab.DeclModifiers Lean.Elab.InfoTree Lean.Elab.SetOption
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18993,7 +18993,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Command_modifyScope___closed__1;
 x_2 = l_Lean_Elab_Command_modifyScope___closed__2;
-x_3 = lean_unsigned_to_nat(406u);
+x_3 = lean_unsigned_to_nat(405u);
 x_4 = lean_unsigned_to_nat(16u);
 x_5 = l_Lean_Elab_Command_modifyScope___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -21176,7 +21176,6 @@ lean_object* initialize_Lean_Elab_Binders(lean_object*);
 lean_object* initialize_Lean_Elab_SyntheticMVars(lean_object*);
 lean_object* initialize_Lean_Elab_DeclModifiers(lean_object*);
 lean_object* initialize_Lean_Elab_InfoTree(lean_object*);
-lean_object* initialize_Lean_Elab_Open(lean_object*);
 lean_object* initialize_Lean_Elab_SetOption(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Elab_Command(lean_object* w) {
@@ -21211,9 +21210,6 @@ res = initialize_Lean_Elab_DeclModifiers(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_InfoTree(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_Open(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_SetOption(lean_io_mk_world());

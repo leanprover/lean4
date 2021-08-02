@@ -56,6 +56,7 @@ lean_object* l_Lean_Meta_getMVarType(lean_object*, lean_object*, lean_object*, l
 static lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__3;
 lean_object* l_Lean_Meta_caseArraySizes_match__1___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* l_Lean_mkRawNatLit(lean_object*);
 lean_object* l_Lean_Meta_getArrayArgType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqSymm(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_getArrayArgType___closed__5;
@@ -108,7 +109,6 @@ lean_object* l_Lean_Meta_caseArraySizes_match__1(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_caseArraySizes___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapIdxM_map___at_Lean_Meta_caseArraySizes___spec__3___boxed(lean_object**);
@@ -427,8 +427,8 @@ lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_mkArrayGetL
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_10 = l_Lean_mkNatLit(x_2);
-x_11 = l_Lean_mkNatLit(x_3);
+x_10 = l_Lean_mkRawNatLit(x_2);
+x_11 = l_Lean_mkRawNatLit(x_3);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -797,7 +797,7 @@ lean_inc(x_21);
 x_22 = lean_ctor_get(x_20, 1);
 lean_inc(x_22);
 lean_dec(x_20);
-x_23 = l_Lean_mkNatLit(x_3);
+x_23 = l_Lean_mkRawNatLit(x_3);
 x_24 = l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__3;
 x_25 = lean_array_push(x_24, x_2);
 x_26 = lean_array_push(x_25, x_23);
@@ -1221,7 +1221,7 @@ x_6 = lean_array_uget(x_3, x_2);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_3, x_2, x_7);
 x_9 = x_6;
-x_10 = l_Lean_mkNatLit(x_9);
+x_10 = l_Lean_mkRawNatLit(x_9);
 x_11 = 1;
 x_12 = x_2 + x_11;
 x_13 = x_10;

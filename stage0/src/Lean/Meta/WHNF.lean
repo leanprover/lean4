@@ -60,7 +60,7 @@ private def mkNullaryCtor (type : Expr) (nparams : Nat) : MetaM (Option Expr) :=
 def toCtorIfLit : Expr → Expr
   | Expr.lit (Literal.natVal v) _ =>
     if v == 0 then mkConst `Nat.zero
-    else mkApp (mkConst `Nat.succ) (mkNatLit (v-1))
+    else mkApp (mkConst `Nat.succ) (mkRawNatLit (v-1))
   | Expr.lit (Literal.strVal v) _ =>
     mkApp (mkConst `String.mk) (toExpr v.toList)
   | e => e
@@ -515,13 +515,13 @@ def reduceNative? (e : Expr) : MetaM (Option Expr) :=
 
 def reduceUnaryNatOp (f : Nat → Nat) (a : Expr) : MetaM (Option Expr) :=
   withNatValue a fun a =>
-  return mkNatLit <| f a
+  return mkRawNatLit <| f a
 
 def reduceBinNatOp (f : Nat → Nat → Nat) (a b : Expr) : MetaM (Option Expr) :=
   withNatValue a fun a =>
   withNatValue b fun b => do
   trace[Meta.isDefEq.whnf.reduceBinOp] "{a} op {b}"
-  return mkNatLit <| f a b
+  return mkRawNatLit <| f a b
 
 def reduceBinNatPred (f : Nat → Nat → Bool) (a b : Expr) : MetaM (Option Expr) := do
   withNatValue a fun a =>

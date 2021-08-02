@@ -25,9 +25,9 @@ def getArrayArgType (a : Expr) : MetaM Expr := do
   pure aType.appArg!
 
 private def mkArrayGetLit (a : Expr) (i : Nat) (n : Nat) (h : Expr) : MetaM Expr := do
-  let lt    ← mkLt (mkNatLit i) (mkNatLit n)
+  let lt    ← mkLt (mkRawNatLit i) (mkRawNatLit n)
   let ltPrf ← mkDecideProof lt
-  mkAppM `Array.getLit #[a, mkNatLit i, h, ltPrf]
+  mkAppM `Array.getLit #[a, mkRawNatLit i, h, ltPrf]
 
 private partial def introArrayLit (mvarId : MVarId) (a : Expr) (n : Nat) (xNamePrefix : Name) (aSizeEqN : Expr) : MetaM MVarId := do
   let α ← getArrayArgType a
@@ -41,7 +41,7 @@ private partial def introArrayLit (mvarId : MVarId) (a : Expr) (n : Nat) (xNameP
     else
       let xsLit     ← mkArrayLit α xs.toList
       let aEqXsLit  ← mkEq a xsLit
-      let aEqLitPrf ← mkAppM `Array.toArrayLitEq #[a, mkNatLit n, aSizeEqN]
+      let aEqLitPrf ← mkAppM `Array.toArrayLitEq #[a, mkRawNatLit n, aSizeEqN]
       withLocalDeclD `hEqALit aEqXsLit fun heq => do
         let target    ← getMVarType mvarId
         let newTarget ← mkForallFVars (xs.push heq) target
@@ -67,7 +67,7 @@ def caseArraySizes (mvarId : MVarId) (fvarId : FVarId) (sizes : Array Nat) (xNam
     let mvarId ← assertExt mvarId `aSize (mkConst `Nat) aSize
     let (aSizeFVarId, mvarId) ← intro1 mvarId
     let (hEq, mvarId) ← intro1 mvarId
-    let subgoals ← caseValues mvarId aSizeFVarId (sizes.map mkNatLit) hNamePrefix
+    let subgoals ← caseValues mvarId aSizeFVarId (sizes.map mkRawNatLit) hNamePrefix
     subgoals.mapIdxM fun i subgoal => do
       let subst  := subgoal.subst
       let mvarId := subgoal.mvarId

@@ -58,7 +58,7 @@ structure StructView where
 
 inductive StructFieldKind where
   | newField | fromParent | subobject
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 structure StructFieldInfo where
   name     : Name
@@ -470,6 +470,20 @@ private def addProjections (structName : Name) (projs : List ProjectionInfo) (is
   | Except.ok env   => setEnv env
   | Except.error ex => throwKernelException ex
 
+private def registerStructure (structName : Name) (infos : Array StructFieldInfo) : TermElabM Unit :=
+  modifyEnv fun env => Lean.registerStructure env {
+    structName
+    fields := infos.filterMap fun info =>
+      if info.kind == StructFieldKind.fromParent then
+        none
+      else
+        some {
+          fieldName := info.name
+          projFn    := info.declName
+          subobject := info.kind == StructFieldKind.subobject
+        }
+  }
+
 private def mkAuxConstructions (declName : Name) : TermElabM Unit := do
   let env ← getEnv
   let hasUnit := env.contains `PUnit
@@ -530,6 +544,7 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
         let projInfos := (fieldInfos.filter fun (info : StructFieldInfo) => !info.isFromParent).toList.map fun (info : StructFieldInfo) =>
           { declName := info.declName, inferMod := info.inferMod : ProjectionInfo }
         addProjections view.declName projInfos view.isClass
+        registerStructure view.declName fieldInfos
         mkAuxConstructions view.declName
         let instParents ← fieldInfos.filterM fun info => do
           let decl ← Term.getFVarLocalDecl! info.fvar

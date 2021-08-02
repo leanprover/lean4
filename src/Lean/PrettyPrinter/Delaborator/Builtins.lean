@@ -141,27 +141,40 @@ inductive ParamKind where
   -- combines implicit params, optParams, and autoParams
   | implicit (name : Name) (defVal : Option Expr)
 
+-- TODO: move into Lean/Meta?
+partial def forallTelescopeArgs (f : Expr) (args : Array Expr) (k : Array Expr → Expr → MetaM α) : MetaM α := do
+  forallBoundedTelescope (← inferType f) args.size fun xs b =>
+    if xs.isEmpty || xs.size == args.size then
+      -- we still want to consider optParams
+      forallTelescopeReducing b fun ys b => k (xs ++ ys) b
+    else
+      forallTelescopeArgs (mkAppN f $ args.shrink xs.size) (args.extract xs.size args.size) fun ys b =>
+        k (xs ++ ys) b
+
 /-- Return array with n-th element set to kind of n-th parameter of `e`. -/
-def getParamKinds (e : Expr) : MetaM (Array ParamKind) := do
-  let t ← inferType e
-  forallTelescopeReducing t fun params _ =>
-    params.mapM fun param => do
-      let l ← getLocalDecl param.fvarId!
-      match l.type.getOptParamDefault? with
-      | some val => pure $ ParamKind.implicit l.userName val
-      | _ =>
-        if l.type.isAutoParam || !l.binderInfo.isExplicit then
-          pure $ ParamKind.implicit l.userName none
-        else
-          pure ParamKind.explicit
+def getParamKinds : DelabM (Array ParamKind) := do
+  let e ← getExpr
+  try
+    withTransparency TransparencyMode.all do
+      forallTelescopeArgs e.getAppFn e.getAppArgs fun params _ => do
+        params.mapM fun param => do
+          let l ← getLocalDecl param.fvarId!
+          match l.type.getOptParamDefault? with
+          | some val => pure $ ParamKind.implicit l.userName val
+          | _ =>
+            if l.type.isAutoParam || !l.binderInfo.isExplicit then
+              pure $ ParamKind.implicit l.userName none
+            else
+              pure ParamKind.explicit
+  catch _ => pure #[] -- recall that expr may be nonsensical
 
 @[builtinDelab app]
 def delabAppExplicit : Delab := whenPPOption getPPExplicit do
+  let paramKinds ← getParamKinds
   let (fnStx, argStxs) ← withAppFnArgs
     (do
       let fn ← getExpr
       let stx ← if fn.isConst then delabConst else delab
-      let paramKinds ← liftM <| getParamKinds fn <|> pure #[]
       let needsExplicit := paramKinds.any (fun | ParamKind.explicit => false | _ => true) && stx.getKind != `Lean.Parser.Term.explicit
       let stx ← if needsExplicit then `(@$stx) else pure stx
       pure (stx, #[]))
@@ -223,15 +236,14 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
 @[builtinDelab app]
 def delabAppImplicit : Delab := do
   -- TODO: always call the unexpanders, make them guard on the right # args?
+  let paramKinds ← getParamKinds
   if ← getPPOption getPPExplicit then
-    let paramKinds ← liftM <| getParamKinds (← getExpr).getAppFn <|> pure #[]
     if paramKinds.any (fun | ParamKind.explicit => false | _ => true) then failure
 
   let (fnStx, _, argStxs) ← withAppFnArgs
     (do
       let fn ← getExpr
       let stx ← if fn.isConst then delabConst else delab
-      let paramKinds ← liftM (getParamKinds fn <|> pure #[])
       pure (stx, paramKinds.toList, #[]))
     (fun (fnStx, paramKinds, argStxs) => do
       let arg ← getExpr

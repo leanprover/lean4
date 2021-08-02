@@ -57,9 +57,8 @@ ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Building $<"
 endif
 	@mkdir -p $(OLEAN_OUT)/$(*D)
-	$(LEAN) $(LEAN_OPTS) -o "$@.tmp" --c="$(TEMP_OUT)/$*.c.tmp" $<
-# create output files atomically
-	mv "$@.tmp" "$@"
+	$(LEAN) $(LEAN_OPTS) -o "$@" --c="$(TEMP_OUT)/$*.c.tmp" $<
+# create the .c file atomically
 	mv "$(TEMP_OUT)/$*.c.tmp" "$(TEMP_OUT)/$*.c"
 
 $(TEMP_OUT)/%.c: $(OLEAN_OUT)/%.olean

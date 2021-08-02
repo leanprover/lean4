@@ -45,9 +45,11 @@ static char const * g_olean_header   = "oleanfile!!!!!!!";
 
 extern "C" object * lean_save_module_data(b_obj_arg fname, b_obj_arg mod, b_obj_arg mdata, object *) {
     std::string olean_fn(string_cstr(fname));
+    // we first write to a temp file and then move it to the correct path (possibly deleting an older file)
+    // so that we neither expose partially-written files nor modify possibly memory-mapped files
+    std::string olean_tmp_fn = olean_fn + ".tmp";
     try {
-        exclusive_file_lock output_lock(olean_fn);
-        std::ofstream out(olean_fn, std::ios_base::binary);
+        std::ofstream out(olean_tmp_fn, std::ios_base::binary);
         if (out.fail()) {
             return io_result_mk_error((sstream() << "failed to create file '" << olean_fn << "'").str());
         }
@@ -73,6 +75,9 @@ extern "C" object * lean_save_module_data(b_obj_arg fname, b_obj_arg mod, b_obj_
         out.write(reinterpret_cast<char *>(&base_addr), sizeof(base_addr));
         out.write(static_cast<char const *>(compactor.data()), compactor.size());
         out.close();
+        if (std::rename(olean_tmp_fn.c_str(), olean_fn.c_str()) != 0) {
+            return io_result_mk_error((sstream() << "failed to write '" << olean_fn << "': " << strerror(errno)).str());
+        }
         return io_result_mk_ok(box(0));
     } catch (exception & ex) {
         return io_result_mk_error((sstream() << "failed to write '" << olean_fn << "': " << ex.what()).str());
@@ -82,7 +87,6 @@ extern "C" object * lean_save_module_data(b_obj_arg fname, b_obj_arg mod, b_obj_
 extern "C" object * lean_read_module_data(object * fname, object *) {
     std::string olean_fn(string_cstr(fname));
     try {
-        shared_file_lock olean_lock(olean_fn);
         std::ifstream in(olean_fn, std::ios_base::binary);
         if (in.fail()) {
             return io_result_mk_error((sstream() << "failed to open file '" << olean_fn << "'").str());

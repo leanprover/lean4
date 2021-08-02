@@ -141,18 +141,8 @@ inductive ParamKind where
   -- combines implicit params, optParams, and autoParams
   | implicit (name : Name) (defVal : Option Expr)
 
--- TODO: move into Lean/Meta?
-partial def forallTelescopeArgs (f : Expr) (args : Array Expr) (k : Array Expr → Expr → MetaM α) : MetaM α := do
-  forallBoundedTelescope (← inferType f) args.size fun xs b =>
-    if xs.isEmpty || xs.size == args.size then
-      -- we still want to consider optParams
-      forallTelescopeReducing b fun ys b => k (xs ++ ys) b
-    else
-      forallTelescopeArgs (mkAppN f $ args.shrink xs.size) (args.extract xs.size args.size) fun ys b =>
-        k (xs ++ ys) b
-
 /-- Return array with n-th element set to kind of n-th parameter of `e`. -/
-def getParamKinds : DelabM (Array ParamKind) := do
+partial def getParamKinds : DelabM (Array ParamKind) := do
   let e ← getExpr
   try
     withTransparency TransparencyMode.all do
@@ -167,6 +157,15 @@ def getParamKinds : DelabM (Array ParamKind) := do
             else
               pure ParamKind.explicit
   catch _ => pure #[] -- recall that expr may be nonsensical
+where
+  forallTelescopeArgs f args k := do
+    forallBoundedTelescope (← inferType f) args.size fun xs b =>
+      if xs.isEmpty || xs.size == args.size then
+        -- we still want to consider optParams
+        forallTelescopeReducing b fun ys b => k (xs ++ ys) b
+      else
+        forallTelescopeArgs (mkAppN f $ args.shrink xs.size) (args.extract xs.size args.size) fun ys b =>
+          k (xs ++ ys) b
 
 @[builtinDelab app]
 def delabAppExplicit : Delab := whenPPOption getPPExplicit do

@@ -26,7 +26,9 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "library/time_task.h"
 #include "library/util.h"
 
-#ifndef LEAN_WINDOWS
+#ifdef LEAN_WINDOWS
+#include <windows.h>
+#else
 #include <sys/mman.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -66,7 +68,8 @@ extern "C" object * lean_save_module_data(b_obj_arg fname, b_obj_arg mod, b_obj_
         // https://en.wikipedia.org/wiki/X86-64#Virtual_address_space_details
         base_addr = base_addr & ((1LL<<47) - 1);
         // `mmap` addresses must be page-aligned. The default (non-huge) page size on x86-64 is 4KB.
-        base_addr = base_addr & ~((1LL<<12) - 1);
+        // `MapViewOfFileEx` addresses must be aligned to the "memory allocation granularity", which is 64KB.
+        base_addr = base_addr & ~((1LL<<16) - 1);
 
         object_compactor compactor(reinterpret_cast<void *>(base_addr + strlen(g_olean_header) + sizeof(base_addr)));
         compactor(mdata);
@@ -109,26 +112,47 @@ extern "C" object * lean_read_module_data(object * fname, object *) {
         header_size += sizeof(base_addr);
         char * buffer = nullptr;
         bool is_mmap = false;
-#ifndef LEAN_WINDOWS
+        std::function<void()> free_data;
+#ifdef LEAN_WINDOWS
+        // `FILE_SHARE_DELETE` is necessary to allow the file to (be marked to) be deleted while in use
+        HANDLE h_olean_fn = CreateFile(olean_fn.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (h_olean_fn == INVALID_HANDLE_VALUE) {
+            return io_result_mk_error((sstream() << "failed to open '" << olean_fn << "': " << GetLastError()).str());
+        }
+        HANDLE h_map = CreateFileMapping(h_olean_fn, NULL, PAGE_READONLY, 0, 0, NULL);
+        if (h_olean_fn == NULL) {
+            return io_result_mk_error((sstream() << "failed to map '" << olean_fn << "': " << GetLastError()).str());
+        }
+        buffer = static_cast<char *>(MapViewOfFileEx(h_map, FILE_MAP_READ, 0, 0, 0, base_addr));
+        free_data = [=]() {
+            if (buffer) {
+                lean_always_assert(UnmapViewOfFile(base_addr));
+            }
+            lean_always_assert(CloseHandle(h_map));
+            lean_always_assert(CloseHandle(h_olean_fn));
+        };
+#else
         int fd = open(olean_fn.c_str(), O_RDONLY);
         if (fd == -1) {
             return io_result_mk_error((sstream() << "failed to open '" << olean_fn << "': " << strerror(errno)).str());
         }
         buffer = static_cast<char *>(mmap(base_addr, size, PROT_READ, MAP_PRIVATE, fd, 0));
         close(fd);
+        free_data = [=]() {
+            if (buffer != MAP_FAILED) {
+                lean_always_assert(munmap(buffer, size) == 0);
+            }
+        };
+#endif
         if (buffer == base_addr) {
             buffer += header_size;
             is_mmap = true;
         } else {
-            if (munmap(buffer, size)) {
-                return io_result_mk_error((sstream() << "munmap() failed: " << strerror(errno)).str());
-            }
-            buffer = nullptr;
-        }
-#endif
-        if (!buffer) {
-            // use `malloc` here as expected by `compacted_region`
+            free_data();
             buffer = static_cast<char *>(malloc(size - header_size));
+            free_data = [=]() {
+                free(buffer);
+            };
             in.read(buffer, size - header_size);
             if (!in) {
                 return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "'").str());
@@ -136,7 +160,7 @@ extern "C" object * lean_read_module_data(object * fname, object *) {
         }
         in.close();
 
-        compacted_region * region = new compacted_region(size - header_size, buffer, base_addr + header_size, is_mmap ? base_addr : 0);
+        compacted_region * region = new compacted_region(size - header_size, buffer, base_addr + header_size, is_mmap, free_data);
 #if defined(__has_feature)
 #if __has_feature(address_sanitizer)
         // do not report as leak

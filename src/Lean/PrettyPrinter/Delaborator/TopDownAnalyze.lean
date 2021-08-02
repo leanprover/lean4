@@ -528,7 +528,7 @@ mutual
         annotateBool `pp.explicit
         for i in [:args.size] do
           if !(← get).provideds[i] then
-            withNaryArg (f.getAppNumArgs + i) do annotateBool `pp.analyze.hole
+            withNaryArg (f.getAppNumArgs + i) do annotateBool `pp.analysis.hole
 
 end
 

@@ -32,7 +32,7 @@ deriving instance RpcEncoding with { withRef := true } for LazyExprWithCtx
 builtin_initialize
   registerRpcCallHandler `Lean.Widget.LazyExprWithCtx.get (WithRpcRef LazyExprWithCtx) (WithRpcRef ExprWithCtx) fun ⟨e⟩ => RequestM.asTask do WithRpcRef.mk <$> e ()
 
-/-- Pretty-printed expressions are tagged with their lazily-accessible source `Expr`s. -/
+/-- Pretty-printed expressions are tagged with their (lazily-accessible) source `Expr`s. -/
 -- TODO(WN): use the `InfoTree` map when the delaborator supports it
 abbrev ExprText := TaggedText (WithRpcRef LazyExprWithCtx)
 
@@ -81,8 +81,9 @@ where
             go' (e₃.instantiate1 fvar)
         | 0, mdata _ e₁ _      => go' e₁
         | 0, proj _ _ e₁ _     => go' e₁
-        | _, _ => e --panic! s!"cannot descend {a} into {e.expr}"
+        | _, _ => e -- panic! s!"cannot descend {a} into {e.expr}"
 
+/-- Pretty-print the expression and its subexpression information. -/
 def fmt (e : ExprWithCtx) : MetaM ExprText := do
   let opts ← getOptions
   let lctx := (← getLCtx).sanitizeNames.run' { options := opts }
@@ -92,7 +93,7 @@ def fmt (e : ExprWithCtx) : MetaM ExprText := do
     tt.map fun n =>
       WithRpcRef.mk fun () => e.runMetaM (e.traverse n)
 
-/-- Like `fmt` but with `pp.all` set at the top expression. -/
+/-- Like `fmt` but with `pp.all` set at the top-level expression. -/
 def fmtExplicit (e : ExprWithCtx) : MetaM ExprText := do
   let opts ← getOptions
   let lctx := (← getLCtx).sanitizeNames.run' { options := opts }
@@ -112,8 +113,8 @@ def inferType (e : ExprWithCtx) : MetaM ExprWithCtx := do
   return { e with expr := ← Meta.inferType e.expr }
 
 initialize
-  registerRpcCallHandler `Lean.Widget.ExprWithCtx.fmt         (WithRpcRef ExprWithCtx) ExprText               fun ⟨e⟩ => RequestM.asTask do e.runMetaM (fmt e)
-  registerRpcCallHandler `Lean.Widget.ExprWithCtx.fmtExplicit (WithRpcRef ExprWithCtx) ExprText               fun ⟨e⟩ => RequestM.asTask do e.runMetaM (fmtExplicit e)
+  registerRpcCallHandler `Lean.Widget.ExprWithCtx.fmt         (WithRpcRef ExprWithCtx) ExprText                 fun ⟨e⟩ => RequestM.asTask do e.runMetaM (fmt e)
+  registerRpcCallHandler `Lean.Widget.ExprWithCtx.fmtExplicit (WithRpcRef ExprWithCtx) ExprText                 fun ⟨e⟩ => RequestM.asTask do e.runMetaM (fmtExplicit e)
   registerRpcCallHandler `Lean.Widget.ExprWithCtx.inferType   (WithRpcRef ExprWithCtx) (WithRpcRef ExprWithCtx) fun ⟨e⟩ => RequestM.asTask do WithRpcRef.mk <$> e.runMetaM (inferType e)
 
 end ExprWithCtx

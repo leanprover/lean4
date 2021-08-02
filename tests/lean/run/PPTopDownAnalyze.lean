@@ -316,3 +316,23 @@ def natIdNat := typeAs Nat (do let x ← pure 1; return x + x)
 #testDelabN Lean.PrefixTree.empty
 #testDelabN Std.PersistentHashMap.getCollisionNodeSize.match_1
 #testDelabN Std.HashMap.size.match_1
+
+-- TODO: for some reason this *only* works when trusting subst
+set_option pp.analyze.trustSubst true in
+#testDelabN Lean.Simp.and_false
+
+-- TODO: this one prints out a structure instance with keyword field `end`
+set_option pp.structureInstances false in
+#testDelabN Lean.Server.FileWorker.handlePlainTermGoal
+
+-- TODO: this one desugars to a `doLet` in an assignment
+set_option pp.notation false in
+#testDelabN Lean.Server.FileWorker.handlePlainGoal
+
+-- TODO: this error occurs because we use a term's type to determine `blockImplicit` (@),
+-- whereas we should actually use the expected type based on the function being applied.
+-- #testDelabN HEq.subst
+
+-- TODO: this error occurs because it cannot solve the universe constraints
+-- (unclear if it is too few or too many annotations)
+-- #testDelabN ExceptT.seqRight_eq

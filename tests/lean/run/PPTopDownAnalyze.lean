@@ -145,6 +145,11 @@ abbrev nat2bool : Nat → Type := fun _ => Bool
 #testDelab @wild Nat (fun (n : Nat) => Bool) Nat.zero ⟨false⟩
   expecting wild (f := fun n => Bool) (x := Nat.zero) (_inst_1 := { foo := false })
 
+def takesFooUnnamed {Impl : Type} (Expl : Type) [Foo Nat] (x : Impl) (y : Expl) : Impl × Expl := (x, y)
+
+#testDelab @takesFooUnnamed _ Nat (Foo.mk 7) false 5
+  expecting @takesFooUnnamed _ _ { foo := 7 } false 5
+
 #testDelab (fun {α : Type u} (x : α) => x : ∀ {α : Type u}, α → α)
   expecting fun {α} x => x
 

@@ -166,7 +166,7 @@ def delabAppExplicit : Delab := whenPPOption getPPExplicit do
       let stx ← if needsExplicit then `(@$stx) else pure stx
       pure (stx, #[]))
     (fun ⟨fnStx, argStxs⟩ => do
-      let argStx ← delab
+      let argStx ← if ← getPPOption getPPAnalysisHole then `(_) else delab
       pure (fnStx, argStxs.push argStx))
   Syntax.mkApp fnStx argStxs
 

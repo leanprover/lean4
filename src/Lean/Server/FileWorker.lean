@@ -18,6 +18,7 @@ import Lean.Server.AsyncList
 
 import Lean.Server.FileWorker.Utils
 import Lean.Server.FileWorker.RequestHandling
+import Lean.Server.Rpc.Basic
 
 /-!
 For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.

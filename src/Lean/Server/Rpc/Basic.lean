@@ -82,6 +82,7 @@ structure RpcEncoding.DerivingParams where
 /-- Marks fields to encode as opaque references in LSP packets. -/
 structure WithRpcRef (α : Type u) where
   val : α
+  deriving Inhabited
 
 namespace WithRpcRef
 

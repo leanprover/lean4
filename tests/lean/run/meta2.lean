@@ -667,10 +667,10 @@ set_option pp.all false
 
 def tst42 : MetaM Unit := do
 print "----- tst42 -----";
-let t ← mkListLit nat [mkNatLit 1, mkNatLit 2];
+let t ← mkListLit nat [mkRawNatLit 1, mkRawNatLit 2];
 print t;
 check t;
-let t ← mkArrayLit nat [mkNatLit 1, mkNatLit 2];
+let t ← mkArrayLit nat [mkRawNatLit 1, mkRawNatLit 2];
 print t;
 check t;
 (match t.arrayLit? with

@@ -159,7 +159,7 @@ def isDefEqOffset (s t : Expr) : MetaM LBool := do
       match (← evalNat t) with
       | some v₂ => -- s+k₁ =?= v₂
         if v₂ ≥ k₁ then
-          isDefEq s (mkNatLit $ v₂ - k₁)
+          isDefEq s (mkNatLit <| v₂ - k₁)
         else
           ifNatExpr <| return LBool.false
       | none =>
@@ -170,7 +170,7 @@ def isDefEqOffset (s t : Expr) : MetaM LBool := do
       match (← isOffset t) with
       | some (t, k₂) => -- v₁ =?= t+k₂
         if v₁ ≥ k₂ then
-          isDefEq (mkNatLit $ v₁ - k₂) t
+          isDefEq (mkNatLit <| v₁ - k₂) t
         else
           ifNatExpr <| return LBool.false
       | none =>

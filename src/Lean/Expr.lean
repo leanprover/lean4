@@ -236,15 +236,6 @@ def binderInfo (e : Expr) : BinderInfo :=
 
 end Expr
 
-def mkLit (l : Literal) : Expr :=
-  Expr.lit l $ mkData (mixHash 3 (hash l))
-
-def mkNatLit (n : Nat) : Expr :=
-  mkLit (Literal.natVal n)
-
-def mkStrLit (s : String) : Expr :=
-  mkLit (Literal.strVal s)
-
 def mkConst (n : Name) (lvls : List Level := []) : Expr :=
   Expr.const n lvls $ mkData (mixHash 5 $ mixHash (hash n) (hash lvls)) 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
 
@@ -319,6 +310,30 @@ def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) :
     (t.hasLevelMVar || v.hasLevelMVar || b.hasLevelMVar)
     (t.hasLevelParam || v.hasLevelParam || b.hasLevelParam)
     nonDep
+
+def mkAppB (f a b : Expr) := mkApp (mkApp f a) b
+def mkApp2 (f a b : Expr) := mkAppB f a b
+def mkApp3 (f a b c : Expr) := mkApp (mkAppB f a b) c
+def mkApp4 (f a b c d : Expr) := mkAppB (mkAppB f a b) c d
+def mkApp5 (f a b c d e : Expr) := mkApp (mkApp4 f a b c d) e
+def mkApp6 (f a b c d e₁ e₂ : Expr) := mkAppB (mkApp4 f a b c d) e₁ e₂
+def mkApp7 (f a b c d e₁ e₂ e₃ : Expr) := mkApp3 (mkApp4 f a b c d) e₁ e₂ e₃
+def mkApp8 (f a b c d e₁ e₂ e₃ e₄ : Expr) := mkApp4 (mkApp4 f a b c d) e₁ e₂ e₃ e₄
+def mkApp9 (f a b c d e₁ e₂ e₃ e₄ e₅ : Expr) := mkApp5 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅
+def mkApp10 (f a b c d e₁ e₂ e₃ e₄ e₅ e₆ : Expr) := mkApp6 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅ e₆
+
+def mkLit (l : Literal) : Expr :=
+  Expr.lit l $ mkData (mixHash 3 (hash l))
+
+def mkRawNatLit (n : Nat) : Expr :=
+  mkLit (Literal.natVal n)
+
+def mkNatLit (n : Nat) : Expr :=
+  let r := mkRawNatLit n
+  mkApp3 (mkConst ``OfNat.ofNat [levelZero]) (mkConst ``Nat) r (mkApp (mkConst ``instOfNatNat) r)
+
+def mkStrLit (s : String) : Expr :=
+  mkLit (Literal.strVal s)
 
 @[export lean_expr_mk_bvar] def mkBVarEx : Nat → Expr := mkBVar
 @[export lean_expr_mk_fvar] def mkFVarEx : FVarId → Expr := mkFVar
@@ -677,17 +692,6 @@ def isAtomic : Expr → Bool
   | _                => false
 
 end Expr
-
-def mkAppB (f a b : Expr) := mkApp (mkApp f a) b
-def mkApp2 (f a b : Expr) := mkAppB f a b
-def mkApp3 (f a b c : Expr) := mkApp (mkAppB f a b) c
-def mkApp4 (f a b c d : Expr) := mkAppB (mkAppB f a b) c d
-def mkApp5 (f a b c d e : Expr) := mkApp (mkApp4 f a b c d) e
-def mkApp6 (f a b c d e₁ e₂ : Expr) := mkAppB (mkApp4 f a b c d) e₁ e₂
-def mkApp7 (f a b c d e₁ e₂ e₃ : Expr) := mkApp3 (mkApp4 f a b c d) e₁ e₂ e₃
-def mkApp8 (f a b c d e₁ e₂ e₃ e₄ : Expr) := mkApp4 (mkApp4 f a b c d) e₁ e₂ e₃ e₄
-def mkApp9 (f a b c d e₁ e₂ e₃ e₄ e₅ : Expr) := mkApp5 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅
-def mkApp10 (f a b c d e₁ e₂ e₃ e₄ e₅ e₆ : Expr) := mkApp6 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅ e₆
 
 def mkDecIsTrue (pred proof : Expr) :=
   mkAppB (mkConst `Decidable.isTrue) pred proof

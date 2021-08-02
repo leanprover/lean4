@@ -421,7 +421,7 @@ def runParserCategory (env : Environment) (catName : Name) (input : String) (fil
 def declareBuiltinParser (env : Environment) (addFnName : Name) (catName : Name) (declName : Name) (prio : Nat) : IO Environment :=
   let name := `_regBuiltinParser ++ declName
   let type := mkApp (mkConst `IO) (mkConst `Unit)
-  let val  := mkAppN (mkConst addFnName) #[toExpr catName, toExpr declName, mkConst declName, mkNatLit prio]
+  let val  := mkAppN (mkConst addFnName) #[toExpr catName, toExpr declName, mkConst declName, mkRawNatLit prio]
   let decl := Declaration.defnDecl { name := name, levelParams := [], type := type, value := val, hints := ReducibilityHints.opaque,
                                      safety := DefinitionSafety.safe }
   match env.addAndCompile {} decl with

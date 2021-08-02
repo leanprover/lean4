@@ -132,14 +132,14 @@ private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr :=
     | none     => throwIllFormedSyntax
   let typeMVar ← mkFreshTypeMVarFor expectedType?
   let u ← getDecLevel typeMVar
-  let mvar ← mkInstMVar (mkApp2 (Lean.mkConst ``OfNat [u]) typeMVar (mkNatLit val))
-  let r := mkApp3 (Lean.mkConst ``OfNat.ofNat [u]) typeMVar (mkNatLit val) mvar
+  let mvar ← mkInstMVar (mkApp2 (Lean.mkConst ``OfNat [u]) typeMVar (mkRawNatLit val))
+  let r := mkApp3 (Lean.mkConst ``OfNat.ofNat [u]) typeMVar (mkRawNatLit val) mvar
   registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
   return r
 
 @[builtinTermElab rawNatLit] def elabRawNatLit : TermElab :=  fun stx expectedType? => do
   match stx[1].isNatLit? with
-  | some val => return mkNatLit val
+  | some val => return mkRawNatLit val
   | none     => throwIllFormedSyntax
 
 @[builtinTermElab scientificLit]
@@ -150,11 +150,11 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
     let typeMVar ← mkFreshTypeMVarFor expectedType?
     let u ← getDecLevel typeMVar
     let mvar ← mkInstMVar (mkApp (Lean.mkConst ``OfScientific [u]) typeMVar)
-    return mkApp5 (Lean.mkConst ``OfScientific.ofScientific [u]) typeMVar mvar (mkNatLit m) (toExpr sign) (mkNatLit e)
+    return mkApp5 (Lean.mkConst ``OfScientific.ofScientific [u]) typeMVar mvar (mkRawNatLit m) (toExpr sign) (mkRawNatLit e)
 
 @[builtinTermElab charLit] def elabCharLit : TermElab := fun stx _ => do
   match stx.isCharLit? with
-  | some val => return mkApp (Lean.mkConst ``Char.ofNat) (mkNatLit val.toNat)
+  | some val => return mkApp (Lean.mkConst ``Char.ofNat) (mkRawNatLit val.toNat)
   | none     => throwIllFormedSyntax
 
 @[builtinTermElab quotedName] def elabQuotedName : TermElab := fun stx _ =>

@@ -22,6 +22,13 @@ instance : MonadResolveName (M (m := m)) where
   getCurrNamespace   := return (← get).currNamespace
   getOpenDecls       := return (← get).openDecls
 
+def resolveId (ns : Name) (idStx : Syntax) : M (m := m) Name := do
+  let declName := ns ++ idStx.getId
+  if (← getEnv).contains declName then
+    return declName
+  else
+    withRef idStx <| resolveGlobalConstNoOverloadCore declName
+
 private def addOpenDecl (decl : OpenDecl) : M (m:=m) Unit :=
   modify fun s => { s with openDecls := decl :: s.openDecls }
 
@@ -36,37 +43,27 @@ private def elabOpenSimple (n : Syntax) : M (m:=m) Unit :=
 private def elabOpenOnly (n : Syntax) : M (m:=m) Unit := do
   let ns ← resolveNamespace n[0].getId
   for idStx in n[2].getArgs do
-    let id := idStx.getId
-    let declName := ns ++ id
-    if (← getEnv).contains declName then
-      addOpenDecl (OpenDecl.explicit id declName)
-    else
-      withRef idStx <| logUnknownDecl declName
+    let declName ← resolveId ns idStx
+    addOpenDecl (OpenDecl.explicit idStx.getId declName)
 
 -- `open` id `hiding` id+
 private def elabOpenHiding (n : Syntax) : M (m:=m) Unit := do
   let ns ← resolveNamespace n[0].getId
   let mut ids : List Name := []
   for idStx in n[2].getArgs do
+    let declName ← resolveId ns idStx
     let id := idStx.getId
-    let declName := ns ++ id
-    if (← getEnv).contains declName then
-      ids := id::ids
-    else
-      withRef idStx <| logUnknownDecl declName
+    ids := id::ids
   addOpenDecl (OpenDecl.simple ns ids)
 
 -- `open` id `renaming` sepBy (id `->` id) `,`
 private def elabOpenRenaming (n : Syntax) : M (m:=m) Unit := do
   let ns ← resolveNamespace n[0].getId
   for stx in n[2].getSepArgs do
-    let fromId   := stx[0].getId
+    let fromStx  := stx[0]
     let toId     := stx[2].getId
-    let declName := ns ++ fromId
-    if (← getEnv).contains declName then
-      addOpenDecl (OpenDecl.explicit toId declName)
-    else
-      withRef stx do logUnknownDecl declName
+    let declName ← resolveId ns fromStx
+    addOpenDecl (OpenDecl.explicit toId declName)
 
 def elabOpenDecl [MonadResolveName m] (openDeclStx : Syntax) : m (List OpenDecl) := do
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
@@ -80,8 +77,12 @@ def elabOpenDecl [MonadResolveName m] (openDeclStx : Syntax) : m (List OpenDecl)
       elabOpenRenaming openDeclStx
     return (← get).openDecls
 
+def resolveOpenDeclId [MonadResolveName m] (ns : Name) (idStx : Syntax) : m Name := do
+  StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
+    OpenDecl.resolveId ns idStx
+
 end OpenDecl
 
-export OpenDecl (elabOpenDecl)
+export OpenDecl (elabOpenDecl resolveOpenDeclId)
 
 end Lean.Elab

@@ -111,12 +111,8 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   let ids := stx[3].getArgs
   let aliases ← ids.foldlM (init := []) fun (aliases : List (Name × Name)) (idStx : Syntax) => do
     let id := idStx.getId
-    let declName := ns ++ id
-    if env.contains declName then
-      pure <| (currNamespace ++ id, declName) :: aliases
-    else
-      withRef idStx <| logUnknownDecl declName
-      pure aliases
+    let declName ← resolveOpenDeclId ns idStx
+    pure <| (currNamespace ++ id, declName) :: aliases
   modify fun s => { s with env := aliases.foldl (init := s.env) fun env p => addAlias env p.1 p.2 }
 
 @[builtinCommandElab «open»] def elabOpen : CommandElab := fun n => do

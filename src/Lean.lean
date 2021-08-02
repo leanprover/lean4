@@ -30,3 +30,4 @@ import Lean.ScopedEnvExtension
 import Lean.DocString
 import Lean.DeclarationRange
 import Lean.LazyInitExtension
+import Lean.Widget

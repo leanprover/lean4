@@ -181,6 +181,7 @@ partial def delabFor : Name → Delab
 partial def delab : Delab := do
   checkMaxHeartbeats "delab"
   let e ← getExpr
+
   -- no need to hide atomic proofs
   if ← !e.isAtomic <&&> !(← getPPOption getPPProofs) <&&> (try Meta.isProof e catch ex => false) then
     if ← getPPOption getPPProofsWithType then

@@ -14,18 +14,22 @@ open Lean.Meta
 open Lean.Parser.Term
 open SubExpr
 
-def maybeAddExplicit (ident : Syntax) : DelabM Syntax := do
-  if ← getPPOption getPPAnalysisNeedsExplicit then `(@$ident:ident) else ident
+def maybeAddBlockImplicit (ident : Syntax) : DelabM Syntax := do
+  if ← getPPOption getPPAnalysisBlockImplicit then `(@$ident:ident) else ident
+
+def unfoldMDatas : Expr → Expr
+  | Expr.mdata _ e _ => unfoldMDatas e
+  | e                => e
 
 @[builtinDelab fvar]
 def delabFVar : Delab := do
 let Expr.fvar id _ ← getExpr | unreachable!
 try
   let l ← getLocalDecl id
-  maybeAddExplicit (mkIdent l.userName)
+  maybeAddBlockImplicit (mkIdent l.userName)
 catch _ =>
   -- loose free variable, use internal name
-  maybeAddExplicit $ mkIdent id
+  maybeAddBlockImplicit $ mkIdent id
 
 -- loose bound variable, use pseudo syntax
 @[builtinDelab bvar]
@@ -130,7 +134,7 @@ def delabConst : Delab := do
     else
       `($(mkIdent c).{$[$(ls.toArray.map quote)],*})
 
-    maybeAddExplicit stx
+  maybeAddBlockImplicit stx
 
 inductive ParamKind where
   | explicit
@@ -173,8 +177,8 @@ def shouldShowMotive (motive : Expr) (opts : Options) : MetaM Bool := do
 
 def isRegularApp : DelabM Bool := do
   let e ← getExpr
-  if not e.getAppFn.isConst then return false
-  if ← withNaryFn (getPPOption getPPUniverses <||> getPPOption getPPExplicit) then return false
+  if not (unfoldMDatas e.getAppFn).isConst then return false
+  if ← withNaryFn (getPPOption getPPUniverses <||> getPPOption getPPAnalysisBlockImplicit) then return false
   for i in [:e.getAppNumArgs] do
     if ← withNaryArg i (getPPOption getPPAnalysisNamedArg) then return false
   return true
@@ -251,6 +255,7 @@ def delabAppImplicit : Delab := do
         | some stx => argStxs.push stx
       pure (fnStx, paramKinds.tailD [], argStxs))
   let stx := Syntax.mkApp fnStx argStxs
+
   if ← isRegularApp then
     (guard (← getPPOption getPPNotation) *> unexpandRegularApp stx)
     <|> (guard (← getPPOption getPPStructureInstances) *> unexpandStructureInstance stx)
@@ -405,8 +410,7 @@ def delabMData : Delab := do
       if (`pp).isPrefixOf k then
         let opts := posOpts.find? pos |>.getD {}
         posOpts := posOpts.insert pos (opts.insert k v)
-    withReader ({ · with optionsPerPos := posOpts }) do
-      withMDataExpr delab
+    withReader ({ · with optionsPerPos := posOpts }) $ withMDataExpr $ delab
 
 /--
 Check for a `Syntax.ident` of the given name anywhere in the tree.

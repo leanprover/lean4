@@ -69,8 +69,7 @@ def withProj (x : m α) : m α := do
 
 def withMDataExpr (x : m α) : m α := do
   let Expr.mdata _ e _ ← getExpr | unreachable!
-  -- do not change position so that options on an mdata are automatically forwarded to the child
-  withReader ({ · with expr := e }) x
+  withTheReader SubExpr (fun ctx => { ctx with expr := e }) x
 
 def withLetVarType (x : m α) : m α := do
   let Expr.letE _ t _ _ _ ← getExpr | unreachable!

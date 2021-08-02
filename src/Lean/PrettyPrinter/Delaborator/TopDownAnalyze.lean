@@ -193,61 +193,6 @@ def checkpointDefEq (t s : Expr) : MetaM Bool := do
   Meta.checkpointDefEq (mayPostpone := false) do
     isDefEqAssigning t s
 
-def tryUnify (t s : Expr) : MetaM Unit := do
-  try
-    let r ← isDefEqAssigning t s
-    if !r then trace[pp.analyze.tryUnify] "warning: isDefEq returned false"
-    pure ()
-  catch ex =>
-    trace[pp.analyze.tryUnify] "warning: isDefEq threw"
-    pure ()
-
-partial def inspectOutParams (arg mvar : Expr) : MetaM Unit := do
-  let argType  ← inferType arg -- HAdd α α α
-  let mvarType ← inferType mvar
-  let fType ← inferType argType.getAppFn -- Type → Type → outParam Type
-  let mType ← inferType mvarType.getAppFn
-  inspectAux fType mType 0 argType.getAppArgs mvarType.getAppArgs
-where
-  inspectAux (fType mType : Expr) (i : Nat) (args mvars : Array Expr) := do
-    let fType ← whnf fType
-    let mType ← whnf mType
-    if not (i < args.size) then return ()
-    match fType, mType with
-    | Expr.forallE _ fd fb _, Expr.forallE _ md mb _ => do
-      -- TODO: do I need to check (← okBottomUp? args[i] mvars[i] fuel).isSafe here?
-      -- if so, I'll need to take a callback
-      if isOutParam fd then
-        tryUnify (args[i]) (mvars[i])
-      inspectAux (fb.instantiate1 args[i]) (mb.instantiate1 mvars[i]) (i+1) args mvars
-    | _, _ => return ()
-
-partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 10) : MetaM Bool := do
-  -- Here we check if `e` can be safely elaborated without its expected type.
-  -- These are incomplete (and possibly unsound) heuristics.
-  -- TODO: do I need to snapshot the state before calling this?
-  match fuel with
-  | 0 => false
-  | fuel + 1 =>
-    if e.isFVar || e.isMVar || e.isNatLit || e.isStringLit || e.isSort then return true
-    if getPPAnalyzeTrustOfNat (← getOptions) && e.isAppOfArity `OfNat.ofNat 3 then return true
-    if getPPAnalyzeTrustOfScientific (← getOptions) && e.isAppOfArity `OfScientific.ofScientific 5 then return true
-
-    let f := e.getAppFn
-    if !f.isConst && !f.isFVar then return false
-    let args := e.getAppArgs
-    let fType ← replaceLPsWithVars (← inferType e.getAppFn)
-    let ⟨mvars, bInfos, resultType⟩ ← forallMetaBoundedTelescope fType e.getAppArgs.size
-    for i in [:mvars.size] do
-      if bInfos[i] == BinderInfo.instImplicit then
-        inspectOutParams args[i] mvars[i]
-      else if bInfos[i] == BinderInfo.default then
-        if ← canBottomUp args[i] mvars[i] fuel then tryUnify args[i] mvars[i]
-    if ← (isHBinOp e <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then tryUnify mvars[0] mvars[1]
-    if mvar?.isSome then tryUnify resultType (← inferType mvar?.get!)
-    let resultType ← instantiateMVars resultType
-    return !resultType.hasMVar
-
 def isHigherOrder (type : Expr) : MetaM Bool := do
   withTransparency TransparencyMode.all do forallTelescopeReducing type fun xs b => xs.size > 0 && b.isSort
 
@@ -285,8 +230,63 @@ structure Context where
 
 structure State where
   annotations : RBMap Pos Options compare := {}
+  postponed   : Array (Expr × Expr) := #[] -- not currently used
 
 abbrev AnalyzeM := ReaderT Context (ReaderT SubExpr (StateRefT State MetaM))
+
+def tryUnify (e₁ e₂ : Expr) : AnalyzeM Unit := do
+  try
+    let r ← isDefEqAssigning e₁ e₂
+    if !r then modify fun s => { s with postponed := s.postponed.push (e₁, e₂) }
+    pure ()
+  catch ex =>
+    modify fun s => { s with postponed := s.postponed.push (e₁, e₂) }
+
+partial def inspectOutParams (arg mvar : Expr) : AnalyzeM Unit := do
+  let argType  ← inferType arg -- HAdd α α α
+  let mvarType ← inferType mvar
+  let fType ← inferType argType.getAppFn -- Type → Type → outParam Type
+  let mType ← inferType mvarType.getAppFn
+  inspectAux fType mType 0 argType.getAppArgs mvarType.getAppArgs
+where
+  inspectAux (fType mType : Expr) (i : Nat) (args mvars : Array Expr) := do
+    let fType ← whnf fType
+    let mType ← whnf mType
+    if not (i < args.size) then return ()
+    match fType, mType with
+    | Expr.forallE _ fd fb _, Expr.forallE _ md mb _ => do
+      -- TODO: do I need to check (← okBottomUp? args[i] mvars[i] fuel).isSafe here?
+      -- if so, I'll need to take a callback
+      if isOutParam fd then
+        tryUnify (args[i]) (mvars[i])
+      inspectAux (fb.instantiate1 args[i]) (mb.instantiate1 mvars[i]) (i+1) args mvars
+    | _, _ => return ()
+
+partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 10) : AnalyzeM Bool := do
+  -- Here we check if `e` can be safely elaborated without its expected type.
+  -- These are incomplete (and possibly unsound) heuristics.
+  -- TODO: do I need to snapshot the state before calling this?
+  match fuel with
+  | 0 => false
+  | fuel + 1 =>
+    if e.isFVar || e.isMVar || e.isNatLit || e.isStringLit || e.isSort then return true
+    if getPPAnalyzeTrustOfNat (← getOptions) && e.isAppOfArity `OfNat.ofNat 3 then return true
+    if getPPAnalyzeTrustOfScientific (← getOptions) && e.isAppOfArity `OfScientific.ofScientific 5 then return true
+
+    let f := e.getAppFn
+    if !f.isConst && !f.isFVar then return false
+    let args := e.getAppArgs
+    let fType ← replaceLPsWithVars (← inferType e.getAppFn)
+    let ⟨mvars, bInfos, resultType⟩ ← forallMetaBoundedTelescope fType e.getAppArgs.size
+    for i in [:mvars.size] do
+      if bInfos[i] == BinderInfo.instImplicit then
+        inspectOutParams args[i] mvars[i]
+      else if bInfos[i] == BinderInfo.default then
+        if ← canBottomUp args[i] mvars[i] fuel then tryUnify args[i] mvars[i]
+    if ← (isHBinOp e <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then tryUnify mvars[0] mvars[1]
+    if mvar?.isSome then tryUnify resultType (← inferType mvar?.get!)
+    let resultType ← instantiateMVars resultType
+    return !resultType.hasMVar
 
 def withKnowing (knowsType knowsLevel : Bool) (x : AnalyzeM α) : AnalyzeM α := do
   withReader (fun ctx => { ctx with knowsType := knowsType, knowsLevel := knowsLevel }) x

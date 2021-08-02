@@ -12,7 +12,6 @@ import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.DeclModifiers
 import Lean.Elab.InfoTree
-import Lean.Elab.Open
 import Lean.Elab.SetOption
 
 namespace Lean.Elab.Command

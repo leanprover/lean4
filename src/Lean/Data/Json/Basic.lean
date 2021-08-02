@@ -142,6 +142,25 @@ inductive Json where
 
 namespace Json
 
+private partial def beq' : Json → Json → Bool
+  | null,   null   => true
+  | bool a, bool b => a == b
+  | num a,  num b  => a == b
+  | str a,  str b  => a == b
+  | arr a,  arr b  =>
+    let _ : BEq Json := ⟨beq'⟩
+    a == b
+  | obj a,  obj b =>
+    let _ : BEq Json := ⟨beq'⟩
+    a.all fun field fa =>
+      match b.find compare field with
+      | none    => false
+      | some fb => fa == fb
+  | _,      _      => false
+
+instance : BEq Json where
+  beq := beq'
+
 -- HACK(Marc): temporary ugliness until we can use RBMap for JSON objects
 def mkObj (o : List (String × Json)) : Json :=
   obj $ do

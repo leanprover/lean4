@@ -336,3 +336,7 @@ set_option pp.notation false in
 -- TODO: this error occurs because it cannot solve the universe constraints
 -- (unclear if it is too few or too many annotations)
 -- #testDelabN ExceptT.seqRight_eq
+
+-- TODO: this error occurs because a function has explicit binders while its type has
+-- implicit binders. This may be an issue in the elaborator.
+-- #testDelabN Char.eqOfVeq

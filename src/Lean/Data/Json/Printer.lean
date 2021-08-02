@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2019 Gabriel Ebner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Gabriel Ebner, Marc Huisinga
+Authors: Gabriel Ebner, Marc Huisinga, Wojciech Nawrocki
 -/
 import Lean.Data.Format
 import Lean.Data.Json.Basic
@@ -64,19 +64,35 @@ end
 def pretty (j : Json) (lineWidth := 80) : String :=
   Format.pretty (render j) lineWidth
 
-partial def compress : Json → String
-  | null       => "null"
-  | bool true  => "true"
-  | bool false => "false"
-  | num s      => s.toString
-  | str s      => renderString s
-  | arr elems  =>
-    let f := ",".intercalate (elems.map compress).toList
-    s!"[{f}]"
-  | obj kvs    =>
-    let ckvs := kvs.fold (fun acc k j => s!"{renderString k}:{compress j}" :: acc) []
-    let ckvs := ",".intercalate ckvs
-    s!"\{{ckvs}}"
+protected inductive CompressWorkItem
+  | json (j : Json)
+  | arrayElem (j : Json)
+  | arrayEnd
+  | objectField (k : String) (j : Json)
+  | objectEnd
+  | comma
+
+open Json.CompressWorkItem in
+partial def compress (j : Json) : String :=
+  go "" [json j]
+where go (acc : String) : List Json.CompressWorkItem → String
+  | []               => acc
+  | json j :: is =>
+    match j with
+    | null       => go (acc ++ "null") is
+    | bool true  => go (acc ++ "true") is
+    | bool false => go (acc ++ "false") is
+    | num s      => go (acc ++ s.toString) is
+    | str s      => go (acc ++ renderString s) is
+    | arr elems  => go (acc ++ "[") (elems.toList.map arrayElem ++ [arrayEnd] ++ is)
+    | obj kvs    => go (acc ++ "{") (kvs.fold (init := []) (fun acc k j => objectField k j :: acc) ++ [objectEnd] ++ is)
+  | arrayElem j :: arrayEnd :: is      => go acc (json j :: arrayEnd :: is)
+  | arrayElem j :: is                  => go acc (json j :: comma :: is)
+  | arrayEnd :: is                     => go (acc ++ "]") is
+  | objectField k j :: objectEnd :: is => go (acc ++ renderString k ++ ":") (json j :: objectEnd :: is)
+  | objectField k j :: is              => go (acc ++ renderString k ++ ":") (json j :: comma :: is)
+  | objectEnd :: is                    => go (acc ++ "}") is
+  | comma :: is                        => go (acc ++ ",") is
 
 instance : ToFormat Json := ⟨render⟩
 instance : ToString Json := ⟨pretty⟩

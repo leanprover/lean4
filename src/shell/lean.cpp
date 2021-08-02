@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include "util/timer.h"
 #include "util/macros.h"
 #include "util/io.h"
-#include "util/file_lock.h"
 #include "util/options.h"
 #include "util/option_declarations.h"
 #include "kernel/environment.h"

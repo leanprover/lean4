@@ -21,7 +21,6 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "util/io.h"
 #include "util/buffer.h"
 #include "util/name_map.h"
-#include "util/file_lock.h"
 #include "library/module.h"
 #include "library/constants.h"
 #include "library/time_task.h"

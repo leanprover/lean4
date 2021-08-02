@@ -84,7 +84,8 @@ end RpcSessionState
 structure RpcSession where
   sessionId       : UInt64
   clientConnected : Bool
-  -- A single `Ref` ensures atomic transactions.
+  /-- We allow asynchronous elab tasks and request handlers to modify the state.
+  A single `Ref` ensures atomic transactions. -/
   state           : IO.Ref RpcSessionState
 
 namespace RpcSession

@@ -344,9 +344,10 @@ void object_compactor::operator()(object * o) {
     *static_cast<object_offset *>(m_begin) = to_offset(o);
 }
 
-compacted_region::compacted_region(size_t sz, void * data, void * base_addr, void * mmap_addr):
+compacted_region::compacted_region(size_t sz, void * data, void * base_addr, bool is_mmap, std::function<void()> free_data):
     m_base_addr(base_addr),
-    m_mmap_addr(mmap_addr),
+    m_is_mmap(is_mmap),
+    m_free_data(free_data),
     m_begin(data),
     m_next(data),
     m_end(static_cast<char*>(data)+sz) {
@@ -360,13 +361,7 @@ compacted_region::compacted_region(object_compactor const & c):
 }
 
 compacted_region::~compacted_region() {
-    if (m_mmap_addr) {
-#ifndef LEAN_WINDOWS
-        munmap(m_mmap_addr, reinterpret_cast<size_t>(m_end) - reinterpret_cast<size_t>(m_mmap_addr));
-#endif
-    } else {
-        free(m_begin);
-    }
+    m_free_data();
 }
 
 inline object * compacted_region::fix_object_ptr(object * o) {
@@ -438,7 +433,7 @@ object * compacted_region::read() {
         m_end = m_next;
         return root;
     }
-    lean_assert(!m_mmap_addr);
+    lean_assert(!m_is_mmap);
 
     while (m_next < m_end) {
         object * curr = reinterpret_cast<object*>(m_next);

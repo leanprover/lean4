@@ -446,6 +446,10 @@ def isLit : Expr → Bool
   | lit .. => true
   | _      => false
 
+def getForallBody : Expr → Expr
+  | forallE _ _ b .. => getForallBody b
+  | e                => e
+
 def getAppFn : Expr → Expr
   | app f a _ => getAppFn f
   | e         => e

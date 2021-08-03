@@ -32,7 +32,7 @@
   {"start": {"line": 18, "character": 10},
    "end": {"line": 18, "character": 27}},
   "targetRange":
-  {"start": {"line": 18, "character": 0}, "end": {"line": 19, "character": 16}},
+  {"start": {"line": 18, "character": 0}, "end": {"line": 19, "character": 9}},
   "originSelectionRange":
   {"start": {"line": 24, "character": 10},
    "end": {"line": 24, "character": 27}}}]
@@ -40,9 +40,9 @@
  "position": {"line": 26, "character": 2}}
 [{"targetUri": "file://goTo.lean",
   "targetSelectionRange":
-  {"start": {"line": 21, "character": 4}, "end": {"line": 21, "character": 23}},
+  {"start": {"line": 19, "character": 2}, "end": {"line": 19, "character": 3}},
   "targetRange":
-  {"start": {"line": 21, "character": 0}, "end": {"line": 21, "character": 42}},
+  {"start": {"line": 19, "character": 2}, "end": {"line": 19, "character": 3}},
   "originSelectionRange":
   {"start": {"line": 26, "character": 2}, "end": {"line": 26, "character": 3}}}]
 {"textDocument": {"uri": "file://goTo.lean"},

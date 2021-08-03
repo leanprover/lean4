@@ -8,35 +8,36 @@ Helper functions for retrieving structure information.
 import Lean.Environment
 import Lean.ProjFns
 
-/- TODO: We currently assume that the projection function for field `fieldName` at structure `structName` is
-   `structName ++ fieldName`. This is incorrect for private projections.
-   We will fix this by storing a mapping from `structure` + `fieldName` to projection function name in the environment.
-   This modification will impact functions such as `getStructureFields` and `getProjFnForField?` -/
-
 namespace Lean
 
 structure StructureFieldInfo where
   fieldName : Name
   projFn    : Name
-  subobject : Bool
+  subobject : Bool -- TODO: use `Option Name`
+  deriving Inhabited, Repr
+
+def StructureFieldInfo.lt (i₁ i₂ : StructureFieldInfo) : Bool :=
+  Name.quickLt i₁.fieldName i₂.fieldName
+
+structure StructureInfo where
+  structName : Name
+  fieldNames : Array Name := #[] -- sorted by field position in the structure
+  fieldInfo  : Array StructureFieldInfo := #[] -- sorted by `fieldName`
   deriving Inhabited
 
-private structure StructureEntry where
-  structName : Name
-  fieldNames : Array Name -- sorted by field position in the structure
-  fieldInfo  : Array StructureFieldInfo -- sorted by `fieldName`
-  deriving Inhabited
+def StructureInfo.lt (i₁ i₂ : StructureInfo) : Bool :=
+  Name.quickLt i₁.structName i₂.structName
 
 /-- Auxiliary state for structures defined in the current module. -/
 private structure StructureState where
-  map : Std.PersistentHashMap Name StructureEntry := {}
+  map : Std.PersistentHashMap Name StructureInfo := {}
   deriving Inhabited
 
-builtin_initialize structureExt : SimplePersistentEnvExtension StructureEntry StructureState ← registerSimplePersistentEnvExtension {
+builtin_initialize structureExt : SimplePersistentEnvExtension StructureInfo StructureState ← registerSimplePersistentEnvExtension {
   name          := `structExt
   addImportedFn := fun _ => {}
   addEntryFn    := fun s e => { s with map := s.map.insert e.structName e }
-  toArrayFn     := fun es => es.toArray.qsort fun e₁ e₂ => Name.quickLt e₁.structName e₂.structName
+  toArrayFn     := fun es => es.toArray.qsort StructureInfo.lt
 }
 
 structure StructureDescr where
@@ -48,8 +49,13 @@ def registerStructure (env : Environment) (e : StructureDescr) : Environment :=
   structureExt.addEntry env {
     structName := e.structName
     fieldNames := e.fields.map fun e => e.fieldName
-    fieldInfo  := e.fields.qsort fun e₁ e₂ => Name.quickLt e₁.fieldName e₂.fieldName
+    fieldInfo  := e.fields.qsort StructureFieldInfo.lt
   }
+
+def getStructureInfo? (env : Environment) (structName : Name) : Option StructureInfo :=
+  match env.getModuleIdxFor? structName with
+  | some modIdx => structureExt.getModuleEntries env modIdx |>.binSearch { structName } StructureInfo.lt
+  | none        => structureExt.getState env |>.map.find? structName
 
 /--
   Return true iff `constName` is the a non-recursive inductive
@@ -63,14 +69,6 @@ def isStructureLike (env : Environment) (constName : Name) : Bool :=
 def mkInternalSubobjectFieldName (fieldName : Name) : Name :=
   fieldName.appendBefore "_"
 
-def isInternalSubobjectFieldName : Name → Bool
-  | Name.str _ s _ => s.length > 0 && s.get 0 == '_'
-  | _              => false
-
-def deinternalizeFieldName : Name → Name
-  | n@(Name.str p s _) => if s.length > 0 && s.get 0 == '_' then Name.mkStr p (s.drop 1) else n
-  | n                  => n
-
 def getStructureCtor (env : Environment) (constName : Name) : ConstructorVal :=
   match env.find? constName with
   | some (ConstantInfo.inductInfo { isRec := false, ctors := [ctorName], .. }) =>
@@ -79,38 +77,33 @@ def getStructureCtor (env : Environment) (constName : Name) : ConstructorVal :=
     | _ => panic! "ill-formed environment"
   | _ => panic! "structure expected"
 
-private def getStructureFieldsAux (numParams : Nat) : Nat → Expr → Array Name → Array Name
-  | i, Expr.forallE n d b _, fieldNames =>
-    if i < numParams then
-      getStructureFieldsAux numParams (i+1) b fieldNames
-    else
-      getStructureFieldsAux numParams (i+1) b <| fieldNames.push <| deinternalizeFieldName n
-  | _, _, fieldNames => fieldNames
-
--- TODO: fix. See comment in the beginning of the file
-
 /-- Get direct field names for the given structure. -/
 def getStructureFields (env : Environment) (structName : Name) : Array Name :=
-  let ctor := getStructureCtor env structName;
-  getStructureFieldsAux ctor.numParams 0 ctor.type #[]
+  if let some info := getStructureInfo? env structName then
+    info.fieldNames
+  else
+    panic! "structure expected"
 
-private def isSubobjectFieldAux (numParams : Nat) (target : Name) : Nat → Expr → Option Name
-  | i, Expr.forallE n d b _ =>
-    if i < numParams then
-      isSubobjectFieldAux numParams target (i+1) b
-    else if n == target then
-      match d.getAppFn with
-      | Expr.const parentStructName _ _ => some parentStructName
-      | _ => panic! "ill-formed structure"
-    else
-      isSubobjectFieldAux numParams target (i+1) b
-  | _, _ => none
+def getFieldInfo? (env : Environment) (structName : Name) (fieldName : Name) : Option StructureFieldInfo :=
+  if let some info := getStructureInfo? env structName then
+    info.fieldInfo.binSearch { fieldName := fieldName, projFn := arbitrary, subobject := arbitrary } StructureFieldInfo.lt
+  else
+    none
 
--- TODO: fix. See comment in the beginning of the file
 /-- If `fieldName` represents the relation to a parent structure `S`, return `S` -/
 def isSubobjectField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
-  let ctor := getStructureCtor env structName;
-  isSubobjectFieldAux ctor.numParams (mkInternalSubobjectFieldName fieldName) 0 ctor.type
+  if let some fieldInfo := getFieldInfo? env structName fieldName then
+    if fieldInfo.subobject then
+      match env.find? fieldInfo.projFn with
+      | some (ConstantInfo.defnInfo val) =>
+        match val.type.getForallBody.getAppFn with
+        | Expr.const n .. => some n
+        | _ => panic! "ill-formed structure"
+      | _ => panic! "ill-formed environment"
+    else
+      none
+  else
+    none
 
 /-- Return immediate parent structures -/
 def getParentStructures (env : Environment) (structName : Name) : Array Name :=
@@ -147,16 +140,6 @@ private partial def getStructureFieldsFlattenedAux (env : Environment) (structNa
 def getStructureFieldsFlattened (env : Environment) (structName : Name) (includeSubobjectFields := true) : Array Name :=
   getStructureFieldsFlattenedAux env structName #[] includeSubobjectFields
 
--- TODO: fix. See comment in the beginning of the file
-private def hasProjFn (env : Environment) (structName : Name) (numParams : Nat) : Nat → Expr → Bool
-  | i, Expr.forallE n d b _ =>
-    if i < numParams then
-      hasProjFn env structName numParams (i+1) b
-    else
-      let fullFieldName := structName ++ deinternalizeFieldName n;
-      env.isProjectionFn fullFieldName
-  | _, _ => false
-
 /--
   Return true if `constName` is the name of an inductive datatype
   created using the `structure` or `class` commands.
@@ -164,17 +147,11 @@ private def hasProjFn (env : Environment) (structName : Name) (numParams : Nat) 
   We perform the check by testing whether auxiliary projection functions
   have been created. -/
 def isStructure (env : Environment) (constName : Name) : Bool :=
-  if isStructureLike env constName then
-    let ctor := getStructureCtor env constName;
-    hasProjFn env constName ctor.numParams 0 ctor.type
-  else
-    false
+  getStructureInfo? env constName |>.isSome
 
--- TODO: fix. See comment in the beginning of the file
 def getProjFnForField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
-  let fieldNames := getStructureFields env structName;
-  if fieldNames.any fun n => fieldName == n then
-    some (structName ++ fieldName)
+  if let some fieldInfo := getFieldInfo? env structName fieldName then
+    some fieldInfo.projFn
   else
     none
 

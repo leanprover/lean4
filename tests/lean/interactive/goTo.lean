@@ -16,10 +16,10 @@ def mkFoo₁ : Foo := {
   bar := ⟨⟩
 }
 
-inductive HandWrittenStruct where
-  | mk (n : Nat)
+structure HandWrittenStruct where
+  n : Nat
 
-def HandWrittenStruct.n := fun | mk n => n
+-- def HandWrittenStruct.n := fun | mk n => n
 
           --v textDocument/definition
 def hws : HandWrittenStruct := {

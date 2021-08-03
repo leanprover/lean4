@@ -2,8 +2,6 @@ struct1.lean:9:14-9:17: error: expected Type
 struct1.lean:12:20-12:29: error: expected structure
 struct1.lean:15:27-15:33: error: field 'toA' has already been declared
 struct1.lean:18:27-18:33: error: field 'x' from 'B' has already been declared
-struct1.lean:22:1-22:3: error: invalid field name '_x', identifiers starting with '_' are reserved to the system
-struct1.lean:25:3-25:5: error: invalid field name '_y', identifiers starting with '_' are reserved to the system
 struct1.lean:29:1-29:2: error: field 'x' has already been declared
 struct1.lean:32:1-32:2: error: field 'x' has been declared in parent structure
 struct1.lean:35:6-35:10: error: type mismatch

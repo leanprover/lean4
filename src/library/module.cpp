@@ -80,12 +80,15 @@ extern "C" object * lean_save_module_data(b_obj_arg fname, b_obj_arg mod, b_obj_
         while (std::rename(olean_tmp_fn.c_str(), olean_fn.c_str()) != 0) {
 #ifdef LEAN_WINDOWS
             if (errno == EEXIST) {
-                // Memory-mapped files can be deleted starting with Windows 10, but *only* through the UTF-16 API
-                int utf16sz = MultiByteToWideChar(CP_ACP, 0, olean_fn.c_str(), -1, NULL, 0);
-                lean_always_assert(utf16sz != 0);
-                std::wstring wolean_fn(utf16sz, '0');
-                lean_always_assert(MultiByteToWideChar(CP_ACP, 0, olean_fn.c_str(), -1, &wolean_fn[0], utf16sz));
-                if (DeleteFileW(wolean_fn.c_str()) != 0) {
+                // Memory-mapped files can be deleted starting with Windows 10 using "POSIX semantics"
+                HANDLE h_olean_fn = CreateFile(olean_fn.c_str(), GENERIC_READ | DELETE, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+                if (h_olean_fn == INVALID_HANDLE_VALUE) {
+                    return io_result_mk_error((sstream() << "failed to open '" << olean_fn << "': " << GetLastError()).str());
+                }
+
+                FILE_DISPOSITION_INFO_EX fdi = { FILE_DISPOSITION_FLAG_DELETE | FILE_DISPOSITION_FLAG_POSIX_SEMANTICS };
+                if (SetFileInformationByHandle(h_olean_fn, static_cast<FILE_INFO_BY_HANDLE_CLASS>(21) /* FileDispositionInfoEx */, &fdi, sizeof(fdi)) != 0) {
+                    lean_always_assert(CloseHandle(h_olean_fn));
                     continue;
                 } else {
                     return io_result_mk_error((sstream() << "failed to delete '" << olean_fn << "': " << GetLastError()).str());

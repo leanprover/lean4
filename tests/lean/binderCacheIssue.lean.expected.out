@@ -1,6 +1,4 @@
-LNot.unpackFun (P := ?m) (L := ?m) : LNot (P := ?m) ?m → ∀ (p : ?m), ¬?m p
-Funtype.unpack (N := LNot (P := ?m) ?m) (O := ∀ (p : ?m), ¬?m p) (T :=
-  ∀ {p : ?m}, ¬?m p) : LNot (P := ?m) ?m → ∀ (p : ?m), ¬?m p
-LNot.applyFun (P := ?m) (L := ?m) : LNot (P := ?m) ?m → ∀ {p : ?m}, ¬?m p
-Funtype.apply (N := LNot (P := ?m) ?m) (O := ∀ (p : ?m), ¬?m p) (T :=
-  ∀ {p : ?m}, ¬?m p) : LNot (P := ?m) ?m → ∀ {p : ?m}, ¬?m p
+LNot.unpackFun (L := ?m) : LNot ?m → ∀ (p : ?m), ¬?m p
+Funtype.unpack : LNot ?m → ∀ (p : ?m), ¬?m p
+LNot.applyFun (L := ?m) : LNot ?m → ∀ {p : ?m}, ¬?m p
+Funtype.apply : LNot ?m → ∀ {p : ?m}, ¬?m p

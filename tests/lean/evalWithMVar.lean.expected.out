@@ -1,11 +1,11 @@
-Sum.someRight.{u_1, 0} (α := ?m) (c (α := ?m) : Sum ?m Nat) : Option Nat
+Sum.someRight.{u_1, 0} (α := ?m) c : Option Nat
 evalWithMVar.lean:13:6-13:21: error: don't know how to synthesize implicit argument
-  @Sum.someRight.{?u, 0} ?m Nat (c (α := ?m) : Sum ?m Nat)
+  @Sum.someRight ?m Nat c
 context:
 ⊢ Type ?u
 evalWithMVar.lean:13:20-13:21: error: don't know how to synthesize implicit argument
   @c ?m
 context:
 ⊢ Type ?u
-Sum.someRight.{u_1, 0} (α := ?m) (c (α := ?m) : Sum ?m Nat) : Option Nat
-Sum.someRight.{u_1, 0} (α := ?m) (c (α := ?m) : Sum ?m Nat) : Option Nat
+Sum.someRight.{u_1, 0} (α := ?m) c : Option Nat
+Sum.someRight.{u_1, 0} (α := ?m) c : Option Nat

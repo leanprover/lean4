@@ -155,11 +155,64 @@ def isStructureInstance (e : Expr) : MetaM Bool := do
 
 namespace TopDownAnalyze
 
+partial def hasMVarAtCurrDepth (e : Expr) : MetaM Bool := do
+  let mctx ← getMCtx
+  Option.isSome $ e.findMVar? fun mvarId =>
+    match mctx.findDecl? mvarId with
+    | some mdecl => mdecl.depth == mctx.depth
+    | _ => false
+
+namespace FindLevelMVar
+
+abbrev Visitor := Option MVarId → Option MVarId
+
+mutual
+
+partial def visit (p : MVarId → Bool) (e : Expr) : Visitor := fun s =>
+  if s.isSome || !e.hasLevelMVar then s else main p e s
+
+partial def visitLevel (p : MVarId → Bool) (l : Level) : Visitor := fun s =>
+  if s.isSome || !l.hasMVar then s else mainLevel p l s
+
+@[specialize]
+partial def mainLevel (p : MVarId → Bool) : Level → Visitor
+  | Level.zero _        => id
+  | Level.succ l _      => visitLevel p l
+  | Level.max l₁ l₂ _   => visitLevel p l₁ ∘ visitLevel p l₂
+  | Level.imax l₁ l₂ _  => visitLevel p l₁ ∘ visitLevel p l₂
+  | Level.param n _     => id
+  | Level.mvar mvarId _ => fun s => if p mvarId then some mvarId else s
+
+@[specialize]
+partial def main (p : MVarId → Bool) : Expr → Visitor
+  | Expr.proj _ _ e _    => visit p e
+  | Expr.forallE _ d b _ => visit p b ∘ visit p d
+  | Expr.lam _ d b _     => visit p b ∘ visit p d
+  | Expr.letE _ t v b _  => visit p b ∘ visit p v ∘ visit p t
+  | Expr.app f a _       => visit p a ∘ visit p f
+  | Expr.mdata _ b _     => visit p b
+  | Expr.sort l _        => visitLevel p l
+  | Expr.const _ ls ..   => ls.foldr (init := id) fun l acc => visitLevel p l ∘ acc
+  | Expr.mvar mvarId _   => id
+  | _                    => id
+
+end
+
+end FindLevelMVar
+
+@[inline] def findLevelMVar? (e : Expr) (p : MVarId → Bool) : Option MVarId :=
+  FindLevelMVar.main p e none
+
+partial def hasLevelMVarAtCurrDepth (e : Expr) : MetaM Bool := do
+  let mctx ← getMCtx
+  Option.isSome $ findLevelMVar? e fun mvarId =>
+    mctx.findLevelDepth? mvarId == some mctx.depth
+
 private def valUnknown (e : Expr) : MetaM Bool := do
-  (← instantiateMVars e).hasMVar
+  hasMVarAtCurrDepth (← instantiateMVars e)
 
 private def typeUnknown (e : Expr) : MetaM Bool := do
-  (← instantiateMVars (← inferType e)).hasMVar
+  valUnknown (← inferType e)
 
 def isHBinOp (e : Expr) : Bool := do
   -- TODO: instead of tracking these explicitly,
@@ -285,8 +338,10 @@ partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
         if ← canBottomUp args[i] mvars[i] fuel then tryUnify args[i] mvars[i]
     if ← (isHBinOp e <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then tryUnify mvars[0] mvars[1]
     if mvar?.isSome then tryUnify resultType (← inferType mvar?.get!)
-    let resultType ← instantiateMVars resultType
-    return !resultType.hasMVar
+    return !(← valUnknown resultType)
+
+partial def trivialBottomUp (e : Expr) : AnalyzeM Bool := do
+  e.isFVar || e.isMVar || e.isConst
 
 def withKnowing (knowsType knowsLevel : Bool) (x : AnalyzeM α) : AnalyzeM α := do
   withReader (fun ctx => { ctx with knowsType := knowsType, knowsLevel := knowsLevel }) x
@@ -435,6 +490,7 @@ mutual
     checkOutParams
     collectHigherOrders
     hBinOpHeuristic
+    collectTrivialBottomUps
     discard <| processPostponed (mayPostpone := true)
     analyzeFn
     for i in [:(← read).args.size] do analyzeArg i
@@ -473,10 +529,20 @@ mutual
       if ← (isHBinOp (← getExpr) <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then
         tryUnify mvars[0] mvars[1]
 
+    collectTrivialBottomUps := do
+      -- motivation: prevent levels from printing in
+      -- Boo.mk : {α : Type u_1} → {β : Type u_2} → α → β → Boo.{u_1, u_2} α β
+      let ⟨_, _, args, mvars, bInfos, _⟩ ← read
+      for i in [:args.size] do
+        if bInfos[i] == BinderInfo.default then
+          if ← valUnknown mvars[i] <&&> trivialBottomUp args[i] then
+            tryUnify args[i] mvars[i]
+            modify fun s => { s with bottomUps := s.bottomUps.set! i true }
+
     analyzeFn := do
       -- Now, if this is the first staging, analyze the n-ary function without expected type
       let ⟨f, fType, _, _, _, forceRegularApp⟩ ← read
-      if !f.isApp then withKnowing false (forceRegularApp || !(← instantiateMVars fType).hasLevelMVar) $ withNaryFn (analyze (parentIsApp := true))
+      if !f.isApp then withKnowing false (forceRegularApp || !(← hasLevelMVarAtCurrDepth (← instantiateMVars fType))) $ withNaryFn (analyze (parentIsApp := true))
 
     annotateNamedArg (n : Name) : AnalyzeAppM Unit := do
       annotateBool `pp.analysis.namedArg
@@ -538,12 +604,9 @@ open TopDownAnalyze SubExpr
 
 def topDownAnalyze (e : Expr) : MetaM OptionsPerPos := do
   let s₀ ← get
-  let uResult := (← getMCtx).levelMVarToParam e (alreadyUsedPred := fun _ => false) (paramNamePrefix := `_pp_analyze)
-  setMCtx uResult.mctx
-  let e := uResult.expr
   traceCtx `pp.analyze do
     withReader (fun ctx => { ctx with config := Lean.Elab.Term.setElabConfig ctx.config }) do
-      let ϕ : AnalyzeM OptionsPerPos := do analyze; (← get).annotations
+      let ϕ : AnalyzeM OptionsPerPos := do withNewMCtxDepth analyze; (← get).annotations
       try
         let knowsType := getPPAnalyzeKnowsType (← getOptions)
         ϕ { knowsType := knowsType, knowsLevel := knowsType } (mkRoot e) |>.run' {}

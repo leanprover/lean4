@@ -1,5 +1,5 @@
 simpArgTypeMismatch.lean:3:13-3:31: error: application type mismatch
-  decideEqFalse (p := ?m) Unit
+  decideEqFalse Unit
 argument
   Unit
 has type

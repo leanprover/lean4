@@ -1,3 +1,9 @@
+/-
+Copyright (c) 2021 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Authors: Wojciech Nawrocki
+-/
 import Lean.Data.Lsp
 import Lean.Message
 import Lean.Server.Rpc.Basic
@@ -109,6 +115,17 @@ def msgToDiagnostic (text : FileMap) (m : Message) : ReaderT RpcSession IO Diagn
     source? := source
     message := stripEmbeds tt
     taggedMsg? := ttJson
+  }
+
+def publishMessages (m : DocumentMeta) (msgLog : MessageLog) (hOut : IO.FS.Stream) (rpcSesh : RpcSession) : IO Unit := do
+  let diagnostics ← msgLog.msgs.mapM (msgToDiagnostic m.text · rpcSesh)
+  let diagParams : PublishDiagnosticsParams :=
+    { uri := m.uri
+      version? := some m.version
+      diagnostics := diagnostics.toArray }
+  hOut.writeLspNotification {
+    method := "textDocument/publishDiagnostics"
+    param := toJson diagParams
   }
 
 end Lean.Widget

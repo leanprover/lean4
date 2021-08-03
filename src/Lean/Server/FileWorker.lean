@@ -51,17 +51,7 @@ open IO
 open Snapshots
 open Std (RBMap RBMap.empty)
 open JsonRpc
-
-def publishInteractiveMessages (m : DocumentMeta) (msgLog : MessageLog) (hOut : FS.Stream) (rpcSesh : RpcSession) : IO Unit := do
-  let diagnostics ← msgLog.msgs.mapM (Widget.msgToDiagnostic m.text · rpcSesh)
-  let diagParams : PublishDiagnosticsParams :=
-    { uri := m.uri
-      version? := some m.version
-      diagnostics := diagnostics.toArray }
-  hOut.writeLspNotification {
-    method := "textDocument/publishDiagnostics"
-    param := toJson diagParams
-  }
+open Widget (publishMessages)
 
 /- Asynchronous snapshot elaboration. -/
 section Elab
@@ -85,10 +75,10 @@ section Elab
         because we cannot guarantee that no further diagnostics are emitted after clearing
         them. -/
       if snap.msgLog.msgs.size > parentSnap.msgLog.msgs.size then
-        publishInteractiveMessages m snap.msgLog hOut rpcSesh
+        publishMessages m snap.msgLog hOut rpcSesh
       snap
     | Sum.inr msgLog =>
-      publishInteractiveMessages m msgLog hOut rpcSesh
+      publishMessages m msgLog hOut rpcSesh
       publishProgressDone m hOut
       throw ElabTaskError.eof
 
@@ -160,7 +150,7 @@ section Initialization
     else
       throwServerError s!"`leanpkg print-paths` failed:\n{stdout}\nstderr:\n{stderr}"
 
-  def compileHeader (m : DocumentMeta) (hOut : FS.Stream) : IO (Snapshot × SearchPath) := do
+  def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (rpcSesh : RpcSession) : IO (Snapshot × SearchPath) := do
     let opts := {}  -- TODO
     let inputCtx := Parser.mkInputContext m.text.source "<input>"
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
@@ -180,7 +170,7 @@ section Initialization
     catch e =>  -- should be from `leanpkg print-paths`
       let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
       pure (← mkEmptyEnvironment, msgs)
-    --publishMessages m msgLog hOut
+    publishMessages m msgLog hOut rpcSesh
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
     let cmdState := { cmdState with infoState.enabled := true, scopes := [{ header := "", opts := opts }] }
     let headerSnap := {
@@ -193,14 +183,9 @@ section Initialization
 
   def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream)
       : IO (WorkerContext × WorkerState) := do
-    /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
-      "\n", which should be enough to handle both LF and CRLF correctly.
-      This is because LSP always refers to characters by (line, column),
-      so if we get the line number correct it shouldn't matter that there
-      is a CR there. -/
-    let (headerSnap, srcSearchPath) ← compileHeader meta o
-    let cancelTk ← CancelToken.new
     let rpcSesh ← RpcSession.new false
+    let (headerSnap, srcSearchPath) ← compileHeader meta o rpcSesh
+    let cancelTk ← CancelToken.new
     let cmdSnaps ← unfoldCmdSnaps meta headerSnap cancelTk o (initial := true) rpcSesh
     let doc : EditableDocument := ⟨meta, headerSnap, cmdSnaps, cancelTk⟩
     return ({
@@ -392,6 +377,11 @@ def initAndRunWorker (i o e : FS.Stream) : IO UInt32 := do
   let _ ← i.readLspRequestAs "initialize" InitializeParams
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" DidOpenTextDocumentParams
   let doc := param.textDocument
+  /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
+    "\n", which should be enough to handle both LF and CRLF correctly.
+    This is because LSP always refers to characters by (line, column),
+    so if we get the line number correct it shouldn't matter that there
+    is a CR there. -/
   let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap⟩
   let e ← e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e

@@ -1,6 +1,6 @@
 0 + 1 : Nat
 macroPrio.lean:12:7-12:13: error: ambiguous, possible interpretations 
-  HMul.hMul (α := ?m) (β := ?m) (γ := ?m) 1 2
+  1 * 2
   
-  HAdd.hAdd (α := ?m) (β := ?m) (γ := ?m) 1 1
+  1 + 1
 2 - 2 : Nat

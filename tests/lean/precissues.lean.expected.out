@@ -1,11 +1,11 @@
-id (α := ?m → ?m) fun (x : ?m) => x : ?m → ?m
+id fun x => x : ?m → ?m
 0 : Nat
 f 1 fun x => x : Nat
 0 : Nat
 f 1 fun x => x : Nat
-id (α := ?m) : ?m → ?m
+id : ?m → ?m
 precissues.lean:15:10: error: expected command
-id (α := ?m) : ?m → ?m
+id : ?m → ?m
 precissues.lean:17:10: error: expected command
 1 : Nat
 id ((fun (this : True) => this) True.intro) : True
@@ -22,5 +22,5 @@ p ∧ ¬q : Prop
 ¬p = q : Prop
 id ¬p : Prop
 ∀ (a a : Nat), a = a : Prop
-id (α := ?m) : ?m → ?m
+id : ?m → ?m
 precissues.lean:41:10: error: expected command

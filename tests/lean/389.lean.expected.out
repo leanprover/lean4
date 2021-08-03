@@ -1,5 +1,5 @@
 389.lean:7:7-7:17: error: application type mismatch
-  getFoo (A := ?m) bar
+  getFoo bar
 argument
   bar
 has type

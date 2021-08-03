@@ -23,11 +23,7 @@ x : Nat
 holes.lean:13:8-13:11: error: failed to infer binder type
 holes.lean:15:16-15:17: error: failed to infer binder type
 holes.lean:19:0-19:3: error: don't know how to synthesize implicit argument
-  @f Nat
-    (?m _ :
-    let f : {α : Sort ?u} → {β : ?m a (α := α)} → α → α := fun {α} {β} a => a;
-    ?m a (α := Nat))
-    a
+  @f Nat (?m _) a
 context:
 a : Nat
 f : {α : Type} → {β : ?m a (α := α)} → α → α := fun {α} {β} a => a

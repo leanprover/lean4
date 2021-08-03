@@ -23615,7 +23615,6 @@ if (lean_is_exclusive(x_11)) {
 x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_inc(x_15);
-lean_inc(x_1);
 x_16 = l_Lean_isStructure(x_1, x_15);
 if (x_16 == 0)
 {
@@ -23719,6 +23718,7 @@ block_71:
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_27 = l_Lean_getStructureFields(x_1, x_15);
+lean_dec(x_1);
 x_28 = l_Lean_PrettyPrinter_Delaborator_delabSort___closed__12;
 x_29 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_delabStructureInstance___lambda__2___boxed), 10, 3);
 lean_closure_set(x_29, 0, x_13);

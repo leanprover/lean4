@@ -6890,6 +6890,7 @@ x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_array_get(x_15, x_1, x_16);
 lean_inc(x_17);
 x_18 = l_Lean_isStructure(x_14, x_17);
+lean_dec(x_14);
 if (x_18 == 0)
 {
 lean_object* x_19; 
@@ -12589,6 +12590,7 @@ x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_array_get(x_15, x_1, x_16);
 lean_inc(x_17);
 x_18 = l_Lean_isStructure(x_14, x_17);
+lean_dec(x_14);
 if (x_18 == 0)
 {
 lean_object* x_19; 

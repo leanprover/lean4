@@ -209,8 +209,6 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
     let idents := fieldBinder[2].getArgs
     idents.foldlM (init := views) fun (views : Array StructFieldView) ident => withRef ident do
       let name     := ident.getId
-      if isInternalSubobjectFieldName name then
-        throwError "invalid field name '{name}', identifiers starting with '_' are reserved to the system"
       let declName := structDeclName ++ name
       let declName ← applyVisibility fieldModifiers.visibility declName
       addDocString' declName fieldModifiers.docString?

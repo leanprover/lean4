@@ -502,7 +502,7 @@ private partial def findMethod? (env : Environment) (structName fieldName : Name
     match env.find? fullNamePrv with
     | some _ => some (structName, fullNamePrv)
     | none   =>
-      if isStructureLike env structName then
+      if isStructure env structName then
         (getParentStructures env structName).findSome? fun parentStructName => findMethod? env parentStructName fieldName
       else
         none
@@ -515,16 +515,17 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     let env ← getEnv
     unless isStructureLike env structName do
       throwLValError e eType "invalid projection, structure expected"
-    let fieldNames := getStructureFields env structName
-    if h : idx - 1 < fieldNames.size then
+    let numFields := getStructureLikeNumFields env structName
+    if idx - 1 < numFields then
       if isStructure env structName then
-        return LValResolution.projFn structName structName (fieldNames.get ⟨idx - 1, h⟩)
+        let fieldNames := getStructureFields env structName
+        return LValResolution.projFn structName structName fieldNames[idx - 1]
       else
         /- `structName` was declared using `inductive` command.
            So, we don't projection functions for it. Thus, we use `Expr.proj` -/
         return LValResolution.projIdx structName (idx - 1)
     else
-      throwLValError e eType m!"invalid projection, structure has only {fieldNames.size} field(s)"
+      throwLValError e eType m!"invalid projection, structure has only {numFields} field(s)"
   | some structName, LVal.fieldName _ fieldName _ _ =>
     let env ← getEnv
     let searchEnv : Unit → TermElabM LValResolution := fun _ => do

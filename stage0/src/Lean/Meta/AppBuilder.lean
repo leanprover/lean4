@@ -358,7 +358,7 @@ partial def mkProjection : Expr → Name → MetaM Expr
     match type.getAppFn with
     | Expr.const structName us _ =>
       let env ← getEnv
-      unless isStructureLike env structName do
+      unless isStructure env structName do
         throwAppBuilderException `mkProjection ("structure expected" ++ hasTypeMsg s type)
       match getProjFnForField? env structName fieldName with
       | some projFn =>

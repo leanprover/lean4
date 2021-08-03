@@ -395,7 +395,6 @@ lean_object* l_Lean_Meta_mkHEqRefl(lean_object*, lean_object*, lean_object*, lea
 static lean_object* l_Lean_Meta_mkMul___closed__3;
 static lean_object* l_Lean_Meta_mkEqOfHEq___lambda__1___closed__2;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppOptMAux_match__3(lean_object*);
-uint8_t l_Lean_isStructureLike(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_throwAppBuilderException___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
@@ -432,6 +431,7 @@ lean_object* l_Lean_Meta_mkEqOfHEq___lambda__1___boxed(lean_object*, lean_object
 static lean_object* l_Lean_Meta_mkCongrFun___closed__3;
 lean_object* l_Lean_Meta_mkAdd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_isStructure(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_hasTypeMsg___closed__1;
 lean_object* l_Lean_throwError___at___private_Lean_Meta_AppBuilder_0__Lean_Meta_throwAppBuilderException___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkNumeral(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10897,14 +10897,12 @@ _start:
 lean_object* x_13; 
 lean_inc(x_3);
 lean_inc(x_2);
-lean_inc(x_1);
 x_13 = l_Lean_getProjFnForField_x3f(x_1, x_2, x_3);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_36; lean_object* x_37; 
 lean_dec(x_6);
 lean_inc(x_2);
-lean_inc(x_1);
 x_14 = l_Lean_getStructureFields(x_1, x_2);
 x_15 = lean_box(0);
 x_16 = lean_array_get_size(x_14);
@@ -11171,8 +11169,7 @@ x_20 = lean_ctor_get(x_18, 0);
 lean_inc(x_20);
 lean_dec(x_18);
 lean_inc(x_15);
-lean_inc(x_20);
-x_21 = l_Lean_isStructureLike(x_20, x_15);
+x_21 = l_Lean_isStructure(x_20, x_15);
 if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 

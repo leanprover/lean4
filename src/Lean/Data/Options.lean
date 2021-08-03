@@ -136,6 +136,9 @@ protected def register [KVMap.Value α] (name : Name) (decl : Lean.Option.Decl �
 macro "register_builtin_option" name:ident " : " type:term " := " decl:term : command =>
   `(builtin_initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
 
+macro "register_option" name:ident " : " type:term " := " decl:term : command =>
+  `(initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
+
 end Option
 
 end Lean

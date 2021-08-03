@@ -20,6 +20,8 @@ import Lean.Server.FileWorker.Utils
 import Lean.Server.FileWorker.RequestHandling
 import Lean.Server.Rpc.Basic
 
+import Lean.Widget.InteractiveDiagnostics
+
 /-!
 For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.
 This module implements per-file worker processes.
@@ -50,10 +52,21 @@ open Snapshots
 open Std (RBMap RBMap.empty)
 open JsonRpc
 
+def publishInteractiveMessages (m : DocumentMeta) (msgLog : MessageLog) (hOut : FS.Stream) (rpcSesh : RpcSession) : IO Unit := do
+  let diagnostics ← msgLog.msgs.mapM (Widget.msgToDiagnostic m.text · rpcSesh)
+  let diagParams : PublishDiagnosticsParams :=
+    { uri := m.uri
+      version? := some m.version
+      diagnostics := diagnostics.toArray }
+  hOut.writeLspNotification {
+    method := "textDocument/publishDiagnostics"
+    param := toJson diagParams
+  }
+
 /- Asynchronous snapshot elaboration. -/
 section Elab
   /-- Elaborates the next command after `parentSnap` and emits diagnostics into `hOut`. -/
-  private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream)
+  private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream) (rpcSesh : RpcSession)
       : ExceptT ElabTaskError IO Snapshot := do
     cancelTk.check
     publishProgressAtPos m parentSnap.endPos hOut
@@ -72,22 +85,22 @@ section Elab
         because we cannot guarantee that no further diagnostics are emitted after clearing
         them. -/
       if snap.msgLog.msgs.size > parentSnap.msgLog.msgs.size then
-        publishMessages m snap.msgLog hOut
+        publishInteractiveMessages m snap.msgLog hOut rpcSesh
       snap
     | Sum.inr msgLog =>
-      publishMessages m msgLog hOut
+      publishInteractiveMessages m msgLog hOut rpcSesh
       publishProgressDone m hOut
       throw ElabTaskError.eof
 
   /-- Elaborates all commands after `initSnap`, emitting the diagnostics into `hOut`. -/
-  def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream)
+  def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream) (rpcSesh : RpcSession)
     (initial : Bool) :
       IO (AsyncList ElabTaskError Snapshot) := do
     if initial && initSnap.msgLog.hasErrors then
       -- treat header processing errors as fatal so users aren't swamped with followup errors
       AsyncList.nil
     else
-      AsyncList.unfoldAsync (nextCmdSnap m . cancelTk hOut) initSnap
+      AsyncList.unfoldAsync (nextCmdSnap m . cancelTk hOut rpcSesh) initSnap
 end Elab
 
 -- Pending requests are tracked so they can be cancelled
@@ -167,7 +180,7 @@ section Initialization
     catch e =>  -- should be from `leanpkg print-paths`
       let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
       pure (← mkEmptyEnvironment, msgs)
-    publishMessages m msgLog hOut
+    --publishMessages m msgLog hOut
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
     let cmdState := { cmdState with infoState.enabled := true, scopes := [{ header := "", opts := opts }] }
     let headerSnap := {
@@ -187,7 +200,8 @@ section Initialization
       is a CR there. -/
     let (headerSnap, srcSearchPath) ← compileHeader meta o
     let cancelTk ← CancelToken.new
-    let cmdSnaps ← unfoldCmdSnaps meta headerSnap cancelTk o (initial := true)
+    let rpcSesh ← RpcSession.new false
+    let cmdSnaps ← unfoldCmdSnaps meta headerSnap cancelTk o (initial := true) rpcSesh
     let doc : EditableDocument := ⟨meta, headerSnap, cmdSnaps, cancelTk⟩
     return ({
       hIn                := i
@@ -198,7 +212,7 @@ section Initialization
     {
       doc             := doc
       pendingRequests := RBMap.empty
-      rpcSesh         := ← RpcSession.new false
+      rpcSesh
     })
 end Initialization
 
@@ -231,7 +245,7 @@ section Updates
       let mut validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos)
       if validSnaps.length = 0 then
         let cancelTk ← CancelToken.new
-        let newCmdSnaps ← unfoldCmdSnaps newMeta newHeaderSnap cancelTk ctx.hOut (initial := true)
+        let newCmdSnaps ← unfoldCmdSnaps newMeta newHeaderSnap cancelTk ctx.hOut (initial := true) (← get).rpcSesh
         modify fun st => { st with doc := ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩ }
       else
         /- When at least one valid non-header snap exists, it may happen that a change does not fall
@@ -249,7 +263,7 @@ section Updates
           validSnaps ← validSnaps.dropLast
           lastSnap ← preLastSnap
         let cancelTk ← CancelToken.new
-        let newSnaps ← unfoldCmdSnaps newMeta lastSnap cancelTk ctx.hOut (initial := false)
+        let newSnaps ← unfoldCmdSnaps newMeta lastSnap cancelTk ctx.hOut (initial := false) (← get).rpcSesh
         let newCmdSnaps := AsyncList.ofList validSnaps ++ newSnaps
         modify fun st => { st with doc := ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩ }
 end Updates

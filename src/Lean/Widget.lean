@@ -6,4 +6,6 @@ Authors: Wojciech Nawrocki
 -/
 import Lean.Widget.ExprWithCtx
 import Lean.Widget.InteractiveGoals
+import Lean.Widget.InteractiveDiagnostics
 import Lean.Widget.TaggedText
+import Lean.Widget.ToHtmlFormat

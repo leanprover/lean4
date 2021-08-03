@@ -11,9 +11,9 @@ import Lean.ProjFns
 namespace Lean
 
 structure StructureFieldInfo where
-  fieldName : Name
-  projFn    : Name
-  subobject : Bool -- TODO: use `Option Name`
+  fieldName  : Name
+  projFn     : Name
+  subobject? : Option Name -- It is `some parentStructName` if it is a subobject, and `parentStructName` is the name of the parent structure
   deriving Inhabited, Repr
 
 def StructureFieldInfo.lt (i₁ i₂ : StructureFieldInfo) : Bool :=
@@ -78,22 +78,14 @@ def getStructureFields (env : Environment) (structName : Name) : Array Name :=
 
 def getFieldInfo? (env : Environment) (structName : Name) (fieldName : Name) : Option StructureFieldInfo :=
   if let some info := getStructureInfo? env structName then
-    info.fieldInfo.binSearch { fieldName := fieldName, projFn := arbitrary, subobject := arbitrary } StructureFieldInfo.lt
+    info.fieldInfo.binSearch { fieldName := fieldName, projFn := arbitrary, subobject? := none } StructureFieldInfo.lt
   else
     none
 
 /-- If `fieldName` represents the relation to a parent structure `S`, return `S` -/
 def isSubobjectField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
   if let some fieldInfo := getFieldInfo? env structName fieldName then
-    if fieldInfo.subobject then
-      match env.find? fieldInfo.projFn with
-      | some (ConstantInfo.defnInfo val) =>
-        match val.type.getForallBody.getAppFn with
-        | Expr.const n .. => some n
-        | _ => panic! "ill-formed structure"
-      | _ => panic! "ill-formed environment"
-    else
-      none
+    fieldInfo.subobject?
   else
     none
 

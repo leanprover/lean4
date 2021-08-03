@@ -65,11 +65,6 @@ def appendTag (acc : TaggedText α) (t₀ : α) (a₀ : TaggedText α) : TaggedT
   | append as => append (as.push <| tag t₀ a₀)
   | a         => append #[a, tag t₀ a₀]
 
-partial def toString [ToString α] : TaggedText α → String
-  | text s => s
-  | append as => " ++ ".intercalate (as.toList.map toString)
-  | tag t a => s!"([{t}] {toString a})"
-
 partial def map (f : α → β) : TaggedText α → TaggedText β :=
   go
 where go : TaggedText α → TaggedText β

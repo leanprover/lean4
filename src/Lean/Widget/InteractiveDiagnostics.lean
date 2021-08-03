@@ -75,22 +75,9 @@ private def msgToInteractive (msgData : MessageData) : IO (TaggedText MsgEmbed) 
         { ef := subTt.map fun n => ⟨fun () => e.runMetaM (e.traverse n)⟩ }
         (TaggedText.text "")
 
-/-- Remove tags, leaving just the pretty-printed string. -/
-partial def TaggedText.stripTags (tt : TaggedText α) : String :=
-  go "" [tt]
-where go (acc : String) : List (TaggedText α) → String
-  | []               => acc
-  | text s :: ts     => go (acc ++ s) ts
-  | append a b :: ts => go acc (a :: b :: ts)
-  | tag _ a :: ts    => go acc (a :: ts)
-
-partial def TaggedText.stripTags₂ (tt : TaggedText (MsgEmbed)) : String :=
-  go "" [tt]
-where go (acc : String) : List (TaggedText (MsgEmbed)) → String
-  | []               => acc
-  | text s :: ts     => go (acc ++ s) ts
-  | append a b :: ts => go acc (a :: b :: ts)
-  | tag ⟨et⟩ _ :: ts => go acc (text et.stripTags :: ts)
+private partial def stripEmbeds (tt : TaggedText MsgEmbed) : String :=
+  let tt : TaggedText MsgEmbed := tt.rewrite fun ⟨et⟩ _ => TaggedText.text et.stripTags
+  tt.stripTags
 
 /-- Transform a Lean Message concerning the given text into an LSP Diagnostic. -/
 def msgToDiagnostic (text : FileMap) (m : Message) : ReaderT RpcSession IO Diagnostic := do
@@ -120,7 +107,7 @@ def msgToDiagnostic (text : FileMap) (m : Message) : ReaderT RpcSession IO Diagn
     fullRange := fullRange
     severity? := severity
     source? := source
-    message := tt.stripTags₂
+    message := stripEmbeds tt
     taggedMsg? := ttJson
   }
 

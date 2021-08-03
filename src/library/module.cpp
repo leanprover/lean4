@@ -77,8 +77,22 @@ extern "C" object * lean_save_module_data(b_obj_arg fname, b_obj_arg mod, b_obj_
         out.write(reinterpret_cast<char *>(&base_addr), sizeof(base_addr));
         out.write(static_cast<char const *>(compactor.data()), compactor.size());
         out.close();
-        if (std::rename(olean_tmp_fn.c_str(), olean_fn.c_str()) != 0) {
-            return io_result_mk_error((sstream() << "failed to write '" << olean_fn << "': " << strerror(errno)).str());
+        while (std::rename(olean_tmp_fn.c_str(), olean_fn.c_str()) != 0) {
+#ifdef LEAN_WINDOWS
+            if (errno == EEXIST) {
+                // Memory-mapped files can be deleted starting with Windows 10, but *only* through the UTF-16 API
+                int utf16sz = MultiByteToWideChar(CP_ACP, 0, olean_fn.c_str(), -1, NULL, 0);
+                lean_always_assert(utf16sz != 0);
+                std::wstring wolean_fn(utf16sz, '0');
+                lean_always_assert(MultiByteToWideChar(CP_ACP, 0, olean_fn.c_str(), -1, &wolean_fn[0], utf16sz));
+                if (DeleteFileW(wolean_fn.c_str()) != 0) {
+                    continue;
+                } else {
+                    return io_result_mk_error((sstream() << "failed to delete '" << olean_fn << "': " << GetLastError()).str());
+                }
+            }
+#endif
+            return io_result_mk_error((sstream() << "failed to write '" << olean_fn << "': " << errno << " " << strerror(errno)).str());
         }
         return io_result_mk_ok(box(0));
     } catch (exception & ex) {

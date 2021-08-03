@@ -16,6 +16,7 @@ extern "C" {
 uint8_t lean_is_protected(lean_object*, lean_object*);
 static lean_object* l_Lean_protectedExt___closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+lean_object* lean_private_prefix(lean_object*);
 static lean_object* l_Lean_protectedExt___closed__3;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l_Lean_protectedExt___closed__5;
@@ -24,6 +25,7 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__1;
 lean_object* lean_private_to_user_name(lean_object*);
 lean_object* l_Lean_protectedExt___elambda__1___boxed(lean_object*);
+uint8_t l_Lean_isPrivateNameFromImportedModule(lean_object*, lean_object*);
 lean_object* l___private_Lean_Modifiers_0__Lean_privateToUserNameAux(lean_object*);
 uint8_t lean_is_private_name(lean_object*);
 lean_object* l_Lean_isPrivateName___boxed(lean_object*);
@@ -34,6 +36,7 @@ lean_object* l___private_Lean_Modifiers_0__Lean_privateToUserNameAux_match__1___
 static lean_object* l_Lean_protectedExt___closed__6;
 lean_object* l_Lean_protectedExt___elambda__3___boxed(lean_object*, lean_object*);
 lean_object* lean_add_protected(lean_object*, lean_object*);
+lean_object* l_Lean_isPrivateNameFromImportedModule_match__1(lean_object*);
 lean_object* l_Lean_protectedExt;
 static lean_object* l_Lean_protectedExt___elambda__4___rarg___closed__3;
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
@@ -41,7 +44,6 @@ lean_object* l_Lean_isPrivateName_match__1___rarg(lean_object*, lean_object*, le
 static lean_object* l_Lean_protectedExt___closed__7;
 lean_object* l_Lean_protectedExt___elambda__2(lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___lambda__1(lean_object*);
-lean_object* lean_private_prefix(lean_object*);
 lean_object* l___private_Lean_Modifiers_0__Lean_privateToUserNameAux_match__1(lean_object*);
 lean_object* l_Lean_isPrivateName_match__1(lean_object*);
 lean_object* l_Lean_isPrivateNameExport___boxed(lean_object*);
@@ -61,6 +63,7 @@ lean_object* l_Lean_isProtected___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Modifiers_0__Lean_privatePrefixAux___boxed(lean_object*);
 lean_object* l_Lean_protectedExt___elambda__1(lean_object*);
 static lean_object* l_Lean_privateHeader___closed__2;
+lean_object* l_Lean_isPrivateNameFromImportedModule___boxed(lean_object*, lean_object*);
 uint32_t lean_uint32_of_nat(lean_object*);
 lean_object* l_Lean_protectedExt___elambda__4(lean_object*, lean_object*);
 static lean_object* l_Lean_protectedExt___closed__4;
@@ -68,6 +71,7 @@ static lean_object* l_Lean_privateHeader___closed__1;
 static uint32_t l_Lean_protectedExt___elambda__4___rarg___closed__1;
 static lean_object* l_Lean_protectedExt___closed__2;
 static lean_object* l_Lean_protectedExt___elambda__4___rarg___closed__2;
+lean_object* l_Lean_isPrivateNameFromImportedModule_match__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__1() {
 _start:
 {
@@ -552,6 +556,84 @@ x_5 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_5, 0, x_4);
 return x_5;
 }
+}
+}
+lean_object* l_Lean_isPrivateNameFromImportedModule_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_4; 
+lean_dec(x_2);
+x_4 = lean_apply_1(x_3, x_1);
+return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; 
+lean_dec(x_3);
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_apply_1(x_2, x_5);
+return x_6;
+}
+}
+}
+lean_object* l_Lean_isPrivateNameFromImportedModule_match__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_isPrivateNameFromImportedModule_match__1___rarg), 3, 0);
+return x_2;
+}
+}
+uint8_t l_Lean_isPrivateNameFromImportedModule(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+lean_inc(x_2);
+x_3 = lean_private_to_user_name(x_2);
+if (lean_obj_tag(x_3) == 0)
+{
+uint8_t x_4; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = 0;
+return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_5 = lean_ctor_get(x_3, 0);
+lean_inc(x_5);
+lean_dec(x_3);
+x_6 = l_Lean_mkPrivateName(x_1, x_5);
+x_7 = lean_name_eq(x_6, x_2);
+lean_dec(x_2);
+lean_dec(x_6);
+if (x_7 == 0)
+{
+uint8_t x_8; 
+x_8 = 1;
+return x_8;
+}
+else
+{
+uint8_t x_9; 
+x_9 = 0;
+return x_9;
+}
+}
+}
+}
+lean_object* l_Lean_isPrivateNameFromImportedModule___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lean_isPrivateNameFromImportedModule(x_1, x_2);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 lean_object* l___private_Lean_Modifiers_0__Lean_privatePrefixAux(lean_object* x_1) {

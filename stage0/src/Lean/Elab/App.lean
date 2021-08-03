@@ -683,14 +683,19 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
       loop f lvals
     | LValResolution.projFn baseStructName structName fieldName =>
       let f ← mkBaseProjections baseStructName structName f
-      let projFn ← mkConst (baseStructName ++ fieldName)
-      addTermInfo lval.getRef projFn
-      if lvals.isEmpty then
-        let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f }
-        elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
+      if let some info := getFieldInfo? (← getEnv) baseStructName fieldName then
+        if isPrivateNameFromImportedModule (← getEnv) info.projFn then
+          throwError "field '{fieldName}' from structure '{structName}' is private"
+        let projFn ← mkConst info.projFn
+        addTermInfo lval.getRef projFn
+        if lvals.isEmpty then
+          let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f }
+          elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
+        else
+          let f ← elabAppArgs projFn #[{ name := `self, val := Arg.expr f }] #[] (expectedType? := none) (explicit := false) (ellipsis := false)
+          loop f lvals
       else
-        let f ← elabAppArgs projFn #[{ name := `self, val := Arg.expr f }] #[] (expectedType? := none) (explicit := false) (ellipsis := false)
-        loop f lvals
+        unreachable!
     | LValResolution.const baseStructName structName constName =>
       let f ← if baseStructName != structName then mkBaseProjections baseStructName structName f else pure f
       let projFn ← mkConst constName

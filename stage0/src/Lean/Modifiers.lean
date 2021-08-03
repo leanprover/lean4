@@ -51,12 +51,17 @@ def privateToUserName? (n : Name) : Option Name :=
   if isPrivateName n then privateToUserNameAux n
   else none
 
+def isPrivateNameFromImportedModule (env : Environment) (n : Name) : Bool :=
+  match privateToUserName? n with
+  | some userName => mkPrivateName env userName != n
+  | _ => false
+
 private def privatePrefixAux : Name → Name
   | Name.str p _ _ => privatePrefixAux p
   | n              => n
 
 @[export lean_private_prefix]
-def privatePrefix (n : Name) : Option Name :=
+def privatePrefix? (n : Name) : Option Name :=
   if isPrivateName n then privatePrefixAux n
   else none
 

@@ -14,6 +14,8 @@ that are not strictly necessary.
 -/
 
 import Lean.Meta
+import Lean.Util.FindMVar
+import Lean.Util.FindLevelMVar
 import Lean.Util.CollectLevelParams
 import Lean.Util.ReplaceLevel
 import Lean.PrettyPrinter.Delaborator.Options
@@ -162,50 +164,9 @@ partial def hasMVarAtCurrDepth (e : Expr) : MetaM Bool := do
     | some mdecl => mdecl.depth == mctx.depth
     | _ => false
 
-namespace FindLevelMVar
-
-abbrev Visitor := Option MVarId → Option MVarId
-
-mutual
-
-partial def visit (p : MVarId → Bool) (e : Expr) : Visitor := fun s =>
-  if s.isSome || !e.hasLevelMVar then s else main p e s
-
-partial def visitLevel (p : MVarId → Bool) (l : Level) : Visitor := fun s =>
-  if s.isSome || !l.hasMVar then s else mainLevel p l s
-
-@[specialize]
-partial def mainLevel (p : MVarId → Bool) : Level → Visitor
-  | Level.zero _        => id
-  | Level.succ l _      => visitLevel p l
-  | Level.max l₁ l₂ _   => visitLevel p l₁ ∘ visitLevel p l₂
-  | Level.imax l₁ l₂ _  => visitLevel p l₁ ∘ visitLevel p l₂
-  | Level.param n _     => id
-  | Level.mvar mvarId _ => fun s => if p mvarId then some mvarId else s
-
-@[specialize]
-partial def main (p : MVarId → Bool) : Expr → Visitor
-  | Expr.proj _ _ e _    => visit p e
-  | Expr.forallE _ d b _ => visit p b ∘ visit p d
-  | Expr.lam _ d b _     => visit p b ∘ visit p d
-  | Expr.letE _ t v b _  => visit p b ∘ visit p v ∘ visit p t
-  | Expr.app f a _       => visit p a ∘ visit p f
-  | Expr.mdata _ b _     => visit p b
-  | Expr.sort l _        => visitLevel p l
-  | Expr.const _ ls ..   => ls.foldr (init := id) fun l acc => visitLevel p l ∘ acc
-  | Expr.mvar mvarId _   => id
-  | _                    => id
-
-end
-
-end FindLevelMVar
-
-@[inline] def findLevelMVar? (e : Expr) (p : MVarId → Bool) : Option MVarId :=
-  FindLevelMVar.main p e none
-
 partial def hasLevelMVarAtCurrDepth (e : Expr) : MetaM Bool := do
   let mctx ← getMCtx
-  Option.isSome $ findLevelMVar? e fun mvarId =>
+  Option.isSome $ e.findLevelMVar? fun mvarId =>
     mctx.findLevelDepth? mvarId == some mctx.depth
 
 private def valUnknown (e : Expr) : MetaM Bool := do

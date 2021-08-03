@@ -812,7 +812,7 @@ end DefaultFields
 
 private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (source : Source) : TermElabM Expr := do
   let (structName, structType) ← getStructName stx expectedType? source
-  unless isStructureLike (← getEnv) structName do
+  unless isStructure (← getEnv) structName do
     throwError "invalid \{...} notation, structure type expected{indentExpr structType}"
   let struct ← liftMacroM <| mkStructView stx structName source
   let struct ← expandStruct struct

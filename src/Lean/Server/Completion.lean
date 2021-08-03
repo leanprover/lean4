@@ -211,7 +211,7 @@ where
     match type.getAppFn with
     | Expr.const typeName .. =>
       modify fun s => s.insert typeName
-      if isStructureLike (← getEnv) typeName then
+      if isStructure (← getEnv) typeName then
         for parentName in getAllParentStructures (← getEnv) typeName do
           modify fun s => s.insert parentName
       let type? ← try unfoldDefinition? type catch _ => pure none

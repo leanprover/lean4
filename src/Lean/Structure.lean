@@ -57,14 +57,6 @@ def getStructureInfo? (env : Environment) (structName : Name) : Option Structure
   | some modIdx => structureExt.getModuleEntries env modIdx |>.binSearch { structName } StructureInfo.lt
   | none        => structureExt.getState env |>.map.find? structName
 
-/--
-  Return true iff `constName` is the a non-recursive inductive
-  datatype that has only one constructor. -/
-def isStructureLike (env : Environment) (constName : Name) : Bool :=
-  match env.find? constName with
-  | some (ConstantInfo.inductInfo { isRec := false, ctors := [ctor], .. }) => true
-  | _ => false
-
 /-- We mark subobject fields by prefixing them with "_" in the structure's intro rule. -/
 def mkInternalSubobjectFieldName (fieldName : Name) : Name :=
   fieldName.appendBefore "_"
@@ -173,5 +165,20 @@ partial def getPathToBaseStructureAux (env : Environment) (baseStructName : Name
   to go from `structName` to `baseStructName`. -/
 def getPathToBaseStructure? (env : Environment) (baseStructName : Name) (structName : Name) : Option (List Name) :=
   getPathToBaseStructureAux env baseStructName structName []
+
+/-- Return true iff `constName` is the a non-recursive inductive datatype that has only one constructor. -/
+def isStructureLike (env : Environment) (constName : Name) : Bool :=
+  match env.find? constName with
+  | some (ConstantInfo.inductInfo { isRec := false, ctors := [ctor], .. }) => true
+  | _ => false
+
+/-- Return number of fields for a structure-like type -/
+def getStructureLikeNumFields (env : Environment) (constName : Name) : Nat :=
+  match env.find? constName with
+  | some (ConstantInfo.inductInfo { isRec := false, ctors := [ctor], .. }) =>
+    match env.find? ctor with
+    | some (ConstantInfo.ctorInfo { numFields := n, .. }) => n
+    | _ => 0
+  | _ => 0
 
 end Lean

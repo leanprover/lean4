@@ -293,9 +293,9 @@ def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
   let st ← get
   if p.sessionId ≠ st.rpcSesh.sessionId then
     -- TODO(WN): should only print on log-level debug, if we had log-levels
-    IO.eprintln s!"Trying to release ref '{p.ref}' from outdated RPC session '{p.sessionId}'."
-  else
-    discard <| st.rpcSesh.state.modifyGet fun st => st.release p.ref
+    IO.eprintln s!"Trying to release refs '{p.refs}' from outdated RPC session '{p.sessionId}'."
+  else for ref in p.refs do
+    st.rpcSesh.state.modify fun st => st.release ref |>.snd
 
 end NotificationHandling
 

@@ -112,12 +112,12 @@ structure RpcCallParams extends TextDocumentPositionParams where
 
 /-- `$/lean/rpc/release` client->server notification.
 
-A notification to release a remote reference. Should be sent by the client when it no longer needs
-an `RpcRef` it has previously received from the server. Not doing so is safe but will leak memory. -/
+A notification to release remote references. Should be sent by the client when it no longer needs
+`RpcRef`s it has previously received from the server. Not doing so is safe but will leak memory. -/
 structure RpcReleaseParams where
   uri : DocumentUri
   sessionId : UInt64
-  ref : RpcRef
+  refs : Array RpcRef
   deriving FromJson, ToJson
 
 end Lean.Lsp

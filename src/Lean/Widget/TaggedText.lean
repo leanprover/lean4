@@ -17,7 +17,7 @@ inductive TaggedText (α : Type u) where
   | text (s : String)
   | append (a b : TaggedText α)
   | tag (t : α) (a : TaggedText α)
-  deriving Inhabited, FromJson, ToJson
+  deriving Inhabited, BEq, FromJson, ToJson
 
 namespace TaggedText
 

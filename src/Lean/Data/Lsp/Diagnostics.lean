@@ -28,7 +28,7 @@ instance : FromJson DiagnosticSeverity := ⟨fun j =>
   | Except.ok 2 => DiagnosticSeverity.warning
   | Except.ok 3 => DiagnosticSeverity.information
   | Except.ok 4 => DiagnosticSeverity.hint
-  | _      => throw "unknown DiagnosticSeverity"⟩
+  | _           => throw s!"unknown DiagnosticSeverity '{j}'"⟩
 
 instance : ToJson DiagnosticSeverity := ⟨fun
   | DiagnosticSeverity.error       => 1
@@ -44,7 +44,7 @@ inductive DiagnosticCode where
 instance : FromJson DiagnosticCode := ⟨fun
   | num (i : Int) => DiagnosticCode.int i
   | str s         => DiagnosticCode.string s
-  | _             => throw "the diagnostic code can only be a string or an integer"⟩
+  | j             => throw s!"expected string or integer diagnostic code, got '{j}'"⟩
 
 instance : ToJson DiagnosticCode := ⟨fun
   | DiagnosticCode.int i    => i
@@ -80,6 +80,9 @@ structure Diagnostic where
   message : String
   tags? : Option (Array DiagnosticTag) := none
   relatedInformation? : Option (Array DiagnosticRelatedInformation) := none
+  /-- Extension: interactive message widgets. We use untyped `Json` here due to dependency
+  ordering -- see `Lean.Widget.InteractiveDiagnostics`. -/
+  taggedMsg? : Option Json := none
   deriving Inhabited, BEq, ToJson, FromJson
 
 structure PublishDiagnosticsParams where
@@ -87,36 +90,6 @@ structure PublishDiagnosticsParams where
   version? : Option Int := none
   diagnostics: Array Diagnostic
   deriving Inhabited, BEq, ToJson, FromJson
-
-/-- Transform a Lean Message concerning the given text into an LSP Diagnostic. -/
-def msgToDiagnostic (text : FileMap) (m : Message) : IO Diagnostic := do
-  let low : Lsp.Position := text.leanPosToLspPos m.pos
-  let fullHigh := text.leanPosToLspPos <| m.endPos.getD m.pos
-  let high : Lsp.Position := match m.endPos with
-    | some endPos =>
-      /-
-        Truncate messages that are more than one line long.
-        This is a workaround to avoid big blocks of "red squiggly lines" on VS Code.
-        TODO: should it be a parameter?
-      -/
-      let endPos := if endPos.line > m.pos.line then { line := m.pos.line + 1, column := 0 } else endPos
-      text.leanPosToLspPos endPos
-    | none        => low
-  let range : Range := ⟨low, high⟩
-  let fullRange : Range := ⟨low, fullHigh⟩
-  let severity := match m.severity with
-    | MessageSeverity.information => DiagnosticSeverity.information
-    | MessageSeverity.warning     => DiagnosticSeverity.warning
-    | MessageSeverity.error       => DiagnosticSeverity.error
-  let source := "Lean 4 server"
-  let message ← m.data.toString
-  pure {
-    range := range
-    fullRange := fullRange
-    severity? := severity
-    source? := source
-    message := message
-  }
 
 end Lsp
 end Lean

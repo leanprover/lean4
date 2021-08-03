@@ -953,7 +953,7 @@ public:
         decl d = get_decl("main");
         array_ref<param> const & params = decl_params(d);
         buffer<object *> args;
-        if (params.size() == 2) { // List String -> IO UInt32
+        if (params.size() == 2) { // List String -> IO _
             lean_object * in = lean_box(0);
             int i = argc;
             while (i > 0) {
@@ -964,16 +964,22 @@ public:
                 in = n;
             }
             args.push_back(in);
-        } else { // IO UInt32
+        } else { // IO _
             lean_assert(params.size() == 1);
         }
         object * w = io_mk_world();
         args.push_back(w);
         w = call_boxed("main", args.size(), &args[0]);
         if (io_result_is_ok(w)) {
-            // NOTE: in an awesome hack, `IO Unit` works just as well because `pure 0` and `pure ()` use the same
-            // representation
-            int ret = unbox(io_result_get_value(w));
+            int ret = 0;
+            lean::expr ret_ty = m_env.get("main").get_type();
+            if (is_arrow(ret_ty)) {
+                ret_ty = binding_body(ret_ty);
+            }
+            // `IO UInt32` or `IO (P)Unit`
+            if (is_const(app_arg(ret_ty), get_uint32_name())) {
+                ret = unbox_uint32(io_result_get_value(w));
+            }
             dec_ref(w);
             return ret;
         } else {

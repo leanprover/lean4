@@ -136,7 +136,7 @@ bool is_uint32_or_unit(expr const & type) {
         is_constant(type, get_punit_name());
 }
 
-/* Return true iff type is `List String -> IO UInt32` or `IO UInt32` */
+/* Return true iff type is `(List String ->) IO (UInt32 | (P)Unit)` */
 bool is_main_fn_type(expr const & type) {
     if (is_arrow(type)) {
         expr d = binding_domain(type);

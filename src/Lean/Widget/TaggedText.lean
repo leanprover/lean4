@@ -120,7 +120,7 @@ where go (acc : String) : Array (TaggedText α) → String
   | #[] => acc
   | ts  => match ts.back with
     | text s    => go (acc ++ s) ts.pop
-    | append as => go acc (ts.pop ++ as)
+    | append as => go acc (ts.pop ++ as.reverse)
     | tag _ a   => go acc (ts.set! (ts.size - 1) a)
 
 end TaggedText

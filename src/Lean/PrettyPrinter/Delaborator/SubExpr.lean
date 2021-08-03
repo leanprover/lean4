@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Daniel Selsam
+Authors: Sebastian Ullrich, Daniel Selsam, Wojciech Nawrocki
 -/
 import Lean.Meta.Basic
 import Std.Data.RBMap
@@ -28,13 +28,16 @@ structure SubExpr where
 
 namespace SubExpr
 
+abbrev maxChildren : Pos := 4
+
 variable {α : Type} [Inhabited α]
 variable {m : Type → Type} [Monad m]
+
+section Descend
+
 variable [MonadReaderOf SubExpr m] [MonadWithReaderOf SubExpr m]
 variable [MonadLiftT MetaM m] [MonadControlT MetaM m]
 variable [MonadLiftT IO m]
-
-abbrev maxChildren : Pos := 4
 
 def mkRoot (e : Expr) : SubExpr := ⟨e, 1⟩
 
@@ -97,6 +100,34 @@ def withNaryArg (argIdx : Nat) (x : m α) : m α := do
   let newPos := (← getPos) * (maxChildren ^ (args.size - argIdx)) + 1
   withTheReader SubExpr (fun cfg => { cfg with expr := args[argIdx], pos := newPos }) x
 
+end Descend
+
+structure HoleIterator where
+  curr : Nat := 2
+  top  : Nat := maxChildren
+  deriving Inhabited
+
+section Hole
+
+variable {α : Type} [Inhabited α]
+variable {m : Type → Type} [Monad m]
+variable [MonadStateOf HoleIterator m] [MonadWithReaderOf HoleIterator m]
+
+def HoleIterator.toPos (iter : HoleIterator) : Pos :=
+  iter.curr
+
+def HoleIterator.next (iter : HoleIterator) : HoleIterator :=
+  if (iter.curr+1) == iter.top then
+    ⟨2*iter.top, maxChildren*iter.top⟩
+  else ⟨iter.curr+1, iter.top⟩
+
+def nextHole : m Pos := do
+  let iter ← getThe HoleIterator
+  let pos := iter.toPos
+  modifyThe HoleIterator HoleIterator.next
+  pos
+
+end Hole
 end SubExpr
 
 end Lean.PrettyPrinter.Delaborator

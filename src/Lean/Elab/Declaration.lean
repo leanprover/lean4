@@ -277,8 +277,8 @@ def elabMutual : CommandElab := fun stx => do
       Attribute.erase declName attrName
 
 def expandInitCmd (builtin : Bool) : Macro := fun stx =>
-  let optHeader := stx[1]
-  let doSeq     := stx[2]
+  let optHeader := stx[2]
+  let doSeq     := stx[3]
   let attrId    := mkIdentFrom stx $ if builtin then `builtinInit else `init
   if optHeader.isNone then
     `(@[$attrId:ident]def initFn : IO Unit := do $doSeq)

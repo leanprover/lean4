@@ -442,10 +442,7 @@ private def addCtorFields (fieldInfos : Array StructFieldInfo) : Nat â†’ Expr â†
     | StructFieldKind.fromParent =>
       let val := decl.value
       addCtorFields fieldInfos i (type.instantiate1 val)
-    | StructFieldKind.subobject =>
-      let n := mkInternalSubobjectFieldName decl.userName
-      addCtorFields fieldInfos i (mkForall n decl.binderInfo decl.type type)
-    | StructFieldKind.newField =>
+    | _  =>
       addCtorFields fieldInfos i (mkForall decl.userName decl.binderInfo decl.type type)
 
 private def mkCtor (view : StructView) (levelParams : List Name) (params : Array Expr) (fieldInfos : Array StructFieldInfo) : TermElabM Constructor :=

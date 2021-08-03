@@ -47,7 +47,8 @@ builtin_initialize attributeMapRef : IO.Ref (PersistentHashMap Name AttributeImp
 def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
   let m ← attributeMapRef.get
   if m.contains attr.name then throw (IO.userError ("invalid builtin attribute declaration, '" ++ toString attr.name ++ "' has already been used"))
-  unless (← IO.initializing) || (← importing) do throw (IO.userError "failed to register attribute, attributes can only be registered during initialization")
+  unless (← initializing) do
+    throw (IO.userError "failed to register attribute, attributes can only be registered during initialization")
   attributeMapRef.modify fun m => m.insert attr.name attr
 
 /-

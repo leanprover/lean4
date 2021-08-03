@@ -11485,6 +11485,7 @@ x_28 = lean_ctor_get(x_26, 0);
 lean_inc(x_28);
 lean_dec(x_26);
 x_29 = l_Lean_getAllParentStructures(x_28, x_9);
+lean_dec(x_28);
 x_30 = lean_array_get_size(x_29);
 x_31 = lean_usize_of_nat(x_30);
 lean_dec(x_30);

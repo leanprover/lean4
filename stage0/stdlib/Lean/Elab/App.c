@@ -13391,7 +13391,6 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-lean_inc(x_1);
 x_10 = l_Lean_getParentStructures(x_1, x_2);
 x_11 = lean_box(0);
 x_12 = lean_array_get_size(x_10);
@@ -14429,7 +14428,6 @@ x_91 = lean_box(0);
 lean_inc(x_40);
 x_92 = lean_name_mk_string(x_91, x_40);
 lean_inc(x_39);
-lean_inc(x_45);
 x_93 = l_Lean_findField_x3f(x_45, x_39, x_92);
 if (lean_obj_tag(x_93) == 0)
 {
@@ -14798,7 +14796,6 @@ x_188 = lean_box(0);
 lean_inc(x_40);
 x_189 = lean_name_mk_string(x_188, x_40);
 lean_inc(x_39);
-lean_inc(x_139);
 x_190 = l_Lean_findField_x3f(x_139, x_39, x_189);
 if (lean_obj_tag(x_190) == 0)
 {
@@ -16774,6 +16771,7 @@ x_14 = lean_ctor_get(x_12, 0);
 lean_inc(x_14);
 lean_dec(x_12);
 x_15 = l_Lean_getPathToBaseStructure_x3f(x_14, x_1, x_2);
+lean_dec(x_14);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; 

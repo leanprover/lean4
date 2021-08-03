@@ -643,14 +643,15 @@ def synthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM Ex
       | none        => throwError "failed to synthesize{indentExpr type}")
     (fun _ => throwError "failed to synthesize{indentExpr type}")
 
-private def synthPendingImp (mvarId : MVarId) (maxResultSize? : Option Nat) : MetaM Bool := do
+@[export lean_synth_pending]
+private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth do
   let mvarDecl ← getMVarDecl mvarId
   match mvarDecl.kind with
   | MetavarKind.synthetic =>
     match (← isClass? mvarDecl.type) with
     | none   => pure false
     | some _ => do
-      let val? ← catchInternalId isDefEqStuckExceptionId (synthInstance? mvarDecl.type maxResultSize?) (fun _ => pure none)
+      let val? ← catchInternalId isDefEqStuckExceptionId (synthInstance? mvarDecl.type (maxResultSize? := none)) (fun _ => pure none)
       match val? with
       | none     => pure false
       | some val =>
@@ -660,9 +661,6 @@ private def synthPendingImp (mvarId : MVarId) (maxResultSize? : Option Nat) : Me
           assignExprMVar mvarId val
           pure true
   | _ => pure false
-
-builtin_initialize
-  synthPendingRef.set (synthPendingImp · none)
 
 builtin_initialize
   registerTraceClass `Meta.synthInstance

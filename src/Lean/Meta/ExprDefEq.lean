@@ -1440,7 +1440,9 @@ private def cacheResult (key : Expr × Expr) : MetaM Unit := do
   | TransparencyMode.all     => modify fun s => { s with cache.defEqAll := s.cache.defEqAll.insert key () }
   | _                        => pure ()
 
-partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := do
+
+@[export lean_is_expr_def_eq]
+partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
   trace[Meta.isDefEq.step] "{t} =?= {s}"
   checkMaxHeartbeats "isDefEq"
   withNestedTraces do
@@ -1475,9 +1477,6 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := do
         return true
       else
         return false
-
-builtin_initialize
-  isExprDefEqAuxRef.set isExprDefEqAuxImpl
 
 builtin_initialize
   registerTraceClass `Meta.isDefEq

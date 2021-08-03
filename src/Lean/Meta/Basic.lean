@@ -251,26 +251,18 @@ def setPostponed (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
 @[inline] def modifyPostponed (f : PersistentArray PostponedEntry → PersistentArray PostponedEntry) : MetaM Unit :=
   modify fun s => { s with postponed := f s.postponed }
 
-builtin_initialize whnfRef : IO.Ref (Expr → MetaM Expr) ← IO.mkRef fun _ => throwError "whnf implementation was not set"
-builtin_initialize inferTypeRef : IO.Ref (Expr → MetaM Expr) ← IO.mkRef fun _ => throwError "inferType implementation was not set"
-builtin_initialize isExprDefEqAuxRef : IO.Ref (Expr → Expr → MetaM Bool) ← IO.mkRef fun _ _ => throwError "isDefEq implementation was not set"
-builtin_initialize synthPendingRef : IO.Ref (MVarId → MetaM Bool) ← IO.mkRef fun _ => pure false
-
-def whnf (e : Expr) : MetaM Expr :=
-  withIncRecDepth do (← whnfRef.get) e
+/- WARNING: The following 4 constants are a hack for simulating forward declarations.
+   They are defined later using the `export` attribute. This is hackish because we
+   have to hard-code the true arity of these definitions here, and make sure the C names match.
+   We have used another hack based on `IO.Ref`s in the past, it was safer but less efficient. -/
+@[extern 6 "lean_whnf"] constant whnf : Expr → MetaM Expr
+@[extern 6 "lean_infer_type"] constant inferType : Expr → MetaM Expr
+@[extern 7 "lean_is_expr_def_eq"] constant isExprDefEqAux : Expr → Expr → MetaM Bool
+@[extern 6 "lean_synth_pending"] protected constant synthPending : MVarId → MetaM Bool
 
 def whnfForall (e : Expr) : MetaM Expr := do
   let e' ← whnf e
   if e'.isForall then pure e' else pure e
-
-def inferType (e : Expr) : MetaM Expr :=
-  withIncRecDepth do (← inferTypeRef.get) e
-
-protected def isExprDefEqAux (t s : Expr) : MetaM Bool :=
-  withIncRecDepth do (← isExprDefEqAuxRef.get) t s
-
-protected def synthPending (mvarId : MVarId) : MetaM Bool :=
-  withIncRecDepth do (← synthPendingRef.get) mvarId
 
 -- withIncRecDepth for a monad `n` such that `[MonadControlT MetaM n]`
 protected def withIncRecDepth (x : n α) : n α :=

@@ -138,8 +138,6 @@ def checkValidFieldModifier (modifiers : Modifiers) : TermElabM Unit := do
     throwError "invalid use of 'unsafe' in field declaration"
   if modifiers.attrs.size != 0 then
     throwError "invalid use of attributes in field declaration"
-  if modifiers.isPrivate then
-    throwError "private fields are not supported yet"
 
 /-
 ```

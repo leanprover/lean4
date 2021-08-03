@@ -195,3 +195,11 @@ add_test(NAME leanpkgtest_user_attr
            export PATH=${LEAN_BIN}:$PATH
            find . -name '*.olean' -delete
            leanpkg build")
+
+add_test(NAME leanpkgtest_prv
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/prv"
+         COMMAND bash -c "
+           set -eu
+           export PATH=${LEAN_BIN}:$PATH
+           find . -name '*.olean' -delete
+           leanpkg build 2>&1 | grep 'error: field.*private'")

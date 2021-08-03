@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Std.Data.HashMap
+import Lean.ImportingFlag
 import Lean.Data.SMap
 import Lean.Declaration
 import Lean.LocalContext
@@ -12,13 +13,6 @@ import Lean.Util.FindExpr
 import Lean.Util.Profile
 
 namespace Lean
-builtin_initialize importingRef : IO.Ref Bool ← IO.mkRef false
-
-/- True while modules are being imported. We use this flag to test check whether environment extensions are registered only
-   during initialization (builtin ones), and importing (user defined ones). -/
-def importing : IO Bool :=
-  importingRef.get
-
 /- Opaque environment extension state. -/
 constant EnvExtensionStateSpec : PointedType.{0}
 def EnvExtensionState : Type := EnvExtensionStateSpec.type
@@ -224,7 +218,7 @@ unsafe def getState {σ} [Inhabited σ] (ext : Ext σ) (env : Environment) : σ 
     panic! invalidExtMsg
 
 unsafe def registerExt {σ} (mkInitial : IO σ) : IO (Ext σ) := do
-  unless (← IO.initializing) || (← importing) do
+  unless (← initializing) do
     throw (IO.userError "failed to register environment, extensions can only be registered during initialization")
   let exts ← envExtensionsRef.get
   let idx := exts.size
@@ -613,8 +607,7 @@ structure ImportState where
 
 @[export lean_import_modules]
 partial def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" opts do
-  try
-    importingRef.set true
+  withImporting do
     let (_, s) ← importMods imports |>.run {}
     let mut numConsts := 0
     for mod in s.moduleData do
@@ -648,8 +641,6 @@ partial def importModules (imports : List Import) (opts : Options) (trustLevel :
     let env ← setImportedEntries env s.moduleData
     let env ← finalizePersistentExtensions env s.moduleData opts
     pure env
-  finally
-    importingRef.set false
 where
   importMods : List Import → StateRefT ImportState IO Unit
   | []    => pure ()

@@ -62,7 +62,7 @@ static lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__2;
 lean_object* l_Lean_Meta_constructor___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
 lean_object* l_Lean_Meta_existsIntro_match__2(lean_object*);
-lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__3;
 lean_object* l_Lean_Meta_constructor_match__2(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -731,7 +731,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_26);
-x_27 = l_Lean_Meta_inferType(x_26, x_8, x_9, x_10, x_11, x_12);
+x_27 = lean_infer_type(x_26, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; uint8_t x_35; lean_object* x_36; 

@@ -180,8 +180,12 @@ def emitMainFn : M Unit := do
     else
       emitLn ("res = " ++ leanMainFn ++ "(lean_io_mk_world());")
     emitLn "}"
+    -- `IO _`
+    let retTy := env.find? `main |>.get! |>.type |>.getForallBody
+    -- either `UInt32` or `(P)Unit`
+    let retTy := retTy.appArg!
     emitLns ["if (lean_io_result_is_ok(res)) {",
-             "  int ret = lean_unbox(lean_io_result_get_value(res));",
+             "  int ret = " ++ if retTy.constName? == some ``UInt32 then "lean_unbox_uint32(lean_io_result_get_value(res));" else "0;",
              "  lean_dec_ref(res);",
              "  return ret;",
              "} else {",

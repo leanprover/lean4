@@ -31,7 +31,7 @@ lean_object* l_Lean_Meta_testHelper(lean_object*, lean_object*, lean_object*, le
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_matchHelper_x3f(lean_object*);
-lean_object* l_Lean_Meta_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_matchEq_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_matchNe_x3f___closed__2;
 lean_object* l_Lean_Meta_matchConstructorApp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -74,7 +74,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
-x_12 = l_Lean_Meta_whnf(x_1, x_3, x_4, x_5, x_6, x_11);
+x_12 = lean_whnf(x_1, x_3, x_4, x_5, x_6, x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
@@ -233,7 +233,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
-x_11 = l_Lean_Meta_whnf(x_1, x_3, x_4, x_5, x_6, x_10);
+x_11 = lean_whnf(x_1, x_3, x_4, x_5, x_6, x_10);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -369,7 +369,7 @@ x_9 = l_Lean_Expr_isAppOfArity(x_1, x_7, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; 
-x_10 = l_Lean_Meta_whnf(x_1, x_2, x_3, x_4, x_5, x_6);
+x_10 = lean_whnf(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_10) == 0)
 {
 uint8_t x_11; 
@@ -535,7 +535,7 @@ x_8 = l_Lean_Expr_isConstOf(x_1, x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; 
-x_9 = l_Lean_Meta_whnf(x_1, x_2, x_3, x_4, x_5, x_6);
+x_9 = lean_whnf(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_9) == 0)
 {
 uint8_t x_10; 
@@ -815,7 +815,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_9 = l_Lean_Meta_whnf(x_1, x_2, x_3, x_4, x_5, x_8);
+x_9 = lean_whnf(x_1, x_2, x_3, x_4, x_5, x_8);
 if (lean_obj_tag(x_9) == 0)
 {
 uint8_t x_10; 
@@ -1367,7 +1367,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_9 = l_Lean_Meta_whnf(x_1, x_2, x_3, x_4, x_5, x_8);
+x_9 = lean_whnf(x_1, x_2, x_3, x_4, x_5, x_8);
 if (lean_obj_tag(x_9) == 0)
 {
 uint8_t x_10; 
@@ -1677,7 +1677,7 @@ if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; 
 lean_free_object(x_7);
-x_13 = l_Lean_Meta_whnf(x_1, x_2, x_3, x_4, x_5, x_10);
+x_13 = lean_whnf(x_1, x_2, x_3, x_4, x_5, x_10);
 if (lean_obj_tag(x_13) == 0)
 {
 uint8_t x_14; 
@@ -1759,7 +1759,7 @@ x_28 = l_Lean_Expr_isConstructorApp_x3f(x_27, x_1);
 if (lean_obj_tag(x_28) == 0)
 {
 lean_object* x_29; 
-x_29 = l_Lean_Meta_whnf(x_1, x_2, x_3, x_4, x_5, x_26);
+x_29 = lean_whnf(x_1, x_2, x_3, x_4, x_5, x_26);
 if (lean_obj_tag(x_29) == 0)
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 

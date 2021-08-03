@@ -449,7 +449,7 @@ lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_expan
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_mkCtorHeaderAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabModifyOp___lambda__3___closed__1;
 lean_object* l_Std_mkHashMap___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_mkFieldMap___spec__5(lean_object*);
-lean_object* l_Lean_Meta_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_foldlM___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabStruct___spec__3___lambda__1___closed__10;
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_isModifyOp_x3f_match__1(lean_object*);
 static lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_mkCtorHeaderAux___closed__2;
@@ -636,7 +636,7 @@ lean_object* l_Lean_Elab_Term_withFreshMacroScope___rarg(lean_object*, lean_obje
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 static lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructName_throwUnexpectedExpectedType___closed__2;
-lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructSource___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_propagateExpectedType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapM___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_mkStructView___spec__3(lean_object*, lean_object*, lean_object*);
@@ -4467,7 +4467,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_13 = l_Lean_Meta_inferType(x_12, x_5, x_6, x_7, x_8, x_11);
+x_13 = lean_infer_type(x_12, x_5, x_6, x_7, x_8, x_11);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
@@ -4480,7 +4480,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_16 = l_Lean_Meta_whnf(x_14, x_5, x_6, x_7, x_8, x_15);
+x_16 = lean_whnf(x_14, x_5, x_6, x_7, x_8, x_15);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 
@@ -4683,7 +4683,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_50);
-x_51 = l_Lean_Meta_whnf(x_50, x_5, x_6, x_7, x_8, x_49);
+x_51 = lean_whnf(x_50, x_5, x_6, x_7, x_8, x_49);
 if (lean_obj_tag(x_51) == 0)
 {
 uint8_t x_52; 
@@ -4729,7 +4729,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_59 = l_Lean_Meta_inferType(x_58, x_5, x_6, x_7, x_8, x_54);
+x_59 = lean_infer_type(x_58, x_5, x_6, x_7, x_8, x_54);
 if (lean_obj_tag(x_59) == 0)
 {
 lean_object* x_60; lean_object* x_61; lean_object* x_62; 
@@ -4742,7 +4742,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_62 = l_Lean_Meta_whnf(x_60, x_5, x_6, x_7, x_8, x_61);
+x_62 = lean_whnf(x_60, x_5, x_6, x_7, x_8, x_61);
 if (lean_obj_tag(x_62) == 0)
 {
 lean_object* x_63; lean_object* x_64; lean_object* x_65; 
@@ -4971,7 +4971,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_102 = l_Lean_Meta_inferType(x_101, x_5, x_6, x_7, x_8, x_96);
+x_102 = lean_infer_type(x_101, x_5, x_6, x_7, x_8, x_96);
 if (lean_obj_tag(x_102) == 0)
 {
 lean_object* x_103; lean_object* x_104; lean_object* x_105; 
@@ -4984,7 +4984,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_105 = l_Lean_Meta_whnf(x_103, x_5, x_6, x_7, x_8, x_104);
+x_105 = lean_whnf(x_103, x_5, x_6, x_7, x_8, x_104);
 if (lean_obj_tag(x_105) == 0)
 {
 lean_object* x_106; lean_object* x_107; lean_object* x_108; 
@@ -19678,7 +19678,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_32);
-x_33 = l_Lean_Meta_inferType(x_32, x_5, x_6, x_7, x_8, x_9);
+x_33 = lean_infer_type(x_32, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_33) == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; 
@@ -19891,7 +19891,7 @@ lean_inc(x_65);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_77);
-x_78 = l_Lean_Meta_inferType(x_77, x_5, x_6, x_65, x_8, x_9);
+x_78 = lean_infer_type(x_77, x_5, x_6, x_65, x_8, x_9);
 if (lean_obj_tag(x_78) == 0)
 {
 lean_object* x_79; lean_object* x_80; lean_object* x_81; 

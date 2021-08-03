@@ -154,7 +154,6 @@ static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___hyg_123
 lean_object* l_Lean_Elab_elabDeriving___lambda__3(lean_object*);
 lean_object* l_Lean_Elab_getOptDerivingClasses___rarg___lambda__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___hyg_1232____closed__1;
-lean_object* l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_4451____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logException___at_Lean_Elab_Command_runLinters___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addMacroStack___at_Lean_Elab_Command_instAddErrorMessageContextCommandElabM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_getOptDerivingClasses___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -220,6 +219,7 @@ static lean_object* l_Lean_Elab_getOptDerivingClasses___rarg___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_elabDeriving___closed__2;
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_getOptDerivingClasses___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_5894____spec__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___hyg_21_(lean_object* x_1) {
 _start:
@@ -3128,7 +3128,7 @@ block_66:
 {
 lean_object* x_33; lean_object* x_34; 
 x_33 = l_Lean_Elab_elabDeriving___closed__11;
-x_34 = l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_4451____spec__1(x_32, x_33);
+x_34 = l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_5894____spec__1(x_32, x_33);
 lean_dec(x_32);
 if (lean_obj_tag(x_34) == 0)
 {

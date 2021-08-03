@@ -462,7 +462,7 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalConstNoOverloadCore___at_Lean_Elab_Command_elabExport___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabNamespace___closed__2;
 uint8_t l_Lean_Syntax_isNone(lean_object*);
-lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_expandInCmd___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabNamespace(lean_object*);
 lean_object* l_Lean_Elab_Command_elabEvalUnsafe___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -9936,7 +9936,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_26);
-x_27 = l_Lean_Meta_inferType(x_26, x_6, x_7, x_8, x_9, x_25);
+x_27 = lean_infer_type(x_26, x_6, x_7, x_8, x_9, x_25);
 if (lean_obj_tag(x_27) == 0)
 {
 uint8_t x_28; 
@@ -12815,7 +12815,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_27);
-x_33 = l_Lean_Meta_inferType(x_27, x_8, x_9, x_10, x_11, x_31);
+x_33 = lean_infer_type(x_27, x_8, x_9, x_10, x_11, x_31);
 if (lean_obj_tag(x_33) == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; uint8_t x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
@@ -13728,7 +13728,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_29);
-x_36 = l_Lean_Meta_inferType(x_29, x_8, x_9, x_10, x_11, x_33);
+x_36 = lean_infer_type(x_29, x_8, x_9, x_10, x_11, x_33);
 if (lean_obj_tag(x_36) == 0)
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; uint8_t x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 

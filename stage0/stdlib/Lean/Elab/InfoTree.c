@@ -349,7 +349,7 @@ static lean_object* l___private_Lean_Elab_InfoTree_0__Lean_Elab_formatStxRange_f
 lean_object* l_Lean_Elab_getResetInfoTrees___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_withSaveInfoContext___spec__4___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_withInfoTreeContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_enableInfoTree___rarg___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_CompletionInfo_format___closed__2;
 lean_object* l_Std_PersistentArray_findSomeMAux___at_Lean_Elab_InfoTree_findInfo_x3f___spec__2(lean_object*, lean_object*);
@@ -3200,7 +3200,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_1);
-x_40 = l_Lean_Meta_inferType(x_1, x_4, x_5, x_6, x_7, x_39);
+x_40 = lean_infer_type(x_1, x_4, x_5, x_6, x_7, x_39);
 if (lean_obj_tag(x_40) == 0)
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
@@ -3860,7 +3860,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_1);
-x_9 = l_Lean_Meta_inferType(x_1, x_4, x_5, x_6, x_7, x_8);
+x_9 = lean_infer_type(x_1, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 

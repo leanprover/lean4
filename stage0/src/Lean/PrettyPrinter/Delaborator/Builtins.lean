@@ -5,21 +5,31 @@ Authors: Sebastian Ullrich
 -/
 
 import Lean.PrettyPrinter.Delaborator.Basic
+import Lean.PrettyPrinter.Delaborator.SubExpr
+import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
 import Lean.Parser
 
 namespace Lean.PrettyPrinter.Delaborator
 open Lean.Meta
 open Lean.Parser.Term
+open SubExpr
+
+def maybeAddBlockImplicit (ident : Syntax) : DelabM Syntax := do
+  if ← getPPOption getPPAnalysisBlockImplicit then `(@$ident:ident) else ident
+
+def unfoldMDatas : Expr → Expr
+  | Expr.mdata _ e _ => unfoldMDatas e
+  | e                => e
 
 @[builtinDelab fvar]
 def delabFVar : Delab := do
 let Expr.fvar id _ ← getExpr | unreachable!
 try
   let l ← getLocalDecl id
-  pure $ mkIdent l.userName
+  maybeAddBlockImplicit (mkIdent l.userName)
 catch _ =>
   -- loose free variable, use internal name
-  pure $ mkIdent id
+  maybeAddBlockImplicit $ mkIdent id
 
 -- loose bound variable, use pseudo syntax
 @[builtinDelab bvar]
@@ -55,45 +65,76 @@ private def unresolveQualifiedName (ns : Name) (c : Name) : DelabM Name := do
   guard $ c' != c && !c'.isAnonymous && (!c'.isAtomic || !isProtected env c)
   pure c'
 
-private def unresolveUsingNamespace (c : Name) : Name → DelabM Name
-  | ns@(Name.str p _ _) => unresolveQualifiedName ns c <|> unresolveUsingNamespace c p
-  | _ => failure
+private def checkForNameClash (nsOrig nsPfix candidate : Name) : DelabM Unit := do
+  -- Suppose the current namespace is `Foo.Bar`, we are delaborating `Foo.rig`, and `Foo.Bar.rig`
+  -- already exists. This function will detect the clash and fail.
+  let rest := nsOrig.components.drop nsPfix.components.length
+  let mut nsPfix := nsPfix
+  for component in rest do
+    nsPfix := nsPfix ++ component
+    let candidate := nsPfix ++ candidate
+    -- TODO: what are the elab rules for 'protected' declarations?
+    guard ((← getEnv).find? candidate |>.isNone)
+
+private partial def unresolveUsingNamespace (c ns : Name) : DelabM Name := core ns where
+  core
+    | nsPfix@(Name.str p _ _) =>
+      (do let candidate ← unresolveQualifiedName nsPfix c; checkForNameClash ns nsPfix candidate; candidate)
+      <|> core p
+    | _ => failure
 
 private def unresolveOpenDecls (c : Name) : List OpenDecl → DelabM Name
   | [] => failure
   | OpenDecl.simple ns exs :: openDecls =>
     let c' := c.replacePrefix ns Name.anonymous
-    if c' != c && exs.elem c' then unresolveOpenDecls c openDecls
-    else
-      unresolveQualifiedName ns c <|> unresolveOpenDecls c openDecls
+    if c' == c || exs.elem c' then unresolveOpenDecls c openDecls
+    else unresolveQualifiedName ns c <|> unresolveOpenDecls c openDecls
   | OpenDecl.explicit openedId resolvedId :: openDecls =>
-    guard (c == resolvedId) *> pure openedId <|> unresolveOpenDecls c openDecls
+    (guard (c == resolvedId) *> pure openedId) <|> unresolveOpenDecls c openDecls
 
 -- NOTE: not a registered delaborator, as `const` is never called (see [delab] description)
 def delabConst : Delab := do
   let Expr.const c ls _ ← getExpr | unreachable!
   let c₀ := c
-  let mut c ← if (← getPPOption getPPFullNames) then pure c else
-    let ctx ← read
+  let ctx ← read
+  let maybeAddRoot (c : Name) : DelabM Name := do
+    (do checkForNameClash ctx.currNamespace Name.anonymous c
+        pure c)
+    <|>
+    (do guard (c == c₀)
+        guard (! (← read).inPattern)
+        guard ((← getEnv).contains c)
+        pure (`_root_ ++ c))
+    <|> (pure c₀)
+
+  let mut c ← if (← getPPOption getPPFullNames) then maybeAddRoot c else
     let env ← getEnv
     let as := getRevAliases env c
     -- might want to use a more clever heuristic such as selecting the shortest alias...
     let c := as.headD c
-    unresolveUsingNamespace c ctx.currNamespace <|> unresolveOpenDecls c ctx.openDecls <|> pure c
+    unresolveUsingNamespace c ctx.currNamespace
+      <|> unresolveOpenDecls c ctx.openDecls
+      <|> maybeAddRoot c
+
   unless (← getPPOption getPPPrivateNames) do
     c := (privateToUserName? c).getD c
+
   let ppUnivs ← getPPOption getPPUniverses
-  if ls.isEmpty || !ppUnivs then
-    if (← getLCtx).usesUserName c then
-      -- `c` is also a local declaration
-      if c == c₀ then
-        -- `c` is the fully qualified named. So, we append the `_root_` prefix
-        c := `_root_ ++ c
-      else
-        c := c₀
-    return mkIdent c
-  else
-    `($(mkIdent c).{$[$(ls.toArray.map quote)],*})
+
+  let stx ←
+    if ls.isEmpty || !ppUnivs then
+      if (← getLCtx).usesUserName c then
+        -- `c` is also a local declaration
+        if c == c₀ && !(← read).inPattern then
+          -- `c` is the fully qualified named. So, we append the `_root_` prefix
+          c := `_root_ ++ c
+        else
+          c := c₀
+      return mkIdent c
+    else
+      `($(mkIdent c).{$[$(ls.toArray.map quote)],*})
+
+  maybeAddBlockImplicit stx
 
 inductive ParamKind where
   | explicit
@@ -101,100 +142,165 @@ inductive ParamKind where
   | implicit (name : Name) (defVal : Option Expr)
 
 /-- Return array with n-th element set to kind of n-th parameter of `e`. -/
-def getParamKinds (e : Expr) : MetaM (Array ParamKind) := do
-  let t ← inferType e
-  forallTelescopeReducing t fun params _ =>
-    params.mapM fun param => do
-      let l ← getLocalDecl param.fvarId!
-      match l.type.getOptParamDefault? with
-      | some val => pure $ ParamKind.implicit l.userName val
-      | _ =>
-        if l.type.isAutoParam || !l.binderInfo.isExplicit then
-          pure $ ParamKind.implicit l.userName none
-        else
-          pure ParamKind.explicit
+partial def getParamKinds : DelabM (Array ParamKind) := do
+  let e ← getExpr
+  try
+    withTransparency TransparencyMode.all do
+      forallTelescopeArgs e.getAppFn e.getAppArgs fun params _ => do
+        params.mapM fun param => do
+          let l ← getLocalDecl param.fvarId!
+          match l.type.getOptParamDefault? with
+          | some val => pure $ ParamKind.implicit l.userName val
+          | _ =>
+            if l.type.isAutoParam || !l.binderInfo.isExplicit then
+              pure $ ParamKind.implicit l.userName none
+            else
+              pure ParamKind.explicit
+  catch _ => pure #[] -- recall that expr may be nonsensical
+where
+  forallTelescopeArgs f args k := do
+    forallBoundedTelescope (← inferType f) args.size fun xs b =>
+      if xs.isEmpty || xs.size == args.size then
+        -- we still want to consider optParams
+        forallTelescopeReducing b fun ys b => k (xs ++ ys) b
+      else
+        forallTelescopeArgs (mkAppN f $ args.shrink xs.size) (args.extract xs.size args.size) fun ys b =>
+          k (xs ++ ys) b
 
 @[builtinDelab app]
-def delabAppExplicit : Delab := do
+def delabAppExplicit : Delab := whenPPOption getPPExplicit do
+  let paramKinds ← getParamKinds
   let (fnStx, argStxs) ← withAppFnArgs
     (do
       let fn ← getExpr
       let stx ← if fn.isConst then delabConst else delab
-      let paramKinds ← liftM <| getParamKinds fn <|> pure #[]
-      let stx ← if paramKinds.any (fun | ParamKind.explicit => false | _ => true) then `(@$stx) else pure stx
+      let needsExplicit := paramKinds.any (fun | ParamKind.explicit => false | _ => true) && stx.getKind != `Lean.Parser.Term.explicit
+      let stx ← if needsExplicit then `(@$stx) else pure stx
       pure (stx, #[]))
     (fun ⟨fnStx, argStxs⟩ => do
-      let argStx ← delab
+      let argStx ← if ← getPPOption getPPAnalysisHole then `(_) else delab
       pure (fnStx, argStxs.push argStx))
   Syntax.mkApp fnStx argStxs
 
-def shouldShowMotive (motive : Expr) (opts : Options) : Bool := 
+def shouldShowMotive (motive : Expr) (opts : Options) : MetaM Bool := do
   getPPMotivesAll opts
-  || (getPPMotivesPi opts && returnsPi motive)
-  || (getPPMotivesNonConst opts && isNonConstFun motive)
-  where
-    returnsPi (motive : Expr) : Bool := do
-      match motive with
-      | Expr.lam name d b _ => returnsPi b
-      | Expr.forallE .. => true
-      | _ => false
-  
-    isNonConstFun (motive : Expr) : Bool := do
-      match motive with
-      | Expr.lam name d b _ => isNonConstFun b
-      | _ => motive.hasLooseBVars
+  <||> (← getPPMotivesPi opts <&&> returnsPi motive)
+  <||> (← getPPMotivesNonConst opts <&&> isNonConstFun motive)
+
+def isRegularApp : DelabM Bool := do
+  let e ← getExpr
+  if not (unfoldMDatas e.getAppFn).isConst then return false
+  if ← withNaryFn (getPPOption getPPUniverses <||> getPPOption getPPAnalysisBlockImplicit) then return false
+  for i in [:e.getAppNumArgs] do
+    if ← withNaryArg i (getPPOption getPPAnalysisNamedArg) then return false
+  return true
+
+def unexpandRegularApp (stx : Syntax) : Delab := do
+  let Expr.const c .. ← pure (← getExpr).getAppFn | unreachable!
+  let fs ← appUnexpanderAttribute.getValues (← getEnv) c
+  fs.firstM fun f =>
+    match f stx |>.run () with
+    | EStateM.Result.ok stx _ => pure stx
+    | _ => failure
+
+-- abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β
+-- abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a
+def unexpandCoe (stx : Syntax) : Delab := whenPPOption getPPCoercions do
+  if not (← isCoe (← getExpr)) then failure
+  let e ← getExpr
+  match stx with
+  | `($fn $arg)   => arg
+  | `($fn $args*) => `($(args.get! 0) $(args.eraseIdx 0)*)
+  | _             => failure
+
+def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStructureInstances do
+  let env ← getEnv
+  let e ← getExpr
+  let some s ← pure $ e.isConstructorApp? env | failure
+  guard $ isStructure env s.induct;
+  /- If implicit arguments should be shown, and the structure has parameters, we should not
+     pretty print using { ... }, because we will not be able to see the parameters. -/
+  let fieldNames := getStructureFields env s.induct
+  let mut fields := #[]
+  guard $ fieldNames.size == stx[1].getNumArgs
+  for idx in [:fieldNames.size] do
+    let field ← `(structInstField|$(mkIdent <| fieldNames.get! idx):ident := $(stx[1][idx]):term)
+    fields := fields.push field
+  let lastField := fields.back
+  fields := fields.pop
+  let tyStx ← withType do
+    if (← getPPOption getPPStructureInstanceType) then delab >>= pure ∘ some else pure none
+  `({ $[$fields, ]* $lastField $[: $tyStx]? })
 
 @[builtinDelab app]
-def delabAppImplicit : Delab := whenNotPPOption getPPExplicit do
+def delabAppImplicit : Delab := do
+  -- TODO: always call the unexpanders, make them guard on the right # args?
+  let paramKinds ← getParamKinds
+  if ← getPPOption getPPExplicit then
+    if paramKinds.any (fun | ParamKind.explicit => false | _ => true) then failure
+
   let (fnStx, _, argStxs) ← withAppFnArgs
     (do
       let fn ← getExpr
       let stx ← if fn.isConst then delabConst else delab
-      let paramKinds ← liftM (getParamKinds fn <|> pure #[])
       pure (stx, paramKinds.toList, #[]))
     (fun (fnStx, paramKinds, argStxs) => do
       let arg ← getExpr
       let opts ← getOptions
       let mkNamedArg (name : Name) (argStx : Syntax) : DelabM Syntax := do
         `(Parser.Term.namedArgument| ($(← mkIdent name):ident := $argStx:term))
-      let stx ← delab
-      let argStx? : Option Syntax ← match paramKinds with
-        | [ParamKind.implicit _ (some v)] => 
-          if !v.hasLooseBVars && v == arg then none else stx
-        | ParamKind.implicit name none :: _  => do
-          if name == `motive && shouldShowMotive arg opts 
-          then mkNamedArg name stx
-          else none
-        | _ => some stx
+      let argStx? : Option Syntax ←
+        if ← getPPOption getPPAnalysisSkip then pure none
+        else if ← getPPOption getPPAnalysisHole then `(_)
+        else
+          match paramKinds with
+          | [ParamKind.implicit _ (some v)] =>
+            if !v.hasLooseBVars && v == arg then none else delab
+          | ParamKind.implicit name none :: _  =>
+            if ← getPPOption getPPAnalysisNamedArg <||> (name == `motive <&&> shouldShowMotive arg opts)
+            then mkNamedArg name (← delab)
+            else none
+          | _ => delab
       let argStxs := match argStx? with
         | none => argStxs
         | some stx => argStxs.push stx
       pure (fnStx, paramKinds.tailD [], argStxs))
-  Syntax.mkApp fnStx argStxs
+  let stx := Syntax.mkApp fnStx argStxs
+
+  if ← isRegularApp then
+    (guard (← getPPOption getPPNotation) *> unexpandRegularApp stx)
+    <|> (guard (← getPPOption getPPStructureInstances) *> unexpandStructureInstance stx)
+    <|> (guard (← getPPOption getPPNotation) *> unexpandCoe stx)
+    <|> pure stx
+  else pure stx
 
 /-- State for `delabAppMatch` and helpers. -/
 structure AppMatchState where
-  info      : MatcherInfo
-  matcherTy : Expr
-  params    : Array Expr := #[]
-  motive    : Option (Syntax × Expr) := none
-  discrs    : Array Syntax := #[]
-  varNames  : Array (Array Name) := #[]
-  rhss      : Array Syntax := #[]
+  info        : MatcherInfo
+  matcherTy   : Expr
+  params      : Array Expr := #[]
+  motive      : Option (Syntax × Expr) := none
+  motiveNamed : Bool := false
+  discrs      : Array Syntax := #[]
+  varNames    : Array (Array Name) := #[]
+  rhss        : Array Syntax := #[]
   -- additional arguments applied to the result of the `match` expression
-  moreArgs  : Array Syntax := #[]
+  moreArgs    : Array Syntax := #[]
 /--
   Extract arguments of motive applications from the matcher type.
   For the example below: `#[#[`([])], #[`(a::as)]]` -/
 private partial def delabPatterns (st : AppMatchState) : DelabM (Array (Array Syntax)) :=
-  withReader (fun ctx => { ctx with inPattern := true }) do
+  withReader (fun ctx => { ctx with inPattern := true, optionsPerPos := {} }) do
     let ty ← instantiateForall st.matcherTy st.params
     forallTelescope ty fun params _ => do
       -- skip motive and discriminators
-      let alts := Array.ofSubarray $ params[1 + st.discrs.size:]
+      let alts := Array.ofSubarray params[1 + st.discrs.size:]
       alts.mapIdxM fun idx alt => do
         let ty ← inferType alt
-        withReader ({ · with expr := ty }) $
+        -- TODO: this is a hack; we are accessing the expression out-of-sync with the position
+        -- Currently, we reset `optionsPerPos` at the beginning of `delabPatterns` to avoid
+        -- incorrectly considering annotations.
+        withTheReader SubExpr ({ · with expr := ty }) $
           usingNames st.varNames[idx] do
             withAppFnArgs (pure #[]) (fun pats => do pure $ pats.push (← delab))
 where
@@ -237,7 +343,7 @@ where
             mkLambdaFVars xs (mkApp e (mkConst ``Unit.unit))
           else
             mkLambdaFVars xs (mkAppN e xs)
-        withReader (fun ctx => { ctx with expr := e }) visitLambda
+        withTheReader SubExpr (fun ctx => { ctx with expr := e }) visitLambda
 
 /--
   Delaborate applications of "matchers" such as
@@ -262,8 +368,9 @@ def delabAppMatch : Delab := whenPPOption getPPNotation do
          -- store motive argument separately
          let lamMotive ← getExpr
          let piMotive ← lambdaTelescope lamMotive fun xs body => mkForallFVars xs body
-         let piStx ← withReader (fun cfg => { cfg with expr := piMotive }) delab
-         pure { st with motive := (piStx, lamMotive) }
+         let piStx ← withTheReader SubExpr (fun cfg => { cfg with expr := piMotive }) delab
+         let named ← getPPOption getPPAnalysisNamedArg
+         pure { st with motive := (piStx, lamMotive), motiveNamed := named }
       else if st.discrs.size < st.info.numDiscrs then
         pure { st with discrs := st.discrs.push (← delab) }
       else if st.rhss.size < st.info.altNumParams.size then
@@ -290,7 +397,8 @@ def delabAppMatch : Delab := whenPPOption getPPNotation do
     let stx ← do
       let (piStx, lamMotive) := st.motive.get!
       let opts ← getOptions
-      if shouldShowMotive lamMotive opts then
+      -- TODO: disable the match if other implicits are needed?
+      if ← st.motiveNamed <||> shouldShowMotive lamMotive opts then
         `(match $[$st.discrs:term],* : $piStx with $[| $pats,* => $st.rhss]*)
       else
         `(match $[$st.discrs:term],* with $[| $pats,* => $st.rhss]*)
@@ -308,13 +416,12 @@ def delabMData : Delab := do
     -- only interpret `pp.` values by default
     let Expr.mdata m _ _ ← getExpr | unreachable!
     let mut posOpts := (← read).optionsPerPos
-    let pos := (← read).pos
+    let pos ← getPos
     for (k, v) in m do
       if (`pp).isPrefixOf k then
         let opts := posOpts.find? pos |>.getD {}
         posOpts := posOpts.insert pos (opts.insert k v)
-    withReader ({ · with optionsPerPos := posOpts }) do
-      withMDataExpr delab
+    withReader ({ · with optionsPerPos := posOpts }) $ withMDataExpr $ delab
 
 /--
 Check for a `Syntax.ident` of the given name anywhere in the tree.
@@ -331,7 +438,7 @@ Return `true` iff current binder should be merged with the nested
 binder, if any, into a single binder group:
 * both binders must have same binder info and domain
 * they cannot be inst-implicit (`[a b : A]` is not valid syntax)
-* `pp.binder_types` must be the same value for both terms
+* `pp.binderTypes` must be the same value for both terms
 * prefer `fun a b` over `fun (a b)`
 -/
 private def shouldGroupWithNext : DelabM Bool := do
@@ -369,14 +476,23 @@ def delabLam : Delab :=
     let stxT ← withBindingDomain delab
     let ppTypes ← getPPOption getPPBinderTypes
     let expl ← getPPOption getPPExplicit
+    let usedDownstream ← curNames.any (fun n => hasIdent n.getId stxBody)
+
     -- leave lambda implicit if possible
+    -- TODO: for now we just always block implicit lambdas when delaborating. We can revisit.
+    -- Note: the current issue is that it requires state, i.e. if *any* previous binder was implicit,
+    -- it doesn't seem like we can leave a subsequent binder implicit.
+    let blockImplicitLambda := true
+    /-
     let blockImplicitLambda := expl ||
       e.binderInfo == BinderInfo.default ||
       -- Note: the following restriction fixes many issues with roundtripping,
       -- but this condition may still not be perfectly in sync with the elaborator.
       e.binderInfo == BinderInfo.instImplicit ||
       Elab.Term.blockImplicitLambda stxBody ||
-      curNames.any (fun n => hasIdent n.getId stxBody);
+      usedDownstream
+    -/
+
     if !blockImplicitLambda then
       pure stxBody
     else
@@ -393,7 +509,9 @@ def delabLam : Delab :=
         | BinderInfo.default,     false  => pure curNames.back  -- here `curNames.size == 1`
         | BinderInfo.implicit,    true   => `(funBinder| {$curNames* : $stxT})
         | BinderInfo.implicit,    false  => `(funBinder| {$curNames*})
-        | BinderInfo.instImplicit, _     => `(funBinder| [$curNames.back : $stxT])  -- here `curNames.size == 1`
+        | BinderInfo.instImplicit, _     =>
+          if usedDownstream then `(funBinder| [$curNames.back : $stxT])  -- here `curNames.size == 1`
+          else  `(funBinder| [$stxT])
         | _                      , _     => unreachable!;
       match stxBody with
       | `(fun $binderGroups* => $stxBody) => `(fun $group $binderGroups* => $stxBody)
@@ -432,12 +550,14 @@ def delabForall : Delab :=
 def delabLetE : Delab := do
   let Expr.letE n t v b _ ← getExpr | unreachable!
   let n ← getUnusedName n b
-  let stxT ← descend t 0 delab
   let stxV ← descend v 1 delab
   let stxB ← withLetDecl n t v fun fvar =>
     let b := b.instantiate1 fvar
     descend b 2 delab
-  `(let $(mkIdent n) : $stxT := $stxV; $stxB)
+  if ← getPPOption getPPLetVarTypes <||> getPPOption getPPAnalysisLetVarType then
+    let stxT ← descend t 0 delab
+    `(let $(mkIdent n) : $stxT := $stxV; $stxB)
+  else `(let $(mkIdent n) := $stxV; $stxB)
 
 @[builtinDelab lit]
 def delabLit : Delab := do
@@ -507,119 +627,9 @@ def delabProjectionApp : Delab := whenPPOption getPPStructureProjections $ do
   let appStx ← withAppArg delab
   `($(appStx).$(mkIdent f):ident)
 
-@[builtinDelab app]
-def delabStructureInstance : Delab := whenPPOption getPPStructureInstances do
-  let env ← getEnv
-  let e ← getExpr
-  let some s ← pure $ e.isConstructorApp? env | failure
-  guard $ isStructure env s.induct;
-  /- If implicit arguments should be shown, and the structure has parameters, we should not
-     pretty print using { ... }, because we will not be able to see the parameters. -/
-  let explicit ← getPPOption getPPExplicit
-  guard !(explicit && s.numParams > 0)
-  let fieldNames := getStructureFields env s.induct
-  let (_, fields) ← withAppFnArgs (pure (0, #[])) fun ⟨idx, fields⟩ => do
-      if idx < s.numParams then
-        pure (idx + 1, fields)
-      else
-        let val ← delab
-        let field ← `(structInstField|$(mkIdent <| fieldNames.get! (idx - s.numParams)):ident := $val)
-        pure (idx + 1, fields.push field)
-  let lastField := fields[fields.size - 1]
-  let fields := fields.pop
-  let ty ←
-    if (← getPPOption getPPStructureInstanceType) then
-      let ty ← inferType e
-      -- `ty` is not actually part of `e`, but since `e` must be an application or constant, we know that
-      -- index 2 is unused.
-      pure <| some (← descend ty 2 delab)
-    else pure <| none
-  `({ $[$fields, ]* $lastField $[: $ty]? })
-
-@[builtinDelab app]
-def delabAppWithUnexpander : Delab := whenPPOption getPPNotation do
-  let Expr.const c _ _ ← pure (← getExpr).getAppFn | failure
-  let fs@(f::_) ← pure <| appUnexpanderAttribute.getValues (← getEnv) c | failure
-  /-
-  Note: the following example will take exponential time:
-  ```
-  def foo (k : Nat → Nat) (n : Nat) : Nat := k (n+1)
-
-  @[appUnexpander foo] def unexpandFooApp : Lean.PrettyPrinter.Unexpander
-    | `(foo $k $a) => `(My.foo $k $a)
-    | _ => throw ()
-
-  #check foo $ foo $ foo $ foo $ foo $ foo $ foo id -- exp-time
-  ```
-  -/
-  let stx ← delabAppImplicit
-  match stx with
-  | `($cPP:ident $args*) => do go fs stx
-  | `($cPP:ident) => do go fs stx
-  | _ => pure stx
-where
-  go fs stx := fs.firstM fun f =>
-    match f stx |>.run () with
-    | EStateM.Result.ok stx _ => pure stx
-    | _ => failure
-
-@[builtinDelab app.Prod.mk]
-def delabTuple : Delab := whenPPOption getPPNotation do
-  let e ← getExpr
-  guard $ e.getAppNumArgs == 4
-  let a ← withAppFn $ withAppArg delab
-  let b ← withAppArg delab
-  match b with
-  | `(($b, $bs,*)) => `(($a, $b, $bs,*))
-  | _              => `(($a, $b))
-
--- abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β
-@[builtinDelab app.coe]
-def delabCoe : Delab := whenPPOption getPPCoercions do
-  let e ← getExpr
-  guard $ e.getAppNumArgs >= 4
-  -- delab as application, then discard function
-  let stx ← delabAppImplicit
-  match stx with
-  | `($fn $arg)   => arg
-  | `($fn $args*) => `($(args.get! 0) $(args.eraseIdx 0)*)
-  | _             => failure
-
--- abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a
-@[builtinDelab app.coeFun]
-def delabCoeFun : Delab := delabCoe
-
-@[builtinDelab app.List.nil]
-def delabNil : Delab := whenPPOption getPPNotation do
-  guard $ (← getExpr).getAppNumArgs == 1
-  `([])
-
-@[builtinDelab app.List.cons]
-def delabConsList : Delab := whenPPOption getPPNotation do
-  guard $ (← getExpr).getAppNumArgs == 3
-  let x ← withAppFn (withAppArg delab)
-  match (← withAppArg delab) with
-  | `([])      => `([$x])
-  | `([$xs,*]) => `([$x, $xs,*])
-  | _          => failure
-
-@[builtinDelab app.List.toArray]
-def delabListToArray : Delab := whenPPOption getPPNotation do
-  guard $ (← getExpr).getAppNumArgs == 2
-  match (← withAppArg delab) with
-  | `([$xs,*]) => `(#[$xs,*])
-  | _         => failure
-
-@[builtinDelab app.ite]
-def delabIte : Delab := whenPPOption getPPNotation do
-  guard $ (← getExpr).getAppNumArgs == 5
-  let c ← withAppFn $ withAppFn $ withAppFn $ withAppArg delab
-  let t ← withAppFn $ withAppArg delab
-  let e ← withAppArg delab
-  `(if $c then $t else $e)
-
 @[builtinDelab app.dite]
 def delabDIte : Delab := whenPPOption getPPNotation do
+  -- Note: we keep this as a delaborator for now because it actually accesses the expression.
   guard $ (← getExpr).getAppNumArgs == 5
   let c ← withAppFn $ withAppFn $ withAppFn $ withAppArg delab
   let (t, h) ← withAppFn $ withAppArg $ delabBranch none
@@ -636,6 +646,8 @@ where
 
 @[builtinDelab app.namedPattern]
 def delabNamedPattern : Delab := do
+  -- Note: we keep this as a delaborator because it accesses the DelabM context
+  guard (← read).inPattern
   guard $ (← getExpr).getAppNumArgs == 3
   let x ← withAppFn $ withAppArg delab
   let p ← withAppArg delab
@@ -646,6 +658,7 @@ partial def delabDoElems : DelabM (List Syntax) := do
   let e ← getExpr
   if e.isAppOfArity `Bind.bind 6 then
     -- Bind.bind.{u, v} : {m : Type u → Type v} → [self : Bind m] → {α β : Type u} → m α → (α → m β) → m β
+    let α := e.getAppArgs[2]
     let ma ← withAppFn $ withAppArg delab
     withAppArg do
       match (← getExpr) with
@@ -653,8 +666,10 @@ partial def delabDoElems : DelabM (List Syntax) := do
         withBindingBodyUnusedName fun n => do
           if body.hasLooseBVars then
             prependAndRec `(doElem|let $n:term ← $ma:term)
-          else
+          else if α.isConstOf `Unit || α.isConstOf `PUnit then
             prependAndRec `(doElem|$ma:term)
+          else
+            prependAndRec `(doElem|let _ ← $ma:term)
       | _ => failure
   else if e.isLet then
     let Expr.letE n t v b _ ← getExpr | unreachable!
@@ -677,24 +692,6 @@ def delabDo : Delab := whenPPOption getPPNotation do
   let elems ← delabDoElems
   let items ← elems.toArray.mapM (`(doSeqItem|$(·):doElem))
   `(do $items:doSeqItem*)
-
-@[builtinDelab app.sorryAx]
-def delabSorryAx : Delab := whenPPOption getPPNotation do
-  guard <| (← getExpr).isAppOfArity ``sorryAx 2
-  `(sorry)
-
-@[builtinDelab app.Eq.ndrec]
-def delabEqNDRec : Delab := whenPPOption getPPNotation do
-  guard <| (← getExpr).getAppNumArgs == 6
-  -- Eq.ndrec.{u1, u2} : {α : Sort u2} → {a : α} → {motive : α → Sort u1} → (m : motive a) → {b : α} → (h : a = b) → motive b
-  let m ← withAppFn <| withAppFn <| withAppArg delab
-  let h ← withAppArg delab
-  `($h ▸ $m)
-
-@[builtinDelab app.Eq.rec]
-def delabEqRec : Delab :=
-  -- relevant signature parts as in `Eq.ndrec`
-  delabEqNDRec
 
 def reifyName : Expr → DelabM Name
   | Expr.const ``Lean.Name.anonymous .. => Name.anonymous

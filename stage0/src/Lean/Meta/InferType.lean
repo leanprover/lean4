@@ -178,6 +178,7 @@ private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
       modifyInferTypeCache fun c => c.insert e type
     pure type
 
+@[export lean_infer_type]
 def inferTypeImp (e : Expr) : MetaM Expr :=
   let rec infer : Expr → MetaM Expr
     | Expr.const c [] _        => inferConstType c []
@@ -193,10 +194,7 @@ def inferTypeImp (e : Expr) : MetaM Expr :=
     | e@(Expr.forallE _ _ _ _) => checkInferTypeCache e (inferForallType e)
     | e@(Expr.lam _ _ _ _)     => checkInferTypeCache e (inferLambdaType e)
     | e@(Expr.letE _ _ _ _ _)  => checkInferTypeCache e (inferLambdaType e)
-  withTransparency TransparencyMode.default (infer e)
-
-@[builtinInit] def setInferTypeRef : IO Unit :=
-inferTypeRef.set inferTypeImp
+  withIncRecDepth <| withTransparency TransparencyMode.default (infer e)
 
 /--
   Return `LBool.true` if given level is always equivalent to universe level zero.

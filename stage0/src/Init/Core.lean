@@ -21,8 +21,7 @@ def inline {α : Sort u} (a : α) : α := a
   The value is then stored and not recomputed for all further accesses. -/
 -- NOTE: the runtime has special support for the `Thunk` type to implement this behavior
 structure Thunk (α : Type u) : Type u where
-  -- TODO: make private
-  fn : Unit → α
+  private fn : Unit → α
 
 attribute [extern "lean_mk_thunk"] Thunk.mk
 

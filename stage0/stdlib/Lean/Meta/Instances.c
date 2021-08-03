@@ -34,7 +34,6 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_484____c
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_instanceExtension___closed__10;
-lean_object* l_Lean_throwError___at_Lean_Meta_whnf___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Instances_discrTree___default___closed__1;
 lean_object* l_Lean_Meta_instToFormatInstanceEntry_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_484____spec__4___lambda__2(lean_object*, lean_object*, lean_object*);
@@ -295,7 +294,7 @@ lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_getDefau
 static lean_object* l_Lean_Meta_addDefaultInstance___lambda__2___closed__6;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_484____lambda__1___boxed(lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_484____spec__4___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getDefaultInstances___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_addInstanceEntry___spec__1___closed__3;
 lean_object* l_Lean_Meta_withNewMCtxDepth___at___private_Lean_Meta_Instances_0__Lean_Meta_mkInstanceKey___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -312,6 +311,7 @@ static lean_object* l_Lean_Meta_instanceExtension___closed__11;
 lean_object* l_Lean_PersistentEnvExtension_getState___at_Lean_Meta_getGlobalInstancesIndex___spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_268____closed__5;
 lean_object* l_Lean_ScopedEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_268____closed__3;
 lean_object* l_Lean_Meta_addDefaultInstance___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getDefaultInstances(lean_object*);
@@ -1794,7 +1794,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_7 = l_Lean_Meta_inferType(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = lean_infer_type(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
@@ -2821,7 +2821,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_getGlobalInstancesIndex___spec__3___closed__3;
 x_2 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_getGlobalInstancesIndex___spec__3___closed__4;
-x_3 = lean_unsigned_to_nat(224u);
+x_3 = lean_unsigned_to_nat(218u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -6794,7 +6794,7 @@ x_27 = l_Lean_Meta_addDefaultInstance___lambda__2___closed__10;
 x_28 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);
-x_29 = l_Lean_throwError___at_Lean_Meta_whnf___spec__1(x_28, x_5, x_6, x_7, x_8, x_14);
+x_29 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_28, x_5, x_6, x_7, x_8, x_14);
 x_30 = !lean_is_exclusive(x_29);
 if (x_30 == 0)
 {

@@ -3,6 +3,7 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich and Leonardo de Moura
 -/
+import Lean.ImportingFlag
 import Lean.Data.KVMap
 
 namespace Lean
@@ -33,6 +34,8 @@ private constant optionDeclsRef : IO.Ref OptionDecls
 
 @[export lean_register_option]
 def registerOption (name : Name) (decl : OptionDecl) : IO Unit := do
+  unless (← initializing) do
+    throw (IO.userError "failed to register option, options can only be registered during initialization")
   let decls ← optionDeclsRef.get
   if decls.contains name then
     throw $ IO.userError s!"invalid option declaration '{name}', option already exists"
@@ -132,6 +135,9 @@ protected def register [KVMap.Value α] (name : Name) (decl : Lean.Option.Decl �
 
 macro "register_builtin_option" name:ident " : " type:term " := " decl:term : command =>
   `(builtin_initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
+
+macro "register_option" name:ident " : " type:term " := " decl:term : command =>
+  `(initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
 
 end Option
 

@@ -93,19 +93,58 @@ macro "Σ'" xs:explicitBinders ", " b:term : term => expandExplicitBinders `PSig
 macro:35 xs:bracketedExplicitBinders " × " b:term:35  : term => expandBrackedBinders `Sigma xs b
 macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBinders `PSigma xs b
 
+@[appUnexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
+  | `($(_)) => `(())
+  | _       => throw ()
+
+@[appUnexpander List.nil] def unexpandListNil : Lean.PrettyPrinter.Unexpander
+  | `($(_)) => `([])
+  | _       => throw ()
+
+@[appUnexpander List.cons] def unexpandListCons : Lean.PrettyPrinter.Unexpander
+  | `($(_) $x [])      => `([$x])
+  | `($(_) $x [$xs,*]) => `([$x, $xs,*])
+  | _                  => throw ()
+
+@[appUnexpander List.toArray] def unexpandListToArray : Lean.PrettyPrinter.Unexpander
+  | `($(_) [$xs,*]) => `(#[$xs,*])
+  | _               => throw ()
+
+@[appUnexpander Prod.mk] def unexpandProdMk : Lean.PrettyPrinter.Unexpander
+  | `($(_) $x ($y, $ys,*)) => `(($x, $y, $ys,*))
+  | `($(_) $x $y)          => `(($x, $y))
+  | _                      => throw ()
+
+@[appUnexpander ite] def unexpandIte : Lean.PrettyPrinter.Unexpander
+  | `($(_) $c $t $e) => `(if $c then $t else $e)
+  | _                => throw ()
+
+@[appUnexpander sorryAx] def unexpandSorryAx : Lean.PrettyPrinter.Unexpander
+  | `($(_) _)   => `(sorry)
+  | `($(_) _ _) => `(sorry)
+  | _           => throw ()
+
+@[appUnexpander Eq.ndrec] def unexpandEqNDRec : Lean.PrettyPrinter.Unexpander
+  | `($(_) $m $h) => `($h ▸ $m)
+  | _             => throw ()
+
+@[appUnexpander Eq.rec] def unexpandEqRec : Lean.PrettyPrinter.Unexpander
+  | `($(_) $m $h) => `($h ▸ $m)
+  | _             => throw ()
+
 @[appUnexpander Exists] def unexpandExists : Lean.PrettyPrinter.Unexpander
-  | `(Exists fun $x:ident => ∃ $xs:binderIdent*, $b) => `(∃ $x:ident $xs:binderIdent*, $b)
-  | `(Exists fun $x:ident => $b)                     => `(∃ $x:ident, $b)
-  | `(Exists fun ($x:ident : $t) => $b)              => `(∃ ($x:ident : $t), $b)
-  | _                                                => throw ()
+  | `($(_) fun $x:ident => ∃ $xs:binderIdent*, $b) => `(∃ $x:ident $xs:binderIdent*, $b)
+  | `($(_) fun $x:ident => $b)                     => `(∃ $x:ident, $b)
+  | `($(_) fun ($x:ident : $t) => $b)              => `(∃ ($x:ident : $t), $b)
+  | _                                              => throw ()
 
 @[appUnexpander Sigma] def unexpandSigma : Lean.PrettyPrinter.Unexpander
-  | `(Sigma fun ($x:ident : $t) => $b) => `(($x:ident : $t) × $b)
+  | `($(_) fun ($x:ident : $t) => $b) => `(($x:ident : $t) × $b)
   | _                                  => throw ()
 
 @[appUnexpander PSigma] def unexpandPSigma : Lean.PrettyPrinter.Unexpander
-  | `(PSigma fun ($x:ident : $t) => $b) => `(($x:ident : $t) ×' $b)
-  | _                                   => throw ()
+  | `($(_) fun ($x:ident : $t) => $b) => `(($x:ident : $t) ×' $b)
+  | _                                 => throw ()
 
 syntax "funext " (colGt term:max)+ : tactic
 
@@ -139,7 +178,7 @@ macro_rules
   attribute [instance] C.mk
   ```
 -/
-syntax declModifiers "class " "abbrev " declId bracketedBinder* (":" term)? 
+syntax declModifiers "class " "abbrev " declId bracketedBinder* (":" term)?
   ":=" withPosition(group(colGe term ","?)*) : command
 
 macro_rules

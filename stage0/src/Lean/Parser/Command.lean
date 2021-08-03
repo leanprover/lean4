@@ -94,8 +94,8 @@ def openDecl         := openHiding <|> openRenaming <|> openOnly <|> openSimple
 @[builtinCommandParser] def «open»    := leading_parser "open " >> openDecl
 
 @[builtinCommandParser] def «mutual» := leading_parser "mutual " >> many1 (ppLine >> notSymbol "end" >> commandParser) >> ppDedent (ppLine >> "end")
-@[builtinCommandParser] def «initialize» := leading_parser "initialize " >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
-@[builtinCommandParser] def «builtin_initialize» := leading_parser "builtin_initialize " >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
+@[builtinCommandParser] def «initialize» := leading_parser optional visibility >> "initialize " >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
+@[builtinCommandParser] def «builtin_initialize» := leading_parser optional visibility >> "builtin_initialize " >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
 
 @[builtinCommandParser] def «in»  := trailing_parser " in " >> commandParser
 

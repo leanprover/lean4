@@ -39,7 +39,6 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_69
 lean_object* l_Lean_Meta_tryUnificationHints___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at_Lean_Meta_tryUnificationHints_tryCandidate___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Meta_whnf___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificationHint_decode___closed__1;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_1786_(lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_75_(lean_object*);
@@ -71,7 +70,7 @@ lean_object* l_Lean_Meta_checkpointDefEq___at_Lean_Meta_tryUnificationHints_tryC
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_698____lambda__2___closed__2;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_tryUnificationHints_tryCandidate___spec__3(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkpointDefEq___at_Lean_Meta_tryUnificationHints_tryCandidate___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_isExprDefEqAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_is_expr_def_eq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_DiscrTree_Trie_format___at_Lean_Meta_instToFormatUnificationHints___spec__2___closed__3;
 lean_object* l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_append___rarg(lean_object*, lean_object*);
@@ -295,7 +294,7 @@ lean_object* l_Lean_instInhabitedPersistentEnvExtensionState___rarg(lean_object*
 lean_object* l_Lean_Meta_unificationHintExtension___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_tryUnificationHints_isDefEqPattern(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_map___at_Lean_Meta_instToFormatUnificationHints___spec__3___closed__6;
-lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkpointDefEq___at_Lean_Meta_tryUnificationHints_tryCandidate___spec__4___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_DiscrTree_format___at_Lean_Meta_instToFormatUnificationHints___spec__1___closed__1;
@@ -318,6 +317,7 @@ lean_object* l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at_Le
 static lean_object* l_List_format___at_Lean_Meta_instToFormatUnificationHints___spec__4___closed__9;
 lean_object* l_Lean_ScopedEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_addUnificationHint___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificationHint_decode_match__1(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_format___at_Lean_Meta_instToFormatUnificationHints___spec__1(lean_object*);
@@ -2783,7 +2783,7 @@ x_24 = l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificationHint_
 x_25 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_24);
-x_26 = l_Lean_throwError___at_Lean_Meta_whnf___spec__1(x_25, x_2, x_3, x_4, x_5, x_16);
+x_26 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_25, x_2, x_3, x_4, x_5, x_16);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -3427,7 +3427,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_addUnificationHint___spec__4___closed__3;
 x_2 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_addUnificationHint___spec__4___closed__4;
-x_3 = lean_unsigned_to_nat(224u);
+x_3 = lean_unsigned_to_nat(218u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4593,7 +4593,7 @@ if (x_10 == 0)
 uint8_t x_11; lean_object* x_12; 
 x_11 = 2;
 lean_ctor_set_uint8(x_9, 5, x_11);
-x_12 = l_Lean_Meta_isExprDefEqAux(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_12 = lean_is_expr_def_eq(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_12) == 0)
 {
 uint8_t x_13; 
@@ -4667,7 +4667,7 @@ lean_ctor_set_uint8(x_32, 8, x_28);
 lean_ctor_set_uint8(x_32, 9, x_29);
 lean_ctor_set_uint8(x_32, 10, x_30);
 lean_ctor_set(x_3, 0, x_32);
-x_33 = l_Lean_Meta_isExprDefEqAux(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_33 = lean_is_expr_def_eq(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_33) == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
@@ -4768,7 +4768,7 @@ lean_ctor_set(x_59, 0, x_58);
 lean_ctor_set(x_59, 1, x_43);
 lean_ctor_set(x_59, 2, x_44);
 lean_ctor_set(x_59, 3, x_45);
-x_60 = l_Lean_Meta_isExprDefEqAux(x_1, x_2, x_59, x_4, x_5, x_6, x_7);
+x_60 = lean_is_expr_def_eq(x_1, x_2, x_59, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_60) == 0)
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; 
@@ -4972,7 +4972,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-x_14 = l_Lean_Meta_isExprDefEqAux(x_12, x_13, x_4, x_5, x_6, x_7, x_8);
+x_14 = lean_is_expr_def_eq(x_12, x_13, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; uint8_t x_16; 
@@ -5155,7 +5155,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_14);
-x_43 = l_Lean_Meta_inferType(x_14, x_7, x_8, x_9, x_10, x_11);
+x_43 = lean_infer_type(x_14, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_43) == 0)
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; 
@@ -5375,7 +5375,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_14);
-x_81 = l_Lean_Meta_inferType(x_14, x_7, x_8, x_9, x_10, x_11);
+x_81 = lean_infer_type(x_14, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_81) == 0)
 {
 lean_object* x_82; lean_object* x_83; lean_object* x_84; 
@@ -5649,7 +5649,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_14);
-x_128 = l_Lean_Meta_inferType(x_14, x_7, x_8, x_9, x_10, x_11);
+x_128 = lean_infer_type(x_14, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_128) == 0)
 {
 lean_object* x_129; lean_object* x_130; lean_object* x_131; 

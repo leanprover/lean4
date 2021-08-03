@@ -65,7 +65,7 @@ lean_object* l_Std_mkHashMap___at_Lean_Meta_reduce___spec__1(lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
 static lean_object* l_Lean_Core_withIncRecDepth___at_Lean_Meta_reduce_visit___spec__8___closed__2;
 lean_object* l_Lean_Meta_isProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reduce___closed__1;
 lean_object* l_Lean_Meta_forallTelescope___at_Lean_Meta_reduce_visit___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_pure___at_Lean_Meta_reduce_visit___spec__3(lean_object*);
@@ -1141,7 +1141,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
-x_14 = l_Lean_Meta_whnf(x_1, x_7, x_8, x_9, x_10, x_13);
+x_14 = lean_whnf(x_1, x_7, x_8, x_9, x_10, x_13);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; 

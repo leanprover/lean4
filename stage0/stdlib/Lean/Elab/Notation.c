@@ -196,7 +196,6 @@ static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNo
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___closed__41;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___closed__13;
-lean_object* l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_4451____spec__3(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___closed__88;
 static lean_object* l___regBuiltin_Lean_Elab_Command_expandNotation___closed__1;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___closed__87;
@@ -225,6 +224,7 @@ static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNo
 static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__32;
 static lean_object* l_Lean_Elab_Command_expandNotationItemIntoSyntaxItem___closed__3;
 lean_object* l_Lean_Elab_Command_expandNotation___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_5894____spec__3(size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_isLocalAttrKind___closed__2;
 lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_antiquote_match__1(lean_object*);
 static lean_object* l_Lean_Elab_Command_expandNotationItemIntoSyntaxItem___closed__18;
@@ -8472,7 +8472,7 @@ x_170 = lean_array_get_size(x_9);
 x_171 = lean_usize_of_nat(x_170);
 lean_dec(x_170);
 x_172 = x_9;
-x_173 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_4451____spec__3(x_171, x_3, x_172);
+x_173 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_5894____spec__3(x_171, x_3, x_172);
 x_174 = x_173;
 x_175 = l_Lean_Elab_Command_mkSimpleDelab___closed__11;
 x_176 = l_Array_append___rarg(x_175, x_174);

@@ -1330,7 +1330,7 @@ def isLocalIdent? (stx : Syntax) : TermElabM (Option Expr) :=
 def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM Expr := do
   let cinfo ← getConstInfo constName
   if explicitLevels.length > cinfo.levelParams.length then
-    throwError "too many explicit universe levels"
+    throwError "too many explicit universe levels for '{constName}'"
   else
     let numMissingLevels := cinfo.levelParams.length - explicitLevels.length
     let us ← mkFreshLevelMVars numMissingLevels

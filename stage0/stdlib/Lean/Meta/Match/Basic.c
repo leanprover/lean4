@@ -34,7 +34,6 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_mkSort(lean_object*);
 lean_object* l_Lean_Meta_Match_Pattern_hasExprMVar___boxed(lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Meta_whnf___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_inaccessible_x3f(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -169,7 +168,7 @@ lean_object* l_Lean_LocalDecl_toExpr(lean_object*);
 lean_object* l_Lean_Meta_Match_instantiateAltLHSMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_Problem_toMessageData___lambda__1___closed__5;
 lean_object* l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Meta_Match_Example_replaceFVarId___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_Match_toPattern___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
@@ -232,7 +231,7 @@ lean_object* l_Lean_Meta_Match_withGoalOf(lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_Pattern_toMessageData___closed__6;
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_arrayLit_x3f(lean_object*);
 lean_object* l_Lean_Meta_Match_withGoalOf___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___closed__1;
@@ -245,6 +244,7 @@ lean_object* l_Lean_Meta_withExistingLocalDecls___at_Lean_Meta_Match_Alt_toMessa
 lean_object* l_Lean_throwErrorAt___at_Lean_Meta_Match_Alt_checkAndReplaceFVarId___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Meta_Match_Pattern_applyFVarSubst___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Meta_Match_Alt_applyFVarSubst___spec__1___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentD(lean_object*);
 lean_object* l_Lean_Meta_Match_examplesToMessageData(lean_object*);
 lean_object* l_Lean_Meta_withExistingLocalDecls___at_Lean_Meta_Match_Alt_toMessageData___spec__3(lean_object*);
@@ -5335,7 +5335,7 @@ x_9 = lean_ctor_get(x_5, 3);
 x_10 = l_Lean_replaceRef(x_1, x_9);
 lean_dec(x_9);
 lean_ctor_set(x_5, 3, x_10);
-x_11 = l_Lean_throwError___at_Lean_Meta_whnf___spec__1(x_2, x_3, x_4, x_5, x_6, x_7);
+x_11 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_5);
 return x_11;
 }
@@ -5370,7 +5370,7 @@ lean_ctor_set(x_21, 4, x_16);
 lean_ctor_set(x_21, 5, x_17);
 lean_ctor_set(x_21, 6, x_18);
 lean_ctor_set(x_21, 7, x_19);
-x_22 = l_Lean_throwError___at_Lean_Meta_whnf___spec__1(x_2, x_3, x_4, x_21, x_6, x_7);
+x_22 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_2, x_3, x_4, x_21, x_6, x_7);
 lean_dec(x_21);
 return x_22;
 }
@@ -5559,7 +5559,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_2);
-x_16 = l_Lean_Meta_inferType(x_2, x_4, x_5, x_6, x_7, x_8);
+x_16 = lean_infer_type(x_2, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
@@ -7112,7 +7112,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_10);
-x_12 = l_Lean_Meta_inferType(x_10, x_2, x_3, x_4, x_5, x_6);
+x_12 = lean_infer_type(x_10, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
@@ -7238,7 +7238,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_38);
-x_40 = l_Lean_Meta_inferType(x_38, x_2, x_3, x_4, x_5, x_6);
+x_40 = lean_infer_type(x_38, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_40) == 0)
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; 
@@ -8243,7 +8243,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_1);
-x_16 = l_Lean_Meta_whnf(x_1, x_2, x_3, x_4, x_5, x_6);
+x_16 = lean_whnf(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; uint8_t x_19; 
@@ -8351,7 +8351,7 @@ x_52 = l_Lean_Meta_Match_Pattern_toMessageData___closed__8;
 x_53 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_53, 0, x_51);
 lean_ctor_set(x_53, 1, x_52);
-x_54 = l_Lean_throwError___at_Lean_Meta_whnf___spec__1(x_53, x_2, x_3, x_4, x_5, x_26);
+x_54 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_53, x_2, x_3, x_4, x_5, x_26);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);

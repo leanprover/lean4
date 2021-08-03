@@ -57,10 +57,6 @@ def getStructureInfo? (env : Environment) (structName : Name) : Option Structure
   | some modIdx => structureExt.getModuleEntries env modIdx |>.binSearch { structName } StructureInfo.lt
   | none        => structureExt.getState env |>.map.find? structName
 
-/-- We mark subobject fields by prefixing them with "_" in the structure's intro rule. -/
-def mkInternalSubobjectFieldName (fieldName : Name) : Name :=
-  fieldName.appendBefore "_"
-
 def getStructureCtor (env : Environment) (constName : Name) : ConstructorVal :=
   match env.find? constName with
   | some (ConstantInfo.inductInfo { isRec := false, ctors := [ctorName], .. }) =>

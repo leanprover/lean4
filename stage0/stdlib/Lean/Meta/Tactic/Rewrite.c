@@ -116,7 +116,7 @@ lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_rewrite___spec__3___boxed(lea
 lean_object* l_Lean_Meta_rewrite_match__4(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_rewrite___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_rewrite___lambda__13___closed__10;
-lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_rewrite___lambda__13___closed__11;
 lean_object* l_Lean_Meta_rewrite___lambda__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
@@ -4071,7 +4071,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_3);
-x_15 = l_Lean_Meta_inferType(x_3, x_8, x_9, x_10, x_11, x_14);
+x_15 = lean_infer_type(x_3, x_8, x_9, x_10, x_11, x_14);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; 

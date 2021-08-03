@@ -578,8 +578,9 @@ private def cache (useCache : Bool) (e r : Expr) : MetaM Expr := do
     | _                        => unreachable!
   return r
 
+@[export lean_whnf]
 partial def whnfImp (e : Expr) : MetaM Expr :=
-  whnfEasyCases e fun e => do
+  withIncRecDepth <| whnfEasyCases e fun e => do
     checkMaxHeartbeats "whnf"
     let useCache ← useWHNFCache e
     match (← cached? useCache e) with
@@ -596,8 +597,6 @@ partial def whnfImp (e : Expr) : MetaM Expr :=
           | some e => whnfImp e
           | none   => cache useCache e e'
 
-@[builtinInit] def setWHNFRef : IO Unit :=
-  whnfRef.set whnfImp
 
 builtin_initialize
   registerTraceClass `Meta.whnf

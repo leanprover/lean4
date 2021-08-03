@@ -92,7 +92,7 @@ static lean_object* l_Lean_Meta_contradictionCore___lambda__2___closed__1;
 lean_object* l_Lean_Meta_contradictionCore(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_contradictionCore___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_instMonadMetaM;
-lean_object* l_Lean_Meta_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
 lean_object* l_Lean_Meta_SavedState_restore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -2186,7 +2186,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_29);
-x_37 = l_Lean_Meta_whnf(x_29, x_36, x_8, x_9, x_10, x_30);
+x_37 = lean_whnf(x_29, x_36, x_8, x_9, x_10, x_30);
 if (lean_obj_tag(x_37) == 0)
 {
 uint8_t x_38; 
@@ -2588,7 +2588,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_29);
-x_133 = l_Lean_Meta_whnf(x_29, x_132, x_8, x_9, x_10, x_30);
+x_133 = lean_whnf(x_29, x_132, x_8, x_9, x_10, x_30);
 if (lean_obj_tag(x_133) == 0)
 {
 lean_object* x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; uint8_t x_138; 

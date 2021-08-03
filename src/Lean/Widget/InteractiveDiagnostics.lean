@@ -105,7 +105,7 @@ def msgToDiagnostic (text : FileMap) (m : Message) : ReaderT RpcSession IO Diagn
     | MessageSeverity.information => DiagnosticSeverity.information
     | MessageSeverity.warning     => DiagnosticSeverity.warning
     | MessageSeverity.error       => DiagnosticSeverity.error
-  let source := "Lean 4 server"
+  let source := "Lean 4"
   let tt ← msgToInteractive m.data
   let ttJson ← toJson <$> rpcEncode tt
   pure {

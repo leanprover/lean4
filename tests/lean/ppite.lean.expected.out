@@ -2,12 +2,12 @@ def f : List Nat → IO Unit :=
 fun xs =>
   List.forM xs
     fun x =>
-      if x == 0 = true then
+      if (x == 0) = true then
         do 
           IO.println "foo"
           IO.println "zero"
       else
-        if x % 2 == 0 = true then
+        if (x % 2 == 0) = true then
           do 
             IO.println x 
             IO.println "even"

@@ -397,7 +397,7 @@ def leadingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesiz
   modify fun st => { st with contPrec := Nat.min (Parser.maxPrec-1) prec }
 
 @[combinatorParenthesizer Lean.Parser.trailingNode]
-def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec _ : Nat) (p : Parenthesizer) : Parenthesizer := do
+def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec lhsPrec : Nat) (p : Parenthesizer) : Parenthesizer := do
   let stx ← getCur
   if k != stx.getKind then
     trace[PrettyPrinter.parenthesize.backtrack] "unexpected node kind '{stx.getKind}', expected '{k}'"
@@ -410,9 +410,9 @@ def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec _ : Nat) (p : Parenthe
     modify fun st => { st with contCat := ctx.cat }
     -- After visiting the nodes actually produced by the parser passed to `trailingNode`, we are positioned on the
     -- left-most child, which is the term injected by `trailingNode` in place of the recursion. Left recursion is not an
-    -- issue for the parenthesizer, so we can think of this child being produced by `termParser 0`, or whichever Pratt
+    -- issue for the parenthesizer, so we can think of this child being produced by `termParser lhsPrec`, or whichever Pratt
     -- parser is calling us.
-    categoryParser.parenthesizer ctx.cat 0
+    categoryParser.parenthesizer ctx.cat lhsPrec
 
 @[combinatorParenthesizer Lean.Parser.rawCh] def rawCh.parenthesizer (ch : Char) := visitToken
 

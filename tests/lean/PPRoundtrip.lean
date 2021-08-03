@@ -106,3 +106,6 @@ set_option pp.structureInstanceTypes true in
   return x + y))
 
 #eval checkM `(typeAs (Id Nat) (pure 1 >>= pure))
+
+#eval checkM `((0 ≤ 1) = False)
+#eval checkM `((0 = 1) = False)

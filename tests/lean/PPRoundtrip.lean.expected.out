@@ -62,3 +62,5 @@ typeAs Nat
   Id Nat)
 typeAs (Id Nat)
   (pure 1 >>= pure)
+(0 ≤ 1) = False
+(0 = 1) = False

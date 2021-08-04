@@ -37,8 +37,11 @@ instance : ToString Import := ⟨fun imp => toString imp.module ++ if imp.runtim
   files are compacted regions. -/
 def CompactedRegion := USize
 
+@[extern "lean_compacted_region_is_memory_mapped"]
+constant CompactedRegion.isMemoryMapped : CompactedRegion → Bool
+
 /-- Free a compacted region and its contents. No live references to the contents may exist at the time of invocation. -/
-@[extern 2 "lean_compacted_region_free"]
+@[extern "lean_compacted_region_free"]
 unsafe constant CompactedRegion.free : CompactedRegion → IO Unit
 
 /- Environment fields that are not used often. -/
@@ -501,9 +504,9 @@ structure ModuleData where
 instance : Inhabited ModuleData :=
   ⟨{imports := arbitrary, constants := arbitrary, entries := arbitrary }⟩
 
-@[extern 3 "lean_save_module_data"]
-constant saveModuleData (fname : @& System.FilePath) (m : ModuleData) : IO Unit
-@[extern 2 "lean_read_module_data"]
+@[extern "lean_save_module_data"]
+constant saveModuleData (fname : @& System.FilePath) (mod : @& Name) (data : @& ModuleData) : IO Unit
+@[extern "lean_read_module_data"]
 constant readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion)
 
 /--
@@ -545,7 +548,7 @@ def mkModuleData (env : Environment) : IO ModuleData := do
 
 @[export lean_write_module]
 def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
-  let modData ← mkModuleData env; saveModuleData fname modData
+  saveModuleData fname env.mainModule (← mkModuleData env)
 
 private partial def getEntriesFor (mod : ModuleData) (extId : Name) (i : Nat) : Array EnvExtensionEntry :=
   if i < mod.entries.size then
@@ -701,9 +704,9 @@ def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
 @[export lean_display_stats]
 def displayStats (env : Environment) : IO Unit := do
   let pExtDescrs ← persistentEnvExtensionsRef.get
-  let numModules := ((pExtDescrs.get! 0).toEnvExtension.getState env).importedEntries.size;
   IO.println ("direct imports:                        " ++ toString env.header.imports);
-  IO.println ("number of imported modules:            " ++ toString numModules);
+  IO.println ("number of imported modules:            " ++ toString env.header.regions.size);
+  IO.println ("number of memory-mapped modules:       " ++ toString (env.header.regions.filter (·.isMemoryMapped) |>.size));
   IO.println ("number of consts:                      " ++ toString env.constants.size);
   IO.println ("number of imported consts:             " ++ toString env.constants.stageSizes.1);
   IO.println ("number of local consts:                " ++ toString env.constants.stageSizes.2);

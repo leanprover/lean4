@@ -12,6 +12,10 @@ Author: Leonardo de Moura
 #include <lean/lean.h>
 #include <lean/compact.h>
 
+#ifndef LEAN_WINDOWS
+#include <sys/mman.h>
+#endif
+
 #define LEAN_COMPACTOR_INIT_SZ 1024*1024
 #define LEAN_MAX_SHARING_TABLE_INITIAL_SIZE 1024*1024
 
@@ -51,19 +55,9 @@ struct object_compactor::max_sharing_table {
     }
 };
 
-/*
-  Special object that terminates the data block constructing the object graph rooted in `m_value`.
-  We use this object to ensure `m_value` is correctly aligned. In the past, we would allocate
-  a chunk of memory `p` of size `sizeof(object) + sizeof(object*)`, and then write at `p + sizeof(object)`.
-  This is incorrect because `sizeof(object)` is not a multiple of the word size.
-*/
-struct terminator_object {
-    lean_object   m_header;
-    lean_object * m_value;
-};
-
-object_compactor::object_compactor():
+object_compactor::object_compactor(void * base_addr):
     m_max_sharing_table(new max_sharing_table(this)),
+    m_base_addr(base_addr),
     m_begin(malloc(LEAN_COMPACTOR_INIT_SZ)),
     m_end(m_begin),
     m_capacity(static_cast<char*>(m_begin) + LEAN_COMPACTOR_INIT_SZ) {
@@ -102,7 +96,7 @@ void * object_compactor::alloc(size_t sz) {
 
 void object_compactor::save(object * o, object * new_o) {
     lean_assert(m_begin <= new_o && new_o < m_end);
-    m_obj_table.insert(std::make_pair(o, reinterpret_cast<object_offset>(reinterpret_cast<char*>(new_o) - reinterpret_cast<char*>(m_begin))));
+    m_obj_table.insert(std::make_pair(o, reinterpret_cast<object_offset>(reinterpret_cast<char*>(new_o) - reinterpret_cast<char*>(m_begin) + reinterpret_cast<size_t>(m_base_addr))));
 }
 
 void object_compactor::save_max_sharing(object * o, object * new_o, size_t new_o_sz) {
@@ -129,13 +123,6 @@ object_offset object_compactor::to_offset(object * o) {
             return it->second;
         }
     }
-}
-
-void object_compactor::insert_terminator(object * o) {
-    size_t sz = sizeof(terminator_object);
-    terminator_object * t = (terminator_object*) alloc(sz);
-    lean_set_non_heap_header((lean_object*)t, sz, LeanReserved, 0);
-    t->m_value = to_offset(o);
 }
 
 object * object_compactor::copy_object(object * o) {
@@ -278,7 +265,7 @@ void object_compactor::insert_mpz(object * o) {
     // we assume the limb array is the only indirection in an `__mpz_struct` and everything else can be bitcopied
     void * data = reinterpret_cast<char*>(new_o) + sizeof(mpz_object);
     memcpy(data, m._mp_d, data_sz);
-    m._mp_d = reinterpret_cast<mp_limb_t *>(reinterpret_cast<char *>(data) - reinterpret_cast<char *>(m_begin));
+    m._mp_d = reinterpret_cast<mp_limb_t *>(reinterpret_cast<char *>(data) - reinterpret_cast<char *>(m_begin) + reinterpret_cast<ptrdiff_t>(m_base_addr));
     m._mp_alloc = nlimbs;
     save(o, (lean_object*)new_o);
 }
@@ -322,6 +309,8 @@ tag_counter_manager g_tag_counter_manager;
 
 void object_compactor::operator()(object * o) {
     lean_assert(m_todo.empty());
+    // allocate for root address, see end of function
+    alloc(sizeof(object_offset));
     if (!lean_is_scalar(o)) {
         m_todo.push_back(o);
         while (!m_todo.empty()) {
@@ -352,10 +341,13 @@ void object_compactor::operator()(object * o) {
         }
         m_tmp.clear();
     }
-    insert_terminator(o);
+    *static_cast<object_offset *>(m_begin) = to_offset(o);
 }
 
-compacted_region::compacted_region(size_t sz, void * data):
+compacted_region::compacted_region(size_t sz, void * data, void * base_addr, bool is_mmap, std::function<void()> free_data):
+    m_base_addr(base_addr),
+    m_is_mmap(is_mmap),
+    m_free_data(free_data),
     m_begin(data),
     m_next(data),
     m_end(static_cast<char*>(data)+sz) {
@@ -369,12 +361,12 @@ compacted_region::compacted_region(object_compactor const & c):
 }
 
 compacted_region::~compacted_region() {
-    free(m_begin);
+    m_free_data();
 }
 
 inline object * compacted_region::fix_object_ptr(object * o) {
     if (lean_is_scalar(o)) return o;
-    return reinterpret_cast<object*>(static_cast<char*>(m_begin) + reinterpret_cast<size_t>(o));
+    return reinterpret_cast<object*>(static_cast<char*>(m_begin) + (reinterpret_cast<size_t>(o) - reinterpret_cast<size_t>(m_base_addr)));
 }
 
 inline void compacted_region::move(size_t d) {
@@ -426,15 +418,24 @@ inline void compacted_region::fix_task(object * o) {
 
 void compacted_region::fix_mpz(object * o) {
     __mpz_struct & m = to_mpz(o)->m_value.m_val[0];
-    m._mp_d = reinterpret_cast<mp_limb_t *>(static_cast<char *>(m_begin) + reinterpret_cast<size_t>(m._mp_d));
+    m._mp_d = reinterpret_cast<mp_limb_t *>(static_cast<char *>(m_begin) + reinterpret_cast<size_t>(m._mp_d) - reinterpret_cast<size_t>(m_base_addr));
     move(sizeof(mpz_object) + sizeof(mp_limb_t) * mpz_size(to_mpz(o)->m_value.m_val));
 }
 
 object * compacted_region::read() {
     if (m_next == m_end)
         return nullptr; /* all objects have been read */
-    while (true) {
-        lean_assert(static_cast<char*>(m_next) + sizeof(object) <= m_end);
+
+    object * root = fix_object_ptr(*static_cast<object_offset *>(m_next));
+    move(sizeof(object_offset));
+    if (m_begin == m_base_addr) {
+        // no relocations needed
+        m_end = m_next;
+        return root;
+    }
+    lean_assert(!m_is_mmap);
+
+    while (m_next < m_end) {
         object * curr = reinterpret_cast<object*>(m_next);
         uint8 tag = lean_ptr_tag(curr);
         if (tag <= LeanMaxCtorTag) {
@@ -450,15 +451,15 @@ object * compacted_region::read() {
             case LeanRef:             fix_ref(curr); break;
             case LeanTask:            fix_task(curr); break;
             case LeanExternal:        lean_unreachable();
-            case LeanReserved: {
-                object * r = reinterpret_cast<terminator_object*>(m_next)->m_value;
-                move(sizeof(terminator_object));
-                return fix_object_ptr(r);
-            }
             default:                  lean_unreachable();
             }
         }
     }
+    return root;
+}
+
+extern "C" uint8 lean_compacted_region_is_memory_mapped(usize region) {
+    return reinterpret_cast<compacted_region *>(region)->is_memory_mapped();
 }
 
 extern "C" obj_res lean_compacted_region_free(usize region, object *) {

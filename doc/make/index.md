@@ -133,6 +133,53 @@ Finally, when we want to use new language features in the library, we need to
 update the stage 0 compiler, which can be done via `make -C stageN update-stage0`.
 `make update-stage0` without `-C` defaults to stage1.
 
+### Further Bootstrapping Complications
+
+As written above, changes in meta code in the current stage usually will only
+affect later stages. This is an issue in two specific cases.
+
+* For *non-builtin* meta code such as `notation`s or `macro`s in
+  `Notation.lean`, we expect changes to affect the current file and all later
+  files of the same stage immediately, just like outside the stdlib. To ensure
+  this, we need to build the stage using `-Dinterpreter.prefer_native=false` -
+  otherwise, when executing a macro, the interpreter would notice that there is
+  already a native symbol available for this function and run it instead of the
+  new IR, but the symbol is from the previous stage!
+
+  To make matters more complicated, while `false` is a reasonable default
+  incurring only minor overhead (`ParserDescr`s and simple macros are cheap to
+  interpret), there are situations where we *need* to set the option to `true`:
+  when the interpreter is executed from the native code of the previous stage,
+  the type of the value it computes must be identical to/ABI-compatible with the
+  type in the previous stage. For example, if we add a new parameter to `Macro`
+  or reorder constructors in `ParserDescr`, building the stage with the
+  interpreter will likely fail. Thus we need to set `interpreter.prefer_native`
+  to `true` in such cases to "freeze" meta code at their versions in the
+  previous stage; no new meta code should be introduced in this stage. Any
+  further stages (e.g. after an `update-stage0`) will then need to be compiled
+  with the flag set to `false` again since they will expect the new signature.
+
+  For an example, see https://github.com/leanprover/lean4/commit/da4c46370d85add64ef7ca5e7cc4638b62823fbb.
+
+* For the special case of *quotations*, it is desirable to have changes in
+  built-in parsers affect them immediately: when the changes in the parser
+  become active in the next stage, macros implemented via quotations should
+  generate syntax trees compatible with the new parser, and quotation patterns
+  in macro and elaborators should be able to match syntax created by the new
+  parser and macros. Since quotations capture the syntax tree structure during
+  execution of the current stage and turn it into code for the next stage, we
+  need to run the current stage's built-in parsers in quotation via the
+  interpreter for this to work. Caveats:
+  * Since interpreting full parsers is not nearly as cheap and we rarely change
+    built-in syntax, this needs to be opted in using `-Dinternal.parseQuotWithCurrentStage=true`.
+  * The parser needs to be reachable via an `import` statement, otherwise the
+    version of the previous stage will silently be used.
+  * Only the parser code (`Parser.fn`) is affected; all metadata such as leading
+    tokens is taken from the previous stage.
+
+  For an example, see https://github.com/leanprover/lean4/commit/f9dcbbddc48ccab22c7674ba20c5f409823b4cc1#diff-371387aed38bb02bf7761084fd9460e4168ae16d1ffe5de041b47d3ad2d22422
+  (from before the flag defaulted to `false`).
+  
 Development Setup
 -----------------
 

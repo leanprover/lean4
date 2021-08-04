@@ -1,5 +1,6 @@
-import Lake.Build
 import Lake.Package
+import Lake.BuildTargets
+
 open Lake System
 
 def cDir : FilePath := "c"
@@ -9,14 +10,11 @@ def buildDir := defaultBuildDir
 def addO := buildDir / cDir / "add.o"
 def cLib := buildDir / cDir / "libadd.a"
 
-def fetchAddOTarget : IO ActiveFileTarget := do
-  skipIfNewer addO (← getMTime addSrc) <|
-    BuildTask.spawn <| compileO addO addSrc (cmd := "c++")
+def computeAddOTarget : IO FileTarget := do
+  oFileTarget addO <| ← FileTarget.compute addSrc
 
-def fetchCLibTarget : IO ActiveFileTarget := do
-  let oTarget ← fetchAddOTarget
-  skipIfNewer cLib oTarget.mtime <|
-    oTarget >> compileStaticLib cLib #[addO]
+def computeCLibTarget : IO FileTarget := do
+  staticLibTarget cLib <| ← computeAddOTarget
 
 def package : PackageConfig := {
   name := "ffi"
@@ -28,6 +26,6 @@ def package : PackageConfig := {
   -- specify path to the lib for linker
   linkArgs := #[cLib.toString]
   -- specify the lib target as an additional dependency
-  buildMoreDepsTarget := fetchCLibTarget.map fun target =>
-    LeanTarget.fromMTimeTarget <| target.discardArtifact
+  buildMoreDepsTarget := do
+    LeanTarget.buildOpaqueFromFileTarget <| ← computeCLibTarget
 }

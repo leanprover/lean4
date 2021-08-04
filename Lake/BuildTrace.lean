@@ -32,7 +32,8 @@ instance : Ord MTime := inferInstanceAs (Ord SystemTime)
 instance : LT MTime := ltOfOrd
 instance : LE MTime := leOfOrd
 
-def MTime.listMax (mtimes : List MTime) := mtimes.maximum?.getD 0
+def MTime.listMax (mtimes : List MTime) := mtimes.foldl max 0
+def MTime.arrayMax (mtimes : Array MTime) := mtimes.foldl max 0
 
 class GetMTime (α) where
   getMTime : α → IO MTime
@@ -41,6 +42,10 @@ export GetMTime (getMTime)
 
 instance : GetMTime System.FilePath where
   getMTime file := do (← file.metadata).modified
+
+/-- Check if the artifact's `MTIme` is at least `depMTime`. -/
+def checkIfNewer [GetMTime a] (artifact : a) (depMTime : MTime) : IO Bool := do
+  try (← getMTime artifact) >= depMTime catch _ => false
 
 -- # Combined Trace
 

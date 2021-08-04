@@ -51,7 +51,7 @@ structure PackageConfig where
   libName : String := moduleRoot.toString (escape := false)
   depsDir : FilePath := defaultDepsDir
   dependencies : List Dependency := []
-  buildMoreDepsTarget : IO (ActiveBuildTarget LeanTrace PUnit) := ActiveBuildTarget.nil
+  buildMoreDepsTarget : IO (LeanTarget PUnit) := LeanTarget.nil
   scripts : HashMap String Script := HashMap.empty
   deriving Inhabited
 

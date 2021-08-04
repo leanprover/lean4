@@ -6,6 +6,7 @@ Authors: Mac Malone
 import Lake.BuildTask
 import Lake.BuildTrace
 
+open System
 namespace Lake
 
 --------------------------------------------------------------------------------
@@ -36,6 +37,15 @@ def discardArtifact (self : Target t m α) : Target t m PUnit :=
 
 def mtime (self : Target MTime m a) : MTime :=
   self.trace
+
+def file (self : Target t m FilePath) : FilePath :=
+  self.artifact
+
+def filesList (self : Target t m (List FilePath)) : List FilePath :=
+  self.artifact
+
+def filesArray (self : Target t m (Array FilePath)) : Array FilePath :=
+  self.artifact
 
 end Target
 
@@ -106,14 +116,25 @@ def spawn (self : BuildTarget t a) : IO (ActiveBuildTarget t a) := do
 def materialize (self : BuildTarget t a) : IO PUnit :=
   self.task
 
+-- ### Combinators
+
+def after (target : BuildTarget t a) (act : IO PUnit)  : IO PUnit :=
+  target.task *> act
+
+def afterList (targets : List (BuildTarget t a)) (act : IO PUnit) : IO PUnit :=
+  targets.forM (·.task) *> act
+
+instance : HAndThen (BuildTarget t a) (IO PUnit) (IO PUnit) :=
+  ⟨BuildTarget.after⟩
+
+instance : HAndThen (List (BuildTarget t a)) (IO PUnit) (IO PUnit) :=
+  ⟨BuildTarget.afterList⟩
+
 end BuildTarget
 
 --------------------------------------------------------------------------------
 -- # File Targets
 --------------------------------------------------------------------------------
-
-section
-open System
 
 -- ## File Target
 
@@ -125,10 +146,56 @@ namespace FileTarget
 def mk (file : FilePath) (depMTime : MTime) (task : IO PUnit) : FileTarget :=
   ⟨file, depMTime, task⟩
 
+def compute (file : FilePath) : IO FileTarget := do
+  BuildTarget.pure file (← getMTime file)
+
 protected def pure (file : FilePath) (depMTime : MTime) : FileTarget :=
   BuildTarget.pure file depMTime
 
 end FileTarget
+
+-- ## Files Target
+
+abbrev FilesTarget :=
+  BuildTarget MTime (Array FilePath)
+
+namespace FilesTarget
+
+def files (self : FilesTarget) : Array FilePath :=
+  self.artifact
+
+def filesAsList (self : FilesTarget) : List FilePath :=
+  self.artifact.toList
+
+def filesAsArray (self : FilesTarget) : Array FilePath :=
+  self.artifact
+
+def compute (files : Array FilePath) : IO FilesTarget := do
+  BuildTarget.pure files (MTime.arrayMax <| ← files.mapM getMTime)
+
+def singleton (target : FileTarget) : FilesTarget :=
+  {target with artifact := #[target.file]}
+
+def collectList (targets : List FileTarget) : FilesTarget :=
+  let files := Array.mk <| targets.map (·.file)
+  let mtime := MTime.listMax <| targets.map (·.mtime)
+  BuildTarget.mk files mtime do
+   (← targets.mapM (IOTask.spawn ·.task)).forM (·.await)
+
+def collectArray (targets : Array FileTarget) : FilesTarget :=
+  let files := targets.map (·.file)
+  let mtime := MTime.arrayMax <| targets.map (·.mtime)
+  BuildTarget.mk files mtime do
+   (← targets.mapM (IOTask.spawn ·.task)).forM (·.await)
+
+def collect (targets : Array FileTarget) : FilesTarget :=
+  collectArray targets
+
+end FilesTarget
+
+instance : Coe FileTarget FilesTarget := ⟨FilesTarget.singleton⟩
+instance : Coe (List FileTarget) FilesTarget := ⟨FilesTarget.collectList⟩
+instance : Coe (Array FileTarget) FilesTarget := ⟨FilesTarget.collectArray⟩
 
 -- ## Active File Target
 
@@ -144,7 +211,6 @@ protected def pure (file : FilePath) (depMTime : MTime) : ActiveFileTarget :=
   ActiveBuildTarget.pure file depMTime
 
 end ActiveFileTarget
-end
 
 --------------------------------------------------------------------------------
 -- # Lean Target
@@ -154,6 +220,9 @@ abbrev LeanTarget a :=
   ActiveBuildTarget LeanTrace a
 
 namespace LeanTarget
+
+def nil : LeanTarget PUnit :=
+  ActiveBuildTarget.pure () Inhabited.default
 
 def hash (self : LeanTarget a) := self.trace.hash
 def mtime (self : LeanTarget a) := self.trace.mtime
@@ -166,5 +235,8 @@ def all (targets : List (LeanTarget a)) : IO (LeanTarget PUnit) := do
 
 def fromMTimeTarget (target : ActiveBuildTarget MTime a) : LeanTarget a :=
   {target with trace := LeanTrace.fromMTime target.trace}
+
+def buildOpaqueFromFileTarget (target : FileTarget) : IO (LeanTarget PUnit) := do
+  LeanTarget.fromMTimeTarget <| ← BuildTarget.spawn target.discardArtifact
 
 end LeanTarget

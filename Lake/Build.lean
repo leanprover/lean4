@@ -70,10 +70,6 @@ def checkIfSameHash (hash : Hash) (file : FilePath) : IO Bool :=
   catch _ =>
     false
 
-/-- Check if the artifact's `MTIme` is at least `depMTime`. -/
-def checkIfNewer [GetMTime a] (artifact : a) (depMTime : MTime) : IO Bool := do
-  try (← getMTime artifact) >= depMTime catch _ => false
-
 /-- Construct a no-op build task if the given condition holds, otherwise perform `build`. -/
 def skipIf [Pure m] (cond : Bool) (build : m BuildTask) : m BuildTask := do
   if cond then pure BuildTask.nop else build

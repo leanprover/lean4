@@ -25,6 +25,7 @@ abbrev OptionsPerPos := Std.RBMap Pos Options compare
 structure SubExpr where
   expr : Expr
   pos  : Pos
+  deriving Inhabited
 
 namespace SubExpr
 
@@ -111,7 +112,7 @@ section Hole
 
 variable {α : Type} [Inhabited α]
 variable {m : Type → Type} [Monad m]
-variable [MonadStateOf HoleIterator m] [MonadWithReaderOf HoleIterator m]
+variable [MonadStateOf HoleIterator m]
 
 def HoleIterator.toPos (iter : HoleIterator) : Pos :=
   iter.curr

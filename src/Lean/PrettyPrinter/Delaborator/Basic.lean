@@ -203,7 +203,7 @@ partial def delabFor : Name → Delab
   | Name.anonymous => failure
   | k              =>
     (do let stx ← (delabAttribute.getValues (← getEnv) k).firstM id
-        discard <| annotateCurPos stx
+        let stx ← annotateCurPos stx
         addTermInfo (← getPos) stx (← getExpr)
         stx)
     -- have `app.Option.some` fall back to `app` etc.

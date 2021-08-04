@@ -251,10 +251,11 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
 
   for idx in [:fieldNames.size] do
     let fieldName := fieldNames.get! idx
-    let field ← `(structInstField|$(mkIdent fieldName):ident := $(stx[1][idx]):term)
-    let fieldPos ← nextHole
-    let field := annotatePos fieldPos field
-    addFieldInfo fieldPos (s.induct ++ fieldName) fieldName field fieldVals[idx]
+    let fieldId := mkIdent fieldName
+    let fieldPos ← nextExtraPos
+    let fieldId := annotatePos fieldPos fieldId
+    addFieldInfo fieldPos (s.induct ++ fieldName) fieldName fieldId fieldVals[idx]
+    let field ← `(structInstField|$fieldId:ident := $(stx[1][idx]):term)
     fields := fields.push field
   let lastField := fields.back
   fields := fields.pop

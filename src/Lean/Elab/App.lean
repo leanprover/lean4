@@ -282,16 +282,6 @@ private def propagateExpectedType (arg : Arg) : M Unit := do
                   /- Note that we only set `propagateExpected := false` when propagation has succeeded. -/
                   modify fun s => { s with propagateExpected := false }
 
-/-
-  Create a fresh local variable with the current binder name and argument type, add it to `etaArgs` and `f`,
-  and then execute the continuation `k`.-/
-private def addEtaArg (k : M Expr) : M Expr := do
-  let n    ← getBindingName
-  let type ← getArgExpectedType
-  withLocalDeclD n type fun x => do
-    modify fun s => { s with etaArgs := s.etaArgs.push x }
-    addNewArg x
-    k
 
 /- This method execute after all application arguments have been processed. -/
 private def finalize : M Expr := do
@@ -320,13 +310,6 @@ private def finalize : M Expr := do
   synthesizeAppInstMVars
   pure e
 
-private def addImplicitArg (k : M Expr) : M Expr := do
-  let argType ← getArgExpectedType
-  let arg ← mkFreshExprMVar argType
-  modify fun s => { s with toSetErrorCtx := s.toSetErrorCtx.push arg.mvarId! }
-  addNewArg arg
-  k
-
 /- Return true if there is a named argument that depends on the next argument. -/
 private def anyNamedArgDependsOnCurrent : M Bool := do
   let s ← get
@@ -342,76 +325,11 @@ private def anyNamedArgDependsOnCurrent : M Bool := do
             return true
       return false
 
-/-
-  Process a `fType` of the form `(x : A) → B x`.
-  This method assume `fType` is a function type -/
-private def processExplictArg (k : M Expr) : M Expr := do
-  let s ← get
-  match s.args with
-  | arg::args =>
-    propagateExpectedType arg
-    modify fun s => { s with args := args }
-    elabAndAddNewArg arg
-    k
-  | _ =>
-    let argType ← getArgExpectedType
-    match s.explicit, argType.getOptParamDefault?, argType.getAutoParamTactic? with
-    | false, some defVal, _  => addNewArg defVal; k
-    | false, _, some (Expr.const tacticDecl _ _) =>
-      let env ← getEnv
-      let opts ← getOptions
-      match evalSyntaxConstant env opts tacticDecl with
-      | Except.error err       => throwError err
-      | Except.ok tacticSyntax =>
-        -- TODO(Leo): does this work correctly for tactic sequences?
-        let tacticBlock ← `(by $tacticSyntax)
-        let argType     := argType.getArg! 0 -- `autoParam type := by tactic` ==> `type`
-        let argNew := Arg.stx tacticBlock
-        propagateExpectedType argNew
-        elabAndAddNewArg argNew
-        k
-    | false, _, some _ =>
-      throwError "invalid autoParam, argument must be a constant"
-    | _, _, _ =>
-      if !s.namedArgs.isEmpty then
-        if (← anyNamedArgDependsOnCurrent) then
-          addImplicitArg k
-        else
-          addEtaArg k
-      else if !s.explicit then
-        if (← fTypeHasOptAutoParams) then
-          addEtaArg k
-        else if (← get).ellipsis then
-          addImplicitArg k
-        else
-          finalize
-      else
-        finalize
 
 /- Return true if there are regular or named arguments to be processed. -/
 private def hasArgsToProcess : M Bool := do
   let s ← get
   return !s.args.isEmpty || !s.namedArgs.isEmpty
-
-/-
-  Process a `fType` of the form `{x : A} → B x`.
-  This method assume `fType` is a function type -/
-private def processImplicitArg (k : M Expr) : M Expr := do
-  if (← get).explicit then
-    processExplictArg k
-  else
-    addImplicitArg k
-
-/-
-  Process a `fType` of the form `{{x : A}} → B x`.
-  This method assume `fType` is a function type -/
-private def processStrictImplicitArg (k : M Expr) : M Expr := do
-  if (← get).explicit then
-    processExplictArg k
-  else if (← hasArgsToProcess) then
-    addImplicitArg k
-  else
-    finalize
 
 /- Return true if the next argument at `args` is of the form `_` -/
 private def isNextArgHole : M Bool := do
@@ -419,51 +337,139 @@ private def isNextArgHole : M Bool := do
   | Arg.stx (Syntax.node ``Lean.Parser.Term.hole _) :: _ => pure true
   | _ => pure false
 
-/-
-  Process a `fType` of the form `[x : A] → B x`.
-  This method assume `fType` is a function type -/
-private def processInstImplicitArg (k : M Expr) : M Expr := do
-  if (← get).explicit then
-    if (← isNextArgHole) then
-      /- Recall that if '@' has been used, and the argument is '_', then we still use type class resolution -/
+
+mutual
+  /-
+    Create a fresh local variable with the current binder name and argument type, add it to `etaArgs` and `f`,
+    and then execute the main loop.-/
+  private partial def addEtaArg : M Expr := do
+    let n    ← getBindingName
+    let type ← getArgExpectedType
+    withLocalDeclD n type fun x => do
+      modify fun s => { s with etaArgs := s.etaArgs.push x }
+      addNewArg x
+      main
+
+  private partial def addImplicitArg : M Expr := do
+    let argType ← getArgExpectedType
+    let arg ← mkFreshExprMVar argType
+    modify fun s => { s with toSetErrorCtx := s.toSetErrorCtx.push arg.mvarId! }
+    addNewArg arg
+    main
+
+  /-
+    Process a `fType` of the form `(x : A) → B x`.
+    This method assume `fType` is a function type -/
+  private partial def processExplictArg : M Expr := do
+    let s ← get
+    match s.args with
+    | arg::args =>
+      propagateExpectedType arg
+      modify fun s => { s with args := args }
+      elabAndAddNewArg arg
+      main
+    | _ =>
+      let argType ← getArgExpectedType
+      match s.explicit, argType.getOptParamDefault?, argType.getAutoParamTactic? with
+      | false, some defVal, _  => addNewArg defVal; main
+      | false, _, some (Expr.const tacticDecl _ _) =>
+        let env ← getEnv
+        let opts ← getOptions
+        match evalSyntaxConstant env opts tacticDecl with
+        | Except.error err       => throwError err
+        | Except.ok tacticSyntax =>
+          -- TODO(Leo): does this work correctly for tactic sequences?
+          let tacticBlock ← `(by $tacticSyntax)
+          let argType     := argType.getArg! 0 -- `autoParam type := by tactic` ==> `type`
+          let argNew := Arg.stx tacticBlock
+          propagateExpectedType argNew
+          elabAndAddNewArg argNew
+          main
+      | false, _, some _ =>
+        throwError "invalid autoParam, argument must be a constant"
+      | _, _, _ =>
+        if !s.namedArgs.isEmpty then
+          if (← anyNamedArgDependsOnCurrent) then
+            addImplicitArg
+          else
+            addEtaArg
+        else if !s.explicit then
+          if (← fTypeHasOptAutoParams) then
+            addEtaArg
+          else if (← get).ellipsis then
+            addImplicitArg
+          else
+            finalize
+        else
+          finalize
+
+  /-
+    Process a `fType` of the form `{x : A} → B x`.
+    This method assume `fType` is a function type -/
+  private partial def processImplicitArg : M Expr := do
+    if (← get).explicit then
+      processExplictArg
+    else
+      addImplicitArg
+
+  /-
+    Process a `fType` of the form `{{x : A}} → B x`.
+    This method assume `fType` is a function type -/
+  private partial def processStrictImplicitArg : M Expr := do
+    if (← get).explicit then
+      processExplictArg
+    else if (← hasArgsToProcess) then
+      addImplicitArg
+    else
+      finalize
+
+  /-
+    Process a `fType` of the form `[x : A] → B x`.
+    This method assume `fType` is a function type -/
+  private partial def processInstImplicitArg : M Expr := do
+    if (← get).explicit then
+      if (← isNextArgHole) then
+        /- Recall that if '@' has been used, and the argument is '_', then we still use type class resolution -/
+        let arg ← mkFreshExprMVar (← getArgExpectedType) MetavarKind.synthetic
+        modify fun s => { s with args := s.args.tail! }
+        addInstMVar arg.mvarId!
+        addNewArg arg
+        main
+      else
+        processExplictArg
+    else
       let arg ← mkFreshExprMVar (← getArgExpectedType) MetavarKind.synthetic
-      modify fun s => { s with args := s.args.tail! }
       addInstMVar arg.mvarId!
       addNewArg arg
-      k
-    else
-      processExplictArg k
-  else
-    let arg ← mkFreshExprMVar (← getArgExpectedType) MetavarKind.synthetic
-    addInstMVar arg.mvarId!
-    addNewArg arg
-    k
-
-/- Elaborate function application arguments. -/
-partial def main : M Expr := do
-  let s ← get
-  let fType ← normalizeFunType
-  if fType.isForall then
-    let binderName := fType.bindingName!
-    let binfo := fType.bindingInfo!
-    let s ← get
-    match s.namedArgs.find? fun (namedArg : NamedArg) => namedArg.name == binderName with
-    | some namedArg =>
-      propagateExpectedType namedArg.val
-      eraseNamedArg binderName
-      elabAndAddNewArg namedArg.val
       main
-    | none          =>
-      match binfo with
-      | BinderInfo.implicit       => processImplicitArg main
-      | BinderInfo.instImplicit   => processInstImplicitArg main
-      | BinderInfo.strictImplicit => processStrictImplicitArg main
-      | _                         => processExplictArg main
-  else if (← hasArgsToProcess) then
-    synthesizePendingAndNormalizeFunType
-    main
-  else
-    finalize
+
+  /- Elaborate function application arguments. -/
+  partial def main : M Expr := do
+    let s ← get
+    let fType ← normalizeFunType
+    if fType.isForall then
+      let binderName := fType.bindingName!
+      let binfo := fType.bindingInfo!
+      let s ← get
+      match s.namedArgs.find? fun (namedArg : NamedArg) => namedArg.name == binderName with
+      | some namedArg =>
+        propagateExpectedType namedArg.val
+        eraseNamedArg binderName
+        elabAndAddNewArg namedArg.val
+        main
+      | none          =>
+        match binfo with
+        | BinderInfo.implicit       => processImplicitArg
+        | BinderInfo.instImplicit   => processInstImplicitArg
+        | BinderInfo.strictImplicit => processStrictImplicitArg
+        | _                         => processExplictArg
+    else if (← hasArgsToProcess) then
+      synthesizePendingAndNormalizeFunType
+      main
+    else
+      finalize
+
+end
 
 end ElabAppArgs
 

@@ -60,8 +60,6 @@ endif
 	$(LEAN) $(LEAN_OPTS) -o "$@" --c="$(TEMP_OUT)/$*.c.tmp" $<
 # create the .c file atomically
 	mv "$(TEMP_OUT)/$*.c.tmp" "$(TEMP_OUT)/$*.c"
-# make sure the .olean file is newer than the .depend file to prevent infinite make cycles
-	@touch $@
 
 $(TEMP_OUT)/%.c: $(OLEAN_OUT)/%.olean
 	@

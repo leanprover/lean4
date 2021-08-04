@@ -121,7 +121,9 @@ def HoleIterator.next (iter : HoleIterator) : HoleIterator :=
     ⟨2*iter.top, maxChildren*iter.top⟩
   else ⟨iter.curr+1, iter.top⟩
 
-def nextHole : m Pos := do
+/-- The positioning scheme guarantees that there will be an infinite number of positions
+that are never used by subexpressions. We use these to attach additional `Elab.Info`. -/
+def nextExtraPos : m Pos := do
   let iter ← getThe HoleIterator
   let pos := iter.toPos
   modifyThe HoleIterator HoleIterator.next

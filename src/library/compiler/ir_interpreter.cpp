@@ -31,6 +31,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #ifdef LEAN_WINDOWS
 #include <windows.h>
 #undef ERROR // thanks, wingdi.h
+#include <psapi.h>
 #else
 #include <dlfcn.h>
 #endif
@@ -286,7 +287,16 @@ void print_value(std::ostream & ios, value const & v, type t) {
 
 void * lookup_symbol_in_cur_exe(char const * sym) {
 #ifdef LEAN_WINDOWS
-    return reinterpret_cast<void *>(GetProcAddress(GetModuleHandle(nullptr), sym));
+    HMODULE hmods[128];  // 128 modules should be enough for everyone
+    DWORD bytes_needed;
+    lean_always_assert(EnumProcessModules(GetCurrentProcess(), hmods, sizeof(hmods), &bytes_needed));
+    for (int i = 0; i < bytes_needed / sizeof(HMODULE); i++) {
+        void * addr = reinterpret_cast<void *>(GetProcAddress(hmods[i], sym));
+        if (addr) {
+            return addr;
+        }
+    }
+    return nullptr;
 #else
     return dlsym(RTLD_DEFAULT, sym);
 #endif

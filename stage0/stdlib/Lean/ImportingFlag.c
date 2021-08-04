@@ -15,8 +15,8 @@ extern "C" {
 #endif
 lean_object* l_Lean_initializing(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+lean_object* l___private_Lean_ImportingFlag_0__Lean_importingRef;
 lean_object* l_Lean_withImporting(lean_object*);
-lean_object* l_Lean_importingRef;
 lean_object* l_Lean_withImporting___rarg(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_ImportingFlag___hyg_3_(lean_object*);
@@ -50,7 +50,7 @@ lean_dec(x_3);
 x_5 = lean_ctor_get(x_2, 1);
 lean_inc(x_5);
 lean_dec(x_2);
-x_6 = l_Lean_importingRef;
+x_6 = l___private_Lean_ImportingFlag_0__Lean_importingRef;
 x_7 = lean_st_ref_get(x_6, x_5);
 x_8 = !lean_is_exclusive(x_7);
 if (x_8 == 0)
@@ -123,7 +123,7 @@ lean_object* l_Lean_withImporting___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_3 = l_Lean_importingRef;
+x_3 = l___private_Lean_ImportingFlag_0__Lean_importingRef;
 x_4 = 1;
 x_5 = lean_box(x_4);
 x_6 = lean_st_ref_set(x_3, x_5, x_2);
@@ -217,8 +217,8 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = l_Lean_initFn____x40_Lean_ImportingFlag___hyg_3_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
-l_Lean_importingRef = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_importingRef);
+l___private_Lean_ImportingFlag_0__Lean_importingRef = lean_io_result_get_value(res);
+lean_mark_persistent(l___private_Lean_ImportingFlag_0__Lean_importingRef);
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }

@@ -57,6 +57,10 @@ def BinderInfo.isImplicit : BinderInfo → Bool
   | BinderInfo.implicit => true
   | _                   => false
 
+def BinderInfo.isStrictImplicit : BinderInfo → Bool
+  | BinderInfo.strictImplicit => true
+  | _                         => false
+
 def BinderInfo.isAuxDecl : BinderInfo → Bool
   | BinderInfo.auxDecl => true
   | _                  => false

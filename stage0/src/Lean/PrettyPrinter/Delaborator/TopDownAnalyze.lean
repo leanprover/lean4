@@ -545,7 +545,7 @@ mutual
             else provided := false
             modify fun s => { s with provideds := s.provideds.set! i provided }
           | BinderInfo.auxDecl        => pure ()
-          | BinderInfo.strictImplicit => unreachable!
+          | BinderInfo.strictImplicit => pure () -- TODO: add support for strict implicit unreachable!
           if (← get).provideds[i] then withKnowing (not (← typeUnknown mvars[i])) true analyze
           tryUnify mvars[i] args[i]
 

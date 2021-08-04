@@ -123,6 +123,9 @@ partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targets : Array E
         | BinderInfo.implicit =>
           let arg ← mkFreshExprMVar (← getArgExpectedType)
           addNewArg arg
+        | BinderInfo.strictImplicit =>
+          let arg ← mkFreshExprMVar (← getArgExpectedType)
+          addNewArg arg
         | BinderInfo.instImplicit =>
           let arg ← mkFreshExprMVar (← getArgExpectedType) (kind := MetavarKind.synthetic) (userName := appendTag tag binderName)
           modify fun s => { s with insts := s.insts.push arg.mvarId! }

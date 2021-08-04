@@ -148,9 +148,9 @@ instance : Inhabited (DiscrTree α) where
 private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Bool := do
   if h : i < infos.size then
     let info := infos.get ⟨i, h⟩
-    if info.instImplicit then
+    if info.isInstImplicit then
       return true
-    else if info.implicit then
+    else if info.isImplicit || info.isStrictImplicit then
       return not (← isType a)
     else
       isProof a

@@ -15553,7 +15553,7 @@ else
 lean_object* x_70; lean_object* x_71; uint8_t x_72; 
 x_70 = l_Lean_Meta_instInhabitedParamInfo;
 x_71 = lean_array_get(x_70, x_2, x_4);
-x_72 = lean_ctor_get_uint8(x_71, sizeof(void*)*1 + 2);
+x_72 = lean_ctor_get_uint8(x_71, sizeof(void*)*1 + 1);
 lean_dec(x_71);
 if (x_72 == 0)
 {
@@ -16215,7 +16215,7 @@ lean_ctor_set(x_56, 0, x_54);
 lean_ctor_set(x_56, 1, x_55);
 x_57 = l_Lean_Meta_instInhabitedParamInfo;
 x_58 = lean_array_get(x_57, x_1, x_27);
-x_59 = lean_ctor_get_uint8(x_58, sizeof(void*)*1 + 2);
+x_59 = lean_ctor_get_uint8(x_58, sizeof(void*)*1 + 1);
 lean_dec(x_58);
 if (x_59 == 0)
 {

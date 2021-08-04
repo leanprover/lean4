@@ -67,14 +67,22 @@ structure Config where
   assignSyntheticOpaque : Bool := false
 
 structure ParamInfo where
-  implicit     : Bool      := false
-  instImplicit : Bool      := false
-  hasFwdDeps   : Bool      := false
-  backDeps     : Array Nat := #[]
+  binderInfo     : BinderInfo := BinderInfo.default
+  hasFwdDeps     : Bool       := false
+  backDeps       : Array Nat  := #[]
   deriving Inhabited
 
+def ParamInfo.isImplicit (p : ParamInfo) : Bool :=
+  p.binderInfo == BinderInfo.implicit
+
+def ParamInfo.isInstImplicit (p : ParamInfo) : Bool :=
+  p.binderInfo == BinderInfo.instImplicit
+
+def ParamInfo.isStrictImplicit (p : ParamInfo) : Bool :=
+  p.binderInfo == BinderInfo.strictImplicit
+
 def ParamInfo.isExplicit (p : ParamInfo) : Bool :=
-  !p.implicit && !p.instImplicit
+  p.binderInfo == BinderInfo.default || p.binderInfo == BinderInfo.auxDecl
 
 structure FunInfo where
   paramInfo  : Array ParamInfo := #[]

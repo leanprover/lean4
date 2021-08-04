@@ -122,7 +122,7 @@ private partial def isDefEqArgsFirstPass
       let info := paramInfo.get ⟨i, h⟩
       let a₁ := args₁[i]
       let a₂ := args₂[i]
-      if info.implicit || info.instImplicit then
+      if !info.isExplicit then
         if (← isEtaUnassignedMVar a₁ <||> isEtaUnassignedMVar a₂) then
           if (← Meta.isExprDefEqAux a₁ a₂) then
             loop (i+1) postponed
@@ -166,7 +166,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
         let a₁   := args₁[i]
         let a₂   := args₂[i]
         let info := finfo.paramInfo[i]
-        if info.instImplicit then
+        if info.isInstImplicit then
           discard <| trySynthPending a₁
           discard <| trySynthPending a₂
         withAtLeastTransparency TransparencyMode.default <| Meta.isExprDefEqAux a₁ a₂

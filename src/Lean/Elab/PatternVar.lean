@@ -296,9 +296,10 @@ where
         processCtorAppContext ctx
       | none =>
         let ctx ← match d.2 with
-          | BinderInfo.implicit     => processImplicitArg accessible ctx
-          | BinderInfo.instImplicit => processImplicitArg accessible ctx
-          | _                       => processExplicitArg accessible ctx
+          | BinderInfo.implicit       => processImplicitArg accessible ctx
+          | BinderInfo.strictImplicit => processImplicitArg accessible ctx
+          | BinderInfo.instImplicit   => processImplicitArg accessible ctx
+          | _                         => processExplicitArg accessible ctx
         processCtorAppContext ctx
 
   processCtorAppCore (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (ellipsis : Bool) : M Syntax := do

@@ -204,6 +204,9 @@ private partial def mkAppMArgs (f : Expr) (fType : Expr) (xs : Array Expr) : Met
         | BinderInfo.implicit     =>
           let mvar ← mkFreshExprMVar d MetavarKind.natural n
           loop b i j (args.push mvar) instMVars
+        | BinderInfo.strictImplicit     =>
+          let mvar ← mkFreshExprMVar d MetavarKind.natural n
+          loop b i j (args.push mvar) instMVars
         | BinderInfo.instImplicit =>
           let mvar ← mkFreshExprMVar d MetavarKind.synthetic n
           loop b i j (args.push mvar) (instMVars.push mvar.mvarId!)

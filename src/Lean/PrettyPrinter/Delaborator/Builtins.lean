@@ -506,10 +506,12 @@ def delabLam : Delab :=
             else
               pure $ curNames.get! 0;
           `(funBinder| ($stxCurNames : $stxT))
-        | BinderInfo.default,     false  => pure curNames.back  -- here `curNames.size == 1`
-        | BinderInfo.implicit,    true   => `(funBinder| {$curNames* : $stxT})
-        | BinderInfo.implicit,    false  => `(funBinder| {$curNames*})
-        | BinderInfo.instImplicit, _     =>
+        | BinderInfo.default,        false  => pure curNames.back  -- here `curNames.size == 1`
+        | BinderInfo.implicit,       true   => `(funBinder| {$curNames* : $stxT})
+        | BinderInfo.implicit,       false  => `(funBinder| {$curNames*})
+        | BinderInfo.strictImplicit, true   => `(funBinder| ⦃$curNames* : $stxT⦄)
+        | BinderInfo.strictImplicit, false  => `(funBinder| ⦃$curNames*⦄)
+        | BinderInfo.instImplicit,   _     =>
           if usedDownstream then `(funBinder| [$curNames.back : $stxT])  -- here `curNames.size == 1`
           else  `(funBinder| [$stxT])
         | _                      , _     => unreachable!;
@@ -524,10 +526,11 @@ def delabForall : Delab :=
     let prop ← try isProp e catch _ => false
     let stxT ← withBindingDomain delab
     let group ← match e.binderInfo with
-    | BinderInfo.implicit     => `(bracketedBinderF|{$curNames* : $stxT})
+    | BinderInfo.implicit       => `(bracketedBinderF|{$curNames* : $stxT})
+    | BinderInfo.strictImplicit => `(bracketedBinderF|⦃$curNames* : $stxT⦄)
     -- here `curNames.size == 1`
-    | BinderInfo.instImplicit => `(bracketedBinderF|[$curNames.back : $stxT])
-    | _                       =>
+    | BinderInfo.instImplicit   => `(bracketedBinderF|[$curNames.back : $stxT])
+    | _                         =>
       -- heuristic: use non-dependent arrows only if possible for whole group to avoid
       -- noisy mix like `(α : Type) → Type → (γ : Type) → ...`.
       let dependent := curNames.any $ fun n => hasIdent n.getId stxBody

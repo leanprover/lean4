@@ -388,6 +388,11 @@ private def processExplictArg (k : M Expr) : M Expr := do
       else
         finalize
 
+/- Return true if there are regular or named arguments to be processed. -/
+private def hasArgsToProcess : M Bool := do
+  let s ← get
+  return !s.args.isEmpty || !s.namedArgs.isEmpty
+
 /-
   Process a `fType` of the form `{x : A} → B x`.
   This method assume `fType` is a function type -/
@@ -396,6 +401,17 @@ private def processImplicitArg (k : M Expr) : M Expr := do
     processExplictArg k
   else
     addImplicitArg k
+
+/-
+  Process a `fType` of the form `{{x : A}} → B x`.
+  This method assume `fType` is a function type -/
+private def processStrictImplicitArg (k : M Expr) : M Expr := do
+  if (← get).explicit then
+    processExplictArg k
+  else if (← hasArgsToProcess) then
+    addImplicitArg k
+  else
+    finalize
 
 /- Return true if the next argument at `args` is of the form `_` -/
 private def isNextArgHole : M Bool := do
@@ -423,11 +439,6 @@ private def processInstImplicitArg (k : M Expr) : M Expr := do
     addNewArg arg
     k
 
-/- Return true if there are regular or named arguments to be processed. -/
-private def hasArgsToProcess : M Bool := do
-  let s ← get
-  pure $ !s.args.isEmpty || !s.namedArgs.isEmpty
-
 /- Elaborate function application arguments. -/
 partial def main : M Expr := do
   let s ← get
@@ -444,9 +455,10 @@ partial def main : M Expr := do
       main
     | none          =>
       match binfo with
-      | BinderInfo.implicit     => processImplicitArg main
-      | BinderInfo.instImplicit => processInstImplicitArg main
-      | _                       => processExplictArg main
+      | BinderInfo.implicit       => processImplicitArg main
+      | BinderInfo.instImplicit   => processInstImplicitArg main
+      | BinderInfo.strictImplicit => processStrictImplicitArg main
+      | _                         => processExplictArg main
   else if (← hasArgsToProcess) then
     synthesizePendingAndNormalizeFunType
     main
@@ -572,25 +584,25 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
 
 /- whnfCore + implicit consumption.
    Example: given `e` with `eType := {α : Type} → (fun β => List β) α `, it produces `(e ?m, List ?m)` where `?m` is fresh metavariable. -/
-private partial def consumeImplicits (stx : Syntax) (e eType : Expr) : TermElabM (Expr × Expr) := do
+private partial def consumeImplicits (stx : Syntax) (e eType : Expr) (hasArgs : Bool) : TermElabM (Expr × Expr) := do
   let eType ← whnfCore eType
   match eType with
   | Expr.forallE n d b c =>
-    if c.binderInfo.isImplicit then
+    if c.binderInfo.isImplicit || (hasArgs && c.binderInfo.isStrictImplicit) then
       let mvar ← mkFreshExprMVar d
       registerMVarErrorHoleInfo mvar.mvarId! stx
-      consumeImplicits stx (mkApp e mvar) (b.instantiate1 mvar)
+      consumeImplicits stx (mkApp e mvar) (b.instantiate1 mvar) hasArgs
     else if c.binderInfo.isInstImplicit then
       let mvar ← mkInstMVar d
-      consumeImplicits stx (mkApp e mvar) (b.instantiate1 mvar)
+      consumeImplicits stx (mkApp e mvar) (b.instantiate1 mvar) hasArgs
     else match d.getOptParamDefault? with
-      | some defVal => consumeImplicits stx (mkApp e defVal) (b.instantiate1 defVal)
+      | some defVal => consumeImplicits stx (mkApp e defVal) (b.instantiate1 defVal) hasArgs
       -- TODO: we do not handle autoParams here.
       | _ => pure (e, eType)
   | _ => pure (e, eType)
 
-private partial def resolveLValLoop (lval : LVal) (e eType : Expr) (previousExceptions : Array Exception) : TermElabM (Expr × LValResolution) := do
-  let (e, eType) ← consumeImplicits lval.getRef e eType
+private partial def resolveLValLoop (lval : LVal) (e eType : Expr) (previousExceptions : Array Exception) (hasArgs : Bool) : TermElabM (Expr × LValResolution) := do
+  let (e, eType) ← consumeImplicits lval.getRef e eType hasArgs
   tryPostponeIfMVar eType
   try
     let lvalRes ← resolveLValAux e eType lval
@@ -599,15 +611,15 @@ private partial def resolveLValLoop (lval : LVal) (e eType : Expr) (previousExce
     | ex@(Exception.error _ _) =>
       let eType? ← unfoldDefinition? eType
       match eType? with
-      | some eType => resolveLValLoop lval e eType (previousExceptions.push ex)
+      | some eType => resolveLValLoop lval e eType (previousExceptions.push ex) hasArgs
       | none       =>
         previousExceptions.forM fun ex => logException ex
         throw ex
     | ex@(Exception.internal _ _) => throw ex
 
-private def resolveLVal (e : Expr) (lval : LVal) : TermElabM (Expr × LValResolution) := do
+private def resolveLVal (e : Expr) (lval : LVal) (hasArgs : Bool) : TermElabM (Expr × LValResolution) := do
   let eType ← inferType e
-  resolveLValLoop lval e eType #[]
+  resolveLValLoop lval e eType #[] hasArgs
 
 private partial def mkBaseProjections (baseStructName : Name) (structName : Name) (e : Expr) : TermElabM Expr := do
   let env ← getEnv
@@ -675,7 +687,8 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
   | f, lval::lvals => do
     if let LVal.fieldName (ref := fieldStx) (targetStx := targetStx) .. := lval then
       addDotCompletionInfo targetStx f expectedType? fieldStx
-    let (f, lvalRes) ← resolveLVal f lval
+    let hasArgs := !namedArgs.isEmpty || !args.isEmpty
+    let (f, lvalRes) ← resolveLVal f lval hasArgs
     match lvalRes with
     | LValResolution.projIdx structName idx =>
       let f := mkProj structName idx f

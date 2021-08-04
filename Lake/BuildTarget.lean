@@ -56,11 +56,11 @@ def mk (artifact : a) (trace : t) (task : BuildTask) : ActiveBuildTarget t a :=
 def opaque (trace : t) (task : BuildTask) : ActiveBuildTarget t PUnit :=
   ⟨(), trace, task⟩
 
-def pure (artifact : a) (trace : t) : ActiveBuildTarget t a :=
+protected def pure (artifact : a) (trace : t) : ActiveBuildTarget t a :=
   ⟨artifact, trace, BuildTask.nop⟩
 
 def nil [Inhabited t] : ActiveBuildTarget t PUnit :=
-  pure () Inhabited.default
+  ActiveBuildTarget.pure () Inhabited.default
 
 def materialize (self : ActiveBuildTarget t α) : IO PUnit :=
   self.task.await
@@ -84,27 +84,27 @@ end ActiveBuildTarget
 -- ## Build Target
 
 abbrev BuildTarget t a :=
-  Target t (IO ∘ IOTask) a
+  Target t IO a
 
 namespace BuildTarget
 
-def mk (artifact : a) (trace : t) (task : IO BuildTask) : BuildTarget t a :=
+def mk (artifact : a) (trace : t) (task : IO PUnit) : BuildTarget t a :=
   ⟨artifact, trace, task⟩
 
-def opaque (trace : t) (task : IO BuildTask) : BuildTarget t PUnit :=
+def opaque (trace : t) (task : IO PUnit) : BuildTarget t PUnit :=
   ⟨(), trace, task⟩
 
-def pure (artifact : a) (trace : t) : BuildTarget t a :=
-  ⟨artifact, trace, BuildTask.nop⟩
+protected def pure (artifact : a) (trace : t) : BuildTarget t a :=
+  ⟨artifact, trace, pure ()⟩
 
 def nil [Inhabited t] : BuildTarget t PUnit :=
-  pure () Inhabited.default
+  BuildTarget.pure () Inhabited.default
 
 def spawn (self : BuildTarget t a) : IO (ActiveBuildTarget t a) := do
-  return {self with task := (← self.task)}
+  return {self with task := (← IO.asTask self.task)}
 
-def materialize (self : BuildTarget t a) : IO PUnit := do
-  (← self.task).await
+def materialize (self : BuildTarget t a) : IO PUnit :=
+  self.task
 
 end BuildTarget
 
@@ -122,10 +122,10 @@ abbrev FileTarget :=
 
 namespace FileTarget
 
-def mk (file : FilePath) (depMTime : MTime) (task : IO BuildTask) : FileTarget :=
+def mk (file : FilePath) (depMTime : MTime) (task : IO PUnit) : FileTarget :=
   ⟨file, depMTime, task⟩
 
-def pure (file : FilePath) (depMTime : MTime) : FileTarget :=
+protected def pure (file : FilePath) (depMTime : MTime) : FileTarget :=
   BuildTarget.pure file depMTime
 
 end FileTarget
@@ -140,7 +140,7 @@ namespace ActiveFileTarget
 def mk (file : FilePath) (depMTime : MTime) (task : BuildTask) : ActiveFileTarget :=
   ActiveBuildTarget.mk file depMTime task
 
-def pure (file : FilePath) (depMTime : MTime) : ActiveFileTarget :=
+protected def pure (file : FilePath) (depMTime : MTime) : ActiveFileTarget :=
   ActiveBuildTarget.pure file depMTime
 
 end ActiveFileTarget

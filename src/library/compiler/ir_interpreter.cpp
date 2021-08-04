@@ -48,12 +48,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #include "util/option_declarations.h"
 
 #ifndef LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE
-#if LEAN_IS_STAGE0 == 1
-// We already set `-Dinterpreter.prefer_native=false` in stdlib.make, but also set it here as a default when we use stage 0 in the editor
-#define LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE false
-#else
 #define LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE true
-#endif
 #endif
 
 namespace lean {

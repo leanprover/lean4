@@ -614,10 +614,9 @@ partial def importModules (imports : List Import) (opts : Options) (trustLevel :
     let mut numConsts := 0
     for mod in s.moduleData do
       numConsts := numConsts + mod.constants.size
-    -- (moduleNames, mods, regions)
     let mut modIdx : Nat := 0
-    let mut const2ModIdx : HashMap Name ModuleIdx := Std.mkHashMap (nbuckets := numConsts)
-    let mut constantMap : HashMap Name ConstantInfo := Std.mkHashMap (nbuckets := numConsts)
+    let mut const2ModIdx : HashMap Name ModuleIdx := Std.mkHashMap (capacity := numConsts)
+    let mut constantMap : HashMap Name ConstantInfo := Std.mkHashMap (capacity := numConsts)
     for mod in s.moduleData do
       for cinfo in mod.constants do
         const2ModIdx := const2ModIdx.insert cinfo.name modIdx

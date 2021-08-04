@@ -1,0 +1,2 @@
+kernelMVarBug.lean:5:15-5:20: error: failed to synthesize instance
+  HAdd α α α

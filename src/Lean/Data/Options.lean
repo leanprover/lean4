@@ -26,11 +26,7 @@ def OptionDecls := NameMap OptionDecl
 
 instance : Inhabited OptionDecls := ⟨({} : NameMap OptionDecl)⟩
 
-private def initOptionDeclsRef : IO (IO.Ref OptionDecls) :=
-  IO.mkRef (mkNameMap OptionDecl)
-
-@[builtinInit initOptionDeclsRef]
-private constant optionDeclsRef : IO.Ref OptionDecls
+private builtin_initialize optionDeclsRef : IO.Ref OptionDecls ← IO.mkRef (mkNameMap OptionDecl)
 
 @[export lean_register_option]
 def registerOption (name : Name) (decl : OptionDecl) : IO Unit := do

@@ -366,7 +366,7 @@ def categoryParserFnImpl (catName : Name) : ParserFn := fun ctx s =>
     prattParser catName cat.tables cat.behavior (mkCategoryAntiquotParserFn catName) ctx s
   | none     => s.mkUnexpectedError ("unknown parser category '" ++ toString catName ++ "'")
 
-@[builtinInit] def setCategoryParserFnRef : IO Unit :=
+builtin_initialize
   categoryParserFnRef.set categoryParserFnImpl
 
 def addToken (tk : Token) (kind : AttributeKind) : AttrM Unit := do
@@ -504,7 +504,7 @@ def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl whe
 def registerBuiltinDynamicParserAttribute (attrName : Name) (catName : Name) : IO Unit := do
   registerBuiltinAttribute (mkParserAttributeImpl attrName catName)
 
-@[builtinInit] private def registerParserAttributeImplBuilder : IO Unit :=
+builtin_initialize
   registerAttributeImplBuilder `parserAttr fun args =>
     match args with
     | [DataValue.ofName attrName, DataValue.ofName catName] => pure $ mkParserAttributeImpl attrName catName

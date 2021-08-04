@@ -75,11 +75,12 @@ private def msgToInteractive (msgData : MessageData) : IO (TaggedText MsgEmbed) 
   and store the pretty-printed embed (which is itself a `TaggedText (WithRpcRef LazyExprWithCtx)`,
   for example) in the tag. -/
   tt.rewriteM fun n subTt =>
-    match embeds.get! n with
-    | EmbedFmt.ofExpr e =>
+    match embeds.get? n with
+    | some (EmbedFmt.ofExpr e) =>
       TaggedText.tag
         { ef := subTt.map fun n => ⟨fun () => e.runMetaM (e.traverse n)⟩ }
         (TaggedText.text "")
+    | none => TaggedText.text subTt.stripTags
 
 private partial def stripEmbeds (tt : TaggedText MsgEmbed) : String :=
   let tt : TaggedText MsgEmbed := tt.rewrite fun ⟨et⟩ _ => TaggedText.text et.stripTags

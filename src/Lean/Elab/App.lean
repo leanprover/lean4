@@ -600,7 +600,9 @@ private partial def consumeImplicits (stx : Syntax) (e eType : Expr) (hasArgs : 
       consumeImplicits stx (mkApp e mvar) (b.instantiate1 mvar) hasArgs
     else if c.binderInfo.isInstImplicit then
       let mvar ← mkInstMVar d
-      consumeImplicits stx (mkApp e mvar) (b.instantiate1 mvar) hasArgs
+      let r := mkApp e mvar
+      registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
+      consumeImplicits stx r (b.instantiate1 mvar) hasArgs
     else match d.getOptParamDefault? with
       | some defVal => consumeImplicits stx (mkApp e defVal) (b.instantiate1 defVal) hasArgs
       -- TODO: we do not handle autoParams here.

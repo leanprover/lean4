@@ -276,17 +276,29 @@ def elabMutual : CommandElab := fun stx => do
     for attrName in toErase do
       Attribute.erase declName attrName
 
-def expandInitCmd (builtin : Bool) : Macro := fun stx =>
-  let optHeader := stx[2]
-  let doSeq     := stx[3]
-  let attrId    := mkIdentFrom stx $ if builtin then `builtinInit else `init
+def expandInitCmd (builtin : Bool) : Macro := fun stx => do
+  let optVisibility := stx[0]
+  let optHeader     := stx[2]
+  let doSeq         := stx[3]
+  let attrId        := mkIdentFrom stx $ if builtin then `builtinInit else `init
   if optHeader.isNone then
+    unless optVisibility.isNone do
+      Macro.throwError "invalid initialization command, 'visibility' modifer is not allowed"
     `(@[$attrId:ident]def initFn : IO Unit := do $doSeq)
   else
     let id   := optHeader[0]
     let type := optHeader[1][1]
-    `(def initFn : IO $type := do $doSeq
-      @[$attrId:ident initFn]constant $id : $type)
+    if optVisibility.isNone then
+      `(def initFn : IO $type := do $doSeq
+        @[$attrId:ident initFn] constant $id : $type)
+    else if optVisibility[0].getKind == ``Parser.Command.private then
+      `(def initFn : IO $type := do $doSeq
+        @[$attrId:ident initFn] private constant $id : $type)
+    else if optVisibility[0].getKind == ``Parser.Command.protected then
+      `(def initFn : IO $type := do $doSeq
+        @[$attrId:ident initFn] protected constant $id : $type)
+    else
+      Macro.throwError "unexpected visibility annotation"
 
 @[builtinMacro Lean.Parser.Command.«initialize»] def expandInitialize : Macro :=
   expandInitCmd (builtin := false)

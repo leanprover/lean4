@@ -180,6 +180,11 @@ affect later stages. This is an issue in two specific cases.
   For an example, see https://github.com/leanprover/lean4/commit/f9dcbbddc48ccab22c7674ba20c5f409823b4cc1#diff-371387aed38bb02bf7761084fd9460e4168ae16d1ffe5de041b47d3ad2d22422
   (from before the flag defaulted to `false`).
   
+To modify either of these flags both for building and editing the stdlib, adjust
+the code in `stage0/src/stdlib_flags.h`. The flags will automatically be reset
+on the next `update-stage0` when the file is overwritten with the original
+version in `src/`.
+
 Development Setup
 -----------------
 

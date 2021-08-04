@@ -36,6 +36,7 @@ Author: Leonardo de Moura
 #include "initialize/init.h"
 #include "library/compiler/ir_interpreter.h"
 #include "util/path.h"
+#include "stdlib_flags.h"
 #ifdef _MSC_VER
 #include <io.h>
 #define STDOUT_FILENO 1
@@ -430,7 +431,7 @@ int main(int argc, char ** argv) {
         return 1;
     }
 
-    options opts;
+    options opts = get_default_options();
     optional<std::string> server_in;
     std::string native_output;
     optional<std::string> c_output;

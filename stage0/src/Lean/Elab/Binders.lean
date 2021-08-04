@@ -104,24 +104,29 @@ private def getBinderIds (ids : Syntax) : TermElabM (Array Syntax) :=
 
 private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) := do
   let k := stx.getKind
-  if k == `Lean.Parser.Term.simpleBinder then
+  if k == ``Lean.Parser.Term.simpleBinder then
     -- binderIdent+ >> optType
     let ids ← getBinderIds stx[0]
     let type := expandOptType (mkNullNode ids) stx[1]
     ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.default }
-  else if k == `Lean.Parser.Term.explicitBinder then
+  else if k == ``Lean.Parser.Term.explicitBinder then
     -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
     let ids ← getBinderIds stx[1]
     let type        := expandBinderType (mkNullNode ids) stx[2]
     let optModifier := stx[3]
     let type ← expandBinderModifier type optModifier
     ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.default }
-  else if k == `Lean.Parser.Term.implicitBinder then
+  else if k == ``Lean.Parser.Term.implicitBinder then
     -- `{` binderIdent+ binderType `}`
     let ids ← getBinderIds stx[1]
     let type := expandBinderType (mkNullNode ids) stx[2]
     ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.implicit }
-  else if k == `Lean.Parser.Term.instBinder then
+  else if k == ``Lean.Parser.Term.strictImplicitBinder then
+    -- `⦃` binderIdent+ binderType `⦄`
+    let ids ← getBinderIds stx[1]
+    let type := expandBinderType (mkNullNode ids) stx[2]
+    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.strictImplicit }
+  else if k == ``Lean.Parser.Term.instBinder then
     -- `[` optIdent type `]`
     let id ← expandOptIdent stx[1]
     let type := stx[2]
@@ -256,15 +261,16 @@ partial def expandFunBinders (binders : Array Syntax) (body : Syntax) : MacroM (
         let newBody ← `(match $major:ident with | $pattern => $newBody)
         pure (binders, newBody, true)
       match binder with
-      | Syntax.node `Lean.Parser.Term.implicitBinder _ => loop body (i+1) (newBinders.push binder)
-      | Syntax.node `Lean.Parser.Term.instBinder _     => loop body (i+1) (newBinders.push binder)
-      | Syntax.node `Lean.Parser.Term.explicitBinder _ => loop body (i+1) (newBinders.push binder)
-      | Syntax.node `Lean.Parser.Term.simpleBinder _   => loop body (i+1) (newBinders.push binder)
-      | Syntax.node `Lean.Parser.Term.hole _ =>
+      | Syntax.node ``Lean.Parser.Term.implicitBinder _       => loop body (i+1) (newBinders.push binder)
+      | Syntax.node ``Lean.Parser.Term.strictImplicitBinder _ => loop body (i+1) (newBinders.push binder)
+      | Syntax.node ``Lean.Parser.Term.instBinder _           => loop body (i+1) (newBinders.push binder)
+      | Syntax.node ``Lean.Parser.Term.explicitBinder _       => loop body (i+1) (newBinders.push binder)
+      | Syntax.node ``Lean.Parser.Term.simpleBinder _         => loop body (i+1) (newBinders.push binder)
+      | Syntax.node ``Lean.Parser.Term.hole _ =>
         let ident ← mkFreshIdent binder
         let type := binder
         loop body (i+1) (newBinders.push <| mkExplicitBinder ident type)
-      | Syntax.node `Lean.Parser.Term.paren args =>
+      | Syntax.node ``Lean.Parser.Term.paren args =>
         -- `(` (termParser >> parenSpecial)? `)`
         -- parenSpecial := (tupleTail <|> typeAscription)?
         let binderBody := binder[1]

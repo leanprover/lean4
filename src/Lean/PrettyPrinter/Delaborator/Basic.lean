@@ -44,15 +44,17 @@ structure Context where
   currNamespace  : Name
   openDecls      : List OpenDecl
   inPattern      : Bool := false -- true whe delaborating `match` patterns
+  subExpr        : SubExpr
 
 structure State where
-  infos : Std.RBMap Pos Info compare := {}
+  infos    : Std.RBMap Pos Info compare := {}
+  holeIter : SubExpr.HoleIterator := {}
 
 -- Exceptions from delaborators are not expected. We use an internal exception to signal whether
 -- the delaborator was able to produce a Syntax object.
 builtin_initialize delabFailureId : InternalExceptionId ← registerInternalExceptionId `delabFailure
 
-abbrev DelabM := ReaderT Context (StateRefT State (ReaderT SubExpr (StateT SubExpr.HoleIterator MetaM)))
+abbrev DelabM := ReaderT Context (StateRefT State MetaM)
 abbrev Delab := DelabM Syntax
 
 instance {α} : Inhabited (DelabM α) where
@@ -67,6 +69,18 @@ instance : Alternative DelabM := {
 }
 -- HACK: necessary since it would otherwise prefer the instance from MonadExcept
 instance {α} : OrElse (DelabM α) := ⟨Delaborator.orElse⟩
+
+-- Low priority instances so `read`/`get`/etc default to the whole `Context`/`State`
+instance (priority := low) : MonadReaderOf SubExpr DelabM where
+  read := Context.subExpr <$> read
+
+instance (priority := low) : MonadWithReaderOf SubExpr DelabM where
+  withReader f x := fun ctx => x { ctx with subExpr := f ctx.subExpr }
+
+instance (priority := low) : MonadStateOf SubExpr.HoleIterator DelabM where
+  get         := State.holeIter <$> get
+  set iter    := modify fun ⟨infos, _⟩ => ⟨infos, iter⟩
+  modifyGet f := modifyGet fun ⟨infos, iter⟩ => let (ret, iter') := f iter; (ret, ⟨infos, iter'⟩)
 
 -- Macro scopes in the delaborator output are ultimately ignored by the pretty printer,
 -- so give a trivial implementation.
@@ -259,7 +273,13 @@ def delabCore (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (opt
     let stx ← Delaborator.delab
     pure (stx, (← get).infos)
   catchInternalId Delaborator.delabFailureId
-    (run { defaultOptions := opts, optionsPerPos := optionsPerPos, currNamespace := currNamespace, openDecls := openDecls } |>.run' {} (Delaborator.SubExpr.mkRoot e) |>.run' {})
+    (run
+      { defaultOptions := opts
+        optionsPerPos := optionsPerPos
+        currNamespace := currNamespace
+        openDecls := openDecls
+        subExpr := Delaborator.SubExpr.mkRoot e }
+      |>.run' { : Delaborator.State })
     (fun _ => unreachable!)
 
 /-- "Delaborate" the given term into surface-level syntax using the default and given subterm-specific options. -/

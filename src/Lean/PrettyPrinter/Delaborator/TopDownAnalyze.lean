@@ -240,13 +240,20 @@ structure Context where
   knowsLevel  : Bool -- only constants look at this
   inBottomUp  : Bool := false
   parentIsApp : Bool := false
-  deriving Inhabited, Repr
+  subExpr     : SubExpr
+  deriving Inhabited
 
 structure State where
   annotations : RBMap Pos Options compare := {}
   postponed   : Array (Expr × Expr) := #[] -- not currently used
 
-abbrev AnalyzeM := ReaderT Context (ReaderT SubExpr (StateRefT State MetaM))
+abbrev AnalyzeM := ReaderT Context (StateRefT State MetaM)
+
+instance (priority := low) : MonadReaderOf SubExpr AnalyzeM where
+  read := Context.subExpr <$> read
+
+instance (priority := low) : MonadWithReaderOf SubExpr AnalyzeM where
+  withReader f x := fun ctx => x { ctx with subExpr := f ctx.subExpr }
 
 def tryUnify (e₁ e₂ : Expr) : AnalyzeM Unit := do
   try
@@ -606,7 +613,8 @@ def topDownAnalyze (e : Expr) : MetaM OptionsPerPos := do
       let ϕ : AnalyzeM OptionsPerPos := do withNewMCtxDepth analyze; (← get).annotations
       try
         let knowsType := getPPAnalyzeKnowsType (← getOptions)
-        ϕ { knowsType := knowsType, knowsLevel := knowsType } (mkRoot e) |>.run' {}
+        ϕ { knowsType := knowsType, knowsLevel := knowsType, subExpr := mkRoot e }
+          |>.run' { : TopDownAnalyze.State }
       catch ex =>
         trace[pp.analyze.error] "failed"
         pure {}

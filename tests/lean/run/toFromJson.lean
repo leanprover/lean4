@@ -95,14 +95,20 @@ deriving ToJson, FromJson, Repr, BEq
 #eval checkRoundTrip (ERec.mk 7)
 #eval checkRoundTrip (ERec.W (ERec.mk 8))
 
-inductive ENest (α : Type)
-| mk : Nat → ENest α
-| W : (Array (ENest α)) → ENest α
+inductive ENest
+| mk : Nat → ENest
+| W : (Array ENest) → ENest
 deriving ToJson, FromJson, Repr, BEq
--- TODO(WN): workaround for elab bug, remove later
-def ENest.mk' : Nat → ENest Nat :=
-  ENest.mk (α := Nat)
 
-#eval checkToJson (ENest.W #[ENest.mk' 9]) (json { W : [{ mk : 9 }]})
-#eval checkRoundTrip (ENest.mk' 10)
-#eval checkRoundTrip (ENest.W #[ENest.mk' 11])
+#eval checkToJson (ENest.W #[ENest.mk 9]) (json { W : [{ mk : 9 }]})
+#eval checkRoundTrip (ENest.mk 10)
+#eval checkRoundTrip (ENest.W #[ENest.mk 11])
+
+inductive EParam (α : Type)
+| mk : α → EParam α
+deriving ToJson, FromJson, Repr, BEq
+
+#eval checkToJson (EParam.mk 12) (json { mk : 12 })
+#eval checkToJson (EParam.mk "abcd") (json { mk : "abcd" })
+#eval checkRoundTrip (EParam.mk 13)
+#eval checkRoundTrip (EParam.mk "efgh")

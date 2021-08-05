@@ -874,6 +874,17 @@ mutual
       let args ← args.mapM (visit xs)
       return (mkAppN (mkMVar mvarId) args, #[])
     else
+      /- `newMVarKind` is the kind for the new auxiliary metavariable.
+          There is an alternative approach where we use
+          ```
+          let newMVarKind := if !mctx.isExprAssignable mvarId || mvarDecl.isSyntheticOpaque then MetavarKind.syntheticOpaque else MetavarKind.natural
+          ```
+          In this approach, we use the natural kind for the new auxiliary metavariable if the original metavariable is synthetic and assignable.
+          Since we mainly use synthetic metavariables for pending type class (TC) resolution problems,
+          this approach may minimize the number of TC resolution problems that may need to be resolved.
+          A potential disadvantage is that `isDefEq` will not eagerly use `synthPending` for natural metavariables.
+          That being said, we should try this approach as soon as we have an extensive test suite.
+      -/
       let newMVarKind := if !mctx.isExprAssignable mvarId then MetavarKind.syntheticOpaque else mvarDecl.kind
       /- If `mvarId` is the lhs of a delayed assignment `?m #[x_1, ... x_n] := val`,
          then `nestedFVars` is `#[x_1, ..., x_n]`.

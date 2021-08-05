@@ -2468,6 +2468,7 @@ lean_object* x_13; uint8_t x_14;
 x_13 = lean_ctor_get(x_12, 4);
 lean_inc(x_13);
 x_14 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_631____at_Lean_Parser_ParserState_hasError___spec__1(x_13, x_3);
+lean_dec(x_3);
 lean_dec(x_13);
 if (x_14 == 0)
 {
@@ -2954,7 +2955,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Parser_precedence___elambda__1___lambda__2(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
-lean_dec(x_3);
 return x_5;
 }
 }

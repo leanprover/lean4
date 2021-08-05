@@ -1530,6 +1530,7 @@ lean_inc(x_31);
 lean_dec(x_29);
 x_32 = 0;
 x_33 = 1;
+lean_inc(x_9);
 lean_inc(x_8);
 x_34 = l_Lean_Meta_mkForallFVars(x_5, x_30, x_32, x_33, x_8, x_9, x_10, x_11, x_31);
 if (lean_obj_tag(x_34) == 0)
@@ -2100,7 +2101,6 @@ x_32 = lean_ctor_get(x_30, 1);
 lean_inc(x_32);
 lean_dec(x_30);
 x_33 = l_Lean_mkAppN(x_21, x_31);
-lean_dec(x_31);
 x_34 = l_Lean_Meta_transform_visit_visitPost___at_Lean_Meta_expandCoe___spec__3(x_1, x_2, x_3, x_4, x_33, x_8, x_9, x_10, x_11, x_12, x_32);
 return x_34;
 }
@@ -2818,8 +2818,8 @@ if (x_14 == 0)
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_15 = lean_ctor_get(x_13, 0);
 x_16 = lean_ctor_get(x_13, 1);
+lean_inc(x_5);
 x_17 = l_Std_HashMapImp_find_x3f___at_Lean_MetavarContext_instantiateExprMVars___spec__1(x_15, x_5);
-lean_dec(x_15);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
@@ -2966,8 +2966,8 @@ x_42 = lean_ctor_get(x_13, 1);
 lean_inc(x_42);
 lean_inc(x_41);
 lean_dec(x_13);
+lean_inc(x_5);
 x_43 = l_Std_HashMapImp_find_x3f___at_Lean_MetavarContext_instantiateExprMVars___spec__1(x_41, x_5);
-lean_dec(x_41);
 if (lean_obj_tag(x_43) == 0)
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 

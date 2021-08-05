@@ -196,7 +196,6 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lean_Elab_getDeclarationRange___rarg___lambda__1(x_1, x_2, x_3);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_4;
 }
 }

@@ -237,7 +237,6 @@ lean_object* l_Std_RBMap_min___rarg___boxed(lean_object*);
 lean_object* l_Std_RBMap_maxDepth___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_RBMap_instReprRBMap___rarg___closed__8;
 static lean_object* l_Std_RBMap_toList___rarg___closed__1;
-lean_object* l_Std_RBMap_size___rarg___boxed(lean_object*);
 lean_object* l_Std_RBNode_setBlack_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_forM___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_forM___rarg(lean_object*, lean_object*, lean_object*);
@@ -21668,6 +21667,7 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Std_RBNode_fold___at_Std_RBMap_size___spec__1___rarg(x_2, x_1);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -21675,7 +21675,7 @@ lean_object* l_Std_RBMap_size(lean_object* x_1, lean_object* x_2, lean_object* x
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_RBMap_size___rarg___boxed), 1, 0);
+x_4 = lean_alloc_closure((void*)(l_Std_RBMap_size___rarg), 1, 0);
 return x_4;
 }
 }
@@ -21686,15 +21686,6 @@ lean_object* x_3;
 x_3 = l_Std_RBNode_fold___at_Std_RBMap_size___spec__1___rarg(x_1, x_2);
 lean_dec(x_2);
 return x_3;
-}
-}
-lean_object* l_Std_RBMap_size___rarg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_RBMap_size___rarg(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l_Std_RBMap_size___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

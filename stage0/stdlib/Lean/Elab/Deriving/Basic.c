@@ -59,12 +59,10 @@ lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_elabDeriving___spec__7___closed__2;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofList(lean_object*);
-lean_object* l_Lean_Elab_registerBuiltinDerivingHandlerWithArgs___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getOptDerivingClasses(lean_object*);
 static lean_object* l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_elabDeriving___spec__17___closed__3;
 static lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_elabDeriving___spec__7___closed__1;
 static lean_object* l_Lean_Elab_elabDeriving___lambda__2___closed__1;
-lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_elabDeriving___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_registerBuiltinDerivingHandlerWithArgs___lambda__2___closed__1;
 lean_object* l_Lean_Elab_elabDeriving_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -75,7 +73,6 @@ lean_object* l_Lean_Elab_getOptDerivingClasses___rarg(lean_object*, lean_object*
 static lean_object* l_Lean_Elab_elabDeriving___closed__7;
 static lean_object* l_Lean_Elab_defaultHandler___closed__6;
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_resolveGlobalConst___at_Lean_Elab_elabDeriving___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabDeriving___spec__20___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_Lean_Elab_elabDeriving___spec__6___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_empty;
@@ -134,12 +131,10 @@ lean_object* l_Lean_throwError___at_Lean_Elab_Command_expandDeclId___spec__10(le
 lean_object* l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_Lean_Elab_elabDeriving___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_registerBuiltinDerivingHandlerWithArgs___lambda__2___closed__2;
 static lean_object* l_Lean_Elab_elabDeriving___closed__6;
-lean_object* l_Lean_resolveGlobalConstCore___at_Lean_Elab_elabDeriving___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ResolveName_resolveGlobalName(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Elab_getOptDerivingClasses_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_Elab_elabDeriving___spec__15(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_Lean_Elab_elabDeriving___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___hyg_1232____closed__3;
 lean_object* l_Lean_Elab_elabDeriving_match__3(lean_object*);
 lean_object* l_Lean_Elab_DerivingClassView_applyHandlers(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -283,6 +278,7 @@ lean_object* l_Lean_Elab_registerBuiltinDerivingHandlerWithArgs___lambda__2(lean
 _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+lean_dec(x_3);
 x_5 = l_Lean_Elab_derivingHandlersRef;
 x_6 = lean_st_ref_get(x_5, x_4);
 x_7 = !lean_is_exclusive(x_6);
@@ -458,15 +454,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Elab_registerBuiltinDerivingHandlerWithArgs___lambda__1(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
-}
-}
-lean_object* l_Lean_Elab_registerBuiltinDerivingHandlerWithArgs___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_Elab_registerBuiltinDerivingHandlerWithArgs___lambda__2(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 return x_5;
 }
@@ -1204,7 +1191,6 @@ x_16 = lean_ctor_get(x_15, 3);
 lean_inc(x_16);
 lean_dec(x_15);
 x_17 = l_Lean_ResolveName_resolveGlobalName(x_8, x_12, x_16, x_1);
-lean_dec(x_12);
 lean_ctor_set(x_13, 0, x_17);
 return x_13;
 }
@@ -1220,7 +1206,6 @@ x_20 = lean_ctor_get(x_18, 3);
 lean_inc(x_20);
 lean_dec(x_18);
 x_21 = l_Lean_ResolveName_resolveGlobalName(x_8, x_12, x_20, x_1);
-lean_dec(x_12);
 x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_22, 1, x_19);
@@ -1305,6 +1290,7 @@ lean_object* x_11; lean_object* x_12;
 lean_dec(x_1);
 x_11 = lean_box(0);
 x_12 = l_Lean_resolveGlobalConstCore___at_Lean_Elab_elabDeriving___spec__10___lambda__1(x_9, x_11, x_2, x_3, x_7);
+lean_dec(x_3);
 lean_dec(x_2);
 return x_12;
 }
@@ -1313,6 +1299,7 @@ else
 lean_object* x_13; uint8_t x_14; 
 lean_dec(x_9);
 x_13 = l_Lean_throwUnknownConstant___at_Lean_Elab_elabDeriving___spec__12(x_1, x_2, x_3, x_7);
+lean_dec(x_3);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
 {
@@ -1379,6 +1366,7 @@ if (x_8 == 0)
 {
 lean_object* x_9; 
 lean_dec(x_5);
+lean_dec(x_3);
 lean_dec(x_2);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_7);
@@ -1398,6 +1386,7 @@ else
 lean_object* x_11; lean_object* x_12; 
 x_11 = l_Lean_resolveGlobalConst___at_Lean_Elab_elabDeriving___spec__8___closed__3;
 x_12 = l_Lean_throwErrorAt___at_Lean_Elab_elabDeriving___spec__9(x_1, x_11, x_2, x_3, x_4);
+lean_dec(x_3);
 lean_dec(x_1);
 return x_12;
 }
@@ -1477,6 +1466,7 @@ lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_elabDeriving___s
 _start:
 {
 lean_object* x_5; 
+lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_1);
 x_5 = l_Lean_resolveGlobalConst___at_Lean_Elab_elabDeriving___spec__8(x_1, x_2, x_3, x_4);
@@ -1513,6 +1503,7 @@ lean_ctor_set(x_23, 0, x_22);
 x_24 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_24, 0, x_23);
 x_25 = l_Lean_throwError___at_Lean_Elab_elabDeriving___spec__13(x_24, x_2, x_3, x_7);
+lean_dec(x_3);
 return x_25;
 }
 else
@@ -1523,6 +1514,7 @@ lean_inc(x_26);
 if (lean_obj_tag(x_26) == 0)
 {
 uint8_t x_27; 
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_27 = !lean_is_exclusive(x_5);
@@ -1581,6 +1573,7 @@ lean_ctor_set(x_49, 0, x_48);
 x_50 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_50, 0, x_49);
 x_51 = l_Lean_throwError___at_Lean_Elab_elabDeriving___spec__13(x_50, x_2, x_3, x_33);
+lean_dec(x_3);
 return x_51;
 }
 }
@@ -1588,6 +1581,7 @@ return x_51;
 else
 {
 uint8_t x_52; 
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_52 = !lean_is_exclusive(x_5);
@@ -2130,6 +2124,7 @@ lean_object* l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_Lean_Elab_ela
 _start:
 {
 lean_object* x_6; 
+lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_1);
 x_6 = l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_elabDeriving___spec__7(x_1, x_3, x_4, x_5);
@@ -2152,6 +2147,7 @@ lean_dec(x_11);
 if (x_12 == 0)
 {
 uint8_t x_13; 
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -2208,6 +2204,7 @@ lean_ctor_set_uint8(x_25, sizeof(void*)*4, x_24);
 x_26 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_26, 0, x_25);
 x_27 = l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_elabDeriving___spec__17(x_26, x_3, x_4, x_20);
+lean_dec(x_4);
 lean_dec(x_3);
 x_28 = !lean_is_exclusive(x_27);
 if (x_28 == 0)
@@ -2234,6 +2231,7 @@ else
 {
 uint8_t x_32; 
 lean_dec(x_7);
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -2261,6 +2259,7 @@ return x_35;
 else
 {
 uint8_t x_36; 
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -2293,6 +2292,7 @@ x_7 = x_2 < x_1;
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
+lean_dec(x_5);
 lean_dec(x_4);
 x_8 = x_3;
 x_9 = lean_alloc_ctor(0, 2, 0);
@@ -2308,6 +2308,7 @@ x_11 = lean_unsigned_to_nat(0u);
 x_12 = lean_array_uset(x_3, x_2, x_11);
 x_13 = x_10;
 x_14 = lean_box(0);
+lean_inc(x_5);
 lean_inc(x_4);
 x_15 = l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_Lean_Elab_elabDeriving___spec__6(x_13, x_14, x_4, x_5, x_6);
 if (lean_obj_tag(x_15) == 0)
@@ -2331,6 +2332,7 @@ else
 {
 uint8_t x_23; 
 lean_dec(x_12);
+lean_dec(x_5);
 lean_dec(x_4);
 x_23 = !lean_is_exclusive(x_15);
 if (x_23 == 0)
@@ -2413,6 +2415,7 @@ x_32 = lean_nat_add(x_22, x_31);
 lean_dec(x_22);
 lean_ctor_set(x_5, 1, x_32);
 x_33 = lean_box(0);
+lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_11);
 x_34 = l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_Lean_Elab_elabDeriving___spec__6(x_11, x_33, x_6, x_7, x_8);
@@ -2476,6 +2479,8 @@ lean_inc(x_51);
 x_52 = lean_ctor_get(x_48, 1);
 lean_inc(x_52);
 lean_dec(x_48);
+lean_inc(x_7);
+lean_inc(x_6);
 x_53 = l_Lean_Elab_logException___at_Lean_Elab_Command_runLinters___spec__1(x_51, x_6, x_7, x_52);
 if (lean_obj_tag(x_53) == 0)
 {
@@ -2527,6 +2532,8 @@ lean_inc(x_60);
 x_61 = lean_ctor_get(x_34, 1);
 lean_inc(x_61);
 lean_dec(x_34);
+lean_inc(x_7);
+lean_inc(x_6);
 x_62 = l_Lean_Elab_logException___at_Lean_Elab_Command_runLinters___spec__1(x_60, x_6, x_7, x_61);
 if (lean_obj_tag(x_62) == 0)
 {
@@ -2581,6 +2588,7 @@ lean_ctor_set(x_72, 0, x_21);
 lean_ctor_set(x_72, 1, x_71);
 lean_ctor_set(x_72, 2, x_23);
 x_73 = lean_box(0);
+lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_11);
 x_74 = l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_Lean_Elab_elabDeriving___spec__6(x_11, x_73, x_6, x_7, x_8);
@@ -2644,6 +2652,8 @@ lean_inc(x_91);
 x_92 = lean_ctor_get(x_88, 1);
 lean_inc(x_92);
 lean_dec(x_88);
+lean_inc(x_7);
+lean_inc(x_6);
 x_93 = l_Lean_Elab_logException___at_Lean_Elab_Command_runLinters___spec__1(x_91, x_6, x_7, x_92);
 if (lean_obj_tag(x_93) == 0)
 {
@@ -2697,6 +2707,8 @@ lean_inc(x_100);
 x_101 = lean_ctor_get(x_74, 1);
 lean_inc(x_101);
 lean_dec(x_74);
+lean_inc(x_7);
+lean_inc(x_6);
 x_102 = l_Lean_Elab_logException___at_Lean_Elab_Command_runLinters___spec__1(x_100, x_6, x_7, x_101);
 if (lean_obj_tag(x_102) == 0)
 {
@@ -3349,38 +3361,11 @@ lean_dec(x_2);
 return x_6;
 }
 }
-lean_object* l_Lean_resolveGlobalConstCore___at_Lean_Elab_elabDeriving___spec__10___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_resolveGlobalConstCore___at_Lean_Elab_elabDeriving___spec__10(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
-}
-}
-lean_object* l_Lean_resolveGlobalConst___at_Lean_Elab_elabDeriving___spec__8___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_resolveGlobalConst___at_Lean_Elab_elabDeriving___spec__8(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
-}
-}
 lean_object* l_Lean_throwError___at_Lean_Elab_elabDeriving___spec__13___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_throwError___at_Lean_Elab_elabDeriving___spec__13(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
-}
-}
-lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_elabDeriving___spec__7___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_elabDeriving___spec__7(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 return x_5;
 }
@@ -3443,15 +3428,6 @@ lean_dec(x_2);
 return x_6;
 }
 }
-lean_object* l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_Lean_Elab_elabDeriving___spec__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_Lean_Elab_elabDeriving___spec__6(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_4);
-return x_6;
-}
-}
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_elabDeriving___spec__19___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -3461,7 +3437,6 @@ lean_dec(x_1);
 x_8 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_9 = l_Array_mapMUnsafe_map___at_Lean_Elab_elabDeriving___spec__19(x_7, x_8, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
 return x_9;
 }
 }

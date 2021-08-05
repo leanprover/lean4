@@ -1394,7 +1394,6 @@ if (x_36 == 0)
 {
 lean_object* x_37; lean_object* x_38; 
 x_37 = l_Lean_mkIdentFrom(x_1, x_33);
-lean_dec(x_1);
 x_38 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_38, 0, x_37);
 lean_ctor_set(x_38, 1, x_2);
@@ -1410,7 +1409,6 @@ if (x_40 == 0)
 lean_object* x_41; lean_object* x_42; 
 x_41 = lean_ctor_get(x_39, 0);
 x_42 = l_Lean_mkIdentFrom(x_1, x_41);
-lean_dec(x_1);
 lean_ctor_set(x_39, 0, x_42);
 return x_39;
 }
@@ -1423,7 +1421,6 @@ lean_inc(x_44);
 lean_inc(x_43);
 lean_dec(x_39);
 x_45 = l_Lean_mkIdentFrom(x_1, x_43);
-lean_dec(x_1);
 x_46 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_46, 0, x_45);
 lean_ctor_set(x_46, 1, x_44);
@@ -1439,7 +1436,6 @@ x_47 = lean_ctor_get(x_35, 0);
 lean_inc(x_47);
 lean_dec(x_35);
 x_48 = l_Lean_mkIdentFrom(x_1, x_47);
-lean_dec(x_1);
 x_49 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_49, 0, x_48);
 lean_ctor_set(x_49, 1, x_2);

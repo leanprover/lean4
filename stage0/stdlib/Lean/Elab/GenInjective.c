@@ -27,7 +27,6 @@ extern lean_object* l_Lean_Elab_Command_commandElabAttribute;
 lean_object* l_List_filterMap___at_Lean_resolveGlobalConst___spec__1(lean_object*);
 lean_object* l_Lean_Elab_Command_elabGenInjectiveTheorems___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_resolveGlobalConstCore___spec__2(lean_object*);
-lean_object* l_Lean_resolveGlobalConstCore___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkInjectiveTheorems(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_throwUnknownConstant___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__6___closed__4;
@@ -46,7 +45,6 @@ lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Command_elabGenInjectiveTheorems
 static lean_object* l_Lean_resolveGlobalConst___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__2___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__9;
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__8;
-lean_object* l_Lean_resolveGlobalConst___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Command_elabCommand___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalConstCore___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -64,7 +62,6 @@ lean_object* l_Lean_Elab_addMacroStack___at_Lean_Elab_Command_instAddErrorMessag
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__6;
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__13;
 static lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__1___closed__2;
-lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalName___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalConst___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -169,7 +166,6 @@ x_16 = lean_ctor_get(x_15, 3);
 lean_inc(x_16);
 lean_dec(x_15);
 x_17 = l_Lean_ResolveName_resolveGlobalName(x_8, x_12, x_16, x_1);
-lean_dec(x_12);
 lean_ctor_set(x_13, 0, x_17);
 return x_13;
 }
@@ -185,7 +181,6 @@ x_20 = lean_ctor_get(x_18, 3);
 lean_inc(x_20);
 lean_dec(x_18);
 x_21 = l_Lean_ResolveName_resolveGlobalName(x_8, x_12, x_20, x_1);
-lean_dec(x_12);
 x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_22, 1, x_19);
@@ -278,6 +273,7 @@ lean_object* x_11; lean_object* x_12;
 lean_dec(x_1);
 x_11 = lean_box(0);
 x_12 = l_Lean_resolveGlobalConstCore___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__4___lambda__1(x_9, x_11, x_2, x_3, x_7);
+lean_dec(x_3);
 lean_dec(x_2);
 return x_12;
 }
@@ -286,6 +282,7 @@ else
 lean_object* x_13; uint8_t x_14; 
 lean_dec(x_9);
 x_13 = l_Lean_throwUnknownConstant___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__6(x_1, x_2, x_3, x_7);
+lean_dec(x_3);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
 {
@@ -352,6 +349,7 @@ if (x_8 == 0)
 {
 lean_object* x_9; 
 lean_dec(x_5);
+lean_dec(x_3);
 lean_dec(x_2);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_7);
@@ -371,6 +369,7 @@ else
 lean_object* x_11; lean_object* x_12; 
 x_11 = l_Lean_resolveGlobalConst___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__2___closed__3;
 x_12 = l_Lean_throwErrorAt___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__3(x_1, x_11, x_2, x_3, x_4);
+lean_dec(x_3);
 lean_dec(x_1);
 return x_12;
 }
@@ -458,6 +457,7 @@ lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Command_elabGenI
 _start:
 {
 lean_object* x_5; 
+lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_1);
 x_5 = l_Lean_resolveGlobalConst___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__2(x_1, x_2, x_3, x_4);
@@ -494,6 +494,7 @@ lean_ctor_set(x_23, 0, x_22);
 x_24 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_24, 0, x_23);
 x_25 = l_Lean_throwError___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__7(x_24, x_2, x_3, x_7);
+lean_dec(x_3);
 return x_25;
 }
 else
@@ -504,6 +505,7 @@ lean_inc(x_26);
 if (lean_obj_tag(x_26) == 0)
 {
 uint8_t x_27; 
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_27 = !lean_is_exclusive(x_5);
@@ -562,6 +564,7 @@ lean_ctor_set(x_49, 0, x_48);
 x_50 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_50, 0, x_49);
 x_51 = l_Lean_throwError___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__7(x_50, x_2, x_3, x_33);
+lean_dec(x_3);
 return x_51;
 }
 }
@@ -569,6 +572,7 @@ return x_51;
 else
 {
 uint8_t x_52; 
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_52 = !lean_is_exclusive(x_5);
@@ -606,6 +610,7 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_unsigned_to_nat(1u);
 x_6 = l_Lean_Syntax_getArg(x_1, x_5);
+lean_inc(x_3);
 lean_inc(x_2);
 x_7 = l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__1(x_6, x_2, x_3, x_4);
 if (lean_obj_tag(x_7) == 0)
@@ -620,11 +625,13 @@ x_10 = lean_box(0);
 x_11 = lean_alloc_closure((void*)(l_Lean_Elab_Command_elabGenInjectiveTheorems___lambda__1___boxed), 8, 1);
 lean_closure_set(x_11, 0, x_8);
 x_12 = l_Lean_Elab_Command_liftTermElabM___rarg(x_10, x_11, x_2, x_3, x_9);
+lean_dec(x_3);
 return x_12;
 }
 else
 {
 uint8_t x_13; 
+lean_dec(x_3);
 lean_dec(x_2);
 x_13 = !lean_is_exclusive(x_7);
 if (x_13 == 0)
@@ -687,38 +694,11 @@ lean_dec(x_2);
 return x_6;
 }
 }
-lean_object* l_Lean_resolveGlobalConstCore___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_resolveGlobalConstCore___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__4(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
-}
-}
-lean_object* l_Lean_resolveGlobalConst___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_resolveGlobalConst___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__2(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
-}
-}
 lean_object* l_Lean_throwError___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__7___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_throwError___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__7(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
-}
-}
-lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__1(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 return x_5;
 }
@@ -738,7 +718,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Elab_Command_elabGenInjectiveTheorems(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
 lean_dec(x_1);
 return x_5;
 }

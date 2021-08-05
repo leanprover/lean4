@@ -36,7 +36,6 @@ static lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_regist
 lean_object* l_Lean_PersistentEnvExtension_getState___at_Lean_ScopedEnvExtension_activateScoped___spec__1___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedScopedEnvExtension___rarg___closed__6;
 lean_object* l_Lean_ScopedEnvExtension_addImportedFn___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__4___rarg___boxed(lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* l_Lean_activateScoped(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -112,7 +111,6 @@ lean_object* l_Lean_ScopedEnvExtension_addImportedFn___rarg(lean_object*, lean_o
 lean_object* l_Std_mkHashMap___at_Lean_ScopedEnvExtension_mkInitial___spec__1___rarg(lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ScopedEnvExtension_popScope___spec__2___rarg___boxed(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
-lean_object* l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__6___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_pushScope(lean_object*);
 size_t l_UInt64_toUSize(uint64_t);
 lean_object* l_Lean_ScopedEnvExtension_popScope___rarg(lean_object*, lean_object*);
@@ -185,7 +183,6 @@ lean_object* l_Lean_ScopedEnvExtension_pushScope_match__1(lean_object*, lean_obj
 lean_object* l_Lean_popScope(lean_object*);
 lean_object* l_Std_AssocList_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__3___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_ScopedEnvExtension_activateScoped___spec__10___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-lean_object* l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__2___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerScopedEnvExtensionUnsafe___spec__1___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_addImportedFn_match__2(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_persistentEnvExtensionsRef;
@@ -199,7 +196,6 @@ lean_object* l_Array_reverse___rarg(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___at_Lean_ScopedEnvExtension_modifyState___spec__1___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_ScopedEnvExtension_getState___rarg___closed__4;
 lean_object* l_Lean_ScopedEnvExtension_State_activeScopes___default;
-lean_object* l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__4___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__7___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_ScopedEnvExtension_ScopedEntries_insert___rarg___closed__2;
 lean_object* l_Std_PersistentArray_forInAux___at_Lean_ScopedEnvExtension_activateScoped___spec__9___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1036,14 +1032,18 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint64_t x_5; size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; 
 x_3 = lean_ctor_get(x_1, 1);
+lean_inc(x_3);
+lean_dec(x_1);
 x_4 = lean_array_get_size(x_3);
 x_5 = l_Lean_Name_hash(x_2);
 x_6 = (size_t)x_5;
 x_7 = lean_usize_modn(x_6, x_4);
 lean_dec(x_4);
 x_8 = lean_array_uget(x_3, x_7);
+lean_dec(x_3);
 x_9 = l_Std_AssocList_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__3___rarg(x_2, x_8);
 lean_dec(x_8);
+lean_dec(x_2);
 return x_9;
 }
 }
@@ -1051,7 +1051,7 @@ lean_object* l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntrie
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__2___rarg___boxed), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__2___rarg), 2, 0);
 return x_2;
 }
 }
@@ -1100,14 +1100,18 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint64_t x_5; size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; 
 x_3 = lean_ctor_get(x_1, 1);
+lean_inc(x_3);
+lean_dec(x_1);
 x_4 = lean_array_get_size(x_3);
 x_5 = l_Lean_Name_hash(x_2);
 x_6 = (size_t)x_5;
 x_7 = lean_usize_modn(x_6, x_4);
 lean_dec(x_4);
 x_8 = lean_array_uget(x_3, x_7);
+lean_dec(x_3);
 x_9 = l_Std_AssocList_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__5___rarg(x_2, x_8);
 lean_dec(x_8);
+lean_dec(x_2);
 return x_9;
 }
 }
@@ -1115,7 +1119,7 @@ lean_object* l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntrie
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__4___rarg___boxed), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__4___rarg), 2, 0);
 return x_2;
 }
 }
@@ -1140,8 +1144,6 @@ if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; 
 x_9 = l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__2___rarg(x_4, x_2);
-lean_dec(x_2);
-lean_dec(x_4);
 return x_9;
 }
 else
@@ -1173,8 +1175,6 @@ x_13 = lean_ctor_get(x_1, 0);
 lean_inc(x_13);
 lean_dec(x_1);
 x_14 = l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__4___rarg(x_13, x_2);
-lean_dec(x_2);
-lean_dec(x_13);
 return x_14;
 }
 }
@@ -1438,31 +1438,11 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__2___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__2___rarg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 lean_object* l_Std_AssocList_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__5___rarg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_AssocList_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__5___rarg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__4___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__4___rarg(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
@@ -4726,14 +4706,18 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint64_t x_5; size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; 
 x_3 = lean_ctor_get(x_1, 1);
+lean_inc(x_3);
+lean_dec(x_1);
 x_4 = lean_array_get_size(x_3);
 x_5 = l_Lean_Name_hash(x_2);
 x_6 = (size_t)x_5;
 x_7 = lean_usize_modn(x_6, x_4);
 lean_dec(x_4);
 x_8 = lean_array_uget(x_3, x_7);
+lean_dec(x_3);
 x_9 = l_Std_AssocList_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__5___rarg(x_2, x_8);
 lean_dec(x_8);
+lean_dec(x_2);
 return x_9;
 }
 }
@@ -4741,7 +4725,7 @@ lean_object* l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_activateScop
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__4___rarg___boxed), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__4___rarg), 2, 0);
 return x_2;
 }
 }
@@ -4790,14 +4774,18 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint64_t x_5; size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; 
 x_3 = lean_ctor_get(x_1, 1);
+lean_inc(x_3);
+lean_dec(x_1);
 x_4 = lean_array_get_size(x_3);
 x_5 = l_Lean_Name_hash(x_2);
 x_6 = (size_t)x_5;
 x_7 = lean_usize_modn(x_6, x_4);
 lean_dec(x_4);
 x_8 = lean_array_uget(x_3, x_7);
+lean_dec(x_3);
 x_9 = l_Std_AssocList_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__7___rarg(x_2, x_8);
 lean_dec(x_8);
+lean_dec(x_2);
 return x_9;
 }
 }
@@ -4805,7 +4793,7 @@ lean_object* l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_activateScop
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__6___rarg___boxed), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__6___rarg), 2, 0);
 return x_2;
 }
 }
@@ -4830,8 +4818,6 @@ if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; 
 x_9 = l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__4___rarg(x_4, x_2);
-lean_dec(x_2);
-lean_dec(x_4);
 return x_9;
 }
 else
@@ -4863,8 +4849,6 @@ x_13 = lean_ctor_get(x_1, 0);
 lean_inc(x_13);
 lean_dec(x_1);
 x_14 = l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__6___rarg(x_13, x_2);
-lean_dec(x_2);
-lean_dec(x_13);
 return x_14;
 }
 }
@@ -5616,31 +5600,11 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__4___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__4___rarg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 lean_object* l_Std_AssocList_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__7___rarg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_AssocList_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__7___rarg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__6___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_HashMapImp_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__6___rarg(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

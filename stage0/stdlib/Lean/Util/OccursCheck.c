@@ -392,6 +392,8 @@ return x_7;
 else
 {
 uint8_t x_8; 
+lean_inc(x_3);
+lean_inc(x_4);
 x_8 = l_Std_HashSetImp_contains___at___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_shouldVisit___spec__1(x_4, x_3);
 if (x_8 == 0)
 {

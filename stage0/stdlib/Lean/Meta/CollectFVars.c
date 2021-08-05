@@ -261,6 +261,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_2);
 x_11 = lean_box(0);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
@@ -279,6 +280,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_2);
 x_14 = lean_box(0);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
@@ -293,6 +295,7 @@ x_17 = lean_usize_of_nat(x_8);
 lean_dec(x_8);
 x_18 = lean_box(0);
 x_19 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_collectUsedFVarsAtFVars___spec__1(x_1, x_16, x_17, x_18, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_2);
 return x_19;
 }
 }
@@ -317,7 +320,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Lean_Elab_Term_collectUsedFVarsAtFVars(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_8;
 }

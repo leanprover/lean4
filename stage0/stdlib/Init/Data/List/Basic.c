@@ -3423,6 +3423,7 @@ _start:
 uint8_t x_2; uint8_t x_3; 
 x_2 = 0;
 x_3 = l_List_foldr___at_List_or___spec__1(x_2, x_1);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -3443,7 +3444,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_List_or(x_1);
-lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -3482,6 +3482,7 @@ _start:
 uint8_t x_2; uint8_t x_3; 
 x_2 = 1;
 x_3 = l_List_foldr___at_List_and___spec__1(x_2, x_1);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -3502,7 +3503,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_List_and(x_1);
-lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }

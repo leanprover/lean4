@@ -24,7 +24,6 @@ static lean_object* l_Lean_Meta_generalize___lambda__3___closed__2;
 lean_object* l_Lean_Meta_getMVarType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_generalize___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_generalize___lambda__3___closed__1;
-lean_object* l_Lean_Meta_generalize___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_generalize___lambda__2___closed__2;
 static lean_object* l_Lean_Meta_generalize___lambda__2___closed__1;
 lean_object* l_Lean_Meta_generalize(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -118,6 +117,7 @@ lean_object* l_Lean_Meta_generalize___lambda__2(lean_object* x_1, lean_object* x
 _start:
 {
 lean_object* x_13; 
+lean_dec(x_7);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
@@ -158,7 +158,6 @@ x_23 = lean_box(0);
 x_24 = l_Lean_Meta_throwTacticEx___rarg(x_6, x_5, x_22, x_23, x_8, x_9, x_10, x_11, x_21);
 lean_dec(x_11);
 lean_dec(x_10);
-lean_dec(x_9);
 lean_dec(x_8);
 x_25 = !lean_is_exclusive(x_24);
 if (x_25 == 0)
@@ -260,6 +259,7 @@ lean_object* l_Lean_Meta_generalize___lambda__3(lean_object* x_1, lean_object* x
 _start:
 {
 lean_object* x_11; 
+lean_inc(x_7);
 lean_inc(x_2);
 lean_inc(x_1);
 x_11 = l_Lean_Meta_checkNotAssigned(x_1, x_2, x_6, x_7, x_8, x_9, x_10);
@@ -344,7 +344,6 @@ x_32 = lean_box(0);
 x_33 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_31, x_32, x_6, x_7, x_8, x_9, x_29);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_7);
 lean_dec(x_6);
 x_34 = !lean_is_exclusive(x_33);
 if (x_34 == 0)
@@ -578,15 +577,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 return x_11;
-}
-}
-lean_object* l_Lean_Meta_generalize___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
-_start:
-{
-lean_object* x_13; 
-x_13 = l_Lean_Meta_generalize___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_7);
-return x_13;
 }
 }
 lean_object* l_Lean_Meta_generalize___lambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {

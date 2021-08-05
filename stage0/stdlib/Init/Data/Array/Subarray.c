@@ -76,7 +76,6 @@ uint8_t l_USize_decLt(size_t, size_t);
 static lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_640____closed__16;
 static lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_881____closed__7;
 lean_object* l_Array_instCoeSubarrayArray(lean_object*);
-lean_object* l_Subarray_foldl___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Subarray_allM___spec__1(lean_object*, lean_object*);
 static lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_640____closed__8;
 static lean_object* l_Array_term_____x5b___x3a_x5d___closed__3;
@@ -97,7 +96,6 @@ static lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_881___
 static lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_640____closed__3;
 static lean_object* l_Array_term_____x5b_x3a___x5d___closed__3;
 static lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_881____closed__5;
-lean_object* l_Subarray_toArray___rarg___boxed(lean_object*);
 lean_object* l_Subarray_forInUnsafe_loop(lean_object*, lean_object*, lean_object*);
 lean_object* l_Subarray_forInUnsafe_loop_match__1(lean_object*, lean_object*);
 lean_object* l_Subarray_forInUnsafe_loop___at_Array_ofSubarray___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
@@ -144,7 +142,6 @@ static lean_object* l_Array_term_____x5b___x3a___x5d___closed__7;
 static lean_object* l_Array_term_____x5b_x3a___x5d___closed__1;
 static lean_object* l_Array_term_____x5b___x3a___x5d___closed__20;
 static lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_881____closed__10;
-lean_object* l_Array_ofSubarray___rarg___boxed(lean_object*);
 lean_object* l_Subarray_foldlM(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_term_____x5b_x3a___x5d___closed__5;
 lean_object* l_Subarray_foldrM(lean_object*, lean_object*, lean_object*);
@@ -173,7 +170,6 @@ lean_object* l_Array_ofSubarray___rarg(lean_object*);
 static lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_881____closed__9;
 lean_object* l_instHAppendSubarraySubarrayArray___rarg(lean_object*, lean_object*);
 uint8_t l_Subarray_all___rarg(lean_object*, lean_object*);
-lean_object* l_instHAppendSubarraySubarrayArray___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_881____closed__15;
 lean_object* l_Array_foldrMUnsafe_fold___at_Subarray_forRevM___spec__1___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Array_term_____x5b___x3a_x5d___closed__2;
@@ -200,7 +196,6 @@ static lean_object* l_Array_term_____x5b___x3a___x5d___closed__5;
 static lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_640____closed__10;
 lean_object* l_Subarray_allM(lean_object*, lean_object*);
 static lean_object* l_Array_term_____x5b___x3a___x5d___closed__3;
-lean_object* l_Subarray_foldr___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_762____closed__1;
 lean_object* l_Array_foldlMUnsafe_fold___at_Subarray_forM___spec__1(lean_object*, lean_object*);
 lean_object* l_Subarray_forIn(lean_object*, lean_object*, lean_object*);
@@ -1308,11 +1303,18 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
+lean_inc(x_5);
 x_6 = lean_ctor_get(x_3, 2);
+lean_inc(x_6);
+lean_dec(x_3);
 x_7 = lean_nat_dec_lt(x_5, x_6);
 if (x_7 == 0)
 {
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_1);
 return x_2;
 }
@@ -1324,6 +1326,9 @@ x_9 = lean_nat_dec_le(x_6, x_8);
 lean_dec(x_8);
 if (x_9 == 0)
 {
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_1);
 return x_2;
 }
@@ -1331,8 +1336,11 @@ else
 {
 size_t x_10; size_t x_11; lean_object* x_12; 
 x_10 = lean_usize_of_nat(x_5);
+lean_dec(x_5);
 x_11 = lean_usize_of_nat(x_6);
+lean_dec(x_6);
 x_12 = l_Array_foldlMUnsafe_fold___at_Subarray_foldl___spec__1___rarg(x_1, x_4, x_10, x_11, x_2);
+lean_dec(x_4);
 return x_12;
 }
 }
@@ -1342,7 +1350,7 @@ lean_object* l_Subarray_foldl(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Subarray_foldl___rarg___boxed), 3, 0);
+x_3 = lean_alloc_closure((void*)(l_Subarray_foldl___rarg), 3, 0);
 return x_3;
 }
 }
@@ -1357,15 +1365,6 @@ lean_dec(x_4);
 x_8 = l_Array_foldlMUnsafe_fold___at_Subarray_foldl___spec__1___rarg(x_1, x_2, x_6, x_7, x_5);
 lean_dec(x_2);
 return x_8;
-}
-}
-lean_object* l_Subarray_foldl___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Subarray_foldl___rarg(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
 }
 }
 lean_object* l_Array_foldrMUnsafe_fold___at_Subarray_foldr___spec__1___rarg(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
@@ -1437,17 +1436,24 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 2);
+lean_inc(x_5);
 x_6 = lean_ctor_get(x_3, 1);
+lean_inc(x_6);
+lean_dec(x_3);
 x_7 = lean_array_get_size(x_4);
 x_8 = lean_nat_dec_le(x_5, x_7);
 if (x_8 == 0)
 {
 uint8_t x_9; 
+lean_dec(x_5);
 x_9 = lean_nat_dec_lt(x_6, x_7);
 if (x_9 == 0)
 {
 lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_4);
 lean_dec(x_1);
 return x_2;
 }
@@ -1457,7 +1463,9 @@ size_t x_10; size_t x_11; lean_object* x_12;
 x_10 = lean_usize_of_nat(x_7);
 lean_dec(x_7);
 x_11 = lean_usize_of_nat(x_6);
+lean_dec(x_6);
 x_12 = l_Array_foldrMUnsafe_fold___at_Subarray_foldr___spec__1___rarg(x_1, x_4, x_10, x_11, x_2);
+lean_dec(x_4);
 return x_12;
 }
 }
@@ -1468,6 +1476,9 @@ lean_dec(x_7);
 x_13 = lean_nat_dec_lt(x_6, x_5);
 if (x_13 == 0)
 {
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_1);
 return x_2;
 }
@@ -1475,8 +1486,11 @@ else
 {
 size_t x_14; size_t x_15; lean_object* x_16; 
 x_14 = lean_usize_of_nat(x_5);
+lean_dec(x_5);
 x_15 = lean_usize_of_nat(x_6);
+lean_dec(x_6);
 x_16 = l_Array_foldrMUnsafe_fold___at_Subarray_foldr___spec__2___rarg(x_1, x_4, x_14, x_15, x_2);
+lean_dec(x_4);
 return x_16;
 }
 }
@@ -1486,7 +1500,7 @@ lean_object* l_Subarray_foldr(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Subarray_foldr___rarg___boxed), 3, 0);
+x_3 = lean_alloc_closure((void*)(l_Subarray_foldr___rarg), 3, 0);
 return x_3;
 }
 }
@@ -1514,15 +1528,6 @@ lean_dec(x_4);
 x_8 = l_Array_foldrMUnsafe_fold___at_Subarray_foldr___spec__2___rarg(x_1, x_2, x_6, x_7, x_5);
 lean_dec(x_2);
 return x_8;
-}
-}
-lean_object* l_Subarray_foldr___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Subarray_foldr___rarg(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
 }
 }
 uint8_t l_Array_anyMUnsafe_any___at_Subarray_any___spec__1___rarg(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4) {
@@ -1576,12 +1581,19 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
+lean_inc(x_4);
 x_5 = lean_ctor_get(x_2, 2);
+lean_inc(x_5);
+lean_dec(x_2);
 x_6 = lean_nat_dec_lt(x_4, x_5);
 if (x_6 == 0)
 {
 uint8_t x_7; 
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_1);
 x_7 = 0;
 return x_7;
@@ -1595,6 +1607,9 @@ lean_dec(x_8);
 if (x_9 == 0)
 {
 uint8_t x_10; 
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_1);
 x_10 = 0;
 return x_10;
@@ -1603,8 +1618,11 @@ else
 {
 size_t x_11; size_t x_12; uint8_t x_13; 
 x_11 = lean_usize_of_nat(x_4);
+lean_dec(x_4);
 x_12 = lean_usize_of_nat(x_5);
+lean_dec(x_5);
 x_13 = l_Array_anyMUnsafe_any___at_Subarray_any___spec__1___rarg(x_1, x_3, x_11, x_12);
+lean_dec(x_3);
 return x_13;
 }
 }
@@ -1637,7 +1655,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Subarray_any___rarg(x_1, x_2);
-lean_dec(x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -1875,13 +1892,18 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; size_t x_6; size_t x_7; lean_object* x_8; 
 x_2 = lean_ctor_get(x_1, 2);
+lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
+lean_inc(x_3);
 x_4 = lean_nat_sub(x_2, x_3);
 x_5 = lean_mk_empty_array_with_capacity(x_4);
 lean_dec(x_4);
 x_6 = lean_usize_of_nat(x_2);
+lean_dec(x_2);
 x_7 = lean_usize_of_nat(x_3);
+lean_dec(x_3);
 x_8 = l_Subarray_forInUnsafe_loop___at_Array_ofSubarray___spec__1___rarg(x_1, x_6, x_7, x_5);
+lean_dec(x_1);
 return x_8;
 }
 }
@@ -1889,7 +1911,7 @@ lean_object* l_Array_ofSubarray(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Array_ofSubarray___rarg___boxed), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_Array_ofSubarray___rarg), 1, 0);
 return x_2;
 }
 }
@@ -1906,22 +1928,12 @@ lean_dec(x_1);
 return x_7;
 }
 }
-lean_object* l_Array_ofSubarray___rarg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Array_ofSubarray___rarg(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 lean_object* l_Array_extract___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = l_Array_toSubarray___rarg(x_1, x_2, x_3);
 x_5 = l_Array_ofSubarray___rarg(x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -1937,7 +1949,7 @@ static lean_object* _init_l_Array_instCoeSubarrayArray___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Array_ofSubarray___rarg___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Array_ofSubarray___rarg), 1, 0);
 return x_1;
 }
 }
@@ -2558,6 +2570,7 @@ x_11 = l_Lean_Syntax_getArg(x_1, x_10);
 x_12 = lean_unsigned_to_nat(4u);
 x_13 = l_Lean_Syntax_getArg(x_1, x_12);
 lean_dec(x_1);
+lean_inc(x_2);
 x_14 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_2, x_3);
 x_15 = !lean_is_exclusive(x_14);
 if (x_15 == 0)
@@ -2702,6 +2715,7 @@ x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 x_10 = lean_unsigned_to_nat(3u);
 x_11 = l_Lean_Syntax_getArg(x_1, x_10);
 lean_dec(x_1);
+lean_inc(x_2);
 x_12 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_2, x_3);
 x_13 = !lean_is_exclusive(x_12);
 if (x_13 == 0)
@@ -3056,6 +3070,7 @@ x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 x_10 = lean_unsigned_to_nat(2u);
 x_11 = l_Lean_Syntax_getArg(x_1, x_10);
 lean_dec(x_1);
+lean_inc(x_2);
 x_12 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_2, x_3);
 x_13 = !lean_is_exclusive(x_12);
 if (x_13 == 0)
@@ -3289,16 +3304,7 @@ lean_object* l_Subarray_toArray(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Subarray_toArray___rarg___boxed), 1, 0);
-return x_2;
-}
-}
-lean_object* l_Subarray_toArray___rarg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Subarray_toArray___rarg(x_1);
-lean_dec(x_1);
+x_2 = lean_alloc_closure((void*)(l_Subarray_toArray___rarg), 1, 0);
 return x_2;
 }
 }
@@ -3309,7 +3315,6 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_3 = l_Array_ofSubarray___rarg(x_1);
 x_4 = l_Array_ofSubarray___rarg(x_2);
 x_5 = l_Array_append___rarg(x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -3317,18 +3322,8 @@ lean_object* l_instHAppendSubarraySubarrayArray(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instHAppendSubarraySubarrayArray___rarg___boxed), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_instHAppendSubarraySubarrayArray___rarg), 2, 0);
 return x_2;
-}
-}
-lean_object* l_instHAppendSubarraySubarrayArray___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_instHAppendSubarraySubarrayArray___rarg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 lean_object* initialize_Init_Data_Array_Basic(lean_object*);

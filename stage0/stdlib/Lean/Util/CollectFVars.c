@@ -149,14 +149,18 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint64_t x_5; size_t x_6; size_t x_7; lean_object* x_8; uint8_t x_9; 
 x_3 = lean_ctor_get(x_1, 1);
+lean_inc(x_3);
+lean_dec(x_1);
 x_4 = lean_array_get_size(x_3);
 x_5 = l_Lean_Expr_hash(x_2);
 x_6 = (size_t)x_5;
 x_7 = lean_usize_modn(x_6, x_4);
 lean_dec(x_4);
 x_8 = lean_array_uget(x_3, x_7);
+lean_dec(x_3);
 x_9 = l_List_elem___at_Lean_CollectFVars_visit___spec__2(x_2, x_8);
 lean_dec(x_8);
+lean_dec(x_2);
 return x_9;
 }
 }
@@ -455,6 +459,8 @@ x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_3, 1);
 lean_inc(x_6);
+lean_inc(x_2);
+lean_inc(x_5);
 x_7 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_5, x_2);
 if (x_7 == 0)
 {
@@ -513,8 +519,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -765,6 +769,8 @@ x_17 = lean_ctor_get(x_2, 0);
 lean_inc(x_17);
 x_18 = lean_ctor_get(x_2, 1);
 lean_inc(x_18);
+lean_inc(x_14);
+lean_inc(x_17);
 x_19 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_17, x_14);
 if (x_19 == 0)
 {
@@ -813,6 +819,8 @@ x_28 = lean_ctor_get(x_2, 0);
 lean_inc(x_28);
 x_29 = lean_ctor_get(x_2, 1);
 lean_inc(x_29);
+lean_inc(x_13);
+lean_inc(x_28);
 x_30 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_28, x_13);
 if (x_30 == 0)
 {
@@ -841,6 +849,8 @@ x_36 = lean_ctor_get(x_35, 0);
 lean_inc(x_36);
 x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
+lean_inc(x_14);
+lean_inc(x_36);
 x_38 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_36, x_14);
 if (x_38 == 0)
 {
@@ -905,6 +915,8 @@ x_50 = lean_ctor_get(x_49, 0);
 lean_inc(x_50);
 x_51 = lean_ctor_get(x_49, 1);
 lean_inc(x_51);
+lean_inc(x_14);
+lean_inc(x_50);
 x_52 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_50, x_14);
 if (x_52 == 0)
 {
@@ -953,6 +965,8 @@ return x_2;
 else
 {
 uint8_t x_57; 
+lean_inc(x_14);
+lean_inc(x_28);
 x_57 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_28, x_14);
 if (x_57 == 0)
 {
@@ -1021,6 +1035,8 @@ x_70 = lean_ctor_get(x_2, 0);
 lean_inc(x_70);
 x_71 = lean_ctor_get(x_2, 1);
 lean_inc(x_71);
+lean_inc(x_67);
+lean_inc(x_70);
 x_72 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_70, x_67);
 if (x_72 == 0)
 {
@@ -1069,6 +1085,8 @@ x_81 = lean_ctor_get(x_2, 0);
 lean_inc(x_81);
 x_82 = lean_ctor_get(x_2, 1);
 lean_inc(x_82);
+lean_inc(x_66);
+lean_inc(x_81);
 x_83 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_81, x_66);
 if (x_83 == 0)
 {
@@ -1097,6 +1115,8 @@ x_89 = lean_ctor_get(x_88, 0);
 lean_inc(x_89);
 x_90 = lean_ctor_get(x_88, 1);
 lean_inc(x_90);
+lean_inc(x_67);
+lean_inc(x_89);
 x_91 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_89, x_67);
 if (x_91 == 0)
 {
@@ -1161,6 +1181,8 @@ x_103 = lean_ctor_get(x_102, 0);
 lean_inc(x_103);
 x_104 = lean_ctor_get(x_102, 1);
 lean_inc(x_104);
+lean_inc(x_67);
+lean_inc(x_103);
 x_105 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_103, x_67);
 if (x_105 == 0)
 {
@@ -1209,6 +1231,8 @@ return x_2;
 else
 {
 uint8_t x_110; 
+lean_inc(x_67);
+lean_inc(x_81);
 x_110 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_81, x_67);
 if (x_110 == 0)
 {
@@ -1277,6 +1301,8 @@ x_123 = lean_ctor_get(x_2, 0);
 lean_inc(x_123);
 x_124 = lean_ctor_get(x_2, 1);
 lean_inc(x_124);
+lean_inc(x_120);
+lean_inc(x_123);
 x_125 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_123, x_120);
 if (x_125 == 0)
 {
@@ -1325,6 +1351,8 @@ x_134 = lean_ctor_get(x_2, 0);
 lean_inc(x_134);
 x_135 = lean_ctor_get(x_2, 1);
 lean_inc(x_135);
+lean_inc(x_119);
+lean_inc(x_134);
 x_136 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_134, x_119);
 if (x_136 == 0)
 {
@@ -1353,6 +1381,8 @@ x_142 = lean_ctor_get(x_141, 0);
 lean_inc(x_142);
 x_143 = lean_ctor_get(x_141, 1);
 lean_inc(x_143);
+lean_inc(x_120);
+lean_inc(x_142);
 x_144 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_142, x_120);
 if (x_144 == 0)
 {
@@ -1417,6 +1447,8 @@ x_156 = lean_ctor_get(x_155, 0);
 lean_inc(x_156);
 x_157 = lean_ctor_get(x_155, 1);
 lean_inc(x_157);
+lean_inc(x_120);
+lean_inc(x_156);
 x_158 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_156, x_120);
 if (x_158 == 0)
 {
@@ -1465,6 +1497,8 @@ return x_2;
 else
 {
 uint8_t x_163; 
+lean_inc(x_120);
+lean_inc(x_134);
 x_163 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_134, x_120);
 if (x_163 == 0)
 {
@@ -1543,6 +1577,8 @@ x_231 = lean_ctor_get(x_2, 0);
 lean_inc(x_231);
 x_232 = lean_ctor_get(x_2, 1);
 lean_inc(x_232);
+lean_inc(x_172);
+lean_inc(x_231);
 x_233 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_231, x_172);
 if (x_233 == 0)
 {
@@ -1626,6 +1662,8 @@ x_179 = lean_ctor_get(x_178, 0);
 lean_inc(x_179);
 x_180 = lean_ctor_get(x_178, 1);
 lean_inc(x_180);
+lean_inc(x_174);
+lean_inc(x_179);
 x_181 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_179, x_174);
 if (x_181 == 0)
 {
@@ -1675,6 +1713,8 @@ x_192 = lean_ctor_get(x_191, 0);
 lean_inc(x_192);
 x_193 = lean_ctor_get(x_191, 1);
 lean_inc(x_193);
+lean_inc(x_173);
+lean_inc(x_192);
 x_194 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_192, x_173);
 if (x_194 == 0)
 {
@@ -1703,6 +1743,8 @@ x_200 = lean_ctor_get(x_199, 0);
 lean_inc(x_200);
 x_201 = lean_ctor_get(x_199, 1);
 lean_inc(x_201);
+lean_inc(x_174);
+lean_inc(x_200);
 x_202 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_200, x_174);
 if (x_202 == 0)
 {
@@ -1767,6 +1809,8 @@ x_214 = lean_ctor_get(x_213, 0);
 lean_inc(x_214);
 x_215 = lean_ctor_get(x_213, 1);
 lean_inc(x_215);
+lean_inc(x_174);
+lean_inc(x_214);
 x_216 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_214, x_174);
 if (x_216 == 0)
 {
@@ -1815,6 +1859,8 @@ return x_191;
 else
 {
 uint8_t x_221; 
+lean_inc(x_174);
+lean_inc(x_192);
 x_221 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_192, x_174);
 if (x_221 == 0)
 {
@@ -1878,6 +1924,8 @@ x_244 = lean_ctor_get(x_2, 0);
 lean_inc(x_244);
 x_245 = lean_ctor_get(x_2, 1);
 lean_inc(x_245);
+lean_inc(x_242);
+lean_inc(x_244);
 x_246 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_244, x_242);
 if (x_246 == 0)
 {
@@ -1938,6 +1986,8 @@ x_257 = lean_ctor_get(x_2, 0);
 lean_inc(x_257);
 x_258 = lean_ctor_get(x_2, 1);
 lean_inc(x_258);
+lean_inc(x_255);
+lean_inc(x_257);
 x_259 = l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_257, x_255);
 if (x_259 == 0)
 {

@@ -174,6 +174,7 @@ lean_object* l_Lean_Meta_replaceTargetEq___lambda__1(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_10; 
+lean_inc(x_6);
 lean_inc(x_1);
 x_10 = l_Lean_Meta_checkNotAssigned(x_1, x_2, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_10) == 0)
@@ -264,7 +265,6 @@ x_36 = lean_array_push(x_35, x_4);
 lean_inc(x_16);
 x_37 = lean_array_push(x_36, x_16);
 x_38 = l_Lean_mkAppN(x_32, x_37);
-lean_dec(x_37);
 x_39 = l_Lean_Meta_assignExprMVar(x_1, x_38, x_5, x_6, x_7, x_8, x_28);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -522,6 +522,7 @@ lean_object* l_Lean_Meta_replaceTargetDefEq___lambda__1(lean_object* x_1, lean_o
 _start:
 {
 lean_object* x_9; 
+lean_inc(x_5);
 lean_inc(x_1);
 x_9 = l_Lean_Meta_checkNotAssigned(x_1, x_2, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_9) == 0)
@@ -957,8 +958,8 @@ if (lean_is_exclusive(x_11)) {
  lean_dec_ref(x_11);
  x_14 = lean_box(0);
 }
+lean_inc(x_1);
 x_15 = l_Std_HashMapImp_find_x3f___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__1(x_12, x_1);
-lean_dec(x_12);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; uint8_t x_37; lean_object* x_38; uint8_t x_91; 
@@ -2025,7 +2026,6 @@ x_28 = lean_box(0);
 x_29 = l_Lean_Meta_throwTacticEx___rarg(x_27, x_1, x_26, x_28, x_4, x_5, x_6, x_7, x_17);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 lean_dec(x_4);
 x_30 = !lean_is_exclusive(x_29);
 if (x_30 == 0)
@@ -2384,7 +2384,6 @@ x_58 = lean_box(0);
 x_59 = l_Lean_Meta_throwTacticEx___rarg(x_57, x_1, x_56, x_58, x_5, x_6, x_7, x_8, x_47);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
 lean_dec(x_5);
 x_60 = !lean_is_exclusive(x_59);
 if (x_60 == 0)
@@ -2642,7 +2641,6 @@ x_117 = lean_box(0);
 x_118 = l_Lean_Meta_throwTacticEx___rarg(x_116, x_1, x_115, x_117, x_5, x_6, x_7, x_8, x_106);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
 lean_dec(x_5);
 x_119 = !lean_is_exclusive(x_118);
 if (x_119 == 0)
@@ -2828,7 +2826,6 @@ x_134 = lean_box(0);
 x_135 = l_Lean_Meta_throwTacticEx___rarg(x_132, x_1, x_133, x_134, x_5, x_6, x_7, x_8, x_131);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
 lean_dec(x_5);
 return x_135;
 }
@@ -2897,6 +2894,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = l_Lean_Meta_changeLocalDecl___closed__2;
+lean_inc(x_6);
 lean_inc(x_1);
 x_11 = l_Lean_Meta_checkNotAssigned(x_1, x_10, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_11) == 0)
@@ -3021,6 +3019,7 @@ lean_object* l_Lean_Meta_modifyTarget___lambda__1(lean_object* x_1, lean_object*
 _start:
 {
 lean_object* x_9; 
+lean_inc(x_5);
 lean_inc(x_1);
 x_9 = l_Lean_Meta_checkNotAssigned(x_1, x_2, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_9) == 0)
@@ -3286,7 +3285,6 @@ x_18 = lean_box(0);
 x_19 = l_Lean_Meta_throwTacticEx___rarg(x_17, x_1, x_16, x_18, x_4, x_5, x_6, x_7, x_11);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 lean_dec(x_4);
 return x_19;
 }

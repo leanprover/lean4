@@ -26,7 +26,6 @@ lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be(lean_object*, l
 lean_object* l_Std_Format_defWidth;
 uint8_t l___private_Init_Data_Format_Basic_0__Std_Format_SpaceResult_foundLine___default;
 lean_object* l_String_offsetOfPosAux(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_Format_join___boxed(lean_object*);
 static lean_object* l_Std_Format_join___closed__1;
 lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_pushGroup___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_x27(lean_object*, lean_object*);
@@ -387,6 +386,7 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Std_Format_join___closed__2;
 x_3 = l_List_foldl___at_Std_Format_join___spec__1(x_2, x_1);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -397,15 +397,6 @@ lean_object* x_3;
 x_3 = l_List_foldl___at_Std_Format_join___spec__1(x_1, x_2);
 lean_dec(x_2);
 return x_3;
-}
-}
-lean_object* l_Std_Format_join___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Format_join(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l_Std_Format_isNil_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

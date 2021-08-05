@@ -27,7 +27,6 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_domain(lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_find_x3f___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_applyFVarSubst___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_FVarSubst_domain___boxed(lean_object*);
 lean_object* l_Std_AssocList_find_x3f___at_Lean_Meta_FVarSubst_find_x3f___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_isEmpty___boxed(lean_object*);
 lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit___at_Lean_Meta_FVarSubst_apply___spec__1(lean_object*, size_t, lean_object*, lean_object*);
@@ -65,7 +64,6 @@ lean_object* l_Std_AssocList_erase___at_Lean_Meta_FVarSubst_erase___spec__1(lean
 lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_mapVal___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit___at_Lean_Meta_FVarSubst_apply___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_FVarSubst_erase___boxed(lean_object*, lean_object*);
 lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_get_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -293,6 +291,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_AssocList_erase___at_Lean_Meta_FVarSubst_erase___spec__1(x_2, x_1);
+lean_dec(x_2);
 return x_3;
 }
 }
@@ -302,15 +301,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_Std_AssocList_erase___at_Lean_Meta_FVarSubst_erase___spec__1(x_1, x_2);
 lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_Lean_Meta_FVarSubst_erase___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Meta_FVarSubst_erase(x_1, x_2);
-lean_dec(x_2);
 return x_3;
 }
 }
@@ -1290,6 +1280,7 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_box(0);
 x_3 = l_Std_AssocList_foldlM___at_Lean_Meta_FVarSubst_domain___spec__1(x_2, x_1);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -1300,15 +1291,6 @@ lean_object* x_3;
 x_3 = l_Std_AssocList_foldlM___at_Lean_Meta_FVarSubst_domain___spec__1(x_1, x_2);
 lean_dec(x_2);
 return x_3;
-}
-}
-lean_object* l_Lean_Meta_FVarSubst_domain___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_FVarSubst_domain(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 uint8_t l_Lean_Meta_FVarSubst_any(lean_object* x_1, lean_object* x_2) {

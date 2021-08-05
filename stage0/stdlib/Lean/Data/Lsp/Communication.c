@@ -1100,7 +1100,6 @@ x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec(x_3);
 x_6 = l_IO_FS_Stream_readMessage(x_1, x_4, x_5);
-lean_dec(x_4);
 if (lean_obj_tag(x_6) == 0)
 {
 return x_6;
@@ -1214,7 +1213,6 @@ x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
 lean_dec(x_6);
 x_9 = l_IO_FS_Stream_readRequestAs(x_1, x_7, x_2, lean_box(0), x_4, x_8);
-lean_dec(x_7);
 if (lean_obj_tag(x_9) == 0)
 {
 return x_9;
@@ -1330,7 +1328,6 @@ x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
 lean_dec(x_6);
 x_9 = l_IO_FS_Stream_readNotificationAs(x_1, x_7, x_2, lean_box(0), x_4, x_8);
-lean_dec(x_7);
 if (lean_obj_tag(x_9) == 0)
 {
 return x_9;
@@ -1446,7 +1443,6 @@ x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
 lean_dec(x_6);
 x_9 = l_IO_FS_Stream_readResponseAs(x_1, x_7, x_2, lean_box(0), x_4, x_8);
-lean_dec(x_7);
 if (lean_obj_tag(x_9) == 0)
 {
 return x_9;

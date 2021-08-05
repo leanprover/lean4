@@ -1483,6 +1483,7 @@ lean_dec(x_10);
 if (x_12 == 0)
 {
 lean_object* x_13; uint8_t x_14; 
+lean_inc(x_2);
 x_13 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_2, x_3);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
@@ -1563,6 +1564,7 @@ return x_50;
 else
 {
 lean_object* x_51; uint8_t x_52; 
+lean_inc(x_2);
 x_51 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_2, x_3);
 x_52 = !lean_is_exclusive(x_51);
 if (x_52 == 0)
@@ -1820,6 +1822,7 @@ lean_dec(x_12);
 if (x_14 == 0)
 {
 lean_object* x_15; uint8_t x_16; 
+lean_inc(x_2);
 x_15 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_2, x_3);
 x_16 = !lean_is_exclusive(x_15);
 if (x_16 == 0)
@@ -1900,6 +1903,7 @@ return x_52;
 else
 {
 lean_object* x_53; uint8_t x_54; 
+lean_inc(x_2);
 x_53 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_2, x_3);
 x_54 = !lean_is_exclusive(x_53);
 if (x_54 == 0)

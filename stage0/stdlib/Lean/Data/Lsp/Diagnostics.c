@@ -2447,6 +2447,7 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 uint8_t x_5; 
+lean_dec(x_1);
 x_5 = 0;
 return x_5;
 }
@@ -2454,6 +2455,8 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec(x_1);
 x_7 = lean_ctor_get(x_2, 0);
 x_8 = lean_array_get_size(x_6);
 x_9 = lean_array_get_size(x_7);
@@ -2463,6 +2466,7 @@ lean_dec(x_8);
 if (x_10 == 0)
 {
 uint8_t x_11; 
+lean_dec(x_6);
 x_11 = 0;
 return x_11;
 }
@@ -2471,6 +2475,7 @@ else
 lean_object* x_12; uint8_t x_13; 
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = l_Array_isEqvAux___at___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_beqDiagnostic____x40_Lean_Data_Lsp_Diagnostics___hyg_660____spec__5(x_6, x_7, lean_box(0), x_6, x_7, x_12);
+lean_dec(x_6);
 return x_13;
 }
 }
@@ -2542,6 +2547,7 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 uint8_t x_5; 
+lean_dec(x_1);
 x_5 = 0;
 return x_5;
 }
@@ -2549,6 +2555,8 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec(x_1);
 x_7 = lean_ctor_get(x_2, 0);
 x_8 = lean_array_get_size(x_6);
 x_9 = lean_array_get_size(x_7);
@@ -2558,6 +2566,7 @@ lean_dec(x_8);
 if (x_10 == 0)
 {
 uint8_t x_11; 
+lean_dec(x_6);
 x_11 = 0;
 return x_11;
 }
@@ -2566,6 +2575,7 @@ else
 lean_object* x_12; uint8_t x_13; 
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = l_Array_isEqvAux___at___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_beqDiagnostic____x40_Lean_Data_Lsp_Diagnostics___hyg_660____spec__7(x_6, x_7, lean_box(0), x_6, x_7, x_12);
+lean_dec(x_6);
 return x_13;
 }
 }
@@ -2736,7 +2746,6 @@ else
 uint8_t x_31; 
 x_31 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_631____at___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_beqDiagnostic____x40_Lean_Data_Lsp_Diagnostics___hyg_660____spec__4(x_9, x_17);
 lean_dec(x_17);
-lean_dec(x_9);
 if (x_31 == 0)
 {
 uint8_t x_32; 
@@ -2750,7 +2759,6 @@ else
 uint8_t x_33; 
 x_33 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_631____at___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_beqDiagnostic____x40_Lean_Data_Lsp_Diagnostics___hyg_660____spec__6(x_10, x_18);
 lean_dec(x_18);
-lean_dec(x_10);
 return x_33;
 }
 }
@@ -2811,7 +2819,6 @@ _start:
 uint8_t x_3; lean_object* x_4; 
 x_3 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_631____at___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_beqDiagnostic____x40_Lean_Data_Lsp_Diagnostics___hyg_660____spec__4(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -2835,7 +2842,6 @@ _start:
 uint8_t x_3; lean_object* x_4; 
 x_3 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_631____at___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_beqDiagnostic____x40_Lean_Data_Lsp_Diagnostics___hyg_660____spec__6(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -4479,15 +4485,29 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 2);
+lean_inc(x_5);
+lean_dec(x_1);
 x_6 = lean_ctor_get(x_2, 0);
+lean_inc(x_6);
 x_7 = lean_ctor_get(x_2, 1);
+lean_inc(x_7);
 x_8 = lean_ctor_get(x_2, 2);
+lean_inc(x_8);
+lean_dec(x_2);
 x_9 = lean_string_dec_eq(x_3, x_6);
+lean_dec(x_6);
+lean_dec(x_3);
 if (x_9 == 0)
 {
 uint8_t x_10; 
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_5);
+lean_dec(x_4);
 x_10 = 0;
 return x_10;
 }
@@ -4495,9 +4515,13 @@ else
 {
 uint8_t x_11; 
 x_11 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_631____at___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_beqPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1037____spec__1(x_4, x_7);
+lean_dec(x_7);
+lean_dec(x_4);
 if (x_11 == 0)
 {
 uint8_t x_12; 
+lean_dec(x_8);
+lean_dec(x_5);
 x_12 = 0;
 return x_12;
 }
@@ -4512,6 +4536,8 @@ lean_dec(x_13);
 if (x_15 == 0)
 {
 uint8_t x_16; 
+lean_dec(x_8);
+lean_dec(x_5);
 x_16 = 0;
 return x_16;
 }
@@ -4520,6 +4546,8 @@ else
 lean_object* x_17; uint8_t x_18; 
 x_17 = lean_unsigned_to_nat(0u);
 x_18 = l_Array_isEqvAux___at___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_beqPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1037____spec__2(x_5, x_8, lean_box(0), x_5, x_8, x_17);
+lean_dec(x_8);
+lean_dec(x_5);
 return x_18;
 }
 }
@@ -4555,8 +4583,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_beqPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1037_(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }

@@ -2838,6 +2838,7 @@ x_18 = l_Lean_Syntax_getArg(x_1, x_17);
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
+lean_inc(x_7);
 x_19 = l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Elab_Term_quoteAutoTactic___spec__1___rarg(x_7, x_8, x_9);
 x_20 = lean_ctor_get(x_19, 1);
 lean_inc(x_20);
@@ -5077,6 +5078,10 @@ lean_inc(x_18);
 lean_dec(x_14);
 x_19 = lean_box(0);
 x_20 = l_Lean_Elab_Term_elabForIn___lambda__1___closed__4;
+lean_inc(x_11);
+lean_inc(x_10);
+lean_inc(x_9);
+lean_inc(x_8);
 lean_inc(x_6);
 x_21 = l_Lean_Elab_Term_mkConst(x_20, x_19, x_6, x_7, x_8, x_9, x_10, x_11, x_18);
 if (lean_obj_tag(x_21) == 0)
@@ -5145,6 +5150,7 @@ lean_dec(x_1);
 x_38 = lean_ctor_get(x_14, 1);
 lean_inc(x_38);
 lean_dec(x_14);
+lean_inc(x_6);
 x_39 = l_Lean_Elab_Term_tryPostpone(x_6, x_7, x_8, x_9, x_10, x_11, x_38);
 if (lean_obj_tag(x_39) == 0)
 {
@@ -5479,6 +5485,7 @@ lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean
 x_21 = lean_ctor_get(x_19, 1);
 lean_inc(x_21);
 lean_dec(x_19);
+lean_inc(x_7);
 x_22 = l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Elab_Term_quoteAutoTactic___spec__1___rarg(x_7, x_8, x_21);
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
@@ -5584,6 +5591,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
+lean_inc(x_3);
 lean_inc(x_2);
 x_77 = l_Lean_Elab_Term_tryPostponeIfNoneOrMVar(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_74);
 if (lean_obj_tag(x_77) == 0)
@@ -5673,6 +5681,7 @@ lean_dec(x_2);
 x_104 = lean_ctor_get(x_100, 1);
 lean_inc(x_104);
 lean_dec(x_100);
+lean_inc(x_3);
 x_105 = l_Lean_Elab_Term_tryPostpone(x_3, x_4, x_5, x_6, x_7, x_8, x_104);
 if (lean_obj_tag(x_105) == 0)
 {
@@ -5869,6 +5878,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
+lean_inc(x_3);
 lean_inc(x_2);
 x_138 = l_Lean_Elab_Term_tryPostponeIfNoneOrMVar(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_74);
 if (lean_obj_tag(x_138) == 0)
@@ -5959,6 +5969,7 @@ lean_dec(x_2);
 x_166 = lean_ctor_get(x_162, 1);
 lean_inc(x_166);
 lean_dec(x_162);
+lean_inc(x_3);
 x_167 = l_Lean_Elab_Term_tryPostpone(x_3, x_4, x_5, x_6, x_7, x_8, x_166);
 if (lean_obj_tag(x_167) == 0)
 {

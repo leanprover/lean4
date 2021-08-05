@@ -53,8 +53,6 @@ lean_object* l_Array_contains___at___private_Lean_Meta_SizeOf_0__Lean_Meta_isInd
 lean_object* l_Lean_Meta_mkSizeOfInstances_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_4866____closed__2;
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProofStep___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_mapM___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_4866____closed__1;
 lean_object* l_Lean_Meta_mkAppM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___closed__5;
@@ -154,14 +152,12 @@ lean_object* l_Lean_throwError___at_Lean_Meta_mkSizeOfFns___spec__2(lean_object*
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof___closed__1;
 lean_object* l_Lean_throwKernelException___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof_match__1(lean_object*);
 lean_object* l_Lean_getConstInfoInduct___at_Lean_Meta_mkSizeOfFns___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_genSizeOfSpec;
 static lean_object* l_List_forIn_loop___at_Lean_Meta_mkSizeOfInstances___spec__2___lambda__2___closed__1;
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_mkSizeOfSpecLemmaInstance___spec__1(size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors___rarg___closed__3;
 lean_object* l_Lean_RecursorVal_getMajorIdx(lean_object*);
@@ -200,7 +196,6 @@ lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem(lean_
 lean_object* l_Lean_addDecl___at_Lean_Meta_mkSizeOfFn___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoCtor___at___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProofStep___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_isInductiveHypothesis_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoCtor___at___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___spec__1___closed__1;
@@ -210,7 +205,6 @@ lean_object* lean_name_append_index_after(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof___lambda__1___closed__4;
 lean_object* l_Lean_throwError___at___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_49____spec__1(lean_object*, lean_object*, lean_object*);
@@ -225,7 +219,6 @@ lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SizeOf_0__Lean_M
 lean_object* l_Lean_throwError___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_isRecField_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_natAdd_x3f(lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeReducing___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__7(lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__6___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -238,7 +231,6 @@ static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_l
 lean_object* l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorems___spec__2(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_head_x21___at_Lean_Meta_mkSizeOfFns___spec__3___closed__1;
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___closed__6;
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -266,13 +258,11 @@ static lean_object* l_List_head_x21___at_Lean_Meta_mkSizeOfFns___spec__3___close
 lean_object* l_Lean_Meta_mkSizeOfSpecLemmaInstance___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors___rarg___closed__6;
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkSizeOfSpecLemmaName___boxed(lean_object*);
 lean_object* l_Lean_Meta_mkSizeOfFns_match__1___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___lambda__2___boxed__const__1;
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop_match__2___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Meta_mkSizeOfInstances___spec__2___lambda__1___closed__1;
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_recToSizeOf___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isForall(lean_object*);
 lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -283,7 +273,6 @@ static lean_object* l_Lean_Meta_mkSizeOfFn___closed__1;
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__6(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at_Lean_Meta_mkSizeOfInstances___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_recToSizeOf___closed__1;
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Meta_SizeOfSpecNested_throwUnexpected___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof_match__2___rarg(lean_object*, lean_object*, lean_object*);
@@ -298,7 +287,6 @@ static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_m
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_mkForallFVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__6___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProofStep___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SizeOfSpecNested_main_loop___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_SizeOfSpecNested_throwUnexpected___spec__1(lean_object*);
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors___rarg___closed__2;
@@ -321,7 +309,6 @@ lean_object* l_Lean_throwKernelException___at_Lean_Meta_mkSizeOfFn___spec__4(lea
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___lambda__1___closed__3;
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors___rarg___closed__5;
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__5(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkSizeOfFn___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances___rarg___closed__1;
@@ -338,7 +325,6 @@ lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkSizeOfFn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__6___closed__1;
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__5___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_isRecField_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -359,7 +345,6 @@ lean_object* l_Lean_throwError___at_Lean_Meta_mkSizeOfFn___spec__2___boxed(lean_
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_isRecField_x3f_match__2(lean_object*);
 lean_object* l_List_head_x21___at_Lean_Meta_mkSizeOfFns___spec__3(lean_object*);
 static lean_object* l_Lean_Meta_mkSizeOfFns___closed__1;
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkSizeOfSpecLemmaInstance___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -368,7 +353,6 @@ lean_object* l_Array_ofSubarray___rarg(lean_object*);
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___closed__7;
 lean_object* l_Lean_Meta_mkSizeOfInstances_match__1(lean_object*);
 lean_object* l_Lean_Meta_mkCongrArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoInduct___at_Lean_Meta_mkSizeOfFns___spec__1___closed__2;
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
@@ -393,7 +377,6 @@ lean_object* l_Lean_Meta_SizeOfSpecNested_throwFailed(lean_object*);
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___closed__8;
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___closed__1;
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_isRecField_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_SizeOfSpecNested_throwUnexpected___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__5___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -403,7 +386,6 @@ static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_m
 lean_object* l_Lean_throwError___at_Lean_Meta_SizeOfSpecNested_throwUnexpected___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkSizeOfFns(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_isInductiveHypothesis(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof_mkSizeOf___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances(lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_5329_(lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_4866_(lean_object*);
@@ -468,7 +450,6 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SizeOfSpecNested_throwUnexpected___rarg___closed__3;
 static lean_object* l_Lean_getConstInfoInduct___at_Lean_Meta_mkSizeOfFns___spec__1___closed__1;
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_add_decl(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof_match__1(lean_object*);
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -592,6 +573,7 @@ lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___r
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_inc(x_2);
 x_9 = l_Lean_mkAppN(x_1, x_2);
 x_10 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg___lambda__1___closed__3;
 x_11 = lean_array_push(x_10, x_9);
@@ -614,7 +596,6 @@ x_17 = 1;
 x_18 = l_Lean_Meta_mkForallFVars(x_2, x_14, x_16, x_17, x_4, x_5, x_6, x_7, x_15);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 if (lean_obj_tag(x_18) == 0)
 {
 uint8_t x_19; 
@@ -712,6 +693,7 @@ _start:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_add(x_1, x_11);
+lean_dec(x_1);
 x_13 = lean_array_push(x_2, x_5);
 x_14 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg(x_3, x_4, x_12, x_13, x_6, x_7, x_8, x_9, x_10);
 return x_14;
@@ -810,7 +792,7 @@ lean_inc(x_29);
 x_30 = lean_ctor_get(x_28, 1);
 lean_inc(x_30);
 lean_dec(x_28);
-x_31 = lean_alloc_closure((void*)(l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg___lambda__2___boxed), 10, 4);
+x_31 = lean_alloc_closure((void*)(l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg___lambda__2), 10, 4);
 lean_closure_set(x_31, 0, x_3);
 lean_closure_set(x_31, 1, x_4);
 lean_closure_set(x_31, 2, x_1);
@@ -910,15 +892,6 @@ lean_object* x_9;
 x_9 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_3);
 return x_9;
-}
-}
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
-_start:
-{
-lean_object* x_11; 
-x_11 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_1);
-return x_11;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances___rarg___closed__1() {
@@ -1973,11 +1946,12 @@ lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___ra
 _start:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_dec(x_6);
 x_12 = lean_unsigned_to_nat(1u);
 x_13 = lean_nat_add(x_1, x_12);
+lean_dec(x_1);
 x_14 = lean_array_push(x_2, x_3);
 x_15 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg(x_4, x_5, x_13, x_14, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_13);
 return x_15;
 }
 }
@@ -2069,6 +2043,8 @@ lean_dec(x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; 
+lean_dec(x_3);
+lean_dec(x_1);
 x_12 = lean_apply_6(x_2, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_12;
 }
@@ -2172,7 +2148,6 @@ x_34 = lean_ctor_get(x_32, 1);
 lean_inc(x_34);
 lean_dec(x_32);
 x_35 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___lambda__2(x_3, x_4, x_20, x_1, x_2, x_33, x_5, x_6, x_7, x_8, x_34);
-lean_dec(x_33);
 return x_35;
 }
 }
@@ -2185,7 +2160,9 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 x_48 = !lean_is_exclusive(x_19);
 if (x_48 == 0)
 {
@@ -2214,7 +2191,9 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 x_52 = !lean_is_exclusive(x_15);
 if (x_52 == 0)
 {
@@ -2241,7 +2220,7 @@ lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop(lean
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___boxed), 9, 0);
+x_2 = lean_alloc_closure((void*)(l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg), 9, 0);
 return x_2;
 }
 }
@@ -2255,27 +2234,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_2);
 return x_8;
-}
-}
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
-_start:
-{
-lean_object* x_12; 
-x_12 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_6);
-lean_dec(x_4);
-lean_dec(x_1);
-return x_12;
-}
-}
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-lean_object* x_10; 
-x_10 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_3);
-lean_dec(x_1);
-return x_10;
 }
 }
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -2292,17 +2250,8 @@ lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives(lean_obje
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives___rarg___boxed), 7, 0);
+x_2 = lean_alloc_closure((void*)(l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives___rarg), 7, 0);
 return x_2;
-}
-}
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_1);
-return x_8;
 }
 }
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -3780,8 +3729,10 @@ lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___rar
 _start:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+lean_dec(x_8);
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = lean_nat_add(x_1, x_14);
+lean_dec(x_1);
 x_16 = lean_array_push(x_2, x_3);
 x_17 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___rarg(x_4, x_5, x_6, x_7, x_15, x_16, x_9, x_10, x_11, x_12, x_13);
 return x_17;
@@ -3808,6 +3759,7 @@ lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___rar
 _start:
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_dec(x_10);
 x_16 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___lambda__1___closed__3;
 x_17 = lean_unsigned_to_nat(1u);
 lean_inc(x_14);
@@ -3831,6 +3783,7 @@ x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
 lean_ctor_set(x_24, 1, x_19);
 x_25 = lean_usize_of_nat(x_1);
+lean_dec(x_1);
 x_26 = 0;
 lean_inc(x_14);
 lean_inc(x_13);
@@ -3838,6 +3791,7 @@ lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_2);
 x_27 = l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___spec__1(x_2, x_3, x_9, x_3, x_25, x_26, x_24, x_11, x_12, x_13, x_14, x_20);
+lean_dec(x_3);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; uint8_t x_32; lean_object* x_33; 
@@ -3928,7 +3882,6 @@ x_48 = lean_ctor_get(x_46, 1);
 lean_inc(x_48);
 lean_dec(x_46);
 x_49 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___rarg___lambda__1(x_4, x_5, x_34, x_2, x_6, x_7, x_8, x_47, x_11, x_12, x_13, x_14, x_48);
-lean_dec(x_47);
 return x_49;
 }
 }
@@ -3944,6 +3897,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_2);
 x_61 = !lean_is_exclusive(x_33);
 if (x_61 == 0)
@@ -3977,6 +3931,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_2);
 x_65 = !lean_is_exclusive(x_27);
 if (x_65 == 0)
@@ -4010,7 +3965,10 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 x_69 = !lean_is_exclusive(x_18);
 if (x_69 == 0)
 {
@@ -4055,7 +4013,7 @@ x_19 = lean_array_get_size(x_7);
 lean_inc(x_19);
 x_20 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_20, 0, x_19);
-x_21 = lean_alloc_closure((void*)(l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___rarg___lambda__2___boxed), 15, 8);
+x_21 = lean_alloc_closure((void*)(l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___rarg___lambda__2), 15, 8);
 lean_closure_set(x_21, 0, x_19);
 lean_closure_set(x_21, 1, x_3);
 lean_closure_set(x_21, 2, x_7);
@@ -4203,28 +4161,6 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_15;
-}
-}
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
-_start:
-{
-lean_object* x_14; 
-x_14 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
-lean_dec(x_8);
-lean_dec(x_1);
-return x_14;
-}
-}
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15) {
-_start:
-{
-lean_object* x_16; 
-x_16 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___rarg___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
-lean_dec(x_10);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_1);
-return x_16;
 }
 }
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___rarg___lambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
@@ -4528,6 +4464,7 @@ x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
 lean_dec(x_8);
 x_11 = lean_add_decl(x_10, x_1);
+lean_dec(x_1);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -4553,6 +4490,7 @@ lean_object* l_Lean_Meta_mkSizeOfFn___lambda__1(lean_object* x_1, lean_object* x
 _start:
 {
 uint8_t x_12; uint8_t x_13; lean_object* x_14; 
+lean_dec(x_6);
 x_12 = 0;
 x_13 = 1;
 lean_inc(x_7);
@@ -4580,7 +4518,6 @@ x_21 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_21, 0, x_20);
 x_22 = l_Lean_addDecl___at_Lean_Meta_mkSizeOfFn___spec__3(x_21, x_7, x_8, x_9, x_10, x_16);
 lean_dec(x_7);
-lean_dec(x_21);
 return x_22;
 }
 else
@@ -4635,12 +4572,15 @@ _start:
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; uint8_t x_23; lean_object* x_24; 
 x_16 = l_Array_append___rarg(x_1, x_2);
 x_17 = l_Array_ofSubarray___rarg(x_3);
+lean_inc(x_17);
 x_18 = l_Array_append___rarg(x_16, x_17);
 x_19 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg___lambda__1___closed__3;
 x_20 = lean_array_push(x_19, x_4);
+lean_inc(x_20);
 x_21 = l_Array_append___rarg(x_18, x_20);
 x_22 = 0;
 x_23 = 1;
+lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_21);
 x_24 = l_Lean_Meta_mkForallFVars(x_21, x_5, x_22, x_23, x_11, x_12, x_13, x_14, x_15);
@@ -4653,11 +4593,8 @@ x_26 = lean_ctor_get(x_24, 1);
 lean_inc(x_26);
 lean_dec(x_24);
 x_27 = l_Array_append___rarg(x_10, x_17);
-lean_dec(x_17);
 x_28 = l_Array_append___rarg(x_27, x_20);
-lean_dec(x_20);
 x_29 = l_Lean_mkAppN(x_6, x_28);
-lean_dec(x_28);
 x_44 = lean_st_ref_get(x_14, x_26);
 x_45 = lean_ctor_get(x_44, 0);
 lean_inc(x_45);
@@ -4703,6 +4640,7 @@ lean_object* x_32; lean_object* x_33;
 lean_dec(x_9);
 x_32 = lean_box(0);
 x_33 = l_Lean_Meta_mkSizeOfFn___lambda__1(x_21, x_29, x_7, x_8, x_25, x_32, x_11, x_12, x_13, x_14, x_31);
+lean_dec(x_12);
 return x_33;
 }
 else
@@ -4726,7 +4664,7 @@ x_41 = lean_ctor_get(x_39, 1);
 lean_inc(x_41);
 lean_dec(x_39);
 x_42 = l_Lean_Meta_mkSizeOfFn___lambda__1(x_21, x_29, x_7, x_8, x_25, x_40, x_11, x_12, x_13, x_14, x_41);
-lean_dec(x_40);
+lean_dec(x_12);
 return x_42;
 }
 }
@@ -4738,6 +4676,7 @@ lean_dec(x_21);
 lean_dec(x_20);
 lean_dec(x_17);
 lean_dec(x_13);
+lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -4798,7 +4737,6 @@ x_22 = l_Lean_mkConst(x_2, x_21);
 lean_inc(x_3);
 x_23 = l_Array_append___rarg(x_3, x_13);
 x_24 = l_Lean_mkAppN(x_22, x_23);
-lean_dec(x_23);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -4890,7 +4828,6 @@ lean_closure_set(x_19, 9, x_10);
 lean_closure_set(x_19, 10, x_11);
 lean_closure_set(x_19, 11, x_18);
 x_20 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives___rarg(x_18, x_19, x_13, x_14, x_15, x_16, x_17);
-lean_dec(x_18);
 return x_20;
 }
 }
@@ -4932,7 +4869,6 @@ x_31 = lean_array_get(x_30, x_6, x_29);
 lean_dec(x_29);
 lean_dec(x_6);
 x_32 = l_Array_ofSubarray___rarg(x_17);
-lean_dec(x_17);
 x_33 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___lambda__1___closed__3;
 lean_inc(x_32);
 x_34 = lean_alloc_closure((void*)(l_Lean_Meta_mkSizeOfFn___lambda__5___boxed), 17, 11);
@@ -5147,7 +5083,6 @@ x_7 = l_Lean_addDecl___at_Lean_Meta_mkSizeOfFn___spec__3(x_1, x_2, x_3, x_4, x_5
 lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_7;
 }
 }
@@ -5158,7 +5093,6 @@ lean_object* x_12;
 x_12 = l_Lean_Meta_mkSizeOfFn___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_10);
 lean_dec(x_8);
-lean_dec(x_6);
 return x_12;
 }
 }
@@ -5168,9 +5102,6 @@ _start:
 lean_object* x_16; 
 x_16 = l_Lean_Meta_mkSizeOfFn___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_14);
-lean_dec(x_12);
-lean_dec(x_3);
-lean_dec(x_2);
 return x_16;
 }
 }
@@ -5198,7 +5129,6 @@ _start:
 lean_object* x_19; 
 x_19 = l_Lean_Meta_mkSizeOfFn___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18);
 lean_dec(x_13);
-lean_dec(x_1);
 return x_19;
 }
 }
@@ -5225,7 +5155,6 @@ _start:
 {
 lean_object* x_19; 
 x_19 = l_Lean_Meta_mkSizeOfFn___lambda__4(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18);
-lean_dec(x_13);
 return x_19;
 }
 }
@@ -5251,7 +5180,6 @@ _start:
 {
 lean_object* x_18; 
 x_18 = l_Lean_Meta_mkSizeOfFn___lambda__5(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
-lean_dec(x_1);
 return x_18;
 }
 }
@@ -6464,7 +6392,6 @@ lean_dec(x_43);
 x_46 = lean_box(0);
 x_47 = lean_mk_array(x_45, x_46);
 x_48 = l_Array_ofSubarray___rarg(x_33);
-lean_dec(x_33);
 x_49 = lean_array_get_size(x_48);
 x_50 = lean_usize_of_nat(x_49);
 lean_dec(x_49);
@@ -6473,7 +6400,6 @@ x_52 = x_48;
 x_53 = l_Array_mapMUnsafe_map___at_Lean_Meta_mkSizeOfSpecLemmaInstance___spec__1(x_50, x_51, x_52);
 x_54 = x_53;
 x_55 = l_Array_append___rarg(x_47, x_54);
-lean_dec(x_54);
 x_56 = l_Lean_Meta_mkAppOptM(x_36, x_55, x_2, x_3, x_4, x_5, x_44);
 return x_56;
 }
@@ -6828,6 +6754,11 @@ x_12 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
 x_13 = l_Lean_throwError___at_Lean_Meta_SizeOfSpecNested_throwFailed___spec__1___rarg(x_12, x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_13;
 }
 }
@@ -6835,7 +6766,7 @@ lean_object* l_Lean_Meta_SizeOfSpecNested_throwFailed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg___boxed), 6, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg), 6, 0);
 return x_2;
 }
 }
@@ -6850,19 +6781,6 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_8;
-}
-}
-lean_object* l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_7;
 }
 }
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_recToSizeOf_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -6944,7 +6862,6 @@ lean_free_object(x_11);
 lean_dec(x_10);
 lean_dec(x_1);
 x_17 = l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg(x_2, x_3, x_4, x_5, x_6, x_14);
-lean_dec(x_2);
 return x_17;
 }
 else
@@ -6985,12 +6902,20 @@ x_28 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);
 x_29 = l_Lean_Meta_SizeOfSpecNested_throwUnexpected___rarg(x_28, x_2, x_3, x_4, x_5, x_6, x_14);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_2);
 return x_29;
 }
 else
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; 
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
 x_30 = lean_ctor_get(x_23, 0);
 lean_inc(x_30);
 lean_dec(x_23);
@@ -7025,17 +6950,12 @@ x_48 = lean_ctor_get(x_2, 4);
 lean_inc(x_48);
 lean_dec(x_2);
 x_49 = l_Array_append___rarg(x_47, x_48);
-lean_dec(x_48);
 x_50 = l_Array_ofSubarray___rarg(x_41);
-lean_dec(x_41);
 x_51 = l_Array_append___rarg(x_49, x_50);
-lean_dec(x_50);
 x_52 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg___lambda__1___closed__3;
 x_53 = lean_array_push(x_52, x_44);
 x_54 = l_Array_append___rarg(x_51, x_53);
-lean_dec(x_53);
 x_55 = l_Lean_mkAppN(x_46, x_54);
-lean_dec(x_54);
 lean_ctor_set(x_11, 0, x_55);
 return x_11;
 }
@@ -7048,7 +6968,6 @@ lean_free_object(x_11);
 lean_dec(x_10);
 lean_dec(x_1);
 x_56 = l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg(x_2, x_3, x_4, x_5, x_6, x_14);
-lean_dec(x_2);
 return x_56;
 }
 }
@@ -7071,7 +6990,6 @@ lean_object* x_61;
 lean_dec(x_10);
 lean_dec(x_1);
 x_61 = l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg(x_2, x_3, x_4, x_5, x_6, x_58);
-lean_dec(x_2);
 return x_61;
 }
 else
@@ -7111,12 +7029,20 @@ x_72 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_72, 0, x_70);
 lean_ctor_set(x_72, 1, x_71);
 x_73 = l_Lean_Meta_SizeOfSpecNested_throwUnexpected___rarg(x_72, x_2, x_3, x_4, x_5, x_6, x_58);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_2);
 return x_73;
 }
 else
 {
 lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; 
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
 x_74 = lean_ctor_get(x_67, 0);
 lean_inc(x_74);
 lean_dec(x_67);
@@ -7151,17 +7077,12 @@ x_92 = lean_ctor_get(x_2, 4);
 lean_inc(x_92);
 lean_dec(x_2);
 x_93 = l_Array_append___rarg(x_91, x_92);
-lean_dec(x_92);
 x_94 = l_Array_ofSubarray___rarg(x_85);
-lean_dec(x_85);
 x_95 = l_Array_append___rarg(x_93, x_94);
-lean_dec(x_94);
 x_96 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg___lambda__1___closed__3;
 x_97 = lean_array_push(x_96, x_88);
 x_98 = l_Array_append___rarg(x_95, x_97);
-lean_dec(x_97);
 x_99 = l_Lean_mkAppN(x_90, x_98);
-lean_dec(x_98);
 x_100 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_100, 0, x_99);
 lean_ctor_set(x_100, 1, x_58);
@@ -7175,7 +7096,6 @@ lean_dec(x_62);
 lean_dec(x_10);
 lean_dec(x_1);
 x_101 = l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg(x_2, x_3, x_4, x_5, x_6, x_58);
-lean_dec(x_2);
 return x_101;
 }
 }
@@ -7187,21 +7107,8 @@ lean_object* x_102;
 lean_dec(x_8);
 lean_dec(x_1);
 x_102 = l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg(x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_2);
 return x_102;
 }
-}
-}
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_recToSizeOf___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_recToSizeOf(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-return x_8;
 }
 }
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -7381,7 +7288,9 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_8);
 lean_ctor_set(x_16, 1, x_14);
@@ -7394,9 +7303,10 @@ lean_dec(x_8);
 x_17 = lean_array_uget(x_5, x_7);
 lean_inc(x_2);
 x_18 = l_Lean_mkConst(x_17, x_2);
+lean_inc(x_1);
 x_19 = l_Array_ofSubarray___rarg(x_1);
 x_20 = l_Lean_mkAppN(x_18, x_19);
-lean_dec(x_19);
+lean_inc(x_3);
 x_21 = l_Lean_mkAppN(x_20, x_3);
 lean_inc(x_13);
 lean_inc(x_12);
@@ -7436,7 +7346,9 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 x_29 = !lean_is_exclusive(x_22);
 if (x_29 == 0)
 {
@@ -7582,8 +7494,6 @@ lean_dec(x_7);
 x_17 = l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof_mkSizeOf___spec__1(x_1, x_2, x_3, x_4, x_5, x_15, x_16, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_9);
 lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_1);
 return x_17;
 }
 }
@@ -7592,23 +7502,8 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof_mkSizeOf___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_8;
-}
-}
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof_mkSizeOf___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-lean_object* x_10; 
-x_10 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof_mkSizeOf(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_3);
-lean_dec(x_1);
-return x_10;
 }
 }
 static lean_object* _init_l_Lean_addTrace___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof___spec__1___closed__1() {
@@ -7999,6 +7894,7 @@ if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 lean_dec(x_19);
+lean_dec(x_3);
 x_22 = l_Lean_indentExpr(x_1);
 x_23 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof___lambda__1___closed__2;
 x_24 = lean_alloc_ctor(10, 2, 0);
@@ -8036,6 +7932,7 @@ if (lean_obj_tag(x_33) == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 lean_dec(x_32);
+lean_dec(x_3);
 x_34 = l_Lean_indentExpr(x_1);
 x_35 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof___lambda__1___closed__2;
 x_36 = lean_alloc_ctor(10, 2, 0);
@@ -8084,6 +7981,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
+lean_inc(x_3);
 x_49 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof(x_3, x_45, x_47, x_5, x_6, x_7, x_8, x_9, x_20);
 if (lean_obj_tag(x_49) == 0)
 {
@@ -8189,6 +8087,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_3);
 x_68 = !lean_is_exclusive(x_49);
 if (x_68 == 0)
 {
@@ -8220,6 +8119,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_72 = !lean_is_exclusive(x_18);
@@ -8250,6 +8150,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_76 = !lean_is_exclusive(x_15);
@@ -8276,6 +8177,7 @@ else
 {
 lean_object* x_80; lean_object* x_81; 
 lean_dec(x_5);
+lean_dec(x_3);
 lean_dec(x_1);
 x_80 = lean_ctor_get(x_11, 1);
 lean_inc(x_80);
@@ -8292,6 +8194,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_82 = !lean_is_exclusive(x_11);
@@ -8617,6 +8520,7 @@ lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorP
 _start:
 {
 lean_object* x_10; 
+lean_dec(x_3);
 x_10 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma(x_1, x_2, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_10;
 }
@@ -8625,6 +8529,7 @@ lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorP
 _start:
 {
 lean_object* x_11; 
+lean_dec(x_4);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
@@ -8650,6 +8555,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 x_18 = l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProofStep___spec__1(x_12, x_17, x_3, x_15, x_16, x_17, x_5, x_6, x_7, x_8, x_9, x_13);
+lean_dec(x_3);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; lean_object* x_20; 
@@ -8743,6 +8649,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_33 = !lean_is_exclusive(x_11);
@@ -8808,6 +8715,10 @@ lean_object* x_13; lean_object* x_14;
 x_13 = lean_ctor_get(x_10, 1);
 lean_inc(x_13);
 lean_dec(x_10);
+lean_inc(x_8);
+lean_inc(x_7);
+lean_inc(x_6);
+lean_inc(x_5);
 lean_inc(x_4);
 x_14 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_recToSizeOf(x_2, x_4, x_5, x_6, x_7, x_8, x_13);
 if (lean_obj_tag(x_14) == 0)
@@ -8895,7 +8806,6 @@ x_32 = lean_ctor_get(x_30, 1);
 lean_inc(x_32);
 lean_dec(x_30);
 x_33 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProofStep___lambda__2(x_15, x_3, x_1, x_31, x_4, x_5, x_6, x_7, x_8, x_32);
-lean_dec(x_31);
 return x_33;
 }
 }
@@ -8909,6 +8819,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_1);
 x_46 = !lean_is_exclusive(x_14);
 if (x_46 == 0)
 {
@@ -8934,6 +8845,7 @@ else
 lean_object* x_50; lean_object* x_51; 
 lean_dec(x_4);
 lean_dec(x_2);
+lean_dec(x_1);
 x_50 = lean_ctor_get(x_10, 1);
 lean_inc(x_50);
 lean_dec(x_10);
@@ -8951,6 +8863,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 x_52 = !lean_is_exclusive(x_10);
 if (x_52 == 0)
 {
@@ -8978,6 +8891,11 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_8; lean_object* x_9; 
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
 x_8 = lean_box(0);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_8);
@@ -9249,6 +9167,7 @@ x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
 lean_dec(x_9);
 x_12 = lean_add_decl(x_11, x_1);
+lean_dec(x_1);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -9425,7 +9344,6 @@ lean_ctor_set(x_15, 1, x_4);
 x_16 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_16, 0, x_15);
 x_17 = l_Lean_addDecl___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__2(x_16, x_8, x_9, x_10, x_11, x_12, x_13);
-lean_dec(x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 uint8_t x_18; 
@@ -9457,6 +9375,7 @@ return x_25;
 else
 {
 uint8_t x_26; 
+lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_1);
 x_26 = !lean_is_exclusive(x_17);
@@ -9519,11 +9438,12 @@ lean_dec(x_24);
 lean_inc(x_22);
 x_27 = l_Array_toSubarray___rarg(x_22, x_17, x_26);
 x_28 = l_Array_ofSubarray___rarg(x_27);
-lean_dec(x_27);
 x_29 = l_Array_append___rarg(x_28, x_3);
 x_30 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg___lambda__1___closed__3;
 x_31 = lean_array_push(x_30, x_10);
+lean_inc(x_31);
 x_32 = l_Array_append___rarg(x_29, x_31);
+lean_inc(x_32);
 x_33 = l_Lean_mkAppN(x_4, x_32);
 x_34 = l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors_loop___spec__1___closed__1;
 lean_inc(x_15);
@@ -9556,6 +9476,7 @@ lean_inc(x_40);
 lean_dec(x_38);
 x_41 = 0;
 x_42 = 1;
+lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_32);
 x_43 = l_Lean_Meta_mkForallFVars(x_32, x_39, x_41, x_42, x_12, x_13, x_14, x_15, x_40);
@@ -9573,7 +9494,6 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_11);
 x_46 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof(x_5, x_33, x_36, x_11, x_12, x_13, x_14, x_15, x_45);
-lean_dec(x_36);
 if (lean_obj_tag(x_46) == 0)
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; 
@@ -9641,7 +9561,6 @@ lean_dec(x_15);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
-lean_dec(x_22);
 return x_55;
 }
 else
@@ -9670,7 +9589,6 @@ lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_62);
-lean_dec(x_22);
 return x_64;
 }
 }
@@ -9877,8 +9795,9 @@ lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOf
 _start:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; 
+lean_inc(x_10);
 x_18 = l_Lean_mkAppN(x_1, x_10);
-x_19 = lean_alloc_closure((void*)(l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___lambda__2___boxed), 16, 9);
+x_19 = lean_alloc_closure((void*)(l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___lambda__2), 16, 9);
 lean_closure_set(x_19, 0, x_2);
 lean_closure_set(x_19, 1, x_3);
 lean_closure_set(x_19, 2, x_10);
@@ -9906,6 +9825,7 @@ lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOf
 _start:
 {
 lean_object* x_10; 
+lean_dec(x_3);
 x_10 = l_Lean_Expr_getAppFn(x_1);
 if (lean_obj_tag(x_10) == 4)
 {
@@ -9914,6 +9834,11 @@ x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
+lean_inc(x_8);
+lean_inc(x_7);
+lean_inc(x_6);
+lean_inc(x_5);
+lean_inc(x_4);
 lean_inc(x_12);
 x_13 = l_List_mapM___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__1(x_12, x_4, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_13) == 0)
@@ -9936,6 +9861,7 @@ x_21 = lean_ctor_get(x_18, 1);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_17);
 x_23 = l_Lean_Environment_contains(x_22, x_17);
 if (x_23 == 0)
 {
@@ -9996,11 +9922,6 @@ lean_dec(x_10);
 lean_dec(x_2);
 lean_dec(x_1);
 x_38 = l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg(x_4, x_5, x_6, x_7, x_8, x_35);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
 return x_38;
 }
 else
@@ -10028,9 +9949,7 @@ x_48 = lean_ctor_get(x_40, 1);
 lean_inc(x_48);
 x_49 = l_Array_toSubarray___rarg(x_47, x_41, x_48);
 x_50 = l_Array_ofSubarray___rarg(x_49);
-lean_dec(x_49);
 x_51 = l_Lean_mkAppN(x_31, x_50);
-lean_dec(x_50);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -10107,11 +10026,6 @@ lean_dec(x_10);
 lean_dec(x_2);
 lean_dec(x_1);
 x_61 = l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg(x_4, x_5, x_6, x_7, x_8, x_35);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
 return x_61;
 }
 }
@@ -10128,11 +10042,6 @@ lean_dec(x_10);
 lean_dec(x_2);
 lean_dec(x_1);
 x_62 = l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg(x_4, x_5, x_6, x_7, x_8, x_30);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
 return x_62;
 }
 }
@@ -10226,7 +10135,6 @@ x_77 = lean_nat_sub(x_73, x_76);
 lean_dec(x_73);
 x_78 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_1, x_75, x_77);
 x_79 = l_Lean_mkAppN(x_71, x_78);
-lean_dec(x_78);
 lean_ctor_set(x_18, 0, x_79);
 return x_18;
 }
@@ -10242,6 +10150,7 @@ lean_dec(x_18);
 x_82 = lean_ctor_get(x_80, 0);
 lean_inc(x_82);
 lean_dec(x_80);
+lean_inc(x_17);
 x_83 = l_Lean_Environment_contains(x_82, x_17);
 if (x_83 == 0)
 {
@@ -10301,11 +10210,6 @@ lean_dec(x_10);
 lean_dec(x_2);
 lean_dec(x_1);
 x_98 = l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg(x_4, x_5, x_6, x_7, x_8, x_95);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
 return x_98;
 }
 else
@@ -10333,9 +10237,7 @@ x_108 = lean_ctor_get(x_100, 1);
 lean_inc(x_108);
 x_109 = l_Array_toSubarray___rarg(x_107, x_101, x_108);
 x_110 = l_Array_ofSubarray___rarg(x_109);
-lean_dec(x_109);
 x_111 = l_Lean_mkAppN(x_91, x_110);
-lean_dec(x_110);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -10414,11 +10316,6 @@ lean_dec(x_10);
 lean_dec(x_2);
 lean_dec(x_1);
 x_121 = l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg(x_4, x_5, x_6, x_7, x_8, x_95);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
 return x_121;
 }
 }
@@ -10435,11 +10332,6 @@ lean_dec(x_10);
 lean_dec(x_2);
 lean_dec(x_1);
 x_122 = l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg(x_4, x_5, x_6, x_7, x_8, x_90);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
 return x_122;
 }
 }
@@ -10537,7 +10429,6 @@ x_137 = lean_nat_sub(x_133, x_136);
 lean_dec(x_133);
 x_138 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_1, x_135, x_137);
 x_139 = l_Lean_mkAppN(x_131, x_138);
-lean_dec(x_138);
 x_140 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_140, 0, x_139);
 lean_ctor_set(x_140, 1, x_81);
@@ -10585,11 +10476,6 @@ lean_dec(x_10);
 lean_dec(x_2);
 lean_dec(x_1);
 x_145 = l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg(x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
 return x_145;
 }
 }
@@ -10695,7 +10581,6 @@ lean_inc(x_25);
 lean_dec(x_23);
 x_26 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___closed__5;
 x_27 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___lambda__4(x_1, x_26, x_24, x_3, x_4, x_5, x_6, x_7, x_25);
-lean_dec(x_24);
 return x_27;
 }
 }
@@ -10984,6 +10869,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
+lean_inc(x_3);
 x_11 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof_mkSizeOf(x_1, x_2, x_3, x_5, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -11289,11 +11175,6 @@ lean_object* x_15;
 lean_dec(x_10);
 lean_dec(x_1);
 x_15 = l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg(x_3, x_4, x_5, x_6, x_7, x_11);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 return x_15;
 }
 else
@@ -11388,11 +11269,6 @@ lean_dec(x_28);
 lean_dec(x_24);
 lean_dec(x_1);
 x_37 = l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg(x_3, x_4, x_5, x_6, x_7, x_35);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 return x_37;
 }
 else
@@ -11404,6 +11280,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
+lean_inc(x_1);
 x_39 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof(x_1, x_24, x_38, x_3, x_4, x_5, x_6, x_7, x_35);
 if (lean_obj_tag(x_39) == 0)
 {
@@ -11982,7 +11859,6 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18;
 x_16 = lean_ctor_get(x_14, 0);
 x_17 = l_Array_ofSubarray___rarg(x_3);
 x_18 = l_Lean_mkAppN(x_16, x_17);
-lean_dec(x_17);
 lean_ctor_set(x_14, 0, x_18);
 return x_14;
 }
@@ -11996,7 +11872,6 @@ lean_inc(x_19);
 lean_dec(x_14);
 x_21 = l_Array_ofSubarray___rarg(x_3);
 x_22 = l_Lean_mkAppN(x_19, x_21);
-lean_dec(x_21);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_23, 1, x_20);
@@ -12006,6 +11881,7 @@ return x_23;
 else
 {
 uint8_t x_24; 
+lean_dec(x_3);
 x_24 = !lean_is_exclusive(x_14);
 if (x_24 == 0)
 {
@@ -12040,6 +11916,7 @@ lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOf
 _start:
 {
 lean_object* x_14; size_t x_15; size_t x_16; lean_object* x_17; 
+lean_dec(x_7);
 x_14 = lean_array_get_size(x_6);
 x_15 = lean_usize_of_nat(x_14);
 lean_dec(x_14);
@@ -12050,6 +11927,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 x_17 = l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__5(x_1, x_2, x_6, x_15, x_16, x_3, x_8, x_9, x_10, x_11, x_12, x_13);
+lean_dec(x_6);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
@@ -12074,6 +11952,7 @@ lean_inc(x_22);
 lean_dec(x_20);
 x_23 = lean_ctor_get(x_4, 5);
 lean_inc(x_23);
+lean_dec(x_4);
 x_24 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_24, 0, x_23);
 x_25 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___lambda__2___boxed__const__1;
@@ -12094,6 +11973,7 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_5);
+lean_dec(x_4);
 x_28 = !lean_is_exclusive(x_20);
 if (x_28 == 0)
 {
@@ -12123,6 +12003,7 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_5);
+lean_dec(x_4);
 x_32 = !lean_is_exclusive(x_17);
 if (x_32 == 0)
 {
@@ -12148,6 +12029,7 @@ lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOf
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+lean_dec(x_3);
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = l_Lean_Expr_getAppNumArgsAux(x_2, x_10);
 x_12 = l_Lean_Meta_mkSizeOfSpecLemmaInstance___closed__3;
@@ -12244,9 +12126,7 @@ lean_inc(x_49);
 lean_dec(x_1);
 x_50 = l_Array_toSubarray___rarg(x_36, x_10, x_49);
 x_51 = l_Array_ofSubarray___rarg(x_50);
-lean_dec(x_50);
 x_52 = l_Lean_mkAppN(x_48, x_51);
-lean_dec(x_51);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -12265,7 +12145,7 @@ x_56 = lean_ctor_get(x_44, 4);
 lean_inc(x_56);
 x_57 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_57, 0, x_56);
-x_58 = lean_alloc_closure((void*)(l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___lambda__2___boxed), 13, 5);
+x_58 = lean_alloc_closure((void*)(l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___lambda__2), 13, 5);
 lean_closure_set(x_58, 0, x_21);
 lean_closure_set(x_58, 1, x_25);
 lean_closure_set(x_58, 2, x_52);
@@ -12352,11 +12232,6 @@ lean_dec(x_23);
 lean_dec(x_21);
 lean_dec(x_1);
 x_68 = l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg(x_4, x_5, x_6, x_7, x_8, x_32);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
 return x_68;
 }
 }
@@ -12457,17 +12332,7 @@ _start:
 lean_object* x_11; 
 x_11 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_4);
-lean_dec(x_3);
 return x_11;
-}
-}
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-lean_object* x_10; 
-x_10 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_1);
-return x_10;
 }
 }
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProofStep___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
@@ -12482,47 +12347,6 @@ x_15 = l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_Siz
 lean_dec(x_7);
 lean_dec(x_3);
 return x_15;
-}
-}
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProofStep___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-lean_object* x_10; 
-x_10 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProofStep___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_3);
-return x_10;
-}
-}
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProofStep___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
-_start:
-{
-lean_object* x_11; 
-x_11 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProofStep___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_4);
-lean_dec(x_3);
-return x_11;
-}
-}
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProofStep___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-lean_object* x_10; 
-x_10 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProofStep(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_1);
-return x_10;
-}
-}
-lean_object* l_List_mapM___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l_List_mapM___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_8;
 }
 }
 lean_object* l_Lean_throwError___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -12572,7 +12396,6 @@ lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_8;
 }
 }
@@ -12596,17 +12419,7 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
 return x_14;
-}
-}
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15, lean_object* x_16) {
-_start:
-{
-lean_object* x_17; 
-x_17 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
-lean_dec(x_3);
-return x_17;
 }
 }
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___lambda__3___boxed(lean_object** _args) {
@@ -12633,15 +12446,6 @@ lean_object* x_18;
 x_18 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_11);
 return x_18;
-}
-}
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___lambda__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-lean_object* x_10; 
-x_10 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___lambda__4(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_3);
-return x_10;
 }
 }
 lean_object* l_Lean_throwError___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -12702,7 +12506,6 @@ _start:
 lean_object* x_11; 
 x_11 = l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___spec__5___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_4);
-lean_dec(x_1);
 return x_11;
 }
 }
@@ -12741,28 +12544,7 @@ lean_dec(x_1);
 x_13 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___lambda__1(x_12, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
 return x_13;
-}
-}
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
-_start:
-{
-lean_object* x_14; 
-x_14 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_4);
-return x_14;
-}
-}
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-lean_object* x_10; 
-x_10 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_3);
-return x_10;
 }
 }
 lean_object* l_Lean_Meta_SizeOfSpecNested_main_step(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -12789,6 +12571,10 @@ lean_object* x_12; lean_object* x_13;
 x_12 = lean_ctor_get(x_9, 1);
 lean_inc(x_12);
 lean_dec(x_9);
+lean_inc(x_7);
+lean_inc(x_6);
+lean_inc(x_5);
+lean_inc(x_4);
 lean_inc(x_3);
 x_13 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_recToSizeOf(x_1, x_3, x_4, x_5, x_6, x_7, x_12);
 if (lean_obj_tag(x_13) == 0)
@@ -13926,7 +13712,6 @@ x_18 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
 x_19 = l_Lean_addDecl___at_Lean_Meta_mkSizeOfFn___spec__3(x_18, x_6, x_7, x_8, x_9, x_15);
 lean_dec(x_6);
-lean_dec(x_18);
 return x_19;
 }
 else
@@ -13994,9 +13779,13 @@ x_25 = lean_ctor_get(x_23, 1);
 lean_inc(x_25);
 lean_dec(x_23);
 x_26 = lean_ctor_get(x_2, 2);
+lean_inc(x_26);
 x_27 = lean_usize_of_nat(x_26);
+lean_dec(x_26);
 x_28 = lean_ctor_get(x_2, 1);
+lean_inc(x_28);
 x_29 = lean_usize_of_nat(x_28);
+lean_dec(x_28);
 lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -14026,13 +13815,14 @@ x_35 = lean_ctor_get(x_33, 1);
 lean_inc(x_35);
 lean_dec(x_33);
 x_36 = l_Lean_Meta_mkSizeOfSpecLemmaName(x_3);
+lean_inc(x_9);
 lean_inc(x_4);
 x_37 = l_Array_append___rarg(x_4, x_9);
 x_38 = l_Array_ofSubarray___rarg(x_2);
 x_39 = l_Array_append___rarg(x_37, x_38);
-lean_dec(x_38);
 x_40 = 0;
 x_41 = 1;
+lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_39);
 x_42 = l_Lean_Meta_mkForallFVars(x_39, x_34, x_40, x_41, x_10, x_11, x_12, x_13, x_35);
@@ -14223,6 +14013,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_2);
 x_69 = !lean_is_exclusive(x_33);
 if (x_69 == 0)
 {
@@ -14258,6 +14049,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_2);
 x_73 = !lean_is_exclusive(x_30);
 if (x_73 == 0)
 {
@@ -14293,6 +14085,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_2);
 x_77 = !lean_is_exclusive(x_23);
 if (x_77 == 0)
 {
@@ -14327,6 +14120,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_2);
 x_81 = !lean_is_exclusive(x_18);
 if (x_81 == 0)
 {
@@ -14365,11 +14159,9 @@ x_19 = l_Array_toSubarray___rarg(x_8, x_15, x_18);
 lean_inc(x_2);
 x_20 = l_Lean_mkConst(x_2, x_3);
 x_21 = l_Lean_mkAppN(x_20, x_8);
-lean_dec(x_8);
 x_22 = l_Array_ofSubarray___rarg(x_17);
-lean_dec(x_17);
 lean_inc(x_22);
-x_23 = lean_alloc_closure((void*)(l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___lambda__2___boxed), 14, 8);
+x_23 = lean_alloc_closure((void*)(l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___lambda__2), 14, 8);
 lean_closure_set(x_23, 0, x_21);
 lean_closure_set(x_23, 1, x_19);
 lean_closure_set(x_23, 2, x_2);
@@ -14493,15 +14285,6 @@ x_11 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___lambda__1
 lean_dec(x_9);
 lean_dec(x_7);
 return x_11;
-}
-}
-lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14) {
-_start:
-{
-lean_object* x_15; 
-x_15 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
-lean_dec(x_2);
-return x_15;
 }
 }
 lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___lambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14) {
@@ -15114,13 +14897,13 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean
 lean_inc(x_1);
 x_18 = lean_array_push(x_1, x_12);
 x_19 = l_Lean_mkConst(x_2, x_3);
+lean_inc(x_5);
 x_20 = l_Array_append___rarg(x_4, x_5);
 x_21 = l_Array_ofSubarray___rarg(x_6);
 x_22 = l_Array_append___rarg(x_20, x_21);
-lean_dec(x_21);
+lean_inc(x_18);
 x_23 = l_Array_append___rarg(x_22, x_18);
 x_24 = l_Lean_mkAppN(x_19, x_23);
-lean_dec(x_23);
 x_25 = 0;
 x_26 = 1;
 lean_inc(x_13);
@@ -15152,6 +14935,7 @@ lean_dec(x_33);
 x_36 = l_List_forIn_loop___at_Lean_Meta_mkSizeOfInstances___spec__2___lambda__1___closed__3;
 x_37 = l_Lean_Name_append(x_8, x_36);
 x_38 = l_Array_append___rarg(x_9, x_5);
+lean_inc(x_14);
 lean_inc(x_13);
 lean_inc(x_38);
 x_39 = l_Lean_Meta_mkForallFVars(x_38, x_10, x_25, x_26, x_13, x_14, x_15, x_16, x_35);
@@ -15189,7 +14973,6 @@ x_49 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_49, 0, x_48);
 lean_inc(x_15);
 x_50 = l_Lean_addDecl___at_Lean_Meta_mkSizeOfFn___spec__3(x_49, x_13, x_14, x_15, x_16, x_44);
-lean_dec(x_49);
 if (lean_obj_tag(x_50) == 0)
 {
 lean_object* x_51; uint8_t x_52; lean_object* x_53; lean_object* x_54; 
@@ -15300,6 +15083,7 @@ lean_dec(x_13);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
+lean_dec(x_5);
 x_67 = !lean_is_exclusive(x_33);
 if (x_67 == 0)
 {
@@ -15331,6 +15115,7 @@ lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_7);
+lean_dec(x_5);
 lean_dec(x_1);
 x_71 = !lean_is_exclusive(x_27);
 if (x_71 == 0)
@@ -15383,6 +15168,7 @@ x_15 = l_List_map___at_Lean_mkConstWithLevelParams___spec__1(x_14);
 lean_inc(x_15);
 lean_inc(x_2);
 x_16 = l_Lean_mkConst(x_2, x_15);
+lean_inc(x_3);
 x_17 = l_Lean_mkAppN(x_16, x_3);
 x_18 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg___lambda__1___closed__3;
 lean_inc(x_17);
@@ -15471,7 +15257,6 @@ x_16 = lean_array_get_size(x_6);
 lean_inc(x_6);
 x_17 = l_Array_toSubarray___rarg(x_6, x_13, x_16);
 x_18 = l_Array_ofSubarray___rarg(x_15);
-lean_dec(x_15);
 lean_inc(x_18);
 x_19 = lean_alloc_closure((void*)(l_List_forIn_loop___at_Lean_Meta_mkSizeOfInstances___spec__2___lambda__2), 13, 7);
 lean_closure_set(x_19, 0, x_2);
@@ -16428,8 +16213,6 @@ _start:
 lean_object* x_18; 
 x_18 = l_List_forIn_loop___at_Lean_Meta_mkSizeOfInstances___spec__2___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_8);
-lean_dec(x_6);
-lean_dec(x_5);
 return x_18;
 }
 }

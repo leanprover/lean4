@@ -611,9 +611,14 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = lean_ctor_get(x_2, 1);
+lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 0);
+lean_inc(x_4);
+lean_dec(x_2);
 x_5 = lean_nat_sub(x_3, x_4);
+lean_dec(x_4);
 x_6 = l_Nat_anyAux___at_Prod_allI___spec__1(x_1, x_3, x_5);
+lean_dec(x_3);
 return x_6;
 }
 }
@@ -632,7 +637,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Prod_allI(x_1, x_2);
-lean_dec(x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }

@@ -212,10 +212,8 @@ lean_object* l_Substring_toString_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_String_extract_match__1(lean_object*);
 lean_object* l_String_Iterator_next(lean_object*);
 lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
-lean_object* l_String_nextUntil___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Substring_front___boxed(lean_object*);
 lean_object* l_String_trimLeft(lean_object*);
-lean_object* l_String_join___boxed(lean_object*);
 lean_object* l_String_dropRight(lean_object*, lean_object*);
 lean_object* l_String_offsetOfPos___boxed(lean_object*, lean_object*);
 lean_object* l_String_mapAux___at_String_toUpper___spec__1(lean_object*, lean_object*);
@@ -1766,6 +1764,7 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_String_splitOnAux___closed__1;
 x_3 = l_List_foldl___at_String_join___spec__1(x_2, x_1);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -1776,15 +1775,6 @@ lean_object* x_3;
 x_3 = l_List_foldl___at_String_join___spec__1(x_1, x_2);
 lean_dec(x_2);
 return x_3;
-}
-}
-lean_object* l_String_join___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_String_join(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l_String_singleton(uint32_t x_1) {
@@ -5570,6 +5560,7 @@ lean_object* x_4; lean_object* x_5;
 x_4 = lean_string_utf8_byte_size(x_1);
 x_5 = l___private_Init_Data_String_Basic_0__Substring_takeWhileAux___at_String_nextUntil___spec__1(x_2, x_1, x_4, x_3);
 lean_dec(x_4);
+lean_dec(x_1);
 return x_5;
 }
 }
@@ -5581,15 +5572,6 @@ x_5 = l___private_Init_Data_String_Basic_0__Substring_takeWhileAux___at_String_n
 lean_dec(x_3);
 lean_dec(x_2);
 return x_5;
-}
-}
-lean_object* l_String_nextUntil___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_String_nextUntil(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
 }
 }
 lean_object* l_String_mapAux___at_String_toUpper___spec__1(lean_object* x_1, lean_object* x_2) {

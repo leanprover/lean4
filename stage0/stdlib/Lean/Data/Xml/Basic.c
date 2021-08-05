@@ -41,7 +41,6 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Xml_instInhabitedContent;
 static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString___closed__1;
 static lean_object* l_Lean_Xml_instToStringAttributes___closed__1;
-lean_object* l_Lean_Xml_instToStringAttributes___boxed(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___spec__2(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString___closed__2;
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -121,6 +120,7 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_Xml_instToStringAttributes___closed__1;
 x_3 = l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(x_2, x_1);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -131,15 +131,6 @@ lean_object* x_3;
 x_3 = l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(x_1, x_2);
 lean_dec(x_2);
 return x_3;
-}
-}
-lean_object* l_Lean_Xml_instToStringAttributes___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Xml_instToStringAttributes(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_Xml_instInhabitedContent___closed__1() {

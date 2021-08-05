@@ -178,7 +178,6 @@ lean_object* l_Lean_getNatOption___rarg(lean_object*, lean_object*, lean_object*
 lean_object* l_Lean_Option_get_x3f___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a_x3d_____closed__8;
-lean_object* l_Lean_registerOption___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerOption___lambda__2___closed__2;
 lean_object* l_Lean_instInhabitedOption(lean_object*);
 static lean_object* l_Lean_Option_commandRegister__option_____x3a___x3a_x3d_____closed__10;
@@ -393,6 +392,7 @@ lean_object* l_Lean_registerOption___lambda__2(lean_object* x_1, lean_object* x_
 _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+lean_dec(x_3);
 x_5 = l___private_Lean_Data_Options_0__Lean_optionDeclsRef;
 x_6 = lean_st_ref_get(x_5, x_4);
 x_7 = !lean_is_exclusive(x_6);
@@ -570,15 +570,6 @@ lean_object* x_6;
 x_6 = l_Lean_registerOption___lambda__1(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 return x_6;
-}
-}
-lean_object* l_Lean_registerOption___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_registerOption___lambda__2(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
 }
 }
 lean_object* l_Lean_getOptionDecls(lean_object* x_1) {
@@ -2862,6 +2853,7 @@ x_11 = l_Lean_Syntax_getArg(x_1, x_10);
 x_12 = lean_unsigned_to_nat(5u);
 x_13 = l_Lean_Syntax_getArg(x_1, x_12);
 lean_dec(x_1);
+lean_inc(x_2);
 x_14 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_2, x_3);
 x_15 = !lean_is_exclusive(x_14);
 if (x_15 == 0)
@@ -3413,6 +3405,7 @@ x_11 = l_Lean_Syntax_getArg(x_1, x_10);
 x_12 = lean_unsigned_to_nat(5u);
 x_13 = l_Lean_Syntax_getArg(x_1, x_12);
 lean_dec(x_1);
+lean_inc(x_2);
 x_14 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_2, x_3);
 x_15 = !lean_is_exclusive(x_14);
 if (x_15 == 0)

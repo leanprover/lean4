@@ -71,7 +71,6 @@ lean_object* l_Lean_Level_ctorToNat___boxed(lean_object*);
 lean_object* lean_level_mk_succ(lean_object*);
 uint8_t l_Lean_Level_hasMVar(lean_object*);
 lean_object* l_Lean_Level_data_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Level_PP_Result_quote___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Level_hasMVarEx___boxed(lean_object*);
 static lean_object* l_Lean_Level_mkData___closed__2;
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -5604,6 +5603,8 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec(x_1);
 x_4 = l_Lean_SourceInfo_fromRef(x_3);
 x_5 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_5, 0, x_4);
@@ -5880,7 +5881,6 @@ x_14 = l_Array_mapMUnsafe_map___at_Lean_Level_PP_Result_quote___spec__2(x_11, x_
 x_15 = x_14;
 x_16 = l_Lean_Level_normalize___closed__4;
 x_17 = l_Array_append___rarg(x_16, x_15);
-lean_dec(x_15);
 x_18 = l_Lean_Level_PP_Result_quote___lambda__5___closed__3;
 x_19 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
@@ -5929,7 +5929,6 @@ x_14 = l_Array_mapMUnsafe_map___at_Lean_Level_PP_Result_quote___spec__2(x_11, x_
 x_15 = x_14;
 x_16 = l_Lean_Level_normalize___closed__4;
 x_17 = l_Array_append___rarg(x_16, x_15);
-lean_dec(x_15);
 x_18 = l_Lean_Level_PP_Result_quote___lambda__5___closed__3;
 x_19 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
@@ -5951,7 +5950,7 @@ static lean_object* _init_l_Lean_Level_PP_Result_quote___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Level_PP_Result_quote___spec__1___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Level_PP_Result_quote___spec__1), 2, 0);
 return x_1;
 }
 }
@@ -6100,15 +6099,6 @@ return x_47;
 }
 }
 }
-}
-}
-lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Level_PP_Result_quote___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Level_PP_Result_quote___spec__1(x_1, x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Level_PP_Result_quote___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

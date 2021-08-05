@@ -328,6 +328,7 @@ lean_object* x_11; uint8_t x_12;
 x_11 = lean_ctor_get(x_6, 0);
 lean_inc(x_11);
 lean_dec(x_6);
+lean_inc(x_11);
 x_12 = l_Lean_Environment_contains(x_3, x_11);
 if (x_12 == 0)
 {
@@ -397,7 +398,6 @@ lean_inc(x_1);
 lean_inc(x_3);
 x_8 = l_Lean_mkPrivateName(x_3, x_1);
 x_9 = l_Lean_Environment_contains(x_3, x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -482,6 +482,7 @@ lean_closure_set(x_6, 1, x_2);
 lean_closure_set(x_6, 2, x_5);
 lean_closure_set(x_6, 3, x_3);
 lean_closure_set(x_6, 4, x_4);
+lean_inc(x_1);
 x_7 = l_Lean_Environment_contains(x_5, x_1);
 if (x_7 == 0)
 {

@@ -573,6 +573,7 @@ x_15 = l___private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_mkFnInhabit
 x_16 = lean_array_push(x_15, x_14);
 x_17 = 0;
 x_18 = 1;
+lean_inc(x_5);
 lean_inc(x_4);
 x_19 = l_Lean_Meta_mkForallFVars(x_16, x_3, x_17, x_18, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_19) == 0)
@@ -616,7 +617,6 @@ lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31;
 x_28 = lean_ctor_get(x_23, 0);
 x_29 = l_Array_toSubarray___rarg(x_1, x_9, x_12);
 x_30 = l_Array_ofSubarray___rarg(x_29);
-lean_dec(x_29);
 x_31 = l_Lean_Meta_mkLambdaFVars(x_30, x_28, x_17, x_18, x_4, x_5, x_6, x_7, x_26);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -680,7 +680,6 @@ lean_inc(x_41);
 lean_dec(x_23);
 x_42 = l_Array_toSubarray___rarg(x_1, x_9, x_12);
 x_43 = l_Array_ofSubarray___rarg(x_42);
-lean_dec(x_42);
 x_44 = l_Lean_Meta_mkLambdaFVars(x_43, x_41, x_17, x_18, x_4, x_5, x_6, x_7, x_26);
 lean_dec(x_7);
 lean_dec(x_6);

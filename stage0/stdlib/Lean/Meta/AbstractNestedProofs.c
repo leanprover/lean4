@@ -826,7 +826,6 @@ if (x_26 == 0)
 lean_object* x_27; lean_object* x_28; 
 x_27 = lean_ctor_get(x_25, 0);
 x_28 = l_Lean_mkAppN(x_1, x_27);
-lean_dec(x_27);
 lean_ctor_set(x_25, 0, x_28);
 return x_25;
 }
@@ -839,7 +838,6 @@ lean_inc(x_30);
 lean_inc(x_29);
 lean_dec(x_25);
 x_31 = l_Lean_mkAppN(x_1, x_29);
-lean_dec(x_29);
 x_32 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_30);
@@ -1678,8 +1676,8 @@ if (x_14 == 0)
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_15 = lean_ctor_get(x_13, 0);
 x_16 = lean_ctor_get(x_13, 1);
+lean_inc(x_1);
 x_17 = l_Std_HashMapImp_find_x3f___at_Lean_MetavarContext_instantiateExprMVars___spec__1(x_15, x_1);
-lean_dec(x_15);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_34; 
@@ -2193,8 +2191,8 @@ x_120 = lean_ctor_get(x_13, 1);
 lean_inc(x_120);
 lean_inc(x_119);
 lean_dec(x_13);
+lean_inc(x_1);
 x_121 = l_Std_HashMapImp_find_x3f___at_Lean_MetavarContext_instantiateExprMVars___spec__1(x_119, x_1);
-lean_dec(x_119);
 if (lean_obj_tag(x_121) == 0)
 {
 lean_object* x_122; lean_object* x_123; lean_object* x_137; 
@@ -2794,7 +2792,6 @@ lean_object* x_11;
 x_11 = l_Lean_Meta_AbstractNestedProofs_visit___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);

@@ -419,8 +419,6 @@ _start:
 lean_object* x_3; uint8_t x_4; 
 x_3 = l_Lean_auxRecExt;
 x_4 = l_Lean_TagDeclarationExtension_isTagged(x_3, x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -474,11 +472,15 @@ if (lean_obj_tag(x_2) == 1)
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_2, 1);
+lean_inc(x_3);
 x_4 = l_Lean_casesOnSuffix;
 x_5 = lean_string_dec_eq(x_3, x_4);
+lean_dec(x_3);
 if (x_5 == 0)
 {
 uint8_t x_6; 
+lean_dec(x_2);
+lean_dec(x_1);
 x_6 = 0;
 return x_6;
 }
@@ -493,6 +495,8 @@ return x_8;
 else
 {
 uint8_t x_9; 
+lean_dec(x_2);
+lean_dec(x_1);
 x_9 = 0;
 return x_9;
 }
@@ -503,8 +507,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_isCasesOnRecursor(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -683,8 +685,6 @@ _start:
 lean_object* x_3; uint8_t x_4; 
 x_3 = l_Lean_noConfusionExt;
 x_4 = l_Lean_TagDeclarationExtension_isTagged(x_3, x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
 return x_4;
 }
 }

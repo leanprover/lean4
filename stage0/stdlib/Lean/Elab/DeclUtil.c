@@ -59,7 +59,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__20___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__12___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__13___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -90,7 +89,6 @@ lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__1(lean_ob
 lean_object* l_Lean_Meta_mkHasTypeButIsExpectedMsg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__12(lean_object*);
 lean_object* l_Lean_Elab_sortDeclLevelParams___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_forallTelescopeCompatible___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -156,7 +154,6 @@ extern lean_object* l_Lean_instInhabitedName;
 lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__14(lean_object*);
 static lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__3___closed__2;
 uint8_t l_Lean_Syntax_isNone(lean_object*);
-lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_qsort_sort___at_Lean_Elab_sortDeclLevelParams___spec__2___closed__1;
 lean_object* l_Array_qsort_sort___at_Lean_Elab_sortDeclLevelParams___spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -1364,7 +1361,9 @@ _start:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = lean_expr_instantiate1(x_1, x_6);
+lean_dec(x_1);
 x_13 = lean_expr_instantiate1(x_2, x_6);
+lean_dec(x_2);
 x_14 = lean_array_push(x_3, x_6);
 x_15 = l_Lean_Meta_forallTelescopeCompatibleAux___rarg(x_4, x_5, x_12, x_13, x_14, x_7, x_8, x_9, x_10, x_11);
 return x_15;
@@ -1374,8 +1373,9 @@ lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__2(uint64_
 _start:
 {
 uint8_t x_15; lean_object* x_16; lean_object* x_17; 
+lean_dec(x_9);
 x_15 = (uint8_t)((x_1 << 24) >> 61);
-x_16 = lean_alloc_closure((void*)(l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__1___boxed), 11, 5);
+x_16 = lean_alloc_closure((void*)(l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__1), 11, 5);
 lean_closure_set(x_16, 0, x_2);
 lean_closure_set(x_16, 1, x_3);
 lean_closure_set(x_16, 2, x_4);
@@ -1423,6 +1423,7 @@ lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__3(uint64_
 _start:
 {
 uint8_t x_16; uint8_t x_17; uint8_t x_18; 
+lean_dec(x_10);
 x_16 = (uint8_t)((x_1 << 24) >> 61);
 x_17 = (uint8_t)((x_9 << 24) >> 61);
 x_18 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_312_(x_16, x_17);
@@ -1533,6 +1534,7 @@ lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__4(lean_ob
 _start:
 {
 lean_object* x_17; 
+lean_dec(x_11);
 lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_13);
@@ -1719,6 +1721,7 @@ if (x_12 == 0)
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_13 = lean_unsigned_to_nat(1u);
 x_14 = lean_nat_sub(x_2, x_13);
+lean_dec(x_2);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
@@ -2307,6 +2310,7 @@ return x_119;
 else
 {
 lean_object* x_120; 
+lean_dec(x_2);
 x_120 = lean_apply_8(x_1, x_5, x_3, x_4, x_6, x_7, x_8, x_9, x_10);
 return x_120;
 }
@@ -2316,7 +2320,7 @@ lean_object* l_Lean_Meta_forallTelescopeCompatibleAux(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Meta_forallTelescopeCompatibleAux___rarg___boxed), 10, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Meta_forallTelescopeCompatibleAux___rarg), 10, 0);
 return x_2;
 }
 }
@@ -2594,17 +2598,6 @@ lean_dec(x_2);
 return x_7;
 }
 }
-lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
-_start:
-{
-lean_object* x_12; 
-x_12 = l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_5);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_12;
-}
-}
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14) {
 _start:
 {
@@ -2612,7 +2605,6 @@ uint64_t x_15; lean_object* x_16;
 x_15 = lean_unbox_uint64(x_1);
 lean_dec(x_1);
 x_16 = l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__2(x_15, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
-lean_dec(x_9);
 return x_16;
 }
 }
@@ -2625,7 +2617,6 @@ lean_dec(x_1);
 x_17 = lean_unbox_uint64(x_9);
 lean_dec(x_9);
 x_18 = l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__3(x_16, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_17, x_10, x_11, x_12, x_13, x_14, x_15);
-lean_dec(x_10);
 return x_18;
 }
 }
@@ -2638,17 +2629,7 @@ lean_dec(x_3);
 x_18 = lean_unbox_uint64(x_10);
 lean_dec(x_10);
 x_19 = l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__4(x_1, x_2, x_17, x_4, x_5, x_6, x_7, x_8, x_9, x_18, x_11, x_12, x_13, x_14, x_15, x_16);
-lean_dec(x_11);
 return x_19;
-}
-}
-lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
-_start:
-{
-lean_object* x_11; 
-x_11 = l_Lean_Meta_forallTelescopeCompatibleAux___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_2);
-return x_11;
 }
 }
 lean_object* l_Lean_Meta_forallTelescopeCompatible___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
@@ -2688,7 +2669,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
 lean_dec(x_1);
-x_8 = lean_alloc_closure((void*)(l_Lean_Meta_forallTelescopeCompatible___rarg___lambda__2___boxed), 10, 4);
+x_8 = lean_alloc_closure((void*)(l_Lean_Meta_forallTelescopeCompatible___rarg___lambda__2), 10, 4);
 lean_closure_set(x_8, 0, x_6);
 lean_closure_set(x_8, 1, x_5);
 lean_closure_set(x_8, 2, x_3);
@@ -2710,15 +2691,6 @@ _start:
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_Lean_Meta_forallTelescopeCompatible___rarg), 6, 0);
 return x_3;
-}
-}
-lean_object* l_Lean_Meta_forallTelescopeCompatible___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
-_start:
-{
-lean_object* x_11; 
-x_11 = l_Lean_Meta_forallTelescopeCompatible___rarg___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_2);
-return x_11;
 }
 }
 lean_object* l_Lean_Elab_expandOptDeclSig(lean_object* x_1) {

@@ -79,7 +79,6 @@ lean_object* l_Lean_IR_CollectUsedDecls_collect___boxed(lean_object*, lean_objec
 lean_object* l_Lean_IR_instBEqJoinPointId___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_IR_usesModuleFrom(lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectUsedDecls_collectFnBody_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_IR_CollectUsedDecls_collectFnBody___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_body(lean_object*);
 lean_object* l_Std_mkHashMap___at_Lean_IR_mkVarJPMaps___spec__1(lean_object*);
 lean_object* l_Lean_IR_CollectMaps_collectVar(lean_object*, lean_object*, lean_object*);
@@ -278,10 +277,12 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; uint8_t x_6; 
 x_3 = l_Lean_Environment_allImportedModuleNames(x_1);
+lean_dec(x_1);
 x_4 = lean_array_to_list(lean_box(0), x_3);
 x_5 = 0;
 x_6 = l_List_foldr___at_Lean_IR_usesModuleFrom___spec__1(x_2, x_5, x_4);
 lean_dec(x_4);
+lean_dec(x_2);
 return x_6;
 }
 }
@@ -303,8 +304,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_IR_usesModuleFrom(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -469,6 +468,7 @@ lean_dec(x_4);
 x_8 = lean_array_uget(x_1, x_2);
 x_9 = l_Lean_IR_AltCore_body(x_8);
 lean_dec(x_8);
+lean_inc(x_5);
 x_10 = l_Lean_IR_CollectUsedDecls_collectFnBody(x_9, x_5, x_6);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
@@ -485,6 +485,7 @@ goto _start;
 else
 {
 lean_object* x_16; 
+lean_dec(x_5);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_4);
 lean_ctor_set(x_16, 1, x_6);
@@ -552,6 +553,7 @@ lean_inc(x_17);
 x_18 = lean_ctor_get(x_1, 3);
 lean_inc(x_18);
 lean_dec(x_1);
+lean_inc(x_2);
 x_19 = l_Lean_IR_CollectUsedDecls_collectFnBody(x_17, x_2, x_3);
 x_20 = lean_ctor_get(x_19, 1);
 lean_inc(x_20);
@@ -574,6 +576,7 @@ if (x_25 == 0)
 lean_object* x_26; lean_object* x_27; 
 lean_dec(x_23);
 lean_dec(x_22);
+lean_dec(x_2);
 x_26 = lean_box(0);
 x_27 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_27, 0, x_26);
@@ -589,6 +592,7 @@ if (x_28 == 0)
 lean_object* x_29; lean_object* x_30; 
 lean_dec(x_23);
 lean_dec(x_22);
+lean_dec(x_2);
 x_29 = lean_box(0);
 x_30 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_30, 0, x_29);
@@ -623,6 +627,7 @@ goto _start;
 else
 {
 lean_object* x_38; lean_object* x_39; 
+lean_dec(x_2);
 lean_dec(x_1);
 x_38 = lean_box(0);
 x_39 = lean_alloc_ctor(0, 2, 0);
@@ -643,18 +648,8 @@ lean_dec(x_2);
 x_8 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_9 = l_Array_foldlMUnsafe_fold___at_Lean_IR_CollectUsedDecls_collectFnBody___spec__1(x_1, x_7, x_8, x_4, x_5, x_6);
-lean_dec(x_5);
 lean_dec(x_1);
 return x_9;
-}
-}
-lean_object* l_Lean_IR_CollectUsedDecls_collectFnBody___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_IR_CollectUsedDecls_collectFnBody(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
 }
 }
 lean_object* l_Lean_IR_CollectUsedDecls_collectInitDecl_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -780,7 +775,6 @@ x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
 lean_dec(x_6);
 x_8 = l_Lean_IR_CollectUsedDecls_collectFnBody(x_5, x_2, x_7);
-lean_dec(x_2);
 x_9 = !lean_is_exclusive(x_8);
 if (x_9 == 0)
 {

@@ -81,7 +81,6 @@ static lean_object* l_Lean_IR_Decl_updateBody_x21___closed__2;
 lean_object* l_Lean_IR_AltCore_setBody_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_instAlphaEqvExpr___closed__1;
 lean_object* l_Lean_IR_IRType_isIrrelevant___boxed(lean_object*);
-lean_object* l_Lean_IR_LocalContext_addParams___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_getType_match__1(lean_object*);
 lean_object* l_Lean_IR_IRType_isUnion___boxed(lean_object*);
 uint8_t l_Array_isEqvAux___at_Lean_IR_args_alphaEqv___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -331,7 +330,6 @@ lean_object* l_Lean_IR_Alt_default(lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_IR_mkIndexSet___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_isExtern___boxed(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-lean_object* l_Lean_IR_LocalContext_eraseJoinPointDecl___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_IR_IRType_isScalar___boxed(lean_object*);
 lean_object* l_Lean_IR_FnBody_setBody_match__1(lean_object*);
@@ -9824,6 +9822,7 @@ x_5 = lean_nat_dec_lt(x_4, x_3);
 if (x_5 == 0)
 {
 lean_dec(x_3);
+lean_dec(x_2);
 return x_1;
 }
 else
@@ -9833,6 +9832,7 @@ x_6 = lean_nat_dec_le(x_3, x_3);
 if (x_6 == 0)
 {
 lean_dec(x_3);
+lean_dec(x_2);
 return x_1;
 }
 else
@@ -9842,6 +9842,7 @@ x_7 = 0;
 x_8 = lean_usize_of_nat(x_3);
 lean_dec(x_3);
 x_9 = l_Array_foldlMUnsafe_fold___at_Lean_IR_LocalContext_addParams___spec__1(x_2, x_7, x_8, x_1);
+lean_dec(x_2);
 return x_9;
 }
 }
@@ -9858,15 +9859,6 @@ lean_dec(x_3);
 x_7 = l_Array_foldlMUnsafe_fold___at_Lean_IR_LocalContext_addParams___spec__1(x_1, x_5, x_6, x_4);
 lean_dec(x_1);
 return x_7;
-}
-}
-lean_object* l_Lean_IR_LocalContext_addParams___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_IR_LocalContext_addParams(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 lean_object* l_Lean_IR_LocalContext_isJP_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -10549,6 +10541,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_RBNode_erase___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__1(x_2, x_1);
+lean_dec(x_2);
 return x_3;
 }
 }
@@ -10567,15 +10560,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_Std_RBNode_erase___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__1(x_1, x_2);
 lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_Lean_IR_LocalContext_eraseJoinPointDecl___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_IR_LocalContext_eraseJoinPointDecl(x_1, x_2);
-lean_dec(x_2);
 return x_3;
 }
 }

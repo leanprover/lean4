@@ -100,7 +100,6 @@ lean_object* l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_
 uint64_t l_Bool_toUInt64(uint8_t);
 static lean_object* l_Lean_Expr_updateMData_x21___closed__2;
 static lean_object* l_Lean_mkNatLit___closed__9;
-lean_object* l_Lean_Expr_instantiateLevelParamsArray___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isArrow(lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_betaRevAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -227,7 +226,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasExprMVarEx___boxed(lean_object*);
 lean_object* l_Lean_instReprLiteral;
 lean_object* l_Lean_Expr_hasExprMVar___boxed(lean_object*);
-lean_object* l_Lean_mkAppRev___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_setPPExplicit___closed__4;
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 lean_object* l_Lean_mkFreshFVarId(lean_object*);
@@ -476,7 +474,6 @@ lean_object* l_Lean_Expr_hasLooseBVarInExplicitDomain_match__1___rarg(lean_objec
 static lean_object* l_Lean_mkNatLit___closed__7;
 uint8_t l_Lean_instInhabitedBinderInfo;
 static lean_object* l_Lean_Expr_updateLambda_x21___closed__1;
-lean_object* l_Lean_mkAppN___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mkDataForLet___boxed__const__1;
 static lean_object* l_Lean_Expr_updateProj_x21___closed__1;
 lean_object* lean_level_update_imax(lean_object*, lean_object*, lean_object*);
@@ -619,7 +616,6 @@ lean_object* lean_level_update_succ(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isBVar___boxed(lean_object*);
 static lean_object* l_Lean_instHashableLiteral___closed__1;
 lean_object* lean_expr_instantiate_rev(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_instantiateLevelParams___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_mk_fvar(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Expr_setAppPPExplicitForExposingMVars___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkLet(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -6251,6 +6247,7 @@ x_5 = lean_nat_dec_lt(x_4, x_3);
 if (x_5 == 0)
 {
 lean_dec(x_3);
+lean_dec(x_2);
 return x_1;
 }
 else
@@ -6260,6 +6257,7 @@ x_6 = lean_nat_dec_le(x_3, x_3);
 if (x_6 == 0)
 {
 lean_dec(x_3);
+lean_dec(x_2);
 return x_1;
 }
 else
@@ -6269,6 +6267,7 @@ x_7 = 0;
 x_8 = lean_usize_of_nat(x_3);
 lean_dec(x_3);
 x_9 = l_Array_foldlMUnsafe_fold___at_Lean_mkAppN___spec__1(x_2, x_7, x_8, x_1);
+lean_dec(x_2);
 return x_9;
 }
 }
@@ -6285,15 +6284,6 @@ lean_dec(x_3);
 x_7 = l_Array_foldlMUnsafe_fold___at_Lean_mkAppN___spec__1(x_1, x_5, x_6, x_4);
 lean_dec(x_1);
 return x_7;
-}
-}
-lean_object* l_Lean_mkAppN___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_mkAppN(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 lean_object* l___private_Lean_Expr_0__Lean_mkAppRangeAux(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -6381,6 +6371,7 @@ x_5 = lean_nat_dec_lt(x_4, x_3);
 if (x_5 == 0)
 {
 lean_dec(x_3);
+lean_dec(x_2);
 return x_1;
 }
 else
@@ -6390,6 +6381,7 @@ x_6 = lean_usize_of_nat(x_3);
 lean_dec(x_3);
 x_7 = 0;
 x_8 = l_Array_foldrMUnsafe_fold___at_Lean_mkAppRev___spec__1(x_2, x_6, x_7, x_1);
+lean_dec(x_2);
 return x_8;
 }
 }
@@ -6405,15 +6397,6 @@ lean_dec(x_3);
 x_7 = l_Array_foldrMUnsafe_fold___at_Lean_mkAppRev___spec__1(x_1, x_5, x_6, x_4);
 lean_dec(x_1);
 return x_7;
-}
-}
-lean_object* l_Lean_mkAppRev___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_mkAppRev(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 lean_object* l_Lean_Expr_dbgToString___boxed(lean_object* x_1) {
@@ -14429,6 +14412,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Expr_instantiateLevelParamsCore_visit___at_Lean_Expr_instantiateLevelParams___spec__1(x_2, x_3, x_1);
+lean_dec(x_3);
+lean_dec(x_2);
 return x_4;
 }
 }
@@ -14469,16 +14454,6 @@ lean_object* x_4;
 x_4 = l_Lean_Expr_instantiateLevelParamsCore_visit___at_Lean_Expr_instantiateLevelParams___spec__1(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-return x_4;
-}
-}
-lean_object* l_Lean_Expr_instantiateLevelParams___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Expr_instantiateLevelParams(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
 return x_4;
 }
 }
@@ -15262,6 +15237,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Expr_instantiateLevelParamsCore_visit___at_Lean_Expr_instantiateLevelParamsArray___spec__1(x_2, x_3, x_1);
+lean_dec(x_3);
+lean_dec(x_2);
 return x_4;
 }
 }
@@ -15302,16 +15279,6 @@ lean_object* x_4;
 x_4 = l_Lean_Expr_instantiateLevelParamsCore_visit___at_Lean_Expr_instantiateLevelParamsArray___spec__1(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-return x_4;
-}
-}
-lean_object* l_Lean_Expr_instantiateLevelParamsArray___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Expr_instantiateLevelParamsArray(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
 return x_4;
 }
 }
@@ -15507,7 +15474,6 @@ x_15 = x_11;
 x_16 = l_Array_mapMUnsafe_map___at_Lean_Expr_setAppPPExplicit___spec__1(x_13, x_14, x_15);
 x_17 = x_16;
 x_18 = l_Lean_mkAppN(x_4, x_17);
-lean_dec(x_17);
 x_19 = 1;
 x_20 = l_Lean_Expr_setPPExplicit(x_18, x_19);
 return x_20;
@@ -15600,7 +15566,6 @@ x_15 = x_11;
 x_16 = l_Array_mapMUnsafe_map___at_Lean_Expr_setAppPPExplicitForExposingMVars___spec__1(x_13, x_14, x_15);
 x_17 = x_16;
 x_18 = l_Lean_mkAppN(x_4, x_17);
-lean_dec(x_17);
 x_19 = 1;
 x_20 = l_Lean_Expr_setPPExplicit(x_18, x_19);
 return x_20;

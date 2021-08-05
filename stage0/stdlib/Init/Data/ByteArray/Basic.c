@@ -46,7 +46,6 @@ lean_object* l_ByteArray_get_x21_match__1(lean_object*);
 lean_object* l_ByteArray_get_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ByteArray_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_ByteArray_empty___closed__1;
-lean_object* l_instToStringByteArray___boxed(lean_object*);
 lean_object* l_List_toString___at_instToStringByteArray___spec__1(lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 static lean_object* l_List_toStringAux___at_instToStringByteArray___spec__2___closed__2;
@@ -729,6 +728,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_ByteArray_toList(x_1);
+lean_dec(x_1);
 x_3 = l_List_toString___at_instToStringByteArray___spec__1(x_2);
 return x_3;
 }
@@ -741,15 +741,6 @@ x_3 = lean_unbox(x_1);
 lean_dec(x_1);
 x_4 = l_List_toStringAux___at_instToStringByteArray___spec__2(x_3, x_2);
 return x_4;
-}
-}
-lean_object* l_instToStringByteArray___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_instToStringByteArray(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_ByteArray_toUInt64LE_x21___closed__1() {

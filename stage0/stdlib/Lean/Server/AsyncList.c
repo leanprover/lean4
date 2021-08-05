@@ -83,7 +83,6 @@ lean_object* l_IO_AsyncList_instAppendAsyncList(lean_object*, lean_object*);
 lean_object* l_IO_AsyncList_waitFind_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_AsyncList_waitFind_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_AsyncList_waitFind_x3f(lean_object*, lean_object*);
-lean_object* l_IO_AsyncList_ofList___rarg___boxed(lean_object*);
 lean_object* l_IO_AsyncList_waitAll_match__3___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_AsyncList_ofList(lean_object*, lean_object*);
 lean_object* l_IO_AsyncList_updateFinishedPrefix_match__2(lean_object*, lean_object*, lean_object*);
@@ -291,6 +290,7 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_box(2);
 x_3 = l_List_foldr___at_IO_AsyncList_ofList___spec__1___rarg(x_2, x_1);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -298,7 +298,7 @@ lean_object* l_IO_AsyncList_ofList(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_IO_AsyncList_ofList___rarg___boxed), 1, 0);
+x_3 = lean_alloc_closure((void*)(l_IO_AsyncList_ofList___rarg), 1, 0);
 return x_3;
 }
 }
@@ -312,20 +312,11 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_IO_AsyncList_ofList___rarg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_IO_AsyncList_ofList___rarg(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_IO_AsyncList_instCoeListAsyncList___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_IO_AsyncList_ofList___rarg___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_IO_AsyncList_ofList___rarg), 1, 0);
 return x_1;
 }
 }

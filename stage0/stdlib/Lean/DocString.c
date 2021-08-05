@@ -51,7 +51,6 @@ lean_object* l_Lean_PersistentEnvExtension_getState___at_Lean_findDocString_x3f_
 lean_object* l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_DocString___hyg_3____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_DocString___hyg_3____spec__5___closed__2;
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_findDocString_x3f___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addDocString(lean_object*);
 extern lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 static lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_DocString___hyg_3____spec__5___closed__1;
@@ -97,7 +96,6 @@ static lean_object* l_Lean_mkMapDeclarationExtension___at_Lean_initFn____x40_Lea
 static lean_object* l_Lean_initFn____x40_Lean_DocString___hyg_3____closed__2;
 lean_object* l_Lean_mkMapDeclarationExtension___at_Lean_initFn____x40_Lean_DocString___hyg_3____spec__1___lambda__1(lean_object*, lean_object*);
 static lean_object* l_Lean_docStringExt___elambda__4___rarg___closed__2;
-lean_object* l_Lean_MapDeclarationExtension_find_x3f___at_Lean_findDocString_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___lambda__1(lean_object*);
 static uint32_t l_Lean_docStringExt___elambda__4___rarg___closed__1;
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_findDocString_x3f___spec__4(lean_object*, lean_object*);
@@ -1585,11 +1583,15 @@ lean_object* l_Lean_MapDeclarationExtension_find_x3f___at_Lean_findDocString_x3f
 _start:
 {
 lean_object* x_4; 
+lean_inc(x_3);
+lean_inc(x_2);
 x_4 = l_Lean_Environment_getModuleIdxFor_x3f(x_2, x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = l_Lean_SimplePersistentEnvExtension_getState___at_Lean_findDocString_x3f___spec__2(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 x_6 = l_Std_RBNode_find___at_Lean_findDocString_x3f___spec__5(x_5, x_3);
 lean_dec(x_3);
 lean_dec(x_5);
@@ -1603,6 +1605,8 @@ lean_inc(x_7);
 lean_dec(x_4);
 x_8 = l_Lean_PersistentEnvExtension_getModuleEntries___at_Lean_findDocString_x3f___spec__6(x_1, x_2, x_7);
 lean_dec(x_7);
+lean_dec(x_2);
+lean_dec(x_1);
 x_9 = l_Lean_docStringExt___elambda__4___rarg___closed__2;
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_3);
@@ -1691,7 +1695,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_2, 0);
 lean_inc(x_5);
 lean_dec(x_2);
-x_6 = lean_alloc_closure((void*)(l_Lean_findDocString_x3f___rarg___lambda__1___boxed), 3, 2);
+x_6 = lean_alloc_closure((void*)(l_Lean_findDocString_x3f___rarg___lambda__1), 3, 2);
 lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_3);
 x_7 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_6);
@@ -1765,25 +1769,6 @@ x_5 = l_Array_binSearchAux___at_Lean_findDocString_x3f___spec__7(x_1, x_2, x_3, 
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
-}
-}
-lean_object* l_Lean_MapDeclarationExtension_find_x3f___at_Lean_findDocString_x3f___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_MapDeclarationExtension_find_x3f___at_Lean_findDocString_x3f___spec__1(x_1, x_2, x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_4;
-}
-}
-lean_object* l_Lean_findDocString_x3f___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_findDocString_x3f___rarg___lambda__1(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
 }
 }
 lean_object* initialize_Init(lean_object*);

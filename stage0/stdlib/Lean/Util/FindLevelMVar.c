@@ -20,14 +20,12 @@ lean_object* l_id___rarg___boxed(lean_object*);
 lean_object* l_Lean_FindLevelMVar_mainLevel(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FindLevelMVar_main(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_FindLevelMVar_main___closed__1;
-lean_object* l_Lean_FindLevelMVar_mainLevel___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FindLevelMVar_main___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FindLevelMVar_main_match__1(lean_object*);
 lean_object* l_Lean_Expr_findLevelMVar_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_FindLevelMVar_main_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLevelMVar(lean_object*);
 lean_object* l_Lean_FindLevelMVar_visitLevel(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_FindLevelMVar_visitLevel___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FindLevelMVar_visit(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FindLevelMVar_mainLevel_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FindLevelMVar_main_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
@@ -372,7 +370,6 @@ else
 {
 lean_dec(x_2);
 lean_dec(x_1);
-lean_inc(x_3);
 return x_3;
 }
 }
@@ -401,7 +398,6 @@ lean_dec(x_2);
 lean_inc(x_1);
 x_8 = l_Lean_FindLevelMVar_visitLevel(x_1, x_7, x_3);
 x_9 = l_Lean_FindLevelMVar_visitLevel(x_1, x_6, x_8);
-lean_dec(x_8);
 return x_9;
 }
 case 3:
@@ -415,7 +411,6 @@ lean_dec(x_2);
 lean_inc(x_1);
 x_12 = l_Lean_FindLevelMVar_visitLevel(x_1, x_11, x_3);
 x_13 = l_Lean_FindLevelMVar_visitLevel(x_1, x_10, x_12);
-lean_dec(x_12);
 return x_13;
 }
 case 5:
@@ -431,12 +426,12 @@ lean_dec(x_15);
 if (x_16 == 0)
 {
 lean_dec(x_14);
-lean_inc(x_3);
 return x_3;
 }
 else
 {
 lean_object* x_17; 
+lean_dec(x_3);
 x_17 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_17, 0, x_14);
 return x_17;
@@ -446,28 +441,9 @@ default:
 {
 lean_dec(x_2);
 lean_dec(x_1);
-lean_inc(x_3);
 return x_3;
 }
 }
-}
-}
-lean_object* l_Lean_FindLevelMVar_visitLevel___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_FindLevelMVar_visitLevel(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
-lean_object* l_Lean_FindLevelMVar_mainLevel___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_FindLevelMVar_mainLevel(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
 }
 }
 lean_object* l_Lean_FindLevelMVar_visit(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -504,7 +480,6 @@ _start:
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_apply_1(x_3, x_4);
 x_6 = l_Lean_FindLevelMVar_visitLevel(x_1, x_2, x_5);
-lean_dec(x_5);
 return x_6;
 }
 }
@@ -527,7 +502,6 @@ x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 lean_dec(x_2);
 x_5 = l_Lean_FindLevelMVar_visitLevel(x_1, x_4, x_3);
-lean_dec(x_3);
 return x_5;
 }
 case 4:

@@ -111,7 +111,6 @@ static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_reprReducibilityS
 static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____closed__16;
 lean_object* l_Lean_reducibilityAttrs___lambda__4(lean_object*);
 lean_object* l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__1___lambda__4___boxed(lean_object*);
-lean_object* l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__1___lambda__3___boxed(lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 static lean_object* l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__1___lambda__4___closed__4;
 lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -135,7 +134,6 @@ lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____lambda__1(l
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_reprReducibilityStatus____x40_Lean_ReducibilityAttrs___hyg_11____closed__4;
 lean_object* l_Lean_PersistentEnvExtension_getState___at_Lean_getReducibilityStatusImp___spec__2(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_EnumAttributes_getValue___at_Lean_getReducibilityStatusImp___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__7___lambda__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__1___closed__2;
@@ -1301,6 +1299,7 @@ lean_object* l_List_map___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88_
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_dec(x_6);
 x_10 = lean_st_ref_get(x_8, x_9);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
@@ -1310,6 +1309,8 @@ lean_dec(x_10);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec(x_11);
+lean_inc(x_2);
+lean_inc(x_13);
 x_14 = l_Lean_Environment_getModuleIdxFor_x3f(x_13, x_2);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -1382,6 +1383,7 @@ lean_object* l_List_map___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88_
 _start:
 {
 lean_object* x_11; 
+lean_inc(x_9);
 lean_inc(x_8);
 x_11 = l_Lean_Attribute_Builtin_ensureNoArgs(x_6, x_8, x_9, x_10);
 if (lean_obj_tag(x_11) == 0)
@@ -1627,6 +1629,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__5___lambda__1___closed__1;
 x_3 = l_Std_RBNode_fold___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__2(x_2, x_1);
+lean_dec(x_1);
 x_4 = lean_array_get_size(x_3);
 x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_nat_sub(x_4, x_5);
@@ -1745,7 +1748,7 @@ static lean_object* _init_l_Lean_registerEnumAttributes___at_Lean_initFn____x40_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__1___lambda__3___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__1___lambda__3), 1, 0);
 return x_1;
 }
 }
@@ -2161,7 +2164,6 @@ uint8_t x_10; lean_object* x_11;
 x_10 = lean_unbox(x_3);
 lean_dec(x_3);
 x_11 = l_List_map___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__7___lambda__2(x_1, x_2, x_10, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_6);
 return x_11;
 }
 }
@@ -2206,15 +2208,6 @@ x_5 = l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_ReducibilityAtt
 lean_dec(x_3);
 lean_dec(x_2);
 return x_5;
-}
-}
-lean_object* l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__1___lambda__3___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__1___lambda__3(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__1___lambda__4___boxed(lean_object* x_1) {
@@ -2683,12 +2676,18 @@ lean_object* l_Lean_EnumAttributes_getValue___at_Lean_getReducibilityStatusImp__
 _start:
 {
 lean_object* x_4; 
+lean_inc(x_3);
+lean_inc(x_2);
 x_4 = l_Lean_Environment_getModuleIdxFor_x3f(x_2, x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_1, 1);
+lean_inc(x_5);
+lean_dec(x_1);
 x_6 = l_Lean_PersistentEnvExtension_getState___at_Lean_getReducibilityStatusImp___spec__2(x_5, x_2);
+lean_dec(x_2);
+lean_dec(x_5);
 x_7 = l_Std_RBNode_find___at_Lean_getReducibilityStatusImp___spec__4(x_6, x_3);
 lean_dec(x_3);
 lean_dec(x_6);
@@ -2701,8 +2700,12 @@ x_8 = lean_ctor_get(x_4, 0);
 lean_inc(x_8);
 lean_dec(x_4);
 x_9 = lean_ctor_get(x_1, 1);
+lean_inc(x_9);
+lean_dec(x_1);
 x_10 = l_Lean_PersistentEnvExtension_getModuleEntries___at_Lean_getReducibilityStatusImp___spec__5(x_9, x_2, x_8);
 lean_dec(x_8);
+lean_dec(x_2);
+lean_dec(x_9);
 x_11 = 0;
 x_12 = lean_box(x_11);
 x_13 = lean_alloc_ctor(0, 2, 0);
@@ -2773,7 +2776,6 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_reducibilityAttrs;
 x_4 = l_Lean_EnumAttributes_getValue___at_Lean_getReducibilityStatusImp___spec__1(x_3, x_1, x_2);
-lean_dec(x_1);
 if (lean_obj_tag(x_4) == 0)
 {
 uint8_t x_5; 
@@ -2841,16 +2843,6 @@ x_5 = l_Array_binSearchAux___at_Lean_getReducibilityStatusImp___spec__6(x_1, x_2
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
-}
-}
-lean_object* l_Lean_EnumAttributes_getValue___at_Lean_getReducibilityStatusImp___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_EnumAttributes_getValue___at_Lean_getReducibilityStatusImp___spec__1(x_1, x_2, x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_4;
 }
 }
 lean_object* l_Lean_getReducibilityStatusImp___boxed(lean_object* x_1, lean_object* x_2) {

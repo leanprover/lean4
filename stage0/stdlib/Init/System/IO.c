@@ -5281,6 +5281,7 @@ lean_object* l_IO_FS_createDirAll___lambda__2(lean_object* x_1, lean_object* x_2
 _start:
 {
 lean_object* x_4; 
+lean_dec(x_2);
 x_4 = l_System_FilePath_parent(x_1);
 if (lean_obj_tag(x_4) == 0)
 {
@@ -5396,7 +5397,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_IO_FS_createDirAll___lambda__2(x_1, x_2, x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -9467,6 +9467,7 @@ lean_dec(x_10);
 if (x_12 == 0)
 {
 lean_object* x_13; uint8_t x_14; 
+lean_inc(x_2);
 x_13 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_2, x_3);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
@@ -9689,6 +9690,7 @@ return x_122;
 else
 {
 lean_object* x_123; uint8_t x_124; 
+lean_inc(x_2);
 x_123 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_2, x_3);
 x_124 = !lean_is_exclusive(x_123);
 if (x_124 == 0)

@@ -1765,6 +1765,7 @@ lean_object* x_114; lean_object* x_115; uint8_t x_116;
 x_114 = lean_ctor_get(x_107, 0);
 x_115 = lean_ctor_get(x_107, 1);
 lean_dec(x_115);
+lean_inc(x_104);
 x_116 = l_Lean_IR_HasIndex_visitFnBody(x_1, x_104);
 if (x_116 == 0)
 {
@@ -1825,6 +1826,7 @@ lean_object* x_131; uint8_t x_132;
 x_131 = lean_ctor_get(x_107, 0);
 lean_inc(x_131);
 lean_dec(x_107);
+lean_inc(x_104);
 x_132 = l_Lean_IR_HasIndex_visitFnBody(x_1, x_104);
 if (x_132 == 0)
 {
@@ -1892,6 +1894,7 @@ if (lean_is_exclusive(x_107)) {
  lean_dec_ref(x_107);
  x_146 = lean_box(0);
 }
+lean_inc(x_104);
 x_147 = l_Lean_IR_HasIndex_visitFnBody(x_1, x_104);
 if (x_147 == 0)
 {

@@ -3694,7 +3694,6 @@ if (x_4 == 0)
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_array_uget(x_1, x_2);
 x_6 = l_Lean_MessageData_hasSorry(x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 size_t x_7; size_t x_8; 
@@ -3726,13 +3725,18 @@ case 2:
 {
 lean_object* x_2; uint8_t x_3; 
 x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+lean_dec(x_1);
 x_3 = l_Lean_Expr_hasSorry(x_2);
+lean_dec(x_2);
 return x_3;
 }
 case 6:
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec(x_1);
 x_1 = x_4;
 goto _start;
 }
@@ -3740,6 +3744,8 @@ case 8:
 {
 lean_object* x_6; 
 x_6 = lean_ctor_get(x_1, 1);
+lean_inc(x_6);
+lean_dec(x_1);
 x_1 = x_6;
 goto _start;
 }
@@ -3747,6 +3753,8 @@ case 9:
 {
 lean_object* x_8; 
 x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+lean_dec(x_1);
 x_1 = x_8;
 goto _start;
 }
@@ -3754,7 +3762,10 @@ case 10:
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = lean_ctor_get(x_1, 0);
+lean_inc(x_10);
 x_11 = lean_ctor_get(x_1, 1);
+lean_inc(x_11);
+lean_dec(x_1);
 x_12 = l_Lean_MessageData_hasSorry(x_10);
 if (x_12 == 0)
 {
@@ -3764,6 +3775,7 @@ goto _start;
 else
 {
 uint8_t x_14; 
+lean_dec(x_11);
 x_14 = 1;
 return x_14;
 }
@@ -3772,6 +3784,8 @@ case 11:
 {
 lean_object* x_15; 
 x_15 = lean_ctor_get(x_1, 1);
+lean_inc(x_15);
+lean_dec(x_1);
 x_1 = x_15;
 goto _start;
 }
@@ -3779,6 +3793,8 @@ case 12:
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_17 = lean_ctor_get(x_1, 0);
+lean_inc(x_17);
+lean_dec(x_1);
 x_18 = lean_array_get_size(x_17);
 x_19 = lean_unsigned_to_nat(0u);
 x_20 = lean_nat_dec_lt(x_19, x_18);
@@ -3786,6 +3802,7 @@ if (x_20 == 0)
 {
 uint8_t x_21; 
 lean_dec(x_18);
+lean_dec(x_17);
 x_21 = 0;
 return x_21;
 }
@@ -3797,6 +3814,7 @@ if (x_22 == 0)
 {
 uint8_t x_23; 
 lean_dec(x_18);
+lean_dec(x_17);
 x_23 = 0;
 return x_23;
 }
@@ -3807,6 +3825,7 @@ x_24 = 0;
 x_25 = lean_usize_of_nat(x_18);
 lean_dec(x_18);
 x_26 = l_Array_anyMUnsafe_any___at_Lean_MessageData_hasSorry___spec__1(x_17, x_24, x_25);
+lean_dec(x_17);
 return x_26;
 }
 }
@@ -3814,6 +3833,7 @@ return x_26;
 default: 
 {
 uint8_t x_27; 
+lean_dec(x_1);
 x_27 = 0;
 return x_27;
 }
@@ -3839,7 +3859,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_MessageData_hasSorry(x_1);
-lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -4060,13 +4079,18 @@ case 2:
 {
 lean_object* x_2; uint8_t x_3; 
 x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+lean_dec(x_1);
 x_3 = l_Lean_Expr_hasSyntheticSorry(x_2);
+lean_dec(x_2);
 return x_3;
 }
 case 6:
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec(x_1);
 x_1 = x_4;
 goto _start;
 }
@@ -4074,6 +4098,8 @@ case 7:
 {
 lean_object* x_6; 
 x_6 = lean_ctor_get(x_1, 1);
+lean_inc(x_6);
+lean_dec(x_1);
 x_1 = x_6;
 goto _start;
 }
@@ -4081,6 +4107,8 @@ case 8:
 {
 lean_object* x_8; 
 x_8 = lean_ctor_get(x_1, 1);
+lean_inc(x_8);
+lean_dec(x_1);
 x_1 = x_8;
 goto _start;
 }
@@ -4088,6 +4116,8 @@ case 9:
 {
 lean_object* x_10; 
 x_10 = lean_ctor_get(x_1, 0);
+lean_inc(x_10);
+lean_dec(x_1);
 x_1 = x_10;
 goto _start;
 }
@@ -4095,7 +4125,10 @@ case 10:
 {
 lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_12 = lean_ctor_get(x_1, 0);
+lean_inc(x_12);
 x_13 = lean_ctor_get(x_1, 1);
+lean_inc(x_13);
+lean_dec(x_1);
 x_14 = l_Lean_MessageData_hasSyntheticSorry_visit(x_12);
 if (x_14 == 0)
 {
@@ -4105,6 +4138,7 @@ goto _start;
 else
 {
 uint8_t x_16; 
+lean_dec(x_13);
 x_16 = 1;
 return x_16;
 }
@@ -4113,6 +4147,8 @@ case 11:
 {
 lean_object* x_17; 
 x_17 = lean_ctor_get(x_1, 1);
+lean_inc(x_17);
+lean_dec(x_1);
 x_1 = x_17;
 goto _start;
 }
@@ -4120,6 +4156,8 @@ case 12:
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
 x_19 = lean_ctor_get(x_1, 0);
+lean_inc(x_19);
+lean_dec(x_1);
 x_20 = lean_array_get_size(x_19);
 x_21 = lean_unsigned_to_nat(0u);
 x_22 = lean_nat_dec_lt(x_21, x_20);
@@ -4127,6 +4165,7 @@ if (x_22 == 0)
 {
 uint8_t x_23; 
 lean_dec(x_20);
+lean_dec(x_19);
 x_23 = 0;
 return x_23;
 }
@@ -4138,6 +4177,7 @@ if (x_24 == 0)
 {
 uint8_t x_25; 
 lean_dec(x_20);
+lean_dec(x_19);
 x_25 = 0;
 return x_25;
 }
@@ -4148,6 +4188,7 @@ x_26 = 0;
 x_27 = lean_usize_of_nat(x_20);
 lean_dec(x_20);
 x_28 = l_Array_anyMUnsafe_any___at_Lean_MessageData_hasSyntheticSorry_visit___spec__1(x_19, x_26, x_27);
+lean_dec(x_19);
 return x_28;
 }
 }
@@ -4155,6 +4196,7 @@ return x_28;
 default: 
 {
 uint8_t x_29; 
+lean_dec(x_1);
 x_29 = 0;
 return x_29;
 }
@@ -4167,7 +4209,6 @@ _start:
 lean_object* x_2; uint8_t x_3; 
 x_2 = l_Lean_MessageData_instantiateMVars(x_1);
 x_3 = l_Lean_MessageData_hasSyntheticSorry_visit(x_2);
-lean_dec(x_2);
 return x_3;
 }
 }
@@ -4190,7 +4231,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_MessageData_hasSyntheticSorry_visit(x_1);
-lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }

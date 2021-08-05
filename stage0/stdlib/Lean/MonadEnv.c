@@ -64,8 +64,6 @@ lean_object* l_Lean_matchConstCtor_match__1(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_matchConst___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isRec(lean_object*);
-lean_object* l_Lean_findModuleOf_x3f___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_hasConst___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_matchConstInduct___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isInductive_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_matchConstInduct_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -1381,7 +1379,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_2, 0);
 lean_inc(x_5);
 lean_dec(x_2);
-x_6 = lean_alloc_closure((void*)(l_Lean_hasConst___rarg___lambda__1___boxed), 3, 2);
+x_6 = lean_alloc_closure((void*)(l_Lean_hasConst___rarg___lambda__1), 3, 2);
 lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_3);
 x_7 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_6);
@@ -1396,15 +1394,6 @@ x_2 = lean_alloc_closure((void*)(l_Lean_hasConst___rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_hasConst___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_hasConst___rarg___lambda__1(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
 lean_object* l___private_Lean_MonadEnv_0__Lean_mkAuxNameAux(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1412,6 +1401,7 @@ lean_object* x_4; uint8_t x_5;
 lean_inc(x_3);
 lean_inc(x_2);
 x_4 = lean_name_append_index_after(x_2, x_3);
+lean_inc(x_4);
 lean_inc(x_1);
 x_5 = l_Lean_Environment_contains(x_1, x_4);
 if (x_5 == 0)
@@ -2608,6 +2598,8 @@ x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 lean_dec(x_2);
 x_4 = l_Lean_auxRecExt;
+lean_inc(x_3);
+lean_inc(x_1);
 x_5 = l_Lean_TagDeclarationExtension_isTagged(x_4, x_1, x_3);
 if (x_5 == 0)
 {
@@ -2644,6 +2636,8 @@ return x_11;
 else
 {
 uint8_t x_12; 
+lean_inc(x_3);
+lean_inc(x_1);
 x_12 = l_Lean_isCasesOnRecursor(x_1, x_3);
 if (x_12 == 0)
 {
@@ -3906,6 +3900,8 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_eval_const(x_1, x_5, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 x_7 = l_Lean_ofExcept___at_Lean_evalConst___spec__1___rarg(x_3, x_4, lean_box(0), x_6);
 return x_7;
 }
@@ -3957,8 +3953,6 @@ _start:
 lean_object* x_6; 
 x_6 = l_Lean_evalConst___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
-lean_dec(x_2);
-lean_dec(x_1);
 return x_6;
 }
 }
@@ -4153,7 +4147,7 @@ lean_inc(x_6);
 lean_dec(x_1);
 lean_inc(x_6);
 lean_inc(x_4);
-x_7 = lean_alloc_closure((void*)(l_Lean_findModuleOf_x3f___rarg___lambda__2___boxed), 5, 4);
+x_7 = lean_alloc_closure((void*)(l_Lean_findModuleOf_x3f___rarg___lambda__2), 5, 4);
 lean_closure_set(x_7, 0, x_2);
 lean_closure_set(x_7, 1, x_3);
 lean_closure_set(x_7, 2, x_4);
@@ -4206,16 +4200,6 @@ x_4 = l_Lean_findModuleOf_x3f___rarg___lambda__1(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_4;
-}
-}
-lean_object* l_Lean_findModuleOf_x3f___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Lean_findModuleOf_x3f___rarg___lambda__2(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-lean_dec(x_1);
-return x_6;
 }
 }
 lean_object* l_Lean_findModuleOf_x3f___rarg___lambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

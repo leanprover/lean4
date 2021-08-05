@@ -471,6 +471,7 @@ x_12 = lean_unsigned_to_nat(5u);
 x_13 = l_Lean_Syntax_getArg(x_1, x_12);
 x_14 = lean_unsigned_to_nat(7u);
 x_15 = l_Lean_Syntax_getArg(x_1, x_14);
+lean_inc(x_10);
 x_16 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_10, x_11);
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc(x_17);
@@ -616,7 +617,6 @@ block_102:
 lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; 
 x_64 = l_Lean_Elab_Command_expandMixfix___lambda__1___closed__4;
 x_65 = l_Array_append___rarg(x_64, x_63);
-lean_dec(x_63);
 x_66 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_66, 0, x_35);
 lean_ctor_set(x_66, 1, x_65);
@@ -681,7 +681,6 @@ lean_ctor_set(x_92, 0, x_77);
 lean_ctor_set(x_92, 1, x_91);
 x_93 = lean_array_push(x_33, x_92);
 x_94 = l_Array_append___rarg(x_64, x_93);
-lean_dec(x_93);
 x_95 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_95, 0, x_35);
 lean_ctor_set(x_95, 1, x_94);
@@ -708,6 +707,7 @@ lean_object* l_Lean_Elab_Command_expandMixfix___lambda__2(lean_object* x_1, lean
 _start:
 {
 lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+lean_dec(x_7);
 x_11 = lean_unsigned_to_nat(4u);
 x_12 = l_Lean_Syntax_getArg(x_1, x_11);
 x_13 = l_Lean_Syntax_isNone(x_12);
@@ -797,6 +797,7 @@ x_12 = lean_unsigned_to_nat(5u);
 x_13 = l_Lean_Syntax_getArg(x_1, x_12);
 x_14 = lean_unsigned_to_nat(7u);
 x_15 = l_Lean_Syntax_getArg(x_1, x_14);
+lean_inc(x_10);
 x_16 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_10, x_11);
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc(x_17);
@@ -942,7 +943,6 @@ block_102:
 lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; 
 x_64 = l_Lean_Elab_Command_expandMixfix___lambda__1___closed__4;
 x_65 = l_Array_append___rarg(x_64, x_63);
-lean_dec(x_63);
 x_66 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_66, 0, x_35);
 lean_ctor_set(x_66, 1, x_65);
@@ -1007,7 +1007,6 @@ lean_ctor_set(x_92, 0, x_77);
 lean_ctor_set(x_92, 1, x_91);
 x_93 = lean_array_push(x_33, x_92);
 x_94 = l_Array_append___rarg(x_64, x_93);
-lean_dec(x_93);
 x_95 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_95, 0, x_35);
 lean_ctor_set(x_95, 1, x_94);
@@ -1034,6 +1033,7 @@ lean_object* l_Lean_Elab_Command_expandMixfix___lambda__4(lean_object* x_1, lean
 _start:
 {
 lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+lean_dec(x_7);
 x_11 = lean_unsigned_to_nat(4u);
 x_12 = l_Lean_Syntax_getArg(x_1, x_11);
 x_13 = l_Lean_Syntax_isNone(x_12);
@@ -1232,6 +1232,7 @@ x_21 = l_Nat_repr(x_20);
 x_22 = l_Lean_numLitKind;
 x_23 = lean_box(2);
 x_24 = l_Lean_Syntax_mkLit(x_22, x_21, x_23);
+lean_inc(x_10);
 x_25 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_10, x_18);
 x_26 = lean_ctor_get(x_25, 0);
 lean_inc(x_26);
@@ -1407,7 +1408,6 @@ block_124:
 lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; 
 x_86 = l_Lean_Elab_Command_expandMixfix___lambda__1___closed__4;
 x_87 = l_Array_append___rarg(x_86, x_85);
-lean_dec(x_85);
 x_88 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_88, 0, x_44);
 lean_ctor_set(x_88, 1, x_87);
@@ -1472,7 +1472,6 @@ lean_ctor_set(x_114, 0, x_99);
 lean_ctor_set(x_114, 1, x_113);
 x_115 = lean_array_push(x_42, x_114);
 x_116 = l_Array_append___rarg(x_86, x_115);
-lean_dec(x_115);
 x_117 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_117, 0, x_44);
 lean_ctor_set(x_117, 1, x_116);
@@ -1532,6 +1531,7 @@ lean_object* l_Lean_Elab_Command_expandMixfix___lambda__6(lean_object* x_1, lean
 _start:
 {
 lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+lean_dec(x_7);
 x_11 = lean_unsigned_to_nat(4u);
 x_12 = l_Lean_Syntax_getArg(x_1, x_11);
 x_13 = l_Lean_Syntax_isNone(x_12);
@@ -1639,6 +1639,7 @@ x_21 = l_Nat_repr(x_20);
 x_22 = l_Lean_numLitKind;
 x_23 = lean_box(2);
 x_24 = l_Lean_Syntax_mkLit(x_22, x_21, x_23);
+lean_inc(x_10);
 x_25 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_10, x_18);
 x_26 = lean_ctor_get(x_25, 0);
 lean_inc(x_26);
@@ -1814,7 +1815,6 @@ block_124:
 lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; 
 x_86 = l_Lean_Elab_Command_expandMixfix___lambda__1___closed__4;
 x_87 = l_Array_append___rarg(x_86, x_85);
-lean_dec(x_85);
 x_88 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_88, 0, x_44);
 lean_ctor_set(x_88, 1, x_87);
@@ -1879,7 +1879,6 @@ lean_ctor_set(x_114, 0, x_99);
 lean_ctor_set(x_114, 1, x_113);
 x_115 = lean_array_push(x_42, x_114);
 x_116 = l_Array_append___rarg(x_86, x_115);
-lean_dec(x_115);
 x_117 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_117, 0, x_44);
 lean_ctor_set(x_117, 1, x_116);
@@ -1939,6 +1938,7 @@ lean_object* l_Lean_Elab_Command_expandMixfix___lambda__8(lean_object* x_1, lean
 _start:
 {
 lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+lean_dec(x_7);
 x_11 = lean_unsigned_to_nat(4u);
 x_12 = l_Lean_Syntax_getArg(x_1, x_11);
 x_13 = l_Lean_Syntax_isNone(x_12);
@@ -2046,6 +2046,7 @@ x_21 = l_Nat_repr(x_20);
 x_22 = l_Lean_numLitKind;
 x_23 = lean_box(2);
 x_24 = l_Lean_Syntax_mkLit(x_22, x_21, x_23);
+lean_inc(x_10);
 x_25 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_10, x_18);
 x_26 = lean_ctor_get(x_25, 0);
 lean_inc(x_26);
@@ -2221,7 +2222,6 @@ block_124:
 lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; 
 x_86 = l_Lean_Elab_Command_expandMixfix___lambda__1___closed__4;
 x_87 = l_Array_append___rarg(x_86, x_85);
-lean_dec(x_85);
 x_88 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_88, 0, x_44);
 lean_ctor_set(x_88, 1, x_87);
@@ -2286,7 +2286,6 @@ lean_ctor_set(x_114, 0, x_99);
 lean_ctor_set(x_114, 1, x_113);
 x_115 = lean_array_push(x_42, x_114);
 x_116 = l_Array_append___rarg(x_86, x_115);
-lean_dec(x_115);
 x_117 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_117, 0, x_44);
 lean_ctor_set(x_117, 1, x_116);
@@ -2346,6 +2345,7 @@ lean_object* l_Lean_Elab_Command_expandMixfix___lambda__10(lean_object* x_1, lea
 _start:
 {
 lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+lean_dec(x_7);
 x_11 = lean_unsigned_to_nat(4u);
 x_12 = l_Lean_Syntax_getArg(x_1, x_11);
 x_13 = l_Lean_Syntax_isNone(x_12);
@@ -3281,7 +3281,6 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l_Lean_Elab_Command_expandMixfix___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_7);
 lean_dec(x_1);
 return x_11;
 }
@@ -3301,7 +3300,6 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l_Lean_Elab_Command_expandMixfix___lambda__4(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_7);
 lean_dec(x_1);
 return x_11;
 }
@@ -3321,7 +3319,6 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l_Lean_Elab_Command_expandMixfix___lambda__6(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_7);
 lean_dec(x_1);
 return x_11;
 }
@@ -3341,7 +3338,6 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l_Lean_Elab_Command_expandMixfix___lambda__8(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_7);
 lean_dec(x_1);
 return x_11;
 }
@@ -3361,7 +3357,6 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l_Lean_Elab_Command_expandMixfix___lambda__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_7);
 lean_dec(x_1);
 return x_11;
 }

@@ -640,6 +640,7 @@ lean_object* l_Lean_Elab_Frontend_elabCommandAtFrontend___lambda__1(lean_object*
 _start:
 {
 lean_object* x_7; 
+lean_dec(x_3);
 lean_inc(x_5);
 lean_inc(x_4);
 x_7 = l_Lean_Elab_Command_elabCommandTopLevel(x_1, x_4, x_5, x_6);
@@ -827,7 +828,6 @@ lean_inc(x_84);
 lean_dec(x_82);
 lean_inc(x_51);
 x_85 = l_Lean_Elab_Frontend_elabCommandAtFrontend___lambda__1(x_1, x_65, x_83, x_48, x_51, x_84);
-lean_dec(x_83);
 if (lean_obj_tag(x_85) == 0)
 {
 lean_object* x_86; lean_object* x_87; 
@@ -1003,7 +1003,6 @@ uint8_t x_7; lean_object* x_8;
 x_7 = lean_unbox(x_2);
 lean_dec(x_2);
 x_8 = l_Lean_Elab_Frontend_elabCommandAtFrontend___lambda__1(x_1, x_7, x_3, x_4, x_5, x_6);
-lean_dec(x_3);
 return x_8;
 }
 }
@@ -2738,6 +2737,7 @@ lean_inc(x_27);
 x_28 = lean_ctor_get(x_25, 1);
 lean_inc(x_28);
 lean_dec(x_25);
+lean_inc(x_28);
 x_29 = l_Lean_MessageLog_toList(x_28);
 x_30 = lean_box(0);
 x_31 = l_List_forIn_loop___at_Lean_Elab_runFrontend___spec__1(x_2, x_29, x_30, x_26);
@@ -2752,7 +2752,6 @@ lean_object* x_33; uint8_t x_34;
 x_33 = lean_ctor_get(x_31, 0);
 lean_dec(x_33);
 x_34 = l_Std_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(x_28);
-lean_dec(x_28);
 if (x_34 == 0)
 {
 uint8_t x_35; lean_object* x_36; 
@@ -2781,7 +2780,6 @@ x_39 = lean_ctor_get(x_31, 1);
 lean_inc(x_39);
 lean_dec(x_31);
 x_40 = l_Std_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(x_28);
-lean_dec(x_28);
 if (x_40 == 0)
 {
 uint8_t x_41; lean_object* x_42; lean_object* x_43; 
@@ -2887,6 +2885,7 @@ lean_inc(x_63);
 x_64 = lean_ctor_get(x_61, 1);
 lean_inc(x_64);
 lean_dec(x_61);
+lean_inc(x_64);
 x_65 = l_Lean_MessageLog_toList(x_64);
 x_66 = lean_box(0);
 x_67 = l_List_forIn_loop___at_Lean_Elab_runFrontend___spec__1(x_2, x_65, x_66, x_62);
@@ -2905,7 +2904,6 @@ if (lean_is_exclusive(x_67)) {
  x_69 = lean_box(0);
 }
 x_70 = l_Std_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(x_64);
-lean_dec(x_64);
 if (x_70 == 0)
 {
 uint8_t x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; 

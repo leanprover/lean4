@@ -335,6 +335,7 @@ lean_object* l_Lean_Meta_deltaTarget___lambda__1(lean_object* x_1, lean_object* 
 _start:
 {
 lean_object* x_9; 
+lean_inc(x_5);
 lean_inc(x_1);
 x_9 = l_Lean_Meta_checkNotAssigned(x_1, x_2, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_9) == 0)
@@ -491,6 +492,7 @@ lean_object* l_Lean_Meta_deltaLocalDecl___lambda__1(lean_object* x_1, lean_objec
 _start:
 {
 lean_object* x_10; 
+lean_inc(x_6);
 lean_inc(x_1);
 x_10 = l_Lean_Meta_checkNotAssigned(x_1, x_2, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_10) == 0)

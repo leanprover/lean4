@@ -9901,14 +9901,18 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint64_t x_5; size_t x_6; size_t x_7; lean_object* x_8; uint8_t x_9; 
 x_3 = lean_ctor_get(x_1, 1);
+lean_inc(x_3);
+lean_dec(x_1);
 x_4 = lean_array_get_size(x_3);
 x_5 = l_Lean_Name_hash(x_2);
 x_6 = (size_t)x_5;
 x_7 = lean_usize_modn(x_6, x_4);
 lean_dec(x_4);
 x_8 = lean_array_uget(x_3, x_7);
+lean_dec(x_3);
 x_9 = l_Std_AssocList_contains___at_Lean_NameSSet_contains___spec__3(x_2, x_8);
 lean_dec(x_8);
+lean_dec(x_2);
 return x_9;
 }
 }
@@ -10045,6 +10049,7 @@ lean_dec(x_1);
 x_4 = l_Lean_Name_hash(x_2);
 x_5 = (size_t)x_4;
 x_6 = l_Std_PersistentHashMap_containsAux___at_Lean_NameSSet_contains___spec__5(x_3, x_5, x_2);
+lean_dec(x_2);
 return x_6;
 }
 }
@@ -10061,8 +10066,8 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
 lean_dec(x_1);
+lean_inc(x_2);
 x_6 = l_Std_HashMapImp_contains___at_Lean_NameSSet_contains___spec__2(x_4, x_2);
-lean_dec(x_4);
 if (x_6 == 0)
 {
 uint8_t x_7; 
@@ -10073,6 +10078,7 @@ else
 {
 uint8_t x_8; 
 lean_dec(x_5);
+lean_dec(x_2);
 x_8 = 1;
 return x_8;
 }
@@ -10084,7 +10090,6 @@ x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
 lean_dec(x_1);
 x_10 = l_Std_HashMapImp_contains___at_Lean_NameSSet_contains___spec__2(x_9, x_2);
-lean_dec(x_9);
 return x_10;
 }
 }
@@ -10113,8 +10118,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_HashMapImp_contains___at_Lean_NameSSet_contains___spec__2(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -10148,7 +10151,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__4(x_1, x_2);
-lean_dec(x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -10158,7 +10160,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_SMap_contains___at_Lean_NameSSet_contains___spec__1(x_1, x_2);
-lean_dec(x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -10168,7 +10169,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_NameSSet_contains(x_1, x_2);
-lean_dec(x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }

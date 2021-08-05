@@ -383,6 +383,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_o
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 lean_dec(x_1);
+lean_inc(x_2);
 x_10 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_2, x_3);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
@@ -404,6 +405,7 @@ lean_ctor_set(x_19, 0, x_11);
 lean_ctor_set(x_19, 1, x_17);
 lean_ctor_set(x_19, 2, x_16);
 lean_ctor_set(x_19, 3, x_18);
+lean_inc(x_2);
 x_20 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_2, x_12);
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc(x_21);

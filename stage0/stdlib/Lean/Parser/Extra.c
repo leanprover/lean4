@@ -453,7 +453,6 @@ lean_object* l_Lean_ppSpace_formatter___boxed(lean_object*, lean_object*, lean_o
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_486____closed__3;
 static lean_object* l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_256____closed__4;
 static lean_object* l_Lean_Parser_scientificLit_formatter___closed__4;
-lean_object* l_Lean_Parser_rawIdentFn___boxed(lean_object*, lean_object*);
 lean_object* l_String_trim(lean_object*);
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_486____closed__29;
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_486____closed__28;
@@ -2556,7 +2555,7 @@ static lean_object* _init_l_Lean_Parser_rawIdent___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parser_rawIdentFn___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parser_rawIdentFn), 2, 0);
 return x_1;
 }
 }
@@ -2575,7 +2574,6 @@ if (x_5 == 0)
 lean_object* x_6; 
 lean_dec(x_4);
 x_6 = l_Lean_Parser_rawIdentFn(x_1, x_2);
-lean_dec(x_1);
 return x_6;
 }
 else
@@ -5155,6 +5153,7 @@ x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 x_10 = lean_unsigned_to_nat(2u);
 x_11 = l_Lean_Syntax_getArg(x_1, x_10);
 lean_dec(x_1);
+lean_inc(x_2);
 x_12 = l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(x_2, x_3);
 x_13 = !lean_is_exclusive(x_12);
 if (x_13 == 0)
@@ -5226,6 +5225,7 @@ lean_ctor_set(x_46, 3, x_45);
 x_47 = l_Lean_Syntax_getId(x_11);
 x_48 = l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_256____closed__42;
 x_49 = l_Lean_Name_append(x_47, x_48);
+lean_inc(x_11);
 x_50 = l_Lean_mkIdentFrom(x_11, x_49);
 lean_inc(x_25);
 x_51 = lean_array_push(x_25, x_50);
@@ -5259,7 +5259,6 @@ x_66 = l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_256____closed__54;
 x_67 = l_Lean_Name_append(x_47, x_66);
 lean_dec(x_47);
 x_68 = l_Lean_mkIdentFrom(x_11, x_67);
-lean_dec(x_11);
 x_69 = lean_array_push(x_25, x_68);
 x_70 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_70, 0, x_27);
@@ -5372,6 +5371,7 @@ lean_ctor_set(x_124, 3, x_123);
 x_125 = l_Lean_Syntax_getId(x_11);
 x_126 = l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_256____closed__42;
 x_127 = l_Lean_Name_append(x_125, x_126);
+lean_inc(x_11);
 x_128 = l_Lean_mkIdentFrom(x_11, x_127);
 lean_inc(x_103);
 x_129 = lean_array_push(x_103, x_128);
@@ -5405,7 +5405,6 @@ x_144 = l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_256____closed__54;
 x_145 = l_Lean_Name_append(x_125, x_144);
 lean_dec(x_125);
 x_146 = l_Lean_mkIdentFrom(x_11, x_145);
-lean_dec(x_11);
 x_147 = lean_array_push(x_103, x_146);
 x_148 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_148, 0, x_105);

@@ -123,7 +123,6 @@ lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 lean_object* l_System_FilePath_withFileName_match__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_System_FilePath_join___closed__1;
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
-lean_object* l_System_SearchPath_parse___boxed(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* _init_l_System_instInhabitedFilePath___closed__1() {
@@ -1659,6 +1658,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_String_split___at_System_SearchPath_parse___spec__1(x_1);
+lean_dec(x_1);
 x_3 = l_List_map___at_System_SearchPath_parse___spec__3(x_2);
 return x_3;
 }
@@ -1677,15 +1677,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_String_split___at_System_SearchPath_parse___spec__1(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l_System_SearchPath_parse___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_System_SearchPath_parse(x_1);
 lean_dec(x_1);
 return x_2;
 }

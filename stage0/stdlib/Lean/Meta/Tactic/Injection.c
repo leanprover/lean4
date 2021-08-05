@@ -592,6 +592,7 @@ lean_object* l_Lean_Meta_injectionCore___lambda__1(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_9; 
+lean_inc(x_5);
 lean_inc(x_2);
 lean_inc(x_1);
 x_9 = l_Lean_Meta_checkNotAssigned(x_1, x_2, x_4, x_5, x_6, x_7, x_8);
@@ -640,7 +641,6 @@ x_22 = lean_box(0);
 x_23 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_21, x_22, x_4, x_5, x_6, x_7, x_17);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 lean_dec(x_4);
 return x_23;
 }
@@ -712,7 +712,6 @@ x_42 = lean_box(0);
 x_43 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_41, x_42, x_4, x_5, x_6, x_7, x_38);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 lean_dec(x_4);
 return x_43;
 }
@@ -735,7 +734,6 @@ x_47 = lean_box(0);
 x_48 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_46, x_47, x_4, x_5, x_6, x_7, x_38);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 lean_dec(x_4);
 return x_48;
 }
@@ -1029,7 +1027,6 @@ x_113 = lean_box(0);
 x_114 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_112, x_113, x_4, x_5, x_6, x_7, x_111);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 lean_dec(x_4);
 return x_114;
 }

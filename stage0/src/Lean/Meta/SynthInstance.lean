@@ -644,7 +644,7 @@ def synthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM Ex
     (fun _ => throwError "failed to synthesize{indentExpr type}")
 
 @[export lean_synth_pending]
-private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth do
+private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <| withMVarContext mvarId do
   let mvarDecl ← getMVarDecl mvarId
   match mvarDecl.kind with
   | MetavarKind.synthetic =>

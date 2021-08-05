@@ -1074,20 +1074,27 @@ def blockImplicitLambda (stx : Syntax) : Bool :=
 
 /--
   Return normalized expected type if it is of the form `{a : α} → β` or `[a : α] → β` and
-  `blockImplicitLambda stx` is not true, else return `none`. -/
+  `blockImplicitLambda stx` is not true, else return `none`.
+
+  Remark: implicit lambdas are not triggered by the strict implicit binder annotation `{{a : α}} → β`
+-/
 private def useImplicitLambda? (stx : Syntax) (expectedType? : Option Expr) : TermElabM (Option Expr) :=
   if blockImplicitLambda stx then
-    pure none
+    return none
   else match expectedType? with
     | some expectedType => do
       if hasNoImplicitLambdaAnnotation expectedType then
-        pure none
+        return none
       else
         let expectedType ← whnfForall expectedType
         match expectedType with
-        | Expr.forallE _ _ _ c => if c.binderInfo.isExplicit then pure none else pure $ some expectedType
-        | _                    => pure none
-    | _         => pure none
+        | Expr.forallE _ _ _ c =>
+          if c.binderInfo.isImplicit || c.binderInfo.isInstImplicit then
+            return some expectedType
+          else
+            return none
+        | _ => return none
+    | _ => return none
 
 private def decorateErrorMessageWithLambdaImplicitVars (ex : Exception) (impFVars : Array Expr) : TermElabM Exception := do
   match ex with

@@ -259,7 +259,7 @@ mutual
 
     Remark: we set `ignoreStuckTC := true` when elaborating `simp` arguments. Then,
     pending TC problems become implicit parameters for the simp theorem.
--/
+  -/
   partial def synthesizeSyntheticMVars (mayPostpone := true) (ignoreStuckTC := false) : TermElabM Unit :=
     let rec loop (u : Unit) : TermElabM Unit := do
       withRef (← getSomeSynthethicMVarsRef) <| withIncRecDepth do

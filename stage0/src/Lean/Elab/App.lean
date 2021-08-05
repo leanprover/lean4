@@ -58,10 +58,11 @@ private def tryCoeFun? (α : Expr) (a : Expr) : TermElabM (Option Expr) := do
   catch _ =>
     return none
 
-def synthesizeAppInstMVars (instMVars : Array MVarId) : TermElabM Unit :=
+def synthesizeAppInstMVars (instMVars : Array MVarId) (app : Expr) : TermElabM Unit :=
   for mvarId in instMVars do
     unless (← synthesizeInstMVarCore mvarId) do
       registerSyntheticMVarWithCurrRef mvarId SyntheticMVarKind.typeClass
+      registerMVarErrorImplicitArgInfo mvarId (← getRef) app
 
 namespace ElabAppArgs
 
@@ -94,7 +95,7 @@ def synthesizeAppInstMVars : M Unit := do
   let s ← get
   let instMVars := s.instMVars
   modify fun s => { s with instMVars := #[] }
-  Lean.Elab.Term.synthesizeAppInstMVars instMVars
+  Lean.Elab.Term.synthesizeAppInstMVars instMVars s.f
 
 /- fType may become a forallE after we synthesize pending metavariables. -/
 private def synthesizePendingAndNormalizeFunType : M Unit := do
@@ -600,7 +601,9 @@ private partial def consumeImplicits (stx : Syntax) (e eType : Expr) (hasArgs : 
       consumeImplicits stx (mkApp e mvar) (b.instantiate1 mvar) hasArgs
     else if c.binderInfo.isInstImplicit then
       let mvar ← mkInstMVar d
-      consumeImplicits stx (mkApp e mvar) (b.instantiate1 mvar) hasArgs
+      let r := mkApp e mvar
+      registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
+      consumeImplicits stx r (b.instantiate1 mvar) hasArgs
     else match d.getOptParamDefault? with
       | some defVal => consumeImplicits stx (mkApp e defVal) (b.instantiate1 defVal) hasArgs
       -- TODO: we do not handle autoParams here.

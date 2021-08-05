@@ -531,7 +531,7 @@ private def mkCtorHeader (ctorVal : ConstructorVal) (expectedType? : Option Expr
   let type := (ConstantInfo.ctorInfo ctorVal).instantiateTypeLevelParams us
   let r ← mkCtorHeaderAux ctorVal.numParams type val #[]
   propagateExpectedType r.ctorFnType ctorVal.numFields expectedType?
-  synthesizeAppInstMVars r.instMVars
+  synthesizeAppInstMVars r.instMVars r.ctorFn
   pure r
 
 def markDefaultMissing (e : Expr) : Expr :=

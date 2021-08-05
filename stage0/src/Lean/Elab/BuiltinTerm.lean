@@ -150,7 +150,9 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
     let typeMVar ← mkFreshTypeMVarFor expectedType?
     let u ← getDecLevel typeMVar
     let mvar ← mkInstMVar (mkApp (Lean.mkConst ``OfScientific [u]) typeMVar)
-    return mkApp5 (Lean.mkConst ``OfScientific.ofScientific [u]) typeMVar mvar (mkRawNatLit m) (toExpr sign) (mkRawNatLit e)
+    let r := mkApp5 (Lean.mkConst ``OfScientific.ofScientific [u]) typeMVar mvar (mkRawNatLit m) (toExpr sign) (mkRawNatLit e)
+    registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
+    return r
 
 @[builtinTermElab charLit] def elabCharLit : TermElab := fun stx _ => do
   match stx.isCharLit? with

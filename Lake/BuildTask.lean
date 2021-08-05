@@ -6,6 +6,8 @@ Authors: Mac Malone
 
 namespace Lake
 
+-- # Tasks
+
 instance : Monad Task where
   map := Task.map
   pure := Task.pure
@@ -13,11 +15,14 @@ instance : Monad Task where
 
 abbrev ETask ε α := ExceptT ε Task α
 
-abbrev IOTask α := ETask IO.Error α
+-- # IO Tasks
+
+def IOTask α := ETask IO.Error α
+instance : Monad IOTask := inferInstanceAs <| Monad (ETask IO.Error)
 
 namespace IOTask
 
-def spawn (act : IO α) (prio := Task.Priority.default) : IO (IOTask α) :=
+def spawn (act : IO α) (prio := Task.Priority.dedicated) : IO (IOTask α) :=
   IO.asTask act prio
 
 def await (self : IOTask α) : IO α := do
@@ -27,6 +32,23 @@ def collectAll (tasks : List (IOTask α)) : IO (IOTask (List α)) :=
   IO.asTask (tasks.mapM (·.await))
 
 end IOTask
+
+-- # Async / Await
+
+class Async (m : Type u → Type v) (n : outParam $ Type u → Type u) where
+  async : m α → m (n α)
+
+export Async (async)
+
+class Await (m : outParam $ Type u → Type v) (n : Type u → Type u) where
+  await : n α → m α
+
+export Await (await)
+
+instance : Async IO IOTask := ⟨IOTask.spawn⟩
+instance : Await IO IOTask := ⟨IOTask.await⟩
+
+-- # Build Task
 
 def BuildTask := IOTask PUnit
 
@@ -38,7 +60,7 @@ def nop : BuildTask :=
 def spawn (act : IO PUnit) (prio := Task.Priority.dedicated) : IO BuildTask :=
   IO.asTask act prio
 
-def all (tasks : List BuildTask) (prio := Task.Priority.default)  : IO BuildTask :=
+def all (tasks : List BuildTask) (prio := Task.Priority.dedicated)  : IO BuildTask :=
   IO.asTask (tasks.forM (·.await)) prio
 
 end BuildTask

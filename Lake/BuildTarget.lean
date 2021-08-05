@@ -10,70 +10,85 @@ open System
 namespace Lake
 
 --------------------------------------------------------------------------------
--- # Target
+-- # Target Structure
 --------------------------------------------------------------------------------
 
-structure Target.{u,v} (t : Type u) (m : Type u → Type v) (a : Type u) where
+structure BaseTarget.{u,v} (t : Type u) (m : Type u → Type v) (a : Type u) where
   artifact  : a
   trace     : t
   task      : m PUnit
 
-instance [Inhabited t] [Inhabited a] [Pure m] : Inhabited (Target t m a) :=
+instance [Inhabited t] [Inhabited a] [Pure m] : Inhabited (BaseTarget t m a) :=
   ⟨Inhabited.default, Inhabited.default, pure ()⟩
 
-namespace Target
+namespace BaseTarget
 
-def withTrace (trace : t) (self : Target r m a) : Target t m a :=
-  {self with trace := trace}
+def withArtifact (artifact : a) (self : BaseTarget t m b) : BaseTarget t m a :=
+  {self with artifact}
 
-def discardTrace (self : Target t m a) : Target PUnit m a :=
-  self.withTrace ()
-
-def withArtifact (artifact : a) (self : Target t m b) : Target t m a :=
-  {self with artifact := artifact}
-
-def discardArtifact (self : Target t m α) : Target t m PUnit :=
+def discardArtifact (self : BaseTarget t m a) : BaseTarget t m PUnit :=
   self.withArtifact ()
 
-def mtime (self : Target MTime m a) : MTime :=
+def withTrace (trace : t) (self : BaseTarget r m a) : BaseTarget t m a :=
+  {self with trace}
+
+def discardTrace (self : BaseTarget t m a) : BaseTarget PUnit m a :=
+  self.withTrace ()
+
+def withTask (task : m PUnit) (self : BaseTarget t n a) : BaseTarget t m a :=
+  {self with task}
+
+def mtime (self : BaseTarget MTime m a) : MTime :=
   self.trace
 
-def file (self : Target t m FilePath) : FilePath :=
+def file (self : BaseTarget t m FilePath) : FilePath :=
   self.artifact
 
-def filesList (self : Target t m (List FilePath)) : List FilePath :=
+def filesList (self : BaseTarget t m (List FilePath)) : List FilePath :=
   self.artifact
 
-def filesArray (self : Target t m (Array FilePath)) : Array FilePath :=
+def filesArray (self : BaseTarget t m (Array FilePath)) : Array FilePath :=
   self.artifact
 
-end Target
+end BaseTarget
 
 --------------------------------------------------------------------------------
--- # Build Targets
+-- # Active Targets
 --------------------------------------------------------------------------------
+
+-- ## Active Target
+
+def ActiveTarget t m a :=
+  BaseTarget t m a
+
+instance [Inhabited t] [Inhabited a] [Pure m] : Inhabited (ActiveTarget t m a) :=
+  ⟨Inhabited.default, Inhabited.default, pure ()⟩
+
+namespace ActiveTarget
+
+def mk (artifact : a) (trace : t) (task : m PUnit) : ActiveTarget t m a :=
+  ⟨artifact, trace, task⟩
+
+def opaque (trace : t) (task : m PUnit) : ActiveTarget t m PUnit :=
+  ⟨(), trace, task⟩
+
+protected def pure [Pure m] (artifact : a) (trace : t) : ActiveTarget t m a :=
+  ⟨artifact, trace, pure ()⟩
+
+def nil [Pure m] [Inhabited t] : ActiveTarget t m PUnit :=
+  ActiveTarget.pure () Inhabited.default
+
+def materialize [Await m n] (self : ActiveTarget t n α) : m PUnit :=
+  await self.task
+
+end ActiveTarget
 
 -- ## Active Build Target
 
 abbrev ActiveBuildTarget t a :=
-  Target t IOTask a
+  ActiveTarget t IOTask a
 
 namespace ActiveBuildTarget
-
-def mk (artifact : a) (trace : t) (task : BuildTask) : ActiveBuildTarget t a :=
-  ⟨artifact, trace, task⟩
-
-def opaque (trace : t) (task : BuildTask) : ActiveBuildTarget t PUnit :=
-  ⟨(), trace, task⟩
-
-protected def pure (artifact : a) (trace : t) : ActiveBuildTarget t a :=
-  ⟨artifact, trace, BuildTask.nop⟩
-
-def nil [Inhabited t] : ActiveBuildTarget t PUnit :=
-  ActiveBuildTarget.pure () Inhabited.default
-
-def materialize (self : ActiveBuildTarget t α) : IO PUnit :=
-  self.task.await
 
 -- ### Combinators
 
@@ -91,52 +106,65 @@ instance : HAndThen (List (ActiveBuildTarget t a)) (IO PUnit) (IO BuildTask) :=
 
 end ActiveBuildTarget
 
--- ## Build Target
+--------------------------------------------------------------------------------
+-- # Inactive Target
+--------------------------------------------------------------------------------
+
+def Target t m a :=
+  BaseTarget t m a
+
+instance [Inhabited t] [Inhabited a] [Pure m] : Inhabited (ActiveTarget t m a) :=
+  ⟨Inhabited.default, Inhabited.default, pure ()⟩
+
+namespace Target
+
+def mk (artifact : a) (trace : t) (task : m PUnit) : Target t m a :=
+  ⟨artifact, trace, task⟩
+
+def opaque (trace : t) (task : m PUnit) : Target t m PUnit :=
+  ⟨(), trace, task⟩
+
+protected def pure [Pure m] (artifact : a) (trace : t) : Target t m a :=
+  ⟨artifact, trace, pure ()⟩
+
+def nil [Pure m] [Inhabited t] : Target t m PUnit :=
+  Target.pure () Inhabited.default
+
+def spawn [Async m n] (self : Target t m a) : m (n PUnit) :=
+  async self.task
+
+def run [Monad m] [Async m n] (self : Target t m a) : m (ActiveTarget t n a) := do
+  self.withTask (← async self.task)
+
+def materialize (self : Target t m a) : m PUnit :=
+  self.task
+
+-- ## Combinators
+
+def after [Applicative m] (target : Target t m a) (act : m PUnit)  : m PUnit :=
+  target.task *> act
+
+def afterList [Monad m] (targets : List (Target t m a)) (act : m PUnit) : m PUnit :=
+  targets.forM (·.task) *> act
+
+instance [Applicative m] : HAndThen (Target t m a) (m PUnit) (m PUnit) :=
+  ⟨Target.after⟩
+
+instance [Monad m] : HAndThen (List (Target t m a)) (m PUnit) (m PUnit) :=
+  ⟨Target.afterList⟩
+
+end Target
+
+-- ## BuildTarget
 
 abbrev BuildTarget t a :=
   Target t IO a
-
-namespace BuildTarget
-
-def mk (artifact : a) (trace : t) (task : IO PUnit) : BuildTarget t a :=
-  ⟨artifact, trace, task⟩
-
-def opaque (trace : t) (task : IO PUnit) : BuildTarget t PUnit :=
-  ⟨(), trace, task⟩
-
-protected def pure (artifact : a) (trace : t) : BuildTarget t a :=
-  ⟨artifact, trace, pure ()⟩
-
-def nil [Inhabited t] : BuildTarget t PUnit :=
-  BuildTarget.pure () Inhabited.default
-
-def spawn (self : BuildTarget t a) : IO (ActiveBuildTarget t a) := do
-  return {self with task := (← IO.asTask self.task)}
-
-def materialize (self : BuildTarget t a) : IO PUnit :=
-  self.task
-
--- ### Combinators
-
-def after (target : BuildTarget t a) (act : IO PUnit)  : IO PUnit :=
-  target.task *> act
-
-def afterList (targets : List (BuildTarget t a)) (act : IO PUnit) : IO PUnit :=
-  targets.forM (·.task) *> act
-
-instance : HAndThen (BuildTarget t a) (IO PUnit) (IO PUnit) :=
-  ⟨BuildTarget.after⟩
-
-instance : HAndThen (List (BuildTarget t a)) (IO PUnit) (IO PUnit) :=
-  ⟨BuildTarget.afterList⟩
-
-end BuildTarget
 
 --------------------------------------------------------------------------------
 -- # File Targets
 --------------------------------------------------------------------------------
 
--- ## File Target
+-- ## File BaseTarget
 
 abbrev FileTarget :=
   BuildTarget MTime FilePath
@@ -147,14 +175,11 @@ def mk (file : FilePath) (depMTime : MTime) (task : IO PUnit) : FileTarget :=
   ⟨file, depMTime, task⟩
 
 def compute (file : FilePath) : IO FileTarget := do
-  BuildTarget.pure file (← getMTime file)
-
-protected def pure (file : FilePath) (depMTime : MTime) : FileTarget :=
-  BuildTarget.pure file depMTime
+  Target.pure file (← getMTime file)
 
 end FileTarget
 
--- ## Files Target
+-- ## Files BaseTarget
 
 abbrev FilesTarget :=
   BuildTarget MTime (Array FilePath)
@@ -171,22 +196,22 @@ def filesAsArray (self : FilesTarget) : Array FilePath :=
   self.artifact
 
 def compute (files : Array FilePath) : IO FilesTarget := do
-  BuildTarget.pure files (MTime.arrayMax <| ← files.mapM getMTime)
+  Target.pure files (MTime.arrayMax <| ← files.mapM getMTime)
 
 def singleton (target : FileTarget) : FilesTarget :=
-  {target with artifact := #[target.file]}
+  target.withArtifact #[target.file]
 
 def collectList (targets : List FileTarget) : FilesTarget :=
   let files := Array.mk <| targets.map (·.file)
   let mtime := MTime.listMax <| targets.map (·.mtime)
-  BuildTarget.mk files mtime do
-   (← targets.mapM (IOTask.spawn ·.task)).forM (·.await)
+  Target.mk files mtime do
+   (← targets.mapM (·.spawn)).forM (·.await)
 
 def collectArray (targets : Array FileTarget) : FilesTarget :=
   let files := targets.map (·.file)
   let mtime := MTime.arrayMax <| targets.map (·.mtime)
-  BuildTarget.mk files mtime do
-   (← targets.mapM (IOTask.spawn ·.task)).forM (·.await)
+  Target.mk files mtime do
+   (← targets.mapM (·.spawn)).forM (·.await)
 
 def collect (targets : Array FileTarget) : FilesTarget :=
   collectArray targets
@@ -205,10 +230,7 @@ abbrev ActiveFileTarget :=
 namespace ActiveFileTarget
 
 def mk (file : FilePath) (depMTime : MTime) (task : BuildTask) : ActiveFileTarget :=
-  ActiveBuildTarget.mk file depMTime task
-
-protected def pure (file : FilePath) (depMTime : MTime) : ActiveFileTarget :=
-  ActiveBuildTarget.pure file depMTime
+  ActiveTarget.mk file depMTime task
 
 end ActiveFileTarget
 
@@ -222,7 +244,7 @@ abbrev LeanTarget a :=
 namespace LeanTarget
 
 def nil : LeanTarget PUnit :=
-  ActiveBuildTarget.pure () Inhabited.default
+  ActiveTarget.pure () Inhabited.default
 
 def hash (self : LeanTarget a) := self.trace.hash
 def mtime (self : LeanTarget a) := self.trace.mtime
@@ -231,12 +253,12 @@ def all (targets : List (LeanTarget a)) : IO (LeanTarget PUnit) := do
   let hash := Hash.foldList 0 <| targets.map (·.hash)
   let mtime := MTime.listMax <| targets.map (·.mtime)
   let task ← BuildTask.all <| targets.map (·.task)
-  return ActiveBuildTarget.mk () ⟨hash, mtime⟩ task
+  return ActiveTarget.mk () ⟨hash, mtime⟩ task
 
 def fromMTimeTarget (target : ActiveBuildTarget MTime a) : LeanTarget a :=
   {target with trace := LeanTrace.fromMTime target.trace}
 
 def buildOpaqueFromFileTarget (target : FileTarget) : IO (LeanTarget PUnit) := do
-  LeanTarget.fromMTimeTarget <| ← BuildTarget.spawn target.discardArtifact
+  LeanTarget.fromMTimeTarget <| ← Target.run target.discardArtifact
 
 end LeanTarget

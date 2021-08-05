@@ -1365,7 +1365,8 @@ end
       failK
   | none   => failK
 
-private def isDefEqOnFailure (t s : Expr) : MetaM Bool :=
+private def isDefEqOnFailure (t s : Expr) : MetaM Bool := do
+  trace[Meta.isDefEq.onFailure] "{t} =?= {s}"
   unstuckMVar t (fun t => Meta.isExprDefEqAux t s) <|
   unstuckMVar s (fun s => Meta.isExprDefEqAux t s) <|
   tryUnificationHints t s <||> tryUnificationHints s t

@@ -157,11 +157,18 @@ structure SavedState where
   deriving Inhabited
 
 structure Context where
-  config         : Config               := {}
-  lctx           : LocalContext         := {}
-  localInstances : LocalInstances       := #[]
+  config            : Config               := {}
+  lctx              : LocalContext         := {}
+  localInstances    : LocalInstances       := #[]
   /-- Not `none` when inside of an `isDefEq` test. See `PostponedEntry`. -/
-  defEqCtx?      : Option DefEqContext  := none
+  defEqCtx?         : Option DefEqContext  := none
+  /--
+    Track the number of nested `synthPending` invocations. Nested invocations can happen
+    when the type class resolution invokes `synthPending`.
+
+    Remark: in the current implementation, `synthPending` fails if `synthPendingDepth > 0`.
+    We will add a configuration option if necessary. -/
+  synthPendingDepth : Nat                  := 0
 
 abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 

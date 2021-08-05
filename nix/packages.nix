@@ -47,6 +47,7 @@ let
   lean4-mode = emacsPackages.melpaBuild {
     pname = "lean4-mode";
     version = "1";
+    commit = "1";
     src = ../lean4-mode;
     packageRequires = with pkgs.emacsPackages.melpaPackages; [ dash f flycheck magit-section lsp-mode s ];
     recipe = pkgs.writeText "recipe" ''
@@ -70,7 +71,7 @@ let
     src = mdBook;
     cargoDeps = drv.cargoDeps.overrideAttrs (_: {
       inherit src;
-      outputHash = "sha256-yunC62ISnWZ5ifbJPWq+TrFkajBRNYhYq+zofAOAo1U=";
+      outputHash = "sha256-GFjy0bkPql/694F3y+mDtUy526IbO3anInVKFeBxlUc=";
     });
     doCheck = false;
   });

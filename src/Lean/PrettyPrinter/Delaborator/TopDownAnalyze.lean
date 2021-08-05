@@ -295,7 +295,7 @@ partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
     for i in [:mvars.size] do
       if bInfos[i] == BinderInfo.instImplicit then
         inspectOutParams args[i] mvars[i]
-      else if bInfos[i] == BinderInfo.default then
+      else if ← bInfos[i] == BinderInfo.default <&&> typeUnknown mvars[i] then
         if ← canBottomUp args[i] mvars[i] fuel then tryUnify args[i] mvars[i]
     if ← (isHBinOp e <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then tryUnify mvars[0] mvars[1]
     if mvar?.isSome then tryUnify resultType (← inferType mvar?.get!)

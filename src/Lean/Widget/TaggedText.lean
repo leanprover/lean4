@@ -18,7 +18,7 @@ inductive TaggedText (α : Type u) where
   /- Invariant: non-empty and never directly nested. `append #[tag _ append #[]]` is okay. -/
   | append (as : Array (TaggedText α))
   | tag (t : α) (a : TaggedText α)
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Repr
 
 namespace TaggedText
 
@@ -63,6 +63,7 @@ def appendText (s₀ : String) : TaggedText α → TaggedText α
 def appendTag (acc : TaggedText α) (t₀ : α) (a₀ : TaggedText α) : TaggedText α :=
   match acc with
   | append as => append (as.push <| tag t₀ a₀)
+  | text ""   => tag t₀ a₀
   | a         => append #[a, tag t₀ a₀]
 
 partial def map (f : α → β) : TaggedText α → TaggedText β :=
@@ -99,16 +100,20 @@ instance [RpcEncoding α β] : RpcEncoding (TaggedText α) (TaggedText β) where
   rpcDecode a := a.mapM rpcDecode
 
 private structure TaggedState where
-  out    : TaggedText Nat := TaggedText.text ""
-  column : Nat            := 0
+  out      : TaggedText Nat              := TaggedText.text ""
+  tagStack : List (Nat × TaggedText Nat) := []
+  column   : Nat                         := 0
+  deriving Inhabited
 
 instance : Std.Format.MonadPrettyFormat (StateM TaggedState) where
-  pushOutput s       := modify fun ⟨out, col⟩ => ⟨out.appendText s, col + s.length⟩
-  pushNewline indent := modify fun ⟨out, col⟩ => ⟨out.appendText ("\n".pushn ' ' indent), indent⟩
+  pushOutput s       := modify fun ⟨out, ts, col⟩ => ⟨out.appendText s, ts, col + s.length⟩
+  pushNewline indent := modify fun ⟨out, ts, col⟩ => ⟨out.appendText ("\n".pushn ' ' indent), ts, indent⟩
   currColumn         := return (←get).column
-  withTag t x        := modifyGet fun ⟨currOut, currCol⟩ =>
-    let ⟨ret, out, col⟩ := x { column := currCol }
-    (ret, ⟨currOut.appendTag t out, col⟩)
+  startTag n         := modify fun ⟨out, ts, col⟩ => ⟨TaggedText.text "", (n, out) :: ts, col⟩
+  endTags n          := modify fun ⟨out, ts, col⟩ =>
+    let (ended, left) := (ts.take n, ts.drop n)
+    let out' := ended.foldl (init := out) fun acc (n, top) => top.appendTag n acc
+    ⟨out', left, col⟩
 
 def prettyTagged (f : Format) (w : Nat := Std.Format.defWidth) : TaggedText Nat :=
   (f.prettyM w : StateM TaggedState Unit) {} |>.snd.out

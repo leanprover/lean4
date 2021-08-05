@@ -124,7 +124,7 @@ def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         let fromJsonFuncId := mkIdent ctx.auxFunNames[0]
         let discrs ← mkDiscrs header indVal
         let alts ← mkAlts indVal fromJsonFuncId
-        let mut auxCmd ← alts.foldrM (fun xs x => `($xs <|> $x)) (←`(Except.error "no inductive constructor matched"))
+        let mut auxCmd ← alts.foldrM (fun xs x => `(Except.orElseLazy $xs (fun _ => $x))) (←`(Except.error "no inductive constructor matched"))
         if ctx.usePartial then
           let letDecls ← mkLocalInstanceLetDecls ctx ``FromJson header.argNames
           auxCmd ← mkLet letDecls auxCmd

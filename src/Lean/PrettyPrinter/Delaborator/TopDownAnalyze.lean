@@ -277,6 +277,9 @@ where
       inspectAux (fb.instantiate1 args[i]) (mb.instantiate1 mvars[i]) (i+1) args mvars
     | _, _ => return ()
 
+partial def trivialBottomUp (e : Expr) : AnalyzeM Bool := do
+  e.isFVar || e.isMVar || e.isConst
+
 partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 10) : AnalyzeM Bool := do
   -- Here we check if `e` can be safely elaborated without its expected type.
   -- These are incomplete (and possibly unsound) heuristics.
@@ -296,14 +299,11 @@ partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
     for i in [:mvars.size] do
       if bInfos[i] == BinderInfo.instImplicit then
         inspectOutParams args[i] mvars[i]
-      else if ← bInfos[i] == BinderInfo.default <&&> typeUnknown mvars[i] then
+      else if ← bInfos[i] == BinderInfo.default <&&> (typeUnknown mvars[i] <||> trivialBottomUp args[i]) then
         if ← canBottomUp args[i] mvars[i] fuel then tryUnify args[i] mvars[i]
     if ← (isHBinOp e <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then tryUnify mvars[0] mvars[1]
     if mvar?.isSome then tryUnify resultType (← inferType mvar?.get!)
     return !(← valUnknown resultType)
-
-partial def trivialBottomUp (e : Expr) : AnalyzeM Bool := do
-  e.isFVar || e.isMVar || e.isConst
 
 def withKnowing (knowsType knowsLevel : Bool) (x : AnalyzeM α) : AnalyzeM α := do
   withReader (fun ctx => { ctx with knowsType := knowsType, knowsLevel := knowsLevel }) x

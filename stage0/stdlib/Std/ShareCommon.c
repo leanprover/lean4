@@ -52,6 +52,7 @@ lean_object* lean_state_sharecommon(lean_object*, lean_object*);
 lean_object* l_Std_ShareCommon_PersistentState_inhabited;
 lean_object* l_Std_ShareCommonT_run(lean_object*, lean_object*);
 lean_object* lean_object_set_insert(lean_object*, lean_object*);
+lean_object* l_Std_mkHashMap___at_Std_ShareCommon_mkObjectMap___spec__1___boxed(lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Std_ShareCommon_ObjectMap_find_x3f___spec__1(lean_object*, lean_object*);
 uint8_t l_List_elem___at_Std_ShareCommon_ObjectSet_insert___spec__2(lean_object*, lean_object*);
 lean_object* l_List_elem___at_Std_ShareCommon_ObjectSet_insert___spec__2___boxed(lean_object*, lean_object*);
@@ -211,6 +212,15 @@ _start:
 lean_object* x_2; 
 lean_dec(x_1);
 x_2 = l_Std_ShareCommon_mkObjectMap___closed__1;
+return x_2;
+}
+}
+lean_object* l_Std_mkHashMap___at_Std_ShareCommon_mkObjectMap___spec__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_mkHashMap___at_Std_ShareCommon_mkObjectMap___spec__1(x_1);
+lean_dec(x_1);
 return x_2;
 }
 }

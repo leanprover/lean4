@@ -294,6 +294,7 @@ lean_object* l_Lean_instInhabitedAttributeImpl;
 static lean_object* l_Lean_mkAttributeImplOfBuilder___closed__2;
 lean_object* l_Lean_Attribute_Builtin_getPrio(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_fold___at_Lean_registerEnumAttributes___spec__1___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_Std_mkHashMap___at_Lean_initFn____x40_Lean_Attributes___hyg_2223____spec__1___boxed(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Attribute_Builtin_getIdent___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__2___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -9218,7 +9219,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Attributes___hyg_2223____clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
@@ -9230,6 +9231,15 @@ lean_object* x_2; lean_object* x_3;
 x_2 = l_Lean_initFn____x40_Lean_Attributes___hyg_2223____closed__1;
 x_3 = l_IO_mkRef___rarg(x_2, x_1);
 return x_3;
+}
+}
+lean_object* l_Std_mkHashMap___at_Lean_initFn____x40_Lean_Attributes___hyg_2223____spec__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_mkHashMap___at_Lean_initFn____x40_Lean_Attributes___hyg_2223____spec__1(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 uint8_t l_Std_AssocList_contains___at_Lean_registerAttributeImplBuilder___spec__2(lean_object* x_1, lean_object* x_2) {

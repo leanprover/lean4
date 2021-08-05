@@ -1804,7 +1804,7 @@ static lean_object* _init_l_Lean_Meta_instInhabitedSavedState___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }

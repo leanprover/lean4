@@ -228,6 +228,7 @@ lean_object* l_Array_mapMUnsafe_map___at___private_Lean_MetavarContext_0__Lean_M
 lean_object* l_Lean_MetavarContext_getDelayedRoot_match__2(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_MetavarContext_instantiateMVars___spec__13___rarg(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_MetavarContext_MkBinding_collectDeps___spec__14(lean_object*, lean_object*, size_t, size_t);
+lean_object* l_Std_mkHashMap___at_Lean_MetavarContext_instantiateMVars___spec__1___boxed(lean_object*);
 lean_object* l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_instantiateLevelMVars___rarg___lambda__7(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_MetavarContext_localDeclDependsOn___spec__8(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -23587,7 +23588,7 @@ static lean_object* _init_l_Lean_MetavarContext_instantiateMVars___lambda__1___c
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
@@ -23813,6 +23814,15 @@ lean_closure_set(x_5, 1, x_2);
 x_6 = l_runST___rarg(x_5);
 return x_6;
 }
+}
+}
+lean_object* l_Std_mkHashMap___at_Lean_MetavarContext_instantiateMVars___spec__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_mkHashMap___at_Lean_MetavarContext_instantiateMVars___spec__1(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_MetavarContext_instantiateMVars___spec__3___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -32791,7 +32801,7 @@ static lean_object* _init_l_Lean_MetavarContext_MkBinding_State_cache___default_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }

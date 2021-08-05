@@ -114,6 +114,7 @@ structure Header where
   binders     : Array Syntax
   argNames    : Array Name
   targetNames : Array Name
+  targetType  : Syntax
 
 def mkHeader (ctx : Context) (className : Name) (arity : Nat) (indVal : InductiveVal) : TermElabM Header := do
   let argNames      ← mkInductArgNames indVal
@@ -128,6 +129,7 @@ def mkHeader (ctx : Context) (className : Name) (arity : Nat) (indVal : Inductiv
     binders     := binders
     argNames    := argNames
     targetNames := targetNames
+    targetType  := targetType
   }
 
 def mkDiscrs (header : Header) (indVal : InductiveVal) : TermElabM (Array Syntax) := do

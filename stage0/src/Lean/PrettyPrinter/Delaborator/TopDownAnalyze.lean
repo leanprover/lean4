@@ -192,6 +192,7 @@ def isHBinOp (e : Expr) : Bool := do
   ops.any fun op => op == f.constName!
 
 def replaceLPsWithVars (e : Expr) : MetaM Expr := do
+  if !e.hasLevelParam then return e
   let lps := collectLevelParams {} e |>.params
   let mut replaceMap : Std.HashMap Name Level := {}
   for lp in lps do replaceMap := replaceMap.insert lp (← mkFreshLevelMVar)
@@ -276,6 +277,9 @@ where
       inspectAux (fb.instantiate1 args[i]) (mb.instantiate1 mvars[i]) (i+1) args mvars
     | _, _ => return ()
 
+partial def trivialBottomUp (e : Expr) : AnalyzeM Bool := do
+  e.isFVar || e.isMVar || e.isConst
+
 partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 10) : AnalyzeM Bool := do
   -- Here we check if `e` can be safely elaborated without its expected type.
   -- These are incomplete (and possibly unsound) heuristics.
@@ -295,14 +299,11 @@ partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
     for i in [:mvars.size] do
       if bInfos[i] == BinderInfo.instImplicit then
         inspectOutParams args[i] mvars[i]
-      else if bInfos[i] == BinderInfo.default then
+      else if ← bInfos[i] == BinderInfo.default <&&> (typeUnknown mvars[i] <||> trivialBottomUp args[i]) then
         if ← canBottomUp args[i] mvars[i] fuel then tryUnify args[i] mvars[i]
     if ← (isHBinOp e <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then tryUnify mvars[0] mvars[1]
     if mvar?.isSome then tryUnify resultType (← inferType mvar?.get!)
     return !(← valUnknown resultType)
-
-partial def trivialBottomUp (e : Expr) : AnalyzeM Bool := do
-  e.isFVar || e.isMVar || e.isConst
 
 def withKnowing (knowsType knowsLevel : Bool) (x : AnalyzeM α) : AnalyzeM α := do
   withReader (fun ctx => { ctx with knowsType := knowsType, knowsLevel := knowsLevel }) x

@@ -151,6 +151,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Match_MatcherInfo___hyg_146____closed__3;
 lean_object* l_Lean_Meta_matchMatcherApp_x3f_match__1(lean_object*);
 static lean_object* l_Lean_Meta_Match_Extension_State_map___default___closed__5;
+lean_object* l_Std_mkHashMap___at_Lean_Meta_Match_Extension_State_map___default___spec__1___boxed(lean_object*);
 lean_object* l_Std_AssocList_find_x3f___at_Lean_Meta_Match_Extension_getMatcherInfo_x3f___spec__6(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_Extension_State_map___default___closed__3;
 static lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Match_MatcherInfo___hyg_146____spec__5___lambda__2___closed__1;
@@ -257,7 +258,7 @@ static lean_object* _init_l_Lean_Meta_Match_Extension_State_map___default___clos
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
@@ -314,11 +315,20 @@ x_1 = l_Lean_Meta_Match_Extension_State_map___default___closed__5;
 return x_1;
 }
 }
+lean_object* l_Std_mkHashMap___at_Lean_Meta_Match_Extension_State_map___default___spec__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_mkHashMap___at_Lean_Meta_Match_Extension_State_map___default___spec__1(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_Meta_Match_Extension_instInhabitedState___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }

@@ -40,6 +40,7 @@ lean_object* l_Lean_Name_getString_x21_match__1___rarg(lean_object*, lean_object
 uint8_t l_Lean_Name_cmp(lean_object*, lean_object*);
 lean_object* l_Lean_Name_isPrefixOf_match__1(lean_object*);
 static lean_object* l_String_toName___closed__1;
+lean_object* l_Std_mkHashMap___at_Lean_NameSSet_empty___spec__2___boxed(lean_object*);
 size_t l_USize_sub(size_t, size_t);
 lean_object* l_Std_RBNode_ins___at_Lean_NameMap_insert___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_replace___at_Lean_NameHashSet_insert___spec__6(lean_object*, lean_object*, lean_object*);
@@ -9690,7 +9691,7 @@ static lean_object* _init_l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1__
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
@@ -9753,6 +9754,15 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1;
 return x_1;
+}
+}
+lean_object* l_Std_mkHashMap___at_Lean_NameSSet_empty___spec__2___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_mkHashMap___at_Lean_NameSSet_empty___spec__2(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_NameSSet_instEmptyCollectionNameSSet() {

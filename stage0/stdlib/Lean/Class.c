@@ -102,6 +102,7 @@ static lean_object* l_Lean_classExtension___closed__6;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_139_(uint8_t, uint8_t);
+lean_object* l_Std_mkHashMap___at_Lean_ClassState_hasOutParam___default___spec__2___boxed(lean_object*);
 static lean_object* l_Lean_classExtension___closed__2;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_Class___hyg_70____spec__5(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -283,7 +284,7 @@ static lean_object* _init_l_Lean_SMap_empty___at_Lean_ClassState_hasOutParam___d
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
@@ -348,11 +349,20 @@ x_1 = l_Lean_SMap_empty___at_Lean_ClassState_hasOutParam___default___spec__1;
 return x_1;
 }
 }
+lean_object* l_Std_mkHashMap___at_Lean_ClassState_hasOutParam___default___spec__2___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_mkHashMap___at_Lean_ClassState_hasOutParam___default___spec__2(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_instInhabitedClassState___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }

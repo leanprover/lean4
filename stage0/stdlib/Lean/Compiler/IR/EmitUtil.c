@@ -55,7 +55,9 @@ lean_object* l_Lean_IR_instHashableVarId___boxed(lean_object*);
 static lean_object* l_Lean_IR_CollectMaps_collectVar___closed__1;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectUsedDecls_collect(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_mkHashMap___at_Lean_IR_mkVarJPMaps___spec__1___boxed(lean_object*);
 uint8_t l_List_foldr___at_Lean_IR_usesModuleFrom___spec__1(lean_object*, uint8_t, lean_object*);
+lean_object* l_Std_mkHashMap___at_Lean_IR_mkVarJPMaps___spec__2___boxed(lean_object*);
 lean_object* l_Lean_IR_instHashableJoinPointId___boxed(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_CollectMaps_collectParams___spec__1(lean_object*, size_t, size_t, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -1336,7 +1338,7 @@ static lean_object* _init_l_Lean_IR_mkVarJPMaps___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
@@ -1345,7 +1347,7 @@ static lean_object* _init_l_Lean_IR_mkVarJPMaps___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
@@ -1369,6 +1371,24 @@ lean_object* x_2; lean_object* x_3;
 x_2 = l_Lean_IR_mkVarJPMaps___closed__3;
 x_3 = l_Lean_IR_CollectMaps_collectDecl(x_1, x_2);
 return x_3;
+}
+}
+lean_object* l_Std_mkHashMap___at_Lean_IR_mkVarJPMaps___spec__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_mkHashMap___at_Lean_IR_mkVarJPMaps___spec__1(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Std_mkHashMap___at_Lean_IR_mkVarJPMaps___spec__2___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_mkHashMap___at_Lean_IR_mkVarJPMaps___spec__2(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* initialize_Init(lean_object*);

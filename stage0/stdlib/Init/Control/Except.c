@@ -30,6 +30,7 @@ lean_object* l_instMonadExceptOfExceptT___boxed(lean_object*, lean_object*, lean
 static lean_object* l_Except_instMonadExcept___closed__7;
 lean_object* l_Except_instMonadExcept(lean_object*);
 lean_object* l_observing___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Except_orElseLazy___rarg(lean_object*, lean_object*);
 lean_object* l_Except_toOption___rarg___boxed(lean_object*);
 lean_object* l_ExceptT_instMonadLiftExceptExceptT(lean_object*, lean_object*);
 lean_object* l_Except_toBool_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -116,6 +117,7 @@ lean_object* l_instMonadExceptOfExcept(lean_object*);
 lean_object* l_instMonadExceptOfExcept___lambda__1(lean_object*, lean_object*);
 lean_object* l_ExceptT_instMonadLiftExceptExceptT___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_bindCont___at_ExceptT_instMonadExceptT___spec__1(lean_object*, lean_object*);
+lean_object* l_Except_orElseLazy(lean_object*, lean_object*);
 lean_object* l_ExceptT_tryCatch(lean_object*, lean_object*);
 lean_object* l_ExceptT_finally_match__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Except_instMonadExcept___closed__5;
@@ -500,6 +502,47 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_Except_tryCatch___rarg), 2, 0);
+return x_3;
+}
+}
+lean_object* l_Except_orElseLazy___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_3; lean_object* x_4; 
+lean_dec(x_1);
+x_3 = lean_box(0);
+x_4 = lean_apply_1(x_2, x_3);
+return x_4;
+}
+else
+{
+uint8_t x_5; 
+lean_dec(x_2);
+x_5 = !lean_is_exclusive(x_1);
+if (x_5 == 0)
+{
+return x_1;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec(x_1);
+x_7 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_7, 0, x_6);
+return x_7;
+}
+}
+}
+}
+lean_object* l_Except_orElseLazy(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Except_orElseLazy___rarg), 2, 0);
 return x_3;
 }
 }

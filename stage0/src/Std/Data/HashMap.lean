@@ -18,8 +18,13 @@ structure HashMapImp (α : Type u) (β : Type v) where
   size       : Nat
   buckets    : HashMapBucket α β
 
-def mkHashMapImp {α : Type u} {β : Type v} (nbuckets := 8) : HashMapImp α β :=
-  let n := if nbuckets = 0 then 8 else nbuckets;
+private def numBucketsForCapacity (capacity : Nat) : Nat :=
+  -- a "load factor" of 0.75 is the usual standard for hash maps
+  capacity * 4 / 3
+
+def mkHashMapImp {α : Type u} {β : Type v} (capacity := 0) : HashMapImp α β :=
+  let_fun nbuckets := numBucketsForCapacity capacity
+  let n := if nbuckets = 0 then 8 else nbuckets
   { size       := 0,
     buckets    :=
     ⟨ mkArray n AssocList.nil,
@@ -99,7 +104,7 @@ def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapI
     else
       let size'    := size + 1
       let buckets' := buckets.update i (AssocList.cons a b bkt) h
-      if size' ≤ buckets.val.size then
+      if numBucketsForCapacity size' ≤ buckets.val.size then
         ({ size := size', buckets := buckets' }, false)
       else
         (expand size' buckets', false)
@@ -124,8 +129,8 @@ def HashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] :=
 
 open Std.HashMapImp
 
-def mkHashMap {α : Type u} {β : Type v} [BEq α] [Hashable α] (nbuckets := 8) : HashMap α β :=
-  ⟨ mkHashMapImp nbuckets, WellFormed.mkWff nbuckets ⟩
+def mkHashMap {α : Type u} {β : Type v} [BEq α] [Hashable α] (capacity := 0) : HashMap α β :=
+  ⟨ mkHashMapImp capacity, WellFormed.mkWff capacity ⟩
 
 namespace HashMap
 instance [BEq α] [Hashable α] : Inhabited (HashMap α β) where

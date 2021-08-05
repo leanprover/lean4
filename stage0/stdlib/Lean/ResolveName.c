@@ -48,6 +48,7 @@ static lean_object* l_List_toString___at_Lean_resolveGlobalConstNoOverloadCore__
 lean_object* l_List_map___at_Lean_resolveGlobalConstCore___spec__2(lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveUsingNamespace_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_mkHashMap___at_Lean_initFn____x40_Lean_ResolveName___hyg_55____spec__1___boxed(lean_object*);
 static lean_object* l_Lean_aliasExtension___closed__3;
 static lean_object* l_Lean_resolveGlobalConst___rarg___closed__2;
 lean_object* l_Lean_resolveNamespace___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1236,7 +1237,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_55____lamb
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
@@ -1361,6 +1362,15 @@ lean_object* x_2; lean_object* x_3;
 x_2 = l_Lean_initFn____x40_Lean_ResolveName___hyg_55____closed__6;
 x_3 = l_Lean_registerSimplePersistentEnvExtension___at_Lean_initFn____x40_Lean_ResolveName___hyg_55____spec__6(x_2, x_1);
 return x_3;
+}
+}
+lean_object* l_Std_mkHashMap___at_Lean_initFn____x40_Lean_ResolveName___hyg_55____spec__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_mkHashMap___at_Lean_initFn____x40_Lean_ResolveName___hyg_55____spec__1(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_initFn____x40_Lean_ResolveName___hyg_55____spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

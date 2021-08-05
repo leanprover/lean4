@@ -137,6 +137,7 @@ def applyParamMap (decls : Array Decl) (map : ParamMap) : Array Decl :=
 
 structure BorrowInfCtx where
   env      : Environment
+  decls    : Array Decl  -- block of mutually recursive functions
   currFn   : FunId    := arbitrary -- Function being analyzed.
   paramSet : IndexSet := {} -- Set of all function parameters in scope. This is used to implement the heuristic at `ownArgsUsingParams`
 
@@ -259,8 +260,7 @@ def preserveTailCall (x : VarId) (v : Expr) (b : FnBody) : M Unit := do
   let ctx ← read
   match v, b with
   | (Expr.fap g ys), (FnBody.ret (Arg.var z)) =>
-    if ctx.currFn == g && x == z then
-      -- dbgTrace ("preserveTailCall " ++ toString b) $ fun _ => do
+    if ctx.decls.any (·.name == g) && x == z then
       let ps ← getParamInfo (ParamMap.Key.decl g)
       ownParamsUsingArgs ys ps
   | _, _ => pure ()
@@ -300,13 +300,13 @@ partial def collectDecl : Decl → M Unit
   else
     pure ()
 
-def collectDecls (decls : Array Decl) : M ParamMap := do
-  whileModifing (decls.forM collectDecl)
+def collectDecls : M ParamMap := do
+  whileModifing ((← read).decls.forM collectDecl)
   let s ← get
   pure s.paramMap
 
 def infer (env : Environment) (decls : Array Decl) : ParamMap :=
-  collectDecls decls { env := env } |>.run' { paramMap := mkInitParamMap env decls }
+  collectDecls { env, decls } |>.run' { paramMap := mkInitParamMap env decls }
 
 end Borrow
 

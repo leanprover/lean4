@@ -49,7 +49,8 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) : IO
         for modEntries in entries do
           for (decl, initDecl) in modEntries do
             if initDecl.isAnonymous then
-              discard <| IO.ofExcept $ ctx.env.evalConst (IO Unit) ctx.opts decl
+              let initFn ← IO.ofExcept <| ctx.env.evalConst (IO Unit) ctx.opts decl
+              initFn
             else
               runInit ctx.env ctx.opts decl initDecl
   }
@@ -98,7 +99,6 @@ def hasInitAttr (env : Environment) (fn : Name) : Bool :=
   (getInitFnNameFor? env fn).isSome
 
 def setBuiltinInitAttr (env : Environment) (declName : Name) (initFnName : Name := Name.anonymous) : Except String Environment :=
-  -- builtinInitAttr.setParam env declName initFnName -- TODO: use this one
-  regularInitAttr.setParam env declName initFnName
+  builtinInitAttr.setParam env declName initFnName
 
 end Lean

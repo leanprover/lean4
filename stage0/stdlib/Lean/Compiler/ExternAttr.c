@@ -191,7 +191,6 @@ lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_344____lambda__
 static lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_344____spec__1___lambda__4___closed__4;
 lean_object* l_Lean_getConstInfo___at_Lean_getExternConstArity___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_631____at___private_Lean_Meta_Basic_0__Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_279____spec__1(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at_Lean_getExternConstArity___spec__1___closed__1;
@@ -248,6 +247,7 @@ static lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_L
 lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_344____spec__1___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_intersperse___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_getExternConstArity___closed__20;
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at___private_Lean_Meta_Basic_0__Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_279____spec__1(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_getExternAttrData___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_getExternConstArity___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_expandExternPatternAux_match__1___rarg(lean_object*, lean_object*);
@@ -852,7 +852,7 @@ else
 {
 lean_object* x_17; uint8_t x_18; 
 x_17 = lean_box(0);
-x_18 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_631____at___private_Lean_Meta_Basic_0__Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_279____spec__1(x_14, x_17);
+x_18 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at___private_Lean_Meta_Basic_0__Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_279____spec__1(x_14, x_17);
 if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; 

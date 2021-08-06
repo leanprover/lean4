@@ -26,6 +26,10 @@ def toMonad [Monad m] [Alternative m] : Option α → m α
   | some _ => false
   | none   => true
 
+@[inline] def isEqSome [BEq α] : Option α → α → Bool
+  | some a, b => a == b
+  | none,   _ => false
+
 @[inline] protected def bind : Option α → (α → Option β) → Option β
   | none,   b => none
   | some a, b => b a

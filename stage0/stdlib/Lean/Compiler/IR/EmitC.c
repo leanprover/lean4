@@ -38,7 +38,6 @@ lean_object* l_Lean_IR_EmitC_emitMarkPersistent___boxed(lean_object*, lean_objec
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_IR_EmitC_getJPParams___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitUnbox___closed__4;
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_631____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__4;
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__19;
 static lean_object* l_Lean_IR_EmitC_emitInc___lambda__1___closed__1;
@@ -130,6 +129,7 @@ lean_object* l_Lean_expandExternPattern(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitDel(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitFullApp_match__1(lean_object*);
 extern lean_object* l_Lean_closureMaxArgs;
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_IR_IRType_isIrrelevant(lean_object*);
 lean_object* l_Lean_IR_EmitC_emitMarkPersistent(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -3438,7 +3438,7 @@ lean_dec(x_26);
 x_28 = l_Lean_Expr_constName_x3f(x_27);
 lean_dec(x_27);
 x_29 = l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__4;
-x_30 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_631____at_Lean_IR_IRType_beq___spec__1(x_28, x_29);
+x_30 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_IR_IRType_beq___spec__1(x_28, x_29);
 lean_dec(x_28);
 if (x_30 == 0)
 {

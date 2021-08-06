@@ -66,7 +66,7 @@ jobs:
           echo 'max_size = 50M' > /nix/var/cache/ccache/ccache.conf
 
           # install & use Cachix manually since `cachix-action` pushes *all* derivations (incl. `$mod-deps`, stage 2&3, etc.)
-          nix-env -iA cachix -f https://cachix.org/api/v1/install
+          [ -z '${{ secrets.CACHIX_AUTH_TOKEN }}' ] || nix-env -iA cachix -f https://cachix.org/api/v1/install
       - name: Setup CCache Cache
         uses: actions/cache@v2
         with:

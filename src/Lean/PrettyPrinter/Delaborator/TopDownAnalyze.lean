@@ -422,12 +422,11 @@ mutual
       maybeAddBlockImplicit
 
     analyzePi : AnalyzeM Unit := do
-      annotateBool `pp.binderTypes
       withBindingDomain $ withKnowing true false analyze
       withBindingBody Name.anonymous analyze
 
     analyzeLam : AnalyzeM Unit := do
-      if !(← read).knowsType then annotateBool `pp.binderTypes
+      if !(← read).knowsType then annotateBool `pp.funBinderTypes
       withBindingDomain $ withKnowing true false analyze
       withBindingBody Name.anonymous analyze
 

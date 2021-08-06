@@ -81,7 +81,7 @@ end
 #eval checkM `({α : Type} → [ToString α] → α)
 #eval checkM `(∀ x : Nat, x = x)
 #eval checkM `(∀ {x : Nat} [ToString Nat], x = x)
-set_option pp.binderTypes false in
+set_option pp.piBinderTypes false in
 #eval checkM `(∀ x : Nat, x = x)
 
 -- TODO: hide `ofNat`

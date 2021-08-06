@@ -38,10 +38,15 @@ register_builtin_option pp.privateNames : Bool := {
   group    := "pp"
   descr    := "(pretty printer) display internal names assigned to private declarations"
 }
-register_builtin_option pp.binderTypes : Bool := {
+register_builtin_option pp.funBinderTypes : Bool := {
   defValue := false
   group    := "pp"
-  descr    := "(pretty printer) display types of lambda and Pi parameters"
+  descr    := "(pretty printer) display types of lambda parameters"
+}
+register_builtin_option pp.piBinderTypes : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) display types of pi parameters"
 }
 register_builtin_option pp.letVarTypes : Bool := {
   defValue := false
@@ -150,7 +155,8 @@ register_builtin_option g_pp_compact_let : Bool := {
 -/
 
 def getPPAll (o : Options) : Bool := o.get pp.all.name false
-def getPPBinderTypes (o : Options) : Bool := o.get pp.binderTypes.name (getPPAll o)
+def getPPFunBinderTypes (o : Options) : Bool := o.get pp.funBinderTypes.name (getPPAll o)
+def getPPPiBinderTypes (o : Options) : Bool := o.get pp.piBinderTypes.name pp.piBinderTypes.defValue
 def getPPLetVarTypes (o : Options) : Bool := o.get pp.letVarTypes.name (getPPAll o)
 def getPPCoercions (o : Options) : Bool := o.get pp.coercions.name (!getPPAll o)
 def getPPExplicit (o : Options) : Bool := o.get pp.explicit.name (getPPAll o)

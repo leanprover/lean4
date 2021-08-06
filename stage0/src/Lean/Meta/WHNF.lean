@@ -303,6 +303,7 @@ def project? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
     else
       return none
 
+/-- Reduce kernel projection `Expr.proj ..` expression. -/
 def reduceProj? (e : Expr) : MetaM (Option Expr) := do
   match e with
   | Expr.proj _ i c _ => project? c i

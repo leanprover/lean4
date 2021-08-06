@@ -622,11 +622,11 @@ def delabProjectionApp : Delab := whenPPOption getPPStructureProjections $ do
   guard $ !info.fromClass
   -- projection function should be fully applied (#struct params + 1 instance parameter)
   -- TODO: support over-application
-  guard $ e.getAppNumArgs == info.nparams + 1
+  guard $ e.getAppNumArgs == info.numParams + 1
   -- If pp.explicit is true, and the structure has parameters, we should not
   -- use field notation because we will not be able to see the parameters.
   let expl ← getPPOption getPPExplicit
-  guard $ !expl || info.nparams == 0
+  guard $ !expl || info.numParams == 0
   let appStx ← withAppArg delab
   `($(appStx).$(mkIdent f):ident)
 

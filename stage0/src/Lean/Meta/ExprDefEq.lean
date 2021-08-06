@@ -1293,12 +1293,15 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
     else if (← isDelayedAssignedHead sFn s) then
       let s ← instantiateMVars s
       isDefEqQuick t s
-    else if (← isSynthetic tFn <&&> trySynthPending tFn) then
-      let t ← instantiateMVars t
-      isDefEqQuick t s
-    else if (← isSynthetic sFn <&&> trySynthPending sFn) then
-      let s ← instantiateMVars s
-      isDefEqQuick t s
+    /- Remark: we do not eagerly synthesize synthetic metavariables when the constraint is not stuck.
+       Reason: we may fail to solve a constraint of the form `?x =?= A` when the synthesized instance
+       is not definitionally equal to `A`. We left the code here as a remainder of this issue. -/
+--    else if (← isSynthetic tFn <&&> trySynthPending tFn) then
+--      let t ← instantiateMVars t
+--     isDefEqQuick t s
+--    else if (← isSynthetic sFn <&&> trySynthPending sFn) then
+--      let s ← instantiateMVars s
+--      isDefEqQuick t s
     else if tFn.isMVar && sFn.isMVar && tFn == sFn then
       Bool.toLBool <$> isDefEqMVarSelf tFn t.getAppArgs s.getAppArgs
     else
@@ -1362,7 +1365,8 @@ end
       failK
   | none   => failK
 
-private def isDefEqOnFailure (t s : Expr) : MetaM Bool :=
+private def isDefEqOnFailure (t s : Expr) : MetaM Bool := do
+  trace[Meta.isDefEq.onFailure] "{t} =?= {s}"
   unstuckMVar t (fun t => Meta.isExprDefEqAux t s) <|
   unstuckMVar s (fun s => Meta.isExprDefEqAux t s) <|
   tryUnificationHints t s <||> tryUnificationHints s t

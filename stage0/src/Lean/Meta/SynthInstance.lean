@@ -647,20 +647,32 @@ def synthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM Ex
 private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <| withMVarContext mvarId do
   let mvarDecl ← getMVarDecl mvarId
   match mvarDecl.kind with
-  | MetavarKind.synthetic =>
+  | MetavarKind.syntheticOpaque =>
+    return false
+  | _ =>
+    /- Check whether the type of the given metavariable is a class or not. If yes, then try to synthesize
+       it using type class resolution. We only do it for `synthetic` and `natural` metavariables. -/
     match (← isClass? mvarDecl.type) with
-    | none   => pure false
-    | some _ => do
-      let val? ← catchInternalId isDefEqStuckExceptionId (synthInstance? mvarDecl.type (maxResultSize? := none)) (fun _ => pure none)
-      match val? with
-      | none     => pure false
-      | some val =>
-        if (← isExprMVarAssigned mvarId) then
-          pure false
-        else
-          assignExprMVar mvarId val
-          pure true
-  | _ => pure false
+    | none   =>
+      return false
+    | some _ =>
+      /- TODO: use a configuration option instead of the hard-coded limit `1`. -/
+      if (← read).synthPendingDepth > 1 then
+        trace[Meta.synthPending] "too many nested synthPending invocations"
+        return false
+      else
+        withReader (fun ctx => { ctx with synthPendingDepth := ctx.synthPendingDepth + 1 }) do
+          trace[Meta.synthPending] "synthPending {mkMVar mvarId}"
+          let val? ← catchInternalId isDefEqStuckExceptionId (synthInstance? mvarDecl.type (maxResultSize? := none)) (fun _ => pure none)
+          match val? with
+          | none     =>
+            return false
+          | some val =>
+            if (← isExprMVarAssigned mvarId) then
+              return false
+            else
+              assignExprMVar mvarId val
+              return true
 
 builtin_initialize
   registerTraceClass `Meta.synthInstance
@@ -669,5 +681,6 @@ builtin_initialize
   registerTraceClass `Meta.synthInstance.tryResolve
   registerTraceClass `Meta.synthInstance.resume
   registerTraceClass `Meta.synthInstance.generate
+  registerTraceClass `Meta.synthPending
 
 end Lean.Meta

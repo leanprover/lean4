@@ -28,6 +28,7 @@ lean_object* l_Std_mkHashMap___at_Lean_KeyedDeclsAttribute_instInhabitedExtensio
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__9___closed__1;
 lean_object* l_Std_AssocList_find_x3f___at_Lean_KeyedDeclsAttribute_getEntries___spec__8(lean_object*);
+extern lean_object* l_Lean_builtinInitAttr;
 static lean_object* l_Lean_instInhabitedKeyedDeclsAttribute___lambda__6___closed__1;
 lean_object* l_Lean_instInhabitedKeyedDeclsAttribute___lambda__6___boxed(lean_object*);
 static lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___closed__4;
@@ -219,7 +220,6 @@ lean_object* l_IO_ofExcept___at_Lean_KeyedDeclsAttribute_declareBuiltin___spec__
 lean_object* l_Lean_SMap_find_x3f___at_Lean_KeyedDeclsAttribute_getEntries___spec__4___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedKeyedDeclsAttribute___lambda__1(lean_object*);
 static lean_object* l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__19;
-extern lean_object* l_Lean_regularInitAttr;
 lean_object* l_Lean_KeyedDeclsAttribute_init_match__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__11;
 static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_KeyedDeclsAttribute_getEntries___spec__3___rarg___closed__4;
@@ -1785,7 +1785,7 @@ lean_dec(x_5);
 x_63 = lean_ctor_get(x_30, 0);
 lean_inc(x_63);
 lean_dec(x_30);
-x_64 = l_Lean_regularInitAttr;
+x_64 = l_Lean_builtinInitAttr;
 x_65 = lean_box(0);
 x_66 = l_Lean_ParametricAttribute_setParam___rarg(x_64, x_63, x_8, x_65);
 x_67 = l_IO_ofExcept___at_Lean_KeyedDeclsAttribute_declareBuiltin___spec__1(x_66, x_6);

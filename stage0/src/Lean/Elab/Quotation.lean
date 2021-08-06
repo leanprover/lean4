@@ -32,8 +32,10 @@ private partial def floatOutAntiquotTerms : Syntax → StateT (Syntax → TermEl
   | stx => pure stx
 
 private def getSepFromSplice (splice : Syntax) : Syntax := do
-  let Syntax.atom _ sep ← getAntiquotSpliceSuffix splice | unreachable!
-  Syntax.mkStrLit (sep.dropRight 1)
+  if let Syntax.atom _ sep := getAntiquotSpliceSuffix splice then
+    Syntax.mkStrLit (sep.dropRight 1)
+  else
+    unreachable!
 
 partial def mkTuple : Array Syntax → TermElabM Syntax
   | #[]  => `(Unit.unit)

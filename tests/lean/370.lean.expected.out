@@ -1,0 +1,7 @@
+370.lean:2:6-2:14: error: `←` and `<-` are not allowed in pure `do` blocks, i.e., blocks where Lean implicitly used the `Id` monad
+370.lean:1:0-2:16: error: cannot evaluate code because it uses 'sorry' and/or contains errors
+370.lean:5:10-5:18: error: `←` and `<-` are not allowed in pure `do` blocks, i.e., blocks where Lean implicitly used the `Id` monad
+370.lean:8:2-8:16: error: `←` and `<-` are not allowed in pure `do` blocks, i.e., blocks where Lean implicitly used the `Id` monad
+370.lean:12:16-12:24: error: `←` and `<-` are not allowed in pure `do` blocks, i.e., blocks where Lean implicitly used the `Id` monad
+370.lean:19:2-19:12: error: `←` and `<-` are not allowed in pure `do` blocks, i.e., blocks where Lean implicitly used the `Id` monad
+370.lean:23:2-23:26: error: `←` and `<-` are not allowed in pure `do` blocks, i.e., blocks where Lean implicitly used the `Id` monad

@@ -296,9 +296,6 @@ def stackMkInjEqSnippet :=
 
 def typeAs (α : Type u) (a : α) := ()
 
-def natIdNat := typeAs Nat (do let x ← pure 1; return x + x)
-#testDelabN natIdNat
-
 #testDelabN Nat.brecOn
 #testDelabN Nat.below
 #testDelabN Nat.mod_lt

@@ -100,7 +100,7 @@ set_option pp.structureInstanceTypes true in
 #eval checkM `(id (fun a => a) 0)
 
 #eval checkM `(typeAs Nat (do
-  let x ← pure 1
+  let x := 1
   discard <| pure 2
   let y := 3
   return x + y))

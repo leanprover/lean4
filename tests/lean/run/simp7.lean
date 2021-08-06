@@ -39,7 +39,7 @@ theorem ex5 (x : Nat) : foo + x = 10 + x := by
   done
 
 def g (x : Nat) : Nat := do
-  let x ← pure x
+  let x := x
   return x
 
 theorem ex6 : g x = x := by

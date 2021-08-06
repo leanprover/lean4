@@ -89,12 +89,13 @@ structure ExtractMonadResult where
   α            : Expr
   hasBindInst  : Expr
   expectedType : Expr
+  isPure       : Bool -- `true` when it is a pure `do` block. That is, Lean implicitly inserted the `Id` Monad.
 
 private def mkIdBindFor (type : Expr) : TermElabM ExtractMonadResult := do
   let u ← getDecLevel type
   let id        := Lean.mkConst `Id [u]
   let idBindVal := Lean.mkConst `Id.hasBind [u]
-  pure { m := id, hasBindInst := idBindVal, α := type, expectedType := mkApp id type }
+  pure { m := id, hasBindInst := idBindVal, α := type, expectedType := mkApp id type, isPure := true }
 
 private partial def extractBind (expectedType? : Option Expr) : TermElabM ExtractMonadResult := do
   match expectedType? with
@@ -106,7 +107,7 @@ private partial def extractBind (expectedType? : Option Expr) : TermElabM Extrac
         try
           let bindInstType ← mkAppM `Bind #[m]
           let bindInstVal  ← Meta.synthInstance bindInstType
-          return some { m := m, hasBindInst := bindInstVal, α := α, expectedType := expectedType }
+          return some { m := m, hasBindInst := bindInstVal, α := α, expectedType := expectedType, isPure := false }
         catch _ =>
           return none
       | _ =>
@@ -1183,13 +1184,13 @@ def ensureEOS (doElems : List Syntax) : M Unit :=
   unless doElems.isEmpty do
     throwError "must be last element in a 'do' sequence"
 
-private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Syntax → StateT (List Syntax) MacroM Syntax
+private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Syntax → StateT (List Syntax) M Syntax
   | stx@(Syntax.node k args) =>
     if liftMethodDelimiter k then
       return stx
     else if k == `Lean.Parser.Term.liftMethod && !inQuot then withFreshMacroScope do
       if inBinder then
-        Macro.throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`"
+        throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`"
       let term := args[1]
       let term ← expandLiftMethodAux inQuot inBinder term
       let auxDoElem ← `(doElem| let a ← $term:term)
@@ -1202,7 +1203,7 @@ private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Synt
       return Syntax.node k args
   | stx => pure stx
 
-def expandLiftMethod (doElem : Syntax) : MacroM (List Syntax × Syntax) := do
+def expandLiftMethod (doElem : Syntax) : M (List Syntax × Syntax) := do
   if !hasLiftMethod doElem then
     pure ([], doElem)
   else
@@ -1525,7 +1526,7 @@ mutual
       match (← liftMacroM <| expandDoIf? doElem) with
       | some doElem => doSeqToCode (doElem::doElems)
       | none =>
-        let (liftedDoElems, doElem) ← liftM (liftMacroM <| expandLiftMethod doElem : TermElabM _)
+        let (liftedDoElems, doElem) ← expandLiftMethod doElem
         if !liftedDoElems.isEmpty then
           doSeqToCode (liftedDoElems ++ [doElem] ++ doElems)
         else
@@ -1591,7 +1592,7 @@ mutual
 end
 
 def run (doStx : Syntax) (m : Syntax) : TermElabM CodeBlock :=
-  (doSeqToCode <| getDoSeqElems <| getDoSeq doStx).run { ref := doStx, m := m }
+  (doSeqToCode <| getDoSeqElems <| getDoSeq doStx).run { ref := doStx, m }
 
 end ToCodeBlock
 
@@ -1604,10 +1605,19 @@ private def mkMonadAlias (m : Expr) : TermElabM Syntax := do
   assignExprMVar mvar.mvarId! m
   pure result
 
+private partial def ensureArrowNotUsed : Syntax → MacroM Unit
+  | stx@(Syntax.node k args) => do
+    if k == ``Parser.Term.liftMethod || k == ``Parser.Term.doLetArrow || k == ``Parser.Term.doReassignArrow || k == ``Parser.Term.doIfLetBind then
+      Macro.throwErrorAt stx "`←` and `<-` are not allowed in pure `do` blocks, i.e., blocks where Lean implicitly used the `Id` monad"
+    args.forM ensureArrowNotUsed
+  | _ => pure ()
+
 @[builtinTermElab «do»]
 def elabDo : TermElab := fun stx expectedType? => do
   tryPostponeIfNoneOrMVar expectedType?
   let bindInfo ← extractBind expectedType?
+  if bindInfo.isPure then
+    liftMacroM <| ensureArrowNotUsed stx
   let m ← mkMonadAlias bindInfo.m
   let codeBlock ← ToCodeBlock.run stx m
   let stxNew ← liftMacroM $ ToTerm.run codeBlock.code m

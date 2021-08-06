@@ -209,10 +209,10 @@ def checkpointDefEq (t s : Expr) : MetaM Bool := do
     isDefEqAssigning t s
 
 def isHigherOrder (type : Expr) : MetaM Bool := do
-  withTransparency TransparencyMode.all do forallTelescopeReducing type fun xs b => xs.size > 0 && b.isSort
+  forallTelescopeReducing type fun xs b => xs.size > 0 && b.isSort
 
 def isFunLike (e : Expr) : MetaM Bool := do
-  withTransparency TransparencyMode.all do forallTelescopeReducing (← inferType e) fun xs b => xs.size > 0
+  forallTelescopeReducing (← inferType e) fun xs b => xs.size > 0
 
 def isSubstLike (e : Expr) : Bool :=
   e.isAppOfArity `Eq.ndrec 6 || e.isAppOfArity `Eq.rec 6
@@ -277,8 +277,12 @@ where
       inspectAux (fb.instantiate1 args[i]) (mb.instantiate1 mvars[i]) (i+1) args mvars
     | _, _ => return ()
 
-partial def trivialBottomUp (e : Expr) : AnalyzeM Bool := do
-  e.isFVar || e.isMVar || e.isConst
+partial def isTrivialBottomUp (e : Expr) : AnalyzeM Bool := do
+  let opts ← getOptions
+  return e.isFVar
+         || e.isConst || e.isMVar || e.isNatLit || e.isStringLit || e.isSort
+         || (getPPAnalyzeTrustOfNat opts && e.isAppOfArity `OfNat.ofNat 3)
+         || (getPPAnalyzeTrustOfScientific opts && e.isAppOfArity `OfScientific.ofScientific 5)
 
 partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 10) : AnalyzeM Bool := do
   -- Here we check if `e` can be safely elaborated without its expected type.
@@ -287,10 +291,7 @@ partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
   match fuel with
   | 0 => false
   | fuel + 1 =>
-    if e.isFVar || e.isMVar || e.isNatLit || e.isStringLit || e.isSort then return true
-    if getPPAnalyzeTrustOfNat (← getOptions) && e.isAppOfArity `OfNat.ofNat 3 then return true
-    if getPPAnalyzeTrustOfScientific (← getOptions) && e.isAppOfArity `OfScientific.ofScientific 5 then return true
-
+    if ← isTrivialBottomUp e then return true
     let f := e.getAppFn
     if !f.isConst && !f.isFVar then return false
     let args := e.getAppArgs
@@ -299,8 +300,9 @@ partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
     for i in [:mvars.size] do
       if bInfos[i] == BinderInfo.instImplicit then
         inspectOutParams args[i] mvars[i]
-      else if ← bInfos[i] == BinderInfo.default <&&> (typeUnknown mvars[i] <||> trivialBottomUp args[i]) then
-        if ← canBottomUp args[i] mvars[i] fuel then tryUnify args[i] mvars[i]
+      else if ← bInfos[i] == BinderInfo.default then
+        if ← isTrivialBottomUp args[i] then tryUnify args[i] mvars[i]
+        else if ← typeUnknown mvars[i] <&&> canBottomUp args[i] mvars[i] fuel then tryUnify args[i] mvars[i]
     if ← (isHBinOp e <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then tryUnify mvars[0] mvars[1]
     if mvar?.isSome then tryUnify resultType (← inferType mvar?.get!)
     return !(← valUnknown resultType)
@@ -345,11 +347,10 @@ mutual
     trace[pp.analyze] "{(← read).knowsType}.{(← read).knowsLevel}"
     let e ← getExpr
     let opts ← getOptions
-
     if ← !e.isAtomic <&&> !(getPPProofs opts) <&&> (try Meta.isProof e catch ex => false) then
       if getPPProofsWithType opts then
         withType $ withKnowing true true $ analyze
-      else pure ()
+      return ()
     else
       withReader (fun ctx => { ctx with parentIsApp := parentIsApp }) do
         match (← getExpr) with
@@ -383,7 +384,7 @@ mutual
 
     analyzeAppStaged (f : Expr) (args : Array Expr) : AnalyzeM Unit := do
       let fType ← replaceLPsWithVars (← inferType f)
-      let ⟨mvars, bInfos, resultType⟩ ← withTransparency TransparencyMode.all $ forallMetaBoundedTelescope fType args.size
+      let ⟨mvars, bInfos, resultType⟩ ← forallMetaBoundedTelescope fType args.size
       let rest := args.extract mvars.size args.size
       let args := args.shrink mvars.size
 
@@ -497,7 +498,7 @@ mutual
       let ⟨_, _, args, mvars, bInfos, _⟩ ← read
       for i in [:args.size] do
         if bInfos[i] == BinderInfo.default then
-          if ← valUnknown mvars[i] <&&> trivialBottomUp args[i] then
+          if ← valUnknown mvars[i] <&&> isTrivialBottomUp args[i] then
             tryUnify args[i] mvars[i]
             modify fun s => { s with bottomUps := s.bottomUps.set! i true }
 

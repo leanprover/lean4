@@ -3,6 +3,11 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+import Lean.CoreM
+import Lean.Parser.Extension
+import Lean.KeyedDeclsAttribute
+import Lean.ParserCompiler.Attribute
+import Lean.PrettyPrinter.Basic
 
 /-!
 The formatter turns a `Syntax` tree into a `Format` object, inserting both mandatory whitespace (to separate adjacent
@@ -12,12 +17,6 @@ The basic approach works much like the parenthesizer: A right-to-left traversal 
 parser-specific handlers registered via attributes. The traversal is right-to-left so that when emitting a token, we
 already know the text following it and can decide whether or not whitespace between the two is necessary.
 -/
-
-import Lean.CoreM
-import Lean.Parser.Extension
-import Lean.KeyedDeclsAttribute
-import Lean.ParserCompiler.Attribute
-import Lean.PrettyPrinter.Basic
 
 namespace Lean
 namespace PrettyPrinter

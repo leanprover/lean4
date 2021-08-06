@@ -3,6 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+import Lean.KeyedDeclsAttribute
+import Lean.ProjFns
+import Lean.Syntax
+import Lean.Meta.Match
+import Lean.Elab.Term
+import Lean.PrettyPrinter.Delaborator.Options
+import Lean.PrettyPrinter.Delaborator.SubExpr
+import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
 
 /-!
 The delaborator is the first stage of the pretty printer, and the inverse of the
@@ -24,15 +32,6 @@ back to the subterm.
 
 The delaborator is extensible via the `[delab]` attribute.
 -/
-
-import Lean.KeyedDeclsAttribute
-import Lean.ProjFns
-import Lean.Syntax
-import Lean.Meta.Match
-import Lean.Elab.Term
-import Lean.PrettyPrinter.Delaborator.Options
-import Lean.PrettyPrinter.Delaborator.SubExpr
-import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
 
 namespace Lean.PrettyPrinter.Delaborator
 

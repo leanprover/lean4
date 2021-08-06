@@ -195,14 +195,15 @@ structure GoalsAtResult where
 partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult := do
   t.deepestNodes fun
     | ctx, i@(Info.ofTacticInfo ti), cs => OptionM.run do
-      let (some pos, some tailPos) ← pure (i.pos?, i.tailPos?)
-        | failure
-      let trailSize := i.stx.getTrailingSize
-      -- show info at EOF even if strictly outside token + trail
-      let atEOF := tailPos == text.source.bsize
-      guard <| pos ≤ hoverPos ∧ (hoverPos < tailPos + trailSize || atEOF)
-      return { ctxInfo := ctx, tacticInfo := ti, useAfter :=
-        hoverPos > pos && (hoverPos >= tailPos || !cs.any (hasNestedTactic pos tailPos)) }
+      if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
+        let trailSize := i.stx.getTrailingSize
+        -- show info at EOF even if strictly outside token + trail
+        let atEOF := tailPos == text.source.bsize
+        guard <| pos ≤ hoverPos ∧ (hoverPos < tailPos + trailSize || atEOF)
+        return { ctxInfo := ctx, tacticInfo := ti, useAfter :=
+          hoverPos > pos && (hoverPos >= tailPos || !cs.any (hasNestedTactic pos tailPos)) }
+      else
+        failure
     | _, _, _ => none
 where
   hasNestedTactic (pos tailPos) : InfoTree → Bool

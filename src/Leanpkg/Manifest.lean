@@ -16,7 +16,7 @@ inductive Source where
 
 namespace Source
 
-def fromToml (v : Toml.Value) : Option Source :=
+def fromToml (v : Toml.Value) : OptionM Source :=
   (do let Toml.Value.str dir ← v.lookup "path" | none
       path ⟨dir⟩) <|>
   (do let Toml.Value.str url ← v.lookup "git" | none

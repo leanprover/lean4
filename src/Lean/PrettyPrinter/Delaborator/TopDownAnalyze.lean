@@ -477,7 +477,7 @@ mutual
     collectHigherOrders := do
       let ⟨_, _, args, mvars, bInfos, _⟩ ← read
       for i in [:args.size] do
-        if not (← bInfos[i] == BinderInfo.implicit) then continue
+        if not (bInfos[i] == BinderInfo.implicit || bInfos[i] == BinderInfo.strictImplicit) then continue
         if not (← isHigherOrder (← inferType args[i])) then continue
         if getPPAnalyzeTrustId (← getOptions) && isIdLike args[i] then continue
 
@@ -517,8 +517,16 @@ mutual
       let arg := args[i]
       let argType ← inferType arg
 
+      let processNaturalImplicit : AnalyzeAppM Unit := do
+        if (← valUnknown mvars[i] <||> higherOrders[i]) && !forceRegularApp then
+          annotateNamedArg (← mvarName mvars[i])
+          modify fun s => { s with provideds := s.provideds.set! i true }
+        else
+          annotateBool `pp.analysis.skip
+
       withNaryArg (f.getAppNumArgs + i) do
         withTheReader Context (fun ctx => { ctx with inBottomUp := ctx.inBottomUp || bottomUps[i] }) do
+
           match bInfos[i] with
           | BinderInfo.default =>
             if ← !(← valUnknown mvars[i]) <&&> !(← readThe Context).inBottomUp <&&> !(← isFunLike arg) <&&> checkpointDefEq mvars[i] arg then
@@ -526,12 +534,8 @@ mutual
             else
               modify fun s => { s with provideds := s.provideds.set! i true }
 
-          | BinderInfo.implicit =>
-            if (← valUnknown mvars[i] <||> higherOrders[i]) && !forceRegularApp then
-              annotateNamedArg (← mvarName mvars[i])
-              modify fun s => { s with provideds := s.provideds.set! i true }
-            else
-              annotateBool `pp.analysis.skip
+          | BinderInfo.implicit => processNaturalImplicit
+          | BinderInfo.strictImplicit => processNaturalImplicit
 
           | BinderInfo.instImplicit =>
             -- Note: apparently checking valUnknown here is not sound, because the elaborator
@@ -547,7 +551,6 @@ mutual
             else provided := false
             modify fun s => { s with provideds := s.provideds.set! i provided }
           | BinderInfo.auxDecl        => pure ()
-          | BinderInfo.strictImplicit => pure () -- TODO: add support for strict implicit unreachable!
           if (← get).provideds[i] then withKnowing (not (← typeUnknown mvars[i])) true analyze
           tryUnify mvars[i] args[i]
 

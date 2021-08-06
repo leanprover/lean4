@@ -26,13 +26,13 @@ namespace BaseTarget
 def withArtifact (artifact : a) (self : BaseTarget t m b) : BaseTarget t m a :=
   {self with artifact}
 
-def discardArtifact (self : BaseTarget t m a) : BaseTarget t m PUnit :=
+def withoutArtifact (self : BaseTarget t m a) : BaseTarget t m PUnit :=
   self.withArtifact ()
 
 def withTrace (trace : t) (self : BaseTarget r m a) : BaseTarget t m a :=
   {self with trace}
 
-def discardTrace (self : BaseTarget t m a) : BaseTarget PUnit m a :=
+def withoutTrace (self : BaseTarget t m a) : BaseTarget PUnit m a :=
   self.withTrace ()
 
 def withTask (task : m PUnit) (self : BaseTarget t n a) : BaseTarget t m a :=
@@ -55,8 +55,6 @@ end BaseTarget
 --------------------------------------------------------------------------------
 -- # Active Targets
 --------------------------------------------------------------------------------
-
--- ## Active Target
 
 def ActiveTarget t m a :=
   BaseTarget t m a
@@ -127,31 +125,20 @@ def opaque (trace : t) (task : m PUnit) : Target t m PUnit :=
 protected def pure [Pure m] (artifact : a) (trace : t) : Target t m a :=
   ⟨artifact, trace, pure ()⟩
 
-def nil [Pure m] [Inhabited t] : Target t m PUnit :=
-  Target.pure () Inhabited.default
+def runAsync [Monad m] [Async m n] (self : Target t m a) : m (ActiveTarget t n a) := do
+  self.withTask <| ← async self.task
 
-def spawn [Async m n] (self : Target t m a) : m (n PUnit) :=
+def materializeAsync [Async m n] (self : Target t m a) : m (n PUnit) :=
   async self.task
-
-def run [Monad m] [Async m n] (self : Target t m a) : m (ActiveTarget t n a) := do
-  self.withTask (← async self.task)
 
 def materialize (self : Target t m a) : m PUnit :=
   self.task
 
--- ## Combinators
+def materializeList [Monad m] [MonadAsync m n] (targets : List (Target t m a)) : m PUnit := do
+  (← targets.mapM (·.materializeAsync)).forM await
 
-def after [Applicative m] (target : Target t m a) (act : m PUnit)  : m PUnit :=
-  target.task *> act
-
-def afterList [Monad m] (targets : List (Target t m a)) (act : m PUnit) : m PUnit :=
-  targets.forM (·.task) *> act
-
-instance [Applicative m] : HAndThen (Target t m a) (m PUnit) (m PUnit) :=
-  ⟨Target.after⟩
-
-instance [Monad m] : HAndThen (List (Target t m a)) (m PUnit) (m PUnit) :=
-  ⟨Target.afterList⟩
+def materializeArray [Monad m] [MonadAsync m n] (targets : Array (Target t m a)) : m PUnit := do
+  (← targets.mapM (·.materializeAsync)).forM await
 
 end Target
 
@@ -204,14 +191,12 @@ def singleton (target : FileTarget) : FilesTarget :=
 def collectList (targets : List FileTarget) : FilesTarget :=
   let files := Array.mk <| targets.map (·.file)
   let mtime := MTime.listMax <| targets.map (·.mtime)
-  Target.mk files mtime do
-   (← targets.mapM (·.spawn)).forM (·.await)
+  Target.mk files mtime do Target.materializeList targets
 
 def collectArray (targets : Array FileTarget) : FilesTarget :=
   let files := targets.map (·.file)
   let mtime := MTime.arrayMax <| targets.map (·.mtime)
-  Target.mk files mtime do
-   (← targets.mapM (·.spawn)).forM (·.await)
+  Target.mk files mtime do Target.materializeArray targets
 
 def collect (targets : Array FileTarget) : FilesTarget :=
   collectArray targets
@@ -259,6 +244,6 @@ def fromMTimeTarget (target : ActiveBuildTarget MTime a) : LeanTarget a :=
   {target with trace := LeanTrace.fromMTime target.trace}
 
 def buildOpaqueFromFileTarget (target : FileTarget) : IO (LeanTarget PUnit) := do
-  LeanTarget.fromMTimeTarget <| ← Target.run target.discardArtifact
+  LeanTarget.fromMTimeTarget <| ← Target.runAsync target.withoutArtifact
 
 end LeanTarget

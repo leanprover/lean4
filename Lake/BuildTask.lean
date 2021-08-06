@@ -45,8 +45,12 @@ class Await (m : outParam $ Type u → Type v) (n : Type u → Type u) where
 
 export Await (await)
 
-instance : Async IO IOTask := ⟨IOTask.spawn⟩
-instance : Await IO IOTask := ⟨IOTask.await⟩
+class MonadAsync (m : Type u → Type v) (n : outParam $ Type u → Type u)
+  extends Async m n, Await m n
+
+instance : MonadAsync IO IOTask where
+  async := IOTask.spawn
+  await := IOTask.await
 
 -- # Build Task
 

@@ -220,30 +220,30 @@ def mk (file : FilePath) (depMTime : MTime) (task : BuildTask) : ActiveFileTarge
 end ActiveFileTarget
 
 --------------------------------------------------------------------------------
--- # Lean Target
+-- # Lake Target
 --------------------------------------------------------------------------------
 
-abbrev LeanTarget a :=
-  ActiveBuildTarget LeanTrace a
+abbrev LakeTarget a :=
+  ActiveBuildTarget LakeTrace a
 
-namespace LeanTarget
+namespace LakeTarget
 
-def nil : LeanTarget PUnit :=
+def nil : LakeTarget PUnit :=
   ActiveTarget.pure () Inhabited.default
 
-def hash (self : LeanTarget a) := self.trace.hash
-def mtime (self : LeanTarget a) := self.trace.mtime
+def hash (self : LakeTarget a) := self.trace.hash
+def mtime (self : LakeTarget a) := self.trace.mtime
 
-def all (targets : List (LeanTarget a)) : IO (LeanTarget PUnit) := do
+def all (targets : List (LakeTarget a)) : IO (LakeTarget PUnit) := do
   let hash := Hash.foldList 0 <| targets.map (·.hash)
   let mtime := MTime.listMax <| targets.map (·.mtime)
   let task ← BuildTask.all <| targets.map (·.task)
   return ActiveTarget.mk () ⟨hash, mtime⟩ task
 
-def fromMTimeTarget (target : ActiveBuildTarget MTime a) : LeanTarget a :=
-  {target with trace := LeanTrace.fromMTime target.trace}
+def fromMTimeTarget (target : ActiveBuildTarget MTime a) : LakeTarget a :=
+  {target with trace := LakeTrace.fromMTime target.trace}
 
-def buildOpaqueFromFileTarget (target : FileTarget) : IO (LeanTarget PUnit) := do
-  LeanTarget.fromMTimeTarget <| ← Target.runAsync target.withoutArtifact
+def buildOpaqueFromFileTarget (target : FileTarget) : IO (LakeTarget PUnit) := do
+  LakeTarget.fromMTimeTarget <| ← Target.runAsync target.withoutArtifact
 
-end LeanTarget
+end LakeTarget

@@ -49,17 +49,17 @@ def checkIfNewer [GetMTime a] (artifact : a) (depMTime : MTime) : IO Bool := do
 
 -- # Combined Trace
 
-structure LeanTrace where
+structure LakeTrace where
   hash : Hash
   mtime : MTime
   deriving Inhabited
 
-namespace LeanTrace
+namespace LakeTrace
 
-def fromHash (hash : Hash) : LeanTrace :=
-  LeanTrace.mk hash 0
+def fromHash (hash : Hash) : LakeTrace :=
+  LakeTrace.mk hash 0
 
-def fromMTime (mtime : MTime) : LeanTrace :=
-  LeanTrace.mk 0 mtime
+def fromMTime (mtime : MTime) : LakeTrace :=
+  LakeTrace.mk 0 mtime
 
-end LeanTrace
+end LakeTrace

@@ -28,7 +28,7 @@ protected def ModuleArtifact.getMTime (self : ModuleArtifact) : IO MTime := do
 
 instance : GetMTime ModuleArtifact := ⟨ModuleArtifact.getMTime⟩
 
-abbrev ModuleTarget := LeanTarget ModuleArtifact
+abbrev ModuleTarget := LakeTarget ModuleArtifact
 
 namespace ModuleTarget
 
@@ -48,7 +48,7 @@ def cTarget (self : ModuleTarget) : ActiveFileTarget :=
 
 end ModuleTarget
 
-abbrev PackageTarget :=  LeanTarget (Package × NameMap ModuleTarget)
+abbrev PackageTarget :=  LakeTarget (Package × NameMap ModuleTarget)
 
 namespace PackageTarget
 
@@ -96,7 +96,7 @@ def skipIfNewer [GetMTime a]
   a `LEAN_PATH` that includes `oleanDirs`.
 -/
 def fetchAfterDirectLocalImports
-(pkg : Package) (oleanDirs : List FilePath) (depsTarget : LeanTarget PUnit)
+(pkg : Package) (oleanDirs : List FilePath) (depsTarget : LakeTarget PUnit)
 {m} [Monad m] [MonadLiftT IO m] [MonadExceptOf IO.Error m] : RecFetch Name ModuleTarget m :=
   let leanPath := SearchPath.toString <| pkg.oleanDir :: oleanDirs
   fun mod fetch => do
@@ -145,18 +145,18 @@ def throwOnCycle (mx : IO (Except (List Name) α)) : IO α  :=
     throw <| IO.userError s!"import cycle detected:\n{"\n".intercalate cycle}"
 
 def Package.buildModuleTargetDAGFor
-(mod : Name)  (oleanDirs : List FilePath) (depsTarget : LeanTarget PUnit)
+(mod : Name)  (oleanDirs : List FilePath) (depsTarget : LakeTarget PUnit)
 (self : Package) : IO (ModuleTarget × NameMap ModuleTarget) := do
   let fetch := fetchAfterDirectLocalImports self oleanDirs depsTarget
   throwOnCycle <| buildRBTop fetch mod |>.run {}
 
 def Package.buildModuleTargetDAG
-(oleanDirs : List FilePath) (depsTarget : LeanTarget PUnit) (self : Package) :=
+(oleanDirs : List FilePath) (depsTarget : LakeTarget PUnit) (self : Package) :=
   self.buildModuleTargetDAGFor self.moduleRoot oleanDirs depsTarget
 
 def Package.buildModuleTargets
 (mods : List Name) (oleanDirs : List FilePath)
-(depsTarget : LeanTarget PUnit) (self : Package)
+(depsTarget : LakeTarget PUnit) (self : Package)
 : IO (List ModuleTarget) := do
   let fetch : ModuleTargetFetch :=
     fetchAfterDirectLocalImports self oleanDirs depsTarget
@@ -167,7 +167,7 @@ def Package.buildModuleTargets
 def Package.buildTargetWithDepTargetsFor
 (mod : Name) (depTargets : List PackageTarget) (self : Package)
 : IO PackageTarget := do
-  let depsTarget ← LeanTarget.all <|
+  let depsTarget ← LakeTarget.all <|
     (← self.buildMoreDepsTarget).withArtifact arbitrary :: depTargets
   let oLeanDirs := depTargets.map (·.package.oleanDir)
   let (target, targetMap) ← self.buildModuleTargetDAGFor mod oLeanDirs depsTarget
@@ -214,7 +214,7 @@ def Package.buildModuleTargetsWithDeps
 (deps : List Package) (mods : List Name)  (self : Package)
 : IO (List ModuleTarget) := do
   let oleanDirs := deps.map (·.oleanDir)
-  let depsTarget ← LeanTarget.all <|
+  let depsTarget ← LakeTarget.all <|
     (← self.buildMoreDepsTarget).withArtifact arbitrary :: (← deps.mapM (·.buildTarget))
   self.buildModuleTargets mods oleanDirs depsTarget
 

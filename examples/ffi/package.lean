@@ -27,5 +27,5 @@ def package : PackageConfig := {
   linkArgs := #[cLib.toString]
   -- specify the lib target as an additional dependency
   buildMoreDepsTarget := do
-    LeanTarget.buildOpaqueFromFileTarget <| ← computeCLibTarget
+    LakeTarget.buildOpaqueFromFileTarget <| ← computeCLibTarget
 }

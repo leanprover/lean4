@@ -51,7 +51,7 @@ structure PackageConfig where
   libName : String := moduleRoot.toString (escape := false)
   depsDir : FilePath := defaultDepsDir
   dependencies : List Dependency := []
-  buildMoreDepsTarget : IO (LeanTarget PUnit) := LeanTarget.nil
+  buildMoreDepsTarget : IO (LakeTarget PUnit) := LakeTarget.nil
   scripts : HashMap String Script := HashMap.empty
   deriving Inhabited
 
@@ -85,7 +85,7 @@ def moduleRootName (self : Package) : String :=
 def dependencies (self : Package) : List Dependency :=
   self.config.dependencies
 
-def buildMoreDepsTarget (self : Package) : IO (ActiveBuildTarget LeanTrace PUnit) :=
+def buildMoreDepsTarget (self : Package) : IO (ActiveBuildTarget LakeTrace PUnit) :=
   self.config.buildMoreDepsTarget
 
 def leanArgs (self : Package) : Array String :=

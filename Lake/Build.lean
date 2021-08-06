@@ -65,7 +65,7 @@ def checkIfSameHash (hash : Hash) (file : FilePath) : IO Bool :=
   try
     let contents ← IO.FS.readFile file
     match contents.toNat? with
-    | some h => Hash.ofNat h == hash
+    | some h => Hash.mk h.toUInt64 == hash
     | none => false
   catch _ =>
     false
@@ -109,11 +109,11 @@ def fetchAfterDirectLocalImports
     -- because other build processes (ex. `.o`) rely on the map being complete
     let importTargets ← imports.mapM fetch
     -- calculate trace
-    let leanHash := hash contents
     let leanMTime ← getMTime leanFile
+    let leanHash := Hash.compute contents
     let importHashes ← importTargets.map (·.hash)
     let importMTimes ← importTargets.map (·.mtime)
-    let fullHash := Hash.foldList leanHash (depsTarget.hash :: importHashes)
+    let fullHash := Hash.mixList (leanHash :: depsTarget.hash :: importHashes)
     let maxMTime := MTime.listMax (leanMTime :: depsTarget.mtime :: importMTimes)
     let hashFile := pkg.modToHashFile mod
     let sameHash ← checkIfSameHash fullHash hashFile
@@ -125,7 +125,7 @@ def fetchAfterDirectLocalImports
     ActiveTarget.mk ⟨oleanFile, cFile⟩ ⟨fullHash, mtime⟩ <| ←
       skipIf sameHash <| afterTaskList (depsTarget.task :: importTasks) do
         compileOleanAndC leanFile oleanFile cFile leanPath pkg.rootDir pkg.leanArgs
-        IO.FS.writeFile hashFile (toString fullHash)
+        IO.FS.writeFile hashFile fullHash.toString
 
 /-
   Equivalent to `RBTopT (cmp := Name.quickCmp) Name ModuleTarget IO`.

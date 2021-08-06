@@ -235,7 +235,7 @@ def hash (self : LakeTarget a) := self.trace.hash
 def mtime (self : LakeTarget a) := self.trace.mtime
 
 def all (targets : List (LakeTarget a)) : IO (LakeTarget PUnit) := do
-  let hash := Hash.foldList 0 <| targets.map (·.hash)
+  let hash := Hash.mixList <| targets.map (·.hash)
   let mtime := MTime.listMax <| targets.map (·.mtime)
   let task ← BuildTask.all <| targets.map (·.task)
   return ActiveTarget.mk () ⟨hash, mtime⟩ task

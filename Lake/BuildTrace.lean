@@ -8,21 +8,40 @@ namespace Lake
 
 -- # Hash Traces
 
-def Hash := UInt64
+structure Hash where
+  val : UInt64
+  deriving BEq, DecidableEq
 
-instance : OfNat Hash n := inferInstanceAs (OfNat UInt64 n)
-instance : Inhabited Hash := inferInstanceAs (Inhabited UInt64)
-instance : BEq Hash := inferInstanceAs (BEq UInt64)
+namespace Hash
 
-def Hash.ofNat (n : Nat) := UInt64.ofNat n
-def Hash.foldList (init : Hash) (hashes : List Hash) :=
-  List.foldl mixHash init hashes
+def nil : Hash :=
+  mk <| 1723 -- same as Name.anonymous
+
+instance : Inhabited Hash := ⟨nil⟩
+
+def compute (str : String) :=
+  mk <| mixHash 1723 (hash str) -- same as Name.mkSimple
+
+def mix (h1 h2 : Hash) : Hash :=
+  mk <| mixHash h1.val h2.val
+
+def mixList (hashes : List Hash) : Hash :=
+  hashes.foldl mix nil
+
+protected def toString (self : Hash) : String :=
+  toString self.val
+
+instance : ToString Hash := ⟨Hash.toString⟩
+
+end Hash
 
 -- # Modification Time Traces
 
 open IO.FS (SystemTime)
 
 def MTime := SystemTime
+
+namespace MTime
 
 instance : Inhabited MTime := ⟨⟨0,0⟩⟩
 instance : OfNat MTime (nat_lit 0) := ⟨⟨0,0⟩⟩
@@ -32,8 +51,10 @@ instance : Ord MTime := inferInstanceAs (Ord SystemTime)
 instance : LT MTime := ltOfOrd
 instance : LE MTime := leOfOrd
 
-def MTime.listMax (mtimes : List MTime) := mtimes.foldl max 0
-def MTime.arrayMax (mtimes : Array MTime) := mtimes.foldl max 0
+def listMax (mtimes : List MTime) := mtimes.foldl max 0
+def arrayMax (mtimes : Array MTime) := mtimes.foldl max 0
+
+end MTime
 
 class GetMTime (α) where
   getMTime : α → IO MTime
@@ -60,6 +81,6 @@ def fromHash (hash : Hash) : LakeTrace :=
   LakeTrace.mk hash 0
 
 def fromMTime (mtime : MTime) : LakeTrace :=
-  LakeTrace.mk 0 mtime
+  LakeTrace.mk Hash.nil mtime
 
 end LakeTrace

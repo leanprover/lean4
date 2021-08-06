@@ -40,7 +40,7 @@ Type → Type → Type
   [inst :
     ToString Nat],
   x = x
-∀ (x : Nat), x = x
+∀ x, x = x
 0
 1
 42

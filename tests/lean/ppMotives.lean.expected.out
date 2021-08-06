@@ -11,7 +11,7 @@ protected def Nat.add : Nat → Nat → Nat :=
 fun x x_1 =>
   Nat.brecOn (motive := fun x => Nat → Nat) x_1
     (fun x f x_2 =>
-      (match x_2, x : (x : Nat) → (x : Nat) → Nat.below (motive := fun x => Nat → Nat) x → Nat with 
+      (match x_2, x : (x x : Nat) → Nat.below (motive := fun x => Nat → Nat) x → Nat with 
         | a, Nat.zero => fun x => a
         | a, Nat.succ b => fun x => Nat.succ (PProd.fst x.fst a))
         f)
@@ -22,7 +22,7 @@ fun x x_1 x_2 x_3 =>
   | α, .(α), Eq.refl α, a => HEq.refl _
 theorem ex.{u} : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≅ a :=
 fun x x_1 x_2 x_3 =>
-  match x, x_1, x_2, x_3 : Sort u → Sort u → ∀ x_5, ∀ x_6, cast x_5 x_6 ≅ x_6 with 
+  match x, x_1, x_2, x_3 : ∀ (x x_4 : Sort u) (x_5 : x = x_4) (x_6 : x), cast x_5 x_6 ≅ x_6 with 
   | α, .(α), Eq.refl α, a => HEq.refl _
 def fact : Nat → Nat :=
 fun n => Nat.recOn (motive := fun n => Nat) n 1 fun n acc => (n + 1) * acc

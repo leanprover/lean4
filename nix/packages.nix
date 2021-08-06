@@ -78,16 +78,16 @@ let
   });
   doc = stdenv.mkDerivation {
     name ="lean-doc";
-    src = ../.;
+    src = ../doc;
     buildInputs = [ lean-mdbook ];
     buildCommand = ''
-      mdbook build -d $out $src/doc
+      mdbook build -d $out $src
     '';
   };
   # We use a separate derivation instead of `checkPhase` so we can push it but not `doc` to the binary cache
   doc-test = stdenv.mkDerivation {
     name ="lean-doc-test";
-    src = ../.;
+    src = lib.sourceByRegex ../. ["doc.*" "tests(/lean(/beginEndAsMacro.lean)?)?"];
     buildInputs = [ lean-mdbook lean.stage1.Leanpkg.lean-package strace ];
     patchPhase = ''
       cd doc

@@ -3,6 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Selsam
 -/
+import Lean.Meta
+import Lean.Util.FindMVar
+import Lean.Util.FindLevelMVar
+import Lean.Util.CollectLevelParams
+import Lean.Util.ReplaceLevel
+import Lean.PrettyPrinter.Delaborator.Options
+import Lean.PrettyPrinter.Delaborator.SubExpr
+import Std.Data.RBMap
 
 /-!
 The top-down analyzer is an optional preprocessor to the delaborator that aims
@@ -12,15 +20,6 @@ is neither sound nor complete: there may be edge-cases in which the expression
 can still not be re-elaborated correctly, and it may also add many annotations
 that are not strictly necessary.
 -/
-
-import Lean.Meta
-import Lean.Util.FindMVar
-import Lean.Util.FindLevelMVar
-import Lean.Util.CollectLevelParams
-import Lean.Util.ReplaceLevel
-import Lean.PrettyPrinter.Delaborator.Options
-import Lean.PrettyPrinter.Delaborator.SubExpr
-import Std.Data.RBMap
 
 namespace Lean
 

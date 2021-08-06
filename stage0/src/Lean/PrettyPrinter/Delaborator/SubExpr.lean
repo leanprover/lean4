@@ -3,6 +3,8 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Selsam
 -/
+import Lean.Meta.Basic
+import Std.Data.RBMap
 
 /-!
 This file defines utilities for `MetaM` computations to traverse subexpressions
@@ -13,8 +15,6 @@ map a path of `childIdxs` to a natural number by computing the value of the 4-ar
 representation `1 :: childIdxs`, since n-ary representations without leading zeros
 are unique. Note that `pos` is initialized to `1` (case `childIdxs == []`).
 -/
-import Lean.Meta.Basic
-import Std.Data.RBMap
 
 namespace Lean.PrettyPrinter.Delaborator
 

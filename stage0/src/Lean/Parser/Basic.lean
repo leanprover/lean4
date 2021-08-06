@@ -3,6 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+import Lean.Data.Trie
+import Lean.Data.Position
+import Lean.Syntax
+import Lean.ToExpr
+import Lean.Environment
+import Lean.Attributes
+import Lean.Message
+import Lean.Compiler.InitAttr
+import Lean.ResolveName
 
 /-!
 # Basic Lean parser infrastructure
@@ -54,15 +63,6 @@ running multiple parsers should check if an error message is set in the parser s
 Error recovery is left to the designer of the specific language; for example, Lean's top-level `parseCommand` loop skips
 tokens until the next command keyword on error.
 -/
-import Lean.Data.Trie
-import Lean.Data.Position
-import Lean.Syntax
-import Lean.ToExpr
-import Lean.Environment
-import Lean.Attributes
-import Lean.Message
-import Lean.Compiler.InitAttr
-import Lean.ResolveName
 
 namespace Lean
 
@@ -772,7 +772,7 @@ partial def whitespace : ParserFn := fun c s =>
       if curr == '-' then
         let i    := input.next i
         let curr := input.get i
-        if curr == '-' then s -- "/--" doc comment is an actual token
+        if curr == '-' || curr == '!' then s -- "/--" and "/-!" doc comment are actual tokens
         else andthenFn (finishCommentBlock 1) whitespace c (s.next input i)
       else s
     else s

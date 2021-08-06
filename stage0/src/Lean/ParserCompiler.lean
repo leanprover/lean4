@@ -3,16 +3,15 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
-
-/-!
-Gadgets for compiling parser declarations into other programs, such as pretty printers.
--/
-
 import Lean.Util.ReplaceExpr
 import Lean.Meta.Basic
 import Lean.Meta.WHNF
 import Lean.ParserCompiler.Attribute
 import Lean.Parser.Extension
+
+/-!
+Gadgets for compiling parser declarations into other programs, such as pretty printers.
+-/
 
 namespace Lean
 namespace ParserCompiler

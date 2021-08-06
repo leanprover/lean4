@@ -3,6 +3,12 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+import Lean.CoreM
+import Lean.KeyedDeclsAttribute
+import Lean.Parser.Extension
+import Lean.ParserCompiler.Attribute
+import Lean.PrettyPrinter.Basic
+
 
 /-!
 The parenthesizer inserts parentheses into a `Syntax` object where syntactically necessary, usually as an intermediary
@@ -70,12 +76,6 @@ executes `x` on the last child of the current node and then advances to the prec
 node).
 
 -/
-
-import Lean.CoreM
-import Lean.KeyedDeclsAttribute
-import Lean.Parser.Extension
-import Lean.ParserCompiler.Attribute
-import Lean.PrettyPrinter.Basic
 
 namespace Lean
 namespace PrettyPrinter

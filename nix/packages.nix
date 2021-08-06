@@ -4,7 +4,8 @@ let
   nix-pinned = writeShellScriptBin "nix" ''
     ${nix.defaultPackage.${system}}/bin/nix --experimental-features 'nix-command flakes' --extra-substituters https://lean4.cachix.org/ --option warn-dirty false "$@"
   '';
-  llvmPackages = llvmPackages_12;
+  # https://github.com/NixOS/nixpkgs/issues/130963
+  llvmPackages = if stdenv.isDarwin then llvmPackages_11 else llvmPackages_12;
   cc = (ccacheWrapper.override rec {
     cc = llvmPackages.clang;
     extraConfig = ''
@@ -25,13 +26,7 @@ let
     # https://github.com/NixOS/nixpkgs/issues/119779
     installPhase = builtins.replaceStrings ["use_response_file_by_default=1"] ["use_response_file_by_default=0"] old.installPhase;
   });
-  stdenv' = if stdenv.isLinux then useGoldLinker stdenv else stdenv // {
-    mkDerivation = args: stdenv.mkDerivation (args // {
-      # https://github.com/NixOS/nixpkgs/issues/130963
-      NIX_CFLAGS_LINK = toString (args.NIX_CFLAGS_LINK or "") + " -lc++abi";
-    });
-  };
-
+  stdenv' = if stdenv.isLinux then useGoldLinker stdenv else stdenv;
   lean = callPackage (import ./bootstrap.nix) (args // {
     stdenv = stdenv';
     inherit buildLeanPackage;

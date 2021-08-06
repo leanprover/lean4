@@ -284,7 +284,7 @@ theorem iffIffImpliesAndImplies (a b : Prop) : (a ↔ b) ↔ (a → b) ∧ (b �
 theorem Iff.refl (a : Prop) : a ↔ a :=
   Iff.intro (fun h => h) (fun h => h)
 
-theorem Iff.rfl {a : Prop} : a ↔ a :=
+protected theorem Iff.rfl {a : Prop} : a ↔ a :=
   Iff.refl a
 
 theorem Iff.trans (h₁ : a ↔ b) (h₂ : b ↔ c) : a ↔ c :=

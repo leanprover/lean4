@@ -104,7 +104,7 @@ init_quot
 inductive HEq {α : Sort u} (a : α) : {β : Sort u} → β → Prop where
   | refl {} : HEq a a
 
-@[matchPattern] def HEq.rfl {α : Sort u} {a : α} : HEq a a :=
+@[matchPattern] protected def HEq.rfl {α : Sort u} {a : α} : HEq a a :=
   HEq.refl a
 
 theorem eqOfHEq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=

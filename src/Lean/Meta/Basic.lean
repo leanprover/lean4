@@ -834,24 +834,18 @@ def getParamNames (declName : Name) : MetaM (Array Name) := do
 -- `kind` specifies the metavariable kind for metavariables not corresponding to instance implicit `[ ... ]` arguments.
 private partial def forallMetaTelescopeReducingAux
     (e : Expr) (reducing : Bool) (maxMVars? : Option Nat) (kind : MetavarKind) : MetaM (Array Expr × Array BinderInfo × Expr) :=
-  let rec process (mvars : Array Expr) (bis : Array BinderInfo) (j : Nat) (type : Expr) : MetaM (Array Expr × Array BinderInfo × Expr) := do
+  let rec process (mvars : Array Expr) (bis : Array BinderInfo) (j : Nat) (type : Expr) := do
+    if maxMVars? == some mvars.size then
+      let type := type.instantiateRevRange j mvars.size mvars;
+      return (mvars, bis, type)
     match type with
-    | Expr.forallE n d b c =>
-      let cont : Unit → MetaM (Array Expr × Array BinderInfo × Expr) := fun _ => do
-        let d  := d.instantiateRevRange j mvars.size mvars
-        let k  := if c.binderInfo.isInstImplicit then  MetavarKind.synthetic else kind
-        let mvar ← mkFreshExprMVar d k n
-        let mvars := mvars.push mvar
-        let bis   := bis.push c.binderInfo
-        process mvars bis j b
-      match maxMVars? with
-      | none          => cont ()
-      | some maxMVars =>
-        if mvars.size < maxMVars then
-          cont ()
-        else
-          let type := type.instantiateRevRange j mvars.size mvars;
-          pure (mvars, bis, type)
+    | Expr.forallE n d b c => do
+      let d  := d.instantiateRevRange j mvars.size mvars
+      let k  := if c.binderInfo.isInstImplicit then  MetavarKind.synthetic else kind
+      let mvar ← mkFreshExprMVar d k n
+      let mvars := mvars.push mvar
+      let bis   := bis.push c.binderInfo
+      process mvars bis j b
     | _ =>
       let type := type.instantiateRevRange j mvars.size mvars;
       if reducing then do

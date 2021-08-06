@@ -20,6 +20,9 @@ namespace Parser
 
 namespace Command
 
+@[builtinCommandParser]
+def moduleDoc := leading_parser ppDedent $ "/-!" >> commentBody >> ppLine
+
 def namedPrio := leading_parser (atomic ("(" >> nonReservedSymbol "priority") >> " := " >> priorityParser >> ")")
 def optNamedPrio := optional namedPrio
 

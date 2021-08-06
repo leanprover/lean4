@@ -102,13 +102,16 @@ private def isQuotInit (env : Environment) : Bool :=
 private def getTrustLevel (env : Environment) : UInt32 :=
   env.header.trustLevel
 
-def getModuleIdxFor? (env : Environment) (c : Name) : Option ModuleIdx :=
-  env.const2ModIdx.find? c
+def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
+  env.const2ModIdx.find? declName
 
-def isConstructor (env : Environment) (c : Name) : Bool :=
-  match env.find? c with
+def isConstructor (env : Environment) (declName : Name) : Bool :=
+  match env.find? declName with
   | ConstantInfo.ctorInfo _ => true
   | _                       => false
+
+def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
+  env.header.moduleNames.findIdx? (. == moduleName)
 
 end Environment
 

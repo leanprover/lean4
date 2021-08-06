@@ -105,7 +105,12 @@ variable [MonadRef m] [AddMessageContext m] [MonadOptions m]
 def addTrace (cls : Name) (msg : MessageData) : m Unit := do
   let ref ← getRef
   let msg ← addMessageContext msg
+  let msg := addTraceOptions msg
   modifyTraces fun traces => traces.push { ref := ref, msg := MessageData.tagged cls m!"[{cls}] {msg}" }
+where
+  addTraceOptions : MessageData → MessageData
+    | MessageData.withContext ctx msg => MessageData.withContext { ctx with opts := ctx.opts.setBool `pp.analyze false } msg
+    | msg => msg
 
 @[inline] def trace (cls : Name) (msg : Unit → MessageData) : m Unit := do
   if (← isTracingEnabledFor cls) then

@@ -54,12 +54,11 @@ decide (1 < 2) ||
   true
 id (fun a => a) 0
 typeAs Nat
-  (do 
-    let x ← pure 1
+  (let x := 1;
+  do 
     discard (pure 2)
     let y : Nat := 3
-    pure (x + y) :
-  Id Nat)
+    pure (x + y))
 typeAs (Id Nat)
   (pure 1 >>= pure)
 (0 ≤ 1) = False

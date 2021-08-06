@@ -163,6 +163,29 @@ lean_object* l_Lean_projectionFnInfoExt___elambda__1___boxed(lean_object*);
 lean_object* l_Lean_mkMapDeclarationExtension___at_Lean_initFn____x40_Lean_ProjFns___hyg_69____spec__1___lambda__2___boxed(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___at_Lean_Environment_getProjectionFnInfo_x3f___spec__3___boxed(lean_object*, lean_object*);
+static lean_object* _init_l_Lean_instInhabitedProjectionFunctionInfo___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
+x_1 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = 0;
+x_4 = lean_alloc_ctor(0, 3, 1);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_2);
+lean_ctor_set_uint8(x_4, sizeof(void*)*3, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_instInhabitedProjectionFunctionInfo() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_instInhabitedProjectionFunctionInfo___closed__1;
+return x_1;
+}
+}
 lean_object* lean_mk_projection_info(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4) {
 _start:
 {
@@ -201,29 +224,6 @@ uint8_t x_2; lean_object* x_3;
 x_2 = lean_projection_info_from_class(x_1);
 x_3 = lean_box(x_2);
 return x_3;
-}
-}
-static lean_object* _init_l_Lean_instInhabitedProjectionFunctionInfo___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = lean_box(0);
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = 0;
-x_4 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_2);
-lean_ctor_set_uint8(x_4, sizeof(void*)*3, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_instInhabitedProjectionFunctionInfo() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_instInhabitedProjectionFunctionInfo___closed__1;
-return x_1;
 }
 }
 static lean_object* _init_l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_ProjFns___hyg_69____spec__3___closed__1() {

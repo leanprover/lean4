@@ -1,5 +1,5 @@
-/-! Parse and reformat file -/
 import Lean.PrettyPrinter
+/-! Parse and reformat file -/
 
 open Lean
 open Lean.Elab

@@ -1,5 +1,5 @@
-/-! Reprint file after removing all parentheses and then passing it through the parenthesizer -/
 import Lean.Parser
+/-! Reprint file after removing all parentheses and then passing it through the parenthesizer -/
 
 open Lean
 open Std.Format open Std

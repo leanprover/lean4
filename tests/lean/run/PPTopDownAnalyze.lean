@@ -278,6 +278,17 @@ set_option pp.proofs.withType false in
     let ctxCore ← readThe Core.Context
     pure ctxCore.currNamespace
 
+def takesStricts ⦃α : Type⦄ {β : Type} ⦃γ : Type⦄ : Unit := ()
+#testDelab takesStricts expecting takesStricts
+#testDelab @takesStricts expecting takesStricts
+#testDelab @takesStricts Unit Unit expecting takesStricts (α := Unit) (β := Unit)
+#testDelab @takesStricts Unit Unit Unit expecting takesStricts (α := Unit) (β := Unit) (γ := Unit)
+
+def takesStrictMotive ⦃motive : Nat → Type⦄ {n : Nat} (x : motive n) : motive n := x
+#testDelab takesStrictMotive expecting takesStrictMotive
+#testDelab @takesStrictMotive (fun x => Unit) 0 expecting takesStrictMotive (motive := fun x => Unit) (n := 0)
+#testDelab @takesStrictMotive (fun x => Unit) 0 () expecting takesStrictMotive (motive := fun x => Unit) (n := 0) ()
+
 def stackMkInjEqSnippet :=
   fun {α : Type} (xs : Array α) => Eq.ndrec (motive := fun _ => (Std.Stack.mk xs = Std.Stack.mk xs)) (Eq.refl (Std.Stack.mk xs)) (rfl : xs = xs)
 

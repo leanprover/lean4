@@ -772,7 +772,7 @@ partial def whitespace : ParserFn := fun c s =>
       if curr == '-' then
         let i    := input.next i
         let curr := input.get i
-        if curr == '-' then s -- "/--" doc comment is an actual token
+        if curr == '-' || curr == '!' then s -- "/--" and "/-!" doc comment are actual tokens
         else andthenFn (finishCommentBlock 1) whitespace c (s.next input i)
       else s
     else s

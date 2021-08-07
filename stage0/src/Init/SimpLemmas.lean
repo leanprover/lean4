@@ -14,38 +14,22 @@ import Init.Core
 theorem of_eq_true (h : p = True) : p :=
   h ▸ trivial
 
--- TODO: delete
-theorem ofEqTrue (h : p = True) : p :=
-  of_eq_true h
-
 theorem eq_true (h : p) : p = True :=
   propext <| Iff.intro (fun _ => trivial) (fun _ => h)
 
 theorem eq_false (h : ¬ p) : p = False :=
   propext <| Iff.intro (fun h' => absurd h' h) (fun h' => False.elim h')
 
--- TODO: delete
-theorem eqFalse (h : ¬ p) : p = False :=
-  propext <| Iff.intro (fun h' => absurd h' h) (fun h' => False.elim h')
-
 theorem eq_false' (h : p → False) : p = False :=
   propext <| Iff.intro (fun h' => absurd h' h) (fun h' => False.elim h')
 
 theorem eq_true_of_decide {p : Prop} {s : Decidable p} (h : decide p = true) : p = True :=
-  propext <| Iff.intro (fun h => trivial) (fun _ => ofDecideEqTrue h)
-
--- TODO: delete
-theorem eqTrueOfDecide {p : Prop} {s : Decidable p} (h : decide p = true) : p = True :=
-  propext <| Iff.intro (fun h => trivial) (fun _ => ofDecideEqTrue h)
+  propext <| Iff.intro (fun h => trivial) (fun _ => of_decide_eq_true h)
 
 theorem eq_false_of_decide {p : Prop} {s : Decidable p} (h : decide p = false) : p = False :=
   propext <| Iff.intro (fun h' => absurd h' (of_decide_eq_false h)) (fun h => False.elim h)
 
 theorem implies_congr {p₁ p₂ : Sort u} {q₁ q₂ : Sort v} (h₁ : p₁ = p₂) (h₂ : q₁ = q₂) : (p₁ → q₁) = (p₂ → q₂) :=
-  h₁ ▸ h₂ ▸ rfl
-
--- TODO: delete
-theorem impCongr {p₁ p₂ : Sort u} {q₁ q₂ : Sort v} (h₁ : p₁ = p₂) (h₂ : q₁ = q₂) : (p₁ → q₁) = (p₂ → q₂) :=
   h₁ ▸ h₂ ▸ rfl
 
 theorem implies_congr_ctx {p₁ p₂ q₁ q₂ : Prop} (h₁ : p₁ = p₂) (h₂ : p₂ → q₁ = q₂) : (p₁ → q₁) = (p₂ → q₂) :=

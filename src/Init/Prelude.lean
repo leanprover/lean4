@@ -118,10 +118,6 @@ theorem eq_of_heq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
         h₁
   this α α a a' h rfl
 
--- TODO: delete
-theorem eqOfHEq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
-  eq_of_heq h
-
 structure Prod (α : Type u) (β : Type v) where
   fst : α
   snd : β
@@ -269,10 +265,6 @@ theorem of_decide_eq_true [s : Decidable p] : Eq (decide p) true → p := fun h 
   match (generalizing := false) s with
   | isTrue  h₁ => h₁
   | isFalse h₁ => absurd h (ne_true_of_eq_false (decide_eq_false h₁))
-
--- TODO: delete
-theorem ofDecideEqTrue [s : Decidable p] : Eq (decide p) true → p :=
-  of_decide_eq_true
 
 theorem of_decide_eq_false [s : Decidable p] : Eq (decide p) false → Not p := fun h =>
   match (generalizing := false) s with

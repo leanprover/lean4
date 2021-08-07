@@ -240,7 +240,7 @@ theorem HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} �
   @HEq.rec α a (fun b _ => motive b) m β b h
 
 theorem HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : a ≅ b) (h₂ : p a) : p b :=
-  eqOfHEq h₁ ▸ h₂
+  eq_of_heq h₁ ▸ h₂
 
 theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : a ≅ b) (h₂ : p α a) : p β b :=
   HEq.ndrecOn h₁ h₂
@@ -401,18 +401,10 @@ theorem if_pos {c : Prop} [h : Decidable c] (hc : c) {α : Sort u} {t e : α} : 
   | isTrue  hc  => rfl
   | isFalse hnc => absurd hc hnc
 
--- TODO: delete
-theorem ifPos {c : Prop} [h : Decidable c] (hc : c) {α : Sort u} {t e : α} : (ite c t e) = t :=
-  if_pos hc
-
 theorem if_neg {c : Prop} [h : Decidable c] (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
   match h with
   | isTrue hc   => absurd hc hnc
   | isFalse hnc => rfl
-
--- TODO: delete
-theorem ifNeg {c : Prop} [h : Decidable c] (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
-  if_neg hnc
 
 theorem dif_pos {c : Prop} [h : Decidable c] (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = t hc :=
   match h with
@@ -758,7 +750,7 @@ protected abbrev hrecOn
     (f : (a : α) → motive (Quot.mk r a))
     (c : (a b : α) → (p : r a b) → f a ≅ f b)
     : motive q :=
-  Quot.recOn q f fun a b p => eqOfHEq <|
+  Quot.recOn q f fun a b p => eq_of_heq <|
     have p₁ : Eq.ndrec (f a) (sound p) ≅ f a := eqRec_heq (sound p) (f a)
     HEq.trans p₁ (c a b p)
 

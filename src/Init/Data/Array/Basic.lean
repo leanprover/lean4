@@ -727,11 +727,6 @@ theorem toArrayLit_eq (a : Array α) (n : Nat) (hsz : a.size = n) : a = toArrayL
   Then using Array.extLit, we have that a = List.toArray <| toListLitAux a n hsz n _ []
   -/
 
--- TODO: delete
-theorem toArrayLitEq (a : Array α) (n : Nat) (hsz : a.size = n) : a = toArrayLit a n hsz :=
-  -- TODO: this is painful to prove without proper automation
-  sorry
-
 partial def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) : Nat → Bool
   | i =>
     if h : i < as.size then

@@ -76,7 +76,7 @@ def fix (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : �
   fixF F x (apply hwf x)
 
 -- Well-founded fixpoint satisfies fixpoint equation
-theorem fixEq (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) :
+theorem fix_eq (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) :
     fix hwf F x = F x (fun y h => fix hwf F y) :=
   fixFEq F x (apply hwf x)
 end WellFounded
@@ -151,11 +151,11 @@ def Nat.ltWf : WellFounded Nat.lt := by
   | zero      =>
     apply Acc.intro 0
     intro _ h
-    apply absurd h (Nat.notLtZero _)
+    apply absurd h (Nat.not_lt_zero _)
   | succ n ih =>
     apply Acc.intro (Nat.succ n)
     intro m h
-    have : m = n ∨ m < n := Nat.eqOrLtOfLe (Nat.leOfSuccLeSucc h)
+    have : m = n ∨ m < n := Nat.eq_or_lt_of_le (Nat.le_of_succ_le_succ h)
     match this with
     | Or.inl e => subst e; assumption
     | Or.inr e => exact Acc.inv ih e

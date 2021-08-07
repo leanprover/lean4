@@ -19,6 +19,9 @@ instance : Monad Id where
   bind x f := f x
   map f x := f x
 
+def hasBind : Bind Id :=
+  inferInstance
+
 @[inline] protected def run (x : Id α) : α := x
 
 instance [OfNat α n] : OfNat (Id α) n :=

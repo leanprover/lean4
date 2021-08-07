@@ -34,18 +34,18 @@ def expandDeclNamespace? (stx : Syntax) : Option (Name × Syntax) :=
   else
     let decl := stx[1]
     let k := decl.getKind
-    if k == `Lean.Parser.Command.abbrev ||
-       k == `Lean.Parser.Command.def ||
-       k == `Lean.Parser.Command.theorem ||
-       k == `Lean.Parser.Command.constant ||
-       k == `Lean.Parser.Command.axiom ||
-       k == `Lean.Parser.Command.inductive ||
-       k == `Lean.Parser.Command.classInductive ||
-       k == `Lean.Parser.Command.structure then
+    if k == ``Lean.Parser.Command.abbrev ||
+       k == ``Lean.Parser.Command.def ||
+       k == ``Lean.Parser.Command.theorem ||
+       k == ``Lean.Parser.Command.constant ||
+       k == ``Lean.Parser.Command.axiom ||
+       k == ``Lean.Parser.Command.inductive ||
+       k == ``Lean.Parser.Command.classInductive ||
+       k == ``Lean.Parser.Command.structure then
       match expandDeclIdNamespace? decl[1] with
       | some (ns, declId) => some (ns, stx.setArg 1 (decl.setArg 1 declId))
       | none              => none
-    else if k == `Lean.Parser.Command.instance then
+    else if k == ``Lean.Parser.Command.instance then
       let optDeclId := decl[3]
       if optDeclId.isNone then none
       else match expandDeclIdNamespace? optDeclId[0] with
@@ -148,13 +148,13 @@ def elabDeclaration : CommandElab := fun stx =>
     let modifiers ← elabModifiers stx[0]
     let decl     := stx[1]
     let declKind := decl.getKind
-    if declKind == `Lean.Parser.Command.«axiom» then
+    if declKind == ``Lean.Parser.Command.«axiom» then
       elabAxiom modifiers decl
-    else if declKind == `Lean.Parser.Command.«inductive» then
+    else if declKind == ``Lean.Parser.Command.«inductive» then
       elabInductive modifiers decl
-    else if declKind == `Lean.Parser.Command.classInductive then
+    else if declKind == ``Lean.Parser.Command.classInductive then
       elabClassInductive modifiers decl
-    else if declKind == `Lean.Parser.Command.«structure» then
+    else if declKind == ``Lean.Parser.Command.«structure» then
       elabStructure modifiers decl
     else if isDefLike decl then
       elabMutualDef #[stx]
@@ -182,13 +182,11 @@ private def isMutualDef (stx : Syntax) : Bool :=
 
 private def isMutualPreambleCommand (stx : Syntax) : Bool :=
   let k := stx.getKind
-  k == `Lean.Parser.Command.variable ||
-  k == `Lean.Parser.Command.variables ||
-  k == `Lean.Parser.Command.universe ||
-  k == `Lean.Parser.Command.universe ||
-  k == `Lean.Parser.Command.check ||
-  k == `Lean.Parser.Command.set_option ||
-  k == `Lean.Parser.Command.open
+  k == ``Lean.Parser.Command.variable ||
+  k == ``Lean.Parser.Command.universe ||
+  k == ``Lean.Parser.Command.check ||
+  k == ``Lean.Parser.Command.set_option ||
+  k == ``Lean.Parser.Command.open
 
 private partial def splitMutualPreamble (elems : Array Syntax) : Option (Array Syntax × Array Syntax) :=
   let rec loop (i : Nat) : Option (Array Syntax × Array Syntax) :=

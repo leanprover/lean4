@@ -41,7 +41,7 @@ private partial def introArrayLit (mvarId : MVarId) (a : Expr) (n : Nat) (xNameP
     else
       let xsLit     ← mkArrayLit α xs.toList
       let aEqXsLit  ← mkEq a xsLit
-      let aEqLitPrf ← mkAppM `Array.toArrayLitEq #[a, mkRawNatLit n, aSizeEqN]
+      let aEqLitPrf ← mkAppM ``Array.toArrayLit_eq #[a, mkRawNatLit n, aSizeEqN]
       withLocalDeclD `hEqALit aEqXsLit fun heq => do
         let target    ← getMVarType mvarId
         let newTarget ← mkForallFVars (xs.push heq) target

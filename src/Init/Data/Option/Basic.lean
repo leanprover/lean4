@@ -37,7 +37,7 @@ def toMonad [Monad m] [Alternative m] : Option α → m α
 @[inline] protected def map (f : α → β) (o : Option α) : Option β :=
   Option.bind o (some ∘ f)
 
-theorem mapId : (Option.map id : Option α → Option α) = id :=
+theorem map_id : (Option.map id : Option α → Option α) = id :=
   funext (fun o => match o with | none => rfl | some x => rfl)
 
 instance : Functor Option where
@@ -70,8 +70,8 @@ instance : OrElse (Option α) where
 instance (r : α → α → Prop) [s : DecidableRel r] : DecidableRel (Option.lt r)
   | none,   some y => isTrue  trivial
   | some x, some y => s x y
-  | some x, none   => isFalse notFalse
-  | none,   none   => isFalse notFalse
+  | some x, none   => isFalse not_false
+  | none,   none   => isFalse not_false
 
 end Option
 

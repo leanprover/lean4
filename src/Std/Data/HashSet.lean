@@ -22,7 +22,7 @@ def mkHashSetImp {α : Type u} (nbuckets := 8) : HashSetImp α :=
   { size       := 0,
     buckets    :=
     ⟨ mkArray n [],
-      by rw [Array.size_mkArray]; cases nbuckets; decide; apply Nat.zeroLtSucc ⟩ }
+      by rw [Array.size_mkArray]; cases nbuckets; decide; apply Nat.zero_lt_succ ⟩ }
 
 namespace HashSetImp
 variable {α : Type u}
@@ -71,7 +71,7 @@ partial def moveEntries [Hashable α] (i : Nat) (source : Array (List α)) (targ
 
 def expand [Hashable α] (size : Nat) (buckets : HashSetBucket α) : HashSetImp α :=
   let nbuckets := buckets.val.size * 2
-  have : nbuckets > 0 := Nat.mulPos buckets.property (by decide)
+  have : nbuckets > 0 := Nat.mul_pos buckets.property (by decide)
   let new_buckets : HashSetBucket α := ⟨mkArray nbuckets [], by rw [Array.size_mkArray]; assumption⟩
   { size    := size,
     buckets := moveEntries 0 buckets.val new_buckets }

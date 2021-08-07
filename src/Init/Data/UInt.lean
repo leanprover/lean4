@@ -278,11 +278,11 @@ def UInt64.decLe (a b : UInt64) : Decidable (a ≤ b) :=
 instance (a b : UInt64) : Decidable (a < b) := UInt64.decLt a b
 instance (a b : UInt64) : Decidable (a ≤ b) := UInt64.decLe a b
 
-theorem usizeSzGt0 : USize.size > 0 :=
-  Nat.posPowOfPos System.Platform.numBits (Nat.zeroLtSucc _)
+theorem usize_size_gt_zero : USize.size > 0 :=
+  Nat.pos_pow_of_pos System.Platform.numBits (Nat.zero_lt_succ _)
 
 @[extern "lean_usize_of_nat"]
-def USize.ofNat (n : @& Nat) : USize := ⟨Fin.ofNat' n usizeSzGt0⟩
+def USize.ofNat (n : @& Nat) : USize := ⟨Fin.ofNat' n usize_size_gt_zero⟩
 abbrev Nat.toUSize := USize.ofNat
 @[extern "lean_usize_to_nat"]
 def USize.toNat (n : USize) : Nat := n.val.val

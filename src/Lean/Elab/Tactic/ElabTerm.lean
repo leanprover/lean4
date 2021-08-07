@@ -212,7 +212,7 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
       throwError "failed to reduce to 'true'{indentExpr r}"
     let s := d.appArg! -- get instance from `d`
     let rflPrf ← mkEqRefl (toExpr true)
-    return mkApp3 (Lean.mkConst `ofDecideEqTrue) expectedType s rflPrf
+    return mkApp3 (Lean.mkConst ``of_decide_eq_true) expectedType s rflPrf
 
 private def mkNativeAuxDecl (baseName : Name) (type val : Expr) : TermElabM Name := do
   let auxName ← Term.mkAuxName baseName
@@ -232,6 +232,6 @@ private def mkNativeAuxDecl (baseName : Name) (type val : Expr) : TermElabM Name
     let auxDeclName ← mkNativeAuxDecl `_nativeDecide (Lean.mkConst `Bool) d
     let rflPrf ← mkEqRefl (toExpr true)
     let s := d.appArg! -- get instance from `d`
-    return mkApp3 (Lean.mkConst `ofDecideEqTrue) expectedType s <| mkApp3 (Lean.mkConst `Lean.ofReduceBool) (Lean.mkConst auxDeclName) (toExpr true) rflPrf
+    return mkApp3 (Lean.mkConst ``of_decide_eq_true) expectedType s <| mkApp3 (Lean.mkConst ``Lean.ofReduceBool) (Lean.mkConst auxDeclName) (toExpr true) rflPrf
 
 end Lean.Elab.Tactic

@@ -67,7 +67,7 @@ def contradictionCore (mvarId : MVarId) (useDecide : Bool) (searchDepth : Nat) :
             let d ← mkDecide localDecl.type
             let r ← withDefault <| whnf d
             if r.isConstOf ``false then
-              let hn := mkAppN (mkConst ``ofDecideEqFalse) <| d.getAppArgs.push (← mkEqRefl d)
+              let hn := mkAppN (mkConst ``of_decide_eq_false) <| d.getAppArgs.push (← mkEqRefl d)
               assignExprMVar mvarId (← mkAbsurd (← getMVarType mvarId) localDecl.toExpr hn)
               return true
           catch _ =>

@@ -21,7 +21,7 @@ noncomputable def indefiniteDescription {α : Sort u} (p : α → Prop) (h : ∃
 noncomputable def choose {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : α :=
   (indefiniteDescription p h).val
 
-theorem chooseSpec {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : p (choose h) :=
+theorem choose_spec {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : p (choose h) :=
   (indefiniteDescription p h).property
 
 /- Diaconescu's theorem: excluded middle from choice, Function extensionality and propositional extensionality. -/
@@ -32,14 +32,14 @@ theorem em (p : Prop) : p ∨ ¬p :=
   have exV : ∃ x, V x := ⟨False, Or.inl rfl⟩;
   let u : Prop := choose exU;
   let v : Prop := choose exV;
-  have uDef : U u := chooseSpec exU;
-  have vDef : V v := chooseSpec exV;
+  have uDef : U u := choose_spec exU;
+  have vDef : V v := choose_spec exV;
   have notUvOrP : u ≠ v ∨ p :=
     match uDef, vDef with
     | Or.inr h, _ => Or.inr h
     | _, Or.inr h => Or.inr h
     | Or.inl hut, Or.inl hvf =>
-      have hne : u ≠ v := hvf.symm ▸ hut.symm ▸ trueNeFalse
+      have hne : u ≠ v := hvf.symm ▸ hut.symm ▸ true_ne_false
       Or.inl hne
   have pImpliesUv : p → u = v :=
     fun hp =>
@@ -58,14 +58,14 @@ theorem em (p : Prop) : p ∨ ¬p :=
   | Or.inl hne => Or.inr (mt pImpliesUv hne)
   | Or.inr h   => Or.inl h
 
-theorem existsTrueOfNonempty {α : Sort u} : Nonempty α → ∃ x : α, True
+theorem exists_true_of_nonempty {α : Sort u} : Nonempty α → ∃ x : α, True
   | ⟨x⟩ => ⟨x, trivial⟩
 
-noncomputable def inhabitedOfNonempty {α : Sort u} (h : Nonempty α) : Inhabited α :=
+noncomputable def inhabited_of_nonempty {α : Sort u} (h : Nonempty α) : Inhabited α :=
   ⟨choice h⟩
 
-noncomputable def inhabitedOfExists {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : Inhabited α :=
-  inhabitedOfNonempty (Exists.elim h (fun w hw => ⟨w⟩))
+noncomputable def inhabited_of_exists {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : Inhabited α :=
+  inhabited_of_nonempty (Exists.elim h (fun w hw => ⟨w⟩))
 
 /- all propositions are Decidable -/
 noncomputable scoped instance (priority := low) propDecidable (a : Prop) : Decidable a :=
@@ -81,7 +81,7 @@ noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
 
 noncomputable def typeDecidable (α : Sort u) : PSum α (α → False) :=
   match (propDecidable (Nonempty α)) with
-  | (isTrue hp)  => PSum.inl (@arbitrary _ (inhabitedOfNonempty hp))
+  | (isTrue hp)  => PSum.inl (@arbitrary _ (inhabited_of_nonempty hp))
   | (isFalse hn) => PSum.inr (fun a => absurd (Nonempty.intro a) hn)
 
 noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop) (h : Nonempty α) : {x : α // (∃ y : α, p y) → p x} :=
@@ -97,19 +97,19 @@ noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop) (h
 noncomputable def epsilon {α : Sort u} [h : Nonempty α] (p : α → Prop) : α :=
   (strongIndefiniteDescription p h).val
 
-theorem epsilonSpecAux {α : Sort u} (h : Nonempty α) (p : α → Prop) : (∃ y, p y) → p (@epsilon α h p) :=
+theorem epsilon_spec_aux {α : Sort u} (h : Nonempty α) (p : α → Prop) : (∃ y, p y) → p (@epsilon α h p) :=
   (strongIndefiniteDescription p h).property
 
-theorem epsilonSpec {α : Sort u} {p : α → Prop} (hex : ∃ y, p y) : p (@epsilon α (nonemptyOfExists hex) p) :=
-  epsilonSpecAux (nonemptyOfExists hex) p hex
+theorem epsilon_spec {α : Sort u} {p : α → Prop} (hex : ∃ y, p y) : p (@epsilon α (nonempty_of_exists hex) p) :=
+  epsilon_spec_aux (nonempty_of_exists hex) p hex
 
-theorem epsilonSingleton {α : Sort u} (x : α) : @epsilon α ⟨x⟩ (fun y => y = x) = x :=
-  @epsilonSpec α (fun y => y = x) ⟨x, rfl⟩
+theorem epsilon_singleton {α : Sort u} (x : α) : @epsilon α ⟨x⟩ (fun y => y = x) = x :=
+  @epsilon_spec α (fun y => y = x) ⟨x, rfl⟩
 
 /- the axiom of choice -/
 
 theorem axiomOfChoice {α : Sort u} {β : α → Sort v} {r : ∀ x, β x → Prop} (h : ∀ x, ∃ y, r x y) : ∃ (f : ∀ x, β x), ∀ x, r x (f x) :=
-  ⟨_, fun x => chooseSpec (h x)⟩
+  ⟨_, fun x => choose_spec (h x)⟩
 
 theorem skolem {α : Sort u} {b : α → Sort v} {p : ∀ x, b x → Prop} : (∀ x, ∃ y, p x y) ↔ ∃ (f : ∀ x, b x), ∀ x, p x (f x) :=
   ⟨axiomOfChoice, fun ⟨f, hw⟩ (x) => ⟨f x, hw x⟩⟩

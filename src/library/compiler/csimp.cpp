@@ -1938,6 +1938,10 @@ class csimp_fn {
         case expr_kind::Proj:   return visit_proj(e, is_let_val);
         case expr_kind::App:    return visit_app(e, is_let_val);
         case expr_kind::Const:  return visit_constant(e, is_let_val);
+        /* We erase MData for now. We should revisit this decision when we rewrite the compiler in Lean, since we
+           are probably going to store debugging information in this kind of node.
+           We erase it here because `ir.cpp` does not support it, and produced `unreachable` code at issue #616 */
+        case expr_kind::MData:  return visit(mdata_expr(e), is_let_val);
         default:                return e;
         }
     }

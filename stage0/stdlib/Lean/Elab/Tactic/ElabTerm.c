@@ -7385,7 +7385,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalDecide___rarg___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ofDecideEqTrue");
+x_1 = lean_mk_string("of_decide_eq_true");
 return x_1;
 }
 }

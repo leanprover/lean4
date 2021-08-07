@@ -46,7 +46,7 @@ private def markAsTrailingParser (lhsPrec : Nat) : ToParserDescrM Unit := set (s
 
 def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
   let ctx ← read
-  unless ctx.first && stx.getKind == `Lean.Parser.Syntax.cat do
+  unless ctx.first && stx.getKind == ``Lean.Parser.Syntax.cat do
     return false
   let cat := stx[0].getId.eraseMacroScopes
   unless cat == ctx.catName do
@@ -72,21 +72,21 @@ where
       processSeq stx
     else if kind == choiceKind then
       process stx[0]
-    else if kind == `Lean.Parser.Syntax.paren then
+    else if kind == ``Lean.Parser.Syntax.paren then
       process stx[1]
-    else if kind == `Lean.Parser.Syntax.cat then
+    else if kind == ``Lean.Parser.Syntax.cat then
       processNullaryOrCat stx
-    else if kind == `Lean.Parser.Syntax.unary then
+    else if kind == ``Lean.Parser.Syntax.unary then
       processUnary stx
-    else if kind == `Lean.Parser.Syntax.binary then
+    else if kind == ``Lean.Parser.Syntax.binary then
       processBinary stx
-    else if kind == `Lean.Parser.Syntax.sepBy then
+    else if kind == ``Lean.Parser.Syntax.sepBy then
       processSepBy stx
-    else if kind == `Lean.Parser.Syntax.sepBy1 then
+    else if kind == ``Lean.Parser.Syntax.sepBy1 then
       processSepBy1 stx
-    else if kind == `Lean.Parser.Syntax.atom then
+    else if kind == ``Lean.Parser.Syntax.atom then
       processAtom stx
-    else if kind == `Lean.Parser.Syntax.nonReserved then
+    else if kind == ``Lean.Parser.Syntax.nonReserved then
       processNonReserved stx
     else
       let stxNew? ← liftM (liftMacroM (expandMacro? stx) : TermElabM _)
@@ -120,11 +120,11 @@ where
          | none      => none
          | some info =>
            match info.type with
-          | Expr.const `Lean.Parser.TrailingParser _ _ => (c, false)
-          | Expr.const `Lean.Parser.Parser _ _         => (c, false)
-          | Expr.const `Lean.ParserDescr _ _           => (c, true)
-          | Expr.const `Lean.TrailingParserDescr _ _   => (c, true)
-          | _                                          => none
+          | Expr.const ``Lean.Parser.TrailingParser _ _ => (c, false)
+          | Expr.const ``Lean.Parser.Parser _ _         => (c, false)
+          | Expr.const ``Lean.ParserDescr _ _           => (c, true)
+          | Expr.const ``Lean.TrailingParserDescr _ _   => (c, true)
+          | _                                           => none
     catch _ => return []
 
   ensureNoPrec (stx : Syntax) :=
@@ -256,7 +256,7 @@ where
     | none =>
       match stx with
       | Syntax.node k args =>
-        if k == `Lean.Parser.Syntax.cat then
+        if k == ``Lean.Parser.Syntax.cat then
           acc ++ "_"
         else
           args.foldl (init := acc) fun acc arg => visit arg acc
@@ -283,10 +283,10 @@ private partial def isAtomLikeSyntax (stx : Syntax) : Bool :=
     isAtomLikeSyntax stx[0] && isAtomLikeSyntax stx[stx.getNumArgs - 1]
   else if kind == choiceKind then
     isAtomLikeSyntax stx[0] -- see toParserDescr
-  else if kind == `Lean.Parser.Syntax.paren then
+  else if kind == ``Lean.Parser.Syntax.paren then
     isAtomLikeSyntax stx[1]
   else
-    kind == `Lean.Parser.Syntax.atom
+    kind == ``Lean.Parser.Syntax.atom
 
 def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   checkSyntaxNodeKindAtNamespaces k (← getCurrNamespace)

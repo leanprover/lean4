@@ -3115,7 +3115,7 @@ static lean_object* _init_l_Lean_Meta_mkEqOfHEq___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("eqOfHEq");
+x_1 = lean_mk_string("eq_of_heq");
 return x_1;
 }
 }
@@ -11845,7 +11845,7 @@ static lean_object* _init_l_Lean_Meta_mkDecideProof___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ofDecideEqTrue");
+x_1 = lean_mk_string("of_decide_eq_true");
 return x_1;
 }
 }
@@ -12304,7 +12304,7 @@ static lean_object* _init_l_Lean_Meta_mkOfEqTrue___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ofEqTrue");
+x_1 = lean_mk_string("of_eq_true");
 return x_1;
 }
 }
@@ -12333,7 +12333,7 @@ static lean_object* _init_l_Lean_Meta_mkEqTrue___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("eqTrue");
+x_1 = lean_mk_string("eq_true");
 return x_1;
 }
 }
@@ -12362,7 +12362,7 @@ static lean_object* _init_l_Lean_Meta_mkEqFalse___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("eqFalse");
+x_1 = lean_mk_string("eq_false");
 return x_1;
 }
 }
@@ -12391,7 +12391,7 @@ static lean_object* _init_l_Lean_Meta_mkEqFalse_x27___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("eqFalse'");
+x_1 = lean_mk_string("eq_false'");
 return x_1;
 }
 }
@@ -12420,7 +12420,7 @@ static lean_object* _init_l_Lean_Meta_mkImpCongr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("impCongr");
+x_1 = lean_mk_string("implies_congr");
 return x_1;
 }
 }
@@ -12450,7 +12450,7 @@ static lean_object* _init_l_Lean_Meta_mkImpCongrCtx___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("impCongrCtx");
+x_1 = lean_mk_string("implies_congr_ctx");
 return x_1;
 }
 }
@@ -12480,7 +12480,7 @@ static lean_object* _init_l_Lean_Meta_mkForallCongr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("forallCongr");
+x_1 = lean_mk_string("forall_congr");
 return x_1;
 }
 }

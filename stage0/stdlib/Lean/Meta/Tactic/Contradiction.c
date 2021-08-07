@@ -2081,7 +2081,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_contradictionC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ofDecideEqFalse");
+x_1 = lean_mk_string("of_decide_eq_false");
 return x_1;
 }
 }

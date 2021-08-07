@@ -154,8 +154,8 @@ partial def mkPairs (elems : Array Syntax) : MacroM Syntax :=
 
 private partial def hasCDot : Syntax → Bool
   | Syntax.node k args =>
-    if k == `Lean.Parser.Term.paren then false
-    else if k == `Lean.Parser.Term.cdot then true
+    if k == ``Lean.Parser.Term.paren then false
+    else if k == ``Lean.Parser.Term.cdot then true
     else args.any hasCDot
   | _ => false
 
@@ -179,8 +179,8 @@ where
     extra state, and return it. Otherwise, we just return `stx`. -/
   go : Syntax → StateT (Array Syntax) MacroM Syntax
     | stx@(Syntax.node k args) =>
-      if k == `Lean.Parser.Term.paren then pure stx
-      else if k == `Lean.Parser.Term.cdot then withFreshMacroScope do
+      if k == ``Lean.Parser.Term.paren then pure stx
+      else if k == ``Lean.Parser.Term.cdot then withFreshMacroScope do
         let id ← `(a)
         modify fun s => s.push id;
         pure id
@@ -291,13 +291,13 @@ where
 @[builtinTermElab stateRefT] def elabStateRefT : TermElab := fun stx _ => do
   let σ ← elabType stx[1]
   let mut mStx := stx[2]
-  if mStx.getKind == `Lean.Parser.Term.macroDollarArg then
+  if mStx.getKind == ``Lean.Parser.Term.macroDollarArg then
     mStx := mStx[1]
   let m ← elabTerm mStx (← mkArrow (mkSort levelOne) (mkSort levelOne))
   let ω ← mkFreshExprMVar (mkSort levelOne)
-  let stWorld ← mkAppM `STWorld #[ω, m]
+  let stWorld ← mkAppM ``STWorld #[ω, m]
   discard <| mkInstMVar stWorld
-  mkAppM `StateRefT' #[ω, σ, m]
+  mkAppM ``StateRefT' #[ω, σ, m]
 
 @[builtinTermElab noindex] def elabNoindex : TermElab := fun stx expectedType? => do
   let e ← elabTerm stx[1] expectedType?

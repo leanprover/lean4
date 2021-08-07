@@ -25,7 +25,7 @@ structure NumScalarTypeInfo where
 
 def numScalarTypes : List NumScalarTypeInfo :=
   [{nbits := 8}, {nbits := 16}, {nbits := 32}, {nbits := 64},
-   {id := `USize, nbits := System.Platform.numBits}]
+   {id := ``USize, nbits := System.Platform.numBits}]
 
 def isOfNat (fn : Name) : Bool :=
   numScalarTypes.any (fun info => info.ofNatFn == fn)
@@ -102,10 +102,10 @@ def mkNatEq (a b : Expr) : Expr :=
   mkAppN (mkConst ``Eq [levelOne]) #[(mkConst `Nat), a, b]
 
 def mkNatLt (a b : Expr) : Expr :=
-  mkAppN (mkConst ``LT.lt [levelZero]) #[mkConst `Nat, mkConst `Nat.less, a, b]
+  mkAppN (mkConst ``LT.lt [levelZero]) #[mkConst ``Nat, mkConst ``Nat.lt, a, b]
 
 def mkNatLe (a b : Expr) : Expr :=
-  mkAppN (mkConst ``LE.le [levelZero]) #[mkConst `Nat, mkConst `Nat.lessEq, a, b]
+  mkAppN (mkConst ``LE.le [levelZero]) #[mkConst ``Nat, mkConst ``Nat.le, a, b]
 
 def toDecidableExpr (beforeErasure : Bool) (pred : Expr) (r : Bool) : Expr :=
   match beforeErasure, r with
@@ -161,7 +161,7 @@ def foldStrictOr (_ : Bool) (a₁ a₂ : Expr) : Option Expr :=
   | _, _          => none
 
 def boolFoldFns : List (Name × BinFoldFn) :=
-  [(`strictOr, foldStrictOr), (`strictAnd, foldStrictAnd)]
+  [(``strictOr, foldStrictOr), (``strictAnd, foldStrictAnd)]
 
 def binFoldFns : List (Name × BinFoldFn) :=
   boolFoldFns ++ uintBinFoldFns ++ natFoldFns

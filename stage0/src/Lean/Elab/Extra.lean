@@ -19,9 +19,9 @@ open Meta
     let (lhs, rhs) ← withSynthesize (mayPostpone := true) do
       let mut lhs ← elabTerm stx[2] none
       let mut rhs ← elabTerm stx[3] none
-      if lhs.isAppOfArity `OfNat.ofNat 3 then
+      if lhs.isAppOfArity ``OfNat.ofNat 3 then
         lhs ← ensureHasType (← inferType rhs) lhs
-      else if rhs.isAppOfArity `OfNat.ofNat 3 then
+      else if rhs.isAppOfArity ``OfNat.ofNat 3 then
         rhs ← ensureHasType (← inferType lhs) rhs
       return (lhs, rhs)
     let lhsType ← inferType lhs
@@ -90,7 +90,7 @@ private def hasUnknownType (e : Expr) : MetaM Bool :=
         let elemType ← mkFreshExprMVar (mkSort (mkLevelSucc (← mkFreshLevelMVar)))
         let forInInstance ←
           try
-            mkAppM `ForIn #[m, colType, elemType]
+            mkAppM ``ForIn #[m, colType, elemType]
           catch
             ex => tryPostpone; throwError "failed to construct 'ForIn' instance for collection{indentExpr colType}\nand monad{indentExpr m}"
         match (← trySynthInstance forInInstance) with

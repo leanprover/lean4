@@ -110,13 +110,17 @@ inductive HEq {α : Sort u} (a : α) : {β : Sort u} → β → Prop where
 @[matchPattern] def HEq.rfl {α : Sort u} {a : α} : HEq a a :=
   HEq.refl a
 
-theorem eqOfHEq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
+theorem eq_of_heq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
   have : (α β : Sort u) → (a : α) → (b : β) → HEq a b → (h : Eq α β) → Eq (cast h a) b :=
     fun α β a b h₁ =>
       HEq.rec (motive := fun {β} (b : β) (h : HEq a b) => (h₂ : Eq α β) → Eq (cast h₂ a) b)
         (fun (h₂ : Eq α α) => rfl)
         h₁
   this α α a a' h rfl
+
+-- TODO: delete
+theorem eqOfHEq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
+  eq_of_heq h
 
 structure Prod (α : Type u) (β : Type v) where
   fst : α
@@ -169,19 +173,19 @@ structure Subtype {α : Sort u} (p : α → Prop) where
 @[extern "lean_sorry", neverExtract]
 axiom sorryAx (α : Sort u) (synthetic := true) : α
 
-theorem eqFalseOfNeTrue : {b : Bool} → Not (Eq b true) → Eq b false
+theorem eq_false_of_ne_true : {b : Bool} → Not (Eq b true) → Eq b false
   | true, h => False.elim (h rfl)
   | false, h => rfl
 
-theorem eqTrueOfNeFalse : {b : Bool} → Not (Eq b false) → Eq b true
+theorem eq_true_of_ne_false : {b : Bool} → Not (Eq b false) → Eq b true
   | true, h => rfl
   | false, h => False.elim (h rfl)
 
-theorem neFalseOfEqTrue : {b : Bool} → Eq b true → Not (Eq b false)
+theorem ne_false_of_eq_true : {b : Bool} → Eq b true → Not (Eq b false)
   | true, _  => fun h => Bool.noConfusion h
   | false, h => Bool.noConfusion h
 
-theorem neTrueOfEqFalse : {b : Bool} → Eq b false → Not (Eq b true)
+theorem ne_true_of_eq_false : {b : Bool} → Eq b false → Not (Eq b true)
   | true, h  => Bool.noConfusion h
   | false, _ => fun h => Bool.noConfusion h
 
@@ -207,10 +211,10 @@ structure PLift (α : Sort u) : Type u where
   up :: (down : α)
 
 /- Bijection between α and PLift α -/
-theorem PLift.upDown {α : Sort u} : ∀ (b : PLift α), Eq (up (down b)) b
+theorem PLift.up_down {α : Sort u} : ∀ (b : PLift α), Eq (up (down b)) b
   | up a => rfl
 
-theorem PLift.downUp {α : Sort u} (a : α) : Eq (down (up a)) a :=
+theorem PLift.down_up {α : Sort u} (a : α) : Eq (down (up a)) a :=
   rfl
 
 /- Pointed types -/
@@ -226,10 +230,10 @@ structure ULift.{r, s} (α : Type s) : Type (max s r) where
   up :: (down : α)
 
 /- Bijection between α and ULift.{v} α -/
-theorem ULift.upDown {α : Type u} : ∀ (b : ULift.{v} α), Eq (up (down b)) b
+theorem ULift.up_down {α : Type u} : ∀ (b : ULift.{v} α), Eq (up (down b)) b
   | up a => rfl
 
-theorem ULift.downUp {α : Type u} (a : α) : Eq (down (up.{v} a)) a :=
+theorem ULift.down_up {α : Type u} (a : α) : Eq (down (up.{v} a)) a :=
   rfl
 
 class inductive Decidable (p : Prop) where
@@ -253,22 +257,26 @@ abbrev DecidableEq (α : Sort u) :=
 def decEq {α : Sort u} [s : DecidableEq α] (a b : α) : Decidable (Eq a b) :=
   s a b
 
-theorem decideEqTrue : [s : Decidable p] → p → Eq (decide p) true
+theorem decide_eq_true : [s : Decidable p] → p → Eq (decide p) true
   | isTrue  _, _   => rfl
   | isFalse h₁, h₂ => absurd h₂ h₁
 
-theorem decideEqFalse : [s : Decidable p] → Not p → Eq (decide p) false
+theorem decide_eq_false : [s : Decidable p] → Not p → Eq (decide p) false
   | isTrue  h₁, h₂ => absurd h₁ h₂
   | isFalse h, _   => rfl
 
-theorem ofDecideEqTrue [s : Decidable p] : Eq (decide p) true → p := fun h =>
+theorem of_decide_eq_true [s : Decidable p] : Eq (decide p) true → p := fun h =>
   match (generalizing := false) s with
   | isTrue  h₁ => h₁
-  | isFalse h₁ => absurd h (neTrueOfEqFalse (decideEqFalse h₁))
+  | isFalse h₁ => absurd h (ne_true_of_eq_false (decide_eq_false h₁))
 
-theorem ofDecideEqFalse [s : Decidable p] : Eq (decide p) false → Not p := fun h =>
+-- TODO: delete
+theorem ofDecideEqTrue [s : Decidable p] : Eq (decide p) true → p :=
+  of_decide_eq_true
+
+theorem of_decide_eq_false [s : Decidable p] : Eq (decide p) false → Not p := fun h =>
   match (generalizing := false) s with
-  | isTrue  h₁ => absurd h (neFalseOfEqTrue (decideEqTrue h₁))
+  | isTrue  h₁ => absurd h (ne_false_of_eq_true (decide_eq_true h₁))
   | isFalse h₁ => h₁
 
 @[inline] instance : DecidableEq Bool :=
@@ -559,28 +567,28 @@ def Nat.beq : (@& Nat) → (@& Nat) → Bool
   | succ n, zero   => false
   | succ n, succ m => beq n m
 
-theorem Nat.eqOfBeqEqTrue : {n m : Nat} → Eq (beq n m) true → Eq n m
+theorem Nat.eq_of_beq_eq_true : {n m : Nat} → Eq (beq n m) true → Eq n m
   | zero,   zero,   h => rfl
   | zero,   succ m, h => Bool.noConfusion h
   | succ n, zero,   h => Bool.noConfusion h
   | succ n, succ m, h =>
     have : Eq (beq n m) true := h
-    have : Eq n m := eqOfBeqEqTrue this
+    have : Eq n m := eq_of_beq_eq_true this
     this ▸ rfl
 
-theorem Nat.neOfBeqEqFalse : {n m : Nat} → Eq (beq n m) false → Not (Eq n m)
+theorem Nat.ne_of_beq_eq_false : {n m : Nat} → Eq (beq n m) false → Not (Eq n m)
   | zero,   zero,   h₁, h₂ => Bool.noConfusion h₁
   | zero,   succ m, h₁, h₂ => Nat.noConfusion h₂
   | succ n, zero,   h₁, h₂ => Nat.noConfusion h₂
   | succ n, succ m, h₁, h₂ =>
     have : Eq (beq n m) false := h₁
-    Nat.noConfusion h₂ (fun h₂ => absurd h₂ (neOfBeqEqFalse this))
+    Nat.noConfusion h₂ (fun h₂ => absurd h₂ (ne_of_beq_eq_false this))
 
 @[extern "lean_nat_dec_eq"]
 protected def Nat.decEq (n m : @& Nat) : Decidable (Eq n m) :=
   match h:beq n m with
-  | true  => isTrue (eqOfBeqEqTrue h)
-  | false => isFalse (neOfBeqEqFalse h)
+  | true  => isTrue (eq_of_beq_eq_true h)
+  | false => isFalse (ne_of_beq_eq_false h)
 
 @[inline] instance : DecidableEq Nat := Nat.decEq
 
@@ -604,12 +612,12 @@ protected def Nat.lt (n m : Nat) : Prop :=
 instance : LT Nat where
   lt := Nat.lt
 
-theorem Nat.notSuccLeZero : ∀ (n : Nat), LE.le (succ n) 0 → False
+theorem Nat.not_succ_le_zero : ∀ (n : Nat), LE.le (succ n) 0 → False
   | 0,      h => nomatch h
   | succ n, h => nomatch h
 
-theorem Nat.notLtZero (n : Nat) : Not (LT.lt n 0) :=
-  notSuccLeZero n
+theorem Nat.not_lt_zero (n : Nat) : Not (LT.lt n 0) :=
+  not_succ_le_zero n
 
 @[extern "lean_nat_dec_le"]
 instance Nat.decLe (n m : @& Nat) : Decidable (LE.le n m) :=
@@ -619,83 +627,83 @@ instance Nat.decLe (n m : @& Nat) : Decidable (LE.le n m) :=
 instance Nat.decLt (n m : @& Nat) : Decidable (LT.lt n m) :=
   decLe (succ n) m
 
-theorem Nat.zeroLe : (n : Nat) → LE.le 0 n
+theorem Nat.zero_le : (n : Nat) → LE.le 0 n
   | zero   => rfl
   | succ n => rfl
 
-theorem Nat.succLeSucc {n m : Nat} (h : LE.le n m) : LE.le (succ n) (succ m) :=
+theorem Nat.succ_le_succ {n m : Nat} (h : LE.le n m) : LE.le (succ n) (succ m) :=
   h
 
-theorem Nat.zeroLtSucc (n : Nat) : LT.lt 0 (succ n) :=
-  succLeSucc (zeroLe n)
+theorem Nat.zero_lt_succ (n : Nat) : LT.lt 0 (succ n) :=
+  succ_le_succ (zero_le n)
 
-theorem Nat.leStep : {n m : Nat} → LE.le n m → LE.le n (succ m)
+theorem Nat.le_step : {n m : Nat} → LE.le n m → LE.le n (succ m)
   | zero,   zero,   h => rfl
   | zero,   succ n, h => rfl
   | succ n, zero,   h => Bool.noConfusion h
   | succ n, succ m, h =>
     have : LE.le n m := h
-    have : LE.le n (succ m) := leStep this
-    succLeSucc this
+    have : LE.le n (succ m) := le_step this
+    succ_le_succ this
 
-protected theorem Nat.leTrans : {n m k : Nat} → LE.le n m → LE.le m k → LE.le n k
-  | zero,   m,      k,      h₁, h₂ => zeroLe _
+protected theorem Nat.le_trans : {n m k : Nat} → LE.le n m → LE.le m k → LE.le n k
+  | zero,   m,      k,      h₁, h₂ => zero_le _
   | succ n, zero,   k,      h₁, h₂ => Bool.noConfusion h₁
   | succ n, succ m, zero,   h₁, h₂ => Bool.noConfusion h₂
   | succ n, succ m, succ k, h₁, h₂ =>
     have h₁' : LE.le n m := h₁
     have h₂' : LE.le m k := h₂
     show LE.le n k from
-    Nat.leTrans h₁' h₂'
+    Nat.le_trans h₁' h₂'
 
-protected theorem Nat.ltTrans {n m k : Nat} (h₁ : LT.lt n m) : LT.lt m k → LT.lt n k :=
-  Nat.leTrans (leStep h₁)
+protected theorem Nat.lt_trans {n m k : Nat} (h₁ : LT.lt n m) : LT.lt m k → LT.lt n k :=
+  Nat.le_trans (le_step h₁)
 
-theorem Nat.leSucc : (n : Nat) → LE.le n (succ n)
+theorem Nat.le_succ : (n : Nat) → LE.le n (succ n)
   | zero   => rfl
-  | succ n => leSucc n
+  | succ n => le_succ n
 
-theorem Nat.leSuccOfLe {n m : Nat} (h : LE.le n m) : LE.le n (succ m) :=
-  Nat.leTrans h (leSucc m)
+theorem Nat.le_succ_of_le {n m : Nat} (h : LE.le n m) : LE.le n (succ m) :=
+  Nat.le_trans h (le_succ m)
 
-protected theorem Nat.eqOrLtOfLe : {n m: Nat} → LE.le n m → Or (Eq n m) (LT.lt n m)
+protected theorem Nat.eq_or_lt_of_le : {n m: Nat} → LE.le n m → Or (Eq n m) (LT.lt n m)
   | zero,   zero,   h => Or.inl rfl
-  | zero,   succ n, h => Or.inr (zeroLe n)
+  | zero,   succ n, h => Or.inr (zero_le n)
   | succ n, zero,   h => Bool.noConfusion h
   | succ n, succ m, h =>
     have : LE.le n m := h
-    match Nat.eqOrLtOfLe this with
+    match Nat.eq_or_lt_of_le this with
     | Or.inl h => Or.inl (h ▸ rfl)
-    | Or.inr h => Or.inr (succLeSucc h)
+    | Or.inr h => Or.inr (succ_le_succ h)
 
-protected def Nat.leRefl : (n : Nat) → LE.le n n
+protected def Nat.le_refl : (n : Nat) → LE.le n n
   | zero   => rfl
-  | succ n => Nat.leRefl n
+  | succ n => Nat.le_refl n
 
-protected theorem Nat.ltOrGe (n m : Nat) : Or (LT.lt n m) (GE.ge n m) :=
+protected theorem Nat.lt_or_ge (n m : Nat) : Or (LT.lt n m) (GE.ge n m) :=
   match m with
-  | zero   => Or.inr (zeroLe n)
+  | zero   => Or.inr (zero_le n)
   | succ m =>
-    match Nat.ltOrGe n m with
-    | Or.inl h => Or.inl (leSuccOfLe h)
+    match Nat.lt_or_ge n m with
+    | Or.inl h => Or.inl (le_succ_of_le h)
     | Or.inr h =>
-      match Nat.eqOrLtOfLe h with
-      | Or.inl h1 => Or.inl (h1 ▸ Nat.leRefl _)
+      match Nat.eq_or_lt_of_le h with
+      | Or.inl h1 => Or.inl (h1 ▸ Nat.le_refl _)
       | Or.inr h1 => Or.inr h1
 
-protected theorem Nat.leAntisymm : {n m : Nat} → LE.le n m → LE.le m n → Eq n m
+protected theorem Nat.le_antisymm : {n m : Nat} → LE.le n m → LE.le m n → Eq n m
   | zero,   zero,   h₁, h₂ => rfl
   | succ n, zero,   h₁, h₂ => Bool.noConfusion h₁
   | zero,   succ m, h₁, h₂ => Bool.noConfusion h₂
   | succ n, succ m, h₁, h₂ =>
     have h₁' : LE.le n m := h₁
     have h₂' : LE.le m n := h₂
-    (Nat.leAntisymm h₁' h₂') ▸ rfl
+    (Nat.le_antisymm h₁' h₂') ▸ rfl
 
-protected theorem Nat.ltOfLeOfNe {n m : Nat} (h₁ : LE.le n m) (h₂ : Not (Eq n m)) : LT.lt n m :=
-  match Nat.ltOrGe n m with
+protected theorem Nat.lt_of_le_of_ne {n m : Nat} (h₁ : LE.le n m) (h₂ : Not (Eq n m)) : LT.lt n m :=
+  match Nat.lt_or_ge n m with
   | Or.inl h₃ => h₃
-  | Or.inr h₃ => absurd (Nat.leAntisymm h₁ h₃) h₂
+  | Or.inr h₃ => absurd (Nat.le_antisymm h₁ h₃) h₂
 
 set_option bootstrap.genMatcherCode false in
 @[extern c inline "lean_nat_sub(#1, lean_box(1))"]
@@ -712,17 +720,17 @@ protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
 instance : Sub Nat where
   sub := Nat.sub
 
-theorem Nat.predLePred : {n m : Nat} → LE.le n m → LE.le (pred n) (pred m)
+theorem Nat.pred_le_pred : {n m : Nat} → LE.le n m → LE.le (pred n) (pred m)
   | zero,   zero,   h => rfl
-  | zero,   succ n, h => zeroLe n
+  | zero,   succ n, h => zero_le n
   | succ n, zero,   h => Bool.noConfusion h
   | succ n, succ m, h => h
 
-theorem Nat.leOfSuccLeSucc {n m : Nat} : LE.le (succ n) (succ m) → LE.le n m :=
-  predLePred
+theorem Nat.le_of_succ_le_succ {n m : Nat} : LE.le (succ n) (succ m) → LE.le n m :=
+  pred_le_pred
 
-theorem Nat.leOfLtSucc {m n : Nat} : LT.lt m (succ n) → LE.le m n :=
-  leOfSuccLeSucc
+theorem Nat.le_of_lt_succ {m n : Nat} : LT.lt m (succ n) → LE.le m n :=
+  le_of_succ_le_succ
 
 @[extern "lean_system_platform_nbits"] constant System.Platform.getNumBits : Unit → Subtype fun (n : Nat) => Or (Eq n 32) (Eq n 64) :=
   fun _ => ⟨64, Or.inr rfl⟩ -- inhabitant
@@ -730,27 +738,27 @@ theorem Nat.leOfLtSucc {m n : Nat} : LT.lt m (succ n) → LE.le m n :=
 def System.Platform.numBits : Nat :=
   (getNumBits ()).val
 
-theorem System.Platform.numBitsEq : Or (Eq numBits 32) (Eq numBits 64) :=
+theorem System.Platform.numBits_eq : Or (Eq numBits 32) (Eq numBits 64) :=
   (getNumBits ()).property
 
 structure Fin (n : Nat) where
   val  : Nat
   isLt : LT.lt val n
 
-theorem Fin.eqOfVeq {n} : ∀ {i j : Fin n}, Eq i.val j.val → Eq i j
+theorem Fin.eq_of_val_eq {n} : ∀ {i j : Fin n}, Eq i.val j.val → Eq i j
   | ⟨v, h⟩, ⟨_, _⟩, rfl => rfl
 
-theorem Fin.veqOfEq {n} {i j : Fin n} (h : Eq i j) : Eq i.val j.val :=
+theorem Fin.val_eq_of_eq {n} {i j : Fin n} (h : Eq i j) : Eq i.val j.val :=
   h ▸ rfl
 
-theorem Fin.neOfVne {n} {i j : Fin n} (h : Not (Eq i.val j.val)) : Not (Eq i j) :=
-  fun h' => absurd (veqOfEq h') h
+theorem Fin.ne_of_val_ne {n} {i j : Fin n} (h : Not (Eq i.val j.val)) : Not (Eq i j) :=
+  fun h' => absurd (val_eq_of_eq h') h
 
 instance (n : Nat) : DecidableEq (Fin n) :=
   fun i j =>
     match decEq i.val j.val with
-    | isTrue h  => isTrue (Fin.eqOfVeq h)
-    | isFalse h => isFalse (Fin.neOfVne h)
+    | isTrue h  => isTrue (Fin.eq_of_val_eq h)
+    | isFalse h => isFalse (Fin.ne_of_val_ne h)
 
 instance {n} : LT (Fin n) where
   lt a b := LT.lt a.val b.val
@@ -758,7 +766,7 @@ instance {n} : LT (Fin n) where
 instance {n} : LE (Fin n) where
   le a b := LE.le a.val b.val
 
-instance Fin.decLt {n} (a b : Fin n) :  Decidable (LT.lt a b)  := Nat.decLt ..
+instance Fin.decLt {n} (a b : Fin n) : Decidable (LT.lt a b)  := Nat.decLt ..
 instance Fin.decLe {n} (a b : Fin n) : Decidable (LE.le a b) := Nat.decLe ..
 
 def UInt8.size : Nat := 256
@@ -883,9 +891,9 @@ instance : Inhabited UInt64 where
 
 def USize.size : Nat := hPow 2 System.Platform.numBits
 
-theorem usizeSzEq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
+theorem usize_size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
   show Or (Eq (hPow 2 System.Platform.numBits) 4294967296) (Eq (hPow 2 System.Platform.numBits) 18446744073709551616) from
-  match System.Platform.numBits, System.Platform.numBitsEq with
+  match System.Platform.numBits, System.Platform.numBits_eq with
   | _, Or.inl rfl => Or.inl (by decide)
   | _, Or.inr rfl => Or.inr (by decide)
 
@@ -910,7 +918,7 @@ def USize.decEq (a b : USize) : Decidable (Eq a b) :=
 instance : DecidableEq USize := USize.decEq
 
 instance : Inhabited USize where
-  default := USize.ofNatCore 0 (match USize.size, usizeSzEq with
+  default := USize.ofNatCore 0 (match USize.size, usize_size_eq with
     | _, Or.inl rfl => by decide
     | _, Or.inr rfl => by decide)
 
@@ -918,9 +926,9 @@ instance : Inhabited USize where
 def USize.ofNat32 (n : @& Nat) (h : LT.lt n 4294967296) : USize := {
   val := {
     val  := n
-    isLt := match USize.size, usizeSzEq with
+    isLt := match USize.size, usize_size_eq with
       | _, Or.inl rfl => h
-      | _, Or.inr rfl => Nat.ltTrans h (by decide)
+      | _, Or.inr rfl => Nat.lt_trans h (by decide)
   }
 }
 
@@ -936,14 +944,14 @@ structure Char where
   val   : UInt32
   valid : val.isValidChar
 
-private theorem validCharIsUInt32 {n : Nat} (h : n.isValidChar) : LT.lt n UInt32.size :=
+private theorem isValidChar_UInt32 {n : Nat} (h : n.isValidChar) : LT.lt n UInt32.size :=
   match h with
-  | Or.inl h      => Nat.ltTrans h (by decide)
-  | Or.inr ⟨_, h⟩ => Nat.ltTrans h (by decide)
+  | Or.inl h      => Nat.lt_trans h (by decide)
+  | Or.inr ⟨_, h⟩ => Nat.lt_trans h (by decide)
 
 @[extern "lean_uint32_of_nat"]
 private def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char :=
-  { val := ⟨{ val := n, isLt := validCharIsUInt32 h }⟩, valid := h }
+  { val := ⟨{ val := n, isLt := isValidChar_UInt32 h }⟩, valid := h }
 
 @[noinline, matchPattern]
 def Char.ofNat (n : Nat) : Char :=
@@ -951,23 +959,23 @@ def Char.ofNat (n : Nat) : Char :=
     (fun h => Char.ofNatAux n h)
     (fun _ => { val := ⟨{ val := 0, isLt := by decide }⟩, valid := Or.inl (by decide) })
 
-theorem Char.eqOfVeq : ∀ {c d : Char}, Eq c.val d.val → Eq c d
+theorem Char.eq_of_val_eq : ∀ {c d : Char}, Eq c.val d.val → Eq c d
   | ⟨v, h⟩, ⟨_, _⟩, rfl => rfl
 
-theorem Char.veqOfEq : ∀ {c d : Char}, Eq c d → Eq c.val d.val
+theorem Char.val_eq_of_eq : ∀ {c d : Char}, Eq c d → Eq c.val d.val
   | _, _, rfl => rfl
 
-theorem Char.neOfVne {c d : Char} (h : Not (Eq c.val d.val)) : Not (Eq c d) :=
-  fun h' => absurd (veqOfEq h') h
+theorem Char.ne_of_val_ne {c d : Char} (h : Not (Eq c.val d.val)) : Not (Eq c d) :=
+  fun h' => absurd (val_eq_of_eq h') h
 
-theorem Char.vneOfNe {c d : Char} (h : Not (Eq c d)) : Not (Eq c.val d.val) :=
-  fun h' => absurd (eqOfVeq h') h
+theorem Char.val_ne_of_ne {c d : Char} (h : Not (Eq c d)) : Not (Eq c.val d.val) :=
+  fun h' => absurd (eq_of_val_eq h') h
 
 instance : DecidableEq Char :=
   fun c d =>
     match decEq c.val d.val with
-    | isTrue h  => isTrue (Char.eqOfVeq h)
-    | isFalse h => isFalse (Char.neOfVne h)
+    | isTrue h  => isTrue (Char.eq_of_val_eq h)
+    | isFalse h => isFalse (Char.ne_of_val_ne h)
 
 def Char.utf8Size (c : Char) : UInt32 :=
   let v := c.val
@@ -1044,11 +1052,11 @@ def List.concat {α : Type u} : List α → α → List α
   | cons a as, b => cons a (concat as b)
 
 def List.get {α : Type u} : (as : List α) → (i : Nat) → LT.lt i as.length → α
-  | nil,       i,          h => absurd h (Nat.notLtZero _)
+  | nil,       i,          h => absurd h (Nat.not_lt_zero _)
   | cons a as, 0,          h => a
   | cons a as, Nat.succ i, h =>
     have : LT.lt i.succ as.length.succ := length_cons .. ▸ h
-    get as i (Nat.leOfSuccLeSucc this)
+    get as i (Nat.le_of_succ_le_succ this)
 
 structure String where
   data : List Char

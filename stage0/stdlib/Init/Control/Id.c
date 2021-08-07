@@ -28,6 +28,7 @@ static lean_object* l_Id_instMonadId___closed__3;
 static lean_object* l_Id_instMonadId___closed__5;
 static lean_object* l_Id_instMonadId___closed__6;
 lean_object* l_Id_instMonadId___lambda__3___boxed(lean_object*, lean_object*);
+lean_object* l_Id_hasBind;
 lean_object* l_Id_instMonadId;
 lean_object* l_Id_instMonadId___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonadId___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -193,6 +194,16 @@ lean_dec(x_3);
 return x_5;
 }
 }
+static lean_object* _init_l_Id_hasBind() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Id_instMonadId;
+x_2 = lean_ctor_get(x_1, 1);
+lean_inc(x_2);
+return x_2;
+}
+}
 lean_object* l_Id_run___rarg(lean_object* x_1) {
 _start:
 {
@@ -277,6 +288,8 @@ l_Id_instMonadId___closed__8 = _init_l_Id_instMonadId___closed__8();
 lean_mark_persistent(l_Id_instMonadId___closed__8);
 l_Id_instMonadId = _init_l_Id_instMonadId();
 lean_mark_persistent(l_Id_instMonadId);
+l_Id_hasBind = _init_l_Id_hasBind();
+lean_mark_persistent(l_Id_hasBind);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -51,11 +51,11 @@ def expandBrackedBindersAux (combinator : Syntax) (binders : Array Syntax) (body
 def expandExplicitBinders (combinatorDeclName : Name) (explicitBinders : Syntax) (body : Syntax) : MacroM Syntax := do
   let combinator := mkIdentFrom (← getRef) combinatorDeclName
   let explicitBinders := explicitBinders[0]
-  if explicitBinders.getKind == `Lean.unbracketedExplicitBinders then
+  if explicitBinders.getKind == ``Lean.unbracketedExplicitBinders then
     let idents   := explicitBinders[0].getArgs
     let type? := if explicitBinders[1].isNone then none else some explicitBinders[1][1]
     expandExplicitBindersAux combinator idents type? body
-  else if explicitBinders.getArgs.all (·.getKind == `Lean.bracketedExplicitBinders) then
+  else if explicitBinders.getArgs.all (·.getKind == ``Lean.bracketedExplicitBinders) then
     expandBrackedBindersAux combinator explicitBinders.getArgs body
   else
     Macro.throwError "unexpected explicit binder"
@@ -86,12 +86,12 @@ end Lean
 
 open Lean
 
-macro "∃ " xs:explicitBinders ", " b:term : term => expandExplicitBinders `Exists xs b
-macro "exists" xs:explicitBinders ", " b:term : term => expandExplicitBinders `Exists xs b
-macro "Σ" xs:explicitBinders ", " b:term : term => expandExplicitBinders `Sigma xs b
-macro "Σ'" xs:explicitBinders ", " b:term : term => expandExplicitBinders `PSigma xs b
-macro:35 xs:bracketedExplicitBinders " × " b:term:35  : term => expandBrackedBinders `Sigma xs b
-macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBinders `PSigma xs b
+macro "∃ " xs:explicitBinders ", " b:term : term => expandExplicitBinders ``Exists xs b
+macro "exists" xs:explicitBinders ", " b:term : term => expandExplicitBinders ``Exists xs b
+macro "Σ" xs:explicitBinders ", " b:term : term => expandExplicitBinders ``Sigma xs b
+macro "Σ'" xs:explicitBinders ", " b:term : term => expandExplicitBinders ``PSigma xs b
+macro:35 xs:bracketedExplicitBinders " × " b:term:35  : term => expandBrackedBinders ``Sigma xs b
+macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBinders ``PSigma xs b
 
 @[appUnexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())

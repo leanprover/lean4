@@ -8073,7 +8073,7 @@ static lean_object* _init_l_Lean_Meta_Simp_rewriteUsingDecide_x3f___closed__10()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("eqFalseOfDecide");
+x_1 = lean_mk_string("eq_false_of_decide");
 return x_1;
 }
 }
@@ -8130,7 +8130,7 @@ static lean_object* _init_l_Lean_Meta_Simp_rewriteUsingDecide_x3f___closed__16()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("eqTrueOfDecide");
+x_1 = lean_mk_string("eq_true_of_decide");
 return x_1;
 }
 }

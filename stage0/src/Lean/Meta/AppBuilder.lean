@@ -127,9 +127,9 @@ def mkEqOfHEq (h : Expr) : MetaM Expr := do
   match hType.heq? with
   | some (α, a, β, b) =>
     unless (← isDefEq α β) do
-      throwAppBuilderException ``eqOfHEq m!"heterogeneous equality types are not definitionally equal{indentExpr α}\nis not definitionally equal to{indentExpr β}"
+      throwAppBuilderException ``eq_of_heq m!"heterogeneous equality types are not definitionally equal{indentExpr α}\nis not definitionally equal to{indentExpr β}"
     let u ← getLevel α
-    return mkApp4 (mkConst ``eqOfHEq [u]) α a b h
+    return mkApp4 (mkConst ``eq_of_heq [u]) α a b h
   | _ =>
     throwAppBuilderException ``HEq.trans m!"heterogeneous equality proof expected{indentExpr h}"
 
@@ -414,7 +414,7 @@ def mkDecideProof (p : Expr) : MetaM Expr := do
   let decEqTrue ← mkEq decP (mkConst ``Bool.true)
   let h         ← mkEqRefl (mkConst ``Bool.true)
   let h         ← mkExpectedTypeHint h decEqTrue
-  mkAppM ``ofDecideEqTrue #[h]
+  mkAppM ``of_decide_eq_true #[h]
 
 /-- Return `a < b` -/
 def mkLt (a b : Expr) : MetaM Expr :=
@@ -440,36 +440,36 @@ def mkFunExt (h : Expr) : MetaM Expr :=
 def mkPropExt (h : Expr) : MetaM Expr :=
   mkAppM ``propext #[h]
 
-/-- Return `ofEqTrue h` -/
+/-- Return `of_eq_true h` -/
 def mkOfEqTrue (h : Expr) : MetaM Expr :=
-  mkAppM ``ofEqTrue #[h]
+  mkAppM ``of_eq_true #[h]
 
-/-- Return `eqTrue h` -/
+/-- Return `eq_true h` -/
 def mkEqTrue (h : Expr) : MetaM Expr :=
-  mkAppM ``eqTrue #[h]
+  mkAppM ``eq_true #[h]
 
 /--
-  Return `eqFalse h`
+  Return `eq_false h`
   `h` must have type definitionally equal to `¬ p` in the current
   reducibility setting. -/
 def mkEqFalse (h : Expr) : MetaM Expr :=
-  mkAppM ``eqFalse #[h]
+  mkAppM ``eq_false #[h]
 
 /--
-  Return `eqFalse' h`
+  Return `eq_false' h`
   `h` must have type definitionally equal to `p → False` in the current
   reducibility setting. -/
 def mkEqFalse' (h : Expr) : MetaM Expr :=
-  mkAppM ``eqFalse' #[h]
+  mkAppM ``eq_false' #[h]
 
 def mkImpCongr (h₁ h₂ : Expr) : MetaM Expr :=
-  mkAppM ``impCongr #[h₁, h₂]
+  mkAppM ``implies_congr #[h₁, h₂]
 
 def mkImpCongrCtx (h₁ h₂ : Expr) : MetaM Expr :=
-  mkAppM ``impCongrCtx #[h₁, h₂]
+  mkAppM ``implies_congr_ctx #[h₁, h₂]
 
 def mkForallCongr (h : Expr) : MetaM Expr :=
-  mkAppM ``forallCongr #[h]
+  mkAppM ``forall_congr #[h]
 
 /-- Return instance for `[Monad m]` if there is one -/
 def isMonad? (m : Expr) : MetaM (Option Expr) :=

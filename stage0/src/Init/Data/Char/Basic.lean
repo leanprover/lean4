@@ -29,18 +29,18 @@ abbrev isValidCharNat (n : Nat) : Prop :=
 theorem isValidUInt32 (n : Nat) (h : isValidCharNat n) : n < UInt32.size := by
   match h with
   | Or.inl h        =>
-    apply Nat.ltTrans h
+    apply Nat.lt_trans h
     decide
   | Or.inr ⟨h₁, h₂⟩ =>
-    apply Nat.ltTrans h₂
+    apply Nat.lt_trans h₂
     decide
 
-theorem isValidCharOfValidNat (n : Nat) (h : isValidCharNat n) : isValidChar (UInt32.ofNat' n (isValidUInt32 n h)) :=
+theorem isValidChar_of_isValidChar_Nat (n : Nat) (h : isValidCharNat n) : isValidChar (UInt32.ofNat' n (isValidUInt32 n h)) :=
   match h with
   | Or.inl h        => Or.inl h
   | Or.inr ⟨h₁, h₂⟩ => Or.inr ⟨h₁, h₂⟩
 
-theorem isValidChar0 : isValidChar 0 :=
+theorem isValidChar_zero : isValidChar 0 :=
   Or.inl (by decide)
 
 @[inline] def toNat (c : Char) : Nat :=

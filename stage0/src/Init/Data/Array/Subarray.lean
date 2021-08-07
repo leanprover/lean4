@@ -87,12 +87,12 @@ def toSubarray (as : Array α) (start stop : Nat) : Subarray α :=
      if h₁ : start ≤ stop then
        { as := as, start := start, stop := stop, h₁ := h₁, h₂ := h₂ }
      else
-       { as := as, start := stop, stop := stop, h₁ := Nat.leRefl _, h₂ := h₂ }
+       { as := as, start := stop, stop := stop, h₁ := Nat.le_refl _, h₂ := h₂ }
   else
      if h₁ : start ≤ as.size then
-       { as := as, start := start, stop := as.size, h₁ := h₁, h₂ := Nat.leRefl _ }
+       { as := as, start := start, stop := as.size, h₁ := h₁, h₂ := Nat.le_refl _ }
      else
-       { as := as, start := as.size, stop := as.size, h₁ := Nat.leRefl _, h₂ := Nat.leRefl _ }
+       { as := as, start := as.size, stop := as.size, h₁ := Nat.le_refl _, h₂ := Nat.le_refl _ }
 
 def ofSubarray (s : Subarray α) : Array α := do
   let mut as := mkEmpty (s.stop - s.start)

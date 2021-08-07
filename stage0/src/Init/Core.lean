@@ -152,9 +152,9 @@ structure NonScalar where
 inductive PNonScalar : Type u where
   | mk (v : Nat) : PNonScalar
 
-theorem natAddZero (n : Nat) : n + 0 = n := rfl
+@[simp] theorem Nat.add_zero (n : Nat) : n + 0 = n := rfl
 
-theorem optParamEq (α : Sort u) (default : α) : optParam α default = α := rfl
+theorem optParam_eq (α : Sort u) (default : α) : optParam α default = α := rfl
 
 /- Boolean operators -/
 
@@ -178,7 +178,7 @@ def trivial : True := ⟨⟩
 theorem mt {a b : Prop} (h₁ : a → b) (h₂ : ¬b) : ¬a :=
   fun ha => h₂ (h₁ ha)
 
-theorem notFalse : ¬False := id
+theorem not_false : ¬False := id
 
 -- proof irrelevance is built in
 theorem proofIrrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ := rfl
@@ -194,7 +194,7 @@ theorem id.def {α : Sort u} (a : α) : id a = a := rfl
 theorem Eq.substr {α : Sort u} {p : α → Prop} {a b : α} (h₁ : b = a) (h₂ : p a) : p b :=
   h₁ ▸ h₂
 
-theorem castEq {α : Sort u} (h : α = α) (a : α) : cast h a = a :=
+theorem cast_eq {α : Sort u} (h : α = α) (a : α) : cast h a = a :=
   rfl
 
 @[reducible] def Ne {α : Sort u} (a b : α) :=
@@ -215,18 +215,18 @@ theorem Ne.irrefl (h : a ≠ a) : False := h rfl
 theorem Ne.symm (h : a ≠ b) : b ≠ a :=
   fun h₁ => h (h₁.symm)
 
-theorem falseOfNe : a ≠ a → False := Ne.irrefl
+theorem false_of_ne : a ≠ a → False := Ne.irrefl
 
-theorem neFalseOfSelf : p → p ≠ False :=
+theorem ne_false_of_self : p → p ≠ False :=
   fun (hp : p) (h : p = False) => h ▸ hp
 
-theorem neTrueOfNot : ¬p → p ≠ True :=
+theorem ne_true_of_not : ¬p → p ≠ True :=
   fun (hnp : ¬p) (h : p = True) =>
     have : ¬True := h ▸ hnp
     this trivial
 
-theorem trueNeFalse : ¬True = False :=
-  neFalseOfSelf trivial
+theorem true_ne_false : ¬True = False :=
+  ne_false_of_self trivial
 
 end Ne
 
@@ -248,37 +248,37 @@ theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : a ≅ b) (h₂ : p �
 theorem HEq.symm (h : a ≅ b) : b ≅ a :=
   HEq.ndrecOn (motive := fun x => x ≅ a) h (HEq.refl a)
 
-theorem heqOfEq (h : a = a') : a ≅ a' :=
+theorem heq_of_eq (h : a = a') : a ≅ a' :=
   Eq.subst h (HEq.refl a)
 
 theorem HEq.trans (h₁ : a ≅ b) (h₂ : b ≅ c) : a ≅ c :=
   HEq.subst h₂ h₁
 
-theorem heqOfHEqOfEq (h₁ : a ≅ b) (h₂ : b = b') : a ≅ b' :=
-  HEq.trans h₁ (heqOfEq h₂)
+theorem heq_of_heq_of_eq (h₁ : a ≅ b) (h₂ : b = b') : a ≅ b' :=
+  HEq.trans h₁ (heq_of_eq h₂)
 
-theorem heqOfEqOfHEq (h₁ : a = a') (h₂ : a' ≅ b) : a ≅ b :=
-  HEq.trans (heqOfEq h₁) h₂
+theorem heq_of_eq_of_heq (h₁ : a = a') (h₂ : a' ≅ b) : a ≅ b :=
+  HEq.trans (heq_of_eq h₁) h₂
 
-def typeEqOfHEq (h : a ≅ b) : α = β :=
+def type_eq_of_heq (h : a ≅ b) : α = β :=
   HEq.ndrecOn (motive := @fun (x : Sort u) _ => α = x) h (Eq.refl α)
 
 end
 
-theorem eqRecHEq {α : Sort u} {φ : α → Sort v} {a a' : α} : (h : a = a') → (p : φ a) → (Eq.recOn (motive := fun x _ => φ x) h p) ≅ p
+theorem eqRec_heq {α : Sort u} {φ : α → Sort v} {a a' : α} : (h : a = a') → (p : φ a) → (Eq.recOn (motive := fun x _ => φ x) h p) ≅ p
   | rfl, p => HEq.refl p
 
-theorem heqOfEqRecEq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ : Eq.rec (motive := fun α _ => α) a h₁ = b) : a ≅ b := by
+theorem heq_of_eqRec_eq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ : Eq.rec (motive := fun α _ => α) a h₁ = b) : a ≅ b := by
   subst h₁
-  apply heqOfEq
+  apply heq_of_eq
   exact h₂
 
-theorem castHEq {α β : Sort u} : (h : α = β) → (a : α) → cast h a ≅ a
+theorem cast_heq {α β : Sort u} : (h : α = β) → (a : α) → cast h a ≅ a
   | rfl, a => HEq.refl a
 
 variable {a b c d : Prop}
 
-theorem iffIffImpliesAndImplies (a b : Prop) : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
+theorem iff_iff_implies_and_implies (a b : Prop) : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
   Iff.intro (fun h => And.intro h.mp h.mpr) (fun h => Iff.intro h.left h.right)
 
 theorem Iff.refl (a : Prop) : a ↔ a :=
@@ -306,12 +306,12 @@ theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
 
 /- Decidable -/
 
-theorem decideTrueEqTrue (h : Decidable True) : @decide True h = true :=
+theorem decide_true_eq_true (h : Decidable True) : @decide True h = true :=
   match h with
   | isTrue h  => rfl
   | isFalse h => False.elim <| h ⟨⟩
 
-theorem decideFalseEqFalse (h : Decidable False) : @decide False h = false :=
+theorem decide_false_eq_false (h : Decidable False) : @decide False h = false :=
   match h with
   | isFalse h => rfl
   | isTrue h  => False.elim h
@@ -320,20 +320,20 @@ theorem decideFalseEqFalse (h : Decidable False) : @decide False h = false :=
 @[inline] def toBoolUsing {p : Prop} (d : Decidable p) : Bool :=
   decide p (h := d)
 
-theorem toBoolUsingEqTrue {p : Prop} (d : Decidable p) (h : p) : toBoolUsing d = true :=
-  decideEqTrue (s := d) h
+theorem toBoolUsing_eq_true {p : Prop} (d : Decidable p) (h : p) : toBoolUsing d = true :=
+  decide_eq_true (s := d) h
 
-theorem ofBoolUsingEqTrue {p : Prop} {d : Decidable p} (h : toBoolUsing d = true) : p :=
-  ofDecideEqTrue (s := d) h
+theorem ofBoolUsing_eq_true {p : Prop} {d : Decidable p} (h : toBoolUsing d = true) : p :=
+  of_decide_eq_true (s := d) h
 
-theorem ofBoolUsingEqFalse {p : Prop} {d : Decidable p} (h : toBoolUsing d = false) : ¬ p :=
-  ofDecideEqFalse (s := d) h
+theorem ofBoolUsing_eq_false {p : Prop} {d : Decidable p} (h : toBoolUsing d = false) : ¬ p :=
+  of_decide_eq_false (s := d) h
 
 instance : Decidable True :=
   isTrue trivial
 
 instance : Decidable False :=
-  isFalse notFalse
+  isFalse not_false
 
 namespace Decidable
 variable {p q : Prop}
@@ -349,10 +349,10 @@ theorem em (p : Prop) [Decidable p] : p ∨ ¬p :=
 theorem byContradiction [dec : Decidable p] (h : ¬p → False) : p :=
   byCases id (fun np => False.elim (h np))
 
-theorem ofNotNot [Decidable p] : ¬ ¬ p → p :=
+theorem of_not_not [Decidable p] : ¬ ¬ p → p :=
   fun hnn => byContradiction (fun hn => absurd hn hnn)
 
-theorem notAndIffOrNot (p q : Prop) [d₁ : Decidable p] [d₂ : Decidable q] : ¬ (p ∧ q) ↔ ¬ p ∨ ¬ q :=
+theorem not_and_iff_or_not (p q : Prop) [d₁ : Decidable p] [d₂ : Decidable q] : ¬ (p ∧ q) ↔ ¬ p ∨ ¬ q :=
   Iff.intro
     (fun h => match d₁, d₂ with
       | isTrue h₁,  isTrue h₂   => absurd (And.intro h₁ h₂) h
@@ -396,28 +396,36 @@ instance {p q} [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
 
 /- if-then-else expression theorems -/
 
-theorem ifPos {c : Prop} [h : Decidable c] (hc : c) {α : Sort u} {t e : α} : (ite c t e) = t :=
+theorem if_pos {c : Prop} [h : Decidable c] (hc : c) {α : Sort u} {t e : α} : (ite c t e) = t :=
   match h with
   | isTrue  hc  => rfl
   | isFalse hnc => absurd hc hnc
 
-theorem ifNeg {c : Prop} [h : Decidable c] (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
+-- TODO: delete
+theorem ifPos {c : Prop} [h : Decidable c] (hc : c) {α : Sort u} {t e : α} : (ite c t e) = t :=
+  if_pos hc
+
+theorem if_neg {c : Prop} [h : Decidable c] (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
   match h with
   | isTrue hc   => absurd hc hnc
   | isFalse hnc => rfl
 
-theorem difPos {c : Prop} [h : Decidable c] (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = t hc :=
+-- TODO: delete
+theorem ifNeg {c : Prop} [h : Decidable c] (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
+  if_neg hnc
+
+theorem dif_pos {c : Prop} [h : Decidable c] (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = t hc :=
   match h with
   | isTrue  hc  => rfl
   | isFalse hnc => absurd hc hnc
 
-theorem difNeg {c : Prop} [h : Decidable c] (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = e hnc :=
+theorem dif_neg {c : Prop} [h : Decidable c] (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = e hnc :=
   match h with
   | isTrue hc   => absurd hc hnc
   | isFalse hnc => rfl
 
 -- Remark: dite and ite are "defally equal" when we ignore the proofs.
-theorem difEqIf (c : Prop) [h : Decidable c] {α : Sort u} (t : α) (e : α) : dite c (fun h => t) (fun h => e) = ite c t e :=
+theorem dif_eq_if (c : Prop) [h : Decidable c] {α : Sort u} (t : α) (e : α) : dite c (fun h => t) (fun h => e) = ite c t e :=
   match h with
   | isTrue hc   => rfl
   | isFalse hnc => rfl
@@ -448,7 +456,7 @@ protected def Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ 
 instance {α : Sort u} [Inhabited α] : Nonempty α :=
   ⟨arbitrary⟩
 
-theorem nonemptyOfExists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
+theorem nonempty_of_exists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
   | ⟨w, h⟩ => ⟨w⟩
 
 /- Subsingleton -/
@@ -461,7 +469,7 @@ protected def Subsingleton.elim {α : Sort u} [h : Subsingleton α] : (a b : α)
 
 protected def Subsingleton.helim {α β : Sort u} [h₁ : Subsingleton α] (h₂ : α = β) (a : α) (b : β) : a ≅ b := by
   subst h₂
-  apply heqOfEq
+  apply heq_of_eq
   apply Subsingleton.elim
 
 instance (p : Prop) : Subsingleton p :=
@@ -580,7 +588,7 @@ instance prodHasDecidableLt
     : (s t : α × β) → Decidable (s < t) :=
   fun t s => inferInstanceAs (Decidable (_ ∨ _))
 
-theorem Prod.ltDef [LT α] [LT β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
+theorem Prod.lt_def [LT α] [LT β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
   rfl
 
 theorem Prod.ext (p : α × β) : (p.1, p.2) = p := by
@@ -592,7 +600,7 @@ def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ 
 
 /- Dependent products -/
 
-theorem exOfPsig {α : Type u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
+theorem ex_of_PSigma {α : Type u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
   | ⟨x, hx⟩ => ⟨x, hx⟩
 
 protected theorem PSigma.eta {α : Sort u} {β : α → Sort v} {a₁ a₂ : α} {b₁ : β a₁} {b₂ : β a₂}
@@ -669,7 +677,7 @@ gen_injective_theorems% Lean.Syntax
 /- Quotients -/
 
 -- Iff can now be used to do substitutions in a calculation
-theorem iffSubst {a b : Prop} {p : Prop → Prop} (h₁ : a ↔ b) (h₂ : p a) : p b :=
+theorem Iff.subst {a b : Prop} {p : Prop → Prop} (h₁ : a ↔ b) (h₂ : p a) : p b :=
   Eq.subst (propext h₁) h₂
 
 namespace Quot
@@ -697,7 +705,7 @@ protected theorem inductionOn {α : Sort u} {r : α → α → Prop} {motive : Q
     : motive q :=
   ind h q
 
-theorem existsRep {α : Sort u} {r : α → α → Prop} (q : Quot r) : Exists (fun a => (Quot.mk r a) = q) :=
+theorem exists_rep {α : Sort u} {r : α → α → Prop} (q : Quot r) : Exists (fun a => (Quot.mk r a) = q) :=
   Quot.inductionOn (motive := fun q => Exists (fun a => (Quot.mk r a) = q)) q (fun a => ⟨a, rfl⟩)
 
 section
@@ -751,7 +759,7 @@ protected abbrev hrecOn
     (c : (a b : α) → (p : r a b) → f a ≅ f b)
     : motive q :=
   Quot.recOn q f fun a b p => eqOfHEq <|
-    have p₁ : Eq.ndrec (f a) (sound p) ≅ f a := eqRecHEq (sound p) (f a)
+    have p₁ : Eq.ndrec (f a) (sound p) ≅ f a := eqRec_heq (sound p) (f a)
     HEq.trans p₁ (c a b p)
 
 end
@@ -784,8 +792,8 @@ protected theorem inductionOn {α : Sort u} [s : Setoid α] {motive : Quotient s
     : motive q :=
   Quot.inductionOn q h
 
-theorem existsRep {α : Sort u} [s : Setoid α] (q : Quotient s) : Exists (fun (a : α) => Quotient.mk a = q) :=
-  Quot.existsRep q
+theorem exists_rep {α : Sort u} [s : Setoid α] (q : Quotient s) : Exists (fun (a : α) => Quotient.mk a = q) :=
+  Quot.exists_rep q
 
 section
 variable {α : Sort u}
@@ -895,11 +903,11 @@ private def rel [s : Setoid α] (q₁ q₂ : Quotient s) : Prop :=
 private theorem rel.refl [s : Setoid α] (q : Quotient s) : rel q q :=
   Quot.inductionOn (motive := fun q => rel q q) q (fun a => Setoid.refl a)
 
-private theorem eqImpRel [s : Setoid α] {q₁ q₂ : Quotient s} : q₁ = q₂ → rel q₁ q₂ :=
+private theorem rel_of_eq [s : Setoid α] {q₁ q₂ : Quotient s} : q₁ = q₂ → rel q₁ q₂ :=
   fun h => Eq.ndrecOn h (rel.refl q₁)
 
 theorem exact [s : Setoid α] {a b : α} : Quotient.mk a = Quotient.mk b → a ≈ b :=
-  fun h => eqImpRel h
+  fun h => rel_of_eq h
 
 end Exact
 

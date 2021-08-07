@@ -717,7 +717,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("toArrayLitEq");
+x_1 = lean_mk_string("toArrayLit_eq");
 return x_1;
 }
 }

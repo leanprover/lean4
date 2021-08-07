@@ -364,9 +364,9 @@ namespace Syntax
 
 -- quotation node kinds are formed from a unique quotation name plus "quot"
 def isQuot : Syntax → Bool
-  | Syntax.node (Name.str _ "quot" _)         _ => true
+  | Syntax.node (Name.str _ "quot" _)         _  => true
   | Syntax.node `Lean.Parser.Term.dynamicQuot _ => true
-  | _                                           => false
+  | _                                            => false
 
 def getQuotContent (stx : Syntax) : Syntax :=
   if stx.isOfKind `Lean.Parser.Term.dynamicQuot then

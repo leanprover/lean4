@@ -1,0 +1,4 @@
+242.lean:1:7-1:10: error: invalid atom
+242.lean:2:7-2:12: error: invalid atom
+242.lean:3:7-3:11: error: invalid atom
+242.lean:4:7-4:12: error: invalid atom

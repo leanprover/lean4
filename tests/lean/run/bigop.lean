@@ -28,11 +28,11 @@ instance : Enumerable Bool :=
 
 partial def finElemsAux (n : Nat) : (i : Nat) → i < n → List (Fin n)
 | 0,   h => [⟨0, h⟩]
-| i+1, h => ⟨i+1, h⟩ :: finElemsAux n i (Nat.ltOfSuccLt h)
+| i+1, h => ⟨i+1, h⟩ :: finElemsAux n i (Nat.lt_of_succ_lt h)
 
 partial def finElems : (n : Nat) → List (Fin n)
 | 0     => []
-| (n+1) => finElemsAux (n+1) n (Nat.ltSuccSelf n)
+| (n+1) => finElemsAux (n+1) n (Nat.lt_succ_self n)
 
 instance {n} : Enumerable (Fin n) :=
 { elems := (finElems n).reverse }

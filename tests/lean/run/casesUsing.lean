@@ -13,7 +13,7 @@ axiom elimEx (motive : Nat → Nat → Sort u) (x y : Nat)
 
 theorem ex1 (p q : Nat) : p ≤ q ∨ p > q := by
   cases p, q using elimEx with
-  | diag    => apply Or.inl; apply Nat.leRefl
+  | diag    => apply Or.inl; apply Nat.le_refl
   | lower d => apply Or.inl; show p ≤ p + d.succ; admit
   | upper d => apply Or.inr; show q + d.succ > q; admit
 
@@ -21,7 +21,7 @@ theorem ex2 (p q : Nat) : p ≤ q ∨ p > q := by
   cases p, q using elimEx
   case lower => admit
   case upper => admit
-  case diag  => apply Or.inl; apply Nat.leRefl
+  case diag  => apply Or.inl; apply Nat.le_refl
 
 axiom Nat.parityElim (motive : Nat → Sort u)
   (even : (n : Nat) → motive (2*n))
@@ -93,10 +93,10 @@ theorem modLt (x : Nat) {y : Nat} (h : y > 0) : x % y < y := by
     rw [Nat.mod_eq_sub_mod h₁.2]
     exact ih h
   | base x y h₁ =>
-    match Iff.mp (Decidable.notAndIffOrNot ..) h₁ with
+    match Iff.mp (Decidable.not_and_iff_or_not ..) h₁ with
     | Or.inl h₁ => contradiction
     | Or.inr h₁ =>
-      have hgt := Nat.gtOfNotLe h₁
+      have hgt := Nat.gt_of_not_le h₁
       have heq := Nat.mod_eq_of_lt hgt
       rw [← heq] at hgt
       assumption
@@ -120,7 +120,7 @@ theorem ex13 (p q : Nat) : p ≤ q ∨ p > q := by
   | diag    => ?hdiag
   | lower d => ?hlower
   | upper d => ?hupper
-  case hdiag  => apply Or.inl; apply Nat.leRefl
+  case hdiag  => apply Or.inl; apply Nat.le_refl
   case hlower => apply Or.inl; show p ≤ p + d.succ; admit
   case hupper => apply Or.inr; show q + d.succ > q; admit
 
@@ -129,7 +129,7 @@ theorem ex14 (p q : Nat) : p ≤ q ∨ p > q := by
   | diag    => ?hdiag
   | lower d => _
   | upper d => ?hupper
-  case hdiag  => apply Or.inl; apply Nat.leRefl
+  case hdiag  => apply Or.inl; apply Nat.le_refl
   case lower => apply Or.inl; show p ≤ p + d.succ; admit
   case hupper => apply Or.inr; show q + d.succ > q; admit
 
@@ -138,7 +138,7 @@ theorem ex15 (p q : Nat) : p ≤ q ∨ p > q := by
   | diag    => ?hdiag
   | lower d => _
   | upper d => ?hupper
-  { apply Or.inl; apply Nat.leRefl }
+  { apply Or.inl; apply Nat.le_refl }
   { apply Or.inr; show q + d.succ > q; admit }
   { apply Or.inl; show p ≤ p + d.succ; admit }
 

@@ -4,7 +4,7 @@ class Trans (r : α → β → Prop) (s : β → γ → Prop) (t : outParam (α 
 export Trans (trans)
 
 instance : Trans (α := Nat) (β := Nat) (γ := Nat) (.≤.) (.≤.) (.≤.) where
-  trans := Nat.leTrans
+  trans := Nat.le_trans
 
 instance : Trans (α := Int) (β := Int) (γ := Int) (.≤.) (.≤.) (.≤.) where
   trans := sorry

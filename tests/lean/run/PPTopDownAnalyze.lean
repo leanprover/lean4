@@ -312,7 +312,6 @@ def typeAs (α : Type u) (a : α) := ()
 #testDelabN instInhabitedPUnit
 #testDelabN Lean.Syntax.getOptionalIdent?
 #testDelabN Lean.Meta.ppExpr
-#testDelabN Eq.mprProp
 #testDelabN MonadLift.noConfusion
 #testDelabN MonadLift.noConfusionType
 #testDelabN MonadExcept.noConfusion
@@ -327,7 +326,7 @@ def typeAs (α : Type u) (a : α) := ()
 
 -- TODO: for some reason this *only* works when trusting subst
 set_option pp.analyze.trustSubst true in
-#testDelabN Lean.Simp.and_false
+#testDelabN and_false
 
 -- TODO: this one prints out a structure instance with keyword field `end`
 set_option pp.structureInstances false in

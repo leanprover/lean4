@@ -1,17 +1,17 @@
 universe u v
 
 theorem eqLitOfSize0 {α : Type u} (a : Array α) (hsz : a.size = 0) : a = #[] :=
-a.toArrayLitEq 0 hsz
+a.toArrayLit_eq 0 hsz
 
-theorem eqLitOfSize1 {α : Type u} (a : Array α) (hsz : a.size = 1) : a = #[a.getLit 0 hsz (ofDecideEqTrue rfl)] :=
-a.toArrayLitEq 1 hsz
+theorem eqLitOfSize1 {α : Type u} (a : Array α) (hsz : a.size = 1) : a = #[a.getLit 0 hsz (of_decide_eq_true rfl)] :=
+a.toArrayLit_eq 1 hsz
 
-theorem eqLitOfSize2 {α : Type u} (a : Array α) (hsz : a.size = 2) : a = #[a.getLit 0 hsz (ofDecideEqTrue rfl), a.getLit 1 hsz (ofDecideEqTrue rfl)] :=
-a.toArrayLitEq 2 hsz
+theorem eqLitOfSize2 {α : Type u} (a : Array α) (hsz : a.size = 2) : a = #[a.getLit 0 hsz (of_decide_eq_true rfl), a.getLit 1 hsz (of_decide_eq_true rfl)] :=
+a.toArrayLit_eq 2 hsz
 
 theorem eqLitOfSize3 {α : Type u} (a : Array α) (hsz : a.size = 3) :
-  a = #[a.getLit 0 hsz (ofDecideEqTrue rfl), a.getLit 1 hsz (ofDecideEqTrue rfl), a.getLit 2 hsz (ofDecideEqTrue rfl)] :=
-a.toArrayLitEq 3 hsz
+  a = #[a.getLit 0 hsz (of_decide_eq_true rfl), a.getLit 1 hsz (of_decide_eq_true rfl), a.getLit 2 hsz (of_decide_eq_true rfl)] :=
+a.toArrayLit_eq 3 hsz
 
 /-
 Matcher for the following patterns
@@ -28,11 +28,11 @@ def matchArrayLit {α : Type u} (C : Array α → Sort v) (a : Array α)
     (h₄ : ∀ a,        C a)
     : C a :=
 if h : a.size = 0 then
-  @Eq.rec _ _ (fun x _ => C x) (h₁ ()) _ (a.toArrayLitEq 0 h).symm
+  @Eq.rec _ _ (fun x _ => C x) (h₁ ()) _ (a.toArrayLit_eq 0 h).symm
 else if h : a.size = 1 then
-  @Eq.rec _ _ (fun x _ => C x) (h₂ (a.getLit 0 h (ofDecideEqTrue rfl))) _ (a.toArrayLitEq 1 h).symm
+  @Eq.rec _ _ (fun x _ => C x) (h₂ (a.getLit 0 h (of_decide_eq_true rfl))) _ (a.toArrayLit_eq 1 h).symm
 else if h : a.size = 3 then
-  @Eq.rec _ _ (fun x _ => C x) (h₃ (a.getLit 0 h (ofDecideEqTrue rfl)) (a.getLit 1 h (ofDecideEqTrue rfl)) (a.getLit 2 h (ofDecideEqTrue rfl))) _ (a.toArrayLitEq 3 h).symm
+  @Eq.rec _ _ (fun x _ => C x) (h₃ (a.getLit 0 h (of_decide_eq_true rfl)) (a.getLit 1 h (of_decide_eq_true rfl)) (a.getLit 2 h (of_decide_eq_true rfl))) _ (a.toArrayLit_eq 3 h).symm
 else
   h₄ a
 

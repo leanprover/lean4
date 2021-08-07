@@ -1,4 +1,4 @@
-
+--
 
 theorem ex : Not (1 = 2) :=
-ofDecideEqFalse rfl
+of_decide_eq_false rfl

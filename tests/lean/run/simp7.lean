@@ -10,7 +10,7 @@ def length : List α → Nat
 theorem ex2 (a b c : α) (as : List α) : length (a :: b :: as) > length as := by
   simp [length]
   apply Nat.lt.step
-  apply Nat.ltSuccSelf
+  apply Nat.lt_succ_self
 
 def fact : Nat → Nat
   | 0 => 1
@@ -21,8 +21,8 @@ theorem ex3 : fact x > 0 := by
   | zero => rfl
   | succ x ih =>
     simp [fact]
-    apply Nat.mulPos
-    apply Nat.zeroLtSucc
+    apply Nat.mul_pos
+    apply Nat.zero_lt_succ
     apply ih
 
 def head [Inhabited α] : List α → α

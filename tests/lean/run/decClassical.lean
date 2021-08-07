@@ -5,7 +5,7 @@ theorem ex : if (fun x => x + 1) = (fun x => x + 2) then False else True := by
     intro h
     have : 1 = 2 := congrFun h 0
     contradiction
-  rw [ifNeg this]
+  rw [if_neg this]
   exact True.intro
 
 def tst (x : Nat) : Bool :=

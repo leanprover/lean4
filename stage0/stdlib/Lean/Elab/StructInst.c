@@ -20589,6 +20589,7 @@ x_13 = 1;
 x_14 = l_Lean_Meta_mkForallFVars(x_2, x_10, x_12, x_13, x_4, x_5, x_6, x_7, x_11);
 lean_dec(x_7);
 lean_dec(x_6);
+lean_dec(x_5);
 return x_14;
 }
 else

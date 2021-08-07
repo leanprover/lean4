@@ -559,7 +559,6 @@ lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_List_moveToFro
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_withAlts_loop_match__2(lean_object*);
 uint8_t l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_hasCtorPattern(lean_object*);
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_throwCasesException(lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Meta_mkForallFVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldRevM_loop___at_Lean_Meta_MatcherApp_addArg___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_List_moveToFront___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_moveToFront___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_lambdaTelescope___at_Lean_Meta_MatcherApp_addArg___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -615,6 +614,7 @@ lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_expandVarIntoC
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 uint8_t l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_isValueTransition(lean_object*);
 lean_object* l_List_map___at_Lean_Meta_Match_mkMatcher___spec__1(lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Meta_abstractRange___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_expandVarIntoCtor_x3f_match__3___rarg(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_withAlts_loop___rarg___closed__6;
@@ -1160,6 +1160,7 @@ x_15 = 1;
 x_16 = l_Lean_Meta_mkForallFVars(x_3, x_13, x_14, x_15, x_4, x_5, x_6, x_7, x_12);
 lean_dec(x_7);
 lean_dec(x_6);
+lean_dec(x_5);
 return x_16;
 }
 else
@@ -25934,7 +25935,6 @@ x_50 = x_49;
 x_51 = l_Array_append___rarg(x_44, x_50);
 x_52 = 0;
 x_53 = 1;
-lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_51);
 x_54 = l_Lean_Meta_mkForallFVars(x_51, x_1, x_52, x_53, x_12, x_13, x_14, x_15, x_41);
@@ -26393,7 +26393,6 @@ lean_inc(x_6);
 x_12 = l_Lean_mkSort(x_6);
 x_13 = 0;
 x_14 = 1;
-lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_1);
 x_15 = l_Lean_Meta_mkForallFVars(x_1, x_12, x_13, x_14, x_7, x_8, x_9, x_10, x_11);
@@ -28093,6 +28092,7 @@ lean_object* x_8;
 x_8 = l_Lean_Meta_Match_getMkMatcherInputInContext___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_2);
 return x_8;
 }
@@ -28104,6 +28104,7 @@ lean_object* x_9;
 x_9 = l_Lean_Meta_Match_getMkMatcherInputInContext___lambda__4(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
+lean_dec(x_5);
 lean_dec(x_3);
 return x_9;
 }
@@ -28792,7 +28793,7 @@ x_14 = lean_ctor_get(x_10, 1);
 lean_inc(x_14);
 lean_dec(x_10);
 x_15 = l___private_Lean_Meta_Match_Match_0__Lean_Meta_updateAlts___lambda__3___closed__2;
-x_16 = l_Lean_throwError___at_Lean_Meta_mkForallFVars___spec__1(x_15, x_4, x_5, x_6, x_7, x_14);
+x_16 = l_Lean_throwError___at_Lean_Meta_abstractRange___spec__1(x_15, x_4, x_5, x_6, x_7, x_14);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);

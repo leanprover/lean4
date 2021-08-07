@@ -182,9 +182,17 @@ where
     let allowTrailingSep := !stx[5].isNone
     `(ParserDescr.sepBy1 $p $sep $psep $(quote allowTrailingSep))
 
+  isValidAtom (s : String) : Bool :=
+    s[0] != '\'' &&
+    s[0] != '\"' &&
+    s[0] != '`'  &&
+    !s[0].isDigit
+
   processAtom (stx : Syntax) := do
     match stx[0].isStrLit? with
     | some atom =>
+      unless isValidAtom atom do
+        throwErrorAt stx "invalid atom"
       /- For syntax categories where initialized with `LeadingIdentBehavior` different from default (e.g., `tactic`), we automatically mark
          the first symbol as nonReserved. -/
       if (← read).behavior != Parser.LeadingIdentBehavior.default && (← read).first then

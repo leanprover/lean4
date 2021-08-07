@@ -17700,6 +17700,7 @@ lean_object* x_10;
 x_10 = l_Lean_PrettyPrinter_Delaborator_delabAppMatch___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_8);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_3);
 return x_10;

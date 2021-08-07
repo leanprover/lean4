@@ -1493,7 +1493,6 @@ x_35 = x_31;
 x_36 = l_Array_mapMUnsafe_map___at_Lean_LocalContext_getFVars___spec__1(x_33, x_34, x_35);
 x_37 = x_36;
 x_38 = 0;
-lean_inc(x_8);
 lean_inc(x_7);
 x_39 = l_Lean_Meta_mkForallFVars(x_37, x_18, x_38, x_38, x_7, x_8, x_9, x_10, x_26);
 if (lean_obj_tag(x_39) == 0)

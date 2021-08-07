@@ -115,7 +115,7 @@ static lean_object* l_Lean_Server_registerRpcCallHandler___lambda__2___closed__2
 static lean_object* l_Lean_Server_registerRpcCallHandler___lambda__2___closed__1;
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Lean_Server_registerRpcCallHandler___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonRpcCallParams____x40_Lean_Data_Lsp_Extra___hyg_1012_(lean_object*);
+lean_object* l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonRpcCallParams____x40_Lean_Data_Lsp_Extra___hyg_1013_(lean_object*);
 lean_object* l_Lean_Server_registerRpcCallHandler___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_registerRpcCallHandler___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_registerRpcCallHandler_match__1(lean_object*, lean_object*);
@@ -351,7 +351,7 @@ _start:
 {
 lean_object* x_2; 
 lean_inc(x_1);
-x_2 = l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonRpcCallParams____x40_Lean_Data_Lsp_Extra___hyg_1012_(x_1);
+x_2 = l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonRpcCallParams____x40_Lean_Data_Lsp_Extra___hyg_1013_(x_1);
 if (lean_obj_tag(x_2) == 0)
 {
 uint8_t x_3; 

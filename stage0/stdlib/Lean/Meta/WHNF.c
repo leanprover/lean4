@@ -266,7 +266,6 @@ lean_object* l_Lean_evalConstCheck___at_Lean_Meta_reduceBoolNativeUnsafe___spec_
 extern lean_object* l_Lean_projectionFnInfoExt;
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_matchConstAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_whnfEasyCases___at_Lean_Meta_whnfCore___spec__2___lambda__3___closed__1;
-lean_object* l_Lean_throwError___at_Lean_Meta_mkForallFVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_WHNF___hyg_5640_(lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_WHNF___hyg_13_(lean_object*);
 lean_object* l_Lean_Meta_whnfEasyCases___at_Lean_Meta_whnfUntil___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -301,6 +300,7 @@ lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_reduceRec_match__1___rarg(l
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_matchConstAux_match__1(lean_object*);
 uint8_t l_Lean_Expr_isMVar(lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Meta_abstractRange___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfEasyCases___at_Lean_Meta_whnfCore___spec__2___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduceProj_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_toCtorIfLit___closed__2;
@@ -12282,7 +12282,7 @@ x_13 = l_Lean_Meta_unfoldDefinition___closed__3;
 x_14 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
-x_15 = l_Lean_throwError___at_Lean_Meta_mkForallFVars___spec__1(x_14, x_2, x_3, x_4, x_5, x_9);
+x_15 = l_Lean_throwError___at_Lean_Meta_abstractRange___spec__1(x_14, x_2, x_3, x_4, x_5, x_9);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);

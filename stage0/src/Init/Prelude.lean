@@ -47,6 +47,9 @@ inductive False : Prop
 
 inductive Empty : Type
 
+set_option bootstrap.inductiveCheckResultingUniverse false in
+inductive PEmpty : Sort u where
+
 def Not (a : Prop) : Prop := a → False
 
 @[macroInline] def False.elim {C : Sort u} (h : False) : C :=

@@ -448,6 +448,12 @@ def instantiateLocalDeclMVars (localDecl : LocalDecl) : MetaM LocalDecl :=
     setNGen newS.ngen;
     throwError "failed to create binder due to failure when reverting variable dependencies"
 
+def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MetaM Expr :=
+  liftMkBindingM <| MetavarContext.abstractRange e n xs
+
+def abstract (e : Expr) (xs : Array Expr) : MetaM Expr :=
+  abstractRange e xs.size xs
+
 def mkForallFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) : MetaM Expr :=
   if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.mkForall xs e usedOnly usedLetOnly
 

@@ -709,7 +709,7 @@ structure State where
   cache : HashMap ExprStructEq Expr := {}
 
 abbrev MCore := EStateM Exception State
-abbrev M     := ReaderT Bool (EStateM Exception State)
+abbrev M     := ReaderT Bool MCore
 
 def preserveOrder : M Bool := read
 
@@ -959,7 +959,7 @@ partial def revert (xs : Array Expr) (mvarId : MVarId) : M (Expr × Array Expr) 
   contain a metavariable `?m` s.t. local context of `?m` contains a free variable in `xs`.
 
   `elimMVarDeps` is defined later in this file. -/
-@[inline] private def abstractRange (xs : Array Expr) (i : Nat) (e : Expr) : M Expr := do
+@[inline] def abstractRange (xs : Array Expr) (i : Nat) (e : Expr) : M Expr := do
   let e ← elimMVarDeps xs e
   pure (e.abstractRange i xs)
 
@@ -1013,6 +1013,9 @@ def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool :=
 @[inline] def mkForall (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) : MkBindingM Expr := do
   let (e, _) ← mkBinding (isLambda := false) xs e usedOnly usedLetOnly
   pure e
+
+@[inline] def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MkBindingM Expr := fun _ =>
+  MkBinding.abstractRange xs n e false
 
 /--
   `isWellFormed mctx lctx e` return true if

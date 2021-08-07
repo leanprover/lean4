@@ -46,8 +46,8 @@ lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_mkFnI
 extern lean_object* l_Lean_instInhabitedExpr;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_findAssumption_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Meta_mkForallFVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_mkInhabitantFor___closed__3;
+lean_object* l_Lean_throwError___at_Lean_Meta_abstractRange___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -573,7 +573,6 @@ x_15 = l___private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_mkFnInhabit
 x_16 = lean_array_push(x_15, x_14);
 x_17 = 0;
 x_18 = 1;
-lean_inc(x_5);
 lean_inc(x_4);
 x_19 = l_Lean_Meta_mkForallFVars(x_16, x_3, x_17, x_18, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_19) == 0)
@@ -911,7 +910,7 @@ x_21 = l_Lean_Elab_mkInhabitantFor___closed__4;
 x_22 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);
-x_23 = l_Lean_throwError___at_Lean_Meta_mkForallFVars___spec__1(x_22, x_4, x_5, x_6, x_7, x_17);
+x_23 = l_Lean_throwError___at_Lean_Meta_abstractRange___spec__1(x_22, x_4, x_5, x_6, x_7, x_17);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);

@@ -2497,6 +2497,7 @@ lean_inc(x_2);
 x_18 = l_Lean_Meta_mkForallFVars(x_2, x_11, x_16, x_17, x_5, x_6, x_7, x_8, x_15);
 lean_dec(x_8);
 lean_dec(x_7);
+lean_dec(x_6);
 if (lean_obj_tag(x_18) == 0)
 {
 uint8_t x_19; 

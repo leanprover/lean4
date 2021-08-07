@@ -10391,6 +10391,7 @@ x_19 = 1;
 x_20 = l_Lean_Meta_mkForallFVars(x_17, x_14, x_18, x_19, x_7, x_8, x_9, x_10, x_15);
 lean_dec(x_10);
 lean_dec(x_9);
+lean_dec(x_8);
 return x_20;
 }
 else
@@ -13143,6 +13144,7 @@ x_20 = 1;
 x_21 = l_Lean_Meta_mkForallFVars(x_18, x_15, x_19, x_20, x_8, x_9, x_10, x_11, x_16);
 lean_dec(x_11);
 lean_dec(x_10);
+lean_dec(x_9);
 return x_21;
 }
 else
@@ -14930,7 +14932,6 @@ uint8_t x_15; uint8_t x_16; lean_object* x_17;
 lean_dec(x_8);
 x_15 = 0;
 x_16 = 1;
-lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_1);
 x_17 = l_Lean_Meta_mkForallFVars(x_1, x_2, x_15, x_16, x_10, x_11, x_12, x_13, x_14);
@@ -16134,7 +16135,6 @@ uint8_t x_15; uint8_t x_16; lean_object* x_17;
 lean_dec(x_8);
 x_15 = 0;
 x_16 = 1;
-lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_1);
 x_17 = l_Lean_Meta_mkForallFVars(x_1, x_2, x_15, x_16, x_10, x_11, x_12, x_13, x_14);
@@ -18594,6 +18594,7 @@ x_14 = 1;
 x_15 = l_Lean_Meta_mkForallFVars(x_3, x_11, x_13, x_14, x_5, x_6, x_7, x_8, x_12);
 lean_dec(x_8);
 lean_dec(x_7);
+lean_dec(x_6);
 return x_15;
 }
 else

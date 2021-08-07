@@ -2367,7 +2367,6 @@ x_29 = lean_ctor_get(x_27, 1);
 lean_inc(x_29);
 lean_dec(x_27);
 x_30 = 1;
-lean_inc(x_12);
 lean_inc(x_11);
 x_31 = l_Lean_Meta_mkForallFVars(x_8, x_28, x_23, x_30, x_11, x_12, x_13, x_14, x_29);
 if (lean_obj_tag(x_31) == 0)
@@ -2378,7 +2377,6 @@ lean_inc(x_32);
 x_33 = lean_ctor_get(x_31, 1);
 lean_inc(x_33);
 lean_dec(x_31);
-lean_inc(x_12);
 lean_inc(x_11);
 x_34 = l_Lean_Meta_mkForallFVars(x_4, x_32, x_30, x_30, x_11, x_12, x_13, x_14, x_33);
 if (lean_obj_tag(x_34) == 0)

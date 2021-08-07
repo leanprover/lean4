@@ -1530,7 +1530,6 @@ lean_inc(x_31);
 lean_dec(x_29);
 x_32 = 0;
 x_33 = 1;
-lean_inc(x_9);
 lean_inc(x_8);
 x_34 = l_Lean_Meta_mkForallFVars(x_5, x_30, x_32, x_33, x_8, x_9, x_10, x_11, x_31);
 if (lean_obj_tag(x_34) == 0)

@@ -2935,6 +2935,7 @@ x_27 = 1;
 x_28 = l_Lean_Meta_mkForallFVars(x_25, x_22, x_26, x_27, x_9, x_10, x_11, x_12, x_21);
 lean_dec(x_12);
 lean_dec(x_11);
+lean_dec(x_10);
 if (lean_obj_tag(x_28) == 0)
 {
 uint8_t x_29; 
@@ -3074,6 +3075,7 @@ x_66 = 1;
 x_67 = l_Lean_Meta_mkForallFVars(x_64, x_61, x_65, x_66, x_9, x_10, x_11, x_12, x_60);
 lean_dec(x_12);
 lean_dec(x_11);
+lean_dec(x_10);
 if (lean_obj_tag(x_67) == 0)
 {
 lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; size_t x_72; size_t x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; 
@@ -21052,7 +21054,6 @@ _start:
 uint8_t x_14; uint8_t x_15; lean_object* x_16; 
 x_14 = 0;
 x_15 = 1;
-lean_inc(x_10);
 lean_inc(x_9);
 x_16 = l_Lean_Meta_mkForallFVars(x_1, x_6, x_14, x_15, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_16) == 0)
@@ -21135,7 +21136,6 @@ return x_40;
 else
 {
 uint8_t x_41; 
-lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_5);
 lean_dec(x_3);
@@ -21821,6 +21821,7 @@ lean_dec(x_4);
 x_15 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_generalize___lambda__1(x_1, x_2, x_3, x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_12);
 lean_dec(x_11);
+lean_dec(x_10);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_2);

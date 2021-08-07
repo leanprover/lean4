@@ -5607,6 +5607,7 @@ x_14 = 1;
 x_15 = l_Lean_Meta_mkForallFVars(x_2, x_11, x_13, x_14, x_5, x_6, x_7, x_8, x_12);
 lean_dec(x_8);
 lean_dec(x_7);
+lean_dec(x_6);
 return x_15;
 }
 else
@@ -23777,7 +23778,6 @@ x_23 = lean_ctor_get(x_21, 1);
 lean_inc(x_23);
 lean_dec(x_21);
 x_24 = 0;
-lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_4);
 x_25 = l_Lean_Meta_mkForallFVars(x_4, x_13, x_24, x_20, x_7, x_8, x_9, x_10, x_23);
@@ -23929,7 +23929,6 @@ lean_inc(x_52);
 lean_dec(x_16);
 x_53 = 0;
 x_54 = 1;
-lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_4);
 x_55 = l_Lean_Meta_mkForallFVars(x_4, x_13, x_53, x_54, x_7, x_8, x_9, x_10, x_52);

@@ -176,11 +176,11 @@ theorem ex (x : Nat) {y : Nat} (h : y > 0) : x % y < y := by
     rw [Nat.mod_eq_sub_mod h₁.2]
     exact ih h
   | base x y h₁ =>
-     have : ¬ 0 < y ∨ ¬ y ≤ x := Iff.mp (Decidable.notAndIffOrNot ..) h₁
+     have : ¬ 0 < y ∨ ¬ y ≤ x := Iff.mp (Decidable.not_and_iff_or_not ..) h₁
      match this with
      | Or.inl h₁ => exact absurd h h₁
      | Or.inr h₁ =>
-       have hgt : y > x := Nat.gtOfNotLe h₁
+       have hgt : y > x := Nat.gt_of_not_le h₁
        rw [← Nat.mod_eq_of_lt hgt] at hgt
        assumption
 ```

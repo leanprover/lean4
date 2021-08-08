@@ -39,7 +39,7 @@ It has been tested on Windows by installing these tools using [MSYS2](https://ww
 
 ### Editing
 
-Lean implements the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) that can be used for interactive development in [Emacs](https://github.com/leanprover/lean4/tree/master/lean4-mode/README.md), [VS Code](https://github.com/mhuisi/vscode-lean4), and possibly other editors.
+Lean implements the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) that can be used for interactive development in [Emacs](https://github.com/leanprover/lean4/tree/master/lean4-mode/README.md), [VS Code](https://github.com/leanprover-community/vscode-lean4), and possibly other editors.
 
 Changes must be saved to be visible in other files, which must then be invalidated using an editor command (see links above).
 

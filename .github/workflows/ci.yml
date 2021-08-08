@@ -108,9 +108,6 @@ jobs:
           fi
           cmake .. ${{ matrix.CMAKE_OPTIONS }} $OPTIONS
           make -j4
-      - name: Lean stats
-        run: |
-          build/stage1/bin/lean --stats src/Lean.lean
       # de-Nix-ify binaries
       - name: Patch
         run: |
@@ -133,6 +130,9 @@ jobs:
         with:
           name: build-${{ matrix.name }}
           path: build/stage1/lean-*
+      - name: Lean stats
+        run: |
+          build/stage1/bin/lean --stats src/Lean.lean
       - name: Test
         run: |
           cd build/stage1

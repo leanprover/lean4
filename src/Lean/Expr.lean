@@ -32,7 +32,7 @@ instance (a b : Literal) : Decidable (a < b) :=
 
 inductive BinderInfo where
   | default | implicit | strictImplicit | instImplicit | auxDecl
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Repr
 
 def BinderInfo.hash : BinderInfo → UInt64
   | BinderInfo.default        => 947

@@ -14,6 +14,8 @@ structure StructureFieldInfo where
   fieldName  : Name
   projFn     : Name
   subobject? : Option Name -- It is `some parentStructName` if it is a subobject, and `parentStructName` is the name of the parent structure
+  binderInfo : BinderInfo := BinderInfo.default
+  inferMod   : Bool := false -- true if user used the `{}` when declaring the field
   deriving Inhabited, Repr
 
 def StructureFieldInfo.lt (i₁ i₂ : StructureFieldInfo) : Bool :=

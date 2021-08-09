@@ -14,8 +14,8 @@ structure StructureFieldInfo where
   fieldName  : Name
   projFn     : Name
   subobject? : Option Name -- It is `some parentStructName` if it is a subobject, and `parentStructName` is the name of the parent structure
-  binderInfo : BinderInfo := BinderInfo.default
-  inferMod   : Bool := false -- true if user used the `{}` when declaring the field
+  binderInfo : BinderInfo
+  inferMod   : Bool        -- true if user used the `{}` when declaring the field
   deriving Inhabited, Repr
 
 def StructureFieldInfo.lt (i₁ i₂ : StructureFieldInfo) : Bool :=
@@ -76,7 +76,7 @@ def getStructureFields (env : Environment) (structName : Name) : Array Name :=
 
 def getFieldInfo? (env : Environment) (structName : Name) (fieldName : Name) : Option StructureFieldInfo :=
   if let some info := getStructureInfo? env structName then
-    info.fieldInfo.binSearch { fieldName := fieldName, projFn := arbitrary, subobject? := none } StructureFieldInfo.lt
+    info.fieldInfo.binSearch { fieldName := fieldName, projFn := arbitrary, subobject? := none, binderInfo := arbitrary, inferMod := false } StructureFieldInfo.lt
   else
     none
 

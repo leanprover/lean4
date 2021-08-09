@@ -508,19 +508,19 @@ private def addProjections (structName : Name) (projs : List ProjectionInfo) (is
   | Except.ok env   => setEnv env
   | Except.error ex => throwKernelException ex
 
-private def registerStructure (structName : Name) (infos : Array StructFieldInfo) : TermElabM Unit :=
-  modifyEnv fun env => Lean.registerStructure env {
-    structName
-    fields := infos.filterMap fun info =>
+private def registerStructure (structName : Name) (infos : Array StructFieldInfo) : TermElabM Unit := do
+  let fields ← infos.filterMapM fun info => do
       if info.kind == StructFieldKind.fromParent then
-        none
+        return none
       else
-        some {
+        return some {
           fieldName  := info.name
           projFn     := info.declName
+          inferMod   := info.inferMod
+          binderInfo := (← getFVarLocalDecl info.fvar).binderInfo
           subobject? :=
             if info.kind == StructFieldKind.subobject then
-              match env.find? info.declName with
+              match (← getEnv).find? info.declName with
               | some (ConstantInfo.defnInfo val) =>
                 match val.type.getForallBody.getAppFn with
                 | Expr.const parentName .. => some parentName
@@ -529,7 +529,7 @@ private def registerStructure (structName : Name) (infos : Array StructFieldInfo
             else
               none
         }
-  }
+  modifyEnv fun env => Lean.registerStructure env { structName, fields }
 
 private def mkAuxConstructions (declName : Name) : TermElabM Unit := do
   let env ← getEnv

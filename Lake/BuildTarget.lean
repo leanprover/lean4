@@ -91,16 +91,22 @@ namespace ActiveBuildTarget
 -- ### Combinators
 
 def after (target : ActiveBuildTarget t a) (act : IO PUnit)  : IO BuildTask :=
-  afterTask target.task act
+  target.task.andThen act
 
 def afterList (targets : List (ActiveBuildTarget t a)) (act : IO PUnit) : IO BuildTask :=
   afterTaskList (targets.map (·.task)) act
+
+def afterArray (targets : Array (ActiveBuildTarget t a)) (act : IO PUnit) : IO BuildTask :=
+  afterTaskArray (targets.map (·.task)) act
 
 instance : HAndThen (ActiveBuildTarget t a) (IO PUnit) (IO BuildTask) :=
   ⟨ActiveBuildTarget.after⟩
 
 instance : HAndThen (List (ActiveBuildTarget t a)) (IO PUnit) (IO BuildTask) :=
   ⟨ActiveBuildTarget.afterList⟩
+
+  instance : HAndThen (Array (ActiveBuildTarget t a)) (IO PUnit) (IO BuildTask) :=
+  ⟨ActiveBuildTarget.afterArray⟩
 
 end ActiveBuildTarget
 
@@ -134,11 +140,17 @@ def materializeAsync [Async m n] (self : Target t m a) : m (n PUnit) :=
 def materialize (self : Target t m a) : m PUnit :=
   self.task
 
-def materializeList [Monad m] [MonadAsync m n] (targets : List (Target t m a)) : m PUnit := do
-  (← targets.mapM (·.materializeAsync)).forM await
+def materializeListAsync [Monad m] [Pure n] [MonadAsync m n] (targets : List (Target t m a)) : m (n PUnit) := do
+  seqListAsync (← targets.mapM (·.materializeAsync))
 
-def materializeArray [Monad m] [MonadAsync m n] (targets : Array (Target t m a)) : m PUnit := do
-  (← targets.mapM (·.materializeAsync)).forM await
+def materializeList [Monad m] [Pure n] [MonadAsync m n] (targets : List (Target t m a)) : m PUnit := do
+  await <| ← materializeListAsync targets
+
+def materializeArrayAsync [Monad m] [Pure n] [MonadAsync m n] (targets : Array (Target t m a)) :  m (n PUnit) := do
+  seqArrayAsync (← targets.mapM (·.materializeAsync))
+
+def materializeArray [Monad m] [Pure n] [MonadAsync m n] (targets : Array (Target t m a)) :  m PUnit := do
+  await <| ← materializeArrayAsync targets
 
 end Target
 

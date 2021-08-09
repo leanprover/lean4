@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Async
 
 namespace Lake
 
@@ -28,29 +29,25 @@ def spawn (act : IO α) (prio := Task.Priority.dedicated) : IO (IOTask α) :=
 def await (self : IOTask α) : IO α := do
   IO.ofExcept (← IO.wait self)
 
-def collectAll (tasks : List (IOTask α)) : IO (IOTask (List α)) :=
-  IO.asTask (tasks.mapM (·.await))
+def mapAsync (f : α → IO β) (self : IOTask α) (prio := Task.Priority.dedicated) : IO (IOTask β) :=
+  IO.mapTask (fun x => do let x ← IO.ofExcept x; f x) self prio
 
-end IOTask
+def andThen (self : IOTask α) (act : IO β) (prio := Task.Priority.dedicated) : IO (IOTask β) :=
+  IO.mapTask (fun x => IO.ofExcept x *> act) self prio
 
--- # Async / Await
+instance : HAndThen (IOTask α) (IO β) (IO (IOTask β)) := ⟨andThen⟩
 
-class Async (m : Type u → Type v) (n : outParam $ Type u → Type u) where
-  async : m α → m (n α)
-
-export Async (async)
-
-class Await (m : outParam $ Type u → Type v) (n : Type u → Type u) where
-  await : n α → m α
-
-export Await (await)
-
-class MonadAsync (m : Type u → Type v) (n : outParam $ Type u → Type u)
-  extends Async m n, Await m n
+def bindAsync (self : IOTask α) (f : α → IO (IOTask β)) (prio := Task.Priority.dedicated) : IO (IOTask β) :=
+  IO.bindTask self (fun x => do let x ← IO.ofExcept x; f x)  prio
 
 instance : MonadAsync IO IOTask where
   async := IOTask.spawn
   await := IOTask.await
+  mapAsync := IOTask.mapAsync
+  bindAsync := IOTask.bindAsync
+
+end IOTask
+
 
 -- # Build Task
 
@@ -71,14 +68,17 @@ end BuildTask
 
 instance : Inhabited BuildTask := ⟨BuildTask.nop⟩
 
-def afterTask (task : BuildTask) (act : IO PUnit)  : IO BuildTask :=
-  IO.mapTask (fun x => IO.ofExcept x *> act) task
-
 def afterTaskList (tasks : List BuildTask) (act : IO PUnit) : IO BuildTask :=
-  IO.mapTasks (fun xs => xs.forM IO.ofExcept *> act) tasks
+  afterListAsync (async act) tasks
+
+def afterTaskArray (tasks : Array BuildTask) (act : IO PUnit) : IO BuildTask :=
+  afterArrayAsync (async act) tasks
 
 instance : HAndThen BuildTask (IO PUnit) (IO BuildTask) :=
-  ⟨afterTask⟩
+  ⟨IOTask.andThen⟩
 
 instance : HAndThen (List BuildTask) (IO PUnit) (IO BuildTask) :=
   ⟨afterTaskList⟩
+
+instance : HAndThen (Array BuildTask) (IO PUnit) (IO BuildTask) :=
+  ⟨afterTaskArray⟩

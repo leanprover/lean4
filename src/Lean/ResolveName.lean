@@ -216,10 +216,10 @@ def resolveGlobalConstNoOverloadCore [Monad m] [MonadResolveName m] [MonadEnv m]
   | _   => throwError s!"ambiguous identifier '{mkConst n}', possible interpretations: {cs.map mkConst}"
 
 def resolveGlobalConst [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] : Syntax → m (List Name)
-  | Syntax.ident _ _ n pre => do
+  | stx@(Syntax.ident _ _ n pre) => do
     let pre := pre.filterMap fun (n, fields) => if fields.isEmpty then some n else none
     if pre.isEmpty then
-      resolveGlobalConstCore n
+      withRef stx <| resolveGlobalConstCore n
     else
       return pre
   | stx => throwErrorAt stx s!"expected identifier"
@@ -228,6 +228,6 @@ def resolveGlobalConstNoOverload [Monad m] [MonadResolveName m] [MonadEnv m] [Mo
   let cs ← resolveGlobalConst id
   match cs with
   | [c] => pure c
-  | _   => throwError s!"ambiguous identifier '{id}', possible interpretations: {cs.map mkConst}"
+  | _   => throwErrorAt id s!"ambiguous identifier '{id}', possible interpretations: {cs.map mkConst}"
 
 end Lean

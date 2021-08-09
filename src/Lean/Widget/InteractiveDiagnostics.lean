@@ -6,17 +6,16 @@ Authors: Wojciech Nawrocki
 -/
 import Lean.Data.Lsp
 import Lean.Message
+import Lean.Elab.InfoTree
+import Lean.PrettyPrinter
+import Lean.Server.Utils
 import Lean.Server.Rpc.Basic
 import Lean.Widget.TaggedText
+import Lean.Widget.Data
 import Lean.Widget.ExprWithCtx
 
 namespace Lean.Widget
 open Lsp Server
-
-structure MsgEmbed where
-  -- TODO(WN): other variants, e.g. `ofGoal`
-  ef : ExprText
-  deriving Inhabited, RpcEncoding
 
 private def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext := {
   env := ctx.env, mctx := ctx.mctx, lctx := ctx.lctx, opts := ctx.opts,
@@ -24,7 +23,14 @@ private def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPCo
 }
 
 private inductive EmbedFmt
-  | ofExpr (e : ExprWithCtx)
+  /- Tags denote `Info` objects. -/
+  | expr (ctx : Elab.ContextInfo) (lctx : LocalContext) (infos : Std.RBMap Nat Elab.Info compare)
+  | goal (ctx : Elab.ContextInfo) (lctx : LocalContext) (g : MVarId)
+  /- Some messages (in particular, traces) are too costly to print eagerly. Instead, we allow
+  the user to expand sub-traces interactively. -/
+  | lazyTrace (nCtx : NamingContext) (ctx? : Option MessageDataContext) (cls : Name) (m : MessageData)
+  /- Ignore any tags in this subtree. -/
+  | ignoreTags
   deriving Inhabited
 
 private abbrev MsgFmtM := StateT (Array EmbedFmt) IO
@@ -35,56 +41,67 @@ in every branch indexing into the array of embedded objects. -/
 private partial def msgToInteractiveAux (msgData : MessageData) : IO (Format × Array EmbedFmt) :=
   go { currNamespace := Name.anonymous, openDecls := [] } none msgData #[]
 where
-  pushEmbedExpr (e : ExprWithCtx) : MsgFmtM Nat :=
-    modifyGet fun es => (es.size, es.push (EmbedFmt.ofExpr e))
+  pushEmbed (e : EmbedFmt) : MsgFmtM Nat :=
+    modifyGet fun es => (es.size, es.push e)
+
+  withIgnoreTags (x : MsgFmtM Format) : MsgFmtM Format := do
+    let fmt ← x
+    let t ← pushEmbed EmbedFmt.ignoreTags
+    return Format.tag t fmt
 
   go : NamingContext → Option MessageDataContext → MessageData → MsgFmtM Format
-  | _,    _,         ofFormat fmt             => pure fmt
-  | _,    _,         ofLevel u                => pure $ format u
-  | _,    _,         ofName n                 => pure $ format n
-  | nCtx, some ctx,  ofSyntax s               => ppTerm (mkPPContext nCtx ctx) s  -- HACK: might not be a term
-  | _,    none,      ofSyntax s               => pure $ s.formatStx
-  | _,    none,      ofExpr e                 => pure $ format (toString e)
+  | _,    _,         ofFormat fmt             => withIgnoreTags fmt
+  | _,    _,         ofLevel u                => format u
+  | _,    _,         ofName n                 => format n
+  | nCtx, some ctx,  ofSyntax s               => withIgnoreTags (ppTerm (mkPPContext nCtx ctx) s) -- HACK: might not be a term
+  | _,    none,      ofSyntax s               => withIgnoreTags s.formatStx
+  | _,    none,      ofExpr e                 => format (toString e)
   | nCtx, some ctx,  ofExpr e                 => do
-    let f ← ppExpr (mkPPContext nCtx ctx) e
-    let t ← pushEmbedExpr {
-      expr := e
+    let ci : Elab.ContextInfo := {
       env := ctx.env
       mctx := ctx.mctx
-      lctx := ctx.lctx
+      fileMap := arbitrary
       options := ctx.opts
       currNamespace := nCtx.currNamespace
       openDecls := nCtx.openDecls }
-    return Format.tag t f
+    let (fmt, infos) ← ci.runMetaM ctx.lctx (ExprWithCtx.formatInfos e)
+    let t ← pushEmbed <| EmbedFmt.expr ci ctx.lctx infos
+    return Format.tag t fmt
   | _,    none,      ofGoal mvarId            => pure $ "goal " ++ format (mkMVar mvarId)
-  | nCtx, some ctx,  ofGoal mvarId            => ppGoal (mkPPContext nCtx ctx) mvarId
+  | nCtx, some ctx,  ofGoal mvarId            => withIgnoreTags <| ppGoal (mkPPContext nCtx ctx) mvarId
   | nCtx, _,         withContext ctx d        => go nCtx ctx d
   | _,    ctx,       withNamingContext nCtx d => go nCtx ctx d
-  | nCtx, ctx,       tagged _ d               => go nCtx ctx d
+  | nCtx, ctx,       tagged n d               => do
+    -- tagged is *almost* perfect for detecting traces
+    -- expect for the following two other occurrences:
+    -- src/Lean/Elab/Term.lean:454
+    -- src/Lean/Elab/Tactic/Basic.lean:33
+    let f ← pushEmbed <| EmbedFmt.lazyTrace nCtx ctx n d
+    Format.tag f <$> go nCtx ctx d
   | nCtx, ctx,       nest n d                 => Format.nest n <$> go nCtx ctx d
   | nCtx, ctx,       compose d₁ d₂            => do let d₁ ← go nCtx ctx d₁; let d₂ ← go nCtx ctx d₂; pure $ d₁ ++ d₂
   | nCtx, ctx,       group d                  => Format.group <$> go nCtx ctx d
   | nCtx, ctx,       node ds                  => Format.nest 2 <$> ds.foldlM (fun r d => do let d ← go nCtx ctx d; pure $ r ++ Format.line ++ d) Format.nil
 
-private def msgToInteractive (msgData : MessageData) : IO (TaggedText MsgEmbed) := do
+private partial def msgToInteractive (msgData : MessageData) : IO (TaggedText MsgEmbed) := do
   let (fmt, embeds) ← msgToInteractiveAux msgData
   let tt := TaggedText.prettyTagged fmt
   /- Here we rewrite a `TaggedText Nat` corresponding to a whole `MessageData` into one where
-  the tags are `TaggedText MsgEmbed`s corresponding to embedded objects with their subtree being
-  empty (`text ""`). In other words, we terminate the `MsgEmbed`-tree at embedded objects
-  and store the pretty-printed embed (which is itself a `TaggedText (WithRpcRef LazyExprWithCtx)`,
-  for example) in the tag. -/
+  the tags are `TaggedText MsgEmbed`s corresponding to embedded objects with their subtree
+  empty (`text ""`). In other words, we terminate the `MsgEmbed`-tagged -tree at embedded objects
+  and store the pretty-printed embed (which can itself be a `TaggedText`) in the tag. -/
   tt.rewriteM fun n subTt =>
-    match embeds.get? n with
-    | some (EmbedFmt.ofExpr e) =>
-      TaggedText.tag
-        { ef := subTt.map fun n => ⟨fun () => e.runMetaM (e.traverse n)⟩ }
-        (TaggedText.text "")
-    | none => TaggedText.text subTt.stripTags
-
-private partial def stripEmbeds (tt : TaggedText MsgEmbed) : String :=
-  let tt : TaggedText MsgEmbed := tt.rewrite fun ⟨et⟩ _ => TaggedText.text et.stripTags
-  tt.stripTags
+    match embeds.get! n with
+    | EmbedFmt.expr ctx lctx infos =>
+      let subTt' := ExprWithCtx.tagExprInfos ctx lctx infos subTt
+      TaggedText.tag (MsgEmbed.expr subTt') (TaggedText.text "")
+    | EmbedFmt.goal ctx lctx g =>
+      -- TODO(WN): use InteractiveGoal types here
+      unreachable!
+    | EmbedFmt.lazyTrace nCtx ctx? n m =>
+      -- TODO(WN): TraceExplorer component
+      TaggedText.tag (MsgEmbed.lazyTrace ⟨"1337"⟩) (TaggedText.text "")
+    | EmbedFmt.ignoreTags => TaggedText.text subTt.stripTags
 
 /-- Transform a Lean Message concerning the given text into an LSP Diagnostic. -/
 def msgToDiagnostic (text : FileMap) (m : Message) : ReaderT RpcSession IO Diagnostic := do
@@ -114,7 +131,7 @@ def msgToDiagnostic (text : FileMap) (m : Message) : ReaderT RpcSession IO Diagn
     fullRange := fullRange
     severity? := severity
     source? := source
-    message := stripEmbeds tt
+    message := InteractiveMessage.pretty tt
     taggedMsg? := ttJson
   }
 

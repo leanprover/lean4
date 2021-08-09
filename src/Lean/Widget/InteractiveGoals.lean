@@ -6,18 +6,12 @@ Authors: Wojciech Nawrocki
 -/
 import Lean.Widget.ExprWithCtx
 
-/-! RPC procedures for retrieving tactic and term goals with embedded `ExprText`s. -/
+/-! RPC procedures for retrieving tactic and term goals with embedded `CodeWithInfos`s. -/
 -- TODO(WN): this module is mostly a slightly adapted copy of the corresponding `plainGoal/plainTemGoal` handlers
 -- unify them somehow? or delete the plain ones.
 
 namespace Lean.Widget
 open Server
-
-structure InteractiveGoal where
-  hyps      : Array (String × ExprText)
-  type      : ExprText
-  userName? : Option String
-  deriving RpcEncoding
 
 structure InteractiveGoals where
   goals : Array InteractiveGoal
@@ -31,23 +25,13 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
     let indent         := 2 -- Use option
     let lctx           := mvarDecl.lctx
     let lctx           := lctx.sanitizeNames.run' { options := (← getOptions) }
-    -- tmp so (← ) lifts work
-    let tmpExprWithCtx : ExprWithCtx := {
-        lctx
-        mctx := ← getMCtx
-        options := ← getOptions
-        currNamespace := ← getCurrNamespace
-        openDecls := ← getOpenDecls
-        env := ← getEnv
-        expr := Expr.bvar 0 arbitrary
-      }
-    let mkExprWithCtx (e : Expr) : MetaM ExprText :=
-      { tmpExprWithCtx with expr := e}.fmt
+    let mkExprWithCtx (e : Expr) : MetaM CodeWithInfos :=
+      ExprWithCtx.tagged e
     withLCtx lctx mvarDecl.localInstances do
       let (hidden, hiddenProp) ← ToHide.collect mvarDecl.type
       -- The following two `let rec`s are being used to control the generated code size.
       -- Then should be remove after we rewrite the compiler in Lean
-      let rec pushPending (ids : List Name) (type? : Option Expr) (fmt : Array (String × ExprText)) : MetaM (Array (String × ExprText)) :=
+      let rec pushPending (ids : List Name) (type? : Option Expr) (fmt : Array (String × CodeWithInfos)) : MetaM (Array (String × CodeWithInfos)) :=
         if ids.isEmpty then
           pure fmt
         else
@@ -56,7 +40,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
           | _, none      => pure fmt
           | _, some type => do
             pure $ fmt.push (Format.joinSep ids.reverse (format " ") |> toString, ← mkExprWithCtx type)
-      let rec ppVars (varNames : List Name) (prevType? : Option Expr) (fmt : Array (String × ExprText)) (localDecl : LocalDecl) : MetaM (List Name × Option Expr × Array (String × ExprText)) := do
+      let rec ppVars (varNames : List Name) (prevType? : Option Expr) (fmt : Array (String × CodeWithInfos)) (localDecl : LocalDecl) : MetaM (List Name × Option Expr × Array (String × CodeWithInfos)) := do
         if hiddenProp.contains localDecl.fvarId then
           let fmt ← pushPending varNames prevType? fmt
           let type ← instantiateMVars localDecl.type

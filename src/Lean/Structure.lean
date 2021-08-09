@@ -135,6 +135,18 @@ def getProjFnForField? (env : Environment) (structName : Name) (fieldName : Name
   else
     none
 
+def mkDefaultFnOfProjFn (projFn : Name) : Name :=
+  projFn ++ `_default
+
+def getDefaultFnForField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
+  if let some projName := getProjFnForField? env structName fieldName then
+    let defFn := mkDefaultFnOfProjFn projName
+    if env.contains defFn then defFn else none
+  else
+    -- Check if we have a default function for a default values overriden by substructure.
+    let defFn := mkDefaultFnOfProjFn (structName ++ fieldName)
+    if env.contains defFn then defFn else none
+
 partial def getPathToBaseStructureAux (env : Environment) (baseStructName : Name) (structName : Name) (path : List Name) : Option (List Name) :=
   if baseStructName == structName then
     some path.reverse

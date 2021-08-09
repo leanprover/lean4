@@ -749,10 +749,9 @@ partial def tryToSynthesizeDefault (structs : Array Struct) (allStructNames : Ar
       pure false
     else if h : i < structs.size then do
       let struct := structs.get ⟨i, h⟩
-      let defaultName := struct.structName ++ fieldName ++ `_default
-      let env ← getEnv
-      match env.find? defaultName with
-      | some cinfo@(ConstantInfo.defnInfo defVal) => do
+      match getDefaultFnForField? (← getEnv) struct.structName fieldName with
+      | some defFn =>
+        let cinfo ← getConstInfo defFn
         let mctx ← getMCtx
         let val? ← mkDefaultValue? struct cinfo
         match val? with

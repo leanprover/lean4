@@ -63,7 +63,7 @@ inductive StructFieldKind where
 
 structure StructFieldInfo where
   name     : Name
-  declName : Name -- Remark: for `fromParent` fields, `declName` is only relevant in the generation of auxiliary `_default` functions.
+  declName : Name -- Remark: for `fromParent` fields, `declName` is only relevant in the generation of auxiliary "default value" functions.
   fvar     : Expr
   kind     : StructFieldKind
   inferMod : Bool := false
@@ -604,15 +604,15 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
         let fieldsWithDefault := fieldInfos.filter fun info => info.value?.isSome
         let defaultAuxDecls ← fieldsWithDefault.mapM fun info => do
           let type ← inferType info.fvar
-          pure (info.declName ++ `_default, type, info.value?.get!)
-        /- The `lctx` and `defaultAuxDecls` are used to create the auxiliary `_default` declarations
+          pure (mkDefaultFnOfProjFn info.declName, type, info.value?.get!)
+        /- The `lctx` and `defaultAuxDecls` are used to create the auxiliary "default value" declarations
            The parameters `params` for these definitions must be marked as implicit, and all others as explicit. -/
         let lctx :=
           params.foldl (init := lctx) fun (lctx : LocalContext) (p : Expr) =>
             lctx.setBinderInfo p.fvarId! BinderInfo.implicit
         let lctx :=
           fieldInfos.foldl (init := lctx) fun (lctx : LocalContext) (info : StructFieldInfo) =>
-            if info.isFromParent then lctx -- `fromParent` fields are elaborated as let-decls, and are zeta-expanded when creating `_default`.
+            if info.isFromParent then lctx -- `fromParent` fields are elaborated as let-decls, and are zeta-expanded when creating "default value" auxiliary functions
             else lctx.setBinderInfo info.fvar.fvarId! BinderInfo.default
         addDefaults lctx defaultAuxDecls
 

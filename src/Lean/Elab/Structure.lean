@@ -7,6 +7,7 @@ import Lean.Parser.Command
 import Lean.Meta.Closure
 import Lean.Meta.SizeOf
 import Lean.Meta.Injective
+import Lean.Meta.Structure
 import Lean.Elab.Command
 import Lean.Elab.DeclModifiers
 import Lean.Elab.DeclUtil
@@ -227,23 +228,30 @@ private def validStructType (type : Expr) : Bool :=
   | Expr.sort .. => true
   | _            => false
 
-private def checkParentIsStructure (parent : Expr) : TermElabM Name :=
-  match parent.getAppFn with
-  | Expr.const c _ _ => do
-    unless isStructure (← getEnv) c do
-      throwError "'{c}' is not a structure"
-    pure c
-  | _ => throwError "expected structure"
-
 private def findFieldInfo? (infos : Array StructFieldInfo) (fieldName : Name) : Option StructFieldInfo :=
   infos.find? fun info => info.name == fieldName
 
 private def containsFieldName (infos : Array StructFieldInfo) (fieldName : Name) : Bool :=
   (findFieldInfo? infos fieldName).isSome
 
+register_builtin_option structureDiamondWarning : Bool := {
+  defValue := true -- TODO: set as false after finishing support for diamonds
+  descr    := "enable/disable warning messages for structure diamonds"
+}
+
+/-- Return `some fieldName` if field `fieldName` of the parent structure `parentStructName` is already in `infos` -/
+private def findExistingField? (infos : Array StructFieldInfo) (parentStructName : Name) : CoreM (Option Name) := do
+  let fieldNames := getStructureFieldsFlattened (← getEnv) parentStructName
+  for fieldName in fieldNames do
+    if containsFieldName infos fieldName then
+      return some fieldName
+  return none
+
 private partial def processSubfields (structDeclName : Name) (parentFVar : Expr) (parentStructName : Name) (subfieldNames : Array Name)
     (infos : Array StructFieldInfo) (k : Array StructFieldInfo → TermElabM α) : TermElabM α :=
-  let rec loop (i : Nat) (infos : Array StructFieldInfo) := do
+  go 0 infos
+where
+  go (i : Nat) (infos : Array StructFieldInfo) := do
     if h : i < subfieldNames.size then
       let subfieldName := subfieldNames.get ⟨i, h⟩
       if containsFieldName infos subfieldName then
@@ -255,28 +263,65 @@ private partial def processSubfields (structDeclName : Name) (parentFVar : Expr)
            its default value is overwritten in the structure. -/
         let declName := structDeclName ++ subfieldName
         let infos := infos.push { name := subfieldName, declName, fvar := subfieldFVar, kind := StructFieldKind.fromParent }
-        loop (i+1) infos
+        go (i+1) infos
     else
       k infos
-  loop 0 infos
 
-private partial def withParents (view : StructView) (i : Nat) (infos : Array StructFieldInfo) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
-  if h : i < view.parents.size then
-    let parentStx := view.parents.get ⟨i, h⟩
-    withRef parentStx do
-    let parent ← Term.elabType parentStx
-    let parentName ← checkParentIsStructure parent
-    let toParentName := Name.mkSimple $ "to" ++ parentName.eraseMacroScopes.getString! -- erase macro scopes?
-    if containsFieldName infos toParentName then
-      throwErrorAt parentStx "field '{toParentName}' has already been declared"
-    let env ← getEnv
-    let binfo := if view.isClass && isClass env parentName then BinderInfo.instImplicit else BinderInfo.default
-    withLocalDecl toParentName binfo parent fun parentFVar =>
-      let infos := infos.push { name := toParentName, declName := view.declName ++ toParentName, fvar := parentFVar, kind := StructFieldKind.subobject }
-      let subfieldNames := getStructureFieldsFlattened env parentName
-      processSubfields view.declName parentFVar parentName subfieldNames infos fun infos => withParents view (i+1) infos k
-  else
-    k infos
+private partial def copyNewFieldsFrom (view : StructView) (infos : Array StructFieldInfo) (parent : Expr) (parentStructName : Name) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
+  let fieldNames := getStructureFieldsFlattened (← getEnv) parentStructName
+  let rec go (i : Nat) (infos : Array StructFieldInfo) : TermElabM α := do
+    if h : i < fieldNames.size then
+      let fieldName := fieldNames.get ⟨i, h⟩
+      let fieldType ← getFieldType parent fieldName
+      match (← findFieldInfo? infos fieldName) with
+      | some existingFieldInfo =>
+        let existingFieldType ← inferType existingFieldInfo.fvar
+        unless (← isDefEq fieldType existingFieldType) do
+          throwError "parent field type mismatch, field '{fieldName}' from parent '{parentStructName}' {← mkHasTypeButIsExpectedMsg fieldType existingFieldType}"
+        go (i+1) infos
+      | none =>
+        /- TODO: we are ignoring the following information from the `fieldName` declaraion at `parentStructName`.
+           - Binder annotation
+           - Visibility annotation (private/protected)
+           - `inferMod`
+           - Default value.
+         -/
+        withLocalDeclD fieldName fieldType fun fieldFVar => do
+          let fieldDeclName := view.declName ++ fieldName
+          let infos := infos.push { name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value? := none,
+                                    kind := StructFieldKind.newField, inferMod := false }
+          go (i+1) infos
+    else
+      k infos
+  go 0 infos
+
+private partial def withParents (view : StructView) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
+  go 0 #[]
+where
+  go (i : Nat) (infos : Array StructFieldInfo) : TermElabM α := do
+    if h : i < view.parents.size then
+      let parentStx := view.parents.get ⟨i, h⟩
+      withRef parentStx do
+      let parent ← Term.elabType parentStx
+      let parentStructName ← getStructureName parent
+      if let some existingFieldName ← findExistingField? infos parentStructName then
+        if structureDiamondWarning.get (← getOptions) then
+          logWarning s!"field '{existingFieldName}' from '{parentStructName}' has already been declared"
+        copyNewFieldsFrom view infos parent parentStructName fun infos => go (i+1) infos
+        -- TODO: if `class`, then we need to create a let-decl that stores the local instance for the `parentStructure`
+      else
+        let toParentName := Name.mkSimple $ "to" ++ parentStructName.eraseMacroScopes.getString! -- erase macro scopes?
+        if containsFieldName infos toParentName then
+          throwErrorAt parentStx "field '{toParentName}' has already been declared"
+        let env ← getEnv
+        let binfo := if view.isClass && isClass env parentStructName then BinderInfo.instImplicit else BinderInfo.default
+        withLocalDecl toParentName binfo parent fun parentFVar =>
+          let infos := infos.push { name := toParentName, declName := view.declName ++ toParentName, fvar := parentFVar, kind := StructFieldKind.subobject }
+          let subfieldNames := getStructureFieldsFlattened env parentStructName
+          processSubfields view.declName parentFVar parentStructName subfieldNames infos fun infos => go (i+1) infos
+    else
+      k infos
+
 
 private def elabFieldTypeValue (view : StructFieldView) : TermElabM (Option Expr × Option Expr) := do
   Term.withAutoBoundImplicit <| Term.elabBinders view.binders.getArgs fun params => do
@@ -516,7 +561,7 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
   let type ← Term.elabType view.type
   unless validStructType type do throwErrorAt view.type "expected Type"
   withRef view.ref do
-  withParents view 0 #[] fun fieldInfos =>
+  withParents view fun fieldInfos =>
   withFields view.fields 0 fieldInfos fun fieldInfos => do
     Term.synthesizeSyntheticMVarsNoPostponing
     let u ← getResultUniverse type
@@ -554,6 +599,7 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
         let projInstances := instParents.toList.map fun info => info.declName
         Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
         projInstances.forM fun declName => addInstance declName AttributeKind.global (eval_prio default)
+        -- TODO: we must create `to` functions for the parent structures that have been flattened, and mark them as instances (if class)
         let lctx ← getLCtx
         let fieldsWithDefault := fieldInfos.filter fun info => info.value?.isSome
         let defaultAuxDecls ← fieldsWithDefault.mapM fun info => do

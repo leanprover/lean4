@@ -35,3 +35,4 @@ import Lean.Meta.SortLocalDecls
 import Lean.Meta.CollectFVars
 import Lean.Meta.GeneralizeVars
 import Lean.Meta.Injective
+import Lean.Meta.Structure

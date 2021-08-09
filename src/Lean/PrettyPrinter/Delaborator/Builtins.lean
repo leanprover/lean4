@@ -136,10 +136,14 @@ def delabConst : Delab := do
 
   maybeAddBlockImplicit stx
 
-inductive ParamKind where
-  | explicit
-  -- combines implicit params, optParams, and autoParams
-  | implicit (name : Name) (defVal : Option Expr)
+structure ParamKind where
+  name        : Name
+  bInfo       : BinderInfo
+  defVal      : Option Expr := none
+  isAutoParam : Bool := false
+
+def ParamKind.isRegularExplicit (param : ParamKind) : Bool :=
+  param.bInfo.isExplicit && !param.isAutoParam && param.defVal.isNone
 
 /-- Return array with n-th element set to kind of n-th parameter of `e`. -/
 partial def getParamKinds : DelabM (Array ParamKind) := do
@@ -149,13 +153,7 @@ partial def getParamKinds : DelabM (Array ParamKind) := do
       forallTelescopeArgs e.getAppFn e.getAppArgs fun params _ => do
         params.mapM fun param => do
           let l ← getLocalDecl param.fvarId!
-          match l.type.getOptParamDefault? with
-          | some val => pure $ ParamKind.implicit l.userName val
-          | _ =>
-            if l.type.isAutoParam || !l.binderInfo.isExplicit then
-              pure $ ParamKind.implicit l.userName none
-            else
-              pure ParamKind.explicit
+          pure { name := l.userName, bInfo := l.binderInfo, defVal := l.type.getOptParamDefault?, isAutoParam := l.type.isAutoParam }
   catch _ => pure #[] -- recall that expr may be nonsensical
 where
   forallTelescopeArgs f args k := do
@@ -170,16 +168,26 @@ where
 @[builtinDelab app]
 def delabAppExplicit : Delab := whenPPOption getPPExplicit do
   let paramKinds ← getParamKinds
-  let (fnStx, argStxs) ← withAppFnArgs
+  let (fnStx, _, argStxs) ← withAppFnArgs
     (do
       let fn ← getExpr
       let stx ← if fn.isConst then delabConst else delab
-      let needsExplicit := paramKinds.any (fun | ParamKind.explicit => false | _ => true) && stx.getKind != `Lean.Parser.Term.explicit
+      let needsExplicit := paramKinds.any (fun param => !param.isRegularExplicit) && stx.getKind != `Lean.Parser.Term.explicit
       let stx ← if needsExplicit then `(@$stx) else pure stx
-      pure (stx, #[]))
-    (fun ⟨fnStx, argStxs⟩ => do
-      let argStx ← if ← getPPOption getPPAnalysisHole then `(_) else delab
-      pure (fnStx, argStxs.push argStx))
+      pure (stx, paramKinds.toList, #[]))
+    (fun ⟨fnStx, paramKinds, argStxs⟩ => do
+      let isInstImplicit := match paramKinds with
+                            | [] => false
+                            | param :: _ => param.bInfo == BinderInfo.instImplicit
+      let argStx ← if ← getPPOption getPPAnalysisHole then `(_)
+                   else if isInstImplicit == true then
+                     let stx ← if ← getPPOption getPPInstances then delab else `(_)
+                     if ← getPPOption getPPInstanceTypes then
+                       let typeStx ← withType delab
+                       `(($stx : $typeStx))
+                     else stx
+                   else delab
+      pure (fnStx, paramKinds.tailD [], argStxs.push argStx))
   Syntax.mkApp fnStx argStxs
 
 def shouldShowMotive (motive : Expr) (opts : Options) : MetaM Bool := do
@@ -252,7 +260,7 @@ def delabAppImplicit : Delab := do
   -- TODO: always call the unexpanders, make them guard on the right # args?
   let paramKinds ← getParamKinds
   if ← getPPOption getPPExplicit then
-    if paramKinds.any (fun | ParamKind.explicit => false | _ => true) then failure
+    if paramKinds.any (fun param => !param.isRegularExplicit) then failure
 
   let (fnStx, _, argStxs) ← withAppFnArgs
     (do
@@ -269,13 +277,14 @@ def delabAppImplicit : Delab := do
         else if ← getPPOption getPPAnalysisHole then `(_)
         else
           match paramKinds with
-          | [ParamKind.implicit _ (some v)] =>
-            if !v.hasLooseBVars && v == arg then none else delab
-          | ParamKind.implicit name none :: _  =>
-            if ← getPPOption getPPAnalysisNamedArg <||> (name == `motive <&&> shouldShowMotive arg opts)
-            then mkNamedArg name (← delab)
-            else none
-          | _ => delab
+          | [] => delab
+          | param :: rest =>
+            if param.defVal.isSome && rest.isEmpty then
+              let v := param.defVal.get!
+              if !v.hasLooseBVars && v == arg then none else delab
+            else if !param.isRegularExplicit && param.defVal.isNone then
+              if ← getPPOption getPPAnalysisNamedArg <||> (param.name == `motive <&&> shouldShowMotive arg opts) then mkNamedArg param.name (← delab) else none
+            else delab
       let argStxs := match argStx? with
         | none => argStxs
         | some stx => argStxs.push stx

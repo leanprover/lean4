@@ -539,7 +539,10 @@ mutual
             -- Note: apparently checking valUnknown here is not sound, because the elaborator
             -- will not happily assign instImplicits that it cannot synthesize
             let mut provided := true
-            if getPPAnalyzeCheckInstances (← getOptions) then
+            if !getPPInstances (← getOptions) then
+              annotateBool `pp.analysis.skip
+              provided := false
+            else if getPPAnalyzeCheckInstances (← getOptions) then
               let instResult ← try trySynthInstance argType catch _ => LOption.undef
               match instResult with
               | LOption.some inst =>
@@ -548,7 +551,7 @@ mutual
               | _                 => annotateNamedArg (← mvarName mvars[i])
             else provided := false
             modify fun s => { s with provideds := s.provideds.set! i provided }
-          | BinderInfo.auxDecl        => pure ()
+          | BinderInfo.auxDecl => pure ()
           if (← get).provideds[i] then withKnowing (not (← typeUnknown mvars[i])) true analyze
           tryUnify mvars[i] args[i]
 
@@ -559,6 +562,8 @@ mutual
         for i in [:args.size] do
           if !(← get).provideds[i] then
             withNaryArg (f.getAppNumArgs + i) do annotateBool `pp.analysis.hole
+          if bInfos[i] == BinderInfo.instImplicit && getPPInstanceTypes (← getOptions) then
+            withType (withKnowing true false analyze)
 
 end
 

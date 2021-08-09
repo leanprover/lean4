@@ -1,0 +1,1 @@
+nonAtomicFieldName.lean:2:2-2:5: error: invalid field name 'a.b', field names must be atomic

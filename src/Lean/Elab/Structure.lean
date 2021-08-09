@@ -207,7 +207,9 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
           pure (some optBinderTacticDefault[0][1])
     let idents := fieldBinder[2].getArgs
     idents.foldlM (init := views) fun (views : Array StructFieldView) ident => withRef ident do
-      let name     := ident.getId
+      let name := ident.getId.eraseMacroScopes
+      unless name.isAtomic do
+        throwErrorAt ident "invalid field name '{name.eraseMacroScopes}', field names must be atomic"
       let declName := structDeclName ++ name
       let declName ← applyVisibility fieldModifiers.visibility declName
       addDocString' declName fieldModifiers.docString?

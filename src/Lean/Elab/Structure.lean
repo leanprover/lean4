@@ -260,14 +260,14 @@ where
       let type ← inferType val
       withLetDecl subfieldName type val fun subfieldFVar =>
         /- The following `declName` is only used for creating the `_default` auxiliary declaration name when
-           its default value is overwritten in the structure. -/
+           its default value is overwritten in the structure. If the default value is not overwritten, then its value is irrelevant. -/
         let declName := structDeclName ++ subfieldName
         let infos := infos.push { name := subfieldName, declName, fvar := subfieldFVar, kind := StructFieldKind.fromParent }
         go (i+1) infos
     else
       k infos
 
-private partial def copyNewFieldsFrom (view : StructView) (infos : Array StructFieldInfo) (parent : Expr) (parentStructName : Name) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
+private partial def copyNewFieldsFrom (structDeclName : Name) (infos : Array StructFieldInfo) (parent : Expr) (parentStructName : Name) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
   let fieldNames := getStructureFieldsFlattened (← getEnv) parentStructName
   let rec go (i : Nat) (infos : Array StructFieldInfo) : TermElabM α := do
     if h : i < fieldNames.size then
@@ -287,7 +287,7 @@ private partial def copyNewFieldsFrom (view : StructView) (infos : Array StructF
            - Default value.
          -/
         withLocalDeclD fieldName fieldType fun fieldFVar => do
-          let fieldDeclName := view.declName ++ fieldName
+          let fieldDeclName := structDeclName ++ fieldName
           let infos := infos.push { name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value? := none,
                                     kind := StructFieldKind.newField, inferMod := false }
           go (i+1) infos
@@ -307,7 +307,7 @@ where
       if let some existingFieldName ← findExistingField? infos parentStructName then
         if structureDiamondWarning.get (← getOptions) then
           logWarning s!"field '{existingFieldName}' from '{parentStructName}' has already been declared"
-        copyNewFieldsFrom view infos parent parentStructName fun infos => go (i+1) infos
+        copyNewFieldsFrom view.declName infos parent parentStructName fun infos => go (i+1) infos
         -- TODO: if `class`, then we need to create a let-decl that stores the local instance for the `parentStructure`
       else
         let toParentName := Name.mkSimple $ "to" ++ parentStructName.eraseMacroScopes.getString! -- erase macro scopes?

@@ -38,10 +38,11 @@ macro "high"    : prio => `(10000)
 macro "(" p:prio ")" : prio => p
 
 -- Basic notation for defining parsers
-syntax   stx "+" : stx
-syntax   stx "*" : stx
-syntax   stx "?" : stx
-syntax:2 stx " <|> " stx:1 : stx
+-- NOTE: precedence must be at least `arg` to be used in `macro` without parentheses
+syntax:arg stx:max "+" : stx
+syntax:arg stx:max "*" : stx
+syntax:arg stx:max "?" : stx
+syntax:2 stx:2 " <|> " stx:1 : stx
 
 macro_rules
   | `(stx| $p +) => `(stx| many1($p))
@@ -50,13 +51,13 @@ macro_rules
   | `(stx| $p₁ <|> $p₂) => `(stx| orelse($p₁, $p₂))
 
 /- Comma-separated sequence. -/
-macro:max x:stx ",*"   : stx => `(stx| sepBy($x, ",", ", "))
-macro:max x:stx ",+"   : stx => `(stx| sepBy1($x, ",", ", "))
+macro:arg x:stx:max ",*"   : stx => `(stx| sepBy($x, ",", ", "))
+macro:arg x:stx:max ",+"   : stx => `(stx| sepBy1($x, ",", ", "))
 /- Comma-separated sequence with optional trailing comma. -/
-macro:max x:stx ",*,?" : stx => `(stx| sepBy($x, ",", ", ", allowTrailingSep))
-macro:max x:stx ",+,?" : stx => `(stx| sepBy1($x, ",", ", ", allowTrailingSep))
+macro:arg x:stx:max ",*,?" : stx => `(stx| sepBy($x, ",", ", ", allowTrailingSep))
+macro:arg x:stx:max ",+,?" : stx => `(stx| sepBy1($x, ",", ", ", allowTrailingSep))
 
-macro "!" x:stx : stx => `(stx| notFollowedBy($x))
+macro:arg "!" x:stx:max : stx => `(stx| notFollowedBy($x))
 
 syntax (name := rawNatLit) "nat_lit " num : term
 

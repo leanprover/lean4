@@ -1,0 +1,6 @@
+PPInstances.lean:25:68-25:73: warning: declaration uses 'sorry'
+@Module R E _ _ : Type
+@Module R E (_ : Semiring R) (_ : AddCommMonoid E) : Type
+@Module R E (@Ring.toSemiring R R.Ring) (@SemiNormedGroup.toAddCommMonoid E instSNG) : Type
+@Module R E (@Ring.toSemiring R (R.Ring : Ring R) : Semiring R)
+  (@SemiNormedGroup.toAddCommMonoid E (instSNG : SemiNormedGroup E) : AddCommMonoid E) : Type

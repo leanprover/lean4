@@ -95,6 +95,16 @@ register_builtin_option pp.proofs.withType : Bool := {
   group    := "pp"
   descr    := "(pretty printer) when eliding a proof (see `pp.proofs`), show its type instead"
 }
+register_builtin_option pp.instances : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) if set to false, replace inst-implicit arguments to explicit applications with placeholders"
+}
+register_builtin_option pp.instanceTypes : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) when printing explicit applications, show the types of inst-implicit arguments"
+}
 register_builtin_option pp.motives.pi : Bool := {
   defValue := true
   group    := "pp"
@@ -174,5 +184,7 @@ def getPPProofsWithType (o : Options) : Bool := o.get pp.proofs.withType.name pp
 def getPPMotivesPi (o : Options) : Bool := o.get pp.motives.pi.name pp.motives.pi.defValue
 def getPPMotivesNonConst (o : Options) : Bool := o.get pp.motives.nonConst.name pp.motives.nonConst.defValue
 def getPPMotivesAll (o : Options) : Bool := o.get pp.motives.all.name pp.motives.all.defValue
+def getPPInstances (o : Options) : Bool := o.get pp.instances.name pp.instances.defValue
+def getPPInstanceTypes (o : Options) : Bool := o.get pp.instanceTypes.name pp.instanceTypes.defValue
 
 end Lean

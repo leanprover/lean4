@@ -315,10 +315,10 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   let declName := mkIdentFrom stx name
   let d ←
     if let some lhsPrec := lhsPrec? then
-      `($[$doc?:docComment]? @[$attrKind:attrKind $catParserId:ident $(quote prio):numLit] def $declName : Lean.TrailingParserDescr :=
+      `($[$doc?:docComment]? @[$attrKind:attrKind $catParserId:ident $(quote prio):numLit] def $declName:ident : Lean.TrailingParserDescr :=
         ParserDescr.trailingNode $(quote stxNodeKind) $(quote prec) $(quote lhsPrec) $val)
     else
-      `($[$doc?:docComment]? @[$attrKind:attrKind $catParserId:ident $(quote prio):numLit] def $declName : Lean.ParserDescr :=
+      `($[$doc?:docComment]? @[$attrKind:attrKind $catParserId:ident $(quote prio):numLit] def $declName:ident : Lean.ParserDescr :=
         ParserDescr.node $(quote stxNodeKind) $(quote prec) $val)
   trace `Elab fun _ => d
   withMacroExpansion stx d <| elabCommand d
@@ -331,7 +331,7 @@ def syntaxAbbrev  := leading_parser "syntax " >> ident >> " := " >> many1 syntax
   -- TODO: nonatomic names
   let (val, _) ← runTermElabM none $ fun _ => Term.toParserDescr stx[3] Name.anonymous
   let stxNodeKind := (← getCurrNamespace) ++ declName.getId
-  let stx' ← `(def $declName : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
+  let stx' ← `(def $declName:ident : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
   withMacroExpansion stx stx' $ elabCommand stx'
 
 def checkRuleKind (given expected : SyntaxNodeKind) : Bool :=

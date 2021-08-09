@@ -63,7 +63,7 @@ inductive StructFieldKind where
 
 structure StructFieldInfo where
   name     : Name
-  declName : Name -- Remark: this field value doesn't matter for fromParent fields.
+  declName : Name -- Remark: for `fromParent` fields, `declName` is only relevant in the generation of auxiliary `_default` functions.
   fvar     : Expr
   kind     : StructFieldKind
   inferMod : Bool := false

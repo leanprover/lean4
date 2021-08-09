@@ -14,44 +14,16 @@ open Server
 Much like Lean 3 [`sf`](https://github.com/leanprover-community/mathlib/blob/bfa6bbbce69149792cc009ab7f9bc146181dc051/src/tactic/interactive_expr.lean#L38),
 but with indentation already stringified. -/
 inductive TaggedText (α : Type u) where
-  | text (s : String)
-  /- Invariant: non-empty and never directly nested. `append #[tag _ append #[]]` is okay. -/
-  | append (as : Array (TaggedText α))
-  | tag (t : α) (a : TaggedText α)
-  deriving Inhabited, BEq, Repr
+  | text   : String → TaggedText α
+  /- Invariants:
+     - non-empty
+     - no adjacent `text` elements (they should be collapsed)
+     - never directly nested (`append #[tag _ (append ..)]` is okay) -/
+  | append : Array (TaggedText α) → TaggedText α
+  | tag    : α → TaggedText α → TaggedText α
+  deriving Inhabited, BEq, Repr, FromJson, ToJson
 
 namespace TaggedText
-
-partial def fromJson? [FromJson α] (j : Json) : Except String (TaggedText α) :=
-  (do
-    let j ← j.getObjVal? "text"
-    let s ← j.getObjValAs? String "s"
-    text s
-  ) <|>
-  (do
-    let _ : FromJson (TaggedText α) := ⟨fromJson?⟩
-    let j ← j.getObjVal? "append"
-    let as ← j.getObjValAs? (Array (TaggedText α)) "as"
-    append as
-  ) <|>
-  (do
-    let _ : FromJson (TaggedText α) := ⟨fromJson?⟩
-    let j ← j.getObjVal? "tag"
-    let t ← j.getObjValAs? α "t"
-    let a ← j.getObjValAs? (TaggedText α) "a"
-    tag t a
-  )
-
-instance [FromJson α] : FromJson (TaggedText α) :=
-  ⟨fromJson?⟩
-
-partial def toJson [ToJson α] : TaggedText α → Json
-  | text s    => Json.mkObj [("text", Json.mkObj [("s", s)])]
-  | append as => Json.mkObj [("append", Json.mkObj [("as", Json.arr <| as.map toJson)])]
-  | tag t a   => Json.mkObj [("tag", Json.mkObj [("t", ToJson.toJson t), ("a", toJson a)])]
-
-instance [ToJson α] : ToJson (TaggedText α) :=
-  ⟨toJson⟩
 
 def appendText (s₀ : String) : TaggedText α → TaggedText α
   | text s    => text (s ++ s₀)

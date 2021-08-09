@@ -57,7 +57,7 @@ jobs:
           echo '
             max-jobs = auto
             extra-sandbox-paths = /nix/var/cache/ccache
-            substituters = file://${{ github.workspace }}/nix-store-cache https://cache.nixos.org/
+            extra-substituters = file://${{ github.workspace }}/nix-store-cache?priority=10&trusted=true
             extra-trusted-substituters = https://lean4.cachix.org/
             extra-trusted-public-keys = lean4.cachix.org-1:mawtxSxcaiWE24xCXXgh3qnvlTkyU7evRRnGeAhD4Wk=' > ~/.config/nix/nix.conf
           sudo mkdir -m0770 -p /nix/var/cache/ccache

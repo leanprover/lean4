@@ -14,6 +14,8 @@ structure StructureFieldInfo where
   fieldName  : Name
   projFn     : Name
   subobject? : Option Name -- It is `some parentStructName` if it is a subobject, and `parentStructName` is the name of the parent structure
+  binderInfo : BinderInfo := BinderInfo.default
+  inferMod   : Bool := false -- true if user used the `{}` when declaring the field
   deriving Inhabited, Repr
 
 def StructureFieldInfo.lt (i₁ i₂ : StructureFieldInfo) : Bool :=
@@ -134,6 +136,18 @@ def getProjFnForField? (env : Environment) (structName : Name) (fieldName : Name
     some fieldInfo.projFn
   else
     none
+
+def mkDefaultFnOfProjFn (projFn : Name) : Name :=
+  projFn ++ `_default
+
+def getDefaultFnForField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
+  if let some projName := getProjFnForField? env structName fieldName then
+    let defFn := mkDefaultFnOfProjFn projName
+    if env.contains defFn then defFn else none
+  else
+    -- Check if we have a default function for a default values overriden by substructure.
+    let defFn := mkDefaultFnOfProjFn (structName ++ fieldName)
+    if env.contains defFn then defFn else none
 
 partial def getPathToBaseStructureAux (env : Environment) (baseStructName : Name) (structName : Name) (path : List Name) : Option (List Name) :=
   if baseStructName == structName then

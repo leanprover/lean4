@@ -8,6 +8,7 @@ import Lean.Meta.Closure
 import Lean.Meta.SizeOf
 import Lean.Meta.Injective
 import Lean.Meta.Structure
+import Lean.Meta.AppBuilder
 import Lean.Elab.Command
 import Lean.Elab.DeclModifiers
 import Lean.Elab.DeclUtil
@@ -269,12 +270,61 @@ where
     else
       k infos
 
-private partial def copyNewFieldsFrom (structDeclName : Name) (infos : Array StructFieldInfo) (parent : Expr) (parentStructName : Name) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
-  let fieldNames := getStructureFieldsFlattened (← getEnv) parentStructName
+/-- Return `some (structName, fieldName, struct)` if `e` is a projection function application -/
+private def isProjFnApp? (e : Expr) : MetaM (Option (Name × Name × Expr)) := do
+  match e.getAppFn with
+  | Expr.const declName .. =>
+    match (← getProjectionFnInfo? declName) with
+    | some { ctorName := ctorName, numParams := n, .. } =>
+      if declName.isStr && e.getAppNumArgs == n+1 then
+        let ConstantInfo.ctorInfo ctorVal ← getConstInfo ctorName | unreachable!
+        return some (ctorVal.induct, declName.getString!, e.appArg!)
+      else
+        return none
+    | _ => return none
+  | _ => return none
+
+/--
+  Return `some fieldName`, if `e` is an expression that represents an access to field `fieldName` of the structure `s`.
+  The name of the structure type must be `structName`. -/
+private partial def isProjectionOf? (e : Expr) (structName : Name) (s : Expr) : MetaM (Option Name) := do
+  if let some (baseStructName, fieldName, e) ← isProjFnApp? e then
+    if let some path ← visit e #[] then
+      if let some path' := getPathToBaseStructure? (← getEnv) baseStructName structName then
+        if path'.toArray == path.reverse then
+          return some fieldName
+  return none
+where
+  visit (e : Expr) (path : Array Name) : MetaM (Option (Array Name)) := do
+    if e == s then return some path
+    -- Check whether `e` is a `toParent` field
+    if let some (_, _, e') ← isProjFnApp? e then
+      visit e' (path.push e.getAppFn.constName!)
+    else
+      return none
+
+private def getFieldType (infos : Array StructFieldInfo) (parentStructName : Name) (parentType : Expr) (fieldName : Name) : MetaM Expr := do
+  withLocalDeclD (← mkFreshId) parentType fun parent => do
+    let proj ← mkProjection parent fieldName
+    let projType ← inferType proj
+    /- Eliminate occurrences of `parent`. This may happen when structure contains dependent fields -/
+    let visit (e : Expr) : MetaM TransformStep := do
+      if let some fieldName ← isProjectionOf? e parentStructName parent then
+        -- trace[Meta.debug] "field '{fieldName}' of {e}"
+        match (← findFieldInfo? infos fieldName) with
+        | some existingFieldInfo => return TransformStep.done existingFieldInfo.fvar
+        | none => throwError "unexpected field access {indentExpr e}"
+      else
+        return TransformStep.visit e
+    Meta.transform projType (pre := visit)
+
+private partial def copyNewFieldsFrom (structDeclName : Name) (infos : Array StructFieldInfo) (parentType : Expr) (parentStructName : Name) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
+  let fieldNames := getStructureFieldsFlattened (← getEnv) parentStructName (includeSubobjectFields := false)
+  -- trace[Meta.debug] "field names: {fieldNames}"
   let rec go (i : Nat) (infos : Array StructFieldInfo) : TermElabM α := do
     if h : i < fieldNames.size then
       let fieldName := fieldNames.get ⟨i, h⟩
-      let fieldType ← getFieldType parent fieldName
+      let fieldType ← getFieldType infos parentStructName parentType fieldName
       match (← findFieldInfo? infos fieldName) with
       | some existingFieldInfo =>
         let existingFieldType ← inferType existingFieldInfo.fvar
@@ -289,6 +339,7 @@ private partial def copyNewFieldsFrom (structDeclName : Name) (infos : Array Str
            - Default value.
          -/
         withLocalDeclD fieldName fieldType fun fieldFVar => do
+          -- trace[Meta.debug] "copying field {fieldName} : {← inferType fieldFVar}"
           let fieldDeclName := structDeclName ++ fieldName
           let infos := infos.push { name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value? := none,
                                     kind := StructFieldKind.newField, inferMod := false }
@@ -499,6 +550,7 @@ private def mkCtor (view : StructView) (levelParams : List Name) (params : Array
   let type ← mkForallFVars params type
   let type ← instantiateMVars type
   let type := type.inferImplicit params.size !view.ctor.inferMod
+  -- trace[Meta.debug] "ctor type {type}"
   pure { name := view.ctor.declName, type }
 
 @[extern "lean_mk_projections"]

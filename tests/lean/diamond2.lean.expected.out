@@ -1,0 +1,2 @@
+Foo1.mk : {α : Type} → Bar (α → α) → (β : Type) → (α → β) → Foo1 α
+Foo2.mk : {α : Type} → Bar (α → α) → (β : Type) → (α → β) → α → α → Foo2 α

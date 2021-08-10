@@ -1,2 +1,2 @@
 def D.toC : D → C :=
-fun source => { toA := source.toB.toA, w := source.w }
+fun self => { toA := self.toB.toA, w := self.w }

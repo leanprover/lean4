@@ -611,15 +611,16 @@ private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × 
       setReducibleAttribute declName
 
 private partial def mkCoercionToCopiedParent (levelParams : List Name) (params : Array Expr) (view : StructView) (parentType : Expr) : MetaM Unit := do
+  let env ← getEnv
   let structName := view.declName
-  let sourceFieldNames := getStructureFieldsFlattened (← getEnv) structName
+  let sourceFieldNames := getStructureFieldsFlattened env structName
   let structType ← mkAppN (Lean.mkConst structName (levelParams.map mkLevelParam)) params
-  -- TODO: binder annotation for instances
-  withLocalDeclD `source structType fun source => do
-    let declType ← mkForallFVars params (← mkArrow structType parentType)
+  let Expr.const parentStructName us _ ← pure parentType.getAppFn | unreachable!
+  let binfo := if view.isClass && isClass env parentStructName then BinderInfo.instImplicit else BinderInfo.default
+  withLocalDecl `self binfo structType fun source => do
+    let declType ← mkForallFVars params (← mkForallFVars #[source] parentType)
     let declType := declType.inferImplicit params.size true
     let rec copyFields (parentType : Expr) : MetaM Expr := do
-      let env ← getEnv
       let Expr.const parentStructName us _ ← pure parentType.getAppFn | unreachable!
       let parentCtor := getStructureCtor env parentStructName
       let mut result := mkAppN (mkConst parentCtor.name us) parentType.getAppArgs

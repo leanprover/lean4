@@ -326,13 +326,45 @@ private def toVisibility (fieldInfo : StructureFieldInfo) : CoreM Visibility := 
   else
     return Visibility.regular
 
-private partial def copyNewFieldsFrom (structDeclName : Name) (infos : Array StructFieldInfo) (parentType : Expr) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
-  copyFields infos parentType k
+abbrev FieldMap := NameMap Expr -- Map from field name to expression representing the field
+
+private partial def copyDefaultValue? (fieldMap : FieldMap) (structName : Name) (fieldName : Name) : TermElabM (Option Expr) := do
+  match getDefaultFnForField? (← getEnv) structName fieldName with
+  | none => return none
+  | some defaultFn =>
+    let cinfo ← getConstInfo defaultFn
+    let us ← mkFreshLevelMVarsFor cinfo
+    go? (cinfo.instantiateValueLevelParams us)
 where
-  copyFields (infos : Array StructFieldInfo) (parentType : Expr) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
+  go? (e : Expr) : TermElabM (Option Expr) := do
+    match e with
+    | Expr.lam n d b c =>
+      if c.binderInfo.isExplicit then
+        let fieldName := n
+        match fieldMap.find? n with
+        | none     => return none -- TODO Generate warning?
+        | some val =>
+          let valType ← inferType val
+          if (← isDefEq valType d) then
+            go? (b.instantiate1 val)
+          else
+            return none -- TODO Generate warning?
+      else
+        let arg ← mkFreshExprMVar d
+        go? (b.instantiate1 arg)
+    | e =>
+      if e.isAppOfArity ``id 2 then
+        return some (← instantiateMVars e.appArg!)
+      else
+        return some (← instantiateMVars e)
+
+private partial def copyNewFieldsFrom (structDeclName : Name) (infos : Array StructFieldInfo) (parentType : Expr) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
+  copyFields infos parentType fun _ infos => k infos
+where
+  copyFields (infos : Array StructFieldInfo) (parentType : Expr) (k : FieldMap → Array StructFieldInfo → TermElabM α) : TermElabM α := do
     let parentStructName ← getStructureName parentType
     let fieldNames := getStructureFields (← getEnv) parentStructName
-    let rec copy (i : Nat) (infos : Array StructFieldInfo) : TermElabM α := do
+    let rec copy (i : Nat) (fieldMap : FieldMap) (infos : Array StructFieldInfo) : TermElabM α := do
       if h : i < fieldNames.size then
         let fieldName := fieldNames.get ⟨i, h⟩
         let fieldType ← getFieldType infos parentStructName parentType fieldName
@@ -342,31 +374,31 @@ where
           unless (← isDefEq fieldType existingFieldType) do
             throwError "parent field type mismatch, field '{fieldName}' from parent '{parentStructName}' {← mkHasTypeButIsExpectedMsg fieldType existingFieldType}"
           -- TODO: if new field has a default value, it should probably override the default at `infos` (if it has one)
-          copy (i+1) infos
+          copy (i+1) (fieldMap.insert fieldName existingFieldInfo.fvar) infos
         | none =>
           let some fieldInfo ← getFieldInfo? (← getEnv) parentStructName fieldName | unreachable!
           let addNewField : TermElabM α := do
-            /- TODO: we are ignoring the following information from the `fieldName` declaraion at `parentStructName`.
-               - Default value.
-             -/
+            let value? ← copyDefaultValue? fieldMap parentStructName fieldName
             withLocalDecl fieldName fieldInfo.binderInfo fieldType fun fieldFVar => do
-              -- trace[Meta.debug] "copying field {fieldName} : {← inferType fieldFVar}"
               let fieldDeclName := structDeclName ++ fieldName
               let fieldDeclName ← applyVisibility (← toVisibility fieldInfo) fieldDeclName
-              let infos := infos.push { name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value? := none,
+              let infos := infos.push { name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value?,
                                         kind := StructFieldKind.newField, inferMod := fieldInfo.inferMod }
-              copy (i+1) infos
+              copy (i+1) (fieldMap.insert fieldName fieldFVar) infos
           if fieldInfo.subobject?.isSome then
             let fieldParentStructName ← getStructureName fieldType
             if (← findExistingField? infos fieldParentStructName).isSome then
-              copyFields infos fieldType (fun infos => copy (i+1) infos)
+              copyFields infos fieldType fun nestedFieldMap infos => do
+                -- TODO: update fieldMap
+                copy (i+1) fieldMap infos
             else
               addNewField
           else
             addNewField
       else
-        k infos
-    copy 0 infos
+        -- TODO: Check if `parentStructName` has overriden default values of nested structures
+        k fieldMap infos
+    copy 0 {} infos
 
 private def mkToParentName (parentStructName : Name) : Name :=
   Name.mkSimple $ "to" ++ parentStructName.eraseMacroScopes.getString! -- erase macro scopes?

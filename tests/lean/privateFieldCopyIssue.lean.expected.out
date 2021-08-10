@@ -1,0 +1,8 @@
+protected def A.b : A → Nat :=
+fun self => self.2
+private def A.c : A → Nat :=
+fun self => self.3
+private def C.d : C → Nat :=
+fun self => self.2
+protected def C.e : C → Nat :=
+fun self => self.3

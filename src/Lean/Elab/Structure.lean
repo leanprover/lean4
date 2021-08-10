@@ -318,6 +318,14 @@ private def getFieldType (infos : Array StructFieldInfo) (parentStructName : Nam
         return TransformStep.visit e
     Meta.transform projType (pre := visit)
 
+private def toVisibility (fieldInfo : StructureFieldInfo) : CoreM Visibility := do
+  if isProtected (← getEnv) fieldInfo.projFn then
+    return Visibility.protected
+  else if isPrivateName fieldInfo.projFn then
+    return Visibility.private
+  else
+    return Visibility.regular
+
 private partial def copyNewFieldsFrom (structDeclName : Name) (infos : Array StructFieldInfo) (parentType : Expr) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
   copyFields infos parentType k
 where
@@ -339,12 +347,12 @@ where
           let some fieldInfo ← getFieldInfo? (← getEnv) parentStructName fieldName | unreachable!
           let addNewField : TermElabM α := do
             /- TODO: we are ignoring the following information from the `fieldName` declaraion at `parentStructName`.
-               - Visibility annotation (private/protected)
                - Default value.
              -/
             withLocalDecl fieldName fieldInfo.binderInfo fieldType fun fieldFVar => do
               -- trace[Meta.debug] "copying field {fieldName} : {← inferType fieldFVar}"
               let fieldDeclName := structDeclName ++ fieldName
+              let fieldDeclName ← applyVisibility (← toVisibility fieldInfo) fieldDeclName
               let infos := infos.push { name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value? := none,
                                         kind := StructFieldKind.newField, inferMod := fieldInfo.inferMod }
               copy (i+1) infos

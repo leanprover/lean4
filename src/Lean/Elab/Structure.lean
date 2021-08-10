@@ -648,7 +648,10 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
       hints       := ReducibilityHints.abbrev
       safety      := if view.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe
     }
-    -- TODO: attributes
+    if binfo.isInstImplicit then
+      addInstance declName AttributeKind.global (eval_prio default)
+    else
+      setReducibleAttribute declName
 
 private def elabStructureView (view : StructView) : TermElabM Unit := do
   view.fields.forM fun field => do

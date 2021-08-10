@@ -50,6 +50,7 @@ lean_object* l_StateRefT_x27_instMonadExceptOfStateRefT_x27___rarg___lambda__2(l
 lean_object* l_StateRefT_x27_instMonadStateOfStateRefT_x27___rarg(lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_get(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadFinallyStateRefT_x27___rarg(lean_object*, lean_object*);
+lean_object* l_StateRefT_x27_instAlternativeStateRefT_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_run_x27___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_run___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_set___rarg(lean_object*, lean_object*, lean_object*);
@@ -65,6 +66,8 @@ lean_object* l_ST_Prim_Ref_modifyGetUnsafe___rarg___boxed(lean_object*, lean_obj
 lean_object* l_instMonadControlReaderT___lambda__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instMonadControlStateRefT_x27___closed__3;
 lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
+lean_object* l_StateRefT_x27_instAlternativeStateRefT_x27___rarg(lean_object*, lean_object*);
+lean_object* l_ReaderT_instAlternativeReaderT___rarg(lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_instMonadStateRefT_x27___rarg(lean_object*);
 lean_object* l_StateRefT_x27_run___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
@@ -294,6 +297,22 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_alloc_closure((void*)(l_StateRefT_x27_instMonadFunctorStateRefT_x27___rarg), 1, 0);
+return x_4;
+}
+}
+lean_object* l_StateRefT_x27_instAlternativeStateRefT_x27___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_ReaderT_instAlternativeReaderT___rarg(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_StateRefT_x27_instAlternativeStateRefT_x27(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_StateRefT_x27_instAlternativeStateRefT_x27___rarg), 2, 0);
 return x_4;
 }
 }

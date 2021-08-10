@@ -26,6 +26,7 @@ lean_object* l_Lean_MonadCacheT_instMonadMonadCacheT___boxed(lean_object*, lean_
 lean_object* l_Lean_MonadCacheT_instMonadControlMonadCacheT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadCacheT_run___rarg___lambda__4(lean_object*, lean_object*);
 lean_object* l_ReaderT_tryFinally___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_instAlternativeMonadCacheT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadStateCacheT_instMonadMonadStateCacheT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_modify___at_Lean_MonadCacheT_instMonadHashMapCacheAdapterMonadCacheT___spec__1___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_MonadCacheT_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -55,10 +56,12 @@ lean_object* l_Lean_checkCache_match__1(lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_lift(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_modify___at_Lean_MonadStateCacheT_instMonadHashMapCacheAdapterMonadStateCacheT___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_instAlternativeMonadCacheT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadHashMapCacheAdapter_findCached_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_checkCache___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadStateCacheT_instMonadControlMonadStateCacheT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadStateCacheT_instMonadFinallyMonadStateCacheT___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_instAlternativeMonadCacheT___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_MonadStateCacheT_instMonadMonadStateCacheT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_get___rarg(lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -131,6 +134,7 @@ lean_object* l_Lean_MonadCacheT_instMonadControlMonadCacheT(lean_object*, lean_o
 lean_object* l_Lean_instMonadCacheExceptT___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_MonadCacheT_instMonadFinallyMonadCacheT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instMonadRef___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_instAlternativeReaderT___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_MonadStateCacheT_instMonadControlMonadStateCacheT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_checkCache_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
@@ -942,6 +946,33 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Lean_MonadCacheT_instMonadRefMonadCacheT(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+return x_8;
+}
+}
+lean_object* l_Lean_MonadCacheT_instAlternativeMonadCacheT___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_ReaderT_instAlternativeReaderT___rarg(x_2, x_1);
+return x_3;
+}
+}
+lean_object* l_Lean_MonadCacheT_instAlternativeMonadCacheT(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = lean_alloc_closure((void*)(l_Lean_MonadCacheT_instAlternativeMonadCacheT___rarg), 2, 0);
+return x_8;
+}
+}
+lean_object* l_Lean_MonadCacheT_instAlternativeMonadCacheT___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Lean_MonadCacheT_instAlternativeMonadCacheT(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);

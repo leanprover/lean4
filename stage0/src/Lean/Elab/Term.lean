@@ -590,6 +590,42 @@ def throwTypeMismatchError (header? : Option String) (expectedType : Expr) (eTyp
 def withoutMacroStackAtErr (x : TermElabM α) : TermElabM α :=
   withTheReader Core.Context (fun (ctx : Core.Context) => { ctx with options := pp.macroStack.set ctx.options false }) x
 
+namespace ContainsPendingMVar
+
+abbrev M := MonadCacheT Expr Unit (OptionT TermElabM)
+
+/-- See `containsPostponedTerm` -/
+partial def visit (e : Expr) : M Unit := do
+  checkCache e fun _ => do
+    match e with
+    | Expr.forallE _ d b _   => visit d; visit b
+    | Expr.lam _ d b _       => visit d; visit b
+    | Expr.letE _ t v b _    => visit t; visit v; visit b
+    | Expr.app f a _         => visit f; visit a
+    | Expr.mdata _ b _       => visit b
+    | Expr.proj _ _ b _      => visit b
+    | Expr.fvar fvarId ..    =>
+      match (← getLocalDecl fvarId) with
+      | LocalDecl.cdecl .. => return ()
+      | LocalDecl.ldecl (value := v) .. => visit v
+    | Expr.mvar mvarId ..    =>
+      let e' ← instantiateMVars e
+      if e' != e then
+        visit e'
+      else
+        match (← getDelayedAssignment? mvarId) with
+        | some d => visit d.val
+        | none   => failure
+    | _ => return ()
+
+end ContainsPendingMVar
+
+/-- Return `true` if `e` contains a pending metavariable. Remark: it also visits let-declarations. -/
+def containsPendingMVar (e : Expr) : TermElabM Bool := do
+  match (← ContainsPendingMVar.visit e |>.run.run) with
+  | some _ => return false
+  | none   => return true
+
 /- Try to synthesize metavariable using type class resolution.
    This method assumes the local context and local instances of `instMVar` coincide
    with the current local context and local instances.
@@ -606,6 +642,26 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
     if (← isExprMVarAssigned instMVar) then
       let oldVal ← instantiateMVars (mkMVar instMVar)
       unless (← isDefEq oldVal val) do
+        if (← containsPendingMVar oldVal <||> containsPendingMVar val) then
+          /- If `val` or `oldVal` contains metavariables directly or indirectly (e.g., in a let-declaration),
+             we return `false` to indicate we should try again later. This is very course grain since
+             the metavariable may not be responsible for the failure. We should refine the test in the future if needed.
+             This check has been added to address dependencies between postponed metavariables. The following
+             example demonstrates the issue fixed by this test.
+             ```
+               structure Point where
+                 x : Nat
+                 y : Nat
+
+               def Point.compute (p : Point) : Point :=
+                 let p := { p with x := 1 }
+                 let p := { p with y := 0 }
+                 if (p.x - p.y) > p.x then p else p
+             ```
+             The `isDefEq` test above fails for `Decidable (p.x - p.y ≤ p.x)` when the structure instance assigned to
+             `p` has not been elaborated yet.
+           -/
+          return false -- we will try again later
         let oldValType ← inferType oldVal
         let valType ← inferType val
         unless (← isDefEq oldValType valType) do

@@ -1,0 +1,13 @@
+@CommMonoid.mk.{u_1} : {α : Type u_1} →
+  [toMonoid : Monoid.{u_1} α] →
+    (∀ (a b : α),
+        @Eq.{u_1 + 1} α
+          (@HMul.hMul.{u_1, u_1, u_1} α α α
+            (@instHMul.{u_1} α (@Semigroup.toMul.{u_1} α (@Monoid.toSemigroup.{u_1} α toMonoid))) a b)
+          (@HMul.hMul.{u_1, u_1, u_1} α α α
+            (@instHMul.{u_1} α (@Semigroup.toMul.{u_1} α (@Monoid.toSemigroup.{u_1} α toMonoid))) b a)) →
+      CommMonoid.{u_1} α
+def CommMonoid.toCommSemigroup.{u} : {α : Type u} → [self : CommMonoid.{u} α] → CommSemigroup.{u} α :=
+fun (α : Type u) [self : CommMonoid.{u} α] =>
+  @CommSemigroup.mk.{u} α (@Monoid.toSemigroup.{u} α (@CommMonoid.toMonoid.{u} α self))
+    (@CommMonoid.mul_comm.{u} α self)

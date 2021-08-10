@@ -628,7 +628,7 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
   let Expr.const parentStructName us _ ← pure parentType.getAppFn | unreachable!
   let binfo := if view.isClass && isClass env parentStructName then BinderInfo.instImplicit else BinderInfo.default
   withLocalDecl `self binfo structType fun source => do
-    let declType ← mkForallFVars params (← mkForallFVars #[source] parentType)
+    let declType ← instantiateMVars (← mkForallFVars params (← mkForallFVars #[source] parentType))
     let declType := declType.inferImplicit params.size true
     let rec copyFields (parentType : Expr) : MetaM Expr := do
       let Expr.const parentStructName us _ ← pure parentType.getAppFn | unreachable!
@@ -647,7 +647,7 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
           let fieldVal ← copyFields resultType.bindingDomain!
           result := mkApp result fieldVal
       return result
-    let declVal ← mkLambdaFVars params (← mkLambdaFVars #[source] (← copyFields parentType))
+    let declVal ← instantiateMVars (← mkLambdaFVars params (← mkLambdaFVars #[source] (← copyFields parentType)))
     let declName := structName ++ mkToParentName (← getStructureName parentType)
     if env.contains declName then
       throwError "failed to create coercion '{declName}' to parent structure '{parentStructName}', environment already contains a declaration with the same name"
@@ -673,7 +673,7 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
   let type ← Term.elabType view.type
   unless validStructType type do throwErrorAt view.type "expected Type"
   withRef view.ref do
-  withParents view fun fieldInfos copiedParents =>
+  withParents view fun fieldInfos copiedParents => do
   withFields view.fields 0 fieldInfos fun fieldInfos => do
     Term.synthesizeSyntheticMVarsNoPostponing
     let u ← getResultUniverse type

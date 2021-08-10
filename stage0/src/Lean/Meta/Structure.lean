@@ -18,23 +18,4 @@ def getStructureName (struct : Expr) : MetaM Name :=
     return declName
   | _ => throwError "expected structure"
 
-def getFieldType (structType : Expr) (fieldName : Name) : MetaM Expr := do
-  let structName ← getStructureName structType
-  match findField? (← getEnv) structName fieldName with
-  | some baseStructName =>
-    match getPathToBaseStructure? (← getEnv) baseStructName structName with
-    | none => throwError "failed to access field '{fieldName}' of structure '{structName}'"
-    | some path =>
-      match getProjFnForField? (← getEnv) baseStructName fieldName with
-      | none => unreachable!
-      | some projFn =>
-        withLocalDeclD `s structType fun struct => do
-          let mut struct := struct
-          for toField in path do
-            struct ← mkAppM toField #[struct]
-          let fieldVal ← mkAppM projFn #[struct]
-          let fieldType ← inferType fieldVal
-          return fieldType
-  | none => throwError "'{fieldName}' is not a field of structure '{structName}'"
-
 end Lean.Meta

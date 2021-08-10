@@ -368,6 +368,8 @@ def delabAppMatch : Delab := whenPPOption getPPNotation do
          -- store motive argument separately
          let lamMotive ← getExpr
          let piMotive ← lambdaTelescope lamMotive fun xs body => mkForallFVars xs body
+         -- TODO: pp.analyze has not analyzed `piMotive`, only `lamMotive`
+         -- Thus the binder types won't have any annotations
          let piStx ← withTheReader SubExpr (fun cfg => { cfg with expr := piMotive }) delab
          let named ← getPPOption getPPAnalysisNamedArg
          pure { st with motive := (piStx, lamMotive), motiveNamed := named }
@@ -443,9 +445,9 @@ binder, if any, into a single binder group:
 -/
 private def shouldGroupWithNext : DelabM Bool := do
   let e ← getExpr
-  let ppEType ← getPPOption getPPBinderTypes;
+  let ppEType ← getPPOption (getPPBinderTypes e)
   let go (e' : Expr) := do
-    let ppE'Type ← withBindingBody `_ $ getPPOption getPPBinderTypes
+    let ppE'Type ← withBindingBody `_ $ getPPOption (getPPBinderTypes e)
     pure $ e.binderInfo == e'.binderInfo &&
       e.bindingDomain! == e'.bindingDomain! &&
       e'.binderInfo != BinderInfo.instImplicit &&
@@ -455,13 +457,16 @@ private def shouldGroupWithNext : DelabM Bool := do
   | Expr.lam _ _     e'@(Expr.lam _ _ _ _) _     => go e'
   | Expr.forallE _ _ e'@(Expr.forallE _ _ _ _) _ => go e'
   | _ => pure false
+where
+  getPPBinderTypes (e : Expr) :=
+    if e.isForall then getPPPiBinderTypes else getPPFunBinderTypes
 
 private partial def delabBinders (delabGroup : Array Syntax → Syntax → Delab) : optParam (Array Syntax) #[] → Delab
   -- Accumulate names (`Syntax.ident`s with position information) of the current, unfinished
   -- binder group `(d e ...)` as determined by `shouldGroupWithNext`. We cannot do grouping
   -- inside-out, on the Syntax level, because it depends on comparing the Expr binder types.
   | curNames => do
-    if (← shouldGroupWithNext) then
+    if ← shouldGroupWithNext then
       -- group with nested binder => recurse immediately
       withBindingBodyUnusedName fun stxN => delabBinders delabGroup (curNames.push stxN)
     else
@@ -474,7 +479,7 @@ def delabLam : Delab :=
   delabBinders fun curNames stxBody => do
     let e ← getExpr
     let stxT ← withBindingDomain delab
-    let ppTypes ← getPPOption getPPBinderTypes
+    let ppTypes ← getPPOption getPPFunBinderTypes
     let expl ← getPPOption getPPExplicit
     let usedDownstream ← curNames.any (fun n => hasIdent n.getId stxBody)
 
@@ -536,7 +541,7 @@ def delabForall : Delab :=
       let dependent := curNames.any $ fun n => hasIdent n.getId stxBody
       -- NOTE: non-dependent arrows are available only for the default binder info
       if dependent then
-        if prop && !(← getPPOption getPPBinderTypes) then
+        if prop && !(← getPPOption getPPPiBinderTypes) then
           return ← `(∀ $curNames:ident*, $stxBody)
         else
           `(bracketedBinderF|($curNames* : $stxT))

@@ -37,3 +37,6 @@ def f2 (v : Nat) : Foo2 Nat :=
 
 theorem ex2 (v : Nat) : (f2 v |>.x2) = v :=
   rfl
+
+#print Foo2.toBar
+#print Foo2.toBoo2

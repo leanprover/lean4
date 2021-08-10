@@ -330,6 +330,7 @@ private partial def copyNewFieldsFrom (structDeclName : Name) (infos : Array Str
         let existingFieldType ← inferType existingFieldInfo.fvar
         unless (← isDefEq fieldType existingFieldType) do
           throwError "parent field type mismatch, field '{fieldName}' from parent '{parentStructName}' {← mkHasTypeButIsExpectedMsg fieldType existingFieldType}"
+        -- TODO: if new field has a default value, it should probably override the default at `infos` (if it has one)
         go (i+1) infos
       | none =>
         /- TODO: we are ignoring the following information from the `fieldName` declaraion at `parentStructName`.
@@ -348,10 +349,13 @@ private partial def copyNewFieldsFrom (structDeclName : Name) (infos : Array Str
       k infos
   go 0 infos
 
-private partial def withParents (view : StructView) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
-  go 0 #[]
+private def mkToParentName (parentStructName : Name) : Name :=
+  Name.mkSimple $ "to" ++ parentStructName.eraseMacroScopes.getString! -- erase macro scopes?
+
+private partial def withParents (view : StructView) (k : Array StructFieldInfo → Array Expr → TermElabM α) : TermElabM α := do
+  go 0 #[] #[]
 where
-  go (i : Nat) (infos : Array StructFieldInfo) : TermElabM α := do
+  go (i : Nat) (infos : Array StructFieldInfo) (copiedParents : Array Expr) : TermElabM α := do
     if h : i < view.parents.size then
       let parentStx := view.parents.get ⟨i, h⟩
       withRef parentStx do
@@ -360,10 +364,10 @@ where
       if let some existingFieldName ← findExistingField? infos parentStructName then
         if structureDiamondWarning.get (← getOptions) then
           logWarning s!"field '{existingFieldName}' from '{parentStructName}' has already been declared"
-        copyNewFieldsFrom view.declName infos parent parentStructName fun infos => go (i+1) infos
+        copyNewFieldsFrom view.declName infos parent parentStructName fun infos => go (i+1) infos (copiedParents.push parent)
         -- TODO: if `class`, then we need to create a let-decl that stores the local instance for the `parentStructure`
       else
-        let toParentName := Name.mkSimple $ "to" ++ parentStructName.eraseMacroScopes.getString! -- erase macro scopes?
+        let toParentName := mkToParentName parentStructName
         if containsFieldName infos toParentName then
           throwErrorAt parentStx "field '{toParentName}' has already been declared"
         let env ← getEnv
@@ -371,9 +375,9 @@ where
         withLocalDecl toParentName binfo parent fun parentFVar =>
           let infos := infos.push { name := toParentName, declName := view.declName ++ toParentName, fvar := parentFVar, kind := StructFieldKind.subobject }
           let subfieldNames := getStructureFieldsFlattened env parentStructName
-          processSubfields view.declName parentFVar parentStructName subfieldNames infos fun infos => go (i+1) infos
+          processSubfields view.declName parentFVar parentStructName subfieldNames infos fun infos => go (i+1) infos copiedParents
     else
-      k infos
+      k infos copiedParents
 
 
 private def elabFieldTypeValue (view : StructFieldView) : TermElabM (Option Expr × Option Expr) := do
@@ -606,6 +610,45 @@ private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × 
       discard <| mkAuxDefinition declName type value (zeta := true)
       setReducibleAttribute declName
 
+private partial def mkCoercionToCopiedParent (levelParams : List Name) (params : Array Expr) (view : StructView) (parentType : Expr) : MetaM Unit := do
+  let structName := view.declName
+  let sourceFieldNames := getStructureFieldsFlattened (← getEnv) structName
+  let structType ← mkAppN (Lean.mkConst structName (levelParams.map mkLevelParam)) params
+  -- TODO: binder annotation for instances
+  withLocalDeclD `source structType fun source => do
+    let declType ← mkForallFVars params (← mkArrow structType parentType)
+    let declType := declType.inferImplicit params.size true
+    let rec copyFields (parentType : Expr) : MetaM Expr := do
+      let env ← getEnv
+      let Expr.const parentStructName us _ ← pure parentType.getAppFn | unreachable!
+      let parentCtor := getStructureCtor env parentStructName
+      let mut result := mkAppN (mkConst parentCtor.name us) parentType.getAppArgs
+      for fieldName in getStructureFields env parentStructName do
+        if sourceFieldNames.contains fieldName then
+          let fieldVal ← mkProjection source fieldName
+          result := mkApp result fieldVal
+        else
+          -- fieldInfo must be a field of `parentStructName`
+          let some fieldInfo ← getFieldInfo? env parentStructName fieldName | unreachable!
+          if fieldInfo.subobject?.isNone then throwError "failed to build coercion to parent structure"
+          let resultType ← whnfD (← inferType result)
+          unless resultType.isForall do throwError "failed to build coercion to parent structure, unexpect type{indentExpr resultType}"
+          let fieldVal ← copyFields resultType.bindingDomain!
+          result := mkApp result fieldVal
+      return result
+    let declVal ← mkLambdaFVars params (← mkLambdaFVars #[source] (← copyFields parentType))
+    let declName := structName ++ mkToParentName (← getStructureName parentType)
+    -- TODO: nice error message if `declName` already exists
+    addAndCompile <| Declaration.defnDecl {
+      name        := declName
+      levelParams := levelParams
+      type        := declType
+      value       := declVal
+      hints       := ReducibilityHints.abbrev
+      safety      := if view.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe
+    }
+    -- TODO: attributes
+
 private def elabStructureView (view : StructView) : TermElabM Unit := do
   view.fields.forM fun field => do
     if field.declName == view.ctor.declName then
@@ -615,7 +658,7 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
   let type ← Term.elabType view.type
   unless validStructType type do throwErrorAt view.type "expected Type"
   withRef view.ref do
-  withParents view fun fieldInfos =>
+  withParents view fun fieldInfos copiedParents =>
   withFields view.fields 0 fieldInfos fun fieldInfos => do
     Term.synthesizeSyntheticMVarsNoPostponing
     let u ← getResultUniverse type
@@ -653,7 +696,7 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
         let projInstances := instParents.toList.map fun info => info.declName
         Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
         projInstances.forM fun declName => addInstance declName AttributeKind.global (eval_prio default)
-        -- TODO: we must create `to` functions for the parent structures that have been flattened, and mark them as instances (if class)
+        copiedParents.forM fun parent => mkCoercionToCopiedParent levelParams params view parent
         let lctx ← getLCtx
         let fieldsWithDefault := fieldInfos.filter fun info => info.value?.isSome
         let defaultAuxDecls ← fieldsWithDefault.mapM fun info => do

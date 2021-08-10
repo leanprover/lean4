@@ -336,20 +336,18 @@ where
           -- TODO: if new field has a default value, it should probably override the default at `infos` (if it has one)
           copy (i+1) infos
         | none =>
-          let addNewField : TermElabM α :=
-          /- TODO: we are ignoring the following information from the `fieldName` declaraion at `parentStructName`.
-             - Binder annotation
-             - Visibility annotation (private/protected)
-             - `inferMod`
-             - Default value.
-           -/
-          withLocalDeclD fieldName fieldType fun fieldFVar => do
-            -- trace[Meta.debug] "copying field {fieldName} : {← inferType fieldFVar}"
-            let fieldDeclName := structDeclName ++ fieldName
-            let infos := infos.push { name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value? := none,
-                                      kind := StructFieldKind.newField, inferMod := false }
-            copy (i+1) infos
           let some fieldInfo ← getFieldInfo? (← getEnv) parentStructName fieldName | unreachable!
+          let addNewField : TermElabM α := do
+            /- TODO: we are ignoring the following information from the `fieldName` declaraion at `parentStructName`.
+               - Visibility annotation (private/protected)
+               - Default value.
+             -/
+            withLocalDecl fieldName fieldInfo.binderInfo fieldType fun fieldFVar => do
+              -- trace[Meta.debug] "copying field {fieldName} : {← inferType fieldFVar}"
+              let fieldDeclName := structDeclName ++ fieldName
+              let infos := infos.push { name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value? := none,
+                                        kind := StructFieldKind.newField, inferMod := fieldInfo.inferMod }
+              copy (i+1) infos
           if fieldInfo.subobject?.isSome then
             let fieldParentStructName ← getStructureName fieldType
             if (← findExistingField? infos fieldParentStructName).isSome then

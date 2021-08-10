@@ -32,6 +32,7 @@ variable {ω σ : Type} {m : Type → Type} {α : Type}
 instance [Monad m] : Monad (StateRefT' ω σ m) := inferInstanceAs (Monad (ReaderT _ _))
 instance : MonadLift m (StateRefT' ω σ m) := ⟨StateRefT'.lift⟩
 instance (σ m) [Monad m] : MonadFunctor m (StateRefT' ω σ m) := inferInstanceAs (MonadFunctor m (ReaderT _ _))
+instance [Alternative m] [Monad m] : Alternative (StateRefT' ω σ m) := inferInstanceAs (Alternative (ReaderT _ _))
 
 @[inline] protected def get [Monad m] [MonadLiftT (ST ω) m] : StateRefT' ω σ m σ :=
   fun ref => ref.get
@@ -42,16 +43,14 @@ instance (σ m) [Monad m] : MonadFunctor m (StateRefT' ω σ m) := inferInstance
 @[inline] protected def modifyGet [Monad m] [MonadLiftT (ST ω) m] (f : σ → α × σ) : StateRefT' ω σ m α :=
   fun ref => ref.modifyGet f
 
-instance [MonadLiftT (ST ω) m] [Monad m] : MonadStateOf σ (StateRefT' ω σ m) := {
+instance [MonadLiftT (ST ω) m] [Monad m] : MonadStateOf σ (StateRefT' ω σ m) where
   get       := StateRefT'.get
   set       := StateRefT'.set
   modifyGet := StateRefT'.modifyGet
-}
 
-instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (StateRefT' ω σ m) := {
+instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (StateRefT' ω σ m) where
   throw    := StateRefT'.lift ∘ throwThe ε
   tryCatch := fun x c s => tryCatchThe ε (x s) (fun e => c e s)
-}
 
 end StateRefT'
 

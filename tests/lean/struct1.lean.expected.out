@@ -5,7 +5,6 @@ struct1.lean:15:28-15:34: error: parent field type mismatch, field 'x' from pare
   Bool : Type
 but is expected to have type
   Nat : Type
-struct1.lean:18:27-18:33: warning: field 'x' from 'B' has already been declared
 struct1.lean:18:27-18:33: error: parent field type mismatch, field 'x' from parent 'B' has type
   Bool : Type
 but is expected to have type

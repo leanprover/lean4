@@ -238,7 +238,7 @@ private def containsFieldName (infos : Array StructFieldInfo) (fieldName : Name)
   (findFieldInfo? infos fieldName).isSome
 
 register_builtin_option structureDiamondWarning : Bool := {
-  defValue := true -- TODO: set as false after finishing support for diamonds
+  defValue := false
   descr    := "enable/disable warning messages for structure diamonds"
 }
 

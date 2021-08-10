@@ -639,7 +639,8 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
       return result
     let declVal ← mkLambdaFVars params (← mkLambdaFVars #[source] (← copyFields parentType))
     let declName := structName ++ mkToParentName (← getStructureName parentType)
-    -- TODO: nice error message if `declName` already exists
+    if env.contains declName then
+      throwError "failed to create coercion '{declName}' to parent structure '{parentStructName}', environment already contains a declaration with the same name"
     addAndCompile <| Declaration.defnDecl {
       name        := declName
       levelParams := levelParams

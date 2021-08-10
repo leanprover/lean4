@@ -1,0 +1,1 @@
+diamond5.lean:15:32-15:35: error: failed to create coercion 'D.toC' to parent structure 'C', environment already contains a declaration with the same name

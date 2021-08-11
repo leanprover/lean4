@@ -380,7 +380,7 @@ where
           let existingFieldType ← inferType existingFieldInfo.fvar
           unless (← isDefEq fieldType existingFieldType) do
             throwError "parent field type mismatch, field '{fieldName}' from parent '{parentStructName}' {← mkHasTypeButIsExpectedMsg fieldType existingFieldType}"
-          -- TODO: if new field has a default value, it should probably override the default at `infos` (if it has one)
+          /- Remark: if structure has a default value for this field, it will be set at the `processOveriddenDefaultValues` below. -/
           copy (i+1) (fieldMap.insert fieldName existingFieldInfo.fvar) infos
         | none =>
           let some fieldInfo ← getFieldInfo? (← getEnv) parentStructName fieldName | unreachable!

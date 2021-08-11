@@ -146,6 +146,11 @@ macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBi
   | `($(_) fun ($x:ident : $t) => $b) => `(($x:ident : $t) ×' $b)
   | _                                 => throw ()
 
+@[appUnexpander Subtype] def unexpandSubtype : Lean.PrettyPrinter.Unexpander
+  | `($(_) fun ($x:ident : $type) => $p)  => `({ $x : $type // $p })
+  | `($(_) fun $x:ident => $p)            => `({ $x // $p })
+  | _                                     => throw ()
+
 syntax "funext " (colGt term:max)+ : tactic
 
 macro_rules

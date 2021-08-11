@@ -187,16 +187,31 @@ def shouldShowMotive (motive : Expr) (opts : Options) : MetaM Bool := do
   <||> (← getPPMotivesPi opts <&&> returnsPi motive)
   <||> (← getPPMotivesNonConst opts <&&> isNonConstFun motive)
 
+def withMDataOptions [Inhabited α] (x : DelabM α) : DelabM α := do
+  match ← getExpr with
+  | Expr.mdata m .. =>
+    let mut posOpts := (← read).optionsPerPos
+    let pos ← getPos
+    for (k, v) in m do
+      if (`pp).isPrefixOf k then
+        let opts := posOpts.find? pos |>.getD {}
+        posOpts := posOpts.insert pos (opts.insert k v)
+    withReader ({ · with optionsPerPos := posOpts }) $ withMDataExpr x
+  | _ => x
+
+partial def withMDatasOptions [Inhabited α] (x : DelabM α) : DelabM α := do
+  if (← getExpr).isMData then withMDataOptions (withMDatasOptions x) else x
+
 def isRegularApp : DelabM Bool := do
   let e ← getExpr
   if not (unfoldMDatas e.getAppFn).isConst then return false
-  if ← withNaryFn (getPPOption getPPUniverses <||> getPPOption getPPAnalysisBlockImplicit) then return false
+  if ← withNaryFn (withMDatasOptions (getPPOption getPPUniverses <||> getPPOption getPPAnalysisBlockImplicit)) then return false
   for i in [:e.getAppNumArgs] do
     if ← withNaryArg i (getPPOption getPPAnalysisNamedArg) then return false
   return true
 
 def unexpandRegularApp (stx : Syntax) : Delab := do
-  let Expr.const c .. ← pure (← getExpr).getAppFn | unreachable!
+  let Expr.const c .. ← pure (unfoldMDatas (← getExpr).getAppFn) | unreachable!
   let fs ← appUnexpanderAttribute.getValues (← getEnv) c
   fs.firstM fun f =>
     match f stx |>.run () with
@@ -415,15 +430,7 @@ def delabMData : Delab := do
     else
       return s
   else
-    -- only interpret `pp.` values by default
-    let Expr.mdata m _ _ ← getExpr | unreachable!
-    let mut posOpts := (← read).optionsPerPos
-    let pos ← getPos
-    for (k, v) in m do
-      if (`pp).isPrefixOf k then
-        let opts := posOpts.find? pos |>.getD {}
-        posOpts := posOpts.insert pos (opts.insert k v)
-    withReader ({ · with optionsPerPos := posOpts }) $ withMDataExpr $ delab
+    withMDataOptions delab
 
 /--
 Check for a `Syntax.ident` of the given name anywhere in the tree.

@@ -254,7 +254,8 @@ def trailingNode.formatter (k : SyntaxNodeKind) (_ _ : Nat) (p : Formatter) : Fo
     categoryParser.formatter `foo
 
 def parseToken (s : String) : FormatterM ParserState := do
-  Parser.tokenFn [] {
+  -- include comment tokens, e.g. when formatting `- -0`
+  (Parser.andthenFn Parser.whitespace (Parser.tokenFn [])) {
     input := s,
     fileName := "",
     fileMap := FileMap.ofString "",

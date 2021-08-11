@@ -598,6 +598,21 @@ partial def whnfImp (e : Expr) : MetaM Expr :=
           | some e => whnfImp e
           | none   => cache useCache e e'
 
+/-- If `e` is a projection function that satisfies `p`, then reduce it -/
+def reduceProjOf? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do
+  if !e.isApp then
+    pure none
+  else match e.getAppFn with
+    | Expr.const name .. => do
+      let env ← getEnv
+      match env.getProjectionStructureName? name with
+      | some structName =>
+        if p structName then
+          Meta.unfoldDefinition? e
+        else
+          pure none
+      | none => pure none
+    | _ => pure none
 
 builtin_initialize
   registerTraceClass `Meta.whnf

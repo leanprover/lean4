@@ -1,0 +1,1 @@
+structDefValueOverride.lean:6:2-6:3: error: field 'x' new default value has already been set

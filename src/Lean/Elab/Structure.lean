@@ -59,7 +59,7 @@ structure StructView where
   fields            : Array StructFieldView
 
 inductive StructFieldKind where
-  | newField | fromParent | subobject
+  | newField | copiedField | fromParent | subobject
   deriving Inhabited, BEq
 
 structure StructFieldInfo where
@@ -237,6 +237,13 @@ private def findFieldInfo? (infos : Array StructFieldInfo) (fieldName : Name) : 
 private def containsFieldName (infos : Array StructFieldInfo) (fieldName : Name) : Bool :=
   (findFieldInfo? infos fieldName).isSome
 
+private def updateFieldInfoVal (infos : Array StructFieldInfo) (fieldName : Name) (value : Expr) : Array StructFieldInfo :=
+  infos.map fun info =>
+    if info.name == fieldName then
+      { info with value? := value  }
+    else
+      info
+
 register_builtin_option structureDiamondWarning : Bool := {
   defValue := false
   descr    := "enable/disable warning messages for structure diamonds"
@@ -383,7 +390,7 @@ where
               let fieldDeclName := structDeclName ++ fieldName
               let fieldDeclName ← applyVisibility (← toVisibility fieldInfo) fieldDeclName
               let infos := infos.push { name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value?,
-                                        kind := StructFieldKind.newField, inferMod := fieldInfo.inferMod }
+                                        kind := StructFieldKind.copiedField, inferMod := fieldInfo.inferMod }
               copy (i+1) (fieldMap.insert fieldName fieldFVar) infos
           if fieldInfo.subobject?.isSome then
             let fieldParentStructName ← getStructureName fieldType
@@ -396,9 +403,15 @@ where
           else
             addNewField
       else
-        -- TODO: Check if `parentStructName` has overriden default values of nested structures
+        let infos ← processOveriddenDefaultValues infos parentStructName fieldMap
         k fieldMap infos
     copy 0 {} infos
+
+  processOveriddenDefaultValues (infos : Array StructFieldInfo) (parentStructName : Name) (fieldMap : FieldMap) : TermElabM (Array StructFieldInfo) :=
+    infos.mapM fun info => do
+      match (← copyDefaultValue? fieldMap parentStructName info.name) with
+      | some value => return { info with value? := value }
+      | none       => return info
 
 private def mkToParentName (parentStructName : Name) : Name :=
   Name.mkSimple $ "to" ++ parentStructName.eraseMacroScopes.getString! -- erase macro scopes?
@@ -457,47 +470,54 @@ private def elabFieldTypeValue (view : StructFieldView) : TermElabM (Option Expr
         let value ← mkLambdaFVars params value
         return (type, value)
 
-private partial def withFields
-    (views : Array StructFieldView) (i : Nat) (infos : Array StructFieldInfo) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
-  if h : i < views.size then
-    let view := views.get ⟨i, h⟩
-    withRef view.ref $
-    match findFieldInfo? infos view.name with
-    | none      => do
-      let (type?, value?) ← elabFieldTypeValue view
-      match type?, value? with
-      | none,      none => throwError "invalid field, type expected"
-      | some type, _    =>
-        withLocalDecl view.name view.binderInfo type fun fieldFVar =>
-          let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value?,
-                                    kind := StructFieldKind.newField, inferMod := view.inferMod }
-          withFields views (i+1) infos k
-      | none, some value =>
-        let type ← inferType value
-        withLocalDecl view.name view.binderInfo type fun fieldFVar =>
-          let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value,
-                                    kind := StructFieldKind.newField, inferMod := view.inferMod }
-          withFields views (i+1) infos k
-    | some info =>
-      match info.kind with
-      | StructFieldKind.newField   => throwError "field '{view.name}' has already been declared"
-      | StructFieldKind.fromParent =>
-        match view.value? with
-        | none       => throwError "field '{view.name}' has been declared in parent structure"
-        | some valStx => do
-          if let some type := view.type? then
-            throwErrorAt type "omit field '{view.name}' type to set default value"
-          else
-            let mut valStx := valStx
-            if view.binders.getArgs.size > 0 then
-              valStx ← `(fun $(view.binders.getArgs)* => $valStx:term)
-            let fvarType ← inferType info.fvar
-            let value ← Term.elabTermEnsuringType valStx fvarType
-            let infos := infos.push { info with value? := value }
-            withFields views (i+1) infos k
-      | StructFieldKind.subobject => unreachable!
-  else
-    k infos
+private partial def withFields (views : Array StructFieldView) (infos : Array StructFieldInfo) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
+  go 0 {} infos
+where
+  go (i : Nat) (defaultValsOverridden : NameSet) (infos : Array StructFieldInfo) : TermElabM α := do
+    if h : i < views.size then
+      let view := views.get ⟨i, h⟩
+      withRef view.ref do
+      match findFieldInfo? infos view.name with
+      | none      =>
+        let (type?, value?) ← elabFieldTypeValue view
+        match type?, value? with
+        | none,      none => throwError "invalid field, type expected"
+        | some type, _    =>
+          withLocalDecl view.name view.binderInfo type fun fieldFVar =>
+            let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value?,
+                                      kind := StructFieldKind.newField, inferMod := view.inferMod }
+            go (i+1) defaultValsOverridden infos
+        | none, some value =>
+          let type ← inferType value
+          withLocalDecl view.name view.binderInfo type fun fieldFVar =>
+            let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value,
+                                      kind := StructFieldKind.newField, inferMod := view.inferMod }
+            go (i+1) defaultValsOverridden infos
+      | some info =>
+        let updateDefaultValue (fromParent : Bool) : TermElabM α := do
+          match view.value? with
+          | none       => throwError "field '{view.name}' has been declared in parent structure"
+          | some valStx =>
+            if let some type := view.type? then
+              throwErrorAt type "omit field '{view.name}' type to set default value"
+            else
+              if defaultValsOverridden.contains info.name then
+                throwError "field '{view.name}' new default value has already been set"
+              let defaultValsOverridden := defaultValsOverridden.insert info.name
+              let mut valStx := valStx
+              if view.binders.getArgs.size > 0 then
+                valStx ← `(fun $(view.binders.getArgs)* => $valStx:term)
+              let fvarType ← inferType info.fvar
+              let value ← Term.elabTermEnsuringType valStx fvarType
+              let infos := updateFieldInfoVal infos info.name value
+              go (i+1) defaultValsOverridden infos
+        match info.kind with
+        | StructFieldKind.newField    => throwError "field '{view.name}' has already been declared"
+        | StructFieldKind.subobject   => throwError "unexpected subobject field reference" -- improve error message
+        | StructFieldKind.copiedField => updateDefaultValue false
+        | StructFieldKind.fromParent  => updateDefaultValue true
+    else
+      k infos
 
 private def getResultUniverse (type : Expr) : TermElabM Level := do
   let type ← whnf type
@@ -714,7 +734,7 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
   unless validStructType type do throwErrorAt view.type "expected Type"
   withRef view.ref do
   withParents view fun fieldInfos copiedParents => do
-  withFields view.fields 0 fieldInfos fun fieldInfos => do
+  withFields view.fields fieldInfos fun fieldInfos => do
     Term.synthesizeSyntheticMVarsNoPostponing
     let u ← getResultUniverse type
     let inferLevel ← shouldInferResultUniverse u

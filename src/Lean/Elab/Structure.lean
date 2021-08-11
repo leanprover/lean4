@@ -396,8 +396,9 @@ where
             let fieldParentStructName ← getStructureName fieldType
             if (← findExistingField? infos fieldParentStructName).isSome then
               copyFields infos fieldType fun nestedFieldMap infos => do
-                -- TODO: update fieldMap
-                copy (i+1) fieldMap infos
+                let fieldVal ← mkCompositeField fieldType nestedFieldMap
+                trace[Meta.debug] "composite, {fieldName} := {fieldVal}"
+                copy (i+1) (fieldMap.insert fieldName fieldVal) infos
             else
               addNewField
           else
@@ -412,6 +413,17 @@ where
       match (← copyDefaultValue? fieldMap parentStructName info.name) with
       | some value => return { info with value? := value }
       | none       => return info
+
+  mkCompositeField (parentType : Expr) (fieldMap : FieldMap) : TermElabM Expr := do
+    let env ← getEnv
+    let Expr.const parentStructName us _ ← pure parentType.getAppFn | unreachable!
+    let parentCtor := getStructureCtor env parentStructName
+    let mut result := mkAppN (mkConst parentCtor.name us) parentType.getAppArgs
+    for fieldName in getStructureFields env parentStructName do
+      match fieldMap.find? fieldName with
+      | some val => result := mkApp result val
+      | none => throwError "failed to copied fields from parent structure{indentExpr parentType}" -- TODO improve error message
+    return result
 
 private def mkToParentName (parentStructName : Name) : Name :=
   Name.mkSimple $ "to" ++ parentStructName.eraseMacroScopes.getString! -- erase macro scopes?

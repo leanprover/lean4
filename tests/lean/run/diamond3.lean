@@ -39,3 +39,20 @@ def f'' (a b d e : Nat) : D'' :=
 
 theorem ex3 (a b d e: Nat) : (f'' a b d e |>.c) = a :=
   rfl
+
+structure B1 where
+  a : Nat
+  b : Nat
+
+structure C1 extends B1 where
+  d : Nat
+  e : Nat
+  c : Nat := b + e
+
+structure D1 extends A, C1
+
+def f1 (a b d e : Nat) : D1 :=
+  { a, b, d, e }
+
+theorem ex4 (a b d e: Nat) : (f1 a b d e |>.c) = b + e :=
+  rfl

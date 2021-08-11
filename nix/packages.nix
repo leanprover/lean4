@@ -28,7 +28,7 @@ let
   });
   stdenv' = if stdenv.isLinux then useGoldLinker stdenv else stdenv;
   lean = callPackage (import ./bootstrap.nix) (args // {
-    stdenv = stdenv';
+    stdenv = overrideCC stdenv' cc;
     inherit buildLeanPackage;
   });
   makeOverridableLeanPackage = f:

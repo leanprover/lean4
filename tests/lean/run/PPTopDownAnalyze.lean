@@ -278,6 +278,28 @@ set_option pp.proofs.withType false in
     let ctxCore ← readThe Core.Context
     pure ctxCore.currNamespace
 
+structure SubtypeLike1 {α : Sort u} (p : α → Prop) where
+
+#testDelab SubtypeLike1 fun (x : Nat) => x < 10
+  expecting SubtypeLike1 fun (x : Nat) => x < 10
+
+#eval "prevent comment from parsing as part of previous expression"
+
+--Note: currently we do not try "bottom-upping" inside lambdas
+--(so we will always annotate the binder type)
+#testDelab SubtypeLike1 fun (x : Nat) => Nat.succ x = x
+  expecting SubtypeLike1 fun (x : Nat) => Nat.succ x = x
+
+structure SubtypeLike3 {α β γ : Sort u} (p : α → β → γ → Prop) where
+
+#testDelab SubtypeLike3 fun (x y z : Nat) => x + y < z
+  expecting SubtypeLike3 fun (x y z : Nat) => x + y < z
+
+structure SubtypeLike3Double {α β γ : Sort u} (p₁ : α → β → Prop) (p₂ : β → γ → Prop) where
+
+#testDelab SubtypeLike3Double (fun (x y : Nat) => x = y) (fun (y z : Nat) => y = z)
+  expecting SubtypeLike3Double (fun (x y : Nat) => x = y) fun y (z : Nat) => y = z
+
 def takesStricts ⦃α : Type⦄ {β : Type} ⦃γ : Type⦄ : Unit := ()
 #testDelab takesStricts expecting takesStricts
 #testDelab @takesStricts expecting takesStricts

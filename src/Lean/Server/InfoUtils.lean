@@ -127,50 +127,56 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) : O
       return i.contains hoverPos
     return false
 
+def Info.type? (i : Info) : MetaM (Option Expr) :=
+  match i with
+  | Info.ofTermInfo ti => Meta.inferType ti.expr
+  | Info.ofFieldInfo fi => Meta.inferType fi.val
+  | _ => return none
+
+def Info.docString? (i : Info) : MetaM (Option String) := do
+  if let Info.ofTermInfo ti := i then
+    if let some n := ti.expr.constName? then
+      return ← findDocString? n
+  if let Info.ofFieldInfo fi := i then
+    return ← findDocString? fi.projName
+  if let some ei := i.toElabInfo? then
+    return ← findDocString? ei.elaborator <||> findDocString? ei.stx.getKind
+  return none
+
 /-- Construct a hover popup, if any, from an info node in a context.-/
-def Info.hoverMsg? (ci : ContextInfo) (i : Info) : IO (Option MessageData) := do
+def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option Format) := do
   ci.runMetaM i.lctx do
-    let mut msgs := #[]
+    let mut fmts := #[]
     try
-      if let some m ← termMsg? then
-        msgs := msgs.push m
+      if let some f ← fmtTerm? then
+        fmts := fmts.push f
     catch _ => pure ()
-    if let some m ← docMsg? then
-      msgs := msgs.push m
-    if msgs.isEmpty then
+    if let some m ← i.docString? then
+      fmts := fmts.push m
+    if fmts.isEmpty then
       none
     else
-      MessageData.withContext { env := ci.env, mctx := ci.mctx, lctx := i.lctx, opts := ci.options }
-        <| MessageData.withNamingContext { currNamespace := ci.currNamespace, openDecls := ci.openDecls }
-        <| m!"\n***\n".joinSep msgs.toList
+      f!"\n***\n".joinSep fmts.toList
+
 where
-  termMsg? : MetaM (Option MessageData) := do
+  fmtTerm? : MetaM (Option Format) := do
     match i with
     | Info.ofTermInfo ti =>
       let tp ← Meta.inferType ti.expr
-      -- try not to show too scary internals
-      -- TODO(WN): this check is now quite costly; should we do it in `MessageData.format`?
       let eFmt ← Meta.ppExpr ti.expr
-      let msg := if isAtomicFormat eFmt then m!"{ti.expr} : {tp}" else m!"{tp}"
-      return m!"```lean
-{msg}
+      let tpFmt ← Meta.ppExpr tp
+      -- try not to show too scary internals
+      let fmt := if isAtomicFormat eFmt then f!"{eFmt} : {tpFmt}" else f!"{tpFmt}"
+      return some f!"```lean
+{fmt}
 ```"
     | Info.ofFieldInfo fi =>
       let tp ← Meta.inferType fi.val
-      return m!"```lean
-{fi.fieldName} : {tp}
+      let tpFmt ← Meta.ppExpr tp
+      return some f!"```lean
+{fi.fieldName} : {tpFmt}
 ```"
     | _ => return none
-
-  docMsg? : MetaM (Option MessageData) := do
-    if let Info.ofTermInfo ti := i then
-      if let some n := ti.expr.constName? then
-        return (← findDocString? n).map toMessageData
-    if let Info.ofFieldInfo fi := i then
-      return (← findDocString? fi.projName).map toMessageData
-    if let some ei := i.toElabInfo? then
-      return (← findDocString? ei.elaborator <||> findDocString? ei.stx.getKind).map toMessageData
-    return none
 
   isAtomicFormat : Format → Bool
     | Std.Format.text _    => true
@@ -178,11 +184,6 @@ where
     | Std.Format.nest _ f  => isAtomicFormat f
     | Std.Format.tag _ f   => isAtomicFormat f
     | _                    => false
-
-def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option Format) := do
-  match ← i.hoverMsg? ci with
-  | none => return none
-  | some m => m.format
 
 structure GoalsAtResult where
   ctxInfo    : ContextInfo

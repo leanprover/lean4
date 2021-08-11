@@ -79,7 +79,7 @@ def structInstLVal   := leading_parser (ident <|> fieldIdx <|> structInstArrayRe
 def structInstField  := ppGroup $ leading_parser structInstLVal >> " := " >> termParser
 def structInstFieldAbbrev := leading_parser atomic (ident >> notFollowedBy ("." <|> ":=" <|> symbol "[") "invalid field abbreviation") -- `x` is an abbreviation for `x := x`
 def optEllipsis      := leading_parser optional ".."
-@[builtinTermParser] def structInst := leading_parser "{" >> ppHardSpace >> optional (atomic (termParser >> " with "))
+@[builtinTermParser] def structInst := leading_parser "{" >> ppHardSpace >> optional (atomic (sepBy1 termParser ", " >> " with "))
   >> manyIndent (group ((structInstFieldAbbrev <|> structInstField) >> optional ", "))
   >> optEllipsis
   >> optional (" : " >> termParser) >> " }"

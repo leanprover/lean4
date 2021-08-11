@@ -109,3 +109,5 @@ set_option pp.structureInstanceTypes true in
 
 #eval checkM `((0 ≤ 1) = False)
 #eval checkM `((0 = 1) = False)
+
+#eval checkM `(-(-0))

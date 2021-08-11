@@ -110,7 +110,7 @@ jobs:
       - name: Patch
         run: |
           for f in lean leanpkg; do
-            patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 --set-rpath '${ORIGIN}/../lib/lean' build/stage1/bin/$f
+            patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 --set-rpath '${ORIGIN}/../lib:${ORIGIN}/../lib/lean' build/stage1/bin/$f
           done
         if: matrix.name == 'Linux release'
       - name: Patch
@@ -122,6 +122,11 @@ jobs:
             done
           done
         if: matrix.name == 'macOS'
+      - name: Test Binary without Nix Shell
+        shell: bash {0}
+        run: |
+          build/stage1/bin/lean -h
+        if: matrix.name != 'Windows'
       - name: Pack
         run: cd build/stage1; cpack
       - uses: actions/upload-artifact@v2

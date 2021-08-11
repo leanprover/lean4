@@ -253,7 +253,6 @@ else()
   # GMP
   find_package(GMP 5.0.5 REQUIRED)
   include_directories(${GMP_INCLUDE_DIR})
-  set(COPY_LIBS ${COPY_LIBS} ${GMP_LIBRARIES})
   # dlopen
   set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
 endif()
@@ -268,9 +267,6 @@ if(CCACHE)
     message(WARNING "Failed to find ccache, prepare for longer and redundant builds...")
   endif()
 endif()
-
-# TODO: copy COPY_LIBS when lean libraries become shared rather than static
-set(EXTRA_LIBS ${EXTRA_LIBS} ${COPY_LIBS})
 
 # Python
 find_package(PythonInterp)
@@ -295,10 +291,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -ftls-model=initial-exec")
   set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -fPIC")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=\\\$ORIGIN/../lib/lean")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=\\\$ORIGIN/../lib:\\\$ORIGIN/../lib/lean")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftls-model=initial-exec")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,@executable_path/../lib/lean")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,@executable_path/../lib:@executable_path/../lib/lean")
 endif()
 
 # export all symbols for the interpreter
@@ -467,22 +463,10 @@ if(PREV_STAGE)
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/..")
 endif()
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  install(FILES ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX} DESTINATION bin)
-  install(FILES ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}.a DESTINATION bin)
-endif()
-
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc" @ONLY)
-install(FILES "${CMAKE_BINARY_DIR}/bin/leanc"
-  DESTINATION bin
-  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)
-install(FILES ${LEAN_SOURCE_DIR}/bin/leanmake
-  DESTINATION bin
-  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-install(FILES "${CMAKE_BINARY_DIR}/bin/leanpkg${CMAKE_EXECUTABLE_SUFFIX}"
-  DESTINATION bin
-  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+
+install(DIRECTORY "${CMAKE_BINARY_DIR}/bin/" USE_SOURCE_PERMISSIONS DESTINATION bin)
 
 add_subdirectory(shell)
 
@@ -502,15 +486,12 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION lib/lean
 file(COPY ${CMAKE_SOURCE_DIR}/include/lean DESTINATION ${CMAKE_BINARY_DIR}/include
   FILES_MATCHING PATTERN "*.h")
 
-if("${INCLUDE_MSYS2_DLLS}" MATCHES "ON")
-  # TODO(Leo): do not hardcode required DLLs.
-  # For example, we can try to use ldd to retrieve the list of required DLLs.
-  set(RUNTIME_LIBRARIES
-         ${MINGW_LOCAL_DIR}/libgmp-10.dll
-         ${MINGW_LOCAL_DIR}/libwinpthread-1.dll
-         ${MINGW_LOCAL_DIR}/libgcc_s_seh-1.dll
-         ${MINGW_LOCAL_DIR}/libstdc++-6.dll)
-  install(PROGRAMS ${RUNTIME_LIBRARIES} DESTINATION bin)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  install(CODE "execute_process(COMMAND sh -c \"cp $(ldd ${CMAKE_BINARY_DIR}/bin/lean.exe | cut -f3 -d\\\" \\\" | grep mingw) \${CMAKE_INSTALL_PREFIX}/bin\")")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  install(CODE "execute_process(COMMAND sh -c \"cp $(otool -L ${CMAKE_BINARY_DIR}/bin/lean | tail -n +2 | cut -f1 -d\\\" \\\" | grep nix) \${CMAKE_INSTALL_PREFIX}/lib\")")
+else()
+  install(CODE "execute_process(COMMAND sh -c \"cp $(ldd ${CMAKE_BINARY_DIR}/bin/lean | cut -f3 -d\\\" \\\" | grep -Ev 'libc|lean') \${CMAKE_INSTALL_PREFIX}/lib\")")
 endif()
 
 # CPack

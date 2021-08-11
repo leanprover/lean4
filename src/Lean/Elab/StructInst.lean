@@ -43,7 +43,7 @@ open Meta
         return stx.setArg 0 fieldNew
       else
         return stx
-     return stx.setArg 2 (mkNullNode fieldsNew)
+    return stx.setArg 2 (mkNullNode fieldsNew)
   else
     Macro.throwUnsupported
 
@@ -451,73 +451,77 @@ private def mkSubstructSource (structName : Name) (fieldNames : Array Name) (fie
     return Source.explicit stx #[mkProj structName idx srcs[0]]
   | s => return s
 
-private def groupFields (expandStruct : Struct → TermElabM Struct) (s : Struct) : TermElabM Struct := do
-  let env ← getEnv
-  let fieldNames := getStructureFields env s.structName
-  withRef s.ref do
-  s.modifyFieldsM fun fields => do
-    let fieldMap ← mkFieldMap fields
-    fieldMap.toList.mapM fun ⟨fieldName, fields⟩ => do
-      match isSimpleField? fields with
-      | some field => pure field
-      | none =>
-        let substructFields := fields.map fun field => { field with lhs := field.lhs.tail! }
-        let substructSource ← mkSubstructSource s.structName fieldNames fieldName s.source
-        let field := fields.head!
-        match Lean.isSubobjectField? env s.structName fieldName with
-        | some substructName =>
-          let substruct := Struct.mk s.ref substructName substructFields substructSource
-          let substruct ← expandStruct substruct
-          pure { field with lhs := [field.lhs.head!], val := FieldVal.nested substruct }
-        | none => do
-          -- It is not a substructure field. Thus, we wrap fields using `Syntax`, and use `elabTerm` to process them.
-          let valStx := s.ref -- construct substructure syntax using s.ref as template
-          let valStx := valStx.setArg 4 mkNullNode -- erase optional expected type
-          let args   := substructFields.toArray.map fun field => mkNullNode #[field.toSyntax, mkNullNode]
-          let valStx := valStx.setArg 2 (mkNullNode args)
-          let valStx := setStructSourceSyntax valStx substructSource
-          pure { field with lhs := [field.lhs.head!], val := FieldVal.term valStx }
-
 def findField? (fields : Fields) (fieldName : Name) : Option (Field Struct) :=
   fields.find? fun field =>
     match field.lhs with
     | [FieldLHS.fieldName _ n] => n == fieldName
     | _                        => false
 
-private def addMissingFields (expandStruct : Struct → TermElabM Struct) (s : Struct) : TermElabM Struct := do
-  let env ← getEnv
-  let fieldNames := getStructureFields env s.structName
-  let ref := s.ref
-  withRef ref do
-    let fields ← fieldNames.foldlM (init := []) fun fields fieldName => do
-      match findField? s.fields fieldName with
-      | some field => return field::fields
-      | none       =>
-        let addField (val : FieldVal Struct) : TermElabM Fields := do
-          return { ref := s.ref, lhs := [FieldLHS.fieldName s.ref fieldName], val := val } :: fields
-        match Lean.isSubobjectField? env s.structName fieldName with
-        | some substructName => do
-          let substructSource ← mkSubstructSource s.structName fieldNames fieldName s.source
-          let substruct := Struct.mk s.ref substructName [] substructSource
-          let substruct ← expandStruct substruct
-          addField (FieldVal.nested substruct)
-        | none =>
-          match s.source with
-          | Source.none           => addField FieldVal.default
-          | Source.implicit _     => addField (FieldVal.term (mkHole s.ref))
-          | Source.explicit stx _ =>
-            -- stx is of the form `optional (try (sepBy1 termParser ", " >> "with"))`
-            let src := stx[0][0] -- TODO -- add support for multiple sources
-            let val := mkProjStx src fieldName
-            addField (FieldVal.term val)
-    return s.setFields fields.reverse
+mutual
 
-private partial def expandStruct (s : Struct) : TermElabM Struct := do
-  let s := expandCompositeFields s
-  let s ← expandNumLitFields s
-  let s ← expandParentFields s
-  let s ← groupFields expandStruct s
-  addMissingFields expandStruct s
+  private partial def groupFields (s : Struct) : TermElabM Struct := do
+    let env ← getEnv
+    let fieldNames := getStructureFields env s.structName
+    withRef s.ref do
+    s.modifyFieldsM fun fields => do
+      let fieldMap ← mkFieldMap fields
+      fieldMap.toList.mapM fun ⟨fieldName, fields⟩ => do
+        match isSimpleField? fields with
+        | some field => pure field
+        | none =>
+          let substructFields := fields.map fun field => { field with lhs := field.lhs.tail! }
+          let substructSource ← mkSubstructSource s.structName fieldNames fieldName s.source
+          let field := fields.head!
+          match Lean.isSubobjectField? env s.structName fieldName with
+          | some substructName =>
+            let substruct := Struct.mk s.ref substructName substructFields substructSource
+            let substruct ← expandStruct substruct
+            pure { field with lhs := [field.lhs.head!], val := FieldVal.nested substruct }
+          | none => do
+            -- It is not a substructure field. Thus, we wrap fields using `Syntax`, and use `elabTerm` to process them.
+            let valStx := s.ref -- construct substructure syntax using s.ref as template
+            let valStx := valStx.setArg 4 mkNullNode -- erase optional expected type
+            let args   := substructFields.toArray.map fun field => mkNullNode #[field.toSyntax, mkNullNode]
+            let valStx := valStx.setArg 2 (mkNullNode args)
+            let valStx := setStructSourceSyntax valStx substructSource
+            pure { field with lhs := [field.lhs.head!], val := FieldVal.term valStx }
+
+  private partial def addMissingFields (s : Struct) : TermElabM Struct := do
+    let env ← getEnv
+    let fieldNames := getStructureFields env s.structName
+    let ref := s.ref
+    withRef ref do
+      let fields ← fieldNames.foldlM (init := []) fun fields fieldName => do
+        match findField? s.fields fieldName with
+        | some field => return field::fields
+        | none       =>
+          let addField (val : FieldVal Struct) : TermElabM Fields := do
+            return { ref := s.ref, lhs := [FieldLHS.fieldName s.ref fieldName], val := val } :: fields
+          match Lean.isSubobjectField? env s.structName fieldName with
+          | some substructName => do
+            let substructSource ← mkSubstructSource s.structName fieldNames fieldName s.source
+            let substruct := Struct.mk s.ref substructName [] substructSource
+            let substruct ← expandStruct substruct
+            addField (FieldVal.nested substruct)
+          | none =>
+            match s.source with
+            | Source.none           => addField FieldVal.default
+            | Source.implicit _     => addField (FieldVal.term (mkHole s.ref))
+            | Source.explicit stx _ =>
+              -- stx is of the form `optional (try (sepBy1 termParser ", " >> "with"))`
+              let src := stx[0][0] -- TODO -- add support for multiple sources
+              let val := mkProjStx src fieldName
+              addField (FieldVal.term val)
+      return s.setFields fields.reverse
+
+  private partial def expandStruct (s : Struct) : TermElabM Struct := do
+    let s := expandCompositeFields s
+    let s ← expandNumLitFields s
+    let s ← expandParentFields s
+    let s ← groupFields s
+    addMissingFields s
+
+end
 
 structure CtorHeaderResult where
   ctorFn     : Expr

@@ -31,7 +31,6 @@ enable_testing()
 
 option(MULTI_THREAD       "MULTI_THREAD"       ON)
 option(CCACHE             "use ccache"         ON)
-option(STATIC             "STATIC"             OFF)
 option(SPLIT_STACK        "SPLIT_STACK"        OFF)
 # When OFF we disable LLVM support
 option(LLVM               "LLVM"               OFF)
@@ -180,19 +179,6 @@ else()
   #message(WARNING "Disabling LLVM support.  JIT compilation will not be available")
 endif()
 
-if(STATIC)
-  # Creating a fully static executable is a bad idea in general when linking against libc and specifically
-  # with our dlopen shenanigans
-  message(STATUS "Linking libraries statically where possible")
-  if(NOT "${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
-    set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -static-libgcc -static-libstdc++")
-  endif()
-  set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-  if (MULTI_THREAD AND ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive,-Bdynamic")
-  endif()
-endif()
-
 # Set Module Path
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
@@ -229,7 +215,6 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
   endif ()
 elseif (MSVC)
     # All good. Maybe enforce a recent version?
-    set(STATIC ON) # FIXME: not working yet
     set(CMAKE_CXX_FLAGS                "/GL /EHsc /W2 /Zc:implicitNoexcept- -D_SCL_SECURE_NO_WARNINGS ${CMAKE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS_DEBUG          "/Od /Zi ${CMAKE_CXX_FLAGS_DEBUG}")
     set(CMAKE_CXX_FLAGS_MINSIZEREL     "/Os /Zc:inline ${CMAKE_CXX_FLAGS_MINSIZEREL}")
@@ -543,12 +528,4 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 else()
   SET(CPACK_GENERATOR ZIP)
 endif()
-# CPack -- Debian
-if(STATIC)
-  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "")
-else()
-  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++-4.8-dev,libgmp-dev")
-endif()
-SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Lean Theorem Prover")
-SET(CPACK_DEBIAN_PACKAGE_SECTION "devel")
 include(CPack)

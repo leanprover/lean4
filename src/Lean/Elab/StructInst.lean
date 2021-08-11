@@ -692,22 +692,6 @@ def mkDefaultValue? (struct : Struct) (cinfo : ConstantInfo) : TermElabM (Option
   let us ← mkFreshLevelMVarsFor cinfo
   mkDefaultValueAux? struct (cinfo.instantiateValueLevelParams us)
 
-/-- If `e` is a projection function of one of the given structures, then reduce it -/
-def reduceProjOf? (structNames : Array Name) (e : Expr) : MetaM (Option Expr) := do
-  if !e.isApp then
-    pure none
-  else match e.getAppFn with
-    | Expr.const name .. => do
-      let env ← getEnv
-      match env.getProjectionStructureName? name with
-      | some structName =>
-        if structNames.contains structName then
-          Meta.unfoldDefinition? e
-        else
-          pure none
-      | none => pure none
-    | _ => pure none
-
 /-- Reduce default value. It performs beta reduction and projections of the given structures. -/
 partial def reduce (structNames : Array Name) (e : Expr) : MetaM Expr := do
   -- trace[Elab.struct] "reduce {e}"
@@ -720,7 +704,7 @@ partial def reduce (structNames : Array Name) (e : Expr) : MetaM Expr := do
     | some r => reduce structNames r
     | none   => return e.updateProj! (← reduce structNames b)
   | Expr.app f .. => do
-    match (← reduceProjOf? structNames e) with
+    match (← reduceProjOf? e structNames.contains) with
     | some r => reduce structNames r
     | none   =>
       let f := f.getAppFn

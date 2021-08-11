@@ -56,3 +56,21 @@ def f1 (a b d e : Nat) : D1 :=
 
 theorem ex4 (a b d e: Nat) : (f1 a b d e |>.c) = b + e :=
   rfl
+
+structure B2 where
+  a : Nat
+  b : Nat
+  c : Nat
+
+structure C2 extends B2 where
+  d : Nat
+  e : Nat
+  c := b + e
+
+structure D2 extends A, C2
+
+def f2 (a b d e : Nat) : D2 :=
+  { a, b, d, e }
+
+theorem ex5 (a b d e: Nat) : (f2 a b d e |>.c) = b + e :=
+  rfl

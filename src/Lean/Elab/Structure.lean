@@ -335,7 +335,45 @@ private def toVisibility (fieldInfo : StructureFieldInfo) : CoreM Visibility := 
 
 abbrev FieldMap := NameMap Expr -- Map from field name to expression representing the field
 
-private partial def copyDefaultValue? (fieldMap : FieldMap) (structName : Name) (fieldName : Name) : TermElabM (Option Expr) := do
+/-- Reduce projetions of the structures in `structNames` -/
+private def reduceProjs (e : Expr) (structNames : NameSet) : MetaM Expr :=
+  let reduce (e : Expr) : MetaM TransformStep := do
+    match (← reduceProjOf? e structNames.contains) with
+    | some v => return TransformStep.done v
+    | _ => return TransformStep.done e
+  transform e (post := reduce)
+
+/--
+  Copy the default value for field `fieldName` set at structure `structName`.
+  The arguments for the `_default` auxiliary function are provided by `fieldMap`.
+  Recall some of the entries in `fieldMap` are constructor applications, and they needed
+  to be reduced using `reduceProjs`. Otherwise, the produced default value may be "cyclic".
+  That is, we reduce projections of the structures in `expandedStructNames`. Here is
+  an example that shows why the reduction is needed.
+  ```
+  structure A where
+    a : Nat
+
+  structure B where
+    a : Nat
+    b : Nat
+    c : Nat
+
+  structure C extends B where
+    d : Nat
+    c := b + d
+
+  structure D extends A, C
+
+  #print D.c._default
+  ```
+  Without the reduction, it produces
+  ```
+  def D.c._default : A → Nat → Nat → Nat → Nat :=
+  fun toA b c d => id ({ a := toA.a, b := b, c := c : B }.b + d)
+  ```
+-/
+private partial def copyDefaultValue? (fieldMap : FieldMap) (expandedStructNames : NameSet) (structName : Name) (fieldName : Name) : TermElabM (Option Expr) := do
   match getDefaultFnForField? (← getEnv) structName fieldName with
   | none => return none
   | some defaultFn =>
@@ -360,18 +398,16 @@ where
         let arg ← mkFreshExprMVar d
         go? (b.instantiate1 arg)
     | e =>
-      if e.isAppOfArity ``id 2 then
-        return some (← instantiateMVars e.appArg!)
-      else
-        return some (← instantiateMVars e)
+      let r := if e.isAppOfArity ``id 2 then e.appArg! else e
+      return some (← reduceProjs (← instantiateMVars e.appArg!) expandedStructNames)
 
 private partial def copyNewFieldsFrom (structDeclName : Name) (infos : Array StructFieldInfo) (parentType : Expr) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
-  copyFields infos parentType fun _ infos => k infos
+  copyFields infos {} parentType fun infos _ _ => k infos
 where
-  copyFields (infos : Array StructFieldInfo) (parentType : Expr) (k : FieldMap → Array StructFieldInfo → TermElabM α) : TermElabM α := do
+  copyFields (infos : Array StructFieldInfo) (expandedStructNames : NameSet) (parentType : Expr) (k : Array StructFieldInfo → FieldMap → NameSet → TermElabM α) : TermElabM α := do
     let parentStructName ← getStructureName parentType
     let fieldNames := getStructureFields (← getEnv) parentStructName
-    let rec copy (i : Nat) (fieldMap : FieldMap) (infos : Array StructFieldInfo) : TermElabM α := do
+    let rec copy (i : Nat) (infos : Array StructFieldInfo) (fieldMap : FieldMap) (expandedStructNames : NameSet) : TermElabM α := do
       if h : i < fieldNames.size then
         let fieldName := fieldNames.get ⟨i, h⟩
         let fieldType ← getFieldType infos parentStructName parentType fieldName
@@ -381,36 +417,38 @@ where
           unless (← isDefEq fieldType existingFieldType) do
             throwError "parent field type mismatch, field '{fieldName}' from parent '{parentStructName}' {← mkHasTypeButIsExpectedMsg fieldType existingFieldType}"
           /- Remark: if structure has a default value for this field, it will be set at the `processOveriddenDefaultValues` below. -/
-          copy (i+1) (fieldMap.insert fieldName existingFieldInfo.fvar) infos
+          copy (i+1) infos (fieldMap.insert fieldName existingFieldInfo.fvar) expandedStructNames
         | none =>
           let some fieldInfo ← getFieldInfo? (← getEnv) parentStructName fieldName | unreachable!
           let addNewField : TermElabM α := do
-            let value? ← copyDefaultValue? fieldMap parentStructName fieldName
+            let value? ← copyDefaultValue? fieldMap expandedStructNames parentStructName fieldName
             withLocalDecl fieldName fieldInfo.binderInfo fieldType fun fieldFVar => do
               let fieldDeclName := structDeclName ++ fieldName
               let fieldDeclName ← applyVisibility (← toVisibility fieldInfo) fieldDeclName
               let infos := infos.push { name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value?,
                                         kind := StructFieldKind.copiedField, inferMod := fieldInfo.inferMod }
-              copy (i+1) (fieldMap.insert fieldName fieldFVar) infos
+              copy (i+1) infos (fieldMap.insert fieldName fieldFVar) expandedStructNames
           if fieldInfo.subobject?.isSome then
             let fieldParentStructName ← getStructureName fieldType
             if (← findExistingField? infos fieldParentStructName).isSome then
-              copyFields infos fieldType fun nestedFieldMap infos => do
+              -- See comment at `copyDefaultValue?`
+              let expandedStructNames := expandedStructNames.insert fieldParentStructName
+              copyFields infos expandedStructNames fieldType fun infos nestedFieldMap expandedStructNames => do
                 let fieldVal ← mkCompositeField fieldType nestedFieldMap
                 trace[Meta.debug] "composite, {fieldName} := {fieldVal}"
-                copy (i+1) (fieldMap.insert fieldName fieldVal) infos
+                copy (i+1) infos (fieldMap.insert fieldName fieldVal) expandedStructNames
             else
               addNewField
           else
             addNewField
       else
-        let infos ← processOveriddenDefaultValues infos parentStructName fieldMap
-        k fieldMap infos
-    copy 0 {} infos
+        let infos ← processOveriddenDefaultValues infos fieldMap expandedStructNames parentStructName
+        k infos fieldMap expandedStructNames
+    copy 0 infos {} expandedStructNames
 
-  processOveriddenDefaultValues (infos : Array StructFieldInfo) (parentStructName : Name) (fieldMap : FieldMap) : TermElabM (Array StructFieldInfo) :=
+  processOveriddenDefaultValues (infos : Array StructFieldInfo) (fieldMap : FieldMap) (expandedStructNames : NameSet) (parentStructName : Name) : TermElabM (Array StructFieldInfo) :=
     infos.mapM fun info => do
-      match (← copyDefaultValue? fieldMap parentStructName info.name) with
+      match (← copyDefaultValue? fieldMap expandedStructNames parentStructName info.name) with
       | some value => return { info with value? := value }
       | none       => return info
 

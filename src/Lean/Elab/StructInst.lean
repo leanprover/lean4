@@ -13,10 +13,10 @@ namespace Lean.Elab.Term.StructInst
 open Std (HashMap)
 open Meta
 
-/-
+/--
   Structure instances are of the form:
 
-      "{" >> optional (atomic (termParser >> " with "))
+      "{" >> optional (atomic (sepBy1 termParser ", " >> " with "))
           >> manyIndent (group ((structInstFieldAbbrev <|> structInstField) >> optional ", "))
           >> optEllipsis
           >> optional (" : " >> termParser)
@@ -84,7 +84,7 @@ where
 inductive Source where
   | none     -- structure instance source has not been provieded
   | implicit (stx : Syntax) -- `..`
-  | explicit (stx : Syntax) (srcs : Array Expr) -- `src with`
+  | explicit (stx : Syntax) (srcs : Array Expr) -- `srcs[0], srcs[1], ... with`
   deriving Inhabited
 
 def Source.isNone : Source → Bool
@@ -96,10 +96,10 @@ def setStructSourceSyntax (structStx : Syntax) : Source → Syntax
   | Source.implicit stx   => (structStx.setArg 1 mkNullNode).setArg 3 stx
   | Source.explicit stx _ => (structStx.setArg 1 stx).setArg 3 mkNullNode
 
-private def getStructSource (stx : Syntax) : TermElabM Source :=
-  withRef stx do
-    let explicitSource := stx[1]
-    let implicitSource := stx[3]
+private def getStructSource (structStx : Syntax) : TermElabM Source :=
+  withRef structStx do
+    let explicitSource := structStx[1]
+    let implicitSource := structStx[3]
     if explicitSource.isNone && implicitSource[0].isNone then
       return Source.none
     else if explicitSource.isNone then
@@ -111,7 +111,7 @@ private def getStructSource (stx : Syntax) : TermElabM Source :=
     else
       throwError "invalid structure instance `with` and `..` cannot be used together"
 
-/-
+/--
   We say a `{ ... }` notation is a `modifyOp` if it contains only one
   ```
   def structInstArrayRef := leading_parser "[" >> termParser >>"]"
@@ -179,7 +179,12 @@ private def elabModifyOp (stx modifyOp source : Syntax) (expectedType? : Option 
     trace[Elab.struct.modifyOp] "{stx}\nval: {val}"
     cont val
 
-/- Get structure name and elaborate explicit source (if available) -/
+/--
+  Get structure name and type.
+  This method triest to postpone execution if the expected type is not available.
+
+  If the expected type is available and it is a structure, then we use it.
+  Otherwise, we use the type of the first source. -/
 private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceView : Source) : TermElabM (Name × Expr) := do
   tryPostponeIfNoneOrMVar expectedType?
   let useSource : Unit → TermElabM (Name × Expr) := fun _ =>
@@ -229,9 +234,9 @@ inductive FieldVal (σ : Type) where
   deriving Inhabited
 
 structure Field (σ : Type) where
-  ref : Syntax
-  lhs : List FieldLHS
-  val : FieldVal σ
+  ref   : Syntax
+  lhs   : List FieldLHS
+  val   : FieldVal σ
   expr? : Option Expr := none
   deriving Inhabited
 
@@ -245,13 +250,6 @@ inductive Struct where
 
 abbrev Fields := List (Field Struct)
 
-/- true if all fields of the given structure are marked as `default` -/
-partial def Struct.allDefault : Struct → Bool
-  | ⟨_, _, fields, _⟩ => fields.all fun ⟨_, _, val, _⟩ => match val with
-    | FieldVal.term _   => false
-    | FieldVal.default  => true
-    | FieldVal.nested s => allDefault s
-
 def Struct.ref : Struct → Syntax
   | ⟨ref, _, _, _⟩ => ref
 
@@ -263,6 +261,13 @@ def Struct.fields : Struct → Fields
 
 def Struct.source : Struct → Source
   | ⟨_, _, _, s⟩ => s
+
+/-- `true` iff all fields of the given structure are marked as `default` -/
+partial def Struct.allDefault (s : Struct) : Bool :=
+  s.fields.all fun { val := val,  .. } => match val with
+    | FieldVal.term _   => false
+    | FieldVal.default  => true
+    | FieldVal.nested s => allDefault s
 
 def formatField (formatStruct : Struct → Format) (field : Field Struct) : Format :=
   Format.joinSep field.lhs " . " ++ " := " ++

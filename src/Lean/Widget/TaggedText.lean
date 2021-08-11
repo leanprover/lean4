@@ -72,23 +72,26 @@ instance [RpcEncoding α β] : RpcEncoding (TaggedText α) (TaggedText β) where
   rpcDecode a := a.mapM rpcDecode
 
 private structure TaggedState where
-  out      : TaggedText Nat              := TaggedText.text ""
-  tagStack : List (Nat × TaggedText Nat) := []
-  column   : Nat                         := 0
+  out      : TaggedText (Nat × Nat)              := TaggedText.text ""
+  tagStack : List (Nat × Nat × TaggedText (Nat × Nat)) := []
+  column   : Nat                                 := 0
   deriving Inhabited
 
 instance : Std.Format.MonadPrettyFormat (StateM TaggedState) where
   pushOutput s       := modify fun ⟨out, ts, col⟩ => ⟨out.appendText s, ts, col + s.length⟩
   pushNewline indent := modify fun ⟨out, ts, col⟩ => ⟨out.appendText ("\n".pushn ' ' indent), ts, indent⟩
   currColumn         := return (←get).column
-  startTag n         := modify fun ⟨out, ts, col⟩ => ⟨TaggedText.text "", (n, out) :: ts, col⟩
+  startTag n         := modify fun ⟨out, ts, col⟩ => ⟨TaggedText.text "", (n, col, out) :: ts, col⟩
   endTags n          := modify fun ⟨out, ts, col⟩ =>
     let (ended, left) := (ts.take n, ts.drop n)
-    let out' := ended.foldl (init := out) fun acc (n, top) => top.appendTag n acc
+    let out' := ended.foldl (init := out) fun acc (n, col', top) => top.appendTag (n, col') acc
     ⟨out', left, col⟩
 
-def prettyTagged (f : Format) (w : Nat := Std.Format.defWidth) : TaggedText Nat :=
-  (f.prettyM w : StateM TaggedState Unit) {} |>.snd.out
+/-- The output is tagged with `(tag, indent)` where `tag` is from the input `Format` and `indent`
+is the indentation level at this point. The latter is used to print sub-trees accurately by passing
+it again as the `indent` argument. -/
+def prettyTagged (f : Format) (indent := 0) (w : Nat := Std.Format.defWidth) : TaggedText (Nat × Nat) :=
+  (f.prettyM w indent : StateM TaggedState Unit) {} |>.snd.out
 
 /-- Remove tags, leaving just the pretty-printed string. -/
 partial def stripTags (tt : TaggedText α) : String :=

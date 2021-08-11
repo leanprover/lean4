@@ -381,19 +381,23 @@ private partial def copyDefaultValue? (fieldMap : FieldMap) (expandedStructNames
     let us ← mkFreshLevelMVarsFor cinfo
     go? (cinfo.instantiateValueLevelParams us)
 where
+  failed : TermElabM (Option Expr) := do
+    logWarning s!"ignoring default value for field '{fieldName}' defined at '{structName}'"
+    return none
+
   go? (e : Expr) : TermElabM (Option Expr) := do
     match e with
     | Expr.lam n d b c =>
       if c.binderInfo.isExplicit then
         let fieldName := n
         match fieldMap.find? n with
-        | none     => return none -- TODO Generate warning?
+        | none => failed
         | some val =>
           let valType ← inferType val
           if (← isDefEq valType d) then
             go? (b.instantiate1 val)
           else
-            return none -- TODO Generate warning?
+            failed
       else
         let arg ← mkFreshExprMVar d
         go? (b.instantiate1 arg)

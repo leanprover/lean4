@@ -3,9 +3,6 @@ SHELL := /usr/bin/env bash -euo pipefail
 # any absolute path to the stdlib breaks the Makefile
 export LEAN_PATH=
 
-# link GMP statically if STATIC=ON
-export LEANC_GMP=${GMP_LIBRARIES}
-
 # LEAN_OPTS: don't use native code (except for primitives) since it is from the previous stage
 # MORE_DEPS: rebuild the stdlib whenever the compiler has changed
 LEANMAKE_OPTS=\
@@ -37,7 +34,7 @@ Lean: Init Std
 leanshared: Init Std Lean
 	@mkdir -p "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" || true
 # can't use leanc here since it would try to link against leanshared
-	${CMAKE_CXX_COMPILER_LAUNCHER} ${CMAKE_CXX_COMPILER} -shared -o "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}" ${LEANSHARED_LINKER_FLAGS} ${GMP_LIBRARIES} ${LEANC_EXTRA_FLAGS} -L${LIB}/lean
+	${CMAKE_CXX_COMPILER_LAUNCHER} ${CMAKE_CXX_COMPILER} -shared -o "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}" ${LEANSHARED_LINKER_FLAGS} -lgmp ${LEANC_EXTRA_FLAGS} -L${LIB}/lean
 
 Leanpkg: Init Std Lean leanshared
 	+"${LEAN_BIN}/leanmake" bin PKG=Leanpkg BIN_NAME=leanpkg${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS='-lleanshared ${CMAKE_EXE_LINKER_FLAGS_MAKE}'

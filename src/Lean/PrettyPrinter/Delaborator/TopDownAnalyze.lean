@@ -334,6 +334,7 @@ structure App.Context where
 structure App.State where
   bottomUps       : Array Bool
   higherOrders    : Array Bool
+  funBinders      : Array Bool
   provideds       : Array Bool
   namedArgs       : Array Name := #[]
 
@@ -397,7 +398,8 @@ mutual
       analyzeAppStagedCore ⟨f, fType, args, mvars, bInfos, forceRegularApp⟩ |>.run' {
         bottomUps    := mkArray args.size false,
         higherOrders := mkArray args.size false,
-        provideds    := mkArray args.size false
+        provideds    := mkArray args.size false,
+        funBinders   := mkArray args.size false
       }
 
       if not rest.isEmpty then
@@ -453,6 +455,7 @@ mutual
     hBinOpHeuristic
     collectTrivialBottomUps
     discard <| processPostponed (mayPostpone := true)
+    applyFunBinderHeuristic
     analyzeFn
     for i in [:(← read).args.size] do analyzeArg i
     maybeSetExplicit
@@ -500,6 +503,31 @@ mutual
             tryUnify args[i] mvars[i]
             modify fun s => { s with bottomUps := s.bottomUps.set! i true }
 
+    applyFunBinderHeuristic := do
+      let ⟨f, _, args, mvars, bInfos, _⟩ ← read
+
+      let rec core (argIdx : Nat) (mvarType : Expr) : AnalyzeAppM Bool := do
+        match ← getExpr, mvarType with
+        | Expr.lam _ _ _ .., Expr.forallE n t b .. =>
+          let mut annotated := false
+          for i in [:argIdx] do
+            if ← bInfos[i] == BinderInfo.implicit <&&> valUnknown mvars[i] <&&> withNewMCtxDepth (checkpointDefEq t mvars[i]) then
+              annotateBool `pp.funBinderTypes
+              tryUnify args[i] mvars[i]
+              -- Note: currently we always analyze the lambda binding domains in `analyzeLam`
+              -- (so we don't need to analyze it again here)
+              annotated := true
+              break
+          let annotatedBody ← withBindingBody Name.anonymous (core argIdx b)
+          return annotated || annotatedBody
+
+        | _, _ => return false
+
+      for i in [:args.size] do
+        if ← bInfos[i] == BinderInfo.default then
+          let b ← withNaryArg i (core i (← inferType mvars[i]))
+          if b then modify fun s => { s with funBinders := s.funBinders.set! i true }
+
     analyzeFn := do
       -- Now, if this is the first staging, analyze the n-ary function without expected type
       let ⟨f, fType, _, _, _, forceRegularApp⟩ ← read
@@ -511,7 +539,7 @@ mutual
 
     analyzeArg (i : Nat) := do
       let ⟨f, _, args, mvars, bInfos, forceRegularApp⟩ ← read
-      let ⟨bottomUps, higherOrders,_, _⟩ ← get
+      let ⟨bottomUps, higherOrders, funBinders, _, _⟩ ← get
       let arg := args[i]
       let argType ← inferType arg
 
@@ -527,7 +555,7 @@ mutual
 
           match bInfos[i] with
           | BinderInfo.default =>
-            if ← !(← valUnknown mvars[i]) <&&> !(← readThe Context).inBottomUp <&&> !(← isFunLike arg) <&&> checkpointDefEq mvars[i] arg then
+            if ← !(← valUnknown mvars[i]) <&&> !(← readThe Context).inBottomUp <&&> !(← isFunLike arg) <&&> !funBinders[i] <&&> checkpointDefEq mvars[i] arg then
               annotateBool `pp.analysis.hole
             else
               modify fun s => { s with provideds := s.provideds.set! i true }

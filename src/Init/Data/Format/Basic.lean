@@ -172,8 +172,8 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGrou
       else
         pushGroup flb [{ i with f }] (gs' is) w >>= be w
 
-def prettyM (f : Format) (w : Nat) [Monad m] [MonadPrettyFormat m] : m Unit :=
-  be w [{ flb := FlattenBehavior.allOrNone, flatten := false, items := [{ f := f, indent := 0, activeTags := 0 }]}]
+def prettyM (f : Format) (w : Nat) (indent : Nat := 0) [Monad m] [MonadPrettyFormat m] : m Unit :=
+  be w [{ flb := FlattenBehavior.allOrNone, flatten := false, items := [{ f := f, indent, activeTags := 0 }]}]
 
 @[inline] def bracket (l : String) (f : Format) (r : String) : Format :=
   group (nest l.length $ l ++ f ++ r)

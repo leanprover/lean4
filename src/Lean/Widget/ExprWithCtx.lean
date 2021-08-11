@@ -84,12 +84,12 @@ def formatExplicitInfos (e : Expr) : MetaM (Format × Std.RBMap Nat Elab.Info co
   formatWithOpts e optsPerPos
 
 /-- Tags a pretty-printed `Expr` with infos from the delaborator. -/
-partial def tagExprInfos (ctx : Elab.ContextInfo) (lctx : LocalContext) (infos : Std.RBMap Nat Elab.Info compare) (tt : TaggedText Nat)
+partial def tagExprInfos (ctx : Elab.ContextInfo) (lctx : LocalContext) (infos : Std.RBMap Nat Elab.Info compare) (tt : TaggedText (Nat × Nat))
     : CodeWithInfos :=
   go tt
 where
-  go (tt : TaggedText Nat) :=
-    tt.rewrite fun n subTt =>
+  go (tt : TaggedText (Nat × Nat)) :=
+    tt.rewrite fun (n, _) subTt =>
       match infos.find? n with
       | none   => go subTt
       | some i => TaggedText.tag (WithRpcRef.mk { ctx, lctx, info := i }) (go subTt)
@@ -101,7 +101,8 @@ def inferType (e : Expr) : MetaM ExprWithCtx := do
     options := ← getOptions
     currNamespace := ← getCurrNamespace
     openDecls := ← getOpenDecls
-    fileMap := arbitrary }
+    fileMap := arbitrary
+  }
   return { ctx, lctx := ← getLCtx, expr := e}
 
 def tagged (e : Expr) : MetaM CodeWithInfos := do
@@ -113,7 +114,8 @@ def tagged (e : Expr) : MetaM CodeWithInfos := do
     options := ← getOptions
     currNamespace := ← getCurrNamespace
     openDecls := ← getOpenDecls
-    fileMap := arbitrary }
+    fileMap := arbitrary
+  }
   tagExprInfos ctx (← getLCtx) infos tt
 
 def taggedExplicit (e : Expr) : MetaM CodeWithInfos := do
@@ -125,7 +127,8 @@ def taggedExplicit (e : Expr) : MetaM CodeWithInfos := do
     options := ← getOptions
     currNamespace := ← getCurrNamespace
     openDecls := ← getOpenDecls
-    fileMap := arbitrary }
+    fileMap := arbitrary
+  }
   tagExprInfos ctx (← getLCtx) infos tt
 
 builtin_initialize

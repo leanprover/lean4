@@ -12,23 +12,17 @@ open Lean.Parser.Command
 
 @[builtinMacro Lean.Parser.Command.macro] def expandMacro : Macro
   | `($[$doc?:docComment]? $attrKind:attrKind
-      macro$[:$prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $head:macroArg $args:macroArg* :
+      macro$[:$prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $args:macroArg* :
         $cat => $rhs) => do
     let prio  ← evalOptPrio prio?
-    -- build parser
-    let stxPart  ← expandMacroArgIntoSyntaxItem head
-    let stxParts ← args.mapM expandMacroArgIntoSyntaxItem
-    let stxParts := #[stxPart] ++ stxParts
+    let (stxParts, patArgs) := (← args.mapM expandMacroArg).unzip
     -- name
     let name ← match name? with
       | some name => pure name.getId
       | none => mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
-    -- build macro rules
-    let patHead ← expandMacroArgIntoPattern head
-    let patArgs ← args.mapM expandMacroArgIntoPattern
     /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
       So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
-    let pat := Syntax.node ((← Macro.getCurrNamespace) ++ name) (#[patHead] ++ patArgs)
+    let pat := Syntax.node ((← Macro.getCurrNamespace) ++ name) patArgs
     let stxCmd ← `($[$doc?:docComment]? $attrKind:attrKind
       syntax$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio)) $[$stxParts]* : $cat)
     let macroRulesCmd ←

@@ -16,7 +16,7 @@ example (n : Nat) : True := by
 
 
 /-- My tactic -/
-macro "mytac" o:("only"?) e:term : tactic => `(exact $e)
+macro "mytac" o:"only"? e:term : tactic => `(exact $e)
 
 example : True := by
   mytac only True.intro

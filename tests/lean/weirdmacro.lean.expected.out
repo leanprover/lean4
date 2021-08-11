@@ -1,2 +1,0 @@
-weirdmacro.lean:1:6: error: expected no space before ':' or string literal
-weirdmacro.lean:3:7-3:11: error: unknown identifier 'term'

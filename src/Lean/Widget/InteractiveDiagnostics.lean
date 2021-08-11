@@ -63,7 +63,8 @@ where
       fileMap := arbitrary
       options := ctx.opts
       currNamespace := nCtx.currNamespace
-      openDecls := nCtx.openDecls }
+      openDecls := nCtx.openDecls
+    }
     let (fmt, infos) ← ci.runMetaM ctx.lctx (ExprWithCtx.formatInfos e)
     let t ← pushEmbed <| EmbedFmt.expr ci ctx.lctx infos
     return Format.tag t fmt
@@ -71,37 +72,74 @@ where
   | nCtx, some ctx,  ofGoal mvarId            => withIgnoreTags <| ppGoal (mkPPContext nCtx ctx) mvarId
   | nCtx, _,         withContext ctx d        => go nCtx ctx d
   | _,    ctx,       withNamingContext nCtx d => go nCtx ctx d
-  | nCtx, ctx,       tagged n d               => do
+  | nCtx, ctx,       tagged t d               => do
     -- tagged is *almost* perfect for detecting traces
     -- expect for the following two other occurrences:
     -- src/Lean/Elab/Term.lean:454
     -- src/Lean/Elab/Tactic/Basic.lean:33
-    let f ← pushEmbed <| EmbedFmt.lazyTrace nCtx ctx n d
-    Format.tag f <$> go nCtx ctx d
+    if let Name.str cls "_traceCtx" _ := t then
+      let f ← pushEmbed <| EmbedFmt.lazyTrace nCtx ctx cls d
+      Format.tag f s!"[{cls}] (trace hidden)"
+    else
+      go nCtx ctx d
   | nCtx, ctx,       nest n d                 => Format.nest n <$> go nCtx ctx d
   | nCtx, ctx,       compose d₁ d₂            => do let d₁ ← go nCtx ctx d₁; let d₂ ← go nCtx ctx d₂; pure $ d₁ ++ d₂
   | nCtx, ctx,       group d                  => Format.group <$> go nCtx ctx d
   | nCtx, ctx,       node ds                  => Format.nest 2 <$> ds.foldlM (fun r d => do let d ← go nCtx ctx d; pure $ r ++ Format.line ++ d) Format.nil
 
-private partial def msgToInteractive (msgData : MessageData) : IO (TaggedText MsgEmbed) := do
+partial def msgToInteractive (msgData : MessageData) (indent : Nat := 0) : IO (TaggedText MsgEmbed) := do
   let (fmt, embeds) ← msgToInteractiveAux msgData
-  let tt := TaggedText.prettyTagged fmt
+  let tt := TaggedText.prettyTagged fmt indent
   /- Here we rewrite a `TaggedText Nat` corresponding to a whole `MessageData` into one where
   the tags are `TaggedText MsgEmbed`s corresponding to embedded objects with their subtree
   empty (`text ""`). In other words, we terminate the `MsgEmbed`-tagged -tree at embedded objects
   and store the pretty-printed embed (which can itself be a `TaggedText`) in the tag. -/
-  tt.rewriteM fun n subTt =>
+  tt.rewriteM fun (n, col) subTt =>
     match embeds.get! n with
     | EmbedFmt.expr ctx lctx infos =>
       let subTt' := ExprWithCtx.tagExprInfos ctx lctx infos subTt
-      TaggedText.tag (MsgEmbed.expr subTt') (TaggedText.text "")
+      TaggedText.tag (MsgEmbed.expr subTt') (TaggedText.text subTt.stripTags)
     | EmbedFmt.goal ctx lctx g =>
       -- TODO(WN): use InteractiveGoal types here
       unreachable!
-    | EmbedFmt.lazyTrace nCtx ctx? n m =>
-      -- TODO(WN): TraceExplorer component
-      TaggedText.tag (MsgEmbed.lazyTrace ⟨"1337"⟩) (TaggedText.text "")
+    | EmbedFmt.lazyTrace nCtx ctx? cls m =>
+      let msg :=
+        match ctx? with
+        | some ctx => MessageData.withNamingContext nCtx <| MessageData.withContext ctx m
+        | none     => MessageData.withNamingContext nCtx m
+      TaggedText.tag (MsgEmbed.lazyTrace col cls ⟨msg⟩) (TaggedText.text subTt.stripTags)
     | EmbedFmt.ignoreTags => TaggedText.text subTt.stripTags
+
+structure MsgToInteractive where
+  msg : WithRpcRef MessageData
+  indent : Nat
+  deriving Inhabited, RpcEncoding
+
+builtin_initialize
+  registerRpcCallHandler `Lean.Widget.InteractiveDiagnostics.msgToInteractive MsgToInteractive (TaggedText MsgEmbed) fun ⟨⟨m⟩, i⟩ => RequestM.asTask do msgToInteractive m i
+
+structure InfoPopup where
+  type : Option CodeWithInfos
+  exprExplicit : Option CodeWithInfos
+  doc : Option String
+  deriving Inhabited, RpcEncoding
+
+builtin_initialize
+  registerRpcCallHandler `Lean.Widget.InteractiveDiagnostics.infoToInteractive (WithRpcRef InfoWithCtx) InfoPopup
+    fun ⟨i⟩ => RequestM.asTask do
+      i.ctx.runMetaM i.lctx do
+        let type? ← match (← i.info.type?) with
+          | some type => some <$> ExprWithCtx.tagged type
+          | none => none
+        let exprExplicit? ← match i.info with
+          | Elab.Info.ofTermInfo ti => some <$> ExprWithCtx.taggedExplicit ti.expr
+          | Elab.Info.ofFieldInfo fi => some (TaggedText.text fi.fieldName.toString)
+          | _ => none
+        return {
+          type := type?
+          exprExplicit := exprExplicit?
+          doc := ← i.info.docString? : InfoPopup
+        }
 
 /-- Transform a Lean Message concerning the given text into an LSP Diagnostic. -/
 def msgToDiagnostic (text : FileMap) (m : Message) : ReaderT RpcSession IO Diagnostic := do
@@ -140,7 +178,8 @@ def publishMessages (m : DocumentMeta) (msgLog : MessageLog) (hOut : IO.FS.Strea
   let diagParams : PublishDiagnosticsParams :=
     { uri := m.uri
       version? := some m.version
-      diagnostics := diagnostics.toArray }
+      diagnostics := diagnostics.toArray
+    }
   hOut.writeLspNotification {
     method := "textDocument/publishDiagnostics"
     param := toJson diagParams

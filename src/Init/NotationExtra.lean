@@ -93,6 +93,14 @@ macro "Σ'" xs:explicitBinders ", " b:term : term => expandExplicitBinders ``PSi
 macro:35 xs:bracketedExplicitBinders " × " b:term:35  : term => expandBrackedBinders ``Sigma xs b
 macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBinders ``PSigma xs b
 
+-- enforce indentation of calc steps so we know when to stop parsing them
+syntax calcStep := colGe term " := " withPosition(term)
+syntax "calc " withPosition(calcStep+) : term
+
+macro_rules
+  | `(calc $p:term := $h:term) => `(($h : $p))
+  | `(calc $p:term := $h:term $rest:calcStep*) => ``(trans ($h : $p) (calc $rest:calcStep*))
+
 @[appUnexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())
   | _       => throw ()

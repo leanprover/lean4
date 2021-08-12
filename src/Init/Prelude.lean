@@ -380,6 +380,18 @@ class LT (α : Type u) where lt : α → α → Prop
 @[inline] def min [LE α] [DecidableRel (@LE.le α _)] (a b : α) : α :=
   ite (LE.le a b) a b
 
+/-- Transitive chaining of proofs, used e.g. by `calc`. -/
+class Trans (r : α → β → Prop) (s : β → γ → Prop) (t : outParam (α → γ → Prop)) where
+  trans : r a b → s b c → t a c
+
+export Trans (trans)
+
+instance (r : α → γ → Prop) : Trans Eq r r where
+  trans heq h' := heq ▸ h'
+
+instance (r : α → β → Prop) : Trans r Eq r where
+  trans h' heq := heq ▸ h'
+
 class HAdd (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hAdd : α → β → γ
 

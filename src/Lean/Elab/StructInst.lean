@@ -84,17 +84,25 @@ where
 inductive Source where
   | none     -- structure instance source has not been provieded
   | implicit (stx : Syntax) -- `..`
-  | explicit (stx : Syntax) -- `s₁ ... sₙ with`
+  | explicit (sources : Array Syntax) -- `s₁ ... sₙ with`
   deriving Inhabited
 
 def Source.isNone : Source → Bool
   | Source.none => true
   | _           => false
 
+/-- `optional (atomic (sepBy1 termParser ", " >> " with ")` -/
+private def mkSourcesWithSyntax (sources : Array Syntax) : Syntax :=
+  let ref := sources[0]
+  let stx := Syntax.mkSep sources (mkAtomFrom ref ", ")
+  mkNullNode #[stx, mkAtomFrom ref "with "]
+
 def setStructSourceSyntax (structStx : Syntax) : Source → Syntax
-  | Source.none         => (structStx.setArg 1 mkNullNode).setArg 3 mkNullNode
-  | Source.implicit stx => (structStx.setArg 1 mkNullNode).setArg 3 stx
-  | Source.explicit stx => (structStx.setArg 1 stx).setArg 3 mkNullNode
+  | Source.none             => (structStx.setArg 1 mkNullNode).setArg 3 mkNullNode
+  | Source.implicit stx     => (structStx.setArg 1 mkNullNode).setArg 3 stx
+  | Source.explicit sources =>
+    let stx := mkSourcesWithSyntax sources
+    (structStx.setArg 1 stx).setArg 3 mkNullNode
 
 private def getStructSource (structStx : Syntax) : TermElabM Source :=
   withRef structStx do
@@ -105,7 +113,7 @@ private def getStructSource (structStx : Syntax) : TermElabM Source :=
     else if explicitSource.isNone then
       return Source.implicit implicitSource
     else if implicitSource[0].isNone then
-      return Source.explicit explicitSource
+      return Source.explicit explicitSource[0].getSepArgs
     else
       throwError "invalid structure instance `with` and `..` cannot be used together"
 
@@ -150,17 +158,17 @@ private def isModifyOp? (stx : Syntax) : TermElabM (Option Syntax) := do
   | none   => pure none
   | some s => if s[0][0].getKind == ``Lean.Parser.Term.structInstArrayRef then pure s? else pure none
 
-private def elabModifyOp (stx modifyOp source : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
-  if source[0].getSepArgs.size > 1 then
+private def elabModifyOp (stx modifyOp : Syntax) (sources : Array Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+  if sources.size > 1 then
     throwError "invalid \{...} notation, multiple sources and array update is not supported."
   let cont (val : Syntax) : TermElabM Expr := do
     let lval := modifyOp[0][0]
     let idx  := lval[1]
-    let self := source[0][0]
+    let self := sources[0]
     let stxNew ← `($(self).modifyOp (idx := $idx) (fun s => $val))
     trace[Elab.struct.modifyOp] "{stx}\n===>\n{stxNew}"
     withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
-  trace[Elab.struct.modifyOp] "{modifyOp}\nSource: {source}"
+  trace[Elab.struct.modifyOp] "{modifyOp}\nSource: {sources}"
   let rest := modifyOp[0][1]
   if rest.isNone then
     cont modifyOp[2]
@@ -171,7 +179,7 @@ private def elabModifyOp (stx modifyOp source : Syntax) (expectedType? : Option 
     let restArgs  := rest.getArgs
     let valRest   := mkNullNode restArgs[1:restArgs.size]
     let valField  := modifyOp.setArg 0 <| Syntax.node ``Parser.Term.structInstLVal #[valFirst, valRest]
-    let valSource := source.modifyArg 0 fun sep => sep.modifyArg 0 fun _ => s
+    let valSource := mkSourcesWithSyntax #[s]
     let val       := stx.setArg 1 valSource
     let val       := val.setArg 2 <| mkNullNode #[mkNullNode #[valField, mkNullNode]]
     trace[Elab.struct.modifyOp] "{stx}\nval: {val}"
@@ -187,8 +195,8 @@ private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceVi
   tryPostponeIfNoneOrMVar expectedType?
   let useSource : Unit → TermElabM (Name × Expr) := fun _ =>
     match sourceView, expectedType? with
-    | Source.explicit sourcesStx, _ => do
-      let some src ← isLocalIdent? sourcesStx[0][0] | unreachable!
+    | Source.explicit sources, _ => do
+      let some src ← isLocalIdent? sources[0] | unreachable!
       let srcType ← inferType src
       let srcType ← whnf srcType
       tryPostponeIfMVar srcType
@@ -441,12 +449,12 @@ private def getFieldIdx (structName : Name) (fieldNames : Array Name) (fieldName
 private def mkProjStx (s : Syntax) (fieldName : Name) : Syntax :=
   Syntax.node ``Lean.Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
 
+-- TODO: delete
 private def mkSubstructSource (structName : Name) (fieldName : Name) (src : Source) : TermElabM Source :=
   match src with
-  | Source.explicit stx => do
-    -- TODO: handle multiple sources
-    let stx := stx.modifyArg 0 fun stx => stx.modifyArg 0 fun stx => mkProjStx stx fieldName
-    return Source.explicit stx
+  | Source.explicit sources => do
+    let sources := sources.map fun sources => mkProjStx sources fieldName
+    return Source.explicit sources
   | s => return s
 
 def findField? (fields : Fields) (fieldName : Name) : Option (Field Struct) :=
@@ -509,10 +517,10 @@ mutual
             match s.source with
             | Source.none         => addField FieldVal.default
             | Source.implicit _   => addField (FieldVal.term (mkHole s.ref))
-            | Source.explicit stx =>
+            | Source.explicit sources =>
               /- TODO: find the first source that field `fieldName`, and add a path to it here. -/
               -- stx is of the form `optional (try (sepBy1 termParser ", " >> "with"))`
-              let src := stx[0][0] -- TODO -- add support for multiple sources
+              let src := sources[0] -- TODO -- add support for multiple sources
               let val := mkProjStx src fieldName
               addField (FieldVal.term val)
       return s.setFields fields.reverse
@@ -847,9 +855,9 @@ private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sour
   | none =>
     let sourceView ← getStructSource stx
     match (← isModifyOp? stx), sourceView with
-    | some modifyOp, Source.explicit source => elabModifyOp stx modifyOp source expectedType?
-    | some _,        _                      => throwError "invalid \{...} notation, explicit source is required when using '[<index>] := <value>'"
-    | _,             _                      => elabStructInstAux stx expectedType? sourceView
+    | some modifyOp, Source.explicit sources => elabModifyOp stx modifyOp sources expectedType?
+    | some _,        _                       => throwError "invalid \{...} notation, explicit source is required when using '[<index>] := <value>'"
+    | _,             _                       => elabStructInstAux stx expectedType? sourceView
 
 builtin_initialize registerTraceClass `Elab.struct
 

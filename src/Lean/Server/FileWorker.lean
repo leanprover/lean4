@@ -278,7 +278,8 @@ section NotificationHandling
     let rpcSesh' ←
       if !st.rpcSesh.clientConnected then
         -- First client connection.
-        pure { st.rpcSesh with clientConnected := true }
+        let s := { st.rpcSesh with clientConnected := true }
+        s.keptAlive
       else
         /- Client has restarted. Just setting the state should `dec` the previous session.
         Any associated references will then no longer be kept alive for the client. -/
@@ -294,8 +295,15 @@ def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
   if p.sessionId ≠ st.rpcSesh.sessionId then
     -- TODO(WN): should only print on log-level debug, if we had log-levels
     IO.eprintln s!"Trying to release refs '{p.refs}' from outdated RPC session '{p.sessionId}'."
-  else for ref in p.refs do
-    st.rpcSesh.state.modify fun st => st.release ref |>.snd
+  else
+    for ref in p.refs do
+      st.rpcSesh.state.modify fun st => st.release ref |>.snd
+    set { st with rpcSesh := ← st.rpcSesh.keptAlive }
+
+def handleRpcKeepAlive (p : Lsp.RpcKeepAliveParams) : WorkerM Unit := do
+  let st ← get
+  if p.sessionId = st.rpcSesh.sessionId then
+    set { st with rpcSesh := ← st.rpcSesh.keptAlive }
 
 end NotificationHandling
 
@@ -313,6 +321,7 @@ section MessageHandling
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
     | "$/lean/rpc/connect"     => handle RpcConnectParams handleRpcConnect
     | "$/lean/rpc/release"     => handle RpcReleaseParams handleRpcRelease
+    | "$/lean/rpc/keepAlive"   => handle RpcKeepAliveParams handleRpcKeepAlive
     | _                        => throwServerError s!"Got unsupported notification method: {method}"
 
   def queueRequest (id : RequestID) (requestTask : Task (Except IO.Error Unit))
@@ -344,10 +353,10 @@ end MessageHandling
 section MainLoop
   partial def mainLoop : WorkerM Unit := do
     let ctx ← read
+    let mut st ← get
     let msg ← ctx.hIn.readLspMessage
-    let pendingRequests := (←get).pendingRequests
     let filterFinishedTasks (acc : PendingRequestMap) (id : RequestID) (task : Task (Except IO.Error Unit))
-        : WorkerM PendingRequestMap := do
+        : IO PendingRequestMap := do
       if (←hasFinished task) then
         /- Handler tasks are constructed so that the only possible errors here
         are failures of writing a response into the stream. -/
@@ -355,8 +364,15 @@ section MainLoop
           throwServerError s!"Failed responding to request {id}: {e}"
         acc.erase id
       else acc
-    let pendingRequests ← pendingRequests.foldM filterFinishedTasks pendingRequests
-    modify fun st => { st with pendingRequests := pendingRequests }
+    let pendingRequests ← st.pendingRequests.foldM (fun acc id task => filterFinishedTasks acc id task) st.pendingRequests
+    st := { st with pendingRequests }
+
+    -- Opportunistically (i.e. when we wake up on messages) check if the RPC session has expired.
+    if (← st.rpcSesh.hasExpired) then
+      let newSesh ← RpcSession.new false
+      st := { st with rpcSesh := newSesh }
+
+    set st
     match msg with
     | Message.request id method (some params) =>
       handleRequest id method (toJson params)

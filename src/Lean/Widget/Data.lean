@@ -88,5 +88,4 @@ def pretty (msg : InteractiveMessage) : String :=
   tt.stripTags
 
 end InteractiveMessage
-
 end Lean.Widget

@@ -61,11 +61,17 @@ end RpcSessionState
 structure RpcSession where
   sessionId       : UInt64
   clientConnected : Bool
-  /-- We allow asynchronous elab tasks and request handlers to modify the state.
+  /-- The `IO.monoMsNow` time when the session expires. See `$/lean/rpc/keepAlive`.
+  Note we only *actually* reset the connection if `clientConnected` is set. -/
+  expireTime      : Nat
+  /-- We allow asynchronous elab tasks and request handlers to modify parts of the state.
   A single `Ref` ensures atomic transactions. -/
   state           : IO.Ref RpcSessionState
 
 namespace RpcSession
+
+def keepAliveTimeMs : Nat :=
+  30000
 
 def new (clientConnected := false) : IO RpcSession := do
   /- We generate a random ID to ensure that session IDs do not repeat across re-initializations
@@ -77,9 +83,16 @@ def new (clientConnected := false) : IO RpcSession := do
   }
   return {
     sessionId := newId
+    expireTime := (← IO.monoMsNow) + keepAliveTimeMs
     clientConnected
     state := newState
   }
+
+def keptAlive (s : RpcSession) : IO RpcSession := do
+  return { s with expireTime := (← IO.monoMsNow) + keepAliveTimeMs }
+
+def hasExpired (s : RpcSession) : IO Bool :=
+  return s.clientConnected ∧ s.expireTime ≤ (← IO.monoMsNow)
 
 end RpcSession
 
@@ -153,8 +166,7 @@ variable {m : Type → Type} [Monad m] [MonadRpcSession m]
 
 /-- This is unsafe because we must ensure that:
 - the stored `NonScalar` is never used to access the value as a type other than `α`
-- the type `α` is not a scalar
--/
+- the type `α` is not a scalar -/
 protected unsafe def encodeUnsafe [Monad m] (typeName : Name) (r : WithRpcRef α) : m Lsp.RpcRef := do
   let obj := @unsafeCast α NonScalar r.val
   rpcStoreRef typeName obj

@@ -120,4 +120,14 @@ structure RpcReleaseParams where
   refs : Array RpcRef
   deriving FromJson, ToJson
 
+/-- `$/lean/rpc/keepAlive` client -> server notification.
+
+The client must send an RPC notification every 10s in order to keep the RPC session alive.
+This is the simplest one. On not seeing any notifications for three 10s periods, the server
+will drop the RPC session and its associated references. -/
+structure RpcKeepAliveParams where
+  uri : DocumentUri
+  sessionId : UInt64
+  deriving FromJson, ToJson
+
 end Lean.Lsp

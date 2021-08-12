@@ -103,13 +103,6 @@ private def mkSourcesWithSyntax (sources : Array Syntax) : Syntax :=
   let stx := Syntax.mkSep sources (mkAtomFrom ref ", ")
   mkNullNode #[stx, mkAtomFrom ref "with "]
 
-def setStructSourceSyntax (structStx : Syntax) : Source → Syntax
-  | Source.none             => (structStx.setArg 1 mkNullNode).setArg 3 mkNullNode
-  | Source.implicit stx     => (structStx.setArg 1 mkNullNode).setArg 3 stx
-  | Source.explicit sources =>
-    let stx := mkSourcesWithSyntax (sources.map (·.stx))
-    (structStx.setArg 1 stx).setArg 3 mkNullNode
-
 private def getStructSource (structStx : Syntax) : TermElabM Source :=
   withRef structStx do
     let explicitSource := structStx[1]
@@ -471,16 +464,6 @@ where
     let p := mkIdentFrom s projFn
     `($p (self := $s))
 
--- TODO: delete
-private def mkSubstructSource (structName : Name) (fieldName : Name) (src : Source) : TermElabM Source :=
-  match src with
-  | Source.explicit sources => do
-    -- Remark: we are not updating the source `structName` here. It is fine for now since the
-    -- updated value will only be used after we delete this code.
-    let sources := sources.map fun source => { source with stx := mkCoreProjStx source.stx fieldName }
-    return Source.explicit sources
-  | s => return s
-
 def findField? (fields : Fields) (fieldName : Name) : Option (Field Struct) :=
   fields.find? fun field =>
     match field.lhs with
@@ -500,23 +483,28 @@ mutual
         | some field => pure field
         | none =>
           let substructFields := fields.map fun field => { field with lhs := field.lhs.tail! }
-          /- TODO: we should remove this line. -/
-          let substructSource ← mkSubstructSource s.structName fieldName s.source
           let field := fields.head!
           match Lean.isSubobjectField? env s.structName fieldName with
           | some substructName =>
-            let substruct := Struct.mk s.ref substructName substructFields substructSource
+            let substruct := Struct.mk s.ref substructName substructFields s.source
             let substruct ← expandStruct substruct
             pure { field with lhs := [field.lhs.head!], val := FieldVal.nested substruct }
           | none => do
-            /- TODO: we should test here which sources have a field called `fieldName` and update them with the path to this field.
-               Sources that do not have them should be erased from the list. -/
-            -- It is not a substructure field. Thus, we wrap fields using `Syntax`, and use `elabTerm` to process them.
+            let updateSource (structStx : Syntax) : TermElabM Syntax := do
+              match s.source with
+              | Source.none             => return (structStx.setArg 1 mkNullNode).setArg 3 mkNullNode
+              | Source.implicit stx     => return (structStx.setArg 1 mkNullNode).setArg 3 stx
+              | Source.explicit sources =>
+                let sourcesNew ← sources.filterMapM fun source => mkProjStx? source.stx source.structName fieldName
+                if sourcesNew.isEmpty then
+                  return (structStx.setArg 1 mkNullNode).setArg 3 mkNullNode
+                else
+                  return (structStx.setArg 1 (mkSourcesWithSyntax sourcesNew)).setArg 3 mkNullNode
             let valStx := s.ref -- construct substructure syntax using s.ref as template
             let valStx := valStx.setArg 4 mkNullNode -- erase optional expected type
             let args   := substructFields.toArray.map fun field => mkNullNode #[field.toSyntax, mkNullNode]
             let valStx := valStx.setArg 2 (mkNullNode args)
-            let valStx := setStructSourceSyntax valStx substructSource
+            let valStx ← updateSource valStx
             pure { field with lhs := [field.lhs.head!], val := FieldVal.term valStx }
 
   private partial def addMissingFields (s : Struct) : TermElabM Struct := do
@@ -532,21 +520,28 @@ mutual
             return { ref := s.ref, lhs := [FieldLHS.fieldName s.ref fieldName], val := val } :: fields
           match Lean.isSubobjectField? env s.structName fieldName with
           | some substructName => do
-            /- TODO: we should not update the sources here. See TODO comments at groupFields. -/
-            let substructSource ← mkSubstructSource s.structName fieldName s.source
-            let substruct := Struct.mk s.ref substructName [] substructSource
-            let substruct ← expandStruct substruct
-            addField (FieldVal.nested substruct)
+            let addSubstruct : TermElabM Fields := do
+              let substruct := Struct.mk s.ref substructName [] s.source
+              let substruct ← expandStruct substruct
+              addField (FieldVal.nested substruct)
+            match s.source with
+            | Source.none             => addSubstruct
+            | Source.implicit _       => addSubstruct
+            | Source.explicit sources =>
+              -- If one of the sources has the subobject field, use it
+              if let some val ← sources.findSomeM? fun source => mkProjStx? source.stx source.structName fieldName then
+                addField (FieldVal.term val)
+              else
+                addSubstruct
           | none =>
             match s.source with
             | Source.none         => addField FieldVal.default
             | Source.implicit _   => addField (FieldVal.term (mkHole s.ref))
             | Source.explicit sources =>
-              /- TODO: find the first source that field `fieldName`, and add a path to it here. -/
-              -- stx is of the form `optional (try (sepBy1 termParser ", " >> "with"))`
-              let src := sources[0].stx -- TODO -- add support for multiple sources
-              let val := mkCoreProjStx src fieldName
-              addField (FieldVal.term val)
+              if let some val ← sources.findSomeM? fun source => mkProjStx? source.stx source.structName fieldName then
+                addField (FieldVal.term val)
+              else
+                addField FieldVal.default
       return s.setFields fields.reverse
 
   private partial def expandStruct (s : Struct) : TermElabM Struct := do

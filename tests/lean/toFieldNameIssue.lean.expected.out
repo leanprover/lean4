@@ -1,0 +1,4 @@
+{ toA_1 := { toA := { x := 0 }, y := 1 }, z := 2 } : B
+{ toC := { x := 0, y := 1 }, z := 2 } : D
+def D.toC_1 : D → Boo.C :=
+fun self => { x := self.toC.x, z := self.z }

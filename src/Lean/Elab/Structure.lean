@@ -467,8 +467,15 @@ where
       | none => throwError "failed to copied fields from parent structure{indentExpr parentType}" -- TODO improve error message
     return result
 
-private def mkToParentName (parentStructName : Name) : Name :=
-  Name.mkSimple $ "to" ++ parentStructName.eraseMacroScopes.getString! -- erase macro scopes?
+private partial def mkToParentName (parentStructName : Name) (p : Name → Bool) : Name := do
+  let base := Name.mkSimple $ "to" ++ parentStructName.eraseMacroScopes.getString!
+  if p base then
+    base
+  else
+    let rec go (i : Nat) : Name :=
+      let curr := base.appendIndexAfter i
+      if p curr then curr else go (i+1)
+    go 1
 
 private partial def withParents (view : StructView) (k : Array StructFieldInfo → Array Expr → TermElabM α) : TermElabM α := do
   go 0 #[] #[]
@@ -485,14 +492,12 @@ where
         copyNewFieldsFrom view.declName infos parentType fun infos => go (i+1) infos (copiedParents.push parentType)
         -- TODO: if `class`, then we need to create a let-decl that stores the local instance for the `parentStructure`
       else
-        let toParentName := mkToParentName parentStructName
-        if containsFieldName infos toParentName then
-          throwErrorAt parentStx "field '{toParentName}' has already been declared"
         let env ← getEnv
+        let subfieldNames := getStructureFieldsFlattened env parentStructName
+        let toParentName := mkToParentName parentStructName fun n => !containsFieldName infos n && !subfieldNames.contains n
         let binfo := if view.isClass && isClass env parentStructName then BinderInfo.instImplicit else BinderInfo.default
         withLocalDecl toParentName binfo parentType fun parentFVar =>
           let infos := infos.push { name := toParentName, declName := view.declName ++ toParentName, fvar := parentFVar, kind := StructFieldKind.subobject }
-          let subfieldNames := getStructureFieldsFlattened env parentStructName
           processSubfields view.declName parentFVar parentStructName subfieldNames infos fun infos => go (i+1) infos copiedParents
     else
       k infos copiedParents
@@ -762,9 +767,7 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
           result := mkApp result fieldVal
       return result
     let declVal ← instantiateMVars (← mkLambdaFVars params (← mkLambdaFVars #[source] (← copyFields parentType)))
-    let declName := structName ++ mkToParentName (← getStructureName parentType)
-    if env.contains declName then
-      throwError "failed to create coercion '{declName}' to parent structure '{parentStructName}', environment already contains a declaration with the same name"
+    let declName := structName ++ mkToParentName (← getStructureName parentType) fun n => !env.contains (structName ++ n)
     addAndCompile <| Declaration.defnDecl {
       name        := declName
       levelParams := levelParams

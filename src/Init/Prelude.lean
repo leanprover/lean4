@@ -429,8 +429,8 @@ class Div (α : Type u) where
 class Mod (α : Type u) where
   mod : α → α → α
 
-class Pow (α : Type u) where
-  pow : α → α → α
+class Pow (α : Type u) (β : Type v) where
+  pow : α → β → α
 
 class Append (α : Type u) where
   append : α → α → α
@@ -480,7 +480,7 @@ instance [Mod α] : HMod α α α where
   hMod a b := Mod.mod a b
 
 @[defaultInstance]
-instance [Pow α] : HPow α α α where
+instance [Pow α β] : HPow α β α where
   hPow a b := Pow.pow a b
 
 @[defaultInstance]
@@ -548,7 +548,7 @@ protected def Nat.pow (m : @& Nat) : (@& Nat) → Nat
   | 0      => 1
   | succ n => Nat.mul (Nat.pow m n) m
 
-instance : Pow Nat where
+instance : Pow Nat Nat where
   pow := Nat.pow
 
 set_option bootstrap.genMatcherCode false in

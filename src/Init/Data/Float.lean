@@ -115,6 +115,6 @@ abbrev Nat.toFloat (n : Nat) : Float :=
 @[extern "sqrt"] constant Float.sqrt : Float → Float
 @[extern "cbrt"] constant Float.cbrt : Float → Float
 
-instance : Pow Float := ⟨Float.pow⟩
+instance : Pow Float Float := ⟨Float.pow⟩
 
 @[extern "lean_float_of_scientific"] constant Float.ofScientific (m : Nat) (s : Bool) (e : Nat) : Float

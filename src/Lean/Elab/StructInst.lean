@@ -453,8 +453,23 @@ private def getFieldIdx (structName : Name) (fieldNames : Array Name) (fieldName
   | some idx => pure idx
   | none     => throwError "field '{fieldName}' is not a valid field of '{structName}'"
 
-private def mkProjStx (s : Syntax) (fieldName : Name) : Syntax :=
+private def mkCoreProjStx (s : Syntax) (fieldName : Name) : Syntax :=
   Syntax.node ``Lean.Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
+
+def mkProjStx? (s : Syntax) (structName : Name) (fieldName : Name) : TermElabM (Option Syntax) := do
+  let ref := s
+  let mut s := s
+  let env ← getEnv
+  let some baseStructName ← findField? env structName fieldName | return none
+  let some path ← getPathToBaseStructure? env baseStructName structName | return none
+  for projFn in path do
+    s ← mkProjFnApp projFn s
+  let some projFn ← getProjFnForField? env baseStructName fieldName | return none
+  mkProjFnApp projFn s
+where
+  mkProjFnApp (projFn : Name) (s : Syntax) : TermElabM Syntax :=
+    let p := mkIdentFrom s projFn
+    `($p (self := $s))
 
 -- TODO: delete
 private def mkSubstructSource (structName : Name) (fieldName : Name) (src : Source) : TermElabM Source :=
@@ -462,7 +477,7 @@ private def mkSubstructSource (structName : Name) (fieldName : Name) (src : Sour
   | Source.explicit sources => do
     -- Remark: we are not updating the source `structName` here. It is fine for now since the
     -- updated value will only be used after we delete this code.
-    let sources := sources.map fun source => { source with stx := mkProjStx source.stx fieldName }
+    let sources := sources.map fun source => { source with stx := mkCoreProjStx source.stx fieldName }
     return Source.explicit sources
   | s => return s
 
@@ -530,7 +545,7 @@ mutual
               /- TODO: find the first source that field `fieldName`, and add a path to it here. -/
               -- stx is of the form `optional (try (sepBy1 termParser ", " >> "with"))`
               let src := sources[0].stx -- TODO -- add support for multiple sources
-              let val := mkProjStx src fieldName
+              let val := mkCoreProjStx src fieldName
               addField (FieldVal.term val)
       return s.setFields fields.reverse
 

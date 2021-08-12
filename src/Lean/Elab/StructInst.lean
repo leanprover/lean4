@@ -197,9 +197,12 @@ private def elabModifyOp (stx modifyOp : Syntax) (sources : Array ExplicitSource
   Otherwise, we use the type of the first source. -/
 private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceView : Source) : TermElabM Name := do
   tryPostponeIfNoneOrMVar expectedType?
-  let useSource : Unit → TermElabM Name := fun _ =>
+  let useSource : Unit → TermElabM Name := fun _ => do
     match sourceView, expectedType? with
-    | Source.explicit sources, _ => return sources[0].structName
+    | Source.explicit sources, _ =>
+      if sources.size > 1 then
+        throwErrorAt sources[1].stx "invalid \{...} notation, expected type is not known, using the type of the first source, extra sources are not needed"
+      return sources[0].structName
     | _, some expectedType => throwUnexpectedExpectedType expectedType
     | _, none              => throwUnknownExpectedType
   match expectedType? with

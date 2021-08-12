@@ -1,0 +1,2 @@
+structInst1.lean:12:11-12:19: error: field 'toA' has already beed specified
+structInst1.lean:36:7-36:8: error: invalid {...} notation, expected type is not known, using the type of the first source, extra sources are not needed

@@ -139,7 +139,7 @@ jobs:
       - name: Test
         run: |
           cd build/stage1
-          ctest -j4 --output-on-failure < /dev/null
+          ctest -j4 --output-on-failure --timeout 300 < /dev/null
       - name: Build Stage 2
         run: |
           cd build

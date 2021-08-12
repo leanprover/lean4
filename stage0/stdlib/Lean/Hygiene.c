@@ -20,13 +20,13 @@ lean_object* l_Lean_NameSanitizerState_userName2Sanitized___default;
 static lean_object* l_Lean_getSanitizeNames___closed__4;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
+static lean_object* l_Lean_initFn____x40_Lean_Hygiene___hyg_273____closed__1;
 lean_object* l_ReaderT_read___at_Lean_Unhygienic_instMonadQuotationUnhygienic___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserName(uint8_t, lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_Hygiene___hyg_271____closed__1;
 uint8_t l_Lean_getSanitizeNames(lean_object*);
 lean_object* l_Lean_sanitizeName(lean_object*, lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_Hygiene___hyg_271____closed__2;
+static lean_object* l_Lean_initFn____x40_Lean_Hygiene___hyg_273____closed__2;
 lean_object* l_Lean_mkIdentFrom(lean_object*, lean_object*);
 static lean_object* l_Lean_Unhygienic_instMonadQuotationUnhygienic___closed__11;
 lean_object* lean_array_get_size(lean_object*);
@@ -58,12 +58,12 @@ lean_object* l_Std_RBNode_find___at_Lean_sanitizeName___spec__1(lean_object*, le
 lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Unhygienic_instMonadQuotationUnhygienic___closed__10;
 static lean_object* l_Lean_Unhygienic_instMonadQuotationUnhygienic___closed__8;
-lean_object* l_Lean_initFn____x40_Lean_Hygiene___hyg_271_(lean_object*);
+lean_object* l_Lean_initFn____x40_Lean_Hygiene___hyg_273_(lean_object*);
 lean_object* l___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_sanitizeName___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_toSuperscriptString(lean_object*);
 static lean_object* l_Lean_Unhygienic_instMonadQuotationUnhygienic___closed__4;
-static lean_object* l_Lean_initFn____x40_Lean_Hygiene___hyg_271____closed__3;
+static lean_object* l_Lean_initFn____x40_Lean_Hygiene___hyg_273____closed__3;
 lean_object* l_Std_RBNode_find___at___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux___spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_Unhygienic_instMonadQuotationUnhygienic___closed__7;
 extern lean_object* l_Lean_firstFrontendMacroScope;
@@ -758,7 +758,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_271____closed__1() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_273____closed__1() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; 
@@ -768,7 +768,7 @@ lean_ctor_set_uint8(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_271____closed__2() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_273____closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -776,13 +776,13 @@ x_1 = lean_mk_string("add suffix '_{<idx>}' to shadowed/inaccessible variables w
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_271____closed__3() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_273____closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_initFn____x40_Lean_Hygiene___hyg_271____closed__1;
+x_1 = l_Lean_initFn____x40_Lean_Hygiene___hyg_273____closed__1;
 x_2 = l_Lean_getSanitizeNames___closed__1;
-x_3 = l_Lean_initFn____x40_Lean_Hygiene___hyg_271____closed__2;
+x_3 = l_Lean_initFn____x40_Lean_Hygiene___hyg_273____closed__2;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -790,12 +790,12 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-lean_object* l_Lean_initFn____x40_Lean_Hygiene___hyg_271_(lean_object* x_1) {
+lean_object* l_Lean_initFn____x40_Lean_Hygiene___hyg_273_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_getSanitizeNames___closed__4;
-x_3 = l_Lean_initFn____x40_Lean_Hygiene___hyg_271____closed__3;
+x_3 = l_Lean_initFn____x40_Lean_Hygiene___hyg_273____closed__3;
 x_4 = lean_register_option(x_2, x_3, x_1);
 return x_4;
 }
@@ -1567,13 +1567,13 @@ l_Lean_getSanitizeNames___closed__3 = _init_l_Lean_getSanitizeNames___closed__3(
 lean_mark_persistent(l_Lean_getSanitizeNames___closed__3);
 l_Lean_getSanitizeNames___closed__4 = _init_l_Lean_getSanitizeNames___closed__4();
 lean_mark_persistent(l_Lean_getSanitizeNames___closed__4);
-l_Lean_initFn____x40_Lean_Hygiene___hyg_271____closed__1 = _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_271____closed__1();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_Hygiene___hyg_271____closed__1);
-l_Lean_initFn____x40_Lean_Hygiene___hyg_271____closed__2 = _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_271____closed__2();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_Hygiene___hyg_271____closed__2);
-l_Lean_initFn____x40_Lean_Hygiene___hyg_271____closed__3 = _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_271____closed__3();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_Hygiene___hyg_271____closed__3);
-res = l_Lean_initFn____x40_Lean_Hygiene___hyg_271_(lean_io_mk_world());
+l_Lean_initFn____x40_Lean_Hygiene___hyg_273____closed__1 = _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_273____closed__1();
+lean_mark_persistent(l_Lean_initFn____x40_Lean_Hygiene___hyg_273____closed__1);
+l_Lean_initFn____x40_Lean_Hygiene___hyg_273____closed__2 = _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_273____closed__2();
+lean_mark_persistent(l_Lean_initFn____x40_Lean_Hygiene___hyg_273____closed__2);
+l_Lean_initFn____x40_Lean_Hygiene___hyg_273____closed__3 = _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_273____closed__3();
+lean_mark_persistent(l_Lean_initFn____x40_Lean_Hygiene___hyg_273____closed__3);
+res = l_Lean_initFn____x40_Lean_Hygiene___hyg_273_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_NameSanitizerState_nameStem2Idx___default = _init_l_Lean_NameSanitizerState_nameStem2Idx___default();

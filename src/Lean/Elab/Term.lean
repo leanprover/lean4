@@ -181,7 +181,7 @@ abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
 
 -- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
 -- whole monad stack at every use site. May eventually be covered by `deriving`.
-instance : Monad TermElabM := { inferInstanceAs (Monad TermElabM) with }
+instance : Monad TermElabM := let i := inferInstanceAs (Monad TermElabM); { pure := i.pure, bind := i.bind }
 
 open Meta
 

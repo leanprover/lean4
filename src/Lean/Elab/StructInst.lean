@@ -84,7 +84,7 @@ where
 inductive Source where
   | none     -- structure instance source has not been provieded
   | implicit (stx : Syntax) -- `..`
-  | explicit (stx : Syntax) (srcs : Array Expr) -- `srcs[0], srcs[1], ... with`
+  | explicit (stx : Syntax) -- `s₁ ... sₙ with`
   deriving Inhabited
 
 def Source.isNone : Source → Bool
@@ -92,9 +92,9 @@ def Source.isNone : Source → Bool
   | _           => false
 
 def setStructSourceSyntax (structStx : Syntax) : Source → Syntax
-  | Source.none           => (structStx.setArg 1 mkNullNode).setArg 3 mkNullNode
-  | Source.implicit stx   => (structStx.setArg 1 mkNullNode).setArg 3 stx
-  | Source.explicit stx _ => (structStx.setArg 1 stx).setArg 3 mkNullNode
+  | Source.none         => (structStx.setArg 1 mkNullNode).setArg 3 mkNullNode
+  | Source.implicit stx => (structStx.setArg 1 mkNullNode).setArg 3 stx
+  | Source.explicit stx => (structStx.setArg 1 stx).setArg 3 mkNullNode
 
 private def getStructSource (structStx : Syntax) : TermElabM Source :=
   withRef structStx do
@@ -105,9 +105,7 @@ private def getStructSource (structStx : Syntax) : TermElabM Source :=
     else if explicitSource.isNone then
       return Source.implicit implicitSource
     else if implicitSource[0].isNone then
-      let srcs ← explicitSource[0].getSepArgs.mapM fun src => do
-         if let some fvar ← isLocalIdent? src then fvar else unreachable!
-      return Source.explicit explicitSource srcs
+      return Source.explicit explicitSource
     else
       throwError "invalid structure instance `with` and `..` cannot be used together"
 
@@ -189,8 +187,9 @@ private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceVi
   tryPostponeIfNoneOrMVar expectedType?
   let useSource : Unit → TermElabM (Name × Expr) := fun _ =>
     match sourceView, expectedType? with
-    | Source.explicit _ srcs, _ => do
-      let srcType ← inferType srcs[0]
+    | Source.explicit sourcesStx, _ => do
+      let some src ← isLocalIdent? sourcesStx[0][0] | unreachable!
+      let srcType ← inferType src
       let srcType ← whnf srcType
       tryPostponeIfMVar srcType
       match srcType.getAppFn with
@@ -280,9 +279,9 @@ partial def formatStruct : Struct → Format
   | ⟨_, structName, fields, source⟩ =>
     let fieldsFmt := Format.joinSep (fields.map (formatField formatStruct)) ", "
     match source with
-    | Source.none           => "{" ++ fieldsFmt ++ "}"
-    | Source.implicit _     => "{" ++ fieldsFmt ++ " .. }"
-    | Source.explicit _ src => "{" ++ format src ++ " with " ++ fieldsFmt ++ "}"
+    | Source.none         => "{" ++ fieldsFmt ++ "}"
+    | Source.implicit _   => "{" ++ fieldsFmt ++ " .. }"
+    | Source.explicit stx => "{" ++ format stx ++ " with " ++ fieldsFmt ++ "}"
 
 instance : ToFormat Struct     := ⟨formatStruct⟩
 instance : ToString Struct := ⟨toString ∘ format⟩
@@ -442,13 +441,12 @@ private def getFieldIdx (structName : Name) (fieldNames : Array Name) (fieldName
 private def mkProjStx (s : Syntax) (fieldName : Name) : Syntax :=
   Syntax.node ``Lean.Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
 
-private def mkSubstructSource (structName : Name) (fieldNames : Array Name) (fieldName : Name) (src : Source) : TermElabM Source :=
+private def mkSubstructSource (structName : Name) (fieldName : Name) (src : Source) : TermElabM Source :=
   match src with
-  | Source.explicit stx srcs => do
+  | Source.explicit stx => do
     -- TODO: handle multiple sources
-    let idx ← getFieldIdx structName fieldNames fieldName
     let stx := stx.modifyArg 0 fun stx => stx.modifyArg 0 fun stx => mkProjStx stx fieldName
-    return Source.explicit stx #[mkProj structName idx srcs[0]]
+    return Source.explicit stx
   | s => return s
 
 def findField? (fields : Fields) (fieldName : Name) : Option (Field Struct) :=
@@ -471,7 +469,7 @@ mutual
         | none =>
           let substructFields := fields.map fun field => { field with lhs := field.lhs.tail! }
           /- TODO: we should remove this line. -/
-          let substructSource ← mkSubstructSource s.structName fieldNames fieldName s.source
+          let substructSource ← mkSubstructSource s.structName fieldName s.source
           let field := fields.head!
           match Lean.isSubobjectField? env s.structName fieldName with
           | some substructName =>
@@ -503,15 +501,15 @@ mutual
           match Lean.isSubobjectField? env s.structName fieldName with
           | some substructName => do
             /- TODO: we should not update the sources here. See TODO comments at groupFields. -/
-            let substructSource ← mkSubstructSource s.structName fieldNames fieldName s.source
+            let substructSource ← mkSubstructSource s.structName fieldName s.source
             let substruct := Struct.mk s.ref substructName [] substructSource
             let substruct ← expandStruct substruct
             addField (FieldVal.nested substruct)
           | none =>
             match s.source with
-            | Source.none           => addField FieldVal.default
-            | Source.implicit _     => addField (FieldVal.term (mkHole s.ref))
-            | Source.explicit stx _ =>
+            | Source.none         => addField FieldVal.default
+            | Source.implicit _   => addField (FieldVal.term (mkHole s.ref))
+            | Source.explicit stx =>
               /- TODO: find the first source that field `fieldName`, and add a path to it here. -/
               -- stx is of the form `optional (try (sepBy1 termParser ", " >> "with"))`
               let src := stx[0][0] -- TODO -- add support for multiple sources
@@ -849,9 +847,9 @@ private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sour
   | none =>
     let sourceView ← getStructSource stx
     match (← isModifyOp? stx), sourceView with
-    | some modifyOp, Source.explicit source _ => elabModifyOp stx modifyOp source expectedType?
-    | some _,        _                        => throwError "invalid \{...} notation, explicit source is required when using '[<index>] := <value>'"
-    | _,             _                        => elabStructInstAux stx expectedType? sourceView
+    | some modifyOp, Source.explicit source => elabModifyOp stx modifyOp source expectedType?
+    | some _,        _                      => throwError "invalid \{...} notation, explicit source is required when using '[<index>] := <value>'"
+    | _,             _                      => elabStructInstAux stx expectedType? sourceView
 
 builtin_initialize registerTraceClass `Elab.struct
 

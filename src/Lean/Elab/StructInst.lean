@@ -470,6 +470,7 @@ mutual
         | some field => pure field
         | none =>
           let substructFields := fields.map fun field => { field with lhs := field.lhs.tail! }
+          /- TODO: we should remove this line. -/
           let substructSource ← mkSubstructSource s.structName fieldNames fieldName s.source
           let field := fields.head!
           match Lean.isSubobjectField? env s.structName fieldName with
@@ -478,6 +479,8 @@ mutual
             let substruct ← expandStruct substruct
             pure { field with lhs := [field.lhs.head!], val := FieldVal.nested substruct }
           | none => do
+            /- TODO: we should test here which sources have a field called `fieldName` and update them with the path to this field.
+               Sources that do not have them should be erased from the list. -/
             -- It is not a substructure field. Thus, we wrap fields using `Syntax`, and use `elabTerm` to process them.
             let valStx := s.ref -- construct substructure syntax using s.ref as template
             let valStx := valStx.setArg 4 mkNullNode -- erase optional expected type
@@ -499,6 +502,7 @@ mutual
             return { ref := s.ref, lhs := [FieldLHS.fieldName s.ref fieldName], val := val } :: fields
           match Lean.isSubobjectField? env s.structName fieldName with
           | some substructName => do
+            /- TODO: we should not update the sources here. See TODO comments at groupFields. -/
             let substructSource ← mkSubstructSource s.structName fieldNames fieldName s.source
             let substruct := Struct.mk s.ref substructName [] substructSource
             let substruct ← expandStruct substruct
@@ -508,6 +512,7 @@ mutual
             | Source.none           => addField FieldVal.default
             | Source.implicit _     => addField (FieldVal.term (mkHole s.ref))
             | Source.explicit stx _ =>
+              /- TODO: find the first source that field `fieldName`, and add a path to it here. -/
               -- stx is of the form `optional (try (sepBy1 termParser ", " >> "with"))`
               let src := stx[0][0] -- TODO -- add support for multiple sources
               let val := mkProjStx src fieldName

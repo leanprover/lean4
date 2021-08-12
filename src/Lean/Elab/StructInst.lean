@@ -449,23 +449,10 @@ private def getFieldIdx (structName : Name) (fieldNames : Array Name) (fieldName
   | some idx => pure idx
   | none     => throwError "field '{fieldName}' is not a valid field of '{structName}'"
 
-private def mkCoreProjStx (s : Syntax) (fieldName : Name) : Syntax :=
-  Syntax.node ``Lean.Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
-
 def mkProjStx? (s : Syntax) (structName : Name) (fieldName : Name) : TermElabM (Option Syntax) := do
-  let ref := s
-  let mut s := s
-  let env ← getEnv
-  let some baseStructName ← findField? env structName fieldName | return none
-  let some path ← getPathToBaseStructure? env baseStructName structName | return none
-  for projFn in path do
-    s ← mkProjFnApp projFn s
-  let some projFn ← getProjFnForField? env baseStructName fieldName | return none
-  mkProjFnApp projFn s
-where
-  mkProjFnApp (projFn : Name) (s : Syntax) : TermElabM Syntax :=
-    let p := mkIdentFrom s projFn
-    `($p (self := $s))
+  if (← findField? (← getEnv) structName fieldName).isNone then
+    return none
+  return some $ Syntax.node ``Lean.Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
 
 def findField? (fields : Fields) (fieldName : Name) : Option (Field Struct) :=
   fields.find? fun field =>

@@ -86,6 +86,7 @@ lean_object* l_Lean_Core_instMonadRefCoreM___lambda__1___boxed(lean_object*, lea
 static lean_object* l_Lean_Core_State_traceState___default___closed__1;
 static lean_object* l_Lean_Core_instMonadCoreM___closed__1;
 lean_object* l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_218____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Core_instMonadResolveNameCoreM___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Core_State_traceState___default___closed__4;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -105,7 +106,6 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Core_Context_openDecls___default;
 static lean_object* l_Lean_Core_instMonadResolveNameCoreM___closed__3;
 lean_object* l_Lean_Core_instMonadRefCoreM;
-lean_object* l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_225____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Core_instMonadRecDepthCoreM___lambda__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Core_checkMaxHeartbeatsCore___closed__2;
 lean_object* l_Lean_Core_withIncRecDepth(lean_object*, lean_object*);
@@ -328,7 +328,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Core_maxHeartbeats;
-x_3 = l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_225____spec__1(x_1, x_2);
+x_3 = l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_218____spec__1(x_1, x_2);
 x_4 = lean_unsigned_to_nat(1000u);
 x_5 = lean_nat_mul(x_3, x_4);
 lean_dec(x_3);
@@ -3802,7 +3802,7 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 x_29 = l_Lean_maxRecDepth;
-x_30 = l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_225____spec__1(x_3, x_29);
+x_30 = l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_218____spec__1(x_3, x_29);
 x_31 = lean_box(0);
 x_32 = l_Lean_Core_getMaxHeartbeats(x_3);
 x_33 = l_Lean_Core_State_nextMacroScope___default___closed__1;

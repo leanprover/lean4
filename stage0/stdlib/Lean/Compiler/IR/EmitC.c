@@ -129,7 +129,6 @@ lean_object* l_Lean_expandExternPattern(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitDel(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitFullApp_match__1(lean_object*);
 extern lean_object* l_Lean_closureMaxArgs;
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_IR_IRType_isIrrelevant(lean_object*);
 lean_object* l_Lean_IR_EmitC_emitMarkPersistent(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -516,6 +515,7 @@ static lean_object* l_Lean_IR_EmitC_emitTailCall___closed__2;
 lean_object* l_Lean_IR_EmitC_emitBlock(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constName_x3f(lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitSSet___closed__3;
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitBoxFn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_isTailCall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_throwInvalidExportName___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -3438,7 +3438,7 @@ lean_dec(x_26);
 x_28 = l_Lean_Expr_constName_x3f(x_27);
 lean_dec(x_27);
 x_29 = l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__4;
-x_30 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_IR_IRType_beq___spec__1(x_28, x_29);
+x_30 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_IR_IRType_beq___spec__1(x_28, x_29);
 lean_dec(x_28);
 if (x_30 == 0)
 {

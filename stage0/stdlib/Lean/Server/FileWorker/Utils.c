@@ -21,7 +21,7 @@ lean_object* l_Std_PersistentHashMap_containsAtAux___at_Lean_Server_FileWorker_R
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* l_Lean_Server_FileWorker_RpcSessionState_release(lean_object*, size_t);
 static lean_object* l_Lean_Server_FileWorker_logSnapContent___closed__2;
-uint64_t l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_hashRpcRef____x40_Lean_Data_Lsp_Extra___hyg_724_(size_t);
+uint64_t l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_hashRpcRef____x40_Lean_Data_Lsp_Extra___hyg_717_(size_t);
 static size_t l_Std_PersistentHashMap_containsAux___at_Lean_Server_FileWorker_RpcSessionState_release___spec__2___closed__2;
 size_t l_USize_sub(size_t, size_t);
 static lean_object* l_Lean_Server_FileWorker_logSnapContent___closed__1;
@@ -773,7 +773,7 @@ lean_object* x_3; uint64_t x_4; size_t x_5; uint8_t x_6;
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 lean_dec(x_1);
-x_4 = l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_hashRpcRef____x40_Lean_Data_Lsp_Extra___hyg_724_(x_2);
+x_4 = l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_hashRpcRef____x40_Lean_Data_Lsp_Extra___hyg_717_(x_2);
 x_5 = (size_t)x_4;
 x_6 = l_Std_PersistentHashMap_containsAux___at_Lean_Server_FileWorker_RpcSessionState_release___spec__2(x_3, x_5, x_2);
 return x_6;

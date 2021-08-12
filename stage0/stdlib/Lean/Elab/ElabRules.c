@@ -244,6 +244,7 @@ static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__1
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__85;
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__16;
+lean_object* l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_6404____spec__3(size_t, size_t, lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_inferMacroRulesAltKind___spec__2___rarg(lean_object*);
 lean_object* l_Lean_mkIdentFromRef___at_Lean_Elab_Command_elabElabRulesAux___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__124;
@@ -274,7 +275,6 @@ static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabElabRulesA
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__125;
 lean_object* l_Lean_Elab_Command_elabElabRules___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandElab___lambda__1___closed__9;
-lean_object* l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_5894____spec__3(size_t, size_t, lean_object*);
 lean_object* l_Lean_Elab_Command_expandElab___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__3;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
@@ -6546,7 +6546,7 @@ x_83 = lean_array_get_size(x_8);
 x_84 = lean_usize_of_nat(x_83);
 lean_dec(x_83);
 x_85 = x_8;
-x_86 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_5894____spec__3(x_84, x_3, x_85);
+x_86 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_6404____spec__3(x_84, x_3, x_85);
 x_87 = x_86;
 x_88 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabElabRulesAux___spec__3___lambda__2___closed__4;
 x_89 = l_Array_append___rarg(x_88, x_87);

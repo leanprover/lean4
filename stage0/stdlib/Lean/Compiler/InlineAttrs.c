@@ -80,7 +80,7 @@ static lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_Compil
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_59____closed__8;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_139_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_137_(uint8_t, uint8_t);
 lean_object* l_Lean_PersistentEnvExtension_getState___at___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrAux___spec__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_inlineAttrs___closed__8;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_59____closed__15;
@@ -1277,7 +1277,7 @@ x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
 lean_dec(x_11);
 x_13 = 0;
-x_14 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_139_(x_7, x_13);
+x_14 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_137_(x_7, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 

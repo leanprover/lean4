@@ -28,7 +28,6 @@ lean_object* l_Lean_Parser_Trie_instInhabitedTrie(lean_object*);
 static lean_object* l_Lean_Parser_Module_module_formatter___closed__1;
 static lean_object* l_Lean_Parser_Module_header___elambda__1___closed__5;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Parser_testParseModuleAux_parse___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Module_updateTokens___closed__2;
 lean_object* l_Lean_Parser_andthenInfo(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Module_header___elambda__1___closed__15;
@@ -128,6 +127,7 @@ lean_object* l_Lean_Parser_leadingNode_formatter___boxed(lean_object*, lean_obje
 uint8_t l_Lean_Parser_ModuleParserState_recovering___default;
 lean_object* l_Lean_Parser_Module_prelude_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Module_prelude___closed__7;
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Module_import_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_many_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Parser_testParseModuleAux_parse___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -532,7 +532,7 @@ x_8 = l_Lean_Parser_Module_prelude___elambda__1___lambda__2___closed__5;
 x_9 = l_Lean_Parser_checkNoWsBeforeFn(x_8, x_2, x_1);
 x_10 = lean_ctor_get(x_9, 4);
 lean_inc(x_10);
-x_11 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_10, x_3);
+x_11 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_10, x_3);
 lean_dec(x_10);
 if (x_11 == 0)
 {
@@ -549,7 +549,7 @@ lean_inc(x_2);
 x_21 = l_Lean_Parser_symbolFnAux(x_19, x_20, x_2, x_9);
 x_22 = lean_ctor_get(x_21, 4);
 lean_inc(x_22);
-x_23 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_22, x_3);
+x_23 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_22, x_3);
 lean_dec(x_22);
 if (x_23 == 0)
 {
@@ -566,7 +566,7 @@ lean_inc(x_2);
 x_26 = l_Lean_Parser_symbolFnAux(x_24, x_25, x_2, x_21);
 x_27 = lean_ctor_get(x_26, 4);
 lean_inc(x_27);
-x_28 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_27, x_3);
+x_28 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_27, x_3);
 lean_dec(x_27);
 if (x_28 == 0)
 {
@@ -580,7 +580,7 @@ lean_object* x_29; lean_object* x_30; uint8_t x_31;
 x_29 = l_Lean_Parser_checkNoWsBeforeFn(x_8, x_2, x_26);
 x_30 = lean_ctor_get(x_29, 4);
 lean_inc(x_30);
-x_31 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_30, x_3);
+x_31 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_30, x_3);
 lean_dec(x_30);
 if (x_31 == 0)
 {
@@ -606,7 +606,7 @@ block_18:
 lean_object* x_13; uint8_t x_14; 
 x_13 = lean_ctor_get(x_12, 4);
 lean_inc(x_13);
-x_14 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_13, x_3);
+x_14 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_13, x_3);
 lean_dec(x_3);
 lean_dec(x_13);
 if (x_14 == 0)
@@ -845,7 +845,7 @@ x_7 = l_Lean_Parser_checkPrecFn(x_6, x_1, x_2);
 x_8 = lean_ctor_get(x_7, 4);
 lean_inc(x_8);
 x_9 = lean_box(0);
-x_10 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_8, x_9);
+x_10 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_8, x_9);
 lean_dec(x_8);
 if (x_10 == 0)
 {
@@ -865,7 +865,7 @@ lean_inc(x_1);
 x_15 = l_Lean_Parser_symbolFnAux(x_13, x_14, x_1, x_7);
 x_16 = lean_ctor_get(x_15, 4);
 lean_inc(x_16);
-x_17 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_16, x_9);
+x_17 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_16, x_9);
 lean_dec(x_16);
 if (x_17 == 0)
 {
@@ -874,7 +874,7 @@ x_18 = l_Lean_Parser_Module_prelude___elambda__1___closed__8;
 x_19 = l_Lean_Parser_ParserState_mkNode(x_15, x_18, x_12);
 x_20 = lean_ctor_get(x_19, 4);
 lean_inc(x_20);
-x_21 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_20, x_9);
+x_21 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_20, x_9);
 lean_dec(x_20);
 if (x_21 == 0)
 {
@@ -907,7 +907,7 @@ x_28 = l_Lean_Parser_Module_prelude___elambda__1___closed__8;
 x_29 = l_Lean_Parser_ParserState_mkNode(x_27, x_28, x_12);
 x_30 = lean_ctor_get(x_29, 4);
 lean_inc(x_30);
-x_31 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_30, x_9);
+x_31 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_30, x_9);
 lean_dec(x_30);
 if (x_31 == 0)
 {
@@ -929,7 +929,7 @@ x_33 = l_Lean_Parser_Module_prelude___elambda__1___closed__8;
 x_34 = l_Lean_Parser_ParserState_mkNode(x_15, x_33, x_12);
 x_35 = lean_ctor_get(x_34, 4);
 lean_inc(x_35);
-x_36 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_35, x_9);
+x_36 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_35, x_9);
 lean_dec(x_35);
 if (x_36 == 0)
 {
@@ -1310,7 +1310,7 @@ x_9 = l_Lean_Parser_checkPrecFn(x_8, x_1, x_2);
 x_10 = lean_ctor_get(x_9, 4);
 lean_inc(x_10);
 x_11 = lean_box(0);
-x_12 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_10, x_11);
+x_12 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_10, x_11);
 lean_dec(x_10);
 if (x_12 == 0)
 {
@@ -1331,7 +1331,7 @@ lean_inc(x_1);
 x_17 = l_Lean_Parser_symbolFnAux(x_15, x_16, x_1, x_9);
 x_18 = lean_ctor_get(x_17, 4);
 lean_inc(x_18);
-x_19 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_18, x_11);
+x_19 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_18, x_11);
 lean_dec(x_18);
 if (x_19 == 0)
 {
@@ -1366,7 +1366,7 @@ block_42:
 lean_object* x_21; uint8_t x_22; 
 x_21 = lean_ctor_get(x_20, 4);
 lean_inc(x_21);
-x_22 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_21, x_11);
+x_22 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_21, x_11);
 lean_dec(x_21);
 if (x_22 == 0)
 {
@@ -1376,7 +1376,7 @@ x_23 = l_Lean_Parser_Module_import___elambda__1___closed__2;
 x_24 = l_Lean_Parser_ParserState_mkNode(x_20, x_23, x_14);
 x_25 = lean_ctor_get(x_24, 4);
 lean_inc(x_25);
-x_26 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_25, x_11);
+x_26 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_25, x_11);
 lean_dec(x_25);
 if (x_26 == 0)
 {
@@ -1398,7 +1398,7 @@ lean_inc(x_1);
 x_28 = lean_apply_2(x_4, x_1, x_20);
 x_29 = lean_ctor_get(x_28, 4);
 lean_inc(x_29);
-x_30 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_29, x_11);
+x_30 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_29, x_11);
 lean_dec(x_29);
 if (x_30 == 0)
 {
@@ -1407,7 +1407,7 @@ x_31 = l_Lean_Parser_Module_import___elambda__1___closed__2;
 x_32 = l_Lean_Parser_ParserState_mkNode(x_28, x_31, x_14);
 x_33 = lean_ctor_get(x_32, 4);
 lean_inc(x_33);
-x_34 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_33, x_11);
+x_34 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_33, x_11);
 lean_dec(x_33);
 if (x_34 == 0)
 {
@@ -1431,7 +1431,7 @@ x_37 = l_Lean_Parser_Module_import___elambda__1___closed__2;
 x_38 = l_Lean_Parser_ParserState_mkNode(x_36, x_37, x_14);
 x_39 = lean_ctor_get(x_38, 4);
 lean_inc(x_39);
-x_40 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_39, x_11);
+x_40 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_39, x_11);
 lean_dec(x_39);
 if (x_40 == 0)
 {
@@ -1797,7 +1797,7 @@ x_11 = l_Lean_Parser_checkPrecFn(x_10, x_1, x_2);
 x_12 = lean_ctor_get(x_11, 4);
 lean_inc(x_12);
 x_13 = lean_box(0);
-x_14 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_12, x_13);
+x_14 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_12, x_13);
 lean_dec(x_12);
 if (x_14 == 0)
 {
@@ -1817,7 +1817,7 @@ lean_inc(x_1);
 x_17 = lean_apply_2(x_6, x_1, x_11);
 x_18 = lean_ctor_get(x_17, 4);
 lean_inc(x_18);
-x_19 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_18, x_13);
+x_19 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_18, x_13);
 lean_dec(x_18);
 if (x_19 == 0)
 {
@@ -1827,7 +1827,7 @@ x_20 = l_Lean_Parser_Module_header___elambda__1___closed__2;
 x_21 = l_Lean_Parser_ParserState_mkNode(x_17, x_20, x_16);
 x_22 = lean_ctor_get(x_21, 4);
 lean_inc(x_22);
-x_23 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_22, x_13);
+x_23 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_22, x_13);
 lean_dec(x_22);
 if (x_23 == 0)
 {
@@ -1851,7 +1851,7 @@ x_26 = l_Lean_Parser_Module_header___elambda__1___closed__2;
 x_27 = l_Lean_Parser_ParserState_mkNode(x_25, x_26, x_16);
 x_28 = lean_ctor_get(x_27, 4);
 lean_inc(x_28);
-x_29 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_28, x_13);
+x_29 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_28, x_13);
 lean_dec(x_28);
 if (x_29 == 0)
 {
@@ -2964,7 +2964,7 @@ x_9 = l_Lean_Parser_checkPrecFn(x_8, x_1, x_2);
 x_10 = lean_ctor_get(x_9, 4);
 lean_inc(x_10);
 x_11 = lean_box(0);
-x_12 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_10, x_11);
+x_12 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_10, x_11);
 lean_dec(x_10);
 if (x_12 == 0)
 {
@@ -2983,7 +2983,7 @@ lean_inc(x_1);
 x_15 = l_Lean_Parser_Module_header___elambda__1(x_1, x_9);
 x_16 = lean_ctor_get(x_15, 4);
 lean_inc(x_16);
-x_17 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_16, x_11);
+x_17 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_16, x_11);
 lean_dec(x_16);
 if (x_17 == 0)
 {
@@ -2993,7 +2993,7 @@ x_18 = l_Lean_Parser_Module_module_formatter___closed__2;
 x_19 = l_Lean_Parser_ParserState_mkNode(x_15, x_18, x_14);
 x_20 = lean_ctor_get(x_19, 4);
 lean_inc(x_20);
-x_21 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_20, x_11);
+x_21 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_20, x_11);
 lean_dec(x_20);
 if (x_21 == 0)
 {
@@ -3017,7 +3017,7 @@ x_24 = l_Lean_Parser_Module_module_formatter___closed__2;
 x_25 = l_Lean_Parser_ParserState_mkNode(x_23, x_24, x_14);
 x_26 = lean_ctor_get(x_25, 4);
 lean_inc(x_26);
-x_27 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_674____at_Lean_Parser_ParserState_hasError___spec__1(x_26, x_11);
+x_27 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_672____at_Lean_Parser_ParserState_hasError___spec__1(x_26, x_11);
 lean_dec(x_26);
 if (x_27 == 0)
 {

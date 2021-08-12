@@ -63,6 +63,8 @@ partial def toPosition (fmap : FileMap) (pos : String.Pos) : Position :=
           else if pos > posM then loop m e
           else loop b m
       loop 0 (ps.size -1)
+    else if lines.isEmpty then
+      ⟨0, 0⟩
     else
       -- Some systems like the delaborator use synthetic positions without an input file,
       -- which would violate `toPositionAux`'s invariant.

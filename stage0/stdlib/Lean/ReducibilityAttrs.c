@@ -85,7 +85,7 @@ static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_getRed
 static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____closed__6;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_139_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_137_(uint8_t, uint8_t);
 lean_object* l_List_map___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__7___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_map___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__7___lambda__2___closed__2;
 static lean_object* l_List_map___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_88____spec__7___lambda__4___closed__1;
@@ -1393,7 +1393,7 @@ x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
 lean_dec(x_11);
 x_13 = 0;
-x_14 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_139_(x_7, x_13);
+x_14 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_137_(x_7, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 

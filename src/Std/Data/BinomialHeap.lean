@@ -69,7 +69,11 @@ def singleton (a : α) : Heap α :=
 
 @[specialize] def findMin (lt : α → α → Bool) : List (HeapNode α) → Nat → HeapNode α × Nat → HeapNode α × Nat
   | [],    _,   r          => r
-  | h::hs, idx, (h', idx') => if lt h.val h'.val then findMin lt hs (idx+1) (h, idx) else findMin lt hs (idx+1) (h', idx')
+  | h::hs, idx, (h', idx') => if lt h'.val h.val then findMin lt hs (idx+1) (h', idx') else findMin lt hs (idx+1) (h, idx)
+    -- It is important that we check `lt h'.val h.val` here, not the other way
+    -- around. This ensures that head? and findMin find the same element even
+    -- when we have `lt h'.val h.val` and `lt h.val h'.val` (i.e. lt is not
+    -- irreflexive).
 
 def tail (lt : α → α → Bool) : Heap α → Heap α
   | heap []  => empty

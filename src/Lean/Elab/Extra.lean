@@ -105,13 +105,16 @@ where
 
 -- Auxiliary function used at `analyze`
 private def hasCoe (fromType toType : Expr) : TermElabM Bool := do
-  let u ← getLevel fromType
-  let v ← getLevel toType
-  let coeInstType := mkAppN (Lean.mkConst ``CoeHTCT [u, v]) #[fromType, toType]
-  match ← trySynthInstance coeInstType (some (maxCoeSize.get (← getOptions))) with
-  | LOption.some _ => return true
-  | LOption.none   => return false
-  | LOption.undef  => return false -- TODO: should we do something smarter here?
+  if (← getEnv).contains ``CoeHTCT then
+    let u ← getLevel fromType
+    let v ← getLevel toType
+    let coeInstType := mkAppN (Lean.mkConst ``CoeHTCT [u, v]) #[fromType, toType]
+    match ← trySynthInstance coeInstType (some (maxCoeSize.get (← getOptions))) with
+    | LOption.some _ => return true
+    | LOption.none   => return false
+    | LOption.undef  => return false -- TODO: should we do something smarter here?
+  else
+    return false
 
 private structure AnalyzeResult where
   max?            : Option Expr := none

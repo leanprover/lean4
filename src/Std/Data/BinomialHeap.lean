@@ -89,6 +89,29 @@ partial def toList (lt : α → α → Bool) (h : Heap α) : List α :=
   | none   => []
   | some a => a :: toList lt (tail lt h)
 
+partial def toArray (lt : α → α → Bool) (h : Heap α) : Array α :=
+  go #[] h
+  where
+    go (acc : Array α) (h : Heap α) : Array α :=
+      match head? lt h with
+      | none => acc
+      | some a => go (acc.push a) (tail lt h)
+
+partial def toListUnordered : Heap α → List α
+  | heap ns => ns.bind fun n => n.val :: n.children.bind toListUnordered
+
+partial def toArrayUnordered (h : Heap α) : Array α :=
+  go #[] h
+  where
+    go (acc : Array α) : Heap α → Array α
+      | heap ns => do
+        let mut acc := acc
+        for n in ns do
+          acc := acc.push n.val
+          for h in n.children do
+            acc := go acc h
+        return acc
+
 inductive WellFormed (lt : α → α → Bool) : Heap α → Prop where
   | emptyWff                  : WellFormed lt empty
   | singletonWff (a : α)      : WellFormed lt (singleton a)
@@ -140,6 +163,18 @@ variable {α : Type u} {lt : α → α → Bool}
 /- O(n log n) -/
 @[inline] def toList : BinomialHeap α lt → List α
   | ⟨b, _⟩ => BinomialHeapImp.toList lt b
+
+/- O(n log n) -/
+@[inline] def toArray : BinomialHeap α lt → Array α
+  | ⟨b, _⟩ => BinomialHeapImp.toArray lt b
+
+/- O(n) -/
+@[inline] def toListUnordered : BinomialHeap α lt → List α
+  | ⟨b, _⟩ => BinomialHeapImp.toListUnordered b
+
+/- O(n) -/
+@[inline] def toArrayUnordered : BinomialHeap α lt → Array α
+  | ⟨b, _⟩ => BinomialHeapImp.toArrayUnordered b
 
 end BinomialHeap
 end Std

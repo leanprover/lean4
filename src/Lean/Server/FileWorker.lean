@@ -51,56 +51,55 @@ open IO
 open Snapshots
 open Std (RBMap RBMap.empty)
 open JsonRpc
-open Widget (publishMessages)
-
-/- Asynchronous snapshot elaboration. -/
-section Elab
-  /-- Elaborates the next command after `parentSnap` and emits diagnostics into `hOut`. -/
-  private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream) (rpcSesh : RpcSession)
-      : ExceptT ElabTaskError IO Snapshot := do
-    cancelTk.check
-    publishProgressAtPos m parentSnap.endPos hOut
-    let maybeSnap ← compileNextCmd m.text.source parentSnap
-    -- TODO(MH): check for interrupt with increased precision
-    cancelTk.check
-    match maybeSnap with
-    | Sum.inl snap =>
-      /- NOTE(MH): This relies on the client discarding old diagnostics upon receiving new ones
-        while prefering newer versions over old ones. The former is necessary because we do
-        not explicitly clear older diagnostics, while the latter is necessary because we do
-        not guarantee that diagnostics are emitted in order. Specifically, it may happen that
-        we interrupted this elaboration task right at this point and a newer elaboration task
-        emits diagnostics, after which we emit old diagnostics because we did not yet detect
-        the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
-        because we cannot guarantee that no further diagnostics are emitted after clearing
-        them. -/
-      if snap.msgLog.msgs.size > parentSnap.msgLog.msgs.size then
-        publishMessages m snap.msgLog hOut rpcSesh
-      snap
-    | Sum.inr msgLog =>
-      publishMessages m msgLog hOut rpcSesh
-      publishProgressDone m hOut
-      throw ElabTaskError.eof
-
-  /-- Elaborates all commands after `initSnap`, emitting the diagnostics into `hOut`. -/
-  def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream) (rpcSesh : RpcSession)
-    (initial : Bool) :
-      IO (AsyncList ElabTaskError Snapshot) := do
-    if initial && initSnap.msgLog.hasErrors then
-      -- treat header processing errors as fatal so users aren't swamped with followup errors
-      AsyncList.nil
-    else
-      AsyncList.unfoldAsync (nextCmdSnap m . cancelTk hOut rpcSesh) initSnap
-end Elab
-
--- Pending requests are tracked so they can be cancelled
-abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) compare
 
 structure WorkerContext where
   hIn           : FS.Stream
   hOut          : FS.Stream
   hLog          : FS.Stream
   srcSearchPath : SearchPath
+
+/- Asynchronous snapshot elaboration. -/
+section Elab
+  abbrev AsyncElabM := ExceptT ElabTaskError (ReaderT WorkerContext IO)
+
+  /-- Elaborates the next command after `parentSnap` and emits diagnostics into `hOut`. -/
+  private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken)
+      : AsyncElabM Snapshot := do
+    cancelTk.check
+    let hOut := (←read).hOut
+    if parentSnap.isAtEnd then
+      publishDiagnostics m parentSnap.diagnostics.toArray hOut
+      publishProgressDone m hOut
+      throw ElabTaskError.eof
+    publishProgressAtPos m parentSnap.endPos hOut
+    let snap ← compileNextCmd m.text parentSnap
+    -- TODO(MH): check for interrupt with increased precision
+    cancelTk.check
+    /- NOTE(MH): This relies on the client discarding old diagnostics upon receiving new ones
+      while prefering newer versions over old ones. The former is necessary because we do
+      not explicitly clear older diagnostics, while the latter is necessary because we do
+      not guarantee that diagnostics are emitted in order. Specifically, it may happen that
+      we interrupted this elaboration task right at this point and a newer elaboration task
+      emits diagnostics, after which we emit old diagnostics because we did not yet detect
+      the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
+      because we cannot guarantee that no further diagnostics are emitted after clearing
+      them. -/
+    if snap.interactiveDiags.size > parentSnap.interactiveDiags.size then
+      publishDiagnostics m snap.diagnostics.toArray hOut
+    return snap
+
+  /-- Elaborates all commands after `initSnap`, emitting the diagnostics into `hOut`. -/
+  def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) (initial : Bool)
+      : ReaderT WorkerContext IO (AsyncList ElabTaskError Snapshot) := do
+    if initial && initSnap.msgLog.hasErrors then
+      -- treat header processing errors as fatal so users aren't swamped with followup errors
+      AsyncList.nil
+    else
+      AsyncList.unfoldAsync (nextCmdSnap m . cancelTk (← read)) initSnap
+end Elab
+
+-- Pending requests are tracked so they can be cancelled
+abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) compare
 
 structure WorkerState where
   doc             : EditableDocument
@@ -170,7 +169,6 @@ section Initialization
     catch e =>  -- should be from `leanpkg print-paths`
       let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
       pure (← mkEmptyEnvironment, msgs)
-    publishMessages m msgLog hOut rpcSesh
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
     let cmdState := { cmdState with infoState.enabled := true, scopes := [{ header := "", opts := opts }] }
     let headerSnap := {
@@ -178,7 +176,9 @@ section Initialization
       stx := headerStx
       mpState := headerParserState
       cmdState := cmdState
+      interactiveDiags := ← cmdState.messages.msgs.mapM (Widget.msgToInteractiveDiagnostic m.text)
     }
+    publishDiagnostics m headerSnap.diagnostics.toArray hOut
     return (headerSnap, srcSearchPath)
 
   def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream)
@@ -186,16 +186,16 @@ section Initialization
     let rpcSesh ← RpcSession.new false
     let (headerSnap, srcSearchPath) ← compileHeader meta o rpcSesh
     let cancelTk ← CancelToken.new
-    let cmdSnaps ← unfoldCmdSnaps meta headerSnap cancelTk o (initial := true) rpcSesh
+    let ctx :=
+      { hIn                := i
+        hOut               := o
+        hLog               := e
+        srcSearchPath      := srcSearchPath
+      }
+    let cmdSnaps ← unfoldCmdSnaps meta headerSnap cancelTk (initial := true) ctx
     let doc : EditableDocument := ⟨meta, headerSnap, cmdSnaps, cancelTk⟩
-    return ({
-      hIn                := i
-      hOut               := o
-      hLog               := e
-      srcSearchPath      := srcSearchPath
-    },
-    {
-      doc             := doc
+    return (ctx,
+    { doc             := doc
       pendingRequests := RBMap.empty
       rpcSesh
     })
@@ -230,7 +230,7 @@ section Updates
       let mut validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos)
       if validSnaps.length = 0 then
         let cancelTk ← CancelToken.new
-        let newCmdSnaps ← unfoldCmdSnaps newMeta newHeaderSnap cancelTk ctx.hOut (initial := true) (← get).rpcSesh
+        let newCmdSnaps ← unfoldCmdSnaps newMeta newHeaderSnap cancelTk (initial := true) ctx
         modify fun st => { st with doc := ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩ }
       else
         /- When at least one valid non-header snap exists, it may happen that a change does not fall
@@ -248,7 +248,7 @@ section Updates
           validSnaps ← validSnaps.dropLast
           lastSnap ← preLastSnap
         let cancelTk ← CancelToken.new
-        let newSnaps ← unfoldCmdSnaps newMeta lastSnap cancelTk ctx.hOut (initial := false) (← get).rpcSesh
+        let newSnaps ← unfoldCmdSnaps newMeta lastSnap cancelTk (initial := false) ctx
         let newCmdSnaps := AsyncList.ofList validSnaps ++ newSnaps
         modify fun st => { st with doc := ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩ }
 end Updates

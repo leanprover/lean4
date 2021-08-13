@@ -29,22 +29,25 @@ inductive MsgEmbed where
 
 namespace MsgEmbed
 
--- TODO(WN): `deriving RpcEncoding` for `inductive`
+-- TODO(WN): `deriving RpcEncoding` for `inductive` to replace the following hack
+@[reducible]
+def rpcPacketFor {β : outParam Type} (α : Type) [RpcEncoding α β] := β
+
 private inductive RpcEncodingPacket where
   | expr : TaggedText Lsp.RpcRef → RpcEncodingPacket
-  | goal : Nat → RpcEncodingPacket -- TODO
+  | goal : rpcPacketFor InteractiveGoal → RpcEncodingPacket
   | lazyTrace : Nat → Name → Lsp.RpcRef → RpcEncodingPacket
   deriving Inhabited, FromJson, ToJson
 
 instance : RpcEncoding MsgEmbed RpcEncodingPacket where
   rpcEncode a := match a with
     | expr t            => return RpcEncodingPacket.expr (← rpcEncode t)
-    | goal t            => return RpcEncodingPacket.goal 0
+    | goal g            => return RpcEncodingPacket.goal (← rpcEncode g)
     | lazyTrace col n t => return RpcEncodingPacket.lazyTrace col n (← rpcEncode t)
 
   rpcDecode a := match a with
     | RpcEncodingPacket.expr t            => return expr (← rpcDecode t)
-    | RpcEncodingPacket.goal t            => return unreachable!
+    | RpcEncodingPacket.goal g            => return goal (← rpcDecode g)
     | RpcEncodingPacket.lazyTrace col n t => return lazyTrace col n (← rpcDecode t)
 
 end MsgEmbed

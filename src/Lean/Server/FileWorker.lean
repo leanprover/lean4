@@ -85,8 +85,10 @@ section Elab
       the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
       because we cannot guarantee that no further diagnostics are emitted after clearing
       them. -/
-    if snap.interactiveDiags.size > parentSnap.interactiveDiags.size then
-      publishDiagnostics m snap.diagnostics.toArray hOut
+    -- NOTE(WN): this is *not* redundent even if there are no new diagnostics in this snapshot
+    -- because empty diagnostics clear existing error/information squiggles. Therefore we always
+    -- want to publish in case there was previously a message at this position.
+    publishDiagnostics m snap.diagnostics.toArray hOut
     return snap
 
   /-- Elaborates all commands after `initSnap`, emitting the diagnostics into `hOut`. -/

@@ -12,12 +12,17 @@ structure HeapNodeAux (α : Type u) (h : Type u) where
   rank : Nat
   children : List h
 
+-- A `Heap` is a forest of binomial trees.
 inductive Heap (α : Type u) : Type u where
   | heap (ns : List (HeapNodeAux α (Heap α))) : Heap α
   deriving Inhabited
 
 open Heap
 
+-- A `HeapNode` is a binomial tree. If a `HeapNode` has rank `k`, its children
+-- have ranks between `0` and `k - 1`. They are ordered by rank. Additionally,
+-- the value of each child must be less than or equal to the value of its
+-- parent node.
 abbrev HeapNode α := HeapNodeAux α (Heap α)
 
 variable {α : Type u}
@@ -36,12 +41,16 @@ def empty : Heap α :=
 def singleton (a : α) : Heap α :=
   heap [{ val := a, rank := 1, children := [] }]
 
+-- Combine two binomial trees of rank `r`, creating a binomial tree of rank
+-- `r + 1`.
 @[specialize] def combine (le : α → α → Bool) (n₁ n₂ : HeapNode α) : HeapNode α :=
   if le n₂.val n₁.val then
      { n₂ with rank := n₂.rank + 1, children := n₂.children ++ [heap [n₁]] }
   else
      { n₁ with rank := n₁.rank + 1, children := n₁.children ++ [heap [n₂]] }
 
+-- Merge two forests of binomial trees. The forests are assumed to be ordered
+-- by rank and `mergeNodes` maintains this invariant.
 @[specialize] partial def mergeNodes (le : α → α → Bool) : List (HeapNode α) → List (HeapNode α) → List (HeapNode α)
   | [], h  => h
   | h,  [] => h

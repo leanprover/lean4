@@ -13,11 +13,13 @@ structure HeapNodeAux (α : Type u) (h : Type u) where
   children : List h
 
 inductive Heap (α : Type u) : Type u where
-  | empty     : Heap α
-  | heap  (ns : List (HeapNodeAux α (Heap α))) : Heap α
+  | empty : Heap α
+  | heap (ns : List (HeapNodeAux α (Heap α))) : Heap α
   deriving Inhabited
 
-abbrev HeapNode (α) := HeapNodeAux α (Heap α)
+open Heap
+
+abbrev HeapNode α := HeapNodeAux α (Heap α)
 
 variable {α : Type u}
 
@@ -26,17 +28,17 @@ def hRank : List (HeapNode α) → Nat
   | h::_ => h.rank
 
 def isEmpty : Heap α → Bool
-  | Heap.empty => true
-  | _          => false
+  | empty => true
+  | _     => false
 
 def singleton (a : α) : Heap α :=
-  Heap.heap [{ val := a, rank := 1, children := [] }]
+  heap [{ val := a, rank := 1, children := [] }]
 
 @[specialize] def combine (lt : α → α → Bool) (n₁ n₂ : HeapNode α) : HeapNode α :=
   if lt n₂.val n₁.val then
-     { n₂ with rank := n₂.rank + 1, children := n₂.children ++ [Heap.heap [n₁]] }
+     { n₂ with rank := n₂.rank + 1, children := n₂.children ++ [heap [n₁]] }
   else
-     { n₁ with rank := n₁.rank + 1, children := n₁.children ++ [Heap.heap [n₂]] }
+     { n₁ with rank := n₁.rank + 1, children := n₁.children ++ [heap [n₂]] }
 
 @[specialize] partial def mergeNodes (lt : α → α → Bool) : List (HeapNode α) → List (HeapNode α) → List (HeapNode α)
   | [], h  => h
@@ -45,45 +47,45 @@ def singleton (a : α) : Heap α :=
     if h₁.rank < h₂.rank then h₁ :: mergeNodes lt t₁ s
     else if h₂.rank < h₁.rank then h₂ :: mergeNodes lt t₂ f
     else
-      let merged := combine lt h₁ h₂;
-      let r      := merged.rank;
+      let merged := combine lt h₁ h₂
+      let r      := merged.rank
       if r != hRank t₁ then
         if r != hRank t₂ then merged :: mergeNodes lt t₁ t₂ else mergeNodes lt (merged :: t₁) t₂
       else
         if r != hRank t₂ then mergeNodes lt t₁ (merged :: t₂) else merged :: mergeNodes lt t₁ t₂
 
 @[specialize] def merge (lt : α → α → Bool) : Heap α → Heap α → Heap α
-  | Heap.empty,    h           => h
-  | h,             Heap.empty  => h
-  | Heap.heap h₁, Heap.heap h₂ => Heap.heap (mergeNodes lt h₁ h₂)
+  | empty,   h       => h
+  | h,       empty   => h
+  | heap h₁, heap h₂ => heap (mergeNodes lt h₁ h₂)
 
 @[specialize] def head? (lt : α → α → Bool) : Heap α → Option α
-  | Heap.empty  => none
-  | Heap.heap h => h.foldl (init := none) fun r n => match r with
+  | empty  => none
+  | heap h => h.foldl (init := none) fun r n => match r with
      | none   => some n.val
      | some v => if lt v n.val then v else some n.val
 
 /- O(log n) -/
 @[specialize] def head [Inhabited α] (lt : α → α → Bool) : Heap α → α
-  | Heap.empty        => arbitrary
-  | Heap.heap []      => arbitrary
-  | Heap.heap (h::hs) => hs.foldl (init := h.val) fun r n => if lt r n.val then r else n.val
+  | empty        => arbitrary
+  | heap []      => arbitrary
+  | heap (h::hs) => hs.foldl (init := h.val) fun r n => if lt r n.val then r else n.val
 
 @[specialize] def findMin (lt : α → α → Bool) : List (HeapNode α) → Nat → HeapNode α × Nat → HeapNode α × Nat
   | [],    _,   r          => r
   | h::hs, idx, (h', idx') => if lt h.val h'.val then findMin lt hs (idx+1) (h, idx) else findMin lt hs (idx+1) (h', idx')
 
 def tail (lt : α → α → Bool) : Heap α → Heap α
-  | Heap.empty        => Heap.empty
-  | Heap.heap []      => Heap.empty
-  | Heap.heap [h]     =>
+  | empty    => empty
+  | heap []  => empty
+  | heap [h] =>
     match h.children with
-    | []      => Heap.empty
+    | []      => empty
     | (h::hs) => hs.foldl (merge lt) h
-  | Heap.heap hhs@(h::hs) =>
-    let (min, minIdx) := findMin lt hs 1 (h, 0);
-    let rest          := hhs.eraseIdx minIdx;
-    min.children.foldl (merge lt) (Heap.heap rest)
+  | heap hhs@(h::hs) =>
+    let (min, minIdx) := findMin lt hs 1 (h, 0)
+    let rest          := hhs.eraseIdx minIdx
+    min.children.foldl (merge lt) (heap rest)
 
 partial def toList (lt : α → α → Bool) : Heap α → List α
   | Heap.empty => []
@@ -92,8 +94,8 @@ partial def toList (lt : α → α → Bool) : Heap α → List α
     | some a => a :: toList lt (tail lt h)
 
 inductive WellFormed (lt : α → α → Bool) : Heap α → Prop where
-  | emptyWff               : WellFormed lt Heap.empty
-  | singletonWff (a : α)   : WellFormed lt (singleton a)
+  | emptyWff                  : WellFormed lt empty
+  | singletonWff (a : α)      : WellFormed lt (singleton a)
   | mergeWff (h₁ h₂ : Heap α) : WellFormed lt h₁ → WellFormed lt h₂ → WellFormed lt (merge lt h₁ h₂)
   | tailWff (h : Heap α)      : WellFormed lt h → WellFormed lt (tail lt h)
 

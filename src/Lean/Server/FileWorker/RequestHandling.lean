@@ -208,7 +208,7 @@ partial def handleDocumentSymbol (p : DocumentSymbolParams)
   let doc ← readDoc
   asTask do
     let ⟨cmdSnaps, e?⟩ ← doc.cmdSnaps.updateFinishedPrefix
-    let mut stxs := cmdSnaps.finishedPrefix.map Snapshot.stx
+    let mut stxs := cmdSnaps.finishedPrefix.map fun s => s.stx
     match e? with
     | some ElabTaskError.aborted =>
       throw RequestError.fileChanged

@@ -9,7 +9,7 @@ import Init.System.IO
 import Lean.Elab.Import
 import Lean.Elab.Command
 
-import Lean.Widget.InteractiveDiagnostics
+import Lean.Widget.InteractiveDiagnostic
 
 /-! One can think of this module as being a partial reimplementation
 of Lean.Elab.Frontend which also stores a snapshot of the world after

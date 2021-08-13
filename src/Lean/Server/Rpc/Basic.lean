@@ -142,7 +142,7 @@ instance [RpcEncoding α β] : RpcEncoding (Array α) (Array β) where
   rpcEncode a := a.mapM rpcEncode
   rpcDecode b := b.mapM rpcDecode
 
-instance [RpcEncoding α α'] [RpcEncoding β β']  : RpcEncoding (α × β) (α' × β') where
+instance [RpcEncoding α α'] [RpcEncoding β β'] : RpcEncoding (α × β) (α' × β') where
   rpcEncode := fun (a, b) => do
     let a' ← rpcEncode a
     let b' ← rpcEncode b

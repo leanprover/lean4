@@ -32,7 +32,8 @@ structure Snapshot where
 
 namespace Snapshot
 
-def endPos (s : Snapshot) : String.Pos := s.mpState.pos
+def endPos (s : Snapshot) : String.Pos :=
+  s.mpState.pos
 
 def env (s : Snapshot) : Environment :=
   s.cmdState.env
@@ -42,10 +43,11 @@ def msgLog (s : Snapshot) : MessageLog :=
 
 end Snapshot
 
+/-- Reparses the header syntax but does not re-elaborate it. Used to ignore whitespace-only changes. -/
 def reparseHeader (contents : String) (header : Snapshot) (opts : Options := {}) : IO Snapshot := do
   let inputCtx := Parser.mkInputContext contents "<input>"
-  let (_, newHeaderParserState, _) ← Parser.parseHeader inputCtx
-  pure { header with mpState := newHeaderParserState }
+  let (newStx, newMpState, _) ← Parser.parseHeader inputCtx
+  pure { header with stx := newStx, mpState := newMpState }
 
 private def ioErrorFromEmpty (ex : Empty) : IO.Error :=
   nomatch ex

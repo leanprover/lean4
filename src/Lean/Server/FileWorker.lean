@@ -18,8 +18,9 @@ import Lean.Server.AsyncList
 
 import Lean.Server.FileWorker.Utils
 import Lean.Server.FileWorker.RequestHandling
-import Lean.Server.Rpc.Basic
+import Lean.Server.FileWorker.WidgetRequests
 
+import Lean.Server.Rpc.Basic
 import Lean.Widget.InteractiveDiagnostic
 
 /-!

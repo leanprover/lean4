@@ -9,6 +9,7 @@ import Lean.Widget.InteractiveGoal
 import Lean.Widget.InteractiveDiagnostic
 
 import Lean.Server.Rpc.RequestHandling
+import Lean.Server.FileWorker.RequestHandling
 
 /-! Registers all widget-related RPC procedures. -/
 
@@ -72,56 +73,20 @@ builtin_initialize
           doc := ← i.info.docString? : InfoPopup
         }
 
-open RequestM in
-def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask InteractiveGoals) := do
-  let doc ← readDoc
-  let text := doc.meta.text
-  let hoverPos := text.lspPosToUtf8Pos p.position
-  -- NOTE: use `>=` since the cursor can be *after* the input
-  withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
-    (notFoundX := return { goals := #[] }) fun snap => do
-      for t in snap.cmdState.infoState.trees do
-        if let rs@(_ :: _) := t.goalsAt? doc.meta.text hoverPos then
-          let goals ← List.join <$> rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter } =>
-            let ci := if useAfter then { ci with mctx := ti.mctxAfter } else { ci with mctx := ti.mctxBefore }
-            let goals := if useAfter then ti.goalsAfter else ti.goalsBefore
-            ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPInaccessibleNames (goalToInteractive g))
-          return { goals := goals.toArray }
-
-      return { goals := #[] }
-
-open RequestM in
-partial def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
-    : RequestM (RequestTask (Option InteractiveGoal)) := do
-  let doc ← readDoc
-  let text := doc.meta.text
-  let hoverPos := text.lspPosToUtf8Pos p.position
-  withWaitFindSnap doc (fun s => s.endPos > hoverPos)
-    (notFoundX := pure none) fun snap => do
-      for t in snap.cmdState.infoState.trees do
-        if let some (ci, i@(Elab.Info.ofTermInfo ti)) := t.termGoalAt? hoverPos then
-         let ty ← ci.runMetaM i.lctx do
-           Meta.instantiateMVars <| ti.expectedType?.getD (← Meta.inferType ti.expr)
-         -- for binders, hide the last hypothesis (the binder itself)
-         let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
-         let goal ← ci.runMetaM lctx' do
-           Meta.withPPInaccessibleNames <| goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
-         --let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
-         return some goal
-      return none
-
 builtin_initialize
   registerRpcCallHandler
     `Lean.Widget.getInteractiveGoals
     Lsp.PlainGoalParams
     InteractiveGoals
-    getInteractiveGoals
+    FileWorker.getInteractiveGoals
 
   registerRpcCallHandler
     `Lean.Widget.getInteractiveTermGoal
     Lsp.PlainTermGoalParams
     (Option InteractiveGoal)
-    getInteractiveTermGoal
+    fun p => do
+      let t ← FileWorker.getInteractiveTermGoal p
+      t.map <| Except.map <| Option.map Prod.fst
 
 open RequestM in
 def getInteractiveDiagnostics (_ : Json) : RequestM (RequestTask (Array InteractiveDiagnostic)) := do

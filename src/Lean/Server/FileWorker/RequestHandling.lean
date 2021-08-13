@@ -13,6 +13,8 @@ import Lean.Server.FileWorker.Utils
 import Lean.Server.Requests
 import Lean.Server.Completion
 
+import Lean.Widget.InteractiveGoal
+
 namespace Lean.Server.FileWorker
 open Lsp
 open RequestM
@@ -133,53 +135,65 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
               return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
       return #[]
 
-open Elab in
-partial def handlePlainGoal (p : PlainGoalParams)
-    : RequestM (RequestTask (Option PlainGoal)) := do
+open RequestM in
+def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask Widget.InteractiveGoals) := do
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
   -- NOTE: use `>=` since the cursor can be *after* the input
   withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
-    (notFoundX := return none) fun snap => do
+    (notFoundX := return { goals := #[] }) fun snap => do
       for t in snap.cmdState.infoState.trees do
         if let rs@(_ :: _) := t.goalsAt? doc.meta.text hoverPos then
           let goals ← List.join <$> rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter } =>
             let ci := if useAfter then { ci with mctx := ti.mctxAfter } else { ci with mctx := ti.mctxBefore }
             let goals := if useAfter then ti.goalsAfter else ti.goalsBefore
-            ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPInaccessibleNames (Meta.ppGoal g))
-          let md :=
-            if goals.isEmpty then
-              "no goals"
-            else
-              let goals := goals.map fun goal => s!"```lean
-{goal}
-```"
-              String.intercalate "\n---\n" goals
-          return some { goals := goals.map toString |>.toArray, rendered := md }
+            ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPInaccessibleNames (Widget.goalToInteractive g))
+          return { goals := goals.toArray }
 
-      return none
+      return { goals := #[] }
 
 open Elab in
-open Meta in
-partial def handlePlainTermGoal (p : PlainTermGoalParams)
-    : RequestM (RequestTask (Option PlainTermGoal)) := do
+partial def handlePlainGoal (p : PlainGoalParams)
+    : RequestM (RequestTask (Option PlainGoal)) := do
+  let t ← getInteractiveGoals p
+  t.map <| Except.map fun ⟨goals⟩ =>
+    if goals.isEmpty then
+      some { goals := #[], rendered := "no goals" }
+    else
+      let goalStrs := goals.map (toString ·.pretty)
+      let goalBlocks := goalStrs.map fun goal => s!"```lean
+{goal}
+```"
+      let md := String.intercalate "\n---\n" goalBlocks.toList
+      some { goals := goalStrs, rendered := md }
+
+partial def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
+    : RequestM (RequestTask (Option (Widget.InteractiveGoal × Range))) := do
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure none) fun snap => do
       for t in snap.cmdState.infoState.trees do
-        if let some (ci, i@(Info.ofTermInfo ti)) := t.termGoalAt? hoverPos then
-          let ty ← ci.runMetaM i.lctx do
-            instantiateMVars <| ti.expectedType?.getD (← inferType ti.expr)
-          -- for binders, hide the last hypothesis (the binder itself)
-          let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
-          let goal ← ci.runMetaM lctx' do
-            withPPInaccessibleNames <| Meta.ppGoal (← mkFreshExprMVar ty).mvarId!
-          let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
-          return some { goal := toString goal, range }
+        if let some (ci, i@(Elab.Info.ofTermInfo ti)) := t.termGoalAt? hoverPos then
+         let ty ← ci.runMetaM i.lctx do
+           Meta.instantiateMVars <| ti.expectedType?.getD (← Meta.inferType ti.expr)
+         -- for binders, hide the last hypothesis (the binder itself)
+         let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
+         let goal ← ci.runMetaM lctx' do
+           Meta.withPPInaccessibleNames <| Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
+         let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
+         return some (goal, range)
       return none
+
+def handlePlainTermGoal (p : PlainTermGoalParams)
+    : RequestM (RequestTask (Option PlainTermGoal)) := do
+  let t ← getInteractiveTermGoal p
+  t.map <| Except.map <| Option.map fun (goal, range) =>
+    { goal := toString goal.pretty
+      range := range
+    }
 
 partial def handleDocumentHighlight (p : DocumentHighlightParams)
     : RequestM (RequestTask (Array DocumentHighlight)) := do

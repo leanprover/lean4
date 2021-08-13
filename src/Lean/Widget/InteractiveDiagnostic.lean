@@ -49,14 +49,21 @@ instance : RpcEncoding MsgEmbed RpcEncodingPacket where
 
 end MsgEmbed
 
-/-- A `Lean.Message` with support for interactive elements. -/
-structure InteractiveMessage extends Message where
-  interactiveMsg : TaggedText MsgEmbed
-
 /-- We embed objects in LSP diagnostics by storing them in the tag of an empty subtree (`text ""`).
 In other words, we terminate the `MsgEmbed`-tagged tree at embedded objects and instead store
 the pretty-printed embed (which can itself be a `TaggedText`) in the tag. -/
 abbrev InteractiveDiagnostic := Lsp.DiagnosticWith (TaggedText MsgEmbed)
+
+namespace InteractiveDiagnostic
+open Lsp
+
+private abbrev RpcEncodingPacket := Lsp.DiagnosticWith (TaggedText MsgEmbed.RpcEncodingPacket)
+
+instance : RpcEncoding InteractiveDiagnostic RpcEncodingPacket where
+  rpcEncode a := return { a with message := ← rpcEncode a.message }
+  rpcDecode a := return { a with message := ← rpcDecode a.message }
+
+end InteractiveDiagnostic
 
 namespace InteractiveDiagnostic
 open MsgEmbed
@@ -67,7 +74,7 @@ where
   prettyTt (tt : TaggedText MsgEmbed) : String :=
     let tt : TaggedText MsgEmbed := tt.rewrite fun
       | expr tt,         _     => TaggedText.text tt.stripTags
-      | goal g,          _     => TaggedText.text g.pretty
+      | goal g,          _     => TaggedText.text (toString g.pretty)
       | lazyTrace _ _ _, subTt => subTt
     tt.stripTags
 

@@ -123,4 +123,17 @@ builtin_initialize
     (Option InteractiveGoal)
     getInteractiveTermGoal
 
+open RequestM in
+def getInteractiveDiagnostics (_ : Json) : RequestM (RequestTask (Array InteractiveDiagnostic)) := do
+  let doc ← readDoc
+  let t₁ ← doc.cmdSnaps.waitAll
+  t₁.map fun (snaps, _) => snaps.getLast!.interactiveDiags.toArray
+
+builtin_initialize
+  registerRpcCallHandler
+    `Lean.Widget.getInteractiveDiagnostics
+    Json
+    (Array InteractiveDiagnostic)
+    getInteractiveDiagnostics
+
 end Lean.Widget

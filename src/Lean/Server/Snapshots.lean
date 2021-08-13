@@ -9,6 +9,8 @@ import Init.System.IO
 import Lean.Elab.Import
 import Lean.Elab.Command
 
+import Lean.Widget.InteractiveDiagnostics
+
 /-! One can think of this module as being a partial reimplementation
 of Lean.Elab.Frontend which also stores a snapshot of the world after
 each command. Importantly, we allow (re)starting compilation from any
@@ -20,7 +22,7 @@ open Elab
 
 /-- What Lean knows about the world after the header and each command. -/
 structure Snapshot where
-  /- Where the command which produced this snapshot begins. Note that
+  /-- Where the command which produced this snapshot begins. Note that
   neighbouring snapshots are *not* necessarily attached beginning-to-end,
   since inputs outside the grammar advance the parser but do not produce
   snapshots. -/
@@ -28,6 +30,10 @@ structure Snapshot where
   stx : Syntax
   mpState : Parser.ModuleParserState
   cmdState : Command.State
+  /-- We cache interactive diagnostics in order not to invoke the pretty-printer again on messages
+  from previous snapshots when publishing diagnostics for every new snapshot (this is quadratic),
+  as well as not to invoke it once again when handling `$/lean/interactiveDiagnostics`. -/
+  interactiveDiags : Std.PersistentArray Widget.InteractiveDiagnostic
   deriving Inhabited
 
 namespace Snapshot
@@ -40,6 +46,12 @@ def env (s : Snapshot) : Environment :=
 
 def msgLog (s : Snapshot) : MessageLog :=
   s.cmdState.messages
+
+def diagnostics (s : Snapshot) : Std.PersistentArray Lsp.Diagnostic :=
+  s.interactiveDiags.map fun d => d.toDiagnostic
+
+def isAtEnd (s : Snapshot) : Bool :=
+  Parser.isEOI s.stx || Parser.isExitCommand s.stx
 
 end Snapshot
 
@@ -80,14 +92,13 @@ partial def parseAhead (contents : String) (snap : Snapshot) : IO (Array Syntax)
       else
         go inputCtx pmctx cmdParserState (stxs.push cmdStx)
 
-/-- Compiles the next command occurring after the given snapshot.
-If there is no next command (file ended), returns messages produced
-through the file. -/
+/-- Compiles the next command occurring after the given snapshot. If there is no next command
+(file ended), `Snapshot.isAtEnd` will hold of the return value. -/
 -- NOTE: This code is really very similar to Elab.Frontend. But generalizing it
 -- over "store snapshots"/"don't store snapshots" would likely result in confusing
 -- isServer? conditionals and not be worth it due to how short it is.
-def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot MessageLog) := do
-  let inputCtx := Parser.mkInputContext contents "<input>"
+def compileNextCmd (text : FileMap) (snap : Snapshot) : IO Snapshot := do
+  let inputCtx := Parser.mkInputContext text.source "<input>"
   let cmdState := snap.cmdState
   let scope := cmdState.scopes.head!
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
@@ -95,11 +106,18 @@ def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot Mess
     Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
   let cmdPos := cmdStx.getPos?.get!
   if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
-    Sum.inr msgLog
+    let endSnap : Snapshot :=
+      { beginPos := cmdPos
+        stx := cmdStx
+        mpState := cmdParserState
+        cmdState := snap.cmdState
+        interactiveDiags := ← newInteractiveDiags msgLog
+      }
+    endSnap
   else
     let cmdStateRef ← IO.mkRef { snap.cmdState with messages := msgLog }
-    let cmdCtx : Elab.Command.Context := {
-        cmdPos   := snap.endPos
+    let cmdCtx : Elab.Command.Context :=
+      { cmdPos   := snap.endPos
         fileName := inputCtx.fileName
         fileMap  := inputCtx.fileMap
       }
@@ -112,29 +130,29 @@ def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot Mess
     if !output.isEmpty then
       postCmdState := {
         postCmdState with
-        messages := postCmdState.messages.add {
-          fileName := inputCtx.fileName
-          severity := MessageSeverity.information
-          pos      := inputCtx.fileMap.toPosition snap.endPos
-          data     := output
-        }
+        messages := postCmdState.messages.add
+          { fileName := inputCtx.fileName
+            severity := MessageSeverity.information
+            pos      := inputCtx.fileMap.toPosition snap.endPos
+            data     := output
+          }
       }
-    let postCmdSnap : Snapshot := {
-        beginPos := cmdPos
+    let postCmdSnap : Snapshot :=
+      { beginPos := cmdPos
         stx := cmdStx
         mpState := cmdParserState
         cmdState := postCmdState
+        interactiveDiags := ← newInteractiveDiags postCmdState.messages
       }
-    Sum.inl postCmdSnap
+    postCmdSnap
 
-/-- Compiles all commands after the given snapshot. Returns them as a list, together with
-the final message log. -/
-partial def compileCmdsAfter (contents : String) (snap : Snapshot) : IO (List Snapshot × MessageLog) := do
-  let cmdOut ← compileNextCmd contents snap
-  match cmdOut with
-  | Sum.inl snap =>
-    let (snaps, msgLog) ← compileCmdsAfter contents snap
-    (snap :: snaps, msgLog)
-  | Sum.inr msgLog => ([], msgLog)
+where
+  newInteractiveDiags (msgLog : MessageLog) : IO (Std.PersistentArray Widget.InteractiveDiagnostic) := do
+    let newMsgCount := msgLog.msgs.size - snap.msgLog.msgs.size
+    let mut ret := snap.interactiveDiags
+    for i in List.iota newMsgCount do
+      let newMsg := msgLog.msgs.get! (msgLog.msgs.size - i)
+      ret := ret.push (← Widget.msgToInteractiveDiagnostic text newMsg)
+    return ret
 
 end Lean.Server.Snapshots

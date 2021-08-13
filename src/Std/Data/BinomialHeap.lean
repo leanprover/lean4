@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Jannis Limperg
 -/
 namespace Std
 universe u
@@ -13,7 +13,6 @@ structure HeapNodeAux (α : Type u) (h : Type u) where
   children : List h
 
 inductive Heap (α : Type u) : Type u where
-  | empty : Heap α
   | heap (ns : List (HeapNodeAux α (Heap α))) : Heap α
   deriving Inhabited
 
@@ -28,8 +27,11 @@ def hRank : List (HeapNode α) → Nat
   | h::_ => h.rank
 
 def isEmpty : Heap α → Bool
-  | empty => true
-  | _     => false
+  | heap [] => true
+  | _       => false
+
+def empty : Heap α :=
+  heap []
 
 def singleton (a : α) : Heap α :=
   heap [{ val := a, rank := 1, children := [] }]
@@ -55,19 +57,15 @@ def singleton (a : α) : Heap α :=
         if r != hRank t₂ then mergeNodes lt t₁ (merged :: t₂) else merged :: mergeNodes lt t₁ t₂
 
 @[specialize] def merge (lt : α → α → Bool) : Heap α → Heap α → Heap α
-  | empty,   h       => h
-  | h,       empty   => h
   | heap h₁, heap h₂ => heap (mergeNodes lt h₁ h₂)
 
 @[specialize] def head? (lt : α → α → Bool) : Heap α → Option α
-  | empty  => none
   | heap h => h.foldl (init := none) fun r n => match r with
      | none   => some n.val
      | some v => if lt v n.val then v else some n.val
 
 /- O(log n) -/
 @[specialize] def head [Inhabited α] (lt : α → α → Bool) : Heap α → α
-  | empty        => arbitrary
   | heap []      => arbitrary
   | heap (h::hs) => hs.foldl (init := h.val) fun r n => if lt r n.val then r else n.val
 
@@ -76,7 +74,6 @@ def singleton (a : α) : Heap α :=
   | h::hs, idx, (h', idx') => if lt h.val h'.val then findMin lt hs (idx+1) (h, idx) else findMin lt hs (idx+1) (h', idx')
 
 def tail (lt : α → α → Bool) : Heap α → Heap α
-  | empty    => empty
   | heap []  => empty
   | heap [h] =>
     match h.children with
@@ -105,7 +102,7 @@ open BinomialHeapImp
 def BinomialHeap (α : Type u) (lt : α → α → Bool) := { h : Heap α // WellFormed lt h }
 
 @[inline] def mkBinomialHeap (α : Type u) (lt : α → α → Bool) : BinomialHeap α lt :=
-  ⟨Heap.empty, WellFormed.emptyWff⟩
+  ⟨empty, WellFormed.emptyWff⟩
 
 namespace BinomialHeap
 variable {α : Type u} {lt : α → α → Bool}

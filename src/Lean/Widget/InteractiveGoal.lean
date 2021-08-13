@@ -7,8 +7,6 @@ Authors: Wojciech Nawrocki
 import Lean.Widget.InteractiveCode
 
 /-! RPC procedures for retrieving tactic and term goals with embedded `CodeWithInfos`. -/
--- TODO(WN): this module is mostly a slightly adapted copy of the corresponding `plainGoal/plainTemGoal` handlers
--- unify them
 
 namespace Lean.Widget
 open Server
@@ -33,7 +31,7 @@ private def addLine (fmt : Format) : Format :=
 def pretty (g : InteractiveGoal) : Format := do
   let indent := 2 -- Use option
   let mut ret := match g.userName? with
-    | some userName => f!"case {userName}{Format.line}"
+    | some userName => f!"case {userName}"
     | none          => Format.nil
   for hyp in g.hyps do
     ret := addLine ret
@@ -105,7 +103,8 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
         else
           ppVars varNames prevType? hyps localDecl
     let hyps ← pushPending varNames type? hyps
-    let goalFmt ← exprToInteractive mvarDecl.type
+    let goalTp ← instantiateMVars mvarDecl.type
+    let goalFmt ← exprToInteractive goalTp
     let userName? := match mvarDecl.userName with
       | Name.anonymous => none
       | name           => some <| toString name.eraseMacroScopes

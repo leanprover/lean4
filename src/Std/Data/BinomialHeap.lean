@@ -87,11 +87,10 @@ def tail (lt : α → α → Bool) : Heap α → Heap α
     let rest          := hhs.eraseIdx minIdx
     min.children.foldl (merge lt) (heap rest)
 
-partial def toList (lt : α → α → Bool) : Heap α → List α
-  | Heap.empty => []
-  | h          => match head? lt h with
-    | none   => []
-    | some a => a :: toList lt (tail lt h)
+partial def toList (lt : α → α → Bool) (h : Heap α) : List α :=
+  match head? lt h with
+  | none   => []
+  | some a => a :: toList lt (tail lt h)
 
 inductive WellFormed (lt : α → α → Bool) : Heap α → Prop where
   | emptyWff                  : WellFormed lt empty

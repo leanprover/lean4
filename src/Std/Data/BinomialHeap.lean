@@ -75,29 +75,38 @@ def singleton (a : α) : Heap α :=
     -- when we have `le h'.val h.val` and `le h.val h'.val` (i.e. le is not
     -- irreflexive).
 
-def tail (le : α → α → Bool) : Heap α → Heap α
-  | heap []  => empty
+def deleteMin (le : α → α → Bool) : Heap α → Option (α × Heap α)
+  | heap [] => none
   | heap [h] =>
-    match h.children with
-    | []      => empty
-    | (h::hs) => hs.foldl (merge le) h
+    let tail :=
+      match h.children with
+      | [] => empty
+      | (h::hs) => hs.foldl (merge le) h
+    some (h.val, tail)
   | heap hhs@(h::hs) =>
     let (min, minIdx) := findMin le hs 1 (h, 0)
     let rest          := hhs.eraseIdx minIdx
-    min.children.foldl (merge le) (heap rest)
+    let tail          := min.children.foldl (merge le) (heap rest)
+    some (min.val, tail)
+
+@[inline] def tail? (le : α → α → Bool) (h : Heap α) : Option (Heap α) :=
+  deleteMin le h |>.map (·.snd)
+
+@[inline] def tail (le : α → α → Bool) (h : Heap α) : Heap α :=
+  tail? le h |>.getD empty
 
 partial def toList (le : α → α → Bool) (h : Heap α) : List α :=
-  match head? le h with
-  | none   => []
-  | some a => a :: toList le (tail le h)
+  match deleteMin le h with
+  | none          => []
+  | some (hd, tl) => hd :: toList le tl
 
 partial def toArray (le : α → α → Bool) (h : Heap α) : Array α :=
   go #[] h
   where
     go (acc : Array α) (h : Heap α) : Array α :=
-      match head? le h with
+      match deleteMin le h with
       | none => acc
-      | some a => go (acc.push a) (tail le h)
+      | some (hd, tl) => go (acc.push hd) tl
 
 partial def toListUnordered : Heap α → List α
   | heap ns => ns.bind fun n => n.val :: n.children.bind toListUnordered
@@ -115,10 +124,29 @@ partial def toArrayUnordered (h : Heap α) : Array α :=
         return acc
 
 inductive WellFormed (le : α → α → Bool) : Heap α → Prop where
-  | emptyWff                  : WellFormed le empty
-  | singletonWff (a : α)      : WellFormed le (singleton a)
-  | mergeWff (h₁ h₂ : Heap α) : WellFormed le h₁ → WellFormed le h₂ → WellFormed le (merge le h₁ h₂)
-  | tailWff (h : Heap α)      : WellFormed le h → WellFormed le (tail le h)
+  | emptyWff                : WellFormed le empty
+  | singletonWff (a)        : WellFormed le (singleton a)
+  | mergeWff (h₁ h₂)        : WellFormed le h₁ → WellFormed le h₂ → WellFormed le (merge le h₁ h₂)
+  | deleteMinWff (a) (h tl) : WellFormed le h → deleteMin le h = some (a, tl) → WellFormed le tl
+
+namespace WellFormed
+
+theorem tail?Wff {le} (h tl : Heap α) (hwf : WellFormed le h) (eq : tail? le h = some tl) : WellFormed le tl := by
+  simp only [tail?] at eq
+  match eq₂: deleteMin le h with
+    | none =>
+      rw [eq₂] at eq; cases eq
+    | some (a, tl) =>
+      rw [eq₂] at eq; cases eq
+      exact deleteMinWff _ _ _ hwf eq₂
+
+theorem tailWff {le} (h : Heap α) (hwf : WellFormed le h) : WellFormed le (tail le h) := by
+  simp only [tail]
+  match eq: tail? le h with
+    | none => exact emptyWff
+    | some tl => exact tail?Wff _ _ hwf eq
+
+end WellFormed
 
 end BinomialHeapImp
 
@@ -147,12 +175,26 @@ variable {α : Type u} {le : α → α → Bool}
   | ⟨b₁, h₁⟩, ⟨b₂, h₂⟩ => ⟨BinomialHeapImp.merge le b₁ b₂, WellFormed.mergeWff b₁ b₂ h₁ h₂⟩
 
 /- O(log n) -/
+@[inline] def deleteMin : BinomialHeap α le → Option (α × BinomialHeap α le)
+  | ⟨b, h⟩ =>
+    match eq: BinomialHeapImp.deleteMin le b with
+    | none => none
+    | some (a, tl) => some (a, ⟨tl, WellFormed.deleteMinWff a b tl h eq⟩)
+
+/- O(log n) -/
 @[inline] def head [Inhabited α] : BinomialHeap α le → α
   | ⟨b, _⟩ => BinomialHeapImp.head le b
 
 /- O(log n) -/
 @[inline] def head? : BinomialHeap α le → Option α
   | ⟨b, _⟩ => BinomialHeapImp.head? le b
+
+/- O(log n) -/
+@[inline] def tail? : BinomialHeap α le → Option (BinomialHeap α le)
+  | ⟨b, h⟩ =>
+    match eq: BinomialHeapImp.tail? le b with
+    | none => none
+    | some tl => some ⟨tl, WellFormed.tail?Wff b tl h eq⟩
 
 /- O(log n) -/
 @[inline] def tail : BinomialHeap α le → BinomialHeap α le

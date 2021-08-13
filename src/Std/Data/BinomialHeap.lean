@@ -60,14 +60,12 @@ def singleton (a : α) : Heap α :=
   | heap h₁, heap h₂ => heap (mergeNodes lt h₁ h₂)
 
 @[specialize] def head? (lt : α → α → Bool) : Heap α → Option α
-  | heap h => h.foldl (init := none) fun r n => match r with
-     | none   => some n.val
-     | some v => if lt v n.val then v else some n.val
+  | heap []      => none
+  | heap (h::hs) => some $
+    hs.foldl (init := h.val) fun r n => if lt r n.val then r else n.val
 
-/- O(log n) -/
-@[specialize] def head [Inhabited α] (lt : α → α → Bool) : Heap α → α
-  | heap []      => arbitrary
-  | heap (h::hs) => hs.foldl (init := h.val) fun r n => if lt r n.val then r else n.val
+@[inline] def head [Inhabited α] (lt : α → α → Bool) (h : Heap α) : α :=
+  head? lt h |>.getD arbitrary
 
 @[specialize] def findMin (lt : α → α → Bool) : List (HeapNode α) → Nat → HeapNode α × Nat → HeapNode α × Nat
   | [],    _,   r          => r

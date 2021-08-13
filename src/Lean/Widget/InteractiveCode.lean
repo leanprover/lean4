@@ -6,22 +6,33 @@ Authors: Wojciech Nawrocki
 -/
 import Lean.PrettyPrinter
 import Lean.Server.Rpc.Basic
-import Lean.Server.Rpc.RequestHandling
 import Lean.Widget.TaggedText
-import Lean.Widget.Data
 
-/-! RPC infrastructure for storing/formatting `Expr`s with environment and subexpression information. -/
+/-! RPC infrastructure for storing and formatting code fragments, in particular `Expr`s,
+with environment and subexpression information. -/
 
 namespace Lean.Widget
 open Server
+
+-- TODO: Some of the `WithBlah` types exist mostly because we cannot derive multi-argument RPC wrappers.
+-- They will be gone eventually.
+structure InfoWithCtx where
+  ctx : Elab.ContextInfo
+  lctx : LocalContext
+  info : Elab.Info
+  deriving Inhabited, RpcEncoding with { withRef := true }
+
+/-- Pretty-printed syntax (usually but not necessarily an `Expr`) with embedded `Info`s. -/
+abbrev CodeWithInfos := TaggedText (WithRpcRef InfoWithCtx)
+
+def CodeWithInfos.pretty (tt : CodeWithInfos) :=
+  tt.stripTags
 
 structure ExprWithCtx where
   ctx : Elab.ContextInfo
   lctx : LocalContext
   expr : Expr
   deriving Inhabited, RpcEncoding with { withRef := true }
-
-namespace ExprWithCtx
 
 open Expr in
 /-- Find a subexpression of `e` using the pretty-printer address scheme. -/
@@ -61,7 +72,7 @@ where
         | 0, proj _ _ e₁ _ => go' e₁
         | _, _             => (lctx, e) -- panic! s!"cannot descend {a} into {e.expr}"
 
--- TODO(WN): should these go in `Lean.PrettyPrinter` ?
+-- TODO(WN): should the two fns below go in `Lean.PrettyPrinter` ?
 open PrettyPrinter in
 private def formatWithOpts (e : Expr) (optsPerPos : Delaborator.OptionsPerPos)
     : MetaM (Format × Std.RBMap Nat Elab.Info compare) := do
@@ -78,8 +89,8 @@ private def formatWithOpts (e : Expr) (optsPerPos : Delaborator.OptionsPerPos)
 def formatInfos (e : Expr) : MetaM (Format × Std.RBMap Nat Elab.Info compare) :=
   formatWithOpts e {}
 
-/-- Like `formatM` but with `pp.all` set at the top-level expression. -/
-def formatExplicitInfos (e : Expr) : MetaM (Format × Std.RBMap Nat Elab.Info compare) := do
+/-- Like `formatInfos` but with `pp.all` set at the top-level expression. -/
+def formatExplicitInfos (e : Expr) : MetaM (Format × Std.RBMap Nat Elab.Info compare) :=
   let optsPerPos := Std.RBMap.ofList [(1, KVMap.empty.setBool `pp.all true)]
   formatWithOpts e optsPerPos
 
@@ -105,7 +116,7 @@ def inferType (e : Expr) : MetaM ExprWithCtx := do
   }
   return { ctx, lctx := ← getLCtx, expr := e}
 
-def tagged (e : Expr) : MetaM CodeWithInfos := do
+def exprToInteractive (e : Expr) : MetaM CodeWithInfos := do
   let (fmt, infos) ← formatInfos e
   let tt := TaggedText.prettyTagged fmt
   let ctx := {
@@ -118,7 +129,7 @@ def tagged (e : Expr) : MetaM CodeWithInfos := do
   }
   tagExprInfos ctx (← getLCtx) infos tt
 
-def taggedExplicit (e : Expr) : MetaM CodeWithInfos := do
+def exprToInteractiveExplicit (e : Expr) : MetaM CodeWithInfos := do
   let (fmt, infos) ← formatExplicitInfos e
   let tt := TaggedText.prettyTagged fmt
   let ctx := {
@@ -131,10 +142,4 @@ def taggedExplicit (e : Expr) : MetaM CodeWithInfos := do
   }
   tagExprInfos ctx (← getLCtx) infos tt
 
-builtin_initialize
-  registerRpcCallHandler `Lean.Widget.ExprWithCtx.tagged         (WithRpcRef ExprWithCtx) CodeWithInfos            fun ⟨e⟩ => RequestM.asTask do e.ctx.runMetaM e.lctx (tagged e.expr)
-  registerRpcCallHandler `Lean.Widget.ExprWithCtx.taggedExplicit (WithRpcRef ExprWithCtx) CodeWithInfos            fun ⟨e⟩ => RequestM.asTask do e.ctx.runMetaM e.lctx (taggedExplicit e.expr)
-  registerRpcCallHandler `Lean.Widget.ExprWithCtx.inferType      (WithRpcRef ExprWithCtx) (WithRpcRef ExprWithCtx) fun ⟨e⟩ => RequestM.asTask do WithRpcRef.mk <$> e.ctx.runMetaM e.lctx (inferType e.expr)
-
-end ExprWithCtx
 end Lean.Widget

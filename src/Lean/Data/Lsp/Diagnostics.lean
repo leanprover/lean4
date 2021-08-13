@@ -70,20 +70,22 @@ structure DiagnosticRelatedInformation where
   message : String
   deriving Inhabited, BEq, ToJson, FromJson
 
-structure Diagnostic where
+structure DiagnosticWith (α : Type) where
   range : Range
-  /-- extension: preserve semantic range of errors when truncating them for display purposes -/
+  /-- Extension: preserve semantic range of errors when truncating them for display purposes. -/
   fullRange : Range := range
   severity? : Option DiagnosticSeverity := none
   code? : Option DiagnosticCode := none
   source? : Option String := none
-  message : String
+  /-- Parametrised by the type of message data. LSP diagnostics use `String`,
+  whereas in Lean's interactive diagnostics we use the type of widget-enriched text.
+  See `Lean.Widget.InteractiveDiagnostic`. -/
+  message : α
   tags? : Option (Array DiagnosticTag) := none
   relatedInformation? : Option (Array DiagnosticRelatedInformation) := none
-  /-- Extension: interactive message widgets. We use untyped `Json` here due to dependency
-  ordering -- see `Lean.Widget.InteractiveDiagnostics`. -/
-  taggedMsg? : Option Json := none
   deriving Inhabited, BEq, ToJson, FromJson
+
+abbrev Diagnostic := DiagnosticWith String
 
 structure PublishDiagnosticsParams where
   uri : DocumentUri

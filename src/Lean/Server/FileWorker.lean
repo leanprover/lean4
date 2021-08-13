@@ -20,7 +20,7 @@ import Lean.Server.FileWorker.Utils
 import Lean.Server.FileWorker.RequestHandling
 import Lean.Server.Rpc.Basic
 
-import Lean.Widget.InteractiveDiagnostics
+import Lean.Widget.InteractiveDiagnostic
 
 /-!
 For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.

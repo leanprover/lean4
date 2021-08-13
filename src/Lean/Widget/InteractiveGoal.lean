@@ -4,14 +4,32 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
-import Lean.Widget.ExprWithCtx
+import Lean.Widget.InteractiveCode
 
-/-! RPC procedures for retrieving tactic and term goals with embedded `CodeWithInfos`s. -/
+/-! RPC procedures for retrieving tactic and term goals with embedded `CodeWithInfos`. -/
 -- TODO(WN): this module is mostly a slightly adapted copy of the corresponding `plainGoal/plainTemGoal` handlers
--- unify them somehow? or delete the plain ones.
+-- unify them
 
 namespace Lean.Widget
 open Server
+
+structure InteractiveGoal where
+  hyps      : Array (String × CodeWithInfos)
+  type      : CodeWithInfos
+  userName? : Option String
+  deriving Inhabited, RpcEncoding
+
+namespace InteractiveGoal
+
+def pretty (g : InteractiveGoal) : String :=
+  let ret := match g.userName? with
+    | some userName => s!"case {userName}\n"
+    | none          => ""
+  let hyps := g.hyps.map fun (name, tt) => s!"{name} : {tt.stripTags}"
+  let ret := ret ++ "\n".intercalate hyps.toList
+  ret ++ s!"⊢ {g.type.stripTags}"
+
+end InteractiveGoal
 
 structure InteractiveGoals where
   goals : Array InteractiveGoal
@@ -26,7 +44,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
     let lctx           := mvarDecl.lctx
     let lctx           := lctx.sanitizeNames.run' { options := (← getOptions) }
     let mkExprWithCtx (e : Expr) : MetaM CodeWithInfos :=
-      ExprWithCtx.tagged e
+      exprToInteractive e
     withLCtx lctx mvarDecl.localInstances do
       let (hidden, hiddenProp) ← ToHide.collect mvarDecl.type
       -- The following two `let rec`s are being used to control the generated code size.
@@ -75,47 +93,5 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
         | Name.anonymous => none
         | name           => some <| toString name.eraseMacroScopes
       return { hyps := fmt, type := goalFmt, userName? }
-
-open RequestM in
-def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask InteractiveGoals) := do
-  let doc ← readDoc
-  let text := doc.meta.text
-  let hoverPos := text.lspPosToUtf8Pos p.position
-  -- NOTE: use `>=` since the cursor can be *after* the input
-  withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
-    (notFoundX := return { goals := #[] }) fun snap => do
-      for t in snap.cmdState.infoState.trees do
-        if let rs@(_ :: _) := t.goalsAt? doc.meta.text hoverPos then
-          let goals ← List.join <$> rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter } =>
-            let ci := if useAfter then { ci with mctx := ti.mctxAfter } else { ci with mctx := ti.mctxBefore }
-            let goals := if useAfter then ti.goalsAfter else ti.goalsBefore
-            ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPInaccessibleNames (goalToInteractive g))
-          return { goals := goals.toArray }
-
-      return { goals := #[] }
-
-open RequestM in
-partial def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
-    : RequestM (RequestTask (Option InteractiveGoal)) := do
-  let doc ← readDoc
-  let text := doc.meta.text
-  let hoverPos := text.lspPosToUtf8Pos p.position
-  withWaitFindSnap doc (fun s => s.endPos > hoverPos)
-    (notFoundX := pure none) fun snap => do
-      for t in snap.cmdState.infoState.trees do
-        if let some (ci, i@(Elab.Info.ofTermInfo ti)) := t.termGoalAt? hoverPos then
-         let ty ← ci.runMetaM i.lctx do
-           Meta.instantiateMVars <| ti.expectedType?.getD (← Meta.inferType ti.expr)
-         -- for binders, hide the last hypothesis (the binder itself)
-         let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
-         let goal ← ci.runMetaM lctx' do
-           Meta.withPPInaccessibleNames <| goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
-         --let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
-         return some goal
-      return none
-
-builtin_initialize
-  registerRpcCallHandler `Lean.Widget.getInteractiveGoals    Lsp.PlainGoalParams     InteractiveGoals         getInteractiveGoals
-  registerRpcCallHandler `Lean.Widget.getInteractiveTermGoal Lsp.PlainTermGoalParams (Option InteractiveGoal) getInteractiveTermGoal
 
 end Lean.Widget

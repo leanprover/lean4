@@ -1,9 +1,7 @@
-typeOf.lean:11:21-11:24: error: type mismatch
-  x + 1
-has type
-  Nat : Type
-but is expected to have type
-  Bool : Type
+typeOf.lean:11:21-11:24: error: failed to synthesize instance
+  HAdd Nat Nat Bool
+typeOf.lean:12:0-12:5: error: failed to synthesize instance
+  HAdd Bool Nat Nat
 typeOf.lean:20:54-20:60: error: invalid reassignment, term has type
   Bool : Type
 but is expected to have type

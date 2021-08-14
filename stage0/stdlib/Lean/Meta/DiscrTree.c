@@ -1666,7 +1666,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#");
+x_1 = lean_mk_string(" ");
 return x_1;
 }
 }
@@ -1684,7 +1684,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__5()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ");
+x_1 = lean_mk_string("#");
 return x_1;
 }
 }
@@ -1729,11 +1729,11 @@ if (x_5 == 0)
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; lean_object* x_25; lean_object* x_26; 
 x_9 = lean_array_to_list(lean_box(0), x_3);
 x_10 = l_List_format___rarg(x_1, x_9);
-x_11 = l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__4;
+x_11 = l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__6;
 x_12 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
 lean_ctor_set(x_12, 1, x_10);
-x_13 = l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__6;
+x_13 = l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__4;
 x_14 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
 lean_ctor_set(x_14, 1, x_12);

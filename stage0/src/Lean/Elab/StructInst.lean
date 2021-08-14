@@ -280,7 +280,7 @@ partial def Struct.allDefault (s : Struct) : Bool :=
     | FieldVal.nested s => allDefault s
 
 def formatField (formatStruct : Struct → Format) (field : Field Struct) : Format :=
-  Format.joinSep field.lhs " . " ++ " := " ++
+  Format.joinSep field.lhs " . " ++ format " := " ++
     match field.val with
     | FieldVal.term v   => v.prettyPrint
     | FieldVal.nested s => formatStruct s

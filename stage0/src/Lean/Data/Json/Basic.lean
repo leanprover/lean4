@@ -78,10 +78,10 @@ instance : LT JsonNumber :=
 
 instance (a b : JsonNumber) : Decidable (a < b) :=
   inferInstanceAs (Decidable (lt a b = true))
-  
+
 instance : Ord JsonNumber where
-  compare x y := 
-    if x < y then Ordering.lt 
+  compare x y :=
+    if x < y then Ordering.lt
     else if x > y then Ordering.gt
     else Ordering.eq
 
@@ -99,7 +99,7 @@ protected def toString : JsonNumber → String
     let exp := if exp < 0 then exp else 0
     let e' := (10 : Int) ^ (e - exp.natAbs)
     let left := (m / e').repr
-    let right := e' + m % e'
+    let right := e' + coe m % e'
       |>.repr.toSubstring.drop 1
       |>.dropRightWhile (fun c => c = '0')
       |>.toString
@@ -188,14 +188,14 @@ def getNum? : Json → Except String JsonNumber
   | _     => throw "number expected"
 
 def getObjVal? : Json → String → Except String Json
-  | obj kvs, k => 
+  | obj kvs, k =>
     match kvs.find compare k with
     | some v => v
     | none => throw s!"property not found: {k}"
   | _      , _ => throw "object expected"
 
 def getArrVal? : Json → Nat → Except String Json
-  | arr a, i => 
+  | arr a, i =>
     match a.get? i with
     | some v => v
     | none => throw s!"index out of bounds: {i}"

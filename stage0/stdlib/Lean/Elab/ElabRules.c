@@ -240,7 +240,6 @@ static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__1
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__85;
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__16;
-lean_object* l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_6404____spec__3(size_t, size_t, lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_inferMacroRulesAltKind___spec__2___rarg(lean_object*);
 lean_object* l_Lean_mkIdentFromRef___at_Lean_Elab_Command_elabElabRulesAux___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__124;
@@ -280,6 +279,7 @@ static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__9
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__81;
 lean_object* l_Lean_Elab_Command_expandElab(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
+lean_object* l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_6434____spec__3(size_t, size_t, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_expandElab___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__77;
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__117;
@@ -6477,7 +6477,7 @@ x_69 = lean_array_get_size(x_4);
 x_70 = lean_usize_of_nat(x_69);
 lean_dec(x_69);
 x_71 = x_4;
-x_72 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_6404____spec__3(x_70, x_5, x_71);
+x_72 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_6434____spec__3(x_70, x_5, x_71);
 x_73 = x_72;
 x_74 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabElabRulesAux___spec__3___lambda__2___closed__4;
 x_75 = l_Array_append___rarg(x_74, x_73);

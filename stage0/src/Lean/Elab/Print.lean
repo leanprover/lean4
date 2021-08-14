@@ -17,7 +17,7 @@ private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
   | u::us => do
     let mut m := m!".\{{u}"
     for u in us do
-      m := m ++ ", " ++ u
+      m := m ++ ", " ++ toMessageData u
     return m ++ "}"
 
 private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (safety : DefinitionSafety) : CommandElabM MessageData := do

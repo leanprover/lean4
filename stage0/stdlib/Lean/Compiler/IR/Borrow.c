@@ -861,27 +861,27 @@ return x_4;
 static lean_object* _init_l_Lean_IR_Borrow_ParamMap_fmt___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_nat_to_int(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string("{");
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_IR_Borrow_ParamMap_fmt___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("{");
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_IR_Borrow_ParamMap_fmt___closed__1;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_IR_Borrow_ParamMap_fmt___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_IR_Borrow_ParamMap_fmt___closed__2;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_1 = lean_unsigned_to_nat(1u);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -907,7 +907,7 @@ static lean_object* _init_l_Lean_IR_Borrow_ParamMap_fmt___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_Borrow_ParamMap_fmt___closed__1;
+x_1 = l_Lean_IR_Borrow_ParamMap_fmt___closed__3;
 x_2 = lean_box(0);
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -919,7 +919,7 @@ static lean_object* _init_l_Lean_IR_Borrow_ParamMap_fmt___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_Borrow_ParamMap_fmt___closed__3;
+x_1 = l_Lean_IR_Borrow_ParamMap_fmt___closed__2;
 x_2 = l_Lean_IR_Borrow_ParamMap_fmt___closed__6;
 x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -973,11 +973,11 @@ x_10 = lean_usize_of_nat(x_3);
 lean_dec(x_3);
 x_11 = lean_box(0);
 x_12 = l_Array_foldlMUnsafe_fold___at_Lean_IR_Borrow_ParamMap_fmt___spec__2(x_2, x_9, x_10, x_11);
-x_13 = l_Lean_IR_Borrow_ParamMap_fmt___closed__1;
+x_13 = l_Lean_IR_Borrow_ParamMap_fmt___closed__3;
 x_14 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
 lean_ctor_set(x_14, 1, x_12);
-x_15 = l_Lean_IR_Borrow_ParamMap_fmt___closed__3;
+x_15 = l_Lean_IR_Borrow_ParamMap_fmt___closed__2;
 x_16 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_14);

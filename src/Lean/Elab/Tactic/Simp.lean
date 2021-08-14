@@ -94,9 +94,10 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Boo
               true
             else
               arg[0][0].getKind == ``Parser.Tactic.simpPost
-          match (← resolveSimpIdLemma? arg[1]) with
+          let term := arg[2]
+          match (← resolveSimpIdLemma? term) with
           | some e => lemmas ← addDeclToUnfoldOrLemma lemmas e post
-          | _      => lemmas ← addSimpLemma lemmas arg[1] post
+          | _      => lemmas ← addSimpLemma lemmas term post
       return { ctx with simpLemmas := lemmas }
 where
   resolveSimpIdLemma? (simpArgTerm : Syntax) : TacticM (Option Expr) := do

@@ -14,10 +14,6 @@ class ToExpr (α : Type u) where
 
 export ToExpr (toExpr toTypeExpr)
 
-instance : ToExpr Expr where
-  toExpr     := id
-  toTypeExpr := mkConst ``Expr
-
 instance : ToExpr Nat where
   toExpr     := mkNatLit
   toTypeExpr := mkConst ``Nat

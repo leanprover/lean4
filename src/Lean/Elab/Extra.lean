@@ -90,9 +90,10 @@ private inductive Tree where
   | term  (ref : Syntax) (val : Expr)
   | op    (ref : Syntax) (f : Expr) (lhs rhs : Tree)
 
-private partial def toTree (s : Syntax) : TermElabM Tree :=
-  withSynthesizeLight do
-    go (← liftMacroM <| expandMacros s)
+private partial def toTree (s : Syntax) : TermElabM Tree := do
+  let result ← go (← liftMacroM <| expandMacros s)
+  synthesizeSyntheticMVars (mayPostpone := true)
+  return result
 where
   go (s : Syntax) := do
     match s with
@@ -171,9 +172,11 @@ where
     | Tree.op ref f lhs rhs => return Tree.op ref f (← go lhs) (← go rhs)
     | Tree.term ref e       =>
       let type ← inferType e
+      trace[Elab.binop] "visiting {e} : {type} =?= {maxType}"
       if (← isDefEqGuarded maxType type) then
         return t
       else
+        trace[Elab.binop] "added coercion: {e} : {type} => {maxType}"
         withRef ref <| return Tree.term ref (← mkCoe maxType type e)
 
 @[builtinTermElab binop]
@@ -186,6 +189,7 @@ def elabBinOp' : TermElab :=  fun stx expectedType? => do
     ensureHasType expectedType? result
   else
     let result ← toExpr (← applyCoe tree r.max?.get!)
+    trace[Elab.binop] "result: {result}"
     ensureHasType expectedType? result
 
 builtin_initialize

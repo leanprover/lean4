@@ -354,7 +354,8 @@ syntax simpPre   := "↓"
 syntax simpPost  := "↑"
 syntax simpLemma := (simpPre <|> simpPost)? term
 syntax simpErase := "-" ident
-syntax (name := simp) "simp " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? (location)? : tactic
+syntax simpStar  := "*"
+syntax (name := simp) "simp " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 syntax (name := simpAll) "simp_all " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
 
 -- Auxiliary macro for lifting have/suffices/let/...

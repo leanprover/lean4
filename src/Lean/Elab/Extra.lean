@@ -84,7 +84,55 @@ where
     throwError "failed to synthesize instance for 'forIn%' notation{indentExpr forInInstance}"
 
 namespace BinOp
-/- Elaborator for `binop%` -/
+/-
+
+The elaborator for `binop%` terms works as follows:
+
+1- Expand macros.
+2- Convert `Syntax` object corresponding to the `binop%` term into a `Tree`.
+   The `toTree` method visits nested `binop%` terms and parentheses.
+3- Synthesize pending metavariables without applying default instances and using the
+   `(mayPostpone := true)`.
+4- Tries to compute a maximal type for the tree computed at step 2.
+   We say a type α is smaller than type β if there is a (nondependent) coercion from α to β.
+   We are currently ignoring the case we may have cycles in the coercion graph.
+   If there are "uncomparable" types α and β in the tree, we skip the next step.
+   We say two types are "uncomparable" if there isn't a coercion between them.
+   Note that two types may be "uncomparable" because some typing information may still be missing.
+5- We traverse the tree and inject coercions to the "maximal" type when needed.
+
+Recall that the coercions are expanded eagerly by the elaborator.
+
+Properties:
+
+a) Given `n : Nat` and `i : Nat`, it can successfully elaborate `n + i` and `i + n`. Recall that Lean 3
+   fails on the former.
+
+b) The coercions are inserted in the "leaves" like in Lean 3.
+
+c) There are no coercions "hidden" inside instances, and we can elaborate
+```
+axiom Int.add_comm (i j : Int) : i + j = j + i
+
+example (n : Nat) (i : Int) : n + i = i + n := by
+  rw [Int.add_comm]
+```
+Recall that the `rw` tactic used to fail because our old `binop%` elaborator would hide
+coercions inside of a `HAdd` instance.
+
+Remarks:
+
+In the new `binop%` elaborator the decision whether a coercion will be inserted or not
+is made at `binop%` elaboration time. This was not the case in the old elaborator.
+For example, an instance, such as `HAdd Int ?m ?n`, could be created when executing
+the `binop%` elaborator, and only resolved much later. We try to minimize this problem
+by synthesizing pending metavariables at step 3.
+
+For types containing heterogeneous operators (e.g., matrix multiplication), step 4 will fail
+and we will skip coercion insertion. For example, `x : Matrix Real 5 4` and `y : Matrix Real 4 8`,
+there is no coercion `Matrix Real 5 4` from `Matrix Real 4 8` and vice-versa, but
+`x * y` is elaborated successfully and has type `Matrix Real 5 8`.
+-/
 
 private inductive Tree where
   | term  (ref : Syntax) (val : Expr)

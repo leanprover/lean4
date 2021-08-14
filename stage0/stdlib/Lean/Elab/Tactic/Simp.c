@@ -3454,7 +3454,7 @@ lean_object* x_28; lean_object* x_29; uint8_t x_30; lean_object* x_31; lean_obje
 x_28 = lean_unsigned_to_nat(0u);
 x_29 = l_Lean_Syntax_getArg(x_17, x_28);
 x_30 = l_Lean_Syntax_isNone(x_29);
-x_31 = lean_unsigned_to_nat(1u);
+x_31 = lean_unsigned_to_nat(2u);
 x_32 = l_Lean_Syntax_getArg(x_17, x_31);
 lean_dec(x_17);
 if (x_30 == 0)

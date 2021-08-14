@@ -187,7 +187,7 @@ lean_object* l_Lean_Elab_Command_getScopes___rarg___boxed(lean_object*, lean_obj
 static lean_object* l_Lean_Elab_Command_modifyScope___closed__3;
 lean_object* l_Lean_Elab_Command_State_messages___default;
 static lean_object* l_Lean_Elab_checkNotAlreadyDeclared___at_Lean_Elab_Command_expandDeclId___spec__4___lambda__1___closed__1;
-uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_78_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_79_(uint8_t, uint8_t);
 static lean_object* l_Lean_Elab_Command_instMonadTraceCommandElabM___closed__2;
 lean_object* l___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing_match__1(lean_object*);
 static lean_object* l_Lean_Elab_Command_instMonadRefCommandElabM___closed__1;
@@ -3823,7 +3823,7 @@ _start:
 {
 lean_object* x_7; uint8_t x_339; uint8_t x_340; 
 x_339 = 2;
-x_340 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_78_(x_3, x_339);
+x_340 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_79_(x_3, x_339);
 if (x_340 == 0)
 {
 lean_object* x_341; 

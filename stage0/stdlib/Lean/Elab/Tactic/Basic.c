@@ -116,7 +116,7 @@ static lean_object* l_Lean_Elab_Tactic_evalTacticAux___lambda__4___closed__3;
 lean_object* l_Lean_Elab_Tactic_tacticElabAttribute___lambda__7(lean_object*);
 lean_object* l_Lean_MessageData_joinSep(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getCurrMacroScope___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_78_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_79_(uint8_t, uint8_t);
 lean_object* l_Lean_Elab_Tactic_done___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
 static lean_object* l_Lean_Elab_Tactic_mkTacticAttribute___closed__1;
@@ -7646,7 +7646,7 @@ _start:
 {
 lean_object* x_13; uint8_t x_294; uint8_t x_295; 
 x_294 = 2;
-x_295 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_78_(x_3, x_294);
+x_295 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_79_(x_3, x_294);
 if (x_295 == 0)
 {
 lean_object* x_296; 

@@ -428,7 +428,7 @@ partial def mkBelowMatcher
       | _, _ => xs
     let t := t.replaceFVars xs[:oldFVars.size] fvars[:oldFVars.size]
     trace[Meta.IndPredBelow.match] "xs = {xs}; oldFVars = {oldFVars.map (·.toExpr)}; fvars = {fvars}; new = {fvars[:oldFVars.size] ++ xs[oldFVars.size:] ++ fvars[oldFVars.size:]}"
-    let newAlt ← mkLambdaFVars (fvars[:oldFVars.size] ++ xs[oldFVars.size:] ++ fvars[oldFVars.size:]).toArray t
+    let newAlt ← mkLambdaFVars (fvars[:oldFVars.size] ++ xs[oldFVars.size:] ++ fvars[oldFVars.size:]) t
     trace[Meta.IndPredBelow.match] "alt {idx}:\n{alt} ↦ {newAlt}"
     newAlt
 

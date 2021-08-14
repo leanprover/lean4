@@ -137,6 +137,9 @@ infixl:60  " <* "  => SeqLeft.seqLeft
 infixr:60  " *> "  => SeqRight.seqRight
 infixr:100 " <$> " => Functor.map
 
+macro_rules | `($x <|> $y) => `(binop% HOrElse.hOrElse $x $y)
+macro_rules | `($x >> $y)  => `(binop% HAndThen.hAndThen $x $y)
+
 syntax (name := termDepIfThenElse) ppGroup(ppDedent("if " ident " : " term " then" ppSpace term ppDedent(ppSpace "else") ppSpace term)) : term
 
 macro_rules

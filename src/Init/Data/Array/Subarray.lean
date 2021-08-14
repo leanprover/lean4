@@ -82,7 +82,7 @@ end Subarray
 namespace Array
 variable {α : Type u}
 
-def toSubarray (as : Array α) (start stop : Nat) : Subarray α :=
+def toSubarray (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : Subarray α :=
   if h₂ : stop ≤ as.size then
      if h₁ : start ≤ stop then
        { as := as, start := start, stop := stop, h₁ := h₁, h₂ := h₂ }
@@ -119,5 +119,13 @@ end Array
 def Subarray.toArray (s : Subarray α) : Array α :=
   Array.ofSubarray s
 
-instance : HAppend (Subarray α) (Subarray α) (Array α) where
-  hAppend x y := x.toArray ++ y.toArray
+instance : Append (Subarray α) where
+  append x y :=
+   let a := x.toArray ++ y.toArray
+   a.toSubarray 0 a.size
+
+instance [Repr α] : Repr (Subarray α) where
+  reprPrec s  _ := repr s.toArray ++ ".toSubarray"
+
+instance [ToString α] : ToString (Subarray α) where
+  toString s := toString s.toArray

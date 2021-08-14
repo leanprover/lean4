@@ -38,10 +38,11 @@ macro "high"    : prio => `(10000)
 macro "(" p:prio ")" : prio => p
 
 -- Basic notation for defining parsers
-syntax   stx "+" : stx
-syntax   stx "*" : stx
-syntax   stx "?" : stx
-syntax:2 stx " <|> " stx:1 : stx
+-- NOTE: precedence must be at least `arg` to be used in `macro` without parentheses
+syntax:arg stx:max "+" : stx
+syntax:arg stx:max "*" : stx
+syntax:arg stx:max "?" : stx
+syntax:2 stx:2 " <|> " stx:1 : stx
 
 macro_rules
   | `(stx| $p +) => `(stx| many1($p))
@@ -50,32 +51,33 @@ macro_rules
   | `(stx| $p₁ <|> $p₂) => `(stx| orelse($p₁, $p₂))
 
 /- Comma-separated sequence. -/
-macro:max x:stx ",*"   : stx => `(stx| sepBy($x, ",", ", "))
-macro:max x:stx ",+"   : stx => `(stx| sepBy1($x, ",", ", "))
+macro:arg x:stx:max ",*"   : stx => `(stx| sepBy($x, ",", ", "))
+macro:arg x:stx:max ",+"   : stx => `(stx| sepBy1($x, ",", ", "))
 /- Comma-separated sequence with optional trailing comma. -/
-macro:max x:stx ",*,?" : stx => `(stx| sepBy($x, ",", ", ", allowTrailingSep))
-macro:max x:stx ",+,?" : stx => `(stx| sepBy1($x, ",", ", ", allowTrailingSep))
+macro:arg x:stx:max ",*,?" : stx => `(stx| sepBy($x, ",", ", ", allowTrailingSep))
+macro:arg x:stx:max ",+,?" : stx => `(stx| sepBy1($x, ",", ", ", allowTrailingSep))
 
-macro "!" x:stx : stx => `(stx| notFollowedBy($x))
+macro:arg "!" x:stx:max : stx => `(stx| notFollowedBy($x))
 
 syntax (name := rawNatLit) "nat_lit " num : term
 
 infixr:90 " ∘ "  => Function.comp
 infixr:35 " × "  => Prod
 
-infixl:55 " ||| "  => HOr.hOr
-infixl:58 " ^^^ "  => HXor.hXor
-infixl:60 " &&& "  => HAnd.hAnd
-infixl:65 " + "  => HAdd.hAdd
-infixl:65 " - "  => HSub.hSub
-infixl:70 " * "  => HMul.hMul
-infixl:70 " / "  => HDiv.hDiv
-infixl:70 " % "  => HMod.hMod
-infixl:75 " <<< "  => HShiftLeft.hShiftLeft
-infixl:75 " >>> "  => HShiftRight.hShiftRight
-infixr:80 " ^ "  => HPow.hPow
-prefix:100 "-"   => Neg.neg
-prefix:100 "~~~"   => Complement.complement
+infixl:55 " ||| " => HOr.hOr
+infixl:58 " ^^^ " => HXor.hXor
+infixl:60 " &&& " => HAnd.hAnd
+infixl:65 " + "   => HAdd.hAdd
+infixl:65 " - "   => HSub.hSub
+infixl:70 " * "   => HMul.hMul
+infixl:70 " / "   => HDiv.hDiv
+infixl:70 " % "   => HMod.hMod
+infixl:75 " <<< " => HShiftLeft.hShiftLeft
+infixl:75 " >>> " => HShiftRight.hShiftRight
+infixr:80 " ^ "   => HPow.hPow
+infixl:65 " ++ "  => HAppend.hAppend
+prefix:100 "-"    => Neg.neg
+prefix:100 "~~~"  => Complement.complement
 /-
   Remark: the infix commands above ensure a delaborator is generated for each relations.
   We redefine the macros below to be able to use the auxiliary `binop%` elaboration helper for binary operators.
@@ -87,10 +89,7 @@ macro_rules | `($x + $y)   => `(binop% HAdd.hAdd $x $y)
 macro_rules | `($x - $y)   => `(binop% HSub.hSub $x $y)
 macro_rules | `($x * $y)   => `(binop% HMul.hMul $x $y)
 macro_rules | `($x / $y)   => `(binop% HDiv.hDiv $x $y)
-macro_rules | `($x % $y)   => `(binop% HMod.hMod $x $y)
-macro_rules | `($x <<< $y) => `(binop% HShiftLeft.hShiftLeft $x $y)
-macro_rules | `($x >>> $y) => `(binop% HShiftRight.hShiftRight $x $y)
-macro_rules | `($x ^ $y)   => `(binop% HPow.hPow $x $y)
+macro_rules | `($x ++ $y)  => `(binop% HAppend.hAppend $x $y)
 
 -- declare ASCII alternatives first so that the latter Unicode unexpander wins
 infix:50 " <= " => LE.le
@@ -128,7 +127,6 @@ infixl:35 " && " => and
 infixl:30 " || " => or
 notation:max "!" b:40 => not b
 
-infixl:65 " ++ " => HAppend.hAppend
 infixr:67 " :: " => List.cons
 
 infixr:20  " <|> " => HOrElse.hOrElse
@@ -138,6 +136,9 @@ infixl:60  " <*> " => Seq.seq
 infixl:60  " <* "  => SeqLeft.seqLeft
 infixr:60  " *> "  => SeqRight.seqRight
 infixr:100 " <$> " => Functor.map
+
+macro_rules | `($x <|> $y) => `(binop% HOrElse.hOrElse $x $y)
+macro_rules | `($x >> $y)  => `(binop% HAndThen.hAndThen $x $y)
 
 syntax (name := termDepIfThenElse) ppGroup(ppDedent("if " ident " : " term " then" ppSpace term ppDedent(ppSpace "else") ppSpace term)) : term
 

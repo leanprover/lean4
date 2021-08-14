@@ -197,9 +197,12 @@ private def elabModifyOp (stx modifyOp : Syntax) (sources : Array ExplicitSource
   Otherwise, we use the type of the first source. -/
 private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceView : Source) : TermElabM Name := do
   tryPostponeIfNoneOrMVar expectedType?
-  let useSource : Unit → TermElabM Name := fun _ =>
+  let useSource : Unit → TermElabM Name := fun _ => do
     match sourceView, expectedType? with
-    | Source.explicit sources, _ => return sources[0].structName
+    | Source.explicit sources, _ =>
+      if sources.size > 1 then
+        throwErrorAt sources[1].stx "invalid \{...} notation, expected type is not known, using the type of the first source, extra sources are not needed"
+      return sources[0].structName
     | _, some expectedType => throwUnexpectedExpectedType expectedType
     | _, none              => throwUnknownExpectedType
   match expectedType? with
@@ -446,23 +449,10 @@ private def getFieldIdx (structName : Name) (fieldNames : Array Name) (fieldName
   | some idx => pure idx
   | none     => throwError "field '{fieldName}' is not a valid field of '{structName}'"
 
-private def mkCoreProjStx (s : Syntax) (fieldName : Name) : Syntax :=
-  Syntax.node ``Lean.Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
-
 def mkProjStx? (s : Syntax) (structName : Name) (fieldName : Name) : TermElabM (Option Syntax) := do
-  let ref := s
-  let mut s := s
-  let env ← getEnv
-  let some baseStructName ← findField? env structName fieldName | return none
-  let some path ← getPathToBaseStructure? env baseStructName structName | return none
-  for projFn in path do
-    s ← mkProjFnApp projFn s
-  let some projFn ← getProjFnForField? env baseStructName fieldName | return none
-  mkProjFnApp projFn s
-where
-  mkProjFnApp (projFn : Name) (s : Syntax) : TermElabM Syntax :=
-    let p := mkIdentFrom s projFn
-    `($p (self := $s))
+  if (← findField? (← getEnv) structName fieldName).isNone then
+    return none
+  return some $ Syntax.node ``Lean.Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
 
 def findField? (fields : Fields) (fieldName : Name) : Option (Field Struct) :=
   fields.find? fun field =>

@@ -43,41 +43,6 @@ open Meta
     elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType? (explicit := false) (ellipsis := false)
   | none   => throwUnknownConstant stx[1].getId
 
--- TODO: move to another file?
-private def hasUnknownType (e : Expr) : MetaM Bool :=
-  return (← inferType e).getAppFn.isMVar
-
-@[builtinTermElab binop] def elabBinOp : TermElab :=  fun stx expectedType? => do
-  match stx with
-  | `(binop% $f $lhs $rhs) =>
-    match expectedType? with
-    | none =>
-      -- We elaborate as a normal application when expected type is not available
-      let stxNew ← `($f:ident $lhs $rhs)
-      withMacroExpansion stx stxNew <| elabTerm stxNew none
-    | some expectedType =>
-      match (← resolveId? f) with
-      | some f =>
-        let syntheticMVarsSaved := (← get).syntheticMVars
-        modify fun s => { s with syntheticMVars := [] }
-        try
-          let lhs ← elabTerm lhs none
-          let rhs ← elabTerm rhs none
-          if (← hasUnknownType lhs) && (← hasUnknownType rhs) then
-            -- We want the numerals in terms such as `(1 + 1)` `(2 * 3 + 4)` to be elaborated using the expected type
-            -- This is particularly important when there is no coercion from `Nat` to the expected type.
-            elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType (explicit := false) (ellipsis := false)
-          else
-            -- We force TC resolution and default instances to be used.
-            -- Note that we do not provide the expected type to make sure it can be inferred by the TC procedure. See issue #382
-            let r ← elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] (expectedType? := none) (explicit := false) (ellipsis := false)
-            synthesizeSyntheticMVarsUsingDefault
-            return r
-        finally
-          modify fun s => { s with syntheticMVars := s.syntheticMVars ++ syntheticMVarsSaved }
-       | none   => throwUnknownConstant stx[1].getId
-  | _ => throwUnsupportedSyntax
-
 @[builtinTermElab forInMacro] def elabForIn : TermElab :=  fun stx expectedType? => do
   match stx with
   | `(forIn% $col $init $body) =>
@@ -117,5 +82,111 @@ where
       | none => throwError "invalid 'forIn%' notation, expected type is not of of the form `M α`{indentExpr expectedType}"
   throwFailure (forInInstance : Expr) : TermElabM Expr :=
     throwError "failed to synthesize instance for 'forIn%' notation{indentExpr forInInstance}"
+
+namespace BinOp
+/- Elaborator for `binop%` -/
+
+private inductive Tree where
+  | term  (ref : Syntax) (val : Expr)
+  | op    (ref : Syntax) (f : Expr) (lhs rhs : Tree)
+
+private partial def toTree (s : Syntax) : TermElabM Tree :=
+  withSynthesizeLight do
+    go (← liftMacroM <| expandMacros s)
+where
+  go (s : Syntax) := do
+    match s with
+    | `(binop% $f $lhs $rhs) =>
+       let some f ← resolveId? f | throwUnknownConstant f.getId
+       return Tree.op s f (← go lhs) (← go rhs)
+    | `(($e)) => (← go e)
+    | _ =>
+       return Tree.term s (← elabTerm s none)
+
+-- Auxiliary function used at `analyze`
+private def hasCoe (fromType toType : Expr) : TermElabM Bool := do
+  if (← getEnv).contains ``CoeHTCT then
+    let u ← getLevel fromType
+    let v ← getLevel toType
+    let coeInstType := mkAppN (Lean.mkConst ``CoeHTCT [u, v]) #[fromType, toType]
+    match ← trySynthInstance coeInstType (some (maxCoeSize.get (← getOptions))) with
+    | LOption.some _ => return true
+    | LOption.none   => return false
+    | LOption.undef  => return false -- TODO: should we do something smarter here?
+  else
+    return false
+
+private structure AnalyzeResult where
+  max?            : Option Expr := none
+  hasUncomparable : Bool := false -- `true` if there are two types `α` and `β` where we don't have coercions in any direction.
+
+private def isUnknow (e : Expr) : Bool :=
+  e.getAppFn.isMVar
+
+private def analyze (t : Tree) (expectedType? : Option Expr) : TermElabM AnalyzeResult := do
+  let max? ←
+    match expectedType? with
+    | none => pure none
+    | some expectedType =>
+      let expectedType ← instantiateMVars expectedType
+      if isUnknow expectedType then pure none else pure (some expectedType)
+  (go t *> get).run' { max? }
+where
+   go (t : Tree) : StateRefT AnalyzeResult TermElabM Unit := do
+     unless (← get).hasUncomparable do
+       match t with
+       | Tree.op _ _ lhs rhs => go lhs; go rhs
+       | Tree.term _ val =>
+         let type ← instantiateMVars (← inferType val)
+         unless isUnknow type do
+           match (← get).max? with
+           | none     => modify fun s => { s with max? := type }
+           | some max =>
+             unless (← withNewMCtxDepth <| isDefEqGuarded max type) do
+               if (← hasCoe type max) then
+                 return ()
+               else if (← hasCoe max type) then
+                 modify fun s => { s with max? := type }
+               else
+                 trace[Elab.binop] "uncomparable types: {max}, {type}"
+                 modify fun s => { s with hasUncomparable := true }
+
+private def mkOp (f : Expr) (lhs rhs : Expr) : TermElabM Expr :=
+  elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] (expectedType? := none) (explicit := false) (ellipsis := false)
+
+private def toExpr (t : Tree) : TermElabM Expr := do
+  match t with
+  | Tree.term _ e         => return e
+  | Tree.op ref f lhs rhs => withRef ref <| mkOp f (← toExpr lhs) (← toExpr rhs)
+
+private def applyCoe (t : Tree) (maxType : Expr) : TermElabM Tree := do
+  go t
+where
+  go (t : Tree) : TermElabM Tree := do
+    match t with
+    | Tree.op ref f lhs rhs => return Tree.op ref f (← go lhs) (← go rhs)
+    | Tree.term ref e       =>
+      let type ← inferType e
+      if (← isDefEqGuarded maxType type) then
+        return t
+      else
+        withRef ref <| return Tree.term ref (← mkCoe maxType type e)
+
+@[builtinTermElab binop]
+def elabBinOp' : TermElab :=  fun stx expectedType? => do
+  let tree ← toTree stx
+  let r    ← analyze tree expectedType?
+  trace[Elab.binop] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
+  if r.hasUncomparable || r.max?.isNone then
+    let result ← toExpr tree
+    ensureHasType expectedType? result
+  else
+    let result ← toExpr (← applyCoe tree r.max?.get!)
+    ensureHasType expectedType? result
+
+builtin_initialize
+  registerTraceClass `Elab.binop
+
+end BinOp
 
 end Lean.Elab.Term

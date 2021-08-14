@@ -181,7 +181,7 @@ abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
 
 -- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
 -- whole monad stack at every use site. May eventually be covered by `deriving`.
-instance : Monad TermElabM := { inferInstanceAs (Monad TermElabM) with }
+instance : Monad TermElabM := let i := inferInstanceAs (Monad TermElabM); { pure := i.pure, bind := i.bind }
 
 open Meta
 
@@ -700,6 +700,27 @@ def tryCoeThunk? (expectedType : Expr) (eType : Expr) (e : Expr) : TermElabM (Op
   | _ =>
     pure none
 
+def mkCoe (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
+  let u ← getLevel eType
+  let v ← getLevel expectedType
+  let coeTInstType := mkAppN (mkConst ``CoeT [u, v]) #[eType, e, expectedType]
+  let mvar ← mkFreshExprMVar coeTInstType MetavarKind.synthetic
+  let eNew := mkAppN (mkConst ``coe [u, v]) #[eType, expectedType, e, mvar]
+  let mvarId := mvar.mvarId!
+  try
+    withoutMacroStackAtErr do
+      if (← synthesizeCoeInstMVarCore mvarId) then
+        expandCoe eNew
+      else
+        -- We create an auxiliary metavariable to represent the result, because we need to execute `expandCoe`
+        -- after we syntheze `mvar`
+        let mvarAux ← mkFreshExprMVar expectedType MetavarKind.syntheticOpaque
+        registerSyntheticMVarWithCurrRef mvarAux.mvarId! (SyntheticMVarKind.coe errorMsgHeader? eNew expectedType eType e f?)
+        return mvarAux
+  catch
+    | Exception.error _ msg => throwTypeMismatchError errorMsgHeader? expectedType eType e f? msg
+    | _                     => throwTypeMismatchError errorMsgHeader? expectedType eType e f?
+
 /--
   Try to apply coercion to make sure `e` has type `expectedType`.
   Relevant definitions:
@@ -713,26 +734,7 @@ private def tryCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eTyp
     return e
   else match (← tryCoeThunk? expectedType eType e) with
     | some r => return r
-    | none   =>
-      let u ← getLevel eType
-      let v ← getLevel expectedType
-      let coeTInstType := mkAppN (mkConst ``CoeT [u, v]) #[eType, e, expectedType]
-      let mvar ← mkFreshExprMVar coeTInstType MetavarKind.synthetic
-      let eNew := mkAppN (mkConst ``coe [u, v]) #[eType, expectedType, e, mvar]
-      let mvarId := mvar.mvarId!
-      try
-        withoutMacroStackAtErr do
-          if (← synthesizeCoeInstMVarCore mvarId) then
-            expandCoe eNew
-          else
-            -- We create an auxiliary metavariable to represent the result, because we need to execute `expandCoe`
-            -- after we syntheze `mvar`
-            let mvarAux ← mkFreshExprMVar expectedType MetavarKind.syntheticOpaque
-            registerSyntheticMVarWithCurrRef mvarAux.mvarId! (SyntheticMVarKind.coe errorMsgHeader? eNew expectedType eType e f?)
-            return mvarAux
-      catch
-        | Exception.error _ msg => throwTypeMismatchError errorMsgHeader? expectedType eType e f? msg
-        | _                     => throwTypeMismatchError errorMsgHeader? expectedType eType e f?
+    | none   => mkCoe expectedType eType e f? errorMsgHeader?
 
 def isTypeApp? (type : Expr) : TermElabM (Option (Expr × Expr)) := do
   let type ← withReducible $ whnf type

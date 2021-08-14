@@ -1099,9 +1099,9 @@ return x_2;
 lean_object* l_Lean_Meta_reduce_visit___lambda__4(lean_object* x_1, uint8_t x_2, uint8_t x_3, uint8_t x_4, uint8_t x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
-uint8_t x_12; lean_object* x_13; 
 if (x_5 == 0)
 {
+uint8_t x_12; lean_object* x_13; 
 if (x_4 == 0)
 {
 x_12 = x_4;
@@ -1159,20 +1159,6 @@ lean_ctor_set(x_91, 1, x_90);
 return x_91;
 }
 }
-}
-}
-else
-{
-lean_object* x_92; 
-lean_dec(x_10);
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-x_92 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_92, 0, x_1);
-lean_ctor_set(x_92, 1, x_11);
-return x_92;
 }
 block_83:
 {
@@ -1481,6 +1467,20 @@ lean_ctor_set(x_82, 0, x_1);
 lean_ctor_set(x_82, 1, x_13);
 return x_82;
 }
+}
+}
+else
+{
+lean_object* x_92; 
+lean_dec(x_10);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+x_92 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_92, 0, x_1);
+lean_ctor_set(x_92, 1, x_11);
+return x_92;
 }
 }
 }

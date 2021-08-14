@@ -74,22 +74,16 @@ def elabElabRulesAux (doc? : Option Syntax) (attrKind : Syntax) (k : SyntaxNodeK
 @[builtinMacro Lean.Parser.Command.elab]
 def expandElab : Macro
   | `($[$doc?:docComment]? $attrKind:attrKind
-    elab$[:$prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $head:macroArg $args:macroArg* :
+    elab$[:$prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $args:macroArg* :
       $cat $[<= $expectedType?]? => $rhs) => do
     let prio    ← evalOptPrio prio?
     let catName := cat.getId
-    -- build parser
-    let stxPart  ← expandMacroArgIntoSyntaxItem head
-    let stxParts ← args.mapM expandMacroArgIntoSyntaxItem
-    let stxParts := #[stxPart] ++ stxParts
+    let (stxParts, patArgs) := (← args.mapM expandMacroArg).unzip
     -- name
     let name ← match name? with
       | some name => pure name.getId
       | none => mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
-    -- build pattern for syntax `match`
-    let patHead ← expandMacroArgIntoPattern head
-    let patArgs ← args.mapM expandMacroArgIntoPattern
-    let pat := Syntax.node ((← Macro.getCurrNamespace) ++ name) (#[patHead] ++ patArgs)
+    let pat := Syntax.node ((← Macro.getCurrNamespace) ++ name) patArgs
     `($[$doc?:docComment]? $attrKind:attrKind syntax$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio)) $[$stxParts]* : $cat
       $[$doc?:docComment]? elab_rules : $cat $[<= $expectedType?]? | `($pat) => $rhs)
   | _ => Macro.throwUnsupported

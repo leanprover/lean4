@@ -280,6 +280,7 @@ instance : ToMessageData Format        := ⟨MessageData.ofFormat⟩
 instance : ToMessageData MessageData   := ⟨id⟩
 instance {α} [ToMessageData α] : ToMessageData (List α)  := ⟨fun as => MessageData.ofList $ as.map toMessageData⟩
 instance {α} [ToMessageData α] : ToMessageData (Array α) := ⟨fun as => toMessageData as.toList⟩
+instance {α} [ToMessageData α] : ToMessageData (Subarray α) := ⟨fun as => toMessageData as.toArray.toList⟩
 instance {α} [ToMessageData α] : ToMessageData (Option α) := ⟨fun | none => "none" | some e => "some (" ++ toMessageData e ++ ")"⟩
 instance : ToMessageData (Option Expr) := ⟨fun | none => "<not-available>" | some e => toMessageData e⟩
 

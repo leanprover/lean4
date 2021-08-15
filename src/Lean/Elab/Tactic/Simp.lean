@@ -38,18 +38,20 @@ def elabSimpConfig (optConfig : Syntax) (ctx : Bool) : TermElabM Meta.Simp.Confi
       else
         evalSimpConfig (← instantiateMVars c)
 
-private def addDeclToUnfoldOrLemma (lemmas : Meta.SimpLemmas) (e : Expr) (post : Bool) : MetaM Meta.SimpLemmas := do
+private def addDeclToUnfoldOrLemma (lemmas : Meta.SimpLemmas) (e : Expr) (post : Bool) (inv : Bool) : MetaM Meta.SimpLemmas := do
   if e.isConst then
     let declName := e.constName!
     let info ← getConstInfo declName
     if (← isProp info.type) then
-      lemmas.addConst declName post
+      lemmas.addConst declName (post := post) (inv := inv)
     else
+      if inv then
+        throwError "invalid '←' modifier, '{declName}' is a declaration name to be unfolded"
       lemmas.addDeclToUnfold declName
   else
-    lemmas.add #[] e post
+    lemmas.add #[] e (post := post) (inv := inv)
 
-private def addSimpLemma (lemmas : Meta.SimpLemmas) (stx : Syntax) (post : Bool) : TermElabM Meta.SimpLemmas := do
+private def addSimpLemma (lemmas : Meta.SimpLemmas) (stx : Syntax) (post : Bool) (inv : Bool) : TermElabM Meta.SimpLemmas := do
   let (levelParams, proof) ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx <| Term.withoutErrToSorry do
     let e ← Term.elabTerm stx none
     Term.synthesizeSyntheticMVars (mayPostpone := false) (ignoreStuckTC := true)
@@ -60,7 +62,7 @@ private def addSimpLemma (lemmas : Meta.SimpLemmas) (stx : Syntax) (post : Bool)
       return (r.paramNames, r.expr)
     else
       return (#[], e)
-  lemmas.add levelParams proof
+  lemmas.add levelParams proof (post := post) (inv := inv)
 
 /--
   Elaborate extra simp lemmas provided to `simp`. `stx` is of the `simpLemma,*`
@@ -94,10 +96,11 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Boo
               true
             else
               arg[0][0].getKind == ``Parser.Tactic.simpPost
+          let inv  := !arg[1].isNone
           let term := arg[2]
           match (← resolveSimpIdLemma? term) with
-          | some e => lemmas ← addDeclToUnfoldOrLemma lemmas e post
-          | _      => lemmas ← addSimpLemma lemmas term post
+          | some e => lemmas ← addDeclToUnfoldOrLemma lemmas e post inv
+          | _      => lemmas ← addSimpLemma lemmas term post inv
       return { ctx with simpLemmas := lemmas }
 where
   resolveSimpIdLemma? (simpArgTerm : Syntax) : TacticM (Option Expr) := do

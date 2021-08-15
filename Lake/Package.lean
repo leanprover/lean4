@@ -49,6 +49,7 @@ structure PackageConfig where
   binName : String := name
   libDir : FilePath := defaultLibDir
   libName : String := moduleRoot.toString (escape := false)
+  buildMoreLibTargets : IO (Array ActiveFileTarget) := #[]
   depsDir : FilePath := defaultDepsDir
   dependencies : List Dependency := []
   buildMoreDepsTarget : IO (LakeTarget PUnit) := LakeTarget.nil
@@ -85,7 +86,7 @@ def moduleRootName (self : Package) : String :=
 def dependencies (self : Package) : List Dependency :=
   self.config.dependencies
 
-def buildMoreDepsTarget (self : Package) : IO (ActiveBuildTarget LakeTrace PUnit) :=
+def buildMoreDepsTarget (self : Package) : IO (LakeTarget PUnit) :=
   self.config.buildMoreDepsTarget
 
 def leanArgs (self : Package) : Array String :=
@@ -165,3 +166,6 @@ def staticLibFileName (self : Package) : FilePath :=
 
 def staticLibFile (self : Package) : FilePath :=
   self.libDir / self.staticLibFileName
+
+def buildMoreLibTargets (self : Package) : IO (Array ActiveFileTarget) :=
+  self.config.buildMoreLibTargets

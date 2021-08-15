@@ -21,15 +21,15 @@ def fetchLeanOFileTarget (oFile : FilePath)
 -- # Build Package Lib
 
 def PackageTarget.fetchOFileTargets
-(self : PackageTarget) : IO (List ActiveFileTarget) := do
-  self.moduleTargets.toList.mapM fun (mod, target) => do
+(self : PackageTarget) : IO (Array ActiveFileTarget) := do
+  self.moduleTargets.mapM fun (mod, target) => do
     let oFile := self.package.modToO mod
     fetchLeanOFileTarget (oFile) target.cTarget self.package.leancArgs
 
 def PackageTarget.buildStaticLib
 (self : PackageTarget) : IO BuildTask := do
   let oFileTargets ← self.fetchOFileTargets
-  let oFiles := oFileTargets.map (·.artifact) |>.toArray
+  let oFiles := oFileTargets.map (·.artifact)
   oFileTargets >> compileStaticLib self.package.staticLibFile oFiles
 
 def PackageTarget.fetchStaticLibTarget (self : PackageTarget) : IO ActiveFileTarget := do
@@ -55,8 +55,9 @@ def PackageTarget.buildBin
 : IO BuildTask := do
   let oFileTargets ← self.fetchOFileTargets
   let libTargets ← depTargets.mapM (·.fetchStaticLibTarget)
-  let linkTargets := oFileTargets ++ libTargets
-  let linkFiles := linkTargets.map (·.artifact) |>.toArray
+  let moreLibTargets ← self.package.buildMoreLibTargets
+  let linkTargets := oFileTargets ++ libTargets ++ moreLibTargets
+  let linkFiles := linkTargets.map (·.artifact)
   linkTargets >> compileLeanBin self.package.binFile linkFiles self.package.linkArgs
 
 def PackageTarget.fetchBinTarget

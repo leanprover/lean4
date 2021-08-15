@@ -52,9 +52,14 @@ abbrev PackageTarget :=  LakeTarget (Package × NameMap ModuleTarget)
 
 namespace PackageTarget
 
-def package (self : PackageTarget) := self.artifact.1
-def moduleTargets (self : PackageTarget) : NameMap ModuleTarget :=
+def package (self : PackageTarget) :=
+  self.artifact.1
+
+def moduleTargetMap (self : PackageTarget) : NameMap ModuleTarget :=
   self.artifact.2
+
+def moduleTargets (self : PackageTarget) : Array (Name × ModuleTarget) :=
+  self.moduleTargetMap.fold (fun arr k v => arr.push (k, v)) #[]
 
 end PackageTarget
 

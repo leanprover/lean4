@@ -23,9 +23,6 @@ def package : PackageConfig := {
   srcDir := "lib"
   moduleRoot := `Add
   binName := "add"
-  -- specify path to the lib for linker
-  linkArgs := #[cLib.toString]
-  -- specify the lib target as an additional dependency
-  buildMoreDepsTarget := do
-    LakeTarget.buildOpaqueFromFileTarget <| ← computeCLibTarget
+  -- specify the lib as an additional target
+  buildMoreLibTargets := do #[← (← computeCLibTarget).runAsync]
 }

@@ -7,7 +7,7 @@ import Lean.Data.Name
 import Lean.Elab.Import
 import Std.Data.HashMap
 import Lake.LeanVersion
-import Lake.BuildTarget
+import Lake.Target
 
 open Lean Std System
 

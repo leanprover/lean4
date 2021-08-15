@@ -3,8 +3,8 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.BuildTask
-import Lake.BuildTrace
+import Lake.Task
+import Lake.Trace
 
 open System
 namespace Lake

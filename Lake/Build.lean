@@ -5,7 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lean.Data.Name
 import Lean.Elab.Import
-import Lake.BuildTarget
+import Lake.Target
 import Lake.BuildTop
 import Lake.Resolve
 import Lake.Package

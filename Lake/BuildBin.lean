@@ -11,7 +11,7 @@ namespace Lake
 -- # Build `.o` Files
 
 def buildLeanO (oFile : FilePath)
-(cTarget : ActiveBuildTarget t FilePath) (leancArgs : Array String := #[]) : IO BuildTask :=
+(cTarget : ActiveBuildTarget t FilePath) (leancArgs : Array String := #[]) : IO (IOTask PUnit) :=
   cTarget >> compileLeanO oFile cTarget.artifact leancArgs
 
 def fetchLeanOFileTarget (oFile : FilePath)
@@ -27,7 +27,7 @@ def PackageTarget.fetchOFileTargets
     fetchLeanOFileTarget (oFile) target.cTarget self.package.leancArgs
 
 def PackageTarget.buildStaticLib
-(self : PackageTarget) : IO BuildTask := do
+(self : PackageTarget) : IO (IOTask PUnit) := do
   let oFileTargets ← self.fetchOFileTargets
   let oFiles := oFileTargets.map (·.artifact)
   oFileTargets >> compileStaticLib self.package.staticLibFile oFiles
@@ -52,7 +52,7 @@ def buildLib (pkg : Package) : IO PUnit :=
 
 def PackageTarget.buildBin
 (depTargets : List PackageTarget) (self : PackageTarget)
-: IO BuildTask := do
+: IO (IOTask PUnit) := do
   let oFileTargets ← self.fetchOFileTargets
   let libTargets ← depTargets.mapM (·.fetchStaticLibTarget)
   let moreLibTargets ← self.package.buildMoreLibTargets

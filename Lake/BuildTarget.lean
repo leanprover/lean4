@@ -90,22 +90,22 @@ namespace ActiveBuildTarget
 
 -- ### Combinators
 
-def after (target : ActiveBuildTarget t a) (act : IO PUnit)  : IO BuildTask :=
+def after (target : ActiveBuildTarget t a) (act : IO PUnit)  : IO (IOTask PUnit) :=
   target.task.andThen act
 
-def afterList (targets : List (ActiveBuildTarget t a)) (act : IO PUnit) : IO BuildTask :=
+def afterList (targets : List (ActiveBuildTarget t a)) (act : IO PUnit) : IO (IOTask PUnit) :=
   afterTaskList (targets.map (·.task)) act
 
-def afterArray (targets : Array (ActiveBuildTarget t a)) (act : IO PUnit) : IO BuildTask :=
+def afterArray (targets : Array (ActiveBuildTarget t a)) (act : IO PUnit) : IO (IOTask PUnit) :=
   afterTaskArray (targets.map (·.task)) act
 
-instance : HAndThen (ActiveBuildTarget t a) (IO PUnit) (IO BuildTask) :=
+instance : HAndThen (ActiveBuildTarget t a) (IO PUnit) (IO (IOTask PUnit)) :=
   ⟨ActiveBuildTarget.after⟩
 
-instance : HAndThen (List (ActiveBuildTarget t a)) (IO PUnit) (IO BuildTask) :=
+instance : HAndThen (List (ActiveBuildTarget t a)) (IO PUnit) (IO (IOTask PUnit)) :=
   ⟨ActiveBuildTarget.afterList⟩
 
-  instance : HAndThen (Array (ActiveBuildTarget t a)) (IO PUnit) (IO BuildTask) :=
+  instance : HAndThen (Array (ActiveBuildTarget t a)) (IO PUnit) (IO (IOTask PUnit)) :=
   ⟨ActiveBuildTarget.afterArray⟩
 
 end ActiveBuildTarget
@@ -226,7 +226,7 @@ abbrev ActiveFileTarget :=
 
 namespace ActiveFileTarget
 
-def mk (file : FilePath) (depMTime : MTime) (task : BuildTask) : ActiveFileTarget :=
+def mk (file : FilePath) (depMTime : MTime) (task : IOTask PUnit) : ActiveFileTarget :=
   ActiveTarget.mk file depMTime task
 
 end ActiveFileTarget
@@ -249,7 +249,7 @@ def mtime (self : LakeTarget a) := self.trace.mtime
 def all (targets : List (LakeTarget a)) : IO (LakeTarget PUnit) := do
   let hash := Hash.mixList <| targets.map (·.hash)
   let mtime := MTime.listMax <| targets.map (·.mtime)
-  let task ← BuildTask.all <| targets.map (·.task)
+  let task ← seqListAsync <| targets.map (·.task)
   return ActiveTarget.mk () ⟨hash, mtime⟩ task
 
 def fromMTimeTarget (target : ActiveBuildTarget MTime a) : LakeTarget a :=

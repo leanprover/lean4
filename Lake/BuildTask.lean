@@ -48,37 +48,16 @@ instance : MonadAsync IO IOTask where
 
 end IOTask
 
+section
+variable [Monad m] [MonadAsync m n]
 
--- # Build Task
-
-def BuildTask := IOTask PUnit
-
-namespace BuildTask
-
-def nop : BuildTask :=
-  Task.pure (Except.ok ())
-
-def spawn (act : IO PUnit) (prio := Task.Priority.dedicated) : IO BuildTask :=
-  IO.asTask act prio
-
-def all (tasks : List BuildTask) (prio := Task.Priority.dedicated)  : IO BuildTask :=
-  IO.asTask (tasks.forM (·.await)) prio
-
-end BuildTask
-
-instance : Inhabited BuildTask := ⟨BuildTask.nop⟩
-
-def afterTaskList (tasks : List BuildTask) (act : IO PUnit) : IO BuildTask :=
+def afterTaskList (tasks : List (n α)) (act : m β) : m (n β) :=
   afterListAsync (async act) tasks
 
-def afterTaskArray (tasks : Array BuildTask) (act : IO PUnit) : IO BuildTask :=
+def afterTaskArray (tasks : Array (n α)) (act : m β) : m (n β) :=
   afterArrayAsync (async act) tasks
 
-instance : HAndThen BuildTask (IO PUnit) (IO BuildTask) :=
-  ⟨IOTask.andThen⟩
+end
 
-instance : HAndThen (List BuildTask) (IO PUnit) (IO BuildTask) :=
-  ⟨afterTaskList⟩
-
-instance : HAndThen (Array BuildTask) (IO PUnit) (IO BuildTask) :=
-  ⟨afterTaskArray⟩
+instance : HAndThen (List (IOTask α)) (IO β) (IO (IOTask β)) := ⟨afterTaskList⟩
+instance : HAndThen (Array (IOTask α)) (IO β) (IO (IOTask β)) := ⟨afterTaskArray⟩

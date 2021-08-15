@@ -32,12 +32,6 @@ abbrev ModuleTarget := LakeTarget ModuleArtifact
 
 namespace ModuleTarget
 
-def mk (olean c : FilePath) (hash : Hash) (mtime : IO.FS.SystemTime) (task : BuildTask) : ModuleTarget :=
-  ActiveTarget.mk ⟨olean, c⟩ ⟨hash, mtime⟩ task
-
-def pure (olean c : FilePath) (hash : Hash) (mtime : IO.FS.SystemTime) : ModuleTarget :=
-  ActiveTarget.pure ⟨olean, c⟩ ⟨hash, mtime⟩
-
 def oleanFile (self : ModuleTarget) := self.artifact.oleanFile
 def oleanTarget (self : ModuleTarget) : ActiveFileTarget :=
   {self with artifact := self.oleanFile, trace := self.mtime}
@@ -65,7 +59,7 @@ end PackageTarget
 
 -- # Trace Checking
 
-/-- Check if `hash` matches that in the file give file. -/
+/-- Check if `hash` matches that in the given file. -/
 def checkIfSameHash (hash : Hash) (file : FilePath) : IO Bool :=
   try
     let contents ← IO.FS.readFile file
@@ -76,17 +70,16 @@ def checkIfSameHash (hash : Hash) (file : FilePath) : IO Bool :=
     false
 
 /-- Construct a no-op build task if the given condition holds, otherwise perform `build`. -/
-def skipIf [Pure m] (cond : Bool) (build : m BuildTask) : m BuildTask := do
-  if cond then pure BuildTask.nop else build
+def skipIf [Pure m] [Pure n] (cond : Bool) (build : m (n PUnit)) : m (n PUnit) := do
+  if cond then pure (pure ()) else build
 
 /--
   Construct a no-op target if the given artifact is up-to-date.
   Otherwise, construct a target with the given build task.
 -/
-def skipIfNewer [GetMTime a]
-(artifact : a) (depMTime : MTime)
-{m} [Monad m] [MonadLiftT IO m] [MonadExceptOf IO.Error m]
-(build : m BuildTask) : m (ActiveBuildTarget MTime a) := do
+def skipIfNewer [GetMTime a] (artifact : a) (depMTime : MTime)
+[Pure n] [Monad m] [MonadLiftT IO m] [MonadExceptOf IO.Error m] (build : m (n PUnit))
+: m (ActiveTarget MTime n a) := do
   ActiveTarget.mk artifact depMTime <| ←
     skipIf (← checkIfNewer artifact depMTime) build
 
@@ -128,7 +121,7 @@ def fetchAfterDirectLocalImports
     let oleanFile := pkg.modToOlean mod
     let importTasks := importTargets.map (·.task)
     ActiveTarget.mk ⟨oleanFile, cFile⟩ ⟨fullHash, mtime⟩ <| ←
-      skipIf sameHash <| afterTaskList (depsTarget.task :: importTasks) do
+      skipIf sameHash <| afterTaskList (m := IO) (depsTarget.task :: importTasks) do
         compileOleanAndC leanFile oleanFile cFile leanPath pkg.rootDir pkg.leanArgs
         IO.FS.writeFile hashFile fullHash.toString
 

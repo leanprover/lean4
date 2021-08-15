@@ -64,14 +64,18 @@ private def addSimpLemma (lemmas : Meta.SimpLemmas) (stx : Syntax) (post : Bool)
       return (#[], e)
   lemmas.add levelParams proof (post := post) (inv := inv)
 
+structure ElabSimpArgsResult where
+  ctx     : Simp.Context
+  starArg : Bool := false
+
 /--
   Elaborate extra simp lemmas provided to `simp`. `stx` is of the `simpLemma,*`
   If `eraseLocal == true`, then we consider local declarations when resolving names for erased lemmas (`- id`),
   this option only makes sense for `simp_all`.
 -/
-private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool) : TacticM Simp.Context := do
+private def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool) : TacticM ElabSimpArgsResult := do
   if stx.isNone then
-    return ctx
+    return { ctx }
   else
     /-
     syntax simpPre := "↓"
@@ -81,7 +85,8 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Boo
     syntax simpErase := "-" ident
     -/
     withMainContext do
-      let mut lemmas := ctx.simpLemmas
+      let mut lemmas  := ctx.simpLemmas
+      let mut starArg := false
       for arg in stx[1].getSepArgs do
         if arg.getKind == ``Lean.Parser.Tactic.simpErase then
           if eraseLocal && (← Term.isLocalIdent? arg[1]).isSome then
@@ -90,7 +95,7 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Boo
           else
             let declName ← resolveGlobalConstNoOverloadWithInfo arg[1]
             lemmas ← lemmas.erase declName
-        else
+        else if arg.getKind == ``Lean.Parser.Tactic.simpLemma then
           let post :=
             if arg[0].isNone then
               true
@@ -101,7 +106,11 @@ private def elabSimpLemmas (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Boo
           match (← resolveSimpIdLemma? term) with
           | some e => lemmas ← addDeclToUnfoldOrLemma lemmas e post inv
           | _      => lemmas ← addSimpLemma lemmas term post inv
-      return { ctx with simpLemmas := lemmas }
+        else if arg.getKind == ``Lean.Parser.Tactic.simpStar then
+          starArg := true
+        else
+          throwUnsupportedSyntax
+      return { ctx := { ctx with simpLemmas := lemmas }, starArg }
 where
   resolveSimpIdLemma? (simpArgTerm : Syntax) : TacticM (Option Expr) := do
     if simpArgTerm.isIdent then
@@ -112,37 +121,73 @@ where
     else
       Term.elabCDotFunctionAlias? simpArgTerm
 
+abbrev FVarIdToLemmaId := NameMap Name
+
+-- TODO: move?
+private def getPropHyps : MetaM (Array FVarId) := do
+  let mut result := #[]
+  for localDecl in (← getLCtx) do
+    unless localDecl.isAuxDecl do
+      if (← isProp localDecl.type) then
+        result := result.push localDecl.fvarId
+  return result
+
+structure MkSimpContextResult where
+  ctx             : Simp.Context
+  fvarIdToLemmaId : FVarIdToLemmaId
+
 --  If `ctx == false`, the argument is assumed to have type `Meta.Simp.Config`, and `Meta.Simp.ConfigCtx` otherwise. -/
-private def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (ctx := false) : TacticM Simp.Context := do
+private def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (ctx := false) (ignoreStarArg : Bool := false) : TacticM MkSimpContextResult := do
   let simpOnly := !stx[2].isNone
-  elabSimpLemmas stx[3] (eraseLocal := eraseLocal) {
+  let r ← elabSimpArgs stx[3] (eraseLocal := eraseLocal) {
     config      := (← elabSimpConfig stx[1] (ctx := ctx))
     simpLemmas  := if simpOnly then {} else (← getSimpLemmas)
     congrLemmas := (← getCongrLemmas)
   }
+  if !r.starArg || ignoreStarArg then
+    return { r with fvarIdToLemmaId := {} }
+  else
+    let ctx := r.ctx
+    let erased := ctx.simpLemmas.erased
+    let hs ← getPropHyps
+    let mut ctx := ctx
+    let mut fvarIdToLemmaId := {}
+    for h in hs do
+      let localDecl ← getLocalDecl h
+      unless erased.contains localDecl.userName do
+        let fvarId := localDecl.fvarId
+        let proof  := localDecl.toExpr
+        let id     ← mkFreshUserName `h
+        fvarIdToLemmaId := fvarIdToLemmaId.insert fvarId id
+        let simpLemmas ← ctx.simpLemmas.add #[] proof (name? := id)
+        ctx := { ctx with simpLemmas }
+    return { ctx, fvarIdToLemmaId }
 
 /-
   "simp " ("(" "config" ":=" term ")")? ("only ")? ("[" simpLemma,* "]")? (location)?
 -/
 @[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
-  let ctx  ← mkSimpContext stx (eraseLocal := false)
+  let { ctx, fvarIdToLemmaId } ← mkSimpContext stx (eraseLocal := false)
   -- trace[Meta.debug] "Lemmas {← toMessageData ctx.simpLemmas.post}"
   let loc := expandOptLocation stx[4]
   match loc with
   | Location.targets hUserNames simpTarget =>
     withMainContext do
       let fvarIds ← hUserNames.mapM fun hUserName => return (← getLocalDeclFromUserName hUserName).fvarId
-      go ctx fvarIds simpTarget
+      go ctx fvarIds simpTarget fvarIdToLemmaId
   | Location.wildcard =>
     withMainContext do
-      go ctx (← getNondepPropHyps (← getMainGoal)) true
+      go ctx (← getNondepPropHyps (← getMainGoal)) (simpType := true) fvarIdToLemmaId
 where
-  go (ctx : Simp.Context) (fvarIdsToSimp : Array FVarId) (simpType : Bool) : TacticM Unit := do
+  go (ctx : Simp.Context) (fvarIdsToSimp : Array FVarId) (simpType : Bool) (fvarIdToLemmaId : FVarIdToLemmaId) : TacticM Unit := do
     let mut mvarId ← getMainGoal
     let mut toAssert : Array Hypothesis := #[]
     for fvarId in fvarIdsToSimp do
       let localDecl ← getLocalDecl fvarId
       let type ← instantiateMVars localDecl.type
+      let ctx ← match fvarIdToLemmaId.find? localDecl.fvarId with
+        | none => pure ctx
+        | some lemmaId => pure { ctx with simpLemmas := (← ctx.simpLemmas.eraseCore lemmaId) }
       match (← simpStep mvarId (mkFVar fvarId) type ctx) with
       | none => replaceMainGoal []; return ()
       | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }
@@ -155,7 +200,7 @@ where
     replaceMainGoal [mvarIdNew]
 
 @[builtinTactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => do
-  let ctx  ← mkSimpContext stx (eraseLocal := true) (ctx := true)
+  let { ctx, .. } ← mkSimpContext stx (eraseLocal := true) (ctx := true) (ignoreStarArg := true)
   match (← simpAll (← getMainGoal) ctx) with
   | none => replaceMainGoal []
   | some mvarId => replaceMainGoal [mvarId]

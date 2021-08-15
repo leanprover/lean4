@@ -12,14 +12,14 @@ namespace Lake
 def oFileTarget
 (oFile : FilePath) (srcTarget : FileTarget)
 (args : Array String := #[]) (cmd := "c++") : FileTarget :=
-  FileTarget.mk oFile srcTarget.trace <|
+  Target.mk oFile srcTarget.trace <|
     unless (← checkIfNewer oFile srcTarget.mtime) do
       srcTarget.materialize
       compileO oFile srcTarget.file args (cmd := "c++")
 
 def staticLibTarget
 (libFile : FilePath) (oFilesTarget : FilesTarget) : FileTarget :=
-  FileTarget.mk libFile oFilesTarget.trace do
+  Target.mk libFile oFilesTarget.trace do
     unless (← checkIfNewer libFile oFilesTarget.mtime) do
       oFilesTarget.materialize
       compileStaticLib libFile oFilesTarget.filesAsArray

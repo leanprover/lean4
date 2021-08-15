@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 
+open System
 namespace Lake
 
 -- # Hash Traces
@@ -28,12 +29,26 @@ def mix (h1 h2 : Hash) : Hash :=
 def mixList (hashes : List Hash) : Hash :=
   hashes.foldl mix nil
 
+def mixArray (hashes : Array Hash) : Hash :=
+  hashes.foldl mix nil
+
 protected def toString (self : Hash) : String :=
   toString self.val
 
 instance : ToString Hash := ⟨Hash.toString⟩
 
 end Hash
+
+class ComputeHash (α) where
+  computeHash : α → IO Hash
+
+export ComputeHash (computeHash)
+
+def getFileHash (file : FilePath) : IO Hash :=
+  Hash.compute <$> IO.FS.readFile file
+
+instance : ComputeHash FilePath := ⟨getFileHash⟩
+instance : ComputeHash String := ⟨pure ∘ Hash.compute⟩
 
 -- # Modification Time Traces
 
@@ -61,8 +76,10 @@ class GetMTime (α) where
 
 export GetMTime (getMTime)
 
-instance : GetMTime System.FilePath where
-  getMTime file := do (← file.metadata).modified
+def getFileMTime (file : FilePath) : IO MTime := do
+  (← file.metadata).modified
+
+instance : GetMTime FilePath := ⟨getFileMTime⟩
 
 /-- Check if the artifact's `MTIme` is at least `depMTime`. -/
 def checkIfNewer [GetMTime a] (artifact : a) (depMTime : MTime) : IO Bool := do
@@ -73,14 +90,30 @@ def checkIfNewer [GetMTime a] (artifact : a) (depMTime : MTime) : IO Bool := do
 structure LakeTrace where
   hash : Hash
   mtime : MTime
-  deriving Inhabited
 
 namespace LakeTrace
 
+def nil : LakeTrace :=
+  mk Hash.nil 0
+
+instance : Inhabited LakeTrace := ⟨nil⟩
+
+def compute [ComputeHash a] [GetMTime a] (artifact : a) : IO LakeTrace := do
+  mk (← computeHash artifact) (← getMTime artifact)
+
 def fromHash (hash : Hash) : LakeTrace :=
-  LakeTrace.mk hash 0
+  mk hash 0
 
 def fromMTime (mtime : MTime) : LakeTrace :=
-  LakeTrace.mk Hash.nil mtime
+  mk Hash.nil mtime
+
+def mix (t1 t2 : LakeTrace) : LakeTrace :=
+  mk (Hash.mix t1.hash t2.hash) (max t1.mtime t2.mtime)
+
+def mixList (traces : List LakeTrace) : LakeTrace :=
+  traces.foldl mix nil
+
+def mixArray (traces : Array LakeTrace) : LakeTrace :=
+  traces.foldl mix nil
 
 end LakeTrace

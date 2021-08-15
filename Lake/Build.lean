@@ -28,21 +28,21 @@ protected def ModuleArtifact.getMTime (self : ModuleArtifact) : IO MTime := do
 
 instance : GetMTime ModuleArtifact := ⟨ModuleArtifact.getMTime⟩
 
-abbrev ModuleTarget := LakeTarget ModuleArtifact
+abbrev ModuleTarget := ActiveLakeTarget ModuleArtifact
 
 namespace ModuleTarget
 
 def oleanFile (self : ModuleTarget) := self.artifact.oleanFile
 def oleanTarget (self : ModuleTarget) : ActiveFileTarget :=
-  {self with artifact := self.oleanFile, trace := self.mtime}
+  {self with artifact := self.oleanFile}
 
 def cFile (self : ModuleTarget) := self.artifact.cFile
 def cTarget (self : ModuleTarget) : ActiveFileTarget :=
-  {self with artifact := self.cFile, trace := self.mtime}
+  {self with artifact := self.cFile}
 
 end ModuleTarget
 
-abbrev PackageTarget :=  LakeTarget (Package × NameMap ModuleTarget)
+abbrev PackageTarget := ActiveLakeTarget (Package × NameMap ModuleTarget)
 
 namespace PackageTarget
 
@@ -73,16 +73,6 @@ def checkIfSameHash (hash : Hash) (file : FilePath) : IO Bool :=
 def skipIf [Pure m] [Pure n] (cond : Bool) (build : m (n PUnit)) : m (n PUnit) := do
   if cond then pure (pure ()) else build
 
-/--
-  Construct a no-op target if the given artifact is up-to-date.
-  Otherwise, construct a target with the given build task.
--/
-def skipIfNewer [GetMTime a] (artifact : a) (depMTime : MTime)
-[Pure n] [Monad m] [MonadLiftT IO m] [MonadExceptOf IO.Error m] (build : m (n PUnit))
-: m (ActiveTarget MTime n a) := do
-  ActiveTarget.mk artifact depMTime <| ←
-    skipIf (← checkIfNewer artifact depMTime) build
-
 -- # Build Modules
 
 /-
@@ -94,7 +84,7 @@ def skipIfNewer [GetMTime a] (artifact : a) (depMTime : MTime)
   a `LEAN_PATH` that includes `oleanDirs`.
 -/
 def fetchAfterDirectLocalImports
-(pkg : Package) (oleanDirs : List FilePath) (depsTarget : LakeTarget PUnit)
+(pkg : Package) (oleanDirs : List FilePath) (depsTarget : ActiveLakeTarget PUnit)
 {m} [Monad m] [MonadLiftT IO m] [MonadExceptOf IO.Error m] : RecFetch Name ModuleTarget m :=
   let leanPath := SearchPath.toString <| pkg.oleanDir :: oleanDirs
   fun mod fetch => do
@@ -109,10 +99,10 @@ def fetchAfterDirectLocalImports
     -- calculate trace
     let leanMTime ← getMTime leanFile
     let leanHash := Hash.compute contents
-    let importHashes ← importTargets.map (·.hash)
-    let importMTimes ← importTargets.map (·.mtime)
-    let fullHash := Hash.mixList (leanHash :: depsTarget.hash :: importHashes)
-    let maxMTime := MTime.listMax (leanMTime :: depsTarget.mtime :: importMTimes)
+    let depTrace := depsTarget.trace.mix <|
+      LakeTrace.mixList <| importTargets.map (·.trace)
+    let maxMTime := max leanMTime depTrace.mtime
+    let fullHash := Hash.mix leanHash depTrace.hash
     let hashFile := pkg.modToHashFile mod
     let sameHash ← checkIfSameHash fullHash hashFile
     let mtime := ite sameHash 0 maxMTime
@@ -143,18 +133,18 @@ def throwOnCycle (mx : IO (Except (List Name) α)) : IO α  :=
     throw <| IO.userError s!"import cycle detected:\n{"\n".intercalate cycle}"
 
 def Package.buildModuleTargetDAGFor
-(mod : Name)  (oleanDirs : List FilePath) (depsTarget : LakeTarget PUnit)
+(mod : Name)  (oleanDirs : List FilePath) (depsTarget : ActiveLakeTarget PUnit)
 (self : Package) : IO (ModuleTarget × NameMap ModuleTarget) := do
   let fetch := fetchAfterDirectLocalImports self oleanDirs depsTarget
   throwOnCycle <| buildRBTop fetch mod |>.run {}
 
 def Package.buildModuleTargetDAG
-(oleanDirs : List FilePath) (depsTarget : LakeTarget PUnit) (self : Package) :=
+(oleanDirs : List FilePath) (depsTarget : ActiveLakeTarget PUnit) (self : Package) :=
   self.buildModuleTargetDAGFor self.moduleRoot oleanDirs depsTarget
 
 def Package.buildModuleTargets
 (mods : List Name) (oleanDirs : List FilePath)
-(depsTarget : LakeTarget PUnit) (self : Package)
+(depsTarget : ActiveLakeTarget PUnit) (self : Package)
 : IO (List ModuleTarget) := do
   let fetch : ModuleTargetFetch :=
     fetchAfterDirectLocalImports self oleanDirs depsTarget
@@ -165,7 +155,7 @@ def Package.buildModuleTargets
 def Package.buildTargetWithDepTargetsFor
 (mod : Name) (depTargets : List PackageTarget) (self : Package)
 : IO PackageTarget := do
-  let depsTarget ← LakeTarget.all <|
+  let depsTarget ← ActiveLakeTarget.all <|
     (← self.buildMoreDepsTarget).withArtifact arbitrary :: depTargets
   let oLeanDirs := depTargets.map (·.package.oleanDir)
   let (target, targetMap) ← self.buildModuleTargetDAGFor mod oLeanDirs depsTarget
@@ -212,7 +202,7 @@ def Package.buildModuleTargetsWithDeps
 (deps : List Package) (mods : List Name)  (self : Package)
 : IO (List ModuleTarget) := do
   let oleanDirs := deps.map (·.oleanDir)
-  let depsTarget ← LakeTarget.all <|
+  let depsTarget ← ActiveLakeTarget.all <|
     (← self.buildMoreDepsTarget).withArtifact arbitrary :: (← deps.mapM (·.buildTarget))
   self.buildModuleTargets mods oleanDirs depsTarget
 

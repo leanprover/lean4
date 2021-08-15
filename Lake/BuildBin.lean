@@ -8,15 +8,25 @@ import Lake.Build
 open System
 namespace Lake
 
+/--
+  Construct a no-op target if the given artifact is up-to-date.
+  Otherwise, construct a target with the given build task.
+-/
+def skipIfNewer
+[GetMTime a] (artifact : a) (trace : LakeTrace)
+(build : IO (IOTask PUnit)) : IO (ActiveLakeTarget a) := do
+  ActiveTarget.mk artifact trace <| ←
+    skipIf (← checkIfNewer artifact trace.mtime) build
+
 -- # Build `.o` Files
 
 def buildLeanO (oFile : FilePath)
-(cTarget : ActiveBuildTarget t FilePath) (leancArgs : Array String := #[]) : IO (IOTask PUnit) :=
+(cTarget : ActiveFileTarget) (leancArgs : Array String := #[]) : IO (IOTask PUnit) :=
   cTarget >> compileLeanO oFile cTarget.artifact leancArgs
 
 def fetchLeanOFileTarget (oFile : FilePath)
 (cTarget : ActiveFileTarget) (leancArgs : Array String := #[]) : IO ActiveFileTarget :=
-  skipIfNewer oFile cTarget.mtime <| buildLeanO oFile cTarget leancArgs
+  skipIfNewer oFile cTarget.trace <| buildLeanO oFile cTarget leancArgs
 
 -- # Build Package Lib
 
@@ -33,7 +43,7 @@ def PackageTarget.buildStaticLib
   oFileTargets >> compileStaticLib self.package.staticLibFile oFiles
 
 def PackageTarget.fetchStaticLibTarget (self : PackageTarget) : IO ActiveFileTarget := do
-  skipIfNewer self.package.staticLibFile self.mtime self.buildStaticLib
+  skipIfNewer self.package.staticLibFile self.trace self.buildStaticLib
 
 def Package.fetchStaticLibTarget (self : Package) : IO ActiveFileTarget := do
   (← self.buildTarget).fetchStaticLibTarget
@@ -62,7 +72,7 @@ def PackageTarget.buildBin
 
 def PackageTarget.fetchBinTarget
 (depTargets : List PackageTarget) (self : PackageTarget) : IO ActiveFileTarget :=
-  skipIfNewer self.package.binFile self.mtime <| self.buildBin depTargets
+  skipIfNewer self.package.binFile self.trace <| self.buildBin depTargets
 
 def Package.fetchBinTarget (self : Package) : IO ActiveFileTarget := do
   let depTargets ← self.buildDepTargets

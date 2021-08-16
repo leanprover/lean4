@@ -108,7 +108,7 @@ uint8_t l_Std_HashMapImp_contains___at_Lean_NameSSet_contains___spec__2(lean_obj
 lean_object* l_Lean_Name_isInternal_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_hashEx___boxed(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-uint64_t lean_name_hash(lean_object*);
+uint64_t lean_name_hash_exported(lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_NameSet_contains___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_isInternal(lean_object*);
@@ -235,7 +235,7 @@ x_1 = l_Lean_instCoeStringName___closed__1;
 return x_1;
 }
 }
-uint64_t lean_name_hash(lean_object* x_1) {
+uint64_t lean_name_hash_exported(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; 
@@ -248,7 +248,7 @@ lean_object* l_Lean_Name_hashEx___boxed(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; lean_object* x_3; 
-x_2 = lean_name_hash(x_1);
+x_2 = lean_name_hash_exported(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
 }

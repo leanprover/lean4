@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean
-// Imports: Init Lean.Data Lean.Compiler Lean.Environment Lean.Modifiers Lean.ProjFns Lean.Runtime Lean.ResolveName Lean.Attributes Lean.Parser Lean.ReducibilityAttrs Lean.Elab Lean.Class Lean.LocalContext Lean.MetavarContext Lean.AuxRecursor Lean.Meta Lean.Util Lean.Eval Lean.Structure Lean.PrettyPrinter Lean.CoreM Lean.InternalExceptionId Lean.Server Lean.ScopedEnvExtension Lean.DocString Lean.DeclarationRange
+// Imports: Init Lean.Data Lean.Compiler Lean.Environment Lean.Modifiers Lean.ProjFns Lean.Runtime Lean.ResolveName Lean.Attributes Lean.Parser Lean.ReducibilityAttrs Lean.Elab Lean.Class Lean.LocalContext Lean.MetavarContext Lean.AuxRecursor Lean.Meta Lean.Util Lean.Eval Lean.Structure Lean.PrettyPrinter Lean.CoreM Lean.InternalExceptionId Lean.Server Lean.ScopedEnvExtension Lean.DocString Lean.DeclarationRange Lean.LazyInitExtension
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -40,6 +40,7 @@ lean_object* initialize_Lean_Server(lean_object*);
 lean_object* initialize_Lean_ScopedEnvExtension(lean_object*);
 lean_object* initialize_Lean_DocString(lean_object*);
 lean_object* initialize_Lean_DeclarationRange(lean_object*);
+lean_object* initialize_Lean_LazyInitExtension(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean(lean_object* w) {
 lean_object * res;
@@ -124,6 +125,9 @@ res = initialize_Lean_DocString(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_DeclarationRange(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_LazyInitExtension(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

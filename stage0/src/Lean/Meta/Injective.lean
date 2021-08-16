@@ -142,7 +142,7 @@ private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
     type        := (← instantiateMVars type)
     value       := (← instantiateMVars value)
   }
-  addSimpLemma name (post := true) AttributeKind.global (prio := eval_prio default)
+  addSimpLemma (ext := simpExtension) name (post := true) (inv := false) AttributeKind.global (prio := eval_prio default)
 
 register_builtin_option genInjectivity : Bool := {
   defValue := true

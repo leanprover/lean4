@@ -356,6 +356,13 @@ else()
 endif()
 configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
 
+# Windows uses ";" as a path separator. We use `LEAN_PATH_SEPARATOR` on scripts such as lean.mk.in
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  set(LEAN_PATH_SEPARATOR ";")
+else()
+  set(LEAN_PATH_SEPARATOR ":")
+endif()
+
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/include/lean/version.h")
 if (${STAGE} EQUAL 0)

@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <unordered_set>
 #include <functional>
 #include <lean/interrupt.h>
-#include "util/buffer.h"
+#include <lean/buffer.h>
 #include "library/max_sharing.h"
 
 namespace lean {

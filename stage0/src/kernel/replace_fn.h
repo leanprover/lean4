@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include <tuple>
 #include <lean/interrupt.h>
-#include "util/buffer.h"
 #include "kernel/expr.h"
 #include "kernel/expr_maps.h"
 

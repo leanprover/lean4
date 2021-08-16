@@ -56,7 +56,7 @@ def admit (mvarId : MVarId) (synthetic := true) : MetaM Unit :=
 def headBetaMVarType (mvarId : MVarId) : MetaM Unit := do
   setMVarType mvarId (← getMVarType mvarId).headBeta
 
-/-- Collect nondependent hypotheses. -/
+/-- Collect nondependent hypotheses that are propositions. -/
 def getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId) :=
   withMVarContext mvarId do
     let mut candidates : NameHashSet := {}

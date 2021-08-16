@@ -23,6 +23,7 @@ structure Context where
   congrLemmas    : CongrLemmas := {}
   parent?        : Option Expr := none
   dischargeDepth : Nat      := 0
+  deriving Inhabited
 
 def Context.mkDefault : MetaM Context :=
   return { config := {}, simpLemmas := (← getSimpLemmas), congrLemmas := (← getCongrLemmas) }

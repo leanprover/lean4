@@ -343,6 +343,21 @@ def substEqs (mvarId : MVarId) : MetaM MVarId := do
     return type.isEq || type.isHEq
   exactlyOne mvarIds
 
+structure ByCasesSubgoal where
+  mvarId : MVarId
+  fvarId : FVarId
+
+def byCases (mvarId : MVarId) (p : Expr) (hName : Name := `h) : MetaM (ByCasesSubgoal × ByCasesSubgoal) := do
+  let mvarId ← assert mvarId `hByCases (mkOr p (mkNot p)) (mkEM p)
+  let (fvarId, mvarId) ← intro1 mvarId
+  let #[s₁, s₂] ← cases mvarId fvarId #[{ varNames := [hName] }, { varNames := [hName] }] |
+    throwError "'byCases' tactic failed, unexpected number of subgoals"
+  return ((← toByCasesSubgoal s₁), (← toByCasesSubgoal s₂))
+where
+  toByCasesSubgoal (s : CasesSubgoal) : MetaM ByCasesSubgoal :=  do
+    let #[Expr.fvar fvarId ..] ← pure s.fields | throwError "'byCases' tactic failed, unexpected new hypothesis"
+    return { mvarId := s.mvarId, fvarId }
+
 builtin_initialize registerTraceClass `Meta.Tactic.cases
 
 end Lean.Meta

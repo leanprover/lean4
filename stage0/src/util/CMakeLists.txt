@@ -1,4 +1,4 @@
-add_library(util OBJECT object_ref.cpp name.cpp name_set.cpp
+add_library(util OBJECT name.cpp name_set.cpp
   escaped.cpp bit_tricks.cpp ascii.cpp
   path.cpp lbool.cpp init_module.cpp list_fn.cpp
   timeit.cpp timer.cpp

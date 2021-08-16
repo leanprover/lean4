@@ -13,7 +13,7 @@ Author: Soonho Kong
 #include <string>
 #include <vector>
 #include <lean/debug.h>
-#include "util/object_ref.h"
+#include <lean/object_ref.h>
 #include "util/name.h"
 #include "util/pair.h"
 

@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include <lean/debug.h>
 #include <lean/interrupt.h>
 #include <lean/hash.h>
-#include "util/buffer.h"
+#include <lean/buffer.h>
 #include "util/list.h"
 #include "kernel/level.h"
 #include "kernel/environment.h"

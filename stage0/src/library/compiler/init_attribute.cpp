@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Leonardo de Moura
 */
-#include "util/object_ref.h"
+#include <lean/object_ref.h>
 #include "kernel/environment.h"
 
 namespace lean {

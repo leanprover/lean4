@@ -11,11 +11,12 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <utility>
 #include <lean/optional.h>
-#include "util/buffer.h"
+#include <lean/string_ref.h>
+#include <lean/list_ref.h>
+#include <lean/buffer.h>
 #include "util/pair.h"
 #include "util/nat.h"
-#include "util/string_ref.h"
-#include "util/list_ref.h"
+
 
 namespace lean {
 constexpr char const * lean_name_separator = ".";

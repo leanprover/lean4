@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include <utility>
 #include <functional>
+#include <lean/buffer.h>
 #include "util/list.h"
-#include "util/buffer.h"
 #include "util/pair.h"
 
 namespace lean {

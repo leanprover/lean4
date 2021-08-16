@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
-#include "util/pair_ref.h"
+#include <lean/pair_ref.h>
 #include "util/name.h"
 
 namespace lean {

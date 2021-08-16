@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/pair_ref.h"
-#include "util/list_ref.h"
+#include <lean/pair_ref.h>
+#include <lean/list_ref.h>
 #include "util/name_hash_set.h"
 #include "kernel/expr.h"
 #include "kernel/type_checker.h"

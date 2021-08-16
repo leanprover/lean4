@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 #include <lean/hash.h>
 #include <lean/flet.h>
 #include <lean/interrupt.h>
-#include "util/buffer.h" // move to runtime
+#include <lean/buffer.h>
 
 // see `Task.Priority.max`
 #define LEAN_MAX_PRIO 8

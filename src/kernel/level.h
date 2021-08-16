@@ -9,8 +9,8 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <utility>
 #include <lean/optional.h>
+#include <lean/list_ref.h>
 #include "util/name.h"
-#include "util/list_ref.h"
 #include "util/options.h"
 #include "util/format.h"
 

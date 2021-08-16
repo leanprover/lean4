@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/buffer.h"
-#include "util/object_ref.h"
+#include <lean/buffer.h>
+#include <lean/object_ref.h>
 
 namespace lean {
 template<typename T> T const & head(object * o) { return static_cast<T const &>(cnstr_get_ref(o, 0)); }

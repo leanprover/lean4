@@ -18,8 +18,8 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include <lean/hash.h>
 #include <lean/io.h>
 #include <lean/compact.h>
+#include <lean/buffer.h>
 #include "util/io.h"
-#include "util/buffer.h"
 #include "util/name_map.h"
 #include "library/module.h"
 #include "library/constants.h"

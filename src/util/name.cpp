@@ -15,8 +15,8 @@ Author: Leonardo de Moura
 #include <lean/sstream.h>
 #include <lean/utf8.h>
 #include <lean/hash.h>
+#include <lean/buffer.h>
 #include "util/name.h"
-#include "util/buffer.h"
 #include "util/ascii.h"
 
 namespace lean {

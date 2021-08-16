@@ -27,11 +27,11 @@ Author: Jared Roesch
 
 #include <lean/object.h>
 #include <lean/io.h>
-#include "util/array_ref.h"
-#include "util/string_ref.h"
-#include "util/option_ref.h"
-#include "util/pair_ref.h"
-#include "util/buffer.h"
+#include <lean/array_ref.h>
+#include <lean/string_ref.h>
+#include <lean/option_ref.h>
+#include <lean/pair_ref.h>
+#include <lean/buffer.h>
 
 namespace lean {
 

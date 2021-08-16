@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/object_ref.h"
+#include <lean/object_ref.h>
 
 namespace lean {
 /* Wrapper for manipulating Lean pairs in C++ */

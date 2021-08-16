@@ -38,12 +38,12 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #include <lean/apply.h>
 #include <lean/interrupt.h>
 #include <lean/io.h>
+#include <lean/option_ref.h>
+#include <lean/array_ref.h>
 #include "library/time_task.h"
 #include "library/trace.h"
 #include "library/compiler/ir.h"
 #include "library/compiler/init_attribute.h"
-#include "util/option_ref.h"
-#include "util/array_ref.h"
 #include "util/nat.h"
 #include "util/option_declarations.h"
 

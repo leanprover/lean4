@@ -14,9 +14,9 @@ Author: Leonardo de Moura
 #include <lean/optional.h>
 #include <lean/thread.h>
 #include <lean/hash.h>
+#include <lean/buffer.h>
 #include "util/name.h"
 #include "util/nat.h"
-#include "util/buffer.h"
 #include "util/kvmap.h"
 #include "util/list_fn.h"
 #include "util/format.h"

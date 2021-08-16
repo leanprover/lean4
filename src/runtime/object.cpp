@@ -2077,6 +2077,39 @@ extern "C" object * lean_array_push(obj_arg a, obj_arg v) {
 }
 
 // =======================================
+// Name primitives
+
+extern "C" uint8 lean_name_eq(b_lean_obj_arg n1, b_lean_obj_arg n2) {
+    if (n1 == n2)
+        return true;
+    if (lean_is_scalar(n1) != lean_is_scalar(n2) || lean_name_hash_ptr(n1) != lean_name_hash_ptr(n2))
+        return false;
+    while (true) {
+        lean_assert(!lean_is_scalar(n1));
+        lean_assert(!lean_is_scalar(n2));
+        lean_assert(n1 && n2);
+        lean_assert(lean_name_hash_ptr(n1) == lean_name_hash_ptr(n2));
+        if (lean_ptr_tag(n1) != lean_ptr_tag(n2))
+            return false;
+        if (lean_ptr_tag(n1) == 1) {
+            if (!lean_string_eq(lean_ctor_get(n1, 1), lean_ctor_get(n2, 1)))
+                return false;
+        } else {
+            if (!lean_nat_eq(lean_ctor_get(n1, 1), lean_ctor_get(n1, 1)))
+                return false;
+        }
+        n1 = lean_ctor_get(n1, 0);
+        n2 = lean_ctor_get(n2, 0);
+        if (n1 == n2)
+            return true;
+        if (lean_is_scalar(n1) != lean_is_scalar(n2))
+            return false;
+        if (lean_name_hash_ptr(n1) != lean_name_hash_ptr(n2))
+            return false;
+    }
+}
+
+// =======================================
 // Runtime info
 
 extern "C" object * lean_closure_max_args(object *) {

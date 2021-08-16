@@ -27,39 +27,6 @@ static inline obj_res name_mk_string_of_cstr(obj_arg p, char const * s) {
     return lean_name_mk_string(p, mk_string(s));
 }
 
-extern "C" uint64_t lean_name_hash(obj_arg n);
-uint64_t name::hash(b_obj_arg n) { inc(n); return lean_name_hash(n); }
-
-bool name::eq_core(b_obj_arg n1, b_obj_arg n2) {
-    while (true) {
-        lean_assert(!is_scalar(n1));
-        lean_assert(!is_scalar(n2));
-        lean_assert(n1 && n2);
-        lean_assert(name::hash(n1) == name::hash(n2));
-        if (cnstr_tag(n1) != cnstr_tag(n2))
-            return false;
-        if (cnstr_tag(n1) == static_cast<unsigned>(name_kind::STRING)) {
-            if (!string_eq(cnstr_get(n1, 1), cnstr_get(n2, 1)))
-                return false;
-        } else {
-            if (!nat_eq(cnstr_get(n1, 1), cnstr_get(n1, 1)))
-                return false;
-        }
-        n1 = cnstr_get(n1, 0);
-        n2 = cnstr_get(n2, 0);
-        if (n1 == n2)
-            return true;
-        if (is_scalar(n1) != is_scalar(n2))
-            return false;
-        if (name::hash(n1) != name::hash(n2))
-            return false;
-    }
-}
-
-extern "C" uint8 lean_name_eq(b_obj_arg a1, b_obj_arg a2) {
-    return name::eq(a1, a2);
-}
-
 constexpr char const * anonymous_str = "[anonymous]";
 
 bool is_greek_unicode(unsigned u) { return 0x391 <= u && u <= 0x3DD; }

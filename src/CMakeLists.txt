@@ -381,7 +381,7 @@ if(${STAGE} GREATER 1)
     IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a")
   add_library(leanrt STATIC IMPORTED)
   set_target_properties(leanrt PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/runtime/libleanrt.a")
+    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/lean/libleanrt.a")
   add_library(leancpp STATIC IMPORTED)
   set_target_properties(leancpp PROPERTIES
     IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")

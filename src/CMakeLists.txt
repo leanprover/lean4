@@ -273,14 +273,13 @@ find_package(PythonInterp)
 
 include_directories(${CMAKE_BINARY_DIR}/include)
 
-# libleancpp and the stdlib libraries are cyclically dependent. This works by default on macOS, which also doesn't like
+# libleancpp and libLean are cyclically dependent. This works by default on macOS, which also doesn't like
 # the linker flags necessary on other platforms.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean")
+  set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean -lleanrt")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean -lnodefs.js")
+  set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean -lnodefs.js -lleanrt")
 else()
-  # `-pie` defaulting is not consistent on Linux distributions, so let's default to off
   set(LEANC_STATIC_LINKER_FLAGS "-Wl,--start-group -lleancpp -lInit -lStd -lLean -Wl,--end-group")
 endif()
 
@@ -375,16 +374,22 @@ include_directories(${LEAN_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})  # version.h etc., "private" headers
 include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" headers
 
-if(LEANCPP)
+if(${STAGE} GREATER 1)
+  # reuse C++ parts, which don't change
+  add_library(leanrt STATIC IMPORTED)
+  set_target_properties(leanrt PROPERTIES
+    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/lean/libleanrt.a")
   add_library(leancpp STATIC IMPORTED)
   set_target_properties(leancpp PROPERTIES
     IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
   add_custom_target(copy-leancpp
-    COMMAND cmake -E copy_if_different "${LEANCPP}" "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
+    COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/libleanrt.a" "${CMAKE_BINARY_DIR}/lib/lean/libleanrt.a"
+    COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/libleancpp.a" "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
+  add_dependencies(leanrt copy-leancpp)
   add_dependencies(leancpp copy-leancpp)
 else()
   add_subdirectory(runtime)
-  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:runtime>)
+
   add_subdirectory(util)
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:util>)
   add_subdirectory(kernel)
@@ -415,9 +420,9 @@ string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
 set(LEANC_OPTS "${LEANC_OPTS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(LEANSHARED_LINKER_FLAGS "-Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libInit.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libStd.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLean.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a ${LEANSHARED_LINKER_FLAGS}")
+  set(LEANSHARED_LINKER_FLAGS "-Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libInit.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libStd.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLean.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a ${CMAKE_BINARY_DIR}/lib/lean/libleanrt.a ${LEANSHARED_LINKER_FLAGS}")
 else()
-  set(LEANSHARED_LINKER_FLAGS "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp -Wl,--no-whole-archive ${LEANSHARED_LINKER_FLAGS}")
+  set(LEANSHARED_LINKER_FLAGS "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp -Wl,--no-whole-archive -lleanrt ${LEANSHARED_LINKER_FLAGS}")
   if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,--out-implib,${CMAKE_BINARY_DIR}/bin/libleanshared.dll.a")
     set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -L$bindir")
@@ -430,7 +435,7 @@ configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make
 add_custom_target(make_stdlib ALL
   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
   # needed for linking `leanpkg`
-  DEPENDS leancpp
+  DEPENDS leancpp leanrt
   # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
   # for a parallelized nested build, but CMake doesn't let us do that.
   # We use `lean` from the previous stage, but `leanc`, headers, etc. from the current stage

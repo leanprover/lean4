@@ -269,18 +269,16 @@ def delabCore (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (opt
     if !getPPAll opts && getPPAnalyze opts && optionsPerPos.isEmpty then
       withTheReader Core.Context (fun ctx => { ctx with options := opts }) do topDownAnalyze e
     else optionsPerPos
-  let run : Delaborator.DelabM (Syntax × Std.RBMap Pos Elab.Info compare) := do
-    let stx ← Delaborator.delab
-    pure (stx, (← get).infos)
-  catchInternalId Delaborator.delabFailureId
-    (run
+  let (stx, {infos := infos, ..}) ← catchInternalId Delaborator.delabFailureId
+    (Delaborator.delab
       { defaultOptions := opts
         optionsPerPos := optionsPerPos
         currNamespace := currNamespace
         openDecls := openDecls
         subExpr := Delaborator.SubExpr.mkRoot e }
-      |>.run' { : Delaborator.State })
+      |>.run { : Delaborator.State })
     (fun _ => unreachable!)
+  return (stx, infos)
 
 /-- "Delaborate" the given term into surface-level syntax using the default and given subterm-specific options. -/
 def delab (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Syntax := do

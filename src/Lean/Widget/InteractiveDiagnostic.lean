@@ -139,10 +139,7 @@ where
   | nCtx, _,         withContext ctx d        => go nCtx ctx d
   | _,    ctx,       withNamingContext nCtx d => go nCtx ctx d
   | nCtx, ctx,       tagged t d               => do
-    -- tagged is *almost* perfect for detecting traces
-    -- expect for the following two other occurrences:
-    -- src/Lean/Elab/Term.lean:454
-    -- src/Lean/Elab/Tactic/Basic.lean:33
+    -- We postfix trace contexts with `_traceCtx` in order to detect them in messages.
     if let Name.str cls "_traceCtx" _ := t then
       let f ← pushEmbed <| EmbedFmt.lazyTrace nCtx ctx cls d
       Format.tag f s!"[{cls}] (trace hidden)"

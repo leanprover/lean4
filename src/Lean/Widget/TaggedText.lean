@@ -38,33 +38,29 @@ def appendTag (acc : TaggedText α) (t₀ : α) (a₀ : TaggedText α) : TaggedT
   | text ""   => tag t₀ a₀
   | a         => append #[a, tag t₀ a₀]
 
-partial def map (f : α → β) : TaggedText α → TaggedText β :=
-  go
-where go : TaggedText α → TaggedText β
+variable (f : α → β) in
+partial def map : TaggedText α → TaggedText β
   | text s => text s
-  | append as => append (as.map go)
-  | tag t a => tag (f t) (go a)
+  | append as => append (as.map map)
+  | tag t a => tag (f t) (map a)
 
-partial def mapM [Monad m] (f : α → m β) : TaggedText α → m (TaggedText β) :=
-  go
-where go : TaggedText α → m (TaggedText β)
+variable (f : α → m β) in
+partial def mapM [Monad m] : TaggedText α → m (TaggedText β)
   | text s => text s
-  | append as => do append (← as.mapM go)
-  | tag t a => do tag (← f t) (← go a)
+  | append as => do append (← as.mapM mapM)
+  | tag t a => do tag (← f t) (← mapM a)
 
-partial def rewrite (f : α → TaggedText α → TaggedText β) : TaggedText α → TaggedText β :=
-  go
-where go : TaggedText α → TaggedText β
+variable (f : α → TaggedText α → TaggedText β) in
+partial def rewrite : TaggedText α → TaggedText β
   | text s => text s
-  | append as => append (as.map go)
+  | append as => append (as.map rewrite)
   | tag t a => f t a
 
+variable (f : α → TaggedText α → m (TaggedText β)) in
 /-- Like `mapM` but allows rewriting the whole subtree at `tag` nodes. -/
-partial def rewriteM [Monad m] (f : α → TaggedText α → m (TaggedText β)) : TaggedText α → m (TaggedText β) :=
-  go
-where go : TaggedText α → m (TaggedText β)
+partial def rewriteM [Monad m] : TaggedText α → m (TaggedText β)
   | text s => text s
-  | append as => do append (← as.mapM go)
+  | append as => do append (← as.mapM rewriteM)
   | tag t a => f t a
 
 instance [RpcEncoding α β] : RpcEncoding (TaggedText α) (TaggedText β) where

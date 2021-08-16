@@ -44,8 +44,8 @@ partial def map : TaggedText α → TaggedText β
   | append as => append (as.map map)
   | tag t a => tag (f t) (map a)
 
-variable (f : α → m β) in
-partial def mapM [Monad m] : TaggedText α → m (TaggedText β)
+variable [Monad m] (f : α → m β) in
+partial def mapM : TaggedText α → m (TaggedText β)
   | text s => text s
   | append as => do append (← as.mapM mapM)
   | tag t a => do tag (← f t) (← mapM a)
@@ -56,9 +56,9 @@ partial def rewrite : TaggedText α → TaggedText β
   | append as => append (as.map rewrite)
   | tag t a => f t a
 
-variable (f : α → TaggedText α → m (TaggedText β)) in
+variable [Monad m] (f : α → TaggedText α → m (TaggedText β)) in
 /-- Like `mapM` but allows rewriting the whole subtree at `tag` nodes. -/
-partial def rewriteM [Monad m] : TaggedText α → m (TaggedText β)
+partial def rewriteM : TaggedText α → m (TaggedText β)
   | text s => text s
   | append as => do append (← as.mapM rewriteM)
   | tag t a => f t a

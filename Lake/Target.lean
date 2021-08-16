@@ -79,10 +79,10 @@ def nil [Pure m] [Inhabited t] : ActiveTarget t m PUnit :=
 def materialize [Await m n] (self : ActiveTarget t n α) : m PUnit :=
   await self.task
 
-def andThen [Monad m] [MonadAsync m n] (target : ActiveTarget t n a) (act : m PUnit) : m (n PUnit) :=
-  mapAsync (fun _ => act) target.task
+def andThen [MonadAsync m n] (target : ActiveTarget t n a) (act : m PUnit) : m (n PUnit) :=
+  seqRightAsync target.task act
 
-instance [Monad m] [MonadAsync m n] : HAndThen (ActiveTarget t n a) (m PUnit) (m (n PUnit)) :=
+instance [MonadAsync m n] : HAndThen (ActiveTarget t n a) (m PUnit) (m (n PUnit)) :=
   ⟨andThen⟩
 
 def all [Monad m] [Pure n] [MonadAsync m n] [NilTrace t] [MixTrace t]
@@ -142,17 +142,22 @@ def materializeAsync [Async m n] (self : Target t m a) : m (n PUnit) :=
 def materialize (self : Target t m a) : m PUnit :=
   self.task
 
-def materializeListAsync [Monad m] [Pure n] [MonadAsync m n] (targets : List (Target t m a)) : m (n PUnit) := do
+section
+variable [Monad m] [Pure n] [MonadAsync m n]
+
+def materializeListAsync  (targets : List (Target t m a)) : m (n PUnit) := do
   seqListAsync (← targets.mapM (·.materializeAsync))
 
-def materializeList [Monad m] [Pure n] [MonadAsync m n] (targets : List (Target t m a)) : m PUnit := do
+def materializeList (targets : List (Target t m a)) : m PUnit := do
   await <| ← materializeListAsync targets
 
-def materializeArrayAsync [Monad m] [Pure n] [MonadAsync m n] (targets : Array (Target t m a)) :  m (n PUnit) := do
+def materializeArrayAsync (targets : Array (Target t m a)) :  m (n PUnit) := do
   seqArrayAsync (← targets.mapM (·.materializeAsync))
 
-def materializeArray [Monad m] [Pure n] [MonadAsync m n] (targets : Array (Target t m a)) :  m PUnit := do
+def materializeArray (targets : Array (Target t m a)) :  m PUnit := do
   await <| ← materializeArrayAsync targets
+
+end
 
 def andThen [SeqRight m] (target : Target t m a) (act : m β) : m β :=
   target.task *> act

@@ -32,10 +32,13 @@ def await (self : IOTask α) : IO α := do
 def mapAsync (f : α → IO β) (self : IOTask α) (prio := Task.Priority.dedicated) : IO (IOTask β) :=
   IO.mapTask (fun x => do let x ← IO.ofExcept x; f x) self prio
 
-def andThen (self : IOTask α) (act : IO β) (prio := Task.Priority.dedicated) : IO (IOTask β) :=
+def seqLeftAsync (self : IOTask α) (act : IO β) (prio := Task.Priority.dedicated) : IO (IOTask α) :=
+  IO.mapTask (fun x => IO.ofExcept x <* act) self prio
+
+def seqRightAsync (self : IOTask α) (act : IO β) (prio := Task.Priority.dedicated) : IO (IOTask β) :=
   IO.mapTask (fun x => IO.ofExcept x *> act) self prio
 
-instance : HAndThen (IOTask α) (IO β) (IO (IOTask β)) := ⟨andThen⟩
+instance : HAndThen (IOTask α) (IO β) (IO (IOTask β)) := ⟨seqRightAsync⟩
 
 def bindAsync (self : IOTask α) (f : α → IO (IOTask β)) (prio := Task.Priority.dedicated) : IO (IOTask β) :=
   IO.bindTask self (fun x => do let x ← IO.ofExcept x; f x)  prio
@@ -45,6 +48,8 @@ instance : MonadAsync IO IOTask where
   await := IOTask.await
   mapAsync := IOTask.mapAsync
   bindAsync := IOTask.bindAsync
+  seqLeftAsync := IOTask.seqLeftAsync
+  seqRightAsync := IOTask.seqRightAsync
 
 end IOTask
 

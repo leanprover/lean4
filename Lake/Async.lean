@@ -18,14 +18,20 @@ class Await (m : Type u → Type v) (n : outParam $ Type u → Type u) where
 
 export Await (await)
 
-class MonadAsync (m : Type u → Type v) (n : outParam $ Type u → Type u) [Monad m] extends Async m n, Await m n where
-  mapAsync  {α β : Type u} : (α → m β) → n α → m (n β)     := fun f x => async (await x >>= f)
-  bindAsync {α β : Type u} : n α → (α → m (n β)) → m (n β) := fun x f => async (await x >>= f >>= await)
+class ApplicativeAsync (m : Type u → Type v) (n : outParam $ Type u → Type u) extends Async m n, Await m n where
+  seqLeftAsync  {α β : Type u} : n α → m β → m (n α) -- := fun x y => async (await x <* y)
+  seqRightAsync {α β : Type u} : n α → m β → m (n β) -- := fun x y => async (await x *> y)
+
+export ApplicativeAsync (seqLeftAsync seqRightAsync)
+
+class MonadAsync (m : Type u → Type v) (n : outParam $ Type u → Type u) extends ApplicativeAsync m n where
+  mapAsync  {α β : Type u} : (α → m β) → n α → m (n β)     -- := fun f x => async (await x >>= f)
+  bindAsync {α β : Type u} : n α → (α → m (n β)) → m (n β) -- := fun x f => async (await x >>= f >>= await)
 
 export MonadAsync (mapAsync bindAsync)
 
 section
-variable [Monad m] [MonadAsync m n]
+variable [MonadAsync m n]
 
 -- ## List Utilities
 
@@ -41,11 +47,11 @@ def afterListAsync (task : m (n β)) : (ts : List (n α)) → m (n β)
   | [] => task
   | t::ts => bindAsync t fun _ => afterListAsync task ts
 
-def andThenListAsync (task : (n α)) : (ts : List (n α)) → m (n α)
-  | [] => task
+def andThenListAsync [Pure m] (task : (n α)) : (ts : List (n α)) → m (n α)
+  | [] => pure task
   | t::ts => bindAsync task fun _ => andThenListAsync t ts
 
-def seqListAsync [Pure n] : (ts : List (n PUnit)) → m (n PUnit)
+def seqListAsync [Pure m] [Pure n] : (ts : List (n PUnit)) → m (n PUnit)
   | [] => pure (pure ())
   | t::ts => andThenListAsync t ts
 
@@ -53,7 +59,7 @@ def seqListAsync [Pure n] : (ts : List (n PUnit)) → m (n PUnit)
 -- These Follow the pattern of Array iterators established in the Lean core.
 
 @[inline] unsafe def mapArrayAsyncUnsafe (f : Array α → m β) (ts : Array (n α)) (start := 0) (stop := ts.size) : m (n β) :=
- let rec @[specialize] fold (i : USize) (stop : USize) (as : Array α) : m (n β) := do
+ let rec @[specialize] fold (i : USize) (stop : USize) (as : Array α) : m (n β) :=
     if i == stop then
       async (f as)
     else
@@ -69,7 +75,7 @@ def seqListAsync [Pure n] : (ts : List (n PUnit)) → m (n PUnit)
 @[implementedBy mapArrayAsyncUnsafe]
 def mapArrayAsync (f : Array α → m β) (ts : Array (n α)) (start := 0) (stop := ts.size) : m (n β) :=
   let fold (stop : Nat) (h : stop ≤ ts.size) :=
-    let rec loop (i : Nat) (j : Nat) (as : Array α) : m (n β) := do
+    let rec loop (i : Nat) (j : Nat) (as : Array α) : m (n β) :=
       if hlt : j < stop then
         match i with
         | Nat.zero => async (f as)
@@ -85,7 +91,7 @@ def mapArrayAsync (f : Array α → m β) (ts : Array (n α)) (start := 0) (stop
     fold ts.size (Nat.leRefl _)
 
 @[inline] unsafe def afterArrayAsyncUnsafe (task : m (n β)) (ts : Array (n α)) (start := 0) (stop := ts.size) : m (n β) :=
- let rec @[specialize] fold (i : USize) (stop : USize) : m (n β) := do
+ let rec @[specialize] fold (i : USize) (stop : USize) : m (n β) :=
     if i == stop then
       task
     else
@@ -101,7 +107,7 @@ def mapArrayAsync (f : Array α → m β) (ts : Array (n α)) (start := 0) (stop
 @[implementedBy afterArrayAsyncUnsafe]
 def afterArrayAsync (task : m (n β)) (ts : Array (n α)) (start := 0) (stop := ts.size) : m (n β) :=
   let fold (stop : Nat) (h : stop ≤ ts.size) :=
-    let rec loop (i : Nat) (j : Nat) : m (n β) := do
+    let rec loop (i : Nat) (j : Nat) : m (n β) :=
       if hlt : j < stop then
         match i with
         | Nat.zero => task
@@ -116,7 +122,7 @@ def afterArrayAsync (task : m (n β)) (ts : Array (n α)) (start := 0) (stop := 
   else
     fold ts.size (Nat.leRefl _)
 
-def seqArrayAsync [Pure n] (ts : Array (n PUnit)) : m (n PUnit) :=
+def seqArrayAsync [Pure m] [Pure n] (ts : Array (n PUnit)) : m (n PUnit) :=
   if h : 0 < ts.size then
     afterArrayAsync (ts.get ⟨ts.size - 1, Nat.subLt h (by decide)⟩) ts.pop
   else

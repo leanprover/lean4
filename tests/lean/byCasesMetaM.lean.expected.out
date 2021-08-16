@@ -1,0 +1,14 @@
+[Meta.debug] p q : Prop
+h : p ∧ q
+⊢ q ∧ q
+[Meta.debug] case inl
+p q : Prop
+h : p ∧ q
+hAux : p
+⊢ q ∧ q
+------
+case inr
+p q : Prop
+h : p ∧ q
+hAux : ¬p
+⊢ q ∧ q

@@ -100,7 +100,7 @@ def fetchAfterDirectLocalImports
     let leanMTime ← getMTime leanFile
     let leanHash := Hash.compute contents
     let depTrace := depsTarget.trace.mix <|
-      LakeTrace.mixList <| importTargets.map (·.trace)
+      mixTraceList <| importTargets.map (·.trace)
     let maxMTime := max leanMTime depTrace.mtime
     let fullHash := Hash.mix leanHash depTrace.hash
     let hashFile := pkg.modToHashFile mod
@@ -155,7 +155,7 @@ def Package.buildModuleTargets
 def Package.buildTargetWithDepTargetsFor
 (mod : Name) (depTargets : List PackageTarget) (self : Package)
 : IO PackageTarget := do
-  let depsTarget ← ActiveLakeTarget.all <|
+  let depsTarget ← ActiveTarget.all <|
     (← self.buildMoreDepsTarget).withArtifact arbitrary :: depTargets
   let oLeanDirs := depTargets.map (·.package.oleanDir)
   let (target, targetMap) ← self.buildModuleTargetDAGFor mod oLeanDirs depsTarget
@@ -202,7 +202,7 @@ def Package.buildModuleTargetsWithDeps
 (deps : List Package) (mods : List Name)  (self : Package)
 : IO (List ModuleTarget) := do
   let oleanDirs := deps.map (·.oleanDir)
-  let depsTarget ← ActiveLakeTarget.all <|
+  let depsTarget ← ActiveTarget.all <|
     (← self.buildMoreDepsTarget).withArtifact arbitrary :: (← deps.mapM (·.buildTarget))
   self.buildModuleTargets mods oleanDirs depsTarget
 

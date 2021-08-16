@@ -85,6 +85,12 @@ def andThen [Monad m] [MonadAsync m n] (target : ActiveTarget t n a) (act : m PU
 instance [Monad m] [MonadAsync m n] : HAndThen (ActiveTarget t n a) (m PUnit) (m (n PUnit)) :=
   ⟨andThen⟩
 
+def all [Monad m] [Pure n] [MonadAsync m n] [NilTrace t] [MixTrace t]
+  (targets : List (ActiveTarget t n a)) : m (ActiveTarget t n PUnit) := do
+  let task ← seqListAsync <| targets.map (·.task)
+  let trace := mixTraceList <| targets.map (·.trace)
+  return ActiveTarget.mk () trace task
+
 end ActiveTarget
 
 -- ## Combinators
@@ -190,12 +196,6 @@ def nil : ActiveLakeTarget PUnit :=
 def hash (self : ActiveLakeTarget a) := self.trace.hash
 def mtime (self : ActiveLakeTarget a) := self.trace.mtime
 
-def all (targets : List (ActiveLakeTarget a)) : IO (ActiveLakeTarget PUnit) := do
-  let hash := Hash.mixList <| targets.map (·.hash)
-  let mtime := MTime.listMax <| targets.map (·.mtime)
-  let task ← seqListAsync <| targets.map (·.task)
-  return ActiveTarget.mk () ⟨hash, mtime⟩ task
-
 end ActiveLakeTarget
 
 --------------------------------------------------------------------------------
@@ -231,19 +231,19 @@ def filesAsArray (self : FilesTarget) : Array FilePath :=
   self.artifact
 
 def compute (files : Array FilePath) : IO FilesTarget := do
-  Target.pure files <| LakeTrace.mixArray <| ← files.mapM LakeTrace.compute
+  Target.pure files <| mixTraceArray <| ← files.mapM LakeTrace.compute
 
 def singleton (target : FileTarget) : FilesTarget :=
   target.withArtifact #[target.file]
 
 def collectList (targets : List FileTarget) : FilesTarget :=
   let files := Array.mk <| targets.map (·.file)
-  let trace := LakeTrace.mixList <| targets.map (·.trace)
+  let trace := mixTraceList <| targets.map (·.trace)
   Target.mk files trace do Target.materializeList targets
 
 def collectArray (targets : Array FileTarget) : FilesTarget :=
   let files := targets.map (·.file)
-  let trace := LakeTrace.mixArray <| targets.map (·.trace)
+  let trace := mixTraceArray <| targets.map (·.trace)
   Target.mk files trace do Target.materializeArray targets
 
 def collect (targets : Array FileTarget) : FilesTarget :=

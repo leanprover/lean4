@@ -106,21 +106,21 @@ def compileNextCmd (text : FileMap) (snap : Snapshot) : IO Snapshot := do
     Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
   let cmdPos := cmdStx.getPos?.get!
   if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
-    let endSnap : Snapshot :=
-      { beginPos := cmdPos
-        stx := cmdStx
-        mpState := cmdParserState
-        cmdState := snap.cmdState
-        interactiveDiags := ← newInteractiveDiags msgLog
-      }
+    let endSnap : Snapshot := {
+      beginPos := cmdPos
+      stx := cmdStx
+      mpState := cmdParserState
+      cmdState := snap.cmdState
+      interactiveDiags := ← newInteractiveDiags msgLog
+    }
     endSnap
   else
     let cmdStateRef ← IO.mkRef { snap.cmdState with messages := msgLog }
-    let cmdCtx : Elab.Command.Context :=
-      { cmdPos   := snap.endPos
-        fileName := inputCtx.fileName
-        fileMap  := inputCtx.fileMap
-      }
+    let cmdCtx : Elab.Command.Context := {
+      cmdPos   := snap.endPos
+      fileName := inputCtx.fileName
+      fileMap  := inputCtx.fileMap
+    }
     let (output, _) ← IO.FS.withIsolatedStreams do
       EIO.toIO ioErrorFromEmpty do
         Elab.Command.catchExceptions
@@ -130,20 +130,20 @@ def compileNextCmd (text : FileMap) (snap : Snapshot) : IO Snapshot := do
     if !output.isEmpty then
       postCmdState := {
         postCmdState with
-        messages := postCmdState.messages.add
-          { fileName := inputCtx.fileName
-            severity := MessageSeverity.information
-            pos      := inputCtx.fileMap.toPosition snap.endPos
-            data     := output
-          }
+        messages := postCmdState.messages.add {
+          fileName := inputCtx.fileName
+          severity := MessageSeverity.information
+          pos      := inputCtx.fileMap.toPosition snap.endPos
+          data     := output
+        }
       }
-    let postCmdSnap : Snapshot :=
-      { beginPos := cmdPos
-        stx := cmdStx
-        mpState := cmdParserState
-        cmdState := postCmdState
-        interactiveDiags := ← newInteractiveDiags postCmdState.messages
-      }
+    let postCmdSnap : Snapshot := {
+      beginPos := cmdPos
+      stx := cmdStx
+      mpState := cmdParserState
+      cmdState := postCmdState
+      interactiveDiags := ← newInteractiveDiags postCmdState.messages
+    }
     postCmdSnap
 
 where

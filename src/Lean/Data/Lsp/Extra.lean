@@ -48,12 +48,15 @@ structure LeanFileProgressParams where
 
 /-- `$/lean/plainGoal` client->server request.
 
-Returns the goal(s) at the specified position, pretty-printed as a string. -/
+If there is a tactic proof at the specified position, returns the current goals.
+Otherwise returns `null`. -/
 structure PlainGoalParams extends TextDocumentPositionParams
   deriving FromJson, ToJson
 
 structure PlainGoal where
+  /-- The goals as pretty-printed Markdown, or something like "no goals" if accomplished. -/
   rendered : String
+  /-- The pretty-printed goals, empty if all accomplished. -/
   goals : Array String
   deriving FromJson, ToJson
 

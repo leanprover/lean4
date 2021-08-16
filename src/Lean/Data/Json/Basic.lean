@@ -152,7 +152,9 @@ private partial def beq' : Json → Json → Bool
     a == b
   | obj a,  obj b =>
     let _ : BEq Json := ⟨beq'⟩
-    a.all fun field fa =>
+    let szA := a.fold (init := 0) (fun a _ _ => a + 1)
+    let szB := b.fold (init := 0) (fun a _ _ => a + 1)
+    szA == szB && a.all fun field fa =>
       match b.find compare field with
       | none    => false
       | some fb => fa == fb

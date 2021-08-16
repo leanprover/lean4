@@ -136,37 +136,37 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
       return #[]
 
 open RequestM in
-def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask Widget.InteractiveGoals) := do
+def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Option Widget.InteractiveGoals)) := do
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
   -- NOTE: use `>=` since the cursor can be *after* the input
   withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
-    (notFoundX := return { goals := #[] }) fun snap => do
+    (notFoundX := return none) fun snap => do
       for t in snap.cmdState.infoState.trees do
         if let rs@(_ :: _) := t.goalsAt? doc.meta.text hoverPos then
           let goals ← List.join <$> rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter } =>
             let ci := if useAfter then { ci with mctx := ti.mctxAfter } else { ci with mctx := ti.mctxBefore }
             let goals := if useAfter then ti.goalsAfter else ti.goalsBefore
             ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPInaccessibleNames (Widget.goalToInteractive g))
-          return { goals := goals.toArray }
+          return some { goals := goals.toArray }
 
-      return { goals := #[] }
+      return none
 
 open Elab in
 partial def handlePlainGoal (p : PlainGoalParams)
     : RequestM (RequestTask (Option PlainGoal)) := do
   let t ← getInteractiveGoals p
-  t.map <| Except.map fun ⟨goals⟩ =>
+  t.map <| Except.map <| Option.map <| fun ⟨goals⟩ =>
     if goals.isEmpty then
-      some { goals := #[], rendered := "no goals" }
+      { goals := #[], rendered := "no goals" }
     else
       let goalStrs := goals.map (toString ·.pretty)
       let goalBlocks := goalStrs.map fun goal => s!"```lean
 {goal}
 ```"
       let md := String.intercalate "\n---\n" goalBlocks.toList
-      some { goals := goalStrs, rendered := md }
+      { goals := goalStrs, rendered := md }
 
 partial def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
     : RequestM (RequestTask (Option (Widget.InteractiveGoal × Range))) := do

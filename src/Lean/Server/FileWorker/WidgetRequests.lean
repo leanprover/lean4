@@ -77,7 +77,7 @@ builtin_initialize
   registerRpcCallHandler
     `Lean.Widget.getInteractiveGoals
     Lsp.PlainGoalParams
-    InteractiveGoals
+    (Option InteractiveGoals)
     FileWorker.getInteractiveGoals
 
   registerRpcCallHandler

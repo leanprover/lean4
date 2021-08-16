@@ -5,9 +5,15 @@ With Lake, package configuration is written in Lean inside a dedicated `package.
 
 ## Building and Running Lake
 
-In order to properly build Lake, you must provide `leanpkg build bin` with some additional linker options to have it create an executable that can correctly interpret the Lake package configuration files.
+As Lake functions as an alternative to `leanpkg`, the most direct way of building Lake is through `leanmake`. However, you can also build it with `leanpkg`. Either way, you will need to provide some additional linker options to create an executable that can correctly interpret the Lake package configuration files.
 
 On Unix:
+
+```
+$ leanmake PKG=Lake LEAN_PATH=./build bin LINK_OPTS=-rdynamic
+```
+
+or
 
 ```
 $ leanpkg build bin LINK_OPTS=-rdynamic
@@ -16,10 +22,16 @@ $ leanpkg build bin LINK_OPTS=-rdynamic
 On Windows (MSYS2):
 
 ```
+$ leanmake PKG=Lake LEAN_PATH=./build bin LINK_OPTS=-Wl,--export-all
+```
+
+or
+
+```
 $ leanpkg build bin LINK_OPTS=-Wl,--export-all
 ```
 
-Alternatively, you can build Lake by running the the pre-packaged `build-msys2.sh` and `build-unix.sh` shell scripts which include these commands.
+Alternatively, you can build Lake by running the the pre-packaged `build-msys2.sh` and `build-unix.sh` shell scripts, which include the `leanmake` commands.
 
 ### Augmenting Lake's Search Path
 

@@ -280,7 +280,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean -lnodefs.js -lleanrt")
 else()
-  set(LEANC_STATIC_LINKER_FLAGS "-Wl,--start-group -lleancpp -lInit -lStd -lLean -Wl,--end-group")
+  set(LEANC_STATIC_LINKER_FLAGS "-Wl,--start-group -lleancpp -lInit -lStd -lLean -lleanrt -Wl,--end-group")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -376,16 +376,19 @@ include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" head
 
 if(${STAGE} GREATER 1)
   # reuse C++ parts, which don't change
+  add_library(leanrt_initial-exec STATIC IMPORTED)
+  set_target_properties(leanrt_initial-exec PROPERTIES
+    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a")
   add_library(leanrt STATIC IMPORTED)
   set_target_properties(leanrt PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/lean/libleanrt.a")
+    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/runtime/libleanrt.a")
   add_library(leancpp STATIC IMPORTED)
   set_target_properties(leancpp PROPERTIES
     IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
   add_custom_target(copy-leancpp
+    COMMAND cmake -E copy_if_different "${PREV_STAGE}/runtime/libleanrt_initial-exec.a" "${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a"
     COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/libleanrt.a" "${CMAKE_BINARY_DIR}/lib/lean/libleanrt.a"
     COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/libleancpp.a" "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
-  add_dependencies(leanrt copy-leancpp)
   add_dependencies(leancpp copy-leancpp)
 else()
   add_subdirectory(runtime)
@@ -420,9 +423,9 @@ string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
 set(LEANC_OPTS "${LEANC_OPTS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(LEANSHARED_LINKER_FLAGS "-Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libInit.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libStd.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLean.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a ${CMAKE_BINARY_DIR}/lib/lean/libleanrt.a ${LEANSHARED_LINKER_FLAGS}")
+  set(LEANSHARED_LINKER_FLAGS "-Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libInit.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libStd.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLean.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")
 else()
-  set(LEANSHARED_LINKER_FLAGS "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp -Wl,--no-whole-archive -lleanrt ${LEANSHARED_LINKER_FLAGS}")
+  set(LEANSHARED_LINKER_FLAGS "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp -Wl,--no-whole-archive ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")
   if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,--out-implib,${CMAKE_BINARY_DIR}/bin/libleanshared.dll.a")
     set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -L$bindir")

@@ -84,21 +84,6 @@ def SimpLemmas.erase [Monad m] [MonadError m] (d : SimpLemmas) (declName : Name)
     throwError "'{declName}' does not have [simp] attribute"
   d.eraseCore declName
 
-inductive SimpEntry where
-  | lemma    : SimpLemma → SimpEntry
-  | toUnfold : Name → SimpEntry
-  deriving Inhabited
-
-builtin_initialize simpExtension : SimpleScopedEnvExtension SimpEntry SimpLemmas ←
-  registerSimpleScopedEnvExtension {
-    name     := `simpExt
-    initial  := {}
-    addEntry := fun d e =>
-      match e with
-      | SimpEntry.lemma e => addSimpLemmaEntry d e
-      | SimpEntry.toUnfold n => d.addDeclToUnfold n
-  }
-
 private partial def isPerm : Expr → Expr → MetaM Bool
   | Expr.app f₁ a₁ _, Expr.app f₂ a₂ _ => isPerm f₁ f₂ <&&> isPerm a₁ a₂
   | Expr.mdata _ s _, t => isPerm s t
@@ -191,15 +176,25 @@ private def mkSimpLemmasFromConst (declName : Name) (post : Bool) (inv : Bool) (
     else
       #[← mkSimpLemmaCore (mkConst declName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst declName) post prio declName]
 
-def addSimpLemma (declName : Name) (post : Bool) (inv : Bool) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
+inductive SimpEntry where
+  | lemma    : SimpLemma → SimpEntry
+  | toUnfold : Name → SimpEntry
+  deriving Inhabited
+
+abbrev SimpExtension := SimpleScopedEnvExtension SimpEntry SimpLemmas
+
+def SimpExtension.getLemmas (ext : SimpExtension) : CoreM SimpLemmas :=
+  return ext.getState (← getEnv)
+
+def addSimpLemma (ext : SimpExtension) (declName : Name) (post : Bool) (inv : Bool) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let simpLemmas ← mkSimpLemmasFromConst declName post inv prio
   for simpLemma in simpLemmas do
-    simpExtension.add (SimpEntry.lemma simpLemma) attrKind
+    ext.add (SimpEntry.lemma simpLemma) attrKind
 
-builtin_initialize
+def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension) : IO Unit :=
   registerBuiltinAttribute {
-    name  := `simp
-    descr := "simplification theorem"
+    name  := attrName
+    descr := attrDescr
     add   := fun declName stx attrKind =>
       let go : MetaM Unit := do
         let info ← getConstInfo declName
@@ -207,20 +202,37 @@ builtin_initialize
           let post :=
             if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
           let prio ← getAttrParamOptPrio stx[2]
-          addSimpLemma declName post (inv := false) attrKind prio
+          addSimpLemma ext declName post (inv := false) attrKind prio
         else if info.hasValue then
-          simpExtension.add (SimpEntry.toUnfold declName) attrKind
+          ext.add (SimpEntry.toUnfold declName) attrKind
         else
           throwError "invalid 'simp', it is not a proposition nor a definition (to unfold)"
       discard <| go.run {} {}
     erase := fun declName => do
-      let s ← simpExtension.getState (← getEnv)
+      let s ← ext.getState (← getEnv)
       let s ← s.erase declName
-      modifyEnv fun env => simpExtension.modifyState env fun _ => s
+      modifyEnv fun env => ext.modifyState env fun _ => s
   }
 
-def getSimpLemmas : MetaM SimpLemmas :=
-  return simpExtension.getState (← getEnv)
+def mkSimpExt (extName : Name) : IO SimpExtension :=
+  registerSimpleScopedEnvExtension {
+    name     := extName
+    initial  := {}
+    addEntry := fun d e =>
+      match e with
+      | SimpEntry.lemma e => addSimpLemmaEntry d e
+      | SimpEntry.toUnfold n => d.addDeclToUnfold n
+  }
+
+def registerSimpAttr (attrName : Name) (attrDescr : String) (extName : Name := attrName.appendAfter "Ext") : IO SimpExtension := do
+  let ext ← mkSimpExt extName
+  mkSimpAttr attrName attrDescr ext
+  return ext
+
+builtin_initialize simpExtension : SimpExtension ← registerSimpAttr `simp "simplification theorem"
+
+def getSimpLemmas : CoreM SimpLemmas :=
+  simpExtension.getLemmas
 
 /- Auxiliary method for adding a global declaration to a `SimpLemmas` datastructure. -/
 def SimpLemmas.addConst (s : SimpLemmas) (declName : Name) (post : Bool := true) (inv : Bool := false) (prio : Nat := eval_prio default) : MetaM SimpLemmas := do

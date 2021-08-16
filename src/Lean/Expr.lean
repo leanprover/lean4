@@ -1044,4 +1044,9 @@ def mkFreshFVarId {m : Type → Type} [Monad m] [MonadNameGenerator m] : m FVarI
 def mkFreshMVarId {m : Type → Type} [Monad m] [MonadNameGenerator m] : m FVarId :=
   mkFreshId
 
+def mkNot (p : Expr) : Expr := mkApp (mkConst ``Not) p
+def mkOr (p q : Expr) : Expr := mkApp2 (mkConst ``Or) p q
+def mkAnd (p q : Expr) : Expr := mkApp2 (mkConst ``And) p q
+def mkEM (p : Expr) : Expr := mkApp (mkConst ``Classical.em) p
+
 end Lean

@@ -299,9 +299,14 @@ endif()
 
 # export all symbols for the interpreter
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  # for libraries compiled with `leanc -shared`
   set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -Wl,--export-all")
+  # for `leanshared` itself
   set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,--export-all")
+  # for executables containing code to be interpreted
+  set(LEAN_DYN_EXE_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,--export-all")
 else()
+  set(LEAN_DYN_EXE_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -rdynamic")
   set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -ldl")
 endif()
 

@@ -49,6 +49,11 @@ namespace Expr
 @[inline] def not? (p : Expr) : Option Expr :=
   p.app1? ``Not
 
+@[inline] def notNot? (p : Expr) : Option Expr :=
+  match p.not? with
+  | some p => p.not?
+  | none => none
+
 @[inline] def and? (p : Expr) : Option (Expr × Expr) :=
   p.app2? ``And
 

@@ -219,6 +219,7 @@ end Leanpkg
 
 def main (args : List String) : IO UInt32 := do
   try
+    Lean.enableInitializersExecution
     Lean.initSearchPath none  -- HACK
     let (cmd, outerArgs, innerArgs) ← Leanpkg.splitCmdlineArgs args
     Leanpkg.main cmd outerArgs innerArgs

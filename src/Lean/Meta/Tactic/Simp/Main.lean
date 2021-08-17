@@ -328,6 +328,8 @@ def main (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Result := 
   withReducible do
     simp e methods ctx |>.run' {}
 
+abbrev Discharge := Expr → SimpM (Option Expr)
+
 namespace DefaultMethods
 mutual
   partial def discharge? (e : Expr) : SimpM (Option Expr) := do
@@ -359,13 +361,16 @@ end DefaultMethods
 
 end Simp
 
-def simp (e : Expr) (ctx : Simp.Context) : MetaM Simp.Result := do profileitM Exception "simp" (← getOptions) do
-  Simp.main e ctx (methods := Simp.DefaultMethods.methods)
+def simp (e : Expr) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM Simp.Result := do profileitM Exception "simp" (← getOptions) do
+  match discharge? with
+  | none   => Simp.main e ctx (methods := Simp.DefaultMethods.methods)
+  | some d => Simp.main e ctx (methods := { pre := (Simp.preDefault . d), post := (Simp.postDefault . d), discharge? := d })
+
 
 /-- See `simpTarget`. This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
-def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) : MetaM (Option MVarId) := do
+def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM (Option MVarId) := do
   let target ← instantiateMVars (← getMVarType mvarId)
-  let r ← simp target ctx
+  let r ← simp target ctx discharge?
   if r.expr.isConstOf ``True then
     match r.proof? with
     | some proof => assignExprMVar mvarId  (← mkOfEqTrue proof)
@@ -383,18 +388,18 @@ def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) : MetaM (Option MVarId
 /--
   Simplify the given goal target (aka type). Return `none` if the goal was closed. Return `some mvarId'` otherwise,
   where `mvarId'` is the simplified new goal. -/
-def simpTarget (mvarId : MVarId) (ctx : Simp.Context) : MetaM (Option MVarId) :=
+def simpTarget (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM (Option MVarId) :=
   withMVarContext mvarId do
     checkNotAssigned mvarId `simp
-    simpTargetCore mvarId ctx
+    simpTargetCore mvarId ctx discharge?
 
 /--
   Simplify `prop` (which is inhabited by `proof`). Return `none` if the goal was closed. Return `some (proof', prop')`
   otherwise, where `proof' : prop'` and `prop'` is the simplified `prop`.
 
   This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
-def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context) : MetaM (Option (Expr × Expr)) := do
-  let r ← simp prop ctx
+def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM (Option (Expr × Expr)) := do
+  let r ← simp prop ctx discharge?
   if r.expr.isConstOf ``False then
     match r.proof? with
     | some eqProof => assignExprMVar mvarId (← mkFalseElim (← getMVarType mvarId) (← mkEqMP eqProof proof))

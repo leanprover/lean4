@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 # Lean compiler
 #
-# A simple wrapper around a C++ compiler. Defaults to the compiler Lean was built with,
-# which can be overridden with the environment variable `LEAN_CXX`. All parameters are passed
-# as-is to the wrapped compiler. Note that we use a C++ compiler purely for linking against
-# the C++ standard library Lean depends on, all input files are treated as C code.
+# A simple wrapper around a C compiler. Defaults to the compiler Lean was built with,
+# which can be overridden with the environment variable `LEAN_CC`. All parameters are passed
+# as-is to the wrapped compiler.
 #
 # Interesting options:
 # * `-U LEAN_MULTI_THREAD` can be used to optimize programs not making use of multi-threading
@@ -22,15 +21,14 @@ ldflags_ext=(@LEANC_STATIC_LINKER_FLAGS@)
 args=("$@")
 for arg in "$@"; do
     # passed -shared ~> switch to shared linker flags
-    [[ $arg == "-shared" ]] && ldflags_ext=(@LEANC_SHARED_LINKER_FLAGS@) && args=("-x" "c" "$@" "-x" "none")
+    [[ $arg == "-shared" ]] && ldflags_ext=(@LEANC_SHARED_LINKER_FLAGS@)
     # linking against libleanshared explicitly (or linking libleanshared itself) ~> do not link against static stdlib
     [[ $arg == "-lleanshared" || $arg == *libleanshared.* ]] && ldflags_ext=()
-    # Note the `-x c` for treating all input as C code
-    [[ $arg == "-c" ]] && ldflags=() && ldflags_ext=() && args=("-x" "c" "$@" "-x" "none")
+    [[ $arg == "-c" ]] && ldflags=() && ldflags_ext=()
     [[ $arg == "--print-cflags" ]] && echo "${cflags[@]}" && exit
     [[ $arg == "--print-ldflags" ]] && echo "${cflags[@]} ${ldflags_ext[@]} ${ldflags[@]}" && exit
 done
 
-[ -n "$LEAN_CXX" ] || LEAN_CXX=c++
+[ -n "$LEAN_CC" ] || LEAN_CC=cc
 
-$LEAN_CXX "${cflags[@]}" "${args[@]}" "${ldflags_ext[@]}" "${ldflags[@]}" -Wno-unused-command-line-argument
+$LEAN_CC "${cflags[@]}" "${args[@]}" "${ldflags_ext[@]}" "${ldflags[@]}" -Wno-unused-command-line-argument

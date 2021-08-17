@@ -80,7 +80,7 @@ def mapArrayAsync (f : Array α → m β) (ts : Array (n α)) (start := 0) (stop
         match i with
         | Nat.zero => async (f as)
         | Nat.succ i' =>
-          let t := ts.get ⟨j, Nat.ltOfLtOfLe hlt h⟩
+          let t := ts.get ⟨j, Nat.lt_of_lt_of_le hlt h⟩
           bindAsync t fun a => loop i' (j+1) (as.push a)
       else
         async (f as)
@@ -88,7 +88,7 @@ def mapArrayAsync (f : Array α → m β) (ts : Array (n α)) (start := 0) (stop
   if h : stop ≤ ts.size then
     fold stop h
   else
-    fold ts.size (Nat.leRefl _)
+    fold ts.size (Nat.le_refl _)
 
 @[inline] unsafe def afterArrayAsyncUnsafe (task : m (n β)) (ts : Array (n α)) (start := 0) (stop := ts.size) : m (n β) :=
  let rec @[specialize] fold (i : USize) (stop : USize) : m (n β) :=
@@ -112,7 +112,7 @@ def afterArrayAsync (task : m (n β)) (ts : Array (n α)) (start := 0) (stop := 
         match i with
         | Nat.zero => task
         | Nat.succ i' =>
-          let t := ts.get ⟨j, Nat.ltOfLtOfLe hlt h⟩
+          let t := ts.get ⟨j, Nat.lt_of_lt_of_le hlt h⟩
           bindAsync t fun a => loop i' (j+1)
       else
         task
@@ -120,11 +120,11 @@ def afterArrayAsync (task : m (n β)) (ts : Array (n α)) (start := 0) (stop := 
   if h : stop ≤ ts.size then
     fold stop h
   else
-    fold ts.size (Nat.leRefl _)
+    fold ts.size (Nat.le_refl _)
 
 def seqArrayAsync [Pure m] [Pure n] (ts : Array (n PUnit)) : m (n PUnit) :=
   if h : 0 < ts.size then
-    afterArrayAsync (ts.get ⟨ts.size - 1, Nat.subLt h (by decide)⟩) ts.pop
+    afterArrayAsync (ts.get ⟨ts.size - 1, Nat.sub_lt h (by decide)⟩) ts.pop
   else
     pure (pure ())
 

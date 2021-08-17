@@ -218,4 +218,4 @@ add_test(NAME leanpkgtest_user_attr_app
            set -eu
            export PATH=${LEAN_BIN}:$PATH
            find . -name '*.olean' -delete
-           leanmake bin LINK_OPTS=-rdynamic && build/bin/UserAttr")
+           leanmake bin LINK_OPTS='${CMAKE_EXE_LINKER_FLAGS}' && build/bin/UserAttr")

@@ -23,6 +23,12 @@ Author: Leonardo de Moura
 // see `Task.Priority.max`
 #define LEAN_MAX_PRIO 8
 
+#if defined(__GNUC__) || defined(__clang__)
+#define LEAN_NOINLINE __attribute__((noinline))
+#else
+#define LEAN_NOINLINE
+#endif
+
 namespace lean {
 extern "C" void lean_internal_panic(char const * msg) {
     std::cerr << "INTERNAL PANIC: " << msg << "\n";
@@ -191,6 +197,54 @@ extern "C" lean_object * lean_alloc_object(size_t sz) {
 
 static void deactivate_task(lean_task_object * t);
 
+LEAN_NOINLINE
+static void lean_del_other(uint8 tag, object * o, object * & todo) {
+    switch (tag) {
+    case LeanClosure: {
+        object ** it  = lean_closure_arg_cptr(o);
+        object ** end = it + lean_closure_num_fixed(o);
+        for (; it != end; ++it) dec(*it, todo);
+        lean_free_small_object(o);
+        break;
+    }
+    case LeanArray: {
+        object ** it  = lean_array_cptr(o);
+        object ** end = it + lean_array_size(o);
+        for (; it != end; ++it) dec(*it, todo);
+        lean_dealloc(o, lean_array_byte_size(o));
+        break;
+    }
+    case LeanScalarArray:
+        lean_dealloc(o, lean_sarray_byte_size(o));
+        break;
+    case LeanString:
+        lean_dealloc(o, lean_string_byte_size(o));
+        break;
+    case LeanMPZ:
+        to_mpz(o)->m_value.~mpz();
+        lean_free_small_object(o);
+        break;
+    case LeanThunk:
+        if (object * c = lean_to_thunk(o)->m_closure) dec(c, todo);
+        if (object * v = lean_to_thunk(o)->m_value) dec(v, todo);
+        lean_free_small_object(o);
+        break;
+    case LeanRef:
+        if (object * v = lean_to_ref(o)->m_value) dec(v, todo);
+        lean_free_small_object(o);
+        break;
+    case LeanTask:
+        deactivate_task(lean_to_task(o));
+        break;
+    case LeanExternal:
+        lean_to_external(o)->m_class->m_finalize(lean_to_external(o)->m_data);
+        lean_free_small_object(o);
+        break;
+    default:
+        lean_unreachable();
+    }
+}
+
 static void lean_del_core(object * o, object * & todo) {
     uint8 tag = lean_ptr_tag(o);
     if (tag <= LeanMaxCtorTag) {
@@ -199,50 +253,7 @@ static void lean_del_core(object * o, object * & todo) {
         for (; it != end; ++it) dec(*it, todo);
         lean_free_small_object(o);
     } else {
-        switch (tag) {
-        case LeanClosure: {
-            object ** it  = lean_closure_arg_cptr(o);
-            object ** end = it + lean_closure_num_fixed(o);
-            for (; it != end; ++it) dec(*it, todo);
-            lean_free_small_object(o);
-            break;
-        }
-        case LeanArray: {
-            object ** it  = lean_array_cptr(o);
-            object ** end = it + lean_array_size(o);
-            for (; it != end; ++it) dec(*it, todo);
-            lean_dealloc(o, lean_array_byte_size(o));
-            break;
-        }
-        case LeanScalarArray:
-            lean_dealloc(o, lean_sarray_byte_size(o));
-            break;
-        case LeanString:
-            lean_dealloc(o, lean_string_byte_size(o));
-            break;
-        case LeanMPZ:
-            to_mpz(o)->m_value.~mpz();
-            lean_free_small_object(o);
-            break;
-        case LeanThunk:
-            if (object * c = lean_to_thunk(o)->m_closure) dec(c, todo);
-            if (object * v = lean_to_thunk(o)->m_value) dec(v, todo);
-            lean_free_small_object(o);
-            break;
-        case LeanRef:
-            if (object * v = lean_to_ref(o)->m_value) dec(v, todo);
-            lean_free_small_object(o);
-            break;
-        case LeanTask:
-            deactivate_task(lean_to_task(o));
-            break;
-        case LeanExternal:
-            lean_to_external(o)->m_class->m_finalize(lean_to_external(o)->m_data);
-            lean_free_small_object(o);
-            break;
-        default:
-            lean_unreachable();
-        }
+        lean_del_other(tag, o, todo);
     }
 }
 

@@ -1,3 +1,6 @@
+echo 'verifying lake'
+../build/bin/lake self-check
+
 echo 'testing init'
 cd init
 ./test.sh
@@ -32,6 +35,7 @@ echo "testing bootstrap"
 cd bootstrap
 ./test.sh
 cd ..
+echo "testing bootstrapped hello"
 cd hello
 ./bootstrap-test.sh
 cd ..

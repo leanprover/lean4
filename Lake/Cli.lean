@@ -42,6 +42,7 @@ def cli : (cmd : String) → (lakeArgs pkgArgs : List String) → IO Unit
 | "build-bin",    [],       pkgArgs => do buildBin (← getCwdPkg pkgArgs)
 | "clean",        [],       pkgArgs => do (← getCwdPkg pkgArgs).clean
 | "help",         [cmd],    _       => IO.println <| help cmd
+| "self-check",   [],       _       => verifyLeanVersion
 | _,              _,        _       => throw <| IO.userError usage
 
 private def splitCmdlineArgsCore : List String → List String × List String

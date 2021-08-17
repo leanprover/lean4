@@ -341,6 +341,13 @@ def closeMainGoal (val : Expr) (checkUnassigned := true): TacticM Unit := do
     let gs ← tactic mvarId
     pure ((), gs)
 
+@[inline] def liftMetaTactic1 (tactic : MVarId → MetaM (Option MVarId)) : TacticM Unit :=
+  withMainContext do
+    if let some mvarId ← tactic (← getMainGoal) then
+      replaceMainGoal [mvarId]
+    else
+      replaceMainGoal []
+
 def tryTactic? (tactic : TacticM α) : TacticM (Option α) := do
   try
     pure (some (← tactic))

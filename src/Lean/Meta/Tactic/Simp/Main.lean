@@ -414,4 +414,26 @@ def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context)
       else
         return some (proof, r.expr)
 
+abbrev FVarIdToLemmaId := NameMap Name
+
+def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[]) (fvarIdToLemmaId : FVarIdToLemmaId := {}) : MetaM (Option MVarId) := do
+  let mut mvarId := mvarId
+  let mut toAssert : Array Hypothesis := #[]
+  for fvarId in fvarIdsToSimp do
+    let localDecl ← getLocalDecl fvarId
+    let type ← instantiateMVars localDecl.type
+    let ctx ← match fvarIdToLemmaId.find? localDecl.fvarId with
+      | none => pure ctx
+      | some lemmaId => pure { ctx with simpLemmas := (← ctx.simpLemmas.eraseCore lemmaId) }
+    match (← simpStep mvarId (mkFVar fvarId) type ctx discharge?) with
+    | none => return none
+    | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }
+  if simplifyTarget then
+    match (← simpTarget mvarId ctx discharge?) with
+    | none => return none
+    | some mvarIdNew => mvarId := mvarIdNew
+  let (_, mvarIdNew) ← assertHypotheses mvarId toAssert
+  let mvarIdNew ← tryClearMany mvarIdNew fvarIdsToSimp
+  return mvarIdNew
+
 end Lean.Meta

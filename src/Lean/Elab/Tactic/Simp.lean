@@ -171,33 +171,17 @@ private def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (ctx := false) (ign
   -- trace[Meta.debug] "Lemmas {← toMessageData ctx.simpLemmas.post}"
   let loc := expandOptLocation stx[4]
   match loc with
-  | Location.targets hUserNames simpTarget =>
+  | Location.targets hUserNames simplifyTarget =>
     withMainContext do
       let fvarIds ← hUserNames.mapM fun hUserName => return (← getLocalDeclFromUserName hUserName).fvarId
-      go ctx fvarIds simpTarget fvarIdToLemmaId
+      go ctx fvarIds simplifyTarget fvarIdToLemmaId
   | Location.wildcard =>
     withMainContext do
-      go ctx (← getNondepPropHyps (← getMainGoal)) (simpType := true) fvarIdToLemmaId
+      go ctx (← getNondepPropHyps (← getMainGoal)) (simplifyTarget := true) fvarIdToLemmaId
 where
-  go (ctx : Simp.Context) (fvarIdsToSimp : Array FVarId) (simpType : Bool) (fvarIdToLemmaId : FVarIdToLemmaId) : TacticM Unit := do
-    let mut mvarId ← getMainGoal
-    let mut toAssert : Array Hypothesis := #[]
-    for fvarId in fvarIdsToSimp do
-      let localDecl ← getLocalDecl fvarId
-      let type ← instantiateMVars localDecl.type
-      let ctx ← match fvarIdToLemmaId.find? localDecl.fvarId with
-        | none => pure ctx
-        | some lemmaId => pure { ctx with simpLemmas := (← ctx.simpLemmas.eraseCore lemmaId) }
-      match (← simpStep mvarId (mkFVar fvarId) type ctx) with
-      | none => replaceMainGoal []; return ()
-      | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }
-    if simpType then
-      match (← simpTarget mvarId ctx) with
-      | none => replaceMainGoal []; return ()
-      | some mvarIdNew => mvarId := mvarIdNew
-    let (_, mvarIdNew) ← assertHypotheses mvarId toAssert
-    let mvarIdNew ← tryClearMany mvarIdNew fvarIdsToSimp
-    replaceMainGoal [mvarIdNew]
+  go (ctx : Simp.Context) (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) (fvarIdToLemmaId : FVarIdToLemmaId) : TacticM Unit := do
+    liftMetaTactic1 fun mvarId =>
+      simpGoal mvarId ctx (simplifyTarget := simplifyTarget) (fvarIdsToSimp := fvarIdsToSimp) (fvarIdToLemmaId := fvarIdToLemmaId)
 
 @[builtinTactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => do
   let { ctx, .. } ← mkSimpContext stx (eraseLocal := true) (ctx := true) (ignoreStarArg := true)

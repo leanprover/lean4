@@ -211,3 +211,11 @@ add_test(NAME leanpkgtest_prv
            export PATH=${LEAN_BIN}:$PATH
            find . -name '*.olean' -delete
            leanmake 2>&1 | grep 'error: field.*private'")
+
+add_test(NAME leanpkgtest_user_attr_app
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/user_attr_app"
+         COMMAND bash -c "
+           set -eu
+           export PATH=${LEAN_BIN}:$PATH
+           find . -name '*.olean' -delete
+           leanmake bin LINK_OPTS=-rdynamic && build/bin/UserAttr")

@@ -91,18 +91,18 @@ rec {
       stdlibLinkFlags = "-L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean";
       leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; } ''
         mkdir $out
-        LEAN_CXX=${stdenv.cc}/bin/c++ ${lean-bin-tools-unwrapped}/bin/leanc -x none -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic-functions"} \
-          ${if stdenv.isDarwin then "-Wl,-force_load,${Init.staticLib}/libInit.a -Wl,-force_load,${Std.staticLib}/libStd.a -Wl,-force_load,${Lean.staticLib}/libLean.a -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a"
-            else "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive"} ${stdlibLinkFlags} \
+        LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic-functions"} \
+          ${if stdenv.isDarwin then "-Wl,-force_load,${Init.staticLib}/libInit.a -Wl,-force_load,${Std.staticLib}/libStd.a -Wl,-force_load,${Lean.staticLib}/libLean.a -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a -lc++"
+            else "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive -lstdc++"} -lm ${stdlibLinkFlags} \
           -o $out/libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}
       '';
       mods = Init.mods // Std.mods // Lean.mods;
       leanc = writeShellScriptBin "leanc" ''
-        LEAN_CXX=${stdenv.cc}/bin/c++ ${lean-bin-tools-unwrapped}/bin/leanc ${stdlibLinkFlags} -L${leanshared} "$@"
+        LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc ${stdlibLinkFlags} -L${leanshared} "$@"
       '';
       lean = runCommand "lean" {} ''
         mkdir -p $out/bin
-        ${leanc}/bin/leanc ${leancpp}/lib/lean.cpp.o ${leanshared}/* -o $out/bin/lean
+        ${leanc}/bin/leanc ${leancpp}/lib/lean.cpp.o ${leanshared}/* -o $out/bin/lean ${if stdenv.isDarwin then "-lc++" else "-lstdc++"}
       '';
       leanpkg = Leanpkg.executable.withSharedStdlib;
       # derivation following the directory layout of the "basic" setup, mostly useful for running tests

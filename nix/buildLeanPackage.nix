@@ -150,20 +150,20 @@ in rec {
   '';
   sharedLib = runCommand "${name}.so" { buildInputs = [ stdenv.cc ]; } ''
     mkdir -p $out/lib
-    ${leanc}/bin/leanc -fPIC -shared -x none \
+    ${leanc}/bin/leanc -fPIC -shared \
       -Wl,--whole-archive ${staticLib}/* -Wl,--no-whole-archive\
       ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)} \
       -o $out/${name}.so
   '';
   executable = runCommand executableName { buildInputs = [ stdenv.cc leanc ]; } ''
     mkdir -p $out/bin
-    leanc -x none ${staticLib}/* ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)} \
+    leanc ${staticLib}/* ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)} \
       -o $out/bin/${executableName} \
       ${lib.concatStringsSep " " linkFlags}
   '' // {
     withSharedStdlib = runCommand executableName { buildInputs = [ stdenv.cc leanc ]; } ''
       mkdir -p $out/bin
-      leanc -x none ${staticLib}/* -lleanshared \
+      leanc ${staticLib}/* -lleanshared \
         -o $out/bin/${executableName} \
         ${lib.concatStringsSep " " linkFlags}
     '';

@@ -31,7 +31,7 @@ or
 $ leanpkg build bin LINK_OPTS=-Wl,--export-all
 ```
 
-Alternatively, you can build Lake by running the the pre-packaged `build-msys2.sh` and `build-unix.sh` shell scripts, which include the `leanmake` commands.
+Alternatively, you can build Lake by running the the pre-packaged `build*.sh` shell scripts, which include the `leanmake` commands.
 
 ### Augmenting Lake's Search Path
 

@@ -429,8 +429,7 @@ mutual
             else
               return none
           if smartUnfolding.get (← getOptions) then
-            let fAuxInfo? ← getConstNoEx? (mkSmartUnfoldingNameFor fInfo.name)
-            match fAuxInfo? with
+            match (← getConstNoEx? (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(ConstantInfo.defnInfo _) =>
               deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (fun _ => pure none) fun e₁ => do
                 let e₂ ← whnfUntilIdRhs e₁
@@ -438,7 +437,12 @@ mutual
                   return some (extractIdRhs e₂)
                 else
                   return none
-            | _ => unfoldDefault ()
+            | _ =>
+              if (← getMatcherInfo? fInfo.name).isSome then
+                -- Recall that `whnfCore` tries to reduce "matcher" applications.
+                return none
+              else
+                unfoldDefault ()
           else
             unfoldDefault ()
     | Expr.const declName lvls _ => do

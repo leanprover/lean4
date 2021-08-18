@@ -37,6 +37,14 @@ export MonadBacktrack (saveState restoreState)
     restoreState s
     throw ex
 
+@[specialize] def commitIfNoEx [Monad m] [MonadBacktrack s m] [MonadExcept ε m] (x : m α) : m α := do
+  let s ← saveState
+  try
+    x
+  catch ex =>
+    restoreState s
+    throw ex
+
 @[specialize] def withoutModifyingState [Monad m] [MonadFinally m] [MonadBacktrack s m] (x : m α) : m α := do
   let s ← saveState
   try

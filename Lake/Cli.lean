@@ -4,9 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Init
-import Lake.Build
-import Lake.BuildBin
 import Lake.Help
+import Lake.BuildBin
 import Lake.LeanConfig
 
 namespace Lake

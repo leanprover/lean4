@@ -46,16 +46,15 @@ def contradictionCore (mvarId : MVarId) (useDecide : Bool) (searchDepth : Nat) :
           if let some pFVarId ← findLocalDeclWithType? p then
             assignExprMVar mvarId (← mkAbsurd (← getMVarType mvarId) (mkFVar pFVarId) localDecl.toExpr)
             return true
-        -- (h : <empty-inductive-type>)
-        if (← elimEmptyInductive mvarId localDecl.fvarId searchDepth) then
-          return true
         -- (h : x ≠ x)
         if let some (_, lhs, rhs) ← matchNe? localDecl.type then
           if (← isDefEq lhs rhs) then
             assignExprMVar mvarId (← mkAbsurd (← getMVarType mvarId) (← mkEqRefl lhs) localDecl.toExpr)
             return true
+        let mut isEq := false
         -- (h : ctor₁ ... = ctor₂ ...)
         if let some (_, lhs, rhs) ← matchEq? localDecl.type then
+          isEq := true
           if let some lhsCtor ← matchConstructorApp? lhs then
           if let some rhsCtor ← matchConstructorApp? rhs then
           if lhsCtor.name != rhsCtor.name then
@@ -72,6 +71,12 @@ def contradictionCore (mvarId : MVarId) (useDecide : Bool) (searchDepth : Nat) :
               return true
           catch _ =>
             pure ()
+        -- (h : <empty-inductive-type>)
+        unless isEq do
+          -- We do not use `elimEmptyInductive` for equality, since `cases h` produces a huge proof
+          -- when `(h : 10000 = 10001)`. TODO: `cases` add a threshold at `cases`
+          if (← elimEmptyInductive mvarId localDecl.fvarId searchDepth) then
+            return true
     return false
 
 def contradiction (mvarId : MVarId) (useDecide : Bool := true) (searchDepth : Nat := 2) : MetaM Unit :=

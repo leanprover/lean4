@@ -69,7 +69,7 @@ def optKind : Parser := optional ("(" >> nonReservedSymbol "kind" >> ":=" >> ide
 def notationItem := ppSpace >> withAntiquot (mkAntiquot "notationItem" `Lean.Parser.Command.notationItem) (strLit <|> identPrec)
 @[builtinCommandParser] def «notation»    := leading_parser Term.attrKind >> "notation" >> optPrecedence >> optNamedName >> optNamedPrio >> many notationItem >> darrow >> termParser
 @[builtinCommandParser] def «macro_rules» := suppressInsideQuot (leading_parser optional docComment >> Term.attrKind >> "macro_rules" >>  optKind >> Term.matchAlts)
-@[builtinCommandParser] def «syntax»      := leading_parser optional docComment >> Term.attrKind >> "syntax " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 syntaxParser >> " : " >> ident
+@[builtinCommandParser] def «syntax»      := leading_parser optional docComment >> Term.attrKind >> "syntax " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 (syntaxParser argPrec) >> " : " >> ident
 @[builtinCommandParser] def syntaxAbbrev  := leading_parser "syntax " >> ident >> " := " >> many1 syntaxParser
 @[builtinCommandParser] def syntaxCat     := leading_parser "declare_syntax_cat " >> ident
 def macroArg  := leading_parser optional (atomic (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> syntaxParser argPrec

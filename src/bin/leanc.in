@@ -23,8 +23,8 @@ args=("$@")
 for arg in "$@"; do
     # passed -shared ~> switch to shared linker flags
     [[ $arg == "-shared" ]] && ldflags_ext=(@LEANC_SHARED_LINKER_FLAGS@) && args=("-x" "c" "$@" "-x" "none")
-    # linking against libleanshared explicitly ~> do not link against static stdlib
-    [[ $arg == "-lleanshared" ]] && ldflags_ext=()
+    # linking against libleanshared explicitly (or linking libleanshared itself) ~> do not link against static stdlib
+    [[ $arg == "-lleanshared" || $arg == *libleanshared.* ]] && ldflags_ext=()
     # Note the `-x c` for treating all input as C code
     [[ $arg == "-c" ]] && ldflags=() && ldflags_ext=() && args=("-x" "c" "$@" "-x" "none")
     [[ $arg == "--print-cflags" ]] && echo "${cflags[@]}" && exit

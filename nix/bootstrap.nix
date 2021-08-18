@@ -85,8 +85,8 @@ rec {
       stdlibLinkFlags = "-L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean";
       leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; } ''
         mkdir $out
-        c++ -fPIC -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic-functions"} \
-          ${if stdenv.isDarwin then "-Wl,-force_load,${Init.staticLib}/* -Wl,-force_load,${Std.staticLib}/* -Wl,-force_load,${Lean.staticLib}/* -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a -Wl,-force_load,${leancpp}/lib/libleanrt_initial-exec.a"
+        LEAN_CXX=${stdenv.cc}/bin/c++ ${lean-bin-tools-unwrapped}/bin/leanc -x none -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic-functions"} \
+          ${if stdenv.isDarwin then "-Wl,-force_load,${Init.staticLib}/* -Wl,-force_load,${Std.staticLib}/* -Wl,-force_load,${Lean.staticLib}/* -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a"
             else "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive"} ${stdlibLinkFlags} \
           -o $out/libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}
       '';

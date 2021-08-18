@@ -128,7 +128,7 @@ def checkIfNewer [GetMTime a] (artifact : a) (depMTime : MTime) : IO Bool := do
 
 --------------------------------------------------------------------------------
 -- # Lake Trace (Hash + MTIme)
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 /-- Trace used for common Lake targets. Combines `Hash` and `MTime`. -/
 structure LakeTrace where

@@ -416,19 +416,24 @@ def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context)
 
 def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM (Option (FVarId × MVarId)) := do
   withMVarContext mvarId do
+    checkNotAssigned mvarId `simp
     let localDecl ← getLocalDecl fvarId
     let type ← instantiateMVars localDecl.type
     match (← simpStep mvarId (mkFVar fvarId) type ctx discharge?) with
     | none => return none
-    | some (value, type) =>
-      let mvarId ← assert mvarId localDecl.userName type value
-      let mvarId ← tryClear mvarId localDecl.fvarId
-      return some (fvarId, mvarId)
+    | some (value, type') =>
+      if type != type' then
+        let mvarId ← assert mvarId localDecl.userName type' value
+        let mvarId ← tryClear mvarId localDecl.fvarId
+        return some (fvarId, mvarId)
+      else
+        return some (fvarId, mvarId)
 
 abbrev FVarIdToLemmaId := NameMap Name
 
 def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[]) (fvarIdToLemmaId : FVarIdToLemmaId := {}) : MetaM (Option (Array FVarId × MVarId)) := do
   withMVarContext mvarId do
+    checkNotAssigned mvarId `simp
     let mut mvarId := mvarId
     let mut toAssert : Array Hypothesis := #[]
     for fvarId in fvarIdsToSimp do

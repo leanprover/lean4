@@ -20,13 +20,28 @@ ldflags=("-L$bindir/../lib/lean" "${LEANC_GMP:--lgmp}" @LEAN_EXTRA_LINKER_FLAGS@
 ldflags_ext=(@LEANC_STATIC_LINKER_FLAGS@)
 args=("$@")
 for arg in "$@"; do
-    # passed -shared ~> switch to shared linker flags
-    [[ $arg == "-shared" ]] && ldflags_ext=(@LEANC_SHARED_LINKER_FLAGS@)
-    # linking against libleanshared explicitly (or linking libleanshared itself) ~> do not link against static stdlib
-    [[ $arg == "-lleanshared" || $arg == *libleanshared.* ]] && ldflags_ext=()
-    [[ $arg == "-c" ]] && ldflags=() && ldflags_ext=()
-    [[ $arg == "--print-cflags" ]] && echo "${cflags[@]}" && exit
-    [[ $arg == "--print-ldflags" ]] && echo "${cflags[@]} ${ldflags_ext[@]} ${ldflags[@]}" && exit
+    case $arg in
+        -shared)
+            # switch to shared linker flags
+            ldflags_ext=(@LEANC_SHARED_LINKER_FLAGS@)
+            ;;
+        -lleanshared | *libleanshared.*)
+            # linking against libleanshared explicitly (or linking libleanshared itself) ~> do not link against static stdlib
+            ldflags_ext=()
+            ;;
+        -c)
+            ldflags=()
+            ldflags_ext=()
+            ;;
+        --print-cflags)
+            echo "${cflags[@]}"
+            exit
+            ;;
+        --print-ldflags)
+            echo "${cflags[@]} ${ldflags_ext[@]} ${ldflags[@]}"
+            exit
+            ;;
+    esac
 done
 
 [ -n "$LEAN_CC" ] || LEAN_CC=cc

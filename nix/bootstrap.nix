@@ -86,7 +86,7 @@ rec {
       leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; } ''
         mkdir $out
         LEAN_CXX=${stdenv.cc}/bin/c++ ${lean-bin-tools-unwrapped}/bin/leanc -x none -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic-functions"} \
-          ${if stdenv.isDarwin then "-Wl,-force_load,${Init.staticLib}/* -Wl,-force_load,${Std.staticLib}/* -Wl,-force_load,${Lean.staticLib}/* -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a"
+          ${if stdenv.isDarwin then "-Wl,-force_load,${Init.staticLib}/libInit.a -Wl,-force_load,${Std.staticLib}/libStd.a -Wl,-force_load,${Lean.staticLib}/libLean.a -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a"
             else "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive"} ${stdlibLinkFlags} \
           -o $out/libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}
       '';

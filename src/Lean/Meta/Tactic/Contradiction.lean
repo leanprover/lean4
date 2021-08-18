@@ -61,16 +61,18 @@ def contradictionCore (mvarId : MVarId) (useDecide : Bool) (searchDepth : Nat) :
             assignExprMVar mvarId (← mkNoConfusion (← getMVarType mvarId) localDecl.toExpr)
             return true
         -- (h : p) s.t. `decide p` evaluates to `false`
-        if useDecide && !localDecl.type.hasFVar && !localDecl.type.hasMVar then
-          try
-            let d ← mkDecide localDecl.type
-            let r ← withDefault <| whnf d
-            if r.isConstOf ``false then
-              let hn := mkAppN (mkConst ``of_decide_eq_false) <| d.getAppArgs.push (← mkEqRefl d)
-              assignExprMVar mvarId (← mkAbsurd (← getMVarType mvarId) localDecl.toExpr hn)
-              return true
-          catch _ =>
-            pure ()
+        if useDecide && !localDecl.type.hasFVar then
+          let type ← instantiateMVars localDecl.type
+          if !type.hasMVar && !type.hasFVar then
+            try
+              let d ← mkDecide localDecl.type
+              let r ← withDefault <| whnf d
+              if r.isConstOf ``false then
+                let hn := mkAppN (mkConst ``of_decide_eq_false) <| d.getAppArgs.push (← mkEqRefl d)
+                assignExprMVar mvarId (← mkAbsurd (← getMVarType mvarId) localDecl.toExpr hn)
+                return true
+            catch _ =>
+              pure ()
         -- (h : <empty-inductive-type>)
         unless isEq do
           -- We do not use `elimEmptyInductive` for equality, since `cases h` produces a huge proof

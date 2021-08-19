@@ -1,11 +1,11 @@
 foo "hello" : String × String
-[Meta.synthInstance] Add String ==> Add String
+[Meta.synthInstance] preprocess: Add String ==> Add String
   [Meta.synthInstance] 
     [Meta.synthInstance] main goal Add String
     [Meta.synthInstance.newSubgoal] Add String
     [Meta.synthInstance.globalInstances] Add String, []
     [Meta.synthInstance] failed
-[Meta.synthInstance] Add Bool ==> Add Bool
+[Meta.synthInstance] preprocess: Add Bool ==> Add Bool
   [Meta.synthInstance] 
     [Meta.synthInstance] main goal Add Bool
     [Meta.synthInstance.newSubgoal] Add Bool

@@ -1,4 +1,4 @@
-[Meta.synthInstance] Inhabited Nat ==> Inhabited Nat
+[Meta.synthInstance] preprocess: Inhabited Nat ==> Inhabited Nat
   [Meta.synthInstance] 
     [Meta.synthInstance] main goal Inhabited Nat
     [Meta.synthInstance.newSubgoal] Inhabited Nat

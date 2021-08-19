@@ -100,6 +100,9 @@ instance coeOfDep {α : Sort u} {β : Sort v} (a : α) [CoeDep α a β] : CoeT �
 instance coeId {α : Sort u} (a : α) : CoeT α a α where
   coe := a
 
+instance coeSortToCoeTail [inst : CoeSort α β] : CoeTail α β where
+  coe := inst.coe
+
 /- Basic instances -/
 
 @[inline] instance boolToProp : Coe Bool Prop where

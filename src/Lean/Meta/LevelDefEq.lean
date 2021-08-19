@@ -101,7 +101,7 @@ mutual
     | Level.mvar mvarId _, _ =>
       if (← isReadOnlyLevelMVar mvarId) then
         return LBool.undef
-      else if (← getConfig).ignoreLevelDepth && (← isMVarWithGreaterDepth v mvarId) then
+      else if (← getConfig).ignoreLevelMVarDepth && (← isMVarWithGreaterDepth v mvarId) then
         -- If both `u` and `v` are both metavariables, but depth of v is greater, then we assign `v := u`.
         -- This can only happen when `ignoreLevelDepth` is set to true.
         assignLevelMVar v.mvarId! u

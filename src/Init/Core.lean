@@ -609,7 +609,7 @@ protected theorem PSigma.eta {α : Sort u} {β : α → Sort v} {a₁ a₂ : α}
 theorem PUnit.subsingleton (a b : PUnit) : a = b := by
   cases a; cases b; exact rfl
 
-@[simp] theorem PUnit.eq_punit (a : PUnit) : a = ⟨⟩ :=
+theorem PUnit.eq_punit (a : PUnit) : a = ⟨⟩ :=
   PUnit.subsingleton a ⟨⟩
 
 instance : Subsingleton PUnit :=

@@ -133,6 +133,9 @@ def opaque (trace : t) (task : m PUnit) : Target t m PUnit :=
 protected def pure [Pure m] (artifact : a) (trace : t) : Target t m a :=
   ⟨artifact, trace, pure ()⟩
 
+def compute [Monad m] [ComputeTrace a m t] (artifact : a) : m (Target t m a) := do
+  Target.pure artifact <| ← computeTrace artifact
+
 def runAsync [Monad m] [Async m n] (self : Target t m a) : m (ActiveTarget t n a) := do
   self.withTask <| ← async self.task
 
@@ -180,9 +183,6 @@ namespace LakeTarget
 def nil : LakeTarget PUnit :=
   Target.pure () LakeTrace.nil
 
-def pure (artifact : a) (hash : Hash) (mtime : MTime) : LakeTarget a :=
-  Target.pure artifact ⟨hash, mtime⟩
-
 def hash (self : LakeTarget a) := self.trace.hash
 def mtime (self : LakeTarget a) := self.trace.mtime
 
@@ -214,8 +214,8 @@ abbrev FileTarget :=
 
 namespace FileTarget
 
-def compute (file : FilePath) : IO FileTarget := do
-  Target.pure file <| ← LakeTrace.compute file
+def compute (file : FilePath) : IO FileTarget :=
+  Target.compute file
 
 end FileTarget
 
@@ -235,8 +235,8 @@ def filesAsList (self : FilesTarget) : List FilePath :=
 def filesAsArray (self : FilesTarget) : Array FilePath :=
   self.artifact
 
-def compute (files : Array FilePath) : IO FilesTarget := do
-  Target.pure files <| mixTraceArray <| ← files.mapM LakeTrace.compute
+def compute (files : Array FilePath) : IO FilesTarget :=
+  Target.compute files
 
 def singleton (target : FileTarget) : FilesTarget :=
   target.withArtifact #[target.file]

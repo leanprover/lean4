@@ -34,11 +34,27 @@ class MixTrace.{u} (t : Type u) where
 
 export MixTrace (mixTrace)
 
-def mixTraceList [MixTrace t] [NilTrace t] (traces : List t) : t :=
+section
+variable [MixTrace t] [NilTrace t]
+
+def mixTraceList (traces : List t) : t :=
   traces.foldl mixTrace nilTrace
 
-def mixTraceArray [MixTrace t] [NilTrace t] (traces : Array t) : t :=
+def mixTraceArray (traces : Array t) : t :=
   traces.foldl mixTrace nilTrace
+
+variable [ComputeTrace a m t] [Monad m]
+
+def computeListTrace  (artifacts : List a) : m t :=
+  mixTraceList <$> artifacts.mapM computeTrace
+
+instance : ComputeTrace (List a) m t := ⟨computeListTrace⟩
+
+def computeArrayTrace (artifacts : Array a) : m t :=
+  mixTraceArray <$> artifacts.mapM computeTrace
+
+instance : ComputeTrace (Array a) m t := ⟨computeArrayTrace⟩
+end
 
 --------------------------------------------------------------------------------
 -- # Hash Trace

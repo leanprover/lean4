@@ -120,10 +120,10 @@ where
 
   proveLoop (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
     let mvarId ← modifyTargetEqLHS mvarId whnfCore
-    trace[Meta.debug] "proveLoop\n{MessageData.ofGoal mvarId}"
+    trace[Meta.debug] "proveLoop [{depth}]\n{MessageData.ofGoal mvarId}"
     (applyRefl mvarId)
     <|>
-    (contradiction mvarId)
+    (contradiction mvarId { genDiseq := true })
     <|>
     (do (← casesOnStuckLHS mvarId).forM (proveLoop . (depth + 1)))
     <|>

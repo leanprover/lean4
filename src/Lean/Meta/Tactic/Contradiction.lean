@@ -12,8 +12,14 @@ namespace Lean.Meta
 structure Contradiction.Config where
   useDecide : Bool  := true
   searchDepth : Nat := 2
+  /- Support for hypotheses such as
+     ```
+     h : (x y : Nat) (ys : List Nat) → x = 0 → y::ys = [a, b, c] → False
+     ```
+     This kind of hypotheses appear when proving conditional equation theorems for match expressions. -/
+  genDiseq : Bool := false
 
-def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (searchDepth : Nat) : MetaM Bool :=
+private def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (searchDepth : Nat) : MetaM Bool :=
   match searchDepth with
   | 0 => return false
   | searchDepth + 1 =>
@@ -39,6 +45,35 @@ def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (searchDepth : Nat) :
             return true
         else
           return false
+
+/-- Return true if `e` is of the form `(x : α) → ... → s = t → ... → False` -/
+private def isGenDiseq (e : Expr) : Bool :=
+  match e with
+  | Expr.forallE _ d b _ => (d.isEq || b.hasLooseBVar 0) && isGenDiseq b
+  | _ => e.isConstOf ``False
+
+/--
+  Close goal if `localDecl` is a "generalized disequality". Example:
+  ```
+  h : (x y : Nat) (ys : List Nat) → x = 0 → y::ys = [a, b, c] → False
+  ```
+  This kind of hypotheses is created when we generate conditional equations for match expressions.
+-/
+private def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bool :=
+  assert! isGenDiseq localDecl.type
+  withNewMCtxDepth do
+    let (args, _, _) ← forallMetaTelescope localDecl.type
+    for arg in args do
+      let argType ← inferType arg
+      if let some (_, lhs, rhs) ← matchEq? argType then
+        unless (← isDefEq lhs rhs) do
+          return false
+        assignExprMVar arg.mvarId! (← mkEqRefl lhs)
+    let falseProof ← instantiateMVars (mkAppN localDecl.toExpr args)
+    if (← hasAssignableMVar falseProof) then
+      return false
+    assignExprMVar mvarId (← mkFalseElim (← getMVarType mvarId) falseProof)
+    return true
 
 def contradictionCore (mvarId : MVarId) (config : Contradiction.Config) : MetaM Bool := do
   withMVarContext mvarId do
@@ -77,6 +112,10 @@ def contradictionCore (mvarId : MVarId) (config : Contradiction.Config) : MetaM 
                 return true
             catch _ =>
               pure ()
+        -- "generalized" diseq
+        if config.genDiseq && isGenDiseq localDecl.type then
+          if (← processGenDiseq mvarId localDecl) then
+            return true
         -- (h : <empty-inductive-type>)
         unless isEq do
           -- We do not use `elimEmptyInductive` for equality, since `cases h` produces a huge proof

@@ -12,7 +12,7 @@ namespace Lean.Widget
 open Server
 
 structure InteractiveHypothesis where
-  names : String
+  names : Array String
   type : CodeWithInfos
   val? : Option CodeWithInfos := none
   deriving Inhabited, RpcEncoding
@@ -35,11 +35,12 @@ def pretty (g : InteractiveGoal) : Format := do
     | none          => Format.nil
   for hyp in g.hyps do
     ret := addLine ret
+    let names := " ".intercalate hyp.names.toList
     match hyp.val? with
     | some val =>
-      ret := ret ++ Format.group f!"{hyp.names} : {hyp.type.stripTags} :={Format.nest indent (Format.line ++ val.stripTags)}"
+      ret := ret ++ Format.group f!"{names} : {hyp.type.stripTags} :={Format.nest indent (Format.line ++ val.stripTags)}"
     | none =>
-      ret := ret ++ Format.group f!"{hyp.names} :{Format.nest indent (Format.line ++ hyp.type.stripTags)}"
+      ret := ret ++ Format.group f!"{names} :{Format.nest indent (Format.line ++ hyp.type.stripTags)}"
   ret := addLine ret
   ret ++ f!"⊢ {Format.nest indent g.type.stripTags}"
 
@@ -61,7 +62,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
     let (hidden, hiddenProp) ← ToHide.collect mvarDecl.type
     -- The following two `let rec`s are being used to control the generated code size.
     -- Then should be remove after we rewrite the compiler in Lean
-    let rec pushPending (ids : List Name) (type? : Option Expr) (hyps : Array InteractiveHypothesis)
+    let rec pushPending (ids : Array Name) (type? : Option Expr) (hyps : Array InteractiveHypothesis)
         : MetaM (Array InteractiveHypothesis) :=
       if ids.isEmpty then
         pure hyps
@@ -69,24 +70,24 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
         match ids, type? with
         | _,  none      => pure hyps
         | _,  some type =>
-          return hyps.push { names := " ".intercalate (ids.reverse.map toString), type := ← exprToInteractive type }
-    let rec ppVars (varNames : List Name) (prevType? : Option Expr) (hyps : Array InteractiveHypothesis) (localDecl : LocalDecl)
-       : MetaM (List Name × Option Expr × Array InteractiveHypothesis) := do
+          return hyps.push { names := ids.map toString, type := ← exprToInteractive type }
+    let rec ppVars (varNames : Array Name) (prevType? : Option Expr) (hyps : Array InteractiveHypothesis) (localDecl : LocalDecl)
+       : MetaM (Array Name × Option Expr × Array InteractiveHypothesis) := do
       if hiddenProp.contains localDecl.fvarId then
         let hyps ← pushPending varNames prevType? hyps
         let type ← instantiateMVars localDecl.type
-        let hyps := hyps.push { names := "", type := ← exprToInteractive type }
-        pure ([], none, hyps)
+        let hyps := hyps.push { names := #[], type := ← exprToInteractive type }
+        pure (#[], none, hyps)
       else
         match localDecl with
         | LocalDecl.cdecl _ _ varName type _   =>
           let varName := varName.simpMacroScopes
           let type ← instantiateMVars type
           if prevType? == none || prevType? == some type then
-            pure (varName :: varNames, some type, hyps)
+            pure (varNames.push varName, some type, hyps)
           else do
             let hyps ← pushPending varNames prevType? hyps
-            pure ([varName], some type, hyps)
+            pure (#[varName], some type, hyps)
         | LocalDecl.ldecl _ _ varName type val _ => do
           let varName := varName.simpMacroScopes
           let hyps ← pushPending varNames prevType? hyps
@@ -94,9 +95,9 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
           let val ← instantiateMVars val
           let typeFmt ← exprToInteractive type
           let valFmt ← exprToInteractive val
-          let hyps := hyps.push { names := toString varName, type := typeFmt, val? := valFmt }
-          pure ([], none, hyps)
-    let (varNames, type?, hyps) ← lctx.foldlM (init := ([], none, #[]))
+          let hyps := hyps.push { names := #[toString varName], type := typeFmt, val? := valFmt }
+          pure (#[], none, hyps)
+    let (varNames, type?, hyps) ← lctx.foldlM (init := (#[], none, #[]))
       fun (varNames, prevType?, hyps) (localDecl : LocalDecl) =>
         if !ppAuxDecls && localDecl.isAuxDecl || hidden.contains localDecl.fvarId then
           pure (varNames, prevType?, hyps)

@@ -9,6 +9,10 @@ import Lean.Meta.Tactic.Cases
 
 namespace Lean.Meta
 
+structure Contradiction.Config where
+  useDecide : Bool  := true
+  searchDepth : Nat := 2
+
 def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (searchDepth : Nat) : MetaM Bool :=
   match searchDepth with
   | 0 => return false
@@ -36,7 +40,7 @@ def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (searchDepth : Nat) :
         else
           return false
 
-def contradictionCore (mvarId : MVarId) (useDecide : Bool) (searchDepth : Nat) : MetaM Bool := do
+def contradictionCore (mvarId : MVarId) (config : Contradiction.Config) : MetaM Bool := do
   withMVarContext mvarId do
     checkNotAssigned mvarId `contradiction
     for localDecl in (← getLCtx) do
@@ -61,7 +65,7 @@ def contradictionCore (mvarId : MVarId) (useDecide : Bool) (searchDepth : Nat) :
             assignExprMVar mvarId (← mkNoConfusion (← getMVarType mvarId) localDecl.toExpr)
             return true
         -- (h : p) s.t. `decide p` evaluates to `false`
-        if useDecide && !localDecl.type.hasFVar then
+        if config.useDecide && !localDecl.type.hasFVar then
           let type ← instantiateMVars localDecl.type
           if !type.hasMVar && !type.hasFVar then
             try
@@ -77,12 +81,12 @@ def contradictionCore (mvarId : MVarId) (useDecide : Bool) (searchDepth : Nat) :
         unless isEq do
           -- We do not use `elimEmptyInductive` for equality, since `cases h` produces a huge proof
           -- when `(h : 10000 = 10001)`. TODO: `cases` add a threshold at `cases`
-          if (← elimEmptyInductive mvarId localDecl.fvarId searchDepth) then
+          if (← elimEmptyInductive mvarId localDecl.fvarId config.searchDepth) then
             return true
     return false
 
-def contradiction (mvarId : MVarId) (useDecide : Bool := true) (searchDepth : Nat := 2) : MetaM Unit :=
-  unless (← contradictionCore mvarId useDecide searchDepth) do
+def contradiction (mvarId : MVarId) (config : Contradiction.Config := {}) : MetaM Unit :=
+  unless (← contradictionCore mvarId config) do
     throwTacticEx `contradiction mvarId ""
 
 end Lean.Meta

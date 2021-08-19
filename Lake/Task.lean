@@ -26,43 +26,35 @@ namespace IOTask
 def spawn (act : IO α) (prio := Task.Priority.dedicated) : IO (IOTask α) :=
   IO.asTask act prio
 
+instance : Async IO IOTask := ⟨spawn⟩
+
 def await (self : IOTask α) : IO α := do
   IO.ofExcept (← IO.wait self)
+
+instance : Await IOTask IO := ⟨await⟩
 
 def mapAsync (f : α → IO β) (self : IOTask α) (prio := Task.Priority.dedicated) : IO (IOTask β) :=
   IO.mapTask (fun x => do let x ← IO.ofExcept x; f x) self prio
 
-def seqLeftAsync (self : IOTask α) (act : IO β) (prio := Task.Priority.dedicated) : IO (IOTask α) :=
-  IO.mapTask (fun x => IO.ofExcept x <* act) self prio
-
-def seqRightAsync (self : IOTask α) (act : IO β) (prio := Task.Priority.dedicated) : IO (IOTask β) :=
-  IO.mapTask (fun x => IO.ofExcept x *> act) self prio
-
-instance : HAndThen (IOTask α) (IO β) (IO (IOTask β)) := ⟨seqRightAsync⟩
+instance : MapAsync IO IOTask := ⟨mapAsync⟩
 
 def bindAsync (self : IOTask α) (f : α → IO (IOTask β)) (prio := Task.Priority.dedicated) : IO (IOTask β) :=
   IO.bindTask self (fun x => do let x ← IO.ofExcept x; f x)  prio
 
-instance : MonadAsync IO IOTask where
-  async := IOTask.spawn
-  await := IOTask.await
-  mapAsync := IOTask.mapAsync
-  bindAsync := IOTask.bindAsync
-  seqLeftAsync := IOTask.seqLeftAsync
-  seqRightAsync := IOTask.seqRightAsync
+instance : BindAsync IO IOTask := ⟨bindAsync⟩
+
+def seqLeftAsync (self : IOTask α) (act : IO β) (prio := Task.Priority.dedicated) : IO (IOTask α) :=
+  IO.mapTask (fun x => IO.ofExcept x <* act) self prio
+
+instance : SeqLeftAsync IO IOTask := ⟨seqLeftAsync⟩
+
+def seqRightAsync (self : IOTask α) (act : IO β) (prio := Task.Priority.dedicated) : IO (IOTask β) :=
+  IO.mapTask (fun x => IO.ofExcept x *> act) self prio
+
+instance : SeqRightAsync IO IOTask := ⟨seqRightAsync⟩
+instance : HAndThen (IOTask α) (IO β) (IO (IOTask β)) := ⟨seqRightAsync⟩
 
 end IOTask
-
-section
-variable [Monad m] [MonadAsync m n]
-
-def afterTaskList (tasks : List (n α)) (act : m β) : m (n β) :=
-  afterListAsync (async act) tasks
-
-def afterTaskArray (tasks : Array (n α)) (act : m β) : m (n β) :=
-  afterArrayAsync (async act) tasks
-
-end
 
 instance : HAndThen (List (IOTask α)) (IO β) (IO (IOTask β)) := ⟨afterTaskList⟩
 instance : HAndThen (Array (IOTask α)) (IO β) (IO (IOTask β)) := ⟨afterTaskArray⟩

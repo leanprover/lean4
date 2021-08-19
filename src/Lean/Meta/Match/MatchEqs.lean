@@ -116,7 +116,8 @@ where
         proveLoop mvarId' (depth+1))
     <|>
     (do if let some (s₁, s₂) ← splitIfTarget? mvarId then
-          proveLoop s₁.mvarId (depth+1)
+          let mvarId₁ ← trySubst s₁.mvarId s₁.fvarId
+          proveLoop mvarId₁ (depth+1)
           proveLoop s₂.mvarId (depth+1)
         else
           failed)

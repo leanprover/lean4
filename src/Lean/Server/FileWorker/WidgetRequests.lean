@@ -16,25 +16,6 @@ import Lean.Server.FileWorker.RequestHandling
 namespace Lean.Widget
 open Server
 
-builtin_initialize
-  registerRpcCallHandler
-    `Lean.Widget.ExprWithCtx.tagged
-    (WithRpcRef ExprWithCtx)
-     CodeWithInfos
-    fun ⟨e⟩ => RequestM.asTask do e.ctx.runMetaM e.lctx (exprToInteractive e.expr)
-
-  registerRpcCallHandler
-    `Lean.Widget.ExprWithCtx.taggedExplicit
-    (WithRpcRef ExprWithCtx)
-    CodeWithInfos
-    fun ⟨e⟩ => RequestM.asTask do e.ctx.runMetaM e.lctx (exprToInteractiveExplicit e.expr)
-
-  registerRpcCallHandler
-    `Lean.Widget.ExprWithCtx.inferType
-    (WithRpcRef ExprWithCtx)
-    (WithRpcRef ExprWithCtx)
-    fun ⟨e⟩ => RequestM.asTask do WithRpcRef.mk <$> e.ctx.runMetaM e.lctx (inferType e.expr)
-
 structure MsgToInteractive where
   msg : WithRpcRef MessageData
   indent : Nat

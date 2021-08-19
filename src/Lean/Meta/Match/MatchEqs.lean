@@ -13,6 +13,23 @@ namespace Lean.Meta.Match
 private def isMatchValue (e : Expr) : Bool :=
   e.isNatLit || e.isCharLit || e.isStringLit
 
+private def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
+  let target ← getMVarType mvarId
+  if let some (_, lhs, rhs) ← matchEq? target then
+    matchConstRec lhs.getAppFn (fun _ => failed) fun recVal _ => do
+      let args := lhs.getAppArgs
+      if recVal.getMajorIdx >= args.size then failed
+      let mut major := args[recVal.getMajorIdx]
+      if major.isAppOfArity ``Eq.symm 4 then
+        /- This is needed for supporting `CasesArraySizes.lean` used in the implementation of array literal matching. -/
+        major := major.appArg!
+      unless major.isFVar do failed
+      return (← cases mvarId major.fvarId!).map fun s => s.mvarId
+  else
+    failed
+where
+  failed {α} : MetaM α := throwError "'casesOnStuckLHS' failed"
+
 partial def mkEquationsFor (matchDeclName : Name) :  MetaM Unit := do
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
@@ -101,8 +118,6 @@ where
       else
         none
 
-  failed : MetaM Unit := throwError "" -- TODO
-
   proveLoop (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
     let mvarId ← modifyTargetEqLHS mvarId whnfCore
     trace[Meta.debug] "proveLoop\n{MessageData.ofGoal mvarId}"
@@ -110,9 +125,11 @@ where
     <|>
     (contradiction mvarId)
     <|>
+    (do (← casesOnStuckLHS mvarId).forM (proveLoop . (depth + 1)))
+    <|>
     (do let mvarId' ← simpIfTarget mvarId (useDecide := true)
         trace[Meta.debug] "simpIfTarget\n{MessageData.ofGoal mvarId'}"
-        if mvarId' == mvarId then failed
+        if mvarId' == mvarId then throwError "simpIf failed"
         proveLoop mvarId' (depth+1))
     <|>
     (do if let some (s₁, s₂) ← splitIfTarget? mvarId then
@@ -120,7 +137,7 @@ where
           proveLoop mvarId₁ (depth+1)
           proveLoop s₂.mvarId (depth+1)
         else
-          failed)
+          throwError "spliIf failed")
     <|>
     (do trace[Meta.debug] "TODO\n{← ppGoal mvarId}"
         -- TODO

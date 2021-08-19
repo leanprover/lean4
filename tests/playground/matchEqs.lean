@@ -41,7 +41,7 @@ def g (xs ys : Array Nat) : Nat :=
   | _,  _        => 3
 
 set_option trace.Meta.debug true
-
+set_option pp.proofs true
 -- set_option trace.Meta.debug true
 test% f.match_1
 test% h.match_1

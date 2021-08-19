@@ -169,6 +169,23 @@ instance [SeqRight m] : HAndThen (Target t m a) (m β) (m β) := ⟨andThen⟩
 
 end Target
 
+section
+variable [Monad m]
+
+def afterTargetList (targets : List (Target t m a)) (act : m PUnit) : m PUnit :=
+  targets.mapM (·.task) *> act
+
+def afterTargetArray (targets : Array (Target t m a)) (act : m PUnit) : m PUnit :=
+  targets.mapM (·.task) *> act
+
+instance : HAndThen (List (Target t m a)) (m PUnit) (m PUnit) :=
+  ⟨afterTargetList⟩
+
+instance : HAndThen (Array (Target t m a)) (m PUnit) (m PUnit) :=
+  ⟨afterTargetArray⟩
+
+end
+
 --------------------------------------------------------------------------------
 -- # Build Targets
 --------------------------------------------------------------------------------

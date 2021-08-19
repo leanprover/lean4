@@ -22,5 +22,4 @@ def staticLibTarget
   let trace := mixTraceArray <| oFileTargets.map (·.trace)
   Target.mk libFile trace do
     unless (← checkIfNewer libFile trace.mtime) do
-      Target.materializeArray oFileTargets
-      compileStaticLib libFile linkFiles
+      oFileTargets >> compileStaticLib libFile linkFiles

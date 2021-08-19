@@ -14,12 +14,13 @@ def oFileTarget
 (args : Array String := #[]) (cmd := "c++") : FileTarget :=
   Target.mk oFile srcTarget.trace <|
     unless (← checkIfNewer oFile srcTarget.mtime) do
-      srcTarget.materialize
-      compileO oFile srcTarget.file args (cmd := "c++")
+      srcTarget >> compileO oFile srcTarget.file args cmd
 
 def staticLibTarget
-(libFile : FilePath) (oFilesTarget : FilesTarget) : FileTarget :=
-  Target.mk libFile oFilesTarget.trace do
-    unless (← checkIfNewer libFile oFilesTarget.mtime) do
-      oFilesTarget.materialize
-      compileStaticLib libFile oFilesTarget.filesAsArray
+(libFile : FilePath) (oFileTargets : Array FileTarget) : FileTarget :=
+  let linkFiles := oFileTargets.map (·.artifact)
+  let trace := mixTraceArray <| oFileTargets.map (·.trace)
+  Target.mk libFile trace do
+    unless (← checkIfNewer libFile trace.mtime) do
+      Target.materializeArray oFileTargets
+      compileStaticLib libFile linkFiles

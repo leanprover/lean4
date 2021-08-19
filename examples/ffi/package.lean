@@ -14,7 +14,7 @@ def computeAddOTarget : IO FileTarget := do
   oFileTarget addO <| ← FileTarget.compute addSrc
 
 def computeCLibTarget : IO FileTarget := do
-  staticLibTarget cLib <| ← computeAddOTarget
+  staticLibTarget cLib #[← computeAddOTarget]
 
 def package : PackageConfig := {
   name := "ffi"

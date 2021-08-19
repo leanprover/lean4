@@ -219,47 +219,6 @@ def compute (file : FilePath) : IO FileTarget :=
 
 end FileTarget
 
--- ## Files Target
-
-abbrev FilesTarget :=
-  LakeTarget (Array FilePath)
-
-namespace FilesTarget
-
-def files (self : FilesTarget) : Array FilePath :=
-  self.artifact
-
-def filesAsList (self : FilesTarget) : List FilePath :=
-  self.artifact.toList
-
-def filesAsArray (self : FilesTarget) : Array FilePath :=
-  self.artifact
-
-def compute (files : Array FilePath) : IO FilesTarget :=
-  Target.compute files
-
-def singleton (target : FileTarget) : FilesTarget :=
-  target.withArtifact #[target.file]
-
-def collectList (targets : List FileTarget) : FilesTarget :=
-  let files := Array.mk <| targets.map (·.file)
-  let trace := mixTraceList <| targets.map (·.trace)
-  Target.mk files trace do Target.materializeList targets
-
-def collectArray (targets : Array FileTarget) : FilesTarget :=
-  let files := targets.map (·.file)
-  let trace := mixTraceArray <| targets.map (·.trace)
-  Target.mk files trace do Target.materializeArray targets
-
-def collect (targets : Array FileTarget) : FilesTarget :=
-  collectArray targets
-
-end FilesTarget
-
-instance : Coe FileTarget FilesTarget := ⟨FilesTarget.singleton⟩
-instance : Coe (List FileTarget) FilesTarget := ⟨FilesTarget.collectList⟩
-instance : Coe (Array FileTarget) FilesTarget := ⟨FilesTarget.collectArray⟩
-
 -- ## Active File Target
 
 abbrev ActiveFileTarget :=

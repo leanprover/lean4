@@ -28,12 +28,6 @@ abbrev CodeWithInfos := TaggedText (WithRpcRef InfoWithCtx)
 def CodeWithInfos.pretty (tt : CodeWithInfos) :=
   tt.stripTags
 
-structure ExprWithCtx where
-  ctx : Elab.ContextInfo
-  lctx : LocalContext
-  expr : Expr
-  deriving Inhabited, RpcEncoding with { withRef := true }
-
 open Expr in
 /-- Find a subexpression of `e` using the pretty-printer address scheme. -/
 -- NOTE(WN): not currently in use
@@ -104,17 +98,6 @@ where
       match infos.find? n with
       | none   => go subTt
       | some i => TaggedText.tag (WithRpcRef.mk { ctx, lctx, info := i }) (go subTt)
-
-def inferType (e : Expr) : MetaM ExprWithCtx := do
-  let ctx := {
-    env := ← getEnv
-    mctx := ← getMCtx
-    options := ← getOptions
-    currNamespace := ← getCurrNamespace
-    openDecls := ← getOpenDecls
-    fileMap := arbitrary
-  }
-  return { ctx, lctx := ← getLCtx, expr := e}
 
 def exprToInteractive (e : Expr) : MetaM CodeWithInfos := do
   let (fmt, infos) ← formatInfos e

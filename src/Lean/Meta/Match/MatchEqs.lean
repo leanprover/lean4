@@ -105,17 +105,23 @@ where
 
   proveLoop (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
     let mvarId ← modifyTargetEqLHS mvarId whnfCore
+    trace[Meta.debug] "proveLoop\n{MessageData.ofGoal mvarId}"
     (applyRefl mvarId)
     <|>
     (contradiction mvarId)
     <|>
-    (commitIfNoEx do
-        let s::ss ← splitIfGoal mvarId | failed
-        if ss.isEmpty && s.mvarId == mvarId then failed
-        (s::ss).forM fun s => proveLoop s.mvarId (depth + 1))
+    (do let mvarId' ← simpIfTarget mvarId (useDecide := true)
+        trace[Meta.debug] "simpIfTarget\n{MessageData.ofGoal mvarId'}"
+        if mvarId' == mvarId then failed
+        proveLoop mvarId' (depth+1))
     <|>
-    (do
-        trace[Meta.debug] "TODO\n{← ppGoal mvarId}"
+    (do if let some (s₁, s₂) ← splitIfTarget? mvarId then
+          proveLoop s₁.mvarId (depth+1)
+          proveLoop s₂.mvarId (depth+1)
+        else
+          failed)
+    <|>
+    (do trace[Meta.debug] "TODO\n{← ppGoal mvarId}"
         -- TODO
         admit mvarId)
 

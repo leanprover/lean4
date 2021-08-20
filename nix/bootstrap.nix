@@ -36,11 +36,12 @@ rec {
   leancpp = buildCMake {
     name = "leancpp";
     src = ../src;
-    buildFlags = [ "leancpp" "shell" ];
+    buildFlags = [ "leancpp" "leanrt" "leanrt_initial-exec" "shell" ];
     installPhase = ''
       mkdir -p $out
       mv lib/ $out/
       mv shell/CMakeFiles/shell.dir/lean.cpp.o $out/lib
+      mv runtime/libleanrt_initial-exec.a $out/lib
     '';
   };
   # rename derivation so `nix run` uses the right executable name but we still see the stage in the build log
@@ -76,24 +77,34 @@ rec {
         inherit debug;
       });
     in (all: all // all.lean) rec {
+      inherit (Lean) emacs-dev emacs-package vscode-dev vscode-package;
       Init = build { name = "Init"; deps = []; };
       Std  = build { name = "Std";  deps = [ Init ]; };
-      Lean = build { name = "Lean"; deps = [ Init Std ]; linkFlags = ["${stdlibLinkFlags} -rdynamic ${leancpp}/lib/lean.cpp.o"]; };
-      Leanpkg = build { name = "Leanpkg"; deps = [ Init Std Lean ]; linkFlags = ["${stdlibLinkFlags} -rdynamic"]; };
-      inherit (Lean) emacs-dev emacs-package vscode-dev vscode-package;
-      mods = Init.mods // Std.mods // Lean.mods;
+      Lean = build { name = "Lean"; deps = [ Init Std ]; };
+      Leanpkg = build { name = "Leanpkg"; deps = [ Init Std Lean ]; linkFlags = ["-L${gmp}/lib -L${leanshared}"]; };
       stdlibLinkFlags = "-L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean";
-      leanc = writeShellScriptBin "leanc" ''
-        LEAN_CXX=${stdenv.cc}/bin/c++ ${lean-bin-tools-unwrapped}/bin/leanc ${stdlibLinkFlags} "$@"
+      leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; } ''
+        mkdir $out
+        LEAN_CXX=${stdenv.cc}/bin/c++ ${lean-bin-tools-unwrapped}/bin/leanc -x none -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic-functions"} \
+          ${if stdenv.isDarwin then "-Wl,-force_load,${Init.staticLib}/libInit.a -Wl,-force_load,${Std.staticLib}/libStd.a -Wl,-force_load,${Lean.staticLib}/libLean.a -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a"
+            else "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive"} ${stdlibLinkFlags} \
+          -o $out/libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}
       '';
-      lean = Lean.executable;
-      leanpkg = Leanpkg.executable;
+      mods = Init.mods // Std.mods // Lean.mods;
+      leanc = writeShellScriptBin "leanc" ''
+        LEAN_CXX=${stdenv.cc}/bin/c++ ${lean-bin-tools-unwrapped}/bin/leanc ${stdlibLinkFlags} -L${leanshared} "$@"
+      '';
+      lean = runCommand "lean" {} ''
+        mkdir -p $out/bin
+        ${leanc}/bin/leanc ${leancpp}/lib/lean.cpp.o ${leanshared}/* -o $out/bin/lean
+      '';
+      leanpkg = Leanpkg.executable.withSharedStdlib;
       # derivation following the directory layout of the "basic" setup, mostly useful for running tests
       lean-all = wrapStage(stdenv.mkDerivation {
         name = "lean-${desc}";
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
-          ln -sf ${leancpp}/lib/lean/libleancpp.* ${Leanpkg.modRoot}/* ${Lean.staticLib}/* ${Lean.modRoot}/* ${Std.staticLib}/* ${Std.modRoot}/* ${Init.staticLib}/* ${Init.modRoot}/* $out/lib/lean/
+          ln -sf ${leancpp}/lib/lean/* ${Leanpkg.modRoot}/* ${Lean.staticLib}/* ${Lean.modRoot}/* ${Std.staticLib}/* ${Std.modRoot}/* ${Init.staticLib}/* ${Init.modRoot}/* $out/lib/lean/
           # put everything in a single final derivation so `IO.appDir` references work
           cp ${lean}/bin/lean ${leanpkg}/bin/leanpkg $out/bin
           # NOTE: first `bin/leanc` wins in case of `lndir`

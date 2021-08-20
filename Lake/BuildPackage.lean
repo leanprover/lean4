@@ -17,7 +17,7 @@ namespace Lake
 
 -- # Build Target
 
-abbrev PackageTarget := ActiveLakeTarget (Package × NameMap ModuleTarget)
+abbrev PackageTarget := ActiveBuildTarget (Package × NameMap ModuleTarget)
 
 namespace PackageTarget
 
@@ -35,27 +35,27 @@ end PackageTarget
 -- # Build Modules
 
 def Package.buildModuleTargetDAGFor
-(mod : Name)  (oleanDirs : List FilePath) (depsTarget : ActiveLakeTarget PUnit)
-(self : Package) : IO (ModuleTarget × NameMap ModuleTarget) := do
+(mod : Name)  (oleanDirs : List FilePath) (depsTarget : ActiveBuildTarget PUnit)
+(self : Package) : BuildM (ModuleTarget × NameMap ModuleTarget) := do
   let fetch := fetchModuleWithLocalImports self oleanDirs depsTarget
-  throwOnCycle <| buildRBTop fetch mod |>.run {}
+  failOnCycle <| ← buildRBTop fetch mod |>.run {}
 
 def Package.buildModuleTargetDAG
-(oleanDirs : List FilePath) (depsTarget : ActiveLakeTarget PUnit) (self : Package) :=
+(oleanDirs : List FilePath) (depsTarget : ActiveBuildTarget PUnit) (self : Package) :=
   self.buildModuleTargetDAGFor self.moduleRoot oleanDirs depsTarget
 
 def Package.buildModuleTargets
 (mods : List Name) (oleanDirs : List FilePath)
-(depsTarget : ActiveLakeTarget PUnit) (self : Package)
-: IO (List ModuleTarget) := do
+(depsTarget : ActiveBuildTarget PUnit) (self : Package)
+: BuildM (List ModuleTarget) := do
   let fetch : ModuleTargetFetch := fetchModuleWithLocalImports self oleanDirs depsTarget
-  throwOnCycle <| mods.mapM (buildRBTop fetch) |>.run' {}
+  failOnCycle <| ← mods.mapM (buildRBTop fetch) |>.run' {}
 
 -- # Configure/Build Packages
 
 def Package.buildTargetWithDepTargetsFor
 (mod : Name) (depTargets : List PackageTarget) (self : Package)
-: IO PackageTarget := do
+: BuildM PackageTarget := do
   let depsTarget ← ActiveTarget.all <|
     (← self.buildMoreDepsTarget).withArtifact arbitrary :: depTargets
   let oLeanDirs := depTargets.map (·.package.oleanDir)
@@ -63,45 +63,45 @@ def Package.buildTargetWithDepTargetsFor
   return {target with artifact := ⟨self, targetMap⟩}
 
 def Package.buildTargetWithDepTargets
-(depTargets : List PackageTarget) (self : Package) : IO PackageTarget :=
+(depTargets : List PackageTarget) (self : Package) : BuildM PackageTarget :=
   self.buildTargetWithDepTargetsFor self.moduleRoot depTargets
 
-partial def Package.buildTarget (self : Package) : IO PackageTarget := do
+partial def Package.buildTarget (self : Package) : BuildM PackageTarget := do
   let deps ← solveDeps self
   -- build dependencies recursively
   -- TODO: share build of common dependencies
   let depTargets ← deps.mapM (·.buildTarget)
   self.buildTargetWithDepTargets depTargets
 
-def Package.buildDepTargets (self : Package) : IO (List PackageTarget) := do
+def Package.buildDepTargets (self : Package) : BuildM (List PackageTarget) := do
   let deps ← solveDeps self
   deps.mapM (·.buildTarget)
 
-def Package.buildDeps (self : Package) : IO (List Package) := do
+def Package.buildDeps (self : Package) : BuildM (List Package) := do
   let deps ← solveDeps self
   let targets ← deps.mapM (·.buildTarget)
   try targets.forM (·.materialize) catch e =>
-    -- actual error has already been printed within the task
-    throw <| IO.userError "Build failed."
+    -- actual error has already been logged within target
+    BuildM.logError "Build failed."
   return deps
 
 def configure (pkg : Package) : IO Unit :=
-  discard pkg.buildDeps
+  runBuild pkg.buildDeps
 
-def Package.build (self : Package) : IO PUnit := do
+def Package.build (self : Package) : BuildM PUnit := do
   let target ← self.buildTarget
   try target.materialize catch _ =>
-    -- actual error has already been printed within the task
-    throw <| IO.userError "Build failed."
+    -- actual error has already been logged within target
+    BuildM.logError "Build failed."
 
 def build (pkg : Package) : IO PUnit :=
-  pkg.build
+  runBuild pkg.build
 
 -- # Print Paths
 
 def Package.buildModuleTargetsWithDeps
 (deps : List Package) (mods : List Name)  (self : Package)
-: IO (List ModuleTarget) := do
+: BuildM (List ModuleTarget) := do
   let oleanDirs := deps.map (·.oleanDir)
   let depsTarget ← ActiveTarget.all <|
     (← self.buildMoreDepsTarget).withArtifact arbitrary :: (← deps.mapM (·.buildTarget))
@@ -109,17 +109,17 @@ def Package.buildModuleTargetsWithDeps
 
 def Package.buildModulesWithDeps
 (deps : List Package) (mods : List Name)  (self : Package)
-: IO PUnit := do
+: BuildM PUnit := do
   let targets ← self.buildModuleTargetsWithDeps deps mods
   try targets.forM (·.materialize) catch e =>
-    -- actual error has already been printed within target
-    throw <| IO.userError "Build failed."
+    -- actual error has already been logged within target
+    BuildM.logError "Build failed."
 
 def printPaths (pkg : Package) (imports : List String := []) : IO Unit := do
   let deps ← solveDeps pkg
   unless imports.isEmpty do
     let imports := imports.map (·.toName)
     let localImports := imports.filter (·.getRoot == pkg.moduleRoot)
-    pkg.buildModulesWithDeps deps localImports
+    runBuild <| pkg.buildModulesWithDeps deps localImports
   IO.println <| SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)
   IO.println <| SearchPath.toString <| pkg.srcDir :: deps.map (·.srcDir)

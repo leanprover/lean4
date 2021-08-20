@@ -133,7 +133,7 @@ def opaque (trace : t) (task : m PUnit) : Target t m PUnit :=
 protected def pure [Pure m] (artifact : a) (trace : t) : Target t m a :=
   ⟨artifact, trace, pure ()⟩
 
-def compute [Monad m] [ComputeTrace a m t] (artifact : a) : m (Target t m a) := do
+def compute [Pure n] [ComputeTrace a m t] [Monad m] (artifact : a) : m (Target t n a) := do
   Target.pure artifact <| ← computeTrace artifact
 
 def runAsync [Monad m] [Async m n] (self : Target t m a) : m (ActiveTarget t n a) := do
@@ -185,58 +185,3 @@ instance : HAndThen (Array (Target t m a)) (m PUnit) (m PUnit) :=
   ⟨afterTargetArray⟩
 
 end
-
---------------------------------------------------------------------------------
--- # Build Targets
---------------------------------------------------------------------------------
-
--- ## Inactive Target
-
-abbrev LakeTarget a :=
-  Target LakeTrace IO a
-
-namespace LakeTarget
-
-def nil : LakeTarget PUnit :=
-  Target.pure () LakeTrace.nil
-
-def hash (self : LakeTarget a) := self.trace.hash
-def mtime (self : LakeTarget a) := self.trace.mtime
-
-end LakeTarget
-
--- ## Active Target
-
-abbrev ActiveLakeTarget a :=
-  ActiveTarget LakeTrace IOTask a
-
-namespace ActiveLakeTarget
-
-def nil : ActiveLakeTarget PUnit :=
-  ActiveTarget.pure () LakeTrace.nil
-
-def hash (self : ActiveLakeTarget a) := self.trace.hash
-def mtime (self : ActiveLakeTarget a) := self.trace.mtime
-
-end ActiveLakeTarget
-
---------------------------------------------------------------------------------
--- # File Targets
---------------------------------------------------------------------------------
-
--- ## File Target
-
-abbrev FileTarget :=
-  LakeTarget FilePath
-
-namespace FileTarget
-
-def compute (file : FilePath) : IO FileTarget :=
-  Target.compute file
-
-end FileTarget
-
--- ## Active File Target
-
-abbrev ActiveFileTarget :=
-  ActiveLakeTarget FilePath

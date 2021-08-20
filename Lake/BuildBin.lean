@@ -14,55 +14,57 @@ namespace Lake
 -/
 def skipIfNewer
 [GetMTime a] (artifact : a) (trace : LakeTrace)
-(build : IO (IOTask PUnit)) : IO (ActiveLakeTarget a) := do
+(build : BuildM (BuildTask PUnit)) : BuildM (ActiveBuildTarget a) := do
   ActiveTarget.mk artifact trace <| ←
     skipIf (← checkIfNewer artifact trace.mtime) build
 
 -- # Build `.o` Files
 
 def buildLeanO (oFile : FilePath)
-(cTarget : ActiveFileTarget) (leancArgs : Array String := #[]) : IO (IOTask PUnit) :=
+(cTarget : ActiveFileTarget) (leancArgs : Array String := #[])
+: BuildM (BuildTask PUnit) :=
   cTarget >> compileLeanO oFile cTarget.artifact leancArgs
 
 def fetchLeanOFileTarget (oFile : FilePath)
-(cTarget : ActiveFileTarget) (leancArgs : Array String := #[]) : IO ActiveFileTarget :=
+(cTarget : ActiveFileTarget) (leancArgs : Array String := #[])
+: BuildM ActiveFileTarget :=
   skipIfNewer oFile cTarget.trace <| buildLeanO oFile cTarget leancArgs
 
 -- # Build Package Lib
 
 def PackageTarget.fetchOFileTargets
-(self : PackageTarget) : IO (Array ActiveFileTarget) := do
+(self : PackageTarget) : BuildM (Array ActiveFileTarget) := do
   self.moduleTargets.mapM fun (mod, target) => do
     let oFile := self.package.modToO mod
     fetchLeanOFileTarget (oFile) target.cTarget self.package.leancArgs
 
 def PackageTarget.buildStaticLib
-(self : PackageTarget) : IO (IOTask PUnit) := do
+(self : PackageTarget) : BuildM (IOTask PUnit) := do
   let oFileTargets ← self.fetchOFileTargets
   let oFiles := oFileTargets.map (·.artifact)
   oFileTargets >> compileStaticLib self.package.staticLibFile oFiles
 
-def PackageTarget.fetchStaticLibTarget (self : PackageTarget) : IO ActiveFileTarget := do
+def PackageTarget.fetchStaticLibTarget (self : PackageTarget) : BuildM ActiveFileTarget := do
   skipIfNewer self.package.staticLibFile self.trace self.buildStaticLib
 
-def Package.fetchStaticLibTarget (self : Package) : IO ActiveFileTarget := do
+def Package.fetchStaticLibTarget (self : Package) : BuildM ActiveFileTarget := do
   (← self.buildTarget).fetchStaticLibTarget
 
-def Package.fetchStaticLib (self : Package) : IO FilePath := do
+def Package.fetchStaticLib (self : Package) : BuildM FilePath := do
   let target ← self.fetchStaticLibTarget
   try target.materialize catch _ =>
-    -- actual error has already been printed within the task
-    throw <| IO.userError "Build failed."
+    -- actual error has already been printed within target
+    BuildM.logError "Build failed."
   return target.artifact
 
 def buildLib (pkg : Package) : IO PUnit :=
-  discard pkg.fetchStaticLib
+  runBuild pkg.fetchStaticLib
 
 -- # Build Package Bin
 
 def PackageTarget.buildBin
 (depTargets : List PackageTarget) (self : PackageTarget)
-: IO (IOTask PUnit) := do
+: BuildM (IOTask PUnit) := do
   let oFileTargets ← self.fetchOFileTargets
   let libTargets ← depTargets.mapM (·.fetchStaticLibTarget)
   let moreLibTargets ← self.package.buildMoreLibTargets
@@ -71,20 +73,20 @@ def PackageTarget.buildBin
   linkTargets >> compileLeanBin self.package.binFile linkFiles self.package.linkArgs
 
 def PackageTarget.fetchBinTarget
-(depTargets : List PackageTarget) (self : PackageTarget) : IO ActiveFileTarget :=
+(depTargets : List PackageTarget) (self : PackageTarget) : BuildM ActiveFileTarget :=
   skipIfNewer self.package.binFile self.trace <| self.buildBin depTargets
 
-def Package.fetchBinTarget (self : Package) : IO ActiveFileTarget := do
+def Package.fetchBinTarget (self : Package) : BuildM ActiveFileTarget := do
   let depTargets ← self.buildDepTargets
   let pkgTarget ← self.buildTargetWithDepTargets depTargets
   pkgTarget.fetchBinTarget depTargets
 
-def Package.fetchBin (self : Package) : IO FilePath := do
+def Package.fetchBin (self : Package) : BuildM FilePath := do
   let target ← self.fetchBinTarget
   try target.materialize catch _ =>
-    -- actual error has already been printed within the task
-    throw <| IO.userError "Build failed."
+    -- actual error has already been printed within target
+    BuildM.logError "Build failed."
   return target.artifact
 
 def buildBin (pkg : Package) : IO PUnit :=
-  discard pkg.fetchBin
+  runBuild pkg.fetchBin

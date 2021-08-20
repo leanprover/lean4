@@ -49,6 +49,28 @@ class BindAsync (m : Type u → Type v) (n : outParam $ Type u → Type u) where
 export BindAsync (bindAsync)
 
 --------------------------------------------------------------------------------
+-- # ReaderT Instances
+--------------------------------------------------------------------------------
+
+instance [Async m n] : Async (ReaderT ρ m) n where
+  async x := fun r => async (x r)
+
+instance [Await n m] : Await n (ReaderT ρ m) where
+  await x := fun _ => await x
+
+instance [MapAsync m n] : MapAsync (ReaderT ρ m) n where
+  mapAsync f x := fun r => mapAsync (fun a => f a r) x
+
+instance [BindAsync m n] : BindAsync (ReaderT ρ m) n where
+  bindAsync x f := fun r => bindAsync x (fun a => f a r)
+
+instance [SeqLeftAsync m n] : SeqLeftAsync (ReaderT ρ m) n where
+  seqLeftAsync nx mx := fun r => seqLeftAsync nx (mx r)
+
+instance [SeqRightAsync m n] : SeqRightAsync (ReaderT ρ m) n where
+  seqRightAsync nx mx := fun r => seqRightAsync nx (mx r)
+
+--------------------------------------------------------------------------------
 -- #  List/Array Utilities
 --------------------------------------------------------------------------------
 

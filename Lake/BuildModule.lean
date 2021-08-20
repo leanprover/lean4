@@ -6,6 +6,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 import Lean.Data.Name
 import Lean.Elab.Import
 import Lake.Target
+import Lake.BuildTarget
 import Lake.BuildTop
 import Lake.Compile
 import Lake.Package
@@ -27,7 +28,7 @@ protected def ModuleArtifact.getMTime (self : ModuleArtifact) : IO MTime := do
 
 instance : GetMTime ModuleArtifact := ⟨ModuleArtifact.getMTime⟩
 
-abbrev ModuleTarget := ActiveLakeTarget ModuleArtifact
+abbrev ModuleTarget := ActiveBuildTarget ModuleArtifact
 
 namespace ModuleTarget
 
@@ -68,12 +69,13 @@ def skipIf [Pure m] [Pure n] (cond : Bool) (build : m (n PUnit)) : m (n PUnit) :
   a `LEAN_PATH` that includes `oleanDirs`.
 -/
 def fetchModuleWithLocalImports
-(pkg : Package) (oleanDirs : List FilePath) (depsTarget : ActiveLakeTarget PUnit)
-{m} [Monad m] [MonadLiftT IO m] [MonadExceptOf IO.Error m] : RecFetch Name ModuleTarget m :=
+(pkg : Package) (oleanDirs : List FilePath) (depsTarget : ActiveBuildTarget PUnit)
+{m} [Monad m] [MonadLiftT BuildM m] [MonadExceptOf IO.Error m] : RecFetch Name ModuleTarget m :=
+  have : MonadLift BuildM m := ⟨liftM⟩
   let leanPath := SearchPath.toString <| pkg.oleanDir :: oleanDirs
   fun mod fetch => do
     let leanFile := pkg.modToSrc mod
-    let contents ← IO.FS.readFile leanFile
+    let contents ← liftM (m := BuildM) <| IO.FS.readFile leanFile
     -- parse direct local imports
     let (imports, _, _) ← Elab.parseImports contents leanFile.toString
     let imports := imports.map (·.module) |>.filter (·.getRoot == pkg.moduleRoot)
@@ -95,23 +97,24 @@ def fetchModuleWithLocalImports
     let oleanFile := pkg.modToOlean mod
     let importTasks := importTargets.map (·.task)
     ActiveTarget.mk ⟨oleanFile, cFile⟩ ⟨fullHash, mtime⟩ <| ←
-      skipIf sameHash <| afterTaskList (m := IO) (depsTarget.task :: importTasks) do
+      skipIf sameHash <| afterTaskList (m := BuildM) (depsTarget.task :: importTasks) do
         compileOleanAndC leanFile oleanFile cFile leanPath pkg.rootDir pkg.leanArgs
         IO.FS.writeFile hashFile fullHash.toString
 
 /-
-  Equivalent to `RBTopT (cmp := Name.quickCmp) Name ModuleTarget IO`.
+  Equivalent to `RBTopT (cmp := Name.quickCmp) Name ModuleTarget BuildM`.
   Phrased this way to use `NameMap`.
 -/
 abbrev ModuleTargetM :=
-  EStateT (List Name) (NameMap ModuleTarget) IO
+  EStateT (List Name) (NameMap ModuleTarget) BuildM
 
 abbrev ModuleTargetFetch :=
   RecFetch Name ModuleTarget ModuleTargetM
 
-def throwOnCycle (mx : IO (Except (List Name) α)) : IO α  :=
-  mx >>= fun
-  | Except.ok a => a
-  | Except.error cycle =>
-    let cycle := cycle.map (s!"  {·}")
-    throw <| IO.userError s!"import cycle detected:\n{"\n".intercalate cycle}"
+def failOnCycle : Except (List Name) α → BuildM α
+| Except.ok a => a
+| Except.error cycle => do
+  let cycle := cycle.map (s!"  {·}")
+  let msg := s!"import cycle detected:\n{"\n".intercalate cycle}"
+  BuildM.logError msg
+  throw <| IO.userError msg

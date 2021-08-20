@@ -25,7 +25,7 @@ def Package.run (script : String) (args : List String) (self : Package) : IO PUn
 
 -- Hack since Lean provides no methods to remove directories
 def removeDirAll (path : System.FilePath) : IO PUnit := do
-  Lake.proc {cmd := "rm", args := #["-rf", path.toString]}
+  runBuild <| Lake.proc {cmd := "rm", args := #["-rf", path.toString]}
 
 def Package.clean (self : Package) : IO PUnit :=
   removeDirAll self.buildDir

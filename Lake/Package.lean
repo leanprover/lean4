@@ -7,7 +7,7 @@ import Lean.Data.Name
 import Lean.Elab.Import
 import Std.Data.HashMap
 import Lake.LeanVersion
-import Lake.Target
+import Lake.BuildTarget
 
 open Lean Std System
 
@@ -52,7 +52,7 @@ structure PackageConfig where
   buildMoreLibTargets : IO (Array ActiveFileTarget) := #[]
   depsDir : FilePath := defaultDepsDir
   dependencies : List Dependency := []
-  buildMoreDepsTarget : IO (ActiveLakeTarget PUnit) := ActiveLakeTarget.nil
+  buildMoreDepsTarget : IO (ActiveBuildTarget PUnit) := ActiveBuildTarget.nil
   scripts : HashMap String Script := HashMap.empty
   deriving Inhabited
 
@@ -86,7 +86,7 @@ def moduleRootName (self : Package) : String :=
 def dependencies (self : Package) : List Dependency :=
   self.config.dependencies
 
-def buildMoreDepsTarget (self : Package) : IO (ActiveLakeTarget PUnit) :=
+def buildMoreDepsTarget (self : Package) : IO (ActiveBuildTarget PUnit) :=
   self.config.buildMoreDepsTarget
 
 def leanArgs (self : Package) : Array String :=

@@ -380,24 +380,30 @@ section MessageHandling
       | Except.error inner => throwServerError s!"Got param with wrong structure: {params.compress}\n{inner}"
 
   def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
-    match (← routeLspRequest method params) with
+    let uri: DocumentUri ←
+      -- This request is handled specially.
+      if method == "$/lean/rpc/connect" then
+        let ps ← parseParams Lsp.RpcConnectParams params
+        fileSource ps
+      else match (← routeLspRequest method params) with
       | Except.error e =>
         (←read).hOut.writeLspResponseError <| e.toLspResponseError id
-      | Except.ok uri =>
-        let fw ← try
-          findFileWorker uri
-        catch _ =>
-          -- VS Code sometimes sends us requests just after closing a file?
-          -- This is permitted by the spec, but seems pointless, and there's not much we can do,
-          -- so we return an error instead.
-          (←read).hOut.writeLspResponseError
-            { id      := id
-              code    := ErrorCode.contentModified
-              message := s!"Cannot process request to closed file '{uri}'" }
-          return
-        let r := Request.mk id method params
-        fw.pendingRequestsRef.modify (·.insert id r)
-        tryWriteMessage uri r
+        return
+      | Except.ok uri => uri
+    let fw ← try
+      findFileWorker uri
+    catch _ =>
+      -- VS Code sometimes sends us requests just after closing a file?
+      -- This is permitted by the spec, but seems pointless, and there's not much we can do,
+      -- so we return an error instead.
+      (←read).hOut.writeLspResponseError
+        { id      := id
+          code    := ErrorCode.contentModified
+          message := s!"Cannot process request to closed file '{uri}'" }
+      return
+    let r := Request.mk id method params
+    fw.pendingRequestsRef.modify (·.insert id r)
+    tryWriteMessage uri r
 
   def handleNotification (method : String) (params : Json) : ServerM Unit := do
     let handle := (fun α [FromJson α] (handler : α → ServerM Unit) => parseParams α params >>= handler)

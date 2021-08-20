@@ -132,7 +132,7 @@ private structure RequestHandler where
 builtin_initialize requestHandlers : IO.Ref (Std.PersistentHashMap String RequestHandler) ←
   IO.mkRef {}
 
-/-- NB: This method may only be called in `initialize`/`builtin_initialize` blocks.
+/-- NB: This method may only be called in `builtin_initialize` blocks.
 
 A registration consists of:
 - a type of JSON-parsable request data `paramType`

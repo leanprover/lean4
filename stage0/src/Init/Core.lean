@@ -180,6 +180,9 @@ theorem mt {a b : Prop} (h₁ : a → b) (h₂ : ¬b) : ¬a :=
 
 theorem not_false : ¬False := id
 
+theorem not_not_intro {p : Prop} (h : p) : ¬ ¬ p :=
+  fun hn : ¬ p => hn h
+
 -- proof irrelevance is built in
 theorem proofIrrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ := rfl
 
@@ -606,7 +609,7 @@ protected theorem PSigma.eta {α : Sort u} {β : α → Sort v} {a₁ a₂ : α}
 theorem PUnit.subsingleton (a b : PUnit) : a = b := by
   cases a; cases b; exact rfl
 
-@[simp] theorem PUnit.eq_punit (a : PUnit) : a = ⟨⟩ :=
+theorem PUnit.eq_punit (a : PUnit) : a = ⟨⟩ :=
   PUnit.subsingleton a ⟨⟩
 
 instance : Subsingleton PUnit :=

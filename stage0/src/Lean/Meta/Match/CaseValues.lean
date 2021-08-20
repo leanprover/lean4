@@ -24,7 +24,7 @@ instance : Inhabited CaseValueSubgoal :=
   The type of `x` must have decidable equality.
 
   Remark: `subst` field of the second subgoal is equal to the input `subst`. -/
-def caseValueAux (mvarId : MVarId) (fvarId : FVarId) (value : Expr) (hName : Name := `h) (subst : FVarSubst := {})
+private def caseValueAux (mvarId : MVarId) (fvarId : FVarId) (value : Expr) (hName : Name := `h) (subst : FVarSubst := {})
     : MetaM (CaseValueSubgoal × CaseValueSubgoal) :=
   withMVarContext mvarId do
     let tag ← getMVarTag mvarId

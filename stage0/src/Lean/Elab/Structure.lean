@@ -310,11 +310,12 @@ where
     else
       return none
 
+/-- Auxiliary method for `copyNewFieldsFrom`. -/
 private def getFieldType (infos : Array StructFieldInfo) (parentStructName : Name) (parentType : Expr) (fieldName : Name) : MetaM Expr := do
   withLocalDeclD (← mkFreshId) parentType fun parent => do
     let proj ← mkProjection parent fieldName
     let projType ← inferType proj
-    /- Eliminate occurrences of `parent`. This may happen when structure contains dependent fields -/
+    /- Eliminate occurrences of `parent`. This may happen when structure contains dependent fields. -/
     let visit (e : Expr) : MetaM TransformStep := do
       if let some fieldName ← isProjectionOf? e parentStructName parent then
         -- trace[Meta.debug] "field '{fieldName}' of {e}"
@@ -322,8 +323,8 @@ private def getFieldType (infos : Array StructFieldInfo) (parentStructName : Nam
         | some existingFieldInfo => return TransformStep.done existingFieldInfo.fvar
         | none => throwError "unexpected field access {indentExpr e}"
       else
-        return TransformStep.visit e
-    Meta.transform projType (pre := visit)
+        return TransformStep.done e
+    Meta.transform projType (post := visit)
 
 private def toVisibility (fieldInfo : StructureFieldInfo) : CoreM Visibility := do
   if isProtected (← getEnv) fieldInfo.projFn then

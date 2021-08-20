@@ -562,17 +562,9 @@ private def preprocessOutParam (type : Expr) : MetaM Expr :=
     | c@(Expr.const constName us _) =>
       let env ← getEnv
       if !hasOutParams env constName then
-        /- We treat all universe level parameters as "outParam" -/
-        let (us, modified) ← preprocessLevels us
-        if modified then
-          let c := mkConst constName us
-          mkForallFVars xs (mkAppN c typeBody.getAppArgs)
-        else
-          return type
-      else do
+        return type
+      else
         let args := typeBody.getAppArgs
-        let (us, _) ← preprocessLevels us
-        let c := mkConst constName us
         let cType ← inferType c
         let args ← preprocessArgs cType 0 args
         mkForallFVars xs (mkAppN c args)
@@ -589,7 +581,8 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
   let inputConfig ← getConfig
   withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.instances,
-                                          foApprox := true, ctxApprox := true, constApprox := false }) do
+                                          foApprox := true, ctxApprox := true, constApprox := false,
+                                          ignoreLevelMVarDepth := true }) do
     let type ← instantiateMVars type
     let type ← preprocess type
     let s ← get
@@ -598,7 +591,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
     | none        =>
       let result? ← withNewMCtxDepth do
         let normType ← preprocessOutParam type
-        trace[Meta.synthInstance] "{type} ==> {normType}"
+        trace[Meta.synthInstance] "preprocess: {type} ==> {normType}"
         match (← SynthInstance.main normType maxResultSize) with
         | none        => pure none
         | some result =>

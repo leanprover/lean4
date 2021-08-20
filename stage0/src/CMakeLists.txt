@@ -31,7 +31,6 @@ enable_testing()
 
 option(MULTI_THREAD       "MULTI_THREAD"       ON)
 option(CCACHE             "use ccache"         ON)
-option(STATIC             "STATIC"             OFF)
 option(SPLIT_STACK        "SPLIT_STACK"        OFF)
 # When OFF we disable LLVM support
 option(LLVM               "LLVM"               OFF)
@@ -60,6 +59,7 @@ option(FAKE_FREE           "Disable actually freeing runtime objects, useful for
 option(SMALL_ALLOCATOR     "SMALL_ALLOCATOR" ON)
 option(LAZY_RC             "LAZY_RC" OFF)
 option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
+option(BSYMBOLIC_FUNCTIONS "Link with -Bsymbolic-functions to reduce call overhead in shared libraries (Linux)" ON)
 
 # development-specific options
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
@@ -139,7 +139,13 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(EXTRA_UTIL_LIBS ${EXTRA_UTIL_LIBS} -lpsapi)
   endif()
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_WINDOWS -D LEAN_WIN_STACK_SIZE=${LEAN_WIN_STACK_SIZE}")
+  # DLLs must go next to executables on Windows
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+else()
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean")
 endif()
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean")
 
 # OSX default thread stack size is very small. Moreover, in Debug mode, each new stack frame consumes a lot of extra memory.
 if ((${MULTI_THREAD} MATCHES "ON") AND (${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
@@ -171,19 +177,6 @@ if(LLVM)
   set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -D LEAN_LLVM")
 else()
   #message(WARNING "Disabling LLVM support.  JIT compilation will not be available")
-endif()
-
-if(STATIC)
-  # Creating a fully static executable is a bad idea in general when linking against libc and specifically
-  # with our dlopen shenanigans
-  message(STATUS "Linking libraries statically where possible")
-  if(NOT "${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
-    set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -static-libgcc -static-libstdc++")
-  endif()
-  set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-  if (MULTI_THREAD AND ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive,-Bdynamic")
-  endif()
 endif()
 
 # Set Module Path
@@ -222,7 +215,6 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
   endif ()
 elseif (MSVC)
     # All good. Maybe enforce a recent version?
-    set(STATIC ON) # FIXME: not working yet
     set(CMAKE_CXX_FLAGS                "/GL /EHsc /W2 /Zc:implicitNoexcept- -D_SCL_SECURE_NO_WARNINGS ${CMAKE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS_DEBUG          "/Od /Zi ${CMAKE_CXX_FLAGS_DEBUG}")
     set(CMAKE_CXX_FLAGS_MINSIZEREL     "/Os /Zc:inline ${CMAKE_CXX_FLAGS_MINSIZEREL}")
@@ -261,7 +253,6 @@ else()
   # GMP
   find_package(GMP 5.0.5 REQUIRED)
   include_directories(${GMP_INCLUDE_DIR})
-  set(COPY_LIBS ${COPY_LIBS} ${GMP_LIBRARIES})
   # dlopen
   set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
 endif()
@@ -277,54 +268,62 @@ if(CCACHE)
   endif()
 endif()
 
-# TODO: copy COPY_LIBS when lean libraries become shared rather than static
-set(EXTRA_LIBS ${EXTRA_LIBS} ${COPY_LIBS})
-
 # Python
 find_package(PythonInterp)
 
 include_directories(${CMAKE_BINARY_DIR}/include)
 
-# libleancpp and the stdlib libraries are cyclically dependent. This works by default on macOS, which also doesn't like
+# libleancpp/Lean as well as libleanrt/Init/Std are cyclically dependent. This works by default on macOS, which also doesn't like
 # the linker flags necessary on other platforms.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean")
+  set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean -lleanrt")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean -lnodefs.js")
+  set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean -lnodefs.js -lleanrt")
 else()
-  # `-pie` defaulting is not consistent on Linux distributions, so let's default to off
-  set(LEANC_STATIC_LINKER_FLAGS "-no-pie -Wl,--start-group -lleancpp -lInit -lStd -lLean -Wl,--end-group")
+  set(LEANC_STATIC_LINKER_FLAGS "-Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lStd -lleanrt -Wl,--end-group")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -fPIC")
+  if(BSYMBOLIC_FUNCTIONS)
+    set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -Wl,-Bsymbolic-functions")
+    set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,-Bsymbolic-functions")
+  endif()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -ftls-model=initial-exec")
+  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -fPIC")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=\\\$ORIGIN/../lib:\\\$ORIGIN/../lib/lean")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftls-model=initial-exec")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,@executable_path/../lib:@executable_path/../lib/lean")
 endif()
 
 # export all symbols for the interpreter
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS} -Wl,--export-all")
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-all")
+  # for libraries compiled with `leanc -shared`
   set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -Wl,--export-all")
+  # for `leanshared` itself
+  set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,--export-all")
+  # for executables containing code to be interpreted
+  set(LEAN_DYN_EXE_LINKER_FLAGS "${LEAN_DYN_EXE_LINKER_FLAGS} -Wl,--export-all")
 else()
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS} -rdynamic")
-  set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -ldl")
-  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -ldl")
+  set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_LINKER_FLAGS} -ldl")
+  set(LEAN_DYN_EXE_LINKER_FLAGS "${LEAN_DYN_EXE_LINKER_FLAGS} -rdynamic")
 endif()
 
 # On Windows, add bcrypt for random number generation
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -lbcrypt")
   set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -lbcrypt")
+  set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -lbcrypt")
 endif()
 
 # Allow `lean` symbols in plugins without linking directly against it. If we linked against the
 # executable or `leanshared`, plugins would try to look them up at load time (even though they
 # are already loaded) and probably fail unless we set up LD_LIBRARY_PATH.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  # import library created by the `lean` target
-  set(LEANC_SHARED_LINKER_FLAGS "$bindir/lean.exe.a")
+  # import library created by the `leanshared` target
+  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} $bindir/libleanshared.dll.a")
 elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
-  set(LEANC_SHARED_LINKER_FLAGS "-Wl,-undefined,dynamic_lookup")
+  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -Wl,-undefined,dynamic_lookup")
 endif()
 # Linux ignores undefined symbols in shared libraries by default
 
@@ -379,16 +378,25 @@ include_directories(${LEAN_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})  # version.h etc., "private" headers
 include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" headers
 
-if(LEANCPP)
+if(${STAGE} GREATER 1)
+  # reuse C++ parts, which don't change
+  add_library(leanrt_initial-exec STATIC IMPORTED)
+  set_target_properties(leanrt_initial-exec PROPERTIES
+    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a")
+  add_library(leanrt STATIC IMPORTED)
+  set_target_properties(leanrt PROPERTIES
+    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/lean/libleanrt.a")
   add_library(leancpp STATIC IMPORTED)
   set_target_properties(leancpp PROPERTIES
     IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
   add_custom_target(copy-leancpp
-    COMMAND cmake -E copy_if_different "${LEANCPP}" "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
+    COMMAND cmake -E copy_if_different "${PREV_STAGE}/runtime/libleanrt_initial-exec.a" "${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a"
+    COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/libleanrt.a" "${CMAKE_BINARY_DIR}/lib/lean/libleanrt.a"
+    COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/libleancpp.a" "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
   add_dependencies(leancpp copy-leancpp)
 else()
   add_subdirectory(runtime)
-  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:runtime>)
+
   add_subdirectory(util)
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:util>)
   add_subdirectory(kernel)
@@ -401,87 +409,77 @@ else()
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:compiler>)
   add_subdirectory(initialize)
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:initialize>)
-  if(${STAGE} EQUAL 0)
-    add_subdirectory(../stdlib stdlib)
-  endif()
 
   add_library(leancpp STATIC ${LEAN_OBJS})
   set_target_properties(leancpp PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean"
     OUTPUT_NAME leancpp)
 endif()
-install(FILES ${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a DESTINATION lib/lean)
 
 # MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
 string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
 
-# make stdlib using previous stage
+# ...and Make doesn't like absolute Windows paths either
+# (also looks nicer in the build log)
+file(RELATIVE_PATH LIB ${LEAN_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
+
+string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
+# These are used in lean.mk and passed through by stdlib.make
+set(LEANC_OPTS "${LEANC_OPTS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(LEANSHARED_LINKER_FLAGS "-Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libInit.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libStd.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLean.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")
+else()
+  set(LEANSHARED_LINKER_FLAGS "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp -Wl,--no-whole-archive ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,--out-implib,${CMAKE_BINARY_DIR}/bin/libleanshared.dll.a")
+    set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -L$bindir")
+  endif()
+endif()
+
+# Escape for `make`. Yes, twice.
+string(REPLACE "$" "$$$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
+configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
+add_custom_target(make_stdlib ALL
+  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+  # needed for linking `leanpkg`
+  DEPENDS leancpp leanrt_initial-exec
+  # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
+  # for a parallelized nested build, but CMake doesn't let us do that.
+  # We use `lean` from the previous stage, but `leanc`, headers, etc. from the current stage
+  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanshared $<IF:$<EQUAL:${STAGE},0>,MORE_LEANMAKE_OPTS=C_ONLY=1\ C_OUT=../stdlib/,Leanpkg>
+  VERBATIM)
+
+add_library(Init STATIC IMPORTED)
+set_target_properties(Init PROPERTIES
+  IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libInit.a)
+add_dependencies(Init make_stdlib)
+
+add_library(Std STATIC IMPORTED)
+set_target_properties(Std PROPERTIES
+  IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libStd.a)
+add_dependencies(Std make_stdlib)
+
+add_library(Lean STATIC IMPORTED)
+set_target_properties(Lean PROPERTIES
+  IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libLean.a)
+add_dependencies(Lean make_stdlib)
+
+add_library(leanshared SHARED IMPORTED)
+set_target_properties(leanshared PROPERTIES
+  IMPORTED_LOCATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX})
+add_dependencies(leanshared make_stdlib)
+
 if(PREV_STAGE)
-  # ...and Make doesn't like absolute Windows paths either
-  # (also looks nicer in the build log)
-  file(RELATIVE_PATH LIB ${LEAN_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
-
-  string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
-  # These are used in lean.mk and passed through by stdlib.make
-  set(LEANC_OPTS "${LEANC_OPTS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
-
-  configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
-  add_custom_target(make_stdlib ALL
-    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-    # needed for linking `leanpkg`
-    DEPENDS leancpp
-    # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
-    # for a parallelized nested build, but CMake doesn't let us do that.
-    # We use `lean` from the previous stage, but `leanc`, headers, etc. from the current stage
-    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make)
-
-  add_library(Init STATIC IMPORTED)
-  set_target_properties(Init PROPERTIES
-    IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libInit.a)
-  add_dependencies(Init make_stdlib)
-
-  add_library(Std STATIC IMPORTED)
-  set_target_properties(Std PROPERTIES
-    IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libStd.a)
-  add_dependencies(Std make_stdlib)
-
-  add_library(Lean STATIC IMPORTED)
-  set_target_properties(Lean PROPERTIES
-    IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libLean.a)
-  add_dependencies(Lean make_stdlib)
-
   add_custom_target(update-stage0
     COMMAND cmake -E env CSRCS=${CMAKE_BINARY_DIR}/lib/temp bash script/update-stage0
     DEPENDS make_stdlib
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/..")
 endif()
 
-target_link_libraries(leancpp INTERFACE ${EXTRA_LIBS})
-
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc" @ONLY)
-install(FILES "${CMAKE_BINARY_DIR}/bin/leanc"
-  DESTINATION bin
-  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)
-install(FILES ${LEAN_SOURCE_DIR}/bin/leanmake
-  DESTINATION bin
-  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-install(FILES "${CMAKE_BINARY_DIR}/bin/leanpkg${CMAKE_EXECUTABLE_SUFFIX}"
-  DESTINATION bin
-  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
-# shared library deactivated until we figure out the leancpp/Init story
-# # The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).
-# # For some strange reason, it contains a copy of pthread_equal.
-# # Remark: this problem does not happen when we generate the DLL using msys2 on Windows.
-# if (NOT("${CROSS_COMPILE}" MATCHES "ON"))
-#   if ("${STATIC}" MATCHES "OFF")
-#     add_library(leanshared SHARED shared/init.cpp)
-#     # see `target_link_libraries(lean ...)`
-#     target_link_libraries(leanshared leancpp Init leancpp Init)
-#     install(TARGETS leanshared DESTINATION lib)
-#   endif()
-# endif()
+install(DIRECTORY "${CMAKE_BINARY_DIR}/bin/" USE_SOURCE_PERMISSIONS DESTINATION bin)
 
 add_subdirectory(shell)
 
@@ -501,15 +499,12 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION lib/lean
 file(COPY ${CMAKE_SOURCE_DIR}/include/lean DESTINATION ${CMAKE_BINARY_DIR}/include
   FILES_MATCHING PATTERN "*.h")
 
-if("${INCLUDE_MSYS2_DLLS}" MATCHES "ON")
-  # TODO(Leo): do not hardcode required DLLs.
-  # For example, we can try to use ldd to retrieve the list of required DLLs.
-  set(RUNTIME_LIBRARIES
-         ${MINGW_LOCAL_DIR}/libgmp-10.dll
-         ${MINGW_LOCAL_DIR}/libwinpthread-1.dll
-         ${MINGW_LOCAL_DIR}/libgcc_s_seh-1.dll
-         ${MINGW_LOCAL_DIR}/libstdc++-6.dll)
-  install(PROGRAMS ${RUNTIME_LIBRARIES} DESTINATION bin)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  install(CODE "execute_process(COMMAND sh -c \"cp $(ldd ${CMAKE_BINARY_DIR}/bin/lean.exe | cut -f3 -d\\\" \\\" | grep mingw) \${CMAKE_INSTALL_PREFIX}/bin\")")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  install(CODE "execute_process(COMMAND sh -c \"cp $(otool -L ${CMAKE_BINARY_DIR}/bin/lean | tail -n +2 | cut -f1 -d\\\" \\\" | grep nix) \${CMAKE_INSTALL_PREFIX}/lib\")")
+else()
+  install(CODE "execute_process(COMMAND sh -c \"cp $(ldd ${CMAKE_BINARY_DIR}/bin/lean | cut -f3 -d\\\" \\\" | grep -Ev 'libc|lean') \${CMAKE_INSTALL_PREFIX}/lib\")")
 endif()
 
 # CPack
@@ -527,12 +522,4 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 else()
   SET(CPACK_GENERATOR ZIP)
 endif()
-# CPack -- Debian
-if(STATIC)
-  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "")
-else()
-  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++-4.8-dev,libgmp-dev")
-endif()
-SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Lean Theorem Prover")
-SET(CPACK_DEBIAN_PACKAGE_SECTION "devel")
 include(CPack)

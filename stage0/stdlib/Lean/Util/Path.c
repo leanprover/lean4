@@ -1289,8 +1289,8 @@ lean_object* l_Lean_findOLean_maybeThisOne(lean_object* x_1, lean_object* x_2, l
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-lean_inc(x_1);
-x_4 = l_System_FilePath_join(x_1, x_2);
+lean_inc(x_2);
+x_4 = l_System_FilePath_join(x_2, x_1);
 x_5 = l_System_FilePath_isDir(x_4, x_3);
 lean_dec(x_4);
 x_6 = lean_ctor_get(x_5, 0);

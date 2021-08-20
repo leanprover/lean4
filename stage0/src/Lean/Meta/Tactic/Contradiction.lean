@@ -9,7 +9,17 @@ import Lean.Meta.Tactic.Cases
 
 namespace Lean.Meta
 
-def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (searchDepth : Nat) : MetaM Bool :=
+structure Contradiction.Config where
+  useDecide : Bool  := true
+  searchDepth : Nat := 2
+  /- Support for hypotheses such as
+     ```
+     h : (x y : Nat) (ys : List Nat) → x = 0 → y::ys = [a, b, c] → False
+     ```
+     This kind of hypotheses appear when proving conditional equation theorems for match expressions. -/
+  genDiseq : Bool := false
+
+private def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (searchDepth : Nat) : MetaM Bool :=
   match searchDepth with
   | 0 => return false
   | searchDepth + 1 =>
@@ -36,7 +46,41 @@ def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (searchDepth : Nat) :
         else
           return false
 
-def contradictionCore (mvarId : MVarId) (useDecide : Bool) (searchDepth : Nat) : MetaM Bool := do
+/-- Return true if `e` is of the form `(x : α) → ... → s = t → ... → False` -/
+private def isGenDiseq (e : Expr) : Bool :=
+  match e with
+  | Expr.forallE _ d b _ => (d.isEq || b.hasLooseBVar 0) && isGenDiseq b
+  | _ => e.isConstOf ``False
+
+/--
+  Close goal if `localDecl` is a "generalized disequality". Example:
+  ```
+  h : (x y : Nat) (ys : List Nat) → x = 0 → y::ys = [a, b, c] → False
+  ```
+  This kind of hypotheses is created when we generate conditional equations for match expressions.
+-/
+private def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bool := do
+  assert! isGenDiseq localDecl.type
+  let val? ← withNewMCtxDepth do
+    let (args, _, _) ← forallMetaTelescope localDecl.type
+    for arg in args do
+      let argType ← inferType arg
+      if let some (_, lhs, rhs) ← matchEq? argType then
+        unless (← isDefEq lhs rhs) do
+          return none
+        unless (← isDefEq arg (← mkEqRefl lhs)) do
+          return none
+    let falseProof ← instantiateMVars (mkAppN localDecl.toExpr args)
+    if (← hasAssignableMVar falseProof) then
+      return none
+    return some (← mkFalseElim (← getMVarType mvarId) falseProof)
+  if let some val := val? then
+    assignExprMVar mvarId val
+    return true
+  else
+    return false
+
+def contradictionCore (mvarId : MVarId) (config : Contradiction.Config) : MetaM Bool := do
   withMVarContext mvarId do
     checkNotAssigned mvarId `contradiction
     for localDecl in (← getLCtx) do
@@ -46,36 +90,47 @@ def contradictionCore (mvarId : MVarId) (useDecide : Bool) (searchDepth : Nat) :
           if let some pFVarId ← findLocalDeclWithType? p then
             assignExprMVar mvarId (← mkAbsurd (← getMVarType mvarId) (mkFVar pFVarId) localDecl.toExpr)
             return true
-        -- (h : <empty-inductive-type>)
-        if (← elimEmptyInductive mvarId localDecl.fvarId searchDepth) then
-          return true
         -- (h : x ≠ x)
         if let some (_, lhs, rhs) ← matchNe? localDecl.type then
           if (← isDefEq lhs rhs) then
             assignExprMVar mvarId (← mkAbsurd (← getMVarType mvarId) (← mkEqRefl lhs) localDecl.toExpr)
             return true
+        let mut isEq := false
         -- (h : ctor₁ ... = ctor₂ ...)
         if let some (_, lhs, rhs) ← matchEq? localDecl.type then
+          isEq := true
           if let some lhsCtor ← matchConstructorApp? lhs then
           if let some rhsCtor ← matchConstructorApp? rhs then
           if lhsCtor.name != rhsCtor.name then
             assignExprMVar mvarId (← mkNoConfusion (← getMVarType mvarId) localDecl.toExpr)
             return true
         -- (h : p) s.t. `decide p` evaluates to `false`
-        if useDecide && !localDecl.type.hasFVar && !localDecl.type.hasMVar then
-          try
-            let d ← mkDecide localDecl.type
-            let r ← withDefault <| whnf d
-            if r.isConstOf ``false then
-              let hn := mkAppN (mkConst ``of_decide_eq_false) <| d.getAppArgs.push (← mkEqRefl d)
-              assignExprMVar mvarId (← mkAbsurd (← getMVarType mvarId) localDecl.toExpr hn)
-              return true
-          catch _ =>
-            pure ()
+        if config.useDecide && !localDecl.type.hasFVar then
+          let type ← instantiateMVars localDecl.type
+          if !type.hasMVar && !type.hasFVar then
+            try
+              let d ← mkDecide localDecl.type
+              let r ← withDefault <| whnf d
+              if r.isConstOf ``false then
+                let hn := mkAppN (mkConst ``of_decide_eq_false) <| d.getAppArgs.push (← mkEqRefl d)
+                assignExprMVar mvarId (← mkAbsurd (← getMVarType mvarId) localDecl.toExpr hn)
+                return true
+            catch _ =>
+              pure ()
+        -- "generalized" diseq
+        if config.genDiseq && isGenDiseq localDecl.type then
+          if (← processGenDiseq mvarId localDecl) then
+            return true
+        -- (h : <empty-inductive-type>)
+        unless isEq do
+          -- We do not use `elimEmptyInductive` for equality, since `cases h` produces a huge proof
+          -- when `(h : 10000 = 10001)`. TODO: `cases` add a threshold at `cases`
+          if (← elimEmptyInductive mvarId localDecl.fvarId config.searchDepth) then
+            return true
     return false
 
-def contradiction (mvarId : MVarId) (useDecide : Bool := true) (searchDepth : Nat := 2) : MetaM Unit :=
-  unless (← contradictionCore mvarId useDecide searchDepth) do
+def contradiction (mvarId : MVarId) (config : Contradiction.Config := {}) : MetaM Unit :=
+  unless (← contradictionCore mvarId config) do
     throwTacticEx `contradiction mvarId ""
 
 end Lean.Meta

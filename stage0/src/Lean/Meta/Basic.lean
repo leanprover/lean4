@@ -65,6 +65,16 @@ structure Config where
      the type of `t` with the goal target type. We claim this is not a hack and is defensible behavior because
      this last unification step is not really part of the term elaboration. -/
   assignSyntheticOpaque : Bool := false
+  /- When `ignoreLevelDepth` is `false`, only universe level metavariables with depth == metavariable context depth
+     can be assigned.
+     We used to have `ignoreLevelDepth == false` always, but this setting produced counterintuitive behavior in a few
+     cases. Recall that universe levels are often ignored by users, they may not even be aware they exist.
+     We still use this restriction for regular metavariables. See discussion at the beginning of `MetavarContext.lean`.
+     We claim it is reasonable to ignore this restriction for universe metavariables because their values are often
+     contrained by the terms is instances and simp theorems.
+     TODO: we should delete this configuration option and the method `isReadOnlyLevelMVar` after we have more tests.
+  -/
+  ignoreLevelMVarDepth  : Bool := true
 
 structure ParamInfo where
   binderInfo     : BinderInfo := BinderInfo.default
@@ -374,11 +384,16 @@ def isReadOnlyOrSyntheticOpaqueExprMVar (mvarId : MVarId) : MetaM Bool := do
   | MetavarKind.syntheticOpaque => return !(← getConfig).assignSyntheticOpaque
   | _ => return mvarDecl.depth != (← getMCtx).depth
 
-def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool := do
-  let mctx ← getMCtx
-  match mctx.findLevelDepth? mvarId with
-  | some depth => return depth != mctx.depth
+def getLevelMVarDepth (mvarId : MVarId) : MetaM Nat := do
+  match (← getMCtx).findLevelDepth? mvarId with
+  | some depth => return depth
   | _          => throwError "unknown universe metavariable '?{mvarId}'"
+
+def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool := do
+  if (← getConfig).ignoreLevelMVarDepth then
+    return false
+  else
+    return (← getLevelMVarDepth mvarId) != (← getMCtx).depth
 
 def renameMVar (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.renameMVar mvarId newUserName

@@ -22,10 +22,12 @@ lean_object* l_coeTail___rarg(lean_object*, lean_object*);
 lean_object* l_instCoeTail__1___rarg(lean_object*, lean_object*);
 lean_object* l_coeOfDep___rarg___boxed(lean_object*);
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_unexpand____x40_Init_Notation___hyg_2059____spec__1(lean_object*);
+lean_object* l_coeSortToCoeTail(lean_object*, lean_object*);
 lean_object* l_coeOfDep(lean_object*, lean_object*, lean_object*);
 lean_object* l_instCoeTail___rarg(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_myMacro____x40_Init_Coe___hyg_156____closed__16;
+lean_object* l_coeSortToCoeTail___rarg(lean_object*);
 extern lean_object* l_Lean_nullKind;
 lean_object* l_coeD___rarg(lean_object*);
 lean_object* l_coeOfTCOfTail(lean_object*, lean_object*, lean_object*);
@@ -54,6 +56,7 @@ lean_object* l_hasOfNatOfCoe___rarg(lean_object*, lean_object*);
 static lean_object* l_myMacro____x40_Init_Coe___hyg_156____closed__10;
 static lean_object* l_term_u2191_____closed__11;
 static lean_object* l_myMacro____x40_Init_Coe___hyg_156____closed__13;
+lean_object* l_coeSortToCoeTail___rarg___boxed(lean_object*);
 static lean_object* l_myMacro____x40_Init_Coe___hyg_156____closed__15;
 static lean_object* l_myMacro____x40_Init_Coe___hyg_156____closed__18;
 static lean_object* l_myMacro____x40_Init_Coe___hyg_156____closed__14;
@@ -1019,6 +1022,30 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_coeId___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_coeSortToCoeTail___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_coeSortToCoeTail(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_coeSortToCoeTail___rarg___boxed), 1, 0);
+return x_3;
+}
+}
+lean_object* l_coeSortToCoeTail___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_coeSortToCoeTail___rarg(x_1);
 lean_dec(x_1);
 return x_2;
 }

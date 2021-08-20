@@ -89,6 +89,11 @@ private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : MetaM Unit := do
   trace[Meta.isLevelDefEq.stuck] "{lhs} =?= {rhs}"
   modifyPostponed fun postponed => postponed.push { lhs := lhs, rhs := rhs, ref := ref, ctx? := ctx.defEqCtx? }
 
+private def isMVarWithGreaterDepth (v : Level) (mvarId : MVarId) : MetaM Bool :=
+  match v with
+  | Level.mvar mvarId' _ => return (← getLevelMVarDepth mvarId') > (← getLevelMVarDepth mvarId)
+  | _ => return false
+
 mutual
 
   private partial def solve (u v : Level) : MetaM LBool := do
@@ -96,6 +101,11 @@ mutual
     | Level.mvar mvarId _, _ =>
       if (← isReadOnlyLevelMVar mvarId) then
         return LBool.undef
+      else if (← getConfig).ignoreLevelMVarDepth && (← isMVarWithGreaterDepth v mvarId) then
+        -- If both `u` and `v` are both metavariables, but depth of v is greater, then we assign `v := u`.
+        -- This can only happen when `ignoreLevelDepth` is set to true.
+        assignLevelMVar v.mvarId! u
+        return LBool.true
       else if !u.occurs v then
         assignLevelMVar u.mvarId! v
         return LBool.true

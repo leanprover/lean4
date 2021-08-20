@@ -38,6 +38,7 @@ partial def mkEquationsFor (matchDeclName : Name) :  MetaM Unit := do
     let firstDiscrIdx := matchInfo.numParams + 1
     let discrs := xs[firstDiscrIdx : firstDiscrIdx + matchInfo.numDiscrs]
     let mut notAlts := #[]
+    let mut idx := 1
     for alt in alts do
       let altType ← inferType alt
       trace[Meta.debug] ">> {altType}"
@@ -62,8 +63,15 @@ partial def mkEquationsFor (matchDeclName : Name) :  MetaM Unit := do
         let thmType ← mkForallFVars (params ++ #[motive] ++ alts ++ ys) thmType
         let thmVal ← prove thmType
         trace[Meta.debug] "thmVal: {thmVal}"
-        -- check thmVal -- TODO remove
+        let thmName := matchDeclName ++ ((`eq).appendIndexAfter idx)
+        addDecl <| Declaration.thmDecl {
+          name        := thmName
+          levelParams := constInfo.levelParams
+          type        := thmType
+          value       := thmVal
+        }
         return notAlts.push notAlt
+      idx := idx + 1
 where
   toFVarsRHSArgs (ys : Array Expr) : MetaM (Array Expr × Array Expr) := do
     if ys.size == 1 && (← inferType ys[0]).isConstOf ``Unit then
@@ -116,29 +124,31 @@ where
         none
 
   proveLoop (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
-    let mvarId ← modifyTargetEqLHS mvarId whnfCore
+    let mvarId' ← modifyTargetEqLHS mvarId whnfCore
+    let mvarId := mvarId'
     trace[Meta.debug] "proveLoop [{depth}]\n{MessageData.ofGoal mvarId}"
-    (applyRefl mvarId)
-    <|>
-    (contradiction mvarId { genDiseq := true })
-    <|>
-    (do (← casesOnStuckLHS mvarId).forM (proveLoop . (depth + 1)))
-    <|>
-    (do let mvarId' ← simpIfTarget mvarId (useDecide := true)
-        trace[Meta.debug] "simpIfTarget\n{MessageData.ofGoal mvarId'}"
-        if mvarId' == mvarId then throwError "simpIf failed"
-        proveLoop mvarId' (depth+1))
-    <|>
-    (do if let some (s₁, s₂) ← splitIfTarget? mvarId then
-          let mvarId₁ ← trySubst s₁.mvarId s₁.fvarId
-          proveLoop mvarId₁ (depth+1)
-          proveLoop s₂.mvarId (depth+1)
-        else
-          throwError "spliIf failed")
-    <|>
-    (throwError "failed to generate equality theorems for `match` expression, support for array literals has not been implemented yet{MessageData.ofGoal mvarId}")
+    let subgoals ←
+      (do applyRefl mvarId; return #[])
+      <|>
+      (do contradiction mvarId { genDiseq := true }; return #[])
+      <|>
+      (casesOnStuckLHS mvarId)
+      <|>
+      (do let mvarId' ← simpIfTarget mvarId (useDecide := true)
+          if mvarId' == mvarId then throwError "simpIf failed"
+          return #[mvarId'])
+      <|>
+      (do if let some (s₁, s₂) ← splitIfTarget? mvarId then
+            let mvarId₁ ← trySubst s₁.mvarId s₁.fvarId
+            return #[mvarId₁, s₂.mvarId]
+          else
+            throwError "spliIf failed")
+      <|>
+      (throwError "failed to generate equality theorems for `match` expression, support for array literals has not been implemented yet{MessageData.ofGoal mvarId}")
+    subgoals.forM (proveLoop . (depth+1))
 
-  prove (type : Expr) : MetaM Expr :=
+  prove (type : Expr) : MetaM Expr := do
+    let type ← instantiateMVars type
     withLCtx {} {} <| forallTelescope type fun ys target => do
       let mvar0  ← mkFreshExprSyntheticOpaqueMVar target
       let mvarId ← deltaTarget mvar0.mvarId! (. == matchDeclName)

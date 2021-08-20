@@ -27,22 +27,34 @@ def h (x y : Nat) : Nat :=
   | Nat.zero, y+1 => 44
   | _, _     => 1
 
--- theorem ex1 : h 10000 1 = 0 :=
---  rfl
+theorem ex1 : h 10000 1 = 0 := rfl
+theorem ex2 : h 10002 1 = 3 := rfl
 
--- theorem ex2 : h 10002 1 = 3 :=
---  rfl
-
-def g (xs ys : Array Nat) : Nat :=
-  match xs, ys with
-  | #[], #[]     => 0
-  | _, #[0, y+1] => 1
-  | _, #[x, y]   => 2
-  | _,  _        => 3
-
-set_option trace.Meta.debug true
-set_option pp.proofs true
+-- set_option trace.Meta.debug true
+-- set_option pp.proofs true
 -- set_option trace.Meta.debug truen
 test% f.match_1
+set_option pp.analyze false
+#check @f.match_1.eq_1
+#check @f.match_1.eq_2
+#check @f.match_1.eq_3
+#check @f.match_1.eq_4
+
 test% h.match_1
--- test% g.match_1
+#check @h.match_1.eq_1
+#check @h.match_1.eq_2
+#check @h.match_1.eq_3
+#check @h.match_1.eq_4
+#check @h.match_1.eq_5
+#check @h.match_1.eq_6
+
+def g (xs ys : List (Nat × String)) : Nat :=
+  match xs, ys with
+  | _,  [(a,b)] => 0
+  | [(c, d)], _ => 1
+  | _,  _       => 2
+
+test% g.match_1
+#check @g.match_1.eq_1
+#check @g.match_1.eq_2
+#check @g.match_1.eq_3

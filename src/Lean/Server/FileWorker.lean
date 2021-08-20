@@ -107,7 +107,9 @@ abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) compar
 structure WorkerState where
   doc             : EditableDocument
   pendingRequests : PendingRequestMap
-  rpcSesh         : RpcSession
+  /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
+  to modify sessions. A single `Ref` ensures atomic transactions. -/
+  rpcSessions     : Std.RBMap UInt64 (IO.Ref RpcSession) compare
 
 abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
@@ -152,7 +154,7 @@ section Initialization
     else
       throwServerError s!"`leanpkg print-paths` failed:\n{stdout}\nstderr:\n{stderr}"
 
-  def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (rpcSesh : RpcSession) : IO (Snapshot × SearchPath) := do
+  def compileHeader (m : DocumentMeta) (hOut : FS.Stream) : IO (Snapshot × SearchPath) := do
     let opts := {}  -- TODO
     let inputCtx := Parser.mkInputContext m.text.source "<input>"
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
@@ -186,8 +188,7 @@ section Initialization
 
   def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream)
       : IO (WorkerContext × WorkerState) := do
-    let rpcSesh ← RpcSession.new false
-    let (headerSnap, srcSearchPath) ← compileHeader meta o rpcSesh
+    let (headerSnap, srcSearchPath) ← compileHeader meta o
     let cancelTk ← CancelToken.new
     let ctx :=
       { hIn                := i
@@ -200,7 +201,7 @@ section Initialization
     return (ctx,
     { doc             := doc
       pendingRequests := RBMap.empty
-      rpcSesh
+      rpcSessions     := Std.RBMap.empty
     })
 end Initialization
 
@@ -277,18 +278,25 @@ section NotificationHandling
 
 def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
   let st ← get
-  if p.sessionId ≠ st.rpcSesh.sessionId then
+  match st.rpcSessions.find? p.sessionId with
+  | none =>
     -- TODO(WN): should only print on log-level debug, if we had log-levels
     IO.eprintln s!"Trying to release refs '{p.refs}' from outdated RPC session '{p.sessionId}'."
-  else
+  | some seshRef =>
+    let mut sesh ← seshRef.get
     for ref in p.refs do
-      st.rpcSesh.state.modify fun st => st.release ref |>.snd
-    set { st with rpcSesh := ← st.rpcSesh.keptAlive }
+      sesh := sesh.release ref |>.snd
+    sesh ← sesh.keptAlive
+    seshRef.set sesh
 
 def handleRpcKeepAlive (p : Lsp.RpcKeepAliveParams) : WorkerM Unit := do
   let st ← get
-  if p.sessionId = st.rpcSesh.sessionId then
-    set { st with rpcSesh := ← st.rpcSesh.keptAlive }
+  match st.rpcSessions.find? p.sessionId with
+  | none => return
+  | some seshRef =>
+    let sesh ← seshRef.get
+    let sesh ← sesh.keptAlive
+    seshRef.set sesh
 
 end NotificationHandling
 
@@ -296,21 +304,10 @@ end NotificationHandling
 section RequestHandling
 
 def handleRpcConnect (p : RpcConnectParams) : WorkerM RpcConnected := do
-  let st ← get
-  let rpcSesh' ←
-    if !st.rpcSesh.clientConnected then
-      -- First client connection.
-      let s := { st.rpcSesh with clientConnected := true }
-      s.keptAlive
-    else
-      /- Client has restarted. Just setting the state should `dec` the previous session.
-      Any associated references will then no longer be kept alive for the client. -/
-      RpcSession.new true
-  set { st with rpcSesh := rpcSesh' }
-
-  return {
-    sessionId := rpcSesh'.sessionId : RpcConnected
-  }
+  let (newId, newSesh) ← RpcSession.new
+  let newSeshRef ← IO.mkRef newSesh
+  modify fun st => { st with rpcSessions := st.rpcSessions.insert newId newSeshRef }
+  return { sessionId := newId }
 
 end RequestHandling
 
@@ -352,7 +349,7 @@ section MessageHandling
       return
 
     let rc : RequestContext :=
-      { rpcSesh := st.rpcSesh
+      { rpcSessions := st.rpcSessions
         srcSearchPath := ctx.srcSearchPath
         doc := st.doc
         hLog := ctx.hLog }
@@ -386,10 +383,11 @@ section MainLoop
     let pendingRequests ← st.pendingRequests.foldM (fun acc id task => filterFinishedTasks acc id task) st.pendingRequests
     st := { st with pendingRequests }
 
-    -- Opportunistically (i.e. when we wake up on messages) check if the RPC session has expired.
-    if (← st.rpcSesh.hasExpired) then
-      let newSesh ← RpcSession.new false
-      st := { st with rpcSesh := newSesh }
+    -- Opportunistically (i.e. when we wake up on messages) check if any RPC session has expired.
+    for (id, seshRef) in st.rpcSessions do
+      let sesh ← seshRef.get
+      if (← sesh.hasExpired) then
+        st := { st with rpcSessions := st.rpcSessions.erase id }
 
     set st
     match msg with

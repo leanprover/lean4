@@ -47,6 +47,9 @@ def PackageTarget.buildStaticLib
 def PackageTarget.fetchStaticLibTarget (self : PackageTarget) : BuildM ActiveFileTarget := do
   skipIfNewer self.package.staticLibFile self.trace self.buildStaticLib
 
+def PackageTarget.fetchStaticLibTargets (self : PackageTarget) : BuildM (Array ActiveFileTarget) := do
+  #[← self.fetchStaticLibTarget] ++ (← self.package.buildMoreLibTargets)
+
 def Package.fetchStaticLibTarget (self : Package) : BuildM ActiveFileTarget := do
   (← self.buildTarget).fetchStaticLibTarget
 
@@ -66,9 +69,10 @@ def PackageTarget.buildBin
 (depTargets : List PackageTarget) (self : PackageTarget)
 : BuildM (IOTask PUnit) := do
   let oFileTargets ← self.fetchOFileTargets
-  let libTargets ← depTargets.mapM (·.fetchStaticLibTarget)
+  let depLibTargets ← depTargets.foldlM
+    (fun ts dep => do pure <| ts ++ (← dep.fetchStaticLibTargets)) #[]
   let moreLibTargets ← self.package.buildMoreLibTargets
-  let linkTargets := oFileTargets ++ libTargets ++ moreLibTargets
+  let linkTargets := oFileTargets ++ depLibTargets ++ moreLibTargets
   let linkFiles := linkTargets.map (·.artifact)
   linkTargets >> compileLeanBin self.package.binFile linkFiles self.package.linkArgs
 

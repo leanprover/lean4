@@ -41,15 +41,20 @@ def registerRpcCallHandler (method : Name)
   let wrapper seshId j := do
     let rc ← read
 
+    let some seshRef ← rc.rpcSessions.find? seshId
+      | throwThe RequestError { code := JsonRpc.ErrorCode.rpcNeedsReconnect
+                                message := s!"Outdated RPC session" }
+    let sesh ← seshRef.get
+
     let t ← RequestM.asTask do
       let paramsLsp ← parseRequestParams paramLspType j
-      if seshId ≠ rc.rpcSesh.sessionId then
-        throwThe RequestError { code := JsonRpc.ErrorCode.rpcNeedsReconnect
-                                message := s!"Outdated RPC session" }
-      match (← @rpcDecode paramType paramLspType _ RequestM _ _ paramsLsp) with
+      let act := rpcDecode (α := paramType) (β := paramLspType) (m := StateM FileWorker.RpcSession) paramsLsp
+      match act.run' sesh with
       | Except.ok v => return v
-      | Except.error e => throwThe RequestError { code := JsonRpc.ErrorCode.invalidParams
-                                                  message := s!"{e} in RPC call '{method}({j})'" }
+      | Except.error e => throwThe RequestError {
+          code := JsonRpc.ErrorCode.invalidParams
+          message := s!"Cannot decode params in RPC call '{method}({j.compress})'\n{e}"
+        }
 
     let t ← RequestM.bindTask t fun
       | Except.error e => throw e
@@ -58,7 +63,9 @@ def registerRpcCallHandler (method : Name)
     RequestM.mapTask t fun
       | Except.error e => throw e
       | Except.ok ret => do
-        let retLsp ← @rpcEncode respType respLspType _ RequestM _ _ ret
+        let act := rpcEncode (α := respType) (β := respLspType) (m := StateM FileWorker.RpcSession) ret
+        let (retLsp, sesh') := act.run sesh
+        seshRef.set sesh'
         return toJson retLsp
 
   rpcProcedures.modify fun ps => ps.insert method ⟨wrapper⟩

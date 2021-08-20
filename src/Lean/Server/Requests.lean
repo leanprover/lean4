@@ -55,7 +55,7 @@ def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
       message := s!"Cannot parse request params: {params.compress}\n{inner}" }
 
 structure RequestContext where
-  rpcSesh       : RpcSession
+  rpcSessions   : Std.RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
   srcSearchPath : SearchPath
   doc           : FileWorker.EditableDocument
   hLog          : IO.FS.Stream
@@ -66,10 +66,6 @@ abbrev RequestM := ReaderT RequestContext <| ExceptT RequestError IO
 
 instance : Inhabited (RequestM α) :=
   ⟨throwThe IO.Error "executing Inhabited instance?!"⟩
-
--- NOTE(WN): low priority so the entire `RequestContext` is preferred
-instance (priority := low) : MonadReaderOf RpcSession RequestM where
-  read := RequestContext.rpcSesh <$> read
 
 namespace RequestM
 open FileWorker

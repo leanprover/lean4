@@ -19,93 +19,15 @@ namespace Lean.Server
 
 /-- Monads with an RPC session in their state. -/
 class MonadRpcSession (m : Type → Type) where
-  rpcSessionId : m UInt64
   rpcStoreRef (typeName : Name) (obj : NonScalar) : m Lsp.RpcRef
   rpcGetRef (r : Lsp.RpcRef) : m (Option (Name × NonScalar))
   rpcReleaseRef (r : Lsp.RpcRef) : m Bool
-export MonadRpcSession (rpcSessionId rpcStoreRef rpcGetRef rpcReleaseRef)
+export MonadRpcSession (rpcStoreRef rpcGetRef rpcReleaseRef)
 
 instance {m n : Type → Type} [MonadLift m n] [MonadRpcSession m] : MonadRpcSession n where
-  rpcSessionId             := liftM (rpcSessionId : m _)
   rpcStoreRef typeName obj := liftM (rpcStoreRef typeName obj : m _)
   rpcGetRef r              := liftM (rpcGetRef r : m _)
   rpcReleaseRef r          := liftM (rpcReleaseRef r : m _)
-
-/-- Concurrently modifiable part of an RPC session. -/
-structure RpcSessionState where
-  /-- Objects that are being kept alive for the RPC client, together with their type names,
-  mapped to by their RPC reference.
-
-  Note that we may currently have multiple references to the same object. It is only disposed
-  of once all of those are gone. This simplifies the client a bit as it can drop every reference
-  received separately. -/
-  aliveRefs : Std.PersistentHashMap Lsp.RpcRef (Name × NonScalar)
-  /-- Value to use for the next `RpcRef`. It is monotonically increasing to avoid any possible
-  bugs resulting from its reuse. -/
-  nextRef   : USize
-
-namespace RpcSessionState
-
-def store (st : RpcSessionState) (typeName : Name) (obj : NonScalar) : Lsp.RpcRef × RpcSessionState :=
-  let ref := ⟨st.nextRef⟩
-  let st' := { st with aliveRefs := st.aliveRefs.insert ref (typeName, obj)
-                       nextRef := st.nextRef + 1 }
-  (ref, st')
-
-def release (st : RpcSessionState) (ref : Lsp.RpcRef) : Bool × RpcSessionState :=
-  let released := st.aliveRefs.contains ref
-  (released, { st with aliveRefs := st.aliveRefs.erase ref })
-
-end RpcSessionState
-
-structure RpcSession where
-  sessionId       : UInt64
-  clientConnected : Bool
-  /-- The `IO.monoMsNow` time when the session expires. See `$/lean/rpc/keepAlive`.
-  Note we only *actually* reset the connection if `clientConnected` is set. -/
-  expireTime      : Nat
-  /-- We allow asynchronous elab tasks and request handlers to modify parts of the state.
-  A single `Ref` ensures atomic transactions. -/
-  state           : IO.Ref RpcSessionState
-
-namespace RpcSession
-
-def keepAliveTimeMs : Nat :=
-  30000
-
-def new (clientConnected := false) : IO RpcSession := do
-  /- We generate a random ID to ensure that session IDs do not repeat across re-initializations
-  and worker restarts. Otherwise, the client may attempt to use outdated references. -/
-  let newId ← ByteArray.toUInt64LE! <$> IO.getRandomBytes 8
-  let newState ← IO.mkRef {
-    aliveRefs := Std.PersistentHashMap.empty
-    nextRef := 0
-  }
-  return {
-    sessionId := newId
-    expireTime := (← IO.monoMsNow) + keepAliveTimeMs
-    clientConnected
-    state := newState
-  }
-
-def keptAlive (s : RpcSession) : IO RpcSession := do
-  return { s with expireTime := (← IO.monoMsNow) + keepAliveTimeMs }
-
-def hasExpired (s : RpcSession) : IO Bool :=
-  return s.clientConnected ∧ s.expireTime ≤ (← IO.monoMsNow)
-
-end RpcSession
-
-instance [Monad m] [MonadLiftT IO m] [MonadReaderOf RpcSession m] : MonadRpcSession m where
-  rpcSessionId := do
-    (←read).sessionId
-  rpcStoreRef typeName obj := do
-    liftM (m := IO) <| (←read).state.modifyGet fun st => st.store typeName obj
-  rpcGetRef r := do
-    let rs ← liftM (m := IO) <| (←read).state.get
-    rs.aliveRefs.find? r
-  rpcReleaseRef r := do
-    liftM (m := IO) <| (←read).state.modifyGet fun st => st.release r
 
 /-- `RpcEncoding α β` means that `α` may participate in RPC calls with its on-the-wire LSP encoding
 being `β`. This is useful when `α` contains fields which must be marshalled in a special way. In
@@ -121,7 +43,6 @@ non-JSON-serializable fields can be auto-encoded in two ways:
 -- or, compile `WithRpcRef` to "opaque reference" on the client
 class RpcEncoding (α : Type) (β : outParam Type) where
   rpcEncode {m : Type → Type} [Monad m] [MonadRpcSession m] : α → m β
-  -- TODO(WN): ExceptT String or RpcError where | InvalidSession | InvalidParams (msg : String) | ..
   rpcDecode {m : Type → Type} [Monad m] [MonadRpcSession m] : β → ExceptT String m α
 export RpcEncoding (rpcEncode rpcDecode)
 

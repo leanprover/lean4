@@ -108,25 +108,44 @@ jobs:
           make -j4
       # de-Nix-ify binaries
       - name: Patch
-        run: |
-          for f in lean leanpkg; do
-            patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 --set-rpath '${ORIGIN}/../lib:${ORIGIN}/../lib/lean' build/stage1/bin/$f
-          done
         if: matrix.name == 'Linux release'
-      - name: Patch
         run: |
-          for f in lean leanpkg; do
-            otool -L build/stage1/bin/$f
-            for lib in $(otool -L build/stage1/bin/$f | tail -n +2 | cut -d' ' -f1); do
-              [[ "$lib" == *lean* ]] || install_name_tool -change "$lib" "/usr/lib/$(basename $lib | sed 's/libc++\.1\.0/libc++.1/')" build/stage1/bin/$f
-            done
+          cd build/stage1
+          for f in lib/lean/libleanshared.so bin/lean bin/leanpkg; do
+            cp -n $(ldd "$f" | cut -f3 -d' ' | grep -Ev 'libc|lean') lib/ || true
+            if [[ "$f" == bin/* ]]; then
+              patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 --set-rpath '$ORIGIN/../lib:$ORIGIN/../lib/lean' $f
+            else
+              # library: use executable RPATH
+              patchelf --remove-rpath $f
+            fi
+            ldd $f
           done
+          ls -l lib/
+      - name: Patch
         if: matrix.name == 'macOS'
+        run: |
+          cd build/stage1
+          for f in lib/lean/libleanshared.dylib bin/lean bin/leanpkg; do
+            for lib in $(otool -L $f | tail -n +2 | cut -d' ' -f1); do
+              if [[ "$lib" == *nix* ]]; then cp -n "$lib" lib/ || true; fi
+              [[ "$lib" == /usr/lib/* ]] || install_name_tool -change "$lib" "@rpath/$(basename $lib)" $f
+            done
+            otool -L $f
+          done
+          ls -l lib/
+      - name: Patch
+        if: matrix.name == 'Windows'
+        run: |
+          cd build/stage1
+          cp $(ldd bin/lean.exe | cut -f3 -d' ' | grep mingw) bin/
+          ldd bin/lean.exe
+          ls -l bin/
       - name: Test Binary without Nix Shell
+        if: matrix.name != 'Windows'
         shell: bash {0}
         run: |
           build/stage1/bin/lean -h
-        if: matrix.name != 'Windows'
       - name: Pack
         run: cd build/stage1; cpack
       - uses: actions/upload-artifact@v2

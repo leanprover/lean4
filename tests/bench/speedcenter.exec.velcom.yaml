@@ -38,13 +38,13 @@
     max_runs: 1
     runner: output
 - attributes:
-    description: libleanshared.so
+    description: bin/lean
     tags: [deterministic, fast]
   run_config:
     cmd: |
       set -eu
       echo -n 'binary size: '
-      wc -c ${BUILD:-../../build/release}/stage2/lib/lean/libleanshared.so | cut -d' ' -f 1
+      wc -c ${BUILD:-../../build/release}/stage2/bin/lean | cut -d' ' -f 1
     max_runs: 1
     runner: output
 - attributes:

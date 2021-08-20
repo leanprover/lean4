@@ -8,7 +8,7 @@ in { pkgs ? flakePkgs.nixpkgs, llvmPackages ? null }:
                                           then flakePkgs.llvmPackages
                                           else pkgs.${"llvmPackages_${llvmPackages}"}).clang;
   } rec {
-    buildInputs = with pkgs; [ cmake gmp ccache ];
+    buildInputs = with pkgs; [ cmake (gmp.override { withStatic = true; }) ccache ];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
     # more convenient `ctest` output

@@ -2,7 +2,6 @@
   stdenv, lib, coreutils, gnused, writeShellScriptBin, bash, lean-emacs, lean-vscode, nix, substituteAll, symlinkJoin, linkFarmFromDrvs,
   runCommand, ... }:
 let lean-final' = lean-final; in
-lib.makeOverridable (
 { name, src,  fullSrc ? src, 
   # Lean dependencies. Each entry should be an output of buildLeanPackage.
   deps ? [ lean.Lean lean.Leanpkg ],
@@ -155,19 +154,12 @@ in rec {
       ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)} \
       -o $out/${name}.so
   '';
-  executable = runCommand executableName { buildInputs = [ stdenv.cc leanc ]; } ''
+  executable = runCommand executableName { buildInputs = [ stdenv.cc ]; } ''
     mkdir -p $out/bin
-    leanc -x none ${staticLib}/* ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)} \
+    ${leanc}/bin/leanc -x none ${staticLib}/* ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)} \
       -o $out/bin/${executableName} \
       ${lib.concatStringsSep " " linkFlags}
-  '' // {
-    withSharedStdlib = runCommand executableName { buildInputs = [ stdenv.cc leanc ]; } ''
-      mkdir -p $out/bin
-      leanc -x none ${staticLib}/* -lleanshared \
-        -o $out/bin/${executableName} \
-        ${lib.concatStringsSep " " linkFlags}
-    '';
-  };
+  '';
 
   lean-package = writeShellScriptBin "lean" ''
     LEAN_PATH=${modRoot}:$LEAN_PATH LEAN_SRC_PATH=${src}:$LEAN_SRC_PATH ${lean-final}/bin/lean "$@"
@@ -197,4 +189,4 @@ in rec {
   lean-dev = symlinkJoin { name = "lean-dev"; paths = [ lean-bin-dev leanpkg-dev ]; };
   emacs-dev = makeEmacsWrapper "emacs-dev" lean-dev;
   vscode-dev = makeVSCodeWrapper "vscode-dev" lean-dev;
-})
+}

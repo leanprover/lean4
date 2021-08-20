@@ -26,6 +26,7 @@ jobs:
           - name: Linux release
             os: ubuntu-latest
             release: true
+            CMAKE_OPTIONS: -DSTATIC=ON
             shell: nix-shell --arg pkgs "import (fetchTarball \"channel:nixos-19.03\") {{}}" --argstr llvmPackages latest --run "bash -euxo pipefail {0}"
           - name: Linux
             os: ubuntu-latest
@@ -36,16 +37,17 @@ jobs:
             CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Debug
           - name: Linux fsanitize
             os: ubuntu-latest
-            # turn off custom allocator & symbolic functions to make LSAN do its magic
-            CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC_FUNCTIONS=OFF
+            # turn off custom allocator to make LSAN do its magic
+            CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined -DSMALL_ALLOCATOR=OFF
           - name: macOS
             os: macos-latest
             release: true
+            CMAKE_OPTIONS: -DSTATIC=ON
           - name: Windows
             os: windows-latest
             release: true
             shell: msys2 {0}
-            CMAKE_OPTIONS: -G "Unix Makefiles"
+            CMAKE_OPTIONS: -G "Unix Makefiles" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DSTATIC=ON
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}
@@ -70,7 +72,7 @@ jobs:
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
-          install: make python mingw-w64-x86_64-cmake mingw-w64-x86_64-gcc mingw-w64-x86_64-ccache git diffutils
+          install: make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache git diffutils
         if: matrix.os == 'windows-latest'
       - name: Cache
         uses: actions/cache@v2
@@ -106,40 +108,34 @@ jobs:
           fi
           cmake .. ${{ matrix.CMAKE_OPTIONS }} $OPTIONS
           make -j4
+      - name: Lean stats
+        run: |
+          build/stage1/bin/lean --stats src/Lean.lean
       # de-Nix-ify binaries
       - name: Patch
         run: |
           for f in lean leanpkg; do
-            patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 --set-rpath '${ORIGIN}/../lib:${ORIGIN}/../lib/lean' build/stage1/bin/$f
+            patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 --remove-rpath build/stage1/bin/$f
           done
         if: matrix.name == 'Linux release'
       - name: Patch
         run: |
           for f in lean leanpkg; do
-            otool -L build/stage1/bin/$f
             for lib in $(otool -L build/stage1/bin/$f | tail -n +2 | cut -d' ' -f1); do
-              [[ "$lib" == *lean* ]] || install_name_tool -change "$lib" "/usr/lib/$(basename $lib | sed 's/libc++\.1\.0/libc++.1/')" build/stage1/bin/$f
+              install_name_tool -change "$lib" "/usr/lib/$(basename $lib | sed 's/libc++\.1\.0/libc++.1/')" build/stage1/bin/$f
             done
           done
         if: matrix.name == 'macOS'
-      - name: Test Binary without Nix Shell
-        shell: bash {0}
-        run: |
-          build/stage1/bin/lean -h
-        if: matrix.name != 'Windows'
       - name: Pack
         run: cd build/stage1; cpack
       - uses: actions/upload-artifact@v2
         with:
           name: build-${{ matrix.name }}
           path: build/stage1/lean-*
-      - name: Lean stats
-        run: |
-          build/stage1/bin/lean --stats src/Lean.lean
       - name: Test
         run: |
           cd build/stage1
-          ctest -j4 --output-on-failure --timeout 300 < /dev/null
+          ctest -j4 --output-on-failure < /dev/null
       - name: Build Stage 2
         run: |
           cd build

@@ -20,9 +20,6 @@ private def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
       let args := lhs.getAppArgs
       if recVal.getMajorIdx >= args.size then failed
       let mut major := args[recVal.getMajorIdx]
-      if major.isAppOfArity ``Eq.symm 4 then
-        /- This is needed for supporting `CasesArraySizes.lean` used in the implementation of array literal matching. -/
-        major := major.appArg!
       unless major.isFVar do failed
       return (← cases mvarId major.fvarId!).map fun s => s.mvarId
   else
@@ -139,9 +136,7 @@ where
         else
           throwError "spliIf failed")
     <|>
-    (do trace[Meta.debug] "TODO\n{← ppGoal mvarId}"
-        -- TODO
-        admit mvarId)
+    (throwError "failed to generate equality theorems for `match` expression, support for array literals has not been implemented yet{MessageData.ofGoal mvarId}")
 
   prove (type : Expr) : MetaM Expr :=
     withLCtx {} {} <| forallTelescope type fun ys target => do

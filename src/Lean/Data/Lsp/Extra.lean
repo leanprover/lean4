@@ -26,6 +26,7 @@ structure WaitForDiagnosticsParams where
   version : Nat
   deriving FromJson, ToJson
 
+/-- `textDocument/waitForDiagnostics` client<-server reply. -/
 structure WaitForDiagnostics
 
 instance : FromJson WaitForDiagnostics :=
@@ -53,6 +54,7 @@ Otherwise returns `null`. -/
 structure PlainGoalParams extends TextDocumentPositionParams
   deriving FromJson, ToJson
 
+/-- `$/lean/plainGoal` client<-server reply. -/
 structure PlainGoal where
   /-- The goals as pretty-printed Markdown, or something like "no goals" if accomplished. -/
   rendered : String
@@ -66,6 +68,7 @@ Returns the expected type at the specified position, pretty-printed as a string.
 structure PlainTermGoalParams extends TextDocumentPositionParams
   deriving FromJson, ToJson
 
+/-- `$/lean/plainTermGoal` client<-server reply. -/
 structure PlainTermGoal where
   goal : String
   range : Range
@@ -81,21 +84,22 @@ structure RpcRef where
 instance : ToString RpcRef where
   toString r := toString r.p
 
-/-- `$/lean/rpc/connect` client->server notification.
+/-- `$/lean/rpc/connect` client->server request.
 
-A notification to connect to the RPC session at the given file's worker. Should be sent:
-- exactly once whenever RPC is first needed (e.g. on client startup)
-- if an `RpcNeedsReconnect` error is received in an RPC request -/
+Starts an RPC session at the given file's worker, replying with the new session ID.
+Multiple sessions may be started and operating concurrently.
+
+A session may be destroyed by the server at any time (e.g. due to a crash), in which case further
+RPC requests for that session will reply with `RpcNeedsReconnect` errors. The client should discard
+references held from that session and `connect` again. -/
 structure RpcConnectParams where
   uri : DocumentUri
   deriving FromJson, ToJson
 
-/-- `$/lean/rpc/connected` client<-server notification.
+/-- `$/lean/rpc/connect` client<-server reply.
 
-Indicates that an RPC connection had been made. On receiving this, the client should discard any
-references it may still be holding from previous RPC sessions. -/
+Indicates that an RPC connection had been made and a session started for it. -/
 structure RpcConnected where
-  uri : DocumentUri
   sessionId : UInt64
   deriving FromJson, ToJson
 
@@ -123,7 +127,7 @@ structure RpcReleaseParams where
   refs : Array RpcRef
   deriving FromJson, ToJson
 
-/-- `$/lean/rpc/keepAlive` client -> server notification.
+/-- `$/lean/rpc/keepAlive` client->server notification.
 
 The client must send an RPC notification every 10s in order to keep the RPC session alive.
 This is the simplest one. On not seeing any notifications for three 10s periods, the server

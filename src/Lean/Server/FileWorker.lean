@@ -275,24 +275,6 @@ section NotificationHandling
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
 
-  def handleRpcConnect (p : RpcConnectParams) : WorkerM Unit := do
-    let st ← get
-    let doc := st.doc
-    let rpcSesh' ←
-      if !st.rpcSesh.clientConnected then
-        -- First client connection.
-        let s := { st.rpcSesh with clientConnected := true }
-        s.keptAlive
-      else
-        /- Client has restarted. Just setting the state should `dec` the previous session.
-        Any associated references will then no longer be kept alive for the client. -/
-        RpcSession.new true
-    set { st with rpcSesh := rpcSesh' }
-    (←read).hOut.writeLspNotification
-      <| { method := "$/lean/rpc/connected"
-           param := { uri := doc.meta.uri
-                      sessionId := rpcSesh'.sessionId : RpcConnected } }
-
 def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
   let st ← get
   if p.sessionId ≠ st.rpcSesh.sessionId then
@@ -310,6 +292,28 @@ def handleRpcKeepAlive (p : Lsp.RpcKeepAliveParams) : WorkerM Unit := do
 
 end NotificationHandling
 
+/-! Requests here are handled synchronously rather than in the asynchronous `RequestM`. -/
+section RequestHandling
+
+def handleRpcConnect (p : RpcConnectParams) : WorkerM RpcConnected := do
+  let st ← get
+  let rpcSesh' ←
+    if !st.rpcSesh.clientConnected then
+      -- First client connection.
+      let s := { st.rpcSesh with clientConnected := true }
+      s.keptAlive
+    else
+      /- Client has restarted. Just setting the state should `dec` the previous session.
+      Any associated references will then no longer be kept alive for the client. -/
+      RpcSession.new true
+  set { st with rpcSesh := rpcSesh' }
+
+  return {
+    sessionId := rpcSesh'.sessionId : RpcConnected
+  }
+
+end RequestHandling
+
 section MessageHandling
   def parseParams (paramType : Type) [FromJson paramType] (params : Json) : WorkerM paramType :=
     match fromJson? params with
@@ -322,7 +326,6 @@ section MessageHandling
     match method with
     | "textDocument/didChange" => handle DidChangeTextDocumentParams handleDidChange
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
-    | "$/lean/rpc/connect"     => handle RpcConnectParams handleRpcConnect
     | "$/lean/rpc/release"     => handle RpcReleaseParams handleRpcRelease
     | "$/lean/rpc/keepAlive"   => handle RpcKeepAliveParams handleRpcKeepAlive
     | _                        => throwServerError s!"Got unsupported notification method: {method}"
@@ -335,6 +338,19 @@ section MessageHandling
       : WorkerM Unit := do
     let ctx ← read
     let st ← get
+
+    if method == "$/lean/rpc/connect" then
+      try
+        let ps ← parseParams RpcConnectParams params
+        let resp ← handleRpcConnect ps
+        ctx.hOut.writeLspResponse ⟨id, resp⟩
+      catch e =>
+        ctx.hOut.writeLspResponseError
+          { id
+            code := ErrorCode.internalError
+            message := toString e }
+      return
+
     let rc : RequestContext :=
       { rpcSesh := st.rpcSesh
         srcSearchPath := ctx.srcSearchPath

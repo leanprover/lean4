@@ -50,7 +50,7 @@ rec {
   '';
   stage0 = wrapStage (args.stage0 or (buildCMake {
     name = "lean-stage0";
-    src = ../stage0/src;
+    realSrc = ../stage0/src;
     debug = stage0debug;
     cmakeFlags = [ "-DSTAGE=0" ];
     extraCMakeFlags = [];
@@ -58,8 +58,14 @@ rec {
       ln -s ${../stage0/stdlib} ../stdlib
     '';
     installPhase = ''
-      mkdir -p $out/bin
+      mkdir -p $out/bin $out/lib/lean
       mv bin/lean $out/bin/
+      mv lib/lean/libleanshared.* $out/lib/lean
+   '' + lib.optionalString stdenv.isDarwin ''
+      for lib in $(otool -L $out/bin/lean | tail -n +2 | cut -d' ' -f1); do
+        if [[ "$lib" == *lean* ]]; then install_name_tool -change "$lib" "$out/lib/lean/$(basename $lib)" $out/bin/lean; fi
+      done
+      otool -L $out/bin/lean
     '';
   }));
   stage = { stage, prevStage, self }:

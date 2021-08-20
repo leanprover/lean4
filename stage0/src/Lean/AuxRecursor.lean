@@ -26,9 +26,13 @@ def markAuxRecursor (env : Environment) (declName : Name) : Environment :=
 @[export lean_is_aux_recursor]
 def isAuxRecursor (env : Environment) (declName : Name) : Bool :=
   auxRecExt.isTagged env declName
+  -- TODO: use `markAuxRecursor` when they are defined
+  -- An attribute is not a good solution since we don't want users to control what is tagged as an auxiliary recursor.
+  || declName == ``Eq.ndrec
+  || declName == ``Eq.ndrecOn
 
 def isCasesOnRecursor (env : Environment) (declName : Name) : Bool :=
-  match declName with 
+  match declName with
   | Name.str _ s _ => s == casesOnSuffix && isAuxRecursor env declName
   | _ => false
 

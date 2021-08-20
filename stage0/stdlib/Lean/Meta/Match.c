@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Match
-// Imports: Init Lean.Meta.Match.MatchPatternAttr Lean.Meta.Match.Match Lean.Meta.Match.CaseValues Lean.Meta.Match.CaseArraySizes
+// Imports: Init Lean.Meta.Match.MatchPatternAttr Lean.Meta.Match.Match Lean.Meta.Match.CaseValues Lean.Meta.Match.CaseArraySizes Lean.Meta.Match.MatchEqs
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -70,6 +70,7 @@ lean_object* initialize_Lean_Meta_Match_MatchPatternAttr(lean_object*);
 lean_object* initialize_Lean_Meta_Match_Match(lean_object*);
 lean_object* initialize_Lean_Meta_Match_CaseValues(lean_object*);
 lean_object* initialize_Lean_Meta_Match_CaseArraySizes(lean_object*);
+lean_object* initialize_Lean_Meta_Match_MatchEqs(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Meta_Match(lean_object* w) {
 lean_object * res;
@@ -88,6 +89,9 @@ res = initialize_Lean_Meta_Match_CaseValues(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Match_CaseArraySizes(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Match_MatchEqs(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_initFn____x40_Lean_Meta_Match___hyg_3____closed__1 = _init_l_Lean_initFn____x40_Lean_Meta_Match___hyg_3____closed__1();

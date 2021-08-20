@@ -82,7 +82,7 @@ partial def findOLean (mod : Name) : IO FilePath := do
     let pkg := FilePath.mk mod.getRoot.toString
     let mut msg := s!"unknown package '{pkg}'"
     let rec maybeThisOne dir := do
-      if ← (pkg / dir).isDir then
+      if ← (dir / pkg).isDir then
         return some s!"\nYou might need to open '{dir}' as a workspace in your editor"
       if let some dir ← dir.parent then
         maybeThisOne dir

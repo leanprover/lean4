@@ -461,6 +461,7 @@ lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_checkUnsafe___
 uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyDerivingHandlers___spec__1(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_checkValidCtorModifier___rarg___lambda__2___closed__2;
+uint8_t l_Array_contains___at_Lean_Meta_getElimInfo___spec__4(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabHeaderAux_match__1(lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_collectUniversesFromCtorType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -516,7 +517,6 @@ lean_object* lean_mk_rec_on(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_getScope___rarg(lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_mkConstWithLevelParams___spec__1(lean_object*);
 lean_object* l_Lean_mkLevelParam(lean_object*);
-uint8_t l_Array_contains___at_Lean_Meta_getElimInfo___spec__5(lean_object*, lean_object*);
 lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Command_accLevelAtCtor___spec__2(lean_object*, lean_object*, size_t, size_t);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_checkParamsAndResultType_match__2___rarg(lean_object*, lean_object*, lean_object*);
@@ -4799,7 +4799,7 @@ _start:
 {
 lean_object* x_9; uint8_t x_10; 
 x_9 = l_Lean_Expr_getAppFn(x_3);
-x_10 = l_Array_contains___at_Lean_Meta_getElimInfo___spec__5(x_1, x_9);
+x_10 = l_Array_contains___at_Lean_Meta_getElimInfo___spec__4(x_1, x_9);
 lean_dec(x_1);
 if (x_10 == 0)
 {

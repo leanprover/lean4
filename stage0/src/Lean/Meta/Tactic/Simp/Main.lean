@@ -328,6 +328,8 @@ def main (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Result := 
   withReducible do
     simp e methods ctx |>.run' {}
 
+abbrev Discharge := Expr → SimpM (Option Expr)
+
 namespace DefaultMethods
 mutual
   partial def discharge? (e : Expr) : SimpM (Option Expr) := do
@@ -359,13 +361,16 @@ end DefaultMethods
 
 end Simp
 
-def simp (e : Expr) (ctx : Simp.Context) : MetaM Simp.Result := do profileitM Exception "simp" (← getOptions) do
-  Simp.main e ctx (methods := Simp.DefaultMethods.methods)
+def simp (e : Expr) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM Simp.Result := do profileitM Exception "simp" (← getOptions) do
+  match discharge? with
+  | none   => Simp.main e ctx (methods := Simp.DefaultMethods.methods)
+  | some d => Simp.main e ctx (methods := { pre := (Simp.preDefault . d), post := (Simp.postDefault . d), discharge? := d })
+
 
 /-- See `simpTarget`. This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
-def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) : MetaM (Option MVarId) := do
+def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM (Option MVarId) := do
   let target ← instantiateMVars (← getMVarType mvarId)
-  let r ← simp target ctx
+  let r ← simp target ctx discharge?
   if r.expr.isConstOf ``True then
     match r.proof? with
     | some proof => assignExprMVar mvarId  (← mkOfEqTrue proof)
@@ -383,18 +388,18 @@ def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) : MetaM (Option MVarId
 /--
   Simplify the given goal target (aka type). Return `none` if the goal was closed. Return `some mvarId'` otherwise,
   where `mvarId'` is the simplified new goal. -/
-def simpTarget (mvarId : MVarId) (ctx : Simp.Context) : MetaM (Option MVarId) :=
+def simpTarget (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM (Option MVarId) :=
   withMVarContext mvarId do
     checkNotAssigned mvarId `simp
-    simpTargetCore mvarId ctx
+    simpTargetCore mvarId ctx discharge?
 
 /--
   Simplify `prop` (which is inhabited by `proof`). Return `none` if the goal was closed. Return `some (proof', prop')`
   otherwise, where `proof' : prop'` and `prop'` is the simplified `prop`.
 
   This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
-def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context) : MetaM (Option (Expr × Expr)) := do
-  let r ← simp prop ctx
+def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM (Option (Expr × Expr)) := do
+  let r ← simp prop ctx discharge?
   if r.expr.isConstOf ``False then
     match r.proof? with
     | some eqProof => assignExprMVar mvarId (← mkFalseElim (← getMVarType mvarId) (← mkEqMP eqProof proof))
@@ -408,5 +413,44 @@ def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context)
         return some ((← mkExpectedTypeHint proof r.expr), r.expr)
       else
         return some (proof, r.expr)
+
+def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM (Option (FVarId × MVarId)) := do
+  withMVarContext mvarId do
+    checkNotAssigned mvarId `simp
+    let localDecl ← getLocalDecl fvarId
+    let type ← instantiateMVars localDecl.type
+    match (← simpStep mvarId (mkFVar fvarId) type ctx discharge?) with
+    | none => return none
+    | some (value, type') =>
+      if type != type' then
+        let mvarId ← assert mvarId localDecl.userName type' value
+        let mvarId ← tryClear mvarId localDecl.fvarId
+        return some (fvarId, mvarId)
+      else
+        return some (fvarId, mvarId)
+
+abbrev FVarIdToLemmaId := NameMap Name
+
+def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[]) (fvarIdToLemmaId : FVarIdToLemmaId := {}) : MetaM (Option (Array FVarId × MVarId)) := do
+  withMVarContext mvarId do
+    checkNotAssigned mvarId `simp
+    let mut mvarId := mvarId
+    let mut toAssert : Array Hypothesis := #[]
+    for fvarId in fvarIdsToSimp do
+      let localDecl ← getLocalDecl fvarId
+      let type ← instantiateMVars localDecl.type
+      let ctx ← match fvarIdToLemmaId.find? localDecl.fvarId with
+        | none => pure ctx
+        | some lemmaId => pure { ctx with simpLemmas := (← ctx.simpLemmas.eraseCore lemmaId) }
+      match (← simpStep mvarId (mkFVar fvarId) type ctx discharge?) with
+      | none => return none
+      | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }
+    if simplifyTarget then
+      match (← simpTarget mvarId ctx discharge?) with
+      | none => return none
+      | some mvarIdNew => mvarId := mvarIdNew
+    let (fvarIdsNew, mvarIdNew) ← assertHypotheses mvarId toAssert
+    let mvarIdNew ← tryClearMany mvarIdNew fvarIdsToSimp
+    return (fvarIdsNew, mvarIdNew)
 
 end Lean.Meta

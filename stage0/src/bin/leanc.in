@@ -17,12 +17,14 @@ set -e
 bindir=$(dirname $0)
 
 cflags=("-I$bindir/../include" @LEANC_EXTRA_FLAGS@)
-ldflags=("-L$bindir/../lib/lean" "${LEANC_GMP:--lgmp}")
+ldflags=("-L$bindir/../lib/lean" "${LEANC_GMP:--lgmp}" @LEAN_EXTRA_LINKER_FLAGS@)
 ldflags_ext=(@LEANC_STATIC_LINKER_FLAGS@)
 args=("$@")
 for arg in "$@"; do
     # passed -shared ~> switch to shared linker flags
     [[ $arg == "-shared" ]] && ldflags_ext=(@LEANC_SHARED_LINKER_FLAGS@) && args=("-x" "c" "$@" "-x" "none")
+    # linking against libleanshared explicitly (or linking libleanshared itself) ~> do not link against static stdlib
+    [[ $arg == "-lleanshared" || $arg == *libleanshared.* ]] && ldflags_ext=()
     # Note the `-x c` for treating all input as C code
     [[ $arg == "-c" ]] && ldflags=() && ldflags_ext=() && args=("-x" "c" "$@" "-x" "none")
     [[ $arg == "--print-cflags" ]] && echo "${cflags[@]}" && exit

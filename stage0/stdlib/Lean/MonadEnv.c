@@ -76,7 +76,6 @@ static lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___close
 lean_object* l_Lean_setEnv(lean_object*);
 lean_object* l_Lean_hasConst___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__2___rarg___boxed__const__1;
-extern lean_object* l_Lean_auxRecExt;
 lean_object* l_Lean_addAndCompile___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__10;
 extern lean_object* l_Lean_levelZero;
@@ -177,6 +176,7 @@ lean_object* l_Lean_findModuleOf_x3f___rarg___lambda__3___boxed(lean_object*, le
 static lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__2;
 lean_object* l_Lean_throwKernelException___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isRec___rarg(lean_object*, lean_object*, lean_object*);
+uint8_t lean_is_aux_recursor(lean_object*, lean_object*);
 lean_object* l_Lean_evalConst___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__1;
 static lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__2;
@@ -199,7 +199,6 @@ lean_object* l_Lean_isRecCore___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_findModuleOf_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_allImportedModuleNames(lean_object*);
 static lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__23;
-uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__3(lean_object*);
 lean_object* l___private_Lean_MonadEnv_0__Lean_mkAuxNameAux(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoRec___rarg___lambda__1___closed__1;
@@ -2593,113 +2592,112 @@ _start:
 {
 if (lean_obj_tag(x_2) == 4)
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+lean_object* x_3; uint8_t x_4; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 lean_dec(x_2);
-x_4 = l_Lean_auxRecExt;
 lean_inc(x_3);
 lean_inc(x_1);
-x_5 = l_Lean_TagDeclarationExtension_isTagged(x_4, x_1, x_3);
+x_4 = lean_is_aux_recursor(x_1, x_3);
+if (x_4 == 0)
+{
+uint8_t x_5; 
+lean_inc(x_3);
+x_5 = l_Lean_isRecCore(x_1, x_3);
 if (x_5 == 0)
 {
 uint8_t x_6; 
-lean_inc(x_3);
-x_6 = l_Lean_isRecCore(x_1, x_3);
-if (x_6 == 0)
-{
-uint8_t x_7; 
 lean_dec(x_3);
-x_7 = 0;
-return x_7;
+x_6 = 0;
+return x_6;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; 
-x_8 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors;
-x_9 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_8, x_3);
+lean_object* x_7; uint8_t x_8; 
+x_7 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors;
+x_8 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_7, x_3);
 lean_dec(x_3);
-if (x_9 == 0)
+if (x_8 == 0)
+{
+uint8_t x_9; 
+x_9 = 1;
+return x_9;
+}
+else
 {
 uint8_t x_10; 
-x_10 = 1;
+x_10 = 0;
 return x_10;
+}
+}
 }
 else
 {
 uint8_t x_11; 
-x_11 = 0;
-return x_11;
-}
-}
+lean_inc(x_3);
+lean_inc(x_1);
+x_11 = l_Lean_isCasesOnRecursor(x_1, x_3);
+if (x_11 == 0)
+{
+lean_object* x_12; uint8_t x_13; 
+lean_dec(x_1);
+x_12 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors;
+x_13 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_12, x_3);
+lean_dec(x_3);
+if (x_13 == 0)
+{
+uint8_t x_14; 
+x_14 = 1;
+return x_14;
 }
 else
 {
-uint8_t x_12; 
-lean_inc(x_3);
-lean_inc(x_1);
-x_12 = l_Lean_isCasesOnRecursor(x_1, x_3);
-if (x_12 == 0)
-{
-lean_object* x_13; uint8_t x_14; 
-lean_dec(x_1);
-x_13 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors;
-x_14 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_13, x_3);
-lean_dec(x_3);
-if (x_14 == 0)
-{
 uint8_t x_15; 
-x_15 = 1;
+x_15 = 0;
 return x_15;
+}
 }
 else
 {
 uint8_t x_16; 
-x_16 = 0;
-return x_16;
-}
-}
-else
+lean_inc(x_3);
+x_16 = l_Lean_isRecCore(x_1, x_3);
+if (x_16 == 0)
 {
 uint8_t x_17; 
-lean_inc(x_3);
-x_17 = l_Lean_isRecCore(x_1, x_3);
-if (x_17 == 0)
-{
-uint8_t x_18; 
 lean_dec(x_3);
-x_18 = 0;
-return x_18;
+x_17 = 0;
+return x_17;
 }
 else
 {
-lean_object* x_19; uint8_t x_20; 
-x_19 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors;
-x_20 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_19, x_3);
+lean_object* x_18; uint8_t x_19; 
+x_18 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors;
+x_19 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_18, x_3);
 lean_dec(x_3);
-if (x_20 == 0)
+if (x_19 == 0)
+{
+uint8_t x_20; 
+x_20 = 1;
+return x_20;
+}
+else
 {
 uint8_t x_21; 
-x_21 = 1;
+x_21 = 0;
 return x_21;
+}
+}
+}
+}
 }
 else
 {
 uint8_t x_22; 
-x_22 = 0;
-return x_22;
-}
-}
-}
-}
-}
-else
-{
-uint8_t x_23; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_23 = 0;
-return x_23;
+x_22 = 0;
+return x_22;
 }
 }
 }

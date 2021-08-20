@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Jannis Limperg
 -/
 namespace Std
 universe u
@@ -12,12 +12,18 @@ structure HeapNodeAux (α : Type u) (h : Type u) where
   rank : Nat
   children : List h
 
+-- A `Heap` is a forest of binomial trees.
 inductive Heap (α : Type u) : Type u where
-  | empty     : Heap α
-  | heap  (ns : List (HeapNodeAux α (Heap α))) : Heap α
+  | heap (ns : List (HeapNodeAux α (Heap α))) : Heap α
   deriving Inhabited
 
-abbrev HeapNode (α) := HeapNodeAux α (Heap α)
+open Heap
+
+-- A `HeapNode` is a binomial tree. If a `HeapNode` has rank `k`, its children
+-- have ranks between `0` and `k - 1`. They are ordered by rank. Additionally,
+-- the value of each child must be less than or equal to the value of its
+-- parent node.
+abbrev HeapNode α := HeapNodeAux α (Heap α)
 
 variable {α : Type u}
 
@@ -26,122 +32,206 @@ def hRank : List (HeapNode α) → Nat
   | h::_ => h.rank
 
 def isEmpty : Heap α → Bool
-  | Heap.empty => true
-  | _          => false
+  | heap [] => true
+  | _       => false
+
+def empty : Heap α :=
+  heap []
 
 def singleton (a : α) : Heap α :=
-  Heap.heap [{ val := a, rank := 1, children := [] }]
+  heap [{ val := a, rank := 1, children := [] }]
 
-@[specialize] def combine (lt : α → α → Bool) (n₁ n₂ : HeapNode α) : HeapNode α :=
-  if lt n₂.val n₁.val then
-     { n₂ with rank := n₂.rank + 1, children := n₂.children ++ [Heap.heap [n₁]] }
+-- Combine two binomial trees of rank `r`, creating a binomial tree of rank
+-- `r + 1`.
+@[specialize] def combine (le : α → α → Bool) (n₁ n₂ : HeapNode α) : HeapNode α :=
+  if le n₂.val n₁.val then
+     { n₂ with rank := n₂.rank + 1, children := n₂.children ++ [heap [n₁]] }
   else
-     { n₁ with rank := n₁.rank + 1, children := n₁.children ++ [Heap.heap [n₂]] }
+     { n₁ with rank := n₁.rank + 1, children := n₁.children ++ [heap [n₂]] }
 
-@[specialize] partial def mergeNodes (lt : α → α → Bool) : List (HeapNode α) → List (HeapNode α) → List (HeapNode α)
+-- Merge two forests of binomial trees. The forests are assumed to be ordered
+-- by rank and `mergeNodes` maintains this invariant.
+@[specialize] partial def mergeNodes (le : α → α → Bool) : List (HeapNode α) → List (HeapNode α) → List (HeapNode α)
   | [], h  => h
   | h,  [] => h
   | f@(h₁ :: t₁), s@(h₂ :: t₂) =>
-    if h₁.rank < h₂.rank then h₁ :: mergeNodes lt t₁ s
-    else if h₂.rank < h₁.rank then h₂ :: mergeNodes lt t₂ f
+    if h₁.rank < h₂.rank then h₁ :: mergeNodes le t₁ s
+    else if h₂.rank < h₁.rank then h₂ :: mergeNodes le t₂ f
     else
-      let merged := combine lt h₁ h₂;
-      let r      := merged.rank;
+      let merged := combine le h₁ h₂
+      let r      := merged.rank
       if r != hRank t₁ then
-        if r != hRank t₂ then merged :: mergeNodes lt t₁ t₂ else mergeNodes lt (merged :: t₁) t₂
+        if r != hRank t₂ then merged :: mergeNodes le t₁ t₂ else mergeNodes le (merged :: t₁) t₂
       else
-        if r != hRank t₂ then mergeNodes lt t₁ (merged :: t₂) else merged :: mergeNodes lt t₁ t₂
+        if r != hRank t₂ then mergeNodes le t₁ (merged :: t₂) else merged :: mergeNodes le t₁ t₂
 
-@[specialize] def merge (lt : α → α → Bool) : Heap α → Heap α → Heap α
-  | Heap.empty,    h           => h
-  | h,             Heap.empty  => h
-  | Heap.heap h₁, Heap.heap h₂ => Heap.heap (mergeNodes lt h₁ h₂)
+@[specialize] def merge (le : α → α → Bool) : Heap α → Heap α → Heap α
+  | heap h₁, heap h₂ => heap (mergeNodes le h₁ h₂)
 
-@[specialize] def head? (lt : α → α → Bool) : Heap α → Option α
-  | Heap.empty  => none
-  | Heap.heap h => h.foldl (init := none) fun r n => match r with
-     | none   => some n.val
-     | some v => if lt v n.val then v else some n.val
+@[specialize] def head? (le : α → α → Bool) : Heap α → Option α
+  | heap []      => none
+  | heap (h::hs) => some $
+    hs.foldl (init := h.val) fun r n => if le r n.val then r else n.val
 
-/- O(log n) -/
-@[specialize] def head [Inhabited α] (lt : α → α → Bool) : Heap α → α
-  | Heap.empty        => arbitrary
-  | Heap.heap []      => arbitrary
-  | Heap.heap (h::hs) => hs.foldl (init := h.val) fun r n => if lt r n.val then r else n.val
+@[inline] def head [Inhabited α] (le : α → α → Bool) (h : Heap α) : α :=
+  head? le h |>.getD arbitrary
 
-@[specialize] def findMin (lt : α → α → Bool) : List (HeapNode α) → Nat → HeapNode α × Nat → HeapNode α × Nat
+@[specialize] def findMin (le : α → α → Bool) : List (HeapNode α) → Nat → HeapNode α × Nat → HeapNode α × Nat
   | [],    _,   r          => r
-  | h::hs, idx, (h', idx') => if lt h.val h'.val then findMin lt hs (idx+1) (h, idx) else findMin lt hs (idx+1) (h', idx')
+  | h::hs, idx, (h', idx') => if le h'.val h.val then findMin le hs (idx+1) (h', idx') else findMin le hs (idx+1) (h, idx)
+    -- It is important that we check `le h'.val h.val` here, not the other way
+    -- around. This ensures that head? and findMin find the same element even
+    -- when we have `le h'.val h.val` and `le h.val h'.val` (i.e. le is not
+    -- irreflexive).
 
-def tail (lt : α → α → Bool) : Heap α → Heap α
-  | Heap.empty        => Heap.empty
-  | Heap.heap []      => Heap.empty
-  | Heap.heap [h]     =>
-    match h.children with
-    | []      => Heap.empty
-    | (h::hs) => hs.foldl (merge lt) h
-  | Heap.heap hhs@(h::hs) =>
-    let (min, minIdx) := findMin lt hs 1 (h, 0);
-    let rest          := hhs.eraseIdx minIdx;
-    min.children.foldl (merge lt) (Heap.heap rest)
+def deleteMin (le : α → α → Bool) : Heap α → Option (α × Heap α)
+  | heap [] => none
+  | heap [h] =>
+    let tail :=
+      match h.children with
+      | [] => empty
+      | (h::hs) => hs.foldl (merge le) h
+    some (h.val, tail)
+  | heap hhs@(h::hs) =>
+    let (min, minIdx) := findMin le hs 1 (h, 0)
+    let rest          := hhs.eraseIdx minIdx
+    let tail          := min.children.foldl (merge le) (heap rest)
+    some (min.val, tail)
 
-partial def toList (lt : α → α → Bool) : Heap α → List α
-  | Heap.empty => []
-  | h          => match head? lt h with
-    | none   => []
-    | some a => a :: toList lt (tail lt h)
+@[inline] def tail? (le : α → α → Bool) (h : Heap α) : Option (Heap α) :=
+  deleteMin le h |>.map (·.snd)
 
-inductive WellFormed (lt : α → α → Bool) : Heap α → Prop where
-  | emptyWff               : WellFormed lt Heap.empty
-  | singletonWff (a : α)   : WellFormed lt (singleton a)
-  | mergeWff (h₁ h₂ : Heap α) : WellFormed lt h₁ → WellFormed lt h₂ → WellFormed lt (merge lt h₁ h₂)
-  | tailWff (h : Heap α)      : WellFormed lt h → WellFormed lt (tail lt h)
+@[inline] def tail (le : α → α → Bool) (h : Heap α) : Heap α :=
+  tail? le h |>.getD empty
+
+partial def toList (le : α → α → Bool) (h : Heap α) : List α :=
+  match deleteMin le h with
+  | none          => []
+  | some (hd, tl) => hd :: toList le tl
+
+partial def toArray (le : α → α → Bool) (h : Heap α) : Array α :=
+  go #[] h
+  where
+    go (acc : Array α) (h : Heap α) : Array α :=
+      match deleteMin le h with
+      | none => acc
+      | some (hd, tl) => go (acc.push hd) tl
+
+partial def toListUnordered : Heap α → List α
+  | heap ns => ns.bind fun n => n.val :: n.children.bind toListUnordered
+
+partial def toArrayUnordered (h : Heap α) : Array α :=
+  go #[] h
+  where
+    go (acc : Array α) : Heap α → Array α
+      | heap ns => do
+        let mut acc := acc
+        for n in ns do
+          acc := acc.push n.val
+          for h in n.children do
+            acc := go acc h
+        return acc
+
+inductive WellFormed (le : α → α → Bool) : Heap α → Prop where
+  | empty                : WellFormed le empty
+  | singleton (a)        : WellFormed le (singleton a)
+  | merge (h₁ h₂)        : WellFormed le h₁ → WellFormed le h₂ → WellFormed le (merge le h₁ h₂)
+  | deleteMin (a) (h tl) : WellFormed le h → deleteMin le h = some (a, tl) → WellFormed le tl
+
+theorem WellFormed.tail? {le} (h tl : Heap α) (hwf : WellFormed le h) (eq : tail? le h = some tl) : WellFormed le tl := by
+  simp only [BinomialHeapImp.tail?] at eq
+  match eq₂: BinomialHeapImp.deleteMin le h with
+    | none =>
+      rw [eq₂] at eq; cases eq
+    | some (a, tl) =>
+      rw [eq₂] at eq; cases eq
+      exact deleteMin _ _ _ hwf eq₂
+
+theorem WellFormed.tail {le} (h : Heap α) (hwf : WellFormed le h) : WellFormed le (tail le h) := by
+  simp only [BinomialHeapImp.tail]
+  match eq: BinomialHeapImp.tail? le h with
+    | none => exact empty
+    | some tl => exact tail? _ _ hwf eq
 
 end BinomialHeapImp
 
 open BinomialHeapImp
 
-def BinomialHeap (α : Type u) (lt : α → α → Bool) := { h : Heap α // WellFormed lt h }
+def BinomialHeap (α : Type u) (le : α → α → Bool) := { h : Heap α // WellFormed le h }
 
-@[inline] def mkBinomialHeap (α : Type u) (lt : α → α → Bool) : BinomialHeap α lt :=
-  ⟨Heap.empty, WellFormed.emptyWff⟩
+@[inline] def mkBinomialHeap (α : Type u) (le : α → α → Bool) : BinomialHeap α le :=
+  ⟨empty, WellFormed.empty⟩
 
 namespace BinomialHeap
-variable {α : Type u} {lt : α → α → Bool}
+variable {α : Type u} {le : α → α → Bool}
 
-@[inline] def empty : BinomialHeap α lt :=
-  mkBinomialHeap α lt
+@[inline] def empty : BinomialHeap α le :=
+  mkBinomialHeap α le
 
-@[inline] def isEmpty : BinomialHeap α lt → Bool
+@[inline] def isEmpty : BinomialHeap α le → Bool
   | ⟨b, _⟩ => BinomialHeapImp.isEmpty b
 
 /- O(1) -/
-@[inline] def singleton (a : α) : BinomialHeap α lt :=
-  ⟨BinomialHeapImp.singleton a, WellFormed.singletonWff a⟩
+@[inline] def singleton (a : α) : BinomialHeap α le :=
+  ⟨BinomialHeapImp.singleton a, WellFormed.singleton a⟩
 
 /- O(log n) -/
-@[inline] def merge : BinomialHeap α lt → BinomialHeap α lt → BinomialHeap α lt
-  | ⟨b₁, h₁⟩, ⟨b₂, h₂⟩ => ⟨BinomialHeapImp.merge lt b₁ b₂, WellFormed.mergeWff b₁ b₂ h₁ h₂⟩
+@[inline] def merge : BinomialHeap α le → BinomialHeap α le → BinomialHeap α le
+  | ⟨b₁, h₁⟩, ⟨b₂, h₂⟩ => ⟨BinomialHeapImp.merge le b₁ b₂, WellFormed.merge b₁ b₂ h₁ h₂⟩
 
 /- O(log n) -/
-@[inline] def head [Inhabited α] : BinomialHeap α lt → α
-  | ⟨b, _⟩ => BinomialHeapImp.head lt b
-
-/- O(log n) -/
-@[inline] def head? : BinomialHeap α lt → Option α
-  | ⟨b, _⟩ => BinomialHeapImp.head? lt b
-
-/- O(log n) -/
-@[inline] def tail : BinomialHeap α lt → BinomialHeap α lt
-  | ⟨b, h⟩ => ⟨BinomialHeapImp.tail lt b, WellFormed.tailWff b h⟩
-
-/- O(log n) -/
-@[inline] def insert (a : α) (h : BinomialHeap α lt) : BinomialHeap α lt :=
+@[inline] def insert (a : α) (h : BinomialHeap α le) : BinomialHeap α le :=
   merge (singleton a) h
 
 /- O(n log n) -/
-@[inline] def toList : BinomialHeap α lt → List α
-  | ⟨b, _⟩ => BinomialHeapImp.toList lt b
+def ofList (le : α → α → Bool) (as : List α) : BinomialHeap α le :=
+  as.foldl (flip insert) empty
+
+/- O(n log n) -/
+def ofArray (le : α → α → Bool) (as : Array α) : BinomialHeap α le :=
+  as.foldl (flip insert) empty
+
+/- O(log n) -/
+@[inline] def deleteMin : BinomialHeap α le → Option (α × BinomialHeap α le)
+  | ⟨b, h⟩ =>
+    match eq: BinomialHeapImp.deleteMin le b with
+    | none => none
+    | some (a, tl) => some (a, ⟨tl, WellFormed.deleteMin a b tl h eq⟩)
+
+/- O(log n) -/
+@[inline] def head [Inhabited α] : BinomialHeap α le → α
+  | ⟨b, _⟩ => BinomialHeapImp.head le b
+
+/- O(log n) -/
+@[inline] def head? : BinomialHeap α le → Option α
+  | ⟨b, _⟩ => BinomialHeapImp.head? le b
+
+/- O(log n) -/
+@[inline] def tail? : BinomialHeap α le → Option (BinomialHeap α le)
+  | ⟨b, h⟩ =>
+    match eq: BinomialHeapImp.tail? le b with
+    | none => none
+    | some tl => some ⟨tl, WellFormed.tail? b tl h eq⟩
+
+/- O(log n) -/
+@[inline] def tail : BinomialHeap α le → BinomialHeap α le
+  | ⟨b, h⟩ => ⟨BinomialHeapImp.tail le b, WellFormed.tail b h⟩
+
+/- O(n log n) -/
+@[inline] def toList : BinomialHeap α le → List α
+  | ⟨b, _⟩ => BinomialHeapImp.toList le b
+
+/- O(n log n) -/
+@[inline] def toArray : BinomialHeap α le → Array α
+  | ⟨b, _⟩ => BinomialHeapImp.toArray le b
+
+/- O(n) -/
+@[inline] def toListUnordered : BinomialHeap α le → List α
+  | ⟨b, _⟩ => BinomialHeapImp.toListUnordered b
+
+/- O(n) -/
+@[inline] def toArrayUnordered : BinomialHeap α le → Array α
+  | ⟨b, _⟩ => BinomialHeapImp.toArrayUnordered b
 
 end BinomialHeap
 end Std

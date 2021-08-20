@@ -69,12 +69,12 @@ instance [ToJson α] [ToJson β] : ToJson (α × β) where
 instance : FromJson Name where
   fromJson? j := do
     let s ← j.getStr?
-    let some n ← Syntax.decodeNameLit s
+    let some n ← Syntax.decodeNameLit ("`" ++ s)
       | throw s!"expected a `Name`, got '{j}'"
     return n
 
 instance : ToJson Name where
-  toJson n := toString (repr n)
+  toJson n := toString n
 
 /- Note that `USize`s and `UInt64`s are stored as strings because JavaScript
 cannot represent 64-bit numbers. -/
@@ -83,7 +83,7 @@ def bignumFromJson? (j : Json) : Except String Nat := do
   let some v ← Syntax.decodeNatLitVal? s -- TODO maybe this should be in Std
     | throw s!"expected a string-encoded number, got '{j}'"
   return v
-  
+
 def bignumToJson (n : Nat) : Json :=
   toString n
 

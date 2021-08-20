@@ -293,7 +293,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=\\\$ORIGIN/../lib:\\\$ORIGIN/../lib/lean")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftls-model=initial-exec")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,@executable_path/../lib:@executable_path/../lib/lean")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
 endif()
 
 # export all symbols for the interpreter
@@ -491,6 +491,8 @@ add_custom_target(clean-olean
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean" DESTINATION lib)
 
+install(CODE "execute_process(COMMAND sh -c \"cp ${CMAKE_BINARY_DIR}/lib/*.* \${CMAKE_INSTALL_PREFIX}/lib\")")
+
 install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION lib/lean
         FILES_MATCHING
         PATTERN "*.lean"
@@ -498,14 +500,6 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION lib/lean
 
 file(COPY ${CMAKE_SOURCE_DIR}/include/lean DESTINATION ${CMAKE_BINARY_DIR}/include
   FILES_MATCHING PATTERN "*.h")
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  install(CODE "execute_process(COMMAND sh -c \"cp $(ldd ${CMAKE_BINARY_DIR}/bin/lean.exe | cut -f3 -d\\\" \\\" | grep mingw) \${CMAKE_INSTALL_PREFIX}/bin\")")
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  install(CODE "execute_process(COMMAND sh -c \"cp $(otool -L ${CMAKE_BINARY_DIR}/bin/lean | tail -n +2 | cut -f1 -d\\\" \\\" | grep nix) \${CMAKE_INSTALL_PREFIX}/lib\")")
-else()
-  install(CODE "execute_process(COMMAND sh -c \"cp $(ldd ${CMAKE_BINARY_DIR}/bin/lean | cut -f3 -d\\\" \\\" | grep -Ev 'libc|lean') \${CMAKE_INSTALL_PREFIX}/lib\")")
-endif()
 
 # CPack
 set(CPACK_PACKAGE_NAME lean)

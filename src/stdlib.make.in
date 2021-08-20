@@ -21,6 +21,7 @@ LEANMAKE_OPTS=\
 
 .PHONY: Init Std Lean leanshared Leanpkg
 
+# These can be phony since the inner Makefile will have the correct dependencies and avoid rebuilds
 Init:
 # Use `+` to use the Make jobserver with `leanmake` for parallelized builds
 	+"${LEAN_BIN}/leanmake" lib PKG=Init $(LEANMAKE_OPTS)
@@ -31,9 +32,14 @@ Std: Init
 Lean: Init Std
 	+"${LEAN_BIN}/leanmake" lib PKG=Lean $(LEANMAKE_OPTS)
 
-leanshared: Init Std Lean
-	@mkdir -p "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" || true
-	"${LEAN_BIN}/leanc" -x none -shared -o "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}" ${LEANSHARED_LINKER_FLAGS} ${LEANC_OPTS}
+# This target will always be remade, but then not trigger further builds downstream if the .a file did not change
+${LIB}/lean/libLean.a: Lean
+
+${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${LIB}/lean/libLean.a ${LIB}/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a
+	@echo "[    ] Building $@"
+	"${LEAN_BIN}/leanc" -x none -shared -o $@ ${LEANSHARED_LINKER_FLAGS} ${LEANC_OPTS}
+
+leanshared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
 
 Leanpkg: Init Std Lean leanshared
 	+"${LEAN_BIN}/leanmake" bin PKG=Leanpkg BIN_NAME=leanpkg${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS='-lleanshared ${CMAKE_EXE_LINKER_FLAGS_MAKE}'

@@ -18,7 +18,7 @@ add_custom_command(
   # compile each runtime file with the original compile flags plus `-ftls-model=local-exec`
   COMMAND bash -ec "rm -rf runtmp2 || true; mkdir runtmp2; for f in ${RUNTIME_OBJS_STR}; do ${CMAKE_CXX_COMPILER_LAUNCHER} ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}} -ftls-model=local-exec -I$<JOIN:$<TARGET_PROPERTY:leanrt_initial-exec,INCLUDE_DIRECTORIES>, -I> \"${CMAKE_CURRENT_SOURCE_DIR}/$f\" -c -o runtmp2/$f.o; done; ar rcs ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/libleanrt.a runtmp2/*.o"
   VERBATIM)
-add_custom_target(leanrt DEPENDS ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/libleanrt.a)
+add_custom_target(leanrt ALL DEPENDS ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/libleanrt.a)
 
 if(LLVM)
   add_custom_command(

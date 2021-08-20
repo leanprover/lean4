@@ -59,21 +59,26 @@ private def isGenDiseq (e : Expr) : Bool :=
   ```
   This kind of hypotheses is created when we generate conditional equations for match expressions.
 -/
-private def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bool :=
+private def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bool := do
   assert! isGenDiseq localDecl.type
-  withNewMCtxDepth do
+  let val? ← withNewMCtxDepth do
     let (args, _, _) ← forallMetaTelescope localDecl.type
     for arg in args do
       let argType ← inferType arg
       if let some (_, lhs, rhs) ← matchEq? argType then
         unless (← isDefEq lhs rhs) do
-          return false
-        assignExprMVar arg.mvarId! (← mkEqRefl lhs)
+          return none
+        unless (← isDefEq arg (← mkEqRefl lhs)) do
+          return none
     let falseProof ← instantiateMVars (mkAppN localDecl.toExpr args)
     if (← hasAssignableMVar falseProof) then
-      return false
-    assignExprMVar mvarId (← mkFalseElim (← getMVarType mvarId) falseProof)
+      return none
+    return some (← mkFalseElim (← getMVarType mvarId) falseProof)
+  if let some val := val? then
+    assignExprMVar mvarId val
     return true
+  else
+    return false
 
 def contradictionCore (mvarId : MVarId) (config : Contradiction.Config) : MetaM Bool := do
   withMVarContext mvarId do

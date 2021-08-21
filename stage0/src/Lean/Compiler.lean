@@ -11,3 +11,4 @@ import Lean.Compiler.ExternAttr
 import Lean.Compiler.ImplementedByAttr
 import Lean.Compiler.NeverExtractAttr
 import Lean.Compiler.IR
+import Lean.Compiler.CSimpAttr

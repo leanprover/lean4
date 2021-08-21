@@ -23,11 +23,7 @@ theorem concatEq (xs : List α) (h : xs ≠ []) : concat (dropLast xs) (last xs 
   | x₁::x₂::xs, h => simp [concat, last, concatEq (x₂::xs) List.noConfusion]
 
 theorem lengthCons {α} (x : α) (xs : List α) : (x::xs).length = xs.length + 1 :=
-  let rec aux (a : α) (xs : List α) : (n : Nat) → (a::xs).lengthAux n = xs.lengthAux n + 1 :=
-    match xs with
-    | []    => fun _ => rfl
-    | x::xs => fun n => aux a xs (n+1)
-  aux x xs 0
+  rfl
 
 theorem eqNilOfLengthZero {α} : (xs : List α) → xs.length = 0 → xs = []
   | [],    h => rfl

@@ -14,6 +14,17 @@ variable {α : Type u} {β : Type v} {γ : Type w}
 
 namespace List
 
+theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.lengthTRAux n := by
+  induction as generalizing n with
+  | nil  => simp [length, lengthTRAux]
+  | cons a as ih =>
+    simp [length, lengthTRAux, ← ih, Nat.succ_add]
+    rfl
+
+@[csimp] theorem length_eq_lenghtTR : @List.length = @List.lengthTR := by
+  apply funext; intro α; apply funext; intro as
+  simp [lengthTR, ← length_add_eq_lengthTRAux]
+
 @[simp] theorem length_nil : length ([] : List α) = 0 :=
   rfl
 

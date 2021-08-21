@@ -35,29 +35,41 @@ def reverseAux : List α → List α → List α
 def reverse (as : List α) :List α :=
   reverseAux as []
 
-protected def append (as bs : List α) : List α :=
-  reverseAux as.reverse bs
-
-instance : Append (List α) := ⟨List.append⟩
-
 theorem reverseAux_reverseAux_nil (as bs : List α) : reverseAux (reverseAux as bs) [] = reverseAux bs as := by
   induction as generalizing bs with
   | nil => rfl
   | cons a as ih => simp [reverseAux, ih]
-
-@[simp] theorem nil_append (as : List α) : [] ++ as = as := rfl
-
-@[simp] theorem append_nil (as : List α) : as ++ [] = as := by
-  show reverseAux (reverseAux as []) [] = as
-  simp [reverseAux_reverseAux_nil, reverseAux]
 
 theorem reverseAux_reverseAux (as bs cs : List α) : reverseAux (reverseAux as bs) cs = reverseAux bs (reverseAux (reverseAux as []) cs) := by
   induction as generalizing bs cs with
   | nil => rfl
   | cons a as ih => simp [reverseAux, ih (a::bs), ih [a]]
 
-@[simp] theorem cons_append (a : α) (as bs : List α) : (a::as) ++ bs = a::(as ++ bs) :=
-  reverseAux_reverseAux as [a] bs
+protected def append : List α → List α → List α
+  | [],    bs => bs
+  | a::as, bs => a :: List.append as bs
+
+def appendTR (as bs : List α) : List α :=
+  reverseAux as.reverse bs
+
+@[csimp] theorem append_eq_appendTR : @List.append = @appendTR := by
+  apply funext; intro α; apply funext; intro as; apply funext; intro bs
+  simp [appendTR, reverse]
+  induction as with
+  | nil  => rfl
+  | cons a as ih =>
+    simp [reverseAux, List.append, ih, reverseAux_reverseAux]
+
+instance : Append (List α) := ⟨List.append⟩
+
+@[simp] theorem nil_append (as : List α) : [] ++ as = as := rfl
+@[simp] theorem append_nil (as : List α) : as ++ [] = as := by
+  induction as with
+  | nil => rfl
+  | cons a as ih =>
+    simp_all [HAppend.hAppend, Append.append, List.append]
+
+@[simp] theorem cons_append (a : α) (as bs : List α) : (a::as) ++ bs = a::(as ++ bs) := rfl
 
 theorem append_assoc (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) := by
   induction as with

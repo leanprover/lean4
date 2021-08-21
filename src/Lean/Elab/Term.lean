@@ -1375,7 +1375,19 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
   let view := extractMacroScopes n
   let rec loop (n : Name) (projs : List String) :=
     match lctx.findFromUserName? { view with name := n }.review with
-    | some decl => some (decl.toExpr, projs)
+    | some decl =>
+      if decl.isAuxDecl && !projs.isEmpty then
+        /- We do not consider dot notation for local decls corresponding to recursive functions being defined.
+           The following example would not be elaborated correctly without this case.
+           ```
+            def foo.aux := 1
+            def foo : Nat → Nat
+              | n => foo.aux -- should not be interpreted as `(foo).bar`
+           ```
+         -/
+        none
+      else
+        some (decl.toExpr, projs)
     | none      => match n with
       | Name.str pre s _ => loop pre (s::projs)
       | _                => none

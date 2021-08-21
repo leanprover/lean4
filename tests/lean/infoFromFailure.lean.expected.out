@@ -1,4 +1,4 @@
-foo "hello" : String × String
+B.foo "hello" : String × String
 [Meta.synthInstance] preprocess: Add String ==> Add String
   [Meta.synthInstance] 
     [Meta.synthInstance] main goal Add String

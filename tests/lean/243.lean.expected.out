@@ -7,9 +7,9 @@ has type
 but is expected to have type
   Bool : Type
 243.lean:13:3-13:8: error: application type mismatch
-  { fst := A, snd := A.a }
+  { fst := A, snd := a }
 argument
-  A.a
+  a
 has type
   Foo.A : Type
 but is expected to have type

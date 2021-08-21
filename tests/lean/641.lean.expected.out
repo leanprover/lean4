@@ -1,0 +1,8 @@
+def y : Unit :=
+Foo.x
+641.lean:9:17-9:18: error: ambiguous, possible interpretations 
+  Bar.x
+  
+  Foo.x
+def Rig.x : Nat :=
+_root_.x

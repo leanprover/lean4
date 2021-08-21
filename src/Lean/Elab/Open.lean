@@ -39,6 +39,11 @@ private def elabOpenSimple (n : Syntax) : M (m:=m) Unit :=
     addOpenDecl (OpenDecl.simple ns [])
     activateScoped ns
 
+private def elabOpenScoped (n : Syntax) : M (m:=m) Unit :=
+  -- `open` `scoped` id+
+  for ns in n[1].getArgs do
+    activateScoped (← resolveNamespace ns.getId)
+
 -- `open` id `(` id+ `)`
 private def elabOpenOnly (n : Syntax) : M (m:=m) Unit := do
   let ns ← resolveNamespace n[0].getId
@@ -69,6 +74,8 @@ def elabOpenDecl [MonadResolveName m] (openDeclStx : Syntax) : m (List OpenDecl)
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
     if openDeclStx.getKind == ``Parser.Command.openSimple then
       elabOpenSimple openDeclStx
+    else if openDeclStx.getKind == ``Parser.Command.openScoped then
+      elabOpenScoped openDeclStx
     else if openDeclStx.getKind == ``Parser.Command.openOnly then
       elabOpenOnly openDeclStx
     else if openDeclStx.getKind == ``Parser.Command.openHiding then

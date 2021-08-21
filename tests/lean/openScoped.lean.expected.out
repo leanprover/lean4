@@ -1,0 +1,6 @@
+openScoped.lean:1:8-1:15: error: unknown identifier 'epsilon'
+openScoped.lean:4:2-4:24: error: failed to synthesize instance
+  Decidable (f = g)
+epsilon : {α : Sort u_1} → [h : Nonempty α] → (α → Prop) → α
+openScoped.lean:15:8-15:15: error: unknown identifier 'epsilon'
+openScoped.lean:20:8-20:15: error: unknown identifier 'epsilon'

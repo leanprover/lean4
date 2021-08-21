@@ -666,6 +666,7 @@ lean_object* l_Lean_EnvExtensionInterfaceImp___elambda__1(lean_object*, lean_obj
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__7___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TagDeclarationExtension_isTagged___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_FindImpl_findM_x3f_visit(lean_object*, size_t, lean_object*, lean_object*);
+lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 lean_object* l_IO_println___at_Lean_instEval___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_isConstructor___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_evalConstCheck_match__2___rarg(lean_object*, lean_object*, lean_object*);
@@ -756,7 +757,6 @@ lean_object* l_Array_qpartition_loop___at_Lean_mkMapDeclarationExtension___spec_
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_mkModuleData___spec__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_mkModuleData___spec__2___closed__1;
 lean_object* l_Std_PersistentHashMap_foldlMAux_traverse___at_Lean_mkModuleData___spec__7(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_length___rarg(lean_object*);
 lean_object* l___private_Lean_Environment_0__Lean_Environment_registerNamePrefixes_match__1(lean_object*);
 static lean_object* l_Array_qsort_sort___at_Lean_mkMapDeclarationExtension___spec__1___rarg___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -5451,17 +5451,18 @@ return x_2;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = lean_ctor_get(x_1, 0);
-x_3 = l_List_length___rarg(x_2);
-x_4 = l_Nat_repr(x_3);
-x_5 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_5, 0, x_4);
-x_6 = l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4___closed__2;
-x_7 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_7, 0, x_6);
-lean_ctor_set(x_7, 1, x_5);
-return x_7;
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_List_lengthTRAux___rarg(x_2, x_3);
+x_5 = l_Nat_repr(x_4);
+x_6 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_6, 0, x_5);
+x_7 = l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4___closed__2;
+x_8 = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(x_8, 0, x_7);
+lean_ctor_set(x_8, 1, x_6);
+return x_8;
 }
 }
 static lean_object* _init_l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1() {

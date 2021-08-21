@@ -93,7 +93,8 @@ def openRenamingItem := leading_parser ident >> unicodeSymbol "→" "->" >> iden
 def openRenaming     := leading_parser atomic (ident >> "renaming") >> sepBy1 openRenamingItem ", "
 def openOnly         := leading_parser atomic (ident >> "(") >> many1 ident >> ")"
 def openSimple       := leading_parser many1 ident
-def openDecl         := openHiding <|> openRenaming <|> openOnly <|> openSimple
+def openScoped       := leading_parser "scoped " >> many1 ident
+def openDecl         := openHiding <|> openRenaming <|> openOnly <|> openSimple <|> openScoped
 @[builtinCommandParser] def «open»    := leading_parser "open " >> openDecl
 
 @[builtinCommandParser] def «mutual» := leading_parser "mutual " >> many1 (ppLine >> notSymbol "end" >> commandParser) >> ppDedent (ppLine >> "end")

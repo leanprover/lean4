@@ -8,18 +8,18 @@ fun (a : Nat) =>
     (@Eq.{1} Bool
       (@BEq.beq.{0} Nat (@instBEq.{0} Nat fun (a b : Nat) => instDecidableEqNat a b) a
         (@OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)))
-      Bool.true)
+      true)
     (instDecidableEqBool
       (@BEq.beq.{0} Nat (@instBEq.{0} Nat fun (a b : Nat) => instDecidableEqNat a b) a
         (@OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)))
-      Bool.true)
+      true)
     (@Eq.{1} Bool
       (@bne.{0} Nat (@instBEq.{0} Nat fun (a b : Nat) => instDecidableEqNat a b) a
         (@OfNat.ofNat.{0} Nat 1 (instOfNatNat 1)))
-      Bool.true)
+      true)
     (@Eq.{1} Bool
       (@bne.{0} Nat (@instBEq.{0} Nat fun (a b : Nat) => instDecidableEqNat a b) a
         (@OfNat.ofNat.{0} Nat 2 (instOfNatNat 2)))
-      Bool.true)
+      true)
 def s : Option Nat :=
 ConstantFunction.f myFun 3 <|> ConstantFunction.f myFun 4

@@ -159,6 +159,12 @@ bool is_main_fn_type(expr const & type) {
 
 #define trace_compiler(k, ds) lean_trace(k, trace_comp_decls(ds););
 
+extern "C" object* lean_csimp_replace_constants(object* env, object* n);
+
+expr csimp_replace_constants(environment const & env, expr const & e) {
+    return expr(lean_csimp_replace_constants(env.to_obj_arg(), e.to_obj_arg()));
+}
+
 environment compile(environment const & env, options const & opts, names cs) {
     if (!is_codegen_enabled(opts))
         return env;
@@ -206,6 +212,7 @@ environment compile(environment const & env, options const & opts, names cs) {
     // trace(ds);
     ds = apply(cce, env, ds);
     trace_compiler(name({"compiler", "cce"}), ds);
+    ds = apply(csimp_replace_constants, env, ds);
     ds = apply(simp, env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
     // trace(ds);

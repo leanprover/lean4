@@ -1042,19 +1042,19 @@ def List.set : List α → Nat → α → List α
   | cons a as, Nat.succ n, b => cons a (set as n b)
   | nil,       _,          _ => nil
 
-def List.lengthAux {α : Type u} : List α → Nat → Nat
-  | nil,       n => n
-  | cons a as, n => lengthAux as (Nat.succ n)
+def List.length : List α → Nat
+  | nil       => 0
+  | cons a as => HAdd.hAdd (length as) 1
 
-def List.length {α : Type u} (as : List α) : Nat :=
-  lengthAux as 0
+def List.lengthTRAux : List α → Nat → Nat
+  | nil,       n => n
+  | cons a as, n => lengthTRAux as (Nat.succ n)
+
+def List.lengthTR (as : List α) : Nat :=
+  lengthTRAux as 0
 
 @[simp] theorem List.length_cons {α} (a : α) (as : List α) : Eq (cons a as).length as.length.succ :=
-  let rec aux (a : α) (as : List α) : (n : Nat) → Eq ((cons a as).lengthAux n) (as.lengthAux n).succ :=
-    match as with
-    | nil       => fun _ => rfl
-    | cons a as => fun n => aux a as n.succ
-  aux a as 0
+  rfl
 
 def List.concat {α : Type u} : List α → α → List α
   | nil,       b => cons b nil

@@ -119,10 +119,10 @@ lean_object* l_System_FilePath_withExtension(lean_object*, lean_object*);
 lean_object* l_System_FilePath_fileStem(lean_object*);
 lean_object* l_System_instToStringFilePath___boxed(lean_object*);
 lean_object* l_System_FilePath_pathSeparators___closed__1___boxed__const__1;
-lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 lean_object* l_System_FilePath_withFileName_match__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_System_FilePath_join___closed__1;
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
+lean_object* l_List_length___rarg(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* _init_l_System_instInhabitedFilePath___closed__1() {
@@ -514,11 +514,10 @@ return x_3;
 static lean_object* _init_l_System_FilePath_normalize___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+lean_object* x_1; lean_object* x_2; 
 x_1 = l_System_FilePath_pathSeparators;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_List_lengthAux___rarg(x_1, x_2);
-return x_3;
+x_2 = l_List_length___rarg(x_1);
+return x_2;
 }
 }
 static uint8_t _init_l_System_FilePath_normalize___closed__2() {

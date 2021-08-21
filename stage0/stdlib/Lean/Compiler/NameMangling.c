@@ -46,11 +46,11 @@ static lean_object* l_String_mangle___closed__1;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__2;
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux_match__1(lean_object*);
-lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__1;
 lean_object* lean_uint32_to_nat(uint32_t);
 static lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__4;
+lean_object* l_List_length___rarg(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
@@ -215,7 +215,7 @@ x_18 = l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__1;
 x_19 = lean_string_append(x_3, x_18);
 x_20 = lean_unsigned_to_nat(16u);
 x_21 = l_Nat_toDigits(x_20, x_13);
-x_22 = l_List_lengthAux___rarg(x_21, x_4);
+x_22 = l_List_length___rarg(x_21);
 x_23 = lean_unsigned_to_nat(8u);
 x_24 = lean_nat_sub(x_23, x_22);
 lean_dec(x_22);

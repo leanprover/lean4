@@ -207,7 +207,6 @@ lean_object* l_Lean_Declaration_forExprM(lean_object*);
 lean_object* l_Lean_ConstantInfo_hints_match__1(lean_object*);
 lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_284__match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_DefinitionVal_getSafetyEx___boxed(lean_object*);
-lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_instReprDefinitionSafety___closed__1;
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_284____closed__14;
 lean_object* l_Lean_Declaration_isUnsafeInductiveDeclEx_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -229,6 +228,7 @@ uint8_t l_Lean_ReducibilityHints_lt(lean_object*, lean_object*);
 lean_object* l___private_Lean_Declaration_0__Lean_beqDefinitionSafety____x40_Lean_Declaration___hyg_241__match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedConstructorVal___closed__1;
 uint8_t l_Lean_instInhabitedQuotKind;
+lean_object* l_List_length___rarg(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedRecursorRule___closed__1;
 static lean_object* _init_l_Lean_instInhabitedReducibilityHints() {
@@ -2350,11 +2350,10 @@ return x_3;
 lean_object* l_Lean_InductiveVal_nctors(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_2; lean_object* x_3; 
 x_2 = lean_ctor_get(x_1, 4);
-x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_List_lengthAux___rarg(x_2, x_3);
-return x_4;
+x_3 = l_List_length___rarg(x_2);
+return x_3;
 }
 }
 lean_object* l_Lean_InductiveVal_nctors___boxed(lean_object* x_1) {
@@ -3228,12 +3227,11 @@ return x_2;
 lean_object* l_Lean_ConstantInfo_numLevelParams(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_ConstantInfo_levelParams(x_1);
-x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_List_lengthAux___rarg(x_2, x_3);
+x_3 = l_List_length___rarg(x_2);
 lean_dec(x_2);
-return x_4;
+return x_3;
 }
 }
 lean_object* l_Lean_ConstantInfo_numLevelParams___boxed(lean_object* x_1) {

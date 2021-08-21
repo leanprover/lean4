@@ -177,7 +177,6 @@ static lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRan
 static lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRange____x40_Lean_DeclarationRange___hyg_242____closed__8;
 lean_object* l_Std_RBNode_find___at_Lean_findDeclarationRangesCore_x3f___spec__5(lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRanges____x40_Lean_DeclarationRange___hyg_310____closed__5;
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___at_Lean_findDeclarationRangesCore_x3f___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_DeclarationRange_0__Lean_decEqDeclarationRange____x40_Lean_DeclarationRange___hyg_49__match__1(lean_object*);
@@ -197,6 +196,7 @@ lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_DeclarationRange___hyg_338____spec__5___closed__2;
 static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_findDeclarationRangesCore_x3f___spec__4___closed__2;
 static lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRange____x40_Lean_DeclarationRange___hyg_242____closed__4;
+lean_object* l_List_length___rarg(lean_object*);
 static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_findDeclarationRangesCore_x3f___spec__4___closed__4;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_declRangeExt___elambda__4___rarg___closed__2;
@@ -1481,18 +1481,17 @@ return x_2;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_initFn____x40_Lean_DeclarationRange___hyg_338____spec__4___lambda__4(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = lean_ctor_get(x_1, 0);
-x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_List_lengthAux___rarg(x_2, x_3);
-x_5 = l_Nat_repr(x_4);
-x_6 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_6, 0, x_5);
-x_7 = l_Lean_registerSimplePersistentEnvExtension___at_Lean_initFn____x40_Lean_DeclarationRange___hyg_338____spec__4___lambda__4___closed__2;
-x_8 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_8, 0, x_7);
-lean_ctor_set(x_8, 1, x_6);
-return x_8;
+x_3 = l_List_length___rarg(x_2);
+x_4 = l_Nat_repr(x_3);
+x_5 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_5, 0, x_4);
+x_6 = l_Lean_registerSimplePersistentEnvExtension___at_Lean_initFn____x40_Lean_DeclarationRange___hyg_338____spec__4___lambda__4___closed__2;
+x_7 = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(x_7, 0, x_6);
+lean_ctor_set(x_7, 1, x_5);
+return x_7;
 }
 }
 static lean_object* _init_l_Lean_registerSimplePersistentEnvExtension___at_Lean_initFn____x40_Lean_DeclarationRange___hyg_338____spec__4___closed__1() {

@@ -43,8 +43,8 @@ lean_object* l_Lean_Meta_change(lean_object*, lean_object*, uint8_t, lean_object
 lean_object* l_Lean_Meta_deltaExpand___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_Meta_deltaTarget(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_deltaExpand___closed__1;
+lean_object* l_List_length___rarg(lean_object*);
 lean_object* l_Lean_Meta_deltaLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_deltaExpand___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
@@ -115,38 +115,38 @@ return x_9;
 }
 else
 {
-lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; 
+lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
 x_22 = l_Lean_ConstantInfo_levelParams(x_15);
-x_23 = lean_unsigned_to_nat(0u);
-x_24 = l_List_lengthAux___rarg(x_22, x_23);
+x_23 = l_List_length___rarg(x_22);
 lean_dec(x_22);
-x_25 = l_List_lengthAux___rarg(x_8, x_23);
-x_26 = lean_nat_dec_eq(x_24, x_25);
-lean_dec(x_25);
+x_24 = l_List_length___rarg(x_8);
+x_25 = lean_nat_dec_eq(x_23, x_24);
 lean_dec(x_24);
-if (x_26 == 0)
+lean_dec(x_23);
+if (x_25 == 0)
 {
-lean_object* x_27; 
+lean_object* x_26; 
 lean_dec(x_15);
 lean_dec(x_8);
-x_27 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_27, 0, x_2);
-lean_ctor_set(x_9, 0, x_27);
+x_26 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_26, 0, x_2);
+lean_ctor_set(x_9, 0, x_26);
 return x_9;
 }
 else
 {
-lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
-x_28 = lean_instantiate_value_lparams(x_15, x_8);
+lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
+x_27 = lean_instantiate_value_lparams(x_15, x_8);
 lean_dec(x_8);
 lean_dec(x_15);
-x_29 = l_Lean_Expr_getAppNumArgsAux(x_2, x_23);
+x_28 = lean_unsigned_to_nat(0u);
+x_29 = l_Lean_Expr_getAppNumArgsAux(x_2, x_28);
 x_30 = lean_mk_empty_array_with_capacity(x_29);
 lean_dec(x_29);
 x_31 = l___private_Lean_Expr_0__Lean_Expr_getAppRevArgsAux(x_2, x_30);
-x_32 = l_Lean_Expr_betaRev(x_28, x_31);
+x_32 = l_Lean_Expr_betaRev(x_27, x_31);
 lean_dec(x_31);
-lean_dec(x_28);
+lean_dec(x_27);
 x_33 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_33, 0, x_32);
 lean_ctor_set(x_9, 0, x_33);
@@ -220,40 +220,40 @@ return x_48;
 }
 else
 {
-lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; uint8_t x_53; 
+lean_object* x_49; lean_object* x_50; lean_object* x_51; uint8_t x_52; 
 x_49 = l_Lean_ConstantInfo_levelParams(x_40);
-x_50 = lean_unsigned_to_nat(0u);
-x_51 = l_List_lengthAux___rarg(x_49, x_50);
+x_50 = l_List_length___rarg(x_49);
 lean_dec(x_49);
-x_52 = l_List_lengthAux___rarg(x_8, x_50);
-x_53 = lean_nat_dec_eq(x_51, x_52);
-lean_dec(x_52);
+x_51 = l_List_length___rarg(x_8);
+x_52 = lean_nat_dec_eq(x_50, x_51);
 lean_dec(x_51);
-if (x_53 == 0)
+lean_dec(x_50);
+if (x_52 == 0)
 {
-lean_object* x_54; lean_object* x_55; 
+lean_object* x_53; lean_object* x_54; 
 lean_dec(x_40);
 lean_dec(x_8);
-x_54 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_54, 0, x_2);
-x_55 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_55, 0, x_54);
-lean_ctor_set(x_55, 1, x_35);
-return x_55;
+x_53 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_53, 0, x_2);
+x_54 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_54, 0, x_53);
+lean_ctor_set(x_54, 1, x_35);
+return x_54;
 }
 else
 {
-lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; 
-x_56 = lean_instantiate_value_lparams(x_40, x_8);
+lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; 
+x_55 = lean_instantiate_value_lparams(x_40, x_8);
 lean_dec(x_8);
 lean_dec(x_40);
-x_57 = l_Lean_Expr_getAppNumArgsAux(x_2, x_50);
+x_56 = lean_unsigned_to_nat(0u);
+x_57 = l_Lean_Expr_getAppNumArgsAux(x_2, x_56);
 x_58 = lean_mk_empty_array_with_capacity(x_57);
 lean_dec(x_57);
 x_59 = l___private_Lean_Expr_0__Lean_Expr_getAppRevArgsAux(x_2, x_58);
-x_60 = l_Lean_Expr_betaRev(x_56, x_59);
+x_60 = l_Lean_Expr_betaRev(x_55, x_59);
 lean_dec(x_59);
-lean_dec(x_56);
+lean_dec(x_55);
 x_61 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_61, 0, x_60);
 x_62 = lean_alloc_ctor(0, 2, 0);

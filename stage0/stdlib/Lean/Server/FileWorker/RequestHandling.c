@@ -109,7 +109,6 @@ static lean_object* l_Lean_Server_FileWorker_handleDocumentHighlight_highlightRe
 static lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_6920____spec__1___lambda__4___closed__1;
 lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-lean_object* l_List_append___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_6920____spec__1___lambda__5___closed__2;
 static lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lambda__3___closed__2;
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -651,6 +650,7 @@ lean_object* l_Lean_Server_FileWorker_handlePlainGoal_match__1___rarg(lean_objec
 lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleDefinition_match__9(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_6920____closed__9;
+lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_FileWorker_handleDefinition___spec__7___lambda__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleDefinition_match__7___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_handleDocumentHighlight_match__1(lean_object*);
@@ -25107,7 +25107,7 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_14 = lean_ctor_get(x_12, 0);
 x_15 = lean_array_to_list(lean_box(0), x_14);
-x_16 = l_List_append___rarg(x_3, x_15);
+x_16 = l_List_appendTR___rarg(x_3, x_15);
 x_17 = l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols(x_10, x_16);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
@@ -25130,7 +25130,7 @@ lean_inc(x_24);
 lean_inc(x_23);
 lean_dec(x_12);
 x_25 = lean_array_to_list(lean_box(0), x_23);
-x_26 = l_List_append___rarg(x_3, x_25);
+x_26 = l_List_appendTR___rarg(x_3, x_25);
 x_27 = l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols(x_10, x_26);
 x_28 = lean_ctor_get(x_27, 0);
 lean_inc(x_28);

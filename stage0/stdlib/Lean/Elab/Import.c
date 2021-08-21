@@ -18,7 +18,6 @@ static lean_object* l_Lean_Elab_headerToImports___closed__4;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
-lean_object* l_List_append___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_headerToImports___closed__2;
 lean_object* l_Lean_Elab_headerToImports(lean_object*);
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
@@ -52,6 +51,7 @@ lean_object* lean_print_imports(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_printImports_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_IO_println___at_Lean_Elab_printImports___spec__1(lean_object*, lean_object*);
+lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Elab_headerToImports___spec__1(lean_object* x_1) {
 _start:
 {
@@ -209,14 +209,14 @@ if (x_4 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_box(0);
-x_11 = l_List_append___rarg(x_10, x_9);
+x_11 = l_List_appendTR___rarg(x_10, x_9);
 return x_11;
 }
 else
 {
 lean_object* x_12; lean_object* x_13; 
 x_12 = l_Lean_Elab_headerToImports___closed__4;
-x_13 = l_List_append___rarg(x_12, x_9);
+x_13 = l_List_appendTR___rarg(x_12, x_9);
 return x_13;
 }
 }

@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Std_Queue_dList___default(lean_object*);
-lean_object* l_List_append___rarg(lean_object*, lean_object*);
 uint8_t l_Std_Queue_isEmpty___rarg(lean_object*);
 lean_object* l_Std_Queue_dequeue_x3f(lean_object*);
 lean_object* l_Std_Queue_dequeue_x3f_match__2___rarg(lean_object*, lean_object*, lean_object*);
@@ -31,6 +30,7 @@ lean_object* l_Std_Queue_enqueueAll___rarg(lean_object*, lean_object*);
 lean_object* l_Std_Queue_dequeue_x3f_match__1(lean_object*, lean_object*);
 lean_object* l_Std_Queue_isEmpty___rarg___boxed(lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
+lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
 lean_object* l_Std_Queue_enqueueAll(lean_object*);
 lean_object* l_Std_Queue_isEmpty(lean_object*);
 lean_object* l_Std_Queue_eList___default(lean_object* x_1) {
@@ -157,7 +157,7 @@ if (x_3 == 0)
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_2, 0);
-x_5 = l_List_append___rarg(x_1, x_4);
+x_5 = l_List_appendTR___rarg(x_1, x_4);
 lean_ctor_set(x_2, 0, x_5);
 return x_2;
 }
@@ -169,7 +169,7 @@ x_7 = lean_ctor_get(x_2, 1);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_dec(x_2);
-x_8 = l_List_append___rarg(x_1, x_6);
+x_8 = l_List_appendTR___rarg(x_1, x_6);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_8);
 lean_ctor_set(x_9, 1, x_7);

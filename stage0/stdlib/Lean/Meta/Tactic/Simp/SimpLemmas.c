@@ -90,7 +90,6 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_DiscrTree_instHashableKey;
 lean_object* l_Lean_Meta_SimpLemma_getName(lean_object*);
 extern lean_object* l_Lean_instHashableName;
-lean_object* l_List_append___rarg(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_mkSimpLemmaCore___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
@@ -402,6 +401,7 @@ static lean_object* l_Std_PersistentHashMap_empty___at_Lean_Meta_SimpLemmas_lemm
 lean_object* l_Lean_Meta_SimpLemma_getName___boxed(lean_object*);
 static lean_object* l_Lean_Meta_SimpLemma_getName___closed__1;
 lean_object* l_Lean_throwError___at___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_mkSimpLemmaCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_addSimpLemmaEntry_updateLemmaNames(lean_object*, lean_object*);
 lean_object* lean_expr_update_const(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkSimpAttr___lambda__1___closed__14;
@@ -4766,7 +4766,7 @@ if (x_45 == 0)
 {
 lean_object* x_46; lean_object* x_47; 
 x_46 = lean_ctor_get(x_44, 0);
-x_47 = l_List_append___rarg(x_42, x_46);
+x_47 = l_List_appendTR___rarg(x_42, x_46);
 lean_ctor_set(x_44, 0, x_47);
 return x_44;
 }
@@ -4778,7 +4778,7 @@ x_49 = lean_ctor_get(x_44, 1);
 lean_inc(x_49);
 lean_inc(x_48);
 lean_dec(x_44);
-x_50 = l_List_append___rarg(x_42, x_48);
+x_50 = l_List_appendTR___rarg(x_42, x_48);
 x_51 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_51, 0, x_50);
 lean_ctor_set(x_51, 1, x_49);
@@ -5465,7 +5465,7 @@ if (lean_is_exclusive(x_201)) {
  lean_dec_ref(x_201);
  x_204 = lean_box(0);
 }
-x_205 = l_List_append___rarg(x_199, x_202);
+x_205 = l_List_appendTR___rarg(x_199, x_202);
 if (lean_is_scalar(x_204)) {
  x_206 = lean_alloc_ctor(0, 2, 0);
 } else {

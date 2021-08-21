@@ -25,7 +25,6 @@ lean_object* l_List_tail_x21___rarg___boxed(lean_object*);
 lean_object* l_List_head_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_getLast_match__1(lean_object*, lean_object*);
 lean_object* l_List_tailD___rarg(lean_object*, lean_object*);
-lean_object* l_List_append___rarg(lean_object*, lean_object*);
 static lean_object* l_List_get_x21___rarg___closed__1;
 lean_object* l_List_get_x21___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_tailD(lean_object*);
@@ -82,6 +81,7 @@ lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l_List_take___rarg(lean_object*, lean_object*);
 lean_object* l_List_head_x21(lean_object*);
 lean_object* l_List_getD(lean_object*);
+lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
 lean_object* l_List_tailD_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_get_x21_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_getLast___rarg(lean_object*, lean_object*);
@@ -1011,7 +1011,7 @@ lean_inc(x_1);
 x_8 = l_List_take___rarg(x_7, x_1);
 x_9 = l_List_drop___rarg(x_7, x_1);
 lean_dec(x_1);
-x_10 = l_List_append___rarg(x_9, x_8);
+x_10 = l_List_appendTR___rarg(x_9, x_8);
 return x_10;
 }
 else
@@ -1057,7 +1057,7 @@ lean_inc(x_1);
 x_9 = l_List_take___rarg(x_8, x_1);
 x_10 = l_List_drop___rarg(x_8, x_1);
 lean_dec(x_1);
-x_11 = l_List_append___rarg(x_10, x_9);
+x_11 = l_List_appendTR___rarg(x_10, x_9);
 return x_11;
 }
 else

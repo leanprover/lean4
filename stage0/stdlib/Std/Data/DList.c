@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Std_DList_append___elambda__1(lean_object*);
 lean_object* l_Std_DList_push_match__1(lean_object*, lean_object*);
 lean_object* l_Std_DList_empty(lean_object*);
-lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l_Std_DList_empty___elambda__1___rarg___boxed(lean_object*);
 lean_object* l_Std_DList_cons(lean_object*);
 lean_object* l_Std_DList_append_match__1(lean_object*, lean_object*);
@@ -51,13 +50,14 @@ lean_object* l_Std_DList_cons_match__1(lean_object*, lean_object*);
 lean_object* l_Std_DList_empty___elambda__1___rarg(lean_object*);
 lean_object* l_Std_DList_toList_match__1(lean_object*, lean_object*);
 lean_object* l_Std_DList_ofList___elambda__1___rarg(lean_object*, lean_object*);
+lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
 lean_object* l_Std_DList_push___rarg(lean_object*, lean_object*);
 lean_object* l_Std_DList_append___elambda__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DList_ofList___elambda__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_List_append___rarg(x_1, x_2);
+x_3 = l_List_appendTR___rarg(x_1, x_2);
 return x_3;
 }
 }

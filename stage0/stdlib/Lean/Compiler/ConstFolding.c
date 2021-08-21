@@ -62,7 +62,6 @@ lean_object* l_Lean_Compiler_preUIntBinFoldFns;
 lean_object* l_Lean_Compiler_foldStrictAnd___boxed(lean_object*);
 lean_object* l_Lean_Compiler_natFoldFns;
 static lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__25;
-lean_object* l_List_append___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_boolFoldFns___closed__5;
 lean_object* l_Lean_Compiler_foldUIntSub(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldToNat___rarg(lean_object*);
@@ -335,6 +334,7 @@ lean_object* l_Lean_Compiler_boolFoldFns;
 static lean_object* l_Lean_Compiler_unFoldFns___closed__10;
 static lean_object* l_Lean_Compiler_getBoolLit___closed__1;
 lean_object* l_Lean_Compiler_findUnFoldFn___boxed(lean_object*);
+lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__10;
 static lean_object* l_Lean_Compiler_natFoldFns___closed__25;
 lean_object* l_Lean_Compiler_getBoolLit___boxed(lean_object*);
@@ -1977,7 +1977,7 @@ x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
 x_5 = l_Lean_Compiler_preUIntBinFoldFns;
 x_6 = l_List_map___at_Lean_Compiler_uintBinFoldFns___spec__1(x_3, x_5);
-x_7 = l_List_append___rarg(x_1, x_6);
+x_7 = l_List_appendTR___rarg(x_1, x_6);
 x_1 = x_7;
 x_2 = x_4;
 goto _start;
@@ -4363,7 +4363,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_boolFoldFns;
 x_2 = l_Lean_Compiler_uintBinFoldFns;
-x_3 = l_List_append___rarg(x_1, x_2);
+x_3 = l_List_appendTR___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -4373,7 +4373,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_binFoldFns___closed__1;
 x_2 = l_Lean_Compiler_natFoldFns;
-x_3 = l_List_append___rarg(x_1, x_2);
+x_3 = l_List_appendTR___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -4860,7 +4860,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_unFoldFns___closed__11;
 x_2 = l_Lean_Compiler_uintFoldToNatFns;
-x_3 = l_List_append___rarg(x_1, x_2);
+x_3 = l_List_appendTR___rarg(x_1, x_2);
 return x_3;
 }
 }

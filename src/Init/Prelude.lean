@@ -592,8 +592,9 @@ def Nat.ble : @& Nat → @& Nat → Bool
   | succ n, zero   => false
   | succ n, succ m => ble n m
 
-protected def Nat.le (n m : Nat) : Prop :=
-  Eq (ble n m) true
+protected inductive Nat.le (n : Nat) : Nat → Prop
+  | refl     : Nat.le n n
+  | step {m} : Nat.le n m → Nat.le n (succ m)
 
 instance : LE Nat where
   le := Nat.le
@@ -611,66 +612,65 @@ theorem Nat.not_succ_le_zero : ∀ (n : Nat), LE.le (succ n) 0 → False
 theorem Nat.not_lt_zero (n : Nat) : Not (LT.lt n 0) :=
   not_succ_le_zero n
 
-@[extern "lean_nat_dec_le"]
-instance Nat.decLe (n m : @& Nat) : Decidable (LE.le n m) :=
-  decEq (Nat.ble n m) true
-
-@[extern "lean_nat_dec_lt"]
-instance Nat.decLt (n m : @& Nat) : Decidable (LT.lt n m) :=
-  decLe (succ n) m
-
 theorem Nat.zero_le : (n : Nat) → LE.le 0 n
-  | zero   => rfl
-  | succ n => rfl
+  | zero   => Nat.le.refl
+  | succ n => Nat.le.step (zero_le n)
 
-theorem Nat.succ_le_succ {n m : Nat} (h : LE.le n m) : LE.le (succ n) (succ m) :=
-  h
+theorem Nat.succ_le_succ : LE.le n m → LE.le (succ n) (succ m)
+  | Nat.le.refl   => Nat.le.refl
+  | Nat.le.step h => Nat.le.step (succ_le_succ h)
 
 theorem Nat.zero_lt_succ (n : Nat) : LT.lt 0 (succ n) :=
   succ_le_succ (zero_le n)
 
-theorem Nat.le_step : {n m : Nat} → LE.le n m → LE.le n (succ m)
-  | zero,   zero,   h => rfl
-  | zero,   succ n, h => rfl
-  | succ n, zero,   h => Bool.noConfusion h
-  | succ n, succ m, h =>
-    have : LE.le n m := h
-    have : LE.le n (succ m) := le_step this
-    succ_le_succ this
+theorem Nat.le_step (h : LE.le n m) : LE.le n (succ m) :=
+  Nat.le.step h
 
-protected theorem Nat.le_trans : {n m k : Nat} → LE.le n m → LE.le m k → LE.le n k
-  | zero,   m,      k,      h₁, h₂ => zero_le _
-  | succ n, zero,   k,      h₁, h₂ => Bool.noConfusion h₁
-  | succ n, succ m, zero,   h₁, h₂ => Bool.noConfusion h₂
-  | succ n, succ m, succ k, h₁, h₂ =>
-    have h₁' : LE.le n m := h₁
-    have h₂' : LE.le m k := h₂
-    show LE.le n k from
-    Nat.le_trans h₁' h₂'
+protected theorem Nat.le_trans {n m k : Nat} : LE.le n m → LE.le m k → LE.le n k
+  | h,  Nat.le.refl    => h
+  | h₁, Nat.le.step h₂ => Nat.le.step (Nat.le_trans h₁ h₂)
 
 protected theorem Nat.lt_trans {n m k : Nat} (h₁ : LT.lt n m) : LT.lt m k → LT.lt n k :=
   Nat.le_trans (le_step h₁)
 
-theorem Nat.le_succ : (n : Nat) → LE.le n (succ n)
-  | zero   => rfl
-  | succ n => le_succ n
+theorem Nat.le_succ (n : Nat) : LE.le n (succ n) :=
+  Nat.le.step Nat.le.refl
 
 theorem Nat.le_succ_of_le {n m : Nat} (h : LE.le n m) : LE.le n (succ m) :=
   Nat.le_trans h (le_succ m)
 
+protected theorem Nat.le_refl (n : Nat) : LE.le n n :=
+  Nat.le.refl
+
+theorem Nat.succ_pos (n : Nat) : LT.lt 0 (succ n) :=
+  zero_lt_succ n
+
+set_option bootstrap.genMatcherCode false in
+@[extern c inline "lean_nat_sub(#1, lean_box(1))"]
+def Nat.pred : (@& Nat) → Nat
+  | 0      => 0
+  | succ a => a
+
+theorem Nat.pred_le_pred : {n m : Nat} → LE.le n m → LE.le (pred n) (pred m)
+  | _,           _, Nat.le.refl   => Nat.le.refl
+  | 0,      succ m, Nat.le.step h => h
+  | succ n, succ m, Nat.le.step h => Nat.le_trans (le_succ _) h
+
+theorem Nat.le_of_succ_le_succ {n m : Nat} : LE.le (succ n) (succ m) → LE.le n m :=
+  pred_le_pred
+
+theorem Nat.le_of_lt_succ {m n : Nat} : LT.lt m (succ n) → LE.le m n :=
+  le_of_succ_le_succ
+
 protected theorem Nat.eq_or_lt_of_le : {n m: Nat} → LE.le n m → Or (Eq n m) (LT.lt n m)
   | zero,   zero,   h => Or.inl rfl
-  | zero,   succ n, h => Or.inr (zero_le n)
-  | succ n, zero,   h => Bool.noConfusion h
+  | zero,   succ n, h => Or.inr (Nat.succ_le_succ (Nat.zero_le _))
+  | succ n, zero,   h => absurd h (not_succ_le_zero _)
   | succ n, succ m, h =>
-    have : LE.le n m := h
+    have : LE.le n m := Nat.le_of_succ_le_succ h
     match Nat.eq_or_lt_of_le this with
     | Or.inl h => Or.inl (h ▸ rfl)
     | Or.inr h => Or.inr (succ_le_succ h)
-
-protected def Nat.le_refl : (n : Nat) → LE.le n n
-  | zero   => rfl
-  | succ n => Nat.le_refl n
 
 protected theorem Nat.lt_or_ge (n m : Nat) : Or (LT.lt n m) (GE.ge n m) :=
   match m with
@@ -683,25 +683,54 @@ protected theorem Nat.lt_or_ge (n m : Nat) : Or (LT.lt n m) (GE.ge n m) :=
       | Or.inl h1 => Or.inl (h1 ▸ Nat.le_refl _)
       | Or.inr h1 => Or.inr h1
 
-protected theorem Nat.le_antisymm : {n m : Nat} → LE.le n m → LE.le m n → Eq n m
-  | zero,   zero,   h₁, h₂ => rfl
-  | succ n, zero,   h₁, h₂ => Bool.noConfusion h₁
-  | zero,   succ m, h₁, h₂ => Bool.noConfusion h₂
-  | succ n, succ m, h₁, h₂ =>
-    have h₁' : LE.le n m := h₁
-    have h₂' : LE.le m n := h₂
-    (Nat.le_antisymm h₁' h₂') ▸ rfl
+theorem Nat.not_succ_le_self : (n : Nat) → Not (LE.le (succ n) n)
+  | 0      => not_succ_le_zero _
+  | succ n => fun h => absurd (le_of_succ_le_succ h) (not_succ_le_self n)
+
+protected theorem Nat.lt_irrefl (n : Nat) : Not (LT.lt n n) :=
+  Nat.not_succ_le_self n
+
+protected theorem Nat.lt_of_le_of_lt {n m k : Nat} (h₁ : LE.le n m) (h₂ : LT.lt m k) : LT.lt n k :=
+  Nat.le_trans (Nat.succ_le_succ h₁) h₂
+
+protected theorem Nat.le_antisymm {n m : Nat} (h₁ : LE.le n m) (h₂ : LE.le m n) : Eq n m :=
+  match h₁ with
+  | Nat.le.refl   => rfl
+  | Nat.le.step h => absurd (Nat.lt_of_le_of_lt h h₂) (Nat.lt_irrefl n)
 
 protected theorem Nat.lt_of_le_of_ne {n m : Nat} (h₁ : LE.le n m) (h₂ : Not (Eq n m)) : LT.lt n m :=
   match Nat.lt_or_ge n m with
   | Or.inl h₃ => h₃
   | Or.inr h₃ => absurd (Nat.le_antisymm h₁ h₃) h₂
 
-set_option bootstrap.genMatcherCode false in
-@[extern c inline "lean_nat_sub(#1, lean_box(1))"]
-def Nat.pred : (@& Nat) → Nat
-  | 0      => 0
-  | succ a => a
+theorem Nat.le_of_ble_eq_true (h : Eq (Nat.ble n m) true) : LE.le n m :=
+  match n, m with
+  | 0,      _      => Nat.zero_le _
+  | succ _, succ _ => Nat.succ_le_succ (le_of_ble_eq_true h)
+
+theorem Nat.ble_self_eq_true : (n : Nat) → Eq (Nat.ble n n) true
+  | 0      => rfl
+  | succ n => ble_self_eq_true n
+
+theorem Nat.ble_succ_eq_true : {n m : Nat} → Eq (Nat.ble n m) true → Eq (Nat.ble n (succ m)) true
+  | 0,      _,      _ => rfl
+  | succ n, succ m, h => ble_succ_eq_true (n := n) h
+
+theorem Nat.ble_eq_true_of_le (h : LE.le n m) : Eq (Nat.ble n m) true :=
+  match h with
+  | Nat.le.refl   => Nat.ble_self_eq_true n
+  | Nat.le.step h => Nat.ble_succ_eq_true (ble_eq_true_of_le h)
+
+theorem Nat.not_le_of_not_ble_eq_true (h : Not (Eq (Nat.ble n m) true)) : Not (LE.le n m) :=
+  fun h' => absurd (Nat.ble_eq_true_of_le h') h
+
+@[extern "lean_nat_dec_le"]
+instance Nat.decLe (n m : @& Nat) : Decidable (LE.le n m) :=
+  dite (Eq (Nat.ble n m) true) (fun h => isTrue (Nat.le_of_ble_eq_true h)) (fun h => isFalse (Nat.not_le_of_not_ble_eq_true h))
+
+@[extern "lean_nat_dec_lt"]
+instance Nat.decLt (n m : @& Nat) : Decidable (LT.lt n m) :=
+  decLe (succ n) m
 
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_nat_sub"]
@@ -711,18 +740,6 @@ protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
 
 instance : Sub Nat where
   sub := Nat.sub
-
-theorem Nat.pred_le_pred : {n m : Nat} → LE.le n m → LE.le (pred n) (pred m)
-  | zero,   zero,   h => rfl
-  | zero,   succ n, h => zero_le n
-  | succ n, zero,   h => Bool.noConfusion h
-  | succ n, succ m, h => h
-
-theorem Nat.le_of_succ_le_succ {n m : Nat} : LE.le (succ n) (succ m) → LE.le n m :=
-  pred_le_pred
-
-theorem Nat.le_of_lt_succ {m n : Nat} : LT.lt m (succ n) → LE.le m n :=
-  le_of_succ_le_succ
 
 @[extern "lean_system_platform_nbits"] constant System.Platform.getNumBits : Unit → Subtype fun (n : Nat) => Or (Eq n 32) (Eq n 64) :=
   fun _ => ⟨64, Or.inr rfl⟩ -- inhabitant

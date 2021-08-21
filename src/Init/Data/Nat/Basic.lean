@@ -153,16 +153,8 @@ theorem succ_sub_succ_eq_sub (n m : Nat) : succ n - succ m = n - m := by
   | zero      => exact rfl
   | succ m ih => apply congrArg pred ih
 
-theorem not_succ_le_self (n : Nat) : ¬succ n ≤ n := by
-  induction n with
-  | zero      => intro h; apply not_succ_le_zero 0 h
-  | succ n ih => intro h; exact ih (le_of_succ_le_succ h)
-
-protected theorem lt_irrefl (n : Nat) : ¬n < n :=
-  not_succ_le_self n
-
 theorem pred_le : ∀ (n : Nat), pred n ≤ n
-  | zero   => rfl
+  | zero   => Nat.le.refl
   | succ n => le_succ _
 
 theorem pred_lt : ∀ {n : Nat}, n ≠ 0 → pred n < n
@@ -209,14 +201,9 @@ protected theorem le_of_lt {n m : Nat} (h : n < m) : n ≤ m :=
 
 def lt.step {n m : Nat} : n < m → n < succ m := le_step
 
-def succ_pos := zero_lt_succ
-
 theorem eq_zero_or_pos : ∀ (n : Nat), n = 0 ∨ n > 0
   | 0   => Or.inl rfl
   | n+1 => Or.inr (succ_pos _)
-
-protected theorem lt_of_le_of_lt {n m k : Nat} (h₁ : n ≤ m) : m < k → n < k :=
-  Nat.le_trans (succ_le_succ h₁)
 
 def lt.base (n : Nat) : n < succ n := Nat.le_refl (succ n)
 
@@ -265,9 +252,9 @@ theorem le_add_left (n m : Nat): n ≤ m + n :=
 theorem le.dest : ∀ {n m : Nat}, n ≤ m → Exists (fun k => n + k = m)
   | zero,   zero,   h => ⟨0, rfl⟩
   | zero,   succ n, h => ⟨succ n, Nat.add_comm 0 (succ n) ▸ rfl⟩
-  | succ n, zero,   h => Bool.noConfusion h
+  | succ n, zero,   h => absurd h (not_succ_le_zero _)
   | succ n, succ m, h =>
-    have : n ≤ m := h
+    have : n ≤ m := Nat.le_of_succ_le_succ h
     have : Exists (fun k => n + k = m) := dest this
     match this with
     | ⟨k, h⟩ => ⟨k, show succ n + k = succ m from ((succ_add n k).symm ▸ h ▸ rfl)⟩

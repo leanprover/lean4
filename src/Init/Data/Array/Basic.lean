@@ -262,7 +262,9 @@ def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : 
     match i, inv with
     | 0,    _  => pure bs
     | i+1, inv =>
-      have : j < as.size := by rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_left_comm]; apply Nat.le_add_right
+      have : j < as.size := by
+        rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_comm]
+        apply Nat.le_add_right
       let idx : Fin as.size := ⟨j, this⟩
       have : i + (j + 1) = as.size := by rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
       map i (j+1) this (bs.push (← f idx (as.get idx)))

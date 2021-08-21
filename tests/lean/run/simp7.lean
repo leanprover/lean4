@@ -18,7 +18,7 @@ def fact : Nat → Nat
 
 theorem ex3 : fact x > 0 := by
   induction x with
-  | zero => rfl
+  | zero => decide
   | succ x ih =>
     simp [fact]
     apply Nat.mul_pos

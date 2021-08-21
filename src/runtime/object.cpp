@@ -1961,7 +1961,7 @@ extern "C" obj_res lean_byte_array_push(obj_arg a, uint8 b) {
     return r;
 }
 
-    extern "C" obj_res lean_byte_array_copy_slice(b_obj_arg src, obj_arg o_src_off, obj_arg dest, obj_arg o_dest_off, obj_arg o_len, bool exact) {
+extern "C" obj_res lean_byte_array_copy_slice(b_obj_arg src, obj_arg o_src_off, obj_arg dest, obj_arg o_dest_off, obj_arg o_len, bool exact) {
     size_t ssz = lean_sarray_size(src);
     size_t dsz = lean_sarray_size(dest);
     size_t src_off = lean_nat_to_size_t(o_src_off);
@@ -1972,6 +1972,11 @@ extern "C" obj_res lean_byte_array_push(obj_arg a, uint8 b) {
     size_t dest_off = lean_nat_to_size_t(o_dest_off);
     if (dest_off > dsz) {
         dest_off = dsz;
+    }
+    if (dsz == 0 && dest_off == 0 && src_off == 0 && len == ssz) {
+        lean_dec_ref(dest);
+        lean_inc_ref(src);
+        return src;
     }
     size_t new_dsz = std::max(dsz, dest_off + len);
     object * r = lean_sarray_ensure_exclusive(lean_sarray_ensure_capacity(dest, new_dsz, exact));

@@ -2411,6 +2411,15 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
+lean_object* l_Nat_pred___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_sub(x_1, lean_box(1));
+lean_dec(x_1);
+return x_2;
+}
+}
 lean_object* l_Nat_decLe___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2431,15 +2440,6 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-lean_object* l_Nat_pred___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_nat_sub(x_1, lean_box(1));
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l_Nat_sub___boxed(lean_object* x_1, lean_object* x_2) {

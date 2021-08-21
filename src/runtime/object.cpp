@@ -1613,11 +1613,19 @@ extern "C" object * lean_string_push(object * s, unsigned c) {
     return r;
 }
 
-extern "C" object * lean_string_append(object * s1, object * s2) {
+extern "C" obj_res lean_string_append(obj_arg s1, b_obj_arg s2) {
     size_t sz1      = lean_string_size(s1);
     size_t sz2      = lean_string_size(s2);
     size_t len1     = lean_string_len(s1);
+    if (len1 == 0) {
+        lean_dec_ref(s1);
+        lean_inc_ref(s2);
+        return s2;
+    }
     size_t len2     = lean_string_len(s2);
+    if (len2 == 0) {
+        return s1;
+    }
     size_t new_len  = len1 + len2;
     unsigned new_sz = sz1 + sz2 - 1;
     object * r;

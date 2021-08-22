@@ -17,14 +17,14 @@ namespace Lake
 
 -- # Build Target
 
-abbrev PackageTarget := ActiveBuildTarget (Package × NameMap ModuleTarget)
+abbrev PackageTarget := ActiveBuildTarget (Package × ModuleTargetMap)
 
 namespace PackageTarget
 
 def package (self : PackageTarget) :=
   self.artifact.1
 
-def moduleTargetMap (self : PackageTarget) : NameMap ModuleTarget :=
+def moduleTargetMap (self : PackageTarget) : ModuleTargetMap :=
   self.artifact.2
 
 def moduleTargets (self : PackageTarget) : Array (Name × ModuleTarget) :=
@@ -36,7 +36,7 @@ end PackageTarget
 
 def Package.buildModuleTargetDAGFor
 (mod : Name)  (oleanDirs : List FilePath) (depTarget : ActiveOpaqueTarget)
-(self : Package) : BuildM (ModuleTarget × NameMap ModuleTarget) := do
+(self : Package) : BuildM (ModuleTarget × ModuleTargetMap) := do
   let fetch := fetchModuleWithLocalImports self oleanDirs depTarget
   failOnCycle <| ← buildRBTop fetch mod |>.run {}
 

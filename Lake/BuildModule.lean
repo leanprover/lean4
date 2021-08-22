@@ -101,12 +101,14 @@ def fetchModuleWithLocalImports
         compileOleanAndC leanFile oleanFile cFile leanPath pkg.rootDir pkg.leanArgs
         IO.FS.writeFile hashFile fullHash.toString
 
+abbrev ModuleTargetMap := NameMap ModuleTarget
+
 /-
   Equivalent to `RBTopT (cmp := Name.quickCmp) Name ModuleTarget BuildM`.
-  Phrased this way to use `NameMap`.
+  Phrased this way to use `ModuleTargetMap`.
 -/
 abbrev ModuleTargetM :=
-  EStateT (List Name) (NameMap ModuleTarget) BuildM
+  EStateT (List Name) ModuleTargetMap BuildM
 
 abbrev ModuleTargetFetch :=
   RecFetch Name ModuleTarget ModuleTargetM

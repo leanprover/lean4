@@ -81,19 +81,14 @@ def Package.buildDepTargets (self : Package) : BuildM (List PackageTarget) := do
 def Package.buildDeps (self : Package) : BuildM (List Package) := do
   let deps ← solveDeps self
   let targets ← deps.mapM (·.buildTarget)
-  try targets.forM (·.materialize) catch e =>
-    -- actual error has already been logged within target
-    BuildM.logError "Build failed."
+  targets.forM (·.materialize)
   return deps
 
 def configure (pkg : Package) : IO Unit :=
   runBuild pkg.buildDeps
 
 def Package.build (self : Package) : BuildM PUnit := do
-  let target ← self.buildTarget
-  try target.materialize catch _ =>
-    -- actual error has already been logged within target
-    BuildM.logError "Build failed."
+  (← self.buildTarget).materialize
 
 def build (pkg : Package) : IO PUnit :=
   runBuild pkg.build
@@ -112,10 +107,7 @@ def Package.buildModuleTargetsWithDeps
 def Package.buildModulesWithDeps
 (deps : List Package) (mods : List Name)  (self : Package)
 : BuildM PUnit := do
-  let targets ← self.buildModuleTargetsWithDeps deps mods
-  try targets.forM (·.materialize) catch e =>
-    -- actual error has already been logged within target
-    BuildM.logError "Build failed."
+  (← self.buildModuleTargetsWithDeps deps mods).forM (·.materialize)
 
 def printPaths (pkg : Package) (imports : List String := []) : IO Unit := do
   let deps ← solveDeps pkg

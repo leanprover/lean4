@@ -55,9 +55,7 @@ def Package.fetchStaticLibTarget (self : Package) : BuildM ActiveFileTarget := d
 
 def Package.fetchStaticLib (self : Package) : BuildM FilePath := do
   let target ← self.fetchStaticLibTarget
-  try target.materialize catch _ =>
-    -- actual error has already been printed within target
-    BuildM.logError "Build failed."
+  target.materialize
   return target.artifact
 
 def buildLib (pkg : Package) : IO PUnit :=
@@ -87,9 +85,7 @@ def Package.fetchBinTarget (self : Package) : BuildM ActiveFileTarget := do
 
 def Package.fetchBin (self : Package) : BuildM FilePath := do
   let target ← self.fetchBinTarget
-  try target.materialize catch _ =>
-    -- actual error has already been printed within target
-    BuildM.logError "Build failed."
+  target.materialize
   return target.artifact
 
 def buildBin (pkg : Package) : IO PUnit :=

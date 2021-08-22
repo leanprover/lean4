@@ -89,7 +89,9 @@ def logError (msg : String) : BuildM PUnit := do
 end BuildM
 
 def runBuild (x : BuildM α) : IO PUnit :=
-  discard <| x.runIO
+  BuildM.runIO try discard x catch _ =>
+    -- actual error has already been logged earlier
+    BuildM.logError "Build failed."
 
 abbrev BuildTask := IOTask
 

@@ -34,11 +34,15 @@ instance : ToString Visibility := ⟨fun
   | Visibility.«private»   => "private"
   | Visibility.«protected» => "protected"⟩
 
+inductive RecKind where
+  | «partial» | «nonrec» | default
+  deriving Inhabited
+
 structure Modifiers where
   docString?      : Option String := none
   visibility      : Visibility := Visibility.regular
   isNoncomputable : Bool := false
-  isPartial       : Bool := false
+  recKind         : RecKind := RecKind.default
   isUnsafe        : Bool := false
   attrs           : Array Attribute := #[]
   deriving Inhabited
@@ -50,6 +54,14 @@ def Modifiers.isPrivate : Modifiers → Bool
 def Modifiers.isProtected : Modifiers → Bool
   | { visibility := Visibility.protected, .. } => true
   | _                                          => false
+
+def Modifiers.isPartial : Modifiers → Bool
+  | { recKind := RecKind.partial, .. } => true
+  | _                                  => false
+
+def Modifiers.isNonrec : Modifiers → Bool
+  | { recKind := RecKind.nonrec, .. } => true
+  | _                                 => false
 
 def Modifiers.addAttribute (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
   { modifiers with attrs := modifiers.attrs.push attr }
@@ -64,7 +76,7 @@ instance : ToFormat Modifiers := ⟨fun m =>
      | Visibility.protected => [f!"protected"]
      | Visibility.private   => [f!"private"])
     ++ (if m.isNoncomputable then [f!"noncomputable"] else [])
-    ++ (if m.isPartial then [f!"partial"] else [])
+    ++ (match m.recKind with | RecKind.partial => [f!"partial"] | RecKind.nonrec => [f!"nonrec"] | _ => [])
     ++ (if m.isUnsafe then [f!"unsafe"] else [])
     ++ m.attrs.toList.map (fun attr => format attr)
   Format.bracket "{" (Format.joinSep components ("," ++ Format.line)) "}"⟩
@@ -88,7 +100,13 @@ def elabModifiers (stx : Syntax) : m Modifiers := do
   let visibilityStx := stx[2]
   let noncompStx    := stx[3]
   let unsafeStx     := stx[4]
-  let partialStx    := stx[5]
+  let recKind       :=
+    if stx[5].isNone then
+      RecKind.default
+    else if stx[5][0].getKind == ``Parser.Command.partial then
+      RecKind.partial
+    else
+      RecKind.nonrec
   let docString? ← match docCommentStx.getOptional? with
     | none   => pure none
     | some s => match s[1] with
@@ -104,13 +122,10 @@ def elabModifiers (stx : Syntax) : m Modifiers := do
   let attrs ← match attrsStx.getOptional? with
     | none       => pure #[]
     | some attrs => elabDeclAttrs attrs
-  pure {
-    docString?      := docString?,
-    visibility      := visibility,
-    isPartial       := !partialStx.isNone,
-    isUnsafe        := !unsafeStx.isNone,
-    isNoncomputable := !noncompStx.isNone,
-    attrs           := attrs
+  return {
+    docString?, visibility, recKind, attrs,
+    isUnsafe        := !unsafeStx.isNone
+    isNoncomputable := !noncompStx.isNone
   }
 
 def applyVisibility (visibility : Visibility) (declName : Name) : m Name := do

@@ -44,6 +44,7 @@ lean_object* l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*
 lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_levelMVarToParamAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_checkValidCtorModifier___rarg___closed__2;
+uint8_t l_Lean_Elab_Modifiers_isPartial(lean_object*);
 lean_object* l_Lean_Elab_Command_liftTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabCtors_checkParamOccs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkCasesOn___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_mkAuxConstructions___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -743,7 +744,7 @@ x_5 = lean_alloc_closure((void*)(l_Lean_Elab_Command_checkValidInductiveModifier
 lean_closure_set(x_5, 0, x_1);
 lean_closure_set(x_5, 1, x_2);
 lean_closure_set(x_5, 2, x_3);
-x_6 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 2);
+x_6 = l_Lean_Elab_Modifiers_isPartial(x_1);
 lean_dec(x_1);
 if (x_6 == 0)
 {
@@ -996,7 +997,7 @@ x_5 = lean_alloc_closure((void*)(l_Lean_Elab_Command_checkValidCtorModifier___ra
 lean_closure_set(x_5, 0, x_1);
 lean_closure_set(x_5, 1, x_2);
 lean_closure_set(x_5, 2, x_3);
-x_6 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 2);
+x_6 = l_Lean_Elab_Modifiers_isPartial(x_1);
 lean_dec(x_1);
 if (x_6 == 0)
 {
@@ -1134,19 +1135,20 @@ return x_2;
 static lean_object* _init_l_Lean_Elab_Command_instInhabitedCtorView___closed__2() {
 _start:
 {
-lean_object* x_1; uint8_t x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; uint8_t x_2; uint8_t x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = lean_box(0);
 x_2 = 0;
 x_3 = 0;
-x_4 = l_Lean_Elab_Command_instInhabitedCtorView___closed__1;
-x_5 = lean_alloc_ctor(0, 2, 4);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*2, x_2);
-lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 1, x_3);
-lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 2, x_3);
-lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 3, x_3);
-return x_5;
+x_4 = 0;
+x_5 = l_Lean_Elab_Command_instInhabitedCtorView___closed__1;
+x_6 = lean_alloc_ctor(0, 2, 4);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2, x_2);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 1, x_3);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 2, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 3, x_3);
+return x_6;
 }
 }
 static lean_object* _init_l_Lean_Elab_Command_instInhabitedCtorView___closed__3() {

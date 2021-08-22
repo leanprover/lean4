@@ -48,6 +48,7 @@ static lean_object* l_Lean_Elab_Command_elabDeclaration___closed__8;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_elabAttr___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandInitCmd___closed__7;
 lean_object* l_Lean_Elab_Command_elabMutualDef(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Elab_Modifiers_isPartial(lean_object*);
 lean_object* l_Lean_Elab_Command_expandDeclIdNamespace_x3f(lean_object*);
 lean_object* l_Lean_Elab_Command_liftTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_expandBuiltinInitialize___closed__1;
@@ -3422,7 +3423,7 @@ _start:
 {
 uint8_t x_6; 
 lean_dec(x_2);
-x_6 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 2);
+x_6 = l_Lean_Elab_Modifiers_isPartial(x_1);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 

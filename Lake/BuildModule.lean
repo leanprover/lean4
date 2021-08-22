@@ -76,9 +76,9 @@ def checkModuleTrace [GetMTime a] (artifact : a)
   let leanHash := Hash.compute contents
   let maxMTime := max leanMTime depTrace.mtime
   let fullHash := Hash.mix leanHash depTrace.hash
-  let sameHash ← checkIfSameHash fullHash hashFile
   try
     discard <| getMTime artifact -- ensure the artifact actually exists
+    let sameHash ← checkIfSameHash fullHash hashFile
     let mtime := ite sameHash 0 maxMTime
     (sameHash, ⟨fullHash, mtime⟩)
   catch _ =>

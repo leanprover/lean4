@@ -123,7 +123,10 @@ private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (
   let rec loop (i : Nat) (fvars : Array Expr) := do
     if h : i < headers.size then
       let header := headers.get ⟨i, h⟩
-      withLocalDecl header.shortDeclName BinderInfo.auxDecl header.type fun fvar => loop (i+1) (fvars.push fvar)
+      if header.modifiers.isNonrec then
+        loop (i+1) fvars
+      else
+        withLocalDecl header.shortDeclName BinderInfo.auxDecl header.type fun fvar => loop (i+1) (fvars.push fvar)
     else
       k fvars
   loop 0 #[]
@@ -551,8 +554,8 @@ def getKindForLetRecs (mainHeaders : Array DefViewElabHeader) : DefKind :=
   else DefKind.«def»
 
 def getModifiersForLetRecs (mainHeaders : Array DefViewElabHeader) : Modifiers := {
-  isNoncomputable := mainHeaders.any fun h => h.modifiers.isNoncomputable,
-  isPartial       := mainHeaders.any fun h => h.modifiers.isPartial,
+  isNoncomputable := mainHeaders.any fun h => h.modifiers.isNoncomputable
+  recKind         := if mainHeaders.any fun h => h.modifiers.isPartial then RecKind.partial else RecKind.default
   isUnsafe        := mainHeaders.any fun h => h.modifiers.isUnsafe
 }
 
@@ -643,6 +646,8 @@ namespace Command
 def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
   let views ← ds.mapM fun d => do
     let modifiers ← elabModifiers d[0]
+    if ds.size > 1 && modifiers.isNonrec then
+      throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
     mkDefView modifiers d[1]
   runTermElabM none fun vars => Term.elabMutualDef vars views
 

@@ -24,5 +24,5 @@ def package : PackageConfig := {
   moduleRoot := `Add
   binName := "add"
   -- specify the lib as an additional target
-  buildMoreLibTargets := do #[← (← computeCLibTarget).runAsync]
+  buildMoreLibTargets := do #[← (← computeCLibTarget).run]
 }

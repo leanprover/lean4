@@ -16,7 +16,7 @@ namespace Lake
 -- ## Inactive Target
 
 abbrev BuildTarget a :=
-  Target LakeTrace BuildM a
+  Target LakeTrace BuildM BuildTask a
 
 namespace BuildTarget
 

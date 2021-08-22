@@ -13,51 +13,48 @@ namespace Lake
 -- # Target Structure
 --------------------------------------------------------------------------------
 
-structure BaseTarget.{u,v} (t : Type u) (m : Type u → Type v) (a : Type u) where
+structure TargetInfo.{u,v,w} (t : Type u) (m : Type v) (a : Type w) where
   artifact  : a
   trace     : t
-  task      : m PUnit
+  task      : m
 
-instance [Inhabited t] [Inhabited a] [Pure m] : Inhabited (BaseTarget t m a) :=
-  ⟨Inhabited.default, Inhabited.default, pure ()⟩
+namespace TargetInfo
 
-namespace BaseTarget
-
-def withArtifact (artifact : a) (self : BaseTarget t m b) : BaseTarget t m a :=
+def withArtifact (artifact : a) (self : TargetInfo t m b) : TargetInfo t m a :=
   {self with artifact}
 
-def withoutArtifact (self : BaseTarget t m a) : BaseTarget t m PUnit :=
+def withoutArtifact (self : TargetInfo t m a) : TargetInfo t m PUnit :=
   self.withArtifact ()
 
-def withTrace (trace : t) (self : BaseTarget r m a) : BaseTarget t m a :=
+def withTrace (trace : t) (self : TargetInfo r m a) : TargetInfo t m a :=
   {self with trace}
 
-def withoutTrace (self : BaseTarget t m a) : BaseTarget PUnit m a :=
+def withoutTrace (self : TargetInfo t m a) : TargetInfo PUnit m a :=
   self.withTrace ()
 
-def withTask (task : m PUnit) (self : BaseTarget t n a) : BaseTarget t m a :=
+def withTask (task : m) (self : TargetInfo t n a) : TargetInfo t m a :=
   {self with task}
 
-def mtime (self : BaseTarget MTime m a) : MTime :=
+def mtime (self : TargetInfo MTime m a) : MTime :=
   self.trace
 
-def file (self : BaseTarget t m FilePath) : FilePath :=
+def file (self : TargetInfo t m FilePath) : FilePath :=
   self.artifact
 
-def filesList (self : BaseTarget t m (List FilePath)) : List FilePath :=
+def filesList (self : TargetInfo t m (List FilePath)) : List FilePath :=
   self.artifact
 
-def filesArray (self : BaseTarget t m (Array FilePath)) : Array FilePath :=
+def filesArray (self : TargetInfo t m (Array FilePath)) : Array FilePath :=
   self.artifact
 
-end BaseTarget
+end TargetInfo
 
 --------------------------------------------------------------------------------
 -- # Active Targets
 --------------------------------------------------------------------------------
 
-def ActiveTarget t m a :=
-  BaseTarget t m a
+def ActiveTarget.{u,v,v',w} (t : Type u) (m : Type v → Type v') (a : Type w) :=
+  TargetInfo t (m PUnit) a
 
 instance [Inhabited t] [Inhabited a] [Pure m] : Inhabited (ActiveTarget t m a) :=
   ⟨Inhabited.default, Inhabited.default, pure ()⟩
@@ -116,72 +113,72 @@ end
 -- # Inactive Target
 --------------------------------------------------------------------------------
 
-def Target t m a :=
-  BaseTarget t m a
+def Target.{u,v,v',v'',w} (t : Type u) (m : Type v' → Type v'') (n : Type v → Type v') (a : Type w) :=
+  TargetInfo t (m (n PUnit)) a
 
-instance [Inhabited t] [Inhabited a] [Pure m] : Inhabited (ActiveTarget t m a) :=
-  ⟨Inhabited.default, Inhabited.default, pure ()⟩
+instance [Inhabited t] [Inhabited a] [Pure m] [Pure n] : Inhabited (Target t m n a) :=
+  ⟨Inhabited.default, Inhabited.default, pure (pure ())⟩
 
 namespace Target
 
-def mk (artifact : a) (trace : t) (task : m PUnit) : Target t m a :=
+def mk (artifact : a) (trace : t) (task : m (n PUnit)) : Target t m n a :=
   ⟨artifact, trace, task⟩
 
-def opaque (trace : t) (task : m PUnit) : Target t m PUnit :=
+def opaque (trace : t) (task : m (n PUnit)) : Target t m n PUnit :=
   ⟨(), trace, task⟩
 
-protected def pure [Pure m] (artifact : a) (trace : t) : Target t m a :=
-  ⟨artifact, trace, pure ()⟩
+protected def pure [Pure m] [Pure n] (artifact : a) (trace : t) : Target t m n a :=
+  ⟨artifact, trace, pure (pure ())⟩
 
-def compute [Pure n] [ComputeTrace a m t] [Monad m] (artifact : a) : m (Target t n a) := do
+def compute [ComputeTrace a m' t] [Monad m'] [Pure m] [Pure n] (artifact : a) : m' (Target t m n a) := do
   Target.pure artifact <| ← computeTrace artifact
 
-def runAsync [Monad m] [Async m n] (self : Target t m a) : m (ActiveTarget t n a) := do
-  self.withTask <| ← async self.task
+def run [Monad m] (self : Target t m n a) : m (ActiveTarget t n a) := do
+  self.withTask <| ← self.task
 
-def materializeAsync [Async m n] (self : Target t m a) : m (n PUnit) :=
-  async self.task
-
-def materialize (self : Target t m a) : m PUnit :=
+def materializeAsync (self : Target t m n a) : m (n PUnit) :=
   self.task
+
+def materialize [Await n m] [Bind m] (self : Target t m n a) : m PUnit := do
+  await <| ← self.task
 
 section
 variable [Monad m] [Pure n] [BindAsync m n] [Async m n]
 
-def materializeListAsync  (targets : List (Target t m a)) : m (n PUnit) := do
+def materializeListAsync  (targets : List (Target t m n a)) : m (n PUnit) := do
   joinTaskList (← targets.mapM (·.materializeAsync))
 
-def materializeList [Await n m] (targets : List (Target t m a)) : m PUnit := do
+def materializeList [Await n m] (targets : List (Target t m n a)) : m PUnit := do
   await <| ← materializeListAsync targets
 
-def materializeArrayAsync [Await n m] (targets : Array (Target t m a)) :  m (n PUnit) := do
+def materializeArrayAsync (targets : Array (Target t m n a)) :  m (n PUnit) := do
   joinTaskArray (← targets.mapM (·.materializeAsync))
 
-def materializeArray [Await n m] (targets : Array (Target t m a)) :  m PUnit := do
+def materializeArray [Await n m] (targets : Array (Target t m n a)) :  m PUnit := do
   await <| ← materializeArrayAsync targets
 
 end
 
-def andThen [SeqRight m] (target : Target t m a) (act : m β) : m β :=
-  target.task *> act
+section
+variable [SeqRightAsync m n] [Bind m]
 
-instance [SeqRight m] : HAndThen (Target t m a) (m β) (m β) := ⟨andThen⟩
+def andThen (target : Target t m n a) (act : m β) : m (n β) := do
+  seqRightAsync (← target.materializeAsync) act
+
+instance : HAndThen (Target t m n a) (m β) (m (n β)) := ⟨andThen⟩
+end
 
 end Target
 
 section
-variable [Monad m]
+variable [Monad m] [BindAsync m n] [Async m n]
 
-def afterTargetList (targets : List (Target t m a)) (act : m PUnit) : m PUnit :=
-  targets.mapM (·.task) *> act
+def afterTargetList (targets : List (Target t m n a)) (act : m PUnit) : m (n PUnit) := do
+  afterTaskList (← targets.mapM (·.materializeAsync)) act
 
-def afterTargetArray (targets : Array (Target t m a)) (act : m PUnit) : m PUnit :=
-  targets.mapM (·.task) *> act
+def afterTargetArray (targets : Array (Target t m n a)) (act : m PUnit) : m (n PUnit) := do
+  afterTaskArray (← targets.mapM (·.materializeAsync)) act
 
-instance : HAndThen (List (Target t m a)) (m PUnit) (m PUnit) :=
-  ⟨afterTargetList⟩
-
-instance : HAndThen (Array (Target t m a)) (m PUnit) (m PUnit) :=
-  ⟨afterTargetArray⟩
-
+instance : HAndThen (List (Target t m n a)) (m PUnit) (m (n PUnit)) := ⟨afterTargetList⟩
+instance : HAndThen (Array (Target t m n a)) (m PUnit) (m (n PUnit)) := ⟨afterTargetArray⟩
 end

@@ -8,8 +8,6 @@ import Lake.Task
 open System
 namespace Lake
 
-#check Lean.Macro.Methods
-
 --------------------------------------------------------------------------------
 -- # Build Monad Definition
 --------------------------------------------------------------------------------
@@ -92,6 +90,14 @@ def runBuild (x : BuildM α) : IO PUnit :=
   BuildM.runIO try discard x catch _ =>
     -- actual error has already been logged earlier
     BuildM.logError "Build failed."
+
+def failOnImportCycle : Except (List Lean.Name) α → BuildM α
+| Except.ok a => a
+| Except.error cycle => do
+  let cycle := cycle.map (s!"  {·}")
+  let msg := s!"import cycle detected:\n{"\n".intercalate cycle}"
+  BuildM.logError msg
+  throw <| IO.userError msg
 
 abbrev BuildTask := IOTask
 

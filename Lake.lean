@@ -11,9 +11,8 @@ import Lake.BuildTargets
 def main (args : List String) : IO UInt32 := do
   try
     Lake.setupLeanSearchPath
-    let (cmd, outerArgs, innerArgs) ← Lake.splitCmdlineArgs args
-    Lake.cli cmd outerArgs innerArgs
+    Lake.cli args
     pure 0
   catch e =>
-    IO.eprintln e -- avoid "uncaught exception: ..."
+    IO.eprintln <| "error: " ++ toString e -- avoid "uncaught exception: ..."
     pure 1

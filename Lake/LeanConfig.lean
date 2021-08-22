@@ -36,9 +36,12 @@ unsafe def fromLeanFileUnsafe
   else
     throw <| IO.userError <| s!"package configuration (at {path}) has errors"
 
+@[implementedBy fromLeanFileUnsafe]
+constant fromLeanFile (path : FilePath) (root : FilePath) (args : List String := []) : IO Package
+
 unsafe def fromDirUnsafe
-(path : FilePath) (args : List String := []) : IO Package :=
-  fromLeanFileUnsafe (path / pkgFileName) path args
+(dir : FilePath) (args : List String := []) (file := pkgFileName) : IO Package :=
+  fromLeanFileUnsafe (dir / file) dir args
 
 @[implementedBy fromDirUnsafe]
-constant fromDir (path : FilePath) (args : List String := []) : IO Package
+constant fromDir (dir : FilePath) (args : List String := []) (file := pkgFileName) : IO Package

@@ -9,26 +9,33 @@ import Lake.LeanVersion
 namespace Lake
 
 def usage :=
-s!"Lake version {versionString} (Lean version {uiLeanVersionString})
+uiVersionString ++ "
 
-Usage:
-  lake <command>
+USAGE:
+  lake [OPTIONS] <COMMAND>
 
-new <name>       create a Lean package in a new directory
-init <name>      create a Lean package in the current directory
-run <script>     run arbitrary package scripts
-configure        download and build dependencies
-build            configure and build *.olean files
-build-lib        configure and build a static library
-build-bin        configure and build a native binary executable
-clean            remove build outputs
+OPTIONS:
+  --version             print version and exit
+  --help, -h            print help of the program or a command and exit
+  --dir, -d=file        use the package configuration in a specific directory
+  --file, -f=file       use a specific file for the package configuration
+
+COMMANDS:
+  new <name>            create a Lean package in a new directory
+  init <name>           create a Lean package in the current directory
+  run <script>          run arbitrary package scripts
+  configure             download and build dependencies
+  build                 configure and build *.olean files
+  build-lib             configure and build a static library
+  build-bin             configure and build a native binary executable
+  clean                 remove build outputs
 
 See `lake help <command>` for more information on a specific command."
 
 def helpNew :=
 "Create a Lean package in a new directory
 
-Usage:
+USAGE:
   lake new <name>
 
 This command creates a new Lean package with the given name in
@@ -37,7 +44,7 @@ a new directory with the same name."
 def helpInit :=
 "Create a Lean package in the current directory
 
-Usage:
+USAGE:
   lake init <name>
 
 This command creates a new Lean package with the given name in
@@ -46,7 +53,7 @@ the current directory."
 def helpRun :=
 "Run arbitrary package scripts
 
-Usage:
+USAGE:
   lake run <script> [-- <args>...]
 
 This command runs the given script from the package configuration's
@@ -56,7 +63,7 @@ it will list the available scripts."
 def helpConfigure :=
 "Download and build dependencies
 
-Usage:
+USAGE:
   lake configure [-- <args>...]
 
 This command sets up the directory with the package's dependencies
@@ -71,7 +78,7 @@ No copy is made of local dependencies."
 def helpBuild :=
 "Configure this package and build *.olean files
 
-Usage:
+USAGE:
   lake build [-- <args>...]
 
 This command configures the package's dependencies and then builds the package
@@ -82,7 +89,7 @@ itself can be specified with `args`."
 def helpBuildLib :=
 "Configure this package and build a static library
 
-Usage:
+USAGE:
   lake build-lib [-- <args>...]
 
 This command configures this package's dependencies, builds the package,
@@ -96,7 +103,7 @@ to the `Packager` itself can be specified with `args`."
 def helpBuildBin :=
 "Configure the package and build a native binary executable
 
-Usage:
+USAGE:
   lake build-bin [-- <args>...]
 
 This command configures this package's dependencies, builds the package,
@@ -115,13 +122,13 @@ specified with `args`."
 def helpClean :=
 "Remove build outputs
 
-Usage:
+USAGE:
   lake clean [-- <args>...]
 
 Deletes the build directory of the package.
 Arguments to the  `Packager` itself can be specified with `args`."
 
-def help : (cmd : String) → String
+def helpCmd : (cmd : String) → String
 | "new"       => helpNew
 | "init"      => helpInit
 | "run"       => helpRun
@@ -131,3 +138,7 @@ def help : (cmd : String) → String
 | "build-bin" => helpBuildBin
 | "clean"     => helpClean
 | _           => usage
+
+def help : (cmd? : Option String) → String
+| some cmd => helpCmd cmd
+| none => usage

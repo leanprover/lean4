@@ -64,29 +64,42 @@ namespace ActiveTarget
 def mk (artifact : a) (trace : t) (task : m PUnit) : ActiveTarget t m a :=
   ⟨artifact, trace, task⟩
 
-def opaque (trace : t) (task : m PUnit) : ActiveTarget t m PUnit :=
-  ⟨(), trace, task⟩
-
 protected def pure [Pure m] (artifact : a) (trace : t) : ActiveTarget t m a :=
   ⟨artifact, trace, pure ()⟩
-
-def nil [Pure m] [Inhabited t] : ActiveTarget t m PUnit :=
-  ActiveTarget.pure () Inhabited.default
 
 def materialize [Await n m] (self : ActiveTarget t n α) : m PUnit :=
   await self.task
 
-def andThen [SeqRightAsync m n] (target : ActiveTarget t n a) (act : m PUnit) : m (n PUnit) :=
-  seqRightAsync target.task act
+-- ## Opaque Active Targets
 
-instance [SeqRightAsync m n] : HAndThen (ActiveTarget t n a) (m PUnit) (m (n PUnit)) :=
-  ⟨andThen⟩
+def opaque (trace : t) (task : m PUnit) : ActiveTarget t m PUnit :=
+  ⟨(), trace, task⟩
 
-def all [Monad m] [Pure n] [BindAsync m n] [Async m n] [NilTrace t] [MixTrace t]
-  (targets : List (ActiveTarget t n a)) : m (ActiveTarget t n PUnit) := do
+section
+variable [NilTrace t] [MixTrace t] [Monad m] [Pure n] [BindAsync m n] [Async m n]
+
+def collectOpaqueList (targets : List (ActiveTarget t n a)) : m (ActiveTarget t n PUnit) := do
   let task ← joinTaskList <| targets.map (·.task)
   let trace := mixTraceList <| targets.map (·.trace)
-  return ActiveTarget.mk () trace task
+  ActiveTarget.opaque trace task
+
+def collectOpaqueArray (targets : Array (ActiveTarget t n a)) : m (ActiveTarget t n PUnit) := do
+  let task ← joinTaskArray <| targets.map (·.task)
+  let trace := mixTraceArray <| targets.map (·.trace)
+  ActiveTarget.opaque trace task
+
+end
+
+-- ## Sequencing
+
+section
+variable [SeqRightAsync m n]
+
+def andThen (target : ActiveTarget t n a) (act : m PUnit) : m (n PUnit) :=
+  seqRightAsync target.task act
+
+instance  : HAndThen (ActiveTarget t n a) (m PUnit) (m (n PUnit)) := ⟨andThen⟩
+end
 
 end ActiveTarget
 
@@ -124,14 +137,13 @@ namespace Target
 def mk (artifact : a) (trace : t) (task : m (n PUnit)) : Target t m n a :=
   ⟨artifact, trace, task⟩
 
-def opaque (trace : t) (task : m (n PUnit)) : Target t m n PUnit :=
-  ⟨(), trace, task⟩
-
 protected def pure [Pure m] [Pure n] (artifact : a) (trace : t) : Target t m n a :=
   ⟨artifact, trace, pure (pure ())⟩
 
 def compute [ComputeTrace a m' t] [Monad m'] [Pure m] [Pure n] (artifact : a) : m' (Target t m n a) := do
   Target.pure artifact <| ← computeTrace artifact
+
+-- ## Materializing
 
 def run [Monad m] (self : Target t m n a) : m (ActiveTarget t n a) := do
   self.withTask <| ← self.task
@@ -159,6 +171,26 @@ def materializeArray [Await n m] (targets : Array (Target t m n a)) :  m PUnit :
 
 end
 
+-- ## Opaque Targets
+
+def opaque (trace : t) (task : m (n PUnit)) : Target t m n PUnit :=
+  ⟨(), trace, task⟩
+
+section
+variable [NilTrace t] [MixTrace t] [Monad m] [Pure n] [BindAsync m n] [Async m n]
+
+def collectOpaqueList (targets : List (Target t m n a)) : Target t m n PUnit :=
+  let trace := mixTraceList <| targets.map (·.trace)
+  Target.opaque trace do Target.materializeListAsync targets
+
+def collectOpaqueArray (targets : Array (Target t m n a)) : Target t m n PUnit :=
+  let trace := mixTraceArray <| targets.map (·.trace)
+  Target.opaque trace do Target.materializeArrayAsync targets
+
+end
+
+-- ## Sequencing
+
 section
 variable [SeqRightAsync m n] [Bind m]
 
@@ -169,6 +201,8 @@ instance : HAndThen (Target t m n a) (m β) (m (n β)) := ⟨andThen⟩
 end
 
 end Target
+
+-- ## Combinators
 
 section
 variable [Monad m] [BindAsync m n] [Async m n]

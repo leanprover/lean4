@@ -13,33 +13,27 @@ namespace Lake
 -- # Build Targets
 --------------------------------------------------------------------------------
 
--- ## Inactive Target
-
+/-- A Lake build target. -/
 abbrev BuildTarget a :=
   Target LakeTrace BuildM BuildTask a
 
 namespace BuildTarget
 
-def nil : BuildTarget PUnit :=
-  Target.pure () LakeTrace.nil
-
-def hash (self : BuildTarget a) := self.trace.hash
-def mtime (self : BuildTarget a) := self.trace.mtime
+abbrev hash (self : BuildTarget a) := self.trace.hash
+abbrev mtime (self : BuildTarget a) := self.trace.mtime
 
 end BuildTarget
 
--- ## Active Target
+-- ## Active
 
+/-- An active Lake build target. -/
 abbrev ActiveBuildTarget a :=
   ActiveTarget LakeTrace BuildTask a
 
 namespace ActiveBuildTarget
 
-def nil : ActiveBuildTarget PUnit :=
-  ActiveTarget.pure () LakeTrace.nil
-
-def hash (self : ActiveBuildTarget a) := self.trace.hash
-def mtime (self : ActiveBuildTarget a) := self.trace.mtime
+abbrev hash (self : ActiveBuildTarget a) := self.trace.hash
+abbrev mtime (self : ActiveBuildTarget a) := self.trace.mtime
 
 end ActiveBuildTarget
 
@@ -47,19 +41,70 @@ end ActiveBuildTarget
 -- # File Targets
 --------------------------------------------------------------------------------
 
--- ## File Target
-
+/-- A `BuildTarget` that produces a file. -/
 abbrev FileTarget :=
   BuildTarget FilePath
 
 namespace FileTarget
 
-def compute (file : FilePath) : IO FileTarget :=
+abbrev compute (file : FilePath) : IO FileTarget :=
   Target.compute file
 
 end FileTarget
 
--- ## Active File Target
+-- ## Active
 
+/-- An `ActiveBuildTarget` that produces a file. -/
 abbrev ActiveFileTarget :=
   ActiveBuildTarget FilePath
+
+--------------------------------------------------------------------------------
+-- # Opaque Targets
+--------------------------------------------------------------------------------
+
+/-- A `BuildTarget` with no artifact information. -/
+abbrev OpaqueTarget :=
+  BuildTarget PUnit
+
+namespace OpaqueTarget
+
+abbrev nil : OpaqueTarget :=
+  Target.pure () LakeTrace.nil
+
+abbrev collectList (targets : List (BuildTarget a)) : OpaqueTarget :=
+  Target.collectOpaqueList targets
+
+abbrev collectArray (targets : Array (BuildTarget a)) : OpaqueTarget :=
+  Target.collectOpaqueArray targets
+
+def andThenTargetAsync (t1 t2 : OpaqueTarget) : OpaqueTarget :=
+  let trace := mixTrace t1.trace t2.trace
+  Target.opaque trace do
+    let tk1 ← t1.materializeAsync
+    let tk2 ← t2.materializeAsync
+    andThenAsync tk1 tk2
+
+end OpaqueTarget
+
+-- ## Active
+
+/-- An `ActiveBuildTarget` with no artifact information. -/
+abbrev ActiveOpaqueTarget :=
+  ActiveBuildTarget PUnit
+
+namespace ActiveOpaqueTarget
+
+abbrev nil : ActiveOpaqueTarget :=
+  ActiveTarget.pure () LakeTrace.nil
+
+abbrev collectList (targets : List (ActiveBuildTarget a)) : BuildM ActiveOpaqueTarget :=
+  ActiveTarget.collectOpaqueList targets
+
+abbrev collectArray (targets : Array (ActiveBuildTarget a)) : BuildM ActiveOpaqueTarget :=
+  ActiveTarget.collectOpaqueArray targets
+
+def andThenTargetAsync (t1 t2 : ActiveOpaqueTarget) : BuildM ActiveOpaqueTarget := do
+  let trace := mixTrace t1.trace t2.trace
+  ActiveTarget.opaque trace <| ← andThenAsync t1.task t2.task
+
+end ActiveOpaqueTarget

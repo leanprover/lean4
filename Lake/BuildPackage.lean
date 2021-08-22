@@ -35,20 +35,20 @@ end PackageTarget
 -- # Build Modules
 
 def Package.buildModuleTargetDAGFor
-(mod : Name)  (oleanDirs : List FilePath) (depsTarget : ActiveBuildTarget PUnit)
+(mod : Name)  (oleanDirs : List FilePath) (depTarget : ActiveOpaqueTarget)
 (self : Package) : BuildM (ModuleTarget × NameMap ModuleTarget) := do
-  let fetch := fetchModuleWithLocalImports self oleanDirs depsTarget
+  let fetch := fetchModuleWithLocalImports self oleanDirs depTarget
   failOnCycle <| ← buildRBTop fetch mod |>.run {}
 
 def Package.buildModuleTargetDAG
-(oleanDirs : List FilePath) (depsTarget : ActiveBuildTarget PUnit) (self : Package) :=
-  self.buildModuleTargetDAGFor self.moduleRoot oleanDirs depsTarget
+(oleanDirs : List FilePath) (depTarget : ActiveOpaqueTarget) (self : Package) :=
+  self.buildModuleTargetDAGFor self.moduleRoot oleanDirs depTarget
 
 def Package.buildModuleTargets
 (mods : List Name) (oleanDirs : List FilePath)
-(depsTarget : ActiveBuildTarget PUnit) (self : Package)
+(depTarget : ActiveOpaqueTarget) (self : Package)
 : BuildM (List ModuleTarget) := do
-  let fetch : ModuleTargetFetch := fetchModuleWithLocalImports self oleanDirs depsTarget
+  let fetch : ModuleTargetFetch := fetchModuleWithLocalImports self oleanDirs depTarget
   failOnCycle <| ← mods.mapM (buildRBTop fetch) |>.run' {}
 
 -- # Configure/Build Packages
@@ -56,10 +56,11 @@ def Package.buildModuleTargets
 def Package.buildTargetWithDepTargetsFor
 (mod : Name) (depTargets : List PackageTarget) (self : Package)
 : BuildM PackageTarget := do
-  let depsTarget ← ActiveTarget.all <|
-    (← self.buildMoreDepsTarget).withArtifact arbitrary :: depTargets
-  let oLeanDirs := depTargets.map (·.package.oleanDir)
-  let (target, targetMap) ← self.buildModuleTargetDAGFor mod oLeanDirs depsTarget
+  let extraDepTarget ← self.buildExtraDepTarget
+  let depTarget ← ActiveOpaqueTarget.collectList depTargets
+  let allDepsTarget ← extraDepTarget.andThenTargetAsync depTarget
+  let oleanDirs := depTargets.map (·.package.oleanDir)
+  let (target, targetMap) ← self.buildModuleTargetDAGFor mod oleanDirs allDepsTarget
   return {target with artifact := ⟨self, targetMap⟩}
 
 def Package.buildTargetWithDepTargets
@@ -103,9 +104,10 @@ def Package.buildModuleTargetsWithDeps
 (deps : List Package) (mods : List Name)  (self : Package)
 : BuildM (List ModuleTarget) := do
   let oleanDirs := deps.map (·.oleanDir)
-  let depsTarget ← ActiveTarget.all <|
-    (← self.buildMoreDepsTarget).withArtifact arbitrary :: (← deps.mapM (·.buildTarget))
-  self.buildModuleTargets mods oleanDirs depsTarget
+  let extraDepTarget ← self.buildExtraDepTarget
+  let depTarget ← ActiveOpaqueTarget.collectList <| ← deps.mapM (·.buildTarget)
+  let allDepsTarget ← extraDepTarget.andThenTargetAsync depTarget
+  self.buildModuleTargets mods oleanDirs allDepsTarget
 
 def Package.buildModulesWithDeps
 (deps : List Package) (mods : List Name)  (self : Package)

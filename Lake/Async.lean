@@ -74,6 +74,9 @@ instance [SeqRightAsync m n] : SeqRightAsync (ReaderT ρ m) n where
 -- #  List/Array Utilities
 --------------------------------------------------------------------------------
 
+def andThenAsync [Pure m] [BindAsync m n] (ta : n α) (tb : n β) : m (n β) :=
+  bindAsync ta fun _ => pure tb
+
 -- ## Sequencing Lists/Arrays of Asynchronous Tasks
 
 section

@@ -62,14 +62,14 @@ def skipIf [Pure m] [Pure n] (cond : Bool) (build : m (n PUnit)) : m (n PUnit) :
 
 /-
   Produces a recursive module target fetcher that
-  builds the target module after waiting for `depsTarget` to materialize
+  builds the target module after waiting for `depTargets` to materialize
   and recursively fetching its local imports (relative to `pkg`).
 
   The module is built with the configuration from `pkg` and
   a `LEAN_PATH` that includes `oleanDirs`.
 -/
 def fetchModuleWithLocalImports
-(pkg : Package) (oleanDirs : List FilePath) (depsTarget : ActiveBuildTarget PUnit)
+(pkg : Package) (oleanDirs : List FilePath) (depTarget : ActiveOpaqueTarget)
 {m} [Monad m] [MonadLiftT BuildM m] [MonadExceptOf IO.Error m] : RecFetch Name ModuleTarget m :=
   have : MonadLift BuildM m := ⟨liftM⟩
   let leanPath := SearchPath.toString <| pkg.oleanDir :: oleanDirs
@@ -85,8 +85,8 @@ def fetchModuleWithLocalImports
     -- calculate trace
     let leanMTime ← getMTime leanFile
     let leanHash := Hash.compute contents
-    let depTrace := depsTarget.trace.mix <|
-      mixTraceList <| importTargets.map (·.trace)
+    let depTrace := mixTrace depTarget.trace
+      (mixTraceList  <| importTargets.map  (·.trace))
     let maxMTime := max leanMTime depTrace.mtime
     let fullHash := Hash.mix leanHash depTrace.hash
     let hashFile := pkg.modToHashFile mod
@@ -95,9 +95,9 @@ def fetchModuleWithLocalImports
     -- construct target
     let cFile := pkg.modToC mod
     let oleanFile := pkg.modToOlean mod
-    let importTasks := importTargets.map (·.task)
+    let depTasks := depTarget.task :: importTargets.map (·.task)
     ActiveTarget.mk ⟨oleanFile, cFile⟩ ⟨fullHash, mtime⟩ <| ←
-      skipIf sameHash <| afterTaskList (m := BuildM) (depsTarget.task :: importTasks) do
+      skipIf sameHash <| afterTaskList (m := BuildM) depTasks do
         compileOleanAndC leanFile oleanFile cFile leanPath pkg.rootDir pkg.leanArgs
         IO.FS.writeFile hashFile fullHash.toString
 

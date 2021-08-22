@@ -52,7 +52,7 @@ structure PackageConfig where
   buildMoreLibTargets : BuildM (Array ActiveFileTarget) := #[]
   depsDir : FilePath := defaultDepsDir
   dependencies : List Dependency := []
-  buildMoreDepsTarget : BuildM (ActiveBuildTarget PUnit) := ActiveBuildTarget.nil
+  buildExtraDepTarget : BuildM ActiveOpaqueTarget := ActiveOpaqueTarget.nil
   scripts : HashMap String Script := HashMap.empty
   deriving Inhabited
 
@@ -86,8 +86,8 @@ def moduleRootName (self : Package) : String :=
 def dependencies (self : Package) : List Dependency :=
   self.config.dependencies
 
-def buildMoreDepsTarget (self : Package) : BuildM (ActiveBuildTarget PUnit) :=
-  self.config.buildMoreDepsTarget
+def buildExtraDepTarget (self : Package) : BuildM ActiveOpaqueTarget :=
+  self.config.buildExtraDepTarget
 
 def leanArgs (self : Package) : Array String :=
   self.config.leanArgs

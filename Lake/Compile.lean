@@ -26,8 +26,20 @@ def proc (args : IO.Process.SpawnArgs) : BuildM PUnit := do
     BuildM.logError msg -- log errors early
     throw <| IO.userError msg
 
+def compileOlean (leanFile oleanFile : FilePath)
+(oleanDirs : List FilePath := []) (rootDir : FilePath := ".") (leanArgs : Array String := #[])
+: BuildM PUnit := do
+  createParentDirs oleanFile
+  proc {
+    cmd := "lean"
+    args := leanArgs ++ #[
+      "-R", rootDir.toString, "-o", oleanFile.toString, leanFile.toString
+    ]
+    env := #[("LEAN_PATH", SearchPath.toString oleanDirs)]
+  }
+
 def compileOleanAndC (leanFile oleanFile cFile : FilePath)
-(leanPath : String := "") (rootDir : FilePath := ".") (leanArgs : Array String := #[])
+(oleanDirs : List FilePath := []) (rootDir : FilePath := ".") (leanArgs : Array String := #[])
 : BuildM PUnit := do
   createParentDirs cFile
   createParentDirs oleanFile
@@ -37,7 +49,7 @@ def compileOleanAndC (leanFile oleanFile cFile : FilePath)
       "-R", rootDir.toString, "-o", oleanFile.toString, "-c",
       cFile.toString, leanFile.toString
     ]
-    env := #[("LEAN_PATH", leanPath)]
+    env := #[("LEAN_PATH", SearchPath.toString oleanDirs)]
   }
 
 def compileO (oFile cFile : FilePath)

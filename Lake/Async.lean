@@ -127,7 +127,7 @@ def afterArrayAsync (last : m (n β)) (tasks : Array (n α)) (start := 0) (stop 
         | Nat.zero => last
         | Nat.succ i' =>
           let t := tasks.get ⟨j, Nat.lt_of_lt_of_le hlt h⟩
-          bindAsync t fun a => loop i' (j+1)
+          bindAsync t fun _ => loop i' (j+1)
       else
         last
     loop (stop - start) start

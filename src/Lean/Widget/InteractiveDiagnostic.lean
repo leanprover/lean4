@@ -34,7 +34,7 @@ namespace MsgEmbed
 def rpcPacketFor {β : outParam Type} (α : Type) [RpcEncoding α β] := β
 
 private inductive RpcEncodingPacket where
-  | expr : TaggedText Lsp.RpcRef → RpcEncodingPacket
+  | expr : TaggedText (rpcPacketFor CodeToken) → RpcEncodingPacket
   | goal : rpcPacketFor InteractiveGoal → RpcEncodingPacket
   | lazyTrace : Nat → Name → Lsp.RpcRef → RpcEncodingPacket
   deriving Inhabited, FromJson, ToJson

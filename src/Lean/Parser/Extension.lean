@@ -562,13 +562,14 @@ private def withNamespaces (ids : Array Name) (p : ParserFn) (addOpenSimple : Bo
       let openDecls := if addOpenSimple then OpenDecl.simple ns [] :: c.openDecls else c.openDecls
       let env := parserExtension.activateScoped c.env ns
       { c with env, openDecls }
-  p c s
+  let tokens := parserExtension.getState c.env |>.tokens
+  p { c with tokens } s
 
 def withOpenDeclFnCore (openDeclStx : Syntax) (p : ParserFn) : ParserFn := fun c s =>
   if openDeclStx.getKind == `Lean.Parser.Command.openSimple then
-    withNamespaces (openDeclStx[0].getArgs.map fun s => s.getId) (addOpenSimple := true) p c s
+    withNamespaces (openDeclStx[0].getArgs.map fun stx => stx.getId) (addOpenSimple := true) p c s
   else if openDeclStx.getKind == `Lean.Parser.Command.openScoped then
-    withNamespaces (openDeclStx[1].getArgs.map fun s => s.getId) (addOpenSimple := false) p c s
+    withNamespaces (openDeclStx[1].getArgs.map fun stx => stx.getId) (addOpenSimple := false) p c s
   else if openDeclStx.getKind == `Lean.Parser.Command.openOnly then
     -- It does not activate scoped attributes, nor affects namespace resolution
     p c s
@@ -578,10 +579,10 @@ def withOpenDeclFnCore (openDeclStx : Syntax) (p : ParserFn) : ParserFn := fun c
   else
     p c s
 
-/-- If the parsing stack is of the form `#[.., openCommand, "in"]`, we process the open command, and execute `p` -/
+/-- If the parsing stack is of the form `#[.., openCommand]`, we process the open command, and execute `p` -/
 def withOpenFn (p : ParserFn) : ParserFn := fun c s =>
-  if s.stxStack.size > 1 then
-    let stx := s.stxStack[s.stxStack.size - 2]
+  if s.stxStack.size > 0 then
+    let stx := s.stxStack.back
     if stx.getKind == `Lean.Parser.Command.open then
       withOpenDeclFnCore stx[1] p c s
     else
@@ -595,10 +596,10 @@ def withOpenFn (p : ParserFn) : ParserFn := fun c s =>
   fn   := withOpenFn  p.fn
 }
 
-/-- If the parsing stack is of the form `#[.., openDecl, "in"]`, we process the open declaration, and execute `p` -/
+/-- If the parsing stack is of the form `#[.., openDecl]`, we process the open declaration, and execute `p` -/
 def withOpenDeclFn (p : ParserFn) : ParserFn := fun c s =>
-  if s.stxStack.size > 1 then
-    let stx := s.stxStack[s.stxStack.size - 2]
+  if s.stxStack.size > 0 then
+    let stx := s.stxStack.back
     withOpenDeclFnCore stx p c s
   else
     p c s

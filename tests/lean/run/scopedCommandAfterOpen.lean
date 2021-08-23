@@ -6,3 +6,8 @@ section
 open Internal
 foo
 end
+
+section
+open Internal in
+foo
+end

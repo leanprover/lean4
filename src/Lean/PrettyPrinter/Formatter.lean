@@ -442,6 +442,9 @@ def setExpected.formatter (expected : List String) (p : Formatter) : Formatter :
 
 @[combinatorFormatter Lean.Parser.pushNone] def pushNone.formatter : Formatter := goLeft
 
+@[combinatorFormatter Lean.Parser.withOpenDecl] def withOpenDecl.formatter (p : Formatter) : Formatter := p
+@[combinatorFormatter Lean.Parser.withOpen] def withOpen.formatter (p : Formatter) : Formatter := p
+
 @[combinatorFormatter Lean.Parser.interpolatedStr]
 def interpolatedStr.formatter (p : Formatter) : Formatter := do
   visitArgs $ (← getCur).getArgs.reverse.forM fun chunk =>

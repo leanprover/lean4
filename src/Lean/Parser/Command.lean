@@ -102,7 +102,7 @@ def openDecl         := openHiding <|> openRenaming <|> openOnly <|> openSimple 
 @[builtinCommandParser] def «initialize» := leading_parser optional visibility >> "initialize " >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
 @[builtinCommandParser] def «builtin_initialize» := leading_parser optional visibility >> "builtin_initialize " >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
 
-@[builtinCommandParser] def «in»  := trailing_parser " in " >> commandParser
+@[builtinCommandParser] def «in»  := trailing_parser " in " >> withOpen commandParser
 
 /-
   This is an auxiliary command for generation constructor injectivity theorems for inductive types defined at `Prelude.lean`.
@@ -124,12 +124,12 @@ builtin_initialize
 end Command
 
 namespace Term
-@[builtinTermParser] def «open» := leading_parser:leadPrec "open " >> Command.openDecl >> " in " >> termParser
+@[builtinTermParser] def «open» := leading_parser:leadPrec "open " >> Command.openDecl >> " in " >> withOpenDecl termParser
 @[builtinTermParser] def «set_option» := leading_parser:leadPrec "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> termParser
 end Term
 
 namespace Tactic
-@[builtinTacticParser] def «open» := leading_parser:leadPrec "open " >> Command.openDecl >> " in " >> tacticSeq
+@[builtinTacticParser] def «open» := leading_parser:leadPrec "open " >> Command.openDecl >> " in " >> withOpenDecl tacticSeq
 @[builtinTacticParser] def «set_option» := leading_parser:leadPrec "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> tacticSeq
 end Tactic
 

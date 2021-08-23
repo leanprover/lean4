@@ -1,0 +1,6 @@
+def f1 : Nat → Nat :=
+fun x => Foo.f x x
+def f2 : Nat → Nat :=
+fun x => Foo.f x x
+def f1 : Nat → Nat :=
+fun x => x ++ x

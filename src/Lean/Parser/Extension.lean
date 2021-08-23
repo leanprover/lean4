@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+import Lean.ResolveName
 import Lean.ScopedEnvExtension
 import Lean.Parser.Basic
 import Lean.Parser.StrInterpolation
@@ -552,6 +553,60 @@ abbrev notFollowedByCommandToken : Parser :=
 
 abbrev notFollowedByTermToken : Parser :=
   notFollowedByCategoryToken `term
+
+private def withNamespaces (ids : Array Name) (p : ParserFn) (addOpenSimple : Bool) : ParserFn := fun c s =>
+  let c := ids.foldl (init := c) fun c id =>
+    match ResolveName.resolveNamespace? c.env c.currNamespace c.openDecls id with
+    | none => c -- Ignore namespace resolution errors, the elaborator will report them.
+    | some ns =>
+      let openDecls := if addOpenSimple then OpenDecl.simple ns [] :: c.openDecls else c.openDecls
+      let env := parserExtension.activateScoped c.env ns
+      { c with env, openDecls }
+  p c s
+
+def withOpenDeclFnCore (openDeclStx : Syntax) (p : ParserFn) : ParserFn := fun c s =>
+  if openDeclStx.getKind == `Lean.Parser.Command.openSimple then
+    withNamespaces (openDeclStx[0].getArgs.map fun s => s.getId) (addOpenSimple := true) p c s
+  else if openDeclStx.getKind == `Lean.Parser.Command.openScoped then
+    withNamespaces (openDeclStx[1].getArgs.map fun s => s.getId) (addOpenSimple := false) p c s
+  else if openDeclStx.getKind == `Lean.Parser.Command.openOnly then
+    -- It does not activate scoped attributes, nor affects namespace resolution
+    p c s
+  else if openDeclStx.getKind == `Lean.Parser.Command.openHiding then
+    -- TODO: it does not activate scoped attributes, but it affects namespaces resolution of open decls parsed by `p`.
+    p c s
+  else
+    p c s
+
+/-- If the parsing stack is of the form `#[.., openCommand, "in"]`, we process the open command, and execute `p` -/
+def withOpenFn (p : ParserFn) : ParserFn := fun c s =>
+  if s.stxStack.size > 1 then
+    let stx := s.stxStack[s.stxStack.size - 2]
+    if stx.getKind == `Lean.Parser.Command.open then
+      withOpenDeclFnCore stx[1] p c s
+    else
+      p c s
+  else
+    p c s
+
+
+@[inline] def withOpen (p : Parser) : Parser := {
+  info := p.info
+  fn   := withOpenFn  p.fn
+}
+
+/-- If the parsing stack is of the form `#[.., openDecl, "in"]`, we process the open declaration, and execute `p` -/
+def withOpenDeclFn (p : ParserFn) : ParserFn := fun c s =>
+  if s.stxStack.size > 1 then
+    let stx := s.stxStack[s.stxStack.size - 2]
+    withOpenDeclFnCore stx p c s
+  else
+    p c s
+
+@[inline] def withOpenDecl (p : Parser) : Parser := {
+  info := p.info
+  fn   := withOpenDeclFn  p.fn
+}
 
 end Parser
 end Lean

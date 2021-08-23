@@ -22,8 +22,14 @@ structure InfoWithCtx where
   info : Elab.Info
   deriving Inhabited, RpcEncoding with { withRef := true }
 
+structure CodeToken where
+  info : WithRpcRef InfoWithCtx
+  -- TODO(WN): add fields for semantic highlighting
+  -- kind : Lsp.SymbolKind
+  deriving Inhabited, RpcEncoding
+
 /-- Pretty-printed syntax (usually but not necessarily an `Expr`) with embedded `Info`s. -/
-abbrev CodeWithInfos := TaggedText (WithRpcRef InfoWithCtx)
+abbrev CodeWithInfos := TaggedText CodeToken
 
 def CodeWithInfos.pretty (tt : CodeWithInfos) :=
   tt.stripTags
@@ -97,7 +103,7 @@ where
     tt.rewrite fun (n, _) subTt =>
       match infos.find? n with
       | none   => go subTt
-      | some i => TaggedText.tag (WithRpcRef.mk { ctx, lctx, info := i }) (go subTt)
+      | some i => TaggedText.tag ⟨WithRpcRef.mk { ctx, lctx, info := i }⟩ (go subTt)
 
 def exprToInteractive (e : Expr) : MetaM CodeWithInfos := do
   let (fmt, infos) ← formatInfos e

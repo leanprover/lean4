@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.MatchUtil
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.Cases
+import Lean.Meta.Tactic.Apply
 
 namespace Lean.Meta
 
@@ -20,6 +21,13 @@ structure Contradiction.Config where
      This kind of hypotheses appear when proving conditional equation theorems for match expressions. -/
   genDiseq : Bool := false
 
+-- We only consider inductives with no constructors and indexed families
+private def isElimEmptyInductiveCandidate (fvarId : FVarId) : MetaM Bool := do
+  let localDecl ← getLocalDecl fvarId
+  let type ← whnfD localDecl.type
+  matchConstInduct type.getAppFn (fun _ => pure false) fun info _ => do
+    return info.ctors.length == 0 || info.numIndices > 0
+
 namespace ElimEmptyInductive
 
 abbrev M := StateRefT Nat MetaM
@@ -33,34 +41,33 @@ partial def elim (mvarId : MVarId) (fvarId : FVarId) : M Bool := do
     trace[Meta.Tactic.contradiction] "elimEmptyInductive out-of-fuel"
     return false
   modify (. - 1)
-  withMVarContext mvarId do
-    let localDecl ← getLocalDecl fvarId
-    let type ← whnfD localDecl.type
-    matchConstInduct type.getAppFn (fun _ => pure false) fun info _ => do
-      if info.ctors.length == 0 || info.numIndices > 0 then
-        trace[Meta.Tactic.contradiction] "elimEmptyInductive {type}"
-        -- We only consider inductives with no constructors and indexed families
-        commitWhen do
-          let subgoals ← try cases mvarId fvarId catch _ => return false
-          for subgoal in subgoals do
-            -- If one of the fields is uninhabited, then we are done
-            let mut found := false
-            for field in subgoal.fields do
-              let field := subgoal.subst.apply field
-              if field.isFVar then
-                if (← elim subgoal.mvarId field.fvarId!) then
-                  found := true
-                  break
-            unless found == true do -- TODO: check why we need true here
-              return false
-          return true
-      else
+  -- We only consider inductives with no constructors and indexed families
+  commitWhen do
+    let subgoals ← try cases mvarId fvarId catch ex => trace[Meta.Tactic.contradiction] "{ex.toMessageData}"; return false
+    trace[Meta.Tactic.contradiction] "elimEmptyInductive, number subgoals: {subgoals.size}"
+    for subgoal in subgoals do
+      -- If one of the fields is uninhabited, then we are done
+      let found ← withMVarContext subgoal.mvarId do
+        for field in subgoal.fields do
+          let field := subgoal.subst.apply field
+          if field.isFVar then
+            if (← isElimEmptyInductiveCandidate field.fvarId!) then
+              if (← elim subgoal.mvarId field.fvarId!) then
+                return true
         return false
+      unless found == true do -- TODO: check why we need true here
+        return false
+    return true
 
 end ElimEmptyInductive
 
 private def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (fuel : Nat) : MetaM Bool := do
-  ElimEmptyInductive.elim mvarId fvarId |>.run' fuel
+  withMVarContext mvarId do
+    if (← isElimEmptyInductiveCandidate fvarId) then
+      commitWhen do
+        ElimEmptyInductive.elim (← exfalso mvarId) fvarId |>.run' fuel
+    else
+      return false
 
 /-- Return true if `e` is of the form `(x : α) → ... → s = t → ... → False` -/
 private def isGenDiseq (e : Expr) : Bool :=

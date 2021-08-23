@@ -169,7 +169,7 @@ partial def handlePlainGoal (p : PlainGoalParams)
       { goals := goalStrs, rendered := md }
 
 partial def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
-    : RequestM (RequestTask (Option (Widget.InteractiveGoal × Range))) := do
+    : RequestM (RequestTask (Option Widget.InteractiveTermGoal)) := do
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
@@ -184,15 +184,15 @@ partial def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
          let goal ← ci.runMetaM lctx' do
            Meta.withPPInaccessibleNames <| Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
          let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
-         return some (goal, range)
+         return some { goal with range }
       return none
 
 def handlePlainTermGoal (p : PlainTermGoalParams)
     : RequestM (RequestTask (Option PlainTermGoal)) := do
   let t ← getInteractiveTermGoal p
-  t.map <| Except.map <| Option.map fun (goal, range) =>
-    { goal := toString goal.pretty
-      range := range
+  t.map <| Except.map <| Option.map fun goal =>
+    { goal := toString goal.toInteractiveGoal.pretty
+      range := goal.range
     }
 
 partial def handleDocumentHighlight (p : DocumentHighlightParams)

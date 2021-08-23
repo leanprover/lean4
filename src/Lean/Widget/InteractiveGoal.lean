@@ -46,6 +46,19 @@ def pretty (g : InteractiveGoal) : Format := do
 
 end InteractiveGoal
 
+structure InteractiveTermGoal where
+  hyps      : Array InteractiveHypothesis
+  type      : CodeWithInfos
+  range     : Lsp.Range
+  deriving Inhabited, RpcEncoding
+
+namespace InteractiveTermGoal
+
+def toInteractiveGoal (g : InteractiveTermGoal) : InteractiveGoal :=
+  { g with userName? := none }
+
+end InteractiveTermGoal
+
 structure InteractiveGoals where
   goals : Array InteractiveGoal
   deriving RpcEncoding

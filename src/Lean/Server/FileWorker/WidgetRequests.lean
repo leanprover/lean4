@@ -64,10 +64,8 @@ builtin_initialize
   registerRpcCallHandler
     `Lean.Widget.getInteractiveTermGoal
     Lsp.PlainTermGoalParams
-    (Option InteractiveGoal)
-    fun p => do
-      let t ← FileWorker.getInteractiveTermGoal p
-      t.map <| Except.map <| Option.map Prod.fst
+    (Option InteractiveTermGoal)
+    FileWorker.getInteractiveTermGoal
 
 open RequestM in
 def getInteractiveDiagnostics (_ : Json) : RequestM (RequestTask (Array InteractiveDiagnostic)) := do

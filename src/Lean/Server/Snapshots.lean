@@ -111,7 +111,7 @@ def compileNextCmd (text : FileMap) (snap : Snapshot) : IO Snapshot := do
       stx := cmdStx
       mpState := cmdParserState
       cmdState := snap.cmdState
-      interactiveDiags := ← newInteractiveDiags msgLog
+      interactiveDiags := ← withNewInteractiveDiags msgLog
     }
     endSnap
   else
@@ -142,12 +142,15 @@ def compileNextCmd (text : FileMap) (snap : Snapshot) : IO Snapshot := do
       stx := cmdStx
       mpState := cmdParserState
       cmdState := postCmdState
-      interactiveDiags := ← newInteractiveDiags postCmdState.messages
+      interactiveDiags := ← withNewInteractiveDiags postCmdState.messages
     }
     postCmdSnap
 
 where
-  newInteractiveDiags (msgLog : MessageLog) : IO (Std.PersistentArray Widget.InteractiveDiagnostic) := do
+  /-- Compute the current interactive diagnostics log by finding a "diff" relative to the parent
+  snapshot. We need to do this because unlike the `MessageLog` itself, interactive diags are not
+  part of the command state. -/
+  withNewInteractiveDiags (msgLog : MessageLog) : IO (Std.PersistentArray Widget.InteractiveDiagnostic) := do
     let newMsgCount := msgLog.msgs.size - snap.msgLog.msgs.size
     let mut ret := snap.interactiveDiags
     for i in List.iota newMsgCount do

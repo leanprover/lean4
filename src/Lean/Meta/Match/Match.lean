@@ -145,9 +145,11 @@ private def processSkipInaccessible (p : Problem) : Problem :=
 private def processLeaf (p : Problem) : StateRefT State MetaM Unit :=
   match p.alts with
   | []       => do
-    trace[Meta.Match.match] "missing alternative"
-    admit p.mvarId
-    modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
+    /- TODO: allow users to configure which tactic is used to close leaves. -/
+    unless (← contradictionCore p.mvarId {}) do
+      trace[Meta.Match.match] "missing alternative"
+      admit p.mvarId
+      modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
   | alt :: _ => do
     -- TODO: check whether we have unassigned metavars in rhs
     liftM $ assignGoalOf p alt.rhs

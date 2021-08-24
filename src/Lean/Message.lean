@@ -117,6 +117,8 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | nCtx, _,         withContext ctx d        => formatAux nCtx ctx d
   | _,    ctx,       withNamingContext nCtx d => formatAux nCtx ctx d
   | nCtx, ctx,       tagged t d               =>
+    /- Messages starting a trace context have their tags postfixed with `_traceCtx` so that
+    we can detect them later. Here, we do so in order to print the trace context class. -/
     if let Name.str cls "_traceCtx" _ := t then do
       let d₁ ← formatAux nCtx ctx d
       return f!"[{cls}] {d₁}"

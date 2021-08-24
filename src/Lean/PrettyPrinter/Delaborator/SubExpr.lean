@@ -7,13 +7,12 @@ import Lean.Meta.Basic
 import Std.Data.RBMap
 
 /-!
-This file defines utilities for `MetaM` computations to traverse subexpressions
-of an expression in sync with the `Nat` "position" values that refers to them.
-We use a simple encoding scheme: every `Expr` constructor has at most 3 direct
-expression children. Considering an expressions type as well, we can injectively
-map a path of `childIdxs` to a natural number by computing the value of the 4-ary
-representation `1 :: childIdxs`, since n-ary representations without leading zeros
-are unique. Note that `pos` is initialized to `1` (case `childIdxs == []`).
+This file defines utilities for `MetaM` computations to traverse subexpressions of an expression
+in sync with the `Nat` "position" values that refer to them.  We use a simple encoding scheme:
+every `Expr` constructor has at most 3 direct expression children. Considering an expression's type
+to be one extra child as well, we can injectively map a path of `childIdxs` to a natural number
+by computing the value of the 4-ary representation `1 :: childIdxs`, since n-ary representations
+without leading zeros are unique. Note that `pos` is initialized to `1` (case `childIdxs == []`).
 -/
 
 namespace Lean.PrettyPrinter.Delaborator
@@ -122,8 +121,9 @@ def HoleIterator.next (iter : HoleIterator) : HoleIterator :=
     ⟨2*iter.top, maxChildren*iter.top⟩
   else ⟨iter.curr+1, iter.top⟩
 
-/-- The positioning scheme guarantees that there will be an infinite number of positions
-that are never used by subexpressions. We use these to attach additional `Elab.Info`. -/
+/-- The positioning scheme guarantees that there will be an infinite number of extra positions
+which are never used by `Expr`s. The `HoleIterator` always points at the next such "hole".
+We use these to attach additional `Elab.Info`. -/
 def nextExtraPos : m Pos := do
   let iter ← getThe HoleIterator
   let pos := iter.toPos

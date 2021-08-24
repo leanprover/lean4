@@ -9,5 +9,4 @@
       [Meta.synthInstance.tryResolve] success
     [Meta.synthInstance.newAnswer] size: 0, Inhabited Nat
     [Meta.synthInstance.newAnswer] val: instInhabitedNat
-  [Meta.synthInstance] FOUND result instInhabitedNat
   [Meta.synthInstance] result instInhabitedNat

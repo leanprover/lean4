@@ -166,7 +166,7 @@ structure Context where
   `M` to `MetaM`.
 -/
 structure State where
-  result         : Option Expr                   := none
+  result?        : Option AbstractMVarsResult    := none
   generatorStack : Array GeneratorNode           := #[]
   resumeStack    : Array (ConsumerNode × Answer) := #[]
   tableEntries   : HashMap Expr TableEntry       := {}
@@ -372,8 +372,12 @@ def tryAnswer (mctx : MetavarContext) (mvar : Expr) (answer : Answer) : SynthM (
 /-- Move waiters that are waiting for the given answer to the resume stack. -/
 def wakeUp (answer : Answer) : Waiter → SynthM Unit
   | Waiter.root               => do
-    if answer.result.paramNames.isEmpty && answer.result.numMVars == 0 then
-      modify fun s => { s with result := answer.result.expr }
+    /- Recall that we now use `ignoreLevelMVarDepth := true`. Thus, we should allow solutions
+       containing universe metavariables, and not check `answer.result.paramNames.isEmpty`.
+       We use `openAbstractMVarsResult` to construct the universe metavariables
+       at the correct depth. -/
+    if answer.result.numMVars == 0 then
+      modify fun s => { s with result? := answer.result }
     else
       let (_, _, answerExpr) ← openAbstractMVarsResult answer.result
       trace[Meta.synthInstance] "skip answer containing metavariables {answerExpr}"
@@ -487,10 +491,10 @@ def step : SynthM Bool := do
   else
     pure false
 
-def getResult : SynthM (Option Expr) := do
-  pure (← get).result
+def getResult : SynthM (Option AbstractMVarsResult) := do
+  pure (← get).result?
 
-partial def synth : SynthM (Option Expr) := do
+partial def synth : SynthM (Option AbstractMVarsResult) := do
   if (← step) then
     match (← getResult) with
     | none        => synth
@@ -499,13 +503,13 @@ partial def synth : SynthM (Option Expr) := do
     trace[Meta.synthInstance] "failed"
     pure none
 
-def main (type : Expr) (maxResultSize : Nat) : MetaM (Option Expr) :=
+def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult) :=
   withCurrHeartbeats <| traceCtx `Meta.synthInstance do
      trace[Meta.synthInstance] "main goal {type}"
      let mvar ← mkFreshExprMVar type
      let mctx ← getMCtx
      let key    := mkTableKey mctx type
-     let action : SynthM (Option Expr) := do
+     let action : SynthM (Option AbstractMVarsResult) := do
        newSubgoal mctx key mvar Waiter.root
        synth
      action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {}
@@ -592,19 +596,12 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
       let result? ← withNewMCtxDepth do
         let normType ← preprocessOutParam type
         trace[Meta.synthInstance] "preprocess: {type} ==> {normType}"
-        match (← SynthInstance.main normType maxResultSize) with
-        | none        => pure none
-        | some result =>
-          trace[Meta.synthInstance] "FOUND result {result}"
-          let result ← instantiateMVars result
-          if (← hasAssignableMVar result) then
-            trace[Meta.synthInstance] "Failed has assignable mvar {result.setOption `pp.all true}"
-            pure none
-          else
-            pure (some result)
+        SynthInstance.main normType maxResultSize
+      let resultHasUnivMVars := if let some result := result? then !result.paramNames.isEmpty else false
       let result? ← match result? with
         | none        => pure none
         | some result => do
+          let (_, _, result) ← openAbstractMVarsResult result
           trace[Meta.synthInstance] "result {result}"
           let resultType ← inferType result
           if (← withConfig (fun _ => inputConfig) <| isDefEq type resultType) then
@@ -613,7 +610,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
           else
             trace[Meta.synthInstance] "result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
             pure none
-      if type.hasMVar then
+      if type.hasMVar || resultHasUnivMVars then
         pure result?
       else do
         modify fun s => { s with cache := { s.cache with synthInstance := s.cache.synthInstance.insert type result? } }

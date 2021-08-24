@@ -148,6 +148,11 @@ theorem Or.intro_left (b : Prop) (h : a) : Or a b :=
 theorem Or.intro_right (a : Prop) (h : b) : Or a b :=
   Or.inr h
 
+theorem Or.elim {c : Prop} (h : Or a b) (left : a → c) (right : b → c) : c :=
+  match h with
+  | Or.inl h => left h
+  | Or.inr h => right h
+
 inductive Bool : Type where
   | false : Bool
   | true : Bool

@@ -43,11 +43,15 @@ structure Context where
   optionsPerPos  : OptionsPerPos
   currNamespace  : Name
   openDecls      : List OpenDecl
-  inPattern      : Bool := false -- true whe delaborating `match` patterns
+  inPattern      : Bool := false -- true when delaborating `match` patterns
   subExpr        : SubExpr
 
 structure State where
+  /-- We attach `Elab.Info` at various locations in the `Syntax` output in order to convey
+  its semantics. While the elaborator emits `InfoTree`s, here we have no real text location tree
+  to traverse, so we use a flattened map. -/
   infos    : Std.RBMap Pos Info compare := {}
+  /-- See `SubExpr.nextExtraPos`. -/
   holeIter : SubExpr.HoleIterator := {}
 
 -- Exceptions from delaborators are not expected. We use an internal exception to signal whether

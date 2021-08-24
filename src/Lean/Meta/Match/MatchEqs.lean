@@ -16,11 +16,11 @@ private def isMatchValue (e : Expr) : Bool :=
 /--
   Helper method. Recall that alternatives that do not have variables have a `Unit` parameter to ensure
   they are not eagerly evaluated. -/
-private def toFVarsRHSArgs (ys : Array Expr) : MetaM (Array Expr × Array Expr) := do
-  if ys.size == 1 && (← inferType ys[0]).isConstOf ``Unit then
-    return (#[], #[mkConst ``Unit.unit])
-  else
-    return (ys, ys)
+private def toFVarsRHSArgs (ys : Array Expr) (resultType : Expr) : MetaM (Array Expr × Array Expr) := do
+  if ys.size == 1 then
+    if (← inferType ys[0]).isConstOf ``Unit && !(← dependsOn resultType ys[0].fvarId!) then
+      return (#[], #[mkConst ``Unit.unit])
+  return (ys, ys)
 
 /--
   Simplify/filter hypotheses that ensure that a match alternative does not match the previous ones.
@@ -120,7 +120,7 @@ where
           else
             throwError "spliIf failed")
       <|>
-      (throwError "failed to generate equality theorems for `match` expression, support for array literals has not been implemented yet{MessageData.ofGoal mvarId}")
+      (throwError "failed to generate equality theorems for `match` expression, support for array literals has not been implemented yet\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go . (depth+1))
 
 
@@ -155,7 +155,7 @@ partial def mkEquationsFor (matchDeclName : Name) :  MetaM Unit := do
       let altType ← inferType alt
       trace[Meta.debug] ">> {altType}"
       let (notAlt, elimAltType) ← forallTelescopeReducing altType fun ys altResultType => do
-        let (ys, rhsArgs) ← toFVarsRHSArgs ys
+        let (ys, rhsArgs) ← toFVarsRHSArgs ys altResultType
         let patterns := altResultType.getAppArgs
         let mut hs := #[]
         for notAlt in notAlts do

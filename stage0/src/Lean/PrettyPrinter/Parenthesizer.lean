@@ -492,6 +492,9 @@ def setExpected.parenthesizer (expected : List String) (p : Parenthesizer) : Par
 
 @[combinatorParenthesizer Lean.Parser.pushNone] def pushNone.parenthesizer : Parenthesizer := goLeft
 
+@[combinatorParenthesizer Lean.Parser.withOpenDecl] def withOpenDecl.parenthesizer (p : Parenthesizer) : Parenthesizer := p
+@[combinatorParenthesizer Lean.Parser.withOpen] def withOpen.parenthesizer (p : Parenthesizer) : Parenthesizer := p
+
 @[combinatorParenthesizer Lean.Parser.interpolatedStr]
 def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   visitArgs $ (← getCur).getArgs.reverse.forM fun chunk =>

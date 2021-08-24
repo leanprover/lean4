@@ -127,6 +127,22 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) : O
       return i.contains hoverPos
     return false
 
+def Info.type? (i : Info) : MetaM (Option Expr) :=
+  match i with
+  | Info.ofTermInfo ti => Meta.inferType ti.expr
+  | Info.ofFieldInfo fi => Meta.inferType fi.val
+  | _ => return none
+
+def Info.docString? (i : Info) : MetaM (Option String) := do
+  if let Info.ofTermInfo ti := i then
+    if let some n := ti.expr.constName? then
+      return ← findDocString? n
+  if let Info.ofFieldInfo fi := i then
+    return ← findDocString? fi.projName
+  if let some ei := i.toElabInfo? then
+    return ← findDocString? ei.elaborator <||> findDocString? ei.stx.getKind
+  return none
+
 /-- Construct a hover popup, if any, from an info node in a context.-/
 def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option Format) := do
   ci.runMetaM i.lctx do
@@ -135,21 +151,22 @@ def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option Format) := do
       if let some f ← fmtTerm? then
         fmts := fmts.push f
     catch _ => pure ()
-    if let some f ← fmtDoc? then
-      fmts := fmts.push f
+    if let some m ← i.docString? then
+      fmts := fmts.push m
     if fmts.isEmpty then
       none
     else
       f!"\n***\n".joinSep fmts.toList
+
 where
-  fmtTerm? := do
+  fmtTerm? : MetaM (Option Format) := do
     match i with
     | Info.ofTermInfo ti =>
       let tp ← Meta.inferType ti.expr
       let eFmt ← Meta.ppExpr ti.expr
       let tpFmt ← Meta.ppExpr tp
       -- try not to show too scary internals
-      let fmt := if isAtomicFormat eFmt then f!"{eFmt} : {tpFmt}" else tpFmt
+      let fmt := if isAtomicFormat eFmt then f!"{eFmt} : {tpFmt}" else f!"{tpFmt}"
       return some f!"```lean
 {fmt}
 ```"
@@ -160,15 +177,7 @@ where
 {fi.fieldName} : {tpFmt}
 ```"
     | _ => return none
-  fmtDoc? := do
-    if let Info.ofTermInfo ti := i then
-      if let some n := ti.expr.constName? then
-        return ← findDocString? n
-    if let Info.ofFieldInfo fi := i then
-      return ← findDocString? fi.projName
-    if let some ei := i.toElabInfo? then
-      return ← findDocString? ei.elaborator <||> findDocString? ei.stx.getKind
-    return none
+
   isAtomicFormat : Format → Bool
     | Std.Format.text _    => true
     | Std.Format.group f _ => isAtomicFormat f

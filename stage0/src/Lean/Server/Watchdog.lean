@@ -376,28 +376,34 @@ end NotificationHandling
 section MessageHandling
   def parseParams (paramType : Type) [FromJson paramType] (params : Json) : ServerM paramType :=
     match fromJson? params with
-      | Except.ok parsed => pure parsed
-      | Except.error inner => throwServerError s!"Got param with wrong structure: {params.compress}\n{inner}"
+    | Except.ok parsed => pure parsed
+    | Except.error inner => throwServerError s!"Got param with wrong structure: {params.compress}\n{inner}"
 
   def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
-    match (← routeLspRequest method params) with
+    let uri: DocumentUri ←
+      -- This request is handled specially.
+      if method == "$/lean/rpc/connect" then
+        let ps ← parseParams Lsp.RpcConnectParams params
+        fileSource ps
+      else match (← routeLspRequest method params) with
       | Except.error e =>
         (←read).hOut.writeLspResponseError <| e.toLspResponseError id
-      | Except.ok uri =>
-        let fw ← try
-          findFileWorker uri
-        catch _ =>
-          -- VS Code sometimes sends us requests just after closing a file?
-          -- This is permitted by the spec, but seems pointless, and there's not much we can do,
-          -- so we return an error instead.
-          (←read).hOut.writeLspResponseError
-            { id      := id
-              code    := ErrorCode.contentModified
-              message := s!"Cannot process request to closed file '{uri}'" }
-          return
-        let r := Request.mk id method params
-        fw.pendingRequestsRef.modify (·.insert id r)
-        tryWriteMessage uri r
+        return
+      | Except.ok uri => uri
+    let fw ← try
+      findFileWorker uri
+    catch _ =>
+      -- VS Code sometimes sends us requests just after closing a file?
+      -- This is permitted by the spec, but seems pointless, and there's not much we can do,
+      -- so we return an error instead.
+      (←read).hOut.writeLspResponseError
+        { id      := id
+          code    := ErrorCode.contentModified
+          message := s!"Cannot process request to closed file '{uri}'" }
+      return
+    let r := Request.mk id method params
+    fw.pendingRequestsRef.modify (·.insert id r)
+    tryWriteMessage uri r
 
   def handleNotification (method : String) (params : Json) : ServerM Unit := do
     let handle := (fun α [FromJson α] (handler : α → ServerM Unit) => parseParams α params >>= handler)
@@ -408,6 +414,7 @@ section MessageHandling
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
     | "$/lean/rpc/connect"     => handle RpcConnectParams (forwardNotification method)
     | "$/lean/rpc/release"     => handle RpcReleaseParams (forwardNotification method)
+    | "$/lean/rpc/keepAlive"   => handle RpcKeepAliveParams (forwardNotification method)
     | _                        =>
       if !"$/".isPrefixOf method then  -- implementation-dependent notifications can be safely ignored
         (←read).hLog.putStrLn s!"Got unsupported notification: {method}"
@@ -567,8 +574,8 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
     result := {
       capabilities := mkLeanServerCapabilities
       serverInfo?  := some {
-        name     := "Lean 4 server"
-        version? := "0.0.1"
+        name     := "Lean 4 Server"
+        version? := "0.1"
       }
       : InitializeResult
     }

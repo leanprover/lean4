@@ -89,20 +89,20 @@ def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> st
 def eraseAttr := leading_parser "-" >> ident
 @[builtinCommandParser] def «attribute»    := leading_parser "attribute " >> "[" >> sepBy1 (eraseAttr <|> Term.attrInstance) ", " >> "] " >> many1 ident
 @[builtinCommandParser] def «export»       := leading_parser "export " >> ident >> "(" >> many1 ident >> ")"
-def openHiding       := leading_parser atomic (ident >> "hiding") >> many1 ident
-def openRenamingItem := leading_parser ident >> unicodeSymbol "→" "->" >> ident
+def openHiding       := leading_parser atomic (ident >> "hiding") >> many1 (checkColGt >> ident)
+def openRenamingItem := leading_parser ident >> unicodeSymbol "→" "->" >> checkColGt >> ident
 def openRenaming     := leading_parser atomic (ident >> "renaming") >> sepBy1 openRenamingItem ", "
 def openOnly         := leading_parser atomic (ident >> "(") >> many1 ident >> ")"
-def openSimple       := leading_parser many1 ident
-def openScoped       := leading_parser "scoped " >> many1 ident
+def openSimple       := leading_parser many1 (checkColGt >> ident)
+def openScoped       := leading_parser "scoped " >> many1 (checkColGt >> ident)
 def openDecl         := openHiding <|> openRenaming <|> openOnly <|> openSimple <|> openScoped
-@[builtinCommandParser] def «open»    := leading_parser "open " >> openDecl
+@[builtinCommandParser] def «open»    := leading_parser withPosition ("open " >> openDecl)
 
 @[builtinCommandParser] def «mutual» := leading_parser "mutual " >> many1 (ppLine >> notSymbol "end" >> commandParser) >> ppDedent (ppLine >> "end")
 @[builtinCommandParser] def «initialize» := leading_parser optional visibility >> "initialize " >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
 @[builtinCommandParser] def «builtin_initialize» := leading_parser optional visibility >> "builtin_initialize " >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
 
-@[builtinCommandParser] def «in»  := trailing_parser " in " >> commandParser
+@[builtinCommandParser] def «in»  := trailing_parser withOpen (" in " >> commandParser)
 
 /-
   This is an auxiliary command for generation constructor injectivity theorems for inductive types defined at `Prelude.lean`.
@@ -124,12 +124,12 @@ builtin_initialize
 end Command
 
 namespace Term
-@[builtinTermParser] def «open» := leading_parser:leadPrec "open " >> Command.openDecl >> " in " >> termParser
+@[builtinTermParser] def «open» := leading_parser:leadPrec "open " >> Command.openDecl >> withOpenDecl (" in " >> termParser)
 @[builtinTermParser] def «set_option» := leading_parser:leadPrec "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> termParser
 end Term
 
 namespace Tactic
-@[builtinTacticParser] def «open» := leading_parser:leadPrec "open " >> Command.openDecl >> " in " >> tacticSeq
+@[builtinTacticParser] def «open» := leading_parser:leadPrec "open " >> Command.openDecl >> withOpenDecl (" in " >> tacticSeq)
 @[builtinTacticParser] def «set_option» := leading_parser:leadPrec "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> tacticSeq
 end Tactic
 

@@ -6,12 +6,14 @@ Authors: Leonardo de Moura
 import Lean.Meta.MatchUtil
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.Cases
+import Lean.Meta.Tactic.Apply
 
 namespace Lean.Meta
 
 structure Contradiction.Config where
-  useDecide : Bool  := true
-  searchDepth : Nat := 2
+  useDecide  : Bool := true
+  /- When checking for empty types, `searchFuel` specifies the number of goals visited. -/
+  searchFuel : Nat  := 16
   /- Support for hypotheses such as
      ```
      h : (x y : Nat) (ys : List Nat) → x = 0 → y::ys = [a, b, c] → False
@@ -19,32 +21,53 @@ structure Contradiction.Config where
      This kind of hypotheses appear when proving conditional equation theorems for match expressions. -/
   genDiseq : Bool := false
 
-private def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (searchDepth : Nat) : MetaM Bool :=
-  match searchDepth with
-  | 0 => return false
-  | searchDepth + 1 =>
-    withMVarContext mvarId do
-      let localDecl ← getLocalDecl fvarId
-      let type ← whnfD localDecl.type
-      matchConstInduct type.getAppFn (fun _ => pure false) fun info _ => do
-        if info.ctors.length == 0 || info.numIndices > 0 then
-          -- We only consider inductives with no constructors and indexed families
-          commitWhen do
-            let subgoals ← try cases mvarId fvarId catch _ => return false
-            for subgoal in subgoals do
-              -- If one of the fields is uninhabited, then we are done
-              let mut found := false
-              for field in subgoal.fields do
-                let field := subgoal.subst.apply field
-                if field.isFVar then
-                  if (← elimEmptyInductive subgoal.mvarId field.fvarId! searchDepth) then
-                    found := true
-                    break
-              unless found == true do -- TODO: check why we need true here
-                return false
-            return true
-        else
-          return false
+-- We only consider inductives with no constructors and indexed families
+private def isElimEmptyInductiveCandidate (fvarId : FVarId) : MetaM Bool := do
+  let localDecl ← getLocalDecl fvarId
+  let type ← whnfD localDecl.type
+  matchConstInduct type.getAppFn (fun _ => pure false) fun info _ => do
+    return info.ctors.length == 0 || info.numIndices > 0
+
+namespace ElimEmptyInductive
+
+abbrev M := StateRefT Nat MetaM
+
+instance : MonadBacktrack SavedState M where
+  saveState      := Meta.saveState
+  restoreState s := s.restore
+
+partial def elim (mvarId : MVarId) (fvarId : FVarId) : M Bool := do
+  if (← get) == 0 then
+    trace[Meta.Tactic.contradiction] "elimEmptyInductive out-of-fuel"
+    return false
+  modify (. - 1)
+  -- We only consider inductives with no constructors and indexed families
+  commitWhen do
+    let subgoals ← try cases mvarId fvarId catch ex => trace[Meta.Tactic.contradiction] "{ex.toMessageData}"; return false
+    trace[Meta.Tactic.contradiction] "elimEmptyInductive, number subgoals: {subgoals.size}"
+    for subgoal in subgoals do
+      -- If one of the fields is uninhabited, then we are done
+      let found ← withMVarContext subgoal.mvarId do
+        for field in subgoal.fields do
+          let field := subgoal.subst.apply field
+          if field.isFVar then
+            if (← isElimEmptyInductiveCandidate field.fvarId!) then
+              if (← elim subgoal.mvarId field.fvarId!) then
+                return true
+        return false
+      unless found == true do -- TODO: check why we need true here
+        return false
+    return true
+
+end ElimEmptyInductive
+
+private def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (fuel : Nat) : MetaM Bool := do
+  withMVarContext mvarId do
+    if (← isElimEmptyInductiveCandidate fvarId) then
+      commitWhen do
+        ElimEmptyInductive.elim (← exfalso mvarId) fvarId |>.run' fuel
+    else
+      return false
 
 /-- Return true if `e` is of the form `(x : α) → ... → s = t → ... → False` -/
 private def isGenDiseq (e : Expr) : Bool :=
@@ -125,12 +148,14 @@ def contradictionCore (mvarId : MVarId) (config : Contradiction.Config) : MetaM 
         unless isEq do
           -- We do not use `elimEmptyInductive` for equality, since `cases h` produces a huge proof
           -- when `(h : 10000 = 10001)`. TODO: `cases` add a threshold at `cases`
-          if (← elimEmptyInductive mvarId localDecl.fvarId config.searchDepth) then
+          if (← elimEmptyInductive mvarId localDecl.fvarId config.searchFuel) then
             return true
     return false
 
 def contradiction (mvarId : MVarId) (config : Contradiction.Config := {}) : MetaM Unit :=
   unless (← contradictionCore mvarId config) do
     throwTacticEx `contradiction mvarId ""
+
+builtin_initialize registerTraceClass `Meta.Tactic.contradiction
 
 end Lean.Meta

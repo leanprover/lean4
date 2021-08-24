@@ -36,19 +36,29 @@ The delaborator is extensible via the `[delab]` attribute.
 namespace Lean.PrettyPrinter.Delaborator
 
 open Lean.Meta SubExpr
+open Lean.Elab (Info TermInfo Info.ofTermInfo)
 
 structure Context where
   defaultOptions : Options
   optionsPerPos  : OptionsPerPos
   currNamespace  : Name
   openDecls      : List OpenDecl
-  inPattern      : Bool := false -- true whe delaborating `match` patterns
+  inPattern      : Bool := false -- true when delaborating `match` patterns
+  subExpr        : SubExpr
+
+structure State where
+  /-- We attach `Elab.Info` at various locations in the `Syntax` output in order to convey
+  its semantics. While the elaborator emits `InfoTree`s, here we have no real text location tree
+  to traverse, so we use a flattened map. -/
+  infos    : Std.RBMap Pos Info compare := {}
+  /-- See `SubExpr.nextExtraPos`. -/
+  holeIter : SubExpr.HoleIterator := {}
 
 -- Exceptions from delaborators are not expected. We use an internal exception to signal whether
 -- the delaborator was able to produce a Syntax object.
 builtin_initialize delabFailureId : InternalExceptionId ← registerInternalExceptionId `delabFailure
 
-abbrev DelabM := ReaderT Context (ReaderT SubExpr MetaM)
+abbrev DelabM := ReaderT Context (StateRefT State MetaM)
 abbrev Delab := DelabM Syntax
 
 instance {α} : Inhabited (DelabM α) where
@@ -63,6 +73,18 @@ instance : Alternative DelabM := {
 }
 -- HACK: necessary since it would otherwise prefer the instance from MonadExcept
 instance {α} : OrElse (DelabM α) := ⟨Delaborator.orElse⟩
+
+-- Low priority instances so `read`/`get`/etc default to the whole `Context`/`State`
+instance (priority := low) : MonadReaderOf SubExpr DelabM where
+  read := Context.subExpr <$> read
+
+instance (priority := low) : MonadWithReaderOf SubExpr DelabM where
+  withReader f x := fun ctx => x { ctx with subExpr := f ctx.subExpr }
+
+instance (priority := low) : MonadStateOf SubExpr.HoleIterator DelabM where
+  get         := State.holeIter <$> get
+  set iter    := modify fun ⟨infos, _⟩ => ⟨infos, iter⟩
+  modifyGet f := modifyGet fun ⟨infos, iter⟩ => let (ret, iter') := f iter; (ret, ⟨infos, iter'⟩)
 
 -- Macro scopes in the delaborator output are ultimately ignored by the pretty printer,
 -- so give a trivial implementation.
@@ -170,12 +192,40 @@ def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) : DelabM α := do
 @[inline] def liftMetaM {α} (x : MetaM α) : DelabM α :=
   liftM x
 
+def addTermInfo (pos : Pos) (stx : Syntax) (e : Expr) (isBinder : Bool := false) : DelabM Unit := do
+  let info ← mkTermInfo stx e isBinder
+  modify fun s => { s with infos := s.infos.insert pos info }
+where
+  mkTermInfo stx e isBinder := do Info.ofTermInfo {
+    elaborator := `Delab,
+    stx := stx,
+    lctx := (← getLCtx),
+    expectedType? := none,
+    expr := e,
+    isBinder := isBinder
+ }
+
+def addFieldInfo (pos : Pos) (projName fieldName : Name) (stx : Syntax) (val : Expr) : DelabM Unit := do
+  let info ← mkFieldInfo projName fieldName stx val
+  modify fun s => { s with infos := s.infos.insert pos info }
+where
+  mkFieldInfo projName fieldName stx val := do Info.ofFieldInfo {
+    projName := projName,
+    fieldName := fieldName,
+    lctx := (← getLCtx),
+    val := val,
+    stx := stx
+  }
+
 partial def delabFor : Name → Delab
   | Name.anonymous => failure
-  | k              => do
-    (delabAttribute.getValues (← getEnv) k).firstM id >>= annotateCurPos <|>
-      -- have `app.Option.some` fall back to `app` etc.
-      delabFor k.getRoot
+  | k              =>
+    (do let stx ← (delabAttribute.getValues (← getEnv) k).firstM id
+        let stx ← annotateCurPos stx
+        addTermInfo (← getPos) stx (← getExpr)
+        stx)
+    -- have `app.Option.some` fall back to `app` etc.
+    <|> delabFor k.getRoot
 
 partial def delab : Delab := do
   checkMaxHeartbeats "delab"
@@ -209,10 +259,9 @@ to true or `pp.notation` is set to false, it will not be called at all.",
 
 end Delaborator
 
-open Delaborator (OptionsPerPos topDownAnalyze)
+open Delaborator (OptionsPerPos topDownAnalyze Pos)
 
-/-- "Delaborate" the given term into surface-level syntax using the default and given subterm-specific options. -/
-def delab (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Syntax := do
+def delabCore (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM (Syntax × Std.RBMap Pos Elab.Info compare) := do
   trace[PrettyPrinter.delab.input] "{Std.format e}"
   let mut opts ← MonadOptions.getOptions
   -- default `pp.proofs` to `true` if `e` is a proof
@@ -224,9 +273,21 @@ def delab (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (options
     if !getPPAll opts && getPPAnalyze opts && optionsPerPos.isEmpty then
       withTheReader Core.Context (fun ctx => { ctx with options := opts }) do topDownAnalyze e
     else optionsPerPos
-  catchInternalId Delaborator.delabFailureId
-    (Delaborator.delab.run { defaultOptions := opts, optionsPerPos := optionsPerPos, currNamespace := currNamespace, openDecls := openDecls } (Delaborator.SubExpr.mkRoot e))
+  let (stx, {infos := infos, ..}) ← catchInternalId Delaborator.delabFailureId
+    (Delaborator.delab
+      { defaultOptions := opts
+        optionsPerPos := optionsPerPos
+        currNamespace := currNamespace
+        openDecls := openDecls
+        subExpr := Delaborator.SubExpr.mkRoot e }
+      |>.run { : Delaborator.State })
     (fun _ => unreachable!)
+  return (stx, infos)
+
+/-- "Delaborate" the given term into surface-level syntax using the default and given subterm-specific options. -/
+def delab (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Syntax := do
+  let (stx, _) ← delabCore currNamespace openDecls e optionsPerPos
+  stx
 
 builtin_initialize registerTraceClass `PrettyPrinter.delab
 

@@ -8,6 +8,8 @@ import Lean.Server.Utils
 import Lean.Server.Snapshots
 import Lean.Server.AsyncList
 
+import Lean.Server.Rpc.Basic
+
 namespace Lean.Server.FileWorker
 open Snapshots
 open IO
@@ -54,8 +56,7 @@ structure EditableDocument where
   cancelTk   : CancelToken
   deriving Inhabited
 
-/-- Concurrently modifiable part of an RPC session. -/
-structure RpcSessionState where
+structure RpcSession where
   /-- Objects that are being kept alive for the RPC client, together with their type names,
   mapped to by their RPC reference.
 
@@ -66,43 +67,46 @@ structure RpcSessionState where
   /-- Value to use for the next `RpcRef`. It is monotonically increasing to avoid any possible
   bugs resulting from its reuse. -/
   nextRef   : USize
+  /-- The `IO.monoMsNow` time when the session expires. See `$/lean/rpc/keepAlive`. -/
+  expireTime      : Nat
 
-namespace RpcSessionState
+namespace RpcSession
 
-def store (st : RpcSessionState) (typeName : Name) (obj : NonScalar) : Lsp.RpcRef × RpcSessionState :=
+def keepAliveTimeMs : Nat :=
+  30000
+
+def new : IO (UInt64 × RpcSession) := do
+  /- We generate a random ID to ensure that session IDs do not repeat across re-initializations
+  and worker restarts. Otherwise, the client may attempt to use outdated references. -/
+  let newId ← ByteArray.toUInt64LE! <$> IO.getRandomBytes 8
+  let newSesh := {
+    aliveRefs := Std.PersistentHashMap.empty
+    nextRef := 0
+    expireTime := (← IO.monoMsNow) + keepAliveTimeMs
+  }
+  return (newId, newSesh)
+
+def store (st : RpcSession) (typeName : Name) (obj : NonScalar) : Lsp.RpcRef × RpcSession :=
   let ref := ⟨st.nextRef⟩
   let st' := { st with aliveRefs := st.aliveRefs.insert ref (typeName, obj)
                        nextRef := st.nextRef + 1 }
   (ref, st')
 
-def release (st : RpcSessionState) (ref : Lsp.RpcRef) : Bool × RpcSessionState :=
+def release (st : RpcSession) (ref : Lsp.RpcRef) : Bool × RpcSession :=
   let released := st.aliveRefs.contains ref
   (released, { st with aliveRefs := st.aliveRefs.erase ref })
 
-end RpcSessionState
+def keptAlive (s : RpcSession) : IO RpcSession := do
+  return { s with expireTime := (← IO.monoMsNow) + keepAliveTimeMs }
 
-structure RpcSession where
-  sessionId       : UInt64
-  clientConnected : Bool
-  -- A single `Ref` ensures atomic transactions.
-  state           : IO.Ref RpcSessionState
-
-namespace RpcSession
-
-def new (clientConnected := false) : IO RpcSession := do
-  /- We generate a random ID to ensure that session IDs do not repeat across re-initializations
-  and worker restarts. Otherwise, the client may attempt to use outdated references. -/
-  let newId ← ByteArray.toUInt64LE! <$> IO.getRandomBytes 8
-  let newState ← IO.mkRef {
-    aliveRefs := Std.PersistentHashMap.empty
-    nextRef := 0
-  }
-  return {
-    sessionId := newId
-    clientConnected
-    state := newState
-  }
+def hasExpired (s : RpcSession) : IO Bool :=
+  return s.expireTime ≤ (← IO.monoMsNow)
 
 end RpcSession
+
+instance [Monad m] [MonadStateOf RpcSession m] : MonadRpcSession m where
+  rpcStoreRef typeName obj := modifyGet fun st => st.store typeName obj
+  rpcGetRef r := return (←get).aliveRefs.find? r
+  rpcReleaseRef r := modifyGet fun st => st.release r
 
 end Lean.Server.FileWorker

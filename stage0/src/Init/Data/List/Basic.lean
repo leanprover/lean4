@@ -97,6 +97,38 @@ def isEmpty : List α → Bool
   | []    => []
   | a::as => f a :: map f as
 
+def mapTRAux (f : α → β) : List α → List β → List β
+  | [],    bs => bs.reverse
+  | a::as, bs => mapTRAux f as (f a :: bs)
+
+def mapTR (f : α → β) (as : List α) : List β :=
+  mapTRAux f as []
+
+theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux as [] ++ bs := by
+  induction as generalizing bs with
+  | nil => simp [reverseAux]
+  | cons a as ih =>
+    simp [reverseAux]
+    rw [ih (a :: bs), ih [a], append_assoc]
+    rfl
+
+theorem reverse_cons (a : α) (as : List α) : reverse (a :: as) = reverse as ++ [a] := by
+  simp [reverse, reverseAux]
+  rw [← reverseAux_eq_append]
+
+theorem mapTRAux_eq (f : α → β) (as : List α) (bs : List β) : mapTRAux f as bs =  bs.reverse ++ map f as := by
+  induction as generalizing bs with
+  | nil => simp [mapTRAux, map]
+  | cons a as ih =>
+    simp [mapTRAux, map]
+    rw [ih (f a :: bs), reverse_cons, append_assoc]
+    rfl
+
+@[csimp] theorem map_eq_mapTR : @map = @mapTR := by
+  apply funext; intro α; apply funext; intro β; apply funext; intro f; apply funext; intro as
+  simp [mapTR, mapTRAux_eq]
+  rfl
+
 @[specialize] def map₂ (f : α → β → γ) : List α → List β → List γ
   | [],    _     => []
   | _,     []    => []

@@ -3331,8 +3331,6 @@ lean_dec(x_15);
 x_18 = lean_ctor_get(x_1, 2);
 lean_inc(x_18);
 x_19 = l_Lean_Expr_instantiateLevelParamsCore_visit___at_Lean_Expr_instantiateLevelParamsArray___spec__1(x_7, x_16, x_18);
-lean_dec(x_16);
-lean_dec(x_7);
 x_20 = lean_ctor_get(x_1, 1);
 lean_inc(x_20);
 lean_dec(x_1);

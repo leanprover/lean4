@@ -186,8 +186,12 @@ def join (l : List String) : String :=
 def singleton (c : Char) : String :=
   "".push c
 
-def intercalate (s : String) (ss : List String) : String :=
-  (List.intercalate s.toList (ss.map toList)).asString
+def intercalate (s : String) : List String → String
+  | []      => ""
+  | a :: as => go a s as
+where go (acc : String) (s : String) : List String → String
+  | a :: as => go (acc ++ s ++ a) s as
+  | []      => acc
 
 structure Iterator where
   s : String
@@ -196,7 +200,7 @@ structure Iterator where
 
 def mkIterator (s : String) : Iterator :=
   ⟨s, 0⟩
-  
+
 namespace Iterator
 def toString : Iterator → String
   | ⟨s, _⟩ => s

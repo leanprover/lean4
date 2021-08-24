@@ -160,10 +160,9 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
           pure fmt
         else
           let fmt := addLine fmt
-          match ids, type? with
-          | [], _        => pure fmt
-          | _, none      => pure fmt
-          | _, some type => do
+          match type? with
+          | none      => pure fmt
+          | some type => do
             let typeFmt ← ppExpr type
             pure $ fmt ++ (Format.joinSep ids.reverse (format " ") ++ " :" ++ Format.nest indent (Format.line ++ typeFmt)).group
       let rec ppVars (varNames : List Name) (prevType? : Option Expr) (fmt : Format) (localDecl : LocalDecl) : MetaM (List Name × Option Expr × Format) := do
@@ -202,7 +201,7 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
       let fmt ← pushPending varNames type? fmt
       let fmt := addLine fmt
       let typeFmt ← ppExpr mvarDecl.type
-      let fmt := fmt ++ "⊢" ++ " " ++ Format.nest indent typeFmt
+      let fmt := fmt ++ "⊢ " ++ Format.nest indent typeFmt
       match mvarDecl.userName with
       | Name.anonymous => pure fmt
       | name           => return "case " ++ format name.eraseMacroScopes ++ Format.line ++ fmt

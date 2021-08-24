@@ -133,10 +133,6 @@ def publishDiagnostics (m : DocumentMeta) (diagnostics : Array Lsp.Diagnostic) (
     }
   }
 
-def publishMessages (m : DocumentMeta) (msgLog : MessageLog) (hOut : FS.Stream) : IO Unit := do
-  let diagnostics ← msgLog.msgs.mapM (msgToDiagnostic m.text)
-  publishDiagnostics m diagnostics.toArray hOut
-
 def publishProgress (m : DocumentMeta) (processing : Array LeanFileProgressProcessingInfo) (hOut : FS.Stream) : IO Unit :=
   hOut.writeLspNotification {
     method := "$/lean/fileProgress"

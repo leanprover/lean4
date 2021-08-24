@@ -135,16 +135,19 @@ def indent (x : Formatter) (indent : Option Int := none) : Formatter := do
   concat x
   let ctx ← read
   let indent := indent.getD $ Std.Format.getIndent ctx.options
-  modify fun st => { st with stack := st.stack.pop.push (Format.nest indent st.stack.back) }
+  modify fun st => { st with stack := st.stack.modify (st.stack.size - 1) (Format.nest indent) }
 
 def group (x : Formatter) : Formatter := do
   concat x
-  modify fun st => { st with stack := st.stack.pop.push (Format.fill st.stack.back) }
+  modify fun st => { st with stack := st.stack.modify (st.stack.size - 1) Format.fill }
 
-/-- Tags the top of the stack with `stx`'s position, if it has one. -/
-def tagTop (stx : Syntax) : Formatter := do
-  if let some p := stx.getPos? then
-    modify fun st => { st with stack := st.stack.pop.push (Format.tag p st.stack.back) }
+/-- If `pos?` has a position, run `x` and tag its results with that position. Otherwise just run `x`. -/
+def withMaybeTag (pos? : Option String.Pos) (x : FormatterM Unit) : Formatter := do
+  if let some p := pos? then
+    concat x
+    modify fun st => { st with stack := st.stack.modify (st.stack.size - 1) (Format.tag p) }
+  else
+    x
 
 @[combinatorFormatter Lean.Parser.orelse] def orelse.formatter (p1 p2 : Formatter) : Formatter :=
   -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
@@ -167,10 +170,9 @@ unsafe def formatterForKindUnsafe (k : SyntaxNodeKind) : Formatter := do
     push "<missing>"
     goLeft
   else
-    let f ← runForNodeKind formatterAttribute k interpretParserDescr'
     let stx ← getCur
-    concat f
-    tagTop stx
+    let f ← runForNodeKind formatterAttribute k interpretParserDescr'
+    withMaybeTag stx.getPos? f
 
 @[implementedBy formatterForKindUnsafe]
 constant formatterForKind (k : SyntaxNodeKind) : Formatter
@@ -441,6 +443,9 @@ def setExpected.formatter (expected : List String) (p : Formatter) : Formatter :
 @[combinatorFormatter Lean.Parser.skip] def skip.formatter : Formatter := pure ()
 
 @[combinatorFormatter Lean.Parser.pushNone] def pushNone.formatter : Formatter := goLeft
+
+@[combinatorFormatter Lean.Parser.withOpenDecl] def withOpenDecl.formatter (p : Formatter) : Formatter := p
+@[combinatorFormatter Lean.Parser.withOpen] def withOpen.formatter (p : Formatter) : Formatter := p
 
 @[combinatorFormatter Lean.Parser.interpolatedStr]
 def interpolatedStr.formatter (p : Formatter) : Formatter := do

@@ -55,7 +55,7 @@ def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
       message := s!"Cannot parse request params: {params.compress}\n{inner}" }
 
 structure RequestContext where
-  rpcSesh       : FileWorker.RpcSession
+  rpcSessions   : Std.RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
   srcSearchPath : SearchPath
   doc           : FileWorker.EditableDocument
   hLog          : IO.FS.Stream
@@ -66,17 +66,6 @@ abbrev RequestM := ReaderT RequestContext <| ExceptT RequestError IO
 
 instance : Inhabited (RequestM α) :=
   ⟨throwThe IO.Error "executing Inhabited instance?!"⟩
-
-instance : MonadRpcSession RequestM where
-  rpcSessionId := do
-    (←read).rpcSesh.sessionId
-  rpcStoreRef typeName obj := do
-    (←read).rpcSesh.state.modifyGet fun st => st.store typeName obj
-  rpcGetRef r := do
-    let rs ← (←read).rpcSesh.state.get
-    rs.aliveRefs.find? r
-  rpcReleaseRef r := do
-    (←read).rpcSesh.state.modifyGet fun st => st.release r
 
 namespace RequestM
 open FileWorker
@@ -139,7 +128,7 @@ private structure RequestHandler where
 builtin_initialize requestHandlers : IO.Ref (Std.PersistentHashMap String RequestHandler) ←
   IO.mkRef {}
 
-/-- NB: This method may only be called in `initialize`/`builtin_initialize` blocks.
+/-- NB: This method may only be called in `builtin_initialize` blocks.
 
 A registration consists of:
 - a type of JSON-parsable request data `paramType`

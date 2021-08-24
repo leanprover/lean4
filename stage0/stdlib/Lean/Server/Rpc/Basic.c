@@ -13,7 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Server_instInhabitedWithRpcRef___rarg___boxed(lean_object*);
 lean_object* l_Lean_Server_instRpcEncodingOptionOption___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Server_instInhabitedWithRpcRef(lean_object*);
 lean_object* l_Lean_Server_instRpcEncodingOptionOption___rarg(lean_object*);
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_Server_WithRpcRef_encodeUnsafe(lean_object*);
@@ -39,6 +41,7 @@ lean_object* l_Lean_Server_instMonadRpcSession___rarg___lambda__3___boxed(lean_o
 static lean_object* l_Lean_Server_instRpcEncoding___closed__3;
 lean_object* l_Lean_Server_WithRpcRef_decodeUnsafeAs_match__1(lean_object*);
 lean_object* l_Lean_Server_instMonadRpcSession___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_Server_instInhabitedWithRpcRef___rarg(lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_Server_instRpcEncodingArrayArray___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_instRpcEncodingProdProd___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -113,7 +116,7 @@ lean_object* l_Lean_Server_instMonadRpcSession___rarg___lambda__1(lean_object* x
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_1, 1);
+x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 lean_dec(x_1);
 x_6 = lean_apply_2(x_5, x_3, x_4);
@@ -125,7 +128,7 @@ lean_object* l_Lean_Server_instMonadRpcSession___rarg___lambda__2(lean_object* x
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = lean_ctor_get(x_1, 2);
+x_4 = lean_ctor_get(x_1, 1);
 lean_inc(x_4);
 lean_dec(x_1);
 x_5 = lean_box_usize(x_3);
@@ -138,7 +141,7 @@ lean_object* l_Lean_Server_instMonadRpcSession___rarg___lambda__3(lean_object* x
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = lean_ctor_get(x_1, 3);
+x_4 = lean_ctor_get(x_1, 2);
 lean_inc(x_4);
 lean_dec(x_1);
 x_5 = lean_box_usize(x_3);
@@ -150,30 +153,25 @@ return x_7;
 lean_object* l_Lean_Server_instMonadRpcSession___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
-lean_inc(x_1);
-x_4 = lean_apply_2(x_1, lean_box(0), x_3);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 lean_inc(x_1);
 lean_inc(x_2);
-x_5 = lean_alloc_closure((void*)(l_Lean_Server_instMonadRpcSession___rarg___lambda__1), 4, 2);
+x_3 = lean_alloc_closure((void*)(l_Lean_Server_instMonadRpcSession___rarg___lambda__1), 4, 2);
+lean_closure_set(x_3, 0, x_2);
+lean_closure_set(x_3, 1, x_1);
+lean_inc(x_1);
+lean_inc(x_2);
+x_4 = lean_alloc_closure((void*)(l_Lean_Server_instMonadRpcSession___rarg___lambda__2___boxed), 3, 2);
+lean_closure_set(x_4, 0, x_2);
+lean_closure_set(x_4, 1, x_1);
+x_5 = lean_alloc_closure((void*)(l_Lean_Server_instMonadRpcSession___rarg___lambda__3___boxed), 3, 2);
 lean_closure_set(x_5, 0, x_2);
 lean_closure_set(x_5, 1, x_1);
-lean_inc(x_1);
-lean_inc(x_2);
-x_6 = lean_alloc_closure((void*)(l_Lean_Server_instMonadRpcSession___rarg___lambda__2___boxed), 3, 2);
-lean_closure_set(x_6, 0, x_2);
-lean_closure_set(x_6, 1, x_1);
-x_7 = lean_alloc_closure((void*)(l_Lean_Server_instMonadRpcSession___rarg___lambda__3___boxed), 3, 2);
-lean_closure_set(x_7, 0, x_2);
-lean_closure_set(x_7, 1, x_1);
-x_8 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_8, 0, x_4);
-lean_ctor_set(x_8, 1, x_5);
-lean_ctor_set(x_8, 2, x_6);
-lean_ctor_set(x_8, 3, x_7);
-return x_8;
+x_6 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_6, 0, x_3);
+lean_ctor_set(x_6, 1, x_4);
+lean_ctor_set(x_6, 2, x_5);
+return x_6;
 }
 }
 lean_object* l_Lean_Server_instMonadRpcSession(lean_object* x_1, lean_object* x_2) {
@@ -1112,12 +1110,36 @@ x_1 = 0;
 return x_1;
 }
 }
+lean_object* l_Lean_Server_instInhabitedWithRpcRef___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_Lean_Server_instInhabitedWithRpcRef(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Server_instInhabitedWithRpcRef___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_Server_instInhabitedWithRpcRef___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Server_instInhabitedWithRpcRef___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_Server_WithRpcRef_encodeUnsafe___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = x_5;
-x_7 = lean_ctor_get(x_1, 1);
+x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec(x_1);
 x_8 = lean_apply_2(x_7, x_4, x_6);
@@ -1543,7 +1565,7 @@ lean_object* l_Lean_Server_WithRpcRef_decodeUnsafeAs___rarg(lean_object* x_1, le
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_6 = lean_ctor_get(x_2, 2);
+x_6 = lean_ctor_get(x_2, 1);
 lean_inc(x_6);
 lean_dec(x_2);
 x_7 = lean_box_usize(x_5);

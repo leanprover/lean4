@@ -22,11 +22,13 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_neutralExpr___closed__1;
 lean_object* l_Lean_Compiler_atMostOnce_visit_match__1(lean_object*);
 static lean_object* l_Lean_Compiler_mkLcProof___closed__3;
+lean_object* l_List_mapTR___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_objectType;
 static lean_object* l_Lean_Compiler_objectType___closed__2;
 lean_object* l_Lean_Compiler_atMostOnce_match__1___rarg(lean_object*, lean_object*);
 lean_object* lean_environment_find(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_mkLcProof___closed__2;
+lean_object* l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___lambda__1___boxed(lean_object*);
 lean_object* l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen_match__1(lean_object*);
 lean_object* l_Lean_Compiler_isEagerLambdaLiftingName_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -35,6 +37,7 @@ static lean_object* l_Lean_Compiler_checkIsDefinition___closed__3;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_get_decl_names_for_code_gen(lean_object*);
 static lean_object* l_Lean_Compiler_mkLcProof___closed__1;
+lean_object* l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___lambda__1(lean_object*);
 lean_object* l_Lean_Compiler_neutralExpr;
 lean_object* l_Lean_Compiler_isEagerLambdaLiftingName___boxed(lean_object*);
 lean_object* l_Lean_Compiler_atMostOnce_visit___boxed(lean_object*, lean_object*, lean_object*);
@@ -51,6 +54,7 @@ lean_object* l_Lean_Compiler_atMostOnce_match__1(lean_object*);
 static lean_object* l_Lean_Compiler_neutralExpr___closed__3;
 static lean_object* l_Lean_Compiler_voidType___closed__2;
 lean_object* l_Nat_repr(lean_object*);
+static lean_object* l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___closed__1;
 static lean_object* l_Lean_Compiler_atMostOnce___closed__1;
 lean_object* l_Lean_Compiler_mkLcProof(lean_object*);
 lean_object* lean_mk_unsafe_rec_name(lean_object*);
@@ -59,7 +63,6 @@ lean_object* l_Lean_Compiler_atMostOnce_visitFVar___boxed(lean_object*, lean_obj
 static lean_object* l_Lean_Compiler_atMostOnce_visitFVar___closed__2;
 lean_object* l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_checkIsDefinition(lean_object*, lean_object*);
-lean_object* l_List_map___at___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___spec__1(lean_object*);
 static lean_object* l_Lean_Compiler_voidType___closed__1;
 static lean_object* l_Lean_Compiler_atMostOnce_visitFVar___closed__1;
 lean_object* l_Lean_Compiler_unreachableExpr;
@@ -1369,54 +1372,22 @@ x_2 = lean_alloc_closure((void*)(l___private_Lean_Compiler_Util_0__Lean_Compiler
 return x_2;
 }
 }
-lean_object* l_List_map___at___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___spec__1(lean_object* x_1) {
+lean_object* l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___lambda__1(lean_object* x_1) {
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_2; 
-x_2 = lean_box(0);
-return x_2;
-}
-else
-{
-lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_1, 0);
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_ctor_get(x_1, 0);
+x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
-x_4 = lean_ctor_get(x_3, 0);
-lean_inc(x_4);
-lean_dec(x_3);
-x_5 = !lean_is_exclusive(x_1);
-if (x_5 == 0)
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___closed__1() {
+_start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_6 = lean_ctor_get(x_1, 1);
-x_7 = lean_ctor_get(x_1, 0);
-lean_dec(x_7);
-x_8 = lean_ctor_get(x_4, 0);
-lean_inc(x_8);
-lean_dec(x_4);
-x_9 = l_List_map___at___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___spec__1(x_6);
-lean_ctor_set(x_1, 1, x_9);
-lean_ctor_set(x_1, 0, x_8);
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___lambda__1___boxed), 1, 0);
 return x_1;
-}
-else
-{
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_10 = lean_ctor_get(x_1, 1);
-lean_inc(x_10);
-lean_dec(x_1);
-x_11 = lean_ctor_get(x_4, 0);
-lean_inc(x_11);
-lean_dec(x_4);
-x_12 = l_List_map___at___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___spec__1(x_10);
-x_13 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_13, 0, x_11);
-lean_ctor_set(x_13, 1, x_12);
-return x_13;
-}
-}
 }
 }
 lean_object* lean_get_decl_names_for_code_gen(lean_object* x_1) {
@@ -1438,39 +1409,49 @@ return x_3;
 }
 case 5:
 {
-lean_object* x_4; lean_object* x_5; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec(x_1);
-x_5 = l_List_map___at___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___spec__1(x_4);
-return x_5;
+x_5 = l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___closed__1;
+x_6 = l_List_mapTR___rarg(x_5, x_4);
+return x_6;
 }
 case 6:
 {
-lean_object* x_6; 
+lean_object* x_7; 
 lean_dec(x_1);
-x_6 = lean_box(0);
-return x_6;
+x_7 = lean_box(0);
+return x_7;
 }
 default: 
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
-lean_dec(x_1);
-x_8 = lean_ctor_get(x_7, 0);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
-lean_dec(x_7);
+lean_dec(x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 lean_dec(x_8);
-x_10 = lean_box(0);
-x_11 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_11, 0, x_9);
-lean_ctor_set(x_11, 1, x_10);
-return x_11;
+x_10 = lean_ctor_get(x_9, 0);
+lean_inc(x_10);
+lean_dec(x_9);
+x_11 = lean_box(0);
+x_12 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set(x_12, 1, x_11);
+return x_12;
 }
 }
+}
+}
+lean_object* l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___lambda__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___lambda__1(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* l_Lean_Compiler_checkIsDefinition_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -1803,6 +1784,8 @@ l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1 = _init_l_Lean_Compiler_mkE
 lean_mark_persistent(l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1);
 l_Lean_Compiler_isEagerLambdaLiftingName___closed__1 = _init_l_Lean_Compiler_isEagerLambdaLiftingName___closed__1();
 lean_mark_persistent(l_Lean_Compiler_isEagerLambdaLiftingName___closed__1);
+l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___closed__1 = _init_l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___closed__1();
+lean_mark_persistent(l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___closed__1);
 l_Lean_Compiler_checkIsDefinition___closed__1 = _init_l_Lean_Compiler_checkIsDefinition___closed__1();
 lean_mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__1);
 l_Lean_Compiler_checkIsDefinition___closed__2 = _init_l_Lean_Compiler_checkIsDefinition___closed__2();

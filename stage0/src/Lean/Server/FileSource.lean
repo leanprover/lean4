@@ -84,4 +84,7 @@ instance : FileSource RpcCallParams where
 instance : FileSource RpcReleaseParams where
   fileSource p := p.uri
 
+instance : FileSource RpcKeepAliveParams where
+  fileSource p := p.uri
+
 end Lean.Lsp

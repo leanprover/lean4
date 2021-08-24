@@ -19,14 +19,12 @@ namespace Lean.Server
 
 /-- Monads with an RPC session in their state. -/
 class MonadRpcSession (m : Type → Type) where
-  rpcSessionId : m UInt64
   rpcStoreRef (typeName : Name) (obj : NonScalar) : m Lsp.RpcRef
   rpcGetRef (r : Lsp.RpcRef) : m (Option (Name × NonScalar))
   rpcReleaseRef (r : Lsp.RpcRef) : m Bool
-export MonadRpcSession (rpcSessionId rpcStoreRef rpcGetRef rpcReleaseRef)
+export MonadRpcSession (rpcStoreRef rpcGetRef rpcReleaseRef)
 
 instance {m n : Type → Type} [MonadLift m n] [MonadRpcSession m] : MonadRpcSession n where
-  rpcSessionId             := liftM (rpcSessionId : m _)
   rpcStoreRef typeName obj := liftM (rpcStoreRef typeName obj : m _)
   rpcGetRef r              := liftM (rpcGetRef r : m _)
   rpcReleaseRef r          := liftM (rpcReleaseRef r : m _)
@@ -45,7 +43,6 @@ non-JSON-serializable fields can be auto-encoded in two ways:
 -- or, compile `WithRpcRef` to "opaque reference" on the client
 class RpcEncoding (α : Type) (β : outParam Type) where
   rpcEncode {m : Type → Type} [Monad m] [MonadRpcSession m] : α → m β
-  -- TODO(WN): ExceptT String or RpcError where | InvalidSession | InvalidParams (msg : String) | ..
   rpcDecode {m : Type → Type} [Monad m] [MonadRpcSession m] : β → ExceptT String m α
 export RpcEncoding (rpcEncode rpcDecode)
 
@@ -66,7 +63,7 @@ instance [RpcEncoding α β] : RpcEncoding (Array α) (Array β) where
   rpcEncode a := a.mapM rpcEncode
   rpcDecode b := b.mapM rpcDecode
 
-instance [RpcEncoding α α'] [RpcEncoding β β']  : RpcEncoding (α × β) (α' × β') where
+instance [RpcEncoding α α'] [RpcEncoding β β'] : RpcEncoding (α × β) (α' × β') where
   rpcEncode := fun (a, b) => do
     let a' ← rpcEncode a
     let b' ← rpcEncode b
@@ -82,6 +79,7 @@ structure RpcEncoding.DerivingParams where
 /-- Marks fields to encode as opaque references in LSP packets. -/
 structure WithRpcRef (α : Type u) where
   val : α
+  deriving Inhabited
 
 namespace WithRpcRef
 
@@ -89,8 +87,7 @@ variable {m : Type → Type} [Monad m] [MonadRpcSession m]
 
 /-- This is unsafe because we must ensure that:
 - the stored `NonScalar` is never used to access the value as a type other than `α`
-- the type `α` is not a scalar
--/
+- the type `α` is not a scalar -/
 protected unsafe def encodeUnsafe [Monad m] (typeName : Name) (r : WithRpcRef α) : m Lsp.RpcRef := do
   let obj := @unsafeCast α NonScalar r.val
   rpcStoreRef typeName obj

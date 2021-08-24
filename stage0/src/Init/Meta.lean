@@ -115,6 +115,8 @@ instance : ToString Name where
 instance : Repr Name where
   reprPrec n _ := Std.Format.text "`" ++ n.toString
 
+deriving instance Repr for Syntax
+
 def capitalize : Name → Name
   | Name.str p s _ => Name.mkStr p s.capitalize
   | n              => n

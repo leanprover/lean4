@@ -1070,12 +1070,15 @@ def ppExpr (e : Expr) : MetaM Format := do
   let ctxCore  ← readThe Core.Context
   Lean.ppExpr { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions), currNamespace := ctxCore.currNamespace, openDecls := ctxCore.openDecls  } e
 
-@[inline] protected def orelse (x y : MetaM α) : MetaM α := do
-  let env  ← getEnv
-  let mctx ← getMCtx
-  try x catch _ => setEnv env; setMCtx mctx; y
+@[inline] protected def orElse (x y : MetaM α) : MetaM α := do
+  let s ← saveState
+  try x catch _ => s.restore; y
 
-instance : OrElse (MetaM α) := ⟨Meta.orelse⟩
+instance : OrElse (MetaM α) := ⟨Meta.orElse⟩
+
+instance : Alternative MetaM where
+  failure := fun {α} => throwError "failed"
+  orElse  := Meta.orElse
 
 @[inline] private def orelseMergeErrorsImp (x y : MetaM α)
     (mergeRef : Syntax → Syntax → Syntax := fun r₁ r₂ => r₁)

@@ -1,19 +1,18 @@
 /-
 Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Daniel Selsam
+Authors: Sebastian Ullrich, Daniel Selsam, Wojciech Nawrocki
 -/
 import Lean.Meta.Basic
 import Std.Data.RBMap
 
 /-!
-This file defines utilities for `MetaM` computations to traverse subexpressions
-of an expression in sync with the `Nat` "position" values that refers to them.
-We use a simple encoding scheme: every `Expr` constructor has at most 3 direct
-expression children. Considering an expressions type as well, we can injectively
-map a path of `childIdxs` to a natural number by computing the value of the 4-ary
-representation `1 :: childIdxs`, since n-ary representations without leading zeros
-are unique. Note that `pos` is initialized to `1` (case `childIdxs == []`).
+This file defines utilities for `MetaM` computations to traverse subexpressions of an expression
+in sync with the `Nat` "position" values that refer to them.  We use a simple encoding scheme:
+every `Expr` constructor has at most 3 direct expression children. Considering an expression's type
+to be one extra child as well, we can injectively map a path of `childIdxs` to a natural number
+by computing the value of the 4-ary representation `1 :: childIdxs`, since n-ary representations
+without leading zeros are unique. Note that `pos` is initialized to `1` (case `childIdxs == []`).
 -/
 
 namespace Lean.PrettyPrinter.Delaborator
@@ -25,16 +24,20 @@ abbrev OptionsPerPos := Std.RBMap Pos Options compare
 structure SubExpr where
   expr : Expr
   pos  : Pos
+  deriving Inhabited
 
 namespace SubExpr
 
+abbrev maxChildren : Pos := 4
+
 variable {α : Type} [Inhabited α]
 variable {m : Type → Type} [Monad m]
+
+section Descend
+
 variable [MonadReaderOf SubExpr m] [MonadWithReaderOf SubExpr m]
 variable [MonadLiftT MetaM m] [MonadControlT MetaM m]
 variable [MonadLiftT IO m]
-
-abbrev maxChildren : Pos := 4
 
 def mkRoot (e : Expr) : SubExpr := ⟨e, 1⟩
 
@@ -97,6 +100,37 @@ def withNaryArg (argIdx : Nat) (x : m α) : m α := do
   let newPos := (← getPos) * (maxChildren ^ (args.size - argIdx)) + 1
   withTheReader SubExpr (fun cfg => { cfg with expr := args[argIdx], pos := newPos }) x
 
+end Descend
+
+structure HoleIterator where
+  curr : Nat := 2
+  top  : Nat := maxChildren
+  deriving Inhabited
+
+section Hole
+
+variable {α : Type} [Inhabited α]
+variable {m : Type → Type} [Monad m]
+variable [MonadStateOf HoleIterator m]
+
+def HoleIterator.toPos (iter : HoleIterator) : Pos :=
+  iter.curr
+
+def HoleIterator.next (iter : HoleIterator) : HoleIterator :=
+  if (iter.curr+1) == iter.top then
+    ⟨2*iter.top, maxChildren*iter.top⟩
+  else ⟨iter.curr+1, iter.top⟩
+
+/-- The positioning scheme guarantees that there will be an infinite number of extra positions
+which are never used by `Expr`s. The `HoleIterator` always points at the next such "hole".
+We use these to attach additional `Elab.Info`. -/
+def nextExtraPos : m Pos := do
+  let iter ← getThe HoleIterator
+  let pos := iter.toPos
+  modifyThe HoleIterator HoleIterator.next
+  pos
+
+end Hole
 end SubExpr
 
 end Lean.PrettyPrinter.Delaborator

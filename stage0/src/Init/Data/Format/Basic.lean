@@ -15,8 +15,7 @@ inductive Format.FlattenBehavior where
   | fill
   deriving Inhabited, BEq
 
-open Format
-
+open Format in
 inductive Format where
   | nil                 : Format
   | line                : Format
@@ -78,6 +77,7 @@ private def spaceUptoLine : Format → Bool → Nat → SpaceResult
 private structure WorkItem where
   f : Format
   indent : Int
+  activeTags : Nat
 
 private structure WorkGroup where
   flatten : Bool
@@ -89,12 +89,19 @@ private partial def spaceUptoLine' : List WorkGroup → Nat → SpaceResult
   |   { items := [],    .. }::gs, w => spaceUptoLine' gs w
   | g@{ items := i::is, .. }::gs, w => merge w (spaceUptoLine i.f g.flatten w) (spaceUptoLine' ({ g with items := is }::gs))
 
-private structure State where
-  out    : String := ""
-  column : Nat    := 0
+/-- A monad in which we can pretty-print `Format` objects. -/
+class MonadPrettyFormat (m : Type → Type) where
+  pushOutput (s : String)    : m Unit
+  pushNewline (indent : Nat) : m Unit
+  currColumn                 : m Nat
+  /-- Start a scope tagged with `n`. -/
+  startTag                   : Nat → m Unit
+  /-- Exit the scope of `n`-many opened tags. -/
+  endTags                    : Nat → m Unit
+open MonadPrettyFormat
 
-private def pushGroup (flb : FlattenBehavior) (items : List WorkItem) (gs : List WorkGroup) (w : Nat) : StateM State (List WorkGroup) := do
-  let k  := (← get).column
+private def pushGroup (flb : FlattenBehavior) (items : List WorkItem) (gs : List WorkGroup) (w : Nat) [Monad m] [MonadPrettyFormat m] : m (List WorkGroup) := do
+  let k  ← currColumn
   -- Flatten group if it + the remainder (gs) fits in the remaining space. For `fill`, measure only up to the next (ungrouped) line break.
   let g  := { flatten := flb == FlattenBehavior.allOrNone, flb := flb, items := items : WorkGroup }
   let r  := spaceUptoLine' [g] (w-k)
@@ -102,32 +109,30 @@ private def pushGroup (flb : FlattenBehavior) (items : List WorkItem) (gs : List
   -- Prevent flattening if any item contains a hard line break, except within `fill` if it is ungrouped (=> unflattened)
   return { g with flatten := !r.foundFlattenedHardLine && r'.space <= w-k }::gs
 
-private def pushOutput (s : String) : StateM State Unit :=
-  -- We avoid a structure instance update, and write this function using pattern matching because of issue #361
-  modify fun ⟨out, col⟩ => ⟨out ++ s, col + s.length⟩
-
-private def pushNewline (indent : Nat) : StateM State Unit :=
-  modify fun st => { st with out := st.out ++ "\n".pushn ' ' indent, column := indent }
-
-private partial def be (w : Nat) : List WorkGroup → StateM State Unit
+private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGroup → m Unit
   | []                           => pure ()
   |   { items := [],    .. }::gs => be w gs
   | g@{ items := i::is, .. }::gs => do
     let gs' (is' : List WorkItem) := { g with items := is' }::gs;
     match i.f with
-    | nil => be w (gs' is)
-    | tag _ f => be w (gs' ({ i with f }::is))
-    | append f₁ f₂ => be w (gs' ({ i with f := f₁ }::{ i with f := f₂ }::is))
-    | nest n f => be w (gs' ({ i with f := f, indent := i.indent + n }::is))
+    | nil =>
+      endTags i.activeTags
+      be w (gs' is)
+    | tag t f =>
+      startTag t
+      be w (gs' ({ i with f, activeTags := i.activeTags + 1 }::is))
+    | append f₁ f₂ => be w (gs' ({ i with f := f₁, activeTags := 0 }::{ i with f := f₂ }::is))
+    | nest n f => be w (gs' ({ i with f, indent := i.indent + n }::is))
     | text s =>
       let p := s.posOf '\n'
       if p == s.bsize then
         pushOutput s
+        endTags i.activeTags
         be w (gs' is)
       else
         pushOutput (s.extract 0 p)
         pushNewline i.indent.toNat
-        let is := { i with f := s.extract (s.next p) s.bsize }::is
+        let is := { i with f := text (s.extract (s.next p) s.bsize) }::is
         -- after a hard line break, re-evaluate whether to flatten the remaining group
         pushGroup g.flb is gs w >>= be w
     | line =>
@@ -136,14 +141,17 @@ private partial def be (w : Nat) : List WorkGroup → StateM State Unit
         if g.flatten then
           -- flatten line = text " "
           pushOutput " "
+          endTags i.activeTags
           be w (gs' is)
         else
           pushNewline i.indent.toNat
+          endTags i.activeTags
           be w (gs' is)
       | FlattenBehavior.fill =>
         let breakHere := do
           pushNewline i.indent.toNat
           -- make new `fill` group and recurse
+          endTags i.activeTags
           pushGroup FlattenBehavior.fill is gs w >>= be w
         -- if preceding fill item fit in a single line, try to fit next one too
         if g.flatten then
@@ -151,6 +159,7 @@ private partial def be (w : Nat) : List WorkGroup → StateM State Unit
             | panic "unreachable"
           if g'.flatten then
             pushOutput " ";
+            endTags i.activeTags
             be w gs'  -- TODO: use `return`
           else
             breakHere
@@ -159,9 +168,12 @@ private partial def be (w : Nat) : List WorkGroup → StateM State Unit
     | group f flb =>
       if g.flatten then
         -- flatten (group f) = flatten f
-        be w (gs' ({ i with f := f }::is))
+        be w (gs' ({ i with f }::is))
       else
-        pushGroup flb [{ i with f := f }] (gs' is) w >>= be w
+        pushGroup flb [{ i with f }] (gs' is) w >>= be w
+
+def prettyM (f : Format) (w : Nat) (indent : Nat := 0) [Monad m] [MonadPrettyFormat m] : m Unit :=
+  be w [{ flb := FlattenBehavior.allOrNone, flatten := false, items := [{ f := f, indent, activeTags := 0 }]}]
 
 @[inline] def bracket (l : String) (f : Format) (r : String) : Format :=
   group (nest l.length $ l ++ f ++ r)
@@ -185,10 +197,23 @@ def nestD (f : Format) : Format :=
 def indentD (f : Format) : Format :=
   nestD (Format.line ++ f)
 
+private structure State where
+  out    : String := ""
+  column : Nat    := 0
+
+instance : MonadPrettyFormat (StateM State) where
+  -- We avoid a structure instance update, and write these functions using pattern matching because of issue #316
+  pushOutput s       := modify fun ⟨out, col⟩ => ⟨out ++ s, col + s.length⟩
+  pushNewline indent := modify fun ⟨out, col⟩ => ⟨out ++ "\n".pushn ' ' indent, indent⟩
+  currColumn         := return (←get).column
+  startTag n         := return ()
+  endTags n          := return ()
+
+/-- Pretty-print a `Format` object as a string with expected width `w`. -/
 @[export lean_format_pretty]
 def pretty (f : Format) (w : Nat := defWidth) : String :=
-  let (_, st) := be w [{ flb := FlattenBehavior.allOrNone, flatten := false, items := [{ f := f, indent := 0 }] }] {};
-  st.out
+  let act: StateM State Unit := prettyM f w
+  act {} |>.snd.out
 
 end Format
 

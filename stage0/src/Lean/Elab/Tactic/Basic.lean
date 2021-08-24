@@ -246,6 +246,10 @@ instance : MonadExcept Exception TacticM where
 instance {α} : OrElse (TacticM α) where
   orElse := Tactic.orElse
 
+instance : Alternative TacticM where
+  failure := fun {α} => throwError "failed"
+  orElse  := Tactic.orElse
+
 /-
   Save the current tactic state for a token `stx`.
   This method is a no-op if `stx` has no position information.

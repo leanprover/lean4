@@ -18,6 +18,10 @@ import Lean.Server.AsyncList
 
 import Lean.Server.FileWorker.Utils
 import Lean.Server.FileWorker.RequestHandling
+import Lean.Server.FileWorker.WidgetRequests
+
+import Lean.Server.Rpc.Basic
+import Lean.Widget.InteractiveDiagnostic
 
 /-!
 For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.
@@ -49,59 +53,63 @@ open Snapshots
 open Std (RBMap RBMap.empty)
 open JsonRpc
 
-/- Asynchronous snapshot elaboration. -/
-section Elab
-  /-- Elaborates the next command after `parentSnap` and emits diagnostics into `hOut`. -/
-  private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream)
-      : ExceptT ElabTaskError IO Snapshot := do
-    cancelTk.check
-    publishProgressAtPos m parentSnap.endPos hOut
-    let maybeSnap ← compileNextCmd m.text.source parentSnap
-    -- TODO(MH): check for interrupt with increased precision
-    cancelTk.check
-    match maybeSnap with
-    | Sum.inl snap =>
-      /- NOTE(MH): This relies on the client discarding old diagnostics upon receiving new ones
-        while prefering newer versions over old ones. The former is necessary because we do
-        not explicitly clear older diagnostics, while the latter is necessary because we do
-        not guarantee that diagnostics are emitted in order. Specifically, it may happen that
-        we interrupted this elaboration task right at this point and a newer elaboration task
-        emits diagnostics, after which we emit old diagnostics because we did not yet detect
-        the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
-        because we cannot guarantee that no further diagnostics are emitted after clearing
-        them. -/
-      if snap.msgLog.msgs.size > parentSnap.msgLog.msgs.size then
-        publishMessages m snap.msgLog hOut
-      snap
-    | Sum.inr msgLog =>
-      publishMessages m msgLog hOut
-      publishProgressDone m hOut
-      throw ElabTaskError.eof
-
-  /-- Elaborates all commands after `initSnap`, emitting the diagnostics into `hOut`. -/
-  def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) (hOut : FS.Stream)
-    (initial : Bool) :
-      IO (AsyncList ElabTaskError Snapshot) := do
-    if initial && initSnap.msgLog.hasErrors then
-      -- treat header processing errors as fatal so users aren't swamped with followup errors
-      AsyncList.nil
-    else
-      AsyncList.unfoldAsync (nextCmdSnap m . cancelTk hOut) initSnap
-end Elab
-
--- Pending requests are tracked so they can be cancelled
-abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) compare
-
 structure WorkerContext where
   hIn           : FS.Stream
   hOut          : FS.Stream
   hLog          : FS.Stream
   srcSearchPath : SearchPath
 
+/- Asynchronous snapshot elaboration. -/
+section Elab
+  abbrev AsyncElabM := ExceptT ElabTaskError (ReaderT WorkerContext IO)
+
+  /-- Elaborates the next command after `parentSnap` and emits diagnostics into `hOut`. -/
+  private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken)
+      : AsyncElabM Snapshot := do
+    cancelTk.check
+    let hOut := (←read).hOut
+    if parentSnap.isAtEnd then
+      publishDiagnostics m parentSnap.diagnostics.toArray hOut
+      publishProgressDone m hOut
+      throw ElabTaskError.eof
+    publishProgressAtPos m parentSnap.endPos hOut
+    let snap ← compileNextCmd m.text parentSnap
+    -- TODO(MH): check for interrupt with increased precision
+    cancelTk.check
+    /- NOTE(MH): This relies on the client discarding old diagnostics upon receiving new ones
+      while prefering newer versions over old ones. The former is necessary because we do
+      not explicitly clear older diagnostics, while the latter is necessary because we do
+      not guarantee that diagnostics are emitted in order. Specifically, it may happen that
+      we interrupted this elaboration task right at this point and a newer elaboration task
+      emits diagnostics, after which we emit old diagnostics because we did not yet detect
+      the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
+      because we cannot guarantee that no further diagnostics are emitted after clearing
+      them. -/
+    -- NOTE(WN): this is *not* redundent even if there are no new diagnostics in this snapshot
+    -- because empty diagnostics clear existing error/information squiggles. Therefore we always
+    -- want to publish in case there was previously a message at this position.
+    publishDiagnostics m snap.diagnostics.toArray hOut
+    return snap
+
+  /-- Elaborates all commands after `initSnap`, emitting the diagnostics into `hOut`. -/
+  def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) (initial : Bool)
+      : ReaderT WorkerContext IO (AsyncList ElabTaskError Snapshot) := do
+    if initial && initSnap.msgLog.hasErrors then
+      -- treat header processing errors as fatal so users aren't swamped with followup errors
+      AsyncList.nil
+    else
+      AsyncList.unfoldAsync (nextCmdSnap m . cancelTk (← read)) initSnap
+end Elab
+
+-- Pending requests are tracked so they can be cancelled
+abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) compare
+
 structure WorkerState where
   doc             : EditableDocument
   pendingRequests : PendingRequestMap
-  rpcSesh         : RpcSession
+  /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
+  to modify sessions. A single `Ref` ensures atomic transactions. -/
+  rpcSessions     : Std.RBMap UInt64 (IO.Ref RpcSession) compare
 
 abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
@@ -166,7 +174,6 @@ section Initialization
     catch e =>  -- should be from `leanpkg print-paths`
       let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
       pure (← mkEmptyEnvironment, msgs)
-    publishMessages m msgLog hOut
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
     let cmdState := { cmdState with infoState.enabled := true, scopes := [{ header := "", opts := opts }] }
     let headerSnap := {
@@ -174,30 +181,27 @@ section Initialization
       stx := headerStx
       mpState := headerParserState
       cmdState := cmdState
+      interactiveDiags := ← cmdState.messages.msgs.mapM (Widget.msgToInteractiveDiagnostic m.text)
     }
+    publishDiagnostics m headerSnap.diagnostics.toArray hOut
     return (headerSnap, srcSearchPath)
 
   def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream)
       : IO (WorkerContext × WorkerState) := do
-    /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
-      "\n", which should be enough to handle both LF and CRLF correctly.
-      This is because LSP always refers to characters by (line, column),
-      so if we get the line number correct it shouldn't matter that there
-      is a CR there. -/
     let (headerSnap, srcSearchPath) ← compileHeader meta o
     let cancelTk ← CancelToken.new
-    let cmdSnaps ← unfoldCmdSnaps meta headerSnap cancelTk o (initial := true)
+    let ctx :=
+      { hIn                := i
+        hOut               := o
+        hLog               := e
+        srcSearchPath      := srcSearchPath
+      }
+    let cmdSnaps ← unfoldCmdSnaps meta headerSnap cancelTk (initial := true) ctx
     let doc : EditableDocument := ⟨meta, headerSnap, cmdSnaps, cancelTk⟩
-    return ({
-      hIn                := i
-      hOut               := o
-      hLog               := e
-      srcSearchPath      := srcSearchPath
-    },
-    {
-      doc             := doc
+    return (ctx,
+    { doc             := doc
       pendingRequests := RBMap.empty
-      rpcSesh         := ← RpcSession.new false
+      rpcSessions     := Std.RBMap.empty
     })
 end Initialization
 
@@ -230,7 +234,7 @@ section Updates
       let mut validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos)
       if validSnaps.length = 0 then
         let cancelTk ← CancelToken.new
-        let newCmdSnaps ← unfoldCmdSnaps newMeta newHeaderSnap cancelTk ctx.hOut (initial := true)
+        let newCmdSnaps ← unfoldCmdSnaps newMeta newHeaderSnap cancelTk (initial := true) ctx
         modify fun st => { st with doc := ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩ }
       else
         /- When at least one valid non-header snap exists, it may happen that a change does not fall
@@ -248,7 +252,7 @@ section Updates
           validSnaps ← validSnaps.dropLast
           lastSnap ← preLastSnap
         let cancelTk ← CancelToken.new
-        let newSnaps ← unfoldCmdSnaps newMeta lastSnap cancelTk ctx.hOut (initial := false)
+        let newSnaps ← unfoldCmdSnaps newMeta lastSnap cancelTk (initial := false) ctx
         let newCmdSnaps := AsyncList.ofList validSnaps ++ newSnaps
         modify fun st => { st with doc := ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩ }
 end Updates
@@ -272,32 +276,40 @@ section NotificationHandling
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
 
-  def handleRpcConnect (p : RpcConnectParams) : WorkerM Unit := do
-    let st ← get
-    let doc := st.doc
-    let rpcSesh' ←
-      if !st.rpcSesh.clientConnected then
-        -- First client connection.
-        pure { st.rpcSesh with clientConnected := true }
-      else
-        /- Client has restarted. Just setting the state should `dec` the previous session.
-        Any associated references will then no longer be kept alive for the client. -/
-        RpcSession.new true
-    set { st with rpcSesh := rpcSesh' }
-    (←read).hOut.writeLspNotification
-      <| { method := "$/lean/rpc/connected"
-           param := { uri := doc.meta.uri
-                      sessionId := rpcSesh'.sessionId : RpcConnected } }
-
 def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
   let st ← get
-  if p.sessionId ≠ st.rpcSesh.sessionId then
+  match st.rpcSessions.find? p.sessionId with
+  | none =>
     -- TODO(WN): should only print on log-level debug, if we had log-levels
-    IO.eprintln s!"Trying to release ref '{p.ref}' from outdated RPC session '{p.sessionId}'."
-  else
-    discard <| st.rpcSesh.state.modifyGet fun st => st.release p.ref
+    IO.eprintln s!"Trying to release refs '{p.refs}' from outdated RPC session '{p.sessionId}'."
+  | some seshRef =>
+    let mut sesh ← seshRef.get
+    for ref in p.refs do
+      sesh := sesh.release ref |>.snd
+    sesh ← sesh.keptAlive
+    seshRef.set sesh
+
+def handleRpcKeepAlive (p : Lsp.RpcKeepAliveParams) : WorkerM Unit := do
+  let st ← get
+  match st.rpcSessions.find? p.sessionId with
+  | none => return
+  | some seshRef =>
+    let sesh ← seshRef.get
+    let sesh ← sesh.keptAlive
+    seshRef.set sesh
 
 end NotificationHandling
+
+/-! Requests here are handled synchronously rather than in the asynchronous `RequestM`. -/
+section RequestHandling
+
+def handleRpcConnect (p : RpcConnectParams) : WorkerM RpcConnected := do
+  let (newId, newSesh) ← RpcSession.new
+  let newSeshRef ← IO.mkRef newSesh
+  modify fun st => { st with rpcSessions := st.rpcSessions.insert newId newSeshRef }
+  return { sessionId := newId }
+
+end RequestHandling
 
 section MessageHandling
   def parseParams (paramType : Type) [FromJson paramType] (params : Json) : WorkerM paramType :=
@@ -311,8 +323,8 @@ section MessageHandling
     match method with
     | "textDocument/didChange" => handle DidChangeTextDocumentParams handleDidChange
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
-    | "$/lean/rpc/connect"     => handle RpcConnectParams handleRpcConnect
     | "$/lean/rpc/release"     => handle RpcReleaseParams handleRpcRelease
+    | "$/lean/rpc/keepAlive"   => handle RpcKeepAliveParams handleRpcKeepAlive
     | _                        => throwServerError s!"Got unsupported notification method: {method}"
 
   def queueRequest (id : RequestID) (requestTask : Task (Except IO.Error Unit))
@@ -323,8 +335,21 @@ section MessageHandling
       : WorkerM Unit := do
     let ctx ← read
     let st ← get
+
+    if method == "$/lean/rpc/connect" then
+      try
+        let ps ← parseParams RpcConnectParams params
+        let resp ← handleRpcConnect ps
+        ctx.hOut.writeLspResponse ⟨id, resp⟩
+      catch e =>
+        ctx.hOut.writeLspResponseError
+          { id
+            code := ErrorCode.internalError
+            message := toString e }
+      return
+
     let rc : RequestContext :=
-      { rpcSesh := st.rpcSesh
+      { rpcSessions := st.rpcSessions
         srcSearchPath := ctx.srcSearchPath
         doc := st.doc
         hLog := ctx.hLog }
@@ -344,10 +369,10 @@ end MessageHandling
 section MainLoop
   partial def mainLoop : WorkerM Unit := do
     let ctx ← read
+    let mut st ← get
     let msg ← ctx.hIn.readLspMessage
-    let pendingRequests := (←get).pendingRequests
     let filterFinishedTasks (acc : PendingRequestMap) (id : RequestID) (task : Task (Except IO.Error Unit))
-        : WorkerM PendingRequestMap := do
+        : IO PendingRequestMap := do
       if (←hasFinished task) then
         /- Handler tasks are constructed so that the only possible errors here
         are failures of writing a response into the stream. -/
@@ -355,8 +380,16 @@ section MainLoop
           throwServerError s!"Failed responding to request {id}: {e}"
         acc.erase id
       else acc
-    let pendingRequests ← pendingRequests.foldM filterFinishedTasks pendingRequests
-    modify fun st => { st with pendingRequests := pendingRequests }
+    let pendingRequests ← st.pendingRequests.foldM (fun acc id task => filterFinishedTasks acc id task) st.pendingRequests
+    st := { st with pendingRequests }
+
+    -- Opportunistically (i.e. when we wake up on messages) check if any RPC session has expired.
+    for (id, seshRef) in st.rpcSessions do
+      let sesh ← seshRef.get
+      if (← sesh.hasExpired) then
+        st := { st with rpcSessions := st.rpcSessions.erase id }
+
+    set st
     match msg with
     | Message.request id method (some params) =>
       handleRequest id method (toJson params)
@@ -377,6 +410,11 @@ def initAndRunWorker (i o e : FS.Stream) : IO UInt32 := do
   let _ ← i.readLspRequestAs "initialize" InitializeParams
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" DidOpenTextDocumentParams
   let doc := param.textDocument
+  /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
+    "\n", which should be enough to handle both LF and CRLF correctly.
+    This is because LSP always refers to characters by (line, column),
+    so if we get the line number correct it shouldn't matter that there
+    is a CR there. -/
   let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap⟩
   let e ← e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e

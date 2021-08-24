@@ -40,7 +40,7 @@ instance : ToJson String := ⟨fun s => s⟩
 instance [FromJson α] : FromJson (Array α) where
   fromJson?
     | Json.arr a => a.mapM fromJson?
-    | _          => throw "JSON array expected"
+    | j          => throw s!"expected JSON array, got '{j}'"
 
 instance [ToJson α] : ToJson (Array α) :=
   ⟨fun a => Json.arr (a.map toJson)⟩
@@ -55,15 +55,26 @@ instance [ToJson α] : ToJson (Option α) :=
     | none   => Json.null
     | some a => toJson a⟩
 
+instance [FromJson α] [FromJson β] : FromJson (α × β) where
+  fromJson?
+    | Json.arr #[ja, jb] => do
+      let a ← fromJson? ja
+      let b ← fromJson? jb
+      return (a, b)
+    | j => throw s!"expected pair, got '{j}'"
+
+instance [ToJson α] [ToJson β] : ToJson (α × β) where
+  toJson := fun (a, b) => Json.arr #[toJson a, toJson b]
+
 instance : FromJson Name where
   fromJson? j := do
     let s ← j.getStr?
-    let some n ← Syntax.decodeNameLit s
+    let some n ← Syntax.decodeNameLit ("`" ++ s)
       | throw s!"expected a `Name`, got '{j}'"
     return n
 
 instance : ToJson Name where
-  toJson n := toString (repr n)
+  toJson n := toString n
 
 /- Note that `USize`s and `UInt64`s are stored as strings because JavaScript
 cannot represent 64-bit numbers. -/
@@ -72,7 +83,7 @@ def bignumFromJson? (j : Json) : Except String Nat := do
   let some v ← Syntax.decodeNatLitVal? s -- TODO maybe this should be in Std
     | throw s!"expected a string-encoded number, got '{j}'"
   return v
-  
+
 def bignumToJson (n : Nat) : Json :=
   toString n
 
@@ -101,7 +112,7 @@ namespace Json
 instance : FromJson Structured := ⟨fun
   | arr a => Structured.arr a
   | obj o => Structured.obj o
-  | _     => throw "structured object expected"⟩
+  | j     => throw s!"expected structured object, got '{j}'"⟩
 
 instance : ToJson Structured := ⟨fun
   | Structured.arr a => arr a

@@ -392,7 +392,6 @@ x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
 lean_dec(x_9);
 lean_inc(x_2);
-lean_inc(x_1);
 x_12 = l_Lean_KeyedDeclsAttribute_getValues___rarg(x_1, x_11, x_2);
 lean_dec(x_11);
 if (lean_obj_tag(x_12) == 0)
@@ -595,7 +594,6 @@ x_56 = lean_ctor_get(x_54, 0);
 lean_inc(x_56);
 lean_dec(x_54);
 lean_inc(x_2);
-lean_inc(x_1);
 x_57 = l_Lean_KeyedDeclsAttribute_getValues___rarg(x_1, x_56, x_2);
 lean_dec(x_56);
 if (lean_obj_tag(x_57) == 0)

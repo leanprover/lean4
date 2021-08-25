@@ -138,23 +138,14 @@ where
   let stxNew ← liftMacroM <| Term.expandMatchAltsIntoMatchTactic stx matchAlts
   withMacroExpansion stx stxNew <| evalTactic stxNew
 
-private def getIntrosSize : Expr → Nat
-  | Expr.forallE _ _ b _ => getIntrosSize b + 1
-  | Expr.letE _ _ _ b _  => getIntrosSize b + 1
-  | Expr.mdata _ b _     => getIntrosSize b
-  | _                    => 0
-
 @[builtinTactic «intros»] def evalIntros : Tactic := fun stx =>
   match stx with
   | `(tactic| intros) => liftMetaTactic fun mvarId => do
-    let type ← Meta.getMVarType mvarId
-    let type ← instantiateMVars type
-    let n := getIntrosSize type
-    let (_, mvarId) ← Meta.introN mvarId n
-    pure [mvarId]
+    let (_, mvarId) ← Meta.intros mvarId
+    return [mvarId]
   | `(tactic| intros $ids*) => liftMetaTactic fun mvarId => do
     let (_, mvarId) ← Meta.introN mvarId ids.size (ids.map getNameOfIdent').toList
-    pure [mvarId]
+    return [mvarId]
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic Lean.Parser.Tactic.revert] def evalRevert : Tactic := fun stx =>

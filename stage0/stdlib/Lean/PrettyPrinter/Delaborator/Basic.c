@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.PrettyPrinter.Delaborator.Basic
-// Imports: Init Lean.KeyedDeclsAttribute Lean.ProjFns Lean.Syntax Lean.Meta.Match Lean.Elab.Term Lean.PrettyPrinter.Delaborator.Options Lean.PrettyPrinter.Delaborator.SubExpr Lean.PrettyPrinter.Delaborator.TopDownAnalyze
+// Imports: Init Lean.KeyedDeclsAttribute Lean.ProjFns Lean.Syntax Lean.Meta.Match.Match Lean.Elab.Term Lean.PrettyPrinter.Delaborator.Options Lean.PrettyPrinter.Delaborator.SubExpr Lean.PrettyPrinter.Delaborator.TopDownAnalyze
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14281,7 +14281,7 @@ lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_KeyedDeclsAttribute(lean_object*);
 lean_object* initialize_Lean_ProjFns(lean_object*);
 lean_object* initialize_Lean_Syntax(lean_object*);
-lean_object* initialize_Lean_Meta_Match(lean_object*);
+lean_object* initialize_Lean_Meta_Match_Match(lean_object*);
 lean_object* initialize_Lean_Elab_Term(lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Delaborator_Options(lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Delaborator_SubExpr(lean_object*);
@@ -14303,7 +14303,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Syntax(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Match(lean_io_mk_world());
+res = initialize_Lean_Meta_Match_Match(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Term(lean_io_mk_world());

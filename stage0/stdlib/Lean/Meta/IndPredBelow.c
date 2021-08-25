@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.IndPredBelow
-// Imports: Init Lean.Util.Constructions Lean.Meta.Transform Lean.Meta.Tactic Lean.Meta.Match Lean.Meta.Reduce
+// Imports: Init Lean.Util.Constructions Lean.Meta.Transform Lean.Meta.Tactic Lean.Meta.Match.Match Lean.Meta.Reduce
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23931,7 +23931,7 @@ lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Util_Constructions(lean_object*);
 lean_object* initialize_Lean_Meta_Transform(lean_object*);
 lean_object* initialize_Lean_Meta_Tactic(lean_object*);
-lean_object* initialize_Lean_Meta_Match(lean_object*);
+lean_object* initialize_Lean_Meta_Match_Match(lean_object*);
 lean_object* initialize_Lean_Meta_Reduce(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Meta_IndPredBelow(lean_object* w) {
@@ -23950,7 +23950,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Match(lean_io_mk_world());
+res = initialize_Lean_Meta_Match_Match(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Reduce(lean_io_mk_world());

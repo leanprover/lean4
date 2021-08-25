@@ -112,4 +112,16 @@ abbrev intro1 (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
 abbrev intro1P (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
   intro1Core mvarId true
 
+private def getIntrosSize : Expr → Nat
+  | Expr.forallE _ _ b _ => getIntrosSize b + 1
+  | Expr.letE _ _ _ b _  => getIntrosSize b + 1
+  | Expr.mdata _ b _     => getIntrosSize b
+  | _                    => 0
+
+def intros (mvarId : MVarId) : MetaM (Array FVarId × MVarId) := do
+  let type ← Meta.getMVarType mvarId
+  let type ← instantiateMVars type
+  let n := getIntrosSize type
+  Meta.introN mvarId n
+
 end Lean.Meta

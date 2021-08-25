@@ -238,7 +238,7 @@ inductive MetavarKind where
   | natural
   | synthetic
   | syntheticOpaque
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 def MetavarKind.isSyntheticOpaque : MetavarKind → Bool
   | MetavarKind.syntheticOpaque => true

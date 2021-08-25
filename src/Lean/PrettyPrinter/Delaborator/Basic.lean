@@ -6,7 +6,7 @@ Authors: Sebastian Ullrich
 import Lean.KeyedDeclsAttribute
 import Lean.ProjFns
 import Lean.Syntax
-import Lean.Meta.Match
+import Lean.Meta.Match.Match
 import Lean.Elab.Term
 import Lean.PrettyPrinter.Delaborator.Options
 import Lean.PrettyPrinter.Delaborator.SubExpr

@@ -126,6 +126,12 @@ protected theorem right_distrib (n m k : Nat) : (n + m) * k = n * k + m * k :=
   have h₄ : n * k + k * m = n * k + m * k := Nat.mul_comm m k ▸ rfl
   ((h₁.trans h₂).trans h₃).trans h₄
 
+protected theorem mul_add (n m k : Nat) : n * (m + k) = n * m + n * k :=
+  Nat.left_distrib n m k
+
+protected theorem add_mul (n m k : Nat) : (n + m) * k = n * k + m * k :=
+  Nat.right_distrib n m k
+
 protected theorem mul_assoc : ∀ (n m k : Nat), (n * m) * k = n * (m * k)
   | n, m, 0      => rfl
   | n, m, succ k =>

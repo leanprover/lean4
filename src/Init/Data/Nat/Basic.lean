@@ -196,6 +196,18 @@ protected theorem lt_of_lt_of_le {n m k : Nat} : n < m → m ≤ k → n < k :=
 protected theorem lt_of_lt_of_eq {n m k : Nat} : n < m → m = k → n < k :=
   fun h₁ h₂ => h₂ ▸ h₁
 
+instance : Trans (. < . : Nat → Nat → Prop) (. < . : Nat → Nat → Prop) (. < . : Nat → Nat → Prop) where
+  trans := Nat.lt_trans
+
+instance : Trans (. ≤ . : Nat → Nat → Prop) (. ≤ . : Nat → Nat → Prop) (. ≤ . : Nat → Nat → Prop) where
+  trans := Nat.le_trans
+
+instance : Trans (. < . : Nat → Nat → Prop) (. ≤ . : Nat → Nat → Prop) (. < . : Nat → Nat → Prop) where
+  trans := Nat.lt_of_lt_of_le
+
+instance : Trans (. ≤ . : Nat → Nat → Prop) (. < . : Nat → Nat → Prop) (. < . : Nat → Nat → Prop) where
+  trans := Nat.lt_of_le_of_lt
+
 protected theorem le_of_eq {n m : Nat} (p : n = m) : n ≤ m :=
   p ▸ Nat.le_refl n
 

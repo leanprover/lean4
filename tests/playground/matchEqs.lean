@@ -33,12 +33,13 @@ theorem ex2 : h 10002 1 = 3 := rfl
 -- set_option trace.Meta.debug true
 -- set_option pp.proofs true
 -- set_option trace.Meta.debug truen
+set_option trace.Meta.Match.matchEqs true in
 test% f.match_1
-set_option pp.analyze false
 #check @f.match_1.eq_1
 #check @f.match_1.eq_2
 #check @f.match_1.eq_3
 #check @f.match_1.eq_4
+#check @f.match_1.splitter
 
 test% h.match_1
 #check @h.match_1.eq_1
@@ -47,6 +48,7 @@ test% h.match_1
 #check @h.match_1.eq_4
 #check @h.match_1.eq_5
 #check @h.match_1.eq_6
+#check @h.match_1.splitter
 
 def g (xs ys : List (Nat × String)) : Nat :=
   match xs, ys with
@@ -54,7 +56,11 @@ def g (xs ys : List (Nat × String)) : Nat :=
   | [(c, d)], _ => 1
   | _,  _       => 2
 
+set_option pp.analyze false
+set_option pp.proofs true
+set_option trace.Meta.Match.matchEqs true in
 test% g.match_1
 #check @g.match_1.eq_1
 #check @g.match_1.eq_2
 #check @g.match_1.eq_3
+#check @g.match_1.splitter

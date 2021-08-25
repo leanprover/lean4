@@ -1,8 +1,3 @@
-class Trans (r : α → β → Prop) (s : β → γ → Prop) (t : outParam (α → γ → Prop)) where
-  trans : r a b → s b c → t a c
-
-export Trans (trans)
-
 instance : Trans (α := Nat) (β := Nat) (γ := Nat) (.≤.) (.≤.) (.≤.) where
   trans := Nat.le_trans
 

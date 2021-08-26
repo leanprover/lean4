@@ -1,0 +1,6 @@
+multiConstantError.lean:1:13-1:14: error: failed to infer binder type
+recall that you cannot declare multiple constants in a single declaration. The identifier(s) `b`, `c` are being interpreted as parameters `(b : _)`, `(c : _)`
+multiConstantError.lean:1:11-1:12: error: failed to infer binder type
+recall that you cannot declare multiple constants in a single declaration. The identifier(s) `b`, `c` are being interpreted as parameters `(b : _)`, `(c : _)`
+multiConstantError.lean:3:11-3:12: error: failed to infer binder type
+recall that you cannot declare multiple constants in a single declaration. The identifier(s) `α`, `β` are being interpreted as parameters `(α : _)`, `(β : _)`

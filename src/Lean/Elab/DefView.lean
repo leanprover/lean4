@@ -16,7 +16,7 @@ namespace Lean.Elab
 
 inductive DefKind where
   | «def» | «theorem» | «example» | «opaque» | «abbrev»
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 def DefKind.isTheorem : DefKind → Bool
   | «theorem» => true

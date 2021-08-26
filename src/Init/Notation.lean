@@ -386,6 +386,8 @@ syntax (name := cases) "cases " casesTarget,+ (" using " ident)? (inductionAlts)
 
 syntax (name := existsIntro) "exists " term : tactic
 
+/-- `renameI x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
+syntax (name := renameI) "renameI " (colGt (ident <|> "_"))+ : tactic
 
 syntax "repeat " tacticSeq : tactic
 macro_rules

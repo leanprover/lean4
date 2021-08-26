@@ -84,6 +84,23 @@ private def getOptRotation (stx : Syntax) : Nat :=
         mvarIdsNew := mvarIdsNew.push mvarId
   setGoals mvarIdsNew.toList
 
+@[builtinTactic Parser.Tactic.anyGoals] def evalAnyGoals : Tactic := fun stx => do
+  let mvarIds ← getGoals
+  let mut mvarIdsNew := #[]
+  let mut succeeded := false
+  for mvarId in mvarIds do
+    unless (← isExprMVarAssigned mvarId) do
+      setGoals [mvarId]
+      try
+        evalTactic stx[1]
+        mvarIdsNew := mvarIdsNew ++ (← getUnsolvedGoals)
+        succeeded := true
+      catch _ =>
+        mvarIdsNew := mvarIdsNew.push mvarId
+  unless succeeded do
+    throwError "failed on all goals"
+  setGoals mvarIdsNew.toList
+
 @[builtinTactic tacticSeq] def evalTacticSeq : Tactic := fun stx =>
   evalTactic stx[0]
 

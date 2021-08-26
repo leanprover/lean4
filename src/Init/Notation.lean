@@ -281,6 +281,8 @@ syntax (name := constructor) "constructor" : tactic
 syntax (name := case) "case " ident (ident <|> "_")* " => " tacticSeq : tactic
 /-- `allGoals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
 syntax (name := allGoals) "allGoals " tacticSeq : tactic
+/-- `anyGoals tac` applies the tactic `tac` to every goal, and succeeds if at least one application succeeds.  -/
+syntax (name := anyGoals) "anyGoals " tacticSeq : tactic
 /--
 `focus tac` focuses on the main goal, suppressing all other goals, and runs `tac` on it.
 Usually `· tac`, which enforces that the goal is closed by `tac`, should be preferred. -/

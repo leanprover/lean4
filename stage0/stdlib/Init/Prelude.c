@@ -206,6 +206,7 @@ lean_object* l_Lean_Syntax_getTailPos_x3f_loop_match__1(lean_object*);
 static lean_object* l_Applicative_seqRight___default___rarg___closed__1;
 lean_object* l_instDecidableEqFin_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Macro_instMonadQuotationMacroM;
+lean_object* l_instTransEq__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getNumArgs___boxed(lean_object*);
 lean_object* l_cond_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_readThe___rarg___boxed(lean_object*);
@@ -938,6 +939,7 @@ lean_object* l_ReaderT_pure___rarg(lean_object*, lean_object*, lean_object*, lea
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Name_instBEqName;
 lean_object* l_instMonadWithReaderOf___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instTransEq(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getHeadInfo_x3f_loop___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isIdent(lean_object*);
 lean_object* l_readThe___rarg(lean_object*);
@@ -1995,6 +1997,22 @@ lean_object* x_3;
 x_3 = l_min(x_1, x_2);
 lean_dec(x_2);
 return x_3;
+}
+}
+lean_object* l_instTransEq(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_box(0);
+return x_4;
+}
+}
+lean_object* l_instTransEq__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_box(0);
+return x_4;
 }
 }
 lean_object* l_instHAdd___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

@@ -107,25 +107,24 @@ private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) := do
   if k == ``Lean.Parser.Term.simpleBinder then
     -- binderIdent+ >> optType
     let ids ← getBinderIds stx[0]
-    let type := expandOptType (mkNullNode ids) stx[1]
-    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.default }
+    let optType := stx[1]
+    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := expandOptType id optType, bi := BinderInfo.default }
   else if k == ``Lean.Parser.Term.explicitBinder then
     -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
     let ids ← getBinderIds stx[1]
-    let type        := expandBinderType (mkNullNode ids) stx[2]
+    let type        := stx[2]
     let optModifier := stx[3]
-    let type ← expandBinderModifier type optModifier
-    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.default }
+    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := (← expandBinderModifier (expandBinderType id type) optModifier), bi := BinderInfo.default }
   else if k == ``Lean.Parser.Term.implicitBinder then
     -- `{` binderIdent+ binderType `}`
     let ids ← getBinderIds stx[1]
-    let type := expandBinderType (mkNullNode ids) stx[2]
-    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.implicit }
+    let type := stx[2]
+    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := expandBinderType id type, bi := BinderInfo.implicit }
   else if k == ``Lean.Parser.Term.strictImplicitBinder then
     -- `⦃` binderIdent+ binderType `⦄`
     let ids ← getBinderIds stx[1]
-    let type := expandBinderType (mkNullNode ids) stx[2]
-    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.strictImplicit }
+    let type := stx[2]
+    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := expandBinderType id type, bi := BinderInfo.strictImplicit }
   else if k == ``Lean.Parser.Term.instBinder then
     -- `[` optIdent type `]`
     let id ← expandOptIdent stx[1]

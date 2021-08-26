@@ -84,6 +84,23 @@ private def getOptRotation (stx : Syntax) : Nat :=
         mvarIdsNew := mvarIdsNew.push mvarId
   setGoals mvarIdsNew.toList
 
+@[builtinTactic Parser.Tactic.anyGoals] def evalAnyGoals : Tactic := fun stx => do
+  let mvarIds ← getGoals
+  let mut mvarIdsNew := #[]
+  let mut succeeded := false
+  for mvarId in mvarIds do
+    unless (← isExprMVarAssigned mvarId) do
+      setGoals [mvarId]
+      try
+        evalTactic stx[1]
+        mvarIdsNew := mvarIdsNew ++ (← getUnsolvedGoals)
+        succeeded := true
+      catch _ =>
+        mvarIdsNew := mvarIdsNew.push mvarId
+  unless succeeded do
+    throwError "failed on all goals"
+  setGoals mvarIdsNew.toList
+
 @[builtinTactic tacticSeq] def evalTacticSeq : Tactic := fun stx =>
   evalTactic stx[0]
 
@@ -198,36 +215,40 @@ private def findTag? (mvarIds : List MVarId) (tag : Name) : TacticM (Option MVar
   | some mvarId => return mvarId
   | none        => mvarIds.findM? fun mvarId => return tag.isPrefixOf (← getMVarDecl mvarId).userName
 
+def renameInaccessibles (mvarId : MVarId) (hs : Array Syntax) : TacticM MVarId := do
+  if hs.isEmpty then
+    return mvarId
+  else
+    let mvarDecl ← getMVarDecl mvarId
+    let mut lctx := mvarDecl.lctx
+    let mut hs   := hs
+    let n := lctx.numIndices
+    for i in [:n] do
+      let j := n - i - 1
+      match lctx.getAt? j with
+      | none => pure ()
+      | some localDecl =>
+        if localDecl.userName.hasMacroScopes then
+          let h := hs.back
+          if h.isIdent then
+            let newName := h.getId
+            lctx := lctx.setUserName localDecl.fvarId newName
+          hs := hs.pop
+          if hs.isEmpty then
+            break
+    unless hs.isEmpty do
+      logError m!"too many variable names provided"
+    let mvarNew ← mkFreshExprMVarAt lctx mvarDecl.localInstances mvarDecl.type MetavarKind.syntheticOpaque mvarDecl.userName
+    assignExprMVar mvarId mvarNew
+    return mvarNew.mvarId!
+
 @[builtinTactic «case»] def evalCase : Tactic
   | stx@`(tactic| case $tag $hs* =>%$arr $tac:tacticSeq) => do
     let tag := tag.getId
     let gs ← getUnsolvedGoals
     let some g ← findTag? gs tag | throwError "tag not found"
     let gs := gs.erase g
-    let mut g := g
-    unless hs.isEmpty do
-      let mvarDecl ← getMVarDecl g
-      let mut lctx := mvarDecl.lctx
-      let mut hs   := hs
-      let n := lctx.numIndices
-      for i in [:n] do
-        let j := n - i - 1
-        match lctx.getAt? j with
-        | none => pure ()
-        | some localDecl =>
-          if localDecl.userName.hasMacroScopes then
-            let h := hs.back
-            if h.isIdent then
-              let newName := h.getId
-              lctx := lctx.setUserName localDecl.fvarId newName
-            hs := hs.pop
-            if hs.isEmpty then
-              break
-      unless hs.isEmpty do
-        logError m!"too many variable names provided at 'case'"
-      let mvarNew ← mkFreshExprMVarAt lctx mvarDecl.localInstances mvarDecl.type MetavarKind.syntheticOpaque mvarDecl.userName
-      assignExprMVar g mvarNew
-      g := mvarNew.mvarId!
+    let g ← renameInaccessibles g hs
     setGoals [g]
     let savedTag ← getMVarTag g
     setMVarTag g Name.anonymous
@@ -238,6 +259,10 @@ private def findTag? (mvarIds : List MVarId) (tag : Name) : TacticM (Option MVar
       setMVarTag g savedTag
     done
     setGoals gs
+  | _ => throwUnsupportedSyntax
+
+@[builtinTactic «renameI»] def evalRenameInaccessibles : Tactic
+  | stx@`(tactic| renameI $hs*) => do replaceMainGoal [← renameInaccessibles (← getMainGoal) hs]
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic «first»] partial def evalFirst : Tactic := fun stx => do

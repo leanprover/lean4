@@ -74,6 +74,29 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
 private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit :=
   registerCustomErrorIfMVar type ref "failed to infer definition type"
 
+/--
+  Return `some [b, c]` if the given `views` are representing a declaration of the form
+  ```
+  constant a b c : Nat
+  ```  -/
+private def isMultiConstant? (views : Array DefView) : Option (List Name) :=
+  if views.size == 1 &&
+     views[0].kind == DefKind.opaque &&
+     views[0].binders.getArgs.size > 0 &&
+     views[0].binders.getArgs.all (·.getKind == ``Parser.Term.simpleBinder) then
+    some <| (views[0].binders.getArgs.toList.map (fun stx => stx[0].getArgs.toList.map (·.getId))).join
+  else
+    none
+
+private def getPendindMVarErrorMessage (views : Array DefView) : String :=
+  match isMultiConstant? views with
+  | some ids =>
+    let idsStr := ", ".intercalate <| ids.map fun id => s!"`{id}`"
+    let paramsStr := ", ".intercalate <| ids.map fun id => s!"`({id} : _)`"
+    s!"\nrecall that you cannot declare multiple constants in a single declaration. The identifier(s) {idsStr} are being interpreted as parameters {paramsStr}"
+  | none =>
+    "\nwhen the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed"
+
 private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHeader) := do
   let mut headers := #[]
   for view in views do
@@ -103,7 +126,7 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
           if view.type?.isSome then
             let pendingMVarIds ← getMVars type
             discard <| logUnassignedUsingErrorInfos pendingMVarIds <|
-              m!"\nwhen the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed"
+              getPendindMVarErrorMessage views
           let newHeader := {
             ref           := view.ref,
             modifiers     := view.modifiers,

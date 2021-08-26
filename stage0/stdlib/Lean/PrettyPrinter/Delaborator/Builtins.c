@@ -773,6 +773,7 @@ static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabNameMkStr
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfScientific___lambda__1___closed__4;
 uint8_t l_Lean_BinderInfo_isExplicit(uint8_t);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
+lean_object* l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_6830____spec__3(size_t, size_t, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_getParamKinds___closed__2;
 uint8_t l_Lean_PrettyPrinter_Delaborator_AppMatchState_motiveNamed___default;
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_PrettyPrinter_Delaborator_delab___spec__3___rarg(lean_object*, lean_object*, lean_object*);
@@ -911,7 +912,6 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_shouldShowMotive(lean_object*, lea
 static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabFVar___closed__6;
 lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___at_Lean_PrettyPrinter_Delaborator_isRegularApp___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
-lean_object* l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_6434____spec__3(size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_skippingBinders_loop___rarg___lambda__1___closed__2;
 static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabNameMkNum___closed__4;
 lean_object* l_Lean_PrettyPrinter_Delaborator_unexpandRegularApp_match__1(lean_object*);
@@ -4178,7 +4178,7 @@ x_52 = lean_array_get_size(x_51);
 x_53 = lean_usize_of_nat(x_52);
 lean_dec(x_52);
 x_54 = x_51;
-x_55 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_6434____spec__3(x_53, x_48, x_54);
+x_55 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_6830____spec__3(x_53, x_48, x_54);
 x_56 = x_55;
 x_57 = l_Lean_PrettyPrinter_Delaborator_delabConst___lambda__3___closed__10;
 x_58 = l_Lean_mkSepArray(x_56, x_57);

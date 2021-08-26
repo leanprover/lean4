@@ -321,6 +321,18 @@ def withoutModifyingElabMetaStateWithInfo (x : TermElabM α) : TermElabM α := d
     modify ({ s with infoState := ·.infoState })
     set sMeta
 
+/--
+  Execute `x` bud discard changes performed to the state.
+  However, the info trees and messages are not discarded. -/
+private def withoutModifyingStateWithInfoAndMessagesImpl (x : TermElabM α) : TermElabM α := do
+  let saved ← saveState
+  try
+    x
+  finally
+    let s ← get
+    let saved := { saved with elab.infoState := s.infoState, elab.messages := s.messages }
+    restoreState saved
+
 unsafe def mkTermElabAttributeUnsafe : IO (KeyedDeclsAttribute TermElab) :=
   mkElabAttribute TermElab `Lean.Elab.Term.termElabAttribute `builtinTermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term"
 
@@ -1550,6 +1562,10 @@ def withoutPostponingUniverseConstraints (x : TermElabM α) : TermElabM α := do
     throw ex
 
 end Term
+
+open Term in
+def withoutModifyingStateWithInfoAndMessages [MonadControlT TermElabM m] [Monad m] (x : m α) : m α := do
+  controlAt TermElabM fun runInBase => withoutModifyingStateWithInfoAndMessagesImpl <| runInBase x
 
 builtin_initialize
   registerTraceClass `Elab.postpone

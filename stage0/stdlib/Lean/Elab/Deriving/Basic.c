@@ -171,10 +171,10 @@ lean_object* l_Lean_Elab_elabDeriving_match__1(lean_object*);
 lean_object* l_Lean_Elab_Command_getRef(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabDeriving___lambda__2(lean_object*);
+lean_object* l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_6830____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabDeriving_match__3___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabDeriving_match__2___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
-lean_object* l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_6434____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabDeriving(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_registerBuiltinDerivingHandler(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_getOptDerivingClasses___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3268,7 +3268,7 @@ block_66:
 {
 lean_object* x_33; lean_object* x_34; 
 x_33 = l_Lean_Elab_elabDeriving___closed__11;
-x_34 = l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_6434____spec__1(x_32, x_33);
+x_34 = l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_6830____spec__1(x_32, x_33);
 lean_dec(x_32);
 if (lean_obj_tag(x_34) == 0)
 {

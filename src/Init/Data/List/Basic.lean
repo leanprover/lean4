@@ -45,6 +45,9 @@ theorem reverseAux_reverseAux (as bs cs : List α) : reverseAux (reverseAux as b
   | nil => rfl
   | cons a as ih => simp [reverseAux, ih (a::bs), ih [a]]
 
+@[simp] theorem reverse_reverse (as : List α) : as.reverse.reverse = as := by
+  simp [reverse]; rw [reverseAux_reverseAux_nil]; rfl
+
 protected def append : List α → List α → List α
   | [],    bs => bs
   | a::as, bs => a :: List.append as bs

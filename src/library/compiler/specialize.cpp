@@ -543,7 +543,8 @@ class specialize_fn {
                       List.map f xs
                    ```
                    When visiting `f`'s value, we should set `in_binder == true`, otherwise
-                   we are going to `ys`. Note that we would do it if `f`s value was in eta-expanded form.
+                   we are going to copy `ys`. Note that, `in_binder` we would be set to true
+                   if `f`s value was in eta-expanded form.
 
                    Remark: This is **not** a perfect solution because we are not using WHNF. We can't
                    use it without refactoring the code and updating the local context.

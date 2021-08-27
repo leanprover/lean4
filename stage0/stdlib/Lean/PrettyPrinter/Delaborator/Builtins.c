@@ -15224,15 +15224,13 @@ x_13 = lean_unsigned_to_nat(1u);
 x_14 = lean_nat_add(x_13, x_12);
 lean_dec(x_12);
 x_15 = lean_array_get_size(x_2);
-lean_inc(x_2);
 x_16 = l_Array_toSubarray___rarg(x_2, x_14, x_15);
 x_17 = l_Array_ofSubarray___rarg(x_16);
 x_18 = lean_array_get_size(x_17);
 x_19 = lean_mk_empty_array_with_capacity(x_18);
 x_20 = lean_unsigned_to_nat(0u);
-x_21 = l_Array_mapIdxM_map___at___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_delabPatterns___spec__5(x_1, x_2, x_17, x_18, x_20, lean_box(0), x_19, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+x_21 = l_Array_mapIdxM_map___at___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_delabPatterns___spec__5(x_1, x_17, x_17, x_18, x_20, lean_box(0), x_19, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_17);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_21;
 }

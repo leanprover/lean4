@@ -222,7 +222,7 @@ lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withFunLocalDecls
 static lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_getFunName___closed__2;
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_expandWhereDeclsAsStructInst___spec__2___lambda__3___closed__2;
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
-lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_MutualClosure_main___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_MutualClosure_main___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabMutualDef___lambda__1(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_mkInitialUsedFVarsMap___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_levelMVarToParamHeaders___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -634,7 +634,7 @@ static lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClos
 lean_object* l_Std_RBNode_find___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_FixPoint_updateUsedVarsOf___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_FixPoint_modifyUsedFVars___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_MutualClosure_main___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_MutualClosure_main___spec__6(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_check___lambda__3___closed__1;
 lean_object* l_Lean_Elab_Term_logUnassignedUsingErrorInfos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
@@ -16987,44 +16987,31 @@ return x_82;
 }
 }
 }
-lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_MutualClosure_main___spec__6(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, size_t x_5, size_t x_6, lean_object* x_7) {
+lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_MutualClosure_main___spec__6(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_8 = lean_box(0);
-lean_inc(x_2);
-lean_inc(x_3);
-lean_inc(x_1);
-x_9 = l_Lean_Elab_Term_MutualClosure_insertReplacementForMainFns(x_8, x_1, x_3, x_2);
-lean_inc(x_4);
-x_10 = l_List_foldl___at_Lean_Elab_Term_MutualClosure_insertReplacementForLetRecs___spec__1(x_9, x_4);
-x_11 = x_6 < x_5;
-if (x_11 == 0)
+uint8_t x_5; 
+x_5 = x_3 < x_2;
+if (x_5 == 0)
 {
-lean_object* x_12; 
-lean_dec(x_10);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-x_12 = x_7;
-return x_12;
+lean_object* x_6; 
+x_6 = x_4;
+return x_6;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; size_t x_18; size_t x_19; lean_object* x_20; lean_object* x_21; 
-x_13 = lean_array_uget(x_7, x_6);
-x_14 = lean_unsigned_to_nat(0u);
-x_15 = lean_array_uset(x_7, x_6, x_14);
-x_16 = x_13;
-x_17 = l_Lean_Elab_Term_MutualClosure_Replacement_apply(x_10, x_16);
-lean_dec(x_10);
-x_18 = 1;
-x_19 = x_6 + x_18;
-x_20 = x_17;
-x_21 = lean_array_uset(x_15, x_6, x_20);
-x_6 = x_19;
-x_7 = x_21;
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
+x_7 = lean_array_uget(x_4, x_3);
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = lean_array_uset(x_4, x_3, x_8);
+x_10 = x_7;
+x_11 = l_Lean_Elab_Term_MutualClosure_Replacement_apply(x_1, x_10);
+x_12 = 1;
+x_13 = x_3 + x_12;
+x_14 = x_11;
+x_15 = lean_array_uset(x_9, x_3, x_14);
+x_3 = x_13;
+x_4 = x_15;
 goto _start;
 }
 }
@@ -17554,7 +17541,6 @@ x_69 = lean_ctor_get(x_67, 1);
 lean_inc(x_69);
 lean_dec(x_67);
 x_70 = lean_box(0);
-lean_inc(x_3);
 lean_inc(x_65);
 lean_inc(x_1);
 x_71 = l_Lean_Elab_Term_MutualClosure_insertReplacementForMainFns(x_70, x_1, x_65, x_3);
@@ -17564,10 +17550,7 @@ x_73 = lean_array_get_size(x_55);
 x_74 = lean_usize_of_nat(x_73);
 lean_dec(x_73);
 x_75 = x_55;
-lean_inc(x_68);
-lean_inc(x_65);
-lean_inc(x_1);
-x_76 = l_Array_mapMUnsafe_map___at_Lean_Elab_Term_MutualClosure_main___spec__6(x_1, x_3, x_65, x_68, x_74, x_15, x_75);
+x_76 = l_Array_mapMUnsafe_map___at_Lean_Elab_Term_MutualClosure_main___spec__6(x_72, x_74, x_15, x_75);
 x_77 = x_76;
 x_78 = lean_array_get_size(x_65);
 x_79 = lean_usize_of_nat(x_78);
@@ -17922,7 +17905,6 @@ x_158 = lean_ctor_get(x_156, 1);
 lean_inc(x_158);
 lean_dec(x_156);
 x_159 = lean_box(0);
-lean_inc(x_3);
 lean_inc(x_154);
 lean_inc(x_1);
 x_160 = l_Lean_Elab_Term_MutualClosure_insertReplacementForMainFns(x_159, x_1, x_154, x_3);
@@ -17932,10 +17914,7 @@ x_162 = lean_array_get_size(x_144);
 x_163 = lean_usize_of_nat(x_162);
 lean_dec(x_162);
 x_164 = x_144;
-lean_inc(x_157);
-lean_inc(x_154);
-lean_inc(x_1);
-x_165 = l_Array_mapMUnsafe_map___at_Lean_Elab_Term_MutualClosure_main___spec__6(x_1, x_3, x_154, x_157, x_163, x_15, x_164);
+x_165 = l_Array_mapMUnsafe_map___at_Lean_Elab_Term_MutualClosure_main___spec__6(x_161, x_163, x_15, x_164);
 x_166 = x_165;
 x_167 = lean_array_get_size(x_154);
 x_168 = lean_usize_of_nat(x_167);
@@ -18328,7 +18307,6 @@ x_253 = lean_ctor_get(x_251, 1);
 lean_inc(x_253);
 lean_dec(x_251);
 x_254 = lean_box(0);
-lean_inc(x_3);
 lean_inc(x_249);
 lean_inc(x_1);
 x_255 = l_Lean_Elab_Term_MutualClosure_insertReplacementForMainFns(x_254, x_1, x_249, x_3);
@@ -18338,10 +18316,7 @@ x_257 = lean_array_get_size(x_239);
 x_258 = lean_usize_of_nat(x_257);
 lean_dec(x_257);
 x_259 = x_239;
-lean_inc(x_252);
-lean_inc(x_249);
-lean_inc(x_1);
-x_260 = l_Array_mapMUnsafe_map___at_Lean_Elab_Term_MutualClosure_main___spec__6(x_1, x_3, x_249, x_252, x_258, x_15, x_259);
+x_260 = l_Array_mapMUnsafe_map___at_Lean_Elab_Term_MutualClosure_main___spec__6(x_256, x_258, x_15, x_259);
 x_261 = x_260;
 x_262 = lean_array_get_size(x_249);
 x_263 = lean_usize_of_nat(x_262);
@@ -18646,16 +18621,17 @@ lean_dec(x_2);
 return x_9;
 }
 }
-lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_MutualClosure_main___spec__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_MutualClosure_main___spec__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-size_t x_8; size_t x_9; lean_object* x_10; 
-x_8 = lean_unbox_usize(x_5);
-lean_dec(x_5);
-x_9 = lean_unbox_usize(x_6);
-lean_dec(x_6);
-x_10 = l_Array_mapMUnsafe_map___at_Lean_Elab_Term_MutualClosure_main___spec__6(x_1, x_2, x_3, x_4, x_8, x_9, x_7);
-return x_10;
+size_t x_5; size_t x_6; lean_object* x_7; 
+x_5 = lean_unbox_usize(x_2);
+lean_dec(x_2);
+x_6 = lean_unbox_usize(x_3);
+lean_dec(x_3);
+x_7 = l_Array_mapMUnsafe_map___at_Lean_Elab_Term_MutualClosure_main___spec__6(x_1, x_5, x_6, x_4);
+lean_dec(x_1);
+return x_7;
 }
 }
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_MutualClosure_main___spec__7___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

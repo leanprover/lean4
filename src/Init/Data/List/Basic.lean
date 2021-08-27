@@ -100,11 +100,11 @@ def isEmpty : List α → Bool
   | []    => []
   | a::as => f a :: map f as
 
-def mapTRAux (f : α → β) : List α → List β → List β
+@[specialize] def mapTRAux (f : α → β) : List α → List β → List β
   | [],    bs => bs.reverse
   | a::as, bs => mapTRAux f as (f a :: bs)
 
-def mapTR (f : α → β) (as : List α) : List β :=
+@[inline] def mapTR (f : α → β) (as : List α) : List β :=
   mapTRAux f as []
 
 theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux as [] ++ bs := by

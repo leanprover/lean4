@@ -45,6 +45,9 @@ theorem reverseAux_reverseAux (as bs cs : List α) : reverseAux (reverseAux as b
   | nil => rfl
   | cons a as ih => simp [reverseAux, ih (a::bs), ih [a]]
 
+@[simp] theorem reverse_reverse (as : List α) : as.reverse.reverse = as := by
+  simp [reverse]; rw [reverseAux_reverseAux_nil]; rfl
+
 protected def append : List α → List α → List α
   | [],    bs => bs
   | a::as, bs => a :: List.append as bs
@@ -97,11 +100,11 @@ def isEmpty : List α → Bool
   | []    => []
   | a::as => f a :: map f as
 
-def mapTRAux (f : α → β) : List α → List β → List β
+@[specialize] def mapTRAux (f : α → β) : List α → List β → List β
   | [],    bs => bs.reverse
   | a::as, bs => mapTRAux f as (f a :: bs)
 
-def mapTR (f : α → β) (as : List α) : List β :=
+@[inline] def mapTR (f : α → β) (as : List α) : List β :=
   mapTRAux f as []
 
 theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux as [] ++ bs := by
@@ -112,9 +115,17 @@ theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux a
     rw [ih (a :: bs), ih [a], append_assoc]
     rfl
 
-theorem reverse_cons (a : α) (as : List α) : reverse (a :: as) = reverse as ++ [a] := by
+@[simp] theorem reverse_nil : reverse ([] : List α) = [] :=
+  rfl
+
+@[simp] theorem reverse_cons (a : α) (as : List α) : reverse (a :: as) = reverse as ++ [a] := by
   simp [reverse, reverseAux]
   rw [← reverseAux_eq_append]
+
+@[simp] theorem reverse_append (as bs : List α) : (as ++ bs).reverse = bs.reverse ++ as.reverse := by
+  induction as generalizing bs with
+  | nil => simp
+  | cons a as ih => simp [ih]; rw [append_assoc]
 
 theorem mapTRAux_eq (f : α → β) (as : List α) (bs : List β) : mapTRAux f as bs =  bs.reverse ++ map f as := by
   induction as generalizing bs with
@@ -127,7 +138,6 @@ theorem mapTRAux_eq (f : α → β) (as : List α) (bs : List β) : mapTRAux f a
 @[csimp] theorem map_eq_mapTR : @map = @mapTR := by
   apply funext; intro α; apply funext; intro β; apply funext; intro f; apply funext; intro as
   simp [mapTR, mapTRAux_eq]
-  rfl
 
 @[specialize] def map₂ (f : α → β → γ) : List α → List β → List γ
   | [],    _     => []
@@ -417,6 +427,17 @@ def dropLast {α} : List α → List α
     have ih := length_dropLast (b::as)
     simp[dropLast, ih]
     rfl
+
+@[simp] theorem length_append (as bs : List α) : (as ++ bs).length = as.length + bs.length := by
+  induction as with
+  | nil => simp
+  | cons a as ih => simp [ih, Nat.succ_add]
+
+
+@[simp] theorem length_reverse (as : List α) : (as.reverse).length = as.length := by
+  induction as with
+  | nil => rfl
+  | cons a as ih => simp [ih]
 
 def maximum? [LT α] [DecidableRel (@LT.lt α _)] : List α → Option α
   | []    => none

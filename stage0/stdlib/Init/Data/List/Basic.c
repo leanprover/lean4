@@ -4497,10 +4497,11 @@ return x_2;
 lean_object* l_List_bind___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = l_List_mapTR___rarg(x_2, x_1);
-x_4 = l_List_join___rarg(x_3);
-return x_4;
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_box(0);
+x_4 = l_List_mapTRAux___rarg(x_2, x_1, x_3);
+x_5 = l_List_join___rarg(x_4);
+return x_5;
 }
 }
 lean_object* l_List_bind(lean_object* x_1, lean_object* x_2) {

@@ -2617,7 +2617,6 @@ lean_inc(x_1);
 x_14 = l_Lean_Syntax_getKind(x_1);
 x_15 = l_Lean_Elab_Term_Quotation_precheckAttribute;
 x_16 = l_Lean_KeyedDeclsAttribute_getValues___rarg(x_15, x_13, x_14);
-lean_dec(x_13);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; 
@@ -2925,7 +2924,6 @@ _start:
 lean_object* x_7; 
 x_7 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Quotation_precheck___spec__1___lambda__4(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
-lean_dec(x_2);
 return x_7;
 }
 }
@@ -3235,7 +3233,6 @@ x_15 = lean_ctor_get(x_7, 5);
 lean_inc(x_15);
 lean_dec(x_7);
 x_16 = l_Lean_ResolveName_resolveGlobalName(x_13, x_14, x_15, x_1);
-lean_dec(x_14);
 lean_ctor_set(x_10, 0, x_16);
 return x_10;
 }
@@ -3256,7 +3253,6 @@ x_21 = lean_ctor_get(x_7, 5);
 lean_inc(x_21);
 lean_dec(x_7);
 x_22 = l_Lean_ResolveName_resolveGlobalName(x_19, x_20, x_21, x_1);
-lean_dec(x_20);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_23, 1, x_18);

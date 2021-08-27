@@ -66,7 +66,6 @@ lean_object* l_Lean_Meta_mkCongrLemma_match__4(lean_object*);
 lean_object* l_Lean_registerSimpleScopedEnvExtension___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_toList___at___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemmas____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_117____spec__1(lean_object*);
-lean_object* l_List_mapTR___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_congrExtension___closed__8;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__6___lambda__2___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemma____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_50____closed__31;
@@ -109,7 +108,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_r
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_1510____lambda__1___closed__9;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_mkCongrLemma___spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_mkConstWithLevelParams___at_Lean_Meta_mkCongrLemma___spec__1___closed__1;
 lean_object* l_Lean_Meta_congrExtension___lambda__3___boxed(lean_object*);
 lean_object* l_Std_Format_joinSep___at_instReprProd___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_addScopedEntry___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -327,6 +325,7 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec_
 lean_object* l___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemmas____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_117_(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_mkCongrLemma___spec__9___lambda__2___closed__7;
 lean_object* l_Lean_Meta_congrExtension___lambda__6(lean_object*);
+lean_object* l_List_mapTRAux___at_Lean_mkConstWithLevelParams___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkCongrLemma___closed__3;
 lean_object* l_Lean_Meta_addCongrLemmaEntry_insert(lean_object*, lean_object*);
 static lean_object* l_Lean_SMap_toList___at___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemmas____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_117____spec__1___closed__1;
@@ -388,7 +387,6 @@ lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_1510____closed__5;
 lean_object* l_Lean_Meta_congrExtension;
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemmas____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_117____spec__6(lean_object*);
-lean_object* l_Lean_mkLevelParam(lean_object*);
 static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_getCongrLemmas___spec__3___closed__1;
 lean_object* l_Std_AssocList_find_x3f___at_Lean_Meta_CongrLemmas_get___spec__3___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemma____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_50____closed__11;
@@ -3369,14 +3367,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_mkConstWithLevelParams___at_Lean_Meta_mkCongrLemma___spec__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_mkLevelParam), 1, 0);
-return x_1;
-}
-}
 lean_object* l_Lean_mkConstWithLevelParams___at_Lean_Meta_mkCongrLemma___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -3393,8 +3383,8 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_
 x_9 = lean_ctor_get(x_7, 0);
 x_10 = l_Lean_ConstantInfo_levelParams(x_9);
 lean_dec(x_9);
-x_11 = l_Lean_mkConstWithLevelParams___at_Lean_Meta_mkCongrLemma___spec__1___closed__1;
-x_12 = l_List_mapTR___rarg(x_11, x_10);
+x_11 = lean_box(0);
+x_12 = l_List_mapTRAux___at_Lean_mkConstWithLevelParams___spec__1(x_10, x_11);
 x_13 = l_Lean_mkConst(x_1, x_12);
 lean_ctor_set(x_7, 0, x_13);
 return x_7;
@@ -3409,8 +3399,8 @@ lean_inc(x_14);
 lean_dec(x_7);
 x_16 = l_Lean_ConstantInfo_levelParams(x_14);
 lean_dec(x_14);
-x_17 = l_Lean_mkConstWithLevelParams___at_Lean_Meta_mkCongrLemma___spec__1___closed__1;
-x_18 = l_List_mapTR___rarg(x_17, x_16);
+x_17 = lean_box(0);
+x_18 = l_List_mapTRAux___at_Lean_mkConstWithLevelParams___spec__1(x_16, x_17);
 x_19 = l_Lean_mkConst(x_1, x_18);
 x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
@@ -9120,8 +9110,6 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_congrExtension = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Meta_congrExtension);
 lean_dec_ref(res);
-l_Lean_mkConstWithLevelParams___at_Lean_Meta_mkCongrLemma___spec__1___closed__1 = _init_l_Lean_mkConstWithLevelParams___at_Lean_Meta_mkCongrLemma___spec__1___closed__1();
-lean_mark_persistent(l_Lean_mkConstWithLevelParams___at_Lean_Meta_mkCongrLemma___spec__1___closed__1);
 l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__3___closed__1 = _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__3___closed__1();
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__3___closed__1);
 l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__3___closed__2 = _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__3___closed__2();

@@ -5323,7 +5323,6 @@ uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_obje
 x_16 = 0;
 x_17 = lean_unsigned_to_nat(0u);
 lean_inc(x_5);
-lean_inc(x_2);
 x_18 = l_Lean_Syntax_formatStxAux(x_2, x_16, x_17, x_5);
 x_19 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
@@ -6059,6 +6058,7 @@ lean_dec(x_30);
 x_35 = 0;
 x_36 = lean_unsigned_to_nat(0u);
 x_37 = l_Lean_Syntax_formatStxAux(x_2, x_35, x_36, x_3);
+lean_dec(x_2);
 x_38 = lean_box(1);
 x_39 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_39, 0, x_38);
@@ -7867,7 +7867,6 @@ lean_dec(x_9);
 x_12 = l_Lean_PrettyPrinter_categoryParenthesizerAttribute;
 lean_inc(x_1);
 x_13 = l_Lean_KeyedDeclsAttribute_getValues___rarg(x_12, x_11, x_1);
-lean_dec(x_11);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; 

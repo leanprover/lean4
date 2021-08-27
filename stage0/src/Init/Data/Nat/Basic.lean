@@ -143,6 +143,9 @@ protected theorem mul_assoc : ∀ (n m k : Nat), (n * m) * k = n * (m * k)
     have h₆ : n * (m * k + m) = n * (m * succ k)            := Nat.mul_succ m k ▸ rfl
     ((((h₁.trans h₂).trans h₃).trans h₄).trans h₅).trans h₆
 
+protected theorem mul_left_comm (n m k : Nat) : n * (m * k) = m * (n * k) := by
+  rw [← Nat.mul_assoc, Nat.mul_comm n m, Nat.mul_assoc]
+
 /- Inequalities -/
 
 theorem succ_lt_succ {n m : Nat} : n < m → succ n < succ m :=

@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_getBoolOption___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
-static lean_object* l_Lean_setOptionFromString___closed__11;
+lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Lean_initializing(lean_object*);
 static lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a_x3d_____closed__26;
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(lean_object*, lean_object*);
@@ -30,7 +30,6 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_OptionDecl_group___default;
 static lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a_x3d_____closed__11;
 lean_object* l_Std_RBNode_find___at_Lean_getOptionDecl___spec__1___boxed(lean_object*, lean_object*);
-lean_object* l_List_mapTR___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_registerOption___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_setNat(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_1021____closed__8;
@@ -72,7 +71,6 @@ static lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_1021___
 lean_object* l_Lean_setOptionFromString_match__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_setOptionFromString___closed__9;
 static lean_object* l_Lean_Option_commandRegister__option_____x3a___x3a_x3d_____closed__9;
-lean_object* l_String_trim___boxed(lean_object*);
 lean_object* l_Lean_instInhabitedOptions;
 static lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_1021____closed__15;
 static lean_object* l_Lean_setOptionFromString___closed__10;
@@ -196,6 +194,7 @@ lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* l_Lean_Option_set(lean_object*);
 static lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_1021____closed__39;
 static lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a_x3d_____closed__4;
+lean_object* l_String_trim(lean_object*);
 lean_object* l_Lean_getOptionDecl_match__1(lean_object*);
 lean_object* l_Lean_setOptionFromString_match__2(lean_object*);
 static lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a_x3d_____closed__9;
@@ -222,6 +221,7 @@ lean_object* l_Lean_setOptionFromString_match__2___rarg(lean_object*, lean_objec
 lean_object* l_Lean_getOptionDescr(lean_object*, lean_object*);
 static lean_object* l_Lean_setOptionFromString___closed__3;
 lean_object* l_Lean_getNatOption___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_mapTRAux___at_Lean_setOptionFromString___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Option_myMacro____x40_Lean_Data_Options___hyg_1021____closed__6;
 lean_object* l_Lean_instInhabitedOption___rarg(lean_object*);
 lean_object* l_Lean_Syntax_mkLit(lean_object*, lean_object*, lean_object*);
@@ -1178,6 +1178,56 @@ x_2 = lean_alloc_closure((void*)(l_Lean_setOptionFromString_match__4___rarg), 3,
 return x_2;
 }
 }
+lean_object* l_List_mapTRAux___at_Lean_setOptionFromString___spec__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_3; 
+x_3 = l_List_reverse___rarg(x_2);
+return x_3;
+}
+else
+{
+uint8_t x_4; 
+x_4 = !lean_is_exclusive(x_1);
+if (x_4 == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = lean_ctor_get(x_1, 0);
+x_6 = lean_ctor_get(x_1, 1);
+x_7 = l_String_trim(x_5);
+lean_dec(x_5);
+lean_ctor_set(x_1, 1, x_2);
+lean_ctor_set(x_1, 0, x_7);
+{
+lean_object* _tmp_0 = x_6;
+lean_object* _tmp_1 = x_1;
+x_1 = _tmp_0;
+x_2 = _tmp_1;
+}
+goto _start;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_9 = lean_ctor_get(x_1, 0);
+x_10 = lean_ctor_get(x_1, 1);
+lean_inc(x_10);
+lean_inc(x_9);
+lean_dec(x_1);
+x_11 = l_String_trim(x_9);
+lean_dec(x_9);
+x_12 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_12, 0, x_11);
+lean_ctor_set(x_12, 1, x_2);
+x_1 = x_10;
+x_2 = x_12;
+goto _start;
+}
+}
+}
+}
 static lean_object* _init_l_Lean_setOptionFromString___closed__1() {
 _start:
 {
@@ -1190,29 +1240,21 @@ static lean_object* _init_l_Lean_setOptionFromString___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_trim___boxed), 1, 0);
+x_1 = lean_mk_string("invalid configuration option entry, it must be of the form '<key> = <value>'");
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_setOptionFromString___closed__3() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("invalid configuration option entry, it must be of the form '<key> = <value>'");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_setOptionFromString___closed__4() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_setOptionFromString___closed__3;
+x_1 = l_Lean_setOptionFromString___closed__2;
 x_2 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_setOptionFromString___closed__5() {
+static lean_object* _init_l_Lean_setOptionFromString___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1220,17 +1262,17 @@ x_1 = lean_mk_string("true");
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_setOptionFromString___closed__6() {
+static lean_object* _init_l_Lean_setOptionFromString___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_setOptionFromString___closed__5;
+x_2 = l_Lean_setOptionFromString___closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_setOptionFromString___closed__7() {
+static lean_object* _init_l_Lean_setOptionFromString___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -1238,17 +1280,17 @@ x_1 = lean_mk_string("false");
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_setOptionFromString___closed__8() {
+static lean_object* _init_l_Lean_setOptionFromString___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_setOptionFromString___closed__7;
+x_2 = l_Lean_setOptionFromString___closed__6;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_setOptionFromString___closed__9() {
+static lean_object* _init_l_Lean_setOptionFromString___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -1256,7 +1298,7 @@ x_1 = lean_mk_string("invalid Bool option value '");
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_setOptionFromString___closed__10() {
+static lean_object* _init_l_Lean_setOptionFromString___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -1264,7 +1306,7 @@ x_1 = lean_mk_string("invalid Nat option value '");
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_setOptionFromString___closed__11() {
+static lean_object* _init_l_Lean_setOptionFromString___closed__10() {
 _start:
 {
 lean_object* x_1; 
@@ -1278,13 +1320,13 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = l_Lean_setOptionFromString___closed__1;
 x_5 = l_String_splitOn(x_2, x_4);
-x_6 = l_Lean_setOptionFromString___closed__2;
-x_7 = l_List_mapTR___rarg(x_6, x_5);
+x_6 = lean_box(0);
+x_7 = l_List_mapTRAux___at_Lean_setOptionFromString___spec__1(x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; 
 lean_dec(x_1);
-x_8 = l_Lean_setOptionFromString___closed__4;
+x_8 = l_Lean_setOptionFromString___closed__3;
 x_9 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_9, 0, x_8);
 lean_ctor_set(x_9, 1, x_3);
@@ -1300,7 +1342,7 @@ if (lean_obj_tag(x_10) == 0)
 lean_object* x_11; lean_object* x_12; 
 lean_dec(x_7);
 lean_dec(x_1);
-x_11 = l_Lean_setOptionFromString___closed__4;
+x_11 = l_Lean_setOptionFromString___closed__3;
 x_12 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
 lean_ctor_set(x_12, 1, x_3);
@@ -1367,19 +1409,19 @@ if (x_26 == 0)
 lean_object* x_27; lean_object* x_28; uint8_t x_29; 
 x_27 = lean_ctor_get(x_18, 0);
 lean_dec(x_27);
-x_28 = l_Lean_setOptionFromString___closed__6;
+x_28 = l_Lean_setOptionFromString___closed__5;
 x_29 = lean_name_eq(x_17, x_28);
 if (x_29 == 0)
 {
 lean_object* x_30; uint8_t x_31; 
-x_30 = l_Lean_setOptionFromString___closed__8;
+x_30 = l_Lean_setOptionFromString___closed__7;
 x_31 = lean_name_eq(x_17, x_30);
 if (x_31 == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 lean_dec(x_17);
 lean_dec(x_1);
-x_32 = l_Lean_setOptionFromString___closed__9;
+x_32 = l_Lean_setOptionFromString___closed__8;
 x_33 = lean_string_append(x_32, x_15);
 lean_dec(x_15);
 x_34 = l_Lean_getOptionDecl___closed__2;
@@ -1416,19 +1458,19 @@ lean_object* x_41; lean_object* x_42; uint8_t x_43;
 x_41 = lean_ctor_get(x_18, 1);
 lean_inc(x_41);
 lean_dec(x_18);
-x_42 = l_Lean_setOptionFromString___closed__6;
+x_42 = l_Lean_setOptionFromString___closed__5;
 x_43 = lean_name_eq(x_17, x_42);
 if (x_43 == 0)
 {
 lean_object* x_44; uint8_t x_45; 
-x_44 = l_Lean_setOptionFromString___closed__8;
+x_44 = l_Lean_setOptionFromString___closed__7;
 x_45 = lean_name_eq(x_17, x_44);
 if (x_45 == 0)
 {
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
 lean_dec(x_17);
 lean_dec(x_1);
-x_46 = l_Lean_setOptionFromString___closed__9;
+x_46 = l_Lean_setOptionFromString___closed__8;
 x_47 = lean_string_append(x_46, x_15);
 lean_dec(x_15);
 x_48 = l_Lean_getOptionDecl___closed__2;
@@ -1510,7 +1552,7 @@ if (lean_obj_tag(x_68) == 0)
 lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; 
 lean_dec(x_17);
 lean_dec(x_1);
-x_69 = l_Lean_setOptionFromString___closed__10;
+x_69 = l_Lean_setOptionFromString___closed__9;
 x_70 = lean_string_append(x_69, x_15);
 lean_dec(x_15);
 x_71 = l_Lean_getOptionDecl___closed__2;
@@ -1545,7 +1587,7 @@ if (lean_obj_tag(x_77) == 0)
 lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; 
 lean_dec(x_17);
 lean_dec(x_1);
-x_78 = l_Lean_setOptionFromString___closed__10;
+x_78 = l_Lean_setOptionFromString___closed__9;
 x_79 = lean_string_append(x_78, x_15);
 lean_dec(x_15);
 x_80 = l_Lean_getOptionDecl___closed__2;
@@ -1589,7 +1631,7 @@ if (lean_obj_tag(x_89) == 0)
 lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; 
 lean_dec(x_17);
 lean_dec(x_1);
-x_90 = l_Lean_setOptionFromString___closed__11;
+x_90 = l_Lean_setOptionFromString___closed__10;
 x_91 = lean_string_append(x_90, x_15);
 lean_dec(x_15);
 x_92 = l_Lean_getOptionDecl___closed__2;
@@ -1625,7 +1667,7 @@ if (lean_obj_tag(x_98) == 0)
 lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; 
 lean_dec(x_17);
 lean_dec(x_1);
-x_99 = l_Lean_setOptionFromString___closed__11;
+x_99 = l_Lean_setOptionFromString___closed__10;
 x_100 = lean_string_append(x_99, x_15);
 lean_dec(x_15);
 x_101 = l_Lean_getOptionDecl___closed__2;
@@ -1687,7 +1729,7 @@ lean_dec(x_13);
 lean_dec(x_10);
 lean_dec(x_7);
 lean_dec(x_1);
-x_112 = l_Lean_setOptionFromString___closed__4;
+x_112 = l_Lean_setOptionFromString___closed__3;
 x_113 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_113, 0, x_112);
 lean_ctor_set(x_113, 1, x_3);
@@ -3829,8 +3871,6 @@ l_Lean_setOptionFromString___closed__9 = _init_l_Lean_setOptionFromString___clos
 lean_mark_persistent(l_Lean_setOptionFromString___closed__9);
 l_Lean_setOptionFromString___closed__10 = _init_l_Lean_setOptionFromString___closed__10();
 lean_mark_persistent(l_Lean_setOptionFromString___closed__10);
-l_Lean_setOptionFromString___closed__11 = _init_l_Lean_setOptionFromString___closed__11();
-lean_mark_persistent(l_Lean_setOptionFromString___closed__11);
 l_Lean_Option_Decl_group___default = _init_l_Lean_Option_Decl_group___default();
 lean_mark_persistent(l_Lean_Option_Decl_group___default);
 l_Lean_Option_Decl_descr___default = _init_l_Lean_Option_Decl_descr___default();

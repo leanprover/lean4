@@ -167,7 +167,7 @@ private def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (ctx := false) (ign
   "simp " ("(" "config" ":=" term ")")? ("only ")? ("[" simpLemma,* "]")? (location)?
 -/
 @[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
-  let { ctx, fvarIdToLemmaId } ← mkSimpContext stx (eraseLocal := false)
+  let { ctx, fvarIdToLemmaId } ← withMainContext <| mkSimpContext stx (eraseLocal := false)
   -- trace[Meta.debug] "Lemmas {← toMessageData ctx.simpLemmas.post}"
   let loc := expandOptLocation stx[4]
   match loc with

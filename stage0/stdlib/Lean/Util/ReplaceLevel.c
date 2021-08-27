@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_replaceLevel_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -24,7 +25,6 @@ lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit(lean_object*, size_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3;
-lean_object* l_List_mapTR___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_replaceLevel_match__1(lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_cache(size_t, lean_object*, lean_object*, lean_object*);
@@ -48,6 +48,7 @@ lean_object* l_Lean_Expr_replaceLevel(lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelSucc(lean_object*);
 lean_object* lean_expr_update_sort(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM(lean_object*, size_t, lean_object*, lean_object*);
+lean_object* l_List_mapTRAux___at_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache;
 lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -57,6 +58,7 @@ static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__5;
 lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_const(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4;
+lean_object* l_List_mapTRAux___at_Lean_Expr_replaceLevel___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_replace_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -469,6 +471,57 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_vis
 return x_2;
 }
 }
+lean_object* l_List_mapTRAux___at_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_4; 
+lean_dec(x_1);
+x_4 = l_List_reverse___rarg(x_3);
+return x_4;
+}
+else
+{
+uint8_t x_5; 
+x_5 = !lean_is_exclusive(x_2);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = lean_ctor_get(x_2, 0);
+x_7 = lean_ctor_get(x_2, 1);
+lean_inc(x_1);
+x_8 = l_Lean_Level_replace(x_1, x_6);
+lean_ctor_set(x_2, 1, x_3);
+lean_ctor_set(x_2, 0, x_8);
+{
+lean_object* _tmp_1 = x_7;
+lean_object* _tmp_2 = x_2;
+x_2 = _tmp_1;
+x_3 = _tmp_2;
+}
+goto _start;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_10 = lean_ctor_get(x_2, 0);
+x_11 = lean_ctor_get(x_2, 1);
+lean_inc(x_11);
+lean_inc(x_10);
+lean_dec(x_2);
+lean_inc(x_1);
+x_12 = l_Lean_Level_replace(x_1, x_10);
+x_13 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_13, 0, x_12);
+lean_ctor_set(x_13, 1, x_3);
+x_2 = x_11;
+x_3 = x_13;
+goto _start;
+}
+}
+}
+}
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit(lean_object* x_1, size_t x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -518,10 +571,9 @@ lean_inc(x_21);
 x_22 = lean_ctor_get(x_3, 1);
 lean_inc(x_22);
 x_23 = lean_ctor_get_uint64(x_3, sizeof(void*)*2);
-x_24 = lean_alloc_closure((void*)(l_Lean_Level_replace), 2, 1);
-lean_closure_set(x_24, 0, x_1);
+x_24 = lean_box(0);
 lean_inc(x_22);
-x_25 = l_List_mapTR___rarg(x_24, x_22);
+x_25 = l_List_mapTRAux___at_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___spec__1(x_1, x_22, x_24);
 x_26 = lean_alloc_ctor(4, 2, 8);
 lean_ctor_set(x_26, 0, x_21);
 lean_ctor_set(x_26, 1, x_22);
@@ -1592,6 +1644,57 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Expr_replaceLevel_match__1___rarg), 10, 
 return x_2;
 }
 }
+lean_object* l_List_mapTRAux___at_Lean_Expr_replaceLevel___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_4; 
+lean_dec(x_1);
+x_4 = l_List_reverse___rarg(x_3);
+return x_4;
+}
+else
+{
+uint8_t x_5; 
+x_5 = !lean_is_exclusive(x_2);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = lean_ctor_get(x_2, 0);
+x_7 = lean_ctor_get(x_2, 1);
+lean_inc(x_1);
+x_8 = l_Lean_Level_replace(x_1, x_6);
+lean_ctor_set(x_2, 1, x_3);
+lean_ctor_set(x_2, 0, x_8);
+{
+lean_object* _tmp_1 = x_7;
+lean_object* _tmp_2 = x_2;
+x_2 = _tmp_1;
+x_3 = _tmp_2;
+}
+goto _start;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_10 = lean_ctor_get(x_2, 0);
+x_11 = lean_ctor_get(x_2, 1);
+lean_inc(x_11);
+lean_inc(x_10);
+lean_dec(x_2);
+lean_inc(x_1);
+x_12 = l_Lean_Level_replace(x_1, x_10);
+x_13 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_13, 0, x_12);
+lean_ctor_set(x_13, 1, x_3);
+x_2 = x_11;
+x_3 = x_13;
+goto _start;
+}
+}
+}
+}
 lean_object* l_Lean_Expr_replaceLevel(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1633,10 +1736,9 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_13 = lean_ctor_get(x_2, 1);
-x_14 = lean_alloc_closure((void*)(l_Lean_Level_replace), 2, 1);
-lean_closure_set(x_14, 0, x_1);
+x_14 = lean_box(0);
 lean_inc(x_13);
-x_15 = l_List_mapTR___rarg(x_14, x_13);
+x_15 = l_List_mapTRAux___at_Lean_Expr_replaceLevel___spec__1(x_1, x_13, x_14);
 x_16 = lean_expr_update_const(x_2, x_15);
 return x_16;
 }
@@ -1649,10 +1751,9 @@ x_19 = lean_ctor_get_uint64(x_2, sizeof(void*)*2);
 lean_inc(x_18);
 lean_inc(x_17);
 lean_dec(x_2);
-x_20 = lean_alloc_closure((void*)(l_Lean_Level_replace), 2, 1);
-lean_closure_set(x_20, 0, x_1);
+x_20 = lean_box(0);
 lean_inc(x_18);
-x_21 = l_List_mapTR___rarg(x_20, x_18);
+x_21 = l_List_mapTRAux___at_Lean_Expr_replaceLevel___spec__1(x_1, x_18, x_20);
 x_22 = lean_alloc_ctor(4, 2, 8);
 lean_ctor_set(x_22, 0, x_17);
 lean_ctor_set(x_22, 1, x_18);

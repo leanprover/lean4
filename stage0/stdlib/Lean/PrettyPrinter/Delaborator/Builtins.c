@@ -10359,7 +10359,6 @@ lean_inc(x_18);
 lean_dec(x_16);
 x_19 = l_Lean_PrettyPrinter_Delaborator_appUnexpanderAttribute;
 x_20 = l_Lean_KeyedDeclsAttribute_getValues___rarg(x_19, x_18, x_14);
-lean_dec(x_18);
 x_21 = l_List_firstM___at_Lean_PrettyPrinter_Delaborator_unexpandRegularApp___spec__1(x_1, x_20, x_2, x_3, x_4, x_5, x_6, x_7, x_17);
 lean_dec(x_7);
 lean_dec(x_6);

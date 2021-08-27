@@ -1433,7 +1433,6 @@ x_6 = lean_ctor_get(x_3, 3);
 lean_inc(x_6);
 lean_dec(x_3);
 x_7 = l_Lean_ResolveName_resolveGlobalName(x_4, x_5, x_6, x_2);
-lean_dec(x_5);
 return x_7;
 }
 }

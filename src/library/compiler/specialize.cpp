@@ -531,8 +531,29 @@ class specialize_fn {
                        a let-variable. */
                     if (!v) m_ctx.m_params.push_back(x);
                 }
-                collect(decl.get_type(), false);
-                if (v) collect(*v, false);
+                /* HACK to avoid work duplication.
+                   See work duplication comment in the `in_binder == false` branch. The example is similar.
+                   Suppose we have
+                   ```
+                    @[noinline] def concat (as : List α) (a : α) : List α :=
+                      a :: as
+                    def f (n : Nat) (xs : List Nat) : List (List Nat) :=
+                      let ys := List.range n
+                      let f  := concat ys
+                      List.map f xs
+                   ```
+                   When visiting `f`'s value, we should set `in_binder == true`, otherwise
+                   we are going to `ys`. Note that we would do it if `f`s value was in eta-expanded form.
+
+                   Remark: This is **not** a perfect solution because we are not using WHNF. We can't
+                   use it without refactoring the code and updating the local context.
+                   We can also avoid the WHNF if we ensure the code is in eta expanded form
+
+                   TODO: implement the real fix when we re-implement the code in Lean.
+                 */
+                if (is_pi(decl.get_type())) in_binder = true;
+                collect(decl.get_type(), in_binder);
+                if (v) collect(*v, in_binder);
             } else {
                 if (m_visited_in_binder.contains(x_name))
                     return;
@@ -556,9 +577,10 @@ class specialize_fn {
                        abstracted. Reason: avoid work duplication.
                        Example: suppose we are trying to specialize the following map-application.
                        ```
-                       def f2 (n : nat) (xs : list nat) : list (list nat) :=
-                       let ys := list.repeat 0 n in
-                       xs.map (λ x, x :: ys)
+                       def f (n : Nat) (xs : List Nat) : List (List Nat) :=
+                         let ys := List.range n
+                         lef f  := fun x => x :: ys
+                         List.map f xs
                        ```
                        We don't want to copy `list.repeat 0 n` inside of the specialized code.
 

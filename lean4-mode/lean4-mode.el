@@ -10,8 +10,8 @@
 ;; Maintainer: Sebastian Ullrich <sebasti@nullri.ch>
 ;; Created: Jan 09, 2014
 ;; Keywords: languages
-;; Package-Requires: ((emacs "24.3") (dash "2.18.0") (s "1.10.0") (f "0.19.0") (flycheck "30") (magit-section "2.90.1"))
-;; URL: https://github.com/leanprover/lean4-mode
+;; Package-Requires: ((emacs "24.3") (dash "2.18.0") (s "1.10.0") (f "0.19.0") (flycheck "30") (magit-section "2.90.1") (lsp-mode "8.0.0"))
+;; URL: https://github.com/leanprover/lean4
 
 ;; Released under Apache 2.0 license as described in the file LICENSE.
 

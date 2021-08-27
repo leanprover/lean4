@@ -275,9 +275,15 @@ unsafe def elabEvalUnsafe : CommandElab
       }
       Term.ensureNoUnassignedMVars decl
       addAndCompile decl
-    let elabMetaEval : CommandElabM Unit := runTermElabM (some n) fun _ => do
+    let elabEvalTerm : TermElabM Expr := do
       let e ← Term.elabTerm term none
       Term.synthesizeSyntheticMVarsNoPostponing
+      if (← isProp e) then
+        mkDecide e
+      else
+        return e
+    let elabMetaEval : CommandElabM Unit := runTermElabM (some n) fun _ => do
+      let e ← elabEvalTerm
       let e ← withLocalDeclD `env (mkConst ``Lean.Environment) fun env =>
           withLocalDeclD `opts (mkConst ``Lean.Options) fun opts => do
             let e ← mkAppM ``Lean.runMetaEval #[env, opts, e];
@@ -293,9 +299,8 @@ unsafe def elabEvalUnsafe : CommandElab
     let elabEval : CommandElabM Unit := runTermElabM (some n) fun _ => do
       -- fall back to non-meta eval if MetaEval hasn't been defined yet
       -- modify e to `runEval e`
-      let e ← Term.elabTerm term none
+      let e ← elabEvalTerm
       let e := mkSimpleThunk e
-      Term.synthesizeSyntheticMVarsNoPostponing
       let e ← mkAppM ``Lean.runEval #[e]
       let env ← getEnv
       let act ← try addAndCompile e; evalConst (IO (String × Except IO.Error Unit)) n finally setEnv env

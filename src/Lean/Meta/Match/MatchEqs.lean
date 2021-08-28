@@ -10,7 +10,35 @@ import Lean.Meta.Tactic.SplitIf
 
 namespace Lean.Meta.Match
 
--- TODO enviroment extension for caching conditional equation lemmas and splitter for match auxiliary declarations.
+structure MatchEqns where
+  eqnNames     : Array Name
+  splitterName : Name
+  deriving Inhabited, Repr
+
+structure MatchEqnsExtState where
+  map : Std.PHashMap Name MatchEqns := {}
+  deriving Inhabited
+
+/- We generate the equations and splitter on demand, and do not save them on .olean files. -/
+builtin_initialize matchEqnsExt : EnvExtension MatchEqnsExtState ←
+  registerEnvExtension (pure {})
+
+private def registerMatchEqns (matchDeclName : Name) (matchEqns : MatchEqns) : CoreM Unit :=
+  modifyEnv fun env => matchEqnsExt.modifyState env fun s => { s with map := s.map.insert matchDeclName matchEqns }
+
+/-- Create a "unique" base name for conditional equations and splitter -/
+private partial def mkBaseNameFor (env : Environment) (matchDeclName : Name) : Name :=
+  if !env.contains (matchDeclName ++ `splitter) then
+    matchDeclName
+  else
+   go 1
+where
+  go (idx : Nat) : Name :=
+    let baseName := matchDeclName ++ (`_matchEqns).appendIndexAfter idx
+    if !env.contains (baseName ++ `splitter) then
+      baseName
+    else
+      go (idx + 1)
 
 private def isMatchValue (e : Expr) : Bool :=
   e.isNatLit || e.isCharLit || e.isStringLit
@@ -227,12 +255,13 @@ where
 
 /--
   Create conditional equations and splitter for the given match auxiliary declaration. -/
-partial def mkEquationsFor (matchDeclName : Name) :  MetaM Unit := do
-  -- TODO: do not assume `mkEquationsFor` was not already generated
+private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := do
+  let baseName := mkBaseNameFor (← getEnv) matchDeclName
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
   let some matchInfo ← getMatcherInfo? matchDeclName | throwError "'{matchDeclName}' is not a matcher function"
   forallTelescopeReducing constInfo.type fun xs matchResultType => do
+    let mut eqnNames := #[]
     let params := xs[:matchInfo.numParams]
     let motive := xs[matchInfo.getMotivePos]
     let alts   := xs[xs.size - matchInfo.numAlts:]
@@ -242,6 +271,8 @@ partial def mkEquationsFor (matchDeclName : Name) :  MetaM Unit := do
     let mut idx := 1
     let mut splitterAltTypes := #[]
     for alt in alts do
+      let thmName := baseName ++ ((`eq).appendIndexAfter idx)
+      eqnNames := eqnNames.push thmName
       let altType ← inferType alt
       trace[Meta.debug] ">> {altType}"
       let (notAlt, splitterAltType) ← forallTelescopeReducing altType fun ys altResultType => do
@@ -266,7 +297,6 @@ partial def mkEquationsFor (matchDeclName : Name) :  MetaM Unit := do
         let thmType ← mkForallFVars (params ++ #[motive] ++ alts ++ ys) thmType
         let thmVal ← proveCondEqThm matchDeclName thmType
         trace[Meta.debug] "thmVal: {thmVal}"
-        let thmName := matchDeclName ++ ((`eq).appendIndexAfter idx)
         addDecl <| Declaration.thmDecl {
           name        := thmName
           levelParams := constInfo.levelParams
@@ -286,13 +316,21 @@ partial def mkEquationsFor (matchDeclName : Name) :  MetaM Unit := do
       let template ← mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
       let template ← deltaExpand template (. == constInfo.name)
       let splitterVal ← mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew)
-      let splitterName := matchDeclName ++ `splitter
+      let splitterName := baseName ++ `splitter
       addDecl <| Declaration.thmDecl {
         name        := splitterName
         levelParams := constInfo.levelParams
         type        := splitterType
         value       := splitterVal
       }
+      let result := { eqnNames, splitterName }
+      registerMatchEqns matchDeclName result
+      return result
+
+def getEquationsFor (matchDeclName : Name) : MetaM MatchEqns := do
+  match matchEqnsExt.getState (← getEnv) |>.map.find? matchDeclName with
+  | some matchEqns => return matchEqns
+  | none => mkEquationsFor matchDeclName
 
 builtin_initialize registerTraceClass `Meta.Match.matchEqs
 

@@ -7,7 +7,7 @@ open Lean.Elab.Command
 @[commandElab test] def elabTest : CommandElab := fun stx => do
   let id ← resolveGlobalConstNoOverloadWithInfo stx[1]
   liftTermElabM none do
-    Lean.Meta.Match.mkEquationsFor id
+    IO.println (repr (← Lean.Meta.Match.getEquationsFor id))
   return ()
 
 def f (x : List Nat) : Nat :=
@@ -24,4 +24,11 @@ def g (x : Unit) (y : Bool) : Unit :=
 
 set_option trace.Meta.Match.matchEqs true
 test% f.match_1
+#check f.match_1.splitter
+
+def g.match_1.splitter := 4
+
 test% g.match_1
+#check g.match_1._matchEqns_1.eq_1
+#check g.match_1._matchEqns_1.eq_2
+#check g.match_1._matchEqns_1.splitter

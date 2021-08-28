@@ -6,18 +6,26 @@
   - [Quickstart](./quickstart.md)
 
 # Language Manual
-
+- [Using Lean](./using_lean.md)
+- [Lexical Structure](./lexical_structure.md)
+- [Expressions](./expressions.md)
+- [Declarations](./declarations.md)
+- [Organizational features](./organization.md)
+  - [Sections](./sections.md)
+  - [Namespaces](./namespaces.md)
+  - [Implicit Arguments](./implicit.md)
+  - [Auto Bound Implicit Arguments](./autobound.md)
 - [Dependent Types](./deptypes.md)
   - [Simple Type Theory](./simptypes.md)
   - [Types as objects](./typeobjs.md)
   - [Function Abstraction and Evaluation](./funabst.md)
   - [Introducing Definitions](./introdef.md)
   - [What makes dependent type theory dependent?](./dep.md)
-- [Organizational features](./organization.md)
-  - [Sections](./sections.md)
-  - [Namespaces](./namespaces.md)
-  - [Implicit Arguments](./implicit.md)
-  - [Auto Bound Implicit Arguments](./autobound.md)
+- [Tactics](./tactics.md)
+- [Syntax Extensions](./syntax.md)
+  - [The `do` Notation](./do.md)
+  - [String Interpolation](./stringinterp.md)
+- [Metaprogramming](./metaprogramming.md)
 - [Declaring New Types](./decltypes.md)
   - [Enumerated Types](./enum.md)
   - [Inductive Types](./inductive.md)
@@ -38,9 +46,6 @@
   - [Task and Thread](./task.md)
 - [Functions](./functions.md)
 - [Tactics](./tactics.md)
-- [Syntax Extensions](./syntax.md)
-  - [The `do` Notation](./do.md)
-  - [String Interpolation](./stringinterp.md)
 
 # Other
 

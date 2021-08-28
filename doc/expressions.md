@@ -224,7 +224,7 @@ data type constructors. Definitions can also be found the
 [Data](https://github.com/leanprover/lean4/blob/master/src/Init/Data)
 directory of the core library. For more information, see also [Chapter libraries](./libraries.md).
 
-```
+```lean
 /- numbers -/
 def f1 (a b c : Nat) : Nat :=
   a^2 + b^2 + c^2
@@ -299,43 +299,43 @@ The anonymous projector notation can used more generally for any objects defined
 
 Finally, for data types with one constructor, one destruct an element by pattern matching using the ``let`` and ``assume`` constructs, as in the examples below. Internally, these are interpreted using the ``match`` construct, which is in turn compiled down for the eliminator for the inductive type, as described in :numref:`Chapter %s <declarations>`.
 
-.. code-block:: lean
+```lean
+universes u v
+variables {α : Type u} {β : Type v}
 
-    universes u v
-    variables {α : Type u} {β : Type v}
+def p : Nat × ℤ := ⟨1, 2⟩
+#check p.fst
+#check p.snd
 
-    def p : Nat × ℤ := ⟨1, 2⟩
-    #check p.fst
-    #check p.snd
+def p' : Nat × ℤ × bool := ⟨1, 2, tt⟩
+#check p'.fst
+#check p'.snd.fst
+#check p'.snd.snd
 
-    def p' : Nat × ℤ × bool := ⟨1, 2, tt⟩
-    #check p'.fst
-    #check p'.snd.fst
-    #check p'.snd.snd
+def swap_pair (p : α × β) : β × α :=
+⟨p.snd, p.fst⟩
 
-    def swap_pair (p : α × β) : β × α :=
-    ⟨p.snd, p.fst⟩
+theorem swap_conj {a b : Prop} (h : a ∧ b) : b ∧ a :=
+⟨h.right, h.left⟩
 
-    theorem swap_conj {a b : Prop} (h : a ∧ b) : b ∧ a :=
-    ⟨h.right, h.left⟩
+#check [1, 2, 3].append [2, 3, 4]
+#check [1, 2, 3].map (λ x, x^2)
 
-    #check [1, 2, 3].append [2, 3, 4]
-    #check [1, 2, 3].map (λ x, x^2)
+example (p q : Prop) : p ∧ q → q ∧ p :=
+λ h, ⟨h.right, h.left⟩
 
-    example (p q : Prop) : p ∧ q → q ∧ p :=
-    λ h, ⟨h.right, h.left⟩
+def swap_pair' (p : α × β) : β × α :=
+let (x, y) := p in (y, x)
 
-    def swap_pair' (p : α × β) : β × α :=
-    let (x, y) := p in (y, x)
+theorem swap_conj' {a b : Prop} (h : a ∧ b) : b ∧ a :=
+let ⟨ha, hb⟩ := h in ⟨hb, ha⟩
 
-    theorem swap_conj' {a b : Prop} (h : a ∧ b) : b ∧ a :=
-    let ⟨ha, hb⟩ := h in ⟨hb, ha⟩
+def swap_pair'' : α × β → β × α :=
+λ ⟨x, y⟩, (y, x)
 
-    def swap_pair'' : α × β → β × α :=
-    λ ⟨x, y⟩, (y, x)
-
-    theorem swap_conj'' {a b : Prop} : a ∧ b → b ∧ a :=
-    assume ⟨ha, hb⟩, ⟨hb, ha⟩
+theorem swap_conj'' {a b : Prop} : a ∧ b → b ∧ a :=
+assume ⟨ha, hb⟩, ⟨hb, ha⟩
+```
 
 <a name="_structured_proofs"></a>Structured Proofs
 =================
@@ -359,55 +359,55 @@ therefore be used to apply hypotheses in the local context.
 As noted in [Constructors, Projections and Matching](#constructors_projections_and_matching),
 anonymous constructors and projections and match syntax can be used in proofs just as in expressions that denote data.
 
-.. code-block:: lean
+```lean
+example (p q r : Prop) : p → (q ∧ r) → p ∧ q :=
+assume h₁ : p,
+assume h₂ : q ∧ r,
+have h₃ : q, from and.left h₂,
+show p ∧ q, from and.intro h₁ h₃
 
-    example (p q r : Prop) : p → (q ∧ r) → p ∧ q :=
-    assume h₁ : p,
-    assume h₂ : q ∧ r,
-    have h₃ : q, from and.left h₂,
-    show p ∧ q, from and.intro h₁ h₃
+example (p q r : Prop) : p → (q ∧ r) → p ∧ q :=
+assume : p,
+assume : q ∧ r,
+have q, from and.left this,
+show p ∧ q, from and.intro ‹p› this
 
-    example (p q r : Prop) : p → (q ∧ r) → p ∧ q :=
-    assume : p,
-    assume : q ∧ r,
-    have q, from and.left this,
-    show p ∧ q, from and.intro ‹p› this
-
-    example (p q r : Prop) : p → (q ∧ r) → p ∧ q :=
-    assume h₁ : p,
-    assume h₂ : q ∧ r,
-    suffices h₃ : q, from and.intro h₁ h₃,
-    show q, from and.left h₂
+example (p q r : Prop) : p → (q ∧ r) → p ∧ q :=
+assume h₁ : p,
+assume h₂ : q ∧ r,
+suffices h₃ : q, from and.intro h₁ h₃,
+show q, from and.left h₂
+```
 
 Lean also supports a calculational environment, which is introduced with the keyword ``calc``. The syntax is as follows:
 
-.. code-block:: text
-
-    calc
-      <expr>_0  'op_1'  <expr>_1  ':'  <proof>_1
-        '...'   'op_2'  <expr>_2  ':'  <proof>_2
-         ...
-        '...'   'op_n'  <expr>_n  ':'  <proof>_n
+```
+calc
+  <expr>_0  'op_1'  <expr>_1  ':'  <proof>_1
+    '...'   'op_2'  <expr>_2  ':'  <proof>_2
+     ...
+    '...'   'op_n'  <expr>_n  ':'  <proof>_n
+```
 
 Each ``<proof>_i`` is a proof for ``<expr>_{i-1} op_i <expr>_i``.
 
 Here is an example:
 
-.. code-block:: lean
+```lean
+variables (a b c d e : Nat)
+variable h1 : a = b
+variable h2 : b = c + 1
+variable h3 : c = d
+variable h4 : e = 1 + d
 
-    variables (a b c d e : Nat)
-    variable h1 : a = b
-    variable h2 : b = c + 1
-    variable h3 : c = d
-    variable h4 : e = 1 + d
-
-    theorem T : a = e :=
-    calc
-      a     = b      : h1
-        ... = c + 1  : h2
-        ... = d + 1  : congr_arg _ h3
-        ... = 1 + d  : add_comm d (1 : Nat)
-        ... =  e     : eq.symm h4
+theorem T : a = e :=
+calc
+  a     = b      : h1
+    ... = c + 1  : h2
+    ... = d + 1  : congr_arg _ h3
+    ... = 1 + d  : add_comm d (1 : Nat)
+    ... =  e     : eq.symm h4
+```
 
 The style of writing proofs is most effective when it is used in conjunction with the ``simp`` and ``rewrite`` tactics.
 
@@ -443,48 +443,47 @@ Lean provides two commands to compute with expressions:
 
 Every computable definition in Lean is compiled to bytecode at definition time. Bytecode evaluation is more liberal than kernel evaluation: types and all propositional information are erased, and functions are evaluated using a stack-based virtual machine. As a result, ``#eval`` is more efficient than ``#reduce,`` and can be used to execute complex programs. In contrast, ``#reduce`` is designed to be small and reliable, and to produce type-correct terms at each step. Bytecode is never used in type checking, so as far as soundness and consistency are concerned, only kernel reduction is part of the trusted computing base.
 
-.. code-block:: lean
+```lean
+#reduce (λ x, x + 3) 5
+#eval   (λ x, x + 3) 5
 
-    #reduce (λ x, x + 3) 5
-    #eval   (λ x, x + 3) 5
+#reduce let x := 5 in x + 3
+#eval   let x := 5 in x + 3
 
-    #reduce let x := 5 in x + 3
-    #eval   let x := 5 in x + 3
+def f x := x + 3
 
-    def f x := x + 3
+#reduce f 5
+#eval   f 5
 
-    #reduce f 5
-    #eval   f 5
+#reduce @nat.rec (λ n, Nat) (0 : Nat)
+                 (λ n recval : Nat, recval + n + 1) (5 : Nat)
+#eval   @nat.rec (λ n, Nat) (0 : Nat)
+                 (λ n recval : Nat, recval + n + 1) (5 : Nat)
 
-    #reduce @nat.rec (λ n, Nat) (0 : Nat)
-                     (λ n recval : Nat, recval + n + 1) (5 : Nat)
-    #eval   @nat.rec (λ n, Nat) (0 : Nat)
-                     (λ n recval : Nat, recval + n + 1) (5 : Nat)
+def g : Nat → Nat
+| 0     := 0
+| (n+1) := g n + n + 1
 
-    def g : Nat → Nat
-    | 0     := 0
-    | (n+1) := g n + n + 1
+#reduce g 5
+#eval   g 5
 
-    #reduce g 5
-    #eval   g 5
+#eval   g 50000
 
-    #eval   g 50000
-
-    example : (λ x, x + 3) 5 = 8 := rfl
-    example : (λ x, f x) = f := rfl
-    example (p : Prop) (h₁ h₂ : p) : h₁ = h₂ := rfl
+example : (λ x, x + 3) 5 = 8 := rfl
+example : (λ x, f x) = f := rfl
+example (p : Prop) (h₁ h₂ : p) : h₁ = h₂ := rfl
+```
 
 Note: the combination of proof irrelevance and singleton ``Prop`` elimination in ι-reduction renders the ideal version of definitional equality, as described above, undecidable. Lean's procedure for checking definitional equality is only an approximation to the ideal. It is not transitive, as illustrated by the example below. Once again, this does not compromise the consistency or soundness of Lean; it only means that Lean is more conservative in the terms it recognizes as well typed, and this does not cause problems in practice. Singleton elimination will be discussed in greater detail in :numref:`inductive_types`.
 
-.. code-block:: lean
-
-    def R (x y : unit) := false
-    def accrec := @acc.rec unit R (λ_, unit) (λ _ a ih, ()) ()
-    example (h) : accrec h = accrec (acc.intro _ (λ y, acc.inv h)) :=
-                  rfl
-    example (h) : accrec (acc.intro _ (λ y, acc.inv h)) = () := rfl
-    example (h) : accrec h = () := sorry   -- rfl fails
-
+```lean
+def R (x y : unit) := false
+def accrec := @acc.rec unit R (λ_, unit) (λ _ a ih, ()) ()
+example (h) : accrec h = accrec (acc.intro _ (λ y, acc.inv h)) :=
+              rfl
+example (h) : accrec (acc.intro _ (λ y, acc.inv h)) = () := rfl
+example (h) : accrec h = () := sorry   -- rfl fails
+```
 
 Axioms
 ======
@@ -499,76 +498,76 @@ In addition, the core library defines (and trusts) the following axiomatic exten
 
 - propositional extensionality:
 
-  .. code-block:: lean
+```lean
+namespace hide
 
-     namespace hide
+-- BEGIN
+axiom propext {a b : Prop} : (a ↔ b) → a = b
+-- END
 
-     -- BEGIN
-     axiom propext {a b : Prop} : (a ↔ b) → a = b
-     -- END
-
-     end hide
+end hide
+```
 
 - quotients:
 
-  .. code-block:: lean
+```lean
+namespace hide
+-- BEGIN
+universes u v
 
-     namespace hide
-     -- BEGIN
-     universes u v
+constant quot      : Π {α : Sort u}, (α → α → Prop) → Sort u
 
-     constant quot      : Π {α : Sort u}, (α → α → Prop) → Sort u
+constant quot.mk   : Π {α : Sort u} (r : α → α → Prop),
+                    α → quot r
 
-     constant quot.mk   : Π {α : Sort u} (r : α → α → Prop),
-                          α → quot r
+axiom    quot.ind  : ∀ {α : Sort u} {r : α → α → Prop}
+                      {β : quot r → Prop},
+                    (∀ a, β (quot.mk r a)) →
+                      ∀ (q : quot r), β q
 
-     axiom    quot.ind  : ∀ {α : Sort u} {r : α → α → Prop}
-                            {β : quot r → Prop},
-                          (∀ a, β (quot.mk r a)) →
-                            ∀ (q : quot r), β q
+constant quot.lift : Π {α : Sort u} {r : α → α → Prop}
+                      {β : Sort u} (f : α → β),
+                    (∀ a b, r a b → f a = f b) → quot r → β
 
-     constant quot.lift : Π {α : Sort u} {r : α → α → Prop}
-                            {β : Sort u} (f : α → β),
-                          (∀ a b, r a b → f a = f b) → quot r → β
-
-     axiom quot.sound   : ∀ {α : Type u} {r : α → α → Prop}
-                            {a b : α},
-                          r a b → quot.mk r a = quot.mk r b
-     -- END
-     end hide
+axiom quot.sound   : ∀ {α : Type u} {r : α → α → Prop}
+                      {a b : α},
+                    r a b → quot.mk r a = quot.mk r b
+-- END
+end hide
+```
 
   ``quot r`` represents the quotient of ``α`` by the smallest equivalence relation containing ``r``. ``quot.mk`` and ``quot.lift`` satisfy the following computation rule:
 
-  .. code-block:: text
-
-     quot.lift f h (quot.mk r a) = f a
+```
+quot.lift f h (quot.mk r a) = f a
+```
 
 - choice:
 
-  .. code-block:: lean
+```lean
+namespace hide
+universe u
 
-     namespace hide
-     universe u
+-- BEGIN
+axiom choice {α : Sort u} : nonempty α → α
+-- END
 
-     -- BEGIN
-     axiom choice {α : Sort u} : nonempty α → α
-     -- END
-
-     end hide
+end hide
+```
 
   Here ``nonempty α`` is defined as follows:
 
-  .. code-block:: lean
+```lean
+namespace hide
+universe u
 
-     namespace hide
-     universe u
+-- BEGIN
+class inductive nonempty (α : Sort u) : Prop
+| intro : α → nonempty
+-- END
 
-     -- BEGIN
-     class inductive nonempty (α : Sort u) : Prop
-     | intro : α → nonempty
-     -- END
-
-     end hide
+end hide
+```
 
   It is equivalent to  ``∃ x : α, true``.
 

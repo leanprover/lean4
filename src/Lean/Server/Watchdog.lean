@@ -183,10 +183,13 @@ section ServerM
   def updateFileWorkers (val : FileWorker) : ServerM Unit := do
     (←read).fileWorkersRef.modify (fun fileWorkers => fileWorkers.insert val.doc.meta.uri val)
 
-  def findFileWorker (uri : DocumentUri) : ServerM FileWorker := do
-    match (←(←read).fileWorkersRef.get).find? uri with
-    | some fw => fw
-    | none    => throwServerError s!"Got unknown document URI ({uri})"
+  def findFileWorker? (uri : DocumentUri) : ServerM (Option FileWorker) := do
+    (←(←read).fileWorkersRef.get).find? uri
+
+  def findFileWorker! (uri : DocumentUri) : ServerM FileWorker := do
+    let some fw ← findFileWorker? uri
+      | throwServerError s!"cannot find open document '{uri}'"
+    return fw
 
   def eraseFileWorker (uri : DocumentUri) : ServerM Unit := do
     (←read).fileWorkersRef.modify (fun fileWorkers => fileWorkers.erase uri)
@@ -266,26 +269,33 @@ section ServerM
     updateFileWorkers fw
 
   def terminateFileWorker (uri : DocumentUri) : ServerM Unit := do
-    /- The file worker must have crashed just when we were about to terminate it!
-       That's fine - just forget about it then.
-       (on didClose we won't need the crashed file worker anymore,
-       when the header changed we'll start a new one right after
-       anyways and when we're shutting down the server
-       it's over either way.) -/
-    try (←findFileWorker uri).stdin.writeLspMessage (Message.notification "exit" none)
-    catch err => ()
+    let fw ← findFileWorker! uri
+    try
+      fw.stdin.writeLspMessage (Message.notification "exit" none)
+    catch _ =>
+      /- The file worker must have crashed just when we were about to terminate it!
+        That's fine - just forget about it then.
+        (on didClose we won't need the crashed file worker anymore,
+        when the header changed we'll start a new one right after
+        anyways and when we're shutting down the server
+        it's over either way.) -/
+      return
     eraseFileWorker uri
 
   def handleCrash (uri : DocumentUri) (queuedMsgs : Array JsonRpc.Message) : ServerM Unit := do
-    updateFileWorkers { ←findFileWorker uri with state := WorkerState.crashed queuedMsgs }
+    updateFileWorkers { ←findFileWorker! uri with state := WorkerState.crashed queuedMsgs }
 
   /-- Tries to write a message, sets the state of the FileWorker to `crashed` if it does not succeed
-      and restarts the file worker if the `crashed` flag was already set.
+      and restarts the file worker if the `crashed` flag was already set. Just logs an error if there
+      is no FileWorker at this `uri`.
       Messages that couldn't be sent can be queued up via the queueFailedMessage flag and
       will be discharged after the FileWorker is restarted. -/
   def tryWriteMessage (uri : DocumentUri) (msg : JsonRpc.Message) (queueFailedMessage := true) (restartCrashedWorker := false) :
       ServerM Unit := do
-    let fw ← findFileWorker uri
+    let some fw ← findFileWorker? uri
+      | do
+        (←read).hLog.putStrLn s!"Cannot send message to unknown document '{uri}':\n{(toJson msg).compress}"
+        return
     let pendingEdit ← fw.groupedEditsRef.modifyGet fun
       | some ge => (true, some { ge with queuedMsgs := ge.queuedMsgs.push msg })
       | none    => (false, none)
@@ -301,7 +311,7 @@ section ServerM
       -- restart the crashed FileWorker
       eraseFileWorker uri
       startFileWorker fw.doc.meta
-      let newFw ← findFileWorker uri
+      let newFw ← findFileWorker! uri
       let mut crashedMsgs := #[]
       -- try to discharge all queued msgs, tracking the ones that we can't discharge
       for msg in queuedMsgs do
@@ -390,17 +400,18 @@ section MessageHandling
         (←read).hOut.writeLspResponseError <| e.toLspResponseError id
         return
       | Except.ok uri => uri
-    let fw ← try
-      findFileWorker uri
-    catch _ =>
-      -- VS Code sometimes sends us requests just after closing a file?
-      -- This is permitted by the spec, but seems pointless, and there's not much we can do,
-      -- so we return an error instead.
-      (←read).hOut.writeLspResponseError
-        { id      := id
-          code    := ErrorCode.contentModified
-          message := s!"Cannot process request to closed file '{uri}'" }
-      return
+    let some fw ← findFileWorker? uri
+      /- Clients may send requests to closed files, which we respond to with an error.
+      For example, VSCode sometimes sends requests just after closing a file,
+      and RPC clients may also do so, e.g. due to remaining timers. -/
+      | do
+        (←read).hOut.writeLspResponseError
+          { id      := id
+            /- Some clients (VSCode) also send requests *before* opening a file. We reply
+            with `contentModified` as that does not display a "request failed" popup. -/
+            code    := ErrorCode.contentModified
+            message := s!"Cannot process request to closed file '{uri}'" }
+        return
     let r := Request.mk id method params
     fw.pendingRequestsRef.modify (·.insert id r)
     tryWriteMessage uri r
@@ -466,7 +477,7 @@ section MainLoop
         mainLoop (←runClientTask)
       | Message.notification "textDocument/didChange" (some params) =>
         let p ← parseParams DidChangeTextDocumentParams (toJson params)
-        let fw ← findFileWorker p.textDocument.uri
+        let fw ← findFileWorker! p.textDocument.uri
         let now ← monoMsNow
         /- We wait `editDelay`ms since last edit before applying the changes. -/
         let applyTime := now + st.editDelay

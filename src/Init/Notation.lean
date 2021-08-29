@@ -279,6 +279,10 @@ syntax (name := constructor) "constructor" : tactic
 `case tag => tac` focuses on the goal with case name `tag` and solves it using `tac`, or else fails.
 `case tag x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with inaccessible names to the given names. -/
 syntax (name := case) "case " (ident <|> "_") (ident <|> "_")* " => " tacticSeq : tactic
+/--
+`next => tac` focuses on the next goal solves it using `tac`, or else fails.
+`next x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with inaccessible names to the given names. -/
+macro "next " args:(ident <|> "_")* " => " tac:tacticSeq : tactic => `(tactic| case _ $(args.getArgs)* => $tac)
 
 /-- `allGoals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
 syntax (name := allGoals) "allGoals " tacticSeq : tactic

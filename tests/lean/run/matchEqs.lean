@@ -21,9 +21,9 @@ test% f.match_1
 theorem ex (x : List Nat) : f x > 0 := by
   simp [f]
   induction x using f.match_1.splitter
-  case _ => simp [f.match_1.eq_1]
-  case _ => simp [f.match_1.eq_2]
-  case _ x h1 h2 =>
+  next => simp [f.match_1.eq_1]
+  next x => simp [f.match_1.eq_2]
+  next x h1 h2 =>
     rw [f.match_1.eq_3]
     . decide
     . exact h1

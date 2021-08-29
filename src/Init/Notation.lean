@@ -278,7 +278,8 @@ syntax (name := constructor) "constructor" : tactic
 /--
 `case tag => tac` focuses on the goal with case name `tag` and solves it using `tac`, or else fails.
 `case tag x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with inaccessible names to the given names. -/
-syntax (name := case) "case " ident (ident <|> "_")* " => " tacticSeq : tactic
+syntax (name := case) "case " (ident <|> "_") (ident <|> "_")* " => " tacticSeq : tactic
+
 /-- `allGoals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
 syntax (name := allGoals) "allGoals " tacticSeq : tactic
 /-- `anyGoals tac` applies the tactic `tac` to every goal, and succeeds if at least one application succeeds.  -/
@@ -396,6 +397,8 @@ macro_rules
   | `(tactic| repeat $seq) => `(tactic| first | ($seq); repeat $seq | skip)
 
 syntax "trivial" : tactic
+
+syntax (name := split) "split " (term)? (location)? : tactic
 
 macro_rules | `(tactic| trivial) => `(tactic| assumption)
 macro_rules | `(tactic| trivial) => `(tactic| rfl)

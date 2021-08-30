@@ -41,7 +41,7 @@ namespace Nat
 
 /- Nat.add theorems -/
 
-@[simp] theorem zero_Eq : Nat.zero = 0 :=
+@[simp] theorem zero_eq : Nat.zero = 0 :=
   rfl
 
 @[simp] protected theorem zero_add : ∀ (n : Nat), 0 + n = n

@@ -298,10 +298,6 @@ syntax (name := skip) "skip" : tactic
 syntax (name := done) "done" : tactic
 syntax (name := traceState) "traceState" : tactic
 syntax (name := failIfSuccess) "failIfSuccess " tacticSeq : tactic
-/--
-`generalize [h :] e = x` replaces all occurrences of the term `e` in the main goal with a fresh hypothesis `x`.
-If `h` is given, `h : e = x` is introduced as well. -/
-syntax (name := generalize) "generalize " atomic(ident " : ")? term:51 " = " ident : tactic
 syntax (name := paren) "(" tacticSeq ")" : tactic
 syntax (name := withReducible) "withReducible " tacticSeq : tactic
 syntax (name := withReducibleAndInstances) "withReducibleAndInstances " tacticSeq : tactic
@@ -388,6 +384,13 @@ macro "let' " d:letDecl : tactic => `(refineLift' let $d:letDecl; ?_)
 syntax inductionAlt  := "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
 syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
 syntax (name := induction) "induction " term,+ (" using " ident)?  ("generalizing " ident+)? (inductionAlts)? : tactic
+
+syntax generalizeArg := atomic(ident " : ")? term:51 " = " ident
+/--
+`generalize ([h :] e = x),+` replaces all occurrences `e`s in the main goal with a fresh hypothesis `x`s.
+If `h` is given, `h : e = x` is introduced as well. -/
+syntax (name := generalize) "generalize " generalizeArg,+ : tactic
+
 syntax casesTarget := atomic(ident " : ")? term
 syntax (name := cases) "cases " casesTarget,+ (" using " ident)? (inductionAlts)? : tactic
 

@@ -328,15 +328,6 @@ def getInductiveValFromMajor (major : Expr) : TacticM InductiveVal :=
       (fun _ => Meta.throwTacticEx `induction mvarId m!"major premise type is not an inductive type {indentExpr majorType}")
       (fun val _ => pure val)
 
-private def generalizeTerm (term : Expr) : TacticM Expr := do
-  match term with
-  | Expr.fvar .. => pure term
-  | _ =>
-    liftMetaTacticAux fun mvarId => do
-      let mvarId ← Meta.generalize mvarId term `x false
-      let (fvarId, mvarId) ← Meta.intro1 mvarId
-      pure (mkFVar fvarId, [mvarId])
-
 -- `optElimId` is of the form `("using" ident)?`
 private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (induction : Bool): TacticM (Name × ElimInfo) := do
   if optElimId.isNone then
@@ -350,10 +341,17 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
     let elimName ← withRef elimId do resolveGlobalConstNoOverloadWithInfo elimId
     pure (elimName, ← withRef elimId do getElimInfo elimName)
 
+private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
+  if exprs.all (·.isFVar) then
+    return exprs
+  else
+    liftMetaTacticAux fun mvarId => do
+      let (fvarIds, mvarId) ← generalize mvarId (exprs.map fun expr => { expr })
+      return (fvarIds.map mkFVar, [mvarId])
+
 @[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx => focus do
-  let targets ← stx[1].getSepArgs.mapM fun target => do
-    let target ← withMainContext <| elabTerm target none
-    generalizeTerm target
+  let targets ← withMainContext <| stx[1].getSepArgs.mapM (elabTerm . none)
+  let targets ← generalizeTargets targets
   let (elimName, elimInfo) ← getElimNameInfo stx[2] targets (induction := true)
   let mvarId ← getMainGoal
   -- save initial info before main goal is reassigned
@@ -385,43 +383,24 @@ where
       if foundFVars.contains target.fvarId! then
         throwError "target (or one of its indices) occurs more than once{indentExpr target}"
 
--- Recall that
--- majorPremise := leading_parser optional (try (ident >> " : ")) >> termParser
-private def getTargetHypothesisName? (target : Syntax) : Option Name :=
-  if target[0].isNone then
-    none
-  else
-    some target[0][0].getId
-
-private def getTargetTerm (target : Syntax) : Syntax :=
-  target[1]
-
-private def elabTaggedTerm (h? : Option Name) (termStx : Syntax) : TacticM Expr :=
-  withMainContext <| withRef termStx do
-    let term ← elabTerm termStx none
-    match h? with
-    | none   => pure term
-    | some h =>
-      let lctx ← getLCtx
-      let x ← mkFreshUserName `x
-      evalGeneralizeAux h? term x
-      withMainContext do
-        let lctx ← getLCtx
-        match lctx.findFromUserName? x with
-        | some decl => pure decl.toExpr
-        | none      => throwError "failed to generalize"
-
-def elabTargets (targets : Array Syntax) : TacticM (Array Expr) :=
-  targets.mapM fun target => do
-    let h?    := getTargetHypothesisName? target
-    let term ← elabTaggedTerm h? (getTargetTerm target)
-    generalizeTerm term
+def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr) :=
+  withMainContext do
+    let args ← targets.mapM fun target => do
+      let hName? := if target[0].isNone then none else some target[0][0].getId
+      let expr ← elabTerm target[1] none
+      return { expr, hName? : GeneralizeArg }
+    if args.all fun arg => arg.expr.isFVar && arg.hName?.isNone then
+      return args.map (·.expr)
+    else
+      liftMetaTacticAux fun mvarId => do
+        let (fvarIds, mvarId) ← generalize mvarId args
+        return (fvarIds[:targets.size].toArray.map mkFVar, [mvarId])
 
 builtin_initialize registerTraceClass `Elab.cases
 
 @[builtinTactic Lean.Parser.Tactic.cases] def evalCases : Tactic := fun stx => focus do
   -- leading_parser nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> optInductionAlts
-  let targets ← elabTargets stx[1].getSepArgs
+  let targets ← elabCasesTargets stx[1].getSepArgs
   let optInductionAlts := stx[3]
   let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
   let alts :=  getAltsOfOptInductionAlts optInductionAlts
@@ -437,7 +416,7 @@ builtin_initialize registerTraceClass `Elab.cases
     let elimArgs := result.elimApp.getAppArgs
     let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]
     let motiveType ← inferType elimArgs[elimInfo.motivePos]
-    let mvarId ← generalizeTargets mvarId motiveType targets
+    let mvarId ← generalizeTargetsEq mvarId motiveType targets
     let (targetsNew, mvarId) ← introN mvarId targets.size
     withMVarContext mvarId do
       ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetsNew

@@ -41,7 +41,7 @@ private partial def withNewEqs {α} (targets targetsNew : Array Expr) (k : Array
       k newEqs newRefls
   loop 0 #[] #[]
 
-def generalizeTargets (mvarId : MVarId) (motiveType : Expr) (targets : Array Expr) : MetaM MVarId :=
+def generalizeTargetsEq (mvarId : MVarId) (motiveType : Expr) (targets : Array Expr) : MetaM MVarId :=
   withMVarContext mvarId do
     checkNotAssigned mvarId `generalizeTargets
     let (typeNew, eqRefls) ←

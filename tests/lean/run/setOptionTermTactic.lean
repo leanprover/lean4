@@ -7,4 +7,3 @@ theorem ex : f = g := by
   simp only [f]
   set_option trace.Meta.Tactic.simp true in simp only [Nat.add_succ, g]
   simp only [Nat.zero_add]
-  rfl

@@ -67,11 +67,30 @@ end Match
 
 export Match (MatcherInfo)
 
+def getMatcherInfoCore? (env : Environment) (declName : Name) : Option MatcherInfo :=
+  Match.Extension.getMatcherInfo? env declName
+
 def getMatcherInfo? [Monad m] [MonadEnv m] (declName : Name) : m (Option MatcherInfo) :=
-  return Match.Extension.getMatcherInfo? (← getEnv) declName
+  return getMatcherInfoCore? (← getEnv) declName
+
+def isMatcherCore (env : Environment) (declName : Name) : Bool :=
+  getMatcherInfoCore? env declName |>.isSome
 
 def isMatcher [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
-  return (← getMatcherInfo? declName).isSome
+  return isMatcherCore (← getEnv) declName
+
+def isMatcherAppCore (env : Environment) (e : Expr) : Bool :=
+  let fn := e.getAppFn
+  if fn.isConst then
+    if let some matcherInfo := getMatcherInfoCore? env fn.constName! then
+      e.getAppNumArgs ≥ matcherInfo.arity
+    else
+      false
+  else
+    false
+
+def isMatcherApp [Monad m] [MonadEnv m] (e : Expr) : m Bool :=
+  return isMatcherAppCore (← getEnv) e
 
 structure MatcherApp where
   matcherName   : Name
@@ -84,25 +103,27 @@ structure MatcherApp where
   alts          : Array Expr
   remaining     : Array Expr
 
-def matchMatcherApp? (e : Expr) : MetaM (Option MatcherApp) :=
+def matchMatcherApp? [Monad m] [MonadEnv m] (e : Expr) : m (Option MatcherApp) := do
   match e.getAppFn with
-  | Expr.const declName declLevels _ => do
-    let some info ← getMatcherInfo? declName | pure none
-    let args := e.getAppArgs
-    if args.size < info.arity then
-      return none
-    else
-      return some {
-        matcherName   := declName
-        matcherLevels := declLevels.toArray
-        uElimPos?     := info.uElimPos?
-        params        := args.extract 0 info.numParams
-        motive        := args[info.getMotivePos]
-        discrs        := args[info.numParams + 1 : info.numParams + 1 + info.numDiscrs]
-        altNumParams  := info.altNumParams
-        alts          := args[info.numParams + 1 + info.numDiscrs : info.numParams + 1 + info.numDiscrs + info.numAlts]
-        remaining     := args[info.numParams + 1 + info.numDiscrs + info.numAlts : args.size]
-      }
+  | Expr.const declName declLevels _ =>
+    match (← getMatcherInfo? declName) with
+    | none => return none
+    | some info =>
+      let args := e.getAppArgs
+      if args.size < info.arity then
+        return none
+      else
+        return some {
+          matcherName   := declName
+          matcherLevels := declLevels.toArray
+          uElimPos?     := info.uElimPos?
+          params        := args.extract 0 info.numParams
+          motive        := args[info.getMotivePos]
+          discrs        := args[info.numParams + 1 : info.numParams + 1 + info.numDiscrs]
+          altNumParams  := info.altNumParams
+          alts          := args[info.numParams + 1 + info.numDiscrs : info.numParams + 1 + info.numDiscrs + info.numAlts]
+          remaining     := args[info.numParams + 1 + info.numDiscrs + info.numAlts : args.size]
+        }
   | _ => return none
 
 def MatcherApp.toExpr (matcherApp : MatcherApp) : Expr :=

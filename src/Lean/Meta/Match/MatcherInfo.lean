@@ -67,10 +67,10 @@ end Match
 
 export Match (MatcherInfo)
 
-def getMatcherInfo? (declName : Name) : MetaM (Option MatcherInfo) :=
+def getMatcherInfo? [Monad m] [MonadEnv m] (declName : Name) : m (Option MatcherInfo) :=
   return Match.Extension.getMatcherInfo? (← getEnv) declName
 
-def isMatcher (declName : Name) : MetaM Bool :=
+def isMatcher [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
   return (← getMatcherInfo? declName).isSome
 
 structure MatcherApp where

@@ -101,6 +101,8 @@ macro_rules
   | `(calc $p:term := $h:term) => `(show $p from $h)
   | `(calc $p:term := $h:term $rest:calcStep*) => ``(trans (show $p from $h) (calc $rest:calcStep*))
 
+macro "calc " steps:withPosition(calcStep+) : tactic => `(exact calc $(steps.getArgs)*)
+
 @[appUnexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())
   | _       => throw ()

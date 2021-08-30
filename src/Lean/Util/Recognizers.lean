@@ -73,6 +73,12 @@ def isEq (e : Expr) :=
 def isHEq (e : Expr) :=
   e.isAppOfArity ``HEq 4
 
+def isIte (e : Expr) :=
+  e.isAppOfArity ``ite 5
+
+def isDIte (e : Expr) :=
+  e.isAppOfArity ``dite 5
+
 partial def listLit? (e : Expr) : Option (Expr × List Expr) :=
   let rec loop (e : Expr) (acc : List Expr) :=
     if e.isAppOfArity ``List.nil 1 then

@@ -22,14 +22,7 @@ test% f.match_1
 
 theorem ex (x : List Nat) : f x > 0 := by
   simp [f]
-  induction x using f.match_1.splitter
-  next => simp [f.match_1.eq_1]
-  next x => simp [f.match_1.eq_2]
-  next x h1 h2 =>
-    rw [f.match_1.eq_3]
-    . decide
-    . exact h1
-    . exact h2
+  split <;> decide
 
 test% Std.RBNode.balance1.match_1
 #check @Std.RBNode.balance1.match_1.splitter

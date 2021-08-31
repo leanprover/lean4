@@ -7,13 +7,9 @@ def f (xs : List Nat) : Nat :=
 theorem ex1 (xs : List Nat) (hr : xs.reverse = xs) (ys : Nat) : ys > 0 → f xs > 0 := by
   simp [f]
   split
-  next => intro hys; simp
-  next => intro hys; simp; apply Nat.zero_lt_succ
-  next zs n₁ n₂ =>
-    intro hys
-    rw [f.match_1.eq_3]
-    anyGoals assumption
-    decide
+  next => intro hys; decide
+  next => intro hys; apply Nat.zero_lt_succ
+  next zs n₁ n₂ => intro hys; decide
 
 def g (xs : List Nat) : Nat :=
   match xs with
@@ -23,7 +19,5 @@ def g (xs : List Nat) : Nat :=
 theorem ex2 (xs : List Nat) : g xs > 0 := by
   simp [g]
   split
-  . simp; apply Nat.zero_lt_succ
-  . rw [g.match_1.eq_2]
-    . decide
-    . assumption
+  next a b c d e => apply Nat.zero_lt_succ
+  next h => decide

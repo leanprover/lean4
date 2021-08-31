@@ -24,6 +24,7 @@ def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := do
   let (reverted, mvarId) ← revert mvarId discrFVarIds
   trace[Meta.debug] "split [2]:\n{MessageData.ofGoal mvarId}"
   let (discrFVarIds, mvarId) ← introNP mvarId discrFVarIds.size
+  let numExtra := reverted.size - discrFVarIds.size
   trace[Meta.debug] "split [3]:\n{MessageData.ofGoal mvarId}"
   let discrs := discrFVarIds.map mkFVar
   let matchEqns ← Match.getEquationsFor app.matcherName
@@ -41,11 +42,14 @@ def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := do
     trace[Meta.debug] "splitter: {splitter}"
     check splitter -- TODO
     let mvarIds ← apply mvarId splitter
-    mvarIds.mapM fun mvarId => do
+    let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
       trace[Meta.debug] "split [5]:\n{MessageData.ofGoal mvarId}"
-      -- TODO: fix intros, use equation lemmas to reduce `match`-expressions
-      let (_, mvarId) ← intros mvarId
-      return mvarId
+      let numParams := matchEqns.splitterAltNumParams[i]
+      -- TODO: use equation lemmas to reduce `match`-expressions
+      let (_, mvarId) ← introN mvarId numParams
+      let (_, mvarId) ← introNP mvarId numExtra
+      return (i+1, mvarId::mvarIds)
+    return mvarIds.reverse
 
 /-- Return an `if-then-else` or `match-expr` to split. -/
 partial def findSplit? (env : Environment) (e : Expr) : Option Expr :=

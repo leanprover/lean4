@@ -26,36 +26,36 @@ theorem choose_spec {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : p (choose
 
 /- Diaconescu's theorem: excluded middle from choice, Function extensionality and propositional extensionality. -/
 theorem em (p : Prop) : p ∨ ¬p :=
-  let U (x : Prop) : Prop := x = True ∨ p;
-  let V (x : Prop) : Prop := x = False ∨ p;
-  have exU : ∃ x, U x := ⟨True, Or.inl rfl⟩;
-  have exV : ∃ x, V x := ⟨False, Or.inl rfl⟩;
-  let u : Prop := choose exU;
-  let v : Prop := choose exV;
-  have uDef : U u := choose_spec exU;
-  have vDef : V v := choose_spec exV;
-  have notUvOrP : u ≠ v ∨ p :=
-    match uDef, vDef with
+  let U (x : Prop) : Prop := x = True ∨ p
+  let V (x : Prop) : Prop := x = False ∨ p
+  have exU : ∃ x, U x := ⟨True, Or.inl rfl⟩
+  have exV : ∃ x, V x := ⟨False, Or.inl rfl⟩
+  let u : Prop := choose exU
+  let v : Prop := choose exV
+  have u_def : U u := choose_spec exU
+  have v_def : V v := choose_spec exV
+  have not_uv_or_p : u ≠ v ∨ p :=
+    match u_def, v_def with
     | Or.inr h, _ => Or.inr h
     | _, Or.inr h => Or.inr h
     | Or.inl hut, Or.inl hvf =>
-      have hne : u ≠ v := hvf.symm ▸ hut.symm ▸ true_ne_false
+      have hne : u ≠ v := by simp [hvf, hut, true_ne_false]
       Or.inl hne
-  have pImpliesUv : p → u = v :=
+  have p_implies_uv : p → u = v :=
     fun hp =>
     have hpred : U = V :=
       funext fun x =>
         have hl : (x = True ∨ p) → (x = False ∨ p) :=
-          fun a => Or.inr hp;
+          fun _ => Or.inr hp
         have hr : (x = False ∨ p) → (x = True ∨ p) :=
-          fun a => Or.inr hp;
+          fun _ => Or.inr hp
         show (x = True ∨ p) = (x = False ∨ p) from
-          propext (Iff.intro hl hr);
-    have h₀ : ∀ exU exV, @choose _ U exU = @choose _ V exV :=
-      hpred ▸ fun exU exV => rfl;
-    show u = v from h₀ ..;
-  match notUvOrP with
-  | Or.inl hne => Or.inr (mt pImpliesUv hne)
+          propext (Iff.intro hl hr)
+    have h₀ : ∀ exU exV, @choose _ U exU = @choose _ V exV := by
+      rw [hpred]; intros; rfl
+    show u = v from h₀ _ _
+  match not_uv_or_p with
+  | Or.inl hne => Or.inr (mt p_implies_uv hne)
   | Or.inr h   => Or.inl h
 
 theorem exists_true_of_nonempty {α : Sort u} : Nonempty α → ∃ x : α, True
@@ -114,10 +114,10 @@ theorem axiomOfChoice {α : Sort u} {β : α → Sort v} {r : ∀ x, β x → Pr
 theorem skolem {α : Sort u} {b : α → Sort v} {p : ∀ x, b x → Prop} : (∀ x, ∃ y, p x y) ↔ ∃ (f : ∀ x, b x), ∀ x, p x (f x) :=
   ⟨axiomOfChoice, fun ⟨f, hw⟩ (x) => ⟨f x, hw x⟩⟩
 
-theorem propComplete (a : Prop) : a = True ∨ a = False := by
-  cases em a with
-  | inl _  => apply Or.inl; apply propext; apply Iff.intro; { intros; apply True.intro }; { intro; assumption }
-  | inr hn => apply Or.inr; apply propext; apply Iff.intro; { intro h; exact hn h }; { intro h; apply False.elim h }
+theorem propComplete (a : Prop) : a = True ∨ a = False :=
+  match em a with
+  | Or.inl ha => Or.inl (propext (Iff.intro (fun _ => ⟨⟩) (fun _ => ha)))
+  | Or.inr hn => Or.inr (propext (Iff.intro (fun h => hn h) (fun h => False.elim h)))
 
 -- this supercedes byCases in Decidable
 theorem byCases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=

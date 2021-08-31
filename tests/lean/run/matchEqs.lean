@@ -17,6 +17,8 @@ def f (x : List Nat) : Nat :=
   | _ => 3
 
 test% f.match_1
+#check @f.match_1
+#check @f.match_1.splitter
 
 theorem ex (x : List Nat) : f x > 0 := by
   simp [f]

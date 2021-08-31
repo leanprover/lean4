@@ -405,7 +405,7 @@ macro_rules
 
 syntax "trivial" : tactic
 
-syntax (name := split) "split " (term)? (location)? : tactic
+syntax (name := split) "split " (colGt term)? (location)? : tactic
 
 macro_rules | `(tactic| trivial) => `(tactic| assumption)
 macro_rules | `(tactic| trivial) => `(tactic| rfl)

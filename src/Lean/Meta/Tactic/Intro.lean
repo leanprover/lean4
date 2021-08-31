@@ -122,6 +122,9 @@ def intros (mvarId : MVarId) : MetaM (Array FVarId × MVarId) := do
   let type ← Meta.getMVarType mvarId
   let type ← instantiateMVars type
   let n := getIntrosSize type
-  Meta.introN mvarId n
+  if n == 0 then
+    return (#[], mvarId)
+  else
+    Meta.introN mvarId n
 
 end Lean.Meta

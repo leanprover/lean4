@@ -86,7 +86,7 @@ declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» 
 @[builtinCommandParser] def «init_quot»    := leading_parser "init_quot"
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit
 @[builtinCommandParser] def «set_option»   := leading_parser "set_option " >> ident >> ppSpace >> optionValue
-def eraseAttr := leading_parser "-" >> ident
+def eraseAttr := leading_parser "-" >> rawIdent
 @[builtinCommandParser] def «attribute»    := leading_parser "attribute " >> "[" >> sepBy1 (eraseAttr <|> Term.attrInstance) ", " >> "] " >> many1 ident
 @[builtinCommandParser] def «export»       := leading_parser "export " >> ident >> "(" >> many1 ident >> ")"
 def openHiding       := leading_parser atomic (ident >> "hiding") >> many1 (checkColGt >> ident)

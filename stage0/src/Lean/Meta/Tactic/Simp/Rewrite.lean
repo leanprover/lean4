@@ -41,6 +41,36 @@ where
       trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to synthesize instance{indentExpr type}"
       return false
 
+def tryLemma? (e : Expr) (lemma : SimpLemma) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) :=
+  withNewMCtxDepth do
+    let val  ← lemma.getValue
+    let type ← inferType val
+    let (xs, bis, type) ← forallMetaTelescopeReducing type
+    let type ← whnf (← instantiateMVars type)
+    let lhs := type.appFn!.appArg!
+    if (← isDefEq lhs e) then
+      unless (← synthesizeArgs lemma.getName xs bis discharge?) do
+        return none
+      let proof ← instantiateMVars (mkAppN val xs)
+      if ← hasAssignableMVar proof then
+        trace[Meta.Tactic.simp.rewrite] "{lemma}, has unassigned metavariables after unification"
+        return none
+      let rhs   ← instantiateMVars type.appArg!
+      if e == rhs then
+        return none
+      if lemma.perm && !Expr.lt rhs e then
+        trace[Meta.Tactic.simp.rewrite] "{lemma}, perm rejected {e} ==> {rhs}"
+        return none
+      trace[Meta.Tactic.simp.rewrite] "{lemma}, {e} ==> {rhs}"
+      return some { expr := rhs, proof? := proof }
+    else
+      unless lhs.isMVar do
+        -- We do not report unification failures when `lhs` is a metavariable
+        -- Example: `x = ()`
+        -- TODO: reconsider if we want lemmas such as `(x : Unit) → x = ()`
+        trace[Meta.Tactic.simp.unify] "{lemma}, failed to unify {lhs} with {e}"
+      return none
+
 /-
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
 -/
@@ -53,7 +83,7 @@ def rewrite (e : Expr) (s : DiscrTree SimpLemma) (erased : Std.PHashSet Name) (d
     let lemmas := lemmas.insertionSort fun e₁ e₂ => e₁.priority < e₂.priority
     for lemma in lemmas do
       unless inErasedSet lemma do
-        if let some result ← tryLemma? lemma then
+        if let some result ← tryLemma? e lemma discharge? then
           return result
     return { expr := e }
 where
@@ -61,36 +91,6 @@ where
     match lemma.name? with
     | none => false
     | some name => erased.contains name
-
-  tryLemma? (lemma : SimpLemma) : SimpM (Option Result) :=
-    withNewMCtxDepth do
-      let val  ← lemma.getValue
-      let type ← inferType val
-      let (xs, bis, type) ← forallMetaTelescopeReducing type
-      let type ← whnf (← instantiateMVars type)
-      let lhs := type.appFn!.appArg!
-      if (← isDefEq lhs e) then
-        unless (← synthesizeArgs lemma.getName xs bis discharge?) do
-          return none
-        let proof ← instantiateMVars (mkAppN val xs)
-        if ← hasAssignableMVar proof then
-          trace[Meta.Tactic.simp.rewrite] "{lemma}, has unassigned metavariables after unification"
-          return none
-        let rhs   ← instantiateMVars type.appArg!
-        if e == rhs then
-          return none
-        if lemma.perm && !Expr.lt rhs e then
-          trace[Meta.Tactic.simp.rewrite] "{lemma}, perm rejected {e} ==> {rhs}"
-          return none
-        trace[Meta.Tactic.simp.rewrite] "{lemma}, {e} ==> {rhs}"
-        return some { expr := rhs, proof? := proof }
-      else
-        unless lhs.isMVar do
-          -- We do not report unification failures when `lhs` is a metavariable
-          -- Example: `x = ()`
-          -- TODO: reconsider if we want lemmas such as `(x : Unit) → x = ()`
-          trace[Meta.Tactic.simp.unify] "{lemma}, failed to unify {lhs} with {e}"
-        return none
 
 def rewriteCtorEq? (e : Expr) : MetaM (Option Result) := withReducibleAndInstances do
   match e.eq? with

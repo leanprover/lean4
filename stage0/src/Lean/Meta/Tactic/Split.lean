@@ -9,7 +9,43 @@ import Lean.Meta.Tactic.Generalize
 namespace Lean.Meta
 namespace Split
 
-private def genMatchDiscrs (mvarId : MVarId) (discrs : Array Expr) : MetaM (Array FVarId × MVarId) := do
+private def getSimpMatchContext : MetaM Simp.Context :=
+   return {
+      simpLemmas    := {}
+      congrLemmas   := (← getCongrLemmas)
+      config.zeta   := false
+      config.beta   := false
+      config.eta    := false
+      config.iota   := false
+      config.proj   := false
+      config.decide := false
+   }
+
+private def simpMatchPre (matchDeclName : Name) (matchEqDeclName : Name) (e : Expr) : SimpM Simp.Step := do
+  if e.isAppOf matchDeclName then
+    -- First try to reduce matcher
+    match (← reduceRecMatcher? e) with
+    | some e' => return Simp.Step.done { expr := e' }
+    | none    =>
+    -- Try lemma
+    match (← Simp.tryLemma? e { proof := mkConst matchEqDeclName, name? := matchEqDeclName } SplitIf.discharge?) with
+    | none => return Simp.Step.visit { expr := e }
+    | some r => return Simp.Step.done r
+  else
+    return Simp.Step.visit { expr := e }
+
+private def simpMatch (matchDeclName : Name) (matchEqDeclName : Name) (e : Expr) : MetaM Simp.Result := do
+  Simp.main e (← getSimpMatchContext) (methods := { pre := simpMatchPre matchDeclName matchEqDeclName })
+
+private def simpMatchTarget (mvarId : MVarId) (matchDeclName : Name) (matchEqDeclName : Name) : MetaM MVarId := do
+  withMVarContext mvarId do
+    let target ← instantiateMVars (← getMVarType mvarId)
+    let r ← simpMatch matchDeclName matchEqDeclName target
+    match r.proof? with
+    | some proof => replaceTargetEq mvarId r.expr proof
+    | none => replaceTargetDefEq mvarId r.expr
+
+private def generalizeMatchDiscrs (mvarId : MVarId) (discrs : Array Expr) : MetaM (Array FVarId × MVarId) := do
   if discrs.all (·.isFVar) then
     return (discrs.map (·.fvarId!), mvarId)
   else
@@ -19,35 +55,30 @@ private def genMatchDiscrs (mvarId : MVarId) (discrs : Array Expr) : MetaM (Arra
 
 def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := do
   let some app ← matchMatcherApp? e | throwError "match application expected"
-  let (discrFVarIds, mvarId) ← genMatchDiscrs mvarId app.discrs
+  let (discrFVarIds, mvarId) ← generalizeMatchDiscrs mvarId app.discrs
   trace[Meta.debug] "split [1]:\n{MessageData.ofGoal mvarId}"
   let (reverted, mvarId) ← revert mvarId discrFVarIds
-  trace[Meta.debug] "split [2]:\n{MessageData.ofGoal mvarId}"
   let (discrFVarIds, mvarId) ← introNP mvarId discrFVarIds.size
   let numExtra := reverted.size - discrFVarIds.size
-  trace[Meta.debug] "split [3]:\n{MessageData.ofGoal mvarId}"
   let discrs := discrFVarIds.map mkFVar
   let matchEqns ← Match.getEquationsFor app.matcherName
   withMVarContext mvarId do
     let motive ← mkLambdaFVars discrs (← getMVarType mvarId)
-    trace[Meta.debug] "split [4]: {motive}"
     -- Fix universe
     let mut us := app.matcherLevels
     if let some uElimPos := app.uElimPos? then
       -- Set universe elimination level to zero (Prop).
       us := us.set! uElimPos levelZero
-    trace[Meta.debug] "us: {us}"
     let splitter := mkAppN (mkConst matchEqns.splitterName us.toList) app.params
     let splitter := mkAppN (mkApp splitter motive) discrs
-    trace[Meta.debug] "splitter: {splitter}"
     check splitter -- TODO
     let mvarIds ← apply mvarId splitter
     let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
-      trace[Meta.debug] "split [5]:\n{MessageData.ofGoal mvarId}"
       let numParams := matchEqns.splitterAltNumParams[i]
-      -- TODO: use equation lemmas to reduce `match`-expressions
       let (_, mvarId) ← introN mvarId numParams
       let (_, mvarId) ← introNP mvarId numExtra
+      trace[Meta.debug] "before simpMatch:\n{MessageData.ofGoal mvarId}"
+      let mvarId ← simpMatchTarget mvarId app.matcherName matchEqns.eqnNames[i]
       return (i+1, mvarId::mvarIds)
     return mvarIds.reverse
 

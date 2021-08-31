@@ -58,7 +58,6 @@ private def toFVarsRHSArgs (ys : Array Expr) (resultType : Expr) : MetaM (Array 
   Remark: if there is no overlaping between the alternatives, the empty array is returned. -/
 private partial def simpHs (hs : Array Expr) (numPatterns : Nat) : MetaM (Array Expr) := do
   hs.filterMapM fun h => forallTelescope h fun ys _ => do
-    trace[Meta.debug] "ys: {ys}"
     let xs  := ys[:ys.size - numPatterns].toArray
     let eqs ← ys[ys.size - numPatterns : ys.size].toArray.mapM inferType
     if let some eqsNew ← simpEqs eqs *> get |>.run |>.run' #[] then
@@ -133,7 +132,6 @@ where
   go (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
     let mvarId' ← modifyTargetEqLHS mvarId whnfCore
     let mvarId := mvarId'
-    trace[Meta.debug] "proveLoop [{depth}]\n{MessageData.ofGoal mvarId}"
     let subgoals ←
       (do applyRefl mvarId; return #[])
       <|>
@@ -276,7 +274,6 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
       let thmName := baseName ++ ((`eq).appendIndexAfter idx)
       eqnNames := eqnNames.push thmName
       let altType ← inferType alt
-      trace[Meta.debug] ">> {altType}"
       let (notAlt, splitterAltType, splitterAltNumParam) ← forallTelescopeReducing altType fun ys altResultType => do
         let (ys, rhsArgs) ← toFVarsRHSArgs ys altResultType
         let patterns := altResultType.getAppArgs
@@ -292,14 +289,12 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
         for discr in discrs.toArray.reverse, pattern in patterns.reverse do
           notAlt ← mkArrow (← mkEq discr pattern) notAlt
         notAlt ← mkForallFVars (discrs ++ ys) notAlt
-        trace[Meta.debug] "notAlt: {notAlt}"
         let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ patterns ++ alts)
         let rhs := mkAppN alt rhsArgs
         let thmType ← mkEq lhs rhs
         let thmType ← hs.foldrM (init := thmType) mkArrow
         let thmType ← mkForallFVars (params ++ #[motive] ++ alts ++ ys) thmType
         let thmVal ← proveCondEqThm matchDeclName thmType
-        trace[Meta.debug] "thmVal: {thmVal}"
         addDecl <| Declaration.thmDecl {
           name        := thmName
           levelParams := constInfo.levelParams

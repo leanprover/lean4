@@ -258,7 +258,7 @@ def elabBinCalc : TermElab :=  fun stx expectedType? => do
   for stepStx in stepStxs do
     let type  ← elabType stepStx[0]
     let some (_, lhs, _) ← relation? type |
-      throwErrorAt stepStx[0] "invalid 'calc' step, relation expected"
+      throwErrorAt stepStx[0] "invalid 'calc' step, relation expected{indentExpr type}"
     if types.size > 0 then
       let some (_, _, prevRhs) ← relation? types.back | unreachable!
       unless (← isDefEqGuarded lhs prevRhs) do

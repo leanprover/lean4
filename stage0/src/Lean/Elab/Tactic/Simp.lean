@@ -139,10 +139,15 @@ structure MkSimpContextResult where
 --  If `ctx == false`, the argument is assumed to have type `Meta.Simp.Config`, and `Meta.Simp.ConfigCtx` otherwise. -/
 private def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (ctx := false) (ignoreStarArg : Bool := false) : TacticM MkSimpContextResult := do
   let simpOnly := !stx[2].isNone
+  let simpLemmas ←
+    if simpOnly then
+      ({} : SimpLemmas).addConst ``eq_self
+    else
+      getSimpLemmas
+  let congrLemmas ← getCongrLemmas
   let r ← elabSimpArgs stx[3] (eraseLocal := eraseLocal) {
     config      := (← elabSimpConfig stx[1] (ctx := ctx))
-    simpLemmas  := if simpOnly then {} else (← getSimpLemmas)
-    congrLemmas := (← getCongrLemmas)
+    simpLemmas, congrLemmas
   }
   if !r.starArg || ignoreStarArg then
     return { r with fvarIdToLemmaId := {} }

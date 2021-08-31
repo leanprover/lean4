@@ -279,6 +279,10 @@ syntax (name := constructor) "constructor" : tactic
 `case tag => tac` focuses on the goal with case name `tag` and solves it using `tac`, or else fails.
 `case tag x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with inaccessible names to the given names. -/
 syntax (name := case) "case " (ident <|> "_") (ident <|> "_")* " => " tacticSeq : tactic
+/--
+`next => tac` focuses on the next goal solves it using `tac`, or else fails.
+`next x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with inaccessible names to the given names. -/
+macro "next " args:(ident <|> "_")* " => " tac:tacticSeq : tactic => `(tactic| case _ $(args.getArgs)* => $tac)
 
 /-- `allGoals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
 syntax (name := allGoals) "allGoals " tacticSeq : tactic
@@ -294,10 +298,6 @@ syntax (name := skip) "skip" : tactic
 syntax (name := done) "done" : tactic
 syntax (name := traceState) "traceState" : tactic
 syntax (name := failIfSuccess) "failIfSuccess " tacticSeq : tactic
-/--
-`generalize [h :] e = x` replaces all occurrences of the term `e` in the main goal with a fresh hypothesis `x`.
-If `h` is given, `h : e = x` is introduced as well. -/
-syntax (name := generalize) "generalize " atomic(ident " : ")? term:51 " = " ident : tactic
 syntax (name := paren) "(" tacticSeq ")" : tactic
 syntax (name := withReducible) "withReducible " tacticSeq : tactic
 syntax (name := withReducibleAndInstances) "withReducibleAndInstances " tacticSeq : tactic
@@ -384,6 +384,13 @@ macro "let' " d:letDecl : tactic => `(refineLift' let $d:letDecl; ?_)
 syntax inductionAlt  := "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
 syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
 syntax (name := induction) "induction " term,+ (" using " ident)?  ("generalizing " ident+)? (inductionAlts)? : tactic
+
+syntax generalizeArg := atomic(ident " : ")? term:51 " = " ident
+/--
+`generalize ([h :] e = x),+` replaces all occurrences `e`s in the main goal with a fresh hypothesis `x`s.
+If `h` is given, `h : e = x` is introduced as well. -/
+syntax (name := generalize) "generalize " generalizeArg,+ : tactic
+
 syntax casesTarget := atomic(ident " : ")? term
 syntax (name := cases) "cases " casesTarget,+ (" using " ident)? (inductionAlts)? : tactic
 
@@ -398,7 +405,7 @@ macro_rules
 
 syntax "trivial" : tactic
 
-syntax (name := split) "split " (term)? (location)? : tactic
+syntax (name := split) "split " (colGt term)? (location)? : tactic
 
 macro_rules | `(tactic| trivial) => `(tactic| assumption)
 macro_rules | `(tactic| trivial) => `(tactic| rfl)

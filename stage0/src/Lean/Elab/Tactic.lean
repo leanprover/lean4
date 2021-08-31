@@ -14,3 +14,4 @@ import Lean.Elab.Tactic.Rewrite
 import Lean.Elab.Tactic.Location
 import Lean.Elab.Tactic.Simp
 import Lean.Elab.Tactic.BuiltinTactic
+import Lean.Elab.Tactic.Split

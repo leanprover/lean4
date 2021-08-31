@@ -98,8 +98,10 @@ syntax calcStep := colGe term " := " withPosition(term)
 syntax "calc " withPosition(calcStep+) : term
 
 macro_rules
-  | `(calc $p:term := $h:term) => `(($h : $p))
-  | `(calc $p:term := $h:term $rest:calcStep*) => ``(trans ($h : $p) (calc $rest:calcStep*))
+  | `(calc $p:term := $h:term) => `(show $p from $h)
+  | `(calc $p:term := $h:term $rest:calcStep*) => ``(trans (show $p from $h) (calc $rest:calcStep*))
+
+macro "calc " steps:withPosition(calcStep+) : tactic => `(exact calc $(steps.getArgs)*)
 
 @[appUnexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())

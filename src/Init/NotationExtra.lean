@@ -95,11 +95,7 @@ macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBi
 
 -- enforce indentation of calc steps so we know when to stop parsing them
 syntax calcStep := colGe term " := " withPosition(term)
-syntax "calc " withPosition(calcStep+) : term
-
-macro_rules
-  | `(calc $p:term := $h:term) => `(show $p from $h)
-  | `(calc $p:term := $h:term $rest:calcStep*) => ``(trans (show $p from $h) (calc $rest:calcStep*))
+syntax (name := calc) "calc " withPosition(calcStep+) : term
 
 macro "calc " steps:withPosition(calcStep+) : tactic => `(exact calc $(steps.getArgs)*)
 

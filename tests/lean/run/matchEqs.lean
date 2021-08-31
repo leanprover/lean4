@@ -30,3 +30,6 @@ theorem ex (x : List Nat) : f x > 0 := by
     . decide
     . exact h1
     . exact h2
+
+test% Std.RBNode.balance1.match_1
+#check @Std.RBNode.balance1.match_1.splitter

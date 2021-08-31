@@ -21,12 +21,12 @@ namespace Lean.Meta
   Then, we use `abstractMVars` to abstract the universe metavariables and create new fresh universe parameters that are stored at the field `levelParams`.
 -/
 structure SimpLemma where
-  keys        : Array DiscrTree.Key
-  levelParams : Array Name -- non empty for local universe polymorhic proofs.
+  keys        : Array DiscrTree.Key := #[]
+  levelParams : Array Name := #[] -- non empty for local universe polymorhic proofs.
   proof       : Expr
-  priority    : Nat
-  post        : Bool
-  perm        : Bool -- true is lhs and rhs are identical modulo permutation of variables
+  priority    : Nat  := eval_prio default
+  post        : Bool := true
+  perm        : Bool := false -- true is lhs and rhs are identical modulo permutation of variables
   name?       : Option Name := none -- for debugging and tracing purposes
   deriving Inhabited
 

@@ -25,11 +25,23 @@ instance : ToFormat InstanceEntry where
     | _      => "<local>"
 
 structure Instances where
-  discrTree       : DiscrTree InstanceEntry := DiscrTree.empty
+  discrTree     : DiscrTree InstanceEntry := DiscrTree.empty
+  instanceNames : Std.PHashSet Name := {}
+  erased        : Std.PHashSet Name := {}
   deriving Inhabited
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
-  { d with discrTree := d.discrTree.insertCore e.keys e }
+  match e.globalName? with
+  | some n => { d with discrTree := d.discrTree.insertCore e.keys e, instanceNames := d.instanceNames.insert n }
+  | none   => { d with discrTree := d.discrTree.insertCore e.keys e }
+
+def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
+  { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName }
+
+def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) : m Instances := do
+  unless d.instanceNames.contains declName do
+    throwError "'{declName}' does not have [instance] attribute"
+  d.eraseCore declName
 
 builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry Instances ←
   registerSimpleScopedEnvExtension {
@@ -57,10 +69,17 @@ builtin_initialize
     add   := fun declName stx attrKind => do
       let prio ← getAttrParamOptPrio stx[1]
       discard <| addInstance declName attrKind prio |>.run {} {}
+    erase := fun declName => do
+      let s ← instanceExtension.getState (← getEnv)
+      let s ← s.erase declName
+      modifyEnv fun env => instanceExtension.modifyState env fun _ => s
   }
 
-def getGlobalInstancesIndex : MetaM (DiscrTree InstanceEntry) :=
+def getGlobalInstancesIndex : CoreM (DiscrTree InstanceEntry) :=
   return Meta.instanceExtension.getState (← getEnv) |>.discrTree
+
+def getErasedInstances : CoreM (Std.PHashSet Name) :=
+  return Meta.instanceExtension.getState (← getEnv) |>.erased
 
 /- Default instance support -/
 

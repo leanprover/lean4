@@ -386,7 +386,7 @@ where
   ```
 -/
 @[builtinDelab app]
-def delabAppMatch : Delab := whenPPOption getPPNotation do
+def delabAppMatch : Delab := whenPPOption getPPNotation <| whenPPOption getPPMatch do
   -- incrementally fill `AppMatchState` from arguments
   let st ← withAppFnArgs
     (do

@@ -11,8 +11,9 @@ import Lean.Meta.Tactic.SplitIf
 namespace Lean.Meta.Match
 
 structure MatchEqns where
-  eqnNames     : Array Name
-  splitterName : Name
+  eqnNames             : Array Name
+  splitterName         : Name
+  splitterAltNumParams : Array Nat
   deriving Inhabited, Repr
 
 structure MatchEqnsExtState where
@@ -270,12 +271,13 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
     let mut notAlts := #[]
     let mut idx := 1
     let mut splitterAltTypes := #[]
+    let mut splitterAltNumParams := #[]
     for alt in alts do
       let thmName := baseName ++ ((`eq).appendIndexAfter idx)
       eqnNames := eqnNames.push thmName
       let altType ← inferType alt
       trace[Meta.debug] ">> {altType}"
-      let (notAlt, splitterAltType) ← forallTelescopeReducing altType fun ys altResultType => do
+      let (notAlt, splitterAltType, splitterAltNumParam) ← forallTelescopeReducing altType fun ys altResultType => do
         let (ys, rhsArgs) ← toFVarsRHSArgs ys altResultType
         let patterns := altResultType.getAppArgs
         let mut hs := #[]
@@ -284,6 +286,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
         hs ← simpHs hs patterns.size
         trace[Meta.Match.matchEqs] "hs: {hs}"
         let splitterAltType ← mkForallFVars ys (← hs.foldrM (init := altResultType) mkArrow)
+        let splitterAltNumParam := hs.size + ys.size
         -- Create a proposition for representing terms that do not match `patterns`
         let mut notAlt := mkConst ``False
         for discr in discrs.toArray.reverse, pattern in patterns.reverse do
@@ -303,9 +306,10 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
           type        := thmType
           value       := thmVal
         }
-        return (notAlt, splitterAltType)
+        return (notAlt, splitterAltType, splitterAltNumParam)
       notAlts := notAlts.push notAlt
       splitterAltTypes := splitterAltTypes.push splitterAltType
+      splitterAltNumParams := splitterAltNumParams.push splitterAltNumParam
       trace[Meta.Match.matchEqs] "splitterAltType: {splitterAltType}"
       idx := idx + 1
     -- Define splitter with conditional/refined alternatives
@@ -323,7 +327,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
         type        := splitterType
         value       := splitterVal
       }
-      let result := { eqnNames, splitterName }
+      let result := { eqnNames, splitterName, splitterAltNumParams }
       registerMatchEqns matchDeclName result
       return result
 

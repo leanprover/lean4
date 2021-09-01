@@ -57,7 +57,7 @@ def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := do
   let some app ← matchMatcherApp? e | throwError "match application expected"
   let (discrFVarIds, mvarId) ← generalizeMatchDiscrs mvarId app.discrs
   trace[Meta.debug] "split [1]:\n{MessageData.ofGoal mvarId}"
-  let (reverted, mvarId) ← revert mvarId discrFVarIds
+  let (reverted, mvarId) ← revert mvarId discrFVarIds (preserveOrder := true)
   let (discrFVarIds, mvarId) ← introNP mvarId discrFVarIds.size
   let numExtra := reverted.size - discrFVarIds.size
   let discrs := discrFVarIds.map mkFVar

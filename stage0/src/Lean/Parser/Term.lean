@@ -26,6 +26,9 @@ builtin_initialize
 @[inline] def tacticParser (rbp : Nat := 0) : Parser :=
   categoryParser `tactic rbp
 
+@[inline] def convParser (rbp : Nat := 0) : Parser :=
+  categoryParser `conv rbp
+
 namespace Tactic
 
 def tacticSeq1Indented : Parser :=
@@ -242,6 +245,7 @@ def bracketedBinderF := bracketedBinder  -- no default arg
 @[builtinTermParser] def bracketedBinder.quot : Parser := leading_parser "`(bracketedBinder|"  >> incQuotDepth (evalInsideQuot ``bracketedBinderF bracketedBinder) >> ")"
 @[builtinTermParser] def matchDiscr.quot : Parser := leading_parser "`(matchDiscr|"  >> incQuotDepth (evalInsideQuot ``matchDiscr matchDiscr) >> ")"
 @[builtinTermParser] def attr.quot : Parser := leading_parser "`(attr|"  >> incQuotDepth attrParser >> ")"
+@[builtinTermParser] def conv.quot : Parser := leading_parser "`(conv|"  >> incQuotDepth convParser >> ")"
 
 @[builtinTermParser] def panic       := leading_parser:leadPrec "panic! " >> termParser
 @[builtinTermParser] def unreachable := leading_parser:leadPrec "unreachable!"

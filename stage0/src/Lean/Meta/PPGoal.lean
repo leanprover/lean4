@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 import Lean.Meta.InferType
+import Lean.Meta.MatchUtil
 
 namespace Lean.Meta
 
@@ -143,7 +144,7 @@ end ToHide
 private def addLine (fmt : Format) : Format :=
   if fmt.isNil then fmt else fmt ++ Format.line
 
-def ppGoal (mvarId : MVarId) : MetaM Format := do
+def ppGoal (mvarId : MVarId) (convGoal := false) : MetaM Format := do
   match (← getMCtx).findDecl? mvarId with
   | none          => pure "unknown goal"
   | some mvarDecl => do
@@ -200,7 +201,14 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
            ppVars varNames prevType? fmt localDecl
       let fmt ← pushPending varNames type? fmt
       let fmt := addLine fmt
-      let typeFmt ← ppExpr mvarDecl.type
+      let typeFmt ←
+        if convGoal then
+          if let some (_, lhs, _) ← matchEq? mvarDecl.type then
+            ppExpr lhs
+          else
+            ppExpr mvarDecl.type
+        else
+          ppExpr mvarDecl.type
       let fmt := fmt ++ "⊢ " ++ Format.nest indent typeFmt
       match mvarDecl.userName with
       | Name.anonymous => pure fmt

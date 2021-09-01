@@ -39,6 +39,8 @@ structure Context where
   main       : MVarId
   -- declaration name of the executing elaborator, used by `mkTacticInfo` to persist it in the info tree
   elaborator : Name
+  -- `true` when in `conv` tactic mode. This flag is only used to pretty print the goals showing just the left-hand-side
+  inConv     : Bool := false
 
 structure State where
   goals : List MVarId
@@ -119,6 +121,7 @@ def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx 
     stx           := stx
     mctxAfter     := (← getMCtx)
     goalsAfter    := (← getUnsolvedGoals)
+    inConv        := (← read).inConv
   }
 
 def mkInitialTacticInfo (stx : Syntax) : TacticM (TacticM Info) := do

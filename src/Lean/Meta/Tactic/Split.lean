@@ -107,4 +107,18 @@ def splitTarget? (mvarId : MVarId) : MetaM (Option (List MVarId)) := commitWhenS
   else
     return none
 
+def splitLocalDecl? (mvarId : MVarId) (fvarId : FVarId) : MetaM (Option (List MVarId)) := commitWhenSome? do
+  withMVarContext mvarId do
+    if let some e := findSplit? (← getEnv) (← inferType (mkFVar fvarId)) then
+      if e.isIte || e.isDIte then
+        return (← splitIfLocalDecl? mvarId fvarId).map fun (mvarId₁, mvarId₂) => [mvarId₁, mvarId₂]
+      else
+        let (fvarIds, mvarId) ← revert mvarId #[fvarId]
+        let num := fvarIds.size
+        let mvarIds ← splitMatch mvarId e
+        let mvarIds ← mvarIds.mapM fun mvarId => return (← introNP mvarId num).2
+        return some mvarIds
+    else
+      return none
+
 end Lean.Meta

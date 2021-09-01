@@ -1593,8 +1593,7 @@ inductive LeadingIdentBehavior where
   | default
   | symbol
   | both
-  deriving Inhabited, BEq
-
+  deriving Inhabited, BEq, Repr
 
 /--
   Each parser category is implemented using a Pratt's parser.

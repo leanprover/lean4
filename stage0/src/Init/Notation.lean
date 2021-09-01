@@ -353,6 +353,8 @@ def rwWithRfl (kind : SyntaxNodeKind) (atom : String) (stx : Syntax) : MacroM Sy
 
 syntax (name := injection) "injection " term (" with " (colGt (ident <|> "_"))+)? : tactic
 
+syntax (name := injections) "injections" : tactic
+
 syntax simpPre   := "↓"
 syntax simpPost  := "↑"
 syntax simpLemma := (simpPre <|> simpPost)? ("←" <|> "<-")? term

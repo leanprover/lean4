@@ -71,7 +71,10 @@ def notationItem := ppSpace >> withAntiquot (mkAntiquot "notationItem" `Lean.Par
 @[builtinCommandParser] def «macro_rules» := suppressInsideQuot (leading_parser optional docComment >> Term.attrKind >> "macro_rules" >>  optKind >> Term.matchAlts)
 @[builtinCommandParser] def «syntax»      := leading_parser optional docComment >> Term.attrKind >> "syntax " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 (syntaxParser argPrec) >> " : " >> ident
 @[builtinCommandParser] def syntaxAbbrev  := leading_parser "syntax " >> ident >> " := " >> many1 syntaxParser
-@[builtinCommandParser] def syntaxCat     := leading_parser "declare_syntax_cat " >> ident
+def catBehaviorBoth   := leading_parser nonReservedSymbol "both"
+def catBehaviorSymbol := leading_parser nonReservedSymbol "symbol"
+def catBehavior := optional ("(" >> nonReservedSymbol "behavior" >> " := " >> (catBehaviorBoth <|> catBehaviorSymbol) >> ")")
+@[builtinCommandParser] def syntaxCat := leading_parser "declare_syntax_cat " >> ident >> catBehavior
 def macroArg  := leading_parser optional (atomic (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> syntaxParser argPrec
 def macroRhs (quotP : Parser) : Parser := leading_parser "`(" >> incQuotDepth quotP >> ")" <|> termParser
 def macroTailTactic   : Parser := atomic (" : " >> identEq "tactic") >> darrow >> macroRhs Tactic.seq1

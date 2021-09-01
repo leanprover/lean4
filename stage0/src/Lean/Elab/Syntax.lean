@@ -231,9 +231,16 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
 
 @[builtinCommandElab syntaxCat] def elabDeclareSyntaxCat : CommandElab := fun stx => do
   let catName  := stx[1].getId
+  let catBehavior :=
+    if stx[2].isNone then
+      Parser.LeadingIdentBehavior.default
+    else if stx[2][3].getKind == ``Parser.Command.catBehaviorBoth then
+      Parser.LeadingIdentBehavior.both
+    else
+      Parser.LeadingIdentBehavior.symbol
   let attrName := catName.appendAfter "Parser"
   let env ← getEnv
-  let env ← liftIO $ Parser.registerParserCategory env attrName catName
+  let env ← Parser.registerParserCategory env attrName catName catBehavior
   setEnv env
   declareSyntaxCatQuotParser catName
 

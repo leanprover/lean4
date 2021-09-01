@@ -91,6 +91,13 @@ def simpIfTarget (mvarId : MVarId) (useDecide := false) : MetaM MVarId := do
   else
     unreachable!
 
+def simpIfLocalDecl (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId := do
+  let mut ctx ← getSimpContext
+  if let some (_, mvarId') ← simpLocalDecl mvarId fvarId ctx discharge? then
+    return mvarId'
+  else
+    unreachable!
+
 def splitIfTarget? (mvarId : MVarId) (hName? : Option Name := none) : MetaM (Option (ByCasesSubgoal × ByCasesSubgoal)) := commitWhenSome? do
   if let some (s₁, s₂) ← splitIfAt? mvarId (← getMVarType mvarId) hName? then
     let mvarId₁ ← simpIfTarget s₁.mvarId
@@ -101,6 +108,18 @@ def splitIfTarget? (mvarId : MVarId) (hName? : Option Name := none) : MetaM (Opt
       return some ({ s₁ with mvarId := mvarId₁ }, { s₂ with mvarId := mvarId₂ })
   else
     return none
+
+def splitIfLocalDecl? (mvarId : MVarId) (fvarId : FVarId) (hName? : Option Name := none) : MetaM (Option (MVarId × MVarId)) := commitWhenSome? do
+  withMVarContext mvarId do
+    if let some (s₁, s₂) ← splitIfAt? mvarId (← inferType (mkFVar fvarId)) hName? then
+      let mvarId₁ ← simpIfLocalDecl s₁.mvarId fvarId
+      let mvarId₂ ← simpIfLocalDecl s₂.mvarId fvarId
+      if s₁.mvarId == mvarId₁ && s₂.mvarId == mvarId₂ then
+        return none
+      else
+        return some (mvarId₁, mvarId₂)
+    else
+      return none
 
 builtin_initialize registerTraceClass `Meta.Tactic.splitIf
 

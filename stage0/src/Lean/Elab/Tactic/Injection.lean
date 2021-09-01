@@ -23,8 +23,14 @@ private def checkUnusedIds (mvarId : MVarId) (unusedIds : List Name) : MetaM Uni
   let fvarId ← elabAsFVar stx[1]
   let ids := getInjectionNewIds stx[2]
   liftMetaTactic fun mvarId => do
-    match (← Meta.injection mvarId fvarId ids (!ids.isEmpty)) with
-    | Meta.InjectionResult.solved                      => checkUnusedIds mvarId ids; pure []
-    | Meta.InjectionResult.subgoal mvarId' _ unusedIds => checkUnusedIds mvarId unusedIds; pure [mvarId']
+    match (← Meta.injection mvarId fvarId ids) with
+    | Meta.InjectionResult.solved                      => checkUnusedIds mvarId ids; return []
+    | Meta.InjectionResult.subgoal mvarId' _ unusedIds => checkUnusedIds mvarId unusedIds; return [mvarId']
+
+@[builtinTactic «injections»] def evalInjections : Tactic := fun stx => do
+  liftMetaTactic fun mvarId => do
+    match (← Meta.injections mvarId) with
+    | none => return []
+    | some mvarId => return [mvarId]
 
 end Lean.Elab.Tactic

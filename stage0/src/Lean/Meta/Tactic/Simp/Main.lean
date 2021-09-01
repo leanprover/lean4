@@ -425,6 +425,7 @@ def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) (disc
       if type != type' then
         let mvarId ← assert mvarId localDecl.userName type' value
         let mvarId ← tryClear mvarId localDecl.fvarId
+        let (fvarId, mvarId) ← intro1P mvarId
         return some (fvarId, mvarId)
       else
         return some (fvarId, mvarId)

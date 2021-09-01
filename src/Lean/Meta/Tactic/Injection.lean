@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.AppBuilder
+import Lean.Meta.MatchUtil
 import Lean.Meta.Tactic.Clear
 import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Intro
@@ -50,7 +51,8 @@ def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCor
             let newMVar ← mkFreshExprSyntheticOpaqueMVar newTarget tag
             assignExprMVar mvarId (mkApp val newMVar)
             let mvarId ← tryClear newMVar.mvarId! fvarId
-            /- Recall that `noConfusion` does not include equalities for propositions since they are trivial due to proof irrelevance. -/
+            /- Recall that `noConfusion` does not include equalities for
+               propositions since they are trivial due to proof irrelevance. -/
             let numPropFields ← getCtorNumPropFields aCtor
             return InjectionResultCore.subgoal mvarId (aCtor.numFields - numPropFields)
           | _ => throwTacticEx `injection mvarId "ill-formed noConfusion auxiliary construction"
@@ -60,7 +62,7 @@ inductive InjectionResult where
   | solved
   | subgoal (mvarId : MVarId) (newEqs : Array FVarId) (remainingNames : List Name)
 
-private def heqToEq (mvarId : MVarId) (fvarId : FVarId) : MetaM (FVarId × MVarId) :=
+private def heqToEq (mvarId : MVarId) (fvarId : FVarId) (tryToClear : Bool) : MetaM (FVarId × MVarId) :=
   withMVarContext mvarId do
    let decl ← getLocalDecl fvarId
    let type ← whnf decl.type
@@ -70,29 +72,55 @@ private def heqToEq (mvarId : MVarId) (fvarId : FVarId) : MetaM (FVarId × MVarI
      if (← isDefEq α β) then
        let pr ← mkEqOfHEq (mkFVar fvarId)
        let eq ← mkEq a b
-       let mvarId ← assert mvarId decl.userName eq pr
-       let mvarId ← clear mvarId fvarId
-       let (fvarId, mvarId) ← intro1P mvarId
-       pure (fvarId, mvarId)
+       let mut mvarId ← assert mvarId decl.userName eq pr
+       if tryToClear then
+         mvarId ← tryClear mvarId fvarId
+       let (fvarId, mvarId') ← intro1P mvarId
+       return (fvarId, mvarId')
      else
-       pure (fvarId, mvarId)
+       return (fvarId, mvarId)
 
-def injectionIntro : Nat → MVarId → Array FVarId → List Name → MetaM InjectionResult
-  | 0, mvarId, fvarIds, remainingNames =>
-    pure $ InjectionResult.subgoal mvarId fvarIds remainingNames
-  | n+1, mvarId, fvarIds, name::remainingNames => do
-    let (fvarId, mvarId) ← intro mvarId name
-    let (fvarId, mvarId) ← heqToEq mvarId fvarId
-    injectionIntro n mvarId (fvarIds.push fvarId) remainingNames
-  | n+1, mvarId, fvarIds, [] => do
-    let (fvarId, mvarId) ← intro1 mvarId
-    let (fvarId, mvarId) ← heqToEq mvarId fvarId
-    injectionIntro n mvarId (fvarIds.push fvarId) []
+def injectionIntro (mvarId : MVarId) (numEqs : Nat) (newNames : List Name) (tryToClear := true) : MetaM InjectionResult :=
+  let rec go : Nat → MVarId → Array FVarId → List Name → MetaM InjectionResult
+    | 0, mvarId, fvarIds, remainingNames =>
+      return InjectionResult.subgoal mvarId fvarIds remainingNames
+    | n+1, mvarId, fvarIds, name::remainingNames => do
+      let (fvarId, mvarId) ← intro mvarId name
+      let (fvarId, mvarId) ← heqToEq mvarId fvarId tryToClear
+      go n mvarId (fvarIds.push fvarId) remainingNames
+    | n+1, mvarId, fvarIds, [] => do
+      let (fvarId, mvarId) ← intro1 mvarId
+      let (fvarId, mvarId) ← heqToEq mvarId fvarId tryToClear
+      go n mvarId (fvarIds.push fvarId) []
+  go numEqs mvarId #[] newNames
 
-def injection (mvarId : MVarId) (fvarId : FVarId) (newNames : List Name := []) (useUnusedNames : Bool := true) : MetaM InjectionResult := do
+def injection (mvarId : MVarId) (fvarId : FVarId) (newNames : List Name := []) : MetaM InjectionResult := do
   match (← injectionCore mvarId fvarId) with
   | InjectionResultCore.solved                => pure InjectionResult.solved
-  | InjectionResultCore.subgoal mvarId numEqs =>
-    injectionIntro numEqs mvarId #[] newNames
+  | InjectionResultCore.subgoal mvarId numEqs => injectionIntro mvarId numEqs newNames
+
+partial def injections (mvarId : MVarId) (maxDepth : Nat := 5) : MetaM (Option MVarId) :=
+  withMVarContext mvarId do
+    let fvarIds := (← getLCtx).getFVarIds
+    go maxDepth fvarIds.toList mvarId
+where
+  go : Nat → List FVarId → MVarId → MetaM (Option MVarId)
+    | 0,   _,  _      => throwTacticEx `injections mvarId "recursion depth exceeded"
+    | _,   [], mvarId => return mvarId
+    | d+1, fvarId :: fvarIds, mvarId => do
+      let cont := do
+        go (d+1) fvarIds mvarId
+      if let some (_, lhs, rhs) ← matchEq? (← getLocalDecl fvarId).type then
+        let lhs ← whnf lhs
+        let rhs ← whnf rhs
+        if lhs.isNatLit && rhs.isNatLit then cont
+        else
+          try
+            match (← injection mvarId fvarId) with
+            | InjectionResult.solved  => return none
+            | InjectionResult.subgoal mvarId newEqs _ =>
+              withMVarContext mvarId <| go d (newEqs.toList ++ fvarIds) mvarId
+          catch _ => cont
+      else cont
 
 end Lean.Meta

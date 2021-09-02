@@ -11,11 +11,15 @@ import Lean.Elab.Tactic.BuiltinTactic
 namespace Lean.Elab.Tactic.Conv
 open Meta
 
-def convert (lhs : Expr) (conv : TacticM Unit) : TacticM (Expr × Expr) := do
+def mkConvGoalFor (lhs : Expr) : TacticM (Expr × Expr) := do
   let lhsType ← inferType lhs
   let rhs ← mkFreshExprMVar lhsType
   let targetNew ← mkEq lhs rhs
   let newGoal ← mkFreshExprSyntheticOpaqueMVar targetNew
+  return (rhs, newGoal)
+
+def convert (lhs : Expr) (conv : TacticM Unit) : TacticM (Expr × Expr) := do
+  let (rhs, newGoal) ← mkConvGoalFor lhs
   let savedGoals ← getGoals
   try
     setGoals [newGoal.mvarId!]

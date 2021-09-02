@@ -31,12 +31,12 @@ private def mkEqTrans (r₁ r₂ : Result) : MetaM Result := do
     | none    => return { r₂ with proof? := r₁.proof? }
     | some p₂ => return { r₂ with proof? := (← Meta.mkEqTrans p₁ p₂) }
 
-private def mkCongrFun (r : Result) (a : Expr) : MetaM Result :=
+def mkCongrFun (r : Result) (a : Expr) : MetaM Result :=
   match r.proof? with
   | none   => return { expr := mkApp r.expr a, proof? := none }
   | some h => return { expr := mkApp r.expr a, proof? := (← Meta.mkCongrFun h a) }
 
-private def mkCongr (r₁ r₂ : Result) : MetaM Result :=
+def mkCongr (r₁ r₂ : Result) : MetaM Result :=
   let e := mkApp r₁.expr r₂.expr
   match r₁.proof?, r₂.proof? with
   | none,     none   => return { expr := e, proof? := none }

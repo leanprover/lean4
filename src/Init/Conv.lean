@@ -21,6 +21,11 @@ syntax (name := lhs) "lhs" : conv
 syntax (name := rhs) "rhs" : conv
 syntax (name := whnf) "whnf" : conv
 syntax (name := congr) "congr" : conv
+syntax (name := nestedConv) convSeqBracketed : conv
+syntax (name := paren) "(" convSeq ")" : conv
+
+/-- `· conv` focuses on the main conv goal and tries to solve it using `s` -/
+macro dot:("·" <|> ".") s:convSeq : conv => `(conv| {%$dot ($s:convSeq) })
 
 syntax (name := conv) "conv " (" at " ident)? (" in " term)? " => " convSeq : tactic
 

@@ -75,8 +75,14 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
 @[builtinTactic Lean.Parser.Tactic.Conv.convSeqBracketed] def evalConvSeqBracketed : Tactic := fun stx => do
   evalTacticSeqBracketed stx
 
+@[builtinTactic Lean.Parser.Tactic.Conv.nestedConv] def evalNestedConv : Tactic := fun stx => do
+  evalTacticSeqBracketed stx[0]
+
 @[builtinTactic Lean.Parser.Tactic.Conv.convSeq] def evalConvSeq : Tactic := fun stx => do
   evalTactic stx[0]
+
+@[builtinTactic Lean.Parser.Tactic.Conv.paren] def evalParen : Tactic := fun stx =>
+  evalTactic stx[1]
 
 private def convTarget (conv : Syntax) : TacticM Unit := do
    let target ← getMainTarget

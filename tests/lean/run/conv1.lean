@@ -6,9 +6,8 @@ example (x y : Nat) : p (x + y) (y + x + 0) := by
   conv =>
     whnf
     congr
-    skip
-    whnf
-    skip
+    . skip
+    . whnf; skip
   traceState
   rw [Nat.add_comm]
   rfl

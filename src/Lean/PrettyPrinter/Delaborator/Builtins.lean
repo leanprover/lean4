@@ -446,6 +446,8 @@ def delabMData : Delab := do
       `(.($s)) -- We only include the inaccessible annotation when we are delaborating patterns
     else
       return s
+  else if let some _ := isLHSGoal? (← getExpr) then
+    withMDataExpr <| withAppFn <| withAppArg <| delab
   else
     withMDataOptions delab
 

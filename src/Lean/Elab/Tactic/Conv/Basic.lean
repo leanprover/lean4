@@ -14,7 +14,7 @@ open Meta
 def mkConvGoalFor (lhs : Expr) : MetaM (Expr × Expr) := do
   let lhsType ← inferType lhs
   let rhs ← mkFreshExprMVar lhsType
-  let targetNew ← mkEq lhs rhs
+  let targetNew := mkLHSGoal (← mkEq lhs rhs)
   let newGoal ← mkFreshExprSyntheticOpaqueMVar targetNew
   return (rhs, newGoal)
 
@@ -23,7 +23,7 @@ def convert (lhs : Expr) (conv : TacticM Unit) : TacticM (Expr × Expr) := do
   let savedGoals ← getGoals
   try
     setGoals [newGoal.mvarId!]
-    withReader (fun ctx => { ctx with inConv := true }) conv
+    conv
     pruneSolvedGoals
     for mvarId in (← getGoals) do
       try
@@ -52,7 +52,7 @@ def getRhs : TacticM Expr :=
 /-- `⊢ lhs = rhs` ~~> `⊢ lhs' = rhs` using `h : lhs = lhs'`. -/
 def updateLhs (lhs' : Expr) (h : Expr) : TacticM Unit := do
   let rhs ← getRhs
-  let newGoal ← mkFreshExprSyntheticOpaqueMVar (← mkEq lhs' rhs)
+  let newGoal ← mkFreshExprSyntheticOpaqueMVar (mkLHSGoal (← mkEq lhs' rhs))
   assignExprMVar (← getMainGoal) (← mkEqTrans h newGoal)
   replaceMainGoal [newGoal.mvarId!]
 
@@ -60,7 +60,7 @@ def updateLhs (lhs' : Expr) (h : Expr) : TacticM Unit := do
 def changeLhs (lhs' : Expr) : TacticM Unit := do
   let rhs ← getRhs
   liftMetaTactic1 fun mvarId => do
-    replaceTargetDefEq mvarId (← mkEq lhs' rhs)
+    replaceTargetDefEq mvarId (mkLHSGoal (← mkEq lhs' rhs))
 
 @[builtinTactic Lean.Parser.Tactic.Conv.skip] def evalSkip : Tactic := fun stx => do
    liftMetaTactic1 fun mvarId => do

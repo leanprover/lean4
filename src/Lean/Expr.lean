@@ -1038,6 +1038,22 @@ def annotation? (kind : Name) (e : Expr) : Option Expr :=
   | Expr.mdata d b _ => if d.size == 1 && d.getBool kind false then some b else none
   | _                => none
 
+/--
+  Annotate `e` with the LHS annotation. The delaborator displays
+  expressions of the form `lhs = rhs` as `lhs` when they have this annotation.
+-/
+def mkLHSGoal (e : Expr) : Expr :=
+  mkAnnotation `_lhsGoal e
+
+def isLHSGoal? (e : Expr) : Option Expr :=
+  match annotation? `_lhsGoal e with
+  | none => none
+  | some e =>
+    if e.isAppOfArity `Eq 3 then
+      some e.appFn!.appArg!
+    else
+      none
+
 def mkFreshFVarId {m : Type → Type} [Monad m] [MonadNameGenerator m] : m FVarId :=
   mkFreshId
 

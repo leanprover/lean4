@@ -144,20 +144,7 @@ end ToHide
 private def addLine (fmt : Format) : Format :=
   if fmt.isNil then fmt else fmt ++ Format.line
 
-/--
-  Return the target type for the given goal.
-  If `inConv == true` and target type is an equality, then return the left-hand-side only. -/
-def getGoalTarget (mvarDecl : MetavarDecl) (inConv : Bool) : MetaM Expr := do
-  let target ← instantiateMVars mvarDecl.type
-  if inConv then
-    if let some (_, lhs, _) ← matchEq? target then
-      instantiateMVars lhs
-    else
-      return target
-  else
-    return target
-
-def ppGoal (mvarId : MVarId) (inConv := false) : MetaM Format := do
+def ppGoal (mvarId : MVarId) : MetaM Format := do
   match (← getMCtx).findDecl? mvarId with
   | none          => pure "unknown goal"
   | some mvarDecl => do
@@ -214,7 +201,7 @@ def ppGoal (mvarId : MVarId) (inConv := false) : MetaM Format := do
            ppVars varNames prevType? fmt localDecl
       let fmt ← pushPending varNames type? fmt
       let fmt := addLine fmt
-      let typeFmt ← ppExpr (← getGoalTarget mvarDecl inConv)
+      let typeFmt ← ppExpr (← instantiateMVars mvarDecl.type)
       let fmt := fmt ++ "⊢ " ++ Format.nest indent typeFmt
       match mvarDecl.userName with
       | Name.anonymous => pure fmt

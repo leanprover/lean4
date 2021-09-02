@@ -66,7 +66,7 @@ structure InteractiveGoals where
 
 open Meta in
 /-- A variant of `Meta.ppGoal` which preserves subexpression information for interactivity. -/
-def goalToInteractive (mvarId : MVarId) (inConv : Bool) : MetaM InteractiveGoal := do
+def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
   let some mvarDecl ← (← getMCtx).findDecl? mvarId
     | throwError "unknown goal {mvarId}"
   let ppAuxDecls := pp.auxDecls.get (← getOptions)
@@ -118,7 +118,7 @@ def goalToInteractive (mvarId : MVarId) (inConv : Bool) : MetaM InteractiveGoal 
         else
           ppVars varNames prevType? hyps localDecl
     let hyps ← pushPending varNames type? hyps
-    let goalTp ← getGoalTarget mvarDecl inConv
+    let goalTp ← instantiateMVars mvarDecl.type
     let goalFmt ← exprToInteractive goalTp
     let userName? := match mvarDecl.userName with
       | Name.anonymous => none

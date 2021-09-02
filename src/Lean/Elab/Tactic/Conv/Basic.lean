@@ -11,7 +11,7 @@ import Lean.Elab.Tactic.BuiltinTactic
 namespace Lean.Elab.Tactic.Conv
 open Meta
 
-def mkConvGoalFor (lhs : Expr) : TacticM (Expr × Expr) := do
+def mkConvGoalFor (lhs : Expr) : MetaM (Expr × Expr) := do
   let lhsType ← inferType lhs
   let rhs ← mkFreshExprMVar lhsType
   let targetNew ← mkEq lhs rhs
@@ -35,10 +35,13 @@ def convert (lhs : Expr) (conv : TacticM Unit) : TacticM (Expr × Expr) := do
     setGoals savedGoals
   return (← instantiateMVars rhs, ← instantiateMVars newGoal)
 
-def getLhsRhs : TacticM (Expr × Expr) :=
-  withMainContext do
-    let some (_, lhs, rhs) ← matchEq? (← getMainTarget) | throwError "invalid 'conv' goal"
+def getLhsRhsCore (mvarId : MVarId) : MetaM (Expr × Expr) :=
+  withMVarContext mvarId do
+    let some (_, lhs, rhs) ← matchEq? (← getMVarType mvarId) | throwError "invalid 'conv' goal"
     return (lhs, rhs)
+
+def getLhsRhs : TacticM (Expr × Expr) := do
+  getLhsRhsCore (← getMainGoal)
 
 def getLhs : TacticM Expr :=
   return (← getLhsRhs).1

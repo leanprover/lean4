@@ -25,7 +25,7 @@ syntax (name := nestedConv) convSeqBracketed : conv
 syntax (name := paren) "(" convSeq ")" : conv
 
 /-- `· conv` focuses on the main conv goal and tries to solve it using `s` -/
-macro dot:("·" <|> ".") s:convSeq : conv => `(conv| {%$dot ($s:convSeq) })
+macro dot:("·" <|> ".") s:convSeq : conv => `({%$dot ($s:convSeq) })
 
 syntax (name := conv) "conv " (" at " ident)? (" in " term)? " => " convSeq : tactic
 

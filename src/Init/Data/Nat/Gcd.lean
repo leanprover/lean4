@@ -15,7 +15,7 @@ private def gcdF (x : Nat) : (∀ x₁, x₁ < x → Nat → Nat) → Nat → Na
 
 @[extern "lean_nat_gcd"]
 def gcd (a b : @& Nat) : Nat :=
-  WellFounded.fix ltWf gcdF a b
+  WellFounded.fix lt_wf gcdF a b
 
 @[simp] theorem gcd_zero_left (y : Nat) : gcd 0 y = y :=
   rfl

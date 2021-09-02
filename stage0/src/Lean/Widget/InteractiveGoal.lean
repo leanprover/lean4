@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+import Lean.Meta.PPGoal
 import Lean.Widget.InteractiveCode
 
 /-! RPC procedures for retrieving tactic and term goals with embedded `CodeWithInfos`. -/
@@ -65,7 +66,7 @@ structure InteractiveGoals where
 
 open Meta in
 /-- A variant of `Meta.ppGoal` which preserves subexpression information for interactivity. -/
-def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
+def goalToInteractive (mvarId : MVarId) (inConv : Bool) : MetaM InteractiveGoal := do
   let some mvarDecl ← (← getMCtx).findDecl? mvarId
     | throwError "unknown goal {mvarId}"
   let ppAuxDecls := pp.auxDecls.get (← getOptions)
@@ -117,7 +118,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
         else
           ppVars varNames prevType? hyps localDecl
     let hyps ← pushPending varNames type? hyps
-    let goalTp ← instantiateMVars mvarDecl.type
+    let goalTp ← getGoalTarget mvarDecl inConv
     let goalFmt ← exprToInteractive goalTp
     let userName? := match mvarDecl.userName with
       | Name.anonymous => none

@@ -8,19 +8,25 @@ Notation for operators defined at Prelude.lean
 prelude
 import Init.Notation
 
-namespace Lean.Parser.Tactic
+namespace Lean.Parser.Tactic.Conv
 
 declare_syntax_cat conv (behavior := both)
 
-syntax convSeq1Indented := withPosition((colGe conv ";"?)+)
-syntax convSeqBracketed := "{" (conv ";"?)+ "}"
+syntax convSeq1Indented := withPosition((group(colGe conv ";"?))+)
+syntax convSeqBracketed := "{" (group(conv ";"?))+ "}"
 syntax convSeq := convSeq1Indented <|> convSeqBracketed
 
-syntax "skip " : conv
-syntax "lhs"   : conv
-syntax "rhs"   : conv
-syntax "whnf"  : conv
-syntax "congr" : conv
-syntax "conv " (" at " ident)? (" in " term)? " => " convSeq : tactic
+syntax (name := skip) "skip " : conv
+syntax (name := lhs) "lhs" : conv
+syntax (name := rhs) "rhs" : conv
+syntax (name := whnf) "whnf" : conv
+syntax (name := congr) "congr" : conv
+syntax (name := nestedConv) convSeqBracketed : conv
+syntax (name := paren) "(" convSeq ")" : conv
 
-end Lean.Parser.Tactic
+/-- `· conv` focuses on the main conv goal and tries to solve it using `s` -/
+macro dot:("·" <|> ".") s:convSeq : conv => `(conv| {%$dot ($s:convSeq) })
+
+syntax (name := conv) "conv " (" at " ident)? (" in " term)? " => " convSeq : tactic
+
+end Lean.Parser.Tactic.Conv

@@ -11,10 +11,7 @@ import Lean.Elab.Tactic.BuiltinTactic
 namespace Lean.Elab.Tactic.Conv
 open Meta
 
-abbrev ConvM := TacticM
-abbrev Conv  := Tactic
-
-def convert (lhs : Expr) (conv : ConvM Unit) : TacticM (Expr × Expr) := do
+def convert (lhs : Expr) (conv : TacticM Unit) : TacticM (Expr × Expr) := do
   let lhsType ← inferType lhs
   let rhs ← mkFreshExprMVar lhsType
   let targetNew ← mkEq lhs rhs
@@ -34,10 +31,39 @@ def convert (lhs : Expr) (conv : ConvM Unit) : TacticM (Expr × Expr) := do
     setGoals savedGoals
   return (← instantiateMVars rhs, ← instantiateMVars newGoal)
 
+def getLhsRhs : TacticM (Expr × Expr) :=
+  withMainContext do
+    let some (_, lhs, rhs) ← matchEq? (← getMainTarget) | throwError "invalid 'conv' goal"
+    return (lhs, rhs)
+
+def getLhs : TacticM Expr :=
+  return (← getLhsRhs).1
+
+def getRhs : TacticM Expr :=
+  return (← getLhsRhs).2
+
+/-- `⊢ lhs = rhs` ~~> `⊢ lhs' = rhs` using `h : lhs = lhs'`. -/
+def updateLhs (lhs' : Expr) (h : Expr) : TacticM Unit := do
+  let rhs ← getRhs
+  let newGoal ← mkFreshExprSyntheticOpaqueMVar (← mkEq lhs' rhs)
+  assignExprMVar (← getMainGoal) (← mkEqTrans h newGoal)
+  replaceMainGoal [newGoal.mvarId!]
+
+/-- Replace `lhs` with the definitionally equal `lhs'`. -/
+def changeLhs (lhs' : Expr) : TacticM Unit := do
+  let rhs ← getRhs
+  liftMetaTactic1 fun mvarId => do
+    replaceTargetDefEq mvarId (← mkEq lhs' rhs)
+
 @[builtinTactic Lean.Parser.Tactic.Conv.skip] def evalSkip : Tactic := fun stx => do
    liftMetaTactic1 fun mvarId => do
      applyRefl mvarId
      return none
+
+@[builtinTactic Lean.Parser.Tactic.Conv.whnf] def evalWhnf : Tactic := fun stx =>
+   withMainContext do
+     let lhs ← getLhs
+     changeLhs (← whnf lhs)
 
 @[builtinTactic Lean.Parser.Tactic.Conv.convSeq1Indented] def evalConvSeq1Indented : Tactic := fun stx => do
   evalTacticSeq1Indented stx

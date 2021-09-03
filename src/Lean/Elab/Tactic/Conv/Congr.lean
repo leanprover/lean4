@@ -52,4 +52,22 @@ def congr (mvarId : MVarId) : MetaM (List MVarId) :=
    applyRefl mvarId₁
    replaceMainGoal [mvarId₂]
 
+@[builtinTactic Lean.Parser.Tactic.Conv.arg] def evalArg : Tactic := fun stx => do
+   match stx with
+   | `(conv| arg $i) =>
+      let i := i.isNatLit?.getD 0
+      if i == 0 then
+        throwError "invalid 'arg' conv tactic, index must be greater than 0"
+      let i := i - 1
+      let mvarIds ← congr (← getMainGoal)
+      if h : i < mvarIds.length then
+        for mvarId in mvarIds, j in [:mvarIds.length] do
+          if i != j then
+            applyRefl mvarId
+        replaceMainGoal [mvarIds.get i h]
+      else
+        throwError "invalid 'arg' conv tactic, application has only {mvarIds.length} (nondependent) arguments"
+   | _ => throwUnsupportedSyntax
+
+
 end Lean.Elab.Tactic.Conv

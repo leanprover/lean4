@@ -4,3 +4,5 @@ x y : Nat
 ⊢ x + y = Nat.add y x
 x y : Nat
 ⊢ Nat.add x y = Nat.add y x
+x y : Nat
+⊢ f x (Nat.add x y) y = y + x

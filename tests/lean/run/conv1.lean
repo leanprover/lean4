@@ -40,7 +40,6 @@ example (x y : Nat) : p (x + y) (0 + y + x) := by
     traceState
     skip
     done
-  rfl
 
 axiom div_self (x : Nat) : x ≠ 0 → x / x = 1
 
@@ -69,4 +68,3 @@ example : id (fun x => 0 + x) = id := by
     arg 1
     funext y
     rw [Nat.zero_add]
-  rfl

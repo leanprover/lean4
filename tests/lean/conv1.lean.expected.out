@@ -13,3 +13,6 @@ a b : Nat
 ⊢ 0 + a + b
 a b : Nat
 ⊢ a + b
+case h.h
+a b : Nat
+⊢ 0 + a + b

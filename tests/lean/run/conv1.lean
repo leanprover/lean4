@@ -62,3 +62,11 @@ example (h1 : x ≠ 0) (h2 : y = x / x) : y = 1 := by
     skip
     tactic => assumption
   assumption
+
+example : id (fun x => 0 + x) = id := by
+  conv =>
+    lhs
+    arg 1
+    funext y
+    rw [Nat.zero_add]
+  rfl

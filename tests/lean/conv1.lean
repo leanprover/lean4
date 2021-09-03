@@ -52,3 +52,13 @@ example (x y : Nat) : f x (x + y + 0) y = y + x := by
     traceState
     rw [Nat.add_comm]
   rfl
+
+example : id (fun x y => 0 + x + y) = Nat.add := by
+  conv =>
+    lhs
+    arg 1
+    funext a b
+    traceState
+    rw [Nat.zero_add]
+    traceState
+  rfl

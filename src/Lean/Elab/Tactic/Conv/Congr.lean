@@ -13,7 +13,7 @@ def congr (mvarId : MVarId) : MetaM (List MVarId) :=
   withMVarContext mvarId do
      let (lhs, rhs) ← getLhsRhsCore mvarId
      unless lhs.isApp do
-       throwError "invalid 'congr' conv tactic, application expected{indentD lhs}"
+       throwError "invalid 'congr' conv tactic, application expected{indentExpr lhs}"
      lhs.withApp fun f args => do
       let infos := (← getFunInfoNArgs f args.size).paramInfo
       let mut r := { expr := f : Simp.Result }
@@ -69,5 +69,26 @@ def congr (mvarId : MVarId) : MetaM (List MVarId) :=
         throwError "invalid 'arg' conv tactic, application has only {mvarIds.length} (nondependent) arguments"
    | _ => throwUnsupportedSyntax
 
+private def funextCore (mvarId : MVarId) (userName? : Option Name) : MetaM MVarId :=
+   withMVarContext mvarId do
+     let (lhs, rhs) ← getLhsRhsCore mvarId
+     let lhsType ← whnfD (← inferType lhs)
+     unless lhsType.isForall do
+       throwError "invalid 'funext' conv tactic, function expected{indentD m!"{lhs} : {lhsType}"}"
+     let [mvarIdNew] ← apply mvarId (← mkConstWithFreshMVarLevels ``funext) | throwError "'apply funext' unexpected result"
+     let userNames := if let some userName := userName? then [userName] else []
+     let (_, mvarId) ← introN mvarIdNew 1 userNames
+     markAsConvGoal mvarId
+
+private def funext (userName? : Option Name) : TacticM Unit := do
+  replaceMainGoal [← funextCore (← getMainGoal) userName?]
+
+@[builtinTactic Lean.Parser.Tactic.Conv.funext] def evalFunext : Tactic := fun stx => do
+  let ids := stx[1].getArgs
+  if ids.isEmpty then
+    funext none
+  else
+    for id in ids do
+      withRef id <| funext id.getId
 
 end Lean.Elab.Tactic.Conv

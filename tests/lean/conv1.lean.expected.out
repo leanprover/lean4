@@ -8,3 +8,8 @@ x y : Nat
 ⊢ f x (Nat.add x y) y = y + x
 x y : Nat
 ⊢ x + y
+case h.h
+a b : Nat
+⊢ 0 + a + b
+a b : Nat
+⊢ a + b

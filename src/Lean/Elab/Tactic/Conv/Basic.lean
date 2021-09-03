@@ -18,6 +18,12 @@ def mkConvGoalFor (lhs : Expr) : MetaM (Expr × Expr) := do
   let newGoal ← mkFreshExprSyntheticOpaqueMVar targetNew
   return (rhs, newGoal)
 
+def markAsConvGoal (mvarId : MVarId) : MetaM MVarId := do
+  let target ← getMVarType mvarId
+  if isLHSGoal? target |>.isSome then
+    return mvarId -- it is already tagged as LHS goal
+  replaceTargetDefEq mvarId (mkLHSGoal (← getMVarType mvarId))
+
 def convert (lhs : Expr) (conv : TacticM Unit) : TacticM (Expr × Expr) := do
   let (rhs, newGoal) ← mkConvGoalFor lhs
   let savedGoals ← getGoals

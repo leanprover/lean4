@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Wojciech Nawrocki
 -/
 import Lean.Elab.Command
+import Lean.Elab.MutualDef
 
 namespace Lean.Elab
 open Command
@@ -35,29 +36,8 @@ def applyDerivingHandlers (className : Name) (typeNames : Array Name) (args? : O
   | none => defaultHandler className typeNames
 
 private def tryApplyDefHandler (className : Name) (declName : Name) : CommandElabM Bool :=
-  open Meta in
   liftTermElabM none do
-    let ConstantInfo.defnInfo info ← getConstInfo declName | return false
-    forallTelescopeReducing info.type fun xs type => do
-      try
-        let instType ← mkAppM className #[mkAppN (Lean.mkConst declName (info.levelParams.map mkLevelParam)) xs]
-        check instType
-        let oldInstType ← mkAppM className #[(mkAppN info.value xs).headBeta]
-        check oldInstType
-        let instVal ← synthInstance oldInstType
-        let instName ← liftMacroM <| mkUnusedBaseName (declName.appendBefore "inst" |>.appendAfter className.getString!)
-        addAndCompile <| Declaration.defnDecl {
-          name        := instName
-          levelParams := info.levelParams
-          type        := instType
-          value       := instVal
-          hints       := info.hints
-          safety      := info.safety
-        }
-        addInstance instName AttributeKind.global (eval_prio default)
-        return true
-      catch _ =>
-        return false
+    Term.processDefDeriving className declName
 
 @[builtinCommandElab «deriving»] def elabDeriving : CommandElab
   | `(deriving instance $[$classes $[with $argss?]?],* for $[$declNames],*) => do

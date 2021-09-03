@@ -40,6 +40,7 @@ structure DefView where
   binders       : Syntax
   type?         : Option Syntax
   value         : Syntax
+  deriving?     : Option (Array Syntax) := none
   deriving Inhabited
 
 namespace Command
@@ -51,20 +52,21 @@ def mkDefViewOfAbbrev (modifiers : Modifiers) (stx : Syntax) : DefView :=
   let (binders, type) := expandOptDeclSig stx[2]
   let modifiers       := modifiers.addAttribute { name := `inline }
   let modifiers       := modifiers.addAttribute { name := `reducible }
-  { ref := stx, kind := DefKind.abbrev, modifiers := modifiers,
-    declId := stx[1], binders := binders, type? := type, value := stx[3] }
+  { ref := stx, kind := DefKind.abbrev, modifiers,
+    declId := stx[1], binders, type? := type, value := stx[3] }
 
 def mkDefViewOfDef (modifiers : Modifiers) (stx : Syntax) : DefView :=
-  -- leading_parser "def " >> declId >> optDeclSig >> declVal
+  -- leading_parser "def " >> declId >> optDeclSig >> declVal >> optDefDeriving
   let (binders, type) := expandOptDeclSig stx[2]
-  { ref := stx, kind := DefKind.def, modifiers := modifiers,
-    declId := stx[1], binders := binders, type? := type, value := stx[3] }
+  let deriving? := if stx[4].isNone then none else some stx[4][1].getSepArgs
+  { ref := stx, kind := DefKind.def, modifiers,
+    declId := stx[1], binders, type? := type, value := stx[3], deriving? }
 
 def mkDefViewOfTheorem (modifiers : Modifiers) (stx : Syntax) : DefView :=
   -- leading_parser "theorem " >> declId >> declSig >> declVal
   let (binders, type) := expandDeclSig stx[2]
-  { ref := stx, kind := DefKind.theorem, modifiers := modifiers,
-    declId := stx[1], binders := binders, type? := some type, value := stx[3] }
+  { ref := stx, kind := DefKind.theorem, modifiers,
+    declId := stx[1], binders, type? := some type, value := stx[3] }
 
 namespace MkInstanceName
 

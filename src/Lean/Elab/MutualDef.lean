@@ -638,30 +638,63 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
   let newHeaders ← process.run' 1
   newHeaders.mapM fun header => return { header with type := (← instantiateMVars header.type) }
 
+def processDefDeriving (className : Name) (declName : Name) : TermElabM Bool := do
+  try
+    let ConstantInfo.defnInfo info ← getConstInfo declName | return false
+    let instType ← mkAppM className #[Lean.mkConst declName (info.levelParams.map mkLevelParam)]
+    Meta.check instType
+    let oldInstType ← mkAppM className #[info.value]
+    Meta.check oldInstType
+    let instVal ← synthInstance oldInstType
+    let instName ← liftMacroM <| mkUnusedBaseName (declName.appendBefore "inst" |>.appendAfter className.getString!)
+    addAndCompile <| Declaration.defnDecl {
+      name        := instName
+      levelParams := info.levelParams
+      type        := instType
+      value       := instVal
+      hints       := info.hints
+      safety      := info.safety
+    }
+    addInstance instName AttributeKind.global (eval_prio default)
+    return true
+  catch _ =>
+    return false
+
 def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv go
   else
     go
-where go := do
-  let scopeLevelNames ← getLevelNames
-  let headers ← elabHeaders views
-  let headers ← levelMVarToParamHeaders views headers
-  let allUserLevelNames := getAllUserLevelNames headers
-  withFunLocalDecls headers fun funFVars => do
-    let values ← elabFunValues headers
-    Term.synthesizeSyntheticMVarsNoPostponing
-    let values ← values.mapM (instantiateMVars ·)
-    let headers ← headers.mapM instantiateMVarsAtHeader
-    let letRecsToLift ← getLetRecsToLift
-    let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
-    checkLetRecsToLiftTypes funFVars letRecsToLift
-    withUsed vars headers values letRecsToLift fun vars => do
-      let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
-      let preDefs ← levelMVarToParamPreDecls preDefs
-      let preDefs ← instantiateMVarsAtPreDecls preDefs
-      let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
-      addPreDefinitions preDefs
+where
+  go := do
+    let scopeLevelNames ← getLevelNames
+    let headers ← elabHeaders views
+    let headers ← levelMVarToParamHeaders views headers
+    let allUserLevelNames := getAllUserLevelNames headers
+    withFunLocalDecls headers fun funFVars => do
+      let values ← elabFunValues headers
+      Term.synthesizeSyntheticMVarsNoPostponing
+      let values ← values.mapM (instantiateMVars ·)
+      let headers ← headers.mapM instantiateMVarsAtHeader
+      let letRecsToLift ← getLetRecsToLift
+      let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
+      checkLetRecsToLiftTypes funFVars letRecsToLift
+      withUsed vars headers values letRecsToLift fun vars => do
+        let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
+        let preDefs ← levelMVarToParamPreDecls preDefs
+        let preDefs ← instantiateMVarsAtPreDecls preDefs
+        let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
+        addPreDefinitions preDefs
+        processDeriving headers
+
+  processDeriving (headers : Array DefViewElabHeader) := do
+    for header in headers, view in views do
+      if let some classNamesStx := view.deriving? then
+        for classNameStx in classNamesStx do
+          let className ← resolveGlobalConstNoOverload classNameStx
+          withRef classNameStx do
+            unless (← processDefDeriving className header.declName) do
+              throwError "failed to synthesize instance '{className}' for '{header.declName}'"
 
 end Term
 namespace Command

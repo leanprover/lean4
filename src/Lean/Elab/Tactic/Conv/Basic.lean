@@ -101,16 +101,27 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
       replaceTargetDefEq mvarId target.mdataExpr!
   focus <| evalTactic seq
 
-private def convTarget (conv : Syntax) : TacticM Unit := do
+private def convTarget (conv : Syntax) : TacticM Unit := withMainContext do
    let target ← getMainTarget
    let (targetNew, proof) ← convert target (evalTactic conv)
    liftMetaTactic1 fun mvarId => replaceTargetEq mvarId targetNew proof
 
+private def convLocalDecl (conv : Syntax) (hUserName : Name) : TacticM Unit := withMainContext do
+   let localDecl ← getLocalDeclFromUserName hUserName
+   let (typeNew, proof) ← convert localDecl.type (evalTactic conv)
+   liftMetaTactic1 fun mvarId =>
+     return some (← replaceLocalDecl mvarId localDecl.fvarId typeNew proof).mvarId
+
 @[builtinTactic Lean.Parser.Tactic.Conv.conv] def evalConv : Tactic := fun stx => do
   match stx with
-  | `(tactic| conv $[at $loc]? $[in $e]? => $code) =>
-    -- TODO: implement `at` and `in` support
-    convTarget code
+  | `(tactic| conv $[at $loc?]? $[in $e?]? => $code) =>
+    -- TODO: implement `at` support
+    unless e?.isNone do
+      throwError "'in' modifier has not been implemented yet"
+    if let some loc := loc? then
+      convLocalDecl code loc.getId
+    else
+      convTarget code
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Conv

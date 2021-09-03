@@ -54,3 +54,11 @@ example (h : x ≠ 0) : x / x + x = x.succ := by
     done
   show 1 + x = x.succ
   rw [Nat.succ_add, Nat.zero_add]
+
+example (h1 : x ≠ 0) (h2 : y = x / x) : y = 1 := by
+  conv at h2 =>
+    rhs
+    rw [div_self]
+    skip
+    tactic => assumption
+  assumption

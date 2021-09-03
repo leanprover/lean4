@@ -9,7 +9,7 @@ import Lean.Elab.Tactic.Conv.Basic
 namespace Lean.Elab.Tactic.Conv
 open Meta
 
-@[builtinTactic Lean.Parser.Tactic.Conv.simp] def evalSimp : Tactic := fun stx => do
+@[builtinTactic Lean.Parser.Tactic.Conv.simp] def evalSimp : Tactic := fun stx => withMainContext do
   let { ctx, .. } ← mkSimpContext stx (eraseLocal := false)
   let lhs ← getLhs
   let result ← simp lhs ctx

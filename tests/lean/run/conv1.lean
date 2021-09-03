@@ -68,3 +68,21 @@ example : id (fun x => 0 + x) = id := by
     arg 1
     funext y
     rw [Nat.zero_add]
+
+def f (x : Nat) :=
+  if x > 0 then
+    x + 1
+  else
+    x + 2
+
+example (g : Nat → Nat) (h₁ : g x = x + 1) (h₂ : x > 0) : g x = f x := by
+  conv =>
+    rhs
+    simp [f, h₂]
+  exact h₁
+
+example (h₁ : f x = x + 1) (h₂ : x > 0) : f x = f x := by
+  conv =>
+    rhs
+    simp [f, h₂]
+  exact h₁

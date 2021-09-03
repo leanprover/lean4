@@ -14,7 +14,7 @@ deriving instance BEq, Repr for Foo
 #check fun (x y : Foo) => x == y
 
 def Boo := List (String × String)
-  deriving BEq, Repr
+  deriving BEq, Repr, DecidableEq
 
 def mkBoo (s : String) : Boo :=
   [(s, s)]
@@ -23,11 +23,13 @@ def mkBoo (s : String) : Boo :=
 
 #eval mkBoo "hell" == mkBoo "hello"
 #eval mkBoo "hello" == mkBoo "hello"
+#eval mkBoo "hello" = mkBoo "hello"
 
 def M := ReaderT String (StateT Nat IO)
-  deriving Monad
+  deriving Monad, MonadState, MonadReader
 
 #print instMMonad
 
 def action : M Unit := do
-  pure ()
+  modify (. + 1)
+  dbg_trace "{← read}"

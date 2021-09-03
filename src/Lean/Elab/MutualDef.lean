@@ -638,26 +638,51 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
   let newHeaders ← process.run' 1
   newHeaders.mapM fun header => return { header with type := (← instantiateMVars header.type) }
 
+/-- Result for `mkInst?` -/
+structure MkInstResult where
+  instVal   : Expr
+  instType  : Expr
+  outParams : Array Expr := #[]
+
+/--
+  Construct an instance for `className out₁ ... outₙ type`.
+  The method support classes with a prefix of `outParam`s (e.g. `MonadReader`). -/
+private partial def mkInst? (className : Name) (type : Expr) : MetaM (Option MkInstResult) := do
+  let rec go? (instType instTypeType : Expr) (outParams : Array Expr) : MetaM (Option MkInstResult) := do
+    let instTypeType ← whnfD instTypeType
+    unless instTypeType.isForall do
+      return none
+    let d := instTypeType.bindingDomain!
+    if isOutParam d then
+      let mvar ← mkFreshExprMVar d
+      go? (mkApp instType mvar) (instTypeType.bindingBody!.instantiate1 mvar) (outParams.push mvar)
+    else
+      unless (← isDefEqGuarded (← inferType type) d) do
+        return none
+      let instType ← instantiateMVars (mkApp instType type)
+      let instVal ← synthInstance instType
+      return some { instVal, instType, outParams }
+  let instType ← mkConstWithFreshMVarLevels className
+  go? instType (← inferType instType) #[]
+
 def processDefDeriving (className : Name) (declName : Name) : TermElabM Bool := do
   try
     let ConstantInfo.defnInfo info ← getConstInfo declName | return false
-    let instType ← mkAppM className #[Lean.mkConst declName (info.levelParams.map mkLevelParam)]
-    Meta.check instType
-    let oldInstType ← mkAppM className #[info.value]
-    Meta.check oldInstType
-    let instVal ← synthInstance oldInstType
+    let some result ← mkInst? className info.value | return false
+    let instTypeNew := mkApp result.instType.appFn! (Lean.mkConst declName (info.levelParams.map mkLevelParam))
+    Meta.check instTypeNew
     let instName ← liftMacroM <| mkUnusedBaseName (declName.appendBefore "inst" |>.appendAfter className.getString!)
     addAndCompile <| Declaration.defnDecl {
       name        := instName
       levelParams := info.levelParams
-      type        := instType
-      value       := instVal
+      type        := (← instantiateMVars instTypeNew)
+      value       := (← instantiateMVars result.instVal)
       hints       := info.hints
       safety      := info.safety
     }
     addInstance instName AttributeKind.global (eval_prio default)
     return true
-  catch _ =>
+  catch ex =>
     return false
 
 def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit :=

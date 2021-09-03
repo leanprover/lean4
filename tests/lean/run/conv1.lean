@@ -31,3 +31,10 @@ example (x y : Nat) : p (x + y) (y + x + 0) := by
     whnf
   traceState
   apply Nat.add_comm x y
+
+example (x y : Nat) : p (x + y) (0 + y + x) := by
+  conv =>
+    whnf
+    rhs
+    rw [Nat.zero_add, Nat.add_comm]
+  rfl

@@ -56,13 +56,31 @@ example : id (fun x y => 0 + x + y) = Nat.add := by
   conv =>
     lhs
     arg 1
-    funext a b
+    ext a b
     traceState
     rw [Nat.zero_add]
     traceState
 
 example : id (fun x y => 0 + x + y) = Nat.add := by
   conv =>
+    lhs
+    arg 1
+    intro a b
+    rw [Nat.zero_add]
+
+example : id (fun x y => 0 + x + y) = Nat.add := by
+  conv =>
     enter [1, 1, a, b]
     traceState
     rw [Nat.zero_add]
+
+example (p : Nat → Prop) (h : ∀ a, p a) : ∀ a, p (id (0 + a)) := by
+  conv =>
+    intro x
+    traceState
+    arg 1
+    traceState
+    simp only [id]
+    traceState
+    rw [Nat.zero_add]
+  exact h

@@ -26,8 +26,9 @@ syntax (name := whnf) "whnf" : conv
 syntax (name := congr) "congr" : conv
 syntax (name := arg) "arg " num : conv
 syntax (name := traceState) "traceState" : conv
-syntax (name := funext) "funext" (colGt ident)* : conv
+syntax (name := ext) "ext " (colGt ident)* : conv
 syntax (name := change) "change " term : conv
+syntax (name := pattern) "pattern " term : conv
 syntax (name := rewrite) "rewrite " rwRuleSeq : conv
 syntax (name := erewrite) "erewrite " rwRuleSeq : conv
 syntax (name := simp) "simp " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? : conv
@@ -42,12 +43,13 @@ macro "erw " s:rwRuleSeq : conv => `(erewrite $s:rwRuleSeq)
 macro "args" : conv => `(congr)
 macro "left" : conv => `(lhs)
 macro "right" : conv => `(rhs)
+macro "intro " xs:(colGt ident)* : conv => `(ext $(xs.getArgs)*)
 
 syntax enterArg := ident <|> num
 syntax "enter " "[" (colGt enterArg),+ "]": conv
 macro_rules
   | `(conv| enter [$i:numLit]) => `(conv| arg $i)
-  | `(conv| enter [$id:ident]) => `(conv| funext $id)
+  | `(conv| enter [$id:ident]) => `(conv| ext $id)
   | `(conv| enter [$arg:enterArg, $args,*]) => `(conv| (enter [$arg]; enter [$args,*]))
 
 end Lean.Parser.Tactic.Conv

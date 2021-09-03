@@ -31,7 +31,7 @@ syntax (name := change) "change " term : conv
 syntax (name := rewrite) "rewrite " rwRuleSeq : conv
 syntax (name := erewrite) "erewrite " rwRuleSeq : conv
 syntax (name := simp) "simp " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? : conv
-syntax (name := nestedTactic) "tactic " tacticSeq : conv
+syntax (name := nestedTactic) "tactic" " => " tacticSeq : conv
 syntax (name := nestedConv) convSeqBracketed : conv
 syntax (name := paren) "(" convSeq ")" : conv
 

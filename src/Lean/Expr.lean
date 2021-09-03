@@ -598,6 +598,10 @@ def consumeMData : Expr → Expr
   | mdata _ e _ => consumeMData e
   | e           => e
 
+def mdataExpr! : Expr → Expr
+  | mdata _ e _ => e
+  | _           => panic! "mdata expression expected"
+
 def hasLooseBVars (e : Expr) : Bool :=
   e.looseBVarRange > 0
 

@@ -93,6 +93,14 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
 @[builtinTactic Lean.Parser.Tactic.Conv.traceState] def evalTraceState : Tactic :=
   Tactic.evalTraceState
 
+@[builtinTactic Lean.Parser.Tactic.Conv.nestedTactic] def evalNestedTactic : Tactic := fun stx => do
+  let seq := stx[2]
+  let target ← getMainTarget
+  if let some _ := isLHSGoal? target then
+    liftMetaTactic1 fun mvarId =>
+      replaceTargetDefEq mvarId target.mdataExpr!
+  focus <| evalTactic seq
+
 private def convTarget (conv : Syntax) : TacticM Unit := do
    let target ← getMainTarget
    let (targetNew, proof) ← convert target (evalTactic conv)

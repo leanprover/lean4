@@ -41,3 +41,16 @@ example (x y : Nat) : p (x + y) (0 + y + x) := by
     skip
     done
   rfl
+
+axiom div_self (x : Nat) : x ≠ 0 → x / x = 1
+
+example (h : x ≠ 0) : x / x + x = x.succ := by
+  conv =>
+    lhs
+    arg 2
+    rw [div_self]
+    skip
+    tactic => assumption
+    done
+  show 1 + x = x.succ
+  rw [Nat.succ_add, Nat.zero_add]

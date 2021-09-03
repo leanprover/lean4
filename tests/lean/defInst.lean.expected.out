@@ -1,0 +1,7 @@
+defInst.lean:6:0-6:12: error: failed to synthesize
+  Lean.Eval Foo
+defInst.lean:8:26-8:32: error: failed to synthesize instance
+  BEq Foo
+fun x y => sorry : (x y : Foo) → ?m x y
+[4, 5, 6]
+fun x y => x == y : Foo → Foo → Bool

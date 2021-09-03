@@ -34,13 +34,42 @@ def applyDerivingHandlers (className : Name) (typeNames : Array Name) (args? : O
       defaultHandler className typeNames
   | none => defaultHandler className typeNames
 
+private def tryApplyDefHandler (className : Name) (declName : Name) : CommandElabM Bool :=
+  open Meta in
+  liftTermElabM none do
+    let ConstantInfo.defnInfo info ← getConstInfo declName | return false
+    forallTelescopeReducing info.type fun xs type => do
+      try
+        let instType ← mkAppM className #[mkAppN (Lean.mkConst declName (info.levelParams.map mkLevelParam)) xs]
+        check instType
+        let oldInstType ← mkAppM className #[(mkAppN info.value xs).headBeta]
+        check oldInstType
+        let instVal ← synthInstance oldInstType
+        let instName ← liftMacroM <| mkUnusedBaseName (declName.appendBefore "inst" |>.appendAfter className.getString!)
+        addAndCompile <| Declaration.defnDecl {
+          name        := instName
+          levelParams := info.levelParams
+          type        := instType
+          value       := instVal
+          hints       := info.hints
+          safety      := info.safety
+        }
+        addInstance instName AttributeKind.global (eval_prio default)
+        return true
+      catch _ =>
+        return false
+
 @[builtinCommandElab «deriving»] def elabDeriving : CommandElab
   | `(deriving instance $[$classes $[with $argss?]?],* for $[$declNames],*) => do
      let declNames ← declNames.mapM resolveGlobalConstNoOverloadWithInfo
      for cls in classes, args? in argss? do
        try
          let className ← resolveGlobalConstNoOverloadWithInfo cls
-         withRef cls do applyDerivingHandlers className declNames args?
+         withRef cls do
+           if declNames.size == 1 && args?.isNone then
+             if (← tryApplyDefHandler className declNames[0]) then
+               return ()
+           applyDerivingHandlers className declNames args?
        catch ex =>
          logException ex
   | _ => throwUnsupportedSyntax

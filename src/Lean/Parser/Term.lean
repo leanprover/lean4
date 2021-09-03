@@ -245,7 +245,6 @@ def bracketedBinderF := bracketedBinder  -- no default arg
 @[builtinTermParser] def bracketedBinder.quot : Parser := leading_parser "`(bracketedBinder|"  >> incQuotDepth (evalInsideQuot ``bracketedBinderF bracketedBinder) >> ")"
 @[builtinTermParser] def matchDiscr.quot : Parser := leading_parser "`(matchDiscr|"  >> incQuotDepth (evalInsideQuot ``matchDiscr matchDiscr) >> ")"
 @[builtinTermParser] def attr.quot : Parser := leading_parser "`(attr|"  >> incQuotDepth attrParser >> ")"
-@[builtinTermParser] def conv.quot : Parser := leading_parser "`(conv|"  >> incQuotDepth convParser >> ")"
 
 @[builtinTermParser] def panic       := leading_parser:leadPrec "panic! " >> termParser
 @[builtinTermParser] def unreachable := leading_parser:leadPrec "unreachable!"

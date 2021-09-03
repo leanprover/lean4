@@ -62,3 +62,10 @@ example : id (fun x y => 0 + x + y) = Nat.add := by
     rw [Nat.zero_add]
     traceState
   rfl
+
+example : id (fun x y => 0 + x + y) = Nat.add := by
+  conv =>
+    enter [1, 1, a, b]
+    traceState
+    rw [Nat.zero_add]
+  rfl

@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 Notation for operators defined at Prelude.lean
 -/
 prelude
-import Init.Notation
+import Init.NotationExtra
 
 namespace Lean.Parser.Tactic.Conv
 
@@ -42,5 +42,12 @@ macro "erw " s:rwRuleSeq : conv => `(erewrite $s:rwRuleSeq)
 macro "args" : conv => `(congr)
 macro "left" : conv => `(lhs)
 macro "right" : conv => `(rhs)
+
+syntax enterArg := ident <|> num
+syntax "enter " "[" (colGt enterArg),+ "]": conv
+macro_rules
+  | `(conv| enter [$i:numLit]) => `(conv| arg $i)
+  | `(conv| enter [$id:ident]) => `(conv| funext $id)
+  | `(conv| enter [$arg:enterArg, $args,*]) => `(conv| (enter [$arg]; enter [$args,*]))
 
 end Lean.Parser.Tactic.Conv

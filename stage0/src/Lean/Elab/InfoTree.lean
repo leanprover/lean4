@@ -78,7 +78,6 @@ structure TacticInfo extends ElabInfo where
   goalsBefore : List MVarId
   mctxAfter   : MetavarContext
   goalsAfter  : List MVarId
-  inConv      : Bool
   deriving Inhabited
 
 structure MacroExpansionInfo where
@@ -189,17 +188,17 @@ def FieldInfo.format (ctx : ContextInfo) (info : FieldInfo) : IO Format := do
   ctx.runMetaM info.lctx do
     return f!"{info.fieldName} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {formatStxRange ctx info.stx}"
 
-def ContextInfo.ppGoals (ctx : ContextInfo) (goals : List MVarId) (inConv : Bool) : IO Format :=
+def ContextInfo.ppGoals (ctx : ContextInfo) (goals : List MVarId) : IO Format :=
   if goals.isEmpty then
     return "no goals"
   else
-    ctx.runMetaM {} (return Std.Format.prefixJoin "\n" (← goals.mapM (Meta.ppGoal . inConv)))
+    ctx.runMetaM {} (return Std.Format.prefixJoin "\n" (← goals.mapM (Meta.ppGoal .)))
 
 def TacticInfo.format (ctx : ContextInfo) (info : TacticInfo) : IO Format := do
   let ctxB := { ctx with mctx := info.mctxBefore }
   let ctxA := { ctx with mctx := info.mctxAfter }
-  let goalsBefore ← ctxB.ppGoals info.goalsBefore info.inConv
-  let goalsAfter  ← ctxA.ppGoals info.goalsAfter info.inConv
+  let goalsBefore ← ctxB.ppGoals info.goalsBefore
+  let goalsAfter  ← ctxA.ppGoals info.goalsAfter
   return f!"Tactic @ {formatElabInfo ctx info.toElabInfo}\n{info.stx}\nbefore {goalsBefore}\nafter {goalsAfter}"
 
 def MacroExpansionInfo.format (ctx : ContextInfo) (info : MacroExpansionInfo) : IO Format := do

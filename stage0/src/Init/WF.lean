@@ -144,7 +144,7 @@ def wf (h : WellFounded r) : WellFounded (TC r) :=
 end TC
 
 -- less-than is well-founded
-def Nat.ltWf : WellFounded Nat.lt := by
+def Nat.lt_wf : WellFounded Nat.lt := by
   apply WellFounded.intro
   intro n
   induction n with
@@ -164,7 +164,7 @@ def measure {α : Sort u} : (α → Nat) → α → α → Prop :=
   InvImage (fun a b => a < b)
 
 def measureWf {α : Sort u} (f : α → Nat) : WellFounded (measure f) :=
-  InvImage.wf f Nat.ltWf
+  InvImage.wf f Nat.lt_wf
 
 def sizeofMeasure (α : Sort u) [SizeOf α] : α → α → Prop :=
   measure sizeOf

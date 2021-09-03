@@ -16,17 +16,28 @@ syntax convSeq1Indented := withPosition((group(colGe conv ";"?))+)
 syntax convSeqBracketed := "{" (group(conv ";"?))+ "}"
 syntax convSeq := convSeq1Indented <|> convSeqBracketed
 
+syntax (name := conv) "conv " (" at " ident)? (" in " term)? " => " convSeq : tactic
+
 syntax (name := skip) "skip " : conv
 syntax (name := lhs) "lhs" : conv
 syntax (name := rhs) "rhs" : conv
 syntax (name := whnf) "whnf" : conv
 syntax (name := congr) "congr" : conv
+syntax (name := arg) "arg " num : conv
+syntax (name := trace) "trace" : conv
+syntax (name := funext) "funext" ident* : conv
+syntax (name := change) "change " term : conv
+syntax (name := rewrite) "rewrite " rwRuleSeq : conv
+syntax (name := simp) "simp " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? : conv
+syntax (name := nestedTactic) "tactic " tacticSeq : conv
 syntax (name := nestedConv) convSeqBracketed : conv
 syntax (name := paren) "(" convSeq ")" : conv
 
 /-- `· conv` focuses on the main conv goal and tries to solve it using `s` -/
 macro dot:("·" <|> ".") s:convSeq : conv => `({%$dot ($s:convSeq) })
-
-syntax (name := conv) "conv " (" at " ident)? (" in " term)? " => " convSeq : tactic
+macro "rw " s:rwRuleSeq : conv => `(rewrite $s:rwRuleSeq)
+macro "args" : conv => `(congr)
+macro "left" : conv => `(lhs)
+macro "right" : conv => `(rhs)
 
 end Lean.Parser.Tactic.Conv

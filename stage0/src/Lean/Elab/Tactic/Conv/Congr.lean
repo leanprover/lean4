@@ -9,9 +9,9 @@ import Lean.Elab.Tactic.Conv.Basic
 namespace Lean.Elab.Tactic.Conv
 open Meta
 
-@[builtinTactic Lean.Parser.Tactic.Conv.congr] def evalCongr : Tactic := fun stx => do
-   withMainContext do
-     let (lhs, rhs) ← getLhsRhs
+def congr (mvarId : MVarId) : MetaM (List MVarId) :=
+  withMVarContext mvarId do
+     let (lhs, rhs) ← getLhsRhsCore mvarId
      unless lhs.isApp do
        throwError "invalid 'congr' conv tactic, application expected{indentD lhs}"
      lhs.withApp fun f args => do
@@ -35,7 +35,21 @@ open Meta
         i := i + 1
       let proof ← r.getProof
       assignExprMVar rhs.mvarId! r.expr
-      assignExprMVar (← getMainGoal) proof
-      replaceMainGoal newGoals.toList
+      assignExprMVar mvarId proof
+      return newGoals.toList
+
+
+@[builtinTactic Lean.Parser.Tactic.Conv.congr] def evalCongr : Tactic := fun stx => do
+   replaceMainGoal (← congr (← getMainGoal))
+
+@[builtinTactic Lean.Parser.Tactic.Conv.lhs] def evalLhs : Tactic := fun stx => do
+   let [mvarId₁, mvarId₂] ← congr (← getMainGoal) | throwError "invalid 'lhs' conv tactic, binary application expected"
+   applyRefl mvarId₂
+   replaceMainGoal [mvarId₁]
+
+@[builtinTactic Lean.Parser.Tactic.Conv.rhs] def evalRhs : Tactic := fun stx => do
+   let [mvarId₁, mvarId₂] ← congr (← getMainGoal) | throwError "invalid 'rhs' conv tactic, binary application expected"
+   applyRefl mvarId₁
+   replaceMainGoal [mvarId₂]
 
 end Lean.Elab.Tactic.Conv

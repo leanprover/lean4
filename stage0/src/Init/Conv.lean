@@ -18,24 +18,27 @@ syntax convSeq := convSeq1Indented <|> convSeqBracketed
 
 syntax (name := conv) "conv " (" at " ident)? (" in " term)? " => " convSeq : tactic
 
-syntax (name := skip) "skip " : conv
+syntax (name := skip) "skip" : conv
+syntax (name := done) "done" : conv
 syntax (name := lhs) "lhs" : conv
 syntax (name := rhs) "rhs" : conv
 syntax (name := whnf) "whnf" : conv
 syntax (name := congr) "congr" : conv
 syntax (name := arg) "arg " num : conv
-syntax (name := trace) "trace" : conv
+syntax (name := traceState) "traceState" : conv
 syntax (name := funext) "funext" ident* : conv
 syntax (name := change) "change " term : conv
 syntax (name := rewrite) "rewrite " rwRuleSeq : conv
+syntax (name := erewrite) "erewrite " rwRuleSeq : conv
 syntax (name := simp) "simp " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? : conv
-syntax (name := nestedTactic) "tactic " tacticSeq : conv
+syntax (name := nestedTactic) "tactic" " => " tacticSeq : conv
 syntax (name := nestedConv) convSeqBracketed : conv
 syntax (name := paren) "(" convSeq ")" : conv
 
 /-- `· conv` focuses on the main conv goal and tries to solve it using `s` -/
 macro dot:("·" <|> ".") s:convSeq : conv => `({%$dot ($s:convSeq) })
 macro "rw " s:rwRuleSeq : conv => `(rewrite $s:rwRuleSeq)
+macro "erw " s:rwRuleSeq : conv => `(erewrite $s:rwRuleSeq)
 macro "args" : conv => `(congr)
 macro "left" : conv => `(lhs)
 macro "right" : conv => `(rhs)

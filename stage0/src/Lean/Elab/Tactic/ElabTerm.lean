@@ -43,11 +43,11 @@ def closeMainGoalUsing (x : Expr → TacticM Expr) (checkUnassigned := true) : T
   withMainContext do
     closeMainGoal (checkUnassigned := checkUnassigned) (← x (← getMainTarget))
 
-private def logUnassignedAndAbort (mvarIds : Array MVarId) : TacticM Unit := do
+def logUnassignedAndAbort (mvarIds : Array MVarId) : TacticM Unit := do
    if (← Term.logUnassignedUsingErrorInfos mvarIds) then
      throwAbortTactic
 
-private def filterOldMVars (mvarIds : Array MVarId) (mvarCounterSaved : Nat) : MetaM (Array MVarId) := do
+def filterOldMVars (mvarIds : Array MVarId) (mvarCounterSaved : Nat) : MetaM (Array MVarId) := do
   let mctx ← getMCtx
   return mvarIds.filter fun mvarId => (mctx.getDecl mvarId |>.index) >= mvarCounterSaved
 

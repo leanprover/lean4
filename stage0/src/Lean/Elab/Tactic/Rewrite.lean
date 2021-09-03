@@ -42,12 +42,10 @@ def rewriteAll (stx : Syntax) (symm : Bool) (mode : TransparencyMode) : TacticM 
       let mvarId ← getMainGoal
       throwTacticEx `rewrite mvarId "did not find instance of the pattern in the current goal"
 
-def evalRewriteCore (mode : TransparencyMode) : Tactic := fun stx => do
-  let token := stx[0]
-  let lbrak := stx[1][0]
-  let rules := stx[1][1].getArgs
-  let rbrak := stx[1][2]
-  let loc   := expandOptLocation stx[2]
+def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) → (term : Syntax) → TacticM Unit) : TacticM Unit := do
+  let lbrak := rwRulesSeqStx[0]
+  let rules := rwRulesSeqStx[1].getArgs
+  let rbrak := rwRulesSeqStx[2]
   -- show initial state up to (incl.) `[`
   withTacticInfoContext (mkNullNode #[token, lbrak]) (pure ())
   let numRules := (rules.size + 1) / 2
@@ -60,12 +58,17 @@ def evalRewriteCore (mode : TransparencyMode) : Tactic := fun stx => do
       withRef rule do
         let symm := !rule[0].isNone
         let term := rule[1]
-        match loc with
-        | Location.targets hyps type =>
-          hyps.forM (rewriteLocalDecl term symm · mode)
-          if type then
-            rewriteTarget term symm mode
-        | Location.wildcard => rewriteAll term symm mode
+        x symm term
+
+def evalRewriteCore (mode : TransparencyMode) : Tactic := fun stx => do
+  let loc   := expandOptLocation stx[2]
+  withRWRulesSeq stx[0] stx[1] fun symm term => do
+    match loc with
+    | Location.targets hyps type =>
+      hyps.forM (rewriteLocalDecl term symm · mode)
+      if type then
+        rewriteTarget term symm mode
+    | Location.wildcard => rewriteAll term symm mode
 
 @[builtinTactic Lean.Parser.Tactic.rewriteSeq] def evalRewriteSeq : Tactic :=
   evalRewriteCore TransparencyMode.instances

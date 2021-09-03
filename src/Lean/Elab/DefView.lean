@@ -48,23 +48,23 @@ open Meta
 
 def mkDefViewOfAbbrev (modifiers : Modifiers) (stx : Syntax) : DefView :=
   -- leading_parser "abbrev " >> declId >> optDeclSig >> declVal
-  let (binders, type) := expandOptDeclSig (stx.getArg 2)
+  let (binders, type) := expandOptDeclSig stx[2]
   let modifiers       := modifiers.addAttribute { name := `inline }
   let modifiers       := modifiers.addAttribute { name := `reducible }
   { ref := stx, kind := DefKind.abbrev, modifiers := modifiers,
-    declId := stx.getArg 1, binders := binders, type? := type, value := stx.getArg 3 }
+    declId := stx[1], binders := binders, type? := type, value := stx[3] }
 
 def mkDefViewOfDef (modifiers : Modifiers) (stx : Syntax) : DefView :=
   -- leading_parser "def " >> declId >> optDeclSig >> declVal
-  let (binders, type) := expandOptDeclSig (stx.getArg 2)
+  let (binders, type) := expandOptDeclSig stx[2]
   { ref := stx, kind := DefKind.def, modifiers := modifiers,
-    declId := stx.getArg 1, binders := binders, type? := type, value := stx.getArg 3 }
+    declId := stx[1], binders := binders, type? := type, value := stx[3] }
 
 def mkDefViewOfTheorem (modifiers : Modifiers) (stx : Syntax) : DefView :=
   -- leading_parser "theorem " >> declId >> declSig >> declVal
-  let (binders, type) := expandDeclSig (stx.getArg 2)
+  let (binders, type) := expandDeclSig stx[2]
   { ref := stx, kind := DefKind.theorem, modifiers := modifiers,
-    declId := stx.getArg 1, binders := binders, type? := some type, value := stx.getArg 3 }
+    declId := stx[1], binders := binders, type? := some type, value := stx[3] }
 
 namespace MkInstanceName
 
@@ -126,15 +126,15 @@ end MkInstanceName
 
 def mkDefViewOfConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
   -- leading_parser "constant " >> declId >> declSig >> optional declValSimple
-  let (binders, type) := expandDeclSig (stx.getArg 2)
-  let val ← match (stx.getArg 3).getOptional? with
+  let (binders, type) := expandDeclSig stx[2]
+  let val ← match stx[3].getOptional? with
     | some val => pure val
     | none     =>
       let val ← `(arbitrary)
       pure $ Syntax.node ``Parser.Command.declValSimple #[ mkAtomFrom stx ":=", val ]
   return {
     ref := stx, kind := DefKind.opaque, modifiers := modifiers,
-    declId := stx.getArg 1, binders := binders, type? := some type, value := val
+    declId := stx[1], binders := binders, type? := some type, value := val
   }
 
 def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
@@ -156,11 +156,11 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
 
 def mkDefViewOfExample (modifiers : Modifiers) (stx : Syntax) : DefView :=
   -- leading_parser "example " >> declSig >> declVal
-  let (binders, type) := expandDeclSig (stx.getArg 1)
+  let (binders, type) := expandDeclSig stx[1]
   let id              := mkIdentFrom stx `_example
   let declId          := Syntax.node ``Parser.Command.declId #[id, mkNullNode]
   { ref := stx, kind := DefKind.example, modifiers := modifiers,
-    declId := declId, binders := binders, type? := some type, value := stx.getArg 2 }
+    declId := declId, binders := binders, type? := some type, value := stx[2] }
 
 def isDefLike (stx : Syntax) : Bool :=
   let declKind := stx.getKind

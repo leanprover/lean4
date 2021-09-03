@@ -16,6 +16,7 @@ def evalRewriteCore (mode : TransparencyMode) : Tactic := fun stx =>
       let e ← elabTerm term none true
       let r ← rewrite (← getMainGoal) (← getLhs) e symm (mode := mode)
       updateLhs r.eNew r.eqProof
+      replaceMainGoal ((← getMainGoal) :: r.mvarIds)
 
 @[builtinTactic Lean.Parser.Tactic.Conv.rewrite] def evalRewrite : Tactic :=
   evalRewriteCore TransparencyMode.instances

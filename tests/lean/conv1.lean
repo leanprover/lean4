@@ -43,3 +43,12 @@ example (x y : Nat) : f x (x + y + 0) y = y + x := by
   traceState
   simp [f]
   apply Nat.add_comm
+
+example (x y : Nat) : f x (x + y + 0) y = y + x := by
+  conv =>
+    lhs
+    arg 2
+    change x + y
+    traceState
+    rw [Nat.add_comm]
+  rfl

@@ -41,7 +41,8 @@ def declValSimple    := leading_parser " :=\n" >> termParser >> optional Term.wh
 def declValEqns      := leading_parser Term.matchAltsWhereDecls
 def declVal          := declValSimple <|> declValEqns <|> Term.whereDecls
 def «abbrev»         := leading_parser "abbrev " >> declId >> optDeclSig >> declVal
-def «def»            := leading_parser "def " >> declId >> optDeclSig >> declVal
+def optDefDeriving   := leading_parser optional (atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
+def «def»            := leading_parser "def " >> declId >> optDeclSig >> declVal >> optDefDeriving
 def «theorem»        := leading_parser "theorem " >> declId >> declSig >> declVal
 def «constant»       := leading_parser "constant " >> declId >> declSig >> optional declValSimple
 def «instance»       := leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal

@@ -37,4 +37,7 @@ example (x y : Nat) : p (x + y) (0 + y + x) := by
     whnf
     rhs
     rw [Nat.zero_add, Nat.add_comm]
+    traceState
+    skip
+    done
   rfl

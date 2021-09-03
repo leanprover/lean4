@@ -18,13 +18,14 @@ syntax convSeq := convSeq1Indented <|> convSeqBracketed
 
 syntax (name := conv) "conv " (" at " ident)? (" in " term)? " => " convSeq : tactic
 
-syntax (name := skip) "skip " : conv
+syntax (name := skip) "skip" : conv
+syntax (name := done) "done" : conv
 syntax (name := lhs) "lhs" : conv
 syntax (name := rhs) "rhs" : conv
 syntax (name := whnf) "whnf" : conv
 syntax (name := congr) "congr" : conv
 syntax (name := arg) "arg " num : conv
-syntax (name := trace) "trace" : conv
+syntax (name := traceState) "traceState" : conv
 syntax (name := funext) "funext" ident* : conv
 syntax (name := change) "change " term : conv
 syntax (name := rewrite) "rewrite " rwRuleSeq : conv

@@ -87,6 +87,12 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
 @[builtinTactic Lean.Parser.Tactic.Conv.paren] def evalParen : Tactic := fun stx =>
   evalTactic stx[1]
 
+@[builtinTactic Lean.Parser.Tactic.Conv.done] def evalDone : Tactic := fun _ =>
+  done
+
+@[builtinTactic Lean.Parser.Tactic.Conv.traceState] def evalTraceState : Tactic :=
+  Tactic.evalTraceState
+
 private def convTarget (conv : Syntax) : TacticM Unit := do
    let target ← getMainTarget
    let (targetNew, proof) ← convert target (evalTactic conv)

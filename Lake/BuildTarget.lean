@@ -14,12 +14,12 @@ namespace Lake
 --------------------------------------------------------------------------------
 
 /-- A Lake build target. -/
-abbrev BuildTarget i := Target i BuildM BuildTask LakeTrace
+abbrev BuildTarget i := Target i BuildM BuildTask BuildTrace
 
 -- ## Active
 
 /-- An active Lake build target. -/
-abbrev ActiveBuildTarget i := ActiveTarget i BuildTask LakeTrace
+abbrev ActiveBuildTarget i := ActiveTarget i BuildTask BuildTrace
 
 --------------------------------------------------------------------------------
 -- # File Targets
@@ -44,7 +44,7 @@ abbrev OpaqueTarget := BuildTarget PUnit
 namespace OpaqueTarget
 
 abbrev nil : OpaqueTarget :=
-  Target.pure () LakeTrace.nil
+  Target.pure () BuildTrace.nil
 
 def mixAsync (t1 t2 : OpaqueTarget) : OpaqueTarget :=
   Target.opaque do
@@ -66,7 +66,7 @@ abbrev ActiveOpaqueTarget := ActiveBuildTarget PUnit
 namespace ActiveOpaqueTarget
 
 abbrev nil : ActiveOpaqueTarget :=
-  ActiveTarget.pure () LakeTrace.nil
+  ActiveTarget.pure () BuildTrace.nil
 
 def mixAsync (t1 t2 : ActiveOpaqueTarget) : BuildM ActiveOpaqueTarget := do
   ActiveTarget.opaque <| ←

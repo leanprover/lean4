@@ -150,31 +150,31 @@ def checkIfNewer [GetMTime a] (artifact : a) (depMTime : MTime) : IO Bool := do
 --------------------------------------------------------------------------------
 
 /-- Trace used for common Lake targets. Combines `Hash` and `MTime`. -/
-structure LakeTrace where
+structure BuildTrace where
   hash : Hash
   mtime : MTime
 
-namespace LakeTrace
+namespace BuildTrace
 
-def fromHash (hash : Hash) : LakeTrace :=
+def fromHash (hash : Hash) : BuildTrace :=
   mk hash 0
 
-def fromMTime (mtime : MTime) : LakeTrace :=
+def fromMTime (mtime : MTime) : BuildTrace :=
   mk Hash.nil mtime
 
-def nil : LakeTrace :=
+def nil : BuildTrace :=
   mk Hash.nil 0
 
-instance : NilTrace LakeTrace := ⟨nil⟩
+instance : NilTrace BuildTrace := ⟨nil⟩
 
-def compute [ComputeHash a] [GetMTime a] (artifact : a) : IO LakeTrace := do
+def compute [ComputeHash a] [GetMTime a] (artifact : a) : IO BuildTrace := do
   mk (← computeHash artifact) (← getMTime artifact)
 
-instance [ComputeHash a] [GetMTime a] : ComputeTrace a IO LakeTrace := ⟨compute⟩
+instance [ComputeHash a] [GetMTime a] : ComputeTrace a IO BuildTrace := ⟨compute⟩
 
-def mix (t1 t2 : LakeTrace) : LakeTrace :=
+def mix (t1 t2 : BuildTrace) : BuildTrace :=
   mk (Hash.mix t1.hash t2.hash) (max t1.mtime t2.mtime)
 
-instance : MixTrace LakeTrace := ⟨mix⟩
+instance : MixTrace BuildTrace := ⟨mix⟩
 
-end LakeTrace
+end BuildTrace

@@ -70,8 +70,8 @@ def skipIf [Pure m] [Pure n] (cond : Bool) (build : m (n PUnit)) : m (n PUnit) :
   if cond then pure (pure ()) else build
 
 def checkModuleTrace [GetMTime i] (info : i)
-(leanFile hashFile : FilePath) (contents : String) (depTrace : LakeTrace)
-: IO (Bool × LakeTrace) := do
+(leanFile hashFile : FilePath) (contents : String) (depTrace : BuildTrace)
+: IO (Bool × BuildTrace) := do
   let leanMTime ← getMTime leanFile
   let leanHash := Hash.compute contents
   let maxMTime := max leanMTime depTrace.mtime

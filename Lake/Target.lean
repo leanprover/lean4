@@ -28,8 +28,14 @@ def withInfo (info : i') (self : ActiveTarget i n t) : ActiveTarget i' n t :=
 def withoutInfo (self : ActiveTarget i n t) : ActiveTarget PUnit n t :=
   self.withInfo ()
 
+def opaque (task : n t) : ActiveTarget PUnit n t :=
+  ⟨(), task⟩
+
 protected def pure [Pure n] (info : i) (trace : t) : ActiveTarget i n t :=
   ⟨info, pure trace⟩
+
+def nil [NilTrace t] [Pure n] : ActiveTarget PUnit n t :=
+  mk () <| pure nilTrace
 
 protected def mapAsync [Bind m] [MapAsync m n] (self : ActiveTarget i n α) (f : i → α → m β) : m (n β) :=
    mapAsync (f self.info) self.task
@@ -46,10 +52,13 @@ protected def bindOpaqueAsync [BindAsync m n] (self : ActiveTarget i n α) (f : 
 def materialize [Await n m] (self : ActiveTarget i n t) : m t :=
   await self.task
 
--- ## Opaque Active Targets
-
-def opaque (task : n t) : ActiveTarget PUnit n t :=
-  ⟨(), task⟩
+def mixOpaqueAsync
+[MixTrace t] [Monad m] [Pure n] [BindAsync m n]
+(t1 t2 : ActiveTarget i n t) : m (ActiveTarget PUnit n t) := do
+  ActiveTarget.opaque <| ←
+    t1.bindOpaqueAsync fun tr1 =>
+    t2.bindOpaqueAsync fun tr2 =>
+    pure <| pure <| mixTrace tr1 tr2
 
 section
 variable [NilTrace t] [MixTrace t] [Monad m] [BindAsync m n] [Pure n]
@@ -91,6 +100,9 @@ def active [Pure m] (info : i) (task : n t) : Target i m n t :=
 protected def pure [Pure m] [Pure n] (info : i) (trace : t) : Target i m n t :=
   mk info <| pure <| pure trace
 
+def nil [NilTrace t] [Pure m] [Pure n] : Target PUnit m n t :=
+  mk () <| pure <| pure nilTrace
+
 def computeSync [ComputeTrace i m' t] [MonadLiftT m' m] [Async m n] [Functor m] [Pure n] (info : i) : Target i m n t :=
   mk info <| pure <$> liftM (computeTrace info)
 
@@ -117,6 +129,16 @@ def materializeAsync (self : Target i m n t) : m (n t) :=
 
 def materialize [Await n m] [Bind m] (self : Target i m n t) : m t := do
   self.task >>= await
+
+def mixOpaqueAsync
+[MixTrace t] [Monad m] [Pure n] [BindAsync m n]
+(t1 t2 :  Target i m n t) : Target PUnit m n t :=
+  Target.opaque do
+    let tk1 ← t1.materializeAsync
+    let tk2 ← t2.materializeAsync
+    bindAsync tk1 fun tr1 =>
+    bindAsync tk2 fun tr2 =>
+    pure <| pure <| mixTrace tr1 tr2
 
 section
 variable [NilTrace t] [MixTrace t] [Monad m] [Pure n] [BindAsync m n]

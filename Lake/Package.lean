@@ -52,7 +52,7 @@ structure PackageConfig where
   buildMoreLibTargets : BuildM (Array ActiveFileTarget) := #[]
   depsDir : FilePath := defaultDepsDir
   dependencies : List Dependency := []
-  buildExtraDepTarget : BuildM ActiveOpaqueTarget := ActiveOpaqueTarget.nil
+  buildExtraDepTarget : BuildM ActiveOpaqueTarget := ActiveTarget.nil
   scripts : HashMap String Script := HashMap.empty
   deriving Inhabited
 

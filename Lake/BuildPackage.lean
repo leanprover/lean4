@@ -84,7 +84,7 @@ def Package.buildDepTargetWith
 (depTargets : List PackageTarget) (self : Package) : BuildM ActiveOpaqueTarget := do
   let extraDepTarget ← self.buildExtraDepTarget
   let depTarget ← ActiveTarget.collectOpaqueList depTargets
-  extraDepTarget.mixAsync depTarget
+  extraDepTarget.mixOpaqueAsync depTarget
 
 def Package.buildTargetWithDepTargetsFor
 (mod : Name) (depTargets : List PackageTarget) (self : Package)

@@ -73,6 +73,12 @@ structure Hash where
 
 namespace Hash
 
+def ofNat (n : Nat) :=
+  mk n.toUInt64
+
+def fromFile (hashFile : FilePath) : IO (Option Hash) := do
+  (← IO.FS.readFile hashFile).toNat?.map Hash.ofNat
+
 def nil : Hash :=
   mk <| 1723 -- same as Name.anonymous
 

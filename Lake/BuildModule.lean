@@ -55,20 +55,6 @@ end ModuleTarget
 
 -- # Trace Checking
 
-/-- Check if `hash` matches that in the given file. -/
-def checkIfSameHash (hash : Hash) (file : FilePath) : IO Bool :=
-  try
-    let contents ← IO.FS.readFile file
-    match contents.toNat? with
-    | some h => Hash.mk h.toUInt64 == hash
-    | none => false
-  catch _ =>
-    false
-
-/-- Construct a no-op build task if the given condition holds, otherwise perform `build`. -/
-def skipIf [Pure m] [Pure n] (cond : Bool) (build : m (n PUnit)) : m (n PUnit) := do
-  if cond then pure (pure ()) else build
-
 def checkModuleTrace [GetMTime i] (info : i)
 (leanFile hashFile : FilePath) (contents : String) (depTrace : BuildTrace)
 : IO (Bool × BuildTrace) := do
@@ -77,12 +63,12 @@ def checkModuleTrace [GetMTime i] (info : i)
   let maxMTime := max leanMTime depTrace.mtime
   let fullHash := Hash.mix leanHash depTrace.hash
   try
-    discard <| getMTime info -- check that both files exist
-    let sameHash ← checkIfSameHash fullHash hashFile
-    let mtime := ite sameHash 0 maxMTime
-    (sameHash, ⟨fullHash, mtime⟩)
+    discard <| getMTime info -- check that both output files exist
+    if let some h ← Hash.fromFile hashFile then
+      if h == fullHash then return (true, BuildTrace.mk fullHash 0)
   catch _ =>
-    (false, ⟨fullHash, maxMTime⟩)
+    pure ()
+  return (false, BuildTrace.mk fullHash maxMTime)
 
 -- # Module Builders
 
@@ -122,7 +108,7 @@ def fetchModuleOleanTarget (pkg : Package) (moreOleanDirs : List FilePath)
   (relative to `pkg`).
 -/
 def recFetchModuleWithLocalImports (pkg : Package)
-[Monad m] [MonadLiftT BuildM m] (build : Name → FilePath → String → List α → m α)
+[Monad m] [MonadLiftT BuildM m] (build : Name → FilePath → String → List α → BuildM α)
 : RecFetch Name α m := fun mod fetch => do
   have : MonadLift BuildM m := ⟨liftM⟩
   let leanFile := pkg.modToSrc mod
@@ -139,16 +125,14 @@ def recFetchModuleTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
 (pkg : Package) (moreOleanDirs : List FilePath) (depTarget : ActiveOpaqueTarget)
 : RecFetch Name ModuleTarget m :=
   recFetchModuleWithLocalImports pkg fun mod leanFile contents importTargets => do
-    let allDepsTarget ← depTarget.mixAsync <| ←
-      ActiveTarget.collectOpaqueList (m := BuildM) importTargets
+    let allDepsTarget ← depTarget.mixOpaqueAsync <| ← ActiveTarget.collectOpaqueList importTargets
     fetchModuleTarget pkg moreOleanDirs mod leanFile contents allDepsTarget
 
 def recFetchModuleOleanTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
 (pkg : Package) (moreOleanDirs : List FilePath) (depTarget : ActiveOpaqueTarget)
 : RecFetch Name OleanTarget m :=
   recFetchModuleWithLocalImports pkg fun mod leanFile contents importTargets => do
-    let allDepsTarget ← depTarget.mixAsync <| ←
-      ActiveTarget.collectOpaqueList (m := BuildM) importTargets
+    let allDepsTarget ← depTarget.mixOpaqueAsync <| ← ActiveTarget.collectOpaqueList importTargets
     fetchModuleOleanTarget pkg moreOleanDirs mod leanFile contents allDepsTarget
 
 -- ## Definitions

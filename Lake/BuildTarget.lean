@@ -41,37 +41,7 @@ abbrev ActiveFileTarget := ActiveBuildTarget FilePath
 /-- A `BuildTarget` with no artifact information. -/
 abbrev OpaqueTarget := BuildTarget PUnit
 
-namespace OpaqueTarget
-
-abbrev nil : OpaqueTarget :=
-  Target.pure () BuildTrace.nil
-
-def mixAsync (t1 t2 : OpaqueTarget) : OpaqueTarget :=
-  Target.opaque do
-    let tk1 ← t1.materializeAsync
-    let tk2 ← t2.materializeAsync
-    bindAsync tk1 fun tr1 =>
-    bindAsync tk2 fun tr2 =>
-    pure <| pure <| mixTrace tr1 tr2
-
-instance : Add OpaqueTarget := ⟨mixAsync⟩
-
-end OpaqueTarget
-
 -- ## Active
 
 /-- An `ActiveBuildTarget` with no artifact information. -/
 abbrev ActiveOpaqueTarget := ActiveBuildTarget PUnit
-
-namespace ActiveOpaqueTarget
-
-abbrev nil : ActiveOpaqueTarget :=
-  ActiveTarget.pure () BuildTrace.nil
-
-def mixAsync (t1 t2 : ActiveOpaqueTarget) : BuildM ActiveOpaqueTarget := do
-  ActiveTarget.opaque <| ←
-    t1.bindOpaqueAsync fun tr1 =>
-    t2.bindOpaqueAsync fun tr2 =>
-    pure <| pure <| mixTrace tr1 tr2
-
-end ActiveOpaqueTarget

@@ -12,40 +12,37 @@ namespace Lake
   Construct a no-op target if the given artifact is up-to-date.
   Otherwise, construct a target with the given build task.
 -/
-def skipIfNewer
-[GetMTime a] (artifact : a) (trace : LakeTrace)
-(build : BuildM (BuildTask PUnit)) : BuildM (ActiveBuildTarget a) := do
-  ActiveTarget.mk artifact trace <| ←
-    skipIf (← checkIfNewer artifact trace.mtime) build
+def skipIfNewer [GetMTime i]
+(info : i) (depTarget : ActiveBuildTarget α)
+(build : α → BuildM PUnit) : BuildM (ActiveBuildTarget i) := do
+  ActiveTarget.mk info <| ← depTarget.mapAsync fun depInfo depTrace => do
+    unless (← checkIfNewer info depTrace.mtime) do
+      build depInfo
+    depTrace
 
 -- # Build `.o` Files
 
-def buildLeanO (oFile : FilePath)
-(cTarget : ActiveFileTarget) (leancArgs : Array String := #[])
-: BuildM (BuildTask PUnit) :=
-  cTarget >> compileLeanO oFile cTarget.artifact leancArgs
+-- def buildLeanO (oFile : FilePath)
+-- (cTarget : ActiveFileTarget) (leancArgs : Array String := #[])
+-- : BuildM (BuildTask PUnit) :=
+--   cTarget >> compileLeanO oFile cTarget.artifact leancArgs
 
 def fetchLeanOFileTarget (oFile : FilePath)
 (cTarget : ActiveFileTarget) (leancArgs : Array String := #[])
-: BuildM ActiveFileTarget :=
-  skipIfNewer oFile cTarget.trace <| buildLeanO oFile cTarget leancArgs
+: BuildM ActiveFileTarget := do
+  skipIfNewer oFile cTarget fun cFile => compileLeanO oFile cFile leancArgs
 
 -- # Build Package Lib
 
 def PackageTarget.fetchOFileTargets
 (self : PackageTarget) : BuildM (Array ActiveFileTarget) := do
-  self.moduleTargets.mapM fun (mod, target) => do
-    let oFile := self.package.modToO mod
-    fetchLeanOFileTarget (oFile) target.cTarget self.package.leancArgs
+  self.moduleTargets.mapM fun (mod, target) =>
+    fetchLeanOFileTarget (self.package.modToO mod) target.cTarget self.package.leancArgs
 
-def PackageTarget.buildStaticLib
-(self : PackageTarget) : BuildM (IOTask PUnit) := do
-  let oFileTargets ← self.fetchOFileTargets
-  let oFiles := oFileTargets.map (·.artifact)
-  oFileTargets >> compileStaticLib self.package.staticLibFile oFiles
-
-def PackageTarget.fetchStaticLibTarget (self : PackageTarget) : BuildM ActiveFileTarget := do
-  skipIfNewer self.package.staticLibFile self.trace self.buildStaticLib
+def PackageTarget.fetchStaticLibTarget (self : PackageTarget) : BuildM ActiveFileTarget :=  do
+  let oFilesTarget ← ActiveTarget.collectArray (← self.fetchOFileTargets)
+  skipIfNewer self.package.staticLibFile oFilesTarget fun oFiles =>
+    compileStaticLib self.package.staticLibFile oFiles
 
 def PackageTarget.fetchStaticLibTargets (self : PackageTarget) : BuildM (Array ActiveFileTarget) := do
   #[← self.fetchStaticLibTarget] ++ (← self.package.buildMoreLibTargets)
@@ -55,28 +52,24 @@ def Package.fetchStaticLibTarget (self : Package) : BuildM ActiveFileTarget := d
 
 def Package.fetchStaticLib (self : Package) : BuildM FilePath := do
   let target ← self.fetchStaticLibTarget
-  target.materialize
-  return target.artifact
+  discard target.materialize
+  return target.info
 
 def buildLib (pkg : Package) : IO PUnit :=
   runBuild pkg.fetchStaticLib
 
 -- # Build Package Bin
 
-def PackageTarget.buildBin
-(depTargets : List PackageTarget) (self : PackageTarget)
-: BuildM (IOTask PUnit) := do
+def PackageTarget.fetchBinTarget
+(depTargets : List PackageTarget) (self : PackageTarget) : BuildM ActiveFileTarget := do
   let oFileTargets ← self.fetchOFileTargets
   let depLibTargets ← depTargets.foldlM
     (fun ts dep => do pure <| ts ++ (← dep.fetchStaticLibTargets)) #[]
   let moreLibTargets ← self.package.buildMoreLibTargets
   let linkTargets := oFileTargets ++ depLibTargets ++ moreLibTargets
-  let linkFiles := linkTargets.map (·.artifact)
-  linkTargets >> compileLeanBin self.package.binFile linkFiles self.package.linkArgs
-
-def PackageTarget.fetchBinTarget
-(depTargets : List PackageTarget) (self : PackageTarget) : BuildM ActiveFileTarget :=
-  skipIfNewer self.package.binFile self.trace <| self.buildBin depTargets
+  let linksTarget ← ActiveTarget.collectArray linkTargets
+  skipIfNewer self.package.binFile linksTarget fun links =>
+     compileLeanBin self.package.binFile links self.package.linkArgs
 
 def Package.fetchBinTarget (self : Package) : BuildM ActiveFileTarget := do
   let depTargets ← self.buildDepTargets
@@ -85,8 +78,8 @@ def Package.fetchBinTarget (self : Package) : BuildM ActiveFileTarget := do
 
 def Package.fetchBin (self : Package) : BuildM FilePath := do
   let target ← self.fetchBinTarget
-  target.materialize
-  return target.artifact
+  discard target.materialize
+  return target.info
 
 def buildBin (pkg : Package) : IO PUnit :=
   runBuild pkg.fetchBin

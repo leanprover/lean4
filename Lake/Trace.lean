@@ -34,6 +34,9 @@ class MixTrace.{u} (t : Type u) where
 
 export MixTrace (mixTrace)
 
+def mixTraceM [MixTrace t] [Pure m] (t1 t2 : t) : m t :=
+  pure <| mixTrace t1 t2
+
 section
 variable [MixTrace t] [NilTrace t]
 

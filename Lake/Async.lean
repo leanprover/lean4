@@ -152,15 +152,22 @@ def afterTaskArray [Async m n] (tasks : Array (n α)) (act : m β) : m (n β) :=
 
 end
 
--- ## Mapping Lists/Arrays of Asynchronous Tasks
+-- ## Folding / Mapping Lists/Arrays of Asynchronous Tasks
 
 section
-variable [BindAsync m n] [Async m n]
+variable [BindAsync m n]
 
 -- ### List
 
+def foldlListAsync [Monad m] [Pure n] (f : α → β → m β) (init : β) (tasks : List (n α)) : m (n β) :=
+  go tasks init
+where
+  go
+    | [], b => pure (pure b)
+    | t::tasks, b => bindAsync t fun a => f a b >>= go tasks
+
 /-- Abstract version of `IO.mapTasks`. -/
-def mapListAsync (f : List α → m β) (tasks : List (n α)) : m (n β) :=
+def mapListAsync [Async m n] (f : List α → m β) (tasks : List (n α)) : m (n β) :=
   go tasks []
 where
   go
@@ -169,8 +176,44 @@ where
 
 -- ### Array
 
+/-- Efficient implementation of `foldlArrayAsync`. Assumes Arrays are at max `USize`. -/
+@[inline] unsafe def foldlArrayAsyncUnsafe [Monad m] [Pure n]
+(f : β → α → m β) (init : β) (tasks : Array (n α)) (start := 0) (stop := tasks.size) : m (n β) :=
+ let rec @[specialize] fold (i : USize) (stop : USize) (b : β) : m (n β) :=
+    if i == stop then
+      pure (pure init)
+    else
+      bindAsync (tasks.uget i lcProof) fun a => f b a >>= fold (i+1) stop
+  if start < stop then
+    if stop ≤ tasks.size then
+      fold (USize.ofNat start) (USize.ofNat stop) init
+    else
+      pure (pure init)
+  else
+    pure (pure init)
+
+@[implementedBy foldlArrayAsyncUnsafe]
+def foldlArrayAsync [Monad m] [Pure n]
+(f : β → α → m β) (init : β) (tasks : Array (n α)) (start := 0) (stop := tasks.size) : m (n β) :=
+  let fold (stop : Nat) (h : stop ≤ tasks.size) :=
+    let rec loop (i : Nat) (j : Nat) (b : β) : m (n β) :=
+      if hlt : j < stop then
+        match i with
+        | Nat.zero => pure (pure init)
+        | Nat.succ i' =>
+          let t := tasks.get ⟨j, Nat.lt_of_lt_of_le hlt h⟩
+          bindAsync t fun a => f b a >>= loop i' (j+1)
+      else
+        pure (pure init)
+    loop (stop - start) start init
+  if h : stop ≤ tasks.size then
+    fold stop h
+  else
+    fold tasks.size (Nat.le_refl _)
+
 /-- Efficient implementation of `mapArrayAsync`. Assumes Arrays are at max `USize`. -/
-@[inline] unsafe def mapArrayAsyncUnsafe (f : Array α → m β) (tasks : Array (n α)) (start := 0) (stop := tasks.size) : m (n β) :=
+@[inline] unsafe def mapArrayAsyncUnsafe [Async m n]
+(f : Array α → m β) (tasks : Array (n α)) (start := 0) (stop := tasks.size) : m (n β) :=
  let rec @[specialize] fold (i : USize) (stop : USize) (as : Array α) : m (n β) :=
     if i == stop then
       async (f as)
@@ -186,7 +229,8 @@ where
 
 /-- Abstract version of `IO.mapTasks` for Arrays. -/
 @[implementedBy mapArrayAsyncUnsafe]
-def mapArrayAsync (f : Array α → m β) (tasks : Array (n α)) (start := 0) (stop := tasks.size) : m (n β) :=
+def mapArrayAsync [Async m n]
+(f : Array α → m β) (tasks : Array (n α)) (start := 0) (stop := tasks.size) : m (n β) :=
   let fold (stop : Nat) (h : stop ≤ tasks.size) :=
     let rec loop (i : Nat) (j : Nat) (as : Array α) : m (n β) :=
       if hlt : j < stop then

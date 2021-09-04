@@ -12,14 +12,17 @@ namespace Lake
 def oFileTarget
 (oFile : FilePath) (srcTarget : FileTarget)
 (args : Array String := #[]) (cmd := "c++") : FileTarget :=
-  Target.mk oFile srcTarget.trace <|
-    unless (← checkIfNewer oFile srcTarget.mtime) do
-      srcTarget >> compileO oFile srcTarget.file args cmd
+  Target.mk oFile do
+    srcTarget.mapAsync fun file srcTrace => do
+      unless (← checkIfNewer oFile srcTrace.mtime) do
+        compileO oFile file args cmd
+      srcTrace
 
 def staticLibTarget
 (libFile : FilePath) (oFileTargets : Array FileTarget) : FileTarget :=
-  let linkFiles := oFileTargets.map (·.artifact)
-  let trace := mixTraceArray <| oFileTargets.map (·.trace)
-  Target.mk libFile trace do
-    unless (← checkIfNewer libFile trace.mtime) do
-      oFileTargets >> compileStaticLib libFile linkFiles
+  Target.mk libFile do
+    let oFilesTarget ← Target.collectArray oFileTargets
+    oFilesTarget.mapAsync fun files trace => do
+      unless (← checkIfNewer libFile trace.mtime) do
+        compileStaticLib libFile files
+      trace

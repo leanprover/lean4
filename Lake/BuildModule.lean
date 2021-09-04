@@ -20,36 +20,36 @@ namespace Lake
 
 abbrev OleanTarget := ActiveFileTarget
 
-structure ModuleArtifact where
+structure ModuleTargetInfo where
   oleanFile : FilePath
   cFile : FilePath
   deriving Inhabited
 
 namespace ModuleArtifact
 
-protected def getMTime (self : ModuleArtifact) : IO MTime := do
+protected def getMTime (self : ModuleTargetInfo) : IO MTime := do
   return mixTrace (← getMTime self.oleanFile) (← getMTime self.cFile)
 
-instance : GetMTime ModuleArtifact := ⟨ModuleArtifact.getMTime⟩
+instance : GetMTime ModuleTargetInfo := ⟨ModuleArtifact.getMTime⟩
 
-protected def computeHash (self : ModuleArtifact) : IO Hash := do
+protected def computeHash (self : ModuleTargetInfo) : IO Hash := do
   return mixTrace (← computeHash self.oleanFile) (← computeHash self.cFile)
 
-instance : ComputeHash ModuleArtifact := ⟨ModuleArtifact.computeHash⟩
+instance : ComputeHash ModuleTargetInfo := ⟨ModuleArtifact.computeHash⟩
 
 end ModuleArtifact
 
-abbrev ModuleTarget := ActiveBuildTarget ModuleArtifact
+abbrev ModuleTarget := ActiveBuildTarget ModuleTargetInfo
 
 namespace ModuleTarget
 
-def oleanFile (self : ModuleTarget) := self.artifact.oleanFile
+def oleanFile (self : ModuleTarget) := self.info.oleanFile
 def oleanTarget (self : ModuleTarget) : ActiveFileTarget :=
-  {self with artifact := self.oleanFile}
+  self.withInfo self.oleanFile
 
-def cFile (self : ModuleTarget) := self.artifact.cFile
+def cFile (self : ModuleTarget) := self.info.cFile
 def cTarget (self : ModuleTarget) : ActiveFileTarget :=
-  {self with artifact := self.cFile}
+  self.withInfo self.cFile
 
 end ModuleTarget
 
@@ -69,7 +69,7 @@ def checkIfSameHash (hash : Hash) (file : FilePath) : IO Bool :=
 def skipIf [Pure m] [Pure n] (cond : Bool) (build : m (n PUnit)) : m (n PUnit) := do
   if cond then pure (pure ()) else build
 
-def checkModuleTrace [GetMTime a] (artifact : a)
+def checkModuleTrace [GetMTime i] (info : i)
 (leanFile hashFile : FilePath) (contents : String) (depTrace : LakeTrace)
 : IO (Bool × LakeTrace) := do
   let leanMTime ← getMTime leanFile
@@ -77,7 +77,7 @@ def checkModuleTrace [GetMTime a] (artifact : a)
   let maxMTime := max leanMTime depTrace.mtime
   let fullHash := Hash.mix leanHash depTrace.hash
   try
-    discard <| getMTime artifact -- ensure the artifact actually exists
+    discard <| getMTime info -- check that both files exist
     let sameHash ← checkIfSameHash fullHash hashFile
     let mtime := ite sameHash 0 maxMTime
     (sameHash, ⟨fullHash, mtime⟩)
@@ -91,13 +91,15 @@ def fetchModuleTarget (pkg : Package) (moreOleanDirs : List FilePath)
 : BuildM ModuleTarget := do
   let cFile := pkg.modToC mod
   let oleanFile := pkg.modToOlean mod
-  let artifact := ModuleArtifact.mk oleanFile cFile
+  let info := ModuleTargetInfo.mk oleanFile cFile
   let hashFile := pkg.modToHashFile mod
   let oleanDirs :=  pkg.oleanDir :: moreOleanDirs
-  let (upToDate, trace) ← checkModuleTrace artifact leanFile hashFile contents depTarget.trace
-  ActiveTarget.mk artifact trace <| ← skipIf upToDate <| depTarget.andThen do
-    compileOleanAndC leanFile oleanFile cFile oleanDirs pkg.rootDir pkg.leanArgs
-    IO.FS.writeFile hashFile trace.hash.toString
+  ActiveTarget.mk info <| ← depTarget.mapOpaqueAsync fun depTrace => do
+    let (upToDate, trace) ← checkModuleTrace info leanFile hashFile contents depTrace
+    unless upToDate do
+      compileOleanAndC leanFile oleanFile cFile oleanDirs pkg.rootDir pkg.leanArgs
+      IO.FS.writeFile hashFile trace.hash.toString
+    trace
 
 def fetchModuleOleanTarget (pkg : Package) (moreOleanDirs : List FilePath)
 (mod : Name) (leanFile : FilePath) (contents : String) (depTarget : ActiveOpaqueTarget)
@@ -105,10 +107,12 @@ def fetchModuleOleanTarget (pkg : Package) (moreOleanDirs : List FilePath)
   let oleanFile := pkg.modToOlean mod
   let hashFile := pkg.modToHashFile mod
   let oleanDirs := pkg.oleanDir :: moreOleanDirs
-  let (upToDate, trace) ← checkModuleTrace oleanFile leanFile hashFile contents depTarget.trace
-  ActiveTarget.mk oleanFile trace <| ← skipIf upToDate <| depTarget.andThen do
-    compileOlean leanFile oleanFile oleanDirs pkg.rootDir pkg.leanArgs
-    IO.FS.writeFile hashFile trace.hash.toString
+  ActiveTarget.mk oleanFile <| ← depTarget.mapOpaqueAsync fun depTrace => do
+    let (upToDate, trace) ← checkModuleTrace oleanFile leanFile hashFile contents depTrace
+    unless upToDate do
+      compileOlean leanFile oleanFile oleanDirs pkg.rootDir pkg.leanArgs
+      IO.FS.writeFile hashFile trace.hash.toString
+    depTrace
 
 -- # Recursive Fetching
 
@@ -135,17 +139,17 @@ def recFetchModuleTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
 (pkg : Package) (moreOleanDirs : List FilePath) (depTarget : ActiveOpaqueTarget)
 : RecFetch Name ModuleTarget m :=
   recFetchModuleWithLocalImports pkg fun mod leanFile contents importTargets => do
-    let importTarget ← ActiveOpaqueTarget.collectList importTargets
-    let allDepTarget ← depTarget.andThenTargetAsync importTarget
-    fetchModuleTarget pkg moreOleanDirs mod leanFile contents allDepTarget
+    let allDepsTarget ← depTarget.mixAsync <| ←
+      ActiveTarget.collectOpaqueList (m := BuildM) importTargets
+    fetchModuleTarget pkg moreOleanDirs mod leanFile contents allDepsTarget
 
 def recFetchModuleOleanTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
 (pkg : Package) (moreOleanDirs : List FilePath) (depTarget : ActiveOpaqueTarget)
 : RecFetch Name OleanTarget m :=
   recFetchModuleWithLocalImports pkg fun mod leanFile contents importTargets => do
-    let importTarget ← ActiveOpaqueTarget.collectList importTargets
-    let allDepTarget ← depTarget.andThenTargetAsync importTarget
-    fetchModuleOleanTarget pkg moreOleanDirs mod leanFile contents allDepTarget
+    let allDepsTarget ← depTarget.mixAsync <| ←
+      ActiveTarget.collectOpaqueList (m := BuildM) importTargets
+    fetchModuleOleanTarget pkg moreOleanDirs mod leanFile contents allDepsTarget
 
 -- ## Definitions
 

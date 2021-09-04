@@ -52,6 +52,9 @@ end BuildMethodsRef
 -- # Build Monad Utilities
 --------------------------------------------------------------------------------
 
+-- Ideally, this instance would be in the Lean core
+instance [Pure m] : MonadLiftT Id m := ⟨pure⟩
+
 namespace BuildContext
 
 deriving instance Inhabited for BuildContext

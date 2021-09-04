@@ -22,10 +22,10 @@ abbrev PackageTarget := ActiveBuildTarget (Package × ModuleTargetMap)
 namespace PackageTarget
 
 def package (self : PackageTarget) :=
-  self.artifact.1
+  self.info.1
 
 def moduleTargetMap (self : PackageTarget) : ModuleTargetMap :=
-  self.artifact.2
+  self.info.2
 
 def moduleTargets (self : PackageTarget) : Array (Name × ModuleTarget) :=
   self.moduleTargetMap.fold (fun arr k v => arr.push (k, v)) #[]
@@ -83,8 +83,8 @@ def Package.buildRootOleanTarget
 def Package.buildDepTargetWith
 (depTargets : List PackageTarget) (self : Package) : BuildM ActiveOpaqueTarget := do
   let extraDepTarget ← self.buildExtraDepTarget
-  let depTarget ← ActiveOpaqueTarget.collectList depTargets
-  depTarget.andThenTargetAsync extraDepTarget
+  let depTarget ← ActiveTarget.collectOpaqueList depTargets
+  extraDepTarget.mixAsync depTarget
 
 def Package.buildTargetWithDepTargetsFor
 (mod : Name) (depTargets : List PackageTarget) (self : Package)
@@ -92,7 +92,7 @@ def Package.buildTargetWithDepTargetsFor
   let depTarget ← self.buildDepTargetWith depTargets
   let moreOleanDirs := depTargets.map (·.package.oleanDir)
   let (target, targetMap) ← self.buildModuleTargetDAGFor mod moreOleanDirs depTarget
-  return {target with artifact := ⟨self, targetMap⟩}
+  return target.withInfo ⟨self, targetMap⟩
 
 def Package.buildTargetWithDepTargets
 (depTargets : List PackageTarget) (self : Package) : BuildM PackageTarget :=
@@ -112,7 +112,7 @@ def Package.buildDepTargets (self : Package) : BuildM (List PackageTarget) := do
 def Package.buildDeps (self : Package) : BuildM (List Package) := do
   let deps ← solveDeps self
   let targets ← deps.mapM (·.buildTarget)
-  targets.forM (·.materialize)
+  targets.forM (discard ·.materialize)
   return deps
 
 def configure (pkg : Package) : IO Unit :=
@@ -123,7 +123,7 @@ def Package.build (self : Package) : BuildM PUnit := do
   let depTarget ← self.buildDepTargetWith depTargets
   let moreOleanDirs := depTargets.map (·.package.oleanDir)
   let target ← self.buildRootOleanTarget moreOleanDirs depTarget
-  target.materialize
+  discard target.materialize
 
 def build (pkg : Package) : IO PUnit :=
   runBuild pkg.build
@@ -139,7 +139,7 @@ def Package.buildOleanTargetsWithDeps
 
 def Package.buildOleansWithDeps
 (deps : List Package) (mods : List Name)  (self : Package) :=
-  self.buildOleanTargetsWithDeps deps mods >>= (·.forM (·.materialize))
+  self.buildOleanTargetsWithDeps deps mods >>= (·.forM (discard ·.materialize))
 
 def printPaths (pkg : Package) (imports : List String := []) : IO Unit := do
   let deps ← solveDeps pkg

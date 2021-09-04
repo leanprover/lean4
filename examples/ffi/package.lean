@@ -10,11 +10,11 @@ def buildDir := defaultBuildDir
 def addO := buildDir / cDir / "add.o"
 def cLib := buildDir / cDir / "libadd.a"
 
-def computeAddOTarget : IO FileTarget := do
-  oFileTarget addO <| ← FileTarget.compute addSrc
+def addOTarget : FileTarget := do
+  oFileTarget addO addSrc
 
-def computeCLibTarget : IO FileTarget := do
-  staticLibTarget cLib #[← computeAddOTarget]
+def cLibTarget : FileTarget := do
+  staticLibTarget cLib #[addOTarget]
 
 def package : PackageConfig := {
   name := "ffi"
@@ -24,5 +24,5 @@ def package : PackageConfig := {
   moduleRoot := `Add
   binName := "add"
   -- specify the lib as an additional target
-  buildMoreLibTargets := do #[← (← computeCLibTarget).run]
+  buildMoreLibTargets := do #[← cLibTarget.run]
 }

@@ -82,7 +82,7 @@ def Package.buildRootOleanTarget
 
 def Package.buildDepTargetWith
 (depTargets : List PackageTarget) (self : Package) : BuildM ActiveOpaqueTarget := do
-  let extraDepTarget ← self.buildExtraDepTarget
+  let extraDepTarget ← self.extraDepTarget.run
   let depTarget ← ActiveTarget.collectOpaqueList depTargets
   extraDepTarget.mixOpaqueAsync depTarget
 

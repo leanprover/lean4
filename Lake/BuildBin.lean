@@ -45,7 +45,7 @@ def PackageTarget.fetchStaticLibTarget (self : PackageTarget) : BuildM ActiveFil
     compileStaticLib self.package.staticLibFile oFiles
 
 def PackageTarget.fetchStaticLibTargets (self : PackageTarget) : BuildM (Array ActiveFileTarget) := do
-  #[← self.fetchStaticLibTarget] ++ (← self.package.buildMoreLibTargets)
+  #[← self.fetchStaticLibTarget] ++ (← self.package.moreLibTargets.mapM (·.run))
 
 def Package.fetchStaticLibTarget (self : Package) : BuildM ActiveFileTarget := do
   (← self.buildTarget).fetchStaticLibTarget
@@ -65,7 +65,7 @@ def PackageTarget.fetchBinTarget
   let oFileTargets ← self.fetchOFileTargets
   let depLibTargets ← depTargets.foldlM
     (fun ts dep => do pure <| ts ++ (← dep.fetchStaticLibTargets)) #[]
-  let moreLibTargets ← self.package.buildMoreLibTargets
+  let moreLibTargets ← self.package.moreLibTargets.mapM (·.run)
   let linkTargets := oFileTargets ++ depLibTargets ++ moreLibTargets
   let linksTarget ← ActiveTarget.collectArray linkTargets
   skipIfNewer self.package.binFile linksTarget fun links =>

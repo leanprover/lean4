@@ -49,10 +49,10 @@ structure PackageConfig where
   binName : String := name
   libDir : FilePath := defaultLibDir
   libName : String := moduleRoot.toString (escape := false)
-  buildMoreLibTargets : BuildM (Array ActiveFileTarget) := #[]
+  moreLibTargets : Array FileTarget := #[]
   depsDir : FilePath := defaultDepsDir
   dependencies : List Dependency := []
-  buildExtraDepTarget : BuildM ActiveOpaqueTarget := ActiveTarget.nil
+  extraDepTarget : OpaqueTarget := Target.nil
   scripts : HashMap String Script := HashMap.empty
   deriving Inhabited
 
@@ -86,8 +86,8 @@ def moduleRootName (self : Package) : String :=
 def dependencies (self : Package) : List Dependency :=
   self.config.dependencies
 
-def buildExtraDepTarget (self : Package) : BuildM ActiveOpaqueTarget :=
-  self.config.buildExtraDepTarget
+def extraDepTarget (self : Package) : OpaqueTarget :=
+  self.config.extraDepTarget
 
 def leanArgs (self : Package) : Array String :=
   self.config.leanArgs
@@ -167,5 +167,5 @@ def staticLibFileName (self : Package) : FilePath :=
 def staticLibFile (self : Package) : FilePath :=
   self.libDir / self.staticLibFileName
 
-def buildMoreLibTargets (self : Package) : BuildM (Array ActiveFileTarget) :=
-  self.config.buildMoreLibTargets
+def moreLibTargets (self : Package) : Array FileTarget :=
+  self.config.moreLibTargets

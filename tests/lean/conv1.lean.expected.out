@@ -29,3 +29,10 @@ p : Nat → Prop
 h : ∀ (a : Nat), p a
 x : Nat
 ⊢ 0 + x
+case h₁
+p : Prop
+x : Nat
+⊢ x = x → p
+p : Prop
+x : Nat
+⊢ (True → p) → p

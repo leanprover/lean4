@@ -9,36 +9,56 @@ import Lean.Elab.Tactic.Conv.Basic
 namespace Lean.Elab.Tactic.Conv
 open Meta
 
+private def congrApp (mvarId : MVarId) (lhs rhs : Expr) : MetaM (List MVarId) :=
+  -- TODO: add support for `[congr]` lemmas
+  lhs.withApp fun f args => do
+    let infos := (← getFunInfoNArgs f args.size).paramInfo
+    let mut r := { expr := f : Simp.Result }
+    let mut newGoals := #[]
+    let mut i := 0
+    for arg in args do
+      let addGoal ←
+        if i < infos.size && !infos[i].hasFwdDeps then
+          pure true
+        else
+          pure (← whnfD (← inferType r.expr)).isArrow
+      if addGoal then
+        let (rhs, newGoal) ← mkConvGoalFor arg
+        newGoals := newGoals.push newGoal.mvarId!
+        r ← Simp.mkCongr r { expr := rhs, proof? := newGoal }
+      else
+        r ← Simp.mkCongrFun r arg
+      i := i + 1
+    let proof ← r.getProof
+    unless (← isDefEqGuarded rhs r.expr) do
+      throwError "invalid 'congr' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr r.expr}"
+    assignExprMVar mvarId proof
+    return newGoals.toList
+
+private def congrImplies (mvarId : MVarId) : MetaM (List MVarId) := do
+  let [mvarId₁, mvarId₂, _, _] ← apply mvarId (← mkConstWithFreshMVarLevels ``implies_congr) | throwError "'apply implies_congr' unexpected result"
+  let mvarId₁ ← markAsConvGoal mvarId₁
+  let mvarId₂ ← markAsConvGoal mvarId₂
+  return [mvarId₁, mvarId₂]
+
+-- TODO: move?
+def isImplies (e : Expr) : MetaM Bool :=
+  if e.isArrow then
+    isProp e.bindingDomain! <&&> isProp e.bindingBody!
+  else
+    return false
+
 def congr (mvarId : MVarId) : MetaM (List MVarId) :=
   withMVarContext mvarId do
     let (lhs, rhs) ← getLhsRhsCore mvarId
     let lhs ← instantiateMVars lhs
     trace[Meta.debug] "{lhs} = {rhs}"
-    unless lhs.isApp do
-      throwError "invalid 'congr' conv tactic, application expected{indentExpr lhs}"
-    lhs.withApp fun f args => do
-      let infos := (← getFunInfoNArgs f args.size).paramInfo
-      let mut r := { expr := f : Simp.Result }
-      let mut newGoals := #[]
-      let mut i := 0
-      for arg in args do
-        let addGoal ←
-          if i < infos.size && !infos[i].hasFwdDeps then
-            pure true
-          else
-            pure (← whnfD (← inferType r.expr)).isArrow
-        if addGoal then
-          let (rhs, newGoal) ← mkConvGoalFor arg
-          newGoals := newGoals.push newGoal.mvarId!
-          r ← Simp.mkCongr r { expr := rhs, proof? := newGoal }
-        else
-          r ← Simp.mkCongrFun r arg
-        i := i + 1
-      let proof ← r.getProof
-      unless (← isDefEqGuarded rhs r.expr) do
-        throwError "invalid 'congr' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr r.expr}"
-      assignExprMVar mvarId proof
-      return newGoals.toList
+    if (← isImplies lhs) then
+      congrImplies mvarId
+    else if lhs.isApp then
+      congrApp mvarId lhs rhs
+    else
+      throwError "invalid 'congr' conv tactic, application or implication expected{indentExpr lhs}"
 
 @[builtinTactic Lean.Parser.Tactic.Conv.congr] def evalCongr : Tactic := fun stx => do
    replaceMainGoal (← congr (← getMainGoal))

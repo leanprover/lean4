@@ -84,3 +84,18 @@ example (p : Nat → Prop) (h : ∀ a, p a) : ∀ a, p (id (0 + a)) := by
     traceState
     rw [Nat.zero_add]
   exact h
+
+example (p : Prop) (x : Nat) : (x = x → p) → p := by
+  conv =>
+    congr
+    . traceState
+      congr
+      . simp; skip
+      . skip
+    . skip
+  traceState
+  conv =>
+    lhs
+    simp
+  intros
+  assumption

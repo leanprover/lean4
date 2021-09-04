@@ -30,12 +30,14 @@ def convert (lhs : Expr) (conv : TacticM Unit) : TacticM (Expr × Expr) := do
   try
     setGoals [newGoal.mvarId!]
     conv
-    pruneSolvedGoals
     for mvarId in (← getGoals) do
       try
         applyRefl mvarId
       catch _ =>
-        throwError "convert tactic failed, there are unsolved goal"
+        pure ()
+    pruneSolvedGoals
+    unless (← getGoals).isEmpty do
+      throwError "convert tactic failed, there are unsolved goals\n{goalsToMessageData (← getGoals)}"
     pure ()
   finally
     setGoals savedGoals
@@ -95,7 +97,7 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
 
 /-- Mark goals of the form `⊢ a = ?m ..` with the conv goal annotation -/
 def remarkAsConvGoal : TacticM Unit := do
-  let newGoals ← (← getGoals).mapM fun mvarId => withMVarContext mvarId do
+  let newGoals ← (← getUnsolvedGoals).mapM fun mvarId => withMVarContext mvarId do
     let target ← getMVarType mvarId
     if let some (_, lhs, rhs) ← matchEq? target then
       if rhs.getAppFn.isMVar then
@@ -108,7 +110,7 @@ def remarkAsConvGoal : TacticM Unit := do
 
 @[builtinTactic Lean.Parser.Tactic.Conv.nestedTacticCore] def evalNestedTacticCore : Tactic := fun stx => do
   let seq := stx[2]
-  focus do evalTactic seq; remarkAsConvGoal
+  evalTactic seq; remarkAsConvGoal
 
 @[builtinTactic Lean.Parser.Tactic.Conv.nestedTactic] def evalNestedTactic : Tactic := fun stx => do
   let seq := stx[2]

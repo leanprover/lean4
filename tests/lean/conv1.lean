@@ -104,3 +104,14 @@ example : (fun x => 0 + x) = id := by
     tactic => funext x
     traceState
     rw [Nat.zero_add]
+
+example (p : Prop) (x : Nat) : (x = x → p) → p := by
+  conv =>
+    apply implies_congr
+    . apply implies_congr
+      simp
+  traceState
+  conv =>
+    lhs
+    simp
+  intros; assumption

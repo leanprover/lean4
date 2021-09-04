@@ -66,7 +66,7 @@ example : id (fun x => 0 + x) = id := by
   conv =>
     lhs
     arg 1
-    funext y
+    ext y
     rw [Nat.zero_add]
 
 def f (x : Nat) :=

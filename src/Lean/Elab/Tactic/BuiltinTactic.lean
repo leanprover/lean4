@@ -23,7 +23,7 @@ open Meta
   evalTactic stx[1]
 
 /- Evaluate `many (group (tactic >> optional ";")) -/
-private def evalManyTacticOptSemi (stx : Syntax) : TacticM Unit := do
+def evalManyTacticOptSemi (stx : Syntax) : TacticM Unit := do
   stx.forArgsM fun seqElem => do
     evalTactic seqElem[0]
     saveTacticInfoForToken seqElem[1] -- add TacticInfo node for `;`

@@ -82,10 +82,15 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
   evalTacticSeq1Indented stx
 
 @[builtinTactic Lean.Parser.Tactic.Conv.convSeqBracketed] def evalConvSeqBracketed : Tactic := fun stx => do
-  evalTacticSeqBracketed stx
+  let initInfo ← mkInitialTacticInfo stx[0]
+  withRef stx[2] <| closeUsingOrAdmit do
+    -- save state before/after entering focus on `{`
+    withInfoContext (pure ()) initInfo
+    evalManyTacticOptSemi stx[1]
+    evalTactic (← `(tactic| allGoals (try rfl)))
 
 @[builtinTactic Lean.Parser.Tactic.Conv.nestedConv] def evalNestedConv : Tactic := fun stx => do
-  evalTacticSeqBracketed stx[0]
+  evalConvSeqBracketed stx[0]
 
 @[builtinTactic Lean.Parser.Tactic.Conv.convSeq] def evalConvSeq : Tactic := fun stx => do
   evalTactic stx[0]

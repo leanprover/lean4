@@ -90,9 +90,7 @@ example (p : Prop) (x : Nat) : (x = x → p) → p := by
     congr
     . traceState
       congr
-      . simp; skip
-      . skip
-    . skip
+      . simp
   traceState
   conv =>
     lhs

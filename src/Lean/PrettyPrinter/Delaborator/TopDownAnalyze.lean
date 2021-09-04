@@ -302,7 +302,7 @@ partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
     if !f.isConst && !f.isFVar then return false
     let args := e.getAppArgs
     let fType ← replaceLPsWithVars (← inferType e.getAppFn)
-    let ⟨mvars, bInfos, resultType⟩ ← forallMetaBoundedTelescope fType e.getAppArgs.size
+    let (mvars, bInfos, resultType) ← forallMetaBoundedTelescope fType e.getAppArgs.size
     for i in [:mvars.size] do
       if bInfos[i] == BinderInfo.instImplicit then
         inspectOutParams args[i] mvars[i]
@@ -391,7 +391,7 @@ mutual
 
     analyzeAppStaged (f : Expr) (args : Array Expr) : AnalyzeM Unit := do
       let fType ← replaceLPsWithVars (← inferType f)
-      let ⟨mvars, bInfos, resultType⟩ ← forallMetaBoundedTelescope fType args.size
+      let (mvars, bInfos, resultType) ← forallMetaBoundedTelescope fType args.size
       let rest := args.extract mvars.size args.size
       let args := args.shrink mvars.size
 
@@ -402,7 +402,7 @@ mutual
         (getPPAnalyzeTrustSubst (← getOptions) && isSubstLike (← getExpr))
         || (getPPAnalyzeTrustCoe (← getOptions) && isCoe (← getExpr))
 
-      analyzeAppStagedCore ⟨f, fType, args, mvars, bInfos, forceRegularApp⟩ |>.run' {
+      analyzeAppStagedCore { f, fType, args, mvars, bInfos, forceRegularApp } |>.run' {
         bottomUps    := mkArray args.size false,
         higherOrders := mkArray args.size false,
         provideds    := mkArray args.size false,
@@ -469,7 +469,7 @@ mutual
 
   where
     collectBottomUps := do
-      let ⟨_, _, args, mvars, bInfos, _⟩ ← read
+      let { args, mvars, bInfos, ..} ← read
       for target in [fun _ => none, fun i => some mvars[i]] do
         for i in [:args.size] do
           if bInfos[i] == BinderInfo.default then
@@ -478,12 +478,12 @@ mutual
               modify fun s => { s with bottomUps := s.bottomUps.set! i true }
 
     checkOutParams := do
-      let ⟨_, _, args, mvars, bInfos, _⟩ ← read
+      let { args, mvars, bInfos, ..} ← read
       for i in [:args.size] do
         if bInfos[i] == BinderInfo.instImplicit then inspectOutParams args[i] mvars[i]
 
     collectHigherOrders := do
-      let ⟨_, _, args, mvars, bInfos, _⟩ ← read
+      let { args, mvars, bInfos, ..} ← read
       for i in [:args.size] do
         if not (bInfos[i] == BinderInfo.implicit || bInfos[i] == BinderInfo.strictImplicit) then continue
         if not (← isHigherOrder (← inferType args[i])) then continue
@@ -496,14 +496,14 @@ mutual
         modify fun s => { s with higherOrders := s.higherOrders.set! i true }
 
     hBinOpHeuristic := do
-      let ⟨_, _, args, mvars, bInfos, _⟩ ← read
+      let { args, mvars, bInfos, ..} ← read
       if ← (isHBinOp (← getExpr) <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then
         tryUnify mvars[0] mvars[1]
 
     collectTrivialBottomUps := do
       -- motivation: prevent levels from printing in
       -- Boo.mk : {α : Type u_1} → {β : Type u_2} → α → β → Boo.{u_1, u_2} α β
-      let ⟨_, _, args, mvars, bInfos, _⟩ ← read
+      let { args, mvars, bInfos, ..} ← read
       for i in [:args.size] do
         if bInfos[i] == BinderInfo.default then
           if ← valUnknown mvars[i] <&&> isTrivialBottomUp args[i] then
@@ -511,11 +511,11 @@ mutual
             modify fun s => { s with bottomUps := s.bottomUps.set! i true }
 
     applyFunBinderHeuristic := do
-      let ⟨f, _, args, mvars, bInfos, _⟩ ← read
+      let { f, args, mvars, bInfos, .. } ← read
 
       let rec core (argIdx : Nat) (mvarType : Expr) : AnalyzeAppM Bool := do
         match ← getExpr, mvarType with
-        | Expr.lam _ _ _ .., Expr.forallE n t b .. =>
+        | Expr.lam .., Expr.forallE n t b .. =>
           let mut annotated := false
           for i in [:argIdx] do
             if ← bInfos[i] == BinderInfo.implicit <&&> valUnknown mvars[i] <&&> withNewMCtxDepth (checkpointDefEq t mvars[i]) then
@@ -537,7 +537,7 @@ mutual
 
     analyzeFn := do
       -- Now, if this is the first staging, analyze the n-ary function without expected type
-      let ⟨f, fType, _, _, _, forceRegularApp⟩ ← read
+      let {f, fType, forceRegularApp ..} ← read
       if !f.isApp then withKnowing false (forceRegularApp || !(← hasLevelMVarAtCurrDepth (← instantiateMVars fType))) $ withNaryFn (analyze (parentIsApp := true))
 
     annotateNamedArg (n : Name) : AnalyzeAppM Unit := do
@@ -545,8 +545,8 @@ mutual
       modify fun s => { s with namedArgs := s.namedArgs.push n }
 
     analyzeArg (i : Nat) := do
-      let ⟨f, _, args, mvars, bInfos, forceRegularApp⟩ ← read
-      let ⟨bottomUps, higherOrders, funBinders, _, _⟩ ← get
+      let { f, args, mvars, bInfos, forceRegularApp ..} ← read
+      let { bottomUps, higherOrders, funBinders, ..} ← get
       let arg := args[i]
       let argType ← inferType arg
 
@@ -591,7 +591,7 @@ mutual
           tryUnify mvars[i] args[i]
 
     maybeSetExplicit := do
-      let ⟨f, _, args, mvars, bInfos, forceRegularApp⟩ ← read
+      let { f, args, mvars, bInfos, forceRegularApp, ..} ← read
       if (← get).namedArgs.any nameNotRoundtrippable then
         annotateBool `pp.explicit
         for i in [:args.size] do

@@ -68,11 +68,6 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
   liftMetaTactic1 fun mvarId => do
     replaceTargetDefEq mvarId (mkLHSGoal (← mkEq lhs' rhs))
 
-@[builtinTactic Lean.Parser.Tactic.Conv.skip] def evalSkip : Tactic := fun stx => do
-   liftMetaTactic1 fun mvarId => do
-     applyRefl mvarId
-     return none
-
 @[builtinTactic Lean.Parser.Tactic.Conv.whnf] def evalWhnf : Tactic := fun stx =>
    withMainContext do
      let lhs ← getLhs
@@ -98,11 +93,9 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
 @[builtinTactic Lean.Parser.Tactic.Conv.paren] def evalParen : Tactic := fun stx =>
   evalTactic stx[1]
 
-@[builtinTactic Lean.Parser.Tactic.Conv.done] def evalDone : Tactic := fun _ =>
-  done
-
-@[builtinTactic Lean.Parser.Tactic.Conv.traceState] def evalTraceState : Tactic :=
-  Tactic.evalTraceState
+@[builtinTactic Lean.Parser.Tactic.Conv.nestedTacticCore] def evalNestedTacticCore : Tactic := fun stx => do
+  let seq := stx[2]
+  focus <| evalTactic seq
 
 @[builtinTactic Lean.Parser.Tactic.Conv.nestedTactic] def evalNestedTactic : Tactic := fun stx => do
   let seq := stx[2]

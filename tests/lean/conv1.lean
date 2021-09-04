@@ -97,3 +97,10 @@ example (p : Prop) (x : Nat) : (x = x → p) → p := by
     simp
   intros
   assumption
+
+example : (fun x => 0 + x) = id := by
+  conv =>
+    lhs
+    tactic => funext x
+    traceState
+    rw [Nat.zero_add]

@@ -36,3 +36,6 @@ x : Nat
 p : Prop
 x : Nat
 ⊢ (True → p) → p
+case h
+x : Nat
+⊢ 0 + x

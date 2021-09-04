@@ -93,9 +93,22 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
 @[builtinTactic Lean.Parser.Tactic.Conv.paren] def evalParen : Tactic := fun stx =>
   evalTactic stx[1]
 
+/-- Mark goals of the form `⊢ a = ?m ..` with the conv goal annotation -/
+def remarkAsConvGoal : TacticM Unit := do
+  let newGoals ← (← getGoals).mapM fun mvarId => withMVarContext mvarId do
+    let target ← getMVarType mvarId
+    if let some (_, lhs, rhs) ← matchEq? target then
+      if rhs.getAppFn.isMVar then
+        replaceTargetDefEq mvarId (mkLHSGoal target)
+      else
+        return mvarId
+    else
+      return mvarId
+  setGoals newGoals
+
 @[builtinTactic Lean.Parser.Tactic.Conv.nestedTacticCore] def evalNestedTacticCore : Tactic := fun stx => do
   let seq := stx[2]
-  focus <| evalTactic seq
+  focus do evalTactic seq; remarkAsConvGoal
 
 @[builtinTactic Lean.Parser.Tactic.Conv.nestedTactic] def evalNestedTactic : Tactic := fun stx => do
   let seq := stx[2]
@@ -103,7 +116,7 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
   if let some _ := isLHSGoal? target then
     liftMetaTactic1 fun mvarId =>
       replaceTargetDefEq mvarId target.mdataExpr!
-  focus <| evalTactic seq
+  focus do evalTactic seq; remarkAsConvGoal
 
 private def convTarget (conv : Syntax) : TacticM Unit := withMainContext do
    let target ← getMainTarget

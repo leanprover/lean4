@@ -63,15 +63,24 @@ def congr (mvarId : MVarId) : MetaM (List MVarId) :=
 @[builtinTactic Lean.Parser.Tactic.Conv.congr] def evalCongr : Tactic := fun stx => do
    replaceMainGoal (← congr (← getMainGoal))
 
+private def selectIdx (tacticName : String) (mvarIds : List MVarId) (i : Int) : TacticM Unit := do
+  if i >= 0 then
+    let i := i.toNat
+    if h : i < mvarIds.length then
+      for mvarId in mvarIds, j in [:mvarIds.length] do
+        if i != j then
+          applyRefl mvarId
+      replaceMainGoal [mvarIds.get i h]
+      return ()
+  throwError "invalid '{tacticName}' conv tactic, application has only {mvarIds.length} (nondependent) argument(s)"
+
 @[builtinTactic Lean.Parser.Tactic.Conv.lhs] def evalLhs : Tactic := fun stx => do
-   let [mvarId₁, mvarId₂] ← congr (← getMainGoal) | throwError "invalid 'lhs' conv tactic, binary application expected"
-   applyRefl mvarId₂
-   replaceMainGoal [mvarId₁]
+   let mvarIds ← congr (← getMainGoal)
+   selectIdx "lhs" mvarIds ((mvarIds.length : Int) - 2)
 
 @[builtinTactic Lean.Parser.Tactic.Conv.rhs] def evalRhs : Tactic := fun stx => do
-   let [mvarId₁, mvarId₂] ← congr (← getMainGoal) | throwError "invalid 'rhs' conv tactic, binary application expected"
-   applyRefl mvarId₁
-   replaceMainGoal [mvarId₂]
+   let mvarIds ← congr (← getMainGoal)
+   selectIdx "rhs" mvarIds ((mvarIds.length : Int) - 1)
 
 @[builtinTactic Lean.Parser.Tactic.Conv.arg] def evalArg : Tactic := fun stx => do
    match stx with
@@ -81,13 +90,7 @@ def congr (mvarId : MVarId) : MetaM (List MVarId) :=
         throwError "invalid 'arg' conv tactic, index must be greater than 0"
       let i := i - 1
       let mvarIds ← congr (← getMainGoal)
-      if h : i < mvarIds.length then
-        for mvarId in mvarIds, j in [:mvarIds.length] do
-          if i != j then
-            applyRefl mvarId
-        replaceMainGoal [mvarIds.get i h]
-      else
-        throwError "invalid 'arg' conv tactic, application has only {mvarIds.length} (nondependent) arguments"
+      selectIdx "arg" mvarIds i
    | _ => throwUnsupportedSyntax
 
 private def extCore (mvarId : MVarId) (userName? : Option Name) : MetaM MVarId :=

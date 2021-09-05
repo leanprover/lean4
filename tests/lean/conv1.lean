@@ -126,3 +126,28 @@ example (x y : Nat) (f : Nat → Nat → Nat) (g : Nat → Nat) (h₁ : ∀ z, f
     apply Nat.zero_add
   traceState
   simp [h₁, h₂]
+
+example (x y : Nat) (h : y = 0) : x + ((y + x) + x) = x + (x + x) := by
+  conv =>
+    lhs
+    rhs
+    lhs
+    traceState
+    rw [h, Nat.zero_add]
+
+example (p : Nat → Prop) (x y : Nat) (h : y = 0) : p (y + x) := by
+  conv => lhs
+
+example (p : Nat → Prop) (x y : Nat) (h : y = 0) : p (y + x) := by
+  conv => arg 2
+
+example (p : Prop) : p := by
+  conv => rhs
+
+example (p : Nat → Prop) (x y : Nat) (h1 : y = 0) (h2 : p x) : p (y + x) := by
+  conv =>
+    rhs
+    traceState
+    rw [h1]
+    apply Nat.zero_add
+  exact h2

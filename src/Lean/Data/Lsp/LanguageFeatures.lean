@@ -102,7 +102,7 @@ inductive SymbolKind where
   | property
   | field
   | constructor
-  | enum
+  | «enum»
   | interface
   | function
   | «variable»

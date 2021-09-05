@@ -11,8 +11,8 @@ namespace Lake
 
 -- # Build Package .o Files
 
-def PackageTarget.oFileTargets
-(self : PackageTarget) : Array FileTarget :=
+def ActivePackageTarget.oFileTargets
+(self : ActivePackageTarget) : Array FileTarget :=
   let leancArgs := self.package.leancArgs
   self.moduleTargets.map fun (mod, target) =>
     let oFile := self.package.modToO mod
@@ -21,10 +21,10 @@ def PackageTarget.oFileTargets
 
 -- # Build Package Lib
 
-protected def PackageTarget.staticLibTarget (self : PackageTarget) : FileTarget :=
+protected def ActivePackageTarget.staticLibTarget (self : ActivePackageTarget) : FileTarget :=
   staticLibTarget self.package.staticLibFile self.oFileTargets
 
-def PackageTarget.staticLibTargets (self : PackageTarget) : Array FileTarget :=
+def ActivePackageTarget.staticLibTargets (self : ActivePackageTarget) : Array FileTarget :=
   #[self.staticLibTarget] ++ self.package.moreLibTargets
 
 def Package.staticLibTarget (self : Package) : FileTarget :=
@@ -36,13 +36,13 @@ def buildLib (pkg : Package) : IO PUnit :=
 
 -- # Build Package Bin
 
-def PackageTarget.linkTargets
-(depTargets : List PackageTarget) (self : PackageTarget) : Array FileTarget :=
+def ActivePackageTarget.linkTargets
+(depTargets : List ActivePackageTarget) (self : ActivePackageTarget) : Array FileTarget :=
   depTargets.foldl (fun ts dep => ts ++ dep.staticLibTargets) <|
     self.oFileTargets ++ self.package.moreLibTargets
 
-protected def PackageTarget.binTarget
-(depTargets : List PackageTarget) (self : PackageTarget) : FileTarget :=
+protected def ActivePackageTarget.binTarget
+(depTargets : List ActivePackageTarget) (self : ActivePackageTarget) : FileTarget :=
   let linkTargets := self.linkTargets depTargets
   binTarget self.package.binFile linkTargets self.package.linkArgs "leanc"
 

@@ -17,20 +17,20 @@ namespace Lake
 
 -- # Build Target
 
-abbrev PackageTarget := ActiveBuildTarget (Package × ModuleTargetMap)
+abbrev ActivePackageTarget := ActiveBuildTarget (Package × ModuleTargetMap)
 
-namespace PackageTarget
+namespace ActivePackageTarget
 
-def package (self : PackageTarget) :=
+def package (self : ActivePackageTarget) :=
   self.info.1
 
-def moduleTargetMap (self : PackageTarget) : ModuleTargetMap :=
+def moduleTargetMap (self : ActivePackageTarget) : ModuleTargetMap :=
   self.info.2
 
-def moduleTargets (self : PackageTarget) : Array (Name × ModuleTarget) :=
+def moduleTargets (self : ActivePackageTarget) : Array (Name × ModuleTarget) :=
   self.moduleTargetMap.fold (fun arr k v => arr.push (k, v)) #[]
 
-end PackageTarget
+end ActivePackageTarget
 
 -- # Build Modules
 
@@ -81,31 +81,31 @@ def Package.buildRootOleanTarget
 -- # Configure/Build Packages
 
 def Package.buildDepTargetWith
-(depTargets : List PackageTarget) (self : Package) : BuildM ActiveOpaqueTarget := do
+(depTargets : List ActivePackageTarget) (self : Package) : BuildM ActiveOpaqueTarget := do
   let extraDepTarget ← self.extraDepTarget.run
   let depTarget ← ActiveTarget.collectOpaqueList depTargets
   extraDepTarget.mixOpaqueAsync depTarget
 
 def Package.buildTargetWithDepTargetsFor
-(mod : Name) (depTargets : List PackageTarget) (self : Package)
-: BuildM PackageTarget := do
+(mod : Name) (depTargets : List ActivePackageTarget) (self : Package)
+: BuildM ActivePackageTarget := do
   let depTarget ← self.buildDepTargetWith depTargets
   let moreOleanDirs := depTargets.map (·.package.oleanDir)
   let (target, targetMap) ← self.buildModuleTargetDAGFor mod moreOleanDirs depTarget
   return target.withInfo ⟨self, targetMap⟩
 
 def Package.buildTargetWithDepTargets
-(depTargets : List PackageTarget) (self : Package) : BuildM PackageTarget :=
+(depTargets : List ActivePackageTarget) (self : Package) : BuildM ActivePackageTarget :=
   self.buildTargetWithDepTargetsFor self.moduleRoot depTargets
 
-partial def Package.buildTarget (self : Package) : BuildM PackageTarget := do
+partial def Package.buildTarget (self : Package) : BuildM ActivePackageTarget := do
   let deps ← solveDeps self
   -- build dependencies recursively
   -- TODO: share build of common dependencies
   let depTargets ← deps.mapM (·.buildTarget)
   self.buildTargetWithDepTargets depTargets
 
-def Package.buildDepTargets (self : Package) : BuildM (List PackageTarget) := do
+def Package.buildDepTargets (self : Package) : BuildM (List ActivePackageTarget) := do
   let deps ← solveDeps self
   deps.mapM (·.buildTarget)
 

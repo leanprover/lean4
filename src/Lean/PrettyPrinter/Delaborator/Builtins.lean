@@ -248,20 +248,22 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
   guard $ fieldNames.size == stx[1].getNumArgs
   let args := e.getAppArgs
   let fieldVals := args.extract s.numParams args.size
-
   for idx in [:fieldNames.size] do
-    let fieldName := fieldNames.get! idx
+    let fieldName := fieldNames[idx]
     let fieldId := mkIdent fieldName
     let fieldPos ← nextExtraPos
     let fieldId := annotatePos fieldPos fieldId
     addFieldInfo fieldPos (s.induct ++ fieldName) fieldName fieldId fieldVals[idx]
     let field ← `(structInstField|$fieldId:ident := $(stx[1][idx]):term)
     fields := fields.push field
-  let lastField := fields.back
-  fields := fields.pop
   let tyStx ← withType do
     if (← getPPOption getPPStructureInstanceType) then delab >>= pure ∘ some else pure none
-  `({ $[$fields, ]* $lastField $[: $tyStx]? })
+  if fields.isEmpty then
+    `({ $[: $tyStx]? })
+  else
+    let lastField := fields.back
+    fields := fields.pop
+    `({ $[$fields, ]* $lastField $[: $tyStx]? })
 
 @[builtinDelab app]
 def delabAppImplicit : Delab := do

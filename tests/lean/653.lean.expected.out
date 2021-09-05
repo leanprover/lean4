@@ -1,0 +1,4 @@
+653.lean:4:14-4:32: error: function expected at
+  {  }
+term has type
+  Color ?m ?m ?m

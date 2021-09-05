@@ -126,7 +126,6 @@ def processArgs : CliM PUnit := do
       if (← getWantsHelp) then IO.println usage else
       throw <| IO.userError "expected command"
     | some cmd =>
-      let args ← collectArgs
       if (← getWantsHelp) then IO.println (help cmd) else
       command cmd
 

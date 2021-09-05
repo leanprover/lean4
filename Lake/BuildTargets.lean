@@ -13,16 +13,26 @@ def oFileTarget
 (oFile : FilePath) (srcTarget : FileTarget)
 (args : Array String := #[]) (cmd := "c++") : FileTarget :=
   Target.mk oFile do
-    srcTarget.mapAsync fun file srcTrace => do
-      unless (← checkIfNewer oFile srcTrace.mtime) do
+    srcTarget.mapAsync fun file trace => do
+      unless (← checkIfNewer oFile trace.mtime) do
         compileO oFile file args cmd
-      srcTrace
+      trace
 
 def staticLibTarget
 (libFile : FilePath) (oFileTargets : Array FileTarget) : FileTarget :=
   Target.mk libFile do
-    let oFilesTarget ← Target.collectArray oFileTargets
-    oFilesTarget.mapAsync fun files trace => do
+    let depTarget ← Target.collectArray oFileTargets
+    depTarget.mapAsync fun oFiles trace => do
       unless (← checkIfNewer libFile trace.mtime) do
-        compileStaticLib libFile files
+        compileStaticLib libFile oFiles
+      trace
+
+def binTarget
+(binFile : FilePath) (linkTargets : Array FileTarget)
+(linkArgs : Array String := #[]) (cmd := "cc") : FileTarget :=
+  Target.mk binFile do
+    let depTarget ← Target.collectArray linkTargets
+    depTarget.mapAsync fun links trace => do
+      unless (← checkIfNewer binFile trace.mtime) do
+        compileBin binFile links linkArgs cmd
       trace

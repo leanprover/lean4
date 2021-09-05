@@ -94,8 +94,8 @@ namespace Target
 def opaque (task : m (n t)) : Target PUnit m n t :=
   mk () task
 
-def active [Pure m] (info : i) (task : n t) : Target i m n t :=
-  mk info <| pure task
+def active [Pure m] (target : ActiveTarget i n t) : Target i m n t :=
+  mk target.info <| pure target.task
 
 protected def pure [Pure m] [Pure n] (info : i) (trace : t) : Target i m n t :=
   mk info <| pure <| pure trace
@@ -129,6 +129,9 @@ def materializeAsync (self : Target i m n t) : m (n t) :=
 
 def materialize [Await n m] [Bind m] (self : Target i m n t) : m t := do
   self.task >>= await
+
+def build  [Await n m] [Functor m] [Bind m] (self : Target i m n t) : m i := do
+  Functor.mapConst self.info self.materialize
 
 def mixOpaqueAsync
 [MixTrace t] [Monad m] [Pure n] [BindAsync m n]

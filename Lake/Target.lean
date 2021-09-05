@@ -49,12 +49,15 @@ protected def bindAsync [BindAsync m n] (self : ActiveTarget i n α) (f : i → 
 protected def bindOpaqueAsync [BindAsync m n] (self : ActiveTarget i n α) (f : α → m (n β)) : m (n β) :=
   bindAsync self.task f
 
+def materializeAsync [Pure m] (self : ActiveTarget i n t) : m (n t) :=
+  pure self.task
+
 def materialize [Await n m] (self : ActiveTarget i n t) : m t :=
   await self.task
 
 def mixOpaqueAsync
 [MixTrace t] [Monad m] [Pure n] [BindAsync m n]
-(t1 t2 : ActiveTarget i n t) : m (ActiveTarget PUnit n t) := do
+(t1 : ActiveTarget α n t) (t2 : ActiveTarget β n t) : m (ActiveTarget PUnit n t) := do
   ActiveTarget.opaque <| ←
     t1.bindOpaqueAsync fun tr1 =>
     t2.bindOpaqueAsync fun tr2 =>
@@ -135,7 +138,7 @@ def build  [Await n m] [Functor m] [Bind m] (self : Target i m n t) : m i := do
 
 def mixOpaqueAsync
 [MixTrace t] [Monad m] [Pure n] [BindAsync m n]
-(t1 t2 :  Target i m n t) : Target PUnit m n t :=
+(t1 :  Target α m n t) (t2 :  Target β m n t) : Target PUnit m n t :=
   Target.opaque do
     let tk1 ← t1.materializeAsync
     let tk2 ← t2.materializeAsync

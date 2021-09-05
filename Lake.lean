@@ -5,8 +5,6 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Cli
 import Lake.SearchPath
--- API file not imported elsewhere; imported here to force build
-import Lake.BuildTargets
 
 def main (args : List String) : IO UInt32 := do
   try

@@ -49,7 +49,7 @@ protected def ActivePackageTarget.binTarget
 def Package.binTarget (self : Package) : FileTarget :=
   Target.mk self.binFile do
     let depTargets ← self.buildDepTargets
-    let pkgTarget ← self.buildTargetWithDepTargets depTargets
+    let pkgTarget ← self.buildOleanAndCTargetsWithDepTargets depTargets
     pkgTarget.binTarget depTargets >>= (·.materializeAsync)
 
 def buildBin (pkg : Package) : IO PUnit :=

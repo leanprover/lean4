@@ -17,65 +17,65 @@ namespace Lake
 
 -- # Build Target
 
-abbrev ActivePackageTarget := ActiveBuildTarget (Package × ModuleTargetMap)
+abbrev ActivePackageTarget := ActiveBuildTarget (Package × NameMap ActiveOleanAndCTarget)
 
 namespace ActivePackageTarget
 
 def package (self : ActivePackageTarget) :=
   self.info.1
 
-def moduleTargetMap (self : ActivePackageTarget) : ModuleTargetMap :=
+def moduleTargetMap (self : ActivePackageTarget) : NameMap ActiveOleanAndCTarget :=
   self.info.2
 
-def moduleTargets (self : ActivePackageTarget) : Array (Name × ActiveModuleTarget) :=
+def moduleTargets (self : ActivePackageTarget) : Array (Name × ActiveOleanAndCTarget) :=
   self.moduleTargetMap.fold (fun arr k v => arr.push (k, v)) #[]
 
 end ActivePackageTarget
 
 -- # Build Modules
 
-def Package.buildModuleTargetDAGFor
-(mod : Name) (moreOleanDirs : List FilePath) (depTarget : ActiveOpaqueTarget)
-(self : Package) : BuildM (ActiveModuleTarget × ModuleTargetMap) := do
-  let fetch := recFetchModuleTargetWithLocalImports self moreOleanDirs depTarget
+def Package.buildModuleOleanAndCTargetDAG
+(mod : Name) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
+(self : Package) : BuildM (ActiveOleanAndCTarget × OleanAndCTargetMap) := do
+  let fetch := self.recFetchModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
   failOnImportCycle <| ← buildRBTop fetch mod |>.run {}
 
-def Package.buildOleanTargetDAGFor
-(mod : Name) (moreOleanDirs : List FilePath) (depTarget : ActiveOpaqueTarget)
-(self : Package) : BuildM (OleanTarget × OleanTargetMap) := do
+def Package.buildModuleOleanTargetDAG
+(mod : Name) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
+(self : Package) : BuildM (ActiveFileTarget × OleanTargetMap) := do
   let fetch := recFetchModuleOleanTargetWithLocalImports self moreOleanDirs depTarget
   failOnImportCycle <| ← buildRBTop fetch mod |>.run {}
 
-def Package.buildModuleTargetDAG
-(moreOleanDirs : List FilePath) (depTarget : ActiveOpaqueTarget) (self : Package) :=
-  self.buildModuleTargetDAGFor self.moduleRoot moreOleanDirs depTarget
+def Package.buildOleanAndCTargetDAG
+(moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x) (self : Package) :=
+  self.buildModuleOleanAndCTargetDAG self.moduleRoot moreOleanDirs depTarget
 
 def Package.buildOleanTargetDAG
-(moreOleanDirs : List FilePath) (depTarget : ActiveOpaqueTarget) (self : Package) :=
-  self.buildOleanTargetDAGFor self.moduleRoot moreOleanDirs depTarget
+(moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x) (self : Package) :=
+  self.buildModuleOleanTargetDAG self.moduleRoot moreOleanDirs depTarget
 
-def Package.buildModuleTargets
+def Package.buildOleanAndCTargets
 (mods : List Name) (moreOleanDirs : List FilePath)
-(depTarget : ActiveOpaqueTarget) (self : Package)
-: BuildM (List ActiveModuleTarget) := do
-  let fetch : ModuleTargetFetch :=
-    recFetchModuleTargetWithLocalImports self moreOleanDirs depTarget
+(depTarget : ActiveBuildTarget x) (self : Package)
+: BuildM (List ActiveOleanAndCTarget) := do
+  let fetch : OleanAndCTargetFetch :=
+    self.recFetchModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
   failOnImportCycle <| ← mods.mapM (buildRBTop fetch) |>.run' {}
 
 def Package.buildOleanTargets
 (mods : List Name) (moreOleanDirs : List FilePath)
-(depTarget : ActiveOpaqueTarget) (self : Package)
-: BuildM (List OleanTarget) := do
+(depTarget : ActiveBuildTarget x) (self : Package)
+: BuildM (List ActiveFileTarget) := do
   let fetch : OleanTargetFetch :=
-    recFetchModuleOleanTargetWithLocalImports self moreOleanDirs depTarget
+    self.recFetchModuleOleanTargetWithLocalImports moreOleanDirs depTarget
   failOnImportCycle <| ← mods.mapM (buildRBTop fetch) |>.run' {}
 
-def Package.buildRootModuleTarget
-(moreOleanDirs : List FilePath) (depTarget : ActiveOpaqueTarget) (self : Package) :=
-  self.buildModuleTargets [self.moduleRoot] moreOleanDirs depTarget |>.map (·.get! 0)
+def Package.buildRootOleanAndCTarget
+(moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x) (self : Package) :=
+  self.buildOleanAndCTargets [self.moduleRoot] moreOleanDirs depTarget |>.map (·.get! 0)
 
 def Package.buildRootOleanTarget
-(moreOleanDirs : List FilePath) (depTarget : ActiveOpaqueTarget) (self : Package) :=
+(moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x) (self : Package) :=
   self.buildOleanTargets [self.moduleRoot] moreOleanDirs depTarget |>.map (·.get! 0)
 
 -- # Configure/Build Packages
@@ -86,24 +86,30 @@ def Package.buildDepTargetWith
   let depTarget ← ActiveTarget.collectOpaqueList depTargets
   extraDepTarget.mixOpaqueAsync depTarget
 
-def Package.buildTargetWithDepTargetsFor
+def Package.buildModuleOleanAndCTargetWithDepTargets
 (mod : Name) (depTargets : List ActivePackageTarget) (self : Package)
 : BuildM ActivePackageTarget := do
   let depTarget ← self.buildDepTargetWith depTargets
   let moreOleanDirs := depTargets.map (·.package.oleanDir)
-  let (target, targetMap) ← self.buildModuleTargetDAGFor mod moreOleanDirs depTarget
+  let (target, targetMap) ← self.buildModuleOleanAndCTargetDAG mod moreOleanDirs depTarget
   return target.withInfo ⟨self, targetMap⟩
 
-def Package.buildTargetWithDepTargets
+def Package.buildOleanAndCTargetsWithDepTargets
 (depTargets : List ActivePackageTarget) (self : Package) : BuildM ActivePackageTarget :=
-  self.buildTargetWithDepTargetsFor self.moduleRoot depTargets
+  self.buildModuleOleanAndCTargetWithDepTargets self.moduleRoot depTargets
 
+/--
+  The main package build function.
+
+  It resolves the package's dependencies and recursively builds them.
+  For each package, it compiles its modules into `.olean` and `.c` files.
+-/
 partial def Package.buildTarget (self : Package) : BuildM ActivePackageTarget := do
   let deps ← solveDeps self
   -- build dependencies recursively
   -- TODO: share build of common dependencies
   let depTargets ← deps.mapM (·.buildTarget)
-  self.buildTargetWithDepTargets depTargets
+  self.buildOleanAndCTargetsWithDepTargets depTargets
 
 def Package.buildDepTargets (self : Package) : BuildM (List ActivePackageTarget) := do
   let deps ← solveDeps self
@@ -130,22 +136,22 @@ def build (pkg : Package) : IO PUnit :=
 
 -- # Print Paths
 
-def Package.buildOleanTargetsWithDeps
+def Package.buildModuleOleanTargetsWithDeps
 (deps : List Package) (mods : List Name) (self : Package)
-: BuildM (List OleanTarget) := do
+: BuildM (List ActiveFileTarget) := do
   let moreOleanDirs := deps.map (·.oleanDir)
   let depTarget ← self.buildDepTargetWith <| ← deps.mapM (·.buildTarget)
   self.buildOleanTargets mods moreOleanDirs depTarget
 
-def Package.buildOleansWithDeps
+def Package.buildModuleOleansWithDeps
 (deps : List Package) (mods : List Name)  (self : Package) :=
-  self.buildOleanTargetsWithDeps deps mods >>= (·.forM (discard ·.materialize))
+  self.buildModuleOleanTargetsWithDeps deps mods >>= (·.forM (discard ·.materialize))
 
 def printPaths (pkg : Package) (imports : List String := []) : IO Unit := do
   let deps ← solveDeps pkg
   unless imports.isEmpty do
     let imports := imports.map (·.toName)
     let localImports := imports.filter (·.getRoot == pkg.moduleRoot)
-    runBuild <| pkg.buildOleansWithDeps deps localImports
+    runBuild <| pkg.buildModuleOleansWithDeps deps localImports
   IO.println <| SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)
   IO.println <| SearchPath.toString <| pkg.srcDir :: deps.map (·.srcDir)

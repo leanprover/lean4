@@ -18,40 +18,38 @@ namespace Lake
 
 -- # Targets
 
-abbrev OleanTarget := ActiveFileTarget
-
-structure ModuleTargetInfo where
+structure OleanAndC where
   oleanFile : FilePath
   cFile : FilePath
   deriving Inhabited
 
-namespace ModuleArtifact
+namespace OleanAndC
 
-protected def getMTime (self : ModuleTargetInfo) : IO MTime := do
+protected def getMTime (self : OleanAndC) : IO MTime := do
   return mixTrace (← getMTime self.oleanFile) (← getMTime self.cFile)
 
-instance : GetMTime ModuleTargetInfo := ⟨ModuleArtifact.getMTime⟩
+instance : GetMTime OleanAndC := ⟨OleanAndC.getMTime⟩
 
-protected def computeHash (self : ModuleTargetInfo) : IO Hash := do
+protected def computeHash (self : OleanAndC) : IO Hash := do
   return mixTrace (← computeHash self.oleanFile) (← computeHash self.cFile)
 
-instance : ComputeHash ModuleTargetInfo := ⟨ModuleArtifact.computeHash⟩
+instance : ComputeHash OleanAndC := ⟨OleanAndC.computeHash⟩
 
-end ModuleArtifact
+end OleanAndC
 
-abbrev ActiveModuleTarget := ActiveBuildTarget ModuleTargetInfo
+abbrev ActiveOleanAndCTarget := ActiveBuildTarget OleanAndC
 
-namespace ActiveModuleTarget
+namespace ActiveOleanAndCTarget
 
-def oleanFile (self : ActiveModuleTarget) := self.info.oleanFile
-def oleanTarget (self : ActiveModuleTarget) : ActiveFileTarget :=
+def oleanFile (self : ActiveOleanAndCTarget) := self.info.oleanFile
+def oleanTarget (self : ActiveOleanAndCTarget) : ActiveFileTarget :=
   self.withInfo self.oleanFile
 
-def cFile (self : ActiveModuleTarget) := self.info.cFile
-def cTarget (self : ActiveModuleTarget) : ActiveFileTarget :=
+def cFile (self : ActiveOleanAndCTarget) := self.info.cFile
+def cTarget (self : ActiveOleanAndCTarget) : ActiveFileTarget :=
   self.withInfo self.cFile
 
-end ActiveModuleTarget
+end ActiveOleanAndCTarget
 
 -- # Trace Checking
 
@@ -72,38 +70,51 @@ def checkModuleTrace [GetMTime i] (info : i)
 
 -- # Module Builders
 
-def mkModuleTarget [GetMTime i] [ComputeHash i] (info : i)
-(leanFile hashFile : FilePath) (contents : String) (depTarget : ActiveOpaqueTarget)
-(build : BuildM PUnit) : BuildM (ActiveBuildTarget i) := do
-  ActiveTarget.mk info <| ← depTarget.mapOpaqueAsync fun depTrace => do
+def moduleTarget [GetMTime i] [ComputeHash i] (info : i)
+(leanFile hashFile : FilePath) (contents : String) (depTarget : BuildTarget x)
+(build : BuildM PUnit) : BuildTarget i :=
+  Target.mk info <| depTarget.mapOpaqueAsync fun depTrace => do
     let (upToDate, trace) ← checkModuleTrace info leanFile hashFile contents depTrace
     if upToDate then
       BuildTrace.fromHash <| (← computeHash info).mix depTrace.hash
     else
       build
       IO.FS.writeFile hashFile trace.hash.toString
-       let newTrace : BuildTrace ← liftM <| computeTrace info
+      let newTrace : BuildTrace ← liftM <| computeTrace info
       newTrace.mix depTrace
 
-def fetchModuleTarget (pkg : Package) (moreOleanDirs : List FilePath)
-(mod : Name) (leanFile : FilePath) (contents : String) (depTarget : ActiveOpaqueTarget)
-: BuildM ActiveModuleTarget := do
-  let cFile := pkg.modToC mod
-  let oleanFile := pkg.modToOlean mod
-  let info := ModuleTargetInfo.mk oleanFile cFile
-  let hashFile := pkg.modToHashFile mod
-  let oleanDirs :=  pkg.oleanDir :: moreOleanDirs
-  mkModuleTarget  info leanFile hashFile contents depTarget <|
-    compileOleanAndC leanFile oleanFile cFile oleanDirs pkg.rootDir pkg.leanArgs
+def moduleOleanAndCTarget
+(leanFile cFile oleanFile hashFile : FilePath)
+(oleanDirs : List FilePath) (contents : String)  (depTarget : BuildTarget x)
+(rootDir : FilePath := ".") (leanArgs : Array String := #[]) :=
+  moduleTarget (OleanAndC.mk oleanFile cFile) leanFile hashFile contents depTarget <|
+    compileOleanAndC leanFile oleanFile cFile oleanDirs rootDir leanArgs
 
-def fetchModuleOleanTarget (pkg : Package) (moreOleanDirs : List FilePath)
-(mod : Name) (leanFile : FilePath) (contents : String) (depTarget : ActiveOpaqueTarget)
-: BuildM OleanTarget := do
-  let oleanFile := pkg.modToOlean mod
-  let hashFile := pkg.modToHashFile mod
-  let oleanDirs := pkg.oleanDir :: moreOleanDirs
-  mkModuleTarget oleanFile leanFile hashFile contents depTarget <|
-    compileOlean leanFile oleanFile oleanDirs pkg.rootDir pkg.leanArgs
+def moduleOleanTarget
+(leanFile oleanFile hashFile : FilePath)
+(oleanDirs : List FilePath) (contents : String) (depTarget : BuildTarget x)
+(rootDir : FilePath := ".") (leanArgs : Array String := #[]) :=
+  moduleTarget oleanFile leanFile hashFile contents depTarget <|
+    compileOlean leanFile oleanFile oleanDirs rootDir leanArgs
+
+protected def Package.moduleOleanAndCTarget
+(self : Package) (moreOleanDirs : List FilePath) (mod : Name)
+(leanFile : FilePath) (contents : String) (depTarget : BuildTarget x) :=
+  let cFile := self.modToC mod
+  let oleanFile := self.modToOlean mod
+  let hashFile := self.modToHashFile mod
+  let oleanDirs :=  self.oleanDir :: moreOleanDirs
+  moduleOleanAndCTarget leanFile cFile oleanFile hashFile oleanDirs contents
+    depTarget self.rootDir self.leanArgs
+
+protected def Package.moduleOleanTarget
+(self : Package) (moreOleanDirs : List FilePath) (mod : Name)
+(leanFile : FilePath) (contents : String) (depTarget : BuildTarget x) :=
+  let oleanFile := self.modToOlean mod
+  let hashFile := self.modToHashFile mod
+  let oleanDirs := self.oleanDir :: moreOleanDirs
+  moduleOleanTarget leanFile oleanFile hashFile oleanDirs contents depTarget
+    self.rootDir self.leanArgs
 
 -- # Recursive Fetching
 
@@ -126,32 +137,34 @@ def recFetchModuleWithLocalImports (pkg : Package)
   let importTargets ← imports.mapM fetch
   build mod leanFile contents importTargets
 
-def recFetchModuleTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
-(pkg : Package) (moreOleanDirs : List FilePath) (depTarget : ActiveOpaqueTarget)
-: RecFetch Name ActiveModuleTarget m :=
-  recFetchModuleWithLocalImports pkg fun mod leanFile contents importTargets => do
-    let allDepsTarget ← depTarget.mixOpaqueAsync <| ← ActiveTarget.collectOpaqueList importTargets
-    fetchModuleTarget pkg moreOleanDirs mod leanFile contents allDepsTarget
+def Package.recFetchModuleOleanAndCTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
+(self : Package) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
+: RecFetch Name ActiveOleanAndCTarget m :=
+  recFetchModuleWithLocalImports self fun mod leanFile contents importTargets => do
+    let allDepsTarget := Target.active <| ←
+      depTarget.mixOpaqueAsync <| ← ActiveTarget.collectOpaqueList importTargets
+    self.moduleOleanAndCTarget moreOleanDirs mod leanFile contents allDepsTarget |>.run
 
-def recFetchModuleOleanTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
-(pkg : Package) (moreOleanDirs : List FilePath) (depTarget : ActiveOpaqueTarget)
-: RecFetch Name OleanTarget m :=
-  recFetchModuleWithLocalImports pkg fun mod leanFile contents importTargets => do
-    let allDepsTarget ← depTarget.mixOpaqueAsync <| ← ActiveTarget.collectOpaqueList importTargets
-    fetchModuleOleanTarget pkg moreOleanDirs mod leanFile contents allDepsTarget
+def  Package.recFetchModuleOleanTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
+(self : Package) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
+: RecFetch Name ActiveFileTarget m :=
+  recFetchModuleWithLocalImports self fun mod leanFile contents importTargets => do
+    let allDepsTarget := Target.active <| ←
+      depTarget.mixOpaqueAsync <| ← ActiveTarget.collectOpaqueList importTargets
+    self.moduleOleanTarget moreOleanDirs mod leanFile contents allDepsTarget |>.run
 
 -- ## Definitions
 
 abbrev ModuleFetchM (α) :=
-  -- equivalent to `RBTopT (cmp := Name.quickCmp) Name ActiveModuleTarget BuildM`.
+  -- equivalent to `RBTopT (cmp := Name.quickCmp) Name α BuildM`.
   -- phrased this way to use `NameMap`
   EStateT (List Name) (NameMap α) BuildM
 
 abbrev ModuleFetch (α) :=
   RecFetch Name α (ModuleFetchM α)
 
-abbrev OleanTargetFetch := ModuleFetch OleanTarget
-abbrev ModuleTargetFetch := ModuleFetch ActiveModuleTarget
+abbrev OleanTargetFetch := ModuleFetch ActiveFileTarget
+abbrev OleanAndCTargetFetch := ModuleFetch ActiveOleanAndCTarget
 
-abbrev OleanTargetMap := NameMap OleanTarget
-abbrev ModuleTargetMap := NameMap ActiveModuleTarget
+abbrev OleanTargetMap := NameMap ActiveFileTarget
+abbrev OleanAndCTargetMap := NameMap ActiveOleanAndCTarget

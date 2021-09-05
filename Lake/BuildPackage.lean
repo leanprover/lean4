@@ -86,7 +86,7 @@ def Package.buildDepTargetWith
   let depTarget ← ActiveTarget.collectOpaqueList depTargets
   extraDepTarget.mixOpaqueAsync depTarget
 
-def Package.buildModuleOleanAndCTargetWithDepTargets
+def Package.buildModuleOleanAndCTargetsWithDepTargets
 (mod : Name) (depTargets : List ActivePackageTarget) (self : Package)
 : BuildM ActivePackageTarget := do
   let depTarget ← self.buildDepTargetWith depTargets
@@ -96,7 +96,7 @@ def Package.buildModuleOleanAndCTargetWithDepTargets
 
 def Package.buildOleanAndCTargetsWithDepTargets
 (depTargets : List ActivePackageTarget) (self : Package) : BuildM ActivePackageTarget :=
-  self.buildModuleOleanAndCTargetWithDepTargets self.moduleRoot depTargets
+  self.buildModuleOleanAndCTargetsWithDepTargets self.moduleRoot depTargets
 
 /--
   The main package build function.

@@ -45,6 +45,7 @@ structure PackageConfig where
   buildDir : FilePath := defaultBuildDir
   oleanDir : FilePath := defaultOleanDir
   irDir : FilePath := defaultIrDir
+  binRoot : Name := moduleRoot
   binDir : FilePath := defaultBinDir
   binName : String := name
   libDir : FilePath := defaultLibDir
@@ -142,6 +143,9 @@ def oDir (self : Package) : FilePath :=
 
 def modToO (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.oDir mod "o"
+
+def binRoot (self : Package) : Name :=
+  self.config.binRoot
 
 def binDir (self : Package) : FilePath :=
   self.buildDir / self.config.binDir

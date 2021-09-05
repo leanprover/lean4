@@ -65,12 +65,25 @@ def checkModuleTrace [GetMTime i] (info : i)
   try
     discard <| getMTime info -- check that both output files exist
     if let some h ← Hash.fromFile hashFile then
-      if h == fullHash then return (true, BuildTrace.mk fullHash 0)
+      if h == fullHash then return (true, BuildTrace.fromHash fullHash)
   catch _ =>
     pure ()
   return (false, BuildTrace.mk fullHash maxMTime)
 
 -- # Module Builders
+
+def mkModuleTarget [GetMTime i] [ComputeHash i] (info : i)
+(leanFile hashFile : FilePath) (contents : String) (depTarget : ActiveOpaqueTarget)
+(build : BuildM PUnit) : BuildM (ActiveBuildTarget i) := do
+  ActiveTarget.mk info <| ← depTarget.mapOpaqueAsync fun depTrace => do
+    let (upToDate, trace) ← checkModuleTrace info leanFile hashFile contents depTrace
+    if upToDate then
+      BuildTrace.fromHash <| (← computeHash info).mix depTrace.hash
+    else
+      build
+      IO.FS.writeFile hashFile trace.hash.toString
+       let newTrace : BuildTrace ← liftM <| computeTrace info
+      newTrace.mix depTrace
 
 def fetchModuleTarget (pkg : Package) (moreOleanDirs : List FilePath)
 (mod : Name) (leanFile : FilePath) (contents : String) (depTarget : ActiveOpaqueTarget)
@@ -80,12 +93,8 @@ def fetchModuleTarget (pkg : Package) (moreOleanDirs : List FilePath)
   let info := ModuleTargetInfo.mk oleanFile cFile
   let hashFile := pkg.modToHashFile mod
   let oleanDirs :=  pkg.oleanDir :: moreOleanDirs
-  ActiveTarget.mk info <| ← depTarget.mapOpaqueAsync fun depTrace => do
-    let (upToDate, trace) ← checkModuleTrace info leanFile hashFile contents depTrace
-    unless upToDate do
-      compileOleanAndC leanFile oleanFile cFile oleanDirs pkg.rootDir pkg.leanArgs
-      IO.FS.writeFile hashFile trace.hash.toString
-    trace
+  mkModuleTarget  info leanFile hashFile contents depTarget <|
+    compileOleanAndC leanFile oleanFile cFile oleanDirs pkg.rootDir pkg.leanArgs
 
 def fetchModuleOleanTarget (pkg : Package) (moreOleanDirs : List FilePath)
 (mod : Name) (leanFile : FilePath) (contents : String) (depTarget : ActiveOpaqueTarget)
@@ -93,12 +102,8 @@ def fetchModuleOleanTarget (pkg : Package) (moreOleanDirs : List FilePath)
   let oleanFile := pkg.modToOlean mod
   let hashFile := pkg.modToHashFile mod
   let oleanDirs := pkg.oleanDir :: moreOleanDirs
-  ActiveTarget.mk oleanFile <| ← depTarget.mapOpaqueAsync fun depTrace => do
-    let (upToDate, trace) ← checkModuleTrace oleanFile leanFile hashFile contents depTrace
-    unless upToDate do
-      compileOlean leanFile oleanFile oleanDirs pkg.rootDir pkg.leanArgs
-      IO.FS.writeFile hashFile trace.hash.toString
-    depTrace
+  mkModuleTarget oleanFile leanFile hashFile contents depTarget <|
+    compileOlean leanFile oleanFile oleanDirs pkg.rootDir pkg.leanArgs
 
 -- # Recursive Fetching
 

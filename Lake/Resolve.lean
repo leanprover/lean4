@@ -84,5 +84,5 @@ def solveDepsCore (pkg : Package) : (maxDepth : Nat) → Solver Unit
 -/
 def solveDeps (pkg : Package) : IO (List Package) := do
   let solver := solveDepsCore pkg 1024
-  let (_, assg) ← solver.run (Assignment.empty.insert pkg.name ⟨pkg.dir, pkg.config⟩)
+  let (_, assg) ← solver.run <| Assignment.empty.insert pkg.name pkg
   assg.reverse.tail!.mapM (·.2)

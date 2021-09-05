@@ -86,3 +86,20 @@ example (h₁ : f x = x + 1) (h₂ : x > 0) : f x = f x := by
     rhs
     simp [f, h₂]
   exact h₁
+
+example (x y : Nat) (f : Nat → Nat → Nat) (g : Nat → Nat) (h₁ : ∀ z, f z z = z) (h₂ : ∀ x y, f (g x) (g y) = y) : f (g (0 + y)) (f (g x) (g (x + 0))) = x := by
+  conv in _ + 0 => apply Nat.add_zero
+  traceState
+  conv in 0 + _ => apply Nat.zero_add
+  traceState
+  simp [h₁, h₂]
+
+example (x y : Nat) (f : Nat → Nat → Nat) (g : Nat → Nat)
+        (h₁ : ∀ z, f z z = z) (h₂ : ∀ x y, f (g x) (g y) = y)
+        (h₃ : f (g (0 + x)) (g x) = 0)
+ : g x = 0 := by
+  conv at h₃ in 0 + x => apply Nat.zero_add
+  traceState
+  conv at h₃ => lhs; apply h₁
+  traceState
+  assumption

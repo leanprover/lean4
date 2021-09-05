@@ -134,10 +134,9 @@ private def convLocalDecl (conv : Syntax) (hUserName : Name) : TacticM Unit := w
 
 @[builtinTactic Lean.Parser.Tactic.Conv.conv] def evalConv : Tactic := fun stx => do
   match stx with
-  | `(tactic| conv $[at $loc?]? $[in $e?]? => $code) =>
-    -- TODO: implement `at` support
-    unless e?.isNone do
-      throwError "'in' modifier has not been implemented yet"
+  | `(tactic| conv $[at $loc?]? in $p => $code) =>
+    evalTactic (← `(tactic| conv $[at $loc?]? => pattern $p; ($code:convSeq)))
+  | `(tactic| conv $[at $loc?]? => $code) =>
     if let some loc := loc? then
       convLocalDecl code loc.getId
     else

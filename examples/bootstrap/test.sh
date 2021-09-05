@@ -1,3 +1,5 @@
+set -e
+
 ./clean.sh
 ./package.sh
-./build/bin/lake help
+./build/bin/lake --version

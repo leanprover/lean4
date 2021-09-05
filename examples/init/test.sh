@@ -1,3 +1,5 @@
+set -ex
+
 ./clean.sh
 
 # Test `new`
@@ -17,4 +19,3 @@ cd helloInit
 
 ../../../build/bin/lake build-bin
 ./build/bin/helloInit
-cd ..

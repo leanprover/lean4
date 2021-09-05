@@ -46,7 +46,7 @@ axiom div_self (x : Nat) : x ≠ 0 → x / x = 1
 example (h : x ≠ 0) : x / x + x = x.succ := by
   conv =>
     lhs
-    arg 2
+    arg 1
     rw [div_self]
     skip
     tactic => assumption

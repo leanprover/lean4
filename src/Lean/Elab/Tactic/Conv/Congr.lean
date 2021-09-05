@@ -19,7 +19,7 @@ private def congrApp (mvarId : MVarId) (lhs rhs : Expr) : MetaM (List MVarId) :=
     for arg in args do
       let addGoal ←
         if i < infos.size && !infos[i].hasFwdDeps then
-          pure true
+          pure infos[i].binderInfo.isExplicit
         else
           pure (← whnfD (← inferType r.expr)).isArrow
       if addGoal then

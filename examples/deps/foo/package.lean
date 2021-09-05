@@ -1,4 +1,4 @@
-import Lake.Build
+import Lake.Package
 
 open Lake System
 

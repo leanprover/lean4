@@ -11,9 +11,9 @@ namespace Lake
 -- # Trace Abstraction
 --------------------------------------------------------------------------------
 
-class ComputeTrace.{u,v,w} (a : Type u) (m : outParam $ Type v → Type w) (t : Type v) where
-  /-- Compute the trace of a given artifact using information from the monadic context. -/
-  computeTrace : a → m t
+class ComputeTrace.{u,v,w} (i : Type u) (m : outParam $ Type v → Type w) (t : Type v) where
+  /-- Compute the trace of some info using information from the monadic context. -/
+  computeTrace : i → m t
 
 export ComputeTrace (computeTrace)
 
@@ -46,17 +46,17 @@ def mixTraceList (traces : List t) : t :=
 def mixTraceArray (traces : Array t) : t :=
   traces.foldl mixTrace nilTrace
 
-variable [ComputeTrace a m t] [Monad m]
+variable [ComputeTrace i m t] [Monad m]
 
-def computeListTrace  (artifacts : List a) : m t :=
+def computeListTrace  (artifacts : List i) : m t :=
   mixTraceList <$> artifacts.mapM computeTrace
 
-instance : ComputeTrace (List a) m t := ⟨computeListTrace⟩
+instance : ComputeTrace (List i) m t := ⟨computeListTrace⟩
 
-def computeArrayTrace (artifacts : Array a) : m t :=
+def computeArrayTrace (artifacts : Array i) : m t :=
   mixTraceArray <$> artifacts.mapM computeTrace
 
-instance : ComputeTrace (Array a) m t := ⟨computeArrayTrace⟩
+instance : ComputeTrace (Array i) m t := ⟨computeArrayTrace⟩
 end
 
 --------------------------------------------------------------------------------
@@ -147,9 +147,9 @@ def getFileMTime (file : FilePath) : IO MTime := do
 
 instance : GetMTime FilePath := ⟨getFileMTime⟩
 
-/-- Check if the artifact's `MTIme` is at least `depMTime`. -/
-def checkIfNewer [GetMTime a] (artifact : a) (depMTime : MTime) : IO Bool := do
-  try (← getMTime artifact) >= depMTime catch _ => false
+/-- Check if the info's `MTIme` is at least `depMTime`. -/
+def checkIfNewer [GetMTime i] (info : i) (depMTime : MTime) : IO Bool := do
+  try (← getMTime info) >= depMTime catch _ => false
 
 --------------------------------------------------------------------------------
 -- # Lake Trace (Hash + MTIme)
@@ -159,8 +159,15 @@ def checkIfNewer [GetMTime a] (artifact : a) (depMTime : MTime) : IO Bool := do
 structure BuildTrace where
   hash : Hash
   mtime : MTime
+  deriving Repr
 
 namespace BuildTrace
+
+def withHash (hash : Hash) (self : BuildTrace) : BuildTrace :=
+  {self with hash}
+
+def withMTime (mtime : MTime) (self : BuildTrace) : BuildTrace :=
+  {self with mtime}
 
 def fromHash (hash : Hash) : BuildTrace :=
   mk hash 0
@@ -173,10 +180,10 @@ def nil : BuildTrace :=
 
 instance : NilTrace BuildTrace := ⟨nil⟩
 
-def compute [ComputeHash a] [GetMTime a] (artifact : a) : IO BuildTrace := do
-  mk (← computeHash artifact) (← getMTime artifact)
+def compute [ComputeHash i] [GetMTime i] (info : i) : IO BuildTrace := do
+  mk (← computeHash info) (← getMTime info)
 
-instance [ComputeHash a] [GetMTime a] : ComputeTrace a IO BuildTrace := ⟨compute⟩
+instance [ComputeHash i] [GetMTime i] : ComputeTrace i IO BuildTrace := ⟨compute⟩
 
 def mix (t1 t2 : BuildTrace) : BuildTrace :=
   mk (Hash.mix t1.hash t2.hash) (max t1.mtime t2.mtime)

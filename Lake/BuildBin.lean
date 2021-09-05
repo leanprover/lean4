@@ -10,7 +10,7 @@ namespace Lake
 
 /--
   Construct a no-op target if the given artifact is up-to-date.
-  Otherwise, construct a target with the given build task.
+  Otherwise, construct a target with the given build action.
 -/
 def skipIfNewer [GetMTime i]
 (info : i) (depTarget : ActiveBuildTarget α)
@@ -21,11 +21,6 @@ def skipIfNewer [GetMTime i]
     depTrace
 
 -- # Build `.o` Files
-
--- def buildLeanO (oFile : FilePath)
--- (cTarget : ActiveFileTarget) (leancArgs : Array String := #[])
--- : BuildM (BuildTask PUnit) :=
---   cTarget >> compileLeanO oFile cTarget.artifact leancArgs
 
 def fetchLeanOFileTarget (oFile : FilePath)
 (cTarget : ActiveFileTarget) (leancArgs : Array String := #[])

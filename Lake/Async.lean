@@ -181,7 +181,7 @@ where
 (f : β → α → m β) (init : β) (tasks : Array (n α)) (start := 0) (stop := tasks.size) : m (n β) :=
  let rec @[specialize] fold (i : USize) (stop : USize) (b : β) : m (n β) :=
     if i == stop then
-      pure (pure init)
+      pure (pure b)
     else
       bindAsync (tasks.uget i lcProof) fun a => f b a >>= fold (i+1) stop
   if start < stop then
@@ -199,12 +199,12 @@ def foldlArrayAsync [Monad m] [Pure n]
     let rec loop (i : Nat) (j : Nat) (b : β) : m (n β) :=
       if hlt : j < stop then
         match i with
-        | Nat.zero => pure (pure init)
+        | Nat.zero => pure (pure b)
         | Nat.succ i' =>
           let t := tasks.get ⟨j, Nat.lt_of_lt_of_le hlt h⟩
           bindAsync t fun a => f b a >>= loop i' (j+1)
       else
-        pure (pure init)
+        pure (pure b)
     loop (stop - start) start init
   if h : stop ≤ tasks.size then
     fold stop h

@@ -39,19 +39,19 @@ instance : ComputeHash ModuleTargetInfo := ⟨ModuleArtifact.computeHash⟩
 
 end ModuleArtifact
 
-abbrev ModuleTarget := ActiveBuildTarget ModuleTargetInfo
+abbrev ActiveModuleTarget := ActiveBuildTarget ModuleTargetInfo
 
-namespace ModuleTarget
+namespace ActiveModuleTarget
 
-def oleanFile (self : ModuleTarget) := self.info.oleanFile
-def oleanTarget (self : ModuleTarget) : ActiveFileTarget :=
+def oleanFile (self : ActiveModuleTarget) := self.info.oleanFile
+def oleanTarget (self : ActiveModuleTarget) : ActiveFileTarget :=
   self.withInfo self.oleanFile
 
-def cFile (self : ModuleTarget) := self.info.cFile
-def cTarget (self : ModuleTarget) : ActiveFileTarget :=
+def cFile (self : ActiveModuleTarget) := self.info.cFile
+def cTarget (self : ActiveModuleTarget) : ActiveFileTarget :=
   self.withInfo self.cFile
 
-end ModuleTarget
+end ActiveModuleTarget
 
 -- # Trace Checking
 
@@ -87,7 +87,7 @@ def mkModuleTarget [GetMTime i] [ComputeHash i] (info : i)
 
 def fetchModuleTarget (pkg : Package) (moreOleanDirs : List FilePath)
 (mod : Name) (leanFile : FilePath) (contents : String) (depTarget : ActiveOpaqueTarget)
-: BuildM ModuleTarget := do
+: BuildM ActiveModuleTarget := do
   let cFile := pkg.modToC mod
   let oleanFile := pkg.modToOlean mod
   let info := ModuleTargetInfo.mk oleanFile cFile
@@ -128,7 +128,7 @@ def recFetchModuleWithLocalImports (pkg : Package)
 
 def recFetchModuleTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
 (pkg : Package) (moreOleanDirs : List FilePath) (depTarget : ActiveOpaqueTarget)
-: RecFetch Name ModuleTarget m :=
+: RecFetch Name ActiveModuleTarget m :=
   recFetchModuleWithLocalImports pkg fun mod leanFile contents importTargets => do
     let allDepsTarget ← depTarget.mixOpaqueAsync <| ← ActiveTarget.collectOpaqueList importTargets
     fetchModuleTarget pkg moreOleanDirs mod leanFile contents allDepsTarget
@@ -143,7 +143,7 @@ def recFetchModuleOleanTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
 -- ## Definitions
 
 abbrev ModuleFetchM (α) :=
-  -- equivalent to `RBTopT (cmp := Name.quickCmp) Name ModuleTarget BuildM`.
+  -- equivalent to `RBTopT (cmp := Name.quickCmp) Name ActiveModuleTarget BuildM`.
   -- phrased this way to use `NameMap`
   EStateT (List Name) (NameMap α) BuildM
 
@@ -151,7 +151,7 @@ abbrev ModuleFetch (α) :=
   RecFetch Name α (ModuleFetchM α)
 
 abbrev OleanTargetFetch := ModuleFetch OleanTarget
-abbrev ModuleTargetFetch := ModuleFetch ModuleTarget
+abbrev ModuleTargetFetch := ModuleFetch ActiveModuleTarget
 
 abbrev OleanTargetMap := NameMap OleanTarget
-abbrev ModuleTargetMap := NameMap ModuleTarget
+abbrev ModuleTargetMap := NameMap ActiveModuleTarget

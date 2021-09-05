@@ -27,7 +27,7 @@ def package (self : ActivePackageTarget) :=
 def moduleTargetMap (self : ActivePackageTarget) : ModuleTargetMap :=
   self.info.2
 
-def moduleTargets (self : ActivePackageTarget) : Array (Name × ModuleTarget) :=
+def moduleTargets (self : ActivePackageTarget) : Array (Name × ActiveModuleTarget) :=
   self.moduleTargetMap.fold (fun arr k v => arr.push (k, v)) #[]
 
 end ActivePackageTarget
@@ -36,7 +36,7 @@ end ActivePackageTarget
 
 def Package.buildModuleTargetDAGFor
 (mod : Name) (moreOleanDirs : List FilePath) (depTarget : ActiveOpaqueTarget)
-(self : Package) : BuildM (ModuleTarget × ModuleTargetMap) := do
+(self : Package) : BuildM (ActiveModuleTarget × ModuleTargetMap) := do
   let fetch := recFetchModuleTargetWithLocalImports self moreOleanDirs depTarget
   failOnImportCycle <| ← buildRBTop fetch mod |>.run {}
 
@@ -57,7 +57,7 @@ def Package.buildOleanTargetDAG
 def Package.buildModuleTargets
 (mods : List Name) (moreOleanDirs : List FilePath)
 (depTarget : ActiveOpaqueTarget) (self : Package)
-: BuildM (List ModuleTarget) := do
+: BuildM (List ActiveModuleTarget) := do
   let fetch : ModuleTargetFetch :=
     recFetchModuleTargetWithLocalImports self moreOleanDirs depTarget
   failOnImportCycle <| ← mods.mapM (buildRBTop fetch) |>.run' {}

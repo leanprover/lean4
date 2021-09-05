@@ -42,3 +42,15 @@ x : Nat
 p : Prop
 x : Nat
 ⊢ (True → p) → p
+x y : Nat
+f : Nat → Nat → Nat
+g : Nat → Nat
+h₁ : ∀ (z : Nat), f z z = z
+h₂ : ∀ (x y : Nat), f (g x) (g y) = y
+⊢ f (g y) (f (g x) (g (0 + x))) = x
+x y : Nat
+f : Nat → Nat → Nat
+g : Nat → Nat
+h₁ : ∀ (z : Nat), f z z = z
+h₂ : ∀ (x y : Nat), f (g x) (g y) = y
+⊢ f (g y) (f (g x) (g x)) = x

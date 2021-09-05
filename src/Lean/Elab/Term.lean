@@ -1254,6 +1254,17 @@ def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPo
   let e ← elabTerm stx expectedType? catchExPostpone implicitLambda
   withRef stx <| ensureHasType expectedType? e errorMsgHeader?
 
+/--
+  Execute `x` and then restore `syntheticMVars`, `levelNames`, `mvarErrorInfos`, and `letRecsToLift`.
+  We use this combinator when we don't want the pending problems created by `x` to persist after its execution. -/
+def withoutPending (x : TermElabM α) : TermElabM α := do
+  let saved ← get
+  try
+    x
+  finally
+    modify fun s => { s with syntheticMVars := saved.syntheticMVars, levelNames := saved.levelNames,
+                             letRecsToLift := saved.letRecsToLift, mvarErrorInfos := saved.mvarErrorInfos }
+
 /-- Execute `x` and return `some` if no new errors were recorded or exceptions was thrown. Otherwise, return `none` -/
 def commitIfNoErrors? (x : TermElabM α) : TermElabM (Option α) := do
   let saved ← saveState

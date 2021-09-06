@@ -120,7 +120,7 @@ def addDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : Decla
   | Except.error ex  => throwKernelException ex
 
 private def supportedRecursors :=
-  #[``Empty.rec, ``False.rec, ``Eq.rec, ``Eq.recOn, ``Eq.casesOn, ``False.casesOn, ``Empty.casesOn, ``And.rec, ``And.casesOn]
+  #[``Empty.rec, ``False.rec, ``Eq.ndrec, ``Eq.rec, ``Eq.recOn, ``Eq.casesOn, ``False.casesOn, ``Empty.casesOn, ``And.rec, ``And.casesOn]
 
 /- This is a temporary workaround for generating better error messages for the compiler. It can be deleted after we
    rewrite the remaining parts of the compiler in Lean.  -/

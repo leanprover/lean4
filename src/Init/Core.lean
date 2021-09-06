@@ -435,6 +435,16 @@ instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT :
   | isTrue hc  => dT hc
   | isFalse hc => dE hc
 
+/- Auxiliary definitions for generating compact `noConfusion` for enumeration types -/
+abbrev noConfusionTypeEnum {α : Sort u} {β : Sort v} [DecidableEq β] (f : α → β) (P : Sort w) (x y : α) : Sort w :=
+  if f x = f y then P → P else P
+
+abbrev noConfusionEnum {α : Sort u} {β : Sort v} [DecidableEq β] (f : α → β) {P : Sort w} {x y : α} (h : x = y) : noConfusionTypeEnum f P x y :=
+  if h' : f x = f y then
+    cast (@if_pos _ _ h' _ (P → P) (P)).symm (fun (h : P) => h)
+  else
+    False.elim (h' (congrArg f h))
+
 /- Inhabited -/
 
 instance : Inhabited Prop where

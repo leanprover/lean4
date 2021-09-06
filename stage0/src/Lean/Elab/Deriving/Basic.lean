@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Wojciech Nawrocki
 -/
 import Lean.Elab.Command
+import Lean.Elab.MutualDef
 
 namespace Lean.Elab
 open Command
@@ -34,13 +35,21 @@ def applyDerivingHandlers (className : Name) (typeNames : Array Name) (args? : O
       defaultHandler className typeNames
   | none => defaultHandler className typeNames
 
+private def tryApplyDefHandler (className : Name) (declName : Name) : CommandElabM Bool :=
+  liftTermElabM none do
+    Term.processDefDeriving className declName
+
 @[builtinCommandElab «deriving»] def elabDeriving : CommandElab
   | `(deriving instance $[$classes $[with $argss?]?],* for $[$declNames],*) => do
      let declNames ← declNames.mapM resolveGlobalConstNoOverloadWithInfo
      for cls in classes, args? in argss? do
        try
          let className ← resolveGlobalConstNoOverloadWithInfo cls
-         withRef cls do applyDerivingHandlers className declNames args?
+         withRef cls do
+           if declNames.size == 1 && args?.isNone then
+             if (← tryApplyDefHandler className declNames[0]) then
+               return ()
+           applyDerivingHandlers className declNames args?
        catch ex =>
          logException ex
   | _ => throwUnsupportedSyntax

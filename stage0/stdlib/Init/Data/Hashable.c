@@ -24,6 +24,7 @@ uint64_t l_instHashableBool(uint8_t);
 lean_object* l_instHashableOption(lean_object*);
 uint64_t l_instHashableInt(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_instHashableFin___boxed(lean_object*);
 lean_object* l_List_foldl___at_instHashableList___spec__1(lean_object*);
 lean_object* l_instHashableUInt64___boxed(lean_object*);
 lean_object* l_instHashableProd(lean_object*, lean_object*);
@@ -36,9 +37,12 @@ uint64_t l_instHashableUInt64(uint64_t);
 lean_object* l_instHashableInt_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHashableList___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_instHashableUInt32___boxed(lean_object*);
+lean_object* l_instHashableFin(lean_object*);
 static lean_object* l_instHashableInt_match__1___rarg___closed__1;
 uint64_t l_instHashableNat(lean_object*);
+lean_object* l_instHashableFin___rarg___boxed(lean_object*);
 uint64_t l_instHashableList___rarg(lean_object*, lean_object*);
+uint64_t l_instHashableFin___rarg(lean_object*);
 lean_object* l_instHashableOption_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHashableOption___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_instHashableInt_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -400,6 +404,41 @@ lean_dec(x_1);
 x_3 = l_instHashableUSize(x_2);
 x_4 = lean_box_uint64(x_3);
 return x_4;
+}
+}
+uint64_t l_instHashableFin___rarg(lean_object* x_1) {
+_start:
+{
+uint64_t x_2; 
+x_2 = lean_uint64_of_nat(x_1);
+return x_2;
+}
+}
+lean_object* l_instHashableFin(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_instHashableFin___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+lean_object* l_instHashableFin___rarg___boxed(lean_object* x_1) {
+_start:
+{
+uint64_t x_2; lean_object* x_3; 
+x_2 = l_instHashableFin___rarg(x_1);
+lean_dec(x_1);
+x_3 = lean_box_uint64(x_2);
+return x_3;
+}
+}
+lean_object* l_instHashableFin___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_instHashableFin(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_instHashableInt_match__1___rarg___closed__1() {

@@ -137,7 +137,7 @@ structure MkSimpContextResult where
   fvarIdToLemmaId : FVarIdToLemmaId
 
 --  If `ctx == false`, the argument is assumed to have type `Meta.Simp.Config`, and `Meta.Simp.ConfigCtx` otherwise. -/
-private def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (ctx := false) (ignoreStarArg : Bool := false) : TacticM MkSimpContextResult := do
+def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (ctx := false) (ignoreStarArg : Bool := false) : TacticM MkSimpContextResult := do
   let simpOnly := !stx[2].isNone
   let simpLemmas ←
     if simpOnly then

@@ -103,6 +103,9 @@ instance : HMod (Fin n) Nat (Fin n) where
 instance : OfNat (Fin (no_index (n+1))) i where
   ofNat := Fin.ofNat i
 
+instance : Inhabited (Fin (no_index (n+1))) where
+  default := 0
+
 theorem val_ne_of_ne {i j : Fin n} (h : i ≠ j) : val i ≠ val j :=
   fun h' => absurd (eq_of_val_eq h') h
 

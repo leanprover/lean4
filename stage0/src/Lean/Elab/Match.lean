@@ -507,14 +507,29 @@ partial def main (e : Expr) : M Pattern := do
         let newE ← whnf e
         if newE != e then
           main newE
-        else matchConstCtor e.getAppFn (fun _ => throwInvalidPattern e) fun v us => do
-          let args := e.getAppArgs
-          unless args.size == v.numParams + v.numFields do
-            throwInvalidPattern e
-          let params := args.extract 0 v.numParams
-          let fields := args.extract v.numParams args.size
-          let fields ← fields.mapM main
-          return Pattern.ctor v.name us params.toList fields.toList
+        else
+         matchConstCtor e.getAppFn
+           (fun _ => do
+              if (← isProof e) then
+                /- We mark nested proofs as inaccessible. This is fine due to proof irrelevance.
+                   We need this feature to be able to elaborate definitions such as:
+                   ```
+                    def f : Fin 2 → Nat
+                      | 0 => 5
+                      | 1 => 45
+                   ```
+                -/
+                return Pattern.inaccessible e
+              else
+                throwInvalidPattern e)
+           (fun v us => do
+              let args := e.getAppArgs
+              unless args.size == v.numParams + v.numFields do
+                throwInvalidPattern e
+              let params := args.extract 0 v.numParams
+              let fields := args.extract v.numParams args.size
+              let fields ← fields.mapM main
+              return Pattern.ctor v.name us params.toList fields.toList)
 
 end ToDepElimPattern
 

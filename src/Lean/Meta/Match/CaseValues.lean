@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Tactic.Subst
 import Lean.Meta.Tactic.Clear
+import Lean.Meta.Match.Value
 
 namespace Lean.Meta
 
@@ -30,7 +31,7 @@ private def caseValueAux (mvarId : MVarId) (fvarId : FVarId) (value : Expr) (hNa
     let tag ← getMVarTag mvarId
     checkNotAssigned mvarId `caseValue
     let target ← getMVarType mvarId
-    let xEqValue ← mkEq (mkFVar fvarId) value
+    let xEqValue ← mkEq (mkFVar fvarId) (foldPatValue value)
     let xNeqValue := mkApp (mkConst `Not) xEqValue
     let thenTarget := Lean.mkForall hName BinderInfo.default xEqValue  target
     let elseTarget := Lean.mkForall hName BinderInfo.default xNeqValue target

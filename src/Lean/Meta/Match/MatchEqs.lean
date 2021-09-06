@@ -41,9 +41,6 @@ where
     else
       go (idx + 1)
 
-private def isMatchValue (e : Expr) : Bool :=
-  e.isNatLit || e.isCharLit || e.isStringLit
-
 /--
   Helper method. Recall that alternatives that do not have variables have a `Unit` parameter to ensure
   they are not eagerly evaluated. -/

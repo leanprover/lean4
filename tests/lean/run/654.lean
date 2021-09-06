@@ -1,4 +1,4 @@
-enum Foo where
+inductive Foo where
   | a | b | c
 
 def f : Foo → Nat
@@ -6,9 +6,7 @@ def f : Foo → Nat
   | Foo.b => 20
   | Foo.c => 35
 
-#eval Foo.b
-
-enum CXCursorKind where
+inductive CXCursorKind where
   | CXCursor_UnexposedDecl
   | CXCursor_StructDecl
   | CXCursor_UnionDecl
@@ -285,5 +283,3 @@ open CXCursorKind
 
 example (h : CXCursor_CUDAGlobalAttr = CXCursor_CUDAHostAttr) : False := by
   contradiction
-
-#eval CXCursor_CUDAConstantAttr

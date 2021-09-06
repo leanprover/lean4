@@ -77,7 +77,8 @@ abbrev MData.empty : MData := {}
    hasLevelParam  : 1-bit
    nonDepLet      : 1-bit
    binderInfo     : 3-bits
-   looseBVarRange : 24-bits -/
+   approxDepth    : 8-bits -- the approximate depth is used to minimize the number of hash collisions
+   looseBVarRange : 16-bits -/
 def Expr.Data := UInt64
 
 instance: Inhabited Expr.Data :=
@@ -89,8 +90,11 @@ def Expr.Data.hash (c : Expr.Data) : UInt64 :=
 instance : BEq Expr.Data where
   beq (a b : UInt64) := a == b
 
+def Expr.Data.approxDepth (c : Expr.Data) : UInt8 :=
+  ((c.shiftRight 40).land 255).toUInt8
+
 def Expr.Data.looseBVarRange (c : Expr.Data) : UInt32 :=
-  (c.shiftRight 40).toUInt32
+  (c.shiftRight 48).toUInt32
 
 def Expr.Data.hasFVar (c : Expr.Data) : Bool :=
   ((c.shiftRight 32).land 1) == 1
@@ -125,7 +129,7 @@ def BinderInfo.toUInt64 : BinderInfo → UInt64
   | BinderInfo.auxDecl        => 4
 
 @[inline] private def Expr.mkDataCore
-    (h : UInt64) (looseBVarRange : Nat)
+    (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8)
     (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) (bi : BinderInfo)
     : Expr.Data :=
   if looseBVarRange > Nat.pow 2 24 - 1 then panic! "bound variable index is too big"
@@ -138,17 +142,18 @@ def BinderInfo.toUInt64 : BinderInfo → UInt64
       hasLevelParam.toUInt64.shiftLeft 35 +
       nonDepLet.toUInt64.shiftLeft 36 +
       bi.toUInt64.shiftLeft 37 +
-      looseBVarRange.toUInt64.shiftLeft 40
+      approxDepth.toUInt64.shiftLeft 40 +
+      looseBVarRange.toUInt64.shiftLeft 48
     r
 
-def Expr.mkData (h : UInt64) (looseBVarRange : Nat := 0) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) : Expr.Data :=
-  Expr.mkDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam false BinderInfo.default
+def Expr.mkData (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt8 := 0) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) : Expr.Data :=
+  Expr.mkDataCore h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam false BinderInfo.default
 
-def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.Data :=
-  Expr.mkDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam false bi
+def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.Data :=
+  Expr.mkDataCore h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam false bi
 
-def Expr.mkDataForLet (h : UInt64) (looseBVarRange : Nat) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : Expr.Data :=
-  Expr.mkDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet BinderInfo.default
+def Expr.mkDataForLet (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : Expr.Data :=
+  Expr.mkDataCore h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet BinderInfo.default
 
 open Expr
 
@@ -223,6 +228,9 @@ def hasMVar (e : Expr) : Bool :=
 def hasLevelParam (e : Expr) : Bool :=
   e.data.hasLevelParam
 
+def approxDepth (e : Expr) : UInt8 :=
+  e.data.approxDepth
+
 def looseBVarRange (e : Expr) : Nat :=
   e.data.looseBVarRange.toNat
 
@@ -241,7 +249,7 @@ def binderInfo (e : Expr) : BinderInfo :=
 end Expr
 
 def mkConst (n : Name) (lvls : List Level := []) : Expr :=
-  Expr.const n lvls $ mkData (mixHash 5 $ mixHash (hash n) (hash lvls)) 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
+  Expr.const n lvls $ mkData (mixHash 5 $ mixHash (hash n) (hash lvls)) 0 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
 
 def Literal.type : Literal → Expr
   | Literal.natVal _ => mkConst `Nat
@@ -254,24 +262,25 @@ def mkBVar (idx : Nat) : Expr :=
   Expr.bvar idx $ mkData (mixHash 7 $ hash idx) (idx+1)
 
 def mkSort (lvl : Level) : Expr :=
-  Expr.sort lvl $ mkData (mixHash 11 $ hash lvl) 0 false false lvl.hasMVar lvl.hasParam
+  Expr.sort lvl $ mkData (mixHash 11 $ hash lvl) 0 0 false false lvl.hasMVar lvl.hasParam
 
 def mkFVar (fvarId : FVarId) : Expr :=
-  Expr.fvar fvarId $ mkData (mixHash 13 $ hash fvarId) 0 true
+  Expr.fvar fvarId $ mkData (mixHash 13 $ hash fvarId) 0 0 true
 
 def mkMVar (fvarId : MVarId) : Expr :=
-  Expr.mvar fvarId $ mkData (mixHash 17 $ hash fvarId) 0 false true
+  Expr.mvar fvarId $ mkData (mixHash 17 $ hash fvarId) 0 0 false true
 
 def mkMData (d : MData) (e : Expr) : Expr :=
-  Expr.mdata d e $ mkData (mixHash 19 $ hash e) e.looseBVarRange e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
+  Expr.mdata d e $ mkData (mixHash 19 $ hash e) e.looseBVarRange (e.approxDepth+1) e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkProj (s : Name) (i : Nat) (e : Expr) : Expr :=
   Expr.proj s i e $ mkData (mixHash 23 $ mixHash (hash s) $ mixHash (hash i) (hash e))
-      e.looseBVarRange e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
+      e.looseBVarRange (e.approxDepth+1) e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkApp (f a : Expr) : Expr :=
   Expr.app f a $ mkData (mixHash 29 $ mixHash (hash f) (hash a))
-    (Nat.max f.looseBVarRange a.looseBVarRange)
+    (max f.looseBVarRange a.looseBVarRange)
+    ((max f.approxDepth a.approxDepth) + 1)
     (f.hasFVar || a.hasFVar)
     (f.hasExprMVar || a.hasExprMVar)
     (f.hasLevelMVar || a.hasLevelMVar)
@@ -280,7 +289,8 @@ def mkApp (f a : Expr) : Expr :=
 def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
   -- let x := x.eraseMacroScopes
   Expr.lam x t b $ mkDataForBinder (mixHash 31 $ mixHash (hash t) (hash b))
-    (Nat.max t.looseBVarRange (b.looseBVarRange - 1))
+    (max t.looseBVarRange (b.looseBVarRange - 1))
+    ((max t.approxDepth b.approxDepth) + 1)
     (t.hasFVar || b.hasFVar)
     (t.hasExprMVar || b.hasExprMVar)
     (t.hasLevelMVar || b.hasLevelMVar)
@@ -290,7 +300,8 @@ def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
 def mkForall (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
   -- let x := x.eraseMacroScopes
   Expr.forallE x t b $ mkDataForBinder (mixHash 37 $ mixHash (hash t) (hash b))
-    (Nat.max t.looseBVarRange (b.looseBVarRange - 1))
+    (max t.looseBVarRange (b.looseBVarRange - 1))
+    ((max t.approxDepth b.approxDepth) + 1)
     (t.hasFVar || b.hasFVar)
     (t.hasExprMVar || b.hasExprMVar)
     (t.hasLevelMVar || b.hasLevelMVar)
@@ -308,7 +319,8 @@ def mkSimpleThunk (type : Expr) : Expr :=
 def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) : Expr :=
   -- let x := x.eraseMacroScopes
   Expr.letE x t v b $ mkDataForLet (mixHash 41 $ mixHash (hash t) $ mixHash (hash v) (hash b))
-    (Nat.max (Nat.max t.looseBVarRange v.looseBVarRange) (b.looseBVarRange - 1))
+    (max (max t.looseBVarRange v.looseBVarRange) (b.looseBVarRange - 1))
+    ((max (max t.approxDepth v.approxDepth) b.approxDepth) + 1)
     (t.hasFVar || v.hasFVar || b.hasFVar)
     (t.hasExprMVar || v.hasExprMVar || b.hasExprMVar)
     (t.hasLevelMVar || v.hasLevelMVar || b.hasLevelMVar)

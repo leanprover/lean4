@@ -270,27 +270,31 @@ def mkFVar (fvarId : FVarId) : Expr :=
 def mkMVar (fvarId : MVarId) : Expr :=
   Expr.mvar fvarId $ mkData (mixHash 17 $ hash fvarId) 0 0 false true
 
-def mkMData (d : MData) (e : Expr) : Expr :=
-  Expr.mdata d e $ mkData (mixHash 19 $ hash e) e.looseBVarRange (e.approxDepth+1) e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
+def mkMData (m : MData) (e : Expr) : Expr :=
+  let d := e.approxDepth+1
+  Expr.mdata m e $ mkData (mixHash d.toUInt64 $ hash e) e.looseBVarRange d e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkProj (s : Name) (i : Nat) (e : Expr) : Expr :=
-  Expr.proj s i e $ mkData (mixHash 23 $ mixHash (hash s) $ mixHash (hash i) (hash e))
-      e.looseBVarRange (e.approxDepth+1) e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
+  let d := e.approxDepth+1
+  Expr.proj s i e $ mkData (mixHash d.toUInt64 $ mixHash (hash s) $ mixHash (hash i) (hash e))
+      e.looseBVarRange d e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkApp (f a : Expr) : Expr :=
-  Expr.app f a $ mkData (mixHash 29 $ mixHash (hash f) (hash a))
+  let d := (max f.approxDepth a.approxDepth) + 1
+  Expr.app f a $ mkData (mixHash d.toUInt64 $ mixHash (hash f) (hash a))
     (max f.looseBVarRange a.looseBVarRange)
-    ((max f.approxDepth a.approxDepth) + 1)
+    d
     (f.hasFVar || a.hasFVar)
     (f.hasExprMVar || a.hasExprMVar)
     (f.hasLevelMVar || a.hasLevelMVar)
     (f.hasLevelParam || a.hasLevelParam)
 
 def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
+  let d := (max t.approxDepth b.approxDepth) + 1
   -- let x := x.eraseMacroScopes
-  Expr.lam x t b $ mkDataForBinder (mixHash 31 $ mixHash (hash t) (hash b))
+  Expr.lam x t b $ mkDataForBinder (mixHash d.toUInt64 $ mixHash (hash t) (hash b))
     (max t.looseBVarRange (b.looseBVarRange - 1))
-    ((max t.approxDepth b.approxDepth) + 1)
+    d
     (t.hasFVar || b.hasFVar)
     (t.hasExprMVar || b.hasExprMVar)
     (t.hasLevelMVar || b.hasLevelMVar)
@@ -298,10 +302,11 @@ def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
     bi
 
 def mkForall (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
+  let d := (max t.approxDepth b.approxDepth) + 1
   -- let x := x.eraseMacroScopes
-  Expr.forallE x t b $ mkDataForBinder (mixHash 37 $ mixHash (hash t) (hash b))
+  Expr.forallE x t b $ mkDataForBinder (mixHash d.toUInt64 $ mixHash (hash t) (hash b))
     (max t.looseBVarRange (b.looseBVarRange - 1))
-    ((max t.approxDepth b.approxDepth) + 1)
+    d
     (t.hasFVar || b.hasFVar)
     (t.hasExprMVar || b.hasExprMVar)
     (t.hasLevelMVar || b.hasLevelMVar)
@@ -317,10 +322,11 @@ def mkSimpleThunk (type : Expr) : Expr :=
   mkLambda `_ BinderInfo.default (Lean.mkConst `Unit) type
 
 def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) : Expr :=
+  let d := (max (max t.approxDepth v.approxDepth) b.approxDepth) + 1
   -- let x := x.eraseMacroScopes
-  Expr.letE x t v b $ mkDataForLet (mixHash 41 $ mixHash (hash t) $ mixHash (hash v) (hash b))
+  Expr.letE x t v b $ mkDataForLet (mixHash d.toUInt64 $ mixHash (hash t) $ mixHash (hash v) (hash b))
     (max (max t.looseBVarRange v.looseBVarRange) (b.looseBVarRange - 1))
-    ((max (max t.approxDepth v.approxDepth) b.approxDepth) + 1)
+    d
     (t.hasFVar || v.hasFVar || b.hasFVar)
     (t.hasExprMVar || v.hasExprMVar || b.hasExprMVar)
     (t.hasLevelMVar || v.hasLevelMVar || b.hasLevelMVar)

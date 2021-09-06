@@ -47,6 +47,7 @@ lean_object* l_Std_RBMap_revFold___rarg(lean_object*, lean_object*, lean_object*
 lean_object* l_Std_RBMap_min(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_rbmapOf(lean_object*, lean_object*);
 lean_object* l_Std_RBMap_any___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Rbcolor_toCtorIdx(uint8_t);
 lean_object* l_Std_RBMap_min_x21___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_all_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find_match__1(lean_object*, lean_object*, lean_object*);
@@ -83,8 +84,8 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Std_RBMap_max_x21___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_instReprRBMap___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_RBMap_find_x21___rarg___closed__3;
-lean_object* l_Std_RBMap_max_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_balRight_match__2___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Rbcolor_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
 lean_object* l_Std_RBNode_balance2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_revFold___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_any___rarg___boxed(lean_object*, lean_object*);
@@ -179,6 +180,7 @@ lean_object* l_Std_RBMap_toList___rarg___lambda__1(lean_object*, lean_object*, l
 lean_object* l_Std_RBNode_forIn_visit_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_find_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_findCore_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Rbcolor_noConfusion___rarg___lambda__1(lean_object*);
 lean_object* l_Std_RBMap_instReprRBMap(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_empty___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_max_x21(lean_object*, lean_object*, lean_object*);
@@ -199,6 +201,7 @@ lean_object* l_Std_RBNode_setBlack(lean_object*, lean_object*);
 lean_object* l_Std_RBMap_toList_match__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_empty(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_RBMap_instReprRBMap___rarg___closed__2;
+lean_object* l_Std_Rbcolor_noConfusion(lean_object*);
 lean_object* l_Std_RBNode_depth_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_repr___at_Std_RBMap_instReprRBMap___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_ins_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -279,7 +282,6 @@ lean_object* l_Std_RBMap_foldM(lean_object*, lean_object*, lean_object*, lean_ob
 lean_object* l_Std_RBNode_fold___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_isEmpty(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_lowerBound_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_RBMap_max_x21_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_fold(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_max___rarg(lean_object*);
 lean_object* l_Std_RBNode_foldM___at_Std_RBMap_forM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -287,9 +289,11 @@ lean_object* l_Std_RBMap_fold(lean_object*, lean_object*, lean_object*, lean_obj
 lean_object* l_Std_RBMap_depth___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_balance_u2083_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_repr___at_Std_RBMap_instReprRBMap___spec__1___rarg___closed__3;
+lean_object* l_Std_Rbcolor_noConfusion___rarg___lambda__1___boxed(lean_object*);
 lean_object* l_Std_RBMap_fold_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_find_x21_match__1(lean_object*, lean_object*);
 lean_object* l_Std_RBMap_size___rarg(lean_object*);
+lean_object* l_Std_Rbcolor_toCtorIdx___boxed(lean_object*);
 lean_object* l_Std_RBNode_balRight(lean_object*, lean_object*);
 lean_object* l_Std_RBMap_findD___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_balance_u2083(lean_object*, lean_object*);
@@ -316,10 +320,91 @@ lean_object* l_Std_RBNode_forIn_visit___at_Std_RBMap_instForInRBMapProd___spec__
 lean_object* l_Std_RBNode_foldM___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_findCore_x3f(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_forIn_visit___at_Std_RBMap_forIn___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Rbcolor_noConfusion___rarg___closed__1;
 lean_object* l_List_foldl___at_Std_rbmapOf___spec__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Rbcolor_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_fold___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_RBMap_min_x21___rarg___closed__2;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
+lean_object* l_Std_Rbcolor_toCtorIdx(uint8_t x_1) {
+_start:
+{
+if (x_1 == 0)
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+else
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(1u);
+return x_3;
+}
+}
+}
+lean_object* l_Std_Rbcolor_toCtorIdx___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = lean_unbox(x_1);
+lean_dec(x_1);
+x_3 = l_Std_Rbcolor_toCtorIdx(x_2);
+return x_3;
+}
+}
+lean_object* l_Std_Rbcolor_noConfusion___rarg___lambda__1(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Rbcolor_noConfusion___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_Rbcolor_noConfusion___rarg___lambda__1___boxed), 1, 0);
+return x_1;
+}
+}
+lean_object* l_Std_Rbcolor_noConfusion___rarg(uint8_t x_1, uint8_t x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Rbcolor_noConfusion___rarg___closed__1;
+return x_4;
+}
+}
+lean_object* l_Std_Rbcolor_noConfusion(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Std_Rbcolor_noConfusion___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+lean_object* l_Std_Rbcolor_noConfusion___rarg___lambda__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Rbcolor_noConfusion___rarg___lambda__1(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Std_Rbcolor_noConfusion___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; uint8_t x_5; lean_object* x_6; 
+x_4 = lean_unbox(x_1);
+lean_dec(x_1);
+x_5 = lean_unbox(x_2);
+lean_dec(x_2);
+x_6 = l_Std_Rbcolor_noConfusion___rarg(x_4, x_5, x_3);
+return x_6;
+}
+}
 lean_object* l_Std_RBNode_depth_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -21907,37 +21992,6 @@ lean_dec(x_3);
 return x_4;
 }
 }
-lean_object* l_Std_RBMap_max_x21_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
-}
-}
-lean_object* l_Std_RBMap_max_x21_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_RBMap_max_x21_match__1___rarg), 3, 0);
-return x_4;
-}
-}
 static lean_object* _init_l_Std_RBMap_max_x21___rarg___closed__1() {
 _start:
 {
@@ -22174,6 +22228,8 @@ _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Std_Rbcolor_noConfusion___rarg___closed__1 = _init_l_Std_Rbcolor_noConfusion___rarg___closed__1();
+lean_mark_persistent(l_Std_Rbcolor_noConfusion___rarg___closed__1);
 l_Std_RBMap_toList___rarg___closed__1 = _init_l_Std_RBMap_toList___rarg___closed__1();
 lean_mark_persistent(l_Std_RBMap_toList___rarg___closed__1);
 l_repr___at_Std_RBMap_instReprRBMap___spec__1___rarg___closed__1 = _init_l_repr___at_Std_RBMap_instReprRBMap___spec__1___rarg___closed__1();

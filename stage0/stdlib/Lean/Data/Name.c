@@ -119,7 +119,7 @@ lean_object* l_Lean_NameMap_insert(lean_object*);
 lean_object* l_List_foldl___at_String_toName___spec__1___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_10_(uint8_t, uint8_t);
+uint8_t l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_11_(uint8_t, uint8_t);
 uint64_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Lean_Name_eqStr___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_NameMap_contains___spec__1___rarg___boxed(lean_object*, lean_object*);
@@ -1307,7 +1307,7 @@ _start:
 uint8_t x_3; uint8_t x_4; uint8_t x_5; 
 x_3 = l_Lean_Name_cmp(x_1, x_2);
 x_4 = 0;
-x_5 = l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_10_(x_3, x_4);
+x_5 = l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_11_(x_3, x_4);
 return x_5;
 }
 }
@@ -1494,7 +1494,7 @@ _start:
 uint8_t x_3; uint8_t x_4; uint8_t x_5; 
 x_3 = l_Lean_Name_quickCmp(x_1, x_2);
 x_4 = 0;
-x_5 = l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_10_(x_3, x_4);
+x_5 = l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_11_(x_3, x_4);
 return x_5;
 }
 }

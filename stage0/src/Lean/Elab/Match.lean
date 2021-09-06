@@ -494,7 +494,7 @@ partial def main (e : Expr) : M Pattern := do
         match e.getArg! 1 with
         | Expr.fvar fvarId _ => return Pattern.as fvarId p
         | _                  => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
-      else if e.isNatLit || e.isStringLit || e.isCharLit then
+      else if isMatchValue e then
         return Pattern.val e
       else if e.isFVar then
         let fvarId := e.fvarId!

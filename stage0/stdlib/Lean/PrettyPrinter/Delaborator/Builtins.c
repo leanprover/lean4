@@ -530,7 +530,6 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___at_Lean_Pr
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabForall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfNat___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabMVar___closed__4;
-uint8_t l_Array_contains___at_Lean_findField_x3f___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_getPPFunBinderTypes___boxed(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_unexpandStructureInstance___lambda__3___closed__1;
 static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfNat___closed__6;
@@ -698,6 +697,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withNaryArg___at_Lean_Pret
 uint8_t l_List_elem___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_PrettyPrinter_Delaborator_getParamKinds_forallTelescopeArgs___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabDoElems(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Array_contains___at___private_Lean_Meta_Match_Value_0__Lean_Meta_isUIntTypeName___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_unresolveQualifiedName___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabDIte___lambda__1___closed__7;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppImplicit___lambda__3___closed__5;
@@ -16090,7 +16090,7 @@ lean_dec(x_11);
 x_14 = l_Lean_Expr_bindingName_x21(x_12);
 lean_dec(x_12);
 x_15 = lean_erase_macro_scopes(x_14);
-x_16 = l_Array_contains___at_Lean_findField_x3f___spec__1(x_3, x_15);
+x_16 = l_Array_contains___at___private_Lean_Meta_Match_Value_0__Lean_Meta_isUIntTypeName___spec__1(x_3, x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; 

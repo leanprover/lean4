@@ -434,7 +434,6 @@ lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_withParents_go
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_findFieldInfo_x3f___closed__2;
 static uint8_t l___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandFields___closed__2;
 lean_object* l_Lean_mkRecOn___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_mkAuxConstructions___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_contains___at_Lean_findField_x3f___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_synthesizeSyntheticMVars_loop(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_instInhabitedStructFieldInfo___closed__3;
 lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_collectLevelParamsInFVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -587,6 +586,7 @@ lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lea
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_isProjectionOf_x3f___closed__1;
 lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_withFields_go_match__4(lean_object*);
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_elabStructureView___lambda__2___closed__4;
+uint8_t l_Array_contains___at___private_Lean_Meta_Match_Value_0__Lean_Meta_isUIntTypeName___spec__1(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_mkCompositeField___spec__1___closed__2;
 lean_object* l_Lean_Name_getString_x21(lean_object*);
 lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_withFields___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -13358,7 +13358,7 @@ x_4 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_containsFieldName(x_1
 if (x_4 == 0)
 {
 uint8_t x_5; 
-x_5 = l_Array_contains___at_Lean_findField_x3f___spec__1(x_2, x_3);
+x_5 = l_Array_contains___at___private_Lean_Meta_Match_Value_0__Lean_Meta_isUIntTypeName___spec__1(x_2, x_3);
 if (x_5 == 0)
 {
 uint8_t x_6; 
@@ -23095,7 +23095,7 @@ else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_26; 
 x_16 = lean_array_uget(x_5, x_7);
-x_26 = l_Array_contains___at_Lean_findField_x3f___spec__1(x_2, x_16);
+x_26 = l_Array_contains___at___private_Lean_Meta_Match_Value_0__Lean_Meta_isUIntTypeName___spec__1(x_2, x_16);
 if (x_26 == 0)
 {
 lean_object* x_27; 

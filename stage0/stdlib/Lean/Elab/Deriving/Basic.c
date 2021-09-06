@@ -155,7 +155,7 @@ lean_object* l_Lean_throwErrorAt___at_Lean_Elab_elabDeriving___spec__9(lean_obje
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Array_sequenceMap___at_Lean_Elab_elabDeriving___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_elabDeriving___spec__5(size_t, size_t, lean_object*);
-lean_object* l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_6588____spec__1(lean_object*, lean_object*);
+lean_object* l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_6598____spec__1(lean_object*, lean_object*);
 lean_object* l_Array_sequenceMap_loop___at_Lean_Elab_elabDeriving___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_elabDeriving___spec__18(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_sequenceMap___at_Lean_Elab_elabDeriving___spec__2___closed__1;
@@ -3522,7 +3522,7 @@ block_66:
 {
 lean_object* x_33; lean_object* x_34; 
 x_33 = l_Lean_Elab_elabDeriving___closed__11;
-x_34 = l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_6588____spec__1(x_32, x_33);
+x_34 = l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_6598____spec__1(x_32, x_33);
 lean_dec(x_32);
 if (lean_obj_tag(x_34) == 0)
 {

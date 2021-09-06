@@ -79,6 +79,7 @@ lean_object* l_Lean_hasConst___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__2___rarg___boxed__const__1;
 lean_object* l_Lean_addAndCompile___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__10;
+static lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__32;
 extern lean_object* l_Lean_levelZero;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__3;
@@ -131,6 +132,7 @@ lean_object* l_Lean_matchConstStruct___rarg___lambda__2(lean_object*, lean_objec
 lean_object* l_Lean_matchConst(lean_object*, lean_object*);
 lean_object* lean_eval_const(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
+static lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__31;
 lean_object* l_Lean_matchConstInduct(lean_object*, lean_object*);
 static lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__26;
 lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*);
@@ -191,6 +193,7 @@ extern lean_object* l_Lean_instInhabitedName;
 static lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__8;
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoCtor___rarg___lambda__1___closed__2;
+static lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__33;
 static lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__13;
 lean_object* l_Lean_isInductivePredicate_visit___boxed(lean_object*);
 lean_object* l_Lean_Declaration_foldExprM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__1___rarg___lambda__1(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2338,19 +2341,19 @@ return x_3;
 static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__10() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__9;
-x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
+lean_object* x_1; 
+x_1 = lean_mk_string("ndrec");
+return x_1;
 }
 }
 static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__11() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("recOn");
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__9;
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__10;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__12() {
@@ -2358,7 +2361,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__9;
-x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__11;
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2367,7 +2370,7 @@ static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("casesOn");
+x_1 = lean_mk_string("recOn");
 return x_1;
 }
 }
@@ -2384,19 +2387,17 @@ return x_3;
 static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__15() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__6;
-x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__13;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
+lean_object* x_1; 
+x_1 = lean_mk_string("casesOn");
+return x_1;
 }
 }
 static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__2;
-x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__13;
+x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__9;
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__15;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2404,17 +2405,19 @@ return x_3;
 static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__17() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("And");
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__6;
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__15;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__18() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__17;
+x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__2;
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__15;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2422,19 +2425,17 @@ return x_3;
 static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__19() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__18;
-x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
+lean_object* x_1; 
+x_1 = lean_mk_string("And");
+return x_1;
 }
 }
 static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__20() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__18;
-x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__13;
+x_1 = lean_box(0);
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__19;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2442,30 +2443,30 @@ return x_3;
 static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__21() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(9u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__20;
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__3;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__22() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__21;
-x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__4;
-x_3 = lean_array_push(x_1, x_2);
+x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__20;
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__15;
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
 static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__23() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__22;
-x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__7;
-x_3 = lean_array_push(x_1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(10u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__24() {
@@ -2473,7 +2474,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__23;
-x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__10;
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__4;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -2483,7 +2484,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__24;
-x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__12;
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__7;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -2493,7 +2494,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__25;
-x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__14;
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__11;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -2503,7 +2504,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__26;
-x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__15;
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__12;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -2513,7 +2514,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__27;
-x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__16;
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__14;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -2523,7 +2524,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__28;
-x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__19;
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__16;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -2533,7 +2534,37 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__29;
-x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__20;
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__17;
+x_3 = lean_array_push(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__31() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__30;
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__18;
+x_3 = lean_array_push(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__32() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__31;
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__21;
+x_3 = lean_array_push(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__33() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__32;
+x_2 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__22;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -2542,7 +2573,7 @@ static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors()
 _start:
 {
 lean_object* x_1; 
-x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__30;
+x_1 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__33;
 return x_1;
 }
 }
@@ -4328,6 +4359,12 @@ l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__29 = _init_l___pr
 lean_mark_persistent(l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__29);
 l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__30 = _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__30();
 lean_mark_persistent(l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__30);
+l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__31 = _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__31();
+lean_mark_persistent(l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__31);
+l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__32 = _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__32();
+lean_mark_persistent(l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__32);
+l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__33 = _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__33();
+lean_mark_persistent(l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__33);
 l___private_Lean_MonadEnv_0__Lean_supportedRecursors = _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors();
 lean_mark_persistent(l___private_Lean_MonadEnv_0__Lean_supportedRecursors);
 l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__2___rarg___lambda__2___closed__1 = _init_l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__2___rarg___lambda__2___closed__1();

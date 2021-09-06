@@ -82,6 +82,7 @@ static lean_object* l_term___x21_x3d_____closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_task_spawn(lean_object*, lean_object*);
 lean_object* l_instDecidableEqPUnit___boxed(lean_object*, lean_object*);
+lean_object* l_noConfusionEnum___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_instDecidableEqPUnit(lean_object*, lean_object*);
 static lean_object* l_term___u2260_____closed__5;
 static lean_object* l_term___x21_x3d_____closed__3;
@@ -124,6 +125,7 @@ static lean_object* l_myMacro____x40_Init_Core___hyg_175____closed__12;
 lean_object* l_Thunk_bind___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instDecidableDite___rarg(uint8_t, lean_object*, lean_object*);
 static lean_object* l_term___u2260_____closed__6;
+lean_object* l_noConfusionEnum(lean_object*, lean_object*);
 lean_object* l_Eq_mpr(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quot_recOn___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Thunk_get___boxed(lean_object*, lean_object*);
@@ -197,6 +199,7 @@ static lean_object* l_term_u2205___closed__4;
 lean_object* l_instLTProd(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___x3c_x2d_x3e_____closed__7;
 lean_object* l_Task_Priority_default;
+static lean_object* l_noConfusionEnum___rarg___closed__1;
 lean_object* l_Thunk_mk___boxed(lean_object*, lean_object*);
 static lean_object* l_term_u2205___closed__1;
 lean_object* l_instDecidableEqQuotient___rarg(lean_object*, lean_object*, lean_object*);
@@ -247,6 +250,7 @@ lean_object* l_Quot_recOnSubsingleton___rarg(lean_object*, lean_object*);
 static lean_object* l_myMacro____x40_Init_Core___hyg_175____closed__4;
 static lean_object* l_myMacro____x40_Init_Core___hyg_175____closed__8;
 lean_object* l_Sum_inhabitedLeft(lean_object*, lean_object*);
+lean_object* l_noConfusionEnum___rarg___lambda__1___boxed(lean_object*);
 static lean_object* l_myMacro____x40_Init_Core___hyg_907____closed__6;
 lean_object* l_Quotient_mk___rarg___boxed(lean_object*);
 lean_object* l_Eq_mp___rarg(lean_object*);
@@ -329,6 +333,7 @@ static lean_object* l_myMacro____x40_Init_Core___hyg_907____closed__7;
 static lean_object* l_term___u2194_____closed__3;
 lean_object* l_Thunk_bind(lean_object*, lean_object*);
 lean_object* l_instInhabitedTrue;
+lean_object* l_noConfusionEnum___rarg___lambda__1(lean_object*);
 lean_object* l_Quotient_recOn___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quot_recOn(lean_object*, lean_object*, lean_object*);
 static lean_object* l_myMacro____x40_Init_Core___hyg_1579____closed__6;
@@ -3481,6 +3486,50 @@ x_5 = l_instDecidableDite___rarg(x_4, x_2, x_3);
 return x_5;
 }
 }
+lean_object* l_noConfusionEnum___rarg___lambda__1(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+static lean_object* _init_l_noConfusionEnum___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_noConfusionEnum___rarg___lambda__1___boxed), 1, 0);
+return x_1;
+}
+}
+lean_object* l_noConfusionEnum___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_2);
+lean_dec(x_1);
+x_7 = l_noConfusionEnum___rarg___closed__1;
+return x_7;
+}
+}
+lean_object* l_noConfusionEnum(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_noConfusionEnum___rarg), 6, 0);
+return x_3;
+}
+}
+lean_object* l_noConfusionEnum___rarg___lambda__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_noConfusionEnum___rarg___lambda__1(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_instInhabitedProp() {
 _start:
 {
@@ -4881,6 +4930,8 @@ l_myMacro____x40_Init_Core___hyg_1994____closed__6 = _init_l_myMacro____x40_Init
 lean_mark_persistent(l_myMacro____x40_Init_Core___hyg_1994____closed__6);
 l_instDecidableTrue = _init_l_instDecidableTrue();
 l_instDecidableFalse = _init_l_instDecidableFalse();
+l_noConfusionEnum___rarg___closed__1 = _init_l_noConfusionEnum___rarg___closed__1();
+lean_mark_persistent(l_noConfusionEnum___rarg___closed__1);
 l_instInhabitedProp = _init_l_instInhabitedProp();
 l_instInhabitedNonScalar = _init_l_instInhabitedNonScalar();
 lean_mark_persistent(l_instInhabitedNonScalar);

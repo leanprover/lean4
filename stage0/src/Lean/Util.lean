@@ -20,6 +20,5 @@ import Lean.Util.ReplaceExpr
 import Lean.Util.ForEachExpr
 import Lean.Util.ReplaceLevel
 import Lean.Util.FoldConsts
-import Lean.Util.Constructions
 import Lean.Util.SCC
 import Lean.Util.OccursCheck

@@ -161,4 +161,15 @@ def findModuleOf? [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m (O
   | none        => return none
   | some modIdx => return some ((← getEnv).allImportedModuleNames[modIdx])
 
+def isEnumType  [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m Bool := do
+  if let ConstantInfo.inductInfo info ← getConstInfo declName then
+    if info.all.length == 1 && info.numIndices == 0 && info.numParams == 0 && !info.isRec && !info.isNested && !info.isUnsafe then
+      info.ctors.allM fun ctorName => do
+        let ConstantInfo.ctorInfo info ← getConstInfo ctorName | return false
+        return info.numFields == 0
+    else
+      return false
+  else
+    return false
+
 end Lean

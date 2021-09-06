@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Util.ReplaceLevel
 import Lean.Util.ReplaceExpr
 import Lean.Util.CollectLevelParams
-import Lean.Util.Constructions
+import Lean.Meta.Constructions
 import Lean.Meta.CollectFVars
 import Lean.Meta.SizeOf
 import Lean.Meta.Injective

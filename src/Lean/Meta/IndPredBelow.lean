@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian
 -/
 
-import Lean.Util.Constructions
+import Lean.Meta.Constructions
 import Lean.Meta.Transform
 import Lean.Meta.Tactic
 import Lean.Meta.Match.Match

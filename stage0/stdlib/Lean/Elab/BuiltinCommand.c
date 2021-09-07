@@ -198,7 +198,6 @@ lean_object* l_Lean_Elab_OpenDecl_resolveId___at_Lean_Elab_Command_elabExport___
 static lean_object* l_Lean_Elab_Command_elabCheckFailure___closed__1;
 lean_object* l_Lean_Elab_Command_elabOpen___lambda__1(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_replaceBinderAnnotation___spec__2___lambda__2___closed__11;
-lean_object* l_Lean_setEnv___at_Lean_Elab_Command_expandDeclId___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ResolveName_resolveNamespace_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_runTermElabM___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabCheckFailure___closed__2;
@@ -218,6 +217,7 @@ lean_object* l_Lean_Elab_Command_elabCheck___boxed(lean_object*, lean_object*, l
 lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabImplicitLambda_loop___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabEvalUnsafe___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabEvalUnsafe_match__4___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_setEnv___at_Lean_Elab_Command_expandDeclId___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabCheck___closed__5;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_getOptionDecl(lean_object*, lean_object*);
@@ -4228,7 +4228,7 @@ lean_object* x_19; lean_object* x_20;
 x_19 = lean_ctor_get(x_9, 0);
 lean_inc(x_19);
 lean_dec(x_9);
-x_20 = l_Lean_setEnv___at_Lean_Elab_Command_expandDeclId___spec__5(x_19, x_1, x_2, x_6);
+x_20 = l_Lean_setEnv___at_Lean_Elab_Command_expandDeclId___spec__7(x_19, x_1, x_2, x_6);
 lean_dec(x_1);
 return x_20;
 }
@@ -11254,7 +11254,7 @@ lean_inc(x_25);
 x_26 = lean_ctor_get(x_24, 1);
 lean_inc(x_26);
 lean_dec(x_24);
-x_27 = l_Lean_setEnv___at_Lean_Elab_Command_expandDeclId___spec__5(x_15, x_2, x_3, x_26);
+x_27 = l_Lean_setEnv___at_Lean_Elab_Command_expandDeclId___spec__7(x_15, x_2, x_3, x_26);
 lean_dec(x_2);
 x_28 = !lean_is_exclusive(x_27);
 if (x_28 == 0)
@@ -11285,7 +11285,7 @@ lean_inc(x_32);
 x_33 = lean_ctor_get(x_24, 1);
 lean_inc(x_33);
 lean_dec(x_24);
-x_34 = l_Lean_setEnv___at_Lean_Elab_Command_expandDeclId___spec__5(x_15, x_2, x_3, x_33);
+x_34 = l_Lean_setEnv___at_Lean_Elab_Command_expandDeclId___spec__7(x_15, x_2, x_3, x_33);
 lean_dec(x_2);
 x_35 = !lean_is_exclusive(x_34);
 if (x_35 == 0)
@@ -12157,7 +12157,7 @@ lean_inc(x_25);
 x_26 = lean_ctor_get(x_24, 1);
 lean_inc(x_26);
 lean_dec(x_24);
-x_27 = l_Lean_setEnv___at_Lean_Elab_Command_expandDeclId___spec__5(x_15, x_2, x_3, x_26);
+x_27 = l_Lean_setEnv___at_Lean_Elab_Command_expandDeclId___spec__7(x_15, x_2, x_3, x_26);
 lean_dec(x_2);
 x_28 = !lean_is_exclusive(x_27);
 if (x_28 == 0)
@@ -12188,7 +12188,7 @@ lean_inc(x_32);
 x_33 = lean_ctor_get(x_24, 1);
 lean_inc(x_33);
 lean_dec(x_24);
-x_34 = l_Lean_setEnv___at_Lean_Elab_Command_expandDeclId___spec__5(x_15, x_2, x_3, x_33);
+x_34 = l_Lean_setEnv___at_Lean_Elab_Command_expandDeclId___spec__7(x_15, x_2, x_3, x_33);
 lean_dec(x_2);
 x_35 = !lean_is_exclusive(x_34);
 if (x_35 == 0)
@@ -16121,7 +16121,7 @@ lean_inc(x_20);
 x_21 = lean_ctor_get(x_19, 1);
 lean_inc(x_21);
 lean_dec(x_19);
-x_22 = l_Lean_setEnv___at_Lean_Elab_Command_expandDeclId___spec__5(x_10, x_2, x_3, x_21);
+x_22 = l_Lean_setEnv___at_Lean_Elab_Command_expandDeclId___spec__7(x_10, x_2, x_3, x_21);
 lean_dec(x_2);
 x_23 = !lean_is_exclusive(x_22);
 if (x_23 == 0)
@@ -16152,7 +16152,7 @@ lean_inc(x_27);
 x_28 = lean_ctor_get(x_19, 1);
 lean_inc(x_28);
 lean_dec(x_19);
-x_29 = l_Lean_setEnv___at_Lean_Elab_Command_expandDeclId___spec__5(x_10, x_2, x_3, x_28);
+x_29 = l_Lean_setEnv___at_Lean_Elab_Command_expandDeclId___spec__7(x_10, x_2, x_3, x_28);
 lean_dec(x_2);
 x_30 = !lean_is_exclusive(x_29);
 if (x_30 == 0)

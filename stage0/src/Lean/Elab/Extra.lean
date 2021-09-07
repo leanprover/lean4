@@ -228,7 +228,7 @@ where
         withRef ref <| return Tree.term ref (← mkCoe maxType type e)
 
 @[builtinTermElab binop]
-def elabBinOp' : TermElab :=  fun stx expectedType? => do
+def elabBinOp : TermElab :=  fun stx expectedType? => do
   let tree ← toTree stx
   let r    ← analyze tree expectedType?
   trace[Elab.binop] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"

@@ -136,7 +136,7 @@ there is no coercion `Matrix Real 5 4` from `Matrix Real 4 8` and vice-versa, bu
 
 private inductive Tree where
   | term  (ref : Syntax) (val : Expr)
-  | op    (ref : Syntax) (f : Expr) (lhs rhs : Tree)
+  | op    (ref : Syntax) (lazy : Bool) (f : Expr) (lhs rhs : Tree)
 
 private partial def toTree (s : Syntax) : TermElabM Tree := do
   let result ← go (← liftMacroM <| expandMacros s)
@@ -145,12 +145,15 @@ private partial def toTree (s : Syntax) : TermElabM Tree := do
 where
   go (s : Syntax) := do
     match s with
-    | `(binop% $f $lhs $rhs) =>
-       let some f ← resolveId? f | throwUnknownConstant f.getId
-       return Tree.op s f (← go lhs) (← go rhs)
+    | `(binop% $f $lhs $rhs) => processOp (lazy := false) f lhs rhs
+    | `(binop_lazy% $f $lhs $rhs) => processOp (lazy := true) f lhs rhs
     | `(($e)) => (← go e)
     | _ =>
        return Tree.term s (← elabTerm s none)
+
+  processOp (f lhs rhs : Syntax) (lazy : Bool) := do
+    let some f ← resolveId? f | throwUnknownConstant f.getId
+    return Tree.op s (lazy := lazy) f (← go lhs) (← go rhs)
 
 -- Auxiliary function used at `analyze`
 private def hasCoe (fromType toType : Expr) : TermElabM Bool := do
@@ -188,7 +191,7 @@ where
    go (t : Tree) : StateRefT AnalyzeResult TermElabM Unit := do
      unless (← get).hasUncomparable do
        match t with
-       | Tree.op _ _ lhs rhs => go lhs; go rhs
+       | Tree.op _ _ _ lhs rhs => go lhs; go rhs
        | Tree.term _ val =>
          let type ← instantiateMVars (← inferType val)
          unless isUnknow type do
@@ -209,15 +212,16 @@ private def mkOp (f : Expr) (lhs rhs : Expr) : TermElabM Expr :=
 
 private def toExpr (t : Tree) : TermElabM Expr := do
   match t with
-  | Tree.term _ e         => return e
-  | Tree.op ref f lhs rhs => withRef ref <| mkOp f (← toExpr lhs) (← toExpr rhs)
+  | Tree.term _ e               => return e
+  | Tree.op ref true f lhs rhs  => withRef ref <| mkOp f (← toExpr lhs) (← mkFunUnit (← toExpr rhs))
+  | Tree.op ref false f lhs rhs => withRef ref <| mkOp f (← toExpr lhs) (← toExpr rhs)
 
 private def applyCoe (t : Tree) (maxType : Expr) : TermElabM Tree := do
   go t
 where
   go (t : Tree) : TermElabM Tree := do
     match t with
-    | Tree.op ref f lhs rhs => return Tree.op ref f (← go lhs) (← go rhs)
+    | Tree.op ref lazy f lhs rhs => return Tree.op ref lazy f (← go lhs) (← go rhs)
     | Tree.term ref e       =>
       let type ← inferType e
       trace[Elab.binop] "visiting {e} : {type} =?= {maxType}"
@@ -239,6 +243,9 @@ def elabBinOp : TermElab :=  fun stx expectedType? => do
     let result ← toExpr (← applyCoe tree r.max?.get!)
     trace[Elab.binop] "result: {result}"
     ensureHasType expectedType? result
+
+@[builtinTermElab binop_lazy]
+def elabBinOpLazy : TermElab := elabBinOp
 
 /--
   Decompose `e` into `(r, a, b)`.

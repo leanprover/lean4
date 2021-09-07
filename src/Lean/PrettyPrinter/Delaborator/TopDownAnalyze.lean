@@ -27,7 +27,7 @@ open Lean.Meta
 open Std (RBMap)
 
 register_builtin_option pp.analyze : Bool := {
-  defValue := true
+  defValue := false
   group    := "pp.analyze"
   descr    := "(pretty printer analyzer) determine annotations sufficient to ensure round-tripping"
 }

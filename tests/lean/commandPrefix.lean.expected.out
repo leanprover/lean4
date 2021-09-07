@@ -1,2 +1,2 @@
-(fun (this : Unit) => this) () : Unit
+(fun this => this) () : Unit
 commandPrefix.lean:3:0: error: expected command

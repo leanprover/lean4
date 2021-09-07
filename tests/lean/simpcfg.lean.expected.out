@@ -1,6 +1,6 @@
 f : Nat → Nat
 x y z : Nat
-h : x = (fun (x : Nat) => x) y
+h : x = (fun x => x) y
 ⊢ f x = f y
 f : Nat → Nat
 x y z : Nat

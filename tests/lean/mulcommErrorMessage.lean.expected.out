@@ -1,7 +1,7 @@
 mulcommErrorMessage.lean:8:13-13:25: error: type mismatch
-  fun a b => ?m _ _
+  fun a b => ?m a b
 has type
-  (a : ?m) → (b : ?m a) → ?m _ b : Sort (imax ?u ?u ?u)
+  (a : ?m) → (b : ?m a) → ?m a b : Sort (imax ?u ?u ?u)
 but is expected to have type
   a✝ * b✝ = b✝ * a✝ : Prop
 the following variables have been introduced by the implicit lamda feature
@@ -15,7 +15,7 @@ has type
 but is expected to have type
   true = false : Prop
 mulcommErrorMessage.lean:16:3-17:47: error: type mismatch
-  fun a b => Bool.casesOn (motive := ?m a b) _ (?m _ _) (?m _ _)
+  fun a b => Bool.casesOn a (?m a b) (?m a b)
 has type
   (a b : Bool) → ?m a b a : Sort (imax 1 1 ?u)
 but is expected to have type
@@ -25,9 +25,9 @@ the following variables have been introduced by the implicit lamda feature
   b✝ : Bool
 you can disable implict lambdas using `@` or writing a lambda expression with `{}` or `[]` binder annotations.
 mulcommErrorMessage.lean:16:12-17:47: error: application type mismatch
-  Bool.casesOn (motive := ?m a b) _ ?m (Bool.casesOn (motive := ?m a b) _ ?m ?m)
+  Bool.casesOn a ?m (Bool.casesOn b ?m ?m)
 argument
-  Bool.casesOn (motive := ?m a b) _ ?m ?m
+  Bool.casesOn b ?m ?m
 has type
   ?m a b b : Sort ?u
 but is expected to have type

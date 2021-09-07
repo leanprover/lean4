@@ -1,5 +1,5 @@
 elseifDoErrorPos.lean:4:7-7:14: error: application type mismatch
-  ite (α := IO Nat) x
+  ite x
 argument
   x
 has type

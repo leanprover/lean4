@@ -5,4 +5,4 @@ fun {α} {β} {f} x x_1 =>
 theorem ex.{u} : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≅ a :=
 fun x x_1 x_2 x_3 =>
   match x, x_1, x_2, x_3 with 
-  | α, .(α), Eq.refl α, a => HEq.refl _
+  | α, .(α), Eq.refl α, a => HEq.refl a

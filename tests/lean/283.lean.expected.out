@@ -5,4 +5,4 @@ argument
 has type
   ?m : Sort ?u
 but is expected to have type
-  optParam _ t : Type ?u
+  optParam (Sort ?u) t : Type ?u

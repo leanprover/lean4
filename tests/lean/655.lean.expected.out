@@ -1,0 +1,4 @@
+655.lean:5:4-5:7: error: invalid declaration name 'B.a', structure 'B' has field 'a'
+655.lean:7:12-7:15: error: invalid declaration name 'B.a', structure 'B' has field 'a'
+655.lean:10:6-10:7: error: invalid declaration name 'B.a', structure 'B' has field 'a'
+1

@@ -145,11 +145,22 @@ def applyVisibility (visibility : Visibility) (declName : Name) : m Name := do
     checkNotAlreadyDeclared declName
     pure declName
 
+def checkIfShadowingStructureField (declName : Name) : m Unit := do
+  match declName with
+  | Name.str pre .. =>
+    if isStructure (← getEnv) pre then
+      let fieldNames := getStructureFieldsFlattened (← getEnv) pre
+      for fieldName in fieldNames do
+        if pre ++ fieldName == declName then
+          throwError "invalid declaration name '{declName}', structure '{pre}' has field '{fieldName}'"
+  | _ => pure ()
+
 def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name) : m (Name × Name) := do
   let name := (extractMacroScopes shortName).name
   unless name.isAtomic || isFreshInstanceName name do
     throwError "atomic identifier expected '{shortName}'"
   let declName := currNamespace ++ shortName
+  checkIfShadowingStructureField declName
   let declName ← applyVisibility modifiers.visibility declName
   match modifiers.visibility with
   | Visibility.protected =>

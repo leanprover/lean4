@@ -11,10 +11,10 @@ Author: Leonardo de Moura
 #include <utility>
 #include <tuple>
 #include <string>
-#include <lean/optional.h>
-#include <lean/thread.h>
-#include <lean/hash.h>
-#include <lean/buffer.h>
+#include "runtime/optional.h"
+#include "runtime/thread.h"
+#include "runtime/hash.h"
+#include "runtime/buffer.h"
 #include "util/name.h"
 #include "util/nat.h"
 #include "util/kvmap.h"

@@ -35,12 +35,12 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #else
 #include <dlfcn.h>
 #endif
-#include <lean/flet.h>
-#include <lean/apply.h>
-#include <lean/interrupt.h>
-#include <lean/io.h>
-#include <lean/option_ref.h>
-#include <lean/array_ref.h>
+#include "runtime/flet.h"
+#include "runtime/apply.h"
+#include "runtime/interrupt.h"
+#include "runtime/io.h"
+#include "runtime/option_ref.h"
+#include "runtime/array_ref.h"
 #include "library/time_task.h"
 #include "library/trace.h"
 #include "library/compiler/ir.h"

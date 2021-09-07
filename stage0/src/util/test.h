@@ -9,5 +9,5 @@ Author: Leonardo de Moura
 #ifndef LEAN_DEBUG
 #define LEAN_DEBUG
 #endif
-#include <lean/debug.h>
-#include <lean/stackinfo.h>
+#include "runtime/debug.h"
+#include "runtime/stackinfo.h"

@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <memory>
 #include <vector>
-#include <lean/optional.h>
+#include "runtime/optional.h"
 #include "util/rc.h"
 #include "util/list.h"
 #include "util/rb_map.h"

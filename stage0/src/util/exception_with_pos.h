@@ -8,7 +8,7 @@ Author: Sebastian Ullrich
 #include <exception>
 #include <string>
 #include <memory>
-#include <lean/exception.h>
+#include "runtime/exception.h"
 #include "util/message_definitions.h"
 
 namespace lean {

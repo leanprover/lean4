@@ -8,9 +8,9 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <string>
 #include <vector>
-#include <lean/hash.h>
 #include <lean/lean.h>
-#include <lean/compact.h>
+#include "runtime/hash.h"
+#include "runtime/compact.h"
 
 #ifndef LEAN_WINDOWS
 #include <sys/mman.h>

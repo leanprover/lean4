@@ -57,72 +57,39 @@ def delabSort : Delab := do
     | some l' => `(Type $(Level.quote l' max_prec))
     | none    => `(Sort $(Level.quote l max_prec))
 
--- find shorter names for constants, in reverse to Lean.Elab.ResolveName
 
-private def unresolveQualifiedName (ns : Name) (c : Name) : DelabM Name := do
-  let c' := c.replacePrefix ns Name.anonymous;
-  let env ← getEnv
-  guard $ c' != c && !c'.isAnonymous && (!c'.isAtomic || !isProtected env c)
-  pure c'
-
-private def checkForNameClash (nsOrig nsPfix candidate : Name) : DelabM Unit := do
-  -- Suppose the current namespace is `Foo.Bar`, we are delaborating `Foo.rig`, and `Foo.Bar.rig`
-  -- already exists. This function will detect the clash and fail.
-  let rest := nsOrig.components.drop nsPfix.components.length
-  let mut nsPfix := nsPfix
-  for component in rest do
-    nsPfix := nsPfix ++ component
-    let candidate := nsPfix ++ candidate
-    -- TODO: what are the elab rules for 'protected' declarations?
-    guard ((← getEnv).find? candidate |>.isNone)
-
-private partial def unresolveUsingNamespace (c ns : Name) : DelabM Name := core ns where
-  core
-    | nsPfix@(Name.str p _ _) =>
-      (do let candidate ← unresolveQualifiedName nsPfix c; checkForNameClash ns nsPfix candidate; candidate)
-      <|> core p
-    | _ => failure
-
-private def unresolveOpenDecls (c : Name) : List OpenDecl → DelabM Name
-  | [] => failure
-  | OpenDecl.simple ns exs :: openDecls =>
-    let c' := c.replacePrefix ns Name.anonymous
-    if c' == c || exs.elem c' then unresolveOpenDecls c openDecls
-    else unresolveQualifiedName ns c <|> unresolveOpenDecls c openDecls
-  | OpenDecl.explicit openedId resolvedId :: openDecls =>
-    (guard (c == resolvedId) *> pure openedId) <|> unresolveOpenDecls c openDecls
+def unresolveNameGlobal (n₀ : Name) : DelabM Name := do
+  if n₀.hasMacroScopes then return n₀
+  let mut initialNames := #[]
+  if !(← getPPOption getPPFullNames) then initialNames := initialNames ++ getRevAliases (← getEnv) n₀
+  initialNames := initialNames.push (rootNamespace ++ n₀)
+  for initialName in initialNames do
+    match (← unresolveNameCore initialName) with
+    | none => continue
+    | some n => return n
+  return n₀ -- if can't resolve, return the original
+where
+  unresolveNameCore (n : Name) : DelabM (Option Name) := do
+    let mut revComponents := n.components'
+    let mut candidate := Name.anonymous
+    for i in [:revComponents.length] do
+      match revComponents with
+      | [] => return none
+      | cmpt::rest => candidate := cmpt ++ candidate; revComponents := rest
+      match (← resolveGlobalName candidate) with
+      | [(potentialMatch, _)] => if potentialMatch == n₀ then return some candidate else continue
+      | _ => continue
+    return none
 
 -- NOTE: not a registered delaborator, as `const` is never called (see [delab] description)
 def delabConst : Delab := do
-  let Expr.const c ls _ ← getExpr | unreachable!
-  let c₀ := c
+  let Expr.const c₀ ls _ ← getExpr | unreachable!
   let ctx ← read
-  let maybeAddRoot (c : Name) : DelabM Name := do
-    (do checkForNameClash ctx.currNamespace Name.anonymous c
-        pure c)
-    <|>
-    (do guard (c == c₀)
-        guard (! (← read).inPattern)
-        guard ((← getEnv).contains c)
-        pure (`_root_ ++ c))
-    <|> (pure c₀)
+  let c₀ := if (← getPPOption getPPPrivateNames) then c₀ else (privateToUserName? c₀).getD c₀
 
-  let mut c ← if (← getPPOption getPPFullNames) then maybeAddRoot c else
-    let env ← getEnv
-    let as := getRevAliases env c
-    -- might want to use a more clever heuristic such as selecting the shortest alias...
-    let c := as.headD c
-    unresolveUsingNamespace c ctx.currNamespace
-      <|> unresolveOpenDecls c ctx.openDecls
-      <|> maybeAddRoot c
-
-  unless (← getPPOption getPPPrivateNames) do
-    c := (privateToUserName? c).getD c
-
-  let ppUnivs ← getPPOption getPPUniverses
-
+  let mut c ← unresolveNameGlobal c₀
   let stx ←
-    if ls.isEmpty || !ppUnivs then
+    if ls.isEmpty || !(← getPPOption getPPUniverses) then
       if (← getLCtx).usesUserName c then
         -- `c` is also a local declaration
         if c == c₀ && !(← read).inPattern then

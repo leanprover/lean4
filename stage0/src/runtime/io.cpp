@@ -36,12 +36,12 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <cctype>
 #include <sys/stat.h>
 #include "util/io.h"
-#include <lean/alloc.h>
-#include <lean/io.h>
-#include <lean/utf8.h>
-#include <lean/object.h>
-#include <lean/thread.h>
-#include <lean/allocprof.h>
+#include "runtime/alloc.h"
+#include "runtime/io.h"
+#include "runtime/utf8.h"
+#include "runtime/object.h"
+#include "runtime/thread.h"
+#include "runtime/allocprof.h"
 
 #ifdef _MSC_VER
 #define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)

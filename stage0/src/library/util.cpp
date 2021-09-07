@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <string>
-#include <lean/option_ref.h>
 #include <lean/version.h>
+#include "runtime/option_ref.h"
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"

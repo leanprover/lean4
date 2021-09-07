@@ -7,9 +7,9 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <iterator>
-#include <lean/debug.h>
-#include <lean/optional.h>
-#include <lean/buffer.h>
+#include "runtime/debug.h"
+#include "runtime/optional.h"
+#include "runtime/buffer.h"
 #include "util/rc.h"
 
 namespace lean {

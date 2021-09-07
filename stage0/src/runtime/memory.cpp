@@ -7,9 +7,9 @@ Author: Leonardo de Moura
 #include <new>
 #include <cstdlib>
 #include <iostream>
-#include <lean/exception.h>
-#include <lean/memory.h>
-#include <lean/thread.h>
+#include "runtime/exception.h"
+#include "runtime/memory.h"
+#include "runtime/thread.h"
 
 #ifndef LEAN_CHECK_MEM_THRESHOLD
 #define LEAN_CHECK_MEM_THRESHOLD 200

@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <functional>
-#include <lean/object.h>
+#include "runtime/object.h"
 
 namespace lean {
 /* Helper functions for iterating over Lean maps. */

@@ -9,16 +9,16 @@ Author: Leonardo de Moura
 #include <vector>
 #include <deque>
 #include <cmath>
-#include <lean/object.h>
-#include <lean/mpq.h>
-#include <lean/thread.h>
-#include <lean/utf8.h>
-#include <lean/alloc.h>
-#include <lean/debug.h>
-#include <lean/hash.h>
-#include <lean/flet.h>
-#include <lean/interrupt.h>
-#include <lean/buffer.h>
+#include "runtime/object.h"
+#include "runtime/mpq.h"
+#include "runtime/thread.h"
+#include "runtime/utf8.h"
+#include "runtime/alloc.h"
+#include "runtime/debug.h"
+#include "runtime/hash.h"
+#include "runtime/flet.h"
+#include "runtime/interrupt.h"
+#include "runtime/buffer.h"
 
 // see `Task.Priority.max`
 #define LEAN_MAX_PRIO 8

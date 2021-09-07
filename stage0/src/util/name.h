@@ -10,10 +10,10 @@ Author: Leonardo de Moura
 #include <functional>
 #include <algorithm>
 #include <utility>
-#include <lean/optional.h>
-#include <lean/string_ref.h>
-#include <lean/list_ref.h>
-#include <lean/buffer.h>
+#include "runtime/optional.h"
+#include "runtime/string_ref.h"
+#include "runtime/list_ref.h"
+#include "runtime/buffer.h"
 #include "util/pair.h"
 #include "util/nat.h"
 

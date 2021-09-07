@@ -5,10 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <vector>
-#include <lean/thread.h>
-#include <lean/debug.h>
-#include <lean/alloc.h>
 #include <lean/lean.h>
+#include "runtime/thread.h"
+#include "runtime/debug.h"
+#include "runtime/alloc.h"
 
 #if defined(__GNUC__) || defined(__clang__)
 #define LEAN_NOINLINE __attribute__((noinline))

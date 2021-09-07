@@ -22,6 +22,19 @@ Here are the commands to install all dependencies needed to compile Lean on your
 pacman -S make mingw-w64-x86_64-cmake mingw-w64-x86_64-ccache mingw-w64-x86_64-gcc git
 ```
 
+Then make sure the following is included in your PATH:
+
+```bash
+export PATH=$PATH:/mingw64/bin
+```
+
+You should now be able to run these commands:
+
+```bash
+gcc --version
+cmake --version
+```
+
 Then follow the [generic build instructions](index.md) in the MSYS2 MinGW shell, using
 `cmake ../.. -G "Unix Makefiles"` instead of `cmake ../..`. This ensures that cmake will call `sh` instead
 of `cmd.exe` for script tasks.
@@ -29,5 +42,24 @@ of `cmd.exe` for script tasks.
 ## Install lean
 
 You can use the `install` ninja/make target to install Lean into, by default,
-`C:\\User Programs (x86)\\LEAN`. To change this, add `-DCMAKE_INSTALL_PREFIX=path/you/want`
-to your cmake invocation.
+`./build/release/stage1/msys64/lean/`. To change this, add `-DCMAKE_INSTALL_PREFIX=path/you/want`
+to your initial cmake invocation.
+
+## Running
+
+You can run `lean --version` to see if your binaries work.
+
+If you want a version that can run independently of your MSYS install
+then you need to copy the following dependent DLL's from where ever
+they are installed in your MSYS setup:
+
+- libgcc_s_seh-1.dll
+- libstdc++-6.dll
+- libgmp-10.dll
+- libwinpthread-1.dll
+
+The following linux command will do that:
+
+```bash
+cp $(ldd lean.exe | cut -f3 -d' ' | grep mingw) .
+```

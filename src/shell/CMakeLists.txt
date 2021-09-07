@@ -21,14 +21,10 @@ if(LLVM)
   endif()
 endif()
 
-string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}
-  COMMAND sh -c "LEAN_CC='${CMAKE_C_COMPILER_LAUNCHER} ${CMAKE_C_COMPILER}' ${CMAKE_BINARY_DIR}/bin/leanc $<TARGET_OBJECTS:shell> -lleanshared ${CMAKE_EXE_LINKER_FLAGS} ${LEAN_EXE_LINKER_FLAGS} -o ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"
-  VERBATIM
-  DEPENDS leanshared shell $<IF:$<BOOL:${LLVM}>,runtime_bc,>)
-
 add_custom_target(lean ALL
-  DEPENDS ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX})
+  DEPENDS leancpp leanrt make_stdlib
+  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lean LEAN_SHELL='$<TARGET_OBJECTS:shell>'
+  VERBATIM)
 
 # use executable of current stage for tests
 string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")

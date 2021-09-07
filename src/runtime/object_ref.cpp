@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <lean/object_ref.h>
+#include "runtime/object_ref.h"
 
 namespace lean {
 object_ref mk_cnstr(unsigned tag, unsigned num_objs, object ** objs, unsigned scalar_sz) {

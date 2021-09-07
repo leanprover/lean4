@@ -25,13 +25,13 @@ Author: Jared Roesch
 #include <sys/wait.h>
 #endif
 
-#include <lean/object.h>
-#include <lean/io.h>
-#include <lean/array_ref.h>
-#include <lean/string_ref.h>
-#include <lean/option_ref.h>
-#include <lean/pair_ref.h>
-#include <lean/buffer.h>
+#include "runtime/object.h"
+#include "runtime/io.h"
+#include "runtime/array_ref.h"
+#include "runtime/string_ref.h"
+#include "runtime/option_ref.h"
+#include "runtime/pair_ref.h"
+#include "runtime/buffer.h"
 
 namespace lean {
 

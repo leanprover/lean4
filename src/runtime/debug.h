@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <typeinfo>
-#include <lean/exception.h>
+#include "runtime/exception.h"
 
 #ifndef __has_builtin
 #define __has_builtin(x) 0

@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <utility>
 #include <functional>
-#include <lean/buffer.h>
+#include "runtime/buffer.h"
 #include "util/list.h"
 #include "util/pair.h"
 

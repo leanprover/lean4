@@ -8,8 +8,8 @@ Author: Leonardo de Moura, Gabriel Ebner
 #include <string>
 #include <vector>
 #include <ios>
-#include <lean/exception.h>
-#include <lean/optional.h>
+#include "runtime/exception.h"
+#include "runtime/optional.h"
 
 namespace lean {
 class file_not_found_exception : public exception {

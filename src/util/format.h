@@ -12,8 +12,8 @@ Author: Soonho Kong
 #include <utility>
 #include <string>
 #include <vector>
-#include <lean/debug.h>
-#include <lean/object_ref.h>
+#include "runtime/debug.h"
+#include "runtime/object_ref.h"
 #include "util/name.h"
 #include "util/pair.h"
 

@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
-#include <lean/object.h>
+#include "runtime/object.h"
 namespace lean {
 /* Low tech runtime allocation profiler.
    We need to compile Lean using RUNTIME_STATS=ON to use it. */

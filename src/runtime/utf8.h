@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <vector>
 #include <string>
-#include <lean/optional.h>
+#include "runtime/optional.h"
 
 namespace lean {
 using uchar = unsigned char;

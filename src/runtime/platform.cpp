@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <lean/object.h>
+#include "runtime/object.h"
 
 namespace lean {
 extern "C" obj_res lean_system_platform_nbits(obj_arg) {

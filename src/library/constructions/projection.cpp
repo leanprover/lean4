@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
-#include <lean/sstream.h>
+#include "runtime/sstream.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"

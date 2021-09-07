@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <unordered_set>
 #include <unordered_map>
-#include <lean/flet.h>
+#include "runtime/flet.h"
 #include "kernel/type_checker.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"

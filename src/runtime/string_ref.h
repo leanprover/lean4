@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
-#include <lean/sstream.h>
-#include <lean/object_ref.h>
-#include <lean/list_ref.h>
+#include "runtime/sstream.h"
+#include "runtime/object_ref.h"
+#include "runtime/list_ref.h"
 namespace lean {
 /* Wrapper for Lean string objects */
 class string_ref : public object_ref {

@@ -10,12 +10,12 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <sstream>
 #include <string>
-#include <lean/thread.h>
-#include <lean/debug.h>
-#include <lean/sstream.h>
-#include <lean/utf8.h>
-#include <lean/hash.h>
-#include <lean/buffer.h>
+#include "runtime/thread.h"
+#include "runtime/debug.h"
+#include "runtime/sstream.h"
+#include "runtime/utf8.h"
+#include "runtime/hash.h"
+#include "runtime/buffer.h"
 #include "util/name.h"
 #include "util/ascii.h"
 

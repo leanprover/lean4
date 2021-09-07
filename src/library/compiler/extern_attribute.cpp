@@ -5,9 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 */
 #include <string>
-#include <lean/sstream.h>
-#include <lean/object_ref.h>
-#include <lean/option_ref.h>
+#include "runtime/sstream.h"
+#include "runtime/object_ref.h"
+#include "runtime/option_ref.h"
 #include "util/io.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"

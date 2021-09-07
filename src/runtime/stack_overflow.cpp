@@ -17,7 +17,7 @@ Port of the corresponding Rust code (see links below).
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <lean/stack_overflow.h>
+#include "runtime/stack_overflow.h"
 
 namespace lean {
 // stack guard of the main thread

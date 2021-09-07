@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include <lean/debug.h>
-#include <lean/int64.h>
+#include "runtime/debug.h"
+#include "runtime/int64.h"
 
 namespace lean {
 

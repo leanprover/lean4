@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 */
 #pragma once
-#include <lean/object_ref.h>
+#include "runtime/object_ref.h"
 
 namespace lean {
 /* Wrapper for manipulating Lean option values in C++ */

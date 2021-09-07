@@ -9,7 +9,7 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include <iostream>
 #include <utility>
 #include <vector>
-#include <lean/optional.h>
+#include "runtime/optional.h"
 #include "kernel/environment.h"
 
 namespace lean {

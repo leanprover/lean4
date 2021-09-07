@@ -4,13 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <lean/alloc.h>
-#include <lean/debug.h>
-#include <lean/thread.h>
-#include <lean/object.h>
-#include <lean/io.h>
-#include <lean/stack_overflow.h>
-#include <lean/process.h>
+#include "runtime/alloc.h"
+#include "runtime/debug.h"
+#include "runtime/thread.h"
+#include "runtime/object.h"
+#include "runtime/io.h"
+#include "runtime/stack_overflow.h"
+#include "runtime/process.h"
 
 namespace lean {
 extern "C" void lean_initialize_runtime_module() {

@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <lean/array_ref.h>
-#include <lean/pair_ref.h>
+#include "runtime/array_ref.h"
+#include "runtime/pair_ref.h"
 #include "util/option_declarations.h"
 #include "util/io.h"
 

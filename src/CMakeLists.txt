@@ -63,7 +63,7 @@ option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared librari
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
 
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
-set(MINGW_LOCAL_DIR       "C:/msys64/mingw64/bin"      CACHE STRING "where to find MSYS2 required DLLs and binaries")
+set(LEANC_CC              "cc"                         CACHE STRING "C compiler to use in `leanc`")
 
 if ("${FAKE_FREE}" MATCHES "ON")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_FAKE_FREE")

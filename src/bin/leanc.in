@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Lean compiler
 #
-# A simple wrapper around a C compiler. Defaults to the compiler Lean was built with,
+# A simple wrapper around a C compiler. Defaults to `@LEANC_CC@`,
 # which can be overridden with the environment variable `LEAN_CC`. All parameters are passed
 # as-is to the wrapped compiler.
 #
@@ -44,6 +44,6 @@ for arg in "$@"; do
     esac
 done
 
-[ -n "$LEAN_CC" ] || LEAN_CC=cc
+[ -n "$LEAN_CC" ] || LEAN_CC="@LEANC_CC@"
 
 $LEAN_CC "${cflags[@]}" "${args[@]}" "${ldflags_ext[@]}" "${ldflags[@]}" -Wno-unused-command-line-argument

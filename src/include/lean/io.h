@@ -7,15 +7,15 @@ Author: Leonardo de Moura
 #pragma once
 #include <stdio.h>
 #include <string>
-#include <lean/object.h>
+#include <lean/lean.h>
 
 namespace lean {
-inline obj_res io_result_mk_ok(obj_arg a) { return lean_io_result_mk_ok(a); }
-inline obj_res io_result_mk_error(obj_arg e) { return lean_io_result_mk_error(e); }
-obj_res io_result_mk_error(char const * msg);
-obj_res io_result_mk_error(std::string const & msg);
-obj_res decode_io_error(int errnum, b_obj_arg fname);
-obj_res io_wrap_handle(FILE * hfile);
+inline lean_obj_res io_result_mk_ok(lean_obj_arg a) { return lean_io_result_mk_ok(a); }
+inline lean_obj_res io_result_mk_error(lean_obj_arg e) { return lean_io_result_mk_error(e); }
+lean_obj_res io_result_mk_error(char const * msg);
+lean_obj_res io_result_mk_error(std::string const & msg);
+lean_obj_res decode_io_error(int errnum, b_lean_obj_arg fname);
+lean_obj_res io_wrap_handle(FILE * hfile);
 void initialize_io();
 void finalize_io();
 }

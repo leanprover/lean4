@@ -481,6 +481,10 @@ def mkLetFVars (xs : Array Expr) (e : Expr) (usedLetOnly := true) : MetaM Expr :
 def mkArrow (d b : Expr) : MetaM Expr :=
   return Lean.mkForall (← mkFreshUserName `x) BinderInfo.default d b
 
+/-- `fun _ : Unit => a` -/
+def mkFunUnit (a : Expr) : MetaM Expr :=
+  return Lean.mkLambda (← mkFreshUserName `x) BinderInfo.default (mkConst ``Unit) a
+
 def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : MetaM Expr :=
   if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.elimMVarDeps xs e preserveOrder
 

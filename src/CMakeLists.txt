@@ -35,8 +35,6 @@ option(SPLIT_STACK        "SPLIT_STACK"        OFF)
 # When OFF we disable LLVM support
 option(LLVM               "LLVM"               OFF)
 
-# Include MSYS2 required DLLs and binaries in the binary distribution package
-option(INCLUDE_MSYS2_DLLS "INCLUDE_MSYS2_DLLS" OFF)
 # When ON we include githash in the version string
 option(USE_GITHASH        "GIT_HASH"           ON)
 # When ON thread storage is automatically finalized, it assumes platform support pthreads.
@@ -59,7 +57,7 @@ option(FAKE_FREE           "Disable actually freeing runtime objects, useful for
 option(SMALL_ALLOCATOR     "SMALL_ALLOCATOR" ON)
 option(LAZY_RC             "LAZY_RC" OFF)
 option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
-option(BSYMBOLIC_FUNCTIONS "Link with -Bsymbolic-functions to reduce call overhead in shared libraries (Linux)" ON)
+option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared libraries (Linux)" ON)
 
 # development-specific options
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
@@ -297,9 +295,9 @@ set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -lm")
 set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -lm")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  if(BSYMBOLIC_FUNCTIONS)
-    set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -Wl,-Bsymbolic-functions")
-    set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,-Bsymbolic-functions")
+  if(BSYMBOLIC)
+    set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -Wl,-Bsymbolic")
+    set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,-Bsymbolic")
   endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -ftls-model=initial-exec")
   set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -fPIC")

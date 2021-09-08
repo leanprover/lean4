@@ -1,4 +1,5 @@
 PKG = main
+CPP = c++
 CPPFLAGS = -O3
 include lean.mk
 
@@ -9,7 +10,7 @@ all: $(BIN_OUT)/test
 
 $(OUT)/testcpp/%.o: %.cpp
 	@mkdir -p "$(@D)"
-	c++ -std=c++14 -c -o $@ $< $(CPPFLAGS) `leanc --print-cflags`
+	$(CPP) -std=c++14 -c -o $@ $< $(CPPFLAGS) `leanc --print-cflags`
 
 $(BIN_OUT)/test: $(LIB_OUT)/libmain.a $(CPP_OBJS) | $(BIN_OUT)
-	c++ -o $@ $^ `leanc --print-ldflags`
+	$(CPP) -o $@ $^ `leanc --print-ldflags`

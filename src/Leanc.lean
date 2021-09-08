@@ -17,10 +17,14 @@ Beware of the licensing consequences since GMP is LGPL."
   let root ← match (← IO.getEnv "LEAN_SYSROOT") with
     | some root => System.FilePath.mk root
     | none      => (← IO.appDir).parent.get!
+  let rootify s := s.replace "ROOT" root.toString
+
   -- We assume that the CMake variables do not contain escaped spaces
   let cflags := ["-I", (root / "include").toString] ++ "@LEANC_EXTRA_FLAGS@".trim.splitOn
+  let cflagsHidden := "@LEANC_INTERNAL_FLAGS@".trim.splitOn
   let mut ldflags := ["-L", (root / "lib").toString, "-L", (root / "lib" / "lean").toString, (← IO.getEnv "LEANC_GMP").getD "-lgmp"] ++ "@LEAN_EXTRA_LINKER_FLAGS@".trim.splitOn
   let mut ldflagsExt := "@LEANC_STATIC_LINKER_FLAGS@".trim.splitOn
+  let ldflagsHidden := "@LEANC_INTERNAL_LINKER_FLAGS@".trim.splitOn
 
   for arg in args do
     match arg with
@@ -31,18 +35,16 @@ Beware of the licensing consequences since GMP is LGPL."
       ldflags := []
       ldflagsExt := []
     | "--print-cflags" =>
-      IO.println <| " ".intercalate cflags
+      IO.println <| " ".intercalate (cflags.map rootify)
       return 0
     | "--print-ldflags" =>
-      IO.println <| " ".intercalate (cflags ++ ldflagsExt ++ ldflags)
+      IO.println <| " ".intercalate ((cflags ++ ldflagsExt ++ ldflags).map rootify)
       return 0
     | _ => ()
 
-  let mut cc := (← IO.getEnv "LEAN_CC").getD "@LEANC_CC@"
-  if cc.startsWith "." then
-    cc := (root / "bin" / cc).toString
-
-  let args := cflags ++ args ++ ldflagsExt ++ ldflags ++ ["-Wno-unused-command-line-argument"]
+  let cc := rootify <| (← IO.getEnv "LEAN_CC").getD "@LEANC_CC@"
+  let args := cflags ++ cflagsHidden ++ args ++ ldflagsExt ++ ldflags ++ ldflagsHidden ++ ["-Wno-unused-command-line-argument"]
+  let args := args.map rootify
   if args.contains "-v" then
     IO.eprintln s!"{cc} {" ".intercalate args}"
   let child ← IO.Process.spawn { cmd := cc, args := args.toArray }

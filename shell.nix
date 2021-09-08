@@ -13,6 +13,10 @@ in { pkgs ? flakePkgs.nixpkgs, llvmPackages ? null }:
     hardeningDisable = [ "all" ];
     # more convenient `ctest` output
     CTEST_OUTPUT_ON_FAILURE = 1;
+    GMP = pkgs.gmp;
+    GLIBC = pkgs.glibc;
+    GCC_ROOT = pkgs.gcc.cc;
+    GCC_LIBS = pkgs.gcc.cc.lib;
     shellHook = ''
       export LEAN_SRC_PATH="$PWD/src"
     '';

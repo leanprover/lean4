@@ -52,7 +52,7 @@ def mkCongrLemma (declName : Name) (prio : Nat) : MetaM CongrLemma := withReduci
     lhs.withApp fun lhsFn lhsArgs => rhs.withApp fun rhsFn rhsArgs => do
       unless lhsFn.isConst && rhsFn.isConst && lhsFn.constName! == rhsFn.constName! && lhsArgs.size == rhsArgs.size do
         throwError "invalid 'congr' theorem, equality left/right-hand sides must be applications of the same function{indentExpr type}"
-      let mut foundMVars : NameSet := {}
+      let mut foundMVars : MVarIdSet := {}
       for lhsArg in lhsArgs do
         unless lhsArg.isSort do
           unless lhsArg.isMVar do
@@ -98,7 +98,7 @@ def mkCongrLemma (declName : Name) (prio : Nat) : MetaM CongrLemma := withReduci
       }
 where
   /-- Return `true` if `t` contains a metavariable that is not in `mvarSet` -/
-  onlyMVarsAt (t : Expr) (mvarSet : NameSet) : Bool :=
+  onlyMVarsAt (t : Expr) (mvarSet : MVarIdSet) : Bool :=
     Option.isNone <| t.find? fun e => e.isMVar && !mvarSet.contains e.mvarId!
 
 def addCongrLemma (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do

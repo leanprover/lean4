@@ -10,7 +10,7 @@ open Command
 open Meta
 
 private abbrev IndexSet := Std.RBTree Nat compare
-private abbrev LocalInst2Index := NameMap Nat
+private abbrev LocalInst2Index := FVarIdMap Nat
 
 private def implicitBinderF := Parser.Term.implicitBinder
 private def instBinderF     := Parser.Term.instBinder

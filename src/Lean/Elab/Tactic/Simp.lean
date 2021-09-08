@@ -121,7 +121,7 @@ where
     else
       Term.elabCDotFunctionAlias? simpArgTerm
 
-abbrev FVarIdToLemmaId := NameMap Name
+abbrev FVarIdToLemmaId := FVarIdMap Name
 
 -- TODO: move?
 private def getPropHyps : MetaM (Array FVarId) := do

@@ -430,7 +430,7 @@ def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) (disc
       else
         return some (fvarId, mvarId)
 
-abbrev FVarIdToLemmaId := NameMap Name
+abbrev FVarIdToLemmaId := FVarIdMap Name
 
 def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[]) (fvarIdToLemmaId : FVarIdToLemmaId := {}) : MetaM (Option (Array FVarId × MVarId)) := do
   withMVarContext mvarId do

@@ -29,7 +29,7 @@ try
   maybeAddBlockImplicit (mkIdent l.userName)
 catch _ =>
   -- loose free variable, use internal name
-  maybeAddBlockImplicit $ mkIdent id
+  maybeAddBlockImplicit $ mkIdent id.name
 
 -- loose bound variable, use pseudo syntax
 @[builtinDelab bvar]
@@ -43,7 +43,7 @@ def delabMVar : Delab := do
   let mvarDecl ← getMVarDecl n
   let n :=
     match mvarDecl.userName with
-    | Name.anonymous => n.replacePrefix `_uniq `m
+    | Name.anonymous => n.name.replacePrefix `_uniq `m
     | n => n
   `(?$(mkIdent n))
 

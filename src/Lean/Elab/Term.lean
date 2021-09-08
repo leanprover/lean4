@@ -483,7 +483,7 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Op
   let s ← get
   let hasOtherErrors := s.messages.hasErrors
   let mut hasNewErrors := false
-  let mut alreadyVisited : NameSet := {}
+  let mut alreadyVisited : MVarIdSet := {}
   for mvarErrorInfo in s.mvarErrorInfos do
     let mvarId := mvarErrorInfo.mvarId
     unless alreadyVisited.contains mvarId do

@@ -181,7 +181,7 @@ private def sortFVarIds (fvarIds : Array FVarId) : TacticM (Array FVarId) :=
       | some d₁, some d₂ => d₁.index > d₂.index
       | some _,  none    => false
       | none,    some _  => true
-      | none,    none    => Name.quickLt fvarId₁ fvarId₂
+      | none,    none    => Name.quickLt fvarId₁.name fvarId₂.name
 
 @[builtinTactic Lean.Parser.Tactic.clear] def evalClear : Tactic := fun stx =>
   match stx with

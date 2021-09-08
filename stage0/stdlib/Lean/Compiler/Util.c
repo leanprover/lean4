@@ -72,7 +72,6 @@ lean_object* l_Lean_Compiler_atMostOnce_seq(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Compiler_isEagerLambdaLiftingName_match__1(lean_object*);
 static lean_object* l_Lean_Compiler_objectType___closed__1;
 lean_object* lean_is_unsafe_rec_name(lean_object*);
-static lean_object* l_Lean_Compiler_atMostOnce_instAndThenVisitor___closed__1;
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__4;
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__1;
 lean_object* l_Lean_Compiler_atMostOnce_visitFVar_match__1(lean_object*);
@@ -85,7 +84,7 @@ static lean_object* l_Lean_Compiler_checkIsDefinition___closed__2;
 lean_object* lean_mk_eager_lambda_lifting_name(lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 uint8_t lean_at_most_once(lean_object*, lean_object*);
-lean_object* l_Lean_Compiler_atMostOnce_instAndThenVisitor;
+lean_object* l_Lean_Compiler_atMostOnce_instAndThenVisitor(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_unreachableExpr___closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_unreachableExpr___closed__3;
@@ -341,20 +340,43 @@ return x_11;
 }
 }
 }
-static lean_object* _init_l_Lean_Compiler_atMostOnce_instAndThenVisitor___closed__1() {
+lean_object* l_Lean_Compiler_atMostOnce_instAndThenVisitor(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_atMostOnce_seq), 3, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_atMostOnce_instAndThenVisitor() {
-_start:
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_apply_1(x_1, x_3);
+x_5 = lean_ctor_get_uint8(x_4, 1);
+if (x_5 == 0)
 {
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_atMostOnce_instAndThenVisitor___closed__1;
-return x_1;
+uint8_t x_6; 
+lean_dec(x_2);
+x_6 = !lean_is_exclusive(x_4);
+if (x_6 == 0)
+{
+uint8_t x_7; 
+x_7 = 0;
+lean_ctor_set_uint8(x_4, 1, x_7);
+return x_4;
+}
+else
+{
+uint8_t x_8; uint8_t x_9; lean_object* x_10; 
+x_8 = lean_ctor_get_uint8(x_4, 0);
+lean_dec(x_4);
+x_9 = 0;
+x_10 = lean_alloc_ctor(0, 0, 2);
+lean_ctor_set_uint8(x_10, 0, x_8);
+lean_ctor_set_uint8(x_10, 1, x_9);
+return x_10;
+}
+}
+else
+{
+lean_object* x_11; lean_object* x_12; 
+x_11 = lean_box(0);
+x_12 = lean_apply_2(x_2, x_11, x_4);
+return x_12;
+}
 }
 }
 lean_object* l_Lean_Compiler_atMostOnce_skip(lean_object* x_1) {
@@ -1797,10 +1819,6 @@ l_Lean_Compiler_mkLcProof___closed__2 = _init_l_Lean_Compiler_mkLcProof___closed
 lean_mark_persistent(l_Lean_Compiler_mkLcProof___closed__2);
 l_Lean_Compiler_mkLcProof___closed__3 = _init_l_Lean_Compiler_mkLcProof___closed__3();
 lean_mark_persistent(l_Lean_Compiler_mkLcProof___closed__3);
-l_Lean_Compiler_atMostOnce_instAndThenVisitor___closed__1 = _init_l_Lean_Compiler_atMostOnce_instAndThenVisitor___closed__1();
-lean_mark_persistent(l_Lean_Compiler_atMostOnce_instAndThenVisitor___closed__1);
-l_Lean_Compiler_atMostOnce_instAndThenVisitor = _init_l_Lean_Compiler_atMostOnce_instAndThenVisitor();
-lean_mark_persistent(l_Lean_Compiler_atMostOnce_instAndThenVisitor);
 l_Lean_Compiler_atMostOnce_visitFVar___closed__1 = _init_l_Lean_Compiler_atMostOnce_visitFVar___closed__1();
 lean_mark_persistent(l_Lean_Compiler_atMostOnce_visitFVar___closed__1);
 l_Lean_Compiler_atMostOnce_visitFVar___closed__2 = _init_l_Lean_Compiler_atMostOnce_visitFVar___closed__2();

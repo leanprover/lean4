@@ -49,8 +49,8 @@ instance : Monad (StateT σ m) where
   bind := StateT.bind
   map  := StateT.map
 
-@[inline] protected def orElse [Alternative m] {α : Type u} (x₁ x₂ : StateT σ m α) : StateT σ m α :=
-  fun s => x₁ s <|> x₂ s
+@[inline] protected def orElse [Alternative m] {α : Type u} (x₁ : StateT σ m α) (x₂ : Unit → StateT σ m α) : StateT σ m α :=
+  fun s => x₁ s <|> x₂ () s
 
 @[inline] protected def failure [Alternative m] {α : Type u} : StateT σ m α :=
   fun s => failure

@@ -414,7 +414,7 @@ class HAppend (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hAppend : α → β → γ
 
 class HOrElse (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  hOrElse : α → β → γ
+  hOrElse : α → (Unit → β) → γ
 
 class HAndThen (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hAndThen : α → β → γ
@@ -459,7 +459,7 @@ class Append (α : Type u) where
   append : α → α → α
 
 class OrElse (α : Type u) where
-  orElse  : α → α → α
+  orElse  : α → (Unit → α) → α
 
 class AndThen (α : Type u) where
   andThen : α → α → α
@@ -1354,11 +1354,11 @@ instance (ε : outParam (Type u)) (m : Type v → Type w) [MonadExceptOf ε m] :
 namespace MonadExcept
 variable {ε : Type u} {m : Type v → Type w}
 
-@[inline] protected def orelse [MonadExcept ε m] {α : Type v} (t₁ t₂ : m α) : m α :=
-  tryCatch t₁ fun _ => t₂
+@[inline] protected def orElse [MonadExcept ε m] {α : Type v} (t₁ : m α) (t₂ : Unit → m α) : m α :=
+  tryCatch t₁ fun _ => t₂ ()
 
 instance [MonadExcept ε m] {α : Type v} : OrElse (m α) where
-  orElse := MonadExcept.orelse
+  orElse := MonadExcept.orElse
 
 end MonadExcept
 
@@ -1567,10 +1567,10 @@ class Backtrackable (δ : outParam (Type u)) (σ : Type u) where
   | Result.error e s => handle e (Backtrackable.restore s d)
   | ok               => ok
 
-@[inline] protected def orElse {δ} [Backtrackable δ σ] (x₁ x₂ : EStateM ε σ α) : EStateM ε σ α := fun s =>
+@[inline] protected def orElse {δ} [Backtrackable δ σ] (x₁ : EStateM ε σ α) (x₂ : Unit → EStateM ε σ α) : EStateM ε σ α := fun s =>
   let d := Backtrackable.save s;
   match x₁ s with
-  | Result.error _ s => x₂ (Backtrackable.restore s d)
+  | Result.error _ s => x₂ () (Backtrackable.restore s d)
   | ok               => ok
 
 @[inline] def adaptExcept {ε' : Type u} (f : ε → ε') (x : EStateM ε σ α) : EStateM ε' σ α := fun s =>

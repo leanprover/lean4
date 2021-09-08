@@ -240,8 +240,8 @@ instance : MonadExcept Exception TacticM where
   throw    := throw
   tryCatch := Tactic.tryCatch
 
-@[inline] protected def orElse {α} (x y : TacticM α) : TacticM α := do
-  try x catch _ => y
+@[inline] protected def orElse {α} (x : TacticM α) (y : Unit → TacticM α) : TacticM α := do
+  try x catch _ => y ()
 
 instance {α} : OrElse (TacticM α) where
   orElse := Tactic.orElse

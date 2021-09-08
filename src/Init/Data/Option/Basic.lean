@@ -55,9 +55,9 @@ instance : Functor Option where
   | some a => p a
   | none   => false
 
-@[macroInline] protected def orElse : Option α → Option α → Option α
+@[macroInline] protected def orElse : Option α → (Unit → Option α) → Option α
   | some a, _ => some a
-  | none,   b => b
+  | none,   b => b ()
 
 instance : OrElse (Option α) where
   orElse := Option.orElse

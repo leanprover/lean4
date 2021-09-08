@@ -40,6 +40,8 @@ ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}: $
 	@echo "[    ] Building $@"
 	"${LEAN_BIN}/leanc" -shared -o $@ ${LEANSHARED_LINKER_FLAGS} ${LEANC_OPTS}
 
+leanshared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
+
 Leanpkg: Init Std Lean leanshared
 	+"${LEAN_BIN}/leanmake" bin PKG=Leanpkg BIN_NAME=leanpkg${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS='-lleanshared ${CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE}'
 

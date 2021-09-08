@@ -14,5 +14,3 @@ example (n : Nat) : Int.mul (Int.ofNat n) (Int.ofNat 0) = Int.ofNat (n * 0) := b
 
 example (n : Nat) : Int.mul (Int.ofNat n) 0 = Int.ofNat (n * 0) := by
   simp [Int.mul]
-  traceState
-  rfl

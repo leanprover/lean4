@@ -62,7 +62,7 @@
               x + 0
               ===>
               binop% HAdd.hAdd✝ x 0
-                x + 0 : Nat @ ⟨17, 35⟩†-⟨17, 40⟩ @ Lean.Elab.Term.BinOp.elabBinOp'
+                x + 0 : Nat @ ⟨17, 35⟩†-⟨17, 40⟩ @ Lean.Elab.Term.BinOp.elabBinOp
                   x : Nat @ ⟨17, 35⟩-⟨17, 36⟩ @ Lean.Elab.Term.elabIdent
                     x : Nat @ ⟨17, 35⟩-⟨17, 36⟩
                   0 : Nat @ ⟨17, 39⟩-⟨17, 40⟩ @ Lean.Elab.Term.elabNumLit
@@ -169,7 +169,7 @@
                   x + y
                   ===>
                   binop% HAdd.hAdd✝ x y
-                    x + y : Nat @ ⟨23, 19⟩†-⟨23, 24⟩ @ Lean.Elab.Term.BinOp.elabBinOp'
+                    x + y : Nat @ ⟨23, 19⟩†-⟨23, 24⟩ @ Lean.Elab.Term.BinOp.elabBinOp
                       x : Nat @ ⟨23, 19⟩-⟨23, 20⟩ @ Lean.Elab.Term.elabIdent
                         x : Nat @ ⟨23, 19⟩-⟨23, 20⟩
                       y : Nat @ ⟨23, 23⟩-⟨23, 24⟩ @ Lean.Elab.Term.elabIdent
@@ -179,7 +179,7 @@
                   x - y
                   ===>
                   binop% HSub.hSub✝ x y
-                    x - y : Nat @ ⟨23, 26⟩†-⟨23, 31⟩ @ Lean.Elab.Term.BinOp.elabBinOp'
+                    x - y : Nat @ ⟨23, 26⟩†-⟨23, 31⟩ @ Lean.Elab.Term.BinOp.elabBinOp
                       x : Nat @ ⟨23, 26⟩-⟨23, 27⟩ @ Lean.Elab.Term.elabIdent
                         x : Nat @ ⟨23, 26⟩-⟨23, 27⟩
                       y : Nat @ ⟨23, 30⟩-⟨23, 31⟩ @ Lean.Elab.Term.elabIdent
@@ -208,7 +208,7 @@
                 z + w
                 ===>
                 binop% HAdd.hAdd✝ z w
-                  z + w : Nat @ ⟨24, 14⟩†-⟨24, 19⟩ @ Lean.Elab.Term.BinOp.elabBinOp'
+                  z + w : Nat @ ⟨24, 14⟩†-⟨24, 19⟩ @ Lean.Elab.Term.BinOp.elabBinOp
                     z : Nat @ ⟨24, 14⟩-⟨24, 15⟩ @ Lean.Elab.Term.elabIdent
                       z : Nat @ ⟨24, 14⟩-⟨24, 15⟩
                     w : Nat @ ⟨24, 18⟩-⟨24, 19⟩ @ Lean.Elab.Term.elabIdent
@@ -219,7 +219,7 @@
                 z + z1
                 ===>
                 binop% HAdd.hAdd✝ z z1
-                  z + z1 : Nat @ ⟨25, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.BinOp.elabBinOp'
+                  z + z1 : Nat @ ⟨25, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.BinOp.elabBinOp
                     z : Nat @ ⟨25, 4⟩-⟨25, 5⟩ @ Lean.Elab.Term.elabIdent
                       z : Nat @ ⟨25, 4⟩-⟨25, 5⟩
                     z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabIdent

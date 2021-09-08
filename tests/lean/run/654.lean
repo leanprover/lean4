@@ -278,7 +278,7 @@ inductive CXCursorKind where
   | CXCursor_FirstExtraDecl
   | CXCursor_LastExtraDecl
   | CXCursor_OverloadCandidate
-  deriving BEq
+  deriving BEq, DecidableEq
 
 open CXCursorKind
 
@@ -286,3 +286,5 @@ example (h : CXCursor_CUDAGlobalAttr = CXCursor_CUDAHostAttr) : False := by
   contradiction
 
 #eval CXCursor_CUDAGlobalAttr == CXCursor_CUDAHostAttr
+
+#eval decide (CXCursor_CUDAGlobalAttr = CXCursor_CUDAHostAttr)

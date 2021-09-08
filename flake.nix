@@ -34,7 +34,7 @@
       packages = lean-packages // rec {
         debug = lean-packages.override { debug = true; };
         stage0debug = lean-packages.override { stage0debug = true; };
-        sanitized = lean-packages.override { extraCMakeFlags = [ "-DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined" "-DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined" "-DSMALL_ALLOCATOR=OFF" "-DSYMBOLIC_FUNCTIONS=OFF" ]; };
+        sanitized = lean-packages.override { extraCMakeFlags = [ "-DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined" "-DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined" "-DSMALL_ALLOCATOR=OFF" "-DSYMBOLIC=OFF" ]; };
         sandebug = sanitized.override { debug = true; };
         tsan = lean-packages.override {
           extraCMakeFlags = [ "-DLEAN_EXTRA_CXX_FLAGS=-fsanitize=thread" "-DLEANC_EXTRA_FLAGS=-fsanitize=thread" "-DCOMPRESSED_OBJECT_HEADER=OFF" ];

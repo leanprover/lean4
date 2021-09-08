@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # used only for building Lean itself
 root=$(dirname $0)
-ldflags=("-L$root/lib/lean" "${LEANC_GMP:--lgmp}" @LEAN_EXTRA_LINKER_FLAGS@)
+ldflags=("-L$root/lib" "-L$root/lib/lean" "${LEANC_GMP:--lgmp}" @LEAN_EXTRA_LINKER_FLAGS@ @LEANC_INTERNAL_LINKER_FLAGS@)
 for arg in "$@"; do
     # ccache doesn't like linker flags being passed here
     [[ "$arg" = "-c" ]] && ldflags=()
-    [[ "$arg" = "-v" ]] && set -x
+    [[ "$arg" = "-v" ]] && v=1
 done
-exec ${LEAN_CC:-@CMAKE_C_COMPILER@} "-I$root/include" @LEANC_EXTRA_FLAGS@ "$@" "${ldflags[@]}" -Wno-unused-command-line-argument
+cmd=(${LEAN_CC:-@CMAKE_C_COMPILER@} "-I$root/include" @LEANC_EXTRA_FLAGS@ @LEANC_INTERNAL_FLAGS@ "$@" "${ldflags[@]}" -Wno-unused-command-line-argument)
+cmd=$(printf '%q ' "${cmd[@]}" | sed "s!ROOT!$root!g")
+[[ $v == 1 ]] && printf '%q ' $cmd
+eval $cmd

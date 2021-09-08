@@ -22,11 +22,12 @@ jobs:
     strategy:
       matrix:
         include:
-          # portable release build: link most libraries statically and use channel with older glibc (2.27; LLVM 7)
+          # portable release build: use channel with older glibc (2.27)
           - name: Linux release
             os: ubuntu-latest
             release: true
             shell: nix-shell --arg pkgs "import (fetchTarball \"channel:nixos-19.03\") {{}}" --argstr llvmPackages latest --run "bash -euxo pipefail {0}"
+            llvm-url: https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.0/clang+llvm-13.0.0-x86_64-linux-gnu-ubuntu-16.04.tar.xz
           - name: Linux
             os: ubuntu-latest
             check-stage3: true
@@ -100,18 +101,23 @@ jobs:
         run: |
           mkdir build
           cd build
-          OPTIONS=
+          OPTIONS=()
+          if [[ '${{ matrix.llvm-url }}' && "${{ matrix.name }}" == "Linux release" ]]; then
+            wget -q ${{ matrix.llvm-url }}
+            eval "OPTIONS+=($(../script/prepare-llvm-linux.sh clang*.tar.*))"
+          fi
           if [[ $GITHUB_EVENT_NAME == 'schedule' && -n '${{ matrix.release }}' && -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
             git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
             git fetch nightly --tags
             LEAN_VERSION_STRING="nightly-$(date -u +%F)"
             # do nothing if commit already has a different tag
             if [[ $(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || echo $LEAN_VERSION_STRING) == $LEAN_VERSION_STRING ]]; then
-              OPTIONS=-DLEAN_SPECIAL_VERSION_DESC=$LEAN_VERSION_STRING
+              OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=$LEAN_VERSION_STRING)
               echo "LEAN_VERSION_STRING=$LEAN_VERSION_STRING" >> $GITHUB_ENV
             fi
           fi
-          cmake .. ${{ matrix.CMAKE_OPTIONS }} $OPTIONS
+          # contortion to support empty OPTIONS with old macOS bash
+          cmake .. ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"}
           make -j4
       # de-Nix-ify binaries
       - name: Patch

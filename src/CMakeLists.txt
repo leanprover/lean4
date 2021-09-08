@@ -20,6 +20,7 @@ endif()
 
 set(LEAN_EXTRA_LINKER_FLAGS "" CACHE STRING "Additional flags used by the linker")
 set(LEAN_EXTRA_CXX_FLAGS "" CACHE STRING "Additional flags used by the C++ compiler")
+set(LEAN_TEST_VARS "LEAN_CC=${CMAKE_C_COMPILER}" CACHE STRING "Additional environment variables used when running tests")
 
 if (NOT CMAKE_BUILD_TYPE)
   message(STATUS "No build type selected, default to Release")
@@ -276,7 +277,7 @@ else()
   set(LEANC_STATIC_LINKER_FLAGS "-Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lStd -lleanrt -Wl,--end-group")
 endif()
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR "${LEAN_USE_LIBCXX}")
   set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -lc++")
   set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -lc++")
 else()
@@ -303,7 +304,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_LINKER_FLAGS} -ldl")
+  set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -ldl")
 endif()
 
 if(NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
@@ -387,7 +388,7 @@ include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" head
 string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
 # These are used in lean.mk (and libleanrt) and passed through by stdlib.make
 # They are not embedded into `leanc` since they are build profile/machine specific
-set(LEANC_OPTS "${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
+set(LEANC_OPTS "${LEANC_OPTS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
 if(CMAKE_OSX_SYSROOT)
   string(APPEND LEANC_OPTS " ${CMAKE_CXX_SYSROOT_FLAG}${CMAKE_OSX_SYSROOT}")
 endif()

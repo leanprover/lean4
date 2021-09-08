@@ -371,7 +371,8 @@ def dbgTraceState (label : String) (p : Parser) : Parser where
   fn   := andthenFn p.fn q.fn
 }
 
-instance : AndThen Parser := ⟨andthen⟩
+instance : AndThen Parser where
+  andThen a b := andthen a (b ())
 
 @[inline] def nodeFn (n : SyntaxNodeKind) (p : ParserFn) : ParserFn := fun c s =>
   let iniSz := s.stackSize

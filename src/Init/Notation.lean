@@ -129,15 +129,15 @@ notation:max "!" b:40 => not b
 
 infixr:67 " :: " => List.cons
 syntax:20 term:21 " <|> " term:20 : term
-infixr:60  " >> "  => HAndThen.hAndThen
+syntax:60 term:61 " >> " term:60 : term
 infixl:55  " >>= " => Bind.bind
-infixl:60  " <*> " => Seq.seq
-infixl:60  " <* "  => SeqLeft.seqLeft
-infixr:60  " *> "  => SeqRight.seqRight
+notation:60 a:60 " <*> " b:61 => Seq.seq a fun _ : Unit => b
+notation:60 a:60 " <* " b:61 => SeqLeft.seqLeft a fun _ : Unit => b
+notation:60 a:60 " *> " b:61 => SeqRight.seqRight a fun _ : Unit => b
 infixr:100 " <$> " => Functor.map
 
 macro_rules | `($x <|> $y) => `(binop_lazy% HOrElse.hOrElse $x $y)
-macro_rules | `($x >> $y)  => `(binop% HAndThen.hAndThen $x $y)
+macro_rules | `($x >> $y)  => `(binop_lazy% HAndThen.hAndThen $x $y)
 
 syntax (name := termDepIfThenElse) ppGroup(ppDedent("if " ident " : " term " then" ppSpace term ppDedent(ppSpace "else") ppSpace term)) : term
 

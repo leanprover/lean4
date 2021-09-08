@@ -108,6 +108,8 @@ pure ()
 
 #eval tst6
 
+instance : Coe Name FVarId where
+  coe n := { name := n }
 
 def tst7 : IO Unit := do
 let x := mkFVar `x;

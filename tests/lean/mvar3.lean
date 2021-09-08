@@ -28,6 +28,12 @@ def natE  := mkConst `Nat
 def boolE := mkConst `Bool
 def vecE  := mkConst `Vec [levelZero]
 
+instance : Coe Name FVarId where
+  coe n := { name := n }
+
+instance : Coe Name MVarId where
+  coe n := { name := n }
+
 def α := mkFVar `α
 def x := mkFVar `x
 def y := mkFVar `y
@@ -62,10 +68,13 @@ def mctx5 := R1.1
 def sortNames (xs : List Name) : List Name :=
 (xs.toArray.qsort Name.lt).toList
 
-def sortNamePairs {α} [Inhabited α] (xs : List (Name × α)) : List (Name × α) :=
-(xs.toArray.qsort (fun a b => Name.lt a.1 b.1)).toList
+instance : ToString MVarId where
+  toString m := toString m.name
 
-#eval toString $ sortNames $ mctx5.decls.toList.map Prod.fst
+def sortNamePairs {α} [Inhabited α] (xs : List (MVarId × α)) : List (MVarId × α) :=
+(xs.toArray.qsort (fun a b => Name.lt a.1.name b.1.name)).toList
+
+#eval toString $ sortNames $ mctx5.decls.toList.map (·.1.name)
 #eval toString $ sortNamePairs $ mctx5.eAssignment.toList
 #eval e1
 #eval check (!e1.hasFVar)
@@ -77,10 +86,10 @@ match mkLambdaTest mctx4' {namePrefix := `n} lctx4 #[α, x, y] $ mkAppN f #[m3, 
 def e2    := R2.2.2
 def mctx6 := R2.1
 
-#eval toString $ sortNames $ mctx6.decls.toList.map Prod.fst
+#eval toString $ sortNames $ mctx6.decls.toList.map (·.1.name)
 #eval toString $ sortNamePairs $ mctx6.eAssignment.toList
 -- ?n.2 was delayed assigned because ?m.3 is synthetic
-#eval toString $ sortNames $ mctx6.dAssignment.toList.map Prod.fst
+#eval toString $ sortNames $ mctx6.dAssignment.toList.map (·.1.name)
 #eval e2
 
 #print "assigning ?m1 and ?n.1"

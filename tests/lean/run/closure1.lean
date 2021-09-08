@@ -15,6 +15,12 @@ def printDef (declName : Name) : MetaM Unit := do
 let cinfo ← getConstInfo declName;
 trace[Meta.debug] cinfo.value!
 
+instance : Coe Name FVarId where
+  coe n := { name := n }
+
+instance : Coe Name MVarId where
+  coe n := { name := n }
+
 def tst1 : MetaM Unit := do
 let u := mkLevelParam `u
 let v := mkLevelMVar  `v

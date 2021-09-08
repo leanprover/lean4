@@ -22,6 +22,12 @@ def natE  := mkConst `Nat []
 def boolE := mkConst `Bool []
 def vecE  := mkConst `Vec [levelZero]
 
+instance : Coe Name FVarId where
+  coe n := { name := n }
+
+instance : Coe Name MVarId where
+  coe n := { name := n }
+
 def α := mkFVar `α
 def x := mkFVar `x
 def y := mkFVar `y

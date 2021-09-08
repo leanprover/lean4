@@ -13,6 +13,7 @@ It is easy to install all dependencies, it produces native
 
 [The official webpage of MSYS2][msys2] provides one-click installers.
 Once installed, you should run the "MSYS2 MinGW 64-bit shell" from the start menu.
+(The one that runs `mingw64.exe`)
 Do not run "MSYS2 MSYS" instead!
 MSYS2 has a package management system, [pacman][pacman], which is used in Arch Linux.
 
@@ -20,12 +21,6 @@ Here are the commands to install all dependencies needed to compile Lean on your
 
 ```bash
 pacman -S make mingw-w64-x86_64-cmake mingw-w64-x86_64-ccache mingw-w64-x86_64-gcc git
-```
-
-Then make sure the following is included in your PATH:
-
-```bash
-export PATH=$PATH:/mingw64/bin
 ```
 
 You should now be able to run these commands:
@@ -63,3 +58,27 @@ The following linux command will do that:
 ```bash
 cp $(ldd lean.exe | cut -f3 -d' ' | grep mingw) .
 ```
+
+## Trouble shooting
+
+**-bash: gcc: command not found**
+
+Make sure `/mingw64/bin` is in your PATH environment.  If it is not then
+check you launched the MSYS2 MinGW 64-bit shell from the start menu.
+(The one that runs `mingw64.exe`).
+
+**file INSTALL cannot make directory "C:/Program Files (x86)/LEAN/include/lean": No such file or directory**
+
+If you get this error from `make install` or `ninja install` then it
+may be a permissions issue since the default "C:/Program Files
+(x86)/LEAN" install target folder is not writable by non-admin users.
+If you really want lean installed there then try running `make
+install` from an admin command prompt.  
+
+If you want to change the default install location use this command line:
+```
+cmake ../.. -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=~/lean4
+```
+This will move the lean4 installation location to your home folder which is
+writable by default.  Note that you have to delete any previous `build/release` folder you created otherwise the new CMAKE_INSTALL_PREFIX will not
+be used.

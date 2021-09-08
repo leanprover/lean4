@@ -104,17 +104,23 @@ def mkDecEq (declName : Name) : CommandElabM Bool := do
     cmds.forM elabCommand
     return true
 
-def mkEnumOfNat (declName : Name) : MetaM Unit := do
+partial def mkEnumOfNat (declName : Name) : MetaM Unit := do
   let indVal ← getConstInfoInduct declName
   let enumType := mkConst declName
   let ctors := indVal.ctors.toArray
   withLocalDeclD `n (mkConst ``Nat) fun n => do
     let cond := mkConst ``cond [levelZero]
-    let mut value := mkConst ctors.back
-    for i in [:ctors.size-1] do
-      let j := ctors.size - i - 2
-      value := mkApp4 cond enumType (mkApp2 (mkConst ``Nat.beq) n (mkNatLit j)) (mkConst ctors[j]) value
-    value ← mkLambdaFVars #[n] value
+    let rec mkDecTree (low high : Nat) : Expr :=
+      if low + 1 == high then
+        mkConst ctors[low]
+      else if low + 2 == high then
+        mkApp4 cond enumType (mkApp2 (mkConst ``Nat.beq) n (mkRawNatLit low)) (mkConst ctors[low]) (mkConst ctors[low+1])
+      else
+        let mid := (low + high)/2
+        let lowBranch := mkDecTree low mid
+        let highBranch := mkDecTree mid high
+        mkApp4 cond enumType (mkApp2 (mkConst ``Nat.ble) (mkRawNatLit mid) n) highBranch lowBranch
+    let value ← mkLambdaFVars #[n] (mkDecTree 0 ctors.size)
     let type ← mkArrow (mkConst ``Nat) enumType
     addAndCompile <| Declaration.defnDecl {
       name := Name.mkStr declName "ofNat"

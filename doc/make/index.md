@@ -30,6 +30,14 @@ cmake ../..
 make
 ```
 
+Note: that if you have a CPU with lots of cores you will get a faster
+build if you specify the number of parallel jobs using the `-j n`
+option on make.
+
+For example, on an AMD Ryzen 9 `make` takes 00:04:55, whereas `make -j 10`
+takes 00:01:38.  Your results may vary depending on the speed of your hard
+drive.
+
 Setting up a basic debug build:
 
 ```bash
@@ -44,6 +52,10 @@ make
 This will compile the Lean library and binary into the `stage1` subfolder; see
 below for details. Add `-jN` for an appropriate `N` to `make` for a parallel
 build.
+
+To install the build see [Dev setup using
+elan](index.md#dev-setup-using-elan) below.
+
 
 Useful CMake Configuration Settings
 -----------------------------------
@@ -179,7 +191,7 @@ affect later stages. This is an issue in two specific cases.
 
   For an example, see https://github.com/leanprover/lean4/commit/f9dcbbddc48ccab22c7674ba20c5f409823b4cc1#diff-371387aed38bb02bf7761084fd9460e4168ae16d1ffe5de041b47d3ad2d22422
   (from before the flag defaulted to `false`).
-  
+
 To modify either of these flags both for building and editing the stdlib, adjust
 the code in `stage0/src/stdlib_flags.h`. The flags will automatically be reset
 on the next `update-stage0` when the file is overwritten with the original

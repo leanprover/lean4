@@ -13,19 +13,14 @@ It is easy to install all dependencies, it produces native
 
 [The official webpage of MSYS2][msys2] provides one-click installers.
 Once installed, you should run the "MSYS2 MinGW 64-bit shell" from the start menu.
+(The one that runs `mingw64.exe`)
 Do not run "MSYS2 MSYS" instead!
 MSYS2 has a package management system, [pacman][pacman], which is used in Arch Linux.
 
 Here are the commands to install all dependencies needed to compile Lean on your machine.
 
 ```bash
-pacman -S make mingw-w64-x86_64-cmake mingw-w64-x86_64-ccache mingw-w64-x86_64-gcc git
-```
-
-Then make sure the following is included in your PATH:
-
-```bash
-export PATH=$PATH:/mingw64/bin
+pacman -S make mingw-w64-x86_64-cmake mingw-w64-x86_64-ccache mingw-w64-x86_64-gcc git unzip
 ```
 
 You should now be able to run these commands:
@@ -35,15 +30,21 @@ gcc --version
 cmake --version
 ```
 
-Then follow the [generic build instructions](index.md) in the MSYS2 MinGW shell, using
-`cmake ../.. -G "Unix Makefiles"` instead of `cmake ../..`. This ensures that cmake will call `sh` instead
-of `cmd.exe` for script tasks.
+Then follow the [generic build instructions](index.md) in the MSYS2
+MinGW shell, using `cmake ../.. -G "Unix Makefiles"` instead of `cmake
+../..`. This ensures that cmake will call `sh` instead of `cmd.exe`
+for script tasks.
 
 ## Install lean
 
-You can use the `install` ninja/make target to install Lean into, by default,
-`./build/release/stage1/msys64/lean/`. To change this, add `-DCMAKE_INSTALL_PREFIX=path/you/want`
-to your initial cmake invocation.
+Follow the steps in [Dev setup using
+elan](index.md#dev-setup-using-elan) regarding installation of the
+bits you just built.  Note that in an msys2 environment `elan-init.sh`
+reports you need to add `%USERPROFILE%\.elan\bin` to your path, but of
+course in msys2 that needs to be a valid linux style path, like this:
+```bash
+export PATH="$PATH:/c/users/$USERNAME/.elan/bin"
+```
 
 ## Running
 
@@ -63,3 +64,11 @@ The following linux command will do that:
 ```bash
 cp $(ldd lean.exe | cut -f3 -d' ' | grep mingw) .
 ```
+
+## Trouble shooting
+
+**-bash: gcc: command not found**
+
+Make sure `/mingw64/bin` is in your PATH environment.  If it is not then
+check you launched the MSYS2 MinGW 64-bit shell from the start menu.
+(The one that runs `mingw64.exe`).

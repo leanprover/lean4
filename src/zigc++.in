@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+${ZIG_ROOT}/zig c++ ${ZIG_ARGS} "$@"

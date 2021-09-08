@@ -64,6 +64,15 @@ option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current ver
 
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
 set(LEANC_CC              "cc"                         CACHE STRING "C compiler to use in `leanc`")
+set(ZIG_ROOT              ""                           CACHE STRING "Zig compiler to use for compilation")
+
+if (ZIG_ROOT)
+  configure_file(zigcc.in zigcc)
+  set(CMAKE_C_COMPILER ${CMAKE_BINARY_DIR}/zigcc)
+  configure_file(zigc++.in zigc++)
+  set(CMAKE_CXX_COMPILER ${CMAKE_BINARY_DIR}/zigc++)
+  set(CMAKE_CXX_COMPILER_ID Clang)
+endif()
 
 if ("${FAKE_FREE}" MATCHES "ON")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_FAKE_FREE")
@@ -245,6 +254,9 @@ if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
 else()
   # GMP
   find_package(GMP 5.0.5 REQUIRED)
+  # without this, cmake removes the include below inside a Nix shell because it is in CMAKE_INCLUDE_PATH,
+  # but without it Zig won't find GMP because it doesn't use NIX_CFLAGS_COMPILE
+  unset(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES)
   include_directories(${GMP_INCLUDE_DIR})
   # dlopen
   set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
@@ -264,8 +276,6 @@ endif()
 # Python
 find_package(PythonInterp)
 
-include_directories(${CMAKE_BINARY_DIR}/include)
-
 # libleancpp/Lean as well as libleanrt/Init/Std are cyclically dependent. This works by default on macOS, which also doesn't like
 # the linker flags necessary on other platforms.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -276,7 +286,7 @@ else()
   set(LEANC_STATIC_LINKER_FLAGS "-Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lStd -lleanrt -Wl,--end-group")
 endif()
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR ZIG_ROOT)
   set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -lc++")
   set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -lc++")
 else()
@@ -430,7 +440,10 @@ string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
 # These are used in lean.mk and passed through by stdlib.make
 set(LEANC_OPTS "${LEANC_OPTS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}} ${CMAKE_CXX_SYSROOT_FLAG}${CMAKE_OSX_SYSROOT} ${CMAKE_CXX_OSX_DEPLOYMENT_TARGET_FLAG}${CMAKE_OSX_DEPLOYMENT_TARGET}")
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if(ZIG_ROOT)
+  # workaround for `--whole-archive` missing from `zig ld`
+  set(LEANSHARED_LINKER_FLAGS "`find ${CMAKE_BINARY_DIR} -regextype posix-extended -regex '.*/(Leanpkg|runtmp|shell).*' -prune -o -name '*.o' -print` ${LEANSHARED_LINKER_FLAGS}")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(LEANSHARED_LINKER_FLAGS "-Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libInit.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libStd.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLean.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")
 else()
   set(LEANSHARED_LINKER_FLAGS "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp -Wl,--no-whole-archive ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")

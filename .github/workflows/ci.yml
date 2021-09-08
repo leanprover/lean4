@@ -22,11 +22,13 @@ jobs:
     strategy:
       matrix:
         include:
-          # portable release build: link most libraries statically and use channel with older glibc (2.27; LLVM 7)
           - name: Linux release
             os: ubuntu-latest
             release: true
-            shell: nix-shell --arg pkgs "import (fetchTarball \"channel:nixos-19.03\") {{}}" --argstr llvmPackages latest --run "bash -euxo pipefail {0}"
+            zig-url: https://ziglang.org/download/0.8.1/zig-linux-x86_64-0.8.1.tar.xz
+            # link against older glibc for compatibility
+            ZIG_ARGS: -target x86_64-linux-gnu.2.15
+          # separate job because Zig can't build stage 2 (yet)
           - name: Linux
             os: ubuntu-latest
             check-stage3: true
@@ -44,6 +46,7 @@ jobs:
             shell: bash -euxo pipefail {0}
             # Mojave, oldest maintained version as of 2021
             CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14
+            zig-url: https://ziglang.org/download/0.8.1/zig-macos-x86_64-0.8.1.tar.xz
           - name: Windows
             os: windows-2022
             release: true
@@ -51,6 +54,7 @@ jobs:
             CMAKE_OPTIONS: -G "Unix Makefiles" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
             # for reasons unknown, interactivetests are flaky on Windows
             CTEST_OPTIONS: --repeat until-pass:2
+            zig-url: https://ziglang.org/download/0.8.1/zig-windows-x86_64-0.8.1.zip
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}
@@ -99,18 +103,24 @@ jobs:
         run: |
           mkdir build
           cd build
-          OPTIONS=
+          OPTIONS=()
+          if [ -n "${{ matrix.zig-url }}" ]; then
+             wget -q ${{ matrix.zig-url }}
+             [ -e "zig-*.zip" ] && unzip zig-* || tar xf zig-*
+             find . -type d -name 'zig-*' -exec mv {} zig \; -prune
+             OPTIONS+=(-DZIG_ROOT=$PWD/zig -DZIG_ARGS='${{ matrix.ZIG_ARGS }}' -DLEANC_CC='./zig/zig cc ${{ matrix.ZIG_ARGS }}')
+          fi
           if [[ $GITHUB_EVENT_NAME == 'schedule' && -n '${{ matrix.release }}' && -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
             git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
             git fetch nightly --tags
             LEAN_VERSION_STRING="nightly-$(date -u +%F)"
             # do nothing if commit already has a different tag
             if [[ $(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || echo $LEAN_VERSION_STRING) == $LEAN_VERSION_STRING ]]; then
-              OPTIONS=-DLEAN_SPECIAL_VERSION_DESC=$LEAN_VERSION_STRING
+              OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=$LEAN_VERSION_STRING)
               echo "LEAN_VERSION_STRING=$LEAN_VERSION_STRING" >> $GITHUB_ENV
             fi
           fi
-          cmake .. ${{ matrix.CMAKE_OPTIONS }} $OPTIONS
+          cmake .. ${{ matrix.CMAKE_OPTIONS }} "${OPTIONS[@]}"
           make -j4
       # de-Nix-ify binaries
       - name: Patch
@@ -146,6 +156,10 @@ jobs:
           cp $(ldd bin/lean.exe | cut -f3 -d' ' | grep mingw) bin/
           ldd bin/lean.exe
           ls -l bin/
+      - name: Take Off Every Zig
+        run: |
+          cp -r build/zig/ build/stage1/bin
+        if: matrix.release
       - name: Test Binary without Nix Shell
         if: matrix.name != 'Windows'
         shell: bash {0}
